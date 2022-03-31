@@ -8,6 +8,7 @@
     "url": "https://github.com/swim-io/swim-ts-monorepo"
   },
   "workspaces": [
+    "apps/*",
     "packages/*"
   ],
   "packageManager": "yarn@3.2.0",

@@ -2200,9 +2200,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim/example-ui@workspace:packages/example-ui":
+"@swim/example-ui@workspace:apps/example-ui":
   version: 0.0.0-use.local
-  resolution: "@swim/example-ui@workspace:packages/example-ui"
+  resolution: "@swim/example-ui@workspace:apps/example-ui"
   dependencies:
     "@swim/example-lib": "workspace:packages/example-lib"
     "@testing-library/jest-dom": ^5.16.3

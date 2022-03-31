@@ -18,6 +18,7 @@
   },
   "scripts": {
     "format": "yarn workspaces foreach --topological-dev --parallel --verbose run format",
+    "build": "yarn workspaces foreach --topological-dev --parallel --verbose run build",
     "publish-next": "yarn workspaces foreach --no-private exec yarn npm publish --tag next",
     "publish-latest": "yarn workspaces foreach --no-private exec yarn npm publish"
   },

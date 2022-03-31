@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules/
 
 # Yarn
 .yarn/*
@@ -11,12 +11,6 @@
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
-
-# testing
-/coverage
-
-# production
-/build
 
 # misc
 .DS_Store
@@ -32,6 +26,7 @@ yarn-error.log*
 
 # IDE
 /.vscode
+/.tmp
 /tmp
 
 # deployment
@@ -40,4 +35,4 @@ yarn-error.log*
 .env.bak
 
 # Solana
-/test-ledger
+test-ledger/

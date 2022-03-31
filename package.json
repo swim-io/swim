@@ -12,6 +12,10 @@
     "packages/*"
   ],
   "packageManager": "yarn@3.2.0",
+  "engines": {
+    "node": ">=14",
+    "yarn": "^3.2"
+  },
   "resolutions": {
     "@types/eslint": "^7.28.2"
   }

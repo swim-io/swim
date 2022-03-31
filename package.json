@@ -16,6 +16,9 @@
     "node": ">=14",
     "yarn": "^3.2"
   },
+  "scripts": {
+    "format": "yarn workspaces foreach --topological-dev --parallel --verbose run format"
+  },
   "resolutions": {
     "@types/eslint": "^7.28.2"
   }

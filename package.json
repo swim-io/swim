@@ -17,7 +17,9 @@
     "yarn": "^3.2"
   },
   "scripts": {
-    "format": "yarn workspaces foreach --topological-dev --parallel --verbose run format"
+    "format": "yarn workspaces foreach --topological-dev --parallel --verbose run format",
+    "publish-next": "yarn workspaces foreach --no-private exec yarn npm publish --tag next",
+    "publish-latest": "yarn workspaces foreach --no-private exec yarn npm publish"
   },
   "resolutions": {
     "@types/eslint": "^7.28.2"

@@ -222,6 +222,102 @@ const mainnetTokens: readonly TokenSpec[] = [
       ],
     ]),
   },
+  {
+    id: "mainnet-avalanche-usdc",
+    symbol: USDC_SYMBOL,
+    displayName: USDC_NAME,
+    icon: USDC_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Avalanche,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Avalanche,
+        {
+          address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "", // TODO: Find real address
+          decimals: 6, // TODO: Find real decimals
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-avalanche-usdt",
+    symbol: USDT_SYMBOL,
+    displayName: USDT_NAME,
+    icon: USDT_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Avalanche,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Avalanche,
+        {
+          address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "", // TODO: Find real address
+          decimals: 6, // TODO: Find real decimals
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-polygon-usdc",
+    symbol: USDC_SYMBOL,
+    displayName: USDC_NAME,
+    icon: USDC_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Polygon,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Polygon,
+        {
+          address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "", // TODO: Find real address
+          decimals: 6, // TODO: Find real decimals
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-polygon-usdt",
+    symbol: USDT_SYMBOL,
+    displayName: USDT_NAME,
+    icon: USDT_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Polygon,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Polygon,
+        {
+          address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "", // TODO: Find real address
+          decimals: 6, // TODO: Find real decimals
+        },
+      ],
+    ]),
+  },
 ];
 
 const devnetTokens: readonly TokenSpec[] = [

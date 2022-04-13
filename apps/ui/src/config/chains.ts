@@ -222,6 +222,28 @@ const devnetChains: ChainsByProtocol = {
         tokenBridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09",
       },
     },
+    {
+      ecosystem: EcosystemId.Avalanche,
+      chainId: EvmChainId.AvalancheTestnet,
+      chainName: "Avalanche Testnet",
+      nativeCurrency: AVALANCHE_NATIVE_CURRENCY,
+      rpcUrls: ["https://api.avax-test.network/ext/bc/C/rpc"],
+      wormhole: {
+        bridge: "0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C",
+        tokenBridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Polygon,
+      chainId: EvmChainId.PolygonTestnet,
+      chainName: "Polygon Testnet",
+      nativeCurrency: POLYGON_NATIVE_CURRENCY,
+      rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
+      wormhole: {
+        bridge: "0x0CBE91CF822c73C2315FB05100C2F714765d5c20",
+        tokenBridge: "0x377D55a7928c046E18eEbb61977e714d2a76472a",
+      },
+    },
   ],
   [Protocol.Cosmos]: [],
 };

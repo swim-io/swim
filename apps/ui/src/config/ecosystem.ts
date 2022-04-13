@@ -38,13 +38,21 @@ export type SolanaEcosystemId = Extract<EcosystemId, EcosystemId.Solana>;
 
 export type EvmEcosystemId = Extract<
   EcosystemId,
-  EcosystemId.Ethereum | EcosystemId.Bsc
+  | EcosystemId.Ethereum
+  | EcosystemId.Bsc
+  | EcosystemId.Avalanche
+  | EcosystemId.Polygon
 >;
 
 export const isEvmEcosystemId = (
   ecosystemId: EcosystemId,
 ): ecosystemId is EvmEcosystemId =>
-  [EcosystemId.Ethereum, EcosystemId.Bsc].includes(ecosystemId);
+  [
+    EcosystemId.Ethereum,
+    EcosystemId.Bsc,
+    EcosystemId.Avalanche,
+    EcosystemId.Polygon,
+  ].includes(ecosystemId);
 
 export type CosmosEcosystemId = Extract<EcosystemId, EcosystemId.Terra>;
 

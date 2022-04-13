@@ -16,11 +16,15 @@ export const useEvmTxFeesEstimates = (
     useEvmTxFeesEstimateQuery(EcosystemId.Ethereum, interaction);
   const { data: bscEstimate = null, isSuccess: bscIsSuccess } =
     useEvmTxFeesEstimateQuery(EcosystemId.Bsc, interaction);
+  const avalancheEstimate = null;
+  const polygonEstimate = null;
 
   return {
     estimates: {
       [EcosystemId.Ethereum]: ethereumEstimate,
       [EcosystemId.Bsc]: bscEstimate,
+      [EcosystemId.Avalanche]: avalancheEstimate,
+      [EcosystemId.Polygon]: polygonEstimate,
     },
     isSuccess: ethereumIsSuccess && bscIsSuccess,
   };

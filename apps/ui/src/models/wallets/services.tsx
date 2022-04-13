@@ -1,7 +1,8 @@
 import { EuiButtonIcon } from "@elastic/eui";
 import type { ReactElement } from "react";
 
-import { EcosystemId } from "../../config";
+import type { Ecosystem } from "../../config";
+import { EcosystemId, ecosystems } from "../../config";
 import LEDGER_ICON from "../../images/wallets/ledger.svg";
 import MATHWALLET_ICON from "../../images/wallets/mathwallet.svg";
 import METAMASK_ICON from "../../images/wallets/metamask.svg";
@@ -73,45 +74,75 @@ const metaMaskInfo: WalletServiceInfo = {
   icon: METAMASK_ICON,
 };
 
-const bscMetaMaskInfo = Object.assign(
-  {
+const addHelpTextToMetaMaskInfo = (
+  info: WalletServiceInfo,
+  ecosystem: Ecosystem,
+  url: string,
+): WalletServiceInfo => {
+  const title = `How to add ${ecosystem.displayName} to Metamask`;
+  return {
+    ...info,
     helpText: (
       <EuiButtonIcon
         iconType="questionInCircle"
-        aria-label="How to add BNB Chain to Metamask"
-        title="How to add BNB Chain to Metamask"
-        href="https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain"
+        aria-label={title}
+        title={title}
+        href={url}
         target="_blank"
         iconSize="m"
       />
     ),
-  },
+  };
+};
+
+const bscMetaMaskInfo = addHelpTextToMetaMaskInfo(
   metaMaskInfo,
+  ecosystems[EcosystemId.Bsc],
+  "https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain",
+);
+const avalancheMetaMaskInfo = addHelpTextToMetaMaskInfo(
+  metaMaskInfo,
+  ecosystems[EcosystemId.Avalanche],
+  "https://support.avax.network/en/articles/4626956-how-do-i-set-up-metamask-on-avalanche",
+);
+const polygonMetaMaskInfo = addHelpTextToMetaMaskInfo(
+  metaMaskInfo,
+  ecosystems[EcosystemId.Polygon],
+  "https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/",
 );
 
-const { bsc, ethereum, solana } = adapters;
+const { avalanche, bsc, ethereum, polygon, solana } = adapters;
 
+export const ETHEREUM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
+  [
+    {
+      id: "metamask",
+      info: metaMaskInfo,
+      adapter: ethereum.MetaMaskAdapter,
+    },
+  ];
 export const BSC_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] = [
   {
     id: "metamask",
     info: bscMetaMaskInfo,
     adapter: bsc.MetaMaskAdapter,
   },
-  // {
-  //   id: "mathwallet",
-  //   info: mathWalletInfo,
-  //   adapter: bsc.MathWalletAdapter,
-  // },
 ];
-
-export const ETHEREUM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
+export const AVALANCHE_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
   [
-    { id: "metamask", info: metaMaskInfo, adapter: ethereum.MetaMaskAdapter },
-    // {
-    //   id: "mathwallet",
-    //   info: mathWalletInfo,
-    //   adapter: ethereum.MathWalletAdapter,
-    // },
+    {
+      id: "metamask",
+      info: avalancheMetaMaskInfo,
+      adapter: avalanche.MetaMaskAdapter,
+    },
+  ];
+export const POLYGON_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
+  [
+    {
+      id: "metamask",
+      info: polygonMetaMaskInfo,
+      adapter: polygon.MetaMaskAdapter,
+    },
   ];
 
 export const SOLANA_WALLET_SERVICES: readonly SolanaWalletService<SolanaWalletAdapter>[] =
@@ -133,6 +164,6 @@ export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {
   [EcosystemId.Ethereum]: ETHEREUM_WALLET_SERVICES,
   [EcosystemId.Terra]: [],
   [EcosystemId.Bsc]: BSC_WALLET_SERVICES,
-  [EcosystemId.Avalanche]: [],
-  [EcosystemId.Polygon]: [],
+  [EcosystemId.Avalanche]: AVALANCHE_WALLET_SERVICES,
+  [EcosystemId.Polygon]: POLYGON_WALLET_SERVICES,
 };

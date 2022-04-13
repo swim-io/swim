@@ -13,3 +13,13 @@ export const bscAdapters = {
   MathWalletAdapter,
   MetaMaskAdapter,
 };
+
+export const avalancheAdapters = {
+  MathWalletAdapter,
+  MetaMaskAdapter,
+};
+
+export const polygonAdapters = {
+  MathWalletAdapter,
+  MetaMaskAdapter,
+};

@@ -15,12 +15,16 @@ import { Fragment } from "react";
 import { EcosystemId } from "../config";
 import { useConfig } from "../contexts";
 import { useWallets } from "../hooks";
+import AVALANCHE_SVG from "../images/avalanche.svg";
 import BSC_SVG from "../images/bsc.svg";
 import ETHEREUM_SVG from "../images/ethereum.svg";
+import POLYGON_SVG from "../images/polygon.svg";
 import SOLANA_SVG from "../images/solana.svg";
 import {
+  AVALANCHE_WALLET_SERVICES,
   BSC_WALLET_SERVICES,
   ETHEREUM_WALLET_SERVICES,
+  POLYGON_WALLET_SERVICES,
   SOLANA_WALLET_SERVICES,
 } from "../models";
 import type { WalletService } from "../models";
@@ -136,12 +140,14 @@ export interface MultiWalletModalProps {
 export const MultiWalletModal = ({
   handleClose,
 }: MultiWalletModalProps): ReactElement => {
-  const { solana, ethereum, bsc } = useWallets();
+  const { solana, ethereum, bsc, avalanche, polygon } = useWallets();
 
   const { ecosystems } = useConfig();
   const solanaEcosystem = ecosystems[EcosystemId.Solana];
   const ethereumEcosystem = ecosystems[EcosystemId.Ethereum];
   const bscEcosystem = ecosystems[EcosystemId.Bsc];
+  const avalancheEcosystem = ecosystems[EcosystemId.Avalanche];
+  const polygonEcosystem = ecosystems[EcosystemId.Polygon];
 
   return (
     <CustomModal onClose={handleClose}>
@@ -181,6 +187,24 @@ export const MultiWalletModal = ({
             walletServices={BSC_WALLET_SERVICES}
             ecosystemId={EcosystemId.Bsc}
             createServiceClickHandler={bsc.createServiceClickHandler}
+          />
+          <EcosystemWalletOptionsList
+            address={avalanche.address}
+            connected={avalanche.connected}
+            icon={AVALANCHE_SVG}
+            ecosystemName={avalancheEcosystem.displayName}
+            walletServices={AVALANCHE_WALLET_SERVICES}
+            ecosystemId={EcosystemId.Avalanche}
+            createServiceClickHandler={avalanche.createServiceClickHandler}
+          />
+          <EcosystemWalletOptionsList
+            address={polygon.address}
+            connected={polygon.connected}
+            icon={POLYGON_SVG}
+            ecosystemName={polygonEcosystem.displayName}
+            walletServices={POLYGON_WALLET_SERVICES}
+            ecosystemId={EcosystemId.Polygon}
+            createServiceClickHandler={polygon.createServiceClickHandler}
           />
         </EuiFlexGroup>
       </EuiModalBody>

@@ -33,8 +33,8 @@ const envToEcosystemToChainId: ReadonlyRecord<
   [Env.Mainnet]: {
     [EcosystemId.Ethereum]: EvmChainId.EthereumMainnet,
     [EcosystemId.Bsc]: EvmChainId.BscMainnet,
-    [EcosystemId.Avalanche]: EvmChainId.BscMainnet,
-    [EcosystemId.Polygon]: EvmChainId.BscMainnet,
+    [EcosystemId.Avalanche]: EvmChainId.AvalancheMainnet,
+    [EcosystemId.Polygon]: EvmChainId.PolygonMainnet,
   },
   [Env.Devnet]: {
     [EcosystemId.Ethereum]: EvmChainId.EthereumGoerli,
@@ -86,8 +86,8 @@ const defaultEvmWalletContext: EvmWalletContextInterface = {
   wallet: null,
   address: null,
   connected: false,
-  select() {},
   service: null,
+  select: () => {},
   createServiceClickHandler: () => () => {},
 };
 

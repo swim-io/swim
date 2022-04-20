@@ -15,10 +15,14 @@ export const useMultipleUserBalances = (
     (accumulator, { detailsByEcosystem }) => {
       const solanaAddress =
         detailsByEcosystem.get(EcosystemId.Solana)?.address ?? null;
-      const ethereumAddress =
-        detailsByEcosystem.get(EcosystemId.Ethereum)?.address ?? null;
-      const bscAddress =
-        detailsByEcosystem.get(EcosystemId.Bsc)?.address ?? null;
+      const [ethereumAddress, bscAddress, avalancheAddress, polygonAddress] = [
+        EcosystemId.Ethereum,
+        EcosystemId.Bsc,
+        EcosystemId.Avalanche,
+        EcosystemId.Polygon,
+      ].map(
+        (ecosystemId) => detailsByEcosystem.get(ecosystemId)?.address ?? null,
+      );
       return {
         [EcosystemId.Solana]: solanaAddress
           ? [...accumulator.solana, solanaAddress]
@@ -30,8 +34,12 @@ export const useMultipleUserBalances = (
           ? [...accumulator.bsc, bscAddress]
           : accumulator.bsc,
         [EcosystemId.Terra]: [],
-        [EcosystemId.Avalanche]: [],
-        [EcosystemId.Polygon]: [],
+        [EcosystemId.Avalanche]: avalancheAddress
+          ? [...accumulator.avalanche, avalancheAddress]
+          : accumulator.avalanche,
+        [EcosystemId.Polygon]: polygonAddress
+          ? [...accumulator.polygon, polygonAddress]
+          : accumulator.polygon,
       };
     },
     {

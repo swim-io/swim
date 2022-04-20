@@ -91,11 +91,7 @@ const EcosystemWalletOptionsList = <W extends WalletService = WalletService>({
   createServiceClickHandler,
 }: EcosystemWalletOptionsListProps<W>): ReactElement => {
   // needed for wallet extraction to work
-  if (
-    ecosystemId === EcosystemId.Terra ||
-    ecosystemId === EcosystemId.Avalanche ||
-    ecosystemId === EcosystemId.Polygon
-  ) {
+  if (ecosystemId === EcosystemId.Terra) {
     throw new Error("Unsupported ecosystem");
   }
   const wallets = useWallets();

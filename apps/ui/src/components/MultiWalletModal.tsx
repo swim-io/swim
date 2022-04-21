@@ -188,6 +188,8 @@ export const MultiWalletModal = ({
             ecosystemId={EcosystemId.Bsc}
             createServiceClickHandler={bsc.createServiceClickHandler}
           />
+        </EuiFlexGroup>
+        <EuiFlexGroup>
           <EcosystemWalletOptionsList
             address={avalanche.address}
             connected={avalanche.connected}

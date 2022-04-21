@@ -60,6 +60,23 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
+    id: "meta", // TODO: design naming scheme
+    displayName: "Xxx", // TODO:
+    isStakingPool: false,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "AhAMrVeTYyS5EAhoYQvrL2Qd3sLHU4r3VgYZ6ChVAcW8",
+    authority: "jieaZtSYb9FA7GzHHXxBakNuEVFZUQ7jRzR1dm2Gw4u",
+    feeDecimals: 8,
+    lpToken: "devnet-solana-lp-meta", // TODO:
+    tokenAccounts: new Map([
+      ["devnet-polygon-usdc", "a283NqFzprjMfq1cvJfuUk4dSFUMpVhS9gZdU7UcQ6h"],
+      [
+        "devnet-solana-lp-hexapool",
+        "EKPywS7r4xECNf4zBG6xNcwyph5FdWeJ5ufJYGWZFKn9",
+      ],
+    ]),
+  },
+  {
     id: "swimlake",
     displayName: "SwimLake",
     isStakingPool: true,

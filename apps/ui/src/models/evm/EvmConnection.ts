@@ -16,6 +16,9 @@ type TransactionResponse = ethers.providers.TransactionResponse;
 
 export type Provider = MoralisProvider | EtherscanProvider | LocalnetProvider;
 
+// TODO: Use proper endpoints via env
+const AVALANCHE_RPC_URL = "https://api.avax-test.network/ext/bc/C/rpc";
+const POLYGON_RPC_URL = "https://rpc-mumbai.matic.today";
 const BSC_MAINNET_RPC_URL = process.env.REACT_APP_BSC_MAINNET_RPC_URL;
 const BSC_TESTNET_RPC_URL = process.env.REACT_APP_BSC_TESTNET_RPC_URL;
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
@@ -113,6 +116,12 @@ export class EvmConnection {
           }
           return new BscscanProvider(getBscscanNetwork(env));
         }
+      case EcosystemId.Avalanche: {
+        return new LocalnetProvider(AVALANCHE_RPC_URL);
+      }
+      case EcosystemId.Polygon: {
+        return new LocalnetProvider(POLYGON_RPC_URL);
+      }
       default:
         throw new Error(`Unsupported EVM ecosystem: ${ecosystemId}`);
     }

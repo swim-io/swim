@@ -156,6 +156,26 @@ const BscTxListItem = ({ txId }: TxListItemProps): ReactElement => (
   />
 );
 
+const AvalancheTxListItem = ({ txId }: TxListItemProps): ReactElement => (
+  <EuiListGroupItem
+    label={txId}
+    href={`https://snowtrace.io/tx/${txId}`}
+    target="_blank"
+    iconType="check"
+    size="s"
+  />
+);
+
+const PolygonTxListItem = ({ txId }: TxListItemProps): ReactElement => (
+  <EuiListGroupItem
+    label={txId}
+    href={`https://polygonscan.com/tx/${txId}`}
+    target="_blank"
+    iconType="check"
+    size="s"
+  />
+);
+
 const TxListItem = (tx: TxListItemProps): ReactElement => {
   switch (tx.ecosystem) {
     case EcosystemId.Solana:
@@ -164,6 +184,10 @@ const TxListItem = (tx: TxListItemProps): ReactElement => {
       return <EthereumTxListItem {...tx} />;
     case EcosystemId.Bsc:
       return <BscTxListItem {...tx} />;
+    case EcosystemId.Avalanche:
+      return <AvalancheTxListItem {...tx} />;
+    case EcosystemId.Polygon:
+      return <PolygonTxListItem {...tx} />;
     default:
       throw new Error("Unknown transaction ecosystem");
   }

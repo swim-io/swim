@@ -58,7 +58,8 @@ const getContractAddressesByEcosystem = (
 export const useMultipleUserBalances = (
   tokenSpecs: readonly TokenSpec[],
 ): ReadonlyMap<string, Amount | null> => {
-  const { solana, ethereum, bsc } = getContractAddressesByEcosystem(tokenSpecs);
+  const { solana, ethereum, bsc, avalanche, polygon } =
+    getContractAddressesByEcosystem(tokenSpecs);
   const { address: solanaWalletAddress } = useSolanaWallet();
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
   const solanaTokenAccounts = solana.map((tokenContractAddress) =>
@@ -75,6 +76,11 @@ export const useMultipleUserBalances = (
     ethereum,
   );
   const bscBalances = useErc20BalancesQuery(EcosystemId.Bsc, bsc);
+  const avalancheBalances = useErc20BalancesQuery(
+    EcosystemId.Avalanche,
+    avalanche,
+  );
+  const polygonBalances = useErc20BalancesQuery(EcosystemId.Polygon, polygon);
 
   return new Map(
     tokenSpecs.map((tokenSpec, i) => {
@@ -113,6 +119,30 @@ export const useMultipleUserBalances = (
             tokenSpec.id,
             balance !== null
               ? Amount.fromAtomic(tokenSpec, balance, EcosystemId.Bsc)
+              : null,
+          ];
+        }
+        case EcosystemId.Avalanche: {
+          if (!avalancheBalances[i]) {
+            return [tokenSpec.id, null];
+          }
+          const { data: balance = null } = avalancheBalances[i];
+          return [
+            tokenSpec.id,
+            balance !== null
+              ? Amount.fromAtomic(tokenSpec, balance, EcosystemId.Avalanche)
+              : null,
+          ];
+        }
+        case EcosystemId.Polygon: {
+          if (!polygonBalances[i]) {
+            return [tokenSpec.id, null];
+          }
+          const { data: balance = null } = polygonBalances[i];
+          return [
+            tokenSpec.id,
+            balance !== null
+              ? Amount.fromAtomic(tokenSpec, balance, EcosystemId.Polygon)
               : null,
           ];
         }

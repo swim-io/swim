@@ -421,9 +421,43 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "devnet-solana-lp-meta", // TODO:
-    symbol: "Xxx", // TODO:
-    displayName: "Meta", // TODO:
+    id: "devnet-solana-lp-meta-avalanche-usdc",
+    symbol: "ALP-USDC", // TODO:
+    displayName: "Avalanche USDC Meta-Pool LP", // TODO:
+    icon: SWIM_USD_SVG, // TODO:
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "7xt1Qrs78dLumZdpxgeQ4TmRzSS9WWpYdGugzcB2pgb3",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-solana-lp-meta-avalanche-usdt",
+    symbol: "ALP-USDT", // TODO:
+    displayName: "Avalanche USDT Meta-Pool LP", // TODO:
+    icon: SWIM_USD_SVG, // TODO:
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "CSJz1NkebFj4pjYps9fDaS8KpvQ1SVWhhRNFMYnkrqDP",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-solana-lp-meta-polygon-usdc",
+    symbol: "PLP-USDC", // TODO:
+    displayName: "Polygon USDC Meta-Pool LP", // TODO:
     icon: SWIM_USD_SVG, // TODO:
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
@@ -432,6 +466,23 @@ const devnetTokens: readonly TokenSpec[] = [
         EcosystemId.Solana,
         {
           address: "9SexMyV5iREyyzLktd4iHtQMug5fXv4baDkgNvy95d45",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-solana-lp-meta-polygon-usdt",
+    symbol: "PLP-USDT", // TODO:
+    displayName: "Polygon USDT Meta-Pool LP", // TODO:
+    icon: SWIM_USD_SVG, // TODO:
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "EiqbvyTkdcruHrjDy9RtyXpvRfRDmN7Mtutv7J4uWG46",
           decimals: 8,
         },
       ],
@@ -534,6 +585,54 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    id: "devnet-avalanche-usdc",
+    symbol: USDC_SYMBOL,
+    displayName: USDC_NAME,
+    icon: USDC_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Avalanche,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Avalanche,
+        {
+          address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "2t6pVTufn9A4b37oLmex3YMjm3smp1G9tPd9HpAFSeka",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-avalanche-usdt",
+    symbol: USDT_SYMBOL,
+    displayName: USDT_NAME,
+    icon: USDT_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Avalanche,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Avalanche,
+        {
+          address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "9ibet2CuBX1a4HpbzH9auxxtyUvkSKVy39jWtZY5Bfor",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
     id: "devnet-polygon-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,
@@ -552,6 +651,30 @@ const devnetTokens: readonly TokenSpec[] = [
         EcosystemId.Solana,
         {
           address: "D5YvMW5U3HUpD1EstYbKmmZsLdmCPgUj44JqBmNY7fUM",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-polygon-usdt",
+    symbol: USDT_SYMBOL,
+    displayName: USDT_NAME,
+    icon: USDT_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Polygon,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Polygon,
+        {
+          address: "0x2Ac9183EC64F71AfB73909c7C028Db14d35FAD2F",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "2otzQWyoydNp4Ws1kV8J8WVYiun6wmuFMMbicgdoEULn",
           decimals: 6,
         },
       ],

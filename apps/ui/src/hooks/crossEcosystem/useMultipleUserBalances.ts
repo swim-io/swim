@@ -6,16 +6,19 @@ import type { ReadonlyRecord } from "../../utils";
 import { useErc20BalancesQuery } from "../evm";
 import { useSplTokenAccountsQuery } from "../solana";
 
-export const useMultipleUserBalances = (
+const getContractAddressesByEcosystem = (
   tokenSpecs: readonly TokenSpec[],
-): ReadonlyMap<string, Amount | null> => {
-  const { solana, ethereum, bsc } = tokenSpecs.reduce<
-    ReadonlyRecord<EcosystemId, readonly string[]>
-  >(
+): ReadonlyRecord<EcosystemId, readonly string[]> =>
+  tokenSpecs.reduce<ReadonlyRecord<EcosystemId, readonly string[]>>(
     (accumulator, { detailsByEcosystem }) => {
-      const solanaAddress =
-        detailsByEcosystem.get(EcosystemId.Solana)?.address ?? null;
-      const [ethereumAddress, bscAddress, avalancheAddress, polygonAddress] = [
+      const [
+        solanaAddress,
+        ethereumAddress,
+        bscAddress,
+        avalancheAddress,
+        polygonAddress,
+      ] = [
+        EcosystemId.Solana,
         EcosystemId.Ethereum,
         EcosystemId.Bsc,
         EcosystemId.Avalanche,
@@ -51,6 +54,11 @@ export const useMultipleUserBalances = (
       [EcosystemId.Polygon]: [],
     },
   );
+
+export const useMultipleUserBalances = (
+  tokenSpecs: readonly TokenSpec[],
+): ReadonlyMap<string, Amount | null> => {
+  const { solana, ethereum, bsc } = getContractAddressesByEcosystem(tokenSpecs);
   const { address: solanaWalletAddress } = useSolanaWallet();
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
   const solanaTokenAccounts = solana.map((tokenContractAddress) =>

@@ -300,9 +300,6 @@ export const AddForm = ({
       if (amount === null) {
         errors = ["Invalid number"];
       } else if (
-        ![EcosystemId.Bsc, EcosystemId.Avalanche, EcosystemId.Polygon].includes(
-          tokenSpec.nativeEcosystem,
-        ) &&
         amount
           .toAtomic(tokenSpec.nativeEcosystem)
           .gt(userBalance.toAtomic(tokenSpec.nativeEcosystem))

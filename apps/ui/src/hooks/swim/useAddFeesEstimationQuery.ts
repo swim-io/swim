@@ -32,23 +32,27 @@ export const useAddFeesEstimationQuery = (
 ): FeesEstimation | null => {
   const { data: ethGasPrice } = useGasPriceQuery(EcosystemId.Ethereum);
   const { data: bscGasPrice } = useGasPriceQuery(EcosystemId.Bsc);
+  const { data: avalancheGasPrice } = useGasPriceQuery(EcosystemId.Avalanche);
+  const { data: polygonGasPrice } = useGasPriceQuery(EcosystemId.Polygon);
 
-  if (!ethGasPrice || !bscGasPrice) {
+  if (!ethGasPrice || !bscGasPrice || !avalancheGasPrice || !polygonGasPrice) {
     return null;
   }
   const evmEcosystemIds: readonly EvmEcosystemId[] = [
     EcosystemId.Ethereum,
     EcosystemId.Bsc,
+    EcosystemId.Avalanche,
+    EcosystemId.Polygon,
   ];
-  const [ethGas, bscGas] = evmEcosystemIds.map((ecosystemId) =>
-    calculateGas(ecosystemId, amounts, lpTargetEcosystem),
+  const [ethGas, bscGas, avalancheGas, polygonGas] = evmEcosystemIds.map(
+    (ecosystemId) => calculateGas(ecosystemId, amounts, lpTargetEcosystem),
   );
   return {
+    [EcosystemId.Solana]: SOLANA_FEE,
     [EcosystemId.Ethereum]: ethGas.mul(ethGasPrice.toString()),
     [EcosystemId.Bsc]: bscGas.mul(bscGasPrice.toString()),
-    [EcosystemId.Solana]: SOLANA_FEE,
-    [EcosystemId.Avalanche]: ZERO,
-    [EcosystemId.Polygon]: ZERO,
     [EcosystemId.Terra]: ZERO,
+    [EcosystemId.Avalanche]: avalancheGas.mul(avalancheGasPrice.toString()),
+    [EcosystemId.Polygon]: polygonGas.mul(polygonGasPrice.toString()),
   };
 };

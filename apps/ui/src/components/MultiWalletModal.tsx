@@ -170,6 +170,8 @@ export const MultiWalletModal = ({
             ecosystemId={EcosystemId.Solana}
             createServiceClickHandler={solana.createServiceClickHandler}
           />
+        </EuiFlexGroup>
+        <EuiFlexGroup gutterSize="xl">
           <EcosystemWalletOptionsList
             address={ethereum.address}
             connected={ethereum.connected}
@@ -189,7 +191,7 @@ export const MultiWalletModal = ({
             createServiceClickHandler={bsc.createServiceClickHandler}
           />
         </EuiFlexGroup>
-        <EuiFlexGroup>
+        <EuiFlexGroup gutterSize="xl">
           <EcosystemWalletOptionsList
             address={avalanche.address}
             connected={avalanche.connected}

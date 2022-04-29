@@ -1,5 +1,13 @@
 {
-  "plugins": ["deprecation", "functional", "@sayari"],
+  "plugins": [
+    "@typescript-eslint",
+    "deprecation",
+    "functional",
+    "import",
+    "prettier",
+    "react",
+    "@sayari"
+  ],
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",

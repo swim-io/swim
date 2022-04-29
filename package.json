@@ -23,6 +23,6 @@
     "publish-latest": "yarn workspaces foreach --no-private exec yarn npm publish"
   },
   "resolutions": {
-    "@types/eslint": "^7.28.2"
+    "react-error-overlay": "6.0.9"
   }
 }

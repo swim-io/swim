@@ -23,6 +23,8 @@
     "publish-latest": "yarn workspaces foreach --no-private exec yarn npm publish"
   },
   "resolutions": {
+    "@types/react": "^17",
+    "react": "^17",
     "react-error-overlay": "6.0.9"
   }
 }

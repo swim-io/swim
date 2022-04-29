@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "NODE_ENV=development DISABLE_ESLINT_PLUGIN=true craco start",
+    "start": "NODE_ENV=development SKIP_PREFLIGHT_CHECK=1 DISABLE_ESLINT_PLUGIN=true craco start",
     "build": "craco build",
     "release": "SENTRY_RELEASE=$(git rev-parse --short HEAD) craco build",
     "test": "craco test --transformIgnorePatterns \"node_modules/(?!@project-serum/sol-wallet-adapter)/\"",

@@ -22282,9 +22282,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"swim-ts-monorepo@workspace:.":
+"swim@workspace:.":
   version: 0.0.0-use.local
-  resolution: "swim-ts-monorepo@workspace:."
+  resolution: "swim@workspace:."
   languageName: unknown
   linkType: soft
 

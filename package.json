@@ -1,11 +1,11 @@
 {
-  "name": "swim-ts-monorepo",
+  "name": "swim",
   "description": "Monorepo for all Swim TypeScript projects",
   "private": true,
   "license": "TODO",
   "repository": {
     "type": "git",
-    "url": "https://github.com/swim-io/swim-ts-monorepo"
+    "url": "https://github.com/swim-io/swim"
   },
   "workspaces": [
     "apps/*",

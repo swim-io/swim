@@ -1,0 +1,13 @@
+.investorsList {
+  img {
+    max-width: 150px;
+    display: block;
+    margin: auto;
+  }
+
+  @media (min-width: 768px) {
+    img {
+      max-width: 220px;
+    }
+  }
+}

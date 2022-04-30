@@ -1,0 +1,23 @@
+@import "../eui";
+
+// Used on ConnectButton and on MultiWalletModal
+.connect-button {
+  .exit-icon {
+    display: none;
+    margin-left: 5px;
+  }
+
+  // only used on MultiWalletModal service buttons for visibility
+  &.connected-service {
+    border: 1.5px solid $euiColorSuccess;
+  }
+
+  &.connected:hover {
+    .exit-icon {
+      display: inline-block;
+    }
+    background-color: $euiColorDanger !important;
+    color: $euiColorGhost;
+    border: none;
+  }
+}

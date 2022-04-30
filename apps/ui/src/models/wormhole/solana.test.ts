@@ -1,0 +1,151 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { EcosystemId, Env, Protocol, chains, tokens } from "../../config";
+import {
+  parsedWormholePostVaaTxs,
+  parsedWormholeRedeemEvmUnlockWrappedTx,
+} from "../../fixtures";
+import type { SolanaTx } from "../crossEcosystem";
+
+import { isPostVaaSolanaTx, isRedeemOnSolanaTx } from "./solana";
+
+describe("models - Wormhole utils", () => {
+  describe("parseSequenceFromLogSolana", () => {
+    it.todo("finds the sequence from a Wormhole tx");
+    it.todo("throws error for a tx with no sequence");
+  });
+
+  describe("isLockSplTx", () => {
+    it.todo("returns true for a tx which locks native SPL tokens");
+    it.todo("returns true for a tx which burns Wormhole-wrapped SPL tokens");
+    it.todo("returns false for txs which post VAAs");
+    it.todo("returns false for a tx which unlocks native SPL tokens");
+    it.todo("returns false for a tx which mints Wormhole-wrapped SPL tokens");
+  });
+
+  describe("isPartiallyDecodedInstruction", () => {
+    it.todo("returns true for a partially decoded instruction");
+    it.todo("returns false for a parsed instruction");
+  });
+
+  describe("isPostVaaSolanaTx", () => {
+    it.todo("returns false for a tx which locks native SPL tokens");
+    it.todo("returns false for a tx which burns Wormhole-wrapped SPL tokens");
+
+    it.each(parsedWormholePostVaaTxs)(
+      "returns true for txs which post VAAs",
+      (parsedTx) => {
+        const interactionId = "e45794d6c5a2750a589f875c84089f81";
+        const wormholeChainSpec =
+          chains[Env.Mainnet][Protocol.Solana][0].wormhole;
+        const signatureSetAddress =
+          "2XjLRw6BTVTTL5hLDdKyLtPL6toGM7HkKJivGjtZBotp";
+        const tx: SolanaTx = {
+          interactionId,
+          ecosystem: EcosystemId.Solana,
+          timestamp: parsedTx.blockTime!,
+          txId: parsedTx.transaction.signatures[0],
+          parsedTx,
+        };
+
+        const result = isPostVaaSolanaTx(
+          wormholeChainSpec,
+          signatureSetAddress,
+          tx,
+        );
+        expect(result).toBe(true);
+      },
+    );
+
+    it.todo("returns false for a tx which unlocks native SPL tokens");
+
+    it("returns false for a tx which mints Wormhole-wrapped SPL tokens", () => {
+      const interactionId = "e45794d6c5a2750a589f875c84089f81";
+      const wormholeChainSpec =
+        chains[Env.Mainnet][Protocol.Solana][0].wormhole;
+      const signatureSetAddress =
+        "2XjLRw6BTVTTL5hLDdKyLtPL6toGM7HkKJivGjtZBotp";
+      const tx: SolanaTx = {
+        interactionId,
+        ecosystem: EcosystemId.Solana,
+        timestamp: parsedWormholeRedeemEvmUnlockWrappedTx.blockTime!,
+        txId: parsedWormholeRedeemEvmUnlockWrappedTx.transaction.signatures[0],
+        parsedTx: parsedWormholeRedeemEvmUnlockWrappedTx,
+      };
+
+      const result = isPostVaaSolanaTx(
+        wormholeChainSpec,
+        signatureSetAddress,
+        tx,
+      );
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("isRedeemOnSolanaTx", () => {
+    it.todo("returns false for a tx which locks native SPL tokens");
+    it.todo("returns false for a tx which burns Wormhole-wrapped SPL tokens");
+
+    it.each(parsedWormholePostVaaTxs)(
+      "returns false for txs which post VAAs",
+      (parsedTx) => {
+        const interactionId = "e45794d6c5a2750a589f875c84089f81";
+        const wormholeChainSpec =
+          chains[Env.Mainnet][Protocol.Solana][0].wormhole;
+        const tokenSpec = tokens[Env.Mainnet].find(
+          (token) => token.id === "mainnet-bsc-busd",
+        )!;
+        const splTokenAccount = "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
+        const tx: SolanaTx = {
+          interactionId,
+          ecosystem: EcosystemId.Solana,
+          timestamp: parsedTx.blockTime!,
+          txId: parsedTx.transaction.signatures[0],
+          parsedTx,
+        };
+
+        const result = isRedeemOnSolanaTx(
+          wormholeChainSpec,
+          tokenSpec,
+          splTokenAccount,
+          tx,
+        );
+        expect(result).toBe(false);
+      },
+    );
+
+    it.todo("returns true for a tx which unlocks native SPL tokens");
+
+    it("returns true for a tx which redeems Wormhole-wrapped SPL tokens", () => {
+      const interactionId = "e45794d6c5a2750a589f875c84089f81";
+      const wormholeChainSpec =
+        chains[Env.Mainnet][Protocol.Solana][0].wormhole;
+      const tokenSpec = tokens[Env.Mainnet].find(
+        (token) => token.id === "mainnet-bsc-busd",
+      )!;
+      const splTokenAccount = "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
+      const tx: SolanaTx = {
+        interactionId,
+        ecosystem: EcosystemId.Solana,
+        timestamp: parsedWormholeRedeemEvmUnlockWrappedTx.blockTime!,
+        txId: parsedWormholeRedeemEvmUnlockWrappedTx.transaction.signatures[0],
+        parsedTx: parsedWormholeRedeemEvmUnlockWrappedTx,
+      };
+
+      const result = isRedeemOnSolanaTx(
+        wormholeChainSpec,
+        tokenSpec,
+        splTokenAccount,
+        tx,
+      );
+      expect(result).toBe(true);
+    });
+  });
+
+  describe("isUnlockSplTx", () => {
+    it.todo("returns false for a tx which locks native SPL tokens");
+    it.todo("returns false for a tx which burns Wormhole-wrapped SPL tokens");
+    it.todo("returns true for txs which post VAAs");
+    it.todo("returns true for a tx which unlocks native SPL tokens");
+    it.todo("returns true for a tx which mints Wormhole-wrapped SPL tokens");
+  });
+});

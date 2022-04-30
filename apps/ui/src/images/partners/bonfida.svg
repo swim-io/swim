@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="167" height="57" overflow="hidden" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <clipPath id="clip0">
+      <rect x="550" y="525" width="167" height="57"/>
+    </clipPath>
+    <clipPath id="clip1">
+      <rect x="0" y="0" width="447675" height="514350"/>
+    </clipPath>
+    <image width="47" height="54" preserveAspectRatio="none" id="img2" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC8AAAA2CAMAAABgIDDNAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACxUExURQAAAP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7eYcpwAAAA6dFJOUwAQIDA8PUBKUFdganBxc3l+gIGCiI+Snp+kpaapr7i5v8DDx8rLzM/S1dff5uzt7/Dy8/X29/n6+/yxrTUnAAAACXBIWXMAAA7DAAAOwwHHb6hkAAACU0lEQVRIS+WW7XrTMAyF7ZiZ1DOwdGSEj0LHVxhlpDDGVt3/hSHbsiM7ybr/nB+N4udNfCTHVsWspLkyFD5Guh8+Qq/p7phUB1tl8LeraOQhyXbY1kKgHbWDlgaXVe8GK/Hq7dtheDgNNN44mnghWuhViGYkWzROcXzvchpovEfjpNGHnk9Dk3ES921hV6aBxjtG57wQHfTclKthkVbxQkyjjU/kxkmlASw0ND5AK9x4kDyjgMlCj2/5fjNTL93Wm8mUQnbwU9xOV0R1bkKbDEfp7Q2I4axYEdkYstdmdXdFeYa8yVZEmm6cTrUp7VCU2vNsRdC4v0bpTXiaihJ5WpGqmVbKpaE3Q7A88m5FvpxPaJR88zWtJuOFOL2DVxQyyfX9naU452Vj4U+6I61+Hy5eUjzhhbyEa15b9Q0+VyJ8B04lj8Q1vAu3OHB5+OGML/A0bm5g7a7y+f1fHxzhhVjD3ojV/nBB5TrGuzRu4SolssSzz+UprChCPYKvgH20/xs///3o5nx8gPGyObXxZuRlje2kSvsv8WF/KhsWL/Kypj2uuvBE5HVLXcn6ceIV24bhGAl8OFhIBkHPyzraC7KYhuPHgyVImQr5/fvggAnTqODEbPjO8arfgujnuoH6AK/zSZ3wDPqE0+/YEkTh+ylKkiZ2FDx4y8OV1Z/Ej/FpUyt5JLacKHtzzrujtvx3kPfmjI89vBDvzYwfe3gplkbieQ+fKnUC4mdbYSYLPo3AFz18XtgJlOcnPXxBrjc/gZNpD18U9mb4dcR4rheH2V4jxD/PKD6IX1sw0AAAAABJRU5ErkJggg=="/>
+    <clipPath id="clip3">
+      <rect x="-0.5" y="0" width="447675" height="514350"/>
+    </clipPath>
+    <clipPath id="clip4">
+      <rect x="596" y="530" width="120" height="51"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip0)" transform="translate(-550 -525)">
+    <g clip-path="url(#clip1)" transform="matrix(0.000104987 0 0 0.000104987 550 526)">
+      <g clip-path="url(#clip3)">
+        <image width="47" height="54" preserveAspectRatio="none" transform="matrix(9525, 0, 0, 9525, -0.5, 0)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC8AAAA2CAMAAABgIDDNAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACxUExURQAAAP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7eYcpwAAAA6dFJOUwAQIDA8PUBKUFdganBxc3l+gIGCiI+Snp+kpaapr7i5v8DDx8rLzM/S1dff5uzt7/Dy8/X29/n6+/yxrTUnAAAACXBIWXMAAA7DAAAOwwHHb6hkAAACU0lEQVRIS+WW7XrTMAyF7ZiZ1DOwdGSEj0LHVxhlpDDGVt3/hSHbsiM7ybr/nB+N4udNfCTHVsWspLkyFD5Guh8+Qq/p7phUB1tl8LeraOQhyXbY1kKgHbWDlgaXVe8GK/Hq7dtheDgNNN44mnghWuhViGYkWzROcXzvchpovEfjpNGHnk9Dk3ES921hV6aBxjtG57wQHfTclKthkVbxQkyjjU/kxkmlASw0ND5AK9x4kDyjgMlCj2/5fjNTL93Wm8mUQnbwU9xOV0R1bkKbDEfp7Q2I4axYEdkYstdmdXdFeYa8yVZEmm6cTrUp7VCU2vNsRdC4v0bpTXiaihJ5WpGqmVbKpaE3Q7A88m5FvpxPaJR88zWtJuOFOL2DVxQyyfX9naU452Vj4U+6I61+Hy5eUjzhhbyEa15b9Q0+VyJ8B04lj8Q1vAu3OHB5+OGML/A0bm5g7a7y+f1fHxzhhVjD3ojV/nBB5TrGuzRu4SolssSzz+UprChCPYKvgH20/xs///3o5nx8gPGyObXxZuRlje2kSvsv8WF/KhsWL/Kypj2uuvBE5HVLXcn6ceIV24bhGAl8OFhIBkHPyzraC7KYhuPHgyVImQr5/fvggAnTqODEbPjO8arfgujnuoH6AK/zSZ3wDPqE0+/YEkTh+ylKkiZ2FDx4y8OV1Z/Ej/FpUyt5JLacKHtzzrujtvx3kPfmjI89vBDvzYwfe3gplkbieQ+fKnUC4mdbYSYLPo3AFz18XtgJlOcnPXxBrjc/gZNpD18U9mb4dcR4rheH2V4jxD/PKD6IX1sw0AAAAABJRU5ErkJggg=="/>
+      </g>
+    </g>
+    <g clip-path="url(#clip4)">
+      <text fill="#FFFFFF" font-family="Calibri,Calibri_MSFontService,sans-serif" font-weight="400" font-size="83" transform="matrix(0.290557, 0, 0, 0.293103, 608.612, 560)" style="white-space: pre;">BONFIDA</text>
+    </g>
+  </g>
+</svg>

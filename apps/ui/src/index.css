@@ -1,0 +1,43 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+::selection {
+  color: white !important;
+  background: #1949c8 !important;
+}
+::-moz-selection {
+  color: white !important;
+  background: #1949c8 !important;
+}
+
+/* Sentry user feedback modal */
+.sentry-error-embed {
+  margin-top: 70px !important;
+}
+
+/* Hide name and email form fields, we prepopulate them with placeholders */
+.sentry-error-embed .form-field:nth-child(1),
+.sentry-error-embed .form-field:nth-child(2) {
+  display: none;
+}
+
+/* Hide number input arrows */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}

@@ -1,11 +1,11 @@
 {
-  "name": "swim-ts-monorepo",
+  "name": "swim",
   "description": "Monorepo for all Swim TypeScript projects",
   "private": true,
   "license": "TODO",
   "repository": {
     "type": "git",
-    "url": "https://github.com/swim-io/swim-ts-monorepo"
+    "url": "https://github.com/swim-io/swim"
   },
   "workspaces": [
     "apps/*",
@@ -23,6 +23,8 @@
     "publish-latest": "yarn workspaces foreach --no-private exec yarn npm publish"
   },
   "resolutions": {
-    "@types/eslint": "^7.28.2"
+    "@types/react": "^17",
+    "react": "^17",
+    "react-error-overlay": "6.0.9"
   }
 }

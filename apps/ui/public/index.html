@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Cross-chain liquidity pools on Solana" />
+
+    <!-- Disable caching to prevent some chunk load errors -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <!-- Used by Phantom wallet -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+
+    <!-- Provide custom logo for Metamask which incorrectly uses the non-conforming link rel
+    See https://docs.metamask.io/guide/defining-your-icon.html#defining-your-app-s-icon -->
+    <link rel="shortcut icon" sizes="48x48" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="shortcut icon" sizes="192x192" href="%PUBLIC_URL%/logo192.png" />
+
+    <link rel="icon" sizes="48x48" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" sizes="192x192" href="%PUBLIC_URL%/logo192.png" />
+
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>Swim</title>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-08Y5YJMLS3"></script>
+    <script>
+      if (location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-08Y5YJMLS3');
+      }
+    </script>
+  </head>
+  <body>
+    <noscript>
+      Have you ever seen a cryptocurrency app built with plain HTML? You need to
+      enable JavaScript.
+    </noscript>
+
+    <div id="root"></div>
+  </body>
+</html>

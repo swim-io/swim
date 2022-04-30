@@ -1,0 +1,143 @@
+.roadmap {
+  position: relative;
+}
+
+.timeline {
+  padding: 0px 5%;
+  max-width: 800px;
+  margin: auto;
+
+  > .timeline__item {
+    display: flex;
+    align-items: flex-start;
+
+    > div {
+      flex: 1;
+      padding: 20px 40px;
+
+      &:last-child {
+        text-align: left;
+        padding-bottom: 40px !important;
+      }
+
+      &:first-child::after {
+        content: "";
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #fff;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 0 4px rgba(#fff, 0.2);
+      }
+    }
+
+    &:nth-child(odd) {
+      > div {
+        &:first-child {
+          text-align: right;
+          position: relative;
+
+          &::after {
+            right: -11px;
+          }
+        }
+
+        &:last-child {
+          text-align: left;
+          border-left: 2px solid #e0e0e0;
+        }
+      }
+
+      > .timeline__date > div {
+        margin-right: 0px;
+      }
+
+      > .timeline__content > h2 {
+        text-align: left !important;
+      }
+    }
+
+    &:nth-child(even) {
+      > div {
+        &:first-child {
+          order: 2;
+          text-align: left;
+          position: relative;
+
+          &::after {
+            left: -1px;
+          }
+        }
+
+        &:last-child {
+          order: 1;
+          text-align: right;
+          border-right: 2px solid #e0e0e0;
+        }
+      }
+
+      > .timeline__date > div {
+        margin-left: 0px;
+      }
+
+      > .timeline__content > h2 {
+        text-align: right !important;
+      }
+    }
+
+    .timeline__date > div {
+      background-color: #ffffff;
+      // background-color: #2b4bab;
+      box-shadow: 0 0 0 4px rgba(#fff, 0.2);
+      border-radius: 100px;
+      color: #000;
+      text-align: center;
+      // max-width: max-content;
+      margin: auto;
+      padding: 20px 25px;
+    }
+
+    @media (min-width: 768px) {
+      .timeline__date {
+        margin: auto;
+
+        > div {
+          max-width: max-content;
+        }
+      }
+    }
+
+    .timeline__content {
+      line-height: 1.8em;
+
+      > h3 {
+        color: #2b4bab;
+      }
+    }
+
+    @media (max-width: 767px) {
+      flex-direction: column;
+      border-left: 2px solid #e0e0e0;
+
+      > div {
+        border-width: 0px !important;
+        text-align: left !important;
+        order: unset !important;
+
+        &::after {
+          left: 0% !important;
+        }
+      }
+
+      &:nth-child(odd) > .timeline__content > h2 {
+        text-align: left !important;
+      }
+
+      &:nth-child(even) > .timeline__content > h2 {
+        text-align: left !important;
+      }
+    }
+  }
+}

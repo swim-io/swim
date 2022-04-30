@@ -1,0 +1,88 @@
+import type solana from "@solana/web3.js";
+import type { ethers } from "ethers";
+
+import type { EvmEcosystemId } from "../../config";
+import { EcosystemId } from "../../config";
+import type { ReadonlyRecord } from "../../utils";
+
+interface BaseTx {
+  readonly ecosystem: EcosystemId;
+  readonly txId: string;
+  /** The time in seconds since Unix epoch */
+  readonly timestamp: number | null;
+  readonly interactionId: string | null;
+}
+
+export interface SolanaTx extends BaseTx {
+  readonly ecosystem: EcosystemId.Solana;
+  readonly parsedTx: solana.ParsedTransactionWithMeta;
+}
+
+export interface EvmTx extends BaseTx {
+  readonly ecosystem: EvmEcosystemId;
+  readonly txResponse: ethers.providers.TransactionResponse;
+  readonly txReceipt: ethers.providers.TransactionReceipt;
+}
+
+export interface EthereumTx extends EvmTx {
+  readonly ecosystem: EcosystemId.Ethereum;
+}
+
+export interface BscTx extends EvmTx {
+  readonly ecosystem: EcosystemId.Bsc;
+}
+
+export type Tx = SolanaTx | EvmTx;
+
+export type TxsByTokenId = ReadonlyRecord<string, readonly Tx[] | undefined>;
+
+export interface TxWithTokenId<T extends Tx = Tx> {
+  readonly tokenId: string;
+  readonly tx: T;
+}
+
+export const isSolanaTx = (tx: Tx): tx is SolanaTx =>
+  tx.ecosystem === EcosystemId.Solana;
+
+export const isEthereumTx = (tx: Tx): tx is EthereumTx =>
+  tx.ecosystem === EcosystemId.Ethereum;
+
+export const isBscTx = (tx: Tx): tx is BscTx =>
+  tx.ecosystem === EcosystemId.Bsc;
+
+export const isEvmTx = (tx: Tx): tx is EvmTx => isEthereumTx(tx) || isBscTx(tx);
+
+export const groupTxsByTokenId = (
+  txs: readonly TxWithTokenId[],
+): TxsByTokenId =>
+  txs.reduce<TxsByTokenId>(
+    (
+      accumulator: TxsByTokenId,
+      { tokenId, tx }: TxWithTokenId,
+    ): TxsByTokenId => ({
+      ...accumulator,
+      [tokenId]: [...(accumulator[tokenId] ?? []), tx],
+    }),
+    {},
+  );
+
+export const deduplicateTxsByTokenId = (
+  oldTxsByTxId: TxsByTokenId,
+  newTxsByTxId: TxsByTokenId,
+): TxsByTokenId =>
+  Object.entries(newTxsByTxId).reduce((accumulator, [tokenId, newTxs]) => {
+    if (newTxs === undefined) {
+      return accumulator;
+    }
+    const txsToAdd = newTxs.filter((newTx) => {
+      const txsForToken = accumulator[tokenId];
+      return (
+        txsForToken === undefined ||
+        txsForToken.every((tx) => tx.txId !== newTx.txId)
+      );
+    });
+    return {
+      ...accumulator,
+      [tokenId]: [...(accumulator[tokenId] ?? []), ...txsToAdd],
+    };
+  }, oldTxsByTxId);

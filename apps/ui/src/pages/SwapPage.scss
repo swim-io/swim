@@ -1,0 +1,8 @@
+@import "../eui";
+
+/* The form fields do not stretch enough to fill the page on wider mobile resolutions */
+@include euiBreakpoint("xs", "s") {
+  .swapPage .euiPageContent {
+    max-width: 400px;
+  }
+}

@@ -2,8 +2,15 @@ import { BigNumber } from "@ethersproject/bignumber";
 
 import { EcosystemId } from "../../config";
 
-import type { BscTx, EthereumTx, SolanaTx } from "./tx";
-import { isBscTx, isEthereumTx, isEvmTx, isSolanaTx } from "./tx";
+import type { BscTx, EthereumTx, SolanaTx, TxWithTokenId } from "./tx";
+import {
+  deduplicateTxsByTokenId,
+  groupTxsByTokenId,
+  isBscTx,
+  isEthereumTx,
+  isEvmTx,
+  isSolanaTx,
+} from "./tx";
 
 describe("Cross-ecosystem tx", () => {
   const defaultTimestamp = 1642762608;
@@ -56,6 +63,16 @@ describe("Cross-ecosystem tx", () => {
     ecosystem: EcosystemId.Bsc,
   };
 
+  const txWithSolanaId: TxWithTokenId = {
+    tokenId: "SOL",
+    tx: solanaTx,
+  };
+
+  const txWithEthereumId: TxWithTokenId = {
+    tokenId: "ETH",
+    tx: ethereumTx,
+  };
+
   describe("isSolanaTx", () => {
     it("returns true if the ecosystem is Solana", () => {
       expect(isSolanaTx(solanaTx)).toBe(true);
@@ -97,6 +114,46 @@ describe("Cross-ecosystem tx", () => {
 
     it("returns false if the ecosystem is not Evm", () => {
       expect(isEvmTx(solanaTx)).toBe(false);
+    });
+  });
+
+  describe("groupTxsByTokenId", () => {
+    it("returns object of txs grouped by tokenId as a key", () => {
+      const result = { SOL: [solanaTx], ETH: [ethereumTx] };
+      expect(groupTxsByTokenId([txWithSolanaId, txWithEthereumId])).toEqual(
+        result,
+      );
+    });
+    it("returns one object with tokenId, if single element list", () => {
+      expect(groupTxsByTokenId([txWithSolanaId])).toEqual({ SOL: [solanaTx] });
+    });
+    it("returns empty object, if argument is an empty array", () => {
+      expect(groupTxsByTokenId([])).toEqual({});
+    });
+  });
+
+  describe("deduplicateTxsByTokenId", () => {
+    const txBySolanaId = { SOL: [solanaTx] };
+    const txByEthereumId = { ETH: [ethereumTx] };
+
+    it("returns object of all txs, if no duplicates", () => {
+      expect(deduplicateTxsByTokenId(txBySolanaId, txByEthereumId)).toEqual({
+        ...txBySolanaId,
+        ...txByEthereumId,
+      });
+    });
+    it("returns object with one tokenId, if there are duplicates", () => {
+      expect(deduplicateTxsByTokenId(txBySolanaId, txBySolanaId)).toEqual({
+        ...txBySolanaId,
+      });
+    });
+    it("returns empty object, if arguments are empty objects", () => {
+      expect(deduplicateTxsByTokenId({}, {})).toEqual({});
+    });
+    it("returns existing tx, if one of arguments is empty objects", () => {
+      expect(deduplicateTxsByTokenId({}, txByEthereumId)).toEqual({
+        ...txByEthereumId,
+      });
     });
   });
 });

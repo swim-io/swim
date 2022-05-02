@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "NODE_ENV=development SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco start",
-    "build": "craco build",
+    "build": "DISABLE_ESLINT_PLUGIN=true craco build",
     "release": "SENTRY_RELEASE=$(git rev-parse --short HEAD) craco build",
     "test": "craco test --transformIgnorePatterns \"node_modules/(?!@project-serum/sol-wallet-adapter)/\"",
     "eject": "react-scripts eject",

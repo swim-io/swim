@@ -17,7 +17,7 @@ import type {
   NftAttribute,
   NftData,
 } from "../hooks/solana/useAccountNftsQuery";
-import { useRedeem } from "../hooks/swim/useRedeem";
+import { useRedeemMutation } from "../hooks/swim/useRedeemMutation";
 
 import "./NftCarousel.scss";
 
@@ -53,8 +53,8 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
     if (!collection) {
       throw new Error("nft doesnt have a collection");
     }
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useRedeem(mint, collection.key);
+
+    useRedeemMutation(mint, collection.key);
     hideRedeemModal();
   };
 

@@ -8,7 +8,9 @@ import {
   TOKEN_PROGRAM_ID,
   Token,
 } from "@solana/spl-token";
-import { useEffect } from "react";
+import type { RpcResponseAndContext, SignatureResult } from "@solana/web3.js";
+import type { UseMutationResult } from "react-query";
+import { useMutation } from "react-query";
 
 import { useAnchorWallet, useSolanaConnection } from "../../contexts";
 import { useCreateSplTokenAccountsMutation } from "../solana";
@@ -21,7 +23,7 @@ const redeemProgramID = new anchor.web3.PublicKey(
   "7frYsb48TdaenQpmVxRHgMnNL861aK1aeq6aTkVrUkDt",
 );
 
-const xswimMintAccountKey = new anchor.web3.PublicKey(
+export const xswimMintAccountKey = new anchor.web3.PublicKey(
   "HDiJt8KK7qHZhkkyRyv6TTWzbEppCrpGZQ4YE5igarYu",
 );
 
@@ -47,28 +49,34 @@ const getRedeemerPDA = async (
   );
 };
 
-export const useRedeem = (nftMint: string, nftCollection: string): void => {
-  // const { env } = useEnvironment();
-  const solanaConnection = useSolanaConnection();
+// Extremely ugly, I just want to redeem an nft.
+export const useRedeemMutation = (
+  nftMint: string,
+  nftCollection: string,
+): UseMutationResult<RpcResponseAndContext<SignatureResult>> => {
+  const solanaConnection = useSolanaConnection().rawConnection;
   const wally = useAnchorWallet();
+  const createATA = useCreateSplTokenAccountsMutation();
 
-  const provider = new anchor.AnchorProvider(
-    solanaConnection.rawConnection,
-    wally,
-    anchor.AnchorProvider.defaultOptions(),
-  );
-  anchor.setProvider(provider);
+  return useMutation(
+    async (): Promise<RpcResponseAndContext<SignatureResult>> => {
+      const [ownerRedeemTokenAccount] = await createATA.mutateAsync([
+        xswimMintAccountKey.toBase58(),
+      ]);
+      const provider = new anchor.AnchorProvider(
+        solanaConnection,
+        wally,
+        anchor.AnchorProvider.defaultOptions(),
+      );
+      anchor.setProvider(provider);
+      const idl = JSON.parse(
+        fs.readFileSync(path.resolve("../../config/idl.json"), "utf8"),
+      );
+      const program = new anchor.Program(idl, redeemProgramID, provider);
 
-  // where is this
-  const idl = JSON.parse(
-    fs.readFileSync(path.resolve("../../config/idl.json"), "utf8"),
-  );
-  const program = new anchor.Program(idl, redeemProgramID, provider);
+      const nftPublicKey = new anchor.web3.PublicKey(nftMint);
+      const collectionPublicKey = new anchor.web3.PublicKey(nftCollection);
 
-  const nftPublicKey = new anchor.web3.PublicKey(nftMint);
-  const collectionPublicKey = new anchor.web3.PublicKey(nftCollection);
-  useEffect(() => {
-    async function doNeedful(): Promise<void> {
       const collectionMetadata = await Metadata.getPDA(collectionPublicKey);
       const redeemerMint = xswimMintAccountKey;
 
@@ -93,12 +101,6 @@ export const useRedeem = (nftMint: string, nftCollection: string): void => {
         true,
       );
 
-      const [ownerRedeemTokenAccount] =
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        await useCreateSplTokenAccountsMutation().mutateAsync([
-          redeemerMint.toBase58(),
-        ]);
-
       const redeemTxSig = await program.methods
         .redeem()
         .accounts({
@@ -115,15 +117,7 @@ export const useRedeem = (nftMint: string, nftCollection: string): void => {
           tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
         })
         .rpc();
-      await solanaConnection.rawConnection.confirmTransaction(redeemTxSig);
-    }
-    void doNeedful();
-  }, [
-    collectionPublicKey,
-    nftPublicKey,
-    program.methods,
-    provider.wallet.publicKey,
-    solanaConnection.rawConnection,
-    wally.publicKey,
-  ]);
+      return await solanaConnection.confirmTransaction(redeemTxSig);
+    },
+  );
 };

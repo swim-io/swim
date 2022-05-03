@@ -95,10 +95,11 @@ describe("Swim steps", () => {
     .filter((_, i) => [0, 2, 3].includes(i))
     .map(generateSplTokenAccount);
 
-  const keypair = Keypair.generate();
   let swapInteraction: SwapInteraction;
+  let keypair: Keypair;
 
   beforeEach(() => {
+    keypair = Keypair.generate();
     swapInteraction = {
       id: defaultInteractionId,
       env: Env.Mainnet,

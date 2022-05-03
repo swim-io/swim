@@ -24,6 +24,13 @@ describe("Cross-ecosystem tx", () => {
     interactionId: defaultInteractionId,
     parsedTx: parsedSwimSwapTx,
   };
+  const solanaTx2: SolanaTx = {
+    ecosystem: EcosystemId.Solana,
+    txId: "34PhSGJi3XboZEhZEirTM6FEh1hNiYHSio1va1nNgH7S9LSNJQGSAiizEyVbgbVJzFjtsbyuJ2WijN53FSC83h7a",
+    timestamp: defaultTimestamp,
+    interactionId: defaultInteractionId,
+    parsedTx: parsedSwimSwapTx,
+  };
 
   const ethereumTx: EthereumTx = {
     ecosystem: EcosystemId.Ethereum,
@@ -33,9 +40,21 @@ describe("Cross-ecosystem tx", () => {
     txResponse: mock<ethers.providers.TransactionResponse>(),
     txReceipt: mock<ethers.providers.TransactionReceipt>(),
   };
+  const ethereumTx2: EthereumTx = {
+    ecosystem: EcosystemId.Ethereum,
+    txId: "0x743087e871039d66b82fcb2cb719f6a541e650e05735c32c1be871ef9ae9a457",
+    timestamp: defaultTimestamp,
+    interactionId: defaultInteractionId,
+    txResponse: mock<ethers.providers.TransactionResponse>(),
+    txReceipt: mock<ethers.providers.TransactionReceipt>(),
+  };
 
   const bscTx: BscTx = {
     ...ethereumTx,
+    ecosystem: EcosystemId.Bsc,
+  };
+  const bscTx2: BscTx = {
+    ...ethereumTx2,
     ecosystem: EcosystemId.Bsc,
   };
 
@@ -139,12 +158,15 @@ describe("Cross-ecosystem tx", () => {
 
   describe("deduplicateTxsByTokenId", () => {
     const txBySolanaId = {
-      "mainnet-solana-usdc": [solanaTx, solanaTx, solanaTx],
+      "mainnet-solana-usdc": [solanaTx, solanaTx2],
     };
     const txByEthereumId = {
-      "mainnet-ethereum-usdc": [ethereumTx, ethereumTx],
+      "mainnet-ethereum-usdc": [ethereumTx, ethereumTx2],
     };
-    const txByBinanceId = { "mainnet-bsc-usdt": [bscTx, bscTx, bscTx] };
+    const txByEthereumId2 = {
+      "mainnet-ethereum-usdt": [ethereumTx2, ethereumTx, ethereumTx],
+    };
+    const txByBinanceId = { "mainnet-bsc-usdt": [bscTx, bscTx2] };
 
     it("returns object of all txs, if no duplicates", () => {
       expect(deduplicateTxsByTokenId(txBySolanaId, txByEthereumId)).toEqual({
@@ -156,8 +178,9 @@ describe("Cross-ecosystem tx", () => {
       expect(deduplicateTxsByTokenId(txBySolanaId, txBySolanaId)).toEqual({
         ...txBySolanaId,
       });
-      expect(deduplicateTxsByTokenId(txByEthereumId, txByEthereumId)).toEqual({
+      expect(deduplicateTxsByTokenId(txByEthereumId, txByEthereumId2)).toEqual({
         ...txByEthereumId,
+        ...txByEthereumId2,
       });
       expect(deduplicateTxsByTokenId(txByBinanceId, txByBinanceId)).toEqual({
         ...txByBinanceId,

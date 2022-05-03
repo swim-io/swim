@@ -17,13 +17,9 @@ describe("Pool tests", () => {
       const result = getTokensByPool(localnetConfig);
 
       localnetConfig.pools.forEach((pool) => {
-        const tokenKeys = pool.tokenAccounts.keys();
-        const tokenIds = [...tokenKeys, pool.lpToken];
-        const expectedPoolTokenIds = [
-          ...result[pool.id].tokens,
-          result[pool.id].lpToken,
-        ].map((token) => token.id);
-        expect(tokenIds).toEqual(expectedPoolTokenIds);
+        const tokenIds = result[pool.id].tokens.map((token) => token.id);
+        expect(tokenIds).toEqual([...pool.tokenAccounts.keys()]);
+        expect(result[pool.id].lpToken.id).toEqual(pool.lpToken);
       });
     });
   });
@@ -49,10 +45,8 @@ describe("Pool tests", () => {
 
     it("returns false, if not pool Solana tx", () => {
       const contractAddress = "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC";
-      const mockParsedTx: solana.ParsedTransactionWithMeta =
-        mockDeep<solana.ParsedTransactionWithMeta>();
       const ptx = {
-        ...mockParsedTx,
+        ...mockDeep<solana.ParsedTransactionWithMeta>(),
         transaction: parsedWormholeRedeemEvmUnlockWrappedTx.transaction,
       };
       const txs: SolanaTx = {
@@ -67,10 +61,8 @@ describe("Pool tests", () => {
 
     it("returns true, if it's pool solana tx", () => {
       const contractAddress = "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb";
-      const mockParsedTx: solana.ParsedTransactionWithMeta =
-        mockDeep<solana.ParsedTransactionWithMeta>();
       const ptx = {
-        ...mockParsedTx,
+        ...mockDeep<solana.ParsedTransactionWithMeta>(),
         transaction: parsedWormholeRedeemEvmUnlockWrappedTx.transaction,
       };
       const txs: SolanaTx = {
@@ -80,7 +72,7 @@ describe("Pool tests", () => {
         timestamp: 123456789,
         interactionId: "1",
       };
-      expect(isPoolTx(contractAddress, txs)).toBeTruthy();
+      expect(isPoolTx(contractAddress, txs)).toBe(true);
     });
   });
 });

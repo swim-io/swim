@@ -19,8 +19,8 @@ import {
 } from "./solana";
 
 describe("models - Wormhole utils", () => {
-  describe("parseSequenceFromLogSolana", () => {
-    const SOLANA_SEQ_LOG = "Program log: Sequence:";
+  describe("parseSequenceFromLogSolana 94176", () => {
+    const SOLANA_SEQ_LOG = "Program log: Sequence: 94176";
     it("finds the sequence from a Wormhole tx", () => {
       const tx: ParsedTransactionWithMeta = {
         slot: 1,
@@ -29,7 +29,7 @@ describe("models - Wormhole utils", () => {
           message: { accountKeys: [], instructions: [], recentBlockhash: "" },
         },
         meta: {
-          logMessages: [`${SOLANA_SEQ_LOG} 94176`],
+          logMessages: [SOLANA_SEQ_LOG],
           fee: 0,
           preBalances: [0],
           postBalances: [0],

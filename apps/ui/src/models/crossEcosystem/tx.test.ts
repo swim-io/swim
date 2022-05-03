@@ -1,8 +1,8 @@
-import { BigNumber } from "@ethersproject/bignumber";
 import type { ethers } from "ethers";
 import { mock } from "jest-mock-extended";
 
 import { EcosystemId } from "../../config";
+import { parsedSwimSwapTx } from "../../fixtures/solana/txs";
 
 import type { BscTx, EthereumTx, SolanaTx, TxWithTokenId } from "./tx";
 import {
@@ -22,18 +22,7 @@ describe("Cross-ecosystem tx", () => {
     txId: "34PhSGJi3XboZEhZEirTM6FEh1hNiYHSio1va1nNgH7S9LSNJQGSAiizEyVbgbVJzFjtsbyuJ2WijN53FSC83h7h",
     timestamp: defaultTimestamp,
     interactionId: defaultInteractionId,
-    parsedTx: {
-      slot: 782648,
-      transaction: {
-        signatures: [],
-        message: {
-          accountKeys: [],
-          instructions: [],
-          recentBlockhash: "4T4Pnrtr1A15QRx69DukxvABoU2RiGmGeNAwaqiiAxyp",
-        },
-      },
-      meta: null,
-    },
+    parsedTx: parsedSwimSwapTx,
   };
 
   const ethereumTx: EthereumTx = {
@@ -62,6 +51,10 @@ describe("Cross-ecosystem tx", () => {
 
   const txWithBinanceId: TxWithTokenId = {
     tokenId: "mainnet-bsc-usdt",
+    tx: bscTx,
+  };
+  const txWithBinanceUsdcId: TxWithTokenId = {
+    tokenId: "mainnet-bsc-usdc",
     tx: bscTx,
   };
 
@@ -112,12 +105,20 @@ describe("Cross-ecosystem tx", () => {
   describe("groupTxsByTokenId", () => {
     it("returns object of txs grouped by tokenId as a key", () => {
       const expected = {
-        "mainnet-solana-usdc": [solanaTx],
-        "mainnet-ethereum-usdc": [ethereumTx],
+        "mainnet-solana-usdc": [solanaTx, solanaTx],
+        "mainnet-ethereum-usdc": [ethereumTx, ethereumTx],
         "mainnet-bsc-usdt": [bscTx],
+        "mainnet-bsc-usdc": [bscTx],
       };
       expect(
-        groupTxsByTokenId([txWithSolanaId, txWithEthereumId, txWithBinanceId]),
+        groupTxsByTokenId([
+          txWithBinanceId,
+          txWithBinanceUsdcId,
+          txWithSolanaId,
+          txWithEthereumId,
+          txWithSolanaId,
+          txWithEthereumId,
+        ]),
       ).toEqual(expected);
     });
     it("returns one object with tokenId, if single element list", () => {
@@ -137,9 +138,13 @@ describe("Cross-ecosystem tx", () => {
   });
 
   describe("deduplicateTxsByTokenId", () => {
-    const txBySolanaId = { "mainnet-solana-usdc": [solanaTx] };
-    const txByEthereumId = { "mainnet-ethereum-usdc": [ethereumTx] };
-    const txByBinanceId = { "mainnet-bsc-usdt": [bscTx] };
+    const txBySolanaId = {
+      "mainnet-solana-usdc": [solanaTx, solanaTx, solanaTx],
+    };
+    const txByEthereumId = {
+      "mainnet-ethereum-usdc": [ethereumTx, ethereumTx],
+    };
+    const txByBinanceId = { "mainnet-bsc-usdt": [bscTx, bscTx, bscTx] };
 
     it("returns object of all txs, if no duplicates", () => {
       expect(deduplicateTxsByTokenId(txBySolanaId, txByEthereumId)).toEqual({

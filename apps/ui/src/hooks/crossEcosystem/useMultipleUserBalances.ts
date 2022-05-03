@@ -1,3 +1,6 @@
+import type Decimal from "decimal.js";
+import type { UseQueryResult } from "react-query";
+
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
 import { useSolanaWallet } from "../../contexts";
@@ -55,6 +58,24 @@ const getContractAddressesByEcosystem = (
     },
   );
 
+const getEvmTokenIdAndBalance = (
+  tokenSpec: TokenSpec,
+  ecosystemId: EcosystemId,
+  balances: readonly UseQueryResult<Decimal | null, Error>[],
+  i: number,
+): readonly [string, Amount | null] => {
+  if (!balances[i]) {
+    return [tokenSpec.id, null];
+  }
+  const { data: balance = null } = balances[i];
+  return [
+    tokenSpec.id,
+    balance !== null
+      ? Amount.fromAtomic(tokenSpec, balance, ecosystemId)
+      : null,
+  ];
+};
+
 export const useMultipleUserBalances = (
   tokenSpecs: readonly TokenSpec[],
 ): ReadonlyMap<string, Amount | null> => {
@@ -99,52 +120,36 @@ export const useMultipleUserBalances = (
           ];
         }
         case EcosystemId.Ethereum: {
-          if (!ethereumBalances[i]) {
-            return [tokenSpec.id, null];
-          }
-          const { data: balance = null } = ethereumBalances[i];
-          return [
-            tokenSpec.id,
-            balance !== null
-              ? Amount.fromAtomic(tokenSpec, balance, EcosystemId.Ethereum)
-              : null,
-          ];
+          return getEvmTokenIdAndBalance(
+            tokenSpec,
+            EcosystemId.Ethereum,
+            ethereumBalances,
+            i,
+          );
         }
         case EcosystemId.Bsc: {
-          if (!bscBalances[i]) {
-            return [tokenSpec.id, null];
-          }
-          const { data: balance = null } = bscBalances[i];
-          return [
-            tokenSpec.id,
-            balance !== null
-              ? Amount.fromAtomic(tokenSpec, balance, EcosystemId.Bsc)
-              : null,
-          ];
+          return getEvmTokenIdAndBalance(
+            tokenSpec,
+            EcosystemId.Bsc,
+            bscBalances,
+            i,
+          );
         }
         case EcosystemId.Avalanche: {
-          if (!avalancheBalances[i]) {
-            return [tokenSpec.id, null];
-          }
-          const { data: balance = null } = avalancheBalances[i];
-          return [
-            tokenSpec.id,
-            balance !== null
-              ? Amount.fromAtomic(tokenSpec, balance, EcosystemId.Avalanche)
-              : null,
-          ];
+          return getEvmTokenIdAndBalance(
+            tokenSpec,
+            EcosystemId.Avalanche,
+            avalancheBalances,
+            i,
+          );
         }
         case EcosystemId.Polygon: {
-          if (!polygonBalances[i]) {
-            return [tokenSpec.id, null];
-          }
-          const { data: balance = null } = polygonBalances[i];
-          return [
-            tokenSpec.id,
-            balance !== null
-              ? Amount.fromAtomic(tokenSpec, balance, EcosystemId.Polygon)
-              : null,
-          ];
+          return getEvmTokenIdAndBalance(
+            tokenSpec,
+            EcosystemId.Polygon,
+            polygonBalances,
+            i,
+          );
         }
         default:
           return [tokenSpec.id, null];

@@ -24,6 +24,7 @@ const BSC_BUSD = findLocalnetTokenById("localnet-bsc-busd");
 describe("useSwapFeesEstimationQuery", () => {
   beforeEach(() => {
     // Reset queryClient cache, otherwise test might return previous value
+    // eslint-disable-next-line testing-library/no-render-in-setup
     renderHook(() => useQueryClient().clear(), {
       wrapper: AppContext,
     });

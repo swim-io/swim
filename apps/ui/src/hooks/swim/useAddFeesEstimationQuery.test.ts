@@ -27,6 +27,7 @@ const BSC_USDT = findLocalnetTokenById("localnet-bsc-usdt");
 describe("useAddFeesEstimationQuery", () => {
   beforeEach(() => {
     // Reset queryClient cache, otherwise test might return previous value
+    // eslint-disable-next-line testing-library/no-render-in-setup
     renderHook(() => useQueryClient().clear(), {
       wrapper: AppContext,
     });

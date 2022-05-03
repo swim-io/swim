@@ -16,6 +16,7 @@ import type {
   SwapInteraction,
 } from "./interaction";
 import type {
+  Steps,
   TxsByStep,
   WormholeFromSolanaFullStep,
   WormholeFromSolanaProtoStep,
@@ -75,7 +76,6 @@ const generateSplTokenAccount = (mint: string): TokenAccountInfo => ({
 const defaultAmounts = ["0", "1.111", "0", "3333.3", "0", "0"].map(
   (amount, i) => Amount.fromHumanString(poolTokens[i], amount),
 );
-// const exactInputAmounts = poolTokens.map((poolToken) => Amount.zero(poolToken));
 
 describe("Swim steps", () => {
   const defaultInteractionId = "2dd7602f7db6617697ecf04ac4aac930";
@@ -83,19 +83,19 @@ describe("Swim steps", () => {
     "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J";
   const splTokenMints = [
     "2WDq7wSs9zYrpx2kbHDA4RUTRch2CCTP6ZWaH4GNfnQQ", // Not in pool
-    "USCAD1T3pV246XwC5kBFXpEjuudS1zT1tTNYhxby9vy", // Pool token
-    "USTPJc7bSkXxRPP1ZdxihfxtfgWNrcRPrE4KEC6EK23", // Pool token
-    "Ep9cMbgyG46b6PVvJNypopc6i8TFzvUVmGiT4MA1PhSb", // Pool token
-    "9AGDY4Xa9wDfRZc2LHeSS9iAdH6Bhw6VnMd2t7tkJhYv", // Pool token
-    "4X3Fu7ZcRSf7dvKEwwQ8b5xb2jQg2NPNkWs1gDGf1WMg", // Pool token
-    "9idXDPGb5jfwaf5fxjiMacgUcwpy3ZHfdgqSjAV5XLDr", // Pool token
-    "LPTufpWWSucDqq1hib8vxj1uJxTh2bkE7ZTo65LH4J2", // LP token
+    "USCAD1T3pV246XwC5kBFXpEjuudS1zT1tTNYhxby9vy", // "localnet-solana-usdc"
+    "USTPJc7bSkXxRPP1ZdxihfxtfgWNrcRPrE4KEC6EK23", // "localnet-solana-usdt"
+    "Ep9cMbgyG46b6PVvJNypopc6i8TFzvUVmGiT4MA1PhSb", // "localnet-ethereum-usdc"
+    "9AGDY4Xa9wDfRZc2LHeSS9iAdH6Bhw6VnMd2t7tkJhYv", // "localnet-ethereum-usdt"
+    "4X3Fu7ZcRSf7dvKEwwQ8b5xb2jQg2NPNkWs1gDGf1WMg", // "localnet-bsc-busd"
+    "9idXDPGb5jfwaf5fxjiMacgUcwpy3ZHfdgqSjAV5XLDr", // "localnet-bsc-usdt"
+    "LPTufpWWSucDqq1hib8vxj1uJxTh2bkE7ZTo65LH4J2", // "localnet-solana-lp-hexapool"
   ];
   const defaultSplTokenAccounts = splTokenMints
     .filter((_, i) => [0, 2, 3].includes(i))
     .map(generateSplTokenAccount);
 
-  const keyPair = new Keypair();
+  const keypair = Keypair.generate();
   let swapInteraction: SwapInteraction;
 
   beforeEach(() => {
@@ -104,7 +104,9 @@ describe("Swim steps", () => {
       env: Env.Mainnet,
       poolId: "test-pool",
       submittedAt: 1646408146771,
-      signatureSetKeypairs: { [poolTokens[3].id]: keyPair },
+      signatureSetKeypairs: {
+        "localnet-ethereum-usdt": keypair,
+      },
       previousSignatureSetAddresses: {},
       connectedWallets: {
         [EcosystemId.Solana]: defaultSolanaWalletAddress,
@@ -163,9 +165,9 @@ describe("Swim steps", () => {
       );
 
       expect(result).toEqual([
-        "USTPJc7bSkXxRPP1ZdxihfxtfgWNrcRPrE4KEC6EK23",
-        "Ep9cMbgyG46b6PVvJNypopc6i8TFzvUVmGiT4MA1PhSb",
-        "9AGDY4Xa9wDfRZc2LHeSS9iAdH6Bhw6VnMd2t7tkJhYv",
+        "USTPJc7bSkXxRPP1ZdxihfxtfgWNrcRPrE4KEC6EK23", // "localnet-solana-usdt"
+        "Ep9cMbgyG46b6PVvJNypopc6i8TFzvUVmGiT4MA1PhSb", // "localnet-ethereum-usdc"
+        "9AGDY4Xa9wDfRZc2LHeSS9iAdH6Bhw6VnMd2t7tkJhYv", // "localnet-ethereum-usdt"
       ]);
     });
 
@@ -200,15 +202,16 @@ describe("Swim steps", () => {
       );
 
       expect(result).toEqual([
-        "USTPJc7bSkXxRPP1ZdxihfxtfgWNrcRPrE4KEC6EK23",
-        "9AGDY4Xa9wDfRZc2LHeSS9iAdH6Bhw6VnMd2t7tkJhYv",
-        "LPTufpWWSucDqq1hib8vxj1uJxTh2bkE7ZTo65LH4J2",
+        "USTPJc7bSkXxRPP1ZdxihfxtfgWNrcRPrE4KEC6EK23", // "localnet-solana-usdt"
+        "9AGDY4Xa9wDfRZc2LHeSS9iAdH6Bhw6VnMd2t7tkJhYv", // "localnet-ethereum-usdt"
+        "LPTufpWWSucDqq1hib8vxj1uJxTh2bkE7ZTo65LH4J2", // "localnet-solana-lp-hexapool"
       ]);
     });
     it("should throw an error if Solana wallet is not connected", () => {
       const interaction: SwapInteraction = {
         ...swapInteraction,
         connectedWallets: {
+          ...swapInteraction.connectedWallets,
           [EcosystemId.Solana]: null,
         },
       };
@@ -219,71 +222,60 @@ describe("Swim steps", () => {
           lpToken,
           interaction,
         ),
-      ).toThrow();
-    });
-    it("should throw an error if interaction type is not supported", () => {
-      const interaction = {};
-      expect(() =>
-        findMissingSplTokenAccountMints(
-          defaultSplTokenAccounts,
-          poolTokens,
-          lpToken,
-          interaction,
-        ),
-      ).toThrow();
+      ).toThrowError(/Missing Solana wallet/i);
     });
   });
 
   describe("createAddSteps", () => {
-    const interaction: AddInteraction = {
-      id: defaultInteractionId,
-      env: Env.Localnet,
-      poolId: "test-pool",
-      submittedAt: 1646408146771,
-      signatureSetKeypairs: { [poolTokens[3].id]: keyPair },
-      previousSignatureSetAddresses: {},
-      connectedWallets: {
-        [EcosystemId.Solana]: defaultSolanaWalletAddress,
-        [EcosystemId.Ethereum]: null,
-        [EcosystemId.Bsc]: null,
-        [EcosystemId.Terra]: null,
-        [EcosystemId.Polygon]: null,
-        [EcosystemId.Avalanche]: null,
-      },
-      instruction: SwimDefiInstruction.Add,
-      lpTokenTargetEcosystem: EcosystemId.Bsc,
-      params: {
-        inputAmounts: defaultAmounts,
-        minimumMintAmount: Amount.fromHumanString(lpToken, "3000"),
-      },
-    };
-    const result = createAddSteps(
-      defaultSplTokenAccounts,
-      poolTokens,
-      lpToken,
-      interaction,
-      txsByStep,
-    );
-    it("should generate steps for add instruction type", () => {
-      expect(Object.keys(result)).toEqual([
-        "createSplTokenAccounts",
-        "wormholeToSolana",
-        "interactWithPool",
-        "wormholeFromSolana",
-      ]);
+    let interaction: AddInteraction;
+    let result: Steps;
+
+    beforeEach(() => {
+      interaction = {
+        id: defaultInteractionId,
+        env: Env.Localnet,
+        poolId: "test-pool",
+        submittedAt: 1646408146771,
+        signatureSetKeypairs: { [poolTokens[3].id]: keypair },
+        previousSignatureSetAddresses: {},
+        connectedWallets: {
+          [EcosystemId.Solana]: defaultSolanaWalletAddress,
+          [EcosystemId.Ethereum]: null,
+          [EcosystemId.Bsc]: null,
+          [EcosystemId.Terra]: null,
+          [EcosystemId.Polygon]: null,
+          [EcosystemId.Avalanche]: null,
+        },
+        instruction: SwimDefiInstruction.Add,
+        lpTokenTargetEcosystem: EcosystemId.Bsc,
+        params: {
+          inputAmounts: defaultAmounts,
+          minimumMintAmount: Amount.fromHumanString(lpToken, "3000"),
+        },
+      };
+      result = createAddSteps(
+        defaultSplTokenAccounts,
+        poolTokens,
+        lpToken,
+        interaction,
+        txsByStep,
+      );
+    });
+
+    it("generate steps for add instruction type", () => {
       expect(result["createSplTokenAccounts"].isComplete).toBeFalsy();
       expect(result["wormholeToSolana"].isComplete).toBeFalsy();
     });
-    it("should have found mint tokens", () => {
+    it("have found mint tokens", () => {
       const mints = findMissingSplTokenAccountMints(
         defaultSplTokenAccounts,
         poolTokens,
         lpToken,
         interaction,
       );
-      expect(result["createSplTokenAccounts"].mints).toEqual(mints);
+      expect(result.createSplTokenAccounts.mints).toEqual(mints);
     });
-    it("should have generated transfer tokens", () => {
+    it("have generated transfer tokens", () => {
       const inputTransfersRes = generateInputTransfers(
         interaction.id,
         defaultSplTokenAccounts,
@@ -291,30 +283,30 @@ describe("Swim steps", () => {
         interaction.params.inputAmounts,
         interaction.signatureSetKeypairs,
       );
-      expect(result["wormholeToSolana"].transfers.tokens).toEqual(
+      expect(result.wormholeToSolana.transfers.tokens).toEqual(
         inputTransfersRes,
       );
     });
-    it("should thave LPToken tranfer type", () => {
+    it("have LPToken tranfer type", () => {
       expect(result["wormholeFromSolana"].transfers.type).toEqual(
         TransferType.LpToken,
       );
     });
-    it("should generate lpToken", () => {
+    it("generate lpToken", () => {
       const resLpOutProtoTransfer = generateLpOutProtoTransfer(
         interaction.id,
         lpToken,
         interaction.lpTokenTargetEcosystem,
       );
 
-      expect(result["wormholeFromSolana"].transfers.lpToken).toEqual(
+      expect(result.wormholeFromSolana.transfers.lpToken).toEqual(
         resLpOutProtoTransfer,
       );
     });
   });
 
   describe("createSwapSteps", () => {
-    it("should generate steps for swap interaction type", () => {
+    it("generate steps for swap interaction type", () => {
       const result = createSwapSteps(
         defaultSplTokenAccounts,
         poolTokens,
@@ -341,22 +333,17 @@ describe("Swim steps", () => {
         poolTokens,
         swapInteraction.params.outputTokenIndex,
       );
-
-      expect(Object.keys(result)).toEqual([
-        "createSplTokenAccounts",
-        "wormholeToSolana",
-        "interactWithPool",
-        "wormholeFromSolana",
-      ]);
-      expect(result["createSplTokenAccounts"].mints).toEqual(mints);
-      expect(result["createSplTokenAccounts"].isComplete).toBeFalsy();
-      expect(result["wormholeToSolana"].isComplete).toBeFalsy();
-      expect(result["wormholeToSolana"].transfers.tokens).toEqual(
+      expect(result.createSplTokenAccounts.mints).toEqual(mints);
+      expect(result.createSplTokenAccounts.isComplete).toBeFalsy();
+      expect(result.wormholeToSolana.isComplete).toBeFalsy();
+      expect(result.wormholeToSolana.transfers.tokens).toEqual(
         inputTransfersRes,
       );
-      expect(result["wormholeFromSolana"].transfers.tokens).toEqual(
+      expect(result.wormholeFromSolana.transfers.tokens).toEqual(
         resSingleOutputT,
       );
+      expect(result.wormholeFromSolana.knownAmounts).toBe(false);
+      expect(result.interactWithPool.isComplete).toBe(false);
     });
   });
 
@@ -366,7 +353,7 @@ describe("Swim steps", () => {
       env: Env.Localnet,
       poolId: "test-pool",
       submittedAt: 1646408146771,
-      signatureSetKeypairs: { [poolTokens[3].id]: keyPair },
+      signatureSetKeypairs: { "localnet-ethereum-usdt": keypair },
       previousSignatureSetAddresses: {},
       connectedWallets: {
         [EcosystemId.Solana]: defaultSolanaWalletAddress,
@@ -398,13 +385,7 @@ describe("Swim steps", () => {
         interaction,
       );
 
-      expect(Object.keys(result)).toEqual([
-        "createSplTokenAccounts",
-        "wormholeToSolana",
-        "interactWithPool",
-        "wormholeFromSolana",
-      ]);
-      expect(result["createSplTokenAccounts"].mints).toEqual(mints);
+      expect(result.createSplTokenAccounts.mints).toEqual(mints);
     });
   });
 
@@ -414,7 +395,7 @@ describe("Swim steps", () => {
       env: Env.Localnet,
       poolId: "test-pool",
       submittedAt: 1646408146771,
-      signatureSetKeypairs: { [poolTokens[3].id]: keyPair },
+      signatureSetKeypairs: { [poolTokens[3].id]: keypair },
       previousSignatureSetAddresses: {},
       connectedWallets: {
         [EcosystemId.Solana]: defaultSolanaWalletAddress,
@@ -454,14 +435,8 @@ describe("Swim steps", () => {
         interaction.signatureSetKeypairs,
       );
 
-      expect(Object.keys(result)).toEqual([
-        "createSplTokenAccounts",
-        "wormholeToSolana",
-        "interactWithPool",
-        "wormholeFromSolana",
-      ]);
-      expect(result["createSplTokenAccounts"].mints).toEqual(mints);
-      expect(result["wormholeToSolana"].transfers.lpToken).toEqual(
+      expect(result.createSplTokenAccounts.mints).toEqual(mints);
+      expect(result.wormholeToSolana.transfers.lpToken).toEqual(
         resLpInTransfer,
       );
     });
@@ -473,7 +448,7 @@ describe("Swim steps", () => {
         env: Env.Localnet,
         poolId: "test-pool",
         submittedAt: 1646408146771,
-        signatureSetKeypairs: { [poolTokens[3].id]: keyPair },
+        signatureSetKeypairs: { [poolTokens[3].id]: keypair },
         previousSignatureSetAddresses: {},
         connectedWallets: {
           [EcosystemId.Solana]: defaultSolanaWalletAddress,
@@ -519,12 +494,6 @@ describe("Swim steps", () => {
         interaction.params.exactOutputAmounts,
       );
 
-      expect(Object.keys(result)).toEqual([
-        "createSplTokenAccounts",
-        "wormholeToSolana",
-        "interactWithPool",
-        "wormholeFromSolana",
-      ]);
       expect(result["createSplTokenAccounts"].mints).toEqual(mints);
       expect(result["wormholeToSolana"].transfers.lpToken).toEqual(
         resGenerateLpInTransfer,

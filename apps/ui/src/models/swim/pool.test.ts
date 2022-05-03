@@ -13,7 +13,7 @@ import { getTokensByPool, isPoolTx } from "./pool";
 
 describe("Pool tests", () => {
   describe("getTokensByPool", () => {
-    it("should return tokens by pool id for mainnet", () => {
+    it("returns tokens by pool id for mainnet", () => {
       const mainnetConfig: Config = configs[Env.Mainnet];
       const res = getTokensByPool(mainnetConfig);
       const poolId = "hexapool";
@@ -27,7 +27,7 @@ describe("Pool tests", () => {
         expect(t).toEqual(t2);
       });
     });
-    it("should return tokens by pool id for devnnet", () => {
+    it("returns tokens by pool id for devnnet", () => {
       const devnetConfig: Config = configs[Env.Devnet];
       const res = getTokensByPool(devnetConfig);
       const poolId = "hexapool";
@@ -41,7 +41,7 @@ describe("Pool tests", () => {
         expect(t).toEqual(t2);
       });
     });
-    it("should return tokens by pool id for localnet", () => {
+    it("returns tokens by pool id for localnet", () => {
       const localnetConfig: Config = configs[Env.Localnet];
       const res = getTokensByPool(localnetConfig);
       const poolId = "hexapool";
@@ -55,7 +55,7 @@ describe("Pool tests", () => {
         expect(t).toEqual(t2);
       });
     });
-    it("should return tokens by pool id for customnet", () => {
+    it("returns tokens by pool id for customnet", () => {
       const customnetConfig: Config = configs[Env.CustomLocalnet];
       const res = getTokensByPool(customnetConfig);
       const poolId = "hexapool";
@@ -72,30 +72,30 @@ describe("Pool tests", () => {
   });
 
   describe("isPoolTx", () => {
-    it("should return false if not solana pool tx", () => {
-      const contractAddr = "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC";
+    it("returns false for EVM tx", () => {
+      const contractAddress = "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC";
       const ecosystemId = EcosystemId.Ethereum;
-      const tr: ethers.providers.TransactionResponse =
+      const txResponse: ethers.providers.TransactionResponse =
         mock<ethers.providers.TransactionResponse>();
-      const txRec: ethers.providers.TransactionReceipt =
+      const txReceipt: ethers.providers.TransactionReceipt =
         mock<ethers.providers.TransactionReceipt>();
       const tx: EvmTx = {
         txId: "string",
         timestamp: 123456789,
         ecosystem: ecosystemId,
-        txResponse: tr,
-        txReceipt: txRec,
+        txResponse: txResponse,
+        txReceipt: txReceipt,
         interactionId: "1",
       };
-      expect(isPoolTx(contractAddr, tx)).toBeFalsy();
+      expect(isPoolTx(contractAddress, tx)).toBe(false);
     });
 
-    it("should return false, if not pool Solana tx", () => {
-      const contractAddr = "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC";
-      let ptx: solana.ParsedTransactionWithMeta =
+    it("returns false, if not pool Solana tx", () => {
+      const contractAddress = "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC";
+      const mockParsedTx: solana.ParsedTransactionWithMeta =
         mockDeep<solana.ParsedTransactionWithMeta>();
-      ptx = {
-        ...ptx,
+      const ptx = {
+        ...mockParsedTx,
         transaction: parsedWormholeRedeemEvmUnlockWrappedTx.transaction,
       };
       const txs: SolanaTx = {
@@ -105,15 +105,15 @@ describe("Pool tests", () => {
         timestamp: 123456789,
         interactionId: "1",
       };
-      expect(isPoolTx(contractAddr, txs)).toBeFalsy();
+      expect(isPoolTx(contractAddress, txs)).toBe(false);
     });
 
-    it("should return true, if it's pool solana tx", () => {
-      const contractAddr = "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb";
-      let ptx: solana.ParsedTransactionWithMeta =
+    it("returns true, if it's pool solana tx", () => {
+      const contractAddress = "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb";
+      const mockParsedTx: solana.ParsedTransactionWithMeta =
         mockDeep<solana.ParsedTransactionWithMeta>();
-      ptx = {
-        ...ptx,
+      const ptx = {
+        ...mockParsedTx,
         transaction: parsedWormholeRedeemEvmUnlockWrappedTx.transaction,
       };
       const txs: SolanaTx = {
@@ -123,7 +123,7 @@ describe("Pool tests", () => {
         timestamp: 123456789,
         interactionId: "1",
       };
-      expect(isPoolTx(contractAddr, txs)).toBeTruthy();
+      expect(isPoolTx(contractAddress, txs)).toBeTruthy();
     });
   });
 });

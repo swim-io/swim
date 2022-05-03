@@ -1,4 +1,6 @@
 import { BigNumber } from "@ethersproject/bignumber";
+import type { ethers } from "ethers";
+import { mock } from "jest-mock-extended";
 
 import { EcosystemId } from "../../config";
 
@@ -20,7 +22,7 @@ describe("Cross-ecosystem tx", () => {
     txId: "34PhSGJi3XboZEhZEirTM6FEh1hNiYHSio1va1nNgH7S9LSNJQGSAiizEyVbgbVJzFjtsbyuJ2WijN53FSC83h7h",
     timestamp: defaultTimestamp,
     interactionId: defaultInteractionId,
-    tx: {
+    parsedTx: {
       slot: 782648,
       transaction: {
         signatures: [],
@@ -39,23 +41,8 @@ describe("Cross-ecosystem tx", () => {
     txId: "0x743087e871039d66b82fcb2cb719f6a541e650e05735c32c1be871ef9ae9a456",
     timestamp: defaultTimestamp,
     interactionId: defaultInteractionId,
-    tx: {
-      to: "",
-      from: "",
-      contractAddress: "",
-      transactionIndex: 1,
-      gasUsed: BigNumber.from(1),
-      logsBloom: "",
-      blockHash: "",
-      transactionHash: "",
-      logs: [],
-      blockNumber: 782648,
-      confirmations: 1,
-      cumulativeGasUsed: BigNumber.from(1),
-      effectiveGasPrice: BigNumber.from(1),
-      byzantium: true,
-      type: 0,
-    },
+    txResponse: mock<ethers.providers.TransactionResponse>(),
+    txReceipt: mock<ethers.providers.TransactionReceipt>(),
   };
 
   const bscTx: BscTx = {
@@ -64,13 +51,18 @@ describe("Cross-ecosystem tx", () => {
   };
 
   const txWithSolanaId: TxWithTokenId = {
-    tokenId: "SOL",
+    tokenId: "mainnet-solana-usdc",
     tx: solanaTx,
   };
 
   const txWithEthereumId: TxWithTokenId = {
-    tokenId: "ETH",
+    tokenId: "mainnet-ethereum-usdc",
     tx: ethereumTx,
+  };
+
+  const txWithBinanceId: TxWithTokenId = {
+    tokenId: "mainnet-bsc-usdt",
+    tx: bscTx,
   };
 
   describe("isSolanaTx", () => {
@@ -119,13 +111,25 @@ describe("Cross-ecosystem tx", () => {
 
   describe("groupTxsByTokenId", () => {
     it("returns object of txs grouped by tokenId as a key", () => {
-      const result = { SOL: [solanaTx], ETH: [ethereumTx] };
-      expect(groupTxsByTokenId([txWithSolanaId, txWithEthereumId])).toEqual(
-        result,
-      );
+      const expected = {
+        "mainnet-solana-usdc": [solanaTx],
+        "mainnet-ethereum-usdc": [ethereumTx],
+        "mainnet-bsc-usdt": [bscTx],
+      };
+      expect(
+        groupTxsByTokenId([txWithSolanaId, txWithEthereumId, txWithBinanceId]),
+      ).toEqual(expected);
     });
     it("returns one object with tokenId, if single element list", () => {
-      expect(groupTxsByTokenId([txWithSolanaId])).toEqual({ SOL: [solanaTx] });
+      expect(groupTxsByTokenId([txWithSolanaId])).toEqual({
+        "mainnet-solana-usdc": [solanaTx],
+      });
+      expect(groupTxsByTokenId([txWithBinanceId])).toEqual({
+        "mainnet-bsc-usdt": [bscTx],
+      });
+      expect(groupTxsByTokenId([txWithEthereumId])).toEqual({
+        "mainnet-ethereum-usdc": [ethereumTx],
+      });
     });
     it("returns empty object, if argument is an empty array", () => {
       expect(groupTxsByTokenId([])).toEqual({});
@@ -133,8 +137,9 @@ describe("Cross-ecosystem tx", () => {
   });
 
   describe("deduplicateTxsByTokenId", () => {
-    const txBySolanaId = { SOL: [solanaTx] };
-    const txByEthereumId = { ETH: [ethereumTx] };
+    const txBySolanaId = { "mainnet-solana-usdc": [solanaTx] };
+    const txByEthereumId = { "mainnet-ethereum-usdc": [ethereumTx] };
+    const txByBinanceId = { "mainnet-bsc-usdt": [bscTx] };
 
     it("returns object of all txs, if no duplicates", () => {
       expect(deduplicateTxsByTokenId(txBySolanaId, txByEthereumId)).toEqual({
@@ -145,6 +150,12 @@ describe("Cross-ecosystem tx", () => {
     it("returns object with one tokenId, if there are duplicates", () => {
       expect(deduplicateTxsByTokenId(txBySolanaId, txBySolanaId)).toEqual({
         ...txBySolanaId,
+      });
+      expect(deduplicateTxsByTokenId(txByEthereumId, txByEthereumId)).toEqual({
+        ...txByEthereumId,
+      });
+      expect(deduplicateTxsByTokenId(txByBinanceId, txByBinanceId)).toEqual({
+        ...txByBinanceId,
       });
     });
     it("returns empty object, if arguments are empty objects", () => {

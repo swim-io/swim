@@ -143,7 +143,7 @@ export const generateOutputTransfers = (
     if (token.nativeEcosystem === EcosystemId.Solana) {
       return null;
     }
-    if (!amounts.length) {
+    if (amounts.length === 0) {
       return null;
     }
     const amount = amounts[i];

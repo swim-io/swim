@@ -5,7 +5,6 @@ import { mock, mockDeep } from "jest-mock-extended";
 import type { Config } from "../../config";
 import { EcosystemId, configs } from "../../config";
 import { Env } from "../../config/env";
-import { tokens } from "../../config/tokens";
 import { parsedWormholeRedeemEvmUnlockWrappedTx } from "../../fixtures/solana/txs";
 import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
@@ -13,60 +12,18 @@ import { getTokensByPool, isPoolTx } from "./pool";
 
 describe("Pool tests", () => {
   describe("getTokensByPool", () => {
-    it("returns tokens by pool id for mainnet", () => {
-      const mainnetConfig: Config = configs[Env.Mainnet];
-      const res = getTokensByPool(mainnetConfig);
-      const poolId = "hexapool";
-      expect(Object.keys(res)[0]).toEqual(poolId);
-      expect(Object.keys(res[poolId])).toEqual(["tokens", "lpToken"]);
-
-      const allTokens = [...res[poolId]["tokens"], res[poolId]["lpToken"]];
-      expect(allTokens.length).toEqual(tokens[Env.Mainnet].length);
-      allTokens.forEach((t) => {
-        const t2 = tokens[Env.Mainnet].find((emt) => emt.id === t.id);
-        expect(t).toEqual(t2);
-      });
-    });
-    it("returns tokens by pool id for devnnet", () => {
-      const devnetConfig: Config = configs[Env.Devnet];
-      const res = getTokensByPool(devnetConfig);
-      const poolId = "hexapool";
-      expect(Object.keys(res)[0]).toEqual(poolId);
-      expect(Object.keys(res[poolId])).toEqual(["tokens", "lpToken"]);
-
-      const allTokens = [...res[poolId]["tokens"], res[poolId]["lpToken"]];
-
-      allTokens.forEach((t) => {
-        const t2 = tokens[Env.Devnet].find((emt) => emt.id === t.id);
-        expect(t).toEqual(t2);
-      });
-    });
     it("returns tokens by pool id for localnet", () => {
       const localnetConfig: Config = configs[Env.Localnet];
-      const res = getTokensByPool(localnetConfig);
-      const poolId = "hexapool";
-      expect(Object.keys(res)[0]).toEqual(poolId);
-      expect(Object.keys(res[poolId])).toEqual(["tokens", "lpToken"]);
+      const result = getTokensByPool(localnetConfig);
 
-      const allTokens = [...res[poolId]["tokens"], res[poolId]["lpToken"]];
-
-      allTokens.forEach((t) => {
-        const t2 = tokens[Env.Localnet].find((emt) => emt.id === t.id);
-        expect(t).toEqual(t2);
-      });
-    });
-    it("returns tokens by pool id for customnet", () => {
-      const customnetConfig: Config = configs[Env.CustomLocalnet];
-      const res = getTokensByPool(customnetConfig);
-      const poolId = "hexapool";
-      expect(Object.keys(res)[0]).toEqual(poolId);
-      expect(Object.keys(res[poolId])).toEqual(["tokens", "lpToken"]);
-
-      const allTokens = [...res[poolId]["tokens"], res[poolId]["lpToken"]];
-
-      allTokens.forEach((t) => {
-        const t2 = tokens[Env.CustomLocalnet].find((emt) => emt.id === t.id);
-        expect(t).toEqual(t2);
+      localnetConfig.pools.forEach((pool) => {
+        const tokenKeys = pool.tokenAccounts.keys();
+        const tokenIds = [...tokenKeys, pool.lpToken];
+        const expectedPoolTokenIds = [
+          ...result[pool.id].tokens,
+          result[pool.id].lpToken,
+        ].map((token) => token.id);
+        expect(tokenIds).toEqual(expectedPoolTokenIds);
       });
     });
   });

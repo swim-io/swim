@@ -422,8 +422,8 @@ const devnetTokens: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-avalanche-usdc",
-    symbol: "ALP-USDC", // TODO:
-    displayName: "Avalanche USDC Meta-Pool LP", // TODO:
+    symbol: "SWIM-AVALANCHE-USDC-META-POOL-LP",
+    displayName: "Avalanche USDC Meta-Pool LP",
     icon: SWIM_USD_SVG, // TODO:
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
@@ -439,8 +439,8 @@ const devnetTokens: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-avalanche-usdt",
-    symbol: "ALP-USDT", // TODO:
-    displayName: "Avalanche USDT Meta-Pool LP", // TODO:
+    symbol: "SWIM-AVALANCHE-USDT-META-POOL-LP",
+    displayName: "Avalanche USDT Meta-Pool LP",
     icon: SWIM_USD_SVG, // TODO:
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
@@ -456,8 +456,8 @@ const devnetTokens: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-polygon-usdc",
-    symbol: "PLP-USDC", // TODO:
-    displayName: "Polygon USDC Meta-Pool LP", // TODO:
+    symbol: "SWIM-POLYGON-USDC-META-POOL-LP",
+    displayName: "Polygon USDC Meta-Pool LP",
     icon: SWIM_USD_SVG, // TODO:
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
@@ -473,8 +473,8 @@ const devnetTokens: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-polygon-usdt",
-    symbol: "PLP-USDT", // TODO:
-    displayName: "Polygon USDT Meta-Pool LP", // TODO:
+    symbol: "SWIM-POLYGON-USDT-META-POOL-LP",
+    displayName: "Polygon USDT Meta-Pool LP",
     icon: SWIM_USD_SVG, // TODO:
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,

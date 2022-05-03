@@ -1,0 +1,43 @@
+@import "../eui";
+
+// TODO: Make transparentize($euiColorPrimary, .8) a shared variable.
+
+/* Round buttons */
+.rec.rec-arrow {
+  border-radius: 50%;
+  background-color: transparentize($euiColorPrimary, .8);
+  color: $euiColorPrimary;
+  border-width: 5;
+  box-shadow: 0 0 1px 3px $euiColorGhost !important;
+}
+
+/* Square buttons on hover */
+.rec.rec-arrow:hover:enabled {
+  border-radius: 20%;
+  background-color: transparentize($euiColorPrimary, .8);
+  color: $euiColorPrimary;
+}
+
+.rec.rec-arrow:focus:enabled {
+  background-color: transparentize($euiColorPrimary, .8);
+  color: $euiColorPrimary;
+}
+
+/* Hide disabled buttons */
+.rec.rec-arrow:disabled {
+  visibility: hidden;
+}
+
+/* Disable default outline on focused items */
+.rec-carousel-item:focus {
+  outline: none;
+}
+
+.rec-dot:hover {
+  box-shadow: 0 0 1px 3px $euiColorPrimary !important;
+}
+
+.rec-dot_active {
+  background-color: transparentize($euiColorPrimary, .8) !important;
+  box-shadow: 0 0 1px 3px transparentize($euiColorPrimary, .8) !important;
+}

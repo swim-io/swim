@@ -1,0 +1,10 @@
+@import "../eui";
+
+// TODO: Make transparentize($euiColorPrimary, .8) a shared variable.
+.redeemPageBlueBox {
+  border-radius: 3%;
+  border: $euiBorderRadiusSmall solid transparentize($euiColorPrimary, .8);
+  margin: 10px 30px;
+  min-height: 500px;
+  min-width: 500px;
+}

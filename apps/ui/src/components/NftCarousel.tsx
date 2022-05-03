@@ -17,6 +17,7 @@ import type {
   NftAttribute,
   NftData,
 } from "../hooks/solana/useAccountNftsQuery";
+import { useRedeem } from "../hooks/swim/useRedeem";
 
 import "./NftCarousel.scss";
 
@@ -26,6 +27,7 @@ export interface NftCarouselProps {
 
 export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
+  const [activeNft, setActiveNft] = useState<NftData | null>(null);
   // TODO: Decide on a redeem password, current text reads:
   // "Type `redeem` to redeem your otter."
   const redeemPassword = "redeem";
@@ -34,7 +36,8 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
     setRedeemInput(e.target.value);
   };
 
-  const showRedeemModal = (): void => {
+  const showRedeemModal = (nft: NftData): void => {
+    setActiveNft(nft);
     setIsRedeemModalVisible(true);
   };
 
@@ -42,10 +45,17 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
     setIsRedeemModalVisible(false);
   };
 
-  // TODO: This is unimplemented.
   const executeRedeem = (): void => {
-    // eslint-disable-next-line no-console
-    console.log("this would destroy the NFT.");
+    if (!activeNft) {
+      throw new Error("nft isnt set");
+    }
+    const { mint, collection } = activeNft.metadata;
+    if (!collection) {
+      throw new Error("nft doesnt have a collection");
+    }
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useRedeem(mint, collection.key);
+    hideRedeemModal();
   };
 
   const columns = [
@@ -66,13 +76,15 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
     },
   ];
 
-  const cardFooterContent = (
-    <EuiFlexGroup justifyContent="flexEnd">
-      <EuiFlexItem grow={false}>
-        <EuiButton onClick={showRedeemModal}>Redeem</EuiButton>
-      </EuiFlexItem>
-    </EuiFlexGroup>
-  );
+  const cardFooterContent = (nft: NftData): ReactElement => {
+    return (
+      <EuiFlexGroup justifyContent="flexEnd">
+        <EuiFlexItem grow={false}>
+          <EuiButton onClick={() => showRedeemModal(nft)}>Redeem</EuiButton>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    );
+  };
 
   const generateTable = (attributes: readonly NftAttribute[]): ReactElement => {
     return (
@@ -96,7 +108,7 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
               image={nft.image}
               title={nft.metadata.data.name}
               description={generateTable(nft.attributes)}
-              footer={cardFooterContent}
+              footer={cardFooterContent(nft)}
             />
           );
         })}

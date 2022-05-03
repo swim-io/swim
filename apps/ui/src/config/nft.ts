@@ -1,5 +1,6 @@
 export const SWIM_NUMBERS_COLLECTION_MAINNET =
   "EpozLY9dQ1jnaU5Wof524K7p9uHYxkuLF2hi32cf8W9s";
 
+// La croix
 export const SWIM_NUMBERS_COLLECTION_DEVNET =
-  "9yTtmCgtYX3scQhbcjM3paL2odKT75na2AMMbQDEL9SB";
+  "3B96d5Bt5Nnk3jv5gaaYGbXhMXsCUMcEdGGxVjjLCnvz";

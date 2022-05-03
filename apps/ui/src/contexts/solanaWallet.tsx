@@ -1,3 +1,4 @@
+import type { Wallet as AnchorWallet } from "@project-serum/anchor/src/provider";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import type { ReactElement, ReactNode } from "react";
 import {
@@ -169,3 +170,15 @@ export const SolanaWalletProvider = ({
 
 export const useSolanaWallet = (): SolanaWalletContextInterface =>
   useContext(SolanaWalletContext);
+
+export const useAnchorWallet = (): AnchorWallet => {
+  const wallet = useContext(SolanaWalletContext).wallet;
+  if (!wallet || !wallet.publicKey) {
+    throw new Error("Wallet not connected, can't create an anchor wallet");
+  }
+  return {
+    signTransaction: wallet.signTransaction,
+    signAllTransactions: wallet.signAllTransactions,
+    publicKey: wallet.publicKey,
+  };
+};

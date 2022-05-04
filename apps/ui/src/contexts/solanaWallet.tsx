@@ -170,15 +170,3 @@ export const SolanaWalletProvider = ({
 
 export const useSolanaWallet = (): SolanaWalletContextInterface =>
   useContext(SolanaWalletContext);
-
-export const useAnchorWallet = (): AnchorWallet => {
-  const wallet = useContext(SolanaWalletContext).wallet;
-  if (!wallet || !wallet.publicKey) {
-    throw new Error("Wallet not connected, can't create an anchor wallet");
-  }
-  return {
-    signTransaction: wallet.signTransaction,
-    signAllTransactions: wallet.signAllTransactions,
-    publicKey: wallet.publicKey,
-  };
-};

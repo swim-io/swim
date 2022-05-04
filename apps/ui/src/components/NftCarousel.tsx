@@ -36,6 +36,8 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
     setRedeemInput(e.target.value);
   };
 
+  const { mutateAsync } = useRedeemMutation(activeNft);
+
   const showRedeemModal = (nft: NftData): void => {
     setActiveNft(nft);
     setIsRedeemModalVisible(true);
@@ -46,15 +48,16 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   };
 
   const executeRedeem = (): void => {
-    if (!activeNft) {
-      throw new Error("nft isnt set");
-    }
-    const { mint, collection } = activeNft.metadata;
-    if (!collection) {
-      throw new Error("nft doesnt have a collection");
-    }
-
-    useRedeemMutation(mint, collection.key);
+    // TODO: looks very wrong.. doex execute redeem need to be async?
+    void mutateAsync(activeNft, {
+      onError: (error) => {
+        // TODO: throw a pop-up on failure.
+        console.log("error!", error);
+      },
+      onSuccess: () => {
+        console.log("success");
+      },
+    });
     hideRedeemModal();
   };
 

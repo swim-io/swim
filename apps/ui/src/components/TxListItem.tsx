@@ -3,78 +3,37 @@ import type { FC } from "react";
 
 import { EcosystemId } from "../config";
 
-interface TxListItemProps {
+interface Props {
   readonly ecosystem: EcosystemId;
   readonly txId: string;
 }
 
-export const SolanaTxListItem: FC<TxListItemProps> = ({
-  txId,
-}: TxListItemProps) => (
-  <EuiListGroupItem
-    label={txId}
-    href={`https://explorer.solana.com/tx/${txId}`}
-    target="_blank"
-    iconType="check"
-    size="s"
-  />
-);
-
-const EthereumTxListItem: FC<TxListItemProps> = ({ txId }: TxListItemProps) => (
-  <EuiListGroupItem
-    label={txId}
-    href={`https://etherscan.io/tx/${txId}`}
-    target="_blank"
-    iconType="check"
-    size="s"
-  />
-);
-
-const BscTxListItem: FC<TxListItemProps> = ({ txId }: TxListItemProps) => (
-  <EuiListGroupItem
-    label={txId}
-    href={`https://bscscan.com/tx/${txId}`}
-    target="_blank"
-    iconType="check"
-    size="s"
-  />
-);
-
-const AvalancheTxListItem: FC<TxListItemProps> = ({
-  txId,
-}: TxListItemProps) => (
-  <EuiListGroupItem
-    label={txId}
-    href={`https://snowtrace.io/tx/${txId}`}
-    target="_blank"
-    iconType="check"
-    size="s"
-  />
-);
-
-const PolygonTxListItem: FC<TxListItemProps> = ({ txId }: TxListItemProps) => (
-  <EuiListGroupItem
-    label={txId}
-    href={`https://polygonscan.com/tx/${txId}`}
-    target="_blank"
-    iconType="check"
-    size="s"
-  />
-);
-
-export const TxListItem: FC<TxListItemProps> = (tx: TxListItemProps) => {
-  switch (tx.ecosystem) {
+const getHref = (ecosystemId: EcosystemId, txId: string): string => {
+  switch (ecosystemId) {
     case EcosystemId.Solana:
-      return <SolanaTxListItem {...tx} />;
+      return `https://explorer.solana.com/tx/${txId}`;
     case EcosystemId.Ethereum:
-      return <EthereumTxListItem {...tx} />;
+      return `https://etherscan.io/tx/${txId}`;
     case EcosystemId.Bsc:
-      return <BscTxListItem {...tx} />;
+      return `https://bscscan.com/tx/${txId}`;
     case EcosystemId.Avalanche:
-      return <AvalancheTxListItem {...tx} />;
+      return `https://snowtrace.io/tx/${txId}`;
     case EcosystemId.Polygon:
-      return <PolygonTxListItem {...tx} />;
+      return `https://polygonscan.com/tx/${txId}`;
     default:
-      throw new Error("Unknown transaction ecosystem");
+      throw new Error("Unknown ecosystem");
   }
+};
+
+export const TxListItem: FC<Props> = ({ ecosystem, txId }) => {
+  const href = getHref(ecosystem, txId);
+  return (
+    <EuiListGroupItem
+      label={txId}
+      href={href}
+      target="_blank"
+      iconType="check"
+      size="s"
+    />
+  );
 };

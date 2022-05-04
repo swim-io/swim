@@ -7,22 +7,14 @@ import type { Amount } from "../amount";
 
 import type { SwimDefiInstruction } from "./instructions";
 
-export interface BasePoolInteraction {
-  readonly id: string;
-  readonly env: Env;
+interface BaseOperationSpec {
   readonly poolId: string;
-  readonly submittedAt: number;
+  readonly instruction: SwimDefiInstruction;
+  /** Should be overriden when extending this type */
+  readonly params: unknown;
 }
 
-export interface AddPoolInteraction extends BasePoolInteraction {
-  readonly instruction: SwimDefiInstruction.Add;
-  readonly params: {
-    readonly inputAmounts: readonly Amount[];
-    readonly minimumMintAmount: Amount;
-  };
-}
-
-export interface SwapPoolInteraction extends BasePoolInteraction {
+export interface SwapOperationSpec extends BaseOperationSpec {
   readonly instruction: SwimDefiInstruction.Swap;
   readonly params: {
     readonly exactInputAmounts: readonly Amount[];
@@ -31,7 +23,15 @@ export interface SwapPoolInteraction extends BasePoolInteraction {
   };
 }
 
-export interface RemoveUniformPoolInteraction extends BasePoolInteraction {
+export interface AddOperationSpec extends BaseOperationSpec {
+  readonly instruction: SwimDefiInstruction.Add;
+  readonly params: {
+    readonly inputAmounts: readonly Amount[];
+    readonly minimumMintAmount: Amount;
+  };
+}
+
+export interface RemoveUniformOperationSpec extends BaseOperationSpec {
   readonly instruction: SwimDefiInstruction.RemoveUniform;
   readonly params: {
     readonly exactBurnAmount: Amount;
@@ -39,7 +39,7 @@ export interface RemoveUniformPoolInteraction extends BasePoolInteraction {
   };
 }
 
-export interface RemoveExactBurnPoolInteraction extends BasePoolInteraction {
+export interface RemoveExactBurnOperationSpec extends BaseOperationSpec {
   readonly instruction: SwimDefiInstruction.RemoveExactBurn;
   readonly params: {
     readonly exactBurnAmount: Amount;
@@ -48,7 +48,7 @@ export interface RemoveExactBurnPoolInteraction extends BasePoolInteraction {
   };
 }
 
-export interface RemoveExactOutputPoolInteraction extends BasePoolInteraction {
+export interface RemoveExactOutputOperationSpec extends BaseOperationSpec {
   readonly instruction: SwimDefiInstruction.RemoveExactOutput;
   readonly params: {
     readonly maximumBurnAmount: Amount;
@@ -56,18 +56,88 @@ export interface RemoveExactOutputPoolInteraction extends BasePoolInteraction {
   };
 }
 
-export type PoolInteraction =
-  | AddPoolInteraction
-  | SwapPoolInteraction
-  | RemoveUniformPoolInteraction
-  | RemoveExactBurnPoolInteraction
-  | RemoveExactOutputPoolInteraction;
+export type OperationSpec =
+  | SwapOperationSpec
+  | AddOperationSpec
+  | RemoveUniformOperationSpec
+  | RemoveExactBurnOperationSpec
+  | RemoveExactOutputOperationSpec;
 
-export type WithSplTokenAccounts<T> = T & {
-  readonly splTokenAccounts: readonly TokenAccount[];
-};
+/**
+ * Essentially a duplicate of SwimDefiInstruction but conceptually distinct because a swap
+ * interaction may involve multiple instructions
+ */
+export enum InteractionType {
+  Swap,
+  Add,
+  RemoveUniform,
+  RemoveExactBurn,
+  RemoveExactOutput,
+}
 
-export interface SwimInteraction extends BasePoolInteraction {
+interface BaseInteractionSpec {
+  readonly type: InteractionType;
+  /** Should be overriden when extending this type */
+  readonly params: unknown;
+}
+
+export interface SwapInteractionSpec extends BaseInteractionSpec {
+  readonly type: InteractionType.Swap;
+  readonly params: {
+    readonly exactInputAmounts: ReadonlyMap<string, Amount>;
+    readonly outputTokenId: string;
+    readonly minimumOutputAmount: Amount;
+  };
+}
+
+export interface AddInteractionSpec extends BaseInteractionSpec {
+  readonly type: InteractionType.Add;
+  readonly params: {
+    readonly inputAmounts: ReadonlyMap<string, Amount>;
+    readonly minimumMintAmount: Amount;
+  };
+  readonly lpTokenTargetEcosystem: EcosystemId;
+}
+
+export interface RemoveUniformInteractionSpec extends BaseInteractionSpec {
+  readonly type: InteractionType.RemoveUniform;
+  readonly params: {
+    readonly exactBurnAmount: Amount;
+    readonly minimumOutputAmounts: ReadonlyMap<string, Amount>;
+  };
+  readonly lpTokenSourceEcosystem: EcosystemId;
+}
+
+export interface RemoveExactBurnInteractionSpec extends BaseInteractionSpec {
+  readonly type: InteractionType.RemoveExactBurn;
+  readonly params: {
+    readonly exactBurnAmount: Amount;
+    readonly outputTokenId: string;
+    readonly minimumOutputAmount: Amount;
+  };
+  readonly lpTokenSourceEcosystem: EcosystemId;
+}
+
+export interface RemoveExactOutputInteractionSpec extends BaseInteractionSpec {
+  readonly type: InteractionType.RemoveExactOutput;
+  readonly params: {
+    readonly maximumBurnAmount: Amount;
+    readonly exactOutputAmounts: ReadonlyMap<string, Amount>;
+  };
+  readonly lpTokenSourceEcosystem: EcosystemId;
+}
+
+export type InteractionSpec =
+  | SwapInteractionSpec
+  | AddInteractionSpec
+  | RemoveUniformInteractionSpec
+  | RemoveExactBurnInteractionSpec
+  | RemoveExactOutputInteractionSpec;
+
+interface BaseInteraction {
+  readonly id: string;
+  readonly env: Env;
+  readonly submittedAt: number;
   /** Record of token ID to keypairs for a signature set used in posting Wormhole VAAs to Solana */
   readonly signatureSetKeypairs: ReadonlyRecord<string, Keypair | undefined>;
   /** Previous keypairs for use finding txs */
@@ -78,30 +148,21 @@ export interface SwimInteraction extends BasePoolInteraction {
   readonly connectedWallets: ReadonlyRecord<EcosystemId, string | null>;
 }
 
-export interface AddInteraction extends AddPoolInteraction, SwimInteraction {
-  readonly lpTokenTargetEcosystem: EcosystemId;
-}
+export interface AddInteraction extends BaseInteraction, AddInteractionSpec {}
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface SwapInteraction extends SwapPoolInteraction, SwimInteraction {}
+export interface SwapInteraction extends BaseInteraction, SwapInteractionSpec {}
 
 export interface RemoveUniformInteraction
-  extends RemoveUniformPoolInteraction,
-    SwimInteraction {
-  readonly lpTokenSourceEcosystem: EcosystemId;
-}
+  extends BaseInteraction,
+    RemoveUniformInteractionSpec {}
 
 export interface RemoveExactBurnInteraction
-  extends RemoveExactBurnPoolInteraction,
-    SwimInteraction {
-  readonly lpTokenSourceEcosystem: EcosystemId;
-}
+  extends BaseInteraction,
+    RemoveExactBurnInteractionSpec {}
 
 export interface RemoveExactOutputInteraction
-  extends RemoveExactOutputPoolInteraction,
-    SwimInteraction {
-  readonly lpTokenSourceEcosystem: EcosystemId;
-}
+  extends BaseInteraction,
+    RemoveExactOutputInteractionSpec {}
 
 export type Interaction =
   | AddInteraction
@@ -110,35 +171,6 @@ export type Interaction =
   | RemoveExactBurnInteraction
   | RemoveExactOutputInteraction;
 
-export type AddInteractionSpec = Pick<
-  AddInteraction,
-  "instruction" | "params" | "lpTokenTargetEcosystem"
->;
-
-export type SwapInteractionSpec = Pick<
-  SwapInteraction,
-  "instruction" | "params"
->;
-
-export type RemoveUniformInteractionSpec = Pick<
-  RemoveUniformInteraction,
-  "instruction" | "params" | "lpTokenSourceEcosystem"
->;
-
-export type RemoveExactBurnInteractionSpec = Pick<
-  RemoveExactBurnInteraction,
-  "instruction" | "params" | "lpTokenSourceEcosystem"
->;
-
-export type RemoveExactOutputInteractionSpec = Pick<
-  RemoveExactOutputInteraction,
-  "instruction" | "params" | "lpTokenSourceEcosystem"
->;
-
-/** A subset of Interaction for use in components. Other properties can be calculated eg in useStepsReducer. */
-export type InteractionSpec =
-  | AddInteractionSpec
-  | SwapInteractionSpec
-  | RemoveUniformInteractionSpec
-  | RemoveExactBurnInteractionSpec
-  | RemoveExactOutputInteractionSpec;
+export type WithSplTokenAccounts<T> = T & {
+  readonly splTokenAccounts: readonly TokenAccount[];
+};

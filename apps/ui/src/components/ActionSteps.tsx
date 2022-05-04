@@ -41,7 +41,7 @@ import {
 import type { ReadonlyRecord } from "../utils";
 import { isNotNull } from "../utils";
 
-import { SolanaTxListItem, TxListItem } from "./TxListItem";
+import { TxListItem } from "./TxListItem";
 
 import "./ActionSteps.scss";
 
@@ -266,7 +266,7 @@ const PoolInteractionActionStep = ({
       />
       {txId !== null ? (
         <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-          <SolanaTxListItem ecosystem={EcosystemId.Solana} txId={txId} />
+          <TxListItem ecosystem={EcosystemId.Solana} txId={txId} />
         </EuiListGroup>
       ) : null}
     </>

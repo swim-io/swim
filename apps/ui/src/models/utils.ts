@@ -1,4 +1,5 @@
-import type { EcosystemId } from "../config";
+import type { EcosystemId, EvmEcosystemId } from "../config";
+import { isEvmEcosystemId } from "../config";
 
 import type { Amount } from "./amount";
 
@@ -20,3 +21,15 @@ export const countNonZeroAmounts = (
       amount.tokenSpec.nativeEcosystem === ecosystemId &&
       !amount.isZero(),
   ).length;
+
+export const getIncludedEvmEcosystemIds = (
+  amounts: readonly (Amount | null)[],
+): readonly EvmEcosystemId[] =>
+  amounts
+    .filter(
+      (amount) =>
+        amount &&
+        !amount.isZero() &&
+        isEvmEcosystemId(amount.tokenSpec.nativeEcosystem),
+    )
+    .map((amount) => amount?.tokenSpec.nativeEcosystem as EvmEcosystemId);

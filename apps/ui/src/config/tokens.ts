@@ -1,3 +1,11 @@
+// import AURORA_USN_SVG from "../images/AuroraUSN.svg";
+// import FANTOM_USDC_SVG from "../images/FantomUSDC.svg";
+// import FANTOM_USDT_SVG from "../images/FantomUSDT.svg";
+// import LUNA_UST_SVG from "../images/LunaUST.svg";
+import AVAX_USDC_SVG from "../images/AvaxUSDC.svg";
+import AVAX_USDT_SVG from "../images/AvaxUSDT.svg";
+import POLYGON_USDC_SVG from "../images/PolygonUSDC.svg";
+import POLYGON_USDT_SVG from "../images/PolygonUSDT.svg";
 import BUSD_SVG from "../images/busd.svg";
 import SWIM_TOKEN_SVG from "../images/swim_token.svg";
 import SWIM_USD_SVG from "../images/swim_usd.svg";
@@ -424,7 +432,7 @@ const devnetTokens: readonly TokenSpec[] = [
     id: "devnet-solana-lp-meta-avalanche-usdc",
     symbol: "SWIM-AVALANCHE-USDC-META-POOL-LP",
     displayName: "Avalanche USDC Meta-Pool LP",
-    icon: SWIM_USD_SVG, // TODO:
+    icon: AVAX_USDC_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -441,7 +449,7 @@ const devnetTokens: readonly TokenSpec[] = [
     id: "devnet-solana-lp-meta-avalanche-usdt",
     symbol: "SWIM-AVALANCHE-USDT-META-POOL-LP",
     displayName: "Avalanche USDT Meta-Pool LP",
-    icon: SWIM_USD_SVG, // TODO:
+    icon: AVAX_USDT_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -458,7 +466,7 @@ const devnetTokens: readonly TokenSpec[] = [
     id: "devnet-solana-lp-meta-polygon-usdc",
     symbol: "SWIM-POLYGON-USDC-META-POOL-LP",
     displayName: "Polygon USDC Meta-Pool LP",
-    icon: SWIM_USD_SVG, // TODO:
+    icon: POLYGON_USDC_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -475,7 +483,7 @@ const devnetTokens: readonly TokenSpec[] = [
     id: "devnet-solana-lp-meta-polygon-usdt",
     symbol: "SWIM-POLYGON-USDT-META-POOL-LP",
     displayName: "Polygon USDT Meta-Pool LP",
-    icon: SWIM_USD_SVG, // TODO:
+    icon: POLYGON_USDT_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([

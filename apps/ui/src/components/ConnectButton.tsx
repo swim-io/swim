@@ -34,11 +34,7 @@ export const ConnectButton = ({
   ...rest
 }: ConnectButtonProps): ReactElement => {
   const { ecosystems } = useConfig();
-  if (
-    ecosystemId === EcosystemId.Terra ||
-    ecosystemId === EcosystemId.Avalanche ||
-    ecosystemId === EcosystemId.Polygon
-  ) {
+  if (ecosystemId === EcosystemId.Terra) {
     throw new Error("Unsupported ecosystem");
   }
   const ecosystem = ecosystems[ecosystemId];

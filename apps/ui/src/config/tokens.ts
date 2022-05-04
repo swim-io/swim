@@ -222,6 +222,102 @@ const mainnetTokens: readonly TokenSpec[] = [
       ],
     ]),
   },
+  {
+    id: "mainnet-avalanche-usdc",
+    symbol: USDC_SYMBOL,
+    displayName: USDC_NAME,
+    icon: USDC_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Avalanche,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Avalanche,
+        {
+          address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "AGqKX7F4mqJ8x2mUQVangJb5pWQJApaKoUfe5gXM53CV",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-avalanche-usdt",
+    symbol: USDT_SYMBOL,
+    displayName: USDT_NAME,
+    icon: USDT_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Avalanche,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Avalanche,
+        {
+          address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "B2wfeYz5VtBnQVrX4M8F6FeDrprVrzKPws5qg1in8bzR",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-polygon-usdc",
+    symbol: USDC_SYMBOL,
+    displayName: USDC_NAME,
+    icon: USDC_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Polygon,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Polygon,
+        {
+          address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "E2VmbootbVCBkMNNxKQgCLMS1X3NoGMaYAsufaAsf7M",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-polygon-usdt",
+    symbol: USDT_SYMBOL,
+    displayName: USDT_NAME,
+    icon: USDT_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Polygon,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Polygon,
+        {
+          address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "5goWRao6a3yNC4d6UjMdQxonkCMvKBwdpubU3qhfcdf1",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
 ];
 
 const devnetTokens: readonly TokenSpec[] = [
@@ -325,6 +421,74 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    id: "devnet-solana-lp-meta-avalanche-usdc",
+    symbol: "SWIM-AVALANCHE-USDC-META-POOL-LP",
+    displayName: "Avalanche USDC Meta-Pool LP",
+    icon: SWIM_USD_SVG, // TODO:
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "7xt1Qrs78dLumZdpxgeQ4TmRzSS9WWpYdGugzcB2pgb3",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-solana-lp-meta-avalanche-usdt",
+    symbol: "SWIM-AVALANCHE-USDT-META-POOL-LP",
+    displayName: "Avalanche USDT Meta-Pool LP",
+    icon: SWIM_USD_SVG, // TODO:
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "CSJz1NkebFj4pjYps9fDaS8KpvQ1SVWhhRNFMYnkrqDP",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-solana-lp-meta-polygon-usdc",
+    symbol: "SWIM-POLYGON-USDC-META-POOL-LP",
+    displayName: "Polygon USDC Meta-Pool LP",
+    icon: SWIM_USD_SVG, // TODO:
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "9SexMyV5iREyyzLktd4iHtQMug5fXv4baDkgNvy95d45",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-solana-lp-meta-polygon-usdt",
+    symbol: "SWIM-POLYGON-USDT-META-POOL-LP",
+    displayName: "Polygon USDT Meta-Pool LP",
+    icon: SWIM_USD_SVG, // TODO:
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "EiqbvyTkdcruHrjDy9RtyXpvRfRDmN7Mtutv7J4uWG46",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
     id: "devnet-ethereum-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,
@@ -416,6 +580,102 @@ const devnetTokens: readonly TokenSpec[] = [
         {
           address: "4dr6ogcLsaFf2RDF4LJU1CvNtNKxonVqQvM6vuGdVR1e",
           decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-avalanche-usdc",
+    symbol: USDC_SYMBOL,
+    displayName: USDC_NAME,
+    icon: USDC_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Avalanche,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Avalanche,
+        {
+          address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "2t6pVTufn9A4b37oLmex3YMjm3smp1G9tPd9HpAFSeka",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-avalanche-usdt",
+    symbol: USDT_SYMBOL,
+    displayName: USDT_NAME,
+    icon: USDT_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Avalanche,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Avalanche,
+        {
+          address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "9ibet2CuBX1a4HpbzH9auxxtyUvkSKVy39jWtZY5Bfor",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-polygon-usdc",
+    symbol: USDC_SYMBOL,
+    displayName: USDC_NAME,
+    icon: USDC_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Polygon,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Polygon,
+        {
+          address: "0x0a0d7cEA57faCBf5DBD0D3b5169Ab00AC8Cf7dd1",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "D5YvMW5U3HUpD1EstYbKmmZsLdmCPgUj44JqBmNY7fUM",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-polygon-usdt",
+    symbol: USDT_SYMBOL,
+    displayName: USDT_NAME,
+    icon: USDT_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Polygon,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Polygon,
+        {
+          address: "0x2Ac9183EC64F71AfB73909c7C028Db14d35FAD2F",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "2otzQWyoydNp4Ws1kV8J8WVYiun6wmuFMMbicgdoEULn",
+          decimals: 6,
         },
       ],
     ]),

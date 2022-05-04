@@ -14,7 +14,12 @@ import type { EvmEcosystemId } from "../config";
 import { EcosystemId, Env, EvmChainId } from "../config";
 import { useLocalStorageState } from "../hooks/browser";
 import type { EvmWalletAdapter, WalletService } from "../models";
-import { BSC_WALLET_SERVICES, ETHEREUM_WALLET_SERVICES } from "../models";
+import {
+  AVALANCHE_WALLET_SERVICES,
+  BSC_WALLET_SERVICES,
+  ETHEREUM_WALLET_SERVICES,
+  POLYGON_WALLET_SERVICES,
+} from "../models";
 import type { ReadonlyRecord } from "../utils";
 import { shortenAddress } from "../utils";
 
@@ -28,18 +33,26 @@ const envToEcosystemToChainId: ReadonlyRecord<
   [Env.Mainnet]: {
     [EcosystemId.Ethereum]: EvmChainId.EthereumMainnet,
     [EcosystemId.Bsc]: EvmChainId.BscMainnet,
+    [EcosystemId.Avalanche]: EvmChainId.AvalancheMainnet,
+    [EcosystemId.Polygon]: EvmChainId.PolygonMainnet,
   },
   [Env.Devnet]: {
     [EcosystemId.Ethereum]: EvmChainId.EthereumGoerli,
     [EcosystemId.Bsc]: EvmChainId.BscTestnet,
+    [EcosystemId.Avalanche]: EvmChainId.AvalancheTestnet,
+    [EcosystemId.Polygon]: EvmChainId.PolygonTestnet,
   },
   [Env.Localnet]: {
     [EcosystemId.Ethereum]: EvmChainId.EthereumLocalnet,
     [EcosystemId.Bsc]: EvmChainId.BscLocalnet,
+    [EcosystemId.Avalanche]: EvmChainId.AvalancheLocalnet,
+    [EcosystemId.Polygon]: EvmChainId.PolygonLocalnet,
   },
   [Env.CustomLocalnet]: {
     [EcosystemId.Ethereum]: EvmChainId.EthereumLocalnet,
     [EcosystemId.Bsc]: EvmChainId.BscLocalnet,
+    [EcosystemId.Avalanche]: EvmChainId.AvalancheLocalnet,
+    [EcosystemId.Polygon]: EvmChainId.PolygonLocalnet,
   },
 };
 
@@ -49,11 +62,15 @@ const ecosystemToWalletServices: ReadonlyRecord<
 > = {
   [EcosystemId.Ethereum]: ETHEREUM_WALLET_SERVICES,
   [EcosystemId.Bsc]: BSC_WALLET_SERVICES,
+  [EcosystemId.Avalanche]: AVALANCHE_WALLET_SERVICES,
+  [EcosystemId.Polygon]: POLYGON_WALLET_SERVICES,
 };
 
 const ecosystemToLocalStorageKey: ReadonlyRecord<EvmEcosystemId, string> = {
   [EcosystemId.Ethereum]: "ethereumWalletService",
   [EcosystemId.Bsc]: "bscWalletService",
+  [EcosystemId.Avalanche]: "avalancheWalletService",
+  [EcosystemId.Polygon]: "polygonWalletService",
 };
 
 export interface EvmWalletContextInterface {
@@ -69,8 +86,8 @@ const defaultEvmWalletContext: EvmWalletContextInterface = {
   wallet: null,
   address: null,
   connected: false,
-  select() {},
   service: null,
+  select: () => {},
   createServiceClickHandler: () => () => {},
 };
 
@@ -80,12 +97,20 @@ const EthereumWalletContext = React.createContext<EvmWalletContextInterface>(
 const BscWalletContext = React.createContext<EvmWalletContextInterface>(
   defaultEvmWalletContext,
 );
+const AvalancheWalletContext = React.createContext<EvmWalletContextInterface>(
+  defaultEvmWalletContext,
+);
+const PolygonWalletContext = React.createContext<EvmWalletContextInterface>(
+  defaultEvmWalletContext,
+);
 const ecosystemToContext: ReadonlyRecord<
   EvmEcosystemId,
   React.Context<EvmWalletContextInterface>
 > = {
   [EcosystemId.Ethereum]: EthereumWalletContext,
   [EcosystemId.Bsc]: BscWalletContext,
+  [EcosystemId.Avalanche]: AvalancheWalletContext,
+  [EcosystemId.Polygon]: PolygonWalletContext,
 };
 
 interface EvmWalletProviderProps {
@@ -224,6 +249,8 @@ export const useEvmWallet = (
   > = {
     [EcosystemId.Ethereum]: useContext(EthereumWalletContext),
     [EcosystemId.Bsc]: useContext(BscWalletContext),
+    [EcosystemId.Avalanche]: useContext(AvalancheWalletContext),
+    [EcosystemId.Polygon]: useContext(PolygonWalletContext),
   };
   return ecosystemToWalletContext[ecosystemId];
 };

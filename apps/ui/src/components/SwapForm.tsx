@@ -66,7 +66,7 @@ export const SwapForm = ({
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();
 
-  const { tokens: poolTokens, poolUsdValue, isPoolPaused } = usePool(poolId);
+  const { tokens: poolTokens, isPoolPaused } = usePool(poolId);
   const {
     retryInteraction,
     state: { interaction, steps, status },
@@ -102,23 +102,23 @@ export const SwapForm = ({
 
   const isLargeSwap = (): boolean => {
     return (
+      fromToken !== null &&
+      fromToken.isStablecoin &&
       inputAmount !== null &&
-      poolUsdValue !== null &&
-      poolTokens.every((token) => token.isStablecoin) &&
-      inputAmount.toHuman(EcosystemId.Solana).gt(poolUsdValue.mul(0.1))
+      // TODO: Make sure this is sensible (does it need to be a fraction of pool USD value?)
+      inputAmount.toHuman(EcosystemId.Solana).gt(100_000)
     );
   };
 
   const isSmallEthSwap = (): boolean => {
     return (
       fromToken !== null &&
+      fromToken.isStablecoin &&
       toToken !== null &&
       [fromToken.nativeEcosystem, toToken.nativeEcosystem].includes(
         EcosystemId.Ethereum,
       ) &&
       inputAmount !== null &&
-      poolUsdValue !== null &&
-      poolTokens.every((token) => token.isStablecoin) &&
       inputAmount.toHuman(EcosystemId.Solana).lt(200)
     );
   };

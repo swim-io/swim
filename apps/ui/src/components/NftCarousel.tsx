@@ -114,9 +114,7 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
           <EuiFormRow
             // TODO: Set value of NFT. This will need to be a query.
             label={
-              "Type the word " +
-              redeemPassword +
-              " to redeem for ??? SWIM tokens"
+              `Type the word "${redeemPassword}" to redeem for ??? SWIM tokens`
             }
           >
             <EuiFieldText

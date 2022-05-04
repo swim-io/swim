@@ -17,7 +17,11 @@ const RedeemPage = (): ReactElement => {
   useTitle(title);
   const wallets = useWallets();
 
-  const { isLoading, data: nfts } = useAccountNfts(wallets.solana.address);
+  const {
+    isLoading,
+    data: nfts,
+    // refetch,
+  } = useAccountNfts(wallets.solana.address);
 
   return (
     <EuiPage restrictWidth={700} className="redeemPage">

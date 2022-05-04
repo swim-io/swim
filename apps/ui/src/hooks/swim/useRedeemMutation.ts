@@ -57,6 +57,11 @@ export const useRedeemMutation = (
 
   return useMutation(
     async (): Promise<RpcResponseAndContext<SignatureResult>> => {
+
+      const redeemerMint = new anchor.web3.PublicKey(
+        "A8UVBwvj1XcdP5okoMqkjhCQGLaqQ8iJDYnNxAMbsNNF",
+      );
+
       if (!nft || !nft.metadata.collection) {
         console.log("empty nft");
         // TODO: Unsure how to do an early return.. Calling an empty
@@ -68,16 +73,17 @@ export const useRedeemMutation = (
       if (!wallet || !wallet.publicKey) {
         throw new Error("Wallet not connected, can't create an anchor wallet");
       }
+
       const anchorWallet = {
-        signTransaction: wallet.signTransaction, // TODO: Is this being updated?
-        signAllTransactions: wallet.signAllTransactions,
+        signTransaction: wallet.signTransaction.bind(wallet),
+        signAllTransactions: wallet.signAllTransactions.bind(wallet),
         publicKey: wallet.publicKey,
       };
 
       const { mint: nftMint, collection: nftCollection } = nft.metadata;
 
       const [ownerRedeemTokenAccount] = await createATA.mutateAsync([
-        xswimMintAccountKey.toBase58(),
+        redeemerMint.toBase58(),
       ]);
       const provider = new anchor.AnchorProvider(
         solanaConnection.rawConnection,
@@ -92,7 +98,7 @@ export const useRedeemMutation = (
       const collectionPublicKey = new anchor.web3.PublicKey(nftCollection.key);
 
       const collectionMetadata = await Metadata.getPDA(collectionPublicKey);
-      const redeemerMint = xswimMintAccountKey;
+
 
       const metadataPDA = await Metadata.getPDA(nftPublicKey);
       const editionPDA = await MasterEdition.getPDA(nftPublicKey);
@@ -119,7 +125,7 @@ export const useRedeemMutation = (
         .redeem()
         .accounts({
           nftMetadata: metadataPDA,
-          nft: collectionPublicKey,
+          nft: nftPublicKey,
           nftEdition: editionPDA,
           ownerNftAta: ownerNftAta,
           owner: provider.wallet.publicKey,
@@ -127,7 +133,7 @@ export const useRedeemMutation = (
           mplRedeemer: redeemerPDA,
           redeemerVault,
           redeemerCollection: collectionPublicKey,
-          redeemerCollectionMasterEdition: collectionPublicKey,
+          // redeemerCollectionMasterEdition: collectionPublicKey,
           redeemerCollectionMetadata: collectionMetadata,
           tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
           tokenProgram: TOKEN_PROGRAM_ID,

@@ -22,10 +22,15 @@ import { useRedeemMutation } from "../hooks/swim/useRedeemMutation";
 import "./NftCarousel.scss";
 
 export interface NftCarouselProps {
-  readonly nfts: readonly NftData[];
+  // eslint-disable-next-line functional/prefer-readonly-type
+  nfts: readonly NftData[];
+  // readonly refetchQuery: any;
 }
 
-export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
+export const NftCarousel = ({
+  nfts,
+  // refetchQuery,
+}: NftCarouselProps): ReactElement => {
   const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
   const [activeNft, setActiveNft] = useState<NftData | null>(null);
   // TODO: Decide on a redeem password, current text reads:
@@ -58,7 +63,10 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
         console.log("success");
       },
     });
+    setActiveNft(null);
+    // how do i remove this?
     hideRedeemModal();
+    // refetchQuery();
   };
 
   const columns = [

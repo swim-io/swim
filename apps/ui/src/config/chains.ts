@@ -284,6 +284,28 @@ const localnetChains: ChainsByProtocol = {
         tokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
       },
     },
+    {
+      ecosystem: EcosystemId.Avalanche,
+      chainId: EvmChainId.AvalancheLocalnet,
+      chainName: "Avalanche Localnet",
+      nativeCurrency: AVALANCHE_NATIVE_CURRENCY,
+      rpcUrls: ["http://localhost:8547"],
+      wormhole: {
+        bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
+        tokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Polygon,
+      chainId: EvmChainId.PolygonLocalnet,
+      chainName: "Polygon Localnet",
+      nativeCurrency: POLYGON_NATIVE_CURRENCY,
+      rpcUrls: ["http://localhost:8548"],
+      wormhole: {
+        bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
+        tokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
+      },
+    },
   ],
   [Protocol.Cosmos]: [],
 };

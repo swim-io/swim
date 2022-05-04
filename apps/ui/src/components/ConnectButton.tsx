@@ -42,7 +42,7 @@ export const ConnectButton = ({
   const { connected, select, address, wallet } = wallets[ecosystemId];
 
   const disconnect = (): void => {
-    wallet?.disconnect();
+    void wallet?.disconnect();
   };
 
   const handleClick = connected ? disconnect : select;

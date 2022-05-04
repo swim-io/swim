@@ -74,7 +74,7 @@ const getBscRpcUrl = (env: Env): string => {
 export class EvmConnection {
   public provider: Provider;
   // eslint-disable-next-line functional/prefer-readonly-type
-  private txReceiptCache: Map<string, TransactionReceipt>;
+  private readonly txReceiptCache: Map<string, TransactionReceipt>;
 
   constructor(env: Env, chainSpec: EvmSpec) {
     this.provider = EvmConnection.getIndexerProvider(env, chainSpec);
@@ -95,10 +95,10 @@ export class EvmConnection {
     }
   }
 
-  private static getPublicEvmIndexerProvider = (
+  private static getPublicEvmIndexerProvider(
     env: Env,
     ecosystemId: EvmEcosystemId,
-  ): Provider => {
+  ): Provider {
     switch (ecosystemId) {
       case EcosystemId.Ethereum:
         return new ethers.providers.EtherscanProvider(
@@ -125,7 +125,7 @@ export class EvmConnection {
       default:
         throw new Error(`Unsupported EVM ecosystem: ${ecosystemId}`);
     }
-  };
+  }
 
   public async getHistory(
     address: string,

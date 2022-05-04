@@ -1,5 +1,6 @@
 import { renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
+import { useQueryClient } from "react-query";
 
 import { EcosystemId } from "../../config";
 import { AppContext } from "../../contexts";
@@ -24,6 +25,14 @@ const BSC_BUSD = findLocalnetTokenById("localnet-bsc-busd");
 const BSC_USDT = findLocalnetTokenById("localnet-bsc-usdt");
 
 describe("useRemoveFeesEstimationQuery", () => {
+  beforeEach(() => {
+    // Reset queryClient cache, otherwise test might return previous value
+    // eslint-disable-next-line testing-library/no-render-in-setup
+    renderHook(() => useQueryClient().clear(), {
+      wrapper: AppContext,
+    });
+  });
+
   it("should return null when the gas price is still loading", async () => {
     useGasPriceQueryMock.mockReturnValue({ isLoading: true, data: undefined });
     const { result } = renderHook(

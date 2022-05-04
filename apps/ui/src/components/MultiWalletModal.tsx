@@ -102,7 +102,7 @@ const EcosystemWalletOptionsList = <W extends WalletService = WalletService>({
   const { wallet, service: currentService } = wallets[ecosystemId];
 
   const disconnect = (): void => {
-    wallet?.disconnect();
+    void wallet?.disconnect();
   };
 
   return (

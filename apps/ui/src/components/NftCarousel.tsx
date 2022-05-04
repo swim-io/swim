@@ -29,7 +29,7 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   // TODO: Decide on a redeem password, current text reads:
   // "Type `redeem` to redeem your otter."
   const redeemPassword = "redeem";
-  const [redeemInput, setRedeemInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
   const onRedeemInput = (e: ChangeEvent<HTMLInputElement>): void => {
     setRedeemInput(e.target.value);
   };

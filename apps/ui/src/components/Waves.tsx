@@ -113,8 +113,8 @@ const Footer = (): ReactElement => {
           <EuiListGroup gutterSize="none">
             <EuiListGroupItem label="Learn" size={listGroupHeaderSize} />
             <EuiListGroupItem
-              label="Medium"
-              href="https://medium.com/@swimprotocol"
+              label="Blog"
+              href="https://blog.swim.io"
               size={listGroupItemSize}
             />
             <EuiListGroupItem

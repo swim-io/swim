@@ -17,12 +17,12 @@ import type { PoolSpec } from "../config";
 import { EcosystemId, getSolanaTokenDetails } from "../config";
 import { useConfig } from "../contexts";
 import { useLiquidityQuery, useTitle } from "../hooks";
-import BTC_SVG from "../images/btc.svg";
 import SWIM_SVG from "../images/swim_logo.svg";
-import USDC_SVG from "../images/usdc.svg";
-import USDT_SVG from "../images/usdt.svg";
-import UST_SVG from "../images/ust.svg";
-import WBTC_SVG from "../images/wbtc.svg";
+import BTC_SVG from "../images/tokens/btc.svg";
+import USDC_SVG from "../images/tokens/usdc.svg";
+import USDT_SVG from "../images/tokens/usdt.svg";
+import UST_SVG from "../images/tokens/ust.svg";
+import WBTC_SVG from "../images/tokens/wbtc.svg";
 import { filterMap, findOrThrow } from "../utils";
 
 const PoolsPage = (): ReactElement => {

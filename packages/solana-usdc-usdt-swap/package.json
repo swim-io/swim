@@ -1,0 +1,27 @@
+{
+  "name": "@swim/solana-usdc-usdt-swap",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build",
+  "types": "types",
+  "files": [
+    "build/",
+    "types/",
+    "*.md",
+    "!*.test.*",
+    "!**/fixtures/"
+  ],
+  "scripts": {
+    "format": "prettier --write \"./src/**/*.ts\"",
+    "build": "rm -rf ./build/ ./types/ && tsc"
+  },
+  "dependencies": {
+    "@project-serum/borsh": "^0.2.3",
+    "@solana/spl-token": "^0.2.0",
+    "@solana/web3.js": "^1.31.0"
+  },
+  "devDependencies": {
+    "prettier": "^2.6.1",
+    "typescript": "^4.6.3"
+  }
+}

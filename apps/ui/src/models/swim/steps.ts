@@ -1,8 +1,14 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
-import type { ChainsByProtocol, TokenSpec } from "../../config";
+import type {
+  ChainsByProtocol,
+  Config,
+  PoolSpec,
+  TokenSpec,
+} from "../../config";
 import type { ReadonlyRecord } from "../../utils";
+import { findOrThrow } from "../../utils";
 import { Amount } from "../amount";
 import type { SolanaTx, Tx, TxsByTokenId } from "../crossEcosystem";
 import { findTokenAccountForMint } from "../solana";
@@ -17,8 +23,9 @@ import type {
   RemoveUniformInteraction,
   SwapInteraction,
 } from "./interaction";
-import { InteractionKind } from "./interaction";
-import { isPoolTx } from "./pool";
+import { InteractionType } from "./interaction";
+import type { TokensByPoolId } from "./pool";
+import { getTokensByPool, isPoolTx } from "./pool";
 import type {
   ProtoTransfer,
   Transfer,
@@ -92,7 +99,7 @@ export type Step =
 export type Steps<F extends WormholeFromSolanaStep = WormholeFromSolanaStep> = {
   readonly createSplTokenAccounts: CreateSplTokenAccountsStep;
   readonly wormholeToSolana: WormholeToSolanaStep;
-  readonly interactWithPool: SolanaOperationsStep;
+  readonly doPoolOperations: SolanaOperationsStep;
   readonly wormholeFromSolana: F;
 };
 
@@ -109,12 +116,13 @@ export const isWormholeFromSolanaFullStep = (
   wormholeFromSolanaStep.knownAmounts;
 
 export const getRequiredTokens = (
-  tokens: readonly TokenSpec[],
-  lpToken: TokenSpec,
+  tokensByPoolId: TokensByPoolId,
+  poolSpecs: readonly PoolSpec[],
   interactionSpec: InteractionSpec,
 ): readonly TokenSpec[] => {
-  switch (interactionSpec.kind) {
-    case InteractionKind.Add:
+  switch (interactionSpec.type) {
+    case InteractionType.Add: {
+      const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
       return [
         ...tokens.filter((token) => {
           const inputAmount =
@@ -123,7 +131,9 @@ export const getRequiredTokens = (
         }),
         lpToken,
       ];
-    case InteractionKind.RemoveUniform:
+    }
+    case InteractionType.RemoveUniform: {
+      const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
       return [
         ...tokens.filter((token) => {
           const outputAmount =
@@ -132,14 +142,18 @@ export const getRequiredTokens = (
         }),
         lpToken,
       ];
-    case InteractionKind.RemoveExactBurn:
+    }
+    case InteractionType.RemoveExactBurn: {
+      const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
       return [
         ...tokens.filter(
           (token) => interactionSpec.params.outputTokenId === token.id,
         ),
         lpToken,
       ];
-    case InteractionKind.RemoveExactOutput:
+    }
+    case InteractionType.RemoveExactOutput: {
+      const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
       return [
         ...tokens.filter((token) => {
           const outputAmount =
@@ -148,27 +162,62 @@ export const getRequiredTokens = (
         }),
         lpToken,
       ];
-    case InteractionKind.Swap:
-      return tokens.filter((token) => {
-        if (interactionSpec.params.outputTokenId === token.id) {
-          return true;
-        }
+    }
+    case InteractionType.Swap: {
+      const inputPool = poolSpecs[0];
+      const outputPool = poolSpecs[poolSpecs.length - 1];
+      const inputTokenIds = [
+        ...interactionSpec.params.exactInputAmounts.keys(),
+      ];
+      const inputTokens = inputTokenIds.map((tokenId) =>
+        findOrThrow(
+          tokensByPoolId[inputPool.id].tokens,
+          (token) => token.id === tokenId,
+        ),
+      );
+      const filteredInputTokens = inputTokens.filter((token) => {
         const inputAmount =
           interactionSpec.params.exactInputAmounts.get(token.id) ?? null;
         return inputAmount !== null && !inputAmount.isZero();
       });
+      const outputToken = findOrThrow(
+        tokensByPoolId[outputPool.id].tokens,
+        (token) => token.id === interactionSpec.params.outputTokenId,
+      );
+      if (inputPool.id === outputPool.id) {
+        return [...filteredInputTokens, outputToken];
+      }
+
+      // TODO: Better validation
+      const lpToken =
+        tokensByPoolId[inputPool.id].tokens.find(
+          (token) => token.id === outputPool.lpToken,
+        ) ??
+        tokensByPoolId[outputPool.id].tokens.find(
+          (token) => token.id === inputPool.lpToken,
+        ) ??
+        null;
+      if (lpToken === null) {
+        throw new Error("Invalid swap route");
+      }
+      return [...filteredInputTokens, lpToken, outputToken];
+    }
     default:
       throw new Error("Unsupported instruction");
   }
 };
 
 export const findMissingSplTokenAccountMints = (
-  splTokenAccounts: readonly TokenAccount[],
-  tokens: readonly TokenSpec[],
-  lpToken: TokenSpec,
+  tokensByPoolId: TokensByPoolId,
+  poolSpecs: readonly PoolSpec[],
   interaction: Interaction,
+  splTokenAccounts: readonly TokenAccount[],
 ): readonly string[] => {
-  const requiredTokens = getRequiredTokens(tokens, lpToken, interaction.spec);
+  const requiredTokens = getRequiredTokens(
+    tokensByPoolId,
+    poolSpecs,
+    interaction,
+  );
   return requiredTokens
     .map((token) => getSolanaTokenDetails(token).address)
     .filter((mintAddress) => {
@@ -186,22 +235,19 @@ export const findMissingSplTokenAccountMints = (
 };
 
 export const createAddSteps = (
-  splTokenAccounts: readonly TokenAccount[],
-  tokens: readonly TokenSpec[],
-  lpToken: TokenSpec,
+  tokensByPoolId: TokensByPoolId,
+  poolSpecs: readonly PoolSpec[],
   interaction: AddInteraction,
+  splTokenAccounts: readonly TokenAccount[],
   txsByStep: TxsByStep,
 ): Steps => {
-  const {
-    id: interactionId,
-    params,
-    lpTokenTargetEcosystem,
-  } = interaction.spec;
+  const { id: interactionId, params, lpTokenTargetEcosystem } = interaction;
+  const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
   const missingTokenAccountMints = findMissingSplTokenAccountMints(
-    splTokenAccounts,
-    tokens,
-    lpToken,
+    tokensByPoolId,
+    poolSpecs,
     interaction,
+    splTokenAccounts,
   );
   return {
     createSplTokenAccounts: {
@@ -228,7 +274,7 @@ export const createAddSteps = (
         ),
       },
     },
-    interactWithPool: {
+    doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
       txs: txsByStep[StepType.SolanaOperations],
@@ -250,19 +296,213 @@ export const createAddSteps = (
   };
 };
 
-export const createSwapSteps = (
+export const createRemoveUniformSteps = (
+  tokensByPoolId: TokensByPoolId,
+  poolSpecs: readonly PoolSpec[],
+  interaction: RemoveUniformInteraction,
   splTokenAccounts: readonly TokenAccount[],
-  tokens: readonly TokenSpec[],
-  lpToken: TokenSpec,
-  interaction: SwapInteraction,
   txsByStep: TxsByStep,
 ): Steps => {
-  const { id: interactionId, params } = interaction.spec;
+  const { id: interactionId, params, lpTokenSourceEcosystem } = interaction;
+  const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
   const missingTokenAccountMints = findMissingSplTokenAccountMints(
-    splTokenAccounts,
-    tokens,
-    lpToken,
+    tokensByPoolId,
+    poolSpecs,
     interaction,
+    splTokenAccounts,
+  );
+  return {
+    createSplTokenAccounts: {
+      type: StepType.CreateSplTokenAccounts,
+      isComplete: false,
+      txs: txsByStep[StepType.CreateSplTokenAccounts],
+      mints: missingTokenAccountMints,
+    },
+    wormholeToSolana: {
+      type: StepType.WormholeToSolana,
+      isComplete: false,
+      txs: txsByStep[StepType.WormholeToSolana],
+      knownAmounts: true,
+      transfers: {
+        type: TransferType.LpToken,
+        lpToken: generateLpInTransfer(
+          interactionId,
+          lpToken,
+          params.exactBurnAmount,
+          lpTokenSourceEcosystem,
+          interaction.signatureSetKeypairs,
+        ),
+      },
+    },
+    doPoolOperations: {
+      type: StepType.SolanaOperations,
+      isComplete: false,
+      txs: txsByStep[StepType.SolanaOperations],
+    },
+    wormholeFromSolana: {
+      type: StepType.WormholeFromSolana,
+      isComplete: false,
+      txs: txsByStep[StepType.WormholeFromSolana],
+      knownAmounts: false,
+      transfers: {
+        type: TransferType.Tokens,
+        tokens: generateOutputProtoTransfers(
+          interactionId,
+          splTokenAccounts,
+          tokens,
+        ),
+      },
+    },
+  };
+};
+
+export const createRemoveExactBurnSteps = (
+  tokensByPoolId: TokensByPoolId,
+  poolSpecs: readonly PoolSpec[],
+  interaction: RemoveExactBurnInteraction,
+  splTokenAccounts: readonly TokenAccount[],
+  txsByStep: TxsByStep,
+): Steps => {
+  const { id: interactionId, params, lpTokenSourceEcosystem } = interaction;
+  const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
+  const missingTokenAccountMints = findMissingSplTokenAccountMints(
+    tokensByPoolId,
+    poolSpecs,
+    interaction,
+    splTokenAccounts,
+  );
+  const outputTokenIndex = tokens.findIndex(
+    (token) => token.id === params.outputTokenId,
+  );
+  if (outputTokenIndex === -1) {
+    throw new Error("Invalid output token");
+  }
+
+  return {
+    createSplTokenAccounts: {
+      type: StepType.CreateSplTokenAccounts,
+      isComplete: false,
+      txs: txsByStep[StepType.CreateSplTokenAccounts],
+      mints: missingTokenAccountMints,
+    },
+    wormholeToSolana: {
+      type: StepType.WormholeToSolana,
+      isComplete: false,
+      txs: txsByStep[StepType.WormholeToSolana],
+      knownAmounts: true,
+      transfers: {
+        type: TransferType.LpToken,
+        lpToken: generateLpInTransfer(
+          interactionId,
+          lpToken,
+          params.exactBurnAmount,
+          lpTokenSourceEcosystem,
+          interaction.signatureSetKeypairs,
+        ),
+      },
+    },
+    doPoolOperations: {
+      type: StepType.SolanaOperations,
+      isComplete: false,
+      txs: txsByStep[StepType.SolanaOperations],
+    },
+    wormholeFromSolana: {
+      type: StepType.WormholeFromSolana,
+      isComplete: false,
+      txs: txsByStep[StepType.WormholeFromSolana],
+      knownAmounts: false,
+      transfers: {
+        type: TransferType.Tokens,
+        tokens: generateSingleOutputProtoTransfers(
+          interactionId,
+          tokens,
+          outputTokenIndex,
+        ),
+      },
+    },
+  };
+};
+
+export const createRemoveExactOutputSteps = (
+  tokensByPoolId: TokensByPoolId,
+  poolSpecs: readonly PoolSpec[],
+  interaction: RemoveExactOutputInteraction,
+  splTokenAccounts: readonly TokenAccount[],
+  txsByStep: TxsByStep,
+): Steps => {
+  const { id: interactionId, params, lpTokenSourceEcosystem } = interaction;
+  const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
+  const missingTokenAccountMints = findMissingSplTokenAccountMints(
+    tokensByPoolId,
+    poolSpecs,
+    interaction,
+    splTokenAccounts,
+  );
+
+  return {
+    createSplTokenAccounts: {
+      type: StepType.CreateSplTokenAccounts,
+      isComplete: false,
+      txs: txsByStep[StepType.CreateSplTokenAccounts],
+      mints: missingTokenAccountMints,
+    },
+    wormholeToSolana: {
+      type: StepType.WormholeToSolana,
+      isComplete: false,
+      txs: txsByStep[StepType.WormholeToSolana],
+      knownAmounts: true,
+      transfers: {
+        type: TransferType.LpToken,
+        lpToken: generateLpInTransfer(
+          interactionId,
+          lpToken,
+          params.maximumBurnAmount,
+          lpTokenSourceEcosystem,
+          interaction.signatureSetKeypairs,
+        ),
+      },
+    },
+    doPoolOperations: {
+      type: StepType.SolanaOperations,
+      isComplete: false,
+      txs: txsByStep[StepType.SolanaOperations],
+    },
+    wormholeFromSolana: {
+      type: StepType.WormholeFromSolana,
+      isComplete: false,
+      txs: txsByStep[StepType.WormholeFromSolana],
+      knownAmounts: true,
+      transfers: {
+        type: TransferType.Tokens,
+        tokens: generateOutputTransfers(
+          interactionId,
+          splTokenAccounts,
+          tokens,
+          tokens.map(
+            (token) =>
+              params.exactOutputAmounts.get(token.id) ?? Amount.zero(token),
+          ),
+        ),
+      },
+    },
+  };
+};
+
+export const createSwapSteps = (
+  tokensByPoolId: TokensByPoolId,
+  poolSpecs: readonly PoolSpec[],
+  interaction: SwapInteraction,
+  splTokenAccounts: readonly TokenAccount[],
+  txsByStep: TxsByStep,
+): Steps => {
+  const { id: interactionId, params } = interaction;
+  // TODO: Multiple pools
+  const { tokens } = tokensByPoolId[poolSpecs[0].id];
+  const missingTokenAccountMints = findMissingSplTokenAccountMints(
+    tokensByPoolId,
+    poolSpecs,
+    interaction,
+    splTokenAccounts,
   );
   const outputTokenIndex = tokens.findIndex(
     (token) => token.id === params.outputTokenId,
@@ -297,7 +537,7 @@ export const createSwapSteps = (
         ),
       },
     },
-    interactWithPool: {
+    doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
       txs: txsByStep[StepType.SolanaOperations],
@@ -313,207 +553,6 @@ export const createSwapSteps = (
           interactionId,
           tokens,
           outputTokenIndex,
-        ),
-      },
-    },
-  };
-};
-
-export const createRemoveUniformSteps = (
-  splTokenAccounts: readonly TokenAccount[],
-  tokens: readonly TokenSpec[],
-  lpToken: TokenSpec,
-  interaction: RemoveUniformInteraction,
-  txsByStep: TxsByStep,
-): Steps => {
-  const {
-    id: interactionId,
-    params,
-    lpTokenSourceEcosystem,
-  } = interaction.spec;
-  const missingTokenAccountMints = findMissingSplTokenAccountMints(
-    splTokenAccounts,
-    tokens,
-    lpToken,
-    interaction,
-  );
-  return {
-    createSplTokenAccounts: {
-      type: StepType.CreateSplTokenAccounts,
-      isComplete: false,
-      txs: txsByStep[StepType.CreateSplTokenAccounts],
-      mints: missingTokenAccountMints,
-    },
-    wormholeToSolana: {
-      type: StepType.WormholeToSolana,
-      isComplete: false,
-      txs: txsByStep[StepType.WormholeToSolana],
-      knownAmounts: true,
-      transfers: {
-        type: TransferType.LpToken,
-        lpToken: generateLpInTransfer(
-          interactionId,
-          lpToken,
-          params.exactBurnAmount,
-          lpTokenSourceEcosystem,
-          interaction.signatureSetKeypairs,
-        ),
-      },
-    },
-    interactWithPool: {
-      type: StepType.SolanaOperations,
-      isComplete: false,
-      txs: txsByStep[StepType.SolanaOperations],
-    },
-    wormholeFromSolana: {
-      type: StepType.WormholeFromSolana,
-      isComplete: false,
-      txs: txsByStep[StepType.WormholeFromSolana],
-      knownAmounts: false,
-      transfers: {
-        type: TransferType.Tokens,
-        tokens: generateOutputProtoTransfers(
-          interactionId,
-          splTokenAccounts,
-          tokens,
-        ),
-      },
-    },
-  };
-};
-
-export const createRemoveExactBurnSteps = (
-  splTokenAccounts: readonly TokenAccount[],
-  tokens: readonly TokenSpec[],
-  lpToken: TokenSpec,
-  interaction: RemoveExactBurnInteraction,
-  txsByStep: TxsByStep,
-): Steps => {
-  const {
-    id: interactionId,
-    params,
-    lpTokenSourceEcosystem,
-  } = interaction.spec;
-  const missingTokenAccountMints = findMissingSplTokenAccountMints(
-    splTokenAccounts,
-    tokens,
-    lpToken,
-    interaction,
-  );
-  const outputTokenIndex = tokens.findIndex(
-    (token) => token.id === params.outputTokenId,
-  );
-  if (outputTokenIndex === -1) {
-    throw new Error("Invalid output token");
-  }
-
-  return {
-    createSplTokenAccounts: {
-      type: StepType.CreateSplTokenAccounts,
-      isComplete: false,
-      txs: txsByStep[StepType.CreateSplTokenAccounts],
-      mints: missingTokenAccountMints,
-    },
-    wormholeToSolana: {
-      type: StepType.WormholeToSolana,
-      isComplete: false,
-      txs: txsByStep[StepType.WormholeToSolana],
-      knownAmounts: true,
-      transfers: {
-        type: TransferType.LpToken,
-        lpToken: generateLpInTransfer(
-          interactionId,
-          lpToken,
-          params.exactBurnAmount,
-          lpTokenSourceEcosystem,
-          interaction.signatureSetKeypairs,
-        ),
-      },
-    },
-    interactWithPool: {
-      type: StepType.SolanaOperations,
-      isComplete: false,
-      txs: txsByStep[StepType.SolanaOperations],
-    },
-    wormholeFromSolana: {
-      type: StepType.WormholeFromSolana,
-      isComplete: false,
-      txs: txsByStep[StepType.WormholeFromSolana],
-      knownAmounts: false,
-      transfers: {
-        type: TransferType.Tokens,
-        tokens: generateSingleOutputProtoTransfers(
-          interactionId,
-          tokens,
-          outputTokenIndex,
-        ),
-      },
-    },
-  };
-};
-
-export const createRemoveExactOutputSteps = (
-  splTokenAccounts: readonly TokenAccount[],
-  tokens: readonly TokenSpec[],
-  lpToken: TokenSpec,
-  interaction: RemoveExactOutputInteraction,
-  txsByStep: TxsByStep,
-): Steps => {
-  const {
-    id: interactionId,
-    params,
-    lpTokenSourceEcosystem,
-  } = interaction.spec;
-  const missingTokenAccountMints = findMissingSplTokenAccountMints(
-    splTokenAccounts,
-    tokens,
-    lpToken,
-    interaction,
-  );
-
-  return {
-    createSplTokenAccounts: {
-      type: StepType.CreateSplTokenAccounts,
-      isComplete: false,
-      txs: txsByStep[StepType.CreateSplTokenAccounts],
-      mints: missingTokenAccountMints,
-    },
-    wormholeToSolana: {
-      type: StepType.WormholeToSolana,
-      isComplete: false,
-      txs: txsByStep[StepType.WormholeToSolana],
-      knownAmounts: true,
-      transfers: {
-        type: TransferType.LpToken,
-        lpToken: generateLpInTransfer(
-          interactionId,
-          lpToken,
-          params.maximumBurnAmount,
-          lpTokenSourceEcosystem,
-          interaction.signatureSetKeypairs,
-        ),
-      },
-    },
-    interactWithPool: {
-      type: StepType.SolanaOperations,
-      isComplete: false,
-      txs: txsByStep[StepType.SolanaOperations],
-    },
-    wormholeFromSolana: {
-      type: StepType.WormholeFromSolana,
-      isComplete: false,
-      txs: txsByStep[StepType.WormholeFromSolana],
-      knownAmounts: true,
-      transfers: {
-        type: TransferType.Tokens,
-        tokens: generateOutputTransfers(
-          interactionId,
-          splTokenAccounts,
-          tokens,
-          tokens.map(
-            (token) =>
-              params.exactOutputAmounts.get(token.id) ?? Amount.zero(token),
-          ),
         ),
       },
     },
@@ -521,7 +560,7 @@ export const createRemoveExactOutputSteps = (
 };
 
 export const getTransferToTxs = (
-  chainsConfig: ChainsByProtocol,
+  chains: ChainsByProtocol,
   walletAddress: string,
   splTokenAccounts: readonly TokenAccount[],
   tokens: readonly TokenSpec[],
@@ -534,7 +573,7 @@ export const getTransferToTxs = (
     const signatureSetAddress = signatureSetAddresses[token.id] ?? null;
     const txsForToken = txs.filter((tx) =>
       isTransferToTx(
-        chainsConfig,
+        chains,
         walletAddress,
         splTokenAccounts,
         token,
@@ -550,13 +589,13 @@ export const getTransferToTxs = (
     };
   }, {});
 
-export const findPoolInteractionTx = (
-  poolContractAddress: string,
+export const findPoolOperationTxs = (
+  poolSpecs: readonly PoolSpec[],
   txs: readonly Tx[],
-): SolanaTx | null =>
-  txs.find<SolanaTx>((tx): tx is SolanaTx =>
-    isPoolTx(poolContractAddress, tx),
-  ) ?? null;
+): readonly SolanaTx[] =>
+  txs.filter<SolanaTx>((tx): tx is SolanaTx =>
+    poolSpecs.some((poolSpec) => isPoolTx(poolSpec.id, tx)),
+  );
 
 export const getTransferFromTxs = (
   chainsConfig: ChainsByProtocol,
@@ -584,88 +623,148 @@ export const getTransferFromTxs = (
   }, {});
 };
 
+/** Returns one or two pools involved in the interaction */
+export const getRelevantPools = (
+  poolSpecs: readonly PoolSpec[],
+  interactionSpec: InteractionSpec,
+): readonly PoolSpec[] => {
+  switch (interactionSpec.type) {
+    case InteractionType.Add:
+      return [
+        findOrThrow(
+          poolSpecs,
+          (poolSpec) =>
+            poolSpec.lpToken ===
+            interactionSpec.params.minimumMintAmount.tokenId,
+        ),
+      ];
+    case InteractionType.RemoveUniform:
+    case InteractionType.RemoveExactBurn:
+      return [
+        findOrThrow(
+          poolSpecs,
+          (poolSpec) =>
+            poolSpec.lpToken === interactionSpec.params.exactBurnAmount.tokenId,
+        ),
+      ];
+    case InteractionType.RemoveExactOutput:
+      return [
+        findOrThrow(
+          poolSpecs,
+          (poolSpec) =>
+            poolSpec.lpToken ===
+            interactionSpec.params.maximumBurnAmount.tokenId,
+        ),
+      ];
+    case InteractionType.Swap: {
+      const inputTokenIds = [
+        ...interactionSpec.params.exactInputAmounts.keys(),
+      ];
+      const { outputTokenId } = interactionSpec.params;
+      const singlePool =
+        poolSpecs.find((poolSpec) =>
+          [...inputTokenIds, outputTokenId].every((tokenId) =>
+            poolSpec.tokenAccounts.has(tokenId),
+          ),
+        ) ?? null;
+      if (singlePool !== null) {
+        return [singlePool];
+      }
+      // NOTE: We assume a maximum of two pools
+      const inputPool = findOrThrow(poolSpecs, (poolSpec) =>
+        inputTokenIds.every((tokenId) => poolSpec.tokenAccounts.has(tokenId)),
+      );
+      const outputPool = findOrThrow(poolSpecs, (poolSpec) =>
+        poolSpec.tokenAccounts.has(outputTokenId),
+      );
+      return [inputPool, outputPool];
+    }
+    default:
+      throw new Error("Unknown interaction kind");
+  }
+};
+
 export const createSteps = (
-  chainsConfig: ChainsByProtocol,
-  poolContractAddress: string,
-  splTokenAccounts: readonly TokenAccount[],
-  tokens: readonly TokenSpec[],
-  lpToken: TokenSpec,
+  config: Config,
   interaction: Interaction,
+  splTokenAccounts: readonly TokenAccount[],
   txs: readonly Tx[],
 ): Steps => {
-  const createSplTokenAccountsTxs: readonly SolanaTx[] = [];
   const walletAddress = interaction.connectedWallets[EcosystemId.Solana];
   if (walletAddress === null) {
     throw new Error("Missing Solana wallet");
   }
+  const tokensByPool = getTokensByPool(config);
+  const relevantPools = getRelevantPools(config.pools, interaction);
+  const inputPool = relevantPools[0];
+  const outputPool = relevantPools[relevantPools.length - 1];
+  const inputPoolTokens = tokensByPool[inputPool.id];
+  const outputPoolTokens = tokensByPool[outputPool.id];
+
+  const createSplTokenAccountsTxs: readonly SolanaTx[] = [];
   const wormholeToSolanaTxs = getTransferToTxs(
-    chainsConfig,
+    config.chains,
     walletAddress,
     splTokenAccounts,
-    tokens,
-    lpToken,
+    inputPoolTokens.tokens,
+    inputPoolTokens.lpToken,
     interaction.previousSignatureSetAddresses,
     txs,
   );
-  const solanaPoolInteractionTx = findPoolInteractionTx(
-    poolContractAddress,
-    txs,
-  );
+  const poolOperationTxs = findPoolOperationTxs(relevantPools, txs);
   const wormholeFromSolanaTxs = getTransferFromTxs(
-    chainsConfig,
+    config.chains,
     walletAddress,
     splTokenAccounts,
-    tokens,
-    lpToken,
+    outputPoolTokens.tokens,
+    outputPoolTokens.lpToken,
     txs,
   );
   const txsByStep: TxsByStep = {
     [StepType.CreateSplTokenAccounts]: createSplTokenAccountsTxs,
     [StepType.WormholeToSolana]: wormholeToSolanaTxs,
-    [StepType.SolanaOperations]: solanaPoolInteractionTx
-      ? [solanaPoolInteractionTx]
-      : [],
+    [StepType.SolanaOperations]: poolOperationTxs,
     [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
   };
-  switch (interaction.kind) {
-    case InteractionKind.Add:
+  switch (interaction.type) {
+    case InteractionType.Add:
       return createAddSteps(
-        splTokenAccounts,
-        tokens,
-        lpToken,
+        tokensByPool,
+        relevantPools,
         interaction,
+        splTokenAccounts,
         txsByStep,
       );
-    case InteractionKind.Swap:
+    case InteractionType.Swap:
       return createSwapSteps(
-        splTokenAccounts,
-        tokens,
-        lpToken,
+        tokensByPool,
+        relevantPools,
         interaction,
+        splTokenAccounts,
         txsByStep,
       );
-    case InteractionKind.RemoveUniform:
+    case InteractionType.RemoveUniform:
       return createRemoveUniformSteps(
-        splTokenAccounts,
-        tokens,
-        lpToken,
+        tokensByPool,
+        relevantPools,
         interaction,
+        splTokenAccounts,
         txsByStep,
       );
-    case InteractionKind.RemoveExactBurn:
+    case InteractionType.RemoveExactBurn:
       return createRemoveExactBurnSteps(
-        splTokenAccounts,
-        tokens,
-        lpToken,
+        tokensByPool,
+        relevantPools,
         interaction,
+        splTokenAccounts,
         txsByStep,
       );
-    case InteractionKind.RemoveExactOutput:
+    case InteractionType.RemoveExactOutput:
       return createRemoveExactOutputSteps(
-        splTokenAccounts,
-        tokens,
-        lpToken,
+        tokensByPool,
+        relevantPools,
         interaction,
+        splTokenAccounts,
         txsByStep,
       );
     default:

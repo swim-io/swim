@@ -1,8 +1,16 @@
-import BUSD_SVG from "../images/busd.svg";
-import SWIM_TOKEN_SVG from "../images/swim_token.svg";
-import SWIM_USD_SVG from "../images/swim_usd.svg";
-import USDC_SVG from "../images/usdc.svg";
-import USDT_SVG from "../images/usdt.svg";
+// import AURORA_USN_SVG from "../images/tokens/lp_metapool_aurora_usn.svg";
+// import FANTOM_USDC_SVG from "../images/tokens/lp_metapool_fantom_usdc.svg";
+// import FANTOM_USDT_SVG from "../images/tokens/lp_metapool_fantom_usdt.svg";
+// import LUNA_UST_SVG from "../images/tokens/lp_metapool_luna_ust.svg";
+import LP_META_AVALANCHE_USDC_SVG from "../images/tokens/lp_metapool_avalanche_usdc.svg";
+import LP_META_AVALANCHE_USDT_SVG from "../images/tokens/lp_metapool_avalanche_usdt.svg";
+import LP_META_POLYGON_USDC_SVG from "../images/tokens/lp_metapool_polygon_usdc.svg";
+import LP_META_POLYGON_USDT_SVG from "../images/tokens/lp_metapool_polygon_usdt.svg";
+import BUSD_SVG from "../images/tokens/busd.svg";
+import SWIM_TOKEN_SVG from "../images/tokens/swim_token.svg";
+import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
+import USDC_SVG from "../images/tokens/usdc.svg";
+import USDT_SVG from "../images/tokens/usdt.svg";
 import type { ReadonlyRecord } from "../utils";
 
 import { EcosystemId } from "./ecosystem";
@@ -424,7 +432,7 @@ const devnetTokens: readonly TokenSpec[] = [
     id: "devnet-solana-lp-meta-avalanche-usdc",
     symbol: "SWIM-AVALANCHE-USDC-META-POOL-LP",
     displayName: "Avalanche USDC Meta-Pool LP",
-    icon: SWIM_USD_SVG, // TODO:
+    icon: LP_META_AVALANCHE_USDC_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -441,7 +449,7 @@ const devnetTokens: readonly TokenSpec[] = [
     id: "devnet-solana-lp-meta-avalanche-usdt",
     symbol: "SWIM-AVALANCHE-USDT-META-POOL-LP",
     displayName: "Avalanche USDT Meta-Pool LP",
-    icon: SWIM_USD_SVG, // TODO:
+    icon: LP_META_AVALANCHE_USDT_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -458,7 +466,7 @@ const devnetTokens: readonly TokenSpec[] = [
     id: "devnet-solana-lp-meta-polygon-usdc",
     symbol: "SWIM-POLYGON-USDC-META-POOL-LP",
     displayName: "Polygon USDC Meta-Pool LP",
-    icon: SWIM_USD_SVG, // TODO:
+    icon: LP_META_POLYGON_USDC_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -475,7 +483,7 @@ const devnetTokens: readonly TokenSpec[] = [
     id: "devnet-solana-lp-meta-polygon-usdt",
     symbol: "SWIM-POLYGON-USDT-META-POOL-LP",
     displayName: "Polygon USDT Meta-Pool LP",
-    icon: SWIM_USD_SVG, // TODO:
+    icon: LP_META_POLYGON_USDT_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([

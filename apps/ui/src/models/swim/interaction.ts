@@ -7,6 +7,8 @@ import type { Amount } from "../amount";
 
 import type { SwimDefiInstruction } from "./instructions";
 
+export type AmountsByTokenId = ReadonlyMap<string, Amount>;
+
 interface BaseOperationSpec {
   readonly poolId: string;
   readonly instruction: SwimDefiInstruction;
@@ -84,7 +86,7 @@ interface BaseInteractionSpec {
 export interface SwapInteractionSpec extends BaseInteractionSpec {
   readonly type: InteractionType.Swap;
   readonly params: {
-    readonly exactInputAmounts: ReadonlyMap<string, Amount>;
+    readonly exactInputAmounts: AmountsByTokenId;
     readonly outputTokenId: string;
     readonly minimumOutputAmount: Amount;
   };
@@ -93,7 +95,7 @@ export interface SwapInteractionSpec extends BaseInteractionSpec {
 export interface AddInteractionSpec extends BaseInteractionSpec {
   readonly type: InteractionType.Add;
   readonly params: {
-    readonly inputAmounts: ReadonlyMap<string, Amount>;
+    readonly inputAmounts: AmountsByTokenId;
     readonly minimumMintAmount: Amount;
   };
   readonly lpTokenTargetEcosystem: EcosystemId;
@@ -103,7 +105,7 @@ export interface RemoveUniformInteractionSpec extends BaseInteractionSpec {
   readonly type: InteractionType.RemoveUniform;
   readonly params: {
     readonly exactBurnAmount: Amount;
-    readonly minimumOutputAmounts: ReadonlyMap<string, Amount>;
+    readonly minimumOutputAmounts: AmountsByTokenId;
   };
   readonly lpTokenSourceEcosystem: EcosystemId;
 }
@@ -122,7 +124,7 @@ export interface RemoveExactOutputInteractionSpec extends BaseInteractionSpec {
   readonly type: InteractionType.RemoveExactOutput;
   readonly params: {
     readonly maximumBurnAmount: Amount;
-    readonly exactOutputAmounts: ReadonlyMap<string, Amount>;
+    readonly exactOutputAmounts: AmountsByTokenId;
   };
   readonly lpTokenSourceEcosystem: EcosystemId;
 }

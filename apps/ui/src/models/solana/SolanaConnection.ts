@@ -65,9 +65,9 @@ export class SolanaConnection {
 
   public rawConnection: CustomConnection;
   // eslint-disable-next-line functional/prefer-readonly-type
-  private txCache: Map<string, TransactionResponse>;
+  private readonly txCache: Map<string, TransactionResponse>;
   // eslint-disable-next-line functional/prefer-readonly-type
-  private parsedTxCache: Map<string, ParsedTransactionWithMeta>;
+  private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
 
   constructor(endpoint: string) {
     this.rawConnection = new CustomConnection(endpoint, {

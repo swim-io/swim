@@ -14,7 +14,11 @@ export const enum WormholeChainId {
   Avalanche = 6,
   Oasis = 7,
   Algorand = 8,
-  // Fantom = 10,
+  Aurora = 9,
+  Fantom = 10,
+  Karura = 11,
+  Acala = 12,
+  Klaytn = 13,
 }
 
 export interface WormholeConfig {

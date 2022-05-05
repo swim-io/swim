@@ -125,7 +125,7 @@ If the environment stops working, follow the steps below
 
    This will give you a shell and all the relevant ports will be forwarded to the development server. If you don’t need a shell you can just run `ssh -N wormhole-v2`.
 
-1. [Restarting the chains](http://localhost:10350/overview) and following the steps in [DEV_SETUP](docs/DEV_SETUP.md#setting-up-tokens-and-pools).
+1. [Restarting the chains](http://localhost:10350/overview) and following the steps in [DEV_SETUP](/docs/DEV_SETUP.md#setting-up-tokens-and-pools).
 
 Details about contract addresses can be found in the various files in `src/config`.
 

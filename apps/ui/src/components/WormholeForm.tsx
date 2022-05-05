@@ -96,6 +96,8 @@ export const WormholeForm = (): ReactElement => {
     solana: { address: solanaAddress },
     ethereum: { address: ethereumAddress },
     bsc: { address: bscAddress },
+    avalanche: { address: avalancheAddress },
+    polygon: { address: polygonAddress },
   } = useWallets();
   const {
     tokenId,
@@ -123,8 +125,8 @@ export const WormholeForm = (): ReactElement => {
     [EcosystemId.Ethereum]: ethereumAddress,
     [EcosystemId.Terra]: null,
     [EcosystemId.Bsc]: bscAddress,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Polygon]: null,
+    [EcosystemId.Avalanche]: avalancheAddress,
+    [EcosystemId.Polygon]: polygonAddress,
   };
   const fromAddress = userAddresses[fromEcosystem];
   const toAddress = userAddresses[toEcosystem];

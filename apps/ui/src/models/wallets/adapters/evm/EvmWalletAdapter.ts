@@ -58,6 +58,10 @@ export class EvmWeb3WalletAdapter
     this.connecting = false;
   }
 
+  public get signer(): Signer | null {
+    return this.getWalletProvider()?.getSigner() ?? null;
+  }
+
   private get ecosystem(): EvmEcosystemId {
     return evmChainIdToEcosystem[this.chainId];
   }
@@ -68,10 +72,6 @@ export class EvmWeb3WalletAdapter
 
   private get walletProvider(): Web3Provider | null {
     return this.getWalletProvider();
-  }
-
-  public get signer(): Signer | null {
-    return this.getWalletProvider()?.getSigner() ?? null;
   }
 
   async connect(): Promise<void> {

@@ -19,13 +19,21 @@ export const AppContext: React.FC = ({ children }) => (
           <SolanaWalletProvider>
             <EvmConnectionProvider ecosystemId={EcosystemId.Ethereum}>
               <EvmConnectionProvider ecosystemId={EcosystemId.Bsc}>
-                <EvmWalletProvider ecosystemId={EcosystemId.Ethereum}>
-                  <EvmWalletProvider ecosystemId={EcosystemId.Bsc}>
-                    <ActiveInteractionProvider>
-                      {children}
-                    </ActiveInteractionProvider>
-                  </EvmWalletProvider>
-                </EvmWalletProvider>
+                <EvmConnectionProvider ecosystemId={EcosystemId.Avalanche}>
+                  <EvmConnectionProvider ecosystemId={EcosystemId.Polygon}>
+                    <EvmWalletProvider ecosystemId={EcosystemId.Ethereum}>
+                      <EvmWalletProvider ecosystemId={EcosystemId.Bsc}>
+                        <EvmWalletProvider ecosystemId={EcosystemId.Avalanche}>
+                          <EvmWalletProvider ecosystemId={EcosystemId.Polygon}>
+                            <ActiveInteractionProvider>
+                              {children}
+                            </ActiveInteractionProvider>
+                          </EvmWalletProvider>
+                        </EvmWalletProvider>
+                      </EvmWalletProvider>
+                    </EvmWalletProvider>
+                  </EvmConnectionProvider>
+                </EvmConnectionProvider>
               </EvmConnectionProvider>
             </EvmConnectionProvider>
           </SolanaWalletProvider>

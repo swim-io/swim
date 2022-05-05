@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 
-import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import type { EvmEcosystemId, TokenSpec } from "../../config";
+import { EcosystemId, isEvmEcosystemId } from "../../config";
 import type { FeesEstimation } from "../../models";
 import {
   APPROVAL_CEILING,
@@ -11,41 +11,67 @@ import {
 } from "../../models";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
+import { useIsEvmGasPriceLoading } from "./useIsEvmGasPriceLoading";
 
 const ZERO = new Decimal(0);
+
+const calculateGas = (
+  ecosystemId: EvmEcosystemId,
+  fromToken: TokenSpec | null,
+  toToken: TokenSpec | null,
+): Decimal => {
+  const fromRequirements =
+    fromToken?.nativeEcosystem === ecosystemId
+      ? [APPROVAL_CEILING, TRANSFER_CEILING]
+      : [];
+  const toRequirements =
+    toToken?.nativeEcosystem === ecosystemId ? [REDEEM_CEILING] : [];
+  return [...fromRequirements, ...toRequirements].reduce(
+    (acc, requirement) => acc.plus(requirement),
+    ZERO,
+  );
+};
 
 export const useSwapFeesEstimationQuery = (
   fromToken: TokenSpec | null,
   toToken: TokenSpec | null,
 ): FeesEstimation | null => {
-  const { data: ethGasPrice } = useGasPriceQuery(EcosystemId.Ethereum);
-  const { data: bscGasPrice } = useGasPriceQuery(EcosystemId.Bsc);
-
-  if (!ethGasPrice || !bscGasPrice) {
+  const [ethGasPrice, bscGasPrice, avalancheGasPrice, polygonGasPrice] = [
+    useGasPriceQuery(EcosystemId.Ethereum).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Bsc).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Avalanche).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Polygon).data ?? ZERO,
+  ];
+  const requiredEvmEcosystemIds = [
+    fromToken?.nativeEcosystem,
+    toToken?.nativeEcosystem,
+  ].filter(
+    (ecosystemId): ecosystemId is EvmEcosystemId =>
+      ecosystemId !== undefined && isEvmEcosystemId(ecosystemId),
+  );
+  const isRequiredGasPriceLoading = useIsEvmGasPriceLoading(
+    requiredEvmEcosystemIds,
+  );
+  if (isRequiredGasPriceLoading) {
     return null;
   }
-
-  let ethGas = new Decimal(0);
-  if (fromToken?.nativeEcosystem === EcosystemId.Ethereum) {
-    ethGas = ethGas.add(APPROVAL_CEILING + TRANSFER_CEILING);
-  }
-  if (toToken?.nativeEcosystem === EcosystemId.Ethereum) {
-    ethGas = ethGas.add(REDEEM_CEILING);
-  }
-  let bscGas = new Decimal(0);
-  if (fromToken?.nativeEcosystem === EcosystemId.Bsc) {
-    bscGas = bscGas.add(APPROVAL_CEILING + TRANSFER_CEILING);
-  }
-  if (toToken?.nativeEcosystem === EcosystemId.Bsc) {
-    bscGas = bscGas.add(REDEEM_CEILING);
-  }
+  const evmEcosystemIds: readonly EvmEcosystemId[] = [
+    EcosystemId.Ethereum,
+    EcosystemId.Bsc,
+    EcosystemId.Avalanche,
+    EcosystemId.Polygon,
+  ];
+  const [ethGas, bscGas, avalancheGas, polygonGas] = evmEcosystemIds.map(
+    (ecosystemId: EvmEcosystemId) =>
+      calculateGas(ecosystemId, fromToken, toToken),
+  );
 
   return {
+    [EcosystemId.Solana]: SOLANA_FEE,
     [EcosystemId.Ethereum]: ethGas.mul(ethGasPrice.toString()),
     [EcosystemId.Bsc]: bscGas.mul(bscGasPrice.toString()),
-    [EcosystemId.Solana]: SOLANA_FEE,
-    [EcosystemId.Avalanche]: ZERO,
-    [EcosystemId.Polygon]: ZERO,
     [EcosystemId.Terra]: ZERO,
+    [EcosystemId.Avalanche]: avalancheGas.mul(avalancheGasPrice.toString()),
+    [EcosystemId.Polygon]: polygonGas.mul(polygonGasPrice.toString()),
   };
 };

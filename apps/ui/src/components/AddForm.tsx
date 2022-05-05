@@ -300,7 +300,6 @@ export const AddForm = ({
       if (amount === null) {
         errors = ["Invalid number"];
       } else if (
-        tokenSpec.nativeEcosystem !== EcosystemId.Bsc &&
         amount
           .toAtomic(tokenSpec.nativeEcosystem)
           .gt(userBalance.toAtomic(tokenSpec.nativeEcosystem))
@@ -459,35 +458,38 @@ export const AddForm = ({
       <EuiSpacer size="m" />
 
       {/* TODO: Maybe display those side by side with EuiFlex */}
-      {[EcosystemId.Solana, EcosystemId.Ethereum, EcosystemId.Bsc].map(
-        (ecosystemId) => {
-          const indices = [...new Array(poolTokens.length)]
-            .map((_, i) => i)
-            .filter((i) => poolTokens[i].nativeEcosystem === ecosystemId);
-          const isRelevant = (_: any, i: number): boolean =>
-            indices.includes(i);
-          const tokens = poolTokens.filter(isRelevant);
-          const errors = inputAmountErrors.filter(isRelevant);
-          const filteredInputAmounts = formInputAmounts.filter(isRelevant);
-          const changeHandlers = formInputChangeHandlers.filter(isRelevant);
-          const blurHandlers = formInputBlurHandlers.filter(isRelevant);
-          return (
-            <EcosystemAddPanel
-              key={ecosystemId}
-              ecosystemId={ecosystemId}
-              nEcosystemsInPool={nativeEcosystems.length}
-              tokens={tokens}
-              errors={errors}
-              inputAmounts={filteredInputAmounts}
-              disabled={
-                !wallets[ecosystemId].connected || isInteractionInProgress
-              }
-              changeHandlers={changeHandlers}
-              blurHandlers={blurHandlers}
-            />
-          );
-        },
-      )}
+      {[
+        EcosystemId.Solana,
+        EcosystemId.Ethereum,
+        EcosystemId.Bsc,
+        EcosystemId.Avalanche,
+        EcosystemId.Polygon,
+      ].map((ecosystemId) => {
+        const indices = [...new Array(poolTokens.length)]
+          .map((_, i) => i)
+          .filter((i) => poolTokens[i].nativeEcosystem === ecosystemId);
+        const isRelevant = (_: any, i: number): boolean => indices.includes(i);
+        const tokens = poolTokens.filter(isRelevant);
+        const errors = inputAmountErrors.filter(isRelevant);
+        const filteredInputAmounts = formInputAmounts.filter(isRelevant);
+        const changeHandlers = formInputChangeHandlers.filter(isRelevant);
+        const blurHandlers = formInputBlurHandlers.filter(isRelevant);
+        return (
+          <EcosystemAddPanel
+            key={ecosystemId}
+            ecosystemId={ecosystemId}
+            nEcosystemsInPool={nativeEcosystems.length}
+            tokens={tokens}
+            errors={errors}
+            inputAmounts={filteredInputAmounts}
+            disabled={
+              !wallets[ecosystemId].connected || isInteractionInProgress
+            }
+            changeHandlers={changeHandlers}
+            blurHandlers={blurHandlers}
+          />
+        );
+      })}
 
       <EuiFormRow label={receiveLabel}>
         <EuiRadioGroup

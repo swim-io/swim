@@ -2,13 +2,14 @@ import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
 
 import type { Config, TokenSpec } from "../../config";
 import { EcosystemId, Protocol, getSolanaTokenDetails } from "../../config";
-import { findOrThrow } from "../../utils";
 import type { Tx } from "../crossEcosystem";
 import { findTokenAccountForMint } from "../solana";
 
 import type { Interaction } from "./interaction";
+import { getTokensByPool } from "./pool";
 import {
-  findPoolInteractionTx,
+  findPoolOperationTxs,
+  getRelevantPools,
   getRequiredTokens,
   getTransferFromTxs,
   getTransferToTxs,
@@ -23,9 +24,9 @@ import {
   ActionType,
   Status,
   completeCreateSplTokenAccounts,
-  completePoolInteraction,
   initialState,
   initiateInteraction,
+  updatePoolOperations,
   updateTransferFromSolana,
   updateTransferToSolana,
 } from "./stepsReducer";
@@ -51,23 +52,22 @@ const hasAllSplTokenAccounts = (
 
 export const getCurrentState = (
   config: Config,
-  splTokenAccounts: readonly TokenAccountInfo[],
-  tokens: readonly TokenSpec[],
-  lpToken: TokenSpec,
   interaction: Interaction,
+  splTokenAccounts: readonly TokenAccountInfo[],
   txs: readonly Tx[],
 ): State => {
-  const poolSpec = findOrThrow(
-    config.pools,
-    (pool) => pool.id === interaction.poolId,
-  );
-  const poolContractAddress = poolSpec.contract;
+  const tokensByPoolId = getTokensByPool(config);
+  const poolSpecs = getRelevantPools(config.pools, interaction);
+  const inputPool = poolSpecs[0];
+  const outputPool = poolSpecs[poolSpecs.length - 1];
+  const inputPoolTokens = tokensByPoolId[inputPool.id];
+  const outputPoolTokens = tokensByPoolId[outputPool.id];
 
   const interactionWithNewKeys: Interaction = {
     ...interaction,
     signatureSetKeypairs: generateSignatureSetKeypairs(
-      tokens,
-      lpToken,
+      inputPoolTokens.tokens,
+      inputPoolTokens.lpToken,
       interaction,
       null,
     ),
@@ -83,7 +83,11 @@ export const getCurrentState = (
     interaction: interactionWithNewKeys,
     txs,
   });
-  const requiredTokens = getRequiredTokens(tokens, lpToken, interaction);
+  const requiredTokens = getRequiredTokens(
+    tokensByPoolId,
+    poolSpecs,
+    interaction,
+  );
   const walletAddress = interaction.connectedWallets[EcosystemId.Solana];
   if (walletAddress === null) {
     throw new Error("Missing Solana wallet");
@@ -97,8 +101,8 @@ export const getCurrentState = (
     config.chains,
     walletAddress,
     splTokenAccounts,
-    tokens,
-    lpToken,
+    inputPoolTokens.tokens,
+    inputPoolTokens.lpToken,
     interaction.previousSignatureSetAddresses,
     txs,
   );
@@ -121,37 +125,33 @@ export const getCurrentState = (
   if (maybeTransferredToSolanaState.status !== Status.TransferredToSolana) {
     return maybeTransferredToSolanaState;
   }
-  const poolInteractionTx = findPoolInteractionTx(poolContractAddress, txs);
-  if (poolInteractionTx === null) {
-    return maybeTransferredToSolanaState;
-  }
-  const lpTokenMint = getSolanaTokenDetails(lpToken).address;
-  const tokenMints = tokens.map(
-    (token) => getSolanaTokenDetails(token).address,
-  );
+  const poolOperationTxs = findPoolOperationTxs(poolSpecs, txs);
   const transferFromTxs = getTransferFromTxs(
     config.chains,
     walletAddress,
     splTokenAccounts,
-    tokens,
-    lpToken,
+    outputPoolTokens.tokens,
+    outputPoolTokens.lpToken,
     txs,
   );
-  const completedPoolInteractionState = completePoolInteraction(
-    tokens,
-    lpToken,
+  const maybeCompletedPoolOperationsState = updatePoolOperations(
+    tokensByPoolId,
+    poolSpecs,
     maybeTransferredToSolanaState,
     {
-      type: ActionType.CompletePoolInteraction,
-      lpTokenMint,
-      tokenMints,
-      interactionTxs: [poolInteractionTx],
+      type: ActionType.UpdatePoolOperations,
+      operationTxs: poolOperationTxs,
       existingTransferFromTxs: transferFromTxs,
     },
   );
+  if (
+    maybeCompletedPoolOperationsState.status !== Status.CompletedPoolOperations
+  ) {
+    return maybeCompletedPoolOperationsState;
+  }
   const maybeDoneState = updateTransferFromSolana(
     config.chains[Protocol.Evm],
-    completedPoolInteractionState,
+    maybeCompletedPoolOperationsState,
     {
       type: ActionType.UpdateTransferFromSolana,
       txs: transferFromTxs,

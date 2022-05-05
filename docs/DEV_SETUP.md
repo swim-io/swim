@@ -9,7 +9,7 @@
 1. On your local machine: `ssh wormhole-v2`.
 1. Start a `tmux` session: `tmux` (optional).
 1. In one pane start minikube and the dashboard: `minikube start && minikube dashboard --url --port 41841`.
-1. In another pane set up the reverse proxy (using the config from [PROXY_SERVER.md](), which should be set up): `ssh proxy`.
+1. In another pane set up the reverse proxy (using the config from [PROXY_SERVER.md](PROXY_SERVER.md), which should be set up): `ssh proxy`.
 1. In another pane run `cd wormhole && tilt up`.
 
 ### From a fresh Docker DO droplet

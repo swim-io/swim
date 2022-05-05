@@ -4,7 +4,7 @@ For convenience we are using a proxy server to forward requests to the relevant 
 
 ## Switch to a new dev server
 
-1. Create the new dev server (see [DEV_SETUP.md]()).
+1. Create the new dev server (see [DEV_SETUP.md](DEV_SETUP.md)).
 1. Create an SSH key on the new dev server: `ssh-keygen -t ed25519 -C "SOME_EMAIL"`.
 1. Copy the pubkey into `/home/wormhole/.ssh/authorized_keys` on the proxy server.
 1. Add the SSH config below to `/home/wormhole/.ssh/config` on the new dev server.

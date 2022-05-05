@@ -18,5 +18,5 @@ for i in "${!MINTS[@]}"; do
   token_account=${TOKEN_ACCOUNTS[$i]}
 
   spl-token mint "$mint" 1000000000 "$token_account" \
-  --fee-payer "./src/keys/wallet-accounts/$DEV_USER.json"
+  --fee-payer "./apps/ui/src/keys/wallet-accounts/$DEV_USER.json"
 done

@@ -30,15 +30,36 @@ describe("useSwapFeesEstimationQuery", () => {
     });
   });
 
-  it("should return null when the gas price is still loading", async () => {
-    useGasPriceQueryMock.mockReturnValue({ isLoading: true, data: undefined });
-    const { result } = renderHook(
-      () => useSwapFeesEstimationQuery(SOLANA_USDT, ETHEREUM_USDT),
-      {
-        wrapper: AppContext,
-      },
-    );
-    expect(result.current).toEqual(null);
+  describe("loading", () => {
+    it("should return null when the required gas price is still loading", async () => {
+      useGasPriceQueryMock.mockReturnValue({
+        isLoading: true,
+        data: undefined,
+      });
+      const { result } = renderHook(
+        () => useSwapFeesEstimationQuery(SOLANA_USDT, ETHEREUM_USDT),
+        {
+          wrapper: AppContext,
+        },
+      );
+      expect(result.current).toEqual(null);
+    });
+
+    it("should return fixed fee for Solana only swap, even when evm gas price is loading", async () => {
+      useGasPriceQueryMock.mockReturnValue({
+        isLoading: true,
+        data: undefined,
+      });
+      const { result } = renderHook(
+        () => useSwapFeesEstimationQuery(SOLANA_USDC, SOLANA_USDT),
+        {
+          wrapper: AppContext,
+        },
+      );
+      expect(result.current?.solana).toEqual(new Decimal(0.01));
+      expect(result.current?.ethereum).toEqual(new Decimal(0));
+      expect(result.current?.bsc).toEqual(new Decimal(0));
+    });
   });
 
   describe("loaded", () => {

@@ -26,10 +26,6 @@ export const getIncludedEvmEcosystemIds = (
   amounts: readonly (Amount | null)[],
 ): readonly EvmEcosystemId[] =>
   amounts
-    .filter(
-      (amount) =>
-        amount &&
-        !amount.isZero() &&
-        isEvmEcosystemId(amount.tokenSpec.nativeEcosystem),
-    )
-    .map((amount) => amount?.tokenSpec.nativeEcosystem as EvmEcosystemId);
+    .filter((amount): amount is Amount => amount !== null && !amount.isZero())
+    .map((amount) => amount.tokenSpec.nativeEcosystem)
+    .filter(isEvmEcosystemId);

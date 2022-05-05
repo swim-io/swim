@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 
 import type { EvmEcosystemId, TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import { EcosystemId, isEvmEcosystemId } from "../../config";
 import type { FeesEstimation } from "../../models";
 import {
   APPROVAL_CEILING,
@@ -45,7 +45,10 @@ export const useSwapFeesEstimationQuery = (
   const requiredEvmEcosystemIds = [
     fromToken?.nativeEcosystem,
     toToken?.nativeEcosystem,
-  ].filter(Boolean) as readonly EcosystemId[];
+  ].filter(
+    (ecosystemId): ecosystemId is EvmEcosystemId =>
+      ecosystemId !== undefined && isEvmEcosystemId(ecosystemId),
+  );
   const isRequiredGasPriceLoading = useIsEvmGasPriceLoading(
     requiredEvmEcosystemIds,
   );

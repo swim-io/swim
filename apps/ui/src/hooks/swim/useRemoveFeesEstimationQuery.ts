@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 
 import type { EvmEcosystemId } from "../../config";
-import { EcosystemId } from "../../config";
+import { EcosystemId, isEvmEcosystemId } from "../../config";
 import type { Amount, FeesEstimation } from "../../models";
 import {
   APPROVAL_CEILING,
@@ -46,7 +46,7 @@ export const useRemoveFeesEstimationQuery = (
   const requiredEvmEcosystemIds = [
     ...getIncludedEvmEcosystemIds(outputAmounts),
     lpTokenSourceEcosystem,
-  ];
+  ].filter(isEvmEcosystemId);
   const isRequiredGasPriceLoading = useIsEvmGasPriceLoading(
     requiredEvmEcosystemIds,
   );

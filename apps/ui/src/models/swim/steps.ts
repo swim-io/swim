@@ -57,7 +57,7 @@ export interface BaseStep {
 export interface CreateSplTokenAccountsStep extends BaseStep {
   readonly type: StepType.CreateSplTokenAccounts;
   readonly mints: readonly string[];
-  readonly txs: readonly Tx[];
+  readonly txs: readonly SolanaTx[];
 }
 
 export interface WormholeToSolanaStep extends BaseStep {
@@ -69,7 +69,7 @@ export interface WormholeToSolanaStep extends BaseStep {
 
 export interface SolanaOperationsStep extends BaseStep {
   readonly type: StepType.SolanaOperations;
-  readonly txs: readonly Tx[];
+  readonly txs: readonly SolanaTx[];
 }
 
 export interface WormholeFromSolanaFullStep extends BaseStep {

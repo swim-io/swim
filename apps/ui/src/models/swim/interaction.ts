@@ -10,6 +10,7 @@ import type { SwimDefiInstruction } from "./instructions";
 export type AmountsByTokenId = ReadonlyMap<string, Amount>;
 
 interface BaseOperationSpec {
+  readonly interactionId: string;
   readonly poolId: string;
   readonly instruction: SwimDefiInstruction;
   /** Should be overriden when extending this type */

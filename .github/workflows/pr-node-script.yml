@@ -5,7 +5,7 @@ name: Run lint & unit tests
 
 on:
   pull_request:
-    branches: [ * ]
+    branches: '*'
 
 jobs:
   build:

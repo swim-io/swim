@@ -3,6 +3,7 @@ import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { Env, PoolSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import {
+  useConfig,
   useEnvironment,
   useSolanaConnection,
   useSolanaWallet,
@@ -23,6 +24,8 @@ import {
   SwimDefiInstructor,
   findTokenAccountForMint,
   getPoolState,
+  getRelevantPools,
+  getTokensByPool,
 } from "../../models";
 import { findOrThrow } from "../../utils";
 import { useSplTokenAccountsQuery } from "../solana";
@@ -347,23 +350,20 @@ async function* generatePoolOperationTxs(
   }
 }
 
-// TODO: Rename
-interface Props {
-  readonly tokensByPoolId: TokensByPoolId;
-  readonly poolSpecs: readonly PoolSpec[];
-  readonly interaction: WithSplTokenAccounts<Interaction>;
-}
-
 export const usePoolOperationsGenerator = (): UseAsyncGeneratorResult<
-  Props,
+  WithSplTokenAccounts<Interaction>,
   SolanaTx
 > => {
   const { env } = useEnvironment();
+  const config = useConfig();
+  const tokensByPoolId = getTokensByPool(config);
   const solanaConnection = useSolanaConnection();
   const { wallet } = useSolanaWallet();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
-  return useAsyncGenerator<Props, SolanaTx>(
-    async ({ interaction, poolSpecs, tokensByPoolId }) => {
+
+  return useAsyncGenerator<WithSplTokenAccounts<Interaction>, SolanaTx>(
+    async (interaction) => {
+      const poolSpecs = getRelevantPools(config.pools, interaction);
       if (wallet === null) {
         throw new Error("Missing Solana wallet");
       }

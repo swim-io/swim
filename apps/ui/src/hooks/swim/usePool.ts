@@ -38,9 +38,10 @@ export const usePool = (poolId: string): PoolData => {
     throw new Error(`Pool with id ${poolId} not found`);
   }
 
-  const lpToken =
-    findOrThrow(allTokens, (tokenSpec) => tokenSpec.id === poolSpec.lpToken) ??
-    null;
+  const lpToken = findOrThrow(
+    allTokens,
+    (tokenSpec) => tokenSpec.id === poolSpec.lpToken,
+  );
   const lpTokenMintAddress = getSolanaTokenDetails(lpToken).address;
 
   const tokens = [...poolSpec.tokenAccounts.keys()].map(

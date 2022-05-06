@@ -2,11 +2,11 @@
 // import FANTOM_USDC_SVG from "../images/tokens/lp_metapool_fantom_usdc.svg";
 // import FANTOM_USDT_SVG from "../images/tokens/lp_metapool_fantom_usdt.svg";
 // import LUNA_UST_SVG from "../images/tokens/lp_metapool_luna_ust.svg";
+import BUSD_SVG from "../images/tokens/busd.svg";
 import LP_META_AVALANCHE_USDC_SVG from "../images/tokens/lp_metapool_avalanche_usdc.svg";
 import LP_META_AVALANCHE_USDT_SVG from "../images/tokens/lp_metapool_avalanche_usdt.svg";
 import LP_META_POLYGON_USDC_SVG from "../images/tokens/lp_metapool_polygon_usdc.svg";
 import LP_META_POLYGON_USDT_SVG from "../images/tokens/lp_metapool_polygon_usdt.svg";
-import BUSD_SVG from "../images/tokens/busd.svg";
 import SWIM_TOKEN_SVG from "../images/tokens/swim_token.svg";
 import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
 import USDC_SVG from "../images/tokens/usdc.svg";
@@ -709,14 +709,14 @@ const localnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Ethereum,
         {
-          address: "0x81681EC304dcfe2Ddad462E7e968C49A848410c3",
+          address: "0xB57867A09D0Fa793447c51c5e0DF4d32959e95B4",
           decimals: 6,
         },
       ],
       [
         EcosystemId.Bsc,
         {
-          address: "0xbcB873e64edfe972E88f6A83fB8C4896aDb524f5",
+          address: "0xab63774B3a305936A2D9A1AbEE7E7d346C52271C",
           decimals: 6,
         },
       ],
@@ -747,7 +747,7 @@ const localnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Bsc,
         {
-          address: "0xa22915e82eb27fb64988Efa3d2749838174ccCBE",
+          address: "0x4a6cd6548d50077b2F84f9f4DeB1Dc21B99Eb453",
           decimals: 6,
         },
       ],
@@ -796,6 +796,20 @@ const localnetTokens: readonly TokenSpec[] = [
         EcosystemId.Solana,
         {
           address: "SWMPqjB9AAtpCbatAEEGK67wNBCN1HDW6VypX7E5r9g",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Ethereum,
+        {
+          address: "0x2A63108d7D592822Ddcf5d270Ba227A39bB982DA",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Bsc,
+        {
+          address: "0x8d4bD97855708599B11F1960cb22A92f4Bdf0532",
           decimals: 6,
         },
       ],

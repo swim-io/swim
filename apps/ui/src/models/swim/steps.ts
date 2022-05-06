@@ -577,6 +577,7 @@ export const createSteps = (
       : [],
     [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
   };
+
   switch (interaction.instruction) {
     case SwimDefiInstruction.Add:
       return createAddSteps(

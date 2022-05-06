@@ -96,14 +96,6 @@ export const generateInputTransfers = (
         (account) => account.mint.toBase58() === solanaDetails.address,
       ) ?? null;
     const signatureSetKeypair = signatureSetKeypairs[token.id];
-    console.log(
-      "keys",
-      signatureSetKeypairs,
-      "key",
-      signatureSetKeypair,
-      "token",
-      token,
-    );
     if (signatureSetKeypair === undefined) {
       throw new Error("Missing signature set key pair");
     }

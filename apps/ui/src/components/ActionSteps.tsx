@@ -19,9 +19,9 @@ import { formatErrorJsx } from "../errors";
 import type { StepMutations } from "../hooks";
 import type {
   CreateSplTokenAccountsStep,
-  PoolInteraction,
+  Interaction,
   ProtoTransfer,
-  SolanaPoolInteractionStep,
+  SolanaOperationsStep,
   SolanaTx,
   Step,
   Steps,
@@ -32,9 +32,9 @@ import type {
   WormholeToSolanaStep,
 } from "../models";
 import {
+  InteractionType,
   Status,
   StepType,
-  SwimDefiInstruction,
   combineTransfers,
   groupTxsByTokenId,
 } from "../models";
@@ -64,11 +64,11 @@ type StepWithMutation =
       readonly mutation?: Mutation<TxsByTokenId>;
     }
   | {
-      readonly type: StepType.SolanaPoolInteraction;
-      readonly interaction: PoolInteraction;
-      readonly step: SolanaPoolInteractionStep;
+      readonly type: StepType.SolanaOperations;
+      readonly interaction: Interaction;
+      readonly step: SolanaOperationsStep;
       readonly retryInteraction: () => any;
-      readonly mutation?: Mutation<SolanaTx>;
+      readonly mutation?: Mutation<{ readonly txs: readonly SolanaTx[] }>;
     }
   | {
       readonly type: StepType.WormholeFromSolana;
@@ -147,13 +147,13 @@ const ActionSubStep = ({
         isComplete={isComplete}
         mutation={mutation}
       />
-      {txs !== null ? (
+      {txs !== null && (
         <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
           {txs.map((tx) => (
             <TxListItem key={tx.txId} {...tx} />
           ))}
         </EuiListGroup>
-      ) : null}
+      )}
     </>
   );
 };
@@ -233,42 +233,44 @@ const WormholeActionStep = ({
   );
 };
 
-const poolInteractionStepTitles: ReadonlyRecord<SwimDefiInstruction, string> = {
-  [SwimDefiInstruction.Add]: "Add tokens",
-  [SwimDefiInstruction.Swap]: "Swap tokens",
-  [SwimDefiInstruction.SwapExactOutput]: "Swap tokens",
-  [SwimDefiInstruction.RemoveUniform]: "Remove tokens",
-  [SwimDefiInstruction.RemoveExactBurn]: "Remove tokens",
-  [SwimDefiInstruction.RemoveExactOutput]: "Remove tokens",
+const solanaOperationsStepTitles: ReadonlyRecord<InteractionType, string> = {
+  [InteractionType.Add]: "Add tokens",
+  [InteractionType.Swap]: "Swap tokens",
+  [InteractionType.RemoveUniform]: "Remove tokens",
+  [InteractionType.RemoveExactBurn]: "Remove tokens",
+  [InteractionType.RemoveExactOutput]: "Remove tokens",
 };
 
-interface PoolInteractionActionStepProps {
-  readonly step: SolanaPoolInteractionStep;
-  readonly interaction: PoolInteraction;
-  readonly mutation?: Mutation<SolanaTx>;
+interface SolanaOperationsActionStepProps {
+  readonly step: SolanaOperationsStep;
+  readonly interaction: Interaction;
+  readonly mutation?: Mutation<{ readonly txs: readonly SolanaTx[] }>;
 }
 
-const PoolInteractionActionStep = ({
+const SolanaOperationsActionStep = ({
   interaction,
   step,
   mutation,
-}: PoolInteractionActionStepProps): ReactElement => {
+}: SolanaOperationsActionStepProps): ReactElement => {
+  // TODO: Handle this comment...
   // If we found tx via an existing interaction the ID will be available via the step.
   // Otherwise this might be an active interaction and the ID might be available via the mutation.
-  const txId =
-    step.txs.length > 0 ? step.txs[0].txId : mutation?.data?.txId ?? null;
+
+  const { txs } = step;
   return (
     <>
       <MutationStatus
-        title={poolInteractionStepTitles[interaction.instruction]}
+        title={solanaOperationsStepTitles[interaction.type]}
         isComplete={step.isComplete}
         mutation={mutation}
       />
-      {txId !== null ? (
+      {txs.length > 0 && (
         <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-          <TxListItem ecosystem={EcosystemId.Solana} txId={txId} />
+          {txs.map((tx) => (
+            <TxListItem key={tx.txId} {...tx} />
+          ))}
         </EuiListGroup>
-      ) : null}
+      )}
     </>
   );
 };
@@ -279,8 +281,8 @@ const ActionStep = (props: StepWithMutation): ReactElement => {
       return <CreateSplTokenAccountsActionStep {...props} />;
     case StepType.WormholeToSolana:
       return <WormholeActionStep {...props} />;
-    case StepType.SolanaPoolInteraction:
-      return <PoolInteractionActionStep {...props} />;
+    case StepType.SolanaOperations:
+      return <SolanaOperationsActionStep {...props} />;
     case StepType.WormholeFromSolana:
       return <WormholeActionStep {...props} />;
     default:
@@ -350,7 +352,7 @@ const getStepTitle = (step: Step): string => {
   switch (step.type) {
     case StepType.CreateSplTokenAccounts:
       return "Create Solana accounts";
-    case StepType.SolanaPoolInteraction:
+    case StepType.SolanaOperations:
       return "Interact with pool on Solana";
     case StepType.WormholeToSolana:
       return "Bridge tokens to Solana";
@@ -408,7 +410,7 @@ const buildEuiStepProps = (props: StepWithMutation): EuiStepProps | null => {
 
 export interface ActionStepsProps {
   readonly retryInteraction: () => any;
-  readonly interaction: PoolInteraction;
+  readonly interaction: Interaction;
   readonly steps: Steps;
   readonly status: Status;
   readonly mutations?: StepMutations;
@@ -438,11 +440,16 @@ export const ActionSteps = ({
       },
     },
     {
-      type: steps.interactWithPool.type,
+      type: steps.doPoolOperations.type,
       interaction: interaction,
-      step: steps.interactWithPool,
+      step: steps.doPoolOperations,
       retryInteraction: retryInteraction,
-      mutation: mutations?.interactWithPool,
+      mutation: mutations && {
+        ...mutations.doPoolOperations,
+        data: {
+          txs: mutations.doPoolOperations.data ?? [],
+        },
+      },
     },
     {
       type: steps.wormholeFromSolana.type,

@@ -799,20 +799,6 @@ const localnetTokens: readonly TokenSpec[] = [
           decimals: 6,
         },
       ],
-      [
-        EcosystemId.Ethereum,
-        {
-          address: "0x2A63108d7D592822Ddcf5d270Ba227A39bB982DA",
-          decimals: 6,
-        },
-      ],
-      [
-        EcosystemId.Bsc,
-        {
-          address: "0x8d4bD97855708599B11F1960cb22A92f4Bdf0532",
-          decimals: 6,
-        },
-      ],
     ]),
   },
   {

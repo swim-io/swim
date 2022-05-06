@@ -68,7 +68,9 @@ const getEvmTokenIdAndBalance = (
   if (!address) {
     return [tokenSpec.id, null];
   }
-  const index = contractAddresses.findIndex((x) => x === address);
+  const index = contractAddresses.findIndex(
+    (contractAddress) => contractAddress === address,
+  );
   if (!balances[index]) {
     return [tokenSpec.id, null];
   }

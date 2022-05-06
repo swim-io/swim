@@ -2,27 +2,18 @@ import type {
   MintInfo,
   AccountInfo as TokenAccountInfo,
 } from "@solana/spl-token";
-import { PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
-import { useQuery } from "react-query";
 
 import type { PoolSpec, TokenSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
-import {
-  useConfig,
-  useEnvironment,
-  useSolanaConnection,
-  useSolanaWallet,
-} from "../../contexts";
+import { useConfig, useSolanaWallet } from "../../contexts";
 import type { SwimPoolState } from "../../models";
-import {
-  Amount,
-  deserializeMint,
-  deserializeSwimPool,
-  findTokenAccountForMint,
-} from "../../models";
-import { isEachNotNull, isNotNull } from "../../utils";
+import { Amount, findTokenAccountForMint } from "../../models";
+import { findOrThrow, isEachNotNull, isNotNull } from "../../utils";
 import { useLiquidityQuery, useSplTokenAccountsQuery } from "../solana";
+
+import { usePoolLpMint } from "./usePoolLpMint";
+import { usePoolState } from "./usePoolState";
 
 export interface PoolData {
   readonly spec: PoolSpec;
@@ -38,9 +29,7 @@ export interface PoolData {
 }
 
 export const usePool = (poolId: string): PoolData => {
-  const { env } = useEnvironment();
   const { pools, tokens: allTokens } = useConfig();
-  const solanaConnection = useSolanaConnection();
   const { address: walletAddress } = useSolanaWallet();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
 
@@ -50,10 +39,8 @@ export const usePool = (poolId: string): PoolData => {
   }
 
   const lpToken =
-    allTokens.find((tokenSpec) => tokenSpec.id === poolSpec.lpToken) ?? null;
-  if (!isNotNull(lpToken)) {
-    throw new Error("Pool LP token not found");
-  }
+    findOrThrow(allTokens, (tokenSpec) => tokenSpec.id === poolSpec.lpToken) ??
+    null;
   const lpTokenMintAddress = getSolanaTokenDetails(lpToken).address;
 
   const tokens = [...poolSpec.tokenAccounts.keys()].map(
@@ -68,28 +55,8 @@ export const usePool = (poolId: string): PoolData => {
     ...new Set(tokens.map((tokenSpec) => tokenSpec.nativeEcosystem)),
   ];
 
-  const numberOfTokens = poolSpec.tokenAccounts.size;
-  const { data: poolState = null } = useQuery<SwimPoolState | null, Error>(
-    ["poolState", env, poolSpec.address],
-    async () => {
-      const accountInfo = await solanaConnection.getAccountInfo(
-        new PublicKey(poolSpec.address),
-      );
-      return accountInfo
-        ? deserializeSwimPool(numberOfTokens, accountInfo.data)
-        : null;
-    },
-  );
-
-  const { data: poolLpMint = null } = useQuery<MintInfo | null, Error>(
-    ["poolLpMintAccount", env, poolSpec.id],
-    async () => {
-      const account = await solanaConnection.getAccountInfo(
-        new PublicKey(lpTokenMintAddress),
-      );
-      return account ? deserializeMint(account.data) : null;
-    },
-  );
+  const { data: poolState = null } = usePoolState(poolSpec);
+  const { data: poolLpMint = null } = usePoolLpMint(poolSpec);
 
   const poolTokenAccountAddresses: readonly (string | null)[] = [
     ...poolSpec.tokenAccounts.values(),

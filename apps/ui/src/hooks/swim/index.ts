@@ -6,6 +6,8 @@ export * from "./useInstructor";
 export * from "./usePool";
 export * from "./usePoolInteractionMutation";
 export * from "./usePoolMath";
+export * from "./usePoolLpMint";
+export * from "./usePoolState";
 export * from "./useRecentInteractions";
 export * from "./useRemoveUniformMutation";
 export * from "./useRemoveExactBurnMutation";

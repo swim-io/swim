@@ -528,87 +528,124 @@ describe("Swim steps", () => {
     const amounts = ["0", "1.111", "0", "3333.3", "0", "2", "2", "2", "0"].map(
       (amount, i) => Amount.fromHumanString(poolTokens[i], amount),
     );
-    let interaction: AddInteraction;
+    const signatureSetKeypairs = localnetTokens.reduce(
+      (accumulator, token, i) => ({
+        ...accumulator,
+        [token.id]: Keypair.generate(),
+      }),
+      {},
+    );
     let txByStep: TxsByStep;
+    let interaction: AddInteraction;
+    let swapStepInteraction: SwapInteraction;
 
-    beforeEach(() => {
-      interaction = {
-        id: defaultInteractionId,
-        env: Env.Localnet,
-        poolId: "test-pool",
-        submittedAt: 1646408146771,
-        signatureSetKeypairs: {},
-        previousSignatureSetAddresses: {},
-        connectedWallets: {
-          [EcosystemId.Solana]: null,
-          [EcosystemId.Ethereum]: null,
-          [EcosystemId.Bsc]: null,
-          [EcosystemId.Terra]: null,
-          [EcosystemId.Polygon]: null,
-          [EcosystemId.Avalanche]: null,
-        },
-        instruction: SwimDefiInstruction.Add,
-        lpTokenTargetEcosystem: EcosystemId.Bsc,
-        params: {
-          inputAmounts: amounts,
-          minimumMintAmount: Amount.fromHumanString(lpToken, "3000"),
-        },
-      };
-      const wormholeToSolanaTxs = getTransferToTxs(
-        chainsConfig,
-        defaultSolanaWalletAddress,
-        defaultSplTokenAccounts,
-        localnetTokens,
-        lpToken,
-        interaction.previousSignatureSetAddresses,
-        [solanaTx],
-      );
-      const solanaPoolInteractionTx = findPoolInteractionTx(
-        poolContractAddress,
-        [solanaTx],
-      );
-      const wormholeFromSolanaTxs = getTransferFromTxs(
-        chainsConfig,
-        defaultSolanaWalletAddress,
-        defaultSplTokenAccounts,
-        localnetTokens,
-        lpToken,
-        [solanaTx],
-      );
-
-      txByStep = {
-        [StepType.CreateSplTokenAccounts]: [],
-        [StepType.WormholeToSolana]: wormholeToSolanaTxs,
-        [StepType.SolanaPoolInteraction]: solanaPoolInteractionTx
-          ? [solanaPoolInteractionTx]
-          : [],
-        [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
-      };
-    });
-
-    it("throws an error if wallet address is missing", () => {
-      const result = () =>
-        createSteps(
+    describe("createSteps - createAddSteps", () => {
+      beforeEach(() => {
+        interaction = {
+          id: defaultInteractionId,
+          env: Env.Localnet,
+          poolId: "test-pool",
+          submittedAt: 1646408146771,
+          signatureSetKeypairs: {},
+          previousSignatureSetAddresses: {},
+          connectedWallets: {
+            [EcosystemId.Solana]: null,
+            [EcosystemId.Ethereum]: null,
+            [EcosystemId.Bsc]: null,
+            [EcosystemId.Terra]: null,
+            [EcosystemId.Polygon]: null,
+            [EcosystemId.Avalanche]: null,
+          },
+          instruction: SwimDefiInstruction.Add,
+          lpTokenTargetEcosystem: EcosystemId.Bsc,
+          params: {
+            inputAmounts: amounts,
+            minimumMintAmount: Amount.fromHumanString(lpToken, "3000"),
+          },
+        };
+        const wormholeToSolanaTxs = getTransferToTxs(
           chainsConfig,
-          poolContractAddress,
+          defaultSolanaWalletAddress,
           defaultSplTokenAccounts,
           localnetTokens,
           lpToken,
-          interaction,
+          interaction.previousSignatureSetAddresses,
           [solanaTx],
         );
-      expect(() => result()).toThrowError(/Missing Solana wallet/i);
-    });
-    it("throws an error, if there is no set signature keypair", () => {
-      const interactionWithWallet: AddInteraction = {
-        ...interaction,
-        connectedWallets: {
-          ...interaction.connectedWallets,
-          [EcosystemId.Solana]: defaultSolanaWalletAddress,
-        },
-      };
-      const result = () =>
-        createSteps(
+        const solanaPoolInteractionTx = findPoolInteractionTx(
+          poolContractAddress,
+          [solanaTx],
+        );
+        const wormholeFromSolanaTxs = getTransferFromTxs(
+          chainsConfig,
+          defaultSolanaWalletAddress,
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          [solanaTx],
+        );
+
+        txByStep = {
+          [StepType.CreateSplTokenAccounts]: [],
+          [StepType.WormholeToSolana]: wormholeToSolanaTxs,
+          [StepType.SolanaPoolInteraction]: solanaPoolInteractionTx
+            ? [solanaPoolInteractionTx]
+            : [],
+          [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
+        };
+      });
+
+      it("throws an error if wallet address is missing", () => {
+        const result = () =>
+          createSteps(
+            chainsConfig,
+            poolContractAddress,
+            defaultSplTokenAccounts,
+            localnetTokens,
+            lpToken,
+            interaction,
+            [solanaTx],
+          );
+        expect(() => result()).toThrowError(/Missing Solana wallet/i);
+      });
+      it("throws an error, if there is no set signature keypair", () => {
+        const interactionWithWallet: AddInteraction = {
+          ...interaction,
+          connectedWallets: {
+            ...interaction.connectedWallets,
+            [EcosystemId.Solana]: defaultSolanaWalletAddress,
+          },
+        };
+        const result = () =>
+          createSteps(
+            chainsConfig,
+            poolContractAddress,
+            defaultSplTokenAccounts,
+            localnetTokens,
+            lpToken,
+            interactionWithWallet,
+            [solanaTx],
+          );
+        expect(() => result()).toThrowError(/Missing signature set key pair/i);
+      });
+      it("returns Add steps interaction", () => {
+        const interactionWithWallet: AddInteraction = {
+          ...interaction,
+          signatureSetKeypairs,
+          connectedWallets: {
+            ...interaction.connectedWallets,
+            [EcosystemId.Solana]: defaultSolanaWalletAddress,
+          },
+        };
+
+        const expected = createAddSteps(
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          interactionWithWallet,
+          txByStep,
+        );
+        const result = createSteps(
           chainsConfig,
           poolContractAddress,
           defaultSplTokenAccounts,
@@ -617,42 +654,70 @@ describe("Swim steps", () => {
           interactionWithWallet,
           [solanaTx],
         );
-      expect(() => result()).toThrowError(/Missing signature set key pair/i);
+        expect(result).toEqual(expected);
+      });
     });
-    it("returns Add steps interaction", () => {
-      const signatureSetKeypairs = localnetTokens.reduce(
-        (accumulator, token, i) => ({
-          ...accumulator,
-          [token.id]: Keypair.generate(),
-        }),
-        {},
-      );
-      const interactionWithWallet: AddInteraction = {
-        ...interaction,
-        signatureSetKeypairs,
-        connectedWallets: {
-          ...interaction.connectedWallets,
-          [EcosystemId.Solana]: defaultSolanaWalletAddress,
-        },
-      };
+    describe("createSteps - createSwapSteps", () => {
+      beforeEach(() => {
+        swapStepInteraction = {
+          ...swapInteraction,
+          env: Env.Localnet,
+          signatureSetKeypairs,
+          params: {
+            ...swapInteraction.params,
+            exactInputAmounts: amounts,
+          },
+        };
+        const wormholeToSolanaTxs = getTransferToTxs(
+          chainsConfig,
+          defaultSolanaWalletAddress,
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          swapStepInteraction.previousSignatureSetAddresses,
+          [solanaTx],
+        );
+        const solanaPoolInteractionTx = findPoolInteractionTx(
+          poolContractAddress,
+          [solanaTx],
+        );
+        const wormholeFromSolanaTxs = getTransferFromTxs(
+          chainsConfig,
+          defaultSolanaWalletAddress,
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          [solanaTx],
+        );
 
-      const expected = createAddSteps(
-        defaultSplTokenAccounts,
-        localnetTokens,
-        lpToken,
-        interactionWithWallet,
-        txByStep,
-      );
-      const result = createSteps(
-        chainsConfig,
-        poolContractAddress,
-        defaultSplTokenAccounts,
-        localnetTokens,
-        lpToken,
-        interactionWithWallet,
-        [solanaTx],
-      );
-      expect(result).toEqual(expected);
+        txByStep = {
+          [StepType.CreateSplTokenAccounts]: [],
+          [StepType.WormholeToSolana]: wormholeToSolanaTxs,
+          [StepType.SolanaPoolInteraction]: solanaPoolInteractionTx
+            ? [solanaPoolInteractionTx]
+            : [],
+          [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
+        };
+      });
+      it("returns result of createSwapSteps", () => {
+        const result = createSwapSteps(
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          swapStepInteraction,
+          txByStep,
+        );
+        const expected = createSteps(
+          chainsConfig,
+          poolContractAddress,
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          swapStepInteraction,
+          [solanaTx],
+        );
+        expect(result).toEqual(expected);
+      });
     });
   });
 });

@@ -34,8 +34,8 @@ import {
 } from "../hooks";
 import {
   Amount,
+  InteractionType,
   Status,
-  SwimDefiInstruction,
   getLowBalanceWallets,
 } from "../models";
 import type { ReadonlyRecord } from "../utils";
@@ -521,10 +521,14 @@ export const RemoveForm = ({
           amount.sub(amount.mul(maxSlippageFraction)),
         );
         const interactionId = startInteraction({
-          instruction: SwimDefiInstruction.RemoveUniform,
+          type: InteractionType.RemoveUniform,
           params: {
             exactBurnAmount,
-            minimumOutputAmounts,
+            minimumOutputAmounts: minimumOutputAmounts.reduce(
+              (amountsByTokenId, amount) =>
+                amountsByTokenId.set(amount.tokenId, amount),
+              new Map(),
+            ),
           },
           lpTokenSourceEcosystem,
         });
@@ -537,10 +541,10 @@ export const RemoveForm = ({
           outputAmount.mul(maxSlippageFraction),
         );
         const interactionId = startInteraction({
-          instruction: SwimDefiInstruction.RemoveExactBurn,
+          type: InteractionType.RemoveExactBurn,
           params: {
             exactBurnAmount,
-            outputTokenIndex,
+            outputTokenId: poolTokens[outputTokenIndex].id,
             minimumOutputAmount,
           },
           lpTokenSourceEcosystem,
@@ -553,10 +557,14 @@ export const RemoveForm = ({
           throw new Error("LP token estimate not available");
         }
         const interactionId = startInteraction({
-          instruction: SwimDefiInstruction.RemoveExactOutput,
+          type: InteractionType.RemoveExactOutput,
           params: {
             maximumBurnAmount,
-            exactOutputAmounts: outputAmounts,
+            exactOutputAmounts: outputAmounts.reduce(
+              (amountsByTokenId, amount) =>
+                amountsByTokenId.set(amount.tokenId, amount),
+              new Map(),
+            ),
           },
           lpTokenSourceEcosystem,
         });

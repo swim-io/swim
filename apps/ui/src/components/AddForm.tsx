@@ -35,8 +35,8 @@ import {
 } from "../hooks";
 import {
   Amount,
+  InteractionType,
   Status,
-  SwimDefiInstruction,
   getLowBalanceWallets,
 } from "../models";
 import { isEachNotNull, isNotNull } from "../utils";
@@ -439,9 +439,13 @@ export const AddForm = ({
     }
 
     const interactionId = startInteraction({
-      instruction: SwimDefiInstruction.Add,
+      type: InteractionType.Add,
       params: {
-        inputAmounts,
+        inputAmounts: inputAmounts.reduce(
+          (amountsByTokenId, amount) =>
+            amountsByTokenId.set(amount.tokenId, amount),
+          new Map(),
+        ),
         minimumMintAmount,
       },
       lpTokenTargetEcosystem: lpTargetEcosystem,

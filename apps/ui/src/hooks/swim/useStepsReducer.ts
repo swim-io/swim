@@ -32,7 +32,6 @@ import type {
   InitiateInteractionAction,
   Interaction,
   InteractionSpec,
-  OperationSpec,
   SolanaTx,
   State,
   Transfer,
@@ -53,7 +52,7 @@ import {
 } from "../wormhole";
 
 import { usePool } from "./usePool";
-import { usePoolInteractionMutation } from "./usePoolInteractionMutation";
+import { usePoolOperationsGenerator } from "./usePoolOperationsGenerator";
 
 export interface StepMutations {
   readonly createSplTokenAccounts: UseMutationResult<
@@ -65,10 +64,9 @@ export interface StepMutations {
     WithSplTokenAccounts<TransfersToSolanaWithExistingTxs>,
     TxWithTokenId
   >;
-  readonly doPoolOperations: UseMutationResult<
-    SolanaTx,
-    Error,
-    WithSplTokenAccounts<OperationSpec>
+  readonly doPoolOperations: UseAsyncGeneratorResult<
+    WithSplTokenAccounts<Interaction>,
+    SolanaTx
   >;
   readonly wormholeFromSolana: UseAsyncGeneratorResult<
     WithSplTokenAccounts<TransfersWithExistingTxs>,
@@ -188,7 +186,7 @@ export const useStepsReducer = (
 
   const createSplTokenAccountsMutation = useCreateSplTokenAccountsMutation();
   const wormholeToSolanaMutation = useTransferEvmTokensToSolanaGenerator();
-  const doPoolOperationsMutation = usePoolInteractionMutation(poolId);
+  const doPoolOperationsMutation = usePoolOperationsGenerator();
   const wormholeFromSolanaMutation = useTransferSplTokensToEvmGenerator();
 
   const mutations = useMemo(
@@ -286,13 +284,24 @@ export const useStepsReducer = (
           env,
           solanaAddress,
         ]);
-        const tx = await mutations.doPoolOperations.mutateAsync({
-          ...state.interaction,
-          splTokenAccounts: state.splTokenAccounts,
-        });
+        const {
+          data: txs = [],
+          isLoading,
+          isSuccess,
+          generate,
+        } = mutations.doPoolOperations;
+        const { interaction } = state;
+        if (!isLoading && !isSuccess) {
+          // NOTE: Errors are caught and set on the UseAsyncGeneratorResult
+          void generate({
+            ...interaction,
+            splTokenAccounts,
+          });
+        }
         return dispatch({
           type: ActionType.UpdatePoolOperations,
-          operationTxs: [...state.steps.doPoolOperations.txs, tx],
+          // TODO: Check we don't need to reuse previous txs
+          operationTxs: txs,
           existingTransferFromTxs: state.steps.wormholeFromSolana.txs,
         });
       }

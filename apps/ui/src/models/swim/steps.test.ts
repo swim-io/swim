@@ -3,9 +3,13 @@ import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
 import { u64 } from "@solana/spl-token";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
+import { mock } from "jest-mock-extended";
 
-import { EcosystemId, Env, tokens } from "../../config";
+import type { ChainsByProtocol } from "../../config";
+import { EcosystemId, Env, chains, pools, tokens } from "../../config";
+import { parsedSwimSwapTx } from "../../fixtures/solana/txs";
 import { Amount } from "../amount";
+import type { SolanaTx } from "../crossEcosystem";
 
 import { SwimDefiInstruction } from "./instructions";
 import type {
@@ -27,6 +31,7 @@ import {
   createRemoveExactBurnSteps,
   createRemoveExactOutputSteps,
   createRemoveUniformSteps,
+  createSteps,
   createSwapSteps,
   findMissingSplTokenAccountMints,
   isWormholeFromSolanaFullStep,
@@ -41,6 +46,8 @@ import {
 } from "./transfer";
 
 const localnetTokens = tokens[Env.Localnet];
+const lpTokenId = "localnet-solana-lp-hexapool";
+const lpToken = localnetTokens.find((token) => token.id === lpTokenId)!;
 const poolTokens = localnetTokens.filter((token) =>
   [
     "localnet-solana-usdc",
@@ -51,8 +58,6 @@ const poolTokens = localnetTokens.filter((token) =>
     "localnet-bsc-usdt",
   ].includes(token.id),
 );
-const lpTokenId = "localnet-solana-lp-hexapool";
-const lpToken = localnetTokens.find((token) => token.id === lpTokenId)!;
 const txsByStep: TxsByStep = {
   [StepType.CreateSplTokenAccounts]: [],
   [StepType.WormholeToSolana]: {},
@@ -91,6 +96,14 @@ describe("Swim steps", () => {
     "9idXDPGb5jfwaf5fxjiMacgUcwpy3ZHfdgqSjAV5XLDr", // "localnet-bsc-usdt"
     "LPTufpWWSucDqq1hib8vxj1uJxTh2bkE7ZTo65LH4J2", // "localnet-solana-lp-hexapool"
   ];
+  const defaultTimestamp = 1642762608;
+  const solanaTx: SolanaTx = {
+    ecosystem: EcosystemId.Solana,
+    txId: "34PhSGJi3XboZEhZEirTM6FEh1hNiYHSio1va1nNgH7S9LSNJQGSAiizEyVbgbVJzFjtsbyuJ2WijN53FSC83h7h",
+    timestamp: defaultTimestamp,
+    interactionId: defaultInteractionId,
+    parsedTx: parsedSwimSwapTx,
+  };
   const defaultSplTokenAccounts = splTokenMints
     .filter((_, i) => [0, 2, 3].includes(i))
     .map(generateSplTokenAccount);
@@ -502,6 +515,86 @@ describe("Swim steps", () => {
       expect(result["wormholeFromSolana"].knownAmounts).toBeTruthy();
       expect(result["wormholeFromSolana"].transfers.tokens).toEqual(
         resOutputTransfer,
+      );
+    });
+  });
+  describe("createSteps", () => {
+    const chainsConfig: ChainsByProtocol = chains[Env.Localnet];
+    const poolContractAddress: string = pools[Env.Localnet][0].contract;
+    const amounts = ["0", "1.111", "0", "3333.3", "0", "2"].map((amount, i) =>
+      Amount.fromHumanString(poolTokens[i], amount),
+    );
+    const interaction: AddInteraction = {
+      id: defaultInteractionId,
+      env: Env.Localnet,
+      poolId: "test-pool",
+      submittedAt: 1646408146771,
+      signatureSetKeypairs: {},
+      previousSignatureSetAddresses: {},
+      connectedWallets: {
+        [EcosystemId.Solana]: null,
+        [EcosystemId.Ethereum]: null,
+        [EcosystemId.Bsc]: null,
+        [EcosystemId.Terra]: null,
+        [EcosystemId.Polygon]: null,
+        [EcosystemId.Avalanche]: null,
+      },
+      instruction: SwimDefiInstruction.Add,
+      lpTokenTargetEcosystem: EcosystemId.Bsc,
+      params: {
+        inputAmounts: amounts,
+        minimumMintAmount: Amount.fromHumanString(lpToken, "3000"),
+      },
+    };
+
+    it("throws an error if wallet address is missing", () => {
+      const result = () =>
+        createSteps(
+          chainsConfig,
+          poolContractAddress,
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          interaction,
+          [solanaTx],
+        );
+      expect(() => result()).toThrowError(/Missing Solana wallet/i);
+    });
+    it("throws an error, if there is no set signature keypair", () => {
+      const interactionWithWallet: AddInteraction = {
+        ...interaction,
+        connectedWallets: {
+          ...interaction.connectedWallets,
+          [EcosystemId.Solana]: defaultSolanaWalletAddress,
+        },
+      };
+      const result = () =>
+        createSteps(
+          chainsConfig,
+          poolContractAddress,
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          interactionWithWallet,
+          [solanaTx],
+        );
+      expect(() => result()).toThrowError(/Missing signature set key pair/i);
+    });
+    it("should", () => {
+      const interactionWithWallet: AddInteraction = {
+        ...interaction,
+        signatureSetKeypairs: { [poolTokens[1].id]: Keypair.generate() },
+        connectedWallets: {
+          ...interaction.connectedWallets,
+          [EcosystemId.Solana]: defaultSolanaWalletAddress,
+        },
+      };
+      const expected = createAddSteps(
+        defaultSplTokenAccounts,
+        localnetTokens,
+        lpToken,
+        interactionWithWallet,
+        txsByStep,
       );
     });
   });

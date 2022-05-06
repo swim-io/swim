@@ -249,7 +249,7 @@ const createOperations = (
   }
 };
 
-const doPoolOperation = async (
+const doSinglePoolOperation = async (
   env: Env,
   solanaConnection: SolanaConnection,
   wallet: SolanaWalletAdapter,
@@ -330,7 +330,7 @@ async function* generatePoolOperationTxs(
       poolSpecs,
       (spec) => spec.id === operation.poolId,
     );
-    const txId = await doPoolOperation(
+    const txId = await doSinglePoolOperation(
       env,
       solanaConnection,
       wallet,

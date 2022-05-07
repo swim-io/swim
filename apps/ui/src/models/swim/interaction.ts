@@ -17,15 +17,6 @@ interface BaseOperationSpec {
   readonly params: unknown;
 }
 
-export interface SwapOperationSpec extends BaseOperationSpec {
-  readonly instruction: SwimDefiInstruction.Swap;
-  readonly params: {
-    readonly exactInputAmounts: readonly Amount[];
-    readonly outputTokenIndex: number;
-    readonly minimumOutputAmount: Amount;
-  };
-}
-
 export interface AddOperationSpec extends BaseOperationSpec {
   readonly instruction: SwimDefiInstruction.Add;
   readonly params: {
@@ -59,12 +50,21 @@ export interface RemoveExactOutputOperationSpec extends BaseOperationSpec {
   };
 }
 
+export interface SwapOperationSpec extends BaseOperationSpec {
+  readonly instruction: SwimDefiInstruction.Swap;
+  readonly params: {
+    readonly exactInputAmounts: readonly Amount[];
+    readonly outputTokenIndex: number;
+    readonly minimumOutputAmount: Amount;
+  };
+}
+
 export type OperationSpec =
-  | SwapOperationSpec
   | AddOperationSpec
   | RemoveUniformOperationSpec
   | RemoveExactBurnOperationSpec
-  | RemoveExactOutputOperationSpec;
+  | RemoveExactOutputOperationSpec
+  | SwapOperationSpec;
 
 /**
  * Essentially a duplicate of SwimDefiInstruction but conceptually distinct because a swap
@@ -143,6 +143,8 @@ export type InteractionSpec =
 
 interface BaseInteraction {
   readonly id: string;
+  // TODO: Make less redundant with poolId on non-Swap InteractionSpecs
+  readonly poolIds: readonly string[];
   readonly env: Env;
   readonly submittedAt: number;
   /** Record of token ID to keypairs for a signature set used in posting Wormhole VAAs to Solana */
@@ -157,8 +159,6 @@ interface BaseInteraction {
 
 export interface AddInteraction extends BaseInteraction, AddInteractionSpec {}
 
-export interface SwapInteraction extends BaseInteraction, SwapInteractionSpec {}
-
 export interface RemoveUniformInteraction
   extends BaseInteraction,
     RemoveUniformInteractionSpec {}
@@ -171,12 +171,14 @@ export interface RemoveExactOutputInteraction
   extends BaseInteraction,
     RemoveExactOutputInteractionSpec {}
 
+export interface SwapInteraction extends BaseInteraction, SwapInteractionSpec {}
+
 export type Interaction =
   | AddInteraction
-  | SwapInteraction
   | RemoveUniformInteraction
   | RemoveExactBurnInteraction
-  | RemoveExactOutputInteraction;
+  | RemoveExactOutputInteraction
+  | SwapInteraction;
 
 export type WithSplTokenAccounts<T> = T & {
   readonly splTokenAccounts: readonly TokenAccount[];

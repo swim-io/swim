@@ -6,6 +6,7 @@ import type { ReadonlyRecord } from "../../utils";
 
 import { SwimDefiInstruction } from "./instructions";
 import type { InteractionSpec } from "./interaction";
+import { InteractionType } from "./interaction";
 import { TransferType } from "./transfer";
 import type { TransferToSolana, Transfers } from "./transfer";
 
@@ -16,43 +17,40 @@ export const generateSignatureSetKeypairs = (
   interactionSpec: InteractionSpec,
   transfers: Transfers<TransferToSolana> | null,
 ): ReadonlyRecord<string, Keypair | undefined> => {
-  switch (interactionSpec.instruction) {
-    case SwimDefiInstruction.Add: {
+  switch (interactionSpec.type) {
+    case InteractionType.Add: {
       if (transfers !== null && transfers.type === TransferType.LpToken) {
         throw new Error("Invalid transfers type");
       }
-      const { params } = interactionSpec;
-      return poolTokens.reduce(
-        (accumulator, token, i) =>
-          token.nativeEcosystem !== EcosystemId.Solana &&
-          !params.inputAmounts[i].isZero() &&
+      const { inputAmounts } = interactionSpec.params;
+      return poolTokens.reduce((accumulator, token, i) => {
+        const inputAmount = inputAmounts.get(token.id) ?? null;
+        return token.nativeEcosystem !== EcosystemId.Solana &&
+          inputAmount !== null &&
+          !inputAmount.isZero() &&
           !transfers?.tokens[i]?.isComplete
-            ? { ...accumulator, [token.id]: Keypair.generate() }
-            : accumulator,
-        {},
-      );
+          ? { ...accumulator, [token.id]: Keypair.generate() }
+          : accumulator;
+      }, {});
     }
-    case SwimDefiInstruction.Swap: {
+    case InteractionType.Swap: {
       if (transfers !== null && transfers.type === TransferType.LpToken) {
         throw new Error("Invalid transfers type");
       }
-      const { params } = interactionSpec;
-      return poolTokens.reduce(
-        (accumulator, token, i) =>
-          token.nativeEcosystem !== EcosystemId.Solana &&
-          !params.exactInputAmounts[i].isZero() &&
+      const { exactInputAmounts } = interactionSpec.params;
+      return poolTokens.reduce((accumulator, token, i) => {
+        const inputAmount = exactInputAmounts.get(token.id) ?? null;
+        return token.nativeEcosystem !== EcosystemId.Solana &&
+          inputAmount !== null &&
+          !inputAmount.isZero() &&
           !transfers?.tokens[i]?.isComplete
-            ? {
-                ...accumulator,
-                [token.id]: Keypair.generate(),
-              }
-            : accumulator,
-        {},
-      );
+          ? { ...accumulator, [token.id]: Keypair.generate() }
+          : accumulator;
+      }, {});
     }
-    case SwimDefiInstruction.RemoveUniform:
-    case SwimDefiInstruction.RemoveExactBurn:
-    case SwimDefiInstruction.RemoveExactOutput: {
+    case InteractionType.RemoveUniform:
+    case InteractionType.RemoveExactBurn:
+    case InteractionType.RemoveExactOutput: {
       if (transfers !== null && transfers.type === TransferType.Tokens) {
         throw new Error("Invalid transfers type");
       }

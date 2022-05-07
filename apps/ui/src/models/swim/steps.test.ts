@@ -535,7 +535,35 @@ describe("Swim steps", () => {
       }),
       {},
     );
-    let txByStep: TxsByStep;
+    const wormholeToSolanaTxs = getTransferToTxs(
+      chainsConfig,
+      defaultSolanaWalletAddress,
+      defaultSplTokenAccounts,
+      localnetTokens,
+      lpToken,
+      {},
+      [solanaTx],
+    );
+    const solanaPoolInteractionTx = findPoolInteractionTx(poolContractAddress, [
+      solanaTx,
+    ]);
+    const wormholeFromSolanaTxs = getTransferFromTxs(
+      chainsConfig,
+      defaultSolanaWalletAddress,
+      defaultSplTokenAccounts,
+      localnetTokens,
+      lpToken,
+      [solanaTx],
+    );
+
+    const txByStep: TxsByStep = {
+      [StepType.CreateSplTokenAccounts]: [],
+      [StepType.WormholeToSolana]: wormholeToSolanaTxs,
+      [StepType.SolanaPoolInteraction]: solanaPoolInteractionTx
+        ? [solanaPoolInteractionTx]
+        : [],
+      [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
+    };
     let interaction: AddInteraction;
     let swapStepInteraction: SwapInteraction;
 
@@ -562,36 +590,6 @@ describe("Swim steps", () => {
             inputAmounts: amounts,
             minimumMintAmount: Amount.fromHumanString(lpToken, "3000"),
           },
-        };
-        const wormholeToSolanaTxs = getTransferToTxs(
-          chainsConfig,
-          defaultSolanaWalletAddress,
-          defaultSplTokenAccounts,
-          localnetTokens,
-          lpToken,
-          interaction.previousSignatureSetAddresses,
-          [solanaTx],
-        );
-        const solanaPoolInteractionTx = findPoolInteractionTx(
-          poolContractAddress,
-          [solanaTx],
-        );
-        const wormholeFromSolanaTxs = getTransferFromTxs(
-          chainsConfig,
-          defaultSolanaWalletAddress,
-          defaultSplTokenAccounts,
-          localnetTokens,
-          lpToken,
-          [solanaTx],
-        );
-
-        txByStep = {
-          [StepType.CreateSplTokenAccounts]: [],
-          [StepType.WormholeToSolana]: wormholeToSolanaTxs,
-          [StepType.SolanaPoolInteraction]: solanaPoolInteractionTx
-            ? [solanaPoolInteractionTx]
-            : [],
-          [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
         };
       });
 
@@ -668,36 +666,6 @@ describe("Swim steps", () => {
             exactInputAmounts: amounts,
           },
         };
-        const wormholeToSolanaTxs = getTransferToTxs(
-          chainsConfig,
-          defaultSolanaWalletAddress,
-          defaultSplTokenAccounts,
-          localnetTokens,
-          lpToken,
-          swapStepInteraction.previousSignatureSetAddresses,
-          [solanaTx],
-        );
-        const solanaPoolInteractionTx = findPoolInteractionTx(
-          poolContractAddress,
-          [solanaTx],
-        );
-        const wormholeFromSolanaTxs = getTransferFromTxs(
-          chainsConfig,
-          defaultSolanaWalletAddress,
-          defaultSplTokenAccounts,
-          localnetTokens,
-          lpToken,
-          [solanaTx],
-        );
-
-        txByStep = {
-          [StepType.CreateSplTokenAccounts]: [],
-          [StepType.WormholeToSolana]: wormholeToSolanaTxs,
-          [StepType.SolanaPoolInteraction]: solanaPoolInteractionTx
-            ? [solanaPoolInteractionTx]
-            : [],
-          [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
-        };
       });
       it("returns result of createSwapSteps", () => {
         const result = createSwapSteps(
@@ -714,6 +682,136 @@ describe("Swim steps", () => {
           localnetTokens,
           lpToken,
           swapStepInteraction,
+          [solanaTx],
+        );
+        expect(result).toEqual(expected);
+      });
+    });
+    describe("createSteps - createRemoveUniformSteps", () => {
+      const removeUniformInteraction: RemoveUniformInteraction = {
+        id: defaultInteractionId,
+        env: Env.Localnet,
+        poolId: "test-pool",
+        submittedAt: 1646408146771,
+        signatureSetKeypairs,
+        previousSignatureSetAddresses: {},
+        connectedWallets: {
+          [EcosystemId.Solana]: defaultSolanaWalletAddress,
+          [EcosystemId.Ethereum]: null,
+          [EcosystemId.Bsc]: null,
+          [EcosystemId.Terra]: null,
+          [EcosystemId.Polygon]: null,
+          [EcosystemId.Avalanche]: null,
+        },
+        lpTokenSourceEcosystem: EcosystemId.Bsc,
+        instruction: SwimDefiInstruction.RemoveUniform,
+        params: {
+          exactBurnAmount: Amount.fromHuman(lpToken, new Decimal(20)),
+          minimumOutputAmounts: [],
+        },
+      };
+      it("returns result of createRemoveUniformSteps", () => {
+        const result = createRemoveUniformSteps(
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          removeUniformInteraction,
+          txByStep,
+        );
+        const expected = createSteps(
+          chainsConfig,
+          poolContractAddress,
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          removeUniformInteraction,
+          [solanaTx],
+        );
+        expect(result).toEqual(expected);
+      });
+    });
+    describe("createSteps - createRemoveExactBurnSteps", () => {
+      const removeExactBurnInteraction: RemoveExactBurnInteraction = {
+        id: defaultInteractionId,
+        env: Env.Localnet,
+        poolId: "test-pool",
+        submittedAt: 1646408146771,
+        signatureSetKeypairs,
+        previousSignatureSetAddresses: {},
+        connectedWallets: {
+          [EcosystemId.Solana]: defaultSolanaWalletAddress,
+          [EcosystemId.Ethereum]: null,
+          [EcosystemId.Bsc]: null,
+          [EcosystemId.Terra]: null,
+          [EcosystemId.Polygon]: null,
+          [EcosystemId.Avalanche]: null,
+        },
+        lpTokenSourceEcosystem: EcosystemId.Solana,
+        instruction: SwimDefiInstruction.RemoveExactBurn,
+        params: {
+          exactBurnAmount: Amount.zero(lpToken),
+          outputTokenIndex: 0,
+          minimumOutputAmount: Amount.zero(lpToken),
+        },
+      };
+      it("returns result of createRemoveExactBurnSteps", () => {
+        const result = createRemoveExactBurnSteps(
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          removeExactBurnInteraction,
+          txByStep,
+        );
+        const expected = createSteps(
+          chainsConfig,
+          poolContractAddress,
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          removeExactBurnInteraction,
+          [solanaTx],
+        );
+        expect(result).toEqual(expected);
+      });
+    });
+    describe("createSteps - createRemoveExactOutputSteps", () => {
+      const removeExactOutputInteraction: RemoveExactOutputInteraction = {
+        id: defaultInteractionId,
+        env: Env.Localnet,
+        poolId: "test-pool",
+        submittedAt: 1646408146771,
+        signatureSetKeypairs: { [poolTokens[3].id]: keypair },
+        previousSignatureSetAddresses: {},
+        connectedWallets: {
+          [EcosystemId.Solana]: defaultSolanaWalletAddress,
+          [EcosystemId.Ethereum]: null,
+          [EcosystemId.Bsc]: null,
+          [EcosystemId.Terra]: null,
+          [EcosystemId.Polygon]: null,
+          [EcosystemId.Avalanche]: null,
+        },
+        lpTokenSourceEcosystem: EcosystemId.Solana,
+        instruction: SwimDefiInstruction.RemoveExactOutput,
+        params: {
+          maximumBurnAmount: Amount.fromHuman(lpToken, new Decimal(100)),
+          exactOutputAmounts: [],
+        },
+      };
+      it("returns result of createRemoveExactOutputSteps", () => {
+        const result = createRemoveExactOutputSteps(
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          removeExactOutputInteraction,
+          txByStep,
+        );
+        const expected = createSteps(
+          chainsConfig,
+          poolContractAddress,
+          defaultSplTokenAccounts,
+          localnetTokens,
+          lpToken,
+          removeExactOutputInteraction,
           [solanaTx],
         );
         expect(result).toEqual(expected);

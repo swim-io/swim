@@ -4,6 +4,7 @@ import type { ethers } from "ethers";
 import type { EvmEcosystemId } from "../../config";
 import { EcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
+import { findOrThrow } from "../../utils";
 
 interface BaseTx {
   readonly ecosystem: EcosystemId;
@@ -101,3 +102,12 @@ export const deduplicateTxsByTokenId = (
       [tokenId]: [...(accumulator[tokenId] ?? []), ...txsToAdd],
     };
   }, oldTxsByTxId);
+
+export const deduplicateTxs = <T extends Tx = Tx>(
+  txs: readonly T[],
+): readonly T[] => {
+  const uniqueIds = new Set(txs.map((tx) => tx.txId));
+  return [...uniqueIds].map((txId) =>
+    findOrThrow(txs, (tx) => tx.txId === txId),
+  );
+};

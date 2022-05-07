@@ -630,30 +630,13 @@ export const getRelevantPools = (
 ): readonly PoolSpec[] => {
   switch (interactionSpec.type) {
     case InteractionType.Add:
-      return [
-        findOrThrow(
-          poolSpecs,
-          (poolSpec) =>
-            poolSpec.lpToken ===
-            interactionSpec.params.minimumMintAmount.tokenId,
-        ),
-      ];
     case InteractionType.RemoveUniform:
     case InteractionType.RemoveExactBurn:
-      return [
-        findOrThrow(
-          poolSpecs,
-          (poolSpec) =>
-            poolSpec.lpToken === interactionSpec.params.exactBurnAmount.tokenId,
-        ),
-      ];
     case InteractionType.RemoveExactOutput:
       return [
         findOrThrow(
           poolSpecs,
-          (poolSpec) =>
-            poolSpec.lpToken ===
-            interactionSpec.params.maximumBurnAmount.tokenId,
+          (poolSpec) => poolSpec.id === interactionSpec.poolId,
         ),
       ];
     case InteractionType.Swap: {

@@ -194,7 +194,7 @@ export const AddForm = ({
     startInteraction,
     mutations,
     isInteractionInProgress,
-  } = useStepsReducer(poolSpec.id);
+  } = useStepsReducer();
   const userNativeBalances = useUserNativeBalances();
 
   const [lpTargetEcosystem, setLpTargetEcosystem] = useState(

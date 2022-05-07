@@ -85,7 +85,7 @@ export const RemoveForm = ({
     startInteraction,
     mutations,
     isInteractionInProgress,
-  } = useStepsReducer(poolSpec.id);
+  } = useStepsReducer();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userLpBalances = useUserLpBalances(lpToken, userLpTokenAccount);
   const wallets = useWallets();

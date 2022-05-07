@@ -347,15 +347,24 @@ export const useStepsReducer = (
 
   const startInteraction = (interactionSpec: InteractionSpec): string => {
     const interactionId = generateId();
+    const requiredPools = getRequiredPools(config.pools, interactionSpec);
+    const inputPool = requiredPools.find(Boolean) ?? null;
+    if (inputPool === null) {
+      throw new Error("Unknown input pool");
+    }
+    const inputPoolTokens = tokensByPool[inputPool.id];
+    const outputPool =
+      requiredPools.find((_, i) => i === requiredPools.length - 1) ?? null;
+    if (outputPool === null) {
+      throw new Error("Unknown output pool");
+    }
+
     // TODO: Make this work for multiple pools
     const connectedWallets = getConnectedWallets(
       config.tokens,
       interactionSpec,
       wallets,
     );
-    const requiredPools = getRequiredPools(config.pools, interactionSpec);
-    const [inputPool] = requiredPools;
-    const inputPoolTokens = tokensByPool[inputPool.id];
 
     const signatureSetKeypairs = generateSignatureSetKeypairs(
       inputPoolTokens.tokens,

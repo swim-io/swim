@@ -6,6 +6,7 @@ export * from "./useInstructor";
 export * from "./usePool";
 export * from "./usePoolInteractionMutation";
 export * from "./usePoolMath";
+export * from "./usePoolMaths";
 export * from "./usePoolLpMint";
 export * from "./usePoolState";
 export * from "./useRecentInteractions";

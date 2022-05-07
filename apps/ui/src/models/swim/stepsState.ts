@@ -9,7 +9,7 @@ import type { Interaction } from "./interaction";
 import { getTokensByPool } from "./pool";
 import {
   findPoolOperationTxs,
-  getRelevantPools,
+  getRequiredPools,
   getRequiredTokens,
   getTransferFromTxs,
   getTransferToTxs,
@@ -57,9 +57,9 @@ export const getCurrentState = (
   txs: readonly Tx[],
 ): State => {
   const tokensByPoolId = getTokensByPool(config);
-  const poolSpecs = getRelevantPools(config.pools, interaction);
-  const inputPool = poolSpecs[0];
-  const outputPool = poolSpecs[poolSpecs.length - 1];
+  const requiredPools = getRequiredPools(config.pools, interaction);
+  const inputPool = requiredPools[0];
+  const outputPool = requiredPools[requiredPools.length - 1];
   const inputPoolTokens = tokensByPoolId[inputPool.id];
   const outputPoolTokens = tokensByPoolId[outputPool.id];
 
@@ -85,7 +85,7 @@ export const getCurrentState = (
   });
   const requiredTokens = getRequiredTokens(
     tokensByPoolId,
-    poolSpecs,
+    requiredPools,
     interaction,
   );
   const walletAddress = interaction.connectedWallets[EcosystemId.Solana];
@@ -125,7 +125,7 @@ export const getCurrentState = (
   if (maybeTransferredToSolanaState.status !== Status.TransferredToSolana) {
     return maybeTransferredToSolanaState;
   }
-  const poolOperationTxs = findPoolOperationTxs(poolSpecs, txs);
+  const poolOperationTxs = findPoolOperationTxs(requiredPools, txs);
   const transferFromTxs = getTransferFromTxs(
     config.chains,
     walletAddress,
@@ -136,7 +136,7 @@ export const getCurrentState = (
   );
   const maybeCompletedPoolOperationsState = updatePoolOperations(
     tokensByPoolId,
-    poolSpecs,
+    requiredPools,
     maybeTransferredToSolanaState,
     {
       type: ActionType.UpdatePoolOperations,

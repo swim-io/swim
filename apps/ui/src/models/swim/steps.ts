@@ -624,7 +624,7 @@ export const getTransferFromTxs = (
 };
 
 /** Returns one or two pools involved in the interaction */
-export const getRelevantPools = (
+export const getRequiredPools = (
   poolSpecs: readonly PoolSpec[],
   interactionSpec: InteractionSpec,
 ): readonly PoolSpec[] => {
@@ -678,9 +678,9 @@ export const createSteps = (
     throw new Error("Missing Solana wallet");
   }
   const tokensByPool = getTokensByPool(config);
-  const relevantPools = getRelevantPools(config.pools, interaction);
-  const inputPool = relevantPools[0];
-  const outputPool = relevantPools[relevantPools.length - 1];
+  const requiredPools = getRequiredPools(config.pools, interaction);
+  const inputPool = requiredPools[0];
+  const outputPool = requiredPools[requiredPools.length - 1];
   const inputPoolTokens = tokensByPool[inputPool.id];
   const outputPoolTokens = tokensByPool[outputPool.id];
 
@@ -694,7 +694,7 @@ export const createSteps = (
     interaction.previousSignatureSetAddresses,
     txs,
   );
-  const poolOperationTxs = findPoolOperationTxs(relevantPools, txs);
+  const poolOperationTxs = findPoolOperationTxs(requiredPools, txs);
   const wormholeFromSolanaTxs = getTransferFromTxs(
     config.chains,
     walletAddress,
@@ -713,7 +713,7 @@ export const createSteps = (
     case InteractionType.Add:
       return createAddSteps(
         tokensByPool,
-        relevantPools,
+        requiredPools,
         interaction,
         splTokenAccounts,
         txsByStep,
@@ -721,7 +721,7 @@ export const createSteps = (
     case InteractionType.Swap:
       return createSwapSteps(
         tokensByPool,
-        relevantPools,
+        requiredPools,
         interaction,
         splTokenAccounts,
         txsByStep,
@@ -729,7 +729,7 @@ export const createSteps = (
     case InteractionType.RemoveUniform:
       return createRemoveUniformSteps(
         tokensByPool,
-        relevantPools,
+        requiredPools,
         interaction,
         splTokenAccounts,
         txsByStep,
@@ -737,7 +737,7 @@ export const createSteps = (
     case InteractionType.RemoveExactBurn:
       return createRemoveExactBurnSteps(
         tokensByPool,
-        relevantPools,
+        requiredPools,
         interaction,
         splTokenAccounts,
         txsByStep,
@@ -745,7 +745,7 @@ export const createSteps = (
     case InteractionType.RemoveExactOutput:
       return createRemoveExactOutputSteps(
         tokensByPool,
-        relevantPools,
+        requiredPools,
         interaction,
         splTokenAccounts,
         txsByStep,

@@ -27,7 +27,7 @@ import type { Interaction } from "./interaction";
 import type { TokensByPoolId } from "./pool";
 import { getTokensByPool } from "./pool";
 import type { Steps, WormholeFromSolanaFullStep } from "./steps";
-import { createSteps, getRelevantPools } from "./steps";
+import { createSteps, getRequiredPools } from "./steps";
 import type { ProtoTransfer, Transfer, Transfers } from "./transfer";
 import {
   TransferType,
@@ -634,13 +634,13 @@ export const reducer =
         if (previousState.interaction === null) {
           throw new Error("Missing interaction");
         }
-        const poolSpecs = getRelevantPools(
+        const requiredPools = getRequiredPools(
           config.pools,
           previousState.interaction,
         );
         return updatePoolOperations(
           tokensByPoolId,
-          poolSpecs,
+          requiredPools,
           previousState,
           action,
         );

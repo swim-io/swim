@@ -6,9 +6,9 @@ import { sumToDecimal } from "../../amounts";
 import type { EvmEcosystemId, TokenSpec } from "../../config";
 import { useConfig, useEnvironment, useEvmConnection } from "../../contexts";
 import type { Interaction } from "../../models";
-import { SwimDefiInstruction } from "../../models";
+import { InteractionType, getTokensByPool } from "../../models";
 
-import { usePool } from "./usePool";
+import { usePools } from "./usePools";
 
 // NOTE: These values are based on the highest gas limit seen in a relatively small sample of txs, and then increased by an arbitrary margin.
 // We might have to increase these if we come across higher gas usages in the wild.
@@ -22,22 +22,30 @@ const getTransferToTokens = (
   interaction: Interaction,
   ecosystemId: EvmEcosystemId,
 ): readonly TokenSpec[] => {
-  switch (interaction.instruction) {
-    case SwimDefiInstruction.Swap:
-      return tokens.filter(
-        (token, i) =>
+  switch (interaction.type) {
+    case InteractionType.Swap:
+      return tokens.filter((token) => {
+        const inputAmount =
+          interaction.params.exactInputAmounts.get(token.id) ?? null;
+        return (
           token.nativeEcosystem === ecosystemId &&
-          !interaction.params.exactInputAmounts[i].isZero(),
-      );
-    case SwimDefiInstruction.Add:
-      return tokens.filter(
-        (token, i) =>
+          inputAmount !== null &&
+          !inputAmount.isZero()
+        );
+      });
+    case InteractionType.Add:
+      return tokens.filter((token) => {
+        const inputAmount =
+          interaction.params.inputAmounts.get(token.id) ?? null;
+        return (
           token.nativeEcosystem === ecosystemId &&
-          !interaction.params.inputAmounts[i].isZero(),
-      );
-    case SwimDefiInstruction.RemoveUniform:
-    case SwimDefiInstruction.RemoveExactBurn:
-    case SwimDefiInstruction.RemoveExactOutput:
+          inputAmount !== null &&
+          !inputAmount.isZero()
+        );
+      });
+    case InteractionType.RemoveUniform:
+    case InteractionType.RemoveExactBurn:
+    case InteractionType.RemoveExactOutput:
       return interaction.lpTokenSourceEcosystem === ecosystemId
         ? [lpToken]
         : [];
@@ -52,35 +60,43 @@ const getTransferFromTokens = (
   interaction: Interaction,
   ecosystemId: EvmEcosystemId,
 ): readonly TokenSpec[] => {
-  switch (interaction.instruction) {
-    case SwimDefiInstruction.Swap:
+  switch (interaction.type) {
+    case InteractionType.Swap:
       return tokens.filter(
-        (token, i) =>
+        (token) =>
           token.nativeEcosystem === ecosystemId &&
-          i === interaction.params.outputTokenIndex,
+          token.id === interaction.params.outputTokenId,
       );
-    case SwimDefiInstruction.Add:
+    case InteractionType.Add:
       return interaction.lpTokenTargetEcosystem === ecosystemId
         ? [lpToken]
         : [];
-    case SwimDefiInstruction.RemoveUniform:
+    case InteractionType.RemoveUniform:
+      return tokens.filter((token) => {
+        const outputAmount =
+          interaction.params.minimumOutputAmounts.get(token.id) ?? null;
+        return (
+          token.nativeEcosystem === ecosystemId &&
+          outputAmount !== null &&
+          !outputAmount.isZero()
+        );
+      });
+    case InteractionType.RemoveExactBurn:
       return tokens.filter(
         (token, i) =>
           token.nativeEcosystem === ecosystemId &&
-          !interaction.params.minimumOutputAmounts[i].isZero(),
+          token.id === interaction.params.outputTokenId,
       );
-    case SwimDefiInstruction.RemoveExactBurn:
-      return tokens.filter(
-        (token, i) =>
+    case InteractionType.RemoveExactOutput:
+      return tokens.filter((token, i) => {
+        const outputAmount =
+          interaction.params.exactOutputAmounts.get(token.id) ?? null;
+        return (
           token.nativeEcosystem === ecosystemId &&
-          i === interaction.params.outputTokenIndex,
-      );
-    case SwimDefiInstruction.RemoveExactOutput:
-      return tokens.filter(
-        (token, i) =>
-          token.nativeEcosystem === ecosystemId &&
-          !interaction.params.exactOutputAmounts[i].isZero(),
-      );
+          outputAmount !== null &&
+          !outputAmount.isZero()
+        );
+      });
     default:
       throw new Error("Unknown instruction");
   }
@@ -91,10 +107,16 @@ export const useEvmTxFeesEstimateQuery = (
   interaction: Interaction | null,
 ): UseQueryResult<Decimal | null, Error> => {
   const { env } = useEnvironment();
-  const { pools } = useConfig();
+  const config = useConfig();
+  const tokensByPool = getTokensByPool(config);
   const connection = useEvmConnection(ecosystem);
-  const poolId = interaction?.poolId ?? pools[0].id;
-  const { lpToken, tokens } = usePool(poolId);
+  const pools = usePools(interaction?.poolIds ?? []);
+
+  const inputPool = pools[0];
+  const outputPool = pools[pools.length - 1];
+  const inputPoolTokens = tokensByPool[inputPool.spec.id];
+  const outputPoolTokens = tokensByPool[outputPool.spec.id];
+
   return useQuery(
     ["evmTxFeesEstimate", env, ecosystem, interaction?.id ?? null],
     async () => {
@@ -102,14 +124,14 @@ export const useEvmTxFeesEstimateQuery = (
         return null;
       }
       const transferToTokens = getTransferToTokens(
-        lpToken,
-        tokens,
+        inputPoolTokens.lpToken,
+        inputPoolTokens.tokens,
         interaction,
         ecosystem,
       );
       const transferFromTokens = getTransferFromTokens(
-        lpToken,
-        tokens,
+        outputPoolTokens.lpToken,
+        outputPoolTokens.tokens,
         interaction,
         ecosystem,
       );

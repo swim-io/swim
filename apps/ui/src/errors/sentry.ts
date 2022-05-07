@@ -18,7 +18,7 @@ export const setupSentry = (): void => {
       // We disable the default BrowserTracing because we set custom Swap/Add/Remove transaction types
       // new Integrations.BrowserTracing(),
     ],
-    environment: process.env.REACT_APP_VERCEL_ENV,
+    environment: process.env.REACT_APP_ENV,
 
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.
@@ -30,7 +30,7 @@ export const setupSentry = (): void => {
     autoSessionTracking: true, // default is true
 
     enabled: ["production", "preview"].includes(
-      process.env.REACT_APP_VERCEL_ENV ?? "",
+      process.env.REACT_APP_ENV ?? "",
     ),
 
     denyUrls: [

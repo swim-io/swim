@@ -16,7 +16,11 @@ import type { ReadonlyRecord } from "../../utils";
 import { findOrThrow } from "../../utils";
 import { Amount } from "../amount";
 import type { SolanaTx, Tx, TxsByTokenId } from "../crossEcosystem";
-import { deduplicateTxsByTokenId, isSolanaTx } from "../crossEcosystem";
+import {
+  deduplicateTxs,
+  deduplicateTxsByTokenId,
+  isSolanaTx,
+} from "../crossEcosystem";
 import {
   findTokenAccountForMint,
   getAmountMintedToAccountByMint,
@@ -406,8 +410,22 @@ export const updatePoolOperations = (
     throw new Error("Missing Solana wallet");
   }
 
-  if (operationTxs.length < poolSpecs.length) {
-    return previousState;
+  const deduplicatedTxs = deduplicateTxs<SolanaTx>([
+    ...previousState.steps.doPoolOperations.txs,
+    ...operationTxs,
+  ]);
+
+  if (deduplicateTxsByTokenId.length < poolSpecs.length) {
+    return {
+      ...previousState,
+      steps: {
+        ...previousState.steps,
+        doPoolOperations: {
+          ...previousState.steps.doPoolOperations,
+          txs: deduplicatedTxs,
+        },
+      },
+    };
   }
 
   const outputPool = poolSpecs[poolSpecs.length - 1];

@@ -299,7 +299,6 @@ export const useStepsReducer = (
         }
         return dispatch({
           type: ActionType.UpdatePoolOperations,
-          // TODO: Check we don't need to reuse previous txs
           operationTxs: txs,
           existingTransferFromTxs: state.steps.wormholeFromSolana.txs,
         });

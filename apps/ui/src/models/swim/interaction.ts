@@ -95,6 +95,7 @@ export interface SwapInteractionSpec extends BaseInteractionSpec {
 
 export interface AddInteractionSpec extends BaseInteractionSpec {
   readonly type: InteractionType.Add;
+  readonly poolId: string;
   readonly params: {
     readonly inputAmounts: AmountsByTokenId;
     readonly minimumMintAmount: Amount;
@@ -104,6 +105,7 @@ export interface AddInteractionSpec extends BaseInteractionSpec {
 
 export interface RemoveUniformInteractionSpec extends BaseInteractionSpec {
   readonly type: InteractionType.RemoveUniform;
+  readonly poolId: string;
   readonly params: {
     readonly exactBurnAmount: Amount;
     readonly minimumOutputAmounts: AmountsByTokenId;
@@ -113,6 +115,7 @@ export interface RemoveUniformInteractionSpec extends BaseInteractionSpec {
 
 export interface RemoveExactBurnInteractionSpec extends BaseInteractionSpec {
   readonly type: InteractionType.RemoveExactBurn;
+  readonly poolId: string;
   readonly params: {
     readonly exactBurnAmount: Amount;
     readonly outputTokenId: string;
@@ -123,6 +126,7 @@ export interface RemoveExactBurnInteractionSpec extends BaseInteractionSpec {
 
 export interface RemoveExactOutputInteractionSpec extends BaseInteractionSpec {
   readonly type: InteractionType.RemoveExactOutput;
+  readonly poolId: string;
   readonly params: {
     readonly maximumBurnAmount: Amount;
     readonly exactOutputAmounts: AmountsByTokenId;

@@ -440,6 +440,7 @@ export const AddForm = ({
 
     const interactionId = startInteraction({
       type: InteractionType.Add,
+      poolId: poolSpec.id,
       params: {
         inputAmounts: inputAmounts.reduce(
           (amountsByTokenId, amount) =>

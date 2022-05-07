@@ -522,6 +522,7 @@ export const RemoveForm = ({
         );
         const interactionId = startInteraction({
           type: InteractionType.RemoveUniform,
+          poolId: poolSpec.id,
           params: {
             exactBurnAmount,
             minimumOutputAmounts: minimumOutputAmounts.reduce(
@@ -542,6 +543,7 @@ export const RemoveForm = ({
         );
         const interactionId = startInteraction({
           type: InteractionType.RemoveExactBurn,
+          poolId: poolSpec.id,
           params: {
             exactBurnAmount,
             outputTokenId: poolTokens[outputTokenIndex].id,
@@ -558,6 +560,7 @@ export const RemoveForm = ({
         }
         const interactionId = startInteraction({
           type: InteractionType.RemoveExactOutput,
+          poolId: poolSpec.id,
           params: {
             maximumBurnAmount,
             exactOutputAmounts: outputAmounts.reduce(

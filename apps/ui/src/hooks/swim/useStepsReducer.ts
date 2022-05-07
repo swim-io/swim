@@ -20,7 +20,9 @@ import {
   generateId,
   generateSignatureSetKeypairs,
   getConnectedWallets,
+  getRequiredPools,
   getSignatureSetAddresses,
+  getTokensByPool,
   groupTxsByTokenId,
   initialState,
   isInProgress,
@@ -51,7 +53,6 @@ import {
   useTransferSplTokensToEvmGenerator,
 } from "../wormhole";
 
-import { usePool } from "./usePool";
 import { usePoolOperationsGenerator } from "./usePoolOperationsGenerator";
 
 export interface StepMutations {
@@ -138,16 +139,15 @@ const useRegisterErrorEffect = (
 };
 
 export const useStepsReducer = (
-  poolId: string,
   currentState: State = initialState,
 ): StepsReducer => {
   const { env } = useEnvironment();
   const config = useConfig();
+  const tokensByPool = getTokensByPool(config);
   const wallets = useWallets();
   const { hasActiveInteraction, setActiveInteraction } =
     useActiveInteractionContext();
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
-  const { lpToken, tokens, spec: poolSpec } = usePool(poolId);
   const queryClient = useQueryClient();
   const [state, dispatch] = useReducer<Reducer<State, Action>>(
     reducer(config),
@@ -216,7 +216,6 @@ export const useStepsReducer = (
       queryClient.invalidateQueries(["solanaTxs", env, solanaAddress]),
       queryClient.invalidateQueries(["solBalance", env, solanaAddress]),
       queryClient.invalidateQueries(["tokenAccounts", env, solanaAddress]),
-      queryClient.invalidateQueries(["poolState", env, poolSpec.address]),
       queryClient.invalidateQueries(["liquidity", env]),
       ...involvedEvmEcosystemIds.flatMap((ecosystemId) => [
         queryClient.invalidateQueries(["evmTxs", env, ecosystemId]),
@@ -225,7 +224,7 @@ export const useStepsReducer = (
         queryClient.invalidateQueries(["evmTxFeesEstimate", env, ecosystemId]),
       ]),
     ]);
-  }, [env, poolSpec.address, queryClient, solanaAddress, state.interaction]);
+  }, [env, queryClient, solanaAddress, state.interaction]);
 
   const continueSteps = useCallback(async (): Promise<void> => {
     switch (state.status) {
@@ -348,20 +347,26 @@ export const useStepsReducer = (
 
   const startInteraction = (interactionSpec: InteractionSpec): string => {
     const interactionId = generateId();
+    // TODO: Make this work for multiple pools
     const connectedWallets = getConnectedWallets(
-      tokens,
+      config.tokens,
       interactionSpec,
       wallets,
     );
+    const requiredPools = getRequiredPools(config.pools, interactionSpec);
+    const [inputPool] = requiredPools;
+    const inputPoolTokens = tokensByPool[inputPool.id];
+
     const signatureSetKeypairs = generateSignatureSetKeypairs(
-      tokens,
-      lpToken,
+      inputPoolTokens.tokens,
+      inputPoolTokens.lpToken,
       interactionSpec,
       null,
     );
     const interaction: Interaction = {
       ...interactionSpec,
       id: interactionId,
+      poolIds: requiredPools.map((pool) => pool.id),
       env,
       submittedAt: Date.now(),
       signatureSetKeypairs,
@@ -382,16 +387,18 @@ export const useStepsReducer = (
   };
 
   const retryInteraction = useCallback(async (): Promise<void> => {
-    setActiveInteraction(state.interaction?.id ?? null);
+    if (state.interaction === null) {
+      throw new Error("Unknown interaction");
+    }
+    setActiveInteraction(state.interaction.id);
     await refreshQueries();
-    const signatureSetKeypairs = state.interaction
-      ? generateSignatureSetKeypairs(
-          tokens,
-          lpToken,
-          state.interaction,
-          state.steps.wormholeToSolana.transfers,
-        )
-      : {};
+    const inputPoolTokens = tokensByPool[state.interaction.poolIds[0]];
+    const signatureSetKeypairs = generateSignatureSetKeypairs(
+      inputPoolTokens.tokens,
+      inputPoolTokens.lpToken,
+      state.interaction,
+      state.steps.wormholeToSolana.transfers,
+    );
     dispatch({
       type: ActionType.ClearError,
       signatureSetKeypairs,
@@ -399,11 +406,10 @@ export const useStepsReducer = (
   }, [
     state.interaction,
     state.steps,
-    tokens,
-    lpToken,
     dispatch,
     refreshQueries,
     setActiveInteraction,
+    tokensByPool,
   ]);
 
   const resumeInteraction = useCallback(async (): Promise<void> => {

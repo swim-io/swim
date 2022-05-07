@@ -1,9 +1,8 @@
 import type { MintInfo, AccountInfo as TokenAccount } from "@solana/spl-token";
-import type Decimal from "decimal.js";
 import { useMemo } from "react";
 import type { UseQueryResult } from "react-query";
 
-import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
+import type { PoolSpec, TokenSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { useConfig, useSolanaWallet } from "../../contexts";
 import type { SwimPoolState } from "../../models";
@@ -11,21 +10,9 @@ import { findTokenAccountForMint } from "../../models";
 import { findOrThrow, isNotNull } from "../../utils";
 import { useSplTokenAccountsQuery } from "../solana";
 
+import type { PoolData } from "./usePool";
 import { usePoolLpMints } from "./usePoolLpMint";
 import { usePoolStates } from "./usePoolState";
-
-export interface PoolData {
-  readonly spec: PoolSpec;
-  readonly nativeEcosystems: readonly EcosystemId[];
-  readonly lpToken: TokenSpec;
-  readonly tokens: readonly TokenSpec[];
-  readonly state: SwimPoolState | null;
-  readonly poolLpMint: MintInfo | null;
-  readonly poolTokenAccounts: readonly (TokenAccount | null)[] | null;
-  readonly userLpTokenAccount: TokenAccount | null;
-  readonly poolUsdValue: Decimal | null;
-  readonly isPoolPaused: boolean;
-}
 
 const constructPool = (
   allTokens: readonly TokenSpec[],

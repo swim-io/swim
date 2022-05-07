@@ -1,5 +1,6 @@
 import type { MintInfo, AccountInfo as TokenAccount } from "@solana/spl-token";
 import type Decimal from "decimal.js";
+import { useMemo } from "react";
 import type { UseQueryResult } from "react-query";
 
 import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
@@ -68,7 +69,7 @@ const constructPool = (
     tokens,
     state: poolState ?? null,
     poolLpMint,
-    // TODO: Add this?
+    // TODO: Add this!
     poolTokenAccounts: null,
     userLpTokenAccount,
     // TODO: Add this?
@@ -87,14 +88,25 @@ export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
   const poolStates = usePoolStates(poolSpecs);
   const lpMints = usePoolLpMints(poolSpecs);
 
-  return poolSpecs.map((poolSpec, i) =>
-    constructPool(
+  return useMemo(
+    () =>
+      poolSpecs.map((poolSpec, i) =>
+        constructPool(
+          allTokens,
+          poolSpec,
+          walletAddress,
+          splTokenAccounts,
+          poolStates[i],
+          lpMints[i],
+        ),
+      ),
+    [
       allTokens,
-      poolSpec,
-      walletAddress,
+      lpMints,
+      poolSpecs,
+      poolStates,
       splTokenAccounts,
-      poolStates[i],
-      lpMints[i],
-    ),
+      walletAddress,
+    ],
   );
 };

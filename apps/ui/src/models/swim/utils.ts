@@ -4,7 +4,6 @@ import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 
-import { SwimDefiInstruction } from "./instructions";
 import type { InteractionSpec } from "./interaction";
 import { InteractionType } from "./interaction";
 import { TransferType } from "./transfer";
@@ -83,11 +82,12 @@ const getRequiredEcosystems = (
   interactionSpec: InteractionSpec,
 ): ReadonlySet<EcosystemId> => {
   const poolTokenEcosystems = poolTokens.map((token) => token.nativeEcosystem);
-  switch (interactionSpec.instruction) {
-    case SwimDefiInstruction.Add: {
+  switch (interactionSpec.type) {
+    case InteractionType.Add: {
       const { params, lpTokenTargetEcosystem } = interactionSpec;
+      const inputAmounts = [...params.inputAmounts.values()];
       const tokenEcosystems = poolTokenEcosystems.filter(
-        (_, i) => !params.inputAmounts[i].isZero(),
+        (_, i) => !inputAmounts[i].isZero(),
       );
       return new Set([
         EcosystemId.Solana,
@@ -95,47 +95,54 @@ const getRequiredEcosystems = (
         ...tokenEcosystems,
       ]);
     }
-    case SwimDefiInstruction.Swap: {
-      const { params } = interactionSpec;
+    case InteractionType.RemoveUniform: {
+      const { params, lpTokenSourceEcosystem } = interactionSpec;
+      const minimumOutputAmounts = [...params.minimumOutputAmounts.values()];
       const tokenEcosystems = poolTokenEcosystems.filter(
-        (_, i) =>
-          i === params.outputTokenIndex ||
-          !params.exactInputAmounts[i].isZero(),
+        (_, i) => !minimumOutputAmounts[i].isZero(),
+      );
+      return new Set([
+        EcosystemId.Solana,
+        lpTokenSourceEcosystem,
+        ...tokenEcosystems,
+      ]);
+    }
+    case InteractionType.RemoveExactBurn: {
+      const { params, lpTokenSourceEcosystem } = interactionSpec;
+      const outputTokenIndex = poolTokens.findIndex(
+        (token) => token.id === params.outputTokenId,
+      );
+      const tokenEcosystems = poolTokenEcosystems.filter(
+        (_, i) => i === outputTokenIndex,
+      );
+      return new Set([
+        EcosystemId.Solana,
+        lpTokenSourceEcosystem,
+        ...tokenEcosystems,
+      ]);
+    }
+    case InteractionType.RemoveExactOutput: {
+      const { params, lpTokenSourceEcosystem } = interactionSpec;
+      const exactOutputAmounts = [...params.exactOutputAmounts.values()];
+      const tokenEcosystems = poolTokenEcosystems.filter(
+        (_, i) => !exactOutputAmounts[i].isZero(),
+      );
+      return new Set([
+        EcosystemId.Solana,
+        lpTokenSourceEcosystem,
+        ...tokenEcosystems,
+      ]);
+    }
+    case InteractionType.Swap: {
+      const { params } = interactionSpec;
+      const exactInputAmounts = [...params.exactInputAmounts.values()];
+      const outputTokenIndex = poolTokens.findIndex(
+        (token) => token.id === params.outputTokenId,
+      );
+      const tokenEcosystems = poolTokenEcosystems.filter(
+        (_, i) => i === outputTokenIndex || !exactInputAmounts[i].isZero(),
       );
       return new Set([EcosystemId.Solana, ...tokenEcosystems]);
-    }
-    case SwimDefiInstruction.RemoveUniform: {
-      const { params, lpTokenSourceEcosystem } = interactionSpec;
-      const tokenEcosystems = poolTokenEcosystems.filter(
-        (_, i) => !params.minimumOutputAmounts[i].isZero(),
-      );
-      return new Set([
-        EcosystemId.Solana,
-        lpTokenSourceEcosystem,
-        ...tokenEcosystems,
-      ]);
-    }
-    case SwimDefiInstruction.RemoveExactBurn: {
-      const { params, lpTokenSourceEcosystem } = interactionSpec;
-      const tokenEcosystems = poolTokenEcosystems.filter(
-        (_, i) => i === params.outputTokenIndex,
-      );
-      return new Set([
-        EcosystemId.Solana,
-        lpTokenSourceEcosystem,
-        ...tokenEcosystems,
-      ]);
-    }
-    case SwimDefiInstruction.RemoveExactOutput: {
-      const { params, lpTokenSourceEcosystem } = interactionSpec;
-      const tokenEcosystems = poolTokenEcosystems.filter(
-        (_, i) => !params.exactOutputAmounts[i].isZero(),
-      );
-      return new Set([
-        EcosystemId.Solana,
-        lpTokenSourceEcosystem,
-        ...tokenEcosystems,
-      ]);
     }
     default:
       throw new Error("Unknown instruction");

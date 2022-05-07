@@ -90,16 +90,17 @@ export const SwapForm = ({
     [pools],
   );
   const poolMaths = usePoolMaths(interaction?.poolIds ?? []);
-  const inputPoolMath = poolMaths[0];
-  const outputPoolMath = poolMaths[poolMaths.length - 1];
+  const inputPoolMath = poolMaths[0] ?? null;
+  const outputPoolMath = poolMaths[poolMaths.length - 1] ?? null;
 
   const requiredPools = interaction
     ? getRequiredPools(config.pools, interaction)
     : [];
-  const inputPool = requiredPools[0];
-  const outputPool = requiredPools[requiredPools.length - 1];
-  const inputPoolTokens = tokensByPool[inputPool.id];
-  const outputPoolTokens = tokensByPool[outputPool.id];
+  const inputPool = requiredPools.find(Boolean) ?? null;
+  const outputPool =
+    requiredPools.find((_, i) => i === requiredPools.length - 1) ?? null;
+  const inputPoolTokens = inputPool ? tokensByPool[inputPool.id] : null;
+  const outputPoolTokens = outputPool ? tokensByPool[outputPool.id] : null;
 
   const [fromTokenId, setFromTokenId] = useState(swappableTokens[0].id);
   const [toTokenId, setToTokenId] = useState(swappableTokens[1].id);
@@ -161,11 +162,12 @@ export const SwapForm = ({
   const isInputAmountPositive =
     inputAmount !== null && !inputAmount.isNegative() && !inputAmount.isZero();
 
-  const exactInputAmounts = inputAmount
-    ? inputPoolTokens.tokens.map((poolToken) =>
-        poolToken.id === fromTokenId ? inputAmount : Amount.zero(poolToken),
-      )
-    : null;
+  const exactInputAmounts =
+    inputAmount !== null && inputPoolTokens !== null
+      ? inputPoolTokens.tokens.map((poolToken) =>
+          poolToken.id === fromTokenId ? inputAmount : Amount.zero(poolToken),
+        )
+      : null;
 
   const outputAmount = useMemo<Amount | null>(() => {
     // TODO: Update this
@@ -388,9 +390,10 @@ export const SwapForm = ({
       return;
     }
 
-    const outputTokenIndex = toToken
-      ? outputPoolTokens.tokens.findIndex(({ id }) => id === toToken.id)
-      : -1;
+    const outputTokenIndex =
+      outputPoolTokens !== null
+        ? outputPoolTokens.tokens.findIndex(({ id }) => id === toToken.id)
+        : -1;
     if (outputTokenIndex === -1) {
       throw new Error("Output token not found");
     }

@@ -16,14 +16,13 @@ import { EcosystemId } from "../config";
 import { useConfig } from "../contexts";
 import {
   isEveryAddressConnected,
-  usePool,
   useRecentInteractions,
   useSplTokenAccountsQuery,
   useStepsReducer,
   useWallets,
 } from "../hooks";
-import { Status, SwimDefiInstruction, getCurrentState } from "../models";
-import type { Interaction, State, Tx } from "../models";
+import { InteractionType, Status, getCurrentState } from "../models";
+import type { Interaction, State, SwimDefiInstruction, Tx } from "../models";
 import { findOrThrow } from "../utils";
 
 import { ActionSteps } from "./ActionSteps";
@@ -49,7 +48,7 @@ export const ActiveInteraction = ({
     retryInteraction,
     state: { status, steps },
     mutations,
-  } = useStepsReducer(interaction.poolId, existingState);
+  } = useStepsReducer(existingState);
   const [didResume, setDidResume] = useState(false);
 
   useEffect(() => {
@@ -87,27 +86,19 @@ export const RecentInteraction = ({
   splTokenAccounts,
 }: RecentInteractionProps): ReactElement => {
   const config = useConfig();
-  const { tokens, lpToken } = usePool(interaction.poolId);
   const [isActive, setIsActive] = useState(false);
   const wallets = useWallets();
-  const { isInteractionInProgress } = useStepsReducer(interaction.poolId);
+  const { isInteractionInProgress } = useStepsReducer();
   const currentState = useMemo(
-    () =>
-      getCurrentState(
-        config,
-        splTokenAccounts,
-        tokens,
-        lpToken,
-        interaction,
-        txs ?? [],
-      ),
-    [config, splTokenAccounts, tokens, lpToken, interaction, txs],
+    () => getCurrentState(config, interaction, splTokenAccounts, txs ?? []),
+    [config, interaction, splTokenAccounts, txs],
   );
 
   const title = useMemo(() => {
-    switch (interaction.instruction) {
-      case SwimDefiInstruction.Add: {
-        const nonZeroInputAmounts = interaction.params.inputAmounts.filter(
+    switch (interaction.type) {
+      case InteractionType.Add: {
+        const { inputAmounts } = interaction.params;
+        const nonZeroInputAmounts = [...inputAmounts.values()].filter(
           (amount) => !amount.isZero(),
         );
         return (
@@ -117,9 +108,10 @@ export const RecentInteraction = ({
           </>
         );
       }
-      case SwimDefiInstruction.Swap: {
+      case InteractionType.Swap: {
+        const { exactInputAmounts } = interaction.params;
         const inputAmount = findOrThrow(
-          interaction.params.exactInputAmounts,
+          [...exactInputAmounts.values()],
           (amount) => !amount.isZero(),
         );
         return (
@@ -136,9 +128,9 @@ export const RecentInteraction = ({
           </>
         );
       }
-      case SwimDefiInstruction.RemoveUniform: {
+      case InteractionType.RemoveUniform: {
         const { minimumOutputAmounts } = interaction.params;
-        const nonZeroOutputAmounts = minimumOutputAmounts.filter(
+        const nonZeroOutputAmounts = [...minimumOutputAmounts.values()].filter(
           (amount) => !amount.isZero(),
         );
         return (
@@ -148,7 +140,7 @@ export const RecentInteraction = ({
           </>
         );
       }
-      case SwimDefiInstruction.RemoveExactBurn: {
+      case InteractionType.RemoveExactBurn: {
         const { minimumOutputAmount } = interaction.params;
         return (
           <>
@@ -161,9 +153,9 @@ export const RecentInteraction = ({
           </>
         );
       }
-      case SwimDefiInstruction.RemoveExactOutput: {
+      case InteractionType.RemoveExactOutput: {
         const { exactOutputAmounts } = interaction.params;
-        const nonZeroOutputAmounts = exactOutputAmounts.filter(
+        const nonZeroOutputAmounts = [...exactOutputAmounts.values()].filter(
           (amount) => !amount.isZero(),
         );
         return (
@@ -274,14 +266,6 @@ export interface RecentInteractionsProps {
 export const RecentInteractions = ({
   title,
   currentInteraction,
-  poolId,
-  instructions = [
-    SwimDefiInstruction.Swap,
-    SwimDefiInstruction.Add,
-    SwimDefiInstruction.RemoveUniform,
-    SwimDefiInstruction.RemoveExactBurn,
-    SwimDefiInstruction.RemoveExactOutput,
-  ],
 }: RecentInteractionsProps): ReactElement => {
   const { data: splTokenAccounts = [], isSuccess: didLoadSplTokenAccounts } =
     useSplTokenAccountsQuery();
@@ -293,13 +277,11 @@ export const RecentInteractions = ({
   const recentInteractions = useMemo(
     () =>
       Object.values(interactionsWithTxs).filter(
-        (interactionWithTxs) =>
-          interactionWithTxs &&
-          (poolId === null ||
-            poolId === interactionWithTxs.interaction.poolId) &&
-          instructions.includes(interactionWithTxs.interaction.instruction),
+        (interactionWithTxs) => !!interactionWithTxs,
+        // TODO: perform this check again
+        // && (poolId === null || poolId === interactionWithTxs.interaction.poolId),
       ),
-    [interactionsWithTxs, instructions, poolId],
+    [interactionsWithTxs],
   );
   const numberOfRecentInteractions =
     currentInteraction === null

@@ -59,7 +59,6 @@ const constructPool = (
     tokens,
     state: poolState ?? null,
     poolLpMint,
-    // TODO: Add this!
     poolTokenAccounts,
     userLpTokenAccount,
     // TODO: Add this?

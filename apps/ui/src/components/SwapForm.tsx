@@ -31,6 +31,7 @@ import {
   useUserNativeBalances,
   useWallets,
 } from "../hooks";
+import type { InteractionSpec } from "../models";
 import {
   Amount,
   InteractionType,
@@ -70,7 +71,9 @@ export const SwapForm = ({
   const userNativeBalances = useUserNativeBalances();
 
   const swappableTokenIds = config.pools
+    .filter((pool) => !pool.isStakingPool)
     .flatMap((pool) => [...pool.tokenAccounts.keys()])
+    // TODO: Remove this if we want to support swimUSD swaps
     .filter((tokenId) =>
       config.pools.every((pool) => pool.lpToken !== tokenId),
     );
@@ -84,23 +87,6 @@ export const SwapForm = ({
     mutations,
     isInteractionInProgress,
   } = useStepsReducer();
-  const pools = usePools(interaction?.poolIds ?? []);
-  const isPaused = useMemo(
-    () => pools.some((pool) => pool.isPoolPaused),
-    [pools],
-  );
-  const poolMaths = usePoolMaths(interaction?.poolIds ?? []);
-  const inputPoolMath = poolMaths[0] ?? null;
-  const outputPoolMath = poolMaths[poolMaths.length - 1] ?? null;
-
-  const requiredPools = interaction
-    ? getRequiredPools(config.pools, interaction)
-    : [];
-  const inputPool = requiredPools.find(Boolean) ?? null;
-  const outputPool =
-    requiredPools.find((_, i) => i === requiredPools.length - 1) ?? null;
-  const inputPoolTokens = inputPool ? tokensByPool[inputPool.id] : null;
-  const outputPoolTokens = outputPool ? tokensByPool[outputPool.id] : null;
 
   const [fromTokenId, setFromTokenId] = useState(swappableTokens[0].id);
   const [toTokenId, setToTokenId] = useState(swappableTokens[1].id);
@@ -108,6 +94,35 @@ export const SwapForm = ({
   const fromToken =
     swappableTokens.find(({ id }) => id === fromTokenId) ?? null;
   const toToken = swappableTokens.find(({ id }) => id === toTokenId) ?? null;
+
+  const fakeInteraction: InteractionSpec | null =
+    fromToken !== null && toToken !== null
+      ? {
+          type: InteractionType.Swap,
+          params: {
+            exactInputAmounts: new Map([
+              [fromTokenId, Amount.fromHumanString(fromToken, "1")],
+            ]),
+            outputTokenId: toTokenId,
+            minimumOutputAmount: Amount.fromHumanString(toToken, "1"),
+          },
+        }
+      : null;
+  const requiredPools = fakeInteraction
+    ? getRequiredPools(config.pools, fakeInteraction)
+    : [];
+  const poolIds = requiredPools.map((pool) => pool.id);
+  const pools = usePools(poolIds);
+  const isPaused = useMemo(
+    () => pools.some((pool) => pool.isPoolPaused),
+    [pools],
+  );
+  const poolMaths = usePoolMaths(poolIds);
+  const inputPool = requiredPools.find(Boolean) ?? null;
+  const outputPool =
+    requiredPools.find((_, i) => i === requiredPools.length - 1) ?? null;
+  const inputPoolTokens = inputPool ? tokensByPool[inputPool.id] : null;
+  const outputPoolTokens = outputPool ? tokensByPool[outputPool.id] : null;
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
@@ -170,23 +185,38 @@ export const SwapForm = ({
       : null;
 
   const outputAmount = useMemo<Amount | null>(() => {
-    // TODO: Update this
-    return null;
-    // if (poolMath === null || exactInputAmounts === null || toToken === null) {
-    //   return null;
-    // }
+    if (poolMaths.length === 1) {
+      const poolMath = poolMaths[0];
+      if (
+        poolMath === null ||
+        inputPoolTokens === null ||
+        exactInputAmounts === null ||
+        toToken === null
+      ) {
+        return null;
+      }
 
-    // const outputTokenIndex = poolTokens.findIndex(({ id }) => id === toTokenId);
-    // try {
-    //   const { stableOutputAmount } = poolMath.swapExactInput(
-    //     exactInputAmounts.map((amount) => amount.toHuman(EcosystemId.Solana)),
-    //     outputTokenIndex,
-    //   );
-    //   return Amount.fromHuman(toToken, stableOutputAmount);
-    // } catch {
-    //   return null;
-    // }
-  }, []);
+      const outputTokenIndex = inputPoolTokens.tokens.findIndex(
+        ({ id }) => id === toTokenId,
+      );
+      try {
+        const { stableOutputAmount } = poolMath.swapExactInput(
+          exactInputAmounts.map((amount) => amount.toHuman(EcosystemId.Solana)),
+          outputTokenIndex,
+        );
+        return Amount.fromHuman(toToken, stableOutputAmount);
+      } catch {
+        return null;
+      }
+    }
+
+    if (poolMaths.length !== 2) {
+      return null;
+    }
+
+    // TODO: Handle 2 pools
+    return null;
+  }, [exactInputAmounts, inputPoolTokens, poolMaths, toToken, toTokenId]);
 
   const fromTokenOptions = swappableTokens.map((tokenSpec) => ({
     value: tokenSpec.id,

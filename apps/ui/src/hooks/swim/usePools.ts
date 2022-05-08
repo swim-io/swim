@@ -8,7 +8,7 @@ import { useConfig, useSolanaWallet } from "../../contexts";
 import type { SwimPoolState } from "../../models";
 import { findTokenAccountForMint } from "../../models";
 import { findOrThrow, isNotNull } from "../../utils";
-import { useSplTokenAccountsQuery } from "../solana";
+import { useLiquidityQueries, useSplTokenAccountsQuery } from "../solana";
 
 import type { PoolData } from "./usePool";
 import { usePoolLpMints } from "./usePoolLpMint";
@@ -21,6 +21,9 @@ const constructPool = (
   splTokenAccounts: readonly TokenAccount[] | null,
   { data: poolState = null }: UseQueryResult<SwimPoolState | null, Error>,
   { data: poolLpMint = null }: UseQueryResult<MintInfo | null, Error>,
+  {
+    data: poolTokenAccounts = null,
+  }: UseQueryResult<readonly TokenAccount[] | null, Error>,
 ): PoolData => {
   const lpToken = findOrThrow(
     allTokens,
@@ -57,7 +60,7 @@ const constructPool = (
     state: poolState ?? null,
     poolLpMint,
     // TODO: Add this!
-    poolTokenAccounts: null,
+    poolTokenAccounts,
     userLpTokenAccount,
     // TODO: Add this?
     poolUsdValue: null,
@@ -74,6 +77,9 @@ export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
   );
   const poolStates = usePoolStates(poolSpecs);
   const lpMints = usePoolLpMints(poolSpecs);
+  const liquidityQueries = useLiquidityQueries(
+    poolSpecs.map((poolSpec) => [...poolSpec.tokenAccounts.values()]),
+  );
 
   return useMemo(
     () =>
@@ -85,10 +91,12 @@ export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
           splTokenAccounts,
           poolStates[i],
           lpMints[i],
+          liquidityQueries[i],
         ),
       ),
     [
       allTokens,
+      liquidityQueries,
       lpMints,
       poolSpecs,
       poolStates,

@@ -134,11 +134,10 @@ export class SwimDefiInstructor {
     return [...new Array(this.numberOfTokens).keys()].includes(index);
   }
 
-  async add({
-    interactionId,
-    splTokenAccounts,
-    params,
-  }: WithSplTokenAccounts<AddOperationSpec>): Promise<string> {
+  async add(
+    operation: WithSplTokenAccounts<AddOperationSpec>,
+  ): Promise<string> {
+    const { splTokenAccounts, params } = operation;
     const tokenMintIndices = params.inputAmounts.reduce<readonly number[]>(
       (indices, amount, i) => (amount.isZero() ? indices : [...indices, i]),
       [],
@@ -150,31 +149,54 @@ export class SwimDefiInstructor {
     );
 
     const userTransferAuthority = Keypair.generate();
+    const ixs = this.createAllAddIxs(operation, userTransferAuthority);
+
+    return this.signAndSendTransactionForInstructions(
+      ixs,
+      userTransferAuthority,
+    );
+  }
+
+  createAllAddIxs(
+    { interactionId, params }: AddOperationSpec,
+    userTransferAuthority: Keypair,
+  ): readonly TransactionInstruction[] {
     const approveIxs = this.createApproveTokensIxs(
       params.inputAmounts,
       userTransferAuthority.publicKey,
     );
     const addIx = this.createAddIx(params, userTransferAuthority.publicKey);
     const memoIx = createMemoIx(interactionId, []);
-
-    return this.signAndSendTransactionForInstructions(
-      [...approveIxs, addIx, memoIx],
-      userTransferAuthority,
-    );
+    return [...approveIxs, addIx, memoIx];
   }
 
-  async removeUniform({
-    interactionId,
-    splTokenAccounts,
-    params,
-  }: WithSplTokenAccounts<RemoveUniformOperationSpec>): Promise<string> {
-    if (!this.userLpAccount) {
-      throw new Error("Missing user LP account");
-    }
+  async removeUniform(
+    operation: WithSplTokenAccounts<RemoveUniformOperationSpec>,
+  ): Promise<string> {
+    const { splTokenAccounts } = operation;
     const tokenMintIndices = this.userTokenAccounts.map((_, i) => i);
     await this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
 
     const userTransferAuthority = Keypair.generate();
+    const ixs = this.createAllRemoveUniformIxs(
+      operation,
+      userTransferAuthority,
+    );
+
+    return this.signAndSendTransactionForInstructions(
+      ixs,
+      userTransferAuthority,
+    );
+  }
+
+  createAllRemoveUniformIxs(
+    { interactionId, params }: RemoveUniformOperationSpec,
+    userTransferAuthority: Keypair,
+  ): readonly TransactionInstruction[] {
+    if (!this.userLpAccount) {
+      throw new Error("Missing user LP account");
+    }
+
     const approveIx = this.createApproveTokenIx(
       params.exactBurnAmount,
       this.userLpAccount,
@@ -186,24 +208,35 @@ export class SwimDefiInstructor {
     );
     const memoIx = createMemoIx(interactionId, []);
 
-    return this.signAndSendTransactionForInstructions(
-      [approveIx, removeUniformIx, memoIx],
-      userTransferAuthority,
-    );
+    return [approveIx, removeUniformIx, memoIx];
   }
 
-  async removeExactBurn({
-    interactionId,
-    splTokenAccounts,
-    params,
-  }: WithSplTokenAccounts<RemoveExactBurnOperationSpec>): Promise<string> {
-    if (!this.userLpAccount) {
-      throw new Error("Missing user LP account");
-    }
+  async removeExactBurn(
+    operation: WithSplTokenAccounts<RemoveExactBurnOperationSpec>,
+  ): Promise<string> {
+    const { splTokenAccounts, params } = operation;
     const tokenMintIndices = [params.outputTokenIndex];
     await this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
 
     const userTransferAuthority = Keypair.generate();
+    const ixs = this.createAllRemoveExactBurnIxs(
+      operation,
+      userTransferAuthority,
+    );
+
+    return this.signAndSendTransactionForInstructions(
+      ixs,
+      userTransferAuthority,
+    );
+  }
+
+  createAllRemoveExactBurnIxs(
+    { interactionId, params }: RemoveExactBurnOperationSpec,
+    userTransferAuthority: Keypair,
+  ): readonly TransactionInstruction[] {
+    if (!this.userLpAccount) {
+      throw new Error("Missing user LP account");
+    }
     const approveIx = this.createApproveTokenIx(
       params.exactBurnAmount,
       this.userLpAccount,
@@ -215,20 +248,13 @@ export class SwimDefiInstructor {
     );
     const memoIx = createMemoIx(interactionId, []);
 
-    return this.signAndSendTransactionForInstructions(
-      [approveIx, removeExactBurnIx, memoIx],
-      userTransferAuthority,
-    );
+    return [approveIx, removeExactBurnIx, memoIx];
   }
 
-  async removeExactOutput({
-    interactionId,
-    splTokenAccounts,
-    params,
-  }: WithSplTokenAccounts<RemoveExactOutputOperationSpec>): Promise<string> {
-    if (!this.userLpAccount) {
-      throw new Error("Missing user LP account");
-    }
+  async removeExactOutput(
+    operation: WithSplTokenAccounts<RemoveExactOutputOperationSpec>,
+  ): Promise<string> {
+    const { splTokenAccounts, params } = operation;
     const tokenMintIndices = params.exactOutputAmounts.reduce<
       readonly number[]
     >(
@@ -238,6 +264,24 @@ export class SwimDefiInstructor {
     await this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
 
     const userTransferAuthority = Keypair.generate();
+    const ixs = this.createAllRemoveExactOutputIxs(
+      operation,
+      userTransferAuthority,
+    );
+
+    return this.signAndSendTransactionForInstructions(
+      ixs,
+      userTransferAuthority,
+    );
+  }
+
+  createAllRemoveExactOutputIxs(
+    { interactionId, params }: RemoveExactOutputOperationSpec,
+    userTransferAuthority: Keypair,
+  ): readonly TransactionInstruction[] {
+    if (!this.userLpAccount) {
+      throw new Error("Missing user LP account");
+    }
     const approveIx = this.createApproveTokenIx(
       params.maximumBurnAmount,
       this.userLpAccount,
@@ -249,17 +293,13 @@ export class SwimDefiInstructor {
     );
     const memoIx = createMemoIx(interactionId, []);
 
-    return this.signAndSendTransactionForInstructions(
-      [approveIx, removeExactOutputIx, memoIx],
-      userTransferAuthority,
-    );
+    return [approveIx, removeExactOutputIx, memoIx];
   }
 
-  async swap({
-    interactionId,
-    splTokenAccounts,
-    params,
-  }: WithSplTokenAccounts<SwapOperationSpec>): Promise<string> {
+  async swap(
+    operation: WithSplTokenAccounts<SwapOperationSpec>,
+  ): Promise<string> {
+    const { splTokenAccounts, params } = operation;
     const tokenMintIndices = params.exactInputAmounts.reduce<readonly number[]>(
       (indices, amount, i) =>
         amount.isZero() && i !== params.outputTokenIndex
@@ -270,17 +310,25 @@ export class SwimDefiInstructor {
     await this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
 
     const userTransferAuthority = Keypair.generate();
+    const ixs = this.createAllSwapIxs(operation, userTransferAuthority);
+
+    return this.signAndSendTransactionForInstructions(
+      ixs,
+      userTransferAuthority,
+    );
+  }
+
+  createAllSwapIxs(
+    { interactionId, params }: SwapOperationSpec,
+    userTransferAuthority: Keypair,
+  ): readonly TransactionInstruction[] {
     const approveIxs = this.createApproveTokensIxs(
       params.exactInputAmounts,
       userTransferAuthority.publicKey,
     );
     const swapIx = this.createSwapIx(params, userTransferAuthority.publicKey);
     const memoIx = createMemoIx(interactionId, []);
-
-    return this.signAndSendTransactionForInstructions(
-      [...approveIxs, swapIx, memoIx],
-      userTransferAuthority,
-    );
+    return [...approveIxs, swapIx, memoIx];
   }
 
   private createAddIx(

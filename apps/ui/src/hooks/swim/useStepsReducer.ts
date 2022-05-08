@@ -312,6 +312,7 @@ export const useStepsReducer = (
         } = mutations.wormholeFromSolana;
         const { transfers, txs } = state.steps.wormholeFromSolana;
         if (!isLoading && !isSuccess) {
+          // NOTE: Errors are caught and set on the UseAsyncGeneratorResult
           void generate({
             transfers: combineTransfers<Transfer>(transfers),
             existingTxs: txs,

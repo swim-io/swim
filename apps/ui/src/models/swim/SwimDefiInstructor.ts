@@ -12,7 +12,7 @@ import type { Env } from "../../config";
 import { EcosystemId } from "../../config";
 import { isEachNotNull } from "../../utils";
 import type { Amount } from "../amount";
-import type { SolanaConnection } from "../solana";
+import type { SolanaConnection, WithSplTokenAccounts } from "../solana";
 import { createMemoIx, findTokenAccountForMint } from "../solana";
 import type { SolanaWalletAdapter } from "../wallets";
 
@@ -25,7 +25,6 @@ import {
   defiRemoveUniformInstruction,
   defiSwapInstruction,
 } from "./instructions";
-import type { WithSplTokenAccounts } from "./interaction";
 import type {
   AddOperationSpec,
   RemoveExactBurnOperationSpec,

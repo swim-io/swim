@@ -21,6 +21,7 @@ import {
   deduplicateTxsByTokenId,
   isSolanaTx,
 } from "../crossEcosystem";
+import type { WithSplTokenAccounts } from "../solana";
 import {
   findTokenAccountForMint,
   getAmountMintedToAccountByMint,
@@ -72,9 +73,7 @@ export interface StateWithSteps extends BaseState {
   readonly steps: Steps;
 }
 
-export interface StateWithSplTokenAccounts extends StateWithSteps {
-  readonly splTokenAccounts: readonly TokenAccountInfo[];
-}
+export type StateWithSplTokenAccounts = WithSplTokenAccounts<StateWithSteps>;
 
 export interface InitiatedState extends StateWithSteps {
   readonly status: Status.Initiated;

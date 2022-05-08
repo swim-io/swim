@@ -125,10 +125,6 @@ export type Interaction =
   | RemoveExactOutputInteraction
   | SwapInteraction;
 
-export type WithSplTokenAccounts<T> = T & {
-  readonly splTokenAccounts: readonly TokenAccount[];
-};
-
 export const createOperationSpecs = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],

@@ -137,7 +137,7 @@ const createOperations = (
         ];
       }
 
-      const hexapoolId = "hexpool";
+      const hexapoolId = "hexapool";
       const inputPoolIsHexapool = inputPool.id === hexapoolId;
       const outputPoolIsHexapool = outputPool.id === hexapoolId;
 

@@ -25,14 +25,14 @@ import {
   defiRemoveUniformInstruction,
   defiSwapInstruction,
 } from "./instructions";
+import type { WithSplTokenAccounts } from "./interaction";
 import type {
   AddOperationSpec,
   RemoveExactBurnOperationSpec,
   RemoveExactOutputOperationSpec,
   RemoveUniformOperationSpec,
   SwapOperationSpec,
-  WithSplTokenAccounts,
-} from "./interaction";
+} from "./operation";
 
 export class SwimDefiInstructor {
   readonly env: Env;

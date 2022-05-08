@@ -1,4 +1,6 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import type { TransactionInstruction } from "@solana/web3.js";
+import { Keypair, Transaction } from "@solana/web3.js";
 
 import type { Env, PoolSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
@@ -22,9 +24,10 @@ import {
   InteractionType,
   SwimDefiInstruction,
   SwimDefiInstructor,
+  createMemoIx,
   findTokenAccountForMint,
   getPoolState,
-  getRelevantPools,
+  getRequiredPools,
   getTokensByPool,
 } from "../../models";
 import { findOrThrow } from "../../utils";
@@ -286,7 +289,7 @@ const doSinglePoolOperation = async (
     poolSpec.contract,
     poolSpec.address,
     poolSpec.authority,
-    poolSpec.lpToken,
+    lpTokenMintAddress,
     poolState.governanceFeeKey.toBase58(),
     tokenMintAddresses,
     [...poolSpec.tokenAccounts.values()],
@@ -315,6 +318,78 @@ const doSinglePoolOperation = async (
   }
 };
 
+const createPoolIxs = async (
+  env: Env,
+  solanaConnection: SolanaConnection,
+  wallet: SolanaWalletAdapter,
+  splTokenAccounts: readonly TokenAccount[],
+  tokensByPoolId: TokensByPoolId,
+  poolSpec: PoolSpec,
+  operation: OperationSpec,
+  userTransferAuthority: Keypair,
+): Promise<readonly TransactionInstruction[]> => {
+  const walletAddress = wallet.publicKey?.toBase58() ?? null;
+  if (walletAddress === null) {
+    throw new Error("Missing Solana wallet");
+  }
+  const poolState = await getPoolState(solanaConnection, poolSpec);
+  if (poolState === null) {
+    throw new Error("Missing pool state");
+  }
+
+  const poolTokens = tokensByPoolId[poolSpec.id];
+  const lpTokenMintAddress = getSolanaTokenDetails(poolTokens.lpToken).address;
+  const userLpAccount = findTokenAccountForMint(
+    lpTokenMintAddress,
+    walletAddress,
+    splTokenAccounts,
+  );
+  const tokenMintAddresses = poolTokens.tokens.map(
+    (token) => getSolanaTokenDetails(token).address,
+  );
+  const userTokenAccounts = tokenMintAddresses.map((mint) =>
+    findTokenAccountForMint(mint, walletAddress, splTokenAccounts),
+  );
+  const instructor = new SwimDefiInstructor(
+    env,
+    solanaConnection,
+    wallet,
+    poolSpec.contract,
+    poolSpec.address,
+    poolSpec.authority,
+    lpTokenMintAddress,
+    poolState.governanceFeeKey.toBase58(),
+    tokenMintAddresses,
+    [...poolSpec.tokenAccounts.values()],
+    userLpAccount?.address.toBase58(),
+    userTokenAccounts.map((t) => t?.address.toBase58() ?? null),
+  );
+  switch (operation.instruction) {
+    // TODO: Fill out
+    case SwimDefiInstruction.Add:
+      return instructor.createAllAddIxs(operation, userTransferAuthority);
+    case SwimDefiInstruction.RemoveUniform:
+      return instructor.createAllRemoveUniformIxs(
+        operation,
+        userTransferAuthority,
+      );
+    case SwimDefiInstruction.RemoveExactBurn:
+      return instructor.createAllRemoveExactBurnIxs(
+        operation,
+        userTransferAuthority,
+      );
+    case SwimDefiInstruction.RemoveExactOutput:
+      return instructor.createAllRemoveExactOutputIxs(
+        operation,
+        userTransferAuthority,
+      );
+    case SwimDefiInstruction.Swap:
+      return instructor.createAllSwapIxs(operation, userTransferAuthority);
+    default:
+      throw new Error("Unknown instruction");
+  }
+};
+
 async function* generatePoolOperationTxs(
   env: Env,
   solanaConnection: SolanaConnection,
@@ -325,7 +400,8 @@ async function* generatePoolOperationTxs(
   interaction: Interaction,
 ): AsyncGenerator<SolanaTx> {
   const operations = createOperations(tokensByPoolId, poolSpecs, interaction);
-  for (const operation of operations) {
+  if (operations.length === 1) {
+    const [operation] = operations;
     const poolSpec = findOrThrow(
       poolSpecs,
       (spec) => spec.id === operation.poolId,
@@ -344,10 +420,82 @@ async function* generatePoolOperationTxs(
       ecosystem: EcosystemId.Solana,
       txId,
       timestamp: tx.blockTime ?? null,
-      interactionId: operation.interactionId,
+      interactionId: interaction.id,
       parsedTx: tx,
     };
+    return;
   }
+  if (operations.length !== 2) {
+    throw new Error("Unknown interaction route");
+  }
+
+  // TODO: Refactor if this works
+  const userTransferAuthority = Keypair.generate();
+  const poolIxs = await Promise.all(
+    operations.map((operation) => {
+      const poolSpec = findOrThrow(
+        poolSpecs,
+        (spec) => spec.id === operation.poolId,
+      );
+      const ixs = createPoolIxs(
+        env,
+        solanaConnection,
+        wallet,
+        splTokenAccounts,
+        tokensByPoolId,
+        poolSpec,
+        operation,
+        userTransferAuthority,
+      );
+      return ixs;
+    }),
+  );
+  const memoIx = createMemoIx(interaction.id, []);
+  const tx = new Transaction({
+    feePayer: wallet.publicKey,
+  });
+  tx.add(...poolIxs.flat(), memoIx);
+  const signTransaction = async (
+    txToSign: Transaction,
+  ): Promise<Transaction> => {
+    txToSign.partialSign(userTransferAuthority);
+    return wallet.signTransaction(txToSign);
+  };
+  const txId = await solanaConnection.sendAndConfirmTx(signTransaction, tx);
+  const parsedTx = await solanaConnection.getParsedTx(txId);
+  yield {
+    ecosystem: EcosystemId.Solana,
+    txId,
+    timestamp: parsedTx.blockTime ?? null,
+    interactionId: interaction.id,
+    parsedTx,
+  };
+  return;
+
+  // TODO: Re-enable if multiple ixs per tx fails
+  // for (const operation of operations) {
+  //   const poolSpec = findOrThrow(
+  //     poolSpecs,
+  //     (spec) => spec.id === operation.poolId,
+  //   );
+  //   const txId = await doSinglePoolOperation(
+  //     env,
+  //     solanaConnection,
+  //     wallet,
+  //     splTokenAccounts,
+  //     tokensByPoolId,
+  //     poolSpec,
+  //     operation,
+  //   );
+  //   const tx = await solanaConnection.getParsedTx(txId);
+  //   yield {
+  //     ecosystem: EcosystemId.Solana,
+  //     txId,
+  //     timestamp: tx.blockTime ?? null,
+  //     interactionId: operation.interactionId,
+  //     parsedTx: tx,
+  //   };
+  // }
 }
 
 export const usePoolOperationsGenerator = (): UseAsyncGeneratorResult<
@@ -363,7 +511,7 @@ export const usePoolOperationsGenerator = (): UseAsyncGeneratorResult<
 
   return useAsyncGenerator<WithSplTokenAccounts<Interaction>, SolanaTx>(
     async (interaction) => {
-      const poolSpecs = getRelevantPools(config.pools, interaction);
+      const poolSpecs = getRequiredPools(config.pools, interaction);
       if (wallet === null) {
         throw new Error("Missing Solana wallet");
       }

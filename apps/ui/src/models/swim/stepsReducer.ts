@@ -305,6 +305,9 @@ export const updateTransferToSolana = (
   previousState: State,
   { txs }: UpdateTransferToSolanaAction,
 ): CreatedSplTokenAccountsState | TransferredToSolanaState => {
+  if (previousState.status === Status.TransferredToSolana) {
+    return previousState;
+  }
   if (previousState.status !== Status.CreatedSplTokenAccounts) {
     throw new Error("Invalid action");
   }
@@ -401,6 +404,9 @@ export const updatePoolOperations = (
   previousState: State,
   { operationTxs, existingTransferFromTxs }: UpdatePoolOperationsAction,
 ): TransferredToSolanaState | CompletedPoolOperationsState => {
+  if (previousState.status === Status.CompletedPoolOperations) {
+    return previousState;
+  }
   if (previousState.status !== Status.TransferredToSolana) {
     throw new Error("Invalid action");
   }
@@ -414,8 +420,7 @@ export const updatePoolOperations = (
     ...previousState.steps.doPoolOperations.txs,
     ...operationTxs,
   ]);
-
-  if (deduplicateTxsByTokenId.length < poolSpecs.length) {
+  if (deduplicatedTxs.length < poolSpecs.length) {
     return {
       ...previousState,
       steps: {
@@ -550,6 +555,9 @@ export const updateTransferFromSolana = (
   previousState: State,
   { txs }: UpdateTransferFromSolanaAction,
 ): CompletedPoolOperationsState | DoneState => {
+  if (previousState.status === Status.Done) {
+    return previousState;
+  }
   if (previousState.status !== Status.CompletedPoolOperations) {
     throw new Error("Invalid action");
   }

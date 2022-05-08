@@ -12,4 +12,5 @@ export * from "./useRecentInteractions";
 export * from "./useRemoveFeesEstimationQuery";
 export * from "./useStepsReducer";
 export * from "./useSwapFeesEstimationQuery";
+export * from "./useSwapOutputAmountEstimate";
 export * from "./useUserLpBalances";

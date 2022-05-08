@@ -27,6 +27,7 @@ import {
   useSplTokenAccountsQuery,
   useStepsReducer,
   useSwapFeesEstimationQuery,
+  useSwapOutputAmountEstimate,
   useUserBalanceAmounts,
   useUserNativeBalances,
   useWallets,
@@ -184,39 +185,13 @@ export const SwapForm = ({
         )
       : null;
 
-  const outputAmount = useMemo<Amount | null>(() => {
-    if (poolMaths.length === 1) {
-      const poolMath = poolMaths[0];
-      if (
-        poolMath === null ||
-        inputPoolTokens === null ||
-        exactInputAmounts === null ||
-        toToken === null
-      ) {
-        return null;
-      }
-
-      const outputTokenIndex = inputPoolTokens.tokens.findIndex(
-        ({ id }) => id === toTokenId,
-      );
-      try {
-        const { stableOutputAmount } = poolMath.swapExactInput(
-          exactInputAmounts.map((amount) => amount.toHuman(EcosystemId.Solana)),
-          outputTokenIndex,
-        );
-        return Amount.fromHuman(toToken, stableOutputAmount);
-      } catch {
-        return null;
-      }
-    }
-
-    if (poolMaths.length !== 2) {
-      return null;
-    }
-
-    // TODO: Handle 2 pools
-    return null;
-  }, [exactInputAmounts, inputPoolTokens, poolMaths, toToken, toTokenId]);
+  const outputAmount = useSwapOutputAmountEstimate(
+    poolMaths,
+    inputPoolTokens,
+    outputPoolTokens,
+    toToken,
+    exactInputAmounts,
+  );
 
   const fromTokenOptions = swappableTokens.map((tokenSpec) => ({
     value: tokenSpec.id,

@@ -496,15 +496,18 @@ export const createSwapSteps = (
   txsByStep: TxsByStep,
 ): Steps => {
   const { id: interactionId, params } = interaction;
-  // TODO: Multiple pools
-  const { tokens } = tokensByPoolId[poolSpecs[0].id];
   const missingTokenAccountMints = findMissingSplTokenAccountMints(
     tokensByPoolId,
     poolSpecs,
     interaction,
     splTokenAccounts,
   );
-  const outputTokenIndex = tokens.findIndex(
+
+  const inputPool = poolSpecs[0];
+  const outputPool = poolSpecs[poolSpecs.length - 1];
+  const inputPoolTokens = tokensByPoolId[inputPool.id];
+  const outputPoolTokens = tokensByPoolId[outputPool.id];
+  const outputTokenIndex = outputPoolTokens.tokens.findIndex(
     (token) => token.id === params.outputTokenId,
   );
   if (outputTokenIndex === -1) {
@@ -528,8 +531,8 @@ export const createSwapSteps = (
         tokens: generateInputTransfers(
           interactionId,
           splTokenAccounts,
-          tokens,
-          tokens.map(
+          inputPoolTokens.tokens,
+          inputPoolTokens.tokens.map(
             (token) =>
               params.exactInputAmounts.get(token.id) ?? Amount.zero(token),
           ),
@@ -551,7 +554,7 @@ export const createSwapSteps = (
         type: TransferType.Tokens,
         tokens: generateSingleOutputProtoTransfers(
           interactionId,
-          tokens,
+          outputPoolTokens.tokens,
           outputTokenIndex,
         ),
       },

@@ -2,14 +2,11 @@ import {
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiHideFor,
   EuiPage,
   EuiPageBody,
   EuiPageContent,
   EuiPageContentBody,
-  EuiShowFor,
   EuiSpacer,
-  EuiSuperSelect,
   EuiTitle,
 } from "@elastic/eui";
 import Decimal from "decimal.js";
@@ -35,7 +32,6 @@ const SwapPage = (): ReactElement => {
     [pools],
   );
 
-  const [poolId, setPoolId] = useState(nonStakingPools[0].id);
   const [currentInteraction, setCurrentInteraction] = useState<string | null>(
     null,
   );
@@ -43,15 +39,6 @@ const SwapPage = (): ReactElement => {
   const slippageFraction = useMemo(
     () => defaultIfError(() => new Decimal(slippagePercent).div(100), null),
     [slippagePercent],
-  );
-
-  const poolIdOptions = useMemo(
-    () =>
-      nonStakingPools.map((pool) => ({
-        value: pool.id,
-        inputDisplay: pool.displayName,
-      })),
-    [nonStakingPools],
   );
 
   return (
@@ -65,19 +52,6 @@ const SwapPage = (): ReactElement => {
                   <h2>Swap</h2>
                 </EuiTitle>
               </EuiFlexItem>
-              {nonStakingPools.length > 1 && (
-                <EuiHideFor sizes={["xs"]}>
-                  <EuiFlexItem grow={false}>
-                    <EuiSuperSelect
-                      name="poolId"
-                      options={poolIdOptions}
-                      valueOfSelected={poolId}
-                      onChange={setPoolId}
-                      compressed
-                    />
-                  </EuiFlexItem>
-                </EuiHideFor>
-              )}
               <EuiFlexItem grow={false}>
                 <SlippageButton
                   slippagePercent={slippagePercent}
@@ -86,20 +60,8 @@ const SwapPage = (): ReactElement => {
               </EuiFlexItem>
             </EuiFlexGroup>
             <EuiSpacer />
-            <EuiShowFor sizes={["xs"]}>
-              {nonStakingPools.length > 1 && (
-                <EuiSuperSelect
-                  name="poolId"
-                  options={poolIdOptions}
-                  valueOfSelected={poolId}
-                  onChange={setPoolId}
-                  compressed
-                />
-              )}
-            </EuiShowFor>
-            {pools.length > 0 ? (
+            {nonStakingPools.length > 0 ? (
               <SwapForm
-                poolId={poolId}
                 setCurrentInteraction={setCurrentInteraction}
                 maxSlippageFraction={slippageFraction}
               />

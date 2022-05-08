@@ -55,7 +55,6 @@ import { NativeTokenIcon } from "./TokenIcon";
 import "./SwapForm.scss";
 
 export interface SwapFormProps {
-  readonly poolId: string;
   readonly setCurrentInteraction: (id: string) => void;
   readonly maxSlippageFraction: Decimal | null;
 }

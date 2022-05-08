@@ -246,7 +246,7 @@ export const createOperationSpecs = (
                 (token) =>
                   exactInputAmounts.get(token.id) ?? Amount.zero(token),
               ),
-              // TODO: Handle min amount
+              // TODO: Handle min amount if multiple txs
               minimumMintAmount: Amount.zero(inputPoolTokens.lpToken),
             },
           },
@@ -282,8 +282,8 @@ export const createOperationSpecs = (
               outputTokenIndex: inputPoolTokens.tokens.findIndex(
                 (token) => token.id === outputPool.lpToken,
               ),
-              // TODO: Handle min amount
-              minimumOutputAmount,
+              // TODO: Handle min amount if multiple txs
+              minimumOutputAmount: Amount.zero(outputPoolTokens.lpToken),
             },
           },
           {
@@ -321,7 +321,7 @@ export const createOperationSpecs = (
               (token) => exactInputAmounts.get(token.id) ?? Amount.zero(token),
             ),
             outputTokenIndex: inputPoolOutputTokenIndex,
-            // TODO: Handle min amount if single tx doesn't work
+            // TODO: Handle min amount if multiple txs
             minimumOutputAmount: Amount.zero(inputPoolOutputToken),
           },
         },

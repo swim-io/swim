@@ -11,15 +11,17 @@ import {
   EuiSpacer,
   EuiText,
   EuiTitle,
-  EuiToolTip,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
 
 import {
   AlternatingFeaturettes,
+  ConvolutedButton,
   NftFaqAccordians,
+  NftRoadmap,
 } from "../components/OtterTotsLandingPageComponents";
 import { useTitle } from "../hooks";
+import OTTER_SLIDESHOW from "../images/otter_slideshow.gif";
 
 const OtterTotsPage = (): ReactElement => {
   const collectionName = "Otter Tots";
@@ -42,10 +44,7 @@ const OtterTotsPage = (): ReactElement => {
                 </EuiTitle>
               </EuiFlexItem>
               <EuiFlexItem>
-                <EuiImage
-                  src="https://www.degendojonft.com/assets/images/about/about-img.gif"
-                  alt=""
-                />
+                <EuiImage src={OTTER_SLIDESHOW} alt="" size="l" />
               </EuiFlexItem>
               <EuiFlexItem>
                 <EuiText grow={false}>
@@ -65,21 +64,14 @@ const OtterTotsPage = (): ReactElement => {
               </EuiFlexItem>
             </EuiFlexGroup>
             {AlternatingFeaturettes()}
+            <EuiSpacer />
             <EuiFlexGrid columns={2}>
               <EuiFlexItem>
                 {/* TODO: Link to medium article about our NFTs */}
-                <EuiButton>Learn More</EuiButton>
+                <EuiButton fill={true}>Learn More</EuiButton>
               </EuiFlexItem>
               <EuiFlexItem>
-                <EuiToolTip
-                  position="bottom"
-                  content="Coming soon"
-                  display="block"
-                >
-                  <EuiButton isDisabled={true} fullWidth={true}>
-                    Mint
-                  </EuiButton>
-                </EuiToolTip>
+                <ConvolutedButton />
               </EuiFlexItem>
             </EuiFlexGrid>
             <EuiSpacer />
@@ -89,7 +81,8 @@ const OtterTotsPage = (): ReactElement => {
                 <EuiTitle>
                   <h1>Roadmap</h1>
                 </EuiTitle>
-                <EuiText>TODO: Add roadmap.</EuiText>
+                <EuiSpacer />
+                <NftRoadmap />
               </EuiFlexItem>
               <EuiSpacer />
               <EuiFlexItem>

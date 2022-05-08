@@ -96,7 +96,10 @@ export class SwimDefiInstructor {
     return this.tokenMints.length;
   }
 
-  swapKeys(userTransferAuthority: PublicKey): readonly AccountMeta[] {
+  swapKeys(
+    userTransferAuthority: PublicKey,
+    ignorableUserTokenAccountIndices: readonly number[] = [],
+  ): readonly AccountMeta[] {
     if (!isEachNotNull(this.userTokenAccounts)) {
       throw new Error("No user token accounts");
     }
@@ -111,8 +114,13 @@ export class SwimDefiInstructor {
       { pubkey: this.lpMint, isSigner: false, isWritable: true },
       { pubkey: this.governanceFeeAccount, isSigner: false, isWritable: true },
       { pubkey: userTransferAuthority, isSigner: true, isWritable: false },
-      ...this.userTokenAccounts.map((pubkey) => ({
-        pubkey,
+      // NOTE: This is a hack to reduce the tx size. Since irrelevant token accounts aren't
+      // checked by the pool contract we can just reuse an account that's already present in the
+      // tx header to save on space.
+      ...this.userTokenAccounts.map((pubkey, i) => ({
+        pubkey: ignorableUserTokenAccountIndices.includes(i)
+          ? this.stateAccount
+          : pubkey,
         isSigner: false,
         isWritable: true,
       })),
@@ -120,12 +128,15 @@ export class SwimDefiInstructor {
     ];
   }
 
-  liquidityKeys(userTransferAuthority: PublicKey): readonly AccountMeta[] {
+  liquidityKeys(
+    userTransferAuthority: PublicKey,
+    ignorableUserTokenAccountIndices: readonly number[] = [],
+  ): readonly AccountMeta[] {
     if (!this.userLpAccount) {
       throw new Error("No user LP account");
     }
     return [
-      ...this.swapKeys(userTransferAuthority),
+      ...this.swapKeys(userTransferAuthority, ignorableUserTokenAccountIndices),
       { pubkey: this.userLpAccount, isSigner: false, isWritable: true },
     ];
   }
@@ -160,14 +171,16 @@ export class SwimDefiInstructor {
   createAllAddIxs(
     { interactionId, params }: AddOperationSpec,
     userTransferAuthority: Keypair,
+    includeMemo = true,
   ): readonly TransactionInstruction[] {
     const approveIxs = this.createApproveTokensIxs(
       params.inputAmounts,
       userTransferAuthority.publicKey,
     );
     const addIx = this.createAddIx(params, userTransferAuthority.publicKey);
-    const memoIx = createMemoIx(interactionId, []);
-    return [...approveIxs, addIx, memoIx];
+    return includeMemo
+      ? [...approveIxs, addIx, createMemoIx(interactionId, [])]
+      : [...approveIxs, addIx];
   }
 
   async removeUniform(
@@ -192,6 +205,7 @@ export class SwimDefiInstructor {
   createAllRemoveUniformIxs(
     { interactionId, params }: RemoveUniformOperationSpec,
     userTransferAuthority: Keypair,
+    includeMemo = true,
   ): readonly TransactionInstruction[] {
     if (!this.userLpAccount) {
       throw new Error("Missing user LP account");
@@ -206,9 +220,10 @@ export class SwimDefiInstructor {
       params,
       userTransferAuthority.publicKey,
     );
-    const memoIx = createMemoIx(interactionId, []);
 
-    return [approveIx, removeUniformIx, memoIx];
+    return includeMemo
+      ? [approveIx, removeUniformIx, createMemoIx(interactionId, [])]
+      : [approveIx, removeUniformIx];
   }
 
   async removeExactBurn(
@@ -233,6 +248,7 @@ export class SwimDefiInstructor {
   createAllRemoveExactBurnIxs(
     { interactionId, params }: RemoveExactBurnOperationSpec,
     userTransferAuthority: Keypair,
+    includeMemo = true,
   ): readonly TransactionInstruction[] {
     if (!this.userLpAccount) {
       throw new Error("Missing user LP account");
@@ -246,9 +262,10 @@ export class SwimDefiInstructor {
       params,
       userTransferAuthority.publicKey,
     );
-    const memoIx = createMemoIx(interactionId, []);
 
-    return [approveIx, removeExactBurnIx, memoIx];
+    return includeMemo
+      ? [approveIx, removeExactBurnIx, createMemoIx(interactionId, [])]
+      : [approveIx, removeExactBurnIx];
   }
 
   async removeExactOutput(
@@ -278,6 +295,7 @@ export class SwimDefiInstructor {
   createAllRemoveExactOutputIxs(
     { interactionId, params }: RemoveExactOutputOperationSpec,
     userTransferAuthority: Keypair,
+    includeMemo = true,
   ): readonly TransactionInstruction[] {
     if (!this.userLpAccount) {
       throw new Error("Missing user LP account");
@@ -291,9 +309,10 @@ export class SwimDefiInstructor {
       params,
       userTransferAuthority.publicKey,
     );
-    const memoIx = createMemoIx(interactionId, []);
 
-    return [approveIx, removeExactOutputIx, memoIx];
+    return includeMemo
+      ? [approveIx, removeExactOutputIx, createMemoIx(interactionId, [])]
+      : [approveIx, removeExactOutputIx];
   }
 
   async swap(
@@ -321,14 +340,16 @@ export class SwimDefiInstructor {
   createAllSwapIxs(
     { interactionId, params }: SwapOperationSpec,
     userTransferAuthority: Keypair,
+    includeMemo = true,
   ): readonly TransactionInstruction[] {
     const approveIxs = this.createApproveTokensIxs(
       params.exactInputAmounts,
       userTransferAuthority.publicKey,
     );
     const swapIx = this.createSwapIx(params, userTransferAuthority.publicKey);
-    const memoIx = createMemoIx(interactionId, []);
-    return [...approveIxs, swapIx, memoIx];
+    return includeMemo
+      ? [...approveIxs, swapIx, createMemoIx(interactionId, [])]
+      : [...approveIxs, swapIx];
   }
 
   private createAddIx(
@@ -352,8 +373,18 @@ export class SwimDefiInstructor {
       data,
     );
 
+    const ignorableUserTokenAccountIndices = inputAmounts.reduce<
+      readonly number[]
+    >(
+      (indices, amount, i) => (amount.isZero() ? [...indices, i] : indices),
+      [],
+    );
+    const keys = this.liquidityKeys(
+      userTransferAuthority,
+      ignorableUserTokenAccountIndices,
+    );
     return new TransactionInstruction({
-      keys: [...this.liquidityKeys(userTransferAuthority)],
+      keys: [...keys],
       programId: this.programId,
       data,
     });
@@ -495,8 +526,19 @@ export class SwimDefiInstructor {
       data,
     );
 
+    const ignorableUserTokenAccountIndices = exactInputAmounts.reduce<
+      readonly number[]
+    >(
+      (indices, amount, i) =>
+        i !== outputTokenIndex && amount.isZero() ? [...indices, i] : indices,
+      [],
+    );
+    const keys = this.swapKeys(
+      userTransferAuthority,
+      ignorableUserTokenAccountIndices,
+    );
     return new TransactionInstruction({
-      keys: [...this.swapKeys(userTransferAuthority)],
+      keys: [...keys],
       programId: this.programId,
       data,
     });

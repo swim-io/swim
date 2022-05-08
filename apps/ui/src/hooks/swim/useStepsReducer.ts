@@ -300,7 +300,7 @@ export const useStepsReducer = (
         return dispatch({
           type: ActionType.UpdatePoolOperations,
           operationTxs: txs,
-          existingTransferFromTxs: state.steps.wormholeFromSolana.txs,
+          existingTransferFromTxs: {},
         });
       }
       case Status.CompletedPoolOperations: {
@@ -479,6 +479,13 @@ export const useStepsReducer = (
   );
 
   useResumeInteractionOnDataOrSuccessEffect(
+    statusRef.current === Status.TransferredToSolana,
+    mutations.doPoolOperations.isSuccess,
+    mutations.doPoolOperations.data,
+    resumeInteraction,
+  );
+
+  useResumeInteractionOnDataOrSuccessEffect(
     statusRef.current === Status.CompletedPoolOperations,
     mutations.wormholeFromSolana.isSuccess,
     mutations.wormholeFromSolana.data,
@@ -488,6 +495,13 @@ export const useStepsReducer = (
   useRegisterErrorEffect(
     statusRef.current === Status.CreatedSplTokenAccounts,
     mutations.wormholeToSolana.error,
+    dispatch,
+    refreshQueries,
+  );
+
+  useRegisterErrorEffect(
+    statusRef.current === Status.TransferredToSolana,
+    mutations.doPoolOperations.error,
     dispatch,
     refreshQueries,
   );

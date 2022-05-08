@@ -6,8 +6,10 @@ import { useState } from "react";
 import { EcosystemId } from "../config";
 import { useConfig } from "../contexts";
 import { useWallets } from "../hooks";
+import AVALANCHE_SVG from "../images/avalanche.svg";
 import BSC_SVG from "../images/bsc.svg";
 import ETHEREUM_SVG from "../images/ethereum.svg";
+import POLYGON_SVG from "../images/polygon.svg";
 import SOLANA_SVG from "../images/solana.svg";
 import { shortenAddress } from "../utils";
 
@@ -87,11 +89,15 @@ export const MultiConnectButton = ({
     solana: { connected: isSolanaConnected },
     ethereum: { connected: isEthereumConnected },
     bsc: { connected: isBscConnected },
+    avalanche: { connected: isAvalancheConnected },
+    polygon: { connected: isPolygonConnected },
   } = useWallets();
   const connectedStatuses = [
     isSolanaConnected,
     isEthereumConnected,
     isBscConnected,
+    isAvalancheConnected,
+    isPolygonConnected,
   ];
   const nConnected = connectedStatuses.filter(Boolean).length;
 
@@ -101,6 +107,11 @@ export const MultiConnectButton = ({
         {isSolanaConnected && <EuiIcon type={SOLANA_SVG} size="l" />}
         {isEthereumConnected && <EuiIcon type={ETHEREUM_SVG} size="l" />}
         {isBscConnected && <EuiIcon type={BSC_SVG} size="l" />}
+        {process.env.REACT_APP_ADDITIONAL_EVM_CHAINS &&
+          isAvalancheConnected && <EuiIcon type={AVALANCHE_SVG} size="l" />}
+        {process.env.REACT_APP_ADDITIONAL_EVM_CHAINS && isPolygonConnected && (
+          <EuiIcon type={POLYGON_SVG} size="l" />
+        )}
         &nbsp;{nConnected}
         <span>&nbsp;connected</span>
       </>
@@ -109,6 +120,9 @@ export const MultiConnectButton = ({
         <EuiIcon type={SOLANA_SVG} size="l" />
         <EuiIcon type={ETHEREUM_SVG} size="l" />
         <EuiIcon type={BSC_SVG} size="l" />
+        {/* TODO: Consider adding these:
+        <EuiIcon type={AVALANCHE_SVG} size="l" />
+        <EuiIcon type={POLYGON_SVG} size="l" /> */}
         &nbsp;
         <EuiShowFor sizes={["xs"]}>Connect</EuiShowFor>
         <EuiHideFor sizes={["xs"]}>Connect Wallets</EuiHideFor>

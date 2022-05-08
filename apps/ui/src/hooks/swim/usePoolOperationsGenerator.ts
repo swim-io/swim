@@ -20,8 +20,6 @@ import type {
   WithSplTokenAccounts,
 } from "../../models";
 import {
-  Amount,
-  InteractionType,
   SwimDefiInstruction,
   SwimDefiInstructor,
   createMemoIx,
@@ -34,223 +32,6 @@ import { findOrThrow } from "../../utils";
 import { useSplTokenAccountsQuery } from "../solana";
 import type { UseAsyncGeneratorResult } from "../utils";
 import { useAsyncGenerator } from "../utils";
-
-const createOperations = (
-  tokensByPoolId: TokensByPoolId,
-  poolSpecs: readonly PoolSpec[],
-  interaction: Interaction,
-): readonly OperationSpec[] => {
-  const { id: interactionId } = interaction;
-  const inputPool = poolSpecs[0];
-  const outputPool = poolSpecs[poolSpecs.length - 1];
-  const inputPoolTokens = tokensByPoolId[inputPool.id];
-  const outputPoolTokens = tokensByPoolId[outputPool.id];
-
-  switch (interaction.type) {
-    case InteractionType.Add: {
-      const { inputAmounts, minimumMintAmount } = interaction.params;
-      return [
-        {
-          interactionId,
-          poolId: inputPool.id,
-          instruction: SwimDefiInstruction.Add,
-          params: {
-            inputAmounts: inputPoolTokens.tokens.map(
-              (token) => inputAmounts.get(token.id) ?? Amount.zero(token),
-            ),
-            minimumMintAmount,
-          },
-        },
-      ];
-    }
-    case InteractionType.RemoveUniform: {
-      const { exactBurnAmount, minimumOutputAmounts } = interaction.params;
-      return [
-        {
-          interactionId,
-          poolId: inputPool.id,
-          instruction: SwimDefiInstruction.RemoveUniform,
-          params: {
-            exactBurnAmount,
-            minimumOutputAmounts: inputPoolTokens.tokens.map(
-              (token) =>
-                minimumOutputAmounts.get(token.id) ?? Amount.zero(token),
-            ),
-          },
-        },
-      ];
-    }
-    case InteractionType.RemoveExactBurn: {
-      const { exactBurnAmount, outputTokenId, minimumOutputAmount } =
-        interaction.params;
-      return [
-        {
-          interactionId,
-          poolId: inputPool.id,
-          instruction: SwimDefiInstruction.RemoveExactBurn,
-          params: {
-            exactBurnAmount,
-            outputTokenIndex: inputPoolTokens.tokens.findIndex(
-              (token) => token.id === outputTokenId,
-            ),
-            minimumOutputAmount,
-          },
-        },
-      ];
-    }
-    case InteractionType.RemoveExactOutput: {
-      const { maximumBurnAmount, exactOutputAmounts } = interaction.params;
-      return [
-        {
-          interactionId,
-          poolId: inputPool.id,
-          instruction: SwimDefiInstruction.RemoveExactOutput,
-          params: {
-            maximumBurnAmount,
-            exactOutputAmounts: inputPoolTokens.tokens.map(
-              (token) => exactOutputAmounts.get(token.id) ?? Amount.zero(token),
-            ),
-          },
-        },
-      ];
-    }
-    case InteractionType.Swap: {
-      const { exactInputAmounts, outputTokenId, minimumOutputAmount } =
-        interaction.params;
-      if (inputPool.id === outputPool.id) {
-        return [
-          {
-            interactionId,
-            poolId: inputPool.id,
-            instruction: SwimDefiInstruction.Swap,
-            params: {
-              exactInputAmounts: inputPoolTokens.tokens.map(
-                (token) =>
-                  exactInputAmounts.get(token.id) ?? Amount.zero(token),
-              ),
-              outputTokenIndex: inputPoolTokens.tokens.findIndex(
-                (token) => token.id === outputTokenId,
-              ),
-              minimumOutputAmount,
-            },
-          },
-        ];
-      }
-
-      const hexapoolId = "hexapool";
-      const inputPoolIsHexapool = inputPool.id === hexapoolId;
-      const outputPoolIsHexapool = outputPool.id === hexapoolId;
-
-      if (inputPoolIsHexapool) {
-        return [
-          {
-            interactionId,
-            poolId: inputPool.id,
-            instruction: SwimDefiInstruction.Add,
-            params: {
-              inputAmounts: inputPoolTokens.tokens.map(
-                (token) =>
-                  exactInputAmounts.get(token.id) ?? Amount.zero(token),
-              ),
-              // TODO: Handle min amount
-              minimumMintAmount: Amount.zero(inputPoolTokens.lpToken),
-            },
-          },
-          {
-            interactionId,
-            poolId: outputPool.id,
-            instruction: SwimDefiInstruction.Swap,
-            params: {
-              // TODO: Handle input amounts
-              exactInputAmounts: outputPoolTokens.tokens.map((token) =>
-                Amount.zero(token),
-              ),
-              outputTokenIndex: outputPoolTokens.tokens.findIndex(
-                (token) => token.id === minimumOutputAmount.tokenId,
-              ),
-              minimumOutputAmount,
-            },
-          },
-        ];
-      }
-
-      if (outputPoolIsHexapool) {
-        return [
-          {
-            interactionId,
-            poolId: inputPool.id,
-            instruction: SwimDefiInstruction.Swap,
-            params: {
-              exactInputAmounts: inputPoolTokens.tokens.map(
-                (token) =>
-                  exactInputAmounts.get(token.id) ?? Amount.zero(token),
-              ),
-              outputTokenIndex: inputPoolTokens.tokens.findIndex(
-                (token) => token.id === outputPool.lpToken,
-              ),
-              // TODO: Handle min amount
-              minimumOutputAmount,
-            },
-          },
-          {
-            interactionId,
-            poolId: outputPool.id,
-            instruction: SwimDefiInstruction.RemoveExactBurn,
-            params: {
-              // TODO: Handle burn amount
-              exactBurnAmount: Amount.zero(outputPoolTokens.lpToken),
-              outputTokenIndex: outputPoolTokens.tokens.findIndex(
-                (token) => token.id === outputTokenId,
-              ),
-              minimumOutputAmount,
-            },
-          },
-        ];
-      }
-
-      //  Metapool to metapool
-      const inputPoolOutputTokenIndex = inputPoolTokens.tokens.findIndex(
-        (inputPoolToken) =>
-          outputPoolTokens.tokens.some(
-            (outputPoolToken) => outputPoolToken.id === inputPoolToken.id,
-          ),
-      );
-      const lpToken = inputPoolTokens.tokens[inputPoolOutputTokenIndex];
-      return [
-        {
-          interactionId,
-          poolId: inputPool.id,
-          instruction: SwimDefiInstruction.Swap,
-          params: {
-            exactInputAmounts: inputPoolTokens.tokens.map(
-              (token) => exactInputAmounts.get(token.id) ?? Amount.zero(token),
-            ),
-            outputTokenIndex: inputPoolOutputTokenIndex,
-            // TODO: Handle min amount
-            minimumOutputAmount: Amount.zero(lpToken),
-          },
-        },
-        {
-          interactionId,
-          poolId: outputPool.id,
-          instruction: SwimDefiInstruction.Swap,
-          params: {
-            // TODO: Handle input amounts
-            exactInputAmounts: inputPoolTokens.tokens.map((token) =>
-              Amount.zero(token),
-            ),
-            outputTokenIndex: outputPoolTokens.tokens.findIndex(
-              (token) => token.id === outputTokenId,
-            ),
-            minimumOutputAmount,
-          },
-        },
-      ];
-    }
-    default:
-      throw new Error("Unknown interaction type");
-  }
-};
 
 const doSinglePoolOperation = async (
   env: Env,
@@ -409,8 +190,8 @@ async function* generatePoolOperationTxs(
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
   interaction: Interaction,
+  operations: readonly OperationSpec[],
 ): AsyncGenerator<SolanaTx> {
-  const operations = createOperations(tokensByPoolId, poolSpecs, interaction);
   if (operations.length === 1) {
     const [operation] = operations;
     const poolSpec = findOrThrow(
@@ -508,8 +289,13 @@ async function* generatePoolOperationTxs(
   // }
 }
 
+export interface PoolOperationsInput {
+  readonly interaction: Interaction;
+  readonly operations: readonly OperationSpec[];
+}
+
 export const usePoolOperationsGenerator = (): UseAsyncGeneratorResult<
-  WithSplTokenAccounts<Interaction>,
+  WithSplTokenAccounts<PoolOperationsInput>,
   SolanaTx
 > => {
   const { env } = useEnvironment();
@@ -519,8 +305,8 @@ export const usePoolOperationsGenerator = (): UseAsyncGeneratorResult<
   const { wallet } = useSolanaWallet();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
 
-  return useAsyncGenerator<WithSplTokenAccounts<Interaction>, SolanaTx>(
-    async (interaction) => {
+  return useAsyncGenerator<WithSplTokenAccounts<PoolOperationsInput>, SolanaTx>(
+    async ({ interaction, operations }) => {
       const poolSpecs = getRequiredPools(config.pools, interaction);
       if (wallet === null) {
         throw new Error("Missing Solana wallet");
@@ -536,6 +322,7 @@ export const usePoolOperationsGenerator = (): UseAsyncGeneratorResult<
         tokensByPoolId,
         poolSpecs,
         interaction,
+        operations,
       );
     },
   );

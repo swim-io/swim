@@ -404,9 +404,6 @@ export const updatePoolOperations = (
   previousState: State,
   { operationTxs, existingTransferFromTxs }: UpdatePoolOperationsAction,
 ): TransferredToSolanaState | CompletedPoolOperationsState => {
-  if (previousState.status === Status.CompletedPoolOperations) {
-    return previousState;
-  }
   if (previousState.status !== Status.TransferredToSolana) {
     throw new Error("Invalid action");
   }
@@ -657,6 +654,7 @@ export const reducer =
       case ActionType.UpdateTransferToSolana:
         return updateTransferToSolana(solanaChain, previousState, action);
       case ActionType.UpdatePoolOperations: {
+        // TODO: Move check into handler
         if (previousState.interaction === null) {
           throw new Error("Missing interaction");
         }

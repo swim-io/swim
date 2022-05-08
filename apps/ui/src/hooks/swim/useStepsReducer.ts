@@ -86,6 +86,27 @@ export interface StepsReducer {
 
 // This effect handles updates during the CreatedSplTokenAccounts/CompletedPoolInteraction stages.
 // The generator hook updates data with each result and it updates isSuccess once it is finished.
+const useResumeInteractionOnDataEffect = <T>(
+  isExternalConditionMet: boolean,
+  data: T,
+  resumeInteraction: () => any,
+): void => {
+  const dataRef = useRef(data);
+
+  useEffect((): void => {
+    const shouldResume = isExternalConditionMet && data !== dataRef.current;
+
+    // eslint-disable-next-line functional/immutable-data
+    dataRef.current = data;
+
+    if (shouldResume) {
+      resumeInteraction();
+    }
+  }, [isExternalConditionMet, data, resumeInteraction]);
+};
+
+// This effect handles updates during the CreatedSplTokenAccounts/CompletedPoolInteraction stages.
+// The generator hook updates data with each result and it updates isSuccess once it is finished.
 const useResumeInteractionOnDataOrSuccessEffect = <T>(
   isExternalConditionMet: boolean,
   isSuccess: boolean,
@@ -478,9 +499,8 @@ export const useStepsReducer = (
     resumeInteraction,
   );
 
-  useResumeInteractionOnDataOrSuccessEffect(
+  useResumeInteractionOnDataEffect(
     statusRef.current === Status.TransferredToSolana,
-    mutations.doPoolOperations.isSuccess,
     mutations.doPoolOperations.data,
     resumeInteraction,
   );

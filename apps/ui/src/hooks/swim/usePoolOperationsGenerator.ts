@@ -367,24 +367,35 @@ const createPoolIxs = async (
   switch (operation.instruction) {
     // TODO: Fill out
     case SwimDefiInstruction.Add:
-      return instructor.createAllAddIxs(operation, userTransferAuthority);
+      return instructor.createAllAddIxs(
+        operation,
+        userTransferAuthority,
+        false,
+      );
     case SwimDefiInstruction.RemoveUniform:
       return instructor.createAllRemoveUniformIxs(
         operation,
         userTransferAuthority,
+        false,
       );
     case SwimDefiInstruction.RemoveExactBurn:
       return instructor.createAllRemoveExactBurnIxs(
         operation,
         userTransferAuthority,
+        false,
       );
     case SwimDefiInstruction.RemoveExactOutput:
       return instructor.createAllRemoveExactOutputIxs(
         operation,
         userTransferAuthority,
+        false,
       );
     case SwimDefiInstruction.Swap:
-      return instructor.createAllSwapIxs(operation, userTransferAuthority);
+      return instructor.createAllSwapIxs(
+        operation,
+        userTransferAuthority,
+        false,
+      );
     default:
       throw new Error("Unknown instruction");
   }
@@ -432,12 +443,12 @@ async function* generatePoolOperationTxs(
   // TODO: Refactor if this works
   const userTransferAuthority = Keypair.generate();
   const poolIxs = await Promise.all(
-    operations.map((operation) => {
+    operations.map(async (operation) => {
       const poolSpec = findOrThrow(
         poolSpecs,
         (spec) => spec.id === operation.poolId,
       );
-      const ixs = createPoolIxs(
+      return createPoolIxs(
         env,
         solanaConnection,
         wallet,
@@ -447,7 +458,6 @@ async function* generatePoolOperationTxs(
         operation,
         userTransferAuthority,
       );
-      return ixs;
     }),
   );
   const memoIx = createMemoIx(interaction.id, []);

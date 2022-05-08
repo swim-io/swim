@@ -23,7 +23,8 @@ import type {
   RemoveUniformInteraction,
   SwapInteraction,
 } from "./interaction";
-import { InteractionType } from "./interaction";
+import { InteractionType, createOperationSpecs } from "./interaction";
+import type { OperationSpec } from "./operation";
 import type { TokensByPoolId } from "./pool";
 import { getTokensByPool, isPoolTx } from "./pool";
 import type {
@@ -69,6 +70,7 @@ export interface WormholeToSolanaStep extends BaseStep {
 
 export interface SolanaOperationsStep extends BaseStep {
   readonly type: StepType.SolanaOperations;
+  readonly operations: readonly OperationSpec[];
   readonly txs: readonly SolanaTx[];
 }
 
@@ -277,6 +279,7 @@ export const createAddSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
+      operations: createOperationSpecs(tokensByPoolId, poolSpecs, interaction),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -337,6 +340,7 @@ export const createRemoveUniformSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
+      operations: createOperationSpecs(tokensByPoolId, poolSpecs, interaction),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -404,6 +408,7 @@ export const createRemoveExactBurnSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
+      operations: createOperationSpecs(tokensByPoolId, poolSpecs, interaction),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -465,6 +470,7 @@ export const createRemoveExactOutputSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
+      operations: createOperationSpecs(tokensByPoolId, poolSpecs, interaction),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -543,6 +549,7 @@ export const createSwapSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
+      operations: createOperationSpecs(tokensByPoolId, poolSpecs, interaction),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {

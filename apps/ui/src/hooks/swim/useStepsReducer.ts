@@ -53,6 +53,7 @@ import {
   useTransferSplTokensToEvmGenerator,
 } from "../wormhole";
 
+import type { PoolOperationsInput } from "./usePoolOperationsGenerator";
 import { usePoolOperationsGenerator } from "./usePoolOperationsGenerator";
 
 export interface StepMutations {
@@ -66,7 +67,7 @@ export interface StepMutations {
     TxWithTokenId
   >;
   readonly doPoolOperations: UseAsyncGeneratorResult<
-    WithSplTokenAccounts<Interaction>,
+    WithSplTokenAccounts<PoolOperationsInput>,
     SolanaTx
   >;
   readonly wormholeFromSolana: UseAsyncGeneratorResult<
@@ -310,11 +311,12 @@ export const useStepsReducer = (
           isSuccess,
           generate,
         } = mutations.doPoolOperations;
-        const { interaction } = state;
+        const { interaction, steps } = state;
         if (!isLoading && !isSuccess) {
           // NOTE: Errors are caught and set on the UseAsyncGeneratorResult
           void generate({
-            ...interaction,
+            interaction,
+            operations: steps.doPoolOperations.operations,
             splTokenAccounts,
           });
         }

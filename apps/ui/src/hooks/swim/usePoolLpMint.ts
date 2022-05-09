@@ -1,7 +1,7 @@
 import type { MintInfo } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import type { UseQueryResult } from "react-query";
-import { useQueries, useQuery } from "react-query";
+import { useQueries } from "react-query";
 
 import type { PoolSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
@@ -37,23 +37,4 @@ export const usePoolLpMints = (
 
 export const usePoolLpMint = (
   poolSpec: PoolSpec,
-): UseQueryResult<MintInfo | null, Error> => {
-  const { env } = useEnvironment();
-  const { tokens } = useConfig();
-  const solanaConnection = useSolanaConnection();
-  const lpToken = findOrThrow(
-    tokens,
-    (tokenSpec) => tokenSpec.id === poolSpec.lpToken,
-  );
-  const lpTokenMintAddress = getSolanaTokenDetails(lpToken).address;
-
-  return useQuery<MintInfo | null, Error>(
-    ["poolLpMintAccount", env, poolSpec.id],
-    async () => {
-      const account = await solanaConnection.getAccountInfo(
-        new PublicKey(lpTokenMintAddress),
-      );
-      return account ? deserializeMint(account.data) : null;
-    },
-  );
-};
+): UseQueryResult<MintInfo | null, Error> => usePoolLpMints([poolSpec])[0];

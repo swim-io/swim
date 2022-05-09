@@ -3,8 +3,6 @@ import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
 import { u64 } from "@solana/spl-token";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
-import type { ethers } from "ethers";
-import { mock } from "jest-mock-extended";
 
 import type { ChainsByProtocol } from "../../config";
 import { EcosystemId, Env, chains, pools, tokens } from "../../config";
@@ -35,7 +33,6 @@ import {
   createSteps,
   createSwapSteps,
   findMissingSplTokenAccountMints,
-  findPoolInteractionTx,
   getTransferFromTxs,
   getTransferToTxs,
   isWormholeFromSolanaFullStep,
@@ -525,10 +522,11 @@ describe("Swim steps", () => {
   describe("createSteps", () => {
     const chainsConfig: ChainsByProtocol = chains[Env.Localnet];
     const poolContractAddress: string = pools[Env.Localnet][0].contract;
-    const amounts = ["0", "1.111", "0", "3333.3", "0", "2", "2", "2", "0"].map(
+    const amounts = ["0", "1.111", "0", "3333.3", "2", "2", "0"].map(
       (amount, i) => Amount.fromHumanString(poolTokens[i], amount),
     );
-    const signatureSetKeypairs = localnetTokens.reduce(
+
+    const signatureSetKeypairs = poolTokens.reduce(
       (accumulator, token, i) => ({
         ...accumulator,
         [token.id]: Keypair.generate(),
@@ -539,19 +537,16 @@ describe("Swim steps", () => {
       chainsConfig,
       defaultSolanaWalletAddress,
       defaultSplTokenAccounts,
-      localnetTokens,
+      poolTokens,
       lpToken,
       {},
       [solanaTx],
     );
-    const solanaPoolInteractionTx = findPoolInteractionTx(poolContractAddress, [
-      solanaTx,
-    ]);
     const wormholeFromSolanaTxs = getTransferFromTxs(
       chainsConfig,
       defaultSolanaWalletAddress,
       defaultSplTokenAccounts,
-      localnetTokens,
+      poolTokens,
       lpToken,
       [solanaTx],
     );
@@ -559,17 +554,14 @@ describe("Swim steps", () => {
     const txByStep: TxsByStep = {
       [StepType.CreateSplTokenAccounts]: [],
       [StepType.WormholeToSolana]: wormholeToSolanaTxs,
-      [StepType.SolanaPoolInteraction]: solanaPoolInteractionTx
-        ? [solanaPoolInteractionTx]
-        : [],
+      [StepType.SolanaPoolInteraction]: [],
       [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
     };
-    let interaction: AddInteraction;
-    let swapStepInteraction: SwapInteraction;
 
     describe("createSteps - createAddSteps", () => {
+      let addInteraction: AddInteraction;
       beforeEach(() => {
-        interaction = {
+        addInteraction = {
           id: defaultInteractionId,
           env: Env.Localnet,
           poolId: "test-pool",
@@ -594,51 +586,51 @@ describe("Swim steps", () => {
       });
 
       it("throws an error if wallet address is missing", () => {
-        const result = () =>
+        const getResult = () =>
           createSteps(
             chainsConfig,
             poolContractAddress,
             defaultSplTokenAccounts,
-            localnetTokens,
+            poolTokens,
             lpToken,
-            interaction,
+            addInteraction,
             [solanaTx],
           );
-        expect(() => result()).toThrowError(/Missing Solana wallet/i);
+        expect(getResult).toThrowError(/Missing Solana wallet/i);
       });
-      it("throws an error, if there is no set signature keypair", () => {
+      it("throws an error, if there is no signature set keypair", () => {
         const interactionWithWallet: AddInteraction = {
-          ...interaction,
+          ...addInteraction,
           connectedWallets: {
-            ...interaction.connectedWallets,
+            ...addInteraction.connectedWallets,
             [EcosystemId.Solana]: defaultSolanaWalletAddress,
           },
         };
-        const result = () =>
+        const getResult = () =>
           createSteps(
             chainsConfig,
             poolContractAddress,
             defaultSplTokenAccounts,
-            localnetTokens,
+            poolTokens,
             lpToken,
             interactionWithWallet,
             [solanaTx],
           );
-        expect(() => result()).toThrowError(/Missing signature set key pair/i);
+        expect(getResult).toThrowError(/Missing signature set key pair/i);
       });
       it("returns Add steps interaction", () => {
         const interactionWithWallet: AddInteraction = {
-          ...interaction,
+          ...addInteraction,
           signatureSetKeypairs,
           connectedWallets: {
-            ...interaction.connectedWallets,
+            ...addInteraction.connectedWallets,
             [EcosystemId.Solana]: defaultSolanaWalletAddress,
           },
         };
 
         const expected = createAddSteps(
           defaultSplTokenAccounts,
-          localnetTokens,
+          poolTokens,
           lpToken,
           interactionWithWallet,
           txByStep,
@@ -647,7 +639,7 @@ describe("Swim steps", () => {
           chainsConfig,
           poolContractAddress,
           defaultSplTokenAccounts,
-          localnetTokens,
+          poolTokens,
           lpToken,
           interactionWithWallet,
           [solanaTx],
@@ -656,32 +648,43 @@ describe("Swim steps", () => {
       });
     });
     describe("createSteps - createSwapSteps", () => {
-      beforeEach(() => {
-        swapStepInteraction = {
-          ...swapInteraction,
-          env: Env.Localnet,
-          signatureSetKeypairs,
-          params: {
-            ...swapInteraction.params,
-            exactInputAmounts: amounts,
-          },
-        };
-      });
+      const swapInteraction2: SwapInteraction = {
+        id: defaultInteractionId,
+        env: Env.Localnet,
+        poolId: "test-pool",
+        submittedAt: 1646408146771,
+        signatureSetKeypairs,
+        previousSignatureSetAddresses: {},
+        connectedWallets: {
+          [EcosystemId.Solana]: defaultSolanaWalletAddress,
+          [EcosystemId.Ethereum]: null,
+          [EcosystemId.Bsc]: null,
+          [EcosystemId.Terra]: null,
+          [EcosystemId.Polygon]: null,
+          [EcosystemId.Avalanche]: null,
+        },
+        instruction: SwimDefiInstruction.Swap,
+        params: {
+          exactInputAmounts: amounts,
+          outputTokenIndex: 2,
+          minimumOutputAmount: Amount.fromHumanString(poolTokens[2], "3000"),
+        },
+      };
       it("returns result of createSwapSteps", () => {
         const result = createSwapSteps(
           defaultSplTokenAccounts,
-          localnetTokens,
+          poolTokens,
           lpToken,
-          swapStepInteraction,
+          swapInteraction2,
           txByStep,
         );
         const expected = createSteps(
           chainsConfig,
           poolContractAddress,
           defaultSplTokenAccounts,
-          localnetTokens,
+          poolTokens,
           lpToken,
-          swapStepInteraction,
+          swapInteraction2,
           [solanaTx],
         );
         expect(result).toEqual(expected);
@@ -703,7 +706,7 @@ describe("Swim steps", () => {
           [EcosystemId.Polygon]: null,
           [EcosystemId.Avalanche]: null,
         },
-        lpTokenSourceEcosystem: EcosystemId.Bsc,
+        lpTokenSourceEcosystem: EcosystemId.Solana,
         instruction: SwimDefiInstruction.RemoveUniform,
         params: {
           exactBurnAmount: Amount.fromHuman(lpToken, new Decimal(20)),
@@ -713,7 +716,7 @@ describe("Swim steps", () => {
       it("returns result of createRemoveUniformSteps", () => {
         const result = createRemoveUniformSteps(
           defaultSplTokenAccounts,
-          localnetTokens,
+          poolTokens,
           lpToken,
           removeUniformInteraction,
           txByStep,
@@ -722,7 +725,7 @@ describe("Swim steps", () => {
           chainsConfig,
           poolContractAddress,
           defaultSplTokenAccounts,
-          localnetTokens,
+          poolTokens,
           lpToken,
           removeUniformInteraction,
           [solanaTx],
@@ -757,7 +760,7 @@ describe("Swim steps", () => {
       it("returns result of createRemoveExactBurnSteps", () => {
         const result = createRemoveExactBurnSteps(
           defaultSplTokenAccounts,
-          localnetTokens,
+          poolTokens,
           lpToken,
           removeExactBurnInteraction,
           txByStep,
@@ -766,7 +769,7 @@ describe("Swim steps", () => {
           chainsConfig,
           poolContractAddress,
           defaultSplTokenAccounts,
-          localnetTokens,
+          poolTokens,
           lpToken,
           removeExactBurnInteraction,
           [solanaTx],
@@ -800,7 +803,7 @@ describe("Swim steps", () => {
       it("returns result of createRemoveExactOutputSteps", () => {
         const result = createRemoveExactOutputSteps(
           defaultSplTokenAccounts,
-          localnetTokens,
+          poolTokens,
           lpToken,
           removeExactOutputInteraction,
           txByStep,
@@ -809,7 +812,7 @@ describe("Swim steps", () => {
           chainsConfig,
           poolContractAddress,
           defaultSplTokenAccounts,
-          localnetTokens,
+          poolTokens,
           lpToken,
           removeExactOutputInteraction,
           [solanaTx],

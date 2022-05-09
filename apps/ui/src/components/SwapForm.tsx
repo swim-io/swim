@@ -115,6 +115,8 @@ export const SwapForm = ({
     : [];
   const poolIds = requiredPools.map((pool) => pool.id);
   const pools = usePools(poolIds);
+  const inputPoolUsdValue = pools[0].poolUsdValue;
+  const outputPoolUsdValue = pools[pools.length - 1].poolUsdValue;
   const isRequiredPoolPaused = pools.some((pool) => pool.isPoolPaused);
   const poolMaths = usePoolMaths(poolIds);
   const inputPool = requiredPools.find(Boolean) ?? null;
@@ -147,8 +149,15 @@ export const SwapForm = ({
       fromToken !== null &&
       fromToken.isStablecoin &&
       inputAmount !== null &&
-      // TODO: Make sure this is sensible (does it need to be a fraction of pool USD value?)
-      inputAmount.toHuman(EcosystemId.Solana).gt(100_000)
+      ((inputPoolUsdValue !== null &&
+        inputAmount
+          .toHuman(EcosystemId.Solana)
+          .gt(inputPoolUsdValue.mul(0.1))) ||
+        (outputPoolUsdValue !== null &&
+          outputAmount !== null &&
+          outputAmount
+            .toHuman(EcosystemId.Solana)
+            .gt(outputPoolUsdValue.mul(0.1))))
     );
   };
 

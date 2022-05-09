@@ -63,8 +63,7 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
 
   // TODO: This is unimplemented.
   const executeRedeem = (): void => {
-    // eslint-disable-next-line no-console
-    console.log("this would destroy the NFT.");
+    console.info("This is unimplemented.");
   };
 
   const generateTable = (attributes: readonly NftAttribute[]): ReactElement => (

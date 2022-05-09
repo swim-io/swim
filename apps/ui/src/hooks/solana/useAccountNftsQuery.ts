@@ -39,7 +39,7 @@ const getNftCollectionAddress = (env: Env): string => {
       return SWIM_NUMBERS_COLLECTION_DEVNET;
     }
     default:
-      throw new Error("fucu");
+      throw new Error(`Cannot find nft collection for ${env}.`);
   }
 };
 
@@ -48,42 +48,48 @@ export const useAccountNfts = (
 ): UseQueryResult<readonly NftData[], Error> => {
   const solanaConnection = useSolanaConnection();
   const { env } = useEnvironment();
-  return useQuery(["accountNfts", env, ownerAddress], async () => {
-    if (!ownerAddress) {
-      return null;
-    }
-    const rawNftData = (
-      await Metadata.findDataByOwner(
-        solanaConnection.rawConnection,
-        new PublicKey(ownerAddress),
-      )
-    ).filter((md) => md.collection?.key === getNftCollectionAddress(env));
-    const nftData = await Promise.all(
-      rawNftData.map(async (metadata) => {
-        const uriPayload: MetadataJson = await fetch(metadata.data.uri).then(
-          (rawData) => rawData.json(),
-        );
-        const attributesWithRarity = uriPayload.attributes?.map(
-          (attribute: MetadataJsonAttribute): NftAttribute => {
-            return {
-              traitType: attribute.trait_type,
-              value: attribute.value,
-              // TODO: Need to fetch this value
-              rarity: 5,
-            };
-          },
-        );
+  return useQuery(
+    ["accountNfts", env, ownerAddress],
+    // eslint-disable-next-line functional/prefer-readonly-type
+    async (): Promise<NftData[]> => {
+      if (!ownerAddress) {
+        return [];
+      }
+      const rawNftData = (
+        await Metadata.findDataByOwner(
+          solanaConnection.rawConnection,
+          new PublicKey(ownerAddress),
+        )
+      ).filter((md) => md.collection?.key === getNftCollectionAddress(env));
+      const nftData = await Promise.all(
+        rawNftData.map(async (metadata) => {
+          const uriPayload: MetadataJson = await fetch(metadata.data.uri).then(
+            (rawData) => rawData.json(),
+          );
+          const attributesWithRarity = !uriPayload.attributes
+            ? []
+            : uriPayload.attributes.map(
+                (attribute: MetadataJsonAttribute): NftAttribute => {
+                  return {
+                    traitType: attribute.trait_type,
+                    value: attribute.value,
+                    // TODO: Need to fetch this value
+                    rarity: 5,
+                  };
+                },
+              );
 
-        return {
-          metadata: metadata,
-          image: uriPayload.image,
-          attributes: attributesWithRarity,
-        };
-      }),
-    );
-    // eslint-disable-next-line functional/immutable-data
-    return nftData.sort((a, b) =>
-      a.metadata.data.name.localeCompare(b.metadata.data.name),
-    );
-  });
+          return {
+            metadata: metadata,
+            image: uriPayload.image,
+            attributes: attributesWithRarity,
+          };
+        }),
+      );
+      // eslint-disable-next-line functional/immutable-data
+      return nftData.sort((a, b) =>
+        a.metadata.data.name.localeCompare(b.metadata.data.name),
+      );
+    },
+  );
 };

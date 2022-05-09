@@ -1,17 +1,19 @@
 import {
   EuiBasicTable,
   EuiButton,
-  EuiCard,
   EuiConfirmModal,
   EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
+  EuiImage,
+  EuiText,
 } from "@elastic/eui";
 import type { ChangeEvent, ReactElement } from "react";
 import { useState } from "react";
 // TODO: Replace with more repubtale/battle-tested carousel.
 import Carousel from "react-elastic-carousel";
+// import { Carousel } from "react-responsive-carousel";
 
 import type {
   NftAttribute,
@@ -89,17 +91,25 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
 
   return (
     <>
-      <Carousel itemsToShow={1} isRTL={false}>
+      <Carousel isRTL={false}>
         {nfts.map((nft) => {
           return (
-            <EuiCard
-              key={nft.metadata.data.name}
-              textAlign="left"
-              image={nft.image}
-              title={nft.metadata.data.name}
-              description={generateTable(nft.attributes)}
-              footer={cardFooterContent}
-            />
+            <div key={nft.metadata.mint}>
+              <EuiFlexGroup direction="column" alignItems="center">
+                <EuiFlexItem>
+                  <EuiImage src={nft.image} alt="" />
+                </EuiFlexItem>
+              </EuiFlexGroup>
+              <EuiFlexGroup direction="column">
+                <EuiFlexItem>
+                  <EuiText>
+                    <h4>{nft.metadata.data.name}</h4>
+                  </EuiText>
+                </EuiFlexItem>
+                <EuiFlexItem>{generateTable(nft.attributes)}</EuiFlexItem>
+                <EuiFlexItem>{cardFooterContent}</EuiFlexItem>
+              </EuiFlexGroup>
+            </div>
           );
         })}
       </Carousel>

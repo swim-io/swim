@@ -8,34 +8,31 @@ import { ConnectButton } from "./ConnectButton";
 import "./DefaultNftBox.scss";
 
 export interface DefaultNftBoxProps {
-  readonly isWalletConnected: boolean;
-  readonly isQueryLoading: boolean;
-  readonly hasNoNfts: boolean;
+  readonly nftStatus: NftStatus;
 }
 
-const boxText = (
-  isWalletConnected: boolean,
-  isQueryLoading: boolean,
-  hasNoNfts: boolean,
-): ReactElement => {
-  if (!isWalletConnected) {
-    return <p>Connect your wallet to view and redeem your Otter Tots!</p>;
+export const enum NftStatus {
+  NoWallet,
+  Loading,
+  Empty,
+  Invalid,
+}
+
+const BoxText = ({ nftStatus }: DefaultNftBoxProps): ReactElement => {
+  switch (nftStatus) {
+    case NftStatus.NoWallet:
+      return <p>Connect your wallet to view and redeem your Otter Tots!</p>;
+    case NftStatus.Loading:
+      return <EuiLoadingSpinner size="xl" />;
+    case NftStatus.Empty:
+      return <p>Get an Otter Tot to view and redeem here!</p>;
+    case NftStatus.Invalid:
+      return <p>Received an invalid input!</p>;
   }
-  if (isQueryLoading) {
-    return <EuiLoadingSpinner size="xl" />;
-  }
-  if (hasNoNfts) {
-    return <p>Get an Otter Tot to view and redeem here!</p>;
-  }
-  throw new Error(
-    "Connected wallet with NFTs but attempted to display text instead of showing NFTs",
-  );
 };
 
 export const DefaultNftBox = ({
-  isWalletConnected,
-  isQueryLoading,
-  hasNoNfts,
+  nftStatus,
 }: DefaultNftBoxProps): ReactElement => {
   return (
     <EuiFlexGroup
@@ -44,7 +41,7 @@ export const DefaultNftBox = ({
       direction="column"
       className="redeemPageBlueBox"
     >
-      {boxText(isWalletConnected, isQueryLoading, hasNoNfts)}
+      <BoxText nftStatus={nftStatus} />
       <EuiSpacer />
       <ConnectButton size="s" ecosystemId={EcosystemId.Solana} />
     </EuiFlexGroup>

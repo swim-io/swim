@@ -43,13 +43,13 @@ import {
 } from "../models";
 import { defaultIfError, findOrThrow, isNotNull } from "../utils";
 
-import { ActionSteps } from "./ActionSteps";
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
 import { isValidSlippageFraction } from "./SlippageButton";
+import { StepsDisplay } from "./StepsDisplay";
 import { NativeTokenIcon } from "./TokenIcon";
 
 import "./SwapForm.scss";
@@ -645,7 +645,7 @@ export const SwapForm = ({
       <EuiSpacer />
 
       {interaction && steps && (
-        <ActionSteps
+        <StepsDisplay
           retryInteraction={retryInteraction}
           interaction={interaction}
           steps={steps}

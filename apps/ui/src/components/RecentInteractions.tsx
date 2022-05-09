@@ -25,9 +25,9 @@ import { InteractionType, Status, getCurrentState } from "../models";
 import type { Interaction, State, SwimDefiInstruction, Tx } from "../models";
 import { findOrThrow } from "../utils";
 
-import { ActionSteps } from "./ActionSteps";
 import { MultiConnectButton } from "./ConnectButton";
 import { ConnectedWallets } from "./ConnectedWallets";
+import { StepsDisplay } from "./StepsDisplay";
 import {
   AmountWithTokenIcon,
   AmountsWithTokenIcons,
@@ -64,7 +64,7 @@ export const ActiveInteraction = ({
     // This interaction was never initiated. This should never reach this point because it won't have been persisted.
     <></>
   ) : (
-    <ActionSteps
+    <StepsDisplay
       retryInteraction={retryInteraction}
       interaction={interaction}
       steps={steps}
@@ -198,7 +198,7 @@ export const RecentInteraction = ({
 
     return (
       <>
-        <ActionSteps
+        <StepsDisplay
           retryInteraction={() => setIsActive(true)}
           interaction={interaction}
           steps={currentState.steps}

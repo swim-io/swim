@@ -43,7 +43,7 @@ import { isNotNull } from "../utils";
 
 import { TxListItem } from "./TxListItem";
 
-import "./ActionSteps.scss";
+import "./StepsDisplay.scss";
 
 type Mutation<TData> = Pick<
   UseMutationResult<TData, Error, any>,
@@ -122,19 +122,19 @@ const MutationStatus = ({
   </EuiText>
 );
 
-interface ActionSubStepProps {
+interface SubStepDisplayProps {
   readonly transfer: ProtoTransfer | Transfer;
   readonly isComplete: boolean;
   readonly txs: readonly Tx[] | null;
   readonly mutation?: Mutation<any>;
 }
 
-const ActionSubStep = ({
+const SubStepDisplay = ({
   transfer,
   isComplete,
   txs,
   mutation,
-}: ActionSubStepProps): ReactElement => {
+}: SubStepDisplayProps): ReactElement => {
   if (transfer.amount?.isZero()) {
     return <></>;
   }
@@ -158,15 +158,15 @@ const ActionSubStep = ({
   );
 };
 
-interface CreateSplTokenAccountsActionStepProps {
+interface CreateSplTokenAccountsStepDisplayProps {
   readonly step: CreateSplTokenAccountsStep;
   readonly mutation?: Mutation<readonly TokenAccountInfo[]>;
 }
 
-const CreateSplTokenAccountsActionStep = ({
+const CreateSplTokenAccountsStepDisplay = ({
   step,
   mutation,
-}: CreateSplTokenAccountsActionStepProps): ReactElement => {
+}: CreateSplTokenAccountsStepDisplayProps): ReactElement => {
   const accounts = mutation?.data ?? null;
   return (
     <>
@@ -190,15 +190,15 @@ const CreateSplTokenAccountsActionStep = ({
   );
 };
 
-interface WormholeActionStepProps {
+interface WormholeStepDisplayProps {
   readonly step: WormholeToSolanaStep | WormholeFromSolanaStep;
   readonly mutation?: Mutation<TxsByTokenId>;
 }
 
-const WormholeActionStep = ({
+const WormholeStepDisplay = ({
   step,
   mutation,
-}: WormholeActionStepProps): ReactElement => {
+}: WormholeStepDisplayProps): ReactElement => {
   const transfers = combineTransfers<Transfer | ProtoTransfer>(step.transfers);
   const involvesEthereum = transfers.some(
     (transfer: ProtoTransfer | Transfer) =>
@@ -220,7 +220,7 @@ const WormholeActionStep = ({
 
       {transfers.map(
         (transfer: ProtoTransfer | Transfer): ReactElement => (
-          <ActionSubStep
+          <SubStepDisplay
             key={transfer.token.id}
             transfer={transfer}
             isComplete={transfer.isComplete || step.isComplete}
@@ -241,17 +241,17 @@ const solanaOperationsStepTitles: ReadonlyRecord<InteractionType, string> = {
   [InteractionType.RemoveExactOutput]: "Remove tokens",
 };
 
-interface SolanaOperationsActionStepProps {
+interface SolanaOperationsStepDisplayProps {
   readonly step: SolanaOperationsStep;
   readonly interaction: Interaction;
   readonly mutation?: Mutation<{ readonly txs: readonly SolanaTx[] }>;
 }
 
-const SolanaOperationsActionStep = ({
+const SolanaOperationsStepDisplay = ({
   interaction,
   step,
   mutation,
-}: SolanaOperationsActionStepProps): ReactElement => {
+}: SolanaOperationsStepDisplayProps): ReactElement => {
   // TODO: Handle this comment...
   // If we found tx via an existing interaction the ID will be available via the step.
   // Otherwise this might be an active interaction and the ID might be available via the mutation.
@@ -275,16 +275,16 @@ const SolanaOperationsActionStep = ({
   );
 };
 
-const ActionStep = (props: StepWithMutation): ReactElement => {
+const StepDisplay = (props: StepWithMutation): ReactElement => {
   switch (props.type) {
     case StepType.CreateSplTokenAccounts:
-      return <CreateSplTokenAccountsActionStep {...props} />;
+      return <CreateSplTokenAccountsStepDisplay {...props} />;
     case StepType.WormholeToSolana:
-      return <WormholeActionStep {...props} />;
+      return <WormholeStepDisplay {...props} />;
     case StepType.SolanaOperations:
-      return <SolanaOperationsActionStep {...props} />;
+      return <SolanaOperationsStepDisplay {...props} />;
     case StepType.WormholeFromSolana:
-      return <WormholeActionStep {...props} />;
+      return <WormholeStepDisplay {...props} />;
     default:
       throw new Error("Step type not supported");
   }
@@ -403,12 +403,12 @@ const buildEuiStepProps = (props: StepWithMutation): EuiStepProps | null => {
         mutation={props.mutation}
       />
     ) : (
-      <ActionStep {...props} />
+      <StepDisplay {...props} />
     ),
   };
 };
 
-export interface ActionStepsProps {
+export interface StepsProps {
   readonly retryInteraction: () => any;
   readonly interaction: Interaction;
   readonly steps: Steps;
@@ -416,13 +416,13 @@ export interface ActionStepsProps {
   readonly mutations?: StepMutations;
 }
 
-export const ActionSteps = ({
+export const StepsDisplay = ({
   retryInteraction,
   interaction,
   steps,
   status,
   mutations,
-}: ActionStepsProps): ReactElement => {
+}: StepsProps): ReactElement => {
   const stepsWithMutations: readonly StepWithMutation[] = [
     {
       type: steps.createSplTokenAccounts.type,

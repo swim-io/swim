@@ -114,6 +114,7 @@ export const useSwapOutputAmountEstimate = (
       outputPoolInputToken,
     } = routeSwap(inputPoolTokens, outputPoolTokens, toToken);
 
+    // Calculate input pool output amount
     let inputPoolOutputAmount: Amount | null = null;
     try {
       switch (inputPoolInstruction) {
@@ -159,6 +160,7 @@ export const useSwapOutputAmountEstimate = (
       return inputPoolOutputAmount;
     }
 
+    // Calculate output pool output amount for multi-pool swaps
     const outputPoolMath = poolMaths[1];
     const outputPoolOutputTokenIndex = outputPoolTokens.tokens.findIndex(
       ({ id }) => id === toToken.id,

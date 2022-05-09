@@ -95,6 +95,8 @@ export const SwapForm = ({
     swappableTokens.find(({ id }) => id === fromTokenId) ?? null;
   const toToken = swappableTokens.find(({ id }) => id === toTokenId) ?? null;
 
+  // We need to know the required pools before we know the amounts in order to calculate the
+  // expected output so we construct a fake interaction here with dummy amounts
   const fakeInteraction: InteractionSpec | null =
     fromToken !== null && toToken !== null
       ? {

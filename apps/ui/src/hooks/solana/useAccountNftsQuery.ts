@@ -4,12 +4,8 @@ import { PublicKey } from "@solana/web3.js";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
-import { Env } from "../../config";
-import {
-  SWIM_NUMBERS_COLLECTION_DEVNET,
-  SWIM_NUMBERS_COLLECTION_MAINNET,
-} from "../../config/nft";
-import { useEnvironment, useSolanaConnection } from "../../contexts";
+import { Protocol } from "../../config";
+import { useConfig, useEnvironment, useSolanaConnection } from "../../contexts";
 
 const {
   metadata: { Metadata },
@@ -27,18 +23,18 @@ export interface NftData {
   readonly attributes: readonly NftAttribute[];
 }
 
-const getNftCollectionAddress = (env: Env): string => {
-  switch (env) {
-    case Env.Mainnet: {
-      return SWIM_NUMBERS_COLLECTION_MAINNET;
-    }
-    case Env.Devnet: {
-      return SWIM_NUMBERS_COLLECTION_DEVNET;
-    }
-    default:
-      throw new Error(`Cannot find nft collection for ${env}.`);
-  }
-};
+// const getNftCollectionAddress = (env: Env): string => {
+//   switch (env) {
+//     case Env.Mainnet: {
+//       return SWIM_NUMBERS_COLLECTION_MAINNET;
+//     }
+//     case Env.Devnet: {
+//       return SWIM_NUMBERS_COLLECTION_DEVNET;
+//     }
+//     default:
+//       throw new Error(`Cannot find nft collection for ${env}.`);
+//   }
+// };
 
 interface uriPayload {
   readonly image: string;
@@ -70,6 +66,9 @@ const fetchNftUri = async (uri: string): Promise<uriPayload> => {
 export const useAccountNfts = (
   ownerAddress: string | null,
 ): UseQueryResult<readonly NftData[], Error> => {
+  const config = useConfig();
+  const otterTotCollection =
+    config.chains[Protocol.Solana][0].otterTotCollection;
   const solanaConnection = useSolanaConnection();
   const { env } = useEnvironment();
   return useQuery(
@@ -84,8 +83,7 @@ export const useAccountNfts = (
         new PublicKey(ownerAddress),
       );
       const userSwimNfts = userNfts.filter(
-        (nftMetadata) =>
-          nftMetadata.collection?.key === getNftCollectionAddress(env),
+        (nftMetadata) => nftMetadata.collection?.key === otterTotCollection,
       );
       const nftData = await Promise.all(
         userSwimNfts.map(async (metadata) => {

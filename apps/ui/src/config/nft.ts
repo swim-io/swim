@@ -1,5 +1,0 @@
-export const SWIM_NUMBERS_COLLECTION_MAINNET =
-  "EpozLY9dQ1jnaU5Wof524K7p9uHYxkuLF2hi32cf8W9s";
-
-export const SWIM_NUMBERS_COLLECTION_DEVNET =
-  "6rVZuenNaw3uECQjMjTLcfrXYKszpESEGi9HZnffJstn";

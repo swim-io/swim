@@ -66,6 +66,7 @@ export interface SolanaSpec extends ChainSpec {
   readonly chainId: SolanaChainId;
   readonly endpoint: string;
   readonly tokenContract: string;
+  readonly otterTotCollection: string;
 }
 
 interface EvmNativeCurrencySpec {
@@ -119,6 +120,7 @@ const mainnetChains: ChainsByProtocol = {
       },
       endpoint: SOLANA_MAINNET_RPC_URL ?? "https://solana-api.projectserum.com",
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      otterTotCollection: "EpozLY9dQ1jnaU5Wof524K7p9uHYxkuLF2hi32cf8W9s",
     },
   ],
   [Protocol.Evm]: [
@@ -159,6 +161,7 @@ const devnetChains: ChainsByProtocol = {
       },
       endpoint: "https://api.devnet.solana.com",
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      otterTotCollection: "6rVZuenNaw3uECQjMjTLcfrXYKszpESEGi9HZnffJstn",
     },
   ],
   [Protocol.Evm]: [
@@ -199,6 +202,7 @@ const localnetChains: ChainsByProtocol = {
       },
       endpoint: "http://127.0.0.1:8899",
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      otterTotCollection: "",
     },
   ],
   [Protocol.Evm]: [

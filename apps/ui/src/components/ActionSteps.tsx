@@ -353,7 +353,7 @@ const getStepTitle = (step: Step): string => {
     case StepType.CreateSplTokenAccounts:
       return "Create Solana accounts";
     case StepType.SolanaOperations:
-      return "Interact with pool(s) on Solana";
+      return "Perform pool operation(s) on Solana";
     case StepType.WormholeToSolana:
       return "Bridge tokens to Solana";
     case StepType.WormholeFromSolana:

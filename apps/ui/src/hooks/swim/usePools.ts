@@ -6,7 +6,7 @@ import type { PoolSpec, TokenSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { useConfig, useSolanaWallet } from "../../contexts";
 import type { SwimPoolState } from "../../models";
-import { findTokenAccountForMint } from "../../models";
+import { findTokenAccountForMint, getPoolUsdValue } from "../../models";
 import { findOrThrow, isNotNull } from "../../utils";
 import { useLiquidityQueries, useSplTokenAccountsQuery } from "../solana";
 
@@ -52,6 +52,11 @@ const constructPool = (
         )
       : null;
 
+  const poolUsdValue =
+    poolTokenAccounts !== null
+      ? getPoolUsdValue(tokens, poolTokenAccounts)
+      : null;
+
   return {
     spec: poolSpec,
     nativeEcosystems,
@@ -61,8 +66,7 @@ const constructPool = (
     poolLpMint,
     poolTokenAccounts,
     userLpTokenAccount,
-    // TODO: Add this?
-    poolUsdValue: null,
+    poolUsdValue,
     isPoolPaused: poolState?.isPaused ?? false,
   };
 };

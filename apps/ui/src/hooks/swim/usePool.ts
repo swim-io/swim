@@ -2,13 +2,13 @@ import type {
   MintInfo,
   AccountInfo as TokenAccountInfo,
 } from "@solana/spl-token";
-import Decimal from "decimal.js";
+import type Decimal from "decimal.js";
 
-import type { PoolSpec, TokenSpec } from "../../config";
-import { EcosystemId, getSolanaTokenDetails } from "../../config";
+import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
+import { getSolanaTokenDetails } from "../../config";
 import { useConfig, useSolanaWallet } from "../../contexts";
 import type { SwimPoolState } from "../../models";
-import { Amount, findTokenAccountForMint } from "../../models";
+import { findTokenAccountForMint, getPoolUsdValue } from "../../models";
 import { findOrThrow, isEachNotNull, isNotNull } from "../../utils";
 import { useLiquidityQuery, useSplTokenAccountsQuery } from "../solana";
 
@@ -77,26 +77,9 @@ export const usePool = (poolId: string): PoolData => {
         )
       : null;
 
-  // Approximate pool USD value
   const poolUsdValue =
-    poolTokenAccounts && tokens.every((tokenSpec) => tokenSpec.isStablecoin)
-      ? poolTokenAccounts.reduce((acc, account) => {
-          const tokenSpec = tokens.find(
-            (spec) =>
-              spec.detailsByEcosystem.get(EcosystemId.Solana)?.address ===
-              account.mint.toBase58(),
-          );
-          if (!tokenSpec) {
-            throw new Error("Token spec not found");
-          }
-          return acc.add(
-            Amount.fromU64(
-              tokenSpec,
-              account.amount,
-              EcosystemId.Solana,
-            ).toHuman(EcosystemId.Solana),
-          );
-        }, new Decimal(0))
+    poolTokenAccounts !== null
+      ? getPoolUsdValue(tokens, poolTokenAccounts)
       : null;
 
   return {

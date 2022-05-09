@@ -1,10 +1,12 @@
+import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { Keypair } from "@solana/web3.js";
+import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { filterMap, findOrThrow } from "../../utils";
-import type { Amount } from "../amount";
+import { Amount } from "../amount";
 
 import type { InteractionSpec } from "./interaction";
 import { InteractionType } from "./interaction";
@@ -192,3 +194,25 @@ export const getConnectedWallets = (
     },
   );
 };
+
+export const getPoolUsdValue = (
+  tokens: readonly TokenSpec[],
+  poolTokenAccounts: readonly TokenAccount[],
+): Decimal | null =>
+  tokens.every((tokenSpec) => tokenSpec.isStablecoin)
+    ? poolTokenAccounts.reduce((acc, account) => {
+        const tokenSpec = tokens.find(
+          (spec) =>
+            spec.detailsByEcosystem.get(EcosystemId.Solana)?.address ===
+            account.mint.toBase58(),
+        );
+        if (!tokenSpec) {
+          throw new Error("Token spec not found");
+        }
+        return acc.add(
+          Amount.fromU64(tokenSpec, account.amount, EcosystemId.Solana).toHuman(
+            EcosystemId.Solana,
+          ),
+        );
+      }, new Decimal(0))
+    : null;

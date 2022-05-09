@@ -30,9 +30,11 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   // "Type `redeem` to redeem your otter."
   const redeemPassword = "redeem";
   const [passwordInput, setPasswordInput] = useState("");
-  const onRedeemInput = (e: ChangeEvent<HTMLInputElement>): void => {
-    setRedeemInput(e.target.value);
+  const onRedeemInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setPasswordInput(e.target.value);
   };
+  // TODO: Query redeemer to set nft value.
+  const nftValue = 100;
 
   const showRedeemModal = (): void => {
     setIsRedeemModalVisible(true);
@@ -109,18 +111,15 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
           confirmButtonText="Redeem"
           cancelButtonText="Cancel"
           buttonColor="danger"
-          confirmButtonDisabled={redeemInput.toLowerCase() !== redeemPassword}
+          confirmButtonDisabled={passwordInput.toLowerCase() !== redeemPassword}
         >
           <EuiFormRow
-            // TODO: Set value of NFT. This will need to be a query.
-            label={
-              `Type the word "${redeemPassword}" to redeem for ??? SWIM tokens`
-            }
+            label={`Type the word "${redeemPassword}" to redeem for ${nftValue} SWIM tokens`}
           >
             <EuiFieldText
               name="delete"
-              value={redeemInput}
-              onChange={onRedeemInput}
+              value={passwordInput}
+              onChange={onRedeemInputChange}
             />
           </EuiFormRow>
         </EuiConfirmModal>

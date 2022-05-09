@@ -30,7 +30,7 @@ export interface NftData {
   readonly attributes: readonly NftAttribute[];
 }
 
-const getNftCollectionId = (env: Env): string => {
+const getNftCollectionAddress = (env: Env): string => {
   switch (env) {
     case Env.Mainnet: {
       return SWIM_NUMBERS_COLLECTION_MAINNET;
@@ -57,7 +57,7 @@ export const useAccountNfts = (
         solanaConnection.rawConnection,
         new PublicKey(ownerAddress),
       )
-    ).filter((md) => md.collection?.key === getNftCollectionId(env));
+    ).filter((md) => md.collection?.key === getNftCollectionAddress(env));
     const nftData = await Promise.all(
       rawNftData.map(async (metadata) => {
         const uriPayload: MetadataJson = await fetch(metadata.data.uri).then(

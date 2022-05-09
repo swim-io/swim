@@ -113,7 +113,7 @@ export const SwapForm = ({
     : [];
   const poolIds = requiredPools.map((pool) => pool.id);
   const pools = usePools(poolIds);
-  const isPaused = useMemo(
+  const isRequiredPoolPaused = useMemo(
     () => pools.some((pool) => pool.isPoolPaused),
     [pools],
   );
@@ -628,7 +628,7 @@ export const SwapForm = ({
         </>
       )}
 
-      <PoolPausedAlert isVisible={isPaused} />
+      <PoolPausedAlert isVisible={isRequiredPoolPaused} />
 
       <EuiFormRow fullWidth>
         <EuiButton
@@ -636,7 +636,7 @@ export const SwapForm = ({
           fullWidth
           fill
           isLoading={isInteractionInProgress}
-          isDisabled={isPaused || isSubmitted}
+          isDisabled={isRequiredPoolPaused || isSubmitted}
         >
           Swap
         </EuiButton>

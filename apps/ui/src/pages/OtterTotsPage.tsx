@@ -16,7 +16,7 @@ import type { ReactElement } from "react";
 
 import {
   AlternatingFeaturettes,
-  ConvolutedButton,
+  IsWhitelistedButton,
   NftFaqAccordians,
   NftRoadmap,
 } from "../components/OtterTotsLandingPageComponents";
@@ -71,7 +71,7 @@ const OtterTotsPage = (): ReactElement => {
                 <EuiButton fill={true}>Learn More</EuiButton>
               </EuiFlexItem>
               <EuiFlexItem>
-                <ConvolutedButton />
+                <IsWhitelistedButton />
               </EuiFlexItem>
             </EuiFlexGrid>
             <EuiSpacer />

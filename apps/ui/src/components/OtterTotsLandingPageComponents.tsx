@@ -123,8 +123,7 @@ export const AlternatingFeaturettes = (): readonly ReactElement[] => {
   });
 };
 
-// TODO: Change name
-export const ConvolutedButton = (): ReactElement => {
+export const IsWhitelistedButton = (): ReactElement => {
   const [isPressed, setIsPressed] = useState(false);
   const isWhiteListed = true; // TODO: This should be a hook (queries our whitelist somewhere)
   const buttonText = !isPressed

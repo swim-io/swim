@@ -416,6 +416,7 @@ export const updatePoolOperations = (
     ...previousState.steps.doPoolOperations.txs,
     ...operationTxs,
   ]);
+  // TODO: Improve check when retry is supported
   if (deduplicatedTxs.length < poolSpecs.length) {
     return {
       ...previousState,

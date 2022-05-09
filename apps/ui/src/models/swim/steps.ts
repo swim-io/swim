@@ -688,7 +688,7 @@ export const getRequiredPools = (
       return [inputPool, outputPool];
     }
     default:
-      throw new Error("Unknown interaction kind");
+      throw new Error("Unknown interaction type");
   }
 };
 

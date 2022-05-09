@@ -62,12 +62,19 @@ const getEvmTokenIdAndBalance = (
   tokenSpec: TokenSpec,
   ecosystemId: EcosystemId,
   balances: readonly UseQueryResult<Decimal | null, Error>[],
-  i: number,
+  contractAddresses: readonly string[],
 ): readonly [string, Amount | null] => {
-  if (!balances[i]) {
+  const address = tokenSpec.detailsByEcosystem.get(ecosystemId)?.address;
+  if (!address) {
     return [tokenSpec.id, null];
   }
-  const { data: balance = null } = balances[i];
+  const index = contractAddresses.findIndex(
+    (contractAddress) => contractAddress === address,
+  );
+  if (!balances[index]) {
+    return [tokenSpec.id, null];
+  }
+  const { data: balance = null } = balances[index];
   return [
     tokenSpec.id,
     balance !== null
@@ -124,7 +131,7 @@ export const useMultipleUserBalances = (
             tokenSpec,
             EcosystemId.Ethereum,
             ethereumBalances,
-            i,
+            ethereum,
           );
         }
         case EcosystemId.Bsc: {
@@ -132,7 +139,7 @@ export const useMultipleUserBalances = (
             tokenSpec,
             EcosystemId.Bsc,
             bscBalances,
-            i,
+            bsc,
           );
         }
         case EcosystemId.Avalanche: {
@@ -140,7 +147,7 @@ export const useMultipleUserBalances = (
             tokenSpec,
             EcosystemId.Avalanche,
             avalancheBalances,
-            i,
+            avalanche,
           );
         }
         case EcosystemId.Polygon: {
@@ -148,7 +155,7 @@ export const useMultipleUserBalances = (
             tokenSpec,
             EcosystemId.Polygon,
             polygonBalances,
-            i,
+            polygon,
           );
         }
         default:

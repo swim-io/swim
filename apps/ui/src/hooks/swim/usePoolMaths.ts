@@ -73,3 +73,5 @@ export const usePoolMaths = (
   const pools = usePools(poolIds);
   return pools.map(getPoolMath);
 };
+
+export const usePoolMath = (poolId: string) => usePoolMaths([poolId])[0];

@@ -95,7 +95,8 @@ export const useSwapOutputAmountEstimate = (
 ): Amount | null =>
   useMemo<Amount | null>(() => {
     if (
-      ![1, 2].includes(poolMaths.length) ||
+      poolMaths.length < 1 ||
+      poolMaths.length > 2 ||
       !isEachNotNull(poolMaths) ||
       inputPoolTokens === null ||
       outputPoolTokens === null ||

@@ -1,7 +1,7 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { Keypair } from "@solana/web3.js";
 
-import type { EcosystemId, Env, PoolSpec } from "../../config";
+import type { Env, PoolSpec } from "../../config";
+import { EcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { Amount } from "../amount";
 
@@ -227,6 +227,7 @@ export const createOperationSpecs = (
         ];
       }
 
+      // TODO: Generalize to other routes
       const hexapoolId = "hexapool";
       const inputPoolIsHexapool = inputPool.id === hexapoolId;
       const outputPoolIsHexapool = outputPool.id === hexapoolId;
@@ -251,9 +252,12 @@ export const createOperationSpecs = (
             poolId: outputPool.id,
             instruction: SwimDefiInstruction.Swap,
             params: {
-              // TODO: Handle input amounts
               exactInputAmounts: outputPoolTokens.tokens.map((token) =>
-                Amount.zero(token),
+                // NOTE: This will be overriden when we know the correct amount
+                // For now we set the amount to 1 to distinguish it from the others
+                token.id === inputPoolTokens.lpToken.id
+                  ? Amount.fromAtomicString(token, "1", EcosystemId.Solana)
+                  : Amount.zero(token),
               ),
               outputTokenIndex: outputPoolTokens.tokens.findIndex(
                 (token) => token.id === minimumOutputAmount.tokenId,
@@ -287,7 +291,7 @@ export const createOperationSpecs = (
             poolId: outputPool.id,
             instruction: SwimDefiInstruction.RemoveExactBurn,
             params: {
-              // TODO: Handle burn amount
+              // NOTE: This will be overriden when we know the correct amount
               exactBurnAmount: Amount.zero(outputPoolTokens.lpToken),
               outputTokenIndex: outputPoolTokens.tokens.findIndex(
                 (token) => token.id === outputTokenId,
@@ -326,9 +330,12 @@ export const createOperationSpecs = (
           poolId: outputPool.id,
           instruction: SwimDefiInstruction.Swap,
           params: {
-            // TODO: Handle input amounts
             exactInputAmounts: outputPoolTokens.tokens.map((token) =>
-              Amount.zero(token),
+              // NOTE: This will be overriden when we know the correct amount
+              // For now we set the amount to 1 to distinguish it from the others
+              token.id === inputPoolOutputToken.id
+                ? Amount.fromAtomicString(token, "1", EcosystemId.Solana)
+                : Amount.zero(token),
             ),
             outputTokenIndex: outputPoolTokens.tokens.findIndex(
               (token) => token.id === outputTokenId,

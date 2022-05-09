@@ -22,7 +22,7 @@ const RedeemPage = (): ReactElement => {
   const hasNfts =
     wallets.solana.connected && !isLoading && nfts && nfts.length !== 0;
 
-  const nftStatus = wallets.solana.connected
+  const nftStatus = !wallets.solana.connected
     ? NftStatus.NoWallet
     : isLoading
     ? NftStatus.Loading

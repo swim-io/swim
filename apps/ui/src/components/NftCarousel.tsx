@@ -13,7 +13,6 @@ import type { ChangeEvent, ReactElement } from "react";
 import { useState } from "react";
 // TODO: Replace with more repubtale/battle-tested carousel.
 import Carousel from "react-elastic-carousel";
-// import { Carousel } from "react-responsive-carousel";
 
 import type {
   NftAttribute,
@@ -25,6 +24,24 @@ import "./NftCarousel.scss";
 export interface NftCarouselProps {
   readonly nfts: readonly NftData[];
 }
+
+const rarityColumns = [
+  {
+    field: "traitType",
+    name: "Trait Type",
+  },
+  {
+    field: "value",
+    name: "Trait",
+  },
+  {
+    field: "rarity",
+    name: "Rarity",
+    render: (rarityNumber: any) => {
+      return "🔥".repeat(rarityNumber);
+    },
+  },
+];
 
 export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
@@ -38,9 +55,7 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   // TODO: Query redeemer to set nft value.
   const nftValue = 100;
 
-  const showRedeemModal = (): void => {
-    setIsRedeemModalVisible(true);
-  };
+  const showRedeemModal = setIsRedeemModalVisible.bind(null, true);
 
   const hideRedeemModal = (): void => {
     setIsRedeemModalVisible(false);
@@ -52,42 +67,14 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
     console.log("this would destroy the NFT.");
   };
 
-  const columns = [
-    {
-      field: "traitType",
-      name: "Trait Type",
-    },
-    {
-      field: "value",
-      name: "Trait",
-    },
-    {
-      field: "rarity",
-      name: "Rarity",
-      render: (rarityNumber: any) => {
-        return "🔥".repeat(rarityNumber);
-      },
-    },
-  ];
-
-  const cardFooterContent = (
-    <EuiFlexGroup justifyContent="flexEnd">
-      <EuiFlexItem grow={false}>
-        <EuiButton onClick={showRedeemModal}>Redeem</EuiButton>
-      </EuiFlexItem>
-    </EuiFlexGroup>
+  const generateTable = (attributes: readonly NftAttribute[]): ReactElement => (
+    <EuiBasicTable
+      tableCaption="Nft Traits"
+      columns={rarityColumns}
+      items={[...attributes]}
+      rowHeader="traitType"
+    />
   );
-
-  const generateTable = (attributes: readonly NftAttribute[]): ReactElement => {
-    return (
-      <EuiBasicTable
-        tableCaption="Nft Traits"
-        columns={columns}
-        items={[...attributes]}
-        rowHeader="traitType"
-      />
-    );
-  };
 
   return (
     <>
@@ -107,7 +94,11 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
                   </EuiText>
                 </EuiFlexItem>
                 <EuiFlexItem>{generateTable(nft.attributes)}</EuiFlexItem>
-                <EuiFlexItem>{cardFooterContent}</EuiFlexItem>
+              </EuiFlexGroup>
+              <EuiFlexGroup justifyContent="flexEnd">
+                <EuiFlexItem grow={false}>
+                  <EuiButton onClick={showRedeemModal}>Redeem</EuiButton>
+                </EuiFlexItem>
               </EuiFlexGroup>
             </div>
           );
@@ -127,7 +118,7 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
             label={`Type the word "${redeemPassword}" to redeem for ${nftValue} SWIM tokens`}
           >
             <EuiFieldText
-              name="delete"
+              name="redeem"
               value={passwordInput}
               onChange={onRedeemInputChange}
             />

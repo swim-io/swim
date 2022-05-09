@@ -141,7 +141,7 @@ const setOutputOperationInputAmount = (
         (amount) => !amount.isZero(),
       );
       const mintAddress = getSolanaTokenDetails(inputAmount.tokenSpec).address;
-      const decimalAmount = getTransferredAmount(
+      const transferredAmount = getTransferredAmount(
         inputOperationSpec,
         mintAddress,
         walletAddress,
@@ -150,7 +150,7 @@ const setOutputOperationInputAmount = (
       );
       const newInputAmount = Amount.fromAtomic(
         inputAmount.tokenSpec,
-        decimalAmount,
+        transferredAmount,
         EcosystemId.Solana,
       );
       return {
@@ -166,7 +166,7 @@ const setOutputOperationInputAmount = (
     case SwimDefiInstruction.RemoveExactBurn: {
       const inputAmount = outputOperationSpec.params.exactBurnAmount;
       const mintAddress = getSolanaTokenDetails(inputAmount.tokenSpec).address;
-      const decimalAmount = getTransferredAmount(
+      const transferredAmount = getTransferredAmount(
         inputOperationSpec,
         mintAddress,
         walletAddress,
@@ -175,7 +175,7 @@ const setOutputOperationInputAmount = (
       );
       const newInputAmount = Amount.fromAtomic(
         inputAmount.tokenSpec,
-        decimalAmount,
+        transferredAmount,
         EcosystemId.Solana,
       );
       return {
@@ -192,7 +192,7 @@ const setOutputOperationInputAmount = (
         (amount) => !amount.isZero(),
       );
       const mintAddress = getSolanaTokenDetails(inputAmount.tokenSpec).address;
-      const decimalAmount = getTransferredAmount(
+      const transferredAmount = getTransferredAmount(
         inputOperationSpec,
         mintAddress,
         walletAddress,
@@ -201,7 +201,7 @@ const setOutputOperationInputAmount = (
       );
       const newInputAmount = Amount.fromAtomic(
         inputAmount.tokenSpec,
-        decimalAmount,
+        transferredAmount,
         EcosystemId.Solana,
       );
       return {

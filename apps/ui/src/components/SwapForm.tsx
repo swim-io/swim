@@ -115,10 +115,7 @@ export const SwapForm = ({
     : [];
   const poolIds = requiredPools.map((pool) => pool.id);
   const pools = usePools(poolIds);
-  const isRequiredPoolPaused = useMemo(
-    () => pools.some((pool) => pool.isPoolPaused),
-    [pools],
-  );
+  const isRequiredPoolPaused = pools.some((pool) => pool.isPoolPaused);
   const poolMaths = usePoolMaths(poolIds);
   const inputPool = requiredPools.find(Boolean) ?? null;
   const outputPool =

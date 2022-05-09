@@ -5,7 +5,7 @@ import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import { Amount, PoolMath } from "../../models";
 import { isEachNotNull } from "../../utils";
 
-import type { PoolData } from "./usePool";
+import type { PoolData } from "./usePools";
 import { usePools } from "./usePools";
 
 const getPoolMath = ({

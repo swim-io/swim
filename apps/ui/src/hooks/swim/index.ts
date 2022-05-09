@@ -1,7 +1,6 @@
 export * from "./useAddFeesEstimationQuery";
 export * from "./useEvmTxFeesEstimateQuery";
 export * from "./useEvmTxFeesEstimates";
-export * from "./useInstructor";
 export * from "./usePool";
 export * from "./usePoolMath";
 export * from "./usePoolMaths";

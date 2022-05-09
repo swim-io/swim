@@ -93,3 +93,6 @@ export const useInstructors = (
     [env, pools, solanaConnection, solanaWallet, splTokenAccounts],
   );
 };
+
+export const useInstructor = (poolId: string): SwimDefiInstructor | null =>
+  useInstructors([poolId])[0];

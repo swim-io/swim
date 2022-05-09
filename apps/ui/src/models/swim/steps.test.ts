@@ -522,8 +522,8 @@ describe("Swim steps", () => {
   describe("createSteps", () => {
     const chainsConfig: ChainsByProtocol = chains[Env.Localnet];
     const poolContractAddress: string = pools[Env.Localnet][0].contract;
-    const amounts = ["0", "1.111", "0", "3333.3", "2", "2", "0"].map(
-      (amount, i) => Amount.fromHumanString(poolTokens[i], amount),
+    const amounts = ["0", "1.111", "0", "3333.3", "2", "0"].map((amount, i) =>
+      Amount.fromHumanString(poolTokens[i], amount),
     );
 
     const signatureSetKeypairs = poolTokens.reduce(

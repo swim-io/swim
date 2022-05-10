@@ -353,7 +353,7 @@ export const createOperationSpecs = (
       const inputPoolOutputToken =
         inputPoolTokens.tokens[inputPoolOutputTokenIndex];
       const outputPoolInputIndex = outputPoolTokens.tokens.findIndex(
-        (token) => token.id === inputPool.lpToken,
+        (token) => token.id === inputPoolOutputToken.id,
       );
       const minimumOutputAmounts = outputPoolTokens.tokens.map((token) =>
         token.id === minimumOutputAmount.tokenId

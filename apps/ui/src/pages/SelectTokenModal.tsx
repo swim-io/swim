@@ -38,9 +38,8 @@ export const SelectTokenModal = ({
   closeModal,
   setSelectedToken,
 }: SelectTokenProps): ReactElement => {
-  // eslint-disable-next-line functional/prefer-readonly-type
-  const allSelectableTokenOptions: SelectableOption[] = tokenOptions.map(
-    (tokenOption) => {
+  const allSelectableTokenOptions: readonly SelectableOption[] =
+    tokenOptions.map((tokenOption) => {
       return {
         label: `${tokenOption.value}`,
         searchableLabel: `${tokenOption.value}`,
@@ -48,8 +47,7 @@ export const SelectTokenModal = ({
           tokenOption: tokenOption,
         },
       };
-    },
-  );
+    });
 
   const renderToken = (option: SelectableOption) => {
     return option.data.tokenOption.inputDisplay;
@@ -75,15 +73,13 @@ export const SelectTokenModal = ({
     allSelectableTokenOptions,
   );
 
-  const selectOption = (newOptions: SelectableOption[]) => {
-    const selectedToken = newOptions.find(
-      (option) => option.checked === "on",
-    );
+  const selectOption = (newOptions: readonly SelectableOption[]) => {
+    const selectedToken = newOptions.find((option) => option.checked === "on");
     if (selectedToken) {
       setSelectedToken(selectedToken.data.tokenOption.value);
       closeModal();
     }
-  }
+  };
 
   useEffect(() => {
     if (ecosystemOption === "all") {
@@ -125,7 +121,7 @@ export const SelectTokenModal = ({
           <EuiFlexItem>
             <EuiSelectable
               searchable
-              options={selectableTokenOptions}
+              options={[...selectableTokenOptions]}
               singleSelection="always"
               onChange={selectOption}
               renderOption={renderToken}

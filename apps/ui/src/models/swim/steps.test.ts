@@ -696,7 +696,7 @@ describe("Swim steps", () => {
         env: Env.Localnet,
         poolId: "test-pool",
         submittedAt: 1646408146771,
-        signatureSetKeypairs,
+        signatureSetKeypairs: { [poolTokens[3].id]: keypair },
         previousSignatureSetAddresses: {},
         connectedWallets: {
           [EcosystemId.Solana]: defaultSolanaWalletAddress,
@@ -739,7 +739,7 @@ describe("Swim steps", () => {
         env: Env.Localnet,
         poolId: "test-pool",
         submittedAt: 1646408146771,
-        signatureSetKeypairs,
+        signatureSetKeypairs: { [poolTokens[3].id]: keypair },
         previousSignatureSetAddresses: {},
         connectedWallets: {
           [EcosystemId.Solana]: defaultSolanaWalletAddress,

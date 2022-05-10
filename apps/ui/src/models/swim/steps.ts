@@ -116,14 +116,14 @@ export const getRequiredTokens = (
     case SwimDefiInstruction.Add:
       return [
         ...tokens.filter(
-          (_, i) => !interaction.params.inputAmounts[i].isZero(),
+          (_, i) => !interaction.params.inputAmounts[i]?.isZero(),
         ),
         lpToken,
       ];
     case SwimDefiInstruction.RemoveUniform:
       return [
         ...tokens.filter(
-          (_, i) => !interaction.params.minimumOutputAmounts[i].isZero(),
+          (_, i) => !interaction.params.minimumOutputAmounts[i]?.isZero(),
         ),
         lpToken,
       ];
@@ -135,14 +135,14 @@ export const getRequiredTokens = (
     case SwimDefiInstruction.RemoveExactOutput:
       return [
         ...tokens.filter(
-          (_, i) => !interaction.params.exactOutputAmounts[i].isZero(),
+          (_, i) => !interaction.params.exactOutputAmounts[i]?.isZero(),
         ),
         lpToken,
       ];
     case SwimDefiInstruction.Swap:
       return tokens.filter(
         (_, i) =>
-          !interaction.params.exactInputAmounts[i].isZero() ||
+          !interaction.params.exactInputAmounts[i]?.isZero() ||
           i === interaction.params.outputTokenIndex,
       );
     default:
@@ -577,6 +577,7 @@ export const createSteps = (
       : [],
     [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
   };
+
   switch (interaction.instruction) {
     case SwimDefiInstruction.Add:
       return createAddSteps(

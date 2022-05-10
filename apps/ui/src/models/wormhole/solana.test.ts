@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { PublicKey } from "@solana/web3.js";
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";

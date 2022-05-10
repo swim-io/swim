@@ -428,7 +428,9 @@ export const AddForm = ({
     if (
       splTokenAccounts === null ||
       minimumMintAmount === null ||
-      !inputAmounts.every(isNotNull)
+      !inputAmounts.every(isNotNull) ||
+      maxSlippageFraction === null ||
+      poolMath === null
     ) {
       notify(
         "Form error",
@@ -441,6 +443,7 @@ export const AddForm = ({
     const interactionId = startInteraction({
       type: InteractionType.Add,
       poolId: poolSpec.id,
+      poolMaths: [poolMath],
       params: {
         inputAmounts: inputAmounts.reduce(
           (amountsByTokenId, amount) =>

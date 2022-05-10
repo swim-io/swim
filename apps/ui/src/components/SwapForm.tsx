@@ -41,7 +41,12 @@ import {
   getRequiredPools,
   getTokensByPool,
 } from "../models";
-import { defaultIfError, findOrThrow, isNotNull } from "../utils";
+import {
+  defaultIfError,
+  findOrThrow,
+  isEachNotNull,
+  isNotNull,
+} from "../utils";
 
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
@@ -101,6 +106,7 @@ export const SwapForm = ({
     fromToken !== null && toToken !== null
       ? {
           type: InteractionType.Swap,
+          poolMaths: [],
           params: {
             exactInputAmounts: new Map([
               [fromTokenId, Amount.fromHumanString(fromToken, "1")],
@@ -392,7 +398,8 @@ export const SwapForm = ({
       splTokenAccounts === null ||
       exactInputAmounts === null ||
       outputAmount === null ||
-      maxSlippageFraction === null
+      maxSlippageFraction === null ||
+      !isEachNotNull(poolMaths)
     ) {
       notify(
         "Form error",
@@ -415,6 +422,7 @@ export const SwapForm = ({
     );
     const interactionId = startInteraction({
       type: InteractionType.Swap,
+      poolMaths,
       params: {
         exactInputAmounts: exactInputAmounts.reduce(
           (amountsByTokenId, amount) =>

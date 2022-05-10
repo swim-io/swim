@@ -1,4 +1,5 @@
 import type { Keypair } from "@solana/web3.js";
+import type Decimal from "decimal.js";
 
 import type { Env, PoolSpec } from "../../config";
 import { EcosystemId } from "../../config";
@@ -8,6 +9,7 @@ import { Amount } from "../amount";
 import { SwimDefiInstruction } from "./instructions";
 import type { OperationSpec } from "./operation";
 import type { TokensByPoolId } from "./pool";
+import type { PoolMath } from "./poolMath";
 
 export type AmountsByTokenId = ReadonlyMap<string, Amount>;
 
@@ -25,6 +27,7 @@ export enum InteractionType {
 
 interface BaseInteractionSpec {
   readonly type: InteractionType;
+  readonly poolMaths: readonly PoolMath[];
   /** Should be overriden when extending this type */
   readonly params: unknown;
 }
@@ -130,7 +133,7 @@ export const createOperationSpecs = (
   poolSpecs: readonly PoolSpec[],
   interaction: Interaction,
 ): readonly OperationSpec[] => {
-  const { id: interactionId } = interaction;
+  const { id: interactionId, poolMaths } = interaction;
   const inputPool = poolSpecs[0];
   const outputPool = poolSpecs[poolSpecs.length - 1];
   const inputPoolTokens = tokensByPoolId[inputPool.id];
@@ -227,12 +230,36 @@ export const createOperationSpecs = (
         ];
       }
 
+      if (poolMaths.length !== 2) {
+        throw new Error("Missing pool math");
+      }
       // TODO: Generalize to other routes
       const hexapoolId = "hexapool";
       const inputPoolIsHexapool = inputPool.id === hexapoolId;
       const outputPoolIsHexapool = outputPool.id === hexapoolId;
+      const outputPoolMath = poolMaths[1];
 
+      // add-then-swap
       if (inputPoolIsHexapool) {
+        const inputIndex = outputPoolTokens.tokens.findIndex(
+          (token) => token.id === inputPool.lpToken,
+        );
+        const minimumOutputAmounts = outputPoolTokens.tokens.map((token) =>
+          token.id === minimumOutputAmount.tokenId
+            ? minimumOutputAmount
+            : Amount.zero(token),
+        );
+        const { stableInputAmount } = outputPoolMath.swapExactOutput(
+          inputIndex,
+          minimumOutputAmounts.map((amount) =>
+            amount.toHuman(EcosystemId.Solana),
+          ),
+        );
+        const minimumMintAmount = Amount.fromAtomic(
+          inputPoolTokens.lpToken,
+          stableInputAmount,
+          EcosystemId.Solana,
+        );
         return [
           {
             interactionId,
@@ -243,8 +270,7 @@ export const createOperationSpecs = (
                 (token) =>
                   exactInputAmounts.get(token.id) ?? Amount.zero(token),
               ),
-              // TODO: Handle min amount if multiple txs
-              minimumMintAmount: Amount.zero(inputPoolTokens.lpToken),
+              minimumMintAmount,
             },
           },
           {
@@ -268,7 +294,23 @@ export const createOperationSpecs = (
         ];
       }
 
+      // swap-then-remove
       if (outputPoolIsHexapool) {
+        const minimumOutputAmounts = outputPoolTokens.tokens.map((token) =>
+          token.id === minimumOutputAmount.tokenId
+            ? minimumOutputAmount
+            : Amount.zero(token),
+        );
+        const { lpInputAmount } = outputPoolMath.removeExactOutput(
+          minimumOutputAmounts.map((amount) =>
+            amount.toHuman(EcosystemId.Solana),
+          ),
+        );
+        const inputPoolMinimumOutputAmount = Amount.fromAtomic(
+          outputPoolTokens.lpToken,
+          lpInputAmount,
+          EcosystemId.Solana,
+        );
         return [
           {
             interactionId,
@@ -282,8 +324,7 @@ export const createOperationSpecs = (
               outputTokenIndex: inputPoolTokens.tokens.findIndex(
                 (token) => token.id === outputPool.lpToken,
               ),
-              // TODO: Handle min amount if multiple txs
-              minimumOutputAmount: Amount.zero(outputPoolTokens.lpToken),
+              minimumOutputAmount: inputPoolMinimumOutputAmount,
             },
           },
           {
@@ -302,7 +343,7 @@ export const createOperationSpecs = (
         ];
       }
 
-      //  Metapool to metapool
+      // swap-then-swap (Metapool to metapool)
       const inputPoolOutputTokenIndex = inputPoolTokens.tokens.findIndex(
         (inputPoolToken) =>
           outputPoolTokens.tokens.some(
@@ -311,6 +352,25 @@ export const createOperationSpecs = (
       );
       const inputPoolOutputToken =
         inputPoolTokens.tokens[inputPoolOutputTokenIndex];
+      const outputPoolInputIndex = outputPoolTokens.tokens.findIndex(
+        (token) => token.id === inputPool.lpToken,
+      );
+      const minimumOutputAmounts = outputPoolTokens.tokens.map((token) =>
+        token.id === minimumOutputAmount.tokenId
+          ? minimumOutputAmount
+          : Amount.zero(token),
+      );
+      const { stableInputAmount } = outputPoolMath.swapExactOutput(
+        outputPoolInputIndex,
+        minimumOutputAmounts.map((amount) =>
+          amount.toHuman(EcosystemId.Solana),
+        ),
+      );
+      const minimumInputPoolOutputAmount = Amount.fromAtomic(
+        inputPoolTokens.lpToken,
+        stableInputAmount,
+        EcosystemId.Solana,
+      );
       return [
         {
           interactionId,
@@ -321,8 +381,7 @@ export const createOperationSpecs = (
               (token) => exactInputAmounts.get(token.id) ?? Amount.zero(token),
             ),
             outputTokenIndex: inputPoolOutputTokenIndex,
-            // TODO: Handle min amount if multiple txs
-            minimumOutputAmount: Amount.zero(inputPoolOutputToken),
+            minimumOutputAmount: minimumInputPoolOutputAmount,
           },
         },
         {

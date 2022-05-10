@@ -505,7 +505,8 @@ export const RemoveForm = ({
       !splTokenAccounts ||
       maxSlippageFraction === null ||
       !isEachNotNull(outputAmounts) ||
-      (method === RemoveMethod.ExactBurn && outputTokenIndex === -1)
+      (method === RemoveMethod.ExactBurn && outputTokenIndex === -1) ||
+      poolMath === null
     ) {
       notify(
         "Form error",
@@ -523,6 +524,7 @@ export const RemoveForm = ({
         const interactionId = startInteraction({
           type: InteractionType.RemoveUniform,
           poolId: poolSpec.id,
+          poolMaths: [poolMath],
           params: {
             exactBurnAmount,
             minimumOutputAmounts: minimumOutputAmounts.reduce(
@@ -544,6 +546,7 @@ export const RemoveForm = ({
         const interactionId = startInteraction({
           type: InteractionType.RemoveExactBurn,
           poolId: poolSpec.id,
+          poolMaths: [poolMath],
           params: {
             exactBurnAmount,
             outputTokenId: poolTokens[outputTokenIndex].id,
@@ -561,6 +564,7 @@ export const RemoveForm = ({
         const interactionId = startInteraction({
           type: InteractionType.RemoveExactOutput,
           poolId: poolSpec.id,
+          poolMaths: [poolMath],
           params: {
             maximumBurnAmount,
             exactOutputAmounts: outputAmounts.reduce(

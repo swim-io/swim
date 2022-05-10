@@ -71,6 +71,7 @@ export const isLockSplTx = (
   ) {
     return false;
   }
+
   return token.nativeEcosystem === EcosystemId.Solana
     ? getAmountTransferredFromAccount(
         parsedTx,

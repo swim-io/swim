@@ -1,5 +1,4 @@
 import type { Keypair } from "@solana/web3.js";
-import type Decimal from "decimal.js";
 
 import type { Env, PoolSpec } from "../../config";
 import { EcosystemId } from "../../config";

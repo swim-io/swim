@@ -10,7 +10,6 @@ import {
   EuiFormRow,
   EuiLink,
   EuiSpacer,
-  EuiSuperSelect,
   EuiText,
 } from "@elastic/eui";
 import type Decimal from "decimal.js";
@@ -37,6 +36,7 @@ import {
   SwimDefiInstruction,
   getLowBalanceWallets,
 } from "../models";
+import { SelectTokenModal } from "../pages/SelectTokenModal";
 import { defaultIfError, isNotNull } from "../utils";
 
 import { ActionSteps } from "./ActionSteps";
@@ -401,21 +401,32 @@ export const SwapForm = ({
     handleSwapAndCatch(true);
   };
 
+  const [isFromTokenModalOpen, setIsFromTokenModalOpen] = useState(false);
+  const [isToTokenModalOpen, setIsToTokenModalOpen] = useState(false);
+
+  const closeFromTokenModal = (): void => setIsFromTokenModalOpen(false);
+  const openFromTokenModal = (): void => setIsFromTokenModalOpen(true);
+  const closeToTokenModal = (): void => setIsToTokenModalOpen(false);
+  const openToTokenModal = (): void => setIsToTokenModalOpen(true);
   return (
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
       <EuiSpacer />
 
       <EuiFlexGroup>
-        <EuiFlexItem grow={2}>
+        <EuiFlexItem>
           <EuiFormRow hasEmptyLabelSpace>
-            <EuiSuperSelect
-              name="fromToken"
-              options={fromTokenOptions}
-              valueOfSelected={fromTokenId}
-              onChange={setFromTokenId}
-              itemLayoutAlign="top"
-              disabled={isInteractionInProgress}
-            />
+            <>
+              <EuiButton style={{ width: "100%" }} onClick={openFromTokenModal}>
+                {fromToken && <NativeTokenIcon {...fromToken} />}
+              </EuiButton>
+              {isFromTokenModalOpen && (
+                <SelectTokenModal
+                  closeModal={closeFromTokenModal}
+                  setSelectedToken={setFromTokenId}
+                  tokenOptions={fromTokenOptions}
+                ></SelectTokenModal>
+              )}
+            </>
           </EuiFormRow>
         </EuiFlexItem>
         <EuiFlexItem>
@@ -501,16 +512,20 @@ export const SwapForm = ({
       />
 
       <EuiFlexGroup>
-        <EuiFlexItem grow={2}>
+        <EuiFlexItem>
           <EuiFormRow hasEmptyLabelSpace>
-            <EuiSuperSelect
-              name="toToken"
-              options={toTokenOptions}
-              valueOfSelected={toTokenId}
-              onChange={setToTokenId}
-              itemLayoutAlign="top"
-              disabled={isInteractionInProgress}
-            />
+            <>
+              <EuiButton style={{ width: "100%" }} onClick={openToTokenModal}>
+                {toToken && <NativeTokenIcon {...toToken} />}
+              </EuiButton>
+              {isToTokenModalOpen && (
+                <SelectTokenModal
+                  closeModal={closeToTokenModal}
+                  setSelectedToken={setToTokenId}
+                  tokenOptions={toTokenOptions}
+                ></SelectTokenModal>
+              )}
+            </>
           </EuiFormRow>
         </EuiFlexItem>
         <EuiFlexItem>

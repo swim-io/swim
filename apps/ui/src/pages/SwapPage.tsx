@@ -55,7 +55,7 @@ const SwapPage = (): ReactElement => {
   );
 
   return (
-    <EuiPage restrictWidth={800} className="swapPage">
+    <EuiPage restrictWidth={650} className="swapPage">
       <EuiPageBody>
         <EuiPageContent verticalPosition="center">
           <EuiPageContentBody>

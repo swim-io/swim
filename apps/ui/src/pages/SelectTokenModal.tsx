@@ -55,7 +55,6 @@ export const SelectTokenModal = ({
     return option.data.tokenOption.inputDisplay;
   };
 
-  //   const ecosystems = ecosystems
   const ecosystemOptions = (() => {
     const options = Object.entries(ecosystems).map(
       ([ecosystemId, ecosystem]) => {
@@ -75,6 +74,16 @@ export const SelectTokenModal = ({
   const [selectableTokenOptions, setSelectableTokenOptions] = useState(
     allSelectableTokenOptions,
   );
+
+  const selectOption = (newOptions: SelectableOption[]) => {
+    const selectedToken = newOptions.find(
+      (option) => option.checked === "on",
+    );
+    if (selectedToken) {
+      setSelectedToken(selectedToken.data.tokenOption.value);
+      closeModal();
+    }
+  }
 
   useEffect(() => {
     if (ecosystemOption === "all") {
@@ -118,15 +127,7 @@ export const SelectTokenModal = ({
               searchable
               options={selectableTokenOptions}
               singleSelection="always"
-              onChange={(newOptions) => {
-                const selectedToken = newOptions.find(
-                  (option) => option.checked === "on",
-                );
-                if (selectedToken) {
-                  setSelectedToken(selectedToken.data.tokenOption.value);
-                  closeModal();
-                }
-              }}
+              onChange={selectOption}
               renderOption={renderToken}
             >
               {(list, search) => (

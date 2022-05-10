@@ -10,14 +10,14 @@ import { parsedSwimSwapTx } from "../../fixtures/solana/txs";
 import { Amount } from "../amount";
 import type { SolanaTx } from "../crossEcosystem";
 
-import {
+import type {
   AddInteraction,
-  InteractionType,
   RemoveExactBurnInteraction,
   RemoveExactOutputInteraction,
   RemoveUniformInteraction,
   SwapInteraction,
 } from "./interaction";
+import { InteractionType } from "./interaction";
 import type {
   Steps,
   TxsByStep,
@@ -315,25 +315,22 @@ describe("Swim steps", () => {
         [...interaction.params.inputAmounts.values()],
         interaction.signatureSetKeypairs,
       );
-      expect(result.wormholeToSolana.transfers.tokens).toEqual(
-        inputTransfersRes,
-      );
+      expect(result.wormholeToSolana.transfers).toEqual({
+        type: TransferType.Tokens,
+        tokens: inputTransfersRes,
+      });
     });
     it("generates a wormhole-from-Solana transfer for the LP token", () => {
-      expect(result["wormholeFromSolana"].transfers.type).toEqual(
-        TransferType.LpToken,
-      );
-    });
-    it("generates a wormhole-from-Solana transfer", () => {
       const resLpOutProtoTransfer = generateLpOutProtoTransfer(
         interaction.id,
         lpToken,
         interaction.lpTokenTargetEcosystem,
       );
 
-      expect(result.wormholeFromSolana.transfers.lpToken).toEqual(
-        resLpOutProtoTransfer,
-      );
+      expect(result["wormholeFromSolana"].transfers).toEqual({
+        type: TransferType.LpToken,
+        lpToken: resLpOutProtoTransfer,
+      });
     });
   });
 
@@ -368,12 +365,14 @@ describe("Swim steps", () => {
       expect(result.createSplTokenAccounts.mints).toEqual(mints);
       expect(result.createSplTokenAccounts.isComplete).toBeFalsy();
       expect(result.wormholeToSolana.isComplete).toBeFalsy();
-      expect(result.wormholeToSolana.transfers.tokens).toEqual(
-        inputTransfersRes,
-      );
-      expect(result.wormholeFromSolana.transfers.tokens).toEqual(
-        resSingleOutputT,
-      );
+      expect(result.wormholeToSolana.transfers).toEqual({
+        type: TransferType.Tokens,
+        tokens: inputTransfersRes,
+      });
+      expect(result.wormholeFromSolana.transfers).toEqual({
+        type: TransferType.Tokens,
+        tokens: resSingleOutputT,
+      });
       expect(result.wormholeFromSolana.knownAmounts).toBe(false);
       expect(result.doPoolOperations.isComplete).toBe(false);
     });
@@ -470,9 +469,10 @@ describe("Swim steps", () => {
       );
 
       expect(result.createSplTokenAccounts.mints).toEqual(mints);
-      expect(result.wormholeToSolana.transfers.lpToken).toEqual(
-        resLpInTransfer,
-      );
+      expect(result.wormholeToSolana.transfers).toEqual({
+        type: TransferType.LpToken,
+        lpToken: resLpInTransfer,
+      });
     });
   });
   describe("createRemoveExactOutputSteps", () => {
@@ -530,13 +530,15 @@ describe("Swim steps", () => {
       );
 
       expect(result["createSplTokenAccounts"].mints).toEqual(mints);
-      expect(result["wormholeToSolana"].transfers.lpToken).toEqual(
-        resGenerateLpInTransfer,
-      );
+      expect(result["wormholeToSolana"].transfers).toEqual({
+        type: TransferType.LpToken,
+        lpToken: resGenerateLpInTransfer,
+      });
       expect(result["wormholeFromSolana"].knownAmounts).toBeTruthy();
-      expect(result["wormholeFromSolana"].transfers.tokens).toEqual(
-        resOutputTransfer,
-      );
+      expect(result["wormholeFromSolana"].transfers).toEqual({
+        type: TransferType.Tokens,
+        tokens: resOutputTransfer,
+      });
     });
   });
   describe("createSteps", () => {

@@ -19,7 +19,7 @@ export type TokenOption = {
   readonly inputDisplay: ReactElement;
 };
 export interface SelectTokenProps {
-  readonly tokenOptions: TokenOption[];
+  readonly tokenOptions: readonly TokenOption[];
   readonly closeModal: () => void;
   readonly setSelectedToken: (value: string) => void;
 }
@@ -38,8 +38,9 @@ export const SelectTokenModal = ({
   closeModal,
   setSelectedToken,
 }: SelectTokenProps): ReactElement => {
-  const allSelectableTokenOptions: SelectableOption[] =
-    tokenOptions.map((tokenOption) => {
+  // eslint-disable-next-line functional/prefer-readonly-type
+  const allSelectableTokenOptions: SelectableOption[] = tokenOptions.map(
+    (tokenOption) => {
       return {
         label: `${tokenOption.value}`,
         searchableLabel: `${tokenOption.value}`,
@@ -47,7 +48,8 @@ export const SelectTokenModal = ({
           tokenOption: tokenOption,
         },
       };
-    });
+    },
+  );
 
   const renderToken = (option: SelectableOption) => {
     return option.data.tokenOption.inputDisplay;

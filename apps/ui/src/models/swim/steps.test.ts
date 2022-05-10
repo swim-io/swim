@@ -222,7 +222,7 @@ describe("Swim steps", () => {
         "LPTufpWWSucDqq1hib8vxj1uJxTh2bkE7ZTo65LH4J2", // "localnet-solana-lp-hexapool"
       ]);
     });
-    it("should throw an error if Solana wallet is not connected", () => {
+    it("throws an error if Solana wallet is not connected", () => {
       const interaction: SwapInteraction = {
         ...swapInteraction,
         connectedWallets: {
@@ -277,11 +277,11 @@ describe("Swim steps", () => {
       );
     });
 
-    it("generate steps for add instruction type", () => {
+    it("generates steps for add interaction", () => {
       expect(result["createSplTokenAccounts"].isComplete).toBeFalsy();
       expect(result["wormholeToSolana"].isComplete).toBeFalsy();
     });
-    it("have found mint tokens", () => {
+    it("finds missing token mints", () => {
       const mints = findMissingSplTokenAccountMints(
         defaultSplTokenAccounts,
         poolTokens,
@@ -290,7 +290,7 @@ describe("Swim steps", () => {
       );
       expect(result.createSplTokenAccounts.mints).toEqual(mints);
     });
-    it("have generated transfer tokens", () => {
+    it("generates required wormhole-to-Solana transfers", () => {
       const inputTransfersRes = generateInputTransfers(
         interaction.id,
         defaultSplTokenAccounts,
@@ -302,12 +302,12 @@ describe("Swim steps", () => {
         inputTransfersRes,
       );
     });
-    it("have LPToken tranfer type", () => {
+    it("generates a wormhole-from-Solana transfer for the LP token", () => {
       expect(result["wormholeFromSolana"].transfers.type).toEqual(
         TransferType.LpToken,
       );
     });
-    it("generate lpToken", () => {
+    it("generates a wormhole-from-Solana transfer", () => {
       const resLpOutProtoTransfer = generateLpOutProtoTransfer(
         interaction.id,
         lpToken,
@@ -321,7 +321,7 @@ describe("Swim steps", () => {
   });
 
   describe("createSwapSteps", () => {
-    it("generate steps for swap interaction type", () => {
+    it("generates steps for swap interaction", () => {
       const result = createSwapSteps(
         defaultSplTokenAccounts,
         poolTokens,
@@ -392,7 +392,7 @@ describe("Swim steps", () => {
       interaction,
       txsByStep,
     );
-    it("should generate steps for RemoveUniform interaction type", () => {
+    it("generates steps for remove uniform interaction", () => {
       const mints = findMissingSplTokenAccountMints(
         defaultSplTokenAccounts,
         poolTokens,
@@ -435,7 +435,7 @@ describe("Swim steps", () => {
       interaction,
       txsByStep,
     );
-    it("should generate steps for RemoveExactBurn interaction type", () => {
+    it("generates steps for remove exact burn interaction", () => {
       const mints = findMissingSplTokenAccountMints(
         defaultSplTokenAccounts,
         poolTokens,
@@ -457,7 +457,7 @@ describe("Swim steps", () => {
     });
   });
   describe("createRemoveExactOutputSteps", () => {
-    it("should generate steps for removeExactOutput interaction type", () => {
+    it("generates steps for remove exact output interaction", () => {
       const interaction: RemoveExactOutputInteraction = {
         id: defaultInteractionId,
         env: Env.Localnet,
@@ -558,7 +558,7 @@ describe("Swim steps", () => {
       [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
     };
 
-    describe("createSteps - createAddSteps", () => {
+    describe("add", () => {
       let addInteraction: AddInteraction;
       beforeEach(() => {
         addInteraction = {
@@ -598,7 +598,7 @@ describe("Swim steps", () => {
           );
         expect(getResult).toThrowError(/Missing Solana wallet/i);
       });
-      it("throws an error, if there is no signature set keypair", () => {
+      it("throws an error if there is no signature set keypair", () => {
         const interactionWithWallet: AddInteraction = {
           ...addInteraction,
           connectedWallets: {
@@ -618,7 +618,7 @@ describe("Swim steps", () => {
           );
         expect(getResult).toThrowError(/Missing signature set key pair/i);
       });
-      it("returns Add steps interaction", () => {
+      it("returns result of createAddSteps", () => {
         const interactionWithWallet: AddInteraction = {
           ...addInteraction,
           signatureSetKeypairs,
@@ -647,7 +647,7 @@ describe("Swim steps", () => {
         expect(result).toEqual(expected);
       });
     });
-    describe("createSteps - createSwapSteps", () => {
+    describe("swap", () => {
       const swapInteraction2: SwapInteraction = {
         id: defaultInteractionId,
         env: Env.Localnet,
@@ -690,7 +690,7 @@ describe("Swim steps", () => {
         expect(result).toEqual(expected);
       });
     });
-    describe("createSteps - createRemoveUniformSteps", () => {
+    describe("remove uniform", () => {
       const removeUniformInteraction: RemoveUniformInteraction = {
         id: defaultInteractionId,
         env: Env.Localnet,
@@ -733,7 +733,7 @@ describe("Swim steps", () => {
         expect(result).toEqual(expected);
       });
     });
-    describe("createSteps - createRemoveExactBurnSteps", () => {
+    describe("remove exact burn", () => {
       const removeExactBurnInteraction: RemoveExactBurnInteraction = {
         id: defaultInteractionId,
         env: Env.Localnet,
@@ -777,7 +777,7 @@ describe("Swim steps", () => {
         expect(result).toEqual(expected);
       });
     });
-    describe("createSteps - createRemoveExactOutputSteps", () => {
+    describe("remove exact output", () => {
       const removeExactOutputInteraction: RemoveExactOutputInteraction = {
         id: defaultInteractionId,
         env: Env.Localnet,

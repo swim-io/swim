@@ -572,7 +572,7 @@ export class SwimDefiInstructor {
           return ixs;
         }
         const userTokenAccount = this.userTokenAccounts[i];
-        if (userTokenAccount.equals(PublicKey.default)) {
+        if (userTokenAccount.equals(this.stateAccount)) {
           throw new Error("Missing user token account");
         }
         const ix = this.createApproveTokenIx(

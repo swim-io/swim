@@ -112,6 +112,7 @@ export const getCurrentState = (
       splTokenAccounts,
       existingTransferToTxs: transferToTxs,
     });
+  const poolOperationTxs = findPoolOperationTxs(requiredPools, txs);
   const maybeTransferredToSolanaState:
     | CreatedSplTokenAccountsState
     | TransferredToSolanaState = updateTransferToSolana(
@@ -120,12 +121,12 @@ export const getCurrentState = (
     {
       type: ActionType.UpdateTransferToSolana,
       txs: transferToTxs,
+      existingPoolOperationTxs: poolOperationTxs,
     },
   );
   if (maybeTransferredToSolanaState.status !== Status.TransferredToSolana) {
     return maybeTransferredToSolanaState;
   }
-  const poolOperationTxs = findPoolOperationTxs(requiredPools, txs);
   const transferFromTxs = getTransferFromTxs(
     config.chains,
     walletAddress,

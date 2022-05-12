@@ -15,7 +15,12 @@ import type { SwimError } from "../../errors";
 import type { ReadonlyRecord } from "../../utils";
 import { findOrThrow } from "../../utils";
 import { Amount } from "../amount";
-import type { SolanaTx, Tx, TxsByTokenId } from "../crossEcosystem";
+import type {
+  SolanaTx,
+  Tx,
+  TxsByPoolId,
+  TxsByTokenId,
+} from "../crossEcosystem";
 import {
   deduplicateTxs,
   deduplicateTxsByTokenId,
@@ -142,11 +147,12 @@ export interface CompleteCreateSplTokenAccountsAction {
 export interface UpdateTransferToSolanaAction {
   readonly type: ActionType.UpdateTransferToSolana;
   readonly txs: TxsByTokenId;
+  readonly existingPoolOperationTxs: TxsByPoolId;
 }
 
 export interface UpdatePoolOperationsAction {
   readonly type: ActionType.UpdatePoolOperations;
-  readonly operationTxs: readonly SolanaTx[];
+  readonly operationTxs: TxsByPoolId;
   readonly existingTransferFromTxs: TxsByTokenId;
 }
 
@@ -302,7 +308,7 @@ const updateTransfersToSolanaStatus = <T extends Transfer>(
 export const updateTransferToSolana = (
   solanaChain: SolanaSpec,
   previousState: State,
-  { txs }: UpdateTransferToSolanaAction,
+  { txs, existingPoolOperationTxs }: UpdateTransferToSolanaAction,
 ): CreatedSplTokenAccountsState | TransferredToSolanaState => {
   if (previousState.status === Status.TransferredToSolana) {
     return previousState;
@@ -341,6 +347,10 @@ export const updateTransferToSolana = (
         isComplete,
         transfers: updatedTransfers,
         txs: deduplicatedTxs,
+      },
+      doPoolOperations: {
+        ...previousState.steps.doPoolOperations,
+        txs: existingPoolOperationTxs,
       },
     },
   };
@@ -412,19 +422,44 @@ export const updatePoolOperations = (
     throw new Error("Missing Solana wallet");
   }
 
-  const deduplicatedTxs = deduplicateTxs<SolanaTx>([
+  const deduplicatedTxsByPoolId: TxsByPoolId = Object.entries({
     ...previousState.steps.doPoolOperations.txs,
     ...operationTxs,
-  ]);
-  // TODO: Improve check when retry is supported
-  if (deduplicatedTxs.length < poolSpecs.length) {
+  }).reduce(
+    (deduplicated, [poolId, previousTxs]) => ({
+      ...deduplicated,
+      [poolId]: deduplicateTxs<SolanaTx>([
+        ...(previousTxs ?? []),
+        ...(operationTxs[poolId] ?? []),
+      ]),
+    }),
+    {},
+  );
+
+  const newOperations = previousState.interaction.operations.map(
+    (operation, i) => {
+      const txsForPool = deduplicatedTxsByPoolId[operation.poolId];
+      // TODO: Make check more robust
+      const isComplete = txsForPool !== undefined && txsForPool.length > 0;
+      return {
+        ...operation,
+        isComplete,
+      };
+    },
+  );
+  const stepIsComplete = newOperations.every(
+    (operation) => operation.isComplete,
+  );
+
+  if (!stepIsComplete) {
     return {
       ...previousState,
       steps: {
         ...previousState.steps,
         doPoolOperations: {
           ...previousState.steps.doPoolOperations,
-          txs: deduplicatedTxs,
+          operations: newOperations,
+          txs: deduplicatedTxsByPoolId,
         },
       },
     };
@@ -438,7 +473,9 @@ export const updatePoolOperations = (
     previousState.splTokenAccounts,
     tokens,
     lpToken,
-    operationTxs,
+    Object.values(operationTxs)
+      .flat()
+      .filter((tx): tx is SolanaTx => tx !== undefined),
   );
   const { transfers } = previousState.steps.wormholeFromSolana;
   const newTransfers: Transfers<Transfer> =
@@ -476,8 +513,9 @@ export const updatePoolOperations = (
       ...previousState.steps,
       doPoolOperations: {
         ...previousState.steps.doPoolOperations,
+        operations: newOperations,
         isComplete: true,
-        txs: operationTxs,
+        txs: deduplicatedTxsByPoolId,
       },
       wormholeFromSolana: previousState.steps.wormholeFromSolana.knownAmounts
         ? {

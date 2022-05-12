@@ -10,7 +10,13 @@ import type {
 import type { ReadonlyRecord } from "../../utils";
 import { findOrThrow } from "../../utils";
 import { Amount } from "../amount";
-import type { SolanaTx, Tx, TxsByTokenId } from "../crossEcosystem";
+import type {
+  SolanaTx,
+  Tx,
+  TxsByPoolId,
+  TxsByTokenId,
+} from "../crossEcosystem";
+import { isSolanaTx } from "../crossEcosystem";
 import { findTokenAccountForMint } from "../solana";
 import { isTransferFromTx, isTransferToTx } from "../wormhole";
 
@@ -71,8 +77,10 @@ export interface WormholeToSolanaStep extends BaseStep {
 
 export interface SolanaOperationsStep extends BaseStep {
   readonly type: StepType.SolanaOperations;
-  readonly operations: readonly OperationSpec[];
-  readonly txs: readonly SolanaTx[];
+  readonly operations: readonly (OperationSpec & {
+    readonly isComplete: boolean;
+  })[];
+  readonly txs: TxsByPoolId;
 }
 
 export interface WormholeFromSolanaFullStep extends BaseStep {
@@ -109,7 +117,7 @@ export type Steps<F extends WormholeFromSolanaStep = WormholeFromSolanaStep> = {
 export interface TxsByStep {
   readonly [StepType.CreateSplTokenAccounts]: readonly SolanaTx[];
   readonly [StepType.WormholeToSolana]: TxsByTokenId;
-  readonly [StepType.SolanaOperations]: readonly SolanaTx[];
+  readonly [StepType.SolanaOperations]: TxsByPoolId;
   readonly [StepType.WormholeFromSolana]: TxsByTokenId;
 }
 
@@ -275,7 +283,10 @@ export const createAddSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
-      operations,
+      operations: operations.map((operation) => ({
+        ...operation,
+        isComplete: false,
+      })),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -341,7 +352,10 @@ export const createRemoveUniformSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
-      operations,
+      operations: operations.map((operation) => ({
+        ...operation,
+        isComplete: false,
+      })),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -414,7 +428,10 @@ export const createRemoveExactBurnSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
-      operations,
+      operations: operations.map((operation) => ({
+        ...operation,
+        isComplete: false,
+      })),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -481,7 +498,10 @@ export const createRemoveExactOutputSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
-      operations,
+      operations: operations.map((operation) => ({
+        ...operation,
+        isComplete: false,
+      })),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -560,7 +580,10 @@ export const createSwapSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
-      operations,
+      operations: operations.map((operation) => ({
+        ...operation,
+        isComplete: false,
+      })),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -613,10 +636,26 @@ export const getTransferToTxs = (
 export const findPoolOperationTxs = (
   poolSpecs: readonly PoolSpec[],
   txs: readonly Tx[],
-): readonly SolanaTx[] =>
-  txs.filter<SolanaTx>((tx): tx is SolanaTx =>
-    poolSpecs.some((poolSpec) => isPoolTx(poolSpec.id, tx)),
-  );
+): TxsByPoolId =>
+  txs.reduce<TxsByPoolId>((txsByPoolId, tx) => {
+    if (!isSolanaTx(tx)) {
+      return txsByPoolId;
+    }
+    const poolSpec =
+      poolSpecs.find(
+        ({ address, contract }) =>
+          isPoolTx(contract, tx) &&
+          tx.parsedTx.transaction.message.accountKeys.some(
+            (key) => key.pubkey.toBase58() === address,
+          ),
+      ) ?? null;
+    return poolSpec === null
+      ? txsByPoolId
+      : {
+          ...txsByPoolId,
+          [poolSpec.id]: [...(txsByPoolId[poolSpec.id] ?? []), tx],
+        };
+  }, {});
 
 export const getTransferFromTxs = (
   chainsConfig: ChainsByProtocol,

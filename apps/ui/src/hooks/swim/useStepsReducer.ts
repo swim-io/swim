@@ -24,6 +24,7 @@ import {
   getRequiredPools,
   getSignatureSetAddresses,
   getTokensByPool,
+  groupTxsByPoolId,
   groupTxsByTokenId,
   initialState,
   isInProgress,
@@ -36,11 +37,11 @@ import type {
   Interaction,
   InteractionSpec,
   PoolMath,
-  SolanaTx,
   State,
   Transfer,
   TransfersToSolanaWithExistingTxs,
   TransfersWithExistingTxs,
+  TxWithPoolId,
   TxWithTokenId,
   WithSplTokenAccounts,
 } from "../../models";
@@ -70,7 +71,7 @@ export interface StepMutations {
   >;
   readonly doPoolOperations: UseAsyncGeneratorResult<
     WithSplTokenAccounts<PoolOperationsInput>,
-    SolanaTx
+    TxWithPoolId
   >;
   readonly wormholeFromSolana: UseAsyncGeneratorResult<
     WithSplTokenAccounts<TransfersWithExistingTxs>,
@@ -302,6 +303,7 @@ export const useStepsReducer = (
         return dispatch({
           type: ActionType.UpdateTransferToSolana,
           txs: txsByTokenId,
+          existingPoolOperationTxs: {},
         });
       }
       case Status.TransferredToSolana: {
@@ -323,11 +325,14 @@ export const useStepsReducer = (
             interaction,
             operations: steps.doPoolOperations.operations,
             splTokenAccounts,
+            existingTxs: steps.doPoolOperations.txs,
           });
         }
+
+        const txsByPoolId = groupTxsByPoolId(txs);
         return dispatch({
           type: ActionType.UpdatePoolOperations,
-          operationTxs: txs,
+          operationTxs: txsByPoolId,
           existingTransferFromTxs: {},
         });
       }

@@ -27,7 +27,7 @@ const createToast = (
   title: ReactChild,
   text: ReactChild = "",
   level: NotificationLevel = "info",
-  lifetime = 15000,
+  lifetime = 10000,
 ): EuiGlobalToastListToast => ({
   id: `toast${Math.random()}`,
   title: title,

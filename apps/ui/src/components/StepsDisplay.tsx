@@ -22,11 +22,11 @@ import type {
   Interaction,
   ProtoTransfer,
   SolanaOperationsStep,
-  SolanaTx,
   Step,
   Steps,
   Transfer,
   Tx,
+  TxWithPoolId,
   TxsByTokenId,
   WormholeFromSolanaStep,
   WormholeToSolanaStep,
@@ -68,7 +68,7 @@ type StepWithMutation =
       readonly interaction: Interaction;
       readonly step: SolanaOperationsStep;
       readonly retryInteraction: () => any;
-      readonly mutation?: Mutation<{ readonly txs: readonly SolanaTx[] }>;
+      readonly mutation?: Mutation<{ readonly txs: readonly TxWithPoolId[] }>;
     }
   | {
       readonly type: StepType.WormholeFromSolana;
@@ -244,7 +244,7 @@ const solanaOperationsStepTitles: ReadonlyRecord<InteractionType, string> = {
 interface SolanaOperationsStepDisplayProps {
   readonly step: SolanaOperationsStep;
   readonly interaction: Interaction;
-  readonly mutation?: Mutation<{ readonly txs: readonly SolanaTx[] }>;
+  readonly mutation?: Mutation<{ readonly txs: readonly TxWithPoolId[] }>;
 }
 
 const SolanaOperationsStepDisplay = ({
@@ -252,11 +252,8 @@ const SolanaOperationsStepDisplay = ({
   step,
   mutation,
 }: SolanaOperationsStepDisplayProps): ReactElement => {
-  // TODO: Handle this comment...
-  // If we found tx via an existing interaction the ID will be available via the step.
-  // Otherwise this might be an active interaction and the ID might be available via the mutation.
-
   const { txs } = step;
+  const txsList = interaction.poolIds.flatMap((poolId) => txs[poolId] ?? []);
   return (
     <>
       <MutationStatus
@@ -264,9 +261,9 @@ const SolanaOperationsStepDisplay = ({
         isComplete={step.isComplete}
         mutation={mutation}
       />
-      {txs.length > 0 && (
+      {txsList.length > 0 && (
         <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-          {txs.map((tx) => (
+          {txsList.map((tx) => (
             <TxListItem key={tx.txId} {...tx} />
           ))}
         </EuiListGroup>

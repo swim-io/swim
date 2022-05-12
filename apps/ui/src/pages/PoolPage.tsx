@@ -39,7 +39,6 @@ import {
 } from "../hooks";
 import BSC_SVG from "../images/bsc.svg";
 import ETHEREUM_SVG from "../images/ethereum.svg";
-import { SwimDefiInstruction } from "../models";
 import { defaultIfError, pluralize } from "../utils";
 
 const humanizeUsdAmount = (amount: string): string =>
@@ -85,11 +84,7 @@ export const PoolPageInner = ({
   const [currentInteraction, setCurrentInteraction] = useState<string | null>(
     null,
   );
-  const [instructions, setInstructions] = useState<
-    readonly SwimDefiInstruction[]
-  >([SwimDefiInstruction.Add]);
-  const isAdd =
-    instructions.length === 1 && instructions[0] === SwimDefiInstruction.Add;
+  const [isAdd, setIsAdd] = useState(true);
   const { showPrompt: showRegisterEthereumTokenPrompt } = useRegisterErc20Token(
     EcosystemId.Ethereum,
   );
@@ -231,15 +226,7 @@ export const PoolPageInner = ({
               },
             ]}
             onTabClick={({ id }) => {
-              const newInstructions =
-                id === "add"
-                  ? [SwimDefiInstruction.Add]
-                  : [
-                      SwimDefiInstruction.RemoveUniform,
-                      SwimDefiInstruction.RemoveExactBurn,
-                      SwimDefiInstruction.RemoveExactOutput,
-                    ];
-              setInstructions(newInstructions);
+              setIsAdd(id === "add");
             }}
           />
         </EuiFlexItem>

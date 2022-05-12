@@ -313,10 +313,12 @@ const localnetChains: ChainsByProtocol = {
 export const allUniqueChains = {
   [Protocol.Solana]: [
     ...mainnetChains[Protocol.Solana],
+    ...devnetChains[Protocol.Solana],
     ...localnetChains[Protocol.Solana],
   ],
   [Protocol.Evm]: [
     ...mainnetChains[Protocol.Evm],
+    ...devnetChains[Protocol.Evm],
     ...localnetChains[Protocol.Evm],
   ],
 };

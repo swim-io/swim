@@ -26,7 +26,6 @@ export enum InteractionType {
 
 interface BaseInteractionSpec {
   readonly type: InteractionType;
-  readonly poolMaths: readonly PoolMath[];
   /** Should be overriden when extending this type */
   readonly params: unknown;
 }
@@ -127,12 +126,17 @@ export type Interaction =
   | RemoveExactOutputInteraction
   | SwapInteraction;
 
+export type WithOperations<T> = T & {
+  readonly operations: readonly OperationSpec[];
+};
+
 export const createOperationSpecs = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
+  poolMaths: readonly PoolMath[],
   interaction: Interaction,
 ): readonly OperationSpec[] => {
-  const { id: interactionId, poolMaths } = interaction;
+  const { id: interactionId } = interaction;
   const inputPool = poolSpecs[0];
   const outputPool = poolSpecs[poolSpecs.length - 1];
   const inputPoolTokens = tokensByPoolId[inputPool.id];

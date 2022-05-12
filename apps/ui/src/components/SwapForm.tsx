@@ -106,7 +106,6 @@ export const SwapForm = ({
     fromToken !== null && toToken !== null
       ? {
           type: InteractionType.Swap,
-          poolMaths: [],
           params: {
             exactInputAmounts: new Map([
               [fromTokenId, Amount.fromHumanString(fromToken, "1")],
@@ -420,19 +419,21 @@ export const SwapForm = ({
     const minimumOutputAmount = outputAmount.sub(
       outputAmount.mul(maxSlippageFraction),
     );
-    const interactionId = startInteraction({
-      type: InteractionType.Swap,
-      poolMaths,
-      params: {
-        exactInputAmounts: exactInputAmounts.reduce(
-          (amountsByTokenId, amount) =>
-            amountsByTokenId.set(amount.tokenId, amount),
-          new Map(),
-        ),
-        outputTokenId: toToken.id,
-        minimumOutputAmount,
+    const interactionId = startInteraction(
+      {
+        type: InteractionType.Swap,
+        params: {
+          exactInputAmounts: exactInputAmounts.reduce(
+            (amountsByTokenId, amount) =>
+              amountsByTokenId.set(amount.tokenId, amount),
+            new Map(),
+          ),
+          outputTokenId: toToken.id,
+          minimumOutputAmount,
+        },
       },
-    });
+      poolMaths,
+    );
     setCurrentInteraction(interactionId);
   };
 

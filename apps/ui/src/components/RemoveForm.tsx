@@ -521,20 +521,22 @@ export const RemoveForm = ({
         const minimumOutputAmounts = outputAmounts.map((amount) =>
           amount.sub(amount.mul(maxSlippageFraction)),
         );
-        const interactionId = startInteraction({
-          type: InteractionType.RemoveUniform,
-          poolId: poolSpec.id,
-          poolMaths: [poolMath],
-          params: {
-            exactBurnAmount,
-            minimumOutputAmounts: minimumOutputAmounts.reduce(
-              (amountsByTokenId, amount) =>
-                amountsByTokenId.set(amount.tokenId, amount),
-              new Map(),
-            ),
+        const interactionId = startInteraction(
+          {
+            type: InteractionType.RemoveUniform,
+            poolId: poolSpec.id,
+            params: {
+              exactBurnAmount,
+              minimumOutputAmounts: minimumOutputAmounts.reduce(
+                (amountsByTokenId, amount) =>
+                  amountsByTokenId.set(amount.tokenId, amount),
+                new Map(),
+              ),
+            },
+            lpTokenSourceEcosystem,
           },
-          lpTokenSourceEcosystem,
-        });
+          [poolMath],
+        );
         setCurrentInteraction(interactionId);
         return;
       }
@@ -543,17 +545,19 @@ export const RemoveForm = ({
         const minimumOutputAmount = outputAmount.sub(
           outputAmount.mul(maxSlippageFraction),
         );
-        const interactionId = startInteraction({
-          type: InteractionType.RemoveExactBurn,
-          poolId: poolSpec.id,
-          poolMaths: [poolMath],
-          params: {
-            exactBurnAmount,
-            outputTokenId: poolTokens[outputTokenIndex].id,
-            minimumOutputAmount,
+        const interactionId = startInteraction(
+          {
+            type: InteractionType.RemoveExactBurn,
+            poolId: poolSpec.id,
+            params: {
+              exactBurnAmount,
+              outputTokenId: poolTokens[outputTokenIndex].id,
+              minimumOutputAmount,
+            },
+            lpTokenSourceEcosystem,
           },
-          lpTokenSourceEcosystem,
-        });
+          [poolMath],
+        );
         setCurrentInteraction(interactionId);
         return;
       }
@@ -561,20 +565,22 @@ export const RemoveForm = ({
         if (maximumBurnAmount === null) {
           throw new Error("LP token estimate not available");
         }
-        const interactionId = startInteraction({
-          type: InteractionType.RemoveExactOutput,
-          poolId: poolSpec.id,
-          poolMaths: [poolMath],
-          params: {
-            maximumBurnAmount,
-            exactOutputAmounts: outputAmounts.reduce(
-              (amountsByTokenId, amount) =>
-                amountsByTokenId.set(amount.tokenId, amount),
-              new Map(),
-            ),
+        const interactionId = startInteraction(
+          {
+            type: InteractionType.RemoveExactOutput,
+            poolId: poolSpec.id,
+            params: {
+              maximumBurnAmount,
+              exactOutputAmounts: outputAmounts.reduce(
+                (amountsByTokenId, amount) =>
+                  amountsByTokenId.set(amount.tokenId, amount),
+                new Map(),
+              ),
+            },
+            lpTokenSourceEcosystem,
           },
-          lpTokenSourceEcosystem,
-        });
+          [poolMath],
+        );
         setCurrentInteraction(interactionId);
         return;
       }

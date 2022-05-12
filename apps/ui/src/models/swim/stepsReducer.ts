@@ -28,7 +28,7 @@ import {
   getAmountTransferredToAccountByMint,
 } from "../solana";
 
-import type { Interaction } from "./interaction";
+import type { Interaction, WithOperations } from "./interaction";
 import type { TokensByPoolId } from "./pool";
 import { getTokensByPool } from "./pool";
 import type { Steps, WormholeFromSolanaFullStep } from "./steps";
@@ -54,7 +54,7 @@ export const enum Status {
 }
 
 interface BaseState {
-  readonly interaction: Interaction | null;
+  readonly interaction: WithOperations<Interaction> | null;
   readonly status: Status;
   // isFresh allows us to distinguish between a state which has just been initiated and a state which failed at the first step
   readonly isFresh: boolean;
@@ -69,7 +69,7 @@ export interface InitialState extends BaseState {
 }
 
 export interface StateWithSteps extends BaseState {
-  readonly interaction: Interaction;
+  readonly interaction: WithOperations<Interaction>;
   readonly steps: Steps;
 }
 
@@ -129,7 +129,7 @@ export interface InitiateInteractionAction {
   readonly type: ActionType.InitiateInteraction;
   readonly config: Config;
   readonly splTokenAccounts: readonly TokenAccountInfo[];
-  readonly interaction: Interaction;
+  readonly interaction: WithOperations<Interaction>;
   readonly txs: readonly Tx[];
 }
 
@@ -611,7 +611,7 @@ const clearError = (
     };
   }
 
-  const interaction: Interaction = {
+  const interaction: WithOperations<Interaction> = {
     ...previousState.interaction,
     signatureSetKeypairs,
     previousSignatureSetAddresses: {

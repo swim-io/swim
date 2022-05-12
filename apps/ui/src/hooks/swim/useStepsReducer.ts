@@ -17,6 +17,7 @@ import {
   InteractionType,
   Status,
   combineTransfers,
+  createOperationSpecs,
   generateId,
   generateSignatureSetKeypairs,
   getConnectedWallets,
@@ -34,6 +35,7 @@ import type {
   InitiateInteractionAction,
   Interaction,
   InteractionSpec,
+  PoolMath,
   SolanaTx,
   State,
   Transfer,
@@ -78,7 +80,10 @@ export interface StepMutations {
 
 export interface StepsReducer {
   readonly state: State;
-  readonly startInteraction: (interactionSpec: InteractionSpec) => string;
+  readonly startInteraction: (
+    interactionSpec: InteractionSpec,
+    poolMaths: readonly PoolMath[],
+  ) => string;
   readonly resumeInteraction: () => Promise<void>;
   readonly retryInteraction: () => void;
   readonly mutations: StepMutations;
@@ -368,7 +373,10 @@ export const useStepsReducer = (
     setActiveInteraction,
   ]);
 
-  const startInteraction = (interactionSpec: InteractionSpec): string => {
+  const startInteraction = (
+    interactionSpec: InteractionSpec,
+    poolMaths: readonly PoolMath[],
+  ): string => {
     const interactionId = generateId();
     const requiredPools = getRequiredPools(config.pools, interactionSpec);
     const inputPool = requiredPools.find(Boolean) ?? null;
@@ -406,14 +414,24 @@ export const useStepsReducer = (
         getSignatureSetAddresses(signatureSetKeypairs),
       connectedWallets,
     };
+    const operations = createOperationSpecs(
+      tokensByPool,
+      requiredPools,
+      poolMaths,
+      interaction,
+    );
+    const interactionWithOperations = {
+      ...interaction,
+      operations,
+    };
     const action: InitiateInteractionAction = {
       type: ActionType.InitiateInteraction,
       splTokenAccounts,
       config,
-      interaction,
+      interaction: interactionWithOperations,
       txs: [],
     };
-    storeInteraction(env, config, interaction, queryClient);
+    storeInteraction(env, config, interactionWithOperations, queryClient);
     dispatch(action);
     return interactionId;
   };

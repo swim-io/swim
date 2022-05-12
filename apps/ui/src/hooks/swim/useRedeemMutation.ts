@@ -18,7 +18,7 @@ const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
 );
 
 const redeemProgramID = new anchor.web3.PublicKey(
-  "7frYsb48TdaenQpmVxRHgMnNL861aK1aeq6aTkVrUkDt",
+  "Gn4eV6vJJ3vzi2y8ANoKAhiEJT6YimdSxBpn8r1nioq5",
 );
 
 export const xswimMintAccountKey = new anchor.web3.PublicKey(
@@ -58,8 +58,9 @@ export const useRedeemMutation = (
   return useMutation(
     async (): Promise<RpcResponseAndContext<SignatureResult>> => {
 
+      // TODO use xSWIM mint here
       const redeemerMint = new anchor.web3.PublicKey(
-        "A8UVBwvj1XcdP5okoMqkjhCQGLaqQ8iJDYnNxAMbsNNF",
+        "Fh2GmZShyX16LhABEYbd3i1f7fa8CBpLw6eyFEDQ1XkU",
       );
 
       if (!nft || !nft.metadata.collection) {

@@ -20,11 +20,11 @@ import {
   ETHEREUM_WALLET_SERVICES,
   POLYGON_WALLET_SERVICES,
 } from "../models";
+import { useNotificationStore } from "../store/useNotificationStore";
 import type { ReadonlyRecord } from "../utils";
 import { shortenAddress } from "../utils";
 
 import { useEnvironment } from "./environment";
-import { useNotification } from "./notification";
 
 const envToEcosystemToChainId: ReadonlyRecord<
   Env,
@@ -122,7 +122,7 @@ export const EvmWalletProvider = ({
   ecosystemId,
   children,
 }: EvmWalletProviderProps): ReactElement => {
-  const { notify } = useNotification();
+  const notify = useNotificationStore((state) => state.notify);
 
   const { env } = useEnvironment();
   const [connected, setConnected] = useState(false);

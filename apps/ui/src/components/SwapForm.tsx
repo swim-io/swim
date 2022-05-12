@@ -18,7 +18,7 @@ import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
-import { useConfig, useNotification } from "../contexts";
+import { useConfig } from "../contexts";
 import { captureAndWrapException } from "../errors";
 import {
   usePoolMaths,
@@ -41,6 +41,7 @@ import {
   getRequiredPools,
   getTokensByPool,
 } from "../models";
+import { useNotificationStore } from "../store/useNotificationStore";
 import {
   defaultIfError,
   findOrThrow,
@@ -70,7 +71,7 @@ export const SwapForm = ({
 }: SwapFormProps): ReactElement => {
   const config = useConfig();
   const tokensByPool = getTokensByPool(config);
-  const { notify } = useNotification();
+  const notify = useNotificationStore((state) => state.notify);
   const wallets = useWallets();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();

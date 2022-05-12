@@ -19,7 +19,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { PoolSpec, TokenSpec } from "../config";
 import { EcosystemId, ecosystems } from "../config";
-import { useConfig, useNotification } from "../contexts";
+import { useConfig } from "../contexts";
 import { captureAndWrapException } from "../errors";
 import {
   usePool,
@@ -38,6 +38,7 @@ import {
   Status,
   getLowBalanceWallets,
 } from "../models";
+import { useNotificationStore } from "../store/useNotificationStore";
 import type { ReadonlyRecord } from "../utils";
 import {
   defaultIfError,
@@ -132,7 +133,7 @@ export const RemoveForm = ({
     },
   );
 
-  const { notify } = useNotification();
+  const notify = useNotificationStore((state) => state.notify);
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const [outputAmountErrors, setOutputAmountErrors] = useState(

@@ -19,7 +19,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
 import type { PoolSpec, TokenSpec } from "../config";
-import { useConfig, useNotification } from "../contexts";
+import { useConfig } from "../contexts";
 import { captureAndWrapException } from "../errors";
 import {
   useAddFeesEstimationQuery,
@@ -39,6 +39,7 @@ import {
   Status,
   getLowBalanceWallets,
 } from "../models";
+import { useNotificationStore } from "../store/useNotificationStore";
 import { isEachNotNull, isNotNull } from "../utils";
 
 import { ConfirmModal } from "./ConfirmModal";
@@ -176,7 +177,7 @@ export const AddForm = ({
   poolSpec,
   maxSlippageFraction,
 }: AddFormProps): ReactElement => {
-  const { notify } = useNotification();
+  const notify = useNotificationStore((state) => state.notify);
   const config = useConfig();
   const wallets = useWallets();
   const {

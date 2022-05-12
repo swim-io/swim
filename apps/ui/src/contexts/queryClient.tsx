@@ -8,15 +8,14 @@ import {
 import { ReactQueryDevtools } from "react-query/devtools";
 
 import { captureException } from "../errors";
-
-import { useNotification } from "./notification";
+import { useNotificationStore } from "../store/useNotificationStore";
 
 export const QueryClientProvider = ({
   children,
 }: {
   readonly children?: ReactNode;
 }): ReactElement => {
-  const { notify } = useNotification();
+  const notify = useNotificationStore((state) => state.notify);
 
   const queryClient = useMemo(
     () =>

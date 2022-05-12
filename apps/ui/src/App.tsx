@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react";
-import type { ReactElement } from "react";
+import { ReactElement } from "react";
 import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
 
 import "./App.scss";

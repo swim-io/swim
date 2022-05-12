@@ -1,5 +1,4 @@
 import type { Keypair } from "@solana/web3.js";
-import type Decimal from "decimal.js";
 
 import type { Env, PoolSpec } from "../../config";
 import { EcosystemId } from "../../config";
@@ -27,7 +26,6 @@ export enum InteractionType {
 
 interface BaseInteractionSpec {
   readonly type: InteractionType;
-  readonly poolMaths: readonly PoolMath[];
   /** Should be overriden when extending this type */
   readonly params: unknown;
 }
@@ -128,12 +126,17 @@ export type Interaction =
   | RemoveExactOutputInteraction
   | SwapInteraction;
 
+export type WithOperations<T> = T & {
+  readonly operations: readonly OperationSpec[];
+};
+
 export const createOperationSpecs = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
+  poolMaths: readonly PoolMath[],
   interaction: Interaction,
 ): readonly OperationSpec[] => {
-  const { id: interactionId, poolMaths } = interaction;
+  const { id: interactionId } = interaction;
   const inputPool = poolSpecs[0];
   const outputPool = poolSpecs[poolSpecs.length - 1];
   const inputPoolTokens = tokensByPoolId[inputPool.id];
@@ -353,7 +356,7 @@ export const createOperationSpecs = (
       const inputPoolOutputToken =
         inputPoolTokens.tokens[inputPoolOutputTokenIndex];
       const outputPoolInputIndex = outputPoolTokens.tokens.findIndex(
-        (token) => token.id === inputPool.lpToken,
+        (token) => token.id === inputPoolOutputToken.id,
       );
       const minimumOutputAmounts = outputPoolTokens.tokens.map((token) =>
         token.id === minimumOutputAmount.tokenId

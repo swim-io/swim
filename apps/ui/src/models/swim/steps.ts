@@ -10,7 +10,13 @@ import type {
 import type { ReadonlyRecord } from "../../utils";
 import { findOrThrow } from "../../utils";
 import { Amount } from "../amount";
-import type { SolanaTx, Tx, TxsByTokenId } from "../crossEcosystem";
+import type {
+  SolanaTx,
+  Tx,
+  TxsByPoolId,
+  TxsByTokenId,
+} from "../crossEcosystem";
+import { isSolanaTx } from "../crossEcosystem";
 import { findTokenAccountForMint } from "../solana";
 import { isTransferFromTx, isTransferToTx } from "../wormhole";
 
@@ -22,8 +28,9 @@ import type {
   RemoveExactOutputInteraction,
   RemoveUniformInteraction,
   SwapInteraction,
+  WithOperations,
 } from "./interaction";
-import { InteractionType, createOperationSpecs } from "./interaction";
+import { InteractionType } from "./interaction";
 import type { OperationSpec } from "./operation";
 import type { TokensByPoolId } from "./pool";
 import { getTokensByPool, isPoolTx } from "./pool";
@@ -70,8 +77,10 @@ export interface WormholeToSolanaStep extends BaseStep {
 
 export interface SolanaOperationsStep extends BaseStep {
   readonly type: StepType.SolanaOperations;
-  readonly operations: readonly OperationSpec[];
-  readonly txs: readonly SolanaTx[];
+  readonly operations: readonly (OperationSpec & {
+    readonly isComplete: boolean;
+  })[];
+  readonly txs: TxsByPoolId;
 }
 
 export interface WormholeFromSolanaFullStep extends BaseStep {
@@ -108,7 +117,7 @@ export type Steps<F extends WormholeFromSolanaStep = WormholeFromSolanaStep> = {
 export interface TxsByStep {
   readonly [StepType.CreateSplTokenAccounts]: readonly SolanaTx[];
   readonly [StepType.WormholeToSolana]: TxsByTokenId;
-  readonly [StepType.SolanaOperations]: readonly SolanaTx[];
+  readonly [StepType.SolanaOperations]: TxsByPoolId;
   readonly [StepType.WormholeFromSolana]: TxsByTokenId;
 }
 
@@ -229,17 +238,17 @@ export const findMissingSplTokenAccountMints = (
 export const createAddSteps = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
-  interaction: AddInteraction,
+  interaction: WithOperations<AddInteraction>,
   splTokenAccounts: readonly TokenAccount[],
   txsByStep: TxsByStep,
 ): Steps => {
-  const { id: interactionId, params, lpTokenTargetEcosystem } = interaction;
+  const {
+    id: interactionId,
+    params,
+    lpTokenTargetEcosystem,
+    operations,
+  } = interaction;
   const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
-  const operations = createOperationSpecs(
-    tokensByPoolId,
-    poolSpecs,
-    interaction,
-  );
   const missingTokenAccountMints = findMissingSplTokenAccountMints(
     tokensByPoolId,
     poolSpecs,
@@ -274,7 +283,10 @@ export const createAddSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
-      operations,
+      operations: operations.map((operation) => ({
+        ...operation,
+        isComplete: false,
+      })),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -297,17 +309,17 @@ export const createAddSteps = (
 export const createRemoveUniformSteps = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
-  interaction: RemoveUniformInteraction,
+  interaction: WithOperations<RemoveUniformInteraction>,
   splTokenAccounts: readonly TokenAccount[],
   txsByStep: TxsByStep,
 ): Steps => {
-  const { id: interactionId, params, lpTokenSourceEcosystem } = interaction;
+  const {
+    id: interactionId,
+    params,
+    lpTokenSourceEcosystem,
+    operations,
+  } = interaction;
   const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
-  const operations = createOperationSpecs(
-    tokensByPoolId,
-    poolSpecs,
-    interaction,
-  );
   const missingTokenAccountMints = findMissingSplTokenAccountMints(
     tokensByPoolId,
     poolSpecs,
@@ -340,7 +352,10 @@ export const createRemoveUniformSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
-      operations,
+      operations: operations.map((operation) => ({
+        ...operation,
+        isComplete: false,
+      })),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -363,17 +378,17 @@ export const createRemoveUniformSteps = (
 export const createRemoveExactBurnSteps = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
-  interaction: RemoveExactBurnInteraction,
+  interaction: WithOperations<RemoveExactBurnInteraction>,
   splTokenAccounts: readonly TokenAccount[],
   txsByStep: TxsByStep,
 ): Steps => {
-  const { id: interactionId, params, lpTokenSourceEcosystem } = interaction;
+  const {
+    id: interactionId,
+    params,
+    lpTokenSourceEcosystem,
+    operations,
+  } = interaction;
   const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
-  const operations = createOperationSpecs(
-    tokensByPoolId,
-    poolSpecs,
-    interaction,
-  );
   const missingTokenAccountMints = findMissingSplTokenAccountMints(
     tokensByPoolId,
     poolSpecs,
@@ -413,7 +428,10 @@ export const createRemoveExactBurnSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
-      operations,
+      operations: operations.map((operation) => ({
+        ...operation,
+        isComplete: false,
+      })),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -436,17 +454,17 @@ export const createRemoveExactBurnSteps = (
 export const createRemoveExactOutputSteps = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
-  interaction: RemoveExactOutputInteraction,
+  interaction: WithOperations<RemoveExactOutputInteraction>,
   splTokenAccounts: readonly TokenAccount[],
   txsByStep: TxsByStep,
 ): Steps => {
-  const { id: interactionId, params, lpTokenSourceEcosystem } = interaction;
+  const {
+    id: interactionId,
+    params,
+    lpTokenSourceEcosystem,
+    operations,
+  } = interaction;
   const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
-  const operations = createOperationSpecs(
-    tokensByPoolId,
-    poolSpecs,
-    interaction,
-  );
   const missingTokenAccountMints = findMissingSplTokenAccountMints(
     tokensByPoolId,
     poolSpecs,
@@ -480,7 +498,10 @@ export const createRemoveExactOutputSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
-      operations,
+      operations: operations.map((operation) => ({
+        ...operation,
+        isComplete: false,
+      })),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -507,16 +528,11 @@ export const createRemoveExactOutputSteps = (
 export const createSwapSteps = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
-  interaction: SwapInteraction,
+  interaction: WithOperations<SwapInteraction>,
   splTokenAccounts: readonly TokenAccount[],
   txsByStep: TxsByStep,
 ): Steps => {
-  const { id: interactionId, params } = interaction;
-  const operations = createOperationSpecs(
-    tokensByPoolId,
-    poolSpecs,
-    interaction,
-  );
+  const { id: interactionId, params, operations } = interaction;
   const missingTokenAccountMints = findMissingSplTokenAccountMints(
     tokensByPoolId,
     poolSpecs,
@@ -564,7 +580,10 @@ export const createSwapSteps = (
     doPoolOperations: {
       type: StepType.SolanaOperations,
       isComplete: false,
-      operations,
+      operations: operations.map((operation) => ({
+        ...operation,
+        isComplete: false,
+      })),
       txs: txsByStep[StepType.SolanaOperations],
     },
     wormholeFromSolana: {
@@ -617,10 +636,26 @@ export const getTransferToTxs = (
 export const findPoolOperationTxs = (
   poolSpecs: readonly PoolSpec[],
   txs: readonly Tx[],
-): readonly SolanaTx[] =>
-  txs.filter<SolanaTx>((tx): tx is SolanaTx =>
-    poolSpecs.some((poolSpec) => isPoolTx(poolSpec.id, tx)),
-  );
+): TxsByPoolId =>
+  txs.reduce<TxsByPoolId>((txsByPoolId, tx) => {
+    if (!isSolanaTx(tx)) {
+      return txsByPoolId;
+    }
+    const poolSpec =
+      poolSpecs.find(
+        ({ address, contract }) =>
+          isPoolTx(contract, tx) &&
+          tx.parsedTx.transaction.message.accountKeys.some(
+            (key) => key.pubkey.toBase58() === address,
+          ),
+      ) ?? null;
+    return poolSpec === null
+      ? txsByPoolId
+      : {
+          ...txsByPoolId,
+          [poolSpec.id]: [...(txsByPoolId[poolSpec.id] ?? []), tx],
+        };
+  }, {});
 
 export const getTransferFromTxs = (
   chainsConfig: ChainsByProtocol,
@@ -694,7 +729,7 @@ export const getRequiredPools = (
 
 export const createSteps = (
   config: Config,
-  interaction: Interaction,
+  interaction: WithOperations<Interaction>,
   splTokenAccounts: readonly TokenAccount[],
   txs: readonly Tx[],
 ): Steps => {
@@ -734,17 +769,10 @@ export const createSteps = (
     [StepType.SolanaOperations]: poolOperationTxs,
     [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
   };
+
   switch (interaction.type) {
     case InteractionType.Add:
       return createAddSteps(
-        tokensByPool,
-        requiredPools,
-        interaction,
-        splTokenAccounts,
-        txsByStep,
-      );
-    case InteractionType.Swap:
-      return createSwapSteps(
         tokensByPool,
         requiredPools,
         interaction,
@@ -769,6 +797,14 @@ export const createSteps = (
       );
     case InteractionType.RemoveExactOutput:
       return createRemoveExactOutputSteps(
+        tokensByPool,
+        requiredPools,
+        interaction,
+        splTokenAccounts,
+        txsByStep,
+      );
+    case InteractionType.Swap:
+      return createSwapSteps(
         tokensByPool,
         requiredPools,
         interaction,

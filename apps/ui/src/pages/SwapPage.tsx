@@ -18,7 +18,6 @@ import { SlippageButton } from "../components/SlippageButton";
 import { SwapForm } from "../components/SwapForm";
 import { useConfig } from "../contexts";
 import { useTitle } from "../hooks";
-import { SwimDefiInstruction } from "../models";
 import { defaultIfError } from "../utils";
 
 import "./SwapPage.scss";
@@ -78,7 +77,6 @@ const SwapPage = (): ReactElement => {
             <RecentInteractions
               title="Recent swaps"
               poolId={null}
-              instructions={[SwimDefiInstruction.Swap]}
               currentInteraction={currentInteraction}
             />
           </EuiPageContentBody>

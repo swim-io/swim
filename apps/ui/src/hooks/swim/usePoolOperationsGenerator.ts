@@ -17,6 +17,8 @@ import type {
   SolanaTx,
   SolanaWalletAdapter,
   TokensByPoolId,
+  TxWithPoolId,
+  TxsByPoolId,
   WithSplTokenAccounts,
 } from "../../models";
 import {
@@ -31,7 +33,6 @@ import {
   getTokensByPool,
 } from "../../models";
 import { findOrThrow } from "../../utils";
-import { useSplTokenAccountsQuery } from "../solana";
 import type { UseAsyncGeneratorResult } from "../utils";
 import { useAsyncGenerator } from "../utils";
 
@@ -232,28 +233,40 @@ async function* generatePoolOperationTxs(
   poolSpecs: readonly PoolSpec[],
   interaction: Interaction,
   operations: readonly OperationSpec[],
-): AsyncGenerator<SolanaTx> {
+  existingTxs: TxsByPoolId,
+): AsyncGenerator<TxWithPoolId> {
   const inputOperation = operations[0];
   const inputPoolSpec = findOrThrow(
     poolSpecs,
     (spec) => spec.id === inputOperation.poolId,
   );
-  const inputTxId = await doSinglePoolOperation(
-    env,
-    solanaConnection,
-    wallet,
-    splTokenAccounts,
-    tokensByPoolId,
-    inputPoolSpec,
-    inputOperation,
-  );
-  const inputTx = await solanaConnection.getParsedTx(inputTxId);
+
+  let inputSolanaTx: SolanaTx | null = null;
+  const existingInputTxs = existingTxs[inputOperation.poolId] ?? null;
+  if (existingInputTxs !== null && existingInputTxs.length > 0) {
+    inputSolanaTx = existingInputTxs[0];
+  } else {
+    const inputTxId = await doSinglePoolOperation(
+      env,
+      solanaConnection,
+      wallet,
+      splTokenAccounts,
+      tokensByPoolId,
+      inputPoolSpec,
+      inputOperation,
+    );
+    const inputTx = await solanaConnection.getParsedTx(inputTxId);
+    inputSolanaTx = {
+      ecosystem: EcosystemId.Solana,
+      txId: inputTxId,
+      timestamp: inputTx.blockTime ?? null,
+      interactionId: interaction.id,
+      parsedTx: inputTx,
+    };
+  }
   yield {
-    ecosystem: EcosystemId.Solana,
-    txId: inputTxId,
-    timestamp: inputTx.blockTime ?? null,
-    interactionId: interaction.id,
-    parsedTx: inputTx,
+    poolId: inputOperation.poolId,
+    tx: inputSolanaTx,
   };
 
   if (operations.length === 1) {
@@ -268,66 +281,76 @@ async function* generatePoolOperationTxs(
     interaction,
     inputOperation,
     operations[1],
-    inputTx,
+    inputSolanaTx.parsedTx,
   );
   const outputPoolSpec = findOrThrow(
     poolSpecs,
     (spec) => spec.id === outputOperation.poolId,
   );
-  const outputTxId = await doSinglePoolOperation(
-    env,
-    solanaConnection,
-    wallet,
-    splTokenAccounts,
-    tokensByPoolId,
-    outputPoolSpec,
-    outputOperation,
-  );
-  const outputTx = await solanaConnection.getParsedTx(outputTxId);
+
+  let outputSolanaTx: SolanaTx | null = null;
+  const existingOutputTxs = existingTxs[outputOperation.poolId] ?? null;
+  if (existingOutputTxs !== null && existingOutputTxs.length > 1) {
+    outputSolanaTx = existingOutputTxs[0];
+  } else {
+    const outputTxId = await doSinglePoolOperation(
+      env,
+      solanaConnection,
+      wallet,
+      splTokenAccounts,
+      tokensByPoolId,
+      outputPoolSpec,
+      outputOperation,
+    );
+    const outputTx = await solanaConnection.getParsedTx(outputTxId);
+    outputSolanaTx = {
+      ecosystem: EcosystemId.Solana,
+      txId: outputTxId,
+      timestamp: outputTx.blockTime ?? null,
+      interactionId: interaction.id,
+      parsedTx: outputTx,
+    };
+  }
   yield {
-    ecosystem: EcosystemId.Solana,
-    txId: outputTxId,
-    timestamp: outputTx.blockTime ?? null,
-    interactionId: interaction.id,
-    parsedTx: outputTx,
+    poolId: outputOperation.poolId,
+    tx: outputSolanaTx,
   };
 }
 
 export interface PoolOperationsInput {
   readonly interaction: Interaction;
   readonly operations: readonly OperationSpec[];
+  readonly existingTxs: TxsByPoolId;
 }
 
 export const usePoolOperationsGenerator = (): UseAsyncGeneratorResult<
   WithSplTokenAccounts<PoolOperationsInput>,
-  SolanaTx
+  TxWithPoolId
 > => {
   const { env } = useEnvironment();
   const config = useConfig();
   const tokensByPoolId = getTokensByPool(config);
   const solanaConnection = useSolanaConnection();
   const { wallet } = useSolanaWallet();
-  const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
 
-  return useAsyncGenerator<WithSplTokenAccounts<PoolOperationsInput>, SolanaTx>(
-    async ({ interaction, operations }) => {
-      const poolSpecs = getRequiredPools(config.pools, interaction);
-      if (wallet === null) {
-        throw new Error("Missing Solana wallet");
-      }
-      if (splTokenAccounts === null) {
-        throw new Error("SPL token accounts not yet loaded");
-      }
-      return generatePoolOperationTxs(
-        env,
-        solanaConnection,
-        wallet,
-        splTokenAccounts,
-        tokensByPoolId,
-        poolSpecs,
-        interaction,
-        operations,
-      );
-    },
-  );
+  return useAsyncGenerator<
+    WithSplTokenAccounts<PoolOperationsInput>,
+    TxWithPoolId
+  >(async ({ interaction, operations, splTokenAccounts, existingTxs }) => {
+    const poolSpecs = getRequiredPools(config.pools, interaction);
+    if (wallet === null) {
+      throw new Error("Missing Solana wallet");
+    }
+    return generatePoolOperationTxs(
+      env,
+      solanaConnection,
+      wallet,
+      splTokenAccounts,
+      tokensByPoolId,
+      poolSpecs,
+      interaction,
+      operations,
+      existingTxs,
+    );
+  });
 };

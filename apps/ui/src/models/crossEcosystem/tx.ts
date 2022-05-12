@@ -43,6 +43,16 @@ export interface PolygonTx extends EvmTx {
 
 export type Tx = SolanaTx | EvmTx;
 
+export type TxsByPoolId = ReadonlyRecord<
+  string,
+  readonly SolanaTx[] | undefined
+>;
+
+export interface TxWithPoolId {
+  readonly poolId: string;
+  readonly tx: SolanaTx;
+}
+
 export type TxsByTokenId = ReadonlyRecord<string, readonly Tx[] | undefined>;
 
 export interface TxWithTokenId<T extends Tx = Tx> {
@@ -78,6 +88,15 @@ export const groupTxsByTokenId = (
     ): TxsByTokenId => ({
       ...accumulator,
       [tokenId]: [...(accumulator[tokenId] ?? []), tx],
+    }),
+    {},
+  );
+
+export const groupTxsByPoolId = (txs: readonly TxWithPoolId[]): TxsByPoolId =>
+  txs.reduce<TxsByPoolId>(
+    (accumulator: TxsByPoolId, { poolId, tx }: TxWithPoolId): TxsByPoolId => ({
+      ...accumulator,
+      [poolId]: [...(accumulator[poolId] ?? []), tx],
     }),
     {},
   );

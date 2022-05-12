@@ -441,20 +441,22 @@ export const AddForm = ({
       return;
     }
 
-    const interactionId = startInteraction({
-      type: InteractionType.Add,
-      poolId: poolSpec.id,
-      poolMaths: [poolMath],
-      params: {
-        inputAmounts: inputAmounts.reduce(
-          (amountsByTokenId, amount) =>
-            amountsByTokenId.set(amount.tokenId, amount),
-          new Map(),
-        ),
-        minimumMintAmount,
+    const interactionId = startInteraction(
+      {
+        type: InteractionType.Add,
+        poolId: poolSpec.id,
+        params: {
+          inputAmounts: inputAmounts.reduce(
+            (amountsByTokenId, amount) =>
+              amountsByTokenId.set(amount.tokenId, amount),
+            new Map(),
+          ),
+          minimumMintAmount,
+        },
+        lpTokenTargetEcosystem: lpTargetEcosystem,
       },
-      lpTokenTargetEcosystem: lpTargetEcosystem,
-    });
+      [poolMath],
+    );
     setCurrentInteraction(interactionId);
   };
 

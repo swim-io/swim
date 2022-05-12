@@ -5,7 +5,7 @@ import { EcosystemId, Protocol, getSolanaTokenDetails } from "../../config";
 import type { Tx } from "../crossEcosystem";
 import { findTokenAccountForMint } from "../solana";
 
-import type { Interaction } from "./interaction";
+import type { Interaction, WithOperations } from "./interaction";
 import { getTokensByPool } from "./pool";
 import {
   findPoolOperationTxs,
@@ -52,7 +52,7 @@ const hasAllSplTokenAccounts = (
 
 export const getCurrentState = (
   config: Config,
-  interaction: Interaction,
+  interaction: WithOperations<Interaction>,
   splTokenAccounts: readonly TokenAccountInfo[],
   txs: readonly Tx[],
 ): State => {
@@ -63,7 +63,7 @@ export const getCurrentState = (
   const inputPoolTokens = tokensByPoolId[inputPool.id];
   const outputPoolTokens = tokensByPoolId[outputPool.id];
 
-  const interactionWithNewKeys: Interaction = {
+  const interactionWithNewKeys: WithOperations<Interaction> = {
     ...interaction,
     signatureSetKeypairs: generateSignatureSetKeypairs(
       inputPoolTokens.tokens,
@@ -112,6 +112,7 @@ export const getCurrentState = (
       splTokenAccounts,
       existingTransferToTxs: transferToTxs,
     });
+  const poolOperationTxs = findPoolOperationTxs(requiredPools, txs);
   const maybeTransferredToSolanaState:
     | CreatedSplTokenAccountsState
     | TransferredToSolanaState = updateTransferToSolana(
@@ -120,12 +121,12 @@ export const getCurrentState = (
     {
       type: ActionType.UpdateTransferToSolana,
       txs: transferToTxs,
+      existingPoolOperationTxs: poolOperationTxs,
     },
   );
   if (maybeTransferredToSolanaState.status !== Status.TransferredToSolana) {
     return maybeTransferredToSolanaState;
   }
-  const poolOperationTxs = findPoolOperationTxs(requiredPools, txs);
   const transferFromTxs = getTransferFromTxs(
     config.chains,
     walletAddress,

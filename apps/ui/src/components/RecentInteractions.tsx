@@ -22,7 +22,7 @@ import {
   useWallets,
 } from "../hooks";
 import { InteractionType, Status, getCurrentState } from "../models";
-import type { Interaction, State, SwimDefiInstruction, Tx } from "../models";
+import type { Interaction, State, Tx, WithOperations } from "../models";
 import { findOrThrow } from "../utils";
 
 import { MultiConnectButton } from "./ConnectButton";
@@ -75,7 +75,7 @@ export const ActiveInteraction = ({
 };
 
 export interface RecentInteractionProps {
-  readonly interaction: Interaction;
+  readonly interaction: WithOperations<Interaction>;
   readonly txs: readonly Tx[] | null;
   readonly splTokenAccounts: readonly TokenAccountInfo[];
 }
@@ -260,7 +260,6 @@ export interface RecentInteractionsProps {
   readonly currentInteraction: string | null;
   /** Set to null to include interactions for all pools */
   readonly poolId: string | null;
-  readonly instructions?: readonly SwimDefiInstruction[];
 }
 
 export const RecentInteractions = ({

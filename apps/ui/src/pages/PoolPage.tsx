@@ -291,7 +291,6 @@ export const PoolPageInner = ({
       <RecentInteractions
         title={recentInteractionsTitle}
         poolId={poolSpec.id}
-        instructions={instructions}
         currentInteraction={currentInteraction}
       />
     </>

@@ -78,7 +78,6 @@ const SwapPage = (): ReactElement => {
             <RecentInteractions
               title="Recent swaps"
               poolId={null}
-              instructions={[SwimDefiInstruction.Swap]}
               currentInteraction={currentInteraction}
             />
           </EuiPageContentBody>

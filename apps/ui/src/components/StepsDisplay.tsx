@@ -234,7 +234,7 @@ const WormholeStepDisplay = ({
         <>
           <EuiCallOut
             size="s"
-            title="Please note that waiting for Polygon block confirmations may take a few minutes."
+            title="Please note that waiting for Polygon block confirmations may take a long time. Finality requires 512 confirmations or about 18 minutes."
             iconType="clock"
           />
           <EuiSpacer size="s" />

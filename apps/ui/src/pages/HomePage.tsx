@@ -124,9 +124,9 @@ const HomePage = (): ReactElement => {
                 iconType={MEDIUM_SVG}
                 fill
                 size="s"
-                href="https://medium.com/@swimprotocol"
+                href="https://blog.swim.io"
               >
-                Medium
+                Blog
               </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>

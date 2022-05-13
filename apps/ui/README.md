@@ -14,12 +14,6 @@ Run `yarn start` to run the app in development mode.
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-### Setup Vercel environment variables
-
-1. If you don't have access to Vercel yet, ask one of the frontend devs
-1. Link Vercel to the project: `npx vercel link`
-1. Pull environment variables to your `.env` file: `npx vercel pull`
-
 ## Editor/IDE
 
 We support [EditorConfig](https://editorconfig.org/), which provides plugins for all major editors and IDEs. This will ensure consistency for basic coding styles such as indentation and line breaks. See [.editorconfig](.editorconfig) for details.
@@ -125,7 +119,7 @@ If the environment stops working, follow the steps below
 
    This will give you a shell and all the relevant ports will be forwarded to the development server. If you don’t need a shell you can just run `ssh -N wormhole-v2`.
 
-1. [Restarting the chains](http://localhost:10350/overview) and following the steps in [DEV_SETUP](docs/DEV_SETUP.md#setting-up-tokens-and-pools).
+1. [Restarting the chains](http://localhost:10350/overview) and following the steps in [DEV_SETUP](/docs/DEV_SETUP.md#setting-up-tokens-and-pools).
 
 Details about contract addresses can be found in the various files in `src/config`.
 

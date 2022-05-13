@@ -27,31 +27,64 @@ const BSC_USDT = findLocalnetTokenById("localnet-bsc-usdt");
 describe("useAddFeesEstimationQuery", () => {
   beforeEach(() => {
     // Reset queryClient cache, otherwise test might return previous value
+    // eslint-disable-next-line testing-library/no-render-in-setup
     renderHook(() => useQueryClient().clear(), {
       wrapper: AppContext,
     });
   });
 
-  it("should return null when the gas price is still loading", async () => {
-    useGasPriceQueryMock.mockReturnValue({ isLoading: true, data: undefined });
-    const { result } = renderHook(
-      () =>
-        useAddFeesEstimationQuery(
-          [
-            Amount.fromHuman(SOLANA_USDC, new Decimal(99)),
-            Amount.fromHuman(SOLANA_USDT, new Decimal(99)),
-            Amount.fromHuman(ETHEREUM_USDC, new Decimal(0)),
-            Amount.fromHuman(ETHEREUM_USDT, new Decimal(0)),
-            Amount.fromHuman(BSC_BUSD, new Decimal(0)),
-            Amount.fromHuman(BSC_USDT, new Decimal(0)),
-          ],
-          EcosystemId.Solana,
-        ),
-      {
-        wrapper: AppContext,
-      },
-    );
-    expect(result.current).toEqual(null);
+  describe("loading", () => {
+    it("should return null when the required gas price is still loading", async () => {
+      useGasPriceQueryMock.mockReturnValue({
+        isLoading: true,
+        data: undefined,
+      });
+      const { result } = renderHook(
+        () =>
+          useAddFeesEstimationQuery(
+            [
+              Amount.fromHuman(SOLANA_USDC, new Decimal(99)),
+              Amount.fromHuman(SOLANA_USDT, new Decimal(99)),
+              Amount.fromHuman(ETHEREUM_USDC, new Decimal(99)),
+              Amount.fromHuman(ETHEREUM_USDT, new Decimal(99)),
+              Amount.fromHuman(BSC_BUSD, new Decimal(0)),
+              Amount.fromHuman(BSC_USDT, new Decimal(0)),
+            ],
+            EcosystemId.Solana,
+          ),
+        {
+          wrapper: AppContext,
+        },
+      );
+      expect(result.current).toEqual(null);
+    });
+
+    it("should return valid estimation for Solana only add, even when evm gas price are loading", async () => {
+      useGasPriceQueryMock.mockReturnValue({
+        isLoading: true,
+        data: undefined,
+      });
+      const { result } = renderHook(
+        () =>
+          useAddFeesEstimationQuery(
+            [
+              Amount.fromHuman(SOLANA_USDC, new Decimal(99)),
+              Amount.fromHuman(SOLANA_USDT, new Decimal(99)),
+              Amount.fromHuman(ETHEREUM_USDC, new Decimal(0)),
+              Amount.fromHuman(ETHEREUM_USDT, new Decimal(0)),
+              Amount.fromHuman(BSC_BUSD, new Decimal(0)),
+              Amount.fromHuman(BSC_USDT, new Decimal(0)),
+            ],
+            EcosystemId.Solana,
+          ),
+        {
+          wrapper: AppContext,
+        },
+      );
+      expect(result.current?.solana).toEqual(new Decimal(0.01));
+      expect(result.current?.ethereum).toEqual(new Decimal(0));
+      expect(result.current?.bsc).toEqual(new Decimal(0));
+    });
   });
 
   describe("loaded", () => {

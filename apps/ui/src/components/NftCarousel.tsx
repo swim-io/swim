@@ -45,15 +45,14 @@ const rarityColumns = [
 
 export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
-  // TODO: Decide on a redeem password, current text reads:
-  // "Type `redeem` to redeem your otter."
   const redeemPassword = "redeem";
   const [passwordInput, setPasswordInput] = useState("");
   const onRedeemInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPasswordInput(e.target.value);
   };
-  // TODO: Query redeemer to set nft value.
-  const nftValue = 100;
+  // TODO: Query redeemer to retrieve value of otter (amount and token).
+  const redeemerValue = 100;
+  const redeemerToken = "USDC";
 
   const showRedeemModal = setIsRedeemModalVisible.bind(null, true);
 
@@ -114,7 +113,7 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
           confirmButtonDisabled={passwordInput.toLowerCase() !== redeemPassword}
         >
           <EuiFormRow
-            label={`Type the word "${redeemPassword}" to redeem for ${nftValue} SWIM tokens`}
+            label={`Type the word "${redeemPassword}" to burn your otter for ${redeemerValue} ${redeemerToken}.\nNote, this is irreversible!`}
           >
             <EuiFieldText
               name="redeem"

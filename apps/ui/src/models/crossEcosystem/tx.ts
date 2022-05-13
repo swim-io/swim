@@ -32,6 +32,14 @@ export interface BscTx extends EvmTx {
   readonly ecosystem: EcosystemId.Bsc;
 }
 
+export interface AvalancheTx extends EvmTx {
+  readonly ecosystem: EcosystemId.Avalanche;
+}
+
+export interface PolygonTx extends EvmTx {
+  readonly ecosystem: EcosystemId.Polygon;
+}
+
 export type Tx = SolanaTx | EvmTx;
 
 export type TxsByTokenId = ReadonlyRecord<string, readonly Tx[] | undefined>;
@@ -50,7 +58,14 @@ export const isEthereumTx = (tx: Tx): tx is EthereumTx =>
 export const isBscTx = (tx: Tx): tx is BscTx =>
   tx.ecosystem === EcosystemId.Bsc;
 
-export const isEvmTx = (tx: Tx): tx is EvmTx => isEthereumTx(tx) || isBscTx(tx);
+export const isAvalancheTx = (tx: Tx): tx is AvalancheTx =>
+  tx.ecosystem === EcosystemId.Avalanche;
+
+export const isPolygonTx = (tx: Tx): tx is PolygonTx =>
+  tx.ecosystem === EcosystemId.Polygon;
+
+export const isEvmTx = (tx: Tx): tx is EvmTx =>
+  isEthereumTx(tx) || isBscTx(tx) || isAvalancheTx(tx) || isPolygonTx(tx);
 
 export const groupTxsByTokenId = (
   txs: readonly TxWithTokenId[],

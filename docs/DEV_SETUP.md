@@ -9,7 +9,7 @@
 1. On your local machine: `ssh wormhole-v2`.
 1. Start a `tmux` session: `tmux` (optional).
 1. In one pane start minikube and the dashboard: `minikube start && minikube dashboard --url --port 41841`.
-1. In another pane set up the reverse proxy (using the config from [PROXY_SERVER.md](), which should be set up): `ssh proxy`.
+1. In another pane set up the reverse proxy (using the config from [PROXY_SERVER.md](PROXY_SERVER.md), which should be set up): `ssh proxy`.
 1. In another pane run `cd wormhole && tilt up`.
 
 ### From a fresh Docker DO droplet
@@ -88,13 +88,13 @@ These steps apply after starting for the first time, or restarting the blockchai
 1. Test page -> Set up Wormhole tokens for BSC
 1. Test page -> Get wrapped SPL token addresses on Ethereum (for each supported SPL token)
 1. Test page -> Get wrapped SPL token addresses on BSC (for each supported SPL token)
-1. Update addresses in config
+1. Update `localnet-solana-usdc` and `localnet-solana-usdt` addresses in config
 1. Test page -> Init pool with random keys to check all the txs work
 1. Test page -> Init pool with deterministic keys (for each pool)
 1. Test page -> Attest LP token (for each pool)
 1. Test page -> Get wrapped LP token addresses on Ethereum (for each pool)
 1. Test page -> Get wrapped LP token addresses on BSC (for each pool)
-1. Update LP token addresses in config
+1. Update `localnet-solana-lp-hexapool` addresses in config
 1. Add tokens to MetaMask (optional)
 1. Test page -> Massive preapproval
 1. Pool page -> Deposit equal amounts of each

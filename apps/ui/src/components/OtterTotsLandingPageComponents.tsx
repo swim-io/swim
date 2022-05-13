@@ -1,7 +1,10 @@
 // TODO: All text and images are not finalised.
 
+import type { EuiCommentProps } from "@elastic/eui";
 import {
   EuiAccordion,
+  EuiButton,
+  EuiCommentList,
   EuiFlexGroup,
   EuiFlexItem,
   EuiImage,
@@ -10,6 +13,11 @@ import {
   EuiText,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
+import { useState } from "react";
+
+import OTTER_INTEREST from "../images/otter_interest.svg";
+import OTTER_REDEEM from "../images/otter_redeem.png";
+import OTTER_TRAITS from "../images/otter_traits.svg";
 
 interface FaqEntry {
   readonly question: string;
@@ -79,32 +87,17 @@ export const AlternatingFeaturettes = (): readonly ReactElement[] => {
     {
       title: "Interest bearing",
       text: "Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo. Nemo",
-      image: (
-        <EuiImage
-          src="https://www.degendojonft.com/assets/images/about/about-img.gif"
-          alt=""
-        />
-      ),
+      image: <EuiImage src={OTTER_INTEREST} alt="" />,
     },
     {
       title: "Redeemable",
       text: "Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo. Nemo",
-      image: (
-        <EuiImage
-          src="https://www.degendojonft.com/assets/images/about/about-img.gif"
-          alt=""
-        />
-      ),
+      image: <EuiImage src={OTTER_REDEEM} alt="" />,
     },
     {
       title: "Traits / weekly boost",
       text: "Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo. Nemo",
-      image: (
-        <EuiImage
-          src="https://www.degendojonft.com/assets/images/about/about-img.gif"
-          alt=""
-        />
-      ),
+      image: <EuiImage src={OTTER_TRAITS} alt="" />,
     },
   ];
   return featurettes.map((featurette, index) => {
@@ -128,4 +121,90 @@ export const AlternatingFeaturettes = (): readonly ReactElement[] => {
       </EuiFlexGroup>
     );
   });
+};
+
+export const IsWhitelistedButton = (): ReactElement => {
+  const [isPressed, setIsPressed] = useState(false);
+  const isWhiteListed = true; // TODO: This should be a hook (queries our whitelist somewhere)
+  const buttonText = !isPressed
+    ? "Click to see if whitelisted"
+    : isWhiteListed
+    ? "Whitelisted"
+    : "Not whitelisted";
+
+  const buttonColor = !isPressed
+    ? "primary"
+    : isWhiteListed
+    ? "success"
+    : "warning";
+
+  return (
+    <EuiButton
+      fullWidth={true}
+      onClick={() => {
+        setIsPressed(true);
+      }}
+      color={buttonColor}
+      fill={!isPressed}
+    >
+      {buttonText}
+    </EuiButton>
+  );
+};
+
+export const NftRoadmap = (): ReactElement => {
+  // eslint-disable-next-line functional/prefer-readonly-type
+  const comments: EuiCommentProps[] = [
+    {
+      // TODO: Could have custom icons per entry.
+      timelineIcon: "arrowDown",
+      username: "IDO Mint",
+      children: (
+        <EuiText>
+          We will be holding our initial IDO of 2000 out of 10000 Otters,
+          fungible for 3000 xSWIM each for a total of 30m xSWIM or 3% of total
+          circulating supply. Here we can put our details of our first sale and
+          second sale once we confirm the details.
+        </EuiText>
+      ),
+    },
+    {
+      timelineIcon: "arrowDown",
+      username: "Secondary Market listing",
+      children: (
+        <EuiText>
+          Once we have finished our initial IDO (second sale of Otters) you will
+          be able to immediately trade your Otters on Magic Eden and Opensea as
+          verified collections, protecting the buyers and sellers as well as
+          receiving liquidity on the most popular exchanges on Solana.
+        </EuiText>
+      ),
+    },
+    {
+      timelineIcon: "arrowDown",
+      username: "Redeemability",
+      children: (
+        <EuiText>
+          After we finish our initial IDO, we will launch the redeem function
+          for the NFTs so you can burn your Otter for 3000 xSWIM at any time.
+          This will tie in with our exchange listing for SWIM, giving holders
+          enough time to prepare for both the centralized and decentralized
+          exchange listing of SWIM.
+        </EuiText>
+      ),
+    },
+    {
+      timelineIcon: "arrowDown",
+      username: "NFT emissions",
+      children: (
+        <EuiText>
+          Holders of the Otters will receive x amount of SWIM a day, with a base
+          rate of 2/3 SWIM a day. The emissions will be based off the table
+          below:
+        </EuiText>
+      ),
+    },
+  ];
+
+  return <EuiCommentList comments={comments} />;
 };

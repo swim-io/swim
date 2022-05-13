@@ -16,20 +16,21 @@ export interface ChainsByEcosystem
 export const useChainsByEcosystem = (): ChainsByEcosystem => {
   const { chains } = useConfig();
   const [solana] = chains[Protocol.Solana];
-  const ethereum =
-    chains[Protocol.Evm].find(
-      (chain) => chain.ecosystem === EcosystemId.Ethereum,
-    ) ?? null;
-  const bsc =
-    chains[Protocol.Evm].find((chain) => chain.ecosystem === EcosystemId.Bsc) ??
-    null;
+  const [ethereum, bsc, avalanche, polygon] = [
+    EcosystemId.Ethereum,
+    EcosystemId.Bsc,
+    EcosystemId.Avalanche,
+    EcosystemId.Polygon,
+  ].map(
+    (ecosystemId) =>
+      chains[Protocol.Evm].find((chain) => chain.ecosystem === ecosystemId) ??
+      null,
+  );
   const terra =
     chains[Protocol.Cosmos].find(
       // (chain) => chain.ecosystem === EcosystemId.Terra, // TODO: Enable when we have more than one Cosmos chain
       Boolean,
     ) ?? null;
-  const avalanche = null; // TODO: Avalanche
-  const polygon = null; // TODO: Polygon
 
   return {
     [EcosystemId.Solana]: solana,

@@ -4,7 +4,6 @@ import {
   EuiButton,
   EuiCallOut,
   EuiListGroup,
-  EuiListGroupItem,
   EuiLoadingSpinner,
   EuiSpacer,
   EuiSteps,
@@ -41,6 +40,8 @@ import {
 } from "../models";
 import type { ReadonlyRecord } from "../utils";
 import { isNotNull } from "../utils";
+
+import { TxListItem } from "./TxListItem";
 
 import "./ActionSteps.scss";
 
@@ -120,54 +121,6 @@ const MutationStatus = ({
     <span>{!isComplete && mutation?.isIdle ? " (pending)" : null}</span>
   </EuiText>
 );
-
-interface TxListItemProps {
-  readonly ecosystem: EcosystemId;
-  readonly txId: string;
-}
-
-const SolanaTxListItem = ({ txId }: TxListItemProps): ReactElement => (
-  <EuiListGroupItem
-    label={txId}
-    href={`https://explorer.solana.com/tx/${txId}`}
-    target="_blank"
-    iconType="check"
-    size="s"
-  />
-);
-
-const EthereumTxListItem = ({ txId }: TxListItemProps): ReactElement => (
-  <EuiListGroupItem
-    label={txId}
-    href={`https://etherscan.io/tx/${txId}`}
-    target="_blank"
-    iconType="check"
-    size="s"
-  />
-);
-
-const BscTxListItem = ({ txId }: TxListItemProps): ReactElement => (
-  <EuiListGroupItem
-    label={txId}
-    href={`https://bscscan.com/tx/${txId}`}
-    target="_blank"
-    iconType="check"
-    size="s"
-  />
-);
-
-const TxListItem = (tx: TxListItemProps): ReactElement => {
-  switch (tx.ecosystem) {
-    case EcosystemId.Solana:
-      return <SolanaTxListItem {...tx} />;
-    case EcosystemId.Ethereum:
-      return <EthereumTxListItem {...tx} />;
-    case EcosystemId.Bsc:
-      return <BscTxListItem {...tx} />;
-    default:
-      throw new Error("Unknown transaction ecosystem");
-  }
-};
 
 interface ActionSubStepProps {
   readonly transfer: ProtoTransfer | Transfer;
@@ -313,7 +266,7 @@ const PoolInteractionActionStep = ({
       />
       {txId !== null ? (
         <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-          <SolanaTxListItem ecosystem={EcosystemId.Solana} txId={txId} />
+          <TxListItem ecosystem={EcosystemId.Solana} txId={txId} />
         </EuiListGroup>
       ) : null}
     </>

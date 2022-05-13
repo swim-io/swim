@@ -107,8 +107,8 @@ export const MultiConnectButton = ({
         {isSolanaConnected && <EuiIcon type={SOLANA_SVG} size="l" />}
         {isEthereumConnected && <EuiIcon type={ETHEREUM_SVG} size="l" />}
         {isBscConnected && <EuiIcon type={BSC_SVG} size="l" />}
-        <EuiIcon type={AVALANCHE_SVG} size="l" />
-        <EuiIcon type={POLYGON_SVG} size="l" />
+        {isAvalancheConnected && <EuiIcon type={AVALANCHE_SVG} size="l" />}
+        {isPolygonConnected && <EuiIcon type={POLYGON_SVG} size="l" />}
         &nbsp;{nConnected}
         <span>&nbsp;connected</span>
       </>

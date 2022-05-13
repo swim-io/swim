@@ -948,6 +948,31 @@ export const getTransferFromTxs = (
   }, {});
 };
 
+const getRequiredPoolsForSwap = (
+  poolSpecs: readonly PoolSpec[],
+  inputTokenId: string,
+  outputTokenId: string,
+): readonly PoolSpec[] => {
+  const singlePool =
+    poolSpecs.find((poolSpec) =>
+      [inputTokenId, outputTokenId].every((tokenId) =>
+        poolSpec.tokenAccounts.has(tokenId),
+      ),
+    ) ?? null;
+  if (singlePool !== null) {
+    return [singlePool];
+  }
+  // NOTE: We assume a maximum of two pools
+  // TODO: Handle swimUSD swaps
+  const inputPool = findOrThrow(poolSpecs, (poolSpec) =>
+    poolSpec.tokenAccounts.has(inputTokenId),
+  );
+  const outputPool = findOrThrow(poolSpecs, (poolSpec) =>
+    poolSpec.tokenAccounts.has(outputTokenId),
+  );
+  return [inputPool, outputPool];
+};
+
 /** Returns one or two pools involved in the interaction */
 export const getRequiredPools = (
   poolSpecs: readonly PoolSpec[],
@@ -965,25 +990,11 @@ export const getRequiredPools = (
         ),
       ];
     case InteractionType.Swap: {
-      const inputTokenId = interactionSpec.params.exactInputAmount.tokenId;
-      const outputTokenId = interactionSpec.params.minimumOutputAmount.tokenId;
-      const singlePool =
-        poolSpecs.find((poolSpec) =>
-          [inputTokenId, outputTokenId].every((tokenId) =>
-            poolSpec.tokenAccounts.has(tokenId),
-          ),
-        ) ?? null;
-      if (singlePool !== null) {
-        return [singlePool];
-      }
-      // NOTE: We assume a maximum of two pools
-      const inputPool = findOrThrow(poolSpecs, (poolSpec) =>
-        poolSpec.tokenAccounts.has(inputTokenId),
+      return getRequiredPoolsForSwap(
+        poolSpecs,
+        interactionSpec.params.exactInputAmount.tokenId,
+        interactionSpec.params.minimumOutputAmount.tokenId,
       );
-      const outputPool = findOrThrow(poolSpecs, (poolSpec) =>
-        poolSpec.tokenAccounts.has(outputTokenId),
-      );
-      return [inputPool, outputPool];
     }
     default:
       throw new Error("Unknown interaction type");

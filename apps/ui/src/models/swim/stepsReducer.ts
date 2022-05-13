@@ -33,9 +33,10 @@ import {
   getAmountTransferredToAccountByMint,
 } from "../solana";
 
-import type { Interaction, WithOperations } from "./interaction";
+import type { Interaction } from "./interaction";
 import type { TokensByPoolId } from "./pool";
 import { getTokensByPool } from "./pool";
+import type { PoolMath } from "./poolMath";
 import type { Steps, WormholeFromSolanaFullStep } from "./steps";
 import { createSteps, getRequiredPools } from "./steps";
 import type { ProtoTransfer, Transfer, Transfers } from "./transfer";
@@ -59,7 +60,7 @@ export const enum Status {
 }
 
 interface BaseState {
-  readonly interaction: WithOperations<Interaction> | null;
+  readonly interaction: Interaction | null;
   readonly status: Status;
   // isFresh allows us to distinguish between a state which has just been initiated and a state which failed at the first step
   readonly isFresh: boolean;
@@ -74,7 +75,7 @@ export interface InitialState extends BaseState {
 }
 
 export interface StateWithSteps extends BaseState {
-  readonly interaction: WithOperations<Interaction>;
+  readonly interaction: Interaction;
   readonly steps: Steps;
 }
 
@@ -133,8 +134,9 @@ export const enum ActionType {
 export interface InitiateInteractionAction {
   readonly type: ActionType.InitiateInteraction;
   readonly config: Config;
+  readonly poolMaths: readonly PoolMath[];
   readonly splTokenAccounts: readonly TokenAccountInfo[];
-  readonly interaction: WithOperations<Interaction>;
+  readonly interaction: Interaction;
   readonly txs: readonly Tx[];
 }
 
@@ -196,6 +198,7 @@ export const initiateInteraction = (
   const steps = createSteps(
     action.config,
     action.interaction,
+    action.poolMaths,
     action.splTokenAccounts,
     action.txs,
   );
@@ -436,8 +439,8 @@ export const updatePoolOperations = (
     {},
   );
 
-  const newOperations = previousState.interaction.operations.map(
-    (operation, i) => {
+  const newOperations = previousState.steps.doPoolOperations.operations.map(
+    (operation) => {
       const txsForPool = deduplicatedTxsByPoolId[operation.poolId];
       // TODO: Make check more robust
       const isComplete = txsForPool !== undefined && txsForPool.length > 0;
@@ -649,7 +652,7 @@ const clearError = (
     };
   }
 
-  const interaction: WithOperations<Interaction> = {
+  const interaction: Interaction = {
     ...previousState.interaction,
     signatureSetKeypairs,
     previousSignatureSetAddresses: {

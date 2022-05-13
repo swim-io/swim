@@ -431,9 +431,10 @@ export const useStepsReducer = (
     };
     const action: InitiateInteractionAction = {
       type: ActionType.InitiateInteraction,
-      splTokenAccounts,
       config,
+      poolMaths,
       interaction: interactionWithOperations,
+      splTokenAccounts,
       txs: [],
     };
     storeInteraction(env, config, interactionWithOperations, queryClient);

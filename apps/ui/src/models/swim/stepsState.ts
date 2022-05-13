@@ -5,8 +5,9 @@ import { EcosystemId, Protocol, getSolanaTokenDetails } from "../../config";
 import type { Tx } from "../crossEcosystem";
 import { findTokenAccountForMint } from "../solana";
 
-import type { Interaction, WithOperations } from "./interaction";
+import type { Interaction } from "./interaction";
 import { getTokensByPool } from "./pool";
+import type { PoolMath } from "./poolMath";
 import {
   findPoolOperationTxs,
   getRequiredPools,
@@ -52,7 +53,8 @@ const hasAllSplTokenAccounts = (
 
 export const getCurrentState = (
   config: Config,
-  interaction: WithOperations<Interaction>,
+  interaction: Interaction,
+  poolMaths: readonly PoolMath[],
   splTokenAccounts: readonly TokenAccountInfo[],
   txs: readonly Tx[],
 ): State => {
@@ -63,7 +65,7 @@ export const getCurrentState = (
   const inputPoolTokens = tokensByPoolId[inputPool.id];
   const outputPoolTokens = tokensByPoolId[outputPool.id];
 
-  const interactionWithNewKeys: WithOperations<Interaction> = {
+  const interactionWithNewKeys: Interaction = {
     ...interaction,
     signatureSetKeypairs: generateSignatureSetKeypairs(
       inputPoolTokens.tokens,
@@ -81,6 +83,7 @@ export const getCurrentState = (
     config,
     splTokenAccounts,
     interaction: interactionWithNewKeys,
+    poolMaths,
     txs,
   });
   const requiredTokens = getRequiredTokens(

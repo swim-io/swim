@@ -33,8 +33,7 @@ interface BaseInteractionSpec {
 export interface SwapInteractionSpec extends BaseInteractionSpec {
   readonly type: InteractionType.Swap;
   readonly params: {
-    readonly exactInputAmounts: AmountsByTokenId;
-    readonly outputTokenId: string;
+    readonly exactInputAmount: Amount;
     readonly minimumOutputAmount: Amount;
   };
 }
@@ -211,8 +210,7 @@ export const createOperationSpecs = (
       ];
     }
     case InteractionType.Swap: {
-      const { exactInputAmounts, outputTokenId, minimumOutputAmount } =
-        interaction.params;
+      const { exactInputAmount, minimumOutputAmount } = interaction.params;
       if (inputPool.id === outputPool.id) {
         return [
           {
@@ -220,12 +218,13 @@ export const createOperationSpecs = (
             poolId: inputPool.id,
             instruction: SwimDefiInstruction.Swap,
             params: {
-              exactInputAmounts: inputPoolTokens.tokens.map(
-                (token) =>
-                  exactInputAmounts.get(token.id) ?? Amount.zero(token),
+              exactInputAmounts: inputPoolTokens.tokens.map((token) =>
+                token.id === exactInputAmount.tokenId
+                  ? exactInputAmount
+                  : Amount.zero(token),
               ),
               outputTokenIndex: inputPoolTokens.tokens.findIndex(
-                (token) => token.id === outputTokenId,
+                (token) => token.id === minimumOutputAmount.tokenId,
               ),
               minimumOutputAmount,
             },
@@ -269,9 +268,10 @@ export const createOperationSpecs = (
             poolId: inputPool.id,
             instruction: SwimDefiInstruction.Add,
             params: {
-              inputAmounts: inputPoolTokens.tokens.map(
-                (token) =>
-                  exactInputAmounts.get(token.id) ?? Amount.zero(token),
+              inputAmounts: inputPoolTokens.tokens.map((token) =>
+                token.id === exactInputAmount.tokenId
+                  ? exactInputAmount
+                  : Amount.zero(token),
               ),
               minimumMintAmount,
             },
@@ -320,9 +320,10 @@ export const createOperationSpecs = (
             poolId: inputPool.id,
             instruction: SwimDefiInstruction.Swap,
             params: {
-              exactInputAmounts: inputPoolTokens.tokens.map(
-                (token) =>
-                  exactInputAmounts.get(token.id) ?? Amount.zero(token),
+              exactInputAmounts: inputPoolTokens.tokens.map((token) =>
+                token.id === exactInputAmount.tokenId
+                  ? exactInputAmount
+                  : Amount.zero(token),
               ),
               outputTokenIndex: inputPoolTokens.tokens.findIndex(
                 (token) => token.id === outputPool.lpToken,
@@ -338,7 +339,7 @@ export const createOperationSpecs = (
               // NOTE: This will be overriden when we know the correct amount
               exactBurnAmount: Amount.zero(outputPoolTokens.lpToken),
               outputTokenIndex: outputPoolTokens.tokens.findIndex(
-                (token) => token.id === outputTokenId,
+                (token) => token.id === minimumOutputAmount.tokenId,
               ),
               minimumOutputAmount,
             },
@@ -380,8 +381,10 @@ export const createOperationSpecs = (
           poolId: inputPool.id,
           instruction: SwimDefiInstruction.Swap,
           params: {
-            exactInputAmounts: inputPoolTokens.tokens.map(
-              (token) => exactInputAmounts.get(token.id) ?? Amount.zero(token),
+            exactInputAmounts: inputPoolTokens.tokens.map((token) =>
+              token.id === exactInputAmount.tokenId
+                ? exactInputAmount
+                : Amount.zero(token),
             ),
             outputTokenIndex: inputPoolOutputTokenIndex,
             minimumOutputAmount: minimumInputPoolOutputAmount,
@@ -400,7 +403,7 @@ export const createOperationSpecs = (
                 : Amount.zero(token),
             ),
             outputTokenIndex: outputPoolTokens.tokens.findIndex(
-              (token) => token.id === outputTokenId,
+              (token) => token.id === minimumOutputAmount.tokenId,
             ),
             minimumOutputAmount,
           },

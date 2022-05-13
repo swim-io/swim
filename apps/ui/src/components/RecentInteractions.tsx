@@ -23,7 +23,6 @@ import {
 } from "../hooks";
 import { InteractionType, Status, getCurrentState } from "../models";
 import type { Interaction, State, Tx, WithOperations } from "../models";
-import { findOrThrow } from "../utils";
 
 import { MultiConnectButton } from "./ConnectButton";
 import { ConnectedWallets } from "./ConnectedWallets";
@@ -109,16 +108,12 @@ export const RecentInteraction = ({
         );
       }
       case InteractionType.Swap: {
-        const { exactInputAmounts } = interaction.params;
-        const inputAmount = findOrThrow(
-          [...exactInputAmounts.values()],
-          (amount) => !amount.isZero(),
-        );
+        const { exactInputAmount } = interaction.params;
         return (
           <>
             <span>Swap</span>{" "}
             <AmountWithTokenIcon
-              amount={inputAmount}
+              amount={exactInputAmount}
               ecosystem={EcosystemId.Solana}
             />{" "}
             <span>for</span>{" "}

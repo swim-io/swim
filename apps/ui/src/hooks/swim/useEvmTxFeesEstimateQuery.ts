@@ -24,15 +24,11 @@ const getTransferToTokens = (
 ): readonly TokenSpec[] => {
   switch (interaction.type) {
     case InteractionType.Swap:
-      return tokens.filter((token) => {
-        const inputAmount =
-          interaction.params.exactInputAmounts.get(token.id) ?? null;
-        return (
+      return tokens.filter(
+        (token) =>
           token.nativeEcosystem === ecosystemId &&
-          inputAmount !== null &&
-          !inputAmount.isZero()
-        );
-      });
+          token.id === interaction.params.exactInputAmount.tokenId,
+      );
     case InteractionType.Add:
       return tokens.filter((token) => {
         const inputAmount =
@@ -65,7 +61,7 @@ const getTransferFromTokens = (
       return tokens.filter(
         (token) =>
           token.nativeEcosystem === ecosystemId &&
-          token.id === interaction.params.outputTokenId,
+          token.id === interaction.params.minimumOutputAmount.tokenId,
       );
     case InteractionType.Add:
       return interaction.lpTokenTargetEcosystem === ecosystemId

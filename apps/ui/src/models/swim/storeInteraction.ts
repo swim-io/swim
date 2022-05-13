@@ -136,7 +136,8 @@ export interface PreparedRemoveExactOutputInteraction
 export interface PreparedSwapInteraction
   extends Omit<WithPreparedOperations<SwapInteraction>, "params"> {
   readonly params: {
-    readonly exactInputAmounts: ReadonlyRecord<string, string>;
+    readonly inputTokenId: string;
+    readonly exactInputAmount: string;
     readonly outputTokenId: string;
     readonly minimumOutputAmount: string;
   };
@@ -472,6 +473,10 @@ const populateSwapInteraction = (
     throw new Error("Invalid env");
   }
   const inputPoolTokens = tokensByPoolId[interaction.poolIds[0]];
+  const inputToken = findOrThrow(
+    inputPoolTokens.tokens,
+    ({ id }) => id === params.inputTokenId,
+  );
   const outputPoolTokens =
     tokensByPoolId[interaction.poolIds[interaction.poolIds.length - 1]];
   const outputToken = findOrThrow(
@@ -490,9 +495,9 @@ const populateSwapInteraction = (
     ),
     params: {
       ...params,
-      exactInputAmounts: tokenAmountsRecordToMap(
-        inputPoolTokens.tokens,
-        params.exactInputAmounts,
+      exactInputAmount: Amount.fromHumanString(
+        inputToken,
+        params.exactInputAmount,
       ),
       minimumOutputAmount: Amount.fromHumanString(
         outputToken,
@@ -633,9 +638,9 @@ const prepareInteraction = (
         operations: interaction.operations.map(prepareOperation),
         params: {
           ...interaction.params,
-          exactInputAmounts: tokenAmountsMapToRecord(
-            interaction.params.exactInputAmounts,
-          ),
+          inputTokenId: interaction.params.exactInputAmount.tokenId,
+          exactInputAmount: interaction.params.exactInputAmount.toJSON(),
+          outputTokenId: interaction.params.minimumOutputAmount.tokenId,
           minimumOutputAmount: interaction.params.minimumOutputAmount.toJSON(),
         },
       };

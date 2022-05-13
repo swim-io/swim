@@ -177,31 +177,23 @@ export const getRequiredTokens = (
     case InteractionType.Swap: {
       const inputPool = poolSpecs[0];
       const outputPool = poolSpecs[poolSpecs.length - 1];
-      const inputTokenIds = [
-        ...interactionSpec.params.exactInputAmounts.keys(),
-      ];
-      const inputTokens = inputTokenIds.map((tokenId) =>
-        findOrThrow(
-          tokensByPoolId[inputPool.id].tokens,
-          (token) => token.id === tokenId,
-        ),
+      const inputTokenId = interactionSpec.params.exactInputAmount.tokenId;
+      const inputToken = findOrThrow(
+        tokensByPoolId[inputPool.id].tokens,
+        (token) => token.id === inputTokenId,
       );
-      const filteredInputTokens = inputTokens.filter((token) => {
-        const inputAmount =
-          interactionSpec.params.exactInputAmounts.get(token.id) ?? null;
-        return inputAmount !== null && !inputAmount.isZero();
-      });
       const outputToken = findOrThrow(
         tokensByPoolId[outputPool.id].tokens,
-        (token) => token.id === interactionSpec.params.outputTokenId,
+        (token) =>
+          token.id === interactionSpec.params.minimumOutputAmount.tokenId,
       );
       if (inputPool.id === outputPool.id) {
-        return [...filteredInputTokens, outputToken];
+        return [inputToken, outputToken];
       }
 
       // TODO: Generalize to other routes
       const swimUSD = tokensByPoolId["hexapool"].lpToken;
-      return [...filteredInputTokens, swimUSD, outputToken];
+      return [inputToken, swimUSD, outputToken];
     }
     default:
       throw new Error("Unsupported instruction");
@@ -545,7 +537,7 @@ export const createSwapSteps = (
   const inputPoolTokens = tokensByPoolId[inputPool.id];
   const outputPoolTokens = tokensByPoolId[outputPool.id];
   const outputTokenIndex = outputPoolTokens.tokens.findIndex(
-    (token) => token.id === params.outputTokenId,
+    (token) => token.id === params.minimumOutputAmount.tokenId,
   );
   if (outputTokenIndex === -1) {
     throw new Error("Invalid output token");
@@ -569,9 +561,10 @@ export const createSwapSteps = (
           interactionId,
           splTokenAccounts,
           inputPoolTokens.tokens,
-          inputPoolTokens.tokens.map(
-            (token) =>
-              params.exactInputAmounts.get(token.id) ?? Amount.zero(token),
+          inputPoolTokens.tokens.map((token) =>
+            token.id === params.exactInputAmount.tokenId
+              ? params.exactInputAmount
+              : Amount.zero(token),
           ),
           interaction.signatureSetKeypairs,
         ),
@@ -700,13 +693,11 @@ export const getRequiredPools = (
         ),
       ];
     case InteractionType.Swap: {
-      const inputTokenIds = [
-        ...interactionSpec.params.exactInputAmounts.keys(),
-      ];
-      const { outputTokenId } = interactionSpec.params;
+      const inputTokenId = interactionSpec.params.exactInputAmount.tokenId;
+      const outputTokenId = interactionSpec.params.minimumOutputAmount.tokenId;
       const singlePool =
         poolSpecs.find((poolSpec) =>
-          [...inputTokenIds, outputTokenId].every((tokenId) =>
+          [inputTokenId, outputTokenId].every((tokenId) =>
             poolSpec.tokenAccounts.has(tokenId),
           ),
         ) ?? null;
@@ -715,7 +706,7 @@ export const getRequiredPools = (
       }
       // NOTE: We assume a maximum of two pools
       const inputPool = findOrThrow(poolSpecs, (poolSpec) =>
-        inputTokenIds.every((tokenId) => poolSpec.tokenAccounts.has(tokenId)),
+        poolSpec.tokenAccounts.has(inputTokenId),
       );
       const outputPool = findOrThrow(poolSpecs, (poolSpec) =>
         poolSpec.tokenAccounts.has(outputTokenId),

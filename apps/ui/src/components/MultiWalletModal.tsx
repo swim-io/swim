@@ -1,6 +1,6 @@
 import {
   EuiButtonEmpty,
-  EuiFlexGroup,
+  EuiFlexGrid,
   EuiFlexItem,
   EuiIcon,
   EuiModalBody,
@@ -160,7 +160,7 @@ export const MultiWalletModal = ({
       <EuiModalBody>
         {isUserOnMobileDevice() ? <MobileDeviceDisclaimer /> : ""}
         <EuiSpacer />
-        <EuiFlexGroup gutterSize="xl">
+        <EuiFlexGrid columns={3} gutterSize="xl">
           <EcosystemWalletOptionsList
             address={solana.address}
             connected={solana.connected}
@@ -188,8 +188,6 @@ export const MultiWalletModal = ({
             ecosystemId={EcosystemId.Bsc}
             createServiceClickHandler={bsc.createServiceClickHandler}
           />
-        </EuiFlexGroup>
-        <EuiFlexGroup>
           <EcosystemWalletOptionsList
             address={avalanche.address}
             connected={avalanche.connected}
@@ -208,7 +206,7 @@ export const MultiWalletModal = ({
             ecosystemId={EcosystemId.Polygon}
             createServiceClickHandler={polygon.createServiceClickHandler}
           />
-        </EuiFlexGroup>
+        </EuiFlexGrid>
       </EuiModalBody>
     </CustomModal>
   );

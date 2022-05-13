@@ -1,6 +1,5 @@
 import { EuiGlobalToastList } from "@elastic/eui";
 import type { ReactElement } from "react";
-import React from "react";
 
 import { useNotificationStore } from "../store/useNotificationStore";
 

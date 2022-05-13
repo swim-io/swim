@@ -16,12 +16,12 @@ export interface NotificationState {
   ) => void;
 }
 
-const LEVEL_TO_COLOR = {
-  info: "primary" as const,
-  success: "success" as const,
-  warning: "warning" as const,
-  error: "danger" as const,
-};
+enum LEVEL_TO_COLOR {
+  info = "primary",
+  success = "success",
+  warning = "warning",
+  error = "danger",
+}
 
 const createToast = (
   title: ReactChild,

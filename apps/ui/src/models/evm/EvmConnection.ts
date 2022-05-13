@@ -17,10 +17,14 @@ type TransactionResponse = ethers.providers.TransactionResponse;
 export type Provider = MoralisProvider | EtherscanProvider | LocalnetProvider;
 
 // TODO: Use proper endpoints via env
-const AVALANCHE_RPC_URL = "https://api.avax-test.network/ext/bc/C/rpc";
-const POLYGON_RPC_URL = "https://rpc-mumbai.matic.today";
+const AVALANCHE_MAINNET_RPC_URL =
+  process.env.REACT_APP_AVALANCHE_DEVNET_RPC_URL;
+const AVALANCHE_DEVNET_RPC_URL = process.env.REACT_APP_AVALANCHE_DEVNET_RPC_URL;
 const BSC_MAINNET_RPC_URL = process.env.REACT_APP_BSC_MAINNET_RPC_URL;
 const BSC_TESTNET_RPC_URL = process.env.REACT_APP_BSC_TESTNET_RPC_URL;
+const POLYGON_MAINNET_RPC_URL = process.env.REACT_APP_POLYGON_DEVNET_RPC_URL;
+const POLYGON_DEVNET_RPC_URL = process.env.REACT_APP_POLYGON_DEVNET_RPC_URL;
+
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
 const MORALIS_ID = "Swim UI";
 
@@ -54,20 +58,54 @@ const getBscscanNetwork = (env: Env): ethers.providers.Networkish => {
   }
 };
 
+const getAvalancheRpcUrl = (env: Env): string => {
+  switch (env) {
+    case Env.Mainnet:
+      if (AVALANCHE_MAINNET_RPC_URL === undefined) {
+        throw new Error("AVALANCHE_MAINNET_RPC_URL is not set");
+      }
+      return AVALANCHE_MAINNET_RPC_URL;
+    case Env.Devnet:
+      if (AVALANCHE_DEVNET_RPC_URL === undefined) {
+        throw new Error("AVALANCHE_DEVNET_RPC_URL is not set");
+      }
+      return AVALANCHE_DEVNET_RPC_URL;
+    default:
+      throw new Error(`Avalanche not supported on ${env}`);
+  }
+};
+
 const getBscRpcUrl = (env: Env): string => {
   switch (env) {
     case Env.Mainnet:
       if (BSC_MAINNET_RPC_URL === undefined) {
-        throw new Error(`BSC_MAINNET_RPC_URL is not set`);
+        throw new Error("BSC_MAINNET_RPC_URL is not set");
       }
       return BSC_MAINNET_RPC_URL;
     case Env.Devnet:
       if (BSC_TESTNET_RPC_URL === undefined) {
-        throw new Error(`BSC_TESTNET_RPC_URL is not set`);
+        throw new Error("BSC_TESTNET_RPC_URL is not set");
       }
       return BSC_TESTNET_RPC_URL;
     default:
       throw new Error(`${env} not supported by Moralis Provider`);
+  }
+};
+
+const getPolygonRpcUrl = (env: Env): string => {
+  switch (env) {
+    case Env.Mainnet:
+      if (POLYGON_MAINNET_RPC_URL === undefined) {
+        throw new Error("POLYGON_MAINNET_RPC_URL is not set");
+      }
+      return POLYGON_MAINNET_RPC_URL;
+    case Env.Devnet:
+      if (POLYGON_DEVNET_RPC_URL === undefined) {
+        throw new Error("POLYGON_DEVNET_RPC_URL is not set");
+      }
+      return POLYGON_DEVNET_RPC_URL;
+    default:
+      throw new Error(`Polygon not supported on ${env}`);
   }
 };
 
@@ -117,10 +155,10 @@ export class EvmConnection {
           return new BscscanProvider(getBscscanNetwork(env));
         }
       case EcosystemId.Avalanche: {
-        return new LocalnetProvider(AVALANCHE_RPC_URL);
+        return new LocalnetProvider(getAvalancheRpcUrl(env));
       }
       case EcosystemId.Polygon: {
-        return new LocalnetProvider(POLYGON_RPC_URL);
+        return new LocalnetProvider(getPolygonRpcUrl(env));
       }
       default:
         throw new Error(`Unsupported EVM ecosystem: ${ecosystemId}`);

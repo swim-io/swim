@@ -4,7 +4,6 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import "./euiIcons";
 import App from "./App";
-import Notification from "./components/Notification";
 import { setupSentry } from "./errors/sentry";
 import reportWebVitals from "./reportWebVitals";
 
@@ -12,10 +11,7 @@ setupSentry();
 
 ReactDOM.render(
   <StrictMode>
-    <>
       <App />
-      <Notification />
-    </>
   </StrictMode>,
   document.getElementById("root"),
 );

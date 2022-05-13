@@ -38,14 +38,10 @@ const createToast = (
 
 export const useNotificationStore = create<NotificationState>((set) => ({
   toasts: [],
-  notify: (
-    title: ReactChild,
-    text: ReactChild = "",
-    color: NotificationLevel = "info",
-  ) => {
+  notify: (title, text = "", level = "info", lifetime) => {
     set(
       produce((state) => {
-        state.toasts.push(createToast(title, text, color));
+        state.toasts.push(createToast(title, text, level, lifetime));
       }),
     );
   },

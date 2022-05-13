@@ -195,19 +195,32 @@ interface WormholeStepDisplayProps {
   readonly mutation?: Mutation<TxsByTokenId>;
 }
 
+const doTransfersInvolveEcosystem = (
+  transfers: readonly (Transfer | ProtoTransfer)[],
+  ecosystem: EcosystemId,
+): boolean =>
+  transfers.some(
+    (transfer: ProtoTransfer | Transfer) =>
+      transfer.fromEcosystem === ecosystem ||
+      transfer.toEcosystem === ecosystem,
+  );
+
 const WormholeStepDisplay = ({
   step,
   mutation,
 }: WormholeStepDisplayProps): ReactElement => {
   const transfers = combineTransfers<Transfer | ProtoTransfer>(step.transfers);
-  const involvesEthereum = transfers.some(
-    (transfer: ProtoTransfer | Transfer) =>
-      transfer.fromEcosystem === EcosystemId.Ethereum ||
-      transfer.toEcosystem === EcosystemId.Ethereum,
+  const involvesEthereum = doTransfersInvolveEcosystem(
+    transfers,
+    EcosystemId.Ethereum,
+  );
+  const involvesPolygon = doTransfersInvolveEcosystem(
+    transfers,
+    EcosystemId.Polygon,
   );
   return (
     <>
-      {mutation?.isLoading && involvesEthereum ? (
+      {mutation?.isLoading && involvesEthereum && (
         <>
           <EuiCallOut
             size="s"
@@ -216,7 +229,17 @@ const WormholeStepDisplay = ({
           />
           <EuiSpacer size="s" />
         </>
-      ) : null}
+      )}
+      {mutation?.isLoading && involvesPolygon && (
+        <>
+          <EuiCallOut
+            size="s"
+            title="Please note that waiting for Polygon block confirmations may take a long time. Finality requires 512 confirmations or about 18 minutes."
+            iconType="clock"
+          />
+          <EuiSpacer size="s" />
+        </>
+      )}
 
       {transfers.map(
         (transfer: ProtoTransfer | Transfer): ReactElement => (

@@ -3,14 +3,14 @@ import { useQuery } from "react-query";
 
 import type { EcosystemId } from "../../config";
 import { useConfig, useEnvironment } from "../../contexts";
-import type { Interaction, Tx, WithOperations } from "../../models";
+import type { Interaction, Tx } from "../../models";
 import { loadInteractions } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 import { isNotNull } from "../../utils";
 import { useRecentTxs } from "../crossEcosystem";
 
 export type InteractionWithTxs = {
-  readonly interaction: WithOperations<Interaction>;
+  readonly interaction: Interaction;
   readonly txs: readonly Tx[] | null;
 };
 

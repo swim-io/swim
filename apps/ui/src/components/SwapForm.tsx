@@ -108,10 +108,7 @@ export const SwapForm = ({
       ? {
           type: InteractionType.Swap,
           params: {
-            exactInputAmounts: new Map([
-              [fromTokenId, Amount.fromHumanString(fromToken, "1")],
-            ]),
-            outputTokenId: toTokenId,
+            exactInputAmount: Amount.fromHumanString(fromToken, "1"),
             minimumOutputAmount: Amount.fromHumanString(toToken, "1"),
           },
         }
@@ -191,19 +188,12 @@ export const SwapForm = ({
   const isInputAmountPositive =
     inputAmount !== null && !inputAmount.isNegative() && !inputAmount.isZero();
 
-  const exactInputAmounts =
-    inputAmount !== null && inputPoolTokens !== null
-      ? inputPoolTokens.tokens.map((poolToken) =>
-          poolToken.id === fromTokenId ? inputAmount : Amount.zero(poolToken),
-        )
-      : null;
-
   const outputAmount = useSwapOutputAmountEstimate(
     poolMaths,
     inputPoolTokens,
     outputPoolTokens,
     toToken,
-    exactInputAmounts,
+    inputAmount,
   );
 
   const fromTokenOptions = swappableTokens.map((tokenSpec) => ({
@@ -369,11 +359,7 @@ export const SwapForm = ({
       errors = [...errors, "Insufficient funds"];
     }
 
-    if (
-      inputAmount === null ||
-      inputAmount.isZero() ||
-      exactInputAmounts === null
-    ) {
+    if (inputAmount === null || inputAmount.isZero()) {
       errors = [...errors, "Provide a valid amount"];
     }
 
@@ -396,7 +382,7 @@ export const SwapForm = ({
       fromToken === null ||
       toToken === null ||
       splTokenAccounts === null ||
-      exactInputAmounts === null ||
+      inputAmount === null ||
       outputAmount === null ||
       maxSlippageFraction === null ||
       !isEachNotNull(poolMaths)
@@ -424,12 +410,7 @@ export const SwapForm = ({
       {
         type: InteractionType.Swap,
         params: {
-          exactInputAmounts: exactInputAmounts.reduce(
-            (amountsByTokenId, amount) =>
-              amountsByTokenId.set(amount.tokenId, amount),
-            new Map(),
-          ),
-          outputTokenId: toToken.id,
+          exactInputAmount: inputAmount,
           minimumOutputAmount,
         },
       },

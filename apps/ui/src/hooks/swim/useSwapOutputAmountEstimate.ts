@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { useMemo } from "react";
 
 import type { TokenSpec } from "../../config";
@@ -10,6 +11,8 @@ interface PoolTokens {
   readonly tokens: readonly TokenSpec[];
   readonly lpToken: TokenSpec;
 }
+
+const ZERO = new Decimal(0);
 
 const routeSwap = (
   inputPoolTokens: PoolTokens,
@@ -91,7 +94,7 @@ export const useSwapOutputAmountEstimate = (
     readonly lpToken: TokenSpec;
   } | null,
   toToken: TokenSpec | null,
-  exactInputAmounts: readonly Amount[] | null,
+  exactInputAmount: Amount | null,
 ): Amount | null =>
   useMemo<Amount | null>(() => {
     if (
@@ -100,7 +103,7 @@ export const useSwapOutputAmountEstimate = (
       !isEachNotNull(poolMaths) ||
       inputPoolTokens === null ||
       outputPoolTokens === null ||
-      exactInputAmounts === null ||
+      exactInputAmount === null ||
       toToken === null
     ) {
       return null;
@@ -123,8 +126,10 @@ export const useSwapOutputAmountEstimate = (
             throw new Error("Invalid swap route");
           }
           const { lpOutputAmount } = inputPoolMath.add(
-            exactInputAmounts.map((amount) =>
-              amount.toHuman(EcosystemId.Solana),
+            inputPoolTokens.tokens.map((token) =>
+              token.id === exactInputAmount.tokenId
+                ? exactInputAmount.toHuman(EcosystemId.Solana)
+                : ZERO,
             ),
           );
           inputPoolOutputAmount = Amount.fromHuman(
@@ -138,8 +143,10 @@ export const useSwapOutputAmountEstimate = (
             throw new Error("Invalid swap route");
           }
           const { stableOutputAmount } = inputPoolMath.swapExactInput(
-            exactInputAmounts.map((amount) =>
-              amount.toHuman(EcosystemId.Solana),
+            inputPoolTokens.tokens.map((token) =>
+              token.id === exactInputAmount.tokenId
+                ? exactInputAmount.toHuman(EcosystemId.Solana)
+                : ZERO,
             ),
             inputPoolOutputTokenIndex,
           );
@@ -196,10 +203,4 @@ export const useSwapOutputAmountEstimate = (
     } catch {
       return null;
     }
-  }, [
-    exactInputAmounts,
-    inputPoolTokens,
-    outputPoolTokens,
-    poolMaths,
-    toToken,
-  ]);
+  }, [exactInputAmount, inputPoolTokens, outputPoolTokens, poolMaths, toToken]);

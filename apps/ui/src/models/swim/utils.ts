@@ -40,12 +40,11 @@ export const generateSignatureSetKeypairs = (
       if (transfers !== null && transfers.type === TransferType.LpToken) {
         throw new Error("Invalid transfers type");
       }
-      const { exactInputAmounts } = interactionSpec.params;
+      const { exactInputAmount } = interactionSpec.params;
       return poolTokens.reduce((accumulator, token, i) => {
-        const inputAmount = exactInputAmounts.get(token.id) ?? null;
         return token.nativeEcosystem !== EcosystemId.Solana &&
-          inputAmount !== null &&
-          !inputAmount.isZero() &&
+          token.id === exactInputAmount.tokenId &&
+          !exactInputAmount.isZero() &&
           !transfers?.tokens[i]?.isComplete
           ? { ...accumulator, [token.id]: Keypair.generate() }
           : accumulator;
@@ -151,11 +150,11 @@ const getRequiredEcosystems = (
     case InteractionType.Swap: {
       const { params } = interactionSpec;
       const inputEcosystems = mapNonZeroAmountsToNativeEcosystems(tokens, [
-        ...params.exactInputAmounts.values(),
+        params.exactInputAmount,
       ]);
       const outputToken = findOrThrow(
         tokens,
-        (token) => token.id === params.outputTokenId,
+        (token) => token.id === params.minimumOutputAmount.tokenId,
       );
       const outputEcosystem = outputToken.nativeEcosystem;
       return new Set([EcosystemId.Solana, ...inputEcosystems, outputEcosystem]);

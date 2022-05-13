@@ -16,14 +16,15 @@ import { EcosystemId } from "../config";
 import { useConfig } from "../contexts";
 import {
   isEveryAddressConnected,
+  usePoolMaths,
   useRecentInteractions,
   useSplTokenAccountsQuery,
   useStepsReducer,
   useWallets,
 } from "../hooks";
 import { InteractionType, Status, getCurrentState } from "../models";
-import type { Interaction, State, Tx, WithOperations } from "../models";
-import { findOrThrow } from "../utils";
+import type { Interaction, State, Tx } from "../models";
+import { isEachNotNull } from "../utils";
 
 import { MultiConnectButton } from "./ConnectButton";
 import { ConnectedWallets } from "./ConnectedWallets";
@@ -75,7 +76,7 @@ export const ActiveInteraction = ({
 };
 
 export interface RecentInteractionProps {
-  readonly interaction: WithOperations<Interaction>;
+  readonly interaction: Interaction;
   readonly txs: readonly Tx[] | null;
   readonly splTokenAccounts: readonly TokenAccountInfo[];
 }
@@ -89,9 +90,19 @@ export const RecentInteraction = ({
   const [isActive, setIsActive] = useState(false);
   const wallets = useWallets();
   const { isInteractionInProgress } = useStepsReducer();
+  const poolMaths = usePoolMaths(interaction.poolIds);
   const currentState = useMemo(
-    () => getCurrentState(config, interaction, splTokenAccounts, txs ?? []),
-    [config, interaction, splTokenAccounts, txs],
+    () =>
+      isEachNotNull(poolMaths)
+        ? getCurrentState(
+            config,
+            interaction,
+            poolMaths,
+            splTokenAccounts,
+            txs ?? [],
+          )
+        : null,
+    [config, interaction, splTokenAccounts, poolMaths, txs],
   );
 
   const title = useMemo(() => {
@@ -109,16 +120,12 @@ export const RecentInteraction = ({
         );
       }
       case InteractionType.Swap: {
-        const { exactInputAmounts } = interaction.params;
-        const inputAmount = findOrThrow(
-          [...exactInputAmounts.values()],
-          (amount) => !amount.isZero(),
-        );
+        const { exactInputAmount } = interaction.params;
         return (
           <>
             <span>Swap</span>{" "}
             <AmountWithTokenIcon
-              amount={inputAmount}
+              amount={exactInputAmount}
               ecosystem={EcosystemId.Solana}
             />{" "}
             <span>for</span>{" "}
@@ -183,7 +190,7 @@ export const RecentInteraction = ({
       return "Fetching transaction status...";
     }
 
-    if (currentState.steps === null) {
+    if (currentState === null || currentState.steps === null) {
       return "Loading...";
     }
 

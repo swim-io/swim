@@ -48,7 +48,7 @@ const devnetPools: readonly PoolSpec[] = [
     contract: "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC",
     address: "B1SAcuHscDM6JozshK8mEWXGzpfVPeeFVkf98GRnoqiT",
     authority: "9DcGsnvKHCHurzXiQGtLD7n4ptPodD2ZzHMpQQWE9F8x",
-    feeDecimals: 8,
+    feeDecimals: 6,
     lpToken: "devnet-solana-lp-hexapool",
     tokenAccounts: new Map([
       ["devnet-ethereum-usdc", "9dgN9v64Vr7uFGWpmgWLEsPJMBkqED1xhesmGuT29hDe"],
@@ -66,7 +66,7 @@ const devnetPools: readonly PoolSpec[] = [
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "B5SxvSX5hEv3CJR8XMA6QnbiyZGsS7uhNdLimXVDn6PX",
     authority: "BbZwNqLypwU1Qqvnd6Bb7YJ1bYJj5VgMvwLv4NeqD8S",
-    feeDecimals: 8,
+    feeDecimals: 6,
     lpToken: "devnet-solana-lp-meta-avalanche-usdc",
     tokenAccounts: new Map([
       ["devnet-avalanche-usdc", "ANWHgVyx7RZQnCUbAoEJKia6z2rRufEULcfQd6cZKDRw"],
@@ -83,7 +83,7 @@ const devnetPools: readonly PoolSpec[] = [
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "CrvWB1GsU6gsWys8rVsKirBVLicVsn7SMbcbuDejMhLn",
     authority: "CCjyGG6xQ5BpSaDneD6vdXCFjXwjmCbFWXNXF5NoBYo9",
-    feeDecimals: 8,
+    feeDecimals: 6,
     lpToken: "devnet-solana-lp-meta-avalanche-usdt",
     tokenAccounts: new Map([
       ["devnet-avalanche-usdt", "3C46uzyHYNrx3ZBEsems32bXFUoh8B5G7PTrMMV2dLVr"],
@@ -100,7 +100,7 @@ const devnetPools: readonly PoolSpec[] = [
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "AhAMrVeTYyS5EAhoYQvrL2Qd3sLHU4r3VgYZ6ChVAcW8",
     authority: "jieaZtSYb9FA7GzHHXxBakNuEVFZUQ7jRzR1dm2Gw4u",
-    feeDecimals: 8,
+    feeDecimals: 6,
     lpToken: "devnet-solana-lp-meta-polygon-usdc",
     tokenAccounts: new Map([
       ["devnet-polygon-usdc", "a283NqFzprjMfq1cvJfuUk4dSFUMpVhS9gZdU7UcQ6h"],
@@ -117,7 +117,7 @@ const devnetPools: readonly PoolSpec[] = [
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "4e5ZvtYTNEhuJUnLLqmQqPMMwTZmHWjXHJwf2H7x69Lz",
     authority: "EPzbYcoa1MMp324hmnsJM2C1f2GYHdHqKdtFMGYdswH6",
-    feeDecimals: 8,
+    feeDecimals: 6,
     lpToken: "devnet-solana-lp-meta-polygon-usdt",
     tokenAccounts: new Map([
       ["devnet-polygon-usdt", "E7bYM1UP51go1V8nJ5Miesp9BMwQNHTh5fQdHB4CrJ8q"],

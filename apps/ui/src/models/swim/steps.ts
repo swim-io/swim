@@ -20,6 +20,7 @@ import { isSolanaTx } from "../crossEcosystem";
 import { findTokenAccountForMint } from "../solana";
 import { isTransferFromTx, isTransferToTx } from "../wormhole";
 
+import { SwimDefiInstruction } from "./instructions";
 import type {
   AddInteraction,
   Interaction,
@@ -28,12 +29,12 @@ import type {
   RemoveExactOutputInteraction,
   RemoveUniformInteraction,
   SwapInteraction,
-  WithOperations,
 } from "./interaction";
 import { InteractionType } from "./interaction";
 import type { OperationSpec } from "./operation";
 import type { TokensByPoolId } from "./pool";
 import { getTokensByPool, isPoolTx } from "./pool";
+import type { PoolMath } from "./poolMath";
 import type {
   ProtoTransfer,
   Transfer,
@@ -177,31 +178,23 @@ export const getRequiredTokens = (
     case InteractionType.Swap: {
       const inputPool = poolSpecs[0];
       const outputPool = poolSpecs[poolSpecs.length - 1];
-      const inputTokenIds = [
-        ...interactionSpec.params.exactInputAmounts.keys(),
-      ];
-      const inputTokens = inputTokenIds.map((tokenId) =>
-        findOrThrow(
-          tokensByPoolId[inputPool.id].tokens,
-          (token) => token.id === tokenId,
-        ),
+      const inputTokenId = interactionSpec.params.exactInputAmount.tokenId;
+      const inputToken = findOrThrow(
+        tokensByPoolId[inputPool.id].tokens,
+        (token) => token.id === inputTokenId,
       );
-      const filteredInputTokens = inputTokens.filter((token) => {
-        const inputAmount =
-          interactionSpec.params.exactInputAmounts.get(token.id) ?? null;
-        return inputAmount !== null && !inputAmount.isZero();
-      });
       const outputToken = findOrThrow(
         tokensByPoolId[outputPool.id].tokens,
-        (token) => token.id === interactionSpec.params.outputTokenId,
+        (token) =>
+          token.id === interactionSpec.params.minimumOutputAmount.tokenId,
       );
       if (inputPool.id === outputPool.id) {
-        return [...filteredInputTokens, outputToken];
+        return [inputToken, outputToken];
       }
 
       // TODO: Generalize to other routes
       const swimUSD = tokensByPoolId["hexapool"].lpToken;
-      return [...filteredInputTokens, swimUSD, outputToken];
+      return [inputToken, swimUSD, outputToken];
     }
     default:
       throw new Error("Unsupported instruction");
@@ -235,19 +228,301 @@ export const findMissingSplTokenAccountMints = (
     });
 };
 
+export const createOperationSpecs = (
+  tokensByPoolId: TokensByPoolId,
+  poolSpecs: readonly PoolSpec[],
+  poolMaths: readonly PoolMath[],
+  interaction: Interaction,
+): readonly OperationSpec[] => {
+  const { id: interactionId } = interaction;
+  const inputPool = poolSpecs[0];
+  const outputPool = poolSpecs[poolSpecs.length - 1];
+  const inputPoolTokens = tokensByPoolId[inputPool.id];
+  const outputPoolTokens = tokensByPoolId[outputPool.id];
+
+  switch (interaction.type) {
+    case InteractionType.Add: {
+      const { inputAmounts, minimumMintAmount } = interaction.params;
+      return [
+        {
+          interactionId,
+          poolId: inputPool.id,
+          instruction: SwimDefiInstruction.Add,
+          params: {
+            inputAmounts: inputPoolTokens.tokens.map(
+              (token) => inputAmounts.get(token.id) ?? Amount.zero(token),
+            ),
+            minimumMintAmount,
+          },
+        },
+      ];
+    }
+    case InteractionType.RemoveUniform: {
+      const { exactBurnAmount, minimumOutputAmounts } = interaction.params;
+      return [
+        {
+          interactionId,
+          poolId: inputPool.id,
+          instruction: SwimDefiInstruction.RemoveUniform,
+          params: {
+            exactBurnAmount,
+            minimumOutputAmounts: inputPoolTokens.tokens.map(
+              (token) =>
+                minimumOutputAmounts.get(token.id) ?? Amount.zero(token),
+            ),
+          },
+        },
+      ];
+    }
+    case InteractionType.RemoveExactBurn: {
+      const { exactBurnAmount, outputTokenId, minimumOutputAmount } =
+        interaction.params;
+      return [
+        {
+          interactionId,
+          poolId: inputPool.id,
+          instruction: SwimDefiInstruction.RemoveExactBurn,
+          params: {
+            exactBurnAmount,
+            outputTokenIndex: inputPoolTokens.tokens.findIndex(
+              (token) => token.id === outputTokenId,
+            ),
+            minimumOutputAmount,
+          },
+        },
+      ];
+    }
+    case InteractionType.RemoveExactOutput: {
+      const { maximumBurnAmount, exactOutputAmounts } = interaction.params;
+      return [
+        {
+          interactionId,
+          poolId: inputPool.id,
+          instruction: SwimDefiInstruction.RemoveExactOutput,
+          params: {
+            maximumBurnAmount,
+            exactOutputAmounts: inputPoolTokens.tokens.map(
+              (token) => exactOutputAmounts.get(token.id) ?? Amount.zero(token),
+            ),
+          },
+        },
+      ];
+    }
+    case InteractionType.Swap: {
+      const { exactInputAmount, minimumOutputAmount } = interaction.params;
+      if (inputPool.id === outputPool.id) {
+        return [
+          {
+            interactionId,
+            poolId: inputPool.id,
+            instruction: SwimDefiInstruction.Swap,
+            params: {
+              exactInputAmounts: inputPoolTokens.tokens.map((token) =>
+                token.id === exactInputAmount.tokenId
+                  ? exactInputAmount
+                  : Amount.zero(token),
+              ),
+              outputTokenIndex: inputPoolTokens.tokens.findIndex(
+                (token) => token.id === minimumOutputAmount.tokenId,
+              ),
+              minimumOutputAmount,
+            },
+          },
+        ];
+      }
+
+      if (poolMaths.length !== 2) {
+        throw new Error("Missing pool math");
+      }
+      // TODO: Generalize to other routes
+      const hexapoolId = "hexapool";
+      const inputPoolIsHexapool = inputPool.id === hexapoolId;
+      const outputPoolIsHexapool = outputPool.id === hexapoolId;
+      const outputPoolMath = poolMaths[1];
+
+      // add-then-swap
+      if (inputPoolIsHexapool) {
+        const inputIndex = outputPoolTokens.tokens.findIndex(
+          (token) => token.id === inputPool.lpToken,
+        );
+        const minimumOutputAmounts = outputPoolTokens.tokens.map((token) =>
+          token.id === minimumOutputAmount.tokenId
+            ? minimumOutputAmount
+            : Amount.zero(token),
+        );
+        const { stableInputAmount } = outputPoolMath.swapExactOutput(
+          inputIndex,
+          minimumOutputAmounts.map((amount) =>
+            amount.toHuman(EcosystemId.Solana),
+          ),
+        );
+        const minimumMintAmount = Amount.fromAtomic(
+          inputPoolTokens.lpToken,
+          stableInputAmount,
+          EcosystemId.Solana,
+        );
+        return [
+          {
+            interactionId,
+            poolId: inputPool.id,
+            instruction: SwimDefiInstruction.Add,
+            params: {
+              inputAmounts: inputPoolTokens.tokens.map((token) =>
+                token.id === exactInputAmount.tokenId
+                  ? exactInputAmount
+                  : Amount.zero(token),
+              ),
+              minimumMintAmount,
+            },
+          },
+          {
+            interactionId,
+            poolId: outputPool.id,
+            instruction: SwimDefiInstruction.Swap,
+            params: {
+              exactInputAmounts: outputPoolTokens.tokens.map((token) =>
+                // NOTE: This will be overriden when we know the correct amount
+                // For now we set the amount to 1 to distinguish it from the others
+                token.id === inputPoolTokens.lpToken.id
+                  ? Amount.fromAtomicString(token, "1", EcosystemId.Solana)
+                  : Amount.zero(token),
+              ),
+              outputTokenIndex: outputPoolTokens.tokens.findIndex(
+                (token) => token.id === minimumOutputAmount.tokenId,
+              ),
+              minimumOutputAmount,
+            },
+          },
+        ];
+      }
+
+      // swap-then-remove
+      if (outputPoolIsHexapool) {
+        const minimumOutputAmounts = outputPoolTokens.tokens.map((token) =>
+          token.id === minimumOutputAmount.tokenId
+            ? minimumOutputAmount
+            : Amount.zero(token),
+        );
+        const { lpInputAmount } = outputPoolMath.removeExactOutput(
+          minimumOutputAmounts.map((amount) =>
+            amount.toHuman(EcosystemId.Solana),
+          ),
+        );
+        const inputPoolMinimumOutputAmount = Amount.fromAtomic(
+          outputPoolTokens.lpToken,
+          lpInputAmount,
+          EcosystemId.Solana,
+        );
+        return [
+          {
+            interactionId,
+            poolId: inputPool.id,
+            instruction: SwimDefiInstruction.Swap,
+            params: {
+              exactInputAmounts: inputPoolTokens.tokens.map((token) =>
+                token.id === exactInputAmount.tokenId
+                  ? exactInputAmount
+                  : Amount.zero(token),
+              ),
+              outputTokenIndex: inputPoolTokens.tokens.findIndex(
+                (token) => token.id === outputPool.lpToken,
+              ),
+              minimumOutputAmount: inputPoolMinimumOutputAmount,
+            },
+          },
+          {
+            interactionId,
+            poolId: outputPool.id,
+            instruction: SwimDefiInstruction.RemoveExactBurn,
+            params: {
+              // NOTE: This will be overriden when we know the correct amount
+              exactBurnAmount: Amount.zero(outputPoolTokens.lpToken),
+              outputTokenIndex: outputPoolTokens.tokens.findIndex(
+                (token) => token.id === minimumOutputAmount.tokenId,
+              ),
+              minimumOutputAmount,
+            },
+          },
+        ];
+      }
+
+      // swap-then-swap (Metapool to metapool)
+      const inputPoolOutputTokenIndex = inputPoolTokens.tokens.findIndex(
+        (inputPoolToken) =>
+          outputPoolTokens.tokens.some(
+            (outputPoolToken) => outputPoolToken.id === inputPoolToken.id,
+          ),
+      );
+      const inputPoolOutputToken =
+        inputPoolTokens.tokens[inputPoolOutputTokenIndex];
+      const outputPoolInputIndex = outputPoolTokens.tokens.findIndex(
+        (token) => token.id === inputPoolOutputToken.id,
+      );
+      const minimumOutputAmounts = outputPoolTokens.tokens.map((token) =>
+        token.id === minimumOutputAmount.tokenId
+          ? minimumOutputAmount
+          : Amount.zero(token),
+      );
+      const { stableInputAmount } = outputPoolMath.swapExactOutput(
+        outputPoolInputIndex,
+        minimumOutputAmounts.map((amount) =>
+          amount.toHuman(EcosystemId.Solana),
+        ),
+      );
+      const minimumInputPoolOutputAmount = Amount.fromAtomic(
+        inputPoolTokens.lpToken,
+        stableInputAmount,
+        EcosystemId.Solana,
+      );
+      return [
+        {
+          interactionId,
+          poolId: inputPool.id,
+          instruction: SwimDefiInstruction.Swap,
+          params: {
+            exactInputAmounts: inputPoolTokens.tokens.map((token) =>
+              token.id === exactInputAmount.tokenId
+                ? exactInputAmount
+                : Amount.zero(token),
+            ),
+            outputTokenIndex: inputPoolOutputTokenIndex,
+            minimumOutputAmount: minimumInputPoolOutputAmount,
+          },
+        },
+        {
+          interactionId,
+          poolId: outputPool.id,
+          instruction: SwimDefiInstruction.Swap,
+          params: {
+            exactInputAmounts: outputPoolTokens.tokens.map((token) =>
+              // NOTE: This will be overriden when we know the correct amount
+              // For now we set the amount to 1 to distinguish it from the others
+              token.id === inputPoolOutputToken.id
+                ? Amount.fromAtomicString(token, "1", EcosystemId.Solana)
+                : Amount.zero(token),
+            ),
+            outputTokenIndex: outputPoolTokens.tokens.findIndex(
+              (token) => token.id === minimumOutputAmount.tokenId,
+            ),
+            minimumOutputAmount,
+          },
+        },
+      ];
+    }
+    default:
+      throw new Error("Unknown interaction type");
+  }
+};
+
 export const createAddSteps = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
-  interaction: WithOperations<AddInteraction>,
+  interaction: AddInteraction,
+  operations: readonly OperationSpec[],
   splTokenAccounts: readonly TokenAccount[],
   txsByStep: TxsByStep,
 ): Steps => {
-  const {
-    id: interactionId,
-    params,
-    lpTokenTargetEcosystem,
-    operations,
-  } = interaction;
+  const { id: interactionId, params, lpTokenTargetEcosystem } = interaction;
   const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
   const missingTokenAccountMints = findMissingSplTokenAccountMints(
     tokensByPoolId,
@@ -309,16 +584,12 @@ export const createAddSteps = (
 export const createRemoveUniformSteps = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
-  interaction: WithOperations<RemoveUniformInteraction>,
+  interaction: RemoveUniformInteraction,
+  operations: readonly OperationSpec[],
   splTokenAccounts: readonly TokenAccount[],
   txsByStep: TxsByStep,
 ): Steps => {
-  const {
-    id: interactionId,
-    params,
-    lpTokenSourceEcosystem,
-    operations,
-  } = interaction;
+  const { id: interactionId, params, lpTokenSourceEcosystem } = interaction;
   const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
   const missingTokenAccountMints = findMissingSplTokenAccountMints(
     tokensByPoolId,
@@ -378,16 +649,12 @@ export const createRemoveUniformSteps = (
 export const createRemoveExactBurnSteps = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
-  interaction: WithOperations<RemoveExactBurnInteraction>,
+  interaction: RemoveExactBurnInteraction,
+  operations: readonly OperationSpec[],
   splTokenAccounts: readonly TokenAccount[],
   txsByStep: TxsByStep,
 ): Steps => {
-  const {
-    id: interactionId,
-    params,
-    lpTokenSourceEcosystem,
-    operations,
-  } = interaction;
+  const { id: interactionId, params, lpTokenSourceEcosystem } = interaction;
   const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
   const missingTokenAccountMints = findMissingSplTokenAccountMints(
     tokensByPoolId,
@@ -454,16 +721,12 @@ export const createRemoveExactBurnSteps = (
 export const createRemoveExactOutputSteps = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
-  interaction: WithOperations<RemoveExactOutputInteraction>,
+  interaction: RemoveExactOutputInteraction,
+  operations: readonly OperationSpec[],
   splTokenAccounts: readonly TokenAccount[],
   txsByStep: TxsByStep,
 ): Steps => {
-  const {
-    id: interactionId,
-    params,
-    lpTokenSourceEcosystem,
-    operations,
-  } = interaction;
+  const { id: interactionId, params, lpTokenSourceEcosystem } = interaction;
   const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
   const missingTokenAccountMints = findMissingSplTokenAccountMints(
     tokensByPoolId,
@@ -528,11 +791,12 @@ export const createRemoveExactOutputSteps = (
 export const createSwapSteps = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
-  interaction: WithOperations<SwapInteraction>,
+  interaction: SwapInteraction,
+  operations: readonly OperationSpec[],
   splTokenAccounts: readonly TokenAccount[],
   txsByStep: TxsByStep,
 ): Steps => {
-  const { id: interactionId, params, operations } = interaction;
+  const { id: interactionId, params } = interaction;
   const missingTokenAccountMints = findMissingSplTokenAccountMints(
     tokensByPoolId,
     poolSpecs,
@@ -545,7 +809,7 @@ export const createSwapSteps = (
   const inputPoolTokens = tokensByPoolId[inputPool.id];
   const outputPoolTokens = tokensByPoolId[outputPool.id];
   const outputTokenIndex = outputPoolTokens.tokens.findIndex(
-    (token) => token.id === params.outputTokenId,
+    (token) => token.id === params.minimumOutputAmount.tokenId,
   );
   if (outputTokenIndex === -1) {
     throw new Error("Invalid output token");
@@ -569,9 +833,10 @@ export const createSwapSteps = (
           interactionId,
           splTokenAccounts,
           inputPoolTokens.tokens,
-          inputPoolTokens.tokens.map(
-            (token) =>
-              params.exactInputAmounts.get(token.id) ?? Amount.zero(token),
+          inputPoolTokens.tokens.map((token) =>
+            token.id === params.exactInputAmount.tokenId
+              ? params.exactInputAmount
+              : Amount.zero(token),
           ),
           interaction.signatureSetKeypairs,
         ),
@@ -683,6 +948,31 @@ export const getTransferFromTxs = (
   }, {});
 };
 
+const getRequiredPoolsForSwap = (
+  poolSpecs: readonly PoolSpec[],
+  inputTokenId: string,
+  outputTokenId: string,
+): readonly PoolSpec[] => {
+  const singlePool =
+    poolSpecs.find((poolSpec) =>
+      [inputTokenId, outputTokenId].every((tokenId) =>
+        poolSpec.tokenAccounts.has(tokenId),
+      ),
+    ) ?? null;
+  if (singlePool !== null) {
+    return [singlePool];
+  }
+  // NOTE: We assume a maximum of two pools
+  // TODO: Handle swimUSD swaps
+  const inputPool = findOrThrow(poolSpecs, (poolSpec) =>
+    poolSpec.tokenAccounts.has(inputTokenId),
+  );
+  const outputPool = findOrThrow(poolSpecs, (poolSpec) =>
+    poolSpec.tokenAccounts.has(outputTokenId),
+  );
+  return [inputPool, outputPool];
+};
+
 /** Returns one or two pools involved in the interaction */
 export const getRequiredPools = (
   poolSpecs: readonly PoolSpec[],
@@ -700,27 +990,11 @@ export const getRequiredPools = (
         ),
       ];
     case InteractionType.Swap: {
-      const inputTokenIds = [
-        ...interactionSpec.params.exactInputAmounts.keys(),
-      ];
-      const { outputTokenId } = interactionSpec.params;
-      const singlePool =
-        poolSpecs.find((poolSpec) =>
-          [...inputTokenIds, outputTokenId].every((tokenId) =>
-            poolSpec.tokenAccounts.has(tokenId),
-          ),
-        ) ?? null;
-      if (singlePool !== null) {
-        return [singlePool];
-      }
-      // NOTE: We assume a maximum of two pools
-      const inputPool = findOrThrow(poolSpecs, (poolSpec) =>
-        inputTokenIds.every((tokenId) => poolSpec.tokenAccounts.has(tokenId)),
+      return getRequiredPoolsForSwap(
+        poolSpecs,
+        interactionSpec.params.exactInputAmount.tokenId,
+        interactionSpec.params.minimumOutputAmount.tokenId,
       );
-      const outputPool = findOrThrow(poolSpecs, (poolSpec) =>
-        poolSpec.tokenAccounts.has(outputTokenId),
-      );
-      return [inputPool, outputPool];
     }
     default:
       throw new Error("Unknown interaction type");
@@ -729,7 +1003,8 @@ export const getRequiredPools = (
 
 export const createSteps = (
   config: Config,
-  interaction: WithOperations<Interaction>,
+  interaction: Interaction,
+  poolMaths: readonly PoolMath[],
   splTokenAccounts: readonly TokenAccount[],
   txs: readonly Tx[],
 ): Steps => {
@@ -769,6 +1044,12 @@ export const createSteps = (
     [StepType.SolanaOperations]: poolOperationTxs,
     [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
   };
+  const operationSpecs = createOperationSpecs(
+    tokensByPool,
+    requiredPools,
+    poolMaths,
+    interaction,
+  );
 
   switch (interaction.type) {
     case InteractionType.Add:
@@ -776,6 +1057,7 @@ export const createSteps = (
         tokensByPool,
         requiredPools,
         interaction,
+        operationSpecs,
         splTokenAccounts,
         txsByStep,
       );
@@ -784,6 +1066,7 @@ export const createSteps = (
         tokensByPool,
         requiredPools,
         interaction,
+        operationSpecs,
         splTokenAccounts,
         txsByStep,
       );
@@ -792,6 +1075,7 @@ export const createSteps = (
         tokensByPool,
         requiredPools,
         interaction,
+        operationSpecs,
         splTokenAccounts,
         txsByStep,
       );
@@ -800,6 +1084,7 @@ export const createSteps = (
         tokensByPool,
         requiredPools,
         interaction,
+        operationSpecs,
         splTokenAccounts,
         txsByStep,
       );
@@ -808,6 +1093,7 @@ export const createSteps = (
         tokensByPool,
         requiredPools,
         interaction,
+        operationSpecs,
         splTokenAccounts,
         txsByStep,
       );

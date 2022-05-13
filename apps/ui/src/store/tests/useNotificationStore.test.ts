@@ -17,7 +17,7 @@ describe("useNotificationStore", () => {
   it("returns new toast from store", async () => {
     const { result } = renderHook(() => useNotificationStore((state) => state));
     const toast: EuiGlobalToastListToast = {
-      id: "toast",
+      id: expect.stringMatching(/toast/),
       title: "Error",
       text: "Some error",
       color: "warning",
@@ -27,14 +27,7 @@ describe("useNotificationStore", () => {
       result.current.notify("Error", "Some error", "warning");
     });
 
-    // expect(result.current.toasts[0]).toEqual(toast);
-    expect(result.current.toasts[0].id).toContain(toast.id);
-    expect(result.current.toasts[0].title).toEqual(toast.title);
-    expect(result.current.toasts[0].text).toEqual(toast.text);
-    expect(result.current.toasts[0].color).toEqual(toast.color);
-    expect(result.current.toasts[0].toastLifeTimeMs).toEqual(
-      toast.toastLifeTimeMs,
-    );
+    expect(result.current.toasts[0]).toEqual(toast);
   });
   it("removes created toast from store", async () => {
     const { result } = renderHook(() => useNotificationStore((state) => state));

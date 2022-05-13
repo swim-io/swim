@@ -15,7 +15,7 @@ import { Protocol } from "../config";
 import { useLocalStorageState } from "../hooks/browser";
 import type { SolanaWalletAdapter, SolanaWalletService } from "../models";
 import { SOLANA_WALLET_SERVICES } from "../models";
-import { useNotificationStore } from "../store/useNotificationStore";
+import { useNotificationStore } from "../store";
 import { shortenAddress } from "../utils";
 
 import { useConfig } from "./environment";

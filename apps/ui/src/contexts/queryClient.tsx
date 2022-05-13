@@ -8,7 +8,7 @@ import {
 import { ReactQueryDevtools } from "react-query/devtools";
 
 import { captureException } from "../errors";
-import { useNotificationStore } from "../store/useNotificationStore";
+import { useNotificationStore } from "../store";
 
 export const QueryClientProvider = ({
   children,

@@ -41,7 +41,7 @@ import {
   getRequiredPools,
   getTokensByPool,
 } from "../models";
-import { useNotificationStore } from "../store/useNotificationStore";
+import { useNotificationStore } from "../store";
 import {
   defaultIfError,
   findOrThrow,

@@ -42,7 +42,7 @@ import {
   setUpErc20Tokens,
   setUpSplTokensOnEvm,
 } from "../models";
-import { useNotificationStore } from "../store/useNotificationStore";
+import { useNotificationStore } from "../store";
 import { shortenAddress, sleep } from "../utils";
 
 const SWIM_POOL_FEE_DECIMALS = 6;

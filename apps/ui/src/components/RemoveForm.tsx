@@ -38,7 +38,7 @@ import {
   Status,
   getLowBalanceWallets,
 } from "../models";
-import { useNotificationStore } from "../store/useNotificationStore";
+import { useNotificationStore } from "../store";
 import type { ReadonlyRecord } from "../utils";
 import {
   defaultIfError,

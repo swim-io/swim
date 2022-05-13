@@ -30,7 +30,7 @@ import {
   useWallets,
   useWormhole,
 } from "../hooks";
-import { useNotificationStore } from "../store/useNotificationStore";
+import { useNotificationStore } from "../store";
 import type { ReadonlyRecord } from "../utils";
 import { shortenAddress } from "../utils";
 

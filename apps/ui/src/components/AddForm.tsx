@@ -39,7 +39,7 @@ import {
   Status,
   getLowBalanceWallets,
 } from "../models";
-import { useNotificationStore } from "../store/useNotificationStore";
+import { useNotificationStore } from "../store";
 import { isEachNotNull, isNotNull } from "../utils";
 
 import { ConfirmModal } from "./ConfirmModal";

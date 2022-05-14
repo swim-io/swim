@@ -17,11 +17,7 @@ import type { PoolSpec } from "../config";
 import { EcosystemId, getSolanaTokenDetails } from "../config";
 import { useConfig } from "../contexts";
 import { useLiquidityQuery, useTitle } from "../hooks";
-import SWIM_SVG from "../images/swim_logo.svg";
 import BTC_SVG from "../images/tokens/btc.svg";
-import USDC_SVG from "../images/tokens/usdc.svg";
-import USDT_SVG from "../images/tokens/usdt.svg";
-import UST_SVG from "../images/tokens/ust.svg";
 import WBTC_SVG from "../images/tokens/wbtc.svg";
 import { filterMap, findOrThrow } from "../utils";
 
@@ -133,33 +129,6 @@ const PoolsPage = (): ReactElement => {
                   icon: BTC_SVG,
                   isStablecoin: false,
                   nativeEcosystem: EcosystemId.Bsc,
-                  detailsByEcosystem: new Map(),
-                },
-              ]}
-            />
-
-            <EuiSpacer size="xxl" />
-
-            <PoolListItem
-              title="UST Meta-Pool"
-              betaBadgeLabel="Coming Soon"
-              tokenSpecs={[
-                {
-                  id: "placeholder-solana-native-lp_hexapool",
-                  symbol: "SWIM_HEXAPOOL_LP",
-                  displayName: "swimUSD",
-                  icon: SWIM_SVG,
-                  isStablecoin: false,
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "placeholder-terra-native-ust",
-                  symbol: "UST",
-                  displayName: "TerraUSD",
-                  icon: UST_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Terra,
                   detailsByEcosystem: new Map(),
                 },
               ]}

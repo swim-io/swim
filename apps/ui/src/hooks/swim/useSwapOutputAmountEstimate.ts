@@ -1,5 +1,4 @@
 import Decimal from "decimal.js";
-import { useMemo } from "react";
 
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
@@ -95,112 +94,111 @@ export const useSwapOutputAmountEstimate = (
   } | null,
   toToken: TokenSpec | null,
   exactInputAmount: Amount | null,
-): Amount | null =>
-  useMemo<Amount | null>(() => {
-    if (
-      poolMaths.length < 1 ||
-      poolMaths.length > 2 ||
-      !isEachNotNull(poolMaths) ||
-      inputPoolTokens === null ||
-      outputPoolTokens === null ||
-      exactInputAmount === null ||
-      toToken === null
-    ) {
-      return null;
-    }
+): Amount | null => {
+  if (
+    poolMaths.length < 1 ||
+    poolMaths.length > 2 ||
+    !isEachNotNull(poolMaths) ||
+    inputPoolTokens === null ||
+    outputPoolTokens === null ||
+    exactInputAmount === null ||
+    toToken === null
+  ) {
+    return null;
+  }
 
-    const inputPoolMath = poolMaths[0];
-    const {
-      inputPoolInstruction,
-      inputPoolOutputTokenIndex,
-      outputPoolInstruction,
-      outputPoolInputToken,
-    } = routeSwap(inputPoolTokens, outputPoolTokens, toToken);
+  const inputPoolMath = poolMaths[0];
+  const {
+    inputPoolInstruction,
+    inputPoolOutputTokenIndex,
+    outputPoolInstruction,
+    outputPoolInputToken,
+  } = routeSwap(inputPoolTokens, outputPoolTokens, toToken);
 
-    // Calculate input pool output amount
-    let inputPoolOutputAmount: Amount | null = null;
-    try {
-      switch (inputPoolInstruction) {
-        case SwimDefiInstruction.Add: {
-          if (outputPoolInputToken === null) {
-            throw new Error("Invalid swap route");
-          }
-          const { lpOutputAmount } = inputPoolMath.add(
-            inputPoolTokens.tokens.map((token) =>
-              token.id === exactInputAmount.tokenId
-                ? exactInputAmount.toHuman(EcosystemId.Solana)
-                : ZERO,
-            ),
-          );
-          inputPoolOutputAmount = Amount.fromHuman(
-            outputPoolInputToken,
-            lpOutputAmount,
-          );
-          break;
+  // Calculate input pool output amount
+  let inputPoolOutputAmount: Amount | null = null;
+  try {
+    switch (inputPoolInstruction) {
+      case SwimDefiInstruction.Add: {
+        if (outputPoolInputToken === null) {
+          throw new Error("Invalid swap route");
         }
-        case SwimDefiInstruction.Swap: {
-          if (inputPoolOutputTokenIndex === null) {
-            throw new Error("Invalid swap route");
-          }
-          const { stableOutputAmount } = inputPoolMath.swapExactInput(
-            inputPoolTokens.tokens.map((token) =>
-              token.id === exactInputAmount.tokenId
-                ? exactInputAmount.toHuman(EcosystemId.Solana)
-                : ZERO,
-            ),
-            inputPoolOutputTokenIndex,
-          );
-          inputPoolOutputAmount = Amount.fromHuman(
-            inputPoolTokens.tokens[inputPoolOutputTokenIndex],
-            stableOutputAmount,
-          );
-          break;
-        }
-        default:
-          throw new Error("Unknown swap route");
+        const { lpOutputAmount } = inputPoolMath.add(
+          inputPoolTokens.tokens.map((token) =>
+            token.id === exactInputAmount.tokenId
+              ? exactInputAmount.toHuman(EcosystemId.Solana)
+              : ZERO,
+          ),
+        );
+        inputPoolOutputAmount = Amount.fromHuman(
+          outputPoolInputToken,
+          lpOutputAmount,
+        );
+        break;
       }
-    } catch {
-      return null;
-    }
-
-    if (poolMaths.length === 1) {
-      return inputPoolOutputAmount;
-    }
-
-    // Calculate output pool output amount for multi-pool swaps
-    const outputPoolMath = poolMaths[1];
-    const outputPoolOutputTokenIndex = outputPoolTokens.tokens.findIndex(
-      ({ id }) => id === toToken.id,
-    );
-    try {
-      switch (outputPoolInstruction) {
-        case SwimDefiInstruction.RemoveExactBurn: {
-          const { stableOutputAmount } = outputPoolMath.removeExactBurn(
-            inputPoolOutputAmount.toHuman(EcosystemId.Solana),
-            outputPoolOutputTokenIndex,
-          );
-          return Amount.fromHuman(toToken, stableOutputAmount);
+      case SwimDefiInstruction.Swap: {
+        if (inputPoolOutputTokenIndex === null) {
+          throw new Error("Invalid swap route");
         }
-        case SwimDefiInstruction.Swap: {
-          const { stableOutputAmount } = outputPoolMath.swapExactInput(
-            outputPoolTokens.tokens.map((token) => {
-              if (inputPoolOutputAmount === null) {
-                throw new Error("Something went wrong");
-              }
-              const amount =
-                token.id === inputPoolOutputAmount.tokenId
-                  ? inputPoolOutputAmount
-                  : Amount.zero(token);
-              return amount.toHuman(EcosystemId.Solana);
-            }),
-            outputPoolOutputTokenIndex,
-          );
-          return Amount.fromHuman(toToken, stableOutputAmount);
-        }
-        default:
-          throw new Error("Unknown swap route");
+        const { stableOutputAmount } = inputPoolMath.swapExactInput(
+          inputPoolTokens.tokens.map((token) =>
+            token.id === exactInputAmount.tokenId
+              ? exactInputAmount.toHuman(EcosystemId.Solana)
+              : ZERO,
+          ),
+          inputPoolOutputTokenIndex,
+        );
+        inputPoolOutputAmount = Amount.fromHuman(
+          inputPoolTokens.tokens[inputPoolOutputTokenIndex],
+          stableOutputAmount,
+        );
+        break;
       }
-    } catch {
-      return null;
+      default:
+        throw new Error("Unknown swap route");
     }
-  }, [exactInputAmount, inputPoolTokens, outputPoolTokens, poolMaths, toToken]);
+  } catch {
+    return null;
+  }
+
+  if (poolMaths.length === 1) {
+    return inputPoolOutputAmount;
+  }
+
+  // Calculate output pool output amount for multi-pool swaps
+  const outputPoolMath = poolMaths[1];
+  const outputPoolOutputTokenIndex = outputPoolTokens.tokens.findIndex(
+    ({ id }) => id === toToken.id,
+  );
+  try {
+    switch (outputPoolInstruction) {
+      case SwimDefiInstruction.RemoveExactBurn: {
+        const { stableOutputAmount } = outputPoolMath.removeExactBurn(
+          inputPoolOutputAmount.toHuman(EcosystemId.Solana),
+          outputPoolOutputTokenIndex,
+        );
+        return Amount.fromHuman(toToken, stableOutputAmount);
+      }
+      case SwimDefiInstruction.Swap: {
+        const { stableOutputAmount } = outputPoolMath.swapExactInput(
+          outputPoolTokens.tokens.map((token) => {
+            if (inputPoolOutputAmount === null) {
+              throw new Error("Something went wrong");
+            }
+            const amount =
+              token.id === inputPoolOutputAmount.tokenId
+                ? inputPoolOutputAmount
+                : Amount.zero(token);
+            return amount.toHuman(EcosystemId.Solana);
+          }),
+          outputPoolOutputTokenIndex,
+        );
+        return Amount.fromHuman(toToken, stableOutputAmount);
+      }
+      default:
+        throw new Error("Unknown swap route");
+    }
+  } catch {
+    return null;
+  }
+};

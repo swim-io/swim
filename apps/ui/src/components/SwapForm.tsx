@@ -396,14 +396,6 @@ export const SwapForm = ({
       return;
     }
 
-    const outputTokenIndex =
-      outputPoolTokens !== null
-        ? outputPoolTokens.tokens.findIndex(({ id }) => id === toToken.id)
-        : -1;
-    if (outputTokenIndex === -1) {
-      throw new Error("Output token not found");
-    }
-
     const minimumOutputAmount = outputAmount.sub(
       outputAmount.mul(maxSlippageFraction),
     );

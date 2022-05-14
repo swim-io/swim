@@ -20,6 +20,8 @@ import { useEffect, useMemo, useState } from "react";
 import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
 import type { PoolSpec, TokenSpec } from "../config";
 import { useConfig } from "../contexts";
+import { notify } from "../core/selectors";
+import { useNotificationStore } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   useAddFeesEstimationQuery,
@@ -39,7 +41,6 @@ import {
   Status,
   getLowBalanceWallets,
 } from "../models";
-import { useNotificationStore } from "../store";
 import { isEachNotNull, isNotNull } from "../utils";
 
 import { ConfirmModal } from "./ConfirmModal";
@@ -177,7 +178,7 @@ export const AddForm = ({
   poolSpec,
   maxSlippageFraction,
 }: AddFormProps): ReactElement => {
-  const notify = useNotificationStore((state) => state.notify);
+  const sendNotification = useNotificationStore(notify);
   const config = useConfig();
   const wallets = useWallets();
   const {
@@ -433,7 +434,7 @@ export const AddForm = ({
       maxSlippageFraction === null ||
       poolMath === null
     ) {
-      notify(
+      sendNotification(
         "Form error",
         "There was an unexpected error submitting the form. Developers were notified.",
         "error",

@@ -12,10 +12,11 @@ import {
 
 import { SingleWalletModal } from "../components/SingleWalletModal";
 import { Protocol } from "../config";
+import { notify } from "../core/selectors";
+import { useNotificationStore } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
 import type { SolanaWalletAdapter, SolanaWalletService } from "../models";
 import { SOLANA_WALLET_SERVICES } from "../models";
-import { useNotificationStore } from "../store";
 import { shortenAddress } from "../utils";
 
 import { useConfig } from "./environment";
@@ -53,7 +54,7 @@ export const SolanaWalletProvider = ({
 }: SolanaWalletProviderProps): ReactElement => {
   const { chains } = useConfig();
   const [{ endpoint }] = chains[Protocol.Solana];
-  const notify = useNotificationStore((state) => state.notify);
+  const sendNotification = useNotificationStore(notify);
 
   const [connected, setConnected] = useState(false);
   const [autoConnect, setAutoConnect] = useState(false);
@@ -91,7 +92,7 @@ export const SolanaWalletProvider = ({
         const { publicKey } = wallet;
         if (publicKey) {
           setConnected(true);
-          notify(
+          sendNotification(
             "Wallet update",
             `Connected to wallet ${shortenAddress(publicKey.toBase58())}`,
             "info",
@@ -101,10 +102,14 @@ export const SolanaWalletProvider = ({
       };
       const handleDisconnect = (): void => {
         setConnected(false);
-        notify("Wallet update", "Disconnected from wallet", "warning");
+        sendNotification(
+          "Wallet update",
+          "Disconnected from wallet",
+          "warning",
+        );
       };
       const handleError = (title: string, description: string): void => {
-        notify(title, description, "error");
+        sendNotification(title, description, "error");
       };
       wallet.on("connect", handleConnect);
       wallet.on("disconnect", handleDisconnect);
@@ -122,7 +127,7 @@ export const SolanaWalletProvider = ({
       // eslint-disable-next-line functional/immutable-data
       previousWalletRef.current = wallet;
     };
-  }, [wallet, notify]);
+  }, [wallet, sendNotification]);
 
   useEffect(() => {
     if (wallet && autoConnect) {

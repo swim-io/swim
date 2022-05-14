@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/react";
 import type { EvmEcosystemId, TokenSpec } from "../../config";
 import { ecosystems } from "../../config";
 import { useEvmWallet } from "../../contexts";
-import { useNotificationStore } from "../../store";
+import { useNotificationStore } from "../../core/store";
 
 interface RegisterErc20TokenResult {
   readonly showPrompt: (tokenSpec: TokenSpec) => Promise<void>;

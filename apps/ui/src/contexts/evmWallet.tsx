@@ -12,6 +12,8 @@ import * as React from "react";
 import { SingleWalletModal } from "../components/SingleWalletModal";
 import type { EvmEcosystemId } from "../config";
 import { EcosystemId, Env, EvmChainId } from "../config";
+import { notify } from "../core/selectors";
+import { useNotificationStore } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
 import type { EvmWalletAdapter, WalletService } from "../models";
 import {
@@ -20,7 +22,6 @@ import {
   ETHEREUM_WALLET_SERVICES,
   POLYGON_WALLET_SERVICES,
 } from "../models";
-import { useNotificationStore } from "../store";
 import type { ReadonlyRecord } from "../utils";
 import { shortenAddress } from "../utils";
 
@@ -122,7 +123,7 @@ export const EvmWalletProvider = ({
   ecosystemId,
   children,
 }: EvmWalletProviderProps): ReactElement => {
-  const notify = useNotificationStore((state) => state.notify);
+  const sendNotification = useNotificationStore(notify);
 
   const { env } = useEnvironment();
   const [connected, setConnected] = useState(false);
@@ -161,7 +162,7 @@ export const EvmWalletProvider = ({
       const handleConnect = (): void => {
         if (wallet.address) {
           setConnected(true);
-          notify(
+          sendNotification(
             "Wallet update",
             `Connected to wallet ${shortenAddress(wallet.address)}`,
             "info",
@@ -171,10 +172,14 @@ export const EvmWalletProvider = ({
       };
       const handleDisconnect = (): void => {
         setConnected(false);
-        notify("Wallet update", "Disconnected from wallet", "warning");
+        sendNotification(
+          "Wallet update",
+          "Disconnected from wallet",
+          "warning",
+        );
       };
       const handleError = (title: string, description: string): void => {
-        notify(title, description, "error");
+        sendNotification(title, description, "error");
       };
 
       wallet.on("connect", handleConnect);

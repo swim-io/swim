@@ -35,6 +35,8 @@ import {
   useEvmConnections,
   useSolanaConnection,
 } from "../contexts";
+import { notify } from "../core/selectors";
+import { useNotificationStore } from "../core/store";
 import { usePool, useTokensByEcosystem, useWallets } from "../hooks";
 import { keysHexaPool, keysSwimLake } from "../keys";
 import {
@@ -42,7 +44,6 @@ import {
   setUpErc20Tokens,
   setUpSplTokensOnEvm,
 } from "../models";
-import { useNotificationStore } from "../store";
 import { shortenAddress, sleep } from "../utils";
 
 const SWIM_POOL_FEE_DECIMALS = 6;
@@ -263,9 +264,9 @@ const TestPage = (): ReactElement => {
     console.info("BSC TX IDS", splTokenBscSetupResult.bscTxIds);
   };
 
-  const notify = useNotificationStore((state) => state.notify);
+  const sendNotification = useNotificationStore(notify);
   const addToastHandler = (): void => {
-    notify("Test", <div>My desc</div>);
+    sendNotification("Test", <div>My desc</div>);
   };
 
   const throwError = (): void => {

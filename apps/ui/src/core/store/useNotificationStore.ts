@@ -46,12 +46,13 @@ export const useNotificationStore = create<NotificationState>((set) => ({
     );
   },
   removeToast: (removedToast: EuiGlobalToastListToast) => {
-    set(
-      produce((state) => {
-        const updatedToasts = state.toasts.filter(
+    set((state) =>
+      produce(state, (draft) => {
+        const updatedToasts = draft.toasts.filter(
           (toast: EuiGlobalToastListToast) => toast.id !== removedToast.id,
         );
-        return { ...state, toasts: updatedToasts };
+        // eslint-disable-next-line functional/immutable-data
+        draft.toasts = updatedToasts;
       }),
     );
   },

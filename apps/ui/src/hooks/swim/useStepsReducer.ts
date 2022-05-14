@@ -17,7 +17,6 @@ import {
   InteractionType,
   Status,
   combineTransfers,
-  createOperationSpecs,
   generateId,
   generateSignatureSetKeypairs,
   getConnectedWallets,
@@ -419,25 +418,15 @@ export const useStepsReducer = (
         getSignatureSetAddresses(signatureSetKeypairs),
       connectedWallets,
     };
-    const operations = createOperationSpecs(
-      tokensByPool,
-      requiredPools,
-      poolMaths,
-      interaction,
-    );
-    const interactionWithOperations = {
-      ...interaction,
-      operations,
-    };
     const action: InitiateInteractionAction = {
       type: ActionType.InitiateInteraction,
       config,
       poolMaths,
-      interaction: interactionWithOperations,
+      interaction,
       splTokenAccounts,
       txs: [],
     };
-    storeInteraction(env, config, interactionWithOperations, queryClient);
+    storeInteraction(env, config, interaction, queryClient);
     dispatch(action);
     return interactionId;
   };

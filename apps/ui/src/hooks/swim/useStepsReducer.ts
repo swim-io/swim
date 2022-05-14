@@ -394,7 +394,6 @@ export const useStepsReducer = (
       throw new Error("Unknown output pool");
     }
 
-    // TODO: Make this work for multiple pools
     const connectedWallets = getConnectedWallets(
       config.tokens,
       interactionSpec,

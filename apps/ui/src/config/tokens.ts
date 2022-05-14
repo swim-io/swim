@@ -135,6 +135,74 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    id: "mainnet-solana-lp-meta-avalanche-usdc",
+    symbol: "SWIM-AVALANCHE-USDC-META-POOL-LP",
+    displayName: "Avalanche USDC Meta-Pool LP",
+    icon: LP_META_AVALANCHE_USDC_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "7xt1Qrs78dLumZdpxgeQ4TmRzSS9WWpYdGugzcB2pgb3", // TODO: Set real value
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-solana-lp-meta-avalanche-usdt",
+    symbol: "SWIM-AVALANCHE-USDT-META-POOL-LP",
+    displayName: "Avalanche USDT Meta-Pool LP",
+    icon: LP_META_AVALANCHE_USDT_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "CSJz1NkebFj4pjYps9fDaS8KpvQ1SVWhhRNFMYnkrqDP", // TODO: Set real value
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-solana-lp-meta-polygon-usdc",
+    symbol: "SWIM-POLYGON-USDC-META-POOL-LP",
+    displayName: "Polygon USDC Meta-Pool LP",
+    icon: LP_META_POLYGON_USDC_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "9SexMyV5iREyyzLktd4iHtQMug5fXv4baDkgNvy95d45", // TODO: Set real value
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-solana-lp-meta-polygon-usdt",
+    symbol: "SWIM-POLYGON-USDT-META-POOL-LP",
+    displayName: "Polygon USDT Meta-Pool LP",
+    icon: LP_META_POLYGON_USDT_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "EiqbvyTkdcruHrjDy9RtyXpvRfRDmN7Mtutv7J4uWG46", // TODO: Set real value
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
     id: "mainnet-ethereum-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,

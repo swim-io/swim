@@ -38,6 +38,80 @@ const mainnetPools: readonly PoolSpec[] = [
       ["mainnet-bsc-usdt", "9KMH3p8cUocvQRbJfKRAStKG52xCCWNmEPsJm5gc8fzw"],
     ]),
   },
+  {
+    id: "meta-avalanche-usdc",
+    displayName: "Avalanche USDC Meta-Pool",
+    isStakingPool: false,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs", // TODO: Set real value
+    address: "B5SxvSX5hEv3CJR8XMA6QnbiyZGsS7uhNdLimXVDn6PX", // TODO: Set real value
+    authority: "BbZwNqLypwU1Qqvnd6Bb7YJ1bYJj5VgMvwLv4NeqD8S", // TODO: Set real value
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-avalanche-usdc",
+    tokenAccounts: new Map([
+      [
+        "mainnet-avalanche-usdc",
+        "ANWHgVyx7RZQnCUbAoEJKia6z2rRufEULcfQd6cZKDRw", // TODO: Set real value
+      ],
+      [
+        "mainnet-solana-lp-hexapool",
+        "8E6dok36kNxGSgNnEkVbPgMswkH1tTN8H4QLe7GoKiUS", // TODO: Set real value
+      ],
+    ]),
+  },
+  {
+    id: "meta-avalanche-usdt",
+    displayName: "Avalanche USDT Meta-Pool",
+    isStakingPool: false,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs", // TODO: Set real value
+    address: "CrvWB1GsU6gsWys8rVsKirBVLicVsn7SMbcbuDejMhLn", // TODO: Set real value
+    authority: "CCjyGG6xQ5BpSaDneD6vdXCFjXwjmCbFWXNXF5NoBYo9", // TODO: Set real value
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-avalanche-usdt",
+    tokenAccounts: new Map([
+      [
+        "mainnet-avalanche-usdt",
+        "3C46uzyHYNrx3ZBEsems32bXFUoh8B5G7PTrMMV2dLVr", // TODO: Set real value
+      ],
+      [
+        "mainnet-solana-lp-hexapool",
+        "Hy8wggAcda4AjrRk21EWCeswgVSkGSo9ht68Roio9EqL", // TODO: Set real value
+      ],
+    ]),
+  },
+  {
+    id: "meta-polygon-usdc",
+    displayName: "Polygon USDC Meta-Pool",
+    isStakingPool: false,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs", // TODO: Set real value
+    address: "AhAMrVeTYyS5EAhoYQvrL2Qd3sLHU4r3VgYZ6ChVAcW8", // TODO: Set real value
+    authority: "jieaZtSYb9FA7GzHHXxBakNuEVFZUQ7jRzR1dm2Gw4u", // TODO: Set real value
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-polygon-usdc",
+    tokenAccounts: new Map([
+      ["mainnet-polygon-usdc", "a283NqFzprjMfq1cvJfuUk4dSFUMpVhS9gZdU7UcQ6h"], // TODO: Set real value
+      [
+        "mainnet-solana-lp-hexapool",
+        "EKPywS7r4xECNf4zBG6xNcwyph5FdWeJ5ufJYGWZFKn9", // TODO: Set real value
+      ],
+    ]),
+  },
+  {
+    id: "meta-polygon-usdt",
+    displayName: "Polygon USDT Meta-Pool",
+    isStakingPool: false,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs", // TODO: Set real value
+    address: "4e5ZvtYTNEhuJUnLLqmQqPMMwTZmHWjXHJwf2H7x69Lz", // TODO: Set real value
+    authority: "EPzbYcoa1MMp324hmnsJM2C1f2GYHdHqKdtFMGYdswH6", // TODO: Set real value
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-polygon-usdt",
+    tokenAccounts: new Map([
+      ["mainnet-polygon-usdt", "E7bYM1UP51go1V8nJ5Miesp9BMwQNHTh5fQdHB4CrJ8q"], // TODO: Set real value
+      [
+        "mainnet-solana-lp-hexapool",
+        "3N767DEwEynHvrWg32U9gwDqnP1f4RZZ5mxr8yeLHDp7", // TODO: Set real value
+      ],
+    ]),
+  },
 ];
 
 const devnetPools: readonly PoolSpec[] = [

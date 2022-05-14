@@ -165,7 +165,7 @@ const mainnetChains: ChainsByProtocol = {
       chainId: EvmChainId.AvalancheMainnet,
       chainName: "Avalanche Mainnet",
       nativeCurrency: AVALANCHE_NATIVE_CURRENCY,
-      rpcUrls: ["https://api.avax.network/ext/bc/C/rpc"], // TODO: Replace with real endpoint
+      rpcUrls: ["https://api.polygonscan.com/"], // TODO: Replace with real endpoint
       wormhole: {
         bridge: "0x54a8e5f9c4CbA08F9943965859F6c34eAF03E26c",
         tokenBridge: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052",

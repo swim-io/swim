@@ -38,6 +38,80 @@ const mainnetPools: readonly PoolSpec[] = [
       ["mainnet-bsc-usdt", "9KMH3p8cUocvQRbJfKRAStKG52xCCWNmEPsJm5gc8fzw"],
     ]),
   },
+  {
+    id: "meta-avalanche-usdc",
+    displayName: "Avalanche USDC Meta-Pool",
+    isStakingPool: false,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "AzJnv1DX2tNWZyQVeoAG71CoaSusr8q1qLPVxJEW4xMP",
+    authority: "Ha7YEA5wRWyH2htfyMXw3VfLbtBHm4UoVXMpq8Ev6zJh",
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-avalanche-usdc",
+    tokenAccounts: new Map([
+      [
+        "mainnet-avalanche-usdc",
+        "9RgAUVyd72THEnLLwZswBbc2VpmJnSPP9R91ZVxjq1rv",
+      ],
+      [
+        "mainnet-solana-lp-hexapool",
+        "6zbeCeeUGbjiiW9PpxVuMqLmWZowoaDsMmWtRmX5Nx5W",
+      ],
+    ]),
+  },
+  {
+    id: "meta-avalanche-usdt",
+    displayName: "Avalanche USDT Meta-Pool",
+    isStakingPool: false,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "2zG5Lk5GcoGWqarZjuQm2YtJ9sq9nCS5qPaddkmLJAxG",
+    authority: "EpvBni7vTfbTG95zf9sNcS9To1NEKnVMpCwZdb21tKsg",
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-avalanche-usdt",
+    tokenAccounts: new Map([
+      [
+        "mainnet-avalanche-usdt",
+        "52q1M9ceJozzfGTgD5wx6K2WQjvQnUpF3uKmWzdy73ER",
+      ],
+      [
+        "mainnet-solana-lp-hexapool",
+        "9QAFkr2tYntkeiWFS6KJYYBFLeKh6CBTqUwhCCBdhdbV",
+      ],
+    ]),
+  },
+  {
+    id: "meta-polygon-usdc",
+    displayName: "Polygon USDC Meta-Pool",
+    isStakingPool: false,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "FRarK7GGuMBihxsu4F9wQPEemjLQ6xhATASSWfsZsAXX",
+    authority: "2iLTifF3JDP65AjFKZ3t4mgfJdQVSmVCiM8Zca3TgvpU",
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-polygon-usdc",
+    tokenAccounts: new Map([
+      ["mainnet-polygon-usdc", "DwjutE8CB1WNUzy78f44BdJNWMF1pYC5wd6eTchRcacL"],
+      [
+        "mainnet-solana-lp-hexapool",
+        "9MQ6FFBm7Nk9jMY65m8MYvsno2akEGPLMLjargoccvic",
+      ],
+    ]),
+  },
+  {
+    id: "meta-polygon-usdt",
+    displayName: "Polygon USDT Meta-Pool",
+    isStakingPool: false,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "7mCixtML8ApfdRQYBC77c2PGP55Lj1XGpmFVZ2CShaMq",
+    authority: "3uxBU3fRZzp3V7v9MTNZiDmjxDkKh3rZutLwFtnjJ2pQ",
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-polygon-usdt",
+    tokenAccounts: new Map([
+      ["mainnet-polygon-usdt", "A4KTWbPgxUeLWJdXyqsc7tV2GgkxW5gaKeHvKz3LLght"],
+      [
+        "mainnet-solana-lp-hexapool",
+        "BBHCpu6xKDjvoUDTBmBmejAoN4ADNeZiYcvKfVv7yz3L",
+      ],
+    ]),
+  },
 ];
 
 const devnetPools: readonly PoolSpec[] = [

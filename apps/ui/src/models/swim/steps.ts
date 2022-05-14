@@ -948,7 +948,7 @@ export const getTransferFromTxs = (
   }, {});
 };
 
-const getRequiredPoolsForSwap = (
+export const getRequiredPoolsForSwap = (
   poolSpecs: readonly PoolSpec[],
   inputTokenId: string,
   outputTokenId: string,

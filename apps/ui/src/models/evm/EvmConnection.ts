@@ -8,6 +8,8 @@ import { isNotNull } from "../../utils";
 
 import { LocalnetProvider } from "./LocalnetProvider";
 import { MoralisProvider } from "./MoralisProvider";
+import { PolygonNetwork, PolygonScanProvider } from "./PolygonScanProvider";
+import { AvalancheNetwork, SnowTraceProvider } from "./SnowTraceProvider";
 import { Erc20Factory } from "./erc20";
 
 type EtherscanProvider = ethers.providers.EtherscanProvider;
@@ -17,15 +19,12 @@ type TransactionResponse = ethers.providers.TransactionResponse;
 export type Provider = MoralisProvider | EtherscanProvider | LocalnetProvider;
 
 // TODO: Use proper endpoints via env
-const AVALANCHE_MAINNET_RPC_URL =
-  process.env.REACT_APP_AVALANCHE_DEVNET_RPC_URL;
-const AVALANCHE_DEVNET_RPC_URL = process.env.REACT_APP_AVALANCHE_DEVNET_RPC_URL;
 const BSC_MAINNET_RPC_URL = process.env.REACT_APP_BSC_MAINNET_RPC_URL;
 const BSC_TESTNET_RPC_URL = process.env.REACT_APP_BSC_TESTNET_RPC_URL;
-const POLYGON_MAINNET_RPC_URL = process.env.REACT_APP_POLYGON_DEVNET_RPC_URL;
-const POLYGON_DEVNET_RPC_URL = process.env.REACT_APP_POLYGON_DEVNET_RPC_URL;
 
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
+const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
+const SNOWTRACE_API_KEY = process.env.REACT_APP_SNOWTRACE_API_KEY;
 const MORALIS_ID = "Swim UI";
 
 /**
@@ -58,20 +57,25 @@ const getBscscanNetwork = (env: Env): ethers.providers.Networkish => {
   }
 };
 
-const getAvalancheRpcUrl = (env: Env): string => {
+const getPolygonScanNetwork = (env: Env): PolygonNetwork => {
   switch (env) {
     case Env.Mainnet:
-      if (AVALANCHE_MAINNET_RPC_URL === undefined) {
-        throw new Error("AVALANCHE_MAINNET_RPC_URL is not set");
-      }
-      return AVALANCHE_MAINNET_RPC_URL;
+      return PolygonNetwork.Mainnet;
     case Env.Devnet:
-      if (AVALANCHE_DEVNET_RPC_URL === undefined) {
-        throw new Error("AVALANCHE_DEVNET_RPC_URL is not set");
-      }
-      return AVALANCHE_DEVNET_RPC_URL;
+      return PolygonNetwork.Testnet;
     default:
-      throw new Error(`Avalanche not supported on ${env}`);
+      throw new Error(`PolygonScan does not support ${env}`);
+  }
+};
+
+const getSnowTraceNetwork = (env: Env): AvalancheNetwork => {
+  switch (env) {
+    case Env.Mainnet:
+      return AvalancheNetwork.Mainnet;
+    case Env.Devnet:
+      return AvalancheNetwork.Testnet;
+    default:
+      throw new Error(`SnowTrace does not support ${env}`);
   }
 };
 
@@ -89,23 +93,6 @@ const getBscRpcUrl = (env: Env): string => {
       return BSC_TESTNET_RPC_URL;
     default:
       throw new Error(`${env} not supported by Moralis Provider`);
-  }
-};
-
-const getPolygonRpcUrl = (env: Env): string => {
-  switch (env) {
-    case Env.Mainnet:
-      if (POLYGON_MAINNET_RPC_URL === undefined) {
-        throw new Error("POLYGON_MAINNET_RPC_URL is not set");
-      }
-      return POLYGON_MAINNET_RPC_URL;
-    case Env.Devnet:
-      if (POLYGON_DEVNET_RPC_URL === undefined) {
-        throw new Error("POLYGON_DEVNET_RPC_URL is not set");
-      }
-      return POLYGON_DEVNET_RPC_URL;
-    default:
-      throw new Error(`Polygon not supported on ${env}`);
   }
 };
 
@@ -155,10 +142,16 @@ export class EvmConnection {
           return new BscscanProvider(getBscscanNetwork(env));
         }
       case EcosystemId.Avalanche: {
-        return new LocalnetProvider(getAvalancheRpcUrl(env));
+        return new SnowTraceProvider(
+          getSnowTraceNetwork(env),
+          SNOWTRACE_API_KEY,
+        );
       }
       case EcosystemId.Polygon: {
-        return new LocalnetProvider(getPolygonRpcUrl(env));
+        return new PolygonScanProvider(
+          getPolygonScanNetwork(env),
+          POLYGONSCAN_API_KEY,
+        );
       }
       default:
         throw new Error(`Unsupported EVM ecosystem: ${ecosystemId}`);

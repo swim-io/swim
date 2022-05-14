@@ -135,6 +135,74 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    id: "mainnet-solana-lp-meta-avalanche-usdc",
+    symbol: "SWIM-AVALANCHE-USDC-META-POOL-LP",
+    displayName: "Avalanche USDC Meta-Pool LP",
+    icon: LP_META_AVALANCHE_USDC_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "DKwsWeqHrB8R1u2DFMHKtq4iqaQNgPgUbHTJyXPqkTzK",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-solana-lp-meta-avalanche-usdt",
+    symbol: "SWIM-AVALANCHE-USDT-META-POOL-LP",
+    displayName: "Avalanche USDT Meta-Pool LP",
+    icon: LP_META_AVALANCHE_USDT_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "5rwvDmUbcnZTwZ4Zywev2wnDbyDDD2vcsGU2Xmy7aRNS",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-solana-lp-meta-polygon-usdc",
+    symbol: "SWIM-POLYGON-USDC-META-POOL-LP",
+    displayName: "Polygon USDC Meta-Pool LP",
+    icon: LP_META_POLYGON_USDC_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "ANFojEXhiEQQoovhBs77XmBQuqbe59UBygRWViyf4945",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-solana-lp-meta-polygon-usdt",
+    symbol: "SWIM-POLYGON-USDT-META-POOL-LP",
+    displayName: "Polygon USDT Meta-Pool LP",
+    icon: LP_META_POLYGON_USDT_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "2Nx6L79dHHgHcJtNfZWukQkWZvf5h4bps34zuh1gjtdP",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
     id: "mainnet-ethereum-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,
@@ -248,7 +316,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "AGqKX7F4mqJ8x2mUQVangJb5pWQJApaKoUfe5gXM53CV",
+          address: "FHfba3ov5P3RjaiLVgh8FTv4oirxQDoVXuoUUDvHuXax",
           decimals: 6,
         },
       ],
@@ -272,7 +340,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "B2wfeYz5VtBnQVrX4M8F6FeDrprVrzKPws5qg1in8bzR",
+          address: "Kz1csQA91WUGcQ2TB3o5kdGmWmMGp8eJcDEyHzNDVCX",
           decimals: 6,
         },
       ],

@@ -34,13 +34,12 @@ import {
   useUserNativeBalances,
   useWallets,
 } from "../hooks";
-import type { InteractionSpec } from "../models";
 import {
   Amount,
   InteractionType,
   Status,
   getLowBalanceWallets,
-  getRequiredPools,
+  getRequiredPoolsForSwap,
   getTokensByPool,
 } from "../models";
 import {
@@ -76,6 +75,13 @@ export const SwapForm = ({
   const wallets = useWallets();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();
+  const {
+    retryInteraction,
+    state: { interaction, steps, status },
+    startInteraction,
+    mutations,
+    isInteractionInProgress,
+  } = useStepsReducer();
 
   const swappableTokenIds = config.pools
     .filter((pool) => !pool.isStakingPool)
@@ -87,47 +93,31 @@ export const SwapForm = ({
   const swappableTokens = swappableTokenIds.map((tokenId) =>
     findOrThrow(config.tokens, (token) => token.id === tokenId),
   );
-  const {
-    retryInteraction,
-    state: { interaction, steps, status },
-    startInteraction,
-    mutations,
-    isInteractionInProgress,
-  } = useStepsReducer();
 
-  const [fromTokenId, setFromTokenId] = useState(swappableTokens[0].id);
+  const defaultFromTokenId = swappableTokenIds[0];
+  const [fromTokenId, setFromTokenId] = useState(defaultFromTokenId);
   const [toTokenId, setToTokenId] = useState(swappableTokens[1].id);
-  const [formErrors, setFormErrors] = useState<readonly string[]>([]);
   const fromToken =
     swappableTokens.find(({ id }) => id === fromTokenId) ?? null;
   const toToken = swappableTokens.find(({ id }) => id === toTokenId) ?? null;
 
-  // We need to know the required pools before we know the amounts in order to calculate the
-  // expected output so we construct a fake interaction here with dummy amounts
-  const fakeInteraction: InteractionSpec | null =
-    fromToken !== null && toToken !== null
-      ? {
-          type: InteractionType.Swap,
-          params: {
-            exactInputAmount: Amount.fromHumanString(fromToken, "1"),
-            minimumOutputAmount: Amount.fromHumanString(toToken, "1"),
-          },
-        }
-      : null;
-  const requiredPools = fakeInteraction
-    ? getRequiredPools(config.pools, fakeInteraction)
-    : [];
+  const [formErrors, setFormErrors] = useState<readonly string[]>([]);
+
+  const requiredPools = getRequiredPoolsForSwap(
+    config.pools,
+    fromTokenId,
+    toTokenId,
+  );
   const poolIds = requiredPools.map((pool) => pool.id);
   const pools = usePools(poolIds);
   const inputPoolUsdValue = pools[0].poolUsdValue;
   const outputPoolUsdValue = pools[pools.length - 1].poolUsdValue;
   const isRequiredPoolPaused = pools.some((pool) => pool.isPoolPaused);
   const poolMaths = usePoolMaths(poolIds);
-  const inputPool = requiredPools.find(Boolean) ?? null;
-  const outputPool =
-    requiredPools.find((_, i) => i === requiredPools.length - 1) ?? null;
-  const inputPoolTokens = inputPool ? tokensByPool[inputPool.id] : null;
-  const outputPoolTokens = outputPool ? tokensByPool[outputPool.id] : null;
+  const inputPool = requiredPools[0];
+  const outputPool = requiredPools[requiredPools.length - 1];
+  const inputPoolTokens = tokensByPool[inputPool.id];
+  const outputPoolTokens = tokensByPool[outputPool.id];
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
@@ -396,14 +386,6 @@ export const SwapForm = ({
       return;
     }
 
-    const outputTokenIndex =
-      outputPoolTokens !== null
-        ? outputPoolTokens.tokens.findIndex(({ id }) => id === toToken.id)
-        : -1;
-    if (outputTokenIndex === -1) {
-      throw new Error("Output token not found");
-    }
-
     const minimumOutputAmount = outputAmount.sub(
       outputAmount.mul(maxSlippageFraction),
     );
@@ -423,9 +405,9 @@ export const SwapForm = ({
   useEffect(() => {
     // Eg if the env changes
     if (!fromToken) {
-      setFromTokenId(swappableTokenIds[0]);
+      setFromTokenId(defaultFromTokenId);
     }
-  }, [fromToken, swappableTokenIds]);
+  }, [fromToken, defaultFromTokenId]);
 
   useEffect(() => {
     if (!toTokenOptions.find(({ value }) => value === toTokenId)) {

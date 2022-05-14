@@ -272,6 +272,7 @@ export interface RecentInteractionsProps {
 export const RecentInteractions = ({
   title,
   currentInteraction,
+  poolId,
 }: RecentInteractionsProps): ReactElement => {
   const { data: splTokenAccounts = [], isSuccess: didLoadSplTokenAccounts } =
     useSplTokenAccountsQuery();
@@ -280,14 +281,12 @@ export const RecentInteractions = ({
   const { [currentInteraction ?? ""]: _, ...interactionsWithTxs } =
     useRecentInteractions();
 
-  const recentInteractions = useMemo(
-    () =>
-      Object.values(interactionsWithTxs).filter(
-        (interactionWithTxs) => !!interactionWithTxs,
-        // TODO: perform this check again
-        // && (poolId === null || poolId === interactionWithTxs.interaction.poolId),
-      ),
-    [interactionsWithTxs],
+  const recentInteractions = Object.values(interactionsWithTxs).filter(
+    (interactionWithTxs) =>
+      !!interactionWithTxs &&
+      (poolId === null ||
+        (interactionWithTxs.interaction.type !== InteractionType.Swap &&
+          poolId === interactionWithTxs.interaction.poolId)),
   );
   const numberOfRecentInteractions =
     currentInteraction === null

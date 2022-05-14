@@ -32,13 +32,12 @@ import {
   useUserNativeBalances,
   useWallets,
 } from "../hooks";
-import type { InteractionSpec } from "../models";
 import {
   Amount,
   InteractionType,
   Status,
   getLowBalanceWallets,
-  getRequiredPools,
+  getRequiredPoolsForSwap,
   getTokensByPool,
 } from "../models";
 import {
@@ -102,32 +101,21 @@ export const SwapForm = ({
 
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
-  // We need to know the required pools before we know the amounts in order to calculate the
-  // expected output so we construct a fake interaction here with dummy amounts
-  const fakeInteraction: InteractionSpec | null =
-    fromToken !== null && toToken !== null
-      ? {
-          type: InteractionType.Swap,
-          params: {
-            exactInputAmount: Amount.fromHumanString(fromToken, "1"),
-            minimumOutputAmount: Amount.fromHumanString(toToken, "1"),
-          },
-        }
-      : null;
-  const requiredPools = fakeInteraction
-    ? getRequiredPools(config.pools, fakeInteraction)
-    : [];
+  const requiredPools = getRequiredPoolsForSwap(
+    config.pools,
+    fromTokenId,
+    toTokenId,
+  );
   const poolIds = requiredPools.map((pool) => pool.id);
   const pools = usePools(poolIds);
   const inputPoolUsdValue = pools[0].poolUsdValue;
   const outputPoolUsdValue = pools[pools.length - 1].poolUsdValue;
   const isRequiredPoolPaused = pools.some((pool) => pool.isPoolPaused);
   const poolMaths = usePoolMaths(poolIds);
-  const inputPool = requiredPools.find(Boolean) ?? null;
-  const outputPool =
-    requiredPools.find((_, i) => i === requiredPools.length - 1) ?? null;
-  const inputPoolTokens = inputPool ? tokensByPool[inputPool.id] : null;
-  const outputPoolTokens = outputPool ? tokensByPool[outputPool.id] : null;
+  const inputPool = requiredPools[0];
+  const outputPool = requiredPools[requiredPools.length - 1];
+  const inputPoolTokens = tokensByPool[inputPool.id];
+  const outputPoolTokens = tokensByPool[outputPool.id];
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);

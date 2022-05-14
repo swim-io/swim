@@ -528,7 +528,7 @@ export const AddForm = ({
         </>
       )}
 
-      <PoolPausedAlert isVisible={isPoolPaused} />
+      <PoolPausedAlert isVisible={!!isPoolPaused} />
 
       {hasPositiveInputAmount && (
         <EstimatedTxFeesCallout feesEstimation={feesEstimation} />

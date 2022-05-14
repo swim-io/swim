@@ -24,7 +24,7 @@ export interface PoolData {
   readonly poolTokenAccounts: readonly (TokenAccount | null)[] | null;
   readonly userLpTokenAccount: TokenAccount | null;
   readonly poolUsdValue: Decimal | null;
-  readonly isPoolPaused: boolean;
+  readonly isPoolPaused: boolean | null;
 }
 
 const constructPool = (
@@ -80,7 +80,7 @@ const constructPool = (
     poolTokenAccounts,
     userLpTokenAccount,
     poolUsdValue,
-    isPoolPaused: poolState?.isPaused ?? false,
+    isPoolPaused: poolState?.isPaused ?? null,
   };
 };
 

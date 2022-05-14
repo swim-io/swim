@@ -145,8 +145,8 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "7xt1Qrs78dLumZdpxgeQ4TmRzSS9WWpYdGugzcB2pgb3", // TODO: Set real value
-          decimals: 8,
+          address: "DKwsWeqHrB8R1u2DFMHKtq4iqaQNgPgUbHTJyXPqkTzK",
+          decimals: 6,
         },
       ],
     ]),
@@ -162,8 +162,8 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "CSJz1NkebFj4pjYps9fDaS8KpvQ1SVWhhRNFMYnkrqDP", // TODO: Set real value
-          decimals: 8,
+          address: "5rwvDmUbcnZTwZ4Zywev2wnDbyDDD2vcsGU2Xmy7aRNS",
+          decimals: 6,
         },
       ],
     ]),
@@ -179,8 +179,8 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "9SexMyV5iREyyzLktd4iHtQMug5fXv4baDkgNvy95d45", // TODO: Set real value
-          decimals: 8,
+          address: "ANFojEXhiEQQoovhBs77XmBQuqbe59UBygRWViyf4945",
+          decimals: 6,
         },
       ],
     ]),
@@ -196,8 +196,8 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "EiqbvyTkdcruHrjDy9RtyXpvRfRDmN7Mtutv7J4uWG46", // TODO: Set real value
-          decimals: 8,
+          address: "2Nx6L79dHHgHcJtNfZWukQkWZvf5h4bps34zuh1gjtdP",
+          decimals: 6,
         },
       ],
     ]),

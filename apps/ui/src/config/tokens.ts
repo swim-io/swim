@@ -316,7 +316,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "AGqKX7F4mqJ8x2mUQVangJb5pWQJApaKoUfe5gXM53CV",
+          address: "FHfba3ov5P3RjaiLVgh8FTv4oirxQDoVXuoUUDvHuXax",
           decimals: 6,
         },
       ],
@@ -340,7 +340,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "B2wfeYz5VtBnQVrX4M8F6FeDrprVrzKPws5qg1in8bzR",
+          address: "Kz1csQA91WUGcQ2TB3o5kdGmWmMGp8eJcDEyHzNDVCX",
           decimals: 6,
         },
       ],

@@ -33,7 +33,6 @@ import {
   getTokensByPool,
 } from "../../models";
 import { findOrThrow } from "../../utils";
-import { useSplTokenAccountsQuery } from "../solana";
 import type { UseAsyncGeneratorResult } from "../utils";
 import { useAsyncGenerator } from "../utils";
 

@@ -62,7 +62,7 @@ const poolTokens = localnetTokens.filter((token) =>
 const txsByStep: TxsByStep = {
   [StepType.CreateSplTokenAccounts]: [],
   [StepType.WormholeToSolana]: {},
-  [StepType.SolanaOperations]: [],
+  [StepType.SolanaOperations]: {},
   [StepType.WormholeFromSolana]: {},
 };
 
@@ -126,7 +126,6 @@ describe("Swim steps", () => {
       id: defaultInteractionId,
       env: Env.Mainnet,
       poolIds: [defaultPoolId],
-      poolMaths: [],
       submittedAt: 1646408146771,
       signatureSetKeypairs: {
         "localnet-ethereum-usdt": keypair,
@@ -142,10 +141,7 @@ describe("Swim steps", () => {
       },
       type: InteractionType.Swap,
       params: {
-        exactInputAmounts: new Map(
-          defaultAmounts.map((amount) => [amount.tokenId, amount]),
-        ),
-        outputTokenId: "localnet-ethereum-usdc",
+        exactInputAmount: Amount.fromHumanString(poolTokens[2], "3000"),
         minimumOutputAmount: Amount.fromHumanString(poolTokens[2], "3000"),
       },
     };
@@ -204,7 +200,6 @@ describe("Swim steps", () => {
         env: Env.Mainnet,
         poolId: defaultPoolId,
         poolIds: [defaultPoolId],
-        poolMaths: [],
         submittedAt: 1646408146771,
         signatureSetKeypairs: {},
         previousSignatureSetAddresses: {},
@@ -267,7 +262,6 @@ describe("Swim steps", () => {
         env: Env.Localnet,
         poolId: defaultPoolId,
         poolIds: [defaultPoolId],
-        poolMaths: [],
         submittedAt: 1646408146771,
         signatureSetKeypairs: { [poolTokens[3].id]: keypair },
         previousSignatureSetAddresses: {},
@@ -292,6 +286,7 @@ describe("Swim steps", () => {
         defaultTokensByPoolId,
         defaultPoolSpecs,
         interaction,
+        [],
         defaultSplTokenAccounts,
         txsByStep,
       );
@@ -343,6 +338,7 @@ describe("Swim steps", () => {
         defaultTokensByPoolId,
         defaultPoolSpecs,
         swapInteraction,
+        [],
         defaultSplTokenAccounts,
         txsByStep,
       );
@@ -357,7 +353,7 @@ describe("Swim steps", () => {
         swapInteraction.id,
         defaultSplTokenAccounts,
         poolTokens,
-        [...swapInteraction.params.exactInputAmounts.values()],
+        [swapInteraction.params.exactInputAmount],
         swapInteraction.signatureSetKeypairs,
       );
       const resSingleOutputT = generateSingleOutputProtoTransfers(
@@ -387,7 +383,6 @@ describe("Swim steps", () => {
       env: Env.Localnet,
       poolId: defaultPoolId,
       poolIds: [defaultPoolId],
-      poolMaths: [],
       submittedAt: 1646408146771,
       signatureSetKeypairs: { "localnet-ethereum-usdt": keypair },
       previousSignatureSetAddresses: {},
@@ -410,6 +405,7 @@ describe("Swim steps", () => {
       defaultTokensByPoolId,
       defaultPoolSpecs,
       interaction,
+      [],
       defaultSplTokenAccounts,
       txsByStep,
     );
@@ -431,7 +427,6 @@ describe("Swim steps", () => {
       env: Env.Localnet,
       poolId: defaultPoolId,
       poolIds: [defaultPoolId],
-      poolMaths: [],
       submittedAt: 1646408146771,
       signatureSetKeypairs: { [poolTokens[3].id]: keypair },
       previousSignatureSetAddresses: {},
@@ -455,6 +450,7 @@ describe("Swim steps", () => {
       defaultTokensByPoolId,
       defaultPoolSpecs,
       interaction,
+      [],
       defaultSplTokenAccounts,
       txsByStep,
     );
@@ -487,7 +483,6 @@ describe("Swim steps", () => {
         env: Env.Localnet,
         poolId: defaultPoolId,
         poolIds: [defaultPoolId],
-        poolMaths: [],
         submittedAt: 1646408146771,
         signatureSetKeypairs: { [poolTokens[3].id]: keypair },
         previousSignatureSetAddresses: {},
@@ -510,6 +505,7 @@ describe("Swim steps", () => {
         defaultTokensByPoolId,
         defaultPoolSpecs,
         interaction,
+        [],
         defaultSplTokenAccounts,
         txsByStep,
       );
@@ -582,7 +578,7 @@ describe("Swim steps", () => {
     const txByStep: TxsByStep = {
       [StepType.CreateSplTokenAccounts]: [],
       [StepType.WormholeToSolana]: wormholeToSolanaTxs,
-      [StepType.SolanaOperations]: [],
+      [StepType.SolanaOperations]: {},
       [StepType.WormholeFromSolana]: wormholeFromSolanaTxs,
     };
 
@@ -594,7 +590,6 @@ describe("Swim steps", () => {
           env: Env.Localnet,
           poolId: defaultPoolId,
           poolIds: [defaultPoolId],
-          poolMaths: [],
           submittedAt: 1646408146771,
           signatureSetKeypairs: {},
           previousSignatureSetAddresses: {},
@@ -619,7 +614,7 @@ describe("Swim steps", () => {
 
       it("throws an error if wallet address is missing", () => {
         const getResult = () =>
-          createSteps(config, addInteraction, defaultSplTokenAccounts, [
+          createSteps(config, addInteraction, [], defaultSplTokenAccounts, [
             solanaTx,
           ]);
         expect(getResult).toThrowError(/Missing Solana wallet/i);
@@ -633,9 +628,13 @@ describe("Swim steps", () => {
           },
         };
         const getResult = () =>
-          createSteps(config, interactionWithWallet, defaultSplTokenAccounts, [
-            solanaTx,
-          ]);
+          createSteps(
+            config,
+            interactionWithWallet,
+            [],
+            defaultSplTokenAccounts,
+            [solanaTx],
+          );
         expect(getResult).toThrowError(/Missing signature set key pair/i);
       });
       it("returns result of createAddSteps", () => {
@@ -652,12 +651,14 @@ describe("Swim steps", () => {
           defaultTokensByPoolId,
           defaultPoolSpecs,
           interactionWithWallet,
+          [],
           defaultSplTokenAccounts,
           txByStep,
         );
         const result = createSteps(
           config,
           interactionWithWallet,
+          [],
           defaultSplTokenAccounts,
           [solanaTx],
         );
@@ -669,7 +670,6 @@ describe("Swim steps", () => {
         id: defaultInteractionId,
         env: Env.Localnet,
         poolIds: [defaultPoolId],
-        poolMaths: [],
         submittedAt: 1646408146771,
         signatureSetKeypairs,
         previousSignatureSetAddresses: {},
@@ -683,10 +683,7 @@ describe("Swim steps", () => {
         },
         type: InteractionType.Swap,
         params: {
-          exactInputAmounts: new Map(
-            amounts.map((amount) => [amount.tokenId, amount]),
-          ),
-          outputTokenId: "localnet-ethereum-usdc",
+          exactInputAmount: Amount.fromHumanString(poolTokens[1], "3000"),
           minimumOutputAmount: Amount.fromHumanString(poolTokens[2], "3000"),
         },
       };
@@ -695,12 +692,14 @@ describe("Swim steps", () => {
           defaultTokensByPoolId,
           defaultPoolSpecs,
           swapInteraction2,
+          [],
           defaultSplTokenAccounts,
           txByStep,
         );
         const expected = createSteps(
           config,
           swapInteraction2,
+          [],
           defaultSplTokenAccounts,
           [solanaTx],
         );
@@ -713,7 +712,6 @@ describe("Swim steps", () => {
         env: Env.Localnet,
         poolId: defaultPoolId,
         poolIds: [defaultPoolId],
-        poolMaths: [],
         submittedAt: 1646408146771,
         signatureSetKeypairs: { [poolTokens[3].id]: keypair },
         previousSignatureSetAddresses: {},
@@ -737,12 +735,14 @@ describe("Swim steps", () => {
           defaultTokensByPoolId,
           defaultPoolSpecs,
           removeUniformInteraction,
+          [],
           defaultSplTokenAccounts,
           txByStep,
         );
         const expected = createSteps(
           config,
           removeUniformInteraction,
+          [],
           defaultSplTokenAccounts,
           [solanaTx],
         );
@@ -755,7 +755,6 @@ describe("Swim steps", () => {
         env: Env.Localnet,
         poolId: defaultPoolId,
         poolIds: [defaultPoolId],
-        poolMaths: [],
         submittedAt: 1646408146771,
         signatureSetKeypairs: { [poolTokens[3].id]: keypair },
         previousSignatureSetAddresses: {},
@@ -780,12 +779,14 @@ describe("Swim steps", () => {
           defaultTokensByPoolId,
           defaultPoolSpecs,
           removeExactBurnInteraction,
+          [],
           defaultSplTokenAccounts,
           txByStep,
         );
         const expected = createSteps(
           config,
           removeExactBurnInteraction,
+          [],
           defaultSplTokenAccounts,
           [solanaTx],
         );
@@ -798,7 +799,6 @@ describe("Swim steps", () => {
         env: Env.Localnet,
         poolId: defaultPoolId,
         poolIds: [defaultPoolId],
-        poolMaths: [],
         submittedAt: 1646408146771,
         signatureSetKeypairs: { [poolTokens[3].id]: keypair },
         previousSignatureSetAddresses: {},
@@ -822,12 +822,14 @@ describe("Swim steps", () => {
           defaultTokensByPoolId,
           defaultPoolSpecs,
           removeExactOutputInteraction,
+          [],
           defaultSplTokenAccounts,
           txByStep,
         );
         const expected = createSteps(
           config,
           removeExactOutputInteraction,
+          [],
           defaultSplTokenAccounts,
           [solanaTx],
         );

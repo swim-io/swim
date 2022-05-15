@@ -12,7 +12,7 @@ import type { Env } from "../../config";
 import { EcosystemId } from "../../config";
 import { isEachNotNull } from "../../utils";
 import type { Amount } from "../amount";
-import type { SolanaConnection, WithSplTokenAccounts } from "../solana";
+import type { SolanaConnection } from "../solana";
 import { createMemoIx, findTokenAccountForMint } from "../solana";
 import type { SolanaWalletAdapter } from "../wallets";
 
@@ -145,9 +145,10 @@ export class SwimDefiInstructor {
   }
 
   async add(
-    operation: WithSplTokenAccounts<AddOperationSpec>,
+    operation: AddOperationSpec,
+    splTokenAccounts: readonly TokenAccount[],
   ): Promise<string> {
-    const { splTokenAccounts, params } = operation;
+    const { params } = operation;
     const tokenMintIndices = params.inputAmounts.reduce<readonly number[]>(
       (indices, amount, i) => (amount.isZero() ? indices : [...indices, i]),
       [],
@@ -183,9 +184,9 @@ export class SwimDefiInstructor {
   }
 
   async removeUniform(
-    operation: WithSplTokenAccounts<RemoveUniformOperationSpec>,
+    operation: RemoveUniformOperationSpec,
+    splTokenAccounts: readonly TokenAccount[],
   ): Promise<string> {
-    const { splTokenAccounts } = operation;
     const tokenMintIndices = this.userTokenAccounts.map((_, i) => i);
     await this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
 
@@ -226,9 +227,10 @@ export class SwimDefiInstructor {
   }
 
   async removeExactBurn(
-    operation: WithSplTokenAccounts<RemoveExactBurnOperationSpec>,
+    operation: RemoveExactBurnOperationSpec,
+    splTokenAccounts: readonly TokenAccount[],
   ): Promise<string> {
-    const { splTokenAccounts, params } = operation;
+    const { params } = operation;
     const tokenMintIndices = [params.outputTokenIndex];
     await this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
 
@@ -268,9 +270,10 @@ export class SwimDefiInstructor {
   }
 
   async removeExactOutput(
-    operation: WithSplTokenAccounts<RemoveExactOutputOperationSpec>,
+    operation: RemoveExactOutputOperationSpec,
+    splTokenAccounts: readonly TokenAccount[],
   ): Promise<string> {
-    const { splTokenAccounts, params } = operation;
+    const { params } = operation;
     const tokenMintIndices = params.exactOutputAmounts.reduce<
       readonly number[]
     >(
@@ -315,9 +318,10 @@ export class SwimDefiInstructor {
   }
 
   async swap(
-    operation: WithSplTokenAccounts<SwapOperationSpec>,
+    operation: SwapOperationSpec,
+    splTokenAccounts: readonly TokenAccount[],
   ): Promise<string> {
-    const { splTokenAccounts, params } = operation;
+    const { params } = operation;
     const tokenMintIndices = params.exactInputAmounts.reduce<readonly number[]>(
       (indices, amount, i) =>
         amount.isZero() && i !== params.outputTokenIndex

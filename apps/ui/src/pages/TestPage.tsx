@@ -264,9 +264,9 @@ const TestPage = (): ReactElement => {
     console.info("BSC TX IDS", splTokenBscSetupResult.bscTxIds);
   };
 
-  const sendNotification = useNotificationStore(selectNotify);
+  const notify = useNotificationStore(selectNotify);
   const addToastHandler = (): void => {
-    sendNotification("Test", <div>My desc</div>);
+    notify("Test", <div>My desc</div>);
   };
 
   const throwError = (): void => {

@@ -71,7 +71,7 @@ export const SwapForm = ({
 }: SwapFormProps): ReactElement => {
   const config = useConfig();
   const tokensByPool = getTokensByPool(config);
-  const sendNotification = useNotificationStore(selectNotify);
+  const notify = useNotificationStore(selectNotify);
   const wallets = useWallets();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();
@@ -378,7 +378,7 @@ export const SwapForm = ({
       maxSlippageFraction === null ||
       !isEachNotNull(poolMaths)
     ) {
-      sendNotification(
+      notify(
         "Form error",
         "There was an unexpected error submitting the form. Developers were notified.",
         "error",

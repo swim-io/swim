@@ -16,7 +16,7 @@ export const QueryClientProvider = ({
 }: {
   readonly children?: ReactNode;
 }): ReactElement => {
-  const sendNotification = useNotificationStore(selectNotify);
+  const notify = useNotificationStore(selectNotify);
 
   const queryClient = useMemo(
     () =>
@@ -29,7 +29,7 @@ export const QueryClientProvider = ({
             refetchOnReconnect: true,
             refetchOnWindowFocus: true,
             onError: (err) => {
-              sendNotification("Network request error", String(err), "error");
+              notify("Network request error", String(err), "error");
             },
           },
           mutations: {
@@ -37,7 +37,7 @@ export const QueryClientProvider = ({
           },
         },
       }),
-    [sendNotification],
+    [notify],
   );
 
   return (

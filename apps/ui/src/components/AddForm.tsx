@@ -178,7 +178,7 @@ export const AddForm = ({
   poolSpec,
   maxSlippageFraction,
 }: AddFormProps): ReactElement => {
-  const sendNotification = useNotificationStore(selectNotify);
+  const notify = useNotificationStore(selectNotify);
   const config = useConfig();
   const wallets = useWallets();
   const {
@@ -434,7 +434,7 @@ export const AddForm = ({
       maxSlippageFraction === null ||
       poolMath === null
     ) {
-      sendNotification(
+      notify(
         "Form error",
         "There was an unexpected error submitting the form. Developers were notified.",
         "error",

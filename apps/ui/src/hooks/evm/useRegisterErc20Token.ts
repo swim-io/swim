@@ -13,12 +13,12 @@ interface RegisterErc20TokenResult {
 export const useRegisterErc20Token = (
   ecosystemId: EvmEcosystemId,
 ): RegisterErc20TokenResult => {
-  const sendNotification = useNotificationStore(selectNotify);
+  const notify = useNotificationStore(selectNotify);
   const { wallet } = useEvmWallet(ecosystemId);
 
   const showPrompt = async (tokenSpec: TokenSpec): Promise<void> => {
     if (!wallet) {
-      sendNotification(
+      notify(
         "No wallet",
         `Connect ${ecosystems[ecosystemId].displayName} wallet first`,
         "warning",
@@ -29,7 +29,7 @@ export const useRegisterErc20Token = (
     try {
       await wallet.registerToken(tokenSpec);
     } catch (error) {
-      sendNotification("Error", "Failed to add token", "error");
+      notify("Error", "Failed to add token", "error");
       Sentry.captureException(error);
     }
   };

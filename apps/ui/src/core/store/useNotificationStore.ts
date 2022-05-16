@@ -7,6 +7,7 @@ import type { SetState } from "zustand";
 import create from "zustand";
 
 type NotificationLevel = "info" | "success" | "warning" | "error";
+type DraftNotificationState = Draft<NotificationState>;
 
 export interface NotificationState {
   readonly toasts: readonly EuiGlobalToastListToast[];
@@ -44,7 +45,7 @@ export const useNotificationStore = create<NotificationState>(
     toasts: [],
     notify: (title, text = "", level = "info", lifetime) => {
       set((state: NotificationState) =>
-        produce(state, (draft: Draft<NotificationState>) => {
+        produce(state, (draft: DraftNotificationState) => {
           const newToast = createToast(
             title,
             text,
@@ -58,10 +59,9 @@ export const useNotificationStore = create<NotificationState>(
     removeToast: (removedToast: EuiGlobalToastListToast) => {
       set((state: NotificationState) =>
         produce(state, (draft) => {
-          const updatedToasts = draft.toasts.filter(
+          draft.toasts = draft.toasts.filter(
             (toast: EuiGlobalToastListToast) => toast.id !== removedToast.id,
           );
-          draft.toasts = updatedToasts;
         }),
       );
     },

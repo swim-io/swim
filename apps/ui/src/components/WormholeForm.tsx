@@ -92,7 +92,7 @@ const useNonSolanaEcosystemChangeEffect = (
 };
 
 export const WormholeForm = (): ReactElement => {
-  const sendNotification = useNotificationStore(selectNotify);
+  const notify = useNotificationStore(selectNotify);
   const { tokens } = useConfig();
   const {
     solana: { address: solanaAddress },
@@ -192,11 +192,11 @@ export const WormholeForm = (): ReactElement => {
   };
 
   const submitForm = async (): Promise<void> => {
-    sendNotification("Transaction submitted", "Loading...", "info");
+    notify("Transaction submitted", "Loading...", "info");
     try {
       await executeTransfer();
     } catch (error) {
-      sendNotification("Error", String(error), "error");
+      notify("Error", String(error), "error");
     }
     setTxInProgress(false);
   };

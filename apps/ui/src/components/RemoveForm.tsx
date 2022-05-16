@@ -134,7 +134,7 @@ export const RemoveForm = ({
     },
   );
 
-  const sendNotification = useNotificationStore(selectNotify);
+  const notify = useNotificationStore(selectNotify);
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const [outputAmountErrors, setOutputAmountErrors] = useState(
@@ -406,7 +406,7 @@ export const RemoveForm = ({
 
     // pool errors
     if (!poolLpAmount) {
-      sendNotification("Pool error", "Could not fetch pool LP amount", "error");
+      notify("Pool error", "Could not fetch pool LP amount", "error");
       return;
     }
 
@@ -510,7 +510,7 @@ export const RemoveForm = ({
       (method === RemoveMethod.ExactBurn && outputTokenIndex === -1) ||
       poolMath === null
     ) {
-      sendNotification(
+      notify(
         "Form error",
         "There was an unexpected error submitting the form. Developers were notified.",
         "error",
@@ -630,7 +630,7 @@ export const RemoveForm = ({
               burnPercentage === 100 &&
               userHasAllLpTokens
             ) {
-              sendNotification(
+              notify(
                 "Invalid action",
                 "You are the only LP token holder. Please use the proportional remove method or select a lower burn percentage.",
                 "error",

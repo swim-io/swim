@@ -321,7 +321,7 @@ export const useStepsReducer = (
           void generate({
             interaction,
             operations: steps.doPoolOperations.operations,
-            splTokenAccounts,
+            splTokenAccounts: state.splTokenAccounts,
             existingTxs: steps.doPoolOperations.txs,
           });
         }

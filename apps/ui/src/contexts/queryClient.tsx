@@ -7,7 +7,7 @@ import {
 // eslint-disable-next-line import/extensions
 import { ReactQueryDevtools } from "react-query/devtools";
 
-import { notify } from "../core/selectors";
+import { selectNotify } from "../core/selectors";
 import { useNotificationStore } from "../core/store";
 import { captureException } from "../errors";
 
@@ -16,7 +16,7 @@ export const QueryClientProvider = ({
 }: {
   readonly children?: ReactNode;
 }): ReactElement => {
-  const sendNotification = useNotificationStore(notify);
+  const notify = useNotificationStore(selectNotify);
 
   const queryClient = useMemo(
     () =>
@@ -29,7 +29,7 @@ export const QueryClientProvider = ({
             refetchOnReconnect: true,
             refetchOnWindowFocus: true,
             onError: (err) => {
-              sendNotification("Network request error", String(err), "error");
+              notify("Network request error", String(err), "error");
             },
           },
           mutations: {
@@ -37,7 +37,7 @@ export const QueryClientProvider = ({
           },
         },
       }),
-    [sendNotification],
+    [notify],
   );
 
   return (

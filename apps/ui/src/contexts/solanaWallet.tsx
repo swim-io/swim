@@ -12,7 +12,7 @@ import {
 
 import { SingleWalletModal } from "../components/SingleWalletModal";
 import { Protocol } from "../config";
-import { notify, selectConfig } from "../core/selectors";
+import { selectConfig, selectNotify } from "../core/selectors";
 import { useEnvironmentStore, useNotificationStore } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
 import type { SolanaWalletAdapter, SolanaWalletService } from "../models";
@@ -52,7 +52,7 @@ export const SolanaWalletProvider = ({
 }: SolanaWalletProviderProps): ReactElement => {
   const { chains } = useEnvironmentStore(selectConfig);
   const [{ endpoint }] = chains[Protocol.Solana];
-  const sendNotification = useNotificationStore(notify);
+  const notify = useNotificationStore(selectNotify);
 
   const [connected, setConnected] = useState(false);
   const [autoConnect, setAutoConnect] = useState(false);
@@ -90,7 +90,7 @@ export const SolanaWalletProvider = ({
         const { publicKey } = wallet;
         if (publicKey) {
           setConnected(true);
-          sendNotification(
+          notify(
             "Wallet update",
             `Connected to wallet ${shortenAddress(publicKey.toBase58())}`,
             "info",
@@ -100,14 +100,10 @@ export const SolanaWalletProvider = ({
       };
       const handleDisconnect = (): void => {
         setConnected(false);
-        sendNotification(
-          "Wallet update",
-          "Disconnected from wallet",
-          "warning",
-        );
+        notify("Wallet update", "Disconnected from wallet", "warning");
       };
       const handleError = (title: string, description: string): void => {
-        sendNotification(title, description, "error");
+        notify(title, description, "error");
       };
       wallet.on("connect", handleConnect);
       wallet.on("disconnect", handleDisconnect);
@@ -125,7 +121,7 @@ export const SolanaWalletProvider = ({
       // eslint-disable-next-line functional/immutable-data
       previousWalletRef.current = wallet;
     };
-  }, [wallet, sendNotification]);
+  }, [wallet, notify]);
 
   useEffect(() => {
     if (wallet && autoConnect) {

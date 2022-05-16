@@ -19,7 +19,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
 import type { PoolSpec, TokenSpec } from "../config";
-import { notify, selectConfig } from "../core/selectors";
+import { selectConfig, selectNotify } from "../core/selectors";
 import { useEnvironmentStore, useNotificationStore } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
@@ -177,7 +177,7 @@ export const AddForm = ({
   poolSpec,
   maxSlippageFraction,
 }: AddFormProps): ReactElement => {
-  const sendNotification = useNotificationStore(notify);
+  const notify = useNotificationStore(selectNotify);
   const config = useEnvironmentStore(selectConfig);
   const wallets = useWallets();
   const {
@@ -433,7 +433,7 @@ export const AddForm = ({
       maxSlippageFraction === null ||
       poolMath === null
     ) {
-      sendNotification(
+      notify(
         "Form error",
         "There was an unexpected error submitting the form. Developers were notified.",
         "error",

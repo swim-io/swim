@@ -19,7 +19,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { PoolSpec, TokenSpec } from "../config";
 import { EcosystemId, ecosystems } from "../config";
-import { notify, selectConfig } from "../core/selectors";
+import { selectConfig, selectNotify } from "../core/selectors";
 import { useEnvironmentStore, useNotificationStore } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
@@ -133,7 +133,7 @@ export const RemoveForm = ({
     },
   );
 
-  const sendNotification = useNotificationStore(notify);
+  const notify = useNotificationStore(selectNotify);
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const [outputAmountErrors, setOutputAmountErrors] = useState(
@@ -405,7 +405,7 @@ export const RemoveForm = ({
 
     // pool errors
     if (!poolLpAmount) {
-      sendNotification("Pool error", "Could not fetch pool LP amount", "error");
+      notify("Pool error", "Could not fetch pool LP amount", "error");
       return;
     }
 
@@ -509,7 +509,7 @@ export const RemoveForm = ({
       (method === RemoveMethod.ExactBurn && outputTokenIndex === -1) ||
       poolMath === null
     ) {
-      sendNotification(
+      notify(
         "Form error",
         "There was an unexpected error submitting the form. Developers were notified.",
         "error",
@@ -629,7 +629,7 @@ export const RemoveForm = ({
               burnPercentage === 100 &&
               userHasAllLpTokens
             ) {
-              sendNotification(
+              notify(
                 "Invalid action",
                 "You are the only LP token holder. Please use the proportional remove method or select a lower burn percentage.",
                 "error",

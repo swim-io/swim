@@ -44,7 +44,7 @@ export const useNotificationStore = create<NotificationState>(
     toasts: [],
     notify: (title, text = "", level = "info", lifetime) => {
       set((state: NotificationState) =>
-        produce(state, (draft: Draft<NotificationState>) => {
+        produce<NotificationState>(state, (draft) => {
           const newToast = createToast(
             title,
             text,
@@ -57,11 +57,10 @@ export const useNotificationStore = create<NotificationState>(
     },
     removeToast: (removedToast: EuiGlobalToastListToast) => {
       set((state: NotificationState) =>
-        produce(state, (draft) => {
-          const updatedToasts = draft.toasts.filter(
+        produce<NotificationState>(state, (draft) => {
+          draft.toasts = draft.toasts.filter(
             (toast: EuiGlobalToastListToast) => toast.id !== removedToast.id,
           );
-          draft.toasts = updatedToasts;
         }),
       );
     },

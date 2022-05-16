@@ -78,22 +78,17 @@ const doSinglePoolOperation = async (
     userTokenAccounts.map((t) => t?.address.toBase58() ?? null),
   );
 
-  const operationWithSplTokenAccounts = {
-    ...operation,
-    splTokenAccounts,
-  };
-
-  switch (operationWithSplTokenAccounts.instruction) {
+  switch (operation.instruction) {
     case SwimDefiInstruction.Add:
-      return instructor.add(operationWithSplTokenAccounts);
+      return instructor.add(operation, splTokenAccounts);
     case SwimDefiInstruction.RemoveUniform:
-      return instructor.removeUniform(operationWithSplTokenAccounts);
+      return instructor.removeUniform(operation, splTokenAccounts);
     case SwimDefiInstruction.RemoveExactBurn:
-      return instructor.removeExactBurn(operationWithSplTokenAccounts);
+      return instructor.removeExactBurn(operation, splTokenAccounts);
     case SwimDefiInstruction.RemoveExactOutput:
-      return instructor.removeExactOutput(operationWithSplTokenAccounts);
+      return instructor.removeExactOutput(operation, splTokenAccounts);
     case SwimDefiInstruction.Swap:
-      return instructor.swap(operationWithSplTokenAccounts);
+      return instructor.swap(operation, splTokenAccounts);
     default:
       throw new Error("Unknown instruction");
   }

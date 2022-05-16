@@ -23,7 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import { displayAmount } from "../amounts";
 import type { TokenSpec } from "../config";
 import { EcosystemId, ecosystems } from "../config";
-import { notify, selectConfig } from "../core/selectors";
+import { selectConfig, selectNotify } from "../core/selectors";
 import { useEnvironmentStore, useNotificationStore } from "../core/store";
 import {
   useChainsByEcosystem,
@@ -91,8 +91,8 @@ const useNonSolanaEcosystemChangeEffect = (
 };
 
 export const WormholeForm = (): ReactElement => {
-  const sendNotification = useNotificationStore(notify);
   const { tokens } = useEnvironmentStore(selectConfig);
+  const notify = useNotificationStore(selectNotify);
   const {
     solana: { address: solanaAddress },
     ethereum: { address: ethereumAddress },
@@ -191,11 +191,11 @@ export const WormholeForm = (): ReactElement => {
   };
 
   const submitForm = async (): Promise<void> => {
-    sendNotification("Transaction submitted", "Loading...", "info");
+    notify("Transaction submitted", "Loading...", "info");
     try {
       await executeTransfer();
     } catch (error) {
-      sendNotification("Error", String(error), "error");
+      notify("Error", String(error), "error");
     }
     setTxInProgress(false);
   };

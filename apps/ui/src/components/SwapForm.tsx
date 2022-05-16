@@ -18,6 +18,8 @@ import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
+import { selectConfig, selectNotify } from "../core/selectors";
+import { useEnvironmentStore, useNotificationStore } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   usePoolMaths,
@@ -56,8 +58,6 @@ import { StepsDisplay } from "./StepsDisplay";
 import { NativeTokenIcon } from "./TokenIcon";
 
 import "./SwapForm.scss";
-import { useEnvironmentStore, useNotificationStore } from "../core/store";
-import { notify, selectConfig } from "../core/selectors";
 
 export interface SwapFormProps {
   readonly setCurrentInteraction: (id: string) => void;
@@ -70,7 +70,7 @@ export const SwapForm = ({
 }: SwapFormProps): ReactElement => {
   const config = useEnvironmentStore(selectConfig);
   const tokensByPool = getTokensByPool(config);
-  const sendNotification = useNotificationStore(notify);
+  const notify = useNotificationStore(selectNotify);
   const wallets = useWallets();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();
@@ -377,7 +377,7 @@ export const SwapForm = ({
       maxSlippageFraction === null ||
       !isEachNotNull(poolMaths)
     ) {
-      sendNotification(
+      notify(
         "Form error",
         "There was an unexpected error submitting the form. Developers were notified.",
         "error",

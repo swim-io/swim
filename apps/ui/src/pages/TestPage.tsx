@@ -30,7 +30,7 @@ import {
   getSolanaTokenDetails,
 } from "../config";
 import { useEvmConnections, useSolanaConnection } from "../contexts";
-import { notify, selectConfig, selectEnv } from "../core/selectors";
+import { selectConfig, selectEnv, selectNotify } from "../core/selectors";
 import { useEnvironmentStore, useNotificationStore } from "../core/store";
 import { usePool, useTokensByEcosystem, useWallets } from "../hooks";
 import { keysHexaPool, keysSwimLake } from "../keys";
@@ -263,9 +263,9 @@ const TestPage = (): ReactElement => {
     console.info("BSC TX IDS", splTokenBscSetupResult.bscTxIds);
   };
 
-  const sendNotification = useNotificationStore(notify);
+  const notify = useNotificationStore(selectNotify);
   const addToastHandler = (): void => {
-    sendNotification("Test", <div>My desc</div>);
+    notify("Test", <div>My desc</div>);
   };
 
   const throwError = (): void => {

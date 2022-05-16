@@ -265,7 +265,7 @@ export const RecentInteraction = ({
 export interface RecentInteractionsProps {
   readonly title: string;
   readonly currentInteraction: string | null;
-  /** Set to null to include interactions for all pools */
+  /** Set to null to indicate we are on the Swap page */
   readonly poolId: string | null;
 }
 
@@ -282,11 +282,15 @@ export const RecentInteractions = ({
     useRecentInteractions();
 
   const recentInteractions = Object.values(interactionsWithTxs).filter(
-    (interactionWithTxs) =>
-      !!interactionWithTxs &&
-      (poolId === null ||
-        (interactionWithTxs.interaction.type !== InteractionType.Swap &&
-          poolId === interactionWithTxs.interaction.poolId)),
+    (interactionWithTxs) => {
+      if (interactionWithTxs === undefined) {
+        return false;
+      }
+      if (interactionWithTxs.interaction.type === InteractionType.Swap) {
+        return poolId === null;
+      }
+      return poolId === interactionWithTxs.interaction.poolId;
+    },
   );
   const numberOfRecentInteractions =
     currentInteraction === null

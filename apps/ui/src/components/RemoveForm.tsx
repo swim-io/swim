@@ -20,7 +20,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { PoolSpec, TokenSpec } from "../config";
 import { EcosystemId, ecosystems } from "../config";
 import { useConfig } from "../contexts";
-import { notify } from "../core/selectors";
+import { selectNotify } from "../core/selectors";
 import { useNotificationStore } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
@@ -134,7 +134,7 @@ export const RemoveForm = ({
     },
   );
 
-  const sendNotification = useNotificationStore(notify);
+  const sendNotification = useNotificationStore(selectNotify);
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const [outputAmountErrors, setOutputAmountErrors] = useState(

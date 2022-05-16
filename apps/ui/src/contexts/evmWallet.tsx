@@ -12,7 +12,7 @@ import * as React from "react";
 import { SingleWalletModal } from "../components/SingleWalletModal";
 import type { EvmEcosystemId } from "../config";
 import { EcosystemId, Env, EvmChainId } from "../config";
-import { notify } from "../core/selectors";
+import { selectNotify } from "../core/selectors";
 import { useNotificationStore } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
 import type { EvmWalletAdapter, WalletService } from "../models";
@@ -123,7 +123,7 @@ export const EvmWalletProvider = ({
   ecosystemId,
   children,
 }: EvmWalletProviderProps): ReactElement => {
-  const sendNotification = useNotificationStore(notify);
+  const sendNotification = useNotificationStore(selectNotify);
 
   const { env } = useEnvironment();
   const [connected, setConnected] = useState(false);
@@ -198,7 +198,7 @@ export const EvmWalletProvider = ({
       // eslint-disable-next-line functional/immutable-data
       previousWalletRef.current = wallet;
     };
-  }, [wallet, notify]);
+  }, [wallet, selectNotify]);
 
   useEffect(() => {
     if (wallet && autoConnect) {

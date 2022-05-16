@@ -27,7 +27,6 @@ describe("useNotificationStore", () => {
       result.current.notify("Error", "Some error", "warning");
     });
 
-    expect(result.current.toasts[0]).toEqual(toast);
     expect(result.current.toasts).toEqual([toast]);
   });
   it("removes created toast from store", async () => {

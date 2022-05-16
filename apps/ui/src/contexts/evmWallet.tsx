@@ -194,7 +194,7 @@ export const EvmWalletProvider = ({
       // eslint-disable-next-line functional/immutable-data
       previousWalletRef.current = wallet;
     };
-  }, [wallet]);
+  }, [wallet, notify]);
 
   useEffect(() => {
     if (wallet && autoConnect) {

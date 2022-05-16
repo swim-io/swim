@@ -1,3 +1,4 @@
+/* eslint-disable functional/immutable-data */
 import type { EuiGlobalToastListToast } from "@elastic/eui";
 import produce from "immer";
 import type { ReactChild } from "react";
@@ -51,7 +52,6 @@ export const useNotificationStore = create<NotificationState>((set) => ({
         const updatedToasts = draft.toasts.filter(
           (toast: EuiGlobalToastListToast) => toast.id !== removedToast.id,
         );
-        // eslint-disable-next-line functional/immutable-data
         draft.toasts = updatedToasts;
       }),
     );

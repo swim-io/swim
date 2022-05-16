@@ -14,12 +14,6 @@ Run `yarn start` to run the app in development mode.
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-### Setup Vercel environment variables
-
-1. If you don't have access to Vercel yet, ask one of the frontend devs
-1. Link Vercel to the project: `npx vercel link`
-1. Pull environment variables to your `.env` file: `npx vercel pull`
-
 ## Editor/IDE
 
 We support [EditorConfig](https://editorconfig.org/), which provides plugins for all major editors and IDEs. This will ensure consistency for basic coding styles such as indentation and line breaks. See [.editorconfig](.editorconfig) for details.
@@ -42,7 +36,7 @@ Lints all `.{ts,tsx}` files in the `src` directory, with or without the `--fix` 
 
 By default, you only have access to Mainnet. For development, you'll likely want to setup a development blockchain environment. There are several options for this, (A) is recommended.
 
-To view more networks in the environment switcher in the upper right corner of the UI, visit [localhost:3000/set-custom-localnet?ip=1](http://localhost:3000/set-custom-localnet?ip=1) and refresh the page.
+To view more networks in the environment switcher in the upper right corner of the UI, visit [http://localhost:3000/set-custom-localnet?ip=159.223.16.33](http://localhost:3000/set-custom-localnet?ip=159.223.16.33) and refresh the page.
 
 ### (A) Connect to our shared Wormhole setup
 

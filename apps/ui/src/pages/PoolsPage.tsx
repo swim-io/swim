@@ -141,33 +141,6 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size="xxl" />
 
             <PoolListItem
-              title="UST Meta-Pool"
-              betaBadgeLabel="Coming Soon"
-              tokenSpecs={[
-                {
-                  id: "placeholder-solana-native-lp_hexapool",
-                  symbol: "SWIM_HEXAPOOL_LP",
-                  displayName: "swimUSD",
-                  icon: SWIM_SVG,
-                  isStablecoin: false,
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "placeholder-terra-native-ust",
-                  symbol: "UST",
-                  displayName: "TerraUSD",
-                  icon: UST_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Terra,
-                  detailsByEcosystem: new Map(),
-                },
-              ]}
-            />
-
-            <EuiSpacer size="xxl" />
-
-            <PoolListItem
               title="Avalanche USDC Meta-Pool"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[

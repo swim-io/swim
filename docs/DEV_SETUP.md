@@ -80,21 +80,45 @@ These steps apply after starting for the first time, or restarting the blockchai
    - Some services are pending even after the second green status light in Tilt
 
 1. Reset MetaMask (Localnet Ethereum & Localnet BSC)
-1. Solana setup script
+1. Make sure your `solana config get` is using wormhole
+
+```
+$ solana config get
+Config File: /Users/<USERNAME>/.config/solana/cli/config.yml
+RPC URL: http://127.0.0.1:8899
+WebSocket URL: ws://127.0.0.1:8900/ (computed)
+Keypair Path: /<PATH_TO_SWIM_REPO>/swim/apps/ui/src/keys/wallet-accounts/6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J.json
+Commitment: confirmed
+```
+
+  - If RPC URL and Keypair Path not match, update the Solana config file with
+
+```
+---
+json_rpc_url: "http://127.0.0.1:8899"
+websocket_url: ""
+keypair_path: /<PATH_TO_YOUT_SWIM_REPO>/swim/apps/ui/src/keys/wallet-accounts/6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J.json
+address_labels:
+  "11111111111111111111111111111111": System Program
+commitment: confirmed
+```
+
+1. Solana setup script (Stay ssh with wormhole)
 
    - `./scripts/setup_solana_dev.sh`
 
+1. Exit wormhole-v2 connection
 1. Test page -> Set up Wormhole tokens for Ethereum
 1. Test page -> Set up Wormhole tokens for BSC
 1. Test page -> Get wrapped SPL token addresses on Ethereum (for each supported SPL token)
 1. Test page -> Get wrapped SPL token addresses on BSC (for each supported SPL token)
-1. Update addresses in config
+1. Update `localnet-solana-usdc` and `localnet-solana-usdt` addresses in config
 1. Test page -> Init pool with random keys to check all the txs work
 1. Test page -> Init pool with deterministic keys (for each pool)
 1. Test page -> Attest LP token (for each pool)
 1. Test page -> Get wrapped LP token addresses on Ethereum (for each pool)
 1. Test page -> Get wrapped LP token addresses on BSC (for each pool)
-1. Update LP token addresses in config
+1. Update `localnet-solana-lp-hexapool` addresses in config
 1. Add tokens to MetaMask (optional)
 1. Test page -> Massive preapproval
 1. Pool page -> Deposit equal amounts of each

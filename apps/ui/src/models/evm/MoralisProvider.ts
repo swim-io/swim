@@ -11,8 +11,9 @@ type TransactionResponse = ethers.providers.TransactionResponse;
 
 const { JsonRpcProvider } = ethers.providers;
 
-const MORALIS_MAINNET_URL = process.env.REACT_APP_MORALIS_MAINNET_URL;
-const MORALIS_TESTNET_URL = process.env.REACT_APP_MORALIS_TESTNET_URL;
+//TODO Probably the wrong default url, was trying to get past a section where it's expected to be defined
+const MORALIS_MAINNET_URL = process.env.REACT_APP_MORALIS_MAINNET_URL || "https://speedy-nodes-nyc.moralis.io/1a2b3c4d5e6f1a2b3c4d5e6f/eth/mainnet";
+const MORALIS_TESTNET_URL = process.env.REACT_APP_MORALIS_TESTNET_URL || "https://speedy-nodes-nyc.moralis.io/1a2b3c4d5e6f1a2b3c4d5e6f/eth/testnet";
 
 // TODO: Reconsider variable names and file location.
 const DISABLE_CHAIN_ID = 0;

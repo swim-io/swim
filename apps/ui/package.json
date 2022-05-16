@@ -84,13 +84,8 @@
     "eslint-plugin-react": "^7.29.4",
     "jest-mock-extended": "^2.0.5",
     "prettier": "^2.3.2",
-    "react-test-renderer": "^18.1.0",
-    "ts-jest": "^28.0.2",
     "typechain": "^5.1.2",
     "typescript": "~4.2",
     "webpack": "4.44.2"
-  },
-  "browser": {
-    "crypto": false
   }
 }

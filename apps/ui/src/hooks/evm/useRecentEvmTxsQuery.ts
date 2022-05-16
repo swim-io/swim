@@ -2,7 +2,9 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
-import { useEnvironment, useEvmConnection, useEvmWallet } from "../../contexts";
+import { useEvmConnection, useEvmWallet } from "../../contexts";
+import { selectEnv } from "../../core/selectors";
+import { useEnvironmentStore } from "../../core/store";
 import type { EvmTx } from "../../models";
 import { findEvmInteractionId } from "../../models";
 import { isNotNull } from "../../utils";
@@ -13,7 +15,7 @@ export const useRecentEvmTxsQuery = (
   ecosystemId: EvmEcosystemId,
   recentInteractionIds: readonly string[],
 ): UseQueryResult<readonly EvmTx[] | null, Error> => {
-  const { env } = useEnvironment();
+  const env = useEnvironmentStore(selectEnv);
   const { address } = useEvmWallet(ecosystemId);
   const queryKey = ["evmTxs", env, ecosystemId, address];
   const connection = useEvmConnection(ecosystemId);

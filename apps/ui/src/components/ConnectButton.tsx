@@ -4,7 +4,6 @@ import type { ReactElement } from "react";
 import { useState } from "react";
 
 import { EcosystemId } from "../config";
-import { useConfig } from "../contexts";
 import { useWallets } from "../hooks";
 import AVALANCHE_SVG from "../images/avalanche.svg";
 import BSC_SVG from "../images/bsc.svg";
@@ -16,6 +15,8 @@ import { shortenAddress } from "../utils";
 import { MultiWalletModal } from "./MultiWalletModal";
 
 import "./ConnectButton.scss";
+import { useEnvironmentStore } from "../core/store";
+import { selectConfig } from "../core/selectors";
 
 export const LABEL_MAP: Record<EcosystemId, string> = {
   [EcosystemId.Solana]: "Connect Solana",
@@ -35,7 +36,7 @@ export const ConnectButton = ({
   ecosystemId,
   ...rest
 }: ConnectButtonProps): ReactElement => {
-  const { ecosystems } = useConfig();
+  const { ecosystems } = useEnvironmentStore(selectConfig);
   if (ecosystemId === EcosystemId.Terra) {
     throw new Error("Unsupported ecosystem");
   }

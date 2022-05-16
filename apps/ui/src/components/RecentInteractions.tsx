@@ -13,7 +13,6 @@ import type { ReactElement } from "react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 
 import { EcosystemId } from "../config";
-import { useConfig } from "../contexts";
 import {
   isEveryAddressConnected,
   usePoolMaths,
@@ -34,6 +33,8 @@ import {
   AmountsWithTokenIcons,
   NativeTokenIcon,
 } from "./TokenIcon";
+import { useEnvironmentStore } from "../core/store";
+import { selectConfig } from "../core/selectors";
 
 export interface ActiveInteractionProps {
   readonly interaction: Interaction;
@@ -86,7 +87,7 @@ export const RecentInteraction = ({
   txs,
   splTokenAccounts,
 }: RecentInteractionProps): ReactElement => {
-  const config = useConfig();
+  const config = useEnvironmentStore(selectConfig);
   const [isActive, setIsActive] = useState(false);
   const wallets = useWallets();
   const { isInteractionInProgress } = useStepsReducer();

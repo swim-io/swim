@@ -6,8 +6,8 @@ import {
   EuiPageContentBody,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
-
-import { useConfig } from "../contexts";
+import { selectConfig } from "../core/selectors";
+import { useEnvironmentStore } from "../core/store";
 
 import { PoolPageInner } from "./PoolPage";
 
@@ -16,7 +16,7 @@ export interface StakePageProps {
 }
 
 const StakePage = ({ poolId }: StakePageProps): ReactElement => {
-  const { pools } = useConfig();
+  const { pools } = useEnvironmentStore(selectConfig);
   const poolSpec = pools.find((pool) => pool.id === poolId) ?? null;
   return (
     <EuiPage className="stakePage" restrictWidth={800}>

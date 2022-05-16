@@ -3,14 +3,12 @@ import Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
-import {
-  useEnvironment,
-  useSolanaConnection,
-  useSolanaWallet,
-} from "../../contexts";
+import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { selectEnv } from "../../core/selectors";
+import { useEnvironmentStore } from "../../core/store";
 
 export const useSolBalanceQuery = (): UseQueryResult<Decimal, Error> => {
-  const { env } = useEnvironment();
+  const env = useEnvironmentStore(selectEnv);
   const solanaConnection = useSolanaConnection();
   const { address: walletAddress } = useSolanaWallet();
   return useQuery<Decimal, Error>(

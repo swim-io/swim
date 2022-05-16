@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import { useQuery } from "react-query";
 
 import type { EcosystemId } from "../../config";
-import { useConfig, useEnvironment } from "../../contexts";
+import { selectConfig, selectEnv } from "../../core/selectors";
+import { useEnvironmentStore } from "../../core/store";
 import type { Interaction, Tx } from "../../models";
 import { loadInteractions } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
@@ -18,8 +19,8 @@ export const useRecentInteractions = (): ReadonlyRecord<
   string, // Interaction ID
   InteractionWithTxs | undefined
 > => {
-  const { env } = useEnvironment();
-  const config = useConfig();
+  const env = useEnvironmentStore(selectEnv);
+  const config = useEnvironmentStore(selectConfig);
   const { data: interactions = [] } = useQuery(["interactions"], () =>
     loadInteractions(env, config),
   );

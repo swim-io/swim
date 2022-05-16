@@ -1,18 +1,16 @@
 import type { ReactElement } from "react";
 import { Redirect, useLocation } from "react-router";
 
-import { useLocalStorageState } from "../hooks";
+import { selectSetCustomLocalnetIp } from "../core/selectors";
+import { useEnvironmentStore } from "../core/store";
 
 const SetCustomLocalnetPage = (): ReactElement => {
-  const [, setCustomLocalnetIp] = useLocalStorageState<string | null>(
-    "customLocalnetIp",
-    null,
-  );
+  const setCustomLocalIp = useEnvironmentStore(selectSetCustomLocalnetIp);
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
   const newLocalnetIp = searchParams.get("ip") ?? null;
 
-  setCustomLocalnetIp(newLocalnetIp);
+  setCustomLocalIp(newLocalnetIp);
 
   return <Redirect to="/" />;
 };

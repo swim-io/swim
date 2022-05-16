@@ -1,7 +1,9 @@
 /* eslint-disable functional/immutable-data */
 import type { EuiGlobalToastListToast } from "@elastic/eui";
-import produce from "immer";
+import type { Draft } from "immer";
+import { produce } from "immer";
 import type { ReactChild } from "react";
+import type { SetState } from "zustand";
 import create from "zustand";
 
 type NotificationLevel = "info" | "success" | "warning" | "error";
@@ -37,23 +39,31 @@ const createToast = (
   toastLifeTimeMs: lifetime,
 });
 
-export const useNotificationStore = create<NotificationState>((set) => ({
-  toasts: [],
-  notify: (title, text = "", level = "info", lifetime) => {
-    set(
-      produce((state) => {
-        state.toasts.push(createToast(title, text, level, lifetime));
-      }),
-    );
-  },
-  removeToast: (removedToast: EuiGlobalToastListToast) => {
-    set((state) =>
-      produce(state, (draft) => {
-        const updatedToasts = draft.toasts.filter(
-          (toast: EuiGlobalToastListToast) => toast.id !== removedToast.id,
-        );
-        draft.toasts = updatedToasts;
-      }),
-    );
-  },
-}));
+export const useNotificationStore = create<NotificationState>(
+  (set: SetState<any>) => ({
+    toasts: [],
+    notify: (title, text = "", level = "info", lifetime) => {
+      set((state: NotificationState) =>
+        produce(state, (draft: Draft<NotificationState>) => {
+          const newToast = createToast(
+            title,
+            text,
+            level,
+            lifetime,
+          ) as Draft<EuiGlobalToastListToast>;
+          draft.toasts.push(newToast);
+        }),
+      );
+    },
+    removeToast: (removedToast: EuiGlobalToastListToast) => {
+      set((state: NotificationState) =>
+        produce(state, (draft) => {
+          const updatedToasts = draft.toasts.filter(
+            (toast: EuiGlobalToastListToast) => toast.id !== removedToast.id,
+          );
+          draft.toasts = updatedToasts;
+        }),
+      );
+    },
+  }),
+);

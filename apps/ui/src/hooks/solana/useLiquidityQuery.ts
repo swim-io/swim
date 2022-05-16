@@ -3,7 +3,9 @@ import { PublicKey } from "@solana/web3.js";
 import type { UseQueryResult } from "react-query";
 import { useQueries, useQuery } from "react-query";
 
-import { useEnvironment, useSolanaConnection } from "../../contexts";
+import { useSolanaConnection } from "../../contexts";
+import { selectEnv } from "../../core/selectors";
+import { useEnvironmentStore } from "../../core/store";
 import {
   deserializeTokenAccount,
   getMultipleSolanaAccounts,
@@ -12,7 +14,7 @@ import {
 export const useLiquidityQuery = (
   tokenAccountAddresses: readonly string[],
 ): UseQueryResult<readonly TokenAccount[], Error> => {
-  const { env } = useEnvironment();
+  const env = useEnvironmentStore(selectEnv);
   const solanaConnection = useSolanaConnection();
 
   return useQuery<readonly TokenAccount[], Error>(
@@ -38,7 +40,7 @@ export const useLiquidityQuery = (
 export const useLiquidityQueries = (
   tokenAccountAddresses: readonly (readonly string[])[],
 ): readonly UseQueryResult<readonly TokenAccount[], Error>[] => {
-  const { env } = useEnvironment();
+  const env = useEnvironmentStore(selectEnv);
   const solanaConnection = useSolanaConnection();
 
   return useQueries(

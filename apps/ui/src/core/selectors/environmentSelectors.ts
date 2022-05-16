@@ -1,10 +1,10 @@
 import type { EnvironmentState } from "../store";
 
-export const envSelector = (state: EnvironmentState) => state.env;
-export const envsSelector = (state: EnvironmentState) => state.envs;
-export const configSelector = (state: EnvironmentState) => state.config;
-export const customLocalnetIpSelector = (state: EnvironmentState) =>
+export const selectEnv = (state: EnvironmentState) => state.env;
+export const selectEnvs = (state: EnvironmentState) => state.envs;
+export const selectConfig = (state: EnvironmentState) => state.config;
+export const selectCustomLocalnetIp = (state: EnvironmentState) =>
   state.customLocalnetIp;
-export const setEnvSelector = (state: EnvironmentState) => state.setEnv;
-export const setCustomLocalnetIpSelector = (state: EnvironmentState) =>
+export const selectSetEnv = (state: EnvironmentState) => state.setEnv;
+export const selectSetCustomLocalnetIp = (state: EnvironmentState) =>
   state.setCustomLocalnetIp;

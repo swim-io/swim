@@ -29,14 +29,9 @@ import {
   WormholeChainId,
   getSolanaTokenDetails,
 } from "../config";
-import {
-  useConfig,
-  useEnvironment,
-  useEvmConnections,
-  useSolanaConnection,
-} from "../contexts";
-import { notify } from "../core/selectors";
-import { useNotificationStore } from "../core/store";
+import { useEvmConnections, useSolanaConnection } from "../contexts";
+import { notify, selectConfig, selectEnv } from "../core/selectors";
+import { useEnvironmentStore, useNotificationStore } from "../core/store";
 import { usePool, useTokensByEcosystem, useWallets } from "../hooks";
 import { keysHexaPool, keysSwimLake } from "../keys";
 import {
@@ -49,8 +44,12 @@ import { shortenAddress, sleep } from "../utils";
 const SWIM_POOL_FEE_DECIMALS = 6;
 
 const TestPage = (): ReactElement => {
-  const { env } = useEnvironment();
-  const { chains, tokens, wormhole: wormholeConfig } = useConfig();
+  const env = useEnvironmentStore(selectEnv);
+  const {
+    chains,
+    tokens,
+    wormhole: wormholeConfig,
+  } = useEnvironmentStore(selectConfig);
   const queryClient = useQueryClient();
   const [currentPool, setCurrentPool] = useState("hexapool");
   const secretKeys = currentPool === "swimlake" ? keysSwimLake : keysHexaPool;

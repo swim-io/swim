@@ -15,7 +15,8 @@ import { u64ToDecimal } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
 import type { PoolSpec } from "../config";
 import { EcosystemId, getSolanaTokenDetails } from "../config";
-import { useConfig } from "../contexts";
+import { selectConfig } from "../core/selectors";
+import { useEnvironmentStore } from "../core/store";
 import { useLiquidityQuery, useTitle } from "../hooks";
 import BTC_SVG from "../images/tokens/btc.svg";
 import WBTC_SVG from "../images/tokens/wbtc.svg";
@@ -23,7 +24,7 @@ import { filterMap, findOrThrow } from "../utils";
 
 const PoolsPage = (): ReactElement => {
   useTitle("Pools");
-  const { pools, tokens } = useConfig();
+  const { pools, tokens } = useEnvironmentStore(selectConfig);
 
   const allPoolTokenAccountAddresses = pools.flatMap((poolSpec) => [
     ...poolSpec.tokenAccounts.values(),

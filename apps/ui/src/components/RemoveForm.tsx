@@ -19,9 +19,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { PoolSpec, TokenSpec } from "../config";
 import { EcosystemId, ecosystems } from "../config";
-import { useConfig } from "../contexts";
-import { notify } from "../core/selectors";
-import { useNotificationStore } from "../core/store";
+import { notify, selectConfig } from "../core/selectors";
+import { useEnvironmentStore, useNotificationStore } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   usePool,
@@ -73,7 +72,7 @@ export const RemoveForm = ({
   poolSpec,
   maxSlippageFraction,
 }: RemoveFormProps): ReactElement => {
-  const config = useConfig();
+  const config = useEnvironmentStore(selectConfig);
   const {
     tokens: poolTokens,
     lpToken,

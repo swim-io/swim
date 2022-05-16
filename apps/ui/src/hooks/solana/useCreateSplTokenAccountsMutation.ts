@@ -2,11 +2,9 @@ import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
 import type { UseMutationResult } from "react-query";
 import { useMutation, useQueryClient } from "react-query";
 
-import {
-  useEnvironment,
-  useSolanaConnection,
-  useSolanaWallet,
-} from "../../contexts";
+import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { selectEnv } from "../../core/selectors";
+import { useEnvironmentStore } from "../../core/store";
 import { findOrCreateSplTokenAccount } from "../../models";
 
 import { useSplTokenAccountsQuery } from "./useSplTokenAccountsQuery";
@@ -16,7 +14,7 @@ export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
   Error,
   readonly string[]
 > => {
-  const { env } = useEnvironment();
+  const env = useEnvironmentStore(selectEnv);
   const queryClient = useQueryClient();
   const solanaConnection = useSolanaConnection();
   const { wallet, address } = useSolanaWallet();

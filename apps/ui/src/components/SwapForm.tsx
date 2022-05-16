@@ -18,9 +18,6 @@ import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
-import { useConfig } from "../contexts";
-import { notify } from "../core/selectors";
-import { useNotificationStore } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   usePoolMaths,
@@ -59,6 +56,8 @@ import { StepsDisplay } from "./StepsDisplay";
 import { NativeTokenIcon } from "./TokenIcon";
 
 import "./SwapForm.scss";
+import { useEnvironmentStore, useNotificationStore } from "../core/store";
+import { notify, selectConfig } from "../core/selectors";
 
 export interface SwapFormProps {
   readonly setCurrentInteraction: (id: string) => void;
@@ -69,7 +68,7 @@ export const SwapForm = ({
   setCurrentInteraction,
   maxSlippageFraction,
 }: SwapFormProps): ReactElement => {
-  const config = useConfig();
+  const config = useEnvironmentStore(selectConfig);
   const tokensByPool = getTokensByPool(config);
   const sendNotification = useNotificationStore(notify);
   const wallets = useWallets();

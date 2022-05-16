@@ -4,11 +4,11 @@ import * as React from "react";
 
 import type { EvmEcosystemId } from "../config";
 import { EcosystemId, Env, Protocol, chains } from "../config";
+import { selectConfig, selectEnv } from "../core/selectors";
+import { useEnvironmentStore } from "../core/store";
 import { EvmConnection } from "../models";
 import type { ReadonlyRecord } from "../utils";
 import { findOrThrow } from "../utils";
-
-import { useConfig, useEnvironment } from "./environment";
 
 const EthereumConnectionContext = React.createContext<EvmConnection>(
   new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][0]),
@@ -45,8 +45,8 @@ export const EvmConnectionProvider = ({
   ecosystemId,
   children,
 }: EvmConnectionProviderProps): ReactElement => {
-  const { env } = useEnvironment();
-  const { chains: evmChains } = useConfig();
+  const env = useEnvironmentStore(selectEnv);
+  const { chains: evmChains } = useEnvironmentStore(selectConfig);
   const chainSpec = findOrThrow(
     evmChains[Protocol.Evm],
     (chain) => chain.ecosystem === ecosystemId,

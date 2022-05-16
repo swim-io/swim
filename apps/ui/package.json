@@ -6,7 +6,7 @@
     "start": "NODE_ENV=development SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco start",
     "build": "craco build",
     "release": "SENTRY_RELEASE=$(git rev-parse --short HEAD) SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco build",
-    "test": "craco test --transformIgnorePatterns \"node_modules/(?!@project-serum/sol-wallet-adapter)/\"",
+    "test": "NODE_ENV=development SKIP_PREFLIGHT_CHECK=true craco test --transformIgnorePatterns \"node_modules/(?!@project-serum/sol-wallet-adapter)/\"",
     "eject": "react-scripts eject",
     "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
     "lint": "eslint \"./src/**/*.{ts,tsx}\"",
@@ -46,6 +46,7 @@
     "constate": "^3.3.0",
     "decimal.js": "^10.3.1",
     "ethers": "^5.4.4",
+    "jscrypto": "^1.0.3",
     "moment": "^2.29.1",
     "moralis": "^1.3.5",
     "node-sass": "^4.12.0",
@@ -54,6 +55,7 @@
     "react-query": "3.25.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "styled-components": "^5.3.5",
     "wasm-loader": "^1.3.0",
     "web-vitals": "^1.0.1"
   },
@@ -65,14 +67,14 @@
     "@testing-library/user-event": "^12.1.10",
     "@typechain/ethers-v5": "^7.0.1",
     "@types/bn.js": "^5.1.0",
-    "@types/jest": "^27.4.0",
+    "@types/jest": "^27.5.1",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/react-router": "^5.1.15",
     "@types/react-router-dom": "^5.1.7",
+    "@types/styled-components": "^5.1.25",
     "@typescript-eslint/eslint-plugin": "^5.21.0",
-    "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-deprecation": "^1.3.2",
@@ -81,8 +83,13 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.29.4",
     "prettier": "^2.3.2",
+    "react-test-renderer": "^18.1.0",
+    "ts-jest": "^28.0.2",
     "typechain": "^5.1.2",
     "typescript": "~4.2",
     "webpack": "4.44.2"
+  },
+  "browser": {
+    "crypto": false
   }
 }

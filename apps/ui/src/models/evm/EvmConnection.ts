@@ -17,11 +17,12 @@ type TransactionResponse = ethers.providers.TransactionResponse;
 export type Provider = MoralisProvider | EtherscanProvider | LocalnetProvider;
 
 // TODO: Use proper endpoints via env
+//TODO strings below are a quick hack to get past explicit undefined checks.
 const AVALANCHE_RPC_URL = "https://api.avax-test.network/ext/bc/C/rpc";
 const POLYGON_RPC_URL = "https://rpc-mumbai.matic.today";
-const BSC_MAINNET_RPC_URL = process.env.REACT_APP_BSC_MAINNET_RPC_URL;
-const BSC_TESTNET_RPC_URL = process.env.REACT_APP_BSC_TESTNET_RPC_URL;
-const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
+const BSC_MAINNET_RPC_URL = process.env.REACT_APP_BSC_MAINNET_RPC_URL || "https://bsc-dataseed.binance.org/";
+const BSC_TESTNET_RPC_URL = process.env.REACT_APP_BSC_TESTNET_RPC_URL || "https://data-seed-prebsc-1-s1.binance.org:8545/";
+const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY || "";
 const MORALIS_ID = "Swim UI";
 
 /**
@@ -99,6 +100,7 @@ export class EvmConnection {
     env: Env,
     ecosystemId: EvmEcosystemId,
   ): Provider {
+
     switch (ecosystemId) {
       case EcosystemId.Ethereum:
         return new ethers.providers.EtherscanProvider(

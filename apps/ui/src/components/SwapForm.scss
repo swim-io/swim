@@ -15,3 +15,15 @@
     flex-direction: column;
   }
 }
+
+//REVIEWER: Hover effect is not perfect because of padding, but I think it's good enough for the time spent
+.bootleg-super-select {
+  background-color: #fbfcfd;
+  border: 1px solid #DDD;
+  padding: 5px;
+  border-radius: 5px;
+  :hover {
+    transition: background-color 0.1s;
+    background-color: rgb(202, 223, 238);
+  }
+}

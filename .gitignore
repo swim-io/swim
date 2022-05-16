@@ -36,3 +36,6 @@ yarn-error.log*
 
 # Solana
 test-ledger/
+
+# Would use the .gitignore for JetBrains, but don't want the commit to get cluttered with the .idea directory for now
+.idea/

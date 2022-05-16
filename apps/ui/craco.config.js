@@ -24,6 +24,12 @@ module.exports = {
         crypto: {},
       },
       resetMocks: true,
+      //TODO The below configuration changes don't make my tests work w/ craco
+      moduleFileExtensions: ["ts", "tsx"],
+      moduleDirectories: ["node_modules"],
+      transformIgnorePatterns: [
+        "<rootDir>/node_modules/"
+      ]
     },
   },
   webpack: {

@@ -18,10 +18,10 @@ export interface EnvironmentState {
   readonly config: Config;
   readonly customLocalnetIp: string | null;
   readonly setEnv: (newEnv: Env) => void;
-  readonly setCustomLocalnetIp: (ip: string | null) => void;
+  readonly setCustomLocalnetIp: (ip: string) => void;
 }
 
-export const useEnvironmentStore = create<EnvironmentState>((set) => ({
+export const useEnvironmentStore = create<EnvironmentState>((set, get) => ({
   env: Env.Mainnet,
   envs: [Env.Mainnet],
   config: configs[Env.Mainnet],
@@ -33,11 +33,16 @@ export const useEnvironmentStore = create<EnvironmentState>((set) => ({
       }),
     );
   },
-  setCustomLocalnetIp: (ip = null) => {
+  setCustomLocalnetIp: (ip: string) => {
     set((state) =>
       produce(state, (draft) => {
         draft.customLocalnetIp = ip;
-        draft.config.
+        draft.config = {
+          // ...configs[Env.CustomLocalnet],
+          // get().customLocalnetIp !== null
+          //   ? overrideLocalnetIp(configs[Env.Localnet], ip)
+          //   : configs[Env.Localnet]
+        };
       }),
     );
   },

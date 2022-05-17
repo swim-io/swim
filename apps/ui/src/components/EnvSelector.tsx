@@ -13,12 +13,12 @@ import { useState } from "react";
 
 import { isValidEnv } from "../config";
 import { selectEnv, selectEnvs, selectSetEnv } from "../core/selectors";
-import { useEnvironmentStore } from "../core/store";
+import { useEnvironment } from "../core/store";
 
 export const EnvSelector = (): ReactElement => {
-  const env = useEnvironmentStore(selectEnv);
-  const envs = useEnvironmentStore(selectEnvs);
-  const setEnv = useEnvironmentStore(selectSetEnv);
+  const env = useEnvironment(selectEnv);
+  const envs = useEnvironment(selectEnvs);
+  const setEnv = useEnvironment(selectSetEnv);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleChange = (envOptions: readonly EuiSelectableOption[]): void => {

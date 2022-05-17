@@ -5,11 +5,10 @@ import {
 } from "../../config";
 import { useEvmConnections, useSolanaConnection } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
-import { useEnvironmentStore } from "../../core/store";
+import { useEnvironment } from "../../core/store";
 import type {
   TransfersToSolanaWithExistingTxs,
   TxWithTokenId,
-  WithSplTokenAccounts,
   WormholeTransferWithSignatureSet,
 } from "../../models";
 import {
@@ -17,31 +16,37 @@ import {
   generateTransferEvmTokensToSolana,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
+import { useSplTokenAccountsQuery } from "../solana";
 import type { UseAsyncGeneratorResult } from "../utils";
 import { useAsyncGenerator } from "../utils";
 
 export const useTransferEvmTokensToSolanaGenerator =
   (): UseAsyncGeneratorResult<
-    WithSplTokenAccounts<TransfersToSolanaWithExistingTxs>,
+    TransfersToSolanaWithExistingTxs,
     TxWithTokenId
   > => {
-    const config = useEnvironmentStore(selectConfig);
+    const config = useEnvironment(selectConfig);
     const evmConnections = useEvmConnections();
     const solanaConnection = useSolanaConnection();
     const wallets = useWallets();
+    const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
     const solanaWallet = wallets.solana.wallet;
 
     return useAsyncGenerator(
       async ({
         transfers,
         existingTxs,
-        splTokenAccounts,
-      }: WithSplTokenAccounts<TransfersToSolanaWithExistingTxs>): Promise<
+      }: TransfersToSolanaWithExistingTxs): Promise<
         AsyncGenerator<TxWithTokenId>
       > => {
         const solanaAddress = solanaWallet?.publicKey?.toBase58() ?? null;
         if (solanaWallet === null || solanaAddress === null) {
           throw new Error("Missing Solana wallet");
+        }
+        if (splTokenAccounts === null) {
+          throw new Error(
+            "SPL token accounts not loaded, please try again later",
+          );
         }
 
         const filteredTransfers = transfers.filter(

@@ -1,14 +1,14 @@
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";
-import { useEnvironmentStore } from "../../core/store";
+import { useEnvironment } from "../../core/store";
 import type { ReadonlyRecord } from "../../utils";
 
 export const useTokensByEcosystem = (): ReadonlyRecord<
   EcosystemId,
   readonly TokenSpec[]
 > => {
-  const { tokens } = useEnvironmentStore(selectConfig);
+  const { tokens } = useEnvironment(selectConfig);
   const filterTokensByEcosystem = (
     ecosystem: EcosystemId,
   ): readonly TokenSpec[] =>

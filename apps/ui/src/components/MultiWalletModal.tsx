@@ -33,7 +33,7 @@ import { CustomModal } from "./CustomModal";
 import { MobileDeviceDisclaimer } from "./MobileDeviceDisclaimer";
 
 import "./ConnectButton.scss";
-import { useEnvironmentStore } from "../core/store";
+import { useEnvironment } from "../core/store";
 import { selectConfig } from "../core/selectors";
 
 interface WalletServiceButtonProps<W extends WalletService = WalletService> {
@@ -143,7 +143,7 @@ export const MultiWalletModal = ({
 }: MultiWalletModalProps): ReactElement => {
   const { solana, ethereum, bsc, avalanche, polygon } = useWallets();
 
-  const { ecosystems } = useEnvironmentStore(selectConfig);
+  const { ecosystems } = useEnvironment(selectConfig);
   const solanaEcosystem = ecosystems[EcosystemId.Solana];
   const ethereumEcosystem = ecosystems[EcosystemId.Ethereum];
   const bscEcosystem = ecosystems[EcosystemId.Bsc];

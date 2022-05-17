@@ -5,10 +5,10 @@ import { useQuery } from "react-query";
 
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
 import { selectEnv } from "../../core/selectors";
-import { useEnvironmentStore } from "../../core/store";
+import { useEnvironment } from "../../core/store";
 
 export const useSolBalanceQuery = (): UseQueryResult<Decimal, Error> => {
-  const env = useEnvironmentStore(selectEnv);
+  const env = useEnvironment(selectEnv);
   const solanaConnection = useSolanaConnection();
   const { address: walletAddress } = useSolanaWallet();
   return useQuery<Decimal, Error>(

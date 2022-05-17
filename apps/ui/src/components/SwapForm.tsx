@@ -19,7 +19,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
 import { selectConfig, selectNotify } from "../core/selectors";
-import { useEnvironmentStore, useNotificationStore } from "../core/store";
+import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   usePoolMaths,
@@ -68,9 +68,9 @@ export const SwapForm = ({
   setCurrentInteraction,
   maxSlippageFraction,
 }: SwapFormProps): ReactElement => {
-  const config = useEnvironmentStore(selectConfig);
+  const config = useEnvironment(selectConfig);
   const tokensByPool = getTokensByPool(config);
-  const notify = useNotificationStore(selectNotify);
+  const notify = useNotification(selectNotify);
   const wallets = useWallets();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();

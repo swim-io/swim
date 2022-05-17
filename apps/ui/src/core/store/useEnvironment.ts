@@ -31,7 +31,7 @@ export interface EnvironmentState {
   readonly setCustomLocalnetIp: (ip: string | null) => void;
 }
 
-export const useEnvironmentStore = create(
+export const useEnvironment = create(
   persist(
     (set: SetState<any>, get: GetState<any>) => ({
       env: DEFAULT_ENV,

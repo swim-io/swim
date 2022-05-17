@@ -6,7 +6,7 @@ import { useQuery } from "react-query";
 import { EcosystemId, Env } from "../../config";
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
 import { selectEnv } from "../../core/selectors";
-import { useEnvironmentStore } from "../../core/store";
+import { useEnvironment } from "../../core/store";
 import type { SolanaConnection, SolanaTx } from "../../models";
 import { INTERACTION_ID_LENGTH_HEX } from "../../models";
 
@@ -64,7 +64,7 @@ export const useRecentSolanaTxsQuery = (): UseQueryResult<
   readonly SolanaTx[] | null,
   Error
 > => {
-  const env = useEnvironmentStore(selectEnv);
+  const env = useEnvironment(selectEnv);
   const solanaConnection = useSolanaConnection();
   const { address } = useSolanaWallet();
   const queryKey = ["solanaTxs", env, address];

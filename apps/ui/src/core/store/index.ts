@@ -1,2 +1,2 @@
-export * from "./useNotificationStore";
-export * from "./useEnvironmentStore";
+export * from "./useNotification";
+export * from "./useEnvironment";

@@ -6,7 +6,7 @@ import type { Env, PoolSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
 import { selectConfig, selectEnv } from "../../core/selectors";
-import { useEnvironmentStore } from "../../core/store";
+import { useEnvironment } from "../../core/store";
 import type {
   Interaction,
   OperationSpec,
@@ -16,7 +16,6 @@ import type {
   TokensByPoolId,
   TxWithPoolId,
   TxsByPoolId,
-  WithSplTokenAccounts,
 } from "../../models";
 import {
   Amount,
@@ -30,6 +29,7 @@ import {
   getTokensByPool,
 } from "../../models";
 import { findOrThrow } from "../../utils";
+import { useSplTokenAccountsQuery } from "../solana";
 import type { UseAsyncGeneratorResult } from "../utils";
 import { useAsyncGenerator } from "../utils";
 
@@ -316,33 +316,38 @@ export interface PoolOperationsInput {
 }
 
 export const usePoolOperationsGenerator = (): UseAsyncGeneratorResult<
-  WithSplTokenAccounts<PoolOperationsInput>,
+  PoolOperationsInput,
   TxWithPoolId
 > => {
-  const env = useEnvironmentStore(selectEnv);
-  const config = useEnvironmentStore(selectConfig);
+  const env = useEnvironment(selectEnv);
+  const config = useEnvironment(selectConfig);
   const tokensByPoolId = getTokensByPool(config);
   const solanaConnection = useSolanaConnection();
   const { wallet } = useSolanaWallet();
+  const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
 
-  return useAsyncGenerator<
-    WithSplTokenAccounts<PoolOperationsInput>,
-    TxWithPoolId
-  >(async ({ interaction, operations, splTokenAccounts, existingTxs }) => {
-    const poolSpecs = getRequiredPools(config.pools, interaction);
-    if (wallet === null) {
-      throw new Error("Missing Solana wallet");
-    }
-    return generatePoolOperationTxs(
-      env,
-      solanaConnection,
-      wallet,
-      splTokenAccounts,
-      tokensByPoolId,
-      poolSpecs,
-      interaction,
-      operations,
-      existingTxs,
-    );
-  });
+  return useAsyncGenerator<PoolOperationsInput, TxWithPoolId>(
+    async ({ interaction, operations, existingTxs }) => {
+      const poolSpecs = getRequiredPools(config.pools, interaction);
+      if (wallet === null) {
+        throw new Error("Missing Solana wallet");
+      }
+      if (splTokenAccounts === null) {
+        throw new Error(
+          "SPL token accounts not loaded, please try again later",
+        );
+      }
+      return generatePoolOperationTxs(
+        env,
+        solanaConnection,
+        wallet,
+        splTokenAccounts,
+        tokensByPoolId,
+        poolSpecs,
+        interaction,
+        operations,
+        existingTxs,
+      );
+    },
+  );
 };

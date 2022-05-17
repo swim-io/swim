@@ -13,7 +13,7 @@ import { SingleWalletModal } from "../components/SingleWalletModal";
 import type { EvmEcosystemId } from "../config";
 import { EcosystemId, Env, EvmChainId } from "../config";
 import { selectEnv, selectNotify } from "../core/selectors";
-import { useEnvironmentStore, useNotificationStore } from "../core/store";
+import { useEnvironment, useNotification } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
 import type { EvmWalletAdapter, WalletService } from "../models";
 import {
@@ -121,9 +121,9 @@ export const EvmWalletProvider = ({
   ecosystemId,
   children,
 }: EvmWalletProviderProps): ReactElement => {
-  const notify = useNotificationStore(selectNotify);
+  const notify = useNotification(selectNotify);
 
-  const env = useEnvironmentStore(selectEnv);
+  const env = useEnvironment(selectEnv);
   const [connected, setConnected] = useState(false);
   const [autoConnect, setAutoConnect] = useState(false);
 

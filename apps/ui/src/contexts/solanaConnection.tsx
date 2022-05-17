@@ -6,7 +6,7 @@ import { createContext, useContext, useEffect, useMemo } from "react";
 import { DEFAULT_ENV, configs } from "../config";
 import { Protocol } from "../config/ecosystem";
 import { selectConfig } from "../core/selectors";
-import { useEnvironmentStore } from "../core/store";
+import { useEnvironment } from "../core/store";
 import { SolanaConnection } from "../models";
 
 const SolanaConnectionContext = createContext<SolanaConnection>(
@@ -20,7 +20,7 @@ export const SolanaConnectionProvider = ({
 }: {
   readonly children?: ReactNode;
 }): ReactElement => {
-  const { chains } = useEnvironmentStore(selectConfig);
+  const { chains } = useEnvironment(selectConfig);
   const [chain] = chains[Protocol.Solana];
   const { endpoint } = chain;
 

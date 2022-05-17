@@ -5,12 +5,12 @@ import { useQuery } from "react-query";
 import type { EvmEcosystemId } from "../../config";
 import { useEvmConnection, useEvmWallet } from "../../contexts";
 import { selectEnv } from "../../core/selectors";
-import { useEnvironmentStore } from "../../core/store";
+import { useEnvironment } from "../../core/store";
 
 export const useEvmUserNativeBalanceQuery = (
   ecosystemId: EvmEcosystemId,
 ): UseQueryResult<Decimal, Error> => {
-  const env = useEnvironmentStore(selectEnv);
+  const env = useEnvironment(selectEnv);
   const evmConnection = useEvmConnection(ecosystemId);
   const { address: walletAddress } = useEvmWallet(ecosystemId);
 

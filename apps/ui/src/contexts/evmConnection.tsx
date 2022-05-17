@@ -5,7 +5,7 @@ import * as React from "react";
 import type { EvmEcosystemId } from "../config";
 import { EcosystemId, Env, Protocol, chains } from "../config";
 import { selectConfig, selectEnv } from "../core/selectors";
-import { useEnvironmentStore } from "../core/store";
+import { useEnvironment } from "../core/store";
 import { EvmConnection } from "../models";
 import type { ReadonlyRecord } from "../utils";
 import { findOrThrow } from "../utils";
@@ -45,8 +45,8 @@ export const EvmConnectionProvider = ({
   ecosystemId,
   children,
 }: EvmConnectionProviderProps): ReactElement => {
-  const env = useEnvironmentStore(selectEnv);
-  const { chains: evmChains } = useEnvironmentStore(selectConfig);
+  const env = useEnvironment(selectEnv);
+  const { chains: evmChains } = useEnvironment(selectConfig);
   const chainSpec = findOrThrow(
     evmChains[Protocol.Evm],
     (chain) => chain.ecosystem === ecosystemId,

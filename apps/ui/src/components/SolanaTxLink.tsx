@@ -3,15 +3,15 @@ import type { ReactElement } from "react";
 
 import { Env, Protocol } from "../config";
 import { selectConfig, selectEnv } from "../core/selectors";
-import { useEnvironmentStore } from "../core/store";
+import { useEnvironment } from "../core/store";
 
 export const SolanaTxLink = ({
   txId,
 }: {
   readonly txId: string;
 }): ReactElement => {
-  const env = useEnvironmentStore(selectEnv);
-  const { chains } = useEnvironmentStore(selectConfig);
+  const env = useEnvironment(selectEnv);
+  const { chains } = useEnvironment(selectConfig);
   const [chain] = chains[Protocol.Solana];
   const endpointParam = env === Env.Mainnet ? "" : chain.endpoint;
   const endpointURLSuffix = endpointParam

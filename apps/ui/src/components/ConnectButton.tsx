@@ -15,7 +15,7 @@ import { shortenAddress } from "../utils";
 import { MultiWalletModal } from "./MultiWalletModal";
 
 import "./ConnectButton.scss";
-import { useEnvironmentStore } from "../core/store";
+import { useEnvironment } from "../core/store";
 import { selectConfig } from "../core/selectors";
 
 export const LABEL_MAP: Record<EcosystemId, string> = {
@@ -36,7 +36,7 @@ export const ConnectButton = ({
   ecosystemId,
   ...rest
 }: ConnectButtonProps): ReactElement => {
-  const { ecosystems } = useEnvironmentStore(selectConfig);
+  const { ecosystems } = useEnvironment(selectConfig);
   if (ecosystemId === EcosystemId.Terra) {
     throw new Error("Unsupported ecosystem");
   }

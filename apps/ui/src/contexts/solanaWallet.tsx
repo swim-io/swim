@@ -13,7 +13,7 @@ import {
 import { SingleWalletModal } from "../components/SingleWalletModal";
 import { Protocol } from "../config";
 import { selectConfig, selectNotify } from "../core/selectors";
-import { useEnvironmentStore, useNotificationStore } from "../core/store";
+import { useEnvironment, useNotification } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
 import type { SolanaWalletAdapter, SolanaWalletService } from "../models";
 import { SOLANA_WALLET_SERVICES } from "../models";
@@ -50,9 +50,9 @@ interface SolanaWalletProviderProps {
 export const SolanaWalletProvider = ({
   children,
 }: SolanaWalletProviderProps): ReactElement => {
-  const { chains } = useEnvironmentStore(selectConfig);
+  const { chains } = useEnvironment(selectConfig);
   const [{ endpoint }] = chains[Protocol.Solana];
-  const notify = useNotificationStore(selectNotify);
+  const notify = useNotification(selectNotify);
 
   const [connected, setConnected] = useState(false);
   const [autoConnect, setAutoConnect] = useState(false);

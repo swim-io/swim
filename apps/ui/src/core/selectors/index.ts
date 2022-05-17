@@ -1,2 +1,2 @@
-export * from "./notificationSelectors";
-export * from "./environmentSelectors";
+export * from "./notification";
+export * from "./environment";

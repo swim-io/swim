@@ -5,7 +5,7 @@ import type { EvmEcosystemId, TokenSpec } from "../../config";
 import { Protocol, getSolanaTokenDetails } from "../../config";
 import { useEvmConnection, useSolanaConnection } from "../../contexts";
 import { selectConfig, selectEnv } from "../../core/selectors";
-import { useEnvironmentStore } from "../../core/store";
+import { useEnvironment } from "../../core/store";
 import type { Amount, Tx, WormholeTransfer } from "../../models";
 import {
   findOrCreateSplTokenAccount,
@@ -27,10 +27,10 @@ export const useTransferEvmTokenToSolanaMutation = (
   Error,
   TransferErc20TokenToSolanaMutationVariables
 > => {
-  const env = useEnvironmentStore(selectEnv);
+  const env = useEnvironment(selectEnv);
   const queryClient = useQueryClient();
   const splTokenContractAddress = getSolanaTokenDetails(token).address;
-  const { chains, wormhole } = useEnvironmentStore(selectConfig);
+  const { chains, wormhole } = useEnvironment(selectConfig);
   const [solanaChain] = chains[Protocol.Solana];
   const evmChain =
     chains[Protocol.Evm].find((chain) => chain.ecosystem === ecosystemId) ??

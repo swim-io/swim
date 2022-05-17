@@ -17,14 +17,14 @@ import { RecentInteractions } from "../components/RecentInteractions";
 import { SlippageButton } from "../components/SlippageButton";
 import { SwapForm } from "../components/SwapForm";
 import { selectConfig } from "../core/selectors";
-import { useEnvironmentStore } from "../core/store";
+import { useEnvironment } from "../core/store";
 import { useTitle } from "../hooks";
 import { defaultIfError } from "../utils";
 
 import "./SwapPage.scss";
 
 const SwapPage = (): ReactElement => {
-  const { pools } = useEnvironmentStore(selectConfig);
+  const { pools } = useEnvironment(selectConfig);
   useTitle("Swap");
 
   const nonStakingPools = useMemo(

@@ -1,12 +1,12 @@
 /* eslint-disable functional/immutable-data */
 import type { EuiGlobalToastListToast } from "@elastic/eui";
-import type { Draft } from "immer";
 import { produce } from "immer";
 import type { ReactChild } from "react";
 import type { SetState } from "zustand";
 import create from "zustand";
 
 type NotificationLevel = "info" | "success" | "warning" | "error";
+type Toast = Omit<EuiGlobalToastListToast, "defaultValue">;
 
 export interface NotificationState {
   readonly toasts: readonly EuiGlobalToastListToast[];
@@ -31,7 +31,7 @@ const createToast = (
   text: ReactChild = "",
   level: NotificationLevel = "info",
   lifetime = 10000,
-): EuiGlobalToastListToast => ({
+): Toast => ({
   id: `toast${Math.random()}`,
   title: title,
   text: text,
@@ -39,18 +39,13 @@ const createToast = (
   toastLifeTimeMs: lifetime,
 });
 
-export const useNotificationStore = create<NotificationState>(
+export const useNotification = create<NotificationState>(
   (set: SetState<any>) => ({
     toasts: [],
     notify: (title, text = "", level = "info", lifetime) => {
       set((state: NotificationState) =>
         produce<NotificationState>(state, (draft) => {
-          const newToast = createToast(
-            title,
-            text,
-            level,
-            lifetime,
-          ) as Draft<EuiGlobalToastListToast>;
+          const newToast = createToast(title, text, level, lifetime);
           draft.toasts.push(newToast);
         }),
       );

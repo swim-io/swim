@@ -1,6 +1,7 @@
 import {
   EuiBasicTable,
   EuiButton,
+  EuiButtonIcon,
   EuiConfirmModal,
   EuiFieldText,
   EuiFlexGroup,
@@ -11,8 +12,7 @@ import {
 } from "@elastic/eui";
 import type { ChangeEvent, ReactElement } from "react";
 import { useState } from "react";
-// TODO: Replace with more repubtale/battle-tested carousel.
-import Carousel from "react-elastic-carousel";
+import { Carousel } from "react-responsive-carousel";
 
 import type {
   NftAttribute,
@@ -20,6 +20,7 @@ import type {
 } from "../hooks/solana/useAccountNftsQuery";
 
 import "./NftCarousel.scss";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 export interface NftCarouselProps {
   readonly nfts: readonly NftData[];
@@ -76,7 +77,33 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
 
   return (
     <>
-      <Carousel isRTL={false}>
+      <Carousel
+        showThumbs={false}
+        showStatus={false}
+        showIndicators={false}
+        renderArrowNext={(onClickHandler, hasNext) => (
+          <EuiButtonIcon
+            onClick={onClickHandler}
+            display="base"
+            iconType="arrowRight"
+            aria-label="button"
+            isDisabled={!hasNext}
+            className="arrow"
+            style={{ right: 15 }}
+          />
+        )}
+        renderArrowPrev={(onClickHandler, hasPrev) => (
+          <EuiButtonIcon
+            onClick={onClickHandler}
+            display="base"
+            iconType="arrowLeft"
+            aria-label="button"
+            isDisabled={!hasPrev}
+            className="arrow"
+            style={{ left: 15 }}
+          />
+        )}
+      >
         {nfts.map((nft) => {
           return (
             <div key={nft.metadata.mint}>

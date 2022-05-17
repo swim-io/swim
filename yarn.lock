@@ -3362,8 +3362,8 @@ __metadata:
     prettier: ^2.3.2
     react: ^17.0.2
     react-dom: ^17.0.2
-    react-elastic-carousel: ^0.11.5
     react-query: 3.25.1
+    react-responsive-carousel: ^3.2.23
     react-router-dom: ^5.2.0
     react-scripts: 4.0.3
     typechain: ^5.1.2
@@ -6652,7 +6652,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classnames@npm:^2.2.6":
+"classnames@npm:^2.2.5, classnames@npm:^2.2.6":
   version: 2.3.1
   resolution: "classnames@npm:2.3.1"
   checksum: 14db8889d56c267a591f08b0834989fe542d47fac659af5a539e110cc4266694e8de86e4e3bbd271157dbd831361310a8293e0167141e80b0f03a0f175c80960
@@ -16202,20 +16202,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-elastic-carousel@npm:^0.11.5":
-  version: 0.11.5
-  resolution: "react-elastic-carousel@npm:0.11.5"
+"react-easy-swipe@npm:^0.0.21":
+  version: 0.0.21
+  resolution: "react-easy-swipe@npm:0.0.21"
   dependencies:
-    classnames: ^2.2.6
-    react-only-when: ^1.0.2
-    react-swipeable: ^5.5.1
-    resize-observer-polyfill: 1.5.0
-  peerDependencies:
-    prop-types: ^15.5.4
-    react: 15 - 17
-    react-dom: 15 - 17
-    styled-components: ^5.1.0
-  checksum: 2a823cd8cbea006b4cfc92eac3f47df32eeb77109baad5e6edc1f5eb09d1b5d838c3110c3212ca84f434b96bc9c0caf0bb05c23ddbf8c751caf2ef52cdd5915a
+    prop-types: ^15.5.8
+  checksum: 225f12a9dd410db1c790220867ab1eb58e2ef0a2bdae8541330805fc5b9905e242ab307b019f9aaed76473849a753f363baff03fa8a77e7a1860d7b41dc83ec0
   languageName: node
   linkType: hard
 
@@ -16313,17 +16305,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-only-when@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "react-only-when@npm:1.0.2"
-  peerDependencies:
-    prop-types: ^15.5.4
-    react: ^15.0.0 || ^16.0.0
-    react-dom: ^15.0.0 || ^16.0.0
-  checksum: 2d0e3d58bc16ce076298d03eac683d988022779e33c74591253dfe9715bfbc1154e10568d170de31b3d2b8e2c26b3b0fd53061b46af0c7e4eea9e6374cad37e9
-  languageName: node
-  linkType: hard
-
 "react-query@npm:3.25.1":
   version: 3.25.1
   resolution: "react-query@npm:3.25.1"
@@ -16402,6 +16383,17 @@ __metadata:
     "@types/react":
       optional: true
   checksum: ddf6919dc630142029de919847fcd81ab9513955adb7edda2dbd55cf8b69ac733badfba938b8e82704e98a8b61c545f161075e9b44de9d0910f2efdbca776408
+  languageName: node
+  linkType: hard
+
+"react-responsive-carousel@npm:^3.2.23":
+  version: 3.2.23
+  resolution: "react-responsive-carousel@npm:3.2.23"
+  dependencies:
+    classnames: ^2.2.5
+    prop-types: ^15.5.8
+    react-easy-swipe: ^0.0.21
+  checksum: 8a5b915f140a05425554a0c108c60a0b103dae49808486d39147df09c832ad712c7d7f4a66f0d0c39529ca095b4a327f0cc440d91b5f7a39ab13076931f74bd0
   languageName: node
   linkType: hard
 
@@ -16534,17 +16526,6 @@ __metadata:
     "@types/react":
       optional: true
   checksum: e999e978c3261756060e67ec0c0ddaf7551850eca2beefd26f807dbcb416fd456d7d3674333e61562604eef5cf9e4503848981e8bfdc7f9e67321414ed6e1a4e
-  languageName: node
-  linkType: hard
-
-"react-swipeable@npm:^5.5.1":
-  version: 5.5.1
-  resolution: "react-swipeable@npm:5.5.1"
-  dependencies:
-    prop-types: ^15.6.2
-  peerDependencies:
-    react: ^16.0.0-0
-  checksum: 474e281c619a4ca61cede4a1c9acb712241c16c1d226145cc3af66ac77525b585b510739879dc5404ead280fcd606e5b3ed26ddd76d9eb853bf4b11578201d4b
   languageName: node
   linkType: hard
 
@@ -17008,13 +16989,6 @@ __metadata:
   version: 1.0.0
   resolution: "requires-port@npm:1.0.0"
   checksum: eee0e303adffb69be55d1a214e415cf42b7441ae858c76dfc5353148644f6fd6e698926fc4643f510d5c126d12a705e7c8ed7e38061113bdf37547ab356797ff
-  languageName: node
-  linkType: hard
-
-"resize-observer-polyfill@npm:1.5.0":
-  version: 1.5.0
-  resolution: "resize-observer-polyfill@npm:1.5.0"
-  checksum: ecc6aab5d4f967f1b76cee0748c1967c8b6b5d8c4393764ca3b788dbd15c0f846326c4ebff9f4f39aba45fea8016cd42bb95e28e8fab1d14349e173790c58133
   languageName: node
   linkType: hard
 

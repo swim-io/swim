@@ -23,19 +23,6 @@ export interface NftData {
   readonly attributes: readonly NftAttribute[];
 }
 
-// const getNftCollectionAddress = (env: Env): string => {
-//   switch (env) {
-//     case Env.Mainnet: {
-//       return SWIM_NUMBERS_COLLECTION_MAINNET;
-//     }
-//     case Env.Devnet: {
-//       return SWIM_NUMBERS_COLLECTION_DEVNET;
-//     }
-//     default:
-//       throw new Error(`Cannot find nft collection for ${env}.`);
-//   }
-// };
-
 interface uriPayload {
   readonly image: string;
   readonly attributes: readonly NftAttribute[];

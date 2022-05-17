@@ -39,8 +39,8 @@ export const useEnvironment = create(
       customLocalnetIp: null,
       config: configs[DEFAULT_ENV],
       setEnv: (newEnv: Env) => {
-        set((state: EnvironmentState) =>
-          produce(state, (draft: any) => {
+        set(
+          produce<EnvironmentState>((draft) => {
             draft.env = isValidEnv(newEnv) ? newEnv : get().env;
             draft.envs =
               get().customLocalnetIp === null
@@ -50,8 +50,8 @@ export const useEnvironment = create(
         );
       },
       setCustomLocalnetIp: (ip: string | null) => {
-        set((state: EnvironmentState) =>
-          produce(state, (draft: Draft<EnvironmentState>) => {
+        set(
+          produce<EnvironmentState>((draft) => {
             draft.customLocalnetIp = ip;
             const newConfig =
               ip !== null
@@ -70,7 +70,6 @@ export const useEnvironment = create(
       name: "env-config",
       getStorage: (): StateStorage => ({
         getItem: (name: string): string | null => {
-          console.log("get local", localStorage.getItem(name));
           return localStorage.getItem(name);
         },
         setItem: (name, value) => {

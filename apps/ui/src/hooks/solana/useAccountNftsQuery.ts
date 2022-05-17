@@ -76,9 +76,9 @@ export const useAccountNfts = (
         userSwimNfts.map(async (metadata) => {
           const { image, attributes } = await fetchNftUri(metadata.data.uri);
           return {
-            metadata: metadata,
-            image: image,
-            attributes: attributes,
+            metadata,
+            image,
+            attributes,
           };
         }),
       );

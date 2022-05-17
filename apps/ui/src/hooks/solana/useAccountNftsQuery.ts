@@ -54,8 +54,8 @@ export const useAccountNfts = (
   ownerAddress: string | null,
 ): UseQueryResult<readonly NftData[], Error> => {
   const config = useConfig();
-  const otterTotCollection =
-    config.chains[Protocol.Solana][0].otterTotCollection;
+  const { otterTotCollection } =
+    config.chains[Protocol.Solana][0];
   const solanaConnection = useSolanaConnection();
   const { env } = useEnvironment();
   return useQuery(

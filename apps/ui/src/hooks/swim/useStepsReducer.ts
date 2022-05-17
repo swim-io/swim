@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react";
-import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
+import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { Dispatch, Reducer } from "react";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import type { UseMutationResult } from "react-query";
@@ -42,7 +42,6 @@ import type {
   TransfersWithExistingTxs,
   TxWithPoolId,
   TxWithTokenId,
-  WithSplTokenAccounts,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import {
@@ -60,20 +59,20 @@ import { usePoolOperationsGenerator } from "./usePoolOperationsGenerator";
 
 export interface StepMutations {
   readonly createSplTokenAccounts: UseMutationResult<
-    readonly TokenAccountInfo[],
+    readonly TokenAccount[],
     Error,
     readonly string[]
   >;
   readonly wormholeToSolana: UseAsyncGeneratorResult<
-    WithSplTokenAccounts<TransfersToSolanaWithExistingTxs>,
+    TransfersToSolanaWithExistingTxs,
     TxWithTokenId
   >;
   readonly doPoolOperations: UseAsyncGeneratorResult<
-    WithSplTokenAccounts<PoolOperationsInput>,
+    PoolOperationsInput,
     TxWithPoolId
   >;
   readonly wormholeFromSolana: UseAsyncGeneratorResult<
-    WithSplTokenAccounts<TransfersWithExistingTxs>,
+    TransfersWithExistingTxs,
     TxWithTokenId
   >;
 }
@@ -293,7 +292,6 @@ export const useStepsReducer = (
           void generate({
             transfers: combineTransfers(transfers),
             existingTxs: txs,
-            splTokenAccounts: state.splTokenAccounts,
           });
           return;
         }
@@ -323,7 +321,6 @@ export const useStepsReducer = (
           void generate({
             interaction,
             operations: steps.doPoolOperations.operations,
-            splTokenAccounts: state.splTokenAccounts,
             existingTxs: steps.doPoolOperations.txs,
           });
         }
@@ -348,7 +345,6 @@ export const useStepsReducer = (
           void generate({
             transfers: combineTransfers<Transfer>(transfers),
             existingTxs: txs,
-            splTokenAccounts: state.splTokenAccounts,
           });
         }
 
@@ -382,6 +378,7 @@ export const useStepsReducer = (
     poolMaths: readonly PoolMath[],
   ): string => {
     const interactionId = generateId();
+    setActiveInteraction(interactionId);
     const requiredPools = getRequiredPools(config.pools, interactionSpec);
     const inputPool = requiredPools.find(Boolean) ?? null;
     if (inputPool === null) {

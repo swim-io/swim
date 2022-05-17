@@ -6,6 +6,8 @@ import type { SetState } from "zustand";
 import create from "zustand";
 
 type NotificationLevel = "info" | "success" | "warning" | "error";
+// NOTE: We don’t use this property but Immer complains if it’s not omitted
+// because it could be a readonly array
 type Toast = Omit<EuiGlobalToastListToast, "defaultValue">;
 
 export interface NotificationState {

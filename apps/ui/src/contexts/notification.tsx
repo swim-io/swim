@@ -1,7 +1,7 @@
 import type { EuiGlobalToastListToast } from "@elastic/eui";
 import { EuiGlobalToastList } from "@elastic/eui";
 import type { ReactChild, ReactElement, ReactNode } from "react";
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
 type NotificationLevel = "info" | "success" | "warning" | "error";
 
@@ -37,29 +37,35 @@ export function NotificationProvider({
   const initialToasts: readonly EuiGlobalToastListToast[] = [];
   const [toasts, setToasts] = useState(initialToasts);
 
-  const addToast = (toast: EuiGlobalToastListToast): void => {
-    setToasts([...toasts, toast]);
-  };
+  const addToast = useCallback(
+    (toast: EuiGlobalToastListToast): void => {
+      setToasts([...toasts, toast]);
+    },
+    [toasts, setToasts],
+  );
 
   const removeToast = (removedToast: EuiGlobalToastListToast): void => {
     setToasts(toasts.filter((toast) => toast.id !== removedToast.id));
   };
 
-  const notify = (
-    title: ReactChild,
-    text: ReactChild = "",
-    level: NotificationLevel = "info",
-    lifetime = 15000,
-  ): void => {
-    const toast: EuiGlobalToastListToast = {
-      id: `toast${Math.random()}`,
-      title: title,
-      text: text,
-      color: LEVEL_TO_COLOR[level],
-      toastLifeTimeMs: lifetime,
-    };
-    addToast(toast);
-  };
+  const notify = useCallback(
+    (
+      title: ReactChild,
+      text: ReactChild = "",
+      level: NotificationLevel = "info",
+      lifetime = 15000,
+    ): void => {
+      const toast: EuiGlobalToastListToast = {
+        id: `toast${Math.random()}`,
+        title: title,
+        text: text,
+        color: LEVEL_TO_COLOR[level],
+        toastLifeTimeMs: lifetime,
+      };
+      addToast(toast);
+    },
+    [addToast],
+  );
 
   return (
     <NotificationContext.Provider

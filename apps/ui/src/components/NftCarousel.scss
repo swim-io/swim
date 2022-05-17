@@ -4,4 +4,9 @@
   width: 30;
   height: 30;
   cursor: pointer;
+  order: 1
+}
+
+.slider-wrapper {
+  pointer-events: none;
 }

@@ -8,7 +8,7 @@ import {
 import { ReactQueryDevtools } from "react-query/devtools";
 
 import { selectNotify } from "../core/selectors";
-import { useNotificationStore } from "../core/store";
+import { useNotification } from "../core/store";
 import { captureException } from "../errors";
 
 export const QueryClientProvider = ({
@@ -16,7 +16,7 @@ export const QueryClientProvider = ({
 }: {
   readonly children?: ReactNode;
 }): ReactElement => {
-  const notify = useNotificationStore(selectNotify);
+  const notify = useNotification(selectNotify);
 
   const queryClient = useMemo(
     () =>

@@ -21,7 +21,7 @@ import type { PoolSpec, TokenSpec } from "../config";
 import { EcosystemId, ecosystems } from "../config";
 import { useConfig } from "../contexts";
 import { selectNotify } from "../core/selectors";
-import { useNotificationStore } from "../core/store";
+import { useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   usePool,
@@ -134,7 +134,7 @@ export const RemoveForm = ({
     },
   );
 
-  const notify = useNotificationStore(selectNotify);
+  const notify = useNotification(selectNotify);
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const [outputAmountErrors, setOutputAmountErrors] = useState(

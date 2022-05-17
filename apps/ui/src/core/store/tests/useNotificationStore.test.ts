@@ -2,20 +2,20 @@ import type { EuiGlobalToastListToast } from "@elastic/eui";
 import { cleanup } from "@testing-library/react";
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { useNotificationStore } from "..";
+import { useNotification } from "..";
 
-describe("useNotificationStore", () => {
+describe("useNotification", () => {
   afterEach(() => {
     // You can choose to set the store's state to a default value here.
     jest.resetAllMocks();
     cleanup();
   });
   it("initially returns empty toast array", async () => {
-    const { result } = renderHook(() => useNotificationStore((state) => state));
+    const { result } = renderHook(() => useNotification((state) => state));
     expect(result.current.toasts).toEqual([]);
   });
   it("returns new toast from store", async () => {
-    const { result } = renderHook(() => useNotificationStore((state) => state));
+    const { result } = renderHook(() => useNotification((state) => state));
     const toast: EuiGlobalToastListToast = {
       id: expect.stringMatching(/^toast0\.\d+$/),
       title: "Error",
@@ -30,7 +30,7 @@ describe("useNotificationStore", () => {
     expect(result.current.toasts).toEqual([toast]);
   });
   it("removes created toast from store", async () => {
-    const { result } = renderHook(() => useNotificationStore((state) => state));
+    const { result } = renderHook(() => useNotification((state) => state));
     act(() => {
       result.current.notify("Notification1", "First notification", "success");
       result.current.notify("Notification2", "Second notifications", "warning");

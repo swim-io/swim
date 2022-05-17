@@ -2,16 +2,16 @@ import { EuiGlobalToastList } from "@elastic/eui";
 import type { ReactElement } from "react";
 
 import { selectRemoveToast, selectToasts } from "../core/selectors";
-import { useNotificationStore } from "../core/store";
+import { useNotification } from "../core/store";
 
 const Notification = (): ReactElement => {
-  const allToasts = useNotificationStore(selectToasts);
-  const deleteToast = useNotificationStore(selectRemoveToast);
+  const toasts = useNotification(selectToasts);
+  const removeToast = useNotification(selectRemoveToast);
 
   return (
     <EuiGlobalToastList
-      toasts={[...allToasts]}
-      dismissToast={allToasts.length ? deleteToast : () => null}
+      toasts={[...toasts]}
+      dismissToast={toasts.length ? removeToast : () => null}
       toastLifeTimeMs={10000}
     />
   );

@@ -39,7 +39,7 @@ const createToast = (
   toastLifeTimeMs: lifetime,
 });
 
-export const useNotificationStore = create<NotificationState>(
+export const useNotification = create<NotificationState>(
   (set: SetState<any>) => ({
     toasts: [],
     notify: (title, text = "", level = "info", lifetime) => {

@@ -25,7 +25,7 @@ import type { TokenSpec } from "../config";
 import { EcosystemId, ecosystems } from "../config";
 import { useConfig } from "../contexts";
 import { selectNotify } from "../core/selectors";
-import { useNotificationStore } from "../core/store";
+import { useNotification } from "../core/store";
 import {
   useChainsByEcosystem,
   useUserBalances,
@@ -92,7 +92,7 @@ const useNonSolanaEcosystemChangeEffect = (
 };
 
 export const WormholeForm = (): ReactElement => {
-  const notify = useNotificationStore(selectNotify);
+  const notify = useNotification(selectNotify);
   const { tokens } = useConfig();
   const {
     solana: { address: solanaAddress },

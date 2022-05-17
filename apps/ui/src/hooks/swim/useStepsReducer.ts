@@ -378,6 +378,7 @@ export const useStepsReducer = (
     poolMaths: readonly PoolMath[],
   ): string => {
     const interactionId = generateId();
+    setActiveInteraction(interactionId);
     const requiredPools = getRequiredPools(config.pools, interactionSpec);
     const inputPool = requiredPools.find(Boolean) ?? null;
     if (inputPool === null) {

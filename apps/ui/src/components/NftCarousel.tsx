@@ -140,7 +140,7 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
           confirmButtonDisabled={passwordInput.toLowerCase() !== redeemPassword}
         >
           <EuiFormRow
-            label={`Type the word "${redeemPassword}" to burn your otter for ${redeemerValue} ${redeemerToken}.\nNote, this is irreversible!`}
+            label={`Type the word "${redeemPassword}" to burn your otter for ${redeemerValue} ${redeemerToken}. Warning, this is irreversible.`}
           >
             <EuiFieldText
               name="redeem"

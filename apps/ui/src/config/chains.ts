@@ -262,7 +262,7 @@ const localnetChains: ChainsByProtocol = {
       },
       endpoint: "http://127.0.0.1:8899",
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      otterTotCollection: "",
+      otterTotCollection: "", // TODO: Deploy on localnet
     },
   ],
   [Protocol.Evm]: [

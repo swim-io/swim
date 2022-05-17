@@ -141,7 +141,7 @@ describe("Swim steps", () => {
       },
       type: InteractionType.Swap,
       params: {
-        exactInputAmount: Amount.fromHumanString(poolTokens[2], "3000"),
+        exactInputAmount: Amount.fromHumanString(poolTokens[1], "3000"),
         minimumOutputAmount: Amount.fromHumanString(poolTokens[2], "3000"),
       },
     };
@@ -186,11 +186,10 @@ describe("Swim steps", () => {
         defaultSplTokenAccounts,
       );
 
-      expect(result.length).toBe(3);
+      expect(result.length).toBe(2);
       [
         "USTPJc7bSkXxRPP1ZdxihfxtfgWNrcRPrE4KEC6EK23", // "localnet-solana-usdt"
         "Ep9cMbgyG46b6PVvJNypopc6i8TFzvUVmGiT4MA1PhSb", // "localnet-ethereum-usdc"
-        "9AGDY4Xa9wDfRZc2LHeSS9iAdH6Bhw6VnMd2t7tkJhYv", // "localnet-ethereum-usdt"
       ].forEach((mint) => expect(result).toContain(mint));
     });
 

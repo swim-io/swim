@@ -92,6 +92,9 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
             style={{ right: 15 }}
           />
         )}
+        // Note, this code block calls setState before it is mounted. This is
+        // just a consequence of using this carousel library and EuiButtonIcon,
+        // which sets state in constructor.
         renderArrowPrev={(onClickHandler, hasPrev) => (
           <EuiButtonIcon
             onClick={onClickHandler}

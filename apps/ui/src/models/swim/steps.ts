@@ -159,7 +159,8 @@ export const getRequiredTokens = (
       const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];
       return [
         ...tokens.filter(
-          (token) => interactionSpec.params.outputTokenId === token.id,
+          (token) =>
+            token.id === interactionSpec.params.minimumOutputAmount.tokenId,
         ),
         lpToken,
       ];
@@ -275,8 +276,7 @@ export const createOperationSpecs = (
       ];
     }
     case InteractionType.RemoveExactBurn: {
-      const { exactBurnAmount, outputTokenId, minimumOutputAmount } =
-        interaction.params;
+      const { exactBurnAmount, minimumOutputAmount } = interaction.params;
       return [
         {
           interactionId,
@@ -285,7 +285,7 @@ export const createOperationSpecs = (
           params: {
             exactBurnAmount,
             outputTokenIndex: inputPoolTokens.tokens.findIndex(
-              (token) => token.id === outputTokenId,
+              (token) => token.id === minimumOutputAmount.tokenId,
             ),
             minimumOutputAmount,
           },
@@ -663,7 +663,7 @@ export const createRemoveExactBurnSteps = (
     splTokenAccounts,
   );
   const outputTokenIndex = tokens.findIndex(
-    (token) => token.id === params.outputTokenId,
+    (token) => token.id === params.minimumOutputAmount.tokenId,
   );
   if (outputTokenIndex === -1) {
     throw new Error("Invalid output token");

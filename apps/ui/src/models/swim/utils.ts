@@ -127,7 +127,7 @@ const getRequiredEcosystems = (
       const { params, lpTokenSourceEcosystem } = interactionSpec;
       const outputToken = findOrThrow(
         tokens,
-        (token) => token.id === params.outputTokenId,
+        (token) => token.id === params.minimumOutputAmount.tokenId,
       );
       const outputEcosystem = outputToken.nativeEcosystem;
       return new Set([

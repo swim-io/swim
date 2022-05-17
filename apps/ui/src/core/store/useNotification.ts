@@ -40,19 +40,19 @@ const createToast = (
 });
 
 export const useNotification = create<NotificationState>(
-  (set: SetState<any>) => ({
+  (set: SetState<NotificationState>) => ({
     toasts: [],
     notify: (title, text = "", level = "info", lifetime) => {
-      set((state: NotificationState) =>
-        produce<NotificationState>(state, (draft) => {
+      set(
+        produce<NotificationState>((draft) => {
           const newToast = createToast(title, text, level, lifetime);
           draft.toasts.push(newToast);
         }),
       );
     },
     removeToast: (removedToast: EuiGlobalToastListToast) => {
-      set((state: NotificationState) =>
-        produce<NotificationState>(state, (draft) => {
+      set(
+        produce<NotificationState>((draft) => {
           draft.toasts = draft.toasts.filter(
             (toast: EuiGlobalToastListToast) => toast.id !== removedToast.id,
           );

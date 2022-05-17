@@ -11,11 +11,11 @@ describe("useNotification", () => {
     cleanup();
   });
   it("initially returns empty toast array", async () => {
-    const { result } = renderHook(() => useNotification((state) => state));
+    const { result } = renderHook(() => useNotification());
     expect(result.current.toasts).toEqual([]);
   });
   it("returns new toast from store", async () => {
-    const { result } = renderHook(() => useNotification((state) => state));
+    const { result } = renderHook(() => useNotification());
     const toast: EuiGlobalToastListToast = {
       id: expect.stringMatching(/^toast0\.\d+$/),
       title: "Error",
@@ -30,7 +30,7 @@ describe("useNotification", () => {
     expect(result.current.toasts).toEqual([toast]);
   });
   it("removes created toast from store", async () => {
-    const { result } = renderHook(() => useNotification((state) => state));
+    const { result } = renderHook(() => useNotification());
     act(() => {
       result.current.notify("Notification1", "First notification", "success");
       result.current.notify("Notification2", "Second notifications", "warning");

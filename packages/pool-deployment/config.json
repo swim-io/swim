@@ -1,6 +1,0 @@
-{
-  "rpcUrl": "https://api.devnet.solana.com",
-  "_rpcUrl": "https://free.rpcpool.com",
-  "__rpcUrl": "https://weathered-sparkling-butterfly.solana-devnet.quiknode.pro/b4dbffeb87cc57593d67c89b2a89058534cf5611/",
-  "walletSecretJsonFile": "my_secret.json"
-}

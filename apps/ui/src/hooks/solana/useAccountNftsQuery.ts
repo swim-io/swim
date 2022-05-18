@@ -5,7 +5,12 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import { Protocol } from "../../config";
-import { useConfig, useEnvironment, useSolanaConnection } from "../../contexts";
+import {
+  useConfig,
+  useEnvironment,
+  useSolanaConnection,
+  useSolanaWallet,
+} from "../../contexts";
 
 const {
   metadata: { Metadata },
@@ -50,20 +55,17 @@ const fetchNftUri = async (uri: string): Promise<uriPayload> => {
   };
 };
 
-export const useAccountNfts = (
-  ownerAddress: string | null,
-): UseQueryResult<readonly NftData[], Error> => {
+export const useAccountNfts = (): UseQueryResult<readonly NftData[], Error> => {
   const config = useConfig();
-  const { otterTotCollection } =
-    config.chains[Protocol.Solana][0];
+  const { otterTotCollection } = config.chains[Protocol.Solana][0];
   const solanaConnection = useSolanaConnection();
+  const ownerAddress = useSolanaWallet().address;
   const { env } = useEnvironment();
   return useQuery(
     ["accountNfts", env, ownerAddress],
-    // eslint-disable-next-line functional/prefer-readonly-type
-    async (): Promise<NftData[]> => {
+    async (): Promise<readonly NftData[] | null> => {
       if (!ownerAddress) {
-        return [];
+        return null;
       }
       const userNfts = await Metadata.findDataByOwner(
         solanaConnection.rawConnection,

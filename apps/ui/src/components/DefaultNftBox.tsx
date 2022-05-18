@@ -8,31 +8,28 @@ import { ConnectButton } from "./ConnectButton";
 import "./DefaultNftBox.scss";
 
 export interface DefaultNftBoxProps {
-  readonly nftStatus: NftStatus;
+  readonly nftProblem: NftProblem;
 }
 
-export const enum NftStatus {
+export const enum NftProblem {
   NoWallet,
   Loading,
   Empty,
-  Invalid,
 }
 
-const BoxText = ({ nftStatus }: DefaultNftBoxProps): ReactElement => {
-  switch (nftStatus) {
-    case NftStatus.NoWallet:
+const BoxText = ({ nftProblem }: DefaultNftBoxProps): ReactElement => {
+  switch (nftProblem) {
+    case NftProblem.NoWallet:
       return <p>Connect your wallet to view and redeem your Otter Tots!</p>;
-    case NftStatus.Loading:
+    case NftProblem.Loading:
       return <EuiLoadingSpinner size="xl" />;
-    case NftStatus.Empty:
+    case NftProblem.Empty:
       return <p>Get an Otter Tot to view and redeem here!</p>;
-    case NftStatus.Invalid:
-      return <p>Received an invalid input!</p>;
   }
 };
 
 export const DefaultNftBox = ({
-  nftStatus,
+  nftProblem,
 }: DefaultNftBoxProps): ReactElement => {
   return (
     <EuiFlexGroup
@@ -41,7 +38,7 @@ export const DefaultNftBox = ({
       direction="column"
       className="redeemPageBlueBox"
     >
-      <BoxText nftStatus={nftStatus} />
+      <BoxText nftProblem={nftProblem} />
       <EuiSpacer />
       <ConnectButton size="s" ecosystemId={EcosystemId.Solana} />
     </EuiFlexGroup>

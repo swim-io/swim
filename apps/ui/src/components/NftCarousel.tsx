@@ -20,7 +20,6 @@ import type {
 } from "../hooks/solana/useAccountNftsQuery";
 
 import "./NftCarousel.scss";
-import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 export interface NftCarouselProps {
   readonly nfts: readonly NftData[];
@@ -38,15 +37,16 @@ const rarityColumns = [
   {
     field: "rarity",
     name: "Rarity",
-    render: (rarityNumber: number) => {
+    render: (rarityNumber: any) => {
       return "🔥".repeat(rarityNumber);
     },
   },
 ];
 
+const redeemPassword = "redeem";
+
 export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
-  const redeemPassword = "redeem";
   const [passwordInput, setPasswordInput] = useState("");
   const onRedeemInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPasswordInput(e.target.value);
@@ -125,7 +125,9 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
               </EuiFlexGroup>
               <EuiFlexGroup justifyContent="flexEnd">
                 <EuiFlexItem grow={false}>
-                  <EuiButton onClick={showRedeemModal}>Redeem</EuiButton>
+                  <EuiButton className="andrew" onClick={showRedeemModal}>
+                    Redeem
+                  </EuiButton>
                 </EuiFlexItem>
               </EuiFlexGroup>
             </div>

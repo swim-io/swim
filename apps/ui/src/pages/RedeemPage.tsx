@@ -7,28 +7,25 @@ import {
 } from "@elastic/eui";
 import type { ReactElement } from "react";
 
-import { DefaultNftBox, NftStatus } from "../components/DefaultNftBox";
+import { DefaultNftBox, NftProblem } from "../components/DefaultNftBox";
 import { NftCarousel } from "../components/NftCarousel";
-import { useTitle, useWallets } from "../hooks";
-import type { NftData } from "../hooks/solana/useAccountNftsQuery";
+import { useSolanaWallet } from "../contexts";
+import { useTitle } from "../hooks";
 import { useAccountNfts } from "../hooks/solana/useAccountNftsQuery";
 
 const RedeemPage = (): ReactElement => {
   const title = "Redeem";
   useTitle(title);
-  const wallets = useWallets();
+  const isConnected = useSolanaWallet().connected;
+  const { isLoading, data: nfts = [] } = useAccountNfts();
 
-  const { isLoading, data: nfts } = useAccountNfts(wallets.solana.address);
-  const hasNfts =
-    wallets.solana.connected && !isLoading && nfts && nfts.length !== 0;
-
-  const nftStatus = !wallets.solana.connected
-    ? NftStatus.NoWallet
+  const nftProblem = !isConnected
+    ? NftProblem.NoWallet
     : isLoading
-    ? NftStatus.Loading
-    : !nfts || nfts.length === 0
-    ? NftStatus.Empty
-    : NftStatus.Invalid;
+    ? NftProblem.Loading
+    : nfts.length === 0
+    ? NftProblem.Empty
+    : null;
 
   return (
     <EuiPage className="redeemPage" restrictWidth={800}>
@@ -36,13 +33,13 @@ const RedeemPage = (): ReactElement => {
         <EuiPageContent verticalPosition="center">
           <EuiPageContentBody>
             <EuiSpacer />
-            {hasNfts ? (
+            {nftProblem === null ? (
               <span>
                 <EuiSpacer />
-                <NftCarousel nfts={nfts as readonly NftData[]} />
+                <NftCarousel nfts={nfts} />
               </span>
             ) : (
-              <DefaultNftBox nftStatus={nftStatus} />
+              <DefaultNftBox nftProblem={nftProblem} />
             )}
             <EuiSpacer />
           </EuiPageContentBody>

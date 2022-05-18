@@ -1,14 +1,13 @@
 /* eslint-disable functional/immutable-data */
 import type { EuiGlobalToastListToast } from "@elastic/eui";
+import type { Draft } from "immer";
 import { produce } from "immer";
 import type { ReactChild } from "react";
 import type { SetState } from "zustand";
 import create from "zustand";
 
 type NotificationLevel = "info" | "success" | "warning" | "error";
-// NOTE: We don’t use this property but Immer complains if it’s not omitted
-// because it could be a readonly array
-type Toast = Omit<EuiGlobalToastListToast, "defaultValue">;
+type Toast = Draft<EuiGlobalToastListToast>;
 
 export interface NotificationState {
   readonly toasts: readonly EuiGlobalToastListToast[];

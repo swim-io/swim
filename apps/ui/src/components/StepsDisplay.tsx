@@ -19,22 +19,22 @@ import { formatErrorJsx } from "../errors";
 import type { StepMutations } from "../hooks";
 import type {
   CreateSplTokenAccountsStep,
-  PoolInteraction,
+  Interaction,
   ProtoTransfer,
-  SolanaPoolInteractionStep,
-  SolanaTx,
+  SolanaOperationsStep,
   Step,
   Steps,
   Transfer,
   Tx,
+  TxWithPoolId,
   TxsByTokenId,
   WormholeFromSolanaStep,
   WormholeToSolanaStep,
 } from "../models";
 import {
+  InteractionType,
   Status,
   StepType,
-  SwimDefiInstruction,
   combineTransfers,
   groupTxsByTokenId,
 } from "../models";
@@ -43,7 +43,7 @@ import { isNotNull } from "../utils";
 
 import { TxListItem } from "./TxListItem";
 
-import "./ActionSteps.scss";
+import "./StepsDisplay.scss";
 
 type Mutation<TData> = Pick<
   UseMutationResult<TData, Error, any>,
@@ -64,11 +64,11 @@ type StepWithMutation =
       readonly mutation?: Mutation<TxsByTokenId>;
     }
   | {
-      readonly type: StepType.SolanaPoolInteraction;
-      readonly interaction: PoolInteraction;
-      readonly step: SolanaPoolInteractionStep;
+      readonly type: StepType.SolanaOperations;
+      readonly interaction: Interaction;
+      readonly step: SolanaOperationsStep;
       readonly retryInteraction: () => any;
-      readonly mutation?: Mutation<SolanaTx>;
+      readonly mutation?: Mutation<{ readonly txs: readonly TxWithPoolId[] }>;
     }
   | {
       readonly type: StepType.WormholeFromSolana;
@@ -122,19 +122,19 @@ const MutationStatus = ({
   </EuiText>
 );
 
-interface ActionSubStepProps {
+interface SubStepDisplayProps {
   readonly transfer: ProtoTransfer | Transfer;
   readonly isComplete: boolean;
   readonly txs: readonly Tx[] | null;
   readonly mutation?: Mutation<any>;
 }
 
-const ActionSubStep = ({
+const SubStepDisplay = ({
   transfer,
   isComplete,
   txs,
   mutation,
-}: ActionSubStepProps): ReactElement => {
+}: SubStepDisplayProps): ReactElement => {
   if (transfer.amount?.isZero()) {
     return <></>;
   }
@@ -147,26 +147,26 @@ const ActionSubStep = ({
         isComplete={isComplete}
         mutation={mutation}
       />
-      {txs !== null ? (
+      {txs !== null && (
         <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
           {txs.map((tx) => (
             <TxListItem key={tx.txId} {...tx} />
           ))}
         </EuiListGroup>
-      ) : null}
+      )}
     </>
   );
 };
 
-interface CreateSplTokenAccountsActionStepProps {
+interface CreateSplTokenAccountsStepDisplayProps {
   readonly step: CreateSplTokenAccountsStep;
   readonly mutation?: Mutation<readonly TokenAccountInfo[]>;
 }
 
-const CreateSplTokenAccountsActionStep = ({
+const CreateSplTokenAccountsStepDisplay = ({
   step,
   mutation,
-}: CreateSplTokenAccountsActionStepProps): ReactElement => {
+}: CreateSplTokenAccountsStepDisplayProps): ReactElement => {
   const accounts = mutation?.data ?? null;
   return (
     <>
@@ -190,24 +190,37 @@ const CreateSplTokenAccountsActionStep = ({
   );
 };
 
-interface WormholeActionStepProps {
+interface WormholeStepDisplayProps {
   readonly step: WormholeToSolanaStep | WormholeFromSolanaStep;
   readonly mutation?: Mutation<TxsByTokenId>;
 }
 
-const WormholeActionStep = ({
+const doTransfersInvolveEcosystem = (
+  transfers: readonly (Transfer | ProtoTransfer)[],
+  ecosystem: EcosystemId,
+): boolean =>
+  transfers.some(
+    (transfer: ProtoTransfer | Transfer) =>
+      transfer.fromEcosystem === ecosystem ||
+      transfer.toEcosystem === ecosystem,
+  );
+
+const WormholeStepDisplay = ({
   step,
   mutation,
-}: WormholeActionStepProps): ReactElement => {
+}: WormholeStepDisplayProps): ReactElement => {
   const transfers = combineTransfers<Transfer | ProtoTransfer>(step.transfers);
-  const involvesEthereum = transfers.some(
-    (transfer: ProtoTransfer | Transfer) =>
-      transfer.fromEcosystem === EcosystemId.Ethereum ||
-      transfer.toEcosystem === EcosystemId.Ethereum,
+  const involvesEthereum = doTransfersInvolveEcosystem(
+    transfers,
+    EcosystemId.Ethereum,
+  );
+  const involvesPolygon = doTransfersInvolveEcosystem(
+    transfers,
+    EcosystemId.Polygon,
   );
   return (
     <>
-      {mutation?.isLoading && involvesEthereum ? (
+      {mutation?.isLoading && involvesEthereum && (
         <>
           <EuiCallOut
             size="s"
@@ -216,11 +229,21 @@ const WormholeActionStep = ({
           />
           <EuiSpacer size="s" />
         </>
-      ) : null}
+      )}
+      {mutation?.isLoading && involvesPolygon && (
+        <>
+          <EuiCallOut
+            size="s"
+            title="Please note that waiting for Polygon block confirmations may take a long time. Finality requires 512 confirmations or about 18 minutes."
+            iconType="clock"
+          />
+          <EuiSpacer size="s" />
+        </>
+      )}
 
       {transfers.map(
         (transfer: ProtoTransfer | Transfer): ReactElement => (
-          <ActionSubStep
+          <SubStepDisplay
             key={transfer.token.id}
             transfer={transfer}
             isComplete={transfer.isComplete || step.isComplete}
@@ -233,56 +256,55 @@ const WormholeActionStep = ({
   );
 };
 
-const poolInteractionStepTitles: ReadonlyRecord<SwimDefiInstruction, string> = {
-  [SwimDefiInstruction.Add]: "Add tokens",
-  [SwimDefiInstruction.Swap]: "Swap tokens",
-  [SwimDefiInstruction.SwapExactOutput]: "Swap tokens",
-  [SwimDefiInstruction.RemoveUniform]: "Remove tokens",
-  [SwimDefiInstruction.RemoveExactBurn]: "Remove tokens",
-  [SwimDefiInstruction.RemoveExactOutput]: "Remove tokens",
+const solanaOperationsStepTitles: ReadonlyRecord<InteractionType, string> = {
+  [InteractionType.Add]: "Add tokens",
+  [InteractionType.Swap]: "Swap tokens",
+  [InteractionType.RemoveUniform]: "Remove tokens",
+  [InteractionType.RemoveExactBurn]: "Remove tokens",
+  [InteractionType.RemoveExactOutput]: "Remove tokens",
 };
 
-interface PoolInteractionActionStepProps {
-  readonly step: SolanaPoolInteractionStep;
-  readonly interaction: PoolInteraction;
-  readonly mutation?: Mutation<SolanaTx>;
+interface SolanaOperationsStepDisplayProps {
+  readonly step: SolanaOperationsStep;
+  readonly interaction: Interaction;
+  readonly mutation?: Mutation<{ readonly txs: readonly TxWithPoolId[] }>;
 }
 
-const PoolInteractionActionStep = ({
+const SolanaOperationsStepDisplay = ({
   interaction,
   step,
   mutation,
-}: PoolInteractionActionStepProps): ReactElement => {
-  // If we found tx via an existing interaction the ID will be available via the step.
-  // Otherwise this might be an active interaction and the ID might be available via the mutation.
-  const txId =
-    step.txs.length > 0 ? step.txs[0].txId : mutation?.data?.txId ?? null;
+}: SolanaOperationsStepDisplayProps): ReactElement => {
+  const { txs } = step;
+  const txsList = interaction.poolIds.flatMap((poolId) => txs[poolId] ?? []);
   return (
     <>
       <MutationStatus
-        title={poolInteractionStepTitles[interaction.instruction]}
+        title={solanaOperationsStepTitles[interaction.type]}
         isComplete={step.isComplete}
         mutation={mutation}
       />
-      {txId !== null ? (
+      {txsList.length > 0 && (
         <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-          <TxListItem ecosystem={EcosystemId.Solana} txId={txId} />
+          {txsList.map((tx) => (
+            <TxListItem key={tx.txId} {...tx} />
+          ))}
         </EuiListGroup>
-      ) : null}
+      )}
     </>
   );
 };
 
-const ActionStep = (props: StepWithMutation): ReactElement => {
+const StepDisplay = (props: StepWithMutation): ReactElement => {
   switch (props.type) {
     case StepType.CreateSplTokenAccounts:
-      return <CreateSplTokenAccountsActionStep {...props} />;
+      return <CreateSplTokenAccountsStepDisplay {...props} />;
     case StepType.WormholeToSolana:
-      return <WormholeActionStep {...props} />;
-    case StepType.SolanaPoolInteraction:
-      return <PoolInteractionActionStep {...props} />;
+      return <WormholeStepDisplay {...props} />;
+    case StepType.SolanaOperations:
+      return <SolanaOperationsStepDisplay {...props} />;
     case StepType.WormholeFromSolana:
-      return <WormholeActionStep {...props} />;
+      return <WormholeStepDisplay {...props} />;
     default:
       throw new Error("Step type not supported");
   }
@@ -350,8 +372,8 @@ const getStepTitle = (step: Step): string => {
   switch (step.type) {
     case StepType.CreateSplTokenAccounts:
       return "Create Solana accounts";
-    case StepType.SolanaPoolInteraction:
-      return "Interact with pool on Solana";
+    case StepType.SolanaOperations:
+      return "Perform pool operation(s) on Solana";
     case StepType.WormholeToSolana:
       return "Bridge tokens to Solana";
     case StepType.WormholeFromSolana:
@@ -401,26 +423,26 @@ const buildEuiStepProps = (props: StepWithMutation): EuiStepProps | null => {
         mutation={props.mutation}
       />
     ) : (
-      <ActionStep {...props} />
+      <StepDisplay {...props} />
     ),
   };
 };
 
-export interface ActionStepsProps {
+export interface StepsProps {
   readonly retryInteraction: () => any;
-  readonly interaction: PoolInteraction;
+  readonly interaction: Interaction;
   readonly steps: Steps;
   readonly status: Status;
   readonly mutations?: StepMutations;
 }
 
-export const ActionSteps = ({
+export const StepsDisplay = ({
   retryInteraction,
   interaction,
   steps,
   status,
   mutations,
-}: ActionStepsProps): ReactElement => {
+}: StepsProps): ReactElement => {
   const stepsWithMutations: readonly StepWithMutation[] = [
     {
       type: steps.createSplTokenAccounts.type,
@@ -438,11 +460,16 @@ export const ActionSteps = ({
       },
     },
     {
-      type: steps.interactWithPool.type,
+      type: steps.doPoolOperations.type,
       interaction: interaction,
-      step: steps.interactWithPool,
+      step: steps.doPoolOperations,
       retryInteraction: retryInteraction,
-      mutation: mutations?.interactWithPool,
+      mutation: mutations && {
+        ...mutations.doPoolOperations,
+        data: {
+          txs: mutations.doPoolOperations.data ?? [],
+        },
+      },
     },
     {
       type: steps.wormholeFromSolana.type,

@@ -128,13 +128,15 @@ export const IsWhitelistedButton = (): ReactElement => {
   const isWhiteListed = true; // TODO: This should be a hook (queries our whitelist somewhere)
   const buttonText = !isPressed
     ? "Click to see if whitelisted"
-    : isWhiteListed
+    : // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    isWhiteListed
     ? "Whitelisted"
     : "Not whitelisted";
 
   const buttonColor = !isPressed
     ? "primary"
-    : isWhiteListed
+    : // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    isWhiteListed
     ? "success"
     : "warning";
 

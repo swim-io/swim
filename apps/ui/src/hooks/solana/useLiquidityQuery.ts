@@ -1,7 +1,7 @@
-import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
+import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import type { UseQueryResult } from "react-query";
-import { useQuery } from "react-query";
+import { useQueries, useQuery } from "react-query";
 
 import { useEnvironment, useSolanaConnection } from "../../contexts";
 import {
@@ -11,10 +11,11 @@ import {
 
 export const useLiquidityQuery = (
   tokenAccountAddresses: readonly string[],
-): UseQueryResult<readonly TokenAccountInfo[] | null, Error> => {
+): UseQueryResult<readonly TokenAccount[], Error> => {
   const { env } = useEnvironment();
   const solanaConnection = useSolanaConnection();
-  return useQuery<readonly TokenAccountInfo[] | null, Error>(
+
+  return useQuery<readonly TokenAccount[], Error>(
     ["liquidity", env, tokenAccountAddresses.join("")],
     async () => {
       if (tokenAccountAddresses.length === 0) {
@@ -32,4 +33,34 @@ export const useLiquidityQuery = (
       );
     },
   );
+};
+
+export const useLiquidityQueries = (
+  tokenAccountAddresses: readonly (readonly string[])[],
+): readonly UseQueryResult<readonly TokenAccount[], Error>[] => {
+  const { env } = useEnvironment();
+  const solanaConnection = useSolanaConnection();
+
+  return useQueries(
+    tokenAccountAddresses.map((addresses) => ({
+      queryKey: ["liquidity", env, addresses.join("")],
+      queryFn: async (): Promise<readonly TokenAccount[]> => {
+        if (addresses.length === 0) {
+          return [];
+        }
+
+        const { keys: foundAddresses, array: tokenAccounts } =
+          await getMultipleSolanaAccounts(solanaConnection, addresses);
+
+        return tokenAccounts.map((account, i) =>
+          deserializeTokenAccount(
+            new PublicKey(foundAddresses[i]),
+            account.data,
+          ),
+        );
+      },
+    })),
+    // useQueries does not support types without casting
+    // See https://github.com/tannerlinsley/react-query/issues/1675
+  ) as readonly UseQueryResult<readonly TokenAccount[], Error>[];
 };

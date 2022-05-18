@@ -143,7 +143,7 @@ const mainnetChains: ChainsByProtocol = {
       chainId: EvmChainId.EthereumMainnet,
       chainName: "Ethereum Mainnet",
       nativeCurrency: ETHEREUM_NATIVE_CURRENCY,
-      rpcUrls: ["https://main-light.eth.linkpool.io/"],
+      rpcUrls: ["https://main-light.eth.linkpool.io/"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
         bridge: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B",
         tokenBridge: "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
@@ -154,7 +154,7 @@ const mainnetChains: ChainsByProtocol = {
       chainId: EvmChainId.BscMainnet,
       chainName: "BNB Chain Mainnet",
       nativeCurrency: BSC_NATIVE_CURRENCY,
-      rpcUrls: ["https://bsc-dataseed1.ninicoin.io"],
+      rpcUrls: ["https://bsc-dataseed1.ninicoin.io"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
         bridge: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B",
         tokenBridge: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7",
@@ -165,7 +165,7 @@ const mainnetChains: ChainsByProtocol = {
       chainId: EvmChainId.AvalancheMainnet,
       chainName: "Avalanche Mainnet",
       nativeCurrency: AVALANCHE_NATIVE_CURRENCY,
-      rpcUrls: ["https://api.avax.network/ext/bc/C/rpc"], // TODO: Replace with real endpoint
+      rpcUrls: ["https://api.avax.network/ext/bc/C/rpc"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
         bridge: "0x54a8e5f9c4CbA08F9943965859F6c34eAF03E26c",
         tokenBridge: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052",
@@ -176,7 +176,7 @@ const mainnetChains: ChainsByProtocol = {
       chainId: EvmChainId.PolygonMainnet,
       chainName: "Polygon Mainnet",
       nativeCurrency: POLYGON_NATIVE_CURRENCY,
-      rpcUrls: ["https://polygon-rpc.com/"], // TODO: Replace with real endpoint
+      rpcUrls: ["https://polygon-rpc.com/"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
         bridge: "0x7A4B5a56256163F07b2C80A7cA55aBE66c4ec4d7",
         tokenBridge: "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE",
@@ -227,7 +227,7 @@ const devnetChains: ChainsByProtocol = {
       chainId: EvmChainId.AvalancheTestnet,
       chainName: "Avalanche Testnet",
       nativeCurrency: AVALANCHE_NATIVE_CURRENCY,
-      rpcUrls: ["https://api.avax-test.network/ext/bc/C/rpc"],
+      rpcUrls: ["https://api.avax-test.network/ext/bc/C/rpc"], // TODO: Replace/refactor
       wormhole: {
         bridge: "0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C",
         tokenBridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
@@ -238,7 +238,7 @@ const devnetChains: ChainsByProtocol = {
       chainId: EvmChainId.PolygonTestnet,
       chainName: "Polygon Testnet",
       nativeCurrency: POLYGON_NATIVE_CURRENCY,
-      rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
+      rpcUrls: ["https://rpc-mumbai.maticvigil.com"], // TODO: Replace/refactor
       wormhole: {
         bridge: "0x0CBE91CF822c73C2315FB05100C2F714765d5c20",
         tokenBridge: "0x377D55a7928c046E18eEbb61977e714d2a76472a",
@@ -313,10 +313,12 @@ const localnetChains: ChainsByProtocol = {
 export const allUniqueChains = {
   [Protocol.Solana]: [
     ...mainnetChains[Protocol.Solana],
+    ...devnetChains[Protocol.Solana],
     ...localnetChains[Protocol.Solana],
   ],
   [Protocol.Evm]: [
     ...mainnetChains[Protocol.Evm],
+    ...devnetChains[Protocol.Evm],
     ...localnetChains[Protocol.Evm],
   ],
 };

@@ -35,19 +35,19 @@ import {
 } from "../hooks";
 import {
   Amount,
+  InteractionType,
   Status,
-  SwimDefiInstruction,
   getLowBalanceWallets,
 } from "../models";
 import { isEachNotNull, isNotNull } from "../utils";
 
-import { ActionSteps } from "./ActionSteps";
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
 import { isValidSlippageFraction } from "./SlippageButton";
+import { StepsDisplay } from "./StepsDisplay";
 import { TokenIcon } from "./TokenIcon";
 
 interface TokenAddPanelProps {
@@ -194,7 +194,7 @@ export const AddForm = ({
     startInteraction,
     mutations,
     isInteractionInProgress,
-  } = useStepsReducer(poolSpec.id);
+  } = useStepsReducer();
   const userNativeBalances = useUserNativeBalances();
 
   const [lpTargetEcosystem, setLpTargetEcosystem] = useState(
@@ -428,7 +428,9 @@ export const AddForm = ({
     if (
       splTokenAccounts === null ||
       minimumMintAmount === null ||
-      !inputAmounts.every(isNotNull)
+      !inputAmounts.every(isNotNull) ||
+      maxSlippageFraction === null ||
+      poolMath === null
     ) {
       notify(
         "Form error",
@@ -438,14 +440,22 @@ export const AddForm = ({
       return;
     }
 
-    const interactionId = startInteraction({
-      instruction: SwimDefiInstruction.Add,
-      params: {
-        inputAmounts,
-        minimumMintAmount,
+    const interactionId = startInteraction(
+      {
+        type: InteractionType.Add,
+        poolId: poolSpec.id,
+        params: {
+          inputAmounts: inputAmounts.reduce(
+            (amountsByTokenId, amount) =>
+              amountsByTokenId.set(amount.tokenId, amount),
+            new Map(),
+          ),
+          minimumMintAmount,
+        },
+        lpTokenTargetEcosystem: lpTargetEcosystem,
       },
-      lpTokenTargetEcosystem: lpTargetEcosystem,
-    });
+      [poolMath],
+    );
     setCurrentInteraction(interactionId);
   };
 
@@ -518,7 +528,7 @@ export const AddForm = ({
         </>
       )}
 
-      <PoolPausedAlert isVisible={isPoolPaused} />
+      <PoolPausedAlert isVisible={!!isPoolPaused} />
 
       {hasPositiveInputAmount && (
         <EstimatedTxFeesCallout feesEstimation={feesEstimation} />
@@ -540,7 +550,7 @@ export const AddForm = ({
       <EuiSpacer />
 
       {interaction && steps && (
-        <ActionSteps
+        <StepsDisplay
           retryInteraction={retryInteraction}
           interaction={interaction}
           steps={steps}

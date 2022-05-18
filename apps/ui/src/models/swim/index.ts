@@ -5,6 +5,7 @@ export * from "./decimal";
 export * from "./fees";
 export * from "./instructions";
 export * from "./interaction";
+export * from "./operation";
 export * from "./pool";
 export * from "./poolMath";
 export * from "./poolState";

@@ -16,19 +16,19 @@ import { EcosystemId } from "../config";
 import { useConfig } from "../contexts";
 import {
   isEveryAddressConnected,
-  usePool,
+  usePoolMaths,
   useRecentInteractions,
   useSplTokenAccountsQuery,
   useStepsReducer,
   useWallets,
 } from "../hooks";
-import { Status, SwimDefiInstruction, getCurrentState } from "../models";
+import { InteractionType, Status, getCurrentState } from "../models";
 import type { Interaction, State, Tx } from "../models";
-import { findOrThrow } from "../utils";
+import { isEachNotNull } from "../utils";
 
-import { ActionSteps } from "./ActionSteps";
 import { MultiConnectButton } from "./ConnectButton";
 import { ConnectedWallets } from "./ConnectedWallets";
+import { StepsDisplay } from "./StepsDisplay";
 import {
   AmountWithTokenIcon,
   AmountsWithTokenIcons,
@@ -49,7 +49,7 @@ export const ActiveInteraction = ({
     retryInteraction,
     state: { status, steps },
     mutations,
-  } = useStepsReducer(interaction.poolId, existingState);
+  } = useStepsReducer(existingState);
   const [didResume, setDidResume] = useState(false);
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export const ActiveInteraction = ({
     // This interaction was never initiated. This should never reach this point because it won't have been persisted.
     <></>
   ) : (
-    <ActionSteps
+    <StepsDisplay
       retryInteraction={retryInteraction}
       interaction={interaction}
       steps={steps}
@@ -87,27 +87,29 @@ export const RecentInteraction = ({
   splTokenAccounts,
 }: RecentInteractionProps): ReactElement => {
   const config = useConfig();
-  const { tokens, lpToken } = usePool(interaction.poolId);
   const [isActive, setIsActive] = useState(false);
   const wallets = useWallets();
-  const { isInteractionInProgress } = useStepsReducer(interaction.poolId);
+  const { isInteractionInProgress } = useStepsReducer();
+  const poolMaths = usePoolMaths(interaction.poolIds);
   const currentState = useMemo(
     () =>
-      getCurrentState(
-        config,
-        splTokenAccounts,
-        tokens,
-        lpToken,
-        interaction,
-        txs ?? [],
-      ),
-    [config, splTokenAccounts, tokens, lpToken, interaction, txs],
+      isEachNotNull(poolMaths)
+        ? getCurrentState(
+            config,
+            interaction,
+            poolMaths,
+            splTokenAccounts,
+            txs ?? [],
+          )
+        : null,
+    [config, interaction, splTokenAccounts, poolMaths, txs],
   );
 
   const title = useMemo(() => {
-    switch (interaction.instruction) {
-      case SwimDefiInstruction.Add: {
-        const nonZeroInputAmounts = interaction.params.inputAmounts.filter(
+    switch (interaction.type) {
+      case InteractionType.Add: {
+        const { inputAmounts } = interaction.params;
+        const nonZeroInputAmounts = [...inputAmounts.values()].filter(
           (amount) => !amount.isZero(),
         );
         return (
@@ -117,16 +119,13 @@ export const RecentInteraction = ({
           </>
         );
       }
-      case SwimDefiInstruction.Swap: {
-        const inputAmount = findOrThrow(
-          interaction.params.exactInputAmounts,
-          (amount) => !amount.isZero(),
-        );
+      case InteractionType.Swap: {
+        const { exactInputAmount } = interaction.params;
         return (
           <>
             <span>Swap</span>{" "}
             <AmountWithTokenIcon
-              amount={inputAmount}
+              amount={exactInputAmount}
               ecosystem={EcosystemId.Solana}
             />{" "}
             <span>for</span>{" "}
@@ -136,9 +135,9 @@ export const RecentInteraction = ({
           </>
         );
       }
-      case SwimDefiInstruction.RemoveUniform: {
+      case InteractionType.RemoveUniform: {
         const { minimumOutputAmounts } = interaction.params;
-        const nonZeroOutputAmounts = minimumOutputAmounts.filter(
+        const nonZeroOutputAmounts = [...minimumOutputAmounts.values()].filter(
           (amount) => !amount.isZero(),
         );
         return (
@@ -148,7 +147,7 @@ export const RecentInteraction = ({
           </>
         );
       }
-      case SwimDefiInstruction.RemoveExactBurn: {
+      case InteractionType.RemoveExactBurn: {
         const { minimumOutputAmount } = interaction.params;
         return (
           <>
@@ -161,9 +160,9 @@ export const RecentInteraction = ({
           </>
         );
       }
-      case SwimDefiInstruction.RemoveExactOutput: {
+      case InteractionType.RemoveExactOutput: {
         const { exactOutputAmounts } = interaction.params;
-        const nonZeroOutputAmounts = exactOutputAmounts.filter(
+        const nonZeroOutputAmounts = [...exactOutputAmounts.values()].filter(
           (amount) => !amount.isZero(),
         );
         return (
@@ -191,7 +190,7 @@ export const RecentInteraction = ({
       return "Fetching transaction status...";
     }
 
-    if (currentState.steps === null) {
+    if (currentState === null || currentState.steps === null) {
       return "Loading...";
     }
 
@@ -206,7 +205,7 @@ export const RecentInteraction = ({
 
     return (
       <>
-        <ActionSteps
+        <StepsDisplay
           retryInteraction={() => setIsActive(true)}
           interaction={interaction}
           steps={currentState.steps}
@@ -266,22 +265,14 @@ export const RecentInteraction = ({
 export interface RecentInteractionsProps {
   readonly title: string;
   readonly currentInteraction: string | null;
-  /** Set to null to include interactions for all pools */
+  /** Set to null to indicate we are on the Swap page */
   readonly poolId: string | null;
-  readonly instructions?: readonly SwimDefiInstruction[];
 }
 
 export const RecentInteractions = ({
   title,
   currentInteraction,
   poolId,
-  instructions = [
-    SwimDefiInstruction.Swap,
-    SwimDefiInstruction.Add,
-    SwimDefiInstruction.RemoveUniform,
-    SwimDefiInstruction.RemoveExactBurn,
-    SwimDefiInstruction.RemoveExactOutput,
-  ],
 }: RecentInteractionsProps): ReactElement => {
   const { data: splTokenAccounts = [], isSuccess: didLoadSplTokenAccounts } =
     useSplTokenAccountsQuery();
@@ -290,16 +281,16 @@ export const RecentInteractions = ({
   const { [currentInteraction ?? ""]: _, ...interactionsWithTxs } =
     useRecentInteractions();
 
-  const recentInteractions = useMemo(
-    () =>
-      Object.values(interactionsWithTxs).filter(
-        (interactionWithTxs) =>
-          interactionWithTxs &&
-          (poolId === null ||
-            poolId === interactionWithTxs.interaction.poolId) &&
-          instructions.includes(interactionWithTxs.interaction.instruction),
-      ),
-    [interactionsWithTxs, instructions, poolId],
+  const recentInteractions = Object.values(interactionsWithTxs).filter(
+    (interactionWithTxs) => {
+      if (interactionWithTxs === undefined) {
+        return false;
+      }
+      if (interactionWithTxs.interaction.type === InteractionType.Swap) {
+        return poolId === null;
+      }
+      return poolId === interactionWithTxs.interaction.poolId;
+    },
   );
   const numberOfRecentInteractions =
     currentInteraction === null

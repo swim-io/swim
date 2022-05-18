@@ -10,6 +10,14 @@ You will need Node.js <15 and Yarn.
 
 Run `yarn` to install all dependencies.
 
+Set required environmental variables:
+
+```sh
+SKIP_PREFLIGHT_CHECK=true
+REACT_APP_AVALANCHE_DEVNET_RPC_URL=<ask for latest value>
+REACT_APP_POLYGON_DEVNET_RPC_URL=<ask for latest value>
+```
+
 Run `yarn start` to run the app in development mode.
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.

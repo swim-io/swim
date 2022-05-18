@@ -7,7 +7,7 @@ import type { PoolSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { useSolanaConnection } from "../../contexts";
 import { selectConfig, selectEnv } from "../../core/selectors";
-import { useEnvironment, useNotificationStore } from "../../core/store";
+import { useEnvironment } from "../../core/store";
 import { deserializeMint } from "../../models";
 import { findOrThrow } from "../../utils";
 

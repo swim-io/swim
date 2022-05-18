@@ -23,7 +23,7 @@ export interface NftData {
   readonly attributes: readonly NftAttribute[];
 }
 
-interface uriPayload {
+interface UriPayload {
   readonly image: string;
   readonly attributes: readonly NftAttribute[];
 }

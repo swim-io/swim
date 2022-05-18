@@ -34,8 +34,9 @@ export class LocalnetProvider extends JsonRpcProvider {
         block.transactions,
       ),
     );
+    const lowerCaseAddress = address.toLowerCase();
     return txs.filter((tx) =>
-      [tx.from.toLowerCase(), tx.to?.toLowerCase()].includes(address),
+      [tx.from.toLowerCase(), tx.to?.toLowerCase()].includes(lowerCaseAddress),
     );
   }
 }

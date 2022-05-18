@@ -34,11 +34,7 @@ export const ConnectButton = ({
   ...rest
 }: ConnectButtonProps): ReactElement => {
   const { ecosystems } = useConfig();
-  if (
-    ecosystemId === EcosystemId.Terra ||
-    ecosystemId === EcosystemId.Avalanche ||
-    ecosystemId === EcosystemId.Polygon
-  ) {
+  if (ecosystemId === EcosystemId.Terra) {
     throw new Error("Unsupported ecosystem");
   }
   const ecosystem = ecosystems[ecosystemId];
@@ -46,7 +42,7 @@ export const ConnectButton = ({
   const { connected, select, address, wallet } = wallets[ecosystemId];
 
   const disconnect = (): void => {
-    wallet?.disconnect();
+    void wallet?.disconnect();
   };
 
   const handleClick = connected ? disconnect : select;

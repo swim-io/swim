@@ -25,6 +25,12 @@ export const enum EvmChainId {
   BscMainnet = 56,
   BscTestnet = 97,
   BscLocalnet = 1397,
+  PolygonMainnet = 137,
+  PolygonTestnet = 80001,
+  PolygonLocalnet = 80002, // TODO: This is a placeholder
+  AvalancheMainnet = 43114, // C-Chain
+  AvalancheTestnet = 43113,
+  AvalancheLocalnet = 43112, // TODO: This is a placeholder
 }
 
 export const evmChainIdToEcosystem: ReadonlyRecord<EvmChainId, EvmEcosystemId> =
@@ -35,18 +41,16 @@ export const evmChainIdToEcosystem: ReadonlyRecord<EvmChainId, EvmEcosystemId> =
     [EvmChainId.BscMainnet]: EcosystemId.Bsc,
     [EvmChainId.BscTestnet]: EcosystemId.Bsc,
     [EvmChainId.BscLocalnet]: EcosystemId.Bsc,
+    [EvmChainId.PolygonMainnet]: EcosystemId.Polygon,
+    [EvmChainId.PolygonTestnet]: EcosystemId.Polygon,
+    [EvmChainId.PolygonLocalnet]: EcosystemId.Polygon,
+    [EvmChainId.AvalancheMainnet]: EcosystemId.Avalanche,
+    [EvmChainId.AvalancheTestnet]: EcosystemId.Avalanche,
+    [EvmChainId.AvalancheLocalnet]: EcosystemId.Avalanche,
   };
 
 export const enum CosmosChainId {
   TerraMainnet = "columbus-5", // NOTE: Must be updated with every network hard fork
-}
-
-export const enum AvalancheChainId {
-  AvalancheMainnet = "43114", // TODO: untested
-}
-
-export const enum PolygonChainId {
-  MaticMainnet = "137", // TODO: untested
 }
 
 export interface WormholeChainSpec {
@@ -108,6 +112,18 @@ const BSC_NATIVE_CURRENCY = {
   decimals: 18, // no other value is allowed by Metamask
 };
 
+const AVALANCHE_NATIVE_CURRENCY = {
+  name: "Avalanche",
+  symbol: "AVAX",
+  decimals: 18, // no other value is allowed by Metamask
+};
+
+const POLYGON_NATIVE_CURRENCY = {
+  name: "Matic",
+  symbol: "MATIC",
+  decimals: 18, // no other value is allowed by Metamask
+};
+
 const mainnetChains: ChainsByProtocol = {
   [Protocol.Solana]: [
     {
@@ -142,6 +158,28 @@ const mainnetChains: ChainsByProtocol = {
       wormhole: {
         bridge: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B",
         tokenBridge: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Avalanche,
+      chainId: EvmChainId.AvalancheMainnet,
+      chainName: "Avalanche Mainnet",
+      nativeCurrency: AVALANCHE_NATIVE_CURRENCY,
+      rpcUrls: ["https://api.avax.network/ext/bc/C/rpc"], // TODO: Replace with real endpoint
+      wormhole: {
+        bridge: "0x54a8e5f9c4CbA08F9943965859F6c34eAF03E26c",
+        tokenBridge: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Polygon,
+      chainId: EvmChainId.PolygonMainnet,
+      chainName: "Polygon Mainnet",
+      nativeCurrency: POLYGON_NATIVE_CURRENCY,
+      rpcUrls: ["https://polygon-rpc.com/"], // TODO: Replace with real endpoint
+      wormhole: {
+        bridge: "0x7A4B5a56256163F07b2C80A7cA55aBE66c4ec4d7",
+        tokenBridge: "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE",
       },
     },
   ],
@@ -184,6 +222,28 @@ const devnetChains: ChainsByProtocol = {
         tokenBridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09",
       },
     },
+    {
+      ecosystem: EcosystemId.Avalanche,
+      chainId: EvmChainId.AvalancheTestnet,
+      chainName: "Avalanche Testnet",
+      nativeCurrency: AVALANCHE_NATIVE_CURRENCY,
+      rpcUrls: ["https://api.avax-test.network/ext/bc/C/rpc"],
+      wormhole: {
+        bridge: "0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C",
+        tokenBridge: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Polygon,
+      chainId: EvmChainId.PolygonTestnet,
+      chainName: "Polygon Testnet",
+      nativeCurrency: POLYGON_NATIVE_CURRENCY,
+      rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
+      wormhole: {
+        bridge: "0x0CBE91CF822c73C2315FB05100C2F714765d5c20",
+        tokenBridge: "0x377D55a7928c046E18eEbb61977e714d2a76472a",
+      },
+    },
   ],
   [Protocol.Cosmos]: [],
 };
@@ -219,6 +279,28 @@ const localnetChains: ChainsByProtocol = {
       chainName: "BNB Chain Localnet",
       nativeCurrency: BSC_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8546"],
+      wormhole: {
+        bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
+        tokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Avalanche,
+      chainId: EvmChainId.AvalancheLocalnet,
+      chainName: "Avalanche Localnet",
+      nativeCurrency: AVALANCHE_NATIVE_CURRENCY,
+      rpcUrls: ["http://localhost:8547"],
+      wormhole: {
+        bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
+        tokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Polygon,
+      chainId: EvmChainId.PolygonLocalnet,
+      chainName: "Polygon Localnet",
+      nativeCurrency: POLYGON_NATIVE_CURRENCY,
+      rpcUrls: ["http://localhost:8548"],
       wormhole: {
         bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
         tokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",

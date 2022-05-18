@@ -22,7 +22,6 @@ import { Roadmap } from "../components/Roadmap";
 import { useTitle } from "../hooks";
 import DIAGRAM from "../images/diagram.svg";
 import DISCORD_SVG from "../images/social/discord.svg";
-import MEDIUM_SVG from "../images/social/medium.svg";
 import TELEGRAM_SVG from "../images/social/telegram.svg";
 import TWITTER_SVG from "../images/social/twitter.svg";
 import "./HomePage.scss";
@@ -121,12 +120,12 @@ const HomePage = (): ReactElement => {
             <EuiFlexItem grow={false}>
               <EuiButton
                 color="ghost"
-                iconType={MEDIUM_SVG}
+                iconType="documentEdit"
                 fill
                 size="s"
-                href="https://medium.com/@swimprotocol"
+                href="https://blog.swim.io"
               >
-                Medium
+                Blog
               </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>

@@ -83,6 +83,9 @@ export const generateInputTransfers = (
     if (token.nativeEcosystem === EcosystemId.Solana) {
       return null;
     }
+    if (amounts.length === 0) {
+      return null;
+    }
     const amount = amounts[i];
     if (amount.isNegative() || amount.isZero()) {
       return null;
@@ -141,6 +144,9 @@ export const generateOutputTransfers = (
 ): readonly (Transfer | null)[] =>
   tokens.map((token, i) => {
     if (token.nativeEcosystem === EcosystemId.Solana) {
+      return null;
+    }
+    if (amounts.length === 0) {
       return null;
     }
     const amount = amounts[i];

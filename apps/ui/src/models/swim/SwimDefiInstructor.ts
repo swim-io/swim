@@ -92,6 +92,10 @@ export class SwimDefiInstructor {
       : new Array(tokenMints.length).fill(PublicKey.default);
   }
 
+  get numberOfTokens(): number {
+    return this.tokenMints.length;
+  }
+
   swapKeys(userTransferAuthority: PublicKey): readonly AccountMeta[] {
     if (!isEachNotNull(this.userTokenAccounts)) {
       throw new Error("No user token accounts");
@@ -124,10 +128,6 @@ export class SwimDefiInstructor {
       ...this.swapKeys(userTransferAuthority),
       { pubkey: this.userLpAccount, isSigner: false, isWritable: true },
     ];
-  }
-
-  get numberOfTokens(): number {
-    return this.tokenMints.length;
   }
 
   isValidTokenIndex(index: number): boolean {

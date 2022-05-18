@@ -18,12 +18,22 @@ const BscConnectionContext = React.createContext<EvmConnection>(
   new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][1]),
 );
 
+const AvalancheConnectionContext = React.createContext<EvmConnection>(
+  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][2]),
+);
+
+const PolygonConnectionContext = React.createContext<EvmConnection>(
+  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][3]),
+);
+
 const ecosystemToContext: ReadonlyRecord<
   EvmEcosystemId,
   React.Context<EvmConnection>
 > = {
   [EcosystemId.Ethereum]: EthereumConnectionContext,
   [EcosystemId.Bsc]: BscConnectionContext,
+  [EcosystemId.Avalanche]: AvalancheConnectionContext,
+  [EcosystemId.Polygon]: PolygonConnectionContext,
 };
 
 interface EvmConnectionProviderProps {
@@ -59,6 +69,8 @@ export const useEvmConnections = (): ReadonlyRecord<
 > => ({
   [EcosystemId.Ethereum]: useContext(EthereumConnectionContext),
   [EcosystemId.Bsc]: useContext(BscConnectionContext),
+  [EcosystemId.Avalanche]: useContext(AvalancheConnectionContext),
+  [EcosystemId.Polygon]: useContext(PolygonConnectionContext),
 });
 
 export const useEvmConnection = (

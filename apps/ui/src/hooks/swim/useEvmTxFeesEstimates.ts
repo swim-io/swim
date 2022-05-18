@@ -16,12 +16,22 @@ export const useEvmTxFeesEstimates = (
     useEvmTxFeesEstimateQuery(EcosystemId.Ethereum, interaction);
   const { data: bscEstimate = null, isSuccess: bscIsSuccess } =
     useEvmTxFeesEstimateQuery(EcosystemId.Bsc, interaction);
+  const { data: avalancheEstimate = null, isSuccess: avalancheIsSuccess } =
+    useEvmTxFeesEstimateQuery(EcosystemId.Avalanche, interaction);
+  const { data: polygonEstimate = null, isSuccess: polygonIsSuccess } =
+    useEvmTxFeesEstimateQuery(EcosystemId.Polygon, interaction);
 
   return {
     estimates: {
       [EcosystemId.Ethereum]: ethereumEstimate,
       [EcosystemId.Bsc]: bscEstimate,
+      [EcosystemId.Avalanche]: avalancheEstimate,
+      [EcosystemId.Polygon]: polygonEstimate,
     },
-    isSuccess: ethereumIsSuccess && bscIsSuccess,
+    isSuccess:
+      ethereumIsSuccess &&
+      bscIsSuccess &&
+      avalancheIsSuccess &&
+      polygonIsSuccess,
   };
 };

@@ -66,13 +66,13 @@ export class PoolMath {
   private static readonly DEFAULT_MAX_ITERATIONS = 200;
   private static readonly DEFAULT_MARGINAL_EPSILON = new Decimal("0.1");
 
-  private balances: readonly Decimal[];
-  private lpSupply: Decimal;
-  private ampFactor: Decimal;
-  private lpFee: Decimal;
-  private governanceFee!: Decimal;
-  private tolerance!: Decimal;
-  private maxIterations!: number;
+  private readonly balances: readonly Decimal[];
+  private readonly lpSupply: Decimal;
+  private readonly ampFactor: Decimal;
+  private readonly lpFee: Decimal;
+  private readonly governanceFee!: Decimal;
+  private readonly tolerance!: Decimal;
+  private readonly maxIterations!: number;
 
   constructor(
     //balances can have arbitrary units (though atomic units should most
@@ -186,6 +186,14 @@ export class PoolMath {
         }
       }
     }
+  }
+
+  private get tokenCount(): number {
+    return this.balances.length;
+  }
+
+  private get totalFee(): Decimal {
+    return this.lpFee.plus(this.governanceFee);
   }
 
   // DEFI INSTRUCTIONS -------------------------------------------
@@ -361,14 +369,6 @@ export class PoolMath {
     if (i < 0 || i > this.tokenCount - 1 || !Number.isInteger(i)) {
       throw new Error("invalid array index");
     }
-  }
-
-  private get tokenCount(): number {
-    return this.balances.length;
-  }
-
-  private get totalFee(): Decimal {
-    return this.lpFee.plus(this.governanceFee);
   }
 
   private addRemove(

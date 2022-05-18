@@ -21,6 +21,7 @@ const useSolanaConnectionMock = mockOf(useSolanaConnection);
 describe("useSolBalanceQuery", () => {
   beforeEach(() => {
     // Reset queryClient cache, otherwise test might return previous value
+    // eslint-disable-next-line testing-library/no-render-in-setup
     renderHook(() => useQueryClient().clear(), {
       wrapper: AppContext,
     });

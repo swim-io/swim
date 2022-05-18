@@ -19,15 +19,15 @@ for i in "${!MINTS[@]}"; do
   mint=${MINTS[$i]}
   token_account=${TOKEN_ACCOUNTS[$i]}
 
-  spl-token create-token "./src/keys/spl-tokens/$mint.json" \
-  --fee-payer "./src/keys/wallet-accounts/$DEV_USER.json" \
+  spl-token create-token "./apps/ui/src/keys/spl-tokens/$mint.json" \
+  --fee-payer "./apps/ui/src/keys/wallet-accounts/$DEV_USER.json" \
   --decimals 6
 
-  spl-token create-account "./src/keys/spl-tokens/$mint.json" \
-  --owner "./src/keys/wallet-accounts/$DEV_USER.json" \
-  --fee-payer "./src/keys/wallet-accounts/$DEV_USER.json"
+  spl-token create-account "./apps/ui/src/keys/spl-tokens/$mint.json" \
+  --owner "./apps/ui/src/keys/wallet-accounts/$DEV_USER.json" \
+  --fee-payer "./apps/ui/src/keys/wallet-accounts/$DEV_USER.json"
 
   # Mint 1,000,000,000 units of each
   spl-token mint "$mint" 1000000000 "$token_account" \
-  --fee-payer "./src/keys/wallet-accounts/$DEV_USER.json"
+  --fee-payer "./apps/ui/src/keys/wallet-accounts/$DEV_USER.json"
 done

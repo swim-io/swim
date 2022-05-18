@@ -18,7 +18,7 @@ const RedeemPage = (): ReactElement => {
   useTitle(title);
   const wallets = useWallets();
 
-  const { isLoading, data: nfts } = useAccountNfts(wallets.solana.address);
+  const { isLoading, data: nfts = [] } = useAccountNfts(wallets.solana.address);
   const hasNfts =
     wallets.solana.connected && !isLoading && nfts && nfts.length !== 0;
 

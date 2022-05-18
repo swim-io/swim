@@ -17,16 +17,13 @@ const RedeemPage = (): ReactElement => {
   const title = "Redeem";
   useTitle(title);
   const wallets = useWallets();
-
-  const { isLoading, data: nfts } = useAccountNfts(wallets.solana.address);
-  const hasNfts =
-    wallets.solana.connected && !isLoading && nfts && nfts.length !== 0;
+  const { isLoading, data: nfts = [] } = useAccountNfts();
 
   const nftStatus = !wallets.solana.connected
     ? NftStatus.NoWallet
     : isLoading
     ? NftStatus.Loading
-    : !nfts || nfts.length === 0
+    : nfts.length === 0
     ? NftStatus.Empty
     : NftStatus.Invalid;
 
@@ -36,10 +33,10 @@ const RedeemPage = (): ReactElement => {
         <EuiPageContent verticalPosition="center">
           <EuiPageContentBody>
             <EuiSpacer />
-            {hasNfts ? (
+            {nftStatus === NftStatus.Invalid ? (
               <span>
                 <EuiSpacer />
-                <NftCarousel nfts={nfts as readonly NftData[]} />
+                <NftCarousel nfts={nfts} />
               </span>
             ) : (
               <DefaultNftBox nftStatus={nftStatus} />

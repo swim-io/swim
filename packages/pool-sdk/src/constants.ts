@@ -1,12 +1,12 @@
 const notYetDeployed = null;
 export const POOL_PROGRAM_IDS = [
   null, //no pool with token count 0
-  notYetDeployed, //swimLake program id
+  "Sw1LeM87T6PEh3ydfc7PqRN3PG1RCFBGthUPSsPa3p5", //swimLake program id
+  "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs", //meta pools program id
   notYetDeployed,
   notYetDeployed,
   notYetDeployed,
-  notYetDeployed,
-  "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC", // hexapool program id
+  "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC", //hexapool program id
 ];
 
 //see pool repo pool_fee.rs (technical debt in how fees are stored)

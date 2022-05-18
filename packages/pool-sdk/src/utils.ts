@@ -18,7 +18,7 @@ export class AssertionError extends Error {
   name = "AssertionError";
 }
 
-export function assert(condition: any, message: string = null) {
+export function assert(condition: any, message: string = "") {
   if (!condition)
     throw new AssertionError(message || "Assertion failed");
 }

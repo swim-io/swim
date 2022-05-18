@@ -1,8 +1,6 @@
 {
-  "name": "@swim-io/pool-sdk",
+  "name": "@swim-io/pool-deployment",
   "version": "1.0.0",
-  "main": "build/index.js",
-  "types": "types/index.d.ts",
   "files": [
     "build/",
     "types/",
@@ -12,6 +10,7 @@
   ],
   "_type": "module",
   "scripts": {
+    "start": "tsc && node ./build/deployment.js",
     "format": "prettier --write \"./src/**/*.ts\"",
     "build": "rm -rf ./build/ ./types/ && tsc"
   },
@@ -19,11 +18,12 @@
     "@project-serum/borsh": "^0.2.3",
     "@solana/spl-token": "^0.2.0",
     "@solana/web3.js": "^1.31.0",
+    "@swim-io/pool-sdk": "workspace:packages/pool-sdk",
+    "@types/bs58": "^4.0.1",
     "bs58": "^4.0.1",
     "decimal.js": "^10.3.1"
   },
   "devDependencies": {
-    "@types/bs58": "^4.0.1",
     "prettier": "^2.6.1",
     "typescript": "^4.6.3"
   }

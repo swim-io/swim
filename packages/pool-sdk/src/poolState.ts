@@ -162,10 +162,13 @@ export class PoolState implements ConstantStateData, MutableStateData {
 
 export async function getPoolState(connection: Connection, address: PublicKey): Promise<PoolState> {
   const account = await connection.getAccountInfo(address);
+  if (!account) throw new Error(`account ${address.toString()} not found`);
   return PoolState.from(address, account.data);
 }
 
-export async function getPoolStates(connection: Connection, poolProgramId: PublicKey): Promise<PoolState[]> {
-  const poolAccounts = await connection.getProgramAccounts(poolProgramId);
-  return poolAccounts.map(pool => PoolState.from(pool.pubkey, pool.account.data));
-}
+// there might be program accounts of older versions of the pool with what's now an unknown size
+// async function getPoolStates(connection: Connection, tokenCount: number): Promise<PoolState[]> {
+//   const programId = programIdFromTokenCount(tokenCount)
+//   const poolAccounts = await connection.getProgramAccounts(programId);
+//   return poolAccounts.map(pool => PoolState.from(pool.pubkey, pool.account.data));
+// }

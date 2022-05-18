@@ -125,9 +125,7 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
               </EuiFlexGroup>
               <EuiFlexGroup justifyContent="flexEnd">
                 <EuiFlexItem grow={false}>
-                  <EuiButton className="andrew" onClick={showRedeemModal}>
-                    Redeem
-                  </EuiButton>
+                  <EuiButton onClick={showRedeemModal}>Redeem</EuiButton>
                 </EuiFlexItem>
               </EuiFlexGroup>
             </div>

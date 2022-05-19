@@ -37,7 +37,7 @@ const rarityColumns = [
   {
     field: "rarity",
     name: "Rarity",
-    render: (rarityNumber: any) => {
+    render: (rarityNumber: number) => {
       return "🔥".repeat(rarityNumber);
     },
   },

@@ -65,7 +65,8 @@ export const useAccountNfts = (): UseQueryResult<readonly NftData[], Error> => {
     ["accountNfts", env, ownerAddress],
     async (): Promise<readonly NftData[] | null> => {
       if (!ownerAddress) {
-        return null;
+        // Note, returns 0 nfts if wallet is not connected.
+        return [];
       }
       const userNfts = await Metadata.findDataByOwner(
         solanaConnection.rawConnection,

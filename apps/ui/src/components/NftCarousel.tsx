@@ -37,7 +37,7 @@ const rarityColumns = [
   {
     field: "rarity",
     name: "Rarity",
-    render: (rarityNumber: any) => {
+    render: (rarityNumber: number) => {
       return "🔥".repeat(rarityNumber);
     },
   },
@@ -67,7 +67,7 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   };
 
   const generateTable = (attributes: readonly NftAttribute[]): ReactElement => (
-    <EuiBasicTable
+    <EuiBasicTable<NftAttribute>
       tableCaption="Nft Traits"
       columns={rarityColumns}
       items={[...attributes]}

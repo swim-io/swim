@@ -19,7 +19,7 @@ jest.mock("../../models", () => ({
 // Make typescript happy with jest
 const loadInteractionsMock = mockOf(loadInteractions);
 
-describe("useSolBalanceQuery", () => {
+describe("useInteraction", () => {
   beforeEach(() => {
     // Reset queryClient cache, otherwise test might return previous value
     renderHook(() => useQueryClient().clear(), {

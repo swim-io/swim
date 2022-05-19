@@ -1,10 +1,8 @@
-import { renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
 import { EcosystemId } from "../../config";
-import { AppContext } from "../../contexts";
-import { mockOf } from "../../testUtils";
+import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
 import { useIsEvmGasPriceLoading } from "./useIsEvmGasPriceLoading";
@@ -19,9 +17,7 @@ const useGasPriceQueryMock = mockOf(useGasPriceQuery);
 describe("useAddFeesEstimationQuery", () => {
   beforeEach(() => {
     // Reset queryClient cache, otherwise test might return previous value
-    renderHook(() => useQueryClient().clear(), {
-      wrapper: AppContext,
-    });
+    renderHookWithAppContext(() => useQueryClient().clear());
   });
 
   describe("loading", () => {
@@ -30,9 +26,9 @@ describe("useAddFeesEstimationQuery", () => {
         isLoading: true,
         data: undefined,
       });
-      const { result } = renderHook(() => useIsEvmGasPriceLoading([]), {
-        wrapper: AppContext,
-      });
+      const { result } = renderHookWithAppContext(() =>
+        useIsEvmGasPriceLoading([]),
+      );
       expect(result.current).toEqual(false);
     });
 
@@ -42,11 +38,8 @@ describe("useAddFeesEstimationQuery", () => {
           ? { isLoading: true, data: undefined }
           : { isLoading: false, data: new Decimal(5e-9) },
       );
-      const { result } = renderHook(
-        () => useIsEvmGasPriceLoading([EcosystemId.Ethereum]),
-        {
-          wrapper: AppContext,
-        },
+      const { result } = renderHookWithAppContext(() =>
+        useIsEvmGasPriceLoading([EcosystemId.Ethereum]),
       );
       expect(result.current).toEqual(true);
     });
@@ -59,11 +52,8 @@ describe("useAddFeesEstimationQuery", () => {
           ? { isLoading: false, data: new Decimal(5e-9) }
           : { isLoading: true, data: undefined },
       );
-      const { result } = renderHook(
-        () => useIsEvmGasPriceLoading([EcosystemId.Ethereum]),
-        {
-          wrapper: AppContext,
-        },
+      const { result } = renderHookWithAppContext(() =>
+        useIsEvmGasPriceLoading([EcosystemId.Ethereum]),
       );
       expect(result.current).toEqual(false);
     });
@@ -73,17 +63,13 @@ describe("useAddFeesEstimationQuery", () => {
         isLoading: false,
         data: new Decimal(5e-9),
       });
-      const { result } = renderHook(
-        () =>
-          useIsEvmGasPriceLoading([
-            EcosystemId.Ethereum,
-            EcosystemId.Bsc,
-            EcosystemId.Polygon,
-            EcosystemId.Avalanche,
-          ]),
-        {
-          wrapper: AppContext,
-        },
+      const { result } = renderHookWithAppContext(() =>
+        useIsEvmGasPriceLoading([
+          EcosystemId.Ethereum,
+          EcosystemId.Bsc,
+          EcosystemId.Polygon,
+          EcosystemId.Avalanche,
+        ]),
       );
       expect(result.current).toEqual(false);
     });

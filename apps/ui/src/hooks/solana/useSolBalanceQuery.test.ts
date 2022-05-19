@@ -1,10 +1,8 @@
-import { renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
-import { AppContext } from "../../contexts/appContext";
-import { mockOf } from "../../testUtils";
+import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useSolBalanceQuery } from "./useSolBalanceQuery";
 
@@ -21,9 +19,7 @@ const useSolanaConnectionMock = mockOf(useSolanaConnection);
 describe("useSolBalanceQuery", () => {
   beforeEach(() => {
     // Reset queryClient cache, otherwise test might return previous value
-    renderHook(() => useQueryClient().clear(), {
-      wrapper: AppContext,
-    });
+    renderHookWithAppContext(() => useQueryClient().clear());
   });
 
   it("should return 0 when no address", async () => {
@@ -31,9 +27,9 @@ describe("useSolBalanceQuery", () => {
     useSolanaConnectionMock.mockReturnValue({
       getBalance: async () => 999,
     });
-    const { result, waitFor } = renderHook(() => useSolBalanceQuery(), {
-      wrapper: AppContext,
-    });
+    const { result, waitFor } = renderHookWithAppContext(() =>
+      useSolBalanceQuery(),
+    );
     await waitFor(() => result.current.isSuccess);
     expect(result.current.data).toEqual(new Decimal("0"));
   });
@@ -45,9 +41,9 @@ describe("useSolBalanceQuery", () => {
     useSolanaConnectionMock.mockReturnValue({
       getBalance: async () => 999,
     });
-    const { result, waitFor } = renderHook(() => useSolBalanceQuery(), {
-      wrapper: AppContext,
-    });
+    const { result, waitFor } = renderHookWithAppContext(() =>
+      useSolBalanceQuery(),
+    );
     await waitFor(() => result.current.isSuccess);
     expect(result.current.data).toEqual(new Decimal("999"));
   });
@@ -61,9 +57,9 @@ describe("useSolBalanceQuery", () => {
         throw new Error("Something went wrong");
       },
     });
-    const { result, waitFor } = renderHook(() => useSolBalanceQuery(), {
-      wrapper: AppContext,
-    });
+    const { result, waitFor } = renderHookWithAppContext(() =>
+      useSolBalanceQuery(),
+    );
     await waitFor(() => result.current.isSuccess);
     expect(result.current.data).toEqual(new Decimal("0"));
   });

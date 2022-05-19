@@ -67,7 +67,7 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   };
 
   const generateTable = (attributes: readonly NftAttribute[]): ReactElement => (
-    <EuiBasicTable
+    <EuiBasicTable<NftAttribute>
       tableCaption="Nft Traits"
       columns={rarityColumns}
       items={[...attributes]}

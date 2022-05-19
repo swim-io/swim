@@ -1,0 +1,40 @@
+name: "Verify UI build"
+on:
+  pull_request:
+    paths:
+      - "apps/ui/**.ts"
+      - "apps/ui/**.tsx"
+      - "apps/ui/**.json"
+      - "apps/ui/**.scss"
+  push:
+    branches:
+      - master
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./apps/ui
+
+    env:
+      REACT_APP_BSC_MAINNET_RPC_URL: "https://example.com"
+      REACT_APP_MORALIS_MAINNET_URL: "https://example.com"
+      REACT_APP_SOLANA_MAINNET_RPC_URL: "https://solana-api.projectserum.com"
+      SKIP_PREFLIGHT_CHECK: true
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Check types
+        run: yarn typecheck
+      - name: Check lint
+        run: yarn lint --max-warnings=0
+      - name: Test
+        run: yarn test --watchAll=false

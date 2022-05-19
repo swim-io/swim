@@ -12,6 +12,7 @@ import {
 } from "@elastic/eui";
 import type { ChangeEvent, ReactElement } from "react";
 import { useState } from "react";
+import type { QueryObserverResult } from "react-query";
 import { Carousel } from "react-responsive-carousel";
 
 import type {
@@ -23,6 +24,9 @@ import "./NftCarousel.scss";
 
 export interface NftCarouselProps {
   readonly nfts: readonly NftData[];
+  readonly refetchNfts: () => Promise<
+    QueryObserverResult<readonly NftData[], Error>
+  >;
 }
 
 const rarityColumns = [
@@ -46,24 +50,39 @@ const rarityColumns = [
 const redeemPassword = "redeem";
 
 export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
+  const [activeNft, setActiveNft] = useState<NftData | null>(null);
   const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const onRedeemInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPasswordInput(e.target.value);
   };
+  const { mutateAsync } = useRedeemMutation(activeNft);
   // TODO: Query redeemer to retrieve value of otter (amount and token).
   const redeemerValue = 100;
   const redeemerToken = "USDC";
 
-  const showRedeemModal = setIsRedeemModalVisible.bind(null, true);
-
+  const showRedeemModal = (nft: NftData): void => {
+    setActiveNft(nft);
+    setIsRedeemModalVisible.bind(null, true);
+  };
   const hideRedeemModal = (): void => {
+    setActiveNft(null);
     setIsRedeemModalVisible(false);
   };
 
-  // TODO: This is unimplemented.
-  const executeRedeem = (): void => {
-    console.info("This is unimplemented.");
+  const executeRedeem = async (): Promise<void> => {
+    const tx = await mutateAsync(activeNft);
+    tx.
+    //     onError: (error) => {
+    //       // TODO: throw a pop-up on failure.
+    //       console.log("error!", error);
+    //     },
+    //     onSuccess: () => {
+    //       console.log("success");
+    //     },
+    //   });
+    // how do i remove this?
+    hideRedeemModal();
   };
 
   const generateTable = (attributes: readonly NftAttribute[]): ReactElement => (

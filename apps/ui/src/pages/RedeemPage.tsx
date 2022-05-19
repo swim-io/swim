@@ -17,7 +17,7 @@ const RedeemPage = (): ReactElement => {
   const title = "Redeem";
   useTitle(title);
   const isConnected = useSolanaWallet().connected;
-  const { isLoading, data: nfts = [] } = useAccountNfts();
+  const { isLoading, data: nfts = [], refetch } = useAccountNfts();
 
   const nftProblem = !isConnected
     ? NftProblem.NoWallet
@@ -36,7 +36,7 @@ const RedeemPage = (): ReactElement => {
             {nftProblem === null ? (
               <span>
                 <EuiSpacer />
-                <NftCarousel nfts={nfts} />
+                <NftCarousel nfts={nfts} refetchNfts={refetch} />
               </span>
             ) : (
               <DefaultNftBox nftProblem={nftProblem} />

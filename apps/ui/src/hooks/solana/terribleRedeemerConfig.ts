@@ -9,8 +9,6 @@ import { Env } from "./env";
 
 
 
-
-
 export interface TokenDetails {
   readonly address: string;
   readonly decimals: number;

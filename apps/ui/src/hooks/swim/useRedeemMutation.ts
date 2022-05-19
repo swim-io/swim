@@ -36,8 +36,7 @@ const {
 export const useRedeemMutation = (
   nft: NftData | null,
 ): UseMutationResult<RpcResponseAndContext<SignatureResult>> => {
-  const solanaConnection = useSolanaConnection();
-  const solanaWallet = useSolanaWallet();
+
   const createATA = useCreateSplTokenAccountsMutation();
 
   return useMutation(
@@ -113,3 +112,17 @@ export const useRedeemMutation = (
     },
   );
 };
+
+
+
+// so what we have:
+// nft page
+// some kind of modal managing nft state
+// -> gets nfts
+
+
+// depending on nft state
+// show carousel => this can modify nft state!
+// -> gets nfts? // i guess i just need to trigger a requery
+
+// show box

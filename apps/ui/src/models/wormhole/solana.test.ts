@@ -83,7 +83,7 @@ describe("models - Wormhole utils", () => {
       const tx: SolanaTx = {
         interactionId,
         ecosystem: EcosystemId.Solana,
-        timestamp: parsedSwimSwapTx.blockTime || null,
+        timestamp: parsedSwimSwapTx.blockTime ?? null,
         txId: parsedSwimSwapTx.transaction.signatures[0],
         parsedTx: parsedSwimSwapTx,
       };

@@ -8,6 +8,7 @@ import { findLocalnetTokenById } from "../../testUtils";
 const SOLANA_USDC = findLocalnetTokenById("localnet-solana-usdc");
 const SOLANA_USDT = findLocalnetTokenById("localnet-solana-usdt");
 const ETHEREUM_USDC = findLocalnetTokenById("localnet-ethereum-usdc");
+const BSC_USDT = findLocalnetTokenById("localnet-bsc-usdt");
 
 export const ETH_USDC_TO_SOL_USDC_SWAP: SwapInteraction = {
   type: InteractionType.Swap,
@@ -84,8 +85,34 @@ export const SOL_USDC_TO_SOL_USDT_SWAP: SwapInteraction = {
   },
 };
 
+export const BSC_USDT_TO_ETH_USDC_SWAP: SwapInteraction = {
+  type: 0,
+  params: {
+    exactInputAmount: Amount.fromHuman(BSC_USDT, new Decimal(1000)),
+    minimumOutputAmount: Amount.fromHuman(
+      ETHEREUM_USDC,
+      new Decimal(994.574014),
+    ),
+  },
+  id: "1e8cdbbb60f72e02f99e3c81f447b0a8",
+  poolIds: ["hexapool"],
+  env: Env.CustomLocalnet,
+  submittedAt: 1652947575631,
+  signatureSetKeypairs: {},
+  previousSignatureSetAddresses: {},
+  connectedWallets: {
+    solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+    bsc: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+    terra: null,
+    avalanche: null,
+    polygon: null,
+  },
+};
+
 export const SWAP_INTERACTIONS = [
   ETH_USDC_TO_SOL_USDC_SWAP,
+  SOL_USDC_TO_ETH_USDC_SWAP,
   SOL_USDC_TO_ETH_USDC_SWAP,
   SOL_USDC_TO_ETH_USDC_SWAP,
 ];

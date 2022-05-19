@@ -5,6 +5,7 @@ on:
       - "apps/ui/**.ts"
       - "apps/ui/**.tsx"
       - "apps/ui/**.json"
+      - "apps/ui/**.scss"
   push:
     branches:
       - master

@@ -356,10 +356,9 @@ export const createOperationSpecs = (
             amount.toHuman(EcosystemId.Solana),
           ),
         );
-        const minimumMintAmount = Amount.fromAtomic(
+        const minimumMintAmount = Amount.fromHuman(
           inputPoolTokens.lpToken,
           stableInputAmount,
-          EcosystemId.Solana,
         );
         return [
           {
@@ -408,10 +407,9 @@ export const createOperationSpecs = (
             amount.toHuman(EcosystemId.Solana),
           ),
         );
-        const inputPoolMinimumOutputAmount = Amount.fromAtomic(
+        const inputPoolMinimumOutputAmount = Amount.fromHuman(
           outputPoolTokens.lpToken,
           lpInputAmount,
-          EcosystemId.Solana,
         );
         return [
           {
@@ -469,10 +467,9 @@ export const createOperationSpecs = (
           amount.toHuman(EcosystemId.Solana),
         ),
       );
-      const minimumInputPoolOutputAmount = Amount.fromAtomic(
+      const minimumInputPoolOutputAmount = Amount.fromHuman(
         inputPoolTokens.lpToken,
         stableInputAmount,
-        EcosystemId.Solana,
       );
       return [
         {

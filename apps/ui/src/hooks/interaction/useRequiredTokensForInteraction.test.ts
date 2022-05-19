@@ -33,17 +33,18 @@ describe("useRequiredTokensForInteraction", () => {
     useConfigMock.mockReturnValue(configs[Env.Localnet]);
   });
 
-  it("should return required ecosystems for ETH to SOL Swap", async () => {
+  it("should return required tokens for ETH to SOL Swap", async () => {
     useInteractionMock.mockReturnValue(ETH_USDC_TO_SOL_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
       useRequiredTokensForInteraction(ETH_USDC_TO_SOL_USDC_SWAP.id),
     );
     expect(result.current.map(({ id }) => id)).toEqual([
       "localnet-ethereum-usdc",
+      "localnet-solana-usdc",
     ]);
   });
 
-  it("should return required ecosystems for SOL to ETH Swap", async () => {
+  it("should return required tokens for SOL to ETH Swap", async () => {
     useInteractionMock.mockReturnValue(SOL_USDC_TO_ETH_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
       useRequiredTokensForInteraction(SOL_USDC_TO_ETH_USDC_SWAP.id),
@@ -54,7 +55,7 @@ describe("useRequiredTokensForInteraction", () => {
     ]);
   });
 
-  it("should return required ecosystems for SOL to SOL Swap", async () => {
+  it("should return required tokens for SOL to SOL Swap", async () => {
     useInteractionMock.mockReturnValue(SOL_USDC_TO_SOL_USDT_SWAP);
     const { result } = renderHookWithAppContext(() =>
       useRequiredTokensForInteraction(SOL_USDC_TO_SOL_USDT_SWAP.id),
@@ -65,7 +66,7 @@ describe("useRequiredTokensForInteraction", () => {
     ]);
   });
 
-  it("should return required ecosystems for BSC to ETH Swap", async () => {
+  it("should return required tokens for BSC to ETH Swap", async () => {
     useInteractionMock.mockReturnValue(BSC_USDT_TO_ETH_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
       useRequiredTokensForInteraction(BSC_USDT_TO_ETH_USDC_SWAP.id),

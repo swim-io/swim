@@ -14,10 +14,7 @@ export const ETH_USDC_TO_SOL_USDC_SWAP: SwapInteraction = {
   type: InteractionType.Swap,
   params: {
     exactInputAmount: Amount.fromHuman(ETHEREUM_USDC, new Decimal(1001)),
-    minimumOutputAmount: Amount.fromHuman(
-      ETHEREUM_USDC,
-      new Decimal(995.624615),
-    ),
+    minimumOutputAmount: Amount.fromHuman(SOLANA_USDC, new Decimal(995.624615)),
   },
   id: "05c0e3ea832571ae4c64e80b2e2a12f9",
   poolIds: ["hexapool"],

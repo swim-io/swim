@@ -7,7 +7,7 @@ import type { EcosystemId, TokenDetails, TokenSpec } from "../config";
 
 export class Amount {
   public readonly tokenSpec: TokenSpec;
-  private readonly value: Decimal;
+  public readonly value: Decimal;
 
   private constructor(tokenSpec: TokenSpec, value: Decimal) {
     this.tokenSpec = tokenSpec;

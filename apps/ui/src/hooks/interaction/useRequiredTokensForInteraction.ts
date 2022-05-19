@@ -12,9 +12,5 @@ export const useRequiredTokensForInteraction = (
   const tokensByPoolId = getTokensByPool(config);
   const interaction = useInteraction(interactionId);
   const pools = useRequiredPoolsForInteraction(interactionId);
-  // Remove duplicate value
-  const tokenSet = new Set(
-    getRequiredTokens(tokensByPoolId, pools, interaction),
-  );
-  return [...tokenSet.values()];
+  return getRequiredTokens(tokensByPoolId, pools, interaction);
 };

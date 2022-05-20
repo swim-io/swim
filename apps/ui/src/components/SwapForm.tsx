@@ -2,22 +2,15 @@ import {
   EuiButton,
   EuiButtonIcon,
   EuiCallOut,
-  EuiFieldNumber,
-  EuiFieldText,
-  EuiFlexGroup,
-  EuiFlexItem,
   EuiForm,
   EuiFormRow,
-  EuiLink,
   EuiSpacer,
-  EuiSuperSelect,
-  EuiText,
 } from "@elastic/eui";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
+import { EcosystemId, ecosystems } from "../config";
 import { useConfig } from "../contexts";
 import { selectNotify } from "../core/selectors";
 import { useNotification } from "../core/store";
@@ -40,7 +33,6 @@ import {
   Status,
   getLowBalanceWallets,
   getRequiredPoolsForSwap,
-  getTokensByPool,
 } from "../models";
 import {
   defaultIfError,
@@ -50,13 +42,14 @@ import {
 } from "../utils";
 
 import { ConfirmModal } from "./ConfirmModal";
-import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
 import { isValidSlippageFraction } from "./SlippageButton";
 import { StepsDisplay } from "./StepsDisplay";
 import { NativeTokenIcon } from "./TokenIcon";
+import { SwapFormSolanaConnectButton } from "./molecules/SwapFormSolanaConnectButton";
+import { TokenAmountInput } from "./molecules/TokenAmountInput";
 
 import "./SwapForm.scss";
 
@@ -70,8 +63,8 @@ export const SwapForm = ({
   maxSlippageFraction,
 }: SwapFormProps): ReactElement => {
   const config = useConfig();
-  const tokensByPool = getTokensByPool(config);
   const notify = useNotification(selectNotify);
+  const { tokens } = config;
   const wallets = useWallets();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();
@@ -96,10 +89,9 @@ export const SwapForm = ({
 
   const defaultFromTokenId = swappableTokenIds[0];
   const [fromTokenId, setFromTokenId] = useState(defaultFromTokenId);
-  const [toTokenId, setToTokenId] = useState(swappableTokens[1].id);
-  const fromToken =
-    swappableTokens.find(({ id }) => id === fromTokenId) ?? null;
-  const toToken = swappableTokens.find(({ id }) => id === toTokenId) ?? null;
+  const [toTokenId, setToTokenId] = useState(swappableTokenIds[1]);
+  const fromToken = findOrThrow(tokens, ({ id }) => id === fromTokenId);
+  const toToken = findOrThrow(tokens, ({ id }) => id === toTokenId);
 
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
@@ -114,10 +106,6 @@ export const SwapForm = ({
   const outputPoolUsdValue = pools[pools.length - 1].poolUsdValue;
   const isRequiredPoolPaused = pools.some((pool) => pool.isPoolPaused);
   const poolMaths = usePoolMaths(poolIds);
-  const inputPool = requiredPools[0];
-  const outputPool = requiredPools[requiredPools.length - 1];
-  const inputPoolTokens = tokensByPool[inputPool.id];
-  const outputPoolTokens = tokensByPool[outputPool.id];
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
@@ -138,24 +126,14 @@ export const SwapForm = ({
 
   const feesEstimation = useSwapFeesEstimationQuery(fromToken, toToken);
 
-  const inputAmount = useMemo(
-    () =>
-      defaultIfError(
-        () => fromToken && Amount.fromHumanString(fromToken, formInputAmount),
-        null,
-      ),
-    [formInputAmount, fromToken],
+  const inputAmount = defaultIfError(
+    () => Amount.fromHumanString(fromToken, formInputAmount),
+    Amount.zero(fromToken),
   );
   const isInputAmountPositive =
-    inputAmount !== null && !inputAmount.isNegative() && !inputAmount.isZero();
+    !inputAmount.isNegative() && !inputAmount.isZero();
 
-  const outputAmount = useSwapOutputAmountEstimate(
-    poolMaths,
-    inputPoolTokens,
-    outputPoolTokens,
-    toToken,
-    inputAmount,
-  );
+  const outputAmount = useSwapOutputAmountEstimate(inputAmount, toToken);
 
   const fromTokenOptions = swappableTokens.map((tokenSpec) => ({
     value: tokenSpec.id,
@@ -166,17 +144,7 @@ export const SwapForm = ({
   );
 
   const fromTokenUserBalances = useUserBalanceAmounts(fromToken);
-  const fromTokenBalance = fromToken
-    ? fromTokenUserBalances[fromToken.nativeEcosystem]
-    : null;
-  const toTokenUserBalances = useUserBalanceAmounts(toToken);
-  const toTokenBalance = toToken
-    ? toTokenUserBalances[toToken.nativeEcosystem]
-    : null;
-
-  const fromTokenNativeDetails = fromToken
-    ? getNativeTokenDetails(fromToken)
-    : null;
+  const fromTokenBalance = fromTokenUserBalances[fromToken.nativeEcosystem];
 
   const handleInputAmountChange = (currentInputAmount: Amount | null): void => {
     let errors: readonly string[] = [];
@@ -195,7 +163,7 @@ export const SwapForm = ({
   // re-validate input amount after user connected a wallet
   const fromTokenBalancePrimitive = fromTokenBalance?.toPrimitive();
   useEffect(() => {
-    if (fromTokenBalancePrimitive && !inputAmount?.isZero()) {
+    if (fromTokenBalancePrimitive && !inputAmount.isZero()) {
       handleInputAmountChange(inputAmount);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -285,17 +253,8 @@ export const SwapForm = ({
       errors = [...errors, "Connect Solana wallet"];
     }
 
-    if (!fromToken) {
-      errors = [...errors, "Select a source token"];
-    }
-
-    if (!toToken) {
-      errors = [...errors, "Select a destination token"];
-    }
-
     // Require source token to have a connected wallet
     if (
-      fromToken &&
       fromToken.nativeEcosystem !== EcosystemId.Solana &&
       !wallets[fromToken.nativeEcosystem].connected
     ) {
@@ -307,7 +266,6 @@ export const SwapForm = ({
 
     // Require destination token to have a connected wallet
     if (
-      toToken &&
       toToken.nativeEcosystem !== EcosystemId.Solana &&
       !wallets[toToken.nativeEcosystem].connected
     ) {
@@ -321,8 +279,8 @@ export const SwapForm = ({
     const requiredEcosystems = new Set(
       [
         EcosystemId.Solana,
-        fromToken ? fromToken.nativeEcosystem : null,
-        toToken ? toToken.nativeEcosystem : null,
+        fromToken.nativeEcosystem,
+        toToken.nativeEcosystem,
       ].filter(isNotNull),
     );
     requiredEcosystems.forEach((ecosystem) => {
@@ -346,11 +304,11 @@ export const SwapForm = ({
     }
 
     // Require enough user balances
-    if (inputAmount && fromTokenBalance && inputAmount.gt(fromTokenBalance)) {
+    if (fromTokenBalance && inputAmount.gt(fromTokenBalance)) {
       errors = [...errors, "Insufficient funds"];
     }
 
-    if (inputAmount === null || inputAmount.isZero()) {
+    if (inputAmount.isZero()) {
       errors = [...errors, "Provide a valid amount"];
     }
 
@@ -370,10 +328,7 @@ export const SwapForm = ({
 
     // These are just for type safety and should in theory not happen
     if (
-      fromToken === null ||
-      toToken === null ||
       splTokenAccounts === null ||
-      inputAmount === null ||
       outputAmount === null ||
       maxSlippageFraction === null ||
       !isEachNotNull(poolMaths)
@@ -404,10 +359,8 @@ export const SwapForm = ({
 
   useEffect(() => {
     // Eg if the env changes
-    if (!fromToken) {
-      setFromTokenId(defaultFromTokenId);
-    }
-  }, [fromToken, defaultFromTokenId]);
+    setFromTokenId(defaultFromTokenId);
+  }, [defaultFromTokenId]);
 
   useEffect(() => {
     if (!toTokenOptions.find(({ value }) => value === toTokenId)) {
@@ -428,80 +381,17 @@ export const SwapForm = ({
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
       <EuiSpacer />
 
-      <EuiFlexGroup>
-        <EuiFlexItem grow={2}>
-          <EuiFormRow hasEmptyLabelSpace>
-            <EuiSuperSelect
-              name="fromToken"
-              options={fromTokenOptions}
-              valueOfSelected={fromTokenId}
-              onChange={setFromTokenId}
-              itemLayoutAlign="top"
-              disabled={isInteractionInProgress}
-            />
-          </EuiFormRow>
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiFormRow
-            labelType="legend"
-            labelAppend={
-              <EuiText size="xs">
-                <span>Balance:</span>{" "}
-                {fromTokenBalance !== null && fromToken !== null ? (
-                  <EuiLink
-                    onClick={() => {
-                      setFormInputAmount(
-                        fromTokenBalance.toHumanString(
-                          fromToken.nativeEcosystem,
-                        ),
-                      );
-                      handleInputAmountChange(fromTokenBalance);
-                    }}
-                  >
-                    {fromTokenBalance.toFormattedHumanString(
-                      fromToken.nativeEcosystem,
-                    )}
-                  </EuiLink>
-                ) : (
-                  "-"
-                )}
-              </EuiText>
-            }
-            isInvalid={inputAmountErrors.length > 0}
-            error={inputAmountErrors}
-          >
-            <EuiFieldNumber
-              name="inputAmount"
-              placeholder="Enter amount"
-              value={formInputAmount}
-              step={
-                fromTokenNativeDetails
-                  ? 10 ** -fromTokenNativeDetails.decimals
-                  : 0
-              }
-              min={0}
-              onChange={(e) => {
-                setFormInputAmount(e.target.value);
-              }}
-              disabled={isInteractionInProgress}
-              onBlur={() => {
-                handleInputAmountChange(inputAmount);
-              }}
-              isInvalid={inputAmountErrors.length > 0}
-            />
-          </EuiFormRow>
-        </EuiFlexItem>
-        {fromToken && (
-          <EuiFlexItem style={{ minWidth: "180px" }}>
-            <EuiFormRow hasEmptyLabelSpace>
-              <ConnectButton
-                ecosystemId={fromToken.nativeEcosystem}
-                fullWidth
-              />
-            </EuiFormRow>
-          </EuiFlexItem>
-        )}
-      </EuiFlexGroup>
+      <TokenAmountInput
+        value={formInputAmount}
+        token={fromToken}
+        tokenOptionIds={swappableTokenIds}
+        placeholder={"Enter amount"}
+        disabled={isInteractionInProgress}
+        errors={inputAmountErrors}
+        onSelectToken={setFromTokenId}
+        onChangeValue={(value) => setFormInputAmount(value)}
+        onBlur={() => handleInputAmountChange(inputAmount)}
+      />
 
       <EuiSpacer size="m" />
       <div style={{ textAlign: "center" }}>
@@ -523,76 +413,23 @@ export const SwapForm = ({
         className="eui-hideFor--m eui-hideFor--l eui-hideFor--xl"
       />
 
-      <EuiFlexGroup>
-        <EuiFlexItem grow={2}>
-          <EuiFormRow hasEmptyLabelSpace>
-            <EuiSuperSelect
-              name="toToken"
-              options={toTokenOptions}
-              valueOfSelected={toTokenId}
-              onChange={setToTokenId}
-              itemLayoutAlign="top"
-              disabled={isInteractionInProgress}
-            />
-          </EuiFormRow>
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiFormRow
-            labelType="legend"
-            labelAppend={
-              <EuiText size="xs">
-                <span>Balance:</span>{" "}
-                <span>
-                  {toTokenBalance !== null && toToken !== null
-                    ? toTokenBalance.toFormattedHumanString(
-                        toToken.nativeEcosystem,
-                      )
-                    : "-"}
-                </span>
-              </EuiText>
-            }
-          >
-            <EuiFieldText
-              name="outputAmount"
-              value={
-                toToken && outputAmount
-                  ? outputAmount.toFormattedHumanString(toToken.nativeEcosystem)
-                  : ""
-              }
-              controlOnly
-              placeholder="Output"
-              readOnly
-            />
-          </EuiFormRow>
-        </EuiFlexItem>
-        {toToken && (
-          <EuiFlexItem style={{ minWidth: "180px" }}>
-            <EuiFormRow hasEmptyLabelSpace>
-              <ConnectButton ecosystemId={toToken.nativeEcosystem} fullWidth />
-            </EuiFormRow>
-          </EuiFlexItem>
-        )}
-      </EuiFlexGroup>
+      <TokenAmountInput
+        value={outputAmount?.toHumanString(toToken.nativeEcosystem) ?? ""}
+        token={toToken}
+        tokenOptionIds={swappableTokenIds.filter((id) => id !== fromTokenId)}
+        placeholder={"Output"}
+        disabled={isInteractionInProgress}
+        errors={[]}
+        onSelectToken={setToTokenId}
+      />
 
       <EuiSpacer />
 
-      {/* If a swap to/from Ethereum/BSC is desired, we still need a Solana wallet */}
-      {fromToken &&
-        toToken &&
-        ![fromToken.nativeEcosystem, toToken.nativeEcosystem].includes(
-          EcosystemId.Solana,
-        ) &&
-        !wallets.solana.connected && (
-          <>
-            <EuiFormRow
-              fullWidth
-              helpText="This swap will route through Solana, so you need to connect a Solana wallet with SOL to pay for transaction fees."
-            >
-              <ConnectButton ecosystemId={EcosystemId.Solana} fullWidth />
-            </EuiFormRow>
-            <EuiSpacer />
-          </>
-        )}
+      <SwapFormSolanaConnectButton
+        fromEcosystem={fromToken.nativeEcosystem}
+        toEcosystem={toToken.nativeEcosystem}
+      />
+
       {isInputAmountPositive && (
         <EstimatedTxFeesCallout feesEstimation={feesEstimation} />
       )}

@@ -71,17 +71,12 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   };
 
   const executeRedeem = async (): Promise<void> => {
-    const tx = await mutateAsync(activeNft);
-    tx.
-    //     onError: (error) => {
-    //       // TODO: throw a pop-up on failure.
-    //       console.log("error!", error);
-    //     },
-    //     onSuccess: () => {
-    //       console.log("success");
-    //     },
-    //   });
-    // how do i remove this?
+    const txResult = await mutateAsync(activeNft);
+    // if txResultGood
+    //  showSuccess
+    //  refetch nfts
+    // else
+    //   showFailure :((
     hideRedeemModal();
   };
 
@@ -144,7 +139,13 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
               </EuiFlexGroup>
               <EuiFlexGroup justifyContent="flexEnd">
                 <EuiFlexItem grow={false}>
-                  <EuiButton onClick={showRedeemModal}>Redeem</EuiButton>
+                  <EuiButton
+                    onClick={() => {
+                      showRedeemModal(nft);
+                    }}
+                  >
+                    Redeem
+                  </EuiButton>
                 </EuiFlexItem>
               </EuiFlexGroup>
             </div>

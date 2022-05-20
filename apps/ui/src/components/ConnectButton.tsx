@@ -17,15 +17,6 @@ import { MultiWalletModal } from "./MultiWalletModal";
 
 import "./ConnectButton.scss";
 
-export const LABEL_MAP: Record<EcosystemId, string> = {
-  [EcosystemId.Solana]: "Connect Solana",
-  [EcosystemId.Ethereum]: "Connect Ethereum",
-  [EcosystemId.Terra]: "Connect Terra",
-  [EcosystemId.Bsc]: "Connect BNB Chain",
-  [EcosystemId.Avalanche]: "Connect Avalanche",
-  [EcosystemId.Polygon]: "Connect Polygon",
-};
-
 export interface ConnectButtonProps extends PropsForButton<EuiButtonProps> {
   readonly ecosystemId: EcosystemId;
 }
@@ -69,7 +60,9 @@ export const ConnectButton = ({
         ) : (
           <>
             <EuiShowFor sizes={["xs"]}>Connect</EuiShowFor>
-            <EuiHideFor sizes={["xs"]}>{LABEL_MAP[ecosystemId]}</EuiHideFor>
+            <EuiHideFor sizes={["xs"]}>
+              Connect {ecosystem.displayName}
+            </EuiHideFor>
           </>
         )}
       </span>

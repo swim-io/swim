@@ -6,7 +6,6 @@ import { EcosystemId } from "../../config";
 import { TxListItem } from "./TxListItem";
 
 export default {
-  title: "TxListItem",
   component: TxListItem,
 } as ComponentMeta<typeof TxListItem>;
 

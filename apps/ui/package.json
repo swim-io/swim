@@ -14,8 +14,7 @@
     "typecheck": "tsc",
     "types:generate": "typechain --target=ethers-v5 --out-dir=src/contracts/ abi/*.json",
     "verify": "yarn typecheck && yarn lint && yarn test --watchAll=false",
-    "storybook": "DISABLE_ESLINT_PLUGIN=true start-storybook -p 6006 public",
-    "build-storybook": "build-storybook -s public"
+    "storybook": "DISABLE_ESLINT_PLUGIN=true start-storybook -p 6006 public"
   },
   "browserslist": {
     "production": [
@@ -62,18 +61,17 @@
     "web-vitals": "^1.0.1"
   },
   "devDependencies": {
-    "@mdx-js/react": "^1.6.22",
     "@sentry/webpack-plugin": "^1.18.8",
-    "@storybook/addon-actions": "^6.5.0",
-    "@storybook/addon-docs": "^6.5.0",
-    "@storybook/addon-essentials": "^6.5.0",
-    "@storybook/addon-interactions": "^6.5.0",
-    "@storybook/addon-links": "^6.5.0",
-    "@storybook/builder-webpack4": "^6.5.0",
-    "@storybook/manager-webpack4": "^6.5.0",
-    "@storybook/node-logger": "^6.5.0",
+    "@storybook/addon-actions": "^6.5.2",
+    "@storybook/addon-docs": "^6.5.2",
+    "@storybook/addon-essentials": "^6.5.2",
+    "@storybook/addon-interactions": "^6.5.2",
+    "@storybook/addon-links": "^6.5.2",
+    "@storybook/builder-webpack4": "^6.5.2",
+    "@storybook/manager-webpack4": "^6.5.2",
+    "@storybook/node-logger": "^6.5.2",
     "@storybook/preset-create-react-app": "^3.2.0",
-    "@storybook/react": "^6.5.0",
+    "@storybook/react": "^6.5.2",
     "@storybook/testing-library": "^0.0.11",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",

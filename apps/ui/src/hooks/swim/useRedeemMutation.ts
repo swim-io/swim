@@ -10,58 +10,62 @@ import type { UseMutationResult } from "react-query";
 import { useMutation } from "react-query";
 
 import * as redeemIdl from "../../../idl/redeem.json";
-import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { useConfig, useEnvironment } from "../../contexts";
 import type { NftData } from "../solana";
-import { useCreateSplTokenAccountsMutation } from "../solana";
+import {
+  useAnchorProvider,
+  useCreateSplTokenAccountsMutation,
+} from "../solana";
 
-const GetAnchorProvider = (connection, wallet) => {
-  const anchorWallet = {
-    signTransaction: wallet.signTransaction.bind(wallet),
-    signAllTransactions: wallet.signAllTransactions.bind(wallet),
-    publicKey: wallet.publicKey,
-  };
-
-  return new anchor.AnchorProvider(
-    connection,
-    anchorWallet,
-    anchor.AnchorProvider.defaultOptions(),
-  );
-}
+// Note, this address should be somewhere more general if it ever has a usecase beyond the redeemer.
+export const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
+  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+);
 
 const {
   metadata: { Metadata, MasterEdition },
 } = programs;
 
-// Extremely ugly, I just want to redeem an nft.
+const REDEEMER_PREFIX = "redeemer";
+const utf8 = anchor.utils.bytes.utf8;
+
+const getRedeemerPDA = async (
+  collection: anchor.web3.PublicKey,
+  redeemerMint: anchor.web3.PublicKey,
+  programId: anchor.web3.PublicKey,
+): Promise<readonly [anchor.web3.PublicKey, number]> => {
+  return await anchor.web3.PublicKey.findProgramAddress(
+    [
+      utf8.encode(REDEEMER_PREFIX),
+      collection.toBuffer(),
+      redeemerMint.toBuffer(),
+    ],
+    programId,
+  );
+};
+
 export const useRedeemMutation = (
   nft: NftData | null,
 ): UseMutationResult<RpcResponseAndContext<SignatureResult>> => {
-
+  const { env } = useEnvironment();
   const createATA = useCreateSplTokenAccountsMutation();
+  const anchorProvider = useAnchorProvider();
+  const { redeemers } = useConfig();
+  const anchorWallet = anchorProvider.wallet;
 
+  // get the right redeemer from the nftcollection
+  // then you should have
   return useMutation(
     async (): Promise<RpcResponseAndContext<SignatureResult>> => {
-      if (!nft || !nft.metadata.collection) {
-        console.log("empty nft");
-        // TODO: Unsure how to do an early return.. Calling an empty
-        // "confirmTransaction" to match return type.
-        return await solanaConnection.rawConnection.confirmTransaction("");
+      if (!nft || !nft.metadata.collection || !anchorProvider) {
+        return null;
       }
-
-      const wallet = solanaWallet.wallet;
-      if (!wallet || !wallet.publicKey) {
-        throw new Error("Wallet not connected, can't create an anchor wallet");
-      }
-
       const { mint: nftMint, collection: nftCollection } = nft.metadata;
 
       const [ownerRedeemTokenAccount] = await createATA.mutateAsync([
         redeemerMint.toBase58(),
       ]);
-      const provider = GetAnchorProvider();
-      anchor.setProvider(provider);
-      const idl = redeemIdl;
-      const program = new anchor.Program(idl, redeemProgramID, provider);
+      const program = new anchor.Program(redeemIdl, redeemProgramID, anchorProvider);
 
       const nftPublicKey = new anchor.web3.PublicKey(nftMint);
       const collectionPublicKey = new anchor.web3.PublicKey(nftCollection.key);
@@ -97,7 +101,7 @@ export const useRedeemMutation = (
           nft: nftPublicKey,
           nftEdition: editionPDA,
           ownerNftAta: ownerNftAta,
-          owner: provider.wallet.publicKey,
+          owner: anchorWallet.publicKey,
           ownerRedeemTokenAccount: ownerRedeemTokenAccount.address,
           mplRedeemer: redeemerPDA,
           redeemerVault,
@@ -108,21 +112,10 @@ export const useRedeemMutation = (
           tokenProgram: TOKEN_PROGRAM_ID,
         })
         .rpc();
-      return await solanaConnection.confirmTx(redeemTxSig);
+      const tx = await anchorProvider.connection.confirmTransaction(
+        redeemTxSig,
+      );
+      return lookUpThatBadBoy(tx);
     },
   );
 };
-
-
-
-// so what we have:
-// nft page
-// some kind of modal managing nft state
-// -> gets nfts
-
-
-// depending on nft state
-// show carousel => this can modify nft state!
-// -> gets nfts? // i guess i just need to trigger a requery
-
-// show box

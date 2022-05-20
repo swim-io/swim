@@ -19,7 +19,9 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { PoolSpec, TokenSpec } from "../config";
 import { EcosystemId, ecosystems } from "../config";
-import { useConfig, useNotification } from "../contexts";
+import { useConfig } from "../contexts";
+import { selectNotify } from "../core/selectors";
+import { useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   usePool,
@@ -132,7 +134,7 @@ export const RemoveForm = ({
     },
   );
 
-  const { notify } = useNotification();
+  const notify = useNotification(selectNotify);
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const [outputAmountErrors, setOutputAmountErrors] = useState(

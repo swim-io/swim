@@ -5,28 +5,25 @@ import { EcosystemId } from "../../config";
 
 import { TxListItem } from "./TxListItem";
 
-export default {
+const Meta: ComponentMeta<typeof TxListItem> = {
   component: TxListItem,
-} as ComponentMeta<typeof TxListItem>;
+};
+export default Meta;
 
-export const Ethereum: ComponentStory<typeof TxListItem> = () => (
+const Template: ComponentStory<typeof TxListItem> = (args) => (
   <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-    <TxListItem
-      ecosystem={EcosystemId.Ethereum}
-      txId={
-        "0x3b0458fab01fea217bc0b1b64550cec1b347e30ecf5b965c359da707d50dad7f"
-      }
-    />
+    <TxListItem {...args} />
   </EuiListGroup>
 );
 
-export const Solana: ComponentStory<typeof TxListItem> = () => (
-  <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-    <TxListItem
-      ecosystem={EcosystemId.Solana}
-      txId={
-        "5Q8KyhSGJtHJvWuLuA4SomQZ2W9kgjWRqwskzZMmj5JMm4vRA2H8i7gWVML1Ksr3zvRzkJ8Rp2ESc21gYfzDmZKu"
-      }
-    />
-  </EuiListGroup>
-);
+export const Ethereum = Template.bind({});
+Ethereum.args = {
+  ecosystem: EcosystemId.Ethereum,
+  txId: "0x3b0458fab01fea217bc0b1b64550cec1b347e30ecf5b965c359da707d50dad7f",
+};
+
+export const Solana = Template.bind({});
+Solana.args = {
+  ecosystem: EcosystemId.Solana,
+  txId: "5Q8KyhSGJtHJvWuLuA4SomQZ2W9kgjWRqwskzZMmj5JMm4vRA2H8i7gWVML1Ksr3zvRzkJ8Rp2ESc21gYfzDmZKu",
+};

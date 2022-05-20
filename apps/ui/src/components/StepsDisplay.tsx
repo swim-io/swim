@@ -41,7 +41,7 @@ import {
 import type { ReadonlyRecord } from "../utils";
 import { isNotNull } from "../utils";
 
-import { TxListItem } from "./TxListItem";
+import { TxListItem } from "./molecules/TxListItem";
 
 import "./StepsDisplay.scss";
 

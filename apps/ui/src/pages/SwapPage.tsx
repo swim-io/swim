@@ -25,6 +25,7 @@ import "./SwapPage.scss";
 
 const SwapPage = (): ReactElement => {
   const { pools } = useEnvironment(selectConfig);
+  console.log("Swap", useEnvironment(selectConfig));
   useTitle("Swap");
 
   const nonStakingPools = useMemo(

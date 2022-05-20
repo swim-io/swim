@@ -1,9 +1,8 @@
-import { useConfig, useEnvironment } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 import { loadInteractions } from "../../models";
 
 export const useInteraction = (interactionId: string) => {
-  const { env } = useEnvironment();
-  const config = useConfig();
+  const { env, config } = useEnvironment();
   const interactions = loadInteractions(env, config);
   const interaction = interactions.find(({ id }) => id === interactionId);
 

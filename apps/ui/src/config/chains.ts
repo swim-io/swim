@@ -247,8 +247,8 @@ const mainnetChains: ChainsByProtocol = {
       nativeCurrency: ACALA_NATIVE_CURRENCY,
       rpcUrls: ["https://acala-polkadot.api.onfinality.io/public-rpc"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
-        bridge: "0x", // TODO: Add when available
-        tokenBridge: "0x", // TODO: Add when available
+        bridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
+        tokenBridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
       },
     },
   ],

@@ -32,7 +32,7 @@ We use ESLint and Prettier for linting and formatting. It’s a good idea to set
 
 In the project directory, you can run:
 
-#### `yarn format`
+#### `yarn format` and `yarn format:fix`
 
 Runs `prettier` on all `.{ts,tsx}` files in the `src` directory.
 

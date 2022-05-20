@@ -57,7 +57,6 @@ export interface RemoveExactBurnInteractionSpec extends BaseInteractionSpec {
   readonly poolId: string;
   readonly params: {
     readonly exactBurnAmount: Amount;
-    readonly outputTokenId: string;
     readonly minimumOutputAmount: Amount;
   };
   readonly lpTokenSourceEcosystem: EcosystemId;

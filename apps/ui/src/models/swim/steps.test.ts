@@ -10,6 +10,7 @@ import { parsedSwimSwapTx } from "../../fixtures/solana/txs";
 import { Amount } from "../amount";
 import type { SolanaTx } from "../crossEcosystem";
 
+import { SwimDefiInstruction } from "./instructions";
 import type {
   AddInteraction,
   RemoveExactBurnInteraction,
@@ -141,7 +142,7 @@ describe("Swim steps", () => {
       },
       type: InteractionType.Swap,
       params: {
-        exactInputAmount: Amount.fromHumanString(poolTokens[2], "3000"),
+        exactInputAmount: Amount.fromHumanString(poolTokens[1], "3000"),
         minimumOutputAmount: Amount.fromHumanString(poolTokens[2], "3000"),
       },
     };
@@ -186,11 +187,10 @@ describe("Swim steps", () => {
         defaultSplTokenAccounts,
       );
 
-      expect(result.length).toBe(3);
+      expect(result.length).toBe(2);
       [
         "USTPJc7bSkXxRPP1ZdxihfxtfgWNrcRPrE4KEC6EK23", // "localnet-solana-usdt"
         "Ep9cMbgyG46b6PVvJNypopc6i8TFzvUVmGiT4MA1PhSb", // "localnet-ethereum-usdc"
-        "9AGDY4Xa9wDfRZc2LHeSS9iAdH6Bhw6VnMd2t7tkJhYv", // "localnet-ethereum-usdt"
       ].forEach((mint) => expect(result).toContain(mint));
     });
 
@@ -353,7 +353,11 @@ describe("Swim steps", () => {
         swapInteraction.id,
         defaultSplTokenAccounts,
         poolTokens,
-        [swapInteraction.params.exactInputAmount],
+        poolTokens.map((token) =>
+          token.id === swapInteraction.params.exactInputAmount.tokenId
+            ? swapInteraction.params.exactInputAmount
+            : Amount.zero(token),
+        ),
         swapInteraction.signatureSetKeypairs,
       );
       const resSingleOutputT = generateSingleOutputProtoTransfers(
@@ -441,16 +445,26 @@ describe("Swim steps", () => {
       lpTokenSourceEcosystem: EcosystemId.Solana,
       type: InteractionType.RemoveExactBurn,
       params: {
-        exactBurnAmount: Amount.zero(lpToken),
-        outputTokenId: "localnet-solana-usdc",
-        minimumOutputAmount: Amount.zero(lpToken),
+        exactBurnAmount: Amount.fromHumanString(lpToken, "123"),
+        minimumOutputAmount: Amount.fromHumanString(poolTokens[1], "89"),
       },
     };
     const result = createRemoveExactBurnSteps(
       defaultTokensByPoolId,
       defaultPoolSpecs,
       interaction,
-      [],
+      [
+        {
+          interactionId: defaultInteractionId,
+          poolId: defaultPoolId,
+          instruction: SwimDefiInstruction.RemoveExactBurn,
+          params: {
+            exactBurnAmount: interaction.params.exactBurnAmount,
+            outputTokenIndex: 1,
+            minimumOutputAmount: interaction.params.minimumOutputAmount,
+          },
+        },
+      ],
       defaultSplTokenAccounts,
       txsByStep,
     );
@@ -498,14 +512,26 @@ describe("Swim steps", () => {
         type: InteractionType.RemoveExactOutput,
         params: {
           maximumBurnAmount: Amount.fromHuman(lpToken, new Decimal(100)),
-          exactOutputAmounts: new Map(),
+          exactOutputAmounts: new Map(
+            defaultAmounts.map((amount) => [amount.tokenId, amount]),
+          ),
         },
       };
       const result = createRemoveExactOutputSteps(
         defaultTokensByPoolId,
         defaultPoolSpecs,
         interaction,
-        [],
+        [
+          {
+            interactionId: defaultInteractionId,
+            poolId: defaultPoolId,
+            instruction: SwimDefiInstruction.RemoveExactOutput,
+            params: {
+              maximumBurnAmount: interaction.params.maximumBurnAmount,
+              exactOutputAmounts: defaultAmounts,
+            },
+          },
+        ],
         defaultSplTokenAccounts,
         txsByStep,
       );
@@ -651,7 +677,17 @@ describe("Swim steps", () => {
           defaultTokensByPoolId,
           defaultPoolSpecs,
           interactionWithWallet,
-          [],
+          [
+            {
+              interactionId: defaultInteractionId,
+              poolId: defaultPoolId,
+              instruction: SwimDefiInstruction.Add,
+              params: {
+                inputAmounts: amounts,
+                minimumMintAmount: Amount.fromHumanString(lpToken, "3000"),
+              },
+            },
+          ],
           defaultSplTokenAccounts,
           txByStep,
         );
@@ -692,7 +728,23 @@ describe("Swim steps", () => {
           defaultTokensByPoolId,
           defaultPoolSpecs,
           swapInteraction2,
-          [],
+          [
+            {
+              interactionId: defaultInteractionId,
+              poolId: defaultPoolId,
+              instruction: SwimDefiInstruction.Swap,
+              params: {
+                exactInputAmounts: poolTokens.map((token) =>
+                  token.id === swapInteraction2.params.exactInputAmount.tokenId
+                    ? swapInteraction2.params.exactInputAmount
+                    : Amount.zero(token),
+                ),
+                outputTokenIndex: 2,
+                minimumOutputAmount:
+                  swapInteraction2.params.minimumOutputAmount,
+              },
+            },
+          ],
           defaultSplTokenAccounts,
           txByStep,
         );
@@ -727,7 +779,12 @@ describe("Swim steps", () => {
         type: InteractionType.RemoveUniform,
         params: {
           exactBurnAmount: Amount.fromHuman(lpToken, new Decimal(20)),
-          minimumOutputAmounts: new Map(),
+          minimumOutputAmounts: new Map(
+            poolTokens.map((token) => [
+              token.id,
+              Amount.fromHumanString(token, "3"),
+            ]),
+          ),
         },
       };
       it("returns result of createRemoveUniformSteps", () => {
@@ -735,7 +792,20 @@ describe("Swim steps", () => {
           defaultTokensByPoolId,
           defaultPoolSpecs,
           removeUniformInteraction,
-          [],
+          [
+            {
+              interactionId: defaultInteractionId,
+              poolId: defaultPoolId,
+              instruction: SwimDefiInstruction.RemoveUniform,
+              params: {
+                exactBurnAmount:
+                  removeUniformInteraction.params.exactBurnAmount,
+                minimumOutputAmounts: poolTokens.map((token) =>
+                  Amount.fromHumanString(token, "3"),
+                ),
+              },
+            },
+          ],
           defaultSplTokenAccounts,
           txByStep,
         );
@@ -769,9 +839,8 @@ describe("Swim steps", () => {
         lpTokenSourceEcosystem: EcosystemId.Solana,
         type: InteractionType.RemoveExactBurn,
         params: {
-          exactBurnAmount: Amount.zero(lpToken),
-          outputTokenId: "localnet-solana-usdc",
-          minimumOutputAmount: Amount.zero(lpToken),
+          exactBurnAmount: Amount.fromHumanString(lpToken, "123"),
+          minimumOutputAmount: Amount.fromHumanString(poolTokens[1], "89"),
         },
       };
       it("returns result of createRemoveExactBurnSteps", () => {
@@ -779,7 +848,20 @@ describe("Swim steps", () => {
           defaultTokensByPoolId,
           defaultPoolSpecs,
           removeExactBurnInteraction,
-          [],
+          [
+            {
+              interactionId: defaultInteractionId,
+              poolId: defaultPoolId,
+              instruction: SwimDefiInstruction.RemoveExactBurn,
+              params: {
+                exactBurnAmount:
+                  removeExactBurnInteraction.params.exactBurnAmount,
+                outputTokenIndex: 1,
+                minimumOutputAmount:
+                  removeExactBurnInteraction.params.minimumOutputAmount,
+              },
+            },
+          ],
           defaultSplTokenAccounts,
           txByStep,
         );
@@ -814,7 +896,9 @@ describe("Swim steps", () => {
         type: InteractionType.RemoveExactOutput,
         params: {
           maximumBurnAmount: Amount.fromHuman(lpToken, new Decimal(100)),
-          exactOutputAmounts: new Map(),
+          exactOutputAmounts: new Map(
+            defaultAmounts.map((amount) => [amount.tokenId, amount]),
+          ),
         },
       };
       it("returns result of createRemoveExactOutputSteps", () => {
@@ -822,7 +906,18 @@ describe("Swim steps", () => {
           defaultTokensByPoolId,
           defaultPoolSpecs,
           removeExactOutputInteraction,
-          [],
+          [
+            {
+              interactionId: defaultInteractionId,
+              poolId: defaultPoolId,
+              instruction: SwimDefiInstruction.RemoveExactOutput,
+              params: {
+                maximumBurnAmount:
+                  removeExactOutputInteraction.params.maximumBurnAmount,
+                exactOutputAmounts: defaultAmounts,
+              },
+            },
+          ],
           defaultSplTokenAccounts,
           txByStep,
         );

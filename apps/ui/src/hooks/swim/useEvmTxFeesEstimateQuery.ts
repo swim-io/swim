@@ -81,9 +81,9 @@ const getTransferFromTokens = (
       });
     case InteractionType.RemoveExactBurn:
       return tokens.filter(
-        (token, i) =>
+        (token) =>
           token.nativeEcosystem === ecosystemId &&
-          token.id === interaction.params.outputTokenId,
+          token.id === interaction.params.minimumOutputAmount.tokenId,
       );
     case InteractionType.RemoveExactOutput:
       return tokens.filter((token, i) => {

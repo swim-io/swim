@@ -76,9 +76,11 @@ function App(): ReactElement {
               <Route exact path="/otter-tots">
                 <OtterTotsPage />
               </Route>
-              <Route path="/redeem">
-                <RedeemPage />
-              </Route>
+              {process.env.REACT_APP_ENABLE_REDEEM && (
+                <Route path="/redeem">
+                  <RedeemPage />
+                </Route>
+              )}
               <Route path="/collectibles">
                 <CollectiblesPage />
               </Route>

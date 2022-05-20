@@ -73,5 +73,8 @@ export const useSwapFeesEstimationQuery = (
     [EcosystemId.Terra]: ZERO,
     [EcosystemId.Avalanche]: avalancheGas.mul(avalancheGasPrice.toString()),
     [EcosystemId.Polygon]: polygonGas.mul(polygonGasPrice.toString()),
+    [EcosystemId.Aurora]: ZERO,
+    [EcosystemId.Fantom]: ZERO,
+    [EcosystemId.Acala]: ZERO,
   };
 };

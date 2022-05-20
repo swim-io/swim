@@ -53,5 +53,8 @@ export const useUserLpBalances = (
     [EcosystemId.Bsc]: userLpBalanceBsc,
     [EcosystemId.Avalanche]: null,
     [EcosystemId.Polygon]: null,
+    [EcosystemId.Aurora]: null,
+    [EcosystemId.Fantom]: null,
+    [EcosystemId.Acala]: null,
   };
 };

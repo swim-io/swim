@@ -13,6 +13,8 @@ import type { ReactElement } from "react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 
 import { EcosystemId } from "../config";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import {
   isEveryAddressConnected,
   usePoolMaths,
@@ -33,8 +35,6 @@ import {
   AmountsWithTokenIcons,
   NativeTokenIcon,
 } from "./TokenIcon";
-import { useEnvironment } from "../core/store";
-import { selectConfig } from "../core/selectors";
 
 export interface ActiveInteractionProps {
   readonly interaction: Interaction;

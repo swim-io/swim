@@ -13,6 +13,8 @@ import type { ReactElement } from "react";
 import { Fragment } from "react";
 
 import { EcosystemId } from "../config";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import { useWallets } from "../hooks";
 import AVALANCHE_SVG from "../images/avalanche.svg";
 import BSC_SVG from "../images/bsc.svg";
@@ -33,8 +35,6 @@ import { CustomModal } from "./CustomModal";
 import { MobileDeviceDisclaimer } from "./MobileDeviceDisclaimer";
 
 import "./ConnectButton.scss";
-import { useEnvironment } from "../core/store";
-import { selectConfig } from "../core/selectors";
 
 interface WalletServiceButtonProps<W extends WalletService = WalletService> {
   readonly service: W;

@@ -2,9 +2,11 @@ import { cleanup } from "@testing-library/react";
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { useEnvironment } from "..";
-import { DEFAULT_ENV, Env, configs } from "../../../config";
+import { DEFAULT_ENV, Env, configs, overrideLocalnetIp } from "../../../config";
 
 describe("useEnvironment", () => {
+  const IP = "127.0.0.1";
+
   afterEach(() => {
     jest.resetAllMocks();
     cleanup();
@@ -18,54 +20,70 @@ describe("useEnvironment", () => {
       customLocalnetIp: null,
       config: configs[DEFAULT_ENV],
       _hasHydrated: false,
-      setHasHydrated: jest.spyOn(result.current, "setHasHydrated"),
-      setEnv: jest.spyOn(result.current, "setEnv"),
-      setCustomLocalnetIp: jest.spyOn(result.current, "setCustomLocalnetIp"),
     };
 
-    expect(result.current).toEqual(initState);
+    expect(result.current).toEqual(expect.objectContaining(initState));
   });
   it("calls setEnv func with Devnet argument, but returns Mainnet env as customLocalnetIp is null", async () => {
+    const { result: state } = renderHook(() => useEnvironment());
+
+    act(() => {
+      state.current.setEnv(Env.Devnet);
+    });
+
+    expect(state.current.customLocalnetIp).toEqual(null);
+    expect(state.current.env).toEqual(DEFAULT_ENV);
+    expect(state.current.envs).toEqual([DEFAULT_ENV]);
+  });
+  it("calls setCustomLocalnetIp func and sets customLocalnetIp with new IP", async () => {
+    const { result: state } = renderHook(() => useEnvironment());
+
+    act(() => {
+      state.current.setCustomLocalnetIp(IP);
+    });
+
+    expect(state.current.customLocalnetIp).toEqual(IP);
+    expect(state.current.config).toEqual(
+      overrideLocalnetIp(configs[Env.Localnet], IP),
+    );
+    expect(state.current.envs).toEqual(Object.values(Env));
+    expect(state.current.env).toEqual(useEnvironment.getState().env);
+  });
+  it("calls setCustomLocalnetIp func with null IP and keeps default values", async () => {
+    const { result: state } = renderHook(() => useEnvironment());
+
+    act(() => {
+      state.current.setCustomLocalnetIp(null);
+    });
+
+    expect(state.current.customLocalnetIp).toEqual(null);
+    expect(state.current.config).toEqual(configs[Env.Localnet]);
+    expect(state.current.envs).toEqual([Env.Mainnet]);
+    expect(state.current.env).toEqual(Env.Mainnet);
+  });
+  it("calls setEnv func with Devnet argument and returns Devnet env as customLocalnetIp is not null", async () => {
     const { result } = renderHook(() => useEnvironment());
     const mockSetEnv = jest.spyOn(result.current, "setEnv");
+
+    act(() => {
+      result.current.setCustomLocalnetIp(IP);
+    });
     act(() => {
       result.current.setEnv(Env.Devnet);
     });
 
     expect(mockSetEnv).toBeCalledTimes(1);
-    expect(result.current.customLocalnetIp).toEqual(null);
-    expect(result.current.env).toEqual(DEFAULT_ENV);
-    expect(result.current.envs).toEqual([DEFAULT_ENV]);
+    expect(result.current.customLocalnetIp).toEqual(IP);
+    expect(result.current.env).toEqual(Env.Devnet);
+    expect(result.current.envs).toEqual(Object.values(Env));
   });
-  it("calls setCustomLocalnetIp func and sets customLocalnetIp with new IP", async () => {
-    const { result } = renderHook(() => useEnvironment());
-    // console.log("result 1", result.current);
-    const mockSetCustomLocalnetIp = jest.spyOn(
-      result.current,
-      "setCustomLocalnetIp",
-    );
+  it("calls setHasHydrated and returns _hasHydrated true", () => {
+    const { result: state } = renderHook(() => useEnvironment());
+    const mockSetHydrated = jest.spyOn(state.current, "setHasHydrated");
     act(() => {
-      result.current.setCustomLocalnetIp("159.223.16.33");
+      state.current.setHasHydrated(true);
     });
-
-    // console.log("result 2", result.current);
-    // console.log(localStorage.getItem("env-config"));
-
-    expect(mockSetCustomLocalnetIp).toBeCalledTimes(1);
-    // expect(result.current.customLocalnetIp).toEqual("159.223.16.33");
+    expect(mockSetHydrated).toBeCalledTimes(1);
+    expect(state.current._hasHydrated).toBe(true);
   });
-  // it("calls setEnv func with Devnet argument and returns Devnet env as customLocalnetIp is not null", async () => {
-  //   const { result } = renderHook(() => useEnvironment());
-  //   const mockSetEnv = jest.spyOn(result.current, "setEnv");
-  //   act(() => {
-  //     result.current.setCustomLocalnetIp("159.223.16.33");
-  //   });
-  //   act(() => {
-  //     result.current.setEnv(Object.values(Env)[1]);
-  //   });
-
-  //   expect(mockSetEnv).toBeCalledTimes(1);
-  //   expect(result.current.customLocalnetIp).toEqual("159.223.16.33");
-  //   expect(result.current.env).toEqual(Object.values(Env)[1]);
-  // });
 });

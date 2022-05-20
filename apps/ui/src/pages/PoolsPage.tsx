@@ -25,6 +25,12 @@ import { filterMap, findOrThrow } from "../utils";
 const PoolsPage = (): ReactElement => {
   useTitle("Pools");
   const { pools, tokens } = useEnvironment(selectConfig);
+  console.log(
+    "Pools",
+    useEnvironment((state) => state),
+    pools,
+    tokens,
+  );
 
   const allPoolTokenAccountAddresses = pools.flatMap((poolSpec) => [
     ...poolSpec.tokenAccounts.values(),

@@ -4,6 +4,8 @@ import type { ReactElement } from "react";
 import { useState } from "react";
 
 import { EcosystemId } from "../config";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import { useWallets } from "../hooks";
 import AVALANCHE_SVG from "../images/avalanche.svg";
 import BSC_SVG from "../images/bsc.svg";
@@ -15,8 +17,6 @@ import { shortenAddress } from "../utils";
 import { MultiWalletModal } from "./MultiWalletModal";
 
 import "./ConnectButton.scss";
-import { useEnvironment } from "../core/store";
-import { selectConfig } from "../core/selectors";
 
 export const LABEL_MAP: Record<EcosystemId, string> = {
   [EcosystemId.Solana]: "Connect Solana",

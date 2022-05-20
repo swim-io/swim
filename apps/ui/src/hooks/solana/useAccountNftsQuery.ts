@@ -63,7 +63,7 @@ export const useAccountNfts = (): UseQueryResult<readonly NftData[], Error> => {
   const { env } = useEnvironment();
   return useQuery(
     ["accountNfts", env, ownerAddress],
-    async (): Promise<readonly NftData[] | null> => {
+    async (): Promise<readonly NftData[]> => {
       if (!ownerAddress) {
         // Note, returns 0 nfts if wallet is not connected.
         return [];

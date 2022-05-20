@@ -110,8 +110,24 @@ const polygonMetaMaskInfo = addHelpTextToMetaMaskInfo(
   ecosystems[EcosystemId.Polygon],
   "https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/",
 );
+const auroraMetaMaskInfo = addHelpTextToMetaMaskInfo(
+  metaMaskInfo,
+  ecosystems[EcosystemId.Aurora],
+  "https://doc.aurora.dev/interact/metamask/",
+);
+const fantomMetaMaskInfo = addHelpTextToMetaMaskInfo(
+  metaMaskInfo,
+  ecosystems[EcosystemId.Fantom],
+  "https://docs.fantom.foundation/tutorials/set-up-metamask",
+);
+const acalaMetaMaskInfo = addHelpTextToMetaMaskInfo(
+  metaMaskInfo,
+  ecosystems[EcosystemId.Acala],
+  "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network",
+);
 
-const { avalanche, bsc, ethereum, polygon, solana } = adapters;
+const { acala, aurora, avalanche, bsc, ethereum, fantom, polygon, solana } =
+  adapters;
 
 export const ETHEREUM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
   [
@@ -144,6 +160,30 @@ export const POLYGON_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[]
       adapter: polygon.MetaMaskAdapter,
     },
   ];
+export const AURORA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
+  [
+    {
+      id: "metamask",
+      info: auroraMetaMaskInfo,
+      adapter: aurora.MetaMaskAdapter,
+    },
+  ];
+export const FANTOM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
+  [
+    {
+      id: "metamask",
+      info: fantomMetaMaskInfo,
+      adapter: fantom.MetaMaskAdapter,
+    },
+  ];
+export const ACALA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
+  [
+    {
+      id: "metamask",
+      info: acalaMetaMaskInfo,
+      adapter: acala.MetaMaskAdapter,
+    },
+  ];
 
 export const SOLANA_WALLET_SERVICES: readonly SolanaWalletService<SolanaWalletAdapter>[] =
   [
@@ -166,4 +206,7 @@ export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {
   [EcosystemId.Bsc]: BSC_WALLET_SERVICES,
   [EcosystemId.Avalanche]: AVALANCHE_WALLET_SERVICES,
   [EcosystemId.Polygon]: POLYGON_WALLET_SERVICES,
+  [EcosystemId.Aurora]: AURORA_WALLET_SERVICES,
+  [EcosystemId.Fantom]: FANTOM_WALLET_SERVICES,
+  [EcosystemId.Acala]: ACALA_WALLET_SERVICES,
 };

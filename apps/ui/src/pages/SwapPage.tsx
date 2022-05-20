@@ -16,6 +16,7 @@ import { useMemo, useState } from "react";
 import { RecentInteractions } from "../components/RecentInteractions";
 import { SlippageButton } from "../components/SlippageButton";
 import { SwapForm } from "../components/SwapForm";
+import { RecentSwap } from "../components/molecules/RecentSwap";
 import { useConfig } from "../contexts";
 import { useTitle } from "../hooks";
 import { defaultIfError } from "../utils";
@@ -79,6 +80,7 @@ const SwapPage = (): ReactElement => {
               poolId={null}
               currentInteraction={currentInteraction}
             />
+            <RecentSwap />
           </EuiPageContentBody>
         </EuiPageContent>
       </EuiPageBody>

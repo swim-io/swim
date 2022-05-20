@@ -33,7 +33,7 @@ describe("useRequiredTokensForInteraction", () => {
     useConfigMock.mockReturnValue(configs[Env.Localnet]);
   });
 
-  it("should return required tokens for ETH to SOL Swap", async () => {
+  it("should return required tokens for ETH USDC to SOL USDC Swap", async () => {
     useInteractionMock.mockReturnValue(ETH_USDC_TO_SOL_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
       useRequiredTokensForInteraction(ETH_USDC_TO_SOL_USDC_SWAP.id),
@@ -44,7 +44,7 @@ describe("useRequiredTokensForInteraction", () => {
     ]);
   });
 
-  it("should return required tokens for SOL to ETH Swap", async () => {
+  it("should return required tokens for SOL USDC to ETH USDC Swap", async () => {
     useInteractionMock.mockReturnValue(SOL_USDC_TO_ETH_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
       useRequiredTokensForInteraction(SOL_USDC_TO_ETH_USDC_SWAP.id),
@@ -55,7 +55,7 @@ describe("useRequiredTokensForInteraction", () => {
     ]);
   });
 
-  it("should return required tokens for SOL to SOL Swap", async () => {
+  it("should return required tokens for SOL USDC to SOL USDT Swap", async () => {
     useInteractionMock.mockReturnValue(SOL_USDC_TO_SOL_USDT_SWAP);
     const { result } = renderHookWithAppContext(() =>
       useRequiredTokensForInteraction(SOL_USDC_TO_SOL_USDT_SWAP.id),
@@ -66,7 +66,7 @@ describe("useRequiredTokensForInteraction", () => {
     ]);
   });
 
-  it("should return required tokens for BSC to ETH Swap", async () => {
+  it("should return required tokens for BSC USDT to ETH USDC Swap", async () => {
     useInteractionMock.mockReturnValue(BSC_USDT_TO_ETH_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
       useRequiredTokensForInteraction(BSC_USDT_TO_ETH_USDC_SWAP.id),

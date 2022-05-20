@@ -12,7 +12,6 @@ import moment from "moment";
 import type { ReactElement } from "react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 
-import { EcosystemId } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import {
@@ -30,11 +29,7 @@ import { isEachNotNull } from "../utils";
 import { MultiConnectButton } from "./ConnectButton";
 import { ConnectedWallets } from "./ConnectedWallets";
 import { StepsDisplay } from "./StepsDisplay";
-import {
-  AmountWithTokenIcon,
-  AmountsWithTokenIcons,
-  NativeTokenIcon,
-} from "./TokenIcon";
+import { InteractionTitle } from "./molecules/InteractionTitle";
 
 export interface ActiveInteractionProps {
   readonly interaction: Interaction;
@@ -105,79 +100,6 @@ export const RecentInteraction = ({
         : null,
     [config, interaction, splTokenAccounts, poolMaths, txs],
   );
-
-  const title = useMemo(() => {
-    switch (interaction.type) {
-      case InteractionType.Add: {
-        const { inputAmounts } = interaction.params;
-        const nonZeroInputAmounts = [...inputAmounts.values()].filter(
-          (amount) => !amount.isZero(),
-        );
-        return (
-          <>
-            <span>Add&nbsp;</span>
-            <AmountsWithTokenIcons amounts={nonZeroInputAmounts} />
-          </>
-        );
-      }
-      case InteractionType.Swap: {
-        const { exactInputAmount } = interaction.params;
-        return (
-          <>
-            <span>Swap</span>{" "}
-            <AmountWithTokenIcon
-              amount={exactInputAmount}
-              ecosystem={EcosystemId.Solana}
-            />{" "}
-            <span>for</span>{" "}
-            <NativeTokenIcon
-              {...interaction.params.minimumOutputAmount.tokenSpec}
-            />
-          </>
-        );
-      }
-      case InteractionType.RemoveUniform: {
-        const { minimumOutputAmounts } = interaction.params;
-        const nonZeroOutputAmounts = [...minimumOutputAmounts.values()].filter(
-          (amount) => !amount.isZero(),
-        );
-        return (
-          <>
-            <span>Remove&nbsp;</span>
-            <AmountsWithTokenIcons amounts={nonZeroOutputAmounts} />
-          </>
-        );
-      }
-      case InteractionType.RemoveExactBurn: {
-        const { minimumOutputAmount } = interaction.params;
-        return (
-          <>
-            <span>Remove</span>{" "}
-            <AmountWithTokenIcon
-              amount={minimumOutputAmount}
-              ecosystem={minimumOutputAmount.tokenSpec.nativeEcosystem}
-            />
-            <span>.</span>
-          </>
-        );
-      }
-      case InteractionType.RemoveExactOutput: {
-        const { exactOutputAmounts } = interaction.params;
-        const nonZeroOutputAmounts = [...exactOutputAmounts.values()].filter(
-          (amount) => !amount.isZero(),
-        );
-        return (
-          <>
-            <span>Remove&nbsp;</span>
-            <AmountsWithTokenIcons amounts={nonZeroOutputAmounts} />
-          </>
-        );
-      }
-      default: {
-        return "Unknown interaction type";
-      }
-    }
-  }, [interaction]);
 
   const prettyTimestamp = moment(interaction.submittedAt).fromNow();
 
@@ -253,7 +175,9 @@ export const RecentInteraction = ({
   return (
     <>
       <EuiTitle size="xs">
-        <h3>{title}</h3>
+        <h3>
+          <InteractionTitle interaction={interaction} />
+        </h3>
       </EuiTitle>
       <EuiText size="s">{prettyTimestamp}</EuiText>
       <EuiSpacer />

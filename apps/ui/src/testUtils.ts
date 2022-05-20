@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { act } from "@testing-library/react-hooks";
-import { renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react-hooks";
 import actualCreate from "zustand";
 
 import type { TokenSpec } from "./config";

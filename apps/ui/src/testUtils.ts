@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { renderHook } from "@testing-library/react-hooks";
+// eslint-disable-next-line import/extensions
+import { renderHook } from "@testing-library/react-hooks/dom";
 
 import type { TokenSpec } from "./config";
 import { Env, tokens } from "./config";

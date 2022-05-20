@@ -21,4 +21,10 @@ module.exports = {
   core: {
     disableTelemetry: true,
   },
+  webpackFinal: async (config) => {
+    config.externals = {
+      "@certusone/wormhole-sdk": "{}"
+  }
+    return config;
+  },
 };

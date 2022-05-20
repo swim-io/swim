@@ -11,7 +11,9 @@
     "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
     "lint": "eslint \"./src/**/*.{ts,tsx}\"",
     "lint:fix": "eslint --fix \"./src/**/*.{ts,tsx}\"",
-    "types:generate": "typechain --target=ethers-v5 --out-dir=src/contracts/ abi/*.json"
+    "typecheck": "tsc",
+    "types:generate": "typechain --target=ethers-v5 --out-dir=src/contracts/ abi/*.json",
+    "verify": "yarn typecheck && yarn lint && yarn test --watchAll=false"
   },
   "browserslist": {
     "production": [

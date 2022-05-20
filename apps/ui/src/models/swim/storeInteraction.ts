@@ -373,6 +373,7 @@ const prepareInteraction = (interaction: Interaction): PreparedInteraction => {
         params: {
           ...interaction.params,
           exactBurnAmount: interaction.params.exactBurnAmount.toJSON(),
+          outputTokenId: interaction.params.minimumOutputAmount.tokenId,
           minimumOutputAmount: interaction.params.minimumOutputAmount.toJSON(),
         },
       };

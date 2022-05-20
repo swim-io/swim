@@ -553,7 +553,6 @@ export const RemoveForm = ({
             poolId: poolSpec.id,
             params: {
               exactBurnAmount,
-              outputTokenId: poolTokens[outputTokenIndex].id,
               minimumOutputAmount,
             },
             lpTokenSourceEcosystem,

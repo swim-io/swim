@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { act } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react-hooks";
 import actualCreate from "zustand";
 
 import type { TokenSpec } from "./config";
 import { Env, tokens } from "./config";
+import { AppContext } from "./contexts";
 
 export const mockOf = <T>(v: (...any: any) => T): jest.Mock<Partial<T>> =>
   v as unknown as jest.Mock<Partial<T>>;
@@ -26,3 +28,11 @@ export const create = (createState: any) => {
 afterEach(() => {
   act(() => storeResetFns.forEach((resetFn: any) => resetFn()));
 });
+export const renderHookWithAppContext: typeof renderHook = (
+  callback,
+  options = {},
+) =>
+  renderHook(callback, {
+    ...options,
+    wrapper: AppContext,
+  });

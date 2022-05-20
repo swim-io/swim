@@ -1,0 +1,21 @@
+import type { UseQueryResult } from "react-query";
+import { useQuery } from "react-query";
+
+import { EcosystemId } from "../../config";
+import { useEnvironment } from "../../contexts";
+import type { Tx } from "../../models";
+import { useRecentSolanaTxsQuery } from "../solana";
+
+export const useSolanaTxsForInteractionQuery = (
+  interactionId: string,
+): UseQueryResult<readonly Tx[], Error> => {
+  const { env } = useEnvironment();
+  const { data, isSuccess } = useRecentSolanaTxsQuery();
+  return useQuery(
+    [env, "txsForInteraction", interactionId, EcosystemId.Solana],
+    () => (data ?? []).filter((tx) => tx.interactionId === interactionId),
+    {
+      enabled: isSuccess,
+    },
+  );
+};

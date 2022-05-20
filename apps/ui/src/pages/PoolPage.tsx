@@ -37,8 +37,8 @@ import {
   useTitle,
   useUserLpBalances,
 } from "../hooks";
-import BSC_SVG from "../images/bsc.svg";
-import ETHEREUM_SVG from "../images/ethereum.svg";
+import BSC_SVG from "../images/ecosystems/bsc.svg";
+import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
 import { defaultIfError, pluralize } from "../utils";
 
 const humanizeUsdAmount = (amount: string): string =>

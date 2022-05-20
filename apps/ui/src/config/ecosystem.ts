@@ -1,9 +1,9 @@
-import AVALANCHE_SVG from "../images/avalanche.svg";
-import BSC_SVG from "../images/bsc.svg";
-import ETHEREUM_SVG from "../images/ethereum.svg";
-import POLYGON_SVG from "../images/polygon.svg";
-import SOLANA_SVG from "../images/solana.svg";
-import TERRA_SVG from "../images/terra.svg";
+import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
+import BSC_SVG from "../images/ecosystems/bsc.svg";
+import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+import POLYGON_SVG from "../images/ecosystems/polygon.svg";
+import SOLANA_SVG from "../images/ecosystems/solana.svg";
+import TERRA_SVG from "../images/ecosystems/terra.svg";
 import type { ReadonlyRecord } from "../utils";
 
 import { WormholeChainId } from "./wormhole";

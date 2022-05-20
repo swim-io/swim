@@ -3,9 +3,9 @@ import type { Keypair } from "@solana/web3.js";
 import Decimal from "decimal.js";
 
 import type {
-  ChainsByProtocol,
   Config,
   EvmSpec,
+  PoolSpec,
   SolanaSpec,
   TokenSpec,
   WormholeChainSpec,
@@ -15,8 +15,18 @@ import type { SwimError } from "../../errors";
 import type { ReadonlyRecord } from "../../utils";
 import { findOrThrow } from "../../utils";
 import { Amount } from "../amount";
-import type { SolanaTx, Tx, TxsByTokenId } from "../crossEcosystem";
-import { deduplicateTxsByTokenId, isSolanaTx } from "../crossEcosystem";
+import type {
+  SolanaTx,
+  Tx,
+  TxsByPoolId,
+  TxsByTokenId,
+} from "../crossEcosystem";
+import {
+  deduplicateTxs,
+  deduplicateTxsByTokenId,
+  isSolanaTx,
+} from "../crossEcosystem";
+import type { WithSplTokenAccounts } from "../solana";
 import {
   findTokenAccountForMint,
   getAmountMintedToAccountByMint,
@@ -24,9 +34,11 @@ import {
 } from "../solana";
 
 import type { Interaction } from "./interaction";
+import type { TokensByPoolId } from "./pool";
 import { getTokensByPool } from "./pool";
+import type { PoolMath } from "./poolMath";
 import type { Steps, WormholeFromSolanaFullStep } from "./steps";
-import { createSteps } from "./steps";
+import { createSteps, getRequiredPools } from "./steps";
 import type { ProtoTransfer, Transfer, Transfers } from "./transfer";
 import {
   TransferType,
@@ -42,7 +54,7 @@ export const enum Status {
   Initiated,
   CreatedSplTokenAccounts,
   TransferredToSolana,
-  CompletedPoolInteraction,
+  CompletedPoolOperations,
   Done,
   Error,
 }
@@ -67,9 +79,7 @@ export interface StateWithSteps extends BaseState {
   readonly steps: Steps;
 }
 
-export interface StateWithSplTokenAccounts extends StateWithSteps {
-  readonly splTokenAccounts: readonly TokenAccountInfo[];
-}
+export type StateWithSplTokenAccounts = WithSplTokenAccounts<StateWithSteps>;
 
 export interface InitiatedState extends StateWithSteps {
   readonly status: Status.Initiated;
@@ -84,9 +94,9 @@ export interface TransferredToSolanaState extends StateWithSplTokenAccounts {
   readonly status: Status.TransferredToSolana;
 }
 
-export interface CompletedPoolInteractionState
+export interface CompletedPoolOperationsState
   extends StateWithSplTokenAccounts {
-  readonly status: Status.CompletedPoolInteraction;
+  readonly status: Status.CompletedPoolOperations;
   readonly steps: Steps<WormholeFromSolanaFullStep>;
 }
 
@@ -100,7 +110,7 @@ export type State =
   | InitiatedState
   | CreatedSplTokenAccountsState
   | TransferredToSolanaState
-  | CompletedPoolInteractionState
+  | CompletedPoolOperationsState
   | DoneState;
 
 export const initialState: InitialState = {
@@ -115,7 +125,7 @@ export const enum ActionType {
   InitiateInteraction = "initiateInteraction",
   CompleteCreateSplTokenAccounts = "completeCreateSplTokenAccounts",
   UpdateTransferToSolana = "updateTransferToSolana",
-  CompletePoolInteraction = "completePoolInteraction",
+  UpdatePoolOperations = "updatePoolOperations",
   UpdateTransferFromSolana = "updateTransferFromSolana",
   RegisterError = "registerError",
   ClearError = "clearError",
@@ -124,6 +134,7 @@ export const enum ActionType {
 export interface InitiateInteractionAction {
   readonly type: ActionType.InitiateInteraction;
   readonly config: Config;
+  readonly poolMaths: readonly PoolMath[];
   readonly splTokenAccounts: readonly TokenAccountInfo[];
   readonly interaction: Interaction;
   readonly txs: readonly Tx[];
@@ -138,13 +149,12 @@ export interface CompleteCreateSplTokenAccountsAction {
 export interface UpdateTransferToSolanaAction {
   readonly type: ActionType.UpdateTransferToSolana;
   readonly txs: TxsByTokenId;
+  readonly existingPoolOperationTxs: TxsByPoolId;
 }
 
-export interface CompleteInteractionWithPoolAction {
-  readonly type: ActionType.CompletePoolInteraction;
-  readonly lpTokenMint: string | null;
-  readonly tokenMints: readonly (string | null)[];
-  readonly interactionTxs: readonly SolanaTx[];
+export interface UpdatePoolOperationsAction {
+  readonly type: ActionType.UpdatePoolOperations;
+  readonly operationTxs: TxsByPoolId;
   readonly existingTransferFromTxs: TxsByTokenId;
 }
 
@@ -167,7 +177,7 @@ export type Action =
   | InitiateInteractionAction
   | CompleteCreateSplTokenAccountsAction
   | UpdateTransferToSolanaAction
-  | CompleteInteractionWithPoolAction
+  | UpdatePoolOperationsAction
   | UpdateTransferFromSolanaAction
   | RegisterErrorAction
   | ClearErrorAction;
@@ -178,28 +188,18 @@ export const isInProgress = (state: State): boolean =>
     Status.Initiated,
     Status.CreatedSplTokenAccounts,
     Status.TransferredToSolana,
-    Status.CompletedPoolInteraction,
+    Status.CompletedPoolOperations,
   ].includes(state.status);
 
 export const initiateInteraction = (
   _: State,
   action: InitiateInteractionAction,
 ): InitiatedState => {
-  const { lpToken, tokens } = getTokensByPool(action.config)[
-    action.interaction.poolId
-  ];
-  const poolSpec = findOrThrow(
-    action.config.pools,
-    (pool) => pool.id === action.interaction.poolId,
-  );
-
   const steps = createSteps(
-    action.config.chains,
-    poolSpec.contract,
-    action.splTokenAccounts,
-    tokens,
-    lpToken,
+    action.config,
     action.interaction,
+    action.poolMaths,
+    action.splTokenAccounts,
     action.txs,
   );
   return {
@@ -311,8 +311,11 @@ const updateTransfersToSolanaStatus = <T extends Transfer>(
 export const updateTransferToSolana = (
   solanaChain: SolanaSpec,
   previousState: State,
-  { txs }: UpdateTransferToSolanaAction,
+  { txs, existingPoolOperationTxs }: UpdateTransferToSolanaAction,
 ): CreatedSplTokenAccountsState | TransferredToSolanaState => {
+  if (previousState.status === Status.TransferredToSolana) {
+    return previousState;
+  }
   if (previousState.status !== Status.CreatedSplTokenAccounts) {
     throw new Error("Invalid action");
   }
@@ -347,6 +350,10 @@ export const updateTransferToSolana = (
         isComplete,
         transfers: updatedTransfers,
         txs: deduplicatedTxs,
+      },
+      doPoolOperations: {
+        ...previousState.steps.doPoolOperations,
+        txs: existingPoolOperationTxs,
       },
     },
   };
@@ -403,15 +410,12 @@ export const getTransferredAmounts = (
     {},
   );
 
-export const completePoolInteraction = (
-  tokens: readonly TokenSpec[],
-  lpToken: TokenSpec,
+export const updatePoolOperations = (
+  tokensByPoolId: TokensByPoolId,
+  poolSpecs: readonly PoolSpec[],
   previousState: State,
-  {
-    interactionTxs,
-    existingTransferFromTxs,
-  }: CompleteInteractionWithPoolAction,
-): CompletedPoolInteractionState => {
+  { operationTxs, existingTransferFromTxs }: UpdatePoolOperationsAction,
+): TransferredToSolanaState | CompletedPoolOperationsState => {
   if (previousState.status !== Status.TransferredToSolana) {
     throw new Error("Invalid action");
   }
@@ -420,12 +424,61 @@ export const completePoolInteraction = (
   if (walletAddress === null) {
     throw new Error("Missing Solana wallet");
   }
+
+  const deduplicatedTxsByPoolId: TxsByPoolId = Object.entries({
+    ...previousState.steps.doPoolOperations.txs,
+    ...operationTxs,
+  }).reduce(
+    (deduplicated, [poolId, previousTxs]) => ({
+      ...deduplicated,
+      [poolId]: deduplicateTxs<SolanaTx>([
+        ...(previousTxs ?? []),
+        ...(operationTxs[poolId] ?? []),
+      ]),
+    }),
+    {},
+  );
+
+  const newOperations = previousState.steps.doPoolOperations.operations.map(
+    (operation) => {
+      const txsForPool = deduplicatedTxsByPoolId[operation.poolId];
+      // TODO: Make check more robust
+      const isComplete = txsForPool !== undefined && txsForPool.length > 0;
+      return {
+        ...operation,
+        isComplete,
+      };
+    },
+  );
+  const stepIsComplete = newOperations.every(
+    (operation) => operation.isComplete,
+  );
+
+  if (!stepIsComplete) {
+    return {
+      ...previousState,
+      steps: {
+        ...previousState.steps,
+        doPoolOperations: {
+          ...previousState.steps.doPoolOperations,
+          operations: newOperations,
+          txs: deduplicatedTxsByPoolId,
+        },
+      },
+    };
+  }
+
+  const outputPool = poolSpecs[poolSpecs.length - 1];
+  const { tokens, lpToken } = tokensByPoolId[outputPool.id];
+
   const transferredAmounts = getTransferredAmounts(
     walletAddress,
     previousState.splTokenAccounts,
     tokens,
     lpToken,
-    interactionTxs,
+    Object.values(operationTxs)
+      .flat()
+      .filter((tx): tx is SolanaTx => tx !== undefined),
   );
   const { transfers } = previousState.steps.wormholeFromSolana;
   const newTransfers: Transfers<Transfer> =
@@ -457,14 +510,15 @@ export const completePoolInteraction = (
 
   return {
     ...previousState,
-    status: Status.CompletedPoolInteraction,
+    status: Status.CompletedPoolOperations,
     isFresh: false,
     steps: {
       ...previousState.steps,
-      interactWithPool: {
-        ...previousState.steps.interactWithPool,
+      doPoolOperations: {
+        ...previousState.steps.doPoolOperations,
+        operations: newOperations,
         isComplete: true,
-        txs: interactionTxs,
+        txs: deduplicatedTxsByPoolId,
       },
       wormholeFromSolana: previousState.steps.wormholeFromSolana.knownAmounts
         ? {
@@ -538,8 +592,11 @@ export const updateTransferFromSolana = (
   evmChains: readonly EvmSpec[],
   previousState: State,
   { txs }: UpdateTransferFromSolanaAction,
-): CompletedPoolInteractionState | DoneState => {
-  if (previousState.status !== Status.CompletedPoolInteraction) {
+): CompletedPoolOperationsState | DoneState => {
+  if (previousState.status === Status.Done) {
+    return previousState;
+  }
+  if (previousState.status !== Status.CompletedPoolOperations) {
     throw new Error("Invalid action");
   }
   const deduplicatedTxs = deduplicateTxsByTokenId(
@@ -624,19 +681,12 @@ const clearError = (
 };
 
 export const reducer =
-  (
-    chainsConfig: ChainsByProtocol,
-    {
-      tokens,
-      lpToken,
-    }: {
-      readonly tokens: readonly TokenSpec[];
-      readonly lpToken: TokenSpec;
-    },
-  ) =>
+  (config: Config) =>
   (previousState: State, action: Action): State => {
-    const [solanaChain] = chainsConfig[Protocol.Solana];
-    const evmChains = chainsConfig[Protocol.Evm];
+    const [solanaChain] = config.chains[Protocol.Solana];
+    const evmChains = config.chains[Protocol.Evm];
+    const tokensByPoolId = getTokensByPool(config);
+
     switch (action.type) {
       case ActionType.InitiateInteraction:
         return initiateInteraction(previousState, action);
@@ -644,8 +694,22 @@ export const reducer =
         return completeCreateSplTokenAccounts(previousState, action);
       case ActionType.UpdateTransferToSolana:
         return updateTransferToSolana(solanaChain, previousState, action);
-      case ActionType.CompletePoolInteraction:
-        return completePoolInteraction(tokens, lpToken, previousState, action);
+      case ActionType.UpdatePoolOperations: {
+        // TODO: Move check into handler
+        if (previousState.interaction === null) {
+          throw new Error("Missing interaction");
+        }
+        const requiredPools = getRequiredPools(
+          config.pools,
+          previousState.interaction,
+        );
+        return updatePoolOperations(
+          tokensByPoolId,
+          requiredPools,
+          previousState,
+          action,
+        );
+      }
       case ActionType.UpdateTransferFromSolana:
         return updateTransferFromSolana(evmChains, previousState, action);
       case ActionType.RegisterError:

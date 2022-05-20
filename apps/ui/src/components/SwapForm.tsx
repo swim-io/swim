@@ -18,69 +18,107 @@ import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
-import { useNotification } from "../contexts";
+import { useConfig } from "../contexts";
+import { selectNotify } from "../core/selectors";
+import { useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
-  usePool,
-  usePoolMath,
+  usePoolMaths,
+  usePools,
   usePrevious,
   useSplTokenAccountsQuery,
   useStepsReducer,
   useSwapFeesEstimationQuery,
+  useSwapOutputAmountEstimate,
   useUserBalanceAmounts,
   useUserNativeBalances,
   useWallets,
 } from "../hooks";
 import {
   Amount,
+  InteractionType,
   Status,
-  SwimDefiInstruction,
   getLowBalanceWallets,
+  getRequiredPoolsForSwap,
+  getTokensByPool,
 } from "../models";
-import { defaultIfError, isNotNull } from "../utils";
+import {
+  defaultIfError,
+  findOrThrow,
+  isEachNotNull,
+  isNotNull,
+} from "../utils";
 
-import { ActionSteps } from "./ActionSteps";
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
 import { isValidSlippageFraction } from "./SlippageButton";
+import { StepsDisplay } from "./StepsDisplay";
 import { NativeTokenIcon } from "./TokenIcon";
 
 import "./SwapForm.scss";
 
 export interface SwapFormProps {
-  readonly poolId: string;
   readonly setCurrentInteraction: (id: string) => void;
   readonly maxSlippageFraction: Decimal | null;
 }
 
 export const SwapForm = ({
-  poolId,
   setCurrentInteraction,
   maxSlippageFraction,
 }: SwapFormProps): ReactElement => {
-  const { notify } = useNotification();
+  const config = useConfig();
+  const tokensByPool = getTokensByPool(config);
+  const notify = useNotification(selectNotify);
   const wallets = useWallets();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();
-
-  const { tokens: poolTokens, poolUsdValue, isPoolPaused } = usePool(poolId);
   const {
     retryInteraction,
     state: { interaction, steps, status },
     startInteraction,
     mutations,
     isInteractionInProgress,
-  } = useStepsReducer(poolId);
-  const poolMath = usePoolMath(poolId);
+  } = useStepsReducer();
 
-  const [fromTokenId, setFromTokenId] = useState(poolTokens[0].id);
-  const [toTokenId, setToTokenId] = useState(poolTokens[1].id);
+  const swappableTokenIds = config.pools
+    .filter((pool) => !pool.isStakingPool)
+    .flatMap((pool) => [...pool.tokenAccounts.keys()])
+    // TODO: Remove this if we want to support swimUSD swaps
+    .filter((tokenId) =>
+      config.pools.every((pool) => pool.lpToken !== tokenId),
+    );
+  const swappableTokens = swappableTokenIds.map((tokenId) =>
+    findOrThrow(config.tokens, (token) => token.id === tokenId),
+  );
+
+  const defaultFromTokenId = swappableTokenIds[0];
+  const [fromTokenId, setFromTokenId] = useState(defaultFromTokenId);
+  const [toTokenId, setToTokenId] = useState(swappableTokens[1].id);
+  const fromToken =
+    swappableTokens.find(({ id }) => id === fromTokenId) ?? null;
+  const toToken = swappableTokens.find(({ id }) => id === toTokenId) ?? null;
+
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
-  const fromToken = poolTokens.find(({ id }) => id === fromTokenId) ?? null;
-  const toToken = poolTokens.find(({ id }) => id === toTokenId) ?? null;
+
+  const requiredPools = getRequiredPoolsForSwap(
+    config.pools,
+    fromTokenId,
+    toTokenId,
+  );
+  const poolIds = requiredPools.map((pool) => pool.id);
+  const pools = usePools(poolIds);
+  const inputPoolUsdValue = pools[0].poolUsdValue;
+  const outputPoolUsdValue = pools[pools.length - 1].poolUsdValue;
+  const isRequiredPoolPaused = pools.some((pool) => pool.isPoolPaused);
+  const poolMaths = usePoolMaths(poolIds);
+  const inputPool = requiredPools[0];
+  const outputPool = requiredPools[requiredPools.length - 1];
+  const inputPoolTokens = tokensByPool[inputPool.id];
+  const outputPoolTokens = tokensByPool[outputPool.id];
+
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [confirmModalDescription, setConfirmModalDescription] =
@@ -102,23 +140,30 @@ export const SwapForm = ({
 
   const isLargeSwap = (): boolean => {
     return (
+      fromToken !== null &&
+      fromToken.isStablecoin &&
       inputAmount !== null &&
-      poolUsdValue !== null &&
-      poolTokens.every((token) => token.isStablecoin) &&
-      inputAmount.toHuman(EcosystemId.Solana).gt(poolUsdValue.mul(0.1))
+      ((inputPoolUsdValue !== null &&
+        inputAmount
+          .toHuman(EcosystemId.Solana)
+          .gt(inputPoolUsdValue.mul(0.1))) ||
+        (outputPoolUsdValue !== null &&
+          outputAmount !== null &&
+          outputAmount
+            .toHuman(EcosystemId.Solana)
+            .gt(outputPoolUsdValue.mul(0.1))))
     );
   };
 
   const isSmallEthSwap = (): boolean => {
     return (
       fromToken !== null &&
+      fromToken.isStablecoin &&
       toToken !== null &&
       [fromToken.nativeEcosystem, toToken.nativeEcosystem].includes(
         EcosystemId.Ethereum,
       ) &&
       inputAmount !== null &&
-      poolUsdValue !== null &&
-      poolTokens.every((token) => token.isStablecoin) &&
       inputAmount.toHuman(EcosystemId.Solana).lt(200)
     );
   };
@@ -134,30 +179,15 @@ export const SwapForm = ({
   const isInputAmountPositive =
     inputAmount !== null && !inputAmount.isNegative() && !inputAmount.isZero();
 
-  const exactInputAmounts = inputAmount
-    ? poolTokens.map((poolToken) =>
-        poolToken.id === fromTokenId ? inputAmount : Amount.zero(poolToken),
-      )
-    : null;
+  const outputAmount = useSwapOutputAmountEstimate(
+    poolMaths,
+    inputPoolTokens,
+    outputPoolTokens,
+    toToken,
+    inputAmount,
+  );
 
-  const outputAmount = useMemo(() => {
-    if (poolMath === null || exactInputAmounts === null || toToken === null) {
-      return null;
-    }
-
-    const outputTokenIndex = poolTokens.findIndex(({ id }) => id === toTokenId);
-    try {
-      const { stableOutputAmount } = poolMath.swapExactInput(
-        exactInputAmounts.map((amount) => amount.toHuman(EcosystemId.Solana)),
-        outputTokenIndex,
-      );
-      return Amount.fromHuman(toToken, stableOutputAmount);
-    } catch {
-      return null;
-    }
-  }, [exactInputAmounts, poolMath, poolTokens, toTokenId, toToken]);
-
-  const fromTokenOptions = poolTokens.map((tokenSpec) => ({
+  const fromTokenOptions = swappableTokens.map((tokenSpec) => ({
     value: tokenSpec.id,
     inputDisplay: <NativeTokenIcon {...tokenSpec} />,
   }));
@@ -320,11 +350,7 @@ export const SwapForm = ({
       errors = [...errors, "Insufficient funds"];
     }
 
-    if (
-      inputAmount === null ||
-      inputAmount.isZero() ||
-      exactInputAmounts === null
-    ) {
+    if (inputAmount === null || inputAmount.isZero()) {
       errors = [...errors, "Provide a valid amount"];
     }
 
@@ -345,10 +371,12 @@ export const SwapForm = ({
     // These are just for type safety and should in theory not happen
     if (
       fromToken === null ||
+      toToken === null ||
       splTokenAccounts === null ||
-      exactInputAmounts === null ||
+      inputAmount === null ||
       outputAmount === null ||
-      maxSlippageFraction === null
+      maxSlippageFraction === null ||
+      !isEachNotNull(poolMaths)
     ) {
       notify(
         "Form error",
@@ -358,33 +386,28 @@ export const SwapForm = ({
       return;
     }
 
-    const outputTokenIndex = toToken
-      ? poolTokens.findIndex(({ id }) => id === toToken.id)
-      : -1;
-    if (outputTokenIndex === -1) {
-      throw new Error("Output token not found");
-    }
-
     const minimumOutputAmount = outputAmount.sub(
       outputAmount.mul(maxSlippageFraction),
     );
-    const interactionId = startInteraction({
-      instruction: SwimDefiInstruction.Swap,
-      params: {
-        exactInputAmounts,
-        outputTokenIndex,
-        minimumOutputAmount,
+    const interactionId = startInteraction(
+      {
+        type: InteractionType.Swap,
+        params: {
+          exactInputAmount: inputAmount,
+          minimumOutputAmount,
+        },
       },
-    });
+      poolMaths,
+    );
     setCurrentInteraction(interactionId);
   };
 
   useEffect(() => {
     // Eg if the env changes
     if (!fromToken) {
-      setFromTokenId(poolTokens[0].id);
+      setFromTokenId(defaultFromTokenId);
     }
-  }, [fromToken, poolTokens]);
+  }, [fromToken, defaultFromTokenId]);
 
   useEffect(() => {
     if (!toTokenOptions.find(({ value }) => value === toTokenId)) {
@@ -587,7 +610,7 @@ export const SwapForm = ({
         </>
       )}
 
-      <PoolPausedAlert isVisible={isPoolPaused} />
+      <PoolPausedAlert isVisible={isRequiredPoolPaused} />
 
       <EuiFormRow fullWidth>
         <EuiButton
@@ -595,7 +618,7 @@ export const SwapForm = ({
           fullWidth
           fill
           isLoading={isInteractionInProgress}
-          isDisabled={isPoolPaused || isSubmitted}
+          isDisabled={isRequiredPoolPaused || isSubmitted}
         >
           Swap
         </EuiButton>
@@ -604,7 +627,7 @@ export const SwapForm = ({
       <EuiSpacer />
 
       {interaction && steps && (
-        <ActionSteps
+        <StepsDisplay
           retryInteraction={retryInteraction}
           interaction={interaction}
           steps={steps}

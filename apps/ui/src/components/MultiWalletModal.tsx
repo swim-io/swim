@@ -1,6 +1,6 @@
 import {
   EuiButtonEmpty,
-  EuiFlexGroup,
+  EuiFlexGrid,
   EuiFlexItem,
   EuiIcon,
   EuiModalBody,
@@ -160,7 +160,7 @@ export const MultiWalletModal = ({
       <EuiModalBody>
         {isUserOnMobileDevice() ? <MobileDeviceDisclaimer /> : ""}
         <EuiSpacer />
-        <EuiFlexGroup gutterSize="xl">
+        <EuiFlexGrid columns={3} gutterSize="xl">
           <EcosystemWalletOptionsList
             address={solana.address}
             connected={solana.connected}
@@ -188,30 +188,25 @@ export const MultiWalletModal = ({
             ecosystemId={EcosystemId.Bsc}
             createServiceClickHandler={bsc.createServiceClickHandler}
           />
-        </EuiFlexGroup>
-        {/* TODO: Remove condition when Avalanche and Polygon are supported */}
-        {process.env.REACT_APP_ADDITIONAL_EVM_CHAINS && (
-          <EuiFlexGroup>
-            <EcosystemWalletOptionsList
-              address={avalanche.address}
-              connected={avalanche.connected}
-              icon={AVALANCHE_SVG}
-              ecosystemName={avalancheEcosystem.displayName}
-              walletServices={AVALANCHE_WALLET_SERVICES}
-              ecosystemId={EcosystemId.Avalanche}
-              createServiceClickHandler={avalanche.createServiceClickHandler}
-            />
-            <EcosystemWalletOptionsList
-              address={polygon.address}
-              connected={polygon.connected}
-              icon={POLYGON_SVG}
-              ecosystemName={polygonEcosystem.displayName}
-              walletServices={POLYGON_WALLET_SERVICES}
-              ecosystemId={EcosystemId.Polygon}
-              createServiceClickHandler={polygon.createServiceClickHandler}
-            />
-          </EuiFlexGroup>
-        )}
+          <EcosystemWalletOptionsList
+            address={avalanche.address}
+            connected={avalanche.connected}
+            icon={AVALANCHE_SVG}
+            ecosystemName={avalancheEcosystem.displayName}
+            walletServices={AVALANCHE_WALLET_SERVICES}
+            ecosystemId={EcosystemId.Avalanche}
+            createServiceClickHandler={avalanche.createServiceClickHandler}
+          />
+          <EcosystemWalletOptionsList
+            address={polygon.address}
+            connected={polygon.connected}
+            icon={POLYGON_SVG}
+            ecosystemName={polygonEcosystem.displayName}
+            walletServices={POLYGON_WALLET_SERVICES}
+            ecosystemId={EcosystemId.Polygon}
+            createServiceClickHandler={polygon.createServiceClickHandler}
+          />
+        </EuiFlexGrid>
       </EuiModalBody>
     </CustomModal>
   );

@@ -1,11 +1,15 @@
+import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { Keypair } from "@solana/web3.js";
+import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
+import { filterMap, findOrThrow } from "../../utils";
+import { Amount } from "../amount";
 
-import { SwimDefiInstruction } from "./instructions";
 import type { InteractionSpec } from "./interaction";
+import { InteractionType } from "./interaction";
 import { TransferType } from "./transfer";
 import type { TransferToSolana, Transfers } from "./transfer";
 
@@ -16,43 +20,39 @@ export const generateSignatureSetKeypairs = (
   interactionSpec: InteractionSpec,
   transfers: Transfers<TransferToSolana> | null,
 ): ReadonlyRecord<string, Keypair | undefined> => {
-  switch (interactionSpec.instruction) {
-    case SwimDefiInstruction.Add: {
+  switch (interactionSpec.type) {
+    case InteractionType.Add: {
       if (transfers !== null && transfers.type === TransferType.LpToken) {
         throw new Error("Invalid transfers type");
       }
-      const { params } = interactionSpec;
-      return poolTokens.reduce(
-        (accumulator, token, i) =>
-          token.nativeEcosystem !== EcosystemId.Solana &&
-          !params.inputAmounts[i].isZero() &&
+      const { inputAmounts } = interactionSpec.params;
+      return poolTokens.reduce((accumulator, token, i) => {
+        const inputAmount = inputAmounts.get(token.id) ?? null;
+        return token.nativeEcosystem !== EcosystemId.Solana &&
+          inputAmount !== null &&
+          !inputAmount.isZero() &&
           !transfers?.tokens[i]?.isComplete
-            ? { ...accumulator, [token.id]: Keypair.generate() }
-            : accumulator,
-        {},
-      );
+          ? { ...accumulator, [token.id]: Keypair.generate() }
+          : accumulator;
+      }, {});
     }
-    case SwimDefiInstruction.Swap: {
+    case InteractionType.Swap: {
       if (transfers !== null && transfers.type === TransferType.LpToken) {
         throw new Error("Invalid transfers type");
       }
-      const { params } = interactionSpec;
-      return poolTokens.reduce(
-        (accumulator, token, i) =>
-          token.nativeEcosystem !== EcosystemId.Solana &&
-          !params.exactInputAmounts[i].isZero() &&
+      const { exactInputAmount } = interactionSpec.params;
+      return poolTokens.reduce((accumulator, token, i) => {
+        return token.nativeEcosystem !== EcosystemId.Solana &&
+          token.id === exactInputAmount.tokenId &&
+          !exactInputAmount.isZero() &&
           !transfers?.tokens[i]?.isComplete
-            ? {
-                ...accumulator,
-                [token.id]: Keypair.generate(),
-              }
-            : accumulator,
-        {},
-      );
+          ? { ...accumulator, [token.id]: Keypair.generate() }
+          : accumulator;
+      }, {});
     }
-    case SwimDefiInstruction.RemoveUniform:
-    case SwimDefiInstruction.RemoveExactBurn:
-    case SwimDefiInstruction.RemoveExactOutput: {
+    case InteractionType.RemoveUniform:
+    case InteractionType.RemoveExactBurn:
+    case InteractionType.RemoveExactOutput: {
       if (transfers !== null && transfers.type === TransferType.Tokens) {
         throw new Error("Invalid transfers type");
       }
@@ -80,64 +80,80 @@ export const getSignatureSetAddresses = (
     {},
   );
 
-const getRequiredEcosystems = (
-  poolTokens: readonly TokenSpec[],
+const mapNonZeroAmountsToNativeEcosystems = (
+  tokens: readonly TokenSpec[],
+  amounts: readonly Amount[],
+): readonly EcosystemId[] =>
+  filterMap(
+    (amount: Amount) => !amount.isZero(),
+    (amount) => {
+      const tokenSpec = findOrThrow(
+        tokens,
+        (token) => token.id === amount.tokenId,
+      );
+      return tokenSpec.nativeEcosystem;
+    },
+    amounts,
+  );
+
+export const getRequiredEcosystems = (
+  tokens: readonly TokenSpec[],
   interactionSpec: InteractionSpec,
 ): ReadonlySet<EcosystemId> => {
-  const poolTokenEcosystems = poolTokens.map((token) => token.nativeEcosystem);
-  switch (interactionSpec.instruction) {
-    case SwimDefiInstruction.Add: {
+  switch (interactionSpec.type) {
+    case InteractionType.Add: {
       const { params, lpTokenTargetEcosystem } = interactionSpec;
-      const tokenEcosystems = poolTokenEcosystems.filter(
-        (_, i) => !params.inputAmounts[i].isZero(),
-      );
+      const inputEcosystems = mapNonZeroAmountsToNativeEcosystems(tokens, [
+        ...params.inputAmounts.values(),
+      ]);
       return new Set([
         EcosystemId.Solana,
         lpTokenTargetEcosystem,
-        ...tokenEcosystems,
+        ...inputEcosystems,
       ]);
     }
-    case SwimDefiInstruction.Swap: {
-      const { params } = interactionSpec;
-      const tokenEcosystems = poolTokenEcosystems.filter(
-        (_, i) =>
-          i === params.outputTokenIndex ||
-          !params.exactInputAmounts[i].isZero(),
-      );
-      return new Set([EcosystemId.Solana, ...tokenEcosystems]);
-    }
-    case SwimDefiInstruction.RemoveUniform: {
+    case InteractionType.RemoveUniform: {
       const { params, lpTokenSourceEcosystem } = interactionSpec;
-      const tokenEcosystems = poolTokenEcosystems.filter(
-        (_, i) => !params.minimumOutputAmounts[i].isZero(),
-      );
+      const outputEcosystems = mapNonZeroAmountsToNativeEcosystems(tokens, [
+        ...params.minimumOutputAmounts.values(),
+      ]);
       return new Set([
         EcosystemId.Solana,
         lpTokenSourceEcosystem,
-        ...tokenEcosystems,
+        ...outputEcosystems,
       ]);
     }
-    case SwimDefiInstruction.RemoveExactBurn: {
+    case InteractionType.RemoveExactBurn: {
       const { params, lpTokenSourceEcosystem } = interactionSpec;
-      const tokenEcosystems = poolTokenEcosystems.filter(
-        (_, i) => i === params.outputTokenIndex,
+      const outputToken = findOrThrow(
+        tokens,
+        (token) => token.id === params.minimumOutputAmount.tokenId,
       );
+      const outputEcosystem = outputToken.nativeEcosystem;
       return new Set([
         EcosystemId.Solana,
         lpTokenSourceEcosystem,
-        ...tokenEcosystems,
+        outputEcosystem,
       ]);
     }
-    case SwimDefiInstruction.RemoveExactOutput: {
+    case InteractionType.RemoveExactOutput: {
       const { params, lpTokenSourceEcosystem } = interactionSpec;
-      const tokenEcosystems = poolTokenEcosystems.filter(
-        (_, i) => !params.exactOutputAmounts[i].isZero(),
-      );
+      const outputEcosystems = mapNonZeroAmountsToNativeEcosystems(tokens, [
+        ...params.exactOutputAmounts.values(),
+      ]);
       return new Set([
         EcosystemId.Solana,
         lpTokenSourceEcosystem,
-        ...tokenEcosystems,
+        ...outputEcosystems,
       ]);
+    }
+    case InteractionType.Swap: {
+      const {
+        params: { exactInputAmount, minimumOutputAmount },
+      } = interactionSpec;
+      const inputEcosystem = exactInputAmount.tokenSpec.nativeEcosystem;
+      const outputEcosystem = minimumOutputAmount.tokenSpec.nativeEcosystem;
+      return new Set([EcosystemId.Solana, inputEcosystem, outputEcosystem]);
     }
     default:
       throw new Error("Unknown instruction");
@@ -150,11 +166,11 @@ export interface BaseWallet {
 }
 
 export const getConnectedWallets = (
-  poolTokens: readonly TokenSpec[],
+  tokens: readonly TokenSpec[],
   interactionSpec: InteractionSpec,
   wallets: ReadonlyRecord<EcosystemId, BaseWallet>,
 ): ReadonlyRecord<EcosystemId, string | null> => {
-  const requiredEcosystems = getRequiredEcosystems(poolTokens, interactionSpec);
+  const requiredEcosystems = getRequiredEcosystems(tokens, interactionSpec);
   return Object.entries(wallets).reduce(
     (accumulator, [ecosystemId, { address }]) =>
       requiredEcosystems.has(ecosystemId as EcosystemId)
@@ -173,3 +189,25 @@ export const getConnectedWallets = (
     },
   );
 };
+
+export const getPoolUsdValue = (
+  tokens: readonly TokenSpec[],
+  poolTokenAccounts: readonly TokenAccount[],
+): Decimal | null =>
+  tokens.every((tokenSpec) => tokenSpec.isStablecoin)
+    ? poolTokenAccounts.reduce((acc, account) => {
+        const tokenSpec = tokens.find(
+          (spec) =>
+            spec.detailsByEcosystem.get(EcosystemId.Solana)?.address ===
+            account.mint.toBase58(),
+        );
+        if (!tokenSpec) {
+          throw new Error("Token spec not found");
+        }
+        return acc.add(
+          Amount.fromU64(tokenSpec, account.amount, EcosystemId.Solana).toHuman(
+            EcosystemId.Solana,
+          ),
+        );
+      }, new Decimal(0))
+    : null;

@@ -5,18 +5,17 @@ import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import { Amount, PoolMath } from "../../models";
 import { isEachNotNull } from "../../utils";
 
-import { usePool } from "./usePool";
+import type { PoolData } from "./usePools";
+import { usePools } from "./usePools";
 
-export const usePoolMath = (poolId: string): PoolMath | null => {
-  const {
-    spec: poolSpec,
-    state: poolState,
-    lpToken,
-    tokens: poolTokens,
-    poolLpMint,
-    poolTokenAccounts,
-  } = usePool(poolId);
-
+const getPoolMath = ({
+  spec: poolSpec,
+  state: poolState,
+  lpToken,
+  tokens: poolTokens,
+  poolLpMint,
+  poolTokenAccounts,
+}: PoolData): PoolMath | null => {
   if (
     !poolState ||
     poolLpMint === null ||
@@ -67,3 +66,12 @@ export const usePoolMath = (poolId: string): PoolMath | null => {
     tolerance,
   );
 };
+
+export const usePoolMaths = (
+  poolIds: readonly string[],
+): readonly (PoolMath | null)[] => {
+  const pools = usePools(poolIds);
+  return pools.map(getPoolMath);
+};
+
+export const usePoolMath = (poolId: string) => usePoolMaths([poolId])[0];

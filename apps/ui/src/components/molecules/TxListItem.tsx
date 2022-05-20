@@ -1,7 +1,7 @@
 import { EuiListGroupItem } from "@elastic/eui";
 import type { FC } from "react";
 
-import { EcosystemId } from "../config";
+import { EcosystemId } from "../../config";
 
 interface Props {
   readonly ecosystem: EcosystemId;

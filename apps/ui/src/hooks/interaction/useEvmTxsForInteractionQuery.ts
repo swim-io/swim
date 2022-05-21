@@ -7,7 +7,7 @@ import { useEnvironment, useEvmConnection } from "../../contexts";
 import type { EvmTx } from "../../models";
 import { INTERACTION_ID_LENGTH_HEX } from "../../models";
 import { isNotNull } from "../../utils";
-import { useEvmHistoryQuery } from "../evm/useEvmHistoryQuery";
+import { useEvmHistoryQuery } from "../evm";
 
 const MAX_RECENT_TXS = 1000;
 
@@ -27,15 +27,11 @@ export const useEvmTxsForInteractionQuery = (
 ): UseQueryResult<readonly EvmTx[], Error> => {
   const { env } = useEnvironment();
   const connection = useEvmConnection(ecosystemId);
-  const { data: history } = useEvmHistoryQuery(ecosystemId);
+  const { data: history = [], isSuccess } = useEvmHistoryQuery(ecosystemId);
 
   return useQuery(
     [env, "txsForInteraction", interactionId, ecosystemId],
     async () => {
-      if (!history) {
-        throw Error(`History for ${ecosystemId} not found`);
-      }
-
       const evmTxsOrNull = await Promise.all(
         history
           .filter(isNotNull)
@@ -63,7 +59,10 @@ export const useEvmTxsForInteractionQuery = (
       return evmTxsOrNull.filter(isNotNull);
     },
     {
-      enabled: !!history,
+      enabled: isSuccess,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
     },
   );
 };

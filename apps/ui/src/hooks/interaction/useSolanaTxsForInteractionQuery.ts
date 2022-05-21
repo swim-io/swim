@@ -10,12 +10,15 @@ export const useSolanaTxsForInteractionQuery = (
   interactionId: string,
 ): UseQueryResult<readonly Tx[], Error> => {
   const { env } = useEnvironment();
-  const { data, isSuccess } = useRecentSolanaTxsQuery();
+  const { data = [], isSuccess } = useRecentSolanaTxsQuery();
   return useQuery(
     [env, "txsForInteraction", interactionId, EcosystemId.Solana],
-    () => (data ?? []).filter((tx) => tx.interactionId === interactionId),
+    () => data.filter((tx) => tx.interactionId === interactionId),
     {
       enabled: isSuccess,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
     },
   );
 };

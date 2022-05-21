@@ -44,7 +44,9 @@ export const useTxsForInteractionQuery = (
       enabled: requiredEcosystems.every(
         (ecosystem) => txQueries[ecosystem].isSuccess,
       ),
-      refetchOnWindowFocus: false, // additionally disable this to save on queries
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
     },
   );
 };

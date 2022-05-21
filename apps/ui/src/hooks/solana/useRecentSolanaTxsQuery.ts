@@ -74,7 +74,7 @@ export const useRecentSolanaTxsQuery = (): UseQueryResult<
     queryKey,
     async () => {
       if (address === null) {
-        throw Error("Solana address not found");
+        throw new Error("Solana address not found");
       }
 
       // fetch all transaction signatures first, this can easily be 1000 txs but it counts as one RPC call

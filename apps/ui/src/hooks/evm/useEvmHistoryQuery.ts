@@ -15,13 +15,16 @@ export const useEvmHistoryQuery = (
   return useQuery(
     [env, "evmHistory", ecosystemId, address],
     async () => {
-      if (!address) {
-        throw Error(`${ecosystemId} address not found`);
+      if (address === null) {
+        throw new Error(`${ecosystemId} address not found`);
       }
       return await connection.getHistory(address);
     },
     {
       enabled: !!address,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
     },
   );
 };

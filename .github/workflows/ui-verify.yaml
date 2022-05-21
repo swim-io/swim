@@ -39,4 +39,4 @@ jobs:
       - name: Test
         run: yarn test --watchAll=false
       - name: Check format
-        run: yarn format
+        run: yarn format:check

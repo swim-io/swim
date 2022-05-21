@@ -2,10 +2,15 @@ import { cleanup } from "@testing-library/react";
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { useEnvironment } from "..";
-import { DEFAULT_ENV, Env, configs, overrideLocalnetIp } from "../../../config";
+import { DEFAULT_ENV, Env, configs } from "../../../config";
+import { getConfig } from "../useEnvironment";
 
 describe("useEnvironment", () => {
   const IP = "127.0.0.1";
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.clearAllTimers();
+  });
 
   afterEach(() => {
     jest.resetAllMocks();
@@ -17,8 +22,8 @@ describe("useEnvironment", () => {
     const initState = {
       env: DEFAULT_ENV,
       envs: [DEFAULT_ENV],
-      customLocalnetIp: null,
       config: configs[DEFAULT_ENV],
+      customLocalnetIp: null,
       _hasHydrated: false,
     };
 
@@ -43,9 +48,7 @@ describe("useEnvironment", () => {
     });
 
     expect(state.current.customLocalnetIp).toEqual(IP);
-    expect(state.current.config).toEqual(
-      overrideLocalnetIp(configs[Env.Localnet], IP),
-    );
+    expect(state.current.config).toEqual(getConfig(Env.Mainnet, IP));
     expect(state.current.envs).toEqual(Object.values(Env));
     expect(state.current.env).toEqual(useEnvironment.getState().env);
   });
@@ -57,13 +60,12 @@ describe("useEnvironment", () => {
     });
 
     expect(state.current.customLocalnetIp).toEqual(null);
-    expect(state.current.config).toEqual(configs[Env.Localnet]);
+    expect(state.current.config).toEqual(configs[Env.Mainnet]);
     expect(state.current.envs).toEqual([Env.Mainnet]);
     expect(state.current.env).toEqual(Env.Mainnet);
   });
   it("calls setEnv func with Devnet argument and returns Devnet env as customLocalnetIp is not null", async () => {
     const { result } = renderHook(() => useEnvironment());
-    const mockSetEnv = jest.spyOn(result.current, "setEnv");
 
     act(() => {
       result.current.setCustomLocalnetIp(IP);
@@ -71,8 +73,6 @@ describe("useEnvironment", () => {
     act(() => {
       result.current.setEnv(Env.Devnet);
     });
-
-    expect(mockSetEnv).toBeCalledTimes(1);
     expect(result.current.customLocalnetIp).toEqual(IP);
     expect(result.current.env).toEqual(Env.Devnet);
     expect(result.current.envs).toEqual(Object.values(Env));
@@ -85,5 +85,19 @@ describe("useEnvironment", () => {
     });
     expect(mockSetHydrated).toBeCalledTimes(1);
     expect(state.current._hasHydrated).toBe(true);
+  });
+
+  it("calls setConfig and returns hydrated config base on stored env and ip", async () => {
+    const { result } = renderHook(() => useEnvironment());
+
+    act(() => {
+      result.current.setEnv(Env.Localnet);
+    });
+
+    act(() => {
+      result.current.setConfig();
+    });
+    expect(result.current.env).toEqual(Env.Localnet);
+    expect(result.current.config).toEqual(configs[Env.Localnet]);
   });
 });

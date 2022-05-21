@@ -12,3 +12,4 @@ export const selectHasHydrated = (state: EnvironmentState) =>
   state._hasHydrated;
 export const selectSetHydrated = (state: EnvironmentState) =>
   state.setHasHydrated;
+export const selectSetConfig = (state: EnvironmentState) => state.setConfig;

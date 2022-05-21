@@ -71,11 +71,3 @@ export const overrideLocalnetIp = (config: Config, ip: string): Config => ({
     })),
   },
 });
-// export const overrideLocalnetIp = (config: Config, ip: string): Config =>
-//   produce(config, (draft) => {
-//     draft.wormhole.endpoint = config.wormhole.endpoint.replace(
-//       LOCALHOST_REGEXP,
-//       ip,
-//     );
-//     draft.chains[Protocol.Solana];
-//   });

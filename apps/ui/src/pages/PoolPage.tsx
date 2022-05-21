@@ -74,7 +74,7 @@ const PoolPage = (): ReactElement => {
 };
 
 export interface PoolPageInnerProps {
-  readonly poolSpec: PoolSpec;
+  readonly poolSpec: PoolSpec; // TODO: In PoolPage component, poolSpec can be null, that case should be taken as an option
 }
 
 export const PoolPageInner = ({

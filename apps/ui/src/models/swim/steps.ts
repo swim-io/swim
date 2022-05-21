@@ -950,7 +950,6 @@ export const getRequiredPoolsForSwap = (
   inputTokenId: string,
   outputTokenId: string,
 ): readonly PoolSpec[] => {
-  console.log("required pools", poolSpecs, inputTokenId, outputTokenId);
   const singlePool =
     poolSpecs.find((poolSpec) =>
       [inputTokenId, outputTokenId].every((tokenId) =>

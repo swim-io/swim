@@ -4,7 +4,7 @@ import type { Draft } from "immer";
 import create from "zustand";
 import type { GetState, SetState, StoreApi } from "zustand";
 import type { StateStorage } from "zustand/middleware";
-import { persist, subscribeWithSelector } from "zustand/middleware.js";
+import { persist } from "zustand/middleware.js";
 
 import type { Config } from "../../config";
 import {

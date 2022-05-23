@@ -26,6 +26,7 @@ const getContractAddressesByEcosystem = (
         EcosystemId.Bsc,
         EcosystemId.Avalanche,
         EcosystemId.Polygon,
+        // TODO: Add support for Aurora/Fantom/Acala
       ].map(
         (ecosystemId) => detailsByEcosystem.get(ecosystemId)?.address ?? null,
       );
@@ -46,6 +47,9 @@ const getContractAddressesByEcosystem = (
         [EcosystemId.Polygon]: polygonAddress
           ? [...accumulator.polygon, polygonAddress]
           : accumulator.polygon,
+        [EcosystemId.Aurora]: [],
+        [EcosystemId.Fantom]: [],
+        [EcosystemId.Acala]: [],
       };
     },
     {
@@ -55,6 +59,9 @@ const getContractAddressesByEcosystem = (
       [EcosystemId.Terra]: [],
       [EcosystemId.Avalanche]: [],
       [EcosystemId.Polygon]: [],
+      [EcosystemId.Aurora]: [],
+      [EcosystemId.Fantom]: [],
+      [EcosystemId.Acala]: [],
     },
   );
 

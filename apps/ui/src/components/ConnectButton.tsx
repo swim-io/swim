@@ -7,25 +7,16 @@ import { EcosystemId } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { useWallets } from "../hooks";
-import AVALANCHE_SVG from "../images/avalanche.svg";
-import BSC_SVG from "../images/bsc.svg";
-import ETHEREUM_SVG from "../images/ethereum.svg";
-import POLYGON_SVG from "../images/polygon.svg";
-import SOLANA_SVG from "../images/solana.svg";
+import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
+import BSC_SVG from "../images/ecosystems/bsc.svg";
+import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+import POLYGON_SVG from "../images/ecosystems/polygon.svg";
+import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import { shortenAddress } from "../utils";
 
 import { MultiWalletModal } from "./MultiWalletModal";
 
 import "./ConnectButton.scss";
-
-export const LABEL_MAP: Record<EcosystemId, string> = {
-  [EcosystemId.Solana]: "Connect Solana",
-  [EcosystemId.Ethereum]: "Connect Ethereum",
-  [EcosystemId.Terra]: "Connect Terra",
-  [EcosystemId.Bsc]: "Connect BNB Chain",
-  [EcosystemId.Avalanche]: "Connect Avalanche",
-  [EcosystemId.Polygon]: "Connect Polygon",
-};
 
 export interface ConnectButtonProps extends PropsForButton<EuiButtonProps> {
   readonly ecosystemId: EcosystemId;
@@ -70,7 +61,9 @@ export const ConnectButton = ({
         ) : (
           <>
             <EuiShowFor sizes={["xs"]}>Connect</EuiShowFor>
-            <EuiHideFor sizes={["xs"]}>{LABEL_MAP[ecosystemId]}</EuiHideFor>
+            <EuiHideFor sizes={["xs"]}>
+              Connect {ecosystem.displayName}
+            </EuiHideFor>
           </>
         )}
       </span>

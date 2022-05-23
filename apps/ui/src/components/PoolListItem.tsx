@@ -81,7 +81,7 @@ export const PoolListItem = ({
                           key={tokenSpec.id}
                           style={{ marginBottom: 4, marginTop: 4 }}
                         >
-                          <TokenIcon {...tokenSpec} showFullName />
+                          <TokenIcon {...tokenSpec} />
                         </div>
                       ))}
                     </EuiCard>

@@ -26,6 +26,18 @@ const PolygonConnectionContext = React.createContext<EvmConnection>(
   new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][3]),
 );
 
+const AuroraConnectionContext = React.createContext<EvmConnection>(
+  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][4]),
+);
+
+const FantomConnectionContext = React.createContext<EvmConnection>(
+  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][5]),
+);
+
+const AcalaConnectionContext = React.createContext<EvmConnection>(
+  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][6]),
+);
+
 const ecosystemToContext: ReadonlyRecord<
   EvmEcosystemId,
   React.Context<EvmConnection>
@@ -34,6 +46,9 @@ const ecosystemToContext: ReadonlyRecord<
   [EcosystemId.Bsc]: BscConnectionContext,
   [EcosystemId.Avalanche]: AvalancheConnectionContext,
   [EcosystemId.Polygon]: PolygonConnectionContext,
+  [EcosystemId.Aurora]: AuroraConnectionContext,
+  [EcosystemId.Fantom]: FantomConnectionContext,
+  [EcosystemId.Acala]: AcalaConnectionContext,
 };
 
 interface EvmConnectionProviderProps {
@@ -71,6 +86,9 @@ export const useEvmConnections = (): ReadonlyRecord<
   [EcosystemId.Bsc]: useContext(BscConnectionContext),
   [EcosystemId.Avalanche]: useContext(AvalancheConnectionContext),
   [EcosystemId.Polygon]: useContext(PolygonConnectionContext),
+  [EcosystemId.Aurora]: useContext(AuroraConnectionContext),
+  [EcosystemId.Fantom]: useContext(FantomConnectionContext),
+  [EcosystemId.Acala]: useContext(AcalaConnectionContext),
 });
 
 export const useEvmConnection = (

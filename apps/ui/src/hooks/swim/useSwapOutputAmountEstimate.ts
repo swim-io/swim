@@ -13,6 +13,11 @@ interface PoolTokens {
 
 const ZERO = new Decimal(0);
 
+const ensureNonNegative = (amount: Amount): Amount => {
+  const zero = Amount.zero(amount.tokenSpec);
+  return amount.gt(zero) ? amount : zero;
+};
+
 const routeSwap = (
   inputPoolTokens: PoolTokens,
   outputPoolTokens: PoolTokens,
@@ -148,9 +153,11 @@ export const useSwapOutputAmountEstimate = (
           ),
           inputPoolOutputTokenIndex,
         );
-        inputPoolOutputAmount = Amount.fromHuman(
-          inputPoolTokens.tokens[inputPoolOutputTokenIndex],
-          stableOutputAmount,
+        inputPoolOutputAmount = ensureNonNegative(
+          Amount.fromHuman(
+            inputPoolTokens.tokens[inputPoolOutputTokenIndex],
+            stableOutputAmount,
+          ),
         );
         break;
       }
@@ -177,7 +184,7 @@ export const useSwapOutputAmountEstimate = (
           inputPoolOutputAmount.toHuman(EcosystemId.Solana),
           outputPoolOutputTokenIndex,
         );
-        return Amount.fromHuman(toToken, stableOutputAmount);
+        return ensureNonNegative(Amount.fromHuman(toToken, stableOutputAmount));
       }
       case SwimDefiInstruction.Swap: {
         const { stableOutputAmount } = outputPoolMath.swapExactInput(
@@ -193,7 +200,7 @@ export const useSwapOutputAmountEstimate = (
           }),
           outputPoolOutputTokenIndex,
         );
-        return Amount.fromHuman(toToken, stableOutputAmount);
+        return ensureNonNegative(Amount.fromHuman(toToken, stableOutputAmount));
       }
       default:
         throw new Error("Unknown swap route");

@@ -33,6 +33,9 @@ export const useTxsForInteractionQuery = (
       interactionId,
     ),
     [EcosystemId.Terra]: useQuery({ enabled: false }),
+    [EcosystemId.Aurora]: useQuery({ enabled: false }),
+    [EcosystemId.Fantom]: useQuery({ enabled: false }),
+    [EcosystemId.Acala]: useQuery({ enabled: false }),
   };
   const requiredEcosystems = [
     ...useRequiredEcosystemsForInteraction(interactionId).values(),

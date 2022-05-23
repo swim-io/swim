@@ -31,6 +31,15 @@ export const enum EvmChainId {
   AvalancheMainnet = 43114, // C-Chain
   AvalancheTestnet = 43113,
   AvalancheLocalnet = 43112, // TODO: This is a placeholder
+  AuroraMainnet = 1313161554,
+  AuroraTestnet = 1313161555,
+  AuroraLocalnet = 1313161555, // TODO: This is a placeholder
+  FantomMainnet = 250,
+  FantomTestnet = 4002,
+  FantomLocalnet = 4003, // TODO: This is a placeholder
+  AcalaMainnet = 0, // TODO: Update
+  AcalaTestnet = 787,
+  AcalaLocalnet = 788, // TODO: This is a placeholder
 }
 
 export const evmChainIdToEcosystem: ReadonlyRecord<EvmChainId, EvmEcosystemId> =
@@ -47,6 +56,15 @@ export const evmChainIdToEcosystem: ReadonlyRecord<EvmChainId, EvmEcosystemId> =
     [EvmChainId.AvalancheMainnet]: EcosystemId.Avalanche,
     [EvmChainId.AvalancheTestnet]: EcosystemId.Avalanche,
     [EvmChainId.AvalancheLocalnet]: EcosystemId.Avalanche,
+    [EvmChainId.AuroraMainnet]: EcosystemId.Aurora,
+    [EvmChainId.AuroraTestnet]: EcosystemId.Aurora,
+    [EvmChainId.AuroraLocalnet]: EcosystemId.Aurora,
+    [EvmChainId.FantomMainnet]: EcosystemId.Fantom,
+    [EvmChainId.FantomTestnet]: EcosystemId.Fantom,
+    [EvmChainId.FantomLocalnet]: EcosystemId.Fantom,
+    [EvmChainId.AcalaMainnet]: EcosystemId.Acala,
+    [EvmChainId.AcalaTestnet]: EcosystemId.Acala,
+    [EvmChainId.AcalaLocalnet]: EcosystemId.Acala,
   };
 
 export const enum CosmosChainId {
@@ -124,6 +142,24 @@ const POLYGON_NATIVE_CURRENCY = {
   decimals: 18, // no other value is allowed by Metamask
 };
 
+const AURORA_NATIVE_CURRENCY = {
+  name: "Ethereum",
+  symbol: "ETH",
+  decimals: 18, // no other value is allowed by Metamask
+};
+
+const FANTOM_NATIVE_CURRENCY = {
+  name: "FTM",
+  symbol: "FTM",
+  decimals: 18, // no other value is allowed by Metamask
+};
+
+const ACALA_NATIVE_CURRENCY = {
+  name: "Acala",
+  symbol: "ACA",
+  decimals: 18, // no other value is allowed by Metamask
+};
+
 const mainnetChains: ChainsByProtocol = {
   [Protocol.Solana]: [
     {
@@ -180,6 +216,39 @@ const mainnetChains: ChainsByProtocol = {
       wormhole: {
         bridge: "0x7A4B5a56256163F07b2C80A7cA55aBE66c4ec4d7",
         tokenBridge: "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Aurora,
+      chainId: EvmChainId.AuroraMainnet,
+      chainName: "Aurora Mainnet",
+      nativeCurrency: AURORA_NATIVE_CURRENCY,
+      rpcUrls: ["https://mainnet.aurora.dev/"], // TODO: Think about what is best to recommend to MetaMask
+      wormhole: {
+        bridge: "0xa321448d90d4e5b0A732867c18eA198e75CAC48E",
+        tokenBridge: "0x51b5123a7b0F9b2bA265f9c4C8de7D78D52f510F",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Fantom,
+      chainId: EvmChainId.FantomMainnet,
+      chainName: "Fantom Mainnet",
+      nativeCurrency: FANTOM_NATIVE_CURRENCY,
+      rpcUrls: ["https://rpc.ftm.tools/"], // TODO: Think about what is best to recommend to MetaMask
+      wormhole: {
+        bridge: "0x126783A6Cb203a3E35344528B26ca3a0489a1485",
+        tokenBridge: "0x7C9Fc5741288cDFdD83CeB07f3ea7e22618D79D2",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Acala,
+      chainId: EvmChainId.AcalaMainnet,
+      chainName: "Acala Mainnet",
+      nativeCurrency: ACALA_NATIVE_CURRENCY,
+      rpcUrls: ["https://acala-polkadot.api.onfinality.io/public-rpc"], // TODO: Think about what is best to recommend to MetaMask
+      wormhole: {
+        bridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
+        tokenBridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
       },
     },
   ],
@@ -244,6 +313,39 @@ const devnetChains: ChainsByProtocol = {
         tokenBridge: "0x377D55a7928c046E18eEbb61977e714d2a76472a",
       },
     },
+    {
+      ecosystem: EcosystemId.Aurora,
+      chainId: EvmChainId.AuroraTestnet,
+      chainName: "Aurora Testnet",
+      nativeCurrency: AURORA_NATIVE_CURRENCY,
+      rpcUrls: ["https://testnet.aurora.dev/"], // TODO: Think about what is best to recommend to MetaMask
+      wormhole: {
+        bridge: "0xBd07292de7b505a4E803CEe286184f7Acf908F5e",
+        tokenBridge: "0xD05eD3ad637b890D68a854d607eEAF11aF456fba",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Fantom,
+      chainId: EvmChainId.FantomTestnet,
+      chainName: "Fantom Testnet",
+      nativeCurrency: FANTOM_NATIVE_CURRENCY,
+      rpcUrls: ["https://rpc.ankr.com/fantom_testnet/"], // TODO: Think about what is best to recommend to MetaMask
+      wormhole: {
+        bridge: "0x1BB3B4119b7BA9dfad76B0545fb3F531383c3bB7",
+        tokenBridge: "0x599CEa2204B4FaECd584Ab1F2b6aCA137a0afbE8",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Acala,
+      chainId: EvmChainId.AcalaTestnet,
+      chainName: "Acala Testnet",
+      nativeCurrency: ACALA_NATIVE_CURRENCY,
+      rpcUrls: ["https://tc7-eth.aca-dev.network"], // TODO: Think about what is best to recommend to MetaMask
+      wormhole: {
+        bridge: "0x4377B49d559c0a9466477195C6AdC3D433e265c0",
+        tokenBridge: "0xebA00cbe08992EdD08ed7793E07ad6063c807004",
+      },
+    },
   ],
   [Protocol.Cosmos]: [],
 };
@@ -301,6 +403,39 @@ const localnetChains: ChainsByProtocol = {
       chainName: "Polygon Localnet",
       nativeCurrency: POLYGON_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8548"],
+      wormhole: {
+        bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
+        tokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Aurora,
+      chainId: EvmChainId.AuroraLocalnet,
+      chainName: "Aurora Localnet",
+      nativeCurrency: AURORA_NATIVE_CURRENCY,
+      rpcUrls: ["http://localhost:8549"],
+      wormhole: {
+        bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
+        tokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Fantom,
+      chainId: EvmChainId.FantomLocalnet,
+      chainName: "Fantom Localnet",
+      nativeCurrency: FANTOM_NATIVE_CURRENCY,
+      rpcUrls: ["http://localhost:8549"],
+      wormhole: {
+        bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
+        tokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Acala,
+      chainId: EvmChainId.AcalaLocalnet,
+      chainName: "Acala Localnet",
+      nativeCurrency: ACALA_NATIVE_CURRENCY,
+      rpcUrls: ["http://localhost:8550"],
       wormhole: {
         bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
         tokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",

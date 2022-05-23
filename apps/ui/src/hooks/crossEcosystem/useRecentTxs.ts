@@ -35,6 +35,9 @@ export const useRecentTxs = (
       [EcosystemId.Terra]: null,
       [EcosystemId.Avalanche]: avalancheTxs,
       [EcosystemId.Polygon]: polygonTxs,
+      [EcosystemId.Aurora]: null,
+      [EcosystemId.Fantom]: null,
+      [EcosystemId.Acala]: null,
     }),
     [solanaTxs, ethereumTxs, bscTxs, avalancheTxs, polygonTxs],
   );

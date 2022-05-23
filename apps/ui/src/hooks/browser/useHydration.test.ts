@@ -6,7 +6,7 @@ import { useHydration } from "./useHydration";
 
 describe("useHydration", () => {
   it("should return hasHydrated from persisted environment store", () => {
-    const { result } = renderHook(() => useHydration());
+    const { result } = renderHook(() => useHydration(useEnvironment));
     const hasHydrated = useEnvironment.persist.hasHydrated();
     expect(result.current).toEqual(hasHydrated);
   });

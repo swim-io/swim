@@ -1,4 +1,3 @@
-import { cleanup } from "@testing-library/react";
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { useEnvironment } from "..";
@@ -14,9 +13,8 @@ describe("useEnvironment", () => {
 
   afterEach(() => {
     jest.resetAllMocks();
-    cleanup();
   });
-  it("returns initial environment state", async () => {
+  it("returns initial environment state", () => {
     const { result } = renderHook(() => useEnvironment());
 
     const initState = {
@@ -29,7 +27,7 @@ describe("useEnvironment", () => {
 
     expect(result.current).toEqual(expect.objectContaining(initState));
   });
-  it("calls setEnv func with Devnet argument, but returns Mainnet env as customLocalnetIp is null", async () => {
+  it("calls setEnv func with Devnet argument, but returns Mainnet env as customLocalnetIp is null", () => {
     const { result: state } = renderHook(() => useEnvironment());
 
     act(() => {
@@ -40,7 +38,7 @@ describe("useEnvironment", () => {
     expect(state.current.env).toEqual(DEFAULT_ENV);
     expect(state.current.envs).toEqual([DEFAULT_ENV]);
   });
-  it("calls setCustomLocalnetIp func and sets customLocalnetIp with new IP", async () => {
+  it("calls setCustomLocalnetIp func and sets customLocalnetIp with new IP", () => {
     const { result: state } = renderHook(() => useEnvironment());
 
     act(() => {
@@ -48,11 +46,11 @@ describe("useEnvironment", () => {
     });
 
     expect(state.current.customLocalnetIp).toEqual(IP);
-    expect(state.current.config).toEqual(getConfig(Env.Mainnet, IP));
+    expect(state.current.config).toEqual(getConfig(DEFAULT_ENV, IP));
     expect(state.current.envs).toEqual(Object.values(Env));
     expect(state.current.env).toEqual(useEnvironment.getState().env);
   });
-  it("calls setCustomLocalnetIp func with null IP and keeps default values", async () => {
+  it("calls setCustomLocalnetIp func with null IP and keeps default values", () => {
     const { result: state } = renderHook(() => useEnvironment());
 
     act(() => {
@@ -64,7 +62,7 @@ describe("useEnvironment", () => {
     expect(state.current.envs).toEqual([Env.Mainnet]);
     expect(state.current.env).toEqual(Env.Mainnet);
   });
-  it("calls setEnv func with Devnet argument and returns Devnet env as customLocalnetIp is not null", async () => {
+  it("calls setEnv func with Devnet argument and returns Devnet env as customLocalnetIp is not null", () => {
     const { result } = renderHook(() => useEnvironment());
 
     act(() => {
@@ -87,7 +85,7 @@ describe("useEnvironment", () => {
     expect(state.current._hasHydrated).toBe(true);
   });
 
-  it("calls setConfig and returns hydrated config base on stored env and ip", async () => {
+  it("calls setConfig and returns hydrated config base on stored env and ip", () => {
     const { result } = renderHook(() => useEnvironment());
 
     act(() => {

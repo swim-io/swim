@@ -29,7 +29,7 @@ import WormholePage from "./pages/WormholePage";
 
 function App(): ReactElement {
   const setConfig = useEnvironment(selectSetConfig);
-  const hasHydrated = useHydration();
+  const hasHydrated = useHydration(useEnvironment);
 
   useEffect(() => {
     if (hasHydrated) {

@@ -2,7 +2,7 @@ import { cleanup } from "@testing-library/react";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
-import { Env, configs } from "../../config";
+import { Env } from "../../config";
 import { useEnvironment } from "../../core/store";
 import {
   BSC_USDT_TO_ETH_USDC_SWAP,
@@ -20,9 +20,6 @@ jest.mock("./useInteraction", () => ({
   useInteraction: jest.fn(),
 }));
 
-const useEnvMock = mockOf(() =>
-  useEnvironment((state) => ({ ...state, config: configs[Env.Localnet] })),
-);
 // Make typescript happy with jest
 const useInteractionMock = mockOf(useInteraction);
 
@@ -33,17 +30,14 @@ describe("useRequiredTokensForInteraction", () => {
     // Reset queryClient cache, otherwise test might return previous value
     renderHookWithAppContext(() => useQueryClient().clear());
 
-    const { result } = renderHook(() =>
-      useEnvironment((state) => ({ ...state, config: configs[Env.Localnet] })),
-    );
-
+    const { result: envStore } = renderHook(() => useEnvironment());
     act(() => {
-      result.current.setEnv(Env.Localnet);
+      envStore.current.setCustomLocalnetIp("127.0.0.1");
+      envStore.current.setEnv(Env.Localnet);
     });
   });
 
   it("should return required tokens for ETH USDC to SOL USDC Swap", async () => {
-    useEnvMock.mockReturnValue({ config: configs[Env.Localnet] });
     useInteractionMock.mockReturnValue(ETH_USDC_TO_SOL_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
       useRequiredTokensForInteraction(ETH_USDC_TO_SOL_USDC_SWAP.id),

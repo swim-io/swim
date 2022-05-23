@@ -10,7 +10,6 @@ export const useRequiredTokensForInteraction = (
   interactionId: string,
 ): readonly TokenSpec[] => {
   const config = useEnvironment(selectConfig);
-  console.log("config", config);
   const tokensByPoolId = getTokensByPool(config);
   const interaction = useInteraction(interactionId);
   const pools = useRequiredPoolsForInteraction(interactionId);

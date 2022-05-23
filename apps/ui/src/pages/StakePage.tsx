@@ -6,6 +6,7 @@ import {
   EuiPageContentBody,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
+
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 

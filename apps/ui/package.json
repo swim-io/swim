@@ -9,11 +9,12 @@
     "test": "craco test --transformIgnorePatterns \"node_modules/(?!@project-serum/sol-wallet-adapter)/\"",
     "eject": "react-scripts eject",
     "format": "prettier --write \"./src/**/*.{ts,tsx}\" \".storybook/**/*.{js,ts,tsx}\"",
+    "format:check": "prettier --check \"./src/**/*.{ts,tsx}\" \".storybook/**/*.{js,ts,tsx}\"",
     "lint": "eslint \"./src/**/*.{ts,tsx}\"",
     "lint:fix": "eslint --fix \"./src/**/*.{ts,tsx}\"",
     "typecheck": "tsc",
     "types:generate": "typechain --target=ethers-v5 --out-dir=src/contracts/ abi/*.json",
-    "verify": "yarn typecheck && yarn lint && yarn test --watchAll=false",
+    "verify": "yarn typecheck && yarn lint && yarn test --watchAll=false && yarn format",
     "storybook": "DISABLE_ESLINT_PLUGIN=true start-storybook -p 6006"
   },
   "browserslist": {

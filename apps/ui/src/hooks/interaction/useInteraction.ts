@@ -7,7 +7,7 @@ export const useInteraction = (interactionId: string) => {
   const interaction = interactions.find(({ id }) => id === interactionId);
 
   if (!interaction) {
-    throw Error("Interaction not found");
+    throw new Error("Interaction not found");
   }
   return interaction;
 };

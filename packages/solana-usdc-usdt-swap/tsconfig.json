@@ -5,7 +5,8 @@
     "declaration": true,
     "declarationDir": "types",
     "outDir": "build",
-    "rootDir": "src"
+    "rootDir": "src",
+    "skipLibCheck": true
   },
   "include": ["src"]
 }

@@ -1,7 +1,7 @@
-import type { AccountInfo } from "@solana/spl-token";
+import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type Decimal from "decimal.js";
 
-import type { EcosystemId, EvmEcosystemId, TokenSpec } from "../../config";
+import type { TokenSpec } from "../../config";
 import type { EvmTx, OperationSpec, SolanaTx } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 
@@ -16,15 +16,12 @@ export interface InteractionState {
 type Mint = string;
 export type PrepareSplTokenAccountsState = ReadonlyRecord<
   Mint,
-  AccountInfo | null
+  TokenAccount | null
 >;
 
 export interface WormholeToSolanaTransferState {
-  readonly id: string;
-  readonly interactionId: string;
   readonly token: TokenSpec;
   readonly value: Decimal;
-  readonly fromEcosystem: EvmEcosystemId;
   readonly txs: {
     readonly approveAndTransferToken: readonly EvmTx[] | null;
     readonly postVaaOnSolana: readonly SolanaTx[] | null;
@@ -38,10 +35,8 @@ export interface SolanaPoolOperationState {
 }
 
 export interface WormholeFromSolanaTransferState {
-  readonly id: string;
   readonly token: TokenSpec;
   readonly value: Decimal | null;
-  readonly toEcosystem: EcosystemId;
   readonly txs: {
     readonly transferSplToken: SolanaTx | null;
     readonly claimTokenOnEvm: EvmTx | null;

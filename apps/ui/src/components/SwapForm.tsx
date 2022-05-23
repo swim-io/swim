@@ -138,36 +138,6 @@ export const SwapForm = ({
 
   const feesEstimation = useSwapFeesEstimationQuery(fromToken, toToken);
 
-  const isLargeSwap = (): boolean => {
-    return (
-      fromToken !== null &&
-      fromToken.isStablecoin &&
-      inputAmount !== null &&
-      ((inputPoolUsdValue !== null &&
-        inputAmount
-          .toHuman(EcosystemId.Solana)
-          .gt(inputPoolUsdValue.mul(0.1))) ||
-        (outputPoolUsdValue !== null &&
-          outputAmount !== null &&
-          outputAmount
-            .toHuman(EcosystemId.Solana)
-            .gt(outputPoolUsdValue.mul(0.1))))
-    );
-  };
-
-  const isSmallEthSwap = (): boolean => {
-    return (
-      fromToken !== null &&
-      fromToken.isStablecoin &&
-      toToken !== null &&
-      [fromToken.nativeEcosystem, toToken.nativeEcosystem].includes(
-        EcosystemId.Ethereum,
-      ) &&
-      inputAmount !== null &&
-      inputAmount.toHuman(EcosystemId.Solana).lt(200)
-    );
-  };
-
   const inputAmount = useMemo(
     () =>
       defaultIfError(
@@ -230,6 +200,36 @@ export const SwapForm = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromTokenBalancePrimitive]);
+
+  const isLargeSwap = (): boolean => {
+    return (
+      fromToken !== null &&
+      fromToken.isStablecoin &&
+      inputAmount !== null &&
+      ((inputPoolUsdValue !== null &&
+        inputAmount
+          .toHuman(EcosystemId.Solana)
+          .gt(inputPoolUsdValue.mul(0.1))) ||
+        (outputPoolUsdValue !== null &&
+          outputAmount !== null &&
+          outputAmount
+            .toHuman(EcosystemId.Solana)
+            .gt(outputPoolUsdValue.mul(0.1))))
+    );
+  };
+
+  const isSmallEthSwap = (): boolean => {
+    return (
+      fromToken !== null &&
+      fromToken.isStablecoin &&
+      toToken !== null &&
+      [fromToken.nativeEcosystem, toToken.nativeEcosystem].includes(
+        EcosystemId.Ethereum,
+      ) &&
+      inputAmount !== null &&
+      inputAmount.toHuman(EcosystemId.Solana).lt(200)
+    );
+  };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();

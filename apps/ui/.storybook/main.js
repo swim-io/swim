@@ -23,8 +23,8 @@ module.exports = {
   },
   webpackFinal: async (config) => {
     config.externals = {
-      "@certusone/wormhole-sdk": "{}"
-  }
+      "@certusone/wormhole-sdk": "{}",
+    };
     return config;
   },
 };

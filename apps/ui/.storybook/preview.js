@@ -1,5 +1,5 @@
-import "../src/App.scss"
-import { AppContext } from "../src/contexts"
+import "../src/App.scss";
+import { AppContext } from "../src/contexts";
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
@@ -9,7 +9,7 @@ export const parameters = {
       date: /Date$/,
     },
   },
-}
+};
 
 export const decorators = [
   (Story) => (

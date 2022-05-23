@@ -19,7 +19,9 @@ import { useEffect, useMemo, useState } from "react";
 
 import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
 import type { PoolSpec, TokenSpec } from "../config";
-import { useConfig, useNotification } from "../contexts";
+import { useConfig } from "../contexts";
+import { selectNotify } from "../core/selectors";
+import { useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   useAddFeesEstimationQuery,
@@ -176,7 +178,7 @@ export const AddForm = ({
   poolSpec,
   maxSlippageFraction,
 }: AddFormProps): ReactElement => {
-  const { notify } = useNotification();
+  const notify = useNotification(selectNotify);
   const config = useConfig();
   const wallets = useWallets();
   const {

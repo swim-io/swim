@@ -96,7 +96,7 @@ const mapNonZeroAmountsToNativeEcosystems = (
     amounts,
   );
 
-const getRequiredEcosystems = (
+export const getRequiredEcosystems = (
   tokens: readonly TokenSpec[],
   interactionSpec: InteractionSpec,
 ): ReadonlySet<EcosystemId> => {
@@ -148,16 +148,12 @@ const getRequiredEcosystems = (
       ]);
     }
     case InteractionType.Swap: {
-      const { params } = interactionSpec;
-      const inputEcosystems = mapNonZeroAmountsToNativeEcosystems(tokens, [
-        params.exactInputAmount,
-      ]);
-      const outputToken = findOrThrow(
-        tokens,
-        (token) => token.id === params.minimumOutputAmount.tokenId,
-      );
-      const outputEcosystem = outputToken.nativeEcosystem;
-      return new Set([EcosystemId.Solana, ...inputEcosystems, outputEcosystem]);
+      const {
+        params: { exactInputAmount, minimumOutputAmount },
+      } = interactionSpec;
+      const inputEcosystem = exactInputAmount.tokenSpec.nativeEcosystem;
+      const outputEcosystem = minimumOutputAmount.tokenSpec.nativeEcosystem;
+      return new Set([EcosystemId.Solana, inputEcosystem, outputEcosystem]);
     }
     default:
       throw new Error("Unknown instruction");

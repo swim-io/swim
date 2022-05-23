@@ -38,3 +38,5 @@ jobs:
         run: yarn lint --max-warnings=0
       - name: Test
         run: yarn test --watchAll=false
+      - name: Check format
+        run: yarn format:check

@@ -8,12 +8,14 @@
     "release": "SENTRY_RELEASE=$(git rev-parse --short HEAD) SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco build",
     "test": "craco test --transformIgnorePatterns \"node_modules/(?!@project-serum/sol-wallet-adapter)/\"",
     "eject": "react-scripts eject",
-    "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "format": "prettier --write \"./src/**/*.{ts,tsx}\" \".storybook/**/*.{js,ts,tsx}\"",
+    "format:check": "prettier --check \"./src/**/*.{ts,tsx}\" \".storybook/**/*.{js,ts,tsx}\"",
     "lint": "eslint \"./src/**/*.{ts,tsx}\"",
     "lint:fix": "eslint --fix \"./src/**/*.{ts,tsx}\"",
     "typecheck": "tsc",
     "types:generate": "typechain --target=ethers-v5 --out-dir=src/contracts/ abi/*.json",
-    "verify": "yarn typecheck && yarn lint && yarn test --watchAll=false"
+    "verify": "yarn typecheck && yarn lint && yarn test --watchAll=false && yarn format",
+    "storybook": "DISABLE_ESLINT_PLUGIN=true start-storybook -p 6006"
   },
   "browserslist": {
     "production": [
@@ -48,6 +50,7 @@
     "constate": "^3.3.0",
     "decimal.js": "^10.3.1",
     "ethers": "^5.4.4",
+    "immer": "^9.0.14",
     "moment": "^2.29.1",
     "moralis": "^1.3.5",
     "node-sass": "^4.12.0",
@@ -57,10 +60,22 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "wasm-loader": "^1.3.0",
-    "web-vitals": "^1.0.1"
+    "web-vitals": "^1.0.1",
+    "zustand": "^4.0.0-rc.1"
   },
   "devDependencies": {
     "@sentry/webpack-plugin": "^1.18.8",
+    "@storybook/addon-actions": "^6.5.2",
+    "@storybook/addon-docs": "^6.5.2",
+    "@storybook/addon-essentials": "^6.5.2",
+    "@storybook/addon-interactions": "^6.5.2",
+    "@storybook/addon-links": "^6.5.2",
+    "@storybook/builder-webpack4": "^6.5.2",
+    "@storybook/manager-webpack4": "^6.5.2",
+    "@storybook/node-logger": "^6.5.2",
+    "@storybook/preset-create-react-app": "^3.2.0",
+    "@storybook/react": "^6.5.2",
+    "@storybook/testing-library": "^0.0.11",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/react-hooks": "^7.0.2",
@@ -82,10 +97,23 @@
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-storybook": "^0.5.12",
     "jest-mock-extended": "^2.0.5",
     "prettier": "^2.3.2",
     "typechain": "^5.1.2",
     "typescript": "~4.2",
     "webpack": "4.44.2"
+  },
+  "eslintConfig": {
+    "overrides": [
+      {
+        "files": [
+          "**/*.stories.*"
+        ],
+        "rules": {
+          "import/no-anonymous-default-export": "off"
+        }
+      }
+    ]
   }
 }

@@ -186,6 +186,9 @@ export const getConnectedWallets = (
       [EcosystemId.Terra]: null,
       [EcosystemId.Avalanche]: null,
       [EcosystemId.Polygon]: null,
+      [EcosystemId.Aurora]: null,
+      [EcosystemId.Fantom]: null,
+      [EcosystemId.Acala]: null,
     },
   );
 };

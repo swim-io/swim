@@ -16,11 +16,14 @@ export interface ChainsByEcosystem
 export const useChainsByEcosystem = (): ChainsByEcosystem => {
   const { chains } = useConfig();
   const [solana] = chains[Protocol.Solana];
-  const [ethereum, bsc, avalanche, polygon] = [
+  const [ethereum, bsc, avalanche, polygon, aurora, fantom, acala] = [
     EcosystemId.Ethereum,
     EcosystemId.Bsc,
     EcosystemId.Avalanche,
     EcosystemId.Polygon,
+    EcosystemId.Aurora,
+    EcosystemId.Fantom,
+    EcosystemId.Acala,
   ].map(
     (ecosystemId) =>
       chains[Protocol.Evm].find((chain) => chain.ecosystem === ecosystemId) ??
@@ -39,5 +42,8 @@ export const useChainsByEcosystem = (): ChainsByEcosystem => {
     [EcosystemId.Terra]: terra,
     [EcosystemId.Avalanche]: avalanche,
     [EcosystemId.Polygon]: polygon,
+    [EcosystemId.Aurora]: aurora,
+    [EcosystemId.Fantom]: fantom,
+    [EcosystemId.Acala]: acala,
   };
 };

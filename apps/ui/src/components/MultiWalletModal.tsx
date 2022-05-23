@@ -15,11 +15,11 @@ import { Fragment } from "react";
 import { EcosystemId } from "../config";
 import { useConfig } from "../contexts";
 import { useWallets } from "../hooks";
-import AVALANCHE_SVG from "../images/avalanche.svg";
-import BSC_SVG from "../images/bsc.svg";
-import ETHEREUM_SVG from "../images/ethereum.svg";
-import POLYGON_SVG from "../images/polygon.svg";
-import SOLANA_SVG from "../images/solana.svg";
+import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
+import BSC_SVG from "../images/ecosystems/bsc.svg";
+import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+import POLYGON_SVG from "../images/ecosystems/polygon.svg";
+import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import {
   AVALANCHE_WALLET_SERVICES,
   BSC_WALLET_SERVICES,

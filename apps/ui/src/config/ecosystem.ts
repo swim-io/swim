@@ -1,9 +1,12 @@
-import AVALANCHE_SVG from "../images/avalanche.svg";
-import BSC_SVG from "../images/bsc.svg";
-import ETHEREUM_SVG from "../images/ethereum.svg";
-import POLYGON_SVG from "../images/polygon.svg";
-import SOLANA_SVG from "../images/solana.svg";
-import TERRA_SVG from "../images/terra.svg";
+import ACALA_SVG from "../images/ecosystems/acala.svg";
+import AURORA_SVG from "../images/ecosystems/aurora.svg";
+import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
+import BSC_SVG from "../images/ecosystems/bsc.svg";
+import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+import FANTOM_SVG from "../images/ecosystems/fantom.svg";
+import POLYGON_SVG from "../images/ecosystems/polygon.svg";
+import SOLANA_SVG from "../images/ecosystems/solana.svg";
+import TERRA_SVG from "../images/ecosystems/terra.svg";
 import type { ReadonlyRecord } from "../utils";
 
 import { WormholeChainId } from "./wormhole";
@@ -32,6 +35,12 @@ export const enum EcosystemId {
   Avalanche = "avalanche",
   /** Only valid for Protocol.Evm chains */
   Polygon = "polygon",
+  /** Only valid for Protocol.Evm chains */
+  Aurora = "aurora",
+  /** Only valid for Protocol.Evm chains */
+  Fantom = "fantom",
+  /** Only valid for Protocol.Evm chains */
+  Acala = "acala",
 }
 
 export type SolanaEcosystemId = Extract<EcosystemId, EcosystemId.Solana>;
@@ -42,6 +51,9 @@ export type EvmEcosystemId = Extract<
   | EcosystemId.Bsc
   | EcosystemId.Avalanche
   | EcosystemId.Polygon
+  | EcosystemId.Aurora
+  | EcosystemId.Fantom
+  | EcosystemId.Acala
 >;
 
 export const isEvmEcosystemId = (
@@ -52,6 +64,9 @@ export const isEvmEcosystemId = (
     EcosystemId.Bsc,
     EcosystemId.Avalanche,
     EcosystemId.Polygon,
+    EcosystemId.Aurora,
+    EcosystemId.Fantom,
+    EcosystemId.Acala,
   ].includes(ecosystemId);
 
 export type CosmosEcosystemId = Extract<EcosystemId, EcosystemId.Terra>;
@@ -106,5 +121,26 @@ export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> = {
     displayName: "Polygon",
     logo: POLYGON_SVG,
     nativeTokenSymbol: "MATIC",
+  },
+  [EcosystemId.Aurora]: {
+    protocol: Protocol.Evm,
+    wormholeChainId: WormholeChainId.Aurora,
+    displayName: "Aurora",
+    logo: AURORA_SVG,
+    nativeTokenSymbol: "ETH",
+  },
+  [EcosystemId.Fantom]: {
+    protocol: Protocol.Evm,
+    wormholeChainId: WormholeChainId.Fantom,
+    displayName: "Fantom",
+    logo: FANTOM_SVG,
+    nativeTokenSymbol: "FTM",
+  },
+  [EcosystemId.Acala]: {
+    protocol: Protocol.Evm,
+    wormholeChainId: WormholeChainId.Acala,
+    displayName: "Acala",
+    logo: ACALA_SVG,
+    nativeTokenSymbol: "ACA",
   },
 };

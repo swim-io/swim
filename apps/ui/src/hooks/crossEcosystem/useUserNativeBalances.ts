@@ -22,8 +22,11 @@ export const useUserNativeBalances = (): ReadonlyRecord<
   const { data: maticBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
     EcosystemId.Polygon,
   );
-  // TODO: Add real hook when Terra is supported
+  // TODO: Add real hookS when ecosystems are supported
   const lunaBalance = new Decimal(0);
+  const auroraEthBalance = new Decimal(0);
+  const ftmBalance = new Decimal(0);
+  const acaBalance = new Decimal(0);
   return {
     [EcosystemId.Solana]: solBalance,
     [EcosystemId.Ethereum]: ethBalance,
@@ -31,5 +34,8 @@ export const useUserNativeBalances = (): ReadonlyRecord<
     [EcosystemId.Terra]: lunaBalance,
     [EcosystemId.Avalanche]: avaxBalance,
     [EcosystemId.Polygon]: maticBalance,
+    [EcosystemId.Aurora]: auroraEthBalance,
+    [EcosystemId.Fantom]: ftmBalance,
+    [EcosystemId.Acala]: acaBalance,
   };
 };

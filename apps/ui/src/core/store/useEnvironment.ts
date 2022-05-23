@@ -45,77 +45,68 @@ export const getConfig = (env: Env, ip: string | null): Draft<Config> => {
 };
 
 export const useEnvironment = create(
-  subscribeWithSelector(
-    persist(
-      (set: SetState<any>, get: GetState<any>, api: StoreApi<any>) => ({
-        env: DEFAULT_ENV,
-        envs: [DEFAULT_ENV],
-        config: configs[DEFAULT_ENV],
-        customLocalnetIp: null,
-        _hasHydrated: false,
-        setHasHydrated: (isHydrated: boolean) => {
-          set(
-            produce<EnvironmentState>((draft) => {
-              draft._hasHydrated = isHydrated;
-            }),
-          );
-        },
-        setConfig: () => {
-          set(
-            produce<EnvironmentState>((draft) => {
-              draft.config = getConfig(
-                api.getState().env,
-                api.getState().customLocalnetIp,
-              );
-            }),
-          );
-        },
-        setEnv: (newEnv: Env) => {
-          set(
-            produce<EnvironmentState>((draft) => {
-              if (
-                isValidEnv(newEnv) &&
-                api.getState().customLocalnetIp !== null
-              ) {
-                draft.env = newEnv;
-                draft.envs = Object.values(Env);
-                draft.config = getConfig(
-                  newEnv,
-                  api.getState().customLocalnetIp,
-                );
-              } else {
-                draft.env = get().env;
-                draft.envs = get().envs;
-                draft.config = get().config;
-              }
-            }),
-          );
-        },
-        setCustomLocalnetIp: (ip: string | null) => {
-          set(
-            produce<EnvironmentState>((draft) => {
-              draft.customLocalnetIp = ip;
-              draft.envs = ip === null ? [DEFAULT_ENV] : Object.values(Env);
-              draft.env = isValidEnv(api.getState().env)
-                ? api.getState().env
-                : DEFAULT_ENV;
-              draft.config = getConfig(draft.env, ip);
-            }),
-          );
-        },
-      }),
-      {
-        name: "env-config",
-        getStorage: (): StateStorage => localStorage,
-        onRehydrateStorage: () => (state) => {
-          state?.setHasHydrated(true);
-        },
-        partialize: (state: EnvironmentState) => ({
-          env: state.env,
-          envs: state.envs,
-          customLocalnetIp: state.customLocalnetIp,
-        }),
+  persist<EnvironmentState>(
+    (set: SetState<any>, get: GetState<any>, api: StoreApi<any>) => ({
+      env: DEFAULT_ENV,
+      envs: [DEFAULT_ENV],
+      config: configs[DEFAULT_ENV],
+      customLocalnetIp: null,
+      _hasHydrated: false,
+      setHasHydrated: (isHydrated: boolean) => {
+        set(
+          produce<EnvironmentState>((draft) => {
+            draft._hasHydrated = isHydrated;
+          }),
+        );
       },
-    ),
+      setConfig: () => {
+        set(
+          produce<EnvironmentState>((draft) => {
+            draft.config = getConfig(
+              api.getState().env,
+              api.getState().customLocalnetIp,
+            );
+          }),
+        );
+      },
+      setEnv: (newEnv: Env) => {
+        set(
+          produce<EnvironmentState>((draft) => {
+            if (
+              isValidEnv(newEnv) &&
+              api.getState().customLocalnetIp !== null
+            ) {
+              draft.env = newEnv;
+              draft.envs = Object.values(Env);
+              draft.config = getConfig(newEnv, api.getState().customLocalnetIp);
+            }
+          }),
+        );
+      },
+      setCustomLocalnetIp: (ip: string | null) => {
+        set(
+          produce<EnvironmentState>((draft) => {
+            draft.customLocalnetIp = ip;
+            draft.envs = ip === null ? [DEFAULT_ENV] : Object.values(Env);
+            draft.env = isValidEnv(api.getState().env)
+              ? api.getState().env
+              : DEFAULT_ENV;
+            draft.config = getConfig(draft.env, ip);
+          }),
+        );
+      },
+    }),
+    {
+      name: "env-config",
+      getStorage: (): StateStorage => localStorage,
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
+      partialize: (state: EnvironmentState) => ({
+        env: state.env,
+        envs: state.envs,
+        customLocalnetIp: state.customLocalnetIp,
+      }),
+    },
   ),
 );

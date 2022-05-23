@@ -24,17 +24,19 @@ jest.mock("./useInteraction", () => ({
 const useInteractionMock = mockOf(useInteraction);
 
 describe("useRequiredTokensForInteraction", () => {
+  const { result: envStore } = renderHook(() => useEnvironment());
+
+  beforeAll(() => {
+    act(() => {
+      envStore.current.setCustomLocalnetIp("127.0.0.1");
+      envStore.current.setEnv(Env.Localnet);
+    });
+  });
   beforeEach(() => {
     jest.resetAllMocks();
     cleanup();
     // Reset queryClient cache, otherwise test might return previous value
     renderHookWithAppContext(() => useQueryClient().clear());
-
-    const { result: envStore } = renderHook(() => useEnvironment());
-    act(() => {
-      envStore.current.setCustomLocalnetIp("127.0.0.1");
-      envStore.current.setEnv(Env.Localnet);
-    });
   });
 
   it("should return required tokens for ETH USDC to SOL USDC Swap", async () => {

@@ -2,7 +2,8 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import { EcosystemId } from "../../config";
-import { useEnvironment } from "../../contexts";
+import { selectEnv } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import type { Tx } from "../../models";
 
 import { useEvmTxsForInteractionQuery } from "./useEvmTxsForInteractionQuery";
@@ -12,7 +13,7 @@ import { useSolanaTxsForInteractionQuery } from "./useSolanaTxsForInteractionQue
 export const useTxsForInteractionQuery = (
   interactionId: string,
 ): UseQueryResult<readonly Tx[], Error> => {
-  const { env } = useEnvironment();
+  const env = useEnvironment(selectEnv);
   const txQueries = {
     [EcosystemId.Solana]: useSolanaTxsForInteractionQuery(interactionId),
     [EcosystemId.Ethereum]: useEvmTxsForInteractionQuery(

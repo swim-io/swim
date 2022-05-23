@@ -1,9 +1,9 @@
 import type Decimal from "decimal.js";
 
-import { isValidSlippageFraction } from "../../components/SlippageButton";
 import type { TokenSpec } from "../../config";
 import { EcosystemId, ecosystems } from "../../config";
 import type { Amount } from "../../models";
+import { isValidSlippageFraction } from "../../models";
 import { isNotNull } from "../../utils";
 import {
   useUserBalanceAmounts,

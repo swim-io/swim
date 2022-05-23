@@ -7,19 +7,21 @@ import type { ReadonlyRecord } from "../../utils";
 
 export interface InteractionState {
   readonly interactionId: string;
-  readonly prepareSplTokenAccountsState: PrepareSplTokenAccountsState;
-  readonly wormholeToSolanaTransfers: readonly WormholeToSolanaTransferState[];
+  readonly prepareSplTokenAccounts: PrepareSplTokenAccounts;
+  readonly toSolanaTransfers: readonly ToSolanaTransferState[];
   readonly solanaPoolOperations: readonly SolanaPoolOperationState[];
-  readonly wormholeFromSolanaTransfers: readonly WormholeFromSolanaTransferState[];
+  readonly fromSolanaTransfers: readonly FromSolanaTransferState[];
 }
 
-type Mint = string;
-export type PrepareSplTokenAccountsState = ReadonlyRecord<
-  Mint,
+/**
+ * Record with Account Mint as key, TokenAccount info as value
+ */
+export type PrepareSplTokenAccounts = ReadonlyRecord<
+  string,
   TokenAccount | null
 >;
 
-export interface WormholeToSolanaTransferState {
+export interface ToSolanaTransferState {
   readonly token: TokenSpec;
   readonly value: Decimal;
   readonly txs: {
@@ -34,7 +36,7 @@ export interface SolanaPoolOperationState {
   readonly tx: SolanaTx | null;
 }
 
-export interface WormholeFromSolanaTransferState {
+export interface FromSolanaTransferState {
   readonly token: TokenSpec;
   readonly value: Decimal | null;
   readonly txs: {
@@ -48,9 +50,9 @@ export const useInteractionState = (
 ): InteractionState => {
   return {
     interactionId,
-    prepareSplTokenAccountsState: {},
-    wormholeToSolanaTransfers: [],
+    prepareSplTokenAccounts: {},
+    toSolanaTransfers: [],
     solanaPoolOperations: [],
-    wormholeFromSolanaTransfers: [],
+    fromSolanaTransfers: [],
   };
 };

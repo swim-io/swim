@@ -22,7 +22,6 @@ describe("useEnvironment", () => {
       envs: [DEFAULT_ENV],
       config: configs[DEFAULT_ENV],
       customLocalnetIp: null,
-      _hasHydrated: false,
     };
 
     expect(result.current).toEqual(expect.objectContaining(initState));

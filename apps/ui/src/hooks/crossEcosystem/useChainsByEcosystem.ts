@@ -11,6 +11,10 @@ export interface ChainsByEcosystem
   readonly [EcosystemId.Terra]: CosmosSpec | null;
   readonly [EcosystemId.Avalanche]: EvmSpec | null;
   readonly [EcosystemId.Polygon]: EvmSpec | null;
+  readonly [EcosystemId.Aurora]: EvmSpec | null;
+  readonly [EcosystemId.Fantom]: EvmSpec | null;
+  readonly [EcosystemId.Karura]: EvmSpec | null;
+  readonly [EcosystemId.Acala]: EvmSpec | null;
 }
 
 export const useChainsByEcosystem = (): ChainsByEcosystem => {
@@ -23,6 +27,7 @@ export const useChainsByEcosystem = (): ChainsByEcosystem => {
     EcosystemId.Polygon,
     EcosystemId.Aurora,
     EcosystemId.Fantom,
+    EcosystemId.Karura,
     EcosystemId.Acala,
   ].map(
     (ecosystemId) =>
@@ -44,6 +49,7 @@ export const useChainsByEcosystem = (): ChainsByEcosystem => {
     [EcosystemId.Polygon]: polygon,
     [EcosystemId.Aurora]: aurora,
     [EcosystemId.Fantom]: fantom,
+    [EcosystemId.Karura]: acala,
     [EcosystemId.Acala]: acala,
   };
 };

@@ -8,8 +8,4 @@ export const selectCustomLocalnetIp = (state: EnvironmentState) =>
 export const selectSetEnv = (state: EnvironmentState) => state.setEnv;
 export const selectSetCustomLocalnetIp = (state: EnvironmentState) =>
   state.setCustomLocalnetIp;
-export const selectHasHydrated = (state: EnvironmentState) =>
-  state._hasHydrated;
-export const selectSetHydrated = (state: EnvironmentState) =>
-  state.setHasHydrated;
 export const selectSetConfig = (state: EnvironmentState) => state.setConfig;

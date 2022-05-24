@@ -38,7 +38,7 @@ export const useEvmTxsForInteractionQuery = (
         history
           .filter(isNotNull)
           .slice(0, MAX_RECENT_TXS)
-          .map(async (txResponse: any) => {
+          .map(async (txResponse: ethers.providers.TransactionResponse) => {
             if (interactionId !== findEvmInteractionId(txResponse)) {
               return null;
             }

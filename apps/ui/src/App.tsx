@@ -11,7 +11,7 @@ import Notification from "./components/Notification";
 import { AppContext } from "./contexts";
 import { selectSetConfig } from "./core/selectors";
 import { useEnvironment } from "./core/store";
-import { useHydration } from "./hooks/browser/useHydration";
+import { useHydration } from "./hooks";
 import CollectiblesPage from "./pages/CollectiblesPage";
 import HelpPage from "./pages/HelpPage";
 import HomePage from "./pages/HomePage";

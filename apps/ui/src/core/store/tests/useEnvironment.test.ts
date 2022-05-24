@@ -5,7 +5,7 @@ import { DEFAULT_ENV, Env, configs } from "../../../config";
 import { getConfig } from "../useEnvironment";
 
 describe("useEnvironment", () => {
-  const IP = "127.0.0.1";
+  const CUSTOM_LOCALNET_IP = "123.4.5.6";
   beforeEach(() => {
     jest.clearAllMocks();
     jest.clearAllTimers();
@@ -42,13 +42,16 @@ describe("useEnvironment", () => {
     const { result: state } = renderHook(() => useEnvironment());
 
     act(() => {
-      state.current.setCustomLocalnetIp(IP);
+      state.current.setCustomLocalnetIp(CUSTOM_LOCALNET_IP);
     });
+    const expected = {
+      customLocalnetIp: CUSTOM_LOCALNET_IP,
+      config: getConfig(DEFAULT_ENV, CUSTOM_LOCALNET_IP),
+      envs: Object.values(Env),
+      env: useEnvironment.getState().env,
+    };
 
-    expect(state.current.customLocalnetIp).toEqual(IP);
-    expect(state.current.config).toEqual(getConfig(DEFAULT_ENV, IP));
-    expect(state.current.envs).toEqual(Object.values(Env));
-    expect(state.current.env).toEqual(useEnvironment.getState().env);
+    expect(state.current).toEqual(expect.objectContaining(expected));
   });
   it("calls setCustomLocalnetIp func with null IP and keeps default values", () => {
     const { result: state } = renderHook(() => useEnvironment());
@@ -66,23 +69,14 @@ describe("useEnvironment", () => {
     const { result } = renderHook(() => useEnvironment());
 
     act(() => {
-      result.current.setCustomLocalnetIp(IP);
+      result.current.setCustomLocalnetIp(CUSTOM_LOCALNET_IP);
     });
     act(() => {
       result.current.setEnv(Env.Devnet);
     });
-    expect(result.current.customLocalnetIp).toEqual(IP);
+    expect(result.current.customLocalnetIp).toEqual(CUSTOM_LOCALNET_IP);
     expect(result.current.env).toEqual(Env.Devnet);
     expect(result.current.envs).toEqual(Object.values(Env));
-  });
-  it("calls setHasHydrated and returns _hasHydrated true", () => {
-    const { result: state } = renderHook(() => useEnvironment());
-    const mockSetHydrated = jest.spyOn(state.current, "setHasHydrated");
-    act(() => {
-      state.current.setHasHydrated(true);
-    });
-    expect(mockSetHydrated).toBeCalledTimes(1);
-    expect(state.current._hasHydrated).toBe(true);
   });
 
   it("calls setConfig and returns hydrated config base on stored env and ip", () => {

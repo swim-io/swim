@@ -15,8 +15,7 @@ export const useHydration = (store: any) => {
       unsubHydrate();
       unsubFinishHydration();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [store.persist]);
 
   return hydrated;
 };

@@ -26,8 +26,6 @@ export interface EnvironmentState {
   readonly envs: readonly Env[];
   readonly config: Config;
   readonly customLocalnetIp: string | null;
-  readonly _hasHydrated: boolean;
-  readonly setHasHydrated: (isHydrated: boolean) => void;
   readonly setEnv: (newEnv: Env) => void;
   readonly setCustomLocalnetIp: (ip: string | null) => void;
   readonly setConfig: () => void;
@@ -46,19 +44,15 @@ export const getConfig = (env: Env, ip: string | null): Draft<Config> => {
 
 export const useEnvironment = create(
   persist<EnvironmentState>(
-    (set: SetState<any>, get: GetState<any>, api: StoreApi<any>) => ({
+    (
+      set: SetState<EnvironmentState>,
+      get: GetState<EnvironmentState>,
+      api: StoreApi<EnvironmentState>,
+    ) => ({
       env: DEFAULT_ENV,
       envs: [DEFAULT_ENV],
       config: configs[DEFAULT_ENV],
       customLocalnetIp: null,
-      _hasHydrated: false,
-      setHasHydrated: (isHydrated: boolean) => {
-        set(
-          produce<EnvironmentState>((draft) => {
-            draft._hasHydrated = isHydrated;
-          }),
-        );
-      },
       setConfig: () => {
         set(
           produce<EnvironmentState>((draft) => {
@@ -77,7 +71,6 @@ export const useEnvironment = create(
               api.getState().customLocalnetIp !== null
             ) {
               draft.env = newEnv;
-              draft.envs = Object.values(Env);
               draft.config = getConfig(newEnv, api.getState().customLocalnetIp);
             }
           }),
@@ -99,9 +92,6 @@ export const useEnvironment = create(
     {
       name: "env-config",
       getStorage: (): StateStorage => localStorage,
-      onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true);
-      },
       partialize: (state: EnvironmentState) => ({
         env: state.env,
         envs: state.envs,

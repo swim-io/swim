@@ -27,7 +27,7 @@ interface TokenAccountState {
  */
 export type RequiredSplTokenAccounts = ReadonlyRecord<
   string,
-  TokenAccountState
+  TokenAccountState | undefined
 >;
 
 export interface ToSolanaTransferState {

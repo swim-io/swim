@@ -241,6 +241,60 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size="xxl" />
 
             <PoolListItem
+              title="Karura aUSD Meta-Pool"
+              betaBadgeLabel="Coming Soon"
+              tokenSpecs={[
+                {
+                  id: "placeholder-karura-native-ausd",
+                  symbol: "aUSD",
+                  displayName: "Karura aUSD",
+                  icon: AUSD_SVG,
+                  isStablecoin: true,
+                  nativeEcosystem: EcosystemId.Karura,
+                  detailsByEcosystem: new Map(),
+                },
+                {
+                  id: "mainnet-solana-lp-hexapool",
+                  symbol: "swimUSD",
+                  displayName: "swimUSD (Swim Hexapool LP)",
+                  icon: SWIM_USD_SVG,
+                  isStablecoin: true,
+                  nativeEcosystem: EcosystemId.Solana,
+                  detailsByEcosystem: new Map(),
+                },
+              ]}
+            />
+
+            <EuiSpacer size="xxl" />
+
+            <PoolListItem
+              title="Karura USDT Meta-Pool"
+              betaBadgeLabel="Coming Soon"
+              tokenSpecs={[
+                {
+                  id: "placeholder-karura-native-usdt",
+                  symbol: "USDT",
+                  displayName: "Tether USD",
+                  icon: USDT_SVG,
+                  isStablecoin: true,
+                  nativeEcosystem: EcosystemId.Karura,
+                  detailsByEcosystem: new Map(),
+                },
+                {
+                  id: "mainnet-solana-lp-hexapool",
+                  symbol: "swimUSD",
+                  displayName: "swimUSD (Swim Hexapool LP)",
+                  icon: SWIM_USD_SVG,
+                  isStablecoin: true,
+                  nativeEcosystem: EcosystemId.Solana,
+                  detailsByEcosystem: new Map(),
+                },
+              ]}
+            />
+
+            <EuiSpacer size="xxl" />
+
+            <PoolListItem
               title="Acala aUSD Meta-Pool"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[

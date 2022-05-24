@@ -6,6 +6,7 @@ import { useEnvironment } from "../../contexts";
 import type { Tx } from "../../models";
 
 import { useEvmTxsForInteractionQuery } from "./useEvmTxsForInteractionQuery";
+import { useInteraction } from "./useInteraction";
 import { useRequiredEcosystemsForInteraction } from "./useRequiredEcosystemsForInteraction";
 import { useSolanaTxsForInteractionQuery } from "./useSolanaTxsForInteractionQuery";
 
@@ -13,6 +14,7 @@ export const useTxsForInteractionQuery = (
   interactionId: string,
 ): UseQueryResult<readonly Tx[], Error> => {
   const { env } = useEnvironment();
+  const interaction = useInteraction(interactionId);
   const txQueries = {
     [EcosystemId.Solana]: useSolanaTxsForInteractionQuery(interactionId),
     [EcosystemId.Ethereum]: useEvmTxsForInteractionQuery(
@@ -38,7 +40,7 @@ export const useTxsForInteractionQuery = (
     [EcosystemId.Acala]: useQuery({ enabled: false }),
   };
   const requiredEcosystems = [
-    ...useRequiredEcosystemsForInteraction(interactionId).values(),
+    ...useRequiredEcosystemsForInteraction(interaction).values(),
   ];
   return useQuery(
     [env, "txsForInteraction", interactionId],

@@ -1,13 +1,11 @@
 import type { PoolSpec } from "../../config";
 import { useConfig } from "../../contexts";
+import type { Interaction } from "../../models";
 import { getRequiredPools } from "../../models";
 
-import { useInteraction } from "./useInteraction";
-
 export const useRequiredPoolsForInteraction = (
-  interactionId: string,
+  interaction: Interaction,
 ): readonly PoolSpec[] => {
   const { pools } = useConfig();
-  const interaction = useInteraction(interactionId);
   return getRequiredPools(pools, interaction);
 };

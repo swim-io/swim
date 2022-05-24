@@ -2,22 +2,21 @@ import type { ReadonlyRecord } from "../utils";
 
 import { Env } from "./env";
 
+// Probably makes some incorrect assumptions..
 export interface RedeemerSpec {
   readonly id: string;
-  readonly mintToTokenAccount: ReadonlyMap<string, string>;
+  readonly mint: string;
+  readonly collection: string;
 }
 
 const mainnetRedeemer: readonly RedeemerSpec[] = [];
 
+// should these just be public keys?
 const devnetRedeemer: readonly RedeemerSpec[] = [
   {
     id: "Gn4eV6vJJ3vzi2y8ANoKAhiEJT6YimdSxBpn8r1nioq5",
-    mintToTokenAccount: new Map([
-      [
-        "Fh2GmZShyX16LhABEYbd3i1f7fa8CBpLw6eyFEDQ1XkU",
-        "HDiJt8KK7qHZhkkyRyv6TTWzbEppCrpGZQ4YE5igarYu",
-      ],
-    ]),
+    mint: "Fh2GmZShyX16LhABEYbd3i1f7fa8CBpLw6eyFEDQ1XkU",
+    collection: "EpozLY9dQ1jnaU5Wof524K7p9uHYxkuLF2hi32cf8W9s",
   },
 ];
 

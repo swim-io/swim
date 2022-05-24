@@ -9,13 +9,16 @@ import type { RpcResponseAndContext, SignatureResult } from "@solana/web3.js";
 import type { UseMutationResult } from "react-query";
 import { useMutation } from "react-query";
 
-import * as redeemIdl from "../../../idl/redeem.json";
+import * as redeemerIdl from "../../../idl/redeem.json";
 import { useConfig, useEnvironment } from "../../contexts";
+import { getAssociatedTokenAddress } from "../../models/solana/utils";
 import type { NftData } from "../solana";
 import {
   useAnchorProvider,
   useCreateSplTokenAccountsMutation,
 } from "../solana";
+
+import { useRedeemer } from "./useRedeemer";
 
 // Note, this address should be somewhere more general if it ever has a usecase beyond the redeemer.
 export const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
@@ -26,74 +29,39 @@ const {
   metadata: { Metadata, MasterEdition },
 } = programs;
 
-const REDEEMER_PREFIX = "redeemer";
-const utf8 = anchor.utils.bytes.utf8;
-
-const getRedeemerPDA = async (
-  collection: anchor.web3.PublicKey,
-  redeemerMint: anchor.web3.PublicKey,
-  programId: anchor.web3.PublicKey,
-): Promise<readonly [anchor.web3.PublicKey, number]> => {
-  return await anchor.web3.PublicKey.findProgramAddress(
-    [
-      utf8.encode(REDEEMER_PREFIX),
-      collection.toBuffer(),
-      redeemerMint.toBuffer(),
-    ],
-    programId,
-  );
-};
-
 export const useRedeemMutation = (
   nft: NftData | null,
 ): UseMutationResult<RpcResponseAndContext<SignatureResult>> => {
-  const { env } = useEnvironment();
   const createATA = useCreateSplTokenAccountsMutation();
   const anchorProvider = useAnchorProvider();
-  const { redeemers } = useConfig();
-  const anchorWallet = anchorProvider.wallet;
-
-  // get the right redeemer from the nftcollection
-  // then you should have
+  const { spec, pda, vault } = useRedeemer(
+    nft?.metadata.collection?.key ?? null,
+  );
   return useMutation(
     async (): Promise<RpcResponseAndContext<SignatureResult>> => {
       if (!nft || !nft.metadata.collection || !anchorProvider) {
-        return null;
+        // TODO: fix
+        return "";
       }
+      const anchorWallet = anchorProvider.wallet;
       const { mint: nftMint, collection: nftCollection } = nft.metadata;
 
       const [ownerRedeemTokenAccount] = await createATA.mutateAsync([
-        redeemerMint.toBase58(),
+        spec.mint.toBase58(),
       ]);
-      const program = new anchor.Program(redeemIdl, redeemProgramID, anchorProvider);
+      const program = new anchor.Program(redeemerIdl, spec.id, anchorProvider);
 
       const nftPublicKey = new anchor.web3.PublicKey(nftMint);
       const collectionPublicKey = new anchor.web3.PublicKey(nftCollection.key);
+      // nft shit
 
       const collectionMetadata = await Metadata.getPDA(collectionPublicKey);
-
-
       const metadataPDA = await Metadata.getPDA(nftPublicKey);
       const editionPDA = await MasterEdition.getPDA(nftPublicKey);
-      const ownerNftAta = await Token.getAssociatedTokenAddress(
-        ASSOCIATED_TOKEN_PROGRAM_ID,
-        TOKEN_PROGRAM_ID,
+      const ownerNftAta = getAssociatedTokenAddress(
         nftPublicKey,
         anchorWallet.publicKey,
       );
-      const [redeemerPDA] = await getRedeemerPDA(
-        collectionPublicKey,
-        redeemerMint,
-        redeemProgramID,
-      );
-      const redeemerVault = await Token.getAssociatedTokenAddress(
-        ASSOCIATED_TOKEN_PROGRAM_ID,
-        TOKEN_PROGRAM_ID,
-        redeemerMint,
-        redeemerPDA,
-        true,
-      );
-
       const redeemTxSig = await program.methods
         .redeem()
         .accounts({
@@ -103,19 +71,15 @@ export const useRedeemMutation = (
           ownerNftAta: ownerNftAta,
           owner: anchorWallet.publicKey,
           ownerRedeemTokenAccount: ownerRedeemTokenAccount.address,
-          mplRedeemer: redeemerPDA,
-          redeemerVault,
+          mplRedeemer: pda,
+          vault,
           redeemerCollection: collectionPublicKey,
-          // redeemerCollectionMasterEdition: collectionPublicKey,
           redeemerCollectionMetadata: collectionMetadata,
           tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
           tokenProgram: TOKEN_PROGRAM_ID,
         })
         .rpc();
-      const tx = await anchorProvider.connection.confirmTransaction(
-        redeemTxSig,
-      );
-      return lookUpThatBadBoy(tx);
+      return anchorProvider.connection.confirmTransaction(redeemTxSig);
     },
   );
 };

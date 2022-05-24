@@ -214,3 +214,10 @@ export const getPoolUsdValue = (
         );
       }, new Decimal(0))
     : null;
+
+export const isValidSlippageFraction = (
+  slippageFraction: Decimal | null,
+): boolean =>
+  slippageFraction !== null &&
+  slippageFraction.greaterThanOrEqualTo(0) &&
+  slippageFraction.lessThanOrEqualTo(1);

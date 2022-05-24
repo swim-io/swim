@@ -39,6 +39,7 @@ import {
   InteractionType,
   Status,
   getLowBalanceWallets,
+  isValidSlippageFraction,
 } from "../models";
 import { isEachNotNull, isNotNull } from "../utils";
 
@@ -47,7 +48,6 @@ import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
-import { isValidSlippageFraction } from "./SlippageButton";
 import { StepsDisplay } from "./StepsDisplay";
 import { TokenIcon } from "./TokenIcon";
 

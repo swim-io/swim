@@ -40,13 +40,13 @@ describe("useSolBalanceQuery", () => {
       address: "9ZNTfG4NyQgxy2SWjSiQoUyBPEvXT2xo7fKc5hPYYJ7b",
     });
     useSolanaConnectionMock.mockReturnValue({
-      getBalance: async () => LAMPORTS_PER_SOL,
+      getBalance: async () => 123 * LAMPORTS_PER_SOL,
     });
     const { result, waitFor } = renderHookWithAppContext(() =>
       useSolBalanceQuery(),
     );
     await waitFor(() => result.current.isSuccess);
-    expect(result.current.data).toEqual(new Decimal("1"));
+    expect(result.current.data).toEqual(new Decimal("123"));
   });
 
   it("should return 0 when getBalance throws an error", async () => {

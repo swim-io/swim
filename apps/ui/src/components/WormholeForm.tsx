@@ -131,6 +131,7 @@ export const WormholeForm = (): ReactElement => {
     [EcosystemId.Polygon]: polygonAddress,
     [EcosystemId.Aurora]: null,
     [EcosystemId.Fantom]: null,
+    [EcosystemId.Karura]: null,
     [EcosystemId.Acala]: null,
   };
   const fromAddress = userAddresses[fromEcosystem];

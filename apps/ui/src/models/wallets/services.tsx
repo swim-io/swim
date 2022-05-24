@@ -120,14 +120,28 @@ const fantomMetaMaskInfo = addHelpTextToMetaMaskInfo(
   ecosystems[EcosystemId.Fantom],
   "https://docs.fantom.foundation/tutorials/set-up-metamask",
 );
+const karuraMetaMaskInfo = addHelpTextToMetaMaskInfo(
+  metaMaskInfo,
+  ecosystems[EcosystemId.Karura],
+  "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network", // TODO: Update link when mainnet is live
+);
 const acalaMetaMaskInfo = addHelpTextToMetaMaskInfo(
   metaMaskInfo,
   ecosystems[EcosystemId.Acala],
-  "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network",
+  "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network", // TODO: Update link when mainnet is live
 );
 
-const { acala, aurora, avalanche, bsc, ethereum, fantom, polygon, solana } =
-  adapters;
+const {
+  acala,
+  aurora,
+  avalanche,
+  bsc,
+  ethereum,
+  fantom,
+  karura,
+  polygon,
+  solana,
+} = adapters;
 
 export const ETHEREUM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
   [
@@ -176,6 +190,14 @@ export const FANTOM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] 
       adapter: fantom.MetaMaskAdapter,
     },
   ];
+export const KARURA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
+  [
+    {
+      id: "metamask",
+      info: karuraMetaMaskInfo,
+      adapter: karura.MetaMaskAdapter,
+    },
+  ];
 export const ACALA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
   [
     {
@@ -208,5 +230,6 @@ export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {
   [EcosystemId.Polygon]: POLYGON_WALLET_SERVICES,
   [EcosystemId.Aurora]: AURORA_WALLET_SERVICES,
   [EcosystemId.Fantom]: FANTOM_WALLET_SERVICES,
+  [EcosystemId.Karura]: KARURA_WALLET_SERVICES,
   [EcosystemId.Acala]: ACALA_WALLET_SERVICES,
 };

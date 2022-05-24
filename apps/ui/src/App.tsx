@@ -15,6 +15,7 @@ import MediaPage from "./pages/MediaPage";
 import OtterTotsPage from "./pages/OtterTotsPage";
 import PoolPage from "./pages/PoolPage";
 import PoolsPage from "./pages/PoolsPage";
+import RedeemPage from "./pages/RedeemPage";
 import SecurityPage from "./pages/SecurityPage";
 import SetCustomLocalnetPage from "./pages/SetCustomLocalnetPage";
 import StakePage from "./pages/StakePage";
@@ -75,6 +76,11 @@ function App(): ReactElement {
               <Route exact path="/otter-tots">
                 <OtterTotsPage />
               </Route>
+              {process.env.REACT_APP_ENABLE_REDEEM && (
+                <Route path="/redeem">
+                  <RedeemPage />
+                </Route>
+              )}
               <Route path="/collectibles">
                 <CollectiblesPage />
               </Route>

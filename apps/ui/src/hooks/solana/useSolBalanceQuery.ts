@@ -1,4 +1,4 @@
-import { PublicKey } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
@@ -25,7 +25,7 @@ export const useSolBalanceQuery = (): UseQueryResult<Decimal, Error> => {
           new PublicKey(walletAddress),
         );
         // Convert lamports to SOL.
-        return new Decimal(balance).dividedBy(1000000000);
+        return new Decimal(balance).dividedBy(LAMPORTS_PER_SOL);
       } catch {
         return new Decimal(0);
       }

@@ -112,7 +112,7 @@ export function createSwapIx(
  * Transaction containing approve instruction must be signed by ownerKey.
  * Transaction containing swap instruction must be signed by userDelegateKey.
  * @param ownerKey the key controlling the user's input token account (USDC or USDT, depending on direction)
- * @returns approve and swap instruction
+ * @returns array containing approve and swap instructions
  */
 export function createApproveAndSwapIx(
   direction: SwapDirection,

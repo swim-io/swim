@@ -82,7 +82,7 @@ export const useEnvironment = create(
         customLocalnetIp: state.customLocalnetIp,
       }),
       merge: (
-        persistedState: any, // I need to use type any here, as by default is unknown and doesn't allows me to set it other way
+        persistedState: any, // TODO: Set type to unknown and validate
         currentState: EnvironmentState,
       ): EnvironmentState => {
         const { env, customLocalnetIp } = persistedState;

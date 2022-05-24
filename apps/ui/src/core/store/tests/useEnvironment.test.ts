@@ -78,18 +78,4 @@ describe("useEnvironment", () => {
     expect(result.current.env).toEqual(Env.Devnet);
     expect(result.current.envs).toEqual(Object.values(Env));
   });
-
-  it("calls setConfig and returns hydrated config base on stored env and ip", () => {
-    const { result } = renderHook(() => useEnvironment());
-
-    act(() => {
-      result.current.setEnv(Env.Localnet);
-    });
-
-    act(() => {
-      result.current.setConfig();
-    });
-    expect(result.current.env).toEqual(Env.Localnet);
-    expect(result.current.config).toEqual(configs[Env.Localnet]);
-  });
 });

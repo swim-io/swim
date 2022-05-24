@@ -1,6 +1,5 @@
 import * as Sentry from "@sentry/react";
 import type { ReactElement } from "react";
-import { useEffect } from "react";
 import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
 
 import "./App.scss";
@@ -9,9 +8,6 @@ import { AppCrashed, NewVersionAlert } from "./components/AppCrashed";
 import { Layout } from "./components/Layout";
 import Notification from "./components/Notification";
 import { AppContext } from "./contexts";
-import { selectSetConfig } from "./core/selectors";
-import { useEnvironment } from "./core/store";
-import { useHydration } from "./hooks";
 import CollectiblesPage from "./pages/CollectiblesPage";
 import HelpPage from "./pages/HelpPage";
 import HomePage from "./pages/HomePage";
@@ -28,15 +24,6 @@ import TosPage from "./pages/TosPage";
 import WormholePage from "./pages/WormholePage";
 
 function App(): ReactElement {
-  const setConfig = useEnvironment(selectSetConfig);
-  const hasHydrated = useHydration(useEnvironment);
-
-  useEffect(() => {
-    if (hasHydrated) {
-      setConfig();
-    }
-  }, [hasHydrated, setConfig]);
-
   return (
     <Sentry.ErrorBoundary
       fallback={({ error }) => {

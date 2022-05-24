@@ -10,20 +10,14 @@ import {
 } from "../../fixtures/swim/interactions";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
-import { useInteraction } from "./useInteraction";
 import { useRequiredTokensForInteraction } from "./useRequiredTokensForInteraction";
 
 jest.mock("../../contexts", () => ({
   ...jest.requireActual("../../contexts"),
   useConfig: jest.fn(),
 }));
-jest.mock("./useInteraction", () => ({
-  ...jest.requireActual("./useInteraction"),
-  useInteraction: jest.fn(),
-}));
 
 // Make typescript happy with jest
-const useInteractionMock = mockOf(useInteraction);
 const useConfigMock = mockOf(useConfig);
 
 describe("useRequiredTokensForInteraction", () => {
@@ -34,9 +28,8 @@ describe("useRequiredTokensForInteraction", () => {
   });
 
   it("should return required tokens for ETH USDC to SOL USDC Swap", async () => {
-    useInteractionMock.mockReturnValue(ETH_USDC_TO_SOL_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
-      useRequiredTokensForInteraction(ETH_USDC_TO_SOL_USDC_SWAP.id),
+      useRequiredTokensForInteraction(ETH_USDC_TO_SOL_USDC_SWAP),
     );
     expect(result.current.map(({ id }) => id)).toEqual([
       "localnet-ethereum-usdc",
@@ -45,9 +38,8 @@ describe("useRequiredTokensForInteraction", () => {
   });
 
   it("should return required tokens for SOL USDC to ETH USDC Swap", async () => {
-    useInteractionMock.mockReturnValue(SOL_USDC_TO_ETH_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
-      useRequiredTokensForInteraction(SOL_USDC_TO_ETH_USDC_SWAP.id),
+      useRequiredTokensForInteraction(SOL_USDC_TO_ETH_USDC_SWAP),
     );
     expect(result.current.map(({ id }) => id)).toEqual([
       "localnet-solana-usdc",
@@ -56,9 +48,8 @@ describe("useRequiredTokensForInteraction", () => {
   });
 
   it("should return required tokens for SOL USDC to SOL USDT Swap", async () => {
-    useInteractionMock.mockReturnValue(SOL_USDC_TO_SOL_USDT_SWAP);
     const { result } = renderHookWithAppContext(() =>
-      useRequiredTokensForInteraction(SOL_USDC_TO_SOL_USDT_SWAP.id),
+      useRequiredTokensForInteraction(SOL_USDC_TO_SOL_USDT_SWAP),
     );
     expect(result.current.map(({ id }) => id)).toEqual([
       "localnet-solana-usdc",
@@ -67,9 +58,8 @@ describe("useRequiredTokensForInteraction", () => {
   });
 
   it("should return required tokens for BSC USDT to ETH USDC Swap", async () => {
-    useInteractionMock.mockReturnValue(BSC_USDT_TO_ETH_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
-      useRequiredTokensForInteraction(BSC_USDT_TO_ETH_USDC_SWAP.id),
+      useRequiredTokensForInteraction(BSC_USDT_TO_ETH_USDC_SWAP),
     );
     expect(result.current.map(({ id }) => id)).toEqual([
       "localnet-bsc-usdt",

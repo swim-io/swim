@@ -34,6 +34,11 @@ export const fantomAdapters = {
   MetaMaskAdapter,
 };
 
+export const karuraAdapters = {
+  MathWalletAdapter,
+  MetaMaskAdapter,
+};
+
 export const acalaAdapters = {
   MathWalletAdapter,
   MetaMaskAdapter,

@@ -6,6 +6,7 @@ import {
   bscAdapters,
   ethereumAdapters,
   fantomAdapters,
+  karuraAdapters,
   polygonAdapters,
 } from "./evm";
 import type { SolanaWalletAdapter } from "./solana";
@@ -22,6 +23,7 @@ export const adapters = {
   bsc: bscAdapters,
   ethereum: ethereumAdapters,
   fantom: fantomAdapters,
+  karura: karuraAdapters,
   polygon: polygonAdapters,
   solana: solanaAdapters,
 };

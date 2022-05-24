@@ -15,3 +15,4 @@ export * from "./stepsState";
 export * from "./storeInteraction";
 export * from "./transfer";
 export * from "./utils";
+export * from "./interactionState";

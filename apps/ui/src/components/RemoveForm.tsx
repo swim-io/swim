@@ -39,6 +39,7 @@ import {
   InteractionType,
   Status,
   getLowBalanceWallets,
+  isValidSlippageFraction,
 } from "../models";
 import type { ReadonlyRecord } from "../utils";
 import {
@@ -52,7 +53,6 @@ import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
-import { isValidSlippageFraction } from "./SlippageButton";
 import { StepsDisplay } from "./StepsDisplay";
 import { TokenIcon } from "./TokenIcon";
 

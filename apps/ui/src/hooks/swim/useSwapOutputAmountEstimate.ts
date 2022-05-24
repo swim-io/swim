@@ -2,9 +2,16 @@ import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
-import type { PoolMath } from "../../models";
-import { Amount, SwimDefiInstruction } from "../../models";
+import { useConfig } from "../../contexts";
+import {
+  Amount,
+  SwimDefiInstruction,
+  getRequiredPoolsForSwap,
+  getTokensByPool,
+} from "../../models";
 import { isEachNotNull } from "../../utils";
+
+import { usePoolMaths } from "./usePoolMaths";
 
 interface PoolTokens {
   readonly tokens: readonly TokenSpec[];
@@ -88,26 +95,28 @@ const routeSwap = (
 };
 
 export const useSwapOutputAmountEstimate = (
-  poolMaths: readonly (PoolMath | null)[],
-  inputPoolTokens: {
-    readonly tokens: readonly TokenSpec[];
-    readonly lpToken: TokenSpec;
-  } | null,
-  outputPoolTokens: {
-    readonly tokens: readonly TokenSpec[];
-    readonly lpToken: TokenSpec;
-  } | null,
-  toToken: TokenSpec | null,
-  exactInputAmount: Amount | null,
+  exactInputAmount: Amount,
+  toToken: TokenSpec,
 ): Amount | null => {
+  const config = useConfig();
+  const fromToken = exactInputAmount.tokenSpec;
+  const tokensByPool = getTokensByPool(config);
+  const requiredPools = getRequiredPoolsForSwap(
+    config.pools,
+    fromToken.id,
+    toToken.id,
+  );
+  const poolIds = requiredPools.map((pool) => pool.id);
+  const poolMaths = usePoolMaths(poolIds);
+  const inputPool = requiredPools[0];
+  const outputPool = requiredPools[requiredPools.length - 1];
+  const inputPoolTokens = tokensByPool[inputPool.id];
+  const outputPoolTokens = tokensByPool[outputPool.id];
+
   if (
     poolMaths.length < 1 ||
     poolMaths.length > 2 ||
-    !isEachNotNull(poolMaths) ||
-    inputPoolTokens === null ||
-    outputPoolTokens === null ||
-    exactInputAmount === null ||
-    toToken === null
+    !isEachNotNull(poolMaths)
   ) {
     return null;
   }

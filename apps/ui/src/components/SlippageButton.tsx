@@ -13,6 +13,7 @@ import Decimal from "decimal.js";
 import type { ChangeEvent, ReactElement } from "react";
 import { useMemo, useState } from "react";
 
+import { isValidSlippageFraction } from "../models";
 import { defaultIfError } from "../utils";
 
 const SLIPPAGE_PRESETS = [
@@ -32,13 +33,6 @@ const SLIPPAGE_PRESETS = [
     value: 1.0,
   },
 ];
-
-export const isValidSlippageFraction = (
-  slippageFraction: Decimal | null,
-): boolean =>
-  slippageFraction !== null &&
-  slippageFraction.greaterThanOrEqualTo(0) &&
-  slippageFraction.lessThanOrEqualTo(1);
 
 export const SlippageButton = ({
   slippagePercent,

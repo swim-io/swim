@@ -19,7 +19,6 @@ describe("useEnvironment", () => {
 
     const initState = {
       env: DEFAULT_ENV,
-      envs: [DEFAULT_ENV],
       config: configs[DEFAULT_ENV],
       customLocalnetIp: null,
     };
@@ -35,7 +34,6 @@ describe("useEnvironment", () => {
 
     expect(state.current.customLocalnetIp).toEqual(null);
     expect(state.current.env).toEqual(DEFAULT_ENV);
-    expect(state.current.envs).toEqual([DEFAULT_ENV]);
   });
   it("calls setCustomLocalnetIp func and sets customLocalnetIp with new IP", () => {
     const { result: state } = renderHook(() => useEnvironment());
@@ -46,7 +44,6 @@ describe("useEnvironment", () => {
     const expected = {
       customLocalnetIp: CUSTOM_LOCALNET_IP,
       config: getConfig(DEFAULT_ENV, CUSTOM_LOCALNET_IP),
-      envs: Object.values(Env),
       env: useEnvironment.getState().env,
     };
 
@@ -61,7 +58,6 @@ describe("useEnvironment", () => {
 
     expect(state.current.customLocalnetIp).toEqual(null);
     expect(state.current.config).toEqual(configs[Env.Mainnet]);
-    expect(state.current.envs).toEqual([Env.Mainnet]);
     expect(state.current.env).toEqual(Env.Mainnet);
   });
   it("calls setEnv func with Devnet argument and returns Devnet env as customLocalnetIp is not null", () => {
@@ -75,6 +71,5 @@ describe("useEnvironment", () => {
     });
     expect(result.current.customLocalnetIp).toEqual(CUSTOM_LOCALNET_IP);
     expect(result.current.env).toEqual(Env.Devnet);
-    expect(result.current.envs).toEqual(Object.values(Env));
   });
 });

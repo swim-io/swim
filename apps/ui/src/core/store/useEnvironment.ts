@@ -22,7 +22,6 @@ export enum Env {
 }
 export interface EnvironmentState {
   readonly env: Env;
-  readonly envs: readonly Env[];
   readonly config: Config;
   readonly customLocalnetIp: string | null;
   readonly setEnv: (newEnv: Env) => void;
@@ -48,7 +47,6 @@ export const useEnvironment = create(
       api: StoreApi<EnvironmentState>,
     ) => ({
       env: DEFAULT_ENV,
-      envs: [DEFAULT_ENV],
       config: configs[DEFAULT_ENV],
       customLocalnetIp: null,
       setEnv: (newEnv: Env) => {
@@ -68,7 +66,6 @@ export const useEnvironment = create(
         set(
           produce<EnvironmentState>((draft) => {
             draft.customLocalnetIp = ip;
-            draft.envs = ip === null ? [DEFAULT_ENV] : Object.values(Env);
             draft.env = isValidEnv(api.getState().env)
               ? api.getState().env
               : DEFAULT_ENV;
@@ -82,17 +79,16 @@ export const useEnvironment = create(
       getStorage: (): StateStorage => localStorage,
       partialize: (state: EnvironmentState) => ({
         env: state.env,
-        envs: state.envs,
         customLocalnetIp: state.customLocalnetIp,
       }),
       merge: (
         persistedState: any, // I need to use type any here, as by default is unknown and doesn't allows me to set it other way
         currentState: EnvironmentState,
       ): EnvironmentState => {
-        const { env, envs, customLocalnetIp } = persistedState;
+        const { env, customLocalnetIp } = persistedState;
         if (isValidEnv(env) && customLocalnetIp !== null) {
           const config = getConfig(env, customLocalnetIp);
-          return { ...currentState, env, envs, customLocalnetIp, config };
+          return { ...currentState, env, customLocalnetIp, config };
         }
         return { ...currentState, ...persistedState };
       },

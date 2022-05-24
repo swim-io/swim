@@ -1,4 +1,4 @@
-import { PublicKey } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
@@ -9,6 +9,7 @@ import {
   useSolanaWallet,
 } from "../../contexts";
 
+// Returns user's Solana balance in SOL.
 export const useSolBalanceQuery = (): UseQueryResult<Decimal, Error> => {
   const { env } = useEnvironment();
   const solanaConnection = useSolanaConnection();
@@ -23,7 +24,8 @@ export const useSolBalanceQuery = (): UseQueryResult<Decimal, Error> => {
         const balance = await solanaConnection.getBalance(
           new PublicKey(walletAddress),
         );
-        return new Decimal(balance);
+        // Convert lamports to SOL.
+        return new Decimal(balance).dividedBy(LAMPORTS_PER_SOL);
       } catch {
         return new Decimal(0);
       }

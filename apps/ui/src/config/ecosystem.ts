@@ -4,6 +4,7 @@ import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
 import BSC_SVG from "../images/ecosystems/bsc.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
 import FANTOM_SVG from "../images/ecosystems/fantom.svg";
+import KARURA_SVG from "../images/ecosystems/karura.svg";
 import POLYGON_SVG from "../images/ecosystems/polygon.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import TERRA_SVG from "../images/ecosystems/terra.svg";
@@ -40,6 +41,8 @@ export const enum EcosystemId {
   /** Only valid for Protocol.Evm chains */
   Fantom = "fantom",
   /** Only valid for Protocol.Evm chains */
+  Karura = "karura",
+  /** Only valid for Protocol.Evm chains */
   Acala = "acala",
 }
 
@@ -53,6 +56,7 @@ export type EvmEcosystemId = Extract<
   | EcosystemId.Polygon
   | EcosystemId.Aurora
   | EcosystemId.Fantom
+  | EcosystemId.Karura
   | EcosystemId.Acala
 >;
 
@@ -66,6 +70,7 @@ export const isEvmEcosystemId = (
     EcosystemId.Polygon,
     EcosystemId.Aurora,
     EcosystemId.Fantom,
+    EcosystemId.Karura,
     EcosystemId.Acala,
   ].includes(ecosystemId);
 
@@ -135,6 +140,13 @@ export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> = {
     displayName: "Fantom",
     logo: FANTOM_SVG,
     nativeTokenSymbol: "FTM",
+  },
+  [EcosystemId.Karura]: {
+    protocol: Protocol.Evm,
+    wormholeChainId: WormholeChainId.Karura,
+    displayName: "Karura",
+    logo: KARURA_SVG,
+    nativeTokenSymbol: "KAR",
   },
   [EcosystemId.Acala]: {
     protocol: Protocol.Evm,

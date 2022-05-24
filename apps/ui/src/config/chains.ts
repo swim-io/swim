@@ -37,7 +37,10 @@ export const enum EvmChainId {
   FantomMainnet = 250,
   FantomTestnet = 4002,
   FantomLocalnet = 4003, // TODO: This is a placeholder
-  AcalaMainnet = 0, // TODO: Update
+  KaruraMainnet = 685, // TODO: Update
+  KaruraTestnet = 686,
+  KaruraLocalnet = 687, // TODO: This is a placeholder
+  AcalaMainnet = 786, // TODO: Update
   AcalaTestnet = 787,
   AcalaLocalnet = 788, // TODO: This is a placeholder
 }
@@ -62,6 +65,9 @@ export const evmChainIdToEcosystem: ReadonlyRecord<EvmChainId, EvmEcosystemId> =
     [EvmChainId.FantomMainnet]: EcosystemId.Fantom,
     [EvmChainId.FantomTestnet]: EcosystemId.Fantom,
     [EvmChainId.FantomLocalnet]: EcosystemId.Fantom,
+    [EvmChainId.KaruraMainnet]: EcosystemId.Karura,
+    [EvmChainId.KaruraTestnet]: EcosystemId.Karura,
+    [EvmChainId.KaruraLocalnet]: EcosystemId.Karura,
     [EvmChainId.AcalaMainnet]: EcosystemId.Acala,
     [EvmChainId.AcalaTestnet]: EcosystemId.Acala,
     [EvmChainId.AcalaLocalnet]: EcosystemId.Acala,
@@ -155,6 +161,12 @@ const FANTOM_NATIVE_CURRENCY = {
   decimals: 18, // no other value is allowed by Metamask
 };
 
+const KARURA_NATIVE_CURRENCY = {
+  name: "Karura",
+  symbol: "KAR",
+  decimals: 18, // no other value is allowed by Metamask
+};
+
 const ACALA_NATIVE_CURRENCY = {
   name: "Acala",
   symbol: "ACA",
@@ -240,6 +252,17 @@ const mainnetChains: ChainsByProtocol = {
       wormhole: {
         bridge: "0x126783A6Cb203a3E35344528B26ca3a0489a1485",
         tokenBridge: "0x7C9Fc5741288cDFdD83CeB07f3ea7e22618D79D2",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Karura,
+      chainId: EvmChainId.KaruraMainnet,
+      chainName: "Karura Mainnet",
+      nativeCurrency: KARURA_NATIVE_CURRENCY,
+      rpcUrls: ["https://karura.api.onfinality.io/public-rpc"], // TODO: Think about what is best to recommend to MetaMask
+      wormhole: {
+        bridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
+        tokenBridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
       },
     },
     {
@@ -339,6 +362,17 @@ const devnetChains: ChainsByProtocol = {
       },
     },
     {
+      ecosystem: EcosystemId.Karura,
+      chainId: EvmChainId.KaruraTestnet,
+      chainName: "Karura Testnet",
+      nativeCurrency: KARURA_NATIVE_CURRENCY,
+      rpcUrls: ["https://tc7-eth.aca-dev.network"], // TODO: Think about what is best to recommend to MetaMask. Also is this really the same as Acala?
+      wormhole: {
+        bridge: "0xE4eacc10990ba3308DdCC72d985f2a27D20c7d03",
+        tokenBridge: "0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37",
+      },
+    },
+    {
       ecosystem: EcosystemId.Acala,
       chainId: EvmChainId.AcalaTestnet,
       chainName: "Acala Testnet",
@@ -428,7 +462,18 @@ const localnetChains: ChainsByProtocol = {
       chainId: EvmChainId.FantomLocalnet,
       chainName: "Fantom Localnet",
       nativeCurrency: FANTOM_NATIVE_CURRENCY,
-      rpcUrls: ["http://localhost:8549"],
+      rpcUrls: ["http://localhost:8550"],
+      wormhole: {
+        bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
+        tokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
+      },
+    },
+    {
+      ecosystem: EcosystemId.Karura,
+      chainId: EvmChainId.KaruraLocalnet,
+      chainName: "Karura Localnet",
+      nativeCurrency: KARURA_NATIVE_CURRENCY,
+      rpcUrls: ["http://localhost:8551"],
       wormhole: {
         bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
         tokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
@@ -439,7 +484,7 @@ const localnetChains: ChainsByProtocol = {
       chainId: EvmChainId.AcalaLocalnet,
       chainName: "Acala Localnet",
       nativeCurrency: ACALA_NATIVE_CURRENCY,
-      rpcUrls: ["http://localhost:8550"],
+      rpcUrls: ["http://localhost:8552"],
       wormhole: {
         bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
         tokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",

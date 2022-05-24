@@ -34,6 +34,7 @@ export const ETH_USDC_TO_SOL_USDC_SWAP: SwapInteraction = {
     polygon: null,
     aurora: null,
     fantom: null,
+    karura: null,
     acala: null,
   },
 };
@@ -62,6 +63,7 @@ export const SOL_USDC_TO_ETH_USDC_SWAP: SwapInteraction = {
     polygon: null,
     aurora: null,
     fantom: null,
+    karura: null,
     acala: null,
   },
 };
@@ -90,6 +92,7 @@ export const SOL_USDC_TO_SOL_USDT_SWAP: SwapInteraction = {
     polygon: null,
     aurora: null,
     fantom: null,
+    karura: null,
     acala: null,
   },
 };
@@ -118,6 +121,7 @@ export const BSC_USDT_TO_ETH_USDC_SWAP: SwapInteraction = {
     polygon: null,
     aurora: null,
     fantom: null,
+    karura: null,
     acala: null,
   },
 };
@@ -160,6 +164,7 @@ export const ADD: AddInteraction = {
     polygon: null,
     aurora: null,
     fantom: null,
+    karura: null,
     acala: null,
   },
 };

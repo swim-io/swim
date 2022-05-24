@@ -3653,6 +3653,105 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metaplex-foundation/mpl-auction@npm:^0.0.2":
+  version: 0.0.2
+  resolution: "@metaplex-foundation/mpl-auction@npm:0.0.2"
+  dependencies:
+    "@metaplex-foundation/mpl-core": ^0.0.2
+    "@solana/spl-token": ^0.1.8
+    "@solana/web3.js": ^1.31.0
+  checksum: bb8844835a6fc4313c77ea744c7a1feaa732c134098433d34f37ef5de76ea7717a710d03d6b4bdb3ab33a25b31b081ec1a6e54cef8c669c4cf0ae6208334e960
+  languageName: node
+  linkType: hard
+
+"@metaplex-foundation/mpl-core@npm:^0.0.2":
+  version: 0.0.2
+  resolution: "@metaplex-foundation/mpl-core@npm:0.0.2"
+  dependencies:
+    "@solana/web3.js": ^1.31.0
+    bs58: ^4.0.1
+  checksum: f74ad09538dbd8b567c349724310ed3ca1e3c9d7e65992ea32077294b09791cd246ab2ac0c29c0a8ed00aaccb6858dbb0fffc55e7e788da7c418f2ed094a1d9a
+  languageName: node
+  linkType: hard
+
+"@metaplex-foundation/mpl-metaplex@npm:^0.0.5":
+  version: 0.0.5
+  resolution: "@metaplex-foundation/mpl-metaplex@npm:0.0.5"
+  dependencies:
+    "@metaplex-foundation/mpl-auction": ^0.0.2
+    "@metaplex-foundation/mpl-core": ^0.0.2
+    "@metaplex-foundation/mpl-token-metadata": ^0.0.2
+    "@metaplex-foundation/mpl-token-vault": ^0.0.2
+    "@solana/spl-token": ^0.1.8
+    "@solana/web3.js": ^1.31.0
+  checksum: 749be4932dcfe3f5c48cc1ac194e1ee92ee92f01359699d53abf755937ab3e10026a06c68ae76924bfb4828ae24c8f378ea9fffabe98a39df353289cd6e5c3d6
+  languageName: node
+  linkType: hard
+
+"@metaplex-foundation/mpl-token-metadata@npm:^0.0.2":
+  version: 0.0.2
+  resolution: "@metaplex-foundation/mpl-token-metadata@npm:0.0.2"
+  dependencies:
+    "@metaplex-foundation/mpl-core": ^0.0.2
+    "@solana/spl-token": ^0.1.8
+    "@solana/web3.js": ^1.31.0
+  checksum: 03064927d289cd3de12b238c233cb06ce7476338b7bf203e5c02828048d0e51c438ba90c9151d24c379618270cfcd05cee327ca9dc7b100d1108c4301ad3388b
+  languageName: node
+  linkType: hard
+
+"@metaplex-foundation/mpl-token-metadata@npm:^1.1.0":
+  version: 1.2.5
+  resolution: "@metaplex-foundation/mpl-token-metadata@npm:1.2.5"
+  dependencies:
+    "@metaplex-foundation/mpl-core": ^0.0.2
+    "@solana/spl-token": ^0.1.8
+    "@solana/web3.js": ^1.31.0
+  checksum: 89037642dfbb2ee465e6976dd0430188eee77db6f6266e70f037abc0d8672e12f8aca47fc78ce13c20bd2832ea126c88aff599915333ed0c96e6e88e0baa9db4
+  languageName: node
+  linkType: hard
+
+"@metaplex-foundation/mpl-token-vault@npm:^0.0.2":
+  version: 0.0.2
+  resolution: "@metaplex-foundation/mpl-token-vault@npm:0.0.2"
+  dependencies:
+    "@metaplex-foundation/mpl-core": ^0.0.2
+    "@solana/spl-token": ^0.1.8
+    "@solana/web3.js": ^1.31.0
+  checksum: 4543fc4142f59f447a19b26162d22c8547cb9b94cf2cc386f0d33db85fb06777d19d34792f7d63e0a9f4bb5549b2819e1f1b9cc2420af5effcdb84799dfe6616
+  languageName: node
+  linkType: hard
+
+"@metaplex/js@npm:^4.12.0":
+  version: 4.12.0
+  resolution: "@metaplex/js@npm:4.12.0"
+  dependencies:
+    "@metaplex-foundation/mpl-auction": ^0.0.2
+    "@metaplex-foundation/mpl-core": ^0.0.2
+    "@metaplex-foundation/mpl-metaplex": ^0.0.5
+    "@metaplex-foundation/mpl-token-metadata": ^1.1.0
+    "@metaplex-foundation/mpl-token-vault": ^0.0.2
+    "@solana/spl-token": ^0.1.8
+    "@solana/web3.js": ^1.30.2
+    "@types/bs58": ^4.0.1
+    axios: ^0.25.0
+    bn.js: ^5.2.0
+    borsh: ^0.4.0
+    bs58: ^4.0.1
+    buffer: ^6.0.3
+    crypto-hash: ^1.3.0
+    form-data: ^4.0.0
+  peerDependencies:
+    "@metaplex-foundation/mpl-auction": ^0.0.2
+    "@metaplex-foundation/mpl-core": ^0.0.2
+    "@metaplex-foundation/mpl-metaplex": ^0.0.5
+    "@metaplex-foundation/mpl-token-metadata": ^0.0.2
+    "@metaplex-foundation/mpl-token-vault": ^0.0.2
+    "@solana/spl-token": ^0.1.8
+    "@solana/web3.js": ^1.30.2
+  checksum: b712095f3e33684e873d804bed72f0d1760c623361362e22bce1b206b3ca262dfbcd68f69249a4199315ff5d24c0ab6831b0d550b9055de6f97da4ac4c125ba0
+  languageName: node
+  linkType: hard
+
 "@mrmlnc/readdir-enhanced@npm:^2.2.1":
   version: 2.2.1
   resolution: "@mrmlnc/readdir-enhanced@npm:2.2.1"
@@ -4102,6 +4201,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@solana/buffer-layout-utils@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@solana/buffer-layout-utils@npm:0.2.0"
+  dependencies:
+    "@solana/buffer-layout": ^4.0.0
+    "@solana/web3.js": ^1.32.0
+    bigint-buffer: ^1.1.5
+    bignumber.js: ^9.0.1
+  checksum: 9284242245b18b49577195ba7548263850be865a4a2d183944fa01bb76382039db589aab8473698e9bb734b515ada9b4d70db0a72e341c5d567c59b83d6d0840
+  languageName: node
+  linkType: hard
+
 "@solana/buffer-layout@npm:^4.0.0":
   version: 4.0.0
   resolution: "@solana/buffer-layout@npm:4.0.0"
@@ -4146,6 +4257,31 @@ __metadata:
     superstruct: ^0.14.2
     tweetnacl: ^1.0.0
   checksum: b686c1df0b09828cb7b23e19270bc6c5a450640f5913b0c2d852ced9e5e7ab29c352a47f0c915a867f4e7e0677f59b0a623cf58ae583e49422fc482355800a3d
+  languageName: node
+  linkType: hard
+
+"@solana/web3.js@npm:^1.30.2, @solana/web3.js@npm:^1.31.0, @solana/web3.js@npm:^1.32.0":
+  version: 1.41.4
+  resolution: "@solana/web3.js@npm:1.41.4"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+    "@ethersproject/sha2": ^5.5.0
+    "@solana/buffer-layout": ^4.0.0
+    "@solana/buffer-layout-utils": ^0.2.0
+    bn.js: ^5.0.0
+    borsh: ^0.7.0
+    bs58: ^4.0.1
+    buffer: 6.0.1
+    cross-fetch: ^3.1.4
+    fast-stable-stringify: ^1.0.0
+    jayson: ^3.4.4
+    js-sha3: ^0.8.0
+    rpc-websockets: ^7.4.2
+    secp256k1: ^4.0.2
+    sinon-chai: ^3.7.0
+    superstruct: ^0.14.2
+    tweetnacl: ^1.0.0
+  checksum: 09fc9ac1e723a9559e26dded0a0590c9a09be5028c182156bd61ac489188da4dd3b30c45801a2bab6565e002eda740511714c2e0ace612f344f41278be721d57
   languageName: node
   linkType: hard
 
@@ -5618,6 +5754,7 @@ __metadata:
     "@elastic/eui": ^38.2.0
     "@ethers-ancillary/bsc": ^0.0.3
     "@ledgerhq/hw-transport-webusb": ^6.0.2
+    "@metaplex/js": ^4.12.0
     "@project-serum/borsh": ^0.2.2
     "@project-serum/sol-wallet-adapter": ^0.2.4
     "@sayari/eslint-plugin": ^0.0.1-rc.4
@@ -5672,6 +5809,7 @@ __metadata:
     react: ^17.0.2
     react-dom: ^17.0.2
     react-query: 3.25.1
+    react-responsive-carousel: ^3.2.23
     react-router-dom: ^5.2.0
     react-scripts: 4.0.3
     typechain: ^5.1.2
@@ -5937,12 +6075,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/bn.js@npm:^4.11.5":
+  version: 4.11.6
+  resolution: "@types/bn.js@npm:4.11.6"
+  dependencies:
+    "@types/node": "*"
+  checksum: 7f66f2c7b7b9303b3205a57184261974b114495736b77853af5b18d857c0b33e82ce7146911e86e87a87837de8acae28986716fd381ac7c301fd6e8d8b6c811f
+  languageName: node
+  linkType: hard
+
 "@types/bn.js@npm:^5.1.0":
   version: 5.1.0
   resolution: "@types/bn.js@npm:5.1.0"
   dependencies:
     "@types/node": "*"
   checksum: 1dc1cbbd7a1e8bf3614752e9602f558762a901031f499f3055828b5e3e2bba16e5b88c27b3c4152ad795248fbe4086c731a5c4b0f29bb243f1875beeeabee59c
+  languageName: node
+  linkType: hard
+
+"@types/bs58@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@types/bs58@npm:4.0.1"
+  dependencies:
+    base-x: ^3.0.6
+  checksum: 5063fed6bb3816f28eef3e689a05f8f85d03ce7c2e3ceefe77c349ed147023999eb024e863bf3fa81ba2bded690e5296efe4d34864c875097bd261614e37f786
   languageName: node
   linkType: hard
 
@@ -8113,6 +8269,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^0.25.0":
+  version: 0.25.0
+  resolution: "axios@npm:0.25.0"
+  dependencies:
+    follow-redirects: ^1.14.7
+  checksum: 2a8a3787c05f2a0c9c3878f49782357e2a9f38945b93018fb0c4fd788171c43dceefbb577988628e09fea53952744d1ecebde234b561f1e703aa43e0a598a3ad
+  languageName: node
+  linkType: hard
+
 "axobject-query@npm:^2.2.0":
   version: 2.2.0
   resolution: "axobject-query@npm:2.2.0"
@@ -8459,7 +8624,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base-x@npm:^3.0.2":
+"base-x@npm:^3.0.2, base-x@npm:^3.0.6":
   version: 3.0.9
   resolution: "base-x@npm:3.0.9"
   dependencies:
@@ -8555,7 +8720,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bignumber.js@npm:^9.0.0":
+"bigint-buffer@npm:^1.1.5":
+  version: 1.1.5
+  resolution: "bigint-buffer@npm:1.1.5"
+  dependencies:
+    bindings: ^1.3.0
+    node-gyp: latest
+  checksum: d010c9f57758bcdaccb435d88b483ffcc95fe8bbc6e7fb3a44fb5221f29c894ffaf4a3c5a4a530e0e7d6608203c2cde9b79ee4f2386cd6d4462d1070bc8c9f4e
+  languageName: node
+  linkType: hard
+
+"bignumber.js@npm:^9.0.0, bignumber.js@npm:^9.0.1":
   version: 9.0.2
   resolution: "bignumber.js@npm:9.0.2"
   checksum: 8637b71d0a99104b20413c47578953970006fec6b4df796b9dcfd9835ea9c402ea0e727eba9a5ca9f9a393c1d88b6168c5bbe0887598b708d4f8b4870ad62e1f
@@ -8680,6 +8855,18 @@ __metadata:
   version: 1.0.0
   resolution: "boolbase@npm:1.0.0"
   checksum: 3e25c80ef626c3a3487c73dbfc70ac322ec830666c9ad915d11b701142fab25ec1e63eff2c450c74347acfd2de854ccde865cd79ef4db1683f7c7b046ea43bb0
+  languageName: node
+  linkType: hard
+
+"borsh@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "borsh@npm:0.4.0"
+  dependencies:
+    "@types/bn.js": ^4.11.5
+    bn.js: ^5.0.0
+    bs58: ^4.0.0
+    text-encoding-utf-8: ^1.0.2
+  checksum: 75c836bac336d703395f9e8fb6b54a5c02c56cfc54fd597e387a97f13a6e4849a906f1f0cd05e0f9b889a2ed26f592d269c421c70a808ccc3a66ef857597bf1a
   languageName: node
   linkType: hard
 
@@ -8978,7 +9165,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:6.0.3, buffer@npm:^6.0.2, buffer@npm:~6.0.3":
+"buffer@npm:6.0.3, buffer@npm:^6.0.2, buffer@npm:^6.0.3, buffer@npm:~6.0.3":
   version: 6.0.3
   resolution: "buffer@npm:6.0.3"
   dependencies:
@@ -9503,7 +9690,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classnames@npm:^2.2.6":
+"classnames@npm:^2.2.5, classnames@npm:^2.2.6":
   version: 2.3.1
   resolution: "classnames@npm:2.3.1"
   checksum: 14db8889d56c267a591f08b0834989fe542d47fac659af5a539e110cc4266694e8de86e4e3bbd271157dbd831361310a8293e0167141e80b0f03a0f175c80960
@@ -10224,6 +10411,13 @@ __metadata:
     randombytes: ^2.0.0
     randomfill: ^1.0.3
   checksum: c1609af82605474262f3eaa07daa0b2140026bd264ab316d4bf1170272570dbe02f0c49e29407fe0d3634f96c507c27a19a6765fb856fed854a625f9d15618e2
+  languageName: node
+  linkType: hard
+
+"crypto-hash@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "crypto-hash@npm:1.3.0"
+  checksum: a3a507e0d2b18fbd2da8088a1c62d0c53c009a99bbfa6d851cac069734ffa546922fa51bdd776d006459701cdda873463e5059ece3431aca048fd99e7573d138
   languageName: node
   linkType: hard
 
@@ -12911,6 +13105,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"follow-redirects@npm:^1.14.7":
+  version: 1.15.0
+  resolution: "follow-redirects@npm:1.15.0"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: eaec81c3e0ae57aae2422e38ad3539d0e7279b3a63f9681eeea319bb683dea67502c4e097136b8ce9721542b4e236e092b6b49e34e326cdd7733c274f0a3f378
+  languageName: node
+  linkType: hard
+
 "for-in@npm:^1.0.2":
   version: 1.0.2
   resolution: "for-in@npm:1.0.2"
@@ -12989,6 +13193,17 @@ __metadata:
     combined-stream: ^1.0.8
     mime-types: ^2.1.12
   checksum: b019e8d35c8afc14a2bd8a7a92fa4f525a4726b6d5a9740e8d2623c30e308fbb58dc8469f90415a856698933c8479b01646a9dff33c87cc4e76d72aedbbf860d
+  languageName: node
+  linkType: hard
+
+"form-data@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "form-data@npm:4.0.0"
+  dependencies:
+    asynckit: ^0.4.0
+    combined-stream: ^1.0.8
+    mime-types: ^2.1.12
+  checksum: 01135bf8675f9d5c61ff18e2e2932f719ca4de964e3be90ef4c36aacfc7b9cb2fceb5eca0b7e0190e3383fe51c5b37f4cb80b62ca06a99aaabfcfd6ac7c9328c
   languageName: node
   linkType: hard
 
@@ -20253,6 +20468,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-easy-swipe@npm:^0.0.21":
+  version: 0.0.21
+  resolution: "react-easy-swipe@npm:0.0.21"
+  dependencies:
+    prop-types: ^15.5.8
+  checksum: 225f12a9dd410db1c790220867ab1eb58e2ef0a2bdae8541330805fc5b9905e242ab307b019f9aaed76473849a753f363baff03fa8a77e7a1860d7b41dc83ec0
+  languageName: node
+  linkType: hard
+
 "react-element-to-jsx-string@npm:^14.3.4":
   version: 14.3.4
   resolution: "react-element-to-jsx-string@npm:14.3.4"
@@ -20466,6 +20690,17 @@ __metadata:
     "@types/react":
       optional: true
   checksum: ddf6919dc630142029de919847fcd81ab9513955adb7edda2dbd55cf8b69ac733badfba938b8e82704e98a8b61c545f161075e9b44de9d0910f2efdbca776408
+  languageName: node
+  linkType: hard
+
+"react-responsive-carousel@npm:^3.2.23":
+  version: 3.2.23
+  resolution: "react-responsive-carousel@npm:3.2.23"
+  dependencies:
+    classnames: ^2.2.5
+    prop-types: ^15.5.8
+    react-easy-swipe: ^0.0.21
+  checksum: 8a5b915f140a05425554a0c108c60a0b103dae49808486d39147df09c832ad712c7d7f4a66f0d0c39529ca095b4a327f0cc440d91b5f7a39ab13076931f74bd0
   languageName: node
   linkType: hard
 

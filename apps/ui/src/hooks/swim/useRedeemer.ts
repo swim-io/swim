@@ -1,15 +1,14 @@
 import * as anchor from "@project-serum/anchor";
-import { RedeemerSpec } from "../../config/redeemer";
-import {
-  useConfig,
-  useEnvironment,
-  useSolanaConnection,
-  useSolanaWallet,
-} from "../../contexts";
-import { findProgramAddress, getAssociatedTokenAddress } from "../../utils";
-import { useLiquidityQuery, useSplTokenAccountsQuery } from "../solana";
-import { PublicKey } from "@solana/web3.js";
+import type { PublicKey } from "@solana/web3.js";
 
+import type { RedeemerSpec } from "../../config/redeemer";
+import { useConfig } from "../../contexts";
+import {
+  findProgramAddress,
+  getAssociatedTokenAddress,
+} from "../../models/solana/utils";
+
+// this file is pretty sus
 // const redeemAmount = (await program.account.mplRedeemer.fetch(redeemerPDA)).redeemAmount;
 // console.log(`redeemAmount: ${redeemAmount}`);
 // const redeemCount = (await program.account.mplRedeemer.fetch(redeemerPDA)).redeemCount;
@@ -17,42 +16,34 @@ import { PublicKey } from "@solana/web3.js";
 
 export interface RedeemerData {
   readonly spec: RedeemerSpec;
-  readonly pda: string;
-  readonly vault: string;
+  readonly pda: PublicKey;
+  readonly vault: PublicKey;
 }
 
 const REDEEMER_PREFIX = "redeemer";
 const utf8 = anchor.utils.bytes.utf8;
 
 export const useRedeemer = (nftCollectionId: string | null): RedeemerData => {
-  const { env } = useEnvironment();
   const { redeemers } = useConfig();
-  const solanaConnection = useSolanaConnection();
-  const { address: walletAddress } = useSolanaWallet();
-  const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
-  // if (nftCollectionId === null) {
-  //   throw new Error("fuck!");
-  // }
-
   const redeemerSpec =
-    redeemers.find((redeemer) => redeemer.collection === nftCollectionId) ??
-    null;
+    redeemers.find(
+      (redeemer) => redeemer.collection.toString() === nftCollectionId,
+    ) ?? null;
   if (!redeemerSpec) {
     throw new Error(`Redeemer with id ${nftCollectionId} not found`);
   }
-
   const redeemerPda = findProgramAddress(
     [
       utf8.encode(REDEEMER_PREFIX),
-      new PublicKey(redeemerSpec.collection).toBuffer(),
-      new PublicKey(redeemerSpec.mint).toBuffer(),
+      redeemerSpec.collection.toBuffer(),
+      redeemerSpec.mint.toBuffer(),
     ],
     redeemerSpec.id,
-  );
+  )[0];
 
   const redeemerVault = getAssociatedTokenAddress(
-    new PublicKey(redeemerSpec.mint),
-    new PublicKey(redeemerPda),
+    redeemerSpec.mint,
+    redeemerPda,
     true,
   );
 

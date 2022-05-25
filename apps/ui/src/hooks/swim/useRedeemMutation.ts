@@ -1,16 +1,12 @@
 import { programs } from "@metaplex/js";
 import * as anchor from "@project-serum/anchor";
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
-  Token,
-} from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { PublicKey } from "@solana/web3.js";
 import type { RpcResponseAndContext, SignatureResult } from "@solana/web3.js";
 import type { UseMutationResult } from "react-query";
 import { useMutation } from "react-query";
 
 import * as redeemerIdl from "../../../idl/redeem.json";
-import { useConfig, useEnvironment } from "../../contexts";
 import { getAssociatedTokenAddress } from "../../models/solana/utils";
 import type { NftData } from "../solana";
 import {
@@ -21,7 +17,7 @@ import {
 import { useRedeemer } from "./useRedeemer";
 
 // Note, this address should be somewhere more general if it ever has a usecase beyond the redeemer.
-export const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
+export const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
 );
 
@@ -31,17 +27,17 @@ const {
 
 export const useRedeemMutation = (
   nft: NftData | null,
-): UseMutationResult<RpcResponseAndContext<SignatureResult>> => {
+): UseMutationResult<null | RpcResponseAndContext<SignatureResult>> => {
   const createATA = useCreateSplTokenAccountsMutation();
   const anchorProvider = useAnchorProvider();
   const { spec, pda, vault } = useRedeemer(
     nft?.metadata.collection?.key ?? null,
   );
   return useMutation(
-    async (): Promise<RpcResponseAndContext<SignatureResult>> => {
+    async (): Promise<null | RpcResponseAndContext<SignatureResult>> => {
       if (!nft || !nft.metadata.collection || !anchorProvider) {
         // TODO: fix
-        return "";
+        return null;
       }
       const anchorWallet = anchorProvider.wallet;
       const { mint: nftMint, collection: nftCollection } = nft.metadata;
@@ -49,10 +45,14 @@ export const useRedeemMutation = (
       const [ownerRedeemTokenAccount] = await createATA.mutateAsync([
         spec.mint.toBase58(),
       ]);
-      const program = new anchor.Program(redeemerIdl, spec.id, anchorProvider);
+      const program = new anchor.Program(
+        redeemerIdl as any,
+        spec.id,
+        anchorProvider,
+      );
 
-      const nftPublicKey = new anchor.web3.PublicKey(nftMint);
-      const collectionPublicKey = new anchor.web3.PublicKey(nftCollection.key);
+      const nftPublicKey = new PublicKey(nftMint);
+      const collectionPublicKey = new PublicKey(nftCollection.key);
       // nft shit
 
       const collectionMetadata = await Metadata.getPDA(collectionPublicKey);

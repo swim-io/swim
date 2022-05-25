@@ -15,10 +15,13 @@ import { useState } from "react";
 import type { QueryObserverResult } from "react-query";
 import { Carousel } from "react-responsive-carousel";
 
+import { useNotification } from "../contexts";
 import type {
   NftAttribute,
   NftData,
 } from "../hooks/solana/useAccountNftsQuery";
+import { useRedeemMutation } from "../hooks/swim/useRedeemMutation";
+import { useRedeemer } from "../hooks/swim/useRedeemer";
 
 import "./NftCarousel.scss";
 
@@ -53,12 +56,17 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   const [activeNft, setActiveNft] = useState<NftData | null>(null);
   const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
+  const { notify } = useNotification();
+  const {
+    spec: { amount },
+  } = useRedeemer(activeNft?.metadata.collection?.key ?? null);
+  const { mutateAsync } = useRedeemMutation(activeNft);
+
   const onRedeemInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPasswordInput(e.target.value);
   };
-  const { mutateAsync } = useRedeemMutation(activeNft);
-  // TODO: Query redeemer to retrieve value of otter (amount and token).
-  const redeemerValue = 100;
+
+  const redeemerValue = amount;
   const redeemerToken = "USDC";
 
   const showRedeemModal = (nft: NftData): void => {
@@ -72,12 +80,12 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
 
   const executeRedeem = async (): Promise<void> => {
     const txResult = await mutateAsync(activeNft);
-    // if txResultGood
-    //  showSuccess
-    //  refetch nfts
-    // else
-    //   showFailure :((
-    hideRedeemModal();
+    if (!txResult || txResult.value.err) {
+      notify("failure", "aw shit", "error");
+    } else {
+      notify("Redemption", "bitch", "success");
+      hideRedeemModal();
+    }
   };
 
   const generateTable = (attributes: readonly NftAttribute[]): ReactElement => (

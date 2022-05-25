@@ -409,7 +409,7 @@ export class PoolMath {
     amounts: readonly Decimal[],
   ): readonly [Decimal, Decimal] {
     areAllNonNegativeOrThrow(amounts);
-    if (!isAdd && this.balances.some((b, i) => b.gte(amounts[i]))) {
+    if (!isAdd && this.balances.some((b, i) => b.lte(amounts[i]))) {
       throw new Error("remove exceeds available balance");
     }
     const initialDepth = this.depth();
@@ -472,7 +472,7 @@ export class PoolMath {
     if (!amounts[index].isZero()) {
       throw new Error("amount of swapped index must be zero");
     }
-    if (!isInput && this.balances.some((b, i) => b.gte(amounts[i]))) {
+    if (!isInput && this.balances.some((b, i) => b.lte(amounts[i]))) {
       throw new Error("amount to be received exceeds available balance");
     }
     const initialDepth = this.depth();

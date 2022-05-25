@@ -148,6 +148,132 @@ const mainnetPools: readonly PoolSpec[] = [
       ["mainnet-solana-gmt", "2jakYHDLzK14LvGfQ6XMevkdXjmR2pptMxD6HLsDUDvx"],
     ]),
   },
+  {
+    id: "meta-aurora-usdc",
+    displayName: "Aurora USDC Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "3w7ryrn4fJcc4dHoYSo8VNdysFRB93PVwT8L6YK2SQuw",
+    authority: "DqTF8aZu63iHF55tBz1ePuaBKJ3F2srNVha3B4PpCT4N",
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-aurora-usdc",
+    tokenAccounts: new Map([
+      ["mainnet-aurora-usdc", "5fJA79DSwdncsLfH31Awgzk8P1EmTRXfQJzQfRVJ6MsH"],
+      [
+        "mainnet-solana-lp-hexapool",
+        "H7DP6XBwU7N6mWavF3qiqvuoSD3z6T3dtjGEmqkYy8mX",
+      ],
+    ]),
+  },
+  {
+    id: "meta-aurora-usdt",
+    displayName: "Aurora USDT Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "4t1cfAbmLjyLuBo1gsvCVKjVUR48ixqvS4dLKW8dtRvm",
+    authority: "23CU3bqMJoRTpvyti84CmPbkAyNJDnTZE7DYj6MnhGdK",
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-aurora-usdt",
+    tokenAccounts: new Map([
+      ["mainnet-aurora-usdt", "6VtNuUZR1CxBunrQBoNtjC2ZZWqhpmkWwdY8zhbFBcie"],
+      [
+        "mainnet-solana-lp-hexapool",
+        "CpMPTJ72mqeVRK6569sGqkWCV5B6dSZpTCD7BAKW2QPo",
+      ],
+    ]),
+  },
+  {
+    id: "meta-aurora-usn",
+    displayName: "Aurora USN Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "4Cos4Z3DaMa37MpvjfCEH93DqonPmDV3b6GuPvmWugqF",
+    authority: "9dowtd9EbAtC9iKyXWaC5TBmHTivDfdQ6JbeTvHiCK6p",
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-aurora-usn",
+    tokenAccounts: new Map([
+      ["mainnet-aurora-usn", "3dkbc5KuJSJ9ah87uVZRRLZMH1JKMaREQgcAkHSijWpR"],
+      [
+        "mainnet-solana-lp-hexapool",
+        "9Ddfhn9P1BJvxtfCvgvKBfSiKSrwdDBBSUf9SdQkDDW5",
+      ],
+    ]),
+  },
+  {
+    id: "meta-fantom-usdc",
+    displayName: "Fantom USDC Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "GCbJStx8XY767Bnj6jj4hzeRJBpfDvrrZS8at3PbABu9",
+    authority: "H7BkMwbJfLiWE9sSDATHTqXykm1xBjeRzzLDatW2QdEt",
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-fantom-usdc",
+    tokenAccounts: new Map([
+      ["mainnet-fantom-usdc", "AHnZRtLz5J17F1X7Z8LJCk2yGxSpii1uMMyPrBEpPdgg"],
+      [
+        "mainnet-solana-lp-hexapool",
+        "E7mgPEb7T7Q7RPUQpZ4XLJZPYiVhj41jyLVc8P3EGfWN",
+      ],
+    ]),
+  },
+  {
+    id: "meta-karura-ausd",
+    displayName: "Karura AUSD Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "11111111111111111111111111111111", // TODO: Update
+    authority: "11111111111111111111111111111111", // TODO: Update
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-karura-ausd",
+    tokenAccounts: new Map([
+      ["mainnet-karura-ausd", "11111111111111111111111111111111"], // TODO: Update
+      [
+        "mainnet-solana-lp-hexapool",
+        "11111111111111111111111111111111", // TODO: Update
+      ],
+    ]),
+  },
+  {
+    id: "meta-karura-usdt",
+    displayName: "Karura USDT Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "11111111111111111111111111111111", // TODO: Update
+    authority: "11111111111111111111111111111111", // TODO: Update
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-karura-usdt",
+    tokenAccounts: new Map([
+      ["mainnet-karura-usdt", "11111111111111111111111111111111"], // TODO: Update
+      [
+        "mainnet-solana-lp-hexapool",
+        "11111111111111111111111111111111", // TODO: Update
+      ],
+    ]),
+  },
+  {
+    id: "meta-acala-ausd",
+    displayName: "Acala AUSD Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "11111111111111111111111111111111", // TODO: Update
+    authority: "11111111111111111111111111111111", // TODO: Update
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-meta-acala-ausd",
+    tokenAccounts: new Map([
+      ["mainnet-acala-ausd", "11111111111111111111111111111111"], // TODO: Update
+      [
+        "mainnet-solana-lp-hexapool",
+        "11111111111111111111111111111111", // TODO: Update
+      ],
+    ]),
+  },
 ];
 
 const devnetPools: readonly PoolSpec[] = [

@@ -34,7 +34,10 @@ import {
 } from "../solana";
 import type { SolanaWalletAdapter } from "../wallets";
 
-import { DEFAULT_WORMHOLE_RETRIES } from "./constants";
+import {
+  DEFAULT_WORMHOLE_RETRIES,
+  POLYGON_WORMHOLE_RETRIES,
+} from "./constants";
 import {
   postVaaSolanaWithRetry,
   redeemOnSolana,
@@ -71,6 +74,7 @@ export const isLockSplTx = (
   ) {
     return false;
   }
+
   return token.nativeEcosystem === EcosystemId.Solana
     ? getAmountTransferredFromAccount(
         parsedTx,
@@ -196,6 +200,10 @@ export async function* generateUnlockSplTokenTxIds(
   if (!solanaPublicKey) {
     throw new Error("No Solana public key");
   }
+  const retries =
+    wormholeChainId === WormholeChainId.Polygon
+      ? POLYGON_WORMHOLE_RETRIES
+      : DEFAULT_WORMHOLE_RETRIES;
   const { vaaBytes } = await getSignedVAAWithRetry(
     [wormholeEndpoint],
     wormholeChainId,
@@ -203,7 +211,7 @@ export async function* generateUnlockSplTokenTxIds(
     sequence,
     undefined,
     undefined,
-    DEFAULT_WORMHOLE_RETRIES,
+    retries,
   );
   const postVaaSolanaTxIdsGenerator = generatePostVaaSolanaTxIds(
     interactionId,
@@ -244,6 +252,10 @@ export const unlockSplToken = async (
   if (!solanaPublicKey) {
     throw new Error("No Solana public key");
   }
+  const retries =
+    wormholeChainId === WormholeChainId.Polygon
+      ? POLYGON_WORMHOLE_RETRIES
+      : DEFAULT_WORMHOLE_RETRIES;
   const { vaaBytes } = await getSignedVAAWithRetry(
     [wormholeEndpoint],
     wormholeChainId,
@@ -251,7 +263,7 @@ export const unlockSplToken = async (
     sequence,
     undefined,
     undefined,
-    DEFAULT_WORMHOLE_RETRIES,
+    retries,
   );
   const postVaaTxIds = await postVaaSolanaWithRetry(
     interactionId,

@@ -11,25 +11,34 @@ export interface ChainsByEcosystem
   readonly [EcosystemId.Terra]: CosmosSpec | null;
   readonly [EcosystemId.Avalanche]: EvmSpec | null;
   readonly [EcosystemId.Polygon]: EvmSpec | null;
+  readonly [EcosystemId.Aurora]: EvmSpec | null;
+  readonly [EcosystemId.Fantom]: EvmSpec | null;
+  readonly [EcosystemId.Karura]: EvmSpec | null;
+  readonly [EcosystemId.Acala]: EvmSpec | null;
 }
 
 export const useChainsByEcosystem = (): ChainsByEcosystem => {
   const { chains } = useConfig();
   const [solana] = chains[Protocol.Solana];
-  const ethereum =
-    chains[Protocol.Evm].find(
-      (chain) => chain.ecosystem === EcosystemId.Ethereum,
-    ) ?? null;
-  const bsc =
-    chains[Protocol.Evm].find((chain) => chain.ecosystem === EcosystemId.Bsc) ??
-    null;
+  const [ethereum, bsc, avalanche, polygon, aurora, fantom, acala] = [
+    EcosystemId.Ethereum,
+    EcosystemId.Bsc,
+    EcosystemId.Avalanche,
+    EcosystemId.Polygon,
+    EcosystemId.Aurora,
+    EcosystemId.Fantom,
+    EcosystemId.Karura,
+    EcosystemId.Acala,
+  ].map(
+    (ecosystemId) =>
+      chains[Protocol.Evm].find((chain) => chain.ecosystem === ecosystemId) ??
+      null,
+  );
   const terra =
     chains[Protocol.Cosmos].find(
       // (chain) => chain.ecosystem === EcosystemId.Terra, // TODO: Enable when we have more than one Cosmos chain
       Boolean,
     ) ?? null;
-  const avalanche = null; // TODO: Avalanche
-  const polygon = null; // TODO: Polygon
 
   return {
     [EcosystemId.Solana]: solana,
@@ -38,5 +47,9 @@ export const useChainsByEcosystem = (): ChainsByEcosystem => {
     [EcosystemId.Terra]: terra,
     [EcosystemId.Avalanche]: avalanche,
     [EcosystemId.Polygon]: polygon,
+    [EcosystemId.Aurora]: aurora,
+    [EcosystemId.Fantom]: fantom,
+    [EcosystemId.Karura]: acala,
+    [EcosystemId.Acala]: acala,
   };
 };

@@ -15,14 +15,12 @@ export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
     readonly connected: false;
   };
   readonly [EcosystemId.Bsc]: EvmWalletContextInterface;
-  readonly [EcosystemId.Avalanche]: {
-    readonly address: null;
-    readonly connected: false;
-  };
-  readonly [EcosystemId.Polygon]: {
-    readonly address: null;
-    readonly connected: false;
-  };
+  readonly [EcosystemId.Avalanche]: EvmWalletContextInterface;
+  readonly [EcosystemId.Polygon]: EvmWalletContextInterface;
+  readonly [EcosystemId.Aurora]: EvmWalletContextInterface;
+  readonly [EcosystemId.Fantom]: EvmWalletContextInterface;
+  readonly [EcosystemId.Karura]: EvmWalletContextInterface;
+  readonly [EcosystemId.Acala]: EvmWalletContextInterface;
 }
 
 export const useWallets = (): Wallets => ({
@@ -30,8 +28,12 @@ export const useWallets = (): Wallets => ({
   [EcosystemId.Ethereum]: useEvmWallet(EcosystemId.Ethereum),
   [EcosystemId.Terra]: { address: null, connected: false },
   [EcosystemId.Bsc]: useEvmWallet(EcosystemId.Bsc),
-  [EcosystemId.Avalanche]: { address: null, connected: false },
-  [EcosystemId.Polygon]: { address: null, connected: false },
+  [EcosystemId.Avalanche]: useEvmWallet(EcosystemId.Avalanche),
+  [EcosystemId.Polygon]: useEvmWallet(EcosystemId.Polygon),
+  [EcosystemId.Aurora]: useEvmWallet(EcosystemId.Aurora),
+  [EcosystemId.Fantom]: useEvmWallet(EcosystemId.Fantom),
+  [EcosystemId.Karura]: useEvmWallet(EcosystemId.Karura),
+  [EcosystemId.Acala]: useEvmWallet(EcosystemId.Acala),
 });
 
 export const getAddressesByEcosystem = (

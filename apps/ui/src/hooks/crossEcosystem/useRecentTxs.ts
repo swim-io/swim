@@ -18,6 +18,14 @@ export const useRecentTxs = (
     EcosystemId.Bsc,
     recentInteractionIds,
   );
+  const { data: avalancheTxs = null } = useRecentEvmTxsQuery(
+    EcosystemId.Avalanche,
+    recentInteractionIds,
+  );
+  const { data: polygonTxs = null } = useRecentEvmTxsQuery(
+    EcosystemId.Polygon,
+    recentInteractionIds,
+  );
 
   return useMemo(
     () => ({
@@ -25,9 +33,13 @@ export const useRecentTxs = (
       [EcosystemId.Ethereum]: ethereumTxs,
       [EcosystemId.Bsc]: bscTxs,
       [EcosystemId.Terra]: null,
-      [EcosystemId.Avalanche]: null,
-      [EcosystemId.Polygon]: null,
+      [EcosystemId.Avalanche]: avalancheTxs,
+      [EcosystemId.Polygon]: polygonTxs,
+      [EcosystemId.Aurora]: null,
+      [EcosystemId.Fantom]: null,
+      [EcosystemId.Karura]: null,
+      [EcosystemId.Acala]: null,
     }),
-    [solanaTxs, ethereumTxs, bscTxs],
+    [solanaTxs, ethereumTxs, bscTxs, avalancheTxs, polygonTxs],
   );
 };

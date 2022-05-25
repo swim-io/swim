@@ -4,6 +4,7 @@ import type { ethers } from "ethers";
 import type { EvmEcosystemId } from "../../config";
 import { EcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
+import { deduplicate } from "../../utils";
 
 interface BaseTx {
   readonly ecosystem: EcosystemId;
@@ -32,7 +33,25 @@ export interface BscTx extends EvmTx {
   readonly ecosystem: EcosystemId.Bsc;
 }
 
+export interface AvalancheTx extends EvmTx {
+  readonly ecosystem: EcosystemId.Avalanche;
+}
+
+export interface PolygonTx extends EvmTx {
+  readonly ecosystem: EcosystemId.Polygon;
+}
+
 export type Tx = SolanaTx | EvmTx;
+
+export type TxsByPoolId = ReadonlyRecord<
+  string,
+  readonly SolanaTx[] | undefined
+>;
+
+export interface TxWithPoolId {
+  readonly poolId: string;
+  readonly tx: SolanaTx;
+}
 
 export type TxsByTokenId = ReadonlyRecord<string, readonly Tx[] | undefined>;
 
@@ -50,7 +69,14 @@ export const isEthereumTx = (tx: Tx): tx is EthereumTx =>
 export const isBscTx = (tx: Tx): tx is BscTx =>
   tx.ecosystem === EcosystemId.Bsc;
 
-export const isEvmTx = (tx: Tx): tx is EvmTx => isEthereumTx(tx) || isBscTx(tx);
+export const isAvalancheTx = (tx: Tx): tx is AvalancheTx =>
+  tx.ecosystem === EcosystemId.Avalanche;
+
+export const isPolygonTx = (tx: Tx): tx is PolygonTx =>
+  tx.ecosystem === EcosystemId.Polygon;
+
+export const isEvmTx = (tx: Tx): tx is EvmTx =>
+  isEthereumTx(tx) || isBscTx(tx) || isAvalancheTx(tx) || isPolygonTx(tx);
 
 export const groupTxsByTokenId = (
   txs: readonly TxWithTokenId[],
@@ -65,6 +91,19 @@ export const groupTxsByTokenId = (
     }),
     {},
   );
+
+export const groupTxsByPoolId = (txs: readonly TxWithPoolId[]): TxsByPoolId =>
+  txs.reduce<TxsByPoolId>(
+    (accumulator: TxsByPoolId, { poolId, tx }: TxWithPoolId): TxsByPoolId => ({
+      ...accumulator,
+      [poolId]: [...(accumulator[poolId] ?? []), tx],
+    }),
+    {},
+  );
+
+export const deduplicateTxs = <T extends Tx = Tx>(
+  txs: readonly T[],
+): readonly T[] => deduplicate<string, T>((tx) => tx.txId, txs);
 
 export const deduplicateTxsByTokenId = (
   oldTxsByTxId: TxsByTokenId,

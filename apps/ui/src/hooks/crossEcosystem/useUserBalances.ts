@@ -22,23 +22,40 @@ export const useUserBalances = (
     EcosystemId.Bsc,
     tokenSpec?.detailsByEcosystem.get(EcosystemId.Bsc)?.address ?? null,
   );
+  const { data: avalancheTokenBalance = null } = useErc20BalanceQuery(
+    EcosystemId.Avalanche,
+    tokenSpec?.detailsByEcosystem.get(EcosystemId.Avalanche)?.address ?? null,
+  );
+  const { data: polygonTokenBalance = null } = useErc20BalanceQuery(
+    EcosystemId.Polygon,
+    tokenSpec?.detailsByEcosystem.get(EcosystemId.Polygon)?.address ?? null,
+  );
 
   return {
     [EcosystemId.Solana]: splBalance,
     [EcosystemId.Ethereum]: ethereumTokenBalance,
     [EcosystemId.Terra]: null,
     [EcosystemId.Bsc]: bscTokenBalance,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Polygon]: null,
+    [EcosystemId.Avalanche]: avalancheTokenBalance,
+    [EcosystemId.Polygon]: polygonTokenBalance,
+    [EcosystemId.Aurora]: null,
+    [EcosystemId.Fantom]: null,
+    [EcosystemId.Karura]: null,
+    [EcosystemId.Acala]: null,
   };
 };
 
 export const useUserBalanceAmounts = (
   tokenSpec: TokenSpec | null,
 ): ReadonlyRecord<EcosystemId, Amount | null> => {
-  const balances = useUserBalances(tokenSpec);
+  const {
+    solana: solanaBalance,
+    ethereum: ethereumBalance,
+    bsc: bscBalance,
+    avalanche: avalancheBalance,
+    polygon: polygonBalance,
+  } = useUserBalances(tokenSpec);
 
-  const solanaBalance = balances[EcosystemId.Solana];
   const solanaAmount =
     solanaBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Solana)
       ? Amount.fromAtomicString(
@@ -48,7 +65,6 @@ export const useUserBalanceAmounts = (
         )
       : null;
 
-  const ethereumBalance = balances[EcosystemId.Ethereum];
   const ethereumAmount =
     ethereumBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Ethereum)
       ? Amount.fromAtomicString(
@@ -58,7 +74,6 @@ export const useUserBalanceAmounts = (
         )
       : null;
 
-  const bscBalance = balances[EcosystemId.Bsc];
   const bscAmount =
     bscBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Bsc)
       ? Amount.fromAtomicString(
@@ -68,12 +83,34 @@ export const useUserBalanceAmounts = (
         )
       : null;
 
+  const avalancheAmount =
+    avalancheBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Avalanche)
+      ? Amount.fromAtomicString(
+          tokenSpec,
+          avalancheBalance.toString(),
+          EcosystemId.Avalanche,
+        )
+      : null;
+
+  const polygonAmount =
+    polygonBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Polygon)
+      ? Amount.fromAtomicString(
+          tokenSpec,
+          polygonBalance.toString(),
+          EcosystemId.Polygon,
+        )
+      : null;
+
   return {
     [EcosystemId.Solana]: solanaAmount,
     [EcosystemId.Ethereum]: ethereumAmount,
     [EcosystemId.Bsc]: bscAmount,
     [EcosystemId.Terra]: null,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Polygon]: null,
+    [EcosystemId.Avalanche]: avalancheAmount,
+    [EcosystemId.Polygon]: polygonAmount,
+    [EcosystemId.Aurora]: null,
+    [EcosystemId.Fantom]: null,
+    [EcosystemId.Karura]: null,
+    [EcosystemId.Acala]: null,
   };
 };

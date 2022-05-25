@@ -14,6 +14,10 @@ export class Amount {
     this.value = value;
   }
 
+  get tokenId(): string {
+    return this.tokenSpec.id;
+  }
+
   static zero(tokenSpec: TokenSpec): Amount {
     return new Amount(tokenSpec, new Decimal(0));
   }
@@ -66,10 +70,6 @@ export class Amount {
     ecosystemId: EcosystemId,
   ): Amount {
     return Amount.fromAtomic(tokenSpec, new Decimal(value), ecosystemId);
-  }
-
-  get tokenId(): string {
-    return this.tokenSpec.id;
   }
 
   isNegative(): boolean {

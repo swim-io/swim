@@ -8,6 +8,8 @@ import { isNotNull } from "../../utils";
 
 import { LocalnetProvider } from "./LocalnetProvider";
 import { MoralisProvider } from "./MoralisProvider";
+import { PolygonNetwork, PolygonScanProvider } from "./PolygonScanProvider";
+import { AvalancheNetwork, SnowTraceProvider } from "./SnowTraceProvider";
 import { Erc20Factory } from "./erc20";
 
 type EtherscanProvider = ethers.providers.EtherscanProvider;
@@ -16,9 +18,13 @@ type TransactionResponse = ethers.providers.TransactionResponse;
 
 export type Provider = MoralisProvider | EtherscanProvider | LocalnetProvider;
 
+// TODO: Use proper endpoints via env
 const BSC_MAINNET_RPC_URL = process.env.REACT_APP_BSC_MAINNET_RPC_URL;
 const BSC_TESTNET_RPC_URL = process.env.REACT_APP_BSC_TESTNET_RPC_URL;
+
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
+const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
+const SNOWTRACE_API_KEY = process.env.REACT_APP_SNOWTRACE_API_KEY;
 const MORALIS_ID = "Swim UI";
 
 /**
@@ -51,16 +57,38 @@ const getBscscanNetwork = (env: Env): ethers.providers.Networkish => {
   }
 };
 
+const getPolygonScanNetwork = (env: Env): PolygonNetwork => {
+  switch (env) {
+    case Env.Mainnet:
+      return PolygonNetwork.Mainnet;
+    case Env.Devnet:
+      return PolygonNetwork.Testnet;
+    default:
+      throw new Error(`PolygonScan does not support ${env}`);
+  }
+};
+
+const getSnowTraceNetwork = (env: Env): AvalancheNetwork => {
+  switch (env) {
+    case Env.Mainnet:
+      return AvalancheNetwork.Mainnet;
+    case Env.Devnet:
+      return AvalancheNetwork.Testnet;
+    default:
+      throw new Error(`SnowTrace does not support ${env}`);
+  }
+};
+
 const getBscRpcUrl = (env: Env): string => {
   switch (env) {
     case Env.Mainnet:
       if (BSC_MAINNET_RPC_URL === undefined) {
-        throw new Error(`BSC_MAINNET_RPC_URL is not set`);
+        throw new Error("BSC_MAINNET_RPC_URL is not set");
       }
       return BSC_MAINNET_RPC_URL;
     case Env.Devnet:
       if (BSC_TESTNET_RPC_URL === undefined) {
-        throw new Error(`BSC_TESTNET_RPC_URL is not set`);
+        throw new Error("BSC_TESTNET_RPC_URL is not set");
       }
       return BSC_TESTNET_RPC_URL;
     default:
@@ -71,7 +99,7 @@ const getBscRpcUrl = (env: Env): string => {
 export class EvmConnection {
   public provider: Provider;
   // eslint-disable-next-line functional/prefer-readonly-type
-  private txReceiptCache: Map<string, TransactionReceipt>;
+  private readonly txReceiptCache: Map<string, TransactionReceipt>;
 
   constructor(env: Env, chainSpec: EvmSpec) {
     this.provider = EvmConnection.getIndexerProvider(env, chainSpec);
@@ -82,6 +110,17 @@ export class EvmConnection {
     env: Env,
     { ecosystem, rpcUrls }: EvmSpec,
   ): Provider {
+    // TODO: Remove when these chains are supported
+    if (
+      [
+        EcosystemId.Aurora,
+        EcosystemId.Fantom,
+        EcosystemId.Karura,
+        EcosystemId.Acala,
+      ].includes(ecosystem)
+    ) {
+      return new LocalnetProvider(rpcUrls[0]);
+    }
     switch (env) {
       case Env.Mainnet:
       case Env.Devnet:
@@ -92,10 +131,10 @@ export class EvmConnection {
     }
   }
 
-  private static getPublicEvmIndexerProvider = (
+  private static getPublicEvmIndexerProvider(
     env: Env,
     ecosystemId: EvmEcosystemId,
-  ): Provider => {
+  ): Provider {
     switch (ecosystemId) {
       case EcosystemId.Ethereum:
         return new ethers.providers.EtherscanProvider(
@@ -113,10 +152,22 @@ export class EvmConnection {
           }
           return new BscscanProvider(getBscscanNetwork(env));
         }
+      case EcosystemId.Avalanche: {
+        return new SnowTraceProvider(
+          getSnowTraceNetwork(env),
+          SNOWTRACE_API_KEY,
+        );
+      }
+      case EcosystemId.Polygon: {
+        return new PolygonScanProvider(
+          getPolygonScanNetwork(env),
+          POLYGONSCAN_API_KEY,
+        );
+      }
       default:
         throw new Error(`Unsupported EVM ecosystem: ${ecosystemId}`);
     }
-  };
+  }
 
   public async getHistory(
     address: string,

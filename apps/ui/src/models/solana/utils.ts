@@ -1,4 +1,4 @@
-import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
+import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -22,6 +22,10 @@ import type { SolanaWalletAdapter } from "../wallets";
 import type { CustomConnection, SolanaConnection } from "./SolanaConnection";
 
 const { sha256 } = ethers.utils;
+
+export type WithSplTokenAccounts<T> = T & {
+  readonly splTokenAccounts: readonly TokenAccount[];
+};
 
 /**
  * Adapted from https://github.com/solana-labs/solana-program-library/blob/0c0168f8a9d098c808d431ab7599a3e284a14e7d/token/js/src/errors.ts#L38-L41
@@ -133,8 +137,8 @@ export const findAssociatedTokenAccountAddress = (
 export const findTokenAccountForMint = (
   mintAddress: string,
   walletAddress: string,
-  splTokenAccounts: readonly TokenAccountInfo[],
-): TokenAccountInfo | null => {
+  splTokenAccounts: readonly TokenAccount[],
+): TokenAccount | null => {
   const associatedTokenAccountAddress = findAssociatedTokenAccountAddress(
     mintAddress,
     walletAddress,
@@ -211,7 +215,7 @@ export const getAmountTransferredToAccount = (
 };
 
 export const getAmountTransferredToAccountByMint = (
-  splTokenAccounts: readonly TokenAccountInfo[],
+  splTokenAccounts: readonly TokenAccount[],
   tx: ParsedTransactionWithMeta,
   mintAddress: string,
   walletAddress: string,
@@ -248,7 +252,7 @@ export const getAmountTransferredFromAccount = (
 };
 
 export const getAmountTransferredFromAccountByMint = (
-  splTokenAccounts: readonly TokenAccountInfo[],
+  splTokenAccounts: readonly TokenAccount[],
   tx: ParsedTransactionWithMeta,
   mintAddress: string,
   walletAddress: string,
@@ -288,7 +292,7 @@ export const getAmountMintedToAccount = (
 };
 
 export const getAmountMintedToAccountByMint = (
-  splTokenAccounts: readonly TokenAccountInfo[],
+  splTokenAccounts: readonly TokenAccount[],
   tx: ParsedTransactionWithMeta,
   mintAddress: string,
   walletAddress: string,
@@ -369,8 +373,8 @@ export const findOrCreateSplTokenAccount = async (
   wallet: SolanaWalletAdapter,
   queryClient: QueryClient,
   splTokenMintAddress: string,
-  splTokenAccounts: readonly TokenAccountInfo[],
-): Promise<TokenAccountInfo> => {
+  splTokenAccounts: readonly TokenAccount[],
+): Promise<TokenAccount> => {
   if (!wallet.publicKey) {
     throw new Error("Solana wallet not connected");
   }

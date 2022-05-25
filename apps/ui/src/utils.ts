@@ -15,6 +15,15 @@ export const sleep = async (ms: number): Promise<void> =>
 export const getUniqueSize = (items: readonly any[]): number =>
   new Set(items).size;
 
+export const deduplicate = <Key, Value>(
+  getKey: (item: Value) => Key,
+  values: readonly Value[],
+) => [
+  ...new Map<Key, Value>(
+    values.map((value) => [getKey(value), value]),
+  ).values(),
+];
+
 export const findOrThrow = <T>(
   searchables: readonly T[],
   condition: (element: T, index: number, array: readonly T[]) => boolean,

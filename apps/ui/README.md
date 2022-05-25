@@ -10,15 +10,17 @@ You will need Node.js <15 and Yarn.
 
 Run `yarn` to install all dependencies.
 
+Set required environmental variables:
+
+```sh
+SKIP_PREFLIGHT_CHECK=true
+REACT_APP_AVALANCHE_DEVNET_RPC_URL=<ask for latest value>
+REACT_APP_POLYGON_DEVNET_RPC_URL=<ask for latest value>
+```
+
 Run `yarn start` to run the app in development mode.
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-### Setup Vercel environment variables
-
-1. If you don't have access to Vercel yet, ask one of the frontend devs
-1. Link Vercel to the project: `npx vercel link`
-1. Pull environment variables to your `.env` file: `npx vercel pull`
 
 ## Editor/IDE
 
@@ -30,7 +32,7 @@ We use ESLint and Prettier for linting and formatting. It’s a good idea to set
 
 In the project directory, you can run:
 
-#### `yarn format`
+#### `yarn format` and `yarn format:fix`
 
 Runs `prettier` on all `.{ts,tsx}` files in the `src` directory.
 
@@ -42,7 +44,7 @@ Lints all `.{ts,tsx}` files in the `src` directory, with or without the `--fix` 
 
 By default, you only have access to Mainnet. For development, you'll likely want to setup a development blockchain environment. There are several options for this, (A) is recommended.
 
-To view more networks in the environment switcher in the upper right corner of the UI, visit [localhost:3000/set-custom-localnet?ip=1](http://localhost:3000/set-custom-localnet?ip=1) and refresh the page.
+To view more networks in the environment switcher in the upper right corner of the UI, visit [http://localhost:3000/set-custom-localnet?ip=159.223.16.33](http://localhost:3000/set-custom-localnet?ip=159.223.16.33) and refresh the page.
 
 ### (A) Connect to our shared Wormhole setup
 
@@ -125,7 +127,7 @@ If the environment stops working, follow the steps below
 
    This will give you a shell and all the relevant ports will be forwarded to the development server. If you don’t need a shell you can just run `ssh -N wormhole-v2`.
 
-1. [Restarting the chains](http://localhost:10350/overview) and following the steps in [DEV_SETUP](docs/DEV_SETUP.md#setting-up-tokens-and-pools).
+1. [Restarting the chains](http://localhost:10350/overview) and following the steps in [DEV_SETUP](/docs/DEV_SETUP.md#setting-up-tokens-and-pools).
 
 Details about contract addresses can be found in the various files in `src/config`.
 

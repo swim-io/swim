@@ -23,7 +23,9 @@ import { useEffect, useRef, useState } from "react";
 import { displayAmount } from "../amounts";
 import type { TokenSpec } from "../config";
 import { EcosystemId, ecosystems } from "../config";
-import { useConfig, useNotification } from "../contexts";
+import { useConfig } from "../contexts";
+import { selectNotify } from "../core/selectors";
+import { useNotification } from "../core/store";
 import {
   useChainsByEcosystem,
   useUserBalances,
@@ -90,12 +92,14 @@ const useNonSolanaEcosystemChangeEffect = (
 };
 
 export const WormholeForm = (): ReactElement => {
-  const { notify } = useNotification();
+  const notify = useNotification(selectNotify);
   const { tokens } = useConfig();
   const {
     solana: { address: solanaAddress },
     ethereum: { address: ethereumAddress },
     bsc: { address: bscAddress },
+    avalanche: { address: avalancheAddress },
+    polygon: { address: polygonAddress },
   } = useWallets();
   const {
     tokenId,
@@ -123,8 +127,12 @@ export const WormholeForm = (): ReactElement => {
     [EcosystemId.Ethereum]: ethereumAddress,
     [EcosystemId.Terra]: null,
     [EcosystemId.Bsc]: bscAddress,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Polygon]: null,
+    [EcosystemId.Avalanche]: avalancheAddress,
+    [EcosystemId.Polygon]: polygonAddress,
+    [EcosystemId.Aurora]: null,
+    [EcosystemId.Fantom]: null,
+    [EcosystemId.Karura]: null,
+    [EcosystemId.Acala]: null,
   };
   const fromAddress = userAddresses[fromEcosystem];
   const toAddress = userAddresses[toEcosystem];

@@ -66,13 +66,21 @@
     "import/unambiguous": "error",
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",
-    "@sayari/no-unwrapped-jsx-text": "error"
+    "@sayari/no-unwrapped-jsx-text": "error",
+    // https://github.com/testing-library/eslint-plugin-testing-library/blob/main/docs/rules/no-render-in-setup.md
+    "testing-library/no-render-in-setup": ["error", {"allowTestingFrameworkSetupHook": "beforeEach"}]
   },
   "overrides": [
     {
       "files": ["**/*.d.ts"],
       "rules": {
         "import/unambiguous": "off"
+      }
+    },
+    {
+      "files": ["src/**/*.stories.@(js|jsx|ts|tsx)"],
+      "rules": {
+        "functional/immutable-data": "off"
       }
     }
   ]

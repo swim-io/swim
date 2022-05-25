@@ -16,14 +16,28 @@ export const useUserNativeBalances = (): ReadonlyRecord<
   const { data: bnbBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
     EcosystemId.Bsc,
   );
-  // TODO: Add real hook when Terra is supported
+  const { data: avaxBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
+    EcosystemId.Avalanche,
+  );
+  const { data: maticBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
+    EcosystemId.Polygon,
+  );
+  // TODO: Add real hookS when ecosystems are supported
   const lunaBalance = new Decimal(0);
+  const auroraEthBalance = new Decimal(0);
+  const ftmBalance = new Decimal(0);
+  const karBalance = new Decimal(0);
+  const acaBalance = new Decimal(0);
   return {
     [EcosystemId.Solana]: solBalance,
     [EcosystemId.Ethereum]: ethBalance,
     [EcosystemId.Bsc]: bnbBalance,
     [EcosystemId.Terra]: lunaBalance,
-    [EcosystemId.Avalanche]: new Decimal(0), // TODO: Avalanche
-    [EcosystemId.Polygon]: new Decimal(0), // TODO: Polygon
+    [EcosystemId.Avalanche]: avaxBalance,
+    [EcosystemId.Polygon]: maticBalance,
+    [EcosystemId.Aurora]: auroraEthBalance,
+    [EcosystemId.Fantom]: ftmBalance,
+    [EcosystemId.Karura]: karBalance,
+    [EcosystemId.Acala]: acaBalance,
   };
 };

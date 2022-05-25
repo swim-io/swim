@@ -19,7 +19,9 @@ import { useEffect, useMemo, useState } from "react";
 
 import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
 import type { PoolSpec, TokenSpec } from "../config";
-import { useConfig, useNotification } from "../contexts";
+import { useConfig } from "../contexts";
+import { selectNotify } from "../core/selectors";
+import { useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   useAddFeesEstimationQuery,
@@ -35,19 +37,19 @@ import {
 } from "../hooks";
 import {
   Amount,
+  InteractionType,
   Status,
-  SwimDefiInstruction,
   getLowBalanceWallets,
+  isValidSlippageFraction,
 } from "../models";
 import { isEachNotNull, isNotNull } from "../utils";
 
-import { ActionSteps } from "./ActionSteps";
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
-import { isValidSlippageFraction } from "./SlippageButton";
+import { StepsDisplay } from "./StepsDisplay";
 import { TokenIcon } from "./TokenIcon";
 
 interface TokenAddPanelProps {
@@ -176,7 +178,7 @@ export const AddForm = ({
   poolSpec,
   maxSlippageFraction,
 }: AddFormProps): ReactElement => {
-  const { notify } = useNotification();
+  const notify = useNotification(selectNotify);
   const config = useConfig();
   const wallets = useWallets();
   const {
@@ -194,7 +196,7 @@ export const AddForm = ({
     startInteraction,
     mutations,
     isInteractionInProgress,
-  } = useStepsReducer(poolSpec.id);
+  } = useStepsReducer();
   const userNativeBalances = useUserNativeBalances();
 
   const [lpTargetEcosystem, setLpTargetEcosystem] = useState(
@@ -300,7 +302,6 @@ export const AddForm = ({
       if (amount === null) {
         errors = ["Invalid number"];
       } else if (
-        tokenSpec.nativeEcosystem !== EcosystemId.Bsc &&
         amount
           .toAtomic(tokenSpec.nativeEcosystem)
           .gt(userBalance.toAtomic(tokenSpec.nativeEcosystem))
@@ -429,7 +430,9 @@ export const AddForm = ({
     if (
       splTokenAccounts === null ||
       minimumMintAmount === null ||
-      !inputAmounts.every(isNotNull)
+      !inputAmounts.every(isNotNull) ||
+      maxSlippageFraction === null ||
+      poolMath === null
     ) {
       notify(
         "Form error",
@@ -439,14 +442,22 @@ export const AddForm = ({
       return;
     }
 
-    const interactionId = startInteraction({
-      instruction: SwimDefiInstruction.Add,
-      params: {
-        inputAmounts,
-        minimumMintAmount,
+    const interactionId = startInteraction(
+      {
+        type: InteractionType.Add,
+        poolId: poolSpec.id,
+        params: {
+          inputAmounts: inputAmounts.reduce(
+            (amountsByTokenId, amount) =>
+              amountsByTokenId.set(amount.tokenId, amount),
+            new Map(),
+          ),
+          minimumMintAmount,
+        },
+        lpTokenTargetEcosystem: lpTargetEcosystem,
       },
-      lpTokenTargetEcosystem: lpTargetEcosystem,
-    });
+      [poolMath],
+    );
     setCurrentInteraction(interactionId);
   };
 
@@ -459,35 +470,38 @@ export const AddForm = ({
       <EuiSpacer size="m" />
 
       {/* TODO: Maybe display those side by side with EuiFlex */}
-      {[EcosystemId.Solana, EcosystemId.Ethereum, EcosystemId.Bsc].map(
-        (ecosystemId) => {
-          const indices = [...new Array(poolTokens.length)]
-            .map((_, i) => i)
-            .filter((i) => poolTokens[i].nativeEcosystem === ecosystemId);
-          const isRelevant = (_: any, i: number): boolean =>
-            indices.includes(i);
-          const tokens = poolTokens.filter(isRelevant);
-          const errors = inputAmountErrors.filter(isRelevant);
-          const filteredInputAmounts = formInputAmounts.filter(isRelevant);
-          const changeHandlers = formInputChangeHandlers.filter(isRelevant);
-          const blurHandlers = formInputBlurHandlers.filter(isRelevant);
-          return (
-            <EcosystemAddPanel
-              key={ecosystemId}
-              ecosystemId={ecosystemId}
-              nEcosystemsInPool={nativeEcosystems.length}
-              tokens={tokens}
-              errors={errors}
-              inputAmounts={filteredInputAmounts}
-              disabled={
-                !wallets[ecosystemId].connected || isInteractionInProgress
-              }
-              changeHandlers={changeHandlers}
-              blurHandlers={blurHandlers}
-            />
-          );
-        },
-      )}
+      {[
+        EcosystemId.Solana,
+        EcosystemId.Ethereum,
+        EcosystemId.Bsc,
+        EcosystemId.Avalanche,
+        EcosystemId.Polygon,
+      ].map((ecosystemId) => {
+        const indices = [...new Array(poolTokens.length)]
+          .map((_, i) => i)
+          .filter((i) => poolTokens[i].nativeEcosystem === ecosystemId);
+        const isRelevant = (_: any, i: number): boolean => indices.includes(i);
+        const tokens = poolTokens.filter(isRelevant);
+        const errors = inputAmountErrors.filter(isRelevant);
+        const filteredInputAmounts = formInputAmounts.filter(isRelevant);
+        const changeHandlers = formInputChangeHandlers.filter(isRelevant);
+        const blurHandlers = formInputBlurHandlers.filter(isRelevant);
+        return (
+          <EcosystemAddPanel
+            key={ecosystemId}
+            ecosystemId={ecosystemId}
+            nEcosystemsInPool={nativeEcosystems.length}
+            tokens={tokens}
+            errors={errors}
+            inputAmounts={filteredInputAmounts}
+            disabled={
+              !wallets[ecosystemId].connected || isInteractionInProgress
+            }
+            changeHandlers={changeHandlers}
+            blurHandlers={blurHandlers}
+          />
+        );
+      })}
 
       <EuiFormRow label={receiveLabel}>
         <EuiRadioGroup
@@ -516,7 +530,7 @@ export const AddForm = ({
         </>
       )}
 
-      <PoolPausedAlert isVisible={isPoolPaused} />
+      <PoolPausedAlert isVisible={!!isPoolPaused} />
 
       {hasPositiveInputAmount && (
         <EstimatedTxFeesCallout feesEstimation={feesEstimation} />
@@ -538,7 +552,7 @@ export const AddForm = ({
       <EuiSpacer />
 
       {interaction && steps && (
-        <ActionSteps
+        <StepsDisplay
           retryInteraction={retryInteraction}
           interaction={interaction}
           steps={steps}

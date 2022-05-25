@@ -7,7 +7,6 @@ import { useQueryClient } from "react-query";
 
 import { EcosystemId, isEvmEcosystemId } from "../../config";
 import { useActiveInteractionContext } from "../../contexts";
-import { selectConfig, selectEnv } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { captureAndWrapException } from "../../errors";
 import {
@@ -165,8 +164,7 @@ const useRegisterErrorEffect = (
 export const useStepsReducer = (
   currentState: State = initialState,
 ): StepsReducer => {
-  const env = useEnvironment(selectEnv);
-  const config = useEnvironment(selectConfig);
+  const { env, config } = useEnvironment();
   const tokensByPool = getTokensByPool(config);
   const wallets = useWallets();
   const { hasActiveInteraction, setActiveInteraction } =

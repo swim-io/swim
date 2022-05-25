@@ -3,7 +3,6 @@ import type { FC } from "react";
 
 import { decimalRemoveTrailingZero } from "../amounts";
 import type { EvmEcosystemId } from "../config";
-import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import type { FeesEstimation } from "../models";
 
@@ -12,7 +11,7 @@ interface Props {
 }
 
 export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
-  const config = useEnvironment(selectConfig);
+  const { config } = useEnvironment();
   if (feesEstimation === null) {
     return (
       <>

@@ -4,7 +4,6 @@ import {
   isEvmEcosystemId,
 } from "../../config";
 import { useEvmConnections, useSolanaConnection } from "../../contexts";
-import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type {
   TransfersWithExistingTxs,
@@ -24,7 +23,7 @@ export const useTransferSplTokensToEvmGenerator = (): UseAsyncGeneratorResult<
   TransfersWithExistingTxs,
   TxWithTokenId
 > => {
-  const config = useEnvironment(selectConfig);
+  const { config } = useEnvironment();
   const evmConnections = useEvmConnections();
   const solanaConnection = useSolanaConnection();
   const wallets = useWallets();

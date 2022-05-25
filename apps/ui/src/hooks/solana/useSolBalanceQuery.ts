@@ -4,12 +4,11 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
-import { selectEnv } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 
 // Returns user's Solana balance in SOL.
 export const useSolBalanceQuery = (): UseQueryResult<Decimal, Error> => {
-  const env = useEnvironment(selectEnv);
+  const { env } = useEnvironment();
   const solanaConnection = useSolanaConnection();
   const { address: walletAddress } = useSolanaWallet();
   return useQuery<Decimal, Error>(

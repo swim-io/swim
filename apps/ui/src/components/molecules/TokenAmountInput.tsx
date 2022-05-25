@@ -10,7 +10,6 @@ import type React from "react";
 
 import type { TokenSpec } from "../../config";
 import { getNativeTokenDetails } from "../../config";
-import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { Amount } from "../../models";
 import { findOrThrow } from "../../utils";
@@ -51,7 +50,9 @@ export const TokenAmountInput: React.FC<Props> = ({
   onChangeValue,
   onBlur,
 }) => {
-  const { tokens } = useEnvironment(selectConfig);
+  const {
+    config: { tokens },
+  } = useEnvironment();
   const options = tokenOptionIds
     .map((tokenId) => findOrThrow(tokens, ({ id }) => id === tokenId))
     .map((tokenSpec) => ({

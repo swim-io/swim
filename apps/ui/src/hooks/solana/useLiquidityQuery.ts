@@ -4,7 +4,6 @@ import type { UseQueryResult } from "react-query";
 import { useQueries, useQuery } from "react-query";
 
 import { useSolanaConnection } from "../../contexts";
-import { selectEnv } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import {
   deserializeTokenAccount,
@@ -14,7 +13,7 @@ import {
 export const useLiquidityQuery = (
   tokenAccountAddresses: readonly string[],
 ): UseQueryResult<readonly TokenAccount[], Error> => {
-  const env = useEnvironment(selectEnv);
+  const { env } = useEnvironment();
   const solanaConnection = useSolanaConnection();
 
   return useQuery<readonly TokenAccount[], Error>(
@@ -40,7 +39,7 @@ export const useLiquidityQuery = (
 export const useLiquidityQueries = (
   tokenAccountAddresses: readonly (readonly string[])[],
 ): readonly UseQueryResult<readonly TokenAccount[], Error>[] => {
-  const env = useEnvironment(selectEnv);
+  const { env } = useEnvironment();
   const solanaConnection = useSolanaConnection();
 
   return useQueries(

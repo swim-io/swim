@@ -13,7 +13,6 @@ import type { ReactElement } from "react";
 import { Fragment } from "react";
 
 import { EcosystemId } from "../config";
-import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { useWallets } from "../hooks";
 import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
@@ -143,7 +142,9 @@ export const MultiWalletModal = ({
 }: MultiWalletModalProps): ReactElement => {
   const { solana, ethereum, bsc, avalanche, polygon } = useWallets();
 
-  const { ecosystems } = useEnvironment(selectConfig);
+  const {
+    config: { ecosystems },
+  } = useEnvironment();
   const solanaEcosystem = ecosystems[EcosystemId.Solana];
   const ethereumEcosystem = ecosystems[EcosystemId.Ethereum];
   const bscEcosystem = ecosystems[EcosystemId.Bsc];

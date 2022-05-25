@@ -3,7 +3,6 @@ import { useQueries, useQuery } from "react-query";
 
 import type { PoolSpec } from "../../config";
 import { useSolanaConnection } from "../../contexts";
-import { selectEnv } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { SwimPoolState } from "../../models";
 import { getPoolState } from "../../models";
@@ -11,7 +10,7 @@ import { getPoolState } from "../../models";
 export const usePoolStates = (
   poolSpecs: readonly PoolSpec[],
 ): readonly UseQueryResult<SwimPoolState | null, Error>[] => {
-  const env = useEnvironment(selectEnv);
+  const { env } = useEnvironment();
   const solanaConnection = useSolanaConnection();
 
   return useQueries(
@@ -25,7 +24,7 @@ export const usePoolStates = (
 export const usePoolState = (
   poolSpec: PoolSpec,
 ): UseQueryResult<SwimPoolState | null, Error> => {
-  const env = useEnvironment(selectEnv);
+  const { env } = useEnvironment();
   const solanaConnection = useSolanaConnection();
 
   return useQuery<SwimPoolState | null, Error>(

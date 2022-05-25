@@ -11,7 +11,7 @@ import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
 
 import { EcosystemId } from "../config";
-import { selectConfig, selectNotify } from "../core/selectors";
+
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
@@ -56,8 +56,8 @@ export const SwapForm = ({
   setCurrentInteraction,
   maxSlippageFraction,
 }: SwapFormProps): ReactElement => {
-  const config = useEnvironment(selectConfig);
-  const notify = useNotification(selectNotify);
+  const { config } = useEnvironment();
+  const { notify } = useNotification();
   const { tokens } = config;
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();

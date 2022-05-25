@@ -6,7 +6,6 @@ import { useQueries } from "react-query";
 import type { PoolSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { useSolanaConnection } from "../../contexts";
-import { selectConfig, selectEnv } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { deserializeMint } from "../../models";
 import { findOrThrow } from "../../utils";
@@ -14,8 +13,10 @@ import { findOrThrow } from "../../utils";
 export const usePoolLpMints = (
   poolSpecs: readonly PoolSpec[],
 ): readonly UseQueryResult<MintInfo | null, Error>[] => {
-  const env = useEnvironment(selectEnv);
-  const { tokens } = useEnvironment(selectConfig);
+  const {
+    env,
+    config: { tokens },
+  } = useEnvironment();
   const solanaConnection = useSolanaConnection();
   const lpTokens = poolSpecs.map((poolSpec) =>
     findOrThrow(tokens, (tokenSpec) => tokenSpec.id === poolSpec.lpToken),

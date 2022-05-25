@@ -12,7 +12,6 @@ import moment from "moment";
 import type { ReactElement } from "react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 
-import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import {
   isEveryAddressConnected,
@@ -82,7 +81,7 @@ export const RecentInteraction = ({
   txs,
   splTokenAccounts,
 }: RecentInteractionProps): ReactElement => {
-  const config = useEnvironment(selectConfig);
+  const { config } = useEnvironment();
   const [isActive, setIsActive] = useState(false);
   const wallets = useWallets();
   const { isInteractionInProgress } = useStepsReducer();

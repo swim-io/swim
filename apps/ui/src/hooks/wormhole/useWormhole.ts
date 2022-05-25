@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import type { TokenDetails, TokenSpec } from "../../config";
 import { EcosystemId, ecosystems } from "../../config";
 import { useSolanaWallet } from "../../contexts";
-import { selectConfig, selectEnv } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { Amount, generateId } from "../../models";
 import { useTokensByEcosystem, useUserNativeBalances } from "../crossEcosystem";
@@ -16,7 +15,7 @@ const useEnvOrFromEcosystemChangeEffect = (
   fromEcosystem: EcosystemId,
   setTokenId: (tokenId: string) => void,
 ): void => {
-  const env = useEnvironment(selectEnv);
+  const { env } = useEnvironment();
   const tokensByEcosystem = useTokensByEcosystem();
 
   const envRef = useRef(env);
@@ -52,7 +51,9 @@ export interface WormholeState {
 }
 
 export const useWormhole = (): WormholeState => {
-  const { tokens } = useEnvironment(selectConfig);
+  const {
+    config: { tokens },
+  } = useEnvironment();
   const tokensByEcosystem = useTokensByEcosystem();
   const { wallet: solanaWallet } = useSolanaWallet();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();

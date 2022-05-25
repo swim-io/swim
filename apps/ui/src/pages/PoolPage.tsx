@@ -30,7 +30,6 @@ import { StatList } from "../components/StatList";
 import { NativeTokenIcon, TokenIcon } from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
 import { EcosystemId, getSolanaTokenDetails } from "../config";
-import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import {
   usePool,
@@ -47,7 +46,9 @@ const humanizeUsdAmount = (amount: string): string =>
 
 const PoolPage = (): ReactElement => {
   const { poolId } = useParams<{ readonly poolId: string }>();
-  const { pools } = useEnvironment(selectConfig);
+  const {
+    config: { pools },
+  } = useEnvironment();
 
   const poolSpec = pools.find((pool) => pool.id === poolId) ?? null;
 

@@ -3,7 +3,6 @@ import type { UseMutationResult } from "react-query";
 import { useMutation, useQueryClient } from "react-query";
 
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
-import { selectEnv } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { findOrCreateSplTokenAccount } from "../../models";
 
@@ -14,7 +13,7 @@ export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
   Error,
   readonly string[]
 > => {
-  const env = useEnvironment(selectEnv);
+  const { env } = useEnvironment();
   const queryClient = useQueryClient();
   const solanaConnection = useSolanaConnection();
   const { wallet, address } = useSolanaWallet();

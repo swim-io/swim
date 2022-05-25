@@ -6,7 +6,6 @@ import { useQuery } from "react-query";
 
 import { Protocol } from "../../config";
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
-import { selectConfig, selectEnv } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 
 const {
@@ -53,8 +52,7 @@ const fetchNftUri = async (uri: string): Promise<uriPayload> => {
 };
 
 export const useAccountNfts = (): UseQueryResult<readonly NftData[], Error> => {
-  const config = useEnvironment(selectConfig);
-  const env = useEnvironment(selectEnv);
+  const { config, env } = useEnvironment();
   const { otterTotCollection } = config.chains[Protocol.Solana][0];
   const solanaConnection = useSolanaConnection();
   const ownerAddress = useSolanaWallet().address;

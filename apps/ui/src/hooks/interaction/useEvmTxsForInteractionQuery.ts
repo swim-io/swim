@@ -4,7 +4,6 @@ import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
 import { useEvmConnection } from "../../contexts";
-import { selectEnv } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { EvmTx } from "../../models";
 import { INTERACTION_ID_LENGTH_HEX } from "../../models";
@@ -27,7 +26,7 @@ export const useEvmTxsForInteractionQuery = (
   ecosystemId: EvmEcosystemId,
   interactionId: string,
 ): UseQueryResult<readonly EvmTx[], Error> => {
-  const env = useEnvironment(selectEnv);
+  const { env } = useEnvironment();
   const connection = useEvmConnection(ecosystemId);
   const { data: history = [], isSuccess } = useEvmHistoryQuery(ecosystemId);
 

@@ -4,7 +4,6 @@ import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
 import { useEvmConnection } from "../../contexts";
-import { selectEnv } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 
 // Query for gas price in native currency
@@ -12,7 +11,7 @@ import { useEnvironment } from "../../core/store";
 export const useGasPriceQuery = (
   evmEcosystemId: EvmEcosystemId,
 ): UseQueryResult<Decimal, Error> => {
-  const env = useEnvironment(selectEnv);
+  const { env } = useEnvironment();
   const connection = useEvmConnection(evmEcosystemId);
   return useQuery(["gasPrice", env, evmEcosystemId], async () => {
     // The BSC connection still returns the gas price in "wei" (ie 1e-18 BNB)

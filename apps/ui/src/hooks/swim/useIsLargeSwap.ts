@@ -1,6 +1,5 @@
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
-import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { Amount } from "../../models";
 import { getRequiredPoolsForSwap } from "../../models";
@@ -13,7 +12,7 @@ export const useIsLargeSwap = (
   toToken: TokenSpec,
   inputAmount: Amount,
 ) => {
-  const config = useEnvironment(selectConfig);
+  const { config } = useEnvironment();
   const requiredPools = getRequiredPoolsForSwap(
     config.pools,
     fromToken.id,

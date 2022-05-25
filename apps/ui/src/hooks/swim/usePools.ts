@@ -5,7 +5,6 @@ import type { UseQueryResult } from "react-query";
 import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { useSolanaWallet } from "../../contexts";
-import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { SwimPoolState } from "../../models";
 import { findTokenAccountForMint, getPoolUsdValue } from "../../models";
@@ -86,7 +85,9 @@ const constructPool = (
 };
 
 export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
-  const { pools, tokens: allTokens } = useEnvironment(selectConfig);
+  const {
+    config: { pools, tokens: allTokens },
+  } = useEnvironment();
   const { address: walletAddress } = useSolanaWallet();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const poolSpecs = poolIds.map((poolId) =>

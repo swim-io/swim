@@ -5,14 +5,13 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
-import { selectEnv } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { deserializeTokenAccount } from "../../models";
 
 export const useSplTokenAccountsQuery = (
   owner?: string,
 ): UseQueryResult<readonly TokenAccount[], Error> => {
-  const env = useEnvironment(selectEnv);
+  const { env } = useEnvironment();
   const solanaConnection = useSolanaConnection();
   const { address: userAddress } = useSolanaWallet();
   const address = owner ?? userAddress;

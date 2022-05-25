@@ -6,7 +6,7 @@ import type { RpcResponseAndContext, SignatureResult } from "@solana/web3.js";
 import type { UseMutationResult } from "react-query";
 import { useMutation } from "react-query";
 
-import * as redeemerIdl from "../../../idl/redeem.json";
+import * as redeemerIdl from "../../idl/redeem.json";
 import { getAssociatedTokenAddress } from "../../models/solana/utils";
 import type { NftData } from "../solana";
 import {
@@ -53,8 +53,6 @@ export const useRedeemMutation = (
 
       const nftPublicKey = new PublicKey(nftMint);
       const collectionPublicKey = new PublicKey(nftCollection.key);
-      // nft shit
-
       const collectionMetadata = await Metadata.getPDA(collectionPublicKey);
       const metadataPDA = await Metadata.getPDA(nftPublicKey);
       const editionPDA = await MasterEdition.getPDA(nftPublicKey);

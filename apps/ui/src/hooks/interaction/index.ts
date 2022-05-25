@@ -1,3 +1,4 @@
+export * from "./useCreateInteractionState";
 export * from "./useInteraction";
 export * from "./useRequiredEcosystemsForInteraction";
 export * from "./useRequiredPoolsForInteraction";
@@ -6,3 +7,7 @@ export * from "./useEvmTxsForInteractionQuery";
 export * from "./useSolanaTxsForInteractionQuery";
 export * from "./useTxsForInteractionQuery";
 export * from "./useInteractionMutation";
+export * from "./useInteractionStatus";
+export * from "./useHasActiveInteraction";
+export * from "./useStartNewInteraction";
+export * from "./useResumeInteraction";

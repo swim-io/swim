@@ -1,4 +1,4 @@
-import { EuiListGroup, EuiText } from "@elastic/eui";
+import { EuiListGroup, EuiLoadingSpinner, EuiText } from "@elastic/eui";
 import type React from "react";
 
 import { EcosystemId, ecosystems } from "../../config";
@@ -9,9 +9,13 @@ import { TxListItem } from "./TxListItem";
 
 interface Props {
   readonly transfer: ToSolanaTransferState;
+  readonly isInteractionActive: boolean;
 }
 
-export const ToSolanaTransferComponent: React.FC<Props> = ({ transfer }) => {
+export const ToSolanaTransferComponent: React.FC<Props> = ({
+  transfer,
+  isInteractionActive,
+}) => {
   const { token, txIds } = transfer;
   const fromEcosystem = ecosystems[token.nativeEcosystem].displayName;
   const { approveAndTransferEvmToken, postVaaOnSolana, claimTokenOnSolana } =
@@ -36,9 +40,20 @@ export const ToSolanaTransferComponent: React.FC<Props> = ({ transfer }) => {
     ...postVaaTxProps,
     claimTokenTxProp,
   ].filter(isNotNull);
+
+  const isPendingTransfer = claimTokenOnSolana === null;
+  const isLoading = isInteractionActive && isPendingTransfer;
+
   return (
     <EuiText size="m">
-      <span>{`Transfer ${token.displayName} from ${fromEcosystem} to Solana`}</span>
+      <span>
+        {isLoading && (
+          <>
+            <EuiLoadingSpinner size="m" />{" "}
+          </>
+        )}
+        <span>{`Transfer ${token.displayName} from ${fromEcosystem} to Solana`}</span>
+      </span>
       <br />
       <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
         {completedTxProps.map(({ txId, ecosystem }) => (

@@ -31,7 +31,6 @@ Object.defineProperty(global.self, "crypto", {
 
 jest.mock("../../contexts", () => ({
   ...jest.requireActual("../../contexts"),
-  useConfig: jest.fn(),
   useSolanaWallet: jest.fn(),
 }));
 

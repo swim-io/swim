@@ -1,5 +1,4 @@
 import type { ReactElement, ReactNode } from "react";
-import { useMemo } from "react";
 import {
   QueryClient,
   QueryClientProvider as ReactQueryClientProvider,
@@ -9,37 +8,29 @@ import { ReactQueryDevtools } from "react-query/devtools";
 
 import { captureException } from "../errors";
 
-import { useNotification } from "./notification";
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchInterval: false,
+      refetchIntervalInBackground: false,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: true,
+      onError: (err) => {
+        console.error(err);
+      },
+    },
+    mutations: {
+      onError: async (err: unknown) => captureException(err),
+    },
+  },
+});
 
 export const QueryClientProvider = ({
   children,
 }: {
   readonly children?: ReactNode;
 }): ReactElement => {
-  const { notify } = useNotification();
-
-  const queryClient = useMemo(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            refetchInterval: false,
-            refetchIntervalInBackground: false,
-            refetchOnMount: true,
-            refetchOnReconnect: true,
-            refetchOnWindowFocus: true,
-            onError: (err) => {
-              notify("Network request error", String(err), "error");
-            },
-          },
-          mutations: {
-            onError: async (err: unknown) => captureException(err),
-          },
-        },
-      }),
-    [notify],
-  );
-
   return (
     <ReactQueryClientProvider client={queryClient}>
       {children}

@@ -71,5 +71,9 @@ export const useRemoveFeesEstimationQuery = (
     [EcosystemId.Terra]: ZERO,
     [EcosystemId.Avalanche]: avalancheGas.mul(avalancheGasPrice.toString()),
     [EcosystemId.Polygon]: polygonGas.mul(polygonGasPrice.toString()),
+    [EcosystemId.Aurora]: ZERO,
+    [EcosystemId.Fantom]: ZERO,
+    [EcosystemId.Karura]: ZERO,
+    [EcosystemId.Acala]: ZERO,
   };
 };

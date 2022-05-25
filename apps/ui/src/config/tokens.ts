@@ -135,6 +135,74 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    id: "mainnet-solana-lp-meta-avalanche-usdc",
+    symbol: "SWIM-AVALANCHE-USDC-META-POOL-LP",
+    displayName: "Avalanche USDC Meta-Pool LP",
+    icon: LP_META_AVALANCHE_USDC_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "DKwsWeqHrB8R1u2DFMHKtq4iqaQNgPgUbHTJyXPqkTzK",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-solana-lp-meta-avalanche-usdt",
+    symbol: "SWIM-AVALANCHE-USDT-META-POOL-LP",
+    displayName: "Avalanche USDT Meta-Pool LP",
+    icon: LP_META_AVALANCHE_USDT_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "5rwvDmUbcnZTwZ4Zywev2wnDbyDDD2vcsGU2Xmy7aRNS",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-solana-lp-meta-polygon-usdc",
+    symbol: "SWIM-POLYGON-USDC-META-POOL-LP",
+    displayName: "Polygon USDC Meta-Pool LP",
+    icon: LP_META_POLYGON_USDC_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "ANFojEXhiEQQoovhBs77XmBQuqbe59UBygRWViyf4945",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-solana-lp-meta-polygon-usdt",
+    symbol: "SWIM-POLYGON-USDT-META-POOL-LP",
+    displayName: "Polygon USDT Meta-Pool LP",
+    icon: LP_META_POLYGON_USDT_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "2Nx6L79dHHgHcJtNfZWukQkWZvf5h4bps34zuh1gjtdP",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
     id: "mainnet-ethereum-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,
@@ -248,7 +316,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "AGqKX7F4mqJ8x2mUQVangJb5pWQJApaKoUfe5gXM53CV",
+          address: "FHfba3ov5P3RjaiLVgh8FTv4oirxQDoVXuoUUDvHuXax",
           decimals: 6,
         },
       ],
@@ -272,7 +340,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "B2wfeYz5VtBnQVrX4M8F6FeDrprVrzKPws5qg1in8bzR",
+          address: "Kz1csQA91WUGcQ2TB3o5kdGmWmMGp8eJcDEyHzNDVCX",
           decimals: 6,
         },
       ],
@@ -709,14 +777,14 @@ const localnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Ethereum,
         {
-          address: "0x39b5c3763187C20B0Aba6c1e0f27e511DBFD4d0d",
+          address: "0xBeE60159B8b68F1d71095Cfae26B48C940D00d90",
           decimals: 6,
         },
       ],
       [
         EcosystemId.Bsc,
         {
-          address: "0xbcB873e64edfe972E88f6A83fB8C4896aDb524f5",
+          address: "0xaeb802A5A51267116728dEA7B8fA6d9F9dE8ec65",
           decimals: 6,
         },
       ],
@@ -740,14 +808,14 @@ const localnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Ethereum,
         {
-          address: "0x44D309DB63BF386Ca5c7904d35d37619ACa8f194",
+          address: "0x3235869d740B5549b954F446fA2a3f757bB1603A",
           decimals: 6,
         },
       ],
       [
         EcosystemId.Bsc,
         {
-          address: "0xa22915e82eb27fb64988Efa3d2749838174ccCBE",
+          address: "0x382782faee2BD31265333ba3865980DaabF582a0",
           decimals: 6,
         },
       ],
@@ -771,14 +839,14 @@ const localnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Ethereum,
         {
-          address: "0xc81CAB8eABf50bAfEe0098992bB4B1f291a391CA",
+          address: "0x7ce34459F472AC89B6b576108CA4D969C79eE7f1",
           decimals: 8,
         },
       ],
       [
         EcosystemId.Bsc,
         {
-          address: "0x8de972Ea7add10646f71ab4f0083E2b2A760240f",
+          address: "0x8078DC006B27e2dDfdd0a98B0334f53615D1E199",
           decimals: 8,
         },
       ],

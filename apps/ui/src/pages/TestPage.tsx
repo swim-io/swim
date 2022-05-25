@@ -33,9 +33,10 @@ import {
   useConfig,
   useEnvironment,
   useEvmConnections,
-  useNotification,
   useSolanaConnection,
 } from "../contexts";
+import { selectNotify } from "../core/selectors";
+import { useNotification } from "../core/store";
 import { usePool, useTokensByEcosystem, useWallets } from "../hooks";
 import { keysHexaPool, keysSwimLake } from "../keys";
 import {
@@ -263,7 +264,7 @@ const TestPage = (): ReactElement => {
     console.info("BSC TX IDS", splTokenBscSetupResult.bscTxIds);
   };
 
-  const { notify } = useNotification();
+  const notify = useNotification(selectNotify);
   const addToastHandler = (): void => {
     notify("Test", <div>My desc</div>);
   };

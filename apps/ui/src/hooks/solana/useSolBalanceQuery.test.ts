@@ -1,10 +1,9 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
-import { AppContext } from "../../contexts/appContext";
-import { mockOf } from "../../testUtils";
+import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useSolBalanceQuery } from "./useSolBalanceQuery";
 
@@ -21,10 +20,7 @@ const useSolanaConnectionMock = mockOf(useSolanaConnection);
 describe("useSolBalanceQuery", () => {
   beforeEach(() => {
     // Reset queryClient cache, otherwise test might return previous value
-    // eslint-disable-next-line testing-library/no-render-in-setup
-    renderHook(() => useQueryClient().clear(), {
-      wrapper: AppContext,
-    });
+    renderHookWithAppContext(() => useQueryClient().clear());
   });
 
   it("should return 0 when no address", async () => {
@@ -32,9 +28,9 @@ describe("useSolBalanceQuery", () => {
     useSolanaConnectionMock.mockReturnValue({
       getBalance: async () => 999,
     });
-    const { result, waitFor } = renderHook(() => useSolBalanceQuery(), {
-      wrapper: AppContext,
-    });
+    const { result, waitFor } = renderHookWithAppContext(() =>
+      useSolBalanceQuery(),
+    );
     await waitFor(() => result.current.isSuccess);
     expect(result.current.data).toEqual(new Decimal("0"));
   });
@@ -44,13 +40,13 @@ describe("useSolBalanceQuery", () => {
       address: "9ZNTfG4NyQgxy2SWjSiQoUyBPEvXT2xo7fKc5hPYYJ7b",
     });
     useSolanaConnectionMock.mockReturnValue({
-      getBalance: async () => 999,
+      getBalance: async () => 123 * LAMPORTS_PER_SOL,
     });
-    const { result, waitFor } = renderHook(() => useSolBalanceQuery(), {
-      wrapper: AppContext,
-    });
+    const { result, waitFor } = renderHookWithAppContext(() =>
+      useSolBalanceQuery(),
+    );
     await waitFor(() => result.current.isSuccess);
-    expect(result.current.data).toEqual(new Decimal("999"));
+    expect(result.current.data).toEqual(new Decimal("123"));
   });
 
   it("should return 0 when getBalance throws an error", async () => {
@@ -62,9 +58,9 @@ describe("useSolBalanceQuery", () => {
         throw new Error("Something went wrong");
       },
     });
-    const { result, waitFor } = renderHook(() => useSolBalanceQuery(), {
-      wrapper: AppContext,
-    });
+    const { result, waitFor } = renderHookWithAppContext(() =>
+      useSolBalanceQuery(),
+    );
     await waitFor(() => result.current.isSuccess);
     expect(result.current.data).toEqual(new Decimal("0"));
   });

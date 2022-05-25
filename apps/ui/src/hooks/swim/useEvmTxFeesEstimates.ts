@@ -27,6 +27,10 @@ export const useEvmTxFeesEstimates = (
       [EcosystemId.Bsc]: bscEstimate,
       [EcosystemId.Avalanche]: avalancheEstimate,
       [EcosystemId.Polygon]: polygonEstimate,
+      [EcosystemId.Aurora]: null,
+      [EcosystemId.Fantom]: null,
+      [EcosystemId.Karura]: null,
+      [EcosystemId.Acala]: null,
     },
     isSuccess:
       ethereumIsSuccess &&

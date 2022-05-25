@@ -2,89 +2,106 @@ import {
   EuiButton,
   EuiButtonIcon,
   EuiCallOut,
-  EuiFieldNumber,
-  EuiFieldText,
-  EuiFlexGroup,
-  EuiFlexItem,
   EuiForm,
   EuiFormRow,
-  EuiLink,
   EuiSpacer,
-  EuiSuperSelect,
-  EuiText,
 } from "@elastic/eui";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
-import { useNotification } from "../contexts";
+import { EcosystemId } from "../config";
+import { useConfig } from "../contexts";
+import { selectNotify } from "../core/selectors";
+import { useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
-  usePool,
-  usePoolMath,
+  useGetSwapFormErrors,
+  useIsLargeSwap,
+  usePoolMaths,
+  usePools,
   usePrevious,
   useSplTokenAccountsQuery,
   useStepsReducer,
   useSwapFeesEstimationQuery,
+  useSwapOutputAmountEstimate,
   useUserBalanceAmounts,
   useUserNativeBalances,
-  useWallets,
 } from "../hooks";
 import {
   Amount,
+  InteractionType,
   Status,
-  SwimDefiInstruction,
   getLowBalanceWallets,
+  getRequiredPoolsForSwap,
 } from "../models";
-import { defaultIfError, isNotNull } from "../utils";
+import { defaultIfError, findOrThrow, isEachNotNull } from "../utils";
 
-import { ActionSteps } from "./ActionSteps";
 import { ConfirmModal } from "./ConfirmModal";
-import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
-import { isValidSlippageFraction } from "./SlippageButton";
+import { StepsDisplay } from "./StepsDisplay";
 import { NativeTokenIcon } from "./TokenIcon";
+import { SwapFormSolanaConnectButton } from "./molecules/SwapFormSolanaConnectButton";
+import { TokenAmountInput } from "./molecules/TokenAmountInput";
 
 import "./SwapForm.scss";
 
 export interface SwapFormProps {
-  readonly poolId: string;
   readonly setCurrentInteraction: (id: string) => void;
   readonly maxSlippageFraction: Decimal | null;
 }
 
 export const SwapForm = ({
-  poolId,
   setCurrentInteraction,
   maxSlippageFraction,
 }: SwapFormProps): ReactElement => {
-  const { notify } = useNotification();
-  const wallets = useWallets();
+  const config = useConfig();
+  const notify = useNotification(selectNotify);
+  const { tokens } = config;
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();
-
-  const { tokens: poolTokens, poolUsdValue, isPoolPaused } = usePool(poolId);
   const {
     retryInteraction,
     state: { interaction, steps, status },
     startInteraction,
     mutations,
     isInteractionInProgress,
-  } = useStepsReducer(poolId);
-  const poolMath = usePoolMath(poolId);
+  } = useStepsReducer();
 
-  const [fromTokenId, setFromTokenId] = useState(poolTokens[0].id);
-  const [toTokenId, setToTokenId] = useState(poolTokens[1].id);
+  const swappableTokenIds = config.pools
+    .filter((pool) => !pool.isStakingPool)
+    .flatMap((pool) => [...pool.tokenAccounts.keys()])
+    // TODO: Remove this if we want to support swimUSD swaps
+    .filter((tokenId) =>
+      config.pools.every((pool) => pool.lpToken !== tokenId),
+    );
+  const swappableTokens = swappableTokenIds.map((tokenId) =>
+    findOrThrow(config.tokens, (token) => token.id === tokenId),
+  );
+
+  const defaultFromTokenId = swappableTokenIds[0];
+  const [fromTokenId, setFromTokenId] = useState(defaultFromTokenId);
+  const [toTokenId, setToTokenId] = useState(swappableTokenIds[1]);
+  const fromToken = findOrThrow(tokens, ({ id }) => id === fromTokenId);
+  const toToken = findOrThrow(tokens, ({ id }) => id === toTokenId);
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
-  const fromToken = poolTokens.find(({ id }) => id === fromTokenId) ?? null;
-  const toToken = poolTokens.find(({ id }) => id === toTokenId) ?? null;
+
+  const requiredPools = getRequiredPoolsForSwap(
+    config.pools,
+    fromTokenId,
+    toTokenId,
+  );
+  const poolIds = requiredPools.map((pool) => pool.id);
+  const pools = usePools(poolIds);
+  const isRequiredPoolPaused = pools.some((pool) => pool.isPoolPaused);
+  const poolMaths = usePoolMaths(poolIds);
+
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [confirmModalDescription, setConfirmModalDescription] =
-    useState<ReactNode>("");
+    useState<ReactNode | null>(null);
+  const isConfirmModalVisible = confirmModalDescription !== null;
 
   const [formInputAmount, setFormInputAmount] = useState("0");
   const [inputAmountErrors, setInputAmountErrors] = useState<readonly string[]>(
@@ -100,64 +117,31 @@ export const SwapForm = ({
 
   const feesEstimation = useSwapFeesEstimationQuery(fromToken, toToken);
 
-  const isLargeSwap = (): boolean => {
-    return (
-      inputAmount !== null &&
-      poolUsdValue !== null &&
-      poolTokens.every((token) => token.isStablecoin) &&
-      inputAmount.toHuman(EcosystemId.Solana).gt(poolUsdValue.mul(0.1))
-    );
-  };
+  const inputAmount = defaultIfError(
+    () => Amount.fromHumanString(fromToken, formInputAmount),
+    Amount.zero(fromToken),
+  );
 
-  const isSmallEthSwap = (): boolean => {
-    return (
-      fromToken !== null &&
-      toToken !== null &&
-      [fromToken.nativeEcosystem, toToken.nativeEcosystem].includes(
-        EcosystemId.Ethereum,
-      ) &&
-      inputAmount !== null &&
-      poolUsdValue !== null &&
-      poolTokens.every((token) => token.isStablecoin) &&
-      inputAmount.toHuman(EcosystemId.Solana).lt(200)
-    );
-  };
+  const isLargeSwap = useIsLargeSwap(fromToken, toToken, inputAmount);
+  const isSmallEthSwap =
+    fromToken.isStablecoin &&
+    [fromToken.nativeEcosystem, toToken.nativeEcosystem].includes(
+      EcosystemId.Ethereum,
+    ) &&
+    inputAmount.toHuman(EcosystemId.Solana).lt(200);
 
-  const inputAmount = useMemo(
-    () =>
-      defaultIfError(
-        () => fromToken && Amount.fromHumanString(fromToken, formInputAmount),
-        null,
-      ),
-    [formInputAmount, fromToken],
+  const getSwapFormErrors = useGetSwapFormErrors(
+    fromToken,
+    toToken,
+    inputAmount,
+    maxSlippageFraction,
   );
   const isInputAmountPositive =
-    inputAmount !== null && !inputAmount.isNegative() && !inputAmount.isZero();
+    !inputAmount.isNegative() && !inputAmount.isZero();
 
-  const exactInputAmounts = inputAmount
-    ? poolTokens.map((poolToken) =>
-        poolToken.id === fromTokenId ? inputAmount : Amount.zero(poolToken),
-      )
-    : null;
+  const outputAmount = useSwapOutputAmountEstimate(inputAmount, toToken);
 
-  const outputAmount = useMemo(() => {
-    if (poolMath === null || exactInputAmounts === null || toToken === null) {
-      return null;
-    }
-
-    const outputTokenIndex = poolTokens.findIndex(({ id }) => id === toTokenId);
-    try {
-      const { stableOutputAmount } = poolMath.swapExactInput(
-        exactInputAmounts.map((amount) => amount.toHuman(EcosystemId.Solana)),
-        outputTokenIndex,
-      );
-      return Amount.fromHuman(toToken, stableOutputAmount);
-    } catch {
-      return null;
-    }
-  }, [exactInputAmounts, poolMath, poolTokens, toTokenId, toToken]);
-
-  const fromTokenOptions = poolTokens.map((tokenSpec) => ({
+  const fromTokenOptions = swappableTokens.map((tokenSpec) => ({
     value: tokenSpec.id,
     inputDisplay: <NativeTokenIcon {...tokenSpec} />,
   }));
@@ -166,17 +150,7 @@ export const SwapForm = ({
   );
 
   const fromTokenUserBalances = useUserBalanceAmounts(fromToken);
-  const fromTokenBalance = fromToken
-    ? fromTokenUserBalances[fromToken.nativeEcosystem]
-    : null;
-  const toTokenUserBalances = useUserBalanceAmounts(toToken);
-  const toTokenBalance = toToken
-    ? toTokenUserBalances[toToken.nativeEcosystem]
-    : null;
-
-  const fromTokenNativeDetails = fromToken
-    ? getNativeTokenDetails(fromToken)
-    : null;
+  const fromTokenBalance = fromTokenUserBalances[fromToken.nativeEcosystem];
 
   const handleInputAmountChange = (currentInputAmount: Amount | null): void => {
     let errors: readonly string[] = [];
@@ -195,7 +169,7 @@ export const SwapForm = ({
   // re-validate input amount after user connected a wallet
   const fromTokenBalancePrimitive = fromTokenBalance?.toPrimitive();
   useEffect(() => {
-    if (fromTokenBalancePrimitive && !inputAmount?.isZero()) {
+    if (fromTokenBalancePrimitive && !inputAmount.isZero()) {
       handleInputAmountChange(inputAmount);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -208,17 +182,14 @@ export const SwapForm = ({
       userNativeBalances,
     );
     if (lowBalanceWallets.length > 0) {
-      setIsConfirmModalVisible(true);
       setConfirmModalDescription(
         <LowBalanceDescription lowBalanceWallets={lowBalanceWallets} />,
       );
-    } else if (isLargeSwap()) {
-      setIsConfirmModalVisible(true);
+    } else if (isLargeSwap) {
       setConfirmModalDescription(
         "You're trying to swap >10% of the pool size which may impact the price.",
       );
-    } else if (isSmallEthSwap()) {
-      setIsConfirmModalVisible(true);
+    } else if (isSmallEthSwap) {
       setConfirmModalDescription(
         "The Ethereum gas fees might be high relative to the swap amount.",
       );
@@ -246,109 +217,19 @@ export const SwapForm = ({
   };
 
   const handleSwap = (allowLargeSwap: boolean): void => {
-    // reset everything
-    setFormErrors([]);
-    let errors: readonly string[] = [];
-
-    // Require connected Solana wallet
-    if (!wallets.solana.connected) {
-      errors = [...errors, "Connect Solana wallet"];
-    }
-
-    if (!fromToken) {
-      errors = [...errors, "Select a source token"];
-    }
-
-    if (!toToken) {
-      errors = [...errors, "Select a destination token"];
-    }
-
-    // Require source token to have a connected wallet
-    if (
-      fromToken &&
-      fromToken.nativeEcosystem !== EcosystemId.Solana &&
-      !wallets[fromToken.nativeEcosystem].connected
-    ) {
-      errors = [
-        ...errors,
-        `Connect ${ecosystems[fromToken.nativeEcosystem].displayName} wallet`,
-      ];
-    }
-
-    // Require destination token to have a connected wallet
-    if (
-      toToken &&
-      toToken.nativeEcosystem !== EcosystemId.Solana &&
-      !wallets[toToken.nativeEcosystem].connected
-    ) {
-      errors = [
-        ...errors,
-        `Connect ${ecosystems[toToken.nativeEcosystem].displayName} wallet`,
-      ];
-    }
-
-    // Require non-zero native balances
-    const requiredEcosystems = new Set(
-      [
-        EcosystemId.Solana,
-        fromToken ? fromToken.nativeEcosystem : null,
-        toToken ? toToken.nativeEcosystem : null,
-      ].filter(isNotNull),
-    );
-    requiredEcosystems.forEach((ecosystem) => {
-      if (userNativeBalances[ecosystem].isZero()) {
-        errors = [
-          ...errors,
-          `Empty balance in ${ecosystems[ecosystem].displayName} wallet. You will need some funds to pay for transaction fees.`,
-        ];
-      }
-    });
-
-    // Need some SOL for network fee
-    if (
-      userNativeBalances[EcosystemId.Solana].greaterThan(0) &&
-      userNativeBalances[EcosystemId.Solana].lessThan(0.01)
-    ) {
-      errors = [
-        ...errors,
-        `Low SOL in Solana wallet. You will need up to ~0.01 SOL to pay for network fees.`,
-      ];
-    }
-
-    // Require enough user balances
-    if (inputAmount && fromTokenBalance && inputAmount.gt(fromTokenBalance)) {
-      errors = [...errors, "Insufficient funds"];
-    }
-
-    if (
-      inputAmount === null ||
-      inputAmount.isZero() ||
-      exactInputAmounts === null
-    ) {
-      errors = [...errors, "Provide a valid amount"];
-    }
-
-    if (isLargeSwap() && !allowLargeSwap) {
-      // If not allowed, limit swap size to 10% of pool supply
-      errors = [...errors, "Swap size must be less than 10% of pool supply"];
-    }
-
-    if (!isValidSlippageFraction(maxSlippageFraction)) {
-      errors = [...errors, "Provide a valid max slippage setting"];
-    }
+    const errors = getSwapFormErrors(allowLargeSwap);
+    setFormErrors(errors);
 
     if (errors.length > 0) {
-      setFormErrors([...errors]);
       return;
     }
 
     // These are just for type safety and should in theory not happen
     if (
-      fromToken === null ||
       splTokenAccounts === null ||
-      exactInputAmounts === null ||
       outputAmount === null ||
-      maxSlippageFraction === null
+      maxSlippageFraction === null ||
+      !isEachNotNull(poolMaths)
     ) {
       notify(
         "Form error",
@@ -358,33 +239,26 @@ export const SwapForm = ({
       return;
     }
 
-    const outputTokenIndex = toToken
-      ? poolTokens.findIndex(({ id }) => id === toToken.id)
-      : -1;
-    if (outputTokenIndex === -1) {
-      throw new Error("Output token not found");
-    }
-
     const minimumOutputAmount = outputAmount.sub(
       outputAmount.mul(maxSlippageFraction),
     );
-    const interactionId = startInteraction({
-      instruction: SwimDefiInstruction.Swap,
-      params: {
-        exactInputAmounts,
-        outputTokenIndex,
-        minimumOutputAmount,
+    const interactionId = startInteraction(
+      {
+        type: InteractionType.Swap,
+        params: {
+          exactInputAmount: inputAmount,
+          minimumOutputAmount,
+        },
       },
-    });
+      poolMaths,
+    );
     setCurrentInteraction(interactionId);
   };
 
   useEffect(() => {
     // Eg if the env changes
-    if (!fromToken) {
-      setFromTokenId(poolTokens[0].id);
-    }
-  }, [fromToken, poolTokens]);
+    setFromTokenId(defaultFromTokenId);
+  }, [defaultFromTokenId]);
 
   useEffect(() => {
     if (!toTokenOptions.find(({ value }) => value === toTokenId)) {
@@ -393,11 +267,11 @@ export const SwapForm = ({
   }, [toTokenId, toTokenOptions]);
 
   const handleConfirmModalCancel = (): void => {
-    setIsConfirmModalVisible(false);
+    setConfirmModalDescription(null);
   };
 
   const handleConfirmModalConfirm = async (): Promise<void> => {
-    setIsConfirmModalVisible(false);
+    setConfirmModalDescription(null);
     handleSwapAndCatch(true);
   };
 
@@ -405,80 +279,17 @@ export const SwapForm = ({
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
       <EuiSpacer />
 
-      <EuiFlexGroup>
-        <EuiFlexItem grow={2}>
-          <EuiFormRow hasEmptyLabelSpace>
-            <EuiSuperSelect
-              name="fromToken"
-              options={fromTokenOptions}
-              valueOfSelected={fromTokenId}
-              onChange={setFromTokenId}
-              itemLayoutAlign="top"
-              disabled={isInteractionInProgress}
-            />
-          </EuiFormRow>
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiFormRow
-            labelType="legend"
-            labelAppend={
-              <EuiText size="xs">
-                <span>Balance:</span>{" "}
-                {fromTokenBalance !== null && fromToken !== null ? (
-                  <EuiLink
-                    onClick={() => {
-                      setFormInputAmount(
-                        fromTokenBalance.toHumanString(
-                          fromToken.nativeEcosystem,
-                        ),
-                      );
-                      handleInputAmountChange(fromTokenBalance);
-                    }}
-                  >
-                    {fromTokenBalance.toFormattedHumanString(
-                      fromToken.nativeEcosystem,
-                    )}
-                  </EuiLink>
-                ) : (
-                  "-"
-                )}
-              </EuiText>
-            }
-            isInvalid={inputAmountErrors.length > 0}
-            error={inputAmountErrors}
-          >
-            <EuiFieldNumber
-              name="inputAmount"
-              placeholder="Enter amount"
-              value={formInputAmount}
-              step={
-                fromTokenNativeDetails
-                  ? 10 ** -fromTokenNativeDetails.decimals
-                  : 0
-              }
-              min={0}
-              onChange={(e) => {
-                setFormInputAmount(e.target.value);
-              }}
-              disabled={isInteractionInProgress}
-              onBlur={() => {
-                handleInputAmountChange(inputAmount);
-              }}
-              isInvalid={inputAmountErrors.length > 0}
-            />
-          </EuiFormRow>
-        </EuiFlexItem>
-        {fromToken && (
-          <EuiFlexItem style={{ minWidth: "180px" }}>
-            <EuiFormRow hasEmptyLabelSpace>
-              <ConnectButton
-                ecosystemId={fromToken.nativeEcosystem}
-                fullWidth
-              />
-            </EuiFormRow>
-          </EuiFlexItem>
-        )}
-      </EuiFlexGroup>
+      <TokenAmountInput
+        value={formInputAmount}
+        token={fromToken}
+        tokenOptionIds={swappableTokenIds}
+        placeholder={"Enter amount"}
+        disabled={isInteractionInProgress}
+        errors={inputAmountErrors}
+        onSelectToken={setFromTokenId}
+        onChangeValue={(value) => setFormInputAmount(value)}
+        onBlur={() => handleInputAmountChange(inputAmount)}
+      />
 
       <EuiSpacer size="m" />
       <div style={{ textAlign: "center" }}>
@@ -500,76 +311,23 @@ export const SwapForm = ({
         className="eui-hideFor--m eui-hideFor--l eui-hideFor--xl"
       />
 
-      <EuiFlexGroup>
-        <EuiFlexItem grow={2}>
-          <EuiFormRow hasEmptyLabelSpace>
-            <EuiSuperSelect
-              name="toToken"
-              options={toTokenOptions}
-              valueOfSelected={toTokenId}
-              onChange={setToTokenId}
-              itemLayoutAlign="top"
-              disabled={isInteractionInProgress}
-            />
-          </EuiFormRow>
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiFormRow
-            labelType="legend"
-            labelAppend={
-              <EuiText size="xs">
-                <span>Balance:</span>{" "}
-                <span>
-                  {toTokenBalance !== null && toToken !== null
-                    ? toTokenBalance.toFormattedHumanString(
-                        toToken.nativeEcosystem,
-                      )
-                    : "-"}
-                </span>
-              </EuiText>
-            }
-          >
-            <EuiFieldText
-              name="outputAmount"
-              value={
-                toToken && outputAmount
-                  ? outputAmount.toFormattedHumanString(toToken.nativeEcosystem)
-                  : ""
-              }
-              controlOnly
-              placeholder="Output"
-              readOnly
-            />
-          </EuiFormRow>
-        </EuiFlexItem>
-        {toToken && (
-          <EuiFlexItem style={{ minWidth: "180px" }}>
-            <EuiFormRow hasEmptyLabelSpace>
-              <ConnectButton ecosystemId={toToken.nativeEcosystem} fullWidth />
-            </EuiFormRow>
-          </EuiFlexItem>
-        )}
-      </EuiFlexGroup>
+      <TokenAmountInput
+        value={outputAmount?.toHumanString(toToken.nativeEcosystem) ?? ""}
+        token={toToken}
+        tokenOptionIds={swappableTokenIds.filter((id) => id !== fromTokenId)}
+        placeholder={"Output"}
+        disabled={isInteractionInProgress}
+        errors={[]}
+        onSelectToken={setToTokenId}
+      />
 
       <EuiSpacer />
 
-      {/* If a swap to/from Ethereum/BSC is desired, we still need a Solana wallet */}
-      {fromToken &&
-        toToken &&
-        ![fromToken.nativeEcosystem, toToken.nativeEcosystem].includes(
-          EcosystemId.Solana,
-        ) &&
-        !wallets.solana.connected && (
-          <>
-            <EuiFormRow
-              fullWidth
-              helpText="This swap will route through Solana, so you need to connect a Solana wallet with SOL to pay for transaction fees."
-            >
-              <ConnectButton ecosystemId={EcosystemId.Solana} fullWidth />
-            </EuiFormRow>
-            <EuiSpacer />
-          </>
-        )}
+      <SwapFormSolanaConnectButton
+        fromEcosystem={fromToken.nativeEcosystem}
+        toEcosystem={toToken.nativeEcosystem}
+      />
+
       {isInputAmountPositive && (
         <EstimatedTxFeesCallout feesEstimation={feesEstimation} />
       )}
@@ -587,7 +345,7 @@ export const SwapForm = ({
         </>
       )}
 
-      <PoolPausedAlert isVisible={isPoolPaused} />
+      <PoolPausedAlert isVisible={isRequiredPoolPaused} />
 
       <EuiFormRow fullWidth>
         <EuiButton
@@ -595,7 +353,7 @@ export const SwapForm = ({
           fullWidth
           fill
           isLoading={isInteractionInProgress}
-          isDisabled={isPoolPaused || isSubmitted}
+          isDisabled={isRequiredPoolPaused || isSubmitted}
         >
           Swap
         </EuiButton>
@@ -604,7 +362,7 @@ export const SwapForm = ({
       <EuiSpacer />
 
       {interaction && steps && (
-        <ActionSteps
+        <StepsDisplay
           retryInteraction={retryInteraction}
           interaction={interaction}
           steps={steps}

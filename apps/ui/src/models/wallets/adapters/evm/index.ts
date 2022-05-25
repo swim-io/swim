@@ -23,3 +23,23 @@ export const polygonAdapters = {
   MathWalletAdapter,
   MetaMaskAdapter,
 };
+
+export const auroraAdapters = {
+  MathWalletAdapter,
+  MetaMaskAdapter,
+};
+
+export const fantomAdapters = {
+  MathWalletAdapter,
+  MetaMaskAdapter,
+};
+
+export const karuraAdapters = {
+  MathWalletAdapter,
+  MetaMaskAdapter,
+};
+
+export const acalaAdapters = {
+  MathWalletAdapter,
+  MetaMaskAdapter,
+};

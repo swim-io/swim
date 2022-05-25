@@ -14,8 +14,8 @@ import type { ChangeEvent, ReactElement } from "react";
 import { useState } from "react";
 import type { QueryObserverResult } from "react-query";
 import { Carousel } from "react-responsive-carousel";
-
-import { useNotification } from "../contexts";
+import { selectNotify } from "../core/selectors";
+import { useNotification } from "../core/store";
 import type {
   NftAttribute,
   NftData,
@@ -56,7 +56,7 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   const [activeNft, setActiveNft] = useState<NftData | null>(null);
   const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
-  const { notify } = useNotification();
+  const { notify } = useNotification(selectNotify);
   const {
     spec: { amount },
   } = useRedeemer(activeNft?.metadata.collection?.key ?? null);

@@ -8,12 +8,6 @@ import {
   getAssociatedTokenAddress,
 } from "../../models/solana/utils";
 
-// this file is pretty sus
-// const redeemAmount = (await program.account.mplRedeemer.fetch(redeemerPDA)).redeemAmount;
-// console.log(`redeemAmount: ${redeemAmount}`);
-// const redeemCount = (await program.account.mplRedeemer.fetch(redeemerPDA)).redeemCount;
-// console.log(`redeemCount: ${redeemCount}`);
-
 export interface RedeemerData {
   readonly spec: RedeemerSpec;
   readonly pda: PublicKey;

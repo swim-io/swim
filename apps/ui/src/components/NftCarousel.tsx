@@ -65,9 +65,8 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   const onRedeemInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPasswordInput(e.target.value);
   };
-
   const redeemerValue = amount;
-  const redeemerToken = "USDC";
+  const redeemerToken = "SWIM";
 
   const showRedeemModal = (nft: NftData): void => {
     setActiveNft(nft);

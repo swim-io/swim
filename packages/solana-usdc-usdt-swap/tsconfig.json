@@ -4,8 +4,11 @@
     "baseUrl": ".",
     "declaration": true,
     "declarationDir": "types",
+    "module": "commonjs",
     "outDir": "build",
-    "rootDir": "src"
+    "rootDir": "src",
+    "skipLibCheck": true,
+    "target": "es2020"
   },
   "include": ["src"]
 }

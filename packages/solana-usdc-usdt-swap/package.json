@@ -24,5 +24,9 @@
   "devDependencies": {
     "prettier": "^2.6.1",
     "typescript": "^4.6.3"
+  },
+  "peerDependencies": {
+    "@solana/web3.js": "^1",
+    "bn.js": "^5"
   }
 }

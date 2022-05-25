@@ -1,4 +1,8 @@
-import { PublicKey, TransactionInstruction, AccountMeta } from "@solana/web3.js";
+import {
+  PublicKey,
+  TransactionInstruction,
+  AccountMeta,
+} from "@solana/web3.js";
 import { createApproveInstruction, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { array, struct, u64, u8 } from "@project-serum/borsh";
 import BN from "bn.js";
@@ -8,17 +12,20 @@ export const hexaPool = {
   programId: new PublicKey("SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC"),
   stateKey: new PublicKey("8cUvGTFvSWx9WPebYYfDxwiJPdGx2EJUtpve6jP9SBma"),
   authorityKey: new PublicKey("AfhhYsLMXXyDxQ1B7tNqLTXXDHYtDxCzPcnXWXzHAvDb"),
-  tokenKeys: [ //the pool's token accounts
+  tokenKeys: [
+    //the pool's token accounts
     "5uBU2zUG8xTLA6XwwcTFWib1p7EjCBzWbiy44eVASTfV", //solana-usdc
     "Hv7yPYnGs6fpN3o1NZvkima9mKDrRDJtNxf23oKLCjau", //solana-usdt
     "4R6b4aibi46JzAnuA8ZWXrHAsR1oZBTZ8dqkuer3LsbS", //ethereum-usdc
     "2DMUL42YEb4g1HAKXhUxL3Yjfgoj4VvRqKwheorfFcPV", //ethereum-usdt
     "DukQAFyxR41nbbq2FBUDMyrtF2CRmWBREjZaTVj4u9As", //bsc-busd
     "9KMH3p8cUocvQRbJfKRAStKG52xCCWNmEPsJm5gc8fzw", //bsc-usdt
-  ].map(address => new PublicKey(address)),
+  ].map((address) => new PublicKey(address)),
   lpMintKey: new PublicKey("BJUH9GJLaMSLV1E7B3SQLCy9eCfyr6zsrwGcpS2MkqR1"),
-  governanceFeeKey: new PublicKey("9Yau6DnqYasBUKcyxQJQZqThvUnqZ32ZQuUCcC2AdT9P"),
-}
+  governanceFeeKey: new PublicKey(
+    "9Yau6DnqYasBUKcyxQJQZqThvUnqZ32ZQuUCcC2AdT9P",
+  ),
+};
 
 export enum SwapDirection {
   UsdcToUsdt,
@@ -50,18 +57,18 @@ export function createSwapIx(
   minimumOutputAmount: BN,
   userTokenKeys: readonly PublicKey[],
   userDelegateKey: PublicKey,
-): TransactionInstruction
-{
+): TransactionInstruction {
   if (userTokenKeys.length !== 2)
     throw new Error("must specify user's USDC and USDT account keys");
 
   const { programId } = hexaPool;
-  const exactInputAmounts = Array.from({length: hexaPool.tokenKeys.length})
-    .map((_, i) => i === direction ? exactInputAmount : new BN(0));
+  const exactInputAmounts = Array.from({
+    length: hexaPool.tokenKeys.length,
+  }).map((_, i) => (i === direction ? exactInputAmount : new BN(0)));
   const outputTokenIndex = (direction + 1) % 2;
   const filledTokenKeys = [
     ...userTokenKeys,
-    ...hexaPool.tokenKeys.slice(2).map(_ => hexaPool.stateKey),
+    ...hexaPool.tokenKeys.slice(2).map((_) => hexaPool.stateKey),
   ];
 
   const defiInstructionEnumVal = 1;
@@ -77,7 +84,7 @@ export function createSwapIx(
   const toAccountMeta = (
     pubkey: PublicKey,
     isWritable: boolean = false,
-    isSigner: boolean = false
+    isSigner: boolean = false,
   ): AccountMeta => ({ pubkey, isSigner, isWritable });
 
   const keys = [
@@ -123,7 +130,18 @@ export function createApproveAndSwapIx(
   ownerKey: PublicKey,
 ): readonly TransactionInstruction[] {
   return [
-    createApproveInstruction(userTokenKeys[direction], userDelegateKey, ownerKey, BigInt(exactInputAmount.toString())),
-    createSwapIx(direction, exactInputAmount, minimumOutputAmount, userTokenKeys, userDelegateKey),
+    createApproveInstruction(
+      userTokenKeys[direction],
+      userDelegateKey,
+      ownerKey,
+      BigInt(exactInputAmount.toString()),
+    ),
+    createSwapIx(
+      direction,
+      exactInputAmount,
+      minimumOutputAmount,
+      userTokenKeys,
+      userDelegateKey,
+    ),
   ];
 }

@@ -6,7 +6,7 @@ import type { RpcResponseAndContext, SignatureResult } from "@solana/web3.js";
 import type { UseMutationResult } from "react-query";
 import { useMutation } from "react-query";
 
-import * as redeemerIdl from "../../idl/redeem.json";
+import redeemerIdl from "../../idl/redeem.json";
 import { getAssociatedTokenAddress } from "../../models/solana/utils";
 import type { NftData } from "../solana";
 import {

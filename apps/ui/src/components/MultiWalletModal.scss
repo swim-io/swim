@@ -1,0 +1,15 @@
+.walletServiceButton {
+  white-space: nowrap;
+
+  &__ecosystems {
+    margin: 10px 0 0 30px;
+
+    & > li {
+      margin-bottom: 15px;
+
+      img {
+        margin-right: 15px;
+      }
+    }
+  }
+}

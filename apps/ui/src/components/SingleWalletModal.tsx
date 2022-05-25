@@ -9,7 +9,7 @@ import {
 import type { ReactElement } from "react";
 import { Fragment } from "react";
 
-import type { WalletService } from "../models";
+import type { WalletAdapter, WalletService } from "../models";
 import { isUserOnMobileDevice } from "../utils";
 
 import { CustomModal } from "./CustomModal";
@@ -22,7 +22,7 @@ export interface SingleWalletModalProps<
   readonly services: readonly W[];
   readonly handleClose: () => void;
   readonly createServiceClickHandler: (
-    service: W,
+    serviceId: WalletService<WalletAdapter>["id"],
     callback?: () => any,
   ) => () => void;
 }
@@ -51,7 +51,7 @@ export const SingleWalletModal = <W extends WalletService = WalletService>({
           <Fragment key={name}>
             <EuiButtonEmpty
               isSelected={currentService === id}
-              onClick={createServiceClickHandler(service, handleClose)}
+              onClick={createServiceClickHandler(service.id, handleClose)}
             >
               <EuiIcon type={icon} size="l" style={{ marginRight: 8 }} />
               {name}

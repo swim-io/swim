@@ -20,6 +20,7 @@ export interface WalletServiceInfo {
   readonly url: string;
   readonly icon: string;
   readonly helpText?: ReactElement;
+  readonly ecosystem: Ecosystem;
 }
 
 export interface WalletService<T extends WalletAdapter = WalletAdapter> {
@@ -41,47 +42,54 @@ const solletInfo: WalletServiceInfo = {
   name: "Sollet",
   url: "https://www.sollet.io",
   icon: `${OYSTER_ASSETS_URL}sollet.svg`,
+  ecosystem: ecosystems[EcosystemId.Solana],
 };
 const solongInfo: WalletServiceInfo = {
   name: "Solong",
   url: "https://solongwallet.com",
   icon: `${OYSTER_ASSETS_URL}solong.png`,
+  ecosystem: ecosystems[EcosystemId.Solana],
 };
 const solflareInfo: WalletServiceInfo = {
   name: "Solflare",
   url: "https://solflare.com/access-wallet",
   icon: `${OYSTER_ASSETS_URL}solflare.svg`,
+  ecosystem: ecosystems[EcosystemId.Solana],
 };
 const mathWalletInfo: WalletServiceInfo = {
   name: "MathWallet",
   url: "https://www.mathwallet.org",
   icon: MATHWALLET_ICON,
+  ecosystem: ecosystems[EcosystemId.Solana],
 };
 const ledgerInfo: WalletServiceInfo = {
   name: "Ledger",
   url: "https://www.ledger.com",
   icon: LEDGER_ICON,
+  ecosystem: ecosystems[EcosystemId.Solana],
 };
 const phantomInfo: WalletServiceInfo = {
   name: "Phantom",
   url: "https://phantom.app",
   icon: PHANTOM_ICON,
+  ecosystem: ecosystems[EcosystemId.Solana],
 };
 
-const metaMaskInfo: WalletServiceInfo = {
+const metaMaskInfo: Omit<WalletServiceInfo, "ecosystem"> = {
   name: "Metamask",
   url: "https://metamask.io",
   icon: METAMASK_ICON,
 };
 
 const addHelpTextToMetaMaskInfo = (
-  info: WalletServiceInfo,
+  info: Omit<WalletServiceInfo, "ecosystem">,
   ecosystem: Ecosystem,
   url: string,
 ): WalletServiceInfo => {
   const title = `How to add ${ecosystem.displayName} to Metamask`;
   return {
     ...info,
+    ecosystem,
     helpText: (
       <EuiButtonIcon
         iconType="questionInCircle"
@@ -93,6 +101,11 @@ const addHelpTextToMetaMaskInfo = (
       />
     ),
   };
+};
+
+const ethereumMetaMaskInfo: WalletServiceInfo = {
+  ...metaMaskInfo,
+  ecosystem: ecosystems[EcosystemId.Ethereum],
 };
 
 const bscMetaMaskInfo = addHelpTextToMetaMaskInfo(
@@ -147,7 +160,7 @@ export const ETHEREUM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[
   [
     {
       id: "metamask",
-      info: metaMaskInfo,
+      info: ethereumMetaMaskInfo,
       adapter: ethereum.MetaMaskAdapter,
     },
   ];

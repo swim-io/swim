@@ -108,7 +108,9 @@ export interface EvmWalletContextInterface {
   readonly connected: boolean;
   readonly select: () => void;
   readonly service: WalletService<EvmWalletAdapter> | null;
-  readonly createServiceClickHandler: (service: WalletService) => () => void;
+  readonly createServiceClickHandler: (
+    serviceId: WalletService["id"],
+  ) => () => void;
 }
 
 const defaultEvmWalletContext: EvmWalletContextInterface = {
@@ -249,8 +251,7 @@ export const EvmWalletProvider = ({
   const select = useCallback(() => setIsModalVisible(true), []);
   const closeModal = useCallback(() => setIsModalVisible(false), []);
   const createServiceClickHandler =
-    ({ id }: WalletService, callback?: () => any) =>
-    (): void => {
+    (id: WalletService["id"], callback?: () => any) => (): void => {
       setServiceId(id);
       setAutoConnect(true);
       callback?.();

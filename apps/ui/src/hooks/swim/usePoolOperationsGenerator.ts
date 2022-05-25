@@ -36,7 +36,7 @@ import { useSplTokenAccountsQuery } from "../solana";
 import type { UseAsyncGeneratorResult } from "../utils";
 import { useAsyncGenerator } from "../utils";
 
-const doSinglePoolOperation = async (
+export const doSinglePoolOperation = async (
   env: Env,
   solanaConnection: SolanaConnection,
   wallet: SolanaWalletAdapter,
@@ -118,7 +118,7 @@ const getTransferredAmount = (
         walletAddress,
       );
 
-const setOutputOperationInputAmount = (
+export const setOutputOperationInputAmount = (
   splTokenAccounts: readonly TokenAccount[],
   interaction: Interaction,
   inputOperationSpec: OperationSpec,

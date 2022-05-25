@@ -34,8 +34,8 @@ export interface ToSolanaTransferState {
   readonly token: TokenSpec;
   readonly value: Decimal;
   readonly txIds: {
-    readonly approveAndTransferEvmToken: readonly EvmTx["txId"][] | null;
-    readonly postVaaOnSolana: readonly SolanaTx["txId"][] | null;
+    readonly approveAndTransferEvmToken: readonly EvmTx["txId"][];
+    readonly postVaaOnSolana: readonly SolanaTx["txId"][];
     readonly claimTokenOnSolana: SolanaTx["txId"] | null;
   };
 }

@@ -23,6 +23,7 @@ export const useTokensByEcosystem = (): ReadonlyRecord<
     [EcosystemId.Polygon]: filterTokensByEcosystem(EcosystemId.Polygon),
     [EcosystemId.Aurora]: filterTokensByEcosystem(EcosystemId.Aurora),
     [EcosystemId.Fantom]: filterTokensByEcosystem(EcosystemId.Fantom),
+    [EcosystemId.Karura]: filterTokensByEcosystem(EcosystemId.Karura),
     [EcosystemId.Acala]: filterTokensByEcosystem(EcosystemId.Acala),
   };
 };

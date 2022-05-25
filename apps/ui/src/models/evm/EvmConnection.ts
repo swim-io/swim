@@ -112,9 +112,12 @@ export class EvmConnection {
   ): Provider {
     // TODO: Remove when these chains are supported
     if (
-      [EcosystemId.Aurora, EcosystemId.Fantom, EcosystemId.Acala].includes(
-        ecosystem,
-      )
+      [
+        EcosystemId.Aurora,
+        EcosystemId.Fantom,
+        EcosystemId.Karura,
+        EcosystemId.Acala,
+      ].includes(ecosystem)
     ) {
       return new LocalnetProvider(rpcUrls[0]);
     }

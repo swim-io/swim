@@ -29,6 +29,7 @@ export const useEvmTxFeesEstimates = (
       [EcosystemId.Polygon]: polygonEstimate,
       [EcosystemId.Aurora]: null,
       [EcosystemId.Fantom]: null,
+      [EcosystemId.Karura]: null,
       [EcosystemId.Acala]: null,
     },
     isSuccess:

@@ -40,6 +40,7 @@ export const useUserBalances = (
     [EcosystemId.Polygon]: polygonTokenBalance,
     [EcosystemId.Aurora]: null,
     [EcosystemId.Fantom]: null,
+    [EcosystemId.Karura]: null,
     [EcosystemId.Acala]: null,
   };
 };
@@ -109,6 +110,7 @@ export const useUserBalanceAmounts = (
     [EcosystemId.Polygon]: polygonAmount,
     [EcosystemId.Aurora]: null,
     [EcosystemId.Fantom]: null,
+    [EcosystemId.Karura]: null,
     [EcosystemId.Acala]: null,
   };
 };

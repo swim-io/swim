@@ -34,8 +34,12 @@ const FantomConnectionContext = React.createContext<EvmConnection>(
   new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][5]),
 );
 
-const AcalaConnectionContext = React.createContext<EvmConnection>(
+const KaruraConnectionContext = React.createContext<EvmConnection>(
   new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][6]),
+);
+
+const AcalaConnectionContext = React.createContext<EvmConnection>(
+  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][7]),
 );
 
 const ecosystemToContext: ReadonlyRecord<
@@ -48,6 +52,7 @@ const ecosystemToContext: ReadonlyRecord<
   [EcosystemId.Polygon]: PolygonConnectionContext,
   [EcosystemId.Aurora]: AuroraConnectionContext,
   [EcosystemId.Fantom]: FantomConnectionContext,
+  [EcosystemId.Karura]: KaruraConnectionContext,
   [EcosystemId.Acala]: AcalaConnectionContext,
 };
 
@@ -88,6 +93,7 @@ export const useEvmConnections = (): ReadonlyRecord<
   [EcosystemId.Polygon]: useContext(PolygonConnectionContext),
   [EcosystemId.Aurora]: useContext(AuroraConnectionContext),
   [EcosystemId.Fantom]: useContext(FantomConnectionContext),
+  [EcosystemId.Karura]: useContext(KaruraConnectionContext),
   [EcosystemId.Acala]: useContext(AcalaConnectionContext),
 });
 

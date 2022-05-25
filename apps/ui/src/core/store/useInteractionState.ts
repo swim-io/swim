@@ -1,4 +1,3 @@
-/* eslint-disable functional/immutable-data */
 import * as Sentry from "@sentry/react";
 import type { Draft } from "immer";
 import { castDraft, produce } from "immer";

@@ -22,7 +22,7 @@ import type {
   NftData,
 } from "../hooks/solana/useAccountNftsQuery";
 import { useRedeemMutation } from "../hooks/swim/useRedeemMutation";
-import { useRedeemer } from "../hooks/swim/useRedeemer";
+import { useConfig } from "../contexts";
 
 import "./NftCarousel.scss";
 
@@ -53,25 +53,29 @@ const rarityColumns = [
 
 const redeemPassword = "redeem";
 
-export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
+export const NftCarousel = ({
+  nfts,
+  refetchNfts,
+}: NftCarouselProps): ReactElement => {
   const [activeNft, setActiveNft] = useState<NftData | null>(null);
   const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const notify = useNotification(selectNotify);
-  const {
-    spec: { amount },
-  } = useRedeemer(activeNft?.metadata.collection?.key ?? null);
-  const { mutateAsync } = useRedeemMutation(activeNft);
+  const { redeemers } = useConfig();
+  const { mutateAsync, isLoading } = useRedeemMutation(activeNft);
 
   const onRedeemInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPasswordInput(e.target.value);
   };
-  const redeemerValue = amount;
+  const redeemerValue = redeemers.find(
+    (redeemer) =>
+      redeemer.nftCollection.toString() === activeNft?.metadata.collection?.key,
+  )?.redemptionAmount;
   const redeemerToken = "SWIM";
 
   const showRedeemModal = (nft: NftData): void => {
     setActiveNft(nft);
-    setIsRedeemModalVisible.bind(null, true);
+    setIsRedeemModalVisible(true);
   };
   const hideRedeemModal = (): void => {
     setActiveNft(null);
@@ -79,12 +83,21 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   };
 
   const executeRedeem = async (): Promise<void> => {
-    const txResult = await mutateAsync(activeNft);
-    if (!txResult || txResult.value.err) {
-      notify("failure", "aw shit", "error");
-    } else {
-      notify("Redemption", "bitch", "success");
-      hideRedeemModal();
+    try {
+      const txResult = await mutateAsync(activeNft);
+      if (!txResult || txResult.value.err) {
+        throw new Error(`Transaction failed: ${txResult}`);
+      } else {
+        await refetchNfts();
+        notify(
+          "Success",
+          `Redeemed Otter Tot for ${redeemerValue} ${redeemerToken}`,
+          "success",
+        );
+        hideRedeemModal();
+      }
+    } catch (error) {
+      notify("Error", String(error), "error");
     }
   };
 
@@ -169,6 +182,7 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
           cancelButtonText="Cancel"
           buttonColor="danger"
           confirmButtonDisabled={passwordInput.toLowerCase() !== redeemPassword}
+          isLoading={isLoading}
         >
           <EuiFormRow
             label={`Type the word "${redeemPassword}" to burn your otter for ${redeemerValue} ${redeemerToken}. Warning, this is irreversible.`}

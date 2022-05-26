@@ -14,7 +14,8 @@ import {
   useCreateSplTokenAccountsMutation,
 } from "../solana";
 
-import { useRedeemer } from "./useRedeemer";
+import { useConfig } from "../../contexts";
+import { findOrThrow } from "../../utils";
 
 // Note, this address should be somewhere more general if it ever has a usecase beyond the redeemer.
 export const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
@@ -30,23 +31,27 @@ export const useRedeemMutation = (
 ): UseMutationResult<null | RpcResponseAndContext<SignatureResult>> => {
   const createATA = useCreateSplTokenAccountsMutation();
   const anchorProvider = useAnchorProvider();
-  const { spec, pda, vault } = useRedeemer(
-    nft?.metadata.collection?.key ?? null,
-  );
+  const { redeemers } = useConfig();
   return useMutation(
     async (): Promise<null | RpcResponseAndContext<SignatureResult>> => {
       if (!nft || !nft.metadata.collection || !anchorProvider) {
-        // TODO: fix
         return null;
       }
+      const redeemerSpec = findOrThrow(
+        redeemers,
+        (redeemer) =>
+          redeemer.nftCollection.toString() === nft?.metadata.collection?.key,
+      );
       const anchorWallet = anchorProvider.wallet;
       const { mint: nftMint, collection: nftCollection } = nft.metadata;
-
       const [ownerRedeemTokenAccount] = await createATA.mutateAsync([
-        spec.mint.toBase58(),
+        redeemerSpec.vaultMint.toBase58(),
       ]);
-      const program = new Program(redeemerIdl as any, spec.id, anchorProvider);
-
+      const program = new Program(
+        redeemerIdl as any,
+        redeemerSpec.programAddress,
+        anchorProvider,
+      );
       const nftPublicKey = new PublicKey(nftMint);
       const collectionPublicKey = new PublicKey(nftCollection.key);
       const collectionMetadata = await Metadata.getPDA(collectionPublicKey);
@@ -65,14 +70,15 @@ export const useRedeemMutation = (
           ownerNftAta: ownerNftAta,
           owner: anchorWallet.publicKey,
           ownerRedeemTokenAccount: ownerRedeemTokenAccount.address,
-          mplRedeemer: pda,
-          vault,
+          mplRedeemer: redeemerSpec.programPDA,
+          redeemerVault: redeemerSpec.vaultTokenAccount,
           redeemerCollection: collectionPublicKey,
           redeemerCollectionMetadata: collectionMetadata,
           tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
           tokenProgram: TOKEN_PROGRAM_ID,
         })
         .rpc();
+
       return anchorProvider.connection.confirmTransaction(redeemTxSig);
     },
   );

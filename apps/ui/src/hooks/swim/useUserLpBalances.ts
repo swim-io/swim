@@ -55,6 +55,7 @@ export const useUserLpBalances = (
     [EcosystemId.Polygon]: null,
     [EcosystemId.Aurora]: null,
     [EcosystemId.Fantom]: null,
+    [EcosystemId.Karura]: null,
     [EcosystemId.Acala]: null,
   };
 };

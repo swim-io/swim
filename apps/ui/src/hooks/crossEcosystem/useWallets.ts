@@ -19,6 +19,7 @@ export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
   readonly [EcosystemId.Polygon]: EvmWalletContextInterface;
   readonly [EcosystemId.Aurora]: EvmWalletContextInterface;
   readonly [EcosystemId.Fantom]: EvmWalletContextInterface;
+  readonly [EcosystemId.Karura]: EvmWalletContextInterface;
   readonly [EcosystemId.Acala]: EvmWalletContextInterface;
 }
 
@@ -31,6 +32,7 @@ export const useWallets = (): Wallets => ({
   [EcosystemId.Polygon]: useEvmWallet(EcosystemId.Polygon),
   [EcosystemId.Aurora]: useEvmWallet(EcosystemId.Aurora),
   [EcosystemId.Fantom]: useEvmWallet(EcosystemId.Fantom),
+  [EcosystemId.Karura]: useEvmWallet(EcosystemId.Karura),
   [EcosystemId.Acala]: useEvmWallet(EcosystemId.Acala),
 });
 

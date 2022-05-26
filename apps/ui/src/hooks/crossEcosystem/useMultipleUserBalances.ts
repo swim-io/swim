@@ -49,6 +49,7 @@ const getContractAddressesByEcosystem = (
           : accumulator.polygon,
         [EcosystemId.Aurora]: [],
         [EcosystemId.Fantom]: [],
+        [EcosystemId.Karura]: [],
         [EcosystemId.Acala]: [],
       };
     },
@@ -61,6 +62,7 @@ const getContractAddressesByEcosystem = (
       [EcosystemId.Polygon]: [],
       [EcosystemId.Aurora]: [],
       [EcosystemId.Fantom]: [],
+      [EcosystemId.Karura]: [],
       [EcosystemId.Acala]: [],
     },
   );

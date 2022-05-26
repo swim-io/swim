@@ -32,10 +32,22 @@ export const useTxsForInteractionQuery = (
       interactionId,
     ),
     [EcosystemId.Terra]: useQuery({ enabled: false }),
-    [EcosystemId.Aurora]: useQuery({ enabled: false }),
-    [EcosystemId.Fantom]: useQuery({ enabled: false }),
-    [EcosystemId.Karura]: useQuery({ enabled: false }),
-    [EcosystemId.Acala]: useQuery({ enabled: false }),
+    [EcosystemId.Aurora]: useEvmTxsForInteractionQuery(
+      EcosystemId.Aurora,
+      interactionId,
+    ),
+    [EcosystemId.Fantom]: useEvmTxsForInteractionQuery(
+      EcosystemId.Fantom,
+      interactionId,
+    ),
+    [EcosystemId.Karura]: useEvmTxsForInteractionQuery(
+      EcosystemId.Karura,
+      interactionId,
+    ),
+    [EcosystemId.Acala]: useEvmTxsForInteractionQuery(
+      EcosystemId.Acala,
+      interactionId,
+    ),
   };
   const requiredEcosystems = [
     ...useRequiredEcosystemsForInteraction(interactionId).values(),

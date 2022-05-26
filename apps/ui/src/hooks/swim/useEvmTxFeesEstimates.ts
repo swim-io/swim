@@ -20,6 +20,14 @@ export const useEvmTxFeesEstimates = (
     useEvmTxFeesEstimateQuery(EcosystemId.Avalanche, interaction);
   const { data: polygonEstimate = null, isSuccess: polygonIsSuccess } =
     useEvmTxFeesEstimateQuery(EcosystemId.Polygon, interaction);
+  const { data: auroraEstimate = null, isSuccess: auroraIsSuccess } =
+    useEvmTxFeesEstimateQuery(EcosystemId.Aurora, interaction);
+  const { data: fantomEstimate = null, isSuccess: fantomIsSuccess } =
+    useEvmTxFeesEstimateQuery(EcosystemId.Fantom, interaction);
+  const { data: karuraEstimate = null, isSuccess: karuraIsSuccess } =
+    useEvmTxFeesEstimateQuery(EcosystemId.Karura, interaction);
+  const { data: acalaEstimate = null, isSuccess: acalaIsSuccess } =
+    useEvmTxFeesEstimateQuery(EcosystemId.Acala, interaction);
 
   return {
     estimates: {
@@ -27,15 +35,19 @@ export const useEvmTxFeesEstimates = (
       [EcosystemId.Bsc]: bscEstimate,
       [EcosystemId.Avalanche]: avalancheEstimate,
       [EcosystemId.Polygon]: polygonEstimate,
-      [EcosystemId.Aurora]: null,
-      [EcosystemId.Fantom]: null,
-      [EcosystemId.Karura]: null,
-      [EcosystemId.Acala]: null,
+      [EcosystemId.Aurora]: auroraEstimate,
+      [EcosystemId.Fantom]: fantomEstimate,
+      [EcosystemId.Karura]: karuraEstimate,
+      [EcosystemId.Acala]: acalaEstimate,
     },
     isSuccess:
       ethereumIsSuccess &&
       bscIsSuccess &&
       avalancheIsSuccess &&
-      polygonIsSuccess,
+      polygonIsSuccess &&
+      auroraIsSuccess &&
+      fantomIsSuccess &&
+      karuraIsSuccess &&
+      acalaIsSuccess,
   };
 };

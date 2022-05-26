@@ -37,11 +37,24 @@ export const useRemoveFeesEstimationQuery = (
   outputAmounts: readonly (Amount | null)[],
   lpTokenSourceEcosystem: EcosystemId,
 ): FeesEstimation | null => {
-  const [ethGasPrice, bscGasPrice, avalancheGasPrice, polygonGasPrice] = [
+  const [
+    ethGasPrice,
+    bscGasPrice,
+    avalancheGasPrice,
+    polygonGasPrice,
+    auroraGasPrice,
+    fantomGasPrice,
+    karuraGasPrice,
+    acalaGasPrice,
+  ] = [
     useGasPriceQuery(EcosystemId.Ethereum).data ?? ZERO,
     useGasPriceQuery(EcosystemId.Bsc).data ?? ZERO,
     useGasPriceQuery(EcosystemId.Avalanche).data ?? ZERO,
     useGasPriceQuery(EcosystemId.Polygon).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Aurora).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Fantom).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Karura).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Acala).data ?? ZERO,
   ];
   const requiredEvmEcosystemIds = [
     ...getIncludedEvmEcosystemIds(outputAmounts),
@@ -60,9 +73,17 @@ export const useRemoveFeesEstimationQuery = (
     EcosystemId.Avalanche,
     EcosystemId.Polygon,
   ];
-  const [ethGas, bscGas, avalancheGas, polygonGas] = evmEcosystemIds.map(
-    (ecosystemId) =>
-      calculateGas(ecosystemId, outputAmounts, lpTokenSourceEcosystem),
+  const [
+    ethGas,
+    bscGas,
+    avalancheGas,
+    polygonGas,
+    auroraGas,
+    fantomGas,
+    karuraGas,
+    acalaGas,
+  ] = evmEcosystemIds.map((ecosystemId) =>
+    calculateGas(ecosystemId, outputAmounts, lpTokenSourceEcosystem),
   );
   return {
     [EcosystemId.Solana]: SOLANA_FEE,
@@ -71,9 +92,9 @@ export const useRemoveFeesEstimationQuery = (
     [EcosystemId.Terra]: ZERO,
     [EcosystemId.Avalanche]: avalancheGas.mul(avalancheGasPrice.toString()),
     [EcosystemId.Polygon]: polygonGas.mul(polygonGasPrice.toString()),
-    [EcosystemId.Aurora]: ZERO,
-    [EcosystemId.Fantom]: ZERO,
-    [EcosystemId.Karura]: ZERO,
-    [EcosystemId.Acala]: ZERO,
+    [EcosystemId.Aurora]: auroraGas.mul(auroraGasPrice.toString()),
+    [EcosystemId.Fantom]: fantomGas.mul(fantomGasPrice.toString()),
+    [EcosystemId.Karura]: karuraGas.mul(karuraGasPrice.toString()),
+    [EcosystemId.Acala]: acalaGas.mul(acalaGasPrice.toString()),
   };
 };

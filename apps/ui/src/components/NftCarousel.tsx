@@ -52,6 +52,7 @@ const rarityColumns = [
 ];
 
 const redeemPassword = "redeem";
+const redemptionAmount = "3000 xSWIM";
 
 export const NftCarousel = ({
   nfts,
@@ -61,18 +62,10 @@ export const NftCarousel = ({
   const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const notify = useNotification(selectNotify);
-  const { redeemers } = useConfig();
   const { mutateAsync, isLoading } = useRedeemMutation(activeNft);
-
   const onRedeemInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPasswordInput(e.target.value);
   };
-  const redeemerValue = redeemers.find(
-    (redeemer) =>
-      redeemer.nftCollection.toString() === activeNft?.metadata.collection?.key,
-  )?.redemptionAmount;
-  const redeemerToken = "SWIM";
-
   const showRedeemModal = (nft: NftData): void => {
     setActiveNft(nft);
     setIsRedeemModalVisible(true);
@@ -91,7 +84,7 @@ export const NftCarousel = ({
         await refetchNfts();
         notify(
           "Success",
-          `Redeemed Otter Tot for ${redeemerValue} ${redeemerToken}`,
+          `Redeemed Otter Tot for ${redemptionAmount}`,
           "success",
         );
         hideRedeemModal();
@@ -185,7 +178,7 @@ export const NftCarousel = ({
           isLoading={isLoading}
         >
           <EuiFormRow
-            label={`Type the word "${redeemPassword}" to burn your otter for ${redeemerValue} ${redeemerToken}. Warning, this is irreversible.`}
+            label={`Type the word "${redeemPassword}" to burn your otter for ${redemptionAmount}. Warning, this is irreversible.`}
           >
             <EuiFieldText
               name="redeem"

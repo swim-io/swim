@@ -10,7 +10,6 @@ export interface RedeemerSpec {
   readonly nftCollection: PublicKey;
   readonly vaultMint: PublicKey;
   readonly vaultTokenAccount: PublicKey;
-  readonly redemptionAmount: number;
 }
 
 const mainnetRedeemer: readonly RedeemerSpec[] = [];
@@ -28,7 +27,6 @@ const devnetRedeemer: readonly RedeemerSpec[] = [
     vaultTokenAccount: new PublicKey(
       "tJQbYYmxKqzqaswHrq8Mg7ZqmB9DNhs35SKdsEKABo9",
     ),
-    redemptionAmount: 3000,
   },
 ];
 

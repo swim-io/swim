@@ -24,7 +24,7 @@ export interface SingleWalletModalProps<
   readonly createServiceClickHandler: (
     serviceId: WalletService<WalletAdapter>["id"],
     callback?: () => any,
-  ) => () => void;
+  ) => void;
 }
 
 export const SingleWalletModal = <W extends WalletService = WalletService>({
@@ -51,7 +51,7 @@ export const SingleWalletModal = <W extends WalletService = WalletService>({
           <Fragment key={name}>
             <EuiButtonEmpty
               isSelected={currentService === id}
-              onClick={createServiceClickHandler(service.id, handleClose)}
+              onClick={() => createServiceClickHandler(service.id, handleClose)}
             >
               <EuiIcon type={icon} size="l" style={{ marginRight: 8 }} />
               {name}

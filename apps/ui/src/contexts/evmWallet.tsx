@@ -245,12 +245,14 @@ export const EvmWalletProvider = ({
 
   const select = useCallback(() => setIsModalVisible(true), []);
   const closeModal = useCallback(() => setIsModalVisible(false), []);
-  const createServiceClickHandler =
-    (id: WalletService["id"], callback?: () => any) => (): void => {
-      setServiceId(id);
-      setAutoConnect(true);
-      callback?.();
-    };
+  const createServiceClickHandler = (
+    id: WalletService["id"],
+    callback?: () => any,
+  ) => {
+    setServiceId(id);
+    setAutoConnect(true);
+    callback?.();
+  };
 
   const EvmWalletContext = ecosystemToContext[ecosystemId];
 

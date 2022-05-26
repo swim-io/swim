@@ -6,7 +6,7 @@ import { Env } from "./env";
 
 export interface RedeemerSpec {
   readonly programAddress: PublicKey;
-  readonly programPDA: PublicKey;
+  readonly programPda: PublicKey;
   readonly nftCollection: PublicKey;
   readonly vaultMint: PublicKey;
   readonly vaultTokenAccount: PublicKey;

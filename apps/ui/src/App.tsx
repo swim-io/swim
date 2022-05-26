@@ -73,7 +73,7 @@ function App(): ReactElement {
               <Route path="/swap">
                 <SwapPage />
               </Route>
-              {true && (
+              {process.env.REACT_APP_ENABLE_NFT && (
                 <Route exact path="/otter-tots">
                   <OtterTotsPage />
                 </Route>

@@ -116,7 +116,7 @@ const ProtocolWalletOptionsList = ({
       const wallet = wallets[ecosystemId];
 
       if (wallet.connected && wallet.service?.id === serviceId) {
-        wallets[ecosystemId].wallet?.disconnect().catch(console.error);
+        void wallets[ecosystemId].wallet?.disconnect();
       }
     });
   };

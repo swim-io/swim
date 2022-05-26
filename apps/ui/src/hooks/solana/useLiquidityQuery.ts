@@ -3,7 +3,8 @@ import { PublicKey } from "@solana/web3.js";
 import type { UseQueryResult } from "react-query";
 import { useQueries, useQuery } from "react-query";
 
-import { useEnvironment, useSolanaConnection } from "../../contexts";
+import { useSolanaConnection } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 import {
   deserializeTokenAccount,
   getMultipleSolanaAccounts,

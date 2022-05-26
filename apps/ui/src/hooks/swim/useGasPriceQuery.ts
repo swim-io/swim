@@ -3,7 +3,8 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
-import { useEnvironment, useEvmConnection } from "../../contexts";
+import { useEvmConnection } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 
 // Query for gas price in native currency
 // e.g. ETH for Ethereum, BNB for Binance Smart Chain

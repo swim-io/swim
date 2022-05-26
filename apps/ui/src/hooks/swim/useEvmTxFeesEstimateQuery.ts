@@ -4,7 +4,8 @@ import { useQuery } from "react-query";
 
 import { sumToDecimal } from "../../amounts";
 import type { EvmEcosystemId, TokenSpec } from "../../config";
-import { useConfig, useEnvironment, useEvmConnection } from "../../contexts";
+import { useEvmConnection } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 import type { Interaction } from "../../models";
 import { InteractionType, getTokensByPool } from "../../models";
 
@@ -102,8 +103,7 @@ export const useEvmTxFeesEstimateQuery = (
   ecosystem: EvmEcosystemId,
   interaction: Interaction | null,
 ): UseQueryResult<Decimal | null, Error> => {
-  const { env } = useEnvironment();
-  const config = useConfig();
+  const { env, config } = useEnvironment();
   const tokensByPool = getTokensByPool(config);
   const connection = useEvmConnection(ecosystem);
   const pools = usePools(interaction?.poolIds ?? []);

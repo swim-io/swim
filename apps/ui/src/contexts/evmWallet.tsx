@@ -12,8 +12,7 @@ import * as React from "react";
 import { SingleWalletModal } from "../components/SingleWalletModal";
 import type { EvmEcosystemId } from "../config";
 import { EcosystemId, Env, EvmChainId } from "../config";
-import { selectNotify } from "../core/selectors";
-import { useNotification } from "../core/store";
+import { useEnvironment, useNotification } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
 import type { EvmWalletAdapter, WalletService } from "../models";
 import {
@@ -28,8 +27,6 @@ import {
 } from "../models";
 import type { ReadonlyRecord } from "../utils";
 import { shortenAddress } from "../utils";
-
-import { useEnvironment } from "./environment";
 
 const envToEcosystemToChainId: ReadonlyRecord<
   Env,
@@ -166,7 +163,7 @@ export const EvmWalletProvider = ({
   ecosystemId,
   children,
 }: EvmWalletProviderProps): ReactElement => {
-  const notify = useNotification(selectNotify);
+  const { notify } = useNotification();
 
   const { env } = useEnvironment();
   const [connected, setConnected] = useState(false);

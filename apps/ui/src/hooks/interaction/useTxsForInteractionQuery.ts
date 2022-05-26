@@ -2,7 +2,7 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import { EcosystemId } from "../../config";
-import { useEnvironment } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 import type { Tx } from "../../models";
 
 import { useEvmTxsForInteractionQuery } from "./useEvmTxsForInteractionQuery";

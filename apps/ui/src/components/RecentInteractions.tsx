@@ -12,7 +12,7 @@ import moment from "moment";
 import type { ReactElement } from "react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 
-import { useConfig } from "../contexts";
+import { useEnvironment } from "../core/store";
 import {
   isEveryAddressConnected,
   usePoolMaths,
@@ -81,7 +81,7 @@ export const RecentInteraction = ({
   txs,
   splTokenAccounts,
 }: RecentInteractionProps): ReactElement => {
-  const config = useConfig();
+  const { config } = useEnvironment();
   const [isActive, setIsActive] = useState(false);
   const wallets = useWallets();
   const { isInteractionInProgress } = useStepsReducer();

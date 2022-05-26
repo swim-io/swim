@@ -1,6 +1,6 @@
 import type { ChainSpec, CosmosSpec, EvmSpec, SolanaSpec } from "../../config";
 import { EcosystemId, Protocol } from "../../config";
-import { useConfig } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 import type { ReadonlyRecord } from "../../utils";
 
 export interface ChainsByEcosystem
@@ -18,7 +18,9 @@ export interface ChainsByEcosystem
 }
 
 export const useChainsByEcosystem = (): ChainsByEcosystem => {
-  const { chains } = useConfig();
+  const {
+    config: { chains },
+  } = useEnvironment();
   const [solana] = chains[Protocol.Solana];
   const [ethereum, bsc, avalanche, polygon, aurora, fantom, acala] = [
     EcosystemId.Ethereum,

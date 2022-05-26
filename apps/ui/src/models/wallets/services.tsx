@@ -81,7 +81,7 @@ const metaMaskInfo: Omit<WalletServiceInfo, "ecosystem"> = {
   icon: METAMASK_ICON,
 };
 
-const addHelpTextToMetaMaskInfo = (
+const addMetamaskEcosystemInfo = (
   info: Omit<WalletServiceInfo, "ecosystem">,
   ecosystem: Ecosystem,
   url: string,
@@ -108,37 +108,37 @@ const ethereumMetaMaskInfo: WalletServiceInfo = {
   ecosystem: ecosystems[EcosystemId.Ethereum],
 };
 
-const bscMetaMaskInfo = addHelpTextToMetaMaskInfo(
+const bscMetaMaskInfo = addMetamaskEcosystemInfo(
   metaMaskInfo,
   ecosystems[EcosystemId.Bsc],
   "https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain",
 );
-const avalancheMetaMaskInfo = addHelpTextToMetaMaskInfo(
+const avalancheMetaMaskInfo = addMetamaskEcosystemInfo(
   metaMaskInfo,
   ecosystems[EcosystemId.Avalanche],
   "https://support.avax.network/en/articles/4626956-how-do-i-set-up-metamask-on-avalanche",
 );
-const polygonMetaMaskInfo = addHelpTextToMetaMaskInfo(
+const polygonMetaMaskInfo = addMetamaskEcosystemInfo(
   metaMaskInfo,
   ecosystems[EcosystemId.Polygon],
   "https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/",
 );
-const auroraMetaMaskInfo = addHelpTextToMetaMaskInfo(
+const auroraMetaMaskInfo = addMetamaskEcosystemInfo(
   metaMaskInfo,
   ecosystems[EcosystemId.Aurora],
   "https://doc.aurora.dev/interact/metamask/",
 );
-const fantomMetaMaskInfo = addHelpTextToMetaMaskInfo(
+const fantomMetaMaskInfo = addMetamaskEcosystemInfo(
   metaMaskInfo,
   ecosystems[EcosystemId.Fantom],
   "https://docs.fantom.foundation/tutorials/set-up-metamask",
 );
-const karuraMetaMaskInfo = addHelpTextToMetaMaskInfo(
+const karuraMetaMaskInfo = addMetamaskEcosystemInfo(
   metaMaskInfo,
   ecosystems[EcosystemId.Karura],
   "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network", // TODO: Update link when mainnet is live
 );
-const acalaMetaMaskInfo = addHelpTextToMetaMaskInfo(
+const acalaMetaMaskInfo = addMetamaskEcosystemInfo(
   metaMaskInfo,
   ecosystems[EcosystemId.Acala],
   "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network", // TODO: Update link when mainnet is live

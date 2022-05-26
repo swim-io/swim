@@ -49,7 +49,7 @@ export const useRedeemMutation = (
         redeemerSpec.vaultMint.toBase58(),
       ]);
       const program = new Program(
-        redeemerIdl as any,
+        redeemerIdl as Idl,
         redeemerSpec.programAddress,
         anchorProvider,
       );

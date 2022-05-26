@@ -1,8 +1,7 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { useEnvironment } from "..";
-import { DEFAULT_ENV, Env, configs } from "../../../config";
-import { getConfig } from "../useEnvironment";
+import { DEFAULT_ENV, Env } from "../../../config";
 
 describe("useEnvironment", () => {
   const CUSTOM_LOCALNET_IP = "123.4.5.6";
@@ -19,7 +18,6 @@ describe("useEnvironment", () => {
 
     const initState = {
       env: DEFAULT_ENV,
-      config: configs[DEFAULT_ENV],
       customLocalnetIp: null,
     };
 
@@ -43,7 +41,6 @@ describe("useEnvironment", () => {
     });
     const expected = {
       customLocalnetIp: CUSTOM_LOCALNET_IP,
-      config: getConfig(DEFAULT_ENV, CUSTOM_LOCALNET_IP),
       env: useEnvironment.getState().env,
     };
 
@@ -57,7 +54,6 @@ describe("useEnvironment", () => {
     });
 
     expect(state.current.customLocalnetIp).toEqual(null);
-    expect(state.current.config).toEqual(configs[Env.Mainnet]);
     expect(state.current.env).toEqual(Env.Mainnet);
   });
   it("calls setEnv func with Devnet argument and returns Devnet env as customLocalnetIp is not null", () => {

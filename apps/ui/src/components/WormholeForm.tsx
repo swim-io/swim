@@ -19,10 +19,12 @@ import {
 import Decimal from "decimal.js";
 import type { ChangeEvent, FormEvent, ReactElement } from "react";
 import { useEffect, useRef, useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import { displayAmount } from "../amounts";
 import type { TokenSpec } from "../config";
 import { EcosystemId, ecosystems } from "../config";
+import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import {
   useChainsByEcosystem,
@@ -90,9 +92,7 @@ const useNonSolanaEcosystemChangeEffect = (
 };
 
 export const WormholeForm = (): ReactElement => {
-  const {
-    config: { tokens },
-  } = useEnvironment();
+  const { tokens } = useEnvironment(selectConfig, shallow);
   const { notify } = useNotification();
   const {
     solana: { address: solanaAddress },

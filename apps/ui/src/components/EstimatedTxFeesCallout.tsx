@@ -1,8 +1,10 @@
 import { EuiCallOut, EuiLoadingSpinner, EuiSpacer } from "@elastic/eui";
 import type { FC } from "react";
+import shallow from "zustand/shallow.js";
 
 import { decimalRemoveTrailingZero } from "../amounts";
 import type { EvmEcosystemId } from "../config";
+import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import type { FeesEstimation } from "../models";
 
@@ -11,7 +13,7 @@ interface Props {
 }
 
 export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
-  const { config } = useEnvironment();
+  const config = useEnvironment(selectConfig, shallow);
   if (feesEstimation === null) {
     return (
       <>

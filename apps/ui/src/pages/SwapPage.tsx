@@ -12,10 +12,12 @@ import {
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import { RecentInteractions } from "../components/RecentInteractions";
 import { SlippageButton } from "../components/SlippageButton";
 import { SwapForm } from "../components/SwapForm";
+import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { useTitle } from "../hooks";
 import { defaultIfError } from "../utils";
@@ -23,9 +25,7 @@ import { defaultIfError } from "../utils";
 import "./SwapPage.scss";
 
 const SwapPage = (): ReactElement => {
-  const {
-    config: { pools },
-  } = useEnvironment();
+  const { pools } = useEnvironment(selectConfig, shallow);
   useTitle("Swap");
 
   const nonStakingPools = useMemo(

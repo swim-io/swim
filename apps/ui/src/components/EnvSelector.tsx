@@ -10,6 +10,7 @@ import {
 import * as Sentry from "@sentry/react";
 import type { ReactElement } from "react";
 import { useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import { isValidEnv } from "../config";
 import { selectEnvs } from "../core/selectors";
@@ -17,7 +18,7 @@ import { useEnvironment } from "../core/store";
 
 export const EnvSelector = (): ReactElement => {
   const { env, setEnv } = useEnvironment();
-  const envs = useEnvironment(selectEnvs); // TODO: improve selectors for derivative data
+  const envs = useEnvironment(selectEnvs, shallow);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleChange = (envOptions: readonly EuiSelectableOption[]): void => {

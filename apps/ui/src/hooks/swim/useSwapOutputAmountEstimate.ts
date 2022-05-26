@@ -2,7 +2,7 @@ import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
-import { useConfig } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 import {
   Amount,
   SwimDefiInstruction,
@@ -98,7 +98,7 @@ export const useSwapOutputAmountEstimate = (
   exactInputAmount: Amount,
   toToken: TokenSpec,
 ): Amount | null => {
-  const config = useConfig();
+  const { config } = useEnvironment();
   const fromToken = exactInputAmount.tokenSpec;
   const tokensByPool = getTokensByPool(config);
   const requiredPools = getRequiredPoolsForSwap(

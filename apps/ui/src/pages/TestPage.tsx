@@ -29,14 +29,8 @@ import {
   WormholeChainId,
   getSolanaTokenDetails,
 } from "../config";
-import {
-  useConfig,
-  useEnvironment,
-  useEvmConnections,
-  useSolanaConnection,
-} from "../contexts";
-import { selectNotify } from "../core/selectors";
-import { useNotification } from "../core/store";
+import { useEvmConnections, useSolanaConnection } from "../contexts";
+import { useEnvironment, useNotification } from "../core/store";
 import { usePool, useTokensByEcosystem, useWallets } from "../hooks";
 import { keysHexaPool, keysSwimLake } from "../keys";
 import {
@@ -49,8 +43,10 @@ import { shortenAddress, sleep } from "../utils";
 const SWIM_POOL_FEE_DECIMALS = 6;
 
 const TestPage = (): ReactElement => {
-  const { env } = useEnvironment();
-  const { chains, tokens, wormhole: wormholeConfig } = useConfig();
+  const {
+    env,
+    config: { chains, tokens, wormhole: wormholeConfig },
+  } = useEnvironment();
   const queryClient = useQueryClient();
   const [currentPool, setCurrentPool] = useState("hexapool");
   const secretKeys = currentPool === "swimlake" ? keysSwimLake : keysHexaPool;
@@ -264,7 +260,7 @@ const TestPage = (): ReactElement => {
     console.info("BSC TX IDS", splTokenBscSetupResult.bscTxIds);
   };
 
-  const notify = useNotification(selectNotify);
+  const { notify } = useNotification();
   const addToastHandler = (): void => {
     notify("Test", <div>My desc</div>);
   };

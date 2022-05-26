@@ -4,12 +4,8 @@ import type Decimal from "decimal.js";
 
 import type { Env, PoolSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
-import {
-  useConfig,
-  useEnvironment,
-  useSolanaConnection,
-  useSolanaWallet,
-} from "../../contexts";
+import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 import type {
   Interaction,
   OperationSpec,
@@ -322,8 +318,7 @@ export const usePoolOperationsGenerator = (): UseAsyncGeneratorResult<
   PoolOperationsInput,
   TxWithPoolId
 > => {
-  const { env } = useEnvironment();
-  const config = useConfig();
+  const { env, config } = useEnvironment();
   const tokensByPoolId = getTokensByPool(config);
   const solanaConnection = useSolanaConnection();
   const { wallet } = useSolanaWallet();

@@ -1,5 +1,5 @@
 import type { PoolSpec } from "../../config";
-import { useConfig } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 import { getRequiredPools } from "../../models";
 
 import { useInteraction } from "./useInteraction";
@@ -7,7 +7,9 @@ import { useInteraction } from "./useInteraction";
 export const useRequiredPoolsForInteraction = (
   interactionId: string,
 ): readonly PoolSpec[] => {
-  const { pools } = useConfig();
+  const {
+    config: { pools },
+  } = useEnvironment();
   const interaction = useInteraction(interactionId);
   return getRequiredPools(pools, interaction);
 };

@@ -1,6 +1,9 @@
+import shallow from "zustand/shallow.js";
+
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
-import { useConfig } from "../../contexts";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import type { Amount } from "../../models";
 import { getRequiredPoolsForSwap } from "../../models";
 
@@ -12,7 +15,7 @@ export const useIsLargeSwap = (
   toToken: TokenSpec,
   inputAmount: Amount,
 ) => {
-  const config = useConfig();
+  const config = useEnvironment(selectConfig, shallow);
   const requiredPools = getRequiredPoolsForSwap(
     config.pools,
     fromToken.id,

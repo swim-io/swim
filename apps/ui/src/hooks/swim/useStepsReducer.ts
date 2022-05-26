@@ -4,13 +4,12 @@ import type { Dispatch, Reducer } from "react";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import type { UseMutationResult } from "react-query";
 import { useQueryClient } from "react-query";
+import shallow from "zustand/shallow.js";
 
 import { EcosystemId, isEvmEcosystemId } from "../../config";
-import {
-  useActiveInteractionContext,
-  useConfig,
-  useEnvironment,
-} from "../../contexts";
+import { useActiveInteractionContext } from "../../contexts";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import { captureAndWrapException } from "../../errors";
 import {
   ActionType,
@@ -168,7 +167,7 @@ export const useStepsReducer = (
   currentState: State = initialState,
 ): StepsReducer => {
   const { env } = useEnvironment();
-  const config = useConfig();
+  const config = useEnvironment(selectConfig, shallow);
   const tokensByPool = getTokensByPool(config);
   const wallets = useWallets();
   const { hasActiveInteraction, setActiveInteraction } =

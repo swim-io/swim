@@ -11,9 +11,11 @@ import {
 } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
+import shallow from "zustand/shallow.js";
 
 import { EcosystemId } from "../config";
-import { useConfig } from "../contexts";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import { useWallets } from "../hooks";
 import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
 import BSC_SVG from "../images/ecosystems/bsc.svg";
@@ -142,7 +144,7 @@ export const MultiWalletModal = ({
 }: MultiWalletModalProps): ReactElement => {
   const { solana, ethereum, bsc, avalanche, polygon } = useWallets();
 
-  const { ecosystems } = useConfig();
+  const { ecosystems } = useEnvironment(selectConfig, shallow);
   const solanaEcosystem = ecosystems[EcosystemId.Solana];
   const ethereumEcosystem = ecosystems[EcosystemId.Ethereum];
   const bscEcosystem = ecosystems[EcosystemId.Bsc];

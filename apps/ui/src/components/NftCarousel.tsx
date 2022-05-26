@@ -15,14 +15,12 @@ import { useState } from "react";
 import type { QueryObserverResult } from "react-query";
 import { Carousel } from "react-responsive-carousel";
 
-import { selectNotify } from "../core/selectors";
 import { useNotification } from "../core/store";
 import type {
   NftAttribute,
   NftData,
 } from "../hooks/solana/useAccountNftsQuery";
 import { useRedeemMutation } from "../hooks/swim/useRedeemMutation";
-import { useConfig } from "../contexts";
 
 import "./NftCarousel.scss";
 
@@ -61,7 +59,7 @@ export const NftCarousel = ({
   const [activeNft, setActiveNft] = useState<NftData | null>(null);
   const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
-  const notify = useNotification(selectNotify);
+  const { notify } = useNotification();
   const { mutateAsync, isLoading } = useRedeemMutation(activeNft);
   const onRedeemInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPasswordInput(e.target.value);

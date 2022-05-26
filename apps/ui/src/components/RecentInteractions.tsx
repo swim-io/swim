@@ -11,8 +11,10 @@ import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
 import moment from "moment";
 import type { ReactElement } from "react";
 import { Fragment, useEffect, useMemo, useState } from "react";
+import shallow from "zustand/shallow.js";
 
-import { useConfig } from "../contexts";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import {
   isEveryAddressConnected,
   usePoolMaths,
@@ -81,7 +83,7 @@ export const RecentInteraction = ({
   txs,
   splTokenAccounts,
 }: RecentInteractionProps): ReactElement => {
-  const config = useConfig();
+  const config = useEnvironment(selectConfig, shallow);
   const [isActive, setIsActive] = useState(false);
   const wallets = useWallets();
   const { isInteractionInProgress } = useStepsReducer();

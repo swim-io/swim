@@ -1,5 +1,8 @@
+import shallow from "zustand/shallow.js";
+
 import type { EcosystemId } from "../../config";
-import { useConfig } from "../../contexts";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import { getRequiredEcosystems } from "../../models";
 
 import { useInteraction } from "./useInteraction";
@@ -7,7 +10,7 @@ import { useInteraction } from "./useInteraction";
 export const useRequiredEcosystemsForInteraction = (
   interactionId: string,
 ): ReadonlySet<EcosystemId> => {
-  const { tokens } = useConfig();
+  const { tokens } = useEnvironment(selectConfig, shallow);
   const interaction = useInteraction(interactionId);
   return getRequiredEcosystems(tokens, interaction);
 };

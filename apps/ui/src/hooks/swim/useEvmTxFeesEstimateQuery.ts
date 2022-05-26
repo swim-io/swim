@@ -1,10 +1,13 @@
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
+import shallow from "zustand/shallow.js";
 
 import { sumToDecimal } from "../../amounts";
 import type { EvmEcosystemId, TokenSpec } from "../../config";
-import { useConfig, useEnvironment, useEvmConnection } from "../../contexts";
+import { useEvmConnection } from "../../contexts";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import type { Interaction } from "../../models";
 import { InteractionType, getTokensByPool } from "../../models";
 
@@ -103,7 +106,7 @@ export const useEvmTxFeesEstimateQuery = (
   interaction: Interaction | null,
 ): UseQueryResult<Decimal | null, Error> => {
   const { env } = useEnvironment();
-  const config = useConfig();
+  const config = useEnvironment(selectConfig, shallow);
   const tokensByPool = getTokensByPool(config);
   const connection = useEvmConnection(ecosystem);
   const pools = usePools(interaction?.poolIds ?? []);

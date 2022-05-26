@@ -5,17 +5,18 @@ import { PublicKey } from "@solana/web3.js";
 import type { RpcResponseAndContext, SignatureResult } from "@solana/web3.js";
 import type { UseMutationResult } from "react-query";
 import { useMutation } from "react-query";
+import shallow from "zustand/shallow.js";
 
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import redeemerIdl from "../../idl/redeem.json";
 import { getAssociatedTokenAddress } from "../../models/solana/utils";
+import { findOrThrow } from "../../utils";
 import type { NftData } from "../solana";
 import {
   useAnchorProvider,
   useCreateSplTokenAccountsMutation,
 } from "../solana";
-
-import { useConfig } from "../../contexts";
-import { findOrThrow } from "../../utils";
 
 // Note, this address should be somewhere more general if it ever has a usecase beyond the redeemer.
 export const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
@@ -31,7 +32,7 @@ export const useRedeemMutation = (
 ): UseMutationResult<null | RpcResponseAndContext<SignatureResult>> => {
   const createATA = useCreateSplTokenAccountsMutation();
   const anchorProvider = useAnchorProvider();
-  const { redeemers } = useConfig();
+  const { redeemers } = useEnvironment(selectConfig, shallow);
   return useMutation(
     async (): Promise<null | RpcResponseAndContext<SignatureResult>> => {
       if (!nft || !nft.metadata.collection || !anchorProvider) {
@@ -40,7 +41,7 @@ export const useRedeemMutation = (
       const redeemerSpec = findOrThrow(
         redeemers,
         (redeemer) =>
-          redeemer.nftCollection.toString() === nft?.metadata.collection?.key,
+          redeemer.nftCollection.toString() === nft.metadata.collection?.key,
       );
       const anchorWallet = anchorProvider.wallet;
       const { mint: nftMint, collection: nftCollection } = nft.metadata;

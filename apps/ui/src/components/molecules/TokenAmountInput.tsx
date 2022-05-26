@@ -7,10 +7,12 @@ import {
   EuiSuperSelect,
 } from "@elastic/eui";
 import type React from "react";
+import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../../config";
 import { getNativeTokenDetails } from "../../config";
-import { useConfig } from "../../contexts";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import { Amount } from "../../models";
 import { findOrThrow } from "../../utils";
 import { ConnectButton } from "../ConnectButton";
@@ -50,7 +52,7 @@ export const TokenAmountInput: React.FC<Props> = ({
   onChangeValue,
   onBlur,
 }) => {
-  const { tokens } = useConfig();
+  const { tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptionIds
     .map((tokenId) => findOrThrow(tokens, ({ id }) => id === tokenId))
     .map((tokenSpec) => ({

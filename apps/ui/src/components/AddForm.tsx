@@ -16,12 +16,12 @@ import {
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
 import type { PoolSpec, TokenSpec } from "../config";
-import { useConfig } from "../contexts";
-import { selectNotify } from "../core/selectors";
-import { useNotification } from "../core/store";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   useAddFeesEstimationQuery,
@@ -178,8 +178,8 @@ export const AddForm = ({
   poolSpec,
   maxSlippageFraction,
 }: AddFormProps): ReactElement => {
-  const notify = useNotification(selectNotify);
-  const config = useConfig();
+  const { notify } = useNotification();
+  const config = useEnvironment(selectConfig, shallow);
   const wallets = useWallets();
   const {
     tokens: poolTokens,

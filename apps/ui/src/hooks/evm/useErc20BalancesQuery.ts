@@ -3,7 +3,8 @@ import type { UseQueryResult } from "react-query";
 import { useQueries } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
-import { useEnvironment, useEvmConnection, useEvmWallet } from "../../contexts";
+import { useEvmConnection, useEvmWallet } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 
 export const useErc20BalancesQuery = (
   ecosystemId: EvmEcosystemId,

@@ -2,9 +2,11 @@ import type { EuiButtonProps, PropsForButton } from "@elastic/eui";
 import { EuiButton, EuiHideFor, EuiIcon, EuiShowFor } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import { EcosystemId } from "../config";
-import { useConfig } from "../contexts";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import { useWallets } from "../hooks";
 import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
 import BSC_SVG from "../images/ecosystems/bsc.svg";
@@ -26,7 +28,7 @@ export const ConnectButton = ({
   ecosystemId,
   ...rest
 }: ConnectButtonProps): ReactElement => {
-  const { ecosystems } = useConfig();
+  const { ecosystems } = useEnvironment(selectConfig, shallow);
   if (ecosystemId === EcosystemId.Terra) {
     throw new Error("Unsupported ecosystem");
   }

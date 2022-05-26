@@ -1,14 +1,12 @@
 import type { UseMutationResult } from "react-query";
 import { useMutation, useQueryClient } from "react-query";
+import shallow from "zustand/shallow.js";
 
 import type { EvmEcosystemId, TokenSpec } from "../../config";
 import { Protocol, getSolanaTokenDetails } from "../../config";
-import {
-  useConfig,
-  useEnvironment,
-  useEvmConnection,
-  useSolanaConnection,
-} from "../../contexts";
+import { useEvmConnection, useSolanaConnection } from "../../contexts";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import type { Amount, Tx, WormholeTransfer } from "../../models";
 import {
   findOrCreateSplTokenAccount,
@@ -31,9 +29,9 @@ export const useTransferEvmTokenToSolanaMutation = (
   TransferErc20TokenToSolanaMutationVariables
 > => {
   const { env } = useEnvironment();
+  const { chains, wormhole } = useEnvironment(selectConfig, shallow);
   const queryClient = useQueryClient();
   const splTokenContractAddress = getSolanaTokenDetails(token).address;
-  const { chains, wormhole } = useConfig();
   const [solanaChain] = chains[Protocol.Solana];
   const evmChain =
     chains[Protocol.Evm].find((chain) => chain.ecosystem === ecosystemId) ??

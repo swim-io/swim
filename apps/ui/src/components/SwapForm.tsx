@@ -9,11 +9,11 @@ import {
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import { EcosystemId } from "../config";
-import { useConfig } from "../contexts";
-import { selectNotify } from "../core/selectors";
-import { useNotification } from "../core/store";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   useGetSwapFormErrors,
@@ -57,8 +57,8 @@ export const SwapForm = ({
   setCurrentInteraction,
   maxSlippageFraction,
 }: SwapFormProps): ReactElement => {
-  const config = useConfig();
-  const notify = useNotification(selectNotify);
+  const config = useEnvironment(selectConfig, shallow);
+  const { notify } = useNotification();
   const { tokens } = config;
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();

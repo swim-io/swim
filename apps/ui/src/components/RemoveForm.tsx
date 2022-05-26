@@ -16,12 +16,12 @@ import {
 import Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../config";
 import { EcosystemId, ecosystems } from "../config";
-import { useConfig } from "../contexts";
-import { selectNotify } from "../core/selectors";
-import { useNotification } from "../core/store";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   usePool,
@@ -73,7 +73,7 @@ export const RemoveForm = ({
   poolSpec,
   maxSlippageFraction,
 }: RemoveFormProps): ReactElement => {
-  const config = useConfig();
+  const config = useEnvironment(selectConfig, shallow);
   const {
     tokens: poolTokens,
     lpToken,
@@ -138,7 +138,7 @@ export const RemoveForm = ({
     },
   );
 
-  const notify = useNotification(selectNotify);
+  const { notify } = useNotification();
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const [outputAmountErrors, setOutputAmountErrors] = useState(

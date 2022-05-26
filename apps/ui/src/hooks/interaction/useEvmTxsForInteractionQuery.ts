@@ -3,7 +3,8 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
-import { useEnvironment, useEvmConnection } from "../../contexts";
+import { useEvmConnection } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 import type { EvmTx } from "../../models";
 import { INTERACTION_ID_LENGTH_HEX } from "../../models";
 import { isNotNull } from "../../utils";
@@ -36,7 +37,7 @@ export const useEvmTxsForInteractionQuery = (
         history
           .filter(isNotNull)
           .slice(0, MAX_RECENT_TXS)
-          .map(async (txResponse) => {
+          .map(async (txResponse: ethers.providers.TransactionResponse) => {
             if (interactionId !== findEvmInteractionId(txResponse)) {
               return null;
             }

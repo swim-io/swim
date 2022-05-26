@@ -99,7 +99,7 @@ export const transferFromSolana = async (
   payerAddress: string,
   fromAddress: string,
   mintAddress: string,
-  amount: BigInt,
+  amount: bigint,
   targetAddress: Uint8Array,
   targetChain: ChainId,
   originAddress?: Uint8Array,

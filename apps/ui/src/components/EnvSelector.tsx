@@ -10,12 +10,15 @@ import {
 import * as Sentry from "@sentry/react";
 import type { ReactElement } from "react";
 import { useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import { isValidEnv } from "../config";
-import { useEnvironment } from "../contexts";
+import { selectEnvs } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 
 export const EnvSelector = (): ReactElement => {
-  const { env, setEnv, envs } = useEnvironment();
+  const { env, setEnv } = useEnvironment();
+  const envs = useEnvironment(selectEnvs, shallow);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleChange = (envOptions: readonly EuiSelectableOption[]): void => {
@@ -38,12 +41,14 @@ export const EnvSelector = (): ReactElement => {
 
   const id = htmlIdGenerator()();
 
-  const envOptions: readonly EuiSelectableOption[] = envs.map((name) => ({
-    key: name,
-    label: name,
-    prepend: <EuiAvatar type="space" name={name} size="s" />,
-    checked: name === env ? "on" : undefined,
-  }));
+  const envOptions: readonly EuiSelectableOption[] = envs.map(
+    (name: string) => ({
+      key: name,
+      label: name,
+      prepend: <EuiAvatar type="space" name={name} size="s" />,
+      checked: name === env ? "on" : undefined,
+    }),
+  );
 
   const selectedEnv =
     envOptions.find((option) => option.checked) ?? envOptions[0];

@@ -2819,7 +2819,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@improbable-eng/grpc-web@npm:^0.14.0":
+"@improbable-eng/grpc-web@npm:^0.14.0, @improbable-eng/grpc-web@npm:^0.14.1":
   version: 0.14.1
   resolution: "@improbable-eng/grpc-web@npm:0.14.1"
   dependencies:
@@ -5270,11 +5270,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terra-money/terra.js@npm:^3.0.7":
-  version: 3.0.12
-  resolution: "@terra-money/terra.js@npm:3.0.12"
+"@terra-money/legacy.proto@npm:@terra-money/terra.proto@^0.1.7":
+  version: 0.1.7
+  resolution: "@terra-money/terra.proto@npm:0.1.7"
   dependencies:
-    "@terra-money/terra.proto": ^0.1.7
+    google-protobuf: ^3.17.3
+    long: ^4.0.0
+    protobufjs: ~6.11.2
+  checksum: c6ad15f559008e5159137aea6fa0b3edd8699b2638cfbe7361c3b53a523bcf7b1f92e2977f4f022532f61a5f57a74bdd3e3db7d3eb5b97df743106aa40764bd0
+  languageName: node
+  linkType: hard
+
+"@terra-money/terra.js@npm:^3.0.7":
+  version: 3.1.0
+  resolution: "@terra-money/terra.js@npm:3.1.0"
+  dependencies:
+    "@terra-money/legacy.proto": "npm:@terra-money/terra.proto@^0.1.7"
+    "@terra-money/terra.proto": ^0.2.0-beta.4
     axios: ^0.26.1
     bech32: ^2.0.0
     bip32: ^2.0.6
@@ -5287,18 +5299,19 @@ __metadata:
     tmp: ^0.2.1
     utf-8-validate: ^5.0.5
     ws: ^7.5.5
-  checksum: 7ba920fd90fd01b60332c7d66c33a59dc35bcbc9a3a97c5004741057992735d70191363af2524974fb4984ff3e0cca59e3f70a182d61f847b2960868948bfddd
+  checksum: acc0414b39b5acb8f9fc93166f5cd4771fae4cf25a6b7ef61bbf791bf34b53302689ba7f8365f4ef36402778bac5daa301ac4b927f7598d5c9e0d16a2f8b5070
   languageName: node
   linkType: hard
 
-"@terra-money/terra.proto@npm:^0.1.7":
-  version: 0.1.7
-  resolution: "@terra-money/terra.proto@npm:0.1.7"
+"@terra-money/terra.proto@npm:^0.2.0-beta.4":
+  version: 0.2.0-beta.4
+  resolution: "@terra-money/terra.proto@npm:0.2.0-beta.4"
   dependencies:
+    "@improbable-eng/grpc-web": ^0.14.1
     google-protobuf: ^3.17.3
     long: ^4.0.0
     protobufjs: ~6.11.2
-  checksum: c6ad15f559008e5159137aea6fa0b3edd8699b2638cfbe7361c3b53a523bcf7b1f92e2977f4f022532f61a5f57a74bdd3e3db7d3eb5b97df743106aa40764bd0
+  checksum: 37c42e29c846531f64f595a076378d415964f72181110f63b3cab72746c963706d64d71997af5a1eae28ce41a8e6c9f431c0d3597387cb48b91976836683ab1f
   languageName: node
   linkType: hard
 
@@ -8816,9 +8829,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000981, caniuse-lite@npm:^1.0.30001109, caniuse-lite@npm:^1.0.30001125, caniuse-lite@npm:^1.0.30001332":
-  version: 1.0.30001342
-  resolution: "caniuse-lite@npm:1.0.30001342"
-  checksum: 9ad47aec82e85017c59aaa0acee8027d910a715c7481cf66c9b4e296f3d10cc5d96df86d3c3033326b0110f5792b3f117a1dc935e3299abf2139fa345bb326f1
+  version: 1.0.30001343
+  resolution: "caniuse-lite@npm:1.0.30001343"
+  checksum: b8770c0be83e8f1bf52b26d2c9564796195c268bda995ccebc5e67bcb5540cbed9fb03a33500c954628fa99735cddb9c69c54c2af15c37da487cebbdba1f5c60
   languageName: node
   linkType: hard
 
@@ -10768,9 +10781,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.564, electron-to-chromium@npm:^1.4.118":
-  version: 1.4.138
-  resolution: "electron-to-chromium@npm:1.4.138"
-  checksum: 071ae40ede544890a3da8e392affb8b9851e52ad6a2674b4de7ef95da660c66f753844cb3cb1890a26e0cbcb0795a9821402e2adec4b9510ab0f315e124a32e9
+  version: 1.4.139
+  resolution: "electron-to-chromium@npm:1.4.139"
+  checksum: b0156f56db6a84b471bdacaecc5779952c9e4612cbe29867a818c5799ff2cd6a83617b68c3c020ce94b7a396b8288db8236a23d52148a05f567fa19ee309c9c1
   languageName: node
   linkType: hard
 
@@ -11442,13 +11455,13 @@ __metadata:
   linkType: hard
 
 "eslint-plugin-testing-library@npm:^5.0.1":
-  version: 5.5.0
-  resolution: "eslint-plugin-testing-library@npm:5.5.0"
+  version: 5.5.1
+  resolution: "eslint-plugin-testing-library@npm:5.5.1"
   dependencies:
     "@typescript-eslint/utils": ^5.13.0
   peerDependencies:
     eslint: ^7.5.0 || ^8.0.0
-  checksum: 7f42e2af84a0b5d1bba86fe9838abdbfa1c4f5dae66db215f592a216f82a2164a23181841228872d7116f38398bbc671e60a1e3b9840f0a8da1972c7aac8bdcd
+  checksum: 558994da12e6a9ff0c4f71c2e63a23746b6323d171062032843591e0fca6ce3811f979cf82e11db003c8b4f1d9842cb75301bfaa9e88d1a399b11ea6686aadcc
   languageName: node
   linkType: hard
 

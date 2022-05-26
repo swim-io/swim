@@ -216,33 +216,6 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size="xxl" />
 
             <PoolListItem
-              title="Fantom USDT Meta-Pool"
-              betaBadgeLabel="Coming Soon"
-              tokenSpecs={[
-                {
-                  id: "placeholder-fantom-native-usdt",
-                  symbol: "USDT",
-                  displayName: "Tether USD",
-                  icon: USDT_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Fantom,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
-                },
-              ]}
-            />
-
-            <EuiSpacer size="xxl" />
-
-            <PoolListItem
               title="Karura aUSD Meta-Pool"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[

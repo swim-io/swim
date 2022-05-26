@@ -30,7 +30,7 @@ import { StatList } from "../components/StatList";
 import { NativeTokenIcon, TokenIcon } from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
 import { EcosystemId, getSolanaTokenDetails } from "../config";
-import { useConfig } from "../contexts";
+import { useEnvironment } from "../core/store";
 import {
   usePool,
   useRegisterErc20Token,
@@ -46,7 +46,9 @@ const humanizeUsdAmount = (amount: string): string =>
 
 const PoolPage = (): ReactElement => {
   const { poolId } = useParams<{ readonly poolId: string }>();
-  const { pools } = useConfig();
+  const {
+    config: { pools },
+  } = useEnvironment();
 
   const poolSpec = pools.find((pool) => pool.id === poolId) ?? null;
 
@@ -73,7 +75,7 @@ const PoolPage = (): ReactElement => {
 };
 
 export interface PoolPageInnerProps {
-  readonly poolSpec: PoolSpec;
+  readonly poolSpec: PoolSpec; // TODO: In PoolPage component, poolSpec can be null, that case should be taken as an option
 }
 
 export const PoolPageInner = ({

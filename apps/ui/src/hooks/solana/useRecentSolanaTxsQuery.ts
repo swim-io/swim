@@ -4,11 +4,8 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import { EcosystemId, Env } from "../../config";
-import {
-  useEnvironment,
-  useSolanaConnection,
-  useSolanaWallet,
-} from "../../contexts";
+import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 import type { SolanaConnection, SolanaTx } from "../../models";
 import { INTERACTION_ID_LENGTH_HEX } from "../../models";
 

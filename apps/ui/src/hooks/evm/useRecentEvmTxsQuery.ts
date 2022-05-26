@@ -2,7 +2,8 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
-import { useEnvironment, useEvmConnection, useEvmWallet } from "../../contexts";
+import { useEvmConnection, useEvmWallet } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 import type { EvmTx } from "../../models";
 import { findEvmInteractionId } from "../../models";
 import { isNotNull } from "../../utils";

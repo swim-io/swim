@@ -3,7 +3,6 @@ import * as Sentry from "@sentry/react";
 import type { EvmEcosystemId, TokenSpec } from "../../config";
 import { ecosystems } from "../../config";
 import { useEvmWallet } from "../../contexts";
-import { selectNotify } from "../../core/selectors";
 import { useNotification } from "../../core/store";
 
 interface RegisterErc20TokenResult {
@@ -13,7 +12,7 @@ interface RegisterErc20TokenResult {
 export const useRegisterErc20Token = (
   ecosystemId: EvmEcosystemId,
 ): RegisterErc20TokenResult => {
-  const notify = useNotification(selectNotify);
+  const { notify } = useNotification();
   const { wallet } = useEvmWallet(ecosystemId);
 
   const showPrompt = async (tokenSpec: TokenSpec): Promise<void> => {

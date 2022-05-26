@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import { useState } from "react";
 
 import { EcosystemId } from "../config";
-import { useConfig } from "../contexts";
+import { useEnvironment } from "../core/store";
 import { useWallets } from "../hooks";
 import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
 import BSC_SVG from "../images/ecosystems/bsc.svg";
@@ -26,7 +26,9 @@ export const ConnectButton = ({
   ecosystemId,
   ...rest
 }: ConnectButtonProps): ReactElement => {
-  const { ecosystems } = useConfig();
+  const {
+    config: { ecosystems },
+  } = useEnvironment();
   if (ecosystemId === EcosystemId.Terra) {
     throw new Error("Unsupported ecosystem");
   }

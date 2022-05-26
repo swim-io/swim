@@ -102,7 +102,7 @@ const ProtocolWalletOptionsList = ({
   );
   const protocolWalletServicesByServiceId = groupBy(
     protocolWalletServices,
-    (protocolwalletService) => protocolwalletService.id,
+    (protocolWalletService) => protocolWalletService.id,
   );
   const protocolWallets = ecosystemIds.map(
     (ecosystemId) => wallets[ecosystemId],

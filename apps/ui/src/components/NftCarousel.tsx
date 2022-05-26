@@ -12,7 +12,6 @@ import {
 } from "@elastic/eui";
 import type { ChangeEvent, ReactElement } from "react";
 import { useState } from "react";
-import type { QueryObserverResult } from "react-query";
 import { Carousel } from "react-responsive-carousel";
 
 import { useNotification } from "../core/store";
@@ -26,9 +25,6 @@ import "./NftCarousel.scss";
 
 export interface NftCarouselProps {
   readonly nfts: readonly NftData[];
-  readonly refetchNfts: () => Promise<
-    QueryObserverResult<readonly NftData[], Error>
-  >;
 }
 
 const rarityColumns = [
@@ -52,14 +48,11 @@ const rarityColumns = [
 const redeemPassword = "redeem";
 const redemptionAmount = "3000 xSWIM";
 
-export const NftCarousel = ({
-  nfts,
-  refetchNfts,
-}: NftCarouselProps): ReactElement => {
+export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
   const [activeNft, setActiveNft] = useState<NftData | null>(null);
   const [passwordInput, setPasswordInput] = useState("");
   const { notify } = useNotification();
-  const { mutateAsync, isLoading } = useRedeemMutation(activeNft, refetchNfts);
+  const { mutateAsync, isLoading } = useRedeemMutation(activeNft);
   const isRedeemModalVisible = activeNft !== null;
   const onRedeemInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPasswordInput(e.target.value);

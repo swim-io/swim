@@ -1,4 +1,4 @@
-import { AnchorProvider, setProvider } from "@project-serum/anchor";
+import { AnchorProvider } from "@project-serum/anchor";
 
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
 

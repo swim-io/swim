@@ -3,10 +3,11 @@ import type { Idl } from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
-import type { QueryObserverResult, UseMutationResult } from "react-query";
-import { useMutation } from "react-query";
+import type { UseMutationResult } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
+import { useSolanaConnection } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import redeemerIdl from "../../idl/redeem.json";
@@ -28,12 +29,13 @@ const {
 
 export const useRedeemMutation = (
   nft: NftData | null,
-  refetchQuery: () => Promise<QueryObserverResult<readonly NftData[], Error>>,
-): UseMutationResult<void> => {
+): UseMutationResult<string> => {
   const createATA = useCreateSplTokenAccountsMutation();
+  const solanaConnection = useSolanaConnection();
   const anchorProvider = useAnchorProvider();
   const { redeemer } = useEnvironment(selectConfig, shallow);
-  return useMutation(async (): Promise<void> => {
+  const queryClient = useQueryClient();
+  return useMutation(async (): Promise<string> => {
     if (!nft || !nft.metadata.collection || !anchorProvider) {
       throw new Error(
         "Calling 'redeem' requires a connected wallet and an NFT",
@@ -74,12 +76,11 @@ export const useRedeemMutation = (
         tokenProgram: TOKEN_PROGRAM_ID,
       })
       .rpc();
-    const txResult = await anchorProvider.connection.confirmTransaction(
-      redeemTxId,
-    );
+    const txResult = await solanaConnection.confirmTx(redeemTxId);
     if (txResult.value.err) {
       throw new Error(txResult.value.err.toString());
     }
-    await refetchQuery();
+    await queryClient.invalidateQueries("accountNfts");
+    return redeemTxId;
   });
 };

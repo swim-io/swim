@@ -62,7 +62,7 @@ export const useRedeemMutation = (
         nftPublicKey,
         anchorWallet.publicKey,
       );
-      const redeemTxSig = await program.methods
+      const redeemTxId = await program.methods
         .redeem()
         .accounts({
           nftMetadata: metadataPDA,

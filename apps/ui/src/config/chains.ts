@@ -37,12 +37,12 @@ export const enum EvmChainId {
   FantomMainnet = 250,
   FantomTestnet = 4002,
   FantomLocalnet = 4003, // TODO: This is a placeholder
-  KaruraMainnet = 685, // TODO: Update
-  KaruraTestnet = 686,
-  KaruraLocalnet = 687, // TODO: This is a placeholder
-  AcalaMainnet = 786, // TODO: Update
-  AcalaTestnet = 787,
-  AcalaLocalnet = 788, // TODO: This is a placeholder
+  KaruraMainnet = 586, // TODO: Update
+  KaruraTestnet = 596,
+  KaruraLocalnet = 606, // TODO: This is a placeholder
+  AcalaMainnet = 587, // TODO: Update
+  AcalaTestnet = 597,
+  AcalaLocalnet = 607, // TODO: This is a placeholder
 }
 
 export const evmChainIdToEcosystem: ReadonlyRecord<EvmChainId, EvmEcosystemId> =
@@ -366,7 +366,7 @@ const devnetChains: ChainsByProtocol = {
       chainId: EvmChainId.KaruraTestnet,
       chainName: "Karura Testnet",
       nativeCurrency: KARURA_NATIVE_CURRENCY,
-      rpcUrls: ["https://tc7-eth.aca-dev.network"], // TODO: Think about what is best to recommend to MetaMask. Also is this really the same as Acala?
+      rpcUrls: ["https://karura-dev.aca-dev.network/eth/http"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
         bridge: "0xE4eacc10990ba3308DdCC72d985f2a27D20c7d03",
         tokenBridge: "0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37",
@@ -377,7 +377,7 @@ const devnetChains: ChainsByProtocol = {
       chainId: EvmChainId.AcalaTestnet,
       chainName: "Acala Testnet",
       nativeCurrency: ACALA_NATIVE_CURRENCY,
-      rpcUrls: ["https://tc7-eth.aca-dev.network"], // TODO: Think about what is best to recommend to MetaMask
+      rpcUrls: ["https://acala-dev.aca-dev.network/eth/http"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
         bridge: "0x4377B49d559c0a9466477195C6AdC3D433e265c0",
         tokenBridge: "0xebA00cbe08992EdD08ed7793E07ad6063c807004",

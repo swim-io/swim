@@ -123,7 +123,11 @@ export const MultiConnectButton = ({
 
   return (
     <>
-      <EuiButton onClick={openModal} {...rest}>
+      <EuiButton
+        onClick={openModal}
+        {...rest}
+        className={`multiConnectButton ${rest.className ?? ""}`}
+      >
         {label}
       </EuiButton>
       {isWalletModalOpen && <MultiWalletModal handleClose={closeModal} />}

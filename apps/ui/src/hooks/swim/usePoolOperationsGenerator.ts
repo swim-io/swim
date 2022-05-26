@@ -1,10 +1,12 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import type Decimal from "decimal.js";
+import shallow from "zustand/shallow.js";
 
 import type { Env, PoolSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type {
   Interaction,
@@ -318,7 +320,8 @@ export const usePoolOperationsGenerator = (): UseAsyncGeneratorResult<
   PoolOperationsInput,
   TxWithPoolId
 > => {
-  const { env, config } = useEnvironment();
+  const { env } = useEnvironment();
+  const config = useEnvironment(selectConfig, shallow);
   const tokensByPoolId = getTokensByPool(config);
   const solanaConnection = useSolanaConnection();
   const { wallet } = useSolanaWallet();

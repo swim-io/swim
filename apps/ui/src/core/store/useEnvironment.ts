@@ -1,18 +1,11 @@
 /* eslint-disable functional/immutable-data */
 import { produce } from "immer";
-import type { Draft } from "immer";
 import create from "zustand";
 import type { GetState, SetState, StoreApi } from "zustand";
 import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
 
-import type { Config } from "../../config";
-import {
-  DEFAULT_ENV,
-  configs,
-  isValidEnv,
-  overrideLocalnetIp,
-} from "../../config";
+import { DEFAULT_ENV, isValidEnv } from "../../config";
 
 export enum Env {
   Mainnet = "Mainnet",
@@ -22,22 +15,10 @@ export enum Env {
 }
 export interface EnvironmentState {
   readonly env: Env;
-  readonly config: Config;
   readonly customLocalnetIp: string | null;
   readonly setEnv: (newEnv: Env) => void;
   readonly setCustomLocalnetIp: (ip: string | null) => void;
 }
-
-export const getConfig = (env: Env, ip: string | null): Draft<Config> => {
-  const updatedConfig: Draft<any> = {
-    ...configs,
-    [Env.CustomLocalnet]:
-      ip !== null
-        ? overrideLocalnetIp(configs[Env.Localnet], ip)
-        : configs[Env.Localnet],
-  };
-  return updatedConfig[env];
-};
 
 export const useEnvironment = create(
   persist<EnvironmentState>(
@@ -47,17 +28,12 @@ export const useEnvironment = create(
       api: StoreApi<EnvironmentState>,
     ) => ({
       env: DEFAULT_ENV,
-      config: configs[DEFAULT_ENV],
       customLocalnetIp: null,
       setEnv: (newEnv: Env) => {
         set(
           produce<EnvironmentState>((draft) => {
-            if (
-              isValidEnv(newEnv) &&
-              api.getState().customLocalnetIp !== null
-            ) {
+            if (api.getState().customLocalnetIp !== null) {
               draft.env = newEnv;
-              draft.config = getConfig(newEnv, api.getState().customLocalnetIp);
             }
           }),
         );
@@ -69,7 +45,6 @@ export const useEnvironment = create(
             draft.env = isValidEnv(api.getState().env)
               ? api.getState().env
               : DEFAULT_ENV;
-            draft.config = getConfig(draft.env, ip);
           }),
         );
       },
@@ -88,8 +63,7 @@ export const useEnvironment = create(
         const { env, customLocalnetIp } = persistedState;
         if (isValidEnv(env)) {
           if (customLocalnetIp !== null) {
-            const config = getConfig(env, customLocalnetIp);
-            return { ...currentState, env, customLocalnetIp, config };
+            return { ...currentState, env, customLocalnetIp };
           }
           return { ...currentState, ...persistedState };
         }

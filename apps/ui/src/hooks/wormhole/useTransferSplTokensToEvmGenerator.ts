@@ -1,9 +1,12 @@
+import shallow from "zustand/shallow.js";
+
 import {
   Protocol,
   getSolanaTokenDetails,
   isEvmEcosystemId,
 } from "../../config";
 import { useEvmConnections, useSolanaConnection } from "../../contexts";
+import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type {
   TransfersWithExistingTxs,
@@ -23,7 +26,7 @@ export const useTransferSplTokensToEvmGenerator = (): UseAsyncGeneratorResult<
   TransfersWithExistingTxs,
   TxWithTokenId
 > => {
-  const { config } = useEnvironment();
+  const config = useEnvironment(selectConfig, shallow);
   const evmConnections = useEvmConnections();
   const solanaConnection = useSolanaConnection();
   const wallets = useWallets();

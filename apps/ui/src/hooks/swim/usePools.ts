@@ -1,10 +1,12 @@
 import type { MintInfo, AccountInfo as TokenAccount } from "@solana/spl-token";
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
+import shallow from "zustand/shallow.js";
 
 import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { useSolanaWallet } from "../../contexts";
+import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { SwimPoolState } from "../../models";
 import { findTokenAccountForMint, getPoolUsdValue } from "../../models";
@@ -85,9 +87,7 @@ const constructPool = (
 };
 
 export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
-  const {
-    config: { pools, tokens: allTokens },
-  } = useEnvironment();
+  const { pools, tokens: allTokens } = useEnvironment(selectConfig, shallow);
   const { address: walletAddress } = useSolanaWallet();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const poolSpecs = poolIds.map((poolId) =>

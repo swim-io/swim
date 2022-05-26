@@ -10,11 +10,13 @@ import {
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
+import shallow from "zustand/shallow.js";
 
 import { u64ToDecimal } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
 import type { PoolSpec } from "../config";
 import { EcosystemId, getSolanaTokenDetails } from "../config";
+import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { useLiquidityQuery, useTitle } from "../hooks";
 import AUSD_SVG from "../images/tokens/ausd.svg";
@@ -28,9 +30,7 @@ import { filterMap, findOrThrow } from "../utils";
 
 const PoolsPage = (): ReactElement => {
   useTitle("Pools");
-  const {
-    config: { pools, tokens },
-  } = useEnvironment();
+  const { pools, tokens } = useEnvironment(selectConfig, shallow);
 
   const allPoolTokenAccountAddresses = pools.flatMap((poolSpec) => [
     ...poolSpec.tokenAccounts.values(),

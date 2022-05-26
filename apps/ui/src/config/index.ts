@@ -7,7 +7,7 @@ import { Protocol, ecosystems } from "./ecosystem";
 import { Env } from "./env";
 import type { PoolSpec } from "./pools";
 import { pools } from "./pools";
-import { redeemers } from "./redeemer";
+import { redeemer } from "./redeemer";
 import type { RedeemerSpec } from "./redeemer";
 import type { TokenSpec } from "./tokens";
 import { tokens } from "./tokens";
@@ -28,7 +28,7 @@ export interface Config {
   readonly pools: readonly PoolSpec[];
   readonly tokens: readonly TokenSpec[];
   readonly wormhole: WormholeConfig;
-  readonly redeemers: readonly RedeemerSpec[];
+  readonly redeemer: RedeemerSpec;
 }
 
 const buildConfig = (env: Env): Config => ({
@@ -37,7 +37,7 @@ const buildConfig = (env: Env): Config => ({
   pools: pools[env],
   tokens: tokens[env],
   wormhole: wormholeConfigs[env],
-  redeemers: redeemers[env],
+  redeemer: redeemer[env],
 });
 
 export const configs: ReadonlyRecord<Env, Config> = {

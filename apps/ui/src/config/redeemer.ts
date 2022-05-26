@@ -1,38 +1,42 @@
-import { PublicKey } from "@solana/web3.js";
-
 import type { ReadonlyRecord } from "../utils";
 
 import { Env } from "./env";
 
 export interface RedeemerSpec {
-  readonly programAddress: PublicKey;
-  readonly programPda: PublicKey;
-  readonly nftCollection: PublicKey;
-  readonly vaultMint: PublicKey;
-  readonly vaultTokenAccount: PublicKey;
+  readonly programAddress: string;
+  readonly programPda: string;
+  readonly nftCollection: string;
+  readonly vaultMint: string;
+  readonly vaultTokenAccount: string;
 }
 
-const mainnetRedeemer: readonly RedeemerSpec[] = [];
+// TODO: Setup Redeemer on mainnet.
+const mainnetRedeemer: RedeemerSpec = {
+  programAddress: "",
+  programPda: "",
+  nftCollection: "",
+  vaultMint: "",
+  vaultTokenAccount: "",
+};
 
-const devnetRedeemer: readonly RedeemerSpec[] = [
-  {
-    programAddress: new PublicKey(
-      "7frYsb48TdaenQpmVxRHgMnNL861aK1aeq6aTkVrUkDt",
-    ),
-    programPDA: new PublicKey("2znJvHcqpqVuP6aX6at386Z3dhtgBbjL1ix5oDpZzNfi"),
-    nftCollection: new PublicKey(
-      "6rVZuenNaw3uECQjMjTLcfrXYKszpESEGi9HZnffJstn",
-    ),
-    vaultMint: new PublicKey("A8UVBwvj1XcdP5okoMqkjhCQGLaqQ8iJDYnNxAMbsNNF"),
-    vaultTokenAccount: new PublicKey(
-      "tJQbYYmxKqzqaswHrq8Mg7ZqmB9DNhs35SKdsEKABo9",
-    ),
-  },
-];
+const devnetRedeemer: RedeemerSpec = {
+  programAddress: "7frYsb48TdaenQpmVxRHgMnNL861aK1aeq6aTkVrUkDt",
+  programPda: "2znJvHcqpqVuP6aX6at386Z3dhtgBbjL1ix5oDpZzNfi",
+  nftCollection: "6rVZuenNaw3uECQjMjTLcfrXYKszpESEGi9HZnffJstn",
+  vaultMint: "A8UVBwvj1XcdP5okoMqkjhCQGLaqQ8iJDYnNxAMbsNNF",
+  vaultTokenAccount: "tJQbYYmxKqzqaswHrq8Mg7ZqmB9DNhs35SKdsEKABo9",
+};
 
-const localnetRedeemer: readonly RedeemerSpec[] = [];
+// TODO: Setup Redeemer on localnet.
+const localnetRedeemer: RedeemerSpec = {
+  programAddress: "",
+  programPda: "",
+  nftCollection: "",
+  vaultMint: "",
+  vaultTokenAccount: "",
+};
 
-export const redeemers: ReadonlyRecord<Env, readonly RedeemerSpec[]> = {
+export const redeemer: ReadonlyRecord<Env, RedeemerSpec> = {
   [Env.Mainnet]: mainnetRedeemer,
   [Env.Devnet]: devnetRedeemer,
   [Env.Localnet]: localnetRedeemer,

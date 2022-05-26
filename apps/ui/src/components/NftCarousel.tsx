@@ -60,7 +60,7 @@ export const NftCarousel = ({
   const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const { notify } = useNotification();
-  const { mutateAsync, isLoading } = useRedeemMutation(activeNft);
+  const { mutateAsync, isLoading } = useRedeemMutation(activeNft, refetchNfts);
   const onRedeemInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPasswordInput(e.target.value);
   };
@@ -75,18 +75,13 @@ export const NftCarousel = ({
 
   const executeRedeem = async (): Promise<void> => {
     try {
-      const txResult = await mutateAsync(activeNft);
-      if (!txResult || txResult.value.err) {
-        throw new Error(`Transaction failed: ${txResult}`);
-      } else {
-        await refetchNfts();
-        notify(
-          "Success",
-          `Redeemed Otter Tot for ${redemptionAmount}`,
-          "success",
-        );
-        hideRedeemModal();
-      }
+      await mutateAsync(activeNft);
+      notify(
+        "Success",
+        `Redeemed Otter Tot for ${redemptionAmount}`,
+        "success",
+      );
+      hideRedeemModal();
     } catch (error) {
       notify("Error", String(error), "error");
     }

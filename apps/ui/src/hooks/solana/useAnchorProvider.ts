@@ -9,18 +9,14 @@ export const useAnchorProvider = (): AnchorProvider | null => {
   if (!wallet || !wallet.publicKey) {
     return null;
   }
-
-  const anchorWallet = {
-    signTransaction: wallet.signTransaction.bind(wallet),
-    signAllTransactions: wallet.signAllTransactions.bind(wallet),
-    publicKey: wallet.publicKey,
-  };
-
   const anchorProvider = new AnchorProvider(
     solanaConnection,
-    anchorWallet,
+    {
+      signTransaction: wallet.signTransaction.bind(wallet),
+      signAllTransactions: wallet.signAllTransactions.bind(wallet),
+      publicKey: wallet.publicKey,
+    },
     AnchorProvider.defaultOptions(),
   );
-  setProvider(anchorProvider);
   return anchorProvider;
 };

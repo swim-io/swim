@@ -152,9 +152,10 @@ const ProtocolWalletOptionsList = ({
             (walletService) => walletService.info.ecosystem,
           );
 
-          const connectedWallet = connectedWallets.find(
-            (wallet) => wallet.service?.id === serviceId,
-          );
+          const connectedWallet =
+            connectedWallets.find(
+              (wallet) => wallet.service?.id === serviceId,
+            ) ?? null;
 
           return (
             <Fragment key={`${protocol}:${serviceId}`}>

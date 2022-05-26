@@ -1,7 +1,9 @@
 import Decimal from "decimal.js";
+import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
+import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import {
   Amount,
@@ -98,7 +100,7 @@ export const useSwapOutputAmountEstimate = (
   exactInputAmount: Amount,
   toToken: TokenSpec,
 ): Amount | null => {
-  const { config } = useEnvironment();
+  const config = useEnvironment(selectConfig, shallow);
   const fromToken = exactInputAmount.tokenSpec;
   const tokensByPool = getTokensByPool(config);
   const requiredPools = getRequiredPoolsForSwap(

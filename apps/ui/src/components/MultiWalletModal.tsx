@@ -126,7 +126,7 @@ const ProtocolWalletOptionsList = ({
       const wallet = wallets[ecosystemId];
 
       if (wallet.createServiceClickHandler) {
-        wallet.createServiceClickHandler(serviceId)();
+        wallet.createServiceClickHandler(serviceId);
       }
     });
   };

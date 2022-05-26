@@ -28,9 +28,7 @@ export interface SolanaWalletContextInterface {
   readonly connected: boolean;
   readonly select: () => void;
   readonly service: SolanaWalletService<SolanaWalletAdapter> | null;
-  readonly createServiceClickHandler: (
-    serviceId: WalletService["id"],
-  ) => () => void;
+  readonly createServiceClickHandler: (serviceId: WalletService["id"]) => void;
 }
 
 const defaultSolanaWalletContext: SolanaWalletContextInterface = {
@@ -39,7 +37,7 @@ const defaultSolanaWalletContext: SolanaWalletContextInterface = {
   connected: false,
   select() {},
   service: null,
-  createServiceClickHandler: () => () => {},
+  createServiceClickHandler: () => {},
 };
 
 const SolanaWalletContext = createContext<SolanaWalletContextInterface>(

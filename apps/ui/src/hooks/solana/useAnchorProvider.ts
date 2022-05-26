@@ -1,8 +1,8 @@
-import * as anchor from "@project-serum/anchor";
+import { AnchorProvider, setProvider } from "@project-serum/anchor";
 
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
 
-export const useAnchorProvider = (): anchor.AnchorProvider | null => {
+export const useAnchorProvider = (): AnchorProvider | null => {
   const solanaConnection = useSolanaConnection().rawConnection;
   const wallet = useSolanaWallet().wallet;
 
@@ -16,11 +16,11 @@ export const useAnchorProvider = (): anchor.AnchorProvider | null => {
     publicKey: wallet.publicKey,
   };
 
-  const anchorProvider = new anchor.AnchorProvider(
+  const anchorProvider = new AnchorProvider(
     solanaConnection,
     anchorWallet,
-    anchor.AnchorProvider.defaultOptions(),
+    AnchorProvider.defaultOptions(),
   );
-  anchor.setProvider(anchorProvider);
+  setProvider(anchorProvider);
   return anchorProvider;
 };

@@ -1,4 +1,4 @@
-import * as anchor from "@project-serum/anchor";
+import { utils } from "@project-serum/anchor";
 import type { PublicKey } from "@solana/web3.js";
 
 import type { RedeemerSpec } from "../../config/redeemer";
@@ -15,7 +15,7 @@ export interface RedeemerData {
 }
 
 const REDEEMER_PREFIX = "redeemer";
-const utf8 = anchor.utils.bytes.utf8;
+const utf8 = utils.bytes.utf8;
 
 export const useRedeemer = (nftCollectionId: string | null): RedeemerData => {
   const { redeemers } = useConfig();

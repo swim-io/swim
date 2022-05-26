@@ -1,5 +1,5 @@
 import { programs } from "@metaplex/js";
-import * as anchor from "@project-serum/anchor";
+import { Program } from "@project-serum/anchor";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import type { RpcResponseAndContext, SignatureResult } from "@solana/web3.js";
@@ -45,11 +45,7 @@ export const useRedeemMutation = (
       const [ownerRedeemTokenAccount] = await createATA.mutateAsync([
         spec.mint.toBase58(),
       ]);
-      const program = new anchor.Program(
-        redeemerIdl as any,
-        spec.id,
-        anchorProvider,
-      );
+      const program = new Program(redeemerIdl as any, spec.id, anchorProvider);
 
       const nftPublicKey = new PublicKey(nftMint);
       const collectionPublicKey = new PublicKey(nftCollection.key);

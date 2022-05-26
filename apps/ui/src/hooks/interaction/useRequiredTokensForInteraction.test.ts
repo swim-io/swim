@@ -1,4 +1,3 @@
-import { cleanup } from "@testing-library/react";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
@@ -34,7 +33,6 @@ describe("useRequiredTokensForInteraction", () => {
   });
   beforeEach(() => {
     jest.resetAllMocks();
-    cleanup();
     // Reset queryClient cache, otherwise test might return previous value
     renderHookWithAppContext(() => useQueryClient().clear());
   });

@@ -16,8 +16,8 @@ import { selectEnvs } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 
 export const EnvSelector = (): ReactElement => {
-  const envs = useEnvironment(selectEnvs);
   const { env, setEnv } = useEnvironment();
+  const envs = useEnvironment(selectEnvs); // TODO: improve selectors for derivative data
   const [isOpen, setIsOpen] = useState(false);
 
   const handleChange = (envOptions: readonly EuiSelectableOption[]): void => {
@@ -40,12 +40,14 @@ export const EnvSelector = (): ReactElement => {
 
   const id = htmlIdGenerator()();
 
-  const envOptions: readonly EuiSelectableOption[] = envs.map((name) => ({
-    key: name,
-    label: name,
-    prepend: <EuiAvatar type="space" name={name} size="s" />,
-    checked: name === env ? "on" : undefined,
-  }));
+  const envOptions: readonly EuiSelectableOption[] = envs.map(
+    (name: string) => ({
+      key: name,
+      label: name,
+      prepend: <EuiAvatar type="space" name={name} size="s" />,
+      checked: name === env ? "on" : undefined,
+    }),
+  );
 
   const selectedEnv =
     envOptions.find((option) => option.checked) ?? envOptions[0];

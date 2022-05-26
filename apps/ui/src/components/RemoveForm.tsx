@@ -19,7 +19,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { PoolSpec, TokenSpec } from "../config";
 import { EcosystemId, ecosystems } from "../config";
-
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {

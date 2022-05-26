@@ -12,7 +12,6 @@ import {
 
 import { SingleWalletModal } from "../components/SingleWalletModal";
 import { Protocol } from "../config";
-
 import { useEnvironment, useNotification } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
 import type { SolanaWalletAdapter, SolanaWalletService } from "../models";

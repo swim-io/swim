@@ -40,6 +40,7 @@ export interface TokenSpec {
   readonly isStablecoin: boolean;
   readonly nativeEcosystem: EcosystemId;
   readonly detailsByEcosystem: TokenDetailsByEcosystem;
+  readonly isDisabled?: boolean;
 }
 
 const AUSD_SYMBOL = "aUSD";
@@ -288,6 +289,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_AURORA,
     id: "mainnet-solana-lp-meta-aurora-usdc",
     symbol: "SWIM-AURORA-USDC-META-POOL-LP",
     displayName: "Aurora USDC Meta-Pool LP",
@@ -305,6 +307,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_AURORA,
     id: "mainnet-solana-lp-meta-aurora-usdt",
     symbol: "SWIM-AURORA-USDT-META-POOL-LP",
     displayName: "Aurora USDT Meta-Pool LP",
@@ -322,6 +325,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_AURORA,
     id: "mainnet-solana-lp-meta-aurora-usn",
     symbol: "SWIM-AURORA-USN-META-POOL-LP",
     displayName: "Aurora USN Meta-Pool LP",
@@ -339,6 +343,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_FANTOM,
     id: "mainnet-solana-lp-meta-fantom-usdc",
     symbol: "SWIM-FANTOM-USDC-META-POOL-LP",
     displayName: "Fantom USDC Meta-Pool LP",
@@ -356,6 +361,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_KARURA,
     id: "mainnet-solana-lp-meta-karura-ausd",
     symbol: "SWIM-KARURA-AUSD-META-POOL-LP",
     displayName: "Karura AUSD Meta-Pool LP",
@@ -373,6 +379,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_KARURA,
     id: "mainnet-solana-lp-meta-karura-usdt",
     symbol: "SWIM-KARURA-USDT-META-POOL-LP",
     displayName: "Karura USDT Meta-Pool LP",
@@ -390,6 +397,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_ACALA,
     id: "mainnet-solana-lp-meta-acala-ausd",
     symbol: "SWIM-ACALA-AUSD-META-POOL-LP",
     displayName: "Acala AUSD Meta-Pool LP",
@@ -647,6 +655,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_AURORA,
     id: "mainnet-aurora-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,
@@ -671,6 +680,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_AURORA,
     id: "mainnet-aurora-usdt",
     symbol: USDT_SYMBOL,
     displayName: USDT_NAME,
@@ -695,6 +705,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_AURORA,
     id: "mainnet-aurora-usn",
     symbol: USN_SYMBOL,
     displayName: USN_NAME,
@@ -719,6 +730,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_FANTOM,
     id: "mainnet-fantom-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,
@@ -743,6 +755,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_KARURA,
     id: "mainnet-karura-ausd",
     symbol: AUSD_SYMBOL,
     displayName: AUSD_NAME,
@@ -767,6 +780,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_KARURA,
     id: "mainnet-karura-usdt",
     symbol: USDT_SYMBOL,
     displayName: USDT_NAME,
@@ -791,6 +805,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !process.env.ENABLE_ACALA,
     id: "mainnet-acala-ausd",
     symbol: AUSD_SYMBOL,
     displayName: AUSD_NAME,
@@ -814,7 +829,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       ],
     ]),
   },
-];
+].filter((spec) => !spec.isDisabled);
 
 const devnetTokens: readonly TokenSpec[] = [
   {

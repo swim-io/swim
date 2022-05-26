@@ -86,11 +86,14 @@ export const useEnvironment = create(
         currentState: EnvironmentState,
       ): EnvironmentState => {
         const { env, customLocalnetIp } = persistedState;
-        if (isValidEnv(env) && customLocalnetIp !== null) {
-          const config = getConfig(env, customLocalnetIp);
-          return { ...currentState, env, customLocalnetIp, config };
+        if (isValidEnv(env)) {
+          if (customLocalnetIp !== null) {
+            const config = getConfig(env, customLocalnetIp);
+            return { ...currentState, env, customLocalnetIp, config };
+          }
+          return { ...currentState, ...persistedState };
         }
-        return { ...currentState, ...persistedState };
+        return currentState;
       },
     },
   ),

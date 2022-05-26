@@ -57,20 +57,18 @@ export const NftCarousel = ({
   refetchNfts,
 }: NftCarouselProps): ReactElement => {
   const [activeNft, setActiveNft] = useState<NftData | null>(null);
-  const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const { notify } = useNotification();
   const { mutateAsync, isLoading } = useRedeemMutation(activeNft, refetchNfts);
+  const isRedeemModalVisible = activeNft !== null;
   const onRedeemInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPasswordInput(e.target.value);
   };
   const showRedeemModal = (nft: NftData): void => {
     setActiveNft(nft);
-    setIsRedeemModalVisible(true);
   };
   const hideRedeemModal = (): void => {
     setActiveNft(null);
-    setIsRedeemModalVisible(false);
   };
 
   const executeRedeem = async (): Promise<void> => {

@@ -10,7 +10,6 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
-import { Fragment } from "react";
 
 import type { Ecosystem } from "../config";
 import { Protocol, getEcosystemsForProtocol } from "../config";
@@ -158,16 +157,15 @@ const ProtocolWalletOptionsList = ({
             ) ?? null;
 
           return (
-            <Fragment key={`${protocol}:${serviceId}`}>
-              <WalletServiceButton
-                service={service}
-                ecosystems={ecosystems}
-                serviceConnected={!!connectedWallet}
-                address={connectedWallet ? connectedWallet.address : null}
-                disconnect={() => disconnect(service.id)}
-                onClick={() => connect(service.id)}
-              />
-            </Fragment>
+            <WalletServiceButton
+              key={`${protocol}:${serviceId}`}
+              service={service}
+              ecosystems={ecosystems}
+              serviceConnected={!!connectedWallet}
+              address={connectedWallet ? connectedWallet.address : null}
+              disconnect={() => disconnect(service.id)}
+              onClick={() => connect(service.id)}
+            />
           );
         },
       )}

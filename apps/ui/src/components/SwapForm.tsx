@@ -274,7 +274,7 @@ export const SwapForm = ({
     setConfirmModalDescription(null);
     handleSwapAndCatch(true);
   };
-
+  console.log("aa", toToken.isStablecoin && !fromToken.isStablecoin);
   return (
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
       <EuiSpacer />
@@ -321,7 +321,7 @@ export const SwapForm = ({
         errors={[]}
         onSelectToken={setToTokenId}
         // Only show if fromToken is not a stable coin (don't show twice).
-        isStablecoin={toToken.isStablecoin && !fromToken.isStablecoin}
+        isStablecoin={toToken.isStablecoin || !fromToken.isStablecoin}
       />
 
       <EuiSpacer />

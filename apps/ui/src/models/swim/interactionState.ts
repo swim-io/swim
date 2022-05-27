@@ -16,8 +16,8 @@ export interface InteractionState {
   readonly fromSolanaTransfers: readonly FromSolanaTransferState[];
 }
 
-interface TokenAccountState {
-  readonly existingAccount: boolean;
+export interface TokenAccountState {
+  readonly isExistingAccount: boolean;
   readonly account: TokenAccount | null;
   readonly txId: SolanaTx["txId"] | null;
 }
@@ -27,7 +27,7 @@ interface TokenAccountState {
  */
 export type RequiredSplTokenAccounts = ReadonlyRecord<
   string,
-  TokenAccountState | undefined
+  TokenAccountState
 >;
 
 export interface ToSolanaTransferState {

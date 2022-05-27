@@ -602,8 +602,8 @@ const devnetTokens: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-gst",
-    symbol: "SWIM-GST-LP", // TODO: Update
-    displayName: "GST LP", // TODO: Update
+    symbol: "solaGST-binaGST",
+    displayName: "Swim Solana GST Binance GST LP",
     icon: GST_SVG, // TODO: Update
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
@@ -619,8 +619,8 @@ const devnetTokens: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-gmt",
-    symbol: "SWIM-GMT-LP", // TODO: Update
-    displayName: "GMT LP", // TODO: Update
+    symbol: "solaGMT-binaGMT",
+    displayName: "Swim Solana GMT Binance GMT LP",
     icon: GMT_SVG, // TODO: Update
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,

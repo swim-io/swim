@@ -474,7 +474,7 @@ const devnetTokens: readonly TokenSpec[] = [
     symbol: "swimUSD",
     displayName: "swimUSD (Swim Hexapool LP)",
     icon: SWIM_USD_SVG,
-    isStablecoin: false,
+    isStablecoin: true,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -946,7 +946,7 @@ const localnetTokens: readonly TokenSpec[] = [
     symbol: "swimUSD",
     displayName: "swimUSD (Swim Hexapool LP)",
     icon: SWIM_USD_SVG,
-    isStablecoin: false,
+    isStablecoin: true,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [

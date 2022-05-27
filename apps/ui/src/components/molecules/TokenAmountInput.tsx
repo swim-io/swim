@@ -33,7 +33,7 @@ interface Props {
   readonly onBlur?: () => void;
   readonly disabled: boolean;
   readonly errors: readonly string[];
-  readonly isStablecoin: boolean;
+  readonly showConstantSwapTip: boolean;
 }
 
 const getReadonlyDisplayValue = (token: TokenSpec, value: string) => {
@@ -45,8 +45,10 @@ const getReadonlyDisplayValue = (token: TokenSpec, value: string) => {
   );
 };
 
-const getTokenLabel = (isStablecoin: boolean): React.ReactElement | null => {
-  return isStablecoin ? null : (
+const getTokenLabel = (
+  showConstantSwapTip: boolean,
+): React.ReactElement | null => {
+  return showConstantSwapTip ? (
     <EuiText size="xs">
       <p>
         {"Constant product swap  "}
@@ -58,7 +60,7 @@ const getTokenLabel = (isStablecoin: boolean): React.ReactElement | null => {
         </EuiToolTip>
       </p>
     </EuiText>
-  );
+  ) : null;
 };
 
 export const TokenAmountInput: React.FC<Props> = ({
@@ -71,7 +73,7 @@ export const TokenAmountInput: React.FC<Props> = ({
   onSelectToken,
   onChangeValue,
   onBlur,
-  isStablecoin,
+  showConstantSwapTip,
 }) => {
   const { tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptionIds
@@ -88,8 +90,8 @@ export const TokenAmountInput: React.FC<Props> = ({
     <EuiFlexGroup>
       <EuiFlexItem grow={2}>
         <EuiFormRow
-          hasEmptyLabelSpace={isStablecoin}
-          label={getTokenLabel(isStablecoin)}
+          hasEmptyLabelSpace={!showConstantSwapTip}
+          label={getTokenLabel(showConstantSwapTip)}
         >
           <EuiSuperSelect
             options={options}

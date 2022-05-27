@@ -19,13 +19,8 @@ import { groupBy } from "../utils";
 
 import { TokenIcon } from "./TokenIcon";
 
-const getTitle = (
-  isStableSwap: boolean,
-  poolName: string,
-): string | ReactElement => {
-  return isStableSwap ? (
-    poolName
-  ) : (
+const appendConstantSwapIcon = (poolName: string): string | ReactElement => {
+  return (
     <EuiText>
       <h3>
         {poolName + "  "}
@@ -63,9 +58,8 @@ export const PoolListItem = ({
   );
   return (
     <EuiCard
-      title={getTitle(isStableSwap, poolName)}
+      title={isStableSwap ? poolName : appendConstantSwapIcon(poolName)}
       layout="horizontal"
-      description={undefined}
       hasBorder
       onClick={
         poolId

@@ -1,5 +1,6 @@
 import type { EuiStepProps } from "@elastic/eui";
 import {
+  EuiBadge,
   EuiListGroup,
   EuiSpacer,
   EuiSteps,
@@ -16,7 +17,13 @@ import type {
   RequiredSplTokenAccounts,
   SolanaPoolOperationState,
   ToSolanaTransferState,
-  TokenAccountState,
+} from "../../models";
+import {
+  isFromSolanaTransfersCompleted,
+  isInteractionCompleted,
+  isRequiredSplTokenAccountsCompleted,
+  isSolanaPoolOperationsCompleted,
+  isToSolanaTransfersCompleted,
 } from "../../models";
 import { isNotNull } from "../../utils";
 
@@ -25,17 +32,17 @@ import { InteractionTitle } from "./InteractionTitle";
 import { ToSolanaTransferComponent } from "./ToSolanaTransferComponent";
 import { TxListItem } from "./TxListItem";
 
-const usePrepareSplTokenAccountsStep = (
+const buildPrepareSplTokenAccountsStep = (
   requiredSplTokenAccounts: RequiredSplTokenAccounts,
 ): EuiStepProps | null => {
   // Add create account step, if there are missing accounts
-  const missingAccounts = Object.values(requiredSplTokenAccounts)
-    .filter((accountState): accountState is TokenAccountState => !!accountState)
-    .filter((accountState) => accountState.existingAccount === false);
+  const missingAccounts = Object.values(requiredSplTokenAccounts).filter(
+    (accountState) => accountState.isExistingAccount === false,
+  );
   if (missingAccounts.length === 0) {
     return null;
   }
-  const status = missingAccounts.every(({ txId }) => isNotNull(txId))
+  const status = isRequiredSplTokenAccountsCompleted(requiredSplTokenAccounts)
     ? "complete"
     : "incomplete";
   return {
@@ -62,15 +69,13 @@ const usePrepareSplTokenAccountsStep = (
   };
 };
 
-const useToSolanaTransfersStep = (
+const buildToSolanaTransfersStep = (
   toSolanaTransfers: readonly ToSolanaTransferState[],
 ): EuiStepProps | null => {
   if (toSolanaTransfers.length === 0) {
     return null;
   }
-  const status = toSolanaTransfers.every((transfer) =>
-    isNotNull(transfer.txIds.claimTokenOnSolana),
-  )
+  const status = isToSolanaTransfersCompleted(toSolanaTransfers)
     ? "complete"
     : "incomplete";
   return {
@@ -82,12 +87,15 @@ const useToSolanaTransfersStep = (
   };
 };
 
-const useSolanaPoolOperationStep = (
+const buildSolanaPoolOperationStep = (
   operations: readonly SolanaPoolOperationState[],
 ): EuiStepProps | null => {
+  const status = isSolanaPoolOperationsCompleted(operations)
+    ? "complete"
+    : "incomplete";
   return {
     title: "Perform pool operation(s) on Solana",
-    status: "incomplete",
+    status,
     children: (
       <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
         {operations
@@ -101,15 +109,13 @@ const useSolanaPoolOperationStep = (
   };
 };
 
-const useFromSolanaTransfersStep = (
+const buildFromSolanaTransfersStep = (
   fromSolanaTransfers: readonly FromSolanaTransferState[],
 ): EuiStepProps | null => {
   if (fromSolanaTransfers.length === 0) {
     return null;
   }
-  const status = fromSolanaTransfers.every((transfer) =>
-    isNotNull(transfer.txIds.claimTokenOnEvm),
-  )
+  const status = isFromSolanaTransfersCompleted(fromSolanaTransfers)
     ? "complete"
     : "incomplete";
   return {
@@ -124,7 +130,7 @@ const useFromSolanaTransfersStep = (
   };
 };
 
-const useEuiStepProps = (interactionState: InteractionState) => {
+const buildEuiStepProps = (interactionState: InteractionState) => {
   const {
     requiredSplTokenAccounts,
     toSolanaTransfers,
@@ -133,10 +139,10 @@ const useEuiStepProps = (interactionState: InteractionState) => {
   } = interactionState;
 
   return [
-    usePrepareSplTokenAccountsStep(requiredSplTokenAccounts),
-    useToSolanaTransfersStep(toSolanaTransfers),
-    useSolanaPoolOperationStep(solanaPoolOperations),
-    useFromSolanaTransfersStep(fromSolanaTransfers),
+    buildPrepareSplTokenAccountsStep(requiredSplTokenAccounts),
+    buildToSolanaTransfersStep(toSolanaTransfers),
+    buildSolanaPoolOperationStep(solanaPoolOperations),
+    buildFromSolanaTransfersStep(fromSolanaTransfers),
   ].filter(isNotNull);
 };
 
@@ -148,7 +154,8 @@ export const InteractionStateComponent: React.FC<Props> = ({
   interactionState,
 }) => {
   const { interaction } = interactionState;
-  const steps = useEuiStepProps(interactionState);
+  const steps = buildEuiStepProps(interactionState);
+
   return (
     <>
       <EuiTitle size="xs">
@@ -159,6 +166,11 @@ export const InteractionStateComponent: React.FC<Props> = ({
       <EuiText size="s">{moment(interaction.submittedAt).fromNow()}</EuiText>
       <EuiSpacer />
       <EuiSteps titleSize="xs" className="actionSteps" steps={steps} />
+      {isInteractionCompleted(interactionState) && (
+        <EuiBadge color="success" iconType="check">
+          Completed
+        </EuiBadge>
+      )}
     </>
   );
 };

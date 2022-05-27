@@ -46,7 +46,8 @@ const mainnetTokens: readonly TokenSpec[] = [
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,
     icon: USDC_SVG,
-    isStablecoin: true,
+    // TODO: DO NOT SUBMIT. Set false for ease of testing.
+    isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -77,7 +78,8 @@ const mainnetTokens: readonly TokenSpec[] = [
     symbol: USDT_SYMBOL,
     displayName: USDT_NAME,
     icon: USDT_SVG,
-    isStablecoin: true,
+    // TOODO: DO NOT SUBMIT. Set false for ease of testing.
+    isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [

@@ -289,6 +289,7 @@ export const SwapForm = ({
         onSelectToken={setFromTokenId}
         onChangeValue={(value) => setFormInputAmount(value)}
         onBlur={() => handleInputAmountChange(inputAmount)}
+        isStablecoin={fromToken.isStablecoin}
       />
 
       <EuiSpacer size="m" />
@@ -319,6 +320,7 @@ export const SwapForm = ({
         disabled={isInteractionInProgress}
         errors={[]}
         onSelectToken={setToTokenId}
+        isStablecoin={toToken.isStablecoin}
       />
 
       <EuiSpacer />

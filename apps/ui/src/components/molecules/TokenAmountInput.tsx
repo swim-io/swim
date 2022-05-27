@@ -4,7 +4,10 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
+  EuiIcon,
   EuiSuperSelect,
+  EuiText,
+  EuiToolTip,
 } from "@elastic/eui";
 import type React from "react";
 import shallow from "zustand/shallow.js";
@@ -30,6 +33,7 @@ interface Props {
   readonly onBlur?: () => void;
   readonly disabled: boolean;
   readonly errors: readonly string[];
+  readonly isStablecoin: boolean;
 }
 
 const getReadonlyDisplayValue = (token: TokenSpec, value: string) => {
@@ -38,6 +42,22 @@ const getReadonlyDisplayValue = (token: TokenSpec, value: string) => {
   }
   return Amount.fromHumanString(token, value).toFormattedHumanString(
     token.nativeEcosystem,
+  );
+};
+
+const getTokenLabel = (isStablecoin: boolean): React.ReactElement | null => {
+  return isStablecoin ? null : (
+    <EuiText size="xs">
+      <p>
+        {"Constant product swap  "}
+        <EuiToolTip
+          position="right"
+          content="This pool uses a constant product curve, prices deviate from 1:1."
+        >
+          <EuiIcon size="m" type="questionInCircle" color="primary" />
+        </EuiToolTip>
+      </p>
+    </EuiText>
   );
 };
 
@@ -51,6 +71,7 @@ export const TokenAmountInput: React.FC<Props> = ({
   onSelectToken,
   onChangeValue,
   onBlur,
+  isStablecoin,
 }) => {
   const { tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptionIds
@@ -66,7 +87,10 @@ export const TokenAmountInput: React.FC<Props> = ({
   return (
     <EuiFlexGroup>
       <EuiFlexItem grow={2}>
-        <EuiFormRow hasEmptyLabelSpace>
+        <EuiFormRow
+          hasEmptyLabelSpace={isStablecoin}
+          label={getTokenLabel(isStablecoin)}
+        >
           <EuiSuperSelect
             options={options}
             valueOfSelected={token.id}

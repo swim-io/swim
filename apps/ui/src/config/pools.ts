@@ -6,6 +6,7 @@ export interface PoolSpec {
   readonly id: string;
   readonly displayName: string;
   readonly isStakingPool: boolean;
+  readonly isStableSwap: boolean;
   readonly contract: string;
   readonly address: string;
   readonly authority: string;
@@ -24,6 +25,8 @@ const mainnetPools: readonly PoolSpec[] = [
     id: "hexapool",
     displayName: "Stablecoin Hexa-Pool",
     isStakingPool: false,
+    // TODO: DO NOT SUBMIT. Set to true for ease of testing.
+    isStableSwap: true,
     contract: "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC",
     address: "8cUvGTFvSWx9WPebYYfDxwiJPdGx2EJUtpve6jP9SBma",
     authority: "AfhhYsLMXXyDxQ1B7tNqLTXXDHYtDxCzPcnXWXzHAvDb",
@@ -42,6 +45,7 @@ const mainnetPools: readonly PoolSpec[] = [
     id: "meta-avalanche-usdc",
     displayName: "Avalanche USDC Meta-Pool",
     isStakingPool: false,
+    isStableSwap: false,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "AzJnv1DX2tNWZyQVeoAG71CoaSusr8q1qLPVxJEW4xMP",
     authority: "Ha7YEA5wRWyH2htfyMXw3VfLbtBHm4UoVXMpq8Ev6zJh",
@@ -62,6 +66,7 @@ const mainnetPools: readonly PoolSpec[] = [
     id: "meta-avalanche-usdt",
     displayName: "Avalanche USDT Meta-Pool",
     isStakingPool: false,
+    isStableSwap: true,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "2zG5Lk5GcoGWqarZjuQm2YtJ9sq9nCS5qPaddkmLJAxG",
     authority: "EpvBni7vTfbTG95zf9sNcS9To1NEKnVMpCwZdb21tKsg",
@@ -82,6 +87,7 @@ const mainnetPools: readonly PoolSpec[] = [
     id: "meta-polygon-usdc",
     displayName: "Polygon USDC Meta-Pool",
     isStakingPool: false,
+    isStableSwap: true,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "FRarK7GGuMBihxsu4F9wQPEemjLQ6xhATASSWfsZsAXX",
     authority: "2iLTifF3JDP65AjFKZ3t4mgfJdQVSmVCiM8Zca3TgvpU",
@@ -99,6 +105,7 @@ const mainnetPools: readonly PoolSpec[] = [
     id: "meta-polygon-usdt",
     displayName: "Polygon USDT Meta-Pool",
     isStakingPool: false,
+    isStableSwap: true,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "7mCixtML8ApfdRQYBC77c2PGP55Lj1XGpmFVZ2CShaMq",
     authority: "3uxBU3fRZzp3V7v9MTNZiDmjxDkKh3rZutLwFtnjJ2pQ",
@@ -119,6 +126,7 @@ const devnetPools: readonly PoolSpec[] = [
     id: "hexapool",
     displayName: "Stablecoin Hexa-Pool",
     isStakingPool: false,
+    isStableSwap: true,
     contract: "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC",
     address: "B1SAcuHscDM6JozshK8mEWXGzpfVPeeFVkf98GRnoqiT",
     authority: "9DcGsnvKHCHurzXiQGtLD7n4ptPodD2ZzHMpQQWE9F8x",
@@ -137,6 +145,7 @@ const devnetPools: readonly PoolSpec[] = [
     id: "meta-avalanche-usdc",
     displayName: "Avalanche USDC Meta-Pool",
     isStakingPool: false,
+    isStableSwap: true,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "B5SxvSX5hEv3CJR8XMA6QnbiyZGsS7uhNdLimXVDn6PX",
     authority: "BbZwNqLypwU1Qqvnd6Bb7YJ1bYJj5VgMvwLv4NeqD8S",
@@ -154,6 +163,7 @@ const devnetPools: readonly PoolSpec[] = [
     id: "meta-avalanche-usdt",
     displayName: "Avalanche USDT Meta-Pool",
     isStakingPool: false,
+    isStableSwap: true,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "CrvWB1GsU6gsWys8rVsKirBVLicVsn7SMbcbuDejMhLn",
     authority: "CCjyGG6xQ5BpSaDneD6vdXCFjXwjmCbFWXNXF5NoBYo9",
@@ -171,6 +181,7 @@ const devnetPools: readonly PoolSpec[] = [
     id: "meta-polygon-usdc",
     displayName: "Polygon USDC Meta-Pool",
     isStakingPool: false,
+    isStableSwap: true,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "AhAMrVeTYyS5EAhoYQvrL2Qd3sLHU4r3VgYZ6ChVAcW8",
     authority: "jieaZtSYb9FA7GzHHXxBakNuEVFZUQ7jRzR1dm2Gw4u",
@@ -188,6 +199,7 @@ const devnetPools: readonly PoolSpec[] = [
     id: "meta-polygon-usdt",
     displayName: "Polygon USDT Meta-Pool",
     isStakingPool: false,
+    isStableSwap: true,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "4e5ZvtYTNEhuJUnLLqmQqPMMwTZmHWjXHJwf2H7x69Lz",
     authority: "EPzbYcoa1MMp324hmnsJM2C1f2GYHdHqKdtFMGYdswH6",
@@ -205,6 +217,7 @@ const devnetPools: readonly PoolSpec[] = [
     id: "swimlake",
     displayName: "SwimLake",
     isStakingPool: true,
+    isStableSwap: true,
     contract: "sWimoyG4uZiuHwVBp6ZCirB3cdqsHuoxDgs46X9jWMy",
     address: "7BZQBVZrneaEKkBTExncHm7p6NuF5MMiDmBNTot2CQc5",
     authority: "69PatS67furtMJVwUBqHoFdrn5nDTtxCGSSqEu2anSYX",
@@ -221,6 +234,7 @@ const localnetPools: readonly PoolSpec[] = [
     id: "hexapool",
     displayName: "Stablecoin Hexa-Pool",
     isStakingPool: false,
+    isStableSwap: true,
     contract: "SwmGeiqX8avCodG8Bq7mbd4o5iMMfgGXoMAeECe5rmi",
     address: "PLSVJHkSe1wQgocGJx9d7KnfjXsPykq7cgLFHwXFRxV",
     authority: "3yRFKgKqAQBX3LaC5soLLsywua5FS7JCCWaJ5LQpnE2v",
@@ -239,6 +253,7 @@ const localnetPools: readonly PoolSpec[] = [
     id: "swimlake",
     displayName: "SwimLake",
     isStakingPool: true,
+    isStableSwap: true,
     contract: "Sw1LeM87T6PEh3ydfc7PqRN3PG1RCFBGthUPSsPa3p5",
     address: "PLSupkMugKscXq7cGMEqKMVU66YdPaAH8AHohCNHasE",
     authority: "2VpHusCv5wWgcPLMreRqgCxSHpcdftgkjycsPVN5k2wg",

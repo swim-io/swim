@@ -1,5 +1,6 @@
 /* eslint-disable functional/immutable-data */
-import { createDraft, produce } from "immer";
+import type { Draft } from "immer";
+import { castDraft, produce } from "immer";
 import type { GetState, SetState, StoreApi } from "zustand";
 import create from "zustand";
 import type { StateStorage } from "zustand/middleware";
@@ -13,11 +14,11 @@ export interface InteractionStore {
   readonly addInteractionState: (interactionState: InteractionState) => void;
   readonly updateInteractionState: (
     interactionId: string,
-    updateCallback: (interactionState: InteractionState) => void,
+    updateCallback: (interactionState: Draft<InteractionState>) => void,
   ) => void;
 }
 
-export const useInteraction = create(
+export const useInteractionState = create(
   persist<InteractionStore>(
     (
       set: SetState<InteractionStore>,
@@ -28,18 +29,19 @@ export const useInteraction = create(
       addInteractionState: (interactionState) => {
         set(
           produce<InteractionStore>((draft) => {
-            draft.interactionStates.push(createDraft(interactionState));
+            draft.interactionStates.push(castDraft(interactionState));
           }),
         );
       },
       updateInteractionState: (interactionId, updateCallback) => {
         set(
-          produce<InteractionStore>((draft, state) => {
+          produce<InteractionStore>((draft) => {
             const index = draft.interactionStates.findIndex(
               ({ interaction }) => interaction.id === interactionId,
             );
-            const data: InteractionState = state.interactionStates[index];
-            updateCallback(data);
+            if (index > -1) {
+              updateCallback(draft.interactionStates[index]);
+            }
           }),
         );
       },

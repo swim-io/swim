@@ -2,12 +2,16 @@ import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
 import { EcosystemId } from "../../config";
-import { Amount } from "../../models";
 import {
-  findLocalnetTokenById,
-  mockOf,
-  renderHookWithAppContext,
-} from "../../testUtils";
+  BSC_BUSD,
+  BSC_USDT,
+  ETHEREUM_USDC,
+  ETHEREUM_USDT,
+  SOLANA_USDC,
+  SOLANA_USDT,
+} from "../../fixtures";
+import { Amount } from "../../models";
+import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
 import { useRemoveFeesEstimationQuery } from "./useRemoveFeesEstimationQuery";
@@ -18,13 +22,6 @@ jest.mock("./useGasPriceQuery", () => ({
 
 // Make typescript happy with jest
 const useGasPriceQueryMock = mockOf(useGasPriceQuery);
-
-const SOLANA_USDC = findLocalnetTokenById("localnet-solana-usdc");
-const SOLANA_USDT = findLocalnetTokenById("localnet-solana-usdt");
-const ETHEREUM_USDC = findLocalnetTokenById("localnet-ethereum-usdc");
-const ETHEREUM_USDT = findLocalnetTokenById("localnet-ethereum-usdt");
-const BSC_BUSD = findLocalnetTokenById("localnet-bsc-busd");
-const BSC_USDT = findLocalnetTokenById("localnet-bsc-usdt");
 
 describe("useRemoveFeesEstimationQuery", () => {
   beforeEach(() => {

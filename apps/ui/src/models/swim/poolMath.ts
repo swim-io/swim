@@ -59,7 +59,7 @@ function subGivenOrder(
 export class PoolMath {
   private static readonly MAX_TOKEN_COUNT = 20;
   //MIN_AMP_VALUE should be the same as the smart contract constant (see pool/src/amp_factor.rs)
-  //alternative, can also be 0 for constant product invariant!
+  //alternatively, can also be 0 for constant product invariant!
   private static readonly MIN_AMP_VALUE = new Decimal(1);
   //MAX_AMP_VALUE should be the same as the smart contract constant (see pool/src/amp_factor.rs)
   private static readonly MAX_AMP_VALUE = new Decimal("1e6");

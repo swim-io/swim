@@ -1,5 +1,6 @@
 /* eslint-disable functional/immutable-data */
-import { castDraft, Draft, produce } from "immer";
+import type { Draft } from "immer";
+import { castDraft, produce } from "immer";
 import type { GetState, SetState, StoreApi } from "zustand";
 import create from "zustand";
 import type { StateStorage } from "zustand/middleware";

@@ -45,10 +45,8 @@ const getReadonlyDisplayValue = (token: TokenSpec, value: string) => {
   );
 };
 
-const getTokenLabel = (
-  showConstantSwapTip: boolean,
-): React.ReactElement | null => {
-  return showConstantSwapTip ? (
+const getTokenLabel = (): React.ReactElement => {
+  return (
     <EuiText size="xs">
       <p>
         {"Constant product swap  "}
@@ -60,7 +58,7 @@ const getTokenLabel = (
         </EuiToolTip>
       </p>
     </EuiText>
-  ) : null;
+  );
 };
 
 export const TokenAmountInput: React.FC<Props> = ({
@@ -91,7 +89,7 @@ export const TokenAmountInput: React.FC<Props> = ({
       <EuiFlexItem grow={2}>
         <EuiFormRow
           hasEmptyLabelSpace={!showConstantSwapTip}
-          label={getTokenLabel(showConstantSwapTip)}
+          label={showConstantSwapTip ? getTokenLabel() : null}
         >
           <EuiSuperSelect
             options={options}

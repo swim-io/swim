@@ -20,6 +20,7 @@ const METAMASK_methodNotFound = -32601;
 export interface EvmWalletAdapter extends EventEmitter {
   readonly signer: Signer | null;
   readonly address: string | null;
+  readonly connected: boolean;
   readonly connect: () => Promise<unknown>;
   readonly disconnect: () => Promise<void>;
   readonly switchNetwork: (chainId: EvmChainId) => Promise<unknown>;
@@ -28,6 +29,7 @@ export interface EvmWalletAdapter extends EventEmitter {
     ecosystemId: EcosystemId,
     chainId: EvmChainId,
   ) => Promise<unknown>;
+  readonly protocol: Protocol.Evm;
 }
 
 export class EvmWeb3WalletAdapter
@@ -36,6 +38,7 @@ export class EvmWeb3WalletAdapter
 {
   readonly serviceName: string;
   readonly serviceUrl: string;
+  readonly protocol: Protocol.Evm;
   address: string | null;
   connecting: boolean;
   private readonly getWalletProvider: () => Web3Provider | null;
@@ -51,6 +54,11 @@ export class EvmWeb3WalletAdapter
     this.getWalletProvider = getWalletProvider;
     this.address = null;
     this.connecting = false;
+    this.protocol = Protocol.Evm;
+  }
+
+  public get connected(): boolean {
+    return !!this.address;
   }
 
   public get signer(): Signer | null {

@@ -15,7 +15,7 @@ export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
     readonly connected: false;
     readonly service: null;
     readonly wallet: null;
-    readonly createServiceClickHandler: null;
+    readonly setServiceId: null;
   };
   readonly [EcosystemId.Bsc]: EvmWalletContextInterface;
   readonly [EcosystemId.Avalanche]: EvmWalletContextInterface;
@@ -33,7 +33,7 @@ export const useWallets = (): Wallets => ({
     address: null,
     connected: false,
     service: null,
-    createServiceClickHandler: null,
+    setServiceId: null,
     wallet: null,
   },
   [EcosystemId.Bsc]: useEvmWallet(EcosystemId.Bsc),

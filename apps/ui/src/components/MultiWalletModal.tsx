@@ -13,6 +13,7 @@ import type { ReactElement } from "react";
 
 import type { Ecosystem } from "../config";
 import { Protocol, getEcosystemsForProtocol } from "../config";
+import { useWalletService } from "../core/store";
 import { useWallets } from "../hooks";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
@@ -90,11 +91,8 @@ const ProtocolWalletOptionsList = ({
   icon,
   protocol,
 }: ProtocolWalletOptionsListProps): ReactElement => {
-  if (protocol === Protocol.Cosmos) {
-    throw new Error("Unsupported protocol");
-  }
-
   const wallets = useWallets();
+  const { connectService, disconnectService } = useWalletService();
   const ecosystemIds = getEcosystemsForProtocol(protocol);
   const protocolWalletServices = ecosystemIds.flatMap(
     (ecosystemId) => WALLET_SERVICES[ecosystemId],
@@ -110,23 +108,18 @@ const ProtocolWalletOptionsList = ({
   const connectedWallets = protocolWallets.filter((wallet) => wallet.connected);
 
   const disconnect = (serviceId: string): void => {
-    protocolWalletServicesByServiceId[serviceId].forEach((walletService) => {
-      const ecosystemId = walletService.info.ecosystem.id;
-      const wallet = wallets[ecosystemId];
-
-      if (wallet.connected && wallet.service?.id === serviceId) {
-        void wallets[ecosystemId].wallet?.disconnect();
-      }
-    });
+    void disconnectService(serviceId, protocol);
   };
 
   const connect = (serviceId: string) => {
+    void connectService(serviceId, protocol);
+
     protocolWalletServicesByServiceId[serviceId].forEach((walletService) => {
       const ecosystemId = walletService.info.ecosystem.id;
       const wallet = wallets[ecosystemId];
 
-      if (wallet.createServiceClickHandler) {
-        wallet.createServiceClickHandler(serviceId);
+      if (wallet.setServiceId) {
+        wallet.setServiceId(serviceId);
       }
     });
   };

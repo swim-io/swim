@@ -1,18 +1,11 @@
 import type { ReactElement, ReactNode } from "react";
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import * as React from "react";
 
 import { SingleWalletModal } from "../components/SingleWalletModal";
 import type { EvmEcosystemId } from "../config";
-import { EcosystemId } from "../config";
-import { useNotification } from "../core/store";
+import { EcosystemId, Protocol } from "../config";
+import { useWalletService } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
 import type { EvmWalletAdapter, WalletService } from "../models";
 import {
@@ -26,7 +19,6 @@ import {
   POLYGON_WALLET_SERVICES,
 } from "../models";
 import type { ReadonlyRecord } from "../utils";
-import { shortenAddress } from "../utils";
 
 const ecosystemToWalletServices: ReadonlyRecord<
   EvmEcosystemId,
@@ -59,7 +51,7 @@ export interface EvmWalletContextInterface {
   readonly connected: boolean;
   readonly select: () => void;
   readonly service: WalletService<EvmWalletAdapter> | null;
-  readonly createServiceClickHandler: (serviceId: WalletService["id"]) => void;
+  readonly setServiceId: (serviceId: WalletService["id"]) => void;
 }
 
 const defaultEvmWalletContext: EvmWalletContextInterface = {
@@ -68,7 +60,7 @@ const defaultEvmWalletContext: EvmWalletContextInterface = {
   connected: false,
   service: null,
   select: () => {},
-  createServiceClickHandler: () => {},
+  setServiceId: () => {},
 };
 
 const [
@@ -115,11 +107,7 @@ export const EvmWalletProvider = ({
   ecosystemId,
   children,
 }: EvmWalletProviderProps): ReactElement => {
-  const { notify } = useNotification();
-
   const [connected, setConnected] = useState(false);
-  const [autoConnect, setAutoConnect] = useState(false);
-
   const [serviceId, setServiceId] = useLocalStorageState<string>(
     ecosystemToLocalStorageKey[ecosystemId],
   );
@@ -129,82 +117,40 @@ export const EvmWalletProvider = ({
     () => services.find(({ id }) => id === serviceId) ?? null,
     [serviceId, services],
   );
-  const wallet = useMemo(() => {
-    if (!service?.adapter) {
-      return null;
-    }
 
-    return new service.adapter();
-  }, [service]);
-  const previousWalletRef = useRef(wallet);
+  const { evm } = useWalletService();
+
+  const wallet: EvmWalletAdapter | null = (service && evm[service.id]) || null;
   const address = wallet?.address ?? null;
 
   useEffect(() => {
-    const previousWallet = previousWalletRef.current;
     if (wallet) {
-      if (wallet !== previousWallet) {
-        previousWallet?.disconnect().catch(console.error);
-        setConnected(false);
-        // eslint-disable-next-line functional/immutable-data
-        previousWalletRef.current = wallet;
-      }
-
       const handleConnect = (): void => {
-        if (wallet.address) {
-          setConnected(true);
-          notify(
-            "Wallet update",
-            `Connected to wallet ${shortenAddress(wallet.address)}`,
-            "info",
-            7000,
-          );
-        }
+        setConnected(true);
       };
+
       const handleDisconnect = (): void => {
         setConnected(false);
-        notify("Wallet update", "Disconnected from wallet", "warning");
-      };
-      const handleError = (title: string, description: string): void => {
-        notify(title, description, "error");
       };
 
       wallet.on("connect", handleConnect);
       wallet.on("disconnect", handleDisconnect);
-      wallet.on("error", handleError);
 
       return () => {
         wallet.removeListener("connect", handleConnect);
         wallet.removeListener("disconnect", handleDisconnect);
-        wallet.removeListener("error", handleError);
       };
     }
 
     return () => {
       setConnected(false);
-      // eslint-disable-next-line functional/immutable-data
-      previousWalletRef.current = wallet;
     };
-  }, [wallet, notify]);
-
-  useEffect(() => {
-    if (wallet && autoConnect) {
-      wallet.connect().catch(console.error);
-      setAutoConnect(false);
-    }
-  }, [wallet, autoConnect]);
+  }, [wallet]);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const select = useCallback(() => setIsModalVisible(true), []);
   const closeModal = useCallback(() => setIsModalVisible(false), []);
-  const createServiceClickHandler = (
-    id: WalletService["id"],
-    callback?: () => any,
-  ) => {
-    setServiceId(id);
-    setAutoConnect(true);
-    callback?.();
-  };
 
   const EvmWalletContext = ecosystemToContext[ecosystemId];
 
@@ -216,16 +162,17 @@ export const EvmWalletProvider = ({
         connected,
         select,
         service,
-        createServiceClickHandler,
+        setServiceId,
       }}
     >
       {children}
       {isModalVisible && (
         <SingleWalletModal
           currentService={serviceId}
+          protocol={Protocol.Evm}
           services={services}
           handleClose={closeModal}
-          createServiceClickHandler={createServiceClickHandler}
+          setServiceId={setServiceId}
         />
       )}
     </EvmWalletContext.Provider>

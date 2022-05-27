@@ -3,13 +3,17 @@ import type { Transaction } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import EventEmitter from "eventemitter3";
 
+import { Protocol } from "../../../../config";
 import { SolanaWalletError } from "../../../../errors";
 
 export interface SolanaWalletAdapter extends EventEmitter {
   readonly publicKey: PublicKey | null;
+  readonly address: string | null;
+  readonly connected: boolean;
   readonly signTransaction: (transaction: Transaction) => Promise<Transaction>;
   readonly connect: () => Promise<unknown>;
   readonly disconnect: () => Promise<void>;
+  readonly protocol: Protocol.Solana;
 }
 
 export class SolanaWeb3WalletAdapter
@@ -19,6 +23,7 @@ export class SolanaWeb3WalletAdapter
   serviceName: string;
   serviceUrl: string;
   publicKey: PublicKey | null;
+  readonly protocol: Protocol.Solana;
   protected getService: () => any;
   protected connecting: boolean;
 
@@ -29,8 +34,17 @@ export class SolanaWeb3WalletAdapter
     this.getService = getService;
     this.publicKey = null;
     this.connecting = false;
+    this.protocol = Protocol.Solana;
 
     this.on("connect", this.onPublicKeySet);
+  }
+
+  public get address(): string | null {
+    return this.publicKey?.toBase58() || null;
+  }
+
+  public get connected(): boolean {
+    return !!this.address;
   }
 
   protected get service(): any {

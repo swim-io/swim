@@ -1,12 +1,17 @@
 import { EuiButtonIcon } from "@elastic/eui";
 import type { ReactElement } from "react";
 
-import type { Ecosystem } from "../../config";
-import { EcosystemId, ecosystems } from "../../config";
+import type { Ecosystem, Protocol } from "../../config";
+import {
+  EcosystemId,
+  ecosystems,
+  getEcosystemsForProtocol,
+} from "../../config";
 import LEDGER_ICON from "../../images/wallets/ledger.svg";
 import MATHWALLET_ICON from "../../images/wallets/mathwallet.svg";
 import METAMASK_ICON from "../../images/wallets/metamask.svg";
 import PHANTOM_ICON from "../../images/wallets/phantom.svg";
+import { findOrThrow } from "../../utils";
 
 import type {
   EvmWalletAdapter,
@@ -245,4 +250,18 @@ export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {
   [EcosystemId.Fantom]: FANTOM_WALLET_SERVICES,
   [EcosystemId.Karura]: KARURA_WALLET_SERVICES,
   [EcosystemId.Acala]: ACALA_WALLET_SERVICES,
+};
+
+export const findServiceForProtocol = (
+  serviceId: string,
+  protocol: Protocol,
+): WalletService => {
+  const ecosystemIds = getEcosystemsForProtocol(protocol);
+  const protocolWalletServices = ecosystemIds.flatMap(
+    (ecosystemId) => WALLET_SERVICES[ecosystemId],
+  );
+  return findOrThrow(
+    protocolWalletServices,
+    (service) => service.id === serviceId,
+  );
 };

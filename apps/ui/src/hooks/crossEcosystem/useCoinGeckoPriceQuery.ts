@@ -5,6 +5,13 @@ import { useQuery } from "react-query";
 import { Env, useEnvironment } from "../../core/store";
 import type { ReadonlyRecord } from "../../utils";
 
+type CoinGeckoResult = ReadonlyRecord<
+  string,
+  {
+    readonly usd: number;
+  }
+>;
+
 const COINGECKO_ID_TO_TOKEN_IDS: ReadonlyRecord<string, readonly string[]> = {
   "green-satoshi-token": ["solana-mainnet-gst"],
   "green-satoshi-token-bsc": ["bsc-mainnet-gst"],
@@ -16,7 +23,7 @@ export const useCoinGeckoPricesQuery = (): UseQueryResult<
   Error
 > => {
   const { env } = useEnvironment();
-  return useQuery(["coinGecko"], async () => {
+  return useQuery([env, "coinGeckoPrices"], async () => {
     if (env !== Env.Mainnet) {
       return new Map();
     }
@@ -31,13 +38,13 @@ export const useCoinGeckoPricesQuery = (): UseQueryResult<
         "Content-Type": "application/json",
       },
     });
-    const result = await data.json();
+    const result: CoinGeckoResult = await data.json();
 
     return new Map(
       coinGeckoIds.flatMap((coinGeckoId) =>
         COINGECKO_ID_TO_TOKEN_IDS[coinGeckoId].map((tokenId) => {
           try {
-            const price = new Decimal(result[coinGeckoId]);
+            const price = new Decimal(result[coinGeckoId].usd);
             return [tokenId, price];
           } catch {
             return [tokenId, null];
@@ -46,9 +53,4 @@ export const useCoinGeckoPricesQuery = (): UseQueryResult<
       ),
     );
   });
-};
-
-export const useCoinGeckoPrice = (tokenId: string): Decimal | null => {
-  const { data: prices = new Map() } = useCoinGeckoPricesQuery();
-  return prices.get(tokenId) ?? null;
 };

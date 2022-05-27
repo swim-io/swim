@@ -601,6 +601,40 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    id: "devnet-solana-lp-gst",
+    symbol: "SWIM-GST-LP", // TODO: Update
+    displayName: "GST LP", // TODO: Update
+    icon: GST_SVG, // TODO: Update
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "BM3sXSfRg1yKzf2AbTA5QV76MdnKHi9M8D7VCGzDEYM1",
+          decimals: 9,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-solana-lp-gmt",
+    symbol: "SWIM-GMT-LP", // TODO: Update
+    displayName: "GMT LP", // TODO: Update
+    icon: GMT_SVG, // TODO: Update
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "5VUZL2JcvbmjuT1DzDyWJ4mwtEH8unKyuQj3k38j8Ngs",
+          decimals: 9,
+        },
+      ],
+    ]),
+  },
+  {
     id: "devnet-ethereum-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,

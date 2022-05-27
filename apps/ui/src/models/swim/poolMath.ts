@@ -1,15 +1,30 @@
+//see docs/poolmath for an in-depth explanation
+
+//In this file, positive and negative are used in the strict sense, i.e. x is positive <=> x > 0
+// and x is negative <=> x < 0. (And hence e.g. non-negative implies zero or positive, etc.)
+//
+//Since decimal.js has signed zeros (like IEEE floats!) and its .isPos() and .isNeg() methods
+// only check for the sign value, it exhibits the following behavior:
+//
+// let a = new Decimal(0);
+// console.log(a.isPos()); // => true
+// console.log(a.isNeg()); // => false
+// a = a.mul(-1);
+// console.log(a.isPos()); // => false
+// console.log(a.isNeg()); // => true
+//
+//Therefore, to enforce our strict definition, we rely on comparison operators instead.
 import Decimal from "decimal.js";
 
 function areAllNonNegativeOrThrow(decimals: readonly Decimal[]): void {
-  if (decimals.some((d) => d.isNeg())) {
+  if (decimals.some((d) => d.lt(0))) {
     throw new Error("Amounts have to be non-negative");
   }
 }
 
-function isPosOrThrow(amount: Decimal): void {
-  if (!amount.isPos()) {
-    throw new Error("passed amount must be positive");
-  }
+//turn any (potentially negative) zeros into positive zeros
+function sanitizeSign(val: Decimal): Decimal {
+  return new Decimal(val.isZero() ? 0 : val);
 }
 
 function arrayCreate(
@@ -20,7 +35,7 @@ function arrayCreate(
 }
 
 function arraySum(decimals: readonly Decimal[]): Decimal {
-  return decimals.reduce((acc, d) => acc.plus(d), new Decimal(0));
+  return decimals.reduce((acc, d) => acc.add(d), new Decimal(0));
 }
 
 function arrayProd(decimals: readonly Decimal[]): Decimal {
@@ -31,7 +46,7 @@ function arrayAdd(
   arr1: readonly Decimal[],
   arr2: readonly Decimal[],
 ): readonly Decimal[] {
-  return arrayCreate(arr1.length, (i) => arr1[i].plus(arr2[i]));
+  return arrayCreate(arr1.length, (i) => arr1[i].add(arr2[i]));
 }
 
 function arraySub(
@@ -65,6 +80,7 @@ export class PoolMath {
   private static readonly DEFAULT_TOLERANCE = new Decimal("1e-6");
   private static readonly DEFAULT_MAX_ITERATIONS = 200;
   private static readonly DEFAULT_MARGINAL_EPSILON = new Decimal("0.1");
+  private static readonly EPSILON_TOLERANCE_DIVISOR = new Decimal(10);
 
   private readonly balances: readonly Decimal[];
   private readonly lpSupply: Decimal;
@@ -79,6 +95,7 @@ export class PoolMath {
     //likely go with a tolerance of 1 while human units should probably
     //use the maximum decimals of all involved tokens)
     balancesOrTokenCount: readonly Decimal[] | number,
+    //amp in 'swim units' (= A*n**n) - divide by tokenCount to get 'curve units' (= A*n**(n-1))
     ampFactor: Decimal,
     lpFee: Decimal,
     governanceFee: Decimal,
@@ -99,33 +116,33 @@ export class PoolMath {
           "]",
       );
     }
-    this.ampFactor = new Decimal(ampFactor);
+    this.ampFactor = ampFactor;
 
-    if (lpFee.isNeg() || lpFee.gte(1)) {
+    if (lpFee.lt(0) || lpFee.gte(1)) {
       throw new Error(
         "lpFee must be in range [0,1), but was instead " + lpFee.toString(),
       );
     }
-    this.lpFee = new Decimal(lpFee);
+    this.lpFee = sanitizeSign(lpFee);
 
-    if (governanceFee.isNeg() || governanceFee.gte(1)) {
+    if (governanceFee.lt(0) || governanceFee.gte(1)) {
       throw new Error(
         "governanceFee must be in range [0,1), but was instead " +
           governanceFee.toString(),
       );
     }
-    if (governanceFee.plus(this.lpFee).gte(1)) {
+    if (governanceFee.add(this.lpFee).gte(1)) {
       throw new Error("total fees must be in range [0,1)");
     }
-    this.governanceFee = new Decimal(governanceFee);
+    this.governanceFee = sanitizeSign(governanceFee);
 
-    if (tolerance.isNeg()) {
+    if (tolerance.lte(0)) {
       throw new Error(
-        "tolerance must be non-negative, but was instead " +
+        "tolerance must be greater than 0 but was instead " +
           tolerance.toString(),
       );
     }
-    this.tolerance = new Decimal(tolerance);
+    this.tolerance = tolerance;
 
     if (maxIterations <= 0 || !Number.isInteger(maxIterations)) {
       throw new Error(
@@ -152,7 +169,9 @@ export class PoolMath {
       this.balances = new Array(balancesOrTokenCount).fill(new Decimal(0));
       this.lpSupply = new Decimal(0);
     } else {
-      this.balances = balancesOrTokenCount;
+      this.balances = balancesOrTokenCount.map((balance) =>
+        sanitizeSign(balance),
+      );
       areAllNonNegativeOrThrow(this.balances);
 
       if (this.balances.some((b) => b.isZero())) {
@@ -171,7 +190,7 @@ export class PoolMath {
         this.lpSupply = new Decimal(0);
       } else {
         if (lpSupply) {
-          if (lpSupply.isNeg()) {
+          if (lpSupply.lt(0)) {
             throw new Error(
               "lpSupply must be non negative, but was instead " +
                 lpSupply.toString(),
@@ -180,7 +199,7 @@ export class PoolMath {
           if (lpSupply.isZero()) {
             throw new Error("lpSupply can't be 0 if balances aren't 0");
           }
-          this.lpSupply = new Decimal(lpSupply);
+          this.lpSupply = lpSupply;
         } else {
           this.lpSupply = this.depth();
         }
@@ -193,7 +212,7 @@ export class PoolMath {
   }
 
   private get totalFee(): Decimal {
-    return this.lpFee.plus(this.governanceFee);
+    return this.lpFee.add(this.governanceFee);
   }
 
   // DEFI INSTRUCTIONS -------------------------------------------
@@ -271,14 +290,12 @@ export class PoolMath {
     readonly governanceMintAmount: Decimal;
   } {
     this.isTokenIndexOrThrow(outputIndex);
-    isPosOrThrow(burnAmount);
-    if (burnAmount.gte(this.lpSupply)) {
-      throw new Error(
-        "can only burn less than entire lpSupply. burnAmount: " +
-          burnAmount.toString() +
-          ", lpSupply: " +
-          this.lpSupply.toString(),
-      );
+    this.isValidBurnAmountOrThrow(burnAmount);
+    if (burnAmount.isZero()) {
+      return {
+        stableOutputAmount: new Decimal(0),
+        governanceMintAmount: new Decimal(0),
+      };
     }
     const initialDepth = this.depth();
     const updatedDepth = initialDepth.mul(
@@ -301,7 +318,7 @@ export class PoolMath {
       this.balances[outputIndex].div(arraySum(this.balances)),
     );
     const fee = new Decimal(1).div(new Decimal(1).sub(this.totalFee)).sub(1);
-    const originalAmount = feelessAmount.div(taxableFraction.mul(fee).plus(1));
+    const originalAmount = feelessAmount.div(taxableFraction.mul(fee).add(1));
     const taxbase = originalAmount.mul(taxableFraction);
     const feeAmount = fee.mul(taxbase);
     const stableOutputAmount = feelessAmount.sub(feeAmount);
@@ -322,28 +339,27 @@ export class PoolMath {
   }
 
   removeUniform(burnAmount: Decimal): readonly Decimal[] {
-    isPosOrThrow(burnAmount);
-    if (burnAmount.gt(this.lpSupply)) {
-      throw new Error(
-        "burnAmount exceeds entire lpSupply. burnAmount: " +
-          burnAmount.toString() +
-          ", lpSupply: " +
-          this.lpSupply.toString(),
-      );
-    }
-    return arrayScale(burnAmount.div(this.lpSupply), this.balances);
+    this.isValidBurnAmountOrThrow(burnAmount);
+    return arrayScale(
+      sanitizeSign(burnAmount).div(this.lpSupply),
+      this.balances,
+    );
   }
 
   // OTHER INFO -------------------------------------------
 
   depth(): Decimal {
+    //TODO should be calculated once in the constructor and then stored, instead
+    //     of recalculating every time
     return this.calcDepth(this.balances);
   }
 
   marginalPrices(
+    //epsilon is used to calculate the differential quotient from both sides to approximate
+    // the partial derivative (=marginal price)
     epsilon = PoolMath.DEFAULT_MARGINAL_EPSILON,
   ): readonly Decimal[] {
-    if (!epsilon.isPos()) {
+    if (epsilon.lte(0)) {
       throw new Error(
         "epsilon must be a (small) positive value, but was instead " +
           epsilon.toString(),
@@ -352,22 +368,39 @@ export class PoolMath {
     const depth = this.depth();
     return arrayCreate(this.tokenCount, (i) => {
       const balancesMinusEps = this.balances.map((balance, j) =>
-        i === j ? balance.minus(epsilon) : balance,
+        i === j ? balance.sub(epsilon) : balance,
       );
       const balancesPlusEps = this.balances.map((balance, j) =>
-        i === j ? balance.plus(epsilon) : balance,
+        i === j ? balance.add(epsilon) : balance,
       );
-      const lower = depth.minus(this.calcDepth(balancesMinusEps, depth));
-      const upper = this.calcDepth(balancesPlusEps, depth).minus(depth);
-      return lower.plus(upper).div(epsilon.mul(2));
+      const lower = depth.sub(this.calcDepth(balancesMinusEps, depth));
+      const upper = this.calcDepth(balancesPlusEps, depth).sub(depth);
+      return lower.add(upper).div(epsilon.mul(2));
     });
   }
 
   // IMPLEMENTATION -------------------------------------------
 
   private isTokenIndexOrThrow(i: number): void {
-    if (i < 0 || i > this.tokenCount - 1 || !Number.isInteger(i)) {
+    if (i < 0 || i >= this.tokenCount || !Number.isInteger(i)) {
       throw new Error("invalid array index");
+    }
+  }
+
+  private isValidBurnAmountOrThrow(burnAmount: Decimal): void {
+    if (burnAmount.lt(0)) {
+      throw new Error(
+        "burnAmount must be non negative, but was instead " +
+          burnAmount.toString(),
+      );
+    }
+    if (burnAmount.gt(this.lpSupply)) {
+      throw new Error(
+        "burnAmount exceeds entire lpSupply. burnAmount: " +
+          burnAmount.toString() +
+          ", lpSupply: " +
+          this.lpSupply.toString(),
+      );
     }
   }
 
@@ -376,7 +409,7 @@ export class PoolMath {
     amounts: readonly Decimal[],
   ): readonly [Decimal, Decimal] {
     areAllNonNegativeOrThrow(amounts);
-    if (!isAdd && this.balances.some((b, i) => !b.sub(amounts[i]).isPos())) {
+    if (!isAdd && this.balances.some((b, i) => b.lte(amounts[i]))) {
       throw new Error("remove exceeds available balance");
     }
     const initialDepth = this.depth();
@@ -410,11 +443,11 @@ export class PoolMath {
     );
     const feeAmounts = arrayScale(fee, taxbase);
     const feeAdjustedBalances = arraySub(updatedBalances, feeAmounts);
-    if (!isAdd && feeAdjustedBalances.some((b) => b.isNeg())) {
+    if (!isAdd && feeAdjustedBalances.some((b) => b.lte(0))) {
       throw new Error("impossible remove due to fees");
     }
     const feeAdjustedDepth = this.calcDepth(feeAdjustedBalances, updatedDepth);
-    const totalFeeDepth = updatedDepth.minus(feeAdjustedDepth);
+    const totalFeeDepth = updatedDepth.sub(feeAdjustedDepth);
     const userDepth = subGivenOrder(isAdd, feeAdjustedDepth, initialDepth);
     const governanceDepth = totalFeeDepth.mul(
       this.governanceFee.div(this.totalFee),
@@ -439,7 +472,7 @@ export class PoolMath {
     if (!amounts[index].isZero()) {
       throw new Error("amount of swapped index must be zero");
     }
-    if (!isInput && this.balances.some((b, i) => !b.sub(amounts[i]).isPos())) {
+    if (!isInput && this.balances.some((b, i) => b.lte(amounts[i]))) {
       throw new Error("amount to be received exceeds available balance");
     }
     const initialDepth = this.depth();
@@ -480,7 +513,7 @@ export class PoolMath {
       this.governanceFee.div(this.totalFee),
     );
     const governanceMintAmount = governanceDepth
-      .div(initialDepth.plus(totalFeeDepth).sub(governanceDepth))
+      .div(initialDepth.add(totalFeeDepth).sub(governanceDepth))
       .mul(this.lpSupply);
     return [finalAmount, governanceMintAmount];
   }
@@ -501,16 +534,18 @@ export class PoolMath {
         balances.map(productFactor.bind(null, depthApprox)),
       );
 
-      const numerator = sumTimesAmp.plus(
+      const numerator = sumTimesAmp.add(
         tokenCount.mul(depthApprox).mul(reciprocalDecay),
       );
       const denominator = this.ampFactor
-        .minus(1)
-        .plus(tokenCount.plus(1).mul(reciprocalDecay));
+        .sub(1)
+        .add(tokenCount.add(1).mul(reciprocalDecay));
       const depthNext = numerator.div(denominator);
 
-      if (depthNext.minus(depthApprox).abs().lte(this.tolerance)) {
-        return depthNext;
+      if (depthNext.sub(depthApprox).abs().lte(this.tolerance)) {
+        return depthNext.lte(0)
+          ? this.tolerance.div(PoolMath.EPSILON_TOLERANCE_DIVISOR)
+          : depthNext;
       }
       depthApprox = depthNext;
     }
@@ -538,20 +573,19 @@ export class PoolMath {
     const numeratorFixed = depthDivAmp
       .mul(depth.div(tokenCount))
       .mul(reciprocalDecay);
-    const denominatorFixed = arraySum(knownBalances).plus(depthDivAmp);
+    const denominatorFixed = arraySum(knownBalances).add(depthDivAmp);
     let missingBalanceApprox = initialGuess ?? depth;
     for (let i = 0; i < this.maxIterations; ++i) {
       const numerator = missingBalanceApprox
         .mul(missingBalanceApprox)
-        .plus(numeratorFixed);
+        .add(numeratorFixed);
       const denominator = missingBalanceApprox
         .mul(2)
-        .plus(denominatorFixed)
-        .minus(depth);
+        .add(denominatorFixed)
+        .sub(depth);
       const missingBalanceNext = numerator.div(denominator);
-      if (
-        missingBalanceNext.minus(missingBalanceApprox).abs().lte(this.tolerance)
-      ) {
+      //no .abs() required here because we always converge from above
+      if (missingBalanceApprox.sub(missingBalanceNext).lte(this.tolerance)) {
         return missingBalanceNext;
       }
       missingBalanceApprox = missingBalanceNext;

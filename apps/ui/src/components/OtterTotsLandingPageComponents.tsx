@@ -87,23 +87,23 @@ export const AlternatingFeaturettes = (): readonly ReactElement[] => {
     {
       title: "Interest bearing",
       text: "Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo. Nemo",
-      image: <EuiImage src={OTTER_INTEREST} alt="" />,
+      image: <EuiImage src={OTTER_INTEREST} alt="interest bearing" />,
     },
     {
       title: "Redeemable",
       text: "Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo. Nemo",
-      image: <EuiImage src={OTTER_REDEEM} alt="" />,
+      image: <EuiImage src={OTTER_REDEEM} alt="redeemable" />,
     },
     {
       title: "Traits / weekly boost",
       text: "Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo. Nemo",
-      image: <EuiImage src={OTTER_TRAITS} alt="" />,
+      image: <EuiImage src={OTTER_TRAITS} alt="trait boost" />,
     },
   ];
   return featurettes.map((featurette, index) => {
     // Logs an error without a key, does some arbritary math to create unique ones.
     const textPortion = (
-      <EuiFlexItem key={index}>
+      <EuiFlexItem key={featurette.title + "text"}>
         <EuiText grow={false} style={{ textAlign: "center" }}>
           <h3> {featurette.title} </h3>
         </EuiText>
@@ -114,14 +114,15 @@ export const AlternatingFeaturettes = (): readonly ReactElement[] => {
       </EuiFlexItem>
     );
     const imagePortion = (
-      // Key collides with "textPortion", add number to prevent collision.
-      <EuiFlexItem key={index + 5}>{featurette.image}</EuiFlexItem>
+      <EuiFlexItem key={featurette.title + "image"}>
+        {featurette.image}
+      </EuiFlexItem>
     );
     // TODO: On mobile this shouldn't alternate.
     const finishedFeaturette =
       index % 2 ? [textPortion, imagePortion] : [imagePortion, textPortion];
     return (
-      <EuiFlexGroup alignItems="center" key={index}>
+      <EuiFlexGroup alignItems="center" key={featurette.title}>
         {finishedFeaturette}
       </EuiFlexGroup>
     );

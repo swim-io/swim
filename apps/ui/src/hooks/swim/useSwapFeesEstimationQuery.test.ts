@@ -3,10 +3,12 @@ import { useQueryClient } from "react-query";
 
 import { EcosystemId } from "../../config";
 import {
-  findLocalnetTokenById,
-  mockOf,
-  renderHookWithAppContext,
-} from "../../testUtils";
+  BSC_BUSD,
+  ETHEREUM_USDT,
+  SOLANA_USDC,
+  SOLANA_USDT,
+} from "../../fixtures";
+import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
 import { useSwapFeesEstimationQuery } from "./useSwapFeesEstimationQuery";
@@ -17,11 +19,6 @@ jest.mock("./useGasPriceQuery", () => ({
 
 // Make typescript happy with jest
 const useGasPriceQueryMock = mockOf(useGasPriceQuery);
-
-const SOLANA_USDC = findLocalnetTokenById("localnet-solana-usdc");
-const SOLANA_USDT = findLocalnetTokenById("localnet-solana-usdt");
-const ETHEREUM_USDT = findLocalnetTokenById("localnet-ethereum-usdt");
-const BSC_BUSD = findLocalnetTokenById("localnet-bsc-busd");
 
 describe("useSwapFeesEstimationQuery", () => {
   beforeEach(() => {

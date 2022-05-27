@@ -1,62 +1,50 @@
 /* eslint-disable functional/immutable-data */
 import { createDraft, produce } from "immer";
-import type { Draft } from "immer";
 import type { GetState, SetState, StoreApi } from "zustand";
 import create from "zustand";
 import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
 
-import type {
-  FromSolanaTransferState,
-  Interaction,
-  RequiredSplTokenAccounts,
-  SolanaPoolOperationState,
-  ToSolanaTransferState,
-} from "../../models";
+import type { InteractionState } from "../../models";
 
-export interface InteractionState {
-  readonly interactions: readonly Interaction[];
-  readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
-  readonly toSolanaTransfers: readonly ToSolanaTransferState[];
-  readonly solanaPoolOperations: readonly SolanaPoolOperationState[];
-  readonly fromSolanaTransfers: readonly FromSolanaTransferState[];
-  readonly currentInteractionIndex: number;
-  readonly addInteraction: (interaction: Interaction) => void;
-  readonly setCurrentInteraction: (interactionId: string) => void;
+export interface InteractionStore {
+  readonly interactionStates: readonly InteractionState[];
+  readonly addInteractionState: (interactionState: InteractionState) => void;
+  readonly updateInteractionState: (
+    interactionId: string,
+    updateCallback: (interactionState: InteractionState) => void,
+  ) => void;
 }
 
 export const createInteractionSlice = create(
-  persist<InteractionState>(
+  persist<InteractionStore>(
     (
-      set: SetState<InteractionState>,
-      get: GetState<InteractionState>,
-      api: StoreApi<InteractionState>,
+      set: SetState<InteractionStore>,
+      get: GetState<InteractionStore>,
+      api: StoreApi<InteractionStore>,
     ) => ({
-      interactions: [],
-      requiredSplTokenAccounts: {},
-      toSolanaTransfers: [],
-      solanaPoolOperations: [],
-      fromSolanaTransfers: [],
-      currentInteractionIndex: 0,
-      addInteraction: (interaction: Interaction) => {
+      interactionStates: [],
+      addInteractionState: (interactionState) => {
         set(
-          produce<InteractionState>((draft) => {
-            draft.interactions.push(createDraft(interaction));
+          produce<InteractionStore>((draft) => {
+            draft.interactionStates.push(createDraft(interactionState));
           }),
         );
       },
-      setCurrentInteraction: (interactionId) => {
+      updateInteractionState: (interactionId, updateCallback) => {
         set(
-          produce<InteractionState>((draft) => {
-            draft.currentInteractionIndex = draft.interactions.findIndex(
-              (interaction) => interaction.id === interactionId,
+          produce<InteractionStore>((draft, state) => {
+            const index = draft.interactionStates.findIndex(
+              ({ interaction }) => interaction.id === interactionId,
             );
+            const data: InteractionState = state.interactionStates[index];
+            updateCallback(data);
           }),
         );
       },
     }),
     {
-      name: "interaction-db",
+      name: "interactions-db",
       getStorage: (): StateStorage => localStorage,
     },
   ),

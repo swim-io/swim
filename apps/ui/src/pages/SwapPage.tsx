@@ -33,8 +33,6 @@ const SwapPage = (): ReactElement => {
     [pools],
   );
 
-  console.log("gk", nonStakingPools);
-
   const [currentInteraction, setCurrentInteraction] = useState<string | null>(
     null,
   );

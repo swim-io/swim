@@ -1,8 +1,6 @@
-// import AURORA_USN_SVG from "../images/tokens/lp_metapool_aurora_usn.svg";
-// import FANTOM_USDC_SVG from "../images/tokens/lp_metapool_fantom_usdc.svg";
-// import FANTOM_USDT_SVG from "../images/tokens/lp_metapool_fantom_usdt.svg";
-// import LUNA_UST_SVG from "../images/tokens/lp_metapool_luna_ust.svg";
 import BUSD_SVG from "../images/tokens/busd.svg";
+import GMT_SVG from "../images/tokens/gmt.svg";
+import GST_SVG from "../images/tokens/gst.svg";
 import LP_META_AVALANCHE_USDC_SVG from "../images/tokens/lp_metapool_avalanche_usdc.svg";
 import LP_META_AVALANCHE_USDT_SVG from "../images/tokens/lp_metapool_avalanche_usdt.svg";
 import LP_META_POLYGON_USDC_SVG from "../images/tokens/lp_metapool_polygon_usdc.svg";
@@ -33,12 +31,16 @@ export interface TokenSpec {
   readonly detailsByEcosystem: TokenDetailsByEcosystem;
 }
 
+const BUSD_SYMBOL = "BUSD";
+const BUSD_NAME = "Binance USD";
+const GST_SYMBOL = "GST";
+const GST_NAME = "Green Satoshi Token";
+const GMT_SYMBOL = "GMT";
+const GMT_NAME = "STEPN";
 const USDC_SYMBOL = "USDC";
 const USDC_NAME = "USD Coin";
 const USDT_SYMBOL = "USDT";
 const USDT_NAME = "Tether USD";
-const BUSD_SYMBOL = "BUSD";
-const BUSD_NAME = "Binance USD";
 
 const mainnetTokens: readonly TokenSpec[] = [
   {
@@ -432,6 +434,40 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    id: "devnet-solana-gst",
+    symbol: GST_SYMBOL,
+    displayName: GST_NAME,
+    icon: GST_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "FYxTtPiGxNSDouZQftVRHFqraFJyLvNbTXzZj8X2gKQP",
+          decimals: 9,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-solana-gmt",
+    symbol: GMT_SYMBOL,
+    displayName: GMT_NAME,
+    icon: GMT_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "3xsNPBpf7UAKpJsLTqiPqHT3ZBKPDndj1rJFM7xaSJcV",
+          decimals: 9,
+        },
+      ],
+    ]),
+  },
+  {
     id: "devnet-solana-lp-hexapool",
     symbol: "swimUSD",
     displayName: "swimUSD (Swim Hexapool LP)",
@@ -655,6 +691,54 @@ const devnetTokens: readonly TokenSpec[] = [
         EcosystemId.Solana,
         {
           address: "4dr6ogcLsaFf2RDF4LJU1CvNtNKxonVqQvM6vuGdVR1e",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-bsc-gst",
+    symbol: GST_SYMBOL,
+    displayName: GST_NAME,
+    icon: GST_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Bsc,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Bsc,
+        {
+          address: "0x73160078948280B8680e5F1eB2964698928E8cd7",
+          decimals: 8,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "6oAiihJq1urtb6P8ARjwA6TFoduSoVGxaMb8gEMm5cR6",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "devnet-bsc-gmt",
+    symbol: GMT_SYMBOL,
+    displayName: GMT_NAME,
+    icon: GMT_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Bsc,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Bsc,
+        {
+          address: "0x1F65D61D01E3f10b34B855287b32D7bfbEA088D0",
+          decimals: 8,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "GE2tiQBCoPjCABkoTXa9jTSV8zCVZo8shyiBh8v52hDz",
           decimals: 8,
         },
       ],

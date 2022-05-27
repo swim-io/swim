@@ -202,6 +202,34 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
+    id: "gst",
+    displayName: "GST Cross-chain", // TODO: Update
+    isStakingPool: false,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "DLg2DinrAnCjC5zxaoRzJHModVpEDNdnNVLE7VxPhfxe",
+    authority: "AyQbRcdNn6khTJDqg1vEwb6jWQAVKcEbm4XmbFLW3k8",
+    feeDecimals: 6,
+    lpToken: "devnet-solana-lp-gst",
+    tokenAccounts: new Map([
+      ["devnet-bsc-gst", "D7YxhU2Q1qUJEVGfnvaU45mfkQJ5E5eurrMHGShYKciX"],
+      ["devnet-solana-gst", "BpbTS7jLsiTiDjdNwAVxju8NmYgMwCacJKCLRnioLGxV"],
+    ]),
+  },
+  {
+    id: "gmt",
+    displayName: "GMT Cross-chain", // TODO: Update
+    isStakingPool: false,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "GZCwq7KwkoQjrUkVhpTkpLR3Epv4Vtn4j4FcuJUnhmhG",
+    authority: "DvSxr48zvgGtCPEePzBz6R1eKo7xz1gkaE3YhqJm1JHV",
+    feeDecimals: 6,
+    lpToken: "devnet-solana-lp-gmt",
+    tokenAccounts: new Map([
+      ["devnet-bsc-gmt", "7WbJaS6tEXCxMqtiWJ7P7GkHLadskUJ2UzJJVv2qC3aP"],
+      ["devnet-solana-gmt", "6gG1cPnypyNVN16cCHfbZoJ4GMXREvbxPTEQXakcZQiJ"],
+    ]),
+  },
+  {
     id: "swimlake",
     displayName: "SwimLake",
     isStakingPool: true,

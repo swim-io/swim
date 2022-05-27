@@ -74,14 +74,14 @@ function App(): ReactElement {
                 <SwapPage />
               </Route>
               {process.env.REACT_APP_ENABLE_NFT && (
-                <>
-                  <Route exact path="/otter-tots">
-                    <OtterTotsPage />
-                  </Route>
-                  <Route path="/redeem">
-                    <RedeemPage />
-                  </Route>
-                </>
+                <Route exact path="/otter-tots">
+                  <OtterTotsPage />
+                </Route>
+              )}
+              {process.env.REACT_APP_ENABLE_NFT && (
+                <Route path="/redeem">
+                  <RedeemPage />
+                </Route>
               )}
               <Route path="/collectibles">
                 <CollectiblesPage />

@@ -203,7 +203,7 @@ const devnetPools: readonly PoolSpec[] = [
   },
   {
     id: "gst",
-    displayName: "GST Cross-chain", // TODO: Update
+    displayName: "GST SPL - GST BEP20",
     isStakingPool: false,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "DLg2DinrAnCjC5zxaoRzJHModVpEDNdnNVLE7VxPhfxe",
@@ -217,7 +217,7 @@ const devnetPools: readonly PoolSpec[] = [
   },
   {
     id: "gmt",
-    displayName: "GMT Cross-chain", // TODO: Update
+    displayName: "GMT SPL - GMT BEP20",
     isStakingPool: false,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
     address: "GZCwq7KwkoQjrUkVhpTkpLR3Epv4Vtn4j4FcuJUnhmhG",

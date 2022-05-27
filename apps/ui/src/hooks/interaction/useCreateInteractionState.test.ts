@@ -9,16 +9,15 @@ import { Env } from "../../config";
 import { useSolanaWallet } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 import {
+  BSC_USDT,
+  ETHEREUM_USDC,
   MOCK_POOL_MATHS_BY_ID,
   MOCK_TOKEN_ACCOUNTS,
   MOCK_WALLETS,
+  SOLANA_USDC,
 } from "../../fixtures";
 import { Amount, InteractionType } from "../../models";
-import {
-  findLocalnetTokenById,
-  mockOf,
-  renderHookWithAppContext,
-} from "../../testUtils";
+import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useCreateInteractionState } from "./useCreateInteractionState";
 
@@ -48,10 +47,6 @@ const useSolanaWalletMock = mockOf(useSolanaWallet);
 const usePoolMathByPoolIdsMock = mockOf(usePoolMathByPoolIds);
 const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
 const useWalletsMock = mockOf(useWallets);
-
-const SOLANA_USDC = findLocalnetTokenById("localnet-solana-usdc");
-const ETHEREUM_USDC = findLocalnetTokenById("localnet-ethereum-usdc");
-const BSC_USDT = findLocalnetTokenById("localnet-bsc-usdt");
 
 describe("useCreateInteractionState", () => {
   beforeEach(() => {

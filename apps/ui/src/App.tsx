@@ -22,7 +22,6 @@ import StakePage from "./pages/StakePage";
 import SwapPage from "./pages/SwapPage";
 import TestPage from "./pages/TestPage";
 import TosPage from "./pages/TosPage";
-import WormholePage from "./pages/WormholePage";
 
 function App(): ReactElement {
   return (
@@ -57,9 +56,6 @@ function App(): ReactElement {
               </Route>
               <Route path="/test">
                 <TestPage />
-              </Route>
-              <Route path="/wormhole">
-                <WormholePage />
               </Route>
               <Route exact path="/pools">
                 <PoolsPage />

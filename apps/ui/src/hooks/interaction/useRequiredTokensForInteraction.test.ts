@@ -27,7 +27,7 @@ describe("useRequiredTokensForInteraction", () => {
 
   beforeAll(() => {
     act(() => {
-      envStore.current.setCustomLocalnetIp("127.0.0.1");
+      envStore.current.setCustomLocalnetIp("123.4.5.6");
       envStore.current.setEnv(Env.Localnet);
     });
   });

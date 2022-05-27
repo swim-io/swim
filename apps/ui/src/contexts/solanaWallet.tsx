@@ -9,9 +9,11 @@ import {
   useRef,
   useState,
 } from "react";
+import shallow from "zustand/shallow.js";
 
 import { SingleWalletModal } from "../components/SingleWalletModal";
 import { Protocol } from "../config";
+import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
 import type {
@@ -51,9 +53,7 @@ interface SolanaWalletProviderProps {
 export const SolanaWalletProvider = ({
   children,
 }: SolanaWalletProviderProps): ReactElement => {
-  const {
-    config: { chains },
-  } = useEnvironment();
+  const { chains } = useEnvironment(selectConfig, shallow);
   const [{ endpoint }] = chains[Protocol.Solana];
   const { notify } = useNotification();
 

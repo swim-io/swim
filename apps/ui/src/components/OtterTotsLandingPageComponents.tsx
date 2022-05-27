@@ -52,12 +52,12 @@ const faqEntries: readonly FaqEntry[] = [
 ];
 
 export const NftFaqAccordians = (): readonly ReactElement[] => {
-  return faqEntries.map((faqEntry, idx) => {
+  return faqEntries.map((faqEntry, index) => {
     return (
-      <>
+      <div key={index}>
         <EuiPanel>
           <EuiAccordion
-            id={"faq_".concat(idx.toString())}
+            id={"faq_".concat(index.toString())}
             buttonContent={
               <EuiText>
                 <h4> {faqEntry.question}</h4>
@@ -71,7 +71,7 @@ export const NftFaqAccordians = (): readonly ReactElement[] => {
           </EuiAccordion>
         </EuiPanel>
         <EuiSpacer />
-      </>
+      </div>
     );
   });
 };
@@ -101,8 +101,9 @@ export const AlternatingFeaturettes = (): readonly ReactElement[] => {
     },
   ];
   return featurettes.map((featurette, index) => {
+    // Logs an error without a key, does some arbritary math to create unique ones.
     const textPortion = (
-      <EuiFlexItem>
+      <EuiFlexItem key={index}>
         <EuiText grow={false} style={{ textAlign: "center" }}>
           <h3> {featurette.title} </h3>
         </EuiText>
@@ -112,7 +113,11 @@ export const AlternatingFeaturettes = (): readonly ReactElement[] => {
         </EuiText>
       </EuiFlexItem>
     );
-    const imagePortion = <EuiFlexItem>{featurette.image}</EuiFlexItem>;
+    const imagePortion = (
+      // Key collides with "textPortion", add number to prevent collision.
+      <EuiFlexItem key={index + 5}>{featurette.image}</EuiFlexItem>
+    );
+    // TODO: On mobile this shouldn't alternate.
     const finishedFeaturette =
       index % 2 ? [textPortion, imagePortion] : [imagePortion, textPortion];
     return (

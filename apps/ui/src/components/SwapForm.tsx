@@ -9,8 +9,10 @@ import {
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import { EcosystemId } from "../config";
+import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
@@ -55,7 +57,7 @@ export const SwapForm = ({
   setCurrentInteraction,
   maxSlippageFraction,
 }: SwapFormProps): ReactElement => {
-  const { config } = useEnvironment();
+  const config = useEnvironment(selectConfig, shallow);
   const { notify } = useNotification();
   const { tokens } = config;
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();

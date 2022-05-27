@@ -3,9 +3,11 @@ import type { MetadataJson, MetadataJsonAttribute } from "@metaplex/js";
 import { PublicKey } from "@solana/web3.js";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
+import shallow from "zustand/shallow.js";
 
 import { Protocol } from "../../config";
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 
 const {
@@ -52,7 +54,8 @@ const fetchNftUri = async (uri: string): Promise<uriPayload> => {
 };
 
 export const useAccountNfts = (): UseQueryResult<readonly NftData[], Error> => {
-  const { config, env } = useEnvironment();
+  const { env } = useEnvironment();
+  const config = useEnvironment(selectConfig, shallow);
   const { otterTotCollection } = config.chains[Protocol.Solana][0];
   const solanaConnection = useSolanaConnection();
   const ownerAddress = useSolanaWallet().address;

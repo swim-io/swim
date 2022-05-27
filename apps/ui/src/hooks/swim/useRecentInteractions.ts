@@ -1,7 +1,9 @@
 import { useMemo } from "react";
 import { useQuery } from "react-query";
+import shallow from "zustand/shallow.js";
 
 import type { EcosystemId } from "../../config";
+import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { Interaction, Tx } from "../../models";
 import { loadInteractions } from "../../models";
@@ -18,7 +20,8 @@ export const useRecentInteractions = (): ReadonlyRecord<
   string, // Interaction ID
   InteractionWithTxs | undefined
 > => {
-  const { env, config } = useEnvironment();
+  const { env } = useEnvironment();
+  const config = useEnvironment(selectConfig, shallow);
   const { data: interactions = [] } = useQuery(["interactions"], () =>
     loadInteractions(env, config),
   );

@@ -16,9 +16,11 @@ import {
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
 import type { PoolSpec, TokenSpec } from "../config";
+import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
@@ -177,7 +179,7 @@ export const AddForm = ({
   maxSlippageFraction,
 }: AddFormProps): ReactElement => {
   const { notify } = useNotification();
-  const { config } = useEnvironment();
+  const config = useEnvironment(selectConfig, shallow);
   const wallets = useWallets();
   const {
     tokens: poolTokens,

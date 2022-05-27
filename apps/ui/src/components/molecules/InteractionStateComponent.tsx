@@ -16,7 +16,6 @@ import type {
   RequiredSplTokenAccounts,
   SolanaPoolOperationState,
   ToSolanaTransferState,
-  TokenAccountState,
 } from "../../models";
 import { isNotNull } from "../../utils";
 
@@ -25,13 +24,13 @@ import { InteractionTitle } from "./InteractionTitle";
 import { ToSolanaTransferComponent } from "./ToSolanaTransferComponent";
 import { TxListItem } from "./TxListItem";
 
-const usePrepareSplTokenAccountsStep = (
+const buildPrepareSplTokenAccountsStep = (
   requiredSplTokenAccounts: RequiredSplTokenAccounts,
 ): EuiStepProps | null => {
   // Add create account step, if there are missing accounts
-  const missingAccounts = Object.values(requiredSplTokenAccounts)
-    .filter((accountState): accountState is TokenAccountState => !!accountState)
-    .filter((accountState) => accountState.existingAccount === false);
+  const missingAccounts = Object.values(requiredSplTokenAccounts).filter(
+    (accountState) => accountState.isExistingAccount === false,
+  );
   if (missingAccounts.length === 0) {
     return null;
   }
@@ -62,7 +61,7 @@ const usePrepareSplTokenAccountsStep = (
   };
 };
 
-const useToSolanaTransfersStep = (
+const buildToSolanaTransfersStep = (
   toSolanaTransfers: readonly ToSolanaTransferState[],
 ): EuiStepProps | null => {
   if (toSolanaTransfers.length === 0) {
@@ -82,7 +81,7 @@ const useToSolanaTransfersStep = (
   };
 };
 
-const useSolanaPoolOperationStep = (
+const buildSolanaPoolOperationStep = (
   operations: readonly SolanaPoolOperationState[],
 ): EuiStepProps | null => {
   return {
@@ -101,7 +100,7 @@ const useSolanaPoolOperationStep = (
   };
 };
 
-const useFromSolanaTransfersStep = (
+const buildFromSolanaTransfersStep = (
   fromSolanaTransfers: readonly FromSolanaTransferState[],
 ): EuiStepProps | null => {
   if (fromSolanaTransfers.length === 0) {
@@ -124,7 +123,7 @@ const useFromSolanaTransfersStep = (
   };
 };
 
-const useEuiStepProps = (interactionState: InteractionState) => {
+const buildEuiStepProps = (interactionState: InteractionState) => {
   const {
     requiredSplTokenAccounts,
     toSolanaTransfers,
@@ -133,10 +132,10 @@ const useEuiStepProps = (interactionState: InteractionState) => {
   } = interactionState;
 
   return [
-    usePrepareSplTokenAccountsStep(requiredSplTokenAccounts),
-    useToSolanaTransfersStep(toSolanaTransfers),
-    useSolanaPoolOperationStep(solanaPoolOperations),
-    useFromSolanaTransfersStep(fromSolanaTransfers),
+    buildPrepareSplTokenAccountsStep(requiredSplTokenAccounts),
+    buildToSolanaTransfersStep(toSolanaTransfers),
+    buildSolanaPoolOperationStep(solanaPoolOperations),
+    buildFromSolanaTransfersStep(fromSolanaTransfers),
   ].filter(isNotNull);
 };
 
@@ -148,7 +147,7 @@ export const InteractionStateComponent: React.FC<Props> = ({
   interactionState,
 }) => {
   const { interaction } = interactionState;
-  const steps = useEuiStepProps(interactionState);
+  const steps = buildEuiStepProps(interactionState);
   return (
     <>
       <EuiTitle size="xs">

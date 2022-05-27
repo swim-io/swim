@@ -13,7 +13,8 @@ import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
 
-import { RecentInteractions } from "../components/RecentInteractions";
+// import { RecentInteractions } from "../components/RecentInteractions";
+import { RecentSwaps } from "../components/RecentSwaps";
 import { SlippageButton } from "../components/SlippageButton";
 import { SwapForm } from "../components/SwapForm";
 import { useConfig } from "../contexts";
@@ -74,11 +75,12 @@ const SwapPage = (): ReactElement => {
             )}
 
             <EuiSpacer />
-            <RecentInteractions
+            {/* <RecentInteractions
               title="Recent swaps"
               poolId={null}
               currentInteraction={currentInteraction}
-            />
+            /> */}
+            <RecentSwaps title="Recent swaps" />
           </EuiPageContentBody>
         </EuiPageContent>
       </EuiPageBody>

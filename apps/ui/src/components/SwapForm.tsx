@@ -14,34 +14,32 @@ import { EcosystemId } from "../config";
 import { useConfig } from "../contexts";
 import { selectNotify } from "../core/selectors";
 import { useNotification } from "../core/store";
+import { useInteractionStateStore } from "../core/store/useInteractionStateStore";
 import { captureAndWrapException } from "../errors";
 import {
   useGetSwapFormErrors,
   useIsLargeSwap,
-  usePoolMaths,
   usePools,
-  usePrevious,
   useSplTokenAccountsQuery,
-  useStepsReducer,
   useSwapFeesEstimationQuery,
   useSwapOutputAmountEstimate,
   useUserBalanceAmounts,
   useUserNativeBalances,
 } from "../hooks";
+import { useCreateInteractionState } from "../hooks/interaction/useCreateInteractionState";
+import { useInteractionMutation } from "../hooks/interaction/useInteractionMutation";
 import {
   Amount,
   InteractionType,
-  Status,
   getLowBalanceWallets,
   getRequiredPoolsForSwap,
 } from "../models";
-import { defaultIfError, findOrThrow, isEachNotNull } from "../utils";
+import { defaultIfError, findOrThrow } from "../utils";
 
 import { ConfirmModal } from "./ConfirmModal";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
-import { StepsDisplay } from "./StepsDisplay";
 import { NativeTokenIcon } from "./TokenIcon";
 import { SwapFormSolanaConnectButton } from "./molecules/SwapFormSolanaConnectButton";
 import { TokenAmountInput } from "./molecules/TokenAmountInput";
@@ -62,14 +60,10 @@ export const SwapForm = ({
   const { tokens } = config;
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();
-  const {
-    retryInteraction,
-    state: { interaction, steps, status },
-    startInteraction,
-    mutations,
-    isInteractionInProgress,
-  } = useStepsReducer();
-
+  const { addInteractionState } = useInteractionStateStore();
+  const { mutate: mutateInteraction, isLoading: isInteractionInProgress } =
+    useInteractionMutation();
+  const createInteractionState = useCreateInteractionState();
   const swappableTokenIds = config.pools
     .filter((pool) => !pool.isStakingPool)
     .flatMap((pool) => [...pool.tokenAccounts.keys()])
@@ -96,7 +90,6 @@ export const SwapForm = ({
   const poolIds = requiredPools.map((pool) => pool.id);
   const pools = usePools(poolIds);
   const isRequiredPoolPaused = pools.some((pool) => pool.isPoolPaused);
-  const poolMaths = usePoolMaths(poolIds);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [confirmModalDescription, setConfirmModalDescription] =
@@ -107,13 +100,6 @@ export const SwapForm = ({
   const [inputAmountErrors, setInputAmountErrors] = useState<readonly string[]>(
     [],
   );
-
-  const prevStatus = usePrevious(status);
-  useEffect(() => {
-    if (status === Status.Done && prevStatus !== Status.Done) {
-      setFormInputAmount("0");
-    }
-  }, [prevStatus, status, setFormInputAmount]);
 
   const feesEstimation = useSwapFeesEstimationQuery(fromToken, toToken);
 
@@ -228,8 +214,7 @@ export const SwapForm = ({
     if (
       splTokenAccounts === null ||
       outputAmount === null ||
-      maxSlippageFraction === null ||
-      !isEachNotNull(poolMaths)
+      maxSlippageFraction === null
     ) {
       notify(
         "Form error",
@@ -242,17 +227,16 @@ export const SwapForm = ({
     const minimumOutputAmount = outputAmount.sub(
       outputAmount.mul(maxSlippageFraction),
     );
-    const interactionId = startInteraction(
-      {
-        type: InteractionType.Swap,
-        params: {
-          exactInputAmount: inputAmount,
-          minimumOutputAmount,
-        },
+
+    const interactionState = createInteractionState({
+      type: InteractionType.Swap,
+      params: {
+        exactInputAmount: inputAmount,
+        minimumOutputAmount,
       },
-      poolMaths,
-    );
-    setCurrentInteraction(interactionId);
+    });
+    addInteractionState(interactionState);
+    mutateInteraction(interactionState);
   };
 
   useEffect(() => {
@@ -361,7 +345,7 @@ export const SwapForm = ({
 
       <EuiSpacer />
 
-      {interaction && steps && (
+      {/* {interaction && steps && (
         <StepsDisplay
           retryInteraction={retryInteraction}
           interaction={interaction}
@@ -369,7 +353,7 @@ export const SwapForm = ({
           status={status}
           mutations={mutations}
         />
-      )}
+      )} */}
       <ConfirmModal
         isVisible={isConfirmModalVisible}
         onCancel={handleConfirmModalCancel}

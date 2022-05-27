@@ -19,6 +19,7 @@ import {
   useEvmConnections,
   useSolanaConnection,
 } from "../../contexts";
+import { useInteractionStateStore } from "../../core/store/useInteractionStateStore";
 import type {
   EvmConnection,
   EvmTx,
@@ -59,6 +60,7 @@ export const useToSolanaTransferMutation = () => {
   const wallets = useWallets();
   const solanaWallet = wallets[EcosystemId.Solana].wallet;
   const solanaWormhole = chains[Protocol.Solana][0].wormhole;
+  const { updateInteractionState } = useInteractionStateStore();
 
   return useMutation(
     async ({
@@ -130,7 +132,18 @@ export const useToSolanaTransferMutation = () => {
       );
 
       // TODO: [refactor] update transfer state with txId
+      const approveAndTransferEvmTokenTxIds = [...approvalTxs, transferTx].map(
+        ({ txId }) => txId,
+      );
       console.log([...approvalTxs, transferTx].map(({ txId }) => txId));
+      updateInteractionState(interactionId, (draft) => {
+        const index = draft.toSolanaTransfers.findIndex(
+          (t) => t.token === token,
+        );
+        // eslint-disable-next-line functional/immutable-data
+        draft.toSolanaTransfers[index].txIds.approveAndTransferEvmToken =
+          approveAndTransferEvmTokenTxIds;
+      });
 
       const sequence = parseSequenceFromLogEth(
         transferTx.txReceipt,
@@ -156,6 +169,17 @@ export const useToSolanaTransferMutation = () => {
       const postVaaOnSolanaTxIds = unlockSplTokenTxIds.slice(0, -1);
       const [claimTokenOnSolanaTxId] = unlockSplTokenTxIds.slice(-1);
       console.log({ postVaaOnSolanaTxIds, claimTokenOnSolanaTxId });
+      updateInteractionState(interactionId, (draft) => {
+        const index = draft.toSolanaTransfers.findIndex(
+          (t) => t.token === token,
+        );
+        // eslint-disable-next-line functional/immutable-data
+        draft.toSolanaTransfers[index].txIds.postVaaOnSolana =
+          postVaaOnSolanaTxIds;
+        // eslint-disable-next-line functional/immutable-data
+        draft.toSolanaTransfers[index].txIds.claimTokenOnSolana =
+          claimTokenOnSolanaTxId;
+      });
     },
   );
 };

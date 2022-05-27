@@ -19,6 +19,7 @@ import {
   useSolanaConnection,
   useSolanaWallet,
 } from "../../contexts";
+import { useInteractionStateStore } from "../../core/store/useInteractionStateStore";
 import type { FromSolanaTransferState, InteractionState } from "../../models";
 import {
   Amount,
@@ -41,6 +42,7 @@ export const useFromSolanaTransferMutation = () => {
   const wallets = useWallets();
   const { address: solanaWalletAddress } = useSolanaWallet();
   const solanaWormhole = chains[Protocol.Solana][0].wormhole;
+  const { updateInteractionState } = useInteractionStateStore();
 
   return useMutation(
     async ({
@@ -123,6 +125,14 @@ export const useFromSolanaTransferMutation = () => {
       );
       // TODO: [refactor] update transfer state with txId
       console.log({ transferSplTokenTxId });
+      updateInteractionState(interactionId, (draft) => {
+        const index = draft.fromSolanaTransfers.findIndex(
+          (t) => t.token === token,
+        );
+        // eslint-disable-next-line functional/immutable-data
+        draft.fromSolanaTransfers[index].txIds.transferSplToken =
+          transferSplTokenTxId;
+      });
 
       const parsedTx = await solanaConnection.getParsedTx(transferSplTokenTxId);
       const sequence = parseSequenceFromLogSolana(parsedTx);
@@ -160,6 +170,14 @@ export const useFromSolanaTransferMutation = () => {
       const claimTokenOnEvmTxId = evmReceipt.transactionHash;
       // TODO: [refactor] update transfer state with txId
       console.log({ claimTokenOnEvmTxId });
+      updateInteractionState(interactionId, (draft) => {
+        const index = draft.fromSolanaTransfers.findIndex(
+          (t) => t.token === token,
+        );
+        // eslint-disable-next-line functional/immutable-data
+        draft.fromSolanaTransfers[index].txIds.claimTokenOnEvm =
+          claimTokenOnEvmTxId;
+      });
     },
   );
 };

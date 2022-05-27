@@ -41,7 +41,7 @@ const createToast = (
 });
 
 export const useNotification = create<NotificationState>(
-  (set: SetState<NotificationState>) => ({
+  (set: SetState<NotificationState>, get, api) => ({
     toasts: [],
     notify: (title, text = "", level = "info", lifetime) => {
       set(

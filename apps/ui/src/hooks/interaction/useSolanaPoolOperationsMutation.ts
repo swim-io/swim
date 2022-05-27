@@ -8,6 +8,7 @@ import {
   useSolanaConnection,
   useSolanaWallet,
 } from "../../contexts";
+import { useInteractionStateStore } from "../../core/store/useInteractionStateStore";
 import type { InteractionState, Tx } from "../../models";
 import { getTokensByPool, getTransferredAmounts } from "../../models";
 import { findOrThrow, isNotNull } from "../../utils";
@@ -24,6 +25,7 @@ export const useSolanaPoolOperationsMutation = () => {
   const solanaConnection = useSolanaConnection();
   const { wallet, address: solanaWalletAddress } = useSolanaWallet();
   const tokensByPoolId = getTokensByPool(config);
+  const { updateInteractionState } = useInteractionStateStore();
 
   return useMutation(async (interactionState: InteractionState) => {
     if (wallet === null) {
@@ -60,6 +62,10 @@ export const useSolanaPoolOperationsMutation = () => {
 
     // TODO: [refactor] update operation state with txId
     console.log({ inputTxId });
+    updateInteractionState(interaction.id, (draft) => {
+      // eslint-disable-next-line functional/immutable-data
+      draft.solanaPoolOperations[0].txId = inputTxId;
+    });
 
     if (solanaPoolOperations.length !== 2) {
       throw new Error("Unknown interaction route");
@@ -95,13 +101,17 @@ export const useSolanaPoolOperationsMutation = () => {
 
     // TODO: [refactor] update operation state with txId
     console.log({ outputTxId });
+    updateInteractionState(interaction.id, (draft) => {
+      // eslint-disable-next-line functional/immutable-data
+      draft.solanaPoolOperations[1].txId = outputTxId;
+    });
 
     const { tokens, lpToken } = tokensByPoolId[outputPoolSpec.id];
     const txs: readonly Tx[] = await Promise.all(
       [inputTxId, outputTxId].map(async (txId) => {
         const parsedTx = await solanaConnection.getParsedTx(txId);
         return {
-          ecosystem: EcosystemId.Solana,
+          ecosystem: EcosystemId.Solana as const,
           txId,
           timestamp: parsedTx.blockTime ?? null,
           interactionId: interaction.id,
@@ -119,10 +129,17 @@ export const useSolanaPoolOperationsMutation = () => {
     );
 
     // TODO: [refactor] Update from solana transfer value
-    const { fromSolanaTransfers } = interactionState;
-    const updatedTransfers = fromSolanaTransfers.map((transfer) => ({
-      ...transfer,
-      value: transferredAmounts[transfer.token.id] ?? null,
-    }));
+    // const { fromSolanaTransfers } = interactionState;
+    // const updatedTransfers = fromSolanaTransfers.map((transfer) => ({
+    //   ...transfer,
+    //   value: transferredAmounts[transfer.token.id] ?? null,
+    // }));
+    updateInteractionState(interaction.id, (draft) => {
+      // eslint-disable-next-line functional/immutable-data
+      draft.fromSolanaTransfers.forEach((transfer) => ({
+        ...transfer,
+        value: transferredAmounts[transfer.token.id] ?? null,
+      }));
+    });
   });
 };

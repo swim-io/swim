@@ -6,6 +6,7 @@ import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
 
 import type { InteractionState } from "../../models";
+import { InteractionIDBStorage } from "./idb/interactionDB";
 
 export interface InteractionStore {
   readonly interactionStates: readonly InteractionState[];
@@ -44,8 +45,19 @@ export const useInteraction = create(
       },
     }),
     {
-      name: "interactions-db",
-      getStorage: (): StateStorage => localStorage, // TODO: link with IndexedDB
+      name: "InteractionDB",
+      getStorage: (): StateStorage => InteractionIDBStorage, // TODO: link with IndexedDB
+      partialize: (state: InteractionStore) => ({
+        interactionStates: state.interactionStates,
+      }),
+      merge: (
+        persistedState: any, // TODO: Set type to unknown and validate
+        currentState: InteractionStore,
+      ): InteractionStore => {
+        const state = JSON.parse(persistedState);
+        console.log("MERGE", persistedState, state, currentState);
+        return { ...currentState, ...state };
+      },
     },
   ),
 );

@@ -320,8 +320,8 @@ export const SwapForm = ({
         disabled={isInteractionInProgress}
         errors={[]}
         onSelectToken={setToTokenId}
-        // Disables "constant product swap" label and tool tip for "To Token" form.
-        isStablecoin={true}
+        // Only show if fromToken is not a stable coin (don't show twice).
+        isStablecoin={toToken.isStablecoin && !fromToken.isStablecoin}
       />
 
       <EuiSpacer />

@@ -16,7 +16,7 @@ export interface InteractionStore {
   ) => void;
 }
 
-export const createInteractionSlice = create(
+export const useInteraction = create(
   persist<InteractionStore>(
     (
       set: SetState<InteractionStore>,
@@ -45,7 +45,7 @@ export const createInteractionSlice = create(
     }),
     {
       name: "interactions-db",
-      getStorage: (): StateStorage => localStorage,
+      getStorage: (): StateStorage => localStorage, // TODO: link with IndexedDB
     },
   ),
 );

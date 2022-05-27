@@ -8,16 +8,13 @@ import {
   htmlIdGenerator,
 } from "@elastic/eui";
 import * as Sentry from "@sentry/react";
-import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { Env, isValidEnv, tokens } from "../config";
+import { isValidEnv } from "../config";
 import { selectEnvs } from "../core/selectors";
 import { useEnvironment } from "../core/store";
-import { db } from "../core/store/IDB/interactionsIDB";
-import { Amount } from "../models";
 
 export const EnvSelector = (): ReactElement => {
   const { env, setEnv } = useEnvironment();
@@ -110,6 +107,3 @@ export const EnvSelector = (): ReactElement => {
     </EuiPopover>
   );
 };
-function SOLANA_LP_HEXAPOOL(SOLANA_LP_HEXAPOOL: any, arg1: any): Amount {
-  throw new Error("Function not implemented.");
-}

@@ -1,6 +1,8 @@
 import BUSD_SVG from "../images/tokens/busd.svg";
 import GMT_SVG from "../images/tokens/gmt.svg";
 import GST_SVG from "../images/tokens/gst.svg";
+import LP_GMT_SVG from "../images/tokens/lp_gmt.svg";
+import LP_GST_SVG from "../images/tokens/lp_gst.svg";
 import LP_META_AVALANCHE_USDC_SVG from "../images/tokens/lp_metapool_avalanche_usdc.svg";
 import LP_META_AVALANCHE_USDT_SVG from "../images/tokens/lp_metapool_avalanche_usdt.svg";
 import LP_META_POLYGON_USDC_SVG from "../images/tokens/lp_metapool_polygon_usdc.svg";
@@ -604,7 +606,7 @@ const devnetTokens: readonly TokenSpec[] = [
     id: "devnet-solana-lp-gst",
     symbol: "solaGST-binaGST",
     displayName: "Swim Solana GST Binance GST LP",
-    icon: GST_SVG, // TODO: Update
+    icon: LP_GST_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -621,7 +623,7 @@ const devnetTokens: readonly TokenSpec[] = [
     id: "devnet-solana-lp-gmt",
     symbol: "solaGMT-binaGMT",
     displayName: "Swim Solana GMT Binance GMT LP",
-    icon: GMT_SVG, // TODO: Update
+    icon: LP_GMT_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([

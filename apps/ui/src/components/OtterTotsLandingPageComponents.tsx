@@ -103,7 +103,7 @@ export const AlternatingFeaturettes = (): readonly ReactElement[] => {
   return featurettes.map((featurette, index) => {
     // Logs an error without a key, does some arbritary math to create unique ones.
     const textPortion = (
-      <EuiFlexItem key={(1 + index) * 3}>
+      <EuiFlexItem key={index}>
         <EuiText grow={false} style={{ textAlign: "center" }}>
           <h3> {featurette.title} </h3>
         </EuiText>
@@ -114,7 +114,8 @@ export const AlternatingFeaturettes = (): readonly ReactElement[] => {
       </EuiFlexItem>
     );
     const imagePortion = (
-      <EuiFlexItem key={(1 + index) * 5}>{featurette.image}</EuiFlexItem>
+      // Key collides with "textPortion", add number to prevent collision.
+      <EuiFlexItem key={index + 5}>{featurette.image}</EuiFlexItem>
     );
     // TODO: On mobile this shouldn't alternate.
     const finishedFeaturette =

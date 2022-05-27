@@ -165,10 +165,11 @@ const TestPage = (): ReactElement => {
       throw new Error(`No ${ecosystem} wallet`);
     }
 
-    await evmWallet.switchNetwork();
-
     const evmChain =
       ecosystem === EcosystemId.Ethereum ? ethereumChain : bscChain;
+
+    await evmWallet.switchNetwork(evmChain.chainId);
+
     const splTokenSetupResult = await setUpSplTokensOnEvm(
       wormholeConfig,
       solanaChain.wormhole,
@@ -280,7 +281,7 @@ const TestPage = (): ReactElement => {
 
     const hugeAmount = "1" + "0".repeat(32);
 
-    await ethereumWallet.switchNetwork();
+    await ethereumWallet.switchNetwork(ethereumChain.chainId);
     for (const token of tokens) {
       const ethereumDetails = token.detailsByEcosystem.get(
         EcosystemId.Ethereum,
@@ -297,7 +298,7 @@ const TestPage = (): ReactElement => {
       console.info(receipt.transactionHash);
     }
 
-    await bscWallet.switchNetwork();
+    await bscWallet.switchNetwork(bscChain.chainId);
     for (const token of tokens) {
       const bscDetails = token.detailsByEcosystem.get(EcosystemId.Bsc);
       if (!bscDetails) {
@@ -320,7 +321,7 @@ const TestPage = (): ReactElement => {
 
     const zero = "0";
 
-    await ethereumWallet.switchNetwork();
+    await ethereumWallet.switchNetwork(ethereumChain.chainId);
     for (const token of tokens) {
       const ethereumDetails = token.detailsByEcosystem.get(
         EcosystemId.Ethereum,
@@ -337,7 +338,7 @@ const TestPage = (): ReactElement => {
       console.info(receipt.transactionHash);
     }
 
-    await bscWallet.switchNetwork();
+    await bscWallet.switchNetwork(bscChain.chainId);
     for (const token of tokens) {
       const bscDetails = token.detailsByEcosystem.get(EcosystemId.Bsc);
       if (!bscDetails) {

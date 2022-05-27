@@ -11,8 +11,8 @@ import * as React from "react";
 
 import { SingleWalletModal } from "../components/SingleWalletModal";
 import type { EvmEcosystemId } from "../config";
-import { EcosystemId, Env, EvmChainId } from "../config";
-import { useEnvironment, useNotification } from "../core/store";
+import { EcosystemId } from "../config";
+import { useNotification } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
 import type { EvmWalletAdapter, WalletService } from "../models";
 import {
@@ -27,52 +27,6 @@ import {
 } from "../models";
 import type { ReadonlyRecord } from "../utils";
 import { shortenAddress } from "../utils";
-
-const envToEcosystemToChainId: ReadonlyRecord<
-  Env,
-  ReadonlyRecord<EvmEcosystemId, EvmChainId>
-> = {
-  [Env.Mainnet]: {
-    [EcosystemId.Ethereum]: EvmChainId.EthereumMainnet,
-    [EcosystemId.Bsc]: EvmChainId.BscMainnet,
-    [EcosystemId.Avalanche]: EvmChainId.AvalancheMainnet,
-    [EcosystemId.Polygon]: EvmChainId.PolygonMainnet,
-    [EcosystemId.Aurora]: EvmChainId.AuroraMainnet,
-    [EcosystemId.Fantom]: EvmChainId.FantomMainnet,
-    [EcosystemId.Karura]: EvmChainId.KaruraMainnet,
-    [EcosystemId.Acala]: EvmChainId.AcalaMainnet,
-  },
-  [Env.Devnet]: {
-    [EcosystemId.Ethereum]: EvmChainId.EthereumGoerli,
-    [EcosystemId.Bsc]: EvmChainId.BscTestnet,
-    [EcosystemId.Avalanche]: EvmChainId.AvalancheTestnet,
-    [EcosystemId.Polygon]: EvmChainId.PolygonTestnet,
-    [EcosystemId.Aurora]: EvmChainId.AuroraTestnet,
-    [EcosystemId.Fantom]: EvmChainId.FantomTestnet,
-    [EcosystemId.Karura]: EvmChainId.KaruraTestnet,
-    [EcosystemId.Acala]: EvmChainId.AcalaTestnet,
-  },
-  [Env.Localnet]: {
-    [EcosystemId.Ethereum]: EvmChainId.EthereumLocalnet,
-    [EcosystemId.Bsc]: EvmChainId.BscLocalnet,
-    [EcosystemId.Avalanche]: EvmChainId.AvalancheLocalnet,
-    [EcosystemId.Polygon]: EvmChainId.PolygonLocalnet,
-    [EcosystemId.Aurora]: EvmChainId.AuroraLocalnet,
-    [EcosystemId.Fantom]: EvmChainId.FantomLocalnet,
-    [EcosystemId.Karura]: EvmChainId.KaruraLocalnet,
-    [EcosystemId.Acala]: EvmChainId.AcalaLocalnet,
-  },
-  [Env.CustomLocalnet]: {
-    [EcosystemId.Ethereum]: EvmChainId.EthereumLocalnet,
-    [EcosystemId.Bsc]: EvmChainId.BscLocalnet,
-    [EcosystemId.Avalanche]: EvmChainId.AvalancheLocalnet,
-    [EcosystemId.Polygon]: EvmChainId.PolygonLocalnet,
-    [EcosystemId.Aurora]: EvmChainId.AuroraLocalnet,
-    [EcosystemId.Fantom]: EvmChainId.FantomLocalnet,
-    [EcosystemId.Karura]: EvmChainId.KaruraLocalnet,
-    [EcosystemId.Acala]: EvmChainId.AcalaLocalnet,
-  },
-};
 
 const ecosystemToWalletServices: ReadonlyRecord<
   EvmEcosystemId,
@@ -163,7 +117,6 @@ export const EvmWalletProvider = ({
 }: EvmWalletProviderProps): ReactElement => {
   const { notify } = useNotification();
 
-  const { env } = useEnvironment();
   const [connected, setConnected] = useState(false);
   const [autoConnect, setAutoConnect] = useState(false);
 
@@ -171,7 +124,6 @@ export const EvmWalletProvider = ({
     ecosystemToLocalStorageKey[ecosystemId],
   );
 
-  const chainId = envToEcosystemToChainId[env][ecosystemId];
   const services = ecosystemToWalletServices[ecosystemId];
   const service = useMemo(
     () => services.find(({ id }) => id === serviceId) ?? null,
@@ -182,8 +134,8 @@ export const EvmWalletProvider = ({
       return null;
     }
 
-    return new service.adapter(chainId);
-  }, [chainId, service]);
+    return new service.adapter();
+  }, [service]);
   const previousWalletRef = useRef(wallet);
   const address = wallet?.address ?? null;
 

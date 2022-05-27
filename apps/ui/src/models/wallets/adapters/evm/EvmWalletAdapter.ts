@@ -3,13 +3,8 @@ import type { Signer } from "ethers";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 
-import type { EvmChainId, EvmEcosystemId, TokenSpec } from "../../../../config";
-import {
-  Protocol,
-  allUniqueChains,
-  ecosystems,
-  evmChainIdToEcosystem,
-} from "../../../../config";
+import type { EcosystemId, EvmChainId, TokenSpec } from "../../../../config";
+import { Protocol, allUniqueChains, ecosystems } from "../../../../config";
 import { sleep } from "../../../../utils";
 
 type Web3Provider = ethers.providers.Web3Provider;
@@ -23,34 +18,34 @@ const METAMASK_methodNotFound = -32601;
 
 // TODO: Make this class wallet-agnostic, currently assumes MetaMask.
 export interface EvmWalletAdapter extends EventEmitter {
-  readonly chainId: EvmChainId;
   readonly signer: Signer | null;
   readonly address: string | null;
   readonly connect: () => Promise<unknown>;
   readonly disconnect: () => Promise<void>;
-  readonly switchNetwork: () => Promise<unknown>;
-  readonly registerToken: (tokenSpec: TokenSpec) => Promise<unknown>;
+  readonly switchNetwork: (chainId: EvmChainId) => Promise<unknown>;
+  readonly registerToken: (
+    tokenSpec: TokenSpec,
+    ecosystemId: EcosystemId,
+    chainId: EvmChainId,
+  ) => Promise<unknown>;
 }
 
 export class EvmWeb3WalletAdapter
   extends EventEmitter
   implements EvmWalletAdapter
 {
-  readonly chainId: EvmChainId;
   readonly serviceName: string;
   readonly serviceUrl: string;
   address: string | null;
+  connecting: boolean;
   private readonly getWalletProvider: () => Web3Provider | null;
-  private connecting: boolean;
 
   constructor(
-    chainId: EvmChainId,
     serviceName: string,
     serviceUrl: string,
     getWalletProvider: () => Web3Provider | null,
   ) {
     super();
-    this.chainId = chainId;
     this.serviceName = serviceName;
     this.serviceUrl = serviceUrl;
     this.getWalletProvider = getWalletProvider;
@@ -60,14 +55,6 @@ export class EvmWeb3WalletAdapter
 
   public get signer(): Signer | null {
     return this.getWalletProvider()?.getSigner() ?? null;
-  }
-
-  private get ecosystem(): EvmEcosystemId {
-    return evmChainIdToEcosystem[this.chainId];
-  }
-
-  private get sentryContextKey(): string {
-    return `${ecosystems[this.ecosystem].displayName} Wallet`;
   }
 
   private get walletProvider(): Web3Provider | null {
@@ -96,13 +83,14 @@ export class EvmWeb3WalletAdapter
       this.address = address;
       this.emit("connect", this.address);
 
-      Sentry.setContext(this.sentryContextKey, {
+      const sentryContextKey = await this.sentryContextKey();
+      Sentry.setContext(sentryContextKey, {
         walletName: this.serviceName,
         address: this.address,
       });
       Sentry.addBreadcrumb({
         category: "wallet",
-        message: `Connected to ${this.sentryContextKey} ${this.address}`,
+        message: `Connected to ${sentryContextKey} ${this.address}`,
         level: Sentry.Severity.Info,
       });
     } catch (error) {
@@ -119,28 +107,29 @@ export class EvmWeb3WalletAdapter
       this.address = null;
       this.emit("disconnect");
 
-      Sentry.setContext(this.sentryContextKey, {});
+      const sentryContextKey = await this.sentryContextKey();
+      Sentry.setContext(sentryContextKey, {});
       Sentry.addBreadcrumb({
         category: "wallet",
-        message: `Disconnected from ${this.sentryContextKey}`,
+        message: `Disconnected from ${sentryContextKey}`,
         level: Sentry.Severity.Info,
       });
     }
   }
 
-  async switchNetwork(): Promise<void> {
+  async switchNetwork(chainId: EvmChainId): Promise<void> {
     if (!this.walletProvider) {
       throw new Error("No wallet provider");
     }
 
     try {
       await this.walletProvider.send("wallet_switchEthereumChain", [
-        { chainId: hexValue(this.chainId) },
+        { chainId: hexValue(chainId) },
       ]);
     } catch (switchError: any) {
       if (switchError.code === METAMASK_unrecognizedChainId) {
         const evmSpec = allUniqueChains[Protocol.Evm].find(
-          (spec) => spec.chainId === this.chainId,
+          (spec) => spec.chainId === chainId,
         );
         if (!evmSpec) {
           throw new Error("No EVM spec found for chain ID");
@@ -148,7 +137,7 @@ export class EvmWeb3WalletAdapter
         // this also asks to switch to that chain afterwards
         await this.walletProvider.send("wallet_addEthereumChain", [
           {
-            chainId: hexValue(this.chainId),
+            chainId: hexValue(chainId),
             chainName: evmSpec.chainName,
             nativeCurrency: evmSpec.nativeCurrency,
             rpcUrls: evmSpec.rpcUrls,
@@ -166,17 +155,21 @@ export class EvmWeb3WalletAdapter
     }
   }
 
-  async registerToken(tokenSpec: TokenSpec): Promise<boolean> {
+  async registerToken(
+    tokenSpec: TokenSpec,
+    ecosystemId: EcosystemId,
+    chainId: EvmChainId,
+  ): Promise<boolean> {
     if (!this.walletProvider) {
       throw new Error("No wallet provider");
     }
-    const details = tokenSpec.detailsByEcosystem.get(this.ecosystem);
+    const details = tokenSpec.detailsByEcosystem.get(ecosystemId);
     if (!details) {
       throw new Error(
-        `No ${ecosystems[this.ecosystem].displayName} details for token`,
+        `No ${ecosystems[ecosystemId].displayName} details for token`,
       );
     }
-    await this.switchNetwork();
+    await this.switchNetwork(chainId);
 
     await sleep(200); // Sleep briefly, otherwise Metamask ignores the second prompt
 
@@ -193,5 +186,14 @@ export class EvmWeb3WalletAdapter
       } as any,
     );
     return wasAdded;
+  }
+
+  private async sentryContextKey(): Promise<string> {
+    try {
+      const network = await this.getWalletProvider()?.getNetwork();
+      return `${network?.name || "Unknown Network"} Wallet`;
+    } catch {
+      return `Unknown Network Wallet`;
+    }
   }
 }

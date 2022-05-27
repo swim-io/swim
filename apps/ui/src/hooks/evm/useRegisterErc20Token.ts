@@ -5,6 +5,8 @@ import { ecosystems } from "../../config";
 import { useEvmWallet } from "../../contexts";
 import { useNotification } from "../../core/store";
 
+import { useEvmChainId } from "./useEvmChainId";
+
 interface RegisterErc20TokenResult {
   readonly showPrompt: (tokenSpec: TokenSpec) => Promise<void>;
 }
@@ -14,6 +16,7 @@ export const useRegisterErc20Token = (
 ): RegisterErc20TokenResult => {
   const { notify } = useNotification();
   const { wallet } = useEvmWallet(ecosystemId);
+  const evmChainId = useEvmChainId(ecosystemId);
 
   const showPrompt = async (tokenSpec: TokenSpec): Promise<void> => {
     if (!wallet) {
@@ -26,7 +29,7 @@ export const useRegisterErc20Token = (
     }
 
     try {
-      await wallet.registerToken(tokenSpec);
+      await wallet.registerToken(tokenSpec, ecosystemId, evmChainId);
     } catch (error) {
       notify("Error", "Failed to add token", "error");
       Sentry.captureException(error);

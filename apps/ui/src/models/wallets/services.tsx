@@ -26,7 +26,7 @@ export interface WalletServiceInfo {
 export interface WalletService<T extends WalletAdapter = WalletAdapter> {
   readonly id: string;
   readonly info: WalletServiceInfo;
-  readonly adapter?: new (chainId: number) => T;
+  readonly adapter?: new () => T;
 }
 
 export interface SolanaWalletService<

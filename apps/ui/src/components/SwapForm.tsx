@@ -289,7 +289,7 @@ export const SwapForm = ({
     setConfirmModalDescription(null);
     handleSwapAndCatch(true);
   };
-  const isStablesSwap = pools.some((pool) => pool.spec.isStableSwap);
+  const isStableSwap = pools.some((pool) => pool.spec.isStableSwap);
   return (
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
       <EuiSpacer />

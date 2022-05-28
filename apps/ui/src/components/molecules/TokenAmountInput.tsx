@@ -89,7 +89,7 @@ export const TokenAmountInput: React.FC<Props> = ({
       <EuiFlexItem grow={2}>
         <EuiFormRow
           hasEmptyLabelSpace={!showConstantSwapTip}
-          // TODO: Preferrably leave pool logic out a token-related component.
+          // TODO: Preferably leave pool logic out a token-related component.
           label={showConstantSwapTip ? getTokenLabel() : null}
         >
           <EuiSuperSelect

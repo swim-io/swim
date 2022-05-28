@@ -289,7 +289,7 @@ export const SwapForm = ({
     setConfirmModalDescription(null);
     handleSwapAndCatch(true);
   };
-  const isStableSwap = pools.some((pool) => pool.spec.isStableSwap);
+  const isStableSwap = requiredPools.some((pool) => pool.isStableSwap);
   return (
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
       <EuiSpacer />
@@ -304,7 +304,7 @@ export const SwapForm = ({
         onSelectToken={setFromTokenId}
         onChangeValue={(value) => setFormInputAmount(value)}
         onBlur={() => handleInputAmountChange(inputAmount)}
-        showConstantSwapTip={!isStablesSwap}
+        showConstantSwapTip={!isStableSwap}
       />
 
       <EuiSpacer size="m" />

@@ -11,7 +11,6 @@ import {
   EuiPageContentBody,
   EuiSpacer,
   EuiTabbedContent,
-  EuiText,
   EuiTitle,
   EuiToolTip,
 } from "@elastic/eui";
@@ -80,7 +79,7 @@ const PoolPage = (): ReactElement => {
 // TODO: Make code DRY.
 const getPoolTitle = (poolSpec: PoolSpec): ReactElement => {
   return !poolSpec.isStableSwap ? (
-    <EuiText>
+    <EuiTitle>
       <h2>
         {poolSpec.displayName + "  "}
         <EuiToolTip
@@ -90,11 +89,11 @@ const getPoolTitle = (poolSpec: PoolSpec): ReactElement => {
           <EuiIcon size="l" type="questionInCircle" color="primary" />
         </EuiToolTip>
       </h2>
-    </EuiText>
+    </EuiTitle>
   ) : (
-    <EuiText>
+    <EuiTitle>
       <h2>{poolSpec.displayName}</h2>
-    </EuiText>
+    </EuiTitle>
   );
 };
 
@@ -207,8 +206,7 @@ export const PoolPageInner = ({
               },
             ]}
           />
-
-          <EuiTitle>{getPoolTitle(poolSpec)}</EuiTitle>
+          {getPoolTitle(poolSpec)}
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <SlippageButton

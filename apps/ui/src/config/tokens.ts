@@ -108,6 +108,40 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    id: "mainnet-solana-gst",
+    symbol: GST_SYMBOL,
+    displayName: GST_NAME,
+    icon: GST_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB",
+          decimals: 9,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-solana-gmt",
+    symbol: GMT_SYMBOL,
+    displayName: GMT_NAME,
+    icon: GMT_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx",
+          decimals: 9,
+        },
+      ],
+    ]),
+  },
+  {
     id: "mainnet-solana-lp-hexapool",
     symbol: "swimUSD",
     displayName: "swimUSD (Swim Hexapool LP)",
@@ -297,6 +331,54 @@ const mainnetTokens: readonly TokenSpec[] = [
         EcosystemId.Solana,
         {
           address: "8qJSyQprMC57TWKaYEmetUR3UUiTP2M3hXdcvFhkZdmv",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-bsc-gst",
+    symbol: GST_SYMBOL,
+    displayName: GST_NAME,
+    icon: GST_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Bsc,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Bsc,
+        {
+          address: "0x4a2c860cec6471b9f5f5a336eb4f38bb21683c98",
+          decimals: 8,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "GDuUFXEhUm4jG71vPxYRX3VxUMJ5etGvHTR1iKwTdb6p",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-bsc-gmt",
+    symbol: GMT_SYMBOL,
+    displayName: GMT_NAME,
+    icon: GMT_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Bsc,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Bsc,
+        {
+          address: "0x3019bf2a2ef8040c242c9a4c5c4bd4c81678b2a1",
+          decimals: 8,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "7dzFD8xQ3FDmVLxwn75UA9WhVnBsUdRAexASVvpXX3Bo",
           decimals: 8,
         },
       ],

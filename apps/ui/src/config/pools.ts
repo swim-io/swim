@@ -118,6 +118,36 @@ const mainnetPools: readonly PoolSpec[] = [
       ],
     ]),
   },
+  {
+    id: "gst-solana-bnb",
+    displayName: "GST SPL - GST BEP20",
+    isStakingPool: false,
+    isStableSwap: false,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "FRvGoXtVe5QLfBbodeaUxjzr6aqbwpSECDDV57SG5Tmf",
+    authority: "57k3vNmCivSYn7EwQNjcNFcCWAdohZ9xACfMhJGwKiBq",
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-gst",
+    tokenAccounts: new Map([
+      ["mainnet-bsc-gst", "kCKv3PwjiopEDGjtztH3rbJvDvKiNGRk26iuSE1SDF1"],
+      ["mainnet-solana-gst", "2jakYHDLzK14LvGfQ6XMevkdXjmR2pptMxD6HLsDUDvx"],
+    ]),
+  },
+  {
+    id: "gmt-solana-bnb",
+    displayName: "GMT SPL - GMT BEP20",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "4Np8YkTg6wobPXPEG5GagdZUpZt863RqXs8TNcMcqxTR",
+    authority: "HZr3bF8YEJWMV75Wi3aFEHEyLLk61VyQduXtunWtXNVQ",
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-gmt",
+    tokenAccounts: new Map([
+      ["mainnet-bsc-gmt", "APG2hZqzk54NVjscBZ13iEZ9StR4Jpv82767hpHJwFQ7"],
+      ["mainnet-solana-gmt", "Hv4t3QZhbb2enUYmXm2X2pRCJ4jsVNb8pRhLDqs6oHNZ"],
+    ]),
+  },
 ];
 
 const devnetPools: readonly PoolSpec[] = [

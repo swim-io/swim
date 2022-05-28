@@ -213,7 +213,7 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    id: "gst",
+    id: "gst-solana-bnb",
     displayName: "GST SPL - GST BEP20",
     isStakingPool: false,
     isStableSwap: false,
@@ -228,7 +228,7 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    id: "gmt",
+    id: "gmt-solana-bnb",
     displayName: "GMT SPL - GMT BEP20",
     isStakingPool: false,
     isStableSwap: true,

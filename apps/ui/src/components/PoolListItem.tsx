@@ -19,6 +19,7 @@ import { groupBy } from "../utils";
 
 import { TokenIcon } from "./TokenIcon";
 
+// TODO: Make code DRY.
 const appendConstantSwapIcon = (poolName: string): string | ReactElement => {
   return (
     <EuiText>

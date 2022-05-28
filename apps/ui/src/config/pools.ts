@@ -129,8 +129,8 @@ const mainnetPools: readonly PoolSpec[] = [
     feeDecimals: 6,
     lpToken: "mainnet-solana-lp-gst",
     tokenAccounts: new Map([
-      ["mainnet-bsc-gst", "kCKv3PwjiopEDGjtztH3rbJvDvKiNGRk26iuSE1SDF1"],
-      ["mainnet-solana-gst", "2jakYHDLzK14LvGfQ6XMevkdXjmR2pptMxD6HLsDUDvx"],
+      ["mainnet-bsc-gst", "APG2hZqzk54NVjscBZ13iEZ9StR4Jpv82767hpHJwFQ7"],
+      ["mainnet-solana-gst", "Hv4t3QZhbb2enUYmXm2X2pRCJ4jsVNb8pRhLDqs6oHNZ"],
     ]),
   },
   {
@@ -144,8 +144,8 @@ const mainnetPools: readonly PoolSpec[] = [
     feeDecimals: 6,
     lpToken: "mainnet-solana-lp-gmt",
     tokenAccounts: new Map([
-      ["mainnet-bsc-gmt", "APG2hZqzk54NVjscBZ13iEZ9StR4Jpv82767hpHJwFQ7"],
-      ["mainnet-solana-gmt", "Hv4t3QZhbb2enUYmXm2X2pRCJ4jsVNb8pRhLDqs6oHNZ"],
+      ["mainnet-bsc-gmt", "kCKv3PwjiopEDGjtztH3rbJvDvKiNGRk26iuSE1SDF1"],
+      ["mainnet-solana-gmt", "2jakYHDLzK14LvGfQ6XMevkdXjmR2pptMxD6HLsDUDvx"],
     ]),
   },
 ];

@@ -290,10 +290,6 @@ export const SwapForm = ({
     handleSwapAndCatch(true);
   };
   const isStablesSwap = pools.some((pool) => pool.spec.isStableSwap);
-  const showConstantSwapToForm = !isStablesSwap && !fromToken.isStablecoin;
-  // Don't show the tool-tip if "toForm" is already showing.
-  const showConstantSwapFromForm =
-    !isStablesSwap && fromToken.isStablecoin && !toToken.isStablecoin;
   return (
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
       <EuiSpacer />
@@ -308,7 +304,7 @@ export const SwapForm = ({
         onSelectToken={setFromTokenId}
         onChangeValue={(value) => setFormInputAmount(value)}
         onBlur={() => handleInputAmountChange(inputAmount)}
-        showConstantSwapTip={showConstantSwapToForm}
+        showConstantSwapTip={!isStablesSwap}
       />
 
       <EuiSpacer size="m" />
@@ -339,7 +335,8 @@ export const SwapForm = ({
         disabled={isInteractionInProgress}
         errors={[]}
         onSelectToken={setToTokenId}
-        showConstantSwapTip={showConstantSwapFromForm}
+        // Never show constant swap on "To Form".
+        showConstantSwapTip={false}
       />
 
       <EuiSpacer />

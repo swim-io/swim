@@ -241,6 +241,40 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    id: "mainnet-solana-lp-gst",
+    symbol: "solaGST-binaGST",
+    displayName: "Swim Solana GST Binance GST LP",
+    icon: LP_GST_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "8YYBkTNhpY9mFdCdZWM6mHNf8J6A9hGfimb33LEiiZ3x",
+          decimals: 9,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-solana-lp-gmt",
+    symbol: "solaGMT-binaGMT",
+    displayName: "Swim Solana GMT Binance GMT LP",
+    icon: LP_GMT_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "2x7MjgopLXd3qETGLpY19cyZjHvVnGkrwVjTkJnBza4A",
+          decimals: 9,
+        },
+      ],
+    ]),
+  },
+  {
     id: "mainnet-ethereum-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,

@@ -12,7 +12,7 @@ import {
 import type { ReactElement } from "react";
 
 import type { Ecosystem } from "../config";
-import { Protocol, protocolNames, getEcosystemsForProtocol } from "../config";
+import { Protocol, getEcosystemsForProtocol, protocolNames } from "../config";
 import { useWalletService, useWallets } from "../hooks";
 import EVM_SVG from "../images/ecosystems/ethereum-color.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";

@@ -116,6 +116,7 @@ commitment: confirmed
    - `./scripts/setup_solana_dev.sh`
 
 1. Exit wormhole-v2 connection
+1. Go to http://localhost:3000/test, connect wallets **(For Solana strongly recommend `Sollet`)**
 1. Test page -> Set up Wormhole tokens for Ethereum
 1. Test page -> Set up Wormhole tokens for BSC
 1. Test page -> Get wrapped SPL token addresses on Ethereum (for each supported SPL token)

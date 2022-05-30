@@ -1,9 +1,10 @@
 import { EuiButtonIcon } from "@elastic/eui";
 import type { ReactElement } from "react";
 
-import type { Ecosystem, Protocol } from "../../config";
+import type { Ecosystem } from "../../config";
 import {
   EcosystemId,
+  Protocol,
   ecosystems,
   getEcosystemsForProtocol,
 } from "../../config";
@@ -252,7 +253,7 @@ export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {
   [EcosystemId.Acala]: ACALA_WALLET_SERVICES,
 };
 
-export const findServiceForProtocol = (
+const findServiceForProtocol = (
   serviceId: string,
   protocol: Protocol,
 ): WalletService => {
@@ -264,4 +265,33 @@ export const findServiceForProtocol = (
     protocolWalletServices,
     (service) => service.id === serviceId,
   );
+};
+
+export const createAdapter = (
+  serviceId: WalletService["id"],
+  protocol: Protocol,
+  solanaEndpoint: string,
+): WalletAdapter => {
+  const service = findServiceForProtocol(serviceId, protocol);
+
+  switch (protocol) {
+    case Protocol.Evm: {
+      if (!service.adapter)
+        throw new Error(`Adapter is required for protocol ${protocol}`);
+      return new service.adapter();
+    }
+    case Protocol.Solana: {
+      if (service.adapter) {
+        return new service.adapter();
+      } else {
+        return new adapters.solana.SolanaDefaultWalletAdapter(
+          service.info.url,
+          solanaEndpoint,
+        );
+      }
+    }
+    case Protocol.Cosmos: {
+      throw new Error(`Cosmos adapters not implemented yet`);
+    }
+  }
 };

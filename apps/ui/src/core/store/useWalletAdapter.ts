@@ -4,17 +4,13 @@ import type { GetState, SetState } from "zustand";
 import create from "zustand";
 
 import { Protocol } from "../../config";
-import type { WalletService } from "../../models";
-import { findServiceForProtocol } from "../../models";
 import type {
   EvmWalletAdapter,
   SolanaWalletAdapter,
   WalletAdapter,
 } from "../../models/wallets/adapters";
-import { SolanaDefaultWalletAdapter } from "../../models/wallets/adapters/solana/SolanaDefaultWalletAdapter";
-import { selectConfig } from "../selectors/environment";
 
-import { useEnvironment as environmentStore } from "./useEnvironment";
+type AdapterFactory = (serviceId: string, protocol: Protocol) => WalletAdapter;
 
 export interface WalletAdapterState {
   readonly evm: EvmWalletAdapter | null;
@@ -22,6 +18,7 @@ export interface WalletAdapterState {
   readonly connectService: (
     serviceId: string,
     protocol: Protocol,
+    createAdapter: AdapterFactory,
   ) => Promise<void>;
   readonly disconnectService: (protocol: Protocol) => Promise<void>;
 }
@@ -30,9 +27,12 @@ export const useWalletAdapter = create<WalletAdapterState>(
   (set: SetState<WalletAdapterState>, get: GetState<WalletAdapterState>) => ({
     evm: null,
     solana: null,
-    connectService: async (serviceId: string, protocol: Protocol) => {
-      const service = findServiceForProtocol(serviceId, protocol);
-      const adapter = createAdapter(service, protocol);
+    connectService: async (
+      serviceId: string,
+      protocol: Protocol,
+      createAdapter,
+    ) => {
+      const adapter = createAdapter(serviceId, protocol);
 
       set(
         produce<WalletAdapterState>((draft) => {
@@ -82,29 +82,3 @@ export const useWalletAdapter = create<WalletAdapterState>(
     },
   }),
 );
-
-const createAdapter = (
-  service: WalletService,
-  protocol: Protocol,
-): WalletAdapter => {
-  switch (protocol) {
-    case Protocol.Evm: {
-      if (!service.adapter)
-        throw new Error(`Adapter is required for protocol ${protocol}`);
-      return new service.adapter();
-    }
-    case Protocol.Solana: {
-      if (service.adapter) {
-        return new service.adapter();
-      } else {
-        const environmentStoreState = environmentStore.getState();
-        const { chains } = selectConfig(environmentStoreState);
-        const [{ endpoint }] = chains[Protocol.Solana];
-        return new SolanaDefaultWalletAdapter(service.info.url, endpoint);
-      }
-    }
-    case Protocol.Cosmos: {
-      throw new Error(`Cosmos adapters not implemented yet`);
-    }
-  }
-};

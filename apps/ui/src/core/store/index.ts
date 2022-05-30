@@ -1,3 +1,3 @@
 export * from "./useNotification";
 export * from "./useEnvironment";
-export * from "./useWalletService";
+export * from "./useWalletAdapter";

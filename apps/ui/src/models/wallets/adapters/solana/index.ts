@@ -1,5 +1,6 @@
 import { MathWalletAdapter } from "./MathWalletAdapter";
 import { PhantomAdapter } from "./PhantomAdapter";
+import { SolanaDefaultWalletAdapter } from "./SolanaDefaultWalletAdapter";
 import { SolongAdapter } from "./SolongAdapter";
 import { LedgerWalletAdapter } from "./ledger";
 
@@ -10,4 +11,5 @@ export const solanaAdapters = {
   MathWalletAdapter,
   PhantomAdapter,
   SolongAdapter,
+  SolanaDefaultWalletAdapter,
 };

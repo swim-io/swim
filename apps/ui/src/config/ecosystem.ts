@@ -20,7 +20,7 @@ export const enum Protocol {
 
 export const protocolNames: Record<Protocol, string> = {
   [Protocol.Solana]: "Solana",
-  [Protocol.Evm]: "Ethereum Virtual Machine",
+  [Protocol.Evm]: "EVM",
   [Protocol.Cosmos]: "Cosmos",
 };
 

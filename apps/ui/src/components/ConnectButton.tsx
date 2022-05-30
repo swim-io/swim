@@ -8,12 +8,11 @@ import { EcosystemId } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useWalletAdapter } from "../core/store";
 import { useWallets } from "../hooks";
-import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
 import BSC_SVG from "../images/ecosystems/bsc.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
-import POLYGON_SVG from "../images/ecosystems/polygon.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
-import { shortenAddress } from "../utils";
+import type { WalletService } from "../models";
+import { deduplicate, isNotNull, shortenAddress } from "../utils";
 
 import { MultiWalletModal } from "./MultiWalletModal";
 
@@ -82,29 +81,36 @@ export const MultiConnectButton = ({
   const openModal = (): void => setIsWalletModalOpen(true);
 
   const {
-    solana: { connected: isSolanaConnected },
-    ethereum: { connected: isEthereumConnected },
-    bsc: { connected: isBscConnected },
-    avalanche: { connected: isAvalancheConnected },
-    polygon: { connected: isPolygonConnected },
+    solana: { connected: isSolanaConnected, service: solanaService },
+    ethereum: { connected: isEthereumConnected, service: ethereumService },
+    bsc: { connected: isBscConnected, service: bscService },
+    avalanche: { connected: isAvalancheConnected, service: avalanceService },
+    polygon: { connected: isPolygonConnected, service: polygonService },
   } = useWallets();
-  const connectedStatuses = [
-    isSolanaConnected,
-    isEthereumConnected,
-    isBscConnected,
-    isAvalancheConnected,
-    isPolygonConnected,
-  ];
-  const nConnected = connectedStatuses.filter(Boolean).length;
+  const connectedServices = [
+    isSolanaConnected ? solanaService : null,
+    isEthereumConnected ? ethereumService : null,
+    isBscConnected ? bscService : null,
+    isAvalancheConnected ? avalanceService : null,
+    isPolygonConnected ? polygonService : null,
+  ].filter(isNotNull);
+
+  const uniqueServices = deduplicate<string, WalletService>(
+    (walletService) => walletService.id,
+    connectedServices,
+  );
+  const nConnected = uniqueServices.length;
 
   const label =
     nConnected > 0 ? (
       <>
-        {isSolanaConnected && <EuiIcon type={SOLANA_SVG} size="l" />}
-        {isEthereumConnected && <EuiIcon type={ETHEREUM_SVG} size="l" />}
-        {isBscConnected && <EuiIcon type={BSC_SVG} size="l" />}
-        {isAvalancheConnected && <EuiIcon type={AVALANCHE_SVG} size="l" />}
-        {isPolygonConnected && <EuiIcon type={POLYGON_SVG} size="l" />}
+        {uniqueServices.map((walletService) => (
+          <EuiIcon
+            key={walletService.id}
+            type={walletService.info.icon}
+            size="l"
+          />
+        ))}
         &nbsp;{nConnected}
         <span>&nbsp;connected</span>
       </>
@@ -113,7 +119,7 @@ export const MultiConnectButton = ({
         <EuiIcon type={SOLANA_SVG} size="l" />
         <EuiIcon type={ETHEREUM_SVG} size="l" />
         <EuiIcon type={BSC_SVG} size="l" />
-        {/* TODO: Consider adding these:
+        {/* TODO: Consider adding these (OR maybe switch to wallet icons here too?):
         <EuiIcon type={AVALANCHE_SVG} size="l" />
         <EuiIcon type={POLYGON_SVG} size="l" /> */}
         &nbsp;

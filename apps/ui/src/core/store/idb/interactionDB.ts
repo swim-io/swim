@@ -1,33 +1,25 @@
 import Dexie, { Table } from "dexie";
 import { StateStorage } from "zustand/middleware";
-import { MOCK_INTERACTION_STATE } from "../../../fixtures/swim/interactionState";
 import { InteractionState } from "../../../models";
 
 export interface InteractionWrapper {
-  state: string;
+  state: InteractionState;
+  id: string;
 }
 
 export class InteractionDB extends Dexie {
-  interactionStates!: Table<InteractionWrapper, number>;
+  interactionStates!: Table<InteractionWrapper, string>;
 
   constructor() {
     super("InteractionDB");
     this.version(1).stores({
-      interactionStates: "++id, state",
-    });
-    this.on("populate", () => this.populate());
-  }
-
-  async populate() {
-    await db.interactionStates.add({
-      state: JSON.stringify(MOCK_INTERACTION_STATE),
+      interactionStates: "&id,state",
     });
   }
 
   async resetDatabase() {
     await db.transaction("rw", "interactionStates", () => {
       this.interactionStates.clear();
-      // this.populate();
     });
   }
 }
@@ -35,26 +27,54 @@ export class InteractionDB extends Dexie {
 const db = new InteractionDB();
 
 export const InteractionIDBStorage: StateStorage = {
-  getItem: async (name: string = "InteractionDB"): Promise<string | null> => {
-    console.log("GET ITEM", name);
+  getItem: async (name: string): Promise<string | null> => {
     if (!db.isOpen()) {
-      await db.open();
-      await db.populate();
       try {
-        const it = await db.interactionStates.toArray();
-        console.log("Interacion in storage", it);
-        return it[0].state;
+        await db.open();
+        const data = await db.interactionStates.toArray();
+        const sortedData = [...data]
+          ?.sort(
+            (a, b) =>
+              a.state.interaction.submittedAt - b.state.interaction.submittedAt,
+          )
+          .map((interactionState) => interactionState.state);
+        return JSON.stringify(sortedData);
       } catch (err) {
-        console.warn("ERROR FETCH", err);
+        console.warn("Fail to get the data from IDB", err);
+        return null;
       }
     }
+    console.warn("DB is not open !");
     return null;
   },
   setItem: async (name: string, value: string) => {
-    console.log("SET ITEM", name, value);
+    const { interactionStates } = JSON.parse(value).state;
+    if (!db.isOpen()) {
+      await db.open();
+      await Promise.all(
+        interactionStates?.map((element: InteractionState) => {
+          db.interactionStates
+            .add(
+              { state: element, id: element.interaction.id },
+              element.interaction.id,
+            )
+            .catch((err) => {
+              console.warn("Error adding interactionState in IDB", err);
+              // throw err;
+            });
+        }),
+      );
+    }
   },
   removeItem: async (name: string) => {
-    console.log("REMOVE ITEM", name);
-    await db.resetDatabase();
+    if (!db.isOpen()) {
+      try {
+        await db.open();
+        await db.resetDatabase();
+      } catch (err) {
+        console.warn("Fail to reset IDB");
+        throw err;
+      }
+    }
   },
 };

@@ -11,6 +11,7 @@ import { InteractionIDBStorage } from "./idb/interactionDB";
 
 export interface InteractionStore {
   readonly interactionStates: readonly InteractionState[];
+  readonly loadIndexedDB: () => void;
   readonly addInteractionState: (interactionState: InteractionState) => void;
   readonly updateInteractionState: (
     interactionId: string,
@@ -26,10 +27,25 @@ export const useInteractionState = create(
       api: StoreApi<InteractionStore>,
     ) => ({
       interactionStates: [],
+      loadIndexedDB: async () => {
+        const data =
+          (await InteractionIDBStorage.getItem("InteractionIDB")) || "[]";
+        set(
+          produce<InteractionStore>((draft) => {
+            draft.interactionStates = JSON.parse(data);
+          }),
+        );
+      },
       addInteractionState: (interactionState) => {
         set(
           produce<InteractionStore>((draft) => {
-            draft.interactionStates.push(castDraft(interactionState));
+            const hasInteraction = draft.interactionStates.find(
+              (storedState) =>
+                storedState.interaction.id === interactionState.interaction.id,
+            );
+            if (!hasInteraction) {
+              draft.interactionStates.push(castDraft(interactionState));
+            }
           }),
         );
       },
@@ -48,18 +64,7 @@ export const useInteractionState = create(
     }),
     {
       name: "InteractionDB",
-      getStorage: (): StateStorage => InteractionIDBStorage, // TODO: link with IndexedDB
-      partialize: (state: InteractionStore) => ({
-        interactionStates: state.interactionStates,
-      }),
-      merge: (
-        persistedState: any, // TODO: Set type to unknown and validate
-        currentState: InteractionStore,
-      ): InteractionStore => {
-        const state = JSON.parse(persistedState);
-        console.log("MERGE", persistedState, state, currentState);
-        return { ...currentState, ...state };
-      },
+      getStorage: (): StateStorage => InteractionIDBStorage,
     },
   ),
 );

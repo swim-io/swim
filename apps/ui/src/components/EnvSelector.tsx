@@ -8,25 +8,15 @@ import {
   htmlIdGenerator,
 } from "@elastic/eui";
 import * as Sentry from "@sentry/react";
-import Decimal from "decimal.js";
-import type { ReactElement } from "react";
+import { ReactElement } from "react";
 import { useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import { isValidEnv } from "../config";
 import { selectEnvs } from "../core/selectors";
-import { useEnvironment, useInteraction } from "../core/store";
-import { BSC_USDT } from "../fixtures/swim/tokens";
-import { Amount } from "../models";
+import { useEnvironment } from "../core/store";
 
 export const EnvSelector = (): ReactElement => {
-  const store = useInteraction();
-  console.log(
-    "STORE",
-    store,
-    Amount.fromHumanString(BSC_USDT, "1001"),
-    new Decimal(1001),
-  );
   const { env, setEnv } = useEnvironment();
   const envs = useEnvironment(selectEnvs, shallow);
   const [isOpen, setIsOpen] = useState(false);

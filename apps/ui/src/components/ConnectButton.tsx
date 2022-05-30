@@ -6,7 +6,7 @@ import shallow from "zustand/shallow.js";
 
 import { EcosystemId } from "../config";
 import { selectConfig } from "../core/selectors";
-import { useEnvironment } from "../core/store";
+import { useEnvironment, useWalletService } from "../core/store";
 import { useWallets } from "../hooks";
 import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
 import BSC_SVG from "../images/ecosystems/bsc.svg";
@@ -29,15 +29,16 @@ export const ConnectButton = ({
   ...rest
 }: ConnectButtonProps): ReactElement => {
   const { ecosystems } = useEnvironment(selectConfig, shallow);
+  const { disconnectService } = useWalletService();
   if (ecosystemId === EcosystemId.Terra) {
     throw new Error("Unsupported ecosystem");
   }
   const ecosystem = ecosystems[ecosystemId];
   const wallets = useWallets();
-  const { connected, select, address, wallet } = wallets[ecosystemId];
+  const { connected, select, address } = wallets[ecosystemId];
 
   const disconnect = (): void => {
-    void wallet?.disconnect();
+    void disconnectService(ecosystem.protocol);
   };
 
   const handleClick = connected ? disconnect : select;

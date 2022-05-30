@@ -107,8 +107,8 @@ const ProtocolWalletOptionsList = ({
 
   const connectedWallets = protocolWallets.filter((wallet) => wallet.connected);
 
-  const disconnect = (serviceId: string): void => {
-    void disconnectService(serviceId, protocol);
+  const disconnect = (): void => {
+    void disconnectService(protocol);
   };
 
   const connect = (serviceId: string) => {
@@ -156,7 +156,7 @@ const ProtocolWalletOptionsList = ({
               ecosystems={ecosystems}
               serviceConnected={!!connectedWallet}
               address={connectedWallet ? connectedWallet.address : null}
-              disconnect={() => disconnect(service.id)}
+              disconnect={() => disconnect()}
               onClick={() => connect(service.id)}
             />
           );

@@ -120,7 +120,7 @@ export const EvmWalletProvider = ({
 
   const { evm } = useWalletService();
 
-  const wallet: EvmWalletAdapter | null = (service && evm[service.id]) || null;
+  const wallet: EvmWalletAdapter | null = (service && evm) || null;
   const address = wallet?.address ?? null;
 
   useEffect(() => {

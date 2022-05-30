@@ -12,111 +12,37 @@ import type {
   WalletAdapter,
 } from "../../models/wallets/adapters";
 import { SolanaDefaultWalletAdapter } from "../../models/wallets/adapters/solana/SolanaDefaultWalletAdapter";
-import type { ReadonlyRecord } from "../../utils";
-import { shortenAddress } from "../../utils";
 import { selectConfig } from "../selectors/environment";
 
 import { useEnvironment as environmentStore } from "./useEnvironment";
-import { useNotification as notificationStore } from "./useNotification";
-
-type WalletAdapterListeners = {
-  readonly connect: () => void;
-  readonly disconnect: () => void;
-  readonly error: (title: string, description: string) => void;
-};
 
 export interface WalletServiceState {
-  readonly evm: ReadonlyRecord<string, EvmWalletAdapter | undefined>;
-  readonly evmListeners: ReadonlyRecord<
-    string,
-    WalletAdapterListeners | undefined
-  >;
-  readonly solana: ReadonlyRecord<string, SolanaWalletAdapter | undefined>;
-  readonly solanaListeners: ReadonlyRecord<
-    string,
-    WalletAdapterListeners | undefined
-  >;
+  readonly evm: EvmWalletAdapter | null;
+  readonly solana: SolanaWalletAdapter | null;
   readonly connectService: (
     serviceId: string,
     protocol: Protocol,
   ) => Promise<void>;
-  readonly disconnectService: (
-    serviceId: string,
-    protocol: Protocol,
-  ) => Promise<void>;
+  readonly disconnectService: (protocol: Protocol) => Promise<void>;
 }
 
 export const useWalletService = create<WalletServiceState>(
   (set: SetState<WalletServiceState>, get: GetState<WalletServiceState>) => ({
-    evm: {},
-    evmListeners: {},
-    solana: {},
-    solanaListeners: {},
+    evm: null,
+    solana: null,
     connectService: async (serviceId: string, protocol: Protocol) => {
-      const state = get();
       const service = findServiceForProtocol(serviceId, protocol);
-
-      const protocolAdapters =
-        protocol === Protocol.Evm ? state.evm : state.solana;
-      const previous = protocolAdapters[serviceId];
-
-      if (previous) {
-        if (previous.connected) {
-          const listeners =
-            protocol === Protocol.Evm
-              ? state.evmListeners
-              : state.solanaListeners;
-
-          // call on connect handler for successful connection toast
-          listeners[serviceId]?.connect();
-          return;
-        }
-
-        await state.disconnectService(serviceId, protocol);
-      }
-
       const adapter = createAdapter(service, protocol);
-
-      const { notify } = notificationStore.getState();
-
-      const handleConnect = (): void => {
-        if (adapter.address) {
-          notify(
-            "Wallet update",
-            `Connected to wallet ${shortenAddress(adapter.address)}`,
-            "info",
-            7000,
-          );
-        }
-      };
-      const handleDisconnect = (): void => {
-        notify("Wallet update", "Disconnected from wallet", "warning");
-      };
-      const handleError = (title: string, description: string): void => {
-        notify(title, description, "error");
-      };
-
-      const listeners: WalletAdapterListeners = {
-        connect: handleConnect,
-        disconnect: handleDisconnect,
-        error: handleError,
-      };
-
-      Object.entries(listeners).forEach(([eventName, handler]) => {
-        adapter.on(eventName, handler);
-      });
 
       set(
         produce<WalletServiceState>((draft) => {
           switch (adapter.protocol) {
             case Protocol.Evm: {
-              draft.evm[serviceId] = adapter;
-              draft.evmListeners[serviceId] = listeners;
+              draft.evm = adapter;
               break;
             }
             case Protocol.Solana: {
-              draft.solana[serviceId] = adapter;
-              draft.solanaListeners[serviceId] = listeners;
+              draft.solana = adapter;
               break;
             }
           }
@@ -125,38 +51,26 @@ export const useWalletService = create<WalletServiceState>(
 
       await adapter.connect().catch(console.error);
     },
-    disconnectService: async (serviceId: string, protocol: Protocol) => {
+    disconnectService: async (protocol: Protocol) => {
       const state = get();
-      const protocolAdapters =
-        protocol === Protocol.Evm ? state.evm : state.solana;
-      const adapter = protocolAdapters[serviceId];
+      const adapter = protocol === Protocol.Evm ? state.evm : state.solana;
 
-      if (adapter) {
-        await adapter.disconnect().catch(console.error);
+      if (!adapter)
+        throw new Error(
+          `disconnectService called but no adapter found for protocol ${protocol}`,
+        );
 
-        const protocolListeners =
-          protocol === Protocol.Evm
-            ? state.evmListeners
-            : state.solanaListeners;
-
-        const listeners = protocolListeners[serviceId];
-
-        if (listeners) {
-          Object.entries(listeners).forEach(([eventName, handler]) => {
-            adapter.off(eventName, handler);
-          });
-        }
-      }
+      await adapter.disconnect().catch(console.error);
 
       set(
         produce<WalletServiceState>((draft) => {
           switch (protocol) {
             case Protocol.Evm: {
-              draft.evm[serviceId] = undefined;
+              draft.evm = null;
               break;
             }
             case Protocol.Solana: {
-              draft.solana[serviceId] = undefined;
+              draft.solana = null;
               break;
             }
             case Protocol.Cosmos: {

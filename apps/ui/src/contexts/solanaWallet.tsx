@@ -60,8 +60,7 @@ export const SolanaWalletProvider = ({
 
   const { solana } = useWalletService();
 
-  const wallet: SolanaWalletAdapter | null =
-    (service && solana[service.id]) || null;
+  const wallet: SolanaWalletAdapter | null = (service && solana) || null;
   const address = wallet?.address ?? null;
 
   useEffect(() => {

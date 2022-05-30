@@ -1013,14 +1013,14 @@ const localnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Ethereum,
         {
-          address: "0xBeE60159B8b68F1d71095Cfae26B48C940D00d90",
+          address: "0x81681EC304dcfe2Ddad462E7e968C49A848410c3",
           decimals: 6,
         },
       ],
       [
         EcosystemId.Bsc,
         {
-          address: "0xaeb802A5A51267116728dEA7B8fA6d9F9dE8ec65",
+          address: "0x04C5Bf0f72FC1a9F50Ff3228C6285491ad00e13E",
           decimals: 6,
         },
       ],
@@ -1044,14 +1044,14 @@ const localnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Ethereum,
         {
-          address: "0x3235869d740B5549b954F446fA2a3f757bB1603A",
+          address: "0xa22915e82eb27fb64988Efa3d2749838174ccCBE",
           decimals: 6,
         },
       ],
       [
         EcosystemId.Bsc,
         {
-          address: "0x382782faee2BD31265333ba3865980DaabF582a0",
+          address: "0x23F55d75CFBe4334031dc7a19bf030613E966b2B",
           decimals: 6,
         },
       ],
@@ -1075,14 +1075,14 @@ const localnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Ethereum,
         {
-          address: "0x7ce34459F472AC89B6b576108CA4D969C79eE7f1",
+          address: "0x56cd8686e818c0C29983eA32fa6938618b35923f",
           decimals: 8,
         },
       ],
       [
         EcosystemId.Bsc,
         {
-          address: "0x8078DC006B27e2dDfdd0a98B0334f53615D1E199",
+          address: "0x7231BBdaB2F3814664f6E1f072A5ae0525709431",
           decimals: 8,
         },
       ],

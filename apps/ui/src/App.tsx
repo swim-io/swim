@@ -7,8 +7,8 @@ import "./App.scss";
 import { AppCrashed, NewVersionAlert } from "./components/AppCrashed";
 import { Layout } from "./components/Layout";
 import Notification from "./components/Notification";
+import WalletsMonitor from "./components/WalletsMonitor";
 import { AppContext } from "./contexts";
-import { useWalletsMonitor } from "./hooks/wallets";
 import CollectiblesPage from "./pages/CollectiblesPage";
 import HelpPage from "./pages/HelpPage";
 import HomePage from "./pages/HomePage";
@@ -25,8 +25,6 @@ import TestPage from "./pages/TestPage";
 import TosPage from "./pages/TosPage";
 
 function App(): ReactElement {
-  useWalletsMonitor();
-
   return (
     <Sentry.ErrorBoundary
       fallback={({ error }) => {
@@ -105,6 +103,7 @@ function App(): ReactElement {
         </AppContext>
       </Router>
       <Notification />
+      <WalletsMonitor />
     </Sentry.ErrorBoundary>
   );
 }

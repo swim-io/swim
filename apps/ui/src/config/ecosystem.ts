@@ -177,7 +177,7 @@ export const ecosystemList: readonly Ecosystem[] = [
 
 export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> =
   Object.fromEntries(
-    new Map(ecosystemList.map((ecosystem) => [ecosystem.id, ecosystem])),
+    ecosystemList.map((ecosystem) => [ecosystem.id, ecosystem]),
   ) as ReadonlyRecord<EcosystemId, Ecosystem>;
 
 export const getEcosystemsForProtocol = (

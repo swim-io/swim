@@ -10,7 +10,7 @@ import type { ReactElement } from "react";
 import { Fragment } from "react";
 
 import type { Protocol } from "../config";
-import { useWalletService } from "../core/store";
+import { useWalletAdapter } from "../core/store";
 import type { WalletAdapter, WalletService } from "../models";
 import { isUserOnMobileDevice } from "../utils";
 
@@ -36,7 +36,7 @@ export const SingleWalletModal = <W extends WalletService = WalletService>({
   handleClose,
   setServiceId,
 }: SingleWalletModalProps<W>): ReactElement => {
-  const { connectService } = useWalletService();
+  const { connectService } = useWalletAdapter();
   return (
     <CustomModal onClose={handleClose}>
       <EuiModalHeader>

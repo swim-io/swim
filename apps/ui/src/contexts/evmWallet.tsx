@@ -5,7 +5,7 @@ import * as React from "react";
 import { SingleWalletModal } from "../components/SingleWalletModal";
 import type { EvmEcosystemId } from "../config";
 import { EcosystemId, Protocol } from "../config";
-import { useWalletService } from "../core/store";
+import { useWalletAdapter } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
 import type { EvmWalletAdapter, WalletService } from "../models";
 import {
@@ -118,7 +118,7 @@ export const EvmWalletProvider = ({
     [serviceId, services],
   );
 
-  const { evm } = useWalletService();
+  const { evm } = useWalletAdapter();
 
   const wallet: EvmWalletAdapter | null = (service && evm) || null;
   const address = wallet?.address ?? null;

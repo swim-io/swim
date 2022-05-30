@@ -13,7 +13,7 @@ import type { ReactElement } from "react";
 
 import type { Ecosystem } from "../config";
 import { Protocol, getEcosystemsForProtocol } from "../config";
-import { useWalletService } from "../core/store";
+import { useWalletAdapter } from "../core/store";
 import { useWallets } from "../hooks";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
@@ -92,7 +92,7 @@ const ProtocolWalletOptionsList = ({
   protocol,
 }: ProtocolWalletOptionsListProps): ReactElement => {
   const wallets = useWallets();
-  const { connectService, disconnectService } = useWalletService();
+  const { connectService, disconnectService } = useWalletAdapter();
   const ecosystemIds = getEcosystemsForProtocol(protocol);
   const protocolWalletServices = ecosystemIds.flatMap(
     (ecosystemId) => WALLET_SERVICES[ecosystemId],

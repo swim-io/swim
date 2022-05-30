@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { useNotification, useWalletService } from "../../core/store";
+import { useNotification, useWalletAdapter } from "../../core/store";
 import { isNotNull, shortenAddress } from "../../utils";
 
 type WalletAdapterListeners = {
@@ -11,7 +11,7 @@ type WalletAdapterListeners = {
 
 export const useWalletsMonitor = (): void => {
   const { notify } = useNotification();
-  const { evm, solana } = useWalletService();
+  const { evm, solana } = useWalletAdapter();
 
   useEffect(() => {
     const walletAdapters = [evm, solana].filter(isNotNull);

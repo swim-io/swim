@@ -16,7 +16,7 @@ import { selectConfig } from "../selectors/environment";
 
 import { useEnvironment as environmentStore } from "./useEnvironment";
 
-export interface WalletServiceState {
+export interface WalletAdapterState {
   readonly evm: EvmWalletAdapter | null;
   readonly solana: SolanaWalletAdapter | null;
   readonly connectService: (
@@ -26,8 +26,8 @@ export interface WalletServiceState {
   readonly disconnectService: (protocol: Protocol) => Promise<void>;
 }
 
-export const useWalletService = create<WalletServiceState>(
-  (set: SetState<WalletServiceState>, get: GetState<WalletServiceState>) => ({
+export const useWalletAdapter = create<WalletAdapterState>(
+  (set: SetState<WalletAdapterState>, get: GetState<WalletAdapterState>) => ({
     evm: null,
     solana: null,
     connectService: async (serviceId: string, protocol: Protocol) => {
@@ -35,7 +35,7 @@ export const useWalletService = create<WalletServiceState>(
       const adapter = createAdapter(service, protocol);
 
       set(
-        produce<WalletServiceState>((draft) => {
+        produce<WalletAdapterState>((draft) => {
           switch (adapter.protocol) {
             case Protocol.Evm: {
               draft.evm = adapter;
@@ -63,7 +63,7 @@ export const useWalletService = create<WalletServiceState>(
       await adapter.disconnect().catch(console.error);
 
       set(
-        produce<WalletServiceState>((draft) => {
+        produce<WalletAdapterState>((draft) => {
           switch (protocol) {
             case Protocol.Evm: {
               draft.evm = null;

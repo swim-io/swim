@@ -12,9 +12,9 @@ import {
 import type { ReactElement } from "react";
 
 import type { Ecosystem } from "../config";
-import { Protocol, getEcosystemsForProtocol } from "../config";
+import { Protocol, protocolNames, getEcosystemsForProtocol } from "../config";
 import { useWalletService, useWallets } from "../hooks";
-import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+import EVM_SVG from "../images/ecosystems/ethereum-color.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import { WALLET_SERVICES } from "../models";
 import type { WalletService } from "../models";
@@ -128,7 +128,7 @@ const ProtocolWalletOptionsList = ({
       <EuiTitle size="xs">
         <h2 style={{ whiteSpace: "nowrap" }}>
           <EuiIcon type={icon} size="l" style={{ marginRight: "8px" }} />
-          {protocol}
+          {protocolNames[protocol]}
         </h2>
       </EuiTitle>
       <EuiSpacer size="s" />
@@ -188,10 +188,7 @@ export const MultiWalletModal = ({
             icon={SOLANA_SVG}
             protocol={Protocol.Solana}
           />
-          <ProtocolWalletOptionsList
-            icon={ETHEREUM_SVG} // TODO update icon for EVM and display name for Protocols
-            protocol={Protocol.Evm}
-          />
+          <ProtocolWalletOptionsList icon={EVM_SVG} protocol={Protocol.Evm} />
         </EuiFlexGrid>
       </EuiModalBody>
     </CustomModal>

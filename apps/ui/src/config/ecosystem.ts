@@ -18,6 +18,12 @@ export const enum Protocol {
   Cosmos = "cosmos",
 }
 
+export const protocolNames: Record<Protocol, string> = {
+  [Protocol.Solana]: "Solana",
+  [Protocol.Evm]: "Ethereum Virtual Machine",
+  [Protocol.Cosmos]: "Cosmos",
+};
+
 /**
  * Maps 1:1 onto @certusone/wormhole-sdk ChainId
  * For a given Env, this encodes both Protocol and Protocol-specific ChainId

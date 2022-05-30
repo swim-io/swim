@@ -1,4 +1,5 @@
 import { act, renderHook } from "@testing-library/react-hooks";
+
 import { useInteractionState } from "..";
 import { MOCK_INTERACTION_STATE } from "../../../fixtures/swim/interactionState";
 

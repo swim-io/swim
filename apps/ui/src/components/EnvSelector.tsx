@@ -8,7 +8,7 @@ import {
   htmlIdGenerator,
 } from "@elastic/eui";
 import * as Sentry from "@sentry/react";
-import { ReactElement } from "react";
+import type { ReactElement } from "react";
 import { useState } from "react";
 import shallow from "zustand/shallow.js";
 

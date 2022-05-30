@@ -7,6 +7,7 @@ import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
 
 import type { InteractionState } from "../../models";
+
 import { InteractionIDBStorage } from "./idb/interactionDB";
 
 export interface InteractionStore {

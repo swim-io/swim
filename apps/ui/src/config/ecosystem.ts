@@ -9,6 +9,7 @@ import POLYGON_SVG from "../images/ecosystems/polygon.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import TERRA_SVG from "../images/ecosystems/terra.svg";
 import type { ReadonlyRecord } from "../utils";
+import { filterMap } from "../utils";
 
 import { WormholeChainId } from "./wormhole";
 
@@ -91,8 +92,8 @@ export interface Ecosystem {
   readonly nativeTokenSymbol: string;
 }
 
-export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> = {
-  [EcosystemId.Solana]: {
+export const ecosystemList: readonly Ecosystem[] = [
+  {
     id: EcosystemId.Solana,
     protocol: Protocol.Solana,
     wormholeChainId: WormholeChainId.Solana,
@@ -100,7 +101,7 @@ export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> = {
     logo: SOLANA_SVG,
     nativeTokenSymbol: "SOL",
   },
-  [EcosystemId.Ethereum]: {
+  {
     id: EcosystemId.Ethereum,
     protocol: Protocol.Evm,
     wormholeChainId: WormholeChainId.Ethereum,
@@ -108,7 +109,7 @@ export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> = {
     logo: ETHEREUM_SVG,
     nativeTokenSymbol: "ETH",
   },
-  [EcosystemId.Terra]: {
+  {
     id: EcosystemId.Terra,
     protocol: Protocol.Cosmos,
     wormholeChainId: WormholeChainId.Terra,
@@ -116,7 +117,7 @@ export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> = {
     logo: TERRA_SVG,
     nativeTokenSymbol: "LUNA",
   },
-  [EcosystemId.Bsc]: {
+  {
     id: EcosystemId.Bsc,
     protocol: Protocol.Evm,
     wormholeChainId: WormholeChainId.Bsc,
@@ -124,7 +125,7 @@ export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> = {
     logo: BSC_SVG,
     nativeTokenSymbol: "BNB",
   },
-  [EcosystemId.Avalanche]: {
+  {
     id: EcosystemId.Avalanche,
     protocol: Protocol.Evm,
     wormholeChainId: WormholeChainId.Avalanche,
@@ -132,7 +133,7 @@ export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> = {
     logo: AVALANCHE_SVG,
     nativeTokenSymbol: "AVAX",
   },
-  [EcosystemId.Polygon]: {
+  {
     id: EcosystemId.Polygon,
     protocol: Protocol.Evm,
     wormholeChainId: WormholeChainId.Polygon,
@@ -140,7 +141,7 @@ export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> = {
     logo: POLYGON_SVG,
     nativeTokenSymbol: "MATIC",
   },
-  [EcosystemId.Aurora]: {
+  {
     id: EcosystemId.Aurora,
     protocol: Protocol.Evm,
     wormholeChainId: WormholeChainId.Aurora,
@@ -148,7 +149,7 @@ export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> = {
     logo: AURORA_SVG,
     nativeTokenSymbol: "ETH",
   },
-  [EcosystemId.Fantom]: {
+  {
     id: EcosystemId.Fantom,
     protocol: Protocol.Evm,
     wormholeChainId: WormholeChainId.Fantom,
@@ -156,7 +157,7 @@ export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> = {
     logo: FANTOM_SVG,
     nativeTokenSymbol: "FTM",
   },
-  [EcosystemId.Karura]: {
+  {
     id: EcosystemId.Karura,
     protocol: Protocol.Evm,
     wormholeChainId: WormholeChainId.Karura,
@@ -164,7 +165,7 @@ export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> = {
     logo: KARURA_SVG,
     nativeTokenSymbol: "KAR",
   },
-  [EcosystemId.Acala]: {
+  {
     id: EcosystemId.Acala,
     protocol: Protocol.Evm,
     wormholeChainId: WormholeChainId.Acala,
@@ -172,14 +173,19 @@ export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> = {
     logo: ACALA_SVG,
     nativeTokenSymbol: "ACA",
   },
-};
+];
+
+export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> =
+  Object.fromEntries(
+    new Map(ecosystemList.map((ecosystem) => [ecosystem.id, ecosystem])),
+  ) as ReadonlyRecord<EcosystemId, Ecosystem>;
 
 export const getEcosystemsForProtocol = (
   protocol: Protocol,
 ): readonly EcosystemId[] => {
-  return Object.entries(ecosystems)
-    .filter(([ecosystemId, ecosystem]) => {
-      return ecosystem.protocol === protocol;
-    })
-    .map(([ecosystemId]) => ecosystemId as EcosystemId);
+  return filterMap(
+    (ecosystem: Ecosystem) => ecosystem.protocol === protocol,
+    (ecosystem) => ecosystem.id,
+    ecosystemList,
+  );
 };

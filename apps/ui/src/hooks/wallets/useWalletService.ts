@@ -8,14 +8,14 @@ import { useEnvironment, useWalletAdapter } from "../../core/store";
 import type { WalletService } from "../../models";
 import { createAdapter } from "../../models/wallets/services";
 
-type WalletServiceState = Pick<WalletAdapterState, "disconnectService"> & {
+type WalletServiceAPI = Pick<WalletAdapterState, "disconnectService"> & {
   readonly connectService: (
     serviceId: WalletService["id"],
     protocol: Protocol,
   ) => Promise<void>;
 };
 
-export const useWalletService = (): WalletServiceState => {
+export const useWalletService = (): WalletServiceAPI => {
   const { connectService, disconnectService } = useWalletAdapter();
   const { chains } = useEnvironment(selectConfig, shallow);
   const [{ endpoint }] = chains[Protocol.Solana];

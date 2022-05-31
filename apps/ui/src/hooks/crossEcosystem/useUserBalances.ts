@@ -38,6 +38,10 @@ export const useUserBalances = (
     [EcosystemId.Bsc]: bscTokenBalance,
     [EcosystemId.Avalanche]: avalancheTokenBalance,
     [EcosystemId.Polygon]: polygonTokenBalance,
+    [EcosystemId.Aurora]: null,
+    [EcosystemId.Fantom]: null,
+    [EcosystemId.Karura]: null,
+    [EcosystemId.Acala]: null,
   };
 };
 
@@ -104,5 +108,9 @@ export const useUserBalanceAmounts = (
     [EcosystemId.Terra]: null,
     [EcosystemId.Avalanche]: avalancheAmount,
     [EcosystemId.Polygon]: polygonAmount,
+    [EcosystemId.Aurora]: null,
+    [EcosystemId.Fantom]: null,
+    [EcosystemId.Karura]: null,
+    [EcosystemId.Acala]: null,
   };
 };

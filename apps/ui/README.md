@@ -10,6 +10,14 @@ You will need Node.js <15 and Yarn.
 
 Run `yarn` to install all dependencies.
 
+Set required environmental variables:
+
+```sh
+SKIP_PREFLIGHT_CHECK=true
+REACT_APP_AVALANCHE_DEVNET_RPC_URL=<ask for latest value>
+REACT_APP_POLYGON_DEVNET_RPC_URL=<ask for latest value>
+```
+
 Run `yarn start` to run the app in development mode.
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
@@ -24,7 +32,7 @@ We use ESLint and Prettier for linting and formatting. It’s a good idea to set
 
 In the project directory, you can run:
 
-#### `yarn format`
+#### `yarn format` and `yarn format:fix`
 
 Runs `prettier` on all `.{ts,tsx}` files in the `src` directory.
 
@@ -36,7 +44,7 @@ Lints all `.{ts,tsx}` files in the `src` directory, with or without the `--fix` 
 
 By default, you only have access to Mainnet. For development, you'll likely want to setup a development blockchain environment. There are several options for this, (A) is recommended.
 
-To view more networks in the environment switcher in the upper right corner of the UI, visit [http://localhost:3000/set-custom-localnet?ip=159.223.16.33](http://localhost:3000/set-custom-localnet?ip=159.223.16.33) and refresh the page.
+To view more networks in the environment switcher in the upper right corner of the UI, visit [http://localhost:3000/set-custom-localnet?ip=159.223.16.33](http://localhost:3000/set-custom-localnet?ip=159.223.16.33).
 
 ### (A) Connect to our shared Wormhole setup
 

@@ -4,6 +4,7 @@ import type { ethers } from "ethers";
 import type { EvmEcosystemId } from "../../config";
 import { EcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
+import { deduplicate } from "../../utils";
 
 interface BaseTx {
   readonly ecosystem: EcosystemId;
@@ -41,6 +42,16 @@ export interface PolygonTx extends EvmTx {
 }
 
 export type Tx = SolanaTx | EvmTx;
+
+export type TxsByPoolId = ReadonlyRecord<
+  string,
+  readonly SolanaTx[] | undefined
+>;
+
+export interface TxWithPoolId {
+  readonly poolId: string;
+  readonly tx: SolanaTx;
+}
 
 export type TxsByTokenId = ReadonlyRecord<string, readonly Tx[] | undefined>;
 
@@ -80,6 +91,19 @@ export const groupTxsByTokenId = (
     }),
     {},
   );
+
+export const groupTxsByPoolId = (txs: readonly TxWithPoolId[]): TxsByPoolId =>
+  txs.reduce<TxsByPoolId>(
+    (accumulator: TxsByPoolId, { poolId, tx }: TxWithPoolId): TxsByPoolId => ({
+      ...accumulator,
+      [poolId]: [...(accumulator[poolId] ?? []), tx],
+    }),
+    {},
+  );
+
+export const deduplicateTxs = <T extends Tx = Tx>(
+  txs: readonly T[],
+): readonly T[] => deduplicate<string, T>((tx) => tx.txId, txs);
 
 export const deduplicateTxsByTokenId = (
   oldTxsByTxId: TxsByTokenId,

@@ -4,6 +4,7 @@ import {
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiIcon,
   EuiPage,
   EuiPageBody,
   EuiPageContent,
@@ -11,11 +12,13 @@ import {
   EuiSpacer,
   EuiTabbedContent,
   EuiTitle,
+  EuiToolTip,
 } from "@elastic/eui";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
+import shallow from "zustand/shallow.js";
 
 import {
   atomicToHumanString,
@@ -30,16 +33,16 @@ import { StatList } from "../components/StatList";
 import { NativeTokenIcon, TokenIcon } from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
 import { EcosystemId, getSolanaTokenDetails } from "../config";
-import { useConfig } from "../contexts";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import {
   usePool,
   useRegisterErc20Token,
   useTitle,
   useUserLpBalances,
 } from "../hooks";
-import BSC_SVG from "../images/bsc.svg";
-import ETHEREUM_SVG from "../images/ethereum.svg";
-import { SwimDefiInstruction } from "../models";
+import BSC_SVG from "../images/ecosystems/bsc.svg";
+import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
 import { defaultIfError, pluralize } from "../utils";
 
 const humanizeUsdAmount = (amount: string): string =>
@@ -47,7 +50,7 @@ const humanizeUsdAmount = (amount: string): string =>
 
 const PoolPage = (): ReactElement => {
   const { poolId } = useParams<{ readonly poolId: string }>();
-  const { pools } = useConfig();
+  const { pools } = useEnvironment(selectConfig, shallow);
 
   const poolSpec = pools.find((pool) => pool.id === poolId) ?? null;
 
@@ -73,8 +76,29 @@ const PoolPage = (): ReactElement => {
   );
 };
 
+// TODO: Make code DRY.
+const getPoolTitle = (poolSpec: PoolSpec): ReactElement => {
+  return !poolSpec.isStableSwap ? (
+    <EuiTitle>
+      <h2>
+        {poolSpec.displayName + "  "}
+        <EuiToolTip
+          position="right"
+          content="This pool uses a constant product curve, prices deviate from 1:1."
+        >
+          <EuiIcon size="l" type="questionInCircle" color="primary" />
+        </EuiToolTip>
+      </h2>
+    </EuiTitle>
+  ) : (
+    <EuiTitle>
+      <h2>{poolSpec.displayName}</h2>
+    </EuiTitle>
+  );
+};
+
 export interface PoolPageInnerProps {
-  readonly poolSpec: PoolSpec;
+  readonly poolSpec: PoolSpec; // TODO: In PoolPage component, poolSpec can be null, that case should be taken as an option
 }
 
 export const PoolPageInner = ({
@@ -85,11 +109,7 @@ export const PoolPageInner = ({
   const [currentInteraction, setCurrentInteraction] = useState<string | null>(
     null,
   );
-  const [instructions, setInstructions] = useState<
-    readonly SwimDefiInstruction[]
-  >([SwimDefiInstruction.Add]);
-  const isAdd =
-    instructions.length === 1 && instructions[0] === SwimDefiInstruction.Add;
+  const [isAdd, setIsAdd] = useState(true);
   const { showPrompt: showRegisterEthereumTokenPrompt } = useRegisterErc20Token(
     EcosystemId.Ethereum,
   );
@@ -186,10 +206,7 @@ export const PoolPageInner = ({
               },
             ]}
           />
-
-          <EuiTitle>
-            <h2>{poolSpec.displayName}</h2>
-          </EuiTitle>
+          {getPoolTitle(poolSpec)}
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <SlippageButton
@@ -231,15 +248,7 @@ export const PoolPageInner = ({
               },
             ]}
             onTabClick={({ id }) => {
-              const newInstructions =
-                id === "add"
-                  ? [SwimDefiInstruction.Add]
-                  : [
-                      SwimDefiInstruction.RemoveUniform,
-                      SwimDefiInstruction.RemoveExactBurn,
-                      SwimDefiInstruction.RemoveExactOutput,
-                    ];
-              setInstructions(newInstructions);
+              setIsAdd(id === "add");
             }}
           />
         </EuiFlexItem>
@@ -291,7 +300,6 @@ export const PoolPageInner = ({
       <RecentInteractions
         title={recentInteractionsTitle}
         poolId={poolSpec.id}
-        instructions={instructions}
         currentInteraction={currentInteraction}
       />
     </>

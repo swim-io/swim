@@ -3,8 +3,8 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
-import { EcosystemId } from "../../config";
-import { useEnvironment, useEvmConnection } from "../../contexts";
+import { useEvmConnection } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 
 // Query for gas price in native currency
 // e.g. ETH for Ethereum, BNB for Binance Smart Chain
@@ -14,14 +14,6 @@ export const useGasPriceQuery = (
   const { env } = useEnvironment();
   const connection = useEvmConnection(evmEcosystemId);
   return useQuery(["gasPrice", env, evmEcosystemId], async () => {
-    if (
-      !process.env.REACT_APP_ADDITIONAL_EVM_CHAINS &&
-      (evmEcosystemId === EcosystemId.Avalanche ||
-        evmEcosystemId === EcosystemId.Polygon)
-    ) {
-      return new Decimal(0);
-    }
-
     // The BSC connection still returns the gas price in "wei" (ie 1e-18 BNB)
     // even though this is not a valid unit of BNB
     const gasPriceInWei = await connection.provider.getGasPrice();

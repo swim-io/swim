@@ -1,13 +1,16 @@
+import shallow from "zustand/shallow.js";
+
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
-import { useConfig } from "../../contexts";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import type { ReadonlyRecord } from "../../utils";
 
 export const useTokensByEcosystem = (): ReadonlyRecord<
   EcosystemId,
   readonly TokenSpec[]
 > => {
-  const { tokens } = useConfig();
+  const { tokens } = useEnvironment(selectConfig, shallow);
   const filterTokensByEcosystem = (
     ecosystem: EcosystemId,
   ): readonly TokenSpec[] =>
@@ -20,5 +23,9 @@ export const useTokensByEcosystem = (): ReadonlyRecord<
     [EcosystemId.Bsc]: filterTokensByEcosystem(EcosystemId.Bsc),
     [EcosystemId.Avalanche]: filterTokensByEcosystem(EcosystemId.Avalanche),
     [EcosystemId.Polygon]: filterTokensByEcosystem(EcosystemId.Polygon),
+    [EcosystemId.Aurora]: filterTokensByEcosystem(EcosystemId.Aurora),
+    [EcosystemId.Fantom]: filterTokensByEcosystem(EcosystemId.Fantom),
+    [EcosystemId.Karura]: filterTokensByEcosystem(EcosystemId.Karura),
+    [EcosystemId.Acala]: filterTokensByEcosystem(EcosystemId.Acala),
   };
 };

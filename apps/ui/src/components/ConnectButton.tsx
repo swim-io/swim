@@ -2,27 +2,22 @@ import type { EuiButtonProps, PropsForButton } from "@elastic/eui";
 import { EuiButton, EuiHideFor, EuiIcon, EuiShowFor } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import { EcosystemId } from "../config";
-import { useConfig } from "../contexts";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import { useWallets } from "../hooks";
-import BSC_SVG from "../images/bsc.svg";
-import ETHEREUM_SVG from "../images/ethereum.svg";
-import SOLANA_SVG from "../images/solana.svg";
+import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
+import BSC_SVG from "../images/ecosystems/bsc.svg";
+import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+import POLYGON_SVG from "../images/ecosystems/polygon.svg";
+import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import { shortenAddress } from "../utils";
 
 import { MultiWalletModal } from "./MultiWalletModal";
 
 import "./ConnectButton.scss";
-
-export const LABEL_MAP: Record<EcosystemId, string> = {
-  [EcosystemId.Solana]: "Connect Solana",
-  [EcosystemId.Ethereum]: "Connect Ethereum",
-  [EcosystemId.Terra]: "Connect Terra",
-  [EcosystemId.Bsc]: "Connect BNB Chain",
-  [EcosystemId.Avalanche]: "Connect Avalanche",
-  [EcosystemId.Polygon]: "Connect Polygon",
-};
 
 export interface ConnectButtonProps extends PropsForButton<EuiButtonProps> {
   readonly ecosystemId: EcosystemId;
@@ -33,7 +28,7 @@ export const ConnectButton = ({
   ecosystemId,
   ...rest
 }: ConnectButtonProps): ReactElement => {
-  const { ecosystems } = useConfig();
+  const { ecosystems } = useEnvironment(selectConfig, shallow);
   if (ecosystemId === EcosystemId.Terra) {
     throw new Error("Unsupported ecosystem");
   }
@@ -67,7 +62,9 @@ export const ConnectButton = ({
         ) : (
           <>
             <EuiShowFor sizes={["xs"]}>Connect</EuiShowFor>
-            <EuiHideFor sizes={["xs"]}>{LABEL_MAP[ecosystemId]}</EuiHideFor>
+            <EuiHideFor sizes={["xs"]}>
+              Connect {ecosystem.displayName}
+            </EuiHideFor>
           </>
         )}
       </span>
@@ -87,11 +84,15 @@ export const MultiConnectButton = ({
     solana: { connected: isSolanaConnected },
     ethereum: { connected: isEthereumConnected },
     bsc: { connected: isBscConnected },
+    avalanche: { connected: isAvalancheConnected },
+    polygon: { connected: isPolygonConnected },
   } = useWallets();
   const connectedStatuses = [
     isSolanaConnected,
     isEthereumConnected,
     isBscConnected,
+    isAvalancheConnected,
+    isPolygonConnected,
   ];
   const nConnected = connectedStatuses.filter(Boolean).length;
 
@@ -101,6 +102,8 @@ export const MultiConnectButton = ({
         {isSolanaConnected && <EuiIcon type={SOLANA_SVG} size="l" />}
         {isEthereumConnected && <EuiIcon type={ETHEREUM_SVG} size="l" />}
         {isBscConnected && <EuiIcon type={BSC_SVG} size="l" />}
+        {isAvalancheConnected && <EuiIcon type={AVALANCHE_SVG} size="l" />}
+        {isPolygonConnected && <EuiIcon type={POLYGON_SVG} size="l" />}
         &nbsp;{nConnected}
         <span>&nbsp;connected</span>
       </>
@@ -109,6 +112,9 @@ export const MultiConnectButton = ({
         <EuiIcon type={SOLANA_SVG} size="l" />
         <EuiIcon type={ETHEREUM_SVG} size="l" />
         <EuiIcon type={BSC_SVG} size="l" />
+        {/* TODO: Consider adding these:
+        <EuiIcon type={AVALANCHE_SVG} size="l" />
+        <EuiIcon type={POLYGON_SVG} size="l" /> */}
         &nbsp;
         <EuiShowFor sizes={["xs"]}>Connect</EuiShowFor>
         <EuiHideFor sizes={["xs"]}>Connect Wallets</EuiHideFor>

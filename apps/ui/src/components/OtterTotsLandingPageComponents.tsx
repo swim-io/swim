@@ -52,12 +52,12 @@ const faqEntries: readonly FaqEntry[] = [
 ];
 
 export const NftFaqAccordians = (): readonly ReactElement[] => {
-  return faqEntries.map((faqEntry, idx) => {
+  return faqEntries.map((faqEntry, index) => {
     return (
-      <>
+      <div key={index}>
         <EuiPanel>
           <EuiAccordion
-            id={"faq_".concat(idx.toString())}
+            id={"faq_".concat(index.toString())}
             buttonContent={
               <EuiText>
                 <h4> {faqEntry.question}</h4>
@@ -71,7 +71,7 @@ export const NftFaqAccordians = (): readonly ReactElement[] => {
           </EuiAccordion>
         </EuiPanel>
         <EuiSpacer />
-      </>
+      </div>
     );
   });
 };
@@ -87,22 +87,23 @@ export const AlternatingFeaturettes = (): readonly ReactElement[] => {
     {
       title: "Interest bearing",
       text: "Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo. Nemo",
-      image: <EuiImage src={OTTER_INTEREST} alt="" />,
+      image: <EuiImage src={OTTER_INTEREST} alt="interest bearing" />,
     },
     {
       title: "Redeemable",
       text: "Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo. Nemo",
-      image: <EuiImage src={OTTER_REDEEM} alt="" />,
+      image: <EuiImage src={OTTER_REDEEM} alt="redeemable" />,
     },
     {
       title: "Traits / weekly boost",
       text: "Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo. Nemo",
-      image: <EuiImage src={OTTER_TRAITS} alt="" />,
+      image: <EuiImage src={OTTER_TRAITS} alt="trait boost" />,
     },
   ];
   return featurettes.map((featurette, index) => {
+    // Logs an error without a key, does some arbritary math to create unique ones.
     const textPortion = (
-      <EuiFlexItem>
+      <EuiFlexItem key={featurette.title + "text"}>
         <EuiText grow={false} style={{ textAlign: "center" }}>
           <h3> {featurette.title} </h3>
         </EuiText>
@@ -112,11 +113,16 @@ export const AlternatingFeaturettes = (): readonly ReactElement[] => {
         </EuiText>
       </EuiFlexItem>
     );
-    const imagePortion = <EuiFlexItem>{featurette.image}</EuiFlexItem>;
+    const imagePortion = (
+      <EuiFlexItem key={featurette.title + "image"}>
+        {featurette.image}
+      </EuiFlexItem>
+    );
+    // TODO: On mobile this shouldn't alternate.
     const finishedFeaturette =
       index % 2 ? [textPortion, imagePortion] : [imagePortion, textPortion];
     return (
-      <EuiFlexGroup alignItems="center" key={index}>
+      <EuiFlexGroup alignItems="center" key={featurette.title}>
         {finishedFeaturette}
       </EuiFlexGroup>
     );
@@ -128,13 +134,15 @@ export const IsWhitelistedButton = (): ReactElement => {
   const isWhiteListed = true; // TODO: This should be a hook (queries our whitelist somewhere)
   const buttonText = !isPressed
     ? "Click to see if whitelisted"
-    : isWhiteListed
+    : // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    isWhiteListed
     ? "Whitelisted"
     : "Not whitelisted";
 
   const buttonColor = !isPressed
     ? "primary"
-    : isWhiteListed
+    : // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    isWhiteListed
     ? "success"
     : "warning";
 

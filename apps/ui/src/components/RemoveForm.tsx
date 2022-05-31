@@ -16,10 +16,12 @@ import {
 import Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../config";
 import { EcosystemId, ecosystems } from "../config";
-import { useConfig, useNotification } from "../contexts";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   usePool,
@@ -34,9 +36,10 @@ import {
 } from "../hooks";
 import {
   Amount,
+  InteractionType,
   Status,
-  SwimDefiInstruction,
   getLowBalanceWallets,
+  isValidSlippageFraction,
 } from "../models";
 import type { ReadonlyRecord } from "../utils";
 import {
@@ -46,12 +49,11 @@ import {
   isNotNull,
 } from "../utils";
 
-import { ActionSteps } from "./ActionSteps";
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
-import { isValidSlippageFraction } from "./SlippageButton";
+import { StepsDisplay } from "./StepsDisplay";
 import { TokenIcon } from "./TokenIcon";
 
 export const enum RemoveMethod {
@@ -71,7 +73,7 @@ export const RemoveForm = ({
   poolSpec,
   maxSlippageFraction,
 }: RemoveFormProps): ReactElement => {
-  const config = useConfig();
+  const config = useEnvironment(selectConfig, shallow);
   const {
     tokens: poolTokens,
     lpToken,
@@ -85,7 +87,7 @@ export const RemoveForm = ({
     startInteraction,
     mutations,
     isInteractionInProgress,
-  } = useStepsReducer(poolSpec.id);
+  } = useStepsReducer();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userLpBalances = useUserLpBalances(lpToken, userLpTokenAccount);
   const wallets = useWallets();
@@ -129,6 +131,10 @@ export const RemoveForm = ({
       [EcosystemId.Terra]: [],
       [EcosystemId.Avalanche]: [],
       [EcosystemId.Polygon]: [],
+      [EcosystemId.Aurora]: [],
+      [EcosystemId.Fantom]: [],
+      [EcosystemId.Karura]: [],
+      [EcosystemId.Acala]: [],
     },
   );
 
@@ -505,7 +511,8 @@ export const RemoveForm = ({
       !splTokenAccounts ||
       maxSlippageFraction === null ||
       !isEachNotNull(outputAmounts) ||
-      (method === RemoveMethod.ExactBurn && outputTokenIndex === -1)
+      (method === RemoveMethod.ExactBurn && outputTokenIndex === -1) ||
+      poolMath === null
     ) {
       notify(
         "Form error",
@@ -520,14 +527,22 @@ export const RemoveForm = ({
         const minimumOutputAmounts = outputAmounts.map((amount) =>
           amount.sub(amount.mul(maxSlippageFraction)),
         );
-        const interactionId = startInteraction({
-          instruction: SwimDefiInstruction.RemoveUniform,
-          params: {
-            exactBurnAmount,
-            minimumOutputAmounts,
+        const interactionId = startInteraction(
+          {
+            type: InteractionType.RemoveUniform,
+            poolId: poolSpec.id,
+            params: {
+              exactBurnAmount,
+              minimumOutputAmounts: minimumOutputAmounts.reduce(
+                (amountsByTokenId, amount) =>
+                  amountsByTokenId.set(amount.tokenId, amount),
+                new Map(),
+              ),
+            },
+            lpTokenSourceEcosystem,
           },
-          lpTokenSourceEcosystem,
-        });
+          [poolMath],
+        );
         setCurrentInteraction(interactionId);
         return;
       }
@@ -536,15 +551,18 @@ export const RemoveForm = ({
         const minimumOutputAmount = outputAmount.sub(
           outputAmount.mul(maxSlippageFraction),
         );
-        const interactionId = startInteraction({
-          instruction: SwimDefiInstruction.RemoveExactBurn,
-          params: {
-            exactBurnAmount,
-            outputTokenIndex,
-            minimumOutputAmount,
+        const interactionId = startInteraction(
+          {
+            type: InteractionType.RemoveExactBurn,
+            poolId: poolSpec.id,
+            params: {
+              exactBurnAmount,
+              minimumOutputAmount,
+            },
+            lpTokenSourceEcosystem,
           },
-          lpTokenSourceEcosystem,
-        });
+          [poolMath],
+        );
         setCurrentInteraction(interactionId);
         return;
       }
@@ -552,14 +570,22 @@ export const RemoveForm = ({
         if (maximumBurnAmount === null) {
           throw new Error("LP token estimate not available");
         }
-        const interactionId = startInteraction({
-          instruction: SwimDefiInstruction.RemoveExactOutput,
-          params: {
-            maximumBurnAmount,
-            exactOutputAmounts: outputAmounts,
+        const interactionId = startInteraction(
+          {
+            type: InteractionType.RemoveExactOutput,
+            poolId: poolSpec.id,
+            params: {
+              maximumBurnAmount,
+              exactOutputAmounts: outputAmounts.reduce(
+                (amountsByTokenId, amount) =>
+                  amountsByTokenId.set(amount.tokenId, amount),
+                new Map(),
+              ),
+            },
+            lpTokenSourceEcosystem,
           },
-          lpTokenSourceEcosystem,
-        });
+          [poolMath],
+        );
         setCurrentInteraction(interactionId);
         return;
       }
@@ -772,7 +798,7 @@ export const RemoveForm = ({
       </EuiButton>
       <EuiSpacer />
       {interaction && steps && (
-        <ActionSteps
+        <StepsDisplay
           retryInteraction={retryInteraction}
           interaction={interaction}
           steps={steps}

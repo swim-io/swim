@@ -1,6 +1,6 @@
 import {
   EuiButtonEmpty,
-  EuiFlexGroup,
+  EuiFlexGrid,
   EuiFlexItem,
   EuiIcon,
   EuiModalBody,
@@ -11,15 +11,17 @@ import {
 } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
+import shallow from "zustand/shallow.js";
 
 import { EcosystemId } from "../config";
-import { useConfig } from "../contexts";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import { useWallets } from "../hooks";
-import AVALANCHE_SVG from "../images/avalanche.svg";
-import BSC_SVG from "../images/bsc.svg";
-import ETHEREUM_SVG from "../images/ethereum.svg";
-import POLYGON_SVG from "../images/polygon.svg";
-import SOLANA_SVG from "../images/solana.svg";
+import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
+import BSC_SVG from "../images/ecosystems/bsc.svg";
+import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+import POLYGON_SVG from "../images/ecosystems/polygon.svg";
+import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import {
   AVALANCHE_WALLET_SERVICES,
   BSC_WALLET_SERVICES,
@@ -142,7 +144,7 @@ export const MultiWalletModal = ({
 }: MultiWalletModalProps): ReactElement => {
   const { solana, ethereum, bsc, avalanche, polygon } = useWallets();
 
-  const { ecosystems } = useConfig();
+  const { ecosystems } = useEnvironment(selectConfig, shallow);
   const solanaEcosystem = ecosystems[EcosystemId.Solana];
   const ethereumEcosystem = ecosystems[EcosystemId.Ethereum];
   const bscEcosystem = ecosystems[EcosystemId.Bsc];
@@ -160,7 +162,7 @@ export const MultiWalletModal = ({
       <EuiModalBody>
         {isUserOnMobileDevice() ? <MobileDeviceDisclaimer /> : ""}
         <EuiSpacer />
-        <EuiFlexGroup gutterSize="xl">
+        <EuiFlexGrid columns={3} gutterSize="xl">
           <EcosystemWalletOptionsList
             address={solana.address}
             connected={solana.connected}
@@ -188,30 +190,25 @@ export const MultiWalletModal = ({
             ecosystemId={EcosystemId.Bsc}
             createServiceClickHandler={bsc.createServiceClickHandler}
           />
-        </EuiFlexGroup>
-        {/* TODO: Remove condition when Avalanche and Polygon are supported */}
-        {process.env.REACT_APP_ADDITIONAL_EVM_CHAINS && (
-          <EuiFlexGroup>
-            <EcosystemWalletOptionsList
-              address={avalanche.address}
-              connected={avalanche.connected}
-              icon={AVALANCHE_SVG}
-              ecosystemName={avalancheEcosystem.displayName}
-              walletServices={AVALANCHE_WALLET_SERVICES}
-              ecosystemId={EcosystemId.Avalanche}
-              createServiceClickHandler={avalanche.createServiceClickHandler}
-            />
-            <EcosystemWalletOptionsList
-              address={polygon.address}
-              connected={polygon.connected}
-              icon={POLYGON_SVG}
-              ecosystemName={polygonEcosystem.displayName}
-              walletServices={POLYGON_WALLET_SERVICES}
-              ecosystemId={EcosystemId.Polygon}
-              createServiceClickHandler={polygon.createServiceClickHandler}
-            />
-          </EuiFlexGroup>
-        )}
+          <EcosystemWalletOptionsList
+            address={avalanche.address}
+            connected={avalanche.connected}
+            icon={AVALANCHE_SVG}
+            ecosystemName={avalancheEcosystem.displayName}
+            walletServices={AVALANCHE_WALLET_SERVICES}
+            ecosystemId={EcosystemId.Avalanche}
+            createServiceClickHandler={avalanche.createServiceClickHandler}
+          />
+          <EcosystemWalletOptionsList
+            address={polygon.address}
+            connected={polygon.connected}
+            icon={POLYGON_SVG}
+            ecosystemName={polygonEcosystem.displayName}
+            walletServices={POLYGON_WALLET_SERVICES}
+            ecosystemId={EcosystemId.Polygon}
+            createServiceClickHandler={polygon.createServiceClickHandler}
+          />
+        </EuiFlexGrid>
       </EuiModalBody>
     </CustomModal>
   );

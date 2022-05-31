@@ -23,6 +23,59 @@ describe("PoolMath tests", () => {
     });
   });
 
+  test("basic constant product depth", () => {
+    const tokenCount = 2;
+    const ampFactor = new Decimal(0);
+    const lpFee = new Decimal(0);
+    const governanceFee = new Decimal(0);
+
+    const pool = new PoolMath(tokenCount, ampFactor, lpFee, governanceFee);
+    expect(pool.add([new Decimal(3), new Decimal(12)])).toEqual({
+      lpOutputAmount: new Decimal(12),
+      governanceMintAmount: new Decimal(0),
+    });
+  });
+
+  test("basic constant product add", () => {
+    const balances = [1, 4].map((b) => new Decimal(b));
+    const ampFactor = new Decimal(0);
+    const lpFee = new Decimal(0);
+    const governanceFee = new Decimal(0);
+
+    const pool = new PoolMath(balances, ampFactor, lpFee, governanceFee);
+    expect(pool.depth()).toEqual(new Decimal(4));
+    expect(pool.add([new Decimal(5), new Decimal(2)])).toEqual({
+      lpOutputAmount: new Decimal(8),
+      governanceMintAmount: new Decimal(0),
+    });
+  });
+
+  test("basic constant product swap", () => {
+    const balances = [1, 4].map((b) => new Decimal(b));
+    const ampFactor = new Decimal(0);
+    const lpFee = new Decimal(0);
+    const governanceFee = new Decimal(0);
+
+    const pool = new PoolMath(balances, ampFactor, lpFee, governanceFee);
+    expect(pool.swapExactInput([new Decimal(1), new Decimal(0)], 1)).toEqual({
+      stableOutputAmount: new Decimal(2),
+      governanceMintAmount: new Decimal(0),
+    });
+  });
+
+  test("basic constant product swap with fee", () => {
+    const balances = [1, 4].map((b) => new Decimal(b));
+    const ampFactor = new Decimal(0);
+    const lpFee = new Decimal("0.5");
+    const governanceFee = new Decimal(0);
+
+    const pool = new PoolMath(balances, ampFactor, lpFee, governanceFee);
+    expect(pool.swapExactInput([new Decimal(2), new Decimal(0)], 1)).toEqual({
+      stableOutputAmount: new Decimal(2),
+      governanceMintAmount: new Decimal(0),
+    });
+  });
+
   test("depth and missing balance calculations", () => {
     const balances = [20, 10, 20, 5, 2, 1].map((b) => new Decimal(b));
     const ampFactor = new Decimal(1);

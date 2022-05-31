@@ -4,11 +4,8 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import { EcosystemId, Env } from "../../config";
-import {
-  useEnvironment,
-  useSolanaConnection,
-  useSolanaWallet,
-} from "../../contexts";
+import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { useEnvironment } from "../../core/store";
 import type { SolanaConnection, SolanaTx } from "../../models";
 import { INTERACTION_ID_LENGTH_HEX } from "../../models";
 
@@ -63,18 +60,18 @@ const addSolanaInteractionId = async (
 };
 
 export const useRecentSolanaTxsQuery = (): UseQueryResult<
-  readonly SolanaTx[] | null,
+  readonly SolanaTx[],
   Error
 > => {
   const { env } = useEnvironment();
   const solanaConnection = useSolanaConnection();
   const { address } = useSolanaWallet();
   const queryKey = ["solanaTxs", env, address];
-  return useQuery<readonly SolanaTx[] | null, Error>(
+  return useQuery(
     queryKey,
     async () => {
       if (address === null) {
-        return null;
+        throw new Error("Solana address not found");
       }
 
       // fetch all transaction signatures first, this can easily be 1000 txs but it counts as one RPC call
@@ -121,6 +118,7 @@ export const useRecentSolanaTxsQuery = (): UseQueryResult<
     },
     {
       refetchOnWindowFocus: false, // additionally disable this to save on queries
+      enabled: !!address,
     },
   );
 };

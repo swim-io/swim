@@ -1,6 +1,9 @@
+import shallow from "zustand/shallow.js";
+
 import type { ChainSpec, CosmosSpec, EvmSpec, SolanaSpec } from "../../config";
 import { EcosystemId, Protocol } from "../../config";
-import { useConfig } from "../../contexts";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import type { ReadonlyRecord } from "../../utils";
 
 export interface ChainsByEcosystem
@@ -11,16 +14,24 @@ export interface ChainsByEcosystem
   readonly [EcosystemId.Terra]: CosmosSpec | null;
   readonly [EcosystemId.Avalanche]: EvmSpec | null;
   readonly [EcosystemId.Polygon]: EvmSpec | null;
+  readonly [EcosystemId.Aurora]: EvmSpec | null;
+  readonly [EcosystemId.Fantom]: EvmSpec | null;
+  readonly [EcosystemId.Karura]: EvmSpec | null;
+  readonly [EcosystemId.Acala]: EvmSpec | null;
 }
 
 export const useChainsByEcosystem = (): ChainsByEcosystem => {
-  const { chains } = useConfig();
+  const { chains } = useEnvironment(selectConfig, shallow);
   const [solana] = chains[Protocol.Solana];
-  const [ethereum, bsc, avalanche, polygon] = [
+  const [ethereum, bsc, avalanche, polygon, aurora, fantom, acala] = [
     EcosystemId.Ethereum,
     EcosystemId.Bsc,
     EcosystemId.Avalanche,
     EcosystemId.Polygon,
+    EcosystemId.Aurora,
+    EcosystemId.Fantom,
+    EcosystemId.Karura,
+    EcosystemId.Acala,
   ].map(
     (ecosystemId) =>
       chains[Protocol.Evm].find((chain) => chain.ecosystem === ecosystemId) ??
@@ -39,5 +50,9 @@ export const useChainsByEcosystem = (): ChainsByEcosystem => {
     [EcosystemId.Terra]: terra,
     [EcosystemId.Avalanche]: avalanche,
     [EcosystemId.Polygon]: polygon,
+    [EcosystemId.Aurora]: aurora,
+    [EcosystemId.Fantom]: fantom,
+    [EcosystemId.Karura]: acala,
+    [EcosystemId.Acala]: acala,
   };
 };

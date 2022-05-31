@@ -16,10 +16,12 @@ import {
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
 import type { PoolSpec, TokenSpec } from "../config";
-import { useConfig, useNotification } from "../contexts";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   useAddFeesEstimationQuery,
@@ -35,19 +37,19 @@ import {
 } from "../hooks";
 import {
   Amount,
+  InteractionType,
   Status,
-  SwimDefiInstruction,
   getLowBalanceWallets,
+  isValidSlippageFraction,
 } from "../models";
 import { isEachNotNull, isNotNull } from "../utils";
 
-import { ActionSteps } from "./ActionSteps";
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
-import { isValidSlippageFraction } from "./SlippageButton";
+import { StepsDisplay } from "./StepsDisplay";
 import { TokenIcon } from "./TokenIcon";
 
 interface TokenAddPanelProps {
@@ -177,7 +179,7 @@ export const AddForm = ({
   maxSlippageFraction,
 }: AddFormProps): ReactElement => {
   const { notify } = useNotification();
-  const config = useConfig();
+  const config = useEnvironment(selectConfig, shallow);
   const wallets = useWallets();
   const {
     tokens: poolTokens,
@@ -194,7 +196,7 @@ export const AddForm = ({
     startInteraction,
     mutations,
     isInteractionInProgress,
-  } = useStepsReducer(poolSpec.id);
+  } = useStepsReducer();
   const userNativeBalances = useUserNativeBalances();
 
   const [lpTargetEcosystem, setLpTargetEcosystem] = useState(
@@ -428,7 +430,9 @@ export const AddForm = ({
     if (
       splTokenAccounts === null ||
       minimumMintAmount === null ||
-      !inputAmounts.every(isNotNull)
+      !inputAmounts.every(isNotNull) ||
+      maxSlippageFraction === null ||
+      poolMath === null
     ) {
       notify(
         "Form error",
@@ -438,14 +442,22 @@ export const AddForm = ({
       return;
     }
 
-    const interactionId = startInteraction({
-      instruction: SwimDefiInstruction.Add,
-      params: {
-        inputAmounts,
-        minimumMintAmount,
+    const interactionId = startInteraction(
+      {
+        type: InteractionType.Add,
+        poolId: poolSpec.id,
+        params: {
+          inputAmounts: inputAmounts.reduce(
+            (amountsByTokenId, amount) =>
+              amountsByTokenId.set(amount.tokenId, amount),
+            new Map(),
+          ),
+          minimumMintAmount,
+        },
+        lpTokenTargetEcosystem: lpTargetEcosystem,
       },
-      lpTokenTargetEcosystem: lpTargetEcosystem,
-    });
+      [poolMath],
+    );
     setCurrentInteraction(interactionId);
   };
 
@@ -518,7 +530,7 @@ export const AddForm = ({
         </>
       )}
 
-      <PoolPausedAlert isVisible={isPoolPaused} />
+      <PoolPausedAlert isVisible={!!isPoolPaused} />
 
       {hasPositiveInputAmount && (
         <EstimatedTxFeesCallout feesEstimation={feesEstimation} />
@@ -540,7 +552,7 @@ export const AddForm = ({
       <EuiSpacer />
 
       {interaction && steps && (
-        <ActionSteps
+        <StepsDisplay
           retryInteraction={retryInteraction}
           interaction={interaction}
           steps={steps}

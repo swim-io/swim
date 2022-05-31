@@ -6,6 +6,7 @@ import "./App.scss";
 
 import { AppCrashed, NewVersionAlert } from "./components/AppCrashed";
 import { Layout } from "./components/Layout";
+import Notification from "./components/Notification";
 import { AppContext } from "./contexts";
 import CollectiblesPage from "./pages/CollectiblesPage";
 import HelpPage from "./pages/HelpPage";
@@ -14,13 +15,13 @@ import MediaPage from "./pages/MediaPage";
 import OtterTotsPage from "./pages/OtterTotsPage";
 import PoolPage from "./pages/PoolPage";
 import PoolsPage from "./pages/PoolsPage";
+import RedeemPage from "./pages/RedeemPage";
 import SecurityPage from "./pages/SecurityPage";
 import SetCustomLocalnetPage from "./pages/SetCustomLocalnetPage";
 import StakePage from "./pages/StakePage";
 import SwapPage from "./pages/SwapPage";
 import TestPage from "./pages/TestPage";
 import TosPage from "./pages/TosPage";
-import WormholePage from "./pages/WormholePage";
 
 function App(): ReactElement {
   return (
@@ -56,9 +57,6 @@ function App(): ReactElement {
               <Route path="/test">
                 <TestPage />
               </Route>
-              <Route path="/wormhole">
-                <WormholePage />
-              </Route>
               <Route exact path="/pools">
                 <PoolsPage />
               </Route>
@@ -71,9 +69,16 @@ function App(): ReactElement {
               <Route path="/swap">
                 <SwapPage />
               </Route>
-              <Route exact path="/otter-tots">
-                <OtterTotsPage />
-              </Route>
+              {process.env.REACT_APP_ENABLE_NFT && (
+                <Route exact path="/otter-tots">
+                  <OtterTotsPage />
+                </Route>
+              )}
+              {process.env.REACT_APP_ENABLE_NFT && (
+                <Route path="/redeem">
+                  <RedeemPage />
+                </Route>
+              )}
               <Route path="/collectibles">
                 <CollectiblesPage />
               </Route>
@@ -96,6 +101,7 @@ function App(): ReactElement {
           </Layout>
         </AppContext>
       </Router>
+      <Notification />
     </Sentry.ErrorBoundary>
   );
 }

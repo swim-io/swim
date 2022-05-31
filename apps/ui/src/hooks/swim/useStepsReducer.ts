@@ -1,26 +1,28 @@
 import * as Sentry from "@sentry/react";
-import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
+import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { Dispatch, Reducer } from "react";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import type { UseMutationResult } from "react-query";
 import { useQueryClient } from "react-query";
+import shallow from "zustand/shallow.js";
 
 import { EcosystemId, isEvmEcosystemId } from "../../config";
-import {
-  useActiveInteractionContext,
-  useConfig,
-  useEnvironment,
-} from "../../contexts";
+import { useActiveInteractionContext } from "../../contexts";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import { captureAndWrapException } from "../../errors";
 import {
   ActionType,
+  InteractionType,
   Status,
-  SwimDefiInstruction,
   combineTransfers,
   generateId,
   generateSignatureSetKeypairs,
   getConnectedWallets,
+  getRequiredPools,
   getSignatureSetAddresses,
+  getTokensByPool,
+  groupTxsByPoolId,
   groupTxsByTokenId,
   initialState,
   isInProgress,
@@ -32,14 +34,13 @@ import type {
   InitiateInteractionAction,
   Interaction,
   InteractionSpec,
-  PoolInteraction,
-  SolanaTx,
+  PoolMath,
   State,
   Transfer,
   TransfersToSolanaWithExistingTxs,
   TransfersWithExistingTxs,
+  TxWithPoolId,
   TxWithTokenId,
-  WithSplTokenAccounts,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import {
@@ -52,38 +53,61 @@ import {
   useTransferSplTokensToEvmGenerator,
 } from "../wormhole";
 
-import { usePool } from "./usePool";
-import { usePoolInteractionMutation } from "./usePoolInteractionMutation";
+import type { PoolOperationsInput } from "./usePoolOperationsGenerator";
+import { usePoolOperationsGenerator } from "./usePoolOperationsGenerator";
 
 export interface StepMutations {
   readonly createSplTokenAccounts: UseMutationResult<
-    readonly TokenAccountInfo[],
+    readonly TokenAccount[],
     Error,
     readonly string[]
   >;
   readonly wormholeToSolana: UseAsyncGeneratorResult<
-    WithSplTokenAccounts<TransfersToSolanaWithExistingTxs>,
+    TransfersToSolanaWithExistingTxs,
     TxWithTokenId
   >;
-  readonly interactWithPool: UseMutationResult<
-    SolanaTx,
-    Error,
-    WithSplTokenAccounts<PoolInteraction>
+  readonly doPoolOperations: UseAsyncGeneratorResult<
+    PoolOperationsInput,
+    TxWithPoolId
   >;
   readonly wormholeFromSolana: UseAsyncGeneratorResult<
-    WithSplTokenAccounts<TransfersWithExistingTxs>,
+    TransfersWithExistingTxs,
     TxWithTokenId
   >;
 }
 
 export interface StepsReducer {
   readonly state: State;
-  readonly startInteraction: (interactionSpec: InteractionSpec) => string;
+  readonly startInteraction: (
+    interactionSpec: InteractionSpec,
+    poolMaths: readonly PoolMath[],
+  ) => string;
   readonly resumeInteraction: () => Promise<void>;
   readonly retryInteraction: () => void;
   readonly mutations: StepMutations;
   readonly isInteractionInProgress: boolean;
 }
+
+// This effect handles updates during the CreatedSplTokenAccounts/CompletedPoolInteraction stages.
+// The generator hook updates data with each result and it updates isSuccess once it is finished.
+const useResumeInteractionOnDataEffect = <T>(
+  isExternalConditionMet: boolean,
+  data: T,
+  resumeInteraction: () => any,
+): void => {
+  const dataRef = useRef(data);
+
+  useEffect((): void => {
+    const shouldResume = isExternalConditionMet && data !== dataRef.current;
+
+    // eslint-disable-next-line functional/immutable-data
+    dataRef.current = data;
+
+    if (shouldResume) {
+      resumeInteraction();
+    }
+  }, [isExternalConditionMet, data, resumeInteraction]);
+};
 
 // This effect handles updates during the CreatedSplTokenAccounts/CompletedPoolInteraction stages.
 // The generator hook updates data with each result and it updates isSuccess once it is finished.
@@ -140,19 +164,18 @@ const useRegisterErrorEffect = (
 };
 
 export const useStepsReducer = (
-  poolId: string,
   currentState: State = initialState,
 ): StepsReducer => {
   const { env } = useEnvironment();
-  const config = useConfig();
+  const config = useEnvironment(selectConfig, shallow);
+  const tokensByPool = getTokensByPool(config);
   const wallets = useWallets();
   const { hasActiveInteraction, setActiveInteraction } =
     useActiveInteractionContext();
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
-  const { lpToken, tokens, spec: poolSpec } = usePool(poolId);
   const queryClient = useQueryClient();
   const [state, dispatch] = useReducer<Reducer<State, Action>>(
-    reducer(config.chains, { lpToken, tokens }),
+    reducer(config),
     currentState,
   );
 
@@ -163,16 +186,9 @@ export const useStepsReducer = (
   const signatureSetKeypairsRef = useRef(
     currentState.interaction?.signatureSetKeypairs ?? {},
   );
-  const lpTokenMint =
-    lpToken.detailsByEcosystem.get(EcosystemId.Solana)?.address ?? null;
-  const tokenMints = tokens.map(
-    (tokenSpec) =>
-      tokenSpec.detailsByEcosystem.get(EcosystemId.Solana)?.address ?? null,
-  );
 
   if (currentState.interaction !== null) {
-    const transactionName =
-      SwimDefiInstruction[currentState.interaction.instruction];
+    const transactionName = InteractionType[currentState.interaction.type];
     Sentry.configureScope((scope) => scope.setTransactionName(transactionName));
   }
 
@@ -195,20 +211,20 @@ export const useStepsReducer = (
 
   const createSplTokenAccountsMutation = useCreateSplTokenAccountsMutation();
   const wormholeToSolanaMutation = useTransferEvmTokensToSolanaGenerator();
-  const interactWithPoolMutation = usePoolInteractionMutation(poolId);
+  const doPoolOperationsMutation = usePoolOperationsGenerator();
   const wormholeFromSolanaMutation = useTransferSplTokensToEvmGenerator();
 
   const mutations = useMemo(
     () => ({
       createSplTokenAccounts: createSplTokenAccountsMutation,
       wormholeToSolana: wormholeToSolanaMutation,
-      interactWithPool: interactWithPoolMutation,
+      doPoolOperations: doPoolOperationsMutation,
       wormholeFromSolana: wormholeFromSolanaMutation,
     }),
     [
       createSplTokenAccountsMutation,
       wormholeToSolanaMutation,
-      interactWithPoolMutation,
+      doPoolOperationsMutation,
       wormholeFromSolanaMutation,
     ],
   );
@@ -225,7 +241,6 @@ export const useStepsReducer = (
       queryClient.invalidateQueries(["solanaTxs", env, solanaAddress]),
       queryClient.invalidateQueries(["solBalance", env, solanaAddress]),
       queryClient.invalidateQueries(["tokenAccounts", env, solanaAddress]),
-      queryClient.invalidateQueries(["poolState", env, poolSpec.address]),
       queryClient.invalidateQueries(["liquidity", env]),
       ...involvedEvmEcosystemIds.flatMap((ecosystemId) => [
         queryClient.invalidateQueries(["evmTxs", env, ecosystemId]),
@@ -234,7 +249,7 @@ export const useStepsReducer = (
         queryClient.invalidateQueries(["evmTxFeesEstimate", env, ecosystemId]),
       ]),
     ]);
-  }, [env, poolSpec.address, queryClient, solanaAddress, state.interaction]);
+  }, [env, queryClient, solanaAddress, state.interaction]);
 
   const continueSteps = useCallback(async (): Promise<void> => {
     switch (state.status) {
@@ -276,7 +291,6 @@ export const useStepsReducer = (
           void generate({
             transfers: combineTransfers(transfers),
             existingTxs: txs,
-            splTokenAccounts: state.splTokenAccounts,
           });
           return;
         }
@@ -285,6 +299,7 @@ export const useStepsReducer = (
         return dispatch({
           type: ActionType.UpdateTransferToSolana,
           txs: txsByTokenId,
+          existingPoolOperationTxs: {},
         });
       }
       case Status.TransferredToSolana: {
@@ -293,19 +308,30 @@ export const useStepsReducer = (
           env,
           solanaAddress,
         ]);
-        const tx = await mutations.interactWithPool.mutateAsync({
-          ...state.interaction,
-          splTokenAccounts: state.splTokenAccounts,
-        });
+        const {
+          data: txs = [],
+          isLoading,
+          isSuccess,
+          generate,
+        } = mutations.doPoolOperations;
+        const { interaction, steps } = state;
+        if (!isLoading && !isSuccess) {
+          // NOTE: Errors are caught and set on the UseAsyncGeneratorResult
+          void generate({
+            interaction,
+            operations: steps.doPoolOperations.operations,
+            existingTxs: steps.doPoolOperations.txs,
+          });
+        }
+
+        const txsByPoolId = groupTxsByPoolId(txs);
         return dispatch({
-          type: ActionType.CompletePoolInteraction,
-          lpTokenMint,
-          tokenMints,
-          interactionTxs: [tx],
-          existingTransferFromTxs: state.steps.wormholeFromSolana.txs,
+          type: ActionType.UpdatePoolOperations,
+          operationTxs: txsByPoolId,
+          existingTransferFromTxs: {},
         });
       }
-      case Status.CompletedPoolInteraction: {
+      case Status.CompletedPoolOperations: {
         const {
           data = [],
           isLoading,
@@ -314,10 +340,10 @@ export const useStepsReducer = (
         } = mutations.wormholeFromSolana;
         const { transfers, txs } = state.steps.wormholeFromSolana;
         if (!isLoading && !isSuccess) {
+          // NOTE: Errors are caught and set on the UseAsyncGeneratorResult
           void generate({
             transfers: combineTransfers<Transfer>(transfers),
             existingTxs: txs,
-            splTokenAccounts: state.splTokenAccounts,
           });
         }
 
@@ -340,33 +366,48 @@ export const useStepsReducer = (
     solanaAddress,
     state,
     mutations,
-    lpTokenMint,
     splTokenAccounts,
-    tokenMints,
     queryClient,
     refreshQueries,
     setActiveInteraction,
   ]);
 
-  const startInteraction = (interactionSpec: InteractionSpec): string => {
+  const startInteraction = (
+    interactionSpec: InteractionSpec,
+    poolMaths: readonly PoolMath[],
+  ): string => {
     const interactionId = generateId();
+    setActiveInteraction(interactionId);
+    const requiredPools = getRequiredPools(config.pools, interactionSpec);
+    const inputPool = requiredPools.find(Boolean) ?? null;
+    if (inputPool === null) {
+      throw new Error("Unknown input pool");
+    }
+    const inputPoolTokens = tokensByPool[inputPool.id];
+    const outputPool =
+      requiredPools.find((_, i) => i === requiredPools.length - 1) ?? null;
+    if (outputPool === null) {
+      throw new Error("Unknown output pool");
+    }
+
     const connectedWallets = getConnectedWallets(
-      tokens,
+      config.tokens,
       interactionSpec,
       wallets,
     );
+
     const signatureSetKeypairs = generateSignatureSetKeypairs(
-      tokens,
-      lpToken,
+      inputPoolTokens.tokens,
+      inputPoolTokens.lpToken,
       interactionSpec,
       null,
     );
     const interaction: Interaction = {
       ...interactionSpec,
       id: interactionId,
-      submittedAt: Date.now(),
+      poolIds: requiredPools.map((pool) => pool.id),
       env,
-      poolId,
+      submittedAt: Date.now(),
       signatureSetKeypairs,
       previousSignatureSetAddresses:
         getSignatureSetAddresses(signatureSetKeypairs),
@@ -374,9 +415,10 @@ export const useStepsReducer = (
     };
     const action: InitiateInteractionAction = {
       type: ActionType.InitiateInteraction,
-      splTokenAccounts,
       config,
+      poolMaths,
       interaction,
+      splTokenAccounts,
       txs: [],
     };
     storeInteraction(env, config, interaction, queryClient);
@@ -385,16 +427,18 @@ export const useStepsReducer = (
   };
 
   const retryInteraction = useCallback(async (): Promise<void> => {
-    setActiveInteraction(state.interaction?.id ?? null);
+    if (state.interaction === null) {
+      throw new Error("Unknown interaction");
+    }
+    setActiveInteraction(state.interaction.id);
     await refreshQueries();
-    const signatureSetKeypairs = state.interaction
-      ? generateSignatureSetKeypairs(
-          tokens,
-          lpToken,
-          state.interaction,
-          state.steps.wormholeToSolana.transfers,
-        )
-      : {};
+    const inputPoolTokens = tokensByPool[state.interaction.poolIds[0]];
+    const signatureSetKeypairs = generateSignatureSetKeypairs(
+      inputPoolTokens.tokens,
+      inputPoolTokens.lpToken,
+      state.interaction,
+      state.steps.wormholeToSolana.transfers,
+    );
     dispatch({
       type: ActionType.ClearError,
       signatureSetKeypairs,
@@ -402,11 +446,10 @@ export const useStepsReducer = (
   }, [
     state.interaction,
     state.steps,
-    tokens,
-    lpToken,
     dispatch,
     refreshQueries,
     setActiveInteraction,
+    tokensByPool,
   ]);
 
   const resumeInteraction = useCallback(async (): Promise<void> => {
@@ -466,8 +509,14 @@ export const useStepsReducer = (
     resumeInteraction,
   );
 
+  useResumeInteractionOnDataEffect(
+    statusRef.current === Status.TransferredToSolana,
+    mutations.doPoolOperations.data,
+    resumeInteraction,
+  );
+
   useResumeInteractionOnDataOrSuccessEffect(
-    statusRef.current === Status.CompletedPoolInteraction,
+    statusRef.current === Status.CompletedPoolOperations,
     mutations.wormholeFromSolana.isSuccess,
     mutations.wormholeFromSolana.data,
     resumeInteraction,
@@ -481,7 +530,14 @@ export const useStepsReducer = (
   );
 
   useRegisterErrorEffect(
-    statusRef.current === Status.CompletedPoolInteraction,
+    statusRef.current === Status.TransferredToSolana,
+    mutations.doPoolOperations.error,
+    dispatch,
+    refreshQueries,
+  );
+
+  useRegisterErrorEffect(
+    statusRef.current === Status.CompletedPoolOperations,
     mutations.wormholeFromSolana.error,
     dispatch,
     refreshQueries,

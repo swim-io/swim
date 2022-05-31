@@ -1,10 +1,14 @@
-import { renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
 import { EcosystemId } from "../../config";
-import { AppContext } from "../../contexts";
-import { findLocalnetTokenById, mockOf } from "../../testUtils";
+import {
+  BSC_BUSD,
+  ETHEREUM_USDT,
+  SOLANA_USDC,
+  SOLANA_USDT,
+} from "../../fixtures";
+import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
 import { useSwapFeesEstimationQuery } from "./useSwapFeesEstimationQuery";
@@ -16,18 +20,10 @@ jest.mock("./useGasPriceQuery", () => ({
 // Make typescript happy with jest
 const useGasPriceQueryMock = mockOf(useGasPriceQuery);
 
-const SOLANA_USDC = findLocalnetTokenById("localnet-solana-usdc");
-const SOLANA_USDT = findLocalnetTokenById("localnet-solana-usdt");
-const ETHEREUM_USDT = findLocalnetTokenById("localnet-ethereum-usdt");
-const BSC_BUSD = findLocalnetTokenById("localnet-bsc-busd");
-
 describe("useSwapFeesEstimationQuery", () => {
   beforeEach(() => {
     // Reset queryClient cache, otherwise test might return previous value
-    // eslint-disable-next-line testing-library/no-render-in-setup
-    renderHook(() => useQueryClient().clear(), {
-      wrapper: AppContext,
-    });
+    renderHookWithAppContext(() => useQueryClient().clear());
   });
 
   describe("loading", () => {
@@ -36,11 +32,8 @@ describe("useSwapFeesEstimationQuery", () => {
         isLoading: true,
         data: undefined,
       });
-      const { result } = renderHook(
-        () => useSwapFeesEstimationQuery(SOLANA_USDT, ETHEREUM_USDT),
-        {
-          wrapper: AppContext,
-        },
+      const { result } = renderHookWithAppContext(() =>
+        useSwapFeesEstimationQuery(SOLANA_USDT, ETHEREUM_USDT),
       );
       expect(result.current).toEqual(null);
     });
@@ -50,11 +43,8 @@ describe("useSwapFeesEstimationQuery", () => {
         isLoading: true,
         data: undefined,
       });
-      const { result } = renderHook(
-        () => useSwapFeesEstimationQuery(SOLANA_USDC, SOLANA_USDT),
-        {
-          wrapper: AppContext,
-        },
+      const { result } = renderHookWithAppContext(() =>
+        useSwapFeesEstimationQuery(SOLANA_USDC, SOLANA_USDT),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0));
@@ -72,11 +62,8 @@ describe("useSwapFeesEstimationQuery", () => {
     });
 
     it("should return fixed fee for Solana only swap", async () => {
-      const { result } = renderHook(
-        () => useSwapFeesEstimationQuery(SOLANA_USDC, SOLANA_USDT),
-        {
-          wrapper: AppContext,
-        },
+      const { result } = renderHookWithAppContext(() =>
+        useSwapFeesEstimationQuery(SOLANA_USDC, SOLANA_USDT),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0));
@@ -84,11 +71,8 @@ describe("useSwapFeesEstimationQuery", () => {
     });
 
     it("should return fee for Solana => Ethereum", async () => {
-      const { result } = renderHook(
-        () => useSwapFeesEstimationQuery(SOLANA_USDC, ETHEREUM_USDT),
-        {
-          wrapper: AppContext,
-        },
+      const { result } = renderHookWithAppContext(() =>
+        useSwapFeesEstimationQuery(SOLANA_USDC, ETHEREUM_USDT),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0.021));
@@ -96,11 +80,8 @@ describe("useSwapFeesEstimationQuery", () => {
     });
 
     it("should return fee for Solana => BSC", async () => {
-      const { result } = renderHook(
-        () => useSwapFeesEstimationQuery(SOLANA_USDC, BSC_BUSD),
-        {
-          wrapper: AppContext,
-        },
+      const { result } = renderHookWithAppContext(() =>
+        useSwapFeesEstimationQuery(SOLANA_USDC, BSC_BUSD),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0));
@@ -108,11 +89,8 @@ describe("useSwapFeesEstimationQuery", () => {
     });
 
     it("should return fee for Ethereum => BSC", async () => {
-      const { result } = renderHook(
-        () => useSwapFeesEstimationQuery(ETHEREUM_USDT, BSC_BUSD),
-        {
-          wrapper: AppContext,
-        },
+      const { result } = renderHookWithAppContext(() =>
+        useSwapFeesEstimationQuery(ETHEREUM_USDT, BSC_BUSD),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0.0133));

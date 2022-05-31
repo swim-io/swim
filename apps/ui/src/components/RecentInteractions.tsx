@@ -11,29 +11,26 @@ import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
 import moment from "moment";
 import type { ReactElement } from "react";
 import { Fragment, useEffect, useMemo, useState } from "react";
+import shallow from "zustand/shallow.js";
 
-import { EcosystemId } from "../config";
-import { useConfig } from "../contexts";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import {
   isEveryAddressConnected,
-  usePool,
+  usePoolMaths,
   useRecentInteractions,
   useSplTokenAccountsQuery,
   useStepsReducer,
   useWallets,
 } from "../hooks";
-import { Status, SwimDefiInstruction, getCurrentState } from "../models";
+import { InteractionType, Status, getCurrentState } from "../models";
 import type { Interaction, State, Tx } from "../models";
-import { findOrThrow } from "../utils";
+import { isEachNotNull } from "../utils";
 
-import { ActionSteps } from "./ActionSteps";
 import { MultiConnectButton } from "./ConnectButton";
 import { ConnectedWallets } from "./ConnectedWallets";
-import {
-  AmountWithTokenIcon,
-  AmountsWithTokenIcons,
-  NativeTokenIcon,
-} from "./TokenIcon";
+import { StepsDisplay } from "./StepsDisplay";
+import { InteractionTitle } from "./molecules/InteractionTitle";
 
 export interface ActiveInteractionProps {
   readonly interaction: Interaction;
@@ -49,7 +46,7 @@ export const ActiveInteraction = ({
     retryInteraction,
     state: { status, steps },
     mutations,
-  } = useStepsReducer(interaction.poolId, existingState);
+  } = useStepsReducer(existingState);
   const [didResume, setDidResume] = useState(false);
 
   useEffect(() => {
@@ -65,7 +62,7 @@ export const ActiveInteraction = ({
     // This interaction was never initiated. This should never reach this point because it won't have been persisted.
     <></>
   ) : (
-    <ActionSteps
+    <StepsDisplay
       retryInteraction={retryInteraction}
       interaction={interaction}
       steps={steps}
@@ -86,98 +83,24 @@ export const RecentInteraction = ({
   txs,
   splTokenAccounts,
 }: RecentInteractionProps): ReactElement => {
-  const config = useConfig();
-  const { tokens, lpToken } = usePool(interaction.poolId);
+  const config = useEnvironment(selectConfig, shallow);
   const [isActive, setIsActive] = useState(false);
   const wallets = useWallets();
-  const { isInteractionInProgress } = useStepsReducer(interaction.poolId);
+  const { isInteractionInProgress } = useStepsReducer();
+  const poolMaths = usePoolMaths(interaction.poolIds);
   const currentState = useMemo(
     () =>
-      getCurrentState(
-        config,
-        splTokenAccounts,
-        tokens,
-        lpToken,
-        interaction,
-        txs ?? [],
-      ),
-    [config, splTokenAccounts, tokens, lpToken, interaction, txs],
+      isEachNotNull(poolMaths)
+        ? getCurrentState(
+            config,
+            interaction,
+            poolMaths,
+            splTokenAccounts,
+            txs ?? [],
+          )
+        : null,
+    [config, interaction, splTokenAccounts, poolMaths, txs],
   );
-
-  const title = useMemo(() => {
-    switch (interaction.instruction) {
-      case SwimDefiInstruction.Add: {
-        const nonZeroInputAmounts = interaction.params.inputAmounts.filter(
-          (amount) => !amount.isZero(),
-        );
-        return (
-          <>
-            <span>Add&nbsp;</span>
-            <AmountsWithTokenIcons amounts={nonZeroInputAmounts} />
-          </>
-        );
-      }
-      case SwimDefiInstruction.Swap: {
-        const inputAmount = findOrThrow(
-          interaction.params.exactInputAmounts,
-          (amount) => !amount.isZero(),
-        );
-        return (
-          <>
-            <span>Swap</span>{" "}
-            <AmountWithTokenIcon
-              amount={inputAmount}
-              ecosystem={EcosystemId.Solana}
-            />{" "}
-            <span>for</span>{" "}
-            <NativeTokenIcon
-              {...interaction.params.minimumOutputAmount.tokenSpec}
-            />
-          </>
-        );
-      }
-      case SwimDefiInstruction.RemoveUniform: {
-        const { minimumOutputAmounts } = interaction.params;
-        const nonZeroOutputAmounts = minimumOutputAmounts.filter(
-          (amount) => !amount.isZero(),
-        );
-        return (
-          <>
-            <span>Remove&nbsp;</span>
-            <AmountsWithTokenIcons amounts={nonZeroOutputAmounts} />
-          </>
-        );
-      }
-      case SwimDefiInstruction.RemoveExactBurn: {
-        const { minimumOutputAmount } = interaction.params;
-        return (
-          <>
-            <span>Remove</span>{" "}
-            <AmountWithTokenIcon
-              amount={minimumOutputAmount}
-              ecosystem={minimumOutputAmount.tokenSpec.nativeEcosystem}
-            />
-            <span>.</span>
-          </>
-        );
-      }
-      case SwimDefiInstruction.RemoveExactOutput: {
-        const { exactOutputAmounts } = interaction.params;
-        const nonZeroOutputAmounts = exactOutputAmounts.filter(
-          (amount) => !amount.isZero(),
-        );
-        return (
-          <>
-            <span>Remove&nbsp;</span>
-            <AmountsWithTokenIcons amounts={nonZeroOutputAmounts} />
-          </>
-        );
-      }
-      default: {
-        return "Unknown interaction type";
-      }
-    }
-  }, [interaction]);
 
   const prettyTimestamp = moment(interaction.submittedAt).fromNow();
 
@@ -191,7 +114,7 @@ export const RecentInteraction = ({
       return "Fetching transaction status...";
     }
 
-    if (currentState.steps === null) {
+    if (currentState === null || currentState.steps === null) {
       return "Loading...";
     }
 
@@ -206,7 +129,7 @@ export const RecentInteraction = ({
 
     return (
       <>
-        <ActionSteps
+        <StepsDisplay
           retryInteraction={() => setIsActive(true)}
           interaction={interaction}
           steps={currentState.steps}
@@ -253,7 +176,9 @@ export const RecentInteraction = ({
   return (
     <>
       <EuiTitle size="xs">
-        <h3>{title}</h3>
+        <h3>
+          <InteractionTitle interaction={interaction} />
+        </h3>
       </EuiTitle>
       <EuiText size="s">{prettyTimestamp}</EuiText>
       <EuiSpacer />
@@ -266,22 +191,14 @@ export const RecentInteraction = ({
 export interface RecentInteractionsProps {
   readonly title: string;
   readonly currentInteraction: string | null;
-  /** Set to null to include interactions for all pools */
+  /** Set to null to indicate we are on the Swap page */
   readonly poolId: string | null;
-  readonly instructions?: readonly SwimDefiInstruction[];
 }
 
 export const RecentInteractions = ({
   title,
   currentInteraction,
   poolId,
-  instructions = [
-    SwimDefiInstruction.Swap,
-    SwimDefiInstruction.Add,
-    SwimDefiInstruction.RemoveUniform,
-    SwimDefiInstruction.RemoveExactBurn,
-    SwimDefiInstruction.RemoveExactOutput,
-  ],
 }: RecentInteractionsProps): ReactElement => {
   const { data: splTokenAccounts = [], isSuccess: didLoadSplTokenAccounts } =
     useSplTokenAccountsQuery();
@@ -290,16 +207,16 @@ export const RecentInteractions = ({
   const { [currentInteraction ?? ""]: _, ...interactionsWithTxs } =
     useRecentInteractions();
 
-  const recentInteractions = useMemo(
-    () =>
-      Object.values(interactionsWithTxs).filter(
-        (interactionWithTxs) =>
-          interactionWithTxs &&
-          (poolId === null ||
-            poolId === interactionWithTxs.interaction.poolId) &&
-          instructions.includes(interactionWithTxs.interaction.instruction),
-      ),
-    [interactionsWithTxs, instructions, poolId],
+  const recentInteractions = Object.values(interactionsWithTxs).filter(
+    (interactionWithTxs) => {
+      if (interactionWithTxs === undefined) {
+        return false;
+      }
+      if (interactionWithTxs.interaction.type === InteractionType.Swap) {
+        return poolId === null;
+      }
+      return poolId === interactionWithTxs.interaction.poolId;
+    },
   );
   const numberOfRecentInteractions =
     currentInteraction === null

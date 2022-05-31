@@ -1,14 +1,15 @@
 import type { ReactElement, ReactNode } from "react";
 import { useContext, useMemo } from "react";
 import * as React from "react";
+import shallow from "zustand/shallow.js";
 
 import type { EvmEcosystemId } from "../config";
 import { EcosystemId, Env, Protocol, chains } from "../config";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import { EvmConnection } from "../models";
 import type { ReadonlyRecord } from "../utils";
 import { findOrThrow } from "../utils";
-
-import { useConfig, useEnvironment } from "./environment";
 
 const EthereumConnectionContext = React.createContext<EvmConnection>(
   new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][0]),
@@ -26,6 +27,22 @@ const PolygonConnectionContext = React.createContext<EvmConnection>(
   new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][3]),
 );
 
+const AuroraConnectionContext = React.createContext<EvmConnection>(
+  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][4]),
+);
+
+const FantomConnectionContext = React.createContext<EvmConnection>(
+  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][5]),
+);
+
+const KaruraConnectionContext = React.createContext<EvmConnection>(
+  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][6]),
+);
+
+const AcalaConnectionContext = React.createContext<EvmConnection>(
+  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][7]),
+);
+
 const ecosystemToContext: ReadonlyRecord<
   EvmEcosystemId,
   React.Context<EvmConnection>
@@ -34,6 +51,10 @@ const ecosystemToContext: ReadonlyRecord<
   [EcosystemId.Bsc]: BscConnectionContext,
   [EcosystemId.Avalanche]: AvalancheConnectionContext,
   [EcosystemId.Polygon]: PolygonConnectionContext,
+  [EcosystemId.Aurora]: AuroraConnectionContext,
+  [EcosystemId.Fantom]: FantomConnectionContext,
+  [EcosystemId.Karura]: KaruraConnectionContext,
+  [EcosystemId.Acala]: AcalaConnectionContext,
 };
 
 interface EvmConnectionProviderProps {
@@ -46,7 +67,7 @@ export const EvmConnectionProvider = ({
   children,
 }: EvmConnectionProviderProps): ReactElement => {
   const { env } = useEnvironment();
-  const { chains: evmChains } = useConfig();
+  const { chains: evmChains } = useEnvironment(selectConfig, shallow);
   const chainSpec = findOrThrow(
     evmChains[Protocol.Evm],
     (chain) => chain.ecosystem === ecosystemId,
@@ -71,6 +92,10 @@ export const useEvmConnections = (): ReadonlyRecord<
   [EcosystemId.Bsc]: useContext(BscConnectionContext),
   [EcosystemId.Avalanche]: useContext(AvalancheConnectionContext),
   [EcosystemId.Polygon]: useContext(PolygonConnectionContext),
+  [EcosystemId.Aurora]: useContext(AuroraConnectionContext),
+  [EcosystemId.Fantom]: useContext(FantomConnectionContext),
+  [EcosystemId.Karura]: useContext(KaruraConnectionContext),
+  [EcosystemId.Acala]: useContext(AcalaConnectionContext),
 });
 
 export const useEvmConnection = (

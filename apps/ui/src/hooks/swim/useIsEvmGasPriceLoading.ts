@@ -11,6 +11,10 @@ export const useIsEvmGasPriceLoading = (
     [EcosystemId.Bsc]: useGasPriceQuery(EcosystemId.Bsc).isLoading,
     [EcosystemId.Avalanche]: useGasPriceQuery(EcosystemId.Avalanche).isLoading,
     [EcosystemId.Polygon]: useGasPriceQuery(EcosystemId.Polygon).isLoading,
+    [EcosystemId.Aurora]: false,
+    [EcosystemId.Fantom]: false,
+    [EcosystemId.Karura]: false,
+    [EcosystemId.Acala]: false,
   };
   return ecosystemIds.some((ecosystemId) => isGasPriceLoading[ecosystemId]);
 };

@@ -20,6 +20,7 @@ import BN from "bn.js";
 import type { ReactElement } from "react";
 import { Fragment, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
+import shallow from "zustand/shallow.js";
 
 import { ConnectButton } from "../components/ConnectButton";
 import type { EvmEcosystemId } from "../config";
@@ -29,13 +30,9 @@ import {
   WormholeChainId,
   getSolanaTokenDetails,
 } from "../config";
-import {
-  useConfig,
-  useEnvironment,
-  useEvmConnections,
-  useNotification,
-  useSolanaConnection,
-} from "../contexts";
+import { useEvmConnections, useSolanaConnection } from "../contexts";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment, useNotification } from "../core/store";
 import { usePool, useTokensByEcosystem, useWallets } from "../hooks";
 import { keysHexaPool, keysSwimLake } from "../keys";
 import {
@@ -49,7 +46,11 @@ const SWIM_POOL_FEE_DECIMALS = 6;
 
 const TestPage = (): ReactElement => {
   const { env } = useEnvironment();
-  const { chains, tokens, wormhole: wormholeConfig } = useConfig();
+  const {
+    chains,
+    tokens,
+    wormhole: wormholeConfig,
+  } = useEnvironment(selectConfig, shallow);
   const queryClient = useQueryClient();
   const [currentPool, setCurrentPool] = useState("hexapool");
   const secretKeys = currentPool === "swimlake" ? keysSwimLake : keysHexaPool;

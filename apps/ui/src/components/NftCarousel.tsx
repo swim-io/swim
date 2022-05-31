@@ -14,6 +14,8 @@ import type { ChangeEvent, ReactElement } from "react";
 import { useState } from "react";
 import { Carousel } from "react-responsive-carousel";
 
+import { useNotification } from "../core/store";
+import { useRedeemMutation } from "../hooks";
 import type {
   NftAttribute,
   NftData,
@@ -44,26 +46,36 @@ const rarityColumns = [
 ];
 
 const redeemPassword = "redeem";
+const redemptionAmount = "3000 xSWIM";
 
 export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
-  const [isRedeemModalVisible, setIsRedeemModalVisible] = useState(false);
+  const [activeNft, setActiveNft] = useState<NftData | null>(null);
   const [passwordInput, setPasswordInput] = useState("");
+  const { notify } = useNotification();
+  const { mutateAsync, isLoading } = useRedeemMutation(activeNft);
+  const isRedeemModalVisible = activeNft !== null;
   const onRedeemInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPasswordInput(e.target.value);
   };
-  // TODO: Query redeemer to retrieve value of otter (amount and token).
-  const redeemerValue = 100;
-  const redeemerToken = "USDC";
-
-  const showRedeemModal = setIsRedeemModalVisible.bind(null, true);
-
+  const showRedeemModal = (nft: NftData): void => {
+    setActiveNft(nft);
+  };
   const hideRedeemModal = (): void => {
-    setIsRedeemModalVisible(false);
+    setActiveNft(null);
   };
 
-  // TODO: This is unimplemented.
-  const executeRedeem = (): void => {
-    console.info("This is unimplemented.");
+  const executeRedeem = async (): Promise<void> => {
+    try {
+      await mutateAsync(activeNft);
+      notify(
+        "Success",
+        `Redeemed Otter Tot for ${redemptionAmount}`,
+        "success",
+      );
+      hideRedeemModal();
+    } catch (error) {
+      notify("Error", String(error), "error");
+    }
   };
 
   const generateTable = (attributes: readonly NftAttribute[]): ReactElement => (
@@ -125,7 +137,13 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
               </EuiFlexGroup>
               <EuiFlexGroup justifyContent="flexEnd">
                 <EuiFlexItem grow={false}>
-                  <EuiButton onClick={showRedeemModal}>Redeem</EuiButton>
+                  <EuiButton
+                    onClick={() => {
+                      showRedeemModal(nft);
+                    }}
+                  >
+                    Redeem
+                  </EuiButton>
                 </EuiFlexItem>
               </EuiFlexGroup>
             </div>
@@ -141,9 +159,10 @@ export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
           cancelButtonText="Cancel"
           buttonColor="danger"
           confirmButtonDisabled={passwordInput.toLowerCase() !== redeemPassword}
+          isLoading={isLoading}
         >
           <EuiFormRow
-            label={`Type the word "${redeemPassword}" to burn your otter for ${redeemerValue} ${redeemerToken}. Warning, this is irreversible.`}
+            label={`Type the word "${redeemPassword}" to burn your otter for ${redemptionAmount}. Warning, this is irreversible.`}
           >
             <EuiFieldText
               name="redeem"

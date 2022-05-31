@@ -5,7 +5,7 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "lib": ["esnext"],
-    "module": "esnext",
+    "module": "commonJS",
     "moduleResolution": "node",
     "newLine": "LF",
     "noEmitOnError": true,

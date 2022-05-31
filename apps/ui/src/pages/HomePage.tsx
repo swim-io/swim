@@ -21,6 +21,9 @@ import { InvestorsList } from "../components/InvestorsList";
 import { Roadmap } from "../components/Roadmap";
 import { useTitle } from "../hooks";
 import DIAGRAM from "../images/diagram.svg";
+import BSC_SVG from "../images/ecosystems/bsc.svg";
+import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import DISCORD_SVG from "../images/social/discord.svg";
 import TELEGRAM_SVG from "../images/social/telegram.svg";
 import TWITTER_SVG from "../images/social/twitter.svg";
@@ -36,6 +39,18 @@ const HomePage = (): ReactElement => {
         <EuiSpacer size="xxl" />
         <EuiSpacer size="xxl" />
         <EuiSpacer size="xxl" />
+        <EuiSpacer size="xxl" />
+        <EuiFlexGroup justifyContent="center">
+          <EuiFlexItem grow={false}>
+            <EuiIcon type={SOLANA_SVG} size="xl" />
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiIcon type={ETHEREUM_SVG} size="xl" />
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiIcon type={BSC_SVG} size="xl" />
+          </EuiFlexItem>
+        </EuiFlexGroup>
         <EuiSpacer size="xxl" />
         <div className="eui-textCenter">
           <EuiText color="ghost">

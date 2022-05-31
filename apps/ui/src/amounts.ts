@@ -4,6 +4,7 @@ import Decimal from "decimal.js";
 
 import { defaultIfError } from "./utils";
 
+const ONE_TRILLION = new Decimal("1000000000000");
 const ONE_BILLION = new Decimal("1000000000");
 const ONE_MILLION = new Decimal("1000000");
 const ONE_THOUSAND = new Decimal("1000");
@@ -18,8 +19,9 @@ export const atomicToHuman = (amount: Decimal, decimals = 0): Decimal => {
 };
 
 export const atomicToTvlString = (amount: Decimal): string => {
-  // Note, >= ten trillion doesn't report the correct number.
-  if (amount.greaterThanOrEqualTo(ONE_BILLION)) {
+  if (amount.greaterThanOrEqualTo(ONE_TRILLION)) {
+    return amount.toSD(SIG_DIGITS).div(ONE_TRILLION).toString() + "T";
+  } else if (amount.greaterThanOrEqualTo(ONE_BILLION)) {
     return amount.toSD(SIG_DIGITS).div(ONE_BILLION).toString() + "B";
   } else if (amount.greaterThanOrEqualTo(ONE_MILLION)) {
     return amount.toSD(SIG_DIGITS).div(ONE_MILLION).toString() + "M";

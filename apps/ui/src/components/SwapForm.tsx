@@ -11,6 +11,7 @@ import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import shallow from "zustand/shallow.js";
 
+import type { PoolSpec } from "../config";
 import { EcosystemId } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
@@ -42,11 +43,33 @@ import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
 import { StepsDisplay } from "./StepsDisplay";
-import { NativeTokenIcon } from "./TokenIcon";
 import { SwapFormSolanaConnectButton } from "./molecules/SwapFormSolanaConnectButton";
 import { TokenAmountInput } from "./molecules/TokenAmountInput";
 
 import "./SwapForm.scss";
+
+const swimUsdRegExp = /-solana-lp-hexapool$/;
+// TODO: Make this check more robust
+const isSwimUsdPool = (pool: PoolSpec): boolean =>
+  [pool.lpToken, ...pool.tokenAccounts.keys()].some((key) =>
+    swimUsdRegExp.test(key),
+  );
+
+// TODO: Handle swimUSD as a swappable token
+const useOutputTokens = (fromTokenId: string): readonly string[] => {
+  const { pools } = useEnvironment(selectConfig);
+  const inputPool = findOrThrow(pools, (pool) =>
+    pool.tokenAccounts.has(fromTokenId),
+  );
+  const connectedTokens = isSwimUsdPool(inputPool)
+    ? pools
+        .filter(isSwimUsdPool)
+        .flatMap((pool) => [...pool.tokenAccounts.keys()])
+    : [...inputPool.tokenAccounts.keys()];
+  return connectedTokens.filter(
+    (tokenId) => tokenId !== fromTokenId && !swimUsdRegExp.test(tokenId),
+  );
+};
 
 export interface SwapFormProps {
   readonly setCurrentInteraction: (id: string) => void;
@@ -77,15 +100,16 @@ export const SwapForm = ({
     .filter((tokenId) =>
       config.pools.every((pool) => pool.lpToken !== tokenId),
     );
-  const swappableTokens = swappableTokenIds.map((tokenId) =>
-    findOrThrow(config.tokens, (token) => token.id === tokenId),
-  );
 
   const defaultFromTokenId = swappableTokenIds[0];
   const [fromTokenId, setFromTokenId] = useState(defaultFromTokenId);
-  const [toTokenId, setToTokenId] = useState(swappableTokenIds[1]);
+  const toTokenIds = useOutputTokens(fromTokenId);
+  const [toTokenId, setToTokenId] = useState(toTokenIds[1]);
   const fromToken = findOrThrow(tokens, ({ id }) => id === fromTokenId);
-  const toToken = findOrThrow(tokens, ({ id }) => id === toTokenId);
+  // TODO: Make this less ugly
+  const toToken = toTokenIds.includes(toTokenId)
+    ? findOrThrow(tokens, ({ id }) => id === toTokenId)
+    : findOrThrow(tokens, ({ id }) => id === toTokenIds[0]);
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const requiredPools = getRequiredPoolsForSwap(
@@ -140,15 +164,6 @@ export const SwapForm = ({
     !inputAmount.isNegative() && !inputAmount.isZero();
 
   const outputAmount = useSwapOutputAmountEstimate(inputAmount, toToken);
-
-  const fromTokenOptions = swappableTokens.map((tokenSpec) => ({
-    value: tokenSpec.id,
-    inputDisplay: <NativeTokenIcon {...tokenSpec} />,
-  }));
-  const toTokenOptions = fromTokenOptions.filter(
-    ({ value }) => value !== fromTokenId,
-  );
-
   const fromTokenUserBalances = useUserBalanceAmounts(fromToken);
   const fromTokenBalance = fromTokenUserBalances[fromToken.nativeEcosystem];
 
@@ -261,10 +276,10 @@ export const SwapForm = ({
   }, [defaultFromTokenId]);
 
   useEffect(() => {
-    if (!toTokenOptions.find(({ value }) => value === toTokenId)) {
-      setToTokenId(toTokenOptions[0].value);
+    if (!toTokenIds.find((tokenId) => tokenId === toTokenId)) {
+      setToTokenId(toTokenIds[0]);
     }
-  }, [toTokenId, toTokenOptions]);
+  }, [toTokenId, toTokenIds]);
 
   const handleConfirmModalCancel = (): void => {
     setConfirmModalDescription(null);
@@ -274,7 +289,7 @@ export const SwapForm = ({
     setConfirmModalDescription(null);
     handleSwapAndCatch(true);
   };
-
+  const isStableSwap = requiredPools.every((pool) => pool.isStableSwap);
   return (
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
       <EuiSpacer />
@@ -289,6 +304,7 @@ export const SwapForm = ({
         onSelectToken={setFromTokenId}
         onChangeValue={(value) => setFormInputAmount(value)}
         onBlur={() => handleInputAmountChange(inputAmount)}
+        showConstantSwapTip={!isStableSwap}
       />
 
       <EuiSpacer size="m" />
@@ -314,11 +330,13 @@ export const SwapForm = ({
       <TokenAmountInput
         value={outputAmount?.toHumanString(toToken.nativeEcosystem) ?? ""}
         token={toToken}
-        tokenOptionIds={swappableTokenIds.filter((id) => id !== fromTokenId)}
+        tokenOptionIds={toTokenIds}
         placeholder={"Output"}
         disabled={isInteractionInProgress}
         errors={[]}
         onSelectToken={setToTokenId}
+        // Never show constant swap on "To Form".
+        showConstantSwapTip={false}
       />
 
       <EuiSpacer />

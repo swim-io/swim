@@ -18,7 +18,7 @@ import type { PoolSpec } from "../config";
 import { EcosystemId, getSolanaTokenDetails } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
-import { useLiquidityQuery, useTitle } from "../hooks";
+import { useCoinGeckoPricesQuery, useLiquidityQuery, useTitle } from "../hooks";
 import AUSD_SVG from "../images/tokens/ausd.svg";
 import BTC_SVG from "../images/tokens/btc.svg";
 import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
@@ -38,36 +38,43 @@ const PoolsPage = (): ReactElement => {
   const { data: allPoolTokenAccounts = null } = useLiquidityQuery(
     allPoolTokenAccountAddresses,
   );
+  const { data: prices = new Map<string, Decimal | null>() } =
+    useCoinGeckoPricesQuery();
   const poolTokens = pools.map((poolSpec) =>
     [...poolSpec.tokenAccounts.keys()].map((id) =>
       findOrThrow(tokens, (tokenSpec) => tokenSpec.id === id),
     ),
   );
 
-  const poolTotals = pools.map((poolSpec, i) => {
+  const poolUsdTotals = pools.map((poolSpec, i) => {
     const tokenSpecs = poolTokens[i];
 
-    let totalUsd: Decimal | null = null; // default: no value
-    if (tokenSpecs.every((tokenSpec) => tokenSpec.isStablecoin)) {
-      if (allPoolTokenAccounts) {
-        const poolTokenAccountAddresses = [...poolSpec.tokenAccounts.values()];
-        const poolTokenAccounts = allPoolTokenAccounts.filter((tokenAccount) =>
-          poolTokenAccountAddresses.includes(tokenAccount.address.toBase58()),
-        );
-
-        totalUsd = poolTokenAccounts.reduce((prev, current, j) => {
-          const solanaDetails = getSolanaTokenDetails(tokenSpecs[j]);
-          const humanAmount = u64ToDecimal(current.amount).div(
-            new Decimal(10).pow(solanaDetails.decimals),
-          );
-          return prev.add(humanAmount);
-        }, new Decimal(0));
-      } else {
-        totalUsd = new Decimal(-1); // loading
+    if (
+      tokenSpecs.every(
+        (tokenSpec) => tokenSpec.isStablecoin || !!prices.get(tokenSpec.id),
+      )
+    ) {
+      if (allPoolTokenAccounts === null) {
+        return new Decimal(-1); // loading
       }
-    }
+      const poolTokenAccountAddresses = [...poolSpec.tokenAccounts.values()];
+      const poolTokenAccounts = allPoolTokenAccounts.filter((tokenAccount) =>
+        poolTokenAccountAddresses.includes(tokenAccount.address.toBase58()),
+      );
 
-    return totalUsd;
+      return poolTokenAccounts.reduce((prev, current, j) => {
+        const tokenSpec = tokenSpecs[j];
+        const solanaDetails = getSolanaTokenDetails(tokenSpec);
+        const humanAmount = u64ToDecimal(current.amount).div(
+          new Decimal(10).pow(solanaDetails.decimals),
+        );
+        const price = tokenSpec.isStablecoin
+          ? new Decimal(1)
+          : prices.get(tokenSpec.id) ?? new Decimal(1);
+        return prev.add(humanAmount.mul(price));
+      }, new Decimal(0));
+    }
+    return null;
   });
 
   return (
@@ -87,9 +94,10 @@ const PoolsPage = (): ReactElement => {
                   <Fragment key={pool.id}>
                     <PoolListItem
                       poolId={pool.id}
-                      title={pool.displayName}
+                      poolName={pool.displayName}
                       tokenSpecs={poolTokens[i]}
-                      totalUsd={poolTotals[i]}
+                      totalUsd={poolUsdTotals[i]}
+                      isStableSwap={pool.isStableSwap}
                     />
                     <EuiSpacer size="xxl" />
                   </Fragment>
@@ -108,7 +116,7 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size="xxl" />
 
             <PoolListItem
-              title="Aurora USDC Meta-Pool"
+              poolName="Aurora USDC Meta-Pool"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[
                 {
@@ -135,7 +143,7 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size="xxl" />
 
             <PoolListItem
-              title="Aurora USDT Meta-Pool"
+              poolName="Aurora USDT Meta-Pool"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[
                 {
@@ -162,7 +170,7 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size="xxl" />
 
             <PoolListItem
-              title="Aurora USN Meta-Pool"
+              poolName="Aurora USN Meta-Pool"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[
                 {
@@ -189,7 +197,7 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size="xxl" />
 
             <PoolListItem
-              title="Fantom USDC Meta-Pool"
+              poolName="Fantom USDC Meta-Pool"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[
                 {
@@ -216,7 +224,7 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size="xxl" />
 
             <PoolListItem
-              title="Karura aUSD Meta-Pool"
+              poolName="Karura aUSD Meta-Pool"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[
                 {
@@ -243,7 +251,7 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size="xxl" />
 
             <PoolListItem
-              title="Karura USDT Meta-Pool"
+              poolName="Karura USDT Meta-Pool"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[
                 {
@@ -270,7 +278,7 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size="xxl" />
 
             <PoolListItem
-              title="Acala aUSD Meta-Pool"
+              poolName="Acala aUSD Meta-Pool"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[
                 {
@@ -297,7 +305,7 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size="xxl" />
 
             <PoolListItem
-              title="BTC Tri-Pool"
+              poolName="BTC Tri-Pool"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[
                 {

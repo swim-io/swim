@@ -22,7 +22,6 @@ import StakePage from "./pages/StakePage";
 import SwapPage from "./pages/SwapPage";
 import TestPage from "./pages/TestPage";
 import TosPage from "./pages/TosPage";
-import WormholePage from "./pages/WormholePage";
 
 function App(): ReactElement {
   return (
@@ -58,9 +57,6 @@ function App(): ReactElement {
               <Route path="/test">
                 <TestPage />
               </Route>
-              <Route path="/wormhole">
-                <WormholePage />
-              </Route>
               <Route exact path="/pools">
                 <PoolsPage />
               </Route>
@@ -74,14 +70,14 @@ function App(): ReactElement {
                 <SwapPage />
               </Route>
               {process.env.REACT_APP_ENABLE_NFT && (
-                <>
-                  <Route exact path="/otter-tots">
-                    <OtterTotsPage />
-                  </Route>
-                  <Route path="/redeem">
-                    <RedeemPage />
-                  </Route>
-                </>
+                <Route exact path="/otter-tots">
+                  <OtterTotsPage />
+                </Route>
+              )}
+              {process.env.REACT_APP_ENABLE_NFT && (
+                <Route path="/redeem">
+                  <RedeemPage />
+                </Route>
               )}
               <Route path="/collectibles">
                 <CollectiblesPage />

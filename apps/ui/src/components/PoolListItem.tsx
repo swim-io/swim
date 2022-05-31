@@ -2,8 +2,11 @@ import {
   EuiCard,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiIcon,
   EuiSpacer,
   EuiStat,
+  EuiText,
+  EuiToolTip,
 } from "@elastic/eui";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
@@ -16,18 +19,37 @@ import { groupBy } from "../utils";
 
 import { TokenIcon } from "./TokenIcon";
 
+// TODO: Make code DRY.
+const appendConstantSwapIcon = (poolName: string): string | ReactElement => {
+  return (
+    <EuiText>
+      <h3>
+        {poolName + "  "}
+        <EuiToolTip
+          position="right"
+          content="This pool uses a constant product curve, prices deviate from 1:1."
+        >
+          <EuiIcon size="l" type="questionInCircle" color="primary" />
+        </EuiToolTip>
+      </h3>
+    </EuiText>
+  );
+};
+
 export const PoolListItem = ({
-  title,
+  poolName,
   tokenSpecs,
   poolId = null,
   totalUsd = null,
   betaBadgeLabel = "",
+  isStableSwap = true,
 }: {
-  readonly title: string;
+  readonly poolName: string;
   readonly tokenSpecs: readonly TokenSpec[];
   readonly poolId?: string | null;
   readonly totalUsd?: Decimal | null;
   readonly betaBadgeLabel?: string;
+  readonly isStableSwap?: boolean;
 }): ReactElement => {
   const history = useHistory();
 
@@ -37,7 +59,7 @@ export const PoolListItem = ({
   );
   return (
     <EuiCard
-      title={title}
+      title={isStableSwap ? poolName : appendConstantSwapIcon(poolName)}
       layout="horizontal"
       hasBorder
       onClick={

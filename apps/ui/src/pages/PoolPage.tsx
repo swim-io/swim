@@ -4,6 +4,7 @@ import {
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiIcon,
   EuiPage,
   EuiPageBody,
   EuiPageContent,
@@ -11,6 +12,7 @@ import {
   EuiSpacer,
   EuiTabbedContent,
   EuiTitle,
+  EuiToolTip,
 } from "@elastic/eui";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
@@ -71,6 +73,27 @@ const PoolPage = (): ReactElement => {
         </EuiPageContent>
       </EuiPageBody>
     </EuiPage>
+  );
+};
+
+// TODO: Make code DRY.
+const getPoolTitle = (poolSpec: PoolSpec): ReactElement => {
+  return !poolSpec.isStableSwap ? (
+    <EuiTitle>
+      <h2>
+        {poolSpec.displayName + "  "}
+        <EuiToolTip
+          position="right"
+          content="This pool uses a constant product curve, prices deviate from 1:1."
+        >
+          <EuiIcon size="l" type="questionInCircle" color="primary" />
+        </EuiToolTip>
+      </h2>
+    </EuiTitle>
+  ) : (
+    <EuiTitle>
+      <h2>{poolSpec.displayName}</h2>
+    </EuiTitle>
   );
 };
 
@@ -183,10 +206,7 @@ export const PoolPageInner = ({
               },
             ]}
           />
-
-          <EuiTitle>
-            <h2>{poolSpec.displayName}</h2>
-          </EuiTitle>
+          {getPoolTitle(poolSpec)}
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <SlippageButton

@@ -3,6 +3,7 @@ import type Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
+import { isNotNull } from "../../utils";
 import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
 import type { Interaction } from "./interaction";
@@ -16,8 +17,8 @@ export interface InteractionState {
   readonly fromSolanaTransfers: readonly FromSolanaTransferState[];
 }
 
-interface TokenAccountState {
-  readonly existingAccount: boolean;
+export interface TokenAccountState {
+  readonly isExistingAccount: boolean;
   readonly account: TokenAccount | null;
   readonly txId: SolanaTx["txId"] | null;
 }
@@ -27,15 +28,15 @@ interface TokenAccountState {
  */
 export type RequiredSplTokenAccounts = ReadonlyRecord<
   string,
-  TokenAccountState | undefined
+  TokenAccountState
 >;
 
 export interface ToSolanaTransferState {
   readonly token: TokenSpec;
   readonly value: Decimal;
   readonly txIds: {
-    readonly approveAndTransferEvmToken: readonly EvmTx["txId"][] | null;
-    readonly postVaaOnSolana: readonly SolanaTx["txId"][] | null;
+    readonly approveAndTransferEvmToken: readonly EvmTx["txId"][];
+    readonly postVaaOnSolana: readonly SolanaTx["txId"][];
     readonly claimTokenOnSolana: SolanaTx["txId"] | null;
   };
 }
@@ -53,3 +54,34 @@ export interface FromSolanaTransferState {
     readonly claimTokenOnEvm: EvmTx["txId"] | null;
   };
 }
+
+export const isRequiredSplTokenAccountsCompleted = (
+  accountState: RequiredSplTokenAccounts,
+) =>
+  Object.values(accountState).every(
+    (state) => state.isExistingAccount || isNotNull(state.txId),
+  );
+
+export const isToSolanaTransfersCompleted = (
+  transfers: readonly ToSolanaTransferState[],
+) =>
+  transfers.every((transfer) => isNotNull(transfer.txIds.claimTokenOnSolana));
+
+export const isSolanaPoolOperationsCompleted = (
+  operations: readonly SolanaPoolOperationState[],
+) => operations.every((operation) => isNotNull(operation.txId));
+
+export const isFromSolanaTransfersCompleted = (
+  transfers: readonly FromSolanaTransferState[],
+) => transfers.every((transfer) => isNotNull(transfer.txIds.claimTokenOnEvm));
+
+export const isInteractionCompleted = ({
+  requiredSplTokenAccounts,
+  toSolanaTransfers,
+  solanaPoolOperations,
+  fromSolanaTransfers,
+}: InteractionState) =>
+  isRequiredSplTokenAccountsCompleted(requiredSplTokenAccounts) &&
+  isToSolanaTransfersCompleted(toSolanaTransfers) &&
+  isSolanaPoolOperationsCompleted(solanaPoolOperations) &&
+  isFromSolanaTransfersCompleted(fromSolanaTransfers);

@@ -3,15 +3,16 @@ import Decimal from "decimal.js";
 import { EcosystemId, Env } from "../../config";
 import type { AddInteraction, SwapInteraction } from "../../models";
 import { Amount, InteractionType } from "../../models";
-import { findLocalnetTokenById } from "../../testUtils";
 
-const SOLANA_USDC = findLocalnetTokenById("localnet-solana-usdc");
-const SOLANA_USDT = findLocalnetTokenById("localnet-solana-usdt");
-const ETHEREUM_USDC = findLocalnetTokenById("localnet-ethereum-usdc");
-const ETHEREUM_USDT = findLocalnetTokenById("localnet-ethereum-usdt");
-const BSC_USDT = findLocalnetTokenById("localnet-bsc-usdt");
-const BSC_BUSD = findLocalnetTokenById("localnet-bsc-busd");
-const SOLANA_LP_HEXAPOOL = findLocalnetTokenById("localnet-solana-lp-hexapool");
+import {
+  BSC_BUSD,
+  BSC_USDT,
+  ETHEREUM_USDC,
+  ETHEREUM_USDT,
+  SOLANA_LP_HEXAPOOL,
+  SOLANA_USDC,
+  SOLANA_USDT,
+} from "./tokens";
 
 export const ETH_USDC_TO_SOL_USDC_SWAP: SwapInteraction = {
   type: InteractionType.Swap,

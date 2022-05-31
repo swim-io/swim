@@ -8,9 +8,6 @@ import { EcosystemId } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useWalletAdapter } from "../core/store";
 import { useWallets } from "../hooks";
-import BSC_SVG from "../images/ecosystems/bsc.svg";
-import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
-import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import type { WalletService } from "../models";
 import { deduplicate, isNotNull, shortenAddress } from "../utils";
 
@@ -116,13 +113,6 @@ export const MultiConnectButton = ({
       </>
     ) : (
       <>
-        <EuiIcon type={SOLANA_SVG} size="l" />
-        <EuiIcon type={ETHEREUM_SVG} size="l" />
-        <EuiIcon type={BSC_SVG} size="l" />
-        {/* TODO: Consider adding these (OR maybe switch to wallet icons here too?):
-        <EuiIcon type={AVALANCHE_SVG} size="l" />
-        <EuiIcon type={POLYGON_SVG} size="l" /> */}
-        &nbsp;
         <EuiShowFor sizes={["xs"]}>Connect</EuiShowFor>
         <EuiHideFor sizes={["xs"]}>Connect Wallets</EuiHideFor>
       </>

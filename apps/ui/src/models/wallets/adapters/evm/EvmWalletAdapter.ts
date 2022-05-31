@@ -40,8 +40,8 @@ export class EvmWeb3WalletAdapter
   readonly serviceUrl: string;
   readonly protocol: Protocol.Evm;
   address: string | null;
-  connecting: boolean;
   private readonly getWalletProvider: () => Web3Provider | null;
+  private connecting: boolean;
 
   constructor(
     serviceName: string,

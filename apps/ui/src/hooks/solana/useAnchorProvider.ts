@@ -12,7 +12,8 @@ export const useAnchorProvider = (): AnchorProvider | null => {
   const anchorProvider = new AnchorProvider(
     solanaConnection,
     {
-      ...wallet,
+      signTransaction: wallet.signTransaction.bind(wallet),
+      signAllTransactions: wallet.signAllTransactions.bind(wallet),
       publicKey: wallet.publicKey,
     },
     AnchorProvider.defaultOptions(),

@@ -8,18 +8,22 @@ import {
   htmlIdGenerator,
 } from "@elastic/eui";
 import * as Sentry from "@sentry/react";
-import type { ReactElement } from "react";
+import { ReactElement, useEffect } from "react";
 import { useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import { isValidEnv } from "../config";
 import { selectEnvs } from "../core/selectors";
-import { useEnvironment } from "../core/store";
-
+import { useEnvironment, useInteractionState } from "../core/store";
 export const EnvSelector = (): ReactElement => {
+  const store = useInteractionState();
   const { env, setEnv } = useEnvironment();
   const envs = useEnvironment(selectEnvs, shallow);
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    store.loadIndexedDB();
+  }, []);
 
   const handleChange = (envOptions: readonly EuiSelectableOption[]): void => {
     const newEnv = envOptions.find((option) => option.checked)?.key;

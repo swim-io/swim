@@ -2,7 +2,7 @@ import type { Table } from "dexie";
 import Dexie from "dexie";
 import type { StateStorage } from "zustand/middleware";
 
-import type { InteractionState } from "../../../models";
+import { InteractionState } from "../../../models";
 
 export interface InteractionWrapper {
   readonly state: InteractionState;
@@ -36,10 +36,12 @@ const db = new InteractionDB();
 
 export const InteractionIDBStorage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
+    console.log("GET ITEM");
     if (!db.isOpen()) {
       try {
         await db.open();
         const data = await db.interactionStates.toArray();
+        console.log("DATA GET ITEM", data);
         const sortedData = [...data]
           .sort(
             (a, b) =>
@@ -56,14 +58,18 @@ export const InteractionIDBStorage: StateStorage = {
     return null;
   },
   setItem: async (name: string, value: string) => {
-    const { interactionStates } = JSON.parse(value).state;
+    const interactionStates = JSON.parse(value);
+    console.log("SET ITEM", interactionStates);
     if (!db.isOpen()) {
       await db.open();
       await Promise.all(
         interactionStates?.map((element: InteractionState) =>
           db.interactionStates
             .add(
-              { state: element, id: element.interaction.id },
+              {
+                state: element,
+                id: element.interaction.id,
+              },
               element.interaction.id,
             )
             .catch((err) => {

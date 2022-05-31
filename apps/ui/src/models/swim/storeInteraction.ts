@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import Decimal from "decimal.js";
 import type { QueryClient } from "react-query";
 
 import type {
@@ -9,6 +10,9 @@ import type {
   TokenSpec,
 } from "../../config";
 import { isValidEnv } from "../../config";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
+import { findTokenById } from "../../fixtures";
 import type { ReadonlyRecord } from "../../utils";
 import { filterMap, findOrThrow } from "../../utils";
 import { Amount } from "../amount";
@@ -22,6 +26,12 @@ import type {
   SwapInteraction,
 } from "./interaction";
 import { InteractionType } from "./interaction";
+import {
+  FromSolanaTransferState,
+  InteractionState,
+  SolanaPoolOperationState,
+  ToSolanaTransferState,
+} from "./interactionState";
 import type { TokensByPoolId } from "./pool";
 import { getTokensByPool } from "./pool";
 
@@ -303,13 +313,14 @@ const populateInteraction = (
   }
 };
 
-const deserializeInteractions = (
-  config: Config,
+export const deserializeInteractions = (
   serialized: string,
 ): readonly Interaction[] => {
+  const config = selectConfig(useEnvironment.getState());
   const tokensByPoolId = getTokensByPool(config);
   try {
     const parsed: readonly PreparedInteraction[] = JSON.parse(serialized);
+    console.log("DEserialize", parsed);
     return filterMap(
       (interaction: PreparedInteraction) => interaction.version === VERSION,
       (interaction) => {
@@ -326,16 +337,89 @@ const deserializeInteractions = (
   }
 };
 
+// const populateSolanaPoolOperationState = (
+//   solanaPoolOperationState: SolanaPoolOperationState,
+//   interactionType: InteractionType,
+// ): Interaction => {
+//   switch (interactionType) {
+//     case InteractionType.Add:
+//       return {
+//         ...solanaPoolOperationState,
+//       };
+//     case InteractionType.RemoveUniform:
+
+//     case InteractionType.RemoveExactBurn:
+
+//     case InteractionType.RemoveExactOutput:
+
+//     case InteractionType.Swap:
+
+//     default:
+//       throw new Error("Interaction not recognized");
+//   }
+// };
+
+const populateTransfers = (
+  parsedTransfers: any[], // TODO: parsed Type
+  env: Env,
+): (ToSolanaTransferState & FromSolanaTransferState)[] =>
+  parsedTransfers.map((transfer) => ({
+    ...transfer,
+    // token: findTokenById(transfer.tokenId, env),
+    value: transfer.value
+      ? new Decimal(parseInt(transfer.value))
+      : transfer.value,
+  }));
+
+export const deserializeInteractionStates = (
+  serialized: string,
+): readonly InteractionState[] => {
+  const config = selectConfig(useEnvironment.getState());
+  const { env } = useEnvironment.getState();
+  const tokensByPoolId = getTokensByPool(config);
+  try {
+    const parsed = JSON.parse(serialized);
+    console.log("DEserialize", parsed);
+    const deserializedInteractionState = parsed.map((state: any) => {
+      // TODO: Parsed state type
+      let populatedState: InteractionState;
+      const poolSpecs = state.interaction.poolIds.map((poolId: string) =>
+        findOrThrow(config.pools, (pool) => pool.id === poolId),
+      );
+      const prepInteraction: PreparedInteraction = {
+        version: VERSION,
+        ...state.interaction,
+      };
+      populatedState = {
+        toSolanaTransfers: populateTransfers(state.toSolanaTransfers, env),
+        interaction: populateInteraction(
+          tokensByPoolId,
+          poolSpecs,
+          prepInteraction,
+        ),
+        fromSolanaTransfers: populateTransfers(state.fromSolanaTransfers, env),
+        solanaPoolOperations: [],
+        requiredSplTokenAccounts: state.requiredSplTokenAccounts,
+      };
+      return populatedState;
+    });
+    return deserializedInteractionState;
+  } catch (err) {
+    Sentry.captureException(err);
+    return [];
+  }
+};
+
 export const loadInteractions = (
   env: Env,
   config: Config,
 ): readonly Interaction[] =>
-  deserializeInteractions(
-    config,
-    localStorage.getItem(getStorageKey(env)) ?? "[]",
-  );
+  deserializeInteractions(localStorage.getItem(getStorageKey(env)) ?? "[]");
 
-const prepareInteraction = (interaction: Interaction): PreparedInteraction => {
+export const prepareInteraction = (
+  interaction: Interaction,
+): PreparedInteraction => {
+  console.log("PREPA", interaction.params);
   const base = {
     version: VERSION,
     // NOTE: We don’t store the private keys, we can regenerate new ones later
@@ -405,6 +489,114 @@ const prepareInteraction = (interaction: Interaction): PreparedInteraction => {
       throw new Error("Unknown interaction type");
   }
 };
+
+const prepareSolanaPoolOperations = (
+  solanaPoolOperations: SolanaPoolOperationState,
+  interactionType: InteractionType,
+) => {
+  const { params }: any = solanaPoolOperations.operation;
+  switch (interactionType) {
+    case InteractionType.Add:
+      return {
+        ...solanaPoolOperations,
+        operation: {
+          ...solanaPoolOperations.operation,
+          params: {
+            ...params,
+            inputAmounts: tokenAmountsMapToRecord(params.inputAmounts),
+            minimumMintAmount: params.minimumMintAmount.toJSON(),
+          },
+        },
+      };
+    case InteractionType.RemoveUniform:
+      return {
+        ...solanaPoolOperations,
+        operation: {
+          ...solanaPoolOperations.operation,
+          params: {
+            ...params,
+            exactBurnAmount: params.exactBurnAmount.toJSON(),
+            minimumOutputAmounts: tokenAmountsMapToRecord(
+              params.minimumOutputAmounts,
+            ),
+          },
+        },
+      };
+    case InteractionType.RemoveExactBurn:
+      return {
+        ...solanaPoolOperations,
+        operation: {
+          ...solanaPoolOperations.operation,
+          params: {
+            ...params,
+            exactBurnAmount: params.exactBurnAmount.toJSON(),
+            minimumOutputAmount: params.minimumOutputAmount.toJSON(),
+          },
+        },
+      };
+    case InteractionType.RemoveExactOutput:
+      return {
+        ...solanaPoolOperations,
+        operation: {
+          ...solanaPoolOperations.operation,
+          params: {
+            ...params,
+            maximumBurnAmount: params.maximumBurnAmount.toJSON(),
+            exactOutputAmounts: tokenAmountsMapToRecord(
+              params.exactOutputAmounts,
+            ),
+          },
+        },
+      };
+    case InteractionType.Swap:
+      return {
+        ...solanaPoolOperations,
+        operation: {
+          ...solanaPoolOperations.operation,
+          params: {
+            ...params,
+            exactInputAmounts: tokenAmountsMapToRecord(
+              params.exactInputAmounts,
+            ),
+            outputTokenId: params.minimumOutputAmount.tokenId,
+            minimumOutputAmount: params.minimumOutputAmount.toJSON(),
+          },
+        },
+      };
+    default:
+      throw new Error("Unknown interaction type");
+  }
+};
+
+export const prepareInteractionState = (
+  interactionState: InteractionState,
+) => ({
+  ...interactionState,
+  fromSolanaTransfers: interactionState.fromSolanaTransfers.map((transfer) => ({
+    ...transfer,
+    token: { id: transfer.token.id },
+    value:
+      transfer.value instanceof Decimal
+        ? transfer.value.toJSON()
+        : transfer.value,
+  })),
+  toSolanaTransfers: interactionState.toSolanaTransfers.map((transfer) => ({
+    ...transfer,
+    token: { id: transfer.token.id },
+    value:
+      transfer.value instanceof Decimal
+        ? transfer.value.toJSON()
+        : transfer.value,
+  })),
+  interaction: prepareInteraction(interactionState.interaction),
+  solanaPoolOperations: interactionState.solanaPoolOperations.map(
+    (solanaOperation) =>
+      prepareSolanaPoolOperations(
+        solanaOperation,
+        interactionState.interaction.type,
+      ),
+  ),
+});
 
 const serializeInteractions = (interactions: readonly Interaction[]): string =>
   JSON.stringify(interactions.map(prepareInteraction));

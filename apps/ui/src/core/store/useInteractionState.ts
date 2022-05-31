@@ -6,7 +6,11 @@ import create from "zustand";
 import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
 
-import type { InteractionState } from "../../models";
+import {
+  InteractionState,
+  prepareInteractionState,
+  deserializeInteractionStates,
+} from "../../models";
 
 import { InteractionIDBStorage } from "./idb/interactionDB";
 
@@ -65,7 +69,26 @@ export const useInteractionState = create(
     }),
     {
       name: "InteractionDB",
+      version: 1,
       getStorage: (): StateStorage => InteractionIDBStorage,
+      serialize: (storageValue): string => {
+        const { interactionStates } = storageValue.state;
+        const preparedInteractionState = interactionStates.map(
+          prepareInteractionState,
+        );
+        console.log(
+          "serilize stringify",
+          JSON.stringify(preparedInteractionState),
+        );
+        return JSON.stringify(preparedInteractionState);
+      },
+      deserialize: (serialized: string) => {
+        console.log("deserialize", serialized);
+
+        const interactions = deserializeInteractionStates(serialized);
+        console.log("deserialized INterections", interactions);
+        return { version: 1, state: {} };
+      },
     },
   ),
 );

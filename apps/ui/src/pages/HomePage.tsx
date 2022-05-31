@@ -2,11 +2,13 @@ import {
   EuiButton,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiHideFor,
   EuiIcon,
   EuiImage,
   EuiPage,
   EuiPageBody,
   EuiPanel,
+  EuiShowFor,
   EuiSpacer,
   EuiText,
   EuiTextColor,
@@ -21,8 +23,10 @@ import { InvestorsList } from "../components/InvestorsList";
 import { Roadmap } from "../components/Roadmap";
 import { useTitle } from "../hooks";
 import DIAGRAM from "../images/diagram.svg";
+import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
 import BSC_SVG from "../images/ecosystems/bsc.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+import POLYGON_SVG from "../images/ecosystems/polygon.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import DISCORD_SVG from "../images/social/discord.svg";
 import TELEGRAM_SVG from "../images/social/telegram.svg";
@@ -40,15 +44,56 @@ const HomePage = (): ReactElement => {
         <EuiSpacer size="xxl" />
         <EuiSpacer size="xxl" />
         <EuiSpacer size="xxl" />
-        <EuiFlexGroup justifyContent="center">
+        <EuiFlexGroup justifyContent="center" responsive={false}>
           <EuiFlexItem grow={false}>
-            <EuiIcon type={SOLANA_SVG} size="xl" />
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiIcon type={ETHEREUM_SVG} size="xl" />
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiIcon type={BSC_SVG} size="xl" />
+            <EuiPanel hasShadow={false}>
+              <EuiFlexGroup
+                justifyContent="center"
+                wrap={false}
+                responsive={false}
+              >
+                <EuiFlexItem grow={false}>
+                  <EuiShowFor sizes={["xs"]}>
+                    <EuiIcon type={SOLANA_SVG} size="l" />
+                  </EuiShowFor>
+                  <EuiHideFor sizes={["xs"]}>
+                    <EuiIcon type={SOLANA_SVG} size="xl" />
+                  </EuiHideFor>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiShowFor sizes={["xs"]}>
+                    <EuiIcon type={ETHEREUM_SVG} size="l" />
+                  </EuiShowFor>
+                  <EuiHideFor sizes={["xs"]}>
+                    <EuiIcon type={ETHEREUM_SVG} size="xl" />
+                  </EuiHideFor>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiShowFor sizes={["xs"]}>
+                    <EuiIcon type={BSC_SVG} size="l" />
+                  </EuiShowFor>
+                  <EuiHideFor sizes={["xs"]}>
+                    <EuiIcon type={BSC_SVG} size="xl" />
+                  </EuiHideFor>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiShowFor sizes={["xs"]}>
+                    <EuiIcon type={AVALANCHE_SVG} size="l" />
+                  </EuiShowFor>
+                  <EuiHideFor sizes={["xs"]}>
+                    <EuiIcon type={AVALANCHE_SVG} size="xl" />
+                  </EuiHideFor>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiShowFor sizes={["xs"]}>
+                    <EuiIcon type={POLYGON_SVG} size="l" />
+                  </EuiShowFor>
+                  <EuiHideFor sizes={["xs"]}>
+                    <EuiIcon type={POLYGON_SVG} size="xl" />
+                  </EuiHideFor>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiPanel>
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiSpacer size="xxl" />

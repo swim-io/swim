@@ -15,11 +15,11 @@ import { useState } from "react";
 import { Carousel } from "react-responsive-carousel";
 
 import { useNotification } from "../core/store";
+import { useRedeemMutation } from "../hooks";
 import type {
   NftAttribute,
   NftData,
 } from "../hooks/solana/useAccountNftsQuery";
-import { useRedeemMutation } from "../hooks/swim/useRedeemMutation";
 
 import "./NftCarousel.scss";
 

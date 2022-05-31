@@ -8,6 +8,7 @@ export * from "./usePoolLpMint";
 export * from "./usePoolState";
 export * from "./usePools";
 export * from "./useRecentInteractions";
+export * from "./useRedeemMutation";
 export * from "./useRemoveFeesEstimationQuery";
 export * from "./useStepsReducer";
 export * from "./useSwapFeesEstimationQuery";

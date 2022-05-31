@@ -11,7 +11,7 @@ import { useSolanaConnection } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import redeemerIdl from "../../idl/redeem.json";
-import { getAssociatedTokenAddress } from "../../models/solana/utils";
+import { getAssociatedTokenAddress } from "../../models";
 import type { NftData } from "../solana";
 import {
   useAnchorProvider,

@@ -72,6 +72,10 @@ export const useRemoveFeesEstimationQuery = (
     EcosystemId.Bsc,
     EcosystemId.Avalanche,
     EcosystemId.Polygon,
+    EcosystemId.Aurora,
+    EcosystemId.Fantom,
+    EcosystemId.Karura,
+    EcosystemId.Acala,
   ];
   const [
     ethGas,

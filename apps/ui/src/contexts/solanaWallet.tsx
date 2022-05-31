@@ -10,6 +10,7 @@ import {
 
 import { SingleWalletModal } from "../components/SingleWalletModal";
 import { Protocol } from "../config";
+import { selectSolanaAdapter } from "../core/selectors";
 import { useWalletAdapter } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
 import type {
@@ -58,7 +59,7 @@ export const SolanaWalletProvider = ({
     [serviceId],
   );
 
-  const { solana } = useWalletAdapter();
+  const solana = useWalletAdapter(selectSolanaAdapter);
 
   const wallet: SolanaWalletAdapter | null = (service && solana) || null;
   const address = wallet?.address ?? null;

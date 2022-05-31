@@ -133,7 +133,7 @@ const PoolsPage = (): ReactElement => {
               />
             )}
 
-            {process.env.ENABLE_AURORA || (
+            {!!process.env.REACT_APP_ENABLE_AURORA || (
               <>
                 <EuiSpacer size="xxl" />
 
@@ -218,7 +218,7 @@ const PoolsPage = (): ReactElement => {
               </>
             )}
 
-            {process.env.ENABLE_FANTOM || (
+            {!!process.env.REACT_APP_ENABLE_FANTOM || (
               <>
                 <EuiSpacer size="xxl" />
 
@@ -249,7 +249,7 @@ const PoolsPage = (): ReactElement => {
               </>
             )}
 
-            {process.env.ENABLE_KARURA || (
+            {!!process.env.REACT_APP_ENABLE_KARURA || (
               <>
                 <EuiSpacer size="xxl" />
 
@@ -307,7 +307,7 @@ const PoolsPage = (): ReactElement => {
               </>
             )}
 
-            {process.env.ENABLE_ACALA || (
+            {!!process.env.REACT_APP_ENABLE_ACALA || (
               <>
                 <EuiSpacer size="xxl" />
 

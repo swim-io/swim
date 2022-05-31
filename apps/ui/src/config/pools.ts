@@ -150,7 +150,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.ENABLE_AURORA,
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA,
     id: "meta-aurora-usdc",
     displayName: "Aurora USDC Meta-Pool",
     isStakingPool: false,
@@ -169,7 +169,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.ENABLE_AURORA,
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA,
     id: "meta-aurora-usdt",
     displayName: "Aurora USDT Meta-Pool",
     isStakingPool: false,
@@ -188,7 +188,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.ENABLE_AURORA,
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA,
     id: "meta-aurora-usn",
     displayName: "Aurora USN Meta-Pool",
     isStakingPool: false,
@@ -207,7 +207,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.ENABLE_FANTOM,
+    isDisabled: !process.env.REACT_APP_ENABLE_FANTOM,
     id: "meta-fantom-usdc",
     displayName: "Fantom USDC Meta-Pool",
     isStakingPool: false,
@@ -226,7 +226,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.ENABLE_KARURA,
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA,
     id: "meta-karura-ausd",
     displayName: "Karura AUSD Meta-Pool",
     isStakingPool: false,
@@ -245,7 +245,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.ENABLE_KARURA,
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA,
     id: "meta-karura-usdt",
     displayName: "Karura USDT Meta-Pool",
     isStakingPool: false,

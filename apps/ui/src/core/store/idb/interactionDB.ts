@@ -41,7 +41,6 @@ export const InteractionIDBStorage: StateStorage = {
       try {
         await db.open();
         const data = await db.interactionStates.toArray();
-        console.log("DATA GET ITEM", data);
         const sortedData = [...data]
           .sort(
             (a, b) =>

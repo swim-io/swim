@@ -120,6 +120,26 @@ const tokenAmountsMapToRecord = (
     {},
   );
 
+const tokenAmountArrayToRecord = (
+  amounts: Amount[],
+): ReadonlyRecord<string, string> =>
+  [...amounts].reduce(
+    (record, amount) => ({
+      ...record,
+      [amount.tokenId]: amount.toJSON(),
+    }),
+    {},
+  );
+
+const tokenAmountRecordToArray = (
+  tokens: readonly TokenSpec[],
+  amounts: ReadonlyRecord<string, string>,
+): readonly Amount[] =>
+  Object.entries(amounts).map(([tokenId, stringAmount]) => {
+    const token = findOrThrow(tokens, ({ id }) => id === tokenId);
+    return Amount.fromHumanString(token, stringAmount);
+  });
+
 const populateAddInteraction = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
@@ -337,27 +357,120 @@ export const deserializeInteractions = (
   }
 };
 
-// const populateSolanaPoolOperationState = (
-//   solanaPoolOperationState: SolanaPoolOperationState,
-//   interactionType: InteractionType,
-// ): Interaction => {
-//   switch (interactionType) {
-//     case InteractionType.Add:
-//       return {
-//         ...solanaPoolOperationState,
-//       };
-//     case InteractionType.RemoveUniform:
+const populateSolanaPoolOperationState = (
+  operationState: SolanaPoolOperationState,
+  tokensByPoolId: TokensByPoolId,
+  poolSpecs: readonly PoolSpec[],
+  interaction: PreparedInteraction,
+): SolanaPoolOperationState => {
+  const { params }: any = operationState.operation;
+  const { env } = interaction;
+  if (!isValidEnv(env)) {
+    throw new Error("Invalid env");
+  }
+  if (poolSpecs.length !== 1) {
+    throw new Error("Invalid interaction");
+  }
+  const poolTokens = tokensByPoolId[operationState.operation.poolId];
 
-//     case InteractionType.RemoveExactBurn:
+  switch (interaction.type) {
+    case InteractionType.Add:
+      return {
+        ...operationState,
+        operation: {
+          ...operationState.operation,
+          params: {
+            ...params,
+            inputAmounts: tokenAmountRecordToArray(
+              poolTokens.tokens,
+              params.inputAmounts,
+            ),
+            minimumMintAmount: Amount.fromHumanString(
+              poolTokens.lpToken,
+              params.minimumMintAmount,
+            ),
+          },
+        },
+      };
+    case InteractionType.RemoveUniform:
+      return {
+        ...operationState,
+        operation: {
+          ...operationState.operation,
+          params: {
+            ...params,
+            minimumOutputAmounts: tokenAmountRecordToArray(
+              poolTokens.tokens,
+              params.minimumOutputAmounts,
+            ),
+            exactBurnAmount: Amount.fromHumanString(
+              poolTokens.lpToken,
+              params.exactBurnAmount,
+            ),
+          },
+        },
+      };
+    case InteractionType.RemoveExactBurn:
+      return {
+        ...operationState,
+        operation: {
+          ...operationState.operation,
+          params: {
+            ...params,
+            minimumOutputAmounts: Amount.fromHumanString(
+              poolTokens.tokens[params.outputTokenIndex],
+              params.exactBurnAmount,
+            ),
+            exactBurnAmount: Amount.fromHumanString(
+              poolTokens.lpToken,
+              params.exactBurnAmount,
+            ),
+          },
+        },
+      };
 
-//     case InteractionType.RemoveExactOutput:
+    case InteractionType.RemoveExactOutput:
+      return {
+        ...operationState,
+        operation: {
+          ...operationState.operation,
+          params: {
+            ...params,
+            maximumBurnAmount: Amount.fromHumanString(
+              poolTokens.lpToken,
+              params.exactBurnAmount,
+            ),
+            exactOutputAmounts: tokenAmountRecordToArray(
+              poolTokens.tokens,
+              params.exactOutputAmounts,
+            ),
+          },
+        },
+      };
 
-//     case InteractionType.Swap:
+    case InteractionType.Swap:
+      return {
+        ...operationState,
+        operation: {
+          ...operationState.operation,
+          params: {
+            ...params,
+            exactInputAmounts: tokenAmountRecordToArray(
+              poolTokens.tokens,
+              params.exactInputAmounts,
+            ),
+            minimumOutputAmount: Amount.fromHumanString(
+              poolTokens.tokens[params.outputTokenIndex],
+              params.minimumOutputAmount,
+            ),
+          },
+        },
+      };
 
-//     default:
-//       throw new Error("Interaction not recognized");
-//   }
-// };
+    default:
+      throw new Error("Interaction not recognized");
+  }
+};
 
 const populateTransfers = (
   parsedTransfers: any[], // TODO: parsed Type
@@ -365,7 +478,7 @@ const populateTransfers = (
 ): (ToSolanaTransferState & FromSolanaTransferState)[] =>
   parsedTransfers.map((transfer) => ({
     ...transfer,
-    // token: findTokenById(transfer.tokenId, env),
+    // token: findTokenById(transfer.token.id, env),
     value: transfer.value
       ? new Decimal(parseInt(transfer.value))
       : transfer.value,
@@ -379,7 +492,7 @@ export const deserializeInteractionStates = (
   const tokensByPoolId = getTokensByPool(config);
   try {
     const parsed = JSON.parse(serialized);
-    console.log("DEserialize", parsed);
+    console.log("PARSED", parsed);
     const deserializedInteractionState = parsed.map((state: any) => {
       // TODO: Parsed state type
       let populatedState: InteractionState;
@@ -398,7 +511,15 @@ export const deserializeInteractionStates = (
           prepInteraction,
         ),
         fromSolanaTransfers: populateTransfers(state.fromSolanaTransfers, env),
-        solanaPoolOperations: [],
+        solanaPoolOperations: state.solanaPoolOperations.map(
+          (operation: SolanaPoolOperationState) =>
+            populateSolanaPoolOperationState(
+              operation,
+              tokensByPoolId,
+              poolSpecs,
+              state.interaction,
+            ),
+        ),
         requiredSplTokenAccounts: state.requiredSplTokenAccounts,
       };
       return populatedState;
@@ -503,7 +624,7 @@ const prepareSolanaPoolOperations = (
           ...solanaPoolOperations.operation,
           params: {
             ...params,
-            inputAmounts: tokenAmountsMapToRecord(params.inputAmounts),
+            inputAmounts: tokenAmountArrayToRecord(params.inputAmounts),
             minimumMintAmount: params.minimumMintAmount.toJSON(),
           },
         },
@@ -516,7 +637,7 @@ const prepareSolanaPoolOperations = (
           params: {
             ...params,
             exactBurnAmount: params.exactBurnAmount.toJSON(),
-            minimumOutputAmounts: tokenAmountsMapToRecord(
+            minimumOutputAmounts: tokenAmountArrayToRecord(
               params.minimumOutputAmounts,
             ),
           },
@@ -542,7 +663,7 @@ const prepareSolanaPoolOperations = (
           params: {
             ...params,
             maximumBurnAmount: params.maximumBurnAmount.toJSON(),
-            exactOutputAmounts: tokenAmountsMapToRecord(
+            exactOutputAmounts: tokenAmountArrayToRecord(
               params.exactOutputAmounts,
             ),
           },
@@ -555,10 +676,9 @@ const prepareSolanaPoolOperations = (
           ...solanaPoolOperations.operation,
           params: {
             ...params,
-            exactInputAmounts: tokenAmountsMapToRecord(
+            exactInputAmounts: tokenAmountArrayToRecord(
               params.exactInputAmounts,
             ),
-            outputTokenId: params.minimumOutputAmount.tokenId,
             minimumOutputAmount: params.minimumOutputAmount.toJSON(),
           },
         },

@@ -15,6 +15,7 @@ import shallow from "zustand/shallow.js";
 import { isValidEnv } from "../config";
 import { selectEnvs } from "../core/selectors";
 import { useEnvironment, useInteractionState } from "../core/store";
+import { MOCK_INTERACTION_STATE } from "../fixtures/swim/interactionState";
 export const EnvSelector = (): ReactElement => {
   const store = useInteractionState();
   const { env, setEnv } = useEnvironment();
@@ -24,6 +25,10 @@ export const EnvSelector = (): ReactElement => {
   useEffect(() => {
     store.loadIndexedDB();
   }, []);
+
+  useEffect(() => {
+    store.addInteractionState(MOCK_INTERACTION_STATE);
+  }, [store.interactionStates.length === 0]);
 
   const handleChange = (envOptions: readonly EuiSelectableOption[]): void => {
     const newEnv = envOptions.find((option) => option.checked)?.key;

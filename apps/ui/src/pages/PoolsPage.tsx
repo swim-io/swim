@@ -1,10 +1,13 @@
 import {
   EuiEmptyPrompt,
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiPage,
   EuiPageBody,
   EuiPageContent,
   EuiPageContentBody,
   EuiSpacer,
+  EuiText,
   EuiTitle,
 } from "@elastic/eui";
 import Decimal from "decimal.js";
@@ -12,7 +15,7 @@ import type { ReactElement } from "react";
 import { Fragment } from "react";
 import shallow from "zustand/shallow.js";
 
-import { u64ToDecimal } from "../amounts";
+import { atomicToTvlString, u64ToDecimal } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
 import type { PoolSpec } from "../config";
 import { EcosystemId, getSolanaTokenDetails } from "../config";
@@ -77,14 +80,31 @@ const PoolsPage = (): ReactElement => {
     return null;
   });
 
+  const tvl =
+    poolUsdTotals.reduce((prev, current) => {
+      return (prev ?? new Decimal(0)).add(current ?? new Decimal(0));
+    }) ?? new Decimal(0);
+
   return (
     <EuiPage className="poolsPage" restrictWidth={800}>
       <EuiPageBody>
         <EuiPageContent verticalPosition="center">
           <EuiPageContentBody>
-            <EuiTitle>
-              <h2>Pools</h2>
-            </EuiTitle>
+            <EuiFlexGroup justifyContent="spaceBetween" responsive={false}>
+              <EuiFlexItem grow={false}>
+                <EuiTitle>
+                  <h2>Pools</h2>
+                </EuiTitle>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiText>
+                  <p>
+                    <b>TVL: ${atomicToTvlString(tvl)}</b>
+                  </p>
+                </EuiText>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+
             <EuiSpacer />
 
             {pools.length > 0 ? (

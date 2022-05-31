@@ -4,12 +4,32 @@ import Decimal from "decimal.js";
 
 import { defaultIfError } from "./utils";
 
+const ONE_TRILLION = new Decimal("1000000000000");
+const ONE_BILLION = new Decimal("1000000000");
+const ONE_MILLION = new Decimal("1000000");
+const ONE_THOUSAND = new Decimal("1000");
+const SIG_DIGITS = 4;
+
 export const atomicToHumanString = (amount: Decimal, decimals = 0): string => {
   return amount.toFixed(decimals).replace(/\d(?=(\d{3})+\.)/g, "$&,");
 };
 
 export const atomicToHuman = (amount: Decimal, decimals = 0): Decimal => {
   return decimals === 0 ? amount : amount.div(Decimal.pow(10, decimals));
+};
+
+export const atomicToTvlString = (amount: Decimal): string => {
+  if (amount.greaterThanOrEqualTo(ONE_TRILLION)) {
+    return amount.toSD(SIG_DIGITS).div(ONE_TRILLION).toString() + "T";
+  } else if (amount.greaterThanOrEqualTo(ONE_BILLION)) {
+    return amount.toSD(SIG_DIGITS).div(ONE_BILLION).toString() + "B";
+  } else if (amount.greaterThanOrEqualTo(ONE_MILLION)) {
+    return amount.toSD(SIG_DIGITS).div(ONE_MILLION).toString() + "M";
+  } else if (amount.greaterThanOrEqualTo(ONE_THOUSAND)) {
+    return amount.toSD(SIG_DIGITS).div(ONE_THOUSAND).toString() + "K";
+  } else {
+    return atomicToHumanString(amount.toSD(SIG_DIGITS));
+  }
 };
 
 export const humanToAtomic = (amount: Decimal, decimals = 0): Decimal => {

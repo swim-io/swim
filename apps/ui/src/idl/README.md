@@ -4,7 +4,7 @@ This directory contains Anchor IDLs (interactive data language) for Solana smart
 
 ### Generating
 
-Specifications for generating an IDLs can be read (here)[https://project-serum.github.io/anchor/cli/commands.html#cluster-list].
+Specifications for generating an IDL can be read (here)[https://project-serum.github.io/anchor/cli/commands.html#cluster-list].
 
 ### Usage
 

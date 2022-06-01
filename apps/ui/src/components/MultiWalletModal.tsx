@@ -13,29 +13,46 @@ import type { ReactElement } from "react";
 import { Fragment } from "react";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId } from "../config";
+import {
+  ECOSYSTEM_IDS,
+  EcosystemId,
+  isEcosystemEnabled,
+  isEvmEcosystemId,
+} from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { useWallets } from "../hooks";
+import ACALA_SVG from "../images/ecosystems/acala.svg";
+import AURORA_SVG from "../images/ecosystems/aurora.svg";
 import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
 import BSC_SVG from "../images/ecosystems/bsc.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+import FANTOM_SVG from "../images/ecosystems/fantom.svg";
+import KARURA_SVG from "../images/ecosystems/karura.svg";
 import POLYGON_SVG from "../images/ecosystems/polygon.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
-import {
-  AVALANCHE_WALLET_SERVICES,
-  BSC_WALLET_SERVICES,
-  ETHEREUM_WALLET_SERVICES,
-  POLYGON_WALLET_SERVICES,
-  SOLANA_WALLET_SERVICES,
-} from "../models";
+import { WALLET_SERVICES } from "../models";
 import type { WalletService } from "../models";
-import { isUserOnMobileDevice, shortenAddress } from "../utils";
+import type { ReadonlyRecord } from "../utils";
+import { isNotNull, isUserOnMobileDevice, shortenAddress } from "../utils";
 
 import { CustomModal } from "./CustomModal";
 import { MobileDeviceDisclaimer } from "./MobileDeviceDisclaimer";
 
 import "./ConnectButton.scss";
+
+const ICONS: ReadonlyRecord<EcosystemId, string> = {
+  [EcosystemId.Solana]: SOLANA_SVG,
+  [EcosystemId.Ethereum]: ETHEREUM_SVG,
+  [EcosystemId.Terra]: "",
+  [EcosystemId.Bsc]: BSC_SVG,
+  [EcosystemId.Avalanche]: AVALANCHE_SVG,
+  [EcosystemId.Polygon]: POLYGON_SVG,
+  [EcosystemId.Aurora]: AURORA_SVG,
+  [EcosystemId.Fantom]: FANTOM_SVG,
+  [EcosystemId.Karura]: KARURA_SVG,
+  [EcosystemId.Acala]: ACALA_SVG,
+};
 
 interface WalletServiceButtonProps<W extends WalletService = WalletService> {
   readonly service: W;
@@ -142,14 +159,8 @@ export interface MultiWalletModalProps {
 export const MultiWalletModal = ({
   handleClose,
 }: MultiWalletModalProps): ReactElement => {
-  const { solana, ethereum, bsc, avalanche, polygon } = useWallets();
-
+  const wallets = useWallets();
   const { ecosystems } = useEnvironment(selectConfig, shallow);
-  const solanaEcosystem = ecosystems[EcosystemId.Solana];
-  const ethereumEcosystem = ecosystems[EcosystemId.Ethereum];
-  const bscEcosystem = ecosystems[EcosystemId.Bsc];
-  const avalancheEcosystem = ecosystems[EcosystemId.Avalanche];
-  const polygonEcosystem = ecosystems[EcosystemId.Polygon];
 
   return (
     <CustomModal onClose={handleClose}>
@@ -163,51 +174,25 @@ export const MultiWalletModal = ({
         {isUserOnMobileDevice() ? <MobileDeviceDisclaimer /> : ""}
         <EuiSpacer />
         <EuiFlexGrid columns={3} gutterSize="xl">
-          <EcosystemWalletOptionsList
-            address={solana.address}
-            connected={solana.connected}
-            icon={SOLANA_SVG}
-            ecosystemName={solanaEcosystem.displayName}
-            walletServices={SOLANA_WALLET_SERVICES}
-            ecosystemId={EcosystemId.Solana}
-            createServiceClickHandler={solana.createServiceClickHandler}
-          />
-          <EcosystemWalletOptionsList
-            address={ethereum.address}
-            connected={ethereum.connected}
-            icon={ETHEREUM_SVG}
-            ecosystemName={ethereumEcosystem.displayName}
-            walletServices={ETHEREUM_WALLET_SERVICES}
-            ecosystemId={EcosystemId.Ethereum}
-            createServiceClickHandler={ethereum.createServiceClickHandler}
-          />
-          <EcosystemWalletOptionsList
-            address={bsc.address}
-            connected={bsc.connected}
-            icon={BSC_SVG}
-            ecosystemName={bscEcosystem.displayName}
-            walletServices={BSC_WALLET_SERVICES}
-            ecosystemId={EcosystemId.Bsc}
-            createServiceClickHandler={bsc.createServiceClickHandler}
-          />
-          <EcosystemWalletOptionsList
-            address={avalanche.address}
-            connected={avalanche.connected}
-            icon={AVALANCHE_SVG}
-            ecosystemName={avalancheEcosystem.displayName}
-            walletServices={AVALANCHE_WALLET_SERVICES}
-            ecosystemId={EcosystemId.Avalanche}
-            createServiceClickHandler={avalanche.createServiceClickHandler}
-          />
-          <EcosystemWalletOptionsList
-            address={polygon.address}
-            connected={polygon.connected}
-            icon={POLYGON_SVG}
-            ecosystemName={polygonEcosystem.displayName}
-            walletServices={POLYGON_WALLET_SERVICES}
-            ecosystemId={EcosystemId.Polygon}
-            createServiceClickHandler={polygon.createServiceClickHandler}
-          />
+          {ECOSYSTEM_IDS.filter(isEcosystemEnabled)
+            .map((ecosystemId) =>
+              ecosystemId === EcosystemId.Solana ||
+              isEvmEcosystemId(ecosystemId) ? (
+                <EcosystemWalletOptionsList
+                  key={ecosystemId}
+                  ecosystemId={ecosystemId}
+                  ecosystemName={ecosystems[ecosystemId].displayName}
+                  address={wallets[ecosystemId].address}
+                  connected={wallets[ecosystemId].connected}
+                  icon={ICONS[ecosystemId]}
+                  walletServices={WALLET_SERVICES[EcosystemId.Solana]}
+                  createServiceClickHandler={
+                    wallets[ecosystemId].createServiceClickHandler
+                  }
+                />
+              ) : null,
+            )
+            .filter(isNotNull)}
         </EuiFlexGrid>
       </EuiModalBody>
     </CustomModal>

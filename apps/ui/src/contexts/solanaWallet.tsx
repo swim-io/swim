@@ -16,7 +16,11 @@ import { Protocol } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { useLocalStorageState } from "../hooks/browser";
-import type { SolanaWalletAdapter, SolanaWalletService } from "../models";
+import type {
+  SolanaWalletAdapter,
+  SolanaWalletService,
+  WalletService,
+} from "../models";
 import { SOLANA_WALLET_SERVICES } from "../models";
 import { shortenAddress } from "../utils";
 
@@ -26,9 +30,7 @@ export interface SolanaWalletContextInterface {
   readonly connected: boolean;
   readonly select: () => void;
   readonly service: SolanaWalletService<SolanaWalletAdapter> | null;
-  readonly createServiceClickHandler: (
-    service: SolanaWalletService,
-  ) => () => void;
+  readonly createServiceClickHandler: (service: WalletService) => () => void;
 }
 
 const defaultSolanaWalletContext: SolanaWalletContextInterface = {
@@ -136,7 +138,7 @@ export const SolanaWalletProvider = ({
   const select = useCallback(() => setIsModalVisible(true), []);
   const closeModal = useCallback(() => setIsModalVisible(false), []);
   const createServiceClickHandler =
-    ({ id }: SolanaWalletService, callback?: () => any) =>
+    ({ id }: WalletService, callback?: () => any) =>
     (): void => {
       setServiceId(id);
       setAutoConnect(true);

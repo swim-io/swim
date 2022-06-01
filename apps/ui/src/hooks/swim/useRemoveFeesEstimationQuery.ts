@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 
 import type { EvmEcosystemId } from "../../config";
-import { EcosystemId, isEvmEcosystemId } from "../../config";
+import { ECOSYSTEM_IDS, EcosystemId, isEvmEcosystemId } from "../../config";
 import type { Amount, FeesEstimation } from "../../models";
 import {
   APPROVAL_CEILING,
@@ -11,6 +11,7 @@ import {
   countNonZeroAmounts,
   getIncludedEvmEcosystemIds,
 } from "../../models";
+import { filterMap } from "../../utils";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
 import { useIsEvmGasPriceLoading } from "./useIsEvmGasPriceLoading";
@@ -67,16 +68,6 @@ export const useRemoveFeesEstimationQuery = (
     return null;
   }
 
-  const evmEcosystemIds: readonly EvmEcosystemId[] = [
-    EcosystemId.Ethereum,
-    EcosystemId.Bsc,
-    EcosystemId.Avalanche,
-    EcosystemId.Polygon,
-    EcosystemId.Aurora,
-    EcosystemId.Fantom,
-    EcosystemId.Karura,
-    EcosystemId.Acala,
-  ];
   const [
     ethGas,
     bscGas,
@@ -86,8 +77,11 @@ export const useRemoveFeesEstimationQuery = (
     fantomGas,
     karuraGas,
     acalaGas,
-  ] = evmEcosystemIds.map((ecosystemId) =>
-    calculateGas(ecosystemId, outputAmounts, lpTokenSourceEcosystem),
+  ] = filterMap(
+    isEvmEcosystemId,
+    (ecosystemId) =>
+      calculateGas(ecosystemId, outputAmounts, lpTokenSourceEcosystem),
+    ECOSYSTEM_IDS,
   );
   return {
     [EcosystemId.Solana]: SOLANA_FEE,

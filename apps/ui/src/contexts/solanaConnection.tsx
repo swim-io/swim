@@ -4,8 +4,7 @@ import type { ReactElement, ReactNode } from "react";
 import { createContext, useContext, useEffect, useMemo } from "react";
 import shallow from "zustand/shallow.js";
 
-import { DEFAULT_ENV, configs } from "../config";
-import { Protocol } from "../config/ecosystem";
+import { DEFAULT_ENV, Protocol, configs } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { SolanaConnection } from "../models";

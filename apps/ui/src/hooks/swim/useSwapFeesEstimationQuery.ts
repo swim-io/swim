@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 
 import type { EvmEcosystemId, TokenSpec } from "../../config";
-import { EcosystemId, isEvmEcosystemId } from "../../config";
+import { ECOSYSTEM_IDS, EcosystemId, isEvmEcosystemId } from "../../config";
 import type { FeesEstimation } from "../../models";
 import {
   APPROVAL_CEILING,
@@ -9,6 +9,7 @@ import {
   SOLANA_FEE,
   TRANSFER_CEILING,
 } from "../../models";
+import { filterMap } from "../../utils";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
 import { useIsEvmGasPriceLoading } from "./useIsEvmGasPriceLoading";
@@ -68,16 +69,6 @@ export const useSwapFeesEstimationQuery = (
   if (isRequiredGasPriceLoading) {
     return null;
   }
-  const evmEcosystemIds: readonly EvmEcosystemId[] = [
-    EcosystemId.Ethereum,
-    EcosystemId.Bsc,
-    EcosystemId.Avalanche,
-    EcosystemId.Polygon,
-    EcosystemId.Aurora,
-    EcosystemId.Fantom,
-    EcosystemId.Karura,
-    EcosystemId.Acala,
-  ];
   const [
     ethGas,
     bscGas,
@@ -87,8 +78,11 @@ export const useSwapFeesEstimationQuery = (
     fantomGas,
     karuraGas,
     acalaGas,
-  ] = evmEcosystemIds.map((ecosystemId: EvmEcosystemId) =>
-    calculateGas(ecosystemId, fromToken, toToken),
+  ] = filterMap(
+    isEvmEcosystemId,
+    (ecosystemId: EvmEcosystemId) =>
+      calculateGas(ecosystemId, fromToken, toToken),
+    ECOSYSTEM_IDS,
   );
 
   return {

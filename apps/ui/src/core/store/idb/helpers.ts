@@ -6,6 +6,7 @@ import type {
   EcosystemId,
   Env,
   PoolSpec,
+  TokenDB,
   TokenSpec,
 } from "../../../config";
 import { findTokenById, isValidEnv } from "../../../config";
@@ -30,7 +31,7 @@ import { findOrThrow } from "../../../utils";
 export interface PreparedAddInteraction extends Omit<AddInteraction, "params"> {
   readonly params: {
     readonly inputAmounts: ReadonlyRecord<string, string>;
-    readonly minimumMintAmount: string;
+    readonly minimumMintAmount: TokenDB;
   };
   readonly lpTokenTargetEcosystem: EcosystemId;
 }
@@ -38,7 +39,7 @@ export interface PreparedAddInteraction extends Omit<AddInteraction, "params"> {
 export interface PreparedRemoveUniformInteraction
   extends Omit<RemoveUniformInteraction, "params"> {
   readonly params: {
-    readonly exactBurnAmount: string;
+    readonly exactBurnAmount: TokenDB;
     readonly minimumOutputAmounts: ReadonlyRecord<string, string>;
   };
   readonly lpTokenSourceEcosystem: EcosystemId;
@@ -47,9 +48,8 @@ export interface PreparedRemoveUniformInteraction
 export interface PreparedRemoveExactBurnInteraction
   extends Omit<RemoveExactBurnInteraction, "params"> {
   readonly params: {
-    readonly exactBurnAmount: string;
-    readonly outputTokenId: string;
-    readonly minimumOutputAmount: string;
+    readonly exactBurnAmount: TokenDB;
+    readonly minimumOutputAmount: TokenDB;
   };
   readonly lpTokenSourceEcosystem: EcosystemId;
 }
@@ -57,7 +57,7 @@ export interface PreparedRemoveExactBurnInteraction
 export interface PreparedRemoveExactOutputInteraction
   extends Omit<RemoveExactOutputInteraction, "params"> {
   readonly params: {
-    readonly maximumBurnAmount: string;
+    readonly maximumBurnAmount: TokenDB;
     readonly exactOutputAmounts: ReadonlyRecord<string, string>;
   };
   readonly lpTokenSourceEcosystem: EcosystemId;
@@ -66,10 +66,8 @@ export interface PreparedRemoveExactOutputInteraction
 export interface PreparedSwapInteraction
   extends Omit<SwapInteraction, "params"> {
   readonly params: {
-    readonly inputTokenId: string;
-    readonly exactInputAmount: string;
-    readonly outputTokenId: string;
-    readonly minimumOutputAmount: string;
+    readonly exactInputAmount: TokenDB;
+    readonly minimumOutputAmount: TokenDB;
   };
 }
 
@@ -103,6 +101,9 @@ export type PersistedInteractionState = {
   readonly solanaPoolOperations: readonly SolanaPoolOperationState[];
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
 };
+
+type PersistedTransfers = readonly (PeristedFromSolanaTransfers &
+  PeristedToSolanaTransfers)[];
 
 const tokenAmountsRecordToMap = (
   tokens: readonly TokenSpec[],
@@ -169,7 +170,7 @@ const populateAddInteraction = (
       ),
       minimumMintAmount: Amount.fromHumanString(
         poolTokens.lpToken,
-        params.minimumMintAmount,
+        params.minimumMintAmount.value,
       ),
     },
   };
@@ -195,7 +196,7 @@ const populateRemoveUniformInteraction = (
       ...params,
       exactBurnAmount: Amount.fromHumanString(
         poolTokens.lpToken,
-        params.exactBurnAmount,
+        params.exactBurnAmount.value,
       ),
       minimumOutputAmounts: tokenAmountsRecordToMap(
         poolTokens.tokens,
@@ -218,10 +219,7 @@ const populateRemoveExactBurnInteraction = (
     throw new Error("Invalid interaction");
   }
   const poolTokens = tokensByPoolId[interaction.poolId];
-  const outputToken = findOrThrow(
-    poolTokens.tokens,
-    ({ id }) => id === params.outputTokenId,
-  );
+
   return {
     ...interaction,
     env,
@@ -229,11 +227,11 @@ const populateRemoveExactBurnInteraction = (
       ...params,
       exactBurnAmount: Amount.fromHumanString(
         poolTokens.lpToken,
-        params.exactBurnAmount,
+        params.exactBurnAmount.value,
       ),
       minimumOutputAmount: Amount.fromHumanString(
-        outputToken,
-        params.minimumOutputAmount,
+        findTokenById(params.minimumOutputAmount.tokenId, interaction.env),
+        params.minimumOutputAmount.value,
       ),
     },
   };
@@ -259,7 +257,7 @@ const populateRemoveExactOutputInteraction = (
       ...params,
       maximumBurnAmount: Amount.fromHumanString(
         poolTokens.lpToken,
-        params.maximumBurnAmount,
+        params.maximumBurnAmount.value,
       ),
       exactOutputAmounts: tokenAmountsRecordToMap(
         poolTokens.tokens,
@@ -269,6 +267,8 @@ const populateRemoveExactOutputInteraction = (
   };
 };
 
+// NOTE: This function operates just for 1 or 2 pools
+// Should be aware if number of pool changes
 const populateSwapInteraction = (
   tokensByPoolId: TokensByPoolId,
   interaction: PreparedSwapInteraction,
@@ -280,26 +280,25 @@ const populateSwapInteraction = (
   const inputPoolTokens = tokensByPoolId[interaction.poolIds[0]];
   const inputToken = findOrThrow(
     inputPoolTokens.tokens,
-    ({ id }) => id === params.inputTokenId,
+    ({ id }) => id === params.exactInputAmount.tokenId,
   );
   const outputPoolTokens =
     tokensByPoolId[interaction.poolIds[interaction.poolIds.length - 1]];
   const outputToken = findOrThrow(
     outputPoolTokens.tokens,
-    ({ id }) => id === params.outputTokenId,
+    ({ id }) => id === params.minimumOutputAmount.tokenId,
   );
   return {
     ...interaction,
-    env,
     params: {
       ...params,
       exactInputAmount: Amount.fromHumanString(
         inputToken,
-        params.exactInputAmount,
+        params.exactInputAmount.value,
       ),
       minimumOutputAmount: Amount.fromHumanString(
         outputToken,
-        params.minimumOutputAmount,
+        params.minimumOutputAmount.value,
       ),
     },
   };
@@ -346,6 +345,7 @@ const populateSolanaPoolOperationState = (
 ): SolanaPoolOperationState => {
   const { params }: any = operationState.operation;
   const { env } = interaction;
+
   if (!isValidEnv(env)) {
     throw new Error("Invalid env");
   }
@@ -368,7 +368,7 @@ const populateSolanaPoolOperationState = (
             ),
             minimumMintAmount: Amount.fromHumanString(
               poolTokens.lpToken,
-              params.minimumMintAmount,
+              params.minimumMintAmount.value,
             ),
           },
         },
@@ -380,13 +380,13 @@ const populateSolanaPoolOperationState = (
           ...operationState.operation,
           params: {
             ...params,
+            exactBurnAmount: Amount.fromHumanString(
+              poolTokens.lpToken,
+              params.exactBurnAmount.value,
+            ),
             minimumOutputAmounts: tokenAmountRecordToArray(
               poolTokens.tokens,
               params.minimumOutputAmounts,
-            ),
-            exactBurnAmount: Amount.fromHumanString(
-              poolTokens.lpToken,
-              params.exactBurnAmount,
             ),
           },
         },
@@ -400,7 +400,7 @@ const populateSolanaPoolOperationState = (
             ...params,
             minimumOutputAmounts: Amount.fromHumanString(
               poolTokens.tokens[params.outputTokenIndex],
-              params.exactBurnAmount,
+              params.minimumOutputAmounts.value,
             ),
             exactBurnAmount: Amount.fromHumanString(
               poolTokens.lpToken,
@@ -419,7 +419,7 @@ const populateSolanaPoolOperationState = (
             ...params,
             maximumBurnAmount: Amount.fromHumanString(
               poolTokens.lpToken,
-              params.exactBurnAmount,
+              params.maximumBurnAmount.value,
             ),
             exactOutputAmounts: tokenAmountRecordToArray(
               poolTokens.tokens,
@@ -442,7 +442,7 @@ const populateSolanaPoolOperationState = (
             ),
             minimumOutputAmount: Amount.fromHumanString(
               poolTokens.tokens[params.outputTokenIndex],
-              params.minimumOutputAmount,
+              params.minimumOutputAmount.value,
             ),
           },
         },
@@ -454,37 +454,34 @@ const populateSolanaPoolOperationState = (
 };
 
 const populateTransfers = (
-  parsedTransfers: readonly any[], // TODO: parsed Type
+  parsedTransfers: PersistedTransfers,
   env: Env,
 ): readonly (ToSolanaTransferState & FromSolanaTransferState)[] =>
   parsedTransfers.map((transfer) => ({
     ...transfer,
     token: findTokenById(transfer.token.id, env),
-    value: transfer.value
-      ? new Decimal(parseInt(transfer.value))
-      : transfer.value,
+    value: new Decimal(parseInt(transfer.value || "0")),
   }));
 
 export const deserializeInteractionStates = (
-  parsed: readonly PersistedInteractionState[],
+  persistedStates: readonly PersistedInteractionState[],
   env: Env,
   config: Config,
 ): readonly InteractionState[] => {
   const tokensByPoolId = getTokensByPool(config);
   try {
-    const deserializedInteractionState = parsed.map((state: any) => {
-      const poolSpecs = state.interaction.poolIds.map((poolId: string) =>
-        findOrThrow(config.pools, (pool) => pool.id === poolId),
+    const deserializedInteractionState = persistedStates.map((state: any) => {
+      const poolSpecs: readonly PoolSpec[] = state.interaction.poolIds.map(
+        (poolId: string) =>
+          findOrThrow(config.pools, (pool) => pool.id === poolId),
       );
-      const prepInteraction: PreparedInteraction = {
-        ...state.interaction,
-      };
+
       const populatedState: InteractionState = {
         toSolanaTransfers: populateTransfers(state.toSolanaTransfers, env),
         interaction: populateInteraction(
           tokensByPoolId,
           poolSpecs,
-          prepInteraction,
+          state.interaction,
         ),
         fromSolanaTransfers: populateTransfers(state.fromSolanaTransfers, env),
         solanaPoolOperations: state.solanaPoolOperations.map(
@@ -523,7 +520,7 @@ export const prepareInteraction = (
           inputAmounts: tokenAmountsMapToRecord(
             interaction.params.inputAmounts,
           ),
-          minimumMintAmount: interaction.params.minimumMintAmount.toJSON(),
+          minimumMintAmount: interaction.params.minimumMintAmount.toDBToken(),
         },
       };
     case InteractionType.RemoveUniform:
@@ -532,7 +529,7 @@ export const prepareInteraction = (
         ...base,
         params: {
           ...interaction.params,
-          exactBurnAmount: interaction.params.exactBurnAmount.toJSON(),
+          exactBurnAmount: interaction.params.exactBurnAmount.toDBToken(),
           minimumOutputAmounts: tokenAmountsMapToRecord(
             interaction.params.minimumOutputAmounts,
           ),
@@ -544,9 +541,9 @@ export const prepareInteraction = (
         ...base,
         params: {
           ...interaction.params,
-          exactBurnAmount: interaction.params.exactBurnAmount.toJSON(),
-          outputTokenId: interaction.params.minimumOutputAmount.tokenId,
-          minimumOutputAmount: interaction.params.minimumOutputAmount.toJSON(),
+          exactBurnAmount: interaction.params.exactBurnAmount.toDBToken(),
+          minimumOutputAmount:
+            interaction.params.minimumOutputAmount.toDBToken(),
         },
       };
     case InteractionType.RemoveExactOutput:
@@ -555,7 +552,7 @@ export const prepareInteraction = (
         ...base,
         params: {
           ...interaction.params,
-          maximumBurnAmount: interaction.params.maximumBurnAmount.toJSON(),
+          maximumBurnAmount: interaction.params.maximumBurnAmount.toDBToken(),
           exactOutputAmounts: tokenAmountsMapToRecord(
             interaction.params.exactOutputAmounts,
           ),
@@ -567,10 +564,9 @@ export const prepareInteraction = (
         ...base,
         params: {
           ...interaction.params,
-          inputTokenId: interaction.params.exactInputAmount.tokenId,
-          exactInputAmount: interaction.params.exactInputAmount.toJSON(),
-          outputTokenId: interaction.params.minimumOutputAmount.tokenId,
-          minimumOutputAmount: interaction.params.minimumOutputAmount.toJSON(),
+          exactInputAmount: interaction.params.exactInputAmount.toDBToken(),
+          minimumOutputAmount:
+            interaction.params.minimumOutputAmount.toDBToken(),
         },
       };
     default:
@@ -592,7 +588,7 @@ const prepareSolanaPoolOperations = (
           params: {
             ...params,
             inputAmounts: tokenAmountArrayToRecord(params.inputAmounts),
-            minimumMintAmount: params.minimumMintAmount.toJSON(),
+            minimumMintAmount: params.minimumMintAmount.toDBToken(),
           },
         },
       };
@@ -603,7 +599,7 @@ const prepareSolanaPoolOperations = (
           ...solanaPoolOperations.operation,
           params: {
             ...params,
-            exactBurnAmount: params.exactBurnAmount.toJSON(),
+            exactBurnAmount: params.exactBurnAmount.toDBToken(),
             minimumOutputAmounts: tokenAmountArrayToRecord(
               params.minimumOutputAmounts,
             ),
@@ -617,8 +613,8 @@ const prepareSolanaPoolOperations = (
           ...solanaPoolOperations.operation,
           params: {
             ...params,
-            exactBurnAmount: params.exactBurnAmount.toJSON(),
-            minimumOutputAmount: params.minimumOutputAmount.toJSON(),
+            exactBurnAmount: params.exactBurnAmount.toDBToken(),
+            minimumOutputAmount: params.minimumOutputAmount.toDBToken(),
           },
         },
       };
@@ -629,7 +625,7 @@ const prepareSolanaPoolOperations = (
           ...solanaPoolOperations.operation,
           params: {
             ...params,
-            maximumBurnAmount: params.maximumBurnAmount.toJSON(),
+            maximumBurnAmount: params.maximumBurnAmount.toDBToken(),
             exactOutputAmounts: tokenAmountArrayToRecord(
               params.exactOutputAmounts,
             ),
@@ -646,7 +642,7 @@ const prepareSolanaPoolOperations = (
             exactInputAmounts: tokenAmountArrayToRecord(
               params.exactInputAmounts,
             ),
-            minimumOutputAmount: params.minimumOutputAmount.toJSON(),
+            minimumOutputAmount: params.minimumOutputAmount.toDBToken(),
           },
         },
       };

@@ -132,16 +132,12 @@ export class Amount {
     return this.toHumanString(this.tokenSpec.nativeEcosystem);
   }
 
-  toDbData(): TokenDB {
+  toDBToken(): TokenDB {
     const tokenId = this.tokenId;
     const value = this.value.toString();
     const token: TokenDB = { tokenId, value };
     return token;
   }
-
-  // fromDbData({ tokenId, value }: TokenDB): Amount {
-
-  // }
 
   equals(amount: Amount): boolean {
     this.ensureSameToken(amount);

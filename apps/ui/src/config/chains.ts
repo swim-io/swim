@@ -33,7 +33,7 @@ export const enum EvmChainId {
   AvalancheLocalnet = 43112, // TODO: This is a placeholder
   AuroraMainnet = 1313161554,
   AuroraTestnet = 1313161555,
-  AuroraLocalnet = 1313161555, // TODO: This is a placeholder
+  AuroraLocalnet = 1313161556, // TODO: This is a placeholder
   FantomMainnet = 250,
   FantomTestnet = 4002,
   FantomLocalnet = 4003, // TODO: This is a placeholder

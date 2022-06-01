@@ -18,7 +18,11 @@ import shallow from "zustand/shallow.js";
 import { atomicToTvlString, u64ToDecimal } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
 import type { PoolSpec } from "../config";
-import { EcosystemId, getSolanaTokenDetails } from "../config";
+import {
+  EcosystemId,
+  getSolanaTokenDetails,
+  isEcosystemEnabled,
+} from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { useCoinGeckoPricesQuery, useLiquidityQuery, useTitle } from "../hooks";
@@ -133,7 +137,7 @@ const PoolsPage = (): ReactElement => {
               />
             )}
 
-            {!!process.env.REACT_APP_ENABLE_AURORA || (
+            {isEcosystemEnabled(EcosystemId.Aurora) || (
               <>
                 <EuiSpacer size="xxl" />
 
@@ -218,7 +222,7 @@ const PoolsPage = (): ReactElement => {
               </>
             )}
 
-            {!!process.env.REACT_APP_ENABLE_FANTOM || (
+            {isEcosystemEnabled(EcosystemId.Fantom) || (
               <>
                 <EuiSpacer size="xxl" />
 
@@ -249,7 +253,7 @@ const PoolsPage = (): ReactElement => {
               </>
             )}
 
-            {!!process.env.REACT_APP_ENABLE_KARURA || (
+            {isEcosystemEnabled(EcosystemId.Karura) || (
               <>
                 <EuiSpacer size="xxl" />
 
@@ -307,7 +311,7 @@ const PoolsPage = (): ReactElement => {
               </>
             )}
 
-            {!!process.env.REACT_APP_ENABLE_ACALA || (
+            {isEcosystemEnabled(EcosystemId.Acala) || (
               <>
                 <EuiSpacer size="xxl" />
 

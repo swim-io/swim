@@ -2,7 +2,7 @@ import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import { EcosystemId, isEcosystemEnabled } from "../../config";
 import { useSolanaWallet } from "../../contexts";
 import { Amount, findTokenAccountForMint } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
@@ -110,8 +110,17 @@ const getEvmTokenIdAndBalance = (
 export const useMultipleUserBalances = (
   tokenSpecs: readonly TokenSpec[],
 ): ReadonlyMap<string, Amount | null> => {
-  const { solana, ethereum, bsc, avalanche, polygon } =
-    getContractAddressesByEcosystem(tokenSpecs);
+  const {
+    solana,
+    ethereum,
+    bsc,
+    avalanche,
+    polygon,
+    aurora,
+    fantom,
+    karura,
+    acala,
+  } = getContractAddressesByEcosystem(tokenSpecs);
   const { address: solanaWalletAddress } = useSolanaWallet();
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
   const solanaTokenAccounts = solana.map((tokenContractAddress) =>
@@ -133,6 +142,22 @@ export const useMultipleUserBalances = (
     avalanche,
   );
   const polygonBalances = useErc20BalancesQuery(EcosystemId.Polygon, polygon);
+  const auroraBalances = useErc20BalancesQuery(
+    EcosystemId.Aurora,
+    isEcosystemEnabled(EcosystemId.Aurora) ? aurora : [],
+  );
+  const fantomBalances = useErc20BalancesQuery(
+    EcosystemId.Fantom,
+    isEcosystemEnabled(EcosystemId.Fantom) ? fantom : [],
+  );
+  const karuraBalances = useErc20BalancesQuery(
+    EcosystemId.Karura,
+    isEcosystemEnabled(EcosystemId.Karura) ? karura : [],
+  );
+  const acalaBalances = useErc20BalancesQuery(
+    EcosystemId.Acala,
+    isEcosystemEnabled(EcosystemId.Acala) ? acala : [],
+  );
 
   return new Map(
     tokenSpecs.map((tokenSpec, i) => {
@@ -180,6 +205,38 @@ export const useMultipleUserBalances = (
             EcosystemId.Polygon,
             polygonBalances,
             polygon,
+          );
+        }
+        case EcosystemId.Aurora: {
+          return getEvmTokenIdAndBalance(
+            tokenSpec,
+            EcosystemId.Aurora,
+            auroraBalances,
+            aurora,
+          );
+        }
+        case EcosystemId.Fantom: {
+          return getEvmTokenIdAndBalance(
+            tokenSpec,
+            EcosystemId.Fantom,
+            fantomBalances,
+            fantom,
+          );
+        }
+        case EcosystemId.Karura: {
+          return getEvmTokenIdAndBalance(
+            tokenSpec,
+            EcosystemId.Karura,
+            karuraBalances,
+            karura,
+          );
+        }
+        case EcosystemId.Acala: {
+          return getEvmTokenIdAndBalance(
+            tokenSpec,
+            EcosystemId.Acala,
+            acalaBalances,
+            acala,
           );
         }
         default:

@@ -1,5 +1,6 @@
 import type { ReadonlyRecord } from "../utils";
 
+import { EcosystemId, isEcosystemEnabled } from "./ecosystem";
 import { Env } from "./env";
 
 export interface PoolSpec {
@@ -150,7 +151,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA,
+    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
     id: "meta-aurora-usdc",
     displayName: "Aurora USDC Meta-Pool",
     isStakingPool: false,
@@ -169,7 +170,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA,
+    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
     id: "meta-aurora-usdt",
     displayName: "Aurora USDT Meta-Pool",
     isStakingPool: false,
@@ -188,7 +189,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA,
+    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
     id: "meta-aurora-usn",
     displayName: "Aurora USN Meta-Pool",
     isStakingPool: false,
@@ -207,7 +208,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_FANTOM,
+    isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
     id: "meta-fantom-usdc",
     displayName: "Fantom USDC Meta-Pool",
     isStakingPool: false,
@@ -226,7 +227,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_KARURA,
+    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "meta-karura-ausd",
     displayName: "Karura AUSD Meta-Pool",
     isStakingPool: false,
@@ -245,7 +246,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_KARURA,
+    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "meta-karura-usdt",
     displayName: "Karura USDT Meta-Pool",
     isStakingPool: false,
@@ -264,7 +265,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.ENABLE_ACALA,
+    isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
     id: "meta-acala-ausd",
     displayName: "Acala AUSD Meta-Pool",
     isStakingPool: false,

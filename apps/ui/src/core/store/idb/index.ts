@@ -1,11 +1,12 @@
 import type { Table } from "dexie";
 import Dexie from "dexie";
 
+import type { Config, Env } from "../../../config";
 import type { InteractionState } from "../../../models";
 
+import type { PersistedInteractionState } from "./helpers";
 import {
   deserializeInteractionStates,
-  PersistedInteractionState,
   prepareInteractionState,
 } from "./helpers";
 
@@ -25,20 +26,12 @@ export class SwimIDB extends Dexie {
     });
   }
 
-  private serializeState(state: InteractionState): PersistedInteractionState {
-    return prepareInteractionState(state);
-  }
-
-  private deserializeState(
-    state: PersistedInteractionState[],
-  ): readonly InteractionState[] {
-    return deserializeInteractionStates(state);
-  }
-
-  async getInteractionStates() {
+  async getInteractionStates(env: Env, config: Config) {
     return this.transaction("rw", "interactionStates", async () => {
-      const data = await this.interactionStates.toArray();
-      return this.deserializeState(data);
+      const data = await this.interactionStates
+        .filter((idbState) => idbState.interaction.env === env)
+        .toArray();
+      return this.deserializeState(data, env, config);
     }).catch((err) => {
       console.warn(err);
     });
@@ -60,12 +53,24 @@ export class SwimIDB extends Dexie {
         const diff = size - MAX_STORED_INTERACTIONS;
         const collection = await this.interactionStates.toArray();
         for (let index = 0; index < diff; index++) {
-          this.interactionStates.delete(collection[index].id);
+          await this.interactionStates.delete(collection[index].id);
         }
       }
     }).catch((err) => {
       console.warn("Fail to add interactionState into idb", err);
     });
+  }
+
+  private serializeState(state: InteractionState): PersistedInteractionState {
+    return prepareInteractionState(state);
+  }
+
+  private deserializeState(
+    state: readonly PersistedInteractionState[],
+    env: Env,
+    config: Config,
+  ): readonly InteractionState[] {
+    return deserializeInteractionStates(state, env, config);
   }
 }
 

@@ -4,10 +4,12 @@ import { castDraft, produce } from "immer";
 import type { GetState, SetState } from "zustand";
 import create from "zustand";
 
+import type { Config } from "../../config";
 import type { Interaction, InteractionState } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 
 import { idb } from "./idb";
+import type { Env } from "./useEnvironment";
 
 export interface InteractionStore {
   readonly errorMap: ReadonlyRecord<Interaction["id"], Error | undefined>;
@@ -17,9 +19,10 @@ export interface InteractionStore {
   readonly setInteractionError: (id: string, error: Error | undefined) => void;
   readonly getInteractionState: (interactionId: string) => InteractionState;
   readonly addInteractionState: (interactionState: InteractionState) => void;
-  readonly getInteractionStatesFromIDB: () => Promise<
-    void | readonly InteractionState[]
-  >;
+  readonly getInteractionStatesFromIDB: (
+    env: Env,
+    config: Config,
+  ) => Promise<void | readonly InteractionState[]>;
   readonly updateInteractionState: (
     interactionId: string,
     updateCallback: (interactionState: Draft<InteractionState>) => void,
@@ -48,8 +51,8 @@ export const useInteractionState = create(
       }
       return interactionState;
     },
-    getInteractionStatesFromIDB: async () => {
-      const data = (await idb.getInteractionStates()) || [];
+    getInteractionStatesFromIDB: async (env, config) => {
+      const data = (await idb.getInteractionStates(env, config)) || [];
       set(
         produce<InteractionStore>((draft) => {
           draft.interactionStates = castDraft(data);

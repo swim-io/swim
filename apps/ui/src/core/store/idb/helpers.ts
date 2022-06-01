@@ -1,7 +1,13 @@
 import * as Sentry from "@sentry/react";
 import Decimal from "decimal.js";
 
-import type { EcosystemId, Env, PoolSpec, TokenSpec } from "../../../config";
+import type {
+  Config,
+  EcosystemId,
+  Env,
+  PoolSpec,
+  TokenSpec,
+} from "../../../config";
 import { isValidEnv } from "../../../config";
 import { findTokenById } from "../../../fixtures";
 import type {
@@ -12,17 +18,15 @@ import type {
   RemoveExactBurnInteraction,
   RemoveExactOutputInteraction,
   RemoveUniformInteraction,
+  RequiredSplTokenAccounts,
   SolanaPoolOperationState,
   SwapInteraction,
   ToSolanaTransferState,
   TokensByPoolId,
-  RequiredSplTokenAccounts,
 } from "../../../models";
 import { Amount, InteractionType, getTokensByPool } from "../../../models";
 import type { ReadonlyRecord } from "../../../utils";
 import { findOrThrow } from "../../../utils";
-import { selectConfig } from "../../selectors";
-import { useEnvironment } from "../useEnvironment";
 
 export interface PreparedAddInteraction extends Omit<AddInteraction, "params"> {
   readonly params: {
@@ -94,11 +98,11 @@ export interface PeristedToSolanaTransfers
 }
 
 export type PersistedInteractionState = {
-  fromSolanaTransfers: readonly PeristedFromSolanaTransfers[];
-  toSolanaTransfers: readonly PeristedToSolanaTransfers[];
-  interaction: PreparedInteraction;
-  solanaPoolOperations: readonly SolanaPoolOperationState[];
-  requiredSplTokenAccounts: RequiredSplTokenAccounts;
+  readonly fromSolanaTransfers: readonly PeristedFromSolanaTransfers[];
+  readonly toSolanaTransfers: readonly PeristedToSolanaTransfers[];
+  readonly interaction: PreparedInteraction;
+  readonly solanaPoolOperations: readonly SolanaPoolOperationState[];
+  readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
 };
 
 const tokenAmountsRecordToMap = (
@@ -463,10 +467,10 @@ const populateTransfers = (
   }));
 
 export const deserializeInteractionStates = (
-  parsed: any,
+  parsed: readonly PersistedInteractionState[],
+  env: Env,
+  config: Config,
 ): readonly InteractionState[] => {
-  const config = selectConfig(useEnvironment.getState());
-  const { env } = useEnvironment.getState();
   const tokensByPoolId = getTokensByPool(config);
   try {
     const deserializedInteractionState = parsed.map((state: any) => {
@@ -477,6 +481,7 @@ export const deserializeInteractionStates = (
       const prepInteraction: PreparedInteraction = {
         ...state.interaction,
       };
+      // eslint-disable-next-line prefer-const
       populatedState = {
         toSolanaTransfers: populateTransfers(state.toSolanaTransfers, env),
         interaction: populateInteraction(

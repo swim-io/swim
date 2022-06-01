@@ -22,7 +22,7 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
     },
     id: "5eed9eef597a2aa14314845afe87079f",
     poolIds: ["hexapool"],
-    env: Env.Localnet,
+    env: Env.CustomLocalnet,
     submittedAt: 1653624596234,
     signatureSetKeypairs: {},
     previousSignatureSetAddresses: {},

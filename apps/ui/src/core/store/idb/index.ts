@@ -1,0 +1,70 @@
+import type { Table } from "dexie";
+import Dexie from "dexie";
+
+import { InteractionState } from "../../../models";
+import {
+  deserializeInteractionStates,
+  prepareInteractionState,
+} from "./helpers";
+
+const MAX_STORED_INTERACTIONS = 10;
+
+export class SwimIDB extends Dexie {
+  interactionStates!: Table<any, string>;
+
+  constructor() {
+    super("SwimIDB");
+    this.version(1).stores({
+      interactionStates:
+        "&id, interaction, requiredSplTokenAccounts, toSolanaTransfers, solanaPoolOperations, fromSolanaTransfers",
+    });
+  }
+
+  private serializeState(state: InteractionState) {
+    return prepareInteractionState(state);
+  }
+
+  private deserializeState(state: any) {
+    return deserializeInteractionStates(state);
+  }
+
+  async getInteractionStates() {
+    return this.transaction("rw", "interactionStates", async () => {
+      const data = this.interactionStates.toArray();
+      return this.deserializeState(data);
+    }).catch((err) => {
+      console.warn(err);
+    });
+  }
+
+  addInteractionState(interactionState: InteractionState) {
+    this.transaction("rw", "interactionStates", async () => {
+      const serializedState = this.serializeState(interactionState);
+      await this.interactionStates.add(
+        {
+          id: interactionState.interaction.id,
+          ...serializedState,
+        },
+        interactionState.interaction.id,
+      );
+      const size = await this.interactionStates.count();
+      if (size > MAX_STORED_INTERACTIONS) {
+        const diff = size - MAX_STORED_INTERACTIONS;
+        const collection = await this.interactionStates.toArray();
+        for (let index = 0; index < diff; index++) {
+          this.interactionStates.delete(collection[index].id);
+        }
+      }
+    }).catch((err) => {
+      console.warn("Fail to add interactionState into idb", err);
+    });
+  }
+}
+
+export const idb = new SwimIDB();
+
+export function resetDatabase() {
+  return idb.transaction("rw", idb.interactionStates, async () => {
+    await Promise.all(idb.tables.map((table) => table.clear()));
+  });
+}

@@ -21,6 +21,7 @@ export const EnvSelector = (): ReactElement => {
   const { env, setEnv } = useEnvironment();
   const envs = useEnvironment(selectEnvs, shallow);
   const [isOpen, setIsOpen] = useState(false);
+  console.log("STORE", store.interactionStates);
 
   useEffect(() => {
     store.loadIndexedDB();

@@ -2,7 +2,7 @@ import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId, isEcosystemEnabled } from "../../config";
+import { EcosystemId } from "../../config";
 import { useSolanaWallet } from "../../contexts";
 import { Amount, findTokenAccountForMint } from "../../models";
 import type { ReadonlyRecord } from "../../utils";

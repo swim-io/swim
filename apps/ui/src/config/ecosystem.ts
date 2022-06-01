@@ -23,7 +23,7 @@ export const enum Protocol {
  * For a given Env, this encodes both Protocol and Protocol-specific ChainId
  * For a given Env, there should be no more than 1 ChainSpec with a given Ecosystem
  */
-export const enum EcosystemId {
+export enum EcosystemId {
   /** Only valid for Protocol.Solana chains */
   Solana = "solana",
   /** Only valid for Protocol.Evm chains */
@@ -45,6 +45,8 @@ export const enum EcosystemId {
   /** Only valid for Protocol.Evm chains */
   Acala = "acala",
 }
+
+export const ECOSYSTEM_IDS = Object.keys(EcosystemId) as readonly EcosystemId[];
 
 export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean => {
   switch (ecosystemId) {

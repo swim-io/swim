@@ -142,22 +142,10 @@ export const useMultipleUserBalances = (
     avalanche,
   );
   const polygonBalances = useErc20BalancesQuery(EcosystemId.Polygon, polygon);
-  const auroraBalances = useErc20BalancesQuery(
-    EcosystemId.Aurora,
-    isEcosystemEnabled(EcosystemId.Aurora) ? aurora : [],
-  );
-  const fantomBalances = useErc20BalancesQuery(
-    EcosystemId.Fantom,
-    isEcosystemEnabled(EcosystemId.Fantom) ? fantom : [],
-  );
-  const karuraBalances = useErc20BalancesQuery(
-    EcosystemId.Karura,
-    isEcosystemEnabled(EcosystemId.Karura) ? karura : [],
-  );
-  const acalaBalances = useErc20BalancesQuery(
-    EcosystemId.Acala,
-    isEcosystemEnabled(EcosystemId.Acala) ? acala : [],
-  );
+  const auroraBalances = useErc20BalancesQuery(EcosystemId.Aurora, aurora);
+  const fantomBalances = useErc20BalancesQuery(EcosystemId.Fantom, fantom);
+  const karuraBalances = useErc20BalancesQuery(EcosystemId.Karura, karura);
+  const acalaBalances = useErc20BalancesQuery(EcosystemId.Acala, acala);
 
   return new Map(
     tokenSpecs.map((tokenSpec, i) => {

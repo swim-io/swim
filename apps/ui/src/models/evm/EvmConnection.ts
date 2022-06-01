@@ -3,7 +3,7 @@ import Decimal from "decimal.js";
 import { ethers } from "ethers";
 
 import type { EvmEcosystemId, EvmSpec } from "../../config";
-import { EcosystemId, Env } from "../../config";
+import { EcosystemId, Env, isEcosystemEnabled } from "../../config";
 import { isNotNull } from "../../utils";
 
 import { LocalnetProvider } from "./LocalnetProvider";
@@ -111,14 +111,7 @@ export class EvmConnection {
     { ecosystem, rpcUrls }: EvmSpec,
   ): Provider {
     // TODO: Remove when these chains are supported
-    if (
-      [
-        EcosystemId.Aurora,
-        EcosystemId.Fantom,
-        EcosystemId.Karura,
-        EcosystemId.Acala,
-      ].includes(ecosystem)
-    ) {
+    if (!isEcosystemEnabled(ecosystem)) {
       return new LocalnetProvider(rpcUrls[0]);
     }
     switch (env) {

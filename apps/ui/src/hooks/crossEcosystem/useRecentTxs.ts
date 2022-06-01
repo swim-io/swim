@@ -1,4 +1,4 @@
-import { EcosystemId, isEcosystemEnabled } from "../../config";
+import { EcosystemId } from "../../config";
 import type { Tx } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 import { useRecentEvmTxsQuery } from "../evm";
@@ -26,19 +26,19 @@ export const useRecentTxs = (
   );
   const { data: auroraTxs = null } = useRecentEvmTxsQuery(
     EcosystemId.Aurora,
-    isEcosystemEnabled(EcosystemId.Aurora) ? recentInteractionIds : [],
+    recentInteractionIds,
   );
   const { data: fantomTxs = null } = useRecentEvmTxsQuery(
     EcosystemId.Fantom,
-    isEcosystemEnabled(EcosystemId.Fantom) ? recentInteractionIds : [],
+    recentInteractionIds,
   );
   const { data: karuraTxs = null } = useRecentEvmTxsQuery(
     EcosystemId.Karura,
-    isEcosystemEnabled(EcosystemId.Karura) ? recentInteractionIds : [],
+    recentInteractionIds,
   );
   const { data: acalaTxs = null } = useRecentEvmTxsQuery(
     EcosystemId.Acala,
-    isEcosystemEnabled(EcosystemId.Acala) ? recentInteractionIds : [],
+    recentInteractionIds,
   );
 
   return {

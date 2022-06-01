@@ -17,17 +17,45 @@ export const AppContext: React.FC = ({ children }) => (
           <EvmConnectionProvider ecosystemId={EcosystemId.Bsc}>
             <EvmConnectionProvider ecosystemId={EcosystemId.Avalanche}>
               <EvmConnectionProvider ecosystemId={EcosystemId.Polygon}>
-                <EvmWalletProvider ecosystemId={EcosystemId.Ethereum}>
-                  <EvmWalletProvider ecosystemId={EcosystemId.Bsc}>
-                    <EvmWalletProvider ecosystemId={EcosystemId.Avalanche}>
-                      <EvmWalletProvider ecosystemId={EcosystemId.Polygon}>
-                        <ActiveInteractionProvider>
-                          {children}
-                        </ActiveInteractionProvider>
-                      </EvmWalletProvider>
-                    </EvmWalletProvider>
-                  </EvmWalletProvider>
-                </EvmWalletProvider>
+                <EvmConnectionProvider ecosystemId={EcosystemId.Aurora}>
+                  <EvmConnectionProvider ecosystemId={EcosystemId.Fantom}>
+                    <EvmConnectionProvider ecosystemId={EcosystemId.Karura}>
+                      <EvmConnectionProvider ecosystemId={EcosystemId.Acala}>
+                        <EvmWalletProvider ecosystemId={EcosystemId.Ethereum}>
+                          <EvmWalletProvider ecosystemId={EcosystemId.Bsc}>
+                            <EvmWalletProvider
+                              ecosystemId={EcosystemId.Avalanche}
+                            >
+                              <EvmWalletProvider
+                                ecosystemId={EcosystemId.Polygon}
+                              >
+                                <EvmWalletProvider
+                                  ecosystemId={EcosystemId.Aurora}
+                                >
+                                  <EvmWalletProvider
+                                    ecosystemId={EcosystemId.Fantom}
+                                  >
+                                    <EvmWalletProvider
+                                      ecosystemId={EcosystemId.Karura}
+                                    >
+                                      <EvmWalletProvider
+                                        ecosystemId={EcosystemId.Acala}
+                                      >
+                                        <ActiveInteractionProvider>
+                                          {children}
+                                        </ActiveInteractionProvider>
+                                      </EvmWalletProvider>
+                                    </EvmWalletProvider>
+                                  </EvmWalletProvider>
+                                </EvmWalletProvider>
+                              </EvmWalletProvider>
+                            </EvmWalletProvider>
+                          </EvmWalletProvider>
+                        </EvmWalletProvider>
+                      </EvmConnectionProvider>
+                    </EvmConnectionProvider>
+                  </EvmConnectionProvider>
+                </EvmConnectionProvider>
               </EvmConnectionProvider>
             </EvmConnectionProvider>
           </EvmConnectionProvider>

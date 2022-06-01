@@ -30,7 +30,7 @@ export class SwimIDB extends Dexie {
 
   async getInteractionStates() {
     return this.transaction("rw", "interactionStates", async () => {
-      const data = this.interactionStates.toArray();
+      const data = await this.interactionStates.toArray();
       return this.deserializeState(data);
     }).catch((err) => {
       console.warn(err);

@@ -8,28 +8,18 @@ import {
   htmlIdGenerator,
 } from "@elastic/eui";
 import * as Sentry from "@sentry/react";
-import { ReactElement, useEffect } from "react";
+import { ReactElement } from "react";
 import { useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import { isValidEnv } from "../config";
 import { selectEnvs } from "../core/selectors";
 import { useEnvironment, useInteractionState } from "../core/store";
-import { MOCK_INTERACTION_STATE } from "../fixtures/swim/interactionState";
 export const EnvSelector = (): ReactElement => {
   const store = useInteractionState();
   const { env, setEnv } = useEnvironment();
   const envs = useEnvironment(selectEnvs, shallow);
   const [isOpen, setIsOpen] = useState(false);
-  console.log("STORE", store.interactionStates);
-
-  useEffect(() => {
-    store.loadIndexedDB();
-  }, []);
-
-  useEffect(() => {
-    store.addInteractionState(MOCK_INTERACTION_STATE);
-  }, [store.interactionStates.length === 0]);
 
   const handleChange = (envOptions: readonly EuiSelectableOption[]): void => {
     const newEnv = envOptions.find((option) => option.checked)?.key;

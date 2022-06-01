@@ -4,14 +4,22 @@ import { castDraft, produce } from "immer";
 import type { GetState, SetState } from "zustand";
 import create from "zustand";
 
-import { InteractionState } from "../../models";
+import { Interaction, InteractionState } from "../../models";
+import { ReadonlyRecord } from "../../utils";
 
 import { idb } from "./idb";
 
 export interface InteractionStore {
+  readonly errorMap: ReadonlyRecord<Interaction["id"], Error | undefined>;
   readonly interactionStates: readonly InteractionState[];
-  readonly loadIndexedDB: () => void;
-  readonly addInteractionState: (interactionState: any) => void;
+  readonly recentInteractionId: string | null;
+  readonly getInteractionError: (id: string) => Error | undefined;
+  readonly setInteractionError: (id: string, error: Error | undefined) => void;
+  readonly getInteractionState: (interactionId: string) => InteractionState;
+  readonly addInteractionState: (interactionState: InteractionState) => void;
+  readonly getInteractionStatesFromIDB: () => Promise<
+    void | readonly InteractionState[]
+  >;
   readonly updateInteractionState: (
     interactionId: string,
     updateCallback: (interactionState: Draft<InteractionState>) => void,
@@ -20,8 +28,27 @@ export interface InteractionStore {
 
 export const useInteractionState = create(
   (set: SetState<InteractionStore>, get: GetState<InteractionStore>) => ({
+    errorMap: {},
     interactionStates: [],
-    loadIndexedDB: async () => {
+    recentInteractionId: null,
+    getInteractionError: (id: string) => get().errorMap[id],
+    setInteractionError: (id: string, error: Error | undefined) => {
+      set(
+        produce<InteractionStore>((draft) => {
+          draft.errorMap[id] = error;
+        }),
+      );
+    },
+    getInteractionState: (id: string) => {
+      const interactionState = get().interactionStates.find(
+        ({ interaction }) => interaction.id === id,
+      );
+      if (!interactionState) {
+        throw new Error(`Interaction ${id} not exist`);
+      }
+      return interactionState;
+    },
+    getInteractionStatesFromIDB: async () => {
       const data = (await idb.getInteractionStates()) || [];
       set(
         produce<InteractionStore>((draft) => {
@@ -32,13 +59,8 @@ export const useInteractionState = create(
     addInteractionState: (interactionState) => {
       set(
         produce<InteractionStore>((draft) => {
-          const hasInteraction = draft.interactionStates.find(
-            (storedState) =>
-              storedState.interaction.id === interactionState.interaction.id,
-          );
-          if (!hasInteraction) {
-            draft.interactionStates.push(castDraft(interactionState));
-          }
+          draft.interactionStates.push(castDraft(interactionState));
+          draft.recentInteractionId = interactionState.interaction.id;
         }),
       );
       idb.addInteractionState(interactionState);
@@ -49,9 +71,7 @@ export const useInteractionState = create(
           const index = draft.interactionStates.findIndex(
             ({ interaction }) => interaction.id === interactionId,
           );
-          if (index > -1) {
-            updateCallback(draft.interactionStates[index]);
-          }
+          updateCallback(draft.interactionStates[index]);
         }),
       );
     },

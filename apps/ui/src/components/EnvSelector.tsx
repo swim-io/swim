@@ -14,9 +14,9 @@ import shallow from "zustand/shallow.js";
 
 import { isValidEnv } from "../config";
 import { selectEnvs } from "../core/selectors";
-import { useEnvironment, useInteractionState } from "../core/store";
+import { useEnvironment } from "../core/store";
+
 export const EnvSelector = (): ReactElement => {
-  const store = useInteractionState();
   const { env, setEnv } = useEnvironment();
   const envs = useEnvironment(selectEnvs, shallow);
   const [isOpen, setIsOpen] = useState(false);

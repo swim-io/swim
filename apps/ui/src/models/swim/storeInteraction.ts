@@ -9,8 +9,6 @@ import type {
   TokenSpec,
 } from "../../config";
 import { isValidEnv } from "../../config";
-import { selectConfig } from "../../core/selectors";
-import { useEnvironment } from "../../core/store";
 import type { ReadonlyRecord } from "../../utils";
 import { filterMap, findOrThrow } from "../../utils";
 import { Amount } from "../amount";
@@ -305,10 +303,10 @@ const populateInteraction = (
   }
 };
 
-export const deserializeInteractions = (
+const deserializeInteractions = (
+  config: Config,
   serialized: string,
 ): readonly Interaction[] => {
-  const config = selectConfig(useEnvironment.getState());
   const tokensByPoolId = getTokensByPool(config);
   try {
     const parsed: readonly PreparedInteraction[] = JSON.parse(serialized);
@@ -332,11 +330,12 @@ export const loadInteractions = (
   env: Env,
   config: Config,
 ): readonly Interaction[] =>
-  deserializeInteractions(localStorage.getItem(getStorageKey(env)) ?? "[]");
+  deserializeInteractions(
+    config,
+    localStorage.getItem(getStorageKey(env)) ?? "[]",
+  );
 
-export const prepareInteraction = (
-  interaction: Interaction,
-): PreparedInteraction => {
+const prepareInteraction = (interaction: Interaction): PreparedInteraction => {
   const base = {
     version: VERSION,
     // NOTE: We don’t store the private keys, we can regenerate new ones later

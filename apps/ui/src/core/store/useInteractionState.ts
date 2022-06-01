@@ -4,8 +4,8 @@ import { castDraft, produce } from "immer";
 import type { GetState, SetState } from "zustand";
 import create from "zustand";
 
-import { Interaction, InteractionState } from "../../models";
-import { ReadonlyRecord } from "../../utils";
+import type { Interaction, InteractionState } from "../../models";
+import type { ReadonlyRecord } from "../../utils";
 
 import { idb } from "./idb";
 

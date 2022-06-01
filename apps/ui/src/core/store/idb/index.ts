@@ -1,16 +1,21 @@
 import type { Table } from "dexie";
 import Dexie from "dexie";
 
-import { InteractionState } from "../../../models";
+import type { InteractionState } from "../../../models";
+
 import {
   deserializeInteractionStates,
+  PersistedInteractionState,
   prepareInteractionState,
 } from "./helpers";
 
 const MAX_STORED_INTERACTIONS = 10;
 
+type IDBState = {
+  readonly id: string;
+} & PersistedInteractionState;
 export class SwimIDB extends Dexie {
-  interactionStates!: Table<any, string>;
+  interactionStates!: Table<IDBState, string>;
 
   constructor() {
     super("SwimIDB");
@@ -20,11 +25,13 @@ export class SwimIDB extends Dexie {
     });
   }
 
-  private serializeState(state: InteractionState) {
+  private serializeState(state: InteractionState): PersistedInteractionState {
     return prepareInteractionState(state);
   }
 
-  private deserializeState(state: any) {
+  private deserializeState(
+    state: PersistedInteractionState[],
+  ): readonly InteractionState[] {
     return deserializeInteractionStates(state);
   }
 
@@ -39,7 +46,8 @@ export class SwimIDB extends Dexie {
 
   addInteractionState(interactionState: InteractionState) {
     this.transaction("rw", "interactionStates", async () => {
-      const serializedState = this.serializeState(interactionState);
+      const serializedState: PersistedInteractionState =
+        this.serializeState(interactionState);
       await this.interactionStates.add(
         {
           id: interactionState.interaction.id,

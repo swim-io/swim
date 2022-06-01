@@ -1,31 +1,26 @@
 import * as Sentry from "@sentry/react";
-
 import Decimal from "decimal.js";
-import {
-  EcosystemId,
-  Env,
-  isValidEnv,
-  PoolSpec,
-  TokenSpec,
-} from "../../../config";
+
+import type { EcosystemId, Env, PoolSpec, TokenSpec } from "../../../config";
+import { isValidEnv } from "../../../config";
 import { findTokenById } from "../../../fixtures";
-import {
+import type {
   AddInteraction,
-  Amount,
   FromSolanaTransferState,
-  getTokensByPool,
   Interaction,
   InteractionState,
-  InteractionType,
   RemoveExactBurnInteraction,
   RemoveExactOutputInteraction,
   RemoveUniformInteraction,
   SolanaPoolOperationState,
   SwapInteraction,
-  TokensByPoolId,
   ToSolanaTransferState,
+  TokensByPoolId,
+  RequiredSplTokenAccounts,
 } from "../../../models";
-import { findOrThrow, ReadonlyRecord } from "../../../utils";
+import { Amount, InteractionType, getTokensByPool } from "../../../models";
+import type { ReadonlyRecord } from "../../../utils";
+import { findOrThrow } from "../../../utils";
 import { selectConfig } from "../../selectors";
 import { useEnvironment } from "../useEnvironment";
 
@@ -82,6 +77,30 @@ export type PreparedInteraction =
   | PreparedRemoveExactOutputInteraction
   | PreparedSwapInteraction;
 
+export interface PeristedFromSolanaTransfers
+  extends Omit<FromSolanaTransferState, "token" | "value"> {
+  readonly token: {
+    readonly id: string;
+  };
+  readonly value: string | null;
+}
+
+export interface PeristedToSolanaTransfers
+  extends Omit<ToSolanaTransferState, "token" | "value"> {
+  readonly token: {
+    readonly id: string;
+  };
+  readonly value: string;
+}
+
+export type PersistedInteractionState = {
+  fromSolanaTransfers: readonly PeristedFromSolanaTransfers[];
+  toSolanaTransfers: readonly PeristedToSolanaTransfers[];
+  interaction: PreparedInteraction;
+  solanaPoolOperations: readonly SolanaPoolOperationState[];
+  requiredSplTokenAccounts: RequiredSplTokenAccounts;
+};
+
 const tokenAmountsRecordToMap = (
   tokens: readonly TokenSpec[],
   amounts: ReadonlyRecord<string, string>,
@@ -104,7 +123,7 @@ const tokenAmountsMapToRecord = (
   );
 
 const tokenAmountArrayToRecord = (
-  amounts: Amount[],
+  amounts: readonly Amount[],
 ): ReadonlyRecord<string, string> =>
   [...amounts].reduce(
     (record, amount) => ({
@@ -432,9 +451,9 @@ const populateSolanaPoolOperationState = (
 };
 
 const populateTransfers = (
-  parsedTransfers: any[], // TODO: parsed Type
+  parsedTransfers: readonly any[], // TODO: parsed Type
   env: Env,
-): (ToSolanaTransferState & FromSolanaTransferState)[] =>
+): readonly (ToSolanaTransferState & FromSolanaTransferState)[] =>
   parsedTransfers.map((transfer) => ({
     ...transfer,
     token: findTokenById(transfer.token.id, env),
@@ -451,7 +470,6 @@ export const deserializeInteractionStates = (
   const tokensByPoolId = getTokensByPool(config);
   try {
     const deserializedInteractionState = parsed.map((state: any) => {
-      // TODO: Parsed state type
       let populatedState: InteractionState;
       const poolSpecs = state.interaction.poolIds.map((poolId: string) =>
         findOrThrow(config.pools, (pool) => pool.id === poolId),
@@ -561,7 +579,7 @@ export const prepareInteraction = (
 const prepareSolanaPoolOperations = (
   solanaPoolOperations: SolanaPoolOperationState,
   interactionType: InteractionType,
-) => {
+): SolanaPoolOperationState => {
   const { params }: any = solanaPoolOperations.operation;
   switch (interactionType) {
     case InteractionType.Add:
@@ -637,7 +655,7 @@ const prepareSolanaPoolOperations = (
 
 export const prepareInteractionState = (
   interactionState: InteractionState,
-) => ({
+): PersistedInteractionState => ({
   ...interactionState,
   fromSolanaTransfers: interactionState.fromSolanaTransfers.map((transfer) => ({
     ...transfer,

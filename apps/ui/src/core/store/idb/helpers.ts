@@ -8,8 +8,7 @@ import type {
   PoolSpec,
   TokenSpec,
 } from "../../../config";
-import { isValidEnv } from "../../../config";
-import { findTokenById } from "../../../fixtures";
+import { findTokenById, isValidEnv } from "../../../config";
 import type {
   AddInteraction,
   FromSolanaTransferState,
@@ -474,15 +473,13 @@ export const deserializeInteractionStates = (
   const tokensByPoolId = getTokensByPool(config);
   try {
     const deserializedInteractionState = parsed.map((state: any) => {
-      let populatedState: InteractionState;
       const poolSpecs = state.interaction.poolIds.map((poolId: string) =>
         findOrThrow(config.pools, (pool) => pool.id === poolId),
       );
       const prepInteraction: PreparedInteraction = {
         ...state.interaction,
       };
-      // eslint-disable-next-line prefer-const
-      populatedState = {
+      const populatedState: InteractionState = {
         toSolanaTransfers: populateTransfers(state.toSolanaTransfers, env),
         interaction: populateInteraction(
           tokensByPoolId,

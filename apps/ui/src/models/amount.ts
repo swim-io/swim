@@ -3,7 +3,7 @@ import BN from "bn.js";
 import Decimal from "decimal.js";
 
 import { u64ToDecimal } from "../amounts";
-import type { EcosystemId, TokenDetails, TokenSpec } from "../config";
+import type { EcosystemId, TokenDB, TokenDetails, TokenSpec } from "../config";
 
 export class Amount {
   public readonly tokenSpec: TokenSpec;
@@ -131,6 +131,17 @@ export class Amount {
   toPrimitive(): string {
     return this.toHumanString(this.tokenSpec.nativeEcosystem);
   }
+
+  toDbData(): TokenDB {
+    const tokenId = this.tokenId;
+    const value = this.value.toString();
+    const token: TokenDB = { tokenId, value };
+    return token;
+  }
+
+  // fromDbData({ tokenId, value }: TokenDB): Amount {
+
+  // }
 
   equals(amount: Amount): boolean {
     this.ensureSameToken(amount);

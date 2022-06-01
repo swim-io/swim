@@ -1,9 +1,4 @@
-import type { TokenSpec } from "../../config";
-import { Env, tokens } from "../../config";
-
-export const findTokenById = (tokenId: string, env: Env): TokenSpec =>
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  tokens[env].find(({ id }) => id === tokenId)!;
+import { Env, findTokenById } from "../../config";
 
 export const SOLANA_USDC = findTokenById("localnet-solana-usdc", Env.Localnet);
 export const SOLANA_USDT = findTokenById("localnet-solana-usdt", Env.Localnet);

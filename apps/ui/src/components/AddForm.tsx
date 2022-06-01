@@ -49,6 +49,7 @@ import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
+import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { StepsDisplay } from "./StepsDisplay";
 import { TokenIcon } from "./TokenIcon";
 
@@ -529,6 +530,8 @@ export const AddForm = ({
           <EuiSpacer />
         </>
       )}
+
+      {SolanaTpsWarning()}
 
       <PoolPausedAlert isVisible={!!isPoolPaused} />
 

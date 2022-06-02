@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import shallow from "zustand/shallow.js";
 
 import { Protocol } from "../../config";
@@ -30,12 +30,9 @@ export const useWalletService = (): WalletServiceAPI => {
     [endpoint],
   );
 
-  return useMemo(
-    () => ({
-      connectService: (serviceId: WalletService["id"], protocol: Protocol) =>
-        connectService(serviceId, protocol, createAdapterMemoized),
-      disconnectService,
-    }),
-    [connectService, disconnectService, createAdapterMemoized],
-  );
+  return {
+    connectService: (serviceId: WalletService["id"], protocol: Protocol) =>
+      connectService(serviceId, protocol, createAdapterMemoized),
+    disconnectService,
+  };
 };

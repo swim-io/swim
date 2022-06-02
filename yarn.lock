@@ -5694,7 +5694,6 @@ __metadata:
     jest: ^28.1.0
     prettier: ^2.6.1
     ts-jest: ^28.0.3
-    ts-node: ^10.8.0
     typescript: ^4.6.3
   languageName: unknown
   linkType: soft
@@ -24380,7 +24379,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-node@npm:^10.7.0, ts-node@npm:^10.8.0":
+"ts-node@npm:^10.7.0":
   version: 10.8.0
   resolution: "ts-node@npm:10.8.0"
   dependencies:

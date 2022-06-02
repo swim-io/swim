@@ -74,6 +74,7 @@ function subGivenOrder(
 export class PoolMath {
   private static readonly MAX_TOKEN_COUNT = 20;
   //MIN_AMP_VALUE should be the same as the smart contract constant (see pool/src/amp_factor.rs)
+  //alternatively, can also be 0 for constant product invariant!
   private static readonly MIN_AMP_VALUE = new Decimal(1);
   //MAX_AMP_VALUE should be the same as the smart contract constant (see pool/src/amp_factor.rs)
   private static readonly MAX_AMP_VALUE = new Decimal("1e6");
@@ -104,8 +105,9 @@ export class PoolMath {
     maxIterations = PoolMath.DEFAULT_MAX_ITERATIONS,
   ) {
     if (
-      ampFactor.lt(PoolMath.MIN_AMP_VALUE) ||
-      ampFactor.gt(PoolMath.MAX_AMP_VALUE)
+      (ampFactor.lt(PoolMath.MIN_AMP_VALUE) ||
+        ampFactor.gt(PoolMath.MAX_AMP_VALUE)) &&
+      !ampFactor.isZero()
     ) {
       throw new Error(
         ampFactor.toString() +
@@ -113,7 +115,7 @@ export class PoolMath {
           PoolMath.MIN_AMP_VALUE.toString() +
           ", " +
           +PoolMath.MAX_AMP_VALUE.toString() +
-          "]",
+          "] or 0",
       );
     }
     this.ampFactor = ampFactor;
@@ -522,6 +524,13 @@ export class PoolMath {
     balances: readonly Decimal[],
     initialGuess: Decimal | null = null,
   ): Decimal {
+    if (this.ampFactor.isZero()) {
+      //constant product invariant
+      return arrayProd(balances)
+        .pow(new Decimal(1).div(this.tokenCount))
+        .mul(this.tokenCount);
+    }
+
     const tokenCount = new Decimal(this.tokenCount);
     const sumBalances = arraySum(balances);
     const sumTimesAmp = sumBalances.mul(this.ampFactor);
@@ -563,6 +572,15 @@ export class PoolMath {
     depth: Decimal,
     initialGuess: Decimal | null,
   ): Decimal {
+    if (this.ampFactor.isZero()) {
+      //constant product invariant
+      return arrayProd(
+        [new Decimal(1), ...knownBalances].map((b) =>
+          depth.div(b.mul(this.tokenCount)),
+        ),
+      );
+    }
+
     const tokenCount = new Decimal(this.tokenCount);
     const depthDivAmp = depth.div(this.ampFactor);
     const reciprocalDecay = arrayProd(

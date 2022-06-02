@@ -5,9 +5,15 @@ import EventEmitter from "eventemitter3";
 
 import { SolanaWalletError } from "../../../../errors";
 
+// TODO: Migrate to @solana/wallet-adapter.
 export interface SolanaWalletAdapter extends EventEmitter {
   readonly publicKey: PublicKey | null;
   readonly signTransaction: (transaction: Transaction) => Promise<Transaction>;
+  readonly signAllTransactions: (
+    // eslint-disable-next-line functional/prefer-readonly-type
+    transactions: Transaction[],
+    // eslint-disable-next-line functional/prefer-readonly-type
+  ) => Promise<Transaction[]>;
   readonly connect: () => Promise<unknown>;
   readonly disconnect: () => Promise<void>;
 }
@@ -44,7 +50,8 @@ export class SolanaWeb3WalletAdapter
   public async signAllTransactions(
     // eslint-disable-next-line functional/prefer-readonly-type
     transactions: Transaction[],
-  ): Promise<readonly Transaction[]> {
+    // eslint-disable-next-line functional/prefer-readonly-type
+  ): Promise<Transaction[]> {
     if (!this.service) {
       throw new Error("No wallet service connected");
     }

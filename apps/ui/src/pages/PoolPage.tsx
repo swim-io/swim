@@ -4,6 +4,7 @@ import {
   EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiIcon,
   EuiPage,
   EuiPageBody,
   EuiPageContent,
@@ -11,6 +12,7 @@ import {
   EuiSpacer,
   EuiTabbedContent,
   EuiTitle,
+  EuiToolTip,
 } from "@elastic/eui";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
@@ -74,6 +76,27 @@ const PoolPage = (): ReactElement => {
   );
 };
 
+// TODO: Make code DRY.
+const getPoolTitle = (poolSpec: PoolSpec): ReactElement => {
+  return !poolSpec.isStableSwap ? (
+    <EuiTitle>
+      <h2>
+        {poolSpec.displayName + "  "}
+        <EuiToolTip
+          position="right"
+          content="This pool uses a constant product curve, prices deviate from 1:1."
+        >
+          <EuiIcon size="l" type="questionInCircle" color="primary" />
+        </EuiToolTip>
+      </h2>
+    </EuiTitle>
+  ) : (
+    <EuiTitle>
+      <h2>{poolSpec.displayName}</h2>
+    </EuiTitle>
+  );
+};
+
 export interface PoolPageInnerProps {
   readonly poolSpec: PoolSpec; // TODO: In PoolPage component, poolSpec can be null, that case should be taken as an option
 }
@@ -100,7 +123,7 @@ export const PoolPageInner = ({
     poolTokenAccounts,
     userLpTokenAccount,
   } = usePool(poolSpec.id);
-  const [slippagePercent, setSlippagePercent] = useState("0.5");
+  const [slippagePercent, setSlippagePercent] = useState("1.0");
   const slippageFraction = useMemo(
     () => defaultIfError(() => new Decimal(slippagePercent).div(100), null),
     [slippagePercent],
@@ -183,10 +206,7 @@ export const PoolPageInner = ({
               },
             ]}
           />
-
-          <EuiTitle>
-            <h2>{poolSpec.displayName}</h2>
-          </EuiTitle>
+          {getPoolTitle(poolSpec)}
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <SlippageButton

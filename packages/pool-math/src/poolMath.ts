@@ -111,12 +111,7 @@ export class PoolMath {
       !ampFactor.isZero()
     ) {
       throw new Error(
-        ampFactor.toString() +
-          " is not a valid ampFactor - must be in range [" +
-          PoolMath.MIN_AMP_VALUE.toString() +
-          ", " +
-          PoolMath.MAX_AMP_VALUE.toString() +
-          "] or 0",
+        `${ampFactor.toString()} is not a valid ampFactor - must be in range [${PoolMath.MIN_AMP_VALUE.toString()}, ${PoolMath.MAX_AMP_VALUE.toString()}] or 0`,
       );
     }
     this.ampFactor = ampFactor;

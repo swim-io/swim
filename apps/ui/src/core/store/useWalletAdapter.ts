@@ -8,7 +8,7 @@ import type {
   EvmWalletAdapter,
   SolanaWalletAdapter,
   WalletAdapter,
-} from "../../models/wallets/adapters";
+} from "../../models";
 
 type AdapterFactory = (serviceId: string, protocol: Protocol) => WalletAdapter;
 

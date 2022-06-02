@@ -12,12 +12,13 @@
     "!**/fixtures/"
   ],
   "scripts": {
+    "typecheck": "tsc",
     "format": "prettier --write \"./src/**/*.ts\"",
     "format:check": "prettier --check \"./src/**/*.ts\"",
     "lint": "eslint \"./src/**/*.ts\"",
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
     "test": "jest",
-    "verify": "yarn format:check && yarn lint && yarn build && yarn test --watchAll=false",
+    "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test --watchAll=false",
     "build": "rm -rf ./build/ ./types/ && tsc"
   },
   "dependencies": {

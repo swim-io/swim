@@ -12,7 +12,8 @@ const INTERVAL_FREQUENCY_MS = 5000; // 5 seconds.
 const SAMPLES_LIMIT = 5;
 
 export const SolanaTpsWarning = (): react.ReactElement | null => {
-  const [tps, setTps] = useState<number | null>(null);
+  // Assume Solana TPS healthy.
+  const [tps, setTps] = useState<number>(2000);
   const { chains } = useEnvironment(selectConfig, shallow);
   const [chain] = chains[Protocol.Solana];
   const { endpoint } = chain;
@@ -51,7 +52,7 @@ export const SolanaTpsWarning = (): react.ReactElement | null => {
       clearInterval(interval);
     };
   }, [endpoint, setTps]);
-  if (!tps || tps >= 1500) {
+  if (tps >= 1500) {
     return null;
   }
   return tps === 0 ? (

@@ -4,7 +4,6 @@ import { castDraft, produce } from "immer";
 import type { GetState, SetState } from "zustand";
 import create from "zustand";
 
-import type { Config } from "../../config";
 import type { Interaction, InteractionState } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 
@@ -21,7 +20,6 @@ export interface InteractionStore {
   readonly addInteractionState: (interactionState: InteractionState) => void;
   readonly getInteractionStatesFromIDB: (
     env: Env,
-    config: Config,
   ) => Promise<void | readonly InteractionState[]>;
   readonly updateInteractionState: (
     interactionId: string,
@@ -51,8 +49,8 @@ export const useInteractionState = create(
       }
       return interactionState;
     },
-    getInteractionStatesFromIDB: async (env, config) => {
-      const data = (await idb.getInteractionStates(env, config)) || [];
+    getInteractionStatesFromIDB: async (env) => {
+      const data = (await idb.getInteractionStates(env)) || [];
       set(
         produce<InteractionStore>((draft) => {
           draft.interactionStates = castDraft(data);

@@ -1,7 +1,7 @@
 import type { Table } from "dexie";
 import Dexie from "dexie";
 
-import type { Config, Env } from "../../../config";
+import type { Env } from "../../../config";
 import type { InteractionState } from "../../../models";
 
 import type { PersistedInteractionState } from "./helpers";
@@ -20,18 +20,15 @@ export class SwimIDB extends Dexie {
 
   constructor() {
     super("SwimIDB");
-    this.version(1).stores({
-      interactionStates:
-        "&id, interaction, requiredSplTokenAccounts, toSolanaTransfers, solanaPoolOperations, fromSolanaTransfers",
-    });
+    this.version(1).stores({ interactionStates: "&id" });
   }
 
-  async getInteractionStates(env: Env, config: Config) {
+  async getInteractionStates(env: Env) {
     return this.transaction("rw", "interactionStates", async () => {
       const data = await this.interactionStates
         .filter((idbState) => idbState.interaction.env === env)
         .toArray();
-      return this.deserializeState(data, env, config);
+      return this.deserializeState(data, env);
     }).catch((err) => {
       console.warn(err);
     });
@@ -68,9 +65,8 @@ export class SwimIDB extends Dexie {
   private deserializeState(
     state: readonly PersistedInteractionState[],
     env: Env,
-    config: Config,
   ): readonly InteractionState[] {
-    return deserializeInteractionStates(state, env, config);
+    return deserializeInteractionStates(state, env);
   }
 }
 

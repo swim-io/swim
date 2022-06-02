@@ -1,6 +1,7 @@
 import Decimal from "decimal.js";
 
 import { EcosystemId, Env } from "../../config";
+import type { PersistedInteractionState } from "../../core/store/idb/helpers";
 import type { InteractionState } from "../../models";
 import { Amount } from "../../models";
 
@@ -90,6 +91,102 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
   fromSolanaTransfers: [
     {
       token: ETHEREUM_USDC,
+      value: null,
+      txIds: {
+        transferSplToken: null,
+        claimTokenOnEvm: null,
+      },
+    },
+  ],
+};
+
+export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
+  interaction: {
+    type: 0,
+    params: {
+      exactInputAmount: {
+        tokenId: "localnet-bsc-usdt",
+        value: "1001",
+      },
+      minimumOutputAmount: {
+        tokenId: "localnet-ethereum-usdc",
+        value: "995.624615",
+      },
+    },
+    id: "5eed9eef597a2aa14314845afe87079f",
+    poolIds: ["hexapool"],
+    env: Env.CustomLocalnet,
+    submittedAt: 1653624596234,
+    signatureSetKeypairs: {},
+    previousSignatureSetAddresses: {},
+    connectedWallets: {
+      [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+      [EcosystemId.Bsc]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      [EcosystemId.Ethereum]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      [EcosystemId.Acala]: null,
+      [EcosystemId.Aurora]: null,
+      [EcosystemId.Avalanche]: null,
+      [EcosystemId.Fantom]: null,
+      [EcosystemId.Karura]: null,
+      [EcosystemId.Polygon]: null,
+      [EcosystemId.Terra]: null,
+    },
+  },
+  requiredSplTokenAccounts: {
+    "9idXDPGb5jfwaf5fxjiMacgUcwpy3ZHfdgqSjAV5XLDr": {
+      isExistingAccount: false,
+      account: null,
+      txId: null,
+    },
+    Ep9cMbgyG46b6PVvJNypopc6i8TFzvUVmGiT4MA1PhSb: {
+      isExistingAccount: false,
+      account: null,
+      txId: null,
+    },
+  },
+  toSolanaTransfers: [
+    {
+      token: {
+        id: "localnet-bsc-usdt",
+      },
+      value: "1001",
+      txIds: {
+        approveAndTransferEvmToken: [],
+        postVaaOnSolana: [],
+        claimTokenOnSolana: null,
+      },
+    },
+  ],
+  solanaPoolOperations: [
+    {
+      operation: {
+        interactionId: "5eed9eef597a2aa14314845afe87079f",
+        poolId: "hexapool",
+        instruction: 1,
+        params: {
+          exactInputAmounts: [
+            { tokenId: "localnet-solana-usdc", value: "0" },
+            { tokenId: "localnet-solana-usdt", value: "0" },
+            { tokenId: "localnet-ethereum-usdc", value: "0" },
+            { tokenId: "localnet-ethereum-usdt", value: "0" },
+            { tokenId: "localnet-bsc-busd", value: "0" },
+            { tokenId: "localnet-bsc-usdt", value: "1001" },
+          ],
+          outputTokenIndex: 2,
+          minimumOutputAmount: {
+            tokenId: "localnet-ethereum-usdc",
+            value: "995.624615",
+          },
+        },
+      },
+      txId: null,
+    },
+  ],
+  fromSolanaTransfers: [
+    {
+      token: {
+        id: "localnet-ethereum-usdc",
+      },
       value: null,
       txIds: {
         transferSplToken: null,

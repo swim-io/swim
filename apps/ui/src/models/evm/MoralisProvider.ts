@@ -20,6 +20,7 @@ const DISABLE_CHAIN_ID = 0;
 const LEGACY_TX_TYPE = 0;
 const MILLI_TO_MICRO = 0.001;
 const DEFAULT_TIMEOUT_MS = 60 * 1000;
+const NUM_TX_LIMIT = 100;
 
 const getMoralisUrl = (env: Env): string => {
   switch (env) {
@@ -87,8 +88,7 @@ export class MoralisProvider extends JsonRpcProvider {
       order: "desc",
       from_block: this.blockTagToNumber(startBlock),
       to_block: this.blockTagToNumber(endBlock),
-      // Grabs the latest 500 tx's, subsequent tx's are dropped.
-      limit: 500,
+      limit: NUM_TX_LIMIT,
     };
     const moralisTxs: readonly Moralis.TransactionResult[] =
       (await Moralis.Web3API.account.getTransactions(options)).result ?? [];

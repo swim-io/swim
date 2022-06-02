@@ -59,13 +59,7 @@ export const useWalletAdapter = create<WalletAdapterState>(
     disconnectService: async (protocol: Protocol) => {
       const state = get();
       const adapter = protocol === Protocol.Evm ? state.evm : state.solana;
-
-      if (!adapter)
-        throw new Error(
-          `disconnectService called but no adapter found for protocol ${protocol}`,
-        );
-
-      await adapter.disconnect().catch(console.error);
+      await adapter?.disconnect().catch(console.error);
 
       set(
         produce<WalletAdapterState>((draft) => {

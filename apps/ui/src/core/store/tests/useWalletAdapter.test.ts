@@ -102,23 +102,6 @@ describe("useWalletAdapter", () => {
         expect(getProtocolAdapter(result.current, protocol)).toBeNull();
         expect(disconnectSpy).toHaveBeenCalledTimes(1);
       });
-
-      it("throws if there is no adapter to disconnect", async () => {
-        const { result } = renderHook(() => useWalletAdapter());
-
-        await act(async () => {
-          try {
-            await result.current.disconnectService(protocol);
-          } catch (e) {
-            // eslint-disable-next-line jest/no-conditional-expect
-            expect(e).toEqual(
-              Error(
-                `disconnectService called but no adapter found for protocol ${protocol}`,
-              ),
-            );
-          }
-        });
-      });
     });
   });
 });

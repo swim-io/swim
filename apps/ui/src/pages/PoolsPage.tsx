@@ -99,7 +99,11 @@ const PoolsPage = (): ReactElement => {
               <EuiFlexItem grow={false}>
                 <EuiText>
                   <p>
-                    <b>TVL: ${atomicToTvlString(tvl)}</b>
+                    <b>
+                      {`TVL: ${
+                        tvl.isPositive() ? "$" + atomicToTvlString(tvl) : "--"
+                      }`}
+                    </b>
                   </p>
                 </EuiText>
               </EuiFlexItem>

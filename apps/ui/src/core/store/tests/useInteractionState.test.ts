@@ -1,7 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { useInteractionState } from "..";
-import { Env } from "../../../config";
 import {
   MOCK_INTERACTION_STATE,
   MOCK_PREPARED_INTERACTION_STATE,
@@ -79,10 +78,7 @@ describe("idb helpers", () => {
   });
 
   it("should deserialize prepared Swap interaction state", () => {
-    const swap = deserializeInteractionStates(
-      [MOCK_PREPARED_INTERACTION_STATE],
-      Env.CustomLocalnet,
-    );
-    expect(swap).toEqual([MOCK_INTERACTION_STATE]);
+    const swap = deserializeInteractionStates(MOCK_PREPARED_INTERACTION_STATE);
+    expect(swap).toEqual(MOCK_INTERACTION_STATE);
   });
 });

@@ -28,7 +28,7 @@ export class SwimIDB extends Dexie {
       const data = await this.interactionStates
         .filter((idbState) => idbState.interaction.env === env)
         .toArray();
-      return this.deserializeState(data, env);
+      return data.map((state) => this.deserializeState(state));
     }).catch((err) => {
       console.warn(err);
     });
@@ -62,11 +62,8 @@ export class SwimIDB extends Dexie {
     return prepareInteractionState(state);
   }
 
-  private deserializeState(
-    state: readonly PersistedInteractionState[],
-    env: Env,
-  ): readonly InteractionState[] {
-    return deserializeInteractionStates(state, env);
+  private deserializeState(state: PersistedInteractionState): InteractionState {
+    return deserializeInteractionStates(state);
   }
 }
 

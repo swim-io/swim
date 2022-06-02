@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import Decimal from "decimal.js";
 
 import type {
@@ -165,9 +164,6 @@ export type PersistedInteractionState = {
   readonly solanaPoolOperations: readonly PreparedSolanaPoolOperationState[];
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
 };
-
-type PersistedTransfers = readonly (PeristedFromSolanaTransfers &
-  PeristedToSolanaTransfers)[];
 
 const tokenAmountsRecordToMap = (
   tokens: readonly TokenSpec[],
@@ -392,7 +388,6 @@ const populateInteraction = (
 const populateSolanaPoolOperationState = (
   operationState: PreparedSolanaPoolOperationState,
   tokensByPoolId: TokensByPoolId,
-  poolSpecs: readonly PoolSpec[],
   interaction: PreparedInteraction,
 ): SolanaPoolOperationState => {
   const { operation } = operationState;
@@ -400,9 +395,6 @@ const populateSolanaPoolOperationState = (
 
   if (!isValidEnv(env)) {
     throw new Error("Invalid env");
-  }
-  if (poolSpecs.length !== 1) {
-    throw new Error("Invalid interaction");
   }
   const poolTokens = tokensByPoolId[operationState.operation.poolId];
 
@@ -505,70 +497,59 @@ const populateSolanaPoolOperationState = (
 };
 
 const populateToSolanaTransferState = (
-  parsedTransfers: PersistedTransfers,
+  parsedTransfers: readonly PeristedToSolanaTransfers[],
   env: Env,
 ): readonly ToSolanaTransferState[] =>
-  parsedTransfers.map((transfer) => ({
+  parsedTransfers.map((transfer: PeristedToSolanaTransfers) => ({
     ...transfer,
     token: findTokenById(transfer.token.id, env),
     value: new Decimal(parseInt(transfer.value)),
   }));
 
 const populateFromSolanaTransferState = (
-  parsedTransfers: PersistedTransfers,
+  parsedTransfers: readonly PeristedFromSolanaTransfers[],
   env: Env,
 ): readonly FromSolanaTransferState[] =>
-  parsedTransfers.map((transfer) => ({
+  parsedTransfers.map((transfer: PeristedFromSolanaTransfers) => ({
     ...transfer,
     token: findTokenById(transfer.token.id, env),
     value: transfer.value ? new Decimal(parseInt(transfer.value)) : null,
   }));
 
 export const deserializeInteractionStates = (
-  persistedStates: readonly PersistedInteractionState[],
-  env: Env,
-): readonly InteractionState[] => {
-  const config = configs[env];
+  persistedState: PersistedInteractionState,
+): InteractionState => {
+  const config = configs[persistedState.interaction.env];
   const tokensByPoolId = getTokensByPool(config);
-  try {
-    const deserializedInteractionState = persistedStates.map((state: any) => {
-      const poolSpecs: readonly PoolSpec[] = state.interaction.poolIds.map(
-        (poolId: string) =>
-          findOrThrow(config.pools, (pool) => pool.id === poolId),
-      );
+  const poolSpecs: readonly PoolSpec[] = persistedState.interaction.poolIds.map(
+    (poolId: string) => findOrThrow(config.pools, (pool) => pool.id === poolId),
+  );
 
-      const populatedState: InteractionState = {
-        toSolanaTransfers: populateToSolanaTransferState(
-          state.toSolanaTransfers,
-          env,
-        ),
-        interaction: populateInteraction(
+  const populatedState: InteractionState = {
+    toSolanaTransfers: populateToSolanaTransferState(
+      persistedState.toSolanaTransfers,
+      persistedState.interaction.env,
+    ),
+    interaction: populateInteraction(
+      tokensByPoolId,
+      poolSpecs,
+      persistedState.interaction,
+    ),
+    fromSolanaTransfers: populateFromSolanaTransferState(
+      persistedState.fromSolanaTransfers,
+      persistedState.interaction.env,
+    ),
+    solanaPoolOperations: persistedState.solanaPoolOperations.map(
+      (operation: PreparedSolanaPoolOperationState) =>
+        populateSolanaPoolOperationState(
+          operation,
           tokensByPoolId,
-          poolSpecs,
-          state.interaction,
+          persistedState.interaction,
         ),
-        fromSolanaTransfers: populateFromSolanaTransferState(
-          state.fromSolanaTransfers,
-          env,
-        ),
-        solanaPoolOperations: state.solanaPoolOperations.map(
-          (operation: PreparedSolanaPoolOperationState) =>
-            populateSolanaPoolOperationState(
-              operation,
-              tokensByPoolId,
-              poolSpecs,
-              state.interaction,
-            ),
-        ),
-        requiredSplTokenAccounts: state.requiredSplTokenAccounts,
-      };
-      return populatedState;
-    });
-    return deserializedInteractionState;
-  } catch (err) {
-    Sentry.captureException(err);
-    return [];
-  }
+    ),
+    requiredSplTokenAccounts: persistedState.requiredSplTokenAccounts,
+  };
+  return populatedState;
 };
 
 export const prepareInteraction = (

@@ -115,7 +115,7 @@ export class PoolMath {
           " is not a valid ampFactor - must be in range [" +
           PoolMath.MIN_AMP_VALUE.toString() +
           ", " +
-          +PoolMath.MAX_AMP_VALUE.toString() +
+          PoolMath.MAX_AMP_VALUE.toString() +
           "] or 0",
       );
     }

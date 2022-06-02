@@ -16,79 +16,66 @@ export const SolanaTpsWarning = (): react.ReactElement | null => {
   const { chains } = useEnvironment(selectConfig, shallow);
   const [chain] = chains[Protocol.Solana];
   const { endpoint } = chain;
-  const connection = new Connection(endpoint); // We can create Connection here and just call it in interval
-
-  const checkSolanaTps = async () => {
-    try {
-      // TODO: There is a bug with getRecentPerformanceSamples in which a new connection needs to be made.
-      // Should be fixed in subsequent Solana versions.
-      // https://github.com/solana-labs/solana/issues/19419
-      const samples = await connection.getRecentPerformanceSamples(
-        SAMPLES_LIMIT,
-      );
-      if (samples.length >= 1) {
-        const stats = samples.reduce(
-          ({ numTps, numSeconds }, sample) => ({
-            numTps: numTps + sample.numTransactions,
-            numSeconds: numSeconds + sample.samplePeriodSecs,
-          }),
-          { numTps: 0, numSeconds: 0 },
+  useEffect(() => {
+    // TODO: There is a bug with getRecentPerformanceSamples in which a new connection needs to be made.
+    // Fix pending: https://github.com/solana-labs/solana/issues/19419
+    const connection = new Connection(endpoint);
+    const checkSolanaTps = async () => {
+      try {
+        const samples = await connection.getRecentPerformanceSamples(
+          SAMPLES_LIMIT,
         );
-        const avgTps = stats.numTps / stats.numSeconds;
-        if (tps && avgTps >= 1500) {
-          setTps(null);
-        } else if (!tps && avgTps > 0) {
+        if (samples.length >= 1) {
+          const stats = samples.reduce(
+            ({ numTps, numSeconds }, sample) => ({
+              numTps: numTps + sample.numTransactions,
+              numSeconds: numSeconds + sample.samplePeriodSecs,
+            }),
+            { numTps: 0, numSeconds: 0 },
+          );
+          const avgTps = stats.numTps / stats.numSeconds;
           setTps(avgTps);
         }
+      } catch (e) {
+        // Do nothing with sampling or math errors.
+        console.warn(e);
       }
-    } catch (e) {
-      // Do nothing with sampling error.
-      console.warn(e);
-    }
-  };
+    };
 
-  useEffect(() => {
     const interval = setInterval(
       async () => await checkSolanaTps(),
       INTERVAL_FREQUENCY_MS,
     );
 
-    checkSolanaTps().catch((err) => console.warn(err));
-
     return () => {
       clearInterval(interval);
     };
-  }, []);
-
-  if (tps && tps > 0) {
-    return (
-      <>
-        <EuiCallOut title="Slow TPS" color="warning">
-          <EuiText>
-            <p>
-              {
-                "Solana Transactions Per Second (TPS) is low and thus advise agaisnt swapping at this time. "
-              }
-              <b>
-                {`Current TPS: ${tps.toLocaleString(undefined, {
-                  maximumFractionDigits: 2,
-                })}`}
-              </b>
-            </p>
-          </EuiText>
-        </EuiCallOut>
-        <EuiSpacer />
-      </>
-    );
+  }, [endpoint, setTps]);
+  if (!tps || tps >= 1500) {
+    return null;
   }
-  return (
+  return tps === 0 ? (
     <>
       <EuiCallOut title="Solana Network Down" color="danger">
         <EuiText>
           <p>
             {"We've detected downtime on the"}
             <a href="https://status.solana.com/">Solana Network </a>
-            {" and thus advise agaisnt swapping at this time."}
+            {" and thus advise against swapping at this time."}
+          </p>
+        </EuiText>
+      </EuiCallOut>
+      <EuiSpacer />
+    </>
+  ) : (
+    <>
+      <EuiCallOut title="Solana Network Congested" color="warning">
+        <EuiText>
+          <p>
+            {`Solana’s Transactions Per Second is low (${tps.toLocaleString(
+              undefined,
+              { maximumFractionDigits: 2 },
+            )} TPS), causing network congestion. Please proceed with caution as transactions may take time to confirm.`}
           </p>
         </EuiText>
       </EuiCallOut>
@@ -96,4 +83,3 @@ export const SolanaTpsWarning = (): react.ReactElement | null => {
     </>
   );
 };
-

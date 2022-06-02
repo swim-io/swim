@@ -395,7 +395,7 @@ const populateSolanaPoolOperationState = (
   poolSpecs: readonly PoolSpec[],
   interaction: PreparedInteraction,
 ): SolanaPoolOperationState => {
-  const { params, instruction }: any = operationState.operation;
+  const { operation } = operationState;
   const { env } = interaction;
 
   if (!isValidEnv(env)) {
@@ -406,21 +406,21 @@ const populateSolanaPoolOperationState = (
   }
   const poolTokens = tokensByPoolId[operationState.operation.poolId];
 
-  switch (instruction) {
+  switch (operation.instruction) {
     case SwimDefiInstruction.Add:
       return {
         ...operationState,
         operation: {
-          ...operationState.operation,
+          ...operation,
           params: {
-            ...params,
+            ...operation.params,
             inputAmounts: tokenRecordArrayToAmountArray(
               poolTokens.tokens,
-              params.inputAmounts,
+              operation.params.inputAmounts,
             ),
             minimumMintAmount: Amount.fromHumanString(
               poolTokens.lpToken,
-              params.minimumMintAmount.value,
+              operation.params.minimumMintAmount.value,
             ),
           },
         },
@@ -429,16 +429,16 @@ const populateSolanaPoolOperationState = (
       return {
         ...operationState,
         operation: {
-          ...operationState.operation,
+          ...operation,
           params: {
-            ...params,
+            ...operation.params,
             exactBurnAmount: Amount.fromHumanString(
               poolTokens.lpToken,
-              params.exactBurnAmount.value,
+              operation.params.exactBurnAmount.value,
             ),
             minimumOutputAmounts: tokenRecordArrayToAmountArray(
               poolTokens.tokens,
-              params.minimumOutputAmounts,
+              operation.params.minimumOutputAmounts,
             ),
           },
         },
@@ -447,16 +447,16 @@ const populateSolanaPoolOperationState = (
       return {
         ...operationState,
         operation: {
-          ...operationState.operation,
+          ...operation,
           params: {
-            ...params,
-            minimumOutputAmounts: Amount.fromHumanString(
-              poolTokens.tokens[params.outputTokenIndex],
-              params.minimumOutputAmounts.value,
+            ...operation.params,
+            minimumOutputAmount: Amount.fromHumanString(
+              poolTokens.tokens[operation.params.outputTokenIndex],
+              operation.params.minimumOutputAmount.value,
             ),
             exactBurnAmount: Amount.fromHumanString(
               poolTokens.lpToken,
-              params.exactBurnAmount,
+              operation.params.exactBurnAmount.value,
             ),
           },
         },
@@ -466,35 +466,34 @@ const populateSolanaPoolOperationState = (
       return {
         ...operationState,
         operation: {
-          ...operationState.operation,
+          ...operation,
           params: {
-            ...params,
+            ...operation.params,
             maximumBurnAmount: Amount.fromHumanString(
               poolTokens.lpToken,
-              params.maximumBurnAmount.value,
+              operation.params.maximumBurnAmount.value,
             ),
             exactOutputAmounts: tokenRecordArrayToAmountArray(
               poolTokens.tokens,
-              params.exactOutputAmounts,
+              operation.params.exactOutputAmounts,
             ),
           },
         },
       };
-
     case SwimDefiInstruction.Swap:
       return {
         ...operationState,
         operation: {
-          ...operationState.operation,
+          ...operation,
           params: {
-            ...params,
+            ...operation.params,
             exactInputAmounts: tokenRecordArrayToAmountArray(
               poolTokens.tokens,
-              params.exactInputAmounts,
+              operation.params.exactInputAmounts,
             ),
             minimumOutputAmount: Amount.fromHumanString(
-              poolTokens.tokens[params.outputTokenIndex],
-              params.minimumOutputAmount.value,
+              poolTokens.tokens[operation.params.outputTokenIndex],
+              operation.params.minimumOutputAmount.value,
             ),
           },
         },

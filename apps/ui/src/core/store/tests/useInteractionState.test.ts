@@ -36,15 +36,6 @@ describe("useInteraction", () => {
       MOCK_INTERACTION_STATE.interaction.id,
     );
   });
-  // it("loads interactions from IndexedDB into the state", async () => {
-  //   const { result } = renderHook(() => useInteractionState());
-
-  //   await act(async () => {
-  //     await result.current.getInteractionStatesFromIDB(Env.CustomLocalnet);
-  //   });
-
-  //   expect(result.current.interactionStates).toEqual([MOCK_INTERACTION_STATE]);
-  // });
   it("runs updateInteractionState and calls the update callback function", async () => {
     const { result } = renderHook(() => useInteractionState());
     const mockUpdateCB = jest.fn();

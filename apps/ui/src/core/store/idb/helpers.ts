@@ -15,6 +15,7 @@ import type {
   FromSolanaTransferState,
   Interaction,
   InteractionState,
+  OperationSpec,
   RemoveExactBurnInteraction,
   RemoveExactBurnOperationSpec,
   RemoveExactOutputInteraction,
@@ -641,76 +642,61 @@ export const prepareInteraction = (
   }
 };
 
-const prepareSolanaPoolOperations = (
-  operationState: SolanaPoolOperationState,
-): PreparedSolanaPoolOperationState => {
-  const { instruction } = operationState.operation;
-  const { params }: any = operationState.operation; // TODO : find correct type
-  switch (instruction) {
+const prepareSolanaPoolOperation = (
+  operation: OperationSpec,
+): PreparedOperationSpec => {
+  switch (operation.instruction) {
     case SwimDefiInstruction.Add:
       return {
-        ...operationState,
-        operation: {
-          ...operationState.operation,
-          params: {
-            ...params,
-            inputAmounts: tokenAmountArrayToRecordArray(params.inputAmounts),
-            minimumMintAmount: params.minimumMintAmount.toDBToken(),
-          },
+        ...operation,
+        params: {
+          ...operation.params,
+          inputAmounts: tokenAmountArrayToRecordArray(
+            operation.params.inputAmounts,
+          ),
+          minimumMintAmount: operation.params.minimumMintAmount.toDBToken(),
         },
       };
     case SwimDefiInstruction.RemoveUniform:
       return {
-        ...operationState,
-        operation: {
-          ...operationState.operation,
-          params: {
-            ...params,
-            exactBurnAmount: params.exactBurnAmount.toDBToken(),
-            minimumOutputAmounts: tokenAmountArrayToRecordArray(
-              params.minimumOutputAmounts,
-            ),
-          },
+        ...operation,
+        params: {
+          ...operation.params,
+          exactBurnAmount: operation.params.exactBurnAmount.toDBToken(),
+          minimumOutputAmounts: tokenAmountArrayToRecordArray(
+            operation.params.minimumOutputAmounts,
+          ),
         },
       };
     case SwimDefiInstruction.RemoveExactBurn:
       return {
-        ...operationState,
-        operation: {
-          ...operationState.operation,
-          params: {
-            ...params,
-            exactBurnAmount: params.exactBurnAmount.toDBToken(),
-            minimumOutputAmount: params.minimumOutputAmount.toDBToken(),
-          },
+        ...operation,
+        params: {
+          ...operation.params,
+          exactBurnAmount: operation.params.exactBurnAmount.toDBToken(),
+          minimumOutputAmount: operation.params.minimumOutputAmount.toDBToken(),
         },
       };
     case SwimDefiInstruction.RemoveExactOutput:
       return {
-        ...operationState,
-        operation: {
-          ...operationState.operation,
-          params: {
-            ...params,
-            maximumBurnAmount: params.maximumBurnAmount.toDBToken(),
-            exactOutputAmounts: tokenAmountArrayToRecordArray(
-              params.exactOutputAmounts,
-            ),
-          },
+        ...operation,
+        params: {
+          ...operation.params,
+          maximumBurnAmount: operation.params.maximumBurnAmount.toDBToken(),
+          exactOutputAmounts: tokenAmountArrayToRecordArray(
+            operation.params.exactOutputAmounts,
+          ),
         },
       };
     case SwimDefiInstruction.Swap:
       return {
-        ...operationState,
-        operation: {
-          ...operationState.operation,
-          params: {
-            ...params,
-            exactInputAmounts: tokenAmountArrayToRecordArray(
-              params.exactInputAmounts,
-            ),
-            minimumOutputAmount: params.minimumOutputAmount.toDBToken(),
-          },
+        ...operation,
+        params: {
+          ...operation.params,
+          exactInputAmounts: tokenAmountArrayToRecordArray(
+            operation.params.exactInputAmounts,
+          ),
+          minimumOutputAmount: operation.params.minimumOutputAmount.toDBToken(),
         },
       };
     default:
@@ -739,7 +725,8 @@ export const prepareInteractionState = (
         : transfer.value,
   })),
   interaction: prepareInteraction(interactionState.interaction),
-  solanaPoolOperations: interactionState.solanaPoolOperations.map(
-    prepareSolanaPoolOperations,
-  ),
+  solanaPoolOperations: interactionState.solanaPoolOperations.map((state) => ({
+    ...state,
+    operation: prepareSolanaPoolOperation(state.operation),
+  })),
 });

@@ -62,7 +62,7 @@ export const SolanaTpsWarning = (): ReactElement => {
       <EuiCallOut title="Solana Network Down" color="danger">
         <EuiText>
           <p>
-            {"We've detected downtime on the"}
+            {"We've detected downtime on the "}
             <a href="https://status.solana.com/">Solana Network </a>
             {" and thus advise against swapping at this time."}
           </p>

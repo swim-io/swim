@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 
-import type { EcosystemId, Env, PoolSpec, TokenSpec } from "../../../config";
+import type { EcosystemId, Env, TokenSpec } from "../../../config";
 import { configs, findTokenById, isValidEnv } from "../../../config";
 import type {
   AddInteraction,

@@ -355,7 +355,7 @@ const devnetChains: ChainsByProtocol = {
       chainId: EvmChainId.FantomTestnet,
       chainName: "Fantom Testnet",
       nativeCurrency: FANTOM_NATIVE_CURRENCY,
-      rpcUrls: ["https://rpc.ankr.com/fantom_testnet/"], // TODO: Think about what is best to recommend to MetaMask
+      rpcUrls: ["https://rpc.testnet.fantom.network/"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
         bridge: "0x1BB3B4119b7BA9dfad76B0545fb3F531383c3bB7",
         tokenBridge: "0x599CEa2204B4FaECd584Ab1F2b6aCA137a0afbE8",

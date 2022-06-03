@@ -1068,6 +1068,132 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    id: "devnet-solana-lp-meta-aurora-usdc",
+    symbol: "SWIM-AURORA-USDC-META-POOL-LP",
+    displayName: "Aurora USDC Meta-Pool LP",
+    icon: LP_META_AURORA_USDC_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "HTY8MzE41TQLoSyeaUFX1TKJcWvgXUGuBvmURyVy2kh",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    id: "devnet-solana-lp-meta-aurora-usdt",
+    symbol: "SWIM-AURORA-USDT-META-POOL-LP",
+    displayName: "Aurora USDT Meta-Pool LP",
+    icon: LP_META_AURORA_USDT_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "DuPAx99qXn4ZnYbzM1KwUaYhuGYF6V4iMhDX6D2Fwm9U",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: true, // TODO: Enable when deployed on devnet
+    id: "devnet-solana-lp-meta-aurora-usn",
+    symbol: "SWIM-AURORA-USN-META-POOL-LP",
+    displayName: "Aurora USN Meta-Pool LP",
+    icon: LP_META_AURORA_USN_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "11111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
+    id: "devnet-solana-lp-meta-fantom-usdc",
+    symbol: "SWIM-FANTOM-USDC-META-POOL-LP",
+    displayName: "Fantom USDC Meta-Pool LP",
+    icon: LP_META_FANTOM_USDC_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "D2E3Mr9dhmCu6uGkePBCjCR6M1rgJoKANezbCjNc6qvs",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    id: "devnet-solana-lp-meta-karura-ausd",
+    symbol: "SWIM-KARURA-AUSD-META-POOL-LP",
+    displayName: "Karura AUSD Meta-Pool LP",
+    icon: LP_META_KARURA_AUSD_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "B4zVBvWzQBRwNwTj9uh13m29jHC5rNtntuZxchQgdMMr",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    id: "devnet-solana-lp-meta-karura-usdt",
+    symbol: "SWIM-KARURA-USDT-META-POOL-LP",
+    displayName: "Karura USDT Meta-Pool LP",
+    icon: LP_META_KARURA_USDT_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "3TTiBedRanDNtWoVFzzT17HAm88Ca1KZrKn7LDJYvgsN",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
+    id: "devnet-solana-lp-meta-acala-ausd",
+    symbol: "SWIM-ACALA-AUSD-META-POOL-LP",
+    displayName: "Acala AUSD Meta-Pool LP",
+    icon: LP_META_ACALA_AUSD_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "5vom3QEBhzQTVjXqqfgLnYh6nMvhXmcBYjKNvinbAAnu",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
     id: "devnet-ethereum-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,
@@ -1307,7 +1433,182 @@ const devnetTokens: readonly TokenSpec[] = [
       ],
     ]),
   },
-];
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    id: "devnet-aurora-usdc",
+    symbol: USDC_SYMBOL,
+    displayName: USDC_NAME,
+    icon: USDC_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Aurora,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Aurora,
+        {
+          address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "B3qmqCvzbni27z5TRrt1uBYMczUCjCjui7piGAZifSTU",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    id: "devnet-aurora-usdt",
+    symbol: USDT_SYMBOL,
+    displayName: USDT_NAME,
+    icon: USDT_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Aurora,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Aurora,
+        {
+          address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "BaTEf2Mnrf9wePKb9g9BtSPkrZmmBnR6K9Q1ZxDKmWoh",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: true, // TODO: Enable when deployed on devnet
+    id: "devnet-aurora-usn",
+    symbol: USN_SYMBOL,
+    displayName: USN_NAME,
+    icon: USN_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Aurora,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Aurora,
+        {
+          address: "0x0000000000000000000000000000000000000000", // TODO: Update
+          decimals: 18,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "11111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
+    id: "devnet-fantom-usdc",
+    symbol: USDC_SYMBOL,
+    displayName: USDC_NAME,
+    icon: USDC_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Fantom,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Fantom,
+        {
+          address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+          decimals: 6,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "9uJH6SjzmoqdiZXjcwYKuRevbYh5tR449FU5pg4rpden",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    id: "devnet-karura-ausd",
+    symbol: AUSD_SYMBOL,
+    displayName: AUSD_NAME,
+    icon: AUSD_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Karura,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Karura,
+        {
+          address: "0x9b51bb4bfcbbe42d5944398c7bda7e2379bdabde",
+          decimals: 12,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "DN2CbFBEztCGdG589U88oxYuWbPCKz2ALoSP47CP3rtm",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    id: "devnet-karura-usdt",
+    symbol: USDT_SYMBOL,
+    displayName: USDT_NAME,
+    icon: USDT_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Karura,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Karura,
+        {
+          address: "0x535d5e3b1ff7de526fe180e654a41350903c328d",
+          decimals: 18,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "AnYj8Rbkfd8FYmoiyv6iDS3Tje7PzhPWyE5VZVDh9pzD",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
+    id: "devnet-acala-ausd",
+    symbol: AUSD_SYMBOL,
+    displayName: AUSD_NAME,
+    icon: AUSD_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Acala,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Acala,
+        {
+          address: "0x166e8b989cbeea9bba363ad25dc0895c828202aa",
+          decimals: 12,
+        },
+      ],
+      [
+        EcosystemId.Solana,
+        {
+          address: "2QU5twnu4BoBQRYFKoYrhUHNSku2DM9ahA6basRvEsZj",
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+].filter((spec) => !spec.isDisabled);
 
 const localnetTokens: readonly TokenSpec[] = [
   {

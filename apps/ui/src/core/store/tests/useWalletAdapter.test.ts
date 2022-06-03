@@ -31,16 +31,13 @@ describe("useWalletAdapter", () => {
         const connectSpy = jest
           .spyOn(adapter, "connect")
           .mockImplementation(() => Promise.resolve());
-        const createAdapter = jest.fn().mockImplementation(() => adapter);
 
         await act(() =>
-          result.current.connectService(service, protocol, createAdapter),
+          result.current.connectService(service, protocol, adapter),
         );
 
         expect(getProtocolAdapter(result.current, protocol)).toEqual(adapter);
         expect(connectSpy).toHaveBeenCalledTimes(1);
-        expect(createAdapter).toHaveBeenCalledTimes(1);
-        expect(createAdapter).toHaveBeenCalledWith(service, protocol);
       });
 
       it("connects to a service/protocol and disconnects the existing adapter", async () => {
@@ -54,10 +51,9 @@ describe("useWalletAdapter", () => {
         const disconnectSpy = jest
           .spyOn(adapter, "disconnect")
           .mockImplementation(() => Promise.resolve());
-        const createAdapter = jest.fn().mockImplementation(() => adapter);
 
         await act(() =>
-          result.current.connectService(service, protocol, createAdapter),
+          result.current.connectService(service, protocol, adapter),
         );
 
         const secondAdapter = createWalletAdapter(protocol);
@@ -65,12 +61,8 @@ describe("useWalletAdapter", () => {
           .spyOn(adapter, "connect")
           .mockImplementation(() => Promise.resolve());
 
-        const createSecondAdapter = jest
-          .fn()
-          .mockImplementation(() => secondAdapter);
-
         await act(() =>
-          result.current.connectService(service, protocol, createSecondAdapter),
+          result.current.connectService(service, protocol, secondAdapter),
         );
 
         expect(getProtocolAdapter(result.current, protocol)).toEqual(
@@ -91,10 +83,9 @@ describe("useWalletAdapter", () => {
         const disconnectSpy = jest
           .spyOn(adapter, "disconnect")
           .mockImplementation(() => Promise.resolve());
-        const createAdapter = jest.fn().mockImplementation(() => adapter);
 
         await act(() =>
-          result.current.connectService(service, protocol, createAdapter),
+          result.current.connectService(service, protocol, adapter),
         );
 
         await act(() => result.current.disconnectService(protocol));

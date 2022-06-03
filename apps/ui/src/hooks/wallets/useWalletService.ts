@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import shallow from "zustand/shallow.js";
 
 import { Protocol } from "../../config";
@@ -23,16 +22,13 @@ export const useWalletService = (): WalletServiceAPI => {
   const { chains } = useEnvironment(selectConfig, shallow);
   const [{ endpoint }] = chains[Protocol.Solana];
 
-  const createAdapterMemoized = useCallback(
-    (serviceId: WalletService["id"], protocol: Protocol) => {
-      return createAdapter(serviceId, protocol, endpoint);
-    },
-    [endpoint],
-  );
-
   return {
     connectService: (serviceId: WalletService["id"], protocol: Protocol) =>
-      connectService(serviceId, protocol, createAdapterMemoized),
+      connectService(
+        serviceId,
+        protocol,
+        createAdapter(serviceId, protocol, endpoint),
+      ),
     disconnectService,
   };
 };

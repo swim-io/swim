@@ -38,6 +38,8 @@ describe("useWalletService", () => {
     });
     const serviceId = "metamask";
     const protocol = Protocol.Evm;
+    const mockAdapter = {};
+    createAdapterMock.mockReturnValue(mockAdapter);
 
     const { result } = renderHook(() => useWalletService());
 
@@ -46,15 +48,7 @@ describe("useWalletService", () => {
     });
 
     expect(connectServiceMock).toBeCalledTimes(1);
-    expect(connectServiceMock).toBeCalledWith(
-      serviceId,
-      protocol,
-      expect.any(Function),
-    );
-
-    const createAdapterFn = connectServiceMock.mock.calls[0][2];
-    createAdapterFn("metamask", Protocol.Evm);
-
+    expect(connectServiceMock).toBeCalledWith(serviceId, protocol, mockAdapter);
     expect(createAdapterMock).toBeCalledTimes(1);
     expect(createAdapterMock).toHaveBeenCalledWith(
       "metamask",

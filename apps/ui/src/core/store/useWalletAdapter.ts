@@ -10,15 +10,13 @@ import type {
   WalletAdapter,
 } from "../../models";
 
-type AdapterFactory = (serviceId: string, protocol: Protocol) => WalletAdapter;
-
 export interface WalletAdapterState {
   readonly evm: EvmWalletAdapter | null;
   readonly solana: SolanaWalletAdapter | null;
   readonly connectService: (
     serviceId: string,
     protocol: Protocol,
-    createAdapter: AdapterFactory,
+    adapter: WalletAdapter,
   ) => Promise<void>;
   readonly disconnectService: (protocol: Protocol) => Promise<void>;
 }
@@ -27,17 +25,11 @@ export const useWalletAdapter = create<WalletAdapterState>(
   (set: SetState<WalletAdapterState>, get: GetState<WalletAdapterState>) => ({
     evm: null,
     solana: null,
-    connectService: async (
-      serviceId: string,
-      protocol: Protocol,
-      createAdapter,
-    ) => {
+    connectService: async (serviceId, protocol, adapter) => {
       const state = get();
       const previous = protocol === Protocol.Evm ? state.evm : state.solana;
 
       if (previous) await state.disconnectService(protocol);
-
-      const adapter = createAdapter(serviceId, protocol);
 
       set(
         produce<WalletAdapterState>((draft) => {
@@ -56,7 +48,7 @@ export const useWalletAdapter = create<WalletAdapterState>(
 
       await adapter.connect().catch(console.error);
     },
-    disconnectService: async (protocol: Protocol) => {
+    disconnectService: async (protocol) => {
       const state = get();
       const adapter = protocol === Protocol.Evm ? state.evm : state.solana;
       await adapter?.disconnect().catch(console.error);

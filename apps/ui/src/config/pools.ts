@@ -408,6 +408,139 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    id: "meta-aurora-usdc",
+    displayName: "Aurora USDC Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "9wwc14ibnmGzUxkSmhoVamhhsseqU5HUgW5bVpkoEw2f",
+    authority: "G1tkaEoDcAjU8nG8YmTH8e3QRq9S2wZFWFr6W6pxaZm6",
+    feeDecimals: 6,
+    lpToken: "devnet-solana-lp-meta-aurora-usdc",
+    tokenAccounts: new Map([
+      ["devnet-aurora-usdc", "4mGYCHhe4ZSMAdj38GPz9yrMn1FKa4GctodKkHem3zZq"],
+      [
+        "devnet-solana-lp-hexapool",
+        "BkLVJaBM8Epns2j6VULghoq6Bry7FMqzFWiW4VJfwjHK",
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    id: "meta-aurora-usdt",
+    displayName: "Aurora USDT Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "CDn6pbXuHyK2NARqGXabdXwx9jNsy7khFaaVnkAL8YgW",
+    authority: "C22YVqe75pi4pVtHYsFgtX9Ja3oT53vveywAFjMKduGW",
+    feeDecimals: 6,
+    lpToken: "devnet-solana-lp-meta-aurora-usdt",
+    tokenAccounts: new Map([
+      ["devnet-aurora-usdt", "8VKgbhaZ9MEwgT3iEuf2itRgJrsQutBotYDWnyMdXkJc"],
+      [
+        "devnet-solana-lp-hexapool",
+        "E5nA7W3BdYPrdpDkJGRL7MSCSSm6rQd39mybSe3on5Fy",
+      ],
+    ]),
+  },
+  {
+    isDisabled: true, // TODO: Enable when deployed on devnet
+    id: "meta-aurora-usn",
+    displayName: "Aurora USN Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "11111111111111111111111111111111", // TODO: Update
+    authority: "11111111111111111111111111111111", // TODO: Update
+    feeDecimals: 6,
+    lpToken: "devnet-solana-lp-meta-aurora-usn",
+    tokenAccounts: new Map([
+      ["devnet-aurora-usn", "11111111111111111111111111111111"], // TODO: Update
+      [
+        "devnet-solana-lp-hexapool",
+        "11111111111111111111111111111111", // TODO: Update
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
+    id: "meta-fantom-usdc",
+    displayName: "Fantom USDC Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "9HPGsF7BNpDD6dLSoL6CCMJqXJxidZUJNSxCtoZmLJsH",
+    authority: "7oTDXCt9fj497ipgrPuMWwXth1BKaW197SSXCvVjhKtN",
+    feeDecimals: 6,
+    lpToken: "devnet-solana-lp-meta-fantom-usdc",
+    tokenAccounts: new Map([
+      ["devnet-fantom-usdc", "2fq6e7njK3pJWNzk7EJFb25Dk3cYB95SidSAmqd9iqbQ"],
+      [
+        "devnet-solana-lp-hexapool",
+        "8gugAJKPZsvek16Yw6bne49p3dZYM669PrwTg51QhyEQ",
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    id: "meta-karura-ausd",
+    displayName: "Karura AUSD Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "7sX2SDSBuqTjwjih3ZWzCNxtZ6QfLf77PSXRX8ZwM2oi",
+    authority: "DsiDkPoDFZfSTr3Egm1ANG2kzUktG35Sdw8ty2BjZQaM",
+    feeDecimals: 6,
+    lpToken: "devnet-solana-lp-meta-karura-ausd",
+    tokenAccounts: new Map([
+      ["devnet-karura-ausd", "7jS3c5ZNRECczyGgfc4ectYmPBxpxMXSommTLVQbtL8V"],
+      [
+        "devnet-solana-lp-hexapool",
+        "2xdSNhnNaWo96GRxtWP5dzrNLaoWExbbiyxYMTi7qfpW",
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    id: "meta-karura-usdt",
+    displayName: "Karura USDT Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "Cnhx82gxSL31UCDyiCyRKrmbM8t9aacjuA3C9FvLyP9B",
+    authority: "62hoxMz8pTXjov2xoHWwoNRiKL6fG3WHY99FwVTs16Fq",
+    feeDecimals: 6,
+    lpToken: "devnet-solana-lp-meta-karura-usdt",
+    tokenAccounts: new Map([
+      ["devnet-karura-usdt", "6EhXBTBjgVgS82Hf1VEG2vWpQtenGZYHxSb5zpVXGb17"],
+      [
+        "devnet-solana-lp-hexapool",
+        "5yAD11VhJqwoSd6BY8wrxmyhsvtz4xF6GwxTjuws5XPi",
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
+    id: "meta-acala-ausd",
+    displayName: "Acala AUSD Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
+    address: "3iFwSEVqyyAf2nAoheFFCqSJvGzGmnquRUwLsqucQkPx",
+    authority: "HfXM94qs3JWw4HsDYVQrN1wbLCmjHiJHBYez58BW2Q8u",
+    feeDecimals: 6,
+    lpToken: "devnet-solana-lp-meta-acala-ausd",
+    tokenAccounts: new Map([
+      ["devnet-acala-ausd", "BQ16QJiYGCXmt74YpRhdHtdQDpvz4W9i87HPJUEB5Qku"],
+      [
+        "devnet-solana-lp-hexapool",
+        "5sNaWZ5CJyLDM2rYqtZ4bXQQZuL2NNjd9YCqCSzW6kWd",
+      ],
+    ]),
+  },
+  {
     id: "swimlake",
     displayName: "SwimLake",
     isStakingPool: true,
@@ -421,7 +554,7 @@ const devnetPools: readonly PoolSpec[] = [
       ["devnet-solana-swim", "GBjDaDLHQHDZ25gTygyLCaobgSXbTZ3WR9TVNoDqaicm"],
     ]),
   },
-];
+].filter((spec) => !spec.isDisabled);
 
 const localnetPools: readonly PoolSpec[] = [
   {

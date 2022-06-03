@@ -40,7 +40,7 @@
     "@typescript-eslint/no-shadow": "error",
     "@typescript-eslint/prefer-readonly-parameter-types": "off",
     // "deprecation/deprecation": "warn",
-    "functional/immutable-data": ["error", { "ignorePattern": "this" }],
+    "functional/immutable-data": ["error", { "ignorePattern": ["this", "draft"] }],
     "functional/no-let": "off",
     "functional/prefer-readonly-type": [
       "error",

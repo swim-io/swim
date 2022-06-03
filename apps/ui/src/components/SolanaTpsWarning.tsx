@@ -8,7 +8,7 @@ import { Protocol } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 
-const INTERVAL_FREQUENCY_MS = 5000; // 5 seconds.
+const INTERVAL_FREQUENCY_MS = 60000; // 1 minute.
 const SAMPLES_LIMIT = 5;
 
 export const SolanaTpsWarning = (): ReactElement => {
@@ -62,7 +62,7 @@ export const SolanaTpsWarning = (): ReactElement => {
       <EuiCallOut title="Solana Network Down" color="danger">
         <EuiText>
           <p>
-            {"We've detected downtime on the"}
+            {"We've detected downtime on the "}
             <a href="https://status.solana.com/">Solana Network </a>
             {" and thus advise against swapping at this time."}
           </p>

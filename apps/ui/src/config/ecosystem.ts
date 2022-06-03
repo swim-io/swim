@@ -46,7 +46,9 @@ export enum EcosystemId {
   Acala = "acala",
 }
 
-export const ECOSYSTEM_IDS = Object.keys(EcosystemId) as readonly EcosystemId[];
+export const ECOSYSTEM_IDS = Object.values(
+  EcosystemId,
+) as readonly EcosystemId[];
 
 export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean => {
   switch (ecosystemId) {

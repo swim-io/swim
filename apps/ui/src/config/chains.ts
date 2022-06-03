@@ -261,8 +261,8 @@ const mainnetChains: ChainsByProtocol = {
       nativeCurrency: KARURA_NATIVE_CURRENCY,
       rpcUrls: ["https://karura.api.onfinality.io/public-rpc"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
-        bridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
-        tokenBridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
+        bridge: "0xa321448d90d4e5b0A732867c18eA198e75CAC48E",
+        tokenBridge: "0xae9d7fe007b3327AA64A32824Aaac52C42a6E624",
       },
     },
     {
@@ -272,8 +272,8 @@ const mainnetChains: ChainsByProtocol = {
       nativeCurrency: ACALA_NATIVE_CURRENCY,
       rpcUrls: ["https://acala-polkadot.api.onfinality.io/public-rpc"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
-        bridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
-        tokenBridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
+        bridge: "0xa321448d90d4e5b0A732867c18eA198e75CAC48E",
+        tokenBridge: "0xae9d7fe007b3327AA64A32824Aaac52C42a6E624",
       },
     },
   ],

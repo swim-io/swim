@@ -346,7 +346,6 @@ const populateSwapInteraction = (
 
 const populateInteraction = (
   tokensByPoolId: TokensByPoolId,
-  poolSpecs: readonly PoolSpec[],
   interaction: PreparedInteraction,
 ): Interaction => {
   switch (interaction.type) {
@@ -501,9 +500,6 @@ export const deserializeInteractionState = (
 ): InteractionState => {
   const config = configs[persistedState.interaction.env];
   const tokensByPoolId = getTokensByPool(config);
-  const poolSpecs: readonly PoolSpec[] = persistedState.interaction.poolIds.map(
-    (poolId: string) => findOrThrow(config.pools, (pool) => pool.id === poolId),
-  );
 
   const populatedState: InteractionState = {
     toSolanaTransfers: populateToSolanaTransferState(
@@ -512,7 +508,6 @@ export const deserializeInteractionState = (
     ),
     interaction: populateInteraction(
       tokensByPoolId,
-      poolSpecs,
       persistedState.interaction,
     ),
     fromSolanaTransfers: populateFromSolanaTransferState(

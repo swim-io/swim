@@ -6,7 +6,7 @@ import { selectConfig, selectWalletAdapterApi } from "../../core/selectors";
 import type { WalletAdapterState } from "../../core/store";
 import { useEnvironment, useWalletAdapter } from "../../core/store";
 import type { WalletService } from "../../models";
-import { createAdapter } from "../../models/wallets/services";
+import { createAdapter } from "../../models";
 
 type WalletServiceAPI = Pick<WalletAdapterState, "disconnectService"> & {
   readonly connectService: (

@@ -1,7 +1,7 @@
 import { EuiCallOut, EuiSpacer, EuiText } from "@elastic/eui";
 import { Connection } from "@solana/web3.js";
 import type { ReactElement } from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import { Protocol } from "../config";
@@ -19,8 +19,10 @@ export const SolanaTpsWarning = (): ReactElement => {
   const { endpoint } = chain;
   // TODO: There is a bug with getRecentPerformanceSamples in which a new connection needs to be made.
   // Fix pending: https://github.com/solana-labs/solana/issues/19419
-  const connection = new Connection(endpoint);
-  const checkSolanaTps = async () => {
+  const connection = useMemo<Connection>(() => {
+    return new Connection(endpoint);
+  }, [endpoint]);
+  const checkSolanaTps = useCallback(async () => {
     try {
       const samples = await connection.getRecentPerformanceSamples(
         SAMPLES_LIMIT,
@@ -40,7 +42,7 @@ export const SolanaTpsWarning = (): ReactElement => {
       // Do nothing with sampling or math errors.
       console.warn(e);
     }
-  };
+  }, [connection]);
 
   useEffect(() => {
     const interval = setInterval(
@@ -51,8 +53,7 @@ export const SolanaTpsWarning = (): ReactElement => {
     return () => {
       clearInterval(interval);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [checkSolanaTps]);
 
   if (tps >= 1500) {
     return <></>;
@@ -78,7 +79,7 @@ export const SolanaTpsWarning = (): ReactElement => {
             {`Solana’s Transactions Per Second is low (${tps.toLocaleString(
               undefined,
               { maximumFractionDigits: 2 },
-            )} TPS), causing network congestion. Please proceed with caution as transactions may take time to confirm.`}
+            )} TPS), causing network congestion. Please proceed with caution as transactions may take a long time to confirm.`}
           </p>
         </EuiText>
       </EuiCallOut>

@@ -126,7 +126,7 @@ export const useUserBalanceAmounts = (
       ? Amount.fromAtomicString(
           tokenSpec,
           auroraBalance.toString(),
-          EcosystemId.Polygon,
+          EcosystemId.Aurora,
         )
       : null;
 
@@ -135,7 +135,7 @@ export const useUserBalanceAmounts = (
       ? Amount.fromAtomicString(
           tokenSpec,
           fantomBalance.toString(),
-          EcosystemId.Polygon,
+          EcosystemId.Fantom,
         )
       : null;
 
@@ -144,7 +144,7 @@ export const useUserBalanceAmounts = (
       ? Amount.fromAtomicString(
           tokenSpec,
           karuraBalance.toString(),
-          EcosystemId.Polygon,
+          EcosystemId.Karura,
         )
       : null;
 
@@ -153,7 +153,7 @@ export const useUserBalanceAmounts = (
       ? Amount.fromAtomicString(
           tokenSpec,
           acalaBalance.toString(),
-          EcosystemId.Polygon,
+          EcosystemId.Acala,
         )
       : null;
 

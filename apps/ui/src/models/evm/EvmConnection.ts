@@ -110,8 +110,18 @@ export class EvmConnection {
     env: Env,
     { ecosystem, rpcUrls }: EvmSpec,
   ): Provider {
-    // TODO: Remove when these chains are supported
     if (!isEcosystemEnabled(ecosystem)) {
+      return new LocalnetProvider(rpcUrls[0]);
+    }
+    // TODO: Remove when these chains are supported
+    if (
+      [
+        EcosystemId.Aurora,
+        EcosystemId.Fantom,
+        EcosystemId.Karura,
+        EcosystemId.Acala,
+      ].includes(ecosystem)
+    ) {
       return new LocalnetProvider(rpcUrls[0]);
     }
     switch (env) {

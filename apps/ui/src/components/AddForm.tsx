@@ -531,7 +531,7 @@ export const AddForm = ({
         </>
       )}
 
-      {SolanaTpsWarning()}
+      <SolanaTpsWarning />
 
       <PoolPausedAlert isVisible={!!isPoolPaused} />
 

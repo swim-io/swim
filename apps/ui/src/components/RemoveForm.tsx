@@ -781,7 +781,7 @@ export const RemoveForm = ({
         </>
       )}
 
-      {SolanaTpsWarning()}
+      <SolanaTpsWarning />
 
       {hasPositiveOutputAmount && (
         <EstimatedTxFeesCallout feesEstimation={feesEstimation} />

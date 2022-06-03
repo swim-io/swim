@@ -363,7 +363,7 @@ export const SwapForm = ({
           <EuiSpacer />
         </>
       )}
-      {SolanaTpsWarning()}
+      <SolanaTpsWarning />
 
       <PoolPausedAlert isVisible={isRequiredPoolPaused} />
 

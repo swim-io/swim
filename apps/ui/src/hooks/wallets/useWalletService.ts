@@ -7,14 +7,14 @@ import { useEnvironment, useWalletAdapter } from "../../core/store";
 import type { WalletService } from "../../models";
 import { createAdapter } from "../../models";
 
-type WalletServiceAPI = Pick<WalletAdapterState, "disconnectService"> & {
+type WalletServiceApi = Pick<WalletAdapterState, "disconnectService"> & {
   readonly connectService: (
     serviceId: WalletService["id"],
     protocol: Protocol,
   ) => Promise<void>;
 };
 
-export const useWalletService = (): WalletServiceAPI => {
+export const useWalletService = (): WalletServiceApi => {
   const { connectService, disconnectService } = useWalletAdapter(
     selectWalletAdapterApi,
     shallow,

@@ -390,9 +390,7 @@ export const AddForm = ({
       if (userNativeBalances[ecosystem].isZero()) {
         errors = [
           ...errors,
-          `Empty balance in ${
-            config.ecosystems[EcosystemId.Solana].displayName
-          } wallet. You will need some funds to pay for transaction fees.`,
+          `Empty balance in ${config.ecosystems[ecosystem].displayName} wallet. You will need some funds to pay for transaction fees.`,
         ];
       }
     });

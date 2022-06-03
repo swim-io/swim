@@ -8,7 +8,7 @@ import { Protocol } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 
-const INTERVAL_FREQUENCY_MS = 5000; // 5 seconds.
+const INTERVAL_FREQUENCY_MS = 60000; // 1 minute.
 const SAMPLES_LIMIT = 5;
 
 export const SolanaTpsWarning = (): ReactElement => {

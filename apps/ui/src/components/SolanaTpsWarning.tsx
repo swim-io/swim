@@ -19,7 +19,6 @@ export const SolanaTpsWarning = (): ReactElement => {
   const { endpoint } = chain;
   // TODO: There is a bug with getRecentPerformanceSamples in which a new connection needs to be made.
   // Fix pending: https://github.com/solana-labs/solana/issues/19419
-  // const connection = new Connection(endpoint);
   const connection = useMemo<Connection>(() => {
     return new Connection(endpoint);
   }, [endpoint]);

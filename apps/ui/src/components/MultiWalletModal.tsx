@@ -185,7 +185,7 @@ export const MultiWalletModal = ({
                   address={wallets[ecosystemId].address}
                   connected={wallets[ecosystemId].connected}
                   icon={ICONS[ecosystemId]}
-                  walletServices={WALLET_SERVICES[EcosystemId.Solana]}
+                  walletServices={WALLET_SERVICES[ecosystemId]}
                   createServiceClickHandler={
                     wallets[ecosystemId].createServiceClickHandler
                   }

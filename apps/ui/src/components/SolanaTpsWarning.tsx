@@ -1,0 +1,88 @@
+import { EuiCallOut, EuiSpacer, EuiText } from "@elastic/eui";
+import { Connection } from "@solana/web3.js";
+import type { ReactElement } from "react";
+import { useEffect, useState } from "react";
+import shallow from "zustand/shallow.js";
+
+import { Protocol } from "../config";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
+
+const INTERVAL_FREQUENCY_MS = 5000; // 5 seconds.
+const SAMPLES_LIMIT = 5;
+
+export const SolanaTpsWarning = (): ReactElement => {
+  // Assume Solana TPS healthy.
+  const [tps, setTps] = useState<number>(2000);
+  const { chains } = useEnvironment(selectConfig, shallow);
+  const [chain] = chains[Protocol.Solana];
+  const { endpoint } = chain;
+  // TODO: There is a bug with getRecentPerformanceSamples in which a new connection needs to be made.
+  // Fix pending: https://github.com/solana-labs/solana/issues/19419
+  const connection = new Connection(endpoint);
+  const checkSolanaTps = async () => {
+    try {
+      const samples = await connection.getRecentPerformanceSamples(
+        SAMPLES_LIMIT,
+      );
+      if (samples.length >= 1) {
+        const stats = samples.reduce(
+          ({ numTps, numSeconds }, sample) => ({
+            numTps: numTps + sample.numTransactions,
+            numSeconds: numSeconds + sample.samplePeriodSecs,
+          }),
+          { numTps: 0, numSeconds: 0 },
+        );
+        const avgTps = stats.numTps / stats.numSeconds;
+        setTps(avgTps);
+      }
+    } catch (e) {
+      // Do nothing with sampling or math errors.
+      console.warn(e);
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(
+      async () => await checkSolanaTps(),
+      INTERVAL_FREQUENCY_MS,
+    );
+
+    return () => {
+      clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (tps >= 1500) {
+    return <></>;
+  }
+  return tps === 0 ? (
+    <>
+      <EuiCallOut title="Solana Network Down" color="danger">
+        <EuiText>
+          <p>
+            {"We've detected downtime on the"}
+            <a href="https://status.solana.com/">Solana Network </a>
+            {" and thus advise against swapping at this time."}
+          </p>
+        </EuiText>
+      </EuiCallOut>
+      <EuiSpacer />
+    </>
+  ) : (
+    <>
+      <EuiCallOut title="Solana Network Congested" color="warning">
+        <EuiText>
+          <p>
+            {`Solana’s Transactions Per Second is low (${tps.toLocaleString(
+              undefined,
+              { maximumFractionDigits: 2 },
+            )} TPS), causing network congestion. Please proceed with caution as transactions may take time to confirm.`}
+          </p>
+        </EuiText>
+      </EuiCallOut>
+      <EuiSpacer />
+    </>
+  );
+};

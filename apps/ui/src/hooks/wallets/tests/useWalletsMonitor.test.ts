@@ -38,7 +38,7 @@ describe("useWalletsMonitor", () => {
     expect(notify).toBeCalledTimes(1);
     expect(notify.mock.calls[0]).toEqual([
       "Wallet update",
-      "Connected to wallet 0x90F...8c9C1",
+      expect.stringContaining("Connected to wallet"),
       "info",
       7000,
     ]);

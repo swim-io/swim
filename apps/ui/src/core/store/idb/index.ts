@@ -29,7 +29,7 @@ export class SwimIDB extends Dexie {
         .filter((idbState) => idbState.interaction.env === env)
         .sortBy("interaction.submittedAt")
         .then((sorted) => sorted);
-      return data.map((state) => this.deserializeState(state));
+      return data.map(deserializeInteractionState);
     }).catch((err) => {
       console.warn(err);
     });
@@ -37,8 +37,7 @@ export class SwimIDB extends Dexie {
 
   addInteractionState(interactionState: InteractionState) {
     this.transaction("rw", "interactionStates", async () => {
-      const serializedState: PersistedInteractionState =
-        this.serializeState(interactionState);
+      const serializedState = prepareInteractionState(interactionState);
       await this.interactionStates.add(
         {
           id: interactionState.interaction.id,
@@ -63,14 +62,6 @@ export class SwimIDB extends Dexie {
     }).catch((err) => {
       console.warn("Fail to add interactionState into idb", err);
     });
-  }
-
-  private serializeState(state: InteractionState): PersistedInteractionState {
-    return prepareInteractionState(state);
-  }
-
-  private deserializeState(state: PersistedInteractionState): InteractionState {
-    return deserializeInteractionState(state);
   }
 }
 

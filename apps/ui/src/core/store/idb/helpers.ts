@@ -135,7 +135,7 @@ export interface PreparedSolanaPoolOperationState
   readonly operation: PreparedOperationSpec;
 }
 
-export interface PersistedFromSolanaTransfers
+export interface PersistedFromSolanaTransfer
   extends Omit<FromSolanaTransferState, "token" | "value"> {
   readonly token: {
     readonly id: string;
@@ -143,7 +143,7 @@ export interface PersistedFromSolanaTransfers
   readonly value: string | null;
 }
 
-export interface PersistedToSolanaTransfers
+export interface PersistedToSolanaTransfer
   extends Omit<ToSolanaTransferState, "token" | "value"> {
   readonly token: {
     readonly id: string;
@@ -152,8 +152,8 @@ export interface PersistedToSolanaTransfers
 }
 
 export type PersistedInteractionState = {
-  readonly fromSolanaTransfers: readonly PersistedFromSolanaTransfers[];
-  readonly toSolanaTransfers: readonly PersistedToSolanaTransfers[];
+  readonly fromSolanaTransfers: readonly PersistedFromSolanaTransfer[];
+  readonly toSolanaTransfers: readonly PersistedToSolanaTransfer[];
   readonly interaction: PreparedInteraction;
   readonly solanaPoolOperations: readonly PreparedSolanaPoolOperationState[];
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
@@ -476,20 +476,20 @@ const populateSolanaPoolOperationState = (
 };
 
 const populateToSolanaTransferState = (
-  parsedTransfers: readonly PersistedToSolanaTransfers[],
+  parsedTransfers: readonly PersistedToSolanaTransfer[],
   env: Env,
 ): readonly ToSolanaTransferState[] =>
-  parsedTransfers.map((transfer: PersistedToSolanaTransfers) => ({
+  parsedTransfers.map((transfer: PersistedToSolanaTransfer) => ({
     ...transfer,
     token: findTokenById(transfer.token.id, env),
     value: new Decimal(parseInt(transfer.value)),
   }));
 
 const populateFromSolanaTransferState = (
-  parsedTransfers: readonly PersistedFromSolanaTransfers[],
+  parsedTransfers: readonly PersistedFromSolanaTransfer[],
   env: Env,
 ): readonly FromSolanaTransferState[] =>
-  parsedTransfers.map((transfer: PersistedFromSolanaTransfers) => ({
+  parsedTransfers.map((transfer: PersistedFromSolanaTransfer) => ({
     ...transfer,
     token: findTokenById(transfer.token.id, env),
     value: transfer.value ? new Decimal(parseInt(transfer.value)) : null,

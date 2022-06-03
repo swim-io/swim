@@ -9,7 +9,7 @@ export const selectInteractionError = (
 export const selectInteractionStateById = (
   state: InteractionStore,
   id: string,
-): InteractionState | Error => {
+): InteractionState => {
   const interactionState = state.interactionStates.find(
     ({ interaction }) => interaction.id === id,
   );

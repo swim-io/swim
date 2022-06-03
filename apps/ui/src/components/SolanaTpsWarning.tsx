@@ -79,7 +79,7 @@ export const SolanaTpsWarning = (): ReactElement => {
             {`Solana’s Transactions Per Second is low (${tps.toLocaleString(
               undefined,
               { maximumFractionDigits: 2 },
-            )} TPS), causing network congestion. Please proceed with caution as transactions may take time to confirm.`}
+            )} TPS), causing network congestion. Please proceed with caution as transactions may take a long time to confirm.`}
           </p>
         </EuiText>
       </EuiCallOut>

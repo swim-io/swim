@@ -78,8 +78,6 @@ describe("useWalletsMonitor", () => {
       "serviceUrl",
       () => null,
     );
-    // we use the address in the connect notification
-    adapter.address = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1"; // eslint-disable-line functional/immutable-data
 
     useWalletAdapterMock.mockReturnValue({ evm: adapter, solana: null });
 

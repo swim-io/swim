@@ -21,11 +21,6 @@ export interface TokenDetails {
   readonly decimals: number;
 }
 
-export interface TokenDB {
-  readonly tokenId: string;
-  readonly value: string;
-}
-
 export type TokenDetailsByEcosystem = ReadonlyMap<EcosystemId, TokenDetails>;
 
 export interface TokenSpec {

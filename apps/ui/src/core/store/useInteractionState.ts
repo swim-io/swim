@@ -1,4 +1,5 @@
 /* eslint-disable functional/immutable-data */
+import * as Sentry from "@sentry/react";
 import type { Draft } from "immer";
 import { castDraft, produce } from "immer";
 import type { GetState, SetState } from "zustand";
@@ -14,11 +15,9 @@ export interface InteractionStore {
   readonly errorMap: ReadonlyRecord<Interaction["id"], Error | undefined>;
   readonly interactionStates: readonly InteractionState[];
   readonly recentInteractionId: string | null;
-  readonly getInteractionError: (id: string) => Error | undefined;
   readonly setInteractionError: (id: string, error: Error | undefined) => void;
-  readonly getInteractionState: (interactionId: string) => InteractionState;
   readonly addInteractionState: (interactionState: InteractionState) => void;
-  readonly getInteractionStatesFromIDB: (
+  readonly loadInteractionStatesFromIDB: (
     env: Env,
   ) => Promise<void | readonly InteractionState[]>;
   readonly updateInteractionState: (
@@ -32,7 +31,6 @@ export const useInteractionState = create(
     errorMap: {},
     interactionStates: [],
     recentInteractionId: null,
-    getInteractionError: (id: string) => get().errorMap[id],
     setInteractionError: (id: string, error: Error | undefined) => {
       set(
         produce<InteractionStore>((draft) => {
@@ -40,16 +38,7 @@ export const useInteractionState = create(
         }),
       );
     },
-    getInteractionState: (id: string) => {
-      const interactionState = get().interactionStates.find(
-        ({ interaction }) => interaction.id === id,
-      );
-      if (!interactionState) {
-        throw new Error(`Interaction ${id} not exist`);
-      }
-      return interactionState;
-    },
-    getInteractionStatesFromIDB: async (env) => {
+    loadInteractionStatesFromIDB: async (env) => {
       const data = (await idb.getInteractionStates(env)) || [];
       set(
         produce<InteractionStore>((draft) => {
@@ -72,7 +61,13 @@ export const useInteractionState = create(
           const index = draft.interactionStates.findIndex(
             ({ interaction }) => interaction.id === interactionId,
           );
-          updateCallback(draft.interactionStates[index]);
+          if (index > -1) {
+            updateCallback(draft.interactionStates[index]);
+          } else {
+            Sentry.captureMessage(
+              "Failed to find interactionStates in updateInteractionState store function",
+            );
+          }
         }),
       );
     },

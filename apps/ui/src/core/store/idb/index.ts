@@ -6,7 +6,7 @@ import type { InteractionState } from "../../../models";
 
 import type { PersistedInteractionState } from "./helpers";
 import {
-  deserializeInteractionStates,
+  deserializeInteractionState,
   prepareInteractionState,
 } from "./helpers";
 
@@ -24,10 +24,11 @@ export class SwimIDB extends Dexie {
   }
 
   async getInteractionStates(env: Env) {
-    return this.transaction("rw", "interactionStates", async () => {
+    return this.transaction("r", "interactionStates", async () => {
       const data = await this.interactionStates
         .filter((idbState) => idbState.interaction.env === env)
-        .toArray();
+        .sortBy("interaction.submittedAt")
+        .then((sorted) => sorted);
       return data.map((state) => this.deserializeState(state));
     }).catch((err) => {
       console.warn(err);
@@ -45,10 +46,16 @@ export class SwimIDB extends Dexie {
         },
         interactionState.interaction.id,
       );
-      const size = await this.interactionStates.count();
+      const collection = await this.interactionStates
+        .filter(
+          (idbState) =>
+            idbState.interaction.env === interactionState.interaction.env,
+        )
+        .sortBy("interaction.submittedAt")
+        .then((sorted) => sorted);
+      const size = collection.length;
       if (size > MAX_STORED_INTERACTIONS) {
         const diff = size - MAX_STORED_INTERACTIONS;
-        const collection = await this.interactionStates.toArray();
         for (let index = 0; index < diff; index++) {
           await this.interactionStates.delete(collection[index].id);
         }
@@ -63,7 +70,7 @@ export class SwimIDB extends Dexie {
   }
 
   private deserializeState(state: PersistedInteractionState): InteractionState {
-    return deserializeInteractionStates(state);
+    return deserializeInteractionState(state);
   }
 }
 

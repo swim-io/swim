@@ -1,12 +1,6 @@
 import Decimal from "decimal.js";
 
-import type {
-  EcosystemId,
-  Env,
-  PoolSpec,
-  TokenDB,
-  TokenSpec,
-} from "../../../config";
+import type { EcosystemId, Env, PoolSpec, TokenSpec } from "../../../config";
 import { configs, findTokenById, isValidEnv } from "../../../config";
 import type {
   AddInteraction,
@@ -141,7 +135,7 @@ export interface PreparedSolanaPoolOperationState
   readonly operation: PreparedOperationSpec;
 }
 
-export interface PeristedFromSolanaTransfers
+export interface PersistedFromSolanaTransfers
   extends Omit<FromSolanaTransferState, "token" | "value"> {
   readonly token: {
     readonly id: string;
@@ -149,7 +143,7 @@ export interface PeristedFromSolanaTransfers
   readonly value: string | null;
 }
 
-export interface PeristedToSolanaTransfers
+export interface PersistedToSolanaTransfers
   extends Omit<ToSolanaTransferState, "token" | "value"> {
   readonly token: {
     readonly id: string;
@@ -158,12 +152,21 @@ export interface PeristedToSolanaTransfers
 }
 
 export type PersistedInteractionState = {
-  readonly fromSolanaTransfers: readonly PeristedFromSolanaTransfers[];
-  readonly toSolanaTransfers: readonly PeristedToSolanaTransfers[];
+  readonly fromSolanaTransfers: readonly PersistedFromSolanaTransfers[];
+  readonly toSolanaTransfers: readonly PersistedToSolanaTransfers[];
   readonly interaction: PreparedInteraction;
   readonly solanaPoolOperations: readonly PreparedSolanaPoolOperationState[];
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
 };
+export interface TokenDB {
+  readonly tokenId: string;
+  readonly value: string;
+}
+
+const fromAmountToTokenDB = (amount: Amount): TokenDB => ({
+  tokenId: amount.tokenId,
+  value: amount.toJSON(),
+});
 
 const tokenAmountsRecordToMap = (
   tokens: readonly TokenSpec[],
@@ -187,7 +190,8 @@ const tokenAmountsMapToRecord = (
   );
 const tokenAmountArrayToRecordArray = (
   amounts: readonly Amount[],
-): readonly TokenDB[] => [...amounts].map((amount) => amount.toDBToken());
+): readonly TokenDB[] =>
+  [...amounts].map((amount) => fromAmountToTokenDB(amount));
 
 const tokenRecordArrayToAmountArray = (
   tokens: readonly TokenSpec[],
@@ -226,15 +230,11 @@ const populateAddInteraction = (
 
 const populateRemoveUniformInteraction = (
   tokensByPoolId: TokensByPoolId,
-  poolSpecs: readonly PoolSpec[],
   interaction: PreparedRemoveUniformInteraction,
 ): RemoveUniformInteraction => {
   const { env, params } = interaction;
   if (!isValidEnv(env)) {
     throw new Error("Invalid env");
-  }
-  if (poolSpecs.length !== 1) {
-    throw new Error("Invalid interaction");
   }
   const poolTokens = tokensByPoolId[interaction.poolId];
   return {
@@ -256,15 +256,11 @@ const populateRemoveUniformInteraction = (
 
 const populateRemoveExactBurnInteraction = (
   tokensByPoolId: TokensByPoolId,
-  poolSpecs: readonly PoolSpec[],
   interaction: PreparedRemoveExactBurnInteraction,
 ): RemoveExactBurnInteraction => {
   const { env, params } = interaction;
   if (!isValidEnv(env)) {
     throw new Error("Invalid env");
-  }
-  if (poolSpecs.length !== 1) {
-    throw new Error("Invalid interaction");
   }
   const poolTokens = tokensByPoolId[interaction.poolId];
 
@@ -287,15 +283,11 @@ const populateRemoveExactBurnInteraction = (
 
 const populateRemoveExactOutputInteraction = (
   tokensByPoolId: TokensByPoolId,
-  poolSpecs: readonly PoolSpec[],
   interaction: PreparedRemoveExactOutputInteraction,
 ): RemoveExactOutputInteraction => {
   const { env, params } = interaction;
   if (!isValidEnv(env)) {
     throw new Error("Invalid env");
-  }
-  if (poolSpecs.length !== 1) {
-    throw new Error("Invalid interaction");
   }
   const poolTokens = tokensByPoolId[interaction.poolId];
   return {
@@ -361,23 +353,11 @@ const populateInteraction = (
     case InteractionType.Add:
       return populateAddInteraction(tokensByPoolId, interaction);
     case InteractionType.RemoveUniform:
-      return populateRemoveUniformInteraction(
-        tokensByPoolId,
-        poolSpecs,
-        interaction,
-      );
+      return populateRemoveUniformInteraction(tokensByPoolId, interaction);
     case InteractionType.RemoveExactBurn:
-      return populateRemoveExactBurnInteraction(
-        tokensByPoolId,
-        poolSpecs,
-        interaction,
-      );
+      return populateRemoveExactBurnInteraction(tokensByPoolId, interaction);
     case InteractionType.RemoveExactOutput:
-      return populateRemoveExactOutputInteraction(
-        tokensByPoolId,
-        poolSpecs,
-        interaction,
-      );
+      return populateRemoveExactOutputInteraction(tokensByPoolId, interaction);
     case InteractionType.Swap:
       return populateSwapInteraction(tokensByPoolId, interaction);
     default:
@@ -497,26 +477,26 @@ const populateSolanaPoolOperationState = (
 };
 
 const populateToSolanaTransferState = (
-  parsedTransfers: readonly PeristedToSolanaTransfers[],
+  parsedTransfers: readonly PersistedToSolanaTransfers[],
   env: Env,
 ): readonly ToSolanaTransferState[] =>
-  parsedTransfers.map((transfer: PeristedToSolanaTransfers) => ({
+  parsedTransfers.map((transfer: PersistedToSolanaTransfers) => ({
     ...transfer,
     token: findTokenById(transfer.token.id, env),
     value: new Decimal(parseInt(transfer.value)),
   }));
 
 const populateFromSolanaTransferState = (
-  parsedTransfers: readonly PeristedFromSolanaTransfers[],
+  parsedTransfers: readonly PersistedFromSolanaTransfers[],
   env: Env,
 ): readonly FromSolanaTransferState[] =>
-  parsedTransfers.map((transfer: PeristedFromSolanaTransfers) => ({
+  parsedTransfers.map((transfer: PersistedFromSolanaTransfers) => ({
     ...transfer,
     token: findTokenById(transfer.token.id, env),
     value: transfer.value ? new Decimal(parseInt(transfer.value)) : null,
   }));
 
-export const deserializeInteractionStates = (
+export const deserializeInteractionState = (
   persistedState: PersistedInteractionState,
 ): InteractionState => {
   const config = configs[persistedState.interaction.env];
@@ -568,7 +548,9 @@ export const prepareInteraction = (
           inputAmounts: tokenAmountsMapToRecord(
             interaction.params.inputAmounts,
           ),
-          minimumMintAmount: interaction.params.minimumMintAmount.toDBToken(),
+          minimumMintAmount: fromAmountToTokenDB(
+            interaction.params.minimumMintAmount,
+          ),
         },
       };
     case InteractionType.RemoveUniform:
@@ -577,7 +559,9 @@ export const prepareInteraction = (
         ...base,
         params: {
           ...interaction.params,
-          exactBurnAmount: interaction.params.exactBurnAmount.toDBToken(),
+          exactBurnAmount: fromAmountToTokenDB(
+            interaction.params.exactBurnAmount,
+          ),
           minimumOutputAmounts: tokenAmountsMapToRecord(
             interaction.params.minimumOutputAmounts,
           ),
@@ -589,9 +573,12 @@ export const prepareInteraction = (
         ...base,
         params: {
           ...interaction.params,
-          exactBurnAmount: interaction.params.exactBurnAmount.toDBToken(),
-          minimumOutputAmount:
-            interaction.params.minimumOutputAmount.toDBToken(),
+          exactBurnAmount: fromAmountToTokenDB(
+            interaction.params.exactBurnAmount,
+          ),
+          minimumOutputAmount: fromAmountToTokenDB(
+            interaction.params.minimumOutputAmount,
+          ),
         },
       };
     case InteractionType.RemoveExactOutput:
@@ -600,7 +587,9 @@ export const prepareInteraction = (
         ...base,
         params: {
           ...interaction.params,
-          maximumBurnAmount: interaction.params.maximumBurnAmount.toDBToken(),
+          maximumBurnAmount: fromAmountToTokenDB(
+            interaction.params.maximumBurnAmount,
+          ),
           exactOutputAmounts: tokenAmountsMapToRecord(
             interaction.params.exactOutputAmounts,
           ),
@@ -612,9 +601,12 @@ export const prepareInteraction = (
         ...base,
         params: {
           ...interaction.params,
-          exactInputAmount: interaction.params.exactInputAmount.toDBToken(),
-          minimumOutputAmount:
-            interaction.params.minimumOutputAmount.toDBToken(),
+          exactInputAmount: fromAmountToTokenDB(
+            interaction.params.exactInputAmount,
+          ),
+          minimumOutputAmount: fromAmountToTokenDB(
+            interaction.params.minimumOutputAmount,
+          ),
         },
       };
     default:
@@ -634,7 +626,9 @@ const prepareSolanaPoolOperation = (
           inputAmounts: tokenAmountArrayToRecordArray(
             operation.params.inputAmounts,
           ),
-          minimumMintAmount: operation.params.minimumMintAmount.toDBToken(),
+          minimumMintAmount: fromAmountToTokenDB(
+            operation.params.minimumMintAmount,
+          ),
         },
       };
     case SwimDefiInstruction.RemoveUniform:
@@ -642,7 +636,9 @@ const prepareSolanaPoolOperation = (
         ...operation,
         params: {
           ...operation.params,
-          exactBurnAmount: operation.params.exactBurnAmount.toDBToken(),
+          exactBurnAmount: fromAmountToTokenDB(
+            operation.params.exactBurnAmount,
+          ),
           minimumOutputAmounts: tokenAmountArrayToRecordArray(
             operation.params.minimumOutputAmounts,
           ),
@@ -653,8 +649,12 @@ const prepareSolanaPoolOperation = (
         ...operation,
         params: {
           ...operation.params,
-          exactBurnAmount: operation.params.exactBurnAmount.toDBToken(),
-          minimumOutputAmount: operation.params.minimumOutputAmount.toDBToken(),
+          exactBurnAmount: fromAmountToTokenDB(
+            operation.params.exactBurnAmount,
+          ),
+          minimumOutputAmount: fromAmountToTokenDB(
+            operation.params.minimumOutputAmount,
+          ),
         },
       };
     case SwimDefiInstruction.RemoveExactOutput:
@@ -662,7 +662,9 @@ const prepareSolanaPoolOperation = (
         ...operation,
         params: {
           ...operation.params,
-          maximumBurnAmount: operation.params.maximumBurnAmount.toDBToken(),
+          maximumBurnAmount: fromAmountToTokenDB(
+            operation.params.maximumBurnAmount,
+          ),
           exactOutputAmounts: tokenAmountArrayToRecordArray(
             operation.params.exactOutputAmounts,
           ),
@@ -676,7 +678,9 @@ const prepareSolanaPoolOperation = (
           exactInputAmounts: tokenAmountArrayToRecordArray(
             operation.params.exactInputAmounts,
           ),
-          minimumOutputAmount: operation.params.minimumOutputAmount.toDBToken(),
+          minimumOutputAmount: fromAmountToTokenDB(
+            operation.params.minimumOutputAmount,
+          ),
         },
       };
     default:

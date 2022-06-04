@@ -8,7 +8,7 @@ import create from "zustand";
 import type { Interaction, InteractionState } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 
-import { idb } from "./idb";
+import { addInteractionStateToDb, getInteractionStatesFromDb } from "./idb";
 import type { Env } from "./useEnvironment";
 
 export interface InteractionStore {
@@ -39,7 +39,7 @@ export const useInteractionState = create(
       );
     },
     loadInteractionStatesFromIDB: async (env) => {
-      const data = (await idb.getInteractionStates(env)) || [];
+      const data = (await getInteractionStatesFromDb(env)) || [];
       set(
         produce<InteractionStore>((draft) => {
           draft.interactionStates = castDraft(data);
@@ -53,7 +53,7 @@ export const useInteractionState = create(
           draft.recentInteractionId = interactionState.interaction.id;
         }),
       );
-      idb.addInteractionState(interactionState);
+      addInteractionStateToDb(interactionState);
     },
     updateInteractionState: (interactionId, updateCallback) => {
       set(

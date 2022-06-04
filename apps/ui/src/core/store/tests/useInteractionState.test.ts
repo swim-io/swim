@@ -4,6 +4,12 @@ import { useInteractionState } from "..";
 import { MOCK_INTERACTION_STATE } from "../../../fixtures/swim/interactionState";
 import { ETH_USDC_TO_SOL_USDC_SWAP } from "../../../fixtures/swim/interactions";
 
+jest.mock("../idb", () => ({
+  ...jest.requireActual("../idb"),
+  getInteractionStatesFromDb: jest.fn(),
+  addInteractionStateToDb: jest.fn(),
+}));
+
 describe("useInteraction", () => {
   afterEach(() => {
     jest.resetAllMocks();

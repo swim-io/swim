@@ -15,37 +15,44 @@ const MAX_STORED_INTERACTIONS = 10;
 type IDBState = {
   readonly id: string;
 } & PersistedInteractionState;
-export class SwimIDB extends Dexie {
+
+class SwimIDB extends Dexie {
   interactionStates!: Table<IDBState, string>;
 
   constructor() {
     super("SwimIDB");
     this.version(1).stores({ interactionStates: "&id" });
   }
+}
 
-  async getInteractionStates(env: Env) {
-    return this.transaction("r", "interactionStates", async () => {
-      const data = await this.interactionStates
+const idb = new SwimIDB();
+
+export const getInteractionStatesFromDb = (env: Env) => {
+  return idb
+    .transaction("r", "interactionStates", async () => {
+      const data = await idb.interactionStates
         .filter((idbState) => idbState.interaction.env === env)
         .sortBy("interaction.submittedAt")
         .then((sorted) => sorted);
       return data.map(deserializeInteractionState);
-    }).catch((err) => {
+    })
+    .catch((err) => {
       console.warn(err);
     });
-  }
+};
 
-  addInteractionState(interactionState: InteractionState) {
-    this.transaction("rw", "interactionStates", async () => {
+export const addInteractionStateToDb = (interactionState: InteractionState) => {
+  idb
+    .transaction("rw", "interactionStates", async () => {
       const serializedState = prepareInteractionState(interactionState);
-      await this.interactionStates.add(
+      await idb.interactionStates.add(
         {
           id: interactionState.interaction.id,
           ...serializedState,
         },
         interactionState.interaction.id,
       );
-      const collection = await this.interactionStates
+      const collection = await idb.interactionStates
         .filter(
           (idbState) =>
             idbState.interaction.env === interactionState.interaction.env,
@@ -56,19 +63,17 @@ export class SwimIDB extends Dexie {
       if (size > MAX_STORED_INTERACTIONS) {
         const diff = size - MAX_STORED_INTERACTIONS;
         for (let index = 0; index < diff; index++) {
-          await this.interactionStates.delete(collection[index].id);
+          await idb.interactionStates.delete(collection[index].id);
         }
       }
-    }).catch((err) => {
+    })
+    .catch((err) => {
       console.warn("Fail to add interactionState into idb", err);
     });
-  }
-}
+};
 
-export const idb = new SwimIDB();
-
-export function resetDatabase() {
+export const resetDb = () => {
   return idb.transaction("rw", idb.interactionStates, async () => {
     await Promise.all(idb.tables.map((table) => table.clear()));
   });
-}
+};

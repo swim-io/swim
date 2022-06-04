@@ -37,10 +37,10 @@ export const enum EvmChainId {
   FantomMainnet = 250,
   FantomTestnet = 4002,
   FantomLocalnet = 4003, // TODO: This is a placeholder
-  KaruraMainnet = 586, // TODO: Update
+  KaruraMainnet = 686,
   KaruraTestnet = 596,
   KaruraLocalnet = 606, // TODO: This is a placeholder
-  AcalaMainnet = 587, // TODO: Update
+  AcalaMainnet = 787,
   AcalaTestnet = 597,
   AcalaLocalnet = 607, // TODO: This is a placeholder
 }

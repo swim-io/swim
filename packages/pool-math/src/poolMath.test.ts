@@ -152,6 +152,15 @@ describe("PoolMath", () => {
 
   test("proportional and imbalanced add/remove gives the same result as doing it all at once", () => {
     for (const isAdd of [true, false]) {
+      const testedOp = isAdd
+        ? PoolMath.prototype.add // eslint-disable-line @typescript-eslint/unbound-method
+        : PoolMath.prototype.removeExactOutput; // eslint-disable-line @typescript-eslint/unbound-method
+      const addSub = isAdd
+        ? Decimal.prototype.plus // eslint-disable-line @typescript-eslint/unbound-method
+        : Decimal.prototype.minus; // eslint-disable-line @typescript-eslint/unbound-method
+      const getLpAmount = (result: any): Decimal =>
+        result[isAdd ? "lpOutputAmount" : "lpInputAmount"];
+
       const balances = [100, 100, 100].map((b) => new Decimal(b));
       const ampFactor = new Decimal("1.313");
       const lpFee = new Decimal("0.10");
@@ -160,20 +169,16 @@ describe("PoolMath", () => {
 
       const pool = new PoolMath(balances, ampFactor, lpFee, governanceFee);
 
-      const func = isAdd
-        ? pool.add.bind(pool)
-        : pool.removeExactOutput.bind(pool);
-      const getLpAmount = (result: any): Decimal =>
-        result[isAdd ? "lpOutputAmount" : "lpInputAmount"];
-
       const proportionalAmounts = balances.map((b) => b.div(fraction));
-      const proportionalResult = func(proportionalAmounts);
+      const proportionalResult = testedOp.bind(pool)(proportionalAmounts);
       expect(proportionalResult.governanceMintAmount).toEqual(new Decimal(0));
 
       const balancesAfter = balances.map((b, i) =>
-        b.plus(proportionalAmounts[i]),
+        addSub.bind(b)(proportionalAmounts[i]),
       );
-      const lpSupplyAfter = pool.depth().plus(getLpAmount(proportionalResult));
+      const lpSupplyAfter = addSub.bind(pool.depth())(
+        getLpAmount(proportionalResult),
+      );
       const poolAfter = new PoolMath(
         balancesAfter,
         ampFactor,
@@ -185,13 +190,12 @@ describe("PoolMath", () => {
       const imbalancedAmounts = balances.map((b, i) =>
         i === 0 ? balances[i].div(fraction * fraction) : new Decimal(0),
       );
-      const imbalancedResult = func.bind(poolAfter)(imbalancedAmounts);
+      const imbalancedResult = testedOp.bind(poolAfter)(imbalancedAmounts);
 
       const togetherAmounts = proportionalAmounts.map((b, i) =>
         b.plus(imbalancedAmounts[i]),
       );
-
-      const togetherResult = func.bind(pool)(togetherAmounts);
+      const togetherResult = testedOp.bind(pool)(togetherAmounts);
 
       expect(
         round(

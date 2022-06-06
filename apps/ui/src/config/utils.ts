@@ -1,5 +1,7 @@
 import { EcosystemId } from "./ecosystem";
+import type { Env } from "./env";
 import type { TokenDetails, TokenSpec } from "./tokens";
+import { tokens } from "./tokens";
 
 export const getNativeTokenDetails = (tokenSpec: TokenSpec): TokenDetails => {
   const nativeTokenDetails =
@@ -17,4 +19,12 @@ export const getSolanaTokenDetails = (tokenSpec: TokenSpec): TokenDetails => {
     throw new Error("Solana token details not found");
   }
   return solanaTokenDetails;
+};
+
+export const findTokenById = (tokenId: string, env: Env): TokenSpec => {
+  const tokenSpec = tokens[env].find(({ id }) => id === tokenId);
+  if (!tokenSpec) {
+    throw new Error(`Token not found for ${tokenId} ${env}`);
+  }
+  return tokenSpec;
 };

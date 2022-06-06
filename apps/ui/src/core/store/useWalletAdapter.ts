@@ -14,7 +14,6 @@ export interface WalletAdapterState {
   readonly evm: EvmWalletAdapter | null;
   readonly solana: SolanaWalletAdapter | null;
   readonly connectService: (
-    serviceId: string,
     protocol: Protocol,
     adapter: WalletAdapter,
   ) => Promise<void>;
@@ -25,7 +24,7 @@ export const useWalletAdapter = create<WalletAdapterState>(
   (set: SetState<WalletAdapterState>, get: GetState<WalletAdapterState>) => ({
     evm: null,
     solana: null,
-    connectService: async (serviceId, protocol, adapter) => {
+    connectService: async (protocol, adapter) => {
       const state = get();
       const previous = protocol === Protocol.Evm ? state.evm : state.solana;
 

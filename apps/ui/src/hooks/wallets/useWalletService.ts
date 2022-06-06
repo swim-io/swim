@@ -24,11 +24,7 @@ export const useWalletService = (): WalletServiceApi => {
 
   return {
     connectService: (serviceId: WalletService["id"], protocol: Protocol) =>
-      connectService(
-        serviceId,
-        protocol,
-        createAdapter(serviceId, protocol, endpoint),
-      ),
+      connectService(protocol, createAdapter(serviceId, protocol, endpoint)),
     disconnectService,
   };
 };

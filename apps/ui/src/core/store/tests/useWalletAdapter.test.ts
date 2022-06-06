@@ -26,15 +26,12 @@ describe("useWalletAdapter", () => {
       it("connects to a service/protocol", async () => {
         const { result } = renderHook(() => useWalletAdapter());
 
-        const service = "metamask";
         const adapter = createWalletAdapter(protocol);
         const connectSpy = jest
           .spyOn(adapter, "connect")
           .mockImplementation(() => Promise.resolve());
 
-        await act(() =>
-          result.current.connectService(service, protocol, adapter),
-        );
+        await act(() => result.current.connectService(protocol, adapter));
 
         expect(getProtocolAdapter(result.current, protocol)).toEqual(adapter);
         expect(connectSpy).toHaveBeenCalledTimes(1);
@@ -43,7 +40,6 @@ describe("useWalletAdapter", () => {
       it("connects to a service/protocol and disconnects the existing adapter", async () => {
         const { result } = renderHook(() => useWalletAdapter());
 
-        const service = "metamask";
         const adapter = createWalletAdapter(protocol);
         jest
           .spyOn(adapter, "connect")
@@ -52,18 +48,14 @@ describe("useWalletAdapter", () => {
           .spyOn(adapter, "disconnect")
           .mockImplementation(() => Promise.resolve());
 
-        await act(() =>
-          result.current.connectService(service, protocol, adapter),
-        );
+        await act(() => result.current.connectService(protocol, adapter));
 
         const secondAdapter = createWalletAdapter(protocol);
         jest
           .spyOn(adapter, "connect")
           .mockImplementation(() => Promise.resolve());
 
-        await act(() =>
-          result.current.connectService(service, protocol, secondAdapter),
-        );
+        await act(() => result.current.connectService(protocol, secondAdapter));
 
         expect(getProtocolAdapter(result.current, protocol)).toEqual(
           secondAdapter,
@@ -74,7 +66,6 @@ describe("useWalletAdapter", () => {
       it("disconnects the protocol's adapter", async () => {
         const { result } = renderHook(() => useWalletAdapter());
 
-        const service = "metamask";
         const adapter = createWalletAdapter(protocol);
         jest
           .spyOn(adapter, "connect")
@@ -84,9 +75,7 @@ describe("useWalletAdapter", () => {
           .spyOn(adapter, "disconnect")
           .mockImplementation(() => Promise.resolve());
 
-        await act(() =>
-          result.current.connectService(service, protocol, adapter),
-        );
+        await act(() => result.current.connectService(protocol, adapter));
 
         await act(() => result.current.disconnectService(protocol));
 

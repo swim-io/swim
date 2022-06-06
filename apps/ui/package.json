@@ -15,7 +15,8 @@
     "typecheck": "tsc",
     "types:generate": "typechain --target=ethers-v5 --out-dir=src/contracts/ abi/*.json",
     "verify": "yarn typecheck && yarn lint && yarn test --watchAll=false && yarn format:check",
-    "storybook": "DISABLE_ESLINT_PLUGIN=true start-storybook -p 6006"
+    "storybook": "DISABLE_ESLINT_PLUGIN=true start-storybook -p 6006",
+    "build-storybook": "DISABLE_ESLINT_PLUGIN=true build-storybook"
   },
   "browserslist": {
     "production": [

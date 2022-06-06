@@ -40,3 +40,15 @@ jobs:
         run: yarn test --watchAll=false
       - name: Check format
         run: yarn format:check
+      - name: Build Storybook
+        run: yarn build-storybook
+      - name: Publish Storybook
+        uses: cloudflare/wrangler-action@2.0.0
+        with:
+          command: pages publish storybook-static --project-name=ui-storybook
+          apiToken: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}
+      - name: List storybook deployments
+        uses: cloudflare/wrangler-action@2.0.0
+        with:
+          command: pages deployment list --project-name=ui-storybook
+          apiToken: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}

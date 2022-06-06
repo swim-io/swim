@@ -18,7 +18,7 @@ import {
   useSolanaConnection,
   useSolanaWallet,
 } from "../../contexts";
-import { selectConfig } from "../../core/selectors";
+import { selectConfig, selectInteractionStateById } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {
   Amount,
@@ -42,10 +42,16 @@ export const useFromSolanaTransferMutation = () => {
   const wallets = useWallets();
   const { address: solanaWalletAddress } = useSolanaWallet();
   const solanaWormhole = chains[Protocol.Solana][0].wormhole;
-  const { updateInteractionState, getInteractionState } = useInteractionState();
+  const updateInteractionState = useInteractionState(
+    (state) => state.updateInteractionState,
+  );
+  const interactionStateStore = useInteractionState();
 
   return useMutation(async (interactionId: string) => {
-    const interactionState = getInteractionState(interactionId);
+    const interactionState = selectInteractionStateById(
+      interactionStateStore,
+      interactionId,
+    );
     const { fromSolanaTransfers } = interactionState;
     await Promise.all(
       fromSolanaTransfers.map(async (transfer) => {

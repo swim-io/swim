@@ -4,6 +4,7 @@ import { useQueryClient } from "react-query";
 
 import type { SolanaWalletContextInterface } from "../../contexts";
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { selectInteractionStateById } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { MOCK_SOL_WALLET } from "../../fixtures";
 import { MOCK_INTERACTION_STATE } from "../../fixtures/swim/interactionState";
@@ -58,17 +59,20 @@ describe("usePrepareSplTokenAccountMutation", () => {
 
     const { result } = renderHookWithAppContext(() => {
       const { mutateAsync } = usePrepareSplTokenAccountMutation();
-      const { getInteractionState } = useInteractionState();
+      const interactionStateStore = useInteractionState();
       return {
         mutateAsync,
-        getInteractionState,
+        interactionStateStore,
       };
     });
 
     const { id } = MOCK_INTERACTION_STATE.interaction;
     await act(() => result.current.mutateAsync(id));
 
-    const updatedState = result.current.getInteractionState(id);
+    const updatedState = selectInteractionStateById(
+      result.current.interactionStateStore,
+      id,
+    );
     expect(updatedState.requiredSplTokenAccounts).toEqual({
       "9idXDPGb5jfwaf5fxjiMacgUcwpy3ZHfdgqSjAV5XLDr": {
         isExistingAccount: false,

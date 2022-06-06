@@ -16,7 +16,6 @@ export interface InteractionStore {
   readonly interactionStates: readonly InteractionState[];
   readonly recentInteractionId: string | null;
   readonly setInteractionError: (id: string, error: Error | undefined) => void;
-  readonly getInteractionState: (interactionId: string) => InteractionState;
   readonly addInteractionState: (interactionState: InteractionState) => void;
   readonly loadInteractionStatesFromIDB: (
     env: Env,
@@ -46,15 +45,6 @@ export const useInteractionState = create(
           draft.interactionStates = castDraft(data);
         }),
       );
-    },
-    getInteractionState: (interactionId: string) => {
-      const interactionState = get().interactionStates.find(
-        ({ interaction }) => interaction.id === interactionId,
-      );
-      if (!interactionState) {
-        throw new Error(`Interaction ${interactionId} not exist`);
-      }
-      return interactionState;
     },
     addInteractionState: (interactionState) => {
       set(

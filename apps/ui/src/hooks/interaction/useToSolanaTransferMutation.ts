@@ -16,7 +16,7 @@ import {
   isEvmEcosystemId,
 } from "../../config";
 import { useEvmConnections, useSolanaConnection } from "../../contexts";
-import { selectConfig } from "../../core/selectors";
+import { selectConfig, selectInteractionStateById } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { EvmConnection, EvmTx } from "../../models";
 import {
@@ -54,10 +54,16 @@ export const useToSolanaTransferMutation = () => {
   const wallets = useWallets();
   const solanaWallet = wallets[EcosystemId.Solana].wallet;
   const solanaWormhole = chains[Protocol.Solana][0].wormhole;
-  const { updateInteractionState, getInteractionState } = useInteractionState();
+  const updateInteractionState = useInteractionState(
+    (state) => state.updateInteractionState,
+  );
+  const interactionStateStore = useInteractionState();
 
   return useMutation(async (interactionId: string) => {
-    const { toSolanaTransfers } = getInteractionState(interactionId);
+    const { toSolanaTransfers } = selectInteractionStateById(
+      interactionStateStore,
+      interactionId,
+    );
     await Promise.all(
       toSolanaTransfers.map(async (transfer) => {
         const { token, value, txIds } = transfer;

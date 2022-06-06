@@ -5,6 +5,7 @@ import { useQueryClient } from "react-query";
 
 import { EcosystemId } from "../../config";
 import { useEvmConnections, useSolanaConnection } from "../../contexts";
+import { selectInteractionStateById } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { MOCK_SOL_WALLET } from "../../fixtures";
 import { MOCK_INTERACTION_STATE } from "../../fixtures/swim/interactionState";
@@ -120,17 +121,20 @@ describe("useToSolanaTransferMutation", () => {
 
     const { result } = renderHookWithAppContext(() => {
       const { mutateAsync } = useToSolanaTransferMutation();
-      const { getInteractionState } = useInteractionState();
+      const interactionStateStore = useInteractionState();
       return {
         mutateAsync,
-        getInteractionState,
+        interactionStateStore,
       };
     });
 
     const { id } = MOCK_INTERACTION_STATE.interaction;
     await act(() => result.current.mutateAsync(id));
 
-    const updatedState = result.current.getInteractionState(id);
+    const updatedState = selectInteractionStateById(
+      result.current.interactionStateStore,
+      id,
+    );
     expect(updatedState.toSolanaTransfers[0].txIds).toEqual({
       approveAndTransferEvmToken: [
         "0xd528c49eedda9d5a5a7f04a00355b7b124a30502b46532503cc83891844715b9",

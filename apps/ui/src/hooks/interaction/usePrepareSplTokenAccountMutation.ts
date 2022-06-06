@@ -1,13 +1,17 @@
 import { useMutation } from "react-query";
 
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { selectInteractionStateById } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { createSplTokenAccount } from "../../models";
 
 export const usePrepareSplTokenAccountMutation = () => {
   const solanaConnection = useSolanaConnection();
   const { wallet } = useSolanaWallet();
-  const { updateInteractionState, getInteractionState } = useInteractionState();
+  const updateInteractionState = useInteractionState(
+    (state) => state.updateInteractionState,
+  );
+  const interactionStateStore = useInteractionState();
 
   return useMutation(async (interactionId: string) => {
     if (wallet === null) {
@@ -17,7 +21,10 @@ export const usePrepareSplTokenAccountMutation = () => {
     if (!solanaAddress) {
       throw new Error("Missing Solana address");
     }
-    const interactionState = getInteractionState(interactionId);
+    const interactionState = selectInteractionStateById(
+      interactionStateStore,
+      interactionId,
+    );
     const { interaction, requiredSplTokenAccounts } = interactionState;
     for (const mint in requiredSplTokenAccounts) {
       const accountState = requiredSplTokenAccounts[mint];

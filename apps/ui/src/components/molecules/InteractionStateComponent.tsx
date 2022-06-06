@@ -23,6 +23,7 @@ export const InteractionStateComponent: React.FC<Props> = ({
   const { interaction } = interactionState;
   const interactionStatus = useInteractionStatus(interactionState);
   const steps = useEuiStepPropsForInteraction(interactionState);
+  const timeInMoment = moment(interaction.submittedAt);
   return (
     <>
       <EuiTitle size="xs">
@@ -30,7 +31,9 @@ export const InteractionStateComponent: React.FC<Props> = ({
           <InteractionTitle interaction={interaction} />
         </h3>
       </EuiTitle>
-      <EuiText size="s">{moment(interaction.submittedAt).fromNow()}</EuiText>
+      <EuiText size="s" title={timeInMoment.toLocaleString()}>
+        {timeInMoment.fromNow()}
+      </EuiText>
       <EuiSpacer />
       <EuiSteps
         titleSize="xs"

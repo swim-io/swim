@@ -163,7 +163,7 @@ export const useSolanaPoolOperationsMutation = () => {
       interactionState,
       tokens,
       lpToken,
-      [inputTxId],
+      [inputTxId, outputTxId],
       solanaConnection,
       solanaWalletAddress,
       splTokenAccounts,

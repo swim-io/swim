@@ -14,7 +14,7 @@
     "lint:fix": "eslint --fix \"./src/**/*.{ts,tsx}\"",
     "typecheck": "tsc",
     "types:generate": "typechain --target=ethers-v5 --out-dir=src/contracts/ abi/*.json",
-    "verify": "yarn typecheck && yarn lint && yarn test --watchAll=false && yarn format",
+    "verify": "yarn typecheck && yarn lint && yarn test --watchAll=false && yarn format:check",
     "storybook": "DISABLE_ESLINT_PLUGIN=true start-storybook -p 6006"
   },
   "browserslist": {
@@ -51,6 +51,7 @@
     "bn.js": "^5.2.0",
     "constate": "^3.3.0",
     "decimal.js": "^10.3.1",
+    "dexie": "^3.2.2",
     "ethers": "^5.4.4",
     "immer": "^9.0.14",
     "moment": "^2.29.1",

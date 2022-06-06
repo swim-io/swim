@@ -50,6 +50,16 @@ export class LedgerWalletAdapter
     return transaction;
   }
 
+  async signAllTransactions(
+    // eslint-disable-next-line functional/prefer-readonly-type
+    transactions: Transaction[],
+    // eslint-disable-next-line functional/prefer-readonly-type
+  ): Promise<Transaction[]> {
+    return Promise.all(
+      transactions.map((tx: Transaction) => this.signTransaction(tx)),
+    );
+  }
+
   async connect(): Promise<void> {
     if (this._connecting) {
       return;

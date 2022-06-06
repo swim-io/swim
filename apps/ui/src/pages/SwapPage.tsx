@@ -36,7 +36,7 @@ const SwapPage = (): ReactElement => {
   const [currentInteraction, setCurrentInteraction] = useState<string | null>(
     null,
   );
-  const [slippagePercent, setSlippagePercent] = useState("0.5");
+  const [slippagePercent, setSlippagePercent] = useState("1.0");
   const slippageFraction = useMemo(
     () => defaultIfError(() => new Decimal(slippagePercent).div(100), null),
     [slippagePercent],

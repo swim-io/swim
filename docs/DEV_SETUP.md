@@ -4,6 +4,14 @@
 
 ### From a snapshot
 
+This is a common tmux pane layout:  
+<img width="600" alt="Screenshot 2022-05-17 at 13 18 19" src="https://user-images.githubusercontent.com/101085251/170914495-708899eb-74c6-4c3c-bd04-2f7da7d3ad24.png">
+- top pane is a shell for general usage
+- bottom left is running the kubernetes dashboard
+- bottom middle is running tilt
+- bottom right is running the reverse proxy
+
+
 1. Set up a Digital Ocean droplet from the most recent snapshot. Give it all the SSH keys required.
 1. Update your local SSH config for `wormhole-v2` with the new IP address.
 1. On your local machine: `ssh wormhole-v2`.
@@ -108,6 +116,7 @@ commitment: confirmed
    - `./scripts/setup_solana_dev.sh`
 
 1. Exit wormhole-v2 connection
+1. Go to http://localhost:3000/test, connect wallets **(For Solana strongly recommend `Sollet`)**
 1. Test page -> Set up Wormhole tokens for Ethereum
 1. Test page -> Set up Wormhole tokens for BSC
 1. Test page -> Get wrapped SPL token addresses on Ethereum (for each supported SPL token)

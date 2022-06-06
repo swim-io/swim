@@ -1,20 +1,27 @@
 @import "../eui";
 
-.walletServiceButton {
-  white-space: nowrap;
+.protocolWalletOptionsList {
+  min-width: 180px;
+  align-items: flex-start;
+
+  .plainConnectButton {
+    white-space: nowrap;
+  }
 
   .plainConnectButton--connected {
     border: 1.5px solid $euiColorSuccess;
   }
 
   &__ecosystems {
-    margin: 10px 0 0 30px;
-
     & > li {
       margin-bottom: 15px;
 
       img {
         margin-right: 15px;
+      }
+
+      &:last-of-type {
+        margin-bottom: 0;
       }
     }
   }

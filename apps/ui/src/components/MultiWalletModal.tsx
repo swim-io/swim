@@ -1,18 +1,27 @@
 import {
   EuiButtonEmpty,
+  EuiButtonIcon,
   EuiFlexGrid,
+  EuiFlexGroup,
   EuiFlexItem,
   EuiIcon,
   EuiModalBody,
   EuiModalHeader,
   EuiModalHeaderTitle,
+  EuiPopover,
   EuiSpacer,
   EuiTitle,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
+import { useState } from "react";
 
 import type { Ecosystem } from "../config";
-import { Protocol, getEcosystemsForProtocol, protocolNames } from "../config";
+import {
+  Protocol,
+  ecosystems,
+  getEcosystemsForProtocol,
+  protocolNames,
+} from "../config";
 import { useWalletService, useWallets } from "../hooks";
 import EVM_SVG from "../images/ecosystems/ethereum-color.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
@@ -31,52 +40,6 @@ import { PlainConnectButton } from "./PlainConnectButton";
 
 import "./MultiWalletModal.scss";
 
-interface WalletServiceButtonProps<W extends WalletService = WalletService> {
-  readonly service: W;
-  readonly onClick: () => void;
-  readonly disconnect: () => void;
-  readonly serviceConnected: boolean;
-  readonly address: string | null;
-  readonly ecosystems: ReadonlyArray<Ecosystem>;
-}
-
-const WalletServiceButton = <W extends WalletService = WalletService>({
-  service,
-  disconnect,
-  onClick,
-  serviceConnected,
-  address,
-  ecosystems,
-}: WalletServiceButtonProps<W>): ReactElement => {
-  const {
-    info: { icon, name, helpText },
-  } = service;
-  return (
-    <span className="walletServiceButton">
-      <PlainConnectButton
-        onClick={serviceConnected ? disconnect : onClick}
-        color={serviceConnected ? "success" : "primary"}
-        iconType={icon}
-        ButtonComponent={EuiButtonEmpty}
-        connected={serviceConnected}
-        helpText={helpText}
-      >
-        {serviceConnected && address ? shortenAddress(address) : name}
-      </PlainConnectButton>
-      {ecosystems.length > 1 && (
-        <ul className="walletServiceButton__ecosystems">
-          {ecosystems.map((ecosystem) => (
-            <li key={ecosystem.displayName}>
-              <EuiIcon type={ecosystem.logo} size="m" />
-              {ecosystem.displayName}
-            </li>
-          ))}
-        </ul>
-      )}
-    </span>
-  );
-};
-
 interface ProtocolWalletOptionsListProps {
   readonly icon: string;
   readonly protocol: Protocol;
@@ -86,6 +49,7 @@ const ProtocolWalletOptionsList = ({
   icon,
   protocol,
 }: ProtocolWalletOptionsListProps): ReactElement => {
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const wallets = useWallets();
   const { connectService, disconnectService } = useWalletService();
   const ecosystemIds = getEcosystemsForProtocol(protocol);
@@ -119,44 +83,73 @@ const ProtocolWalletOptionsList = ({
     });
   };
 
+  const handleButtonClick = () => setIsPopoverOpen((prev: boolean) => !prev);
+  const handlePopoverClose = () => setIsPopoverOpen(false);
+
+  const infoButton = (
+    <EuiButtonIcon
+      onClick={handleButtonClick}
+      iconType="questionInCircle"
+      aria-label={`See the supported chains of the ${protocolNames[protocol]} protocol`}
+      style={{ marginLeft: 10 }}
+    />
+  );
+
+  const popover = (
+    <EuiPopover
+      button={infoButton}
+      isOpen={isPopoverOpen}
+      closePopover={handlePopoverClose}
+    >
+      {ecosystemIds.length > 1 && (
+        <ul className="protocolWalletOptionsList__ecosystems">
+          {ecosystemIds.map((ecosystemId) => (
+            <li key={ecosystems[ecosystemId].displayName}>
+              <EuiIcon type={ecosystems[ecosystemId].logo} size="m" />
+              {ecosystems[ecosystemId].displayName}
+            </li>
+          ))}
+        </ul>
+      )}
+    </EuiPopover>
+  );
+
   return (
-    <EuiFlexItem style={{ minWidth: "180px" }}>
+    <EuiFlexItem className="protocolWalletOptionsList">
       <EuiTitle size="xs">
         <h2 style={{ whiteSpace: "nowrap" }}>
           <EuiIcon type={icon} size="l" style={{ marginRight: "8px" }} />
           {protocolNames[protocol]}
+          {ecosystemIds.length > 1 ? <span>{popover}</span> : null}
         </h2>
       </EuiTitle>
       <EuiSpacer size="s" />
-      {Object.entries(protocolWalletServicesByServiceId).map(
-        ([serviceId, serviceWalletServices]) => {
-          const service = findOrThrow(
-            protocolWalletServices,
-            (walletService) => walletService.id === serviceId,
-          );
+      {Object.keys(protocolWalletServicesByServiceId).map((serviceId) => {
+        const service = findOrThrow(
+          protocolWalletServices,
+          (walletService) => walletService.id === serviceId,
+        );
 
-          const ecosystems = serviceWalletServices.map(
-            (walletService) => walletService.info.ecosystem,
-          );
+        const connectedWallet =
+          connectedWallets.find((wallet) => wallet.service?.id === serviceId) ??
+          null;
 
-          const connectedWallet =
-            connectedWallets.find(
-              (wallet) => wallet.service?.id === serviceId,
-            ) ?? null;
-
-          return (
-            <WalletServiceButton
-              key={`${protocol}:${serviceId}`}
-              service={service}
-              ecosystems={ecosystems}
-              serviceConnected={!!connectedWallet}
-              address={connectedWallet ? connectedWallet.address : null}
-              disconnect={() => disconnect()}
-              onClick={() => connect(service.id)}
-            />
-          );
-        },
-      )}
+        return (
+          <PlainConnectButton
+            key={`${protocol}:${serviceId}`}
+            onClick={connectedWallet ? disconnect : () => connect(service.id)}
+            color={connectedWallet ? "success" : "primary"}
+            iconType={service.info.icon}
+            ButtonComponent={EuiButtonEmpty}
+            connected={!!connectedWallet}
+            helpText={service.info.helpText}
+          >
+            {connectedWallet && connectedWallet.address
+              ? shortenAddress(connectedWallet.address)
+              : service.info.name}
+          </PlainConnectButton>
+        );
+      })}
     </EuiFlexItem>
   );
 };
@@ -179,7 +172,7 @@ export const MultiWalletModal = ({
       <EuiModalBody>
         {isUserOnMobileDevice() ? <MobileDeviceDisclaimer /> : ""}
         <EuiSpacer />
-        <EuiFlexGrid columns={3} gutterSize="xl">
+        <EuiFlexGrid columns={2} gutterSize="xl">
           <ProtocolWalletOptionsList
             icon={SOLANA_SVG}
             protocol={Protocol.Solana}

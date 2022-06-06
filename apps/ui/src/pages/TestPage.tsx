@@ -402,17 +402,11 @@ const TestPage = (): ReactElement => {
 
         <EuiPageContent>
           <EuiPageContentBody>
-            <ConnectButton ecosystemId={EcosystemId.Solana}>
-              {solanaAddress && shortenAddress(solanaAddress)}
-            </ConnectButton>
+            <ConnectButton ecosystemId={EcosystemId.Solana} />
             &nbsp;
-            <ConnectButton ecosystemId={EcosystemId.Ethereum}>
-              {ethereumAddress && shortenAddress(ethereumAddress)}
-            </ConnectButton>
+            <ConnectButton ecosystemId={EcosystemId.Ethereum} />
             &nbsp;
-            <ConnectButton ecosystemId={EcosystemId.Bsc}>
-              {bscAddress && shortenAddress(bscAddress)}
-            </ConnectButton>
+            <ConnectButton ecosystemId={EcosystemId.Bsc} />
             &nbsp;
             <EuiButton onClick={addToastHandler}>Notify</EuiButton>
             &nbsp;

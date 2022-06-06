@@ -12,15 +12,19 @@ import type { WalletService } from "../models";
 import { deduplicate, isNotNull, shortenAddress } from "../utils";
 
 import { MultiWalletModal } from "./MultiWalletModal";
+import type { PlainConnectButtonProps } from "./PlainConnectButton";
+import { PlainConnectButton } from "./PlainConnectButton";
 
 import "./ConnectButton.scss";
 
-export interface ConnectButtonProps extends PropsForButton<EuiButtonProps> {
+export type ConnectButtonProps = Omit<
+  PlainConnectButtonProps,
+  "children" | "connected" | "onClick"
+> & {
   readonly ecosystemId: EcosystemId;
-}
+};
 
 export const ConnectButton = ({
-  children,
   ecosystemId,
   ...rest
 }: ConnectButtonProps): ReactElement => {
@@ -43,33 +47,23 @@ export const ConnectButton = ({
   const handleClick = connected ? disconnect : select;
 
   return (
-    <EuiButton
+    <PlainConnectButton
       {...rest}
-      className={`connect-button ${connected ? "connected" : ""}`} // used for hover effect, see css
+      connected={connected}
       onClick={handleClick}
       iconType={ecosystem.logo}
-      iconSide="left"
     >
-      <span>
-        {connected ? (
-          children ? (
-            children
-          ) : address ? (
-            shortenAddress(address)
-          ) : (
-            ""
-          )
-        ) : (
-          <>
-            <EuiShowFor sizes={["xs"]}>Connect</EuiShowFor>
-            <EuiHideFor sizes={["xs"]}>
-              Connect {ecosystem.displayName}
-            </EuiHideFor>
-          </>
-        )}
-      </span>
-      <EuiIcon className="exit-icon" type="crossInACircleFilled" size="m" />
-    </EuiButton>
+      {connected && address ? (
+        shortenAddress(address)
+      ) : (
+        <>
+          <EuiShowFor sizes={["xs"]}>Connect</EuiShowFor>
+          <EuiHideFor sizes={["xs"]}>
+            Connect {ecosystem.displayName}
+          </EuiHideFor>
+        </>
+      )}
+    </PlainConnectButton>
   );
 };
 

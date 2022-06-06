@@ -27,8 +27,8 @@ import {
 
 import { CustomModal } from "./CustomModal";
 import { MobileDeviceDisclaimer } from "./MobileDeviceDisclaimer";
+import { PlainConnectButton } from "./PlainConnectButton";
 
-import "./ConnectButton.scss";
 import "./MultiWalletModal.scss";
 
 interface WalletServiceButtonProps<W extends WalletService = WalletService> {
@@ -53,20 +53,16 @@ const WalletServiceButton = <W extends WalletService = WalletService>({
   } = service;
   return (
     <span className="walletServiceButton">
-      <EuiButtonEmpty
-        className={`connect-button ${
-          serviceConnected ? "connected connected-service" : ""
-        }`}
+      <PlainConnectButton
         onClick={serviceConnected ? disconnect : onClick}
         color={serviceConnected ? "success" : "primary"}
         iconType={icon}
+        ButtonComponent={EuiButtonEmpty}
+        connected={serviceConnected}
+        helpText={helpText}
       >
-        <span>
-          {serviceConnected && address ? shortenAddress(address) : name}
-        </span>
-        {helpText && <>{helpText}</>}
-        <EuiIcon className="exit-icon" type="crossInACircleFilled" size="m" />
-      </EuiButtonEmpty>
+        {serviceConnected && address ? shortenAddress(address) : name}
+      </PlainConnectButton>
       {ecosystems.length > 1 && (
         <ul className="walletServiceButton__ecosystems">
           {ecosystems.map((ecosystem) => (

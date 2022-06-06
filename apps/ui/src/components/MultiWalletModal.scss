@@ -1,5 +1,11 @@
+@import "../eui";
+
 .walletServiceButton {
   white-space: nowrap;
+
+  .plainConnectButton--connected {
+    border: 1.5px solid $euiColorSuccess;
+  }
 
   &__ecosystems {
     margin: 10px 0 0 30px;

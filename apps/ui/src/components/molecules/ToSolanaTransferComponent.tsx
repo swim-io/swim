@@ -47,11 +47,7 @@ export const ToSolanaTransferComponent: React.FC<Props> = ({
   return (
     <EuiText size="m">
       <span>
-        {isLoading && (
-          <>
-            <EuiLoadingSpinner size="m" />{" "}
-          </>
-        )}
+        {isLoading && <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />}
         <span>{`Transfer ${token.displayName} from ${fromEcosystem} to Solana`}</span>
       </span>
       <br />

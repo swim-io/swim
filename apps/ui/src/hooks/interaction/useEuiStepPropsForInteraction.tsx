@@ -22,7 +22,7 @@ import {
   useInteractionStatus,
 } from "./useInteractionStatus";
 
-const getEuiStatus = (
+const getEuiStepStatus = (
   interactionStatus: InteractionStatus,
   isStepCompleted: boolean,
 ): EuiStepStatus => {
@@ -51,7 +51,7 @@ const usePrepareSplTokenAccountsStep = (
   if (missingAccounts.length === 0) {
     return null;
   }
-  const status = getEuiStatus(
+  const status = getEuiStepStatus(
     interactionStatus,
     isRequiredSplTokenAccountsCompleted(requiredSplTokenAccounts),
   );
@@ -88,7 +88,7 @@ const useToSolanaTransfersStep = (
   if (toSolanaTransfers.length === 0) {
     return null;
   }
-  const status = getEuiStatus(
+  const status = getEuiStepStatus(
     interactionStatus,
     isToSolanaTransfersCompleted(toSolanaTransfers),
   );
@@ -122,7 +122,7 @@ const useSolanaPoolOperationStep = (
 ): EuiStepProps | null => {
   const interactionStatus = useInteractionStatus(interactionState);
   const { solanaPoolOperations } = interactionState;
-  const status = getEuiStatus(
+  const status = getEuiStepStatus(
     interactionStatus,
     isSolanaPoolOperationsCompleted(solanaPoolOperations),
   );
@@ -150,7 +150,7 @@ const useFromSolanaTransfersStep = (
   if (fromSolanaTransfers.length === 0) {
     return null;
   }
-  const status = getEuiStatus(
+  const status = getEuiStepStatus(
     interactionStatus,
     isFromSolanaTransfersCompleted(fromSolanaTransfers),
   );
@@ -181,7 +181,7 @@ const useFromSolanaTransfersStep = (
 
 export const useEuiStepPropsForInteraction = (
   interactionState: InteractionState,
-) => {
+): readonly EuiStepProps[] => {
   return [
     usePrepareSplTokenAccountsStep(interactionState),
     useToSolanaTransfersStep(interactionState),

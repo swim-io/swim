@@ -1,6 +1,6 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
-import { createDraft } from "immer";
 import { useMutation } from "react-query";
+import shallow from "zustand/shallow.js";
 
 import { useSplTokenAccountsQuery } from "..";
 import type { TokenSpec } from "../../config";
@@ -8,12 +8,7 @@ import { EcosystemId } from "../../config";
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
-import type {
-  FromSolanaTransferState,
-  InteractionState,
-  SolanaConnection,
-  Tx,
-} from "../../models";
+import type { InteractionState, SolanaConnection, Tx } from "../../models";
 import { getTokensByPool, getTransferredAmounts } from "../../models";
 import { findOrThrow, isNotNull } from "../../utils";
 import {
@@ -21,7 +16,7 @@ import {
   setOutputOperationInputAmount,
 } from "../swim/usePoolOperationsGenerator";
 
-const getUpdatedTransfers = async (
+const getTransferredAmountsByTokenId = async (
   interactionState: InteractionState,
   tokens: readonly TokenSpec[],
   lpToken: TokenSpec,
@@ -29,7 +24,7 @@ const getUpdatedTransfers = async (
   solanaConnection: SolanaConnection,
   solanaWalletAddress: string,
   splTokenAccounts: readonly TokenAccount[],
-): Promise<readonly FromSolanaTransferState[]> => {
+) => {
   const { interaction } = interactionState;
   const txs: readonly Tx[] = await Promise.all(
     txIds.map(async (txId) => {
@@ -43,28 +38,18 @@ const getUpdatedTransfers = async (
       };
     }),
   );
-  const transferredAmounts = getTransferredAmounts(
+  return getTransferredAmounts(
     solanaWalletAddress,
     splTokenAccounts,
     tokens,
     lpToken,
     txs,
   );
-
-  // Update from solana transfer value
-  const { fromSolanaTransfers } = interactionState;
-  return fromSolanaTransfers.map((transfer) => ({
-    ...transfer,
-    value:
-      transferredAmounts[transfer.token.id]?.toHuman(
-        transfer.token.nativeEcosystem,
-      ) ?? null,
-  }));
 };
 
 export const useSolanaPoolOperationsMutation = () => {
   const { env } = useEnvironment();
-  const config = useEnvironment(selectConfig);
+  const config = useEnvironment(selectConfig, shallow);
   const { pools } = config;
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
   const solanaConnection = useSolanaConnection();
@@ -113,7 +98,7 @@ export const useSolanaPoolOperationsMutation = () => {
     if (solanaPoolOperations.length === 1) {
       // Update from solana transfer value
       const { tokens, lpToken } = tokensByPoolId[inputPoolSpec.id];
-      const updatedTransfers = await getUpdatedTransfers(
+      const transferredAmounts = await getTransferredAmountsByTokenId(
         interactionState,
         tokens,
         lpToken,
@@ -123,7 +108,12 @@ export const useSolanaPoolOperationsMutation = () => {
         splTokenAccounts,
       );
       updateInteractionState(interaction.id, (draft) => {
-        draft.fromSolanaTransfers = createDraft(updatedTransfers);
+        for (const [index, transfer] of draft.fromSolanaTransfers.entries()) {
+          draft.fromSolanaTransfers[index].value =
+            transferredAmounts[transfer.token.id]?.toHuman(
+              transfer.token.nativeEcosystem,
+            ) ?? null;
+        }
       });
       return;
     }
@@ -166,17 +156,22 @@ export const useSolanaPoolOperationsMutation = () => {
 
     // Update from solana transfer value
     const { tokens, lpToken } = tokensByPoolId[outputPoolSpec.id];
-    const updatedTransfers = await getUpdatedTransfers(
+    const transferredAmounts = await getTransferredAmountsByTokenId(
       interactionState,
       tokens,
       lpToken,
-      [inputTxId, outputTxId],
+      [inputTxId],
       solanaConnection,
       solanaWalletAddress,
       splTokenAccounts,
     );
     updateInteractionState(interaction.id, (draft) => {
-      draft.fromSolanaTransfers = createDraft(updatedTransfers);
+      for (const [index, transfer] of draft.fromSolanaTransfers.entries()) {
+        draft.fromSolanaTransfers[index].value =
+          transferredAmounts[transfer.token.id]?.toHuman(
+            transfer.token.nativeEcosystem,
+          ) ?? null;
+      }
     });
   });
 };

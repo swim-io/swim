@@ -5,6 +5,7 @@ import {
 import { Keypair } from "@solana/web3.js";
 import type { ethers } from "ethers";
 import { useMutation } from "react-query";
+import shallow from "zustand/shallow.js";
 
 import type { EvmEcosystemId } from "../../config";
 import {
@@ -47,7 +48,7 @@ const txResponseToTx = async (
 
 export const useToSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
-  const { chains, wormhole } = useEnvironment(selectConfig);
+  const { chains, wormhole } = useEnvironment(selectConfig, shallow);
   const evmConnections = useEvmConnections();
   const solanaConnection = useSolanaConnection();
   const wallets = useWallets();
@@ -135,6 +136,9 @@ export const useToSolanaTransferMutation = () => {
             const index = draft.toSolanaTransfers.findIndex(
               (t) => t.token.id === token.id,
             );
+            if (index === -1) {
+              throw new Error("Invalid transfer index");
+            }
             draft.toSolanaTransfers[index].txIds.approveAndTransferEvmToken =
               approveAndTransferEvmTokenTxIds;
           });
@@ -179,6 +183,9 @@ export const useToSolanaTransferMutation = () => {
           const index = draft.toSolanaTransfers.findIndex(
             (t) => t.token.id === token.id,
           );
+          if (index === -1) {
+            throw new Error("Invalid transfer index");
+          }
           draft.toSolanaTransfers[index].txIds.postVaaOnSolana =
             postVaaOnSolanaTxIds;
           draft.toSolanaTransfers[index].txIds.claimTokenOnSolana =

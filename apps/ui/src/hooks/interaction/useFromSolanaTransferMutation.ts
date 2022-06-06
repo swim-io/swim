@@ -132,6 +132,9 @@ export const useFromSolanaTransferMutation = () => {
             const index = draft.fromSolanaTransfers.findIndex(
               (t) => t.token.id === token.id,
             );
+            if (index === -1) {
+              throw new Error("Invalid transfer index");
+            }
             draft.fromSolanaTransfers[index].txIds.transferSplToken =
               transferSplTokenTxId;
           });
@@ -178,6 +181,9 @@ export const useFromSolanaTransferMutation = () => {
           const index = draft.fromSolanaTransfers.findIndex(
             (t) => t.token.id === token.id,
           );
+          if (index === -1) {
+            throw new Error("Invalid transfer index");
+          }
           draft.fromSolanaTransfers[index].txIds.claimTokenOnEvm =
             claimTokenOnEvmTxId;
         });

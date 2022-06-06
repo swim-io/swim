@@ -40,7 +40,7 @@ import {
   setUpErc20Tokens,
   setUpSplTokensOnEvm,
 } from "../models";
-import { shortenAddress, sleep } from "../utils";
+import { sleep } from "../utils";
 
 const SWIM_POOL_FEE_DECIMALS = 6;
 

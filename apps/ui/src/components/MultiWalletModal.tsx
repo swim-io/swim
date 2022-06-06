@@ -2,7 +2,6 @@ import {
   EuiButtonEmpty,
   EuiButtonIcon,
   EuiFlexGrid,
-  EuiFlexGroup,
   EuiFlexItem,
   EuiIcon,
   EuiModalBody,
@@ -15,7 +14,6 @@ import {
 import type { ReactElement } from "react";
 import { useState } from "react";
 
-import type { Ecosystem } from "../config";
 import {
   Protocol,
   ecosystems,
@@ -26,7 +24,6 @@ import { useWalletService, useWallets } from "../hooks";
 import EVM_SVG from "../images/ecosystems/ethereum-color.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import { WALLET_SERVICES } from "../models";
-import type { WalletService } from "../models";
 import {
   findOrThrow,
   groupBy,

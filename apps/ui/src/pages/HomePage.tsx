@@ -46,54 +46,52 @@ const HomePage = (): ReactElement => {
         <EuiSpacer size="xxl" />
         <EuiFlexGroup justifyContent="center" responsive={false}>
           <EuiFlexItem grow={false}>
-            <EuiPanel hasShadow={false}>
-              <EuiFlexGroup
-                justifyContent="center"
-                wrap={false}
-                responsive={false}
-              >
-                <EuiFlexItem grow={false}>
-                  <EuiShowFor sizes={["xs"]}>
-                    <EuiIcon type={SOLANA_SVG} size="l" />
-                  </EuiShowFor>
-                  <EuiHideFor sizes={["xs"]}>
-                    <EuiIcon type={SOLANA_SVG} size="xl" />
-                  </EuiHideFor>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiShowFor sizes={["xs"]}>
-                    <EuiIcon type={ETHEREUM_SVG} size="l" />
-                  </EuiShowFor>
-                  <EuiHideFor sizes={["xs"]}>
-                    <EuiIcon type={ETHEREUM_SVG} size="xl" />
-                  </EuiHideFor>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiShowFor sizes={["xs"]}>
-                    <EuiIcon type={BSC_SVG} size="l" />
-                  </EuiShowFor>
-                  <EuiHideFor sizes={["xs"]}>
-                    <EuiIcon type={BSC_SVG} size="xl" />
-                  </EuiHideFor>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiShowFor sizes={["xs"]}>
-                    <EuiIcon type={AVALANCHE_SVG} size="l" />
-                  </EuiShowFor>
-                  <EuiHideFor sizes={["xs"]}>
-                    <EuiIcon type={AVALANCHE_SVG} size="xl" />
-                  </EuiHideFor>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiShowFor sizes={["xs"]}>
-                    <EuiIcon type={POLYGON_SVG} size="l" />
-                  </EuiShowFor>
-                  <EuiHideFor sizes={["xs"]}>
-                    <EuiIcon type={POLYGON_SVG} size="xl" />
-                  </EuiHideFor>
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </EuiPanel>
+            <EuiFlexGroup
+              justifyContent="center"
+              wrap={false}
+              responsive={false}
+            >
+              <EuiFlexItem grow={false}>
+                <EuiShowFor sizes={["xs"]}>
+                  <EuiIcon type={SOLANA_SVG} size="l" />
+                </EuiShowFor>
+                <EuiHideFor sizes={["xs"]}>
+                  <EuiIcon type={SOLANA_SVG} size="xl" />
+                </EuiHideFor>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiShowFor sizes={["xs"]}>
+                  <EuiIcon type={ETHEREUM_SVG} size="l" />
+                </EuiShowFor>
+                <EuiHideFor sizes={["xs"]}>
+                  <EuiIcon type={ETHEREUM_SVG} size="xl" />
+                </EuiHideFor>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiShowFor sizes={["xs"]}>
+                  <EuiIcon type={BSC_SVG} size="l" />
+                </EuiShowFor>
+                <EuiHideFor sizes={["xs"]}>
+                  <EuiIcon type={BSC_SVG} size="xl" />
+                </EuiHideFor>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiShowFor sizes={["xs"]}>
+                  <EuiIcon type={AVALANCHE_SVG} size="l" />
+                </EuiShowFor>
+                <EuiHideFor sizes={["xs"]}>
+                  <EuiIcon type={AVALANCHE_SVG} size="xl" />
+                </EuiHideFor>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiShowFor sizes={["xs"]}>
+                  <EuiIcon type={POLYGON_SVG} size="l" />
+                </EuiShowFor>
+                <EuiHideFor sizes={["xs"]}>
+                  <EuiIcon type={POLYGON_SVG} size="xl" />
+                </EuiHideFor>
+              </EuiFlexItem>
+            </EuiFlexGroup>
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiSpacer size="xxl" />

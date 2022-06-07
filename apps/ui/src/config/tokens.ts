@@ -1151,7 +1151,7 @@ const devnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "9tbgCcqNyHtZemoCr7NahpUCyzs2TYEWyGjdb1jhaddi",
+          address: "4idDPnTYR4J9YhXmayKZYW8QBrASuuiTAxfkWUeaL3ap",
           decimals: 8,
         },
       ],
@@ -1545,14 +1545,14 @@ const devnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Karura,
         {
-          address: "0x9b51bb4bfcbbe42d5944398c7bda7e2379bdabde",
+          address: "0x074370ca8Fea9e8f1C5eE23f34CBdcD3FB7a66aD",
           decimals: 12,
         },
       ],
       [
         EcosystemId.Solana,
         {
-          address: "DN2CbFBEztCGdG589U88oxYuWbPCKz2ALoSP47CP3rtm",
+          address: "BRpsJtEUyCPQPRP4DAavXU5KmBqfgKQmX7fwnpVvUUMG",
           decimals: 8,
         },
       ],

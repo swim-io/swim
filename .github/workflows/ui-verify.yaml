@@ -45,10 +45,12 @@ jobs:
       - name: Publish Storybook
         uses: cloudflare/wrangler-action@2.0.0
         with:
-          command: pages publish storybook-static --project-name=ui-storybook
+          command: pages publish storybook-static --project-name=ui-storybook --env=${{ github.ref != 'refs/heads/master' && 'preview' || 'production' }}
           apiToken: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
       - name: List storybook deployments
         uses: cloudflare/wrangler-action@2.0.0
         with:
-          command: pages deployment list --project-name=ui-storybook
+          command: pages deployment list --project-name=ui-storybook --env=${{ github.ref != 'refs/heads/master' && 'preview' || 'production' }}
           apiToken: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}

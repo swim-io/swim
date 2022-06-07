@@ -18,6 +18,7 @@ import {
   Protocol,
   ecosystems,
   getEcosystemsForProtocol,
+  isEcosystemEnabled,
   protocolNames,
 } from "../config";
 import { useWalletService, useWallets } from "../hooks";
@@ -25,6 +26,7 @@ import EVM_SVG from "../images/ecosystems/ethereum-color.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import { WALLET_SERVICES } from "../models";
 import {
+  filterMap,
   findOrThrow,
   groupBy,
   isUserOnMobileDevice,
@@ -100,12 +102,16 @@ const ProtocolWalletOptionsList = ({
     >
       {ecosystemIds.length > 1 && (
         <ul className="protocolWalletOptionsList__ecosystems">
-          {ecosystemIds.map((ecosystemId) => (
-            <li key={ecosystems[ecosystemId].displayName}>
-              <EuiIcon type={ecosystems[ecosystemId].logo} size="m" />
-              {ecosystems[ecosystemId].displayName}
-            </li>
-          ))}
+          {filterMap(
+            isEcosystemEnabled,
+            (ecosystemId) => (
+              <li key={ecosystemId}>
+                <EuiIcon type={ecosystems[ecosystemId].logo} size="m" />
+                {ecosystems[ecosystemId].displayName}
+              </li>
+            ),
+            ecosystemIds,
+          )}
         </ul>
       )}
     </EuiPopover>

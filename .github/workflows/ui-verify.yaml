@@ -48,9 +48,3 @@ jobs:
           command: pages publish apps/ui/storybook-static --project-name=ui-storybook
           apiToken: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-      - name: List storybook deployments
-        uses: cloudflare/wrangler-action@2.0.0
-        with:
-          command: pages deployment list --project-name=ui-storybook
-          apiToken: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}

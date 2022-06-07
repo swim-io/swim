@@ -2,23 +2,27 @@ import {
   EuiButton,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiHideFor,
   EuiIcon,
   EuiImage,
   EuiPage,
   EuiPageBody,
   EuiPanel,
+  EuiShowFor,
   EuiSpacer,
   EuiText,
   EuiTextColor,
   EuiTitle,
 } from "@elastic/eui";
-import type { ReactElement } from "react";
+import type { ReactElement, VFC } from "react";
 import { useHistory } from "react-router";
 
 import { SwimIconType } from "../components/CustomIconType";
 import { GlassPanel } from "../components/GlassPanel";
 import { InvestorsList } from "../components/InvestorsList";
 import { Roadmap } from "../components/Roadmap";
+import type { Ecosystem } from "../config";
+import { EcosystemId, ecosystems } from "../config";
 import { useTitle } from "../hooks";
 import DIAGRAM from "../images/diagram.svg";
 import DISCORD_SVG from "../images/social/discord.svg";
@@ -29,6 +33,14 @@ import "./HomePage.scss";
 const HomePage = (): ReactElement => {
   useTitle("");
   const history = useHistory();
+  const promotedEcosystems = [
+    ecosystems[EcosystemId.Solana],
+    ecosystems[EcosystemId.Ethereum],
+    ecosystems[EcosystemId.Bsc],
+    ecosystems[EcosystemId.Avalanche],
+    ecosystems[EcosystemId.Polygon],
+  ];
+
   return (
     <EuiPage restrictWidth className="homepage">
       <EuiPageBody>
@@ -36,6 +48,20 @@ const HomePage = (): ReactElement => {
         <EuiSpacer size="xxl" />
         <EuiSpacer size="xxl" />
         <EuiSpacer size="xxl" />
+        <EuiSpacer size="xxl" />
+        <EuiFlexGroup justifyContent="center" responsive={false}>
+          <EuiFlexItem grow={false}>
+            <EuiFlexGroup
+              justifyContent="center"
+              wrap={false}
+              responsive={false}
+            >
+              {promotedEcosystems.map((ecosystem) => (
+                <PromotedEcosystem ecosystem={ecosystem} key={ecosystem.id} />
+              ))}
+            </EuiFlexGroup>
+          </EuiFlexItem>
+        </EuiFlexGroup>
         <EuiSpacer size="xxl" />
         <div className="eui-textCenter">
           <EuiText color="ghost">
@@ -553,3 +579,18 @@ const HomePage = (): ReactElement => {
 };
 
 export default HomePage;
+
+type PromotedEcosystemProps = {
+  readonly ecosystem: Ecosystem;
+};
+
+const PromotedEcosystem: VFC<PromotedEcosystemProps> = ({ ecosystem }) => (
+  <EuiFlexItem grow={false}>
+    <EuiShowFor sizes={["xs"]}>
+      <EuiIcon type={ecosystem.logo} title={ecosystem.displayName} size="l" />
+    </EuiShowFor>
+    <EuiHideFor sizes={["xs"]}>
+      <EuiIcon type={ecosystem.logo} title={ecosystem.displayName} size="xl" />
+    </EuiHideFor>
+  </EuiFlexItem>
+);

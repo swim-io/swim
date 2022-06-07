@@ -76,7 +76,7 @@ export const setUpSplTokensOnEvm = async (
     throw new Error("No EVM chain wallet signer");
   }
 
-  await evmWallet.switchNetwork();
+  await evmWallet.switchNetwork(evmChain.chainId);
 
   const attestations = await Promise.all(
     mintAddresses.map((mintAddress) =>
@@ -129,7 +129,7 @@ export const attestErc20Token = async (
     throw new Error("No EVM chain wallet signer");
   }
 
-  await evmWallet.switchNetwork();
+  await evmWallet.switchNetwork(evmChain.chainId);
 
   const receipt = await attestFromEth(
     evmChain.wormhole.tokenBridge,

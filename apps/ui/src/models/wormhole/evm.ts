@@ -68,7 +68,7 @@ export const lockEvmToken = async ({
     throw new Error("No EVM signer");
   }
 
-  await evmWallet.switchNetwork();
+  await evmWallet.switchNetwork(evmChain.chainId);
 
   const transferAmountAtomicString = amount.toAtomicString(evmChain.ecosystem);
   const allowance = await getAllowanceEth(
@@ -142,7 +142,7 @@ export const unlockEvmToken = async (
     throw new Error("Missing EVM signer");
   }
 
-  await evmWallet.switchNetwork();
+  await evmWallet.switchNetwork(evmChain.chainId);
 
   const redeemResponse = await redeemOnEth(
     interactionId,

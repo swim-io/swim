@@ -42,6 +42,7 @@ import { ConfirmModal } from "./ConfirmModal";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
+import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { StepsDisplay } from "./StepsDisplay";
 import { SwapFormSolanaConnectButton } from "./molecules/SwapFormSolanaConnectButton";
 import { TokenAmountInput } from "./molecules/TokenAmountInput";
@@ -362,6 +363,7 @@ export const SwapForm = ({
           <EuiSpacer />
         </>
       )}
+      <SolanaTpsWarning />
 
       <PoolPausedAlert isVisible={isRequiredPoolPaused} />
 

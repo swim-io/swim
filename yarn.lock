@@ -5555,6 +5555,7 @@ __metadata:
     bn.js: ^5.2.0
     constate: ^3.3.0
     decimal.js: ^10.3.1
+    dexie: ^3.2.2
     eslint: ^8.14.0
     eslint-config-prettier: ^8.3.0
     eslint-config-react-app: ^7.0.1
@@ -10880,6 +10881,13 @@ __metadata:
     detect: ./bin/detect-port
     detect-port: ./bin/detect-port
   checksum: 93c40febe714f56711d1fedc2b7a9cc4cbaa0fcddec0509876c46b9dd6099ed6bfd6662a4f35e5fa0301660f48ed516829253ab0fc90b9e79b823dd77786b379
+  languageName: node
+  linkType: hard
+
+"dexie@npm:^3.2.2":
+  version: 3.2.2
+  resolution: "dexie@npm:3.2.2"
+  checksum: 7a21079f7ab139ebd724a009917f9293f2b01c341e2a3cd51d2455dda4d4e78b9ca7de0373e963108395cf1921ce7f6556cac967c1e957005a3c7c11794ceccf
   languageName: node
   linkType: hard
 

@@ -41,7 +41,7 @@ jobs:
       - name: Check format
         run: yarn format:check
       - name: Build Storybook
-        run: yarn build-storybook
+        run: yarn build-storybook --quiet
       - name: Publish Storybook
         uses: cloudflare/wrangler-action@2.0.0
         with:

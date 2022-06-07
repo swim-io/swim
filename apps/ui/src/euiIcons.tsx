@@ -25,6 +25,8 @@ import { icon as EuiIconCross } from "@elastic/eui/es/components/icon/assets/cro
 // @ts-expect-error no definitions
 import { icon as EuiIconCrossInACircleFilled } from "@elastic/eui/es/components/icon/assets/crossInACircleFilled";
 // @ts-expect-error no definitions
+import { icon as EuiIconDocumentEdit } from "@elastic/eui/es/components/icon/assets/documentEdit";
+// @ts-expect-error no definitions
 import { icon as EuiIconGear } from "@elastic/eui/es/components/icon/assets/gear";
 // @ts-expect-error no definitions
 import { icon as EuiIconHome } from "@elastic/eui/es/components/icon/assets/home";
@@ -47,6 +49,8 @@ import { icon as EuiIconReturnKey } from "@elastic/eui/es/components/icon/assets
 // @ts-expect-error no definitions
 import { icon as EuiIconVector } from "@elastic/eui/es/components/icon/assets/vector";
 // @ts-expect-error no definitions
+import { icon as EuiIconVisGauge } from "@elastic/eui/es/components/icon/assets/vis_gauge";
+// @ts-expect-error no definitions
 import { appendIconComponentCache } from "@elastic/eui/es/components/icon/icon";
 
 // Preload specific icons to stop LoadChunkError("Cant find icon")
@@ -63,6 +67,7 @@ export const _ = appendIconComponentCache({
   clock: EuiIconClock,
   cross: EuiIconCross,
   crossInACircleFilled: EuiIconCrossInACircleFilled,
+  documentEdit: EuiIconDocumentEdit,
   gear: EuiIconGear,
   home: EuiIconHome,
   indexPatternApp: EuiIconAppIndexPattern,
@@ -75,4 +80,5 @@ export const _ = appendIconComponentCache({
   refresh: EuiIconRefresh,
   returnKey: EuiIconReturnKey,
   vector: EuiIconVector,
+  visGauge: EuiIconVisGauge,
 });

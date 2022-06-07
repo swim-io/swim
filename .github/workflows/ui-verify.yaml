@@ -76,6 +76,6 @@ jobs:
         if: ${{ github.event_name == 'pull_request' && steps.find-storybook-comment.outputs.comment-id != '' }}
         uses: peter-evans/create-or-update-comment@v2
         with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
+          comment-id: ${{ steps.find-storybook-comment.outputs.comment-id }}
           body: |
             ${{ steps.publish_storybook.outputs.storybook-deployment }}

@@ -40,6 +40,13 @@ jobs:
         run: yarn test --watchAll=false
       - name: Check format
         run: yarn format:check
+      - name: "Create .env file for storybook"
+        run: |
+          touch .env
+          echo REACT_APP_BSC_MAINNET_RPC_URL=$REACT_APP_BSC_MAINNET_RPC_URL >> .env
+          echo REACT_APP_MORALIS_MAINNET_URL=$REACT_APP_MORALIS_MAINNET_URL >> .env
+          echo REACT_APP_SOLANA_MAINNET_RPC_URL=$REACT_APP_SOLANA_MAINNET_RPC_URL >> .env
+          cat .env
       - name: Build Storybook
         run: yarn build-storybook --quiet
       - name: Publish Storybook

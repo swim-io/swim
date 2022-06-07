@@ -24,7 +24,7 @@ import {
   Amount,
   evmAddressToWormhole,
   findTokenAccountForMint,
-  isFromSolanaTransfersCompleted,
+  isFromSolanaTransferCompleted,
   parseSequenceFromLogSolana,
   redeemOnEth,
   transferFromSolana,
@@ -56,7 +56,7 @@ export const useFromSolanaTransferMutation = () => {
     await Promise.all(
       fromSolanaTransfers.map(async (transfer) => {
         // Transfer already completed, skip
-        if (isFromSolanaTransfersCompleted([transfer])) {
+        if (isFromSolanaTransferCompleted(transfer)) {
           return;
         }
         const { token, value } = transfer;

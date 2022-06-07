@@ -23,16 +23,9 @@ export const useInteractionMutation = () => {
 
   return useMutation(
     async (interactionId: string) => {
-      // Prepare spl token accounts
       await prepareSplTokenAccountMutateAsync(interactionId);
-
-      // Process to solana transfer
       await toSolanaTransferMutateAsync(interactionId);
-
-      // Process solana pool operation
       await solanaPoolOperationsMutateAsync(interactionId);
-
-      // Process from solana transfer
       await fromSolanaTransferMutateAsync(interactionId);
     },
     {

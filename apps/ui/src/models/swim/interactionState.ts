@@ -62,18 +62,24 @@ export const isRequiredSplTokenAccountsCompleted = (
     (state) => state.isExistingAccount || isNotNull(state.txId),
   );
 
+export const isToSolanaTransferCompleted = (transfer: ToSolanaTransferState) =>
+  isNotNull(transfer.txIds.claimTokenOnSolana);
+
 export const isToSolanaTransfersCompleted = (
   transfers: readonly ToSolanaTransferState[],
-) =>
-  transfers.every((transfer) => isNotNull(transfer.txIds.claimTokenOnSolana));
+) => transfers.every(isToSolanaTransferCompleted);
 
 export const isSolanaPoolOperationsCompleted = (
   operations: readonly SolanaPoolOperationState[],
 ) => operations.every((operation) => isNotNull(operation.txId));
 
+export const isFromSolanaTransferCompleted = (
+  transfer: FromSolanaTransferState,
+) => isNotNull(transfer.txIds.claimTokenOnEvm);
+
 export const isFromSolanaTransfersCompleted = (
   transfers: readonly FromSolanaTransferState[],
-) => transfers.every((transfer) => isNotNull(transfer.txIds.claimTokenOnEvm));
+) => transfers.every(isFromSolanaTransferCompleted);
 
 export const isInteractionCompleted = ({
   requiredSplTokenAccounts,

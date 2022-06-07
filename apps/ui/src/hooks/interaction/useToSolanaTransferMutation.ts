@@ -22,7 +22,7 @@ import type { EvmConnection, EvmTx } from "../../models";
 import {
   Amount,
   generateUnlockSplTokenTxIds,
-  isToSolanaTransfersCompleted,
+  isToSolanaTransferCompleted,
   lockEvmToken,
 } from "../../models";
 import { findOrThrow } from "../../utils";
@@ -70,7 +70,7 @@ export const useToSolanaTransferMutation = () => {
         const fromEcosystem = token.nativeEcosystem;
 
         // Transfer completed, skip
-        if (isToSolanaTransfersCompleted([transfer])) {
+        if (isToSolanaTransferCompleted(transfer)) {
           return;
         }
         if (!solanaWallet) {
@@ -115,8 +115,8 @@ export const useToSolanaTransferMutation = () => {
             existingTxs: [],
           });
 
-          const approvalTxs = await Promise.all(
-            approvalResponses.map((txResponse) =>
+          const [transferTx, ...approvalTxs] = await Promise.all(
+            [transferResponse, ...approvalResponses].map((txResponse) =>
               txResponseToTx(
                 interactionId,
                 fromEcosystem,
@@ -124,12 +124,6 @@ export const useToSolanaTransferMutation = () => {
                 txResponse,
               ),
             ),
-          );
-          const transferTx = await txResponseToTx(
-            interactionId,
-            fromEcosystem,
-            evmConnection,
-            transferResponse,
           );
 
           // Update transfer state with txId

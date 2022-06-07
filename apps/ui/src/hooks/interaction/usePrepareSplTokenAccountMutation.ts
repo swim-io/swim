@@ -26,28 +26,31 @@ export const usePrepareSplTokenAccountMutation = () => {
       interactionId,
     );
     const { interaction, requiredSplTokenAccounts } = interactionState;
-    for (const mint in requiredSplTokenAccounts) {
-      const accountState = requiredSplTokenAccounts[mint];
-      // Account exist, skip creation step
-      if (accountState.account !== null) {
-        continue;
-      }
-      const creationTxId = await createSplTokenAccount(
-        solanaConnection,
-        wallet,
-        mint,
-      );
-      await solanaConnection.confirmTx(creationTxId);
-      const account = await solanaConnection.getTokenAccountWithRetry(
-        mint,
-        solanaAddress,
-      );
+    await Promise.all(
+      Object.entries(requiredSplTokenAccounts).map(
+        async ([mint, accountState]) => {
+          // Account exist, skip creation step
+          if (accountState.account !== null) {
+            return;
+          }
+          const creationTxId = await createSplTokenAccount(
+            solanaConnection,
+            wallet,
+            mint,
+          );
+          await solanaConnection.confirmTx(creationTxId);
+          const account = await solanaConnection.getTokenAccountWithRetry(
+            mint,
+            solanaAddress,
+          );
 
-      // Update interactionState
-      updateInteractionState(interaction.id, (draft) => {
-        draft.requiredSplTokenAccounts[mint].account = account;
-        draft.requiredSplTokenAccounts[mint].txId = creationTxId;
-      });
-    }
+          // Update interactionState
+          updateInteractionState(interaction.id, (draft) => {
+            draft.requiredSplTokenAccounts[mint].account = account;
+            draft.requiredSplTokenAccounts[mint].txId = creationTxId;
+          });
+        },
+      ),
+    );
   });
 };

@@ -77,5 +77,6 @@ jobs:
         uses: peter-evans/create-or-update-comment@v2
         with:
           comment-id: ${{ steps.find-storybook-comment.outputs.comment-id }}
+          edit-mode: replace
           body: |
             ${{ steps.publish_storybook.outputs.storybook-deployment }}

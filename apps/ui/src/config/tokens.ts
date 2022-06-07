@@ -911,21 +911,21 @@ const devnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "GNZg1XdctYfRS4HEnhyeaYrJJTrrY2yhtZAvp1SxdEHU",
+          address: "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr",
           decimals: 8,
         },
       ],
       [
         EcosystemId.Ethereum,
         {
-          address: "0xb2f01d78cc3D08CCbE2Fa335c75aeaF16612f8E2",
+          address: "0x4DF39C514Eb1747bb4D89cA9Ee35718611590935",
           decimals: 8,
         },
       ],
       [
         EcosystemId.Bsc,
         {
-          address: "0x3EC401f8E1B75bEb1994Db31d48dA5bEb1124Baa",
+          address: "0x84252522366DB2eA1dAaDe5E2C55CD90a50aC46e",
           decimals: 8,
         },
       ],
@@ -976,7 +976,7 @@ const devnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "7xt1Qrs78dLumZdpxgeQ4TmRzSS9WWpYdGugzcB2pgb3",
+          address: "DU15RXzuPWTLC4tbAcQvtXbDkHFrY8u6CxgTdhz2Mt8c",
           decimals: 8,
         },
       ],
@@ -993,7 +993,7 @@ const devnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "CSJz1NkebFj4pjYps9fDaS8KpvQ1SVWhhRNFMYnkrqDP",
+          address: "D6PuZckpEcBhVcpfgjgbWnARhFD3ApHhvnxBGWR6MW5Z",
           decimals: 8,
         },
       ],
@@ -1010,7 +1010,7 @@ const devnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "9SexMyV5iREyyzLktd4iHtQMug5fXv4baDkgNvy95d45",
+          address: "6WBFbyA3XJ3T2BeqA9JbyZFfj3KTCRtnC8MJANBsVNrz",
           decimals: 8,
         },
       ],
@@ -1027,7 +1027,7 @@ const devnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "EiqbvyTkdcruHrjDy9RtyXpvRfRDmN7Mtutv7J4uWG46",
+          address: "HH3RwS94BWhR4bKeNYGvr2CfSLRQ2Kq6EYSDTKgGLgET",
           decimals: 8,
         },
       ],

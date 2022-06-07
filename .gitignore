@@ -36,3 +36,6 @@ yarn-error.log*
 
 # Solana
 test-ledger/
+
+# Storybook output directory
+storybook-static

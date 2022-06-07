@@ -1,151 +1,156 @@
 import {
   EuiButtonEmpty,
+  EuiButtonIcon,
   EuiFlexGrid,
   EuiFlexItem,
   EuiIcon,
   EuiModalBody,
   EuiModalHeader,
   EuiModalHeaderTitle,
+  EuiPopover,
   EuiSpacer,
   EuiTitle,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
-import { Fragment } from "react";
-import shallow from "zustand/shallow.js";
+import { useState } from "react";
 
 import {
-  ECOSYSTEM_IDS,
-  EcosystemId,
+  Protocol,
+  ecosystems,
+  getEcosystemsForProtocol,
   isEcosystemEnabled,
-  isEvmEcosystemId,
+  protocolNames,
 } from "../config";
-import { selectConfig } from "../core/selectors";
-import { useEnvironment } from "../core/store";
-import { useWallets } from "../hooks";
-import ACALA_SVG from "../images/ecosystems/acala.svg";
-import AURORA_SVG from "../images/ecosystems/aurora.svg";
-import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
-import BSC_SVG from "../images/ecosystems/bsc.svg";
-import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
-import FANTOM_SVG from "../images/ecosystems/fantom.svg";
-import KARURA_SVG from "../images/ecosystems/karura.svg";
-import POLYGON_SVG from "../images/ecosystems/polygon.svg";
+import { useWalletService, useWallets } from "../hooks";
+import EVM_SVG from "../images/ecosystems/ethereum-color.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import { WALLET_SERVICES } from "../models";
-import type { WalletService } from "../models";
-import type { ReadonlyRecord } from "../utils";
-import { isNotNull, isUserOnMobileDevice, shortenAddress } from "../utils";
+import {
+  filterMap,
+  findOrThrow,
+  groupBy,
+  isUserOnMobileDevice,
+  shortenAddress,
+} from "../utils";
 
 import { CustomModal } from "./CustomModal";
 import { MobileDeviceDisclaimer } from "./MobileDeviceDisclaimer";
+import { PlainConnectButton } from "./PlainConnectButton";
 
-import "./ConnectButton.scss";
+import "./MultiWalletModal.scss";
 
-const ICONS: ReadonlyRecord<EcosystemId, string> = {
-  [EcosystemId.Solana]: SOLANA_SVG,
-  [EcosystemId.Ethereum]: ETHEREUM_SVG,
-  [EcosystemId.Terra]: "",
-  [EcosystemId.Bsc]: BSC_SVG,
-  [EcosystemId.Avalanche]: AVALANCHE_SVG,
-  [EcosystemId.Polygon]: POLYGON_SVG,
-  [EcosystemId.Aurora]: AURORA_SVG,
-  [EcosystemId.Fantom]: FANTOM_SVG,
-  [EcosystemId.Karura]: KARURA_SVG,
-  [EcosystemId.Acala]: ACALA_SVG,
-};
-
-interface WalletServiceButtonProps<W extends WalletService = WalletService> {
-  readonly service: W;
-  readonly onClick: () => void;
-  readonly disconnect: () => void;
-  readonly serviceConnected: boolean;
-  readonly address: string | null;
-}
-
-const WalletServiceButton = <W extends WalletService = WalletService>({
-  service,
-  disconnect,
-  onClick,
-  serviceConnected,
-  address,
-}: WalletServiceButtonProps<W>): ReactElement => {
-  const {
-    info: { icon, name, helpText },
-  } = service;
-  return (
-    <span className="eui-textNoWrap">
-      <EuiButtonEmpty
-        className={`connect-button ${
-          serviceConnected ? "connected connected-service" : ""
-        }`}
-        onClick={serviceConnected ? disconnect : onClick}
-        color={serviceConnected ? "success" : "primary"}
-        iconType={icon}
-      >
-        <span>
-          {serviceConnected && address ? shortenAddress(address) : name}
-        </span>
-        {helpText && <>{helpText}</>}
-        <EuiIcon className="exit-icon" type="crossInACircleFilled" size="m" />
-      </EuiButtonEmpty>
-    </span>
-  );
-};
-
-interface EcosystemWalletOptionsListProps<
-  W extends WalletService = WalletService,
-> {
-  readonly address: string | null;
-  readonly connected: boolean;
+interface ProtocolWalletOptionsListProps {
   readonly icon: string;
-  readonly ecosystemName: string;
-  readonly walletServices: readonly W[];
-  readonly ecosystemId: EcosystemId;
-  readonly createServiceClickHandler: (service: W) => () => void;
+  readonly protocol: Protocol;
 }
 
-const EcosystemWalletOptionsList = <W extends WalletService = WalletService>({
-  address,
+const ProtocolWalletOptionsList = ({
   icon,
-  connected,
-  ecosystemName,
-  walletServices,
-  ecosystemId,
-  createServiceClickHandler,
-}: EcosystemWalletOptionsListProps<W>): ReactElement => {
-  // needed for wallet extraction to work
-  if (ecosystemId === EcosystemId.Terra) {
-    throw new Error("Unsupported ecosystem");
-  }
+  protocol,
+}: ProtocolWalletOptionsListProps): ReactElement => {
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const wallets = useWallets();
-  const { wallet, service: currentService } = wallets[ecosystemId];
+  const { connectService, disconnectService } = useWalletService();
+  const ecosystemIds = getEcosystemsForProtocol(protocol);
+  const protocolWalletServices = ecosystemIds.flatMap(
+    (ecosystemId) => WALLET_SERVICES[ecosystemId],
+  );
+  const protocolWalletServicesByServiceId = groupBy(
+    protocolWalletServices,
+    (protocolWalletService) => protocolWalletService.id,
+  );
+  const protocolWallets = ecosystemIds.map(
+    (ecosystemId) => wallets[ecosystemId],
+  );
+
+  const connectedWallets = protocolWallets.filter((wallet) => wallet.connected);
 
   const disconnect = (): void => {
-    void wallet?.disconnect();
+    void disconnectService(protocol);
   };
 
+  const connect = (serviceId: string) => {
+    void connectService(serviceId, protocol);
+
+    protocolWalletServicesByServiceId[serviceId].forEach((walletService) => {
+      const ecosystemId = walletService.info.ecosystem.id;
+      const wallet = wallets[ecosystemId];
+
+      if (wallet.setServiceId) {
+        wallet.setServiceId(serviceId);
+      }
+    });
+  };
+
+  const handleButtonClick = () => setIsPopoverOpen((prev: boolean) => !prev);
+  const handlePopoverClose = () => setIsPopoverOpen(false);
+
+  const infoButton = (
+    <EuiButtonIcon
+      onClick={handleButtonClick}
+      iconType="questionInCircle"
+      aria-label={`See the supported chains of the ${protocolNames[protocol]} protocol`}
+      style={{ marginLeft: 10 }}
+    />
+  );
+
+  const popover = (
+    <EuiPopover
+      button={infoButton}
+      isOpen={isPopoverOpen}
+      closePopover={handlePopoverClose}
+    >
+      {ecosystemIds.length > 1 && (
+        <ul className="protocolWalletOptionsList__ecosystems">
+          {filterMap(
+            isEcosystemEnabled,
+            (ecosystemId) => (
+              <li key={ecosystemId}>
+                <EuiIcon type={ecosystems[ecosystemId].logo} size="m" />
+                {ecosystems[ecosystemId].displayName}
+              </li>
+            ),
+            ecosystemIds,
+          )}
+        </ul>
+      )}
+    </EuiPopover>
+  );
+
   return (
-    <EuiFlexItem style={{ minWidth: "180px" }}>
+    <EuiFlexItem className="protocolWalletOptionsList">
       <EuiTitle size="xs">
         <h2 style={{ whiteSpace: "nowrap" }}>
           <EuiIcon type={icon} size="l" style={{ marginRight: "8px" }} />
-          {ecosystemName}
+          {protocolNames[protocol]}
+          {ecosystemIds.length > 1 ? <span>{popover}</span> : null}
         </h2>
       </EuiTitle>
       <EuiSpacer size="s" />
-      {walletServices.map((service) => {
+      {Object.keys(protocolWalletServicesByServiceId).map((serviceId) => {
+        const service = findOrThrow(
+          protocolWalletServices,
+          (walletService) => walletService.id === serviceId,
+        );
+
+        const connectedWallet =
+          connectedWallets.find((wallet) => wallet.service?.id === serviceId) ??
+          null;
+
         return (
-          <Fragment key={`${ecosystemName}:${service.info.name}`}>
-            <WalletServiceButton
-              service={service}
-              serviceConnected={
-                connected && currentService?.info.name === service.info.name
-              }
-              address={address}
-              disconnect={disconnect}
-              onClick={createServiceClickHandler(service)}
-            />
-          </Fragment>
+          <PlainConnectButton
+            key={`${protocol}:${serviceId}`}
+            onClick={connectedWallet ? disconnect : () => connect(service.id)}
+            color={connectedWallet ? "success" : "primary"}
+            iconType={service.info.icon}
+            ButtonComponent={EuiButtonEmpty}
+            connected={!!connectedWallet}
+            helpText={service.info.helpText}
+          >
+            {connectedWallet && connectedWallet.address
+              ? shortenAddress(connectedWallet.address)
+              : service.info.name}
+          </PlainConnectButton>
         );
       })}
     </EuiFlexItem>
@@ -159,9 +164,6 @@ export interface MultiWalletModalProps {
 export const MultiWalletModal = ({
   handleClose,
 }: MultiWalletModalProps): ReactElement => {
-  const wallets = useWallets();
-  const { ecosystems } = useEnvironment(selectConfig, shallow);
-
   return (
     <CustomModal onClose={handleClose}>
       <EuiModalHeader>
@@ -173,26 +175,12 @@ export const MultiWalletModal = ({
       <EuiModalBody>
         {isUserOnMobileDevice() ? <MobileDeviceDisclaimer /> : ""}
         <EuiSpacer />
-        <EuiFlexGrid columns={3} gutterSize="xl">
-          {ECOSYSTEM_IDS.filter(isEcosystemEnabled)
-            .map((ecosystemId) =>
-              ecosystemId === EcosystemId.Solana ||
-              isEvmEcosystemId(ecosystemId) ? (
-                <EcosystemWalletOptionsList
-                  key={ecosystemId}
-                  ecosystemId={ecosystemId}
-                  ecosystemName={ecosystems[ecosystemId].displayName}
-                  address={wallets[ecosystemId].address}
-                  connected={wallets[ecosystemId].connected}
-                  icon={ICONS[ecosystemId]}
-                  walletServices={WALLET_SERVICES[ecosystemId]}
-                  createServiceClickHandler={
-                    wallets[ecosystemId].createServiceClickHandler
-                  }
-                />
-              ) : null,
-            )
-            .filter(isNotNull)}
+        <EuiFlexGrid columns={2} gutterSize="xl">
+          <ProtocolWalletOptionsList
+            icon={SOLANA_SVG}
+            protocol={Protocol.Solana}
+          />
+          <ProtocolWalletOptionsList icon={EVM_SVG} protocol={Protocol.Evm} />
         </EuiFlexGrid>
       </EuiModalBody>
     </CustomModal>

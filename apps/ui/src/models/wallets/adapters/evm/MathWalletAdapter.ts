@@ -8,12 +8,7 @@ const getMathWalletService = (): ethers.providers.Web3Provider | null =>
     : null;
 
 export class MathWalletAdapter extends EvmWeb3WalletAdapter {
-  constructor(chainId: number) {
-    super(
-      chainId,
-      "MathWallet",
-      "https://mathwallet.org",
-      getMathWalletService,
-    );
+  constructor() {
+    super("MathWallet", "https://mathwallet.org", getMathWalletService);
   }
 }

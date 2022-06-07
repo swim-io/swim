@@ -8,8 +8,8 @@ const getMetaMaskService = (): ethers.providers.Web3Provider | null =>
     : null;
 
 export class MetaMaskAdapter extends EvmWeb3WalletAdapter {
-  constructor(chainId: number) {
-    super(chainId, "MetaMask", "https://metamask.io", getMetaMaskService);
+  constructor() {
+    super("MetaMask", "https://metamask.io", getMetaMaskService);
   }
 
   async connect(): Promise<void> {

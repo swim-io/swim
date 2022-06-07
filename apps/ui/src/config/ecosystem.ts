@@ -53,6 +53,8 @@ export enum EcosystemId {
   Acala = "acala",
 }
 
+export const ECOSYSTEM_IDS = Object.values(EcosystemId);
+
 export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean => {
   switch (ecosystemId) {
     case EcosystemId.Solana:

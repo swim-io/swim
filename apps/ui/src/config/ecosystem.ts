@@ -53,6 +53,27 @@ export const enum EcosystemId {
   Acala = "acala",
 }
 
+export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean => {
+  switch (ecosystemId) {
+    case EcosystemId.Solana:
+    case EcosystemId.Ethereum:
+    case EcosystemId.Bsc:
+    case EcosystemId.Avalanche:
+    case EcosystemId.Polygon:
+      return true;
+    case EcosystemId.Aurora:
+      return !!process.env.REACT_APP_ENABLE_AURORA;
+    case EcosystemId.Fantom:
+      return !!process.env.REACT_APP_ENABLE_FANTOM;
+    case EcosystemId.Karura:
+      return !!process.env.REACT_APP_ENABLE_KARURA;
+    case EcosystemId.Acala:
+      return !!process.env.REACT_APP_ENABLE_ACALA;
+    default:
+      return false;
+  }
+};
+
 export type SolanaEcosystemId = Extract<EcosystemId, EcosystemId.Solana>;
 
 export type EvmEcosystemId = Extract<

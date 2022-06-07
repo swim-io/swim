@@ -40,3 +40,43 @@ jobs:
         run: yarn test --watchAll=false
       - name: Check format
         run: yarn format:check
+      - name: "Create .env file for storybook"
+        run: |
+          touch .env
+          echo REACT_APP_BSC_MAINNET_RPC_URL=$REACT_APP_BSC_MAINNET_RPC_URL >> .env
+          echo REACT_APP_MORALIS_MAINNET_URL=$REACT_APP_MORALIS_MAINNET_URL >> .env
+          echo REACT_APP_SOLANA_MAINNET_RPC_URL=$REACT_APP_SOLANA_MAINNET_RPC_URL >> .env
+          cat .env
+      - name: Build Storybook
+        run: yarn build-storybook --quiet
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - name: Publish Storybook
+        id: publish_storybook
+        run: |
+          CLOUDFLARE_API_TOKEN=${{ secrets.CF_SWIM_PAGES_API_TOKEN }} CLOUDFLARE_ACCOUNT_ID=${{ secrets.CF_ACCOUNT_ID }} npx --yes wrangler@2 pages publish storybook-static --project-name=ui-storybook --branch=${{ github.head_ref || github.ref_name }} > wrangler-output.txt
+          echo "::set-output name=storybook-deployment::$(cat wrangler-output.txt | grep Deployment)"
+      - name: Find storybook comment
+        uses: peter-evans/find-comment@v2
+        if: ${{ github.event_name == 'pull_request' }}
+        id: find-storybook-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: "github-actions[bot]"
+          body-includes: ui-storybook.pages.dev
+      - name: Create storybook comment
+        if: ${{ github.event_name == 'pull_request' && steps.find-storybook-comment.outputs.comment-id == '' }}
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ${{ steps.publish_storybook.outputs.storybook-deployment }}
+      - name: Update storybook comment
+        if: ${{ github.event_name == 'pull_request' && steps.find-storybook-comment.outputs.comment-id != '' }}
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          comment-id: ${{ steps.find-storybook-comment.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            ${{ steps.publish_storybook.outputs.storybook-deployment }}

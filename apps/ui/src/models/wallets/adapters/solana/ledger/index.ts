@@ -3,6 +3,7 @@ import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import type { PublicKey, Transaction } from "@solana/web3.js";
 import EventEmitter from "eventemitter3";
 
+import { Protocol } from "../../../../../config";
 import type { SolanaWalletAdapter } from "../SolanaWalletAdapter";
 
 import { getPublicKey, signTransaction } from "./core";
@@ -14,16 +15,26 @@ export class LedgerWalletAdapter
   _connecting: boolean;
   _publicKey: PublicKey | null;
   _transport: Transport | null;
+  readonly protocol: Protocol.Solana;
 
   constructor() {
     super();
     this._connecting = false;
     this._publicKey = null;
     this._transport = null;
+    this.protocol = Protocol.Solana;
   }
 
   get publicKey(): PublicKey | null {
     return this._publicKey;
+  }
+
+  public get address(): string | null {
+    return this._publicKey?.toBase58() || null;
+  }
+
+  public get connected(): boolean {
+    return !!this.address;
   }
 
   async signTransaction(transaction: Transaction): Promise<Transaction> {

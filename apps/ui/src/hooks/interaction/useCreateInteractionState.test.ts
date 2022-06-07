@@ -21,7 +21,6 @@ import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useCreateInteractionState } from "./useCreateInteractionState";
 
-// eslint-disable-next-line functional/immutable-data
 Object.defineProperty(global.self, "crypto", {
   value: {
     getRandomValues: (arr: string | readonly any[]) =>

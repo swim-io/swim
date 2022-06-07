@@ -103,7 +103,10 @@
       }
     },
     {
-      "files": ["src/**/*.stories.@(js|jsx|ts|tsx)"],
+      "files": [
+        "src/**/*.stories.@(js|jsx|ts|tsx)",
+        "src/**/*.test.@(js|jsx|ts|tsx)"
+      ],
       "rules": {
         "functional/immutable-data": "off",
         "import/no-anonymous-default-export": "off"

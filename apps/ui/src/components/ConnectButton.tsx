@@ -80,6 +80,10 @@ export const MultiConnectButton = ({
     bsc: { connected: isBscConnected, service: bscService },
     avalanche: { connected: isAvalancheConnected, service: avalanceService },
     polygon: { connected: isPolygonConnected, service: polygonService },
+    aurora: { connected: isAuroraConnected, service: auroraService },
+    fantom: { connected: isFantomConnected, service: fantomService },
+    karura: { connected: isKaruraConnected, service: karuraService },
+    acala: { connected: isAcalaConnected, service: acalaService },
   } = useWallets();
   const connectedServices = [
     isSolanaConnected ? solanaService : null,
@@ -87,6 +91,10 @@ export const MultiConnectButton = ({
     isBscConnected ? bscService : null,
     isAvalancheConnected ? avalanceService : null,
     isPolygonConnected ? polygonService : null,
+    isAuroraConnected ? auroraService : null,
+    isFantomConnected ? fantomService : null,
+    isKaruraConnected ? karuraService : null,
+    isAcalaConnected ? acalaService : null,
   ].filter(isNotNull);
 
   const uniqueServices = deduplicate<string, WalletService>(

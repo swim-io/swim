@@ -2,7 +2,7 @@
 import * as Sentry from "@sentry/react";
 import type { Draft } from "immer";
 import { castDraft, produce } from "immer";
-import type { GetState, SetState } from "zustand";
+import type { SetState } from "zustand";
 import create from "zustand";
 
 import type { Interaction, InteractionState } from "../../models";
@@ -27,7 +27,7 @@ export interface InteractionStore {
 }
 
 export const useInteractionState = create(
-  (set: SetState<InteractionStore>, get: GetState<InteractionStore>) => ({
+  (set: SetState<InteractionStore>) => ({
     errorMap: {},
     interactionStates: [],
     recentInteractionId: null,

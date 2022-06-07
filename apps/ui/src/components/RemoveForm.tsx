@@ -235,7 +235,6 @@ export const RemoveForm = ({
     // If they auto-updated (e.g. on balance change), they could change right before
     // the user clicks submit, rendering their max slippage setting useless.
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [method, burnPercentage, lpTokenSourceEcosystem, outputToken],
   );
 

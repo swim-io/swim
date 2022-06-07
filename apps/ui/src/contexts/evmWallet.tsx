@@ -191,7 +191,7 @@ export const EvmWalletProvider = ({
     const previousWallet = previousWalletRef.current;
     if (wallet) {
       if (wallet !== previousWallet) {
-        previousWallet?.disconnect().catch(console.error);
+        previousWallet?.disconnect();
         setConnected(false);
         // eslint-disable-next-line functional/immutable-data
         previousWalletRef.current = wallet;

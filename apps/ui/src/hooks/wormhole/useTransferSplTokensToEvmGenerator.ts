@@ -50,7 +50,7 @@ export const useTransferSplTokensToEvmGenerator = (): UseAsyncGeneratorResult<
       );
       const wormholeTransfers: readonly WormholeTransfer[] = await Promise.all(
         filteredTransfers.map(
-          async ({ interactionId, amount, toEcosystem, token }) => {
+          ({ interactionId, amount, toEcosystem, token }) => {
             const existingTxsForToken = existingTxs[token.id] ?? [];
             const solanaTokenDetails = getSolanaTokenDetails(token);
             const evmChain =

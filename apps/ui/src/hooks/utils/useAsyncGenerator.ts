@@ -74,7 +74,7 @@ export const useAsyncGenerator = <Params, Result>(
       setIsSuccess(true);
     } catch (err) {
       setIsLoading(false);
-      setError(err);
+      setError(err as Error);
     }
   };
 

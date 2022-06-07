@@ -23,7 +23,7 @@ describe("useInteraction", () => {
     renderHookWithAppContext(() => useQueryClient().clear());
   });
 
-  it("should return found interaction", async () => {
+  it("should return found interaction", () => {
     loadInteractionsMock.mockReturnValue(SWAP_INTERACTIONS);
     const { result } = renderHookWithAppContext(() =>
       useInteraction(ETH_USDC_TO_SOL_USDC_SWAP.id),
@@ -31,7 +31,7 @@ describe("useInteraction", () => {
     expect(result.current).toEqual(ETH_USDC_TO_SOL_USDC_SWAP);
   });
 
-  it("should throw if interaction not found", async () => {
+  it("should throw if interaction not found", () => {
     loadInteractionsMock.mockReturnValue(SWAP_INTERACTIONS);
     const { result } = renderHookWithAppContext(() =>
       useInteraction("INVALID_ID"),

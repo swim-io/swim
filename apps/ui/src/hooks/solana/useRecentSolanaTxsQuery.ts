@@ -100,10 +100,7 @@ export const useRecentSolanaTxsQuery = (): UseQueryResult<
 
       return Promise.all(
         txInfosAndInteractionIds.map(
-          async (
-            { signatureInfo: { blockTime, signature }, interactionId },
-            i,
-          ) => {
+          ({ signatureInfo: { blockTime, signature }, interactionId }, i) => {
             const parsedTx = parsedTxs[i];
             return {
               ecosystem: EcosystemId.Solana as const,

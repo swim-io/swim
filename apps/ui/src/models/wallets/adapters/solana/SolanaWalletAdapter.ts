@@ -15,7 +15,7 @@ export interface SolanaWalletAdapter extends EventEmitter {
     // eslint-disable-next-line functional/prefer-readonly-type
   ) => Promise<Transaction[]>;
   readonly connect: () => Promise<unknown>;
-  readonly disconnect: () => Promise<void>;
+  readonly disconnect: () => void;
 }
 
 export class SolanaWeb3WalletAdapter
@@ -35,7 +35,6 @@ export class SolanaWeb3WalletAdapter
     this.getService = getService;
     this.publicKey = null;
     this.connecting = false;
-
     this.on("connect", this.onPublicKeySet);
   }
 
@@ -57,7 +56,7 @@ export class SolanaWeb3WalletAdapter
     }
 
     try {
-      return this.service.signAllTransactions(transactions);
+      return await this.service.signAllTransactions(transactions);
     } catch (error) {
       throw new SolanaWalletError("", error);
     }
@@ -69,7 +68,7 @@ export class SolanaWeb3WalletAdapter
     }
 
     try {
-      return this.service.signTransaction(transaction);
+      return await this.service.signTransaction(transaction);
     } catch (error) {
       throw new SolanaWalletError("", error);
     }
@@ -115,7 +114,7 @@ export class SolanaWeb3WalletAdapter
     this.connecting = false;
   }
 
-  async disconnect(): Promise<void> {
+  disconnect(): void {
     if (this.publicKey) {
       this.publicKey = null;
       Sentry.configureScope((scope) => scope.setUser(null));

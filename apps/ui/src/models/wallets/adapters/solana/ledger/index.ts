@@ -62,8 +62,8 @@ export class LedgerWalletAdapter
       // @TODO: account selection
       this._publicKey = await getPublicKey(this._transport);
       this.emit("connect", this._publicKey);
-    } catch (error) {
-      this.emit("error", "Ledger error", error.message);
+    } catch (error: any) {
+      this.emit("error", "Ledger error", error?.message);
       await this.disconnect();
     } finally {
       this._connecting = false;

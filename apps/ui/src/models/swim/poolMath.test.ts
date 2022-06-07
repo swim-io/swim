@@ -160,7 +160,7 @@ describe("PoolMath tests", () => {
   });
 
   test("that proportional and imbalanced add/remove gives the same result as doing it all at once", () => {
-    for (const isAdd in [true, false]) {
+    for (const isAdd of [true, false]) {
       const balances = [100, 100, 100].map((b) => new Decimal(b));
       const ampFactor = new Decimal("1.313");
       const lpFee = new Decimal("0.10");
@@ -169,12 +169,13 @@ describe("PoolMath tests", () => {
 
       const pool = new PoolMath(balances, ampFactor, lpFee, governanceFee);
 
-      const func = isAdd ? pool.add : pool.removeExactOutput;
       const getLpAmount = (result: any): Decimal =>
         result[isAdd ? "lpOutputAmount" : "lpInputAmount"];
 
       const proportionalAmounts = balances.map((b) => b.div(fraction));
-      const proportionalResult = func.bind(pool)(proportionalAmounts);
+      const proportionalResult = isAdd
+        ? pool.add(proportionalAmounts)
+        : pool.removeExactOutput(proportionalAmounts);
       expect(proportionalResult.governanceMintAmount).toEqual(new Decimal(0));
 
       const balancesAfter = balances.map((b, i) =>
@@ -192,13 +193,17 @@ describe("PoolMath tests", () => {
       const imbalancedAmounts = balances.map((b, i) =>
         i === 0 ? balances[i].div(fraction * fraction) : new Decimal(0),
       );
-      const imbalancedResult = func.bind(poolAfter)(imbalancedAmounts);
+      const imbalancedResult = isAdd
+        ? poolAfter.add(imbalancedAmounts)
+        : poolAfter.removeExactOutput(imbalancedAmounts);
 
       const togetherAmounts = proportionalAmounts.map((b, i) =>
         b.plus(imbalancedAmounts[i]),
       );
 
-      const togetherResult = func.bind(pool)(togetherAmounts);
+      const togetherResult = isAdd
+        ? pool.add(togetherAmounts)
+        : pool.removeExactOutput(togetherAmounts);
 
       // console.log("          isAdd:", isAdd);
       // console.log("      lp in/out:", round(getLpAmount(togetherResult)));

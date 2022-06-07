@@ -601,7 +601,7 @@ describe("Swim steps", () => {
     );
 
     const signatureSetKeypairs = poolTokens.reduce(
-      (accumulator, token, i) => ({
+      (accumulator, token) => ({
         ...accumulator,
         [token.id]: Keypair.generate(),
       }),

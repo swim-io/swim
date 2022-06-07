@@ -27,7 +27,7 @@ export interface EvmWalletAdapter extends EventEmitter {
   readonly signer: Signer | null;
   readonly address: string | null;
   readonly connect: () => Promise<unknown>;
-  readonly disconnect: () => Promise<void>;
+  readonly disconnect: () => void;
   readonly switchNetwork: () => Promise<unknown>;
   readonly registerToken: (tokenSpec: TokenSpec) => Promise<unknown>;
 }
@@ -106,7 +106,7 @@ export class EvmWeb3WalletAdapter
         level: Sentry.Severity.Info,
       });
     } catch (error) {
-      await this.disconnect();
+      this.disconnect();
       // TODO: parse actual errors from this
       // Sentry.captureException(error);
       console.error(error);
@@ -114,7 +114,7 @@ export class EvmWeb3WalletAdapter
     this.connecting = false;
   }
 
-  async disconnect(): Promise<void> {
+  disconnect(): void {
     if (this.address) {
       this.address = null;
       this.emit("disconnect");

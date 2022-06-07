@@ -67,7 +67,7 @@ describe("useCreateInteractionState", () => {
     useWalletsMock.mockReturnValue(MOCK_WALLETS);
   });
 
-  it("should create state from ETHEREUM USDC to SOLANA USDC", async () => {
+  it("should create state from ETHEREUM USDC to SOLANA USDC", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionState(),
     );
@@ -103,7 +103,7 @@ describe("useCreateInteractionState", () => {
     expect(fromSolanaTransfers.length).toEqual(0);
   });
 
-  it("create state from SOLANA USDC to ETHEREUM USDC", async () => {
+  it("create state from SOLANA USDC to ETHEREUM USDC", () => {
     useSplTokenAccountsQueryMock.mockReturnValue({ data: [] });
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionState(),
@@ -140,7 +140,7 @@ describe("useCreateInteractionState", () => {
     expect(fromSolanaTransfers[0].value).toEqual(null);
   });
 
-  it("create state from BSC USDT to ETHEREUM USDC", async () => {
+  it("create state from BSC USDT to ETHEREUM USDC", () => {
     useSplTokenAccountsQueryMock.mockReturnValue({ data: [] });
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionState(),

@@ -21,7 +21,9 @@ const queryClient = new QueryClient({
       },
     },
     mutations: {
-      onError: async (err: unknown) => captureException(err),
+      onError: (err: unknown) => {
+        captureException(err);
+      },
     },
   },
 });

@@ -87,7 +87,7 @@ const getTransferFromTokens = (
           token.id === interaction.params.minimumOutputAmount.tokenId,
       );
     case InteractionType.RemoveExactOutput:
-      return tokens.filter((token, i) => {
+      return tokens.filter((token) => {
         const outputAmount =
           interaction.params.exactOutputAmounts.get(token.id) ?? null;
         return (

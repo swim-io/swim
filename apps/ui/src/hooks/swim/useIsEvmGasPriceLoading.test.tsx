@@ -21,7 +21,7 @@ describe("useAddFeesEstimationQuery", () => {
   });
 
   describe("loading", () => {
-    it("should return false for empty array", async () => {
+    it("should return false for empty array", () => {
       useGasPriceQueryMock.mockReturnValue({
         isLoading: true,
         data: undefined,
@@ -32,7 +32,7 @@ describe("useAddFeesEstimationQuery", () => {
       expect(result.current).toEqual(false);
     });
 
-    it("should return true if required evm gas price is loading", async () => {
+    it("should return true if required evm gas price is loading", () => {
       useGasPriceQueryMock.mockImplementation((ecosystemId: EcosystemId) =>
         ecosystemId === EcosystemId.Ethereum
           ? { isLoading: true, data: undefined }
@@ -46,7 +46,7 @@ describe("useAddFeesEstimationQuery", () => {
   });
 
   describe("loaded", () => {
-    it("should return false if required evm gas price is loaded", async () => {
+    it("should return false if required evm gas price is loaded", () => {
       useGasPriceQueryMock.mockImplementation((ecosystemId: EcosystemId) =>
         ecosystemId === EcosystemId.Ethereum
           ? { isLoading: false, data: new Decimal(5e-9) }
@@ -58,7 +58,7 @@ describe("useAddFeesEstimationQuery", () => {
       expect(result.current).toEqual(false);
     });
 
-    it("should return false if all evm gas price are loaded", async () => {
+    it("should return false if all evm gas price are loaded", () => {
       useGasPriceQueryMock.mockReturnValue({
         isLoading: false,
         data: new Decimal(5e-9),

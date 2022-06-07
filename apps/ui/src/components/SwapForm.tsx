@@ -188,7 +188,6 @@ export const SwapForm = ({
     if (fromTokenBalancePrimitive && !inputAmount.isZero()) {
       handleInputAmountChange(inputAmount);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromTokenBalancePrimitive]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
@@ -286,7 +285,7 @@ export const SwapForm = ({
     setConfirmModalDescription(null);
   };
 
-  const handleConfirmModalConfirm = async (): Promise<void> => {
+  const handleConfirmModalConfirm = (): void => {
     setConfirmModalDescription(null);
     handleSwapAndCatch(true);
   };

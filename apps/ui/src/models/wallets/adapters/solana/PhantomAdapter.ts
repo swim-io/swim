@@ -50,6 +50,6 @@ export class PhantomAdapter extends SolanaWeb3WalletAdapter {
     if (this.service) {
       await this.service.disconnect();
     }
-    await super.disconnect();
+    super.disconnect();
   }
 }

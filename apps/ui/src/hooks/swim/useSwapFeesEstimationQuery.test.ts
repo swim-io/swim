@@ -27,7 +27,7 @@ describe("useSwapFeesEstimationQuery", () => {
   });
 
   describe("loading", () => {
-    it("should return null when the required gas price is still loading", async () => {
+    it("should return null when the required gas price is still loading", () => {
       useGasPriceQueryMock.mockReturnValue({
         isLoading: true,
         data: undefined,
@@ -38,7 +38,7 @@ describe("useSwapFeesEstimationQuery", () => {
       expect(result.current).toEqual(null);
     });
 
-    it("should return fixed fee for Solana only swap, even when evm gas price is loading", async () => {
+    it("should return fixed fee for Solana only swap, even when evm gas price is loading", () => {
       useGasPriceQueryMock.mockReturnValue({
         isLoading: true,
         data: undefined,
@@ -61,7 +61,7 @@ describe("useSwapFeesEstimationQuery", () => {
       );
     });
 
-    it("should return fixed fee for Solana only swap", async () => {
+    it("should return fixed fee for Solana only swap", () => {
       const { result } = renderHookWithAppContext(() =>
         useSwapFeesEstimationQuery(SOLANA_USDC, SOLANA_USDT),
       );
@@ -70,7 +70,7 @@ describe("useSwapFeesEstimationQuery", () => {
       expect(result.current?.bsc).toEqual(new Decimal(0));
     });
 
-    it("should return fee for Solana => Ethereum", async () => {
+    it("should return fee for Solana => Ethereum", () => {
       const { result } = renderHookWithAppContext(() =>
         useSwapFeesEstimationQuery(SOLANA_USDC, ETHEREUM_USDT),
       );
@@ -79,7 +79,7 @@ describe("useSwapFeesEstimationQuery", () => {
       expect(result.current?.bsc).toEqual(new Decimal(0));
     });
 
-    it("should return fee for Solana => BSC", async () => {
+    it("should return fee for Solana => BSC", () => {
       const { result } = renderHookWithAppContext(() =>
         useSwapFeesEstimationQuery(SOLANA_USDC, BSC_BUSD),
       );
@@ -88,7 +88,7 @@ describe("useSwapFeesEstimationQuery", () => {
       expect(result.current?.bsc).toEqual(new Decimal(0.0015));
     });
 
-    it("should return fee for Ethereum => BSC", async () => {
+    it("should return fee for Ethereum => BSC", () => {
       const { result } = renderHookWithAppContext(() =>
         useSwapFeesEstimationQuery(ETHEREUM_USDT, BSC_BUSD),
       );

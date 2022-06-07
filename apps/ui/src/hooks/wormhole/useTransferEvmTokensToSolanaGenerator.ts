@@ -58,7 +58,7 @@ export const useTransferEvmTokensToSolanaGenerator =
         const wormholeTransfers: readonly WormholeTransferWithSignatureSet[] =
           await Promise.all(
             filteredTransfers.map(
-              async ({
+              ({
                 interactionId,
                 amount,
                 fromEcosystem,

@@ -42,7 +42,7 @@ export const useTxsForInteractionQuery = (
   ];
   return useQuery(
     [env, "txsForInteraction", interactionId],
-    async () =>
+    () =>
       requiredEcosystems.map((ecosystem) => txQueries[ecosystem].data).flat(),
     {
       enabled: requiredEcosystems.every(

@@ -247,7 +247,7 @@ export class SwimInitializer {
     });
   }
 
-  private async getFreshTransaction(): Promise<Transaction> {
+  private getFreshTransaction(): Transaction {
     return new Transaction({
       feePayer: this.signer.publicKey,
     });
@@ -303,7 +303,7 @@ export class SwimInitializer {
     });
     const initMintIx = this.createMintInitIx(lpTokenDecimals);
 
-    const tx = await this.getFreshTransaction();
+    const tx = this.getFreshTransaction();
     tx.add(createStateAccountIx, createLpTokenAccountIx, initMintIx);
     return this.signAndSendTransaction(tx, [stateKeypair, lpMintKeypair]);
   }
@@ -355,7 +355,7 @@ export class SwimInitializer {
       { instructions: [], keypairs: [] },
     );
 
-    const tx = await this.getFreshTransaction();
+    const tx = this.getFreshTransaction();
     tx.add(...instructions);
     return this.signAndSendTransaction(tx, keypairs);
   }
@@ -367,7 +367,7 @@ export class SwimInitializer {
   ): Promise<string> {
     const initPoolIx = this.createPoolInitIx(ampFactor, lpFee, governanceFee);
 
-    const tx = await this.getFreshTransaction();
+    const tx = this.getFreshTransaction();
     tx.add(initPoolIx);
     return this.signAndSendTransaction(tx);
   }

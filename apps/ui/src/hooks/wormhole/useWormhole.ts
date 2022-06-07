@@ -48,7 +48,7 @@ export interface WormholeState {
   readonly setToEcosystem: (ecosystem: EcosystemId) => void;
   readonly transferAmount: string;
   readonly setTransferAmount: (amount: string) => void;
-  readonly executeTransfer: () => Promise<void>;
+  readonly executeTransfer: () => void;
   readonly transferError: Error | null;
 }
 
@@ -104,7 +104,7 @@ export const useWormhole = (): WormholeState => {
       ? transferEthereumTokenToSolanaMutation
       : transferBscTokenToSolanaMutation;
 
-  const executeTransfer = async (): Promise<void> => {
+  const executeTransfer = (): void => {
     if (!solanaWallet) {
       throw new Error("No Solana wallet connected");
     }

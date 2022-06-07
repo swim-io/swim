@@ -33,7 +33,7 @@ describe("useRequiredPoolsForInteraction", () => {
     });
   });
 
-  it("should return hexapool for ETH USDC to SOL USDC Swap", async () => {
+  it("should return hexapool for ETH USDC to SOL USDC Swap", () => {
     useInteractionMock.mockReturnValue(ETH_USDC_TO_SOL_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
       useRequiredPoolsForInteraction(ETH_USDC_TO_SOL_USDC_SWAP.id),
@@ -41,7 +41,7 @@ describe("useRequiredPoolsForInteraction", () => {
     expect(result.current.map(({ id }) => id)).toEqual(["hexapool"]);
   });
 
-  it("should return hexapool for SOL USDC to ETH USDC Swap", async () => {
+  it("should return hexapool for SOL USDC to ETH USDC Swap", () => {
     useInteractionMock.mockReturnValue(SOL_USDC_TO_ETH_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
       useRequiredPoolsForInteraction(SOL_USDC_TO_ETH_USDC_SWAP.id),
@@ -49,7 +49,7 @@ describe("useRequiredPoolsForInteraction", () => {
     expect(result.current.map(({ id }) => id)).toEqual(["hexapool"]);
   });
 
-  it("should return hexapool for SOL USDC to SOL USDC Swap", async () => {
+  it("should return hexapool for SOL USDC to SOL USDC Swap", () => {
     useInteractionMock.mockReturnValue(SOL_USDC_TO_SOL_USDT_SWAP);
     const { result } = renderHookWithAppContext(() =>
       useRequiredPoolsForInteraction(SOL_USDC_TO_SOL_USDT_SWAP.id),
@@ -57,7 +57,7 @@ describe("useRequiredPoolsForInteraction", () => {
     expect(result.current.map(({ id }) => id)).toEqual(["hexapool"]);
   });
 
-  it("should return hexapool for BSC USDT to ETH USDC Swap", async () => {
+  it("should return hexapool for BSC USDT to ETH USDC Swap", () => {
     useInteractionMock.mockReturnValue(BSC_USDT_TO_ETH_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
       useRequiredPoolsForInteraction(BSC_USDT_TO_ETH_USDC_SWAP.id),

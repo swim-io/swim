@@ -14,20 +14,17 @@ import {
   EuiTextColor,
   EuiTitle,
 } from "@elastic/eui";
-import type { ReactElement } from "react";
+import type { ReactElement, VFC } from "react";
 import { useHistory } from "react-router";
 
 import { SwimIconType } from "../components/CustomIconType";
 import { GlassPanel } from "../components/GlassPanel";
 import { InvestorsList } from "../components/InvestorsList";
 import { Roadmap } from "../components/Roadmap";
+import type { Ecosystem } from "../config";
+import { EcosystemId, ecosystems } from "../config";
 import { useTitle } from "../hooks";
 import DIAGRAM from "../images/diagram.svg";
-import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
-import BSC_SVG from "../images/ecosystems/bsc.svg";
-import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
-import POLYGON_SVG from "../images/ecosystems/polygon.svg";
-import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import DISCORD_SVG from "../images/social/discord.svg";
 import TELEGRAM_SVG from "../images/social/telegram.svg";
 import TWITTER_SVG from "../images/social/twitter.svg";
@@ -36,6 +33,14 @@ import "./HomePage.scss";
 const HomePage = (): ReactElement => {
   useTitle("");
   const history = useHistory();
+  const promotedEcosystems = [
+    ecosystems[EcosystemId.Solana],
+    ecosystems[EcosystemId.Ethereum],
+    ecosystems[EcosystemId.Bsc],
+    ecosystems[EcosystemId.Avalanche],
+    ecosystems[EcosystemId.Polygon],
+  ];
+
   return (
     <EuiPage restrictWidth className="homepage">
       <EuiPageBody>
@@ -51,46 +56,9 @@ const HomePage = (): ReactElement => {
               wrap={false}
               responsive={false}
             >
-              <EuiFlexItem grow={false}>
-                <EuiShowFor sizes={["xs"]}>
-                  <EuiIcon type={SOLANA_SVG} size="l" />
-                </EuiShowFor>
-                <EuiHideFor sizes={["xs"]}>
-                  <EuiIcon type={SOLANA_SVG} size="xl" />
-                </EuiHideFor>
-              </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <EuiShowFor sizes={["xs"]}>
-                  <EuiIcon type={ETHEREUM_SVG} size="l" />
-                </EuiShowFor>
-                <EuiHideFor sizes={["xs"]}>
-                  <EuiIcon type={ETHEREUM_SVG} size="xl" />
-                </EuiHideFor>
-              </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <EuiShowFor sizes={["xs"]}>
-                  <EuiIcon type={BSC_SVG} size="l" />
-                </EuiShowFor>
-                <EuiHideFor sizes={["xs"]}>
-                  <EuiIcon type={BSC_SVG} size="xl" />
-                </EuiHideFor>
-              </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <EuiShowFor sizes={["xs"]}>
-                  <EuiIcon type={AVALANCHE_SVG} size="l" />
-                </EuiShowFor>
-                <EuiHideFor sizes={["xs"]}>
-                  <EuiIcon type={AVALANCHE_SVG} size="xl" />
-                </EuiHideFor>
-              </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <EuiShowFor sizes={["xs"]}>
-                  <EuiIcon type={POLYGON_SVG} size="l" />
-                </EuiShowFor>
-                <EuiHideFor sizes={["xs"]}>
-                  <EuiIcon type={POLYGON_SVG} size="xl" />
-                </EuiHideFor>
-              </EuiFlexItem>
+              {promotedEcosystems.map((ecosystem) => (
+                <PromotedEcosystem ecosystem={ecosystem} key={ecosystem.id} />
+              ))}
             </EuiFlexGroup>
           </EuiFlexItem>
         </EuiFlexGroup>
@@ -611,3 +579,18 @@ const HomePage = (): ReactElement => {
 };
 
 export default HomePage;
+
+type PromotedEcosystemProps = {
+  readonly ecosystem: Ecosystem;
+};
+
+const PromotedEcosystem: VFC<PromotedEcosystemProps> = ({ ecosystem }) => (
+  <EuiFlexItem grow={false}>
+    <EuiShowFor sizes={["xs"]}>
+      <EuiIcon type={ecosystem.logo} title={ecosystem.displayName} size="l" />
+    </EuiShowFor>
+    <EuiHideFor sizes={["xs"]}>
+      <EuiIcon type={ecosystem.logo} title={ecosystem.displayName} size="xl" />
+    </EuiHideFor>
+  </EuiFlexItem>
+);

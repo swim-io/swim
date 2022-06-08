@@ -150,8 +150,10 @@ describe("PoolMath", () => {
     );
   });
 
-  test("proportional and imbalanced add/remove gives the same result as doing it all at once", () => {
-    for (const isAdd of [true, false]) {
+  test.each([["add"], ["removeExactOutput"]])(
+    "proportional and imbalanced %s gives the same result as doing it all at once",
+    (methodName) => {
+      const isAdd = methodName === "add";
       const testedOp = isAdd
         ? PoolMath.prototype.add // eslint-disable-line @typescript-eslint/unbound-method
         : PoolMath.prototype.removeExactOutput; // eslint-disable-line @typescript-eslint/unbound-method
@@ -206,6 +208,6 @@ describe("PoolMath", () => {
       expect(round(imbalancedResult.governanceMintAmount)).toEqual(
         round(togetherResult.governanceMintAmount),
       );
-    }
-  });
+    },
+  );
 });

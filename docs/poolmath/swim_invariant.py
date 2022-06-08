@@ -117,7 +117,7 @@ class SwimPool:
             # adjust for lp token appreciation
             governance_mint_amount = (
                 governance_depth
-                / (updated_depth - governance_depth)
+                / (updated_depth + total_fee_depth - governance_depth)
                 * (self.lp_supply - burn_amount)
             )
         else:
@@ -262,7 +262,7 @@ class SwimPool:
             # adjust for lp token appreciation
             governance_mint_amount = (
                 governance_depth
-                / ((updated_depth if is_add else fee_adjusted_depth) - governance_depth)
+                / ((fee_adjusted_depth if is_add else updated_depth) - governance_depth)
                 * (self.lp_supply + (1 if is_add else -1) * lp_amount)
             )
         else:
@@ -273,7 +273,7 @@ class SwimPool:
         self.balances = updated_balances
         self.lp_supply += (lp_amount if is_add else -lp_amount) + governance_mint_amount
         return lp_amount, governance_mint_amount
-    
+
     def __calc_depth(self, balances, initial_guess=None):
         # print("######################### CALC DEPTH #########################")
         assert self.token_count == len(balances)
@@ -344,10 +344,10 @@ class SwimPool:
 
     def ext_calc_depth(self, balances, initial_guess=None):
         return self.__calc_depth(balances, initial_guess)
-    
+
     def ext_calc_missing_balance(self, known_balances, depth, initial_guess=None):
         return self.__calc_missing_balance(known_balances, depth, initial_guess)
-    
+
     # def __calc_distributional_distance(self, amounts):
     #     distance = Decimal(0)
     #     pool_sum = sum(self.balances)

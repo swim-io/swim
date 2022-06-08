@@ -6,7 +6,7 @@ React Frontend to bridge assets and interact with Swim liquidity pools.
 
 ### Basic Installation
 
-You will need Node.js <15 and Yarn.
+You will need Node.js 16 LTS and Yarn.
 
 Run `yarn` to install all dependencies.
 

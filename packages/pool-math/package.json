@@ -19,7 +19,8 @@
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
     "test": "jest",
     "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test --watchAll=false",
-    "build": "rm -rf ./build/ ./types/ && tsc"
+    "build": "rm -rf ./build/ ./types/ && tsc",
+    "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
     "decimal.js": "^10.3.1"

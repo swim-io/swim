@@ -328,7 +328,9 @@ export const usePoolOperationsGenerator = (): UseAsyncGeneratorResult<
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
 
   return useAsyncGenerator<PoolOperationsInput, TxWithPoolId>(
+    // eslint-disable-next-line @typescript-eslint/require-await
     async ({ interaction, operations, existingTxs }) => {
+      // TODO: safely remove async
       const poolSpecs = getRequiredPools(config.pools, interaction);
       if (wallet === null) {
         throw new Error("Missing Solana wallet");

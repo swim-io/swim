@@ -42,7 +42,7 @@ export class SolanaWeb3WalletAdapter
     this.connecting = false;
     this.protocol = Protocol.Solana;
 
-    this.on("connect", this.onPublicKeySet);
+    this.on("connect", this.onPublicKeySet.bind(this));
   }
 
   public get address(): string | null {

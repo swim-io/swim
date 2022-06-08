@@ -1,3 +1,8 @@
+/* eslint-disable functional/immutable-data */
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable import/no-commonjs */
+/* eslint-disable import/unambiguous */
+
 const { addBeforeLoader, loaderByName, whenTest } = require("@craco/craco");
 const SentryWebpackPlugin = require("@sentry/webpack-plugin");
 // const webpack = require("webpack");
@@ -53,7 +58,7 @@ module.exports = {
         cacheGroups: {
           default: false,
         },
-        chunks(chunk) {
+        chunks() {
           return false;
         },
       };

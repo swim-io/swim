@@ -5,6 +5,7 @@ const SentryWebpackPlugin = require("@sentry/webpack-plugin");
 module.exports = {
   babel: {
     plugins: [
+      "@babel/plugin-proposal-nullish-coalescing-operator",
       ...whenTest(
         () => [
           // Without this EUI breaks. See https://github.com/elastic/eui/issues/3973

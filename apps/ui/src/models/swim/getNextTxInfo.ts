@@ -17,7 +17,7 @@ export const enum InteractionStateStep {
 interface NextTxInfo {
   readonly step: InteractionStateStep;
   readonly ecosystem: EcosystemId;
-  readonly transferTokenId?: string;
+  readonly transferTokenId: string | null;
 }
 
 export const getNextTxInfo = ({
@@ -30,6 +30,7 @@ export const getNextTxInfo = ({
     return {
       step: InteractionStateStep.PrepareSplTokenAccounts,
       ecosystem: EcosystemId.Solana,
+      transferTokenId: null,
     };
   }
 
@@ -38,7 +39,7 @@ export const getNextTxInfo = ({
       (transfer) => transfer.txIds.claimTokenOnSolana === null,
     );
     if (!incompleteTransfer) {
-      return null; // should not happen
+      throw new Error("Should find incomplete transfer");
     }
     const { txIds, token } = incompleteTransfer;
     const ecosystem =
@@ -56,6 +57,7 @@ export const getNextTxInfo = ({
     return {
       step: InteractionStateStep.SolanaPoolOperations,
       ecosystem: EcosystemId.Solana,
+      transferTokenId: null,
     };
   }
 
@@ -64,7 +66,7 @@ export const getNextTxInfo = ({
       (transfer) => transfer.txIds.claimTokenOnEvm === null,
     );
     if (!incompleteTransfer) {
-      return null; // should not happen
+      throw new Error("Should find incomplete transfer");
     }
     const { txIds, token } = incompleteTransfer;
     const ecosystem =

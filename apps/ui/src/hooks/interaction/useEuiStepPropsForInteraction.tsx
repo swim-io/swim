@@ -34,7 +34,7 @@ const getEuiStepStatus = (
   } else if (interactionStatus === InteractionStatus.Active) {
     return "loading";
   }
-  // interaction is inactive and incomplete
+  // interaction is inactive or incomplete
   return "incomplete";
 };
 

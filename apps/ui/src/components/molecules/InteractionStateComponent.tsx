@@ -8,6 +8,7 @@ import {
 } from "../../hooks/interaction";
 import { useEuiStepPropsForInteraction } from "../../hooks/interaction/useEuiStepPropsForInteraction";
 import type { InteractionState } from "../../models";
+import { isNotNull } from "../../utils";
 
 import { InteractionRetryCallout } from "./InteractionRetryCallout";
 import { InteractionTitle } from "./InteractionTitle";
@@ -31,7 +32,11 @@ export const InteractionStateComponent: React.FC<Props> = ({
       </EuiTitle>
       <EuiText size="s">{moment(interaction.submittedAt).fromNow()}</EuiText>
       <EuiSpacer />
-      <EuiSteps titleSize="xs" className="actionSteps" steps={steps} />
+      <EuiSteps
+        titleSize="xs"
+        className="actionSteps"
+        steps={steps.filter(isNotNull)}
+      />
       <InteractionRetryCallout interactionState={interactionState} />
       {interactionStatus === InteractionStatus.Completed && (
         <EuiBadge color="success" iconType="check">

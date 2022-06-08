@@ -20,7 +20,7 @@ export const useInteractionStatus = (interactionState: InteractionState) => {
   const hasError =
     useInteractionState((state) =>
       selectInteractionError(state, interaction.id),
-    ) === undefined;
+    ) !== undefined;
 
   const isActive =
     useIsMutating({

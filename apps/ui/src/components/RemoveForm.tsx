@@ -53,6 +53,7 @@ import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
+import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { StepsDisplay } from "./StepsDisplay";
 import { TokenIcon } from "./TokenIcon";
 
@@ -779,6 +780,8 @@ export const RemoveForm = ({
           <EuiSpacer />
         </>
       )}
+
+      <SolanaTpsWarning />
 
       {hasPositiveOutputAmount && (
         <EstimatedTxFeesCallout feesEstimation={feesEstimation} />

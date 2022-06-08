@@ -115,11 +115,10 @@ class SwimPool:
             )
             # print("-   governance_depth:", governance_depth)
             # adjust for lp token appreciation
-            governance_mint_amount = (
-                governance_depth
-                / (updated_depth - governance_depth)
-                * (self.lp_supply - burn_amount)
-            )
+            updated_lp_supply = self.lp_supply - burn_amount
+            lp_depth = updated_depth + total_fee_depth - governance_depth
+            appreciation_factor = updated_lp_supply / lp_depth
+            governance_mint_amount = governance_depth * appreciation_factor
         else:
             output_amount = feeless_amount
             governance_mint_amount = Decimal(0)
@@ -192,12 +191,10 @@ class SwimPool:
                 self.governance_fee / self.__total_fee
             )
             # print("-   governance_depth:", governance_depth)
-            # adjust for lp token appreciation:
-            governance_mint_amount = (
-                governance_depth
-                / (initial_depth + total_fee_depth - governance_depth)
-                * self.lp_supply
-            )
+            # adjust for lp token appreciation
+            lp_depth = final_depth - governance_depth
+            appreciation_factor = self.lp_supply / lp_depth
+            governance_mint_amount = governance_depth * appreciation_factor
         else:
             governance_mint_amount = 0
 
@@ -260,11 +257,10 @@ class SwimPool:
                             f"maximum burn amount exceeded: {lp_amount} required but only {limit} permitted to be burned"
                         )
             # adjust for lp token appreciation
-            governance_mint_amount = (
-                governance_depth
-                / ((updated_depth if is_add else fee_adjusted_depth) - governance_depth)
-                * (self.lp_supply + (1 if is_add else -1) * lp_amount)
-            )
+            updated_lp_supply = self.lp_supply + (1 if is_add else -1) * lp_amount
+            lp_depth = (fee_adjusted_depth if is_add else updated_depth) - governance_depth
+            appreciation_factor = updated_lp_supply / lp_depth
+            governance_mint_amount = governance_depth * appreciation_factor
         else:
             lp_amount = (
                 abs(updated_depth - initial_depth) / initial_depth * self.lp_supply
@@ -273,7 +269,7 @@ class SwimPool:
         self.balances = updated_balances
         self.lp_supply += (lp_amount if is_add else -lp_amount) + governance_mint_amount
         return lp_amount, governance_mint_amount
-    
+
     def __calc_depth(self, balances, initial_guess=None):
         # print("######################### CALC DEPTH #########################")
         assert self.token_count == len(balances)
@@ -344,10 +340,10 @@ class SwimPool:
 
     def ext_calc_depth(self, balances, initial_guess=None):
         return self.__calc_depth(balances, initial_guess)
-    
+
     def ext_calc_missing_balance(self, known_balances, depth, initial_guess=None):
         return self.__calc_missing_balance(known_balances, depth, initial_guess)
-    
+
     # def __calc_distributional_distance(self, amounts):
     #     distance = Decimal(0)
     #     pool_sum = sum(self.balances)

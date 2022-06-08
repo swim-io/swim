@@ -115,11 +115,10 @@ class SwimPool:
             )
             # print("-   governance_depth:", governance_depth)
             # adjust for lp token appreciation
-            governance_mint_amount = (
-                governance_depth
-                / (updated_depth + total_fee_depth - governance_depth)
-                * (self.lp_supply - burn_amount)
-            )
+            updated_lp_supply = self.lp_supply - burn_amount
+            lp_depth = updated_depth + total_fee_depth - governance_depth
+            appreciation_factor = updated_lp_supply / lp_depth
+            governance_mint_amount = governance_depth * appreciation_factor
         else:
             output_amount = feeless_amount
             governance_mint_amount = Decimal(0)
@@ -192,12 +191,10 @@ class SwimPool:
                 self.governance_fee / self.__total_fee
             )
             # print("-   governance_depth:", governance_depth)
-            # adjust for lp token appreciation:
-            governance_mint_amount = (
-                governance_depth
-                / (initial_depth + total_fee_depth - governance_depth)
-                * self.lp_supply
-            )
+            # adjust for lp token appreciation
+            lp_depth = final_depth - governance_depth
+            appreciation_factor = self.lp_supply / lp_depth
+            governance_mint_amount = governance_depth * appreciation_factor
         else:
             governance_mint_amount = 0
 
@@ -260,11 +257,10 @@ class SwimPool:
                             f"maximum burn amount exceeded: {lp_amount} required but only {limit} permitted to be burned"
                         )
             # adjust for lp token appreciation
-            governance_mint_amount = (
-                governance_depth
-                / ((fee_adjusted_depth if is_add else updated_depth) - governance_depth)
-                * (self.lp_supply + (1 if is_add else -1) * lp_amount)
-            )
+            updated_lp_supply = self.lp_supply + (1 if is_add else -1) * lp_amount
+            lp_depth = (fee_adjusted_depth if is_add else updated_depth) - governance_depth
+            appreciation_factor = updated_lp_supply / lp_depth
+            governance_mint_amount = governance_depth * appreciation_factor
         else:
             lp_amount = (
                 abs(updated_depth - initial_depth) / initial_depth * self.lp_supply

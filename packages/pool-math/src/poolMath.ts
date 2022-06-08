@@ -330,9 +330,10 @@ export class PoolMath {
     const governanceDepth = totalFeeDepth.mul(
       this.governanceFee.div(this.totalFee),
     );
-    const governanceMintAmount = governanceDepth
-      .div(updatedDepth.add(totalFeeDepth).sub(governanceDepth))
-      .mul(this.lpSupply.sub(burnAmount));
+    const updatedLpSupply = this.lpSupply.sub(burnAmount);
+    const lpDepth = updatedDepth.add(totalFeeDepth).sub(governanceDepth);
+    const appreciationFactor = updatedLpSupply.div(lpDepth);
+    const governanceMintAmount = governanceDepth.mul(appreciationFactor);
     return { stableOutputAmount, governanceMintAmount };
   }
 
@@ -451,9 +452,12 @@ export class PoolMath {
       this.governanceFee.div(this.totalFee),
     );
     const lpAmount = userDepth.div(initialDepth).mul(this.lpSupply);
-    const governanceMintAmount = governanceDepth
-      .div((isAdd ? feeAdjustedDepth : updatedDepth).sub(governanceDepth))
-      .mul(this.lpSupply[isAdd ? "add" : "sub"](lpAmount));
+    const updatedLpSupply = this.lpSupply[isAdd ? "add" : "sub"](lpAmount);
+    const lpDepth = (isAdd ? feeAdjustedDepth : updatedDepth).sub(
+      governanceDepth,
+    );
+    const appreciationFactor = updatedLpSupply.div(lpDepth);
+    const governanceMintAmount = governanceDepth.mul(appreciationFactor);
     return [lpAmount, governanceMintAmount];
   }
 
@@ -510,9 +514,9 @@ export class PoolMath {
     const governanceDepth = totalFeeDepth.mul(
       this.governanceFee.div(this.totalFee),
     );
-    const governanceMintAmount = governanceDepth
-      .div(initialDepth.add(totalFeeDepth).sub(governanceDepth))
-      .mul(this.lpSupply);
+    const lpDepth = finalDepth.sub(governanceDepth);
+    const appreciationFactor = this.lpSupply.div(lpDepth);
+    const governanceMintAmount = governanceDepth.mul(appreciationFactor);
     return [finalAmount, governanceMintAmount];
   }
 

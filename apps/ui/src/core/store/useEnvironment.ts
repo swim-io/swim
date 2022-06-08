@@ -1,4 +1,3 @@
-/* eslint-disable functional/immutable-data */
 import { produce } from "immer";
 import create from "zustand";
 import type { GetState, SetState, StoreApi } from "zustand";

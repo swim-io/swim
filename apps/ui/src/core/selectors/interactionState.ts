@@ -9,12 +9,16 @@ export const selectInteractionError = (
 export const selectInteractionStateById = (
   state: InteractionStore,
   id: string,
-): InteractionState => {
-  const interactionState = state.interactionStates.find(
-    ({ interaction }) => interaction.id === id,
-  );
-  if (!interactionState) {
-    throw new Error(`Interaction ${id} not exist`);
-  }
-  return interactionState;
-};
+): InteractionState => selectGetInteractionState(state)(id);
+
+export const selectGetInteractionState =
+  (state: InteractionStore) =>
+  (id: string): InteractionState => {
+    const interactionState = state.interactionStates.find(
+      ({ interaction }) => interaction.id === id,
+    );
+    if (!interactionState) {
+      throw new Error(`Interaction ${id} not exist`);
+    }
+    return interactionState;
+  };

@@ -6,7 +6,7 @@ import { useSplTokenAccountsQuery } from "..";
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
-import { selectConfig, selectInteractionStateById } from "../../core/selectors";
+import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { InteractionState, SolanaConnection, Tx } from "../../models";
 import { getTokensByPool, getTransferredAmounts } from "../../models";
@@ -58,7 +58,7 @@ export const useSolanaPoolOperationsMutation = () => {
   const updateInteractionState = useInteractionState(
     (state) => state.updateInteractionState,
   );
-  const interactionStateStore = useInteractionState();
+  const getInteractionState = useInteractionState(selectGetInteractionState);
 
   return useMutation(async (interactionId: string) => {
     if (wallet === null) {
@@ -67,10 +67,7 @@ export const useSolanaPoolOperationsMutation = () => {
     if (!solanaWalletAddress) {
       throw new Error("No Solana wallet address");
     }
-    const interactionState = selectInteractionStateById(
-      interactionStateStore,
-      interactionId,
-    );
+    const interactionState = getInteractionState(interactionId);
     const { interaction, solanaPoolOperations } = interactionState;
 
     // Every operation is done

@@ -18,7 +18,7 @@ import {
   useSolanaConnection,
   useSolanaWallet,
 } from "../../contexts";
-import { selectConfig, selectInteractionStateById } from "../../core/selectors";
+import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {
   Amount,
@@ -45,16 +45,13 @@ export const useFromSolanaTransferMutation = () => {
   const updateInteractionState = useInteractionState(
     (state) => state.updateInteractionState,
   );
-  const interactionStateStore = useInteractionState();
+  const getInteractionState = useInteractionState(selectGetInteractionState);
 
   return useMutation(async (interactionId: string) => {
-    const interactionState = selectInteractionStateById(
-      interactionStateStore,
-      interactionId,
-    );
+    const interactionState = getInteractionState(interactionId);
     const { fromSolanaTransfers } = interactionState;
     await Promise.all(
-      fromSolanaTransfers.map(async (transfer) => {
+      fromSolanaTransfers.map(async (transfer, index) => {
         // Transfer already completed, skip
         if (isFromSolanaTransferCompleted(transfer)) {
           return;
@@ -135,12 +132,6 @@ export const useFromSolanaTransferMutation = () => {
           );
           // Update transfer state with txId
           updateInteractionState(interactionId, (draft) => {
-            const index = draft.fromSolanaTransfers.findIndex(
-              (t) => t.token.id === token.id,
-            );
-            if (index === -1) {
-              throw new Error("Invalid transfer index");
-            }
             draft.fromSolanaTransfers[index].txIds.transferSplToken =
               transferSplTokenTxId;
           });
@@ -166,7 +157,7 @@ export const useFromSolanaTransferMutation = () => {
         if (evmSigner === null) {
           throw new Error("Missing EVM signer");
         }
-        await evmWallet.switchNetwork();
+        await evmWallet.switchNetwork(evmChain.chainId);
         const redeemResponse = await redeemOnEth(
           interactionId,
           evmChain.wormhole.tokenBridge,
@@ -184,12 +175,6 @@ export const useFromSolanaTransferMutation = () => {
         const claimTokenOnEvmTxId = evmReceipt.transactionHash;
         // Update transfer state with txId
         updateInteractionState(interactionId, (draft) => {
-          const index = draft.fromSolanaTransfers.findIndex(
-            (t) => t.token.id === token.id,
-          );
-          if (index === -1) {
-            throw new Error("Invalid transfer index");
-          }
           draft.fromSolanaTransfers[index].txIds.claimTokenOnEvm =
             claimTokenOnEvmTxId;
         });

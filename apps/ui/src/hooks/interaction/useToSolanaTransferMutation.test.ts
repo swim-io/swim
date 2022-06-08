@@ -5,7 +5,7 @@ import { useQueryClient } from "react-query";
 
 import { EcosystemId } from "../../config";
 import { useEvmConnections, useSolanaConnection } from "../../contexts";
-import { selectInteractionStateById } from "../../core/selectors";
+import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { MOCK_SOL_WALLET } from "../../fixtures";
 import { MOCK_INTERACTION_STATE } from "../../fixtures/swim/interactionState";
@@ -17,6 +17,7 @@ import { useSplTokenAccountsQuery } from "../solana";
 
 import { useToSolanaTransferMutation } from "./useToSolanaTransferMutation";
 
+jest.mock("../../core/store/idb");
 jest.mock("@certusone/wormhole-sdk");
 jest.mock("../../contexts", () => ({
   ...jest.requireActual("../../contexts"),
@@ -121,20 +122,19 @@ describe("useToSolanaTransferMutation", () => {
 
     const { result } = renderHookWithAppContext(() => {
       const { mutateAsync } = useToSolanaTransferMutation();
-      const interactionStateStore = useInteractionState();
+      const getInteractionState = useInteractionState(
+        selectGetInteractionState,
+      );
       return {
         mutateAsync,
-        interactionStateStore,
+        getInteractionState,
       };
     });
 
     const { id } = MOCK_INTERACTION_STATE.interaction;
     await act(() => result.current.mutateAsync(id));
 
-    const updatedState = selectInteractionStateById(
-      result.current.interactionStateStore,
-      id,
-    );
+    const updatedState = result.current.getInteractionState(id);
     expect(updatedState.toSolanaTransfers[0].txIds).toEqual({
       approveAndTransferEvmToken: [
         "0xd528c49eedda9d5a5a7f04a00355b7b124a30502b46532503cc83891844715b9",

@@ -16,7 +16,7 @@ import {
   isEvmEcosystemId,
 } from "../../config";
 import { useEvmConnections, useSolanaConnection } from "../../contexts";
-import { selectConfig, selectInteractionStateById } from "../../core/selectors";
+import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { EvmConnection, EvmTx } from "../../models";
 import {
@@ -57,15 +57,12 @@ export const useToSolanaTransferMutation = () => {
   const updateInteractionState = useInteractionState(
     (state) => state.updateInteractionState,
   );
-  const interactionStateStore = useInteractionState();
+  const getInteractionState = useInteractionState(selectGetInteractionState);
 
   return useMutation(async (interactionId: string) => {
-    const { toSolanaTransfers } = selectInteractionStateById(
-      interactionStateStore,
-      interactionId,
-    );
+    const { toSolanaTransfers } = getInteractionState(interactionId);
     await Promise.all(
-      toSolanaTransfers.map(async (transfer) => {
+      toSolanaTransfers.map(async (transfer, index) => {
         const { token, value, txIds } = transfer;
         const fromEcosystem = token.nativeEcosystem;
 
@@ -133,12 +130,6 @@ export const useToSolanaTransferMutation = () => {
           ].map(({ txId }) => txId);
 
           updateInteractionState(interactionId, (draft) => {
-            const index = draft.toSolanaTransfers.findIndex(
-              (t) => t.token.id === token.id,
-            );
-            if (index === -1) {
-              throw new Error("Invalid transfer index");
-            }
             draft.toSolanaTransfers[index].txIds.approveAndTransferEvmToken =
               approveAndTransferEvmTokenTxIds;
           });
@@ -180,12 +171,6 @@ export const useToSolanaTransferMutation = () => {
         const postVaaOnSolanaTxIds = unlockSplTokenTxIds.slice(0, -1);
         const [claimTokenOnSolanaTxId] = unlockSplTokenTxIds.slice(-1);
         updateInteractionState(interactionId, (draft) => {
-          const index = draft.toSolanaTransfers.findIndex(
-            (t) => t.token.id === token.id,
-          );
-          if (index === -1) {
-            throw new Error("Invalid transfer index");
-          }
           draft.toSolanaTransfers[index].txIds.postVaaOnSolana =
             postVaaOnSolanaTxIds;
           draft.toSolanaTransfers[index].txIds.claimTokenOnSolana =

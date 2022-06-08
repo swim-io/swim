@@ -1,7 +1,7 @@
 import { useMutation } from "react-query";
 
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
-import { selectInteractionStateById } from "../../core/selectors";
+import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { createSplTokenAccount } from "../../models";
 
@@ -11,7 +11,7 @@ export const usePrepareSplTokenAccountMutation = () => {
   const updateInteractionState = useInteractionState(
     (state) => state.updateInteractionState,
   );
-  const interactionStateStore = useInteractionState();
+  const getInteractionState = useInteractionState(selectGetInteractionState);
 
   return useMutation(async (interactionId: string) => {
     if (wallet === null) {
@@ -21,11 +21,8 @@ export const usePrepareSplTokenAccountMutation = () => {
     if (!solanaAddress) {
       throw new Error("Missing Solana address");
     }
-    const interactionState = selectInteractionStateById(
-      interactionStateStore,
-      interactionId,
-    );
-    const { interaction, requiredSplTokenAccounts } = interactionState;
+    const { interaction, requiredSplTokenAccounts } =
+      getInteractionState(interactionId);
     await Promise.all(
       Object.entries(requiredSplTokenAccounts).map(
         async ([mint, accountState]) => {

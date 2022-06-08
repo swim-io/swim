@@ -1,4 +1,3 @@
-/* eslint-disable functional/immutable-data */
 import type { EuiGlobalToastListToast } from "@elastic/eui";
 import type { Draft } from "immer";
 import { produce } from "immer";

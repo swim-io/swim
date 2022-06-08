@@ -61,8 +61,6 @@ describe("useCreateInteractionState", () => {
     });
     usePoolMathByPoolIdsMock.mockReturnValue(MOCK_POOL_MATHS_BY_ID);
     useSplTokenAccountsQueryMock.mockReturnValue({ data: MOCK_TOKEN_ACCOUNTS });
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     useWalletsMock.mockReturnValue(MOCK_WALLETS);
   });
 

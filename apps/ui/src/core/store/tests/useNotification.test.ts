@@ -1,14 +1,11 @@
 import type { EuiGlobalToastListToast } from "@elastic/eui";
-import { cleanup } from "@testing-library/react";
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { useNotification } from "..";
 
 describe("useNotification", () => {
   afterEach(() => {
-    // You can choose to set the store's state to a default value here.
     jest.resetAllMocks();
-    cleanup();
   });
   it("initially returns empty toast array", () => {
     const { result } = renderHook(() => useNotification());

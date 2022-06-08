@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import { severityLevelFromString } from "@sentry/utils";
 import type { ReactElement } from "react";
 
 import { SwimError } from "./classes";
@@ -75,7 +76,7 @@ export const captureBreadcrumbError = (error: unknown): void => {
   Sentry.addBreadcrumb({
     category: "handledError",
     message: JSON.stringify(error),
-    level: Sentry.Severity.Error,
+    level: severityLevelFromString("error"),
   });
 };
 

@@ -114,11 +114,6 @@ export const transferFromSolana = async (
     payerAddress,
   );
   const tokenWasm = await importTokenWasm();
-  // const {
-  //   transfer_native_ix,
-  //   transfer_wrapped_ix,
-  //   approval_authority_address,
-  // } = await importTokenWasm();
   const approvalIx = Token.createApproveInstruction(
     TOKEN_PROGRAM_ID,
     new PublicKey(fromAddress),

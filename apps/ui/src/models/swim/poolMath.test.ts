@@ -160,7 +160,8 @@ describe("PoolMath tests", () => {
   });
 
   test("that proportional and imbalanced add/remove gives the same result as doing it all at once", () => {
-    for (const isAdd of [true, false]) {
+    for (const isAdd in { 1: true, 2: false }) {
+      // https://typescript-eslint.io/rules/no-for-in-array/
       const balances = [100, 100, 100].map((b) => new Decimal(b));
       const ampFactor = new Decimal("1.313");
       const lpFee = new Decimal("0.10");
@@ -201,9 +202,11 @@ describe("PoolMath tests", () => {
         b.plus(imbalancedAmounts[i]),
       );
 
+      const pool2 = new PoolMath(balances, ampFactor, lpFee, governanceFee);
+
       const togetherResult = isAdd
-        ? pool.add(togetherAmounts)
-        : pool.removeExactOutput(togetherAmounts);
+        ? pool2.add(togetherAmounts)
+        : pool2.removeExactOutput(togetherAmounts);
 
       // console.log("          isAdd:", isAdd);
       // console.log("      lp in/out:", round(getLpAmount(togetherResult)));

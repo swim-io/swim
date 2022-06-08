@@ -113,15 +113,16 @@ export const transferFromSolana = async (
     bridgeAddress,
     payerAddress,
   );
-  const {
-    transfer_native_ix,
-    transfer_wrapped_ix,
-    approval_authority_address,
-  } = await importTokenWasm();
+  const tokenWasm = await importTokenWasm();
+  // const {
+  //   transfer_native_ix,
+  //   transfer_wrapped_ix,
+  //   approval_authority_address,
+  // } = await importTokenWasm();
   const approvalIx = Token.createApproveInstruction(
     TOKEN_PROGRAM_ID,
     new PublicKey(fromAddress),
-    new PublicKey(approval_authority_address(tokenBridgeAddress)),
+    new PublicKey(tokenWasm.approval_authority_address(tokenBridgeAddress)),
     new PublicKey(fromOwnerAddress || payerAddress),
     [],
     new u64(amount.toString(16), 16),
@@ -134,7 +135,7 @@ export const transferFromSolana = async (
   }
   const ix = ixFromRust(
     isSolanaNative
-      ? transfer_native_ix(
+      ? tokenWasm.transfer_native_ix(
           tokenBridgeAddress,
           bridgeAddress,
           payerAddress,
@@ -147,7 +148,7 @@ export const transferFromSolana = async (
           targetAddress,
           targetChain,
         )
-      : transfer_wrapped_ix(
+      : tokenWasm.transfer_wrapped_ix(
           tokenBridgeAddress,
           bridgeAddress,
           payerAddress,
@@ -251,18 +252,17 @@ export const redeemOnSolana = async (
   payerAddress: string,
   signedVAA: Uint8Array,
 ): Promise<Transaction> => {
-  const { parse_vaa } = await importCoreWasm();
-  const parsedVAA = parse_vaa(signedVAA);
+  const coreWasm = await importCoreWasm();
+  const parsedVAA = coreWasm.parse_vaa(signedVAA);
   const isSolanaNative =
     Buffer.from(new Uint8Array(parsedVAA.payload)).readUInt16BE(65) ===
     CHAIN_ID_SOLANA;
-  const { complete_transfer_wrapped_ix, complete_transfer_native_ix } =
-    await importTokenWasm();
+  const tokenWasm = await importTokenWasm();
   const ixs = [];
   if (isSolanaNative) {
     ixs.push(
       ixFromRust(
-        complete_transfer_native_ix(
+        tokenWasm.complete_transfer_native_ix(
           tokenBridgeAddress,
           bridgeAddress,
           payerAddress,
@@ -273,7 +273,7 @@ export const redeemOnSolana = async (
   } else {
     ixs.push(
       ixFromRust(
-        complete_transfer_wrapped_ix(
+        tokenWasm.complete_transfer_wrapped_ix(
           tokenBridgeAddress,
           bridgeAddress,
           payerAddress,

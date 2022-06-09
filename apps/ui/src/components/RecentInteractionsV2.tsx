@@ -5,9 +5,9 @@ import {
   EuiSpacer,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 
-import { useInteractionState } from "../core/store";
+import { useEnvironment, useInteractionState } from "../core/store";
 import {
   isEveryAddressConnected,
   useSplTokenAccountsQuery,
@@ -28,6 +28,14 @@ export const RecentInteractionsV2 = ({
   title,
   interactionTypes,
 }: RecentInteractionsProps): ReactElement => {
+  const env = useEnvironment((state) => state.env);
+  const loadInteractionStatesFromIDB = useInteractionState(
+    (state) => state.loadInteractionStatesFromIDB,
+  );
+  useEffect(() => {
+    loadInteractionStatesFromIDB(env);
+  }, [env, loadInteractionStatesFromIDB]);
+
   const { isSuccess: didLoadSplTokenAccounts } = useSplTokenAccountsQuery();
   const wallets = useWallets();
   // Don’t display current interaction

@@ -134,7 +134,7 @@ export const ADD: AddInteraction = {
       Amount.fromHuman(ETHEREUM_USDT, new Decimal(1000)),
       Amount.fromHuman(BSC_BUSD, new Decimal(1000)),
       Amount.fromHuman(BSC_USDT, new Decimal(1000)),
-    ].reduce((map, amount) => map.set(amount.tokenId, amount), new Map()),
+    ],
     minimumMintAmount: Amount.fromHuman(
       SOLANA_LP_HEXAPOOL,
       new Decimal(5969.99730442),

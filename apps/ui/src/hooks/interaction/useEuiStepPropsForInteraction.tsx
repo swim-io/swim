@@ -108,6 +108,7 @@ const useToSolanaTransfersStep = (
         {toSolanaTransfers.map((transfer) => (
           <ToSolanaTransferComponent
             key={transfer.token.id}
+            interaction={interactionState.interaction}
             transfer={transfer}
             isInteractionActive={interactionStatus === InteractionStatus.Active}
           />
@@ -170,6 +171,7 @@ const useFromSolanaTransfersStep = (
         {fromSolanaTransfers.map((transfer) => (
           <FromSolanaTransferComponent
             key={transfer.token.id}
+            interaction={interactionState.interaction}
             transfer={transfer}
             isInteractionActive={interactionStatus === InteractionStatus.Active}
           />

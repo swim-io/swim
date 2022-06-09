@@ -29,26 +29,24 @@ export const usePrepareSplTokenAccountMutation = () => {
     const missingAccountMints = Object.entries(requiredSplTokenAccounts)
       .filter(([_mint, accountState]) => accountState.account === null)
       .map(([mint, _accountState]) => mint);
-    await Promise.all(
-      missingAccountMints.map(async (mint) => {
-        const creationTxId = await createSplTokenAccount(
-          solanaConnection,
-          wallet,
-          mint,
-        );
-        await solanaConnection.confirmTx(creationTxId);
-        const account = await solanaConnection.getTokenAccountWithRetry(
-          mint,
-          solanaAddress,
-        );
+    for await (const mint of missingAccountMints) {
+      const creationTxId = await createSplTokenAccount(
+        solanaConnection,
+        wallet,
+        mint,
+      );
+      await solanaConnection.confirmTx(creationTxId);
+      const account = await solanaConnection.getTokenAccountWithRetry(
+        mint,
+        solanaAddress,
+      );
 
-        // Update interactionState
-        updateInteractionState(interaction.id, (draft) => {
-          draft.requiredSplTokenAccounts[mint].account = account;
-          draft.requiredSplTokenAccounts[mint].txId = creationTxId;
-        });
-      }),
-    );
+      // Update interactionState
+      updateInteractionState(interaction.id, (draft) => {
+        draft.requiredSplTokenAccounts[mint].account = account;
+        draft.requiredSplTokenAccounts[mint].txId = creationTxId;
+      });
+    }
 
     if (missingAccountMints.length > 0) {
       const splTokenAccountsQueryKey = getSplTokenAccountsQueryKey(

@@ -112,10 +112,14 @@ export const useSolanaPoolOperationsMutation = () => {
       );
       updateInteractionState(interaction.id, (draft) => {
         for (const [index, transfer] of draft.fromSolanaTransfers.entries()) {
-          draft.fromSolanaTransfers[index].value =
-            transferredAmounts[transfer.token.id]?.toHuman(
-              transfer.token.nativeEcosystem,
-            ) ?? null;
+          const amount = transferredAmounts[transfer.token.id];
+          const value = amount?.toHuman(transfer.token.nativeEcosystem) ?? null;
+          if (
+            draft.fromSolanaTransfers[index].value === null &&
+            value !== null
+          ) {
+            draft.fromSolanaTransfers[index].value = value;
+          }
         }
       });
       return;
@@ -170,10 +174,11 @@ export const useSolanaPoolOperationsMutation = () => {
     );
     updateInteractionState(interaction.id, (draft) => {
       for (const [index, transfer] of draft.fromSolanaTransfers.entries()) {
-        draft.fromSolanaTransfers[index].value =
-          transferredAmounts[transfer.token.id]?.toHuman(
-            transfer.token.nativeEcosystem,
-          ) ?? null;
+        const amount = transferredAmounts[transfer.token.id];
+        const value = amount?.toHuman(transfer.token.nativeEcosystem) ?? null;
+        if (draft.fromSolanaTransfers[index].value === null && value !== null) {
+          draft.fromSolanaTransfers[index].value = value;
+        }
       }
     });
   });

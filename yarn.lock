@@ -1682,9 +1682,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@certusone/wormhole-sdk@npm:^0.2.6":
-  version: 0.2.7
-  resolution: "@certusone/wormhole-sdk@npm:0.2.7"
+"@certusone/wormhole-sdk@npm:^0.3.7":
+  version: 0.3.7
+  resolution: "@certusone/wormhole-sdk@npm:0.3.7"
   dependencies:
     "@improbable-eng/grpc-web": ^0.14.0
     "@solana/spl-token": ^0.1.8
@@ -1696,7 +1696,7 @@ __metadata:
     js-base64: ^3.6.1
     protobufjs: ^6.11.2
     rxjs: ^7.3.0
-  checksum: 499646ebd3fc011fba917444d9b9b87d31e02f96d95a9e53b04b60bc30caab97b512527a83f0751307a4544f3691d1c9d406dc3539c202d9cdd7b1c9dcdfdce8
+  checksum: 068844aa29396aca58134f364e707bddb176ccc35475eaf400b280abf80a457a65999db8c672d42898b29ac4203c2163c931b31fc521fceee0fd42d707aa8823
   languageName: node
   linkType: hard
 
@@ -5534,7 +5534,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@swim-io/ui@workspace:apps/ui"
   dependencies:
-    "@certusone/wormhole-sdk": ^0.2.6
+    "@certusone/wormhole-sdk": ^0.3.7
     "@craco/craco": ^6.4.3
     "@elastic/datemath": ^5.0.3
     "@elastic/eui": ^39.1.1

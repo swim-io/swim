@@ -16,3 +16,4 @@ export * from "./storeInteraction";
 export * from "./transfer";
 export * from "./utils";
 export * from "./interactionState";
+export * from "./getNextTxInfo";

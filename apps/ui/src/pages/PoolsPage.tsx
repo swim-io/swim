@@ -23,12 +23,10 @@ import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { useCoinGeckoPricesQuery, useLiquidityQuery, useTitle } from "../hooks";
 import AUSD_SVG from "../images/tokens/ausd.svg";
-import BTC_SVG from "../images/tokens/btc.svg";
 import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
 import USDC_SVG from "../images/tokens/usdc.svg";
 import USDT_SVG from "../images/tokens/usdt.svg";
 import USN_SVG from "../images/tokens/usn.svg";
-import WBTC_SVG from "../images/tokens/wbtc.svg";
 import { filterMap, findOrThrow } from "../utils";
 
 const PoolsPage = (): ReactElement => {
@@ -321,42 +319,6 @@ const PoolsPage = (): ReactElement => {
                   icon: SWIM_USD_SVG,
                   isStablecoin: true,
                   nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
-                },
-              ]}
-            />
-
-            <EuiSpacer size="xxl" />
-
-            <PoolListItem
-              poolName="BTC Tri-Pool"
-              betaBadgeLabel="Coming Soon"
-              tokenSpecs={[
-                {
-                  id: "placeholder-solana-native-btc",
-                  symbol: "ETH",
-                  displayName: "Bitcoin",
-                  icon: BTC_SVG,
-                  isStablecoin: false,
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "placeholder-ethereum-native-wbtc",
-                  symbol: "WBTC",
-                  displayName: "Wrapped Bitcoin",
-                  icon: WBTC_SVG,
-                  isStablecoin: false,
-                  nativeEcosystem: EcosystemId.Ethereum,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "placeholder-bsc-native-btcb",
-                  symbol: "BTCB",
-                  displayName: "BTCB",
-                  icon: BTC_SVG,
-                  isStablecoin: false,
-                  nativeEcosystem: EcosystemId.Bsc,
                   detailsByEcosystem: new Map(),
                 },
               ]}

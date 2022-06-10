@@ -3,6 +3,7 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
+import { isEcosystemEnabled } from "../../config";
 import { useEvmConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 import type { EvmTx } from "../../models";
@@ -60,7 +61,7 @@ export const useEvmTxsForInteractionQuery = (
       return evmTxsOrNull.filter(isNotNull);
     },
     {
-      enabled: isSuccess,
+      enabled: isEcosystemEnabled(ecosystemId) && isSuccess,
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,

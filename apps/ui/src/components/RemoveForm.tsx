@@ -129,7 +129,6 @@ export const RemoveForm = ({
       [EcosystemId.Solana]: [],
       [EcosystemId.Ethereum]: [],
       [EcosystemId.Bsc]: [],
-      [EcosystemId.Terra]: [],
       [EcosystemId.Avalanche]: [],
       [EcosystemId.Polygon]: [],
       [EcosystemId.Aurora]: [],

@@ -20,6 +20,14 @@ const getHref = (ecosystemId: EcosystemId, txId: string): string => {
       return `https://snowtrace.io/tx/${txId}`;
     case EcosystemId.Polygon:
       return `https://polygonscan.com/tx/${txId}`;
+    case EcosystemId.Aurora:
+      return `https://aurorascan.dev/tx/${txId}`;
+    case EcosystemId.Fantom:
+      return `https://ftmscan.com/tx/${txId}`;
+    case EcosystemId.Karura:
+      return `TODO:${txId}`; // TODO: Update
+    case EcosystemId.Acala:
+      return `TODO:${txId}`; // TODO: Update
     default:
       throw new Error("Unknown ecosystem");
   }

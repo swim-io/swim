@@ -5,6 +5,7 @@ import shallow from "zustand/shallow.js";
 
 import { sumToDecimal } from "../../amounts";
 import type { EvmEcosystemId, TokenSpec } from "../../config";
+import { isEcosystemEnabled } from "../../config";
 import { useEvmConnection } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
@@ -102,13 +103,13 @@ const getTransferFromTokens = (
 };
 
 export const useEvmTxFeesEstimateQuery = (
-  ecosystem: EvmEcosystemId,
+  ecosystemId: EvmEcosystemId,
   interaction: Interaction | null,
 ): UseQueryResult<Decimal | null, Error> => {
   const { env } = useEnvironment();
   const config = useEnvironment(selectConfig, shallow);
   const tokensByPool = getTokensByPool(config);
-  const connection = useEvmConnection(ecosystem);
+  const connection = useEvmConnection(ecosystemId);
   const pools = usePools(interaction?.poolIds ?? []);
 
   const inputPool = pools[0];
@@ -117,7 +118,7 @@ export const useEvmTxFeesEstimateQuery = (
   const outputPoolTokens = tokensByPool[outputPool.spec.id];
 
   return useQuery(
-    ["evmTxFeesEstimate", env, ecosystem, interaction?.id ?? null],
+    ["evmTxFeesEstimate", env, ecosystemId, interaction?.id ?? null],
     async () => {
       if (interaction === null) {
         return null;
@@ -126,13 +127,13 @@ export const useEvmTxFeesEstimateQuery = (
         inputPoolTokens.lpToken,
         inputPoolTokens.tokens,
         interaction,
-        ecosystem,
+        ecosystemId,
       );
       const transferFromTokens = getTransferFromTokens(
         outputPoolTokens.lpToken,
         outputPoolTokens.tokens,
         interaction,
-        ecosystem,
+        ecosystemId,
       );
       const gasEstimates = [
         // Transferring to Solana requires a transfer tx and most likely an approval
@@ -144,6 +145,9 @@ export const useEvmTxFeesEstimateQuery = (
       const gasPrice = await connection.provider.getGasPrice();
       const txFeesEstimate = totalGasEstimate.mul(gasPrice.toString());
       return txFeesEstimate;
+    },
+    {
+      enabled: isEcosystemEnabled(ecosystemId),
     },
   );
 };

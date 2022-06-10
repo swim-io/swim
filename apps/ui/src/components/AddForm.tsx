@@ -18,7 +18,13 @@ import type { FormEvent, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId, ecosystems, getNativeTokenDetails } from "../config";
+import {
+  ECOSYSTEM_IDS,
+  EcosystemId,
+  ecosystems,
+  getNativeTokenDetails,
+  isEcosystemEnabled,
+} from "../config";
 import type { PoolSpec, TokenSpec } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
@@ -42,7 +48,7 @@ import {
   getLowBalanceWallets,
   isValidSlippageFraction,
 } from "../models";
-import { isEachNotNull, isNotNull } from "../utils";
+import { filterMap, isEachNotNull, isNotNull } from "../utils";
 
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
@@ -385,9 +391,7 @@ export const AddForm = ({
       if (userNativeBalances[ecosystem].isZero()) {
         errors = [
           ...errors,
-          `Empty balance in ${
-            config.ecosystems[EcosystemId.Solana].displayName
-          } wallet. You will need some funds to pay for transaction fees.`,
+          `Empty balance in ${config.ecosystems[ecosystem].displayName} wallet. You will need some funds to pay for transaction fees.`,
         ];
       }
     });
@@ -471,38 +475,37 @@ export const AddForm = ({
       <EuiSpacer size="m" />
 
       {/* TODO: Maybe display those side by side with EuiFlex */}
-      {[
-        EcosystemId.Solana,
-        EcosystemId.Ethereum,
-        EcosystemId.Bsc,
-        EcosystemId.Avalanche,
-        EcosystemId.Polygon,
-      ].map((ecosystemId) => {
-        const indices = [...new Array(poolTokens.length)]
-          .map((_, i) => i)
-          .filter((i) => poolTokens[i].nativeEcosystem === ecosystemId);
-        const isRelevant = (_: any, i: number): boolean => indices.includes(i);
-        const tokens = poolTokens.filter(isRelevant);
-        const errors = inputAmountErrors.filter(isRelevant);
-        const filteredInputAmounts = formInputAmounts.filter(isRelevant);
-        const changeHandlers = formInputChangeHandlers.filter(isRelevant);
-        const blurHandlers = formInputBlurHandlers.filter(isRelevant);
-        return (
-          <EcosystemAddPanel
-            key={ecosystemId}
-            ecosystemId={ecosystemId}
-            nEcosystemsInPool={nativeEcosystems.length}
-            tokens={tokens}
-            errors={errors}
-            inputAmounts={filteredInputAmounts}
-            disabled={
-              !wallets[ecosystemId].connected || isInteractionInProgress
-            }
-            changeHandlers={changeHandlers}
-            blurHandlers={blurHandlers}
-          />
-        );
-      })}
+      {filterMap(
+        isEcosystemEnabled,
+        (ecosystemId) => {
+          const indices = [...new Array(poolTokens.length)]
+            .map((_, i) => i)
+            .filter((i) => poolTokens[i].nativeEcosystem === ecosystemId);
+          const isRelevant = (_: any, i: number): boolean =>
+            indices.includes(i);
+          const tokens = poolTokens.filter(isRelevant);
+          const errors = inputAmountErrors.filter(isRelevant);
+          const filteredInputAmounts = formInputAmounts.filter(isRelevant);
+          const changeHandlers = formInputChangeHandlers.filter(isRelevant);
+          const blurHandlers = formInputBlurHandlers.filter(isRelevant);
+          return (
+            <EcosystemAddPanel
+              key={ecosystemId}
+              ecosystemId={ecosystemId}
+              nEcosystemsInPool={nativeEcosystems.length}
+              tokens={tokens}
+              errors={errors}
+              inputAmounts={filteredInputAmounts}
+              disabled={
+                !wallets[ecosystemId].connected || isInteractionInProgress
+              }
+              changeHandlers={changeHandlers}
+              blurHandlers={blurHandlers}
+            />
+          );
+        },
+        ECOSYSTEM_IDS,
+      )}
 
       <EuiFormRow label={receiveLabel}>
         <EuiRadioGroup

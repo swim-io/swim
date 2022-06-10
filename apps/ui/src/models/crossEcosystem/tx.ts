@@ -2,7 +2,7 @@ import type solana from "@solana/web3.js";
 import type { ethers } from "ethers";
 
 import type { EvmEcosystemId } from "../../config";
-import { EcosystemId } from "../../config";
+import { EcosystemId, isEvmEcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { deduplicate } from "../../utils";
 
@@ -41,6 +41,22 @@ export interface PolygonTx extends EvmTx {
   readonly ecosystem: EcosystemId.Polygon;
 }
 
+export interface AuroraTx extends EvmTx {
+  readonly ecosystem: EcosystemId.Aurora;
+}
+
+export interface FantomTx extends EvmTx {
+  readonly ecosystem: EcosystemId.Fantom;
+}
+
+export interface KaruraTx extends EvmTx {
+  readonly ecosystem: EcosystemId.Karura;
+}
+
+export interface AcalaTx extends EvmTx {
+  readonly ecosystem: EcosystemId.Acala;
+}
+
 export type Tx = SolanaTx | EvmTx;
 
 export type TxsByPoolId = ReadonlyRecord<
@@ -75,8 +91,19 @@ export const isAvalancheTx = (tx: Tx): tx is AvalancheTx =>
 export const isPolygonTx = (tx: Tx): tx is PolygonTx =>
   tx.ecosystem === EcosystemId.Polygon;
 
-export const isEvmTx = (tx: Tx): tx is EvmTx =>
-  isEthereumTx(tx) || isBscTx(tx) || isAvalancheTx(tx) || isPolygonTx(tx);
+export const isAuroraTx = (tx: Tx): tx is AuroraTx =>
+  tx.ecosystem === EcosystemId.Aurora;
+
+export const isFantomTx = (tx: Tx): tx is FantomTx =>
+  tx.ecosystem === EcosystemId.Fantom;
+
+export const isKaruraTx = (tx: Tx): tx is KaruraTx =>
+  tx.ecosystem === EcosystemId.Karura;
+
+export const isAcalaTx = (tx: Tx): tx is AcalaTx =>
+  tx.ecosystem === EcosystemId.Acala;
+
+export const isEvmTx = (tx: Tx): tx is EvmTx => isEvmEcosystemId(tx.ecosystem);
 
 export const groupTxsByTokenId = (
   txs: readonly TxWithTokenId[],

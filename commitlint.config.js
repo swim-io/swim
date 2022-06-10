@@ -13,5 +13,6 @@ module.exports = {
         "solana-usdc-usdc-usdt-swap",
       ],
     ],
+    "subject-case": [0, "never"],
   },
 };

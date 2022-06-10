@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import { useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId } from "../config";
+import type { EcosystemId } from "../config";
 import { selectConfig, selectWalletAdapterApi } from "../core/selectors";
 import { useEnvironment, useWalletAdapter } from "../core/store";
 import { useWallets } from "../hooks";
@@ -33,9 +33,6 @@ export const ConnectButton = ({
     selectWalletAdapterApi,
     shallow,
   );
-  if (ecosystemId === EcosystemId.Terra) {
-    throw new Error("Unsupported ecosystem");
-  }
   const ecosystem = ecosystems[ecosystemId];
   const wallets = useWallets();
   const { connected, select, address } = wallets[ecosystemId];
@@ -80,6 +77,10 @@ export const MultiConnectButton = ({
     bsc: { connected: isBscConnected, service: bscService },
     avalanche: { connected: isAvalancheConnected, service: avalanceService },
     polygon: { connected: isPolygonConnected, service: polygonService },
+    aurora: { connected: isAuroraConnected, service: auroraService },
+    fantom: { connected: isFantomConnected, service: fantomService },
+    karura: { connected: isKaruraConnected, service: karuraService },
+    acala: { connected: isAcalaConnected, service: acalaService },
   } = useWallets();
   const connectedServices = [
     isSolanaConnected ? solanaService : null,
@@ -87,6 +88,10 @@ export const MultiConnectButton = ({
     isBscConnected ? bscService : null,
     isAvalancheConnected ? avalanceService : null,
     isPolygonConnected ? polygonService : null,
+    isAuroraConnected ? auroraService : null,
+    isFantomConnected ? fantomService : null,
+    isKaruraConnected ? karuraService : null,
+    isAcalaConnected ? acalaService : null,
   ].filter(isNotNull);
 
   const uniqueServices = deduplicate<string, WalletService>(

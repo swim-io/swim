@@ -11,10 +11,10 @@ export const useIsEvmGasPriceLoading = (
     [EcosystemId.Bsc]: useGasPriceQuery(EcosystemId.Bsc).isLoading,
     [EcosystemId.Avalanche]: useGasPriceQuery(EcosystemId.Avalanche).isLoading,
     [EcosystemId.Polygon]: useGasPriceQuery(EcosystemId.Polygon).isLoading,
-    [EcosystemId.Aurora]: false,
-    [EcosystemId.Fantom]: false,
-    [EcosystemId.Karura]: false,
-    [EcosystemId.Acala]: false,
+    [EcosystemId.Aurora]: useGasPriceQuery(EcosystemId.Aurora).isLoading,
+    [EcosystemId.Fantom]: useGasPriceQuery(EcosystemId.Fantom).isLoading,
+    [EcosystemId.Karura]: useGasPriceQuery(EcosystemId.Karura).isLoading,
+    [EcosystemId.Acala]: useGasPriceQuery(EcosystemId.Acala).isLoading,
   };
   return ecosystemIds.some((ecosystemId) => isGasPriceLoading[ecosystemId]);
 };

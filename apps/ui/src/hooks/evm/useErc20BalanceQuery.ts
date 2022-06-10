@@ -3,6 +3,7 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
+import { isEcosystemEnabled } from "../../config";
 import { useEvmConnection, useEvmWallet } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 
@@ -21,6 +22,9 @@ export const useErc20BalanceQuery = (
         return null;
       }
       return connection.getErc20Balance(contractAddress, walletAddress);
+    },
+    {
+      enabled: isEcosystemEnabled(ecosystemId),
     },
   );
 };

@@ -1,10 +1,6 @@
 import type { ReadonlyRecord } from "../utils";
 
-import type {
-  CosmosEcosystemId,
-  EvmEcosystemId,
-  SolanaEcosystemId,
-} from "./ecosystem";
+import type { EvmEcosystemId, SolanaEcosystemId } from "./ecosystem";
 import { EcosystemId, Protocol } from "./ecosystem";
 import { Env } from "./env";
 
@@ -33,16 +29,16 @@ export const enum EvmChainId {
   AvalancheLocalnet = 43112, // TODO: This is a placeholder
   AuroraMainnet = 1313161554,
   AuroraTestnet = 1313161555,
-  AuroraLocalnet = 1313161555, // TODO: This is a placeholder
+  AuroraLocalnet = 1313161556, // TODO: This is a placeholder
   FantomMainnet = 250,
   FantomTestnet = 4002,
   FantomLocalnet = 4003, // TODO: This is a placeholder
-  KaruraMainnet = 685, // TODO: Update
-  KaruraTestnet = 686,
-  KaruraLocalnet = 687, // TODO: This is a placeholder
-  AcalaMainnet = 786, // TODO: Update
-  AcalaTestnet = 787,
-  AcalaLocalnet = 788, // TODO: This is a placeholder
+  KaruraMainnet = 686,
+  KaruraTestnet = 596,
+  KaruraLocalnet = 606, // TODO: This is a placeholder
+  AcalaMainnet = 787,
+  AcalaTestnet = 597,
+  AcalaLocalnet = 607, // TODO: This is a placeholder
 }
 
 export const evmChainIdToEcosystem: ReadonlyRecord<EvmChainId, EvmEcosystemId> =
@@ -72,10 +68,6 @@ export const evmChainIdToEcosystem: ReadonlyRecord<EvmChainId, EvmEcosystemId> =
     [EvmChainId.AcalaTestnet]: EcosystemId.Acala,
     [EvmChainId.AcalaLocalnet]: EcosystemId.Acala,
   };
-
-export const enum CosmosChainId {
-  TerraMainnet = "columbus-5", // NOTE: Must be updated with every network hard fork
-}
 
 export interface WormholeChainSpec {
   readonly bridge: string;
@@ -112,17 +104,10 @@ export interface EvmSpec extends ChainSpec {
   readonly rpcUrls: readonly string[];
 }
 
-export interface CosmosSpec extends ChainSpec {
-  readonly ecosystem: CosmosEcosystemId;
-  /** This should be unique for a given Env */
-  readonly chainId: CosmosChainId;
-}
-
 /** Every Protocol must specify a corresponding ChainSpec array */
 export interface ChainsByProtocol {
   readonly [Protocol.Solana]: readonly SolanaSpec[];
   readonly [Protocol.Evm]: readonly EvmSpec[];
-  readonly [Protocol.Cosmos]: readonly CosmosSpec[];
 }
 
 const ETHEREUM_NATIVE_CURRENCY = {
@@ -261,8 +246,8 @@ const mainnetChains: ChainsByProtocol = {
       nativeCurrency: KARURA_NATIVE_CURRENCY,
       rpcUrls: ["https://karura.api.onfinality.io/public-rpc"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
-        bridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
-        tokenBridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
+        bridge: "0xa321448d90d4e5b0A732867c18eA198e75CAC48E",
+        tokenBridge: "0xae9d7fe007b3327AA64A32824Aaac52C42a6E624",
       },
     },
     {
@@ -272,12 +257,11 @@ const mainnetChains: ChainsByProtocol = {
       nativeCurrency: ACALA_NATIVE_CURRENCY,
       rpcUrls: ["https://acala-polkadot.api.onfinality.io/public-rpc"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
-        bridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
-        tokenBridge: "0x0000000000000000000000000000000000000000", // TODO: Add when available
+        bridge: "0xa321448d90d4e5b0A732867c18eA198e75CAC48E",
+        tokenBridge: "0xae9d7fe007b3327AA64A32824Aaac52C42a6E624",
       },
     },
   ],
-  [Protocol.Cosmos]: [],
 };
 
 const devnetChains: ChainsByProtocol = {
@@ -355,7 +339,7 @@ const devnetChains: ChainsByProtocol = {
       chainId: EvmChainId.FantomTestnet,
       chainName: "Fantom Testnet",
       nativeCurrency: FANTOM_NATIVE_CURRENCY,
-      rpcUrls: ["https://rpc.ankr.com/fantom_testnet/"], // TODO: Think about what is best to recommend to MetaMask
+      rpcUrls: ["https://rpc.testnet.fantom.network/"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
         bridge: "0x1BB3B4119b7BA9dfad76B0545fb3F531383c3bB7",
         tokenBridge: "0x599CEa2204B4FaECd584Ab1F2b6aCA137a0afbE8",
@@ -366,7 +350,7 @@ const devnetChains: ChainsByProtocol = {
       chainId: EvmChainId.KaruraTestnet,
       chainName: "Karura Testnet",
       nativeCurrency: KARURA_NATIVE_CURRENCY,
-      rpcUrls: ["https://tc7-eth.aca-dev.network"], // TODO: Think about what is best to recommend to MetaMask. Also is this really the same as Acala?
+      rpcUrls: ["https://karura-dev.aca-dev.network/eth/http"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
         bridge: "0xE4eacc10990ba3308DdCC72d985f2a27D20c7d03",
         tokenBridge: "0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37",
@@ -377,14 +361,13 @@ const devnetChains: ChainsByProtocol = {
       chainId: EvmChainId.AcalaTestnet,
       chainName: "Acala Testnet",
       nativeCurrency: ACALA_NATIVE_CURRENCY,
-      rpcUrls: ["https://tc7-eth.aca-dev.network"], // TODO: Think about what is best to recommend to MetaMask
+      rpcUrls: ["https://acala-dev.aca-dev.network/eth/http"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
         bridge: "0x4377B49d559c0a9466477195C6AdC3D433e265c0",
         tokenBridge: "0xebA00cbe08992EdD08ed7793E07ad6063c807004",
       },
     },
   ],
-  [Protocol.Cosmos]: [],
 };
 
 const localnetChains: ChainsByProtocol = {
@@ -491,7 +474,6 @@ const localnetChains: ChainsByProtocol = {
       },
     },
   ],
-  [Protocol.Cosmos]: [],
 };
 
 export const allUniqueChains = {

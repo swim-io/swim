@@ -3,6 +3,7 @@ import type { UseQueryResult } from "react-query";
 import { useQueries } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
+import { isEcosystemEnabled } from "../../config";
 import { useEvmConnection, useEvmWallet } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 
@@ -29,6 +30,7 @@ export const useErc20BalancesQuery = (
         }
         return connection.getErc20Balance(contractAddress, walletAddress);
       },
+      enabled: isEcosystemEnabled(ecosystemId),
     })),
     // useQueries does not support types without casting
     // See https://github.com/tannerlinsley/react-query/issues/1675

@@ -5,22 +5,16 @@ import {
   EuiFlexItem,
   EuiFormRow,
   EuiIcon,
-  EuiSuperSelect,
   EuiText,
   EuiToolTip,
 } from "@elastic/eui";
 import type React from "react";
-import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../../config";
 import { getNativeTokenDetails } from "../../config";
-import { selectConfig } from "../../core/selectors";
-import { useEnvironment } from "../../core/store";
 import { Amount } from "../../models";
-import { findOrThrow } from "../../utils";
 import { ConnectButton } from "../ConnectButton";
-import { NativeTokenIcon } from "../TokenIcon";
-
+import { SelectToken } from "./SelectToken";
 import { UserBalanceDisplay } from "./UserBalanceDisplay";
 
 interface Props {
@@ -74,13 +68,6 @@ export const TokenAmountInput: React.FC<Props> = ({
   onBlur,
   showConstantSwapTip,
 }) => {
-  const { tokens } = useEnvironment(selectConfig, shallow);
-  const options = tokenOptionIds
-    .map((tokenId) => findOrThrow(tokens, ({ id }) => id === tokenId))
-    .map((tokenSpec) => ({
-      value: tokenSpec.id,
-      inputDisplay: <NativeTokenIcon {...tokenSpec} />,
-    }));
   const { nativeEcosystem } = token;
   const tokenNativeDetails = getNativeTokenDetails(token);
   const readOnly = !onChangeValue;
@@ -93,11 +80,10 @@ export const TokenAmountInput: React.FC<Props> = ({
           // TODO: Preferably leave pool logic out a token-related component.
           label={showConstantSwapTip ? getTokenLabel() : null}
         >
-          <EuiSuperSelect
-            options={options}
-            valueOfSelected={token.id}
-            onChange={onSelectToken}
-            itemLayoutAlign="top"
+          <SelectToken
+            token={token}
+            tokenOptionIds={tokenOptionIds}
+            onSelectToken={onSelectToken}
             disabled={disabled}
           />
         </EuiFormRow>

@@ -4,26 +4,27 @@
     "deprecation",
     "functional",
     "import",
-    "prettier",
-    "react",
-    "@sayari"
+    "jest",
+    "prettier"
   ],
   "extends": [
     "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:react/jsx-runtime",
     "plugin:@typescript-eslint/recommended",
-    "react-app",
-    "react-app/jest",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "prettier",
     "plugin:prettier/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript",
     "plugin:functional/external-recommended",
-    "plugin:functional/no-mutations"
+    "plugin:functional/no-mutations",
+    "plugin:jest/recommended"
   ],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "./tsconfig.json"
+  },
+  "env": {
+    "jest/globals": true
   },
   "rules": {
     "no-console": ["warn", { "allow": ["error", "info", "table", "warn"] }],
@@ -40,7 +41,7 @@
     "@typescript-eslint/no-shadow": "error",
     "@typescript-eslint/prefer-readonly-parameter-types": "off",
     // "deprecation/deprecation": "warn",
-    "functional/immutable-data": ["error", { "ignorePattern": ["this", "draft"] }],
+    "functional/immutable-data": ["error", { "ignorePattern": "this" }],
     "functional/no-let": "off",
     "functional/prefer-readonly-type": [
       "error",
@@ -63,27 +64,16 @@
       "error",
       { "alphabetize": { "order": "asc" }, "newlines-between": "always" }
     ],
-    "import/unambiguous": "error",
-    "react/jsx-uses-react": "off",
-    "react/react-in-jsx-scope": "off",
-    "@sayari/no-unwrapped-jsx-text": "error",
-    // https://github.com/testing-library/eslint-plugin-testing-library/blob/main/docs/rules/no-render-in-setup.md
-    "testing-library/no-render-in-setup": ["error", {"allowTestingFrameworkSetupHook": "beforeEach"}]
+    "import/unambiguous": "error"
   },
   "overrides": [
     {
-      "files": ["**/*.d.ts"],
+      "files": ["**/*.test.ts"],
       "rules": {
-        "import/unambiguous": "off"
-      }
-    },
-    {
-      "files": [
-        "src/**/*.stories.@(js|jsx|ts|tsx)",
-        "src/**/*.test.@(js|jsx|ts|tsx)"
-      ],
-      "rules": {
-        "functional/immutable-data": "off"
+        "@typescript-eslint/no-unsafe-argument": "off",
+        "@typescript-eslint/no-unsafe-call": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-return": "off"
       }
     }
   ]

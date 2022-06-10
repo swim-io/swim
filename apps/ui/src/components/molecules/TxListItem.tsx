@@ -25,9 +25,9 @@ const getHref = (ecosystemId: EcosystemId, txId: string): string => {
     case EcosystemId.Fantom:
       return `https://ftmscan.com/tx/${txId}`;
     case EcosystemId.Karura:
-      return `TODO:${txId}`; // TODO: Update
+      return `https://blockscout.karura.network/tx/${txId}`;
     case EcosystemId.Acala:
-      return `TODO:${txId}`; // TODO: Update
+      return `https://blockscout.acala.network/tx/${txId}`;
     default:
       throw new Error("Unknown ecosystem");
   }

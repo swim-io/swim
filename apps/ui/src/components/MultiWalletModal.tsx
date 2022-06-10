@@ -74,11 +74,7 @@ const ProtocolWalletOptionsList = ({
 
     protocolWalletServicesByServiceId[serviceId].forEach((walletService) => {
       const ecosystemId = walletService.info.ecosystem.id;
-      const wallet = wallets[ecosystemId];
-
-      if (wallet.setServiceId) {
-        wallet.setServiceId(serviceId);
-      }
+      wallets[ecosystemId].setServiceId(serviceId);
     });
   };
 

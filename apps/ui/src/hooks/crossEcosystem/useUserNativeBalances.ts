@@ -33,13 +33,11 @@ export const useUserNativeBalances = (): ReadonlyRecord<
   const { data: acaBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
     EcosystemId.Acala,
   );
-  // TODO: Add real hooks when ecosystems are supported
-  const lunaBalance = new Decimal(0);
+
   return {
     [EcosystemId.Solana]: solBalance,
     [EcosystemId.Ethereum]: ethBalance,
     [EcosystemId.Bsc]: bnbBalance,
-    [EcosystemId.Terra]: lunaBalance,
     [EcosystemId.Avalanche]: avaxBalance,
     [EcosystemId.Polygon]: maticBalance,
     [EcosystemId.Aurora]: auroraEthBalance,

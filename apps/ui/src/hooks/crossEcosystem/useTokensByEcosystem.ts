@@ -19,7 +19,6 @@ export const useTokensByEcosystem = (): ReadonlyRecord<
   return {
     [EcosystemId.Solana]: filterTokensByEcosystem(EcosystemId.Solana),
     [EcosystemId.Ethereum]: filterTokensByEcosystem(EcosystemId.Ethereum),
-    [EcosystemId.Terra]: filterTokensByEcosystem(EcosystemId.Terra),
     [EcosystemId.Bsc]: filterTokensByEcosystem(EcosystemId.Bsc),
     [EcosystemId.Avalanche]: filterTokensByEcosystem(EcosystemId.Avalanche),
     [EcosystemId.Polygon]: filterTokensByEcosystem(EcosystemId.Polygon),

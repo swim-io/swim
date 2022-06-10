@@ -50,7 +50,6 @@ export const useUserBalances = (
   return {
     [EcosystemId.Solana]: splBalance,
     [EcosystemId.Ethereum]: ethereumTokenBalance,
-    [EcosystemId.Terra]: null,
     [EcosystemId.Bsc]: bscTokenBalance,
     [EcosystemId.Avalanche]: avalancheTokenBalance,
     [EcosystemId.Polygon]: polygonTokenBalance,
@@ -161,7 +160,6 @@ export const useUserBalanceAmounts = (
     [EcosystemId.Solana]: solanaAmount,
     [EcosystemId.Ethereum]: ethereumAmount,
     [EcosystemId.Bsc]: bscAmount,
-    [EcosystemId.Terra]: null,
     [EcosystemId.Avalanche]: avalancheAmount,
     [EcosystemId.Polygon]: polygonAmount,
     [EcosystemId.Aurora]: auroraAmount,

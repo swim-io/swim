@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import { useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId } from "../config";
+import type { EcosystemId } from "../config";
 import { selectConfig, selectWalletAdapterApi } from "../core/selectors";
 import { useEnvironment, useWalletAdapter } from "../core/store";
 import { useWallets } from "../hooks";
@@ -33,9 +33,6 @@ export const ConnectButton = ({
     selectWalletAdapterApi,
     shallow,
   );
-  if (ecosystemId === EcosystemId.Terra) {
-    throw new Error("Unsupported ecosystem");
-  }
   const ecosystem = ecosystems[ecosystemId];
   const wallets = useWallets();
   const { connected, select, address } = wallets[ecosystemId];

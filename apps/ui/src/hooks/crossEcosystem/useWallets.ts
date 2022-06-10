@@ -10,13 +10,6 @@ import type { ReadonlyRecord } from "../../utils";
 export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
   readonly [EcosystemId.Solana]: SolanaWalletContextInterface;
   readonly [EcosystemId.Ethereum]: EvmWalletContextInterface;
-  readonly [EcosystemId.Terra]: {
-    readonly address: null;
-    readonly connected: false;
-    readonly service: null;
-    readonly wallet: null;
-    readonly setServiceId: null;
-  };
   readonly [EcosystemId.Bsc]: EvmWalletContextInterface;
   readonly [EcosystemId.Avalanche]: EvmWalletContextInterface;
   readonly [EcosystemId.Polygon]: EvmWalletContextInterface;
@@ -29,13 +22,6 @@ export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
 export const useWallets = (): Wallets => ({
   [EcosystemId.Solana]: useSolanaWallet(),
   [EcosystemId.Ethereum]: useEvmWallet(EcosystemId.Ethereum),
-  [EcosystemId.Terra]: {
-    address: null,
-    connected: false,
-    service: null,
-    setServiceId: null,
-    wallet: null,
-  },
   [EcosystemId.Bsc]: useEvmWallet(EcosystemId.Bsc),
   [EcosystemId.Avalanche]: useEvmWallet(EcosystemId.Avalanche),
   [EcosystemId.Polygon]: useEvmWallet(EcosystemId.Polygon),

@@ -243,7 +243,6 @@ export const SOLANA_WALLET_SERVICES: readonly SolanaWalletService<SolanaWalletAd
 export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {
   [EcosystemId.Solana]: SOLANA_WALLET_SERVICES,
   [EcosystemId.Ethereum]: ETHEREUM_WALLET_SERVICES,
-  [EcosystemId.Terra]: [],
   [EcosystemId.Bsc]: BSC_WALLET_SERVICES,
   [EcosystemId.Avalanche]: AVALANCHE_WALLET_SERVICES,
   [EcosystemId.Polygon]: POLYGON_WALLET_SERVICES,
@@ -289,9 +288,6 @@ export const createAdapter = (
           solanaEndpoint,
         );
       }
-    }
-    case Protocol.Cosmos: {
-      throw new Error(`Cosmos adapters not implemented yet`);
     }
   }
 };

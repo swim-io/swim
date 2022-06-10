@@ -5685,12 +5685,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/pool-math@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "@swim-io/pool-math@npm:0.1.0"
+"@swim-io/pool-math@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@swim-io/pool-math@npm:0.1.1"
   dependencies:
     decimal.js: ^10.3.1
-  checksum: 399f5c02c74d3d932c511b85f177b3dd0054233406f8026a2ac7d0d8eeca08b385ba0c89ba8cfde55a05fae7e3ca8a2d68074d9e86e0b7f61f8cacb666da97d1
+  checksum: f0db1110240ab9628b060dc44e969b51f97805ba9c134b2e90289829dce7edab0876bbda595a8c244fc45fff4e633b72a642afb4d4160b2c87bddfc31d9e1748
   languageName: node
   linkType: hard
 
@@ -5819,7 +5819,7 @@ __metadata:
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.2
     "@storybook/testing-library": ^0.0.11
-    "@swim-io/pool-math": ^0.1.0
+    "@swim-io/pool-math": ^0.1.1
     "@testing-library/jest-dom": ^5.11.4
     "@testing-library/react": ^11.1.0
     "@testing-library/react-hooks": ^7.0.2

@@ -31,7 +31,6 @@ export const useTxsForInteractionQuery = (
       EcosystemId.Polygon,
       interactionId,
     ),
-    [EcosystemId.Terra]: useQuery({ enabled: false }),
     [EcosystemId.Aurora]: useEvmTxsForInteractionQuery(
       EcosystemId.Aurora,
       interactionId,

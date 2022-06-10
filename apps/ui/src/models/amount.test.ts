@@ -64,19 +64,6 @@ describe("Amount", () => {
         );
         expect(amount).toBeInstanceOf(Amount);
       });
-
-      // fromHuman/fromHumanString don’t require a specified ecosystem
-      if (!["fromHuman", "fromHumanString"].includes(method)) {
-        it(`throws for unknown ecosystem via ${method}`, () => {
-          expect(() =>
-            Amount[method](
-              defaultNonStablecoinTokenSpec,
-              input,
-              EcosystemId.Terra,
-            ),
-          ).toThrowError(/No token details for ecosystem/);
-        });
-      }
     },
   );
 

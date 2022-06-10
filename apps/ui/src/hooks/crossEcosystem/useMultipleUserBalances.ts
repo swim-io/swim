@@ -47,7 +47,6 @@ const getContractAddressesByEcosystem = (
         [EcosystemId.Bsc]: bscAddress
           ? [...accumulator.bsc, bscAddress]
           : accumulator.bsc,
-        [EcosystemId.Terra]: [],
         [EcosystemId.Avalanche]: avalancheAddress
           ? [...accumulator.avalanche, avalancheAddress]
           : accumulator.avalanche,
@@ -72,7 +71,6 @@ const getContractAddressesByEcosystem = (
       [EcosystemId.Solana]: [],
       [EcosystemId.Ethereum]: [],
       [EcosystemId.Bsc]: [],
-      [EcosystemId.Terra]: [],
       [EcosystemId.Avalanche]: [],
       [EcosystemId.Polygon]: [],
       [EcosystemId.Aurora]: [],

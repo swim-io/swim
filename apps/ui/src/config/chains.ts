@@ -1,10 +1,6 @@
 import type { ReadonlyRecord } from "../utils";
 
-import type {
-  CosmosEcosystemId,
-  EvmEcosystemId,
-  SolanaEcosystemId,
-} from "./ecosystem";
+import type { EvmEcosystemId, SolanaEcosystemId } from "./ecosystem";
 import { EcosystemId, Protocol } from "./ecosystem";
 import { Env } from "./env";
 
@@ -73,10 +69,6 @@ export const evmChainIdToEcosystem: ReadonlyRecord<EvmChainId, EvmEcosystemId> =
     [EvmChainId.AcalaLocalnet]: EcosystemId.Acala,
   };
 
-export const enum CosmosChainId {
-  TerraMainnet = "columbus-5", // NOTE: Must be updated with every network hard fork
-}
-
 export interface WormholeChainSpec {
   readonly bridge: string;
   readonly tokenBridge: string;
@@ -112,17 +104,10 @@ export interface EvmSpec extends ChainSpec {
   readonly rpcUrls: readonly string[];
 }
 
-export interface CosmosSpec extends ChainSpec {
-  readonly ecosystem: CosmosEcosystemId;
-  /** This should be unique for a given Env */
-  readonly chainId: CosmosChainId;
-}
-
 /** Every Protocol must specify a corresponding ChainSpec array */
 export interface ChainsByProtocol {
   readonly [Protocol.Solana]: readonly SolanaSpec[];
   readonly [Protocol.Evm]: readonly EvmSpec[];
-  readonly [Protocol.Cosmos]: readonly CosmosSpec[];
 }
 
 const ETHEREUM_NATIVE_CURRENCY = {
@@ -277,7 +262,6 @@ const mainnetChains: ChainsByProtocol = {
       },
     },
   ],
-  [Protocol.Cosmos]: [],
 };
 
 const devnetChains: ChainsByProtocol = {
@@ -384,7 +368,6 @@ const devnetChains: ChainsByProtocol = {
       },
     },
   ],
-  [Protocol.Cosmos]: [],
 };
 
 const localnetChains: ChainsByProtocol = {
@@ -491,7 +474,6 @@ const localnetChains: ChainsByProtocol = {
       },
     },
   ],
-  [Protocol.Cosmos]: [],
 };
 
 export const allUniqueChains = {

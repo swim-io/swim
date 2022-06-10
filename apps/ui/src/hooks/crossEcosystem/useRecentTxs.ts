@@ -45,7 +45,6 @@ export const useRecentTxs = (
     [EcosystemId.Solana]: solanaTxs,
     [EcosystemId.Ethereum]: ethereumTxs,
     [EcosystemId.Bsc]: bscTxs,
-    [EcosystemId.Terra]: null,
     [EcosystemId.Avalanche]: avalancheTxs,
     [EcosystemId.Polygon]: polygonTxs,
     [EcosystemId.Aurora]: auroraTxs,

@@ -49,7 +49,6 @@ export const useUserLpBalances = (
   return {
     [EcosystemId.Solana]: userLpBalanceSolana,
     [EcosystemId.Ethereum]: userLpBalanceEthereum,
-    [EcosystemId.Terra]: null,
     [EcosystemId.Bsc]: userLpBalanceBsc,
     [EcosystemId.Avalanche]: null,
     [EcosystemId.Polygon]: null,

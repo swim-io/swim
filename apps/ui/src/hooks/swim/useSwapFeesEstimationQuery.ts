@@ -89,7 +89,6 @@ export const useSwapFeesEstimationQuery = (
     [EcosystemId.Solana]: SOLANA_FEE,
     [EcosystemId.Ethereum]: ethGas.mul(ethGasPrice.toString()),
     [EcosystemId.Bsc]: bscGas.mul(bscGasPrice.toString()),
-    [EcosystemId.Terra]: ZERO,
     [EcosystemId.Avalanche]: avalancheGas.mul(avalancheGasPrice.toString()),
     [EcosystemId.Polygon]: polygonGas.mul(polygonGasPrice.toString()),
     [EcosystemId.Aurora]: auroraGas.mul(auroraGasPrice.toString()),

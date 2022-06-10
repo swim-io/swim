@@ -37,7 +37,6 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
       [EcosystemId.Fantom]: null,
       [EcosystemId.Karura]: null,
       [EcosystemId.Polygon]: null,
-      [EcosystemId.Terra]: null,
     },
   },
   requiredSplTokenAccounts: {
@@ -129,7 +128,6 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
       [EcosystemId.Fantom]: null,
       [EcosystemId.Karura]: null,
       [EcosystemId.Polygon]: null,
-      [EcosystemId.Terra]: null,
     },
   },
   requiredSplTokenAccounts: {

@@ -1,5 +1,6 @@
 import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
 import type { Keypair } from "@solana/web3.js";
+import type PoolMath from "@swim-io/pool-math";
 import Decimal from "decimal.js";
 
 import type {
@@ -36,7 +37,6 @@ import {
 import type { Interaction } from "./interaction";
 import type { TokensByPoolId } from "./pool";
 import { getTokensByPool } from "./pool";
-import type { PoolMath } from "./poolMath";
 import type { Steps, WormholeFromSolanaFullStep } from "./steps";
 import { createSteps, getRequiredPools } from "./steps";
 import type { ProtoTransfer, Transfer, Transfers } from "./transfer";

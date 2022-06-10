@@ -49,6 +49,7 @@
     "@sentry/tracing": "^6.19.2",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.33.0",
+    "@swim-io/pool-math": "^0.1.1",
     "bn.js": "^5.2.0",
     "constate": "^3.3.0",
     "decimal.js": "^10.3.1",
@@ -69,6 +70,7 @@
     "zustand": "^4.0.0-rc.1"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.17.12",
     "@sentry/webpack-plugin": "^1.18.8",
     "@storybook/addon-actions": "^6.5.2",
     "@storybook/addon-docs": "^6.5.2",

@@ -1,4 +1,5 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import type PoolMath from "@swim-io/pool-math";
 import shallow from "zustand/shallow.js";
 
 import { usePoolMathByPoolIds, useSplTokenAccountsQuery, useWallets } from "..";
@@ -26,7 +27,6 @@ import type {
   Interaction,
   InteractionSpec,
   InteractionState,
-  PoolMath,
   RequiredSplTokenAccounts,
   SolanaPoolOperationState,
   ToSolanaTransferState,

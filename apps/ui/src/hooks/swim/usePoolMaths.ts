@@ -1,10 +1,11 @@
+import PoolMath from "@swim-io/pool-math";
 import Decimal from "decimal.js";
 
 import { BNtoDecimal, atomicToHuman } from "../../amounts";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import { Amount, PoolMath } from "../../models";
+import { Amount } from "../../models";
 import { isEachNotNull } from "../../utils";
 
 import type { PoolData } from "./usePools";

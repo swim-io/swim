@@ -1,4 +1,5 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import type PoolMath from "@swim-io/pool-math";
 
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import type {
@@ -34,7 +35,6 @@ import { InteractionType } from "./interaction";
 import type { OperationSpec } from "./operation";
 import type { TokensByPoolId } from "./pool";
 import { getTokensByPool, isPoolTx } from "./pool";
-import type { PoolMath } from "./poolMath";
 import type {
   ProtoTransfer,
   Transfer,

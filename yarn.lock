@@ -5874,7 +5874,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/pool-math@workspace:packages/pool-math":
+"@swim-io/pool-math@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@swim-io/pool-math@npm:0.1.1"
+  dependencies:
+    decimal.js: ^10.3.1
+  checksum: f0db1110240ab9628b060dc44e969b51f97805ba9c134b2e90289829dce7edab0876bbda595a8c244fc45fff4e633b72a642afb4d4160b2c87bddfc31d9e1748
+  languageName: node
+  linkType: hard
+
+"@swim-io/pool-math@workspace:^, @swim-io/pool-math@workspace:packages/pool-math":
   version: 0.0.0-use.local
   resolution: "@swim-io/pool-math@workspace:packages/pool-math"
   dependencies:
@@ -5919,6 +5928,7 @@ __metadata:
     "@project-serum/borsh": ^0.2.3
     "@solana/spl-token": ^0.2.0
     "@solana/web3.js": ^1.31.0
+    "@types/bn.js": ^5.1.0
     "@types/bs58": ^4.0.1
     bs58: ^4.0.1
     decimal.js: ^10.3.1
@@ -5955,6 +5965,7 @@ __metadata:
     "@project-serum/borsh": ^0.2.3
     "@solana/spl-token": ^0.2.0
     "@solana/web3.js": ^1.31.0
+    "@swim-io/pool-math": "workspace:^"
     "@types/bn.js": ^5.1.0
     bn.js: ^5.2.0
     prettier: ^2.6.1
@@ -5969,6 +5980,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@swim-io/ui@workspace:apps/ui"
   dependencies:
+    "@babel/plugin-proposal-nullish-coalescing-operator": ^7.17.12
     "@certusone/wormhole-sdk": ^0.2.6
     "@craco/craco": ^6.3.0
     "@elastic/datemath": ^5.0.3
@@ -5996,6 +6008,7 @@ __metadata:
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.2
     "@storybook/testing-library": ^0.0.11
+    "@swim-io/pool-math": ^0.1.1
     "@testing-library/jest-dom": ^5.11.4
     "@testing-library/react": ^11.1.0
     "@testing-library/react-hooks": ^7.0.2

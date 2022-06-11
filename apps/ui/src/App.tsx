@@ -58,9 +58,8 @@ function App(): ReactElement {
                 element={<SetCustomLocalnetPage />}
               />
               <Route path="test" element={<TestPage />} />
-              <Route path="pools" element={<PoolsPage />}>
-                <Route path=":poolId" element={<PoolPage />} />
-              </Route>
+              <Route path="pools" element={<PoolsPage />} />
+              <Route path="pools/:poolId" element={<PoolPage />} />
               <Route path="stake" element={<StakePage poolId="swimlake" />} />
               <Route path="swap" element={<SwapPage />} />
               {process.env.REACT_APP_ENABLE_NFT && (

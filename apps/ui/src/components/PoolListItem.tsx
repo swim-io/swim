@@ -63,11 +63,7 @@ export const PoolListItem = ({
       layout="horizontal"
       hasBorder
       onClick={
-        poolId
-          ? () => {
-              navigate(`/pools/${poolId}`);
-            }
-          : undefined
+        poolId ? () => navigate(`${poolId}`, { replace: true }) : undefined
       }
       isDisabled={!!betaBadgeLabel}
       betaBadgeLabel={betaBadgeLabel}

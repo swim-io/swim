@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 import type { ReactElement } from "react";
-import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import "./App.scss";
 
@@ -48,60 +48,36 @@ function App(): ReactElement {
         }
       }}
     >
-      <Router>
+      <BrowserRouter>
         <AppContext>
           <Layout>
-            <Switch>
-              <Route path="/set-custom-localnet">
-                <SetCustomLocalnetPage />
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route
+                path="set-custom-localnet"
+                element={<SetCustomLocalnetPage />}
+              />
+              <Route path="test" element={<TestPage />} />
+              <Route path="pools" element={<PoolsPage />}>
+                <Route path=":poolId" element={<PoolPage />} />
               </Route>
-              <Route path="/test">
-                <TestPage />
-              </Route>
-              <Route exact path="/pools">
-                <PoolsPage />
-              </Route>
-              <Route path="/pools/:poolId">
-                <PoolPage />
-              </Route>
-              <Route path="/stake">
-                <StakePage poolId="swimlake" />
-              </Route>
-              <Route path="/swap">
-                <SwapPage />
-              </Route>
+              <Route path="stake" element={<StakePage poolId="swimlake" />} />
+              <Route path="swap" element={<SwapPage />} />
               {process.env.REACT_APP_ENABLE_NFT && (
-                <Route exact path="/otter-tots">
-                  <OtterTotsPage />
-                </Route>
+                <Route path="otter-tots" element={<OtterTotsPage />} />
               )}
               {process.env.REACT_APP_ENABLE_NFT && (
-                <Route path="/redeem">
-                  <RedeemPage />
-                </Route>
+                <Route path="redeem" element={<RedeemPage />} />
               )}
-              <Route path="/collectibles">
-                <CollectiblesPage />
-              </Route>
-              <Route path="/tos">
-                <TosPage />
-              </Route>
-              <Route path="/media">
-                <MediaPage />
-              </Route>
-              <Route path="/help">
-                <HelpPage />
-              </Route>
-              <Route path="/security">
-                <SecurityPage />
-              </Route>
-              <Route path="/">
-                <HomePage />
-              </Route>
-            </Switch>
+              <Route path="collectibles" element={<CollectiblesPage />} />
+              <Route path="tos" element={<TosPage />} />
+              <Route path="media" element={<MediaPage />} />
+              <Route path="help" element={<HelpPage />} />
+              <Route path="security" element={<SecurityPage />} />
+            </Routes>
           </Layout>
         </AppContext>
-      </Router>
+      </BrowserRouter>
       <Notification />
       <WalletsMonitor />
     </Sentry.ErrorBoundary>

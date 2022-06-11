@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Redirect, useLocation } from "react-router";
+import { Navigate, useLocation } from "react-router-dom";
 
 import { useEnvironment } from "../core/store";
 
@@ -11,7 +11,7 @@ const SetCustomLocalnetPage = (): ReactElement => {
 
   setCustomLocalnetIp(newLocalnetIp);
 
-  return <Redirect to="/" />;
+  return <Navigate to="/" replace={true} />;
 };
 
 export default SetCustomLocalnetPage;

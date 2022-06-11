@@ -17,7 +17,7 @@ import {
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import shallow from "zustand/shallow.js";
 
 import {
@@ -105,7 +105,7 @@ export const PoolPageInner = ({
   poolSpec,
 }: PoolPageInnerProps): ReactElement => {
   useTitle(poolSpec.displayName);
-  const history = useHistory();
+  const navigate = useNavigate();
   const [currentInteraction, setCurrentInteraction] = useState<string | null>(
     null,
   );
@@ -201,7 +201,7 @@ export const PoolPageInner = ({
               {
                 text: "Pools >",
                 onClick: () => {
-                  history.push("/pools");
+                  navigate("/pools");
                 },
               },
             ]}

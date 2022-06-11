@@ -6,6 +6,7 @@ import type { EvmEcosystemId, EvmSpec } from "../../config";
 import { EcosystemId, Env, isEcosystemEnabled } from "../../config";
 import { isNotNull } from "../../utils";
 
+import { AcalaProvider } from "./AcalaProvider";
 import { LocalnetProvider } from "./LocalnetProvider";
 import { MoralisProvider } from "./MoralisProvider";
 import { PolygonNetwork, PolygonScanProvider } from "./PolygonScanProvider";
@@ -16,11 +17,21 @@ type EtherscanProvider = ethers.providers.EtherscanProvider;
 type TransactionReceipt = ethers.providers.TransactionReceipt;
 type TransactionResponse = ethers.providers.TransactionResponse;
 
-export type Provider = MoralisProvider | EtherscanProvider | LocalnetProvider;
+export type Provider =
+  | MoralisProvider
+  | EtherscanProvider
+  | LocalnetProvider
+  | AcalaProvider;
 
 // TODO: Use proper endpoints via env
 const BSC_MAINNET_RPC_URL = process.env.REACT_APP_BSC_MAINNET_RPC_URL;
 const BSC_TESTNET_RPC_URL = process.env.REACT_APP_BSC_TESTNET_RPC_URL;
+// TODO: Replace with an environment variable.
+const ACALA_MAINNET_RPC_URL =
+  "https://acala-polkadot.api.onfinality.io/rpc?apikey=6cc48216-0acc-46b5-a15f-607a0d049f2b";
+// TODO: Replace with an environment variable.
+const KARURA_MAINNET_RPC_URL =
+  "https://karura.api.onfinality.io/rpc?apikey=6cc48216-0acc-46b5-a15f-607a0d049f2b";
 
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
 const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
@@ -79,6 +90,28 @@ const getSnowTraceNetwork = (env: Env): AvalancheNetwork => {
   }
 };
 
+const getAcalaProvider = (env: Env): string => {
+  switch (env) {
+    case Env.Mainnet:
+      return ACALA_MAINNET_RPC_URL;
+    case Env.Devnet:
+    default:
+      throw new Error(`AcalaProvider does not support ${env}`);
+  }
+};
+
+const getKaruraProvider = (env: Env): string => {
+  switch (env) {
+    case Env.Mainnet:
+      return KARURA_MAINNET_RPC_URL;
+    case Env.Devnet:
+    default:
+      throw new Error(
+        `Karura provider (AcalaProvider) does not support ${env}`,
+      );
+  }
+};
+
 const getBscRpcUrl = (env: Env): string => {
   switch (env) {
     case Env.Mainnet:
@@ -114,14 +147,14 @@ export class EvmConnection {
       return new LocalnetProvider(rpcUrls[0]);
     }
     // TODO: Remove when these chains are supported
-    if (
-      [
-        EcosystemId.Aurora,
-        EcosystemId.Fantom,
-        EcosystemId.Karura,
-        EcosystemId.Acala,
-      ].includes(ecosystem)
-    ) {
+    const isUnimplemented = [EcosystemId.Aurora, EcosystemId.Fantom].includes(
+      ecosystem,
+    );
+    // TODO: Remove if wormhole devnet supports Mandala.
+    const isAcalaKaruraDevnet =
+      [EcosystemId.Acala, EcosystemId.Karura].includes(ecosystem) &&
+      env === Env.Devnet;
+    if (isUnimplemented || isAcalaKaruraDevnet) {
       return new LocalnetProvider(rpcUrls[0]);
     }
     switch (env) {
@@ -166,6 +199,12 @@ export class EvmConnection {
           getPolygonScanNetwork(env),
           POLYGONSCAN_API_KEY,
         );
+      }
+      case EcosystemId.Acala: {
+        return new AcalaProvider(getAcalaProvider(env));
+      }
+      case EcosystemId.Karura: {
+        return new AcalaProvider(getKaruraProvider(env));
       }
       default:
         throw new Error(`Unsupported EVM ecosystem: ${ecosystemId}`);

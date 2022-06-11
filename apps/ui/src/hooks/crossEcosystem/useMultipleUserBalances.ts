@@ -20,13 +20,20 @@ const getContractAddressesByEcosystem = (
         bscAddress,
         avalancheAddress,
         polygonAddress,
+        auroraAddress,
+        fantomAddress,
+        karuraAddress,
+        acalaAddress,
       ] = [
         EcosystemId.Solana,
         EcosystemId.Ethereum,
         EcosystemId.Bsc,
         EcosystemId.Avalanche,
         EcosystemId.Polygon,
-        // TODO: Add support for Aurora/Fantom/Acala
+        EcosystemId.Aurora,
+        EcosystemId.Fantom,
+        EcosystemId.Karura,
+        EcosystemId.Acala,
       ].map(
         (ecosystemId) => detailsByEcosystem.get(ecosystemId)?.address ?? null,
       );
@@ -40,24 +47,30 @@ const getContractAddressesByEcosystem = (
         [EcosystemId.Bsc]: bscAddress
           ? [...accumulator.bsc, bscAddress]
           : accumulator.bsc,
-        [EcosystemId.Terra]: [],
         [EcosystemId.Avalanche]: avalancheAddress
           ? [...accumulator.avalanche, avalancheAddress]
           : accumulator.avalanche,
         [EcosystemId.Polygon]: polygonAddress
           ? [...accumulator.polygon, polygonAddress]
           : accumulator.polygon,
-        [EcosystemId.Aurora]: [],
-        [EcosystemId.Fantom]: [],
-        [EcosystemId.Karura]: [],
-        [EcosystemId.Acala]: [],
+        [EcosystemId.Aurora]: auroraAddress
+          ? [...accumulator.aurora, auroraAddress]
+          : accumulator.aurora,
+        [EcosystemId.Fantom]: fantomAddress
+          ? [...accumulator.fantom, fantomAddress]
+          : accumulator.fantom,
+        [EcosystemId.Karura]: karuraAddress
+          ? [...accumulator.karura, karuraAddress]
+          : accumulator.karura,
+        [EcosystemId.Acala]: acalaAddress
+          ? [...accumulator.acala, acalaAddress]
+          : accumulator.acala,
       };
     },
     {
       [EcosystemId.Solana]: [],
       [EcosystemId.Ethereum]: [],
       [EcosystemId.Bsc]: [],
-      [EcosystemId.Terra]: [],
       [EcosystemId.Avalanche]: [],
       [EcosystemId.Polygon]: [],
       [EcosystemId.Aurora]: [],
@@ -95,8 +108,17 @@ const getEvmTokenIdAndBalance = (
 export const useMultipleUserBalances = (
   tokenSpecs: readonly TokenSpec[],
 ): ReadonlyMap<string, Amount | null> => {
-  const { solana, ethereum, bsc, avalanche, polygon } =
-    getContractAddressesByEcosystem(tokenSpecs);
+  const {
+    solana,
+    ethereum,
+    bsc,
+    avalanche,
+    polygon,
+    aurora,
+    fantom,
+    karura,
+    acala,
+  } = getContractAddressesByEcosystem(tokenSpecs);
   const { address: solanaWalletAddress } = useSolanaWallet();
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
   const solanaTokenAccounts = solana.map((tokenContractAddress) =>
@@ -118,6 +140,10 @@ export const useMultipleUserBalances = (
     avalanche,
   );
   const polygonBalances = useErc20BalancesQuery(EcosystemId.Polygon, polygon);
+  const auroraBalances = useErc20BalancesQuery(EcosystemId.Aurora, aurora);
+  const fantomBalances = useErc20BalancesQuery(EcosystemId.Fantom, fantom);
+  const karuraBalances = useErc20BalancesQuery(EcosystemId.Karura, karura);
+  const acalaBalances = useErc20BalancesQuery(EcosystemId.Acala, acala);
 
   return new Map(
     tokenSpecs.map((tokenSpec, i) => {
@@ -165,6 +191,38 @@ export const useMultipleUserBalances = (
             EcosystemId.Polygon,
             polygonBalances,
             polygon,
+          );
+        }
+        case EcosystemId.Aurora: {
+          return getEvmTokenIdAndBalance(
+            tokenSpec,
+            EcosystemId.Aurora,
+            auroraBalances,
+            aurora,
+          );
+        }
+        case EcosystemId.Fantom: {
+          return getEvmTokenIdAndBalance(
+            tokenSpec,
+            EcosystemId.Fantom,
+            fantomBalances,
+            fantom,
+          );
+        }
+        case EcosystemId.Karura: {
+          return getEvmTokenIdAndBalance(
+            tokenSpec,
+            EcosystemId.Karura,
+            karuraBalances,
+            karura,
+          );
+        }
+        case EcosystemId.Acala: {
+          return getEvmTokenIdAndBalance(
+            tokenSpec,
+            EcosystemId.Acala,
+            acalaBalances,
+            acala,
           );
         }
         default:

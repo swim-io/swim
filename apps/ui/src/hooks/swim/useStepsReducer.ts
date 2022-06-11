@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/react";
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import type PoolMath from "@swim-io/pool-math";
 import type { Dispatch, Reducer } from "react";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import type { UseMutationResult } from "react-query";
@@ -34,7 +35,6 @@ import type {
   InitiateInteractionAction,
   Interaction,
   InteractionSpec,
-  PoolMath,
   State,
   Transfer,
   TransfersToSolanaWithExistingTxs,

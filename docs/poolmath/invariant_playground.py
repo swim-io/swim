@@ -2,12 +2,6 @@
 
 from swim_invariant import SwimPool, Decimal
 
-token_count = 3
-amp_factor = Decimal("1.313")  # *Decimal(9)/Decimal(6**5)
-lp_fee = Decimal("0.10")
-governance_fee = Decimal("0.40")
-
-
 def lan_virtual_price_decrease():
     total_lp = [
         12053.94427,
@@ -165,52 +159,85 @@ def imbalanced_testing():
 # will_exact_compute_budget_limit()
 
 
+def bit_usage():
+  pool = SwimPool(3, Decimal("1"), Decimal("0"), Decimal("0"), Decimal("0.0000001"))
+  testfee = Decimal("0.2")
+  full_depth_add_no_fee = pool.ext_calc_depth([Decimal(2), Decimal(1), Decimal(1)]) - Decimal(3)
+  full_depth_add_minus_fee = full_depth_add_no_fee * testfee
+  #full_input_amount = pool.ext_calc_missing_balance(
+  #    [Decimal(1), Decimal(1)],
+  #    Decimal(3) + full_depth_add_minus_fee
+  #) - Decimal(1)
+  full_output_amount = Decimal(1) - pool.ext_calc_missing_balance(
+      [Decimal(2), Decimal(1)],
+      Decimal(3) + full_depth_add_minus_fee
+  )
 
-pool = SwimPool(token_count, Decimal("1"), Decimal("0"), Decimal("0"), Decimal("0.0000001"))
-testfee = Decimal("0.2")
-full_depth_add_no_fee = pool.ext_calc_depth([Decimal(2), Decimal(1), Decimal(1)]) - Decimal(3)
-full_depth_add_minus_fee = full_depth_add_no_fee * testfee
-#full_input_amount = pool.ext_calc_missing_balance(
-#    [Decimal(1), Decimal(1)],
-#    Decimal(3) + full_depth_add_minus_fee
-#) - Decimal(1)
-full_output_amount = Decimal(1) - pool.ext_calc_missing_balance(
-    [Decimal(2), Decimal(1)],
-    Decimal(3) + full_depth_add_minus_fee
-)
+  split_depth_add_no_fee1 = pool.ext_calc_depth([Decimal(1.5), Decimal(1), Decimal(1)]) - Decimal(3)
+  split_depth_add_minus_fee1 = split_depth_add_no_fee1 * testfee
+  #split_input_amount1 = pool.ext_calc_missing_balance(
+  #    [Decimal(1), Decimal(1)],
+  #    Decimal(3) + split_depth_add_minus_fee1
+  #) - Decimal(1)
+  split_output_amount1 = Decimal(1) - pool.ext_calc_missing_balance(
+      [Decimal(1.5), Decimal(1)],
+      Decimal(3) + split_depth_add_minus_fee1
+  )
 
-split_depth_add_no_fee1 = pool.ext_calc_depth([Decimal(1.5), Decimal(1), Decimal(1)]) - Decimal(3)
-split_depth_add_minus_fee1 = split_depth_add_no_fee1 * testfee
-#split_input_amount1 = pool.ext_calc_missing_balance(
-#    [Decimal(1), Decimal(1)],
-#    Decimal(3) + split_depth_add_minus_fee1
-#) - Decimal(1)
-split_output_amount1 = Decimal(1) - pool.ext_calc_missing_balance(
-    [Decimal(1.5), Decimal(1)],
-    Decimal(3) + split_depth_add_minus_fee1
-)
+  split_depth_add_no_fee2 = pool.ext_calc_depth([Decimal(2), Decimal(1), Decimal(1) - split_output_amount1]) - Decimal(3) + split_depth_add_minus_fee1
+  split_depth_add_minus_fee2 = split_depth_add_no_fee2 * testfee
+  #split_input_amount2 = pool.ext_calc_missing_balance(
+  #    [Decimal(1), Decimal(1) - split_output_amount1],
+  #    Decimal(3) + split_depth_add_minus_fee2
+  #) - Decimal(1 + split_input_amount1)
+  split_output_amount2 = (Decimal(1) - split_output_amount1) - pool.ext_calc_missing_balance(
+      [Decimal(2), Decimal(1)],
+      Decimal(3) + split_depth_add_minus_fee1 + split_depth_add_minus_fee2
+  )
 
-split_depth_add_no_fee2 = pool.ext_calc_depth([Decimal(2), Decimal(1), Decimal(1) - split_output_amount1]) - Decimal(3) + split_depth_add_minus_fee1
-split_depth_add_minus_fee2 = split_depth_add_no_fee2 * testfee
-#split_input_amount2 = pool.ext_calc_missing_balance(
-#    [Decimal(1), Decimal(1) - split_output_amount1],
-#    Decimal(3) + split_depth_add_minus_fee2
-#) - Decimal(1 + split_input_amount1)
-split_output_amount2 = (Decimal(1) - split_output_amount1) - pool.ext_calc_missing_balance(
-    [Decimal(2), Decimal(1)],
-    Decimal(3) + split_depth_add_minus_fee1 + split_depth_add_minus_fee2
-)
+  #print("input")
+  #print("split:", split_input_amount1 + split_input_amount2, " = ", split_input_amount1, " + ", split_input_amount2)
+  #print(" full:", full_input_amount)
 
-#print("input")
-#print("split:", split_input_amount1 + split_input_amount2, " = ", split_input_amount1, " + ", split_input_amount2)
-#print(" full:", full_input_amount)
+  #print("output")
+  #print("split:", split_output_amount1 + split_output_amount2, " = ", split_output_amount1, " + ", split_output_amount2)
+  #print(" full:", full_output_amount)
 
-#print("output")
-#print("split:", split_output_amount1 + split_output_amount2, " = ", split_output_amount1, " + ", split_output_amount2)
-#print(" full:", full_output_amount)
+  #print(" comp:", pool.ext_calc_depth([Decimal(2), Decimal(1), Decimal(1) - full_output_amount]))
+  #print(" comp:", pool.ext_calc_depth([Decimal(2), Decimal(1), Decimal(1) - split_output_amount1 - split_output_amount2]))
 
-#print(" comp:", pool.ext_calc_depth([Decimal(2), Decimal(1), Decimal(1) - full_output_amount]))
-#print(" comp:", pool.ext_calc_depth([Decimal(2), Decimal(1), Decimal(1) - split_output_amount1 - split_output_amount2]))
+  #print(" comp:", pool.ext_calc_depth([Decimal(1) + full_input_amount, Decimal(1), Decimal(1) - full_output_amount]))
+  #print(" comp:", pool.ext_calc_depth([Decimal(1) + split_input_amount1 + split_input_amount2, Decimal(1), Decimal(1) - split_output_amount1 - split_output_amount2]))
 
-#print(" comp:", pool.ext_calc_depth([Decimal(1) + full_input_amount, Decimal(1), Decimal(1) - full_output_amount]))
-#print(" comp:", pool.ext_calc_depth([Decimal(1) + split_input_amount1 + split_input_amount2, Decimal(1), Decimal(1) - split_output_amount1 - split_output_amount2]))
+def wtf():
+  amp_factor = Decimal(2000)
+  lp_fee = Decimal("0.2")
+  gov_fee = Decimal("0.2")
+  tolerance = Decimal(0.1)
+  pool = SwimPool(6, amp_factor, lp_fee, gov_fee, tolerance)
+  base = Decimal(10)
+  burn = Decimal(55)
+  balances = [base for _ in range(6)]
+  print("add:", pool.add(balances))
+  print("burn amount:", burn)
+  exact_burn_result = pool.remove_exact_burn(burn, 0)
+  print("exact burn:", exact_burn_result)
+
+  print("depth:", pool.depth())
+  print("balances:", pool.balances)
+  print("lp supply:", pool.lp_supply)
+
+  print("-----------")
+
+  pool = SwimPool(6, amp_factor, lp_fee, gov_fee, tolerance)
+  remove = exact_burn_result[0]
+  balances = [base for _ in range(6)]
+  print("add:", pool.add(balances))
+  print("remove amount:", remove)
+  print("remove:", pool.remove_exact_output([remove] + [Decimal(0) for _ in range(5)], 0))
+  print("depth:", pool.depth())
+  print("balances:", pool.balances)
+  print("lp supply:", pool.lp_supply)
+
+wtf()
+

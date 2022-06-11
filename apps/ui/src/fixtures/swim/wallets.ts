@@ -1,4 +1,5 @@
 import { EcosystemId } from "../../config";
+import type { Wallets } from "../../hooks";
 
 export const MOCK_WALLETS = {
   [EcosystemId.Acala]: { address: null },
@@ -15,5 +16,4 @@ export const MOCK_WALLETS = {
     address: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     connected: true,
   },
-  [EcosystemId.Terra]: { address: null },
-};
+} as Wallets;

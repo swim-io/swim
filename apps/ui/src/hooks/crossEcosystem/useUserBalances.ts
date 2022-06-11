@@ -30,18 +30,33 @@ export const useUserBalances = (
     EcosystemId.Polygon,
     tokenSpec?.detailsByEcosystem.get(EcosystemId.Polygon)?.address ?? null,
   );
+  const { data: auroraTokenBalance = null } = useErc20BalanceQuery(
+    EcosystemId.Aurora,
+    tokenSpec?.detailsByEcosystem.get(EcosystemId.Aurora)?.address ?? null,
+  );
+  const { data: fantomTokenBalance = null } = useErc20BalanceQuery(
+    EcosystemId.Fantom,
+    tokenSpec?.detailsByEcosystem.get(EcosystemId.Fantom)?.address ?? null,
+  );
+  const { data: karuraTokenBalance = null } = useErc20BalanceQuery(
+    EcosystemId.Karura,
+    tokenSpec?.detailsByEcosystem.get(EcosystemId.Karura)?.address ?? null,
+  );
+  const { data: acalaTokenBalance = null } = useErc20BalanceQuery(
+    EcosystemId.Acala,
+    tokenSpec?.detailsByEcosystem.get(EcosystemId.Acala)?.address ?? null,
+  );
 
   return {
     [EcosystemId.Solana]: splBalance,
     [EcosystemId.Ethereum]: ethereumTokenBalance,
-    [EcosystemId.Terra]: null,
     [EcosystemId.Bsc]: bscTokenBalance,
     [EcosystemId.Avalanche]: avalancheTokenBalance,
     [EcosystemId.Polygon]: polygonTokenBalance,
-    [EcosystemId.Aurora]: null,
-    [EcosystemId.Fantom]: null,
-    [EcosystemId.Karura]: null,
-    [EcosystemId.Acala]: null,
+    [EcosystemId.Aurora]: auroraTokenBalance,
+    [EcosystemId.Fantom]: fantomTokenBalance,
+    [EcosystemId.Karura]: karuraTokenBalance,
+    [EcosystemId.Acala]: acalaTokenBalance,
   };
 };
 
@@ -54,6 +69,10 @@ export const useUserBalanceAmounts = (
     bsc: bscBalance,
     avalanche: avalancheBalance,
     polygon: polygonBalance,
+    aurora: auroraBalance,
+    fantom: fantomBalance,
+    karura: karuraBalance,
+    acala: acalaBalance,
   } = useUserBalances(tokenSpec);
 
   const solanaAmount =
@@ -101,16 +120,51 @@ export const useUserBalanceAmounts = (
         )
       : null;
 
+  const auroraAmount =
+    auroraBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Aurora)
+      ? Amount.fromAtomicString(
+          tokenSpec,
+          auroraBalance.toString(),
+          EcosystemId.Aurora,
+        )
+      : null;
+
+  const fantomAmount =
+    fantomBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Fantom)
+      ? Amount.fromAtomicString(
+          tokenSpec,
+          fantomBalance.toString(),
+          EcosystemId.Fantom,
+        )
+      : null;
+
+  const karuraAmount =
+    karuraBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Karura)
+      ? Amount.fromAtomicString(
+          tokenSpec,
+          karuraBalance.toString(),
+          EcosystemId.Karura,
+        )
+      : null;
+
+  const acalaAmount =
+    acalaBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Acala)
+      ? Amount.fromAtomicString(
+          tokenSpec,
+          acalaBalance.toString(),
+          EcosystemId.Acala,
+        )
+      : null;
+
   return {
     [EcosystemId.Solana]: solanaAmount,
     [EcosystemId.Ethereum]: ethereumAmount,
     [EcosystemId.Bsc]: bscAmount,
-    [EcosystemId.Terra]: null,
     [EcosystemId.Avalanche]: avalancheAmount,
     [EcosystemId.Polygon]: polygonAmount,
-    [EcosystemId.Aurora]: null,
-    [EcosystemId.Fantom]: null,
-    [EcosystemId.Karura]: null,
-    [EcosystemId.Acala]: null,
+    [EcosystemId.Aurora]: auroraAmount,
+    [EcosystemId.Fantom]: fantomAmount,
+    [EcosystemId.Karura]: karuraAmount,
+    [EcosystemId.Acala]: acalaAmount,
   };
 };

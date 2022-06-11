@@ -3,7 +3,7 @@ import type { FC } from "react";
 import shallow from "zustand/shallow.js";
 
 import { decimalRemoveTrailingZero } from "../amounts";
-import type { EvmEcosystemId } from "../config";
+import { ECOSYSTEM_IDS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import type { FeesEstimation } from "../models";
@@ -27,14 +27,12 @@ export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
       </>
     );
   }
-  const txFeeArray = Object.keys(feesEstimation)
-    .map((ecosystemId) => {
-      return {
-        ecosystemId,
-        txFee: feesEstimation[ecosystemId as EvmEcosystemId],
-      };
-    })
-    .filter(({ txFee }) => !txFee.isZero());
+  const txFeeArray = ECOSYSTEM_IDS.map((ecosystemId) => {
+    return {
+      ecosystemId,
+      txFee: feesEstimation[ecosystemId],
+    };
+  }).filter(({ txFee }) => !txFee.isZero());
 
   return (
     <>
@@ -47,7 +45,7 @@ export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
         <ul>
           {txFeeArray.map(({ ecosystemId, txFee }) => {
             const { displayName, nativeTokenSymbol } =
-              config.ecosystems[ecosystemId as EvmEcosystemId];
+              config.ecosystems[ecosystemId];
             return (
               <li key={ecosystemId}>
                 {displayName}

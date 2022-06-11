@@ -4,6 +4,7 @@
     "amd": true,
     "node": true
   },
+  "root": true,
   "plugins": [
     "@typescript-eslint",
     "deprecation",
@@ -62,7 +63,11 @@
     "@typescript-eslint/restrict-template-expressions": "off",
     "@typescript-eslint/restrict-plus-operands": "off",
     "deprecation/deprecation": "warn",
-    "functional/immutable-data": ["error", { "ignorePattern": "this" }],
+    // "deprecation/deprecation": "warn",
+    "functional/immutable-data": [
+      "error",
+      { "ignorePattern": ["this", "draft"] }
+    ],
     "functional/no-let": "off",
     "functional/prefer-readonly-type": [
       "error",
@@ -91,7 +96,7 @@
     "@sayari/no-unwrapped-jsx-text": "error",
     // https://github.com/testing-library/eslint-plugin-testing-library/blob/main/docs/rules/no-render-in-setup.md
     "testing-library/no-render-in-setup": [
-      "off",
+      "error",
       { "allowTestingFrameworkSetupHook": "beforeEach" }
     ]
   },

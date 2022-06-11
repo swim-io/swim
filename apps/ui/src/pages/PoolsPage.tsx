@@ -18,17 +18,19 @@ import shallow from "zustand/shallow.js";
 import { atomicToTvlString, u64ToDecimal } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
 import type { PoolSpec } from "../config";
-import { EcosystemId, getSolanaTokenDetails } from "../config";
+import {
+  EcosystemId,
+  getSolanaTokenDetails,
+  isEcosystemEnabled,
+} from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { useCoinGeckoPricesQuery, useLiquidityQuery, useTitle } from "../hooks";
 import AUSD_SVG from "../images/tokens/ausd.svg";
-import BTC_SVG from "../images/tokens/btc.svg";
 import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
 import USDC_SVG from "../images/tokens/usdc.svg";
 import USDT_SVG from "../images/tokens/usdt.svg";
 import USN_SVG from "../images/tokens/usn.svg";
-import WBTC_SVG from "../images/tokens/wbtc.svg";
 import { filterMap, findOrThrow } from "../utils";
 
 const PoolsPage = (): ReactElement => {
@@ -137,230 +139,210 @@ const PoolsPage = (): ReactElement => {
               />
             )}
 
-            <EuiSpacer size="xxl" />
+            {isEcosystemEnabled(EcosystemId.Aurora) || (
+              <>
+                <EuiSpacer size="xxl" />
 
-            <PoolListItem
-              poolName="Aurora USDC Meta-Pool"
-              betaBadgeLabel="Coming Soon"
-              tokenSpecs={[
-                {
-                  id: "placeholder-aurora-native-usdc",
-                  symbol: "USDC",
-                  displayName: "USD Coin",
-                  icon: USDC_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Aurora,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
-                },
-              ]}
-            />
+                <PoolListItem
+                  poolName="Aurora USDC Meta-Pool"
+                  betaBadgeLabel="Coming Soon"
+                  tokenSpecs={[
+                    {
+                      id: "placeholder-aurora-native-usdc",
+                      symbol: "USDC",
+                      displayName: "USD Coin",
+                      icon: USDC_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Aurora,
+                      detailsByEcosystem: new Map(),
+                    },
+                    {
+                      id: "mainnet-solana-lp-hexapool",
+                      symbol: "swimUSD",
+                      displayName: "swimUSD (Swim Hexapool LP)",
+                      icon: SWIM_USD_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Solana,
+                      detailsByEcosystem: new Map(),
+                    },
+                  ]}
+                />
 
-            <EuiSpacer size="xxl" />
+                <EuiSpacer size="xxl" />
 
-            <PoolListItem
-              poolName="Aurora USDT Meta-Pool"
-              betaBadgeLabel="Coming Soon"
-              tokenSpecs={[
-                {
-                  id: "placeholder-aurora-native-usdt",
-                  symbol: "USDT",
-                  displayName: "Tether USD",
-                  icon: USDT_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Aurora,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
-                },
-              ]}
-            />
+                <PoolListItem
+                  poolName="Aurora USDT Meta-Pool"
+                  betaBadgeLabel="Coming Soon"
+                  tokenSpecs={[
+                    {
+                      id: "placeholder-aurora-native-usdt",
+                      symbol: "USDT",
+                      displayName: "Tether USD",
+                      icon: USDT_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Aurora,
+                      detailsByEcosystem: new Map(),
+                    },
+                    {
+                      id: "mainnet-solana-lp-hexapool",
+                      symbol: "swimUSD",
+                      displayName: "swimUSD (Swim Hexapool LP)",
+                      icon: SWIM_USD_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Solana,
+                      detailsByEcosystem: new Map(),
+                    },
+                  ]}
+                />
 
-            <EuiSpacer size="xxl" />
+                <EuiSpacer size="xxl" />
 
-            <PoolListItem
-              poolName="Aurora USN Meta-Pool"
-              betaBadgeLabel="Coming Soon"
-              tokenSpecs={[
-                {
-                  id: "placeholder-aurora-native-usn",
-                  symbol: "USN",
-                  displayName: "USN",
-                  icon: USN_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Aurora,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
-                },
-              ]}
-            />
+                <PoolListItem
+                  poolName="Aurora USN Meta-Pool"
+                  betaBadgeLabel="Coming Soon"
+                  tokenSpecs={[
+                    {
+                      id: "placeholder-aurora-native-usn",
+                      symbol: "USN",
+                      displayName: "USN",
+                      icon: USN_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Aurora,
+                      detailsByEcosystem: new Map(),
+                    },
+                    {
+                      id: "mainnet-solana-lp-hexapool",
+                      symbol: "swimUSD",
+                      displayName: "swimUSD (Swim Hexapool LP)",
+                      icon: SWIM_USD_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Solana,
+                      detailsByEcosystem: new Map(),
+                    },
+                  ]}
+                />
+              </>
+            )}
 
-            <EuiSpacer size="xxl" />
+            {isEcosystemEnabled(EcosystemId.Fantom) || (
+              <>
+                <EuiSpacer size="xxl" />
 
-            <PoolListItem
-              poolName="Fantom USDC Meta-Pool"
-              betaBadgeLabel="Coming Soon"
-              tokenSpecs={[
-                {
-                  id: "placeholder-fantom-native-usdc",
-                  symbol: "USDC",
-                  displayName: "USD Coin",
-                  icon: USDC_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Fantom,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
-                },
-              ]}
-            />
+                <PoolListItem
+                  poolName="Fantom USDC Meta-Pool"
+                  betaBadgeLabel="Coming Soon"
+                  tokenSpecs={[
+                    {
+                      id: "placeholder-fantom-native-usdc",
+                      symbol: "USDC",
+                      displayName: "USD Coin",
+                      icon: USDC_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Fantom,
+                      detailsByEcosystem: new Map(),
+                    },
+                    {
+                      id: "mainnet-solana-lp-hexapool",
+                      symbol: "swimUSD",
+                      displayName: "swimUSD (Swim Hexapool LP)",
+                      icon: SWIM_USD_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Solana,
+                      detailsByEcosystem: new Map(),
+                    },
+                  ]}
+                />
+              </>
+            )}
 
-            <EuiSpacer size="xxl" />
+            {isEcosystemEnabled(EcosystemId.Karura) || (
+              <>
+                <EuiSpacer size="xxl" />
 
-            <PoolListItem
-              poolName="Karura aUSD Meta-Pool"
-              betaBadgeLabel="Coming Soon"
-              tokenSpecs={[
-                {
-                  id: "placeholder-karura-native-ausd",
-                  symbol: "aUSD",
-                  displayName: "Karura aUSD",
-                  icon: AUSD_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Karura,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
-                },
-              ]}
-            />
+                <PoolListItem
+                  poolName="Karura aUSD Meta-Pool"
+                  betaBadgeLabel="Coming Soon"
+                  tokenSpecs={[
+                    {
+                      id: "placeholder-karura-native-ausd",
+                      symbol: "aUSD",
+                      displayName: "Karura aUSD",
+                      icon: AUSD_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Karura,
+                      detailsByEcosystem: new Map(),
+                    },
+                    {
+                      id: "mainnet-solana-lp-hexapool",
+                      symbol: "swimUSD",
+                      displayName: "swimUSD (Swim Hexapool LP)",
+                      icon: SWIM_USD_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Solana,
+                      detailsByEcosystem: new Map(),
+                    },
+                  ]}
+                />
 
-            <EuiSpacer size="xxl" />
+                <EuiSpacer size="xxl" />
 
-            <PoolListItem
-              poolName="Karura USDT Meta-Pool"
-              betaBadgeLabel="Coming Soon"
-              tokenSpecs={[
-                {
-                  id: "placeholder-karura-native-usdt",
-                  symbol: "USDT",
-                  displayName: "Tether USD",
-                  icon: USDT_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Karura,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
-                },
-              ]}
-            />
+                <PoolListItem
+                  poolName="Karura USDT Meta-Pool"
+                  betaBadgeLabel="Coming Soon"
+                  tokenSpecs={[
+                    {
+                      id: "placeholder-karura-native-usdt",
+                      symbol: "USDT",
+                      displayName: "Tether USD",
+                      icon: USDT_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Karura,
+                      detailsByEcosystem: new Map(),
+                    },
+                    {
+                      id: "mainnet-solana-lp-hexapool",
+                      symbol: "swimUSD",
+                      displayName: "swimUSD (Swim Hexapool LP)",
+                      icon: SWIM_USD_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Solana,
+                      detailsByEcosystem: new Map(),
+                    },
+                  ]}
+                />
+              </>
+            )}
 
-            <EuiSpacer size="xxl" />
+            {isEcosystemEnabled(EcosystemId.Acala) || (
+              <>
+                <EuiSpacer size="xxl" />
 
-            <PoolListItem
-              poolName="Acala aUSD Meta-Pool"
-              betaBadgeLabel="Coming Soon"
-              tokenSpecs={[
-                {
-                  id: "placeholder-acala-native-ausd",
-                  symbol: "aUSD",
-                  displayName: "Acala USD",
-                  icon: AUSD_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Acala,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
-                },
-              ]}
-            />
-
-            <EuiSpacer size="xxl" />
-
-            <PoolListItem
-              poolName="BTC Tri-Pool"
-              betaBadgeLabel="Coming Soon"
-              tokenSpecs={[
-                {
-                  id: "placeholder-solana-native-btc",
-                  symbol: "ETH",
-                  displayName: "Bitcoin",
-                  icon: BTC_SVG,
-                  isStablecoin: false,
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "placeholder-ethereum-native-wbtc",
-                  symbol: "WBTC",
-                  displayName: "Wrapped Bitcoin",
-                  icon: WBTC_SVG,
-                  isStablecoin: false,
-                  nativeEcosystem: EcosystemId.Ethereum,
-                  detailsByEcosystem: new Map(),
-                },
-                {
-                  id: "placeholder-bsc-native-btcb",
-                  symbol: "BTCB",
-                  displayName: "BTCB",
-                  icon: BTC_SVG,
-                  isStablecoin: false,
-                  nativeEcosystem: EcosystemId.Bsc,
-                  detailsByEcosystem: new Map(),
-                },
-              ]}
-            />
+                <PoolListItem
+                  poolName="Acala aUSD Meta-Pool"
+                  betaBadgeLabel="Coming Soon"
+                  tokenSpecs={[
+                    {
+                      id: "placeholder-acala-native-ausd",
+                      symbol: "aUSD",
+                      displayName: "Acala USD",
+                      icon: AUSD_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Acala,
+                      detailsByEcosystem: new Map(),
+                    },
+                    {
+                      id: "mainnet-solana-lp-hexapool",
+                      symbol: "swimUSD",
+                      displayName: "swimUSD (Swim Hexapool LP)",
+                      icon: SWIM_USD_SVG,
+                      isStablecoin: true,
+                      nativeEcosystem: EcosystemId.Solana,
+                      detailsByEcosystem: new Map(),
+                    },
+                  ]}
+                />
+              </>
+            )}
 
             <EuiSpacer size="xxl" />
           </EuiPageContentBody>

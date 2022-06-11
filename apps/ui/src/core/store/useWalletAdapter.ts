@@ -63,9 +63,6 @@ export const useWalletAdapter = create<WalletAdapterState>(
               draft.solana = null;
               break;
             }
-            case Protocol.Cosmos: {
-              throw new Error(`Cosmos disconnect not implemented`);
-            }
           }
         }),
       );

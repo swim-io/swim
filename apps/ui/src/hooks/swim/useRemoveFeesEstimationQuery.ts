@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 
 import type { EvmEcosystemId } from "../../config";
-import { EcosystemId, isEvmEcosystemId } from "../../config";
+import { ECOSYSTEM_IDS, EcosystemId, isEvmEcosystemId } from "../../config";
 import type { Amount, FeesEstimation } from "../../models";
 import {
   APPROVAL_CEILING,
@@ -11,6 +11,7 @@ import {
   countNonZeroAmounts,
   getIncludedEvmEcosystemIds,
 } from "../../models";
+import { filterMap } from "../../utils";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
 import { useIsEvmGasPriceLoading } from "./useIsEvmGasPriceLoading";
@@ -37,11 +38,24 @@ export const useRemoveFeesEstimationQuery = (
   outputAmounts: readonly (Amount | null)[],
   lpTokenSourceEcosystem: EcosystemId,
 ): FeesEstimation | null => {
-  const [ethGasPrice, bscGasPrice, avalancheGasPrice, polygonGasPrice] = [
+  const [
+    ethGasPrice,
+    bscGasPrice,
+    avalancheGasPrice,
+    polygonGasPrice,
+    auroraGasPrice,
+    fantomGasPrice,
+    karuraGasPrice,
+    acalaGasPrice,
+  ] = [
     useGasPriceQuery(EcosystemId.Ethereum).data ?? ZERO,
     useGasPriceQuery(EcosystemId.Bsc).data ?? ZERO,
     useGasPriceQuery(EcosystemId.Avalanche).data ?? ZERO,
     useGasPriceQuery(EcosystemId.Polygon).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Aurora).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Fantom).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Karura).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Acala).data ?? ZERO,
   ];
   const requiredEvmEcosystemIds = [
     ...getIncludedEvmEcosystemIds(outputAmounts),
@@ -54,26 +68,30 @@ export const useRemoveFeesEstimationQuery = (
     return null;
   }
 
-  const evmEcosystemIds: readonly EvmEcosystemId[] = [
-    EcosystemId.Ethereum,
-    EcosystemId.Bsc,
-    EcosystemId.Avalanche,
-    EcosystemId.Polygon,
-  ];
-  const [ethGas, bscGas, avalancheGas, polygonGas] = evmEcosystemIds.map(
+  const [
+    ethGas,
+    bscGas,
+    avalancheGas,
+    polygonGas,
+    auroraGas,
+    fantomGas,
+    karuraGas,
+    acalaGas,
+  ] = filterMap(
+    isEvmEcosystemId,
     (ecosystemId) =>
       calculateGas(ecosystemId, outputAmounts, lpTokenSourceEcosystem),
+    ECOSYSTEM_IDS,
   );
   return {
     [EcosystemId.Solana]: SOLANA_FEE,
     [EcosystemId.Ethereum]: ethGas.mul(ethGasPrice.toString()),
     [EcosystemId.Bsc]: bscGas.mul(bscGasPrice.toString()),
-    [EcosystemId.Terra]: ZERO,
     [EcosystemId.Avalanche]: avalancheGas.mul(avalancheGasPrice.toString()),
     [EcosystemId.Polygon]: polygonGas.mul(polygonGasPrice.toString()),
-    [EcosystemId.Aurora]: ZERO,
-    [EcosystemId.Fantom]: ZERO,
-    [EcosystemId.Karura]: ZERO,
-    [EcosystemId.Acala]: ZERO,
+    [EcosystemId.Aurora]: auroraGas.mul(auroraGasPrice.toString()),
+    [EcosystemId.Fantom]: fantomGas.mul(fantomGasPrice.toString()),
+    [EcosystemId.Karura]: karuraGas.mul(karuraGasPrice.toString()),
+    [EcosystemId.Acala]: acalaGas.mul(acalaGasPrice.toString()),
   };
 };

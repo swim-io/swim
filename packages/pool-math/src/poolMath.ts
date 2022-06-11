@@ -1,9 +1,7 @@
-//see docs/poolmath for an in-depth explanation
-
-//In this file, positive and negative are used in the strict sense, i.e. x is positive <=> x > 0
+// In this file, positive and negative are used in the strict sense, i.e. x is positive <=> x > 0
 // and x is negative <=> x < 0. (And hence e.g. non-negative implies zero or positive, etc.)
 //
-//Since decimal.js has signed zeros (like IEEE floats!) and its .isPos() and .isNeg() methods
+// Since decimal.js has signed zeros (like IEEE floats!) and its .isPos() and .isNeg() methods
 // only check for the sign value, it exhibits the following behavior:
 //
 // let a = new Decimal(0);
@@ -13,7 +11,7 @@
 // console.log(a.isPos()); // => false
 // console.log(a.isNeg()); // => true
 //
-//Therefore, to enforce our strict definition, we rely on comparison operators instead.
+// Therefore, to enforce our strict definition, we rely on comparison operators instead.
 import Decimal from "decimal.js";
 
 function areAllNonNegativeOrThrow(decimals: readonly Decimal[]): void {
@@ -73,10 +71,12 @@ function subGivenOrder(
 
 export class PoolMath {
   private static readonly MAX_TOKEN_COUNT = 20;
-  //MIN_AMP_VALUE should be the same as the smart contract constant (see pool/src/amp_factor.rs)
-  //alternatively, can also be 0 for constant product invariant!
+  /**
+   * MIN_AMP_VALUE should be the same as the smart contract constant (see pool/src/amp_factor.rs)
+   * Alternatively, can also be 0 for constant product invariant!
+   */
   private static readonly MIN_AMP_VALUE = new Decimal(1);
-  //MAX_AMP_VALUE should be the same as the smart contract constant (see pool/src/amp_factor.rs)
+  /* MAX_AMP_VALUE should be the same as the smart contract constant (see pool/src/amp_factor.rs) */
   private static readonly MAX_AMP_VALUE = new Decimal("1e6");
   private static readonly DEFAULT_TOLERANCE = new Decimal("1e-6");
   private static readonly DEFAULT_MAX_ITERATIONS = 200;
@@ -92,11 +92,12 @@ export class PoolMath {
   private readonly maxIterations!: number;
 
   constructor(
-    //balances can have arbitrary units (though atomic units should most
-    //likely go with a tolerance of 1 while human units should probably
-    //use the maximum decimals of all involved tokens)
+    /** Balances can have arbitrary units (though atomic units should most likely go with a
+     * tolerance of 1 while human units should probably use the maximum decimals of all involved
+     * tokens)
+     */
     balancesOrTokenCount: readonly Decimal[] | number,
-    //amp in 'swim units' (= A*n**n) - divide by tokenCount to get 'curve units' (= A*n**(n-1))
+    /* Amp in 'Swim units' (= A*n**n) - divide by tokenCount to get 'Curve units' (= A*n**(n-1)) */
     ampFactor: Decimal,
     lpFee: Decimal,
     governanceFee: Decimal,
@@ -110,12 +111,7 @@ export class PoolMath {
       !ampFactor.isZero()
     ) {
       throw new Error(
-        ampFactor.toString() +
-          " is not a valid ampFactor - must be in range [" +
-          PoolMath.MIN_AMP_VALUE.toString() +
-          ", " +
-          +PoolMath.MAX_AMP_VALUE.toString() +
-          "] or 0",
+        `${ampFactor.toString()} is not a valid ampFactor - must be in range [${PoolMath.MIN_AMP_VALUE.toString()}, ${PoolMath.MAX_AMP_VALUE.toString()}] or 0`,
       );
     }
     this.ampFactor = ampFactor;
@@ -334,9 +330,10 @@ export class PoolMath {
     const governanceDepth = totalFeeDepth.mul(
       this.governanceFee.div(this.totalFee),
     );
-    const governanceMintAmount = governanceDepth
-      .div(updatedDepth.sub(governanceDepth))
-      .mul(this.lpSupply.sub(burnAmount));
+    const updatedLpSupply = this.lpSupply.sub(burnAmount);
+    const lpDepth = updatedDepth.add(totalFeeDepth).sub(governanceDepth);
+    const appreciationFactor = updatedLpSupply.div(lpDepth);
+    const governanceMintAmount = governanceDepth.mul(appreciationFactor);
     return { stableOutputAmount, governanceMintAmount };
   }
 
@@ -455,9 +452,12 @@ export class PoolMath {
       this.governanceFee.div(this.totalFee),
     );
     const lpAmount = userDepth.div(initialDepth).mul(this.lpSupply);
-    const governanceMintAmount = governanceDepth
-      .div((isAdd ? updatedDepth : feeAdjustedDepth).sub(governanceDepth))
-      .mul(this.lpSupply[isAdd ? "add" : "sub"](lpAmount));
+    const updatedLpSupply = this.lpSupply[isAdd ? "add" : "sub"](lpAmount);
+    const lpDepth = (isAdd ? feeAdjustedDepth : updatedDepth).sub(
+      governanceDepth,
+    );
+    const appreciationFactor = updatedLpSupply.div(lpDepth);
+    const governanceMintAmount = governanceDepth.mul(appreciationFactor);
     return [lpAmount, governanceMintAmount];
   }
 
@@ -514,9 +514,9 @@ export class PoolMath {
     const governanceDepth = totalFeeDepth.mul(
       this.governanceFee.div(this.totalFee),
     );
-    const governanceMintAmount = governanceDepth
-      .div(initialDepth.add(totalFeeDepth).sub(governanceDepth))
-      .mul(this.lpSupply);
+    const lpDepth = finalDepth.sub(governanceDepth);
+    const appreciationFactor = this.lpSupply.div(lpDepth);
+    const governanceMintAmount = governanceDepth.mul(appreciationFactor);
     return [finalAmount, governanceMintAmount];
   }
 

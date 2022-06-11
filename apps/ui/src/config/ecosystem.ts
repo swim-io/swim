@@ -7,7 +7,6 @@ import FANTOM_SVG from "../images/ecosystems/fantom.svg";
 import KARURA_SVG from "../images/ecosystems/karura.svg";
 import POLYGON_SVG from "../images/ecosystems/polygon.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
-import TERRA_SVG from "../images/ecosystems/terra.svg";
 import type { ReadonlyRecord } from "../utils";
 import { filterMap } from "../utils";
 
@@ -16,13 +15,11 @@ import { WormholeChainId } from "./wormhole";
 export const enum Protocol {
   Solana = "solana-protocol",
   Evm = "evm",
-  Cosmos = "cosmos",
 }
 
 export const protocolNames: Record<Protocol, string> = {
   [Protocol.Solana]: "Solana",
   [Protocol.Evm]: "EVM",
-  [Protocol.Cosmos]: "Cosmos",
 };
 
 /**
@@ -30,13 +27,11 @@ export const protocolNames: Record<Protocol, string> = {
  * For a given Env, this encodes both Protocol and Protocol-specific ChainId
  * For a given Env, there should be no more than 1 ChainSpec with a given Ecosystem
  */
-export const enum EcosystemId {
+export enum EcosystemId {
   /** Only valid for Protocol.Solana chains */
   Solana = "solana",
   /** Only valid for Protocol.Evm chains */
   Ethereum = "ethereum",
-  /** Only valid for Protocol.Cosmos chains */
-  Terra = "terra",
   /** Only valid for Protocol.Evm chains */
   Bsc = "bsc",
   /** Only valid for Protocol.Evm chains */
@@ -52,6 +47,8 @@ export const enum EcosystemId {
   /** Only valid for Protocol.Evm chains */
   Acala = "acala",
 }
+
+export const ECOSYSTEM_IDS: readonly EcosystemId[] = Object.values(EcosystemId);
 
 export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean => {
   switch (ecosystemId) {
@@ -102,8 +99,6 @@ export const isEvmEcosystemId = (
     EcosystemId.Acala,
   ].includes(ecosystemId);
 
-export type CosmosEcosystemId = Extract<EcosystemId, EcosystemId.Terra>;
-
 export interface Ecosystem {
   readonly id: EcosystemId;
   readonly protocol: Protocol;
@@ -129,14 +124,6 @@ export const ecosystemList: readonly Ecosystem[] = [
     displayName: "Ethereum",
     logo: ETHEREUM_SVG,
     nativeTokenSymbol: "ETH",
-  },
-  {
-    id: EcosystemId.Terra,
-    protocol: Protocol.Cosmos,
-    wormholeChainId: WormholeChainId.Terra,
-    displayName: "Terra",
-    logo: TERRA_SVG,
-    nativeTokenSymbol: "LUNA",
   },
   {
     id: EcosystemId.Bsc,

@@ -183,7 +183,6 @@ export const getConnectedWallets = (
       [EcosystemId.Solana]: null,
       [EcosystemId.Ethereum]: null,
       [EcosystemId.Bsc]: null,
-      [EcosystemId.Terra]: null,
       [EcosystemId.Avalanche]: null,
       [EcosystemId.Polygon]: null,
       [EcosystemId.Aurora]: null,

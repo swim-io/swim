@@ -9,7 +9,7 @@ function round(decimal: Decimal): Decimal {
   return decimal.mul(multiplier).round().div(multiplier);
 }
 
-describe("PoolMath tests", () => {
+describe("PoolMath", () => {
   test("basic uniform add", () => {
     const tokenCount = 3;
     const ampFactor = new Decimal(1);
@@ -99,7 +99,7 @@ describe("PoolMath tests", () => {
     }
   });
 
-  test("that removeExactOutput is consistent with removeExactBurn", () => {
+  test("removeExactOutput is consistent with removeExactBurn", () => {
     const balances = [100, 100, 100].map((b) => new Decimal(b));
     const outAmount = new Decimal(10);
     const index = 0;
@@ -115,18 +115,13 @@ describe("PoolMath tests", () => {
     const firstResult = pool.removeExactOutput(outAmounts);
     const secondResult = pool.removeExactBurn(firstResult.lpInputAmount, index);
 
-    // console.log("original output:", outAmount);
-    // console.log("    lp required:", round(firstResult.lpInputAmount));
-    // console.log("rederivedOutput:", round(secondResult.stableOutputAmount));
-    // console.log("governance mint:", round(secondResult.governanceMintAmount));
-
     expect(round(secondResult.stableOutputAmount)).toEqual(outAmount);
     expect(round(firstResult.governanceMintAmount)).toEqual(
       round(secondResult.governanceMintAmount),
     );
   });
 
-  test("that swapExactIn is consistent with swapExactOut", () => {
+  test("swapExactIn is consistent with swapExactOut", () => {
     const balances = [100, 100, 100].map((b) => new Decimal(b));
     const inAmount = new Decimal(50);
     const inIndex = 0;
@@ -148,10 +143,6 @@ describe("PoolMath tests", () => {
     );
 
     const secondResult = pool.swapExactOutput(inIndex, outAmounts);
-    // console.log(" original input:", inAmount);
-    // console.log("    swap output:", round(firstResult.stableOutputAmount));
-    // console.log("rederived input:", round(secondResult.stableInputAmount));
-    // console.log("governance mint:", round(secondResult.governanceMintAmount));
 
     expect(inAmount).toEqual(round(secondResult.stableInputAmount));
     expect(round(firstResult.governanceMintAmount)).toEqual(
@@ -159,9 +150,19 @@ describe("PoolMath tests", () => {
     );
   });
 
-  test("that proportional and imbalanced add/remove gives the same result as doing it all at once", () => {
-    for (const isAdd in { 1: true, 2: false }) {
-      // https://typescript-eslint.io/rules/no-for-in-array/
+  test.each([["add"], ["removeExactOutput"]])(
+    "proportional and imbalanced %s gives the same result as doing it all at once",
+    (methodName) => {
+      const isAdd = methodName === "add";
+      const testedOp = isAdd
+        ? PoolMath.prototype.add // eslint-disable-line @typescript-eslint/unbound-method
+        : PoolMath.prototype.removeExactOutput; // eslint-disable-line @typescript-eslint/unbound-method
+      const addSub = isAdd
+        ? Decimal.prototype.plus // eslint-disable-line @typescript-eslint/unbound-method
+        : Decimal.prototype.minus; // eslint-disable-line @typescript-eslint/unbound-method
+      const getLpAmount = (result: any): Decimal =>
+        result[isAdd ? "lpOutputAmount" : "lpInputAmount"];
+
       const balances = [100, 100, 100].map((b) => new Decimal(b));
       const ampFactor = new Decimal("1.313");
       const lpFee = new Decimal("0.10");
@@ -170,19 +171,16 @@ describe("PoolMath tests", () => {
 
       const pool = new PoolMath(balances, ampFactor, lpFee, governanceFee);
 
-      const getLpAmount = (result: any): Decimal =>
-        result[isAdd ? "lpOutputAmount" : "lpInputAmount"];
-
       const proportionalAmounts = balances.map((b) => b.div(fraction));
-      const proportionalResult = isAdd
-        ? pool.add(proportionalAmounts)
-        : pool.removeExactOutput(proportionalAmounts);
+      const proportionalResult = testedOp.bind(pool)(proportionalAmounts);
       expect(proportionalResult.governanceMintAmount).toEqual(new Decimal(0));
 
       const balancesAfter = balances.map((b, i) =>
-        b.plus(proportionalAmounts[i]),
+        addSub.bind(b)(proportionalAmounts[i]),
       );
-      const lpSupplyAfter = pool.depth().plus(getLpAmount(proportionalResult));
+      const lpSupplyAfter = addSub.bind(pool.depth())(
+        getLpAmount(proportionalResult),
+      );
       const poolAfter = new PoolMath(
         balancesAfter,
         ampFactor,
@@ -194,23 +192,12 @@ describe("PoolMath tests", () => {
       const imbalancedAmounts = balances.map((b, i) =>
         i === 0 ? balances[i].div(fraction * fraction) : new Decimal(0),
       );
-      const imbalancedResult = isAdd
-        ? poolAfter.add(imbalancedAmounts)
-        : poolAfter.removeExactOutput(imbalancedAmounts);
+      const imbalancedResult = testedOp.bind(poolAfter)(imbalancedAmounts);
 
       const togetherAmounts = proportionalAmounts.map((b, i) =>
         b.plus(imbalancedAmounts[i]),
       );
-
-      const pool2 = new PoolMath(balances, ampFactor, lpFee, governanceFee);
-
-      const togetherResult = isAdd
-        ? pool2.add(togetherAmounts)
-        : pool2.removeExactOutput(togetherAmounts);
-
-      // console.log("          isAdd:", isAdd);
-      // console.log("      lp in/out:", round(getLpAmount(togetherResult)));
-      // console.log("governance mint:", round(imbalancedResult.governanceMintAmount));
+      const togetherResult = testedOp.bind(pool)(togetherAmounts);
 
       expect(
         round(
@@ -221,6 +208,6 @@ describe("PoolMath tests", () => {
       expect(round(imbalancedResult.governanceMintAmount)).toEqual(
         round(togetherResult.governanceMintAmount),
       );
-    }
-  });
+    },
+  );
 });

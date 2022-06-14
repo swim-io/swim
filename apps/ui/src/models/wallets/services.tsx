@@ -12,6 +12,7 @@ import LEDGER_ICON from "../../images/wallets/ledger.svg";
 import MATHWALLET_ICON from "../../images/wallets/mathwallet.svg";
 import METAMASK_ICON from "../../images/wallets/metamask.svg";
 import PHANTOM_ICON from "../../images/wallets/phantom.svg";
+import type { ReadonlyRecord } from "../../utils";
 import { findOrThrow } from "../../utils";
 
 import type {
@@ -282,7 +283,7 @@ export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {
 };
 
 const findServiceForProtocol = (
-  serviceId: string,
+  serviceId: WalletServiceId,
   protocol: Protocol,
 ): WalletService => {
   const ecosystemIds = getEcosystemsForProtocol(protocol);
@@ -296,7 +297,7 @@ const findServiceForProtocol = (
 };
 
 export const createAdapter = (
-  serviceId: WalletService["id"],
+  serviceId: WalletServiceId,
   protocol: Protocol,
   solanaEndpoint: string,
 ): WalletAdapter => {
@@ -319,4 +320,17 @@ export const createAdapter = (
       }
     }
   }
+};
+
+export const walletServiceInfo: ReadonlyRecord<
+  WalletServiceId,
+  Omit<WalletServiceInfo, "ecosystem" | "helpText">
+> = {
+  [WalletServiceId.Ledger]: ledgerInfo,
+  [WalletServiceId.MathWallet]: mathWalletInfo,
+  [WalletServiceId.MetaMask]: metaMaskInfo,
+  [WalletServiceId.Phantom]: phantomInfo,
+  [WalletServiceId.Solflare]: solflareInfo,
+  [WalletServiceId.Sollet]: solletInfo,
+  [WalletServiceId.Solong]: solongInfo,
 };

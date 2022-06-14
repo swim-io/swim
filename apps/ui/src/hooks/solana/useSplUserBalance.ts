@@ -1,8 +1,8 @@
 import Decimal from "decimal.js";
 
-import { useSolanaWallet } from "../../contexts";
 import { findTokenAccountForMint } from "../../models";
 
+import { useSolanaWallet } from "./useSolanaWallet";
 import { useSplTokenAccountsQuery } from "./useSplTokenAccountsQuery";
 
 export const useSplUserBalance = (

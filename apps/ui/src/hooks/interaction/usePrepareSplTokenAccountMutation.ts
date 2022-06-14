@@ -1,6 +1,7 @@
 import { useMutation } from "react-query";
 
-import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { useSolanaWallet } from "..";
+import { useSolanaConnection } from "../../contexts";
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { createSplTokenAccount } from "../../models";

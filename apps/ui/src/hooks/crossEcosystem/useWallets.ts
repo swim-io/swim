@@ -1,34 +1,33 @@
 import { EcosystemId } from "../../config";
-import type {
-  EvmWalletContextInterface,
-  SolanaWalletContextInterface,
-} from "../../contexts";
-import { useEvmWallet, useSolanaWallet } from "../../contexts";
 import type { BaseWallet } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
+import type { EvmWalletInterface } from "../evm";
+import { useEvmWallet } from "../evm/useEvmWallet";
+import type { SolanaWalletInterface } from "../solana";
+import { useSolanaWallet } from "../solana/useSolanaWallet";
 
 export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
-  readonly [EcosystemId.Solana]: SolanaWalletContextInterface;
-  readonly [EcosystemId.Ethereum]: EvmWalletContextInterface;
-  readonly [EcosystemId.Bsc]: EvmWalletContextInterface;
-  readonly [EcosystemId.Avalanche]: EvmWalletContextInterface;
-  readonly [EcosystemId.Polygon]: EvmWalletContextInterface;
-  readonly [EcosystemId.Aurora]: EvmWalletContextInterface;
-  readonly [EcosystemId.Fantom]: EvmWalletContextInterface;
-  readonly [EcosystemId.Karura]: EvmWalletContextInterface;
-  readonly [EcosystemId.Acala]: EvmWalletContextInterface;
+  readonly [EcosystemId.Solana]: SolanaWalletInterface;
+  readonly [EcosystemId.Ethereum]: EvmWalletInterface;
+  readonly [EcosystemId.Bsc]: EvmWalletInterface;
+  readonly [EcosystemId.Avalanche]: EvmWalletInterface;
+  readonly [EcosystemId.Polygon]: EvmWalletInterface;
+  readonly [EcosystemId.Aurora]: EvmWalletInterface;
+  readonly [EcosystemId.Fantom]: EvmWalletInterface;
+  readonly [EcosystemId.Karura]: EvmWalletInterface;
+  readonly [EcosystemId.Acala]: EvmWalletInterface;
 }
 
 export const useWallets = (): Wallets => ({
   [EcosystemId.Solana]: useSolanaWallet(),
-  [EcosystemId.Ethereum]: useEvmWallet(EcosystemId.Ethereum),
-  [EcosystemId.Bsc]: useEvmWallet(EcosystemId.Bsc),
-  [EcosystemId.Avalanche]: useEvmWallet(EcosystemId.Avalanche),
-  [EcosystemId.Polygon]: useEvmWallet(EcosystemId.Polygon),
-  [EcosystemId.Aurora]: useEvmWallet(EcosystemId.Aurora),
-  [EcosystemId.Fantom]: useEvmWallet(EcosystemId.Fantom),
-  [EcosystemId.Karura]: useEvmWallet(EcosystemId.Karura),
-  [EcosystemId.Acala]: useEvmWallet(EcosystemId.Acala),
+  [EcosystemId.Ethereum]: useEvmWallet(),
+  [EcosystemId.Bsc]: useEvmWallet(),
+  [EcosystemId.Avalanche]: useEvmWallet(),
+  [EcosystemId.Polygon]: useEvmWallet(),
+  [EcosystemId.Aurora]: useEvmWallet(),
+  [EcosystemId.Fantom]: useEvmWallet(),
+  [EcosystemId.Karura]: useEvmWallet(),
+  [EcosystemId.Acala]: useEvmWallet(),
 });
 
 export const getAddressesByEcosystem = (

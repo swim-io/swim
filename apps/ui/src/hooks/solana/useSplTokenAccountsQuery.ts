@@ -4,9 +4,11 @@ import { PublicKey } from "@solana/web3.js";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
-import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { useSolanaConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 import { deserializeTokenAccount } from "../../models";
+
+import { useSolanaWallet } from "./useSolanaWallet";
 
 export const useSplTokenAccountsQuery = (
   owner?: string,

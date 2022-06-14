@@ -11,7 +11,7 @@
 - [ ] The relevant Github Project (and/or label) has been assigned (applies only when there is one)
 
 <!-- Un-comment this if this is a UI PR
-- [ ] Preview deployment is not broken
+- [ ] Preview deployment is not broken. Please visit the Cloudflare pages preview URL
 -->
 
 ## Post Review Checklist

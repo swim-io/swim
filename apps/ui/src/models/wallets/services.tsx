@@ -142,12 +142,12 @@ const fantomMetaMaskInfo = addMetaMaskEcosystemInfo(
 const karuraMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
   ecosystems[EcosystemId.Karura],
-  "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network/karura",
+  "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network",
 );
 const acalaMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
   ecosystems[EcosystemId.Acala],
-  "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network/acala",
+  "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network",
 );
 
 const {

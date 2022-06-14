@@ -2,6 +2,7 @@ import { act, renderHook } from "@testing-library/react-hooks";
 
 import { useWalletAdapter } from "..";
 import { Protocol } from "../../../config";
+import { WalletServiceId } from "../../../models";
 import { EvmWeb3WalletAdapter } from "../../../models/wallets/adapters/evm";
 import { PhantomAdapter } from "../../../models/wallets/adapters/solana/PhantomAdapter";
 import type { WalletAdapterState } from "../useWalletAdapter";
@@ -23,7 +24,11 @@ describe("useWalletAdapter", () => {
 
   [Protocol.Evm, Protocol.Solana].forEach((protocol) => {
     describe(`Protocol ${protocol}`, () => {
-      it("connects to a service/protocol", async () => {
+      const serviceId =
+        protocol === Protocol.Evm
+          ? WalletServiceId.MetaMask
+          : WalletServiceId.Phantom;
+      it("connects to a service/protocol and stores the service id for the protocol", async () => {
         const { result } = renderHook(() => useWalletAdapter());
 
         const adapter = createWalletAdapter(protocol);
@@ -31,9 +36,14 @@ describe("useWalletAdapter", () => {
           .spyOn(adapter, "connect")
           .mockImplementation(() => Promise.resolve());
 
-        await act(() => result.current.connectService(protocol, adapter));
+        await act(() =>
+          result.current.connectService(protocol, serviceId, adapter),
+        );
 
         expect(getProtocolAdapter(result.current, protocol)).toEqual(adapter);
+        expect(result.current.selectedServiceByProtocol[protocol]).toEqual(
+          serviceId,
+        );
         expect(connectSpy).toHaveBeenCalledTimes(1);
       });
 
@@ -48,14 +58,18 @@ describe("useWalletAdapter", () => {
           .spyOn(adapter, "disconnect")
           .mockImplementation(() => Promise.resolve());
 
-        await act(() => result.current.connectService(protocol, adapter));
+        await act(() =>
+          result.current.connectService(protocol, serviceId, adapter),
+        );
 
         const secondAdapter = createWalletAdapter(protocol);
         jest
           .spyOn(adapter, "connect")
           .mockImplementation(() => Promise.resolve());
 
-        await act(() => result.current.connectService(protocol, secondAdapter));
+        await act(() =>
+          result.current.connectService(protocol, serviceId, secondAdapter),
+        );
 
         expect(getProtocolAdapter(result.current, protocol)).toEqual(
           secondAdapter,
@@ -75,7 +89,9 @@ describe("useWalletAdapter", () => {
           .spyOn(adapter, "disconnect")
           .mockImplementation(() => Promise.resolve());
 
-        await act(() => result.current.connectService(protocol, adapter));
+        await act(() =>
+          result.current.connectService(protocol, serviceId, adapter),
+        );
 
         await act(() => result.current.disconnectService(protocol));
 

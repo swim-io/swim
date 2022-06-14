@@ -31,6 +31,13 @@ export enum WalletServiceId {
   Ledger = "ledger",
 }
 
+export const isWalletServiceId = (value: unknown) => {
+  return (
+    typeof value === "string" &&
+    Object.values(WalletServiceId).includes(value as WalletServiceId)
+  );
+};
+
 export interface WalletServiceInfo {
   readonly name: string;
   readonly url: string;

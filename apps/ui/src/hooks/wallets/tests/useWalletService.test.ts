@@ -52,7 +52,7 @@ describe("useWalletService", () => {
     });
 
     expect(connectServiceMock).toBeCalledTimes(1);
-    expect(connectServiceMock).toBeCalledWith(protocol, mockAdapter);
+    expect(connectServiceMock).toBeCalledWith(protocol, serviceId, mockAdapter);
     expect(createAdapterMock).toBeCalledTimes(1);
     expect(createAdapterMock).toHaveBeenCalledWith(
       "metamask",

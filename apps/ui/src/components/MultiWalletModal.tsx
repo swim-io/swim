@@ -24,6 +24,7 @@ import {
 import { useWalletService, useWallets } from "../hooks";
 import EVM_SVG from "../images/ecosystems/ethereum-color.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
+import type { WalletServiceId } from "../models";
 import { WALLET_SERVICES } from "../models";
 import {
   filterMap,
@@ -69,7 +70,7 @@ const ProtocolWalletOptionsList = ({
     void disconnectService(protocol);
   };
 
-  const connect = (serviceId: string) => {
+  const connect = (serviceId: WalletServiceId) => {
     void connectService(serviceId, protocol);
 
     protocolWalletServicesByServiceId[serviceId].forEach((walletService) => {

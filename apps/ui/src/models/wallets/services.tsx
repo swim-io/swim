@@ -21,6 +21,16 @@ import type {
 } from "./adapters";
 import { adapters } from "./adapters";
 
+export enum WalletServiceId {
+  MetaMask = "metamask",
+  Phantom = "phantom",
+  Sollet = "sollet",
+  Solong = "solong",
+  MathWallet = "mathwallet",
+  Solflare = "solflare",
+  Ledger = "ledger",
+}
+
 export interface WalletServiceInfo {
   readonly name: string;
   readonly url: string;
@@ -30,7 +40,7 @@ export interface WalletServiceInfo {
 }
 
 export interface WalletService<T extends WalletAdapter = WalletAdapter> {
-  readonly id: string;
+  readonly id: WalletServiceId;
   readonly info: WalletServiceInfo;
   readonly adapter?: new () => T;
 }
@@ -165,14 +175,14 @@ const {
 export const ETHEREUM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
   [
     {
-      id: "metamask",
+      id: WalletServiceId.MetaMask,
       info: ethereumMetaMaskInfo,
       adapter: ethereum.MetaMaskAdapter,
     },
   ];
 export const BSC_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] = [
   {
-    id: "metamask",
+    id: WalletServiceId.MetaMask,
     info: bscMetaMaskInfo,
     adapter: bsc.MetaMaskAdapter,
   },
@@ -180,7 +190,7 @@ export const BSC_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] = [
 export const AVALANCHE_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
   [
     {
-      id: "metamask",
+      id: WalletServiceId.MetaMask,
       info: avalancheMetaMaskInfo,
       adapter: avalanche.MetaMaskAdapter,
     },
@@ -188,7 +198,7 @@ export const AVALANCHE_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>
 export const POLYGON_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
   [
     {
-      id: "metamask",
+      id: WalletServiceId.MetaMask,
       info: polygonMetaMaskInfo,
       adapter: polygon.MetaMaskAdapter,
     },
@@ -196,7 +206,7 @@ export const POLYGON_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[]
 export const AURORA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
   [
     {
-      id: "metamask",
+      id: WalletServiceId.MetaMask,
       info: auroraMetaMaskInfo,
       adapter: aurora.MetaMaskAdapter,
     },
@@ -204,7 +214,7 @@ export const AURORA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] 
 export const FANTOM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
   [
     {
-      id: "metamask",
+      id: WalletServiceId.MetaMask,
       info: fantomMetaMaskInfo,
       adapter: fantom.MetaMaskAdapter,
     },
@@ -212,7 +222,7 @@ export const FANTOM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] 
 export const KARURA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
   [
     {
-      id: "metamask",
+      id: WalletServiceId.MetaMask,
       info: karuraMetaMaskInfo,
       adapter: karura.MetaMaskAdapter,
     },
@@ -220,7 +230,7 @@ export const KARURA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] 
 export const ACALA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
   [
     {
-      id: "metamask",
+      id: WalletServiceId.MetaMask,
       info: acalaMetaMaskInfo,
       adapter: acala.MetaMaskAdapter,
     },
@@ -228,16 +238,28 @@ export const ACALA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
 
 export const SOLANA_WALLET_SERVICES: readonly SolanaWalletService<SolanaWalletAdapter>[] =
   [
-    { id: "phantom", info: phantomInfo, adapter: solana.PhantomAdapter },
-    { id: "sollet", info: solletInfo },
-    { id: "solong", info: solongInfo, adapter: solana.SolongAdapter },
     {
-      id: "mathwallet",
+      id: WalletServiceId.Phantom,
+      info: phantomInfo,
+      adapter: solana.PhantomAdapter,
+    },
+    { id: WalletServiceId.Sollet, info: solletInfo },
+    {
+      id: WalletServiceId.Solong,
+      info: solongInfo,
+      adapter: solana.SolongAdapter,
+    },
+    {
+      id: WalletServiceId.MathWallet,
       info: mathWalletInfo,
       adapter: solana.MathWalletAdapter,
     },
-    { id: "solflare", info: solflareInfo },
-    { id: "ledger", info: ledgerInfo, adapter: solana.LedgerWalletAdapter },
+    { id: WalletServiceId.Solflare, info: solflareInfo },
+    {
+      id: WalletServiceId.Ledger,
+      info: ledgerInfo,
+      adapter: solana.LedgerWalletAdapter,
+    },
   ];
 
 export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {

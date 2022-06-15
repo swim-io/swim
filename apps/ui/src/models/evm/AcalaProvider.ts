@@ -1,4 +1,5 @@
 import { Provider } from "@acala-network/bodhi";
+import type { TXReceipt } from "@acala-network/eth-providers";
 import { createApiOptions } from "@acala-network/eth-providers";
 import {
   ApolloClient,
@@ -9,18 +10,31 @@ import {
 import type { NormalizedCacheObject } from "@apollo/client/core";
 import { WsProvider } from "@polkadot/api";
 import { fetch } from "cross-fetch";
+import { BigNumber } from "ethers";
 import type { ethers } from "ethers";
 
+const DISABLE_CHAIN_ID = 0;
+
 type EthersTransactionReceipt = ethers.providers.TransactionReceipt;
+type TransactionResponse = ethers.providers.TransactionResponse;
+
+interface Log {
+  readonly data: string;
+}
+
+interface LogConnection {
+  // When are there ever multiple logs for a TxReceipt?
+  readonly nodes: readonly Log[];
+}
 
 interface TransactionReceipt {
   readonly blockHash: string;
   readonly blockNumber: number;
   readonly from: string;
-  readonly gasUsed: number;
   readonly transactionHash: string;
   readonly to: string;
   readonly type: number;
+  readonly logs: LogConnection;
 }
 
 interface TransactionReceiptsConnection {
@@ -54,7 +68,17 @@ const USER_TRANSACTION_RECEIPT_QUERY = gql`
   query ($filter: TransactionReceiptFilter) {
     transactionReceipts(filter: $filter) {
       nodes {
+        blockHash
         blockNumber
+        from
+        transactionHash
+        to
+        type
+        logs {
+          nodes {
+            data
+          }
+        }
       }
     }
   }
@@ -64,7 +88,7 @@ const USER_TRANSACTION_RECEIPT_QUERY = gql`
 export class AcalaProvider extends Provider {
   private readonly client: ApolloClient<NormalizedCacheObject>;
 
-  constructor(providerUrl: string) {
+  constructor(providerUrl: string, subqlUrl: string) {
     super(
       createApiOptions({
         provider: new WsProvider(providerUrl),
@@ -74,7 +98,7 @@ export class AcalaProvider extends Provider {
     this.client = new ApolloClient({
       cache: new InMemoryCache(),
       link: createHttpLink({
-        uri: "https://tc7-graphql.aca-dev.network",
+        uri: subqlUrl,
         fetch: fetch,
       }),
     });
@@ -97,12 +121,12 @@ export class AcalaProvider extends Provider {
     confirmations: number,
     timeout: number,
   ): Promise<EthersTransactionReceipt> {
-    const receipt = await this.getTransactionReceipt(transactionHash);
+    const receipt = await this.getTXReceiptByHash(transactionHash);
 
     // TODO: getTransactionReceipt() return type implies it can't be null,
     // but that isn't true.
-    if ((receipt ? receipt.confirmations : 0) >= confirmations) {
-      return receipt;
+    if (receipt && receipt.confirmations >= confirmations) {
+      return this.toTxReceipt(receipt);
     }
 
     // Poll until the receipt is good...
@@ -158,12 +182,11 @@ export class AcalaProvider extends Provider {
     });
   }
 
-  // TODO: This will use a graphql client to execute a query.
   async getHistory(
     addressOrName: string,
     startBlock?: number | void,
     endBlock?: number | void,
-  ): Promise<EthersTransactionReceipt> {
+  ): Promise<readonly TransactionResponse[]> {
     const response = await this.client.query<
       TransactionReceiptsResponse,
       TransactionReceiptsArguments
@@ -183,47 +206,61 @@ export class AcalaProvider extends Provider {
         orderBy: "BLOCK_NUMBER_ASC",
       },
     });
-    return response.map((moralisTx) => {
-      return this.toTxResponse(moralisTx);
+
+    return response.data.transactionReceipts.nodes.map((txReceipt) => {
+      return this.toTxResponse(txReceipt);
     });
   }
 
-  private toTxResponse(
-    moralisTx: TransactionReceipt,
-  ): TransactionResponse {
-    const waitFn = async (confirmations = 1): Promise<EthersTransactionReceipt> => {
-      return super.waitForTransaction(
-        txResponse.hash,
-        confirmations,
-        this.txTimeoutMs,
-      );
+  private toTxResponse(tx: TransactionReceipt): TransactionResponse {
+    const waitFn = async (
+      confirmations = 1,
+    ): Promise<EthersTransactionReceipt> => {
+      return this.waitForTransaction(txResponse.hash, confirmations);
     };
 
     const txResponse: TransactionResponse = {
-      blockHash: moralisTx.block_hash,
-      blockNumber: Number(moralisTx.block_number),
+      blockHash: tx.blockHash,
+      blockNumber: tx.blockNumber,
       chainId: DISABLE_CHAIN_ID,
       // Note, confirmations is set to 0 since MoralisTransaction does not
       // export that data.
       confirmations: 0,
-      data: moralisTx.input,
-      from: moralisTx.from_address,
-      gasLimit: BigNumber.from(moralisTx.gas),
-      gasPrice: BigNumber.from(moralisTx.gas_price),
-      hash: moralisTx.hash,
-      nonce: Number(moralisTx.nonce),
-      value: BigNumber.from(moralisTx.value),
-      to: moralisTx.to_address,
-      type: LEGACY_TX_TYPE,
-      timestamp: Math.floor(
-        new Date(moralisTx.block_timestamp).getTime() * MILLI_TO_MICRO,
-      ),
+      // Just retrieve first thing
+      data: tx.logs.nodes.length > 0 ? tx.logs.nodes[0].data : "",
+      from: tx.from,
+      // not exported
+      gasLimit: BigNumber.from(0),
+      hash: tx.transactionHash,
+      // not exported
+      nonce: Number(0),
+      // note exported
+      value: BigNumber.from(0),
+      to: tx.to,
+      // not exported.
       wait: waitFn,
     };
     return txResponse;
   }
-}
-function orderBy<T, U>(arg0: { query: import("@apollo/client").DocumentNode; variables: {}; }, arg1: { blockNumber: { greaterThan: number; lessThan: number; }; to: { equalTo: string; }; }, orderBy: any, arg3: string) {
-  throw new Error("Function not implemented.");
-}
 
+  private toTxReceipt(tx: TXReceipt): EthersTransactionReceipt {
+    const txReceipt: EthersTransactionReceipt = {
+      to: tx.to ?? "",
+      from: tx.from,
+      contractAddress: tx.contractAddress ?? "",
+      transactionIndex: tx.transactionIndex ?? 0,
+      gasUsed: tx.gasUsed,
+      logsBloom: tx.logsBloom,
+      blockHash: tx.blockHash ?? "",
+      transactionHash: tx.transactionHash,
+      logs: tx.logs,
+      blockNumber: tx.blockNumber ?? 0,
+      confirmations: tx.confirmations,
+      cumulativeGasUsed: tx.cumulativeGasUsed,
+      effectiveGasPrice: tx.effectiveGasPrice,
+      byzantium: true,
+      type: tx.type,
+    };
+    return txReceipt;
+  }
+}

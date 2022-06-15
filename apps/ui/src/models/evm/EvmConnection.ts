@@ -32,6 +32,8 @@ const ACALA_MAINNET_RPC_URL =
 // TODO: Replace with an environment variable.
 const KARURA_MAINNET_RPC_URL =
   "https://karura.api.onfinality.io/rpc?apikey=6cc48216-0acc-46b5-a15f-607a0d049f2b";
+const ACALA_MAINNET_SUBQL_URL = "https://acala-evm-subql.aca-api.network";
+const KARURA_MAINNET_SUBQL_URL = "https://karura-evm-subql.aca-api.network";
 
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
 const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
@@ -109,6 +111,26 @@ const getKaruraProvider = (env: Env): string => {
       throw new Error(
         `Karura provider (AcalaProvider) does not support ${env}`,
       );
+  }
+};
+
+const getAcalaSubQl = (env: Env): string => {
+  switch (env) {
+    case Env.Mainnet:
+      return ACALA_MAINNET_SUBQL_URL;
+    case Env.Devnet:
+    default:
+      throw new Error(`Acala SubQL does not support ${env}`);
+  }
+};
+
+const getKaruraSubQl = (env: Env): string => {
+  switch (env) {
+    case Env.Mainnet:
+      return KARURA_MAINNET_SUBQL_URL;
+    case Env.Devnet:
+    default:
+      throw new Error(`Karura SubQL does not support ${env}`);
   }
 };
 
@@ -201,10 +223,10 @@ export class EvmConnection {
         );
       }
       case EcosystemId.Acala: {
-        return new AcalaProvider(getAcalaProvider(env));
+        return new AcalaProvider(getAcalaProvider(env), getAcalaSubQl(env));
       }
       case EcosystemId.Karura: {
-        return new AcalaProvider(getKaruraProvider(env));
+        return new AcalaProvider(getKaruraProvider(env), getKaruraSubQl(env));
       }
       default:
         throw new Error(`Unsupported EVM ecosystem: ${ecosystemId}`);

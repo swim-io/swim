@@ -184,8 +184,8 @@ export class AcalaProvider extends Provider {
 
   async getHistory(
     addressOrName: string,
-    startBlock?: number | void,
-    endBlock?: number | void,
+    startBlock?: number,
+    endBlock?: number,
   ): Promise<readonly TransactionResponse[]> {
     const response = await this.client.query<
       TransactionReceiptsResponse,

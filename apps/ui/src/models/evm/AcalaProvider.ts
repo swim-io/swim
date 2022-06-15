@@ -223,22 +223,20 @@ export class AcalaProvider extends Provider {
       blockHash: tx.blockHash,
       blockNumber: tx.blockNumber,
       chainId: DISABLE_CHAIN_ID,
-      // Note, confirmations is set to 0 since MoralisTransaction does not
-      // export that data.
-      confirmations: 0,
-      // Just retrieve first thing
-      data: tx.logs.nodes.length > 0 ? tx.logs.nodes[0].data : "",
       from: tx.from,
-      // not exported
+      to: tx.to,
+      wait: waitFn,
+      // Retrieve first log entry, if it exists.
+      data: tx.logs.nodes.length > 0 ? tx.logs.nodes[0].data : "",
+      // Not exported.
+      confirmations: 0,
+      // Not exported
       gasLimit: BigNumber.from(0),
       hash: tx.transactionHash,
-      // not exported
+      // Not exported.
       nonce: Number(0),
-      // note exported
+      // Not exported.
       value: BigNumber.from(0),
-      to: tx.to,
-      // not exported.
-      wait: waitFn,
     };
     return txResponse;
   }

@@ -1,6 +1,7 @@
+const path = require("path");
+const cracoBabelLoader = require("craco-babel-loader");
 const { addBeforeLoader, loaderByName, whenTest } = require("@craco/craco");
 const SentryWebpackPlugin = require("@sentry/webpack-plugin");
-// const webpack = require("webpack");
 
 module.exports = {
   babel: {
@@ -38,6 +39,11 @@ module.exports = {
             oneOf.exclude.push(wasmExtensionRegExp);
           }
         });
+      });
+
+      webpackConfig.module.rules.push({
+        test: /\.js$/,
+        loader: require.resolve("@open-wc/webpack-import-meta-loader"),
       });
 
       const wasmLoader = {
@@ -91,4 +97,15 @@ module.exports = {
       return webpackConfig;
     },
   },
+  plugins: [
+    {
+      plugin: cracoBabelLoader,
+      options: {
+        includes: [
+          path.resolve(__dirname, "node_modules/@polkadot"),
+          path.resolve(__dirname, "node_modules/@acala-network"),
+        ],
+      },
+    },
+  ],
 };

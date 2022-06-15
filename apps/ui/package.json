@@ -44,7 +44,6 @@
     "@ethers-ancillary/bsc": "^0.0.3",
     "@ledgerhq/hw-transport-webusb": "^6.0.2",
     "@metaplex/js": "^4.12.0",
-    "@polkadot/api": "^8.7.1",
     "@project-serum/anchor": "^0.24.2",
     "@project-serum/borsh": "^0.2.2",
     "@project-serum/sol-wallet-adapter": "^0.2.4",
@@ -76,6 +75,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.17.12",
+    "@open-wc/webpack-import-meta-loader": "^0.4.7",
     "@sentry/webpack-plugin": "^1.18.8",
     "@storybook/addon-actions": "^6.5.2",
     "@storybook/addon-docs": "^6.5.2",
@@ -101,6 +101,7 @@
     "@types/react-router": "^5.1.15",
     "@types/react-router-dom": "^5.1.7",
     "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "craco-babel-loader": "^1.0.3",
     "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-react-app": "^7.0.1",

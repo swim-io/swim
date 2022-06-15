@@ -42,7 +42,7 @@ module.exports = {
       });
 
       webpackConfig.module.rules.push({
-        test: /\.js$/,
+        test: /node_modules\/@polkadot.+\/packageInfo\.js$/,
         loader: require.resolve("@open-wc/webpack-import-meta-loader"),
       });
 

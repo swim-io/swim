@@ -8,6 +8,7 @@ jest.mock("../idb", () => ({
   ...jest.requireActual("../idb"),
   getInteractionStatesFromDb: jest.fn(),
   addInteractionStateToDb: jest.fn(),
+  putInteractionStateToDb: jest.fn(),
 }));
 
 describe("useInteraction", () => {
@@ -36,8 +37,8 @@ describe("useInteraction", () => {
     });
 
     expect(result.current.interactionStates).toEqual([
-      MOCK_INTERACTION_STATE,
       NEW_INTERACTION_STATE,
+      MOCK_INTERACTION_STATE,
     ]);
     expect(result.current.recentInteractionId).toEqual(
       NEW_INTERACTION_STATE.interaction.id,

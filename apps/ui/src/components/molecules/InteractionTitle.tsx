@@ -21,16 +21,16 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
         (amount) => !amount.isZero(),
       );
       return (
-        <>
+        <div title={interaction.id}>
           <span>Add&nbsp;</span>
           <AmountsWithTokenIcons amounts={nonZeroInputAmounts} />
-        </>
+        </div>
       );
     }
     case InteractionType.Swap: {
       const { exactInputAmount } = interaction.params;
       return (
-        <>
+        <div title={interaction.id}>
           <span>Swap</span>{" "}
           <AmountWithTokenIcon
             amount={exactInputAmount}
@@ -40,7 +40,7 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
           <NativeTokenIcon
             {...interaction.params.minimumOutputAmount.tokenSpec}
           />
-        </>
+        </div>
       );
     }
     case InteractionType.RemoveUniform: {
@@ -49,23 +49,23 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
         (amount) => !amount.isZero(),
       );
       return (
-        <>
+        <div title={interaction.id}>
           <span>Remove&nbsp;</span>
           <AmountsWithTokenIcons amounts={nonZeroOutputAmounts} />
-        </>
+        </div>
       );
     }
     case InteractionType.RemoveExactBurn: {
       const { minimumOutputAmount } = interaction.params;
       return (
-        <>
+        <div title={interaction.id}>
           <span>Remove</span>{" "}
           <AmountWithTokenIcon
             amount={minimumOutputAmount}
             ecosystem={minimumOutputAmount.tokenSpec.nativeEcosystem}
           />
           <span>.</span>
-        </>
+        </div>
       );
     }
     case InteractionType.RemoveExactOutput: {
@@ -74,10 +74,10 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
         (amount) => !amount.isZero(),
       );
       return (
-        <>
+        <div title={interaction.id}>
           <span>Remove&nbsp;</span>
           <AmountsWithTokenIcons amounts={nonZeroOutputAmounts} />
-        </>
+        </div>
       );
     }
   }

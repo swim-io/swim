@@ -246,7 +246,8 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    // TODO: Remove manual disable. We are waiting from Acala to attest USDT.
+    isDisabled: true,
     id: "meta-karura-usdt",
     displayName: "Karura USDT Meta-Pool",
     isStakingPool: false,

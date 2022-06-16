@@ -28,10 +28,10 @@ const BSC_MAINNET_RPC_URL = process.env.REACT_APP_BSC_MAINNET_RPC_URL;
 const BSC_TESTNET_RPC_URL = process.env.REACT_APP_BSC_TESTNET_RPC_URL;
 // TODO: Replace with an environment variable.
 const ACALA_MAINNET_RPC_URL =
-  "https://acala-polkadot.api.onfinality.io/rpc?apikey=6cc48216-0acc-46b5-a15f-607a0d049f2b";
+  "wss://acala-polkadot.api.onfinality.io/ws?apikey=6ad6fa42-9854-4ee7-9834-a7da2ca7c416";
 // TODO: Replace with an environment variable.
 const KARURA_MAINNET_RPC_URL =
-  "https://karura.api.onfinality.io/rpc?apikey=6cc48216-0acc-46b5-a15f-607a0d049f2b";
+  "wss://karura.api.onfinality.io/ws?apikey=6ad6fa42-9854-4ee7-9834-a7da2ca7c416";
 const ACALA_MAINNET_SUBQL_URL = "https://acala-evm-subql.aca-api.network";
 const KARURA_MAINNET_SUBQL_URL = "https://karura-evm-subql.aca-api.network";
 

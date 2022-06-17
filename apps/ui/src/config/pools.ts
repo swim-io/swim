@@ -233,20 +233,21 @@ const mainnetPools: readonly PoolSpec[] = [
     isStakingPool: false,
     isStableSwap: true,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
-    address: "11111111111111111111111111111111", // TODO: Update
-    authority: "11111111111111111111111111111111", // TODO: Update
+    address: "GRBTi98rcqseFNGdBscPMMWFGBeadZsaN69Tya1dKDJi",
+    authority: "5frFvM55BNXZfdhCL7iqm6DnYBiUijDQSWiNDyV8gAYL",
     feeDecimals: 6,
     lpToken: "mainnet-solana-lp-meta-karura-ausd",
     tokenAccounts: new Map([
-      ["mainnet-karura-ausd", "11111111111111111111111111111111"], // TODO: Update
+      ["mainnet-karura-ausd", "4ddm9KiJJsj2q8tdwz9GR9UgQkQsMMtVuoHn9bqR5BTe"],
       [
         "mainnet-solana-lp-hexapool",
-        "11111111111111111111111111111111", // TODO: Update
+        "5Z1ekWcEWukuaWWELfBVDs7xtnX7KZLRDQv6AttMMQaL",
       ],
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    // TODO: Remove manual disable. We are waiting from Acala to attest USDT.
+    isDisabled: true,
     id: "meta-karura-usdt",
     displayName: "Karura USDT Meta-Pool",
     isStakingPool: false,

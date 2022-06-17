@@ -30,6 +30,9 @@ module.exports = {
   },
   webpack: {
     configure: (webpackConfig) => {
+      // Verbose output from Webpack to help debugging on CI
+      config.stats = "verbose"
+
       // add wasm-loader
       const oneOfRules = webpackConfig.module.rules.find((rule) => rule.oneOf);
       oneOfRules.oneOf.unshift({

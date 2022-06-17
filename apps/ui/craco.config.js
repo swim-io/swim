@@ -1,8 +1,6 @@
-const path = require("path");
-const cracoBabelLoader = require("craco-babel-loader");
-const { addBeforeLoader, loaderByName, whenTest, getLoaders } = require("@craco/craco");
+const { whenTest } = require("@craco/craco");
 const SentryWebpackPlugin = require("@sentry/webpack-plugin");
-// const { ProvidePlugin } = require('webpack');
+const webpack = require("webpack");
 
 module.exports = {
   // reactScriptsVersion: 'react-scripts' /* (default value) */,
@@ -31,71 +29,14 @@ module.exports = {
     },
   },
   webpack: {
-    configure: (webpackConfig, {env, paths}) => {
-      // console.log("initial webpackConfig");
-      // console.log(JSON.stringify(webpackConfig, null, 2));
-
-      const wasmExtensionRegExp = /\.wasm$/;
-      webpackConfig.resolve.extensions.push(".wasm");
-
-      webpackConfig.module.rules.forEach((rule) => {
-        (rule.oneOf || []).forEach((oneOf) => {
-          if (oneOf.loader && oneOf.loader.indexOf("file-loader") >= 0) {
-            oneOf.exclude.push(wasmExtensionRegExp);
-          }
-        });
-      });
-
-      // webpackConfig.module.rules.push({
-      //   test: /node_modules\/@polkadot.+\/packageInfo\.js$/,
-      //   loader: require.resolve("@open-wc/webpack-import-meta-loader"),
-      // });
-      // console.log(JSON.stringify(webpackConfig.module.rules, null, 2));
-
-      // const fileLoaders = getLoaders(webpackConfig, loaderByName("file-loader"));
-      // console.log(JSON.stringify(fileLoaders, null, 2));
-
-
-      const wasmLoader = {
-        test: /\.wasm$/,
-        include: /node_modules\/(bridge|token-bridge)/,
-        loader: "wasm-loader",
-      };
-
+    configure: (webpackConfig) => {
+      // add wasm-loader
       const oneOfRules = webpackConfig.module.rules.find((rule) => rule.oneOf);
-      // console.log(`oneOfRules: ${JSON.stringify(oneOfRules, null, 2)}`);
-      const fileLoaderRuleIdx = oneOfRules.oneOf.indexOf((rule) =>
-        (rule.use && rule.use.includes((useObj) => useObj.loader.indexOf("file-loader") >= 0))
-        ||
-        (rule.loader && rule.loader.indexOf("file-loader"))
-      );
-      oneOfRules.oneOf.splice(fileLoaderRuleIdx, 0, wasmLoader);
-
-
-      // const wasmLoader = {
-      //   // test: /node_modules\/.+\.wasm$/,
-      //   test: /\.wasm$/,
-      //   // test: new RegExp('\.wasm$'),
-      //
-      //
-      //   // include: [
-      //   //   new RegExp('node_modules\/(bridge|token-bridge)')
-      //   //   // path.resolve(__dirname, 'bridge'),
-      //   //   // path.resolve(__dirname, 'token-bridge'),
-      //   // ],
-      //   // use: [ 'wasm-loader']
-      //   use: ['wasm-loader'],
-      //   // loader: 'wasm-loader',
-      //   // use: { loader: 'wasm-loader' },
-      // };
-
-
-      // addBeforeLoader(webpackConfig, loaderByName("file-loader"), wasmLoader);
-
-      // webpackConfig.experiments =  {
-      //   asyncWebAssembly: true,
-      //   syncWebAssembly: true
-      // };
+      oneOfRules.oneOf.unshift({
+        test: /\.wasm$/,
+        include: /node_modules\/@certusone\/wormhole-sdk/,
+        loader: require.resolve("wasm-loader"),
+      });
 
       // Disable code splitting to prevent ChunkLoadError
       webpackConfig.optimization.runtimeChunk = false;
@@ -116,6 +57,27 @@ module.exports = {
         process.env.NODE_ENV === "development"
           ? "static/js/[name].[hash].js"
           : "static/js/[name].[chunkhash].js";
+
+      // add polufills that are not included in webpack 5
+      webpackConfig = {
+        ...webpackConfig,
+        ignoreWarnings: [/Failed to parse source map/],
+        resolve: {
+          ...webpackConfig.resolve,
+          fallback: {
+            fs: require.resolve("browserify-fs"),
+            path: require.resolve("path-browserify"),
+            stream: require.resolve("stream-browserify"),
+            crypto: require.resolve("crypto-browserify"),
+          },
+        },
+      };
+
+      webpackConfig.plugins.push(
+        new webpack.ProvidePlugin({
+          Buffer: ["buffer", "Buffer"],
+        }),
+      );
 
       if (process.env.NODE_ENV !== "development") {
         webpackConfig.devtool = "source-map";
@@ -139,19 +101,5 @@ module.exports = {
 
       return webpackConfig;
     },
-    // plugins: [new ProvidePlugin({ Buffer: ['buffer', 'Buffer'] })]
   },
-  plugins: [
-    {
-      plugin: cracoBabelLoader,
-      options: {
-        includes: [
-          // /node_modules\/@polkadot\/(?!cjs\/).*/,
-          // /node_modules\/@acala-network\/(?!cjs\/).*/
-          path.resolve(__dirname, "node_modules/@polkadot"),
-          path.resolve(__dirname, "node_modules/@acala-network"),
-        ],
-      },
-    },
-  ],
 };

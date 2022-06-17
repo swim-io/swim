@@ -12,7 +12,7 @@ import {
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { RecentInteractions } from "../components/RecentInteractions";
 import { SlippageButton } from "../components/SlippageButton";

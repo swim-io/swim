@@ -11,7 +11,7 @@ import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
 import moment from "moment";
 import type { ReactElement } from "react";
 import { Fragment, useEffect, useMemo, useState } from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";

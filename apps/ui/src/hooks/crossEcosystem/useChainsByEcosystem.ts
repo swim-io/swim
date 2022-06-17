@@ -1,4 +1,4 @@
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { ChainSpec, EvmSpec, SolanaSpec } from "../../config";
 import { EcosystemId, Protocol } from "../../config";

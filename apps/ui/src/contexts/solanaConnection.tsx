@@ -2,7 +2,7 @@
 import { Keypair } from "@solana/web3.js";
 import type { ReactElement, ReactNode } from "react";
 import { createContext, useContext, useEffect, useMemo } from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { DEFAULT_ENV, Protocol, configs } from "../config";
 import { selectConfig } from "../core/selectors";

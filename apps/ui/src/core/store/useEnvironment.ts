@@ -2,7 +2,7 @@ import { produce } from "immer";
 import create from "zustand";
 import type { GetState, SetState, StoreApi } from "zustand";
 import type { StateStorage } from "zustand/middleware";
-import { persist } from "zustand/middleware.js";
+import { persist } from "zustand/middleware";
 
 import { DEFAULT_ENV, isValidEnv } from "../../config";
 

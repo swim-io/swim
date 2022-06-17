@@ -1,3 +1,5 @@
+const webpack = require("webpack");
+
 module.exports = {
   staticDirs: ["../public"],
   stories: ["../src/**/*.stories.@(js|jsx|ts|tsx)"],
@@ -20,8 +22,18 @@ module.exports = {
   },
   core: {
     disableTelemetry: true,
+    builder: "webpack5",
   },
   webpackFinal: async (config) => {
+    // Verbose output from Webpack to help debugging on CI
+    if (process.env.CI) config.stats = "verbose";
+
+    config.plugins.push(
+      new webpack.ProvidePlugin({
+        Buffer: ["buffer", "Buffer"],
+      }),
+    );
+
     config.externals = {
       "@certusone/wormhole-sdk": "{}",
     };

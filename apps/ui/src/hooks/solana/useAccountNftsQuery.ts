@@ -3,7 +3,7 @@ import type { MetadataJson, MetadataJsonAttribute } from "@metaplex/js";
 import { PublicKey } from "@solana/web3.js";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { Protocol } from "../../config";
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";

@@ -13,7 +13,7 @@ import {
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { atomicToTvlString, u64ToDecimal } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";

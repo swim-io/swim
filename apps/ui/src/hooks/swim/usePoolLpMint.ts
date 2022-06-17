@@ -2,7 +2,7 @@ import type { MintInfo } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import type { UseQueryResult } from "react-query";
 import { useQueries } from "react-query";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { PoolSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";

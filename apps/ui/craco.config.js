@@ -1,9 +1,9 @@
-const path = require("path");
-const cracoBabelLoader = require("craco-babel-loader");
-const { addBeforeLoader, loaderByName, whenTest } = require("@craco/craco");
+const { whenTest } = require("@craco/craco");
 const SentryWebpackPlugin = require("@sentry/webpack-plugin");
+const webpack = require("webpack");
 
 module.exports = {
+  // reactScriptsVersion: 'react-scripts' /* (default value) */,
   babel: {
     plugins: [
       "@babel/plugin-proposal-nullish-coalescing-operator",
@@ -30,29 +30,16 @@ module.exports = {
   },
   webpack: {
     configure: (webpackConfig) => {
-      const wasmExtensionRegExp = /\.wasm$/;
-      webpackConfig.resolve.extensions.push(".wasm");
+      // Verbose output from Webpack to help debugging on CI
+      if (process.env.CI) webpackConfig.stats = "verbose";
 
-      webpackConfig.module.rules.forEach((rule) => {
-        (rule.oneOf || []).forEach((oneOf) => {
-          if (oneOf.loader && oneOf.loader.indexOf("file-loader") >= 0) {
-            oneOf.exclude.push(wasmExtensionRegExp);
-          }
-        });
-      });
-
-      webpackConfig.module.rules.push({
-        test: /node_modules\/@polkadot.+\/packageInfo\.js$/,
-        loader: require.resolve("@open-wc/webpack-import-meta-loader"),
-      });
-
-      const wasmLoader = {
+      // add wasm-loader
+      const oneOfRules = webpackConfig.module.rules.find((rule) => rule.oneOf);
+      oneOfRules.oneOf.unshift({
         test: /\.wasm$/,
-        include: /node_modules\/(bridge|token-bridge)/,
-        loaders: ["wasm-loader"],
-      };
-
-      addBeforeLoader(webpackConfig, loaderByName("file-loader"), wasmLoader);
+        include: /node_modules\/@certusone\/wormhole-sdk/,
+        loader: require.resolve("wasm-loader"),
+      });
 
       // Disable code splitting to prevent ChunkLoadError
       webpackConfig.optimization.runtimeChunk = false;
@@ -74,6 +61,27 @@ module.exports = {
           ? "static/js/[name].[hash].js"
           : "static/js/[name].[chunkhash].js";
 
+      // add polufills that are not included in webpack 5
+      webpackConfig = {
+        ...webpackConfig,
+        ignoreWarnings: [/Failed to parse source map/],
+        resolve: {
+          ...webpackConfig.resolve,
+          fallback: {
+            fs: require.resolve("browserify-fs"),
+            path: require.resolve("path-browserify"),
+            stream: require.resolve("stream-browserify"),
+            crypto: require.resolve("crypto-browserify"),
+          },
+        },
+      };
+
+      webpackConfig.plugins.push(
+        new webpack.ProvidePlugin({
+          Buffer: ["buffer", "Buffer"],
+        }),
+      );
+
       if (process.env.NODE_ENV !== "development") {
         webpackConfig.devtool = "source-map";
 
@@ -90,6 +98,7 @@ module.exports = {
             release: process.env.SENTRY_RELEASE,
             include: "build",
             ignoreFile: ".gitignore",
+            urlPrefix: "~/static/js",
           }),
         ];
       }
@@ -97,15 +106,4 @@ module.exports = {
       return webpackConfig;
     },
   },
-  plugins: [
-    {
-      plugin: cracoBabelLoader,
-      options: {
-        includes: [
-          path.resolve(__dirname, "node_modules/@polkadot"),
-          path.resolve(__dirname, "node_modules/@acala-network"),
-        ],
-      },
-    },
-  ],
 };

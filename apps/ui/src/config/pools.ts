@@ -246,8 +246,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    // TODO: Remove manual disable. We are waiting from Acala to attest USDT.
-    isDisabled: true,
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT_MAINNET,
     id: "meta-karura-usdt",
     displayName: "Karura USDT Meta-Pool",
     isStakingPool: false,

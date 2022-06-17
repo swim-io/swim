@@ -23,17 +23,12 @@ export type Provider =
   | LocalnetProvider
   | AcalaProvider;
 
-// TODO: Use proper endpoints via env
 const BSC_MAINNET_RPC_URL = process.env.REACT_APP_BSC_MAINNET_RPC_URL;
 const BSC_TESTNET_RPC_URL = process.env.REACT_APP_BSC_TESTNET_RPC_URL;
-// TODO: Replace with an environment variable.
-const ACALA_MAINNET_RPC_URL =
-  "wss://acala-polkadot.api.onfinality.io/ws?apikey=6ad6fa42-9854-4ee7-9834-a7da2ca7c416";
-// TODO: Replace with an environment variable.
-const KARURA_MAINNET_RPC_URL =
-  "wss://karura.api.onfinality.io/ws?apikey=6ad6fa42-9854-4ee7-9834-a7da2ca7c416";
-const ACALA_MAINNET_SUBQL_URL = "https://acala-evm-subql.aca-api.network";
-const KARURA_MAINNET_SUBQL_URL = "https://karura-evm-subql.aca-api.network";
+const ACALA_MAINNET_WSS_URL = process.env.REACT_APP_ACALA_MAINNET_WSS_URL;
+const KARURA_MAINNET_WSS_URL = process.env.REACT_APP_KARURA_MAINNET_WSS_URL;
+const ACALA_MAINNET_SUBQL_URL = process.env.REACT_APP_ACALA_MAINNET_SUBQL_URL;
+const KARURA_MAINNET_SUBQL_URL = process.env.REACT_APP_ACALA_MAINNET_SUBQL_URL;
 
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
 const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
@@ -95,7 +90,10 @@ const getSnowTraceNetwork = (env: Env): AvalancheNetwork => {
 const getAcalaProvider = (env: Env): string => {
   switch (env) {
     case Env.Mainnet:
-      return ACALA_MAINNET_RPC_URL;
+      if (ACALA_MAINNET_WSS_URL === undefined) {
+        throw new Error("ACALA_MAINNET_RPC_URL is undefined");
+      }
+      return ACALA_MAINNET_WSS_URL;
     case Env.Devnet:
     default:
       throw new Error(`AcalaProvider does not support ${env}`);
@@ -105,7 +103,10 @@ const getAcalaProvider = (env: Env): string => {
 const getKaruraProvider = (env: Env): string => {
   switch (env) {
     case Env.Mainnet:
-      return KARURA_MAINNET_RPC_URL;
+      if (KARURA_MAINNET_WSS_URL === undefined) {
+        throw new Error("KARURA_MAINNET_WSS_URL is undefined");
+      }
+      return KARURA_MAINNET_WSS_URL;
     case Env.Devnet:
     default:
       throw new Error(
@@ -117,6 +118,9 @@ const getKaruraProvider = (env: Env): string => {
 const getAcalaSubQl = (env: Env): string => {
   switch (env) {
     case Env.Mainnet:
+      if (ACALA_MAINNET_SUBQL_URL === undefined) {
+        throw new Error("ACALA_MAINNET_SUBQL_URL is undefined");
+      }
       return ACALA_MAINNET_SUBQL_URL;
     case Env.Devnet:
     default:
@@ -127,6 +131,9 @@ const getAcalaSubQl = (env: Env): string => {
 const getKaruraSubQl = (env: Env): string => {
   switch (env) {
     case Env.Mainnet:
+      if (KARURA_MAINNET_SUBQL_URL === undefined) {
+        throw new Error("KARURA_MAINNET_SUBQL_URL is undefined");
+      }
       return KARURA_MAINNET_SUBQL_URL;
     case Env.Devnet:
     default:

@@ -1,4 +1,4 @@
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { PoolSpec } from "../../config";
 import { selectConfig } from "../../core/selectors";

@@ -1,4 +1,4 @@
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";

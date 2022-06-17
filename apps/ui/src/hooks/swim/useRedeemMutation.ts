@@ -5,7 +5,7 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import type { UseMutationResult } from "react-query";
 import { useMutation, useQueryClient } from "react-query";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { useSolanaConnection } from "../../contexts";
 import { selectConfig } from "../../core/selectors";

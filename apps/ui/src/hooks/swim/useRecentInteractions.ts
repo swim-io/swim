@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "react-query";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { EcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";

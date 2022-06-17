@@ -1,7 +1,7 @@
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { sumToDecimal } from "../../amounts";
 import type { EvmEcosystemId, TokenSpec } from "../../config";

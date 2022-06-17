@@ -10,7 +10,7 @@ import {
   EuiToolTip,
 } from "@elastic/eui";
 import type React from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { TokenSpec } from "../../config";
 import { getNativeTokenDetails } from "../../config";

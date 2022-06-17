@@ -1,11 +1,15 @@
+const webpackConfig = require("../config/webpack.config.js");
+
 module.exports = {
+  core: {
+    builder: "webpack5",
+  },
   staticDirs: ["../public"],
   stories: ["../src/**/*.stories.@(js|jsx|ts|tsx)"],
   addons: [
     "@storybook/addon-links",
     "@storybook/addon-essentials",
     "@storybook/addon-interactions",
-    "@storybook/preset-create-react-app",
   ],
   framework: "@storybook/react",
   typescript: {
@@ -21,10 +25,17 @@ module.exports = {
   core: {
     disableTelemetry: true,
   },
-  webpackFinal: async (config) => {
+  webpackFinal: async (config, { configType }) => {
+    console.log("configType", configType);
     config.externals = {
       "@certusone/wormhole-sdk": "{}",
     };
-    return config;
+    return {
+      ...config,
+      module: {
+        ...config.module,
+        rules: webpackConfig(configType.toLowerCase()).module.rules,
+      },
+    };
   },
 };

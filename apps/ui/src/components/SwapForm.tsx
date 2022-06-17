@@ -9,7 +9,7 @@ import {
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { PoolSpec } from "../config";
 import { EcosystemId } from "../config";

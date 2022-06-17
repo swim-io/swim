@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from "react";
 import { useContext, useMemo } from "react";
 import * as React from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { EvmEcosystemId } from "../config";
 import { EcosystemId, Env, Protocol, chains } from "../config";

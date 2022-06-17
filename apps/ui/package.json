@@ -5,7 +5,7 @@
   "scripts": {
     "start": "NODE_ENV=development SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco start",
     "build": "craco build",
-    "release": "SENTRY_RELEASE=$(git rev-parse --short HEAD) SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco build",
+    "release": "SENTRY_RELEASE=$(git rev-parse --short HEAD) SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco build && rm -rf build/static/js/*.map",
     "test": "craco test --transformIgnorePatterns \"node_modules/(?!@project-serum/sol-wallet-adapter)/\"",
     "eject": "react-scripts eject",
     "format": "prettier --write \"./src/**/*.{ts,tsx}\" \".storybook/**/*.{js,ts,tsx}\"",

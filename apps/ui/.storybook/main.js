@@ -26,7 +26,7 @@ module.exports = {
   },
   webpackFinal: async (config) => {
     // Verbose output from Webpack to help debugging on CI
-    config.stats = "verbose";
+    if (process.env.CI) config.stats = "verbose";
 
     config.plugins.push(
       new webpack.ProvidePlugin({

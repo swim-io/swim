@@ -83,7 +83,7 @@ module.exports = {
       );
 
       if (process.env.NODE_ENV !== "development") {
-        webpackConfig.devtool = "hidden-source-map";
+        webpackConfig.devtool = "source-map";
 
         // Upload source maps to Sentry
         if (!process.env.SENTRY_RELEASE) {

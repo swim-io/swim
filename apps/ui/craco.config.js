@@ -98,6 +98,7 @@ module.exports = {
             release: process.env.SENTRY_RELEASE,
             include: "build",
             ignoreFile: ".gitignore",
+            urlPrefix: "~/static/js",
           }),
         ];
       }

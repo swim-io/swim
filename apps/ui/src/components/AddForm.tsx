@@ -16,7 +16,7 @@ import {
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import {
   ECOSYSTEM_IDS,

@@ -1,4 +1,4 @@
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { Protocol } from "../../config";
 import { selectConfig, selectWalletAdapterApi } from "../../core/selectors";

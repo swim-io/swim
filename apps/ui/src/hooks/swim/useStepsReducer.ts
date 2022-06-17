@@ -5,7 +5,7 @@ import type { Dispatch, Reducer } from "react";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import type { UseMutationResult } from "react-query";
 import { useQueryClient } from "react-query";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { EcosystemId, isEvmEcosystemId } from "../../config";
 import { useActiveInteractionContext } from "../../contexts";

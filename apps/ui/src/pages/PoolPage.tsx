@@ -18,7 +18,7 @@ import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import {
   atomicToHumanString,

@@ -50,7 +50,11 @@
       "error",
       { "ignoreClass": "fieldsOnly" }
     ],
-    "import/extensions": ["error", "always", { "ts": "never", "tsx": "never" }],
+    "import/extensions": [
+      "error",
+      "always",
+      { "ts": "never", "js": "never", "tsx": "never" }
+    ],
     "import/first": "error",
     "import/newline-after-import": "error",
     "import/no-absolute-path": "error",

@@ -6,7 +6,7 @@ import {
   EuiPageContentBody,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { TokenDetails, TokenSpec } from "../../config";
 import { EcosystemId, ecosystems } from "../../config";

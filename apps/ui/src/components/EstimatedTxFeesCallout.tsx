@@ -1,6 +1,6 @@
 import { EuiCallOut, EuiLoadingSpinner, EuiSpacer } from "@elastic/eui";
 import type { FC } from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { decimalRemoveTrailingZero } from "../amounts";
 import { ECOSYSTEM_IDS } from "../config";

@@ -39,7 +39,7 @@
     "@acala-network/eth-providers": "^2.4.12",
     "@apollo/client": "^3.6.8",
     "@certusone/wormhole-sdk": "^0.2.6",
-    "@craco/craco": "^7.0.0-alpha.0",
+    "@craco/craco": "^7.0.0-alpha.3",
     "@elastic/datemath": "^5.0.3",
     "@elastic/eui": "^38.2.0",
     "@ethers-ancillary/bsc": "^0.0.3",

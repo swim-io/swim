@@ -5,7 +5,7 @@
   "scripts": {
     "start": "NODE_ENV=development node scripts/start.js",
     "build": "node scripts/build.js",
-    "release": "SENTRY_RELEASE=$(git rev-parse --short HEAD) node scripts/build.js",
+    "release": "SENTRY_RELEASE=$(git rev-parse --short HEAD) node scripts/build.js && rm build/static/js/*.map",
     "test": "node scripts/test.js",
     "format": "prettier --write \"./src/**/*.{ts,tsx}\" \".storybook/**/*.{js,ts,tsx}\"",
     "format:check": "prettier --check \"./src/**/*.{ts,tsx}\" \".storybook/**/*.{js,ts,tsx}\"",

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "NODE_ENV=development REACT_APP_ENABLE_KARURA=true REACT_APP_KARURA_MAINNET_SUBQL_URL=https://karura-evm-subql.aca-api.network SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco start",
+    "start": "NODE_ENV=development SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco start",
     "build": "craco build",
     "release": "SENTRY_RELEASE=$(git rev-parse --short HEAD) SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco build && rm -rf build/static/js/*.map",
     "test": "craco test --transformIgnorePatterns \"node_modules/(?!@project-serum/sol-wallet-adapter)/\"",
@@ -35,9 +35,7 @@
     "node": "14.x"
   },
   "dependencies": {
-    "@acala-network/bodhi": "^2.4.12",
     "@acala-network/eth-providers": "^2.4.12",
-    "@apollo/client": "^3.6.8",
     "@certusone/wormhole-sdk": "^0.3.8",
     "@craco/craco": "^7.0.0-alpha.3",
     "@elastic/datemath": "^5.0.3",
@@ -56,7 +54,6 @@
     "@swim-io/pool-math": "^0.1.1",
     "bn.js": "^5.2.0",
     "constate": "^3.3.0",
-    "cross-fetch": "^3.1.5",
     "decimal.js": "^10.3.1",
     "dexie": "^3.2.2",
     "ethers": "^5.4.4",

@@ -1,9 +1,10 @@
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 
 import { useSolanaConnection, useSolanaWallet } from "../../contexts";
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { createSplTokenAccount } from "../../models";
+import { getSplTokenAccountsQueryKey } from "../solana";
 
 export const usePrepareSplTokenAccountMutation = () => {
   const solanaConnection = useSolanaConnection();
@@ -12,6 +13,7 @@ export const usePrepareSplTokenAccountMutation = () => {
     (state) => state.updateInteractionState,
   );
   const getInteractionState = useInteractionState(selectGetInteractionState);
+  const queryClient = useQueryClient();
 
   return useMutation(async (interactionId: string) => {
     if (wallet === null) {
@@ -23,31 +25,37 @@ export const usePrepareSplTokenAccountMutation = () => {
     }
     const { interaction, requiredSplTokenAccounts } =
       getInteractionState(interactionId);
-    await Promise.all(
-      Object.entries(requiredSplTokenAccounts).map(
-        async ([mint, accountState]) => {
-          // Account exist, skip creation step
-          if (accountState.account !== null) {
-            return;
-          }
-          const creationTxId = await createSplTokenAccount(
-            solanaConnection,
-            wallet,
-            mint,
-          );
-          await solanaConnection.confirmTx(creationTxId);
-          const account = await solanaConnection.getTokenAccountWithRetry(
-            mint,
-            solanaAddress,
-          );
 
-          // Update interactionState
-          updateInteractionState(interaction.id, (draft) => {
-            draft.requiredSplTokenAccounts[mint].account = account;
-            draft.requiredSplTokenAccounts[mint].txId = creationTxId;
-          });
-        },
-      ),
+    const missingAccountMints = Object.entries(requiredSplTokenAccounts)
+      .filter(([_mint, accountState]) => accountState.account === null)
+      .map(([mint, _accountState]) => mint);
+    await Promise.all(
+      missingAccountMints.map(async (mint) => {
+        const creationTxId = await createSplTokenAccount(
+          solanaConnection,
+          wallet,
+          mint,
+        );
+        await solanaConnection.confirmTx(creationTxId);
+        const account = await solanaConnection.getTokenAccountWithRetry(
+          mint,
+          solanaAddress,
+        );
+
+        // Update interactionState
+        updateInteractionState(interaction.id, (draft) => {
+          draft.requiredSplTokenAccounts[mint].account = account;
+          draft.requiredSplTokenAccounts[mint].txId = creationTxId;
+        });
+      }),
     );
+
+    if (missingAccountMints.length > 0) {
+      const splTokenAccountsQueryKey = getSplTokenAccountsQueryKey(
+        interaction.env,
+        solanaAddress,
+      );
+      await queryClient.refetchQueries(splTokenAccountsQueryKey);
+    }
   });
 };

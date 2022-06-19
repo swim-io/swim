@@ -32,8 +32,8 @@ export const getInteractionStatesFromDb = (env: Env) => {
     .transaction("r", "interactionStates", async () => {
       const data = await idb.interactionStates
         .filter((idbState) => idbState.interaction.env === env)
-        .sortBy("interaction.submittedAt")
-        .then((sorted) => sorted);
+        .reverse()
+        .sortBy("interaction.submittedAt");
       return data.map(deserializeInteractionState);
     })
     .catch((err) => {
@@ -69,6 +69,23 @@ export const addInteractionStateToDb = (interactionState: InteractionState) => {
     })
     .catch((err) => {
       console.warn("Fail to add interactionState into idb", err);
+    });
+};
+
+export const putInteractionStateToDb = (interactionState: InteractionState) => {
+  idb
+    .transaction("rw", "interactionStates", async () => {
+      const serializedState = prepareInteractionState(interactionState);
+      await idb.interactionStates.put(
+        {
+          id: interactionState.interaction.id,
+          ...serializedState,
+        },
+        interactionState.interaction.id,
+      );
+    })
+    .catch((err) => {
+      console.warn("Fail to put interactionState into idb", err);
     });
 };
 

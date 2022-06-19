@@ -11,21 +11,30 @@ import {
 } from "@elastic/eui";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
-import { useMemo, useState } from "react";
-import shallow from "zustand/shallow";
+import { useEffect, useMemo, useState } from "react";
+import shallow from "zustand/shallow.js";
 
-import { RecentInteractions } from "../components/RecentInteractions";
+import { RecentInteractionsV2 } from "../components/RecentInteractionsV2";
 import { SlippageButton } from "../components/SlippageButton";
 import { SwapForm } from "../components/SwapForm";
 import { selectConfig } from "../core/selectors";
-import { useEnvironment } from "../core/store";
+import { useEnvironment, useInteractionState } from "../core/store";
 import { useTitle } from "../hooks";
+import { InteractionType } from "../models";
 import { defaultIfError } from "../utils";
 
 import "./SwapPage.scss";
 
 const SwapPage = (): ReactElement => {
   const { pools } = useEnvironment(selectConfig, shallow);
+  const env = useEnvironment((state) => state.env);
+  const loadInteractionStatesFromIDB = useInteractionState(
+    (state) => state.loadInteractionStatesFromIDB,
+  );
+  useEffect(() => {
+    loadInteractionStatesFromIDB(env);
+  }, [env, loadInteractionStatesFromIDB]);
+
   useTitle("Swap");
 
   const nonStakingPools = useMemo(
@@ -33,10 +42,7 @@ const SwapPage = (): ReactElement => {
     [pools],
   );
 
-  const [currentInteraction, setCurrentInteraction] = useState<string | null>(
-    null,
-  );
-  const [slippagePercent, setSlippagePercent] = useState("1.0");
+  const [slippagePercent, setSlippagePercent] = useState("0.5");
   const slippageFraction = useMemo(
     () => defaultIfError(() => new Decimal(slippagePercent).div(100), null),
     [slippagePercent],
@@ -62,10 +68,7 @@ const SwapPage = (): ReactElement => {
             </EuiFlexGroup>
             <EuiSpacer />
             {nonStakingPools.length > 0 ? (
-              <SwapForm
-                setCurrentInteraction={setCurrentInteraction}
-                maxSlippageFraction={slippageFraction}
-              />
+              <SwapForm maxSlippageFraction={slippageFraction} />
             ) : (
               <EuiEmptyPrompt
                 iconType="alert"
@@ -76,10 +79,9 @@ const SwapPage = (): ReactElement => {
             )}
 
             <EuiSpacer />
-            <RecentInteractions
+            <RecentInteractionsV2
               title="Recent swaps"
-              poolId={null}
-              currentInteraction={currentInteraction}
+              interactionTypes={[InteractionType.Swap]}
             />
           </EuiPageContentBody>
         </EuiPageContent>

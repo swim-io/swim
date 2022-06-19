@@ -1,114 +1,61 @@
-import { Provider } from "@acala-network/bodhi";
-import type { TXReceipt } from "@acala-network/eth-providers";
-import { createApiOptions } from "@acala-network/eth-providers";
-import {
-  ApolloClient,
-  InMemoryCache,
-  createHttpLink,
-  gql,
-} from "@apollo/client";
-import type { NormalizedCacheObject } from "@apollo/client/core";
-import { WsProvider } from "@polkadot/api";
-import { fetch } from "cross-fetch";
-import { BigNumber } from "ethers";
+import type { TX, TXReceipt } from "@acala-network/eth-providers";
+import { EvmRpcProvider } from "@acala-network/eth-providers";
+import { SubqlProvider } from "@acala-network/eth-providers/lib/utils/subqlProvider";
 import type { ethers } from "ethers";
+import { BigNumber } from "ethers";
 
-const DISABLE_CHAIN_ID = 0;
-
-type EthersTransactionReceipt = ethers.providers.TransactionReceipt;
+type TransactionReceipt = ethers.providers.TransactionReceipt;
 type TransactionResponse = ethers.providers.TransactionResponse;
 
-interface Log {
-  readonly data: string;
-}
+const DEFAULT_TIMEOUT_MS = 60 * 1000;
+const DISABLE_CHAIN_ID = 0;
 
-interface LogConnection {
-  // When are there ever multiple logs for a TxReceipt?
-  readonly nodes: readonly Log[];
-}
-
-interface TransactionReceipt {
-  readonly blockHash: string;
-  readonly blockNumber: number;
-  readonly from: string;
-  readonly transactionHash: string;
-  readonly to: string;
-  readonly type: number;
-  readonly logs: LogConnection;
-}
-
-interface TransactionReceiptsConnection {
-  readonly nodes: readonly TransactionReceipt[];
-}
-
-interface TransactionReceiptsResponse {
-  readonly transactionReceipts: TransactionReceiptsConnection;
-}
-
-interface BigFloatFilter {
-  readonly lessThan: number;
-  readonly greaterThan: number;
-}
-
-interface StringFilter {
-  readonly equalTo: string;
-}
-
-interface TransactionReceiptFilter {
-  readonly blockNumber: BigFloatFilter;
-  readonly to: StringFilter;
-}
-
-interface TransactionReceiptsArguments {
-  readonly filter: TransactionReceiptFilter;
-  readonly orderBy: string;
-}
-
-const USER_TRANSACTION_RECEIPT_QUERY = gql`
-  query ($filter: TransactionReceiptFilter) {
-    transactionReceipts(filter: $filter) {
-      nodes {
-        blockHash
-        blockNumber
-        from
-        transactionHash
-        to
-        type
-        logs {
-          nodes {
-            data
-          }
+const createQuery = (
+  numTxs: number,
+  start: number,
+  end: number,
+  fromAddress: string,
+): string => {
+  return `
+  query {
+    transactionReceipts(
+      first: ${numTxs},
+      filter: {
+        from: {
+          equalTo: "${fromAddress}"
+        },
+        blockNumber: {
+          greaterThan: "${start}"
+          lessThan: "${end}"
         }
+      }
+    ) {
+      nodes {
+        transactionHash
       }
     }
   }
-`;
+  `;
+};
 
-// This also supports Karura.
-export class AcalaProvider extends Provider {
-  private readonly client: ApolloClient<NormalizedCacheObject>;
-
+export class AcalaProvider extends EvmRpcProvider {
+  private readonly subqlProvider: SubqlProvider;
   constructor(providerUrl: string, subqlUrl: string) {
-    super(
-      createApiOptions({
-        provider: new WsProvider(providerUrl),
-      }),
-    );
-
-    this.client = new ApolloClient({
-      cache: new InMemoryCache(),
-      link: createHttpLink({
-        uri: subqlUrl,
-        fetch: fetch,
-      }),
+    super(providerUrl, {
+      subqlUrl: subqlUrl,
     });
+    this.subqlProvider = new SubqlProvider(subqlUrl);
   }
 
+  // TODO: Replace with this.EvmRpcProvider.waitForTransaction() when they
+  // implement it.
+  // Code is copied from ethers impl:
+  // https://github.com/ethers-io/ethers.js/blob/master/packages/providers/src.ts/base-provider.ts#L1278
   waitForTransaction = async (
     transactionHash: string,
     confirmations?: number | undefined,
     timeout?: number | undefined,
-  ): Promise<EthersTransactionReceipt> => {
+  ): Promise<TransactionReceipt> => {
     return this._waitForTransaction(
       transactionHash,
       confirmations == null ? 1 : confirmations,
@@ -120,16 +67,13 @@ export class AcalaProvider extends Provider {
     transactionHash: string,
     confirmations: number,
     timeout: number,
-  ): Promise<EthersTransactionReceipt> {
+  ): Promise<TransactionReceipt> {
     const receipt = await this.getTXReceiptByHash(transactionHash);
 
-    // TODO: getTransactionReceipt() return type implies it can't be null,
-    // but that isn't true.
     if (receipt && receipt.confirmations >= confirmations) {
       return this.toTxReceipt(receipt);
     }
 
-    // Poll until the receipt is good...
     return new Promise((resolve, reject) => {
       // eslint-disable-next-line functional/prefer-readonly-type
       const cancelFuncs: Array<() => void> = [];
@@ -146,7 +90,7 @@ export class AcalaProvider extends Provider {
         return false;
       };
 
-      const minedHandler = (reciept: EthersTransactionReceipt) => {
+      const minedHandler = (reciept: TransactionReceipt) => {
         if (reciept.confirmations < confirmations) {
           return;
         }
@@ -168,10 +112,6 @@ export class AcalaProvider extends Provider {
             return;
           }
           reject();
-          // TODO: Replace with whatever logger we use.
-          // logger.makeError("timeout exceeded", Logger.errors.TIMEOUT, {
-          //   timeout: timeout,
-          // }
         }, timeout);
         timer.unref();
         // eslint-disable-next-line functional/immutable-data
@@ -187,62 +127,55 @@ export class AcalaProvider extends Provider {
     startBlock?: number,
     endBlock?: number,
   ): Promise<readonly TransactionResponse[]> {
-    const response = await this.client.query<
-      TransactionReceiptsResponse,
-      TransactionReceiptsArguments
-    >({
-      query: USER_TRANSACTION_RECEIPT_QUERY,
-      variables: {
-        filter: {
-          blockNumber: {
-            greaterThan: startBlock ?? 0,
-            lessThan: endBlock ?? 99999999,
-          },
-          to: {
-            equalTo: addressOrName,
-          },
-        },
-        // TODO: Move to const.
-        orderBy: "BLOCK_NUMBER_ASC",
-      },
-    });
-
-    return response.data.transactionReceipts.nodes.map((txReceipt) => {
-      return this.toTxResponse(txReceipt);
-    });
+    const query = createQuery(
+      100,
+      startBlock ?? 0,
+      endBlock ?? 99999999,
+      addressOrName,
+    );
+    const queryRes = await this.subqlProvider.queryGraphql(query);
+    if (!queryRes.transactionReceipts) {
+      return [];
+    }
+    const txResponses = Promise.all(
+      queryRes.transactionReceipts.nodes.map(async (node) => {
+        if (!node) {
+          throw new Error(`Malformed graphQl query: ${query}`);
+        }
+        return this.toTxResponse(
+          await this.getTransactionByHash(node.transactionHash),
+        );
+      }),
+    );
+    return txResponses;
   }
 
-  private toTxResponse(tx: TransactionReceipt): TransactionResponse {
-    const waitFn = async (
-      confirmations = 1,
-    ): Promise<EthersTransactionReceipt> => {
-      return this.waitForTransaction(txResponse.hash, confirmations);
+  private toTxResponse(tx: TX | null): TransactionResponse {
+    const waitFn = async (confirmations = 1): Promise<TransactionReceipt> => {
+      return this.waitForTransaction(
+        txResponse.hash,
+        confirmations,
+        DEFAULT_TIMEOUT_MS,
+      );
     };
-
     const txResponse: TransactionResponse = {
-      blockHash: tx.blockHash,
-      blockNumber: tx.blockNumber,
-      chainId: DISABLE_CHAIN_ID,
-      from: tx.from,
-      to: tx.to,
-      wait: waitFn,
-      // Retrieve first log entry, if it exists.
-      data: tx.logs.nodes.length > 0 ? tx.logs.nodes[0].data : "",
-      // Not exported.
+      hash: tx?.hash ?? "",
+      // Note, confirmations is set to 0 since MoralisTransaction does not
+      // export that data.
       confirmations: 0,
-      // Not exported
-      gasLimit: BigNumber.from(0),
-      hash: tx.transactionHash,
-      // Not exported.
-      nonce: Number(0),
-      // Not exported.
-      value: BigNumber.from(0),
+      from: tx?.from ?? "",
+      wait: waitFn,
+      nonce: tx?.nonce ?? 0,
+      gasLimit: BigNumber.from(tx?.gas ?? "0"),
+      data: tx?.input ?? "",
+      value: BigNumber.from(tx?.value ?? "0"),
+      chainId: DISABLE_CHAIN_ID,
     };
     return txResponse;
   }
 
-  private toTxReceipt(tx: TXReceipt): EthersTransactionReceipt {
-    const txReceipt: EthersTransactionReceipt = {
+  private toTxReceipt(tx: TXReceipt): TransactionReceipt {
+    const txReceipt: TransactionReceipt = {
       to: tx.to ?? "",
       from: tx.from,
       contractAddress: tx.contractAddress ?? "",

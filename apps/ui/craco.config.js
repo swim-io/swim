@@ -3,7 +3,6 @@ const SentryWebpackPlugin = require("@sentry/webpack-plugin");
 const webpack = require("webpack");
 
 module.exports = {
-  // reactScriptsVersion: 'react-scripts' /* (default value) */,
   babel: {
     plugins: [
       "@babel/plugin-proposal-nullish-coalescing-operator",
@@ -41,13 +40,6 @@ module.exports = {
       webpackConfig.experiments = {
         asyncWebAssembly: true,
       };
-      // add wasm-loader
-      // const oneOfRules = webpackConfig.module.rules.find((rule) => rule.oneOf);
-      // oneOfRules.oneOf.unshift({
-      //   test: /\.wasm$/,
-      //   include: /node_modules\/@certusone\/wormhole-sdk/,
-      //   loader: require.resolve("wasm-loader"),
-      // });
 
       // Disable code splitting to prevent ChunkLoadError
       webpackConfig.optimization.runtimeChunk = false;
@@ -69,8 +61,7 @@ module.exports = {
           ? "static/js/[name].[hash].js"
           : "static/js/[name].[chunkhash].js";
 
-      
-      // add polufills that are not included in webpack 5
+      // Add polufills that are not included in webpack 5
       webpackConfig = {
         ...webpackConfig,
         ignoreWarnings: [/Failed to parse source map/],

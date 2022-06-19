@@ -26,9 +26,9 @@ export type Provider =
 const BSC_MAINNET_RPC_URL = process.env.REACT_APP_BSC_MAINNET_RPC_URL;
 const BSC_TESTNET_RPC_URL = process.env.REACT_APP_BSC_TESTNET_RPC_URL;
 const ACALA_MAINNET_WSS_URL = process.env.REACT_APP_ACALA_MAINNET_WSS_URL;
-const KARURA_MAINNET_WSS_URL = "wss://karura.api.onfinality.io/ws?apikey=6ad6fa42-9854-4ee7-9834-a7da2ca7c416";
 const ACALA_MAINNET_SUBQL_URL = process.env.REACT_APP_ACALA_MAINNET_SUBQL_URL;
-const KARURA_MAINNET_SUBQL_URL = "https://karura-evm-subql.aca-api.network"
+const KARURA_MAINNET_WSS_URL = process.env.REACT_APP_KARURA_MAINNET_WSS_URL;
+const KARURA_MAINNET_SUBQL_URL = process.env.REACT_APP_ACALA_MAINNET_SUBQL_URL;
 
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
 const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
@@ -100,6 +100,19 @@ const getAcalaProvider = (env: Env): string => {
   }
 };
 
+const getAcalaSubQl = (env: Env): string => {
+  switch (env) {
+    case Env.Mainnet:
+      if (ACALA_MAINNET_SUBQL_URL === undefined) {
+        throw new Error("ACALA_MAINNET_SUBQL_URL is undefined");
+      }
+      return ACALA_MAINNET_SUBQL_URL;
+    case Env.Devnet:
+    default:
+      throw new Error(`Acala SubQL does not support ${env}`);
+  }
+};
+
 const getKaruraProvider = (env: Env): string => {
   switch (env) {
     case Env.Mainnet:
@@ -112,19 +125,6 @@ const getKaruraProvider = (env: Env): string => {
       throw new Error(
         `Karura provider (AcalaProvider) does not support ${env}`,
       );
-  }
-};
-
-const getAcalaSubQl = (env: Env): string => {
-  switch (env) {
-    case Env.Mainnet:
-      if (ACALA_MAINNET_SUBQL_URL === undefined) {
-        throw new Error("ACALA_MAINNET_SUBQL_URL is undefined");
-      }
-      return ACALA_MAINNET_SUBQL_URL;
-    case Env.Devnet:
-    default:
-      throw new Error(`Acala SubQL does not support ${env}`);
   }
 };
 

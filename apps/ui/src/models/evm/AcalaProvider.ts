@@ -36,7 +36,7 @@ const createQuery = (
   `;
 };
 
-// This also supports Karura.
+// Also supports Karura.
 export class AcalaProvider extends JsonRpcProvider {
   private readonly subqlUrl: string;
 

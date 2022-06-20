@@ -239,5 +239,32 @@ def wtf():
   print("balances:", pool.balances)
   print("lp supply:", pool.lp_supply)
 
-wtf()
+def slippage_frontrunning():
+  def setup_pool(frontrun=Decimal(0), token_count = 3):
+    amp_factor = Decimal(300)
+    lp_fee = Decimal("0.0003")
+    gov_fee = Decimal("0.0001")
+    tolerance = Decimal("0.00001")
+    pool = SwimPool(token_count, amp_factor, lp_fee, gov_fee, tolerance)
+    base = Decimal(100)
+    balances = [base for _ in range(token_count)]
+    pool.add(balances)
+    if frontrun > 0:
+      frontrun_inputs = [frontrun] + [0] * (token_count-1)
+      pool.swap_exact_input(frontrun_inputs, 1)
+    return pool
 
+  slippage = Decimal(0.01)
+  scenarios = [1, 75]
+  for scenario in scenarios:
+    inputs = [scenario, 0, 0]
+    output_no_frontrun = setup_pool().swap_exact_input(inputs, 1)[0]
+    slippage_threshold = output_no_frontrun * (1 - slippage)
+    print("output_no_frontrun", output_no_frontrun)
+    print("slippage_threshold", slippage_threshold)
+    i = 1
+    while setup_pool(Decimal(i)).swap_exact_input(inputs, 1)[0] > slippage_threshold:
+      i += 1
+    print(i)
+
+slippage_frontrunning()

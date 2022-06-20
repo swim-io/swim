@@ -1,12 +1,23 @@
 import { ethers } from "ethers";
 import { gql, request } from "graphql-request";
 
-import type { TransactionReceiptsResponse } from "./utils";
-
 type TransactionResponse = ethers.providers.TransactionResponse;
 
 const { JsonRpcProvider } = ethers.providers;
 const NUM_TX_TO_FETCH = 100;
+
+// GraphQL Schema
+interface TransactionReceipt {
+  readonly transactionHash: string;
+}
+
+interface TransactionReceiptsConnection {
+  readonly nodes: readonly TransactionReceipt[];
+}
+
+interface TransactionReceiptsResponse {
+  readonly transactionReceipts: TransactionReceiptsConnection;
+}
 
 const createQuery = (
   numTxs: number,

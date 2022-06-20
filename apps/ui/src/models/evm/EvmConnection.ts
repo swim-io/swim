@@ -157,20 +157,32 @@ export class EvmConnection {
     ) {
       return new LocalnetProvider(rpcUrls[0]);
     }
-    // TODO: Remove if wormhole devnet supports Mandala.
-    if (
-      [EcosystemId.Acala, EcosystemId.Karura].includes(ecosystem) &&
-      env === Env.Devnet
-    ) {
-      return new LocalnetProvider(rpcUrls[0]);
-    }
-    switch (env) {
-      case Env.Mainnet:
-      case Env.Devnet:
-        return EvmConnection.getPublicEvmIndexerProvider(env, ecosystem);
-      default: {
+    switch (ecosystem) {
+      case EcosystemId.Acala:
+      case EcosystemId.Aurora:
+      case EcosystemId.Fantom:
         return new LocalnetProvider(rpcUrls[0]);
-      }
+      case EcosystemId.Bsc:
+      case EcosystemId.Avalanche:
+      case EcosystemId.Ethereum:
+      case EcosystemId.Polygon:
+        switch (env) {
+          case Env.Mainnet:
+          case Env.Devnet:
+            return EvmConnection.getPublicEvmIndexerProvider(env, ecosystem);
+          default: {
+            return new LocalnetProvider(rpcUrls[0]);
+          }
+        }
+      case EcosystemId.Karura:
+        switch (env) {
+          case Env.Mainnet:
+            return EvmConnection.getPublicEvmIndexerProvider(env, ecosystem);
+          case Env.Devnet:
+          default: {
+            return new LocalnetProvider(rpcUrls[0]);
+          }
+        }
     }
   }
 

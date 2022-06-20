@@ -63,7 +63,7 @@ export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean => {
     case EcosystemId.Fantom:
       return !!process.env.REACT_APP_ENABLE_FANTOM;
     case EcosystemId.Karura:
-      return !!process.env.REACT_APP_ENABLE_KARURA;
+      return !!process.env.REACT_APP_ENABLE_ACALA;
     case EcosystemId.Acala:
       return !!process.env.REACT_APP_ENABLE_ACALA;
     default:

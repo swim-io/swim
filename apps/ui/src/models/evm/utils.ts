@@ -1,5 +1,17 @@
 import { INTERACTION_ID_LENGTH_HEX } from "../utils";
 
+interface TransactionReceipt {
+  readonly transactionHash: string;
+}
+
+interface TransactionReceiptsConnection {
+  readonly nodes: readonly TransactionReceipt[];
+}
+
+export interface TransactionReceiptsResponse {
+  readonly transactionReceipts: TransactionReceiptsConnection;
+}
+
 export const findEvmInteractionId = (
   data: string,
   recentInteractionIds: readonly string[],

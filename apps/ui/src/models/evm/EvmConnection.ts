@@ -6,6 +6,7 @@ import type { EvmEcosystemId, EvmSpec } from "../../config";
 import { EcosystemId, Env, isEcosystemEnabled } from "../../config";
 import { isNotNull } from "../../utils";
 
+import { AcalaProvider } from "./AcalaProvider";
 import { LocalnetProvider } from "./LocalnetProvider";
 import { MoralisProvider } from "./MoralisProvider";
 import { PolygonNetwork, PolygonScanProvider } from "./PolygonScanProvider";
@@ -16,7 +17,11 @@ type EtherscanProvider = ethers.providers.EtherscanProvider;
 type TransactionReceipt = ethers.providers.TransactionReceipt;
 type TransactionResponse = ethers.providers.TransactionResponse;
 
-export type Provider = MoralisProvider | EtherscanProvider | LocalnetProvider;
+export type Provider =
+  | MoralisProvider
+  | EtherscanProvider
+  | LocalnetProvider
+  | AcalaProvider;
 
 // TODO: Use proper endpoints via env
 const BSC_MAINNET_RPC_URL = process.env.REACT_APP_BSC_MAINNET_RPC_URL;
@@ -25,6 +30,9 @@ const BSC_TESTNET_RPC_URL = process.env.REACT_APP_BSC_TESTNET_RPC_URL;
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
 const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
 const SNOWTRACE_API_KEY = process.env.REACT_APP_SNOWTRACE_API_KEY;
+const KARURA_MAINNET_RPC_URL = process.env.KARURA_MAINNET_RPC_URL;
+const KARURA_MAINNET_SUBQL_URL = process.env.KARURA_MAINNET_SUBQL_URL;
+
 const MORALIS_ID = "Swim UI";
 
 /**
@@ -96,6 +104,34 @@ const getBscRpcUrl = (env: Env): string => {
   }
 };
 
+const getKaruraProvider = (env: Env): string => {
+  switch (env) {
+    case Env.Mainnet:
+      if (KARURA_MAINNET_RPC_URL === undefined) {
+        throw new Error("KARURA_MAINNET_RPC_URL is undefined");
+      }
+      return KARURA_MAINNET_RPC_URL;
+    case Env.Devnet:
+    default:
+      throw new Error(
+        `Karura provider (AcalaProvider) does not support ${env}`,
+      );
+  }
+};
+
+const getKaruraSubQl = (env: Env): string => {
+  switch (env) {
+    case Env.Mainnet:
+      if (KARURA_MAINNET_SUBQL_URL === undefined) {
+        throw new Error("KARURA_MAINNET_SUBQL_URL is undefined");
+      }
+      return KARURA_MAINNET_SUBQL_URL;
+    case Env.Devnet:
+    default:
+      throw new Error(`Karura SubQL does not support ${env}`);
+  }
+};
+
 export class EvmConnection {
   public provider: Provider;
   // eslint-disable-next-line functional/prefer-readonly-type
@@ -114,14 +150,16 @@ export class EvmConnection {
       return new LocalnetProvider(rpcUrls[0]);
     }
     // TODO: Remove when these chains are supported
-    if (
-      [
-        EcosystemId.Aurora,
-        EcosystemId.Fantom,
-        EcosystemId.Karura,
-        EcosystemId.Acala,
-      ].includes(ecosystem)
-    ) {
+    const notImplemented = [
+      EcosystemId.Aurora,
+      EcosystemId.Fantom,
+      EcosystemId.Acala,
+    ].includes(ecosystem);
+    // TODO: Remove if wormhole devnet supports Mandala.
+    const isAcalaKaruraDevnet =
+      [EcosystemId.Acala, EcosystemId.Karura].includes(ecosystem) &&
+      env === Env.Devnet;
+    if (notImplemented || isAcalaKaruraDevnet) {
       return new LocalnetProvider(rpcUrls[0]);
     }
     switch (env) {
@@ -166,6 +204,9 @@ export class EvmConnection {
           getPolygonScanNetwork(env),
           POLYGONSCAN_API_KEY,
         );
+      }
+      case EcosystemId.Karura: {
+        return new AcalaProvider(getKaruraProvider(env), getKaruraSubQl(env));
       }
       default:
         throw new Error(`Unsupported EVM ecosystem: ${ecosystemId}`);

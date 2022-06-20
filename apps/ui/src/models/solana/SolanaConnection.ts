@@ -114,9 +114,9 @@ export class SolanaConnection {
     // call getSignature() beforehand to circumvent.
     // TODO: Remove signature code once issue is addressed.
     // https://github.com/solana-labs/solana/issues/25955
-    const SignatureStatus = await this.getSigStatusToSigResult(txId);
-    if (SignatureStatus) {
-      return SignatureStatus;
+    const signatureStatus = await this.getSigStatusToSigResult(txId);
+    if (signatureStatus) {
+      return signatureStatus;
     }
     while (remainingAttempts >= 0) {
       try {
@@ -332,17 +332,14 @@ export class SolanaConnection {
     try {
       const { context, value } = await this.rawConnection.getSignatureStatus(
         txId,
+        { searchTransactionHistory: true },
       );
       if (!value) {
         return null;
       }
       return {
-        context: {
-          slot: context.slot,
-        },
-        value: {
-          err: null,
-        },
+        context,
+        value,
       };
     } catch {
       return null;

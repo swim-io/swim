@@ -13,16 +13,24 @@ import type {
   WalletServiceId,
 } from "../../models";
 import { isWalletServiceId } from "../../models";
+import { shortenAddress } from "../../utils";
+
+import { useNotification as notificationStore } from "./useNotification";
 
 export interface WalletAdapterState {
   readonly evm: EvmWalletAdapter | null;
+  readonly evmListeners: WalletAdapterListeners | null;
   readonly solana: SolanaWalletAdapter | null;
   readonly connectService: (
     protocol: Protocol,
     serviceId: WalletServiceId,
     adapter: WalletAdapter,
   ) => Promise<void>;
-  readonly disconnectService: (protocol: Protocol) => Promise<void>;
+  readonly solanaListeners: WalletAdapterListeners | null;
+  readonly disconnectService: (
+    protocol: Protocol,
+    silently?: boolean,
+  ) => Promise<void>;
   readonly selectedServiceByProtocol: Record<Protocol, WalletServiceId | null>;
 }
 
@@ -43,11 +51,19 @@ const isValidSelectedServiceByProtocol = (
   );
 };
 
+type WalletAdapterListeners = {
+  readonly connect: () => void;
+  readonly disconnect: () => void;
+  readonly error: (title: string, description: string) => void;
+};
+
 export const useWalletAdapter = create(
   persist<WalletAdapterState>(
     (set: SetState<WalletAdapterState>, get: GetState<WalletAdapterState>) => ({
       evm: null,
+      evmListeners: null,
       solana: null,
+      solanaListeners: null,
       selectedServiceByProtocol: {
         [Protocol.Evm]: null,
         [Protocol.Solana]: null,
@@ -58,6 +74,40 @@ export const useWalletAdapter = create(
 
         if (previous) await state.disconnectService(protocol);
 
+        const disconnect = () => state.disconnectService(protocol, true);
+        const { notify } = notificationStore.getState();
+
+        const handleConnect = (): void => {
+          if (adapter.address) {
+            notify(
+              "Wallet update",
+              `Connected to wallet ${shortenAddress(adapter.address)}`,
+              "info",
+              7000,
+            );
+          }
+        };
+        const handleDisconnect = (): void => {
+          notify("Wallet update", "Disconnected from wallet", "warning");
+          void disconnect();
+        };
+        const handleError = (title: string, description: string): void => {
+          notify(title, description, "error");
+          void disconnect();
+        };
+
+        const listeners = {
+          connect: handleConnect,
+          disconnect: handleDisconnect,
+          error: handleError,
+        };
+
+        Object.entries(listeners).forEach(([event, listener]) => {
+          adapter.on(event, listener);
+        });
+
+        await adapter.connect();
+
         set(
           produce<WalletAdapterState>((draft) => {
             draft.selectedServiceByProtocol[protocol] = serviceId;
@@ -65,32 +115,51 @@ export const useWalletAdapter = create(
             switch (adapter.protocol) {
               case Protocol.Evm: {
                 draft.evm = adapter;
+                draft.evmListeners = listeners;
                 break;
               }
               case Protocol.Solana: {
                 draft.solana = adapter;
+                draft.solanaListeners = listeners;
                 break;
               }
             }
           }),
         );
-
-        await adapter.connect().catch(console.error);
       },
-      disconnectService: async (protocol) => {
+      disconnectService: async (protocol, silently = false) => {
         const state = get();
         const adapter = protocol === Protocol.Evm ? state.evm : state.solana;
-        await adapter?.disconnect().catch(console.error);
+        const listeners =
+          protocol === Protocol.Evm
+            ? state.evmListeners
+            : state.solanaListeners;
+
+        if (adapter) {
+          if (adapter.connected && !silently)
+            await adapter.disconnect().catch(console.error);
+
+          if (listeners) {
+            Object.entries(listeners).forEach(([event, listener]) => {
+              adapter.off(event, listener);
+            });
+          }
+
+          if (adapter.connected && silently)
+            await adapter.disconnect().catch(console.error);
+        }
 
         set(
           produce<WalletAdapterState>((draft) => {
             switch (protocol) {
               case Protocol.Evm: {
                 draft.evm = null;
+                draft.evmListeners = null;
                 break;
               }
               case Protocol.Solana: {
                 draft.solana = null;
+                draft.solanaListeners = null;
                 break;
               }
             }

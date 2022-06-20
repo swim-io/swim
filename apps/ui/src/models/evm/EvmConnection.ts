@@ -149,17 +149,19 @@ export class EvmConnection {
     if (!isEcosystemEnabled(ecosystem)) {
       return new LocalnetProvider(rpcUrls[0]);
     }
-    // TODO: Remove when these chains are supported
-    const notImplemented = [
-      EcosystemId.Aurora,
-      EcosystemId.Fantom,
-      EcosystemId.Acala,
-    ].includes(ecosystem);
+    // TODO: Remove when these chains are supported.
+    if (
+      [EcosystemId.Aurora, EcosystemId.Fantom, EcosystemId.Acala].includes(
+        ecosystem,
+      )
+    ) {
+      return new LocalnetProvider(rpcUrls[0]);
+    }
     // TODO: Remove if wormhole devnet supports Mandala.
-    const isAcalaKaruraDevnet =
+    if (
       [EcosystemId.Acala, EcosystemId.Karura].includes(ecosystem) &&
-      env === Env.Devnet;
-    if (notImplemented || isAcalaKaruraDevnet) {
+      env === Env.Devnet
+    ) {
       return new LocalnetProvider(rpcUrls[0]);
     }
     switch (env) {

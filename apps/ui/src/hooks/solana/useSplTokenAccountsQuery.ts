@@ -4,11 +4,17 @@ import { PublicKey } from "@solana/web3.js";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
+import type { Env } from "../../config";
 import { useSolanaConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 import { deserializeTokenAccount } from "../../models";
 
 import { useSolanaWallet } from "./useSolanaWallet";
+
+export const getSplTokenAccountsQueryKey = (
+  env: Env,
+  address: string | null,
+) => ["tokenAccounts", env, address];
 
 export const useSplTokenAccountsQuery = (
   owner?: string,
@@ -18,7 +24,7 @@ export const useSplTokenAccountsQuery = (
   const { address: userAddress } = useSolanaWallet();
   const address = owner ?? userAddress;
 
-  const queryKey = ["tokenAccounts", env, address];
+  const queryKey = getSplTokenAccountsQueryKey(env, address);
   const query = useQuery<readonly TokenAccount[], Error>(queryKey, async () => {
     if (address === null) {
       return [];

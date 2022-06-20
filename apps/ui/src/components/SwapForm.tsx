@@ -21,18 +21,19 @@ import {
   useIsLargeSwap,
   usePoolMaths,
   usePools,
-  usePrevious,
   useSplTokenAccountsQuery,
-  useStepsReducer,
   useSwapFeesEstimationQuery,
   useSwapOutputAmountEstimate,
   useUserBalanceAmounts,
   useUserNativeBalances,
 } from "../hooks";
 import {
+  useHasActiveInteraction,
+  useStartNewInteraction,
+} from "../hooks/interaction";
+import {
   Amount,
   InteractionType,
-  Status,
   getLowBalanceWallets,
   getRequiredPoolsForSwap,
 } from "../models";
@@ -43,7 +44,6 @@ import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
 import { SolanaTpsWarning } from "./SolanaTpsWarning";
-import { StepsDisplay } from "./StepsDisplay";
 import { SwapFormSolanaConnectButton } from "./molecules/SwapFormSolanaConnectButton";
 import { TokenAmountInput } from "./molecules/TokenAmountInput";
 
@@ -73,12 +73,10 @@ const useOutputTokens = (fromTokenId: string): readonly string[] => {
 };
 
 export interface SwapFormProps {
-  readonly setCurrentInteraction: (id: string) => void;
   readonly maxSlippageFraction: Decimal | null;
 }
 
 export const SwapForm = ({
-  setCurrentInteraction,
   maxSlippageFraction,
 }: SwapFormProps): ReactElement => {
   const config = useEnvironment(selectConfig, shallow);
@@ -86,14 +84,8 @@ export const SwapForm = ({
   const { tokens } = config;
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();
-  const {
-    retryInteraction,
-    state: { interaction, steps, status },
-    startInteraction,
-    mutations,
-    isInteractionInProgress,
-  } = useStepsReducer();
-
+  const startNewInteraction = useStartNewInteraction();
+  const isInteractionInProgress = useHasActiveInteraction();
   const swappableTokenIds = config.pools
     .filter((pool) => !pool.isStakingPool)
     .flatMap((pool) => [...pool.tokenAccounts.keys()])
@@ -132,13 +124,6 @@ export const SwapForm = ({
   const [inputAmountErrors, setInputAmountErrors] = useState<readonly string[]>(
     [],
   );
-
-  const prevStatus = usePrevious(status);
-  useEffect(() => {
-    if (status === Status.Done && prevStatus !== Status.Done) {
-      setFormInputAmount("0");
-    }
-  }, [prevStatus, status, setFormInputAmount]);
 
   const feesEstimation = useSwapFeesEstimationQuery(fromToken, toToken);
 
@@ -258,17 +243,13 @@ export const SwapForm = ({
     const minimumOutputAmount = outputAmount.sub(
       outputAmount.mul(maxSlippageFraction),
     );
-    const interactionId = startInteraction(
-      {
-        type: InteractionType.Swap,
-        params: {
-          exactInputAmount: inputAmount,
-          minimumOutputAmount,
-        },
+    startNewInteraction({
+      type: InteractionType.Swap,
+      params: {
+        exactInputAmount: inputAmount,
+        minimumOutputAmount,
       },
-      poolMaths,
-    );
-    setCurrentInteraction(interactionId);
+    });
   };
 
   useEffect(() => {
@@ -379,17 +360,6 @@ export const SwapForm = ({
         </EuiButton>
       </EuiFormRow>
 
-      <EuiSpacer />
-
-      {interaction && steps && (
-        <StepsDisplay
-          retryInteraction={retryInteraction}
-          interaction={interaction}
-          steps={steps}
-          status={status}
-          mutations={mutations}
-        />
-      )}
       <ConfirmModal
         isVisible={isConfirmModalVisible}
         onCancel={handleConfirmModalCancel}

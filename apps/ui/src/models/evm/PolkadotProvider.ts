@@ -36,13 +36,12 @@ const createQuery = (
   `;
 };
 
-// Also supports Karura.
-export class AcalaProvider extends JsonRpcProvider {
-  private readonly subqlUrl: string;
+export class PolkadotProvider extends JsonRpcProvider {
+  private readonly subqueryUrl: string;
 
-  constructor(ethRpcUrl: string, subqlUrl: string) {
+  constructor(ethRpcUrl: string, subqueryUrl: string) {
     super(ethRpcUrl);
-    this.subqlUrl = subqlUrl;
+    this.subqueryUrl = subqueryUrl;
   }
 
   async getHistory(
@@ -57,12 +56,12 @@ export class AcalaProvider extends JsonRpcProvider {
       addressOrName,
     );
     const queryRes = await request<TransactionReceiptsResponse>(
-      this.subqlUrl,
+      this.subqueryUrl,
       query,
     );
     const txResponses = Promise.all(
       queryRes.transactionReceipts.nodes.map(async (node) => {
-        return await this.getTransaction(node.transactionHash);
+        return this.getTransaction(node.transactionHash);
       }),
     );
     return txResponses;

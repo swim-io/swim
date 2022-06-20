@@ -6,9 +6,9 @@ import type { EvmEcosystemId, EvmSpec } from "../../config";
 import { EcosystemId, Env, isEcosystemEnabled } from "../../config";
 import { isNotNull } from "../../utils";
 
-import { AcalaProvider } from "./AcalaProvider";
 import { LocalnetProvider } from "./LocalnetProvider";
 import { MoralisProvider } from "./MoralisProvider";
+import { PolkadotProvider } from "./PolkadotProvider";
 import { PolygonNetwork, PolygonScanProvider } from "./PolygonScanProvider";
 import { AvalancheNetwork, SnowTraceProvider } from "./SnowTraceProvider";
 import { Erc20Factory } from "./erc20";
@@ -21,7 +21,7 @@ export type Provider =
   | MoralisProvider
   | EtherscanProvider
   | LocalnetProvider
-  | AcalaProvider;
+  | PolkadotProvider;
 
 // TODO: Use proper endpoints via env
 const BSC_MAINNET_RPC_URL = process.env.REACT_APP_BSC_MAINNET_RPC_URL;
@@ -208,7 +208,10 @@ export class EvmConnection {
         );
       }
       case EcosystemId.Karura: {
-        return new AcalaProvider(getKaruraProvider(env), getKaruraSubQl(env));
+        return new PolkadotProvider(
+          getKaruraProvider(env),
+          getKaruraSubQl(env),
+        );
       }
       default:
         throw new Error(`Unsupported EVM ecosystem: ${ecosystemId}`);

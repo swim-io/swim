@@ -109,7 +109,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.0.0-beta.36, @babel/code-frame@npm:^7.10.4, @babel/code-frame@npm:^7.12.13, @babel/code-frame@npm:^7.16.0, @babel/code-frame@npm:^7.16.7, @babel/code-frame@npm:^7.5.5, @babel/code-frame@npm:^7.8.3":
+"@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.10.4, @babel/code-frame@npm:^7.12.13, @babel/code-frame@npm:^7.16.0, @babel/code-frame@npm:^7.16.7, @babel/code-frame@npm:^7.5.5, @babel/code-frame@npm:^7.8.3":
   version: 7.16.7
   resolution: "@babel/code-frame@npm:7.16.7"
   dependencies:
@@ -149,7 +149,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:^7.0.0-beta.39, @babel/core@npm:^7.1.0, @babel/core@npm:^7.11.6, @babel/core@npm:^7.12.10, @babel/core@npm:^7.12.3, @babel/core@npm:^7.16.0, @babel/core@npm:^7.7.5":
+"@babel/core@npm:^7.1.0, @babel/core@npm:^7.11.6, @babel/core@npm:^7.12.10, @babel/core@npm:^7.12.3, @babel/core@npm:^7.16.0, @babel/core@npm:^7.7.5":
   version: 7.18.2
   resolution: "@babel/core@npm:7.18.2"
   dependencies:
@@ -1738,7 +1738,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/traverse@npm:^7.0.0-beta.39, @babel/traverse@npm:^7.1.6, @babel/traverse@npm:^7.12.11, @babel/traverse@npm:^7.12.9, @babel/traverse@npm:^7.13.0, @babel/traverse@npm:^7.16.8, @babel/traverse@npm:^7.18.0, @babel/traverse@npm:^7.18.2, @babel/traverse@npm:^7.7.2":
+"@babel/traverse@npm:^7.1.6, @babel/traverse@npm:^7.12.11, @babel/traverse@npm:^7.12.9, @babel/traverse@npm:^7.13.0, @babel/traverse@npm:^7.16.8, @babel/traverse@npm:^7.18.0, @babel/traverse@npm:^7.18.2, @babel/traverse@npm:^7.7.2":
   version: 7.18.2
   resolution: "@babel/traverse@npm:7.18.2"
   dependencies:
@@ -1774,7 +1774,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/types@npm:^7.0.0, @babel/types@npm:^7.0.0-beta.39, @babel/types@npm:^7.12.11, @babel/types@npm:^7.12.6, @babel/types@npm:^7.12.7, @babel/types@npm:^7.16.0, @babel/types@npm:^7.16.7, @babel/types@npm:^7.16.8, @babel/types@npm:^7.17.0, @babel/types@npm:^7.17.12, @babel/types@npm:^7.18.0, @babel/types@npm:^7.18.2, @babel/types@npm:^7.2.0, @babel/types@npm:^7.3.0, @babel/types@npm:^7.3.3, @babel/types@npm:^7.4.4, @babel/types@npm:^7.8.3":
+"@babel/types@npm:^7.0.0, @babel/types@npm:^7.12.11, @babel/types@npm:^7.12.6, @babel/types@npm:^7.12.7, @babel/types@npm:^7.16.0, @babel/types@npm:^7.16.7, @babel/types@npm:^7.16.8, @babel/types@npm:^7.17.0, @babel/types@npm:^7.17.12, @babel/types@npm:^7.18.0, @babel/types@npm:^7.18.2, @babel/types@npm:^7.2.0, @babel/types@npm:^7.3.0, @babel/types@npm:^7.3.3, @babel/types@npm:^7.4.4, @babel/types@npm:^7.8.3":
   version: 7.18.2
   resolution: "@babel/types@npm:7.18.2"
   dependencies:
@@ -7301,7 +7301,6 @@ __metadata:
     stream-browserify: ^3.0.0
     typechain: ^5.1.2
     typescript: ~4.2
-    wasm-loader: ^1.3.0
     web-vitals: ^1.0.1
     webpack: ~5.73.0
     zustand: ^4.0.0-rc.1
@@ -10214,15 +10213,6 @@ __metadata:
     babel-plugin-macros: ^3.1.0
     babel-plugin-transform-react-remove-prop-types: ^0.4.24
   checksum: ee66043484e67b8aef2541976388299691478ea00834f3bb14b6b3d5edcd316a5ac95351f6ec084b41ee555cad820d4194280ad38ce51884fedc7e8946a57b74
-  languageName: node
-  linkType: hard
-
-"babylon@npm:^7.0.0-beta.39":
-  version: 7.0.0-beta.47
-  resolution: "babylon@npm:7.0.0-beta.47"
-  bin:
-    babylon: ./bin/babylon.js
-  checksum: f6ce13f2549d4770fe6de9a5e5bb86744600f45db59fc8d206758474933ed8294d55bfb237148180dd1c62c9a3f21054a52ffb5fc74a3b45b906b676dbc899b5
   languageName: node
   linkType: hard
 
@@ -18838,7 +18828,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loader-utils@npm:^1.1.0, loader-utils@npm:^1.2.3":
+"loader-utils@npm:^1.2.3":
   version: 1.4.0
   resolution: "loader-utils@npm:1.4.0"
   dependencies:
@@ -18972,13 +18962,6 @@ __metadata:
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
-  languageName: node
-  linkType: hard
-
-"long@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "long@npm:3.2.0"
-  checksum: bc27bdeab42cb2f25d0a0faf5fbf77b657bd59236ae0ed649c44f91f35e632230ebd0c62d208bb4e9c69ca558a45e9c9c0810e6b5c0380a1754b8f3b5b7b62d7
   languageName: node
   linkType: hard
 
@@ -27124,31 +27107,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wasm-dce@npm:^1.0.0":
-  version: 1.0.2
-  resolution: "wasm-dce@npm:1.0.2"
-  dependencies:
-    "@babel/core": ^7.0.0-beta.39
-    "@babel/traverse": ^7.0.0-beta.39
-    "@babel/types": ^7.0.0-beta.39
-    babylon: ^7.0.0-beta.39
-    webassembly-interpreter: 0.0.30
-  checksum: be9049f4a459cf8cfe26cef0909fea9e6174172cf9c95aaba835185ef6b0686d4f9d3f96eb524e82b3e2a817a8881674910fe83a7b8da8291c86771b55df9311
-  languageName: node
-  linkType: hard
-
-"wasm-loader@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "wasm-loader@npm:1.3.0"
-  dependencies:
-    loader-utils: ^1.1.0
-    wasm-dce: ^1.0.0
-  peerDependencies:
-    wasm-dce: 1.x
-  checksum: c5c1bbcd99f1daec5475121bc5ef0d6eb05641758b16cdb0dcf21c196dc97beda800192f73a9bd0551bb872ea3d1036543a95f44c91da742fddb19d216714e1c
-  languageName: node
-  linkType: hard
-
 "watchpack-chokidar2@npm:^2.0.1":
   version: 2.0.1
   resolution: "watchpack-chokidar2@npm:2.0.1"
@@ -27205,31 +27163,6 @@ __metadata:
   version: 1.1.2
   resolution: "web-vitals@npm:1.1.2"
   checksum: 92071029089277166e11141b735831d9011e85737d32c1360034676db898ab0ca95f19041ee01904f2189ad6e711b9da6b17567e4831290a429a586c98bc573f
-  languageName: node
-  linkType: hard
-
-"webassembly-floating-point-hex-parser@npm:0.1.2":
-  version: 0.1.2
-  resolution: "webassembly-floating-point-hex-parser@npm:0.1.2"
-  checksum: 96ac236eacb749ea4a6e7e8241a95745cafcdf8d929d0544dc74830e3bf81e5e83fc5793b52155a2681335ae68dcafe7b843361480e913e985057eb59e16948e
-  languageName: node
-  linkType: hard
-
-"webassembly-interpreter@npm:0.0.30":
-  version: 0.0.30
-  resolution: "webassembly-interpreter@npm:0.0.30"
-  dependencies:
-    "@babel/code-frame": ^7.0.0-beta.36
-    long: ^3.2.0
-    webassembly-floating-point-hex-parser: 0.1.2
-  bin:
-    wasm: ./lib/bin/repl.js
-    wasm2wast: ./lib/bin/wasm2wast.js
-    wasmast: ./lib/bin/wasmast.js
-    wasmdump: ./lib/bin/wasmdump.js
-    wasmrun: ./lib/bin/wasmrun.js
-    wastast: ./lib/bin/wastast.js
-  checksum: a6834dc8e91a56826e4991e2d5cc9b8c0488901e03045b0e6fa76423927ea332144d779c4feccb240f91fc6c848de440d47e0f36d66b900b0671b9a43a6eaac9
   languageName: node
   linkType: hard
 

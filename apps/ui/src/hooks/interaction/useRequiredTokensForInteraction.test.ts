@@ -25,7 +25,7 @@ const useInteractionMock = mockOf(useInteraction);
 describe("useRequiredTokensForInteraction", () => {
   const { result: envStore } = renderHook(() => useEnvironment());
 
-  beforeAll(() => {
+  beforeEach(() => {
     act(() => {
       envStore.current.setCustomLocalnetIp("123.4.5.6");
       envStore.current.setEnv(Env.Localnet);

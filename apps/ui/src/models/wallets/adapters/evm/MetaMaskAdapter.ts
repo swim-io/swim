@@ -7,9 +7,14 @@ const getMetaMaskService = (): ethers.providers.Web3Provider | null =>
     ? new ethers.providers.Web3Provider((window as any).ethereum, "any")
     : null;
 
+const isUnlocked = async (): Promise<boolean> =>
+  (window as any).ethereum?.isMetaMask
+    ? await (window as any).ethereum?._metamask?.isUnlocked()
+    : false;
+
 export class MetaMaskAdapter extends EvmWeb3WalletAdapter {
   constructor() {
-    super("MetaMask", "https://metamask.io", getMetaMaskService);
+    super("MetaMask", "https://metamask.io", getMetaMaskService, isUnlocked);
   }
 
   async connect(): Promise<void> {

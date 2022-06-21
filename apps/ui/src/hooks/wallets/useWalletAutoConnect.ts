@@ -13,6 +13,8 @@ export const useWalletAutoConnect = () => {
 
   useEffect(() => {
     void (async () => {
+      let timeout: ReturnType<typeof setTimeout> | undefined;
+
       [Protocol.Evm, Protocol.Solana].forEach(async (protocol) => {
         const walletServiceId = selectedServiceByProtocol[protocol];
 
@@ -37,12 +39,21 @@ export const useWalletAutoConnect = () => {
               await connectService(protocol, walletServiceId, adapter, {
                 onlyIfTrusted: true,
               });
+            } else if (walletServiceId === WalletServiceId.Solong) {
+              // TODO make this async check more robust
+              timeout = setTimeout(async () => {
+                const address = await (window as any).solong?.selectAccount();
+                if (address)
+                  await connectService(protocol, walletServiceId, adapter);
+              }, 1000);
             }
           } catch (error) {
             captureException(error);
           }
         }
       });
+
+      return () => clearTimeout(timeout);
     })();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- we want this to run only once on app boot
 };

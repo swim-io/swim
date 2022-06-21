@@ -11,7 +11,7 @@ export const APPROVAL_CEILING = 70000;
 export const TRANSFER_CEILING = 120000;
 export const REDEEM_CEILING = 300000;
 export const SOLANA_FEE = new Decimal(0.01);
-const POLYGON_ED_AMOUNT = 10;
+const POLYGON_ED_AMOUNT = 1;
 
 export const getLowBalanceWallets = (
   feesEstimation: FeesEstimation | null,

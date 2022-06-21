@@ -252,15 +252,15 @@ const mainnetPools: readonly PoolSpec[] = [
     isStakingPool: false,
     isStableSwap: true,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
-    address: "11111111111111111111111111111111", // TODO: Update
-    authority: "11111111111111111111111111111111", // TODO: Update
+    address: "DoRzxEVDJK1pN3gdGmjUHkYrS2A4Qkkf3U4ceaowxvDB",
+    authority: "4XQz1qHMMTkFETn5PSNyLVutYPyZ4han8RB8Mmw1G48Q",
     feeDecimals: 6,
     lpToken: "mainnet-solana-lp-meta-karura-usdt",
     tokenAccounts: new Map([
-      ["mainnet-karura-usdt", "11111111111111111111111111111111"], // TODO: Update
+      ["mainnet-karura-usdt", "H367XXfQLYpLPg39EitoWKtRTBjPD32nqNUinjaepxcg"],
       [
         "mainnet-solana-lp-hexapool",
-        "11111111111111111111111111111111", // TODO: Update
+        "2HGg2jRpy7Z11cbsVJfTmrqpmk5FSrfX7NDrH2oTqmVr",
       ],
     ]),
   },

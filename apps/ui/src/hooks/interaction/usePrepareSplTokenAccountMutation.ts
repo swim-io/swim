@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient } from "react-query";
 
-import { useSolanaWallet } from "..";
 import { useSolanaConnection } from "../../contexts";
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { createSplTokenAccount } from "../../models";
-import { getSplTokenAccountsQueryKey } from "../solana";
+import { getSplTokenAccountsQueryKey, useSolanaWallet } from "../solana";
 
 export const usePrepareSplTokenAccountMutation = () => {
   const solanaConnection = useSolanaConnection();

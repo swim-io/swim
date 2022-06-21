@@ -3,8 +3,10 @@ import Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
-import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { useSolanaConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
+
+import { useSolanaWallet } from "./useSolanaWallet";
 
 // Returns user's Solana balance in SOL.
 export const useSolBalanceQuery = (): UseQueryResult<Decimal, Error> => {

@@ -2,7 +2,10 @@ import { act, renderHook } from "@testing-library/react-hooks";
 
 import { Protocol, configs } from "../../../config";
 import { Env, useEnvironment, useWalletAdapter } from "../../../core/store";
-import { createAdapter } from "../../../models/wallets/services";
+import {
+  WalletServiceId,
+  createAdapter,
+} from "../../../models/wallets/services";
 import { mockOf } from "../../../testUtils";
 import { useWalletService } from "../useWalletService";
 
@@ -13,6 +16,7 @@ jest.mock("../../../core/store", () => ({
 }));
 
 jest.mock("../../../models/wallets/services", () => ({
+  ...jest.requireActual("../../../models/wallets/services"),
   createAdapter: jest.fn(),
 }));
 
@@ -36,7 +40,7 @@ describe("useWalletService", () => {
       connectService: connectServiceMock,
       disconnectService: disconnectServiceMock,
     });
-    const serviceId = "metamask";
+    const serviceId = WalletServiceId.MetaMask;
     const protocol = Protocol.Evm;
     const mockAdapter = {};
     createAdapterMock.mockReturnValue(mockAdapter);
@@ -48,7 +52,7 @@ describe("useWalletService", () => {
     });
 
     expect(connectServiceMock).toBeCalledTimes(1);
-    expect(connectServiceMock).toBeCalledWith(protocol, mockAdapter);
+    expect(connectServiceMock).toBeCalledWith(protocol, serviceId, mockAdapter);
     expect(createAdapterMock).toBeCalledTimes(1);
     expect(createAdapterMock).toHaveBeenCalledWith(
       "metamask",

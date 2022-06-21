@@ -5,9 +5,11 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import type { Env } from "../../config";
-import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { useSolanaConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 import { deserializeTokenAccount } from "../../models";
+
+import { useSolanaWallet } from "./useSolanaWallet";
 
 export const getSplTokenAccountsQueryKey = (
   env: Env,

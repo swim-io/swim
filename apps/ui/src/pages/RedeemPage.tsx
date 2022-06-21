@@ -9,8 +9,7 @@ import type { ReactElement } from "react";
 
 import { DefaultNftBox, NftProblem } from "../components/DefaultNftBox";
 import { NftCarousel } from "../components/NftCarousel";
-import { useSolanaWallet } from "../contexts";
-import { useTitle } from "../hooks";
+import { useSolanaWallet, useTitle } from "../hooks";
 import { useAccountNfts } from "../hooks/solana/useAccountNftsQuery";
 
 const RedeemPage = (): ReactElement => {

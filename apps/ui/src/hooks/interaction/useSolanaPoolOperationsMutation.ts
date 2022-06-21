@@ -2,10 +2,10 @@ import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import { useSplTokenAccountsQuery } from "..";
+import { useSolanaWallet, useSplTokenAccountsQuery } from "..";
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
-import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { useSolanaConnection } from "../../contexts";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { InteractionState, SolanaConnection, Tx } from "../../models";

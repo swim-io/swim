@@ -27,7 +27,7 @@ export const SolanaConnectionProvider = ({
 
   const solanaConnection = useMemo(
     () => new SolanaConnection(endpoint, wsEndpoint),
-    [endpoint],
+    [endpoint, wsEndpoint],
   );
 
   // The websocket library solana/web3.js uses closes its websocket connection when the subscription list

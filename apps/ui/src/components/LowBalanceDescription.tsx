@@ -2,6 +2,9 @@ import type { FC, ReactElement } from "react";
 
 import { EcosystemId, ecosystems } from "../config";
 
+const EXSISTENTIAL_DEPOSIT_LINK =
+  "https://support.polkadot.network/support/solutions/articles/65000168651-what-is-the-existential-deposit";
+
 interface Props {
   readonly lowBalanceWallets: readonly EcosystemId[];
 }
@@ -18,8 +21,12 @@ const LowPolygonBalanceWarning = ({
   }
   return (
     <span>
-      *Polygon chains require a minimium balance to not be deactivated from
-      Exsistential Deposit requirements
+      <span>
+        *Polygon chains require a minimum balance in order not to be deactivated
+        according to
+      </span>
+      <a href={EXSISTENTIAL_DEPOSIT_LINK}>Existential Deposit</a>
+      <span>&nbsp;requirements</span>
     </span>
   );
 };

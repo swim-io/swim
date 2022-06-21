@@ -19,8 +19,8 @@ jest.mock("../../contexts", () => ({
   useSolanaConnection: jest.fn(),
 }));
 
-jest.mock("..", () => ({
-  ...jest.requireActual(".."),
+jest.mock("../solana", () => ({
+  ...jest.requireActual("../solana"),
   useSolanaWallet: jest.fn(),
 }));
 

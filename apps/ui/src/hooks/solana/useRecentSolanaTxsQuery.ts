@@ -4,10 +4,12 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import { EcosystemId, Env } from "../../config";
-import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { useSolanaConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 import type { SolanaConnection, SolanaTx } from "../../models";
 import { INTERACTION_ID_LENGTH_HEX } from "../../models";
+
+import { useSolanaWallet } from "./useSolanaWallet";
 
 const MAX_RECENT_SIGNATURES = 1000;
 

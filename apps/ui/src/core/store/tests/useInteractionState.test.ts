@@ -49,6 +49,7 @@ describe("useInteraction", () => {
     const mockUpdateCB = jest.fn();
 
     act(() => {
+      result.current.addInteractionState(MOCK_INTERACTION_STATE);
       result.current.updateInteractionState(
         "5eed9eef597a2aa14314845afe87079f",
         mockUpdateCB,

@@ -2,8 +2,9 @@ import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
-import type { SolanaWalletContextInterface } from "../../contexts";
-import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import type { SolanaWalletInterface } from "..";
+import { useSolanaWallet } from "..";
+import { useSolanaConnection } from "../../contexts";
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { MOCK_SOL_WALLET } from "../../fixtures";
@@ -15,8 +16,12 @@ import { usePrepareSplTokenAccountMutation } from "./usePrepareSplTokenAccountMu
 
 jest.mock("../../contexts", () => ({
   ...jest.requireActual("../../contexts"),
-  useSolanaWallet: jest.fn(),
   useSolanaConnection: jest.fn(),
+}));
+
+jest.mock("../solana", () => ({
+  ...jest.requireActual("../solana"),
+  useSolanaWallet: jest.fn(),
 }));
 
 jest.mock("../../models", () => ({
@@ -55,7 +60,7 @@ describe("usePrepareSplTokenAccountMutation", () => {
     });
     useSolanaWalletMock.mockReturnValue({
       wallet: MOCK_SOL_WALLET,
-    } as SolanaWalletContextInterface);
+    } as SolanaWalletInterface);
 
     const { result } = renderHookWithAppContext(() => {
       const { mutateAsync } = usePrepareSplTokenAccountMutation();

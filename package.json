@@ -20,6 +20,7 @@
     "clean": "rm -rf node_modules \"**/**/node_modules\"",
     "format": "yarn workspaces foreach --topological-dev --parallel --verbose run format",
     "build": "yarn workspaces foreach --topological-dev --parallel --verbose run build",
+    "build-packages": "yarn workspaces foreach --topological-dev --parallel --verbose --no-private run build",
     "release-ui": "yarn workspace @swim-io/ui release",
     "publish-next": "yarn workspaces foreach --no-private exec yarn npm publish --tag next",
     "publish-latest": "yarn workspaces foreach --no-private exec yarn npm publish",

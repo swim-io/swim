@@ -30,8 +30,7 @@ describe("useRequiredTokensForInteraction", () => {
       envStore.current.setCustomLocalnetIp("123.4.5.6");
       envStore.current.setEnv(Env.Localnet);
     });
-  });
-  beforeEach(() => {
+
     jest.resetAllMocks();
     // Reset queryClient cache, otherwise test might return previous value
     renderHookWithAppContext(() => useQueryClient().clear());

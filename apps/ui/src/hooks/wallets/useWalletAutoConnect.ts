@@ -33,6 +33,10 @@ export const useWalletAutoConnect = () => {
               if (isUnlocked && hasConnectedBefore) {
                 await connectService(protocol, walletServiceId, adapter);
               }
+            } else if (walletServiceId === WalletServiceId.Phantom) {
+              await connectService(protocol, walletServiceId, adapter, {
+                onlyIfTrusted: true,
+              });
             }
           } catch (error) {
             captureException(error);

@@ -17,7 +17,7 @@ export interface SolanaWalletAdapter extends EventEmitter {
     transactions: Transaction[],
     // eslint-disable-next-line functional/prefer-readonly-type
   ) => Promise<Transaction[]>;
-  readonly connect: () => Promise<unknown>;
+  readonly connect: (args?: any) => Promise<unknown>;
   readonly disconnect: () => Promise<void>;
   readonly protocol: Protocol.Solana;
 }
@@ -30,6 +30,7 @@ export class SolanaWeb3WalletAdapter
   serviceUrl: string;
   publicKey: PublicKey | null;
   readonly protocol: Protocol.Solana;
+
   protected getService: () => any;
   protected connecting: boolean;
 
@@ -89,7 +90,7 @@ export class SolanaWeb3WalletAdapter
     }
   }
 
-  async connect(): Promise<void> {
+  async connect(args?: any): Promise<void> {
     if (this.connecting) {
       return;
     }
@@ -105,7 +106,7 @@ export class SolanaWeb3WalletAdapter
 
     this.connecting = true;
     try {
-      await this.connectService();
+      await this.connectService(args);
     } catch (error) {
       this.publicKey = null;
       this.emit(
@@ -121,7 +122,7 @@ export class SolanaWeb3WalletAdapter
     }
   }
 
-  async connectService(): Promise<void> {
+  async connectService(args?: any): Promise<void> {
     const publicKey = await this.service.getAccount();
     this.publicKey = new PublicKey(publicKey);
     this.emit("connect", this.publicKey);

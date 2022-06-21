@@ -1,4 +1,3 @@
-/* eslint-disable functional/immutable-data */
 import { produce } from "immer";
 import type { GetState, SetState } from "zustand";
 import create from "zustand";
@@ -6,6 +5,7 @@ import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
 
 import { Protocol } from "../../config";
+import { captureException } from "../../errors";
 import type {
   EvmWalletAdapter,
   SolanaWalletAdapter,
@@ -24,6 +24,7 @@ export interface WalletAdapterState {
     protocol: Protocol,
     serviceId: WalletServiceId,
     adapter: WalletAdapter,
+    connectArgs?: any,
   ) => Promise<void>;
   readonly disconnectService: (
     protocol: Protocol,
@@ -60,7 +61,7 @@ export const useWalletAdapter = create(
         [Protocol.Evm]: null,
         [Protocol.Solana]: null,
       },
-      connectService: async (protocol, serviceId, adapter) => {
+      connectService: async (protocol, serviceId, adapter, connectArgs) => {
         const state = get();
         const previous = protocol === Protocol.Evm ? state.evm : state.solana;
 
@@ -98,24 +99,28 @@ export const useWalletAdapter = create(
           adapter.on(event, listener);
         });
 
-        await adapter.connect();
+        try {
+          await adapter.connect(connectArgs);
 
-        set(
-          produce<WalletAdapterState>((draft) => {
-            draft.selectedServiceByProtocol[protocol] = serviceId;
+          set(
+            produce<WalletAdapterState>((draft) => {
+              draft.selectedServiceByProtocol[protocol] = serviceId;
 
-            switch (adapter.protocol) {
-              case Protocol.Evm: {
-                draft.evm = adapter;
-                break;
+              switch (adapter.protocol) {
+                case Protocol.Evm: {
+                  draft.evm = adapter;
+                  break;
+                }
+                case Protocol.Solana: {
+                  draft.solana = adapter;
+                  break;
+                }
               }
-              case Protocol.Solana: {
-                draft.solana = adapter;
-                break;
-              }
-            }
-          }),
-        );
+            }),
+          );
+        } catch (error) {
+          captureException(error);
+        }
       },
       disconnectService: async (protocol, silently = false) => {
         const state = get();

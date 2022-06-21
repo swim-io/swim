@@ -32,7 +32,7 @@ export class PhantomAdapter extends SolanaWeb3WalletAdapter {
     super("Phantom", "https://phantom.app", getPhantomService);
   }
 
-  async connectService(): Promise<void> {
+  async connectService(args?: any): Promise<void> {
     // note the listener is on the service, not the adapter
     this.service.on("connect", () => {
       this.publicKey = this.service.publicKey;
@@ -42,7 +42,7 @@ export class PhantomAdapter extends SolanaWeb3WalletAdapter {
     });
 
     if (!this.service.isConnected) {
-      await this.service.connect();
+      await this.service.connect(args);
     }
   }
 

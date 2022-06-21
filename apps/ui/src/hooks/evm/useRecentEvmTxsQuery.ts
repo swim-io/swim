@@ -3,11 +3,13 @@ import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
 import { isEcosystemEnabled } from "../../config";
-import { useEvmConnection, useEvmWallet } from "../../contexts";
+import { useEvmConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 import type { EvmTx } from "../../models";
 import { findEvmInteractionId } from "../../models";
 import { isNotNull } from "../../utils";
+
+import { useEvmWallet } from "./useEvmWallet";
 
 const MAX_RECENT_TXS = 1000;
 
@@ -16,7 +18,7 @@ export const useRecentEvmTxsQuery = (
   recentInteractionIds: readonly string[],
 ): UseQueryResult<readonly EvmTx[] | null, Error> => {
   const { env } = useEnvironment();
-  const { address } = useEvmWallet(ecosystemId);
+  const { address } = useEvmWallet();
   const queryKey = ["evmTxs", env, ecosystemId, address];
   const connection = useEvmConnection(ecosystemId);
 

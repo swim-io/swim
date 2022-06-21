@@ -2,7 +2,7 @@ import { EuiFormRow, EuiSpacer } from "@elastic/eui";
 import type React from "react";
 
 import { EcosystemId } from "../../config";
-import { useSolanaWallet } from "../../contexts";
+import { useSolanaWallet } from "../../hooks";
 import { ConnectButton } from "../ConnectButton";
 
 interface Props {

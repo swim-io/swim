@@ -372,7 +372,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "11111111111111111111111111111111", // TODO: Update
+          address: "8vzXSNVAX4fymEFahJFh1ypzDBFv3QMVaZ4GtJWHrRjU",
           decimals: 8,
         },
       ],
@@ -390,7 +390,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "11111111111111111111111111111111", // TODO: Update
+          address: "2sXvitirRSjgTTNzGNWAFZWSqEx87kDoTJvqG9JSyivh",
           decimals: 8,
         },
       ],
@@ -766,15 +766,15 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Karura,
         {
-          address: "0x0000000000000000000000000000000000000000", // TODO: Update
-          decimals: 6, // TODO: Update
+          address: "0x0000000000000000000100000000000000000081",
+          decimals: 12,
         },
       ],
       [
         EcosystemId.Solana,
         {
-          address: "11111111111111111111111111111111", // TODO: Update
-          decimals: 6, // TODO: Update
+          address: "3sEvyXzC2vAPqF7uprB2vRaL1X1FbqQqmPxhwVi53GYF",
+          decimals: 8,
         },
       ],
     ]),
@@ -791,15 +791,15 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Karura,
         {
-          address: "0x0000000000000000000000000000000000000000", // TODO: Update
-          decimals: 6, // TODO: Update
+          address: "0x0000000000000000000500000000000000000007",
+          decimals: 6,
         },
       ],
       [
         EcosystemId.Solana,
         {
-          address: "11111111111111111111111111111111", // TODO: Update
-          decimals: 6, // TODO: Update
+          address: "E942z7FnS7GpswTvF5Vggvo7cMTbvZojjLbFgsrDVff1",
+          decimals: 6,
         },
       ],
     ]),

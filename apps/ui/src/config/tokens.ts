@@ -379,7 +379,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT_MAINNET,
+    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "mainnet-solana-lp-meta-karura-usdt",
     symbol: "SWIM-KARURA-USDT-META-POOL-LP",
     displayName: "Karura USDT Meta-Pool LP",
@@ -780,7 +780,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT_MAINNET,
+    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "mainnet-karura-usdt",
     symbol: USDT_SYMBOL,
     displayName: USDT_NAME,

@@ -246,7 +246,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT_MAINNET,
+    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "meta-karura-usdt",
     displayName: "Karura USDT Meta-Pool",
     isStakingPool: false,

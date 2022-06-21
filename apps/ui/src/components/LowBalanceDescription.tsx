@@ -23,7 +23,7 @@ const LowPolygonBalanceWarning = ({
     <span>
       <span>
         *Polygon chains require a minimum balance in order not to be deactivated
-        according to
+        according to &nbsp;
       </span>
       <a href={EXSISTENTIAL_DEPOSIT_LINK}>Existential Deposit</a>
       <span>&nbsp;requirements</span>

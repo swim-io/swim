@@ -37,6 +37,9 @@ export const extractEthErrorMessage = (error: EthError): string => {
     if (error.data.message.includes("transfer amount exceeds allowance")) {
       return "Transfer amount exceeds allowance. Please try again.";
     }
+    if (error.data.message.includes("ExistentialDesposit")) {
+      return "Exsistential deposit error. Your account does not have the required minimum balance of its native token.";
+    }
 
     return error.data.message;
   }

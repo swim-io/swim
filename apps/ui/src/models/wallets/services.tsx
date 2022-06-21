@@ -32,7 +32,7 @@ export enum WalletServiceId {
   Ledger = "ledger",
 }
 
-export const isWalletServiceId = (value: unknown) => {
+export const isWalletServiceId = (value: unknown): value is WalletServiceId => {
   return (
     typeof value === "string" &&
     Object.values(WalletServiceId).includes(value as WalletServiceId)

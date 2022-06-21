@@ -12,9 +12,9 @@ export const useWalletAutoConnect = () => {
   const { solanaEndpoint } = useWalletService();
 
   useEffect(() => {
-    void (async () => {
-      let timeout: ReturnType<typeof setTimeout> | undefined;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
 
+    void (async () => {
       [Protocol.Evm, Protocol.Solana].forEach(async (protocol) => {
         const walletServiceId = selectedServiceByProtocol[protocol];
 
@@ -52,8 +52,8 @@ export const useWalletAutoConnect = () => {
           }
         }
       });
-
-      return () => clearTimeout(timeout);
     })();
+
+    return () => clearTimeout(timeout);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- we want this to run only once on app boot
 };

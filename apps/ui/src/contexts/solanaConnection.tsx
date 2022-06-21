@@ -12,6 +12,7 @@ import { SolanaConnection } from "../models";
 const SolanaConnectionContext = createContext<SolanaConnection>(
   new SolanaConnection(
     configs[DEFAULT_ENV].chains[Protocol.Solana][0].endpoint,
+    configs[DEFAULT_ENV].chains[Protocol.Solana][0].wsEndpoint,
   ),
 );
 
@@ -22,10 +23,10 @@ export const SolanaConnectionProvider = ({
 }): ReactElement => {
   const { chains } = useEnvironment(selectConfig, shallow);
   const [chain] = chains[Protocol.Solana];
-  const { endpoint } = chain;
+  const { endpoint, wsEndpoint } = chain;
 
   const solanaConnection = useMemo(
-    () => new SolanaConnection(endpoint),
+    () => new SolanaConnection(endpoint, wsEndpoint),
     [endpoint],
   );
 

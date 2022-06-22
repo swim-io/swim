@@ -8,4 +8,4 @@ export interface DecimalBN {
 }
 
 export const decimal = (property = "decimal"): Layout<DecimalBN> =>
-  struct([u64("value"), u8("decimals")], property) as Layout<DecimalBN>;
+  struct([u64("value"), u8("decimals")], property);

@@ -1,15 +1,16 @@
 import { useEffect } from "react";
+import shallow from "zustand/shallow.js";
 
 import { Protocol } from "../../config";
-import { useWalletAdapter } from "../../core/store";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment, useWalletAdapter } from "../../core/store";
 import { captureException } from "../../errors";
 import { WalletServiceId, createAdapter } from "../../models";
 
-import { useWalletService } from "./useWalletService";
-
 export const useWalletAutoConnect = () => {
+  const { chains } = useEnvironment(selectConfig, shallow);
+  const [{ endpoint }] = chains[Protocol.Solana];
   const { connectService, selectedServiceByProtocol } = useWalletAdapter();
-  const { solanaEndpoint } = useWalletService();
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -20,11 +21,7 @@ export const useWalletAutoConnect = () => {
 
         if (walletServiceId) {
           try {
-            const adapter = createAdapter(
-              walletServiceId,
-              protocol,
-              solanaEndpoint,
-            );
+            const adapter = createAdapter(walletServiceId, protocol, endpoint);
 
             if (adapter.protocol === Protocol.Evm) {
               const [isUnlocked, hasConnectedBefore] = await Promise.all([

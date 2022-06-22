@@ -12,7 +12,6 @@ type WalletServiceApi = Pick<WalletAdapterState, "disconnectService"> & {
     serviceId: WalletService["id"],
     protocol: Protocol,
   ) => Promise<void>;
-  readonly solanaEndpoint: string;
 };
 
 export const useWalletService = (): WalletServiceApi => {
@@ -24,7 +23,6 @@ export const useWalletService = (): WalletServiceApi => {
   const [{ endpoint }] = chains[Protocol.Solana];
 
   return {
-    solanaEndpoint: endpoint,
     connectService: (serviceId: WalletService["id"], protocol: Protocol) =>
       connectService(
         protocol,

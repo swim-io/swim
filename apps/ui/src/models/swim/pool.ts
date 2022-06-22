@@ -7,8 +7,8 @@ import type { SolanaTx, Tx } from "../crossEcosystem";
 import { isSolanaTx } from "../crossEcosystem";
 import type { SolanaConnection } from "../solana";
 
-import type { SwimPoolState } from "./poolState";
-import { deserializeSwimPool } from "./poolState";
+import type { SwimPoolState } from "@swim-io/pool-state";
+import { deserializeSwimPool } from "@swim-io/pool-state";
 
 export type TokensByPoolId = ReadonlyRecord<
   string, // Pool ID

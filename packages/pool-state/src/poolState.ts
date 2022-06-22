@@ -12,8 +12,8 @@ import {
 import type { PublicKey } from "@solana/web3.js";
 import type BN from "bn.js";
 
-import type { AmpFactor } from "./ampFactor";
-import { ampFactor } from "./ampFactor";
+import type { AmpFactor } from "@swim-io/pool-utils";
+import { ampFactor } from "@swim-io/pool-utils";
 
 export interface SwimPoolState {
   readonly nonce: number;

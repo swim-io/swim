@@ -8,7 +8,7 @@ import { captureException } from "../../errors";
 import { WalletServiceId, createAdapter } from "../../models";
 import { waitFor } from "../../utils";
 
-export const useWalletAutoConnect = () => {
+export const useWalletAutoConnect = (): null => {
   const { chains } = useEnvironment(selectConfig, shallow);
   const [{ endpoint }] = chains[Protocol.Solana];
   const { connectService, selectedServiceByProtocol } = useWalletAdapter();
@@ -74,4 +74,6 @@ export const useWalletAutoConnect = () => {
       });
     })();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- we want this to run only once on app boot
+
+  return null;
 };

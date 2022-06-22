@@ -289,7 +289,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "mainnet-solana-lp-meta-aurora-usdc",
     symbol: "SWIM-AURORA-USDC-META-POOL-LP",
     displayName: "Aurora USDC Meta-Pool LP",
@@ -307,7 +307,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "mainnet-solana-lp-meta-aurora-usdt",
     symbol: "SWIM-AURORA-USDT-META-POOL-LP",
     displayName: "Aurora USDT Meta-Pool LP",
@@ -325,7 +325,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "mainnet-solana-lp-meta-aurora-usn",
     symbol: "SWIM-AURORA-USN-META-POOL-LP",
     displayName: "Aurora USN Meta-Pool LP",
@@ -655,7 +655,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "mainnet-aurora-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,
@@ -680,7 +680,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "mainnet-aurora-usdt",
     symbol: USDT_SYMBOL,
     displayName: USDT_NAME,
@@ -705,7 +705,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "mainnet-aurora-usn",
     symbol: USN_SYMBOL,
     displayName: USN_NAME,
@@ -1068,7 +1068,7 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "devnet-solana-lp-meta-aurora-usdc",
     symbol: "SWIM-AURORA-USDC-META-POOL-LP",
     displayName: "Aurora USDC Meta-Pool LP",
@@ -1086,7 +1086,7 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "devnet-solana-lp-meta-aurora-usdt",
     symbol: "SWIM-AURORA-USDT-META-POOL-LP",
     displayName: "Aurora USDT Meta-Pool LP",
@@ -1434,7 +1434,7 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "devnet-aurora-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,
@@ -1459,7 +1459,7 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "devnet-aurora-usdt",
     symbol: USDT_SYMBOL,
     displayName: USDT_NAME,

@@ -59,7 +59,11 @@ export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean => {
     case EcosystemId.Polygon:
       return true;
     case EcosystemId.Aurora:
-      return !!process.env.REACT_APP_ENABLE_AURORA;
+      return !!(
+        process.env.REACT_APP_ENABLE_AURORA_USDC ||
+        process.env.REACT_APP_ENABLE_AURORA_USDT ||
+        process.env.REACT_APP_ENABLE_AURORA_USN
+      );
     case EcosystemId.Fantom:
       return !!process.env.REACT_APP_ENABLE_FANTOM;
     case EcosystemId.Karura:

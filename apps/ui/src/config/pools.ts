@@ -484,7 +484,7 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "meta-karura-ausd",
     displayName: "Karura AUSD Meta-Pool",
     isStakingPool: false,
@@ -503,7 +503,7 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "meta-karura-usdt",
     displayName: "Karura USDT Meta-Pool",
     isStakingPool: false,

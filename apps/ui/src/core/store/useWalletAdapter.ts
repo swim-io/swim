@@ -136,6 +136,8 @@ export const useWalletAdapter = create(
 
         set(
           produce<WalletAdapterState>((draft) => {
+            draft.selectedServiceByProtocol[protocol] = null;
+
             switch (protocol) {
               case Protocol.Evm: {
                 draft.evm = null;

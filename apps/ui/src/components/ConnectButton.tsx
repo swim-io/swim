@@ -51,7 +51,7 @@ export const ConnectButton = ({
   const { connected, address } = wallets[ecosystemId];
 
   const disconnect = (): void => {
-    void disconnectService(ecosystem.protocol);
+    void disconnectService({ protocol: ecosystem.protocol });
   };
 
   const openModal = () => setIsModalVisible(true);

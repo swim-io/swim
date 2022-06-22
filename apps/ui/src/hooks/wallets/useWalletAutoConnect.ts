@@ -17,11 +17,12 @@ export const useWalletAutoConnect = () => {
 
     void (async () => {
       [Protocol.Evm, Protocol.Solana].forEach(async (protocol) => {
-        const walletServiceId = selectedServiceByProtocol[protocol];
+        const serviceId = selectedServiceByProtocol[protocol];
 
-        if (walletServiceId) {
+        if (serviceId) {
           try {
-            const adapter = createAdapter(walletServiceId, protocol, endpoint);
+            const adapter = createAdapter(serviceId, protocol, endpoint);
+            const options = { silentError: true };
 
             if (adapter.protocol === Protocol.Evm) {
               const [isUnlocked, hasConnectedBefore] = await Promise.all([
@@ -30,19 +31,31 @@ export const useWalletAutoConnect = () => {
               ]);
 
               if (isUnlocked && hasConnectedBefore) {
-                await connectService(protocol, walletServiceId, adapter);
+                await connectService({ protocol, serviceId, adapter, options });
               }
-            } else if (walletServiceId === WalletServiceId.Phantom) {
-              await connectService(protocol, walletServiceId, adapter, {
-                onlyIfTrusted: true,
-              });
-            } else if (walletServiceId === WalletServiceId.Solong) {
-              // TODO make this async check more robust
+            } else if (serviceId === WalletServiceId.Phantom) {
+              timeout = setTimeout(async () => {
+                await connectService({
+                  protocol,
+                  serviceId,
+                  adapter,
+                  options: {
+                    ...options,
+                    connectArgs: { onlyIfTrusted: true },
+                  },
+                });
+              }, 500);
+            } else if (serviceId === WalletServiceId.Solong) {
               timeout = setTimeout(async () => {
                 const address = await (window as any).solong?.selectAccount();
                 if (address)
-                  await connectService(protocol, walletServiceId, adapter);
-              }, 1000);
+                  await connectService({
+                    protocol,
+                    serviceId,
+                    adapter,
+                    options,
+                  });
+              }, 500);
             }
           } catch (error) {
             captureException(error);

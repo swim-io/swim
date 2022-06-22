@@ -41,7 +41,7 @@ describe("useWalletAdapter", () => {
           );
 
         await act(() =>
-          result.current.connectService(protocol, serviceId, adapter),
+          result.current.connectService({ protocol, serviceId, adapter }),
         );
 
         expect(getProtocolAdapter(result.current, protocol)).toEqual(adapter);
@@ -73,7 +73,7 @@ describe("useWalletAdapter", () => {
           .mockImplementation(() => Promise.resolve());
 
         await act(() =>
-          result.current.connectService(protocol, serviceId, adapter),
+          result.current.connectService({ protocol, serviceId, adapter }),
         );
 
         const secondAdapter = createWalletAdapter(protocol);
@@ -82,7 +82,11 @@ describe("useWalletAdapter", () => {
           .mockImplementation(() => Promise.resolve());
 
         await act(() =>
-          result.current.connectService(protocol, serviceId, secondAdapter),
+          result.current.connectService({
+            protocol,
+            serviceId,
+            adapter: secondAdapter,
+          }),
         );
 
         expect(getProtocolAdapter(result.current, protocol)).toEqual(
@@ -108,10 +112,10 @@ describe("useWalletAdapter", () => {
           );
 
         await act(() =>
-          result.current.connectService(protocol, serviceId, adapter),
+          result.current.connectService({ protocol, serviceId, adapter }),
         );
 
-        await act(() => result.current.disconnectService(protocol));
+        await act(() => result.current.disconnectService({ protocol }));
 
         expect(getProtocolAdapter(result.current, protocol)).toBeNull();
         expect(disconnectSpy).toHaveBeenCalledTimes(1);

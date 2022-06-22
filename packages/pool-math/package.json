@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/pool-math",
-  "version": "0.0.0",
+  "version": "0.1.1",
   "description": "A package for calculating input/output amounts for Swim liquidity pools.",
   "main": "build",
   "types": "types",
@@ -19,7 +19,8 @@
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
     "test": "jest",
     "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test --watchAll=false",
-    "build": "rm -rf ./build/ ./types/ && tsc"
+    "build": "rm -rf ./build/ ./types/ && tsc",
+    "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
     "decimal.js": "^10.3.1"

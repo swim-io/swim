@@ -5,13 +5,16 @@ import shallow from "zustand/shallow.js";
 
 import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
-import { useSolanaWallet } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { SwimPoolState } from "@swim-io/pool-state";
 import { findTokenAccountForMint, getPoolUsdValue } from "../../models";
 import { findOrThrow, isNotNull } from "../../utils";
-import { useLiquidityQueries, useSplTokenAccountsQuery } from "../solana";
+import {
+  useLiquidityQueries,
+  useSolanaWallet,
+  useSplTokenAccountsQuery,
+} from "../solana";
 
 import { usePoolLpMints } from "./usePoolLpMint";
 import { usePoolStates } from "./usePoolState";

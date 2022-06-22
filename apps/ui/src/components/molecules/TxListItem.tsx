@@ -9,9 +9,10 @@ interface Props {
 }
 
 const getHref = (ecosystemId: EcosystemId, txId: string): string => {
+  // TODO: Support different environments (devnet).
   switch (ecosystemId) {
     case EcosystemId.Solana:
-      return `https://explorer.solana.com/tx/${txId}`;
+      return `https://solana.fm/tx/${txId}`;
     case EcosystemId.Ethereum:
       return `https://etherscan.io/tx/${txId}`;
     case EcosystemId.Bsc:
@@ -20,6 +21,14 @@ const getHref = (ecosystemId: EcosystemId, txId: string): string => {
       return `https://snowtrace.io/tx/${txId}`;
     case EcosystemId.Polygon:
       return `https://polygonscan.com/tx/${txId}`;
+    case EcosystemId.Aurora:
+      return `https://aurorascan.dev/tx/${txId}`;
+    case EcosystemId.Fantom:
+      return `https://ftmscan.com/tx/${txId}`;
+    case EcosystemId.Karura:
+      return `https://blockscout.karura.network/tx/${txId}`;
+    case EcosystemId.Acala:
+      return `https://blockscout.acala.network/tx/${txId}`;
     default:
       throw new Error("Unknown ecosystem");
   }

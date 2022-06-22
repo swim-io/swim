@@ -11,7 +11,7 @@ import { Fragment } from "react";
 
 import type { Protocol } from "../config";
 import { useWalletService } from "../hooks/wallets";
-import type { WalletAdapter, WalletService } from "../models";
+import type { WalletService } from "../models";
 import { isUserOnMobileDevice } from "../utils";
 
 import { CustomModal } from "./CustomModal";
@@ -20,13 +20,10 @@ import { MobileDeviceDisclaimer } from "./MobileDeviceDisclaimer";
 export interface SingleWalletModalProps<
   W extends WalletService = WalletService,
 > {
-  readonly currentService: string;
+  readonly currentService: WalletService["id"] | null;
   readonly protocol: Protocol;
   readonly services: readonly W[];
   readonly handleClose: () => void;
-  readonly setServiceId: (
-    serviceId: WalletService<WalletAdapter>["id"],
-  ) => void;
 }
 
 export const SingleWalletModal = <W extends WalletService = WalletService>({
@@ -34,7 +31,6 @@ export const SingleWalletModal = <W extends WalletService = WalletService>({
   protocol,
   services,
   handleClose,
-  setServiceId,
 }: SingleWalletModalProps<W>): ReactElement => {
   const { connectService } = useWalletService();
   return (
@@ -58,7 +54,6 @@ export const SingleWalletModal = <W extends WalletService = WalletService>({
                 isSelected={currentService === id}
                 onClick={() => {
                   void connectService(service.id, protocol);
-                  setServiceId(service.id);
                   handleClose();
                 }}
               >

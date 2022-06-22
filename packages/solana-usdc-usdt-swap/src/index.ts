@@ -1,10 +1,11 @@
+import { array, struct, u64, u8 } from "@project-serum/borsh";
 import {
   PublicKey,
   TransactionInstruction,
   AccountMeta,
 } from "@solana/web3.js";
 import { createApproveInstruction, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { array, struct, u64, u8 } from "@project-serum/borsh";
+export { PoolMath } from "@swim-io/pool-math";
 import BN from "bn.js";
 
 export const hexaPool = {

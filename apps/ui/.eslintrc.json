@@ -1,4 +1,5 @@
 {
+  "root": true,
   "plugins": [
     "@typescript-eslint",
     "deprecation",
@@ -40,7 +41,10 @@
     "@typescript-eslint/no-shadow": "error",
     "@typescript-eslint/prefer-readonly-parameter-types": "off",
     // "deprecation/deprecation": "warn",
-    "functional/immutable-data": ["error", { "ignorePattern": ["this", "draft"] }],
+    "functional/immutable-data": [
+      "error",
+      { "ignorePattern": ["this", "draft"] }
+    ],
     "functional/no-let": "off",
     "functional/prefer-readonly-type": [
       "error",
@@ -68,7 +72,10 @@
     "react/react-in-jsx-scope": "off",
     "@sayari/no-unwrapped-jsx-text": "error",
     // https://github.com/testing-library/eslint-plugin-testing-library/blob/main/docs/rules/no-render-in-setup.md
-    "testing-library/no-render-in-setup": ["error", {"allowTestingFrameworkSetupHook": "beforeEach"}]
+    "testing-library/no-render-in-setup": [
+      "error",
+      { "allowTestingFrameworkSetupHook": "beforeEach" }
+    ]
   },
   "overrides": [
     {

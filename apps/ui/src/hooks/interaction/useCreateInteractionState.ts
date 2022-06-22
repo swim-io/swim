@@ -1,14 +1,19 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import type PoolMath from "@swim-io/pool-math";
 import shallow from "zustand/shallow.js";
 
-import { usePoolMathByPoolIds, useSplTokenAccountsQuery, useWallets } from "..";
+import {
+  usePoolMathByPoolIds,
+  useSolanaWallet,
+  useSplTokenAccountsQuery,
+  useWallets,
+} from "..";
 import type { Config, TokenSpec } from "../../config";
 import {
   EcosystemId,
   getSolanaTokenDetails,
   isEvmEcosystemId,
 } from "../../config";
-import { useSolanaWallet } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import {
@@ -26,7 +31,6 @@ import type {
   Interaction,
   InteractionSpec,
   InteractionState,
-  PoolMath,
   RequiredSplTokenAccounts,
   SolanaPoolOperationState,
   ToSolanaTransferState,

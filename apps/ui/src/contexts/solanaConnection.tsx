@@ -4,8 +4,7 @@ import type { ReactElement, ReactNode } from "react";
 import { createContext, useContext, useEffect, useMemo } from "react";
 import shallow from "zustand/shallow.js";
 
-import { DEFAULT_ENV, configs } from "../config";
-import { Protocol } from "../config/ecosystem";
+import { DEFAULT_ENV, Protocol, configs } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { SolanaConnection } from "../models";
@@ -13,6 +12,7 @@ import { SolanaConnection } from "../models";
 const SolanaConnectionContext = createContext<SolanaConnection>(
   new SolanaConnection(
     configs[DEFAULT_ENV].chains[Protocol.Solana][0].endpoint,
+    configs[DEFAULT_ENV].chains[Protocol.Solana][0].wsEndpoint,
   ),
 );
 
@@ -23,11 +23,11 @@ export const SolanaConnectionProvider = ({
 }): ReactElement => {
   const { chains } = useEnvironment(selectConfig, shallow);
   const [chain] = chains[Protocol.Solana];
-  const { endpoint } = chain;
+  const { endpoint, wsEndpoint } = chain;
 
   const solanaConnection = useMemo(
-    () => new SolanaConnection(endpoint),
-    [endpoint],
+    () => new SolanaConnection(endpoint, wsEndpoint),
+    [endpoint, wsEndpoint],
   );
 
   // The websocket library solana/web3.js uses closes its websocket connection when the subscription list

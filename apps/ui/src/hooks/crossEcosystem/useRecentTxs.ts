@@ -1,5 +1,3 @@
-import { useMemo } from "react";
-
 import { EcosystemId } from "../../config";
 import type { Tx } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
@@ -26,20 +24,32 @@ export const useRecentTxs = (
     EcosystemId.Polygon,
     recentInteractionIds,
   );
-
-  return useMemo(
-    () => ({
-      [EcosystemId.Solana]: solanaTxs,
-      [EcosystemId.Ethereum]: ethereumTxs,
-      [EcosystemId.Bsc]: bscTxs,
-      [EcosystemId.Terra]: null,
-      [EcosystemId.Avalanche]: avalancheTxs,
-      [EcosystemId.Polygon]: polygonTxs,
-      [EcosystemId.Aurora]: null,
-      [EcosystemId.Fantom]: null,
-      [EcosystemId.Karura]: null,
-      [EcosystemId.Acala]: null,
-    }),
-    [solanaTxs, ethereumTxs, bscTxs, avalancheTxs, polygonTxs],
+  const { data: auroraTxs = null } = useRecentEvmTxsQuery(
+    EcosystemId.Aurora,
+    recentInteractionIds,
   );
+  const { data: fantomTxs = null } = useRecentEvmTxsQuery(
+    EcosystemId.Fantom,
+    recentInteractionIds,
+  );
+  const { data: karuraTxs = null } = useRecentEvmTxsQuery(
+    EcosystemId.Karura,
+    recentInteractionIds,
+  );
+  const { data: acalaTxs = null } = useRecentEvmTxsQuery(
+    EcosystemId.Acala,
+    recentInteractionIds,
+  );
+
+  return {
+    [EcosystemId.Solana]: solanaTxs,
+    [EcosystemId.Ethereum]: ethereumTxs,
+    [EcosystemId.Bsc]: bscTxs,
+    [EcosystemId.Avalanche]: avalancheTxs,
+    [EcosystemId.Polygon]: polygonTxs,
+    [EcosystemId.Aurora]: auroraTxs,
+    [EcosystemId.Fantom]: fantomTxs,
+    [EcosystemId.Karura]: karuraTxs,
+    [EcosystemId.Acala]: acalaTxs,
+  };
 };

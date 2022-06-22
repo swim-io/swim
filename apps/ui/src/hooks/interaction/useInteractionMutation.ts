@@ -1,4 +1,4 @@
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 
 import { useInteractionState } from "../../core/store";
 
@@ -21,6 +21,8 @@ export const useInteractionMutation = () => {
   const { mutateAsync: fromSolanaTransferMutateAsync } =
     useFromSolanaTransferMutation();
 
+  const queryClient = useQueryClient();
+
   return useMutation(
     async (interactionId: string) => {
       await prepareSplTokenAccountMutateAsync(interactionId);
@@ -35,6 +37,10 @@ export const useInteractionMutation = () => {
       },
       onError: (error: Error, interactionId) => {
         setInteractionError(interactionId, error);
+      },
+      onSettled: async () => {
+        await queryClient.invalidateQueries(["erc20Balance"]);
+        await queryClient.invalidateQueries(["tokenAccounts"]);
       },
     },
   );

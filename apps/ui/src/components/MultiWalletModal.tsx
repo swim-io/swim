@@ -21,9 +21,12 @@ import {
   isEcosystemEnabled,
   protocolNames,
 } from "../config";
-import { useWalletService, useWallets } from "../hooks";
+import { selectSelectedServiceByProtocol } from "../core/selectors";
+import { useWalletAdapter } from "../core/store";
+import { useEvmWallet, useSolanaWallet, useWalletService } from "../hooks";
 import EVM_SVG from "../images/ecosystems/ethereum-color.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
+import type { WalletServiceId } from "../models";
 import { WALLET_SERVICES } from "../models";
 import {
   filterMap,
@@ -49,8 +52,19 @@ const ProtocolWalletOptionsList = ({
   protocol,
 }: ProtocolWalletOptionsListProps): ReactElement => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const wallets = useWallets();
+  const selectedServiceByProtocol = useWalletAdapter(
+    selectSelectedServiceByProtocol,
+  );
   const { connectService, disconnectService } = useWalletService();
+  const evm = useEvmWallet();
+  const solana = useSolanaWallet();
+  const selectedServiceId = selectedServiceByProtocol[protocol];
+  const wallets = {
+    [Protocol.Evm]: evm,
+    [Protocol.Solana]: solana,
+  };
+  const protocolWallet = wallets[protocol];
+
   const ecosystemIds = getEcosystemsForProtocol(protocol);
   const protocolWalletServices = ecosystemIds.flatMap(
     (ecosystemId) => WALLET_SERVICES[ecosystemId],
@@ -59,27 +73,13 @@ const ProtocolWalletOptionsList = ({
     protocolWalletServices,
     (protocolWalletService) => protocolWalletService.id,
   );
-  const protocolWallets = ecosystemIds.map(
-    (ecosystemId) => wallets[ecosystemId],
-  );
-
-  const connectedWallets = protocolWallets.filter((wallet) => wallet.connected);
 
   const disconnect = (): void => {
     void disconnectService(protocol);
   };
 
-  const connect = (serviceId: string) => {
+  const connect = (serviceId: WalletServiceId) => {
     void connectService(serviceId, protocol);
-
-    protocolWalletServicesByServiceId[serviceId].forEach((walletService) => {
-      const ecosystemId = walletService.info.ecosystem.id;
-      const wallet = wallets[ecosystemId];
-
-      if (wallet.setServiceId) {
-        wallet.setServiceId(serviceId);
-      }
-    });
   };
 
   const handleButtonClick = () => setIsPopoverOpen((prev: boolean) => !prev);
@@ -133,22 +133,25 @@ const ProtocolWalletOptionsList = ({
           (walletService) => walletService.id === serviceId,
         );
 
-        const connectedWallet =
-          connectedWallets.find((wallet) => wallet.service?.id === serviceId) ??
-          null;
+        const connectedServiceWallet =
+          protocolWallet.connected && serviceId === selectedServiceId
+            ? protocolWallet
+            : null;
 
         return (
           <PlainConnectButton
             key={`${protocol}:${serviceId}`}
-            onClick={connectedWallet ? disconnect : () => connect(service.id)}
-            color={connectedWallet ? "success" : "primary"}
+            onClick={
+              connectedServiceWallet ? disconnect : () => connect(service.id)
+            }
+            color={connectedServiceWallet ? "success" : "primary"}
             iconType={service.info.icon}
             ButtonComponent={EuiButtonEmpty}
-            connected={!!connectedWallet}
+            connected={!!connectedServiceWallet}
             helpText={service.info.helpText}
           >
-            {connectedWallet && connectedWallet.address
-              ? shortenAddress(connectedWallet.address)
+            {connectedServiceWallet && connectedServiceWallet.address
+              ? shortenAddress(connectedServiceWallet.address)
               : service.info.name}
           </PlainConnectButton>
         );

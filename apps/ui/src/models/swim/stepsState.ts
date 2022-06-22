@@ -1,4 +1,5 @@
 import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
+import type PoolMath from "@swim-io/pool-math";
 
 import type { Config, TokenSpec } from "../../config";
 import { EcosystemId, Protocol, getSolanaTokenDetails } from "../../config";
@@ -7,7 +8,6 @@ import { findTokenAccountForMint } from "../solana";
 
 import type { Interaction } from "./interaction";
 import { getTokensByPool } from "./pool";
-import type { PoolMath } from "./poolMath";
 import {
   findPoolOperationTxs,
   getRequiredPools,

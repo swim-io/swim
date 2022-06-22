@@ -4,7 +4,7 @@ import { useQueries, useQuery } from "react-query";
 import type { PoolSpec } from "../../config";
 import { useSolanaConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
-import type { SwimPoolState } from "../../models";
+import type { SwimPoolState } from "@swim-io/pool-state";
 import { getPoolState } from "../../models";
 
 export const usePoolStates = (

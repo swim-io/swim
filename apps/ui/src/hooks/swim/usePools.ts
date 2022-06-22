@@ -8,7 +8,7 @@ import { getSolanaTokenDetails } from "../../config";
 import { useSolanaWallet } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import type { SwimPoolState } from "../../models";
+import type { SwimPoolState } from "@swim-io/pool-state";
 import { findTokenAccountForMint, getPoolUsdValue } from "../../models";
 import { findOrThrow, isNotNull } from "../../utils";
 import { useLiquidityQueries, useSplTokenAccountsQuery } from "../solana";

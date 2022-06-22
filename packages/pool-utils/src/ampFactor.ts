@@ -21,4 +21,4 @@ export const ampFactor = (property = "ampFactor"): Layout<AmpFactor> =>
       i64("targetTs"),
     ],
     property,
-  );
+  ) as Layout<AmpFactor>;

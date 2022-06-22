@@ -1,5 +1,4 @@
 export * from "./useCreateInteractionState";
-export * from "./useEvmTxsForInteractionQuery";
 export * from "./useInteractionMutation";
 export * from "./useInteractionStatus";
 export * from "./useHasActiveInteraction";

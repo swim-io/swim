@@ -6036,6 +6036,8 @@ __metadata:
     eslint-plugin-react: ^7.29.4
     eslint-plugin-storybook: ^0.5.12
     ethers: ^5.4.4
+    graphql: ^16.5.0
+    graphql-request: ^4.3.0
     immer: ^9.0.14
     jest-mock-extended: ^2.0.5
     moment: ^2.29.1
@@ -13307,6 +13309,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"extract-files@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "extract-files@npm:9.0.0"
+  checksum: c31781d090f8d8f62cc541f1023b39ea863f24bd6fb3d4011922d71cbded70cef8191f2b70b43ec6cb5c5907cdad1dc5e9f29f78228936c10adc239091d8ab64
+  languageName: node
+  linkType: hard
+
 "extsprintf@npm:1.3.0":
   version: 1.3.0
   resolution: "extsprintf@npm:1.3.0"
@@ -14450,6 +14459,26 @@ __metadata:
   version: 4.2.10
   resolution: "graceful-fs@npm:4.2.10"
   checksum: 3f109d70ae123951905d85032ebeae3c2a5a7a997430df00ea30df0e3a6c60cf6689b109654d6fdacd28810a053348c4d14642da1d075049e6be1ba5216218da
+  languageName: node
+  linkType: hard
+
+"graphql-request@npm:^4.3.0":
+  version: 4.3.0
+  resolution: "graphql-request@npm:4.3.0"
+  dependencies:
+    cross-fetch: ^3.1.5
+    extract-files: ^9.0.0
+    form-data: ^3.0.0
+  peerDependencies:
+    graphql: 14 - 16
+  checksum: 3124afd01aee781cd5a2e9ac30063526b677a6754032566104fc36270b5f9be03f17a32e49f34c71ca968d533151550c37f7a0194d11c36ff59977bd73e2abc3
+  languageName: node
+  linkType: hard
+
+"graphql@npm:^16.5.0":
+  version: 16.5.0
+  resolution: "graphql@npm:16.5.0"
+  checksum: a82a926d085818934d04fdf303a269af170e79de943678bd2726370a96194f9454ade9d6d76c2de69afbd7b9f0b4f8061619baecbbddbe82125860e675ac219e
   languageName: node
   linkType: hard
 

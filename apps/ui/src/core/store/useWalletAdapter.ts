@@ -54,9 +54,7 @@ export const useWalletAdapter = create(
   persist<WalletAdapterState>(
     (set: SetState<WalletAdapterState>, get: GetState<WalletAdapterState>) => ({
       evm: null,
-      evmListeners: null,
       solana: null,
-      solanaListeners: null,
       selectedServiceByProtocol: {
         [Protocol.Evm]: null,
         [Protocol.Solana]: null,

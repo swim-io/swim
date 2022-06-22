@@ -16,6 +16,19 @@ export enum InteractionType {
   RemoveExactOutput,
 }
 
+export const INTERACTION_GROUP_SWAP = new Set([InteractionType.Swap]);
+export const INTERACTION_GROUP_ADD = new Set([InteractionType.Add]);
+export const INTERACTION_GROUP_REMOVE = new Set([
+  InteractionType.RemoveUniform,
+  InteractionType.RemoveExactBurn,
+  InteractionType.RemoveExactOutput,
+]);
+export const INTERACTION_GROUPS = [
+  INTERACTION_GROUP_SWAP,
+  INTERACTION_GROUP_ADD,
+  INTERACTION_GROUP_REMOVE,
+];
+
 interface BaseInteractionSpec {
   readonly type: InteractionType;
   /** Should be overriden when extending this type */

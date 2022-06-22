@@ -38,6 +38,7 @@ import {
 } from "../hooks/interaction";
 import {
   Amount,
+  INTERACTION_GROUP_REMOVE,
   InteractionType,
   getLowBalanceWallets,
   isValidSlippageFraction,
@@ -54,7 +55,7 @@ import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
-import { RecentInteractionsV2 } from "./RecentInteractionsV2";
+import { RecentInteractions } from "./RecentInteractions";
 import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { TokenIcon } from "./TokenIcon";
 
@@ -764,13 +765,9 @@ export const RemoveForm = ({
       </EuiButton>
       <EuiSpacer />
 
-      <RecentInteractionsV2
+      <RecentInteractions
         title={"Recent removes"}
-        interactionTypes={[
-          InteractionType.RemoveExactBurn,
-          InteractionType.RemoveExactOutput,
-          InteractionType.RemoveUniform,
-        ]}
+        interactionTypes={INTERACTION_GROUP_REMOVE}
       />
 
       <ConfirmModal

@@ -1,4 +1,4 @@
-import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
+import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
@@ -14,7 +14,7 @@ import {
 
 export const getTransferredAmounts = (
   walletAddress: string,
-  splTokenAccounts: readonly TokenAccountInfo[],
+  splTokenAccounts: readonly TokenAccount[],
   tokens: readonly TokenSpec[],
   lpToken: TokenSpec,
   txs: readonly Tx[],

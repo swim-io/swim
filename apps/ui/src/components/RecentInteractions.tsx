@@ -21,10 +21,10 @@ import { InteractionStateComponent } from "./molecules/InteractionStateComponent
 
 export interface RecentInteractionsProps {
   readonly title: string;
-  readonly interactionTypes: readonly InteractionType[];
+  readonly interactionTypes: ReadonlySet<InteractionType>;
 }
 
-export const RecentInteractionsV2 = ({
+export const RecentInteractions = ({
   title,
   interactionTypes,
 }: RecentInteractionsProps): ReactElement => {
@@ -41,7 +41,7 @@ export const RecentInteractionsV2 = ({
   // Don’t display current interaction
   const { recentInteractionId, interactionStates } = useInteractionState();
   const recentInteractions = interactionStates
-    .filter(({ interaction }) => interactionTypes.includes(interaction.type))
+    .filter(({ interaction }) => interactionTypes.has(interaction.type))
     .filter(({ interaction }) => interaction.id !== recentInteractionId);
 
   const recentInteractionState = interactionStates.find(

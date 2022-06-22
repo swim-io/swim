@@ -45,6 +45,7 @@ import {
 } from "../hooks/interaction";
 import {
   Amount,
+  INTERACTION_GROUP_ADD,
   InteractionType,
   getLowBalanceWallets,
   isValidSlippageFraction,
@@ -56,7 +57,7 @@ import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
-import { RecentInteractionsV2 } from "./RecentInteractionsV2";
+import { RecentInteractions } from "./RecentInteractions";
 import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { TokenIcon } from "./TokenIcon";
 
@@ -533,9 +534,9 @@ export const AddForm = ({
 
       <EuiSpacer />
 
-      <RecentInteractionsV2
+      <RecentInteractions
         title={"Recent adds"}
-        interactionTypes={[InteractionType.Add]}
+        interactionTypes={INTERACTION_GROUP_ADD}
       />
 
       <ConfirmModal

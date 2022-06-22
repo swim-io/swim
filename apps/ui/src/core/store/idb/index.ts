@@ -2,8 +2,8 @@ import type { Table } from "dexie";
 import Dexie from "dexie";
 
 import type { Env } from "../../../config";
-import type { InteractionState } from "../../../models";
-import { InteractionType } from "../../../models";
+import type { InteractionState, InteractionType } from "../../../models";
+import { INTERACTION_GROUPS } from "../../../models";
 
 import type { PersistedInteractionState } from "./helpers";
 import {
@@ -13,18 +13,8 @@ import {
 
 const MAX_STORED_INTERACTIONS = 10;
 
-const INTERACTION_GROUP = [
-  new Set([InteractionType.Swap]),
-  new Set([InteractionType.Add]),
-  new Set([
-    InteractionType.RemoveExactBurn,
-    InteractionType.RemoveExactOutput,
-    InteractionType.RemoveUniform,
-  ]),
-];
-
 const getInteractionTypeGroup = (interactionType: InteractionType) => {
-  const group = INTERACTION_GROUP.find((set) => set.has(interactionType));
+  const group = INTERACTION_GROUPS.find((set) => set.has(interactionType));
   if (!group) {
     throw new Error("Unknown interaction type");
   }

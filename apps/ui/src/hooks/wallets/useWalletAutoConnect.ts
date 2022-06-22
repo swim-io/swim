@@ -6,6 +6,7 @@ import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useWalletAdapter } from "../../core/store";
 import { captureException } from "../../errors";
 import { WalletServiceId, createAdapter } from "../../models";
+import { waitFor } from "../../utils";
 
 export const useWalletAutoConnect = () => {
   const { chains } = useEnvironment(selectConfig, shallow);
@@ -13,8 +14,6 @@ export const useWalletAutoConnect = () => {
   const { connectService, selectedServiceByProtocol } = useWalletAdapter();
 
   useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout> | undefined;
-
     void (async () => {
       [Protocol.Evm, Protocol.Solana].forEach(async (protocol) => {
         const serviceId = selectedServiceByProtocol[protocol];
@@ -23,6 +22,7 @@ export const useWalletAutoConnect = () => {
           try {
             const adapter = createAdapter(serviceId, protocol, endpoint);
             const options = { silentError: true };
+            const timeoutForWalletToBeFound = 2000;
 
             if (adapter.protocol === Protocol.Evm) {
               const [isUnlocked, hasConnectedBefore] = await Promise.all([
@@ -34,7 +34,12 @@ export const useWalletAutoConnect = () => {
                 await connectService({ protocol, serviceId, adapter, options });
               }
             } else if (serviceId === WalletServiceId.Phantom) {
-              timeout = setTimeout(async () => {
+              const foundPhantom = await waitFor(
+                () => (window as any).phantom !== undefined,
+                timeoutForWalletToBeFound,
+              );
+
+              if (foundPhantom)
                 await connectService({
                   protocol,
                   serviceId,
@@ -44,10 +49,15 @@ export const useWalletAutoConnect = () => {
                     connectArgs: { onlyIfTrusted: true },
                   },
                 });
-              }, 500);
             } else if (serviceId === WalletServiceId.Solong) {
-              timeout = setTimeout(async () => {
+              const foundSolong = await waitFor(
+                () => (window as any).solong !== undefined,
+                timeoutForWalletToBeFound,
+              );
+
+              if (foundSolong) {
                 const address = await (window as any).solong?.selectAccount();
+
                 if (address)
                   await connectService({
                     protocol,
@@ -55,7 +65,7 @@ export const useWalletAutoConnect = () => {
                     adapter,
                     options,
                   });
-              }, 500);
+              }
             }
           } catch (error) {
             captureException(error);
@@ -63,7 +73,5 @@ export const useWalletAutoConnect = () => {
         }
       });
     })();
-
-    return () => clearTimeout(timeout);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- we want this to run only once on app boot
 };

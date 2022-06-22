@@ -151,7 +151,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "meta-aurora-usdc",
     displayName: "Aurora USDC Meta-Pool",
     isStakingPool: false,
@@ -170,7 +170,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "meta-aurora-usdt",
     displayName: "Aurora USDT Meta-Pool",
     isStakingPool: false,
@@ -189,7 +189,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "meta-aurora-usn",
     displayName: "Aurora USN Meta-Pool",
     isStakingPool: false,
@@ -408,7 +408,7 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "meta-aurora-usdc",
     displayName: "Aurora USDC Meta-Pool",
     isStakingPool: false,
@@ -427,7 +427,7 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "meta-aurora-usdt",
     displayName: "Aurora USDT Meta-Pool",
     isStakingPool: false,
@@ -484,7 +484,7 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "meta-karura-ausd",
     displayName: "Karura AUSD Meta-Pool",
     isStakingPool: false,
@@ -503,7 +503,7 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "meta-karura-usdt",
     displayName: "Karura USDT Meta-Pool",
     isStakingPool: false,

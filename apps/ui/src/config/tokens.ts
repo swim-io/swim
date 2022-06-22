@@ -666,7 +666,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Aurora,
         {
-          address: "0xb12bfca5a55806aaf64e99521918a4bf0fc40802",
+          address: "0xB12BFcA5A55806AaF64E99521918A4bf0fC40802",
           decimals: 6,
         },
       ],
@@ -691,7 +691,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Aurora,
         {
-          address: "0x4988a896b1227218e4a686fde5eabdcabd91571f",
+          address: "0x4988a896b1227218e4A686fdE5EabdcAbd91571f",
           decimals: 6,
         },
       ],
@@ -716,7 +716,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Aurora,
         {
-          address: "0x5183e1b1091804bc2602586919e6880ac1cf2896",
+          address: "0x5183e1B1091804BC2602586919E6880ac1cf2896",
           decimals: 18,
         },
       ],
@@ -741,7 +741,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Fantom,
         {
-          address: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
+          address: "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75",
           decimals: 6,
         },
       ],

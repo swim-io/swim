@@ -2,69 +2,70 @@
 import { renderHook } from "@testing-library/react-hooks";
 
 import { Protocol } from "../../../config";
-import { useWalletAdapter } from "../../../core/store";
+import { useWalletAdapter as walletAdapterStore } from "../../../core/store";
 import { WalletServiceId, createAdapter } from "../../../models";
 import { mockOf } from "../../../testUtils";
 import { useWalletAutoConnect } from "../useWalletAutoConnect";
-
-jest.mock("../../../core/store", () => ({
-  ...jest.requireActual("../../../core/store"),
-  useWalletAdapter: jest.fn(),
-}));
 
 jest.mock("../../../models", () => ({
   ...jest.requireActual("../../../models"),
   createAdapter: jest.fn(),
 }));
 
-const useWalletAdapterMock = mockOf(useWalletAdapter);
 const createAdapterMock = mockOf(createAdapter);
 
 describe("useWalletAutoConnect", () => {
   describe("MetaMask support", () => {
-    it("should call connectService when it's unlocked and has connected before", async () => {
-      const connectService = jest
-        .fn()
-        .mockImplementation(() => Promise.resolve());
-      useWalletAdapterMock.mockReturnValue({
-        connectService,
+    beforeEach(() =>
+      walletAdapterStore.setState({
         selectedServiceByProtocol: {
           [Protocol.Evm]: WalletServiceId.MetaMask,
           [Protocol.Solana]: null,
         },
-      });
+      }),
+    );
+
+    it("should call connect when it's unlocked and has connected before", async () => {
+      const connect = jest.fn().mockImplementation(() => Promise.resolve());
       createAdapterMock.mockReturnValue({
         isUnlocked: () => Promise.resolve(true),
         hasConnectedBefore: () => Promise.resolve(true),
         protocol: Protocol.Evm,
+        on: jest.fn(),
+        connect,
       });
 
-      const { waitFor } = renderHook(() => useWalletAutoConnect());
+      const { waitForNextUpdate } = renderHook(() => useWalletAutoConnect());
+      await waitForNextUpdate();
 
-      await waitFor(() => expect(connectService).toHaveBeenCalledTimes(1));
+      expect(connect).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("Phantom support", () => {
     beforeAll(() => ((window as any).phantom = {}));
-    afterAll(() => delete (window as any).phantom);
-
-    it("should call connectService when phantom is selected and present", async () => {
-      const connectService = jest
-        .fn()
-        .mockImplementation(() => Promise.resolve());
-      useWalletAdapterMock.mockReturnValue({
-        connectService,
+    beforeEach(() =>
+      walletAdapterStore.setState({
         selectedServiceByProtocol: {
           [Protocol.Evm]: null,
           [Protocol.Solana]: WalletServiceId.Phantom,
         },
+      }),
+    );
+    afterAll(() => delete (window as any).phantom);
+
+    it("should call connect when phantom is selected and present", async () => {
+      const connect = jest.fn().mockImplementation(() => Promise.resolve());
+      createAdapterMock.mockReturnValue({
+        on: jest.fn(),
+        connect,
+        protocol: Protocol.Solana,
       });
-      createAdapterMock.mockReturnValue({});
 
-      const { waitFor } = renderHook(() => useWalletAutoConnect());
+      const { waitForNextUpdate } = renderHook(() => useWalletAutoConnect());
+      await waitForNextUpdate();
 
-      await waitFor(() => expect(connectService).toHaveBeenCalledTimes(1));
+      expect(connect).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -76,24 +77,28 @@ describe("useWalletAutoConnect", () => {
             Promise.resolve("6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J"),
         }),
     );
-    afterAll(() => delete (window as any).solong);
-
-    it("should call connectService when solong is selected and present", async () => {
-      const connectService = jest
-        .fn()
-        .mockImplementation(() => Promise.resolve());
-      useWalletAdapterMock.mockReturnValue({
-        connectService,
+    beforeEach(() =>
+      walletAdapterStore.setState({
         selectedServiceByProtocol: {
           [Protocol.Evm]: null,
           [Protocol.Solana]: WalletServiceId.Solong,
         },
+      }),
+    );
+    afterAll(() => delete (window as any).solong);
+
+    it("should call connect when solong is selected and present", async () => {
+      const connect = jest.fn().mockImplementation(() => Promise.resolve());
+      createAdapterMock.mockReturnValue({
+        connect,
+        on: jest.fn(),
+        protocol: Protocol.Solana,
       });
-      createAdapterMock.mockReturnValue({});
 
-      const { waitFor } = renderHook(() => useWalletAutoConnect());
+      const { waitForNextUpdate } = renderHook(() => useWalletAutoConnect());
+      await waitForNextUpdate();
 
-      await waitFor(() => expect(connectService).toHaveBeenCalledTimes(1));
+      expect(connect).toHaveBeenCalledTimes(1);
     });
   });
 });

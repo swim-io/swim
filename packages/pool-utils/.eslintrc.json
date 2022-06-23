@@ -42,7 +42,7 @@
     "@typescript-eslint/no-unsafe-call": "off",
     "@typescript-eslint/no-shadow": "error",
     "@typescript-eslint/prefer-readonly-parameter-types": "off",
-    // "deprecation/deprecation": "warn",
+    "deprecation/deprecation": "warn",
     "functional/immutable-data": ["error", { "ignorePattern": "this" }],
     "functional/no-let": "off",
     "functional/prefer-readonly-type": [

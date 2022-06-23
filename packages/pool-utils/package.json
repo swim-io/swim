@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/pool-utils",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A package for common pool interfaces and types.",
   "main": "build",
   "types": "types",

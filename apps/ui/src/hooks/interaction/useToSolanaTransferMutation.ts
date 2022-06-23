@@ -26,7 +26,7 @@ import {
   lockEvmToken,
 } from "../../models";
 import { getFromEcosystemOfToSolanaTransfer } from "../../models/swim/transfer";
-import { findOrThrow } from "../../utils";
+import { findOrThrow, getRecordKeys, groupBy } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useSplTokenAccountsQuery } from "../solana";
 
@@ -64,121 +64,133 @@ export const useToSolanaTransferMutation = () => {
     const { interaction, toSolanaTransfers } =
       getInteractionState(interactionId);
 
-    for await (const [index, transfer] of toSolanaTransfers.entries()) {
-      const { token, value, txIds } = transfer;
-      const fromEcosystem = getFromEcosystemOfToSolanaTransfer(
-        transfer,
-        interaction,
-      );
-      // Transfer completed, skip
-      if (isToSolanaTransferCompleted(transfer)) {
-        continue;
-      }
-      if (!solanaWallet) {
-        throw new Error("No Solana wallet");
-      }
-      if (!isEvmEcosystemId(fromEcosystem)) {
-        throw new Error("Invalid token");
-      }
-      const evmConnection = evmConnections[fromEcosystem];
-      const evmWallet = wallets[fromEcosystem].wallet;
-      if (!evmWallet) {
-        throw new Error("No EVM wallet");
-      }
-      const evmChain = findOrThrow(
-        chains[Protocol.Evm],
-        ({ ecosystem }) => ecosystem === fromEcosystem,
-      );
-      const fromTokenDetails = token.detailsByEcosystem.get(fromEcosystem);
-      if (!fromTokenDetails) {
-        throw new Error("No token detail");
-      }
-      const splTokenAccountAddress = findOrThrow(
-        splTokenAccounts,
-        ({ mint }) => mint.toBase58() === getSolanaTokenDetails(token).address,
-      ).address.toBase58();
+    const transfersGroupByFromEcosystem = groupBy(
+      toSolanaTransfers,
+      (transfer) => getFromEcosystemOfToSolanaTransfer(transfer, interaction),
+    );
 
-      let transferTxId: string | undefined =
-        txIds.approveAndTransferEvmToken.slice(-1)[0];
+    for await (const fromEcosystem of getRecordKeys(
+      transfersGroupByFromEcosystem,
+    )) {
+      const transfers = transfersGroupByFromEcosystem[fromEcosystem];
+      await Promise.all(
+        transfers.map(async (transfer) => {
+          const index = toSolanaTransfers.findIndex(
+            (target) => target === transfer,
+          );
+          const { token, value, txIds } = transfer;
+          // Transfer completed, skip
+          if (isToSolanaTransferCompleted(transfer)) {
+            return;
+          }
+          if (!solanaWallet) {
+            throw new Error("No Solana wallet");
+          }
+          if (!isEvmEcosystemId(fromEcosystem)) {
+            throw new Error("Invalid token");
+          }
+          const evmConnection = evmConnections[fromEcosystem];
+          const evmWallet = wallets[fromEcosystem].wallet;
+          if (!evmWallet) {
+            throw new Error("No EVM wallet");
+          }
+          const evmChain = findOrThrow(
+            chains[Protocol.Evm],
+            ({ ecosystem }) => ecosystem === fromEcosystem,
+          );
+          const fromTokenDetails = token.detailsByEcosystem.get(fromEcosystem);
+          if (!fromTokenDetails) {
+            throw new Error("No token detail");
+          }
+          const splTokenAccountAddress = findOrThrow(
+            splTokenAccounts,
+            ({ mint }) =>
+              mint.toBase58() === getSolanaTokenDetails(token).address,
+          ).address.toBase58();
 
-      // Process transfer if transfer txId does not exist
-      if (!transferTxId) {
-        const { approvalResponses, transferResponse } = await lockEvmToken({
-          interactionId,
-          token,
-          amount: Amount.fromHuman(token, value),
-          evmChain,
-          evmConnection,
-          fromTokenDetails,
-          evmWallet,
-          splTokenAccountAddress,
-          existingTxs: [],
-        });
+          let transferTxId: string | undefined =
+            txIds.approveAndTransferEvmToken.slice(-1)[0];
 
-        const [transferTx, ...approvalTxs] = await Promise.all(
-          [transferResponse, ...approvalResponses].map((txResponse) =>
-            txResponseToTx(
+          // Process transfer if transfer txId does not exist
+          if (!transferTxId) {
+            const { approvalResponses, transferResponse } = await lockEvmToken({
               interactionId,
-              fromEcosystem,
+              token,
+              amount: Amount.fromHuman(token, value),
+              evmChain,
               evmConnection,
-              txResponse,
-            ),
-          ),
-        );
+              fromTokenDetails,
+              evmWallet,
+              splTokenAccountAddress,
+              existingTxs: [],
+            });
 
-        // Update transfer state with txId
-        const approveAndTransferEvmTokenTxIds = [
-          ...approvalTxs,
-          transferTx,
-        ].map(({ txId }) => txId);
+            const [transferTx, ...approvalTxs] = await Promise.all(
+              [transferResponse, ...approvalResponses].map((txResponse) =>
+                txResponseToTx(
+                  interactionId,
+                  fromEcosystem,
+                  evmConnection,
+                  txResponse,
+                ),
+              ),
+            );
 
-        updateInteractionState(interactionId, (draft) => {
-          draft.toSolanaTransfers[index].txIds.approveAndTransferEvmToken =
-            approveAndTransferEvmTokenTxIds;
-        });
+            // Update transfer state with txId
+            const approveAndTransferEvmTokenTxIds = [
+              ...approvalTxs,
+              transferTx,
+            ].map(({ txId }) => txId);
 
-        transferTxId = transferTx.txId;
-      }
+            updateInteractionState(interactionId, (draft) => {
+              draft.toSolanaTransfers[index].txIds.approveAndTransferEvmToken =
+                approveAndTransferEvmTokenTxIds;
+            });
 
-      const transferResponse = await evmConnection.provider.getTransaction(
-        transferTxId,
+            transferTxId = transferTx.txId;
+          }
+
+          const transferResponse = await evmConnection.provider.getTransaction(
+            transferTxId,
+          );
+          const transferTx = await txResponseToTx(
+            interactionId,
+            fromEcosystem,
+            evmConnection,
+            transferResponse,
+          );
+
+          const sequence = parseSequenceFromLogEth(
+            transferTx.txReceipt,
+            evmChain.wormhole.bridge,
+          );
+
+          const unlockSplTokenTxIdsGenerator = generateUnlockSplTokenTxIds(
+            interactionId,
+            wormhole.endpoint,
+            ecosystems[fromEcosystem].wormholeChainId,
+            getEmitterAddressEth(evmChain.wormhole.tokenBridge),
+            sequence,
+            solanaWormhole,
+            solanaConnection,
+            solanaWallet,
+            Keypair.generate(),
+          );
+          let unlockSplTokenTxIds: readonly string[] = [];
+          for await (const txId of unlockSplTokenTxIdsGenerator) {
+            unlockSplTokenTxIds = [...unlockSplTokenTxIds, txId];
+          }
+          // Update transfer state with txId
+          const postVaaOnSolanaTxIds = unlockSplTokenTxIds.slice(0, -1);
+          const [claimTokenOnSolanaTxId] = unlockSplTokenTxIds.slice(-1);
+          updateInteractionState(interactionId, (draft) => {
+            draft.toSolanaTransfers[index].txIds.postVaaOnSolana =
+              postVaaOnSolanaTxIds;
+            draft.toSolanaTransfers[index].txIds.claimTokenOnSolana =
+              claimTokenOnSolanaTxId;
+          });
+        }),
       );
-      const transferTx = await txResponseToTx(
-        interactionId,
-        fromEcosystem,
-        evmConnection,
-        transferResponse,
-      );
-
-      const sequence = parseSequenceFromLogEth(
-        transferTx.txReceipt,
-        evmChain.wormhole.bridge,
-      );
-
-      const unlockSplTokenTxIdsGenerator = generateUnlockSplTokenTxIds(
-        interactionId,
-        wormhole.endpoint,
-        ecosystems[fromEcosystem].wormholeChainId,
-        getEmitterAddressEth(evmChain.wormhole.tokenBridge),
-        sequence,
-        solanaWormhole,
-        solanaConnection,
-        solanaWallet,
-        Keypair.generate(),
-      );
-      let unlockSplTokenTxIds: readonly string[] = [];
-      for await (const txId of unlockSplTokenTxIdsGenerator) {
-        unlockSplTokenTxIds = [...unlockSplTokenTxIds, txId];
-      }
-      // Update transfer state with txId
-      const postVaaOnSolanaTxIds = unlockSplTokenTxIds.slice(0, -1);
-      const [claimTokenOnSolanaTxId] = unlockSplTokenTxIds.slice(-1);
-      updateInteractionState(interactionId, (draft) => {
-        draft.toSolanaTransfers[index].txIds.postVaaOnSolana =
-          postVaaOnSolanaTxIds;
-        draft.toSolanaTransfers[index].txIds.claimTokenOnSolana =
-          claimTokenOnSolanaTxId;
-      });
     }
   });
 };

@@ -1,3 +1,5 @@
+import type { EcosystemId } from "../../config";
+
 import type { Interaction } from "./interaction";
 import { InteractionType } from "./interaction";
 import type {
@@ -8,7 +10,7 @@ import type {
 export const getFromEcosystemOfToSolanaTransfer = (
   transfer: ToSolanaTransferState,
   interaction: Interaction,
-) => {
+): EcosystemId => {
   return interaction.type === InteractionType.RemoveExactBurn ||
     interaction.type === InteractionType.RemoveExactOutput ||
     interaction.type === InteractionType.RemoveUniform
@@ -19,7 +21,7 @@ export const getFromEcosystemOfToSolanaTransfer = (
 export const getToEcosystemOfFromSolanaTransfer = (
   transfer: FromSolanaTransferState,
   interaction: Interaction,
-) => {
+): EcosystemId => {
   return interaction.type === InteractionType.Add
     ? interaction.lpTokenTargetEcosystem
     : transfer.token.nativeEcosystem;

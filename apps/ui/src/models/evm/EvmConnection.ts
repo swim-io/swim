@@ -11,6 +11,9 @@ import { MoralisProvider } from "./MoralisProvider";
 import { PolkadotProvider } from "./PolkadotProvider";
 import { PolygonNetwork, PolygonScanProvider } from "./PolygonScanProvider";
 import { AvalancheNetwork, SnowTraceProvider } from "./SnowTraceProvider";
+import { AuroraNetwork, AuroraScanProvider } from "./AuroraScanProvider";
+import { FantomNetwork, FtmScanProvider } from "./FtmScanProvider";
+
 import { Erc20Factory } from "./erc20";
 
 type EtherscanProvider = ethers.providers.EtherscanProvider;
@@ -29,7 +32,10 @@ const BSC_TESTNET_RPC_URL = process.env.REACT_APP_BSC_TESTNET_RPC_URL;
 
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
 const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
+const FTMSCAN_API_KEY = process.env.REACT_APP_FTMSCAN_API_KEY;
+const AURORASCAN_API_KEY = process.env.REACT_APP_AURORASCAN_API_KEY;
 const SNOWTRACE_API_KEY = process.env.REACT_APP_SNOWTRACE_API_KEY;
+
 const KARURA_MAINNET_RPC_URL = process.env.REACT_APP_KARURA_MAINNET_RPC_URL;
 const KARURA_MAINNET_SUBQL_URL = process.env.REACT_APP_KARURA_MAINNET_SUBQL_URL;
 
@@ -84,6 +90,29 @@ const getSnowTraceNetwork = (env: Env): AvalancheNetwork => {
       return AvalancheNetwork.Testnet;
     default:
       throw new Error(`SnowTrace does not support ${env}`);
+  }
+};
+
+// TODO: Move this function to FtmScanProvider.ts
+const getFtmScanNetwork = (env: Env): FantomNetwork => {
+  switch (env) {
+    case Env.Mainnet:
+      return FantomNetwork.Mainnet;
+    case Env.Devnet:
+      return FantomNetwork.Testnet;
+    default:
+      throw new Error(`FtmScan does not support ${env}`);
+  }
+};
+
+const getAuroraScanNetwork = (env: Env): AuroraNetwork => {
+  switch (env) {
+    case Env.Mainnet:
+      return AuroraNetwork.Mainnet;
+    case Env.Devnet:
+      return AuroraNetwork.Testnet;
+    default:
+      throw new Error(`AuroraScan does not support ${env}`);
   }
 };
 
@@ -151,9 +180,9 @@ export class EvmConnection {
     }
     switch (ecosystem) {
       case EcosystemId.Acala:
+        return new LocalnetProvider(rpcUrls[0]);
       case EcosystemId.Aurora:
       case EcosystemId.Fantom:
-        return new LocalnetProvider(rpcUrls[0]);
       case EcosystemId.Bsc:
       case EcosystemId.Avalanche:
       case EcosystemId.Ethereum:
@@ -215,6 +244,19 @@ export class EvmConnection {
         return new PolkadotProvider(
           getKaruraProvider(env),
           getKaruraSubQl(env),
+        );
+      }
+      // TODO: Refactor repetitive code for PolygonScanProvider, SnowTraceProvider, FtmScanProvider, AuroraScanProvider
+      // Provider classes are the same.
+      // Differences are in `{X}Network`, `{X}Provider#constructor`, and URLs in `{X}Provider#getBaseUrl`
+      // In EvmConnection, code is almost the same in `get{X}Network` functions and in switch-case in `getPublicEvmIndexerProvider`
+      case EcosystemId.Fantom: {
+        return new FtmScanProvider(getFtmScanNetwork(env), FTMSCAN_API_KEY);
+      }
+      case EcosystemId.Aurora: {
+        return new AuroraScanProvider(
+          getAuroraScanNetwork(env),
+          AURORASCAN_API_KEY,
         );
       }
       default:

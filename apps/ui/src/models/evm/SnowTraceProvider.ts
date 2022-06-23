@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 
 import { findOrThrow } from "../../utils";
+import { EvmChainId } from "../../config";
 
 export const enum AvalancheNetwork {
   Mainnet = "avalanche-mainnet",
@@ -10,11 +11,11 @@ export const enum AvalancheNetwork {
 const networks = [
   {
     name: AvalancheNetwork.Mainnet,
-    chainId: 43114,
+    chainId: EvmChainId.AvalancheMainnet,
   },
   {
     name: AvalancheNetwork.Testnet,
-    chainId: 43113,
+    chainId: EvmChainId.AvalancheTestnet,
   },
 ];
 

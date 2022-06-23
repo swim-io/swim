@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/pool-state",
-  "version": "0.0.0",
+  "version": "0.1.1",
   "description": "A package for serializing/deserializing Swim pool state.",
   "main": "build",
   "types": "types",

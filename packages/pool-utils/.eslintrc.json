@@ -72,6 +72,9 @@
   "overrides": [
     {
       "files": ["**/*.test.ts"],
+      "env": {
+        "node": true
+      },
       "rules": {
         "@typescript-eslint/no-unsafe-argument": "off",
         "@typescript-eslint/no-unsafe-call": "off",

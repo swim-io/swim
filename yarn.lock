@@ -6172,7 +6172,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/pool-state@workspace:packages/pool-state":
+"@swim-io/pool-state@workspace:^, @swim-io/pool-state@workspace:packages/pool-state":
   version: 0.0.0-use.local
   resolution: "@swim-io/pool-state@workspace:packages/pool-state"
   dependencies:
@@ -6296,6 +6296,8 @@ __metadata:
     "@storybook/react": ^6.5.2
     "@storybook/testing-library": ^0.0.11
     "@swim-io/pool-math": ^0.1.1
+    "@swim-io/pool-state": "workspace:^"
+    "@swim-io/pool-utils": "workspace:^"
     "@testing-library/jest-dom": ^5.11.4
     "@testing-library/react": ^11.1.0
     "@testing-library/react-hooks": ^7.0.2

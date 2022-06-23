@@ -17,6 +17,7 @@ error Routing__OnChainSwapFailed();
 error Routing__SwapAndTransferFailed();
 
 abstract contract Routing is
+  IRouting,
   OwnableUpgradeable,
   UUPSUpgradeable,
   PausableUpgradeable,
@@ -49,7 +50,7 @@ abstract contract Routing is
    * @param toOwner TThe beneficiary of the supply, receiving the outputAmount
    * @param outputAmount The amount received after swap
    **/
-  event OnChainSwap(
+  event OnChainSwapEvent(
     address indexed fromToken,
     address indexed toToken,
     address toOwner,
@@ -116,7 +117,7 @@ abstract contract Routing is
 
     require(IERC20Upgradeable(_toToken).transfer(_toOwner, receivedAmount));
 
-    emit OnChainSwap(_fromToken, _toToken, _toOwner, receivedAmount);
+    emit OnChainSwapEvent(_fromToken, _toToken, _toOwner, receivedAmount);
 
     _outputAmount = receivedAmount;
   }
@@ -142,7 +143,7 @@ abstract contract Routing is
     uint16 _toTokenId,
     uint256 _secondMinimumOutputAmount
   ) external payable returns (uint64 _wormholeSequence) {
-    
+
   }
 
   function receiveAndOverride(

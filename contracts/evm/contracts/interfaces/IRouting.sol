@@ -2,14 +2,6 @@
 pragma solidity ^0.8.15;
 
 interface IRouting {
-  event TokenRegistered(uint16 tokenId, address tokenContract);
-  event OnChainSwap(
-    address _fromToken,
-    address _toToken,
-    address _toOwner,
-    uint256 _outputAmount
-  );
-
   function onChainSwap(
     address _fromToken,
     uint256 _inputAmount,
@@ -34,9 +26,7 @@ interface IRouting {
     uint256 _minimumOutputAmount
   ) external returns (uint256 _outputAmount);
 
-  function receiveAndSwap(bytes memory _encodedVm)
-    external
-    returns (uint256 _outputAmount);
+  function receiveAndSwap(bytes memory _encodedVm) external returns (uint256 _outputAmount);
 
   function registerToken(
     uint16 _tokenId,

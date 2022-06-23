@@ -289,7 +289,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "mainnet-solana-lp-meta-aurora-usdc",
     symbol: "SWIM-AURORA-USDC-META-POOL-LP",
     displayName: "Aurora USDC Meta-Pool LP",
@@ -307,7 +307,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "mainnet-solana-lp-meta-aurora-usdt",
     symbol: "SWIM-AURORA-USDT-META-POOL-LP",
     displayName: "Aurora USDT Meta-Pool LP",
@@ -325,7 +325,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "mainnet-solana-lp-meta-aurora-usn",
     symbol: "SWIM-AURORA-USN-META-POOL-LP",
     displayName: "Aurora USN Meta-Pool LP",
@@ -361,7 +361,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "mainnet-solana-lp-meta-karura-ausd",
     symbol: "SWIM-KARURA-AUSD-META-POOL-LP",
     displayName: "Karura AUSD Meta-Pool LP",
@@ -372,14 +372,14 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "11111111111111111111111111111111", // TODO: Update
+          address: "8vzXSNVAX4fymEFahJFh1ypzDBFv3QMVaZ4GtJWHrRjU",
           decimals: 8,
         },
       ],
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "mainnet-solana-lp-meta-karura-usdt",
     symbol: "SWIM-KARURA-USDT-META-POOL-LP",
     displayName: "Karura USDT Meta-Pool LP",
@@ -390,7 +390,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "11111111111111111111111111111111", // TODO: Update
+          address: "2sXvitirRSjgTTNzGNWAFZWSqEx87kDoTJvqG9JSyivh",
           decimals: 8,
         },
       ],
@@ -655,7 +655,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "mainnet-aurora-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,
@@ -666,7 +666,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Aurora,
         {
-          address: "0xb12bfca5a55806aaf64e99521918a4bf0fc40802",
+          address: "0xB12BFcA5A55806AaF64E99521918A4bf0fC40802",
           decimals: 6,
         },
       ],
@@ -680,7 +680,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "mainnet-aurora-usdt",
     symbol: USDT_SYMBOL,
     displayName: USDT_NAME,
@@ -691,7 +691,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Aurora,
         {
-          address: "0x4988a896b1227218e4a686fde5eabdcabd91571f",
+          address: "0x4988a896b1227218e4A686fdE5EabdcAbd91571f",
           decimals: 6,
         },
       ],
@@ -705,7 +705,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "mainnet-aurora-usn",
     symbol: USN_SYMBOL,
     displayName: USN_NAME,
@@ -716,7 +716,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Aurora,
         {
-          address: "0x5183e1b1091804bc2602586919e6880ac1cf2896",
+          address: "0x5183e1B1091804BC2602586919E6880ac1cf2896",
           decimals: 18,
         },
       ],
@@ -741,7 +741,7 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Fantom,
         {
-          address: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
+          address: "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75",
           decimals: 6,
         },
       ],
@@ -755,7 +755,7 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "mainnet-karura-ausd",
     symbol: AUSD_SYMBOL,
     displayName: AUSD_NAME,
@@ -766,21 +766,21 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Karura,
         {
-          address: "0x0000000000000000000000000000000000000000", // TODO: Update
-          decimals: 6, // TODO: Update
+          address: "0x0000000000000000000100000000000000000081",
+          decimals: 12,
         },
       ],
       [
         EcosystemId.Solana,
         {
-          address: "11111111111111111111111111111111", // TODO: Update
-          decimals: 6, // TODO: Update
+          address: "3sEvyXzC2vAPqF7uprB2vRaL1X1FbqQqmPxhwVi53GYF",
+          decimals: 8,
         },
       ],
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "mainnet-karura-usdt",
     symbol: USDT_SYMBOL,
     displayName: USDT_NAME,
@@ -791,15 +791,15 @@ const mainnetTokens: readonly TokenSpec[] = [
       [
         EcosystemId.Karura,
         {
-          address: "0x0000000000000000000000000000000000000000", // TODO: Update
-          decimals: 6, // TODO: Update
+          address: "0x0000000000000000000500000000000000000007",
+          decimals: 6,
         },
       ],
       [
         EcosystemId.Solana,
         {
-          address: "11111111111111111111111111111111", // TODO: Update
-          decimals: 6, // TODO: Update
+          address: "E942z7FnS7GpswTvF5Vggvo7cMTbvZojjLbFgsrDVff1",
+          decimals: 6,
         },
       ],
     ]),
@@ -1068,7 +1068,7 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "devnet-solana-lp-meta-aurora-usdc",
     symbol: "SWIM-AURORA-USDC-META-POOL-LP",
     displayName: "Aurora USDC Meta-Pool LP",
@@ -1086,7 +1086,7 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "devnet-solana-lp-meta-aurora-usdt",
     symbol: "SWIM-AURORA-USDT-META-POOL-LP",
     displayName: "Aurora USDT Meta-Pool LP",
@@ -1434,7 +1434,7 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "devnet-aurora-usdc",
     symbol: USDC_SYMBOL,
     displayName: USDC_NAME,
@@ -1459,7 +1459,7 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "devnet-aurora-usdt",
     symbol: USDT_SYMBOL,
     displayName: USDT_NAME,

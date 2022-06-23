@@ -7,7 +7,6 @@ import "./App.scss";
 import { AppCrashed, NewVersionAlert } from "./components/AppCrashed";
 import { Layout } from "./components/Layout";
 import Notification from "./components/Notification";
-import WalletsMonitor from "./components/WalletsMonitor";
 import { AppContext } from "./contexts";
 import CollectiblesPage from "./pages/CollectiblesPage";
 import HelpPage from "./pages/HelpPage";
@@ -78,7 +77,6 @@ function App(): ReactElement {
         </AppContext>
       </BrowserRouter>
       <Notification />
-      <WalletsMonitor />
     </Sentry.ErrorBoundary>
   );
 }

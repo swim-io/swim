@@ -151,7 +151,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "meta-aurora-usdc",
     displayName: "Aurora USDC Meta-Pool",
     isStakingPool: false,
@@ -170,7 +170,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "meta-aurora-usdt",
     displayName: "Aurora USDT Meta-Pool",
     isStakingPool: false,
@@ -189,7 +189,7 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "meta-aurora-usn",
     displayName: "Aurora USN Meta-Pool",
     isStakingPool: false,
@@ -227,40 +227,40 @@ const mainnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "meta-karura-ausd",
     displayName: "Karura AUSD Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
-    address: "11111111111111111111111111111111", // TODO: Update
-    authority: "11111111111111111111111111111111", // TODO: Update
+    address: "GRBTi98rcqseFNGdBscPMMWFGBeadZsaN69Tya1dKDJi",
+    authority: "5frFvM55BNXZfdhCL7iqm6DnYBiUijDQSWiNDyV8gAYL",
     feeDecimals: 6,
     lpToken: "mainnet-solana-lp-meta-karura-ausd",
     tokenAccounts: new Map([
-      ["mainnet-karura-ausd", "11111111111111111111111111111111"], // TODO: Update
+      ["mainnet-karura-ausd", "4ddm9KiJJsj2q8tdwz9GR9UgQkQsMMtVuoHn9bqR5BTe"],
       [
         "mainnet-solana-lp-hexapool",
-        "11111111111111111111111111111111", // TODO: Update
+        "5Z1ekWcEWukuaWWELfBVDs7xtnX7KZLRDQv6AttMMQaL",
       ],
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "meta-karura-usdt",
     displayName: "Karura USDT Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
-    address: "11111111111111111111111111111111", // TODO: Update
-    authority: "11111111111111111111111111111111", // TODO: Update
+    address: "DoRzxEVDJK1pN3gdGmjUHkYrS2A4Qkkf3U4ceaowxvDB",
+    authority: "4XQz1qHMMTkFETn5PSNyLVutYPyZ4han8RB8Mmw1G48Q",
     feeDecimals: 6,
     lpToken: "mainnet-solana-lp-meta-karura-usdt",
     tokenAccounts: new Map([
-      ["mainnet-karura-usdt", "11111111111111111111111111111111"], // TODO: Update
+      ["mainnet-karura-usdt", "H367XXfQLYpLPg39EitoWKtRTBjPD32nqNUinjaepxcg"],
       [
         "mainnet-solana-lp-hexapool",
-        "11111111111111111111111111111111", // TODO: Update
+        "2HGg2jRpy7Z11cbsVJfTmrqpmk5FSrfX7NDrH2oTqmVr",
       ],
     ]),
   },
@@ -408,7 +408,7 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "meta-aurora-usdc",
     displayName: "Aurora USDC Meta-Pool",
     isStakingPool: false,
@@ -427,7 +427,7 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "meta-aurora-usdt",
     displayName: "Aurora USDT Meta-Pool",
     isStakingPool: false,
@@ -484,7 +484,7 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "meta-karura-ausd",
     displayName: "Karura AUSD Meta-Pool",
     isStakingPool: false,
@@ -503,7 +503,7 @@ const devnetPools: readonly PoolSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
+    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "meta-karura-usdt",
     displayName: "Karura USDT Meta-Pool",
     isStakingPool: false,

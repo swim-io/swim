@@ -6,9 +6,11 @@ import { useQuery } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import { Protocol } from "../../config";
-import { useSolanaConnection, useSolanaWallet } from "../../contexts";
+import { useSolanaConnection } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
+
+import { useSolanaWallet } from "./useSolanaWallet";
 
 const {
   metadata: { Metadata },

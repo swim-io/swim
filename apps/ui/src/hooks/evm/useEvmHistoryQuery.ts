@@ -4,14 +4,16 @@ import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
 import { isEcosystemEnabled } from "../../config";
-import { useEvmConnection, useEvmWallet } from "../../contexts";
+import { useEvmConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
+
+import { useEvmWallet } from "./useEvmWallet";
 
 export const useEvmHistoryQuery = (
   ecosystemId: EvmEcosystemId,
 ): UseQueryResult<readonly ethers.providers.TransactionResponse[], Error> => {
   const { env } = useEnvironment();
-  const { address } = useEvmWallet(ecosystemId);
+  const { address } = useEvmWallet();
   const connection = useEvmConnection(ecosystemId);
 
   return useQuery(

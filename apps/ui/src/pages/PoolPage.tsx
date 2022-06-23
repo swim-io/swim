@@ -219,7 +219,7 @@ export const PoolPageInner = ({
       <EuiSpacer size="m" />
 
       <EuiFlexGroup justifyContent="spaceAround" gutterSize="xl">
-        <EuiFlexItem>
+        <EuiFlexItem style={{ minWidth: "50%" }}>
           <EuiTabbedContent
             expand={true}
             size="m"

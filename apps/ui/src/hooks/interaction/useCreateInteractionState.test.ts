@@ -4,9 +4,13 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
-import { usePoolMathByPoolIds, useSplTokenAccountsQuery, useWallets } from "..";
+import {
+  usePoolMathByPoolIds,
+  useSolanaWallet,
+  useSplTokenAccountsQuery,
+  useWallets,
+} from "..";
 import { Env } from "../../config";
-import { useSolanaWallet } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 import {
   BSC_USDT,
@@ -31,12 +35,12 @@ Object.defineProperty(global.self, "crypto", {
 jest.mock("../../contexts", () => ({
   ...jest.requireActual("../../contexts"),
   useConfig: jest.fn(),
-  useSolanaWallet: jest.fn(),
 }));
 
 jest.mock("..", () => ({
   ...jest.requireActual(".."),
   usePoolMathByPoolIds: jest.fn(),
+  useSolanaWallet: jest.fn(),
   useSplTokenAccountsQuery: jest.fn(),
   useWallets: jest.fn(),
 }));

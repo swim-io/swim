@@ -1,4 +1,3 @@
-/* eslint-disable functional/immutable-data */
 import * as Sentry from "@sentry/react";
 import type { Draft } from "immer";
 import { castDraft, produce } from "immer";
@@ -8,7 +7,11 @@ import create from "zustand";
 import type { Interaction, InteractionState } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 
-import { addInteractionStateToDb, getInteractionStatesFromDb } from "./idb";
+import {
+  addInteractionStateToDb,
+  getInteractionStatesFromDb,
+  putInteractionStateToDb,
+} from "./idb";
 import type { Env } from "./useEnvironment";
 
 export interface InteractionStore {
@@ -17,9 +20,7 @@ export interface InteractionStore {
   readonly recentInteractionId: string | null;
   readonly setInteractionError: (id: string, error: Error | undefined) => void;
   readonly addInteractionState: (interactionState: InteractionState) => void;
-  readonly loadInteractionStatesFromIDB: (
-    env: Env,
-  ) => Promise<void | readonly InteractionState[]>;
+  readonly loadInteractionStatesFromIDB: (env: Env) => void;
   readonly updateInteractionState: (
     interactionId: string,
     updateCallback: (interactionState: Draft<InteractionState>) => void,
@@ -39,17 +40,19 @@ export const useInteractionState = create(
       );
     },
     loadInteractionStatesFromIDB: async (env) => {
-      const data = (await getInteractionStatesFromDb(env)) || [];
-      set(
-        produce<InteractionStore>((draft) => {
-          draft.interactionStates = castDraft(data);
-        }),
-      );
+      const data = await getInteractionStatesFromDb(env);
+      if (data) {
+        set(
+          produce<InteractionStore>((draft) => {
+            draft.interactionStates = castDraft(data);
+          }),
+        );
+      }
     },
     addInteractionState: (interactionState) => {
       set(
         produce<InteractionStore>((draft) => {
-          draft.interactionStates.push(castDraft(interactionState));
+          draft.interactionStates.unshift(castDraft(interactionState));
           draft.recentInteractionId = interactionState.interaction.id;
         }),
       );
@@ -70,6 +73,13 @@ export const useInteractionState = create(
           }
         }),
       );
+      const updatedInteractionState = get().interactionStates.find(
+        ({ interaction }) => interaction.id === interactionId,
+      );
+      if (!updatedInteractionState) {
+        throw new Error("Updated interaction state not found");
+      }
+      putInteractionStateToDb(updatedInteractionState);
     },
   }),
 );

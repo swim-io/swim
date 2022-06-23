@@ -64,8 +64,6 @@ export const Roadmap = (): ReactElement => (
             </h3>
           </EuiTitle>
           <EuiText color="ghost">
-            <span>$SWIM token issued</span>
-            <br />
             <span>Integration with more chains</span>
             <br />
             <span>Volatile asset swap</span>

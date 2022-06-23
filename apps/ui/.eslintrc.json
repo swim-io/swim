@@ -13,7 +13,8 @@
     "prettier",
     "react",
     "jest",
-    "@sayari"
+    "@sayari",
+    "testing-library"
   ],
   "extends": [
     "eslint:recommended",

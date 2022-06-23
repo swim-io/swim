@@ -30,10 +30,14 @@ export interface WalletAdapterState {
     readonly serviceId: WalletServiceId;
     readonly adapter: WalletAdapter;
     readonly options?: {
-      // silentError is used when auto-connecting since we don't want to show a toast in case something goes wrong
+      /**
+       * silentError is used when auto-connecting since we don't want to show a toast in case something goes wrong
+       */
       readonly silentError?: boolean;
-      // connectArgs is only used in phantom wallet
-      // https://docs.phantom.app/integrating/extension-and-in-app-browser-web-apps/establishing-a-connection#eagerly-connecting
+      /**
+       * connectArgs is only used in phantom wallet
+       * https://docs.phantom.app/integrating/extension-and-in-app-browser-web-apps/establishing-a-connection#eagerly-connecting
+       */
       readonly connectArgs?: { readonly onlyIfTrusted: true };
     };
   }) => Promise<void>;

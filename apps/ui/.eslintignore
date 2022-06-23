@@ -1,1 +1,4 @@
 src/lib/
+
+# https://github.com/typescript-eslint/typescript-eslint/issues/955#issuecomment-544222735
+src/contracts/Erc20.d.ts

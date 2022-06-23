@@ -20,7 +20,7 @@ export const ConnectedWallets = ({
     <EuiListGroup
       bordered
       listItems={Object.entries(walletAddresses)
-        .filter(([_, address]) => address !== null)
+        .filter(([, address]) => address !== null)
         .map(([ecosystemId, address]) => {
           if (!wallets[ecosystemId as EcosystemId].connected) {
             return {

@@ -19,7 +19,7 @@ const Template: ComponentStory<typeof InteractionStateComponent> = (args) => {
     interaction: { id },
   } = MOCK_INTERACTION_STATE;
   const { mutate } = useMutation(
-    async (interactionId: string) => {
+    async (_interactionId: string) => {
       await sleep(5000);
     },
     {

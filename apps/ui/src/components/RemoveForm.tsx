@@ -703,7 +703,7 @@ export const RemoveForm = ({
       )}
 
       {Object.entries(poolTokensByEcosystem)
-        .filter(([_, ecosystemTokens]) => ecosystemTokens.length > 0)
+        .filter(([, ecosystemTokens]) => ecosystemTokens.length > 0)
         .map(([ecosystemId, ecosystemTokens]) => (
           <EuiPanel
             key={ecosystemId}

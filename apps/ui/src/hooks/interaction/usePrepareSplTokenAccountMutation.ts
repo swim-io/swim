@@ -27,8 +27,8 @@ export const usePrepareSplTokenAccountMutation = () => {
       getInteractionState(interactionId);
 
     const missingAccountMints = Object.entries(requiredSplTokenAccounts)
-      .filter(([_mint, accountState]) => accountState.account === null)
-      .map(([mint, _accountState]) => mint);
+      .filter(([, accountState]) => accountState.account === null)
+      .map(([mint]) => mint);
     await Promise.all(
       missingAccountMints.map(async (mint) => {
         const creationTxId = await createSplTokenAccount(

@@ -33,7 +33,7 @@ export const useRecentInteractions = (): ReadonlyRecord<
 
   return interactions.reduce((processedInteractions, interaction) => {
     const requiredEcosystems = Object.entries(interaction.connectedWallets)
-      .filter(([_, address]) => isNotNull(address))
+      .filter(([, address]) => isNotNull(address))
       .map(([ecosystem]) => ecosystem as EcosystemId);
     const didTxsLoad = requiredEcosystems.every((ecosystem) =>
       isNotNull(recentTxs[ecosystem]),

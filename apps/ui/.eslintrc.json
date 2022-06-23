@@ -45,6 +45,11 @@
     "no-undef": "error",
     "no-implicit-globals": ["error", { "lexicalBindings": true }],
     "sort-imports": ["error", { "ignoreDeclarationSort": true }],
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "ignoreRestSiblings": true, "argsIgnorePattern": "^_" }
+    ],
     "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/member-ordering": "error",

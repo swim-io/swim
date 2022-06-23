@@ -12,7 +12,7 @@ module.exports = {
         "pool-sdk",
         "pool-state",
         "pool-utils",
-        "solana-usdc-usdc-usdt-swap",
+        "solana-usdc-usdt-swap",
       ],
     ],
     "subject-case": [0, "never"],

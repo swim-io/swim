@@ -14,7 +14,18 @@ jest.mock("../../../models", () => ({
 
 const createAdapterMock = mockOf(createAdapter);
 
+const WAIT_FOR_NEXT_UPDATE_OPTIONS = { timeout: 50 };
+
 describe("useWalletAutoConnect", () => {
+  it("should not call connect to any wallet when none is stored", async () => {
+    const { waitForNextUpdate } = renderHook(() => useWalletAutoConnect());
+
+    // timeout here means no state update took place, thus no adapter was set/connected
+    await expect(
+      waitForNextUpdate(WAIT_FOR_NEXT_UPDATE_OPTIONS),
+    ).rejects.toThrow(/Timed out/);
+  });
+
   describe("MetaMask support", () => {
     beforeEach(() =>
       walletAdapterStore.setState({
@@ -36,9 +47,45 @@ describe("useWalletAutoConnect", () => {
       });
 
       const { waitForNextUpdate } = renderHook(() => useWalletAutoConnect());
-      await waitForNextUpdate();
+      await waitForNextUpdate(WAIT_FOR_NEXT_UPDATE_OPTIONS);
 
       expect(connect).toHaveBeenCalledTimes(1);
+    });
+
+    it("should not call connect when it's locked", async () => {
+      const connect = jest.fn().mockImplementation(() => Promise.resolve());
+      createAdapterMock.mockReturnValue({
+        isUnlocked: () => Promise.resolve(false),
+        hasConnectedBefore: () => Promise.resolve(true),
+        protocol: Protocol.Evm,
+        on: jest.fn(),
+        connect,
+      });
+
+      const { waitForNextUpdate } = renderHook(() => useWalletAutoConnect());
+
+      // timeout here means no state update took place, thus no adapter was set/connected
+      await expect(
+        waitForNextUpdate(WAIT_FOR_NEXT_UPDATE_OPTIONS),
+      ).rejects.toThrow(/Timed out/);
+    });
+
+    it("should not call connect when it hasn't connected before", async () => {
+      const connect = jest.fn().mockImplementation(() => Promise.resolve());
+      createAdapterMock.mockReturnValue({
+        isUnlocked: () => Promise.resolve(true),
+        hasConnectedBefore: () => Promise.resolve(false),
+        protocol: Protocol.Evm,
+        on: jest.fn(),
+        connect,
+      });
+
+      const { waitForNextUpdate } = renderHook(() => useWalletAutoConnect());
+
+      // timeout here means no state update took place, thus no adapter was set/connected
+      await expect(
+        waitForNextUpdate(WAIT_FOR_NEXT_UPDATE_OPTIONS),
+      ).rejects.toThrow(/Timed out/);
     });
   });
 
@@ -63,7 +110,7 @@ describe("useWalletAutoConnect", () => {
       });
 
       const { waitForNextUpdate } = renderHook(() => useWalletAutoConnect());
-      await waitForNextUpdate();
+      await waitForNextUpdate(WAIT_FOR_NEXT_UPDATE_OPTIONS);
 
       expect(connect).toHaveBeenCalledTimes(1);
     });
@@ -96,7 +143,7 @@ describe("useWalletAutoConnect", () => {
       });
 
       const { waitForNextUpdate } = renderHook(() => useWalletAutoConnect());
-      await waitForNextUpdate();
+      await waitForNextUpdate(WAIT_FOR_NEXT_UPDATE_OPTIONS);
 
       expect(connect).toHaveBeenCalledTimes(1);
     });

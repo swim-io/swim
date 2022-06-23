@@ -33,7 +33,8 @@
     "@project-serum/borsh": "^0.2.5",
     "@solana/web3.js": "^1.44.2",
     "@swim-io/pool-utils": "workspace:^",
-    "bn.js": "^5.2.1"
+    "bn.js": "^5.2.1",
+    "buffer": "^6.0.3"
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.0",

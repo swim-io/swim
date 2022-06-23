@@ -69,7 +69,6 @@
     "@typescript-eslint/restrict-template-expressions": "off",
     "@typescript-eslint/restrict-plus-operands": "off",
     "deprecation/deprecation": "warn",
-    // "deprecation/deprecation": "warn",
     "functional/immutable-data": [
       "error",
       { "ignorePattern": ["this", "draft"] }

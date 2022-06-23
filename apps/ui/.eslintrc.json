@@ -118,5 +118,10 @@
         "import/no-anonymous-default-export": "off"
       }
     }
-  ]
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
 }

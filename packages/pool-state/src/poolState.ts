@@ -1,3 +1,5 @@
+import type { Buffer } from "buffer";
+
 import type { Layout } from "@project-serum/borsh";
 import {
   array,

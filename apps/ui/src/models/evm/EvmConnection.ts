@@ -6,14 +6,13 @@ import type { EvmEcosystemId, EvmSpec } from "../../config";
 import { EcosystemId, Env, isEcosystemEnabled } from "../../config";
 import { isNotNull } from "../../utils";
 
+import { AuroraNetwork, AuroraScanProvider } from "./AuroraScanProvider";
+import { FantomNetwork, FtmScanProvider } from "./FtmScanProvider";
 import { LocalnetProvider } from "./LocalnetProvider";
 import { MoralisProvider } from "./MoralisProvider";
 import { PolkadotProvider } from "./PolkadotProvider";
 import { PolygonNetwork, PolygonScanProvider } from "./PolygonScanProvider";
 import { AvalancheNetwork, SnowTraceProvider } from "./SnowTraceProvider";
-import { AuroraNetwork, AuroraScanProvider } from "./AuroraScanProvider";
-import { FantomNetwork, FtmScanProvider } from "./FtmScanProvider";
-
 import { Erc20Factory } from "./erc20";
 
 type EtherscanProvider = ethers.providers.EtherscanProvider;

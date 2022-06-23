@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
-import { findOrThrow } from "../../utils";
 import { EvmChainId } from "../../config";
+import { findOrThrow } from "../../utils";
 
 export const enum AuroraNetwork {
   Mainnet = "aurora-mainnet",

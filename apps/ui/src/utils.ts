@@ -112,3 +112,24 @@ export const isUserOnMobileDevice = (): boolean => {
 
 export const pluralize = (text: string, shouldPluralize = true): string =>
   shouldPluralize ? `${text}s` : text;
+
+export const waitFor = async (
+  condition: () => boolean,
+  timeoutInMs: number,
+  intervalInMs = 100,
+): Promise<boolean> => {
+  const start = Date.now();
+
+  return new Promise((resolve) => {
+    const check = () => {
+      if (condition()) {
+        resolve(true);
+      } else if (Date.now() - start > timeoutInMs) {
+        resolve(false);
+      } else {
+        setTimeout(check, intervalInMs);
+      }
+    };
+    check();
+  });
+};

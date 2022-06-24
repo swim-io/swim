@@ -69,11 +69,12 @@ export class SolanaConnection {
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
 
-  constructor(endpoint: string) {
+  constructor(endpoint: string, wsEndpoint: string) {
     this.rawConnection = new CustomConnection(endpoint, {
       commitment: DEFAULT_COMMITMENT_LEVEL,
       confirmTransactionInitialTimeout: 60 * 1000,
       disableRetryOnRateLimit: true,
+      wsEndpoint: wsEndpoint,
     });
     this.getAccountInfo = this.rawConnection.getAccountInfo.bind(
       this.rawConnection,

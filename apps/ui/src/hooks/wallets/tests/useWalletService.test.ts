@@ -48,11 +48,15 @@ describe("useWalletService", () => {
     const { result } = renderHook(() => useWalletService());
 
     await act(async () => {
-      await result.current.connectService(serviceId, protocol);
+      await result.current.connectService({ serviceId, protocol });
     });
 
     expect(connectServiceMock).toBeCalledTimes(1);
-    expect(connectServiceMock).toBeCalledWith(protocol, serviceId, mockAdapter);
+    expect(connectServiceMock).toBeCalledWith({
+      protocol,
+      serviceId,
+      adapter: mockAdapter,
+    });
     expect(createAdapterMock).toBeCalledTimes(1);
     expect(createAdapterMock).toHaveBeenCalledWith(
       "metamask",
@@ -73,10 +77,10 @@ describe("useWalletService", () => {
     const { result } = renderHook(() => useWalletService());
 
     await act(async () => {
-      await result.current.disconnectService(protocol);
+      await result.current.disconnectService({ protocol });
     });
 
     expect(disconnectServiceMock).toBeCalledTimes(1);
-    expect(disconnectServiceMock).toBeCalledWith(protocol);
+    expect(disconnectServiceMock).toBeCalledWith({ protocol });
   });
 });

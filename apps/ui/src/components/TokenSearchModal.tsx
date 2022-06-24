@@ -42,6 +42,7 @@ export const TokenSearchModal = ({
       const ecosystem = ecosystems[tokenSpec.nativeEcosystem];
       return {
         label: `${tokenSpec.symbol} on ${ecosystem.displayName}`,
+        searchableLabel: `${tokenSpec.symbol} ${tokenSpec.displayName} ${ecosystem.displayName}`,
         showIcons: false,
         data: tokenSpec,
       };
@@ -59,10 +60,14 @@ export const TokenSearchModal = ({
   );
 
   return (
-    <CustomModal initialFocus="#token-search" onClose={handleClose}>
+    <CustomModal
+      initialFocus="#token-search"
+      onClose={handleClose}
+      className="tokenSearchModal"
+    >
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          <h1>Select a Token</h1>
+          <h1>Select a token</h1>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
 
@@ -70,10 +75,20 @@ export const TokenSearchModal = ({
         <EuiSelectable
           options={options}
           renderOption={renderTokenOption}
-          searchProps={{ id: "token-search" }}
-          onChange={onSelectToken}
           searchable
+          searchProps={{
+            id: "token-search",
+            placeholder: "Search tokens",
+            isClearable: true,
+          }}
+          onChange={onSelectToken}
           singleSelection
+          listProps={{
+            rowHeight: 40,
+            windowProps: {
+              height: 500,
+            },
+          }}
         >
           {(list, search) => (
             <>

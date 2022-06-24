@@ -2,7 +2,7 @@ import type { EuiButtonProps, PropsForButton } from "@elastic/eui";
 import { EuiButton, EuiHideFor, EuiIcon, EuiShowFor } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { useState } from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { EcosystemId } from "../config";
 import { Protocol } from "../config";

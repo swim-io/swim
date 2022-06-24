@@ -10,7 +10,7 @@ import {
 import * as Sentry from "@sentry/react";
 import { useState } from "react";
 import type { ReactElement } from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { isValidEnv } from "../config";
 import { selectEnvs } from "../core/selectors";

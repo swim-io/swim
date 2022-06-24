@@ -1,6 +1,6 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { useMutation } from "react-query";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { useSolanaWallet, useSplTokenAccountsQuery } from "..";
 import type { TokenSpec } from "../../config";

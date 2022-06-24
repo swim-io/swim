@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { Protocol } from "../../config";
 import { selectConfig } from "../../core/selectors";

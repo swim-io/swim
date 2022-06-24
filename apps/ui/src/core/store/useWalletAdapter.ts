@@ -2,7 +2,7 @@ import { produce } from "immer";
 import type { GetState, SetState } from "zustand";
 import create from "zustand";
 import type { StateStorage } from "zustand/middleware";
-import { persist } from "zustand/middleware.js";
+import { persist } from "zustand/middleware";
 
 import { Protocol } from "../../config";
 import { captureException } from "../../errors";

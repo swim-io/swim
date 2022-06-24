@@ -1,7 +1,7 @@
 import type { MintInfo, AccountInfo as TokenAccount } from "@solana/spl-token";
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";

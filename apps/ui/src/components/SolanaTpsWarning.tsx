@@ -2,7 +2,7 @@ import { EuiCallOut, EuiSpacer, EuiText } from "@elastic/eui";
 import { Connection } from "@solana/web3.js";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { Protocol } from "../config";
 import { selectConfig } from "../core/selectors";

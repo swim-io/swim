@@ -1,6 +1,6 @@
-const { addBeforeLoader, loaderByName, whenTest } = require("@craco/craco");
+const { whenTest } = require("@craco/craco");
 const SentryWebpackPlugin = require("@sentry/webpack-plugin");
-// const webpack = require("webpack");
+const webpack = require("webpack");
 
 module.exports = {
   babel: {
@@ -29,24 +29,17 @@ module.exports = {
   },
   webpack: {
     configure: (webpackConfig) => {
-      const wasmExtensionRegExp = /\.wasm$/;
-      webpackConfig.resolve.extensions.push(".wasm");
+      // Verbose output from Webpack to help debugging on CI
+      if (process.env.CI) webpackConfig.stats = "verbose";
 
-      webpackConfig.module.rules.forEach((rule) => {
-        (rule.oneOf || []).forEach((oneOf) => {
-          if (oneOf.loader && oneOf.loader.indexOf("file-loader") >= 0) {
-            oneOf.exclude.push(wasmExtensionRegExp);
-          }
-        });
+      webpackConfig.module.rules.push({
+        test: /\.wasm$/,
+        type: "webassembly/async",
       });
 
-      const wasmLoader = {
-        test: /\.wasm$/,
-        include: /node_modules\/(bridge|token-bridge)/,
-        loaders: ["wasm-loader"],
+      webpackConfig.experiments = {
+        asyncWebAssembly: true,
       };
-
-      addBeforeLoader(webpackConfig, loaderByName("file-loader"), wasmLoader);
 
       // Disable code splitting to prevent ChunkLoadError
       webpackConfig.optimization.runtimeChunk = false;
@@ -68,6 +61,27 @@ module.exports = {
           ? "static/js/[name].[hash].js"
           : "static/js/[name].[chunkhash].js";
 
+      // add polufills that are not included in webpack 5
+      webpackConfig = {
+        ...webpackConfig,
+        ignoreWarnings: [/Failed to parse source map/],
+        resolve: {
+          ...webpackConfig.resolve,
+          fallback: {
+            fs: require.resolve("browserify-fs"),
+            path: require.resolve("path-browserify"),
+            stream: require.resolve("stream-browserify"),
+            crypto: require.resolve("crypto-browserify"),
+          },
+        },
+      };
+
+      webpackConfig.plugins.push(
+        new webpack.ProvidePlugin({
+          Buffer: ["buffer", "Buffer"],
+        }),
+      );
+
       if (process.env.NODE_ENV !== "development") {
         webpackConfig.devtool = "source-map";
 
@@ -84,6 +98,7 @@ module.exports = {
             release: process.env.SENTRY_RELEASE,
             include: "build",
             ignoreFile: ".gitignore",
+            urlPrefix: "~/static/js",
           }),
         ];
       }

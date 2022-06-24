@@ -1,7 +1,7 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import type Decimal from "decimal.js";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { Env, PoolSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";

@@ -20,7 +20,7 @@ import BN from "bn.js";
 import type { ReactElement } from "react";
 import { Fragment, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import { ConnectButton } from "../components/ConnectButton";
 import type { EvmEcosystemId } from "../config";

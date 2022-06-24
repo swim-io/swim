@@ -1,6 +1,6 @@
 import type { UseMutationResult } from "react-query";
 import { useMutation, useQueryClient } from "react-query";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { EvmEcosystemId, TokenSpec } from "../../config";
 import { Protocol, getSolanaTokenDetails } from "../../config";

@@ -5,7 +5,7 @@ import {
 import { Keypair } from "@solana/web3.js";
 import type { ethers } from "ethers";
 import { useMutation } from "react-query";
-import shallow from "zustand/shallow.js";
+import shallow from "zustand/shallow";
 
 import type { EvmEcosystemId } from "../../config";
 import {

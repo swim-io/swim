@@ -49,20 +49,20 @@ export const useFromSolanaTransferMutation = () => {
     const { interaction } = interactionState;
     const { fromSolanaTransfers } = interactionState;
 
-    const transfersGroupByToEcosystem = groupBy(
-      fromSolanaTransfers,
-      (transfer) => getToEcosystemOfFromSolanaTransfer(transfer, interaction),
+    const transfersByToEcosystem = groupBy(fromSolanaTransfers, (transfer) =>
+      getToEcosystemOfFromSolanaTransfer(transfer, interaction),
     );
 
-    for await (const toEcosystem of getRecordKeys(
-      transfersGroupByToEcosystem,
-    )) {
-      const transfers = transfersGroupByToEcosystem[toEcosystem];
+    for await (const toEcosystem of getRecordKeys(transfersByToEcosystem)) {
+      const transfers = transfersByToEcosystem[toEcosystem];
       await Promise.all(
         transfers.map(async (transfer) => {
           const index = fromSolanaTransfers.findIndex(
             (target) => target === transfer,
           );
+          if (index === -1) {
+            throw new Error("Invalid transfer index");
+          }
           // Transfer already completed, skip
           if (isFromSolanaTransferCompleted(transfer)) {
             return;

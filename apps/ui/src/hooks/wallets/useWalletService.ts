@@ -8,10 +8,13 @@ import type { WalletService } from "../../models";
 import { createAdapter } from "../../models";
 
 type WalletServiceApi = Pick<WalletAdapterState, "disconnectService"> & {
-  readonly connectService: (
-    serviceId: WalletService["id"],
-    protocol: Protocol,
-  ) => Promise<void>;
+  readonly connectService: ({
+    serviceId,
+    protocol,
+  }: {
+    readonly serviceId: WalletService["id"];
+    readonly protocol: Protocol;
+  }) => Promise<void>;
 };
 
 export const useWalletService = (): WalletServiceApi => {
@@ -23,12 +26,12 @@ export const useWalletService = (): WalletServiceApi => {
   const [{ endpoint }] = chains[Protocol.Solana];
 
   return {
-    connectService: (serviceId: WalletService["id"], protocol: Protocol) =>
-      connectService(
+    connectService: ({ serviceId, protocol }) =>
+      connectService({
         protocol,
         serviceId,
-        createAdapter(serviceId, protocol, endpoint),
-      ),
+        adapter: createAdapter(serviceId, protocol, endpoint),
+      }),
     disconnectService,
   };
 };

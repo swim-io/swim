@@ -75,11 +75,11 @@ const ProtocolWalletOptionsList = ({
   );
 
   const disconnect = (): void => {
-    void disconnectService(protocol);
+    void disconnectService({ protocol });
   };
 
   const connect = (serviceId: WalletServiceId) => {
-    void connectService(serviceId, protocol);
+    void connectService({ serviceId, protocol });
   };
 
   const handleButtonClick = () => setIsPopoverOpen((prev: boolean) => !prev);

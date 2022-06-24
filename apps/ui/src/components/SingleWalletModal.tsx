@@ -53,7 +53,7 @@ export const SingleWalletModal = <W extends WalletService = WalletService>({
               <EuiButtonEmpty
                 isSelected={currentService === id}
                 onClick={() => {
-                  void connectService(service.id, protocol);
+                  void connectService({ serviceId: service.id, protocol });
                   handleClose();
                 }}
               >

@@ -53,7 +53,7 @@ export const useFromSolanaTransferMutation = () => {
       getToEcosystemOfFromSolanaTransfer(transfer, interaction),
     );
 
-    for await (const toEcosystem of getRecordKeys(transfersByToEcosystem)) {
+    for (const toEcosystem of getRecordKeys(transfersByToEcosystem)) {
       const transfers = transfersByToEcosystem[toEcosystem];
       await Promise.all(
         transfers.map(async (transfer) => {

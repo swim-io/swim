@@ -3,4 +3,5 @@
 /* eslint-disable */
 export * as swimUsdTokenSol from "./SwimUSDToken.sol";
 export * as interfaces from "./interfaces";
+export { Greeter__factory } from "./Greeter__factory";
 export { Routing__factory } from "./Routing__factory";

@@ -37,8 +37,8 @@
       ]
     },
     "/home/kojche/Documents/projects/swim-protocol/swim/contracts/evm/contracts/Routing.sol": {
-      "lastModificationDate": 1656001327026,
-      "contentHash": "4204d09243b3a0ccda3f59eb3322eec3",
+      "lastModificationDate": 1656096508878,
+      "contentHash": "7518e26f24c245935e495004f703522f",
       "sourceName": "contracts/Routing.sol",
       "solcConfig": {
         "version": "0.8.15",
@@ -851,6 +851,43 @@
       ],
       "artifacts": [
         "IWormhole"
+      ]
+    },
+    "/home/kojche/Documents/projects/swim-protocol/swim/contracts/evm/contracts/Greeter.sol": {
+      "lastModificationDate": 1656026713150,
+      "contentHash": "e16f8b541d0e42f66995e3ad92bafb33",
+      "sourceName": "contracts/Greeter.sol",
+      "solcConfig": {
+        "version": "0.8.15",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../node_modules/hardhat/console.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.15"
+      ],
+      "artifacts": [
+        "Greeter"
       ]
     }
   }

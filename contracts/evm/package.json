@@ -39,6 +39,8 @@
     "typescript": "^4.7.4"
   },
   "scripts": {
+    "start": "yarn hardhat node",
+    "deploy": "yarn hardhat run --network localhost scripts/deploy.ts",
     "compile": "yarn hardhat compile",
     "test": "yarn hardhat test",
     "test:staging": "yarn hardhat test --network rinkeby",

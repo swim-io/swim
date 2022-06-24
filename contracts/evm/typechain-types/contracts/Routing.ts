@@ -30,6 +30,7 @@ import type {
 
 export interface RoutingInterface extends utils.Interface {
   functions: {
+    "initialize(address)": FunctionFragment;
     "onChainSwap(address,uint256,address,address,uint256)": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
@@ -49,6 +50,7 @@ export interface RoutingInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "initialize"
       | "onChainSwap"
       | "owner"
       | "pause"
@@ -66,6 +68,10 @@ export interface RoutingInterface extends utils.Interface {
       | "upgradeToAndCall"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "onChainSwap",
     values: [
@@ -135,6 +141,7 @@ export interface RoutingInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
 
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "onChainSwap",
     data: BytesLike
@@ -315,6 +322,11 @@ export interface Routing extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    initialize(
+      _swimUSD: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     onChainSwap(
       _fromToken: PromiseOrValue<string>,
       _inputAmount: PromiseOrValue<BigNumberish>,
@@ -391,6 +403,11 @@ export interface Routing extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  initialize(
+    _swimUSD: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   onChainSwap(
     _fromToken: PromiseOrValue<string>,
@@ -469,6 +486,11 @@ export interface Routing extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    initialize(
+      _swimUSD: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     onChainSwap(
       _fromToken: PromiseOrValue<string>,
       _inputAmount: PromiseOrValue<BigNumberish>,
@@ -608,6 +630,11 @@ export interface Routing extends BaseContract {
   };
 
   estimateGas: {
+    initialize(
+      _swimUSD: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     onChainSwap(
       _fromToken: PromiseOrValue<string>,
       _inputAmount: PromiseOrValue<BigNumberish>,
@@ -686,6 +713,11 @@ export interface Routing extends BaseContract {
   };
 
   populateTransaction: {
+    initialize(
+      _swimUSD: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     onChainSwap(
       _fromToken: PromiseOrValue<string>,
       _inputAmount: PromiseOrValue<BigNumberish>,

@@ -5,4 +5,5 @@ import type * as swimUsdTokenSol from "./SwimUSDToken.sol";
 export type { swimUsdTokenSol };
 import type * as interfaces from "./interfaces";
 export type { interfaces };
+export type { Greeter } from "./Greeter";
 export type { Routing } from "./Routing";

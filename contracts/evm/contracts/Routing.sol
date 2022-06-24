@@ -16,14 +16,14 @@ import "./interfaces/ISwimUSD.sol";
 error Routing__OnChainSwapFailed();
 error Routing__SwapAndTransferFailed();
 
-abstract contract Routing is
+contract Routing is
   IRouting,
-  OwnableUpgradeable,
-  UUPSUpgradeable,
   PausableUpgradeable,
-  ReentrancyGuardUpgradeable
+  OwnableUpgradeable,
+  ReentrancyGuardUpgradeable,
+  UUPSUpgradeable
 {
-  ISwimUSD public immutable swimUSD;
+  ISwimUSD public swimUSD;
   uint32 private wormholeNonce;
 
   struct Token {
@@ -57,10 +57,26 @@ abstract contract Routing is
     uint256 outputAmount
   );
 
-  constructor(address _swimUSD) {
+  constructor() initializer {}
+
+  function initialize(address _swimUSD) public initializer {
+    __Pausable_init();
+    __Ownable_init();
+    __UUPSUpgradeable_init();
+    __ReentrancyGuard_init();
     wormholeNonce = 0;
     swimUSD = ISwimUSD(_swimUSD);
   }
+
+  function pause() public onlyOwner {
+    _pause();
+  }
+
+  function unpause() public onlyOwner {
+    _unpause();
+  }
+
+  function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
   /**
    * @notice Swap two tokens using one chain
@@ -78,7 +94,7 @@ abstract contract Routing is
     address _toOwner,
     address _toToken,
     uint256 _minimumOutputAmount
-  ) public returns (uint256 _outputAmount) {
+  ) public nonReentrant returns (uint256 _outputAmount) {
     require(
       tokenAddressMapping[_fromToken].tokenContract == _fromToken,
       "Source token not registered"
@@ -142,9 +158,7 @@ abstract contract Routing is
     bytes32 _toOwner,
     uint16 _toTokenId,
     uint256 _secondMinimumOutputAmount
-  ) external payable returns (uint64 _wormholeSequence) {
-
-  }
+  ) external payable returns (uint64 _wormholeSequence) {}
 
   function receiveAndOverride(
     bytes memory _encodedVm,
@@ -184,13 +198,5 @@ abstract contract Routing is
     tokenAddressMapping[_tokenContract] = token;
 
     emit TokenRegistered(_tokenId, _tokenContract, _chainPool);
-  }
-
-  function pause() public onlyOwner {
-    _pause();
-  }
-
-  function unpause() public onlyOwner {
-    _unpause();
   }
 }

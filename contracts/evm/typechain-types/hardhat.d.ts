@@ -61,6 +61,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ContextUpgradeable__factory>;
     getContractFactory(
+      name: "Greeter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Greeter__factory>;
+    getContractFactory(
       name: "IFlagshipPool",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IFlagshipPool__factory>;
@@ -149,6 +153,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ContextUpgradeable>;
+    getContractAt(
+      name: "Greeter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Greeter>;
     getContractAt(
       name: "IFlagshipPool",
       address: string,

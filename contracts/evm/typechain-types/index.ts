@@ -30,6 +30,8 @@ export type { IERC20Upgradeable } from "./@openzeppelin/contracts-upgradeable/to
 export { IERC20Upgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable__factory";
 export type { ContextUpgradeable } from "./@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable";
 export { ContextUpgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable__factory";
+export type { Greeter } from "./contracts/Greeter";
+export { Greeter__factory } from "./factories/contracts/Greeter__factory";
 export type { IFlagshipPool } from "./contracts/interfaces/IFlagshipPool";
 export { IFlagshipPool__factory } from "./factories/contracts/interfaces/IFlagshipPool__factory";
 export type { IMetaPool } from "./contracts/interfaces/IMetaPool";

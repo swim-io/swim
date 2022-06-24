@@ -5,15 +5,26 @@ import { useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import type { EcosystemId } from "../config";
-import { selectConfig, selectWalletAdapterApi } from "../core/selectors";
+import { Protocol } from "../config";
+import {
+  selectConfig,
+  selectSelectedServiceByProtocol,
+} from "../core/selectors";
 import { useEnvironment, useWalletAdapter } from "../core/store";
-import { useWallets } from "../hooks";
-import type { WalletService } from "../models";
+import {
+  useEvmWallet,
+  useSolanaWallet,
+  useWalletService,
+  useWallets,
+} from "../hooks";
+import type { WalletServiceId } from "../models";
+import { WALLET_SERVICES, walletServiceInfo } from "../models";
 import { deduplicate, isNotNull, shortenAddress } from "../utils";
 
 import { MultiWalletModal } from "./MultiWalletModal";
 import type { PlainConnectButtonProps } from "./PlainConnectButton";
 import { PlainConnectButton } from "./PlainConnectButton";
+import { SingleWalletModal } from "./SingleWalletModal";
 
 import "./ConnectButton.scss";
 
@@ -28,39 +39,53 @@ export const ConnectButton = ({
   ecosystemId,
   ...rest
 }: ConnectButtonProps): ReactElement => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const { ecosystems } = useEnvironment(selectConfig, shallow);
-  const { disconnectService } = useWalletAdapter(
-    selectWalletAdapterApi,
-    shallow,
+  const { disconnectService } = useWalletService();
+  const selectedServiceByProtocol = useWalletAdapter(
+    selectSelectedServiceByProtocol,
   );
   const ecosystem = ecosystems[ecosystemId];
+  const protocol = ecosystem.protocol;
   const wallets = useWallets();
-  const { connected, select, address } = wallets[ecosystemId];
+  const { connected, address } = wallets[ecosystemId];
 
   const disconnect = (): void => {
-    void disconnectService(ecosystem.protocol);
+    void disconnectService({ protocol: ecosystem.protocol });
   };
 
-  const handleClick = connected ? disconnect : select;
+  const openModal = () => setIsModalVisible(true);
+  const closeModal = () => setIsModalVisible(false);
+  const handleClick = connected ? disconnect : openModal;
 
   return (
-    <PlainConnectButton
-      {...rest}
-      connected={connected}
-      onClick={handleClick}
-      iconType={ecosystem.logo}
-    >
-      {connected && address ? (
-        shortenAddress(address)
-      ) : (
-        <>
-          <EuiShowFor sizes={["xs"]}>Connect</EuiShowFor>
-          <EuiHideFor sizes={["xs"]}>
-            Connect {ecosystem.displayName}
-          </EuiHideFor>
-        </>
+    <>
+      <PlainConnectButton
+        {...rest}
+        connected={connected}
+        onClick={handleClick}
+        iconType={ecosystem.logo}
+      >
+        {connected && address ? (
+          shortenAddress(address)
+        ) : (
+          <>
+            <EuiShowFor sizes={["xs"]}>Connect</EuiShowFor>
+            <EuiHideFor sizes={["xs"]}>
+              Connect {ecosystem.displayName}
+            </EuiHideFor>
+          </>
+        )}
+      </PlainConnectButton>
+      {isModalVisible && (
+        <SingleWalletModal
+          currentService={selectedServiceByProtocol[protocol]}
+          protocol={protocol}
+          services={WALLET_SERVICES[ecosystemId]}
+          handleClose={closeModal}
+        />
       )}
-    </PlainConnectButton>
+    </>
   );
 };
 
@@ -70,43 +95,36 @@ export const MultiConnectButton = ({
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const closeModal = (): void => setIsWalletModalOpen(false);
   const openModal = (): void => setIsWalletModalOpen(true);
-
-  const {
-    solana: { connected: isSolanaConnected, service: solanaService },
-    ethereum: { connected: isEthereumConnected, service: ethereumService },
-    bsc: { connected: isBscConnected, service: bscService },
-    avalanche: { connected: isAvalancheConnected, service: avalanceService },
-    polygon: { connected: isPolygonConnected, service: polygonService },
-    aurora: { connected: isAuroraConnected, service: auroraService },
-    fantom: { connected: isFantomConnected, service: fantomService },
-    karura: { connected: isKaruraConnected, service: karuraService },
-    acala: { connected: isAcalaConnected, service: acalaService },
-  } = useWallets();
-  const connectedServices = [
-    isSolanaConnected ? solanaService : null,
-    isEthereumConnected ? ethereumService : null,
-    isBscConnected ? bscService : null,
-    isAvalancheConnected ? avalanceService : null,
-    isPolygonConnected ? polygonService : null,
-    isAuroraConnected ? auroraService : null,
-    isFantomConnected ? fantomService : null,
-    isKaruraConnected ? karuraService : null,
-    isAcalaConnected ? acalaService : null,
-  ].filter(isNotNull);
-
-  const uniqueServices = deduplicate<string, WalletService>(
-    (walletService) => walletService.id,
-    connectedServices,
+  const selectedServiceByProtocol = useWalletAdapter(
+    selectSelectedServiceByProtocol,
   );
-  const nConnected = uniqueServices.length;
+  const evm = useEvmWallet();
+  const solana = useSolanaWallet();
+
+  const connectedWalletServiceIds: ReadonlyArray<WalletServiceId> = deduplicate<
+    WalletServiceId,
+    WalletServiceId
+  >(
+    (walletServiceId) => walletServiceId,
+    [
+      evm.connected ? selectedServiceByProtocol[Protocol.Evm] : null,
+      solana.connected ? selectedServiceByProtocol[Protocol.Solana] : null,
+    ].filter(isNotNull),
+  );
+
+  const connectedServices = connectedWalletServiceIds.map(
+    (walletServiceId) => walletServiceInfo[walletServiceId],
+  );
+
+  const nConnected = connectedServices.length;
 
   const label =
     nConnected > 0 ? (
       <>
-        {uniqueServices.map((walletService) => (
+        {connectedServices.map((walletService) => (
           <EuiIcon
-            key={walletService.id}
-            type={walletService.info.icon}
+            key={walletService.name}
+            type={walletService.icon}
             size="l"
           />
         ))}

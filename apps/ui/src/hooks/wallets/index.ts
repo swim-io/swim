@@ -1,2 +1,2 @@
-export * from "./useWalletsMonitor";
 export * from "./useWalletService";
+export * from "./useWalletAutoConnect";

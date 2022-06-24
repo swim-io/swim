@@ -9,9 +9,10 @@ interface Props {
 }
 
 const getHref = (ecosystemId: EcosystemId, txId: string): string => {
+  // TODO: Support different environments (devnet).
   switch (ecosystemId) {
     case EcosystemId.Solana:
-      return `https://explorer.solana.com/tx/${txId}`;
+      return `https://solana.fm/tx/${txId}`;
     case EcosystemId.Ethereum:
       return `https://etherscan.io/tx/${txId}`;
     case EcosystemId.Bsc:

@@ -5,6 +5,7 @@ import { EcosystemId, Protocol } from "./ecosystem";
 import { Env } from "./env";
 
 const SOLANA_MAINNET_RPC_URL = process.env.REACT_APP_SOLANA_MAINNET_RPC_URL;
+const SOLANA_MAINNET_WS_URL = process.env.REACT_APP_SOLANA_MAINNET_WS_URL;
 
 /** Adapted from @solana/spl-token-registry ENV */
 export const enum SolanaChainId {
@@ -85,6 +86,7 @@ export interface SolanaSpec extends ChainSpec {
   /** This should be unique for a given Env */
   readonly chainId: SolanaChainId;
   readonly endpoint: string;
+  readonly wsEndpoint: string;
   readonly tokenContract: string;
   readonly otterTotCollection: string;
 }
@@ -168,6 +170,7 @@ const mainnetChains: ChainsByProtocol = {
         tokenBridge: "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb",
       },
       endpoint: SOLANA_MAINNET_RPC_URL ?? "https://solana-api.projectserum.com",
+      wsEndpoint: SOLANA_MAINNET_WS_URL ?? "",
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
       otterTotCollection: "EpozLY9dQ1jnaU5Wof524K7p9uHYxkuLF2hi32cf8W9s",
     },
@@ -274,6 +277,7 @@ const devnetChains: ChainsByProtocol = {
         tokenBridge: "DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe",
       },
       endpoint: "https://api.devnet.solana.com",
+      wsEndpoint: "",
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
       otterTotCollection: "6rVZuenNaw3uECQjMjTLcfrXYKszpESEGi9HZnffJstn",
     },
@@ -380,6 +384,7 @@ const localnetChains: ChainsByProtocol = {
         tokenBridge: "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE",
       },
       endpoint: "http://127.0.0.1:8899",
+      wsEndpoint: "",
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
       otterTotCollection: "", // TODO: Deploy on localnet
     },

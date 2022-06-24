@@ -69,11 +69,12 @@ export class SolanaConnection {
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
 
-  constructor(endpoint: string) {
+  constructor(endpoint: string, wsEndpoint: string) {
     this.rawConnection = new CustomConnection(endpoint, {
       commitment: DEFAULT_COMMITMENT_LEVEL,
       confirmTransactionInitialTimeout: 60 * 1000,
       disableRetryOnRateLimit: true,
+      wsEndpoint: wsEndpoint,
     });
     this.getAccountInfo = this.rawConnection.getAccountInfo.bind(
       this.rawConnection,
@@ -110,7 +111,14 @@ export class SolanaConnection {
   ): Promise<RpcResponseAndContext<SignatureResult>> {
     let remainingAttempts = maxRetries;
     let lastError = null;
-
+    // confirmTransaction() always fails if the signature is processed,
+    // call getSignature() beforehand to circumvent.
+    // TODO: Remove signature code once issue is addressed.
+    // https://github.com/solana-labs/solana/issues/25955
+    const signatureStatus = await this.getSigStatusToSigResult(txId);
+    if (signatureStatus) {
+      return signatureStatus;
+    }
     while (remainingAttempts >= 0) {
       try {
         // If the Solana network is busy this can time out
@@ -315,5 +323,27 @@ export class SolanaConnection {
     throw new Error(
       "Successfully created SPL token account but failed to fetch it",
     );
+  }
+
+  // Looks for a signature, only returns a value if there's no error
+  // or value
+  async getSigStatusToSigResult(
+    txId: string,
+  ): Promise<RpcResponseAndContext<SignatureResult> | null> {
+    try {
+      const { context, value } = await this.rawConnection.getSignatureStatus(
+        txId,
+        { searchTransactionHistory: true },
+      );
+      if (!value) {
+        return null;
+      }
+      return {
+        context,
+        value,
+      };
+    } catch {
+      return null;
+    }
   }
 }

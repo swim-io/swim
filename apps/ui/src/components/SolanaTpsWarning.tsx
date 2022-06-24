@@ -6,7 +6,7 @@ import shallow from "zustand/shallow.js";
 
 import { Protocol } from "../config";
 import { selectConfig } from "../core/selectors";
-import { useEnvironment } from "../core/store";
+import { Env, useEnvironment } from "../core/store";
 
 const INTERVAL_FREQUENCY_MS = 60000; // 1 minute.
 const SAMPLES_LIMIT = 5;
@@ -14,6 +14,7 @@ const SAMPLES_LIMIT = 5;
 export const SolanaTpsWarning = (): ReactElement => {
   // Assume Solana TPS healthy.
   const [tps, setTps] = useState<number>(2000);
+  const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
   const [chain] = chains[Protocol.Solana];
   const { endpoint } = chain;
@@ -55,7 +56,8 @@ export const SolanaTpsWarning = (): ReactElement => {
     };
   }, [checkSolanaTps]);
 
-  if (tps >= 1500) {
+  // Don't show for non-mainnet environments.
+  if (env !== Env.Mainnet || tps >= 1500) {
     return <></>;
   }
   return tps === 0 ? (

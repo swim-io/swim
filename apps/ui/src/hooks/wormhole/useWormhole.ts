@@ -3,12 +3,11 @@ import shallow from "zustand/shallow.js";
 
 import type { TokenDetails, TokenSpec } from "../../config";
 import { EcosystemId, ecosystems } from "../../config";
-import { useSolanaWallet } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { Amount, generateId } from "../../models";
 import { useTokensByEcosystem, useUserNativeBalances } from "../crossEcosystem";
-import { useSplTokenAccountsQuery } from "../solana";
+import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 
 import { useTransferEvmTokenToSolanaMutation } from "./useTransferEvmTokenToSolanaMutation";
 import { useTransferSplTokenToEvmMutation } from "./useTransferSplTokenToEvmMutation";

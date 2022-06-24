@@ -4,8 +4,10 @@ import { useQueries } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
 import { isEcosystemEnabled } from "../../config";
-import { useEvmConnection, useEvmWallet } from "../../contexts";
+import { useEvmConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
+
+import { useEvmWallet } from "./useEvmWallet";
 
 export const useErc20BalancesQuery = (
   ecosystemId: EvmEcosystemId,
@@ -13,7 +15,7 @@ export const useErc20BalancesQuery = (
 ): readonly UseQueryResult<Decimal | null, Error>[] => {
   const { env } = useEnvironment();
   const connection = useEvmConnection(ecosystemId);
-  const { address: walletAddress } = useEvmWallet(ecosystemId);
+  const { address: walletAddress } = useEvmWallet();
 
   return useQueries(
     contractAddresses.map((contractAddress) => ({

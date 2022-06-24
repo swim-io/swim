@@ -7,7 +7,7 @@ import "./App.scss";
 import { AppCrashed, NewVersionAlert } from "./components/AppCrashed";
 import { Layout } from "./components/Layout";
 import Notification from "./components/Notification";
-import WalletsMonitor from "./components/WalletsMonitor";
+import WalletAutoConnect from "./components/WalletAutoConnect";
 import { AppContext } from "./contexts";
 import CollectiblesPage from "./pages/CollectiblesPage";
 import HelpPage from "./pages/HelpPage";
@@ -103,7 +103,7 @@ function App(): ReactElement {
         </AppContext>
       </Router>
       <Notification />
-      <WalletsMonitor />
+      <WalletAutoConnect />
     </Sentry.ErrorBoundary>
   );
 }

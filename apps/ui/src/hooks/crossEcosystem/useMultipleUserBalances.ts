@@ -3,11 +3,10 @@ import type { UseQueryResult } from "react-query";
 
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
-import { useSolanaWallet } from "../../contexts";
 import { Amount, findTokenAccountForMint } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 import { useErc20BalancesQuery } from "../evm";
-import { useSplTokenAccountsQuery } from "../solana";
+import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 
 const getContractAddressesByEcosystem = (
   tokenSpecs: readonly TokenSpec[],

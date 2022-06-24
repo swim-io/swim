@@ -22,7 +22,7 @@ export interface EvmWalletAdapter extends EventEmitter {
   readonly signer: Signer | null;
   readonly address: string | null;
   readonly connected: boolean;
-  readonly connect: () => Promise<unknown>;
+  readonly connect: (args?: any) => Promise<unknown>;
   readonly disconnect: () => Promise<void>;
   readonly switchNetwork: (chainId: EvmChainId) => Promise<unknown>;
   readonly registerToken: (
@@ -30,6 +30,8 @@ export interface EvmWalletAdapter extends EventEmitter {
     ecosystemId: EcosystemId,
     chainId: EvmChainId,
   ) => Promise<unknown>;
+  readonly isUnlocked: () => Promise<boolean>;
+  readonly hasConnectedBefore: () => Promise<boolean>;
   readonly protocol: Protocol.Evm;
 }
 
@@ -41,6 +43,7 @@ export class EvmWeb3WalletAdapter
   readonly serviceUrl: string;
   readonly protocol: Protocol.Evm;
   address: string | null;
+  readonly isUnlocked: () => Promise<boolean>;
   private readonly getWalletProvider: () => Web3Provider | null;
   private connecting: boolean;
 
@@ -48,11 +51,13 @@ export class EvmWeb3WalletAdapter
     serviceName: string,
     serviceUrl: string,
     getWalletProvider: () => Web3Provider | null,
+    isUnlocked: () => Promise<boolean> = () => Promise.resolve(false),
   ) {
     super();
     this.serviceName = serviceName;
     this.serviceUrl = serviceUrl;
     this.getWalletProvider = getWalletProvider;
+    this.isUnlocked = isUnlocked;
     this.address = null;
     this.connecting = false;
     this.protocol = Protocol.Evm;
@@ -68,6 +73,16 @@ export class EvmWeb3WalletAdapter
 
   private get walletProvider(): Web3Provider | null {
     return this.getWalletProvider();
+  }
+
+  public async hasConnectedBefore(): Promise<boolean> {
+    const provider = this.getWalletProvider();
+    if (!provider) return false;
+    try {
+      return (await provider.send("eth_accounts", [])).length > 0;
+    } catch {
+      return false;
+    }
   }
 
   async connect(): Promise<void> {

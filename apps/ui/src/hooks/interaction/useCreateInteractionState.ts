@@ -101,6 +101,7 @@ export const createToSolanaTransfers = (
     return {
       token: fromToken,
       value: amount.toHuman(fromEcosystem),
+      signatureSetAddress: null,
       txIds: {
         approveAndTransferEvmToken: [],
         postVaaOnSolana: [],

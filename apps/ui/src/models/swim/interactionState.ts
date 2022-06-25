@@ -34,6 +34,7 @@ export type RequiredSplTokenAccounts = ReadonlyRecord<
 export interface ToSolanaTransferState {
   readonly token: TokenSpec;
   readonly value: Decimal;
+  readonly signatureSetAddress: string | null;
   readonly txIds: {
     readonly approveAndTransferEvmToken: readonly EvmTx["txId"][];
     readonly postVaaOnSolana: readonly SolanaTx["txId"][];

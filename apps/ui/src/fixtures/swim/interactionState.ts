@@ -55,6 +55,7 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
     {
       token: BNB_USDT,
       value: new Decimal(1001),
+      signatureSetAddress: null,
       txIds: {
         approveAndTransferEvmToken: [],
         postVaaOnSolana: [],
@@ -148,6 +149,7 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
         id: "localnet-bnb-usdt",
       },
       value: "1001",
+      signatureSetAddress: null,
       txIds: {
         approveAndTransferEvmToken: [],
         postVaaOnSolana: [],

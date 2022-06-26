@@ -61,7 +61,7 @@ module.exports = {
           ? "static/js/[name].[hash].js"
           : "static/js/[name].[chunkhash].js";
 
-      // add polufills that are not included in webpack 5
+      // add polyfills that are not included in webpack 5
       webpackConfig = {
         ...webpackConfig,
         ignoreWarnings: [/Failed to parse source map/],

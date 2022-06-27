@@ -3981,7 +3981,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@project-serum/borsh@npm:^0.2.2, @project-serum/borsh@npm:^0.2.3, @project-serum/borsh@npm:^0.2.5":
+"@project-serum/borsh@npm:^0.2.3, @project-serum/borsh@npm:^0.2.5":
   version: 0.2.5
   resolution: "@project-serum/borsh@npm:0.2.5"
   dependencies:
@@ -6007,7 +6007,7 @@ __metadata:
     "@ledgerhq/hw-transport-webusb": ^6.0.2
     "@metaplex/js": ^4.12.0
     "@project-serum/anchor": ^0.24.2
-    "@project-serum/borsh": ^0.2.2
+    "@project-serum/borsh": ^0.2.5
     "@project-serum/sol-wallet-adapter": ^0.2.4
     "@sayari/eslint-plugin": ^0.0.1-rc.4
     "@sentry/react": ^7.3.0

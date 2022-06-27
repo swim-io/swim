@@ -6045,7 +6045,7 @@ __metadata:
     prettier: ^2.7.1
     react: ^17.0.2
     react-dom: ^17.0.2
-    react-query: 3.25.1
+    react-query: ^3.39.1
     react-responsive-carousel: ^3.2.23
     react-router-dom: ^6.3.0
     react-scripts: 4.0.3
@@ -21751,21 +21751,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-query@npm:3.25.1":
-  version: 3.25.1
-  resolution: "react-query@npm:3.25.1"
+"react-query@npm:^3.39.1":
+  version: 3.39.1
+  resolution: "react-query@npm:3.39.1"
   dependencies:
     "@babel/runtime": ^7.5.5
     broadcast-channel: ^3.4.1
     match-sorter: ^6.0.2
   peerDependencies:
-    react: ^16.8.0 || ^17.0.0
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
   peerDependenciesMeta:
     react-dom:
       optional: true
     react-native:
       optional: true
-  checksum: eb32e7421b2fcb7ab58f9695c8bde715adbb7fb493249a12814352772fd233c8dbc8f522adb588a493c6352e3800a5688bfddb8921c872a1f9f377f9f8fad33c
+  checksum: 9273b7c2adf4a78152d3c0b0ac44cfabacc867d5e8e4ad66e6aaccd8a2bd10c5a836c4d3b462e5f083f273998e1c3dd01ed5d126b7508bcfd615eb5aba419b3b
   languageName: node
   linkType: hard
 

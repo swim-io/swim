@@ -1,6 +1,6 @@
 import BN from "bn.js";
 
-import type {DecimalBN as DecimalBorsh } from "./from_ui/decimal";
+import type { DecimalBN as DecimalBorsh } from "./from_ui/decimal";
 
 import { Decimal, Timestamp } from "./common";
 import {
@@ -17,7 +17,9 @@ export namespace FromPool {
   }
 
   export function decimal(poolDecimal: DecimalBorsh): Decimal {
-    return new Decimal(poolDecimal.value.toString()).div(new Decimal(10).pow(poolDecimal.decimals));
+    return new Decimal(poolDecimal.value.toString()).div(
+      new Decimal(10).pow(poolDecimal.decimals),
+    );
   }
 
   export function fee(fee: number): Decimal {
@@ -27,7 +29,7 @@ export namespace FromPool {
 }
 
 export namespace ToPool {
-  export function time(ts: Timestamp) : BN {
+  export function time(ts: Timestamp): BN {
     return new BN(ts);
   }
 
@@ -38,20 +40,24 @@ export namespace ToPool {
     const decimals = decVal.decimalPlaces();
     const value = new BN(decVal.mul(new Decimal(10).pow(decimals)).toString());
 
-    if (decimals > POOL_DECIMAL_MAX_DECIMALS || value.bitLength() > POOL_DECIMAL_MAX_BITS)
+    if (
+      decimals > POOL_DECIMAL_MAX_DECIMALS ||
+      value.bitLength() > POOL_DECIMAL_MAX_BITS
+    )
       throw new Error(`Can't convert ${decimal} to pool U64 type`);
 
-    return {value, decimals};
+    return { value, decimals };
   }
 
   export function tokenValue(decVal: Decimal, decimals: number): BN {
     if (decVal.isNegative())
       throw new Error(`value must be positive ${decVal}`);
 
-    const value = new BN(decVal.mul(new Decimal(10).pow(decimals)).round().toString());
+    const value = new BN(
+      decVal.mul(new Decimal(10).pow(decimals)).round().toString(),
+    );
 
-    if (value.bitLength() > 64)
-      throw new Error(`must fit in 64 bits ${value}`);
+    if (value.bitLength() > 64) throw new Error(`must fit in 64 bits ${value}`);
 
     return value;
   }
@@ -65,6 +71,6 @@ export namespace ToPool {
 
     const value = new BN(decVal.mul(new Decimal(10).pow(decimals)).toString());
 
-    return {value, decimals};
+    return { value, decimals };
   }
 }

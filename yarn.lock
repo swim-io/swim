@@ -5870,7 +5870,7 @@ __metadata:
     "@types/bs58": ^4.0.1
     bs58: ^4.0.1
     decimal.js: ^10.3.1
-    prettier: ^2.6.1
+    prettier: ^2.7.1
     typescript: ^4.6.3
   languageName: unknown
   linkType: soft
@@ -5900,7 +5900,7 @@ __metadata:
     eslint-plugin-jest: ^26.4.6
     eslint-plugin-prettier: ^4.0.0
     jest: ^28.1.1
-    prettier: ^2.6.1
+    prettier: ^2.7.1
     ts-jest: ^28.0.5
     typescript: ^4.6.3
   languageName: unknown
@@ -5917,7 +5917,7 @@ __metadata:
     "@types/bs58": ^4.0.1
     bs58: ^4.0.1
     decimal.js: ^10.3.1
-    prettier: ^2.6.1
+    prettier: ^2.7.1
     typescript: ^4.6.3
   languageName: unknown
   linkType: soft
@@ -5933,7 +5933,7 @@ __metadata:
     "@types/bs58": ^4.0.1
     bs58: ^4.0.1
     decimal.js: ^10.3.1
-    prettier: ^2.6.1
+    prettier: ^2.7.1
     typescript: ^4.6.3
   languageName: unknown
   linkType: soft
@@ -5954,7 +5954,7 @@ __metadata:
     "@types/bs58": ^4.0.1
     bs58: ^4.0.1
     decimal.js: ^10.3.1
-    prettier: ^2.6.1
+    prettier: ^2.7.1
     typescript: ^4.6.3
   languageName: unknown
   linkType: soft
@@ -5969,7 +5969,7 @@ __metadata:
     "@swim-io/pool-math": "workspace:^"
     "@types/bn.js": ^5.1.0
     bn.js: ^5.2.0
-    prettier: ^2.6.1
+    prettier: ^2.7.1
     typescript: ^4.6.3
   peerDependencies:
     "@solana/web3.js": ^1
@@ -6042,7 +6042,7 @@ __metadata:
     moment: ^2.29.1
     moralis: ^1.3.5
     node-sass: ^6
-    prettier: ^2.3.2
+    prettier: ^2.7.1
     react: ^17.0.2
     react-dom: ^17.0.2
     react-query: 3.25.1
@@ -20946,12 +20946,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.1.2, prettier@npm:^2.3.2, prettier@npm:^2.6.1":
+"prettier@npm:^2.1.2":
   version: 2.6.2
   resolution: "prettier@npm:2.6.2"
   bin:
     prettier: bin-prettier.js
   checksum: 48d08dde8e9fb1f5bccdd205baa7f192e9fc8bc98f86e1b97d919de804e28c806b0e6cc685e4a88211aa7987fa9668f30baae19580d87ced3ed0f2ec6572106f
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^2.7.1":
+  version: 2.7.1
+  resolution: "prettier@npm:2.7.1"
+  bin:
+    prettier: bin-prettier.js
+  checksum: 55a4409182260866ab31284d929b3cb961e5fdb91fe0d2e099dac92eaecec890f36e524b4c19e6ceae839c99c6d7195817579cdffc8e2c80da0cb794463a748b
   languageName: node
   linkType: hard
 

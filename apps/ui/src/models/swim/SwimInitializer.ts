@@ -22,9 +22,9 @@ import {
 } from "../solana";
 import type { SolanaWalletAdapter } from "../wallets";
 
-import type { DecimalBN } from "@swim-io/pool-utils";
+import type { DecimalBN } from "@swim-io/solana-types";
 import { SwimInstruction, initInstruction } from "./instructions";
-import { swimPool } from "@swim-io/pool-state";
+import { swimPool } from "@swim-io/solana-types";
 
 export class SwimInitializer {
   solanaConnection: SolanaConnection;

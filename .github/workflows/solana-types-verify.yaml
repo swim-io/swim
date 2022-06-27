@@ -1,9 +1,9 @@
-name: "Verify pool-state build"
+name: "Verify solana-types build"
 on:
   pull_request:
     paths:
-      - "packages/pool-state/**.ts"
-      - "packages/pool-state/**.json"
+      - "packages/solana-types/**.ts"
+      - "packages/solana-types/**.json"
   push:
     branches:
       - master
@@ -14,7 +14,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./packages/pool-state
+        working-directory: ./packages/solana-types
 
     steps:
       - uses: actions/checkout@v2

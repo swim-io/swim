@@ -12,9 +12,10 @@ import {
   u8,
 } from "@project-serum/borsh";
 import type { PublicKey } from "@solana/web3.js";
-import type { AmpFactor } from "@swim-io/pool-utils";
-import { ampFactor } from "@swim-io/pool-utils";
 import type BN from "bn.js";
+
+import type { AmpFactor } from "./ampFactor";
+import { ampFactor } from "./ampFactor";
 
 export interface SwimPoolState {
   readonly nonce: number;

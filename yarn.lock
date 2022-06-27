@@ -6172,58 +6172,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/pool-state@workspace:^, @swim-io/pool-state@workspace:packages/pool-state":
-  version: 0.0.0-use.local
-  resolution: "@swim-io/pool-state@workspace:packages/pool-state"
-  dependencies:
-    "@project-serum/borsh": ^0.2.5
-    "@solana/web3.js": ^1.44.2
-    "@swim-io/pool-utils": "workspace:^"
-    "@types/bn.js": ^5.1.0
-    "@types/jest": ^28.1.3
-    "@typescript-eslint/eslint-plugin": ^5.29.0
-    "@typescript-eslint/parser": ^5.29.0
-    bn.js: ^5.2.1
-    buffer: ^6.0.3
-    eslint: ^8.18.0
-    eslint-config-prettier: ^8.5.0
-    eslint-plugin-deprecation: ^1.3.2
-    eslint-plugin-functional: ^4.2.1
-    eslint-plugin-import: ^2.26.0
-    eslint-plugin-jest: ^26.5.3
-    eslint-plugin-prettier: ^4.0.0
-    jest: ^28.1.1
-    prettier: ^2.7.1
-    ts-jest: ^28.0.5
-    typescript: ^4.7.4
-  languageName: unknown
-  linkType: soft
-
-"@swim-io/pool-utils@workspace:^, @swim-io/pool-utils@workspace:packages/pool-utils":
-  version: 0.0.0-use.local
-  resolution: "@swim-io/pool-utils@workspace:packages/pool-utils"
-  dependencies:
-    "@project-serum/borsh": ^0.2.5
-    "@solana/web3.js": ^1.44.2
-    "@types/bn.js": ^5.1.0
-    "@types/jest": ^28.1.3
-    "@typescript-eslint/eslint-plugin": ^5.29.0
-    "@typescript-eslint/parser": ^5.29.0
-    bn.js: ^5.2.1
-    eslint: ^8.18.0
-    eslint-config-prettier: ^8.5.0
-    eslint-plugin-deprecation: ^1.3.2
-    eslint-plugin-functional: ^4.2.1
-    eslint-plugin-import: ^2.26.0
-    eslint-plugin-jest: ^26.5.3
-    eslint-plugin-prettier: ^4.0.0
-    jest: ^28.1.1
-    prettier: ^2.7.1
-    ts-jest: ^28.0.5
-    typescript: ^4.7.4
-  languageName: unknown
-  linkType: soft
-
 "@swim-io/quarry-deployment@workspace:apps/quarry-deployment":
   version: 0.0.0-use.local
   resolution: "@swim-io/quarry-deployment@workspace:apps/quarry-deployment"
@@ -6321,12 +6269,7 @@ __metadata:
     "@storybook/react": ^6.5.2
     "@storybook/testing-library": ^0.0.11
     "@swim-io/pool-math": ^0.1.1
-<<<<<<< HEAD
     "@swim-io/solana-types": "workspace:^"
-=======
-    "@swim-io/pool-state": "workspace:^"
-    "@swim-io/pool-utils": "workspace:^"
->>>>>>> e87618c70983c56070274409d42bcf3a5db148f9
     "@testing-library/jest-dom": ^5.11.4
     "@testing-library/react": ^11.1.0
     "@testing-library/react-hooks": ^7.0.2
@@ -17508,23 +17451,6 @@ __metadata:
     slash: ^3.0.0
     stack-utils: ^2.0.3
   checksum: a224f9dbb53b5ad857918938f94c6e5d9c64ccdd42e0780b3b485d66bd93c82cff7dd91fbe274273efb69533d79808f9c98622b23d70ec027e8619a20e283773
-  languageName: node
-  linkType: hard
-
-"jest-message-util@npm:^28.1.1":
-  version: 28.1.1
-  resolution: "jest-message-util@npm:28.1.1"
-  dependencies:
-    "@babel/code-frame": ^7.12.13
-    "@jest/types": ^28.1.1
-    "@types/stack-utils": ^2.0.0
-    chalk: ^4.0.0
-    graceful-fs: ^4.2.9
-    micromatch: ^4.0.4
-    pretty-format: ^28.1.1
-    slash: ^3.0.0
-    stack-utils: ^2.0.3
-  checksum: cca23b9a0103c8fb7006a6d21e67a204fcac4289e1a3961450a4a1ad62eb37087c2a19a26337d3c0ea9f82c030a80dda79ac8ec34a18bf3fd5eca3fd55bef957
   languageName: node
   linkType: hard
 

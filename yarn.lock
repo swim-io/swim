@@ -1696,21 +1696,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@certusone/wormhole-sdk@npm:^0.2.6":
-  version: 0.2.7
-  resolution: "@certusone/wormhole-sdk@npm:0.2.7"
+"@certusone/wormhole-sdk@npm:^0.4.5":
+  version: 0.4.5
+  resolution: "@certusone/wormhole-sdk@npm:0.4.5"
   dependencies:
     "@improbable-eng/grpc-web": ^0.14.0
     "@solana/spl-token": ^0.1.8
     "@solana/web3.js": ^1.24.0
-    "@terra-money/terra.js": ^3.0.7
+    "@terra-money/terra.js": ^3.1.3
     algosdk: ^1.15.0
     axios: ^0.24.0
     bech32: ^2.0.0
     js-base64: ^3.6.1
     protobufjs: ^6.11.2
     rxjs: ^7.3.0
-  checksum: 499646ebd3fc011fba917444d9b9b87d31e02f96d95a9e53b04b60bc30caab97b512527a83f0751307a4544f3691d1c9d406dc3539c202d9cdd7b1c9dcdfdce8
+  checksum: f5a41465809f1deac480dfe5f8f5b0d52b9cec315f7e8718c04f7b152c9f6217a062451efed2fc6919215177e161f758b91512fc01a882711914f78e8c7e5cba
   languageName: node
   linkType: hard
 
@@ -5975,7 +5975,7 @@ __metadata:
   resolution: "@swim-io/ui@workspace:apps/ui"
   dependencies:
     "@babel/plugin-proposal-nullish-coalescing-operator": ^7.17.12
-    "@certusone/wormhole-sdk": ^0.2.6
+    "@certusone/wormhole-sdk": ^0.4.5
     "@craco/craco": ^6.4.3
     "@elastic/datemath": ^5.0.3
     "@elastic/eui": ^38.2.0
@@ -6061,12 +6061,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terra-money/terra.js@npm:^3.0.7":
-  version: 3.1.0
-  resolution: "@terra-money/terra.js@npm:3.1.0"
+"@terra-money/terra.js@npm:^3.1.3":
+  version: 3.1.3
+  resolution: "@terra-money/terra.js@npm:3.1.3"
   dependencies:
     "@terra-money/legacy.proto": "npm:@terra-money/terra.proto@^0.1.7"
-    "@terra-money/terra.proto": ^0.2.0-beta.4
+    "@terra-money/terra.proto": ~2.0.0
     axios: ^0.26.1
     bech32: ^2.0.0
     bip32: ^2.0.6
@@ -6079,19 +6079,19 @@ __metadata:
     tmp: ^0.2.1
     utf-8-validate: ^5.0.5
     ws: ^7.5.5
-  checksum: acc0414b39b5acb8f9fc93166f5cd4771fae4cf25a6b7ef61bbf791bf34b53302689ba7f8365f4ef36402778bac5daa301ac4b927f7598d5c9e0d16a2f8b5070
+  checksum: 9337a5cad9a2d9c858cec8dcd6bb7af6fa8129c174157edcbe67d075bf46163f90e4061c0c64fb0caba2b416f2492442cc136627ebaf41e62ee54ef3639980eb
   languageName: node
   linkType: hard
 
-"@terra-money/terra.proto@npm:^0.2.0-beta.4":
-  version: 0.2.0-beta.4
-  resolution: "@terra-money/terra.proto@npm:0.2.0-beta.4"
+"@terra-money/terra.proto@npm:~2.0.0":
+  version: 2.0.0
+  resolution: "@terra-money/terra.proto@npm:2.0.0"
   dependencies:
     "@improbable-eng/grpc-web": ^0.14.1
     google-protobuf: ^3.17.3
     long: ^4.0.0
     protobufjs: ~6.11.2
-  checksum: 37c42e29c846531f64f595a076378d415964f72181110f63b3cab72746c963706d64d71997af5a1eae28ce41a8e6c9f431c0d3597387cb48b91976836683ab1f
+  checksum: 6bd13988f6581aa96534ed1440784d3189ac82a0baab7d0244b9abe580ebf9caa552f6814d9d11a6d05fc9eb14ec9fefdbf8749f8e821b06105e35509e65dc56
   languageName: node
   linkType: hard
 

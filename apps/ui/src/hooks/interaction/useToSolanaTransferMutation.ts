@@ -136,12 +136,40 @@ export const useToSolanaTransferMutation = () => {
       transferTxIds = [...transferTxIds, transferTx.txId];
     }
 
+    const sequences = await Promise.all(
+      toSolanaTransfers.map(async (transfer, index) => {
+        // Claim token completed, skip
+        if (transfer.txIds.claimTokenOnSolana !== null) {
+          return null;
+        }
+        const transferTxId = transferTxIds[index];
+        const fromEcosystem = getFromEcosystemOfToSolanaTransfer(
+          transfer,
+          interaction,
+        );
+        const evmChain = findOrThrow(
+          chains[Protocol.Evm],
+          ({ ecosystem }) => ecosystem === fromEcosystem,
+        );
+        const evmConnection = evmConnections[fromEcosystem];
+        const transferResponse = await evmConnection.provider.getTransaction(
+          transferTxId,
+        );
+        const transferTx = await txResponseToTx(
+          interactionId,
+          fromEcosystem,
+          evmConnection,
+          transferResponse,
+        );
+
+        return parseSequenceFromLogEth(
+          transferTx.txReceipt,
+          evmChain.wormhole.bridge,
+        );
+      }),
+    );
+
     for (const [index, transfer] of toSolanaTransfers.entries()) {
-      // Claim token completed, skip
-      if (transfer.txIds.claimTokenOnSolana !== null) {
-        continue;
-      }
-      const transferTxId = transferTxIds[index];
       const fromEcosystem = getFromEcosystemOfToSolanaTransfer(
         transfer,
         interaction,
@@ -150,21 +178,11 @@ export const useToSolanaTransferMutation = () => {
         chains[Protocol.Evm],
         ({ ecosystem }) => ecosystem === fromEcosystem,
       );
-      const evmConnection = evmConnections[fromEcosystem];
-      const transferResponse = await evmConnection.provider.getTransaction(
-        transferTxId,
-      );
-      const transferTx = await txResponseToTx(
-        interactionId,
-        fromEcosystem,
-        evmConnection,
-        transferResponse,
-      );
-
-      const sequence = parseSequenceFromLogEth(
-        transferTx.txReceipt,
-        evmChain.wormhole.bridge,
-      );
+      const sequence = sequences[index];
+      // Claim token completed, skip
+      if (sequence === null) {
+        continue;
+      }
 
       const unlockSplTokenTxIdsGenerator = generateUnlockSplTokenTxIds(
         interactionId,

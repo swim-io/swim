@@ -2,9 +2,11 @@ import {
   getEmitterAddressSolana,
   getSignedVAAWithRetry,
 } from "@certusone/wormhole-sdk";
+import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { Transaction } from "@solana/web3.js";
 import { useMutation } from "react-query";
 
+import type { Config } from "../../config";
 import {
   EcosystemId,
   Protocol,
@@ -15,23 +17,63 @@ import {
 import { useEvmConnections, useSolanaConnection } from "../../contexts";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
+import type { InteractionState, SolanaConnection, Tx } from "../../models";
 import {
   Amount,
   evmAddressToWormhole,
   findTokenAccountForMint,
+  getTokensByPool,
+  getTransferredAmounts,
   parseSequenceFromLogSolana,
   redeemOnEth,
   transferFromSolana,
 } from "../../models";
 import { getToEcosystemOfFromSolanaTransfer } from "../../models/swim/transfer";
 import { DEFAULT_WORMHOLE_RETRIES } from "../../models/wormhole/constants";
-import { findOrThrow } from "../../utils";
+import { findOrThrow, isEachNotNull } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 
+const getTransferredAmountsByTokenId = async (
+  interactionState: InteractionState,
+  txIds: readonly string[],
+  solanaConnection: SolanaConnection,
+  solanaWalletAddress: string,
+  splTokenAccounts: readonly TokenAccount[],
+  config: Config,
+) => {
+  const tokensByPoolId = getTokensByPool(config);
+  const { interaction, solanaPoolOperations } = interactionState;
+  const outputOperation = solanaPoolOperations[solanaPoolOperations.length - 1];
+  const {
+    operation: { poolId },
+  } = outputOperation;
+  const { tokens, lpToken } = tokensByPoolId[poolId];
+  const txs: readonly Tx[] = await Promise.all(
+    txIds.map(async (txId) => {
+      const parsedTx = await solanaConnection.getParsedTx(txId);
+      return {
+        ecosystem: EcosystemId.Solana as const,
+        txId,
+        timestamp: parsedTx.blockTime ?? null,
+        interactionId: interaction.id,
+        parsedTx,
+      };
+    }),
+  );
+  return getTransferredAmounts(
+    solanaWalletAddress,
+    splTokenAccounts,
+    tokens,
+    lpToken,
+    txs,
+  );
+};
+
 export const useFromSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
-  const { chains, wormhole } = useEnvironment(selectConfig);
+  const config = useEnvironment(selectConfig);
+  const { chains, wormhole } = config;
   const evmConnections = useEvmConnections();
   const solanaConnection = useSolanaConnection();
   const wallets = useWallets();
@@ -55,13 +97,28 @@ export const useFromSolanaTransferMutation = () => {
       throw new Error("No Solana wallet address");
     }
 
+    const poolOperationTxIds = interactionState.solanaPoolOperations.map(
+      ({ txId }) => txId,
+    );
+    if (!isEachNotNull(poolOperationTxIds)) {
+      throw new Error("Incomplete pool operations");
+    }
+    const transferredAmounts = await getTransferredAmountsByTokenId(
+      interactionState,
+      poolOperationTxIds,
+      solanaConnection,
+      solanaWalletAddress,
+      splTokenAccounts,
+      config,
+    );
+
     let transferSplTokenTxIds: readonly string[] = [];
     for (const [index, transfer] of fromSolanaTransfers.entries()) {
       const toEcosystem = getToEcosystemOfFromSolanaTransfer(
         transfer,
         interaction,
       );
-      const { token, value, txIds } = transfer;
+      const { token, txIds } = transfer;
       // Transfer already completed, skip
       if (txIds.transferSplToken !== null) {
         transferSplTokenTxIds = [
@@ -70,7 +127,13 @@ export const useFromSolanaTransferMutation = () => {
         ];
         continue;
       }
-      if (value === null) {
+
+      const value =
+        transfer.value ??
+        transferredAmounts[transfer.token.id]?.toHuman(
+          transfer.token.nativeEcosystem,
+        );
+      if (!value) {
         throw new Error("Unknown transfer amount");
       }
       const amount = Amount.fromHuman(token, value);

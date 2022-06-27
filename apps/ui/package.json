@@ -48,7 +48,7 @@
     "@sentry/react": "^7.3.0",
     "@sentry/tracing": "^7.3.0",
     "@solana/spl-token": "^0.1.8",
-    "@solana/web3.js": "^1.33.0",
+    "@solana/web3.js": "^1.44.3",
     "@swim-io/pool-math": "^0.1.1",
     "bn.js": "^5.2.0",
     "constate": "^3.3.0",

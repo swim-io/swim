@@ -10,6 +10,7 @@ module.exports = {
         "quarry-deployment",
         "ui",
         "pool-sdk",
+        "pool-math",
         "solana-usdc-usdc-usdt-swap",
       ],
     ],

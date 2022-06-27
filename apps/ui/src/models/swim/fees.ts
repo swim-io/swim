@@ -11,7 +11,7 @@ export const APPROVAL_CEILING = 70000;
 export const TRANSFER_CEILING = 120000;
 export const REDEEM_CEILING = 300000;
 export const SOLANA_FEE = new Decimal(0.01);
-const POLYGON_EXISTENTIAL_DEPOSIT_AMOUNT = 1;
+const POLKADOT_EXISTENTIAL_DEPOSIT_AMOUNT = new Decimal(0.1);
 
 export const getLowBalanceWallets = (
   feesEstimation: FeesEstimation | null,
@@ -21,18 +21,18 @@ export const getLowBalanceWallets = (
     return [];
   }
   return getRecordKeys(feesEstimation).filter((ecosystemId) => {
+    const fee = feesEstimation[ecosystemId];
     if (
       [EcosystemId.Acala, EcosystemId.Karura].includes(ecosystemId) &&
+      !fee.isZero() &&
       userNativeBalances[ecosystemId].lessThan(
-        POLYGON_EXISTENTIAL_DEPOSIT_AMOUNT,
+        POLKADOT_EXISTENTIAL_DEPOSIT_AMOUNT.add(fee),
       )
     ) {
-      // If a Polygon chain has a low native balance, their TX may fail the
-      // existential deposit requirement (account gets labeled as inactive).
+      // If a Polkadot related tx is susceptible to dropping below the existential deposit requirement,
+      // their tx may fail (or their account may get reaped).
       return true;
     }
-    return userNativeBalances[ecosystemId].lessThan(
-      feesEstimation[ecosystemId],
-    );
+    return userNativeBalances[ecosystemId].lessThan(fee);
   });
 };

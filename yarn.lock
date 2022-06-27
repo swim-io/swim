@@ -15125,7 +15125,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"husky@npm:^8.0.0":
+"husky@npm:^8.0.1":
   version: 8.0.1
   resolution: "husky@npm:8.0.1"
   bin:
@@ -24313,7 +24313,7 @@ __metadata:
   dependencies:
     "@commitlint/cli": ^17.0.3
     "@commitlint/config-conventional": ^17.0.3
-    husky: ^8.0.0
+    husky: ^8.0.1
   languageName: unknown
   linkType: soft
 

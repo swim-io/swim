@@ -6023,7 +6023,6 @@ __metadata:
     "@types/react-router-dom": ^5.1.7
     "@typescript-eslint/eslint-plugin": ^5.21.0
     bn.js: ^5.2.0
-    constate: ^3.3.0
     decimal.js: ^10.3.1
     dexie: ^3.2.2
     eslint: ^8.14.0
@@ -10524,15 +10523,6 @@ __metadata:
   version: 1.0.0
   resolution: "constants-browserify@npm:1.0.0"
   checksum: f7ac8c6d0b6e4e0c77340a1d47a3574e25abd580bfd99ad707b26ff7618596cf1a5e5ce9caf44715e9e01d4a5d12cb3b4edaf1176f34c19adb2874815a56e64f
-  languageName: node
-  linkType: hard
-
-"constate@npm:^3.3.0":
-  version: 3.3.2
-  resolution: "constate@npm:3.3.2"
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 1bc1c49aacf37221bc8ed65ec18ea3501dd7f9ec43df347643e50a365123ed6cbc40e4f53dbfb3ba4e1d50619da712d330e2bee732f702919fd13d4b2edac63a
   languageName: node
   linkType: hard
 

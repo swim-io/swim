@@ -1,4 +1,5 @@
-import type { EcosystemId } from "../../config";
+import type { EvmEcosystemId } from "../../config";
+import { isEvmEcosystemId } from "../../config";
 
 import type { Interaction } from "./interaction";
 import { InteractionType } from "./interaction";
@@ -10,19 +11,29 @@ import type {
 export const getFromEcosystemOfToSolanaTransfer = (
   transfer: ToSolanaTransferState,
   interaction: Interaction,
-): EcosystemId => {
-  return interaction.type === InteractionType.RemoveExactBurn ||
+): EvmEcosystemId => {
+  const ecosystemId =
+    interaction.type === InteractionType.RemoveExactBurn ||
     interaction.type === InteractionType.RemoveExactOutput ||
     interaction.type === InteractionType.RemoveUniform
-    ? interaction.lpTokenSourceEcosystem
-    : transfer.token.nativeEcosystem;
+      ? interaction.lpTokenSourceEcosystem
+      : transfer.token.nativeEcosystem;
+  if (!isEvmEcosystemId(ecosystemId)) {
+    throw new Error("Invalid token");
+  }
+  return ecosystemId;
 };
 
 export const getToEcosystemOfFromSolanaTransfer = (
   transfer: FromSolanaTransferState,
   interaction: Interaction,
-): EcosystemId => {
-  return interaction.type === InteractionType.Add
-    ? interaction.lpTokenTargetEcosystem
-    : transfer.token.nativeEcosystem;
+): EvmEcosystemId => {
+  const ecosystemId =
+    interaction.type === InteractionType.Add
+      ? interaction.lpTokenTargetEcosystem
+      : transfer.token.nativeEcosystem;
+  if (!isEvmEcosystemId(ecosystemId)) {
+    throw new Error("Invalid token");
+  }
+  return ecosystemId;
 };

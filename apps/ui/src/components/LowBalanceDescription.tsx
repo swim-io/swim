@@ -43,6 +43,7 @@ const LowPolkadotBalanceWarning = ({
 };
 
 export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
+  // TODO: Support showing Existential Deposit articles for when both Acala and Karura balances are low.
   let isPolkadotLowBalanceAndIsAcala: null | boolean = null;
   const walletNames = lowBalanceWallets.map((ecosystemId) => {
     if ([EcosystemId.Acala, EcosystemId.Karura].includes(ecosystemId)) {

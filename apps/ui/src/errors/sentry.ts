@@ -21,7 +21,7 @@ export const setupSentry = (): void => {
 
     // Curimvent ad blockers
     // Tunnel Sentry requests via Cloudflare Worker
-    tunnel: "https://cf-sentry-tunnel.fisprak.workers.dev/",
+    tunnel: "https://cf-sentry-tunnel.swim-io.workers.dev/",
 
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.

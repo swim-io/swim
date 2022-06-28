@@ -1,4 +1,5 @@
 import type { MintInfo, AccountInfo as TokenAccount } from "@solana/spl-token";
+import type { SwimPoolState } from "@swim-io/solana-types";
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 import shallow from "zustand/shallow.js";
@@ -7,8 +8,6 @@ import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-
-import type { SwimPoolState } from "@swim-io/solana-types";
 import { findTokenAccountForMint, getPoolUsdValue } from "../../models";
 import { findOrThrow, isNotNull } from "../../utils";
 import {
@@ -65,10 +64,10 @@ const constructPool = (
   const userLpTokenAccount =
     walletAddress !== null && splTokenAccounts !== null
       ? findTokenAccountForMint(
-        lpTokenMintAddress,
-        walletAddress,
-        splTokenAccounts,
-      )
+          lpTokenMintAddress,
+          walletAddress,
+          splTokenAccounts,
+        )
       : null;
 
   const poolUsdValue =

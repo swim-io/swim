@@ -102,7 +102,7 @@ const useToSolanaTransfersStep = (
     status,
     children: (
       <>
-        {shouldShowEcosystemCallout && nextTxInfo !== null && (
+        {shouldShowEcosystemCallout && (
           <WaitForEcosystemCallout ecosystemId={nextTxInfo.ecosystem} />
         )}
         {toSolanaTransfers.map((transfer) => (
@@ -164,7 +164,7 @@ const useFromSolanaTransfersStep = (
     status,
     children: (
       <>
-        {shouldShowEcosystemCallout && nextTxInfo !== null && (
+        {shouldShowEcosystemCallout && (
           <WaitForEcosystemCallout ecosystemId={nextTxInfo.ecosystem} />
         )}
         {fromSolanaTransfers.map((transfer) => (

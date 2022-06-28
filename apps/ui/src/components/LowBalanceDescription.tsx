@@ -1,57 +1,61 @@
 import type { FC, ReactElement } from "react";
 
+import type { Ecosystem } from "../config";
 import { EcosystemId, ecosystems } from "../config";
 
-const ACALA_EXISTENTIAL_DEPOSIT_LINK =
-  "https://wiki.acala.network/get-started/acala-network/acala-account#existential-deposit";
-const KARURA_EXISTENTIAL_DEPOSIT_LINK =
-  "https://wiki.acala.network/get-started/get-started/karura-account#existential-deposit";
+const ecosystemIdToDoc = new Map([
+  [
+    EcosystemId.Acala,
+    "https://wiki.acala.network/get-started/acala-network/acala-account#existential-deposit",
+  ],
+  [
+    EcosystemId.Karura,
+    "https://wiki.acala.network/get-started/get-started/karura-account#existential-deposit",
+  ],
+]);
+
+const createListItem = (ecosystem: Ecosystem): ReactElement => {
+  if (ecosystemIdToDoc.has(ecosystem.id)) {
+    return (
+      <li key={ecosystem.displayName}>
+        <a href={ecosystemIdToDoc.get(ecosystem.id)}>
+          {ecosystem.displayName + "*"}
+        </a>
+      </li>
+    );
+  }
+  return <li key={ecosystem.displayName}>{ecosystem.displayName}</li>;
+};
 
 interface Props {
   readonly lowBalanceWallets: readonly EcosystemId[];
 }
 
 interface LowPolkadotBalanceWarningProps {
-  readonly isVisibleAndAcala: null | boolean;
+  readonly isVisible: boolean;
 }
 
 const LowPolkadotBalanceWarning = ({
-  isVisibleAndAcala,
+  isVisible,
 }: LowPolkadotBalanceWarningProps): ReactElement | null => {
-  if (isVisibleAndAcala === null) {
+  if (!isVisible) {
     return null;
   }
   return (
-    <span>
-      <span>
-        *Polkadot chains require a minimum balance in order not to be
-        deactivated according to
-      </span>
-      <a
-        href={
-          isVisibleAndAcala
-            ? ACALA_EXISTENTIAL_DEPOSIT_LINK
-            : KARURA_EXISTENTIAL_DEPOSIT_LINK
-        }
-      >
-        {" "}
-        Existential Deposit
-      </a>
-      <span> requirements</span>
-    </span>
+    <>
+      *Polkadot chains require a minimum balance in order not to be deactivated
+      according to Existential Deposit requirements.
+    </>
   );
 };
 
 export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
-  // TODO: Support showing Existential Deposit articles for when both Acala and Karura balances are low.
-  let isPolkadotLowBalanceAndIsAcala: null | boolean = null;
-  const walletNames = lowBalanceWallets.map((ecosystemId) => {
+  let isLowPolkadotBalance = false;
+  const lowBalanceEcosystems = lowBalanceWallets.map((ecosystemId) => {
     if ([EcosystemId.Acala, EcosystemId.Karura].includes(ecosystemId)) {
-      isPolkadotLowBalanceAndIsAcala = ecosystemId === EcosystemId.Acala;
-      return ecosystems[ecosystemId].displayName + "*";
-    } else {
-      return ecosystems[ecosystemId].displayName;
+      isLowPolkadotBalance = true;
     }
+    return ecosystems[ecosystemId];
   });
   return (
     <p>
@@ -60,13 +64,9 @@ export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
         cover all of the required transaction fees:
       </span>
       <ul>
-        {walletNames.map((name) => (
-          <li key={name}>{name}</li>
-        ))}
+        {lowBalanceEcosystems.map((ecosystem) => createListItem(ecosystem))}
       </ul>
-      <LowPolkadotBalanceWarning
-        isVisibleAndAcala={isPolkadotLowBalanceAndIsAcala}
-      />
+      <LowPolkadotBalanceWarning isVisible={isLowPolkadotBalance} />
     </p>
   );
 };

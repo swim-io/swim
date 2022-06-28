@@ -5942,12 +5942,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/pool-math@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "@swim-io/pool-math@npm:0.1.1"
+"@swim-io/pool-math@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@swim-io/pool-math@npm:0.2.0"
   dependencies:
     decimal.js: ^10.3.1
-  checksum: f0db1110240ab9628b060dc44e969b51f97805ba9c134b2e90289829dce7edab0876bbda595a8c244fc45fff4e633b72a642afb4d4160b2c87bddfc31d9e1748
+  checksum: d64beb86533b831fa8b043003c48b345b389e443083813b142be0c2be90296628f488798a419ca3c02f04ce7ac971b1d51fb2aef19a7c0b821c7a1cf3a18f4b1
   languageName: node
   linkType: hard
 
@@ -6026,7 +6026,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/solana-types@workspace:^, @swim-io/solana-types@workspace:packages/solana-types":
+"@swim-io/solana-types@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@swim-io/solana-types@npm:0.2.0"
+  dependencies:
+    "@project-serum/borsh": ^0.2.5
+    "@solana/web3.js": ^1.44.2
+    bn.js: ^5.2.1
+  checksum: 6958e9666a6895d918f7449c188273898df8ad50285f8e69090d854689735f29bf2100b4e22b60668c6a7f11e3cf5faa68234d3ec7b7c42cab8236c2549d0ea9
+  languageName: node
+  linkType: hard
+
+"@swim-io/solana-types@workspace:packages/solana-types":
   version: 0.0.0-use.local
   resolution: "@swim-io/solana-types@workspace:packages/solana-types"
   dependencies:
@@ -6100,8 +6111,8 @@ __metadata:
     "@storybook/node-logger": ^6.5.9
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.9
-    "@swim-io/pool-math": ^0.1.1
-    "@swim-io/solana-types": "workspace:^"
+    "@swim-io/pool-math": ^0.2.0
+    "@swim-io/solana-types": ^0.2.0
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^7.0.2

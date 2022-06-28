@@ -19,9 +19,11 @@ export const setupSentry = (): void => {
       // new Integrations.BrowserTracing(),
     ],
 
-    // Curimvent ad blockers
+    environment: process.env.REACT_APP_ENV,
+
+    // Circumvent ad-blockers
     // Tunnel Sentry requests via Cloudflare Worker
-    tunnel: "https://cf-sentry-tunnel.swim-io.workers.dev/",
+    tunnel: "https://swim.io/tunnel/",
 
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.

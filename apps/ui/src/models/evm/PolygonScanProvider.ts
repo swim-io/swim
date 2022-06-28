@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 
+import { EvmChainId } from "../../config";
 import { findOrThrow } from "../../utils";
 
 export const enum PolygonNetwork {
@@ -10,11 +11,11 @@ export const enum PolygonNetwork {
 const networks = [
   {
     name: PolygonNetwork.Mainnet,
-    chainId: 137,
+    chainId: EvmChainId.PolygonMainnet,
   },
   {
     name: PolygonNetwork.Testnet,
-    chainId: 80001,
+    chainId: EvmChainId.PolygonTestnet,
   },
 ];
 

@@ -30,12 +30,12 @@ import {
   WormholeChainId,
   getSolanaTokenDetails,
 } from "../config";
-import { useSolanaConnection } from "../contexts";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import {
   useEvmConnections,
   usePool,
+  useSolanaConnection,
   useTokensByEcosystem,
   useWallets,
 } from "../hooks";

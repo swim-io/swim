@@ -5,12 +5,12 @@ import shallow from "zustand/shallow.js";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "..";
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
-import { useSolanaConnection } from "../../contexts";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { InteractionState, SolanaConnection, Tx } from "../../models";
 import { getTokensByPool, getTransferredAmounts } from "../../models";
 import { findOrThrow, isNotNull } from "../../utils";
+import { useSolanaConnection } from "../solana";
 import {
   doSinglePoolOperation,
   setOutputOperationInputAmount,

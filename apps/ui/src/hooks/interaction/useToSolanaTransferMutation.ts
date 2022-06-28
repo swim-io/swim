@@ -15,7 +15,6 @@ import {
   getSolanaTokenDetails,
   isEvmEcosystemId,
 } from "../../config";
-import { useSolanaConnection } from "../../contexts";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { EvmConnection, EvmTx } from "../../models";
@@ -28,7 +27,7 @@ import {
 import { findOrThrow } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useEvmConnections } from "../evm";
-import { useSplTokenAccountsQuery } from "../solana";
+import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
 
 const txResponseToTx = async (
   interactionId: string,

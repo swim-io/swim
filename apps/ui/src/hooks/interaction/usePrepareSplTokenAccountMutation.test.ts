@@ -3,8 +3,7 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
 import type { SolanaWalletInterface } from "..";
-import { useSolanaWallet } from "..";
-import { useSolanaConnection } from "../../contexts";
+import { useSolanaConnection, useSolanaWallet } from "..";
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { MOCK_SOL_WALLET } from "../../fixtures";
@@ -14,13 +13,9 @@ import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { usePrepareSplTokenAccountMutation } from "./usePrepareSplTokenAccountMutation";
 
-jest.mock("../../contexts", () => ({
-  ...jest.requireActual("../../contexts"),
-  useSolanaConnection: jest.fn(),
-}));
-
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
+  useSolanaConnection: jest.fn(),
   useSolanaWallet: jest.fn(),
 }));
 

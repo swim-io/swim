@@ -13,7 +13,6 @@ import {
   getSolanaTokenDetails,
   isEvmEcosystemId,
 } from "../../config";
-import { useSolanaConnection } from "../../contexts";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {
@@ -29,7 +28,11 @@ import { DEFAULT_WORMHOLE_RETRIES } from "../../models/wormhole/constants";
 import { findOrThrow } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useEvmConnections } from "../evm";
-import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
+import {
+  useSolanaConnection,
+  useSolanaWallet,
+  useSplTokenAccountsQuery,
+} from "../solana";
 
 export const useFromSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();

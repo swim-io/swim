@@ -5,7 +5,6 @@ import {
   getSolanaTokenDetails,
   isEvmEcosystemId,
 } from "../../config";
-import { useSolanaConnection } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type {
@@ -19,7 +18,7 @@ import {
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import { useEvmConnections } from "../evm";
-import { useSplTokenAccountsQuery } from "../solana";
+import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
 import type { UseAsyncGeneratorResult } from "../utils";
 import { useAsyncGenerator } from "../utils";
 

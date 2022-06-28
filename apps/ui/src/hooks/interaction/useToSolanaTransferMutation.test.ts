@@ -4,7 +4,6 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
 import { EcosystemId } from "../../config";
-import { useSolanaConnection } from "../../contexts";
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { MOCK_SOL_WALLET } from "../../fixtures";
@@ -14,16 +13,12 @@ import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import type { Wallets } from "../crossEcosystem";
 import { useWallets } from "../crossEcosystem";
 import { useEvmConnections } from "../evm";
-import { useSplTokenAccountsQuery } from "../solana";
+import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
 
 import { useToSolanaTransferMutation } from "./useToSolanaTransferMutation";
 
 jest.mock("../../core/store/idb");
 jest.mock("@certusone/wormhole-sdk");
-jest.mock("../../contexts", () => ({
-  ...jest.requireActual("../../contexts"),
-  useSolanaConnection: jest.fn(),
-}));
 jest.mock("../evm", () => ({
   ...jest.requireActual("../evm"),
   useEvmConnections: jest.fn(),
@@ -47,6 +42,7 @@ const generateUnlockSplTokenTxIdsMock = mockOf(generateUnlockSplTokenTxIds);
 
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
+  useSolanaConnection: jest.fn(),
   useSplTokenAccountsQuery: jest.fn(),
 }));
 const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);

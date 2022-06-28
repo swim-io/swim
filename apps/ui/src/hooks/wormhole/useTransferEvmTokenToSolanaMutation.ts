@@ -4,7 +4,6 @@ import shallow from "zustand/shallow.js";
 
 import type { EvmEcosystemId, TokenSpec } from "../../config";
 import { Protocol, getSolanaTokenDetails } from "../../config";
-import { useSolanaConnection } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { Amount, Tx, WormholeTransfer } from "../../models";
@@ -14,7 +13,7 @@ import {
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import { useEvmConnection } from "../evm";
-import { useSplTokenAccountsQuery } from "../solana";
+import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
 
 export interface TransferErc20TokenToSolanaMutationVariables {
   readonly interactionId: string;

@@ -5,7 +5,6 @@ import shallow from "zustand/shallow.js";
 
 import type { Env, PoolSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
-import { useSolanaConnection } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type {
@@ -30,7 +29,11 @@ import {
   getTokensByPool,
 } from "../../models";
 import { findOrThrow } from "../../utils";
-import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
+import {
+  useSolanaConnection,
+  useSolanaWallet,
+  useSplTokenAccountsQuery,
+} from "../solana";
 import type { UseAsyncGeneratorResult } from "../utils";
 import { useAsyncGenerator } from "../utils";
 

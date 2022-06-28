@@ -2,21 +2,23 @@ import type { FC, ReactElement } from "react";
 
 import { EcosystemId, ecosystems } from "../config";
 
-const EXISTENTIAL_DEPOSIT_LINK =
-  "https://support.polkadot.network/support/solutions/articles/65000168651-what-is-the-existential-deposit";
+const ACALA_EXISTENTIAL_DEPOSIT_LINK =
+  "https://wiki.acala.network/get-started/acala-network/acala-account#existential-deposit";
+const KARURA_EXISTENTIAL_DEPOSIT_LINK =
+  "https://wiki.acala.network/get-started/get-started/karura-account#existential-deposit";
 
 interface Props {
   readonly lowBalanceWallets: readonly EcosystemId[];
 }
 
 interface LowPolkadotBalanceWarningProps {
-  readonly isVisible: boolean;
+  readonly isVisibleAndAcala: null | boolean;
 }
 
 const LowPolkadotBalanceWarning = ({
-  isVisible,
+  isVisibleAndAcala,
 }: LowPolkadotBalanceWarningProps): ReactElement | null => {
-  if (!isVisible) {
+  if (isVisibleAndAcala === null) {
     return null;
   }
   return (
@@ -25,17 +27,26 @@ const LowPolkadotBalanceWarning = ({
         *Polkadot chains require a minimum balance in order not to be
         deactivated according to
       </span>
-      <a href={EXISTENTIAL_DEPOSIT_LINK}> Existential Deposit</a>
+      <a
+        href={
+          isVisibleAndAcala
+            ? ACALA_EXISTENTIAL_DEPOSIT_LINK
+            : KARURA_EXISTENTIAL_DEPOSIT_LINK
+        }
+      >
+        {" "}
+        Existential Deposit
+      </a>
       <span> requirements</span>
     </span>
   );
 };
 
 export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
-  let isLowPolkadotBalance = false;
+  let isPolkadotLowBalanceAndIsAcala: null | boolean = null;
   const walletNames = lowBalanceWallets.map((ecosystemId) => {
     if ([EcosystemId.Acala, EcosystemId.Karura].includes(ecosystemId)) {
-      isLowPolkadotBalance = true;
+      isPolkadotLowBalanceAndIsAcala = ecosystemId === EcosystemId.Acala;
       return ecosystems[ecosystemId].displayName + "*";
     } else {
       return ecosystems[ecosystemId].displayName;
@@ -52,7 +63,9 @@ export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
           <li key={name}>{name}</li>
         ))}
       </ul>
-      <LowPolkadotBalanceWarning isVisible={isLowPolkadotBalance} />
+      <LowPolkadotBalanceWarning
+        isVisibleAndAcala={isPolkadotLowBalanceAndIsAcala}
+      />
     </p>
   );
 };

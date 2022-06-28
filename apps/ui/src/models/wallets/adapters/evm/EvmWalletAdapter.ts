@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import type { SeverityLevel } from "@sentry/types";
 import type { Signer } from "ethers";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
@@ -111,10 +112,11 @@ export class EvmWeb3WalletAdapter
         walletName: this.serviceName,
         address: this.address,
       });
+      const level: SeverityLevel = "info";
       Sentry.addBreadcrumb({
         category: "wallet",
         message: `Connected to ${sentryContextKey} ${this.address}`,
-        level: Sentry.Severity.Info,
+        level,
       });
     } catch (error) {
       await this.disconnect();
@@ -132,10 +134,11 @@ export class EvmWeb3WalletAdapter
 
       const sentryContextKey = await this.sentryContextKey();
       Sentry.setContext(sentryContextKey, {});
+      const level: SeverityLevel = "info";
       Sentry.addBreadcrumb({
         category: "wallet",
         message: `Disconnected from ${sentryContextKey}`,
-        level: Sentry.Severity.Info,
+        level,
       });
     }
   }

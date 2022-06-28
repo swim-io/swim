@@ -1,6 +1,19 @@
 import { readFileSync, writeFileSync, existsSync } from "fs";
-import { PublicKey, Keypair, Signer, ConfirmOptions, Connection } from "@solana/web3.js";
-import { getAccount, getMint, createMint, transfer, mintTo, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
+import {
+  PublicKey,
+  Keypair,
+  Signer,
+  ConfirmOptions,
+  Connection,
+} from "@solana/web3.js";
+import {
+  getAccount,
+  getMint,
+  createMint,
+  transfer,
+  mintTo,
+  getOrCreateAssociatedTokenAccount,
+} from "@solana/spl-token";
 import {
   QuarrySDK,
   QuarryWrapper,
@@ -22,7 +35,7 @@ import {
   sleep,
   createAssociatedTokenAccount,
   requestAirdrop,
-  ensureAccountIsFound
+  ensureAccountIsFound,
 } from "./src/utils";
 import { PoolInstructor } from "./src/poolInstructor";
 import { getAssociatedTokenAddress } from "./src/from_ui/solanaUtils";
@@ -32,7 +45,11 @@ async function createStableMints(
   payer: Signer,
   decimals: readonly number[],
 ): Promise<readonly PublicKey[]> {
-  return Promise.all(decimals.map((dec) => createMint(connection, payer, payer.publicKey, payer.publicKey, dec)));
+  return Promise.all(
+    decimals.map((dec) =>
+      createMint(connection, payer, payer.publicKey, payer.publicKey, dec),
+    ),
+  );
 }
 
 async function createQuarryForPool(
@@ -41,7 +58,10 @@ async function createQuarryForPool(
   poolInstructor: PoolInstructor,
 ): Promise<QuarryWrapper> {
   const rewarder = await quarrySDK.mine.loadRewarderWrapper(rewarderStateKey);
-  const lpToken = Token.fromMint(poolInstructor.lpMintKey, poolInstructor.lpMintDecimals);
+  const lpToken = Token.fromMint(
+    poolInstructor.lpMintKey,
+    poolInstructor.lpMintDecimals,
+  );
   const pending = await rewarder.createQuarry({ token: lpToken });
   await pending.tx.confirm();
   await ensureAccountIsFound(quarrySDK.provider.connection, pending.quarry);
@@ -54,7 +74,10 @@ async function getQuarryForPool(
   poolInstructor: PoolInstructor,
 ): Promise<QuarryWrapper> {
   const rewarder = await quarrySDK.mine.loadRewarderWrapper(rewarderStateKey);
-  const lpToken = Token.fromMint(poolInstructor.lpMintKey, poolInstructor.lpMintDecimals);
+  const lpToken = Token.fromMint(
+    poolInstructor.lpMintKey,
+    poolInstructor.lpMintDecimals,
+  );
   return await rewarder.getQuarry(lpToken);
 }
 
@@ -83,19 +106,46 @@ class User {
       range(poolInstructor.tokenCount).map(async (i) => {
         const mintKey = poolInstructor.tokenMintKeys[i];
         const mintDecimals = poolInstructor.tokenDecimals[i];
-        const userATA = await getOrCreateAssociatedTokenAccount(connection, payer, mintKey, userPair.publicKey);
+        const userATA = await getOrCreateAssociatedTokenAccount(
+          connection,
+          payer,
+          mintKey,
+          userPair.publicKey,
+        );
         const userATAKey = userATA.address;
-        await mintTo(connection, payer, mintKey, userATAKey, payer, BigInt(funds) * BigInt(10 ** mintDecimals));
+        await mintTo(
+          connection,
+          payer,
+          mintKey,
+          userATAKey,
+          payer,
+          BigInt(funds) * BigInt(10 ** mintDecimals),
+        );
         return userATAKey;
       }),
     );
-    const lpKey = await createAssociatedTokenAccount(connection, payer, poolInstructor.lpMintKey, userPair.publicKey);
+    const lpKey = await createAssociatedTokenAccount(
+      connection,
+      payer,
+      poolInstructor.lpMintKey,
+      userPair.publicKey,
+    );
 
-    const pendingMiner = await quarry.createMiner({ authority: userPair.publicKey });
+    const pendingMiner = await quarry.createMiner({
+      authority: userPair.publicKey,
+    });
     await pendingMiner.tx.addSigners(userPair).confirm();
     await ensureAccountIsFound(connection, pendingMiner.miner);
 
-    return new User(connection, payer, poolInstructor, userPair, stableKeys, lpKey, pendingMiner.wrapper);
+    return new User(
+      connection,
+      payer,
+      poolInstructor,
+      userPair,
+      stableKeys,
+      lpKey,
+      pendingMiner.wrapper,
+    );
   }
 
   static async load(
@@ -105,14 +155,33 @@ class User {
     quarry: QuarryWrapper,
     userPair: Keypair,
   ): Promise<User> {
-    const stableKeys = poolInstructor.tokenMintKeys.map(mint => getAssociatedTokenAddress(mint, userPair.publicKey));
-    const lpKey = getAssociatedTokenAddress(poolInstructor.lpMintKey, userPair.publicKey);
+    const stableKeys = poolInstructor.tokenMintKeys.map((mint) =>
+      getAssociatedTokenAddress(mint, userPair.publicKey),
+    );
+    const lpKey = getAssociatedTokenAddress(
+      poolInstructor.lpMintKey,
+      userPair.publicKey,
+    );
     const miner = await quarry.getMinerActions(userPair.publicKey);
-    return new User(connection, payer, poolInstructor, userPair, stableKeys, lpKey, miner);
+    return new User(
+      connection,
+      payer,
+      poolInstructor,
+      userPair,
+      stableKeys,
+      lpKey,
+      miner,
+    );
   }
 
   async add(amounts: Decimal[], minMintAmount = new Decimal(0)) {
-    await this.poolInstructor.add(amounts, minMintAmount, this.stableKeys, this.lpKey, this.keypair);
+    await this.poolInstructor.add(
+      amounts,
+      minMintAmount,
+      this.stableKeys,
+      this.lpKey,
+      this.keypair,
+    );
   }
 
   async getLpBalance(): Promise<bigint> {
@@ -120,17 +189,36 @@ class User {
   }
 
   async getStakedBalance(): Promise<bigint> {
-    return (await getAccount(this.connection, (await this.miner.fetchData()).tokenVaultKey)).amount;
+    return (
+      await getAccount(
+        this.connection,
+        (
+          await this.miner.fetchData()
+        ).tokenVaultKey,
+      )
+    ).amount;
   }
 
   async stake(amount: bigint) {
-    const lpToken = Token.fromMint(this.poolInstructor.lpMintKey, this.poolInstructor.lpMintDecimals);
-    await this.miner.stake(new TokenAmount(lpToken, amount)).addSigners(this.keypair).confirm();
+    const lpToken = Token.fromMint(
+      this.poolInstructor.lpMintKey,
+      this.poolInstructor.lpMintDecimals,
+    );
+    await this.miner
+      .stake(new TokenAmount(lpToken, amount))
+      .addSigners(this.keypair)
+      .confirm();
   }
 
   async unstake(amount: bigint) {
-    const lpToken = Token.fromMint(this.poolInstructor.lpMintKey, this.poolInstructor.lpMintDecimals);
-    await this.miner.withdraw(new TokenAmount(lpToken, amount)).addSigners(this.keypair).confirm();
+    const lpToken = Token.fromMint(
+      this.poolInstructor.lpMintKey,
+      this.poolInstructor.lpMintDecimals,
+    );
+    await this.miner
+      .withdraw(new TokenAmount(lpToken, amount))
+      .addSigners(this.keypair)
+      .confirm();
   }
 }
 
@@ -163,7 +251,10 @@ class RewarderSetup {
     assert(quarrySDK.provider.walletKey.equals(payer.publicKey));
     const { connection } = quarrySDK.provider;
 
-    const governanceTokenAccount = await getAccount(connection, governanceTokenKey);
+    const governanceTokenAccount = await getAccount(
+      connection,
+      governanceTokenKey,
+    );
     assert(governanceTokenAccount.owner.equals(payer.publicKey));
     const governanceMintKey = governanceTokenAccount.mint;
     const governanceMint = await getMint(connection, governanceMintKey);
@@ -171,8 +262,16 @@ class RewarderSetup {
     assert(governanceTokenAccount.amount >= BigInt(hardcapAtomic.toString()));
 
     const mintWrapperPair = Keypair.generate();
-    const [mintWrapperKey] = await findMintWrapperAddress(mintWrapperPair.publicKey);
-    const iouMintKey = await createMint(connection, payer, mintWrapperKey, mintWrapperKey, governanceMint.decimals);
+    const [mintWrapperKey] = await findMintWrapperAddress(
+      mintWrapperPair.publicKey,
+    );
+    const iouMintKey = await createMint(
+      connection,
+      payer,
+      mintWrapperKey,
+      mintWrapperKey,
+      governanceMint.decimals,
+    );
     console.log(`deployed iouMint: ${iouMintKey}`);
 
     {
@@ -189,10 +288,19 @@ class RewarderSetup {
     }
 
     await (
-      await quarrySDK.mintWrapper.newMinterWithAllowance(mintWrapperKey, payer.publicKey, hardcapAtomic)
+      await quarrySDK.mintWrapper.newMinterWithAllowance(
+        mintWrapperKey,
+        payer.publicKey,
+        hardcapAtomic,
+      )
     ).confirm();
-    const [minterKey] = await findMinterAddress(mintWrapperKey, payer.publicKey);
-    console.log(`deployed minter: ${minterKey} with (atomic) allowance: ${hardcapAtomic.toString()}`);
+    const [minterKey] = await findMinterAddress(
+      mintWrapperKey,
+      payer.publicKey,
+    );
+    console.log(
+      `deployed minter: ${minterKey} with (atomic) allowance: ${hardcapAtomic.toString()}`,
+    );
 
     const rewarderPair = Keypair.generate();
     const [rewarderKey] = await findRewarderAddress(rewarderPair.publicKey);
@@ -220,17 +328,22 @@ class RewarderSetup {
       return vaultTokenAccount;
     })();
 
-    await transfer(connection, payer, governanceTokenKey, redeemerTokenKey, payer, hardcapAtomic);
-
-    return new RewarderSetup(
-      rewarder,
-      hardcap,
-      minterKey,
+    await transfer(
+      connection,
+      payer,
+      governanceTokenKey,
       redeemerTokenKey,
+      payer,
+      hardcapAtomic,
     );
+
+    return new RewarderSetup(rewarder, hardcap, minterKey, redeemerTokenKey);
   }
 
-  static async fromObject(quarrySDK: QuarrySDK, obj: any): Promise<RewarderSetup> {
+  static async fromObject(
+    quarrySDK: QuarrySDK,
+    obj: any,
+  ): Promise<RewarderSetup> {
     return new RewarderSetup(
       await quarrySDK.mine.loadRewarderWrapper(new PublicKey(obj.rewarderKey)),
       obj.hardcap,
@@ -245,7 +358,7 @@ class RewarderSetup {
       hardcap: this.hardcap,
       minterKey: this.minterKey.toString(),
       redeemerTokenKey: this.redeemerTokenKey.toString(),
-    }
+    };
   }
 }
 
@@ -259,7 +372,7 @@ class FullSetup {
     readonly rewarderSetup: RewarderSetup,
     readonly quarry: QuarryWrapper,
     public users: User[] = [],
-  ){}
+  ) {}
 
   get connection(): Connection {
     return this.quarrySDK.provider.connection;
@@ -294,15 +407,39 @@ class FullSetup {
     assert(quarrySDK.provider.walletKey.equals(payer.publicKey));
     const { connection } = quarrySDK.provider;
 
-    const swimMintKey = await createMint(connection, payer, payer.publicKey, payer.publicKey, swimMintDecimals);
+    const swimMintKey = await createMint(
+      connection,
+      payer,
+      payer.publicKey,
+      payer.publicKey,
+      swimMintDecimals,
+    );
     console.log(`deployed swimMint: ${swimMintKey}`);
-    const stableMintKeys = await createStableMints(connection, payer, stableMintDecimals);
+    const stableMintKeys = await createStableMints(
+      connection,
+      payer,
+      stableMintDecimals,
+    );
     console.log(`deployed stableMints: ${stableMintKeys}`);
-    await Promise.all(stableMintKeys.map((mintKey) => getMint(connection, mintKey)));
+    await Promise.all(
+      stableMintKeys.map((mintKey) => getMint(connection, mintKey)),
+    );
 
     const swimPremined = BigInt(hardcap) * BigInt(10 ** swimMintDecimals);
-    const payerSwimKey = await createAssociatedTokenAccount(connection, payer, swimMintKey, payer.publicKey);
-    await mintTo(connection, payer, swimMintKey, payerSwimKey, payer, swimPremined);
+    const payerSwimKey = await createAssociatedTokenAccount(
+      connection,
+      payer,
+      swimMintKey,
+      payer.publicKey,
+    );
+    await mintTo(
+      connection,
+      payer,
+      swimMintKey,
+      payerSwimKey,
+      payer,
+      swimPremined,
+    );
     console.log(`minted ${swimPremined} premined swim to ${payerSwimKey}`);
 
     const lpDecimals = Math.max(...stableMintDecimals);
@@ -318,25 +455,48 @@ class FullSetup {
     );
     console.log(`deployed pool: ${poolInstructor.stateKey}`);
 
-    const rewarderSetup = await RewarderSetup.create(quarrySDK, payer, hardcap, payerSwimKey);
-    const {rewarderKey} = rewarderSetup;
+    const rewarderSetup = await RewarderSetup.create(
+      quarrySDK,
+      payer,
+      hardcap,
+      payerSwimKey,
+    );
+    const { rewarderKey } = rewarderSetup;
 
-    const quarry = await createQuarryForPool(quarrySDK, rewarderKey, poolInstructor);
+    const quarry = await createQuarryForPool(
+      quarrySDK,
+      rewarderKey,
+      poolInstructor,
+    );
     console.log(`deployed quarry: ${quarry.key}`);
 
-    return new FullSetup(quarrySDK, payer, swimMintKey, swimMintDecimals, poolInstructor, rewarderSetup, quarry);
+    return new FullSetup(
+      quarrySDK,
+      payer,
+      swimMintKey,
+      swimMintDecimals,
+      poolInstructor,
+      rewarderSetup,
+      quarry,
+    );
   }
 
   async newUser(funds: number, userPair = Keypair.generate()) {
-    this.users.push(await User.createAndFund(
-      this.connection,
-      this.payer,
-      this.poolInstructor,
-      this.quarry,
-      funds,
-      userPair
-    ));
-    console.log(`deployed user ${this.users[this.users.length-1].keypair.publicKey.toString()} and funded SOL and ${funds} tokens from each stable mint`);
+    this.users.push(
+      await User.createAndFund(
+        this.connection,
+        this.payer,
+        this.poolInstructor,
+        this.quarry,
+        funds,
+        userPair,
+      ),
+    );
+    console.log(
+      `deployed user ${this.users[
+        this.users.length - 1
+      ].keypair.publicKey.toString()} and funded SOL and ${funds} tokens from each stable mint`,
+    );
   }
 
   writeToFile(filename: string) {
@@ -346,45 +506,85 @@ class FullSetup {
       poolKey: this.poolInstructor.stateKey.toString(),
       rewarderSetup: this.rewarderSetup.toObject(),
       quarry: this.quarry.key.toString(),
-      users: this.users.map(user => [
+      users: this.users.map((user) => [
         user.keypair.publicKey.toBuffer().toJSON(),
-        Buffer.from(user.keypair.secretKey).toJSON()]),
+        Buffer.from(user.keypair.secretKey).toJSON(),
+      ]),
     };
 
     writeFileSync(filename, JSON.stringify(obj, null, 2));
   }
 
-  static async readFromFile(quarrySDK: QuarrySDK, payer: Signer, filename: string): Promise<FullSetup> {
+  static async readFromFile(
+    quarrySDK: QuarrySDK,
+    payer: Signer,
+    filename: string,
+  ): Promise<FullSetup> {
     const { connection } = quarrySDK.provider;
 
     const obj = JSON.parse(readFileSync(filename, "utf-8"));
     const swimMintKey = new PublicKey(obj.swimMintKey);
     const swimMintDecimals = obj.swimMintDecimals;
-    const poolInstructor = await PoolInstructor.fromStateKey(connection, payer, new PublicKey(obj.poolKey));
-    const rewarderSetup = await RewarderSetup.fromObject(quarrySDK, obj.rewarderSetup);
-    const quarry = await getQuarryForPool(quarrySDK, rewarderSetup.rewarderKey, poolInstructor);
+    const poolInstructor = await PoolInstructor.fromStateKey(
+      connection,
+      payer,
+      new PublicKey(obj.poolKey),
+    );
+    const rewarderSetup = await RewarderSetup.fromObject(
+      quarrySDK,
+      obj.rewarderSetup,
+    );
+    const quarry = await getQuarryForPool(
+      quarrySDK,
+      rewarderSetup.rewarderKey,
+      poolInstructor,
+    );
 
-    const toKeypair = (pair: string[]) => new Keypair({
-      publicKey: Buffer.from(pair[0]),
-      secretKey: Buffer.from(pair[1]),
-    });
+    const toKeypair = (pair: string[]) =>
+      new Keypair({
+        publicKey: Buffer.from(pair[0]),
+        secretKey: Buffer.from(pair[1]),
+      });
 
-    const userPairs: Keypair[] = obj?.users.map(pair => toKeypair(pair)) ?? [];
-    const users = await Promise.all(userPairs.map(kp => User.load(connection, payer, poolInstructor, quarry, kp)));
+    const userPairs: Keypair[] =
+      obj?.users.map((pair) => toKeypair(pair)) ?? [];
+    const users = await Promise.all(
+      userPairs.map((kp) =>
+        User.load(connection, payer, poolInstructor, quarry, kp),
+      ),
+    );
 
-    return new FullSetup(quarrySDK, payer, swimMintKey, swimMintDecimals, poolInstructor, rewarderSetup, quarry, users);
+    return new FullSetup(
+      quarrySDK,
+      payer,
+      swimMintKey,
+      swimMintDecimals,
+      poolInstructor,
+      rewarderSetup,
+      quarry,
+      users,
+    );
   }
 }
 
 async function main() {
   const config = JSON.parse(readFileSync("config.json", "utf-8"));
-  const payer = secretToKeypair(JSON.parse(readFileSync(config.walletSecretJsonFile, "utf-8")));
+  const payer = secretToKeypair(
+    JSON.parse(readFileSync(config.walletSecretJsonFile, "utf-8")),
+  );
   const wallet = new anchor.Wallet(payer);
-  const confirmOptions: ConfirmOptions = {commitment: "finalized", preflightCommitment: "finalized"};
+  const confirmOptions: ConfirmOptions = {
+    commitment: "finalized",
+    preflightCommitment: "finalized",
+  };
   const connection = new Connection(config.rpcUrl, confirmOptions);
 
   const quarrySDK = (() => {
-    const anchorProvider = new anchor.Provider(connection, wallet, confirmOptions);
+    const anchorProvider = new anchor.Provider(
+      connection,
+      wallet,
+      confirmOptions,
+    );
     anchor.setProvider(anchorProvider);
     return QuarrySDK.load({
       provider: SolanaProvider.load({
@@ -398,55 +598,80 @@ async function main() {
 
   await requestAirdrop(connection, payer.publicKey);
 
-  let setups = [await (async (filename: string) => {
-    if (existsSync(filename))
-      return await FullSetup.readFromFile(quarrySDK, payer, filename);
+  let setups = [
+    await (async (filename: string) => {
+      if (existsSync(filename))
+        return await FullSetup.readFromFile(quarrySDK, payer, filename);
 
-    const setup = await FullSetup.create(quarrySDK, payer);
-    await setup.newUser(10);
-    await setup.newUser(10);
-    setup.writeToFile(filename);
-    return setup;
-  })("full_setup.json")];
+      const setup = await FullSetup.create(quarrySDK, payer);
+      await setup.newUser(10);
+      await setup.newUser(10);
+      setup.writeToFile(filename);
+      return setup;
+    })("full_setup.json"),
+  ];
 
-  setups.push(await (async (filename: string) => {
-    if (existsSync(filename))
-      return await FullSetup.readFromFile(quarrySDK, payer, filename);
+  setups.push(
+    await (async (filename: string) => {
+      if (existsSync(filename))
+        return await FullSetup.readFromFile(quarrySDK, payer, filename);
 
-    const setup = setups[0];
-    const {ampFactor, lpFee, governanceFee} = await setup.poolInstructor.getState();
-    const poolInstructor = await PoolInstructor.deployPool(
-      connection,
-      payer,
-      setup.poolInstructor.tokenMintKeys,
-      payer.publicKey,
-      setup.poolInstructor.lpMintDecimals,
-      ampFactor.targetValue,
-      lpFee,
-      governanceFee,
-    );
-    console.log(`deployed pool: ${poolInstructor.stateKey}`);
+      const setup = setups[0];
+      const { ampFactor, lpFee, governanceFee } =
+        await setup.poolInstructor.getState();
+      const poolInstructor = await PoolInstructor.deployPool(
+        connection,
+        payer,
+        setup.poolInstructor.tokenMintKeys,
+        payer.publicKey,
+        setup.poolInstructor.lpMintDecimals,
+        ampFactor.targetValue,
+        lpFee,
+        governanceFee,
+      );
+      console.log(`deployed pool: ${poolInstructor.stateKey}`);
 
-    const quarry = await createQuarryForPool(quarrySDK, setup.rewarderKey, poolInstructor);
-    console.log(`deployed quarry: ${quarry.key}`);
+      const quarry = await createQuarryForPool(
+        quarrySDK,
+        setup.rewarderKey,
+        poolInstructor,
+      );
+      console.log(`deployed quarry: ${quarry.key}`);
 
-    const partiallyCopiedSetup = new FullSetup(quarrySDK, payer, setup.swimMintKey, setup.swimMintDecimals, poolInstructor, setup.rewarderSetup, quarry);
-    await partiallyCopiedSetup.newUser(10, setup.users[0].keypair);
-    await partiallyCopiedSetup.newUser(10, setup.users[1].keypair);
-    partiallyCopiedSetup.writeToFile(filename);
+      const partiallyCopiedSetup = new FullSetup(
+        quarrySDK,
+        payer,
+        setup.swimMintKey,
+        setup.swimMintDecimals,
+        poolInstructor,
+        setup.rewarderSetup,
+        quarry,
+      );
+      await partiallyCopiedSetup.newUser(10, setup.users[0].keypair);
+      await partiallyCopiedSetup.newUser(10, setup.users[1].keypair);
+      partiallyCopiedSetup.writeToFile(filename);
 
-    return partiallyCopiedSetup;
-  })("full_setup2.json"));
+      return partiallyCopiedSetup;
+    })("full_setup2.json"),
+  );
 
   //console.log(await getAccount(connection, setup.users[0].stableKeys[0]));
 
-  const addAndStake = async (setupIndex: number, userIndex: number, amount: number) => {
+  const addAndStake = async (
+    setupIndex: number,
+    userIndex: number,
+    amount: number,
+  ) => {
     const setup = setups[setupIndex];
     const user = setup.users[userIndex];
     console.log(`user ${userIndex} for setup ${setupIndex} ...`);
     if (amount > 0) {
-      await user.add(range(setup.poolInstructor.tokenCount).map(_ => new Decimal(amount)));
-      console.log(`... added ${amount} (human) stable token each to the pool and ...`);
+      await user.add(
+        range(setup.poolInstructor.tokenCount).map((_) => new Decimal(amount)),
+      );
+      console.log(
+        `... added ${amount} (human) stable token each to the pool and ...`,
+      );
     }
 
     const lpBalance = await user.getLpBalance();
@@ -454,14 +679,20 @@ async function main() {
     console.log(`... staked their ${lpBalance} (atomic) lp tokens`);
   };
 
-  const unstake = async (setupIndex: number, userIndex: number, amount: bigint) => {
+  const unstake = async (
+    setupIndex: number,
+    userIndex: number,
+    amount: bigint,
+  ) => {
     const setup = setups[setupIndex];
     const user = setup.users[userIndex];
     await user.unstake(amount);
-    console.log(`user ${userIndex} for setup ${setupIndex} unstaked ${amount} (atomic) lp tokens`);
-  }
+    console.log(
+      `user ${userIndex} for setup ${setupIndex} unstaked ${amount} (atomic) lp tokens`,
+    );
+  };
 
-  const sleepFor = async(seconds: number) => {
+  const sleepFor = async (seconds: number) => {
     console.log(`now sleeping for ${seconds} seconds...`);
     await sleep(seconds);
     console.log(`*yawn* refreshing!`);

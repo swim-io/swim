@@ -18,7 +18,7 @@ describe("deserializeSwimPool", () => {
       isPaused: false,
       ampFactor: {
         initialValue: {
-          value: new BN(0o1),
+          value: new BN(1),
           decimals: 0,
         },
         initialTs: new BN(0),

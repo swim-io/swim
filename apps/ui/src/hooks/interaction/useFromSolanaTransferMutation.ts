@@ -13,7 +13,7 @@ import {
   getSolanaTokenDetails,
   isEvmEcosystemId,
 } from "../../config";
-import { useEvmConnections, useSolanaConnection } from "../../contexts";
+import { useSolanaConnection } from "../../contexts";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {
@@ -28,6 +28,7 @@ import {
 import { DEFAULT_WORMHOLE_RETRIES } from "../../models/wormhole/constants";
 import { findOrThrow } from "../../utils";
 import { useWallets } from "../crossEcosystem";
+import { useEvmConnections } from "../evm";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 
 export const useFromSolanaTransferMutation = () => {
@@ -165,9 +166,10 @@ export const useFromSolanaTransferMutation = () => {
             `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
           );
         }
-        const evmReceipt = await evmConnections[
-          toEcosystem
-        ].getTxReceiptOrThrow(redeemResponse);
+        const evmConnection = evmConnections[toEcosystem];
+        const evmReceipt = await evmConnection.getTxReceiptOrThrow(
+          redeemResponse,
+        );
         const claimTokenOnEvmTxId = evmReceipt.transactionHash;
         // Update transfer state with txId
         updateInteractionState(interactionId, (draft) => {

@@ -15,7 +15,7 @@ import {
   getSolanaTokenDetails,
   isEvmEcosystemId,
 } from "../../config";
-import { useEvmConnections, useSolanaConnection } from "../../contexts";
+import { useSolanaConnection } from "../../contexts";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { EvmConnection, EvmTx } from "../../models";
@@ -27,6 +27,7 @@ import {
 } from "../../models";
 import { findOrThrow } from "../../utils";
 import { useWallets } from "../crossEcosystem";
+import { useEvmConnections } from "../evm";
 import { useSplTokenAccountsQuery } from "../solana";
 
 const txResponseToTx = async (
@@ -49,8 +50,8 @@ const txResponseToTx = async (
 export const useToSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
   const { chains, wormhole } = useEnvironment(selectConfig, shallow);
-  const evmConnections = useEvmConnections();
   const solanaConnection = useSolanaConnection();
+  const evmConnections = useEvmConnections();
   const wallets = useWallets();
   const solanaWallet = wallets[EcosystemId.Solana].wallet;
   const solanaWormhole = chains[Protocol.Solana][0].wormhole;

@@ -1696,21 +1696,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@certusone/wormhole-sdk@npm:^0.2.6":
-  version: 0.2.7
-  resolution: "@certusone/wormhole-sdk@npm:0.2.7"
+"@certusone/wormhole-sdk@npm:^0.4.5":
+  version: 0.4.5
+  resolution: "@certusone/wormhole-sdk@npm:0.4.5"
   dependencies:
     "@improbable-eng/grpc-web": ^0.14.0
     "@solana/spl-token": ^0.1.8
     "@solana/web3.js": ^1.24.0
-    "@terra-money/terra.js": ^3.0.7
+    "@terra-money/terra.js": ^3.1.3
     algosdk: ^1.15.0
     axios: ^0.24.0
     bech32: ^2.0.0
     js-base64: ^3.6.1
     protobufjs: ^6.11.2
     rxjs: ^7.3.0
-  checksum: 499646ebd3fc011fba917444d9b9b87d31e02f96d95a9e53b04b60bc30caab97b512527a83f0751307a4544f3691d1c9d406dc3539c202d9cdd7b1c9dcdfdce8
+  checksum: f5a41465809f1deac480dfe5f8f5b0d52b9cec315f7e8718c04f7b152c9f6217a062451efed2fc6919215177e161f758b91512fc01a882711914f78e8c7e5cba
   languageName: node
   linkType: hard
 
@@ -2179,6 +2179,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ethersproject/abi@npm:5.6.4":
+  version: 5.6.4
+  resolution: "@ethersproject/abi@npm:5.6.4"
+  dependencies:
+    "@ethersproject/address": ^5.6.1
+    "@ethersproject/bignumber": ^5.6.2
+    "@ethersproject/bytes": ^5.6.1
+    "@ethersproject/constants": ^5.6.1
+    "@ethersproject/hash": ^5.6.1
+    "@ethersproject/keccak256": ^5.6.1
+    "@ethersproject/logger": ^5.6.0
+    "@ethersproject/properties": ^5.6.0
+    "@ethersproject/strings": ^5.6.1
+  checksum: b5e70fa13a29e1143131a0ed25053a3d355c07353e13d436f42add33f40753b5541a088cf31a1ccca6448bb1d773a41ece0bf8367490d3f2ad394a4c26f4876f
+  languageName: node
+  linkType: hard
+
 "@ethersproject/abstract-provider@npm:5.6.0":
   version: 5.6.0
   resolution: "@ethersproject/abstract-provider@npm:5.6.0"
@@ -2549,6 +2566,15 @@ __metadata:
   dependencies:
     "@ethersproject/logger": ^5.6.0
   checksum: 94d2981eeed0accb69124cfb9a807552ada98b370415c9d906018bd70a33bc5a1286ff01eb2a3ce213c12334fcc7ab635ad0429f25a687b9b8f34d26d21df74b
+  languageName: node
+  linkType: hard
+
+"@ethersproject/networks@npm:5.6.4":
+  version: 5.6.4
+  resolution: "@ethersproject/networks@npm:5.6.4"
+  dependencies:
+    "@ethersproject/logger": ^5.6.0
+  checksum: d41c07497de4ace3f57e972428685a8703a867600cf01f2bc15a21fcb7f99afb3f05b3d8dbb29ac206473368f30d60b98dc445cc38403be4cbe6f804f70e5173
   languageName: node
   linkType: hard
 
@@ -3981,7 +4007,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@project-serum/borsh@npm:^0.2.2, @project-serum/borsh@npm:^0.2.3, @project-serum/borsh@npm:^0.2.5":
+"@project-serum/borsh@npm:^0.2.3, @project-serum/borsh@npm:^0.2.5":
   version: 0.2.5
   resolution: "@project-serum/borsh@npm:0.2.5"
   dependencies:
@@ -4448,7 +4474,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@solana/web3.js@npm:^1.21.0, @solana/web3.js@npm:^1.24.0, @solana/web3.js@npm:^1.33.0":
+"@solana/web3.js@npm:^1.21.0, @solana/web3.js@npm:^1.24.0":
   version: 1.41.3
   resolution: "@solana/web3.js@npm:1.41.3"
   dependencies:
@@ -4542,6 +4568,30 @@ __metadata:
     superstruct: ^0.14.2
     tweetnacl: ^1.0.0
   checksum: bbb5f83956111f0a8ddcc1d896402747c1bb523c5b99573011138260fcf7eca504a52c3e5faeed0aa974f13d02fb83710c1a45fae5aefdd1c49a18989c46ab72
+  languageName: node
+  linkType: hard
+
+"@solana/web3.js@npm:^1.44.3":
+  version: 1.44.3
+  resolution: "@solana/web3.js@npm:1.44.3"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+    "@ethersproject/sha2": ^5.5.0
+    "@solana/buffer-layout": ^4.0.0
+    bigint-buffer: ^1.1.5
+    bn.js: ^5.0.0
+    borsh: ^0.7.0
+    bs58: ^4.0.1
+    buffer: 6.0.1
+    fast-stable-stringify: ^1.0.0
+    jayson: ^3.4.4
+    js-sha3: ^0.8.0
+    node-fetch: 2
+    rpc-websockets: ^7.4.2
+    secp256k1: ^4.0.2
+    superstruct: ^0.14.2
+    tweetnacl: ^1.0.0
+  checksum: ef35951ad947d5f830fcc8d5b444424ce65752f4f935d5a4eccae85f4867eeb2e8e3e89005a2ee217771253d1c5428e7537de339c557f22c8cb5e2f5204ec5df
   languageName: node
   linkType: hard
 
@@ -6024,7 +6074,7 @@ __metadata:
   resolution: "@swim-io/ui@workspace:apps/ui"
   dependencies:
     "@babel/plugin-proposal-nullish-coalescing-operator": ^7.17.12
-    "@certusone/wormhole-sdk": ^0.2.6
+    "@certusone/wormhole-sdk": ^0.4.5
     "@craco/craco": ^6.4.3
     "@elastic/datemath": ^5.0.3
     "@elastic/eui": ^38.2.0
@@ -6032,14 +6082,14 @@ __metadata:
     "@ledgerhq/hw-transport-webusb": ^6.0.2
     "@metaplex/js": ^4.12.0
     "@project-serum/anchor": ^0.24.2
-    "@project-serum/borsh": ^0.2.2
+    "@project-serum/borsh": ^0.2.5
     "@project-serum/sol-wallet-adapter": ^0.2.4
     "@sayari/eslint-plugin": ^0.0.1-rc.4
     "@sentry/react": ^7.3.0
     "@sentry/tracing": ^7.3.0
     "@sentry/webpack-plugin": ^1.18.9
     "@solana/spl-token": ^0.1.8
-    "@solana/web3.js": ^1.33.0
+    "@solana/web3.js": ^1.44.3
     "@storybook/addon-actions": ^6.5.9
     "@storybook/addon-docs": ^6.5.9
     "@storybook/addon-essentials": ^6.5.9
@@ -6056,14 +6106,14 @@ __metadata:
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^7.0.2
     "@testing-library/user-event": ^13.5.0
-    "@typechain/ethers-v5": ^7.0.1
+    "@typechain/ethers-v5": ^7.2.0
     "@types/bn.js": ^5.1.0
     "@types/jest": ^28.1.3
     "@types/node": ^18.0.0
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
     "@typescript-eslint/eslint-plugin": ^5.21.0
-    bn.js: ^5.2.0
+    bn.js: ^5.2.1
     constate: ^3.3.0
     decimal.js: ^10.3.1
     dexie: ^3.2.2
@@ -6076,13 +6126,13 @@ __metadata:
     eslint-plugin-prettier: ^3.4.1
     eslint-plugin-react: ^7.29.4
     eslint-plugin-storybook: ^0.5.13
-    ethers: ^5.4.4
+    ethers: ^5.6.9
     graphql: ^16.5.0
     graphql-request: ^4.3.0
     immer: ^9.0.15
     jest-mock-extended: ^2.0.6
     moment: ^2.29.3
-    moralis: ^1.3.5
+    moralis: ^1.8.0
     node-sass: ^6
     prettier: ^2.7.1
     react: ^17.0.2
@@ -6091,7 +6141,7 @@ __metadata:
     react-responsive-carousel: ^3.2.23
     react-router-dom: ^6.3.0
     react-scripts: 4.0.3
-    typechain: ^5.1.2
+    typechain: ^5.2.0
     typescript: ~4.7.4
     wasm-loader: ^1.3.0
     web-vitals: ^1.1.2
@@ -6111,12 +6161,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terra-money/terra.js@npm:^3.0.7":
-  version: 3.1.0
-  resolution: "@terra-money/terra.js@npm:3.1.0"
+"@terra-money/terra.js@npm:^3.1.3":
+  version: 3.1.3
+  resolution: "@terra-money/terra.js@npm:3.1.3"
   dependencies:
     "@terra-money/legacy.proto": "npm:@terra-money/terra.proto@^0.1.7"
-    "@terra-money/terra.proto": ^0.2.0-beta.4
+    "@terra-money/terra.proto": ~2.0.0
     axios: ^0.26.1
     bech32: ^2.0.0
     bip32: ^2.0.6
@@ -6129,19 +6179,19 @@ __metadata:
     tmp: ^0.2.1
     utf-8-validate: ^5.0.5
     ws: ^7.5.5
-  checksum: acc0414b39b5acb8f9fc93166f5cd4771fae4cf25a6b7ef61bbf791bf34b53302689ba7f8365f4ef36402778bac5daa301ac4b927f7598d5c9e0d16a2f8b5070
+  checksum: 9337a5cad9a2d9c858cec8dcd6bb7af6fa8129c174157edcbe67d075bf46163f90e4061c0c64fb0caba2b416f2492442cc136627ebaf41e62ee54ef3639980eb
   languageName: node
   linkType: hard
 
-"@terra-money/terra.proto@npm:^0.2.0-beta.4":
-  version: 0.2.0-beta.4
-  resolution: "@terra-money/terra.proto@npm:0.2.0-beta.4"
+"@terra-money/terra.proto@npm:~2.0.0":
+  version: 2.0.0
+  resolution: "@terra-money/terra.proto@npm:2.0.0"
   dependencies:
     "@improbable-eng/grpc-web": ^0.14.1
     google-protobuf: ^3.17.3
     long: ^4.0.0
     protobufjs: ~6.11.2
-  checksum: 37c42e29c846531f64f595a076378d415964f72181110f63b3cab72746c963706d64d71997af5a1eae28ce41a8e6c9f431c0d3597387cb48b91976836683ab1f
+  checksum: 6bd13988f6581aa96534ed1440784d3189ac82a0baab7d0244b9abe580ebf9caa552f6814d9d11a6d05fc9eb14ec9fefdbf8749f8e821b06105e35509e65dc56
   languageName: node
   linkType: hard
 
@@ -6267,7 +6317,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typechain/ethers-v5@npm:^7.0.1":
+"@typechain/ethers-v5@npm:^7.2.0":
   version: 7.2.0
   resolution: "@typechain/ethers-v5@npm:7.2.0"
   dependencies:
@@ -13120,7 +13170,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.4.1, ethers@npm:^5.4.4":
+"ethers@npm:^5.4.1":
   version: 5.6.8
   resolution: "ethers@npm:5.6.8"
   dependencies:
@@ -13155,6 +13205,44 @@ __metadata:
     "@ethersproject/web": 5.6.1
     "@ethersproject/wordlists": 5.6.1
   checksum: 3ef1e1509e96029839330bef465c368fee140d98c4fb23d743a0904b7ebdf70fa3c79683a2350355c9400497a5c179fe988d84a2b578d756f09c80462a94f614
+  languageName: node
+  linkType: hard
+
+"ethers@npm:^5.6.9":
+  version: 5.6.9
+  resolution: "ethers@npm:5.6.9"
+  dependencies:
+    "@ethersproject/abi": 5.6.4
+    "@ethersproject/abstract-provider": 5.6.1
+    "@ethersproject/abstract-signer": 5.6.2
+    "@ethersproject/address": 5.6.1
+    "@ethersproject/base64": 5.6.1
+    "@ethersproject/basex": 5.6.1
+    "@ethersproject/bignumber": 5.6.2
+    "@ethersproject/bytes": 5.6.1
+    "@ethersproject/constants": 5.6.1
+    "@ethersproject/contracts": 5.6.2
+    "@ethersproject/hash": 5.6.1
+    "@ethersproject/hdnode": 5.6.2
+    "@ethersproject/json-wallets": 5.6.1
+    "@ethersproject/keccak256": 5.6.1
+    "@ethersproject/logger": 5.6.0
+    "@ethersproject/networks": 5.6.4
+    "@ethersproject/pbkdf2": 5.6.1
+    "@ethersproject/properties": 5.6.0
+    "@ethersproject/providers": 5.6.8
+    "@ethersproject/random": 5.6.1
+    "@ethersproject/rlp": 5.6.1
+    "@ethersproject/sha2": 5.6.1
+    "@ethersproject/signing-key": 5.6.2
+    "@ethersproject/solidity": 5.6.1
+    "@ethersproject/strings": 5.6.1
+    "@ethersproject/transactions": 5.6.2
+    "@ethersproject/units": 5.6.1
+    "@ethersproject/wallet": 5.6.2
+    "@ethersproject/web": 5.6.1
+    "@ethersproject/wordlists": 5.6.1
+  checksum: e4a029ad55da2355cb7b0ff178b38b0df27f9013604b0600c246dba297223ac2ce8ef0380758fa535cd82ea46bceb4a71aeb29949e1693f3a9c60d4cdaceb208
   languageName: node
   linkType: hard
 
@@ -18808,9 +18896,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moralis@npm:^1.3.5":
-  version: 1.7.0
-  resolution: "moralis@npm:1.7.0"
+"moralis@npm:^1.8.0":
+  version: 1.8.0
+  resolution: "moralis@npm:1.8.0"
   dependencies:
     "@babel/runtime": 7.16.7
     "@babel/runtime-corejs3": 7.16.8
@@ -18825,7 +18913,7 @@ __metadata:
   dependenciesMeta:
     crypto-js:
       optional: true
-  checksum: 3d1a07d2232bdca17f1ff73cba959993734b028b19f9ec5ed4dc2225a5fa168d7012c774c54ce2ef4382d60fc10f7bf03ba8a855744fa30c8ba20d5e400d8cd8
+  checksum: 8370a5a74d3724e81d6549796abffef30e9d13cd18145709aedaa4926073ad83ad905941ea6fec88c2fbf43d0475efc1003506dcf469ff69a7c4f9b9dd555219
   languageName: node
   linkType: hard
 
@@ -25283,7 +25371,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typechain@npm:^5.1.2":
+"typechain@npm:^5.2.0":
   version: 5.2.0
   resolution: "typechain@npm:5.2.0"
   dependencies:

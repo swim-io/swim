@@ -283,8 +283,8 @@ export class EvmConnection {
 
   public async getEthBalance(walletAddress: string): Promise<Decimal> {
     try {
-      const balance = await this.provider.getBalance(walletAddress);
-      return new Decimal(balance.toString());
+      const balanceInWei = await this.provider.getBalance(walletAddress);
+      return new Decimal(ethers.utils.formatUnits(balanceInWei));
     } catch {
       return new Decimal(0);
     }

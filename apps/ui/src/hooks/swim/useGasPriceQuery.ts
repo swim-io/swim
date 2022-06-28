@@ -1,4 +1,5 @@
 import Decimal from "decimal.js";
+import { utils as ethersUtils } from "ethers";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
@@ -17,12 +18,10 @@ export const useGasPriceQuery = (
   return useQuery(
     ["gasPrice", env, evmEcosystemId],
     async () => {
-      // The BSC connection still returns the gas price in "wei" (ie 1e-18 BNB)
-      // even though this is not a valid unit of BNB
       const gasPriceInWei = await connection.provider.getGasPrice();
       const gasPriceInNativeCurrency = new Decimal(
-        gasPriceInWei.toString(),
-      ).mul(1e-18);
+        ethersUtils.formatUnits(gasPriceInWei),
+      );
       // Multiply by 1.1 to give some margin
       return gasPriceInNativeCurrency.mul(1.1);
     },

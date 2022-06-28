@@ -62,7 +62,9 @@ export const useSolanaPoolOperationsMutation = () => {
         draft.solanaPoolOperations[0].txId = inputTxId;
       });
     }
-
+    if (solanaPoolOperations.length === 1) {
+      return;
+    }
     if (solanaPoolOperations.length !== 2) {
       throw new Error("Unknown interaction route");
     }

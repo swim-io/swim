@@ -11,7 +11,7 @@ npm install @swim-io/solana-types
 ## Usage
 
 ```ts
-import { SolanaConnection } from "@solana/web3.js";
+import { PublicKey, SolanaConnection } from "@solana/web3.js";
 import type { SwimPoolState } from "@swim-io/solana-types";
 import { deserializeSwimPool } from "@swim-io/solana-types";
 

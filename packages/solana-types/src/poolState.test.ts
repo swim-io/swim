@@ -92,13 +92,15 @@ describe("deserializeSwimPool", () => {
     expect(decoded.governanceFee).toBe(expected.governanceFee);
     expect(decoded.lpMintKey).toStrictEqual(expected.lpMintKey);
     expect(decoded.lpDecimalEqualizer).toBe(expected.lpDecimalEqualizer);
-    expect(decoded.tokenMintKeys.toString()).toBe(
-      expected.tokenMintKeys.toString(),
-    );
-    expect(decoded.tokenDecimalEqualizers.toString()).toBe(
-      expected.tokenDecimalEqualizers.toString(),
-    );
-    expect(decoded.tokenKeys.toString()).toBe(expected.tokenKeys.toString());
+    decoded.tokenMintKeys.forEach((tokenMintKey, i) => {
+      expect(tokenMintKey).toStrictEqual(expected.tokenMintKeys[i]);
+    });
+    decoded.tokenDecimalEqualizers.forEach((tokenDecimalEqualizer, i) => {
+      expect(tokenDecimalEqualizer).toBe(expected.tokenDecimalEqualizers[i]);
+    });
+    decoded.tokenKeys.forEach((tokenKey, i) => {
+      expect(tokenKey).toStrictEqual(expected.tokenKeys[i]);
+    });
     expect(decoded.governanceKey).toStrictEqual(expected.governanceKey);
     expect(decoded.governanceFeeKey).toStrictEqual(expected.governanceFeeKey);
     expect(decoded.preparedGovernanceKey).toStrictEqual(

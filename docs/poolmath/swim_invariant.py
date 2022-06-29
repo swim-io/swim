@@ -1,11 +1,12 @@
 import math
 from decimal import *
 
-getcontext().prec = 28
+getcontext().prec = 350
 
-toBitsValueString = lambda val: format(
-    f"bits: {int(math.ceil(math.log(val)/math.log(2))):>4}, value: {val:>50.10f}"
-)
+printNumerics = False
+
+requiredBits = lambda val: int(math.ceil(math.log(val+1)/math.log(2)))
+toBitsValueString = lambda val: format(f"bits: {requiredBits(val):>4}, value: {val:>50.10f}")
 
 class SwimPool:
     def __init__(
@@ -279,6 +280,19 @@ class SwimPool:
         A = self.amp_factor
         SA = Decimal(sum(balances) * A)
 
+        global printNumerics
+        if printNumerics:
+          veryLarge = 1000000000
+          #RB = required bits
+          reciprocalMaxRB  = -veryLarge
+          numeratorMaxRB   = -veryLarge
+          denominatorMaxRB = -veryLarge
+          depthMaxRB       = -veryLarge
+          reciprocalMinRB  = veryLarge
+          numeratorMinRB   = veryLarge
+          denominatorMinRB = veryLarge
+          depthMinRB       = veryLarge
+
         # def geometric_mean(balances):
         #     gm = 1
         #     for balance in balances:
@@ -289,7 +303,7 @@ class SwimPool:
         for i in range(self.max_iterations):
             reciprocal_decay = Decimal(1)
             for balance in balances:
-                # # print(f"* Breciprocal_decay: {toBitsValueString(reciprocal_decay)}")
+                # print(f"* Breciprocal_decay: {toBitsValueString(reciprocal_decay)}")
                 reciprocal_decay *= depth_approx / Decimal(self.token_count * balance)
 
             numerator = Decimal(SA + self.token_count * depth_approx * reciprocal_decay)
@@ -297,12 +311,29 @@ class SwimPool:
                 Decimal(A - 1) + Decimal(self.token_count + 1) * reciprocal_decay
             )
             depth_next = numerator / denominator
+
+            if printNumerics:
+              reciprocalMaxRB  = max(reciprocalMaxRB,  requiredBits(reciprocal_decay))
+              numeratorMaxRB   = max(numeratorMaxRB,   requiredBits(numerator))
+              denominatorMaxRB = max(denominatorMaxRB, requiredBits(denominator))
+              depthMaxRB       = max(depthMaxRB,       requiredBits(depth_next))
+              reciprocalMinRB  = min(reciprocalMinRB,  requiredBits(reciprocal_decay))
+              numeratorMinRB   = min(numeratorMinRB,   requiredBits(numerator))
+              denominatorMinRB = min(denominatorMinRB, requiredBits(denominator))
+              depthMinRB       = min(depthMinRB,       requiredBits(depth_next))
+
             # print(f"*  reciprocal_decay: {toBitsValueString(reciprocal_decay)}")
             # print(f"*         numerator: {toBitsValueString(numerator)}")
             # print(f"*       denominator: {toBitsValueString(denominator)}")
             # print(f"*             depth: {toBitsValueString(depth_next)}")
             if abs(depth_next - depth_approx) <= self.tolerance:
-                # print("n calc_depth converged after:", i + 1)
+                if printNumerics:
+                  print(f"calc_depth converged after {i + 1} iterations")
+                  print(f"reciprocal_decay Max/MinRB: {reciprocalMaxRB:>3} {reciprocalMinRB:>3}")
+                  print(f"       numerator Max/MinRB: {numeratorMaxRB:>3} {numeratorMinRB:>3}")
+                  print(f"     denominator Max/MinRB: {denominatorMaxRB:>3} {denominatorMinRB:>3}")
+                  print(f"           depth Max/MinRB: {depthMaxRB:>3} {depthMinRB:>3}")
+
                 return depth_next
             depth_approx = depth_next
         assert False
@@ -320,21 +351,46 @@ class SwimPool:
         numerator_fixed = DA * depth / self.token_count * reciprocal_decay
         denominator_fixed = sum(known_balances) + DA
 
-        # print(f"*  reciprocal_decay: {toBitsValueString(reciprocal_decay)}")
-        # print(f"*   numerator_fixed: {toBitsValueString(numerator_fixed)}")
-        # print(f"* denominator_fixed: {toBitsValueString(denominator_fixed)}")
+        global printNumerics
+        if printNumerics:
+          print(f"*  reciprocal_decay: {toBitsValueString(reciprocal_decay)}")
+          print(f"*   numerator_fixed: {toBitsValueString(numerator_fixed)}")
+          print(f"* denominator_fixed: {toBitsValueString(denominator_fixed)}")
+
+          veryLarge = 1000000000
+          #RB = required bits
+          numeratorMaxRB = -veryLarge
+          denominatorMaxRB = -veryLarge
+          missingMaxRB = -veryLarge
+          numeratorMinRB = veryLarge
+          denominatorMinRB = veryLarge
+          missingMinRB = veryLarge
 
         missing_balance_approx = depth if not initial_guess else initial_guess
         for i in range(self.max_iterations):
             numerator = missing_balance_approx ** 2 + numerator_fixed
             denominator = 2 * missing_balance_approx + denominator_fixed - depth
             missing_balance_next = numerator / denominator
-            # print(f"*         numerator: {toBitsValueString(reciprocal_decay)}")
+
+            if printNumerics:
+              numeratorMaxRB   = max(numeratorMaxRB,   requiredBits(numerator))
+              denominatorMaxRB = max(denominatorMaxRB, requiredBits(denominator))
+              missingMaxRB     = max(missingMaxRB,     requiredBits(missing_balance_next))
+              numeratorMinRB   = min(numeratorMinRB,   requiredBits(numerator))
+              denominatorMinRB = min(denominatorMinRB, requiredBits(denominator))
+              missingMinRB     = min(missingMinRB,     requiredBits(missing_balance_next))
+
+            # print(f"*         numerator: {toBitsValueString(numerator)}")
             # print(f"*       denominator: {toBitsValueString(denominator)}")
             # print(f"*   missing_balance: {toBitsValueString(missing_balance_next)}")
             if abs(missing_balance_next - missing_balance_approx) <= self.tolerance:
-                # print("n missing_balance converged after:", i + 1)
-                return missing_balance_next
+              if printNumerics:
+                print(f"missing_balance converged after {i + 1} iterations")
+                print(f"       numerator Max/MinRB: {numeratorMaxRB:>3} {numeratorMinRB:>3}")
+                print(f"     denominator Max/MinRB: {denominatorMaxRB:>3} {denominatorMinRB:>3}")
+                print(f" missing balance Max/MinRB: {missingMaxRB:>3} {missingMinRB:>3}")
+
+              return missing_balance_next
             missing_balance_approx = missing_balance_next
         assert False
 

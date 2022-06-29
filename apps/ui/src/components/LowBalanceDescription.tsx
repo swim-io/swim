@@ -19,12 +19,12 @@ const createListItem = (ecosystem: Ecosystem): ReactElement => {
     return (
       <li key={ecosystem.displayName}>
         <a href={ecosystemIdToDoc.get(ecosystem.id)}>
-          {ecosystem.displayName + "*"}
+          {`${ecosystem.displayName}*`}
         </a>
       </li>
     );
   }
-  return <li key={ecosystem.displayName}>{ecosystem.displayName}</li>;
+  return <li key={ecosystem.id}>{ecosystem.displayName}</li>;
 };
 
 interface Props {
@@ -50,11 +50,10 @@ const LowPolkadotBalanceWarning = ({
 };
 
 export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
-  let isLowPolkadotBalance = false;
+  const isLowPolkadotBalance = lowBalanceWallets.some((ecosystemId) =>
+    ecosystemIdToDoc.has(ecosystemId),
+  );
   const lowBalanceEcosystems = lowBalanceWallets.map((ecosystemId) => {
-    if ([EcosystemId.Acala, EcosystemId.Karura].includes(ecosystemId)) {
-      isLowPolkadotBalance = true;
-    }
     return ecosystems[ecosystemId];
   });
   return (

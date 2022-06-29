@@ -1,12 +1,11 @@
-import { EuiListGroup, EuiLoadingSpinner, EuiText } from "@elastic/eui";
 import type React from "react";
 
-import { EcosystemId, ecosystems } from "../../config";
+import { EcosystemId } from "../../config";
 import type { FromSolanaTransferState, Interaction } from "../../models";
 import { getToEcosystemOfFromSolanaTransfer } from "../../models";
 import { isNotNull } from "../../utils";
 
-import { TxListItem } from "./TxListItem";
+import { Transfer } from "./Transfer";
 
 interface Props {
   readonly interaction: Interaction;
@@ -21,7 +20,6 @@ export const FromSolanaTransferComponent: React.FC<Props> = ({
 }) => {
   const { token, txIds } = transfer;
   const toEcosystem = getToEcosystemOfFromSolanaTransfer(transfer, interaction);
-  const toEcosystemDisplayName = ecosystems[toEcosystem].displayName;
   const { transferSplToken, claimTokenOnEvm } = txIds;
   const transferSplTokenTxProps = transferSplToken
     ? {
@@ -44,17 +42,12 @@ export const FromSolanaTransferComponent: React.FC<Props> = ({
   const isLoading = isInteractionActive && isPendingTransfer;
 
   return (
-    <EuiText size="m">
-      <span>
-        {isLoading && <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />}
-        <span>{`Transfer ${token.displayName} from Solana to ${toEcosystemDisplayName}`}</span>
-      </span>
-      <br />
-      <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-        {completedTxs.map((tx) => (
-          <TxListItem key={tx.txId} {...tx} />
-        ))}
-      </EuiListGroup>
-    </EuiText>
+    <Transfer
+      token={token}
+      from={EcosystemId.Solana}
+      to={toEcosystem}
+      isLoading={isLoading}
+      transactions={completedTxs}
+    />
   );
 };

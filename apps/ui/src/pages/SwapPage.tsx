@@ -11,29 +11,22 @@ import {
 } from "@elastic/eui";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { RecentInteractionsV2 } from "../components/RecentInteractionsV2";
+import { RecentInteractions } from "../components/RecentInteractions";
 import { SlippageButton } from "../components/SlippageButton";
 import { SwapForm } from "../components/SwapForm";
 import { selectConfig } from "../core/selectors";
-import { useEnvironment, useInteractionState } from "../core/store";
+import { useEnvironment } from "../core/store";
 import { useTitle } from "../hooks";
-import { InteractionType } from "../models";
+import { INTERACTION_GROUP_SWAP } from "../models";
 import { defaultIfError } from "../utils";
 
 import "./SwapPage.scss";
 
 const SwapPage = (): ReactElement => {
   const { pools } = useEnvironment(selectConfig, shallow);
-  const env = useEnvironment((state) => state.env);
-  const loadInteractionStatesFromIDB = useInteractionState(
-    (state) => state.loadInteractionStatesFromIDB,
-  );
-  useEffect(() => {
-    loadInteractionStatesFromIDB(env);
-  }, [env, loadInteractionStatesFromIDB]);
 
   useTitle("Swap");
 
@@ -79,9 +72,9 @@ const SwapPage = (): ReactElement => {
             )}
 
             <EuiSpacer />
-            <RecentInteractionsV2
+            <RecentInteractions
               title="Recent swaps"
-              interactionTypes={[InteractionType.Swap]}
+              interactionTypes={INTERACTION_GROUP_SWAP}
             />
           </EuiPageContentBody>
         </EuiPageContent>

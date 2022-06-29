@@ -15,7 +15,7 @@ import {
 } from "@elastic/eui";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import {
@@ -34,17 +34,19 @@ import {
   useMultipleUserBalances,
   usePool,
   usePoolMath,
-  usePrevious,
   useSplTokenAccountsQuery,
-  useStepsReducer,
   useUserBalanceAmounts,
   useUserNativeBalances,
   useWallets,
 } from "../hooks";
 import {
+  useHasActiveInteraction,
+  useStartNewInteraction,
+} from "../hooks/interaction";
+import {
   Amount,
+  INTERACTION_GROUP_ADD,
   InteractionType,
-  Status,
   getLowBalanceWallets,
   isValidSlippageFraction,
 } from "../models";
@@ -55,8 +57,8 @@ import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
+import { RecentInteractions } from "./RecentInteractions";
 import { SolanaTpsWarning } from "./SolanaTpsWarning";
-import { StepsDisplay } from "./StepsDisplay";
 import { TokenIcon } from "./TokenIcon";
 
 interface TokenAddPanelProps {
@@ -175,13 +177,11 @@ const EcosystemAddPanel = ({
 };
 
 interface AddFormProps {
-  readonly setCurrentInteraction: (id: string) => void;
   readonly poolSpec: PoolSpec;
   readonly maxSlippageFraction: Decimal | null;
 }
 
 export const AddForm = ({
-  setCurrentInteraction,
   poolSpec,
   maxSlippageFraction,
 }: AddFormProps): ReactElement => {
@@ -197,13 +197,8 @@ export const AddForm = ({
   const poolMath = usePoolMath(poolSpec.id);
   const userBalances = useMultipleUserBalances(poolTokens);
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
-  const {
-    state: { interaction, steps, status },
-    retryInteraction,
-    startInteraction,
-    mutations,
-    isInteractionInProgress,
-  } = useStepsReducer();
+  const startNewInteraction = useStartNewInteraction();
+  const isInteractionInProgress = useHasActiveInteraction();
   const userNativeBalances = useUserNativeBalances();
 
   const [lpTargetEcosystem, setLpTargetEcosystem] = useState(
@@ -213,13 +208,6 @@ export const AddForm = ({
   const [formInputAmounts, setFormInputAmounts] = useState<readonly string[]>(
     poolTokens.map(() => "0"),
   );
-
-  const prevStatus = usePrevious(status);
-  useEffect(() => {
-    if (status === Status.Done && prevStatus !== Status.Done) {
-      setFormInputAmounts(poolTokens.map(() => "0"));
-    }
-  }, [prevStatus, status, setFormInputAmounts, poolTokens]);
 
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
   const [inputAmountErrors, setInputAmountErrors] = useState<
@@ -447,23 +435,15 @@ export const AddForm = ({
       return;
     }
 
-    const interactionId = startInteraction(
-      {
-        type: InteractionType.Add,
-        poolId: poolSpec.id,
-        params: {
-          inputAmounts: inputAmounts.reduce(
-            (amountsByTokenId, amount) =>
-              amountsByTokenId.set(amount.tokenId, amount),
-            new Map(),
-          ),
-          minimumMintAmount,
-        },
-        lpTokenTargetEcosystem: lpTargetEcosystem,
+    startNewInteraction({
+      type: InteractionType.Add,
+      poolId: poolSpec.id,
+      params: {
+        inputAmounts,
+        minimumMintAmount,
       },
-      [poolMath],
-    );
-    setCurrentInteraction(interactionId);
+      lpTokenTargetEcosystem: lpTargetEcosystem,
+    });
   };
 
   const receiveLabel = poolSpec.isStakingPool
@@ -546,10 +526,7 @@ export const AddForm = ({
         type="submit"
         fullWidth
         fill
-        isLoading={
-          steps !== null &&
-          Object.values(mutations).some((mutation) => mutation.isLoading)
-        }
+        isLoading={isInteractionInProgress}
         isDisabled={isPoolPaused || isSubmitted}
       >
         {poolSpec.isStakingPool ? "Stake" : "Add"}
@@ -557,15 +534,11 @@ export const AddForm = ({
 
       <EuiSpacer />
 
-      {interaction && steps && (
-        <StepsDisplay
-          retryInteraction={retryInteraction}
-          interaction={interaction}
-          steps={steps}
-          status={status}
-          mutations={mutations}
-        />
-      )}
+      <RecentInteractions
+        title={"Recent adds"}
+        interactionTypes={INTERACTION_GROUP_ADD}
+      />
+
       <ConfirmModal
         isVisible={isConfirmModalVisible}
         onCancel={handleConfirmModalCancel}

@@ -1,5 +1,6 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type PoolMath from "@swim-io/pool-math";
+import type Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
 import {
@@ -9,13 +10,19 @@ import {
   useWallets,
 } from "..";
 import type { Config, TokenSpec } from "../../config";
-import {
-  EcosystemId,
-  getSolanaTokenDetails,
-  isEvmEcosystemId,
-} from "../../config";
+import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
+import type {
+  Amount,
+  FromSolanaTransferState,
+  Interaction,
+  InteractionSpec,
+  InteractionState,
+  RequiredSplTokenAccounts,
+  SolanaPoolOperationState,
+  ToSolanaTransferState,
+} from "../../models";
 import {
   InteractionType,
   createOperationSpecs,
@@ -25,15 +32,6 @@ import {
   getRequiredPools,
   getRequiredTokens,
   getTokensByPool,
-} from "../../models";
-import type {
-  FromSolanaTransferState,
-  Interaction,
-  InteractionSpec,
-  InteractionState,
-  RequiredSplTokenAccounts,
-  SolanaPoolOperationState,
-  ToSolanaTransferState,
 } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 import { isEachNotNull } from "../../utils";
@@ -67,33 +65,49 @@ export const createRequiredSplTokenAccounts = (
   }, {});
 };
 
+const getToSolanaTransferAmounts = (
+  interaction: Interaction,
+): readonly Amount[] => {
+  switch (interaction.type) {
+    case InteractionType.Swap:
+      return interaction.params.exactInputAmount.tokenSpec.nativeEcosystem !==
+        EcosystemId.Solana
+        ? [interaction.params.exactInputAmount]
+        : [];
+    case InteractionType.Add:
+      return interaction.params.inputAmounts.filter(
+        (amount) =>
+          amount.tokenSpec.nativeEcosystem !== EcosystemId.Solana &&
+          !amount.isZero(),
+      );
+    case InteractionType.RemoveExactBurn:
+    case InteractionType.RemoveUniform:
+      return interaction.lpTokenSourceEcosystem !== EcosystemId.Solana
+        ? [interaction.params.exactBurnAmount]
+        : [];
+    case InteractionType.RemoveExactOutput:
+      return interaction.lpTokenSourceEcosystem !== EcosystemId.Solana
+        ? [interaction.params.maximumBurnAmount]
+        : [];
+  }
+};
+
 export const createToSolanaTransfers = (
   interaction: Interaction,
 ): readonly ToSolanaTransferState[] => {
-  // Only for swap at the moment
-  if (interaction.type !== InteractionType.Swap) {
-    return [];
-  }
-  const {
-    params: { exactInputAmount },
-  } = interaction;
-  const fromToken = exactInputAmount.tokenSpec;
-  const fromEcosystem = fromToken.nativeEcosystem;
-  // No ToSolanaTransfer if fromToken is not Evm
-  if (!isEvmEcosystemId(fromEcosystem)) {
-    return [];
-  }
-  return [
-    {
+  return getToSolanaTransferAmounts(interaction).map((amount) => {
+    const fromToken = amount.tokenSpec;
+    const fromEcosystem = fromToken.nativeEcosystem;
+    return {
       token: fromToken,
-      value: exactInputAmount.toHuman(fromEcosystem),
+      value: amount.toHuman(fromEcosystem),
       txIds: {
         approveAndTransferEvmToken: [],
         postVaaOnSolana: [],
         claimTokenOnSolana: null,
       },
-    },
-  ];
+    };
+  });
 };
 
 export const createSolanaPoolOperations = (
@@ -121,31 +135,69 @@ export const createSolanaPoolOperations = (
   }));
 };
 
+const getFromSolanaTransferTokenAndValues = (
+  interaction: Interaction,
+): readonly {
+  readonly token: TokenSpec;
+  readonly value: Decimal | null;
+}[] => {
+  switch (interaction.type) {
+    case InteractionType.Swap:
+    case InteractionType.RemoveExactBurn:
+      return interaction.params.minimumOutputAmount.tokenSpec
+        .nativeEcosystem !== EcosystemId.Solana
+        ? [
+            {
+              token: interaction.params.minimumOutputAmount.tokenSpec,
+              value: null,
+            },
+          ]
+        : [];
+    case InteractionType.Add:
+      return interaction.lpTokenTargetEcosystem !== EcosystemId.Solana
+        ? [
+            {
+              token: interaction.params.minimumMintAmount.tokenSpec,
+              value: null,
+            },
+          ]
+        : [];
+    case InteractionType.RemoveUniform:
+      return interaction.params.minimumOutputAmounts
+        .filter(
+          (amount) => amount.tokenSpec.nativeEcosystem !== EcosystemId.Solana,
+        )
+        .map((amount) => ({
+          token: amount.tokenSpec,
+          value: null,
+        }));
+    case InteractionType.RemoveExactOutput:
+      return interaction.params.exactOutputAmounts
+        .filter(
+          (amount) =>
+            amount.tokenSpec.nativeEcosystem !== EcosystemId.Solana &&
+            !amount.isZero(),
+        )
+        .map((amount) => ({
+          token: amount.tokenSpec,
+          value: amount.toHuman(amount.tokenSpec.nativeEcosystem),
+        }));
+  }
+};
+
 export const createFromSolanaTransfers = (
   interaction: Interaction,
 ): readonly FromSolanaTransferState[] => {
-  // Only for swap at the moment
-  if (interaction.type !== InteractionType.Swap) {
-    return [];
-  }
-  const {
-    params: { minimumOutputAmount },
-  } = interaction;
-  const toToken = minimumOutputAmount.tokenSpec;
-  // No WormholeFromSolana if toToken is Solana
-  if (toToken.nativeEcosystem === EcosystemId.Solana) {
-    return [];
-  }
-  return [
-    {
-      token: toToken,
-      value: null,
+  return getFromSolanaTransferTokenAndValues(interaction).map(
+    ({ token, value }) => ({
+      token,
+      value,
       txIds: {
         transferSplToken: null,
         claimTokenOnEvm: null,
       },
-    },
-  ];
+    }),
+  );
 };
 
 export const useCreateInteractionState = () => {

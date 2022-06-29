@@ -2,7 +2,8 @@ import type { Table } from "dexie";
 import Dexie from "dexie";
 
 import type { Env } from "../../../config";
-import type { InteractionState } from "../../../models";
+import type { InteractionState, InteractionType } from "../../../models";
+import { INTERACTION_GROUPS } from "../../../models";
 
 import type { PersistedInteractionState } from "./helpers";
 import {
@@ -11,6 +12,14 @@ import {
 } from "./helpers";
 
 const MAX_STORED_INTERACTIONS = 10;
+
+const getInteractionTypeGroup = (interactionType: InteractionType) => {
+  const group = INTERACTION_GROUPS.find((set) => set.has(interactionType));
+  if (!group) {
+    throw new Error("Unknown interaction type");
+  }
+  return group;
+};
 
 type IDBState = {
   readonly id: string;
@@ -52,13 +61,17 @@ export const addInteractionStateToDb = (interactionState: InteractionState) => {
         },
         interactionState.interaction.id,
       );
+
+      const interactionGroup = getInteractionTypeGroup(
+        interactionState.interaction.type,
+      );
       const collection = await idb.interactionStates
         .filter(
           (idbState) =>
-            idbState.interaction.env === interactionState.interaction.env,
+            idbState.interaction.env === interactionState.interaction.env &&
+            interactionGroup.has(idbState.interaction.type),
         )
-        .sortBy("interaction.submittedAt")
-        .then((sorted) => sorted);
+        .sortBy("interaction.submittedAt");
       const size = collection.length;
       if (size > MAX_STORED_INTERACTIONS) {
         const diff = size - MAX_STORED_INTERACTIONS;

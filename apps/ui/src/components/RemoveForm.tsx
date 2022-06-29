@@ -26,18 +26,20 @@ import { captureAndWrapException } from "../errors";
 import {
   usePool,
   usePoolMath,
-  usePrevious,
   useRemoveFeesEstimationQuery,
   useSplTokenAccountsQuery,
-  useStepsReducer,
   useUserLpBalances,
   useUserNativeBalances,
   useWallets,
 } from "../hooks";
 import {
+  useHasActiveInteraction,
+  useStartNewInteraction,
+} from "../hooks/interaction";
+import {
   Amount,
+  INTERACTION_GROUP_REMOVE,
   InteractionType,
-  Status,
   getLowBalanceWallets,
   isValidSlippageFraction,
 } from "../models";
@@ -53,8 +55,8 @@ import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
+import { RecentInteractions } from "./RecentInteractions";
 import { SolanaTpsWarning } from "./SolanaTpsWarning";
-import { StepsDisplay } from "./StepsDisplay";
 import { TokenIcon } from "./TokenIcon";
 
 export const enum RemoveMethod {
@@ -64,13 +66,11 @@ export const enum RemoveMethod {
 }
 
 export interface RemoveFormProps {
-  readonly setCurrentInteraction: (id: string) => void;
   readonly poolSpec: PoolSpec;
   readonly maxSlippageFraction: Decimal | null;
 }
 
 export const RemoveForm = ({
-  setCurrentInteraction,
   poolSpec,
   maxSlippageFraction,
 }: RemoveFormProps): ReactElement => {
@@ -82,14 +82,9 @@ export const RemoveForm = ({
     userLpTokenAccount,
   } = usePool(poolSpec.id);
   const poolMath = usePoolMath(poolSpec.id);
-  const {
-    state: { interaction, steps, status },
-    retryInteraction,
-    startInteraction,
-    mutations,
-    isInteractionInProgress,
-  } = useStepsReducer();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
+  const startNewInteraction = useStartNewInteraction();
+  const isInteractionInProgress = useHasActiveInteraction();
   const userLpBalances = useUserLpBalances(lpToken, userLpTokenAccount);
   const wallets = useWallets();
   const userNativeBalances = useUserNativeBalances();
@@ -102,13 +97,6 @@ export const RemoveForm = ({
     [...poolSpec.tokenAccounts.keys()][0],
   );
   const [burnPercentage, setBurnPercentage] = useState(0);
-
-  const prevStatus = usePrevious(status);
-  useEffect(() => {
-    if (status === Status.Done && prevStatus !== Status.Done) {
-      setBurnPercentage(0);
-    }
-  }, [prevStatus, status, setBurnPercentage]);
 
   const userLpBalance = userLpBalances[lpTokenSourceEcosystem];
   const exactBurnAmount = userLpBalance
@@ -527,23 +515,15 @@ export const RemoveForm = ({
         const minimumOutputAmounts = outputAmounts.map((amount) =>
           amount.sub(amount.mul(maxSlippageFraction)),
         );
-        const interactionId = startInteraction(
-          {
-            type: InteractionType.RemoveUniform,
-            poolId: poolSpec.id,
-            params: {
-              exactBurnAmount,
-              minimumOutputAmounts: minimumOutputAmounts.reduce(
-                (amountsByTokenId, amount) =>
-                  amountsByTokenId.set(amount.tokenId, amount),
-                new Map(),
-              ),
-            },
-            lpTokenSourceEcosystem,
+        startNewInteraction({
+          type: InteractionType.RemoveUniform,
+          poolId: poolSpec.id,
+          params: {
+            exactBurnAmount,
+            minimumOutputAmounts,
           },
-          [poolMath],
-        );
-        setCurrentInteraction(interactionId);
+          lpTokenSourceEcosystem,
+        });
         return;
       }
       case RemoveMethod.ExactBurn: {
@@ -551,42 +531,30 @@ export const RemoveForm = ({
         const minimumOutputAmount = outputAmount.sub(
           outputAmount.mul(maxSlippageFraction),
         );
-        const interactionId = startInteraction(
-          {
-            type: InteractionType.RemoveExactBurn,
-            poolId: poolSpec.id,
-            params: {
-              exactBurnAmount,
-              minimumOutputAmount,
-            },
-            lpTokenSourceEcosystem,
+        startNewInteraction({
+          type: InteractionType.RemoveExactBurn,
+          poolId: poolSpec.id,
+          params: {
+            exactBurnAmount,
+            minimumOutputAmount,
           },
-          [poolMath],
-        );
-        setCurrentInteraction(interactionId);
+          lpTokenSourceEcosystem,
+        });
         return;
       }
       case RemoveMethod.ExactOutput: {
         if (maximumBurnAmount === null) {
           throw new Error("LP token estimate not available");
         }
-        const interactionId = startInteraction(
-          {
-            type: InteractionType.RemoveExactOutput,
-            poolId: poolSpec.id,
-            params: {
-              maximumBurnAmount,
-              exactOutputAmounts: outputAmounts.reduce(
-                (amountsByTokenId, amount) =>
-                  amountsByTokenId.set(amount.tokenId, amount),
-                new Map(),
-              ),
-            },
-            lpTokenSourceEcosystem,
+        startNewInteraction({
+          type: InteractionType.RemoveExactOutput,
+          poolId: poolSpec.id,
+          params: {
+            maximumBurnAmount,
+            exactOutputAmounts: outputAmounts,
           },
-          [poolMath],
-        );
-        setCurrentInteraction(interactionId);
+          lpTokenSourceEcosystem,
+        });
         return;
       }
       default:
@@ -790,24 +758,18 @@ export const RemoveForm = ({
         type="submit"
         fullWidth
         fill
-        isLoading={
-          steps !== null &&
-          Object.values(mutations).some((mutation) => mutation.isLoading)
-        }
+        isLoading={isInteractionInProgress}
         isDisabled={isSubmitted}
       >
         {poolSpec.isStakingPool ? "Unstake" : "Remove"}
       </EuiButton>
       <EuiSpacer />
-      {interaction && steps && (
-        <StepsDisplay
-          retryInteraction={retryInteraction}
-          interaction={interaction}
-          steps={steps}
-          status={status}
-          mutations={mutations}
-        />
-      )}
+
+      <RecentInteractions
+        title={"Recent removes"}
+        interactionTypes={INTERACTION_GROUP_REMOVE}
+      />
+
       <ConfirmModal
         isVisible={isConfirmModalVisible}
         onCancel={handleConfirmModalCancel}

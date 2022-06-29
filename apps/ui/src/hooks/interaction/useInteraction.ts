@@ -1,17 +1,8 @@
-import shallow from "zustand/shallow.js";
-
-import { selectConfig } from "../../core/selectors";
-import { useEnvironment } from "../../core/store";
-import { loadInteractions } from "../../models";
+import { selectGetInteractionState } from "../../core/selectors";
+import { useInteractionState } from "../../core/store";
 
 export const useInteraction = (interactionId: string) => {
-  const { env } = useEnvironment();
-  const config = useEnvironment(selectConfig, shallow);
-  const interactions = loadInteractions(env, config);
-  const interaction = interactions.find(({ id }) => id === interactionId);
-
-  if (!interaction) {
-    throw new Error("Interaction not found");
-  }
+  const getInteractionState = useInteractionState(selectGetInteractionState);
+  const { interaction } = getInteractionState(interactionId);
   return interaction;
 };

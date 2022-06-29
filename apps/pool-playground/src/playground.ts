@@ -6,7 +6,7 @@ import {
   //PoolInstructor,
   //secretToKeypair,
   Decimal,
- } from "@swim-io/pool-sdk";
+} from "@swim-io/pool-sdk";
 
 const withDecimals = (value: bigint, decimals: number) =>
   new Decimal(value.toString()).div(new Decimal(10).pow(decimals));
@@ -19,17 +19,28 @@ async function main() {
   const poolStateKey = "B1SAcuHscDM6JozshK8mEWXGzpfVPeeFVkf98GRnoqiT"; //testnet
 
   //const payer = secretToKeypair(JSON.parse(readFileSync("my_secret.json", "utf-8")));
-  const confirmOptions: ConfirmOptions = { commitment: "finalized", preflightCommitment: "finalized" };
+  const confirmOptions: ConfirmOptions = {
+    commitment: "finalized",
+    preflightCommitment: "finalized",
+  };
   const connection = new Connection(rpcUrl, confirmOptions);
 
   try {
     //get and print hexapool state
-    const poolState = await getPoolState(connection, new PublicKey(poolStateKey));
-    const poolAccounts = await Promise.all(poolState.tokenKeys.map(key => getAccount(connection, key)));
+    const poolState = await getPoolState(
+      connection,
+      new PublicKey(poolStateKey),
+    );
+    const poolAccounts = await Promise.all(
+      poolState.tokenKeys.map((key) => getAccount(connection, key)),
+    );
     const lpMint = await getMint(connection, poolState.lpMintKey);
 
     const humanPoolBalances = poolAccounts.map((acc, i) =>
-      withDecimals(acc.amount, lpMint.decimals - poolState.tokenDecimalEqualizers[i])
+      withDecimals(
+        acc.amount,
+        lpMint.decimals - poolState.tokenDecimalEqualizers[i],
+      ),
     );
     console.log("pool state:");
     console.log(JSON.stringify(poolState, null, 2));
@@ -39,9 +50,8 @@ async function main() {
     console.log(" ", withDecimals(lpMint.supply, lpMint.decimals));
     console.log("sum pool Balances:");
     console.log(" ", Decimal.sum(...humanPoolBalances));
-  }
-  catch (error) {
-    console.error(`playground failed with error: ${error}`)
+  } catch (error) {
+    console.error(`playground failed with error: ${error}`);
   }
 }
 

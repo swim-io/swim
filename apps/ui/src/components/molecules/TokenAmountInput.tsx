@@ -132,7 +132,7 @@ export const TokenAmountInput: React.FC<Props> = ({
               value={value}
               step={10 ** -tokenNativeDetails.decimals}
               min={0}
-              onChange={(e) => onChangeValue && onChangeValue(e.target.value)}
+              onChange={(e) => onChangeValue(e.target.value)}
               disabled={disabled}
               onBlur={onBlur}
               isInvalid={errors.length > 0}

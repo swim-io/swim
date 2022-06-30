@@ -37,6 +37,12 @@ export const findOrThrow = <T>(
 
 export const isNotNull = <T>(value: T | null): value is T => value !== null;
 
+/* eslint-disable functional/prefer-readonly-type */
+export const isEachNotNullMutable = <T>(array: (T | null)[]): array is T[] => {
+  return array.every((elem) => elem !== null);
+};
+/* eslint-enable functional/prefer-readonly-type */
+
 export const isEachNotNull = <T>(
   array: readonly (T | null)[],
 ): array is readonly T[] => {

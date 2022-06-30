@@ -1,6 +1,6 @@
 import { Keypair } from "@solana/web3.js";
 import { useEffect } from "react";
-import { useQuery } from "react-query";
+import { useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import { Protocol } from "../../config";
@@ -14,18 +14,16 @@ export const useSolanaConnection = (): SolanaConnection => {
   const [chain] = chains[Protocol.Solana];
   const { endpoint, wsEndpoint } = chain;
 
-  const createConnection = () => new SolanaConnection(endpoint, wsEndpoint);
+  const queryClient = useQueryClient();
+  const queryKey = [env, "solanaConnection"];
 
-  const query = useQuery(["solanaConnection", env], createConnection, {
-    initialData: createConnection,
-    refetchInterval: false,
-    refetchIntervalInBackground: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false,
-  });
-
-  const connection = query.data as SolanaConnection;
+  const connection =
+    queryClient.getQueryData<SolanaConnection>(queryKey) ||
+    (() => {
+      const conn = new SolanaConnection(endpoint, wsEndpoint);
+      queryClient.setQueryData(queryKey, conn);
+      return conn;
+    })();
 
   // The websocket library solana/web3.js uses closes its websocket connection when the subscription list
   // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.

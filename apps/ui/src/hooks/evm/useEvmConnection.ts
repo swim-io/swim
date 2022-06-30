@@ -1,4 +1,4 @@
-import { useQuery } from "react-query";
+import { useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import type { EvmEcosystemId } from "../../config";
@@ -12,6 +12,7 @@ import type { ReadonlyRecord } from "../../utils";
 export const useEvmConnection = (
   ecosystemId: EvmEcosystemId,
 ): EvmConnection => {
+  const queryClient = useQueryClient();
   const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
   const chainSpec = findOrThrow(
@@ -19,22 +20,17 @@ export const useEvmConnection = (
     (chain) => chain.ecosystem === ecosystemId,
   );
 
-  const createConnection = () => new EvmConnection(env, chainSpec);
+  const queryKey = [env, "evmConnection", ecosystemId];
 
-  const query = useQuery(
-    ["evmConnection", ecosystemId, env],
-    createConnection,
-    {
-      initialData: createConnection,
-      refetchInterval: false,
-      refetchIntervalInBackground: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    },
-  );
+  const connection =
+    queryClient.getQueryData<EvmConnection>(queryKey) ||
+    (() => {
+      const conn = new EvmConnection(env, chainSpec);
+      queryClient.setQueryData(queryKey, conn);
+      return conn;
+    })();
 
-  return query.data as EvmConnection;
+  return connection;
 };
 
 export const useEvmConnections = (): ReadonlyRecord<

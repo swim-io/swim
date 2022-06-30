@@ -6,11 +6,11 @@ import shallow from "zustand/shallow.js";
 import { sumToDecimal } from "../../amounts";
 import type { EvmEcosystemId, TokenSpec } from "../../config";
 import { isEcosystemEnabled } from "../../config";
-import { useEvmConnection } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { Interaction } from "../../models";
 import { InteractionType, getTokensByPool } from "../../models";
+import { useEvmConnection } from "../evm";
 
 import { usePools } from "./usePools";
 

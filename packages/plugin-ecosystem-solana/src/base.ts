@@ -5,22 +5,18 @@ export enum Env {
   Custom = "Custom",
 }
 
-export interface WormholeChainSpec {
-  readonly bridge: string;
-  readonly tokenBridge: string;
-}
-
-export interface ChainSpec {
+export interface ChainConfig {
   readonly env: Env;
   readonly chainId: number;
-  readonly wormhole: WormholeChainSpec;
+  readonly wormholeBridge: string;
+  readonly wormholeTokenBridge: string;
 }
 
-export interface EcosystemSpec {
+export interface EcosystemConfig {
   readonly id: string;
   readonly protocol: string;
   readonly wormholeChainId: number;
   readonly displayName: string;
   readonly nativeTokenSymbol: string;
-  readonly chainSpecs: readonly ChainSpec[];
+  readonly chains: readonly ChainConfig[];
 }

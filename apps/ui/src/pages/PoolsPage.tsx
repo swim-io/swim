@@ -32,7 +32,7 @@ import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
 import USDC_SVG from "../images/tokens/usdc.svg";
 import USDT_SVG from "../images/tokens/usdt.svg";
 import USN_SVG from "../images/tokens/usn.svg";
-import { filterMap, findOrThrow, isEachNotNull } from "../utils";
+import { filterMap, findOrThrow } from "../utils";
 
 const PoolsPage = (): ReactElement => {
   useTitle("Pools");
@@ -66,7 +66,7 @@ const PoolsPage = (): ReactElement => {
       }
       const poolTokenAccountAddresses = [...poolSpec.tokenAccounts.values()];
       const poolTokenAccounts = allPoolTokenAccounts.filter(
-        (tokenAccount) =>
+        (tokenAccount): tokenAccount is TokenAccount =>
           tokenAccount !== null &&
           poolTokenAccountAddresses.includes(tokenAccount.address.toBase58()),
       );
@@ -75,29 +75,26 @@ const PoolsPage = (): ReactElement => {
         return new Decimal(-1); // loading
       }
 
-      if (isEachNotNull(poolTokenAccounts)) {
-        return poolTokenAccounts.reduce((prev, current: TokenAccount, j) => {
-          const tokenSpec = tokenSpecs[j];
-          const solanaDetails = getSolanaTokenDetails(tokenSpec);
-          const humanAmount = u64ToDecimal(current.amount).div(
-            new Decimal(10).pow(solanaDetails.decimals),
-          );
-          const price = tokenSpec.isStablecoin
-            ? new Decimal(1)
-            : prices.get(tokenSpec.id) ?? new Decimal(1);
-          return prev.add(humanAmount.mul(price));
-        }, new Decimal(0));
-      } else {
-        return new Decimal(-1); // loading
-      }
+      return poolTokenAccounts.reduce((prev, current, j) => {
+        const tokenSpec = tokenSpecs[j];
+        const solanaDetails = getSolanaTokenDetails(tokenSpec);
+        const humanAmount = u64ToDecimal(current.amount).div(
+          new Decimal(10).pow(solanaDetails.decimals),
+        );
+        const price = tokenSpec.isStablecoin
+          ? new Decimal(1)
+          : prices.get(tokenSpec.id) ?? new Decimal(1);
+        return prev.add(humanAmount.mul(price));
+      }, new Decimal(0));
+    } else {
+      return new Decimal(-1); // loading
     }
-    return null;
   });
 
-  const tvl =
-    poolUsdTotals.reduce((prev, current) => {
-      return (prev ?? new Decimal(0)).add(current ?? new Decimal(0));
-    }) ?? new Decimal(0);
+  const tvl = poolUsdTotals.reduce(
+    (prev, current) => prev.add(current),
+    new Decimal(0),
+  );
 
   return (
     <EuiPage className="poolsPage" restrictWidth={800}>

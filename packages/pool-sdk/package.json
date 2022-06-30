@@ -1,5 +1,6 @@
 {
   "name": "@swim-io/pool-sdk",
+  "private": true,
   "version": "0.0.0",
   "main": "build/index.js",
   "types": "types/index.d.ts",

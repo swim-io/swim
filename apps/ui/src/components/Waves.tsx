@@ -7,12 +7,12 @@ import {
   EuiToolTip,
 } from "@elastic/eui";
 import type { ReactElement, ReactNode } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import "./Waves.scss";
 
 const Footer = (): ReactElement => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const listGroupHeaderSize = "s";
   const listGroupItemSize = "xs";
   return (
@@ -32,7 +32,7 @@ const Footer = (): ReactElement => {
               href="/swap"
               onClick={(e) => {
                 e.preventDefault();
-                history.push("/swap");
+                navigate("/swap");
               }}
               size={listGroupItemSize}
             />
@@ -41,7 +41,7 @@ const Footer = (): ReactElement => {
               href="/pools"
               onClick={(e) => {
                 e.preventDefault();
-                history.push("/pools");
+                navigate("/pools");
               }}
               size={listGroupItemSize}
             />
@@ -85,7 +85,7 @@ const Footer = (): ReactElement => {
               href="/security"
               onClick={(e) => {
                 e.preventDefault();
-                history.push("/security");
+                navigate("/security");
               }}
               size={listGroupItemSize}
             />
@@ -94,7 +94,7 @@ const Footer = (): ReactElement => {
               href="/tos"
               onClick={(e) => {
                 e.preventDefault();
-                history.push("/tos");
+                navigate("/tos");
               }}
               size={listGroupItemSize}
             />
@@ -103,7 +103,7 @@ const Footer = (): ReactElement => {
               href="/media"
               onClick={(e) => {
                 e.preventDefault();
-                history.push("/media");
+                navigate("/media");
               }}
               size={listGroupItemSize}
             />

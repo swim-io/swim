@@ -15,7 +15,7 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import type { ReactElement, VFC } from "react";
-import { useHistory } from "react-router";
+import { useNavigate } from "react-router";
 
 import { SwimIconType } from "../components/CustomIconType";
 import { GlassPanel } from "../components/GlassPanel";
@@ -32,7 +32,7 @@ import "./HomePage.scss";
 
 const HomePage = (): ReactElement => {
   useTitle("");
-  const history = useHistory();
+  const navigate = useNavigate();
   const promotedEcosystems = [
     ecosystems[EcosystemId.Solana],
     ecosystems[EcosystemId.Ethereum],
@@ -104,7 +104,7 @@ const HomePage = (): ReactElement => {
                 href="/swap"
                 onClick={(e) => {
                   e.preventDefault();
-                  history.push("/swap");
+                  navigate("/swap");
                 }}
               >
                 Launch App

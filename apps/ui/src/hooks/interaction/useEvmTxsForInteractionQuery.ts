@@ -4,12 +4,11 @@ import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
 import { isEcosystemEnabled } from "../../config";
-import { useEvmConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 import type { EvmTx } from "../../models";
 import { INTERACTION_ID_LENGTH_HEX } from "../../models";
 import { isNotNull } from "../../utils";
-import { useEvmHistoryQuery } from "../evm";
+import { useEvmConnection, useEvmHistoryQuery } from "../evm";
 
 const MAX_RECENT_TXS = 1000;
 

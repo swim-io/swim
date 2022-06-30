@@ -12,6 +12,8 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
+import type { DecimalBN } from "@swim-io/solana-types";
+import { swimPool } from "@swim-io/solana-types";
 
 import { chunks } from "../../utils";
 import type { SolanaConnection } from "../solana";
@@ -22,9 +24,7 @@ import {
 } from "../solana";
 import type { SolanaWalletAdapter } from "../wallets";
 
-import type { DecimalBN } from "./decimal";
 import { SwimInstruction, initInstruction } from "./instructions";
-import { swimPool } from "./poolState";
 
 export class SwimInitializer {
   solanaConnection: SolanaConnection;

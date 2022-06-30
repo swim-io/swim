@@ -2,14 +2,14 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
-import { useSolanaConnection } from "../../contexts";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useSolBalanceQuery } from "./useSolBalanceQuery";
+import { useSolanaConnection } from "./useSolanaConnection";
 import { useSolanaWallet } from "./useSolanaWallet";
 
-jest.mock("../../contexts", () => ({
-  ...jest.requireActual("../../contexts"),
+jest.mock("./useSolanaConnection", () => ({
+  ...jest.requireActual("./useSolanaConnection"),
   useSolanaConnection: jest.fn(),
 }));
 

@@ -17,7 +17,7 @@ import {
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import shallow from "zustand/shallow.js";
 
 import {
@@ -26,7 +26,6 @@ import {
   displayPercentage,
 } from "../amounts";
 import { AddForm } from "../components/AddForm";
-import { RecentInteractions } from "../components/RecentInteractions";
 import { RemoveForm } from "../components/RemoveForm";
 import { SlippageButton } from "../components/SlippageButton";
 import { StatList } from "../components/StatList";
@@ -105,11 +104,7 @@ export const PoolPageInner = ({
   poolSpec,
 }: PoolPageInnerProps): ReactElement => {
   useTitle(poolSpec.displayName);
-  const history = useHistory();
-  const [currentInteraction, setCurrentInteraction] = useState<string | null>(
-    null,
-  );
-  const [isAdd, setIsAdd] = useState(true);
+  const navigate = useNavigate();
   const { showPrompt: showRegisterEthereumTokenPrompt } = useRegisterErc20Token(
     EcosystemId.Ethereum,
   );
@@ -185,13 +180,6 @@ export const PoolPageInner = ({
       ]
     : [];
 
-  const recentInteractionsTitle = useMemo(() => {
-    if (poolSpec.isStakingPool) {
-      return isAdd ? "Recent stakes" : "Recent unstakes";
-    }
-    return isAdd ? "Recent adds" : "Recent removals";
-  }, [poolSpec.isStakingPool, isAdd]);
-
   return (
     <>
       <EuiFlexGroup justifyContent="spaceBetween" responsive={false}>
@@ -201,7 +189,7 @@ export const PoolPageInner = ({
               {
                 text: "Pools >",
                 onClick: () => {
-                  history.push("/pools");
+                  navigate("/pools");
                 },
               },
             ]}
@@ -231,7 +219,6 @@ export const PoolPageInner = ({
                   <AddForm
                     poolSpec={poolSpec}
                     maxSlippageFraction={slippageFraction}
-                    setCurrentInteraction={setCurrentInteraction}
                   />
                 ),
               },
@@ -242,14 +229,10 @@ export const PoolPageInner = ({
                   <RemoveForm
                     poolSpec={poolSpec}
                     maxSlippageFraction={slippageFraction}
-                    setCurrentInteraction={setCurrentInteraction}
                   />
                 ),
               },
             ]}
-            onTabClick={({ id }) => {
-              setIsAdd(id === "add");
-            }}
           />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
@@ -297,11 +280,6 @@ export const PoolPageInner = ({
         </EuiFlexItem>
       </EuiFlexGroup>
       <EuiSpacer />
-      <RecentInteractions
-        title={recentInteractionsTitle}
-        poolId={poolSpec.id}
-        currentInteraction={currentInteraction}
-      />
     </>
   );
 };

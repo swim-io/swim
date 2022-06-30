@@ -1,16 +1,61 @@
-import type { FC } from "react";
+import type { FC, ReactElement } from "react";
 
-import type { EcosystemId } from "../config";
-import { ECOSYSTEMS } from "../config";
+import type { Ecosystem } from "../config";
+import { ECOSYSTEMS, EcosystemId } from "../config";
+
+const ecosystemIdToDoc = new Map([
+  [
+    EcosystemId.Acala,
+    "https://wiki.acala.network/get-started/acala-network/acala-account#existential-deposit",
+  ],
+  [
+    EcosystemId.Karura,
+    "https://wiki.acala.network/get-started/get-started/karura-account#existential-deposit",
+  ],
+]);
+
+const createListItem = (ecosystem: Ecosystem): ReactElement => {
+  if (ecosystemIdToDoc.has(ecosystem.id)) {
+    return (
+      <li key={ecosystem.displayName}>
+        <a href={ecosystemIdToDoc.get(ecosystem.id)}>
+          {`${ecosystem.displayName}*`}
+        </a>
+      </li>
+    );
+  }
+  return <li key={ecosystem.id}>{ecosystem.displayName}</li>;
+};
 
 interface Props {
   readonly lowBalanceWallets: readonly EcosystemId[];
 }
 
-export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
-  const walletNames = lowBalanceWallets.map(
-    (ecosystemId) => ECOSYSTEMS[ecosystemId].displayName,
+interface LowPolkadotBalanceWarningProps {
+  readonly isVisible: boolean;
+}
+
+const LowPolkadotBalanceWarning = ({
+  isVisible,
+}: LowPolkadotBalanceWarningProps): ReactElement | null => {
+  if (!isVisible) {
+    return null;
+  }
+  return (
+    <>
+      *Polkadot chains require a minimum balance in order not to be deactivated
+      according to Existential Deposit requirements.
+    </>
   );
+};
+
+export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
+  const isLowPolkadotBalance = lowBalanceWallets.some((ecosystemId) =>
+    ecosystemIdToDoc.has(ecosystemId),
+  );
+  const lowBalanceEcosystems = lowBalanceWallets.map((ecosystemId) => {
+    return ECOSYSTEMS[ecosystemId];
+  });
   return (
     <p>
       <span>
@@ -18,10 +63,9 @@ export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
         cover all of the required transaction fees:
       </span>
       <ul>
-        {walletNames.map((name) => (
-          <li key={name}>{name}</li>
-        ))}
+        {lowBalanceEcosystems.map((ecosystem) => createListItem(ecosystem))}
       </ul>
+      <LowPolkadotBalanceWarning isVisible={isLowPolkadotBalance} />
     </p>
   );
 };

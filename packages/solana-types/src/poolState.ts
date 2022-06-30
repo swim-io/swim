@@ -1,3 +1,5 @@
+import type { Buffer } from "buffer";
+
 import type { Layout } from "@project-serum/borsh";
 import {
   array,
@@ -50,6 +52,7 @@ export const swimPool = (
       publicKey("lpMintKey"),
       u8("lpDecimalEqualizer"),
       array(publicKey(), numberOfTokens, "tokenMintKeys"),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       array(u8(), numberOfTokens, "tokenDecimalEqualizers"),
       array(publicKey(), numberOfTokens, "tokenKeys"),
       publicKey("governanceKey"),

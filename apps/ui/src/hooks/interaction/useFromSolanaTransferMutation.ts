@@ -14,7 +14,6 @@ import {
   WormholeChainId,
   getSolanaTokenDetails,
 } from "../../config";
-import { useEvmConnections, useSolanaConnection } from "../../contexts";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { InteractionState, SolanaConnection, Tx } from "../../models";
@@ -32,7 +31,12 @@ import { getToEcosystemOfFromSolanaTransfer } from "../../models/swim/transfer";
 import { DEFAULT_WORMHOLE_RETRIES } from "../../models/wormhole/constants";
 import { findOrThrow, isEachNotNull } from "../../utils";
 import { useWallets } from "../crossEcosystem";
-import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
+import { useEvmConnections } from "../evm";
+import {
+  useSolanaConnection,
+  useSolanaWallet,
+  useSplTokenAccountsQuery,
+} from "../solana";
 
 const getTransferredAmountsByTokenId = async (
   interactionState: InteractionState,

@@ -19,7 +19,11 @@ import { DEFAULT_MAX_RETRIES } from "../solana";
 import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
 
 // TODO: Refactor to use Tx instead of CrossChainResult
-import type { CrossChainResult } from "./crossChain";
+interface CrossChainResult {
+  readonly solanaTxIds: readonly string[];
+  readonly ethereumTxIds: readonly string[];
+  readonly bscTxIds: readonly string[];
+}
 
 export interface AttestationResult {
   readonly txId: string;

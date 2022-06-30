@@ -3,12 +3,12 @@ import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
 import { isEcosystemEnabled } from "../../config";
-import { useEvmConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 import type { EvmTx } from "../../models";
 import { findEvmInteractionId } from "../../models";
 import { isNotNull } from "../../utils";
 
+import { useEvmConnection } from "./useEvmConnection";
 import { useEvmWallet } from "./useEvmWallet";
 
 const MAX_RECENT_TXS = 1000;

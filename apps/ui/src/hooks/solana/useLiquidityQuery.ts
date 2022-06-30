@@ -3,12 +3,13 @@ import { PublicKey } from "@solana/web3.js";
 import type { UseQueryResult } from "react-query";
 import { useQueries, useQuery } from "react-query";
 
-import { useSolanaConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 import {
   deserializeTokenAccount,
   getMultipleSolanaAccounts,
 } from "../../models";
+
+import { useSolanaConnection } from "./useSolanaConnection";
 
 export const useLiquidityQuery = (
   tokenAccountAddresses: readonly string[],

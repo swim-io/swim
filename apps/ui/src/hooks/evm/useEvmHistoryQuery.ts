@@ -4,9 +4,9 @@ import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
 import { isEcosystemEnabled } from "../../config";
-import { useEvmConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 
+import { useEvmConnection } from "./useEvmConnection";
 import { useEvmWallet } from "./useEvmWallet";
 
 export const useEvmHistoryQuery = (

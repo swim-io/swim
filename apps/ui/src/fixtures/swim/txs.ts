@@ -1,5 +1,5 @@
 /**
- * BSC -> Mainnet Solana + Swim Swap
+ * BNB -> Mainnet Solana + Swim Swap
  * memo: b9a9470bd23b3c67c7c7846cf82fbb3a
  * https://www.bscscan.com/tx/0x90ac4ea5689e2a4cd142ecc55d243f15d96110dd5a7e75430f7d45dbe84cb552
  * https://explorer.solana.com/tx/2PEzA4BvYwMCiyJMTKf7up6jzq9dqGtUJoZdwoAwRoWQctpDScBrhn5JC5d6b551DraPf6Q3neXt9i9cqSxq7eZC
@@ -8,7 +8,7 @@
  * https://explorer.solana.com/tx/sTqFkSHZsn4Md3k6tjykk2D7pgAauep6gnqtCN8TeBF4ByhfBZdp3NKxeFmgLKzHrg93owtbwSacX8kVioYXayR
  * https://explorer.solana.com/tx/32kN3RVAF4exFVLDS8hKAUKtCy4V5hd2s51qqo2Yps9eDCvSncvgFjj292ygokHRtqBp66gHbiLLkzDX16xdEmXW
  */
-export const BSCtoMainnetSolanaTxs = [
+export const BNBtoMainnetSolanaTxs = [
   {
     network: "BSC",
     txHash:
@@ -1323,13 +1323,13 @@ export const BSCtoMainnetSolanaTxs = [
 ];
 
 /**
- * Swim Swap + Mainnet Solana -> BSC
+ * Swim Swap + Mainnet Solana -> BNB
  * memo: ed710c0f5330b9a7b9e622da2419ec1f
  * https://explorer.solana.com/tx/5KKADcibSfNrKp21E8639t3c5jk1xzJCaHXuCuR6DFjc6tAhnxTAwM74fT4VXxss9UGsSWqqfS58rgWmWGd2Bvha
  * https://explorer.solana.com/tx/5tpjwm655iQBgPBi6XwsknixZR4rk6CBBbwHKoE7nr9BKTXUa6NZibrhBCenbRkR2eVdFHAcNY3kBDkphdfN54h
  * https://www.bscscan.com/tx/0x103e42764a65c4d52367ae9e641e2c1de6c53fc78b7a86069f445dc2bdbba7d9
  */
-export const MainnetSolanaToBSCTxs = [
+export const MainnetSolanaToBNBTxs = [
   {
     network: "Solana-mainnet",
     signature:

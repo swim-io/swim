@@ -10,7 +10,7 @@ interface Props {
   readonly toEcosystem: EcosystemId;
 }
 
-// If a swap to/from Ethereum/BSC is desired, we still need a Solana wallet
+// If a swap to/from Ethereum/BNB is desired, we still need a Solana wallet
 export const SwapFormSolanaConnectButton: React.FC<Props> = ({
   fromEcosystem,
   toEcosystem,

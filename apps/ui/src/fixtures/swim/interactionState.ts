@@ -6,8 +6,8 @@ import type { InteractionState } from "../../models";
 import { Amount } from "../../models";
 
 import {
-  BSC_BUSD,
-  BSC_USDT,
+  BNB_BUSD,
+  BNB_USDT,
   ETHEREUM_USDC,
   ETHEREUM_USDT,
   SOLANA_USDC,
@@ -18,7 +18,7 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
   interaction: {
     type: 0,
     params: {
-      exactInputAmount: Amount.fromHumanString(BSC_USDT, "1001"),
+      exactInputAmount: Amount.fromHumanString(BNB_USDT, "1001"),
       minimumOutputAmount: Amount.fromHumanString(ETHEREUM_USDC, "995.624615"),
     },
     id: "5eed9eef597a2aa14314845afe87079f",
@@ -29,7 +29,7 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
     previousSignatureSetAddresses: {},
     connectedWallets: {
       [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-      [EcosystemId.Bsc]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      [EcosystemId.Bnb]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
       [EcosystemId.Ethereum]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
       [EcosystemId.Acala]: null,
       [EcosystemId.Aurora]: null,
@@ -53,7 +53,7 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
   },
   toSolanaTransfers: [
     {
-      token: BSC_USDT,
+      token: BNB_USDT,
       value: new Decimal(1001),
       txIds: {
         approveAndTransferEvmToken: [],
@@ -74,8 +74,8 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
             Amount.fromHumanString(SOLANA_USDT, "0"),
             Amount.fromHumanString(ETHEREUM_USDC, "0"),
             Amount.fromHumanString(ETHEREUM_USDT, "0"),
-            Amount.fromHumanString(BSC_BUSD, "0"),
-            Amount.fromHumanString(BSC_USDT, "1001"),
+            Amount.fromHumanString(BNB_BUSD, "0"),
+            Amount.fromHumanString(BNB_USDT, "1001"),
           ],
           outputTokenIndex: 2,
           minimumOutputAmount: Amount.fromHumanString(
@@ -104,7 +104,7 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
     type: 0,
     params: {
       exactInputAmount: {
-        tokenId: "localnet-bsc-usdt",
+        tokenId: "localnet-bnb-usdt",
         value: "1001",
       },
       minimumOutputAmount: {
@@ -120,7 +120,7 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
     previousSignatureSetAddresses: {},
     connectedWallets: {
       [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-      [EcosystemId.Bsc]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      [EcosystemId.Bnb]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
       [EcosystemId.Ethereum]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
       [EcosystemId.Acala]: null,
       [EcosystemId.Aurora]: null,
@@ -145,7 +145,7 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
   toSolanaTransfers: [
     {
       token: {
-        id: "localnet-bsc-usdt",
+        id: "localnet-bnb-usdt",
       },
       value: "1001",
       txIds: {
@@ -167,8 +167,8 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
             { tokenId: "localnet-solana-usdt", value: "0" },
             { tokenId: "localnet-ethereum-usdc", value: "0" },
             { tokenId: "localnet-ethereum-usdt", value: "0" },
-            { tokenId: "localnet-bsc-busd", value: "0" },
-            { tokenId: "localnet-bsc-usdt", value: "1001" },
+            { tokenId: "localnet-bnb-busd", value: "0" },
+            { tokenId: "localnet-bnb-usdt", value: "1001" },
           ],
           outputTokenIndex: 2,
           minimumOutputAmount: {

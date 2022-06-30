@@ -3,8 +3,8 @@ import { useQueryClient } from "react-query";
 
 import { EcosystemId } from "../../config";
 import {
-  BSC_BUSD,
-  BSC_USDT,
+  BNB_BUSD,
+  BNB_USDT,
   ETHEREUM_USDC,
   ETHEREUM_USDT,
   SOLANA_USDC,
@@ -42,8 +42,8 @@ describe("useRemoveFeesEstimationQuery", () => {
             Amount.fromHuman(SOLANA_USDT, new Decimal(99)),
             Amount.fromHuman(ETHEREUM_USDC, new Decimal(99)),
             Amount.fromHuman(ETHEREUM_USDT, new Decimal(99)),
-            Amount.fromHuman(BSC_BUSD, new Decimal(0)),
-            Amount.fromHuman(BSC_USDT, new Decimal(0)),
+            Amount.fromHuman(BNB_BUSD, new Decimal(0)),
+            Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
           EcosystemId.Solana,
         ),
@@ -63,15 +63,15 @@ describe("useRemoveFeesEstimationQuery", () => {
             Amount.fromHuman(SOLANA_USDT, new Decimal(99)),
             Amount.fromHuman(ETHEREUM_USDC, new Decimal(0)),
             Amount.fromHuman(ETHEREUM_USDT, new Decimal(0)),
-            Amount.fromHuman(BSC_BUSD, new Decimal(0)),
-            Amount.fromHuman(BSC_USDT, new Decimal(0)),
+            Amount.fromHuman(BNB_BUSD, new Decimal(0)),
+            Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
           EcosystemId.Solana,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0));
-      expect(result.current?.bsc).toEqual(new Decimal(0));
+      expect(result.current?.bnb).toEqual(new Decimal(0));
     });
   });
 
@@ -92,15 +92,15 @@ describe("useRemoveFeesEstimationQuery", () => {
             Amount.fromHuman(SOLANA_USDT, new Decimal(0)),
             Amount.fromHuman(ETHEREUM_USDC, new Decimal(0)),
             Amount.fromHuman(ETHEREUM_USDT, new Decimal(0)),
-            Amount.fromHuman(BSC_BUSD, new Decimal(0)),
-            Amount.fromHuman(BSC_USDT, new Decimal(0)),
+            Amount.fromHuman(BNB_BUSD, new Decimal(0)),
+            Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
           EcosystemId.Solana,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0));
-      expect(result.current?.bsc).toEqual(new Decimal(0));
+      expect(result.current?.bnb).toEqual(new Decimal(0));
     });
 
     it("should return eth estimation for Ethereum USDC single remove", async () => {
@@ -111,18 +111,18 @@ describe("useRemoveFeesEstimationQuery", () => {
             Amount.fromHuman(SOLANA_USDT, new Decimal(0)),
             Amount.fromHuman(ETHEREUM_USDC, new Decimal(99)),
             Amount.fromHuman(ETHEREUM_USDT, new Decimal(0)),
-            Amount.fromHuman(BSC_BUSD, new Decimal(0)),
-            Amount.fromHuman(BSC_USDT, new Decimal(0)),
+            Amount.fromHuman(BNB_BUSD, new Decimal(0)),
+            Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
           EcosystemId.Ethereum,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0.0343));
-      expect(result.current?.bsc).toEqual(new Decimal(0));
+      expect(result.current?.bnb).toEqual(new Decimal(0));
     });
 
-    it("should return bsc estimation for Bsc single remove", async () => {
+    it("should return bnb estimation for Bsc single remove", async () => {
       const { result } = renderHookWithAppContext(() =>
         useRemoveFeesEstimationQuery(
           [
@@ -130,15 +130,15 @@ describe("useRemoveFeesEstimationQuery", () => {
             Amount.fromHuman(SOLANA_USDT, new Decimal(0)),
             Amount.fromHuman(ETHEREUM_USDC, new Decimal(0)),
             Amount.fromHuman(ETHEREUM_USDT, new Decimal(0)),
-            Amount.fromHuman(BSC_BUSD, new Decimal(99)),
-            Amount.fromHuman(BSC_USDT, new Decimal(0)),
+            Amount.fromHuman(BNB_BUSD, new Decimal(99)),
+            Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
-          EcosystemId.Bsc,
+          EcosystemId.Bnb,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0));
-      expect(result.current?.bsc).toEqual(new Decimal(0.00245));
+      expect(result.current?.bnb).toEqual(new Decimal(0.00245));
     });
 
     it("should return valid estimation for mixed input amounts", async () => {
@@ -149,15 +149,15 @@ describe("useRemoveFeesEstimationQuery", () => {
             Amount.fromHuman(SOLANA_USDT, new Decimal(100)),
             Amount.fromHuman(ETHEREUM_USDC, new Decimal(100)),
             Amount.fromHuman(ETHEREUM_USDT, new Decimal(100)),
-            Amount.fromHuman(BSC_BUSD, new Decimal(100)),
-            Amount.fromHuman(BSC_USDT, new Decimal(100)),
+            Amount.fromHuman(BNB_BUSD, new Decimal(100)),
+            Amount.fromHuman(BNB_USDT, new Decimal(100)),
           ],
-          EcosystemId.Bsc,
+          EcosystemId.Bnb,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0.042));
-      expect(result.current?.bsc).toEqual(new Decimal(0.00395));
+      expect(result.current?.bnb).toEqual(new Decimal(0.00395));
     });
   });
 });

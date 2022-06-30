@@ -34,22 +34,22 @@ export const useUserLpBalances = (
         )
       : null;
 
-  // bsc
-  const bscTokenContractAddress =
-    lpTokenSpec.detailsByEcosystem.get(EcosystemId.Bsc)?.address ?? null;
+  // bnb
+  const bnbTokenContractAddress =
+    lpTokenSpec.detailsByEcosystem.get(EcosystemId.Bnb)?.address ?? null;
   const { data: userLpBalanceBscAtomic = null } = useErc20BalanceQuery(
-    EcosystemId.Bsc,
-    bscTokenContractAddress,
+    EcosystemId.Bnb,
+    bnbTokenContractAddress,
   );
   const userLpBalanceBsc =
-    bscTokenContractAddress && userLpBalanceBscAtomic
-      ? Amount.fromAtomic(lpTokenSpec, userLpBalanceBscAtomic, EcosystemId.Bsc)
+    bnbTokenContractAddress && userLpBalanceBscAtomic
+      ? Amount.fromAtomic(lpTokenSpec, userLpBalanceBscAtomic, EcosystemId.Bnb)
       : null;
 
   return {
     [EcosystemId.Solana]: userLpBalanceSolana,
     [EcosystemId.Ethereum]: userLpBalanceEthereum,
-    [EcosystemId.Bsc]: userLpBalanceBsc,
+    [EcosystemId.Bnb]: userLpBalanceBsc,
     [EcosystemId.Avalanche]: null,
     [EcosystemId.Polygon]: null,
     [EcosystemId.Aurora]: null,

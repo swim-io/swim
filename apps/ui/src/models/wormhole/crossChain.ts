@@ -59,7 +59,7 @@ import type {
 export interface CrossChainResult {
   readonly solanaTxIds: readonly string[];
   readonly ethereumTxIds: readonly string[];
-  readonly bscTxIds: readonly string[];
+  readonly bnbTxIds: readonly string[];
 }
 
 export const isTransferToTx = (

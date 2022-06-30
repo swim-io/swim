@@ -68,12 +68,12 @@ const generateSuite = (env: Env): void => {
       expect(ethereumAddresses.every(utils.isAddress)).toBe(true);
     });
 
-    it("specifies valid BSC addresses", () => {
-      const bscAddresses = getAddressesForEcosystem(tokens, EcosystemId.Bsc);
-      expect(bscAddresses.every((address) => address.startsWith("0x"))).toBe(
+    it("specifies valid BNB addresses", () => {
+      const bnbAddresses = getAddressesForEcosystem(tokens, EcosystemId.Bnb);
+      expect(bnbAddresses.every((address) => address.startsWith("0x"))).toBe(
         true,
       );
-      expect(bscAddresses.every(utils.isAddress)).toBe(true);
+      expect(bnbAddresses.every(utils.isAddress)).toBe(true);
     });
 
     it("specifies token details for each token’s native Wormhole ecosystem", () => {

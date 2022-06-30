@@ -5,8 +5,8 @@ import type { AddInteraction, SwapInteraction } from "../../models";
 import { Amount, InteractionType } from "../../models";
 
 import {
-  BSC_BUSD,
-  BSC_USDT,
+  BNB_BUSD,
+  BNB_USDT,
   ETHEREUM_USDC,
   ETHEREUM_USDT,
   SOLANA_LP_HEXAPOOL,
@@ -29,7 +29,7 @@ export const ETH_USDC_TO_SOL_USDC_SWAP: SwapInteraction = {
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
-    bsc: null,
+    bnb: null,
     avalanche: null,
     polygon: null,
     aurora: null,
@@ -57,7 +57,7 @@ export const SOL_USDC_TO_ETH_USDC_SWAP: SwapInteraction = {
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
-    bsc: null,
+    bnb: null,
     avalanche: null,
     polygon: null,
     aurora: null,
@@ -85,7 +85,7 @@ export const SOL_USDC_TO_SOL_USDT_SWAP: SwapInteraction = {
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: null,
-    bsc: null,
+    bnb: null,
     avalanche: null,
     polygon: null,
     aurora: null,
@@ -95,10 +95,10 @@ export const SOL_USDC_TO_SOL_USDT_SWAP: SwapInteraction = {
   },
 };
 
-export const BSC_USDT_TO_ETH_USDC_SWAP: SwapInteraction = {
+export const BNB_USDT_TO_ETH_USDC_SWAP: SwapInteraction = {
   type: 0,
   params: {
-    exactInputAmount: Amount.fromHuman(BSC_USDT, new Decimal(1000)),
+    exactInputAmount: Amount.fromHuman(BNB_USDT, new Decimal(1000)),
     minimumOutputAmount: Amount.fromHuman(
       ETHEREUM_USDC,
       new Decimal(994.574014),
@@ -113,7 +113,7 @@ export const BSC_USDT_TO_ETH_USDC_SWAP: SwapInteraction = {
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
-    bsc: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+    bnb: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
     avalanche: null,
     polygon: null,
     aurora: null,
@@ -132,8 +132,8 @@ export const ADD: AddInteraction = {
       Amount.fromHuman(SOLANA_USDT, new Decimal(1000)),
       Amount.fromHuman(ETHEREUM_USDC, new Decimal(1000)),
       Amount.fromHuman(ETHEREUM_USDT, new Decimal(1000)),
-      Amount.fromHuman(BSC_BUSD, new Decimal(1000)),
-      Amount.fromHuman(BSC_USDT, new Decimal(1000)),
+      Amount.fromHuman(BNB_BUSD, new Decimal(1000)),
+      Amount.fromHuman(BNB_USDT, new Decimal(1000)),
     ],
     minimumMintAmount: Amount.fromHuman(
       SOLANA_LP_HEXAPOOL,
@@ -149,13 +149,13 @@ export const ADD: AddInteraction = {
   previousSignatureSetAddresses: {
     "localnet-ethereum-usdc": "8UyNfs7acAQ4y1tQUxoZnCwT6Dd6N2B3XU65QnHuVpWV",
     "localnet-ethereum-usdt": "65riF9tEWgkZKsW4UyWSW8QgiYrb54WH4nDeqSfVen21",
-    "localnet-bsc-busd": "DSbWZFFfArz2366vWfZjrDowVPgpctKzh3F5JkHoN1iH",
-    "localnet-bsc-usdt": "BAdRWFGBavu9qB5kpY336Z4ATvwqRo5xeAbNNcJUwZAb",
+    "localnet-bnb-busd": "DSbWZFFfArz2366vWfZjrDowVPgpctKzh3F5JkHoN1iH",
+    "localnet-bnb-usdt": "BAdRWFGBavu9qB5kpY336Z4ATvwqRo5xeAbNNcJUwZAb",
   },
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
-    bsc: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+    bnb: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
     avalanche: null,
     polygon: null,
     aurora: null,

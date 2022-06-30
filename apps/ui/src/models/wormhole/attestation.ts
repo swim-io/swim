@@ -116,7 +116,7 @@ export const setUpSplTokensOnEvm = async (
   return {
     solanaTxIds: attestations.map(({ txId }) => txId),
     ethereumTxIds: evmChain.ecosystem === EcosystemId.Ethereum ? evmTxIds : [],
-    bscTxIds: evmChain.ecosystem === EcosystemId.Bsc ? evmTxIds : [],
+    bnbTxIds: evmChain.ecosystem === EcosystemId.Bnb ? evmTxIds : [],
   };
 };
 
@@ -216,6 +216,6 @@ export const setUpErc20Tokens = async (
   return {
     solanaTxIds,
     ethereumTxIds: evmChain.ecosystem === EcosystemId.Ethereum ? evmTxIds : [],
-    bscTxIds: evmChain.ecosystem === EcosystemId.Bsc ? evmTxIds : [],
+    bnbTxIds: evmChain.ecosystem === EcosystemId.Bnb ? evmTxIds : [],
   };
 };

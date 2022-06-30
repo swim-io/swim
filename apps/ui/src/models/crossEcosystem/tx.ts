@@ -30,7 +30,7 @@ export interface EthereumTx extends EvmTx {
 }
 
 export interface BscTx extends EvmTx {
-  readonly ecosystem: EcosystemId.Bsc;
+  readonly ecosystem: EcosystemId.Bnb;
 }
 
 export interface AvalancheTx extends EvmTx {
@@ -83,7 +83,7 @@ export const isEthereumTx = (tx: Tx): tx is EthereumTx =>
   tx.ecosystem === EcosystemId.Ethereum;
 
 export const isBscTx = (tx: Tx): tx is BscTx =>
-  tx.ecosystem === EcosystemId.Bsc;
+  tx.ecosystem === EcosystemId.Bnb;
 
 export const isAvalancheTx = (tx: Tx): tx is AvalancheTx =>
   tx.ecosystem === EcosystemId.Avalanche;

@@ -1,7 +1,7 @@
 import ACALA_SVG from "../images/ecosystems/acala.svg";
 import AURORA_SVG from "../images/ecosystems/aurora.svg";
 import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
-import BSC_SVG from "../images/ecosystems/bsc.svg";
+import BNB_SVG from "../images/ecosystems/bnb.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
 import FANTOM_SVG from "../images/ecosystems/fantom.svg";
 import KARURA_SVG from "../images/ecosystems/karura.svg";
@@ -33,7 +33,7 @@ export enum EcosystemId {
   /** Only valid for Protocol.Evm chains */
   Ethereum = "ethereum",
   /** Only valid for Protocol.Evm chains */
-  Bsc = "bsc",
+  Bnb = "bnb",
   /** Only valid for Protocol.Evm chains */
   Avalanche = "avalanche",
   /** Only valid for Protocol.Evm chains */
@@ -54,7 +54,7 @@ export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean => {
   switch (ecosystemId) {
     case EcosystemId.Solana:
     case EcosystemId.Ethereum:
-    case EcosystemId.Bsc:
+    case EcosystemId.Bnb:
     case EcosystemId.Avalanche:
     case EcosystemId.Polygon:
       return true;
@@ -83,7 +83,7 @@ export type SolanaEcosystemId = Extract<EcosystemId, EcosystemId.Solana>;
 export type EvmEcosystemId = Extract<
   EcosystemId,
   | EcosystemId.Ethereum
-  | EcosystemId.Bsc
+  | EcosystemId.Bnb
   | EcosystemId.Avalanche
   | EcosystemId.Polygon
   | EcosystemId.Aurora
@@ -97,7 +97,7 @@ export const isEvmEcosystemId = (
 ): ecosystemId is EvmEcosystemId =>
   [
     EcosystemId.Ethereum,
-    EcosystemId.Bsc,
+    EcosystemId.Bnb,
     EcosystemId.Avalanche,
     EcosystemId.Polygon,
     EcosystemId.Aurora,
@@ -133,11 +133,11 @@ export const ecosystemList: readonly Ecosystem[] = [
     nativeTokenSymbol: "ETH",
   },
   {
-    id: EcosystemId.Bsc,
+    id: EcosystemId.Bnb,
     protocol: Protocol.Evm,
     wormholeChainId: WormholeChainId.Bsc,
     displayName: "BNB Chain",
-    logo: BSC_SVG,
+    logo: BNB_SVG,
     nativeTokenSymbol: "BNB",
   },
   {

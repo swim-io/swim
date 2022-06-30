@@ -182,7 +182,7 @@ export class EvmConnection {
         return new LocalnetProvider(rpcUrls[0]);
       case EcosystemId.Aurora:
       case EcosystemId.Fantom:
-      case EcosystemId.Bsc:
+      case EcosystemId.Bnb:
       case EcosystemId.Avalanche:
       case EcosystemId.Ethereum:
       case EcosystemId.Polygon:
@@ -216,7 +216,7 @@ export class EvmConnection {
           getEtherscanNetwork(env),
           ETHERSCAN_API_KEY,
         );
-      case EcosystemId.Bsc:
+      case EcosystemId.Bnb:
         try {
           return new MoralisProvider(env, getBscRpcUrl(env), MORALIS_ID);
         } catch (error) {

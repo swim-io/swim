@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 import type { ReactElement } from "react";
-import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
 import "./App.scss";
 
@@ -51,54 +51,29 @@ function App(): ReactElement {
       <Router>
         <AppContext>
           <Layout>
-            <Switch>
-              <Route path="/set-custom-localnet">
-                <SetCustomLocalnetPage />
-              </Route>
-              <Route path="/test">
-                <TestPage />
-              </Route>
-              <Route exact path="/pools">
-                <PoolsPage />
-              </Route>
-              <Route path="/pools/:poolId">
-                <PoolPage />
-              </Route>
-              <Route path="/stake">
-                <StakePage poolId="swimlake" />
-              </Route>
-              <Route path="/swap">
-                <SwapPage />
-              </Route>
+            <Routes>
+              <Route
+                path="set-custom-localnet"
+                element={<SetCustomLocalnetPage />}
+              />
+              <Route path="test" element={<TestPage />} />
+              <Route path="pools" element={<PoolsPage />} />
+              <Route path="pools/:poolId" element={<PoolPage />} />
+              <Route path="stake" element={<StakePage poolId="swimlake" />} />
+              <Route path="swap" element={<SwapPage />} />
               {process.env.REACT_APP_ENABLE_NFT && (
-                <Route exact path="/otter-tots">
-                  <OtterTotsPage />
-                </Route>
+                <Route path="otter-tots" element={<OtterTotsPage />} />
               )}
               {process.env.REACT_APP_ENABLE_NFT && (
-                <Route path="/redeem">
-                  <RedeemPage />
-                </Route>
+                <Route path="redeem" element={<RedeemPage />} />
               )}
-              <Route path="/collectibles">
-                <CollectiblesPage />
-              </Route>
-              <Route path="/tos">
-                <TosPage />
-              </Route>
-              <Route path="/media">
-                <MediaPage />
-              </Route>
-              <Route path="/help">
-                <HelpPage />
-              </Route>
-              <Route path="/security">
-                <SecurityPage />
-              </Route>
-              <Route path="/">
-                <HomePage />
-              </Route>
-            </Switch>
+              <Route path="collectibles" element={<CollectiblesPage />} />
+              <Route path="tos" element={<TosPage />} />
+              <Route path="media" element={<MediaPage />} />
+              <Route path="help" element={<HelpPage />} />
+              <Route path="security" element={<SecurityPage />} />
+              <Route path="/" element={<HomePage />} />
+            </Routes>
           </Layout>
         </AppContext>
       </Router>

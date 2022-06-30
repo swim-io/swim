@@ -143,7 +143,7 @@ export class SolanaConnection {
     unsignedTx: Transaction,
     options: GetSolanaTransactionOptions = {},
   ): Promise<string> {
-    const { blockhash } = await this.rawConnection.getRecentBlockhash();
+    const { blockhash } = await this.rawConnection.getLatestBlockhash();
     // eslint-disable-next-line functional/immutable-data
     unsignedTx.recentBlockhash = blockhash;
     const signed = await signTransaction(unsignedTx);

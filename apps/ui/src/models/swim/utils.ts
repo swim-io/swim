@@ -1,5 +1,4 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
-import { Keypair } from "@solana/web3.js";
 import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
@@ -10,75 +9,6 @@ import { Amount } from "../amount";
 
 import type { InteractionSpec } from "./interaction";
 import { InteractionType } from "./interaction";
-import { TransferType } from "./transfer";
-import type { TransferToSolana, Transfers } from "./transfer";
-
-// NOTE: These are only needed for transfers to Solana during the post VAA process
-export const generateSignatureSetKeypairs = (
-  poolTokens: readonly TokenSpec[],
-  lpToken: TokenSpec,
-  interactionSpec: InteractionSpec,
-  transfers: Transfers<TransferToSolana> | null,
-): ReadonlyRecord<string, Keypair | undefined> => {
-  switch (interactionSpec.type) {
-    case InteractionType.Add: {
-      if (transfers !== null && transfers.type === TransferType.LpToken) {
-        throw new Error("Invalid transfers type");
-      }
-      const { inputAmounts } = interactionSpec.params;
-      return poolTokens.reduce((accumulator, token, i) => {
-        const inputAmount = inputAmounts.get(token.id) ?? null;
-        return token.nativeEcosystem !== EcosystemId.Solana &&
-          inputAmount !== null &&
-          !inputAmount.isZero() &&
-          !transfers?.tokens[i]?.isComplete
-          ? { ...accumulator, [token.id]: Keypair.generate() }
-          : accumulator;
-      }, {});
-    }
-    case InteractionType.Swap: {
-      if (transfers !== null && transfers.type === TransferType.LpToken) {
-        throw new Error("Invalid transfers type");
-      }
-      const { exactInputAmount } = interactionSpec.params;
-      return poolTokens.reduce((accumulator, token, i) => {
-        return token.nativeEcosystem !== EcosystemId.Solana &&
-          token.id === exactInputAmount.tokenId &&
-          !exactInputAmount.isZero() &&
-          !transfers?.tokens[i]?.isComplete
-          ? { ...accumulator, [token.id]: Keypair.generate() }
-          : accumulator;
-      }, {});
-    }
-    case InteractionType.RemoveUniform:
-    case InteractionType.RemoveExactBurn:
-    case InteractionType.RemoveExactOutput: {
-      if (transfers !== null && transfers.type === TransferType.Tokens) {
-        throw new Error("Invalid transfers type");
-      }
-      const { lpTokenSourceEcosystem } = interactionSpec;
-      return lpTokenSourceEcosystem !== EcosystemId.Solana &&
-        !transfers?.lpToken?.isComplete
-        ? {
-            [lpToken.id]: Keypair.generate(),
-          }
-        : {};
-    }
-    default:
-      throw new Error("Unknown instruction");
-  }
-};
-
-export const getSignatureSetAddresses = (
-  signatureSetKeypairs: ReadonlyRecord<string, Keypair | undefined>,
-): ReadonlyRecord<string, string | undefined> =>
-  Object.entries(signatureSetKeypairs).reduce(
-    (accumulator, [tokenId, keypair]) => ({
-      ...accumulator,
-      [tokenId]: keypair?.publicKey.toBase58(),
-    }),
-    {},
-  );
 
 const mapNonZeroAmountsToNativeEcosystems = (
   tokens: readonly TokenSpec[],

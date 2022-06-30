@@ -1,13 +1,16 @@
-import {sha256} from '@ethersproject/sha2';
+import { sha256 } from "@ethersproject/sha2";
 import { MAX_SEED_LENGTH, PublicKey } from "@solana/web3.js";
-import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID} from "@solana/spl-token";
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
 import BN from "bn.js";
 
 /**
  * Adapted from https://github.com/solana-labs/solana-program-library/blob/0c0168f8a9d098c808d431ab7599a3e284a14e7d/token/js/src/errors.ts#L38-L41
  * Thrown if the owner of a token account is a PDA (Program Derived Address)
  */
- export class TokenOwnerOffCurveError extends Error {
+export class TokenOwnerOffCurveError extends Error {
   name = "TokenOwnerOffCurveError";
 }
 

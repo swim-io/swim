@@ -13,6 +13,12 @@ import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { usePrepareSplTokenAccountMutation } from "./usePrepareSplTokenAccountMutation";
 
+jest.mock("../../core/store/idb");
+jest.mock("../../contexts", () => ({
+  ...jest.requireActual("../../contexts"),
+  useSolanaConnection: jest.fn(),
+}));
+
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
   useSolanaConnection: jest.fn(),

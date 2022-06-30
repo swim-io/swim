@@ -36,7 +36,9 @@ const getTransferToTokens = (
     case InteractionType.Add:
       return tokens.filter((token) => {
         const inputAmount =
-          interaction.params.inputAmounts.get(token.id) ?? null;
+          interaction.params.inputAmounts.find(
+            (amount) => amount.tokenId === token.id,
+          ) ?? null;
         return (
           token.nativeEcosystem === ecosystemId &&
           inputAmount !== null &&
@@ -74,7 +76,9 @@ const getTransferFromTokens = (
     case InteractionType.RemoveUniform:
       return tokens.filter((token) => {
         const outputAmount =
-          interaction.params.minimumOutputAmounts.get(token.id) ?? null;
+          interaction.params.minimumOutputAmounts.find(
+            (amount) => amount.tokenId === token.id,
+          ) ?? null;
         return (
           token.nativeEcosystem === ecosystemId &&
           outputAmount !== null &&
@@ -90,7 +94,9 @@ const getTransferFromTokens = (
     case InteractionType.RemoveExactOutput:
       return tokens.filter((token, i) => {
         const outputAmount =
-          interaction.params.exactOutputAmounts.get(token.id) ?? null;
+          interaction.params.exactOutputAmounts.find(
+            (amount) => amount.tokenId === token.id,
+          ) ?? null;
         return (
           token.nativeEcosystem === ecosystemId &&
           outputAmount !== null &&

@@ -1,4 +1,4 @@
-import { PublicKey, Keypair, Signer, AccountMeta, Connection } from '@solana/web3.js';
+import { PublicKey, Keypair, Signer, AccountMeta, Connection } from "@solana/web3.js";
 export declare class AssertionError extends Error {
     name: string;
 }

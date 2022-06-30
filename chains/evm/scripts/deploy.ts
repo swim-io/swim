@@ -35,7 +35,7 @@ async function main() {
 }
 
 async function verify(contractAddress: string, args: any) {
-  try {
+  try {`  `
     await run("verify:verify", {
       address: contractAddress,
       constructor: args,
@@ -55,5 +55,5 @@ main()
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error);
-    process.exitCode = 1;
+    process.exit(1);
   });

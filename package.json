@@ -10,7 +10,7 @@
   "workspaces": [
     "apps/*",
     "packages/*",
-    "contracts/*"
+    "chains/*"
   ],
   "packageManager": "yarn@3.2.0",
   "engines": {

@@ -1,4 +1,4 @@
-const { ethers, upgrades } = require("hardhat");
+import { ethers, upgrades } from "hardhat";
 
 export async function deployProxy() {
   const Routing = await ethers.getContractFactory("Routing");

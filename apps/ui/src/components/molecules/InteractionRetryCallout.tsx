@@ -4,6 +4,7 @@ import type React from "react";
 import { selectInteractionError } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { formatErrorJsx } from "../../errors";
+import { isEveryAddressConnected, useWallets } from "../../hooks";
 import {
   InteractionStatus,
   useHasActiveInteraction,
@@ -61,6 +62,10 @@ export const InteractionRetryCallout: React.FC<Props> = ({
   const resumeInteraction = useResumeInteraction();
   const hasActiveInteraction = useHasActiveInteraction();
   const interactionStatus = useInteractionStatus(interactionState);
+  const wallets = useWallets();
+  const disabled =
+    hasActiveInteraction ||
+    !isEveryAddressConnected(interaction.connectedWallets, wallets);
 
   if (
     interactionStatus === InteractionStatus.Completed ||
@@ -81,7 +86,7 @@ export const InteractionRetryCallout: React.FC<Props> = ({
         <EuiSpacer />
         <RetryOrResumeButton
           title={"Retry"}
-          disabled={hasActiveInteraction}
+          disabled={disabled}
           onClick={() => resumeInteraction(interaction.id)}
         />
       </EuiCallOut>
@@ -91,7 +96,7 @@ export const InteractionRetryCallout: React.FC<Props> = ({
   return (
     <RetryOrResumeButton
       title={"Resume"}
-      disabled={hasActiveInteraction}
+      disabled={disabled}
       onClick={() => resumeInteraction(interaction.id)}
     />
   );

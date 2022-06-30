@@ -30,10 +30,15 @@ import {
   WormholeChainId,
   getSolanaTokenDetails,
 } from "../config";
-import { useEvmConnections, useSolanaConnection } from "../contexts";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
-import { usePool, useTokensByEcosystem, useWallets } from "../hooks";
+import {
+  useEvmConnections,
+  usePool,
+  useSolanaConnection,
+  useTokensByEcosystem,
+  useWallets,
+} from "../hooks";
 import { keysHexaPool, keysSwimLake } from "../keys";
 import {
   SwimInitializer,

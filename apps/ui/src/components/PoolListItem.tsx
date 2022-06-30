@@ -10,7 +10,7 @@ import {
 } from "@elastic/eui";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { atomicToHumanString } from "../amounts";
 import type { EcosystemId, TokenSpec } from "../config";
@@ -51,7 +51,7 @@ export const PoolListItem = ({
   readonly betaBadgeLabel?: string;
   readonly isStableSwap?: boolean;
 }): ReactElement => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const tokenSpecsByEcosystem = groupBy(
     tokenSpecs,
@@ -65,7 +65,7 @@ export const PoolListItem = ({
       onClick={
         poolId
           ? () => {
-              history.push(`/pools/${poolId}`);
+              navigate(`/pools/${poolId}`);
             }
           : undefined
       }

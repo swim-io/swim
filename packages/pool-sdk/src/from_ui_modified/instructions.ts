@@ -1,5 +1,13 @@
 import type { Layout } from "@project-serum/borsh";
-import { array, struct, u64, i64, u8, bool, publicKey } from "@project-serum/borsh";
+import {
+  array,
+  struct,
+  u64,
+  i64,
+  u8,
+  bool,
+  publicKey,
+} from "@project-serum/borsh";
 import { PublicKey } from "@solana/web3.js";
 import type BN from "bn.js";
 
@@ -39,8 +47,19 @@ export interface InitInstruction {
   readonly governanceFee: DecimalBN;
 }
 
-export const initInstruction = (property = "initInstruction"): Layout<InitInstruction> =>
-  struct([u8("instruction"), u8("nonce"), decimal("ampFactor"), decimal("lpFee"), decimal("governanceFee")], property);
+export const initInstruction = (
+  property = "initInstruction",
+): Layout<InitInstruction> =>
+  struct(
+    [
+      u8("instruction"),
+      u8("nonce"),
+      decimal("ampFactor"),
+      decimal("lpFee"),
+      decimal("governanceFee"),
+    ],
+    property,
+  );
 
 export interface AddInstruction {
   readonly instruction: SwimInstruction.DeFi;
@@ -54,7 +73,12 @@ export const addInstruction = (
   property = "addInstruction",
 ): Layout<AddInstruction> =>
   struct(
-    [u8("instruction"), u8("defiInstruction"), array(u64(), numberOfTokens, "inputAmounts"), u64("minimumMintAmount")],
+    [
+      u8("instruction"),
+      u8("defiInstruction"),
+      array(u64(), numberOfTokens, "inputAmounts"),
+      u64("minimumMintAmount"),
+    ],
     property,
   );
 
@@ -155,7 +179,15 @@ export interface PrepareFeeChangeInstruction {
 export const prepareFeeChangeInstruction = (
   property = "prepareFeeChangeInstruction",
 ): Layout<PrepareFeeChangeInstruction> =>
-  struct([u8("instruction"), u8("governanceInstruction"), decimal("lpFee"), decimal("governanceFee")], property);
+  struct(
+    [
+      u8("instruction"),
+      u8("governanceInstruction"),
+      decimal("lpFee"),
+      decimal("governanceFee"),
+    ],
+    property,
+  );
 
 export interface EnactFeeChangeInstruction {
   readonly instruction: SwimInstruction.Governance;
@@ -176,7 +208,14 @@ export interface PrepareGovernanceTransitionInstruction {
 export const prepareGovernanceTransitionInstruction = (
   property = "prepareGovernanceTransitionInstruction",
 ): Layout<PrepareGovernanceTransitionInstruction> =>
-  struct([u8("instruction"), u8("governanceInstruction"), publicKey("upcomingGovernanceKey")], property);
+  struct(
+    [
+      u8("instruction"),
+      u8("governanceInstruction"),
+      publicKey("upcomingGovernanceKey"),
+    ],
+    property,
+  );
 
 export interface EnactGovernanceTransitionInstruction {
   readonly instruction: SwimInstruction.Governance;
@@ -197,7 +236,14 @@ export interface ChangeGovernanceFeeAccountInstruction {
 export const changeGovernanceFeeAccountInstruction = (
   property = "changeGovernanceFeeAccountInstruction",
 ): Layout<ChangeGovernanceFeeAccountInstruction> =>
-  struct([u8("instruction"), u8("governanceInstruction"), publicKey("governanceFeeKey")], property);
+  struct(
+    [
+      u8("instruction"),
+      u8("governanceInstruction"),
+      publicKey("governanceFeeKey"),
+    ],
+    property,
+  );
 
 export interface AdjustAmpFactorInstruction {
   readonly instruction: SwimInstruction.Governance;
@@ -209,7 +255,15 @@ export interface AdjustAmpFactorInstruction {
 export const adjustAmpFactorInstruction = (
   property = "adjustAmpFactorInstruction",
 ): Layout<AdjustAmpFactorInstruction> =>
-  struct([u8("instruction"), u8("governanceInstruction"), i64("targetTs"), decimal("targetValue")], property);
+  struct(
+    [
+      u8("instruction"),
+      u8("governanceInstruction"),
+      i64("targetTs"),
+      decimal("targetValue"),
+    ],
+    property,
+  );
 
 export interface SetPausedInstruction {
   readonly instruction: SwimInstruction.Governance;
@@ -220,4 +274,7 @@ export interface SetPausedInstruction {
 export const setPausedInstruction = (
   property = "setPausedInstruction",
 ): Layout<SetPausedInstruction> =>
-  struct([u8("instruction"), u8("governanceInstruction"), bool("paused")], property);
+  struct(
+    [u8("instruction"), u8("governanceInstruction"), bool("paused")],
+    property,
+  );

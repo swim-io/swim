@@ -1,5 +1,7 @@
 import { useReducer, useState } from "react";
 
+import { assertIsError } from "../../utils";
+
 // Roughly matches react-query’s UseMutationResult
 export type UseAsyncGeneratorResult<Params, Result> = {
   readonly data?: readonly Result[];
@@ -74,6 +76,7 @@ export const useAsyncGenerator = <Params, Result>(
       setIsSuccess(true);
     } catch (err) {
       setIsLoading(false);
+      assertIsError(err);
       setError(err);
     }
   };

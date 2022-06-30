@@ -5,10 +5,10 @@ import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import type { Env } from "../../config";
-import { useSolanaConnection } from "../../contexts";
 import { useEnvironment } from "../../core/store";
 import { deserializeTokenAccount } from "../../models";
 
+import { useSolanaConnection } from "./useSolanaConnection";
 import { useSolanaWallet } from "./useSolanaWallet";
 
 export const getSplTokenAccountsQueryKey = (

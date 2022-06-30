@@ -4,6 +4,7 @@ import type { PublicKey, Transaction } from "@solana/web3.js";
 import EventEmitter from "eventemitter3";
 
 import { Protocol } from "../../../../../config";
+import { assertIsError } from "../../../../../utils";
 import type { SolanaWalletAdapter } from "../SolanaWalletAdapter";
 
 import { getPublicKey, signTransaction } from "./core";
@@ -74,6 +75,7 @@ export class LedgerWalletAdapter
       this._publicKey = await getPublicKey(this._transport);
       this.emit("connect", this._publicKey);
     } catch (error) {
+      assertIsError(error);
       this.emit("error", "Ledger error", error.message);
       await this.disconnect();
     } finally {

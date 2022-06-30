@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import type { SeverityLevel } from "@sentry/types";
 import type { Transaction } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import EventEmitter from "eventemitter3";
@@ -135,10 +136,11 @@ export class SolanaWeb3WalletAdapter
       this.publicKey = null;
       Sentry.configureScope((scope) => scope.setUser(null));
       Sentry.setContext(this.sentryContextKey, {});
+      const level: SeverityLevel = "info";
       Sentry.addBreadcrumb({
         category: "wallet",
         message: `Disconnected from ${this.sentryContextKey}`,
-        level: Sentry.Severity.Info,
+        level,
       });
 
       this.emit("disconnect");
@@ -156,12 +158,13 @@ export class SolanaWeb3WalletAdapter
       walletName: this.serviceName,
       address: this.publicKey.toBase58(),
     });
+    const level: SeverityLevel = "info";
     Sentry.addBreadcrumb({
       category: "wallet",
       message: `Connected to ${
         this.sentryContextKey
       } ${this.publicKey.toBase58()}`,
-      level: Sentry.Severity.Info,
+      level,
     });
   }
 }

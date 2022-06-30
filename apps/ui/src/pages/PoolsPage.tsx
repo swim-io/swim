@@ -10,6 +10,7 @@ import {
   EuiText,
   EuiTitle,
 } from "@elastic/eui";
+import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
@@ -31,7 +32,7 @@ import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
 import USDC_SVG from "../images/tokens/usdc.svg";
 import USDT_SVG from "../images/tokens/usdt.svg";
 import USN_SVG from "../images/tokens/usn.svg";
-import { filterMap, findOrThrow, isEachNotNullMutable } from "../utils";
+import { filterMap, findOrThrow, isEachNotNull } from "../utils";
 
 const PoolsPage = (): ReactElement => {
   useTitle("Pools");
@@ -74,8 +75,8 @@ const PoolsPage = (): ReactElement => {
         return new Decimal(-1); // loading
       }
 
-      if (isEachNotNullMutable(poolTokenAccounts)) {
-        return poolTokenAccounts.reduce((prev, current, j) => {
+      if (isEachNotNull(poolTokenAccounts)) {
+        return poolTokenAccounts.reduce((prev, current: TokenAccount, j) => {
           const tokenSpec = tokenSpecs[j];
           const solanaDetails = getSolanaTokenDetails(tokenSpec);
           const humanAmount = u64ToDecimal(current.amount).div(

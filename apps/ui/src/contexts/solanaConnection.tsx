@@ -4,15 +4,15 @@ import type { ReactElement, ReactNode } from "react";
 import { createContext, useContext, useEffect, useMemo } from "react";
 import shallow from "zustand/shallow.js";
 
-import { DEFAULT_ENV, Protocol, configs } from "../config";
+import { CONFIGS, DEFAULT_ENV, Protocol } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { SolanaConnection } from "../models";
 
 const SolanaConnectionContext = createContext<SolanaConnection>(
   new SolanaConnection(
-    configs[DEFAULT_ENV].chains[Protocol.Solana][0].endpoint,
-    configs[DEFAULT_ENV].chains[Protocol.Solana][0].wsEndpoint,
+    CONFIGS[DEFAULT_ENV].chains[Protocol.Solana][0].endpoint,
+    CONFIGS[DEFAULT_ENV].chains[Protocol.Solana][0].wsEndpoint,
   ),
 );
 

@@ -42,33 +42,35 @@ export const enum EvmChainId {
   AcalaLocalnet = 607, // TODO: This is a placeholder
 }
 
-export const evmChainIdToEcosystem: ReadonlyRecord<EvmChainId, EvmEcosystemId> =
-  {
-    [EvmChainId.EthereumMainnet]: EcosystemId.Ethereum,
-    [EvmChainId.EthereumGoerli]: EcosystemId.Ethereum,
-    [EvmChainId.EthereumLocalnet]: EcosystemId.Ethereum,
-    [EvmChainId.BscMainnet]: EcosystemId.Bsc,
-    [EvmChainId.BscTestnet]: EcosystemId.Bsc,
-    [EvmChainId.BscLocalnet]: EcosystemId.Bsc,
-    [EvmChainId.PolygonMainnet]: EcosystemId.Polygon,
-    [EvmChainId.PolygonTestnet]: EcosystemId.Polygon,
-    [EvmChainId.PolygonLocalnet]: EcosystemId.Polygon,
-    [EvmChainId.AvalancheMainnet]: EcosystemId.Avalanche,
-    [EvmChainId.AvalancheTestnet]: EcosystemId.Avalanche,
-    [EvmChainId.AvalancheLocalnet]: EcosystemId.Avalanche,
-    [EvmChainId.AuroraMainnet]: EcosystemId.Aurora,
-    [EvmChainId.AuroraTestnet]: EcosystemId.Aurora,
-    [EvmChainId.AuroraLocalnet]: EcosystemId.Aurora,
-    [EvmChainId.FantomMainnet]: EcosystemId.Fantom,
-    [EvmChainId.FantomTestnet]: EcosystemId.Fantom,
-    [EvmChainId.FantomLocalnet]: EcosystemId.Fantom,
-    [EvmChainId.KaruraMainnet]: EcosystemId.Karura,
-    [EvmChainId.KaruraTestnet]: EcosystemId.Karura,
-    [EvmChainId.KaruraLocalnet]: EcosystemId.Karura,
-    [EvmChainId.AcalaMainnet]: EcosystemId.Acala,
-    [EvmChainId.AcalaTestnet]: EcosystemId.Acala,
-    [EvmChainId.AcalaLocalnet]: EcosystemId.Acala,
-  };
+export const EVM_CHAIN_ID_TO_ECOSYSTEM: ReadonlyRecord<
+  EvmChainId,
+  EvmEcosystemId
+> = {
+  [EvmChainId.EthereumMainnet]: EcosystemId.Ethereum,
+  [EvmChainId.EthereumGoerli]: EcosystemId.Ethereum,
+  [EvmChainId.EthereumLocalnet]: EcosystemId.Ethereum,
+  [EvmChainId.BscMainnet]: EcosystemId.Bsc,
+  [EvmChainId.BscTestnet]: EcosystemId.Bsc,
+  [EvmChainId.BscLocalnet]: EcosystemId.Bsc,
+  [EvmChainId.PolygonMainnet]: EcosystemId.Polygon,
+  [EvmChainId.PolygonTestnet]: EcosystemId.Polygon,
+  [EvmChainId.PolygonLocalnet]: EcosystemId.Polygon,
+  [EvmChainId.AvalancheMainnet]: EcosystemId.Avalanche,
+  [EvmChainId.AvalancheTestnet]: EcosystemId.Avalanche,
+  [EvmChainId.AvalancheLocalnet]: EcosystemId.Avalanche,
+  [EvmChainId.AuroraMainnet]: EcosystemId.Aurora,
+  [EvmChainId.AuroraTestnet]: EcosystemId.Aurora,
+  [EvmChainId.AuroraLocalnet]: EcosystemId.Aurora,
+  [EvmChainId.FantomMainnet]: EcosystemId.Fantom,
+  [EvmChainId.FantomTestnet]: EcosystemId.Fantom,
+  [EvmChainId.FantomLocalnet]: EcosystemId.Fantom,
+  [EvmChainId.KaruraMainnet]: EcosystemId.Karura,
+  [EvmChainId.KaruraTestnet]: EcosystemId.Karura,
+  [EvmChainId.KaruraLocalnet]: EcosystemId.Karura,
+  [EvmChainId.AcalaMainnet]: EcosystemId.Acala,
+  [EvmChainId.AcalaTestnet]: EcosystemId.Acala,
+  [EvmChainId.AcalaLocalnet]: EcosystemId.Acala,
+};
 
 export interface WormholeChainSpec {
   readonly bridge: string;
@@ -160,7 +162,7 @@ const ACALA_NATIVE_CURRENCY = {
   decimals: 18, // no other value is allowed by Metamask
 };
 
-const mainnetChains: ChainsByProtocol = {
+const MAINNET_CHAINS: ChainsByProtocol = {
   [Protocol.Solana]: [
     {
       ecosystem: EcosystemId.Solana,
@@ -267,7 +269,7 @@ const mainnetChains: ChainsByProtocol = {
   ],
 };
 
-const devnetChains: ChainsByProtocol = {
+const DEVNET_CHAINS: ChainsByProtocol = {
   [Protocol.Solana]: [
     {
       ecosystem: EcosystemId.Solana,
@@ -374,7 +376,7 @@ const devnetChains: ChainsByProtocol = {
   ],
 };
 
-const localnetChains: ChainsByProtocol = {
+const LOCALNET_CHAINS: ChainsByProtocol = {
   [Protocol.Solana]: [
     {
       ecosystem: EcosystemId.Solana,
@@ -481,22 +483,22 @@ const localnetChains: ChainsByProtocol = {
   ],
 };
 
-export const allUniqueChains = {
+export const ALL_UNIQUE_CHAINS = {
   [Protocol.Solana]: [
-    ...mainnetChains[Protocol.Solana],
-    ...devnetChains[Protocol.Solana],
-    ...localnetChains[Protocol.Solana],
+    ...MAINNET_CHAINS[Protocol.Solana],
+    ...DEVNET_CHAINS[Protocol.Solana],
+    ...LOCALNET_CHAINS[Protocol.Solana],
   ],
   [Protocol.Evm]: [
-    ...mainnetChains[Protocol.Evm],
-    ...devnetChains[Protocol.Evm],
-    ...localnetChains[Protocol.Evm],
+    ...MAINNET_CHAINS[Protocol.Evm],
+    ...DEVNET_CHAINS[Protocol.Evm],
+    ...LOCALNET_CHAINS[Protocol.Evm],
   ],
 };
 
-export const chains: ReadonlyRecord<Env, ChainsByProtocol> = {
-  [Env.Mainnet]: mainnetChains,
-  [Env.Devnet]: devnetChains,
-  [Env.Localnet]: localnetChains,
-  [Env.CustomLocalnet]: localnetChains,
+export const CHAINS: ReadonlyRecord<Env, ChainsByProtocol> = {
+  [Env.Mainnet]: MAINNET_CHAINS,
+  [Env.Devnet]: DEVNET_CHAINS,
+  [Env.Localnet]: LOCALNET_CHAINS,
+  [Env.CustomLocalnet]: LOCALNET_CHAINS,
 };

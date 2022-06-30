@@ -4,7 +4,7 @@ import * as React from "react";
 import shallow from "zustand/shallow.js";
 
 import type { EvmEcosystemId } from "../config";
-import { EcosystemId, Env, Protocol, chains } from "../config";
+import { CHAINS, EcosystemId, Env, Protocol } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { EvmConnection } from "../models";
@@ -12,35 +12,35 @@ import type { ReadonlyRecord } from "../utils";
 import { findOrThrow } from "../utils";
 
 const EthereumConnectionContext = React.createContext<EvmConnection>(
-  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][0]),
+  new EvmConnection(Env.Mainnet, CHAINS[Env.Mainnet][Protocol.Evm][0]),
 );
 
 const BscConnectionContext = React.createContext<EvmConnection>(
-  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][1]),
+  new EvmConnection(Env.Mainnet, CHAINS[Env.Mainnet][Protocol.Evm][1]),
 );
 
 const AvalancheConnectionContext = React.createContext<EvmConnection>(
-  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][2]),
+  new EvmConnection(Env.Mainnet, CHAINS[Env.Mainnet][Protocol.Evm][2]),
 );
 
 const PolygonConnectionContext = React.createContext<EvmConnection>(
-  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][3]),
+  new EvmConnection(Env.Mainnet, CHAINS[Env.Mainnet][Protocol.Evm][3]),
 );
 
 const AuroraConnectionContext = React.createContext<EvmConnection>(
-  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][4]),
+  new EvmConnection(Env.Mainnet, CHAINS[Env.Mainnet][Protocol.Evm][4]),
 );
 
 const FantomConnectionContext = React.createContext<EvmConnection>(
-  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][5]),
+  new EvmConnection(Env.Mainnet, CHAINS[Env.Mainnet][Protocol.Evm][5]),
 );
 
 const KaruraConnectionContext = React.createContext<EvmConnection>(
-  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][6]),
+  new EvmConnection(Env.Mainnet, CHAINS[Env.Mainnet][Protocol.Evm][6]),
 );
 
 const AcalaConnectionContext = React.createContext<EvmConnection>(
-  new EvmConnection(Env.Mainnet, chains[Env.Mainnet][Protocol.Evm][7]),
+  new EvmConnection(Env.Mainnet, CHAINS[Env.Mainnet][Protocol.Evm][7]),
 );
 
 const ecosystemToContext: ReadonlyRecord<

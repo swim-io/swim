@@ -13,7 +13,7 @@ import {
 import type { ContractReceipt } from "ethers";
 
 import type { EvmSpec, WormholeChainSpec, WormholeConfig } from "../../config";
-import { EcosystemId, WormholeChainId, ecosystems } from "../../config";
+import { ECOSYSTEMS, EcosystemId, WormholeChainId } from "../../config";
 import type { SolanaConnection } from "../solana";
 import { DEFAULT_MAX_RETRIES } from "../solana";
 import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
@@ -164,7 +164,7 @@ export const setUpErc20Tokens = async (
     ];
   }
 
-  const evmEcosystem = ecosystems[evmChain.ecosystem];
+  const evmEcosystem = ECOSYSTEMS[evmChain.ecosystem];
   const vaas = await Promise.all(
     attestations.map(({ emitterAddress, sequence }) =>
       getSignedVAAWithRetry(

@@ -15,10 +15,10 @@ import type {
   WormholeConfig,
 } from "../../config";
 import {
+  ECOSYSTEMS,
   EcosystemId,
   Protocol,
   WormholeChainId,
-  ecosystems,
   getSolanaTokenDetails,
 } from "../../config";
 import { findOrThrow, isNotNull } from "../../utils";
@@ -249,7 +249,7 @@ export async function* generateTransferEvmTokensToSolana(
     const unlockSplTokenTxIdsGenerator = generateUnlockSplTokenTxIds(
       transfer.interactionId,
       wormhole.endpoint,
-      ecosystems[transfer.evmChain.ecosystem].wormholeChainId,
+      ECOSYSTEMS[transfer.evmChain.ecosystem].wormholeChainId,
       getEmitterAddressEth(transfer.evmChain.wormhole.tokenBridge),
       sequences[i],
       solanaWormhole,
@@ -319,7 +319,7 @@ export const transferEvmTokensToSolana = async (
       unlockSplToken(
         transfer.interactionId,
         endpoint,
-        ecosystems[transfer.evmChain.ecosystem].wormholeChainId,
+        ECOSYSTEMS[transfer.evmChain.ecosystem].wormholeChainId,
         getEmitterAddressEth(transfer.evmChain.wormhole.tokenBridge),
         sequences[i],
         solanaWormhole,

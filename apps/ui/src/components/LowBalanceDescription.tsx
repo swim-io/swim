@@ -1,7 +1,7 @@
 import type { FC } from "react";
 
 import type { EcosystemId } from "../config";
-import { ecosystems } from "../config";
+import { ECOSYSTEMS } from "../config";
 
 interface Props {
   readonly lowBalanceWallets: readonly EcosystemId[];
@@ -9,7 +9,7 @@ interface Props {
 
 export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
   const walletNames = lowBalanceWallets.map(
-    (ecosystemId) => ecosystems[ecosystemId].displayName,
+    (ecosystemId) => ECOSYSTEMS[ecosystemId].displayName,
   );
   return (
     <p>

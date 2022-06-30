@@ -17,9 +17,9 @@ import { PublicKey, Transaction } from "@solana/web3.js";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
 import {
+  ECOSYSTEMS,
   EcosystemId,
   WormholeChainId,
-  ecosystems,
   getSolanaTokenDetails,
 } from "../../config";
 import type { SolanaTx, Tx } from "../crossEcosystem";
@@ -312,7 +312,7 @@ export async function* generateLockSplTokensTxs(
     if (!evmWallet.address) {
       throw new Error("Missing EVM address");
     }
-    const evmEcosystem = ecosystems[evmChain.ecosystem];
+    const evmEcosystem = ECOSYSTEMS[evmChain.ecosystem];
     const existingTx =
       existingTxs.find<SolanaTx>(
         (tx: Tx): tx is SolanaTx =>
@@ -391,7 +391,7 @@ export const lockSplTokens = async (
     if (!evmWallet.address) {
       throw new Error("Missing EVM address");
     }
-    const evmEcosystem = ecosystems[evmChain.ecosystem];
+    const evmEcosystem = ECOSYSTEMS[evmChain.ecosystem];
     const { tx, messageKeypair } = await transferFromSolana(
       interactionId,
       solanaConnection,

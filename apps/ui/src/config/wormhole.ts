@@ -25,21 +25,21 @@ export interface WormholeConfig {
   readonly endpoint: string;
 }
 
-const mainnetWormholeConfig: WormholeConfig = {
+const MAINNET_WORMHOLE_CONFIG: WormholeConfig = {
   endpoint: "https://wormhole-v2-mainnet-api.certus.one",
 };
 
-const devnetWormholeConfig: WormholeConfig = {
+const DEVNET_WORMHOLE_CONFIG: WormholeConfig = {
   endpoint: "https://wormhole-v2-testnet-api.certus.one",
 };
 
-const localnetWormholeConfig: WormholeConfig = {
+const LOCALNET_WORMHOLE_CONFIG: WormholeConfig = {
   endpoint: "http://127.0.0.1:7071",
 };
 
-export const wormholeConfigs: ReadonlyRecord<Env, WormholeConfig> = {
-  [Env.Mainnet]: mainnetWormholeConfig,
-  [Env.Devnet]: devnetWormholeConfig,
-  [Env.Localnet]: localnetWormholeConfig,
-  [Env.CustomLocalnet]: localnetWormholeConfig,
+export const WORMHOLE_CONFIGS: ReadonlyRecord<Env, WormholeConfig> = {
+  [Env.Mainnet]: MAINNET_WORMHOLE_CONFIG,
+  [Env.Devnet]: DEVNET_WORMHOLE_CONFIG,
+  [Env.Localnet]: LOCALNET_WORMHOLE_CONFIG,
+  [Env.CustomLocalnet]: LOCALNET_WORMHOLE_CONFIG,
 };

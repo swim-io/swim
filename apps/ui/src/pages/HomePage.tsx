@@ -22,7 +22,7 @@ import { GlassPanel } from "../components/GlassPanel";
 import { InvestorsList } from "../components/InvestorsList";
 import { Roadmap } from "../components/Roadmap";
 import type { Ecosystem } from "../config";
-import { EcosystemId, ecosystems } from "../config";
+import { ECOSYSTEMS, EcosystemId } from "../config";
 import { useTitle } from "../hooks";
 import DIAGRAM from "../images/diagram.svg";
 import DISCORD_SVG from "../images/social/discord.svg";
@@ -34,11 +34,11 @@ const HomePage = (): ReactElement => {
   useTitle("");
   const navigate = useNavigate();
   const promotedEcosystems = [
-    ecosystems[EcosystemId.Solana],
-    ecosystems[EcosystemId.Ethereum],
-    ecosystems[EcosystemId.Bsc],
-    ecosystems[EcosystemId.Avalanche],
-    ecosystems[EcosystemId.Polygon],
+    ECOSYSTEMS[EcosystemId.Solana],
+    ECOSYSTEMS[EcosystemId.Ethereum],
+    ECOSYSTEMS[EcosystemId.Bsc],
+    ECOSYSTEMS[EcosystemId.Avalanche],
+    ECOSYSTEMS[EcosystemId.Polygon],
   ];
 
   return (

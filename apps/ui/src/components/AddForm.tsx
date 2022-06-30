@@ -19,9 +19,9 @@ import { useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import {
+  ECOSYSTEMS,
   ECOSYSTEM_IDS,
   EcosystemId,
-  ecosystems,
   getNativeTokenDetails,
   isEcosystemEnabled,
 } from "../config";
@@ -264,7 +264,7 @@ export const AddForm = ({
   const lpTargetEcosystemOptions: readonly EuiRadioGroupOption[] = [
     ...lpToken.detailsByEcosystem.keys(),
   ].map((ecosystemId) => {
-    const ecosystem = ecosystems[ecosystemId];
+    const ecosystem = ECOSYSTEMS[ecosystemId];
     return {
       id: ecosystemId,
       label: (

@@ -135,7 +135,7 @@ export const ecosystemList: readonly Ecosystem[] = [
   {
     id: EcosystemId.Bnb,
     protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Bsc,
+    wormholeChainId: WormholeChainId.Bnb,
     displayName: "BNB Chain",
     logo: BNB_SVG,
     nativeTokenSymbol: "BNB",

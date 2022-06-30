@@ -36,7 +36,7 @@ const generateSuite = (env: Env): void => {
       ).toBe(true);
     });
 
-    // NOTE: We may have to rethink this test if eg tokens on Ethereum/Bsc can be deployed at the same address
+    // NOTE: We may have to rethink this test if eg tokens on Ethereum/BNB can be deployed at the same address
     it("does not specify an address more than once", () => {
       const allAddresses = tokens.flatMap((token) =>
         [...token.detailsByEcosystem.values()].map(

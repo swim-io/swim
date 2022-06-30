@@ -108,7 +108,7 @@ export const PoolPageInner = ({
   const { showPrompt: showRegisterEthereumTokenPrompt } = useRegisterErc20Token(
     EcosystemId.Ethereum,
   );
-  const { showPrompt: showRegisterBscTokenPrompt } = useRegisterErc20Token(
+  const { showPrompt: showRegisterBnbTokenPrompt } = useRegisterErc20Token(
     EcosystemId.Bnb,
   );
   const {
@@ -271,7 +271,7 @@ export const PoolPageInner = ({
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}
-              onClick={() => showRegisterBscTokenPrompt(lpToken)}
+              onClick={() => showRegisterBnbTokenPrompt(lpToken)}
               iconType={BNB_SVG}
             >
               Add LP token to Metamask

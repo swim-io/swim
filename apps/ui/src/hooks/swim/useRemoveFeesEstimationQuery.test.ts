@@ -122,7 +122,7 @@ describe("useRemoveFeesEstimationQuery", () => {
       expect(result.current?.bnb).toEqual(new Decimal(0));
     });
 
-    it("should return bnb estimation for Bsc single remove", async () => {
+    it("should return BNB estimation for BNB single remove", async () => {
       const { result } = renderHookWithAppContext(() =>
         useRemoveFeesEstimationQuery(
           [

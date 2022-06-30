@@ -188,7 +188,7 @@ export const ETHEREUM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[
       adapter: ethereum.MetaMaskAdapter,
     },
   ];
-export const BSC_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] = [
+export const BNB_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] = [
   {
     id: WalletServiceId.MetaMask,
     info: bnbMetaMaskInfo,
@@ -273,7 +273,7 @@ export const SOLANA_WALLET_SERVICES: readonly SolanaWalletService<SolanaWalletAd
 export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {
   [EcosystemId.Solana]: SOLANA_WALLET_SERVICES,
   [EcosystemId.Ethereum]: ETHEREUM_WALLET_SERVICES,
-  [EcosystemId.Bnb]: BSC_WALLET_SERVICES,
+  [EcosystemId.Bnb]: BNB_WALLET_SERVICES,
   [EcosystemId.Avalanche]: AVALANCHE_WALLET_SERVICES,
   [EcosystemId.Polygon]: POLYGON_WALLET_SERVICES,
   [EcosystemId.Aurora]: AURORA_WALLET_SERVICES,

@@ -122,7 +122,7 @@ describe("useAddFeesEstimationQuery", () => {
       expect(result.current?.bnb).toEqual(new Decimal(0));
     });
 
-    it("should return bnb estimation for Bsc lpTarget", async () => {
+    it("should return BNB estimation for BNB lpTarget", async () => {
       const { result } = renderHookWithAppContext(() =>
         useAddFeesEstimationQuery(
           [

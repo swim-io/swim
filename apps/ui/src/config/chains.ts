@@ -19,9 +19,9 @@ export const enum EvmChainId {
   EthereumMainnet = 1,
   EthereumGoerli = 5,
   EthereumLocalnet = 1337,
-  BscMainnet = 56,
-  BscTestnet = 97,
-  BscLocalnet = 1397,
+  BnbMainnet = 56,
+  BnbTestnet = 97,
+  BnbLocalnet = 1397,
   PolygonMainnet = 137,
   PolygonTestnet = 80001,
   PolygonLocalnet = 80002, // TODO: This is a placeholder
@@ -47,9 +47,9 @@ export const evmChainIdToEcosystem: ReadonlyRecord<EvmChainId, EvmEcosystemId> =
     [EvmChainId.EthereumMainnet]: EcosystemId.Ethereum,
     [EvmChainId.EthereumGoerli]: EcosystemId.Ethereum,
     [EvmChainId.EthereumLocalnet]: EcosystemId.Ethereum,
-    [EvmChainId.BscMainnet]: EcosystemId.Bnb,
-    [EvmChainId.BscTestnet]: EcosystemId.Bnb,
-    [EvmChainId.BscLocalnet]: EcosystemId.Bnb,
+    [EvmChainId.BnbMainnet]: EcosystemId.Bnb,
+    [EvmChainId.BnbTestnet]: EcosystemId.Bnb,
+    [EvmChainId.BnbLocalnet]: EcosystemId.Bnb,
     [EvmChainId.PolygonMainnet]: EcosystemId.Polygon,
     [EvmChainId.PolygonTestnet]: EcosystemId.Polygon,
     [EvmChainId.PolygonLocalnet]: EcosystemId.Polygon,
@@ -189,7 +189,7 @@ const mainnetChains: ChainsByProtocol = {
     },
     {
       ecosystem: EcosystemId.Bnb,
-      chainId: EvmChainId.BscMainnet,
+      chainId: EvmChainId.BnbMainnet,
       chainName: "BNB Chain Mainnet",
       nativeCurrency: BNB_NATIVE_CURRENCY,
       rpcUrls: ["https://bsc-dataseed1.ninicoin.io"], // TODO: Think about what is best to recommend to MetaMask
@@ -296,7 +296,7 @@ const devnetChains: ChainsByProtocol = {
     },
     {
       ecosystem: EcosystemId.Bnb,
-      chainId: EvmChainId.BscTestnet,
+      chainId: EvmChainId.BnbTestnet,
       chainName: "BNB Chain Testnet",
       nativeCurrency: BNB_NATIVE_CURRENCY,
       rpcUrls: ["https://data-seed-prebsc-2-s2.binance.org:8545"],
@@ -403,7 +403,7 @@ const localnetChains: ChainsByProtocol = {
     },
     {
       ecosystem: EcosystemId.Bnb,
-      chainId: EvmChainId.BscLocalnet,
+      chainId: EvmChainId.BnbLocalnet,
       chainName: "BNB Chain Localnet",
       nativeCurrency: BNB_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8546"],

@@ -4,11 +4,11 @@ import { mock } from "jest-mock-extended";
 import { EcosystemId } from "../../config";
 import { parsedSwimSwapTx } from "../../fixtures/solana/txs";
 
-import type { BscTx, EthereumTx, SolanaTx, TxWithTokenId } from "./tx";
+import type { BnbTx, EthereumTx, SolanaTx, TxWithTokenId } from "./tx";
 import {
   deduplicateTxsByTokenId,
   groupTxsByTokenId,
-  isBscTx,
+  isBnbTx,
   isEthereumTx,
   isEvmTx,
   isSolanaTx,
@@ -49,11 +49,11 @@ describe("Cross-ecosystem tx", () => {
     txReceipt: mock<ethers.providers.TransactionReceipt>(),
   };
 
-  const bnbTx: BscTx = {
+  const bnbTx: BnbTx = {
     ...ethereumTx,
     ecosystem: EcosystemId.Bnb,
   };
-  const bnbTx2: BscTx = {
+  const bnbTx2: BnbTx = {
     ...ethereumTx2,
     ecosystem: EcosystemId.Bnb,
   };
@@ -99,14 +99,14 @@ describe("Cross-ecosystem tx", () => {
     });
   });
 
-  describe("isBscTx", () => {
-    it("returns true if the ecosystem is Bsc", () => {
-      expect(isBscTx(bnbTx)).toBe(true);
+  describe("isBnbTx", () => {
+    it("returns true if the ecosystem is BNB", () => {
+      expect(isBnbTx(bnbTx)).toBe(true);
     });
 
-    it("returns false if the ecosystem is not Bsc", () => {
-      expect(isBscTx(solanaTx)).toBe(false);
-      expect(isBscTx(ethereumTx)).toBe(false);
+    it("returns false if the ecosystem is not BNB", () => {
+      expect(isBnbTx(solanaTx)).toBe(false);
+      expect(isBnbTx(ethereumTx)).toBe(false);
     });
   });
 
@@ -166,7 +166,7 @@ describe("Cross-ecosystem tx", () => {
     const txByEthereumId2 = {
       "mainnet-ethereum-usdt": [ethereumTx2, ethereumTx, ethereumTx],
     };
-    const txByBinanceId = { "mainnet-bnb-usdt": [bnbTx, bnbTx2] };
+    const txByBnbId = { "mainnet-bnb-usdt": [bnbTx, bnbTx2] };
 
     it("returns object of all txs, if no duplicates", () => {
       expect(deduplicateTxsByTokenId(txBySolanaId, txByEthereumId)).toEqual({
@@ -182,8 +182,8 @@ describe("Cross-ecosystem tx", () => {
         ...txByEthereumId,
         ...txByEthereumId2,
       });
-      expect(deduplicateTxsByTokenId(txByBinanceId, txByBinanceId)).toEqual({
-        ...txByBinanceId,
+      expect(deduplicateTxsByTokenId(txByBnbId, txByBnbId)).toEqual({
+        ...txByBnbId,
       });
     });
     it("returns empty object, if arguments are empty objects", () => {

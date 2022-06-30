@@ -8,7 +8,7 @@
  * https://explorer.solana.com/tx/sTqFkSHZsn4Md3k6tjykk2D7pgAauep6gnqtCN8TeBF4ByhfBZdp3NKxeFmgLKzHrg93owtbwSacX8kVioYXayR
  * https://explorer.solana.com/tx/32kN3RVAF4exFVLDS8hKAUKtCy4V5hd2s51qqo2Yps9eDCvSncvgFjj292ygokHRtqBp66gHbiLLkzDX16xdEmXW
  */
-export const BNBtoMainnetSolanaTxs = [
+export const BnbtoMainnetSolanaTxs = [
   {
     network: "BSC",
     txHash:
@@ -1329,7 +1329,7 @@ export const BNBtoMainnetSolanaTxs = [
  * https://explorer.solana.com/tx/5tpjwm655iQBgPBi6XwsknixZR4rk6CBBbwHKoE7nr9BKTXUa6NZibrhBCenbRkR2eVdFHAcNY3kBDkphdfN54h
  * https://www.bscscan.com/tx/0x103e42764a65c4d52367ae9e641e2c1de6c53fc78b7a86069f445dc2bdbba7d9
  */
-export const MainnetSolanaToBNBTxs = [
+export const MainnetSolanaToBnbTxs = [
   {
     network: "Solana-mainnet",
     signature:

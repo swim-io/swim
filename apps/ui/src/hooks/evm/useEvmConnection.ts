@@ -24,10 +24,10 @@ export const useEvmConnection = (
 
   const connection =
     queryClient.getQueryData<EvmConnection>(queryKey) ||
-    (() => {
-      const conn = new EvmConnection(env, chainSpec);
-      queryClient.setQueryData(queryKey, conn);
-      return conn;
+    (function createEvmConnection(): EvmConnection {
+      const evmConnection = new EvmConnection(env, chainSpec);
+      queryClient.setQueryData(queryKey, evmConnection);
+      return evmConnection;
     })();
 
   return connection;

@@ -19,10 +19,10 @@ export const useSolanaConnection = (): SolanaConnection => {
 
   const connection =
     queryClient.getQueryData<SolanaConnection>(queryKey) ||
-    (() => {
-      const conn = new SolanaConnection(endpoint, wsEndpoint);
-      queryClient.setQueryData(queryKey, conn);
-      return conn;
+    (function createSolanaConnection(): SolanaConnection {
+      const solanaConnection = new SolanaConnection(endpoint, wsEndpoint);
+      queryClient.setQueryData(queryKey, solanaConnection);
+      return solanaConnection;
     })();
 
   // The websocket library solana/web3.js uses closes its websocket connection when the subscription list

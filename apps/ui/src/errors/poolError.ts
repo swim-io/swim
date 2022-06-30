@@ -5,7 +5,7 @@ type PoolErrorMap = {
 // Error codes from the `pool` repository:
 // https://github.com/swim-io/pool/blob/b417fb069b9859d479f406a24b9cbf79c4d20755/src/error.rs#L13-L66
 // TODO: Generate TS enum from the Rust enum
-const POOL_ERRORS_CODES_TO_MESSAGES: PoolErrorMap = {
+const POOL_ERROR_CODES_TO_MESSAGES: PoolErrorMap = {
   // InvalidAmpFactorValue = 100 // 0x64
   "0x64": "Specified amp factor is out of bounds.",
   // InvalidAmpFactorTimestamp
@@ -59,7 +59,7 @@ const POOL_ERRORS_CODES_TO_MESSAGES: PoolErrorMap = {
 };
 
 const POOL_ERROR_CODES_REGEXP_UNION = Object.keys(
-  POOL_ERRORS_CODES_TO_MESSAGES,
+  POOL_ERROR_CODES_TO_MESSAGES,
 ).join("|");
 
 // Compiles to:
@@ -71,11 +71,11 @@ const POOL_ERROR_CODES_REGEXP = new RegExp(
 
 // Parse user-friendly `PoolError` from the Solana Program
 // TODO: Return error code from Solana Program instead of parsing errors
-export const extractSwimPoolError = (log: string): string | undefined => {
+export const extractSwimPoolError = (log: string): string | null => {
   const errorCode = POOL_ERROR_CODES_REGEXP.exec(log)?.groups?.errorCode;
 
   if (errorCode) {
-    return POOL_ERRORS_CODES_TO_MESSAGES[errorCode];
+    return POOL_ERROR_CODES_TO_MESSAGES[errorCode];
   }
 
   return;

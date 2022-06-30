@@ -11,14 +11,14 @@ describe("Swim pool errors", () => {
     });
 
     it("extracts errors from pool error codes within [100, 121] range", () => {
-      for (let errorCode = 100; errorCode <= 121; errorCode++) {
+      for (let errorCode = 0x64; errorCode <= 0x79; errorCode++) {
         const error = `custom program error: 0x${errorCode.toString(16)}`;
 
         expect(extractSwimPoolError(error)).toBeDefined();
       }
     });
 
-    it("doesn't extract unexisting pool error", () => {
+    it("doesn't extract unknown pool error", () => {
       const errors = [
         "failed to send transaction: Transaction simulation failed: Error processing Instruction 1: custom program error: 0x65",
       ];

@@ -12,11 +12,17 @@ export interface ChainConfig {
   readonly wormholeTokenBridge: string;
 }
 
+interface GasToken {
+  readonly name: string;
+  readonly symbol: string;
+  readonly decimals: number;
+}
+
 export interface EcosystemConfig {
   readonly id: string;
   readonly protocol: string;
   readonly wormholeChainId: number;
   readonly displayName: string;
-  readonly nativeTokenSymbol: string;
+  readonly gasToken: GasToken;
   readonly chains: readonly ChainConfig[];
 }

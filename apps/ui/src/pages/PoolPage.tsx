@@ -40,7 +40,7 @@ import {
   useTitle,
   useUserLpBalances,
 } from "../hooks";
-import BSC_SVG from "../images/ecosystems/bsc.svg";
+import BNB_SVG from "../images/ecosystems/bnb.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
 import { defaultIfError, pluralize } from "../utils";
 
@@ -108,8 +108,8 @@ export const PoolPageInner = ({
   const { showPrompt: showRegisterEthereumTokenPrompt } = useRegisterErc20Token(
     EcosystemId.Ethereum,
   );
-  const { showPrompt: showRegisterBscTokenPrompt } = useRegisterErc20Token(
-    EcosystemId.Bsc,
+  const { showPrompt: showRegisterBnbTokenPrompt } = useRegisterErc20Token(
+    EcosystemId.Bnb,
   );
   const {
     tokens,
@@ -267,12 +267,12 @@ export const PoolPageInner = ({
               Add LP token to Metamask
             </EuiButtonEmpty>
           )}
-          {lpToken.detailsByEcosystem.has(EcosystemId.Bsc) && (
+          {lpToken.detailsByEcosystem.has(EcosystemId.Bnb) && (
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}
-              onClick={() => showRegisterBscTokenPrompt(lpToken)}
-              iconType={BSC_SVG}
+              onClick={() => showRegisterBnbTokenPrompt(lpToken)}
+              iconType={BNB_SVG}
             >
               Add LP token to Metamask
             </EuiButtonEmpty>

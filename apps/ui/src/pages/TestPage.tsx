@@ -63,7 +63,7 @@ const TestPage = (): ReactElement => {
   const {
     solana: { address: solanaAddress, wallet: solanaWallet },
     ethereum: { address: ethereumAddress, wallet: ethereumWallet },
-    bsc: { address: bscAddress, wallet: bscWallet },
+    bnb: { address: bnbAddress, wallet: bnbWallet },
   } = useWallets();
   const evmConnections = useEvmConnections();
   const solanaConnection = useSolanaConnection();
@@ -82,7 +82,7 @@ const TestPage = (): ReactElement => {
   const {
     solana: solanaTokens,
     ethereum: ethereumTokens,
-    bsc: bscTokens,
+    bnb: bnbTokens,
   } = useTokensByEcosystem();
 
   const nativeSolanaTokenAddresses = solanaTokens
@@ -96,11 +96,11 @@ const TestPage = (): ReactElement => {
       const details = token.detailsByEcosystem.get(EcosystemId.Ethereum)!;
       return details.address;
     });
-  const nativeBscTokenAddresses = bscTokens
-    .filter((token) => token.nativeEcosystem === EcosystemId.Bsc)
+  const nativeBnbTokenAddresses = bnbTokens
+    .filter((token) => token.nativeEcosystem === EcosystemId.Bnb)
     .filter((token) => !token.id.includes("-lp-"))
     .map((token) => {
-      const details = token.detailsByEcosystem.get(EcosystemId.Bsc)!;
+      const details = token.detailsByEcosystem.get(EcosystemId.Bnb)!;
       return details.address;
     });
 
@@ -119,8 +119,8 @@ const TestPage = (): ReactElement => {
   const ethereumChain = chains[Protocol.Evm].find(
     (chain) => chain.ecosystem === EcosystemId.Ethereum,
   )!;
-  const bscChain = chains[Protocol.Evm].find(
-    (chain) => chain.ecosystem === EcosystemId.Bsc,
+  const bnbChain = chains[Protocol.Evm].find(
+    (chain) => chain.ecosystem === EcosystemId.Bnb,
   )!;
 
   const [governanceAddress, setGovernanceAddress] = useState(
@@ -165,13 +165,13 @@ const TestPage = (): ReactElement => {
       throw new Error("No Solana wallet");
     }
     const evmWallet =
-      ecosystem === EcosystemId.Ethereum ? ethereumWallet : bscWallet;
+      ecosystem === EcosystemId.Ethereum ? ethereumWallet : bnbWallet;
     if (!evmWallet) {
       throw new Error(`No ${ecosystem} wallet`);
     }
 
     const evmChain =
-      ecosystem === EcosystemId.Ethereum ? ethereumChain : bscChain;
+      ecosystem === EcosystemId.Ethereum ? ethereumChain : bnbChain;
 
     await evmWallet.switchNetwork(evmChain.chainId);
 
@@ -189,13 +189,13 @@ const TestPage = (): ReactElement => {
     const splTokenSetupEvmTxIds =
       ecosystem === EcosystemId.Ethereum
         ? splTokenSetupResult.ethereumTxIds
-        : splTokenSetupResult.bscTxIds;
+        : splTokenSetupResult.bnbTxIds;
     console.info(`${ecosystem} TX IDS`, splTokenSetupEvmTxIds);
 
     const nativeErc20TokenAddresses =
       ecosystem === EcosystemId.Ethereum
         ? nativeEthereumTokenAddresses
-        : nativeBscTokenAddresses;
+        : nativeBnbTokenAddresses;
     const erc20TokenSetupResult = await setUpErc20Tokens(
       wormholeConfig,
       evmChain,
@@ -210,7 +210,7 @@ const TestPage = (): ReactElement => {
     const erc20TokenSetupEvmTxIds =
       ecosystem === EcosystemId.Ethereum
         ? erc20TokenSetupResult.ethereumTxIds
-        : erc20TokenSetupResult.bscTxIds;
+        : erc20TokenSetupResult.bnbTxIds;
     console.info(`${ecosystem} TX IDS`, erc20TokenSetupEvmTxIds);
   };
 
@@ -239,8 +239,8 @@ const TestPage = (): ReactElement => {
     if (!ethereumWallet) {
       throw new Error("No Ethereum wallet");
     }
-    if (!bscWallet) {
-      throw new Error("No BSC wallet");
+    if (!bnbWallet) {
+      throw new Error("No BNB wallet");
     }
 
     const splTokenEthereumSetupResult = await setUpSplTokensOnEvm(
@@ -256,18 +256,18 @@ const TestPage = (): ReactElement => {
     console.info("SOLANA TX IDS", splTokenEthereumSetupResult.solanaTxIds);
     console.info("ETHEREUM TX IDS", splTokenEthereumSetupResult.ethereumTxIds);
 
-    const splTokenBscSetupResult = await setUpSplTokensOnEvm(
+    const splTokenBnbSetupResult = await setUpSplTokensOnEvm(
       wormholeConfig,
       solanaChain.wormhole,
-      bscChain,
+      bnbChain,
       solanaConnection,
       solanaWallet,
-      bscWallet,
+      bnbWallet,
       [lpTokenSolanaDetails.address],
     );
-    console.info("ATTEST LP TOKEN ON BSC");
-    console.info("SOLANA TX IDS", splTokenBscSetupResult.solanaTxIds);
-    console.info("BSC TX IDS", splTokenBscSetupResult.bscTxIds);
+    console.info("ATTEST LP TOKEN ON BNB");
+    console.info("SOLANA TX IDS", splTokenBnbSetupResult.solanaTxIds);
+    console.info("BNB TX IDS", splTokenBnbSetupResult.bnbTxIds);
   };
 
   const { notify } = useNotification();
@@ -279,9 +279,9 @@ const TestPage = (): ReactElement => {
     throw new Error("Test error");
   };
 
-  const approveErc20Bsc20 = async (): Promise<void> => {
-    if (!ethereumWallet?.signer || !bscWallet?.signer) {
-      throw new Error("Connect Ethereum wallet and BSC wallet");
+  const approveErc20Bnb20 = async (): Promise<void> => {
+    if (!ethereumWallet?.signer || !bnbWallet?.signer) {
+      throw new Error("Connect Ethereum wallet and BNB wallet");
     }
 
     const hugeAmount = "1" + "0".repeat(32);
@@ -303,25 +303,25 @@ const TestPage = (): ReactElement => {
       console.info(receipt.transactionHash);
     }
 
-    await bscWallet.switchNetwork(bscChain.chainId);
+    await bnbWallet.switchNetwork(bnbChain.chainId);
     for (const token of tokens) {
-      const bscDetails = token.detailsByEcosystem.get(EcosystemId.Bsc);
-      if (!bscDetails) {
+      const bnbDetails = token.detailsByEcosystem.get(EcosystemId.Bnb);
+      if (!bnbDetails) {
         continue;
       }
       const receipt = await approveEth(
-        bscChain.wormhole.tokenBridge,
-        bscDetails.address,
-        bscWallet.signer,
+        bnbChain.wormhole.tokenBridge,
+        bnbDetails.address,
+        bnbWallet.signer,
         hugeAmount,
       );
       console.info(receipt.transactionHash);
     }
   };
 
-  const unapproveErc20Bsc20 = async (): Promise<void> => {
-    if (!ethereumWallet?.signer || !bscWallet?.signer) {
-      throw new Error("Connect Ethereum wallet and BSC wallet");
+  const unapproveErc20BNB20 = async (): Promise<void> => {
+    if (!ethereumWallet?.signer || !bnbWallet?.signer) {
+      throw new Error("Connect Ethereum wallet and BNB wallet");
     }
 
     const zero = "0";
@@ -343,16 +343,16 @@ const TestPage = (): ReactElement => {
       console.info(receipt.transactionHash);
     }
 
-    await bscWallet.switchNetwork(bscChain.chainId);
+    await bnbWallet.switchNetwork(bnbChain.chainId);
     for (const token of tokens) {
-      const bscDetails = token.detailsByEcosystem.get(EcosystemId.Bsc);
-      if (!bscDetails) {
+      const bnbDetails = token.detailsByEcosystem.get(EcosystemId.Bnb);
+      if (!bnbDetails) {
         continue;
       }
       const receipt = await approveEth(
-        bscChain.wormhole.tokenBridge,
-        bscDetails.address,
-        bscWallet.signer,
+        bnbChain.wormhole.tokenBridge,
+        bnbDetails.address,
+        bnbWallet.signer,
         zero,
       );
       console.info(receipt.transactionHash);
@@ -376,8 +376,8 @@ const TestPage = (): ReactElement => {
       console.info(`${token}: ${foreignAsset}`);
     }
   };
-  const getWrappedTokensBsc = async (): Promise<void> => {
-    console.info("WRAPPED SPL TOKENS ON BSC");
+  const getWrappedTokensBNB = async (): Promise<void> => {
+    console.info("WRAPPED SPL TOKENS ON BNB");
     for (const token of [
       ...nativeSolanaTokenAddresses,
       swimUsdTokenSolanaDetails.address,
@@ -385,8 +385,8 @@ const TestPage = (): ReactElement => {
     ]) {
       const wormholeAsset = new PublicKey(token).toBytes();
       const foreignAsset = await getForeignAssetEth(
-        bscChain.wormhole.tokenBridge,
-        evmConnections[EcosystemId.Bsc].provider,
+        bnbChain.wormhole.tokenBridge,
+        evmConnections[EcosystemId.Bnb].provider,
         WormholeChainId.Solana,
         wormholeAsset,
       );
@@ -411,18 +411,18 @@ const TestPage = (): ReactElement => {
             &nbsp;
             <ConnectButton ecosystemId={EcosystemId.Ethereum} />
             &nbsp;
-            <ConnectButton ecosystemId={EcosystemId.Bsc} />
+            <ConnectButton ecosystemId={EcosystemId.Bnb} />
             &nbsp;
             <EuiButton onClick={addToastHandler}>Notify</EuiButton>
             &nbsp;
             <EuiButton onClick={throwError}>Throw error</EuiButton>
             &nbsp;
-            <EuiButton onClick={approveErc20Bsc20}>
-              Approve ERC20/BSC20
+            <EuiButton onClick={approveErc20Bnb20}>
+              Approve ERC20/BNB20
             </EuiButton>
             &nbsp;
-            <EuiButton onClick={unapproveErc20Bsc20}>
-              Unapprove ERC20/BSC20
+            <EuiButton onClick={unapproveErc20BNB20}>
+              Unapprove ERC20/BNB20
             </EuiButton>
             <EuiSpacer />
             <h2>Current pool:</h2>
@@ -443,10 +443,10 @@ const TestPage = (): ReactElement => {
               Set up Wormhole tokens (Ethereum)
             </EuiButton>
             <EuiButton
-              isDisabled={!solanaAddress || !bscAddress}
-              onClick={() => handleSetUpEvmTokens(EcosystemId.Bsc)}
+              isDisabled={!solanaAddress || !bnbAddress}
+              onClick={() => handleSetUpEvmTokens(EcosystemId.Bnb)}
             >
-              Set up Wormhole tokens (BSC)
+              Set up Wormhole tokens (BNB)
             </EuiButton>
             <EuiSpacer />
             <h2>Pool initializer</h2>
@@ -675,8 +675,8 @@ const TestPage = (): ReactElement => {
             <EuiButton onClick={getWrappedTokensEth}>
               Get wrapped tokens (Ethereum)
             </EuiButton>
-            <EuiButton onClick={getWrappedTokensBsc}>
-              Get wrapped tokens (BSC)
+            <EuiButton onClick={getWrappedTokensBNB}>
+              Get wrapped tokens (BNB)
             </EuiButton>
           </EuiPageContentBody>
         </EuiPageContent>

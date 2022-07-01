@@ -1,7 +1,10 @@
 import Decimal from "decimal.js";
 
-import type { EcosystemId, Env } from "../../../config";
-import { findTokenById, isValidEnv } from "../../../config";
+import type { EcosystemId, Env, TokenSpec } from "../../../config";
+import {
+  isValidEnv,
+  findTokenById as realFindTokenById,
+} from "../../../config";
 import type {
   AddInteraction,
   AddOperationSpec,
@@ -22,6 +25,12 @@ import type {
   ToSolanaTransferState,
 } from "../../../models";
 import { Amount, InteractionType, SwimDefiInstruction } from "../../../models";
+
+const findTokenById = (tokenId: string, env: Env): TokenSpec => {
+  // handle bnb token rename. from `localnet-bsc-usdt` to `localnet-bnb-usdt`
+  const newTokenId = tokenId.replace("-bsc-", "-bnb-");
+  return realFindTokenById(newTokenId, env);
+};
 
 export interface PreparedAddInteraction extends Omit<AddInteraction, "params"> {
   readonly params: {

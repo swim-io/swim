@@ -14,7 +14,7 @@ export const useUserNativeBalances = (): ReadonlyRecord<
     EcosystemId.Ethereum,
   );
   const { data: bnbBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
-    EcosystemId.Bsc,
+    EcosystemId.Bnb,
   );
   const { data: avaxBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
     EcosystemId.Avalanche,
@@ -37,7 +37,7 @@ export const useUserNativeBalances = (): ReadonlyRecord<
   return {
     [EcosystemId.Solana]: solBalance,
     [EcosystemId.Ethereum]: ethBalance,
-    [EcosystemId.Bsc]: bnbBalance,
+    [EcosystemId.Bnb]: bnbBalance,
     [EcosystemId.Avalanche]: avaxBalance,
     [EcosystemId.Polygon]: maticBalance,
     [EcosystemId.Aurora]: auroraEthBalance,

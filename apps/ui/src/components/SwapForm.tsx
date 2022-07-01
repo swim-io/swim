@@ -8,10 +8,10 @@ import {
 } from "@elastic/eui";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import type { PoolSpec } from "../config";
+import type { PoolSpec, TokenSpec } from "../config";
 import { EcosystemId } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
@@ -56,22 +56,6 @@ const isSwimUsdPool = (pool: PoolSpec): boolean =>
     swimUsdRegExp.test(key),
   );
 
-// TODO: Handle swimUSD as a swappable token
-const useOutputTokens = (fromTokenId: string): readonly string[] => {
-  const { pools } = useEnvironment(selectConfig);
-  const inputPool = findOrThrow(pools, (pool) =>
-    pool.tokenAccounts.has(fromTokenId),
-  );
-  const connectedTokens = isSwimUsdPool(inputPool)
-    ? pools
-        .filter(isSwimUsdPool)
-        .flatMap((pool) => [...pool.tokenAccounts.keys()])
-    : [...inputPool.tokenAccounts.keys()];
-  return connectedTokens.filter(
-    (tokenId) => tokenId !== fromTokenId && !swimUsdRegExp.test(tokenId),
-  );
-};
-
 export interface SwapFormProps {
   readonly maxSlippageFraction: Decimal | null;
 }
@@ -81,34 +65,24 @@ export const SwapForm = ({
 }: SwapFormProps): ReactElement => {
   const config = useEnvironment(selectConfig, shallow);
   const { notify } = useNotification();
-  const { tokens } = config;
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();
   const startNewInteraction = useStartNewInteraction();
   const isInteractionInProgress = useHasActiveInteraction();
-  const swappableTokenIds = config.pools
-    .filter((pool) => !pool.isStakingPool)
-    .flatMap((pool) => [...pool.tokenAccounts.keys()])
-    // TODO: Remove this if we want to support swimUSD swaps
-    .filter((tokenId) =>
-      config.pools.every((pool) => pool.lpToken !== tokenId),
-    );
-
-  const defaultFromTokenId = swappableTokenIds[0];
-  const [fromTokenId, setFromTokenId] = useState(defaultFromTokenId);
-  const toTokenIds = useOutputTokens(fromTokenId);
-  const [toTokenId, setToTokenId] = useState(toTokenIds[1]);
-  const fromToken = findOrThrow(tokens, ({ id }) => id === fromTokenId);
-  // TODO: Make this less ugly
-  const toToken = toTokenIds.includes(toTokenId)
-    ? findOrThrow(tokens, ({ id }) => id === toTokenId)
-    : findOrThrow(tokens, ({ id }) => id === toTokenIds[0]);
+  const {
+    fromToken,
+    toToken,
+    setFromTokenId,
+    setToTokenId,
+    fromTokenOptionsIds,
+    toTokenOptionsIds,
+  } = useSwapFormTokens(config.pools, config.tokens);
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const requiredPools = getRequiredPoolsForSwap(
     config.pools,
-    fromTokenId,
-    toTokenId,
+    fromToken.id,
+    toToken.id,
   );
   const poolIds = requiredPools.map((pool) => pool.id);
   const pools = usePools(poolIds);
@@ -252,17 +226,6 @@ export const SwapForm = ({
     });
   };
 
-  useEffect(() => {
-    // Eg if the env changes
-    setFromTokenId(defaultFromTokenId);
-  }, [defaultFromTokenId]);
-
-  useEffect(() => {
-    if (!toTokenIds.find((tokenId) => tokenId === toTokenId)) {
-      setToTokenId(toTokenIds[0]);
-    }
-  }, [toTokenId, toTokenIds]);
-
   const handleConfirmModalCancel = (): void => {
     setConfirmModalDescription(null);
   };
@@ -279,7 +242,7 @@ export const SwapForm = ({
       <TokenAmountInput
         value={formInputAmount}
         token={fromToken}
-        tokenOptionIds={swappableTokenIds}
+        tokenOptionIds={fromTokenOptionsIds}
         placeholder={"Enter amount"}
         disabled={isInteractionInProgress}
         errors={inputAmountErrors}
@@ -296,8 +259,8 @@ export const SwapForm = ({
           size="m"
           iconSize="xl"
           onClick={() => {
-            setFromTokenId(toTokenId);
-            setToTokenId(fromTokenId);
+            setFromTokenId(toToken.id);
+            setToTokenId(fromToken.id);
           }}
           className="swapForm__flipIcon"
           aria-label="Flip direction"
@@ -312,7 +275,7 @@ export const SwapForm = ({
       <TokenAmountInput
         value={outputAmount?.toHumanString(toToken.nativeEcosystem) ?? ""}
         token={toToken}
-        tokenOptionIds={toTokenIds}
+        tokenOptionIds={toTokenOptionsIds}
         placeholder={"Output"}
         disabled={isInteractionInProgress}
         errors={[]}
@@ -371,4 +334,84 @@ export const SwapForm = ({
       />
     </EuiForm>
   );
+};
+
+type SwapFormTokens = {
+  readonly fromToken: TokenSpec;
+  readonly toToken: TokenSpec;
+  readonly setFromTokenId: (fromTokenId: string) => void;
+  readonly setToTokenId: (toTokenId: string) => void;
+  readonly fromTokenOptionsIds: readonly string[];
+  readonly toTokenOptionsIds: readonly string[];
+};
+
+const useSwapFormTokens = (
+  pools: readonly PoolSpec[],
+  tokens: readonly TokenSpec[],
+): SwapFormTokens => {
+  const fromTokenOptionsIds = useMemo(
+    () =>
+      pools
+        .filter((pool) => !pool.isStakingPool)
+        .flatMap((pool) => [...pool.tokenAccounts.keys()])
+        // TODO: Remove this if we want to support swimUSD swaps
+        .filter((tokenId) => pools.every((pool) => pool.lpToken !== tokenId)),
+    [pools],
+  );
+
+  // TODO: Handle swimUSD as a swappable token
+  const getOutputTokens = useCallback(
+    (fromTokenId: string): readonly string[] => {
+      const inputPool = findOrThrow(pools, (pool) =>
+        pool.tokenAccounts.has(fromTokenId),
+      );
+      const connectedTokens = isSwimUsdPool(inputPool)
+        ? pools
+            .filter(isSwimUsdPool)
+            .flatMap((pool) => [...pool.tokenAccounts.keys()])
+        : [...inputPool.tokenAccounts.keys()];
+      return connectedTokens.filter(
+        (tokenId) => tokenId !== fromTokenId && !swimUsdRegExp.test(tokenId),
+      );
+    },
+    [pools],
+  );
+
+  const getDefaultFromTokenId = useCallback(
+    () => fromTokenOptionsIds[0],
+    [fromTokenOptionsIds],
+  );
+
+  const [fromTokenId, setFromTokenId] = useState(getDefaultFromTokenId);
+  const [toTokenId, setToTokenId] = useState(
+    () => getOutputTokens(fromTokenId)[0],
+  );
+
+  const fromToken =
+    tokens.find(({ id }) => id === fromTokenId) ||
+    tokens.find(({ id }) => id === getDefaultFromTokenId());
+
+  if (!fromToken) throw new Error("Can't figure out fromToken");
+
+  const toToken =
+    tokens.find(({ id }) => id === toTokenId) ||
+    tokens.find(({ id }) => id === getOutputTokens(fromToken.id)[0]);
+
+  if (!toToken) throw new Error("Can't figure out toToken");
+
+  useEffect(() => {
+    if (fromToken.id !== fromTokenId) {
+      setFromTokenId(getDefaultFromTokenId());
+      setToTokenId(getOutputTokens(fromToken.id)[0]);
+    }
+  }, [getDefaultFromTokenId, getOutputTokens, fromToken.id, fromTokenId]);
+
+  return {
+    fromToken,
+    toToken,
+    setFromTokenId,
+    setToTokenId,
+    fromTokenOptionsIds,
+    toTokenOptionsIds: getOutputTokens(fromToken.id),
+  };
 };

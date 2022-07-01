@@ -1,7 +1,8 @@
 import Decimal from "decimal.js";
 
-import type { EcosystemId, Env, TokenSpec } from "../../../config";
+import type { Env, TokenSpec } from "../../../config";
 import {
+  EcosystemId,
   isValidEnv,
   findTokenById as realFindTokenById,
 } from "../../../config";
@@ -288,6 +289,16 @@ const populateSwapInteraction = (
 };
 
 const populateInteraction = (interaction: PreparedInteraction): Interaction => {
+  // hacky migration of connectedWallets keys for BSC to BNB rename
+  if (interaction.connectedWallets["bsc" as EcosystemId]) {
+    /* eslint-disable  */
+    // @ts-ignore: Unreachable code error
+    interaction.connectedWallets[EcosystemId.Bnb] =
+      interaction.connectedWallets["bsc" as EcosystemId];
+    delete interaction.connectedWallets["bsc" as EcosystemId];
+    /* eslint-enable  */
+  }
+
   switch (interaction.type) {
     case InteractionType.Add:
       return populateAddInteraction(interaction);

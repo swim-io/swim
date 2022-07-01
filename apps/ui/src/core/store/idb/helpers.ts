@@ -1,7 +1,11 @@
 import Decimal from "decimal.js";
 
-import type { EcosystemId, Env } from "../../../config";
-import { findTokenById, isValidEnv } from "../../../config";
+import type { Env, TokenSpec } from "../../../config";
+import {
+  EcosystemId,
+  isValidEnv,
+  findTokenById as realFindTokenById,
+} from "../../../config";
 import type {
   AddInteraction,
   AddOperationSpec,
@@ -22,6 +26,12 @@ import type {
   ToSolanaTransferState,
 } from "../../../models";
 import { Amount, InteractionType, SwimDefiInstruction } from "../../../models";
+
+const findTokenById = (tokenId: string, env: Env): TokenSpec => {
+  // handle bnb token rename. from `localnet-bsc-usdt` to `localnet-bnb-usdt`
+  const newTokenId = tokenId.replace("-bsc-", "-bnb-");
+  return realFindTokenById(newTokenId, env);
+};
 
 export interface PreparedAddInteraction extends Omit<AddInteraction, "params"> {
   readonly params: {
@@ -279,6 +289,16 @@ const populateSwapInteraction = (
 };
 
 const populateInteraction = (interaction: PreparedInteraction): Interaction => {
+  // hacky migration of connectedWallets keys for BSC to BNB rename
+  if (interaction.connectedWallets["bsc" as EcosystemId]) {
+    /* eslint-disable  */
+    // @ts-ignore: Unreachable code error
+    interaction.connectedWallets[EcosystemId.Bnb] =
+      interaction.connectedWallets["bsc" as EcosystemId];
+    delete interaction.connectedWallets["bsc" as EcosystemId];
+    /* eslint-enable  */
+  }
+
   switch (interaction.type) {
     case InteractionType.Add:
       return populateAddInteraction(interaction);

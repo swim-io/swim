@@ -19,7 +19,7 @@ jobs:
         working-directory: ./apps/ui
 
     env:
-      REACT_APP_BSC_MAINNET_RPC_URL: "https://example.com"
+      REACT_APP_BNB_MAINNET_RPC_URL: "https://example.com"
       REACT_APP_MORALIS_MAINNET_URL: "https://example.com"
       REACT_APP_SOLANA_MAINNET_RPC_URL: "https://solana-api.projectserum.com"
       SKIP_PREFLIGHT_CHECK: true
@@ -43,7 +43,7 @@ jobs:
       - name: "Create .env file for storybook"
         run: |
           touch .env
-          echo REACT_APP_BSC_MAINNET_RPC_URL=$REACT_APP_BSC_MAINNET_RPC_URL >> .env
+          echo REACT_APP_BNB_MAINNET_RPC_URL=$REACT_APP_BNB_MAINNET_RPC_URL >> .env
           echo REACT_APP_MORALIS_MAINNET_URL=$REACT_APP_MORALIS_MAINNET_URL >> .env
           echo REACT_APP_SOLANA_MAINNET_RPC_URL=$REACT_APP_SOLANA_MAINNET_RPC_URL >> .env
           cat .env

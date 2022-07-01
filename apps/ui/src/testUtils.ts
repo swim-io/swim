@@ -17,7 +17,7 @@ export const renderHookWithAppContext: typeof renderHook = (
     wrapper: AppContext,
   });
 
-export const rendeWithAppContext = (ui: ReactElement, options = {}) =>
+export const renderWithAppContext = (ui: ReactElement, options = {}) =>
   render(ui, {
     ...options,
     wrapper: AppContext,

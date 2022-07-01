@@ -9,7 +9,7 @@ import {
   useUserBalanceAmounts,
   useUserNativeBalances,
 } from "../hooks";
-import { mockOf, rendeWithAppContext } from "../testUtils";
+import { mockOf, renderWithAppContext } from "../testUtils";
 
 import { SwapForm } from "./SwapForm";
 
@@ -60,7 +60,7 @@ describe("SwapForm", () => {
   it("should update token options when env changes", () => {
     const { env, setEnv } = environmentStore.getState();
 
-    rendeWithAppContext(<SwapForm maxSlippageFraction={null} />);
+    renderWithAppContext(<SwapForm maxSlippageFraction={null} />);
 
     expect(env).toBe(Env.Mainnet);
     expect(screen.queryAllByRole("button")[0]).toHaveTextContent(

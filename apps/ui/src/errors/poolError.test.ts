@@ -24,7 +24,7 @@ describe("Swim pool errors", () => {
       ];
 
       for (const error in errors) {
-        expect(extractSwimPoolError(error)).toBeUndefined();
+        expect(extractSwimPoolError(error)).toBeNull();
       }
     });
   });

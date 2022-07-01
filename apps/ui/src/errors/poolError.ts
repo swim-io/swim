@@ -78,5 +78,5 @@ export const extractSwimPoolError = (log: string): string | null => {
     return POOL_ERROR_CODES_TO_MESSAGES[errorCode];
   }
 
-  return;
+  return null;
 };

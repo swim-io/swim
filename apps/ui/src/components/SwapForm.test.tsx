@@ -41,7 +41,7 @@ describe("SwapForm", () => {
       [EcosystemId.Acala]: null,
       [EcosystemId.Aurora]: null,
       [EcosystemId.Avalanche]: null,
-      [EcosystemId.Bsc]: null,
+      [EcosystemId.Bnb]: null,
       [EcosystemId.Ethereum]: null,
       [EcosystemId.Fantom]: null,
       [EcosystemId.Karura]: null,

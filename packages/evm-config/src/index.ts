@@ -1,4 +1,4 @@
-import type { ChainConfig, EcosystemConfig } from "./base";
+import type { ChainConfig, EcosystemConfig, GasToken } from "./base";
 import { Env } from "./base";
 
 export const enum EvmChainId {
@@ -421,6 +421,7 @@ const createEcosystemConfig = (
   ecosystemId: EcosystemId,
   wormholeChainId: WormholeChainId,
   displayName: string,
+  gasToken: GasToken,
   nativeTokenSymbol: string,
   chains: readonly EvmChainConfig[],
 ): EvmEcosystemConfig => ({

@@ -8,7 +8,7 @@
  * https://explorer.solana.com/tx/sTqFkSHZsn4Md3k6tjykk2D7pgAauep6gnqtCN8TeBF4ByhfBZdp3NKxeFmgLKzHrg93owtbwSacX8kVioYXayR
  * https://explorer.solana.com/tx/32kN3RVAF4exFVLDS8hKAUKtCy4V5hd2s51qqo2Yps9eDCvSncvgFjj292ygokHRtqBp66gHbiLLkzDX16xdEmXW
  */
-export const BnbtoMainnetSolanaTxs = [
+export const BnbToMainnetSolanaTxs = [
   {
     network: "BSC",
     txHash:

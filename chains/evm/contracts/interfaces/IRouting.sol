@@ -13,20 +13,14 @@ interface IRouting {
     uint256 ampFactor;
     uint256 fees;
   }
-  /**
-   * @dev Emitted on registerToken()
-   * @param tokenId The ID of registered token
-   * @param tokenContract The registered token contract address
-   **/
+  error Routing__ErrorMessage(string message);
+  error Routing__PoolNotRegistered(address poolAddress);
+  error Routing__TokenTransferFailed(address sender, uint256 amount);
+  error Routing__TokenTransferFromFailed(address sender, address receiver, uint256 amount);
+  error Routing__TokenApprovalFailed(address spender, uint256 amount);
+
   event TokenRegistered(uint16 indexed tokenId, address indexed tokenContract, address chainPool);
 
-  /**
-   * @dev Emitted on onChainSwap()
-   * @param fromToken The token address from which user swaps
-   * @param toToken The token address to which user swaps
-   * @param to The beneficiary of the supply, receiving the outputAmount
-   * @param outputAmount The amount received after swap
-   **/
   event OnChainSwap(
     address indexed to,
     address indexed fromToken,

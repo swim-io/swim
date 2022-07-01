@@ -17,12 +17,6 @@ import "./interfaces/ITokenBridge.sol";
 import "./interfaces/IWormhole.sol";
 import "./interfaces/IStructs.sol";
 
-error Routing__ErrorMessage(string message);
-error Routing__PoolNotRegistered(address poolAddress);
-error Routing__TokenTransferFailed(address sender, uint256 amount);
-error Routing__TokenTransferFromFailed(address sender, address receiver, uint256 amount);
-error Routing__TokenApprovalFailed(address spender, uint256 amount);
-
 contract Routing is
   IRouting,
   PausableUpgradeable,

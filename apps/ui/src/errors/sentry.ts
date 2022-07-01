@@ -23,7 +23,7 @@ export const setupSentry = (): void => {
 
     // Circumvent ad-blockers
     // Tunnel Sentry requests via Cloudflare Worker
-    tunnel: "https://swim.io/tunnel/",
+    tunnel: "https://tunnel.swim.io/",
 
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.

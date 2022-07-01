@@ -378,6 +378,31 @@ export class PoolMath {
     });
   }
 
+  priceImpact(
+    inputAmount: Decimal,
+    inputIndex: number,
+    outputIndex: number,
+  ): Decimal {
+    const marginalPrices = this.marginalPrices();
+    const marginalPrice = marginalPrices[inputIndex].div(
+      marginalPrices[outputIndex],
+    );
+    const extrapolatedOutput = inputAmount
+      .mul(new Decimal(1).sub(this.totalFee))
+      .mul(marginalPrice);
+    const inputAmounts = this.balances.map((_, i) =>
+      i === inputIndex ? inputAmount : new Decimal(0),
+    );
+    const actualOutput = this.swapExactInput(
+      inputAmounts,
+      outputIndex,
+    ).stableOutputAmount;
+    return extrapolatedOutput
+      .sub(actualOutput)
+      .div(extrapolatedOutput)
+      .mul(100);
+  }
+
   // IMPLEMENTATION -------------------------------------------
 
   private isTokenIndexOrThrow(i: number): void {

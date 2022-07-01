@@ -82,7 +82,7 @@ const mainnetTokens: readonly TokenSpec[] = [
         },
       ],
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x91Ca579B0D47E5cfD5D0862c21D5659d39C8eCf0",
           decimals: 6,
@@ -113,7 +113,7 @@ const mainnetTokens: readonly TokenSpec[] = [
         },
       ],
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x49d5cC521F75e13fa8eb4E89E9D381352C897c96",
           decimals: 6,
@@ -178,7 +178,7 @@ const mainnetTokens: readonly TokenSpec[] = [
         },
       ],
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0xF78479d516A12b9cFb000951D19f67B4fE0B065d",
           decimals: 8,
@@ -463,15 +463,15 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "mainnet-bsc-busd",
+    id: "mainnet-bnb-busd",
     symbol: BUSD_SYMBOL,
     displayName: BUSD_NAME,
     icon: BUSD_SVG,
     isStablecoin: true,
-    nativeEcosystem: EcosystemId.Bsc,
+    nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0xe9e7cea3dedca5984780bafc599bd69add087d56",
           decimals: 18,
@@ -487,15 +487,15 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "mainnet-bsc-usdt",
+    id: "mainnet-bnb-usdt",
     symbol: USDT_SYMBOL,
     displayName: USDT_NAME,
     icon: USDT_SVG,
     isStablecoin: true,
-    nativeEcosystem: EcosystemId.Bsc,
+    nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x55d398326f99059ff775485246999027b3197955",
           decimals: 18,
@@ -511,15 +511,15 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "mainnet-bsc-gst",
+    id: "mainnet-bnb-gst",
     symbol: GST_SYMBOL,
     displayName: GST_NAME,
     icon: GST_SVG,
     isStablecoin: false,
-    nativeEcosystem: EcosystemId.Bsc,
+    nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x4a2c860cec6471b9f5f5a336eb4f38bb21683c98",
           decimals: 8,
@@ -535,15 +535,15 @@ const mainnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "mainnet-bsc-gmt",
+    id: "mainnet-bnb-gmt",
     symbol: GMT_SYMBOL,
     displayName: GMT_NAME,
     icon: GMT_SVG,
     isStablecoin: false,
-    nativeEcosystem: EcosystemId.Bsc,
+    nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x3019bf2a2ef8040c242c9a4c5c4bd4c81678b2a1",
           decimals: 8,
@@ -923,7 +923,7 @@ const devnetTokens: readonly TokenSpec[] = [
         },
       ],
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x84252522366DB2eA1dAaDe5E2C55CD90a50aC46e",
           decimals: 8,
@@ -1242,15 +1242,15 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "devnet-bsc-busd",
+    id: "devnet-bnb-busd",
     symbol: BUSD_SYMBOL,
     displayName: BUSD_NAME,
     icon: BUSD_SVG,
     isStablecoin: true,
-    nativeEcosystem: EcosystemId.Bsc,
+    nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
           decimals: 18,
@@ -1266,15 +1266,15 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "devnet-bsc-usdt",
+    id: "devnet-bnb-usdt",
     symbol: USDT_SYMBOL,
     displayName: USDT_NAME,
     icon: USDT_SVG,
     isStablecoin: true,
-    nativeEcosystem: EcosystemId.Bsc,
+    nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x98529E942FD121d9C470c3d4431A008257E0E714",
           decimals: 18,
@@ -1290,15 +1290,15 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "devnet-bsc-gst",
+    id: "devnet-bnb-gst",
     symbol: GST_SYMBOL,
     displayName: GST_NAME,
     icon: GST_SVG,
     isStablecoin: false,
-    nativeEcosystem: EcosystemId.Bsc,
+    nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x73160078948280B8680e5F1eB2964698928E8cd7",
           decimals: 8,
@@ -1314,15 +1314,15 @@ const devnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "devnet-bsc-gmt",
+    id: "devnet-bnb-gmt",
     symbol: GMT_SYMBOL,
     displayName: GMT_NAME,
     icon: GMT_SVG,
     isStablecoin: false,
-    nativeEcosystem: EcosystemId.Bsc,
+    nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x1F65D61D01E3f10b34B855287b32D7bfbEA088D0",
           decimals: 8,
@@ -1634,7 +1634,7 @@ const localnetTokens: readonly TokenSpec[] = [
         },
       ],
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x04C5Bf0f72FC1a9F50Ff3228C6285491ad00e13E",
           decimals: 6,
@@ -1665,7 +1665,7 @@ const localnetTokens: readonly TokenSpec[] = [
         },
       ],
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x23F55d75CFBe4334031dc7a19bf030613E966b2B",
           decimals: 6,
@@ -1696,7 +1696,7 @@ const localnetTokens: readonly TokenSpec[] = [
         },
       ],
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x7231BBdaB2F3814664f6E1f072A5ae0525709431",
           decimals: 8,
@@ -1787,15 +1787,15 @@ const localnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-bsc-busd",
+    id: "localnet-bnb-busd",
     symbol: BUSD_SYMBOL,
     displayName: BUSD_NAME,
     icon: BUSD_SVG,
     isStablecoin: true,
-    nativeEcosystem: EcosystemId.Bsc,
+    nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0xCeeFD27e0542aFA926B87d23936c79c276A48277",
           decimals: 18,
@@ -1811,15 +1811,15 @@ const localnetTokens: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-bsc-usdt",
+    id: "localnet-bnb-usdt",
     symbol: USDT_SYMBOL,
     displayName: USDT_NAME,
     icon: USDT_SVG,
     isStablecoin: true,
-    nativeEcosystem: EcosystemId.Bsc,
+    nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         {
           address: "0x988B6CFBf3332FF98FFBdED665b1F53a61f92612",
           decimals: 18,

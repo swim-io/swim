@@ -40,8 +40,8 @@ const getMoralisUrl = (env: Env): string => {
   }
 };
 
-// Implements getHistory() for JsonRpcProvider for BSC us Moralis, since other
-// BSC ethers providers do not implement getHistory().
+// Implements getHistory() for JsonRpcProvider for BNB us Moralis, since other
+// BNB ethers providers do not implement getHistory().
 export class MoralisProvider extends JsonRpcProvider {
   private initialized: boolean;
   private readonly moralisChain: "bsc" | "bsc testnet";
@@ -56,7 +56,7 @@ export class MoralisProvider extends JsonRpcProvider {
     txTimeoutMs = DEFAULT_TIMEOUT_MS,
   ) {
     const jsonRpcChainId =
-      env === Env.Mainnet ? EvmChainId.BscMainnet : EvmChainId.BscTestnet;
+      env === Env.Mainnet ? EvmChainId.BnbMainnet : EvmChainId.BnbTestnet;
     super(jsonRpcUrl, jsonRpcChainId);
     this.moralisChain = env === Env.Mainnet ? "bsc" : "bsc testnet";
     this.moralisUrl = getMoralisUrl(env);

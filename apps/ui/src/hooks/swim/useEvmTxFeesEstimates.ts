@@ -21,7 +21,7 @@ export const useEvmTxFeesEstimates = (
       EcosystemId.Ethereum,
       interaction,
     ),
-    [EcosystemId.Bsc]: useEvmTxFeesEstimateQuery(EcosystemId.Bsc, interaction),
+    [EcosystemId.Bnb]: useEvmTxFeesEstimateQuery(EcosystemId.Bnb, interaction),
     [EcosystemId.Avalanche]: useEvmTxFeesEstimateQuery(
       EcosystemId.Avalanche,
       interaction,
@@ -51,7 +51,7 @@ export const useEvmTxFeesEstimates = (
   return {
     estimates: {
       [EcosystemId.Ethereum]: queries[EcosystemId.Ethereum].data ?? null,
-      [EcosystemId.Bsc]: queries[EcosystemId.Bsc].data ?? null,
+      [EcosystemId.Bnb]: queries[EcosystemId.Bnb].data ?? null,
       [EcosystemId.Avalanche]: queries[EcosystemId.Avalanche].data ?? null,
       [EcosystemId.Polygon]: queries[EcosystemId.Polygon].data ?? null,
       [EcosystemId.Aurora]: queries[EcosystemId.Aurora].data ?? null,

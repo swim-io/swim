@@ -10,6 +10,7 @@ import {
   EuiText,
   EuiTitle,
 } from "@elastic/eui";
+import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
@@ -43,6 +44,7 @@ const PoolsPage = (): ReactElement => {
   const { data: allPoolTokenAccounts = null } = useLiquidityQuery(
     allPoolTokenAccountAddresses,
   );
+
   const { data: prices = new Map<string, Decimal | null>() } =
     useCoinGeckoPricesQuery();
   const poolTokens = pools.map((poolSpec) =>
@@ -63,9 +65,15 @@ const PoolsPage = (): ReactElement => {
         return new Decimal(-1); // loading
       }
       const poolTokenAccountAddresses = [...poolSpec.tokenAccounts.values()];
-      const poolTokenAccounts = allPoolTokenAccounts.filter((tokenAccount) =>
-        poolTokenAccountAddresses.includes(tokenAccount.address.toBase58()),
+      const poolTokenAccounts = allPoolTokenAccounts.filter(
+        (tokenAccount): tokenAccount is TokenAccount =>
+          tokenAccount !== null &&
+          poolTokenAccountAddresses.includes(tokenAccount.address.toBase58()),
       );
+
+      if (poolTokenAccounts.length === 0) {
+        return new Decimal(-1); // loading
+      }
 
       return poolTokenAccounts.reduce((prev, current, j) => {
         const tokenSpec = tokenSpecs[j];
@@ -78,14 +86,15 @@ const PoolsPage = (): ReactElement => {
           : prices.get(tokenSpec.id) ?? new Decimal(1);
         return prev.add(humanAmount.mul(price));
       }, new Decimal(0));
+    } else {
+      return new Decimal(-1); // loading
     }
-    return null;
   });
 
-  const tvl =
-    poolUsdTotals.reduce((prev, current) => {
-      return (prev ?? new Decimal(0)).add(current ?? new Decimal(0));
-    }) ?? new Decimal(0);
+  const tvl = poolUsdTotals.reduce(
+    (prev, current) => prev.add(current),
+    new Decimal(0),
+  );
 
   return (
     <EuiPage className="poolsPage" restrictWidth={800}>

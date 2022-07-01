@@ -77,7 +77,7 @@ describe("useToSolanaTransferMutation", () => {
       ),
     });
     useWalletsMock.mockReturnValue({
-      [EcosystemId.Bsc]: {
+      [EcosystemId.Bnb]: {
         wallet: {},
       },
       [EcosystemId.Solana]: {
@@ -92,7 +92,7 @@ describe("useToSolanaTransferMutation", () => {
       },
     } as any);
     useEvmConnectionsMock.mockReturnValue({
-      [EcosystemId.Bsc]: {
+      [EcosystemId.Bnb]: {
         txReceiptCache: {},
         getTxReceiptOrThrow: jest.fn(({ hash }) =>
           Promise.resolve({

@@ -13,11 +13,11 @@ import { useSolanaConnection } from "./useSolanaConnection";
 
 export const useLiquidityQuery = (
   tokenAccountAddresses: readonly string[],
-): UseQueryResult<readonly TokenAccount[], Error> => {
+): UseQueryResult<readonly (TokenAccount | null)[], Error> => {
   const { env } = useEnvironment();
   const solanaConnection = useSolanaConnection();
 
-  return useQuery<readonly TokenAccount[], Error>(
+  return useQuery<readonly (TokenAccount | null)[], Error>(
     ["liquidity", env, tokenAccountAddresses.join("")],
     async () => {
       if (tokenAccountAddresses.length === 0) {
@@ -30,9 +30,16 @@ export const useLiquidityQuery = (
           tokenAccountAddresses,
         );
 
-      return tokenAccounts.map((account, i) =>
-        deserializeTokenAccount(new PublicKey(foundAddresses[i]), account.data),
-      );
+      return tokenAccounts.map((account, i) => {
+        try {
+          return deserializeTokenAccount(
+            new PublicKey(foundAddresses[i]),
+            account.data,
+          );
+        } catch (error) {
+          return null;
+        }
+      });
     },
   );
 };

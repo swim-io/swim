@@ -19,8 +19,8 @@ export const useTxsForInteractionQuery = (
       EcosystemId.Ethereum,
       interactionId,
     ),
-    [EcosystemId.Bsc]: useEvmTxsForInteractionQuery(
-      EcosystemId.Bsc,
+    [EcosystemId.Bnb]: useEvmTxsForInteractionQuery(
+      EcosystemId.Bnb,
       interactionId,
     ),
     [EcosystemId.Avalanche]: useEvmTxsForInteractionQuery(

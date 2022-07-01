@@ -66,7 +66,7 @@ describe("useAddFeesEstimationQuery", () => {
       const { result } = renderHookWithAppContext(() =>
         useIsEvmGasPriceLoading([
           EcosystemId.Ethereum,
-          EcosystemId.Bsc,
+          EcosystemId.Bnb,
           EcosystemId.Polygon,
           EcosystemId.Avalanche,
         ]),

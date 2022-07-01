@@ -406,12 +406,20 @@ const useSwapFormTokens = (
     }
   }, [getDefaultFromTokenId, getOutputTokens, fromToken.id, fromTokenId]);
 
+  const toTokenOptionsIds = getOutputTokens(fromToken.id);
+
+  useEffect(() => {
+    if (!toTokenOptionsIds.find((tokenId) => tokenId === toToken.id)) {
+      setToTokenId(toTokenOptionsIds[0]);
+    }
+  }, [toToken.id, toTokenOptionsIds]);
+
   return {
     fromToken,
     toToken,
     setFromTokenId,
     setToTokenId,
     fromTokenOptionsIds,
-    toTokenOptionsIds: getOutputTokens(fromToken.id),
+    toTokenOptionsIds,
   };
 };

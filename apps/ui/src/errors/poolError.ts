@@ -15,12 +15,12 @@ const POOL_ERROR_CODES_TO_MESSAGES: PoolErrorMap = {
   // DuplicateAccount
   "0x67": "Can't pass the same account twice here.",
   // MintHasBalance
-  "0x68": "Lp token mint has a positive balance.",
+  "0x68": "LP token mint has a positive balance.",
 
   // InvalidMintAuthority
-  "0x69": "Pool does not have mint authority of lp token mint.",
+  "0x69": "Pool does not have mint authority of LP token mint.",
   // MintHasFreezeAuthority
-  "0x6a": "Lp token mint's freeze authority is set.",
+  "0x6a": "LP token mint's freeze authority is set.",
   // TokenAccountHasBalance
   "0x6b": "Token account has a positive balance.",
   // TokenAccountHasDelegate
@@ -52,7 +52,7 @@ const POOL_ERROR_CODES_TO_MESSAGES: PoolErrorMap = {
 
   // ImpossibleRemove
   "0x78":
-    "Remove can't completed due to the approximative nature of fee math implementation.",
+    "Remove can't be completed due to the approximative nature of fee math implementation.",
   // MaxDecimalDifferenceExceeded
   "0x79":
     "The maximum difference in decimals between tokens in the pool has been exceeded.",

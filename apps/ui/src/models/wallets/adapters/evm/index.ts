@@ -9,7 +9,7 @@ export const ethereumAdapters = {
   MetaMaskAdapter,
 };
 
-export const bscAdapters = {
+export const bnbAdapters = {
   MathWalletAdapter,
   MetaMaskAdapter,
 };

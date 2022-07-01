@@ -18,9 +18,9 @@ export const useUserBalances = (
     EcosystemId.Ethereum,
     tokenSpec?.detailsByEcosystem.get(EcosystemId.Ethereum)?.address ?? null,
   );
-  const { data: bscTokenBalance = null } = useErc20BalanceQuery(
-    EcosystemId.Bsc,
-    tokenSpec?.detailsByEcosystem.get(EcosystemId.Bsc)?.address ?? null,
+  const { data: bnbTokenBalance = null } = useErc20BalanceQuery(
+    EcosystemId.Bnb,
+    tokenSpec?.detailsByEcosystem.get(EcosystemId.Bnb)?.address ?? null,
   );
   const { data: avalancheTokenBalance = null } = useErc20BalanceQuery(
     EcosystemId.Avalanche,
@@ -50,7 +50,7 @@ export const useUserBalances = (
   return {
     [EcosystemId.Solana]: splBalance,
     [EcosystemId.Ethereum]: ethereumTokenBalance,
-    [EcosystemId.Bsc]: bscTokenBalance,
+    [EcosystemId.Bnb]: bnbTokenBalance,
     [EcosystemId.Avalanche]: avalancheTokenBalance,
     [EcosystemId.Polygon]: polygonTokenBalance,
     [EcosystemId.Aurora]: auroraTokenBalance,
@@ -66,7 +66,7 @@ export const useUserBalanceAmounts = (
   const {
     solana: solanaBalance,
     ethereum: ethereumBalance,
-    bsc: bscBalance,
+    bnb: bnbBalance,
     avalanche: avalancheBalance,
     polygon: polygonBalance,
     aurora: auroraBalance,
@@ -93,12 +93,12 @@ export const useUserBalanceAmounts = (
         )
       : null;
 
-  const bscAmount =
-    bscBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Bsc)
+  const bnbAmount =
+    bnbBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Bnb)
       ? Amount.fromAtomicString(
           tokenSpec,
-          bscBalance.toString(),
-          EcosystemId.Bsc,
+          bnbBalance.toString(),
+          EcosystemId.Bnb,
         )
       : null;
 
@@ -159,7 +159,7 @@ export const useUserBalanceAmounts = (
   return {
     [EcosystemId.Solana]: solanaAmount,
     [EcosystemId.Ethereum]: ethereumAmount,
-    [EcosystemId.Bsc]: bscAmount,
+    [EcosystemId.Bnb]: bnbAmount,
     [EcosystemId.Avalanche]: avalancheAmount,
     [EcosystemId.Polygon]: polygonAmount,
     [EcosystemId.Aurora]: auroraAmount,

@@ -8,7 +8,7 @@ export const useIsEvmGasPriceLoading = (
 ): boolean => {
   const isGasPriceLoading = {
     [EcosystemId.Ethereum]: useGasPriceQuery(EcosystemId.Ethereum).isLoading,
-    [EcosystemId.Bsc]: useGasPriceQuery(EcosystemId.Bsc).isLoading,
+    [EcosystemId.Bnb]: useGasPriceQuery(EcosystemId.Bnb).isLoading,
     [EcosystemId.Avalanche]: useGasPriceQuery(EcosystemId.Avalanche).isLoading,
     [EcosystemId.Polygon]: useGasPriceQuery(EcosystemId.Polygon).isLoading,
     [EcosystemId.Aurora]: useGasPriceQuery(EcosystemId.Aurora).isLoading,

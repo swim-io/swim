@@ -10,8 +10,8 @@ export const ETHEREUM_USDT = findTokenById(
   "localnet-ethereum-usdt",
   Env.Localnet,
 );
-export const BSC_USDT = findTokenById("localnet-bsc-usdt", Env.Localnet);
-export const BSC_BUSD = findTokenById("localnet-bsc-busd", Env.Localnet);
+export const BNB_USDT = findTokenById("localnet-bnb-usdt", Env.Localnet);
+export const BNB_BUSD = findTokenById("localnet-bnb-busd", Env.Localnet);
 export const SOLANA_LP_HEXAPOOL = findTokenById(
   "localnet-solana-lp-hexapool",
   Env.Localnet,

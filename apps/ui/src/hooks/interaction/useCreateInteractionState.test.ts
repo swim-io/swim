@@ -13,7 +13,7 @@ import {
 import { Env } from "../../config";
 import { useEnvironment } from "../../core/store";
 import {
-  BSC_USDT,
+  BNB_USDT,
   ETHEREUM_USDC,
   MOCK_POOL_MATHS_BY_ID,
   MOCK_TOKEN_ACCOUNTS,
@@ -141,7 +141,7 @@ describe("useCreateInteractionState", () => {
     expect(fromSolanaTransfers[0].value).toEqual(null);
   });
 
-  it("create state from BSC USDT to ETHEREUM USDC", async () => {
+  it("create state from BNB USDT to ETHEREUM USDC", async () => {
     useSplTokenAccountsQueryMock.mockReturnValue({ data: [] });
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionState(),
@@ -150,7 +150,7 @@ describe("useCreateInteractionState", () => {
     const interactionState = createInteractionState({
       type: InteractionType.Swap,
       params: {
-        exactInputAmount: Amount.fromHuman(BSC_USDT, new Decimal(1001)),
+        exactInputAmount: Amount.fromHuman(BNB_USDT, new Decimal(1001)),
         minimumOutputAmount: Amount.fromHuman(
           ETHEREUM_USDC,
           new Decimal(995.624615),
@@ -172,7 +172,7 @@ describe("useCreateInteractionState", () => {
     expect(foundAllExistingAccount).toEqual(false);
 
     expect(toSolanaTransfers.length).toEqual(1);
-    expect(toSolanaTransfers[0].token).toEqual(BSC_USDT);
+    expect(toSolanaTransfers[0].token).toEqual(BNB_USDT);
     expect(toSolanaTransfers[0].value).toEqual(new Decimal(1001));
     expect(solanaPoolOperations.length).toEqual(1);
     expect(fromSolanaTransfers.length).toEqual(1);

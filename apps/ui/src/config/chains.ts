@@ -19,9 +19,9 @@ export const enum EvmChainId {
   EthereumMainnet = 1,
   EthereumGoerli = 5,
   EthereumLocalnet = 1337,
-  BscMainnet = 56,
-  BscTestnet = 97,
-  BscLocalnet = 1397,
+  BnbMainnet = 56,
+  BnbTestnet = 97,
+  BnbLocalnet = 1397,
   PolygonMainnet = 137,
   PolygonTestnet = 80001,
   PolygonLocalnet = 80002, // TODO: This is a placeholder
@@ -47,9 +47,9 @@ export const evmChainIdToEcosystem: ReadonlyRecord<EvmChainId, EvmEcosystemId> =
     [EvmChainId.EthereumMainnet]: EcosystemId.Ethereum,
     [EvmChainId.EthereumGoerli]: EcosystemId.Ethereum,
     [EvmChainId.EthereumLocalnet]: EcosystemId.Ethereum,
-    [EvmChainId.BscMainnet]: EcosystemId.Bsc,
-    [EvmChainId.BscTestnet]: EcosystemId.Bsc,
-    [EvmChainId.BscLocalnet]: EcosystemId.Bsc,
+    [EvmChainId.BnbMainnet]: EcosystemId.Bnb,
+    [EvmChainId.BnbTestnet]: EcosystemId.Bnb,
+    [EvmChainId.BnbLocalnet]: EcosystemId.Bnb,
     [EvmChainId.PolygonMainnet]: EcosystemId.Polygon,
     [EvmChainId.PolygonTestnet]: EcosystemId.Polygon,
     [EvmChainId.PolygonLocalnet]: EcosystemId.Polygon,
@@ -118,7 +118,7 @@ const ETHEREUM_NATIVE_CURRENCY = {
   decimals: 18,
 };
 
-const BSC_NATIVE_CURRENCY = {
+const BNB_NATIVE_CURRENCY = {
   name: "Binance Coin",
   symbol: "BNB",
   decimals: 18, // no other value is allowed by Metamask
@@ -188,10 +188,10 @@ const mainnetChains: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Bsc,
-      chainId: EvmChainId.BscMainnet,
+      ecosystem: EcosystemId.Bnb,
+      chainId: EvmChainId.BnbMainnet,
       chainName: "BNB Chain Mainnet",
-      nativeCurrency: BSC_NATIVE_CURRENCY,
+      nativeCurrency: BNB_NATIVE_CURRENCY,
       rpcUrls: ["https://bsc-dataseed1.ninicoin.io"], // TODO: Think about what is best to recommend to MetaMask
       wormhole: {
         bridge: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B",
@@ -295,10 +295,10 @@ const devnetChains: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Bsc,
-      chainId: EvmChainId.BscTestnet,
+      ecosystem: EcosystemId.Bnb,
+      chainId: EvmChainId.BnbTestnet,
       chainName: "BNB Chain Testnet",
-      nativeCurrency: BSC_NATIVE_CURRENCY,
+      nativeCurrency: BNB_NATIVE_CURRENCY,
       rpcUrls: ["https://data-seed-prebsc-2-s2.binance.org:8545"],
       wormhole: {
         bridge: "0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D",
@@ -402,10 +402,10 @@ const localnetChains: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Bsc,
-      chainId: EvmChainId.BscLocalnet,
+      ecosystem: EcosystemId.Bnb,
+      chainId: EvmChainId.BnbLocalnet,
       chainName: "BNB Chain Localnet",
-      nativeCurrency: BSC_NATIVE_CURRENCY,
+      nativeCurrency: BNB_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8546"],
       wormhole: {
         bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",

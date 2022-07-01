@@ -3,7 +3,7 @@ import { useQueryClient } from "react-query";
 
 import { EcosystemId } from "../../config";
 import {
-  BSC_BUSD,
+  BNB_BUSD,
   ETHEREUM_USDT,
   SOLANA_USDC,
   SOLANA_USDT,
@@ -48,7 +48,7 @@ describe("useSwapFeesEstimationQuery", () => {
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0));
-      expect(result.current?.bsc).toEqual(new Decimal(0));
+      expect(result.current?.bnb).toEqual(new Decimal(0));
     });
   });
 
@@ -67,7 +67,7 @@ describe("useSwapFeesEstimationQuery", () => {
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0));
-      expect(result.current?.bsc).toEqual(new Decimal(0));
+      expect(result.current?.bnb).toEqual(new Decimal(0));
     });
 
     it("should return fee for Solana => Ethereum", async () => {
@@ -76,25 +76,25 @@ describe("useSwapFeesEstimationQuery", () => {
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0.021));
-      expect(result.current?.bsc).toEqual(new Decimal(0));
+      expect(result.current?.bnb).toEqual(new Decimal(0));
     });
 
-    it("should return fee for Solana => BSC", async () => {
+    it("should return fee for Solana => BNB", async () => {
       const { result } = renderHookWithAppContext(() =>
-        useSwapFeesEstimationQuery(SOLANA_USDC, BSC_BUSD),
+        useSwapFeesEstimationQuery(SOLANA_USDC, BNB_BUSD),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0));
-      expect(result.current?.bsc).toEqual(new Decimal(0.0015));
+      expect(result.current?.bnb).toEqual(new Decimal(0.0015));
     });
 
-    it("should return fee for Ethereum => BSC", async () => {
+    it("should return fee for Ethereum => BNB", async () => {
       const { result } = renderHookWithAppContext(() =>
-        useSwapFeesEstimationQuery(ETHEREUM_USDT, BSC_BUSD),
+        useSwapFeesEstimationQuery(ETHEREUM_USDT, BNB_BUSD),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
       expect(result.current?.ethereum).toEqual(new Decimal(0.0133));
-      expect(result.current?.bsc).toEqual(new Decimal(0.0015));
+      expect(result.current?.bnb).toEqual(new Decimal(0.0015));
     });
   });
 });

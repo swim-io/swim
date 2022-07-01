@@ -336,14 +336,14 @@ export const SwapForm = ({
   );
 };
 
-type SwapFormTokens = {
+interface SwapFormTokens {
   readonly fromToken: TokenSpec;
   readonly toToken: TokenSpec;
   readonly setFromTokenId: (fromTokenId: string) => void;
   readonly setToTokenId: (toTokenId: string) => void;
   readonly fromTokenOptionsIds: readonly string[];
   readonly toTokenOptionsIds: readonly string[];
-};
+}
 
 const useSwapFormTokens = (
   pools: readonly PoolSpec[],

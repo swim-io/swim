@@ -5926,7 +5926,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/core-types@workspace:packages/core-types":
+"@swim-io/core-types@workspace:^, @swim-io/core-types@workspace:packages/core-types":
   version: 0.0.0-use.local
   resolution: "@swim-io/core-types@workspace:packages/core-types"
   dependencies:
@@ -5947,6 +5947,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@swim-io/plugin-ecosystem-solana@workspace:packages/plugin-ecosystem-solana"
   dependencies:
+    "@swim-io/core-types": "workspace:^"
     "@types/jest": ^28.1.3
     "@typescript-eslint/eslint-plugin": ^5.29.0
     "@typescript-eslint/parser": ^5.29.0

@@ -2,6 +2,17 @@
 pragma solidity ^0.8.15;
 
 interface IRouting {
+  struct TokenBalance {
+    address tokenAddres;
+    uint256 balance;
+  }
+  struct PoolDetails {
+    address poolAddress;
+    TokenBalance[] balances;
+    uint256 totalLPSupply;
+    uint256 ampFactor;
+    uint256 fees;
+  }
   /**
    * @dev Emitted on registerToken()
    * @param tokenId The ID of registered token
@@ -55,9 +66,7 @@ interface IRouting {
     uint256 inputAmount,
     uint256 firstMinimumOutputAmount,
     uint16 wormholeRecipientChain,
-    bytes32 toOwner,
-    uint16 toTokenId,
-    uint256 secondMinimumOutputAmount
+    bytes32 toOwner
   ) external payable returns (uint64 wormholeSequence);
 
   function receiveAndSwap(
@@ -74,4 +83,6 @@ interface IRouting {
     address chainPool,
     uint8 tokenIndexInPool
   ) external;
+
+  function getPoolsDetails(address[] memory poolAddresses) external returns (PoolDetails[] memory);
 }

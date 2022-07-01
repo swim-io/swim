@@ -13,4 +13,8 @@ interface IPool {
     uint8 outputTokenIndex,
     uint256 minimumOutputAmount
   ) external returns (uint256 outputAmount);
+
+  function getTokenCount() external returns (uint8 tokenCount);
+
+  function getLiquidity() external returns (uint256 liquidity);
 }

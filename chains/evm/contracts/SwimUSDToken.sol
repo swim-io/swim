@@ -16,8 +16,6 @@ contract SwimUSD is Initializable, ERC20Upgradeable, OwnableUpgradeable, UUPSUpg
     __ERC20_init("SwimUSD", "sUSD");
     __Ownable_init();
     __UUPSUpgradeable_init();
-
-    _mint(msg.sender, 10000000 * 10**decimals());
   }
 
   function mint(address to, uint256 amount) public onlyOwner {

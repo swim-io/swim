@@ -11,14 +11,14 @@ describe("Routing", function () {
     routing = await routingFactory.deploy();
   });
 
-  // it("Should return the new greeting once it's changed", async function () {
-  //   expect(await routing.greet()).to.equal("Hello, world!");
+  it("Should return the new greeting once it's changed", async function () {
+    expect(await routing.greet()).to.equal("Hello, world!");
 
-  //   const setGreetingTx = await routing.setGreeting("Hola, mundo!");
+    const setGreetingTx = await routing.setGreeting("Hola, mundo!");
 
-  //   // wait until the transaction is mined
-  //   await setGreetingTx.wait();
+    // wait until the transaction is mined
+    await setGreetingTx.wait();
 
-  //   expect(await routing.greet()).to.equal("Hola, mundo!");
-  // });
+    expect(await routing.greet()).to.equal("Hola, mundo!");
+  });
 });

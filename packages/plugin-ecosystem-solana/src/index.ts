@@ -58,7 +58,11 @@ const createEcosystemConfig = (
   protocol: "solana-protocol" as const,
   wormholeChainId: 1 as const,
   displayName: "Solana",
-  nativeTokenSymbol: "SOL",
+  gasToken: {
+    name: "sol",
+    symbol: "SOL",
+    decimals: 9,
+  },
   chains,
 });
 

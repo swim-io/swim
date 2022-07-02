@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import { Protocol, getSolanaTokenDetails } from "../../config";
-import { useEvmConnections, useSolanaConnection } from "../../contexts";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {
@@ -19,8 +18,12 @@ import {
   isUnlockEvmTx,
 } from "../../models";
 import { findOrThrow } from "../../utils";
-import { useEvmWallet } from "../evm";
-import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
+import { useEvmConnections, useEvmWallet } from "../evm";
+import {
+  useSolanaConnection,
+  useSolanaWallet,
+  useSplTokenAccountsQuery,
+} from "../solana";
 
 export const useReloadInteractionStateMutation = () => {
   const queryClient = useQueryClient();

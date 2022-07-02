@@ -17,6 +17,11 @@ export const SOLANA_LP_HEXAPOOL = findTokenById(
 );
 const AVALANCHE_USDC = findTokenById("devnet-avalanche-usdc", Env.Devnet);
 
+/**
+ * This mock data are created by
+ * - create interaction in UI
+ * - then copy the state from IndexedDB
+ */
 export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION = {
   interaction: {
     type: 0,
@@ -32,7 +37,7 @@ export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION = {
     previousSignatureSetAddresses: {},
     connectedWallets: {
       [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-      [EcosystemId.Bsc]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
+      [EcosystemId.Bnb]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
       [EcosystemId.Ethereum]: null,
       [EcosystemId.Acala]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
       [EcosystemId.Aurora]: null,
@@ -86,7 +91,7 @@ export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION = {
         params: {
           exactInputAmounts: [
             Amount.fromHumanString(AVALANCHE_USDC, "0"),
-            Amount.fromHumanString(SOLANA_LP_HEXAPOOL, "0.00000001"),
+            Amount.fromHumanString(SOLANA_LP_HEXAPOOL, "727.45"),
           ],
           outputTokenIndex: 0,
           minimumOutputAmount: Amount.fromHumanString(

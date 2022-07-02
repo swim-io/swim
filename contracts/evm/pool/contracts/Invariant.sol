@@ -3,15 +3,13 @@ pragma solidity ^0.8.0;
 
 import "./AmpFactor.sol";
 import "./CenterAlignment.sol";
-import "./Equalized.sol";
+import "./Equalize.sol";
 
 library Invariant {
 using CenterAlignment for uint;
 
-uint8 public constant MAX_TOKEN_COUNT = 6;
-
 // RESTRICTIONS:
-// * EqualizedAmounts use at most 61 bits (= ~18 digits).
+// * Equalizeds use at most 61 bits (= ~18 digits).
 // * MAX_TOKEN_COUNT = 6 so that:
 //    * so TOKEN_COUNT+1 fits in 3 bits
 //    * sum of pool balances (and hence maximum depth) fits in 64 bits
@@ -95,9 +93,9 @@ uint8 public constant MAX_TOKEN_COUNT = 6;
 //   which overflow a lot earlier, while also maintaining accuracy and keeping
 //   gas costs low.
 
-function sum(EqualizedAmount[] memory arr) private pure returns (uint ret) { unchecked {
+function sum(Equalized[] memory arr) private pure returns (uint ret) { unchecked {
   for (uint i = 0; i < arr.length; ++i) {
-    ret += uint(EqualizedAmount.unwrap(arr[i]));
+    ret += uint(Equalized.unwrap(arr[i]));
   }
 }}
 
@@ -160,10 +158,10 @@ function sqrt(uint radicand) private pure returns(uint) { unchecked {
 }}
 
 function calculateUnknownBalance(
-  EqualizedAmount[] memory knownBalances,
+  Equalized[] memory knownBalances,
   uint depth,
   uint32 ampFactor //contains implicit shift by AMP_SHIFT bits
-) internal pure returns(EqualizedAmount) { unchecked {
+) internal pure returns(Equalized) { unchecked {
   //assumptions (already enforced elsewhere):
   // 1 <= knownBalances.length <= 5
   // ampFactor >= ONE_AMP_SHIFTED || (ampFactor == 0 && knownBalances.length == 1)
@@ -173,7 +171,7 @@ function calculateUnknownBalance(
 
   if (ampFactor == 0) {
     unknownBalance = depth * depth;
-    unknownBalance /= uint(EqualizedAmount.unwrap(knownBalances[0]));
+    unknownBalance /= uint(Equalized.unwrap(knownBalances[0]));
     unknownBalance >>= 2; //= division by 4 but 2 gas cheaper
   }
   else {
@@ -182,7 +180,7 @@ function calculateUnknownBalance(
       //shifts up by at most 64 bits:
       numeratorFixed *= depth;
       //shifts down by at most 64 bits:
-      numeratorFixed /= uint(EqualizedAmount.unwrap(knownBalances[i]));
+      numeratorFixed /= uint(Equalized.unwrap(knownBalances[i]));
       numeratorFixed /= knownBalances.length;
       (numeratorFixed, shift) = numeratorFixed.keepAligned(shift);
     }
@@ -213,14 +211,14 @@ function calculateUnknownBalance(
 
   //ensure that unknownBalance never blows up above the allowed maximum
   require(
-    unknownBalance < uint(Equalized.MAX_AMOUNT),
+    unknownBalance < uint(Equalize.MAX_AMOUNT),
     "unknown balance exceeds MAX_AMOUNT"
   );
-  return EqualizedAmount.wrap(uint64(unknownBalance));
+  return Equalized.wrap(uint64(unknownBalance));
 }}
 
 function calculateDepth(
-  EqualizedAmount[] memory poolBalances,
+  Equalized[] memory poolBalances,
   uint ampFactor
 ) internal pure returns(uint depth) { unchecked {
   //assumptions (already enforced elsewhere):
@@ -230,8 +228,8 @@ function calculateDepth(
 
   if (ampFactor == 0) {
     depth = 4;
-    depth *= uint(EqualizedAmount.unwrap(poolBalances[0]));
-    depth *= uint(EqualizedAmount.unwrap(poolBalances[1]));
+    depth *= uint(Equalized.unwrap(poolBalances[0]));
+    depth *= uint(Equalized.unwrap(poolBalances[1]));
     depth = sqrt(depth);
     return depth;
   }
@@ -248,7 +246,7 @@ function calculateDepth(
     (uint reciprocalDecay, int shift) = uint(1).toAligned();
     for (uint i = 0; i < tokenCount; ++i) {
       reciprocalDecay *= depth;
-      reciprocalDecay /= uint(EqualizedAmount.unwrap(poolBalances[i])) * tokenCount;
+      reciprocalDecay /= uint(Equalized.unwrap(poolBalances[i])) * tokenCount;
       (reciprocalDecay, shift) = reciprocalDecay.keepAligned(shift);
     }
 

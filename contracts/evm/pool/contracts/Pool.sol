@@ -3,13 +3,12 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./LpToken.sol";
-import "./AmpFactor.sol";
+import "./Constants.sol";
 import "./Invariant.sol";
 import "./PoolMath.sol";
-
-//import "hardhat/console.sol";
 
 //We'll use uint32 for timestamps. 2^32 seconds ~= 136 years, i.e. it will last us until the early
 // 22nd century... so we ought to be fine.
@@ -19,23 +18,8 @@ struct TokenWithEqualizer { //uses 22/32 bytes of its slot
   int8 equalizer; //it's cheaper to (densely) store the equalizers than the blown up values
 }
 
-contract Pool {
+contract Pool is Ownable {
   using SafeERC20 for IERC20;
-
-  uint public constant MAX_TOKEN_COUNT = 6;
-  uint public constant FEE_DECIMALS = 6; //enough to represent 100th of a bip
-  uint public constant FEE_DECIMAL_DIVISOR = 10**FEE_DECIMALS;
-  uint constant MIN_AMP_ADJUSTMENT_WINDOW = 1 days;
-  uint constant MAX_AMP_RELATIVE_ADJUSTMENT = 10;
-
-  //Min and max equalizers are somewhat arbitrary, though shifting down by more than 18 decimals
-  // will almost certainly be unintentional and shifting up by more than 4 digits will almost
-  // certainly result in too small of a usable value range (only 18 digits in total!).
-  //In general, a positive equalizer should be quite unlikely on an EVM chain.
-  // (The main scenario where this seems somewhat likely at all are tokens that were Wormhole
-  //  bridged from Solana that use a very low native number of decimals to begin with.)
-  int8 constant MIN_EQUALIZER = -18;
-  int8 constant MAX_EQUALIZER = 4;
 
   //slot (26/32 bytes used)
   uint8  public /*immutable*/ tokenCount;
@@ -54,9 +38,6 @@ contract Pool {
   TokenWithEqualizer[MAX_TOKEN_COUNT] public /*immutable*/ poolTokensData;
 
   //slot
-  address public governance;
-
-  //slot
   address public governanceFeeRecipient;
 
   //TODO proxy pattern and initialize
@@ -70,14 +51,10 @@ contract Pool {
     uint32 ampFactor,
     uint32 lpFee,
     uint32 _governanceFee,
-    address _governance,
     address _governanceFeeRecipient,
-  ) {
-    //TODO LpToken
-    require(
-      LpToken(Clones.clone(lpTokenAddress)).initialize(lpTokenName, lpTokenSymbol),
-      "LpToken initialization failed"
-    );
+  ) Ownable() {
+    LpToken lpToken = LpToken(Clones.clone(lpTokenAddress));
+    require(lpToken.initialize(lpTokenName, lpTokenSymbol), "LpToken initialization failed");
     lpTokenData.addr = lpTokenAddress;
     lpTokenData.equalizer = lpTokenEqualizer;
 
@@ -111,10 +88,14 @@ contract Pool {
     setFeesImpl(lpFee, _governanceFee);
 
     paused = false;
-    governance = _governance;
   }
 
-  // ---------------------------------- DEFI ----------------------------------
+  modifier notPaused {
+    require(!paused);
+    _;
+  }
+
+  // ----------------------------- DEFI LIQUIDITY -----------------------------
 
   //always available, even when paused!
   //maximally robust and conservative implementation
@@ -122,17 +103,18 @@ contract Pool {
     external returns(uint[] memory outputAmounts) {
     uint _tokenCount = tokenCount;
     LpToken lpToken = LpToken(lpTokenData.addr);
-    uint lpTotalSupply = lpToken.totalSupply();
+    uint totalLpSupply = lpToken.totalSupply();
 
     lpToken.burnFrom(msg.sender, burnAmount);
+    outputAmounts = new uint[](_tokenCount);
 
     for (uint i = 0; i < _tokenCount; unchecked {++i}) {
       IERC20 poolToken = IERC20(poolTokensData[i].addr);
       uint poolBalance = poolToken.balanceOf(address(this));
-      uint outputAmount = poolBalance * burnAmount / lpTotalSupply; //SafeMath!
+      uint outputAmount = poolBalance * burnAmount / totalLpSupply; //SafeMath!
       require(outputAmount >= minimumOutputAmounts[i]);
       poolToken.safeTransfer(msg.sender, outputAmount);
-      outputAmounts.push(outputAmount);
+      outputAmounts[i] = outputAmount;
     }
   }
 
@@ -145,16 +127,16 @@ contract Pool {
       Equalized[] memory ePoolBalances,
       LpToken lpToken,
       int8 lpEqualizer,
-      Equalized eLpTotalSupply
+      Equalized etotalLpSupply
     ) = getDefiVars();
 
     Equalized[] memory eInputAmounts = equalizeAmounts(inputAmounts, _tokenCount);
     Equalized eMintAmount;
-    if (Equalized.unwrap(eLpTotalSupply) == 0) {
+    if (Equalized.unwrap(etotalLpSupply) == 0) {
       for (uint i = 0; i < _tokenCount; unchecked {++i}) {
         require(inputAmounts[i] > 0, "Initial add must include all tokens");
       }
-      uint depth = Invariant.calculateDepth(eInputAmounts, getAmpFactor());
+      uint depth = Invariant.calculateDepth(eInputAmounts, getAmpFactor(), 0);
       //In all other circumstances, the amount of LP tokens minted or burned is
       // proportional to the generated/consumed depth, where the current depth
       // of the pool represents the the total LP supply.
@@ -175,7 +157,7 @@ contract Pool {
         getAmpFactor(),
         totalFee,
         governanceFee,
-        eLpTotalSupply
+        etotalLpSupply
       );
 
       mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
@@ -197,7 +179,7 @@ contract Pool {
       Equalized[] memory ePoolBalances,
       LpToken lpToken,
       int8 lpEqualizer,
-      Equalized eLpTotalSupply
+      Equalized etotalLpSupply
     ) = getDefiVars();
 
     Equalized[] memory eOutputAmounts = equalizeAmounts(outputAmounts, _tokenCount);
@@ -217,7 +199,7 @@ contract Pool {
         getAmpFactor(),
         totalFee,
         governanceFee,
-        eLpTotalSupply
+        etotalLpSupply
       );
 
     burnAmount = Equalize.from(eBurnAmount, lpEqualizer);
@@ -239,14 +221,14 @@ contract Pool {
       Equalized[] memory ePoolBalances,
       LpToken lpToken,
       int8 lpEqualizer,
-      Equalized eLpTotalSupply
+      Equalized etotalLpSupply
     ) = getDefiVars();
 
     require(outputTokenIndex < _tokenCount);
     Equalized eBurnAmount = Equalized.to(burnAmount, lpEqualizer);
     //We could also immediately transfer, but that would be a lot more gas inefficient for
     // transactions that fail due to slippage.
-    require(Equalized.unwrap(eBurnAmount) < Equalized.unwrap(eLpTotalSupply));
+    require(Equalized.unwrap(eBurnAmount) < Equalized.unwrap(etotalLpSupply));
 
     (Equalized eOutputAmount, Equalized eGovernanceMintAmount) =
       PoolMath.removeExactBurn(
@@ -256,7 +238,7 @@ contract Pool {
         getAmpFactor(),
         totalFee,
         governanceFee,
-        eLpTotalSupply
+        etotalLpSupply
       );
 
     outputAmount = Equalize.from(eBurnAmount, poolTokensData[outputTokenIndex].equalizer);
@@ -265,6 +247,8 @@ contract Pool {
     safeTransfer(outputAmount, outputTokenIndex);
     mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
   }
+
+  // ------------------------------- DEFI SWAP --------------------------------
 
   //called by swap(), hence public and not restricted to external
   function swapExactInput(
@@ -277,7 +261,7 @@ contract Pool {
       Equalized[] memory ePoolBalances,
       LpToken lpToken,
       int8 lpEqualizer,
-      Equalized eLpTotalSupply
+      Equalized etotalLpSupply
     ) = getDefiVars();
 
     require(outputTokenIndex < _tokenCount);
@@ -293,7 +277,7 @@ contract Pool {
         getAmpFactor(),
         totalFee,
         governanceFee,
-        eLpTotalSupply
+        etotalLpSupply
       );
 
     outputAmount = Equalize.from(eOutputAmount, poolTokensData[outputTokenIndex].equalizer);
@@ -315,7 +299,7 @@ contract Pool {
       Equalized[] memory ePoolBalances,
       LpToken lpToken,
       int8 lpEqualizer,
-      Equalized eLpTotalSupply
+      Equalized etotalLpSupply
     ) = getDefiVars();
 
     require(inputTokenIndex < _tokenCount);
@@ -338,7 +322,7 @@ contract Pool {
         getAmpFactor(),
         totalFee,
         governanceFee,
-        eLpTotalSupply
+        etotalLpSupply
       );
 
     inputAmount = Equalize.from(eInputAmount, poolTokensData[inputTokenIndex].equalizer);
@@ -362,16 +346,15 @@ contract Pool {
       Equalized[] memory ePoolBalances,
       LpToken lpToken,
       int8 lpEqualizer,
-      Equalized eLpTotalSupply
+      Equalized etotalLpSupply
     ) = getDefiVars();
 
     require(inputTokenIndex < _tokenCount);
     require(outputTokenIndex < _tokenCount);
     require(inputTokenIndex != outputTokenIndex);
-    Equalized[] memory eInputAmounts;
-    for (uint i = 0; i < _tokenCount; unchecked {++i}) {
-      eInputAmounts.push(Equalized.wrap(0));
-    }
+    //Solidity guarantees default initialization, even if memory was previously dirty, so we don't
+    // have to zero initialize ourselves.
+    Equalized[] memory eInputAmounts = new Equalized[](_tokenCount);
     eInputAmounts[inputTokenIndex] =
       Equalize.to(inputAmount, poolTokensData[inputTokenIndex].equalizer);
 
@@ -384,7 +367,7 @@ contract Pool {
         getAmpFactor(),
         totalFee,
         governanceFee,
-        eLpTotalSupply
+        etotalLpSupply
       );
 
     outputAmount = Equalize.from(eOutputAmount, poolTokensData[outputTokenIndex].equalizer);
@@ -402,7 +385,7 @@ contract Pool {
     setFeesImpl(lpFee, _governanceFee);
   }
 
-  function adjustAmpFactor(uint32 targetValue, uint32 targetTimestamp) external onlyGovernance {
+  function adjustAmpFactor(uint32 targetValue, uint32 targetTimestamp) external onlyOwner {
     uint currentAmpFactor = uint(getAmpFactor());
     require(
       currentAmpFactor != 0,
@@ -429,15 +412,11 @@ contract Pool {
     ampTargetTimestamp = targetTimestamp;
   }
 
-  function setPaused(bool _paused) external onlyGovernance {
+  function setPaused(bool _paused) external onlyOwner {
     paused = _paused;
   }
 
-  function transferGovernance(address _governance) external onlyGovernance {
-    governance = _governance;
-  }
-
-  function changeGovernanceFeeRecipient(address _governanceFeeRecipient) external onlyGovernance {
+  function changeGovernanceFeeRecipient(address _governanceFeeRecipient) external onlyOwner {
     require(totalFee == 0 || _governanceFeeRecipient != address(0));
     governanceFeeRecipient = _governanceFeeRecipient;
   }
@@ -446,7 +425,11 @@ contract Pool {
 
   function setFeesImpl(uint32 lpFee, uint32 _governanceFee) internal {
     uint32 _totalFee = lpFee + _governanceFee; //SafeMath!
-    require(_totalFee < FEE_DECIMAL_DIVISOR, "total fee has to be less than 1");
+    //We're limiting total fees to less than 50 % because:
+    // 1) Anything even close to approaching this is already entirely insane.
+    // 2) To avoid theoretical overflow/underflow issues when calculating the inverse fee,
+    //    of 1/(1-fee)-1 would exceed 100 % if fee were to exceeds 50 %.
+    require(_totalFee < FEE_DECIMAL_FACTOR/2, "total fee has to be less than 50 %");
     require(_totalFee == 0 || governanceFeeRecipient != address(0));
     totalFee = _totalFee;
     governanceFee = _governanceFee;
@@ -482,8 +465,9 @@ contract Pool {
   function equalizeAmounts(uint[] amounts, uint _tokenCount)
     internal view returns(Equalized[] memory equalized) {
     require(amounts.length == _tokenCount, "invalid number of passed token amounts");
+    equalized = new Equalized[](_tokenCount);
     for (uint i = 0; i < _tokenCount; unchecked {++i}) {
-      Equalize.push(Equalize.to(amounts[i], poolTokensData[i].equalizer));
+      equalized[i] = Equalize.to(amounts[i], poolTokensData[i].equalizer);
     }
   }
 
@@ -494,16 +478,17 @@ contract Pool {
     Equalized[] memory ePoolBalances,
     LpToken lpToken,
     int8 lpEqualizer, //gas optimization
-    Equalized eLpTotalSupply,
+    Equalized etotalLpSupply,
   ) {
     _tokenCount = tokenCount;
+    ePoolBalances = new Equalized[](_tokenCount);
     for (uint i = 0; i < _tokenCount; unchecked {++i}) {
       uint balance = IERC20(poolTokensData[i].balanceOf(address(this)));
-      ePoolBalances.push(Equalize.to(balance, poolTokensData[i].equalizer));
+      ePoolBalances[i] = Equalize.to(balance, poolTokensData[i].equalizer);
     }
     lpToken = LpToken(lpTokenData.addr);
     lpEqualizer = lpTokenData.equalizer;
-    eLpTotalSupply = Equalize.to(lpToken.totalSupply(), lpEqualizer);
+    etotalLpSupply = Equalize.to(lpToken.totalSupply(), lpEqualizer);
   }
 
   function getAmpFactor() internal view returns(uint32 ampFactor) { unchecked {

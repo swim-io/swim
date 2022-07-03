@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: TODO
 pragma solidity ^0.8.0;
 
-import "./AmpFactor.sol";
+import "./Constants.sol";
 import "./CenterAlignment.sol";
 import "./Equalize.sol";
 
@@ -93,7 +93,7 @@ using CenterAlignment for uint;
 //   which overflow a lot earlier, while also maintaining accuracy and keeping
 //   gas costs low.
 
-function sum(Equalized[] memory arr) private pure returns (uint ret) { unchecked {
+function sum(Equalized[] memory arr) public pure returns (uint ret) { unchecked {
   for (uint i = 0; i < arr.length; ++i) {
     ret += uint(Equalized.unwrap(arr[i]));
   }
@@ -160,7 +160,8 @@ function sqrt(uint radicand) private pure returns(uint) { unchecked {
 function calculateUnknownBalance(
   Equalized[] memory knownBalances,
   uint depth,
-  uint32 ampFactor //contains implicit shift by AMP_SHIFT bits
+  uint32 ampFactor, //contains implicit shift by AMP_SHIFT bits
+  uint initialGuess
 ) internal pure returns(Equalized) { unchecked {
   //assumptions (already enforced elsewhere):
   // 1 <= knownBalances.length <= 5
@@ -187,11 +188,12 @@ function calculateUnknownBalance(
     numeratorFixed *= depth;
     (numeratorFixed, shift) = numeratorFixed.keepAligned(shift);
     numeratorFixed = numeratorFixed.fromAligned(shift);
-    numeratorFixed = ampDiv(numeratorFixed, ampFactor * knownBalances.length);
+    numeratorFixed <<= AMP_SHIFT;
+    numeratorFixed /= ampFactor * knownBalances.length;
 
-    uint denominatorFixed = sum(knownBalances) + ampDiv(depth, ampFactor);
+    uint denominatorFixed = sum(knownBalances) + ((depth << AMP_SHIFT) / ampFactor);
 
-    unknownBalance = depth / 2;
+    unknownBalance = initialGuess != 0 ? initialGuess : depth / 2;
     uint previousUnknownBalance;
     do {
       previousUnknownBalance = unknownBalance;
@@ -219,7 +221,8 @@ function calculateUnknownBalance(
 
 function calculateDepth(
   Equalized[] memory poolBalances,
-  uint ampFactor
+  uint ampFactor,
+  uint initialGuess
 ) internal pure returns(uint depth) { unchecked {
   //assumptions (already enforced elsewhere):
   // 2 <= poolBalances.length <= 6
@@ -238,7 +241,7 @@ function calculateDepth(
   uint poolBalanceSum = sum(poolBalances); //at most 64 bits
   uint numeratorFixedAmpUnits = poolBalanceSum * ampFactor; //at most 94 bits
   uint denominatorFixedAmpUnits = ampFactor - ONE_AMP_SHIFTED; //at most 30 bits
-  depth = poolBalanceSum; //at most 64 bits
+  depth = initialGuess != 0 ? initialGuess : poolBalanceSum; //at most 64 bits
   uint previousDepth;
   do {
     previousDepth = depth;

@@ -1,4 +1,6 @@
-interface SolanaError extends Error {
+import { extractSwimPoolError } from "./poolError";
+
+export interface SolanaError extends Error {
   readonly logs?: readonly string[];
 }
 
@@ -23,8 +25,9 @@ export const extractSolanaErrorMessage = (error: SolanaError): string => {
         return "Insufficient funds";
       }
 
-      if (log.includes("custom program error: 0x74")) {
-        return "Pool is temporarily paused. Please try again later.";
+      const poolError = extractSwimPoolError(log);
+      if (poolError) {
+        return poolError;
       }
 
       // Fallback: Should come last

@@ -1,12 +1,9 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import type Decimal from "decimal.js";
-import shallow from "zustand/shallow.js";
 
 import type { Env, SolanaPoolSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
-import { selectConfig } from "../../core/selectors";
-import { useEnvironment } from "../../core/store";
 import type {
   Interaction,
   OperationSpec,
@@ -25,17 +22,8 @@ import {
   getAmountMintedToAccountByMint,
   getAmountTransferredToAccountByMint,
   getPoolState,
-  getRequiredPools,
-  getTokensByPool,
 } from "../../models";
 import { findOrThrow } from "../../utils";
-import {
-  useSolanaConnection,
-  useSolanaWallet,
-  useSplTokenAccountsQuery,
-} from "../solana";
-import type { UseAsyncGeneratorResult } from "../utils";
-import { useAsyncGenerator } from "../utils";
 
 export const doSinglePoolOperation = async (
   env: Env,

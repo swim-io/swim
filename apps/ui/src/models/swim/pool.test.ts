@@ -18,7 +18,7 @@ describe("Pool tests", () => {
 
       localnetConfig.pools.forEach((pool) => {
         const tokenIds = result[pool.id].tokens.map((token) => token.id);
-        expect(tokenIds).toEqual([...pool.tokenAccounts.keys()]);
+        expect(tokenIds).toEqual(pool.tokens);
         expect(result[pool.id].lpToken.id).toEqual(pool.lpToken);
       });
     });

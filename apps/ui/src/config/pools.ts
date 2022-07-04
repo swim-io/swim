@@ -318,13 +318,13 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
     isStakingPool: false,
     isStableSwap: true,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
-    address: "11111111111111111111111111111111",
-    authority: "11111111111111111111111111111111",
+    address: "11111111111111111111111111111111", // TODO: Update
+    authority: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "mainnet-solana-lp-meta-acala-ausd",
     tokenAccounts: new Map([
-      ["mainnet-acala-ausd", "11111111111111111111111111111111"],
-      ["mainnet-solana-lp-hexapool", "11111111111111111111111111111111"],
+      ["mainnet-acala-ausd", "11111111111111111111111111111111"], // TODO: Update
+      ["mainnet-solana-lp-hexapool", "11111111111111111111111111111111"], // TODO: Update
     ]),
     tokens: ["mainnet-acala-ausd", "mainnet-solana-lp-hexapool"],
   },
@@ -516,20 +516,20 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
     tokens: ["devnet-aurora-usdt", "devnet-solana-lp-hexapool"],
   },
   {
-    isDisabled: true,
+    isDisabled: true, // TODO: Enable when deployed on devnet
     id: "meta-aurora-usn",
     ecosystem: EcosystemId.Solana,
     displayName: "Aurora USN Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
     contract: "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs",
-    address: "11111111111111111111111111111111",
-    authority: "11111111111111111111111111111111",
+    address: "11111111111111111111111111111111", // TODO: Update
+    authority: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-solana-lp-meta-aurora-usn",
     tokenAccounts: new Map([
-      ["devnet-aurora-usn", "11111111111111111111111111111111"],
-      ["devnet-solana-lp-hexapool", "11111111111111111111111111111111"],
+      ["devnet-aurora-usn", "11111111111111111111111111111111"], // TODO: Update
+      ["devnet-solana-lp-hexapool", "11111111111111111111111111111111"], // TODO: Update
     ]),
     tokens: ["devnet-aurora-usn", "devnet-solana-lp-hexapool"],
   },

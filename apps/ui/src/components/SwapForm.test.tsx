@@ -17,6 +17,9 @@ jest.mock(
       children({ height: 600, width: 600 }),
 );
 
+const findFromTokenButton = () => screen.queryAllByRole("button")[0];
+const findToTokenButton = () => screen.queryAllByRole("button")[3];
+
 describe("SwapForm", () => {
   beforeEach(() => {
     // currently we can't change the env unless a custom localnet ip is set
@@ -30,61 +33,39 @@ describe("SwapForm", () => {
     const { env, setEnv } = environmentStore.getState();
 
     expect(env).toBe(Env.Mainnet);
-    expect(screen.queryAllByRole("button")[0]).toHaveTextContent(
-      "USDC on Solana",
-    );
+    expect(findFromTokenButton()).toHaveTextContent("USDC on Solana");
 
     act(() => setEnv(Env.Devnet));
 
     expect(environmentStore.getState().env).toBe(Env.Devnet);
-    expect(screen.queryAllByRole("button")[0]).toHaveTextContent(
-      "USDC on Ethereum",
-    );
+    expect(findFromTokenButton()).toHaveTextContent("USDC on Ethereum");
   });
 
   it("should update toToken options when fromToken changes", async () => {
-    // assert initial value of toToken
-    expect(screen.queryAllByRole("button")[3]).toHaveTextContent(
-      "USDT on Solana",
-    );
+    expect(findToTokenButton()).toHaveTextContent("USDT on Solana");
 
-    // click toToken button
-    fireEvent.click(screen.queryAllByRole("button")[0]);
+    fireEvent.click(findFromTokenButton());
 
-    // wait for TokenSearchModal to render
     await waitFor(() => {
       return screen.findByPlaceholderText("Search tokens");
     });
 
-    // Click on GST option
     fireEvent.click(screen.getByTitle("GST Green Satoshi Token BNB Chain"));
 
-    // assert toToken has updated
-    expect(screen.queryAllByRole("button")[3]).toHaveTextContent(
-      "GST on Solana",
-    );
+    expect(findToTokenButton()).toHaveTextContent("GST on Solana");
   });
 
   it("should update toToken options when fromToken is updated with toToken value", async () => {
-    // assert initial value of toToken
-    expect(screen.queryAllByRole("button")[3]).toHaveTextContent(
-      "USDT on Solana",
-    );
+    expect(findToTokenButton()).toHaveTextContent("USDT on Solana");
 
-    // click toToken button
-    fireEvent.click(screen.queryAllByRole("button")[0]);
+    fireEvent.click(findFromTokenButton());
 
-    // wait for TokenSearchModal to render
     await waitFor(() => {
       return screen.findByPlaceholderText("Search tokens");
     });
 
-    // Click on GST option
     fireEvent.click(screen.getByTitle("USDT Tether USD Solana"));
 
-    // assert toToken has updated
-    expect(screen.queryAllByRole("button")[3]).toHaveTextContent(
-      "USDC on Solana",
-    );
+    expect(findToTokenButton()).toHaveTextContent("USDC on Solana");
   });
 });

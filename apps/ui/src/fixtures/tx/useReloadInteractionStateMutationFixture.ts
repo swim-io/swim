@@ -9,8 +9,8 @@ export const SOLANA_USDC = findTokenById("devnet-solana-usdc", Env.Devnet);
 export const SOLANA_USDT = findTokenById("devnet-solana-usdt", Env.Devnet);
 export const ETHEREUM_USDC = findTokenById("devnet-ethereum-usdc", Env.Devnet);
 export const ETHEREUM_USDT = findTokenById("devnet-ethereum-usdt", Env.Devnet);
-export const BSC_USDT = findTokenById("devnet-bsc-usdt", Env.Devnet);
-export const BSC_BUSD = findTokenById("devnet-bsc-busd", Env.Devnet);
+export const BNB_USDT = findTokenById("devnet-bnb-usdt", Env.Devnet);
+export const BNB_BUSD = findTokenById("devnet-bnb-busd", Env.Devnet);
 export const SOLANA_LP_HEXAPOOL = findTokenById(
   "devnet-solana-lp-hexapool",
   Env.Devnet,
@@ -70,8 +70,8 @@ export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION = {
           inputAmounts: [
             Amount.fromHumanString(ETHEREUM_USDC, "727.45"),
             Amount.fromHumanString(ETHEREUM_USDT, "0"),
-            Amount.fromHumanString(BSC_BUSD, "0"),
-            Amount.fromHumanString(BSC_USDT, "0"),
+            Amount.fromHumanString(BNB_BUSD, "0"),
+            Amount.fromHumanString(BNB_USDT, "0"),
             Amount.fromHumanString(SOLANA_USDC, "0"),
             Amount.fromHumanString(SOLANA_USDT, "0"),
           ],

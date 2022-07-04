@@ -4,6 +4,7 @@ import Dexie from "dexie";
 import type { Env } from "../../../config";
 import type { InteractionState, InteractionType } from "../../../models";
 import { INTERACTION_GROUPS } from "../../../models";
+import { isNotNull } from "../../../utils";
 
 import type { PersistedInteractionState } from "./helpers";
 import {
@@ -43,7 +44,20 @@ export const getInteractionStatesFromDb = (env: Env) => {
         .filter((idbState) => idbState.interaction.env === env)
         .reverse()
         .sortBy("interaction.submittedAt");
-      return data.map(deserializeInteractionState);
+      return data
+        .map((datum) => {
+          try {
+            return deserializeInteractionState(datum);
+          } catch (error) {
+            console.warn(
+              "Error during de-serialization of interaction",
+              datum,
+              error,
+            );
+            return null;
+          }
+        })
+        .filter(isNotNull);
     })
     .catch((err) => {
       console.warn(err);

@@ -70,7 +70,8 @@ export const useSwapTokens = (
   const toTokenOptionsIds = getOutputTokens(fromToken.id);
 
   const toToken =
-    tokens.find(({ id }) => id === toTokenId) ||
+    (toTokenOptionsIds.includes(toTokenId) &&
+      tokens.find(({ id }) => id === toTokenId)) ||
     tokens.find(({ id }) => id === toTokenOptionsIds[0]);
 
   if (!toToken) throw new Error("Can't figure out toToken");

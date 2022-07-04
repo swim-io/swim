@@ -5965,9 +5965,170 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@swim-io/plugin-ecosystem-evm-aca@workspace:packages/plugin-ecosystem-evm-aca":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/plugin-ecosystem-evm-aca@workspace:packages/plugin-ecosystem-evm-aca"
+  dependencies:
+    "@swim-io/core-types": "workspace:^"
+    "@swim-io/evm-config": "workspace:^"
+    "@types/jest": ^28.1.3
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^26.5.3
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.1
+    prettier: ^2.7.1
+    ts-jest: ^28.0.5
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
+"@swim-io/plugin-ecosystem-evm-aurora@workspace:packages/plugin-ecosystem-evm-aurora":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/plugin-ecosystem-evm-aurora@workspace:packages/plugin-ecosystem-evm-aurora"
+  dependencies:
+    "@swim-io/core-types": "workspace:^"
+    "@swim-io/evm-config": "workspace:^"
+    "@types/jest": ^28.1.3
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^26.5.3
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.1
+    prettier: ^2.7.1
+    ts-jest: ^28.0.5
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
+"@swim-io/plugin-ecosystem-evm-avax@workspace:packages/plugin-ecosystem-evm-avax":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/plugin-ecosystem-evm-avax@workspace:packages/plugin-ecosystem-evm-avax"
+  dependencies:
+    "@swim-io/core-types": "workspace:^"
+    "@swim-io/evm-config": "workspace:^"
+    "@types/jest": ^28.1.3
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^26.5.3
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.1
+    prettier: ^2.7.1
+    ts-jest: ^28.0.5
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
+"@swim-io/plugin-ecosystem-evm-bsc@workspace:packages/plugin-ecosystem-evm-bsc":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/plugin-ecosystem-evm-bsc@workspace:packages/plugin-ecosystem-evm-bsc"
+  dependencies:
+    "@swim-io/core-types": "workspace:^"
+    "@swim-io/evm-config": "workspace:^"
+    "@types/jest": ^28.1.3
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^26.5.3
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.1
+    prettier: ^2.7.1
+    ts-jest: ^28.0.5
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
 "@swim-io/plugin-ecosystem-evm-eth@workspace:packages/plugin-ecosystem-evm-eth":
   version: 0.0.0-use.local
   resolution: "@swim-io/plugin-ecosystem-evm-eth@workspace:packages/plugin-ecosystem-evm-eth"
+  dependencies:
+    "@swim-io/core-types": "workspace:^"
+    "@swim-io/evm-config": "workspace:^"
+    "@types/jest": ^28.1.3
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^26.5.3
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.1
+    prettier: ^2.7.1
+    ts-jest: ^28.0.5
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
+"@swim-io/plugin-ecosystem-evm-ftm@workspace:packages/plugin-ecosystem-evm-ftm":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/plugin-ecosystem-evm-ftm@workspace:packages/plugin-ecosystem-evm-ftm"
+  dependencies:
+    "@swim-io/core-types": "workspace:^"
+    "@swim-io/evm-config": "workspace:^"
+    "@types/jest": ^28.1.3
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^26.5.3
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.1
+    prettier: ^2.7.1
+    ts-jest: ^28.0.5
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
+"@swim-io/plugin-ecosystem-evm-kar@workspace:packages/plugin-ecosystem-evm-kar":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/plugin-ecosystem-evm-kar@workspace:packages/plugin-ecosystem-evm-kar"
+  dependencies:
+    "@swim-io/core-types": "workspace:^"
+    "@swim-io/evm-config": "workspace:^"
+    "@types/jest": ^28.1.3
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^26.5.3
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.1
+    prettier: ^2.7.1
+    ts-jest: ^28.0.5
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
+"@swim-io/plugin-ecosystem-evm-polygon@workspace:packages/plugin-ecosystem-evm-polygon":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/plugin-ecosystem-evm-polygon@workspace:packages/plugin-ecosystem-evm-polygon"
   dependencies:
     "@swim-io/core-types": "workspace:^"
     "@swim-io/evm-config": "workspace:^"

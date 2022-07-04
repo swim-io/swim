@@ -8,11 +8,8 @@ import type {
   Interaction,
   OperationSpec,
   SolanaConnection,
-  SolanaTx,
   SolanaWalletAdapter,
   TokensByPoolId,
-  TxWithPoolId,
-  TxsByPoolId,
 } from "../../models";
 import {
   Amount,
@@ -207,102 +204,3 @@ export const setOutputOperationInputAmount = (
       throw new Error("Unknown instruction");
   }
 };
-
-async function* generatePoolOperationTxs(
-  env: Env,
-  solanaConnection: SolanaConnection,
-  wallet: SolanaWalletAdapter,
-  splTokenAccounts: readonly TokenAccount[],
-  tokensByPoolId: TokensByPoolId,
-  poolSpecs: readonly SolanaPoolSpec[],
-  interaction: Interaction,
-  operations: readonly OperationSpec[],
-  existingTxs: TxsByPoolId,
-): AsyncGenerator<TxWithPoolId> {
-  const inputOperation = operations[0];
-  const inputPoolSpec = findOrThrow(
-    poolSpecs,
-    (spec) => spec.id === inputOperation.poolId,
-  );
-
-  let inputSolanaTx: SolanaTx | null = null;
-  const existingInputTxs = existingTxs[inputOperation.poolId] ?? null;
-  if (existingInputTxs !== null && existingInputTxs.length > 0) {
-    inputSolanaTx = existingInputTxs[0];
-  } else {
-    const inputTxId = await doSinglePoolOperation(
-      env,
-      solanaConnection,
-      wallet,
-      splTokenAccounts,
-      tokensByPoolId,
-      inputPoolSpec,
-      inputOperation,
-    );
-    const inputTx = await solanaConnection.getParsedTx(inputTxId);
-    inputSolanaTx = {
-      ecosystem: EcosystemId.Solana,
-      txId: inputTxId,
-      timestamp: inputTx.blockTime ?? null,
-      interactionId: interaction.id,
-      parsedTx: inputTx,
-    };
-  }
-  yield {
-    poolId: inputOperation.poolId,
-    tx: inputSolanaTx,
-  };
-
-  if (operations.length === 1) {
-    return;
-  }
-  if (operations.length !== 2) {
-    throw new Error("Unknown interaction route");
-  }
-
-  const outputOperation = setOutputOperationInputAmount(
-    splTokenAccounts,
-    interaction,
-    inputOperation,
-    operations[1],
-    inputSolanaTx.parsedTx,
-  );
-  const outputPoolSpec = findOrThrow(
-    poolSpecs,
-    (spec) => spec.id === outputOperation.poolId,
-  );
-
-  let outputSolanaTx: SolanaTx | null = null;
-  const existingOutputTxs = existingTxs[outputOperation.poolId] ?? null;
-  if (existingOutputTxs !== null && existingOutputTxs.length > 1) {
-    outputSolanaTx = existingOutputTxs[0];
-  } else {
-    const outputTxId = await doSinglePoolOperation(
-      env,
-      solanaConnection,
-      wallet,
-      splTokenAccounts,
-      tokensByPoolId,
-      outputPoolSpec,
-      outputOperation,
-    );
-    const outputTx = await solanaConnection.getParsedTx(outputTxId);
-    outputSolanaTx = {
-      ecosystem: EcosystemId.Solana,
-      txId: outputTxId,
-      timestamp: outputTx.blockTime ?? null,
-      interactionId: interaction.id,
-      parsedTx: outputTx,
-    };
-  }
-  yield {
-    poolId: outputOperation.poolId,
-    tx: outputSolanaTx,
-  };
-}
-
-export interface PoolOperationsInput {
-  readonly interaction: Interaction;
-  readonly operations: readonly OperationSpec[];
-  readonly existingTxs: TxsByPoolId;
-}

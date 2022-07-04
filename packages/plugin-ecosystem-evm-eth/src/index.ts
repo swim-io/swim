@@ -39,9 +39,9 @@ export const createEthEcosystemConfig = (
   wormholeChainId: EthereumWormholeChainId,
   displayName: "Ethereum",
   gasToken: {
-    name: "eth",
+    name: "Ethereum",
     symbol: "ETH",
-    decimals: 9,
+    decimals: 18,
   },
   chains,
 });

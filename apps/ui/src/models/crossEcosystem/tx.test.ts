@@ -4,11 +4,11 @@ import { mock } from "jest-mock-extended";
 import { EcosystemId } from "../../config";
 import { parsedSwimSwapTx } from "../../fixtures/solana/txs";
 
-import type { BscTx, EthereumTx, SolanaTx, TxWithTokenId } from "./tx";
+import type { BnbTx, EthereumTx, SolanaTx, TxWithTokenId } from "./tx";
 import {
   deduplicateTxsByTokenId,
   groupTxsByTokenId,
-  isBscTx,
+  isBnbTx,
   isEthereumTx,
   isEvmTx,
   isSolanaTx,
@@ -49,13 +49,13 @@ describe("Cross-ecosystem tx", () => {
     txReceipt: mock<ethers.providers.TransactionReceipt>(),
   };
 
-  const bscTx: BscTx = {
+  const bnbTx: BnbTx = {
     ...ethereumTx,
-    ecosystem: EcosystemId.Bsc,
+    ecosystem: EcosystemId.Bnb,
   };
-  const bscTx2: BscTx = {
+  const bnbTx2: BnbTx = {
     ...ethereumTx2,
-    ecosystem: EcosystemId.Bsc,
+    ecosystem: EcosystemId.Bnb,
   };
 
   const txWithSolanaId: TxWithTokenId = {
@@ -69,12 +69,12 @@ describe("Cross-ecosystem tx", () => {
   };
 
   const txWithBinanceId: TxWithTokenId = {
-    tokenId: "mainnet-bsc-usdt",
-    tx: bscTx,
+    tokenId: "mainnet-bnb-usdt",
+    tx: bnbTx,
   };
   const txWithBinanceUsdcId: TxWithTokenId = {
-    tokenId: "mainnet-bsc-usdc",
-    tx: bscTx,
+    tokenId: "mainnet-bnb-usdc",
+    tx: bnbTx,
   };
 
   describe("isSolanaTx", () => {
@@ -84,7 +84,7 @@ describe("Cross-ecosystem tx", () => {
 
     it("returns false if the ecosystem is not Solana", () => {
       expect(isSolanaTx(ethereumTx)).toBe(false);
-      expect(isSolanaTx(bscTx)).toBe(false);
+      expect(isSolanaTx(bnbTx)).toBe(false);
     });
   });
 
@@ -95,25 +95,25 @@ describe("Cross-ecosystem tx", () => {
 
     it("returns false if the ecosystem is not Ethereum", () => {
       expect(isEthereumTx(solanaTx)).toBe(false);
-      expect(isEthereumTx(bscTx)).toBe(false);
+      expect(isEthereumTx(bnbTx)).toBe(false);
     });
   });
 
-  describe("isBscTx", () => {
-    it("returns true if the ecosystem is Bsc", () => {
-      expect(isBscTx(bscTx)).toBe(true);
+  describe("isBnbTx", () => {
+    it("returns true if the ecosystem is BNB", () => {
+      expect(isBnbTx(bnbTx)).toBe(true);
     });
 
-    it("returns false if the ecosystem is not Bsc", () => {
-      expect(isBscTx(solanaTx)).toBe(false);
-      expect(isBscTx(ethereumTx)).toBe(false);
+    it("returns false if the ecosystem is not BNB", () => {
+      expect(isBnbTx(solanaTx)).toBe(false);
+      expect(isBnbTx(ethereumTx)).toBe(false);
     });
   });
 
   describe("isEvmTx", () => {
     it("returns true if the ecosystem is Evm", () => {
       expect(isEvmTx(ethereumTx)).toBe(true);
-      expect(isEvmTx(bscTx)).toBe(true);
+      expect(isEvmTx(bnbTx)).toBe(true);
     });
 
     it("returns false if the ecosystem is not Evm", () => {
@@ -126,8 +126,8 @@ describe("Cross-ecosystem tx", () => {
       const expected = {
         "mainnet-solana-usdc": [solanaTx, solanaTx],
         "mainnet-ethereum-usdc": [ethereumTx, ethereumTx],
-        "mainnet-bsc-usdt": [bscTx],
-        "mainnet-bsc-usdc": [bscTx],
+        "mainnet-bnb-usdt": [bnbTx],
+        "mainnet-bnb-usdc": [bnbTx],
       };
       expect(
         groupTxsByTokenId([
@@ -145,7 +145,7 @@ describe("Cross-ecosystem tx", () => {
         "mainnet-solana-usdc": [solanaTx],
       });
       expect(groupTxsByTokenId([txWithBinanceId])).toEqual({
-        "mainnet-bsc-usdt": [bscTx],
+        "mainnet-bnb-usdt": [bnbTx],
       });
       expect(groupTxsByTokenId([txWithEthereumId])).toEqual({
         "mainnet-ethereum-usdc": [ethereumTx],
@@ -166,7 +166,7 @@ describe("Cross-ecosystem tx", () => {
     const txByEthereumId2 = {
       "mainnet-ethereum-usdt": [ethereumTx2, ethereumTx, ethereumTx],
     };
-    const txByBinanceId = { "mainnet-bsc-usdt": [bscTx, bscTx2] };
+    const txByBnbId = { "mainnet-bnb-usdt": [bnbTx, bnbTx2] };
 
     it("returns object of all txs, if no duplicates", () => {
       expect(deduplicateTxsByTokenId(txBySolanaId, txByEthereumId)).toEqual({
@@ -182,8 +182,8 @@ describe("Cross-ecosystem tx", () => {
         ...txByEthereumId,
         ...txByEthereumId2,
       });
-      expect(deduplicateTxsByTokenId(txByBinanceId, txByBinanceId)).toEqual({
-        ...txByBinanceId,
+      expect(deduplicateTxsByTokenId(txByBnbId, txByBnbId)).toEqual({
+        ...txByBnbId,
       });
     });
     it("returns empty object, if arguments are empty objects", () => {

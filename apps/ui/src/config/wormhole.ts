@@ -9,7 +9,7 @@ export const enum WormholeChainId {
   Solana = 1,
   Ethereum = 2,
   Terra = 3,
-  Bsc = 4,
+  Bnb = 4,
   Polygon = 5, // NOTE: in some parts of the code, the listed order is swapped with Avalanche but ID is the same
   Avalanche = 6,
   Oasis = 7,

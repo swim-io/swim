@@ -132,9 +132,9 @@ const ethereumMetaMaskInfo: WalletServiceInfo = {
   ecosystem: ECOSYSTEMS[EcosystemId.Ethereum],
 };
 
-const bscMetaMaskInfo = addMetaMaskEcosystemInfo(
+const bnbMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Bsc],
+  ECOSYSTEMS[EcosystemId.Bnb],
   "https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain",
 );
 const avalancheMetaMaskInfo = addMetaMaskEcosystemInfo(
@@ -172,7 +172,7 @@ const {
   acala,
   aurora,
   avalanche,
-  bsc,
+  bnb,
   ethereum,
   fantom,
   karura,
@@ -188,11 +188,11 @@ export const ETHEREUM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[
       adapter: ethereum.MetaMaskAdapter,
     },
   ];
-export const BSC_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] = [
+export const BNB_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] = [
   {
     id: WalletServiceId.MetaMask,
-    info: bscMetaMaskInfo,
-    adapter: bsc.MetaMaskAdapter,
+    info: bnbMetaMaskInfo,
+    adapter: bnb.MetaMaskAdapter,
   },
 ];
 export const AVALANCHE_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
@@ -273,7 +273,7 @@ export const SOLANA_WALLET_SERVICES: readonly SolanaWalletService<SolanaWalletAd
 export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {
   [EcosystemId.Solana]: SOLANA_WALLET_SERVICES,
   [EcosystemId.Ethereum]: ETHEREUM_WALLET_SERVICES,
-  [EcosystemId.Bsc]: BSC_WALLET_SERVICES,
+  [EcosystemId.Bnb]: BNB_WALLET_SERVICES,
   [EcosystemId.Avalanche]: AVALANCHE_WALLET_SERVICES,
   [EcosystemId.Polygon]: POLYGON_WALLET_SERVICES,
   [EcosystemId.Aurora]: AURORA_WALLET_SERVICES,

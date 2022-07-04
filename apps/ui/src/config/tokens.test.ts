@@ -36,7 +36,7 @@ const generateSuite = (env: Env): void => {
       ).toBe(true);
     });
 
-    // NOTE: We may have to rethink this test if eg tokens on Ethereum/Bsc can be deployed at the same address
+    // NOTE: We may have to rethink this test if eg tokens on Ethereum/BNB can be deployed at the same address
     it("does not specify an address more than once", () => {
       const allAddresses = tokens.flatMap((token) =>
         [...token.detailsByEcosystem.values()].map(
@@ -68,12 +68,12 @@ const generateSuite = (env: Env): void => {
       expect(ethereumAddresses.every(utils.isAddress)).toBe(true);
     });
 
-    it("specifies valid BSC addresses", () => {
-      const bscAddresses = getAddressesForEcosystem(tokens, EcosystemId.Bsc);
-      expect(bscAddresses.every((address) => address.startsWith("0x"))).toBe(
+    it("specifies valid BNB addresses", () => {
+      const bnbAddresses = getAddressesForEcosystem(tokens, EcosystemId.Bnb);
+      expect(bnbAddresses.every((address) => address.startsWith("0x"))).toBe(
         true,
       );
-      expect(bscAddresses.every(utils.isAddress)).toBe(true);
+      expect(bnbAddresses.every(utils.isAddress)).toBe(true);
     });
 
     it("specifies token details for each token’s native Wormhole ecosystem", () => {

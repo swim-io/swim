@@ -14,8 +14,8 @@ type CoinGeckoResult = ReadonlyRecord<
 
 const COINGECKO_ID_TO_TOKEN_IDS: ReadonlyRecord<string, readonly string[]> = {
   "green-satoshi-token": ["mainnet-solana-gst"],
-  "green-satoshi-token-bsc": ["mainnet-bsc-gst"],
-  stepn: ["mainnet-solana-gmt", "mainnet-bsc-gmt"], // NOTE: These are fungible via a non-Wormhole route
+  "green-satoshi-token-bsc": ["mainnet-bnb-gst"],
+  stepn: ["mainnet-solana-gmt", "mainnet-bnb-gmt"], // NOTE: These are fungible via a non-Wormhole route
 };
 
 export const useCoinGeckoPricesQuery = (): UseQueryResult<

@@ -2,7 +2,7 @@ import { useQueryClient } from "react-query";
 
 import { EcosystemId } from "../../config";
 import {
-  BSC_USDT_TO_ETH_USDC_SWAP,
+  BNB_USDT_TO_ETH_USDC_SWAP,
   ETH_USDC_TO_SOL_USDC_SWAP,
   SOL_USDC_TO_ETH_USDC_SWAP,
   SOL_USDC_TO_SOL_USDT_SWAP,
@@ -54,13 +54,13 @@ describe("useRequiredEcosystemsForInteraction", () => {
     expect(result.current).toEqual(new Set([EcosystemId.Solana]));
   });
 
-  it("should return required ecosystems for BSC to ETH Swap", async () => {
-    useInteractionMock.mockReturnValue(BSC_USDT_TO_ETH_USDC_SWAP);
+  it("should return required ecosystems for BNB to ETH Swap", async () => {
+    useInteractionMock.mockReturnValue(BNB_USDT_TO_ETH_USDC_SWAP);
     const { result } = renderHookWithAppContext(() =>
-      useRequiredEcosystemsForInteraction(BSC_USDT_TO_ETH_USDC_SWAP.id),
+      useRequiredEcosystemsForInteraction(BNB_USDT_TO_ETH_USDC_SWAP.id),
     );
     expect(result.current).toEqual(
-      new Set([EcosystemId.Ethereum, EcosystemId.Solana, EcosystemId.Bsc]),
+      new Set([EcosystemId.Ethereum, EcosystemId.Solana, EcosystemId.Bnb]),
     );
   });
 });

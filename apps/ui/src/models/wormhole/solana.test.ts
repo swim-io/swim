@@ -77,7 +77,7 @@ describe("models - Wormhole utils", () => {
         nativeEcosystem: EcosystemId.Solana,
         detailsByEcosystem: new Map([
           [EcosystemId.Solana, { address: "xxx", decimals: 8 }],
-          [EcosystemId.Bsc, { address: "xxx", decimals: 18 }],
+          [EcosystemId.Bnb, { address: "xxx", decimals: 18 }],
         ]),
       };
       const tx: SolanaTx = {
@@ -168,7 +168,7 @@ describe("models - Wormhole utils", () => {
         const wormholeChainSpec =
           CHAINS[Env.Mainnet][Protocol.Solana][0].wormhole;
         const tokenSpec = TOKENS[Env.Mainnet].find(
-          (token) => token.id === "mainnet-bsc-busd",
+          (token) => token.id === "mainnet-bnb-busd",
         )!;
         const splTokenAccount = "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
         const tx: SolanaTx = {
@@ -196,7 +196,7 @@ describe("models - Wormhole utils", () => {
       const wormholeChainSpec =
         CHAINS[Env.Mainnet][Protocol.Solana][0].wormhole;
       const tokenSpec = TOKENS[Env.Mainnet].find(
-        (token) => token.id === "mainnet-bsc-busd",
+        (token) => token.id === "mainnet-bnb-busd",
       )!;
       const splTokenAccount = "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
       const tx: SolanaTx = {

@@ -36,7 +36,7 @@ const HomePage = (): ReactElement => {
   const promotedEcosystems = [
     ECOSYSTEMS[EcosystemId.Solana],
     ECOSYSTEMS[EcosystemId.Ethereum],
-    ECOSYSTEMS[EcosystemId.Bsc],
+    ECOSYSTEMS[EcosystemId.Bnb],
     ECOSYSTEMS[EcosystemId.Avalanche],
     ECOSYSTEMS[EcosystemId.Polygon],
   ];

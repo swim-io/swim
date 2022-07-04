@@ -19,7 +19,8 @@ This approach uses [Lerna-style locked versioning](https://github.com/lerna/lern
 ### For every release
 
 1. Run `yarn clean && git clean -xdf ./packages && yarn install && yarn build-packages`
-1. `yarn workspaces foreach exec yarn version <strategy>` (See `yarn version --help` for available strategies)
+1. `yarn workspaces foreach --no-private version <major|minor|patch>`
+1. If a file has been created under `.yarn/versions` which stores "undecided" package version info, delete it (this is not relevant to our fixed versioning approach).
 1. Run `git add . && git commit -m "Bump version" && git tag "v<version>`"
 1. Either pre-release `yarn publish-next` or stable release `yarn publish-latest`
 1. Run `git push && git push --tags`

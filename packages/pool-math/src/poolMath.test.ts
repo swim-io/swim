@@ -210,4 +210,33 @@ describe("PoolMath", () => {
       );
     },
   );
+
+  // Values taken from https://github.com/orca-so/typescript-sdk/blob/main/test/model/orca/quote/stable-quote.test.ts#L165-L214
+  test.each([
+    [10, 0.502629],
+    [100, 0.055222],
+  ])(
+    "price impact matches Orca's definition with amp factor %i",
+    (orcaAmpFactor, expectedPriceImpact) => {
+      const balances = [
+        new Decimal("19768621.149413"),
+        new Decimal("19577821.226623"),
+      ];
+      const lpFee = new Decimal(0.006);
+      const governanceFee = new Decimal(0.001);
+      const ampFactor = new Decimal(orcaAmpFactor).div(2 ** 2);
+      const pool = new PoolMath(
+        balances,
+        new Decimal(ampFactor),
+        lpFee,
+        governanceFee,
+      );
+      const inputAmount = new Decimal(1);
+      const inputIndex = 0;
+      const outputIndex = 1;
+
+      const result = pool.priceImpact(inputAmount, inputIndex, outputIndex);
+      expect(result).toEqual(new Decimal(expectedPriceImpact));
+    },
+  );
 });

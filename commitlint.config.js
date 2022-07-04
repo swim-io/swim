@@ -5,6 +5,7 @@ module.exports = {
       2,
       "always",
       [
+        "eslint-config",
         "pool-deployment",
         "pool-math",
         "pool-playground",

@@ -1,0 +1,51 @@
+{
+  "name": "@swim-io/eslint-config",
+  "version": "0.2.0",
+  "description": "Shared default ESLint configuration for Swim TS projects.",
+  "main": "index.js",
+  "files": [
+    "*.js",
+    "*.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/swim-io/swim/tree/master/packages/eslint-config"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "format": "prettier --write \"*.js\"",
+    "format:check": "prettier --check index.js",
+    "lint": "eslint \"./*.js\"",
+    "lint:fix": "eslint --fix \"./*.js\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "verify": "yarn format:check && yarn lint",
+    "prepare": "yarn verify"
+  },
+  "peerDependencies": {
+    "eslint": ">= 8.19",
+    "eslint-config-prettier": "^8.5",
+    "eslint-plugin-functional": "^4.2",
+    "eslint-plugin-import": "^2.26",
+    "eslint-plugin-jest": "^26.5",
+    "eslint-plugin-prettier": "^4.2"
+  },
+  "optionalDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.30",
+    "@typescript-eslint/parser": "^5.30",
+    "eslint-plugin-deprecation": "^1.3"
+  },
+  "devDependencies": {
+    "eslint": "^8.19.0",
+    "eslint-config-prettier": "^8.5",
+    "eslint-plugin-deprecation": "^1.3.2",
+    "eslint-plugin-functional": "^4.2.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.5.3",
+    "eslint-plugin-prettier": "^4.2.1",
+    "jest": "^28.1.2",
+    "prettier": "^2.7.1"
+  }
+}

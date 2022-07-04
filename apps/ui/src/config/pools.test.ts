@@ -3,8 +3,8 @@ import { PublicKey } from "@solana/web3.js";
 import { getUniqueSize } from "../utils";
 
 import { Env } from "./env";
-import { pools as poolsByEnv } from "./pools";
-import { tokens as tokensByEnv } from "./tokens";
+import { POOLS as poolsByEnv } from "./pools";
+import { TOKENS as tokensByEnv } from "./tokens";
 
 const generateSuite = (env: Env): void => {
   const title = env.toString();

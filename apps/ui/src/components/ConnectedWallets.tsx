@@ -2,7 +2,7 @@ import { EuiIcon, EuiListGroup } from "@elastic/eui";
 import type { ReactElement } from "react";
 
 import type { EcosystemId } from "../config";
-import { ecosystems } from "../config";
+import { ECOSYSTEMS } from "../config";
 import { useWallets } from "../hooks";
 import type { ReadonlyRecord } from "../utils";
 import { shortenAddress } from "../utils";
@@ -26,7 +26,7 @@ export const ConnectedWallets = ({
             return {
               label: (
                 <>
-                  <EuiIcon type={ecosystems[ecosystemId as EcosystemId].logo} />{" "}
+                  <EuiIcon type={ECOSYSTEMS[ecosystemId as EcosystemId].logo} />{" "}
                   {shortenAddress(address as string)}
                   <span>&nbsp;(not connected)</span>
                 </>
@@ -38,7 +38,7 @@ export const ConnectedWallets = ({
             return {
               label: (
                 <>
-                  <EuiIcon type={ecosystems[ecosystemId as EcosystemId].logo} />{" "}
+                  <EuiIcon type={ECOSYSTEMS[ecosystemId as EcosystemId].logo} />{" "}
                   {shortenAddress(address as string)}
                   <span>&nbsp;(connected)</span>
                 </>
@@ -50,7 +50,7 @@ export const ConnectedWallets = ({
             return {
               label: (
                 <>
-                  <EuiIcon type={ecosystems[ecosystemId as EcosystemId].logo} />{" "}
+                  <EuiIcon type={ECOSYSTEMS[ecosystemId as EcosystemId].logo} />{" "}
                   {shortenAddress(address as string)}
                   <span>&nbsp;(different account)</span>
                 </>

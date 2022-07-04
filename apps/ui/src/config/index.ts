@@ -1,18 +1,18 @@
 import type { ReadonlyRecord } from "../utils";
 
 import type { ChainsByProtocol } from "./chains";
-import { chains } from "./chains";
+import { CHAINS } from "./chains";
 import type { Ecosystem, EcosystemId } from "./ecosystem";
-import { Protocol, ecosystems } from "./ecosystem";
+import { ECOSYSTEMS, Protocol } from "./ecosystem";
 import { Env } from "./env";
 import type { PoolSpec } from "./pools";
-import { pools } from "./pools";
-import { redeemer } from "./redeemer";
+import { POOLS } from "./pools";
+import { REDEEMER } from "./redeemer";
 import type { RedeemerSpec } from "./redeemer";
 import type { TokenSpec } from "./tokens";
-import { tokens } from "./tokens";
+import { TOKENS } from "./tokens";
 import type { WormholeConfig } from "./wormhole";
-import { wormholeConfigs } from "./wormhole";
+import { WORMHOLE_CONFIGS } from "./wormhole";
 
 export * from "./chains";
 export * from "./ecosystem";
@@ -32,15 +32,15 @@ export interface Config {
 }
 
 const buildConfig = (env: Env): Config => ({
-  ecosystems: ecosystems,
-  chains: chains[env],
-  pools: pools[env],
-  tokens: tokens[env],
-  wormhole: wormholeConfigs[env],
-  redeemer: redeemer[env],
+  ecosystems: ECOSYSTEMS,
+  chains: CHAINS[env],
+  pools: POOLS[env],
+  tokens: TOKENS[env],
+  wormhole: WORMHOLE_CONFIGS[env],
+  redeemer: REDEEMER[env],
 });
 
-export const configs: ReadonlyRecord<Env, Config> = {
+export const CONFIGS: ReadonlyRecord<Env, Config> = {
   [Env.Mainnet]: buildConfig(Env.Mainnet),
   [Env.Devnet]: buildConfig(Env.Devnet),
   [Env.Localnet]: buildConfig(Env.Localnet),

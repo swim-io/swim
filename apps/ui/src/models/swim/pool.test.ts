@@ -3,7 +3,7 @@ import type { ethers } from "ethers";
 import { mock, mockDeep } from "jest-mock-extended";
 
 import type { Config } from "../../config";
-import { EcosystemId, configs } from "../../config";
+import { CONFIGS, EcosystemId } from "../../config";
 import { Env } from "../../config/env";
 import { parsedWormholeRedeemEvmUnlockWrappedTx } from "../../fixtures/solana/txs";
 import type { EvmTx, SolanaTx } from "../crossEcosystem";
@@ -13,7 +13,7 @@ import { getTokensByPool, isPoolTx } from "./pool";
 describe("Pool tests", () => {
   describe("getTokensByPool", () => {
     it("returns tokens by pool id for localnet", () => {
-      const localnetConfig: Config = configs[Env.Localnet];
+      const localnetConfig: Config = CONFIGS[Env.Localnet];
       const result = getTokensByPool(localnetConfig);
 
       localnetConfig.pools.forEach((pool) => {

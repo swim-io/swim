@@ -15,11 +15,11 @@ import type { ReactElement } from "react";
 import { useState } from "react";
 
 import {
+  ECOSYSTEMS,
+  PROTOCOL_NAMES,
   Protocol,
-  ecosystems,
   getEcosystemsForProtocol,
   isEcosystemEnabled,
-  protocolNames,
 } from "../config";
 import { selectSelectedServiceByProtocol } from "../core/selectors";
 import { useWalletAdapter } from "../core/store";
@@ -89,7 +89,7 @@ const ProtocolWalletOptionsList = ({
     <EuiButtonIcon
       onClick={handleButtonClick}
       iconType="questionInCircle"
-      aria-label={`See the supported chains of the ${protocolNames[protocol]} protocol`}
+      aria-label={`See the supported chains of the ${PROTOCOL_NAMES[protocol]} protocol`}
       style={{ marginLeft: 10 }}
     />
   );
@@ -106,8 +106,8 @@ const ProtocolWalletOptionsList = ({
             isEcosystemEnabled,
             (ecosystemId) => (
               <li key={ecosystemId}>
-                <EuiIcon type={ecosystems[ecosystemId].logo} size="m" />
-                {ecosystems[ecosystemId].displayName}
+                <EuiIcon type={ECOSYSTEMS[ecosystemId].logo} size="m" />
+                {ECOSYSTEMS[ecosystemId].displayName}
               </li>
             ),
             ecosystemIds,
@@ -122,7 +122,7 @@ const ProtocolWalletOptionsList = ({
       <EuiTitle size="xs">
         <h2 style={{ whiteSpace: "nowrap" }}>
           <EuiIcon type={icon} size="l" style={{ marginRight: "8px" }} />
-          {protocolNames[protocol]}
+          {PROTOCOL_NAMES[protocol]}
           {ecosystemIds.length > 1 ? <span>{popover}</span> : null}
         </h2>
       </EuiTitle>

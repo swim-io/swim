@@ -58,7 +58,7 @@ const USDT_NAME = "Tether USD";
 const USN_SYMBOL = "USN";
 const USN_NAME = "USN";
 
-const mainnetTokens: readonly TokenSpec[] = [
+const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     id: "mainnet-solana-usdc",
     symbol: USDC_SYMBOL,
@@ -831,7 +831,7 @@ const mainnetTokens: readonly TokenSpec[] = [
   },
 ].filter((spec) => !spec.isDisabled);
 
-const devnetTokens: readonly TokenSpec[] = [
+const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     id: "devnet-solana-usdc",
     symbol: USDC_SYMBOL,
@@ -1610,7 +1610,7 @@ const devnetTokens: readonly TokenSpec[] = [
   },
 ].filter((spec) => !spec.isDisabled);
 
-const localnetTokens: readonly TokenSpec[] = [
+const LOCALNET_TOKENS: readonly TokenSpec[] = [
   {
     id: "localnet-solana-usdc",
     symbol: USDC_SYMBOL,
@@ -1836,9 +1836,9 @@ const localnetTokens: readonly TokenSpec[] = [
   },
 ];
 
-export const tokens: ReadonlyRecord<Env, readonly TokenSpec[]> = {
-  [Env.Mainnet]: mainnetTokens,
-  [Env.Devnet]: devnetTokens,
-  [Env.Localnet]: localnetTokens,
-  [Env.CustomLocalnet]: localnetTokens,
+export const TOKENS: ReadonlyRecord<Env, readonly TokenSpec[]> = {
+  [Env.Mainnet]: MAINNET_TOKENS,
+  [Env.Devnet]: DEVNET_TOKENS,
+  [Env.Localnet]: LOCALNET_TOKENS,
+  [Env.CustomLocalnet]: LOCALNET_TOKENS,
 };

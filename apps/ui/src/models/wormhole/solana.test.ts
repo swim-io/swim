@@ -2,7 +2,7 @@
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
-import { EcosystemId, Env, Protocol, chains, tokens } from "../../config";
+import { CHAINS, EcosystemId, Env, Protocol, TOKENS } from "../../config";
 import {
   parsedSwimSwapTx,
   parsedWormholePostVaaTxs,
@@ -112,7 +112,7 @@ describe("models - Wormhole utils", () => {
       (parsedTx) => {
         const interactionId = "e45794d6c5a2750a589f875c84089f81";
         const wormholeChainSpec =
-          chains[Env.Mainnet][Protocol.Solana][0].wormhole;
+          CHAINS[Env.Mainnet][Protocol.Solana][0].wormhole;
         const signatureSetAddress =
           "2XjLRw6BTVTTL5hLDdKyLtPL6toGM7HkKJivGjtZBotp";
         const tx: SolanaTx = {
@@ -137,7 +137,7 @@ describe("models - Wormhole utils", () => {
     it("returns false for a tx which mints Wormhole-wrapped SPL tokens", () => {
       const interactionId = "e45794d6c5a2750a589f875c84089f81";
       const wormholeChainSpec =
-        chains[Env.Mainnet][Protocol.Solana][0].wormhole;
+        CHAINS[Env.Mainnet][Protocol.Solana][0].wormhole;
       const signatureSetAddress =
         "2XjLRw6BTVTTL5hLDdKyLtPL6toGM7HkKJivGjtZBotp";
       const tx: SolanaTx = {
@@ -166,8 +166,8 @@ describe("models - Wormhole utils", () => {
       (parsedTx) => {
         const interactionId = "e45794d6c5a2750a589f875c84089f81";
         const wormholeChainSpec =
-          chains[Env.Mainnet][Protocol.Solana][0].wormhole;
-        const tokenSpec = tokens[Env.Mainnet].find(
+          CHAINS[Env.Mainnet][Protocol.Solana][0].wormhole;
+        const tokenSpec = TOKENS[Env.Mainnet].find(
           (token) => token.id === "mainnet-bnb-busd",
         )!;
         const splTokenAccount = "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
@@ -194,8 +194,8 @@ describe("models - Wormhole utils", () => {
     it("returns true for a tx which redeems Wormhole-wrapped SPL tokens", () => {
       const interactionId = "e45794d6c5a2750a589f875c84089f81";
       const wormholeChainSpec =
-        chains[Env.Mainnet][Protocol.Solana][0].wormhole;
-      const tokenSpec = tokens[Env.Mainnet].find(
+        CHAINS[Env.Mainnet][Protocol.Solana][0].wormhole;
+      const tokenSpec = TOKENS[Env.Mainnet].find(
         (token) => token.id === "mainnet-bnb-busd",
       )!;
       const splTokenAccount = "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";

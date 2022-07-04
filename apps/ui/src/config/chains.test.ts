@@ -4,7 +4,7 @@ import { utils } from "ethers";
 import { getUniqueSize } from "../utils";
 
 import type { ChainSpec } from "./chains";
-import { chains as chainsByEnv } from "./chains";
+import { CHAINS as chainsByEnv } from "./chains";
 import type { Ecosystem } from "./ecosystem";
 import { Protocol } from "./ecosystem";
 import { Env } from "./env";

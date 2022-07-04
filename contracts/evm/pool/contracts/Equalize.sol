@@ -1,10 +1,10 @@
 //SPDX-License-Identifier: TODO
 pragma solidity ^0.8.0;
 
-type Equalized is uint64;
+type Equalized is uint;
 
 library Equalize {
-  uint64 public constant MAX_AMOUNT = 1<<61; //non-inclusive!
+  uint public constant MAX_AMOUNT = 1<<61; //non-inclusive!
 
   function to(uint amount, int8 equalizer)
     internal pure returns (Equalized) {
@@ -20,13 +20,13 @@ library Equalize {
       unchecked {equalized = uint(10)**(uint(int(equalizer)));}
       equalized *= amount; //SafeMath!
     }
-    require(equalized < uint(MAX_AMOUNT), "MAX_AMOUNT exceeded");
-    return Equalized.wrap(uint64(equalized));
+    require(equalized < MAX_AMOUNT, "MAX_AMOUNT exceeded");
+    return Equalized.wrap(equalized);
   }
 
   function from(Equalized equalized, int8 equalizer)
     internal pure returns (uint) {
-    uint amount = uint(Equalized.unwrap(equalized));
+    uint amount = Equalized.unwrap(equalized);
     if (amount == 0)
       return 0;
 

@@ -93,7 +93,7 @@ using CenterAlignment for uint;
 //   which overflow a lot earlier, while also maintaining accuracy and keeping
 //   gas costs low.
 
-function sum(Equalized[] memory arr) public pure returns (uint ret) { unchecked {
+function sum(Equalized[] memory arr) internal pure returns (uint ret) { unchecked {
   for (uint i = 0; i < arr.length; ++i) {
     ret += uint(Equalized.unwrap(arr[i]));
   }

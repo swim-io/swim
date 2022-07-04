@@ -17,6 +17,7 @@ import {
   useWalletService,
   useWallets,
 } from "../hooks";
+import { useHasActiveInteraction } from "../hooks/interaction";
 import type { WalletServiceId } from "../models";
 import { WALLET_SERVICES, walletServiceInfo } from "../models";
 import { deduplicate, isNotNull, shortenAddress } from "../utils";
@@ -45,6 +46,7 @@ export const ConnectButton = ({
   const selectedServiceByProtocol = useWalletAdapter(
     selectSelectedServiceByProtocol,
   );
+  const hasActiveInteraction = useHasActiveInteraction();
   const ecosystem = ecosystems[ecosystemId];
   const protocol = ecosystem.protocol;
   const wallets = useWallets();
@@ -65,6 +67,7 @@ export const ConnectButton = ({
         connected={connected}
         onClick={handleClick}
         iconType={ecosystem.logo}
+        isDisabled={hasActiveInteraction}
       >
         {connected && address ? (
           shortenAddress(address)
@@ -100,6 +103,7 @@ export const MultiConnectButton = ({
   );
   const evm = useEvmWallet();
   const solana = useSolanaWallet();
+  const hasActiveInteraction = useHasActiveInteraction();
 
   const connectedWalletServiceIds: ReadonlyArray<WalletServiceId> = deduplicate<
     WalletServiceId,
@@ -143,6 +147,7 @@ export const MultiConnectButton = ({
       <EuiButton
         onClick={openModal}
         {...rest}
+        isDisabled={hasActiveInteraction}
         className={`multiConnectButton ${rest.className ?? ""}`}
       >
         {label}

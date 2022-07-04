@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 
-import type { Env } from "../../../config";
-import { EcosystemId, findTokenById, isValidEnv } from "../../../config";
+import type { EcosystemId, Env } from "../../../config";
+import { findTokenById, isValidEnv } from "../../../config";
 import type {
   AddInteraction,
   AddOperationSpec,

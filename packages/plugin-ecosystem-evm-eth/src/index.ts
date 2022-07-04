@@ -31,7 +31,7 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
     ],
   ]);
 
-export const createEthEcosystemConfig = (
+export const createEthereumEcosystemConfig = (
   chains: readonly EvmChainConfig[],
 ): EvmEcosystemConfig => ({
   id: EthereumEcosystemId,

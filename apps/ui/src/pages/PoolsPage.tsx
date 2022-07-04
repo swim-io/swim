@@ -18,7 +18,7 @@ import shallow from "zustand/shallow.js";
 
 import { atomicToTvlString, u64ToDecimal } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
-import type { PoolSpec } from "../config";
+import type { PoolSpec, SolanaPoolSpec } from "../config";
 import {
   EcosystemId,
   getSolanaTokenDetails,
@@ -38,7 +38,11 @@ const PoolsPage = (): ReactElement => {
   useTitle("Pools");
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
 
-  const allPoolTokenAccountAddresses = pools.flatMap((poolSpec) => [
+  const solanaPools = pools.filter(
+    (pool): pool is SolanaPoolSpec => pool.ecosystem === EcosystemId.Solana,
+  );
+
+  const allPoolTokenAccountAddresses = solanaPools.flatMap((poolSpec) => [
     ...poolSpec.tokenAccounts.values(),
   ]);
   const { data: allPoolTokenAccounts = null } = useLiquidityQuery(
@@ -47,13 +51,13 @@ const PoolsPage = (): ReactElement => {
 
   const { data: prices = new Map<string, Decimal | null>() } =
     useCoinGeckoPricesQuery();
-  const poolTokens = pools.map((poolSpec) =>
-    [...poolSpec.tokenAccounts.keys()].map((id) =>
+  const poolTokens = solanaPools.map((poolSpec) =>
+    poolSpec.tokens.map((id) =>
       findOrThrow(tokens, (tokenSpec) => tokenSpec.id === id),
     ),
   );
 
-  const poolUsdTotals = pools.map((poolSpec, i) => {
+  const poolUsdTotals = solanaPools.map((poolSpec, i) => {
     const tokenSpecs = poolTokens[i];
 
     if (

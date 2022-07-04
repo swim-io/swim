@@ -19,10 +19,10 @@ export type TokensByPoolId = ReadonlyRecord<
 
 export const getTokensByPool = ({ pools, tokens }: Config): TokensByPoolId =>
   pools.reduce(
-    (accumulator, { id: poolId, tokenAccounts, lpToken }) => ({
+    (accumulator, { id: poolId, tokens: poolTokens, lpToken }) => ({
       ...accumulator,
       [poolId]: {
-        tokens: [...tokenAccounts.keys()].map((tokenId) =>
+        tokens: poolTokens.map((tokenId) =>
           findOrThrow(tokens, (token) => token.id === tokenId),
         ),
         lpToken: findOrThrow(tokens, (token) => token.id === lpToken),
@@ -48,7 +48,7 @@ export const getPoolState = async (
   solanaConnection: SolanaConnection,
   poolSpec: PoolSpec,
 ): Promise<SwimPoolState | null> => {
-  const numberOfTokens = poolSpec.tokenAccounts.size;
+  const numberOfTokens = poolSpec.tokens.length;
   const accountInfo = await solanaConnection.getAccountInfo(
     new PublicKey(poolSpec.address),
   );

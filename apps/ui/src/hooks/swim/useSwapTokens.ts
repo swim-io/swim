@@ -18,9 +18,7 @@ interface SwapTokens {
 const swimUsdRegExp = /-solana-lp-hexapool$/;
 // TODO: Make this check more robust
 const isSwimUsdPool = (pool: PoolSpec): boolean =>
-  [pool.lpToken, ...pool.tokenAccounts.keys()].some((key) =>
-    swimUsdRegExp.test(key),
-  );
+  [pool.lpToken, ...pool.tokens].some((key) => swimUsdRegExp.test(key));
 
 export const useSwapTokens = (): SwapTokens => {
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
@@ -28,7 +26,7 @@ export const useSwapTokens = (): SwapTokens => {
     () =>
       pools
         .filter((pool) => !pool.isStakingPool)
-        .flatMap((pool) => [...pool.tokenAccounts.keys()])
+        .flatMap((pool) => pool.tokens)
         // TODO: Remove this if we want to support swimUSD swaps
         .filter((tokenId) => pools.every((pool) => pool.lpToken !== tokenId)),
     [pools],
@@ -38,13 +36,11 @@ export const useSwapTokens = (): SwapTokens => {
   const getOutputTokens = useCallback(
     (fromTokenId: string): readonly string[] => {
       const inputPool = findOrThrow(pools, (pool) =>
-        pool.tokenAccounts.has(fromTokenId),
+        pool.tokens.includes(fromTokenId),
       );
       const connectedTokens = isSwimUsdPool(inputPool)
-        ? pools
-            .filter(isSwimUsdPool)
-            .flatMap((pool) => [...pool.tokenAccounts.keys()])
-        : [...inputPool.tokenAccounts.keys()];
+        ? pools.filter(isSwimUsdPool).flatMap((pool) => pool.tokens)
+        : inputPool.tokens;
       return connectedTokens.filter(
         (tokenId) => tokenId !== fromTokenId && !swimUsdRegExp.test(tokenId),
       );

@@ -4,8 +4,8 @@ import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
-import { getSolanaTokenDetails } from "../../config";
+import type { PoolSpec, SolanaPoolSpec, TokenSpec } from "../../config";
+import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { findTokenAccountForMint, getPoolUsdValue } from "../../models";
@@ -49,7 +49,7 @@ const constructPool = (
   );
   const lpTokenMintAddress = getSolanaTokenDetails(lpToken).address;
 
-  const tokens = [...poolSpec.tokenAccounts.keys()].map(
+  const tokens = poolSpec.tokens.map(
     (tokenId) =>
       allTokens.find((tokenSpec) => tokenSpec.id === tokenId) ?? null,
   );
@@ -99,7 +99,12 @@ export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
   const poolStates = usePoolStates(poolSpecs);
   const lpMints = usePoolLpMints(poolSpecs);
   const liquidityQueries = useLiquidityQueries(
-    poolSpecs.map((poolSpec) => [...poolSpec.tokenAccounts.values()]),
+    poolSpecs
+      .filter(
+        (poolSpec): poolSpec is SolanaPoolSpec =>
+          poolSpec.ecosystem === EcosystemId.Solana,
+      )
+      .map((poolSpec) => [...poolSpec.tokenAccounts.values()]),
   );
 
   return poolSpecs.map((poolSpec, i) =>

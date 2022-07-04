@@ -3,7 +3,7 @@ import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import type Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
-import type { Env, PoolSpec } from "../../config";
+import type { Env, SolanaPoolSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
@@ -43,7 +43,7 @@ export const doSinglePoolOperation = async (
   wallet: SolanaWalletAdapter,
   splTokenAccounts: readonly TokenAccount[],
   tokensByPoolId: TokensByPoolId,
-  poolSpec: PoolSpec,
+  poolSpec: SolanaPoolSpec,
   operation: OperationSpec,
 ): Promise<string> => {
   const walletAddress = wallet.publicKey?.toBase58() ?? null;
@@ -226,7 +226,7 @@ async function* generatePoolOperationTxs(
   wallet: SolanaWalletAdapter,
   splTokenAccounts: readonly TokenAccount[],
   tokensByPoolId: TokensByPoolId,
-  poolSpecs: readonly PoolSpec[],
+  poolSpecs: readonly SolanaPoolSpec[],
   interaction: Interaction,
   operations: readonly OperationSpec[],
   existingTxs: TxsByPoolId,
@@ -318,40 +318,3 @@ export interface PoolOperationsInput {
   readonly operations: readonly OperationSpec[];
   readonly existingTxs: TxsByPoolId;
 }
-
-export const usePoolOperationsGenerator = (): UseAsyncGeneratorResult<
-  PoolOperationsInput,
-  TxWithPoolId
-> => {
-  const { env } = useEnvironment();
-  const config = useEnvironment(selectConfig, shallow);
-  const tokensByPoolId = getTokensByPool(config);
-  const solanaConnection = useSolanaConnection();
-  const { wallet } = useSolanaWallet();
-  const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
-
-  return useAsyncGenerator<PoolOperationsInput, TxWithPoolId>(
-    async ({ interaction, operations, existingTxs }) => {
-      const poolSpecs = getRequiredPools(config.pools, interaction);
-      if (wallet === null) {
-        throw new Error("Missing Solana wallet");
-      }
-      if (splTokenAccounts === null) {
-        throw new Error(
-          "SPL token accounts not loaded, please try again later",
-        );
-      }
-      return generatePoolOperationTxs(
-        env,
-        solanaConnection,
-        wallet,
-        splTokenAccounts,
-        tokensByPoolId,
-        poolSpecs,
-        interaction,
-        operations,
-        existingTxs,
-      );
-    },
-  );
-};

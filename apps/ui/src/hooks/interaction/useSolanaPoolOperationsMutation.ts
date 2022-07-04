@@ -2,6 +2,7 @@ import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import { useSolanaWallet, useSplTokenAccountsQuery } from "..";
+import { EcosystemId } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import { getTokensByPool } from "../../models";
@@ -46,6 +47,10 @@ export const useSolanaPoolOperationsMutation = () => {
       pools,
       (spec) => spec.id === inputOperation.poolId,
     );
+    if (inputPoolSpec.ecosystem !== EcosystemId.Solana) {
+      throw new Error("Expect Solana pool");
+    }
+
     let inputTxId = inputState.txId;
     if (inputTxId === null) {
       inputTxId = await doSinglePoolOperation(
@@ -87,6 +92,9 @@ export const useSolanaPoolOperationsMutation = () => {
       pools,
       (spec) => spec.id === outputOperation.poolId,
     );
+    if (outputPoolSpec.ecosystem !== EcosystemId.Solana) {
+      throw new Error("Expect Solana pool");
+    }
     const outputTxId = await doSinglePoolOperation(
       env,
       solanaConnection,

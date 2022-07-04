@@ -22,7 +22,7 @@ import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
 interface CrossChainResult {
   readonly solanaTxIds: readonly string[];
   readonly ethereumTxIds: readonly string[];
-  readonly bscTxIds: readonly string[];
+  readonly bnbTxIds: readonly string[];
 }
 
 export interface AttestationResult {
@@ -120,7 +120,7 @@ export const setUpSplTokensOnEvm = async (
   return {
     solanaTxIds: attestations.map(({ txId }) => txId),
     ethereumTxIds: evmChain.ecosystem === EcosystemId.Ethereum ? evmTxIds : [],
-    bscTxIds: evmChain.ecosystem === EcosystemId.Bsc ? evmTxIds : [],
+    bnbTxIds: evmChain.ecosystem === EcosystemId.Bnb ? evmTxIds : [],
   };
 };
 
@@ -220,6 +220,6 @@ export const setUpErc20Tokens = async (
   return {
     solanaTxIds,
     ethereumTxIds: evmChain.ecosystem === EcosystemId.Ethereum ? evmTxIds : [],
-    bscTxIds: evmChain.ecosystem === EcosystemId.Bsc ? evmTxIds : [],
+    bnbTxIds: evmChain.ecosystem === EcosystemId.Bnb ? evmTxIds : [],
   };
 };

@@ -15,7 +15,7 @@ const getHref = (ecosystemId: EcosystemId, txId: string): string => {
       return `https://solana.fm/tx/${txId}`;
     case EcosystemId.Ethereum:
       return `https://etherscan.io/tx/${txId}`;
-    case EcosystemId.Bsc:
+    case EcosystemId.Bnb:
       return `https://bscscan.com/tx/${txId}`;
     case EcosystemId.Avalanche:
       return `https://snowtrace.io/tx/${txId}`;

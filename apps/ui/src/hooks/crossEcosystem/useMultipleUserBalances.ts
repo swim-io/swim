@@ -16,7 +16,7 @@ const getContractAddressesByEcosystem = (
       const [
         solanaAddress,
         ethereumAddress,
-        bscAddress,
+        bnbAddress,
         avalancheAddress,
         polygonAddress,
         auroraAddress,
@@ -26,7 +26,7 @@ const getContractAddressesByEcosystem = (
       ] = [
         EcosystemId.Solana,
         EcosystemId.Ethereum,
-        EcosystemId.Bsc,
+        EcosystemId.Bnb,
         EcosystemId.Avalanche,
         EcosystemId.Polygon,
         EcosystemId.Aurora,
@@ -43,9 +43,9 @@ const getContractAddressesByEcosystem = (
         [EcosystemId.Ethereum]: ethereumAddress
           ? [...accumulator.ethereum, ethereumAddress]
           : accumulator.ethereum,
-        [EcosystemId.Bsc]: bscAddress
-          ? [...accumulator.bsc, bscAddress]
-          : accumulator.bsc,
+        [EcosystemId.Bnb]: bnbAddress
+          ? [...accumulator.bnb, bnbAddress]
+          : accumulator.bnb,
         [EcosystemId.Avalanche]: avalancheAddress
           ? [...accumulator.avalanche, avalancheAddress]
           : accumulator.avalanche,
@@ -69,7 +69,7 @@ const getContractAddressesByEcosystem = (
     {
       [EcosystemId.Solana]: [],
       [EcosystemId.Ethereum]: [],
-      [EcosystemId.Bsc]: [],
+      [EcosystemId.Bnb]: [],
       [EcosystemId.Avalanche]: [],
       [EcosystemId.Polygon]: [],
       [EcosystemId.Aurora]: [],
@@ -110,7 +110,7 @@ export const useMultipleUserBalances = (
   const {
     solana,
     ethereum,
-    bsc,
+    bnb,
     avalanche,
     polygon,
     aurora,
@@ -133,7 +133,7 @@ export const useMultipleUserBalances = (
     EcosystemId.Ethereum,
     ethereum,
   );
-  const bscBalances = useErc20BalancesQuery(EcosystemId.Bsc, bsc);
+  const bnbBalances = useErc20BalancesQuery(EcosystemId.Bnb, bnb);
   const avalancheBalances = useErc20BalancesQuery(
     EcosystemId.Avalanche,
     avalanche,
@@ -168,12 +168,12 @@ export const useMultipleUserBalances = (
             ethereum,
           );
         }
-        case EcosystemId.Bsc: {
+        case EcosystemId.Bnb: {
           return getEvmTokenIdAndBalance(
             tokenSpec,
-            EcosystemId.Bsc,
-            bscBalances,
-            bsc,
+            EcosystemId.Bnb,
+            bnbBalances,
+            bnb,
           );
         }
         case EcosystemId.Avalanche: {

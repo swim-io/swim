@@ -36,7 +36,7 @@ describe("Amount", () => {
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [EcosystemId.Solana, { address: "xxx", decimals: 8 }],
-      [EcosystemId.Bsc, { address: "xxx", decimals: 18 }],
+      [EcosystemId.Bnb, { address: "xxx", decimals: 18 }],
     ]),
   };
   const defaultStablecoinTokenSpec: TokenSpec = {
@@ -48,7 +48,7 @@ describe("Amount", () => {
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [EcosystemId.Solana, { address: "xxx", decimals: 8 }],
-      [EcosystemId.Bsc, { address: "xxx", decimals: 18 }],
+      [EcosystemId.Bnb, { address: "xxx", decimals: 18 }],
     ]),
   };
   const defaultEcosystemId = EcosystemId.Solana;
@@ -95,7 +95,7 @@ describe("Amount", () => {
         ).toBe(true);
         expect(
           amount
-            .toAtomic(EcosystemId.Bsc)
+            .toAtomic(EcosystemId.Bnb)
             .equals(new Decimal("123456789000000000000000")),
         ).toBe(true);
       });
@@ -129,7 +129,7 @@ describe("Amount", () => {
         ).toBe(true);
         expect(
           amount
-            .toHuman(EcosystemId.Bsc)
+            .toHuman(EcosystemId.Bnb)
             .equals(new Decimal("123456.789000000000000000")),
         ).toBe(true);
       });
@@ -161,7 +161,7 @@ describe("Amount", () => {
         ).toBe(true);
         expect(
           amount
-            .toAtomicBn(EcosystemId.Bsc)
+            .toAtomicBn(EcosystemId.Bnb)
             .eq(new BN("123456789000000000000000")),
         ).toBe(true);
       });
@@ -191,7 +191,7 @@ describe("Amount", () => {
         expect(amount.toAtomicString(EcosystemId.Solana)).toBe(
           "12345678900000",
         );
-        expect(amount.toAtomicString(EcosystemId.Bsc)).toBe(
+        expect(amount.toAtomicString(EcosystemId.Bnb)).toBe(
           "123456789000000000000000",
         );
       });
@@ -219,7 +219,7 @@ describe("Amount", () => {
           defaultEcosystemId,
         );
         expect(amount.toHumanString(EcosystemId.Solana)).toBe("123456.789");
-        expect(amount.toHumanString(EcosystemId.Bsc)).toBe("123456.789");
+        expect(amount.toHumanString(EcosystemId.Bnb)).toBe("123456.789");
       });
 
       it(`throws for unknown ecosystem for Amount constructed via ${method}`, () => {
@@ -247,7 +247,7 @@ describe("Amount", () => {
         expect(amount.toFormattedHumanString(EcosystemId.Solana)).toBe(
           "123,456.789",
         );
-        expect(amount.toFormattedHumanString(EcosystemId.Bsc)).toBe(
+        expect(amount.toFormattedHumanString(EcosystemId.Bnb)).toBe(
           "123,456.789",
         );
       });
@@ -261,7 +261,7 @@ describe("Amount", () => {
         expect(amount.toFormattedHumanString(EcosystemId.Solana)).toBe(
           "123,456.79",
         );
-        expect(amount.toFormattedHumanString(EcosystemId.Bsc)).toBe(
+        expect(amount.toFormattedHumanString(EcosystemId.Bnb)).toBe(
           "123,456.79",
         );
       });

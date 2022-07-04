@@ -26,8 +26,8 @@ export type Provider =
   | PolkadotProvider;
 
 // TODO: Use proper endpoints via env
-const BSC_MAINNET_RPC_URL = process.env.REACT_APP_BSC_MAINNET_RPC_URL;
-const BSC_TESTNET_RPC_URL = process.env.REACT_APP_BSC_TESTNET_RPC_URL;
+const BNB_MAINNET_RPC_URL = process.env.REACT_APP_BNB_MAINNET_RPC_URL;
+const BNB_TESTNET_RPC_URL = process.env.REACT_APP_BNB_TESTNET_RPC_URL;
 
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
 const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
@@ -115,18 +115,18 @@ const getAuroraScanNetwork = (env: Env): AuroraNetwork => {
   }
 };
 
-const getBscRpcUrl = (env: Env): string => {
+const getBnbRpcUrl = (env: Env): string => {
   switch (env) {
     case Env.Mainnet:
-      if (BSC_MAINNET_RPC_URL === undefined) {
-        throw new Error("BSC_MAINNET_RPC_URL is not set");
+      if (BNB_MAINNET_RPC_URL === undefined) {
+        throw new Error("BNB_MAINNET_RPC_URL is not set");
       }
-      return BSC_MAINNET_RPC_URL;
+      return BNB_MAINNET_RPC_URL;
     case Env.Devnet:
-      if (BSC_TESTNET_RPC_URL === undefined) {
-        throw new Error("BSC_TESTNET_RPC_URL is not set");
+      if (BNB_TESTNET_RPC_URL === undefined) {
+        throw new Error("BNB_TESTNET_RPC_URL is not set");
       }
-      return BSC_TESTNET_RPC_URL;
+      return BNB_TESTNET_RPC_URL;
     default:
       throw new Error(`${env} not supported by Moralis Provider`);
   }
@@ -182,7 +182,7 @@ export class EvmConnection {
         return new LocalnetProvider(rpcUrls[0]);
       case EcosystemId.Aurora:
       case EcosystemId.Fantom:
-      case EcosystemId.Bsc:
+      case EcosystemId.Bnb:
       case EcosystemId.Avalanche:
       case EcosystemId.Ethereum:
       case EcosystemId.Polygon:
@@ -216,9 +216,9 @@ export class EvmConnection {
           getEtherscanNetwork(env),
           ETHERSCAN_API_KEY,
         );
-      case EcosystemId.Bsc:
+      case EcosystemId.Bnb:
         try {
-          return new MoralisProvider(env, getBscRpcUrl(env), MORALIS_ID);
+          return new MoralisProvider(env, getBnbRpcUrl(env), MORALIS_ID);
         } catch (error) {
           // Fall back to basic Bscscan provider with no API key
           // This is useful eg for coding challenges

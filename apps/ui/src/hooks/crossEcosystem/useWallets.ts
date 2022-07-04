@@ -9,7 +9,7 @@ import { useSolanaWallet } from "../solana/useSolanaWallet";
 export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
   readonly [EcosystemId.Solana]: SolanaWalletInterface;
   readonly [EcosystemId.Ethereum]: EvmWalletInterface;
-  readonly [EcosystemId.Bsc]: EvmWalletInterface;
+  readonly [EcosystemId.Bnb]: EvmWalletInterface;
   readonly [EcosystemId.Avalanche]: EvmWalletInterface;
   readonly [EcosystemId.Polygon]: EvmWalletInterface;
   readonly [EcosystemId.Aurora]: EvmWalletInterface;
@@ -21,7 +21,7 @@ export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
 export const useWallets = (): Wallets => ({
   [EcosystemId.Solana]: useSolanaWallet(),
   [EcosystemId.Ethereum]: useEvmWallet(),
-  [EcosystemId.Bsc]: useEvmWallet(),
+  [EcosystemId.Bnb]: useEvmWallet(),
   [EcosystemId.Avalanche]: useEvmWallet(),
   [EcosystemId.Polygon]: useEvmWallet(),
   [EcosystemId.Aurora]: useEvmWallet(),

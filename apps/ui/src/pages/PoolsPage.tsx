@@ -129,7 +129,7 @@ const PoolsPage = (): ReactElement => {
   ).map((token) => ({
     value: token.symbol,
     inputDisplay: (
-      <EuiFlexGroup gutterSize="none" alignItems="center">
+      <EuiFlexGroup gutterSize="none" alignItems="center" responsive={false}>
         <EuiFlexItem grow={false} style={{ marginRight: 20 }}>
           <img src={token.icon} alt={token.displayName} width={20} />
         </EuiFlexItem>
@@ -148,7 +148,7 @@ const PoolsPage = (): ReactElement => {
   const selectEcosystemOptions = enabledEcosystems.map((ecosystem) => ({
     value: ecosystem.id,
     inputDisplay: (
-      <EuiFlexGroup gutterSize="none" alignItems="center">
+      <EuiFlexGroup gutterSize="none" alignItems="center" responsive={false}>
         <EuiFlexItem grow={false} style={{ marginRight: 20 }}>
           <img src={ecosystem.logo} alt={ecosystem.displayName} width={20} />
         </EuiFlexItem>

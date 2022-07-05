@@ -1,8 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
 
+import { isSolanaPool } from "../models";
 import { getUniqueSize } from "../utils";
 
-import { EcosystemId } from "./ecosystem";
 import { Env } from "./env";
 import { POOLS as poolsByEnv } from "./pools";
 import type { SolanaPoolSpec } from "./pools";
@@ -12,9 +12,7 @@ const generateSuite = (env: Env): void => {
   const title = env.toString();
   const pools = poolsByEnv[env];
   const tokens = tokensByEnv[env];
-  const solanaPools = pools.filter(
-    (pool): pool is SolanaPoolSpec => pool.ecosystem === EcosystemId.Solana,
-  );
+  const solanaPools = pools.filter(isSolanaPool);
 
   // eslint-disable-next-line jest/valid-title
   describe(title, () => {
@@ -87,6 +85,12 @@ const generateSuite = (env: Env): void => {
       expect(() =>
         tokenAccountAddresses.forEach((address) => new PublicKey(address)),
       ).not.toThrow();
+    });
+
+    it("should have token account addresses for each token in Solana pool", () => {
+      const hasValidTokenAccounts = (pool: SolanaPoolSpec) =>
+        pool.tokens.every((token) => pool.tokenAccounts.has(token));
+      expect(() => solanaPools.forEach(hasValidTokenAccounts)).not.toThrow();
     });
   });
 };

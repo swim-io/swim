@@ -10,7 +10,7 @@ export interface BasePoolSpec {
   readonly displayName: string;
   readonly isStakingPool: boolean;
   readonly isStableSwap: boolean;
-  readonly address: string; // state account on Solana, I guess proxy contract address on EVM?
+  readonly address: string; // canonical address which individuates the pool
   readonly feeDecimals: number;
   readonly lpToken: string; // token ID
   readonly tokens: readonly string[]; // token IDs
@@ -22,8 +22,6 @@ export interface SolanaPoolSpec extends BasePoolSpec {
   readonly contract: string; // the Swim program ID
   /**
    * Maps token IDs to addresses of token accounts owned by the pool
-   * Keys encode which tokens are included in the pool
-   * Size encodes how many tokens are in the pool
    */
   readonly tokenAccounts: ReadonlyMap<string, string>;
   readonly authority: string;

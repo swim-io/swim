@@ -3,8 +3,8 @@ import { useMutation, useQueryClient } from "react-query";
 import { useInteractionState } from "../../core/store";
 
 import { useFromSolanaTransferMutation } from "./useFromSolanaTransferMutation";
-import { useSolanaPoolOperationsMutation } from "./usePoolOperationsMutation";
 import { usePrepareSplTokenAccountMutation } from "./usePrepareSplTokenAccountMutation";
+import { useSolanaPoolOperationsMutation } from "./useSolanaPoolOperationsMutation";
 import { useToSolanaTransferMutation } from "./useToSolanaTransferMutation";
 
 export const INTERACTION_MUTATION_KEY = ["interactionMutation"];

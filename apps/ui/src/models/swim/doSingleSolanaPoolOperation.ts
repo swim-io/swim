@@ -4,25 +4,24 @@ import type Decimal from "decimal.js";
 
 import type { Env, SolanaPoolSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
-import type {
-  Interaction,
-  OperationSpec,
-  SolanaConnection,
-  SolanaWalletAdapter,
-  TokensByPoolId,
-} from "../../models";
+import { findOrThrow } from "../../utils";
+import { Amount } from "../amount";
+import type { SolanaConnection } from "../solana";
 import {
-  Amount,
-  SwimDefiInstruction,
-  SwimDefiInstructor,
   findTokenAccountForMint,
   getAmountMintedToAccountByMint,
   getAmountTransferredToAccountByMint,
-  getPoolState,
-} from "../../models";
-import { findOrThrow } from "../../utils";
+} from "../solana";
+import type { SolanaWalletAdapter } from "../wallets";
 
-export const doSinglePoolOperation = async (
+import { SwimDefiInstructor } from "./SwimDefiInstructor";
+import { SwimDefiInstruction } from "./instructions";
+import type { Interaction } from "./interaction";
+import type { OperationSpec } from "./operation";
+import type { TokensByPoolId } from "./pool";
+import { getPoolState } from "./pool";
+
+export const doSingleSolanaPoolOperation = async (
   env: Env,
   solanaConnection: SolanaConnection,
   wallet: SolanaWalletAdapter,

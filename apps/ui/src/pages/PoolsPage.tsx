@@ -18,7 +18,7 @@ import shallow from "zustand/shallow.js";
 
 import { atomicToTvlString, u64ToDecimal } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
-import type { PoolSpec, SolanaPoolSpec } from "../config";
+import type { PoolSpec } from "../config";
 import {
   EcosystemId,
   getSolanaTokenDetails,
@@ -32,15 +32,14 @@ import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
 import USDC_SVG from "../images/tokens/usdc.svg";
 import USDT_SVG from "../images/tokens/usdt.svg";
 import USN_SVG from "../images/tokens/usn.svg";
+import { isSolanaPool } from "../models";
 import { filterMap, findOrThrow } from "../utils";
 
 const PoolsPage = (): ReactElement => {
   useTitle("Pools");
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
 
-  const solanaPools = pools.filter(
-    (pool): pool is SolanaPoolSpec => pool.ecosystem === EcosystemId.Solana,
-  );
+  const solanaPools = pools.filter(isSolanaPool);
 
   const allPoolTokenAccountAddresses = solanaPools.flatMap((poolSpec) => [
     ...poolSpec.tokenAccounts.values(),

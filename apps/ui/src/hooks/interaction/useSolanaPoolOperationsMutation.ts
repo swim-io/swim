@@ -5,13 +5,13 @@ import { useSolanaWallet, useSplTokenAccountsQuery } from "..";
 import { EcosystemId } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
-import { getTokensByPool } from "../../models";
+import {
+  doSingleSolanaPoolOperation,
+  getTokensByPool,
+  setOutputOperationInputAmount,
+} from "../../models";
 import { findOrThrow, isNotNull } from "../../utils";
 import { useSolanaConnection } from "../solana";
-import {
-  doSinglePoolOperation,
-  setOutputOperationInputAmount,
-} from "../swim/usePoolOperationsGenerator";
 
 export const useSolanaPoolOperationsMutation = () => {
   const { env } = useEnvironment();
@@ -53,7 +53,7 @@ export const useSolanaPoolOperationsMutation = () => {
 
     let inputTxId = inputState.txId;
     if (inputTxId === null) {
-      inputTxId = await doSinglePoolOperation(
+      inputTxId = await doSingleSolanaPoolOperation(
         env,
         solanaConnection,
         wallet,
@@ -79,7 +79,13 @@ export const useSolanaPoolOperationsMutation = () => {
     if (outputState.txId !== null) {
       return;
     }
-
+    const outputPoolSpec = findOrThrow(
+      pools,
+      (spec) => spec.id === outputOperation.poolId,
+    );
+    if (outputPoolSpec.ecosystem !== EcosystemId.Solana) {
+      throw new Error("Expect Solana pool");
+    }
     const parsedInputTx = await solanaConnection.getParsedTx(inputTxId);
     const outputOperation = setOutputOperationInputAmount(
       splTokenAccounts,
@@ -88,14 +94,7 @@ export const useSolanaPoolOperationsMutation = () => {
       outputState.operation,
       parsedInputTx,
     );
-    const outputPoolSpec = findOrThrow(
-      pools,
-      (spec) => spec.id === outputOperation.poolId,
-    );
-    if (outputPoolSpec.ecosystem !== EcosystemId.Solana) {
-      throw new Error("Expect Solana pool");
-    }
-    const outputTxId = await doSinglePoolOperation(
+    const outputTxId = await doSingleSolanaPoolOperation(
       env,
       solanaConnection,
       wallet,

@@ -11,3 +11,4 @@ export * from "./utils";
 export * from "./interactionState";
 export * from "./getNextTxInfo";
 export * from "./transfer";
+export * from "./doSingleSolanaPoolOperation";

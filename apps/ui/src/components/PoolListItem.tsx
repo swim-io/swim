@@ -5,11 +5,12 @@ import {
   EuiIcon,
   EuiSpacer,
   EuiStat,
-  EuiText,
+  EuiTitle,
   EuiToolTip,
 } from "@elastic/eui";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
+import { createElement } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { atomicToHumanString } from "../amounts";
@@ -19,20 +20,23 @@ import { groupBy } from "../utils";
 
 import { TokenIcon } from "./TokenIcon";
 
-// TODO: Make code DRY.
+const titleSize = "xs";
+const titleElement = "h3";
+
 const appendConstantSwapIcon = (poolName: string): string | ReactElement => {
   return (
-    <EuiText>
-      <h3>
-        {poolName + "  "}
+    <EuiTitle size={titleSize}>
+      {createElement(titleElement, {}, [
+        poolName,
         <EuiToolTip
+          key="tooltip"
           position="right"
           content="This pool uses a constant product curve, prices deviate from 1:1."
         >
           <EuiIcon size="l" type="questionInCircle" color="primary" />
-        </EuiToolTip>
-      </h3>
-    </EuiText>
+        </EuiToolTip>,
+      ])}
+    </EuiTitle>
   );
 };
 
@@ -71,6 +75,8 @@ export const PoolListItem = ({
       }
       isDisabled={!!betaBadgeLabel}
       betaBadgeLabel={betaBadgeLabel}
+      titleSize={titleSize}
+      titleElement={titleElement}
     >
       <EuiSpacer size="m" />
       <EuiFlexGroup
@@ -96,7 +102,7 @@ export const PoolListItem = ({
                         iconType: ecosystem.logo,
                       }}
                       hasBorder
-                      paddingSize="m"
+                      paddingSize="s"
                     >
                       {tokens.map((tokenSpec) => (
                         <div
@@ -118,7 +124,7 @@ export const PoolListItem = ({
             <EuiStat
               title={`$${atomicToHumanString(totalUsd, 2)}`}
               description=""
-              titleSize="s"
+              titleSize={titleSize}
               isLoading={totalUsd.eq(new Decimal(-1))}
             />
           )}

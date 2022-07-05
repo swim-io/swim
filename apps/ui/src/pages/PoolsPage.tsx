@@ -184,11 +184,12 @@ const PoolsPage = (): ReactElement => {
   });
 
   const isUnfiltered = tokenSymbol === "all" && ecosystemId === "all";
+  const listSpacerSize = "l";
 
   const content = isLoading ? (
     <EuiFlexGroup justifyContent="center">
       <EuiFlexItem grow={false}>
-        <EuiSpacer size="xxl" />
+        <EuiSpacer size={listSpacerSize} />
         <EuiLoadingSpinner size="xl" />
       </EuiFlexItem>
     </EuiFlexGroup>
@@ -206,7 +207,7 @@ const PoolsPage = (): ReactElement => {
                 totalUsd={poolUsdTotals[pool.id]}
                 isStableSwap={pool.isStableSwap}
               />
-              <EuiSpacer size="xxl" />
+              <EuiSpacer size={listSpacerSize} />
             </Fragment>
           ),
           poolsByTvl,
@@ -223,7 +224,7 @@ const PoolsPage = (): ReactElement => {
       {isEcosystemEnabled(EcosystemId.Aurora) ||
         (isUnfiltered && (
           <>
-            <EuiSpacer size="xxl" />
+            <EuiSpacer size={listSpacerSize} />
 
             <PoolListItem
               poolName="Aurora USDC Meta-Pool"
@@ -250,7 +251,7 @@ const PoolsPage = (): ReactElement => {
               ]}
             />
 
-            <EuiSpacer size="xxl" />
+            <EuiSpacer size={listSpacerSize} />
 
             <PoolListItem
               poolName="Aurora USDT Meta-Pool"
@@ -277,7 +278,7 @@ const PoolsPage = (): ReactElement => {
               ]}
             />
 
-            <EuiSpacer size="xxl" />
+            <EuiSpacer size={listSpacerSize} />
 
             <PoolListItem
               poolName="Aurora USN Meta-Pool"
@@ -309,7 +310,7 @@ const PoolsPage = (): ReactElement => {
       {isEcosystemEnabled(EcosystemId.Fantom) ||
         (isUnfiltered && (
           <>
-            <EuiSpacer size="xxl" />
+            <EuiSpacer size={listSpacerSize} />
 
             <PoolListItem
               poolName="Fantom USDC Meta-Pool"
@@ -341,7 +342,7 @@ const PoolsPage = (): ReactElement => {
       {isEcosystemEnabled(EcosystemId.Karura) ||
         (isUnfiltered && (
           <>
-            <EuiSpacer size="xxl" />
+            <EuiSpacer size={listSpacerSize} />
 
             <PoolListItem
               poolName="Karura aUSD Meta-Pool"
@@ -368,7 +369,7 @@ const PoolsPage = (): ReactElement => {
               ]}
             />
 
-            <EuiSpacer size="xxl" />
+            <EuiSpacer size={listSpacerSize} />
 
             <PoolListItem
               poolName="Karura USDT Meta-Pool"
@@ -400,7 +401,7 @@ const PoolsPage = (): ReactElement => {
       {isEcosystemEnabled(EcosystemId.Acala) ||
         (isUnfiltered && (
           <>
-            <EuiSpacer size="xxl" />
+            <EuiSpacer size={listSpacerSize} />
 
             <PoolListItem
               poolName="Acala aUSD Meta-Pool"

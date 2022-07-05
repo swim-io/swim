@@ -1,12 +1,21 @@
-import { EuiBadge, EuiSpacer, EuiSteps, EuiText, EuiTitle } from "@elastic/eui";
+import {
+  EuiBadge,
+  EuiButton,
+  EuiSpacer,
+  EuiSteps,
+  EuiText,
+  EuiTitle,
+} from "@elastic/eui";
 import moment from "moment";
 import type React from "react";
+import { useEffect, useState } from "react";
 
 import {
   InteractionStatus,
   useInteractionStatus,
 } from "../../hooks/interaction";
 import { useEuiStepPropsForInteraction } from "../../hooks/interaction/useEuiStepPropsForInteraction";
+import { useReloadInteractionStateMutation } from "../../hooks/interaction/useReloadInteractionStateMutation";
 import type { InteractionState } from "../../models";
 import { isNotNull } from "../../utils";
 
@@ -24,6 +33,20 @@ export const InteractionStateComponent: React.FC<Props> = ({
   const interactionStatus = useInteractionStatus(interactionState);
   const steps = useEuiStepPropsForInteraction(interactionState);
   const timeInMoment = moment(interaction.submittedAt);
+  const { mutate: reloadInteractionState } =
+    useReloadInteractionStateMutation();
+  const [needReload, setNeedReload] = useState(
+    interactionStatus === InteractionStatus.Incomplete,
+  );
+
+  useEffect(() => {
+    if (needReload) {
+      reloadInteractionState(interaction.id, {
+        onSettled: () => setNeedReload(false),
+      });
+    }
+  }, [interaction.id, needReload, reloadInteractionState]);
+
   return (
     <>
       <EuiTitle size="xs">
@@ -40,7 +63,13 @@ export const InteractionStateComponent: React.FC<Props> = ({
         className="actionSteps"
         steps={steps.filter(isNotNull)}
       />
-      <InteractionRetryCallout interactionState={interactionState} />
+      {needReload ? (
+        <EuiButton size="s" isLoading={true}>
+          Loading
+        </EuiButton>
+      ) : (
+        <InteractionRetryCallout interactionState={interactionState} />
+      )}
       {interactionStatus === InteractionStatus.Completed && (
         <EuiBadge color="success" iconType="check">
           Completed

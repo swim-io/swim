@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { Protocol, configs } from "../../../config";
+import { CONFIGS, Protocol } from "../../../config";
 import { Env, useEnvironment, useWalletAdapter } from "../../../core/store";
 import {
   WalletServiceId,
@@ -27,11 +27,11 @@ const createAdapterMock = mockOf(createAdapter);
 
 describe("useWalletService", () => {
   beforeEach(() => {
-    useEnvironmentMock.mockReturnValue(configs[Env.Localnet]);
+    useEnvironmentMock.mockReturnValue(CONFIGS[Env.Localnet]);
   });
 
   it("should call useWalletAdapter connectService with the correct createAdapter", async () => {
-    const config = configs[Env.Localnet];
+    const config = CONFIGS[Env.Localnet];
     const [{ endpoint }] = config.chains[Protocol.Solana];
 
     const connectServiceMock = jest.fn();

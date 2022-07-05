@@ -3,9 +3,9 @@ import type { ReactElement } from "react";
 
 import type { Ecosystem } from "../../config";
 import {
+  ECOSYSTEMS,
   EcosystemId,
   Protocol,
-  ecosystems,
   getEcosystemsForProtocol,
 } from "../../config";
 import LEDGER_ICON from "../../images/wallets/ledger.svg";
@@ -66,37 +66,37 @@ const solletInfo: WalletServiceInfo = {
   name: "Sollet",
   url: "https://www.sollet.io",
   icon: `${OYSTER_ASSETS_URL}sollet.svg`,
-  ecosystem: ecosystems[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
 };
 const solongInfo: WalletServiceInfo = {
   name: "Solong",
   url: "https://solongwallet.com",
   icon: `${OYSTER_ASSETS_URL}solong.png`,
-  ecosystem: ecosystems[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
 };
 const solflareInfo: WalletServiceInfo = {
   name: "Solflare",
   url: "https://solflare.com/access-wallet",
   icon: `${OYSTER_ASSETS_URL}solflare.svg`,
-  ecosystem: ecosystems[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
 };
 const mathWalletInfo: WalletServiceInfo = {
   name: "MathWallet",
   url: "https://www.mathwallet.org",
   icon: MATHWALLET_ICON,
-  ecosystem: ecosystems[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
 };
 const ledgerInfo: WalletServiceInfo = {
   name: "Ledger",
   url: "https://www.ledger.com",
   icon: LEDGER_ICON,
-  ecosystem: ecosystems[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
 };
 const phantomInfo: WalletServiceInfo = {
   name: "Phantom",
   url: "https://phantom.app",
   icon: PHANTOM_ICON,
-  ecosystem: ecosystems[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
 };
 
 const metaMaskInfo: Omit<WalletServiceInfo, "ecosystem"> = {
@@ -129,42 +129,42 @@ const addMetaMaskEcosystemInfo = (
 
 const ethereumMetaMaskInfo: WalletServiceInfo = {
   ...metaMaskInfo,
-  ecosystem: ecosystems[EcosystemId.Ethereum],
+  ecosystem: ECOSYSTEMS[EcosystemId.Ethereum],
 };
 
 const bnbMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ecosystems[EcosystemId.Bnb],
+  ECOSYSTEMS[EcosystemId.Bnb],
   "https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain",
 );
 const avalancheMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ecosystems[EcosystemId.Avalanche],
+  ECOSYSTEMS[EcosystemId.Avalanche],
   "https://support.avax.network/en/articles/4626956-how-do-i-set-up-metamask-on-avalanche",
 );
 const polygonMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ecosystems[EcosystemId.Polygon],
+  ECOSYSTEMS[EcosystemId.Polygon],
   "https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/",
 );
 const auroraMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ecosystems[EcosystemId.Aurora],
+  ECOSYSTEMS[EcosystemId.Aurora],
   "https://doc.aurora.dev/interact/metamask/",
 );
 const fantomMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ecosystems[EcosystemId.Fantom],
+  ECOSYSTEMS[EcosystemId.Fantom],
   "https://docs.fantom.foundation/tutorials/set-up-metamask",
 );
 const karuraMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ecosystems[EcosystemId.Karura],
+  ECOSYSTEMS[EcosystemId.Karura],
   "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network",
 );
 const acalaMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ecosystems[EcosystemId.Acala],
+  ECOSYSTEMS[EcosystemId.Acala],
   "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network",
 );
 

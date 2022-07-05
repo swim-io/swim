@@ -9,9 +9,9 @@ import shallow from "zustand/shallow.js";
 
 import type { EvmEcosystemId } from "../../config";
 import {
+  ECOSYSTEMS,
   EcosystemId,
   Protocol,
-  ecosystems,
   getSolanaTokenDetails,
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
@@ -184,16 +184,21 @@ export const useToSolanaTransferMutation = () => {
         continue;
       }
 
+      const signatureKeyPair = Keypair.generate();
+      updateInteractionState(interactionId, (draft) => {
+        draft.toSolanaTransfers[index].signatureSetAddress =
+          signatureKeyPair.publicKey.toBase58();
+      });
       const unlockSplTokenTxIdsGenerator = generateUnlockSplTokenTxIds(
         interactionId,
         wormhole.endpoint,
-        ecosystems[fromEcosystem].wormholeChainId,
+        ECOSYSTEMS[fromEcosystem].wormholeChainId,
         getEmitterAddressEth(evmChain.wormhole.tokenBridge),
         sequence,
         solanaWormhole,
         solanaConnection,
         solanaWallet,
-        Keypair.generate(),
+        signatureKeyPair,
       );
       let unlockSplTokenTxIds: readonly string[] = [];
       for await (const txId of unlockSplTokenTxIdsGenerator) {

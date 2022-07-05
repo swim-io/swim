@@ -1,17 +1,19 @@
 import type { EvmChainConfig, EvmEcosystemConfig } from '@swim-io/evm-config';
 import { Env } from "@swim-io/core-types";
 
-const EthereumEcosystemId = "ethereum";
-const EthereumMainnetChainId = 1;
-const EthereumGoerliChainId = 5;
-const EthereumWormholeChainId = 2;
+export const ETHEREUM_ECOSYSTEM_ID = "ethereum" as const;
+export enum EthereumChainId {
+  Mainnet = 1,
+  Goerli = 5,
+}
+export const ETHEREUM_WORMHOLE_CHAIN_ID = 2 as const;
 
 export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
     [
         Env.Mainnet,
         {
-        ecosystem: EthereumEcosystemId,
-        chainId: EthereumMainnetChainId,
+        ecosystem: ETHEREUM_ECOSYSTEM_ID,
+        chainId: EthereumChainId.Mainnet,
         chainName: "Ethereum Mainnet",
         rpcUrls: ["https://main-light.eth.linkpool.io/"], // TODO: Think about what is best to recommend to MetaMask
         wormholeBridge: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B",
@@ -21,8 +23,8 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
     [
       Env.Devnet,
       {
-        ecosystem: EthereumEcosystemId,
-        chainId: EthereumGoerliChainId,
+        ecosystem: ETHEREUM_ECOSYSTEM_ID,
+        chainId: EthereumChainId.Goerli,
         chainName: "Ethereum Goerli Testnet",
         rpcUrls: ["https://goerli.prylabs.net/"],
         wormholeBridge: "0x706abc4E45D419950511e474C7B9Ed348A4a716c",
@@ -34,9 +36,9 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
 export const createEthereumEcosystemConfig = (
   chains: readonly EvmChainConfig[],
 ): EvmEcosystemConfig => ({
-  id: EthereumEcosystemId,
+  id: ETHEREUM_ECOSYSTEM_ID,
   protocol: "evm" as const,
-  wormholeChainId: EthereumWormholeChainId,
+  wormholeChainId: ETHEREUM_WORMHOLE_CHAIN_ID,
   displayName: "Ethereum",
   gasToken: {
     name: "Ethereum",

@@ -1,17 +1,19 @@
 import type { EvmChainConfig, EvmEcosystemConfig } from '@swim-io/evm-config';
 import { Env } from "@swim-io/core-types";
 
-const KaruraEcosystemId = "karura";
-const KaruraMainnetChainId = 686;
-const KaruraTestnetChainId = 596;
-const KaruraWormholeChainId = 11;
+export const KARURA_ECOSYSTEM_ID = "karura" as const;
+export enum KaruraChainId {
+  Mainnet = 686,
+  Testnet = 596,
+}
+export const KARURA_WORMHOLE_CHAIN_ID = 11 as const;
 
 export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
   [
     Env.Mainnet,
     {
-      ecosystem: KaruraEcosystemId,
-      chainId: KaruraMainnetChainId,
+      ecosystem: KARURA_ECOSYSTEM_ID,
+      chainId: KaruraChainId.Mainnet,
       chainName: "Karura Mainnet",
       rpcUrls: ["https://karura.api.onfinality.io/public-rpc"], // TODO: Think about what is best to recommend to MetaMask
       wormholeBridge: "0xa321448d90d4e5b0A732867c18eA198e75CAC48E",
@@ -21,8 +23,8 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
   [
     Env.Devnet,
     {
-      ecosystem: KaruraEcosystemId,
-      chainId: KaruraTestnetChainId,
+      ecosystem: KARURA_ECOSYSTEM_ID,
+      chainId: KaruraChainId.Testnet,
       chainName: "Karura Testnet",
       rpcUrls: ["https://karura-dev.aca-dev.network/eth/http"], // TODO: Think about what is best to recommend to MetaMask
       wormholeBridge: "0xE4eacc10990ba3308DdCC72d985f2a27D20c7d03",
@@ -34,9 +36,9 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
 export const createKaruraEcosystemConfig = (
   chains: readonly EvmChainConfig[],
 ): EvmEcosystemConfig => ({
-  id: KaruraEcosystemId,
+  id: KARURA_ECOSYSTEM_ID,
   protocol: "evm" as const,
-  wormholeChainId: KaruraWormholeChainId,
+  wormholeChainId: KARURA_WORMHOLE_CHAIN_ID,
   displayName: "Karura",
   gasToken: {
     name: "Karura",

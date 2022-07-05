@@ -1,17 +1,19 @@
 import type { EvmChainConfig, EvmEcosystemConfig } from '@swim-io/evm-config';
 import { Env } from "@swim-io/core-types";
 
-const AuroraEcosystemId = "aurora";
-const AuroraMainnetChainId = 1313161554;
-const AuroraTestnetChainId = 1313161555;
-const AuroraWormholeChainId = 9;
+export const AURORA_ECOSYSTEM_ID = "aurora" as const;
+export enum AuroraChainId {
+  Mainnet = 1313161554,
+  Testnet = 1313161555,
+}
+export const AURORA_WORMHOLE_CHAIN_ID = 9 as const;
 
 export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
   [
     Env.Mainnet,
     {
-      ecosystem: AuroraEcosystemId,
-      chainId: AuroraMainnetChainId,
+      ecosystem: AURORA_ECOSYSTEM_ID,
+      chainId: AuroraChainId.Mainnet,
       chainName: "Aurora Mainnet",
       rpcUrls: ["https://mainnet.aurora.dev/"], // TODO: Think about what is best to recommend to MetaMask
       wormholeBridge: "0xa321448d90d4e5b0A732867c18eA198e75CAC48E",
@@ -21,8 +23,8 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
   [
     Env.Devnet,
     {
-      ecosystem: AuroraEcosystemId,
-      chainId: AuroraTestnetChainId,
+      ecosystem: AURORA_ECOSYSTEM_ID,
+      chainId: AuroraChainId.Testnet,
       chainName: "Aurora Testnet",
       rpcUrls: ["https://testnet.aurora.dev/"], // TODO: Think about what is best to recommend to MetaMask
       wormholeBridge: "0xBd07292de7b505a4E803CEe286184f7Acf908F5e",
@@ -34,9 +36,9 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
 export const createAuroraEcosystemConfig = (
   chains: readonly EvmChainConfig[],
 ): EvmEcosystemConfig => ({
-  id: AuroraEcosystemId,
+  id: AURORA_ECOSYSTEM_ID,
   protocol: "evm" as const,
-  wormholeChainId: AuroraWormholeChainId,
+  wormholeChainId: AURORA_WORMHOLE_CHAIN_ID,
   displayName: "Aurora",
   gasToken: {
     name: "Ethereum",

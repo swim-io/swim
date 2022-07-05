@@ -2179,7 +2179,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/abi@npm:5.6.4":
+"@ethersproject/abi@npm:5.6.4, @ethersproject/abi@npm:^5.6.4":
   version: 5.6.4
   resolution: "@ethersproject/abi@npm:5.6.4"
   dependencies:
@@ -2634,7 +2634,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/providers@npm:5.6.8":
+"@ethersproject/providers@npm:5.6.8, @ethersproject/providers@npm:^5.6.8":
   version: 5.6.8
   resolution: "@ethersproject/providers@npm:5.6.8"
   dependencies:
@@ -4324,6 +4324,13 @@ __metadata:
   version: 7.3.0
   resolution: "@sentry/types@npm:7.3.0"
   checksum: 3ddbc3c7ebf2caad2d97a4c7a25f14791f642f7baadfa3c02857e433c0377ca7e6df4d3fc7e197717f2d6f8fca876178d01c827b5c1b42adba92115c62e18daf
+  languageName: node
+  linkType: hard
+
+"@sentry/types@npm:^7.5.0":
+  version: 7.5.0
+  resolution: "@sentry/types@npm:7.5.0"
+  checksum: ec049818c382cf46c3b66b8df2487b90411fe89ca0ad978e5d40bd6de4f0ae75af77afaf729662f9218fb0c33967e6a1ac71f7911697afa3d5e87c1ccd8d15f5
   languageName: node
   linkType: hard
 
@@ -6092,6 +6099,11 @@ __metadata:
     "@elastic/datemath": ^5.0.3
     "@elastic/eui": ^38.2.0
     "@ethers-ancillary/bsc": ^0.0.3
+    "@ethersproject/abi": ^5.6.4
+    "@ethersproject/abstract-provider": ^5.6.1
+    "@ethersproject/bytes": ^5.6.1
+    "@ethersproject/providers": ^5.6.8
+    "@ledgerhq/hw-transport": ^6.27.1
     "@ledgerhq/hw-transport-webusb": ^6.0.2
     "@metaplex/js": ^4.12.0
     "@project-serum/anchor": ^0.24.2
@@ -6100,6 +6112,7 @@ __metadata:
     "@sayari/eslint-plugin": ^0.0.1-rc.4
     "@sentry/react": ^7.3.0
     "@sentry/tracing": ^7.3.0
+    "@sentry/types": ^7.5.0
     "@sentry/webpack-plugin": ^1.18.9
     "@solana/spl-token": ^0.1.8
     "@solana/web3.js": ^1.44.3
@@ -6127,6 +6140,7 @@ __metadata:
     "@types/react-dom": ^17.0.0
     "@typescript-eslint/eslint-plugin": ^5.21.0
     bn.js: ^5.2.1
+    classnames: ^2.3.1
     decimal.js: ^10.3.1
     dexie: ^3.2.2
     eslint: ^8.18.0
@@ -6139,6 +6153,7 @@ __metadata:
     eslint-plugin-react: ^7.29.4
     eslint-plugin-storybook: ^0.5.13
     ethers: ^5.6.9
+    eventemitter3: ^4.0.7
     graphql: ^16.5.0
     graphql-request: ^4.3.0
     immer: ^9.0.15
@@ -6151,6 +6166,7 @@ __metadata:
     react-dom: ^17.0.2
     react-query: ^3.39.1
     react-responsive-carousel: ^3.2.23
+    react-router: ^6.3.0
     react-router-dom: ^6.3.0
     react-scripts: 4.0.3
     typechain: ^5.2.0
@@ -10324,7 +10340,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classnames@npm:^2.2.5, classnames@npm:^2.2.6":
+"classnames@npm:^2.2.5, classnames@npm:^2.2.6, classnames@npm:^2.3.1":
   version: 2.3.1
   resolution: "classnames@npm:2.3.1"
   checksum: 14db8889d56c267a591f08b0834989fe542d47fac659af5a539e110cc4266694e8de86e4e3bbd271157dbd831361310a8293e0167141e80b0f03a0f175c80960
@@ -22104,7 +22120,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router@npm:6.3.0":
+"react-router@npm:6.3.0, react-router@npm:^6.3.0":
   version: 6.3.0
   resolution: "react-router@npm:6.3.0"
   dependencies:

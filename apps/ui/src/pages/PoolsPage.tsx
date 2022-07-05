@@ -23,8 +23,8 @@ import { atomicToTvlString, u64ToDecimal } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
 import type { PoolSpec, TokenSpec } from "../config";
 import {
-  EcosystemId,
   ECOSYSTEM_LIST,
+  EcosystemId,
   getSolanaTokenDetails,
   isEcosystemEnabled,
 } from "../config";

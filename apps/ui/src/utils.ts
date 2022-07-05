@@ -139,3 +139,14 @@ export function assertIsError(error: unknown): asserts error is Error {
     throw error;
   }
 }
+
+export const sortBy = <T>(
+  array: readonly T[],
+  attribute: keyof T,
+): readonly T[] => {
+  return array.slice().sort((a, b) => {
+    if (a[attribute] > b[attribute]) return 1;
+    if (a[attribute] < b[attribute]) return -1;
+    return 0;
+  });
+};

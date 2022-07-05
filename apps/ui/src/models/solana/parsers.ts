@@ -1,23 +1,13 @@
 /* eslint-disable functional/immutable-data */
-import type {
-  MintInfo,
-  AccountInfo as TokenAccountInfo,
-} from "@solana/spl-token";
+import type { MintInfo, AccountInfo as TokenAccount } from "@solana/spl-token";
 import { AccountLayout, MintLayout, u64 } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
-
-import type { Amount } from "../amount";
-
-export interface TokenAccount
-  extends Omit<Readonly<TokenAccountInfo>, "amount"> {
-  readonly amount: Amount;
-}
 
 /** Adapted from https://github.com/solana-labs/solana-program-library/blob/756696e/token/js/client/token.js#L757-L817 */
 export const deserializeTokenAccount = (
   pubkey: PublicKey,
   data: Buffer,
-): TokenAccountInfo => {
+): TokenAccount => {
   const accountInfo = AccountLayout.decode(data);
   accountInfo.address = pubkey;
   accountInfo.mint = new PublicKey(accountInfo.mint);

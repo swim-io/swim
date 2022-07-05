@@ -1,7 +1,7 @@
 {
-    "name": "@swim-io/plugin-ecosystem-evm-ftm",
+    "name": "@swim-io/plugin-ecosystem-acala",
     "version": "0.2.0",
-    "description": "A package for adding fantom ecosystem support.",
+    "description": "A package for adding Acala ecosystem support.",
     "main": "build",
     "types": "types",
     "files": [
@@ -13,7 +13,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/swim-io/swim/tree/master/packages/plugin-ecosystem-evm-ftm"
+        "url": "https://github.com/swim-io/swim/tree/master/packages/plugin-ecosystem-acala"
     },
     "publishConfig": {
         "access": "public",

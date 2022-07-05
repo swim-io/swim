@@ -1,7 +1,7 @@
 {
-    "name": "@swim-io/plugin-ecosystem-evm-polygon",
+    "name": "@swim-io/plugin-ecosystem-polygon",
     "version": "0.2.0",
-    "description": "A package for adding polygon ecosystem support.",
+    "description": "A package for adding Polygon ecosystem support.",
     "main": "build",
     "types": "types",
     "files": [
@@ -13,7 +13,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/swim-io/swim/tree/master/packages/plugin-ecosystem-evm-polygon"
+        "url": "https://github.com/swim-io/swim/tree/master/packages/plugin-ecosystem-polygon"
     },
     "publishConfig": {
         "access": "public",

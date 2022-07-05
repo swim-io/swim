@@ -24,7 +24,7 @@ import { PoolListItem } from "../components/PoolListItem";
 import type { PoolSpec, TokenSpec } from "../config";
 import {
   EcosystemId,
-  ecosystemList,
+  ECOSYSTEM_LIST,
   getSolanaTokenDetails,
   isEcosystemEnabled,
 } from "../config";
@@ -141,7 +141,7 @@ const PoolsPage = (): ReactElement => {
   }));
 
   const enabledEcosystems = sortBy(
-    ecosystemList.filter((ecosystem) => isEcosystemEnabled(ecosystem.id)),
+    ECOSYSTEM_LIST.filter((ecosystem) => isEcosystemEnabled(ecosystem.id)),
     "displayName",
   );
 

@@ -11,7 +11,7 @@ export interface RedeemerSpec {
 }
 
 // TODO: Setup Redeemer on mainnet.
-const mainnetRedeemer: RedeemerSpec = {
+const MAINNET_REDEEMER: RedeemerSpec = {
   programAddress: "",
   programPda: "",
   nftCollection: "",
@@ -19,7 +19,7 @@ const mainnetRedeemer: RedeemerSpec = {
   vaultTokenAccount: "",
 };
 
-const devnetRedeemer: RedeemerSpec = {
+const DEVNET_REDEEMER: RedeemerSpec = {
   programAddress: "7frYsb48TdaenQpmVxRHgMnNL861aK1aeq6aTkVrUkDt",
   programPda: "2znJvHcqpqVuP6aX6at386Z3dhtgBbjL1ix5oDpZzNfi",
   nftCollection: "6rVZuenNaw3uECQjMjTLcfrXYKszpESEGi9HZnffJstn",
@@ -28,7 +28,7 @@ const devnetRedeemer: RedeemerSpec = {
 };
 
 // TODO: Setup Redeemer on localnet.
-const localnetRedeemer: RedeemerSpec = {
+const LOCALNET_REDEEMER: RedeemerSpec = {
   programAddress: "",
   programPda: "",
   nftCollection: "",
@@ -36,9 +36,9 @@ const localnetRedeemer: RedeemerSpec = {
   vaultTokenAccount: "",
 };
 
-export const redeemer: ReadonlyRecord<Env, RedeemerSpec> = {
-  [Env.Mainnet]: mainnetRedeemer,
-  [Env.Devnet]: devnetRedeemer,
-  [Env.Localnet]: localnetRedeemer,
-  [Env.CustomLocalnet]: localnetRedeemer,
+export const REDEEMER: ReadonlyRecord<Env, RedeemerSpec> = {
+  [Env.Mainnet]: MAINNET_REDEEMER,
+  [Env.Devnet]: DEVNET_REDEEMER,
+  [Env.Localnet]: LOCALNET_REDEEMER,
+  [Env.CustomLocalnet]: LOCALNET_REDEEMER,
 };

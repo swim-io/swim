@@ -22,7 +22,7 @@ export interface PoolSpec {
   readonly isDisabled?: boolean;
 }
 
-const mainnetPools: readonly PoolSpec[] = [
+const MAINNET_POOLS: readonly PoolSpec[] = [
   {
     id: "hexapool",
     displayName: "Stablecoin Hexa-Pool",
@@ -285,7 +285,7 @@ const mainnetPools: readonly PoolSpec[] = [
   },
 ].filter((spec) => !spec.isDisabled);
 
-const devnetPools: readonly PoolSpec[] = [
+const DEVNET_POOLS: readonly PoolSpec[] = [
   {
     id: "hexapool",
     displayName: "Stablecoin Hexa-Pool",
@@ -556,7 +556,7 @@ const devnetPools: readonly PoolSpec[] = [
   },
 ].filter((spec) => !spec.isDisabled);
 
-const localnetPools: readonly PoolSpec[] = [
+const LOCALNET_POOLS: readonly PoolSpec[] = [
   {
     id: "hexapool",
     displayName: "Stablecoin Hexa-Pool",
@@ -592,9 +592,9 @@ const localnetPools: readonly PoolSpec[] = [
   },
 ];
 
-export const pools: ReadonlyRecord<Env, readonly PoolSpec[]> = {
-  [Env.Mainnet]: mainnetPools,
-  [Env.Devnet]: devnetPools,
-  [Env.Localnet]: localnetPools,
-  [Env.CustomLocalnet]: localnetPools,
+export const POOLS: ReadonlyRecord<Env, readonly PoolSpec[]> = {
+  [Env.Mainnet]: MAINNET_POOLS,
+  [Env.Devnet]: DEVNET_POOLS,
+  [Env.Localnet]: LOCALNET_POOLS,
+  [Env.CustomLocalnet]: LOCALNET_POOLS,
 };

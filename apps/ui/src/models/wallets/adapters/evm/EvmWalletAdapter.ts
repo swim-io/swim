@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 
 import type { EcosystemId, EvmChainId, TokenSpec } from "../../../../config";
-import { Protocol, allUniqueChains, ecosystems } from "../../../../config";
+import { ALL_UNIQUE_CHAINS, ECOSYSTEMS, Protocol } from "../../../../config";
 import { sleep } from "../../../../utils";
 
 type Web3Provider = ethers.providers.Web3Provider;
@@ -154,7 +154,7 @@ export class EvmWeb3WalletAdapter
       ]);
     } catch (switchError: any) {
       if (switchError.code === METAMASK_unrecognizedChainId) {
-        const evmSpec = allUniqueChains[Protocol.Evm].find(
+        const evmSpec = ALL_UNIQUE_CHAINS[Protocol.Evm].find(
           (spec) => spec.chainId === chainId,
         );
         if (!evmSpec) {
@@ -192,7 +192,7 @@ export class EvmWeb3WalletAdapter
     const details = tokenSpec.detailsByEcosystem.get(ecosystemId);
     if (!details) {
       throw new Error(
-        `No ${ecosystems[ecosystemId].displayName} details for token`,
+        `No ${ECOSYSTEMS[ecosystemId].displayName} details for token`,
       );
     }
     await this.switchNetwork(chainId);

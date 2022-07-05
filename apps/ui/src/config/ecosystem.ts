@@ -17,7 +17,7 @@ export const enum Protocol {
   Evm = "evm",
 }
 
-export const protocolNames: Record<Protocol, string> = {
+export const PROTOCOL_NAMES: Record<Protocol, string> = {
   [Protocol.Solana]: "Solana",
   [Protocol.Evm]: "EVM",
 };
@@ -115,7 +115,7 @@ export interface Ecosystem {
   readonly nativeTokenSymbol: string;
 }
 
-export const ecosystemList: readonly Ecosystem[] = [
+export const ECOSYSTEM_LIST: readonly Ecosystem[] = [
   {
     id: EcosystemId.Solana,
     protocol: Protocol.Solana,
@@ -190,9 +190,9 @@ export const ecosystemList: readonly Ecosystem[] = [
   },
 ];
 
-export const ecosystems: ReadonlyRecord<EcosystemId, Ecosystem> =
+export const ECOSYSTEMS: ReadonlyRecord<EcosystemId, Ecosystem> =
   Object.fromEntries(
-    ecosystemList.map((ecosystem) => [ecosystem.id, ecosystem]),
+    ECOSYSTEM_LIST.map((ecosystem) => [ecosystem.id, ecosystem]),
   ) as ReadonlyRecord<EcosystemId, Ecosystem>;
 
 export const getEcosystemsForProtocol = (
@@ -201,6 +201,6 @@ export const getEcosystemsForProtocol = (
   return filterMap(
     (ecosystem: Ecosystem) => ecosystem.protocol === protocol,
     (ecosystem) => ecosystem.id,
-    ecosystemList,
+    ECOSYSTEM_LIST,
   );
 };

@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../../config";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import { findOrThrow } from "../../utils";
 
 interface SwapTokens {
@@ -19,10 +22,8 @@ const isSwimUsdPool = (pool: PoolSpec): boolean =>
     swimUsdRegExp.test(key),
   );
 
-export const useSwapTokens = (
-  pools: readonly PoolSpec[],
-  tokens: readonly TokenSpec[],
-): SwapTokens => {
+export const useSwapTokens = (): SwapTokens => {
+  const { pools, tokens } = useEnvironment(selectConfig, shallow);
   const fromTokenOptionsIds = useMemo(
     () =>
       pools
@@ -51,36 +52,34 @@ export const useSwapTokens = (
     [pools],
   );
 
-  const getDefaultFromTokenId = useCallback(
-    () => fromTokenOptionsIds[0],
-    [fromTokenOptionsIds],
-  );
+  const defaultFromTokenId = fromTokenOptionsIds[0];
 
-  const [fromTokenId, setFromTokenId] = useState(getDefaultFromTokenId);
+  const [fromTokenId, setFromTokenId] = useState(defaultFromTokenId);
   const [toTokenId, setToTokenId] = useState(
     () => getOutputTokens(fromTokenId)[0],
   );
 
   const fromToken =
     tokens.find(({ id }) => id === fromTokenId) ||
-    tokens.find(({ id }) => id === getDefaultFromTokenId());
+    tokens.find(({ id }) => id === defaultFromTokenId);
 
   if (!fromToken) throw new Error("Can't figure out fromToken");
 
   const toTokenOptionsIds = getOutputTokens(fromToken.id);
 
   const toToken =
-    tokens.find(({ id }) => id === toTokenId) ||
+    (toTokenOptionsIds.includes(toTokenId) &&
+      tokens.find(({ id }) => id === toTokenId)) ||
     tokens.find(({ id }) => id === toTokenOptionsIds[0]);
 
   if (!toToken) throw new Error("Can't figure out toToken");
 
   useEffect(() => {
     if (fromToken.id !== fromTokenId) {
-      setFromTokenId(getDefaultFromTokenId());
+      setFromTokenId(defaultFromTokenId);
       setToTokenId(getOutputTokens(fromToken.id)[0]);
     }
-  }, [getDefaultFromTokenId, getOutputTokens, fromToken.id, fromTokenId]);
+  }, [defaultFromTokenId, getOutputTokens, fromToken.id, fromTokenId]);
 
   useEffect(() => {
     if (!toTokenOptionsIds.find((tokenId) => tokenId === toToken.id)) {

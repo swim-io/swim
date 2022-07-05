@@ -2,7 +2,7 @@ import { EuiListGroup, EuiLoadingSpinner, EuiText } from "@elastic/eui";
 import type { VFC } from "react";
 
 import type { EcosystemId, TokenSpec } from "../../config";
-import { ecosystems } from "../../config";
+import { ECOSYSTEMS } from "../../config";
 
 import { TxListItem } from "./TxListItem";
 
@@ -27,7 +27,7 @@ export const Transfer: VFC<Props> = ({
   <EuiText size="m">
     <span style={{ display: "flex", alignItems: "center" }}>
       {isLoading && <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />}
-      <span>{`Transfer ${token.displayName} from ${ecosystems[from].displayName} to ${ecosystems[to].displayName}`}</span>
+      <span>{`Transfer ${token.displayName} from ${ECOSYSTEMS[from].displayName} to ${ECOSYSTEMS[to].displayName}`}</span>
     </span>
     <br />
     <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>

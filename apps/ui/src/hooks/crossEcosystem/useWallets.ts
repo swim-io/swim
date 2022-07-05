@@ -1,4 +1,4 @@
-import { EcosystemId } from "../../config";
+import { EcosystemId, isEcosystemEnabled } from "../../config";
 import type { BaseWallet } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 import type { EvmWalletInterface } from "../evm";
@@ -60,6 +60,7 @@ export const isEveryAddressConnected = (
   return Object.entries(addresses).every(
     ([ecosystemId, address]) =>
       address === null ||
-      address === wallets[ecosystemId as EcosystemId].address,
+      (isEcosystemEnabled(ecosystemId as EcosystemId) &&
+        address === wallets[ecosystemId as EcosystemId].address),
   );
 };

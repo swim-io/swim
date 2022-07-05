@@ -1,6 +1,6 @@
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import { EcosystemId, tokens } from "../../config";
+import { EcosystemId, TOKENS } from "../../config";
 
 import { Transfer } from "./Transfer";
 
@@ -15,7 +15,7 @@ const Template: ComponentStory<typeof Transfer> = (args) => (
 
 export const Loading = Template.bind({});
 Loading.args = {
-  token: tokens.Mainnet[0],
+  token: TOKENS.Mainnet[0],
   from: EcosystemId.Solana,
   to: EcosystemId.Ethereum,
   isLoading: true,
@@ -33,7 +33,7 @@ Loading.args = {
 
 export const Loaded = Template.bind({});
 Loaded.args = {
-  token: tokens.Mainnet[0],
+  token: TOKENS.Mainnet[0],
   from: EcosystemId.Solana,
   to: EcosystemId.Ethereum,
   isLoading: false,

@@ -19,7 +19,7 @@ import { useEffect, useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../config";
-import { EcosystemId, ecosystems } from "../config";
+import { ECOSYSTEMS, EcosystemId } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
@@ -306,7 +306,7 @@ export const RemoveForm = ({
   const lpSourceEcosystemOptions: readonly EuiRadioGroupOption[] = [
     ...lpToken.detailsByEcosystem.keys(),
   ].map((ecosystemId) => {
-    const ecosystem = ecosystems[ecosystemId];
+    const ecosystem = ECOSYSTEMS[ecosystemId];
     const lpBalance = userLpBalances[ecosystemId];
     const lpBalanceSuffix = lpBalance && (
       <>
@@ -345,7 +345,7 @@ export const RemoveForm = ({
     return {
       value: id,
       text: `${tokenSpec.displayName} (${
-        ecosystems[tokenSpec.nativeEcosystem].displayName
+        ECOSYSTEMS[tokenSpec.nativeEcosystem].displayName
       })`,
     };
   });
@@ -420,7 +420,7 @@ export const RemoveForm = ({
       if (!wallets[ecosystem].connected) {
         errors = [
           ...errors,
-          `Connect ${ecosystems[ecosystem].displayName} wallet`,
+          `Connect ${ECOSYSTEMS[ecosystem].displayName} wallet`,
         ];
       }
     });
@@ -431,7 +431,7 @@ export const RemoveForm = ({
         errors = [
           ...errors,
           `Empty balance in ${
-            ecosystems[EcosystemId.Solana].displayName
+            ECOSYSTEMS[EcosystemId.Solana].displayName
           } wallet. You will need some funds to pay for transaction fees.`,
         ];
       }
@@ -460,7 +460,7 @@ export const RemoveForm = ({
     ) {
       errors = [
         ...errors,
-        `You do not have any LP tokens on ${ecosystems[lpTokenSourceEcosystem].displayName}`,
+        `You do not have any LP tokens on ${ECOSYSTEMS[lpTokenSourceEcosystem].displayName}`,
       ];
     }
 
@@ -575,7 +575,7 @@ export const RemoveForm = ({
           lpTokenSourceEcosystem === EcosystemId.Solana ||
           method !== RemoveMethod.ExactOutput
             ? ""
-            : `The estimated LP tokens needed (including slippage) will be transferred from ${ecosystems[lpTokenSourceEcosystem].displayName} to Solana, and any unused tokens will remain in your LP token account on Solana.`
+            : `The estimated LP tokens needed (including slippage) will be transferred from ${ECOSYSTEMS[lpTokenSourceEcosystem].displayName} to Solana, and any unused tokens will remain in your LP token account on Solana.`
         }
       >
         <EuiRadioGroup

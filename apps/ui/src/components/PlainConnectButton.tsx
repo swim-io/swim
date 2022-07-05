@@ -10,7 +10,13 @@ import "./PlainConnectButton.scss";
 
 export type PlainConnectButtonProps = Pick<
   PropsForButton<EuiButtonProps>,
-  "onClick" | "iconType" | "children" | "className" | "fullWidth" | "size"
+  | "onClick"
+  | "iconType"
+  | "children"
+  | "className"
+  | "fullWidth"
+  | "size"
+  | "isDisabled"
 > & {
   readonly color?: "success" | "primary";
   readonly connected: boolean;

@@ -1,7 +1,7 @@
 import type { FC, ReactElement } from "react";
 
 import type { Ecosystem } from "../config";
-import { EcosystemId, ecosystems } from "../config";
+import { ECOSYSTEMS, EcosystemId } from "../config";
 
 const ecosystemIdToDoc = new Map([
   [
@@ -54,7 +54,7 @@ export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
     ecosystemIdToDoc.has(ecosystemId),
   );
   const lowBalanceEcosystems = lowBalanceWallets.map((ecosystemId) => {
-    return ecosystems[ecosystemId];
+    return ECOSYSTEMS[ecosystemId];
   });
   return (
     <p>

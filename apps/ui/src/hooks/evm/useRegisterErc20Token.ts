@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/react";
 
 import type { EvmEcosystemId, TokenSpec } from "../../config";
-import { ecosystems } from "../../config";
+import { ECOSYSTEMS } from "../../config";
 import { useNotification } from "../../core/store";
 
 import { useEvmChainId } from "./useEvmChainId";
@@ -22,7 +22,7 @@ export const useRegisterErc20Token = (
     if (!wallet) {
       notify(
         "No wallet",
-        `Connect ${ecosystems[ecosystemId].displayName} wallet first`,
+        `Connect ${ECOSYSTEMS[ecosystemId].displayName} wallet first`,
         "warning",
       );
       return;

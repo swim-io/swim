@@ -10,7 +10,7 @@ import { useCallback } from "react";
 import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../config";
-import { ecosystems } from "../config";
+import { ECOSYSTEMS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { findOrThrow } from "../utils";
@@ -38,7 +38,7 @@ export const TokenSearchModal = ({
   const { tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptionIds.map((tokenId) => {
     const tokenSpec = findOrThrow(tokens, ({ id }) => id === tokenId);
-    const ecosystem = ecosystems[tokenSpec.nativeEcosystem];
+    const ecosystem = ECOSYSTEMS[tokenSpec.nativeEcosystem];
     return {
       label: `${tokenSpec.symbol} on ${ecosystem.displayName}`,
       searchableLabel: `${tokenSpec.symbol} ${tokenSpec.displayName} ${ecosystem.displayName}`,

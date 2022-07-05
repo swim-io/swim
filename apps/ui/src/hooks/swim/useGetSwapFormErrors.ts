@@ -1,7 +1,7 @@
 import type Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId, ecosystems } from "../../config";
+import { ECOSYSTEMS, EcosystemId } from "../../config";
 import type { Amount } from "../../models";
 import { isValidSlippageFraction } from "../../models";
 import { isNotNull } from "../../utils";
@@ -39,7 +39,7 @@ export const useGetSwapFormErrors = (
     ) {
       errors = [
         ...errors,
-        `Connect ${ecosystems[fromToken.nativeEcosystem].displayName} wallet`,
+        `Connect ${ECOSYSTEMS[fromToken.nativeEcosystem].displayName} wallet`,
       ];
     }
 
@@ -50,7 +50,7 @@ export const useGetSwapFormErrors = (
     ) {
       errors = [
         ...errors,
-        `Connect ${ecosystems[toToken.nativeEcosystem].displayName} wallet`,
+        `Connect ${ECOSYSTEMS[toToken.nativeEcosystem].displayName} wallet`,
       ];
     }
 
@@ -66,7 +66,7 @@ export const useGetSwapFormErrors = (
       if (userNativeBalances[ecosystem].isZero()) {
         errors = [
           ...errors,
-          `Empty balance in ${ecosystems[ecosystem].displayName} wallet. You will need some funds to pay for transaction fees.`,
+          `Empty balance in ${ECOSYSTEMS[ecosystem].displayName} wallet. You will need some funds to pay for transaction fees.`,
         ];
       }
     });

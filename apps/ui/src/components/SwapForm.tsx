@@ -69,7 +69,7 @@ export const SwapForm = ({
     setToTokenId,
     fromTokenOptionsIds,
     toTokenOptionsIds,
-  } = useSwapTokens(config.pools, config.tokens);
+  } = useSwapTokens();
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const requiredPools = getRequiredPoolsForSwap(

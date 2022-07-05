@@ -8,10 +8,10 @@ import { useMutation } from "react-query";
 
 import type { Config } from "../../config";
 import {
+  ECOSYSTEMS,
   EcosystemId,
   Protocol,
   WormholeChainId,
-  ecosystems,
   getSolanaTokenDetails,
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
@@ -141,7 +141,7 @@ export const useFromSolanaTransferMutation = () => {
         throw new Error("Unknown transfer amount");
       }
       const amount = Amount.fromHuman(token, value);
-      const evmEcosystem = ecosystems[toEcosystem];
+      const evmEcosystem = ECOSYSTEMS[toEcosystem];
       const solanaTokenDetails = getSolanaTokenDetails(token);
       const evmWallet = wallets[toEcosystem].wallet;
       if (!evmWallet) {

@@ -184,6 +184,11 @@ export const useToSolanaTransferMutation = () => {
         continue;
       }
 
+      const signatureKeyPair = Keypair.generate();
+      updateInteractionState(interactionId, (draft) => {
+        draft.toSolanaTransfers[index].signatureSetAddress =
+          signatureKeyPair.publicKey.toBase58();
+      });
       const unlockSplTokenTxIdsGenerator = generateUnlockSplTokenTxIds(
         interactionId,
         wormhole.endpoint,
@@ -193,7 +198,7 @@ export const useToSolanaTransferMutation = () => {
         solanaWormhole,
         solanaConnection,
         solanaWallet,
-        Keypair.generate(),
+        signatureKeyPair,
       );
       let unlockSplTokenTxIds: readonly string[] = [];
       for await (const txId of unlockSplTokenTxIdsGenerator) {

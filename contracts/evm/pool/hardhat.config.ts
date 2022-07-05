@@ -23,7 +23,28 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.9", // latest hardhat supported solc version
+  solidity: {
+    version: "0.8.9", // Latest solc version that's supported by Hardhat
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 100000, // Optimize heavily for runtime gas cost rather than deployment gas cost
+      },
+      outputSelection: {
+        "*": {
+          "*": [
+            "metadata",
+            "evm.bytecode",
+            "evm.bytecode.sourceMap",
+            "ir",
+            // "irOptimized",
+            // "evm.assembly",
+          ],
+          // "": ["ast"],
+        },
+      },
+    },
+  },
   networks: {
     ropsten: {
       url: process.env.ROPSTEN_URL || "",

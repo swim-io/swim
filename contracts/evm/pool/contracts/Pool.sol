@@ -133,21 +133,15 @@ contract Pool is UUPSUpgradeable, Initializable {
     uint[] memory inputAmounts,
     uint minimumMintAmount
   ) external notPaused returns(uint mintAmount) { unchecked {
-    (
-      uint _tokenCount,
-      Equalized[] memory ePoolBalances,
-      LpToken lpToken,
-      int8 lpEqualizer,
-      Equalized etotalLpSupply
-    ) = getDefiVars();
+    (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     Equalized[] memory eInputAmounts = equalizeAmounts(inputAmounts, _tokenCount);
     Equalized eMintAmount;
-    if (Equalized.unwrap(etotalLpSupply) == 0) {
+    if (Equalized.unwrap(pool.totalLpSupply) == 0) {
       for (uint i = 0; i < _tokenCount; ++i) {
         require(inputAmounts[i] > 0, "Initial add must include all tokens");
       }
-      uint depth = Invariant.calculateDepth(eInputAmounts, getAmpFactor(), 0);
+      uint depth = Invariant.calculateDepth(eInputAmounts, pool.ampFactor, 0);
       //In all other circumstances, the amount of LP tokens minted or burned is
       // proportional to the generated/consumed depth, where the current depth
       // of the pool represents the the total LP supply.
@@ -160,17 +154,7 @@ contract Pool is UUPSUpgradeable, Initializable {
     }
     else {
       Equalized eGovernanceMintAmount;
-      (eMintAmount, eGovernanceMintAmount) =
-        PoolMath.addRemove(
-        true, //isAdd
-        eInputAmounts,
-        ePoolBalances,
-        getAmpFactor(),
-        totalFee,
-        governanceFee,
-        etotalLpSupply
-      );
-
+      (eMintAmount, eGovernanceMintAmount) = PoolMath.addRemove(true, eInputAmounts, pool);
       mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
     }
     mintAmount = Equalize.from(eMintAmount, lpEqualizer);
@@ -185,33 +169,19 @@ contract Pool is UUPSUpgradeable, Initializable {
     uint[] memory outputAmounts,
     uint maximumBurnAmount
   ) external notPaused returns(uint burnAmount) { unchecked {
-    (
-      uint _tokenCount,
-      Equalized[] memory ePoolBalances,
-      LpToken lpToken,
-      int8 lpEqualizer,
-      Equalized etotalLpSupply
-    ) = getDefiVars();
+    (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     Equalized[] memory eOutputAmounts = equalizeAmounts(outputAmounts, _tokenCount);
     //We could also immediately transfer, but that would be a lot more gas inefficient for
     // transactions that fail due to slippage.
     for (uint i = 0; i < _tokenCount;  ++i) {
       require(
-        Equalized.unwrap(eOutputAmounts[i]) < Equalized.unwrap(ePoolBalances[i])
+        Equalized.unwrap(eOutputAmounts[i]) < Equalized.unwrap(pool.balances[i])
       );
     }
 
     (Equalized eBurnAmount, Equalized eGovernanceMintAmount) =
-      PoolMath.addRemove(
-        false, //isAdd
-        eOutputAmounts,
-        ePoolBalances,
-        getAmpFactor(),
-        totalFee,
-        governanceFee,
-        etotalLpSupply
-      );
+     PoolMath.addRemove(false, eOutputAmounts, pool);
 
     burnAmount = Equalize.from(eBurnAmount, lpEqualizer);
     require(burnAmount <= maximumBurnAmount);
@@ -227,32 +197,18 @@ contract Pool is UUPSUpgradeable, Initializable {
     uint8 outputTokenIndex,
     uint minimumOutputAmount
   ) external notPaused returns(uint outputAmount) {
-    (
-      uint _tokenCount,
-      Equalized[] memory ePoolBalances,
-      LpToken lpToken,
-      int8 lpEqualizer,
-      Equalized etotalLpSupply
-    ) = getDefiVars();
+    (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     require(outputTokenIndex < _tokenCount);
     Equalized eBurnAmount = Equalize.to(burnAmount, lpEqualizer);
     //We could also immediately transfer, but that would be a lot more gas inefficient for
     // transactions that fail due to slippage.
-    require(Equalized.unwrap(eBurnAmount) < Equalized.unwrap(etotalLpSupply));
+    require(Equalized.unwrap(eBurnAmount) < Equalized.unwrap(pool.totalLpSupply));
 
     (Equalized eOutputAmount, Equalized eGovernanceMintAmount) =
-      PoolMath.removeExactBurn(
-        eBurnAmount,
-        outputTokenIndex,
-        ePoolBalances,
-        getAmpFactor(),
-        totalFee,
-        governanceFee,
-        etotalLpSupply
-      );
+      PoolMath.removeExactBurn(eBurnAmount, outputTokenIndex, pool);
 
-    outputAmount = Equalize.from(eBurnAmount, poolTokensData[outputTokenIndex].equalizer);
+    outputAmount = Equalize.from(eOutputAmount, poolTokensData[outputTokenIndex].equalizer);
     require(outputAmount >= minimumOutputAmount);
     lpToken.burnFrom(msg.sender, burnAmount);
     safeTransfer(outputAmount, outputTokenIndex);
@@ -267,29 +223,14 @@ contract Pool is UUPSUpgradeable, Initializable {
     uint8 outputTokenIndex,
     uint minimumOutputAmount
   ) external notPaused returns(uint outputAmount) { unchecked {
-    (
-      uint _tokenCount,
-      Equalized[] memory ePoolBalances,
-      LpToken lpToken,
-      int8 lpEqualizer,
-      Equalized etotalLpSupply
-    ) = getDefiVars();
+    (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     require(outputTokenIndex < _tokenCount);
     require(inputAmounts[outputTokenIndex] == 0);
     Equalized[] memory eInputAmounts = equalizeAmounts(inputAmounts, _tokenCount);
 
     (Equalized eOutputAmount, Equalized eGovernanceMintAmount) =
-      PoolMath.swap(
-        true, //isExactInput
-        eInputAmounts,
-        outputTokenIndex,
-        ePoolBalances,
-        getAmpFactor(),
-        totalFee,
-        governanceFee,
-        etotalLpSupply
-      );
+      PoolMath.swap(true, eInputAmounts, outputTokenIndex, pool);
 
     outputAmount = Equalize.from(eOutputAmount, poolTokensData[outputTokenIndex].equalizer);
     require(outputAmount >= minimumOutputAmount);
@@ -305,13 +246,7 @@ contract Pool is UUPSUpgradeable, Initializable {
     uint8 inputTokenIndex,
     uint[] memory outputAmounts
   ) external notPaused returns(uint inputAmount) { unchecked {
-    (
-      uint _tokenCount,
-      Equalized[] memory ePoolBalances,
-      LpToken lpToken,
-      int8 lpEqualizer,
-      Equalized etotalLpSupply
-    ) = getDefiVars();
+    (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     require(inputTokenIndex < _tokenCount);
     require(outputAmounts[inputTokenIndex] == 0);
@@ -320,21 +255,12 @@ contract Pool is UUPSUpgradeable, Initializable {
     // transactions that fail due to slippage.
     for (uint i = 0; i < _tokenCount; ++i) {
       require(
-        Equalized.unwrap(eOutputAmounts[i]) < Equalized.unwrap(ePoolBalances[i])
+        Equalized.unwrap(eOutputAmounts[i]) < Equalized.unwrap(pool.balances[i])
       );
     }
 
     (Equalized eInputAmount, Equalized eGovernanceMintAmount) =
-      PoolMath.swap(
-        false, //isExactInput
-        eOutputAmounts,
-        inputTokenIndex,
-        ePoolBalances,
-        getAmpFactor(),
-        totalFee,
-        governanceFee,
-        etotalLpSupply
-      );
+      PoolMath.swap(false, eOutputAmounts, inputTokenIndex, pool);
 
     inputAmount = Equalize.from(eInputAmount, poolTokensData[inputTokenIndex].equalizer);
     require(inputAmount <= maximumInputAmount);
@@ -352,13 +278,7 @@ contract Pool is UUPSUpgradeable, Initializable {
     uint8 outputTokenIndex,
     uint minimumOutputAmount
   ) external notPaused returns(uint outputAmount) { unchecked {
-    (
-      uint _tokenCount,
-      Equalized[] memory ePoolBalances,
-      LpToken lpToken,
-      int8 lpEqualizer,
-      Equalized etotalLpSupply
-    ) = getDefiVars();
+    (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     require(inputTokenIndex < _tokenCount);
     require(outputTokenIndex < _tokenCount);
@@ -370,16 +290,7 @@ contract Pool is UUPSUpgradeable, Initializable {
       Equalize.to(inputAmount, poolTokensData[inputTokenIndex].equalizer);
 
     (Equalized eOutputAmount, Equalized eGovernanceMintAmount) =
-      PoolMath.swap(
-        true, //isExactInput
-        eInputAmounts,
-        outputTokenIndex,
-        ePoolBalances,
-        getAmpFactor(),
-        totalFee,
-        governanceFee,
-        etotalLpSupply
-      );
+      PoolMath.swap(true, eInputAmounts, outputTokenIndex, pool);
 
     outputAmount = Equalize.from(eOutputAmount, poolTokensData[outputTokenIndex].equalizer);
     require(outputAmount >= minimumOutputAmount);
@@ -492,22 +403,28 @@ contract Pool is UUPSUpgradeable, Initializable {
 
   //function for cutting down on boiler plate code
   // (and reading storage variables only once to optimize gas costs)
-  function getDefiVars() internal view returns(
+  function defiParas() internal view returns(
     uint _tokenCount, //gas optimization
-    Equalized[] memory ePoolBalances,
     LpToken lpToken,
     int8 lpEqualizer, //gas optimization
-    Equalized etotalLpSupply
+    PoolMath.Pool memory pool
   ) { unchecked {
     _tokenCount = tokenCount;
-    ePoolBalances = new Equalized[](_tokenCount);
-    for (uint i = 0; i < _tokenCount; ++i) {
-      uint balance = IERC20(poolTokensData[i].addr).balanceOf(address(this));
-      ePoolBalances[i] = Equalize.to(balance, poolTokensData[i].equalizer);
-    }
     lpToken = LpToken(lpTokenData.addr);
     lpEqualizer = lpTokenData.equalizer;
-    etotalLpSupply = Equalize.to(lpToken.totalSupply(), lpEqualizer);
+    pool = PoolMath.Pool(
+      uint8(_tokenCount),
+      new Equalized[](_tokenCount),
+      getAmpFactor(),
+      totalFee,
+      governanceFee,
+      Equalize.to(lpToken.totalSupply(), lpEqualizer)
+    );
+
+    for (uint i = 0; i < _tokenCount; ++i) {
+      uint balance = IERC20(poolTokensData[i].addr).balanceOf(address(this));
+      pool.balances[i] = Equalize.to(balance, poolTokensData[i].equalizer);
+    }
   }}
 
   function getAmpFactor() internal view returns(uint32 ampFactor) { unchecked {

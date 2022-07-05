@@ -1,5 +1,5 @@
 {
-  "name": "@swim-io/evm-config",
+  "name": "@swim-io/evm-types",
   "version": "0.2.0",
   "description": "A package for adding ecosystem support on EVM chains.",
   "main": "build",
@@ -13,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/swim-io/swim/tree/master/packages/evm-config"
+    "url": "https://github.com/swim-io/swim/tree/master/packages/evm-types"
   },
   "publishConfig": {
     "access": "public",

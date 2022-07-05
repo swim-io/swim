@@ -48,6 +48,6 @@
     },
     "dependencies": {
         "@swim-io/core-types": "workspace:^",
-        "@swim-io/evm-config": "workspace:^"
+        "@swim-io/evm-types": "workspace:^"
     }
 }

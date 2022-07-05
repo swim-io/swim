@@ -11,3 +11,5 @@ export interface EvmChainConfig extends ChainConfig {
 export interface EvmEcosystemConfig extends EcosystemConfig {
   readonly chains: readonly EvmChainConfig[];
 }
+
+export const EVM_PROTOCOL = "evm" as const;

@@ -1,4 +1,5 @@
-import type { EvmChainConfig, EvmEcosystemConfig } from '@swim-io/evm-config';
+import type { EvmChainConfig, EvmEcosystemConfig } from '@swim-io/evm-types';
+import { EVM_PROTOCOL } from '@swim-io/evm-types';
 import { Env } from "@swim-io/core-types";
 
 export const FANTOM_ECOSYSTEM_ID = "fantom" as const;
@@ -37,7 +38,7 @@ export const createFantomEcosystemConfig = (
   chains: readonly EvmChainConfig[],
 ): EvmEcosystemConfig => ({
   id: FANTOM_ECOSYSTEM_ID,
-  protocol: "evm" as const,
+  protocol: EVM_PROTOCOL,
   wormholeChainId: FANTOM_WORMHOLE_CHAIN_ID,
   displayName: "Fantom",
   gasToken: {

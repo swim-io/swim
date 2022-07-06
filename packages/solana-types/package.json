@@ -36,6 +36,7 @@
     "bn.js": "^5.2.1"
   },
   "devDependencies": {
+    "@swim-io/eslint-config": "workspace:^",
     "@types/bn.js": "^5.1.0",
     "@types/jest": "^28.1.3",
     "@typescript-eslint/eslint-plugin": "^5.29.0",

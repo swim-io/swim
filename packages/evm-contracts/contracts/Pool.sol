@@ -10,6 +10,8 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import "./interfaces/IPool.sol";
+import "./interfaces/IRouting.sol";
+
 import "./LpToken.sol";
 import "./Constants.sol";
 import "./Invariant.sol";
@@ -29,6 +31,7 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
 
   uint constant AMP_DECIMALS = 3;
   uint constant AMP_MULTIPLIER = 10**AMP_DECIMALS;
+  IRouting constant ROUTING_CONTRACT = IRouting(address(0x0));
 
   //slot (26/32 bytes used)
   uint8  public /*immutable*/ tokenCount;
@@ -74,6 +77,8 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     require(poolTokenEqualizers.length == _tokenCount, "one token equalizer per token required");
     tokenCount = uint8(_tokenCount);
 
+    //enforce that swimUSD is always the first token
+    require(poolTokenAddresses[0] == ROUTING_CONTRACT.swimUsdAddress());
     for (uint i = 0; i < _tokenCount; ++i) {
       //TODO do we want any form of checking here? (e.g. duplicates)
       poolTokensData[i].addr = poolTokenAddresses[i];

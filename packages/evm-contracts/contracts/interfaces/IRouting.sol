@@ -1,11 +1,11 @@
-// SPDX-License-Identifier: MIT
+//SPDX-License-Identifier: TODO
 pragma solidity ^0.8.0;
 
 import "./IPool.sol";
 
 interface IRouting {
   error Routing__ErrorMessage(string message);
-  error Routing__PoolNotRegistered(address poolAddress);
+  error Routing__TokenNotRegistered(bytes20 addressOrTokenNumber);
   error Routing__TokenTransferFailed(address sender, uint256 amount);
   error Routing__TokenTransferFromFailed(address sender, address receiver, uint256 amount);
   error Routing__TokenApprovalFailed(address spender, uint256 amount);
@@ -25,13 +25,8 @@ interface IRouting {
     address token,
     uint256 inputAmount
   );
+
   event ReceiveAndSwap(
-    address indexed from,
-    uint64 wormholeSequence,
-    address token,
-    uint256 amount
-  );
-  event ReceiveAndSwap2(
     address indexed from,
     uint64 wormholeSequence,
     address token,
@@ -60,16 +55,18 @@ interface IRouting {
     uint256 minimumOutputAmount
   ) external returns (uint256 outputAmount, address outpuToken);
 
-  function receiveAndSwap2(bytes memory encodedVm)
+  function receiveAndSwap(bytes memory encodedVm)
     external
     returns (uint256 outputAmount, address outputToken);
 
   function registerToken(
-    uint16 tokenId,
-    address tokenContract,
-    address chainPool,
+    uint16 tokenNumber,
+    address tokenAddress,
+    address poolAddress,
     uint8 tokenIndexInPool
   ) external;
 
   function getPoolStates(address[] memory poolAddresses) external view returns (PoolState[] memory);
+
+  function swimUsdAddress() external view returns (address);
 }

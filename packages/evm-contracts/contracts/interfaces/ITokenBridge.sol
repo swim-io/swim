@@ -21,9 +21,7 @@ interface ITokenBridge {
     uint32 nonce
   ) external payable returns (uint64 sequence);
 
-  function completeTransferWithPayload(bytes memory encodedVm, address feeRecipient)
-    external
-    returns (bytes memory);
+  function completeTransferWithPayload(bytes memory encodedVm) external returns (bytes memory);
 
   function wrappedAsset(uint16 tokenChainId, bytes32 tokenAddress) external view returns (address);
 }

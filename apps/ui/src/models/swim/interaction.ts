@@ -14,6 +14,7 @@ export enum InteractionType {
   RemoveUniform,
   RemoveExactBurn,
   RemoveExactOutput,
+  SwapV2,
 }
 
 export const INTERACTION_GROUP_SWAP = new Set([InteractionType.Swap]);
@@ -29,7 +30,7 @@ export const INTERACTION_GROUPS = [
   INTERACTION_GROUP_REMOVE,
 ];
 
-interface BaseInteractionSpec {
+export interface BaseInteractionSpec {
   readonly type: InteractionType;
   /** Should be overriden when extending this type */
   readonly params: unknown;
@@ -90,7 +91,7 @@ export type InteractionSpec =
   | RemoveExactBurnInteractionSpec
   | RemoveExactOutputInteractionSpec;
 
-interface BaseInteraction {
+export interface BaseInteraction {
   readonly id: string;
   // TODO: Make less redundant with poolId on non-Swap InteractionSpecs
   readonly poolIds: readonly string[];

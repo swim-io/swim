@@ -1,18 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./IPool.sol";
+
 interface IRouting {
-  struct TokenBalance {
-    address tokenAddres;
-    uint256 balance;
-  }
-  struct PoolDetails {
-    address poolAddress;
-    TokenBalance[] balances;
-    uint256 totalLPSupply;
-    uint256 ampFactor;
-    uint256 fees;
-  }
   error Routing__ErrorMessage(string message);
   error Routing__PoolNotRegistered(address poolAddress);
   error Routing__TokenTransferFailed(address sender, uint256 amount);
@@ -80,5 +71,5 @@ interface IRouting {
     uint8 tokenIndexInPool
   ) external;
 
-  function getPoolsDetails(address[] memory poolAddresses) external returns (PoolDetails[] memory);
+  function getPoolStates(address[] memory poolAddresses) external view returns (PoolState[] memory);
 }

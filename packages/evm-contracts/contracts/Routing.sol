@@ -352,24 +352,14 @@ contract Routing is
    * @param poolAddresses Addresses of pools
    * @return poolsDetails List of objects of pool details
    */
-  function getPoolsDetails(address[] memory poolAddresses) public returns (PoolDetails[] memory) {
+  function getPoolStates(address[] memory poolAddresses)
+    external view returns (PoolState[] memory) {
     uint256 poolCount = poolAddresses.length;
-    PoolDetails[] memory pools = new PoolDetails[](poolCount);
+    PoolState[] memory pools = new PoolState[](poolCount);
 
     for (uint256 i = 0; i < poolCount; i++) {
-      // TODO
-      pools[i].poolAddress = poolAddresses[i];
-      pools[i].totalLPSupply = IPool(poolAddresses[i]).getLiquidity();
+      pools[i] = IPool(poolAddresses[i]).getState();
     }
     return pools;
-  }
-
-  /**
-   * @notice Provides number of tokens in the pool
-   * @param poolAddress Address of pool
-   * @return tokenCount Number of tokens in pool
-   */
-  function getPoolTokenCount(address poolAddress) internal returns (uint8 tokenCount) {
-    return IPool(poolAddress).getTokenCount();
   }
 }

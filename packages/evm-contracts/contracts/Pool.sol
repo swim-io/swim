@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 // with empty uint blocks of size 50 (as the upgradable versions of the contracts do).
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
+import "./interfaces/IPool.sol";
 import "./LpToken.sol";
 import "./Constants.sol";
 import "./Invariant.sol";
@@ -17,13 +18,17 @@ import "./PoolMath.sol";
 //We'll use uint32 for timestamps. 2^32 seconds ~= 136 years, i.e. it will last us until the early
 // 22nd century... so we ought to be fine.
 
-struct TokenWithEqualizer { //uses 22/32 bytes of its slot
-  address addr;
-  int8 equalizer; //it's cheaper to (densely) store the equalizers than the blown up values
-}
+contract Pool is IPool, UUPSUpgradeable, Initializable {
 
-contract Pool is UUPSUpgradeable, Initializable {
+  struct TokenWithEqualizer { //uses 22/32 bytes of its slot
+    address addr;
+    int8 equalizer; //it's cheaper to (densely) store the equalizers than the blown up values
+  }
+
   using SafeERC20 for IERC20;
+
+  uint constant AMP_DECIMALS = 3;
+  uint constant AMP_MULTIPLIER = 10**AMP_DECIMALS;
 
   //slot (26/32 bytes used)
   uint8  public /*immutable*/ tokenCount;
@@ -104,6 +109,26 @@ contract Pool is UUPSUpgradeable, Initializable {
   modifier onlyGovernance {
     require(msg.sender == governance);
     _;
+  }
+
+  function getState() external view returns(PoolState memory) {
+    PoolState memory state = PoolState(
+      paused,
+      new TokenBalance[](poolTokensData.length),
+      TokenBalance(lpTokenData.addr, LpToken(lpTokenData.addr).totalSupply()),
+      Decimal((getAmpFactor() * AMP_MULTIPLIER) >> AMP_SHIFT, uint8(AMP_DECIMALS)),
+      Decimal(totalFee-governanceFee, uint8(FEE_DECIMALS)),
+      Decimal(governanceFee, uint8(FEE_DECIMALS))
+    );
+
+    for (uint i = 0; i < poolTokensData.length; ++i) {
+      state.balances[i] = TokenBalance(
+        poolTokensData[i].addr,
+        IERC20(poolTokensData[i].addr).balanceOf(address(this))
+      );
+    }
+
+    return state;
   }
 
   // ----------------------------- DEFI LIQUIDITY -----------------------------

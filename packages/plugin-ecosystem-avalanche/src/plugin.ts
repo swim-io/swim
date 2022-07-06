@@ -1,15 +1,27 @@
 import type { EvmChainConfig, EvmEcosystemConfig } from '@swim-io/evm-types';
-import { EVM_PROTOCOL } from '@swim-io/evm-types';
+import { createEvmEcosystemConfigPlugin } from '@swim-io/evm-types';
 import { Env } from "@swim-io/core-types";
 
-export const AVALANCHE_ECOSYSTEM_ID = "avalanche" as const;
-export enum AvalancheChainId {
+export type AvalancheEcosystemId = "avalanche";
+export const AVALANCHE_ECOSYSTEM_ID: AvalancheEcosystemId = "avalanche";
+
+export type AvalancheWormholeChainId = 6;
+export const AVALANCHE_WORMHOLE_CHAIN_ID: AvalancheWormholeChainId = 6;
+
+export const enum AvalancheChainId {
   Mainnet = 43114,
   Testnet = 43113,
 }
-export const AVALANCHE_WORMHOLE_CHAIN_ID = 6 as const;
 
-export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
+export type AvalancheChainConfig = EvmChainConfig<AvalancheEcosystemId, AvalancheChainId>;
+
+export type AvalancheEcosystemConfig = EvmEcosystemConfig<
+  AvalancheEcosystemId,
+  AvalancheWormholeChainId,
+  AvalancheChainId
+>;
+
+export const PRESETS: ReadonlyMap<Env, AvalancheChainConfig> = new Map([
   [
     Env.Mainnet,
     {
@@ -34,17 +46,12 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
   ],
 ]);
 
-export const createAvalancheEcosystemConfig = (
-  chains: readonly EvmChainConfig[],
-): EvmEcosystemConfig => ({
-  id: AVALANCHE_ECOSYSTEM_ID,
-  protocol: EVM_PROTOCOL,
-  wormholeChainId: AVALANCHE_WORMHOLE_CHAIN_ID,
-  displayName: "Avalanche",
-  gasToken: {
+export const createAvalancheEcosystemConfig = createEvmEcosystemConfigPlugin(
+  AVALANCHE_ECOSYSTEM_ID,
+  AVALANCHE_WORMHOLE_CHAIN_ID,
+  {
     name: "Avalanche",
     symbol: "AVAX",
     decimals: 18,
   },
-  chains,
-});
+);

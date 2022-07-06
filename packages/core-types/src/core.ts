@@ -12,7 +12,7 @@ export interface ChainConfig {
   readonly wormholeTokenBridge: string;
 }
 
-interface GasToken {
+export interface GasToken {
   readonly name: string;
   readonly symbol: string;
   readonly decimals: number;

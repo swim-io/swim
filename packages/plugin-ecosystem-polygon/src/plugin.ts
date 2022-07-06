@@ -1,15 +1,27 @@
 import type { EvmChainConfig, EvmEcosystemConfig } from '@swim-io/evm-types';
-import { EVM_PROTOCOL } from '@swim-io/evm-types';
+import { createEvmEcosystemConfigPlugin } from '@swim-io/evm-types';
 import { Env } from "@swim-io/core-types";
 
-export const POLYGON_ECOSYSTEM_ID = "polygon" as const;
-export enum PolygonChainId {
+export type PolygonEcosystemId = "polygon";
+export const POLYGON_ECOSYSTEM_ID: PolygonEcosystemId = "polygon";
+
+export type PolygonWormholeChainId = 5;
+export const POLYGON_WORMHOLE_CHAIN_ID: PolygonWormholeChainId = 5;
+
+export const enum PolygonChainId {
   Mainnet = 137,
   Testnet = 80001,
 }
-export const POLYGON_WORMHOLE_CHAIN_ID = 5 as const;
 
-export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
+export type PolygonChainConfig = EvmChainConfig<PolygonEcosystemId, PolygonChainId>;
+
+export type PolygonEcosystemConfig = EvmEcosystemConfig<
+  PolygonEcosystemId,
+  PolygonWormholeChainId,
+  PolygonChainId
+>;
+
+export const PRESETS: ReadonlyMap<Env, PolygonChainConfig> = new Map([
   [
     Env.Mainnet,
     {
@@ -34,17 +46,12 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
   ],
 ]);
 
-export const createPolygonEcosystemConfig = (
-  chains: readonly EvmChainConfig[],
-): EvmEcosystemConfig => ({
-  id: POLYGON_ECOSYSTEM_ID,
-  protocol: EVM_PROTOCOL,
-  wormholeChainId: POLYGON_WORMHOLE_CHAIN_ID,
-  displayName: "Polygon",
-  gasToken: {
+export const createPolygonEcosystemConfig = createEvmEcosystemConfigPlugin(
+  POLYGON_ECOSYSTEM_ID,
+  POLYGON_WORMHOLE_CHAIN_ID,
+  {
     name: "Matic",
     symbol: "MATIC",
     decimals: 18,
   },
-  chains,
-});
+);

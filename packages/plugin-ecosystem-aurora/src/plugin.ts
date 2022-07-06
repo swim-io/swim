@@ -1,15 +1,27 @@
 import type { EvmChainConfig, EvmEcosystemConfig } from '@swim-io/evm-types';
-import { EVM_PROTOCOL } from '@swim-io/evm-types';
+import { createEvmEcosystemConfigPlugin } from '@swim-io/evm-types';
 import { Env } from "@swim-io/core-types";
 
-export const AURORA_ECOSYSTEM_ID = "aurora" as const;
-export enum AuroraChainId {
+export type AuroraEcosystemId = "aurora";
+export const AURORA_ECOSYSTEM_ID: AuroraEcosystemId = "aurora";
+
+export type AuroraWormholeChainId = 9;
+export const AURORA_WORMHOLE_CHAIN_ID: AuroraWormholeChainId = 9;
+
+export const enum AuroraChainId {
   Mainnet = 1313161554,
   Testnet = 1313161555,
 }
-export const AURORA_WORMHOLE_CHAIN_ID = 9 as const;
 
-export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
+export type AuroraChainConfig = EvmChainConfig<AuroraEcosystemId, AuroraChainId>;
+
+export type AuroraEcosystemConfig = EvmEcosystemConfig<
+  AuroraEcosystemId,
+  AuroraWormholeChainId,
+  AuroraChainId
+>;
+
+export const PRESETS: ReadonlyMap<Env, AuroraChainConfig> = new Map([
   [
     Env.Mainnet,
     {
@@ -34,17 +46,12 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
   ],
 ]);
 
-export const createAuroraEcosystemConfig = (
-  chains: readonly EvmChainConfig[],
-): EvmEcosystemConfig => ({
-  id: AURORA_ECOSYSTEM_ID,
-  protocol: EVM_PROTOCOL,
-  wormholeChainId: AURORA_WORMHOLE_CHAIN_ID,
-  displayName: "Aurora",
-  gasToken: {
+export const createAuroraEcosystemConfig = createEvmEcosystemConfigPlugin(
+  AURORA_ECOSYSTEM_ID,
+  AURORA_WORMHOLE_CHAIN_ID,
+  {
     name: "Ethereum",
     symbol: "ETH",
     decimals: 18,
   },
-  chains,
-});
+);

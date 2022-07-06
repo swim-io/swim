@@ -1,15 +1,27 @@
 import type { EvmChainConfig, EvmEcosystemConfig } from '@swim-io/evm-types';
-import { EVM_PROTOCOL } from '@swim-io/evm-types';
+import { createEvmEcosystemConfigPlugin } from '@swim-io/evm-types';
 import { Env } from "@swim-io/core-types";
 
-export const KARURA_ECOSYSTEM_ID = "karura" as const;
-export enum KaruraChainId {
+export type KaruraEcosystemId = "karura";
+export const KARURA_ECOSYSTEM_ID: KaruraEcosystemId = "karura";
+
+export type KaruraWormholeChainId = 11;
+export const KARURA_WORMHOLE_CHAIN_ID: KaruraWormholeChainId = 11;
+
+export const enum KaruraChainId {
   Mainnet = 686,
   Testnet = 596,
 }
-export const KARURA_WORMHOLE_CHAIN_ID = 11 as const;
 
-export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
+export type KaruraChainConfig = EvmChainConfig<KaruraEcosystemId, KaruraChainId>;
+
+export type KaruraEcosystemConfig = EvmEcosystemConfig<
+  KaruraEcosystemId,
+  KaruraWormholeChainId,
+  KaruraChainId
+>;
+
+export const PRESETS: ReadonlyMap<Env, KaruraChainConfig> = new Map([
   [
     Env.Mainnet,
     {
@@ -34,17 +46,12 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
   ],
 ]);
 
-export const createKaruraEcosystemConfig = (
-  chains: readonly EvmChainConfig[],
-): EvmEcosystemConfig => ({
-  id: KARURA_ECOSYSTEM_ID,
-  protocol: EVM_PROTOCOL,
-  wormholeChainId: KARURA_WORMHOLE_CHAIN_ID,
-  displayName: "Karura",
-  gasToken: {
+export const createKaruraEcosystemConfig = createEvmEcosystemConfigPlugin(
+  KARURA_ECOSYSTEM_ID,
+  KARURA_WORMHOLE_CHAIN_ID,
+  {
     name: "Karura",
     symbol: "KAR",
     decimals: 18,
   },
-  chains,
-});
+);

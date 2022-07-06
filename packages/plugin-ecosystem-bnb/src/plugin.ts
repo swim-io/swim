@@ -1,15 +1,27 @@
 import type { EvmChainConfig, EvmEcosystemConfig } from '@swim-io/evm-types';
-import { EVM_PROTOCOL } from '@swim-io/evm-types';
+import { createEvmEcosystemConfigPlugin } from '@swim-io/evm-types';
 import { Env } from "@swim-io/core-types";
 
-export const BNB_ECOSYSTEM_ID = "bnb" as const;
-export enum BnbChainId {
+export type BnbEcosystemId = "bnb";
+export const BNB_ECOSYSTEM_ID: BnbEcosystemId = "bnb";
+
+export type BnbWormholeChainId = 3;
+export const BNB_WORMHOLE_CHAIN_ID: BnbWormholeChainId = 3;
+
+export const enum BnbChainId {
   Mainnet = 56,
   Testnet = 97,
 }
-export const BNB_WORMHOLE_CHAIN_ID = 4 as const;
 
-export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
+export type BnbChainConfig = EvmChainConfig<BnbEcosystemId, BnbChainId>;
+
+export type BnbEcosystemConfig = EvmEcosystemConfig<
+  BnbEcosystemId,
+  BnbWormholeChainId,
+  BnbChainId
+>;
+
+export const PRESETS: ReadonlyMap<Env, BnbChainConfig> = new Map([
   [
     Env.Mainnet,
     {
@@ -34,17 +46,12 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
   ],
 ]);
 
-export const createBnbEcosystemConfig = (
-  chains: readonly EvmChainConfig[],
-): EvmEcosystemConfig => ({
-  id: BNB_ECOSYSTEM_ID,
-  protocol: EVM_PROTOCOL,
-  wormholeChainId: BNB_WORMHOLE_CHAIN_ID,
-  displayName: "BNB",
-  gasToken: {
+export const createBnbEcosystemConfig = createEvmEcosystemConfigPlugin(
+  BNB_ECOSYSTEM_ID,
+  BNB_WORMHOLE_CHAIN_ID,
+  {
     name: "Binance Coin",
     symbol: "BNB",
     decimals: 18,
   },
-  chains,
-});
+);

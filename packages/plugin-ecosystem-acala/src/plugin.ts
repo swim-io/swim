@@ -1,15 +1,27 @@
 import type { EvmChainConfig, EvmEcosystemConfig } from '@swim-io/evm-types';
-import { EVM_PROTOCOL } from '@swim-io/evm-types';
+import { createEvmEcosystemConfigPlugin } from '@swim-io/evm-types';
 import { Env } from "@swim-io/core-types";
 
-export const ACALA_ECOSYSTEM_ID = "acala" as const;
-export enum AcalaChainId {
+export type AcalaEcosystemId = "acala";
+export const ACALA_ECOSYSTEM_ID: AcalaEcosystemId = "acala";
+
+export type AcalaWormholeChainId = 12;
+export const ACALA_WORMHOLE_CHAIN_ID: AcalaWormholeChainId = 12;
+
+export const enum AcalaChainId {
   Mainnet = 787,
   Testnet = 597,
 }
-export const ACALA_WORMHOLE_CHAIN_ID = 12 as const;
 
-export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
+export type AcalaChainConfig = EvmChainConfig<AcalaEcosystemId, AcalaChainId>;
+
+export type AcalaEcosystemConfig = EvmEcosystemConfig<
+  AcalaEcosystemId,
+  AcalaWormholeChainId,
+  AcalaChainId
+>;
+
+export const PRESETS: ReadonlyMap<Env, AcalaChainConfig> = new Map([
   [
     Env.Mainnet,
     {
@@ -34,17 +46,12 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
   ],
 ]);
 
-export const createAcalaEcosystemConfig = (
-  chains: readonly EvmChainConfig[],
-): EvmEcosystemConfig => ({
-  id: ACALA_ECOSYSTEM_ID,
-  protocol: EVM_PROTOCOL,
-  wormholeChainId: ACALA_WORMHOLE_CHAIN_ID,
-  displayName: "Acala",
-  gasToken: {
+export const createAcalaEcosystemConfig = createEvmEcosystemConfigPlugin(
+  ACALA_ECOSYSTEM_ID,
+  ACALA_WORMHOLE_CHAIN_ID,
+  {
     name: "Acala",
     symbol: "ACA",
     decimals: 18,
   },
-  chains,
-});
+);

@@ -1,15 +1,27 @@
 import type { EvmChainConfig, EvmEcosystemConfig } from '@swim-io/evm-types';
-import { EVM_PROTOCOL } from '@swim-io/evm-types';
+import { createEvmEcosystemConfigPlugin } from '@swim-io/evm-types';
 import { Env } from "@swim-io/core-types";
 
-export const FANTOM_ECOSYSTEM_ID = "fantom" as const;
-export enum FantomChainId {
+export type FantomEcosystemId = "fantom";
+export const FANTOM_ECOSYSTEM_ID: FantomEcosystemId = "fantom";
+
+export type FantomWormholeChainId = 10;
+export const FANTOM_WORMHOLE_CHAIN_ID: FantomWormholeChainId = 10;
+
+export const enum FantomChainId {
   Mainnet = 250,
   Testnet = 4002,
 }
-export const FANTOM_WORMHOLE_CHAIN_ID = 10 as const;
 
-export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
+export type FantomChainConfig = EvmChainConfig<FantomEcosystemId, FantomChainId>;
+
+export type FantomEcosystemConfig = EvmEcosystemConfig<
+  FantomEcosystemId,
+  FantomWormholeChainId,
+  FantomChainId
+>;
+
+export const PRESETS: ReadonlyMap<Env, FantomChainConfig> = new Map([
   [
     Env.Mainnet,
     {
@@ -34,17 +46,12 @@ export const PRESETS: ReadonlyMap<Env, EvmEcosystemConfig> = new Map([
   ],
 ]);
 
-export const createFantomEcosystemConfig = (
-  chains: readonly EvmChainConfig[],
-): EvmEcosystemConfig => ({
-  id: FANTOM_ECOSYSTEM_ID,
-  protocol: EVM_PROTOCOL,
-  wormholeChainId: FANTOM_WORMHOLE_CHAIN_ID,
-  displayName: "Fantom",
-  gasToken: {
+export const createFantomEcosystemConfig = createEvmEcosystemConfigPlugin(
+  FANTOM_ECOSYSTEM_ID,
+  FANTOM_WORMHOLE_CHAIN_ID,
+  {
     name: "FTM",
     symbol: "FTM",
     decimals: 18,
   },
-  chains,
-});
+);

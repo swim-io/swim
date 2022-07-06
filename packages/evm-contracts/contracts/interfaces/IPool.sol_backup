@@ -1,0 +1,32 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+struct TokenBalance {
+  address tokenAddres;
+  uint256 balance;
+}
+
+struct Decimal {
+  uint256 value;
+  uint8 decimals;
+}
+
+struct PoolState {
+  bool paused;
+  TokenBalance[] balances;
+  TokenBalance totalLPSupply;
+  Decimal ampFactor;
+  Decimal lpFee;
+  Decimal governanceFee;
+}
+
+interface IPool {
+  function swap(
+    uint256 inputAmount,
+    uint8 inputTokenIndex,
+    uint8 outputTokenIndex,
+    uint256 minimumOutputAmount
+  ) external returns (uint256 outputAmount);
+
+  function getState() external view returns(PoolState memory state);
+}

@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 
+<<<<<<< HEAD
 pragma solidity ^0.8.0;
+=======
+pragma solidity ^0.8.9;
+>>>>>>> 30b1b71e25fd6788e2dedde4f8762020946d7591
 
 interface IStructs {
   struct Provider {

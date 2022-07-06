@@ -1,14 +1,11 @@
 //SPDX-License-Identifier: Unlicence
 pragma solidity ^0.8.0;
 
-import "../node_modules/hardhat/console.sol";
-
-import "../node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "../node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "../node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import "../node_modules/@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
-//import "../node_modules/@openzeppelin/contracts/utils/math/SafeCast.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./interfaces/IPool.sol";
 import "./interfaces/IRouting.sol";
@@ -23,11 +20,11 @@ contract Routing is
   ReentrancyGuardUpgradeable,
   UUPSUpgradeable
 {
-  address constant SWIM_USD_SOLANA_ADDRESS = address(0x0);
-  uint8 constant SWIM_PAYLOAD_VERSION = 1;
-  uint8 constant SWIM_USD_TOKEN_INDEX = 0;
-  uint16 constant WORMHOLE_CHAIN_ID = 1;
-  address constant WORMHOLE_CORE_BRIDGE_ADDRESS =
+  address private constant SWIM_USD_SOLANA_ADDRESS = address(0x0);
+  uint8 private constant SWIM_PAYLOAD_VERSION = 1;
+  uint8 private constant SWIM_USD_TOKEN_INDEX = 0;
+  uint16 private constant WORMHOLE_CHAIN_ID = 1;
+  address public constant WORMHOLE_CORE_BRIDGE_ADDRESS =
     address(0xC89Ce4735882C9F0f0FE26686c53074E09B0D550);
   uint32 private wormholeNonce;
   IERC20 public swimUSD;
@@ -43,8 +40,6 @@ contract Routing is
 
   mapping(uint16 => Token) tokenIdMapping;
   mapping(address => Token) tokenAddressMapping;
-
-  constructor() initializer {}
 
   function initialize(address tokenBridgeAddress) public initializer {
     __Pausable_init();
@@ -202,7 +197,7 @@ contract Routing is
     bytes memory encodedVm,
     address toToken,
     uint256 minimumOutputAmount
-  ) external returns (uint256 outputAmount, address outputToken) {
+  ) external whenNotPaused returns (uint256 outputAmount, address outputToken) {
     bytes memory swimPayload = tokenBridge.completeTransferWithPayload(encodedVm, msg.sender);
     if (swimPayload.length != 33) {
       revert Routing__ErrorMessage("Swim payload is not correct !");
@@ -211,11 +206,15 @@ contract Routing is
       revert Routing__ErrorMessage("Wrong payload version !");
     }
 
-    uint256 payload;
-    assembly {
-      payload := mload(add(swimPayload, 33))
+    bytes memory payload;
+
+    for (uint256 i = 0; i < 33; i++) {
+      payload[i] = swimPayload[i + 1];
     }
-    require(msg.sender == address(uint160(uint256(bytes32(payload[1:33])))));
+
+    if (msg.sender != address(uint160(uint256(bytes32(payload))))) {
+      revert Routing__ErrorMessage("Sender is not the owner!");
+    }
 
     address poolAddress = tokenAddressMapping[toToken].chainPool;
     if (poolAddress == address(0)) {
@@ -235,8 +234,8 @@ contract Routing is
         minimumOutputAmount
       )
     returns (uint256 _outputAmount) {
-      if (!IERC20(toToken).transfer(msg.sender, outputAmount)) {
-        revert Routing__TokenTransferFailed(msg.sender, outputAmount);
+      if (!IERC20(toToken).transfer(msg.sender, _outputAmount)) {
+        revert Routing__TokenTransferFailed(msg.sender, _outputAmount);
       }
       outputAmount = _outputAmount;
       outputToken = toToken;
@@ -258,7 +257,11 @@ contract Routing is
    * @param encodedVm A byte array containing a VAA signed by the guardians.
    * @return outputAmount Amount that user will receive
    */
-  function receiveAndSwap2(bytes memory encodedVm) external returns (uint256 outputAmount) {
+  function receiveAndSwap2(bytes memory encodedVm)
+    external
+    whenNotPaused
+    returns (uint256 outputAmount, address outputToken)
+  {
     bytes memory swimPayload = tokenBridge.completeTransferWithPayload(encodedVm, address(0));
     if (swimPayload.length != 33) {
       revert Routing__ErrorMessage("Swim payload is not correct !");
@@ -267,8 +270,13 @@ contract Routing is
       revert Routing__ErrorMessage("Wrong payload version !");
     }
 
-    bytes32 toToken = bytes32(swimPayload[1:33]);
-    address toTokenAddress = address(uint160(uint256(toToken)));
+    bytes memory payload;
+
+    for (uint256 i = 0; i < 33; i++) {
+      payload[i] = swimPayload[i + 1];
+    }
+
+    address toTokenAddress = address(uint160(uint256(bytes32(payload))));
     address poolAddress = tokenAddressMapping[toTokenAddress].chainPool;
     if (poolAddress == address(0)) {
       revert Routing__ErrorMessage("Pool address does not exist!");
@@ -279,10 +287,13 @@ contract Routing is
       revert Routing__TokenApprovalFailed(poolAddress, receivedSwimUSDAmount);
     }
 
-    bytes memory payload = wormhole.parseVM(encodedVm).payload;
-    (uint8 version, bytes32 owner) = abi.decode(payload, (uint8, bytes32));
+    bytes memory wormholePayload = wormhole.parseVM(encodedVm).payload;
+    (uint8 version, bytes32 owner) = abi.decode(wormholePayload, (uint8, bytes32));
+
+    if (version != SWIM_PAYLOAD_VERSION) {
+      revert Routing__ErrorMessage("Wrong payload version !");
+    }
     address receiverAddress = address(uint160(uint256(owner)));
-    address outputToken;
 
     try
       IPool(poolAddress).swap(
@@ -292,8 +303,8 @@ contract Routing is
         0
       )
     returns (uint256 _outputAmount) {
-      if (!IERC20(toToken).transfer(msg.sender, outputAmount)) {
-        revert Routing__TokenTransferFailed(msg.sender, outputAmount);
+      if (!IERC20(toTokenAddress).transfer(msg.sender, _outputAmount)) {
+        revert Routing__TokenTransferFailed(msg.sender, _outputAmount);
       }
       outputAmount = _outputAmount;
       outputToken = toTokenAddress;

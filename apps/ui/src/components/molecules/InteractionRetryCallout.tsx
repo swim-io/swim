@@ -4,13 +4,14 @@ import type React from "react";
 import { selectInteractionError } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { formatErrorJsx } from "../../errors";
-import { isEveryAddressConnected, useWallets } from "../../hooks";
+import { useWallets } from "../../hooks";
 import {
   InteractionStatus,
   useHasActiveInteraction,
   useInteractionStatus,
   useResumeInteraction,
 } from "../../hooks/interaction";
+import { isEveryAddressConnected } from "../../models";
 import type { InteractionState } from "../../models";
 
 interface Props {

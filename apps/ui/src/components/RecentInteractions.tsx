@@ -8,11 +8,8 @@ import type { ReactElement } from "react";
 import { Fragment, useEffect } from "react";
 
 import { useEnvironment, useInteractionState } from "../core/store";
-import {
-  isEveryAddressConnected,
-  useSplTokenAccountsQuery,
-  useWallets,
-} from "../hooks";
+import { useSplTokenAccountsQuery, useWallets } from "../hooks";
+import { isEveryAddressConnected } from "../models";
 import type { InteractionType } from "../models";
 
 import { MultiConnectButton } from "./ConnectButton";

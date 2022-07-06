@@ -1,12 +1,11 @@
+import type { Layout } from "@project-serum/borsh";
 import { array, struct, u64, u8 } from "@project-serum/borsh";
-import {
-  PublicKey,
-  TransactionInstruction,
-  AccountMeta,
-} from "@solana/web3.js";
-import { createApproveInstruction, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-export { PoolMath } from "@swim-io/pool-math";
+import { TOKEN_PROGRAM_ID, createApproveInstruction } from "@solana/spl-token";
+import type { AccountMeta } from "@solana/web3.js";
+import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import BN from "bn.js";
+
+export { PoolMath } from "@swim-io/pool-math";
 
 export const hexaPool = {
   numberOfTokens: 6,
@@ -31,6 +30,14 @@ export const hexaPool = {
 export enum SwapDirection {
   UsdcToUsdt,
   UsdtToUsdc,
+}
+
+export interface SwapDefiInstruction {
+  readonly instruction: number;
+  readonly defiInstruction: number;
+  readonly exactInputAmounts: readonly BN[];
+  readonly outputTokenIndex: number;
+  readonly minimumOutputAmount: BN;
 }
 
 /**
@@ -69,7 +76,7 @@ export function createSwapIx(
   const outputTokenIndex = (direction + 1) % 2;
   const filledTokenKeys = [
     ...userTokenKeys,
-    ...hexaPool.tokenKeys.slice(2).map((_) => hexaPool.stateKey),
+    ...hexaPool.tokenKeys.slice(2).map(() => hexaPool.stateKey),
   ];
 
   const defiInstructionEnumVal = 1;
@@ -84,8 +91,8 @@ export function createSwapIx(
 
   const toAccountMeta = (
     pubkey: PublicKey,
-    isWritable: boolean = false,
-    isSigner: boolean = false,
+    isWritable = false,
+    isSigner = false,
   ): AccountMeta => ({ pubkey, isSigner, isWritable });
 
   const keys = [
@@ -99,7 +106,8 @@ export function createSwapIx(
     toAccountMeta(TOKEN_PROGRAM_ID),
   ];
 
-  const layout = struct(
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const layout: Layout<SwapDefiInstruction> = struct(
     [
       u8("instruction"),
       u8("defiInstruction"),

@@ -175,11 +175,11 @@ const PoolsPage = (): ReactElement => {
     });
 
   const poolsByTvl = filteredPools.slice().sort((a, b) => {
-    const aUsb = poolUsdTotals[a.id];
-    const bUsb = poolUsdTotals[b.id];
+    const aUsd = poolUsdTotals[a.id];
+    const bUsd = poolUsdTotals[b.id];
 
-    if (aUsb.gt(bUsb)) return -1;
-    if (aUsb.lt(bUsb)) return 1;
+    if (aUsd.gt(bUsd)) return -1;
+    if (aUsd.lt(bUsd)) return 1;
     return 0;
   });
 

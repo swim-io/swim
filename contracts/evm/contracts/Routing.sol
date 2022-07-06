@@ -273,13 +273,13 @@ contract Routing is
       revert Routing__ErrorMessage("Wrong payload version !");
     }
 
-    bytes memory swimToken;
+    bytes memory payload;
 
     for (uint256 i = 0; i < 33; i++) {
-      swimToken[i] = swimPayload[i + 1];
+      payload[i] = swimPayload[i + 1];
     }
 
-    address toTokenAddress = address(uint160(uint256(bytes32(swimToken))));
+    address toTokenAddress = address(uint160(uint256(bytes32(payload))));
     address poolAddress = tokenAddressMapping[toTokenAddress].chainPool;
     if (poolAddress == address(0)) {
       revert Routing__ErrorMessage("Pool address does not exist!");
@@ -290,8 +290,8 @@ contract Routing is
       revert Routing__TokenApprovalFailed(poolAddress, receivedSwimUSDAmount);
     }
 
-    bytes memory payload = wormhole.parseVM(encodedVm).payload;
-    (uint8 version, bytes32 owner) = abi.decode(payload, (uint8, bytes32));
+    bytes memory wormholePayload = wormhole.parseVM(encodedVm).payload;
+    (uint8 version, bytes32 owner) = abi.decode(wormholePayload, (uint8, bytes32));
 
     if (version != SWIM_PAYLOAD_VERSION) {
       revert Routing__ErrorMessage("Wrong payload version !");

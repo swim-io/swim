@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicence
-pragma solidity ^0.8.15;
+pragma solidity ^0.8.0;
 
 import "../node_modules/hardhat/console.sol";
 
@@ -7,12 +7,11 @@ import "../node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgr
 import "../node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "../node_modules/@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "../node_modules/@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol"; // SafeERC20 ?
-import "../node_modules/@openzeppelin/contracts/utils/math/SafeCast.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
+//import "../node_modules/@openzeppelin/contracts/utils/math/SafeCast.sol";
 
 import "./interfaces/IPool.sol";
 import "./interfaces/IRouting.sol";
-import "./interfaces/ISwimUSD.sol";
 import "./interfaces/ITokenBridge.sol";
 import "./interfaces/IWormhole.sol";
 import "./interfaces/IStructs.sol";
@@ -31,7 +30,7 @@ contract Routing is
   address constant WORMHOLE_CORE_BRIDGE_ADDRESS =
     address(0xC89Ce4735882C9F0f0FE26686c53074E09B0D550);
   uint32 private wormholeNonce;
-  ISwimUSD public swimUSD;
+  IERC20 public swimUSD;
   ITokenBridge public tokenBridge;
   IWormhole public wormhole;
 
@@ -53,7 +52,7 @@ contract Routing is
     __UUPSUpgradeable_init();
     __ReentrancyGuard_init();
     wormholeNonce = 0;
-    swimUSD = ISwimUSD(SWIM_USD_SOLANA_ADDRESS);
+    swimUSD = IERC20(SWIM_USD_SOLANA_ADDRESS);
     tokenBridge = ITokenBridge(tokenBridgeAddress);
     wormhole = IWormhole(WORMHOLE_CORE_BRIDGE_ADDRESS);
   }
@@ -90,11 +89,11 @@ contract Routing is
     if (poolAddress != address(0)) {
       revert Routing__PoolNotRegistered(poolAddress);
     }
-    if (!IERC20Upgradeable(fromToken).transferFrom(msg.sender, address(this), inputAmount)) {
+    if (!IERC20(fromToken).transferFrom(msg.sender, address(this), inputAmount)) {
       revert Routing__TokenTransferFromFailed(msg.sender, address(this), inputAmount);
     }
     // Emits an Approval event, if approved
-    if (!IERC20Upgradeable(fromToken).approve(poolAddress, inputAmount)) {
+    if (!IERC20(fromToken).approve(poolAddress, inputAmount)) {
       revert Routing__TokenApprovalFailed(poolAddress, inputAmount);
     }
 
@@ -116,7 +115,7 @@ contract Routing is
       minimumOutputAmount
     );
 
-    if (!IERC20Upgradeable(toToken).transfer(toOwner, outputAmount)) {
+    if (!IERC20(toToken).transfer(toOwner, outputAmount)) {
       revert Routing__TokenTransferFailed(toOwner, outputAmount);
     }
 
@@ -144,10 +143,10 @@ contract Routing is
       revert Routing__ErrorMessage("Pool address does not exist!");
     }
 
-    if (!IERC20Upgradeable(fromToken).transferFrom(msg.sender, address(this), inputAmount)) {
+    if (!IERC20(fromToken).transferFrom(msg.sender, address(this), inputAmount)) {
       revert Routing__TokenTransferFromFailed(msg.sender, address(this), inputAmount);
     }
-    if (IERC20Upgradeable(fromToken).approve(poolAddress, inputAmount)) {
+    if (IERC20(fromToken).approve(poolAddress, inputAmount)) {
       revert Routing__TokenApprovalFailed(poolAddress, inputAmount);
     }
 
@@ -236,7 +235,7 @@ contract Routing is
         minimumOutputAmount
       )
     returns (uint256 _outputAmount) {
-      if (!IERC20Upgradeable(toToken).transfer(msg.sender, outputAmount)) {
+      if (!IERC20(toToken).transfer(msg.sender, outputAmount)) {
         revert Routing__TokenTransferFailed(msg.sender, outputAmount);
       }
       outputAmount = _outputAmount;
@@ -293,7 +292,7 @@ contract Routing is
         0
       )
     returns (uint256 _outputAmount) {
-      if (!IERC20Upgradeable(toToken).transfer(msg.sender, outputAmount)) {
+      if (!IERC20(toToken).transfer(msg.sender, outputAmount)) {
         revert Routing__TokenTransferFailed(msg.sender, outputAmount);
       }
       outputAmount = _outputAmount;

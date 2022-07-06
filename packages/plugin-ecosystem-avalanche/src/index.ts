@@ -1,2 +1,1 @@
-import { createAvalancheEcosystemConfig } from "./plugin";
-export { createAvalancheEcosystemConfig };
+export * from "./plugin";

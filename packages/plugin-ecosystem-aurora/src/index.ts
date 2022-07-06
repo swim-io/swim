@@ -1,2 +1,1 @@
-import { createAuroraEcosystemConfig } from "./plugin";
-export { createAuroraEcosystemConfig };
+export * from "./plugin";

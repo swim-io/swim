@@ -1,2 +1,1 @@
-import { createKaruraEcosystemConfig } from "./plugin";
-export { createKaruraEcosystemConfig };
+export * from "./plugin";

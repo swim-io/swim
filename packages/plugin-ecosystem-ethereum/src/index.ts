@@ -1,2 +1,1 @@
-import { createEthereumEcosystemConfig } from "./plugin";
-export { createEthereumEcosystemConfig };
+export * from "./plugin";

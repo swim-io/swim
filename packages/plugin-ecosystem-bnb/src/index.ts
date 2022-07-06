@@ -1,2 +1,1 @@
-import { createBnbEcosystemConfig } from "./plugin";
-export { createBnbEcosystemConfig };
+export * from "./plugin";

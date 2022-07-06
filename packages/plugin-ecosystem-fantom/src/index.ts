@@ -1,2 +1,1 @@
-import { createFantomEcosystemConfig } from "./plugin";
-export { createFantomEcosystemConfig };
+export * from "./plugin";

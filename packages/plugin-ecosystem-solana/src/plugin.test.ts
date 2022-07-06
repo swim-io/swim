@@ -1,9 +1,9 @@
-import { PRESETS, createEcosystemConfig } from "./plugin";
+import { PRESETS, createSolanaEcosystemConfig } from "./plugin";
 
-describe("createEcosystemConfig", () => {
+describe("createSolanaEcosystemConfig", () => {
   test("creates an ecosystem config", () => {
     const chains = [...PRESETS.values()];
-    const result = createEcosystemConfig(chains);
+    const result = createSolanaEcosystemConfig(chains);
     expect(result).toStrictEqual({
       id: "solana",
       protocol: "solana-protocol",

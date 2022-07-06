@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.15;
+pragma solidity ^0.8.9;
 
 interface IRouting {
   struct TokenBalance {
@@ -69,7 +69,9 @@ interface IRouting {
     uint256 minimumOutputAmount
   ) external returns (uint256 outputAmount, address outpuToken);
 
-  function receiveAndSwap2(bytes memory encodedVm) external returns (uint256 outputAmount);
+  function receiveAndSwap2(bytes memory encodedVm)
+    external
+    returns (uint256 outputAmount, address outputToken);
 
   function registerToken(
     uint16 tokenId,

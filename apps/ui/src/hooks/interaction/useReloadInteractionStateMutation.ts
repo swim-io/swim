@@ -15,6 +15,7 @@ import {
   isPoolTx,
   isPostVaaSolanaTx,
   isRedeemOnSolanaTx,
+  isRequiredSplTokenAccountsCompleted,
   isSolanaPool,
   isUnlockEvmTx,
 } from "../../models";
@@ -47,10 +48,16 @@ export const useReloadInteractionStateMutation = () => {
 
     const {
       interaction,
+      requiredSplTokenAccounts,
       toSolanaTransfers,
       solanaPoolOperations,
       fromSolanaTransfers,
     } = interactionState;
+
+    if (!isRequiredSplTokenAccountsCompleted(requiredSplTokenAccounts)) {
+      // Token accounts not ready
+      return;
+    }
 
     const requiredEcosystems = getRequiredEcosystems(tokens, interaction);
 

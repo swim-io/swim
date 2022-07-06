@@ -174,7 +174,7 @@ const PoolsPage = (): ReactElement => {
       return pool.ecosystemIds.includes(ecosystemId);
     });
 
-  const poolsByTvl = filteredPools.slice().sort((a, b) => {
+  const poolsByTvl = [...filteredPools].sort((a, b) => {
     const aUsd = poolUsdTotals[a.id];
     const bUsd = poolUsdTotals[b.id];
 

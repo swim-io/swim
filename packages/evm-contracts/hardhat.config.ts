@@ -51,10 +51,24 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    rinkeby: {
+      url: process.env.RINKEBY_URL || "",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      chainId: 4,
+    },
+    localhost: {
+      url: "http://127.0.0.1:8545/", // yarn hardhat node -> spins node on local netwrok as ganache
+      // accounts: No need for this! Thanks Hardhat!
+      chainId: 31337,
+    },
   },
   gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
+    enabled: true,
+    outputFile: "gas-report.txt",
     currency: "USD",
+    // coinmarketcap: process.env.COINMARKETCAP_API_KEY,
+    // token: "MATIC"
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,

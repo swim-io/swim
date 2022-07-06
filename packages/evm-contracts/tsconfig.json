@@ -5,7 +5,7 @@
     "baseUrl": ".",
     "declaration": true,
     "declarationDir": "types",
-    "outDir": "build"
+    "outDir": "dist"
   },
   "include": ["./scripts", "./test", "./typechain"],
   "files": ["./hardhat.config.ts"]

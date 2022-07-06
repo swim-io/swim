@@ -20,6 +20,7 @@ import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
 import USDC_SVG from "../images/tokens/usdc.svg";
 import USDT_SVG from "../images/tokens/usdt.svg";
 import USN_SVG from "../images/tokens/usn.svg";
+import XSWIM_TOKEN_SVG from "../images/tokens/xswim_token.svg";
 import type { ReadonlyRecord } from "../utils";
 
 import { EcosystemId, isEcosystemEnabled } from "./ecosystem";
@@ -952,7 +953,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
     id: "devnet-solana-lp-swimlake",
     symbol: "xSWIM",
     displayName: "xSWIM (SwimLake LP)",
-    icon: SWIM_USD_SVG, // TODO: Change?
+    icon: XSWIM_TOKEN_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -1725,7 +1726,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     id: "localnet-solana-lp-swimlake",
     symbol: "xSWIM",
     displayName: "xSWIM (SwimLake LP)",
-    icon: SWIM_USD_SVG, // TODO: Change?
+    icon: XSWIM_TOKEN_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([

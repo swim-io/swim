@@ -90,7 +90,7 @@ const generateSuite = (env: Env): void => {
     it("should have token account addresses for each token in Solana pool", () => {
       const hasValidTokenAccounts = (pool: SolanaPoolSpec) =>
         pool.tokens.every((token) => pool.tokenAccounts.has(token));
-      expect(() => solanaPools.forEach(hasValidTokenAccounts)).not.toThrow();
+      expect(solanaPools.every(hasValidTokenAccounts)).toBe(true);
     });
   });
 };

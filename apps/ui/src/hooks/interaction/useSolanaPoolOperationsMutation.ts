@@ -42,12 +42,20 @@ export const useSolanaPoolOperationsMutation = () => {
     }
 
     const inputState = solanaPoolOperations[0];
+    const outputState = solanaPoolOperations[solanaPoolOperations.length - 1];
     const inputOperation = inputState.operation;
     const inputPoolSpec = findOrThrow(
       pools,
       (spec) => spec.id === inputOperation.poolId,
     );
+    const outputPoolSpec = findOrThrow(
+      pools,
+      (spec) => spec.id === outputState.operation.poolId,
+    );
     if (inputPoolSpec.ecosystem !== EcosystemId.Solana) {
+      throw new Error("Expect Solana pool");
+    }
+    if (outputPoolSpec.ecosystem !== EcosystemId.Solana) {
       throw new Error("Expect Solana pool");
     }
 
@@ -73,18 +81,9 @@ export const useSolanaPoolOperationsMutation = () => {
     if (solanaPoolOperations.length !== 2) {
       throw new Error("Unknown interaction route");
     }
-    const outputState = solanaPoolOperations[1];
-
     // Return if output operation is already done
     if (outputState.txId !== null) {
       return;
-    }
-    const outputPoolSpec = findOrThrow(
-      pools,
-      (spec) => spec.id === outputOperation.poolId,
-    );
-    if (outputPoolSpec.ecosystem !== EcosystemId.Solana) {
-      throw new Error("Expect Solana pool");
     }
     const parsedInputTx = await solanaConnection.getParsedTx(inputTxId);
     const outputOperation = setOutputOperationInputAmount(

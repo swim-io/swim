@@ -4,7 +4,6 @@ import type { ethers } from "ethers";
 import type { EvmEcosystemId } from "../../config";
 import { EcosystemId, isEvmEcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
-import { deduplicate } from "../../utils";
 
 interface BaseTx {
   readonly ecosystem: EcosystemId;
@@ -59,16 +58,6 @@ export interface AcalaTx extends EvmTx {
 
 export type Tx = SolanaTx | EvmTx;
 
-export type TxsByPoolId = ReadonlyRecord<
-  string,
-  readonly SolanaTx[] | undefined
->;
-
-export interface TxWithPoolId {
-  readonly poolId: string;
-  readonly tx: SolanaTx;
-}
-
 export type TxsByTokenId = ReadonlyRecord<string, readonly Tx[] | undefined>;
 
 export interface TxWithTokenId<T extends Tx = Tx> {
@@ -104,51 +93,3 @@ export const isAcalaTx = (tx: Tx): tx is AcalaTx =>
   tx.ecosystem === EcosystemId.Acala;
 
 export const isEvmTx = (tx: Tx): tx is EvmTx => isEvmEcosystemId(tx.ecosystem);
-
-export const groupTxsByTokenId = (
-  txs: readonly TxWithTokenId[],
-): TxsByTokenId =>
-  txs.reduce<TxsByTokenId>(
-    (
-      accumulator: TxsByTokenId,
-      { tokenId, tx }: TxWithTokenId,
-    ): TxsByTokenId => ({
-      ...accumulator,
-      [tokenId]: [...(accumulator[tokenId] ?? []), tx],
-    }),
-    {},
-  );
-
-export const groupTxsByPoolId = (txs: readonly TxWithPoolId[]): TxsByPoolId =>
-  txs.reduce<TxsByPoolId>(
-    (accumulator: TxsByPoolId, { poolId, tx }: TxWithPoolId): TxsByPoolId => ({
-      ...accumulator,
-      [poolId]: [...(accumulator[poolId] ?? []), tx],
-    }),
-    {},
-  );
-
-export const deduplicateTxs = <T extends Tx = Tx>(
-  txs: readonly T[],
-): readonly T[] => deduplicate<string, T>((tx) => tx.txId, txs);
-
-export const deduplicateTxsByTokenId = (
-  oldTxsByTxId: TxsByTokenId,
-  newTxsByTxId: TxsByTokenId,
-): TxsByTokenId =>
-  Object.entries(newTxsByTxId).reduce((accumulator, [tokenId, newTxs]) => {
-    if (newTxs === undefined) {
-      return accumulator;
-    }
-    const txsToAdd = newTxs.filter((newTx) => {
-      const txsForToken = accumulator[tokenId];
-      return (
-        txsForToken === undefined ||
-        txsForToken.every((tx) => tx.txId !== newTx.txId)
-      );
-    });
-    return {
-      ...accumulator,
-      [tokenId]: [...(accumulator[tokenId] ?? []), ...txsToAdd],
-    };
-  }, oldTxsByTxId);

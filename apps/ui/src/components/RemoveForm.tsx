@@ -93,9 +93,7 @@ export const RemoveForm = ({
     EcosystemId.Solana,
   );
   const [method, setMethod] = useState(RemoveMethod.ExactBurn);
-  const [outputToken, setOutputToken] = useState(
-    [...poolSpec.tokenAccounts.keys()][0],
-  );
+  const [outputToken, setOutputToken] = useState(poolSpec.tokens[0]);
   const [burnPercentage, setBurnPercentage] = useState(0);
 
   const userLpBalance = userLpBalances[lpTokenSourceEcosystem];
@@ -338,17 +336,17 @@ export const RemoveForm = ({
           { id: RemoveMethod.ExactOutput, label: "Enter exact output amount" },
         ];
 
-  const outputTokenOptions: readonly EuiSelectOption[] = [
-    ...poolSpec.tokenAccounts.keys(),
-  ].map((id) => {
-    const tokenSpec = findOrThrow(config.tokens, (token) => token.id === id);
-    return {
-      value: id,
-      text: `${tokenSpec.displayName} (${
-        ECOSYSTEMS[tokenSpec.nativeEcosystem].displayName
-      })`,
-    };
-  });
+  const outputTokenOptions: readonly EuiSelectOption[] = poolSpec.tokens.map(
+    (id) => {
+      const tokenSpec = findOrThrow(config.tokens, (token) => token.id === id);
+      return {
+        value: id,
+        text: `${tokenSpec.displayName} (${
+          ECOSYSTEMS[tokenSpec.nativeEcosystem].displayName
+        })`,
+      };
+    },
+  );
 
   const createOnChange = (tokenSpec: TokenSpec) => (value: string) => {
     const i = poolTokens.findIndex(({ id }) => id === tokenSpec.id);

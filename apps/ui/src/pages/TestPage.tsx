@@ -73,6 +73,11 @@ const TestPage = (): ReactElement => {
     lpToken,
     tokens: poolTokens,
   } = usePool(currentPool);
+
+  if (poolSpec.ecosystem !== EcosystemId.Solana) {
+    throw new Error("Test page is only for Solana Pool");
+  }
+
   const [initTxIds, setInitTxIds] = useState<readonly string[] | null>(null);
 
   const poolTokenMintAddresses = useMemo(

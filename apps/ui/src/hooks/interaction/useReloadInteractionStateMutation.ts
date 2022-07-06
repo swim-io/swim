@@ -16,6 +16,7 @@ import {
   isPostVaaSolanaTx,
   isRedeemOnSolanaTx,
   isRequiredSplTokenAccountsCompleted,
+  isSolanaPool,
   isUnlockEvmTx,
 } from "../../models";
 import { findOrThrow } from "../../utils";
@@ -160,7 +161,9 @@ export const useReloadInteractionStateMutation = () => {
       } = operationState;
 
       if (txId === null) {
-        const poolSpec = pools.find((pool) => pool.id === poolId);
+        const poolSpec = pools
+          .filter(isSolanaPool)
+          .find((pool) => pool.id === poolId);
         if (!poolSpec) {
           throw new Error("Pool spec not found");
         }

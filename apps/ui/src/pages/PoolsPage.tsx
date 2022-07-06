@@ -32,13 +32,16 @@ import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
 import USDC_SVG from "../images/tokens/usdc.svg";
 import USDT_SVG from "../images/tokens/usdt.svg";
 import USN_SVG from "../images/tokens/usn.svg";
+import { isSolanaPool } from "../models";
 import { filterMap, findOrThrow } from "../utils";
 
 const PoolsPage = (): ReactElement => {
   useTitle("Pools");
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
 
-  const allPoolTokenAccountAddresses = pools.flatMap((poolSpec) => [
+  const solanaPools = pools.filter(isSolanaPool);
+
+  const allPoolTokenAccountAddresses = solanaPools.flatMap((poolSpec) => [
     ...poolSpec.tokenAccounts.values(),
   ]);
   const { data: allPoolTokenAccounts = null } = useLiquidityQuery(
@@ -47,13 +50,13 @@ const PoolsPage = (): ReactElement => {
 
   const { data: prices = new Map<string, Decimal | null>() } =
     useCoinGeckoPricesQuery();
-  const poolTokens = pools.map((poolSpec) =>
-    [...poolSpec.tokenAccounts.keys()].map((id) =>
+  const poolTokens = solanaPools.map((poolSpec) =>
+    poolSpec.tokens.map((id) =>
       findOrThrow(tokens, (tokenSpec) => tokenSpec.id === id),
     ),
   );
 
-  const poolUsdTotals = pools.map((poolSpec, i) => {
+  const poolUsdTotals = solanaPools.map((poolSpec, i) => {
     const tokenSpecs = poolTokens[i];
 
     if (

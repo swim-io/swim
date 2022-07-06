@@ -830,6 +830,40 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       ],
     ]),
   },
+  {
+    id: "mainnet-solana-swim",
+    symbol: "SWIM",
+    displayName: "Swim Protocol Token",
+    icon: SWIM_TOKEN_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "swimnKEr963p7EbCjsSnBCoYwytuZHPm3zbq6fKLHXb",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    id: "mainnet-solana-lp-swimlake",
+    symbol: "xSWIM",
+    displayName: "xSWIM (SwimLake LP)",
+    icon: XSWIM_TOKEN_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "SwiMNJ49SxkqMaVWLGGVRH25kE5dBnD2RQoiQUnKtMC",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
 ].filter((spec) => !spec.isDisabled);
 
 const DEVNET_TOKENS: readonly TokenSpec[] = [

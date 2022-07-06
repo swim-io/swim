@@ -29,10 +29,15 @@ const HelpPage = (): ReactElement => {
               title={<h2>Get Help</h2>}
               body={
                 <p>
-                  We have a quickly growing collection of troubleshooting
-                  articles and tutorials in our GitBook. If you cannot find the
-                  answer you are looking for there, feel free to ask your
-                  question in our Discord or Telegram communities.
+                  <span>
+                    We have a quickly growing collection of troubleshooting
+                    articles and tutorials in our GitBook. If you cannot find
+                    the answer you are looking for there, feel free to ask your
+                    question in our Discord, Telegram communities, or reach out
+                    to use at
+                  </span>
+                  <a href="mailto:support@swim.io"> support@swim.io</a>
+                  <span>.</span>
                 </p>
               }
               actions={

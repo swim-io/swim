@@ -389,7 +389,7 @@ export const getRequiredPoolsForSwap = (
   const singlePool =
     poolSpecs.find((poolSpec) =>
       [inputTokenId, outputTokenId].every((tokenId) =>
-        poolSpec.tokenAccounts.has(tokenId),
+        poolSpec.tokens.includes(tokenId),
       ),
     ) ?? null;
   if (singlePool !== null) {
@@ -398,10 +398,10 @@ export const getRequiredPoolsForSwap = (
   // NOTE: We assume a maximum of two pools
   // TODO: Handle swimUSD swaps
   const inputPool = findOrThrow(poolSpecs, (poolSpec) =>
-    poolSpec.tokenAccounts.has(inputTokenId),
+    poolSpec.tokens.includes(inputTokenId),
   );
   const outputPool = findOrThrow(poolSpecs, (poolSpec) =>
-    poolSpec.tokenAccounts.has(outputTokenId),
+    poolSpec.tokens.includes(outputTokenId),
   );
   return [inputPool, outputPool];
 };

@@ -21,7 +21,7 @@ import shallow from "zustand/shallow.js";
 
 import { atomicToTvlString, u64ToDecimal } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
-import type { PoolSpec, TokenSpec } from "../config";
+import type { PoolSpec, SolanaPoolSpec, TokenSpec } from "../config";
 import {
   ECOSYSTEM_LIST,
   EcosystemId,
@@ -36,6 +36,7 @@ import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
 import USDC_SVG from "../images/tokens/usdc.svg";
 import USDT_SVG from "../images/tokens/usdt.svg";
 import USN_SVG from "../images/tokens/usn.svg";
+import { isSolanaPool } from "../models";
 import { deduplicate, filterMap, findOrThrow, sortBy } from "../utils";
 
 const PoolsPage = (): ReactElement => {
@@ -48,7 +49,9 @@ const PoolsPage = (): ReactElement => {
 
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
 
-  const allPoolTokenAccountAddresses = pools.flatMap((poolSpec) => [
+  const solanaPools = pools.filter(isSolanaPool);
+
+  const allPoolTokenAccountAddresses = solanaPools.flatMap((poolSpec) => [
     ...poolSpec.tokenAccounts.values(),
   ]);
   const { data: allPoolTokenAccounts = null } = useLiquidityQuery(
@@ -58,19 +61,17 @@ const PoolsPage = (): ReactElement => {
   const { data: prices = new Map<string, Decimal | null>(), isLoading } =
     useCoinGeckoPricesQuery();
 
-  const poolTokens: Record<string, readonly TokenSpec[]> = pools.reduce(
-    (accumulator, poolSpec) => {
-      return {
-        ...accumulator,
-        [poolSpec.id]: [...poolSpec.tokenAccounts.keys()].map((id) =>
-          findOrThrow(tokens, (tokenSpec) => tokenSpec.id === id),
-        ),
-      };
-    },
+  const poolTokens: Record<string, readonly TokenSpec[]> = solanaPools.reduce(
+    (accumulator, poolSpec) => ({
+      ...accumulator,
+      [poolSpec.id]: poolSpec.tokens.map((id) =>
+        findOrThrow(tokens, (tokenSpec) => tokenSpec.id === id),
+      ),
+    }),
     {},
   );
 
-  const getPoolUsdTotal = (poolSpec: PoolSpec) => {
+  const getPoolUsdTotal = (poolSpec: SolanaPoolSpec) => {
     const tokenSpecs = poolTokens[poolSpec.id];
 
     if (
@@ -108,7 +109,7 @@ const PoolsPage = (): ReactElement => {
     }
   };
 
-  const poolUsdTotals: Record<string, Decimal> = pools.reduce(
+  const poolUsdTotals: Record<string, Decimal> = solanaPools.reduce(
     (accumulator, poolSpec) => ({
       ...accumulator,
       [poolSpec.id]: getPoolUsdTotal(poolSpec),
@@ -159,7 +160,7 @@ const PoolsPage = (): ReactElement => {
     ),
   }));
 
-  const filteredPools = pools
+  const filteredPools = solanaPools
     .filter((pool) => {
       if (tokenSymbol === "all") return true;
 
@@ -171,7 +172,7 @@ const PoolsPage = (): ReactElement => {
     .filter((pool) => {
       if (ecosystemId === "all") return true;
 
-      return pool.ecosystemIds.includes(ecosystemId);
+      return pool.ecosystem === ecosystemId;
     });
 
   const poolsByTvl = [...filteredPools].sort((a, b) => {

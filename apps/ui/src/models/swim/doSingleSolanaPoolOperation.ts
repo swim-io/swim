@@ -1,49 +1,33 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import type Decimal from "decimal.js";
-import shallow from "zustand/shallow.js";
 
-import type { Env, PoolSpec } from "../../config";
+import type { Env, SolanaPoolSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
-import { selectConfig } from "../../core/selectors";
-import { useEnvironment } from "../../core/store";
-import type {
-  Interaction,
-  OperationSpec,
-  SolanaConnection,
-  SolanaTx,
-  SolanaWalletAdapter,
-  TokensByPoolId,
-  TxWithPoolId,
-  TxsByPoolId,
-} from "../../models";
+import { findOrThrow } from "../../utils";
+import { Amount } from "../amount";
+import type { SolanaConnection } from "../solana";
 import {
-  Amount,
-  SwimDefiInstruction,
-  SwimDefiInstructor,
   findTokenAccountForMint,
   getAmountMintedToAccountByMint,
   getAmountTransferredToAccountByMint,
-  getPoolState,
-  getRequiredPools,
-  getTokensByPool,
-} from "../../models";
-import { findOrThrow } from "../../utils";
-import {
-  useSolanaConnection,
-  useSolanaWallet,
-  useSplTokenAccountsQuery,
 } from "../solana";
-import type { UseAsyncGeneratorResult } from "../utils";
-import { useAsyncGenerator } from "../utils";
+import type { SolanaWalletAdapter } from "../wallets";
 
-export const doSinglePoolOperation = async (
+import { SwimDefiInstructor } from "./SwimDefiInstructor";
+import { SwimDefiInstruction } from "./instructions";
+import type { Interaction } from "./interaction";
+import type { OperationSpec } from "./operation";
+import type { TokensByPoolId } from "./pool";
+import { getPoolState } from "./pool";
+
+export const doSingleSolanaPoolOperation = async (
   env: Env,
   solanaConnection: SolanaConnection,
   wallet: SolanaWalletAdapter,
   splTokenAccounts: readonly TokenAccount[],
   tokensByPoolId: TokensByPoolId,
-  poolSpec: PoolSpec,
+  poolSpec: SolanaPoolSpec,
   operation: OperationSpec,
 ): Promise<string> => {
   const walletAddress = wallet.publicKey?.toBase58() ?? null;
@@ -218,140 +202,4 @@ export const setOutputOperationInputAmount = (
     default:
       throw new Error("Unknown instruction");
   }
-};
-
-async function* generatePoolOperationTxs(
-  env: Env,
-  solanaConnection: SolanaConnection,
-  wallet: SolanaWalletAdapter,
-  splTokenAccounts: readonly TokenAccount[],
-  tokensByPoolId: TokensByPoolId,
-  poolSpecs: readonly PoolSpec[],
-  interaction: Interaction,
-  operations: readonly OperationSpec[],
-  existingTxs: TxsByPoolId,
-): AsyncGenerator<TxWithPoolId> {
-  const inputOperation = operations[0];
-  const inputPoolSpec = findOrThrow(
-    poolSpecs,
-    (spec) => spec.id === inputOperation.poolId,
-  );
-
-  let inputSolanaTx: SolanaTx | null = null;
-  const existingInputTxs = existingTxs[inputOperation.poolId] ?? null;
-  if (existingInputTxs !== null && existingInputTxs.length > 0) {
-    inputSolanaTx = existingInputTxs[0];
-  } else {
-    const inputTxId = await doSinglePoolOperation(
-      env,
-      solanaConnection,
-      wallet,
-      splTokenAccounts,
-      tokensByPoolId,
-      inputPoolSpec,
-      inputOperation,
-    );
-    const inputTx = await solanaConnection.getParsedTx(inputTxId);
-    inputSolanaTx = {
-      ecosystem: EcosystemId.Solana,
-      txId: inputTxId,
-      timestamp: inputTx.blockTime ?? null,
-      interactionId: interaction.id,
-      parsedTx: inputTx,
-    };
-  }
-  yield {
-    poolId: inputOperation.poolId,
-    tx: inputSolanaTx,
-  };
-
-  if (operations.length === 1) {
-    return;
-  }
-  if (operations.length !== 2) {
-    throw new Error("Unknown interaction route");
-  }
-
-  const outputOperation = setOutputOperationInputAmount(
-    splTokenAccounts,
-    interaction,
-    inputOperation,
-    operations[1],
-    inputSolanaTx.parsedTx,
-  );
-  const outputPoolSpec = findOrThrow(
-    poolSpecs,
-    (spec) => spec.id === outputOperation.poolId,
-  );
-
-  let outputSolanaTx: SolanaTx | null = null;
-  const existingOutputTxs = existingTxs[outputOperation.poolId] ?? null;
-  if (existingOutputTxs !== null && existingOutputTxs.length > 1) {
-    outputSolanaTx = existingOutputTxs[0];
-  } else {
-    const outputTxId = await doSinglePoolOperation(
-      env,
-      solanaConnection,
-      wallet,
-      splTokenAccounts,
-      tokensByPoolId,
-      outputPoolSpec,
-      outputOperation,
-    );
-    const outputTx = await solanaConnection.getParsedTx(outputTxId);
-    outputSolanaTx = {
-      ecosystem: EcosystemId.Solana,
-      txId: outputTxId,
-      timestamp: outputTx.blockTime ?? null,
-      interactionId: interaction.id,
-      parsedTx: outputTx,
-    };
-  }
-  yield {
-    poolId: outputOperation.poolId,
-    tx: outputSolanaTx,
-  };
-}
-
-export interface PoolOperationsInput {
-  readonly interaction: Interaction;
-  readonly operations: readonly OperationSpec[];
-  readonly existingTxs: TxsByPoolId;
-}
-
-export const usePoolOperationsGenerator = (): UseAsyncGeneratorResult<
-  PoolOperationsInput,
-  TxWithPoolId
-> => {
-  const { env } = useEnvironment();
-  const config = useEnvironment(selectConfig, shallow);
-  const tokensByPoolId = getTokensByPool(config);
-  const solanaConnection = useSolanaConnection();
-  const { wallet } = useSolanaWallet();
-  const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
-
-  return useAsyncGenerator<PoolOperationsInput, TxWithPoolId>(
-    async ({ interaction, operations, existingTxs }) => {
-      const poolSpecs = getRequiredPools(config.pools, interaction);
-      if (wallet === null) {
-        throw new Error("Missing Solana wallet");
-      }
-      if (splTokenAccounts === null) {
-        throw new Error(
-          "SPL token accounts not loaded, please try again later",
-        );
-      }
-      return generatePoolOperationTxs(
-        env,
-        solanaConnection,
-        wallet,
-        splTokenAccounts,
-        tokensByPoolId,
-        poolSpecs,
-        interaction,
-        operations,
-        existingTxs,
-      );
-    },
-  );
 };

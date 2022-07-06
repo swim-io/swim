@@ -34,7 +34,7 @@ const HelpPage = (): ReactElement => {
                     articles and tutorials in our GitBook. If you cannot find
                     the answer you are looking for there, feel free to ask your
                     question in our Discord, Telegram communities, or reach out
-                    to use at
+                    to us at
                   </span>
                   <a href="mailto:support@swim.io"> support@swim.io</a>
                   <span>.</span>

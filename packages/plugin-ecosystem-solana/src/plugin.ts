@@ -1,11 +1,14 @@
 import type { ChainConfig, EcosystemConfig } from "@swim-io/core-types";
 import { Env } from "@swim-io/core-types";
 
-export const SOLANA_PROTOCOL = "solana-protocol" as const;
+export type SolanaProtocol = "solana-protocol";
+export const SOLANA_PROTOCOL: SolanaProtocol = "solana-protocol";
 
-export const SOLANA_ECOSYSTEM_ID = "solana" as const;
+export type SolanaEcosystemId = "solana";
+export const SOLANA_ECOSYSTEM_ID: SolanaEcosystemId = "solana";
 
-export const SOLANA_WORMHOLE_CHAIN_ID = 1 as const;
+export type SolanaWormholeChainId = 1;
+export const SOLANA_WORMHOLE_CHAIN_ID: SolanaWormholeChainId = 1;
 
 /** Adapted from @solana/spl-token-registry ENV */
 export const enum SolanaChainId {
@@ -15,23 +18,27 @@ export const enum SolanaChainId {
   Localnet = 104,
 }
 
-export interface SolanaChainConfig extends ChainConfig {
-  /** This should be unique for a given Env */
-  readonly chainId: SolanaChainId;
+export interface SolanaChainConfig
+  extends ChainConfig<SolanaEcosystemId, SolanaChainId> {
   readonly endpoint: string;
   readonly wsEndpoint: string;
   readonly tokenContract: string;
   readonly otterTotCollection: string;
 }
 
-export interface SolanaEcosystemConfig extends EcosystemConfig {
-  readonly chains: readonly SolanaChainConfig[];
-}
+export type SolanaEcosystemConfig = EcosystemConfig<
+  SolanaProtocol,
+  SolanaEcosystemId,
+  SolanaWormholeChainId,
+  SolanaChainId
+>;
 
 export const PRESETS: ReadonlyMap<Env, SolanaChainConfig> = new Map([
   [
     Env.Mainnet,
     {
+      name: "Solana Mainnet Beta",
+      ecosystemId: SOLANA_ECOSYSTEM_ID,
       env: Env.Mainnet,
       chainId: SolanaChainId.MainnetBeta,
       wormholeBridge: "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth",
@@ -45,6 +52,8 @@ export const PRESETS: ReadonlyMap<Env, SolanaChainConfig> = new Map([
   [
     Env.Devnet,
     {
+      name: "Solana Devnet",
+      ecosystemId: SOLANA_ECOSYSTEM_ID,
       env: Env.Devnet,
       chainId: SolanaChainId.Devnet,
       wormholeBridge: "3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5",

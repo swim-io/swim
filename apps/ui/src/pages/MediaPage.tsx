@@ -33,7 +33,7 @@ const MediaPage = (): ReactElement => {
             <EuiText>
               <p>
                 <b>Press inquiries: </b>{" "}
-                <a href="mailto:press@swim.io">press@swim.io</a>
+                <a href="mailto:media@swim.io">media@swim.io</a>
               </p>
             </EuiText>
             <EuiSpacer />

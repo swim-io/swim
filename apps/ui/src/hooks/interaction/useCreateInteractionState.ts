@@ -227,8 +227,6 @@ export const useCreateInteractionState = () => {
       poolIds: requiredPools.map((pool) => pool.id),
       env,
       submittedAt: Date.now(),
-      signatureSetKeypairs: {},
-      previousSignatureSetAddresses: {},
       connectedWallets,
     };
     return {

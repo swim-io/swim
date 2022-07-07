@@ -33,8 +33,6 @@ export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION = {
     poolIds: ["hexapool", "meta-avalanche-usdc"],
     env: Env.Devnet,
     submittedAt: 1656406521938,
-    signatureSetKeypairs: {},
-    previousSignatureSetAddresses: {},
     connectedWallets: {
       [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
       [EcosystemId.Bnb]: null,

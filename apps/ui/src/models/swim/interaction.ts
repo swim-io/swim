@@ -98,13 +98,6 @@ interface BaseInteraction {
   readonly poolIds: readonly string[];
   readonly env: Env;
   readonly submittedAt: number;
-  /** Record of token ID to keypairs for a signature set used in posting Wormhole VAAs to Solana */
-  readonly signatureSetKeypairs: ReadonlyRecord<string, Keypair | undefined>;
-  /** Previous keypairs for use finding txs */
-  readonly previousSignatureSetAddresses: ReadonlyRecord<
-    string,
-    string | undefined
-  >;
   readonly connectedWallets: ReadonlyRecord<EcosystemId, string | null>;
 }
 

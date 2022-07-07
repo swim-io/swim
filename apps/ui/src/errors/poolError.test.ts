@@ -23,7 +23,7 @@ describe("Swim pool errors", () => {
         "failed to send transaction: Transaction simulation failed: Error processing Instruction 1: custom program error: 0x65",
       ];
 
-      for (const error in errors) {
+      for (const error of errors) {
         expect(extractSwimPoolError(error)).toBeNull();
       }
     });

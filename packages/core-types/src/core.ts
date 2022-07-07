@@ -33,3 +33,21 @@ export interface EcosystemConfig<
   readonly gasToken: GasToken;
   readonly chains: readonly ChainConfig<E, C>[];
 }
+
+export interface EcosystemPlugin<
+  Protocol extends string,
+  EcosystemId extends string,
+  WormholeChainId extends number,
+  ChainId extends number,
+  C extends ChainConfig<EcosystemId, ChainId>,
+> {
+  readonly protocol: Protocol;
+  readonly id: EcosystemId;
+  readonly wormholeChainId: WormholeChainId;
+  readonly displayName: string;
+  readonly gasToken: GasToken;
+  readonly presetChains: ReadonlyMap<Env, ChainConfig<EcosystemId, ChainId>>;
+  readonly createEcosystemConfig: (
+    chains?: readonly C[],
+  ) => EcosystemConfig<Protocol, EcosystemId, WormholeChainId, ChainId>;
+}

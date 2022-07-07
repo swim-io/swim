@@ -115,11 +115,6 @@ const PoolsPage = (): ReactElement => {
     {},
   );
 
-  const tvl = Object.values(poolUsdTotals).reduce(
-    (prev, current) => prev.add(current),
-    new Decimal(0),
-  );
-
   const selectTokenOptions = useMemo(
     () =>
       sortBy(
@@ -202,6 +197,11 @@ const PoolsPage = (): ReactElement => {
       if (ecosystemId === "all") return true;
       return pool.ecosystem === ecosystemId;
     });
+
+  const tvl = filteredPools.reduce(
+    (prev, pool) => prev.add(poolUsdTotals[pool.id]),
+    new Decimal(0),
+  );
 
   const poolsByTvl = [...filteredPools].sort((a, b) => {
     const aUsd = poolUsdTotals[a.id];

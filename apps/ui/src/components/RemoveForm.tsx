@@ -701,7 +701,7 @@ export const RemoveForm = ({
                     name={tokenSpec.id}
                     value={
                       method === RemoveMethod.ExactOutput
-                        ? formOutputAmountsById.get(tokenSpec.id) ?? "10"
+                        ? formOutputAmountsById.get(tokenSpec.id) ?? "0"
                         : outputAmountsById
                             .get(tokenSpec.id)
                             ?.toFormattedHumanString(

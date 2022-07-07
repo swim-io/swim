@@ -1,0 +1,1 @@
+# BNB Chain Ecosystem Plugin

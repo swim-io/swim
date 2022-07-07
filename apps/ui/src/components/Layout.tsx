@@ -32,7 +32,9 @@ export const Layout = ({
               items: [
                 <CustomHeaderLogo key="custom-header-logo" />,
                 <EuiHeaderLinks key="eui-header-links">
-                  <CustomHeaderLink to={"/swap"}>Swap</CustomHeaderLink>
+                  <CustomHeaderLink to={"/swap/solana/USDC/solana/USDT"}>
+                    Swap
+                  </CustomHeaderLink>
                   <CustomHeaderLink to={"/pools"}>Pools</CustomHeaderLink>
                   {/* TODO: Enable when token is launched */}
                   {/* <CustomHeaderLink to={"/stake"}>Stake</CustomHeaderLink> */}

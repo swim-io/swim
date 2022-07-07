@@ -9,8 +9,10 @@ import {
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import shallow from "zustand/shallow.js";
 
+import type { TokenSpec } from "../config";
 import { EcosystemId } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
@@ -56,6 +58,11 @@ export interface SwapFormProps {
 export const SwapForm = ({
   maxSlippageFraction,
 }: SwapFormProps): ReactElement => {
+  const { fromChain, toChain } = useParams<{
+    readonly fromChain: string;
+    readonly toChain: string;
+  }>();
+  const navigate = useNavigate();
   const config = useEnvironment(selectConfig, shallow);
   const { notify } = useNotification();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
@@ -71,6 +78,17 @@ export const SwapForm = ({
     toTokenOptionsIds,
   } = useSwapTokens();
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
+
+  const onToTokenChange = (token: TokenSpec) => {
+    const { id, symbol, nativeEcosystem } = token;
+    setFromTokenId(id);
+    navigate(`/swap/${nativeEcosystem}/${symbol}/${toChain}/${toToken}`);
+  };
+  const onFromTokenChange = (token: TokenSpec) => {
+    const { id, symbol, nativeEcosystem } = token;
+    setToTokenId(id);
+    navigate(`/swap/${fromChain}/${fromToken}/${nativeEcosystem}/${symbol}`);
+  };
 
   const requiredPools = getRequiredPoolsForSwap(
     config.pools,
@@ -239,7 +257,7 @@ export const SwapForm = ({
         placeholder={"Enter amount"}
         disabled={isInteractionInProgress}
         errors={inputAmountErrors}
-        onSelectToken={setFromTokenId}
+        onSelectToken={onFromTokenChange}
         onChangeValue={(value) => setFormInputAmount(value)}
         onBlur={() => handleInputAmountChange(inputAmount)}
         showConstantSwapTip={!isStableSwap}
@@ -252,8 +270,8 @@ export const SwapForm = ({
           size="m"
           iconSize="xl"
           onClick={() => {
-            setFromTokenId(toToken.id);
-            setToTokenId(fromToken.id);
+            onToTokenChange(toToken);
+            onFromTokenChange(fromToken);
           }}
           className="swapForm__flipIcon"
           aria-label="Flip direction"
@@ -272,7 +290,7 @@ export const SwapForm = ({
         placeholder={"Output"}
         disabled={isInteractionInProgress}
         errors={[]}
-        onSelectToken={setToTokenId}
+        onSelectToken={onToTokenChange}
         // Never show constant swap on "To Form".
         showConstantSwapTip={false}
       />

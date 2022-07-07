@@ -12,6 +12,7 @@ import {
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import shallow from "zustand/shallow.js";
 
 import { RecentInteractions } from "../components/RecentInteractions";
@@ -27,8 +28,11 @@ import "./SwapPage.scss";
 
 const SwapPage = (): ReactElement => {
   const { pools } = useEnvironment(selectConfig, shallow);
-
-  useTitle("Swap");
+  const { fromChain, toChain } = useParams<{
+    readonly fromChain: string;
+    readonly toChain: string;
+  }>();
+  useTitle(`Swap ${fromChain} to ${toChain}`);
 
   const nonStakingPools = useMemo(
     () => pools.filter((pool) => !pool.isStakingPool),

@@ -26,7 +26,7 @@ const renderTokenOption = (option: TokenOption) => {
 
 export interface TokenSearchModalProps {
   readonly handleClose: () => void;
-  readonly handleSelectToken: (tokenId: string) => void;
+  readonly handleSelectToken: (token: TokenSpec) => void;
   readonly tokenOptionIds: readonly string[];
 }
 
@@ -51,7 +51,7 @@ export const TokenSearchModal = ({
     (opts: readonly TokenOption[]) => {
       const selected = opts.find(({ checked }) => checked);
       if (selected) {
-        handleSelectToken(selected.data.id);
+        handleSelectToken(selected.data);
         handleClose();
       }
     },

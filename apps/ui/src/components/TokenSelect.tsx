@@ -8,7 +8,7 @@ import { NativeTokenIcon } from "./TokenIcon";
 import { TokenSearchModal } from "./TokenSearchModal";
 
 export interface TokenSelectProps {
-  readonly onSelectToken: (tokenId: string) => void;
+  readonly onSelectToken: (token: TokenSpec) => void;
   readonly tokenOptionIds: readonly string[];
   readonly token: TokenSpec;
 }

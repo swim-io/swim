@@ -23,7 +23,7 @@ interface Props {
   readonly token: TokenSpec;
   readonly tokenOptionIds: readonly string[];
   readonly placeholder: string;
-  readonly onSelectToken: (tokenId: string) => void;
+  readonly onSelectToken: (token: TokenSpec) => void;
   readonly onChangeValue?: (value: string) => void;
   readonly onBlur?: () => void;
   readonly disabled: boolean;

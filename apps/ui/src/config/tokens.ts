@@ -20,6 +20,7 @@ import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
 import USDC_SVG from "../images/tokens/usdc.svg";
 import USDT_SVG from "../images/tokens/usdt.svg";
 import USN_SVG from "../images/tokens/usn.svg";
+import XSWIM_TOKEN_SVG from "../images/tokens/xswim_token.svg";
 import type { ReadonlyRecord } from "../utils";
 
 import { EcosystemId, isEcosystemEnabled } from "./ecosystem";
@@ -829,6 +830,42 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       ],
     ]),
   },
+  {
+    isDisabled: true,
+    id: "mainnet-solana-swim",
+    symbol: "SWIM",
+    displayName: "Swim Protocol Token",
+    icon: SWIM_TOKEN_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "swimnKEr963p7EbCjsSnBCoYwytuZHPm3zbq6fKLHXb",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: true,
+    id: "mainnet-solana-lp-swimlake",
+    symbol: "xSWIM",
+    displayName: "xSWIM (SwimLake LP)",
+    icon: XSWIM_TOKEN_SVG,
+    isStablecoin: false,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "SwiMNJ49SxkqMaVWLGGVRH25kE5dBnD2RQoiQUnKtMC",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
 ].filter((spec) => !spec.isDisabled);
 
 const DEVNET_TOKENS: readonly TokenSpec[] = [
@@ -952,7 +989,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
     id: "devnet-solana-lp-swimlake",
     symbol: "xSWIM",
     displayName: "xSWIM (SwimLake LP)",
-    icon: SWIM_USD_SVG, // TODO: Change?
+    icon: XSWIM_TOKEN_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -1725,7 +1762,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     id: "localnet-solana-lp-swimlake",
     symbol: "xSWIM",
     displayName: "xSWIM (SwimLake LP)",
-    icon: SWIM_USD_SVG, // TODO: Change?
+    icon: XSWIM_TOKEN_SVG,
     isStablecoin: false,
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([

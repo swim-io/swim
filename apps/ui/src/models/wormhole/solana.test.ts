@@ -4,9 +4,9 @@ import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import type { TokenSpec, WormholeChainSpec } from "../../config";
 import {
   CHAINS,
-  PROJECTS,
   EcosystemId,
   Env,
+  PROJECTS,
   Protocol,
   TOKENS,
   TokenProjectId,

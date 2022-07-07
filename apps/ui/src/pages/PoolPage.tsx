@@ -29,7 +29,7 @@ import { AddForm } from "../components/AddForm";
 import { RemoveForm } from "../components/RemoveForm";
 import { SlippageButton } from "../components/SlippageButton";
 import { StatList } from "../components/StatList";
-import { TokenSpecIcon, TokenIcon } from "../components/TokenIcon";
+import { TokenIcon, TokenSpecIcon } from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
 import { EcosystemId, getSolanaTokenDetails } from "../config";
 import { selectConfig } from "../core/selectors";

@@ -16,7 +16,7 @@ import {
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
-import { Fragment, useState, useMemo } from "react";
+import { Fragment, useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import { atomicToTvlString, u64ToDecimal } from "../amounts";
@@ -172,7 +172,7 @@ const PoolsPage = (): ReactElement => {
     }));
   }, []);
 
-  const projectsPerPool: Record<PoolSpec["id"], TokenProjectId[]> =
+  const projectsPerPool: Record<PoolSpec["id"], readonly TokenProjectId[]> =
     useMemo(() => {
       return pools.reduce(
         (accumulator, pool) => ({
@@ -188,7 +188,7 @@ const PoolsPage = (): ReactElement => {
         }),
         {},
       );
-    }, [pools]);
+    }, [pools, tokens]);
 
   const filteredPools = solanaPools
     .filter((pool) => {

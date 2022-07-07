@@ -1,4 +1,5 @@
 import type { Keypair } from "@solana/web3.js";
+import type Decimal from "decimal.js";
 
 import type { EcosystemId, Env } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
@@ -14,6 +15,7 @@ export enum InteractionType {
   RemoveUniform,
   RemoveExactBurn,
   RemoveExactOutput,
+  SwapV2,
 }
 
 export const INTERACTION_GROUP_SWAP = new Set([InteractionType.Swap]);
@@ -128,3 +130,36 @@ export type Interaction =
   | RemoveExactBurnInteraction
   | RemoveExactOutputInteraction
   | SwapInteraction;
+
+// V2 for Pool Restructure
+interface TokenTransferDetail {
+  readonly tokenId: string;
+  readonly ecosystemId: EcosystemId;
+  readonly value: Decimal;
+}
+
+export interface SwapInteractionSpecV2 extends BaseInteractionSpec {
+  readonly type: InteractionType.SwapV2;
+  readonly params: {
+    readonly fromTokenDetail: TokenTransferDetail;
+    readonly toTokenDetail: TokenTransferDetail;
+  };
+}
+
+export type InteractionSpecV2 =
+  | SwapInteractionSpecV2
+  | AddInteractionSpec
+  | RemoveUniformInteractionSpec
+  | RemoveExactBurnInteractionSpec
+  | RemoveExactOutputInteractionSpec;
+
+export interface SwapInteractionV2
+  extends BaseInteraction,
+    SwapInteractionSpecV2 {}
+
+export type InteractionV2 =
+  | AddInteraction
+  | RemoveUniformInteraction
+  | RemoveExactBurnInteraction
+  | RemoveExactOutputInteraction
+  | SwapInteractionV2;

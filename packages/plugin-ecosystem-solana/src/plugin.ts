@@ -1,4 +1,8 @@
-import type { ChainConfig, EcosystemConfig } from "@swim-io/core-types";
+import type {
+  ChainConfig,
+  EcosystemConfig,
+  EcosystemPlugin,
+} from "@swim-io/core-types";
 import { Env } from "@swim-io/core-types";
 
 export type SolanaProtocol = "solana-protocol";
@@ -33,7 +37,7 @@ export type SolanaEcosystemConfig = EcosystemConfig<
   SolanaChainId
 >;
 
-export const PRESETS: ReadonlyMap<Env, SolanaChainConfig> = new Map([
+const presetChains: ReadonlyMap<Env, SolanaChainConfig> = new Map([
   [
     Env.Mainnet,
     {
@@ -66,9 +70,7 @@ export const PRESETS: ReadonlyMap<Env, SolanaChainConfig> = new Map([
   ],
 ]);
 
-export const createSolanaEcosystemConfig = (
-  chains: readonly SolanaChainConfig[],
-): SolanaEcosystemConfig => ({
+const baseInfo = {
   id: SOLANA_ECOSYSTEM_ID,
   protocol: SOLANA_PROTOCOL,
   wormholeChainId: SOLANA_WORMHOLE_CHAIN_ID,
@@ -78,5 +80,23 @@ export const createSolanaEcosystemConfig = (
     symbol: "SOL",
     decimals: 9,
   },
+};
+
+const createEcosystemConfig = (
+  chains: readonly SolanaChainConfig[] = [...presetChains.values()],
+): SolanaEcosystemConfig => ({
+  ...baseInfo,
   chains,
 });
+
+export const plugin: EcosystemPlugin<
+  SolanaProtocol,
+  SolanaEcosystemId,
+  SolanaWormholeChainId,
+  SolanaChainId,
+  SolanaChainConfig
+> = {
+  ...baseInfo,
+  presetChains,
+  createEcosystemConfig,
+};

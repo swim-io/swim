@@ -1,9 +1,8 @@
-import { PRESETS, createSolanaEcosystemConfig } from "./plugin";
+import { plugin } from "./plugin";
 
 describe("createSolanaEcosystemConfig", () => {
   test("creates an ecosystem config", () => {
-    const chains = [...PRESETS.values()];
-    const result = createSolanaEcosystemConfig(chains);
+    const result = plugin.createEcosystemConfig();
     expect(result).toStrictEqual({
       id: "solana",
       protocol: "solana-protocol",
@@ -14,7 +13,7 @@ describe("createSolanaEcosystemConfig", () => {
         symbol: "SOL",
         decimals: 9,
       },
-      chains,
+      chains: [...plugin.presetChains.values()],
     });
   });
 });

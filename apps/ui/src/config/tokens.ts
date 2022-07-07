@@ -831,6 +831,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: true,
     id: "mainnet-solana-swim",
     symbol: "SWIM",
     displayName: "Swim Protocol Token",
@@ -848,6 +849,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
+    isDisabled: true,
     id: "mainnet-solana-lp-swimlake",
     symbol: "xSWIM",
     displayName: "xSWIM (SwimLake LP)",

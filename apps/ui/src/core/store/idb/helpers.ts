@@ -444,14 +444,10 @@ export const deserializeInteractionState = (
 export const prepareInteraction = (
   interaction: Interaction,
 ): PreparedInteraction => {
-  const base = {
-    signatureSetKeypairs: {},
-  };
   switch (interaction.type) {
     case InteractionType.Add:
       return {
         ...interaction,
-        ...base,
         params: {
           ...interaction.params,
           inputAmounts: interaction.params.inputAmounts.map(
@@ -465,7 +461,6 @@ export const prepareInteraction = (
     case InteractionType.RemoveUniform:
       return {
         ...interaction,
-        ...base,
         params: {
           ...interaction.params,
           exactBurnAmount: fromAmountToPreparedAmount(
@@ -479,7 +474,6 @@ export const prepareInteraction = (
     case InteractionType.RemoveExactBurn:
       return {
         ...interaction,
-        ...base,
         params: {
           ...interaction.params,
           exactBurnAmount: fromAmountToPreparedAmount(
@@ -493,7 +487,6 @@ export const prepareInteraction = (
     case InteractionType.RemoveExactOutput:
       return {
         ...interaction,
-        ...base,
         params: {
           ...interaction.params,
           maximumBurnAmount: fromAmountToPreparedAmount(
@@ -507,7 +500,6 @@ export const prepareInteraction = (
     case InteractionType.Swap:
       return {
         ...interaction,
-        ...base,
         params: {
           ...interaction.params,
           exactInputAmount: fromAmountToPreparedAmount(

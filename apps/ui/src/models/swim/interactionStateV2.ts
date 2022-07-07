@@ -1,39 +1,16 @@
-import type Decimal from "decimal.js";
-
-import type { EcosystemId } from "../../config";
 import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
 import type {
   AddInteraction,
-  BaseInteraction,
-  BaseInteractionSpec,
-  InteractionType,
   RemoveExactBurnInteraction,
   RemoveExactOutputInteraction,
   RemoveUniformInteraction,
+  SwapInteractionV2,
 } from "./interaction";
 import type {
   RequiredSplTokenAccounts,
   SolanaPoolOperationState,
 } from "./interactionState";
-
-interface TokenTransferDetail {
-  readonly tokenId: string;
-  readonly ecosystemId: EcosystemId;
-  readonly value: Decimal;
-}
-
-export interface SwapInteractionSpecV2 extends BaseInteractionSpec {
-  readonly type: InteractionType.SwapV2;
-  readonly params: {
-    readonly fromTokenDetail: TokenTransferDetail;
-    readonly toTokenDetail: TokenTransferDetail;
-  };
-}
-
-export interface SwapInteractionV2
-  extends BaseInteraction,
-    SwapInteractionSpecV2 {}
 
 export enum SwapType {
   SingleChainSolana = "SingleChainSolana",
@@ -97,13 +74,6 @@ export interface RemoveInteractionState {
   readonly approvalTxIds: readonly EvmTx["txId"][];
   readonly removeTxId: string | null;
 }
-
-export type InteractionV2 =
-  | AddInteraction
-  | RemoveUniformInteraction
-  | RemoveExactBurnInteraction
-  | RemoveExactOutputInteraction
-  | SwapInteractionV2;
 
 export type InteractionStateV2 =
   | SingleChainSolanaSwapInteractionState

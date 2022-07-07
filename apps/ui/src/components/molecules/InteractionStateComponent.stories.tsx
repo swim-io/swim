@@ -46,8 +46,8 @@ Init.args = {
 const stateWithExistingSplTokenAccounts: InteractionState = {
   ...MOCK_INTERACTION_STATE,
   requiredSplTokenAccounts: {
-    mint1: { isExistingAccount: true, account: null, txId: null },
-    mint2: { isExistingAccount: true, account: null, txId: null },
+    mint1: { isExistingAccount: true, txId: null },
+    mint2: { isExistingAccount: true, txId: null },
   },
 };
 export const ExistingSplTokenAccounts = Template.bind({});
@@ -60,12 +60,10 @@ const stateWithCreatedSplTokenAccounts: InteractionState = {
   requiredSplTokenAccounts: {
     mint1: {
       isExistingAccount: false,
-      account: null,
       txId: "createSplTokenAccountTxId1",
     },
     mint2: {
       isExistingAccount: false,
-      account: null,
       txId: "createSplTokenAccountTxId2",
     },
   },

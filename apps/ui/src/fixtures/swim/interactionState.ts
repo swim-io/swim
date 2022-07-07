@@ -42,12 +42,10 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
   requiredSplTokenAccounts: {
     "9idXDPGb5jfwaf5fxjiMacgUcwpy3ZHfdgqSjAV5XLDr": {
       isExistingAccount: false,
-      account: null,
       txId: null,
     },
     Ep9cMbgyG46b6PVvJNypopc6i8TFzvUVmGiT4MA1PhSb: {
       isExistingAccount: false,
-      account: null,
       txId: null,
     },
   },
@@ -134,12 +132,10 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
   requiredSplTokenAccounts: {
     "9idXDPGb5jfwaf5fxjiMacgUcwpy3ZHfdgqSjAV5XLDr": {
       isExistingAccount: false,
-      account: null,
       txId: null,
     },
     Ep9cMbgyG46b6PVvJNypopc6i8TFzvUVmGiT4MA1PhSb: {
       isExistingAccount: false,
-      account: null,
       txId: null,
     },
   },

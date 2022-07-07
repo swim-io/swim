@@ -58,7 +58,6 @@ export const createRequiredSplTokenAccounts = (
       ...state,
       [mint]: {
         isExistingAccount: accountForMint !== null,
-        account: accountForMint,
         txId: null,
       },
     };

@@ -23,7 +23,7 @@ import { atomicToTvlString, u64ToDecimal } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
 import type { PoolSpec, SolanaPoolSpec, TokenSpec } from "../config";
 import {
-  ECOSYSTEM_LIST,
+  ECOSYSTEMS,
   EcosystemId,
   PROJECTS,
   TokenProjectId,
@@ -152,12 +152,15 @@ const PoolsPage = (): ReactElement => {
   );
 
   const selectEcosystemOptions = useMemo(() => {
-    const enabledEcosystems = sortBy(
-      ECOSYSTEM_LIST.filter((ecosystem) => isEcosystemEnabled(ecosystem.id)),
+    const ecosystems = sortBy(
+      deduplicate(
+        (id) => id,
+        pools.map((pool) => pool.ecosystem),
+      ).map((ecosystem) => ECOSYSTEMS[ecosystem]),
       "displayName",
     );
 
-    return enabledEcosystems.map((ecosystem) => ({
+    return ecosystems.map((ecosystem) => ({
       value: ecosystem.id,
       inputDisplay: (
         <EuiFlexGroup gutterSize="none" alignItems="center" responsive={false}>
@@ -170,7 +173,7 @@ const PoolsPage = (): ReactElement => {
         </EuiFlexGroup>
       ),
     }));
-  }, []);
+  }, [pools]);
 
   const projectsPerPool: Record<PoolSpec["id"], readonly TokenProjectId[]> =
     useMemo(() => {
@@ -427,29 +430,24 @@ const PoolsPage = (): ReactElement => {
               responsive={false}
             >
               <EuiFlexItem grow={false}>
-                <EuiFlexGroup alignItems="center">
-                  <EuiFlexItem grow={false}>
-                    <EuiTitle>
-                      <h2>Pools</h2>
-                    </EuiTitle>
-                  </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <EuiText>
-                      <p>
-                        <b>
-                          {`TVL: ${
-                            tvl.isPositive()
-                              ? "$" + atomicToTvlString(tvl)
-                              : "--"
-                          }`}
-                        </b>
-                      </p>
-                    </EuiText>
-                  </EuiFlexItem>
-                </EuiFlexGroup>
+                <EuiTitle>
+                  <h2>Pools</h2>
+                </EuiTitle>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiText>
+                  <p>
+                    <b>
+                      {`TVL: ${
+                        tvl.isPositive() ? "$" + atomicToTvlString(tvl) : "--"
+                      }`}
+                    </b>
+                  </p>
+                </EuiText>
               </EuiFlexItem>
             </EuiFlexGroup>
-            <EuiFlexGroup alignItems="center" justifyContent="flexEnd">
+
+            <EuiFlexGroup alignItems="center">
               <EuiFlexItem grow={false}>
                 <EuiFormRow label="Token">
                   <EuiSuperSelect
@@ -469,23 +467,25 @@ const PoolsPage = (): ReactElement => {
                   />
                 </EuiFormRow>
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <EuiFormRow label="Chain">
-                  <EuiSuperSelect
-                    options={[
-                      { inputDisplay: "All Chains", value: "all" },
-                      ...selectEcosystemOptions,
-                    ]}
-                    valueOfSelected={ecosystemId}
-                    onChange={(value) => setEcosystemId(value as EcosystemId)}
-                    itemLayoutAlign="top"
-                    hasDividers
-                    style={{
-                      minWidth: 180,
-                    }}
-                  />
-                </EuiFormRow>
-              </EuiFlexItem>
+              {selectEcosystemOptions.length > 2 && (
+                <EuiFlexItem grow={false}>
+                  <EuiFormRow label="Chain">
+                    <EuiSuperSelect
+                      options={[
+                        { inputDisplay: "All Chains", value: "all" },
+                        ...selectEcosystemOptions,
+                      ]}
+                      valueOfSelected={ecosystemId}
+                      onChange={(value) => setEcosystemId(value as EcosystemId)}
+                      itemLayoutAlign="top"
+                      hasDividers
+                      style={{
+                        minWidth: 180,
+                      }}
+                    />
+                  </EuiFormRow>
+                </EuiFlexItem>
+              )}
             </EuiFlexGroup>
 
             <EuiSpacer />

@@ -8,13 +8,25 @@
     "react-app/jest"
   ],
   "rules": {
+    // rules we probably want to remove at some point
+    "@typescript-eslint/no-misused-promises": "off",
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/require-await": "off",
+    "@typescript-eslint/restrict-plus-operands": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "@typescript-eslint/unbound-method": "off",
+    "deprecation/deprecation": "off",
+
+    // rules we maybe want
+    "@sayari/no-unwrapped-jsx-text": "error",
     "functional/immutable-data": [
       "error",
       { "ignorePattern": ["this", "draft"] }
     ],
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",
-    "@sayari/no-unwrapped-jsx-text": "error",
     // https://github.com/testing-library/eslint-plugin-testing-library/blob/main/docs/rules/no-render-in-setup.md
     "testing-library/no-render-in-setup": [
       "error",

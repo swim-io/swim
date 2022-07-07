@@ -6161,6 +6161,7 @@ __metadata:
   resolution: "@swim-io/plugin-ecosystem-solana@workspace:packages/plugin-ecosystem-solana"
   dependencies:
     "@swim-io/core-types": "workspace:^"
+    "@swim-io/eslint-config": "workspace:^"
     "@types/jest": ^28.1.3
     "@typescript-eslint/eslint-plugin": ^5.29.0
     "@typescript-eslint/parser": ^5.29.0

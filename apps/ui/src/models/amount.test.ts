@@ -26,12 +26,10 @@ const staticMethodConstructionCases: readonly StaticMethodConstructionCase[] = [
   ["fromAtomicString", "12345678900000"],
 ];
 
-const tokenProject = PROJECTS[TokenProjectId.Swim];
-
 describe("Amount", () => {
   const defaultNonStablecoinTokenSpec: TokenSpec = {
     id: "test-token",
-    project: tokenProject,
+    project: PROJECTS[TokenProjectId.Swim],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [EcosystemId.Solana, { address: "xxx", decimals: 8 }],
@@ -40,7 +38,7 @@ describe("Amount", () => {
   };
   const defaultStablecoinTokenSpec: TokenSpec = {
     id: "test-stablecoin",
-    project: tokenProject,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [EcosystemId.Solana, { address: "xxx", decimals: 8 }],

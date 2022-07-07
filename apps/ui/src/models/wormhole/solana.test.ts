@@ -2,7 +2,15 @@
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
-import { CHAINS, EcosystemId, Env, Protocol, TOKENS } from "../../config";
+import {
+  CHAINS,
+  PROJECTS,
+  EcosystemId,
+  Env,
+  Protocol,
+  TOKENS,
+  TokenProjectId,
+} from "../../config";
 import {
   parsedSwimSwapTx,
   parsedWormholePostVaaTxs,
@@ -70,10 +78,7 @@ describe("models - Wormhole utils", () => {
         "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
       const token: TokenSpec = {
         id: "test-token",
-        symbol: "TEST",
-        displayName: "Test Token",
-        icon: ":)",
-        isStablecoin: false,
+        project: PROJECTS[TokenProjectId.Swim],
         nativeEcosystem: EcosystemId.Solana,
         detailsByEcosystem: new Map([
           [EcosystemId.Solana, { address: "xxx", decimals: 8 }],

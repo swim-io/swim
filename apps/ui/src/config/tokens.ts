@@ -1,29 +1,9 @@
-import AUSD_SVG from "../images/tokens/ausd.svg";
-import BUSD_SVG from "../images/tokens/busd.svg";
-import GMT_SVG from "../images/tokens/gmt.svg";
-import GST_SVG from "../images/tokens/gst.svg";
-import LP_GMT_SVG from "../images/tokens/lp_gmt.svg";
-import LP_GST_SVG from "../images/tokens/lp_gst.svg";
-import LP_META_ACALA_AUSD_SVG from "../images/tokens/lp_metapool_acala_ausd.svg";
-import LP_META_AURORA_USDC_SVG from "../images/tokens/lp_metapool_aurora_usdc.svg";
-import LP_META_AURORA_USDT_SVG from "../images/tokens/lp_metapool_aurora_usdt.svg";
-import LP_META_AURORA_USN_SVG from "../images/tokens/lp_metapool_aurora_usn.svg";
-import LP_META_AVALANCHE_USDC_SVG from "../images/tokens/lp_metapool_avalanche_usdc.svg";
-import LP_META_AVALANCHE_USDT_SVG from "../images/tokens/lp_metapool_avalanche_usdt.svg";
-import LP_META_FANTOM_USDC_SVG from "../images/tokens/lp_metapool_fantom_usdc.svg";
-import LP_META_KARURA_AUSD_SVG from "../images/tokens/lp_metapool_karura_ausd.svg";
-import LP_META_KARURA_USDT_SVG from "../images/tokens/lp_metapool_karura_usdt.svg";
-import LP_META_POLYGON_USDC_SVG from "../images/tokens/lp_metapool_polygon_usdc.svg";
-import LP_META_POLYGON_USDT_SVG from "../images/tokens/lp_metapool_polygon_usdt.svg";
-import SWIM_TOKEN_SVG from "../images/tokens/swim_token.svg";
-import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
-import USDC_SVG from "../images/tokens/usdc.svg";
-import USDT_SVG from "../images/tokens/usdt.svg";
-import USN_SVG from "../images/tokens/usn.svg";
 import type { ReadonlyRecord } from "../utils";
 
 import { EcosystemId, isEcosystemEnabled } from "./ecosystem";
 import { Env } from "./env";
+import type { TokenProject } from "./projects";
+import { PROJECTS, TokenProjectId } from "./projects";
 
 export interface TokenDetails {
   readonly address: string;
@@ -34,37 +14,16 @@ export type TokenDetailsByEcosystem = ReadonlyMap<EcosystemId, TokenDetails>;
 
 export interface TokenSpec {
   readonly id: string;
-  readonly symbol: string;
-  readonly displayName: string;
-  readonly icon: string;
-  readonly isStablecoin: boolean;
+  readonly project: TokenProject;
   readonly nativeEcosystem: EcosystemId;
   readonly detailsByEcosystem: TokenDetailsByEcosystem;
   readonly isDisabled?: boolean;
 }
 
-const AUSD_SYMBOL = "aUSD";
-const AUSD_NAME = "Acala USD";
-const BUSD_SYMBOL = "BUSD";
-const BUSD_NAME = "Binance USD";
-const GST_SYMBOL = "GST";
-const GST_NAME = "Green Satoshi Token";
-const GMT_SYMBOL = "GMT";
-const GMT_NAME = "STEPN";
-const USDC_SYMBOL = "USDC";
-const USDC_NAME = "USD Coin";
-const USDT_SYMBOL = "USDT";
-const USDT_NAME = "Tether USD";
-const USN_SYMBOL = "USN";
-const USN_NAME = "USN";
-
 const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     id: "mainnet-solana-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -92,10 +51,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -123,10 +79,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-gst",
-    symbol: GST_SYMBOL,
-    displayName: GST_NAME,
-    icon: GST_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.Gst],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -140,10 +93,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-gmt",
-    symbol: GMT_SYMBOL,
-    displayName: GMT_NAME,
-    icon: GMT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.Gmt],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -157,10 +107,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-hexapool",
-    symbol: "swimUSD",
-    displayName: "swimUSD (Swim Hexapool LP)",
-    icon: SWIM_USD_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.SwimUsd],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -188,10 +135,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-meta-avalanche-usdc",
-    symbol: "SWIM-AVALANCHE-USDC-META-POOL-LP",
-    displayName: "Avalanche USDC Meta-Pool LP",
-    icon: LP_META_AVALANCHE_USDC_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimAvalancheUsdcMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -205,10 +149,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-meta-avalanche-usdt",
-    symbol: "SWIM-AVALANCHE-USDT-META-POOL-LP",
-    displayName: "Avalanche USDT Meta-Pool LP",
-    icon: LP_META_AVALANCHE_USDT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimAvalancheUsdtMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -222,10 +163,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-meta-polygon-usdc",
-    symbol: "SWIM-POLYGON-USDC-META-POOL-LP",
-    displayName: "Polygon USDC Meta-Pool LP",
-    icon: LP_META_POLYGON_USDC_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimPolygonUsdcMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -239,10 +177,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-meta-polygon-usdt",
-    symbol: "SWIM-POLYGON-USDT-META-POOL-LP",
-    displayName: "Polygon USDT Meta-Pool LP",
-    icon: LP_META_POLYGON_USDT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimPolygonUsdtMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -256,10 +191,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-gst",
-    symbol: "solaGST-binaGST",
-    displayName: "Swim Solana GST Binance GST LP",
-    icon: LP_GST_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimSolanaGstBinanceGstLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -273,10 +205,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-gmt",
-    symbol: "solaGMT-binaGMT",
-    displayName: "Swim Solana GMT Binance GMT LP",
-    icon: LP_GMT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimSolanaGmtBinanceGmtLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -291,10 +220,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "mainnet-solana-lp-meta-aurora-usdc",
-    symbol: "SWIM-AURORA-USDC-META-POOL-LP",
-    displayName: "Aurora USDC Meta-Pool LP",
-    icon: LP_META_AURORA_USDC_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimAuroraUsdcMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -309,10 +235,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "mainnet-solana-lp-meta-aurora-usdt",
-    symbol: "SWIM-AURORA-USDT-META-POOL-LP",
-    displayName: "Aurora USDT Meta-Pool LP",
-    icon: LP_META_AURORA_USDT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimAuroraUsdtMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -327,10 +250,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "mainnet-solana-lp-meta-aurora-usn",
-    symbol: "SWIM-AURORA-USN-META-POOL-LP",
-    displayName: "Aurora USN Meta-Pool LP",
-    icon: LP_META_AURORA_USN_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimAuroraUsnMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -345,10 +265,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
     id: "mainnet-solana-lp-meta-fantom-usdc",
-    symbol: "SWIM-FANTOM-USDC-META-POOL-LP",
-    displayName: "Fantom USDC Meta-Pool LP",
-    icon: LP_META_FANTOM_USDC_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimFantomUsdcMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -363,10 +280,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "mainnet-solana-lp-meta-karura-ausd",
-    symbol: "SWIM-KARURA-AUSD-META-POOL-LP",
-    displayName: "Karura AUSD Meta-Pool LP",
-    icon: LP_META_KARURA_AUSD_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimKaruraAusdMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -381,10 +295,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "mainnet-solana-lp-meta-karura-usdt",
-    symbol: "SWIM-KARURA-USDT-META-POOL-LP",
-    displayName: "Karura USDT Meta-Pool LP",
-    icon: LP_META_KARURA_USDT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimKaruraUsdtMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -399,10 +310,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
     id: "mainnet-solana-lp-meta-acala-ausd",
-    symbol: "SWIM-ACALA-AUSD-META-POOL-LP",
-    displayName: "Acala AUSD Meta-Pool LP",
-    icon: LP_META_ACALA_AUSD_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimAcalaAusdMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -416,10 +324,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-ethereum-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Ethereum,
     detailsByEcosystem: new Map([
       [
@@ -440,10 +345,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-ethereum-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Ethereum,
     detailsByEcosystem: new Map([
       [
@@ -464,10 +366,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-bnb-busd",
-    symbol: BUSD_SYMBOL,
-    displayName: BUSD_NAME,
-    icon: BUSD_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Busd],
     nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
@@ -488,10 +387,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-bnb-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
@@ -512,10 +408,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-bnb-gst",
-    symbol: GST_SYMBOL,
-    displayName: GST_NAME,
-    icon: GST_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.Gst],
     nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
@@ -536,10 +429,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-bnb-gmt",
-    symbol: GMT_SYMBOL,
-    displayName: GMT_NAME,
-    icon: GMT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.Gmt],
     nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
@@ -560,10 +450,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-avalanche-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Avalanche,
     detailsByEcosystem: new Map([
       [
@@ -584,10 +471,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-avalanche-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Avalanche,
     detailsByEcosystem: new Map([
       [
@@ -608,10 +492,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-polygon-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Polygon,
     detailsByEcosystem: new Map([
       [
@@ -632,10 +513,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-polygon-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Polygon,
     detailsByEcosystem: new Map([
       [
@@ -657,10 +535,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "mainnet-aurora-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Aurora,
     detailsByEcosystem: new Map([
       [
@@ -682,10 +557,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "mainnet-aurora-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Aurora,
     detailsByEcosystem: new Map([
       [
@@ -707,10 +579,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "mainnet-aurora-usn",
-    symbol: USN_SYMBOL,
-    displayName: USN_NAME,
-    icon: USN_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usn],
     nativeEcosystem: EcosystemId.Aurora,
     detailsByEcosystem: new Map([
       [
@@ -732,10 +601,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
     id: "mainnet-fantom-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Fantom,
     detailsByEcosystem: new Map([
       [
@@ -757,10 +623,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "mainnet-karura-ausd",
-    symbol: AUSD_SYMBOL,
-    displayName: AUSD_NAME,
-    icon: AUSD_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Ausd],
     nativeEcosystem: EcosystemId.Karura,
     detailsByEcosystem: new Map([
       [
@@ -782,10 +645,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "mainnet-karura-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Karura,
     detailsByEcosystem: new Map([
       [
@@ -807,10 +667,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
     id: "mainnet-acala-ausd",
-    symbol: AUSD_SYMBOL,
-    displayName: AUSD_NAME,
-    icon: AUSD_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Ausd],
     nativeEcosystem: EcosystemId.Acala,
     detailsByEcosystem: new Map([
       [
@@ -834,10 +691,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
 const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     id: "devnet-solana-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -851,10 +705,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -868,10 +719,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-gst",
-    symbol: GST_SYMBOL,
-    displayName: GST_NAME,
-    icon: GST_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.Gst],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -885,10 +733,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-gmt",
-    symbol: GMT_SYMBOL,
-    displayName: GMT_NAME,
-    icon: GMT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.Gmt],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -902,10 +747,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-hexapool",
-    symbol: "swimUSD",
-    displayName: "swimUSD (Swim Hexapool LP)",
-    icon: SWIM_USD_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.SwimUsd],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -933,10 +775,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-swim",
-    symbol: "SWIM",
-    displayName: "Swim Protocol Token",
-    icon: SWIM_TOKEN_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.Swim],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -950,10 +789,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-swimlake",
-    symbol: "xSWIM",
-    displayName: "xSWIM (SwimLake LP)",
-    icon: SWIM_USD_SVG, // TODO: Change?
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.Xswim],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -967,10 +803,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-avalanche-usdc",
-    symbol: "SWIM-AVALANCHE-USDC-META-POOL-LP",
-    displayName: "Avalanche USDC Meta-Pool LP",
-    icon: LP_META_AVALANCHE_USDC_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimAvalancheUsdcMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -984,10 +817,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-avalanche-usdt",
-    symbol: "SWIM-AVALANCHE-USDT-META-POOL-LP",
-    displayName: "Avalanche USDT Meta-Pool LP",
-    icon: LP_META_AVALANCHE_USDT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimAvalancheUsdtMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1001,10 +831,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-polygon-usdc",
-    symbol: "SWIM-POLYGON-USDC-META-POOL-LP",
-    displayName: "Polygon USDC Meta-Pool LP",
-    icon: LP_META_POLYGON_USDC_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimPolygonUsdcMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1018,10 +845,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-polygon-usdt",
-    symbol: "SWIM-POLYGON-USDT-META-POOL-LP",
-    displayName: "Polygon USDT Meta-Pool LP",
-    icon: LP_META_POLYGON_USDT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimPolygonUsdtMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1035,10 +859,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-gst",
-    symbol: "solaGST-binaGST",
-    displayName: "Swim Solana GST Binance GST LP",
-    icon: LP_GST_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimSolanaGstBinanceGstLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1052,10 +873,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-gmt",
-    symbol: "solaGMT-binaGMT",
-    displayName: "Swim Solana GMT Binance GMT LP",
-    icon: LP_GMT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimSolanaGmtBinanceGmtLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1070,10 +888,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "devnet-solana-lp-meta-aurora-usdc",
-    symbol: "SWIM-AURORA-USDC-META-POOL-LP",
-    displayName: "Aurora USDC Meta-Pool LP",
-    icon: LP_META_AURORA_USDC_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimAuroraUsdcMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1088,10 +903,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "devnet-solana-lp-meta-aurora-usdt",
-    symbol: "SWIM-AURORA-USDT-META-POOL-LP",
-    displayName: "Aurora USDT Meta-Pool LP",
-    icon: LP_META_AURORA_USDT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimAuroraUsdtMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1106,10 +918,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: true, // TODO: Enable when deployed on devnet
     id: "devnet-solana-lp-meta-aurora-usn",
-    symbol: "SWIM-AURORA-USN-META-POOL-LP",
-    displayName: "Aurora USN Meta-Pool LP",
-    icon: LP_META_AURORA_USN_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimAuroraUsnMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1124,10 +933,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
     id: "devnet-solana-lp-meta-fantom-usdc",
-    symbol: "SWIM-FANTOM-USDC-META-POOL-LP",
-    displayName: "Fantom USDC Meta-Pool LP",
-    icon: LP_META_FANTOM_USDC_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimFantomUsdcMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1142,10 +948,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "devnet-solana-lp-meta-karura-ausd",
-    symbol: "SWIM-KARURA-AUSD-META-POOL-LP",
-    displayName: "Karura AUSD Meta-Pool LP",
-    icon: LP_META_KARURA_AUSD_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimKaruraAusdMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1160,10 +963,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "devnet-solana-lp-meta-karura-usdt",
-    symbol: "SWIM-KARURA-USDT-META-POOL-LP",
-    displayName: "Karura USDT Meta-Pool LP",
-    icon: LP_META_KARURA_USDT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimKaruraUsdtMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1178,10 +978,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
     id: "devnet-solana-lp-meta-acala-ausd",
-    symbol: "SWIM-ACALA-AUSD-META-POOL-LP",
-    displayName: "Acala AUSD Meta-Pool LP",
-    icon: LP_META_ACALA_AUSD_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.SwimAcalaAusdMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1195,10 +992,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-ethereum-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Ethereum,
     detailsByEcosystem: new Map([
       [
@@ -1219,10 +1013,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-ethereum-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Ethereum,
     detailsByEcosystem: new Map([
       [
@@ -1243,10 +1034,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-bnb-busd",
-    symbol: BUSD_SYMBOL,
-    displayName: BUSD_NAME,
-    icon: BUSD_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Busd],
     nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
@@ -1267,10 +1055,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-bnb-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
@@ -1291,10 +1076,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-bnb-gst",
-    symbol: GST_SYMBOL,
-    displayName: GST_NAME,
-    icon: GST_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.Gst],
     nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
@@ -1315,10 +1097,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-bnb-gmt",
-    symbol: GMT_SYMBOL,
-    displayName: GMT_NAME,
-    icon: GMT_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.Gmt],
     nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
@@ -1339,10 +1118,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-avalanche-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Avalanche,
     detailsByEcosystem: new Map([
       [
@@ -1363,10 +1139,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-avalanche-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Avalanche,
     detailsByEcosystem: new Map([
       [
@@ -1387,10 +1160,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-polygon-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Polygon,
     detailsByEcosystem: new Map([
       [
@@ -1411,10 +1181,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-polygon-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Polygon,
     detailsByEcosystem: new Map([
       [
@@ -1436,10 +1203,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "devnet-aurora-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Aurora,
     detailsByEcosystem: new Map([
       [
@@ -1461,10 +1225,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "devnet-aurora-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Aurora,
     detailsByEcosystem: new Map([
       [
@@ -1486,10 +1247,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: true, // TODO: Enable when deployed on devnet
     id: "devnet-aurora-usn",
-    symbol: USN_SYMBOL,
-    displayName: USN_NAME,
-    icon: USN_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usn],
     nativeEcosystem: EcosystemId.Aurora,
     detailsByEcosystem: new Map([
       [
@@ -1511,10 +1269,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
     id: "devnet-fantom-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Fantom,
     detailsByEcosystem: new Map([
       [
@@ -1536,10 +1291,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "devnet-karura-ausd",
-    symbol: AUSD_SYMBOL,
-    displayName: AUSD_NAME,
-    icon: AUSD_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Ausd],
     nativeEcosystem: EcosystemId.Karura,
     detailsByEcosystem: new Map([
       [
@@ -1561,10 +1313,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "devnet-karura-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Karura,
     detailsByEcosystem: new Map([
       [
@@ -1586,10 +1335,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
     id: "devnet-acala-ausd",
-    symbol: AUSD_SYMBOL,
-    displayName: AUSD_NAME,
-    icon: AUSD_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Ausd],
     nativeEcosystem: EcosystemId.Acala,
     detailsByEcosystem: new Map([
       [
@@ -1613,10 +1359,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
 const LOCALNET_TOKENS: readonly TokenSpec[] = [
   {
     id: "localnet-solana-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1644,10 +1387,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "localnet-solana-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1675,10 +1415,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "localnet-solana-lp-hexapool",
-    symbol: "swimUSD",
-    displayName: "swimUSD (Swim Hexapool LP)",
-    icon: SWIM_USD_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.SwimUsd],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1706,10 +1443,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "localnet-solana-swim",
-    symbol: "SWIM",
-    displayName: "Swim Protocol Token",
-    icon: SWIM_TOKEN_SVG,
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.Swim],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1723,10 +1457,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "localnet-solana-lp-swimlake",
-    symbol: "xSWIM",
-    displayName: "xSWIM (SwimLake LP)",
-    icon: SWIM_USD_SVG, // TODO: Change?
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.Xswim],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1740,10 +1471,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "localnet-ethereum-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Ethereum,
     detailsByEcosystem: new Map([
       [
@@ -1764,10 +1492,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "localnet-ethereum-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Ethereum,
     detailsByEcosystem: new Map([
       [
@@ -1788,10 +1513,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "localnet-bnb-busd",
-    symbol: BUSD_SYMBOL,
-    displayName: BUSD_NAME,
-    icon: BUSD_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Busd],
     nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [
@@ -1812,10 +1534,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "localnet-bnb-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
       [

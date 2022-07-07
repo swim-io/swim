@@ -16,7 +16,7 @@ import {
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useMemo } from "react";
 import shallow from "zustand/shallow.js";
 
 import { atomicToTvlString, u64ToDecimal } from "../amounts";
@@ -25,17 +25,14 @@ import type { PoolSpec, SolanaPoolSpec, TokenSpec } from "../config";
 import {
   ECOSYSTEM_LIST,
   EcosystemId,
+  PROJECTS,
+  TokenProjectId,
   getSolanaTokenDetails,
   isEcosystemEnabled,
 } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { useCoinGeckoPricesQuery, useLiquidityQuery, useTitle } from "../hooks";
-import AUSD_SVG from "../images/tokens/ausd.svg";
-import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
-import USDC_SVG from "../images/tokens/usdc.svg";
-import USDT_SVG from "../images/tokens/usdt.svg";
-import USN_SVG from "../images/tokens/usn.svg";
 import { isSolanaPool } from "../models";
 import { deduplicate, filterMap, findOrThrow, sortBy } from "../utils";
 
@@ -43,7 +40,7 @@ const PoolsPage = (): ReactElement => {
   useTitle("Pools");
 
   const [ecosystemId, setEcosystemId] = useState<EcosystemId | "all">("all");
-  const [tokenSymbol, setTokenSymbol] = useState<TokenSpec["symbol"] | "all">(
+  const [tokenProjectId, setTokenProjectId] = useState<TokenProjectId | "all">(
     "all",
   );
 
@@ -76,7 +73,8 @@ const PoolsPage = (): ReactElement => {
 
     if (
       tokenSpecs.every(
-        (tokenSpec) => tokenSpec.isStablecoin || !!prices.get(tokenSpec.id),
+        (tokenSpec) =>
+          tokenSpec.project.isStablecoin || !!prices.get(tokenSpec.id),
       )
     ) {
       if (allPoolTokenAccounts === null) {
@@ -99,7 +97,7 @@ const PoolsPage = (): ReactElement => {
         const humanAmount = u64ToDecimal(current.amount).div(
           new Decimal(10).pow(solanaDetails.decimals),
         );
-        const price = tokenSpec.isStablecoin
+        const price = tokenSpec.project.isStablecoin
           ? new Decimal(1)
           : prices.get(tokenSpec.id) ?? new Decimal(1);
         return prev.add(humanAmount.mul(price));
@@ -122,56 +120,83 @@ const PoolsPage = (): ReactElement => {
     new Decimal(0),
   );
 
-  const selectTokenOptions = sortBy(
-    deduplicate((token) => token.symbol, tokens).filter(
-      (token) => !token.id.includes("-lp-") && token.symbol !== "SWIM", // filter out LP tokens -- TODO move this to a TokenSpec flag?
-    ),
-    "symbol",
-  ).map((token) => ({
-    value: token.symbol,
-    inputDisplay: (
-      <EuiFlexGroup gutterSize="none" alignItems="center" responsive={false}>
-        <EuiFlexItem grow={false} style={{ marginRight: 20 }}>
-          <img src={token.icon} alt={token.displayName} width={20} />
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiText>{token.symbol}</EuiText>
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    ),
-  }));
-
-  const enabledEcosystems = sortBy(
-    ECOSYSTEM_LIST.filter((ecosystem) => isEcosystemEnabled(ecosystem.id)),
-    "displayName",
+  const selectTokenOptions = useMemo(
+    () =>
+      sortBy(
+        deduplicate(
+          (project) => project.id,
+          tokens
+            .map((token) => token.project)
+            .filter((project) => project.symbol !== "SWIM" && !project.isLP),
+        ),
+        "displayName",
+        (value) => (typeof value === "string" ? value.toLowerCase() : value),
+      ).map((project) => ({
+        value: project.id,
+        inputDisplay: (
+          <EuiFlexGroup
+            gutterSize="none"
+            alignItems="center"
+            responsive={false}
+          >
+            <EuiFlexItem grow={false} style={{ marginRight: 20 }}>
+              <img src={project.icon} alt={project.displayName} width={20} />
+            </EuiFlexItem>
+            <EuiFlexItem>
+              <EuiText>{project.symbol}</EuiText>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        ),
+      })),
+    [tokens],
   );
 
-  const selectEcosystemOptions = enabledEcosystems.map((ecosystem) => ({
-    value: ecosystem.id,
-    inputDisplay: (
-      <EuiFlexGroup gutterSize="none" alignItems="center" responsive={false}>
-        <EuiFlexItem grow={false} style={{ marginRight: 20 }}>
-          <img src={ecosystem.logo} alt={ecosystem.displayName} width={20} />
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiText>{ecosystem.displayName}</EuiText>
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    ),
-  }));
+  const selectEcosystemOptions = useMemo(() => {
+    const enabledEcosystems = sortBy(
+      ECOSYSTEM_LIST.filter((ecosystem) => isEcosystemEnabled(ecosystem.id)),
+      "displayName",
+    );
+
+    return enabledEcosystems.map((ecosystem) => ({
+      value: ecosystem.id,
+      inputDisplay: (
+        <EuiFlexGroup gutterSize="none" alignItems="center" responsive={false}>
+          <EuiFlexItem grow={false} style={{ marginRight: 20 }}>
+            <img src={ecosystem.logo} alt={ecosystem.displayName} width={20} />
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiText>{ecosystem.displayName}</EuiText>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      ),
+    }));
+  }, []);
+
+  const projectsPerPool: Record<PoolSpec["id"], TokenProjectId[]> =
+    useMemo(() => {
+      return pools.reduce(
+        (accumulator, pool) => ({
+          ...accumulator,
+          [pool.id]: deduplicate(
+            (id) => id,
+            pool.tokens
+              .map((tokenId) =>
+                findOrThrow(tokens, (token) => token.id === tokenId),
+              )
+              .flatMap((token) => token.project.id),
+          ),
+        }),
+        {},
+      );
+    }, [pools]);
 
   const filteredPools = solanaPools
     .filter((pool) => {
-      if (tokenSymbol === "all") return true;
-
-      // TODO model this somehow better in PoolSpec?
-      return !!Array.from(pool.tokenAccounts.keys()).find((key) =>
-        key.includes(tokenSymbol.toLowerCase()),
-      );
+      if (tokenProjectId === "all") return true;
+      return projectsPerPool[pool.id].includes(tokenProjectId);
     })
     .filter((pool) => {
       if (ecosystemId === "all") return true;
-
       return pool.ecosystem === ecosystemId;
     });
 
@@ -184,7 +209,7 @@ const PoolsPage = (): ReactElement => {
     return 0;
   });
 
-  const isUnfiltered = tokenSymbol === "all" && ecosystemId === "all";
+  const isUnfiltered = tokenProjectId === "all" && ecosystemId === "all";
   const listSpacerSize = "l";
 
   const content = isLoading ? (
@@ -233,19 +258,13 @@ const PoolsPage = (): ReactElement => {
               tokenSpecs={[
                 {
                   id: "placeholder-aurora-native-usdc",
-                  symbol: "USDC",
-                  displayName: "USD Coin",
-                  icon: USDC_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.Usdc],
                   nativeEcosystem: EcosystemId.Aurora,
                   detailsByEcosystem: new Map(),
                 },
                 {
                   id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.SwimUsd],
                   nativeEcosystem: EcosystemId.Solana,
                   detailsByEcosystem: new Map(),
                 },
@@ -260,19 +279,13 @@ const PoolsPage = (): ReactElement => {
               tokenSpecs={[
                 {
                   id: "placeholder-aurora-native-usdt",
-                  symbol: "USDT",
-                  displayName: "Tether USD",
-                  icon: USDT_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.Usdt],
                   nativeEcosystem: EcosystemId.Aurora,
                   detailsByEcosystem: new Map(),
                 },
                 {
                   id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.SwimUsd],
                   nativeEcosystem: EcosystemId.Solana,
                   detailsByEcosystem: new Map(),
                 },
@@ -287,19 +300,13 @@ const PoolsPage = (): ReactElement => {
               tokenSpecs={[
                 {
                   id: "placeholder-aurora-native-usn",
-                  symbol: "USN",
-                  displayName: "USN",
-                  icon: USN_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.Usn],
                   nativeEcosystem: EcosystemId.Aurora,
                   detailsByEcosystem: new Map(),
                 },
                 {
                   id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.SwimUsd],
                   nativeEcosystem: EcosystemId.Solana,
                   detailsByEcosystem: new Map(),
                 },
@@ -319,19 +326,13 @@ const PoolsPage = (): ReactElement => {
               tokenSpecs={[
                 {
                   id: "placeholder-fantom-native-usdc",
-                  symbol: "USDC",
-                  displayName: "USD Coin",
-                  icon: USDC_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.Usdc],
                   nativeEcosystem: EcosystemId.Fantom,
                   detailsByEcosystem: new Map(),
                 },
                 {
                   id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.SwimUsd],
                   nativeEcosystem: EcosystemId.Solana,
                   detailsByEcosystem: new Map(),
                 },
@@ -351,19 +352,13 @@ const PoolsPage = (): ReactElement => {
               tokenSpecs={[
                 {
                   id: "placeholder-karura-native-ausd",
-                  symbol: "aUSD",
-                  displayName: "Karura aUSD",
-                  icon: AUSD_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.Ausd],
                   nativeEcosystem: EcosystemId.Karura,
                   detailsByEcosystem: new Map(),
                 },
                 {
                   id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.SwimUsd],
                   nativeEcosystem: EcosystemId.Solana,
                   detailsByEcosystem: new Map(),
                 },
@@ -378,19 +373,13 @@ const PoolsPage = (): ReactElement => {
               tokenSpecs={[
                 {
                   id: "placeholder-karura-native-usdt",
-                  symbol: "USDT",
-                  displayName: "Tether USD",
-                  icon: USDT_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.Usdt],
                   nativeEcosystem: EcosystemId.Karura,
                   detailsByEcosystem: new Map(),
                 },
                 {
                   id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.SwimUsd],
                   nativeEcosystem: EcosystemId.Solana,
                   detailsByEcosystem: new Map(),
                 },
@@ -410,19 +399,13 @@ const PoolsPage = (): ReactElement => {
               tokenSpecs={[
                 {
                   id: "placeholder-acala-native-ausd",
-                  symbol: "aUSD",
-                  displayName: "Acala USD",
-                  icon: AUSD_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.Ausd],
                   nativeEcosystem: EcosystemId.Acala,
                   detailsByEcosystem: new Map(),
                 },
                 {
                   id: "mainnet-solana-lp-hexapool",
-                  symbol: "swimUSD",
-                  displayName: "swimUSD (Swim Hexapool LP)",
-                  icon: SWIM_USD_SVG,
-                  isStablecoin: true,
+                  project: PROJECTS[TokenProjectId.SwimUsd],
                   nativeEcosystem: EcosystemId.Solana,
                   detailsByEcosystem: new Map(),
                 },
@@ -465,45 +448,43 @@ const PoolsPage = (): ReactElement => {
                   </EuiFlexItem>
                 </EuiFlexGroup>
               </EuiFlexItem>
+            </EuiFlexGroup>
+            <EuiFlexGroup alignItems="center" justifyContent="flexEnd">
               <EuiFlexItem grow={false}>
-                <EuiFlexGroup alignItems="center">
-                  <EuiFlexItem grow={false}>
-                    <EuiFormRow label="Token">
-                      <EuiSuperSelect
-                        options={[
-                          { inputDisplay: "All Tokens", value: "all" },
-                          ...selectTokenOptions,
-                        ]}
-                        valueOfSelected={tokenSymbol}
-                        onChange={setTokenSymbol}
-                        itemLayoutAlign="top"
-                        hasDividers
-                        style={{
-                          minWidth: 140,
-                        }}
-                      />
-                    </EuiFormRow>
-                  </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
-                    <EuiFormRow label="Chain">
-                      <EuiSuperSelect
-                        options={[
-                          { inputDisplay: "All Chains", value: "all" },
-                          ...selectEcosystemOptions,
-                        ]}
-                        valueOfSelected={ecosystemId}
-                        onChange={(value) =>
-                          setEcosystemId(value as EcosystemId)
-                        }
-                        itemLayoutAlign="top"
-                        hasDividers
-                        style={{
-                          minWidth: 180,
-                        }}
-                      />
-                    </EuiFormRow>
-                  </EuiFlexItem>
-                </EuiFlexGroup>
+                <EuiFormRow label="Token">
+                  <EuiSuperSelect
+                    options={[
+                      { inputDisplay: "All Tokens", value: "all" },
+                      ...selectTokenOptions,
+                    ]}
+                    valueOfSelected={tokenProjectId}
+                    onChange={(value) =>
+                      setTokenProjectId(value as TokenProjectId)
+                    }
+                    itemLayoutAlign="top"
+                    hasDividers
+                    style={{
+                      minWidth: 140,
+                    }}
+                  />
+                </EuiFormRow>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiFormRow label="Chain">
+                  <EuiSuperSelect
+                    options={[
+                      { inputDisplay: "All Chains", value: "all" },
+                      ...selectEcosystemOptions,
+                    ]}
+                    valueOfSelected={ecosystemId}
+                    onChange={(value) => setEcosystemId(value as EcosystemId)}
+                    itemLayoutAlign="top"
+                    hasDividers
+                    style={{
+                      minWidth: 180,
+                    }}
+                  />
+                </EuiFormRow>
               </EuiFlexItem>
             </EuiFlexGroup>
 

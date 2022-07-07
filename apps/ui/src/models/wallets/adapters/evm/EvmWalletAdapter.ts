@@ -205,7 +205,7 @@ export class EvmWeb3WalletAdapter
         type: "ERC20", // Initially only supports ERC20, but eventually more!
         options: {
           address: details.address, // The address that the token is at.
-          symbol: tokenSpec.symbol, // A ticker symbol or shorthand, up to 5 chars.
+          symbol: tokenSpec.project.symbol, // A ticker symbol or shorthand, up to 5 chars.
           decimals: details.decimals, // The number of decimals in the token
           // TODO: image: tokenSpec.icon, // A string url of the token logo
         },

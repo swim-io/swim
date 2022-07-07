@@ -6202,7 +6202,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/plugin-ecosystem-bnb@workspace:packages/plugin-ecosystem-bnb":
+"@swim-io/plugin-ecosystem-bnb@workspace:^, @swim-io/plugin-ecosystem-bnb@workspace:packages/plugin-ecosystem-bnb":
   version: 0.0.0-use.local
   resolution: "@swim-io/plugin-ecosystem-bnb@workspace:packages/plugin-ecosystem-bnb"
   dependencies:
@@ -6224,7 +6224,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/plugin-ecosystem-ethereum@workspace:packages/plugin-ecosystem-ethereum":
+"@swim-io/plugin-ecosystem-ethereum@workspace:^, @swim-io/plugin-ecosystem-ethereum@workspace:packages/plugin-ecosystem-ethereum":
   version: 0.0.0-use.local
   resolution: "@swim-io/plugin-ecosystem-ethereum@workspace:packages/plugin-ecosystem-ethereum"
   dependencies:
@@ -6246,7 +6246,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/plugin-ecosystem-solana@workspace:packages/plugin-ecosystem-solana":
+"@swim-io/plugin-ecosystem-solana@workspace:^, @swim-io/plugin-ecosystem-solana@workspace:packages/plugin-ecosystem-solana":
   version: 0.0.0-use.local
   resolution: "@swim-io/plugin-ecosystem-solana@workspace:packages/plugin-ecosystem-solana"
   dependencies:
@@ -6477,7 +6477,12 @@ __metadata:
     "@storybook/node-logger": ^6.5.9
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.9
+    "@swim-io/core-types": "workspace:^"
     "@swim-io/eslint-config": ^0.3.0
+    "@swim-io/evm-types": "workspace:^"
+    "@swim-io/plugin-ecosystem-bnb": "workspace:^"
+    "@swim-io/plugin-ecosystem-ethereum": "workspace:^"
+    "@swim-io/plugin-ecosystem-solana": "workspace:^"
     "@swim-io/pool-math": ^0.2.0
     "@swim-io/solana-types": ^0.2.0
     "@testing-library/jest-dom": ^5.16.4

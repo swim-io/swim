@@ -20,7 +20,7 @@ describe("Swim pool errors", () => {
 
     it("doesn't extract unknown pool error", () => {
       const errors = [
-        "failed to send transaction: Transaction simulation failed: Error processing Instruction 1: custom program error: 0x65",
+        "failed to send transaction: Transaction simulation failed: Error processing Instruction 1: custom program error: 0x63",
       ];
 
       for (const error of errors) {

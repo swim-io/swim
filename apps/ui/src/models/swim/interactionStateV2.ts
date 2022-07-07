@@ -15,7 +15,7 @@ import type {
 export enum SwapType {
   SingleChainSolana = "SingleChainSolana",
   SingleChainEvm = "SingleChainEvm",
-  CrossChainEvm = "CrossChainEvm",
+  CrossChainEvmToEvm = "CrossChainEvmToEvm",
   CrossChainSolanaToEvm = "CrossChainSolanaToEvm",
   CrossChainEvmToSolana = "CrossChainEvmToSolana",
 }
@@ -36,7 +36,7 @@ export interface SingleChainEvmSwapInteractionState {
 
 export interface CrossChainEvmSwapInteractionState {
   readonly interaction: SwapInteractionV2;
-  readonly swapType: SwapType.CrossChainEvm;
+  readonly swapType: SwapType.CrossChainEvmToEvm;
   readonly approvalTxIds: readonly EvmTx["txId"][];
   readonly swapAndTransferTxId: EvmTx["txId"] | null;
   readonly receiveAndSwapTxId: EvmTx["txId"] | null;

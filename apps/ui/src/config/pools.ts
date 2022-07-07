@@ -15,6 +15,7 @@ export interface BasePoolSpec {
   readonly lpToken: string; // token ID
   readonly tokens: readonly string[]; // token IDs
   readonly isDisabled?: boolean;
+  readonly isRestructuredPool?: boolean;
 }
 
 export interface SolanaPoolSpec extends BasePoolSpec {
@@ -32,6 +33,9 @@ export interface EvmPoolSpec extends BasePoolSpec {
 }
 
 export type PoolSpec = SolanaPoolSpec | EvmPoolSpec;
+
+export const isPoolRestructureEnabled = (): boolean =>
+  !!process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE;
 
 const MAINNET_POOLS: readonly PoolSpec[] = [
   {
@@ -344,6 +348,163 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
     tokens: ["mainnet-solana-swim"],
   },
 ].filter((spec) => !spec.isDisabled);
+
+const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
+  {
+    id: "primary-solana",
+    ecosystem: EcosystemId.Solana,
+    displayName: "Solana Primary-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    contract: "1111111111111111111111111111111111111111111",
+    address: "1111111111111111111111111111111111111111111",
+    authority: "11111111111111111111111111111111111111111111",
+    feeDecimals: 6,
+    lpToken: "devnet-solana-lp-hexapool",
+    tokenAccounts: new Map([
+      ["devnet-solana-usdc", "66MCny16VUbuecNtvqXsLjdBSqVigeb31P14dtayH2jq"],
+      ["devnet-solana-usdt", "4ZtpwjuxYC9VZBGAphBVpUVQzdy4anxF2ctJDp9xkpYA"],
+    ]),
+    tokens: ["devnet-solana-usdc", "devnet-solana-usdt"],
+    isRestructuredPool: true,
+  },
+  {
+    id: "primary-ethereum",
+    ecosystem: EcosystemId.Ethereum,
+    displayName: "Ethereum Primary-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    address: "1111111111111111111111111111111111111111111",
+    feeDecimals: 6,
+    lpToken: "devnet-ethereum-lp-primary",
+    tokens: [
+      "devnet-solana-lp-hexapool",
+      "devnet-ethereum-usdc",
+      "devnet-ethereum-usdt",
+    ],
+    isRestructuredPool: true,
+  },
+  {
+    id: "primary-bnb",
+    ecosystem: EcosystemId.Bnb,
+    displayName: "BNB Primary-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    address: "1111111111111111111111111111111111111111111",
+    feeDecimals: 6,
+    lpToken: "devnet-bnb-lp-primary",
+    tokens: ["devnet-solana-lp-hexapool", "devnet-bnb-usdc", "devnet-bnb-usdt"],
+    isRestructuredPool: true,
+  },
+  {
+    id: "primary-avalanche",
+    ecosystem: EcosystemId.Avalanche,
+    displayName: "Avalanche Primary-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    address: "1111111111111111111111111111111111111111111",
+    feeDecimals: 6,
+    lpToken: "devnet-avalanche-lp-primary",
+    tokens: [
+      "devnet-solana-lp-hexapool",
+      "devnet-avalanche-usdc",
+      "devnet-avalanche-usdt",
+    ],
+    isRestructuredPool: true,
+  },
+  {
+    id: "primary-polygon",
+    ecosystem: EcosystemId.Polygon,
+    displayName: "Polygon Primary-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    address: "1111111111111111111111111111111111111111111",
+    feeDecimals: 6,
+    lpToken: "devnet-polygon-lp-primary",
+    tokens: [
+      "devnet-solana-lp-hexapool",
+      "devnet-polygon-usdc",
+      "devnet-polygon-usdt",
+    ],
+    isRestructuredPool: true,
+  },
+  {
+    id: "primary-aurora",
+    ecosystem: EcosystemId.Aurora,
+    displayName: "Aurora Primary-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    address: "1111111111111111111111111111111111111111111",
+    feeDecimals: 6,
+    lpToken: "devnet-aurora-lp-primary",
+    tokens: [
+      "devnet-solana-lp-hexapool",
+      "devnet-aurora-usdc",
+      "devnet-aurora-usdt",
+    ],
+    isRestructuredPool: true,
+  },
+  {
+    id: "meta-aurora-usn-v2",
+    ecosystem: EcosystemId.Aurora,
+    displayName: "Aurora USN Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    address: "1111111111111111111111111111111111111111111",
+    feeDecimals: 6,
+    lpToken: "devnet-aurora-lp-meta-usn",
+    tokens: ["devnet-solana-lp-hexapool", "devnet-aurora-usn"],
+    isRestructuredPool: true,
+  },
+  {
+    id: "primary-fantom",
+    ecosystem: EcosystemId.Fantom,
+    displayName: "Fantom Primary-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    address: "1111111111111111111111111111111111111111111",
+    feeDecimals: 6,
+    lpToken: "devnet-fantom-lp-primary",
+    tokens: ["devnet-solana-lp-hexapool", "devnet-fantom-usdc"],
+    isRestructuredPool: true,
+  },
+  {
+    id: "primary-karura",
+    ecosystem: EcosystemId.Karura,
+    displayName: "Karura Primary-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    address: "1111111111111111111111111111111111111111111",
+    feeDecimals: 6,
+    lpToken: "devnet-karura-lp-primary",
+    tokens: ["devnet-solana-lp-hexapool", "devnet-karura-usdt"],
+    isRestructuredPool: true,
+  },
+  {
+    id: "meta-karura-ausd-v2",
+    ecosystem: EcosystemId.Karura,
+    displayName: "Karura aUSD Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    address: "1111111111111111111111111111111111111111111",
+    feeDecimals: 6,
+    lpToken: "devnet-karura-lp-meta-ausd",
+    tokens: ["devnet-solana-lp-hexapool", "devnet-karura-ausd"],
+    isRestructuredPool: true,
+  },
+  {
+    id: "meta-acala-ausd-v2",
+    ecosystem: EcosystemId.Acala,
+    displayName: "Aurora aUSD Meta-Pool",
+    isStakingPool: false,
+    isStableSwap: true,
+    address: "1111111111111111111111111111111111111111111",
+    feeDecimals: 6,
+    lpToken: "devnet-acala-lp-meta-ausd",
+    tokens: ["devnet-solana-lp-hexapool", "devnet-acala-ausd"],
+    isRestructuredPool: true,
+  },
+];
 
 const DEVNET_POOLS: readonly PoolSpec[] = [
   {
@@ -699,7 +860,9 @@ const LOCALNET_POOLS: readonly PoolSpec[] = [
 
 export const POOLS: ReadonlyRecord<Env, readonly PoolSpec[]> = {
   [Env.Mainnet]: MAINNET_POOLS,
-  [Env.Devnet]: DEVNET_POOLS,
+  [Env.Devnet]: isPoolRestructureEnabled()
+    ? [...DEVNET_POOLS, ...DEVNET_POOLS_FOR_RESTRUCTURE]
+    : DEVNET_POOLS,
   [Env.Localnet]: LOCALNET_POOLS,
   [Env.CustomLocalnet]: LOCALNET_POOLS,
 };

@@ -14,11 +14,9 @@ import { createElement } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { atomicToHumanString } from "../amounts";
-import type { EcosystemId, TokenSpec } from "../config";
-import { ECOSYSTEMS } from "../config";
-import { groupBy } from "../utils";
+import type { TokenSpec } from "../config";
 
-import { TokenIcon } from "./TokenIcon";
+import { TokenSpecIcon } from "./TokenIcon";
 
 const titleSize = "xs";
 const titleElement = "h3";
@@ -56,11 +54,8 @@ export const PoolListItem = ({
   readonly isStableSwap?: boolean;
 }): ReactElement => {
   const navigate = useNavigate();
+  const flexItemMargin = "6px 12px";
 
-  const tokenSpecsByEcosystem = groupBy(
-    tokenSpecs,
-    (spec) => spec.nativeEcosystem,
-  );
   return (
     <EuiCard
       title={isStableSwap ? poolName : appendConstantSwapIcon(poolName)}
@@ -78,56 +73,34 @@ export const PoolListItem = ({
       titleSize={titleSize}
       titleElement={titleElement}
     >
-      <EuiSpacer size="m" />
-      <EuiFlexGroup
-        wrap
-        justifyContent="spaceEvenly"
-        alignItems="center"
-        gutterSize="xl"
-      >
+      <EuiSpacer size="s" />
+      <EuiFlexGroup>
         <EuiFlexItem>
-          <EuiFlexGroup>
-            {Object.entries(tokenSpecsByEcosystem).map(
-              ([ecosystemId, tokens]) => {
-                const ecosystem = ECOSYSTEMS[ecosystemId as EcosystemId];
-                return (
-                  <EuiFlexItem grow={false} key={ecosystemId}>
-                    <EuiCard
-                      title=""
-                      key={ecosystemId}
-                      // EUI Bug: need this so label is rendered
-                      betaBadgeLabel={ecosystem.displayName}
-                      betaBadgeProps={{
-                        title: ecosystem.displayName,
-                        iconType: ecosystem.logo,
-                      }}
-                      hasBorder
-                      paddingSize="s"
-                    >
-                      {tokens.map((tokenSpec) => (
-                        <div
-                          key={tokenSpec.id}
-                          style={{ marginBottom: 4, marginTop: 4 }}
-                        >
-                          <TokenIcon {...tokenSpec.project} />
-                        </div>
-                      ))}
-                    </EuiCard>
-                  </EuiFlexItem>
-                );
-              },
-            )}
+          <EuiFlexGroup wrap>
+            {tokenSpecs.map((tokenSpec) => (
+              <EuiFlexItem
+                key={tokenSpec.id}
+                grow={true}
+                style={{ minWidth: 200, margin: flexItemMargin }}
+              >
+                <TokenSpecIcon token={tokenSpec} />
+              </EuiFlexItem>
+            ))}
           </EuiFlexGroup>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          {totalUsd !== null && (
-            <EuiStat
-              title={`$${atomicToHumanString(totalUsd, 2)}`}
-              description=""
-              titleSize={titleSize}
-              isLoading={totalUsd.eq(new Decimal(-1))}
-            />
-          )}
+          <EuiFlexGroup direction="column">
+            <EuiFlexItem style={{ margin: flexItemMargin }}>
+              {totalUsd !== null && (
+                <EuiStat
+                  title={`$${atomicToHumanString(totalUsd, 2)}`}
+                  description=""
+                  titleSize={titleSize}
+                  isLoading={totalUsd.eq(new Decimal(-1))}
+                />
+              )}
+            </EuiFlexItem>
+          </EuiFlexGroup>
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiCard>

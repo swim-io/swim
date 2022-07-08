@@ -36,6 +36,7 @@ import { useEnvironment } from "../core/store";
 import { useCoinGeckoPricesQuery, useLiquidityQuery, useTitle } from "../hooks";
 import { isSolanaPool } from "../models";
 import { deduplicate, filterMap, findOrThrow, sortBy } from "../utils";
+import type { ReadonlyRecord } from "../utils";
 
 const PoolsPage = (): ReactElement => {
   useTitle("Pools");
@@ -59,15 +60,16 @@ const PoolsPage = (): ReactElement => {
   const { data: prices = new Map<string, Decimal | null>(), isLoading } =
     useCoinGeckoPricesQuery();
 
-  const poolTokens: Record<string, readonly TokenSpec[]> = solanaPools.reduce(
-    (accumulator, poolSpec) => ({
-      ...accumulator,
-      [poolSpec.id]: poolSpec.tokens.map((id) =>
-        findOrThrow(tokens, (tokenSpec) => tokenSpec.id === id),
-      ),
-    }),
-    {},
-  );
+  const poolTokens: ReadonlyRecord<string, readonly TokenSpec[]> =
+    solanaPools.reduce(
+      (accumulator, poolSpec) => ({
+        ...accumulator,
+        [poolSpec.id]: poolSpec.tokens.map((id) =>
+          findOrThrow(tokens, (tokenSpec) => tokenSpec.id === id),
+        ),
+      }),
+      {},
+    );
 
   const getPoolUsdTotal = (poolSpec: SolanaPoolSpec) => {
     const tokenSpecs = poolTokens[poolSpec.id];
@@ -108,7 +110,7 @@ const PoolsPage = (): ReactElement => {
     }
   };
 
-  const poolUsdTotals: Record<string, Decimal> = solanaPools.reduce(
+  const poolUsdTotals: ReadonlyRecord<string, Decimal> = solanaPools.reduce(
     (accumulator, poolSpec) => ({
       ...accumulator,
       [poolSpec.id]: getPoolUsdTotal(poolSpec),
@@ -179,23 +181,25 @@ const PoolsPage = (): ReactElement => {
     }));
   }, [pools]);
 
-  const projectsPerPool: Record<PoolSpec["id"], readonly TokenProjectId[]> =
-    useMemo(() => {
-      return pools.reduce(
-        (accumulator, pool) => ({
-          ...accumulator,
-          [pool.id]: deduplicate(
-            (id) => id,
-            pool.tokens
-              .map((tokenId) =>
-                findOrThrow(tokens, (token) => token.id === tokenId),
-              )
-              .flatMap((token) => token.project.id),
-          ),
-        }),
-        {},
-      );
-    }, [pools, tokens]);
+  const projectsPerPool: ReadonlyRecord<
+    PoolSpec["id"],
+    readonly TokenProjectId[]
+  > = useMemo(() => {
+    return pools.reduce(
+      (accumulator, pool) => ({
+        ...accumulator,
+        [pool.id]: deduplicate(
+          (id) => id,
+          pool.tokens
+            .map((tokenId) =>
+              findOrThrow(tokens, (token) => token.id === tokenId),
+            )
+            .flatMap((token) => token.project.id),
+        ),
+      }),
+      {},
+    );
+  }, [pools, tokens]);
 
   const filteredPools = solanaPools
     .filter((pool) => {

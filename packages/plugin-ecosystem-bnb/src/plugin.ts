@@ -23,7 +23,8 @@ export type BnbChainConfig = EvmChainConfig<BnbEcosystemId, BnbChainId>;
 export type BnbEcosystemConfig = EvmEcosystemConfig<
   BnbEcosystemId,
   BnbWormholeChainId,
-  BnbChainId
+  BnbChainId,
+  BnbChainConfig
 >;
 
 const presetChains: ReadonlyMap<Env, BnbChainConfig> = new Map([

@@ -28,7 +28,8 @@ export type EthereumChainConfig = EvmChainConfig<
 export type EthereumEcosystemConfig = EvmEcosystemConfig<
   EthereumEcosystemId,
   EthereumWormholeChainId,
-  EthereumChainId
+  EthereumChainId,
+  EthereumChainConfig
 >;
 
 const presetChains: ReadonlyMap<Env, EthereumChainConfig> = new Map([

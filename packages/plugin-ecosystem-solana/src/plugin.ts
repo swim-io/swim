@@ -34,7 +34,8 @@ export type SolanaEcosystemConfig = EcosystemConfig<
   SolanaProtocol,
   SolanaEcosystemId,
   SolanaWormholeChainId,
-  SolanaChainId
+  SolanaChainId,
+  SolanaChainConfig
 >;
 
 const presetChains: ReadonlyMap<Env, SolanaChainConfig> = new Map([

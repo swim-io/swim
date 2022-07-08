@@ -6,7 +6,12 @@ import { findOrThrow } from "../../utils";
 import { Amount } from "../amount";
 
 import { SwimDefiInstruction } from "./instructions";
-import type { Interaction, InteractionSpec } from "./interaction";
+import type {
+  Interaction,
+  InteractionSpec,
+  InteractionSpecV2,
+  SwapInteractionSpecV2,
+} from "./interaction";
 import { InteractionType } from "./interaction";
 import type { OperationSpec } from "./operation";
 import type { TokensByPoolId } from "./pool";
@@ -386,8 +391,9 @@ export const getRequiredPoolsForSwap = (
   inputTokenId: string,
   outputTokenId: string,
 ): readonly PoolSpec[] => {
+  const legacyPools = poolSpecs.filter((pool) => pool.isLegacyPool);
   const singlePool =
-    poolSpecs.find((poolSpec) =>
+    legacyPools.find((poolSpec) =>
       [inputTokenId, outputTokenId].every((tokenId) =>
         poolSpec.tokens.includes(tokenId),
       ),
@@ -397,19 +403,43 @@ export const getRequiredPoolsForSwap = (
   }
   // NOTE: We assume a maximum of two pools
   // TODO: Handle swimUSD swaps
-  const inputPool = findOrThrow(poolSpecs, (poolSpec) =>
+  const inputPool = findOrThrow(legacyPools, (poolSpec) =>
     poolSpec.tokens.includes(inputTokenId),
   );
-  const outputPool = findOrThrow(poolSpecs, (poolSpec) =>
+  const outputPool = findOrThrow(legacyPools, (poolSpec) =>
     poolSpec.tokens.includes(outputTokenId),
   );
+  return [inputPool, outputPool];
+};
+
+export const getRequiredPoolsForSwapV2 = (
+  poolSpecs: readonly PoolSpec[],
+  interaction: SwapInteractionSpecV2,
+): readonly PoolSpec[] => {
+  const { fromTokenDetail, toTokenDetail } = interaction.params;
+  const restructuredPools = poolSpecs.filter((pool) => !pool.isLegacyPool);
+  const inputPool = findOrThrow(
+    restructuredPools,
+    (pool) =>
+      pool.ecosystem === fromTokenDetail.ecosystemId &&
+      pool.tokens.includes(fromTokenDetail.tokenId),
+  );
+  const outputPool = findOrThrow(
+    restructuredPools,
+    (pool) =>
+      pool.ecosystem === toTokenDetail.ecosystemId &&
+      pool.tokens.includes(toTokenDetail.tokenId),
+  );
+  if (inputPool === outputPool) {
+    return [inputPool];
+  }
   return [inputPool, outputPool];
 };
 
 /** Returns one or two pools involved in the interaction */
 export const getRequiredPools = (
   poolSpecs: readonly PoolSpec[],
-  interactionSpec: InteractionSpec,
+  interactionSpec: InteractionSpec | InteractionSpecV2,
 ): readonly PoolSpec[] => {
   switch (interactionSpec.type) {
     case InteractionType.Add:
@@ -422,13 +452,14 @@ export const getRequiredPools = (
           (poolSpec) => poolSpec.id === interactionSpec.poolId,
         ),
       ];
-    case InteractionType.Swap: {
+    case InteractionType.Swap:
       return getRequiredPoolsForSwap(
         poolSpecs,
         interactionSpec.params.exactInputAmount.tokenId,
         interactionSpec.params.minimumOutputAmount.tokenId,
       );
-    }
+    case InteractionType.SwapV2:
+      return getRequiredPoolsForSwapV2(poolSpecs, interactionSpec);
     default:
       throw new Error("Unknown interaction type");
   }

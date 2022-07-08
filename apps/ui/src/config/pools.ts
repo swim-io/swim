@@ -34,8 +34,9 @@ export interface EvmPoolSpec extends BasePoolSpec {
 
 export type PoolSpec = SolanaPoolSpec | EvmPoolSpec;
 
-export const isPoolRestructureEnabled = (): boolean =>
-  !!process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE;
+export const isPoolRestructureEnabled = (): boolean => {
+  return !!process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE;
+};
 
 const MAINNET_POOLS: readonly PoolSpec[] = [
   {
@@ -364,7 +365,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   },
 ].filter((spec) => !spec.isDisabled);
 
-const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
+export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
   {
     id: "devnet-solana-usdc-usdt",
     ecosystem: EcosystemId.Solana,
@@ -509,7 +510,7 @@ const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
   },
 ];
 
-const DEVNET_POOLS: readonly PoolSpec[] = [
+export const DEVNET_POOLS: readonly PoolSpec[] = [
   {
     id: "hexapool",
     ecosystem: EcosystemId.Solana,

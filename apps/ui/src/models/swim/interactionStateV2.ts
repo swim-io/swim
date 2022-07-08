@@ -56,8 +56,8 @@ export interface CrossChainEvmToSolanaSwapInteractionState {
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
   readonly approvalTxIds: readonly EvmTx["txId"][];
   readonly swapAndTransferTxId: EvmTx["txId"] | null;
-  readonly postVaaOnSolana: readonly SolanaTx["txId"][];
-  readonly claimTokenOnSolana: SolanaTx["txId"] | null;
+  readonly postVaaOnSolanaTxIds: readonly SolanaTx["txId"][];
+  readonly claimTokenOnSolanaTxId: SolanaTx["txId"] | null;
 }
 
 export interface AddInteractionState {

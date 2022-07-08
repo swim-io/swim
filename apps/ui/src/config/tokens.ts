@@ -25,6 +25,7 @@ import type { ReadonlyRecord } from "../utils";
 
 import { EcosystemId, isEcosystemEnabled } from "./ecosystem";
 import { Env } from "./env";
+import { isPoolRestructureEnabled } from "./pools";
 
 export interface TokenDetails {
   readonly address: string;
@@ -869,6 +870,38 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
 ].filter((spec) => !spec.isDisabled);
 
 const DEVNET_TOKENS: readonly TokenSpec[] = [
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-swimusd",
+    symbol: USDC_SYMBOL,
+    displayName: USDC_NAME,
+    icon: SWIM_USD_SVG,
+    isStablecoin: true,
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "11111111111111111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+      [
+        EcosystemId.Ethereum,
+        {
+          address: "0x1111111111111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+      [
+        EcosystemId.Bnb,
+        {
+          address: "0x1111111111111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
   {
     id: "devnet-solana-usdc",
     symbol: USDC_SYMBOL,

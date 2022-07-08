@@ -15,7 +15,7 @@ export type SolanaWormholeChainId = 1;
 export const SOLANA_WORMHOLE_CHAIN_ID: SolanaWormholeChainId = 1;
 
 /** Adapted from @solana/spl-token-registry ENV */
-export const enum SolanaChainId {
+export enum SolanaChainId {
   MainnetBeta = 101,
   Testnet = 102,
   Devnet = 103,

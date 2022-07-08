@@ -13,7 +13,7 @@ export const ETHEREUM_ECOSYSTEM_ID: EthereumEcosystemId = "ethereum";
 export type EthereumWormholeChainId = 2;
 export const ETHEREUM_WORMHOLE_CHAIN_ID: EthereumWormholeChainId = 2;
 
-export const enum EthereumChainId {
+export enum EthereumChainId {
   Mainnet = 1,
   Ropsten = 3,
   Rinkeby = 4,

@@ -13,7 +13,7 @@ export const BNB_ECOSYSTEM_ID: BnbEcosystemId = "bnb";
 export type BnbWormholeChainId = 2;
 export const BNB_WORMHOLE_CHAIN_ID: BnbWormholeChainId = 2;
 
-export const enum BnbChainId {
+export enum BnbChainId {
   Mainnet = 56,
   Testnet = 97,
 }

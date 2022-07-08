@@ -25,6 +25,7 @@ import type { ReadonlyRecord } from "../utils";
 
 import { EcosystemId, isEcosystemEnabled } from "./ecosystem";
 import { Env } from "./env";
+import { isPoolRestructureEnabled } from "./pools";
 
 export interface TokenDetails {
   readonly address: string;
@@ -58,6 +59,7 @@ const USDT_SYMBOL = "USDT";
 const USDT_NAME = "Tether USD";
 const USN_SYMBOL = "USN";
 const USN_NAME = "USN";
+const SWIM_USD_SYMBOL = "swimUSD";
 
 const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
@@ -158,7 +160,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-hexapool",
-    symbol: "swimUSD",
+    symbol: SWIM_USD_SYMBOL,
     displayName: "swimUSD (Swim Hexapool LP)",
     icon: SWIM_USD_SVG,
     isStablecoin: true,
@@ -868,7 +870,83 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
 ].filter((spec) => !spec.isDisabled);
 
+export const DEVNET_SWIMUSD: TokenSpec = {
+  isDisabled: !isPoolRestructureEnabled(),
+  id: "devnet-swimusd",
+  symbol: SWIM_USD_SYMBOL,
+  displayName: SWIM_USD_SYMBOL,
+  icon: SWIM_USD_SVG,
+  isStablecoin: true,
+  nativeEcosystem: EcosystemId.Solana,
+  detailsByEcosystem: new Map([
+    [
+      EcosystemId.Solana,
+      {
+        address: "11111111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Acala,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Aurora,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Avalanche,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Bnb,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Ethereum,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Fantom,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Karura,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Polygon,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+  ]),
+};
+
 const DEVNET_TOKENS: readonly TokenSpec[] = [
+  DEVNET_SWIMUSD,
   {
     id: "devnet-solana-usdc",
     symbol: USDC_SYMBOL,
@@ -939,7 +1017,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-hexapool",
-    symbol: "swimUSD",
+    symbol: SWIM_USD_SYMBOL,
     displayName: "swimUSD (Swim Hexapool LP)",
     icon: SWIM_USD_SVG,
     isStablecoin: true,
@@ -1712,7 +1790,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "localnet-solana-lp-hexapool",
-    symbol: "swimUSD",
+    symbol: SWIM_USD_SYMBOL,
     displayName: "swimUSD (Swim Hexapool LP)",
     icon: SWIM_USD_SVG,
     isStablecoin: true,

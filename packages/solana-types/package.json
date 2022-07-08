@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/solana-types",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A package for serializing/deserializing Swim types relating to Solana.",
   "main": "build",
   "types": "types",
@@ -36,6 +36,7 @@
     "bn.js": "^5.2.1"
   },
   "devDependencies": {
+    "@swim-io/eslint-config": "workspace:^",
     "@types/bn.js": "^5.1.0",
     "@types/jest": "^28.1.3",
     "@typescript-eslint/eslint-plugin": "^5.29.0",

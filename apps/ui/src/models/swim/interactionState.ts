@@ -1,4 +1,3 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
@@ -19,7 +18,6 @@ export interface InteractionState {
 
 export interface TokenAccountState {
   readonly isExistingAccount: boolean;
-  readonly account: TokenAccount | null;
   readonly txId: SolanaTx["txId"] | null;
 }
 

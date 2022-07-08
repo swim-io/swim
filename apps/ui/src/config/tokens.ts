@@ -686,6 +686,36 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       ],
     ]),
   },
+  {
+    isDisabled: true,
+    id: "mainnet-solana-swim",
+    project: PROJECTS[TokenProjectId.Swim],
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "swimnKEr963p7EbCjsSnBCoYwytuZHPm3zbq6fKLHXb",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: true,
+    id: "mainnet-solana-lp-swimlake",
+    project: PROJECTS[TokenProjectId.Xswim],
+    nativeEcosystem: EcosystemId.Solana,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Solana,
+        {
+          address: "SwiMNJ49SxkqMaVWLGGVRH25kE5dBnD2RQoiQUnKtMC",
+          decimals: 6,
+        },
+      ],
+    ]),
+  },
 ].filter((spec) => !spec.isDisabled);
 
 const DEVNET_TOKENS: readonly TokenSpec[] = [

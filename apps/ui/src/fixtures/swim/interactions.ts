@@ -24,8 +24,6 @@ export const ETH_USDC_TO_SOL_USDC_SWAP: SwapInteraction = {
   poolIds: ["hexapool"],
   env: Env.CustomLocalnet,
   submittedAt: 1652947628411,
-  signatureSetKeypairs: {},
-  previousSignatureSetAddresses: {},
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
@@ -52,8 +50,6 @@ export const SOL_USDC_TO_ETH_USDC_SWAP: SwapInteraction = {
   poolIds: ["hexapool"],
   env: Env.CustomLocalnet,
   submittedAt: 1652947575631,
-  signatureSetKeypairs: {},
-  previousSignatureSetAddresses: {},
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
@@ -80,8 +76,6 @@ export const SOL_USDC_TO_SOL_USDT_SWAP: SwapInteraction = {
   poolIds: ["hexapool"],
   env: Env.CustomLocalnet,
   submittedAt: 1652947560467,
-  signatureSetKeypairs: {},
-  previousSignatureSetAddresses: {},
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: null,
@@ -108,8 +102,6 @@ export const BNB_USDT_TO_ETH_USDC_SWAP: SwapInteraction = {
   poolIds: ["hexapool"],
   env: Env.CustomLocalnet,
   submittedAt: 1652947575631,
-  signatureSetKeypairs: {},
-  previousSignatureSetAddresses: {},
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
@@ -145,13 +137,6 @@ export const ADD: AddInteraction = {
   poolIds: ["hexapool"],
   env: Env.CustomLocalnet,
   submittedAt: 1653063505510,
-  signatureSetKeypairs: {},
-  previousSignatureSetAddresses: {
-    "localnet-ethereum-usdc": "8UyNfs7acAQ4y1tQUxoZnCwT6Dd6N2B3XU65QnHuVpWV",
-    "localnet-ethereum-usdt": "65riF9tEWgkZKsW4UyWSW8QgiYrb54WH4nDeqSfVen21",
-    "localnet-bnb-busd": "DSbWZFFfArz2366vWfZjrDowVPgpctKzh3F5JkHoN1iH",
-    "localnet-bnb-usdt": "BAdRWFGBavu9qB5kpY336Z4ATvwqRo5xeAbNNcJUwZAb",
-  },
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",

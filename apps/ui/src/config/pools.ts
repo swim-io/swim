@@ -326,6 +326,23 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
     ]),
     tokens: ["mainnet-acala-ausd", "mainnet-solana-lp-hexapool"],
   },
+  {
+    isDisabled: true,
+    id: "swimlake",
+    ecosystem: EcosystemId.Solana,
+    displayName: "SwimLake",
+    isStakingPool: true,
+    isStableSwap: true,
+    contract: "sWimoyG4uZiuHwVBp6ZCirB3cdqsHuoxDgs46X9jWMy",
+    address: "4iV8F4KSgcSdDcMzGS6cR7X9XU6bzvz4o7xMkfMPeAmc",
+    authority: "BVX7M8ZHW9RK3fasWbByfJZ6CdjrnDUMe5kLANxoMVfA",
+    feeDecimals: 6,
+    lpToken: "mainnet-solana-lp-swimlake",
+    tokenAccounts: new Map([
+      ["mainnet-solana-swim", "swimnKEr963p7EbCjsSnBCoYwytuZHPm3zbq6fKLHXb"],
+    ]),
+    tokens: ["mainnet-solana-swim"],
+  },
 ].filter((spec) => !spec.isDisabled);
 
 const DEVNET_POOLS: readonly PoolSpec[] = [

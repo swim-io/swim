@@ -2,6 +2,7 @@ import type { ReadonlyRecord } from "../utils";
 
 import { EcosystemId, isEcosystemEnabled } from "./ecosystem";
 import { Env } from "./env";
+import { isPoolRestructureEnabled } from "./pools";
 import type { TokenProject } from "./projects";
 import { PROJECTS, TokenProjectId } from "./projects";
 
@@ -718,7 +719,80 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
 ].filter((spec) => !spec.isDisabled);
 
+export const DEVNET_SWIMUSD: TokenSpec = {
+  isDisabled: !isPoolRestructureEnabled(),
+  id: "devnet-swimusd",
+  project: PROJECTS[TokenProjectId.SwimUsd],
+  nativeEcosystem: EcosystemId.Solana,
+  detailsByEcosystem: new Map([
+    [
+      EcosystemId.Solana,
+      {
+        address: "11111111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Acala,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Aurora,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Avalanche,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Bnb,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Ethereum,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Fantom,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Karura,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Polygon,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+  ]),
+};
+
 const DEVNET_TOKENS: readonly TokenSpec[] = [
+  DEVNET_SWIMUSD,
   {
     id: "devnet-solana-usdc",
     project: PROJECTS[TokenProjectId.Usdc],

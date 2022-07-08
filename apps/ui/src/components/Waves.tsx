@@ -4,9 +4,10 @@ import "./Waves.scss";
 
 interface WavesProps {
   readonly children?: ReactNode;
+  readonly footer?: ReactNode;
 }
 
-export const Waves = ({ children }: WavesProps): ReactElement => {
+export const Waves = ({ children, footer }: WavesProps): ReactElement => {
   return (
     <div className="wavesContainer">
       {children}
@@ -47,6 +48,7 @@ export const Waves = ({ children }: WavesProps): ReactElement => {
           <use xlinkHref="#gentle-wave" x="48" y="7" fill="#f9fafd" />
         </g>
       </svg>
+      {footer}
     </div>
   );
 };

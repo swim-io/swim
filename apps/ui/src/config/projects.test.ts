@@ -1,4 +1,4 @@
-import { PROJECTS, PROJECT_LIST } from "./projects";
+import { PROJECTS, PROJECT_LIST, TokenProjectId } from "./projects";
 
 describe("Token Project", () => {
   it("should have kebab case ids", () => {
@@ -12,5 +12,6 @@ describe("Token Project", () => {
       expect(PROJECTS[project.id]).toBe(project);
     });
     expect(PROJECT_LIST.length).toEqual(Object.keys(PROJECTS).length);
+    expect(PROJECT_LIST.length).toEqual(Object.keys(TokenProjectId).length);
   });
 });

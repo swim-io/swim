@@ -46,7 +46,7 @@ export enum TokenProjectId {
   Usdc = "usdc",
   Usdt = "usdt",
   Usn = "usn",
-  XSwim = "x-swim",
+  XSwim = "xswim",
 }
 
 export interface TokenProject {

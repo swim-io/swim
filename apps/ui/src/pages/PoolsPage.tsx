@@ -236,8 +236,8 @@ const PoolsPage = (): ReactElement => {
 
   const content = isLoading ? (
     <>
-      {[...Array(solanaPools.length)].map((_, i) => (
-        <Fragment key={i}>
+      {solanaPools.map((pool) => (
+        <Fragment key={pool.id}>
           <EuiSpacer size={listSpacerSize} />
           <EuiPanel>
             <EuiLoadingContent lines={3} />

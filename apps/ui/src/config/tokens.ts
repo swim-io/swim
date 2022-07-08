@@ -704,7 +704,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: true,
     id: "mainnet-solana-lp-swimlake",
-    project: PROJECTS[TokenProjectId.Xswim],
+    project: PROJECTS[TokenProjectId.XSwim],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -819,7 +819,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-swimlake",
-    project: PROJECTS[TokenProjectId.Xswim],
+    project: PROJECTS[TokenProjectId.XSwim],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [
@@ -1487,7 +1487,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "localnet-solana-lp-swimlake",
-    project: PROJECTS[TokenProjectId.Xswim],
+    project: PROJECTS[TokenProjectId.XSwim],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [

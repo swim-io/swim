@@ -45,7 +45,7 @@ export enum TokenProjectId {
   Usdc = "usdc",
   Usdt = "usdt",
   Usn = "usn",
-  Xswim = "x-swim",
+  XSwim = "x-swim",
 }
 
 export interface TokenProject {
@@ -131,7 +131,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     isLP: false,
   },
   {
-    id: TokenProjectId.Xswim,
+    id: TokenProjectId.XSwim,
     symbol: "xSWIM",
     displayName: "xSWIM (SwimLake LP)",
     icon: SWIM_USD_SVG, // TODO: Change?

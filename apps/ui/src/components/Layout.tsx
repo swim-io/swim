@@ -5,7 +5,6 @@ import {
   EuiSpacer,
 } from "@elastic/eui";
 import type { ReactElement, ReactNode } from "react";
-import { useLocation } from "react-router-dom";
 
 import { MultiConnectButton } from "./ConnectButton";
 import { CustomHeaderLink } from "./CustomHeaderLink";
@@ -21,10 +20,8 @@ export const Layout = ({
 }: {
   readonly children?: ReactNode;
 }): ReactElement => {
-  const footer = useLocation().pathname === "/swap" ? null : <Footer />;
-
   return (
-    <Waves footer={footer}>
+    <Waves footer={<Footer />}>
       <EuiSpacer />
       <EuiSpacer />
       <EuiHeader

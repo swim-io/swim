@@ -59,6 +59,7 @@ const USDT_SYMBOL = "USDT";
 const USDT_NAME = "Tether USD";
 const USN_SYMBOL = "USN";
 const USN_NAME = "USN";
+const SWIM_USD_SYMBOL = "swimUSD";
 
 const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
@@ -159,7 +160,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-hexapool",
-    symbol: "swimUSD",
+    symbol: SWIM_USD_SYMBOL,
     displayName: "swimUSD (Swim Hexapool LP)",
     icon: SWIM_USD_SVG,
     isStablecoin: true,
@@ -870,9 +871,10 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
 ].filter((spec) => !spec.isDisabled);
 
 export const DEVNET_SWIMUSD: TokenSpec = {
+  isDisabled: !isPoolRestructureEnabled(),
   id: "devnet-swimusd",
-  symbol: USDC_SYMBOL,
-  displayName: USDC_NAME,
+  symbol: SWIM_USD_SYMBOL,
+  displayName: SWIM_USD_SYMBOL,
   icon: SWIM_USD_SVG,
   isStablecoin: true,
   nativeEcosystem: EcosystemId.Solana,
@@ -944,10 +946,7 @@ export const DEVNET_SWIMUSD: TokenSpec = {
 };
 
 const DEVNET_TOKENS: readonly TokenSpec[] = [
-  {
-    isDisabled: !isPoolRestructureEnabled(),
-    ...DEVNET_SWIMUSD,
-  },
+  DEVNET_SWIMUSD,
   {
     id: "devnet-solana-usdc",
     symbol: USDC_SYMBOL,
@@ -1018,7 +1017,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-hexapool",
-    symbol: "swimUSD",
+    symbol: SWIM_USD_SYMBOL,
     displayName: "swimUSD (Swim Hexapool LP)",
     icon: SWIM_USD_SVG,
     isStablecoin: true,
@@ -1791,7 +1790,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "localnet-solana-lp-hexapool",
-    symbol: "swimUSD",
+    symbol: SWIM_USD_SYMBOL,
     displayName: "swimUSD (Swim Hexapool LP)",
     icon: SWIM_USD_SVG,
     isStablecoin: true,

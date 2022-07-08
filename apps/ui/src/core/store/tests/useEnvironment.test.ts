@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { useEnvironment } from "..";
 import { DEFAULT_ENV, Env } from "../../../config";
+import { useEnvironment } from "../useEnvironment";
 
 describe("useEnvironment", () => {
   const CUSTOM_LOCALNET_IP = "123.4.5.6";

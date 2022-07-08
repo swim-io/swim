@@ -1,7 +1,6 @@
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import { useSolanaWallet, useSplTokenAccountsQuery } from "..";
 import { EcosystemId } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
@@ -11,7 +10,11 @@ import {
   setOutputOperationInputAmount,
 } from "../../models";
 import { findOrThrow, isNotNull } from "../../utils";
-import { useSolanaConnection } from "../solana";
+import {
+  useSolanaConnection,
+  useSolanaWallet,
+  useSplTokenAccountsQuery,
+} from "../solana";
 
 export const useSolanaPoolOperationsMutation = () => {
   const { env } = useEnvironment();

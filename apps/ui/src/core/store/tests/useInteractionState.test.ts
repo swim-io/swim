@@ -1,8 +1,8 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { useInteractionState } from "..";
 import { MOCK_INTERACTION_STATE } from "../../../fixtures/swim/interactionState";
 import { ETH_USDC_TO_SOL_USDC_SWAP } from "../../../fixtures/swim/interactions";
+import { useInteractionState } from "../useInteractionState";
 
 jest.mock("../idb", () => ({
   ...jest.requireActual("../idb"),

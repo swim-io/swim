@@ -15,12 +15,12 @@ import LP_META_KARURA_AUSD_SVG from "../images/tokens/lp_metapool_karura_ausd.sv
 import LP_META_KARURA_USDT_SVG from "../images/tokens/lp_metapool_karura_usdt.svg";
 import LP_META_POLYGON_USDC_SVG from "../images/tokens/lp_metapool_polygon_usdc.svg";
 import LP_META_POLYGON_USDT_SVG from "../images/tokens/lp_metapool_polygon_usdt.svg";
-import SWIM_TOKEN_SVG from "../images/tokens/swim_token.svg";
+import SWIM_TOKEN_SVG from "../images/tokens/swim.svg";
 import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
 import USDC_SVG from "../images/tokens/usdc.svg";
 import USDT_SVG from "../images/tokens/usdt.svg";
 import USN_SVG from "../images/tokens/usn.svg";
-import XSWIM_TOKEN_SVG from "../images/tokens/xswim_token.svg";
+import XSWIM_TOKEN_SVG from "../images/tokens/xswim.svg";
 import type { ReadonlyRecord } from "../utils";
 
 export enum TokenProjectId {

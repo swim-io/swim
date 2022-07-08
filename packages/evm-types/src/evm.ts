@@ -20,21 +20,23 @@ export interface EvmEcosystemConfig<
   E extends string,
   W extends number,
   C extends number,
-> extends EcosystemConfig<EvmProtocol, E, W, C> {
-  readonly chains: readonly EvmChainConfig<E, C>[];
+  CC extends EvmChainConfig<E, C> = EvmChainConfig<E, C>,
+> extends EcosystemConfig<EvmProtocol, E, W, C, CC> {
+  readonly chains: readonly CC[];
 }
 
 export const createEvmEcosystemPlugin = <
   E extends string,
   W extends number,
   C extends number,
+  CC extends EvmChainConfig<E, C> = EvmChainConfig<E, C>,
 >(
   ecosystemId: E,
   wormholeChainId: W,
   displayName: string,
   gasToken: GasToken,
-  presetChains: ReadonlyMap<Env, EvmChainConfig<E, C>>,
-): EcosystemPlugin<EvmProtocol, E, W, C, EvmChainConfig<E, C>> => ({
+  presetChains: ReadonlyMap<Env, CC>,
+): EcosystemPlugin<EvmProtocol, E, W, C, CC> => ({
   protocol: EVM_PROTOCOL,
   id: ecosystemId,
   wormholeChainId,
@@ -42,8 +44,8 @@ export const createEvmEcosystemPlugin = <
   gasToken,
   presetChains,
   createEcosystemConfig: (
-    chains: readonly EvmChainConfig<E, C>[] = [...presetChains.values()],
-  ): EvmEcosystemConfig<E, W, C> => ({
+    chains: readonly CC[] = [...presetChains.values()],
+  ): EvmEcosystemConfig<E, W, C, CC> => ({
     id: ecosystemId,
     protocol: EVM_PROTOCOL,
     wormholeChainId: wormholeChainId,

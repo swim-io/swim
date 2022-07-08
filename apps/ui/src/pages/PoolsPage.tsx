@@ -3,6 +3,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
+  EuiIcon,
   EuiLoadingSpinner,
   EuiPage,
   EuiPageBody,
@@ -135,7 +136,11 @@ const PoolsPage = (): ReactElement => {
             responsive={false}
           >
             <EuiFlexItem grow={false} style={{ marginRight: 20 }}>
-              <img src={project.icon} alt={project.displayName} width={20} />
+              <EuiIcon
+                type={project.icon}
+                size="m"
+                title={project.displayName}
+              />
             </EuiFlexItem>
             <EuiFlexItem>
               <EuiText>{project.symbol}</EuiText>
@@ -160,7 +165,11 @@ const PoolsPage = (): ReactElement => {
       inputDisplay: (
         <EuiFlexGroup gutterSize="none" alignItems="center" responsive={false}>
           <EuiFlexItem grow={false} style={{ marginRight: 20 }}>
-            <img src={ecosystem.logo} alt={ecosystem.displayName} width={20} />
+            <EuiIcon
+              type={ecosystem.logo}
+              size="m"
+              title={ecosystem.displayName}
+            />
           </EuiFlexItem>
           <EuiFlexItem>
             <EuiText>{ecosystem.displayName}</EuiText>

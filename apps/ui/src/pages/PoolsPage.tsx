@@ -467,7 +467,7 @@ const PoolsPage = (): ReactElement => {
                   />
                 </EuiFormRow>
               </EuiFlexItem>
-              {selectEcosystemOptions.length > 2 && (
+              {selectEcosystemOptions.length > 1 && (
                 <EuiFlexItem grow={false}>
                   <EuiFormRow label="Chain">
                     <EuiSuperSelect

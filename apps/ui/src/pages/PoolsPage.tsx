@@ -4,11 +4,12 @@ import {
   EuiFlexItem,
   EuiFormRow,
   EuiIcon,
-  EuiLoadingSpinner,
+  EuiLoadingContent,
   EuiPage,
   EuiPageBody,
   EuiPageContent,
   EuiPageContentBody,
+  EuiPanel,
   EuiSpacer,
   EuiSuperSelect,
   EuiText,
@@ -234,12 +235,16 @@ const PoolsPage = (): ReactElement => {
   const listSpacerSize = "l";
 
   const content = isLoading ? (
-    <EuiFlexGroup justifyContent="center">
-      <EuiFlexItem grow={false}>
-        <EuiSpacer size={listSpacerSize} />
-        <EuiLoadingSpinner size="xl" />
-      </EuiFlexItem>
-    </EuiFlexGroup>
+    <>
+      {[...Array(solanaPools.length)].map((u, i) => (
+        <Fragment key={i}>
+          <EuiSpacer size={listSpacerSize} />
+          <EuiPanel>
+            <EuiLoadingContent lines={3} />
+          </EuiPanel>
+        </Fragment>
+      ))}
+    </>
   ) : (
     <>
       {poolsByTvl.length > 0 ? (

@@ -38,13 +38,15 @@ import { isSolanaPool } from "../models";
 import { deduplicate, filterMap, findOrThrow, sortBy } from "../utils";
 import type { ReadonlyRecord } from "../utils";
 
+type EcosystemSelectType = EcosystemId | "all";
+type TokenProjectSelectType = TokenProjectId | "all";
+
 const PoolsPage = (): ReactElement => {
   useTitle("Pools");
 
-  const [ecosystemId, setEcosystemId] = useState<EcosystemId | "all">("all");
-  const [tokenProjectId, setTokenProjectId] = useState<TokenProjectId | "all">(
-    "all",
-  );
+  const [ecosystemId, setEcosystemId] = useState<EcosystemSelectType>("all");
+  const [tokenProjectId, setTokenProjectId] =
+    useState<TokenProjectSelectType>("all");
 
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
 
@@ -376,7 +378,7 @@ const PoolsPage = (): ReactElement => {
                     ]}
                     valueOfSelected={tokenProjectId}
                     onChange={(value) =>
-                      setTokenProjectId(value as TokenProjectId)
+                      setTokenProjectId(value as TokenProjectSelectType)
                     }
                     itemLayoutAlign="top"
                     hasDividers
@@ -395,7 +397,9 @@ const PoolsPage = (): ReactElement => {
                         ...selectEcosystemOptions,
                       ]}
                       valueOfSelected={ecosystemId}
-                      onChange={(value) => setEcosystemId(value as EcosystemId)}
+                      onChange={(value) =>
+                        setEcosystemId(value as EcosystemSelectType)
+                      }
                       itemLayoutAlign="top"
                       hasDividers
                       style={{

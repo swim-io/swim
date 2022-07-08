@@ -1,9 +1,20 @@
-import type { BaseWallet } from "..";
 import type { EcosystemId } from "../../config";
 import { isEcosystemEnabled } from "../../config";
-import type { EvmWalletInterface } from "../../hooks/evm";
-import type { SolanaWalletInterface } from "../../hooks/solana";
 import type { ReadonlyRecord } from "../../utils";
+import type { BaseWallet } from "../swim";
+import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
+
+export interface SolanaWalletInterface {
+  readonly wallet: SolanaWalletAdapter | null;
+  readonly address: string | null;
+  readonly connected: boolean;
+}
+
+export interface EvmWalletInterface {
+  readonly wallet: EvmWalletAdapter | null;
+  readonly address: string | null;
+  readonly connected: boolean;
+}
 
 export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
   readonly [EcosystemId.Solana]: SolanaWalletInterface;

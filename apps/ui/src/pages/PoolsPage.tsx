@@ -59,10 +59,12 @@ const PoolsPage = (): ReactElement => {
     allPoolTokenAccountAddresses,
   );
 
-  const { data: prices = new Map<string, Decimal | null>(), isLoading } =
-    useCoinGeckoPricesQuery();
+  const {
+    data: prices = new Map<TokenSpec["id"], Decimal | null>(),
+    isLoading,
+  } = useCoinGeckoPricesQuery();
 
-  const poolTokens: ReadonlyRecord<string, readonly TokenSpec[]> =
+  const poolTokens: ReadonlyRecord<PoolSpec["id"], readonly TokenSpec[]> =
     solanaPools.reduce(
       (accumulator, poolSpec) => ({
         ...accumulator,
@@ -112,13 +114,14 @@ const PoolsPage = (): ReactElement => {
     }
   };
 
-  const poolUsdTotals: ReadonlyRecord<string, Decimal> = solanaPools.reduce(
-    (accumulator, poolSpec) => ({
-      ...accumulator,
-      [poolSpec.id]: getPoolUsdTotal(poolSpec),
-    }),
-    {},
-  );
+  const poolUsdTotals: ReadonlyRecord<PoolSpec["id"], Decimal> =
+    solanaPools.reduce(
+      (accumulator, poolSpec) => ({
+        ...accumulator,
+        [poolSpec.id]: getPoolUsdTotal(poolSpec),
+      }),
+      {},
+    );
 
   const selectTokenOptions = useMemo(
     () =>

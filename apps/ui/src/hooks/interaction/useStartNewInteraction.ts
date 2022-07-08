@@ -12,7 +12,7 @@ export const useStartNewInteraction = (onMutateSuccess?: VoidFunction) => {
     const interactionState = createInteractionState(interactionSpec);
     addInteractionState(interactionState);
     mutate(interactionState.interaction.id, {
-      onSuccess: mutateSuccessCb,
+      onSuccess: onMutateSuccess,
     });
   };
 };

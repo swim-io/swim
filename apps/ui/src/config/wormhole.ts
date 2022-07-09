@@ -26,7 +26,8 @@ export interface WormholeConfig {
 }
 
 const MAINNET_WORMHOLE_CONFIG: WormholeConfig = {
-  endpoint: "https://wormhole-v2-mainnet-api.certus.one",
+  // endpoint: "https://wormhole-v2-mainnet-api.certus.one",
+  endpoint: " https://wormhole.inotel.ro",
 };
 
 const DEVNET_WORMHOLE_CONFIG: WormholeConfig = {

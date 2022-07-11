@@ -2,8 +2,8 @@ import type { ReadonlyRecord } from "../utils";
 
 import type { ChainsByProtocol } from "./chains";
 import { CHAINS } from "./chains";
-import type { Ecosystem, EcosystemId } from "./ecosystem";
-import { ECOSYSTEMS, Protocol } from "./ecosystem";
+import type { EcosystemId } from "./ecosystem";
+import { ECOSYSTEM_CONFIGS, SOLANA_PROTOCOL, EVM_PROTOCOL, } from "./ecosystem";
 import { Env } from "./env";
 import type { PoolSpec } from "./pools";
 import { POOLS } from "./pools";
@@ -23,7 +23,7 @@ export * from "./utils";
 export * from "./wormhole";
 
 export interface Config {
-  readonly ecosystems: ReadonlyRecord<EcosystemId, Ecosystem>;
+  readonly ecosystems: ReadonlyRecord<EcosystemId, EcosystemConfig>;
   readonly chains: ChainsByProtocol;
   readonly pools: readonly PoolSpec[];
   readonly tokens: readonly TokenSpec[];
@@ -32,7 +32,7 @@ export interface Config {
 }
 
 const buildConfig = (env: Env): Config => ({
-  ecosystems: ECOSYSTEMS,
+  ecosystems: ECOSYSTEM_CONFIGS,
   chains: CHAINS[env],
   pools: POOLS[env],
   tokens: TOKENS[env],
@@ -57,17 +57,17 @@ export const overrideLocalnetIp = (config: Config, ip: string): Config => ({
   },
   chains: {
     ...config.chains,
-    [Protocol.Solana]: [
+    [SOLANA_PROTOCOL]: [
       {
-        ...config.chains[Protocol.Solana][0],
-        endpoint: config.chains[Protocol.Solana][0].endpoint.replace(
+        ...config.chains[SOLANA_PROTOCOL][0],
+        endpoint: config.chains[SOLANA_PROTOCOL][0].endpoint.replace(
           LOCALHOST_REGEXP,
           ip,
         ),
       },
-      ...config.chains[Protocol.Solana].slice(1),
+      ...config.chains[SOLANA_PROTOCOL].slice(1),
     ],
-    [Protocol.Evm]: config.chains[Protocol.Evm].map((chainSpec) => ({
+    [EVM_PROTOCOL]: config.chains[EVM_PROTOCOL].map((chainSpec) => ({
       ...chainSpec,
       rpcUrls: chainSpec.rpcUrls.map((rpcUrl) =>
         rpcUrl.replace(LOCALHOST_REGEXP, ip),

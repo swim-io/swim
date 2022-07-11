@@ -1,9 +1,4 @@
-export enum Env {
-  Mainnet = "Mainnet",
-  Devnet = "Devnet",
-  Localnet = "Localnet",
-  CustomLocalnet = "CustomLocalnet",
-}
+import { Env } from "@swim-io/core-types";
 
 export const DEFAULT_ENV = Env.Mainnet;
 

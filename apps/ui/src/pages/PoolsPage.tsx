@@ -129,8 +129,9 @@ const PoolsPage = (): ReactElement => {
     );
 
   const selectTokenOptions = useMemo(
-    () =>
-      sortBy(
+    () => [
+      { inputDisplay: "All Tokens", value: "all", icon: null },
+      ...sortBy(
         deduplicate(
           (project) => project.id,
           tokens
@@ -159,7 +160,9 @@ const PoolsPage = (): ReactElement => {
             </EuiFlexItem>
           </EuiFlexGroup>
         ),
+        icon: null,
       })),
+    ],
     [tokens],
   );
 
@@ -172,23 +175,31 @@ const PoolsPage = (): ReactElement => {
       "displayName",
     );
 
-    return ecosystems.map((ecosystem) => ({
-      value: ecosystem.id,
-      inputDisplay: (
-        <EuiFlexGroup gutterSize="none" alignItems="center" responsive={false}>
-          <EuiFlexItem grow={false} style={{ marginRight: 20 }}>
-            <EuiIcon
-              type={ecosystem.logo}
-              size="m"
-              title={ecosystem.displayName}
-            />
-          </EuiFlexItem>
-          <EuiFlexItem>
-            <EuiText>{ecosystem.displayName}</EuiText>
-          </EuiFlexItem>
-        </EuiFlexGroup>
-      ),
-    }));
+    return [
+      { inputDisplay: "All Chains", value: "all", icon: null },
+      ...ecosystems.map((ecosystem) => ({
+        value: ecosystem.id,
+        inputDisplay: (
+          <EuiFlexGroup
+            gutterSize="none"
+            alignItems="center"
+            responsive={false}
+          >
+            <EuiFlexItem grow={false} style={{ marginRight: 20 }}>
+              <EuiIcon
+                type={ecosystem.logo}
+                size="m"
+                title={ecosystem.displayName}
+              />
+            </EuiFlexItem>
+            <EuiFlexItem>
+              <EuiText>{ecosystem.displayName}</EuiText>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        ),
+        icon: null,
+      })),
+    ];
   }, [env, pools]);
 
   const projectsPerPool: ReadonlyRecord<
@@ -383,10 +394,7 @@ const PoolsPage = (): ReactElement => {
         <EuiFlexItem grow={false}>
           <EuiFormRow label="Token">
             <EuiSuperSelect
-              options={[
-                { inputDisplay: "All Tokens", value: "all" },
-                ...selectTokenOptions,
-              ]}
+              options={selectTokenOptions}
               valueOfSelected={tokenProjectId}
               onChange={(value) =>
                 setTokenProjectId(value as TokenProjectSelectType)
@@ -403,10 +411,7 @@ const PoolsPage = (): ReactElement => {
         <EuiFlexItem grow={false}>
           <EuiFormRow label="Chain">
             <EuiSuperSelect
-              options={[
-                { inputDisplay: "All Chains", value: "all" },
-                ...selectEcosystemOptions,
-              ]}
+              options={selectEcosystemOptions}
               valueOfSelected={ecosystemId}
               onChange={(value) => setEcosystemId(value as EcosystemSelectType)}
               itemLayoutAlign="top"

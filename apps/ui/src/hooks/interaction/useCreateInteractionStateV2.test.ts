@@ -1,10 +1,8 @@
-import crypto from "crypto";
-
 import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
-
 import { useSplTokenAccountsQuery, useWallets } from "..";
+
 import {
   CONFIGS,
   DEVNET_POOLS,
@@ -27,8 +25,7 @@ const SOLANA_USDT = findTokenById("devnet-solana-usdt", Env.Devnet);
 
 Object.defineProperty(global.self, "crypto", {
   value: {
-    getRandomValues: (arr: string | readonly any[]) =>
-      crypto.randomBytes(arr.length),
+    getRandomValues: (arr: string | readonly any[]) => Buffer.alloc(arr.length)
   },
 });
 
@@ -36,13 +33,11 @@ jest.mock("../../models", () => ({
   ...jest.requireActual("../../models"),
   generateId: jest.fn(),
 }));
-const generateIdMock = mockOf(generateId);
 
 jest.mock("../../core/selectors", () => ({
   ...jest.requireActual("../../core/selectors"),
   selectConfig: jest.fn(),
 }));
-const selectConfigMock = mockOf(selectConfig);
 
 jest.mock("..", () => ({
   ...jest.requireActual(".."),
@@ -51,6 +46,8 @@ jest.mock("..", () => ({
 }));
 
 // Make typescript happy with jest
+const generateIdMock = mockOf(generateId);
+const selectConfigMock = mockOf(selectConfig);
 const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
 const useWalletsMock = mockOf(useWallets);
 
@@ -71,7 +68,7 @@ describe("useCreateInteractionStateV2", () => {
       ...CONFIGS[Env.Devnet],
       pools: [...DEVNET_POOLS, ...DEVNET_POOLS_FOR_RESTRUCTURE],
     });
-    jest.spyOn(Date, "now").mockImplementation(() => 0);
+    jest.spyOn(Date, "now").mockImplementation(() => 1657544558283);
   });
 
   it("should create state for Swap from SOLANA USDC to SOLANA USDT", async () => {

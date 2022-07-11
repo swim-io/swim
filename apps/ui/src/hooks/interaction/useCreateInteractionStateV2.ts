@@ -2,7 +2,7 @@ import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import shallow from "zustand/shallow.js";
 
 import { useSplTokenAccountsQuery, useWallets } from "..";
-import type { PoolSpec } from "../../config";
+import type { PoolSpec, TokenSpec } from "../../config";
 import {
   DEVNET_SWIMUSD,
   EcosystemId,
@@ -29,6 +29,7 @@ import {
 } from "../../models";
 import type { InteractionStateV2 } from "../../models/swim/interactionStateV2";
 import { SwapType } from "../../models/swim/interactionStateV2";
+import { filterMap } from "../../utils";
 
 const getSwapType = (interaction: SwapInteractionV2): SwapType => {
   const { fromTokenDetail, toTokenDetail } = interaction.params;
@@ -41,18 +42,12 @@ const getSwapType = (interaction: SwapInteractionV2): SwapType => {
     return SwapType.SingleChainSolana;
   }
   if (
-    fromEcosystem === toEcosystem &&
     isEvmEcosystemId(fromEcosystem) &&
     isEvmEcosystemId(toEcosystem)
   ) {
-    return SwapType.SingleChainEvm;
-  }
-  if (
-    fromEcosystem !== toEcosystem &&
-    isEvmEcosystemId(fromEcosystem) &&
-    isEvmEcosystemId(toEcosystem)
-  ) {
-    return SwapType.CrossChainEvmToEvm;
+    return fromEcosystem === toEcosystem
+      ? SwapType.SingleChainEvm
+      : SwapType.CrossChainEvmToEvm;
   }
   if (fromEcosystem === EcosystemId.Solana && isEvmEcosystemId(toEcosystem)) {
     return SwapType.CrossChainSolanaToEvm;
@@ -64,7 +59,7 @@ const getSwapType = (interaction: SwapInteractionV2): SwapType => {
   throw new Error("Unknown swap type");
 };
 
-export const createRequiredSplTokenAccounts = (
+export const calculateRequiredSplTokenAccounts = (
   interaction: SwapInteractionV2,
   tokenAccounts: readonly TokenAccount[],
   walletAddress: string | null,
@@ -88,20 +83,22 @@ export const createRequiredSplTokenAccounts = (
   const requiredTokens = isCrossChain
     ? [fromToken, toToken, swimUSD]
     : [fromToken, toToken];
-  const mints = requiredTokens
-    .filter((token) => token.nativeEcosystem === EcosystemId.Solana)
-    .map((token) => getSolanaTokenDetails(token).address);
+  const mints = filterMap(
+    (token: TokenSpec) => token.nativeEcosystem === EcosystemId.Solana,
+    (token) => getSolanaTokenDetails(token).address,
+    requiredTokens
+  );
   if (walletAddress === null) {
     throw new Error("No Solana wallet address found");
   }
-  return mints.reduce((state, mint) => {
+  return mints.reduce((requiredAccounts, mint) => {
     const accountForMint = findTokenAccountForMint(
       mint,
       walletAddress,
       tokenAccounts,
     );
     return {
-      ...state,
+      ...requiredAccounts,
       [mint]: {
         isExistingAccount: accountForMint !== null,
         txId: null,
@@ -117,7 +114,7 @@ const createSwapInteractionState = (
   requiredPools: readonly PoolSpec[],
 ): InteractionStateV2 => {
   const swapType = getSwapType(interaction);
-  const requiredSplTokenAccounts = createRequiredSplTokenAccounts(
+  const requiredSplTokenAccounts = calculateRequiredSplTokenAccounts(
     interaction,
     tokenAccounts,
     solanaWalletAddress,

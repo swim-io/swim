@@ -1,12 +1,17 @@
 import * as Sentry from "@sentry/react";
 import type { SeverityLevel } from "@sentry/types";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import type { Signer } from "ethers";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 
-import type { EcosystemId, EvmChainId, TokenSpec } from "../../../../config";
-import { ALL_UNIQUE_CHAINS, ECOSYSTEMS, Protocol } from "../../../../config";
-import { captureException } from "../../../../errors";
+import type {
+  EcosystemId,
+  EvmChainId,
+  EvmProtocol,
+  TokenSpec,
+} from "../../../../config";
+import { ALL_UNIQUE_CHAINS, ECOSYSTEM_CONFIGS } from "../../../../config";
 import { sleep } from "../../../../utils";
 
 type Web3Provider = ethers.providers.Web3Provider;
@@ -33,7 +38,7 @@ export interface EvmWalletAdapter extends EventEmitter {
   ) => Promise<unknown>;
   readonly isUnlocked: () => Promise<boolean>;
   readonly hasConnectedBefore: () => Promise<boolean>;
-  readonly protocol: Protocol.Evm;
+  readonly protocol: EvmProtocol;
 }
 
 export class EvmWeb3WalletAdapter
@@ -42,7 +47,7 @@ export class EvmWeb3WalletAdapter
 {
   readonly serviceName: string;
   readonly serviceUrl: string;
-  readonly protocol: Protocol.Evm;
+  readonly protocol: EvmProtocol;
   address: string | null;
   readonly isUnlocked: () => Promise<boolean>;
   private readonly getWalletProvider: () => Web3Provider | null;
@@ -61,7 +66,7 @@ export class EvmWeb3WalletAdapter
     this.isUnlocked = isUnlocked;
     this.address = null;
     this.connecting = false;
-    this.protocol = Protocol.Evm;
+    this.protocol = EVM_PROTOCOL;
   }
 
   public get connected(): boolean {
@@ -153,7 +158,7 @@ export class EvmWeb3WalletAdapter
       ]);
     } catch (switchError: any) {
       if (switchError.code === METAMASK_unrecognizedChainId) {
-        const evmSpec = ALL_UNIQUE_CHAINS[Protocol.Evm].find(
+        const evmSpec = ALL_UNIQUE_CHAINS[EVM_PROTOCOL].find(
           (spec) => spec.chainId === chainId,
         );
         if (!evmSpec) {
@@ -191,7 +196,7 @@ export class EvmWeb3WalletAdapter
     const details = tokenSpec.detailsByEcosystem.get(ecosystemId);
     if (!details) {
       throw new Error(
-        `No ${ECOSYSTEMS[ecosystemId].displayName} details for token`,
+        `No ${ECOSYSTEM_CONFIGS[ecosystemId].displayName} details for token`,
       );
     }
     await this.switchNetwork(chainId);

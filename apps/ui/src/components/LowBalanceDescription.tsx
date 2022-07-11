@@ -1,7 +1,7 @@
 import type { FC, ReactElement } from "react";
 
-import type { Ecosystem } from "../config";
-import { ECOSYSTEMS, EcosystemId } from "../config";
+import type { EcosystemConfig } from "../config";
+import { ECOSYSTEM_CONFIGS, EcosystemId } from "../config";
 
 const ecosystemIdToDoc = new Map([
   [
@@ -14,7 +14,7 @@ const ecosystemIdToDoc = new Map([
   ],
 ]);
 
-const createListItem = (ecosystem: Ecosystem): ReactElement => {
+const createListItem = (ecosystem: EcosystemConfig): ReactElement => {
   if (ecosystemIdToDoc.has(ecosystem.id)) {
     return (
       <li key={ecosystem.displayName}>
@@ -54,7 +54,7 @@ export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
     ecosystemIdToDoc.has(ecosystemId),
   );
   const lowBalanceEcosystems = lowBalanceWallets.map((ecosystemId) => {
-    return ECOSYSTEMS[ecosystemId];
+    return ECOSYSTEM_CONFIGS[ecosystemId];
   });
   return (
     <p>

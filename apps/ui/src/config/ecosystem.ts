@@ -1,206 +1,163 @@
-import ACALA_SVG from "../images/ecosystems/acala.svg";
-import AURORA_SVG from "../images/ecosystems/aurora.svg";
-import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
-import BNB_SVG from "../images/ecosystems/bnb.svg";
-import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
-import FANTOM_SVG from "../images/ecosystems/fantom.svg";
-import KARURA_SVG from "../images/ecosystems/karura.svg";
-import POLYGON_SVG from "../images/ecosystems/polygon.svg";
-import SOLANA_SVG from "../images/ecosystems/solana.svg";
+import type { EcosystemConfig } from "@swim-io/core-types";
+import type * as CoreTypes from "@swim-io/core-types";
+import * as EvmTypes from "@swim-io/evm-types";
+import * as BnbConfig from "@swim-io/plugin-ecosystem-bnb";
+import * as EthereumConfig from "@swim-io/plugin-ecosystem-ethereum";
+import * as SolanaConfig from "@swim-io/plugin-ecosystem-solana";
+
+// import ACALA_SVG from "../images/ecosystems/acala.svg";
+// import AURORA_SVG from "../images/ecosystems/aurora.svg";
+// import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
+// import BNB_SVG from "../images/ecosystems/bnb.svg";
+// import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+// import FANTOM_SVG from "../images/ecosystems/fantom.svg";
+// import KARURA_SVG from "../images/ecosystems/karura.svg";
+// import POLYGON_SVG from "../images/ecosystems/polygon.svg";
+// import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import type { ReadonlyRecord } from "../utils";
 import { filterMap } from "../utils";
 
-import { WormholeChainId } from "./wormhole";
+// import { WormholeChainId } from "./wormhole";
 
-export const enum Protocol {
-  Solana = "solana-protocol",
-  Evm = "evm",
-}
+export type SolanaProtocol = "solana-protocol";
+export const SOLANA_PROTOCOL: SolanaProtocol = "solana-protocol";
+export type EvmProtocol = "evm";
+export const EVM_PROTOCOL: EvmProtocol = "evm";
 
-export const PROTOCOL_NAMES: Record<Protocol, string> = {
-  [Protocol.Solana]: "Solana",
-  [Protocol.Evm]: "EVM",
+export const PROTOCOL_NAMES: Record<string, string> = {
+  [SOLANA_PROTOCOL]: "Solana",
+  [EVM_PROTOCOL]: "EVM",
 };
 
-/**
- * Maps 1:1 onto @certusone/wormhole-sdk ChainId
- * For a given Env, this encodes both Protocol and Protocol-specific ChainId
- * For a given Env, there should be no more than 1 ChainSpec with a given Ecosystem
- */
-export enum EcosystemId {
-  /** Only valid for Protocol.Solana chains */
-  Solana = "solana",
-  /** Only valid for Protocol.Evm chains */
-  Ethereum = "ethereum",
-  /** Only valid for Protocol.Evm chains */
-  Bnb = "bnb",
-  /** Only valid for Protocol.Evm chains */
-  Avalanche = "avalanche",
-  /** Only valid for Protocol.Evm chains */
-  Polygon = "polygon",
-  /** Only valid for Protocol.Evm chains */
-  Aurora = "aurora",
-  /** Only valid for Protocol.Evm chains */
-  Fantom = "fantom",
-  /** Only valid for Protocol.Evm chains */
-  Karura = "karura",
-  /** Only valid for Protocol.Evm chains */
-  Acala = "acala",
-}
+// /**
+//  * Maps 1:1 onto @certusone/wormhole-sdk ChainId
+//  * For a given Env, this encodes both Protocol and Protocol-specific ChainId
+//  * For a given Env, there should be no more than 1 ChainSpec with a given Ecosystem
+//  */
+// export enum EcosystemId {
+//   /** Only valid for Protocol.Solana chains */
+//   Solana = "solana",
+//   /** Only valid for Protocol.Evm chains */
+//   Ethereum = "ethereum",
+//   /** Only valid for Protocol.Evm chains */
+//   Bnb = "bnb",
+//   /** Only valid for Protocol.Evm chains */
+//   Avalanche = "avalanche",
+//   /** Only valid for Protocol.Evm chains */
+//   Polygon = "polygon",
+//   /** Only valid for Protocol.Evm chains */
+//   Aurora = "aurora",
+//   /** Only valid for Protocol.Evm chains */
+//   Fantom = "fantom",
+//   /** Only valid for Protocol.Evm chains */
+//   Karura = "karura",
+//   /** Only valid for Protocol.Evm chains */
+//   Acala = "acala",
+// }
 
-export const ECOSYSTEM_IDS: readonly EcosystemId[] = Object.values(EcosystemId);
+export type EvmEcosystemId =
+  | EthereumConfig.EthereumEcosystemId
+  | BnbConfig.BnbEcosystemId;
+export type SolanaEcosystemId = SolanaConfig.SolanaEcosystemId;
+export type EcosystemId = SolanaConfig.SolanaEcosystemId | EvmEcosystemId;
+
+export const EVM_ECOSYSTEM_IDS: readonly EcosystemId[] = [
+  EthereumConfig.ETHEREUM_ECOSYSTEM_ID,
+  BnbConfig.BNB_ECOSYSTEM_ID,
+];
+export const ECOSYSTEM_IDS: readonly EcosystemId[] = [
+  ...EVM_ECOSYSTEM_IDS,
+  SolanaConfig.SOLANA_ECOSYSTEM_ID,
+];
 
 export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean => {
   switch (ecosystemId) {
-    case EcosystemId.Solana:
-    case EcosystemId.Ethereum:
-    case EcosystemId.Bnb:
-    case EcosystemId.Avalanche:
-    case EcosystemId.Polygon:
+    case SolanaConfig.SOLANA_ECOSYSTEM_ID:
       return true;
-    case EcosystemId.Aurora:
-      return !!(
-        process.env.REACT_APP_ENABLE_AURORA_USDC ||
-        process.env.REACT_APP_ENABLE_AURORA_USDT ||
-        process.env.REACT_APP_ENABLE_AURORA_USN
-      );
-    case EcosystemId.Fantom:
-      return !!process.env.REACT_APP_ENABLE_FANTOM;
-    case EcosystemId.Karura:
-      return !!(
-        process.env.REACT_APP_ENABLE_KARURA_USDT ||
-        process.env.REACT_APP_ENABLE_KARURA_AUSD
-      );
-    case EcosystemId.Acala:
-      return !!process.env.REACT_APP_ENABLE_ACALA;
+    case EthereumConfig.ETHEREUM_ECOSYSTEM_ID:
+      return true;
+    case BnbConfig.BNB_ECOSYSTEM_ID:
+      return true;
+    // case EcosystemId.Avalanche:
+    // case EcosystemId.Polygon:
+    //   return true;
+    // case EcosystemId.Aurora:
+    //   return !!(
+    //     process.env.REACT_APP_ENABLE_AURORA_USDC ||
+    //     process.env.REACT_APP_ENABLE_AURORA_USDT ||
+    //     process.env.REACT_APP_ENABLE_AURORA_USN
+    //   );
+    // case EcosystemId.Fantom:
+    //   return !!process.env.REACT_APP_ENABLE_FANTOM;
+    // case EcosystemId.Karura:
+    //   return !!(
+    //     process.env.REACT_APP_ENABLE_KARURA_USDT ||
+    //     process.env.REACT_APP_ENABLE_KARURA_AUSD
+    //   );
+    // case EcosystemId.Acala:
+    //   return !!process.env.REACT_APP_ENABLE_ACALA;
     default:
       return false;
   }
 };
 
-export type SolanaEcosystemId = Extract<EcosystemId, EcosystemId.Solana>;
+// export type SolanaEcosystemId = Extract<EcosystemId, EcosystemId.Solana>;
 
-export type EvmEcosystemId = Extract<
-  EcosystemId,
-  | EcosystemId.Ethereum
-  | EcosystemId.Bnb
-  | EcosystemId.Avalanche
-  | EcosystemId.Polygon
-  | EcosystemId.Aurora
-  | EcosystemId.Fantom
-  | EcosystemId.Karura
-  | EcosystemId.Acala
->;
+// export type EvmEcosystemId = Extract<
+//   EcosystemId,
+//   | EcosystemId.Ethereum
+//   | EcosystemId.Bnb
+//   | EcosystemId.Avalanche
+//   | EcosystemId.Polygon
+//   | EcosystemId.Aurora
+//   | EcosystemId.Fantom
+//   | EcosystemId.Karura
+//   | EcosystemId.Acala
+// >;
 
 export const isEvmEcosystemId = (
   ecosystemId: EcosystemId,
-): ecosystemId is EvmEcosystemId =>
-  [
-    EcosystemId.Ethereum,
-    EcosystemId.Bnb,
-    EcosystemId.Avalanche,
-    EcosystemId.Polygon,
-    EcosystemId.Aurora,
-    EcosystemId.Fantom,
-    EcosystemId.Karura,
-    EcosystemId.Acala,
-  ].includes(ecosystemId);
+): ecosystemId is EvmEcosystemId => EVM_ECOSYSTEM_IDS.includes(ecosystemId);
 
-export interface Ecosystem {
-  readonly id: EcosystemId;
-  readonly protocol: Protocol;
-  readonly wormholeChainId: WormholeChainId;
-  readonly displayName: string;
-  readonly logo: string;
-  readonly nativeTokenSymbol: string;
-}
+// export interface Ecosystem {
+//   readonly id: EcosystemId;
+//   readonly protocol: Protocol;
+//   readonly wormholeChainId: WormholeChainId;
+//   readonly displayName: string;
+//   readonly logo: string;
+//   readonly nativeTokenSymbol: string;
+// }
 
-export const ECOSYSTEM_LIST: readonly Ecosystem[] = [
-  {
-    id: EcosystemId.Solana,
-    protocol: Protocol.Solana,
-    wormholeChainId: WormholeChainId.Solana,
-    displayName: "Solana",
-    logo: SOLANA_SVG,
-    nativeTokenSymbol: "SOL",
-  },
-  {
-    id: EcosystemId.Ethereum,
-    protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Ethereum,
-    displayName: "Ethereum",
-    logo: ETHEREUM_SVG,
-    nativeTokenSymbol: "ETH",
-  },
-  {
-    id: EcosystemId.Bnb,
-    protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Bnb,
-    displayName: "BNB Chain",
-    logo: BNB_SVG,
-    nativeTokenSymbol: "BNB",
-  },
-  {
-    id: EcosystemId.Avalanche,
-    protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Avalanche,
-    displayName: "Avalanche",
-    logo: AVALANCHE_SVG,
-    nativeTokenSymbol: "AVAX",
-  },
-  {
-    id: EcosystemId.Polygon,
-    protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Polygon,
-    displayName: "Polygon",
-    logo: POLYGON_SVG,
-    nativeTokenSymbol: "MATIC",
-  },
-  {
-    id: EcosystemId.Aurora,
-    protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Aurora,
-    displayName: "Aurora",
-    logo: AURORA_SVG,
-    nativeTokenSymbol: "ETH",
-  },
-  {
-    id: EcosystemId.Fantom,
-    protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Fantom,
-    displayName: "Fantom",
-    logo: FANTOM_SVG,
-    nativeTokenSymbol: "FTM",
-  },
-  {
-    id: EcosystemId.Karura,
-    protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Karura,
-    displayName: "Karura",
-    logo: KARURA_SVG,
-    nativeTokenSymbol: "KAR",
-  },
-  {
-    id: EcosystemId.Acala,
-    protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Acala,
-    displayName: "Acala",
-    logo: ACALA_SVG,
-    nativeTokenSymbol: "ACA",
-  },
-];
+const EthereumEcosystemConfig = EthereumConfig.plugin;
+const BnbEcosystemConfig = BnbConfig.plugin;
+const SolanaEcosystemConfig = SolanaConfig.plugin;
 
-export const ECOSYSTEMS: ReadonlyRecord<EcosystemId, Ecosystem> =
-  Object.fromEntries(
-    ECOSYSTEM_LIST.map((ecosystem) => [ecosystem.id, ecosystem]),
-  ) as ReadonlyRecord<EcosystemId, Ecosystem>;
+export const ECOSYSTEM_CONFIGS: ReadonlyMap<
+  EcosystemId,
+  EcosystemConfig<
+    string,
+    EcosystemId,
+    number,
+    number,
+    CoreTypes.ChainConfig<EcosystemId, number>
+  >
+> = new Map([
+  [EthereumEcosystemConfig.id, { EthereumEcosystemConfig }],
+  [BnbEcosystemConfig.id, { BnbEcosystemConfig }],
+  [SolanaEcosystemConfig.id, { SolanaEcosystemConfig }],
+]);
+
+// export const ECOSYSTEMS: ReadonlyRecord<EcosystemId, > =
+//   Object.fromEntries(
+//     ECOSYSTEM_LIST.map((ecosystem) => [ecosystem.id, ecosystem]),
+//   ) as ReadonlyRecord<EcosystemId, EcosystemConfig>;
 
 export const getEcosystemsForProtocol = (
-  protocol: Protocol,
+  protocol: string,
 ): readonly EcosystemId[] => {
   return filterMap(
-    (ecosystem: Ecosystem) => ecosystem.protocol === protocol,
-    (ecosystem) => ecosystem.id,
-    ECOSYSTEM_LIST,
+    (ecosystemConfig: any) => ecosystemConfig.protocol === protocol,
+    (ecosystemConfig) => ecosystemConfig.id,
+    ECOSYSTEM_CONFIGS,
   );
 };

@@ -25,8 +25,6 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
     poolIds: ["hexapool"],
     env: Env.CustomLocalnet,
     submittedAt: 1653624596234,
-    signatureSetKeypairs: {},
-    previousSignatureSetAddresses: {},
     connectedWallets: {
       [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
       [EcosystemId.Bnb]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
@@ -115,8 +113,6 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
     poolIds: ["hexapool"],
     env: Env.CustomLocalnet,
     submittedAt: 1653624596234,
-    signatureSetKeypairs: {},
-    previousSignatureSetAddresses: {},
     connectedWallets: {
       [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
       [EcosystemId.Bnb]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",

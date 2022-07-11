@@ -2,7 +2,7 @@ import type { EuiGlobalToastListToast } from "@elastic/eui";
 import { cleanup } from "@testing-library/react";
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { useNotification } from "..";
+import { useNotification } from "../useNotification";
 
 describe("useNotification", () => {
   afterEach(() => {

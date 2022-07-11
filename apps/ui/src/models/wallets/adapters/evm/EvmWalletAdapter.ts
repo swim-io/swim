@@ -126,9 +126,7 @@ export class EvmWeb3WalletAdapter
       });
     } catch (error) {
       await this.disconnect();
-      // TODO: parse actual errors from this
-      // Sentry.captureException(error);
-      console.error(error);
+      captureException(error);
     }
     this.connecting = false;
   }

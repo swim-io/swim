@@ -273,7 +273,7 @@ const PoolsPage = (): ReactElement => {
           iconType="alert"
           title={<h2>No pools found</h2>}
           titleSize="xs"
-          body="Try changing the network in the upper right corner."
+          body="Try adjusting your filter. (Are you on the right network?)"
         />
       )}
 

@@ -32,13 +32,11 @@ export const Roadmap = (): ReactElement => (
         </div>
         <div className="timeline__content">
           <EuiText color="ghost">
-            <b>
               <span>Seamless single-click swapping</span>
               <br />
               <span>Integrating with other projects</span>
               <br />
               <span>Expanding to new chains</span>
-            </b>
           </EuiText>
         </div>
       </div>
@@ -58,13 +56,11 @@ export const Roadmap = (): ReactElement => (
         <div className="timeline__content">
           <EuiSpacer size="m" className="eui-hideFor--xs eui-hideFor--s" />
           <EuiText color="ghost">
-            <b>
               <span>Multi-chain native asset SDK</span>
               <br />
               <span>Numerous UX enhancements</span>
               <br />
               <span>Community Initiatives</span>
-            </b>
             <EuiSpacer size="m" />
           </EuiText>
         </div>
@@ -85,11 +81,9 @@ export const Roadmap = (): ReactElement => (
         <div className="timeline__content">
           <EuiSpacer className="eui-hideFor--xs eui-hideFor--s" />
           <EuiText color="ghost">
-            <b>
               <span>$SWIM IDO</span>
               <br />
               <span>Governance</span>
-            </b>
             <EuiSpacer />
           </EuiText>
         </div>

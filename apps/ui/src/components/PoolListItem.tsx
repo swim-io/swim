@@ -76,12 +76,12 @@ export const PoolListItem = ({
       <EuiSpacer size="s" />
       <EuiFlexGroup>
         <EuiFlexItem>
-          <EuiFlexGroup wrap>
+          <EuiFlexGroup direction="column" responsive={false}>
             {tokenSpecs.map((tokenSpec) => (
               <EuiFlexItem
                 key={tokenSpec.id}
                 grow={true}
-                style={{ minWidth: 200, margin: flexItemMargin }}
+                style={{ margin: flexItemMargin }}
               >
                 <TokenSpecIcon token={tokenSpec} />
               </EuiFlexItem>

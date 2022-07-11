@@ -3,8 +3,8 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
-  EuiIcon,
   EuiHideFor,
+  EuiIcon,
   EuiLoadingContent,
   EuiPage,
   EuiPageBody,
@@ -27,11 +27,12 @@ import { atomicToTvlString, u64ToDecimal } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
 import type { PoolSpec, SolanaPoolSpec, TokenSpec } from "../config";
 import {
-  ECOSYSTEMS,
   EcosystemId,
   PROJECTS,
   TokenProjectId,
+  getPoolTokenEcosystems,
   getSolanaTokenDetails,
+  hasTokenEcosystem,
   isEcosystemEnabled,
 } from "../config";
 import { selectConfig } from "../core/selectors";
@@ -51,6 +52,7 @@ const PoolsPage = (): ReactElement => {
   const [tokenProjectId, setTokenProjectId] =
     useState<TokenProjectSelectType>("all");
 
+  const { env } = useEnvironment();
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
 
   const solanaPools = pools.filter(isSolanaPool);
@@ -164,9 +166,9 @@ const PoolsPage = (): ReactElement => {
   const selectEcosystemOptions = useMemo(() => {
     const ecosystems = sortBy(
       deduplicate(
-        (id) => id,
-        pools.map((pool) => pool.ecosystem),
-      ).map((ecosystem) => ECOSYSTEMS[ecosystem]),
+        ({ id }) => id,
+        pools.flatMap((pool) => getPoolTokenEcosystems(pool, env)),
+      ),
       "displayName",
     );
 
@@ -187,7 +189,7 @@ const PoolsPage = (): ReactElement => {
         </EuiFlexGroup>
       ),
     }));
-  }, [pools]);
+  }, [env, pools]);
 
   const projectsPerPool: ReadonlyRecord<
     PoolSpec["id"],
@@ -216,7 +218,7 @@ const PoolsPage = (): ReactElement => {
     })
     .filter((pool) => {
       if (ecosystemId === "all") return true;
-      return pool.ecosystem === ecosystemId;
+      return hasTokenEcosystem(pool, env, ecosystemId);
     });
 
   const tvl = filteredPools.reduce(

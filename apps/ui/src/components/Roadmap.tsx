@@ -33,13 +33,11 @@ export const Roadmap = (): ReactElement => (
         <div className="timeline__content">
           <EuiText color="ghost">
             <b>
-              <span>Propeller Seamless single-click swapping</span>
+              <span>Seamless single-click swapping</span>
               <br />
-              <span>
-                Integrating & collaborating with other leading projects
-              </span>
+              <span>Integrating with other projects</span>
               <br />
-              <span>Continuing our expansion to new chains</span>
+              <span>Expanding to new chains</span>
             </b>
           </EuiText>
         </div>

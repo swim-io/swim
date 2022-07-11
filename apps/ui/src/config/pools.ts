@@ -34,9 +34,8 @@ export interface EvmPoolSpec extends BasePoolSpec {
 
 export type PoolSpec = SolanaPoolSpec | EvmPoolSpec;
 
-export const isPoolRestructureEnabled = (): boolean => {
-  return !!process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE;
-};
+export const isPoolRestructureEnabled = (): boolean =>
+  !!process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE;
 
 const MAINNET_POOLS: readonly PoolSpec[] = [
   {

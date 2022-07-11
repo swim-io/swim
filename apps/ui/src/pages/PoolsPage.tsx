@@ -399,11 +399,7 @@ const PoolsPage = (): ReactElement => {
               onChange={(value) =>
                 setTokenProjectId(value as TokenProjectSelectType)
               }
-              itemLayoutAlign="top"
               hasDividers
-              style={{
-                minWidth: 140,
-              }}
             />
           </EuiFormRow>
         </EuiFlexItem>
@@ -414,10 +410,9 @@ const PoolsPage = (): ReactElement => {
               options={selectEcosystemOptions}
               valueOfSelected={ecosystemId}
               onChange={(value) => setEcosystemId(value as EcosystemSelectType)}
-              itemLayoutAlign="top"
               hasDividers
               style={{
-                minWidth: 180,
+                minWidth: 160,
               }}
             />
           </EuiFormRow>

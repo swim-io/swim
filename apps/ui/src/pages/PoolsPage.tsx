@@ -277,7 +277,7 @@ const PoolsPage = (): ReactElement => {
         />
       )}
 
-      {isUnfiltered && (
+      {(isUnfiltered || ecosystemId === EcosystemId.Aurora) && (
         <>
           <EuiSpacer size={listSpacerSize} />
 
@@ -302,8 +302,8 @@ const PoolsPage = (): ReactElement => {
         </>
       )}
 
-      {isEcosystemEnabled(EcosystemId.Karura) ||
-        (isUnfiltered && (
+      {!isEcosystemEnabled(EcosystemId.Karura) &&
+        (isUnfiltered || ecosystemId === EcosystemId.Karura) && (
           <>
             <EuiSpacer size={listSpacerSize} />
 
@@ -347,10 +347,10 @@ const PoolsPage = (): ReactElement => {
               ]}
             />
           </>
-        ))}
+        )}
 
-      {isEcosystemEnabled(EcosystemId.Acala) ||
-        (isUnfiltered && (
+      {!isEcosystemEnabled(EcosystemId.Acala) &&
+        (isUnfiltered || ecosystemId === EcosystemId.Acala) && (
           <>
             <EuiSpacer size={listSpacerSize} />
 
@@ -373,7 +373,7 @@ const PoolsPage = (): ReactElement => {
               ]}
             />
           </>
-        ))}
+        )}
     </>
   );
 

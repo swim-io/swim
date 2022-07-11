@@ -39,9 +39,7 @@ export const getPoolTokenEcosystems = (
 ): readonly Ecosystem[] => {
   return deduplicate(
     (id) => id,
-    pool.tokens
-      .map((tokenId) => findTokenById(tokenId, env))
-      .map((tokenSpec) => tokenSpec.nativeEcosystem),
+    pool.tokens.map((tokenId) => findTokenById(tokenId, env).nativeEcosystem),
   ).map((ecosystemId) => ECOSYSTEMS[ecosystemId]);
 };
 

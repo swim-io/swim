@@ -3,7 +3,6 @@ import type { ReactElement } from "react";
 
 import "./Roadmap.scss";
 
-// TODO: Update once Roadmap doc is finalized.
 export const Roadmap = (): ReactElement => (
   <div className="roadmap">
     <div
@@ -26,21 +25,22 @@ export const Roadmap = (): ReactElement => (
               <h3>
                 <span>2022</span>
                 <br />
-                <span>Q1</span>
+                <span>Q3</span>
               </h3>
             </EuiTitle>
           </div>
         </div>
         <div className="timeline__content">
-          <EuiTitle size="s">
-            <h3>
-              <EuiTextColor color="ghost">Launch</EuiTextColor>
-            </h3>
-          </EuiTitle>
           <EuiText color="ghost">
-            <span>Swim Product Launch</span>
-            <br />
-            <span>Integrating & Collaborating with other leading projects</span>
+            <b>
+              <span>Propeller Seamless single-click swapping</span>
+              <br />
+              <span>
+                Integrating & collaborating with other leading projects
+              </span>
+              <br />
+              <span>Continuing our expansion to new chains</span>
+            </b>
           </EuiText>
         </div>
       </div>
@@ -52,22 +52,21 @@ export const Roadmap = (): ReactElement => (
               <h3>
                 <span>2022</span>
                 <br />
-                <span>Q2</span>
+                <span>Q4</span>
               </h3>
             </EuiTitle>
           </div>
         </div>
         <div className="timeline__content">
           <EuiSpacer size="m" className="eui-hideFor--xs eui-hideFor--s" />
-          <EuiTitle size="s">
-            <h3>
-              <EuiTextColor color="ghost">More Chains</EuiTextColor>
-            </h3>
-          </EuiTitle>
           <EuiText color="ghost">
-            <span>Integration with more chains</span>
-            <br />
-            <span>Volatile asset swap</span>
+            <b>
+              <span>Multi-chain native asset SDK</span>
+              <br />
+              <span>Numerous UX enhancements</span>
+              <br />
+              <span>Community Initiatives</span>
+            </b>
             <EuiSpacer size="m" />
           </EuiText>
         </div>
@@ -78,24 +77,21 @@ export const Roadmap = (): ReactElement => (
           <div>
             <EuiTitle size="s">
               <h3>
-                <span>2022</span>
-                <br />
-                <span>Q3</span>
+                <span>2023</span>
+                <br></br>
+                <span>TBD</span>
               </h3>
             </EuiTitle>
           </div>
         </div>
         <div className="timeline__content">
           <EuiSpacer className="eui-hideFor--xs eui-hideFor--s" />
-          <EuiTitle size="s">
-            <h3>
-              <EuiTextColor color="ghost">The Future</EuiTextColor>
-            </h3>
-          </EuiTitle>
           <EuiText color="ghost">
-            <span>Cross-chain project collaboration</span>
-            <br />
-            <span>Governance</span>
+            <b>
+              <span>$SWIM IDO</span>
+              <br />
+              <span>Governance</span>
+            </b>
             <EuiSpacer />
           </EuiText>
         </div>

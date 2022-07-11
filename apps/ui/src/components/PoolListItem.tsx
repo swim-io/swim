@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 
 import { atomicToHumanString } from "../amounts";
 import type { EcosystemId, TokenSpec } from "../config";
-import { ECOSYSTEMS } from "../config";
+import { ECOSYSTEM_CONFIGS } from "../config";
 import { groupBy } from "../utils";
 
 import { TokenIcon } from "./TokenIcon";
@@ -83,7 +83,7 @@ export const PoolListItem = ({
           <EuiFlexGroup>
             {Object.entries(tokenSpecsByEcosystem).map(
               ([ecosystemId, tokens]) => {
-                const ecosystem = ECOSYSTEMS[ecosystemId as EcosystemId];
+                const ecosystem = ECOSYSTEM_CONFIGS[ecosystemId as EcosystemId];
                 return (
                   <EuiFlexItem grow={false} key={ecosystemId}>
                     <EuiCard

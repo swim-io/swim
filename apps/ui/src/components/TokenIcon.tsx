@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import { Fragment } from "react";
 
 import type { EcosystemId, TokenSpec } from "../config";
-import { ECOSYSTEMS } from "../config";
+import { ECOSYSTEM_CONFIGS } from "../config";
 import type { Amount } from "../models/amount";
 
 export interface TokenIconProps
@@ -19,7 +19,7 @@ export const TokenIcon = ({
   ecosystemId,
   showFullName = false,
 }: TokenIconProps): ReactElement => {
-  const ecosystem = ecosystemId ? ECOSYSTEMS[ecosystemId] : null;
+  const ecosystem = ecosystemId ? ECOSYSTEM_CONFIGS[ecosystemId] : null;
   return (
     <span>
       <EuiIcon type={icon} size="l" title={symbol} />
@@ -94,7 +94,7 @@ export interface EcosystemIconProps {
 export const EcosystemIcon = ({
   ecosystemId,
 }: EcosystemIconProps): ReactElement => {
-  const ecosystem = ECOSYSTEMS[ecosystemId];
+  const ecosystem = ECOSYSTEM_CONFIGS[ecosystemId];
   return (
     <span style={{ whiteSpace: "nowrap" }}>
       <EuiIcon type={ecosystem.logo} size="m" title={ecosystem.displayName} />

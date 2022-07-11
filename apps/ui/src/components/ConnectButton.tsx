@@ -5,7 +5,7 @@ import { useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import type { EcosystemId } from "../config";
-import { Protocol } from "../config";
+import { EVM_PROTOCOL, SOLANA_PROTOCOL } from "../config";
 import {
   selectConfig,
   selectSelectedServiceByProtocol,
@@ -111,8 +111,8 @@ export const MultiConnectButton = ({
   >(
     (walletServiceId) => walletServiceId,
     [
-      evm.connected ? selectedServiceByProtocol[Protocol.Evm] : null,
-      solana.connected ? selectedServiceByProtocol[Protocol.Solana] : null,
+      evm.connected ? selectedServiceByProtocol[EVM_PROTOCOL] : null,
+      solana.connected ? selectedServiceByProtocol[SOLANA_PROTOCOL] : null,
     ].filter(isNotNull),
   );
 

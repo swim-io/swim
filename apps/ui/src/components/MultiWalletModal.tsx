@@ -15,9 +15,9 @@ import type { ReactElement } from "react";
 import { useState } from "react";
 
 import {
-  ECOSYSTEMS,
+  EVM_PROTOCOL,
   PROTOCOL_NAMES,
-  Protocol,
+  SOLANA_PROTOCOL,
   getEcosystemsForProtocol,
   isEcosystemEnabled,
 } from "../config";
@@ -44,7 +44,7 @@ import "./MultiWalletModal.scss";
 
 interface ProtocolWalletOptionsListProps {
   readonly icon: string;
-  readonly protocol: Protocol;
+  readonly protocol: string;
 }
 
 const ProtocolWalletOptionsList = ({
@@ -60,8 +60,8 @@ const ProtocolWalletOptionsList = ({
   const solana = useSolanaWallet();
   const selectedServiceId = selectedServiceByProtocol[protocol];
   const wallets = {
-    [Protocol.Evm]: evm,
-    [Protocol.Solana]: solana,
+    [EVM_PROTOCOL]: evm,
+    [SOLANA_PROTOCOL]: solana,
   };
   const protocolWallet = wallets[protocol];
 
@@ -181,9 +181,9 @@ export const MultiWalletModal = ({
         <EuiFlexGrid columns={2} gutterSize="xl">
           <ProtocolWalletOptionsList
             icon={SOLANA_SVG}
-            protocol={Protocol.Solana}
+            protocol={SOLANA_PROTOCOL}
           />
-          <ProtocolWalletOptionsList icon={EVM_SVG} protocol={Protocol.Evm} />
+          <ProtocolWalletOptionsList icon={EVM_SVG} protocol={EVM_PROTOCOL} />
         </EuiFlexGrid>
       </EuiModalBody>
     </CustomModal>

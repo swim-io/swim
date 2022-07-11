@@ -197,7 +197,9 @@ export const AddForm = ({
   const poolMath = usePoolMath(poolSpec.id);
   const userBalances = useMultipleUserBalances(poolTokens);
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
-  const startNewInteraction = useStartNewInteraction();
+  const startNewInteraction = useStartNewInteraction(() => {
+    setFormInputAmounts(poolTokens.map(() => "0"));
+  });
   const isInteractionInProgress = useHasActiveInteraction();
   const userNativeBalances = useUserNativeBalances();
 

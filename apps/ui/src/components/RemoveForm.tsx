@@ -83,7 +83,11 @@ export const RemoveForm = ({
   } = usePool(poolSpec.id);
   const poolMath = usePoolMath(poolSpec.id);
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
-  const startNewInteraction = useStartNewInteraction();
+  const startNewInteraction = useStartNewInteraction(() => {
+    if (method === RemoveMethod.ExactOutput) {
+      setFormOutputAmounts(formOutputAmounts.map(() => "0"));
+    }
+  });
   const isInteractionInProgress = useHasActiveInteraction();
   const userLpBalances = useUserLpBalances(lpToken, userLpTokenAccount);
   const wallets = useWallets();

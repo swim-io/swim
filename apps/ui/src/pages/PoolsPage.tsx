@@ -436,10 +436,6 @@ const PoolsPage = (): ReactElement => {
                   <h2>Pools</h2>
                 </EuiTitle>
               </EuiFlexItem>
-              <EuiHideFor sizes={["xs"]}>{filters}</EuiHideFor>
-            </EuiFlexGroup>
-            <EuiSpacer />
-            <EuiFlexGroup justifyContent="flexEnd">
               <EuiFlexItem grow={false}>
                 <EuiText>
                   <p>
@@ -451,6 +447,7 @@ const PoolsPage = (): ReactElement => {
                   </p>
                 </EuiText>
               </EuiFlexItem>
+              <EuiHideFor sizes={["xs"]}>{filters}</EuiHideFor>
             </EuiFlexGroup>
 
             <EuiShowFor sizes={["xs"]}>

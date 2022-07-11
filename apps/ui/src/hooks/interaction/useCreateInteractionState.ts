@@ -3,12 +3,6 @@ import type PoolMath from "@swim-io/pool-math";
 import type Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
-import {
-  usePoolMathByPoolIds,
-  useSolanaWallet,
-  useSplTokenAccountsQuery,
-  useWallets,
-} from "..";
 import type { Config, TokenSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
@@ -35,6 +29,9 @@ import {
 } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 import { isEachNotNull } from "../../utils";
+import { useWallets } from "../crossEcosystem";
+import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
+import { usePoolMathByPoolIds } from "../swim";
 
 export const createRequiredSplTokenAccounts = (
   requiredTokens: readonly TokenSpec[],

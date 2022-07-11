@@ -4,12 +4,6 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
-import {
-  usePoolMathByPoolIds,
-  useSolanaWallet,
-  useSplTokenAccountsQuery,
-  useWallets,
-} from "..";
 import { Env } from "../../config";
 import { useEnvironment } from "../../core/store";
 import {
@@ -22,6 +16,9 @@ import {
 } from "../../fixtures";
 import { Amount, InteractionType } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
+import { useWallets } from "../crossEcosystem";
+import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
+import { usePoolMathByPoolIds } from "../swim";
 
 import { useCreateInteractionState } from "./useCreateInteractionState";
 
@@ -37,12 +34,21 @@ jest.mock("../../contexts", () => ({
   useConfig: jest.fn(),
 }));
 
-jest.mock("..", () => ({
-  ...jest.requireActual(".."),
+jest.mock("../crossEcosystem", () => ({
+  ...jest.requireActual("../crossEcosystem"),
   usePoolMathByPoolIds: jest.fn(),
+  useWallets: jest.fn(),
+}));
+
+jest.mock("../solana", () => ({
+  ...jest.requireActual("../solana"),
   useSolanaWallet: jest.fn(),
   useSplTokenAccountsQuery: jest.fn(),
-  useWallets: jest.fn(),
+}));
+
+jest.mock("../swim", () => ({
+  ...jest.requireActual("../swim"),
+  usePoolMathByPoolIds: jest.fn(),
 }));
 
 // Make typescript happy with jest

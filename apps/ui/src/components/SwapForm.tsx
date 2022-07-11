@@ -60,7 +60,9 @@ export const SwapForm = ({
   const { notify } = useNotification();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();
-  const startNewInteraction = useStartNewInteraction();
+  const startNewInteraction = useStartNewInteraction(() => {
+    setFormInputAmount("0");
+  });
   const isInteractionInProgress = useHasActiveInteraction();
   const {
     fromToken,

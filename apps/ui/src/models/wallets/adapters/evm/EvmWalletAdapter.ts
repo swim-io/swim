@@ -6,6 +6,7 @@ import EventEmitter from "eventemitter3";
 
 import type { EcosystemId, EvmChainId, TokenSpec } from "../../../../config";
 import { ALL_UNIQUE_CHAINS, ECOSYSTEMS, Protocol } from "../../../../config";
+import { captureException } from "../../../../errors";
 import { sleep } from "../../../../utils";
 
 type Web3Provider = ethers.providers.Web3Provider;
@@ -120,9 +121,7 @@ export class EvmWeb3WalletAdapter
       });
     } catch (error) {
       await this.disconnect();
-      // TODO: parse actual errors from this
-      // Sentry.captureException(error);
-      console.error(error);
+      captureException(error);
     }
     this.connecting = false;
   }

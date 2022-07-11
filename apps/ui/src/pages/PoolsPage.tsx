@@ -282,7 +282,7 @@ const PoolsPage = (): ReactElement => {
           <EuiSpacer size={listSpacerSize} />
 
           <PoolListItem
-            poolName="Aurora USN Meta-Pool"
+            poolName="Aurora USN"
             betaBadgeLabel="Coming Soon"
             tokenSpecs={[
               {
@@ -308,7 +308,7 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size={listSpacerSize} />
 
             <PoolListItem
-              poolName="Karura aUSD Meta-Pool"
+              poolName="Karura aUSD"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[
                 {
@@ -329,7 +329,7 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size={listSpacerSize} />
 
             <PoolListItem
-              poolName="Karura USDT Meta-Pool"
+              poolName="Karura USDT"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[
                 {
@@ -355,7 +355,7 @@ const PoolsPage = (): ReactElement => {
             <EuiSpacer size={listSpacerSize} />
 
             <PoolListItem
-              poolName="Acala aUSD Meta-Pool"
+              poolName="Acala aUSD"
               betaBadgeLabel="Coming Soon"
               tokenSpecs={[
                 {

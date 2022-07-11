@@ -4,12 +4,14 @@ import {
   EuiFlexItem,
   EuiFormRow,
   EuiIcon,
+  EuiHideFor,
   EuiLoadingContent,
   EuiPage,
   EuiPageBody,
   EuiPageContent,
   EuiPageContentBody,
   EuiPanel,
+  EuiShowFor,
   EuiSpacer,
   EuiSuperSelect,
   EuiText,
@@ -373,6 +375,50 @@ const PoolsPage = (): ReactElement => {
     </>
   );
 
+  const filters = (
+    <EuiFlexItem grow={false}>
+      <EuiFlexGroup alignItems="center">
+        <EuiFlexItem grow={false}>
+          <EuiFormRow label="Token">
+            <EuiSuperSelect
+              options={[
+                { inputDisplay: "All Tokens", value: "all" },
+                ...selectTokenOptions,
+              ]}
+              valueOfSelected={tokenProjectId}
+              onChange={(value) =>
+                setTokenProjectId(value as TokenProjectSelectType)
+              }
+              itemLayoutAlign="top"
+              hasDividers
+              style={{
+                minWidth: 140,
+              }}
+            />
+          </EuiFormRow>
+        </EuiFlexItem>
+
+        <EuiFlexItem grow={false}>
+          <EuiFormRow label="Chain">
+            <EuiSuperSelect
+              options={[
+                { inputDisplay: "All Chains", value: "all" },
+                ...selectEcosystemOptions,
+              ]}
+              valueOfSelected={ecosystemId}
+              onChange={(value) => setEcosystemId(value as EcosystemSelectType)}
+              itemLayoutAlign="top"
+              hasDividers
+              style={{
+                minWidth: 180,
+              }}
+            />
+          </EuiFormRow>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </EuiFlexItem>
+  );
+
   return (
     <EuiPage className="poolsPage" restrictWidth={800}>
       <EuiPageBody>
@@ -388,6 +434,10 @@ const PoolsPage = (): ReactElement => {
                   <h2>Pools</h2>
                 </EuiTitle>
               </EuiFlexItem>
+              <EuiHideFor sizes={["xs"]}>{filters}</EuiHideFor>
+            </EuiFlexGroup>
+            <EuiSpacer />
+            <EuiFlexGroup justifyContent="flexEnd">
               <EuiFlexItem grow={false}>
                 <EuiText>
                   <p>
@@ -401,48 +451,10 @@ const PoolsPage = (): ReactElement => {
               </EuiFlexItem>
             </EuiFlexGroup>
 
-            <EuiFlexGroup alignItems="center">
-              <EuiFlexItem grow={false}>
-                <EuiFormRow label="Token">
-                  <EuiSuperSelect
-                    options={[
-                      { inputDisplay: "All Tokens", value: "all" },
-                      ...selectTokenOptions,
-                    ]}
-                    valueOfSelected={tokenProjectId}
-                    onChange={(value) =>
-                      setTokenProjectId(value as TokenProjectSelectType)
-                    }
-                    itemLayoutAlign="top"
-                    hasDividers
-                    style={{
-                      minWidth: 140,
-                    }}
-                  />
-                </EuiFormRow>
-              </EuiFlexItem>
-              {selectEcosystemOptions.length > 1 && (
-                <EuiFlexItem grow={false}>
-                  <EuiFormRow label="Chain">
-                    <EuiSuperSelect
-                      options={[
-                        { inputDisplay: "All Chains", value: "all" },
-                        ...selectEcosystemOptions,
-                      ]}
-                      valueOfSelected={ecosystemId}
-                      onChange={(value) =>
-                        setEcosystemId(value as EcosystemSelectType)
-                      }
-                      itemLayoutAlign="top"
-                      hasDividers
-                      style={{
-                        minWidth: 180,
-                      }}
-                    />
-                  </EuiFormRow>
-                </EuiFlexItem>
-              )}
-            </EuiFlexGroup>
+            <EuiShowFor sizes={["xs"]}>
+              <EuiSpacer />
+              <EuiFlexGroup>{filters}</EuiFlexGroup>
+            </EuiShowFor>
 
             <EuiSpacer />
             {content}

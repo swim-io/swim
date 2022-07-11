@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 
 import { atomicToHumanString } from "../amounts";
 import type { TokenSpec } from "../config";
+import { chunks } from "../utils";
 
 import { TokenSpecIcon } from "./TokenIcon";
 
@@ -55,6 +56,7 @@ export const PoolListItem = ({
 }): ReactElement => {
   const navigate = useNavigate();
   const flexItemMargin = "6px 12px";
+  const tokenChunks = chunks(tokenSpecs, 3);
 
   return (
     <EuiCard
@@ -75,19 +77,22 @@ export const PoolListItem = ({
     >
       <EuiSpacer size="s" />
       <EuiFlexGroup>
-        <EuiFlexItem>
-          <EuiFlexGroup direction="column" responsive={false}>
-            {tokenSpecs.map((tokenSpec) => (
-              <EuiFlexItem
-                key={tokenSpec.id}
-                grow={true}
-                style={{ margin: flexItemMargin }}
-              >
-                <TokenSpecIcon token={tokenSpec} />
-              </EuiFlexItem>
-            ))}
-          </EuiFlexGroup>
-        </EuiFlexItem>
+        {tokenChunks.map((tokens, index) => (
+          <EuiFlexItem key={index}>
+            <EuiFlexGroup direction="column" responsive={false}>
+              {tokens.map((tokenSpec) => (
+                <EuiFlexItem
+                  key={tokenSpec.id}
+                  grow={true}
+                  style={{ margin: flexItemMargin }}
+                >
+                  <TokenSpecIcon token={tokenSpec} />
+                </EuiFlexItem>
+              ))}
+            </EuiFlexGroup>
+          </EuiFlexItem>
+        ))}
+
         <EuiFlexItem grow={false}>
           <EuiFlexGroup direction="column">
             <EuiFlexItem style={{ margin: flexItemMargin }}>

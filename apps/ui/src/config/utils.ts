@@ -48,7 +48,5 @@ export const hasTokenEcosystem = (
   env: Env,
   ecosystemId: EcosystemId,
 ): boolean => {
-  return getPoolTokenEcosystems(pool, env)
-    .map(({ id }) => id)
-    .includes(ecosystemId);
+  return getPoolTokenEcosystems(pool, env).some(({ id }) => id === ecosystemId);
 };

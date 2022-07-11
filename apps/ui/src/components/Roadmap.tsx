@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 
 import "./Roadmap.scss";
 
+// TODO: Update once Roadmap doc is finalized.
 export const Roadmap = (): ReactElement => (
   <div className="roadmap">
     <div

@@ -24,7 +24,7 @@ import { Roadmap } from "../components/Roadmap";
 import type { Ecosystem } from "../config";
 import { ECOSYSTEMS, EcosystemId } from "../config";
 import { useTitle } from "../hooks";
-import DIAGRAM from "../images/diagram.svg";
+import ECOSYSTEM_DIAGRAM from "../images/ecosystem_diagram.svg";
 import DISCORD_SVG from "../images/social/discord.svg";
 import TELEGRAM_SVG from "../images/social/telegram.svg";
 import TWITTER_SVG from "../images/social/twitter.svg";
@@ -39,6 +39,9 @@ const HomePage = (): ReactElement => {
     ECOSYSTEMS[EcosystemId.Bnb],
     ECOSYSTEMS[EcosystemId.Avalanche],
     ECOSYSTEMS[EcosystemId.Polygon],
+    ECOSYSTEMS[EcosystemId.Fantom],
+    ECOSYSTEMS[EcosystemId.Aurora],
+    ECOSYSTEMS[EcosystemId.Karura],
   ];
 
   return (
@@ -227,7 +230,7 @@ const HomePage = (): ReactElement => {
             <EuiSpacer size="xxl" />
             <EuiImage
               alt="Diagram explaining Swim"
-              src={DIAGRAM}
+              src={ECOSYSTEM_DIAGRAM}
               size="fullWidth"
             />
             <EuiSpacer size="l" />

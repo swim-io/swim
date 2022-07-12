@@ -593,7 +593,7 @@ const PromotedEcosystem: VFC<PromotedEcosystemProps> = ({ ecosystem }) => (
       <EuiIcon type={ecosystem.logo} title={ecosystem.displayName} size="l" />
     </EuiShowFor>
     <EuiHideFor sizes={["xs"]}>
-      <EuiIcon type={ecosystem.logo} title={ecosystem.displayName} size="xl" />
+      <EuiIcon type={ecosystem.logo} title={ecosystem.displayName} size="xxl" />
     </EuiHideFor>
   </EuiFlexItem>
 );

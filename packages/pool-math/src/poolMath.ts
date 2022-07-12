@@ -14,6 +14,8 @@
 // Therefore, to enforce our strict definition, we rely on comparison operators instead.
 import Decimal from "decimal.js";
 
+Decimal.config({ precision: 40 });
+
 function areAllNonNegativeOrThrow(decimals: readonly Decimal[]): void {
   if (decimals.some((d) => d.lt(0))) {
     throw new Error("Amounts have to be non-negative");
@@ -80,7 +82,6 @@ export class PoolMath {
   private static readonly MAX_AMP_VALUE = new Decimal("1e6");
   private static readonly DEFAULT_TOLERANCE = new Decimal("1e-6");
   private static readonly DEFAULT_MAX_ITERATIONS = 200;
-  private static readonly DEFAULT_MARGINAL_EPSILON = new Decimal("0.1");
   private static readonly EPSILON_TOLERANCE_DIVISOR = new Decimal(10);
 
   private readonly balances: readonly Decimal[];
@@ -90,6 +91,7 @@ export class PoolMath {
   private readonly governanceFee!: Decimal;
   private readonly tolerance!: Decimal;
   private readonly maxIterations!: number;
+  private readonly _depth: Decimal;
 
   constructor(
     /** Balances can have arbitrary units (though atomic units should most likely go with a
@@ -165,7 +167,8 @@ export class PoolMath {
         );
       }
       this.balances = new Array(balancesOrTokenCount).fill(new Decimal(0));
-      this.lpSupply = new Decimal(0);
+      this._depth = new Decimal(0);
+      this.lpSupply = this._depth;
     } else {
       this.balances = balancesOrTokenCount.map((balance) =>
         sanitizeSign(balance),
@@ -185,8 +188,10 @@ export class PoolMath {
               lpSupply.toString(),
           );
         }
-        this.lpSupply = new Decimal(0);
+        this._depth = new Decimal(0);
+        this.lpSupply = this._depth;
       } else {
+        this._depth = this.calcDepth(this.balances);
         if (lpSupply) {
           if (lpSupply.lt(0)) {
             throw new Error(
@@ -199,7 +204,7 @@ export class PoolMath {
           }
           this.lpSupply = lpSupply;
         } else {
-          this.lpSupply = this.depth();
+          this.lpSupply = this._depth;
         }
       }
     }
@@ -295,7 +300,7 @@ export class PoolMath {
         governanceMintAmount: new Decimal(0),
       };
     }
-    const initialDepth = this.depth();
+    const initialDepth = this._depth;
     const updatedDepth = initialDepth.mul(
       this.lpSupply.sub(burnAmount).div(this.lpSupply),
     );
@@ -348,34 +353,23 @@ export class PoolMath {
   // OTHER INFO -------------------------------------------
 
   depth(): Decimal {
-    //TODO should be calculated once in the constructor and then stored, instead
-    //     of recalculating every time
-    return this.calcDepth(this.balances);
+    return this._depth;
   }
 
-  marginalPrices(
-    //epsilon is used to calculate the differential quotient from both sides to approximate
-    // the partial derivative (=marginal price)
-    epsilon = PoolMath.DEFAULT_MARGINAL_EPSILON,
-  ): readonly Decimal[] {
-    if (epsilon.lte(0)) {
-      throw new Error(
-        "epsilon must be a (small) positive value, but was instead " +
-          epsilon.toString(),
-      );
-    }
-    const depth = this.depth();
-    return arrayCreate(this.tokenCount, (i) => {
-      const balancesMinusEps = this.balances.map((balance, j) =>
-        i === j ? balance.sub(epsilon) : balance,
-      );
-      const balancesPlusEps = this.balances.map((balance, j) =>
-        i === j ? balance.add(epsilon) : balance,
-      );
-      const lower = depth.sub(this.calcDepth(balancesMinusEps, depth));
-      const upper = this.calcDepth(balancesPlusEps, depth).sub(depth);
-      return lower.add(upper).div(epsilon.mul(2));
-    });
+  marginalPrices(): readonly Decimal[] {
+    const reciprocalDecay = arrayProd(
+      this.balances.map((balance: Decimal) =>
+        this._depth.div(balance.mul(this.tokenCount)),
+      ),
+    );
+    const denominator = this.ampFactor
+      .sub(1)
+      .add(reciprocalDecay.mul(this.tokenCount + 1));
+    return arrayCreate(this.tokenCount, (i) =>
+      this.ampFactor
+        .add(this._depth.mul(reciprocalDecay).div(this.balances[i]))
+        .div(denominator),
+    );
   }
 
   priceImpact(
@@ -397,6 +391,7 @@ export class PoolMath {
       inputAmounts,
       outputIndex,
     ).stableOutputAmount;
+
     return extrapolatedOutput
       .sub(actualOutput)
       .div(extrapolatedOutput)
@@ -436,7 +431,7 @@ export class PoolMath {
     if (!isAdd && this.balances.some((b, i) => b.lte(amounts[i]))) {
       throw new Error("remove exceeds available balance");
     }
-    const initialDepth = this.depth();
+    const initialDepth = this._depth;
     const updatedBalances = (isAdd ? arrayAdd : arraySub)(
       this.balances,
       amounts,
@@ -502,7 +497,7 @@ export class PoolMath {
     if (!isInput && this.balances.some((b, i) => b.lte(amounts[i]))) {
       throw new Error("amount to be received exceeds available balance");
     }
-    const initialDepth = this.depth();
+    const initialDepth = this._depth;
     const updatedBalances = (isInput ? arrayAdd : arraySub)(
       this.balances,
       amounts,

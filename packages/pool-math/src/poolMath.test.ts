@@ -213,30 +213,80 @@ describe("PoolMath", () => {
 
   // Values taken from https://github.com/orca-so/typescript-sdk/blob/main/test/model/orca/quote/stable-quote.test.ts#L165-L214
   test.each([
-    [10, 0.502629],
-    [100, 0.055222],
+    [10, "0.460846", "993818.115178"], //orca's (wrong) price impact: "0.502629"
+    [100, "0.050447", "998699.971289"], //orca's (wrong) price impact: "0.055222"
   ])(
     "price impact matches Orca's definition with amp factor %i",
-    (orcaAmpFactor, expectedPriceImpact) => {
+    (orcaAmpFactor, expectedPriceImpact, orcaOutputAmount) => {
+      const precision = 6;
       const balances = [
         new Decimal("19768621.149413"),
         new Decimal("19577821.226623"),
       ];
-      const lpFee = new Decimal(0.006);
-      const governanceFee = new Decimal(0.001);
-      const ampFactor = new Decimal(orcaAmpFactor).div(2 ** 2);
-      const pool = new PoolMath(
-        balances,
-        new Decimal(ampFactor),
-        lpFee,
-        governanceFee,
-      );
-      const inputAmount = new Decimal(1);
+      const lpFee = new Decimal("0.0006");
+      const governanceFee = new Decimal("0.0001");
+      const ampFactor = new Decimal(orcaAmpFactor).mul(balances.length); //convert to swim "units"
+      const pool = new PoolMath(balances, ampFactor, lpFee, governanceFee);
+      const inputAmount = new Decimal("1000000");
       const inputIndex = 0;
       const outputIndex = 1;
 
-      const result = pool.priceImpact(inputAmount, inputIndex, outputIndex);
-      expect(result).toEqual(new Decimal(expectedPriceImpact));
+      const swimOutputAmount = pool.swapExactInput(
+        [inputAmount, new Decimal(0)],
+        outputIndex,
+      ).stableOutputAmount;
+      expect(swimOutputAmount.toDecimalPlaces(precision)).toEqual(
+        new Decimal(orcaOutputAmount),
+      );
+
+      const priceImpact = pool.priceImpact(
+        inputAmount,
+        inputIndex,
+        outputIndex,
+      );
+      expect(priceImpact.toDecimalPlaces(precision)).toEqual(
+        new Decimal(expectedPriceImpact),
+      );
     },
   );
+
+  test("analytic (partial derivative) marginal prices agree with difference quotient method", () => {
+    //epsilon is used to calculate the difference quotient from both sides to approximate
+    // the partial derivative (=marginal price)
+    const epsilon = new Decimal("0.01");
+    //precision specifies how many decimals of the two results have to be identical
+    const precision = 10;
+
+    const balances = [new Decimal("2e6"), new Decimal("2e7")];
+    // const lpFee = new Decimal(0.0006);
+    // const governanceFee = new Decimal(0.0001);
+    const irrelevant = new Decimal(0);
+    const lpFee = irrelevant;
+    const governanceFee = irrelevant;
+    const ampFactor = new Decimal(20);
+    const pool = new PoolMath(balances, ampFactor, lpFee, governanceFee);
+    const marginalPrices = pool.marginalPrices();
+
+    const marginalPriceDifferenceQuotient = (i: number): Decimal => {
+      const balancesMinusEps = balances.map((balance, j) =>
+        i === j ? balance.sub(epsilon) : balance,
+      );
+      const balancesPlusEps = balances.map((balance, j) =>
+        i === j ? balance.add(epsilon) : balance,
+      );
+      const getDepth = (b: readonly Decimal[]) =>
+        new PoolMath(b, ampFactor, irrelevant, irrelevant).depth();
+      const lower = getDepth(balancesMinusEps);
+      const upper = getDepth(balancesPlusEps);
+      return upper.sub(lower).div(epsilon.mul(2));
+    };
+
+    marginalPrices.forEach((marginalPrice, i) => {
+      const mpDifferenceQuotient = marginalPriceDifferenceQuotient(i);
+      const _marginalPrice = marginalPrice.toDecimalPlaces(precision);
+      const _mpDifferenceQuotient =
+        mpDifferenceQuotient.toDecimalPlaces(precision);
+      expect(_marginalPrice).toEqual(_mpDifferenceQuotient);
+    });
+  });
 });

@@ -1,6 +1,5 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
-import { useQueryClient } from "react-query";
 
 import { useSplTokenAccountsQuery, useWallets } from "..";
 import {
@@ -53,9 +52,6 @@ const useWalletsMock = mockOf(useWallets);
 
 describe("useCreateInteractionStateV2", () => {
   beforeEach(() => {
-    // Reset queryClient cache, otherwise test might return previous value
-    jest.resetModules();
-    renderHookWithAppContext(() => useQueryClient().clear());
     const { result: envStore } = renderHook(() => useEnvironment());
     act(() => {
       envStore.current.setCustomLocalnetIp("127.0.0.1");

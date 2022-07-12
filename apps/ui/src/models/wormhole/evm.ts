@@ -131,31 +131,3 @@ export const lockEvmToken = async ({
     transferResponse,
   };
 };
-
-export const unlockEvmToken = async (
-  transfer: WormholeTransfer,
-  vaaBytes: Uint8Array,
-): Promise<ethers.providers.TransactionResponse> => {
-  const { interactionId, evmChain, evmWallet } = transfer;
-  const evmSigner = evmWallet.signer;
-  if (evmSigner === null) {
-    throw new Error("Missing EVM signer");
-  }
-
-  await evmWallet.switchNetwork(evmChain.chainId);
-
-  const redeemResponse = await redeemOnEth(
-    interactionId,
-    evmChain.wormhole.tokenBridge,
-    evmSigner,
-    vaaBytes,
-  );
-
-  if (redeemResponse === null) {
-    throw new Error(
-      `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
-    );
-  }
-
-  return redeemResponse;
-};

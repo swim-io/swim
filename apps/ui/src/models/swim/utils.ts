@@ -127,7 +127,7 @@ export const getPoolUsdValue = (
   tokens: readonly TokenSpec[],
   poolTokenAccounts: readonly TokenAccount[],
 ): Decimal | null =>
-  tokens.every((tokenSpec) => tokenSpec.isStablecoin)
+  tokens.every((tokenSpec) => tokenSpec.project.isStablecoin)
     ? poolTokenAccounts.reduce((acc, account) => {
         const tokenSpec = tokens.find(
           (spec) =>

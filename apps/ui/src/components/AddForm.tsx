@@ -119,7 +119,7 @@ const TokenAddPanel = ({
         isInvalid={errors.length > 0}
         prepend={
           <EuiButtonEmpty size="xs">
-            <TokenIcon {...tokenSpec} />
+            <TokenIcon {...tokenSpec.project} />
           </EuiButtonEmpty>
         }
       />
@@ -449,8 +449,8 @@ export const AddForm = ({
   };
 
   const receiveLabel = poolSpec.isStakingPool
-    ? `Receive ${lpToken.symbol} on`
-    : `Receive LP tokens (${lpToken.symbol}) on`;
+    ? `Receive ${lpToken.project.symbol} on`
+    : `Receive LP tokens (${lpToken.project.symbol}) on`;
 
   return (
     <EuiForm component="form" className="addForm" onSubmit={handleFormSubmit}>

@@ -1,8 +1,11 @@
+import shallow from "zustand/shallow.js";
+
 import { EuiIcon, EuiListGroup } from "@elastic/eui";
 import type { ReactElement } from "react";
 
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import type { EcosystemId } from "../config";
-import { ECOSYSTEM_CONFIGS } from "../config";
 import { useWallets } from "../hooks";
 import type { ReadonlyRecord } from "../utils";
 import { shortenAddress } from "../utils";
@@ -15,6 +18,7 @@ export const ConnectedWallets = ({
   walletAddresses,
 }: ConnectedWalletsProps): ReactElement => {
   const wallets = useWallets();
+  const { ecosystems } = useEnvironment(selectConfig, shallow);
 
   return (
     <EuiListGroup
@@ -26,7 +30,7 @@ export const ConnectedWallets = ({
             return {
               label: (
                 <>
-                  <EuiIcon type={ECOSYSTEM_CONFIGS[ecosystemId as EcosystemId].logo} />{" "}
+                  <EuiIcon type={ecosystems[ecosystemId as EcosystemId].logo} />{" "}
                   {shortenAddress(address as string)}
                   <span>&nbsp;(not connected)</span>
                 </>
@@ -38,7 +42,7 @@ export const ConnectedWallets = ({
             return {
               label: (
                 <>
-                  <EuiIcon type={ECOSYSTEM_CONFIGS[ecosystemId as EcosystemId].logo} />{" "}
+                  <EuiIcon type={ecosystems[ecosystemId as EcosystemId].logo} />{" "}
                   {shortenAddress(address as string)}
                   <span>&nbsp;(connected)</span>
                 </>
@@ -50,7 +54,7 @@ export const ConnectedWallets = ({
             return {
               label: (
                 <>
-                  <EuiIcon type={ECOSYSTEM_CONFIGS[ecosystemId as EcosystemId].logo} />{" "}
+                  <EuiIcon type={ecosystems[ecosystemId as EcosystemId].logo} />{" "}
                   {shortenAddress(address as string)}
                   <span>&nbsp;(different account)</span>
                 </>

@@ -1,17 +1,18 @@
+import shallow from "zustand/shallow.js";
+
 import * as Sentry from "@sentry/react";
 import type { SeverityLevel } from "@sentry/types";
-import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import type { Signer } from "ethers";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 
-import type {
-  EcosystemId,
-  EvmChainId,
-  EvmProtocol,
-  TokenSpec,
-} from "../../../../config";
-import { ALL_UNIQUE_CHAINS, ECOSYSTEM_CONFIGS } from "../../../../config";
+import { selectConfig } from "../../../../core/selectors";
+import { useEnvironment } from "../../../../core/store";
+import type { EcosystemId, EvmChainId, TokenSpec } from "../../../../config";
+import { ALL_UNIQUE_CHAINS } from "../../../../config";
+import type { EvmProtocol } from "@swim-io/evm-types";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { captureException } from "../../../../errors";
 import { sleep } from "../../../../utils";
 
 type Web3Provider = ethers.providers.Web3Provider;
@@ -164,13 +165,15 @@ export class EvmWeb3WalletAdapter
         if (!evmSpec) {
           throw new Error("No EVM spec found for chain ID");
         }
+        const { ecosystems } = useEnvironment(selectConfig, shallow);
+        const ecosystem = ecosystems[evmSpec.ecosystemId];
         // this also asks to switch to that chain afterwards
         await this.walletProvider.send("wallet_addEthereumChain", [
           {
             chainId: hexValue(chainId),
-            chainName: evmSpec.chainName,
-            nativeCurrency: evmSpec.nativeCurrency,
-            rpcUrls: evmSpec.rpcUrls,
+            chainName: evmSpec.name,
+            nativeCurrency: ecosystem.gasToken.symbol,
+            rpcUrls: evmSpec.publicRpcUrl,
           },
         ]);
       } else if (switchError.code === METAMASK_methodNotFound) {
@@ -195,8 +198,9 @@ export class EvmWeb3WalletAdapter
     }
     const details = tokenSpec.detailsByEcosystem.get(ecosystemId);
     if (!details) {
+      const { ecosystems } = useEnvironment(selectConfig, shallow);
       throw new Error(
-        `No ${ECOSYSTEM_CONFIGS[ecosystemId].displayName} details for token`,
+        `No ${ecosystems[ecosystemId].displayName} details for token`,
       );
     }
     await this.switchNetwork(chainId);

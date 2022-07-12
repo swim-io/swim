@@ -72,6 +72,7 @@ module.exports = {
         webpackConfig.devtool = "source-map";
 
         // Upload source maps to Sentry
+        // TODO: Uncomment before merging
         // if (!process.env.SENTRY_RELEASE) {
         //   throw new Error("SENTRY_RELEASE is not set");
         // }

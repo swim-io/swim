@@ -1,3 +1,5 @@
+import shallow from "zustand/shallow.js";
+
 import {
   EuiCard,
   EuiFlexGroup,
@@ -12,9 +14,10 @@ import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import { atomicToHumanString } from "../amounts";
 import type { EcosystemId, TokenSpec } from "../config";
-import { ECOSYSTEM_CONFIGS } from "../config";
 import { groupBy } from "../utils";
 
 import { TokenIcon } from "./TokenIcon";
@@ -83,7 +86,8 @@ export const PoolListItem = ({
           <EuiFlexGroup>
             {Object.entries(tokenSpecsByEcosystem).map(
               ([ecosystemId, tokens]) => {
-                const ecosystem = ECOSYSTEM_CONFIGS[ecosystemId as EcosystemId];
+                const { ecosystems } = useEnvironment(selectConfig, shallow);
+                const ecosystem = ecosystems[ecosystemId as EcosystemId];
                 return (
                   <EuiFlexItem grow={false} key={ecosystemId}>
                     <EuiCard

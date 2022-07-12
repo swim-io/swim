@@ -19,7 +19,10 @@ import { useEffect, useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../config";
-import { ECOSYSTEM_CONFIGS, EcosystemId } from "../config";
+import { ECOSYSTEMS, EcosystemId } from "../config";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
@@ -94,7 +97,7 @@ export const RemoveForm = ({
   const userNativeBalances = useUserNativeBalances();
 
   const [lpTokenSourceEcosystem, setLpTokenSourceEcosystem] = useState(
-    EcosystemId.Solana,
+    SOLANA_ECOSYSTEM_ID,
   );
   const [method, setMethod] = useState(RemoveMethod.ExactBurn);
   const [outputToken, setOutputToken] = useState(poolSpec.tokens[0]);
@@ -116,15 +119,9 @@ export const RemoveForm = ({
       ],
     }),
     {
-      [EcosystemId.Solana]: [],
-      [EcosystemId.Ethereum]: [],
-      [EcosystemId.Bnb]: [],
-      [EcosystemId.Avalanche]: [],
-      [EcosystemId.Polygon]: [],
-      [EcosystemId.Aurora]: [],
-      [EcosystemId.Fantom]: [],
-      [EcosystemId.Karura]: [],
-      [EcosystemId.Acala]: [],
+      [SOLANA_ECOSYSTEM_ID]: [],
+      [ETHEREUM_ECOSYSTEM_ID]: [],
+      [BNB_ECOSYSTEM_ID]: [],
     },
   );
 
@@ -156,7 +153,7 @@ export const RemoveForm = ({
         ? Amount.fromAtomicString(
             lpToken,
             poolLpMint.supply.toString(),
-            EcosystemId.Solana,
+            SOLANA_ECOSYSTEM_ID,
           )
         : null,
     [poolLpMint, lpToken],
@@ -184,7 +181,7 @@ export const RemoveForm = ({
 
       const removeUniformAmounts =
         method === RemoveMethod.Uniform && burnPercentage > 0
-          ? poolMath.removeUniform(exactBurnAmount.toHuman(EcosystemId.Solana))
+          ? poolMath.removeUniform(exactBurnAmount.toHuman(SOLANA_ECOSYSTEM_ID))
           : null;
 
       // eslint-disable-next-line functional/prefer-readonly-type
@@ -200,7 +197,7 @@ export const RemoveForm = ({
           outputToken === tokenSpec.id
         ) {
           const { stableOutputAmount } = poolMath.removeExactBurn(
-            exactBurnAmount.toHuman(EcosystemId.Solana),
+            exactBurnAmount.toHuman(SOLANA_ECOSYSTEM_ID),
             tokenIndex,
           );
           estimatedOutputAmountDecimal = stableOutputAmount;
@@ -273,7 +270,7 @@ export const RemoveForm = ({
         return null;
       }
       const { lpInputAmount } = poolMath.removeExactOutput(
-        outputAmounts.map((amount) => amount.toHuman(EcosystemId.Solana)),
+        outputAmounts.map((amount) => amount.toHuman(SOLANA_ECOSYSTEM_ID)),
       );
       return Amount.fromHuman(lpToken, lpInputAmount);
     }, null);
@@ -308,7 +305,8 @@ export const RemoveForm = ({
   const lpSourceEcosystemOptions: readonly EuiRadioGroupOption[] = [
     ...lpToken.detailsByEcosystem.keys(),
   ].map((ecosystemId) => {
-    const ecosystem = ECOSYSTEM_CONFIGS[ecosystemId];
+    const { ecosystems } = useEnvironment(selectConfig, shallow);
+    const ecosystem = ecosystems[ecosystemId];
     const lpBalance = userLpBalances[ecosystemId];
     const lpBalanceSuffix = lpBalance && (
       <>
@@ -346,7 +344,7 @@ export const RemoveForm = ({
       return {
         value: id,
         text: `${tokenSpec.displayName} (${
-          ECOSYSTEM_CONFIGS[tokenSpec.nativeEcosystem].displayName
+          ECOSYSTEMS[tokenSpec.nativeEcosystem].displayName
         })`,
       };
     },
@@ -406,7 +404,7 @@ export const RemoveForm = ({
 
     const requiredEcosystems = new Set(
       [
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
         lpTokenSourceEcosystem,
         ...poolTokens.map((tokenSpec, i) => {
           const outputAmount = outputAmounts[i];
@@ -422,7 +420,7 @@ export const RemoveForm = ({
       if (!wallets[ecosystem].connected) {
         errors = [
           ...errors,
-          `Connect ${ECOSYSTEM_CONFIGS[ecosystem].displayName} wallet`,
+          `Connect ${ECOSYSTEMS[ecosystem].displayName} wallet`,
         ];
       }
     });
@@ -433,7 +431,7 @@ export const RemoveForm = ({
         errors = [
           ...errors,
           `Empty balance in ${
-            ECOSYSTEM_CONFIGS[EcosystemId.Solana].displayName
+            ECOSYSTEMS[SOLANA_ECOSYSTEM_ID].displayName
           } wallet. You will need some funds to pay for transaction fees.`,
         ];
       }
@@ -441,8 +439,8 @@ export const RemoveForm = ({
 
     // Need some SOL for network fee
     if (
-      userNativeBalances[EcosystemId.Solana].greaterThan(0) &&
-      userNativeBalances[EcosystemId.Solana].lessThan(0.01)
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].greaterThan(0) &&
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].lessThan(0.01)
     ) {
       errors = [
         ...errors,
@@ -462,7 +460,7 @@ export const RemoveForm = ({
     ) {
       errors = [
         ...errors,
-        `You do not have any LP tokens on ${ECOSYSTEM_CONFIGS[lpTokenSourceEcosystem].displayName}`,
+        `You do not have any LP tokens on ${ECOSYSTEMS[lpTokenSourceEcosystem].displayName}`,
       ];
     }
 
@@ -574,10 +572,10 @@ export const RemoveForm = ({
       <EuiFormRow
         label={`Use LP tokens (${lpToken.symbol}) from`}
         helpText={
-          lpTokenSourceEcosystem === EcosystemId.Solana ||
+          lpTokenSourceEcosystem ===SOLANA_ECOSYSTEM_ID ||
           method !== RemoveMethod.ExactOutput
             ? ""
-            : `The estimated LP tokens needed (including slippage) will be transferred from ${ECOSYSTEM_CONFIGS[lpTokenSourceEcosystem].displayName} to Solana, and any unused tokens will remain in your LP token account on Solana.`
+            : `The estimated LP tokens needed (including slippage) will be transferred from ${ECOSYSTEMS[lpTokenSourceEcosystem].displayName} to Solana, and any unused tokens will remain in your LP token account on Solana.`
         }
       >
         <EuiRadioGroup

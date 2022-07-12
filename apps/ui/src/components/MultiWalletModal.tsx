@@ -1,3 +1,5 @@
+import shallow from "zustand/shallow.js";
+
 import {
   EuiButtonEmpty,
   EuiButtonIcon,
@@ -11,18 +13,19 @@ import {
   EuiSpacer,
   EuiTitle,
 } from "@elastic/eui";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import type { ReactElement } from "react";
 import { useState } from "react";
 
 import {
-  EVM_PROTOCOL,
   PROTOCOL_NAMES,
-  SOLANA_PROTOCOL,
   getEcosystemsForProtocol,
   isEcosystemEnabled,
+  Protocol,
 } from "../config";
-import { selectSelectedServiceByProtocol } from "../core/selectors";
-import { useWalletAdapter } from "../core/store";
+import { selectSelectedServiceByProtocol, selectConfig } from "../core/selectors";
+import { useWalletAdapter, useEnvironment } from "../core/store";
 import { useEvmWallet, useSolanaWallet, useWalletService } from "../hooks";
 import EVM_SVG from "../images/ecosystems/ethereum-color.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
@@ -44,7 +47,7 @@ import "./MultiWalletModal.scss";
 
 interface ProtocolWalletOptionsListProps {
   readonly icon: string;
-  readonly protocol: string;
+  readonly protocol: Protocol;
 }
 
 const ProtocolWalletOptionsList = ({
@@ -94,6 +97,8 @@ const ProtocolWalletOptionsList = ({
     />
   );
 
+  const { ecosystems } = useEnvironment(selectConfig, shallow);
+
   const popover = (
     <EuiPopover
       button={infoButton}
@@ -106,8 +111,8 @@ const ProtocolWalletOptionsList = ({
             isEcosystemEnabled,
             (ecosystemId) => (
               <li key={ecosystemId}>
-                <EuiIcon type={ECOSYSTEMS[ecosystemId].logo} size="m" />
-                {ECOSYSTEMS[ecosystemId].displayName}
+                <EuiIcon type={ecosystems[ecosystemId].logo} size="m" />
+                {ecosystems[ecosystemId].displayName}
               </li>
             ),
             ecosystemIds,

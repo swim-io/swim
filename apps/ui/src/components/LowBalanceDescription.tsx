@@ -1,20 +1,28 @@
+import shallow from "zustand/shallow.js";
+
 import type { FC, ReactElement } from "react";
 
-import type { EcosystemConfig } from "../config";
-import { ECOSYSTEM_CONFIGS, EcosystemId } from "../config";
+import type {
+  EcosystemConfig,
+} from "@swim-io/core-types";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
+import { EcosystemId } from "../config";
+import { ACALA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-acala";
+import { KARURA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-karura";
 
 const ecosystemIdToDoc = new Map([
   [
-    EcosystemId.Acala,
+    ACALA_ECOSYSTEM_ID,
     "https://wiki.acala.network/get-started/acala-network/acala-account#existential-deposit",
   ],
   [
-    EcosystemId.Karura,
+    KARURA_ECOSYSTEM_ID,
     "https://wiki.acala.network/get-started/get-started/karura-account#existential-deposit",
   ],
 ]);
 
-const createListItem = (ecosystem: EcosystemConfig): ReactElement => {
+const createListItem = (ecosystem: Ecosystem): ReactElement => {
   if (ecosystemIdToDoc.has(ecosystem.id)) {
     return (
       <li key={ecosystem.displayName}>
@@ -54,7 +62,8 @@ export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
     ecosystemIdToDoc.has(ecosystemId),
   );
   const lowBalanceEcosystems = lowBalanceWallets.map((ecosystemId) => {
-    return ECOSYSTEM_CONFIGS[ecosystemId];
+    const { ecosystems } = useEnvironment(selectConfig, shallow);
+    return ecosystems[ecosystemId];
   });
   return (
     <p>

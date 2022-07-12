@@ -6478,10 +6478,7 @@ __metadata:
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.9
     "@swim-io/core-types": "workspace:^"
-<<<<<<< HEAD
-=======
     "@swim-io/eslint-config": ^0.3.0
->>>>>>> 05a2958c1a672eae2992564ee5a202f862081e5b
     "@swim-io/evm-types": "workspace:^"
     "@swim-io/plugin-ecosystem-bnb": "workspace:^"
     "@swim-io/plugin-ecosystem-ethereum": "workspace:^"

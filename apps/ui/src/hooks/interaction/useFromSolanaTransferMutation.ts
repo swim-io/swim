@@ -234,7 +234,7 @@ export const useFromSolanaTransferMutation = () => {
         solanaWormhole.tokenBridge,
       );
       const vaaBytesResponse = await getSignedVAAWithRetry(
-        wormhole.endpoints,
+        [...wormhole.endpoints],
         WormholeChainId.Solana,
         emitterAddress,
         sequence,

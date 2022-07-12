@@ -187,7 +187,7 @@ export async function* generatePostVaaSolanaTxIds(
 
 export async function* generateUnlockSplTokenTxIds(
   interactionId: string,
-  wormholeEndpoints: string[],
+  wormholeEndpoints: readonly string[],
   wormholeChainId: WormholeChainId,
   emitterAddress: string,
   sequence: string,
@@ -205,7 +205,7 @@ export async function* generateUnlockSplTokenTxIds(
       ? POLYGON_WORMHOLE_RETRIES
       : DEFAULT_WORMHOLE_RETRIES;
   const { vaaBytes } = await getSignedVAAWithRetry(
-    wormholeEndpoints,
+    [...wormholeEndpoints],
     wormholeChainId,
     emitterAddress,
     sequence,
@@ -240,7 +240,7 @@ export async function* generateUnlockSplTokenTxIds(
 
 export const unlockSplToken = async (
   interactionId: string,
-  wormholeEndpoints: string[],
+  wormholeEndpoints: readonly string[],
   wormholeChainId: WormholeChainId,
   emitterAddress: string,
   sequence: string,
@@ -257,7 +257,7 @@ export const unlockSplToken = async (
       ? POLYGON_WORMHOLE_RETRIES
       : DEFAULT_WORMHOLE_RETRIES;
   const { vaaBytes } = await getSignedVAAWithRetry(
-    wormholeEndpoints,
+    [...wormholeEndpoints],
     wormholeChainId,
     emitterAddress,
     sequence,
@@ -362,7 +362,7 @@ export async function* generateLockSplTokensTxs(
 }
 
 export const lockSplTokens = async (
-  wormholeEndpoints: string[],
+  wormholeEndpoints: readonly string[],
   solanaWormhole: WormholeChainSpec,
   solanaConnection: SolanaConnection,
   solanaWallet: SolanaWalletAdapter,
@@ -432,7 +432,7 @@ export const lockSplTokens = async (
   const vaaBytesResponses = await Promise.all(
     sequences.map((sequence) =>
       getSignedVAAWithRetry(
-        wormholeEndpoints,
+        [...wormholeEndpoints],
         WormholeChainId.Solana,
         emitterAddress,
         sequence,

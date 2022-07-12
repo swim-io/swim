@@ -96,7 +96,7 @@ export const setUpSplTokensOnEvm = async (
   const vaas = await Promise.all(
     attestations.map(({ emitterAddress, sequence }) =>
       getSignedVAAWithRetry(
-        endpoints,
+        [...endpoints],
         WormholeChainId.Solana,
         emitterAddress,
         sequence,
@@ -172,7 +172,7 @@ export const setUpErc20Tokens = async (
   const vaas = await Promise.all(
     attestations.map(({ emitterAddress, sequence }) =>
       getSignedVAAWithRetry(
-        endpoints,
+        [...endpoints],
         evmEcosystem.wormholeChainId,
         emitterAddress,
         sequence,

@@ -41,10 +41,7 @@ const getSwapType = (interaction: SwapInteractionV2): SwapType => {
   ) {
     return SwapType.SingleChainSolana;
   }
-  if (
-    isEvmEcosystemId(fromEcosystem) &&
-    isEvmEcosystemId(toEcosystem)
-  ) {
+  if (isEvmEcosystemId(fromEcosystem) && isEvmEcosystemId(toEcosystem)) {
     return fromEcosystem === toEcosystem
       ? SwapType.SingleChainEvm
       : SwapType.CrossChainEvmToEvm;
@@ -86,7 +83,7 @@ export const calculateRequiredSplTokenAccounts = (
   const mints = filterMap(
     (token: TokenSpec) => token.nativeEcosystem === EcosystemId.Solana,
     (token) => getSolanaTokenDetails(token).address,
-    requiredTokens
+    requiredTokens,
   );
   if (walletAddress === null) {
     throw new Error("No Solana wallet address found");

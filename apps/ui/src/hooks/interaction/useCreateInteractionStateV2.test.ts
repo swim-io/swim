@@ -1,8 +1,8 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
-import { useSplTokenAccountsQuery, useWallets } from "..";
 
+import { useSplTokenAccountsQuery, useWallets } from "..";
 import {
   CONFIGS,
   DEVNET_POOLS,
@@ -25,7 +25,7 @@ const SOLANA_USDT = findTokenById("devnet-solana-usdt", Env.Devnet);
 
 Object.defineProperty(global.self, "crypto", {
   value: {
-    getRandomValues: (arr: string | readonly any[]) => Buffer.alloc(arr.length)
+    getRandomValues: (arr: string | readonly any[]) => Buffer.alloc(arr.length),
   },
 });
 

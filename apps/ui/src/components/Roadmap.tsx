@@ -1,4 +1,4 @@
-import { EuiSpacer, EuiText, EuiTextColor, EuiTitle } from "@elastic/eui";
+import { EuiSpacer, EuiText, EuiTitle } from "@elastic/eui";
 import type { ReactElement } from "react";
 
 import "./Roadmap.scss";

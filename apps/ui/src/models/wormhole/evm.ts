@@ -6,7 +6,7 @@ import type { TokenSpec, WormholeChainSpec } from "../../config";
 import { WormholeChainId } from "../../config";
 import type { EvmTx } from "../crossEcosystem";
 
-import { approveEth, redeemOnEth, transferFromEth } from "./overrides";
+import { approveEth, transferFromEth } from "./overrides";
 import type { WormholeTransfer } from "./transfer";
 
 export const isLockEvmTx = (

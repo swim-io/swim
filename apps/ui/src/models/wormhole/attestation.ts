@@ -68,7 +68,7 @@ export const attestSplToken = async (
 };
 
 export const setUpSplTokensOnEvm = async (
-  { endpoints }: WormholeConfig,
+  { rpcUrls }: WormholeConfig,
   solanaWormhole: WormholeChainSpec,
   evmChain: EvmSpec,
   solanaConnection: SolanaConnection,
@@ -96,7 +96,7 @@ export const setUpSplTokensOnEvm = async (
   const vaas = await Promise.all(
     attestations.map(({ emitterAddress, sequence }) =>
       getSignedVAAWithRetry(
-        [...endpoints],
+        [...rpcUrls],
         WormholeChainId.Solana,
         emitterAddress,
         sequence,
@@ -151,7 +151,7 @@ export const attestErc20Token = async (
 };
 
 export const setUpErc20Tokens = async (
-  { endpoints }: WormholeConfig,
+  { rpcUrls }: WormholeConfig,
   evmChain: EvmSpec,
   solanaWormhole: WormholeChainSpec,
   solanaConnection: SolanaConnection,
@@ -172,7 +172,7 @@ export const setUpErc20Tokens = async (
   const vaas = await Promise.all(
     attestations.map(({ emitterAddress, sequence }) =>
       getSignedVAAWithRetry(
-        [...endpoints],
+        [...rpcUrls],
         evmEcosystem.wormholeChainId,
         emitterAddress,
         sequence,

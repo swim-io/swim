@@ -54,8 +54,8 @@ export const overrideLocalnetIp = (config: Config, ip: string): Config => ({
   ...config,
   wormhole: {
     ...config.wormhole,
-    endpoints: config.wormhole.endpoints.map((endpoint) =>
-      endpoint.replace(LOCALHOST_REGEXP, ip),
+    rpcUrls: config.wormhole.rpcUrls.map((rpcUrl) =>
+      rpcUrl.replace(LOCALHOST_REGEXP, ip),
     ),
   },
   chains: {

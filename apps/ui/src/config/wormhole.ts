@@ -26,18 +26,22 @@ export interface WormholeConfig {
 }
 
 const MAINNET_WORMHOLE_CONFIG: WormholeConfig = {
-  endpoints: [
+  rpcUrls: [
     "https://wormhole-v2-mainnet-api.certus.one",
     "https://wormhole.inotel.ro",
+    "https://wormhole-v2-mainnet-api.mcf.rocks",
+    "https://wormhole-v2-mainnet-api.chainlayer.network",
+    "https://wormhole-v2-mainnet-api.staking.fund",
+    "https://wormhole-v2-mainnet.01node.com",
   ],
 };
 
 const DEVNET_WORMHOLE_CONFIG: WormholeConfig = {
-  endpoints: ["https://wormhole-v2-testnet-api.certus.one"],
+  rpcUrls: ["https://wormhole-v2-testnet-api.certus.one"],
 };
 
 const LOCALNET_WORMHOLE_CONFIG: WormholeConfig = {
-  endpoints: ["http://127.0.0.1:7071"],
+  rpcUrls: ["http://127.0.0.1:7071"],
 };
 
 export const WORMHOLE_CONFIGS: ReadonlyRecord<Env, WormholeConfig> = {

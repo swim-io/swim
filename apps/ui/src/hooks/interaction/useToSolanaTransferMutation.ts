@@ -1,5 +1,3 @@
-// here
-
 import {
   getEmitterAddressEth,
   parseSequenceFromLogEth,
@@ -193,7 +191,7 @@ export const useToSolanaTransferMutation = () => {
       });
       const unlockSplTokenTxIdsGenerator = generateUnlockSplTokenTxIds(
         interactionId,
-        wormhole.endpoints,
+        wormhole.rpcUrls,
         ECOSYSTEMS[fromEcosystem].wormholeChainId,
         getEmitterAddressEth(evmChain.wormhole.tokenBridge),
         sequence,

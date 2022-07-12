@@ -22,7 +22,7 @@ export const enum WormholeChainId {
 }
 
 export interface WormholeConfig {
-  readonly endpoints: readonly string[];
+  readonly rpcUrls: readonly string[];
 }
 
 const MAINNET_WORMHOLE_CONFIG: WormholeConfig = {

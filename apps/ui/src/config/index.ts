@@ -18,6 +18,7 @@ export * from "./chains";
 export * from "./ecosystem";
 export * from "./env";
 export * from "./pools";
+export * from "./projects";
 export * from "./tokens";
 export * from "./utils";
 export * from "./wormhole";

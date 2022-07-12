@@ -6,7 +6,7 @@ import type { TokenSpec, WormholeChainSpec } from "../../config";
 import { WormholeChainId } from "../../config";
 import type { EvmTx } from "../crossEcosystem";
 
-import { approveEth, redeemOnEth, transferFromEth } from "./overrides";
+import { approveEth, transferFromEth } from "./overrides";
 import type { WormholeTransfer } from "./transfer";
 
 export const isLockEvmTx = (
@@ -130,32 +130,4 @@ export const lockEvmToken = async ({
     approvalResponses,
     transferResponse,
   };
-};
-
-export const unlockEvmToken = async (
-  transfer: WormholeTransfer,
-  vaaBytes: Uint8Array,
-): Promise<ethers.providers.TransactionResponse> => {
-  const { interactionId, evmChain, evmWallet } = transfer;
-  const evmSigner = evmWallet.signer;
-  if (evmSigner === null) {
-    throw new Error("Missing EVM signer");
-  }
-
-  await evmWallet.switchNetwork(evmChain.chainId);
-
-  const redeemResponse = await redeemOnEth(
-    interactionId,
-    evmChain.wormhole.tokenBridge,
-    evmSigner,
-    vaaBytes,
-  );
-
-  if (redeemResponse === null) {
-    throw new Error(
-      `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
-    );
-  }
-
-  return redeemResponse;
 };

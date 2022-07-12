@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 
 import type { TokenSpec } from "../config";
 
-import { NativeTokenIcon } from "./TokenIcon";
+import { TokenSpecIcon } from "./TokenIcon";
 import { TokenSearchModal } from "./TokenSearchModal";
 
 export interface TokenSelectProps {
@@ -26,7 +26,7 @@ export const TokenSelect = ({
   return (
     <>
       <EuiButton onClick={openModal} fullWidth>
-        <NativeTokenIcon {...token} />
+        <TokenSpecIcon token={token} />
       </EuiButton>
       {showModal && (
         <TokenSearchModal

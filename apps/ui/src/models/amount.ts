@@ -110,7 +110,7 @@ export class Amount {
 
   toFormattedHumanString(ecosystemId: EcosystemId): string {
     const humanString = this.toHuman(ecosystemId).toFixed(
-      this.tokenSpec.isStablecoin ? 2 : undefined,
+      this.tokenSpec.project.isStablecoin ? 2 : undefined,
     );
 
     // NOTE: Safari doesn't support lookbehind :(

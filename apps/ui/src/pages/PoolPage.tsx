@@ -29,7 +29,7 @@ import { AddForm } from "../components/AddForm";
 import { RemoveForm } from "../components/RemoveForm";
 import { SlippageButton } from "../components/SlippageButton";
 import { StatList } from "../components/StatList";
-import { NativeTokenIcon, TokenIcon } from "../components/TokenIcon";
+import { TokenIcon, TokenSpecIcon } from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
 import { EcosystemId, getSolanaTokenDetails } from "../config";
 import { selectConfig } from "../core/selectors";
@@ -132,7 +132,7 @@ export const PoolPageInner = ({
           account && account.mint.toBase58() === solanaDetails.address,
       ) ?? null;
     return {
-      title: <NativeTokenIcon {...tokenSpec} />,
+      title: <TokenSpecIcon token={tokenSpec} />,
       description: poolTokenAccount
         ? humanizeUsdAmount(
             displayAmount(
@@ -150,7 +150,7 @@ export const PoolPageInner = ({
     (ecosystemId) => {
       const userLpBalance = userLpBalances[ecosystemId];
       return {
-        title: <TokenIcon {...lpToken} ecosystemId={ecosystemId} />,
+        title: <TokenIcon {...lpToken.project} ecosystemId={ecosystemId} />,
         description: userLpBalance
           ? userLpBalance.toFormattedHumanString(ecosystemId)
           : "-",

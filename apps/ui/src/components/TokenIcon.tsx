@@ -2,12 +2,12 @@ import { EuiIcon } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
 
-import type { EcosystemId, TokenSpec } from "../config";
+import type { EcosystemId, TokenProject, TokenSpec } from "../config";
 import { ECOSYSTEMS } from "../config";
 import type { Amount } from "../models/amount";
 
 export interface TokenIconProps
-  extends Pick<TokenSpec, "icon" | "symbol" | "displayName"> {
+  extends Pick<TokenProject, "icon" | "symbol" | "displayName"> {
   readonly ecosystemId?: EcosystemId;
   readonly showFullName?: boolean;
 }
@@ -54,7 +54,7 @@ export const AmountWithTokenIcon = ({
   return (
     <span>
       {amount.toFormattedHumanString(ecosystem)}{" "}
-      <NativeTokenIcon {...amount.tokenSpec} />
+      <TokenSpecIcon token={amount.tokenSpec} />
     </span>
   );
 };
@@ -80,11 +80,10 @@ export const AmountsWithTokenIcons = ({
   </>
 );
 
-export type NativeTokenIconProps = TokenIconProps &
-  Pick<TokenSpec, "nativeEcosystem">;
+export type TokenSpecIconProps = { readonly token: TokenSpec };
 
-export const NativeTokenIcon = (props: NativeTokenIconProps): ReactElement => (
-  <TokenIcon {...props} ecosystemId={props.nativeEcosystem} />
+export const TokenSpecIcon = ({ token }: TokenSpecIconProps): ReactElement => (
+  <TokenIcon {...token.project} ecosystemId={token.nativeEcosystem} />
 );
 
 export interface EcosystemIconProps {

@@ -77,8 +77,8 @@ export const PoolListItem = ({
     >
       <EuiSpacer size="s" />
       <EuiFlexGroup>
-        {tokenChunks.map((tokens, index) => (
-          <EuiFlexItem key={index}>
+        {tokenChunks.map((tokens) => (
+          <EuiFlexItem key={tokens.map((token) => token.id).join(":")}>
             <EuiFlexGroup direction="column" responsive={false}>
               {tokens.map((tokenSpec) => (
                 <EuiFlexItem

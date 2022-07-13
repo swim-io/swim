@@ -87,23 +87,14 @@ export interface RemoveInteractionState {
   readonly removeTxId: string | null;
 }
 
-export type SwapInteractionStateV2 =
+export type InteractionStateV2 =
   | SingleChainSolanaSwapInteractionState
   | SingleChainEvmSwapInteractionState
   | CrossChainEvmSwapInteractionState
   | CrossChainEvmToSolanaSwapInteractionState
-  | CrossChainSolanaToEvmSwapInteractionState;
-
-export type InteractionStateV2 =
-  | SwapInteractionStateV2
+  | CrossChainSolanaToEvmSwapInteractionState
   | AddInteractionState
   | RemoveInteractionState;
-
-export const isSwapInteractionStateV2 = (
-  interactionState: InteractionStateV2,
-): interactionState is SwapInteractionStateV2 => {
-  return interactionState.interaction.type === InteractionType.SwapV2;
-};
 
 export const isRequiredSplTokenAccountsCompletedV2 = (
   accountState: RequiredSplTokenAccounts,

@@ -728,7 +728,7 @@ export const DEVNET_SWIMUSD: TokenSpec = {
     [
       EcosystemId.Solana,
       {
-        address: "11111111111111111111111111111111111111111111", // TODO: Update
+        address: "11111111111111111111111111111111", // TODO: Update
         decimals: 8,
       },
     ],

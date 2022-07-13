@@ -364,7 +364,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   },
 ].filter((spec) => !spec.isDisabled);
 
-const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
+export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
   {
     id: "devnet-solana-usdc-usdt",
     ecosystem: EcosystemId.Solana,
@@ -509,7 +509,7 @@ const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
   },
 ];
 
-const DEVNET_POOLS: readonly PoolSpec[] = [
+export const DEVNET_POOLS: readonly PoolSpec[] = [
   {
     id: "hexapool",
     ecosystem: EcosystemId.Solana,

@@ -3,6 +3,7 @@ export * from "./useInteraction";
 export * from "./useRequiredEcosystemsForInteraction";
 export * from "./useInteractionMutation";
 export * from "./useInteractionStatus";
+export * from "./useInteractionStatusV2";
 export * from "./useHasActiveInteraction";
 export * from "./useResumeInteraction";
 export * from "./useEuiStepPropsForInteraction";

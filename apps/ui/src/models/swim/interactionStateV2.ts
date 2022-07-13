@@ -134,9 +134,7 @@ const isSingleChainEvmSwapCompleted = (
     "approvalTxIds" | "onChainSwapTxId"
   >,
 ): boolean => {
-  return (
-    isApprovalCompleted(state.approvalTxIds) && state.onChainSwapTxId !== null
-  );
+  return state.onChainSwapTxId !== null;
 };
 
 const isCrossChainEvmToEvmSwapCompleted = (
@@ -146,7 +144,6 @@ const isCrossChainEvmToEvmSwapCompleted = (
   >,
 ): boolean => {
   return (
-    isApprovalCompleted(state.approvalTxIds) &&
     isSwapAndTransferCompleted(state.swapAndTransferTxId) &&
     isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId)
   );
@@ -164,7 +161,6 @@ const isCrossChainEvmToSolanaSwapCompleted = (
 ): boolean => {
   return (
     isRequiredSplTokenAccountsCompletedV2(state.requiredSplTokenAccounts) &&
-    isApprovalCompleted(state.approvalTxIds) &&
     isSwapAndTransferCompleted(state.swapAndTransferTxId) &&
     state.postVaaOnSolanaTxIds.length > 0 && // TODO does it need a specific length?
     isClaimTokenOnSolanaTransferCompleted(state.claimTokenOnSolanaTxId)
@@ -182,12 +178,6 @@ const isCrossChainSolanaToEvmSwapCompleted = (
     isSwapAndTransferCompleted(state.swapAndTransferTxId) &&
     isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId)
   );
-};
-
-export const isApprovalCompleted = (
-  approvalTxIds: readonly EvmTx["txId"][],
-) => {
-  return approvalTxIds.length > 0; // TODO does it need a specific length?
 };
 
 const isSwapAndTransferCompleted = (
@@ -215,16 +205,10 @@ export const isInteractWithPoolAndInitiateTransferOnSourceChainCompleted = (
           return isSingleChainEvmSwapCompleted(state);
         }
         case SwapType.CrossChainEvmToEvm: {
-          return (
-            isApprovalCompleted(state.approvalTxIds) &&
-            isSwapAndTransferCompleted(state.swapAndTransferTxId)
-          );
+          return isSwapAndTransferCompleted(state.swapAndTransferTxId);
         }
         case SwapType.CrossChainEvmToSolana: {
-          return (
-            isApprovalCompleted(state.approvalTxIds) &&
-            isSwapAndTransferCompleted(state.swapAndTransferTxId)
-          );
+          return isSwapAndTransferCompleted(state.swapAndTransferTxId);
         }
         case SwapType.CrossChainSolanaToEvm: {
           return isSwapAndTransferCompleted(state.swapAndTransferTxId);

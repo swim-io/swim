@@ -230,6 +230,8 @@ export const isInteractWithPoolAndInitiateTransferOnSourceChainCompleted = (
           return isSwapAndTransferCompleted(state.swapAndTransferTxId);
         }
       }
+      // looks like eslint is buggy with nested switch statements and needs this unreachable break?
+      break;
     }
     case InteractionType.Add:
       return false;
@@ -266,6 +268,8 @@ export const isCompleteTransferAndInteractWithPoolOnTargetChainCompleted = (
           return isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId);
         }
       }
+      // looks like eslint is buggy with nested switch statements and needs this unreachable break?
+      break;
     }
     case InteractionType.Add:
       return false;
@@ -300,6 +304,8 @@ export const isInteractionCompletedV2 = (
           return isCrossChainSolanaToEvmSwapCompleted(interactionState);
         }
       }
+      // looks like eslint is buggy with nested switch statements and needs this unreachable break?
+      break;
     }
     case InteractionType.Add:
       return false;

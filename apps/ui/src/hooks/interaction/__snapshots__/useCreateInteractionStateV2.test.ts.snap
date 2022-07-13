@@ -33,6 +33,7 @@ Object {
     "submittedAt": 1657544558283,
     "type": 1,
   },
+  "interactionType": 1,
 }
 `;
 
@@ -68,6 +69,7 @@ Object {
     "submittedAt": 1657544558283,
     "type": 4,
   },
+  "interactionType": 4,
   "removeTxId": null,
 }
 `;
@@ -108,6 +110,7 @@ Object {
     "submittedAt": 1657544558283,
     "type": 5,
   },
+  "interactionType": 5,
   "receiveAndSwapTxId": null,
   "swapAndTransferTxId": null,
   "swapType": "CrossChainEvmToEvm",
@@ -149,6 +152,7 @@ Object {
     "submittedAt": 1657544558283,
     "type": 5,
   },
+  "interactionType": 5,
   "onChainSwapTxId": null,
   "swapType": "SingleChainEvm",
 }
@@ -191,6 +195,7 @@ Object {
     "submittedAt": 1657544558283,
     "type": 5,
   },
+  "interactionType": 5,
   "postVaaOnSolanaTxIds": Array [],
   "requiredSplTokenAccounts": Object {
     "11111111111111111111111111111111": Object {
@@ -242,6 +247,7 @@ Object {
     "submittedAt": 1657544558283,
     "type": 5,
   },
+  "interactionType": 5,
   "receiveAndSwapTxId": null,
   "requiredSplTokenAccounts": Object {
     "11111111111111111111111111111111": Object {
@@ -292,6 +298,7 @@ Object {
     "submittedAt": 1657544558283,
     "type": 5,
   },
+  "interactionType": 5,
   "requiredSplTokenAccounts": Object {
     "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
       "isExistingAccount": false,

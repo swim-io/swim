@@ -127,6 +127,7 @@ const createSwapInteractionState = (
       const poolSpec = requiredPools[0];
       return {
         interaction,
+        interactionType: interaction.type,
         swapType,
         requiredSplTokenAccounts,
         solanaPoolOperations: [
@@ -156,6 +157,7 @@ const createSwapInteractionState = (
     case SwapType.SingleChainEvm:
       return {
         interaction,
+        interactionType: interaction.type,
         swapType,
         approvalTxIds: [],
         onChainSwapTxId: null,
@@ -163,6 +165,7 @@ const createSwapInteractionState = (
     case SwapType.CrossChainEvmToEvm:
       return {
         interaction,
+        interactionType: interaction.type,
         swapType,
         approvalTxIds: [],
         swapAndTransferTxId: null,
@@ -171,6 +174,7 @@ const createSwapInteractionState = (
     case SwapType.CrossChainSolanaToEvm:
       return {
         interaction,
+        interactionType: interaction.type,
         swapType,
         requiredSplTokenAccounts,
         swapAndTransferTxId: null,
@@ -179,6 +183,7 @@ const createSwapInteractionState = (
     case SwapType.CrossChainEvmToSolana:
       return {
         interaction,
+        interactionType: interaction.type,
         swapType,
         requiredSplTokenAccounts,
         approvalTxIds: [],
@@ -218,12 +223,14 @@ export const useCreateInteractionStateV2 = () => {
       case InteractionType.RemoveUniform:
         return {
           interaction,
+          interactionType: interaction.type,
           approvalTxIds: [],
           removeTxId: null,
         };
       case InteractionType.Add:
         return {
           interaction,
+          interactionType: interaction.type,
           approvalTxIds: [],
           addTxId: null,
         };

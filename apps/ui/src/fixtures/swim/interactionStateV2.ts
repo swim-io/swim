@@ -91,7 +91,6 @@ const SPL_TOKEN_ACCOUNTS_CREATED: RequiredSplTokenAccounts = {
 
 const SOLANA_POOLS_OPERATIONS_INIT: readonly SolanaPoolOperationState[] = [
   {
-    // TODO OperationSpec needs to be updated?
     operation: {
       interactionId: "2eed9eef597a2aa14314845afe87079f",
       poolId: "devnet-solana-usdc-usdt",

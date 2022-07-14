@@ -29,7 +29,7 @@ import {
   MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS,
   MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT,
 } from "../../fixtures/swim/interactionStateV2";
-import { INTERACTION_MUTATION_KEY } from "../../hooks/interaction";
+import { INTERACTION_MUTATION_KEY_V2 } from "../../hooks/interaction/useInteractionMutationV2";
 import { sleep } from "../../utils";
 
 import { InteractionStateComponentV2 } from "./InteractionStateComponentV2";
@@ -65,7 +65,7 @@ const Template: ComponentStory<typeof InteractionStateComponentV2> = (args) => {
       await sleep(5000);
     },
     {
-      mutationKey: INTERACTION_MUTATION_KEY,
+      mutationKey: INTERACTION_MUTATION_KEY_V2,
     },
   );
 

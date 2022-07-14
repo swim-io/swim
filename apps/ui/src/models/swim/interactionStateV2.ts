@@ -110,10 +110,7 @@ export const isSolanaPoolOperationsCompletedV2 = (
 const isSingleChainSolanaSwapCompleted = (
   state: SingleChainSolanaSwapInteractionState,
 ): boolean => {
-  return (
-    isRequiredSplTokenAccountsCompletedV2(state.requiredSplTokenAccounts) &&
-    isSolanaPoolOperationsCompletedV2(state.solanaPoolOperations)
-  );
+  return isSolanaPoolOperationsCompletedV2(state.solanaPoolOperations);
 };
 
 const isSingleChainEvmSwapCompleted = (
@@ -125,31 +122,19 @@ const isSingleChainEvmSwapCompleted = (
 const isCrossChainEvmToEvmSwapCompleted = (
   state: CrossChainEvmSwapInteractionState,
 ): boolean => {
-  return (
-    isSwapAndTransferCompleted(state.swapAndTransferTxId) &&
-    isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId)
-  );
+  return isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId);
 };
 
 const isCrossChainEvmToSolanaSwapCompleted = (
   state: CrossChainEvmToSolanaSwapInteractionState,
 ): boolean => {
-  return (
-    isRequiredSplTokenAccountsCompletedV2(state.requiredSplTokenAccounts) &&
-    isSwapAndTransferCompleted(state.swapAndTransferTxId) &&
-    state.postVaaOnSolanaTxIds.length > 0 && // TODO does it need a specific length?
-    isClaimTokenOnSolanaTransferCompleted(state.claimTokenOnSolanaTxId)
-  );
+  return isClaimTokenOnSolanaTransferCompleted(state.claimTokenOnSolanaTxId);
 };
 
 const isCrossChainSolanaToEvmSwapCompleted = (
   state: CrossChainSolanaToEvmSwapInteractionState,
 ): boolean => {
-  return (
-    isRequiredSplTokenAccountsCompletedV2(state.requiredSplTokenAccounts) &&
-    isSwapAndTransferCompleted(state.swapAndTransferTxId) &&
-    isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId)
-  );
+  return isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId);
 };
 
 const isSwapAndTransferCompleted = (

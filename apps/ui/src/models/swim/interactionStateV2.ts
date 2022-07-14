@@ -110,10 +110,7 @@ export const isSolanaPoolOperationsCompletedV2 = (
 const isSingleChainSolanaSwapCompleted = (
   state: SingleChainSolanaSwapInteractionState,
 ): boolean => {
-  return (
-    isRequiredSplTokenAccountsCompletedV2(state.requiredSplTokenAccounts) &&
-    isSolanaPoolOperationsCompletedV2(state.solanaPoolOperations)
-  );
+  return isSolanaPoolOperationsCompletedV2(state.solanaPoolOperations);
 };
 
 const isSingleChainEvmSwapCompleted = (
@@ -125,44 +122,20 @@ const isSingleChainEvmSwapCompleted = (
 const isCrossChainEvmToEvmSwapCompleted = (
   state: CrossChainEvmSwapInteractionState,
 ): boolean => {
-  return (
-    isSwapAndTransferCompleted(state.swapAndTransferTxId) &&
-    isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId)
-  );
+  return state.receiveAndSwapTxId !== null;
 };
 
 const isCrossChainEvmToSolanaSwapCompleted = (
   state: CrossChainEvmToSolanaSwapInteractionState,
 ): boolean => {
-  return (
-    isRequiredSplTokenAccountsCompletedV2(state.requiredSplTokenAccounts) &&
-    isSwapAndTransferCompleted(state.swapAndTransferTxId) &&
-    state.postVaaOnSolanaTxIds.length > 0 && // TODO does it need a specific length?
-    isClaimTokenOnSolanaTransferCompleted(state.claimTokenOnSolanaTxId)
-  );
+  return state.claimTokenOnSolanaTxId !== null;
 };
 
 const isCrossChainSolanaToEvmSwapCompleted = (
   state: CrossChainSolanaToEvmSwapInteractionState,
 ): boolean => {
-  return (
-    isRequiredSplTokenAccountsCompletedV2(state.requiredSplTokenAccounts) &&
-    isSwapAndTransferCompleted(state.swapAndTransferTxId) &&
-    isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId)
-  );
+  return state.receiveAndSwapTxId !== null;
 };
-
-const isSwapAndTransferCompleted = (
-  swapAndTransferTxId: EvmTx["txId"] | null,
-): boolean => swapAndTransferTxId !== null;
-
-const isReceiveAndSwapTransferCompleted = (
-  receiveAndSwapTxId: EvmTx["txId"] | null,
-): boolean => receiveAndSwapTxId !== null;
-
-const isClaimTokenOnSolanaTransferCompleted = (
-  claimTokenOnSolanaTxId: SolanaTx["txId"] | null,
-): boolean => claimTokenOnSolanaTxId !== null;
 
 export const isInteractWithPoolAndInitiateTransferOnSourceChainCompleted = (
   state: InteractionStateV2,

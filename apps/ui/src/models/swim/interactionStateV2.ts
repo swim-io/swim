@@ -108,10 +108,7 @@ export const isSolanaPoolOperationsCompletedV2 = (
 ) => operations.every((operation) => isNotNull(operation.txId));
 
 const isSingleChainSolanaSwapCompleted = (
-  state: Pick<
-    SingleChainSolanaSwapInteractionState,
-    "requiredSplTokenAccounts" | "solanaPoolOperations"
-  >,
+  state: SingleChainSolanaSwapInteractionState,
 ): boolean => {
   return (
     isRequiredSplTokenAccountsCompletedV2(state.requiredSplTokenAccounts) &&
@@ -120,16 +117,13 @@ const isSingleChainSolanaSwapCompleted = (
 };
 
 const isSingleChainEvmSwapCompleted = (
-  state: Pick<SingleChainEvmSwapInteractionState, "onChainSwapTxId">,
+  state: SingleChainEvmSwapInteractionState,
 ): boolean => {
   return state.onChainSwapTxId !== null;
 };
 
 const isCrossChainEvmToEvmSwapCompleted = (
-  state: Pick<
-    CrossChainEvmSwapInteractionState,
-    "swapAndTransferTxId" | "receiveAndSwapTxId"
-  >,
+  state: CrossChainEvmSwapInteractionState,
 ): boolean => {
   return (
     isSwapAndTransferCompleted(state.swapAndTransferTxId) &&
@@ -138,13 +132,7 @@ const isCrossChainEvmToEvmSwapCompleted = (
 };
 
 const isCrossChainEvmToSolanaSwapCompleted = (
-  state: Pick<
-    CrossChainEvmToSolanaSwapInteractionState,
-    | "postVaaOnSolanaTxIds"
-    | "requiredSplTokenAccounts"
-    | "swapAndTransferTxId"
-    | "claimTokenOnSolanaTxId"
-  >,
+  state: CrossChainEvmToSolanaSwapInteractionState,
 ): boolean => {
   return (
     isRequiredSplTokenAccountsCompletedV2(state.requiredSplTokenAccounts) &&
@@ -155,10 +143,7 @@ const isCrossChainEvmToSolanaSwapCompleted = (
 };
 
 const isCrossChainSolanaToEvmSwapCompleted = (
-  state: Pick<
-    CrossChainSolanaToEvmSwapInteractionState,
-    "requiredSplTokenAccounts" | "swapAndTransferTxId" | "receiveAndSwapTxId"
-  >,
+  state: CrossChainSolanaToEvmSwapInteractionState,
 ): boolean => {
   return (
     isRequiredSplTokenAccountsCompletedV2(state.requiredSplTokenAccounts) &&

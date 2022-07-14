@@ -1,14 +1,12 @@
 import { Env } from "@swim-io/core-types";
 import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
-import shallow from "zustand/shallow.js";
 
-import { selectConfig } from "../core/selectors";
-import { useEnvironment } from "../core/store";
 import type { ReadonlyRecord } from "../utils";
 
 import type { ChainsByProtocol } from "./chains";
 import type { EcosystemId, UiEcosystemConfig } from "./ecosystem";
+import { ECOSYSTEMS } from "./ecosystem";
 import type { PoolSpec } from "./pools";
 import { POOLS } from "./pools";
 import { REDEEMER } from "./redeemer";
@@ -34,10 +32,8 @@ export interface Config {
   readonly redeemer: RedeemerSpec;
 }
 
-const { ecosystems, chains } = useEnvironment(selectConfig, shallow);
-
 const buildConfig = (env: Env): Config => ({
-  ecosystems: ecosystems,
+  ecosystems: ECOSYSTEMS,
   chains: chains[env],
   pools: POOLS[env],
   tokens: TOKENS[env],

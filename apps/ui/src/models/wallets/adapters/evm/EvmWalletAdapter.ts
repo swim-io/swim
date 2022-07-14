@@ -5,12 +5,9 @@ import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import type { Signer } from "ethers";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
-import shallow from "zustand/shallow.js";
 
 import type { EcosystemId, EvmChainId, TokenSpec } from "../../../../config";
-import { ALL_UNIQUE_CHAINS } from "../../../../config";
-import { selectConfig } from "../../../../core/selectors";
-import { useEnvironment } from "../../../../core/store";
+import { ALL_UNIQUE_CHAINS, ECOSYSTEMS } from "../../../../config";
 import { captureException } from "../../../../errors";
 import { sleep } from "../../../../utils";
 
@@ -164,8 +161,7 @@ export class EvmWeb3WalletAdapter
         if (!evmSpec) {
           throw new Error("No EVM spec found for chain ID");
         }
-        const { ecosystems } = useEnvironment(selectConfig, shallow);
-        const ecosystem = ecosystems[evmSpec.ecosystemId];
+        const ecosystem = ECOSYSTEMS[evmSpec.ecosystemId];
         // this also asks to switch to that chain afterwards
         await this.walletProvider.send("wallet_addEthereumChain", [
           {
@@ -197,9 +193,8 @@ export class EvmWeb3WalletAdapter
     }
     const details = tokenSpec.detailsByEcosystem.get(ecosystemId);
     if (!details) {
-      const { ecosystems } = useEnvironment(selectConfig, shallow);
       throw new Error(
-        `No ${ecosystems[ecosystemId].displayName} details for token`,
+        `No ${ECOSYSTEMS[ecosystemId].displayName} details for token`,
       );
     }
     await this.switchNetwork(chainId);

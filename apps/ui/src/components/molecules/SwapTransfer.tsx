@@ -24,7 +24,7 @@ export const SwapTransfer: VFC<Props> = ({
   <EuiText size="m">
     <span style={{ display: "flex", alignItems: "center" }}>
       {isLoading && <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />}
-      <span>{`Swap ${fromToken.project.displayName} to ${toToken.project.displayName} in ${ECOSYSTEMS[ecosystemId].displayName}`}</span>
+      <span>{`Swap ${fromToken.project.displayName} to ${toToken.project.displayName} on ${ECOSYSTEMS[ecosystemId].displayName}`}</span>
     </span>
     <TxEcosystemList transactions={transactions} ecosystemId={ecosystemId} />
   </EuiText>

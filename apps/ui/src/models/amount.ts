@@ -41,7 +41,9 @@ export class Amount {
   ): Amount {
     const details = tokenSpec.detailsByEcosystem.get(ecosystemId);
     if (!details) {
-      throw new Error("No token details for ecosystem");
+      throw new Error(
+        `No token details for ecosystem ${ecosystemId} and token '${tokenSpec.id}'`,
+      );
     }
     const convertedValue = value.div(10 ** details.decimals);
     return new Amount(tokenSpec, convertedValue);

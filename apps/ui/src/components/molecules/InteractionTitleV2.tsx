@@ -34,10 +34,9 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
       const { fromTokenDetail, toTokenDetail } = interaction.params;
       const fromTokenSpec = findTokenById(fromTokenDetail.tokenId, env);
       const toTokenSpec = findTokenById(toTokenDetail.tokenId, env);
-      const exactInputAmount = Amount.fromAtomic(
+      const exactInputAmount = Amount.fromHuman(
         fromTokenSpec,
         fromTokenDetail.value,
-        fromTokenDetail.ecosystemId,
       );
 
       return (

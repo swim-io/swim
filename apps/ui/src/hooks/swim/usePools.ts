@@ -102,7 +102,7 @@ export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
     poolSpecs
       .filter(
         (poolSpec): poolSpec is SolanaPoolSpec =>
-          poolSpec.ecosystem === EcosystemId.Solana,
+          poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID,
       )
       .map((poolSpec) => [...poolSpec.tokenAccounts.values()]),
   );

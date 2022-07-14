@@ -174,7 +174,7 @@ const PoolsPage = (): ReactElement => {
                       displayName: "swimUSD (Swim Hexapool LP)",
                       icon: SWIM_USD_SVG,
                       isStablecoin: true,
-                      nativeEcosystem: EcosystemId.Solana,
+                      nativeEcosystem: SOLANA_ECOSYSTEM_ID,
                       detailsByEcosystem: new Map(),
                     },
                   ]}
@@ -201,7 +201,7 @@ const PoolsPage = (): ReactElement => {
                       displayName: "swimUSD (Swim Hexapool LP)",
                       icon: SWIM_USD_SVG,
                       isStablecoin: true,
-                      nativeEcosystem: EcosystemId.Solana,
+                      nativeEcosystem: SOLANA_ECOSYSTEM_ID,
                       detailsByEcosystem: new Map(),
                     },
                   ]}
@@ -228,7 +228,7 @@ const PoolsPage = (): ReactElement => {
                       displayName: "swimUSD (Swim Hexapool LP)",
                       icon: SWIM_USD_SVG,
                       isStablecoin: true,
-                      nativeEcosystem: EcosystemId.Solana,
+                      nativeEcosystem: SOLANA_ECOSYSTEM_ID,
                       detailsByEcosystem: new Map(),
                     },
                   ]}
@@ -259,7 +259,7 @@ const PoolsPage = (): ReactElement => {
                       displayName: "swimUSD (Swim Hexapool LP)",
                       icon: SWIM_USD_SVG,
                       isStablecoin: true,
-                      nativeEcosystem: EcosystemId.Solana,
+                      nativeEcosystem: SOLANA_ECOSYSTEM_ID,
                       detailsByEcosystem: new Map(),
                     },
                   ]}
@@ -290,7 +290,7 @@ const PoolsPage = (): ReactElement => {
                       displayName: "swimUSD (Swim Hexapool LP)",
                       icon: SWIM_USD_SVG,
                       isStablecoin: true,
-                      nativeEcosystem: EcosystemId.Solana,
+                      nativeEcosystem: SOLANA_ECOSYSTEM_ID,
                       detailsByEcosystem: new Map(),
                     },
                   ]}
@@ -317,7 +317,7 @@ const PoolsPage = (): ReactElement => {
                       displayName: "swimUSD (Swim Hexapool LP)",
                       icon: SWIM_USD_SVG,
                       isStablecoin: true,
-                      nativeEcosystem: EcosystemId.Solana,
+                      nativeEcosystem: SOLANA_ECOSYSTEM_ID,
                       detailsByEcosystem: new Map(),
                     },
                   ]}
@@ -348,7 +348,7 @@ const PoolsPage = (): ReactElement => {
                       displayName: "swimUSD (Swim Hexapool LP)",
                       icon: SWIM_USD_SVG,
                       isStablecoin: true,
-                      nativeEcosystem: EcosystemId.Solana,
+                      nativeEcosystem: SOLANA_ECOSYSTEM_ID,
                       detailsByEcosystem: new Map(),
                     },
                   ]}

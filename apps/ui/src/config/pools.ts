@@ -19,7 +19,7 @@ export interface BasePoolSpec {
 }
 
 export interface SolanaPoolSpec extends BasePoolSpec {
-  readonly ecosystem: EcosystemId.Solana;
+  readonly ecosystem: SOLANA_ECOSYSTEM_ID;
   readonly contract: string; // the Swim program ID
   /**
    * Maps token IDs to addresses of token accounts owned by the pool
@@ -40,7 +40,7 @@ export const isPoolRestructureEnabled = (): boolean =>
 const MAINNET_POOLS: readonly PoolSpec[] = [
   {
     id: "hexapool",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Stablecoin Hexa-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -69,7 +69,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "meta-avalanche-usdc",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Avalanche USDC Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -93,7 +93,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "meta-avalanche-usdt",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Avalanche USDT Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -117,7 +117,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "meta-polygon-usdc",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Polygon USDC Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -138,7 +138,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "meta-polygon-usdt",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Polygon USDT Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -159,7 +159,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "gst-solana-bnb",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "GST SPL - GST BEP20",
     isStakingPool: false,
     isStableSwap: false,
@@ -177,7 +177,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "gmt-solana-bnb",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "GMT SPL - GMT BEP20",
     isStakingPool: false,
     isStableSwap: true,
@@ -196,7 +196,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "meta-aurora-usdc",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Aurora USDC Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -218,7 +218,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "meta-aurora-usdt",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Aurora USDT Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -240,7 +240,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "meta-aurora-usn",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Aurora USN Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -262,7 +262,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
     id: "meta-fantom-usdc",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Fantom USDC Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -284,7 +284,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "meta-karura-ausd",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Karura AUSD Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -306,7 +306,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "meta-karura-usdt",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Karura USDT Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -328,7 +328,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
     id: "meta-acala-ausd",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Acala AUSD Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -347,7 +347,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: true,
     id: "swimlake",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "SwimLake",
     isStakingPool: true,
     isStableSwap: true,
@@ -367,7 +367,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
 const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
   {
     id: "devnet-solana-usdc-usdt",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Solana USDC USDT",
     isStakingPool: false,
     isStableSwap: true,
@@ -385,7 +385,7 @@ const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
   },
   {
     id: "devnet-ethereum-usdc-usdt",
-    ecosystem: EcosystemId.Ethereum,
+    ecosystem: ETHEREUM_ECOSYSTEM_ID,
     displayName: "Ethereum USDC USDT",
     isStakingPool: false,
     isStableSwap: true,
@@ -397,7 +397,7 @@ const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
   },
   {
     id: "devnet-bnb-busd-usdt",
-    ecosystem: EcosystemId.Bnb,
+    ecosystem: BNB_ECOSYSTEM_ID,
     displayName: "BNB BUSD USDT",
     isStakingPool: false,
     isStableSwap: true,
@@ -512,7 +512,7 @@ const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
 const DEVNET_POOLS: readonly PoolSpec[] = [
   {
     id: "hexapool",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Stablecoin Hexa-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -541,7 +541,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "meta-avalanche-usdc",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Avalanche USDC Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -562,7 +562,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "meta-avalanche-usdt",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Avalanche USDT Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -583,7 +583,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "meta-polygon-usdc",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Polygon USDC Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -604,7 +604,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "meta-polygon-usdt",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Polygon USDT Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -625,7 +625,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "gst-solana-bnb",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "GST SPL - GST BEP20",
     isStakingPool: false,
     isStableSwap: false,
@@ -643,7 +643,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "gmt-solana-bnb",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "GMT SPL - GMT BEP20",
     isStakingPool: false,
     isStableSwap: true,
@@ -662,7 +662,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "meta-aurora-usdc",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Aurora USDC Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -684,7 +684,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "meta-aurora-usdt",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Aurora USDT Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -706,7 +706,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: true, // TODO: Enable when deployed on devnet
     id: "meta-aurora-usn",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Aurora USN Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -725,7 +725,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
     id: "meta-fantom-usdc",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Fantom USDC Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -747,7 +747,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "meta-karura-ausd",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Karura AUSD Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -769,7 +769,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "meta-karura-usdt",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Karura USDT Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -791,7 +791,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
     id: "meta-acala-ausd",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Acala AUSD Meta-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -812,7 +812,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "swimlake",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "SwimLake",
     isStakingPool: true,
     isStableSwap: true,
@@ -832,7 +832,7 @@ const DEVNET_POOLS: readonly PoolSpec[] = [
 const LOCALNET_POOLS: readonly PoolSpec[] = [
   {
     id: "hexapool",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Stablecoin Hexa-Pool",
     isStakingPool: false,
     isStableSwap: true,
@@ -861,7 +861,7 @@ const LOCALNET_POOLS: readonly PoolSpec[] = [
   },
   {
     id: "swimlake",
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "SwimLake",
     isStakingPool: true,
     isStableSwap: true,

@@ -1,7 +1,17 @@
 import { EuiListGroupItem } from "@elastic/eui";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+
+import { AVALANCHE_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-avalance";
+import { POLYGON_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-polygon";
+import { AURORA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-aurora";
+import { FANTOM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-fantom";
+import { KARURA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-karura";
+import { ACALA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-acala";
 import type { FC } from "react";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 
 interface Props {
   readonly ecosystem: EcosystemId;
@@ -11,23 +21,23 @@ interface Props {
 const getHref = (ecosystemId: EcosystemId, txId: string): string => {
   // TODO: Support different environments (devnet).
   switch (ecosystemId) {
-    case EcosystemId.Solana:
+    case SOLANA_ECOSYSTEM_ID:
       return `https://solana.fm/tx/${txId}`;
-    case EcosystemId.Ethereum:
+    case ETHEREUM_ECOSYSTEM_ID:
       return `https://etherscan.io/tx/${txId}`;
-    case EcosystemId.Bnb:
+    case BNB_ECOSYSTEM_ID:
       return `https://bscscan.com/tx/${txId}`;
-    case EcosystemId.Avalanche:
+    case AVALANCHE_ECOSYSTEM_ID:
       return `https://snowtrace.io/tx/${txId}`;
-    case EcosystemId.Polygon:
+    case POLYGON_ECOSYSTEM_ID:
       return `https://polygonscan.com/tx/${txId}`;
-    case EcosystemId.Aurora:
+    case AURORA_ECOSYSTEM_ID:
       return `https://aurorascan.dev/tx/${txId}`;
-    case EcosystemId.Fantom:
+    case FANTOM_ECOSYSTEM_ID:
       return `https://ftmscan.com/tx/${txId}`;
-    case EcosystemId.Karura:
+    case KARURA_ECOSYSTEM_ID:
       return `https://blockscout.karura.network/tx/${txId}`;
-    case EcosystemId.Acala:
+    case ACALA_ECOSYSTEM_ID:
       return `https://blockscout.acala.network/tx/${txId}`;
     default:
       throw new Error("Unknown ecosystem");

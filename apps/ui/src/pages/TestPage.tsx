@@ -74,7 +74,7 @@ const TestPage = (): ReactElement => {
     tokens: poolTokens,
   } = usePool(currentPool);
 
-  if (poolSpec.ecosystem !== EcosystemId.Solana) {
+  if (poolSpec.ecosystem !== SOLANA_ECOSYSTEM_ID) {
     throw new Error("Test page is only for Solana Pool");
   }
 
@@ -91,21 +91,21 @@ const TestPage = (): ReactElement => {
   } = useTokensByEcosystem();
 
   const nativeSolanaTokenAddresses = solanaTokens
-    .filter((token) => token.nativeEcosystem === EcosystemId.Solana)
+    .filter((token) => token.nativeEcosystem === SOLANA_ECOSYSTEM_ID)
     .filter((token) => !token.id.includes("-lp-"))
     .map((token) => getSolanaTokenDetails(token).address);
   const nativeEthereumTokenAddresses = ethereumTokens
-    .filter((token) => token.nativeEcosystem === EcosystemId.Ethereum)
+    .filter((token) => token.nativeEcosystem === ETHEREUM_ECOSYSTEM_ID)
     .filter((token) => !token.id.includes("-lp-"))
     .map((token) => {
-      const details = token.detailsByEcosystem.get(EcosystemId.Ethereum)!;
+      const details = token.detailsByEcosystem.get(ETHEREUM_ECOSYSTEM_ID)!;
       return details.address;
     });
   const nativeBnbTokenAddresses = bnbTokens
-    .filter((token) => token.nativeEcosystem === EcosystemId.Bnb)
+    .filter((token) => token.nativeEcosystem === BNB_ECOSYSTEM_ID)
     .filter((token) => !token.id.includes("-lp-"))
     .map((token) => {
-      const details = token.detailsByEcosystem.get(EcosystemId.Bnb)!;
+      const details = token.detailsByEcosystem.get(BNB_ECOSYSTEM_ID)!;
       return details.address;
     });
 
@@ -122,10 +122,10 @@ const TestPage = (): ReactElement => {
 
   const solanaChain = chains[Protocol.Solana].find(Boolean)!;
   const ethereumChain = chains[Protocol.Evm].find(
-    (chain) => chain.ecosystem === EcosystemId.Ethereum,
+    (chain) => chain.ecosystem === ETHEREUM_ECOSYSTEM_ID,
   )!;
   const bnbChain = chains[Protocol.Evm].find(
-    (chain) => chain.ecosystem === EcosystemId.Bnb,
+    (chain) => chain.ecosystem === BNB_ECOSYSTEM_ID,
   )!;
 
   const [governanceAddress, setGovernanceAddress] = useState(
@@ -170,13 +170,13 @@ const TestPage = (): ReactElement => {
       throw new Error("No Solana wallet");
     }
     const evmWallet =
-      ecosystem === EcosystemId.Ethereum ? ethereumWallet : bnbWallet;
+      ecosystem === ETHEREUM_ECOSYSTEM_ID ? ethereumWallet : bnbWallet;
     if (!evmWallet) {
       throw new Error(`No ${ecosystem} wallet`);
     }
 
     const evmChain =
-      ecosystem === EcosystemId.Ethereum ? ethereumChain : bnbChain;
+      ecosystem === ETHEREUM_ECOSYSTEM_ID ? ethereumChain : bnbChain;
 
     await evmWallet.switchNetwork(evmChain.chainId);
 
@@ -192,13 +192,13 @@ const TestPage = (): ReactElement => {
     console.info(`WRAPPED SOLANA TOKEN (${ecosystem}) SETUP`);
     console.info("SOLANA TX IDS", splTokenSetupResult.solanaTxIds);
     const splTokenSetupEvmTxIds =
-      ecosystem === EcosystemId.Ethereum
+      ecosystem === ETHEREUM_ECOSYSTEM_ID
         ? splTokenSetupResult.ethereumTxIds
         : splTokenSetupResult.bnbTxIds;
     console.info(`${ecosystem} TX IDS`, splTokenSetupEvmTxIds);
 
     const nativeErc20TokenAddresses =
-      ecosystem === EcosystemId.Ethereum
+      ecosystem === ETHEREUM_ECOSYSTEM_ID
         ? nativeEthereumTokenAddresses
         : nativeBnbTokenAddresses;
     const erc20TokenSetupResult = await setUpErc20Tokens(
@@ -213,7 +213,7 @@ const TestPage = (): ReactElement => {
     console.info(`WRAPPED ${ecosystem} TOKEN (SOLANA) SETUP`);
     console.info("SOLANA TX IDS", erc20TokenSetupResult.solanaTxIds);
     const erc20TokenSetupEvmTxIds =
-      ecosystem === EcosystemId.Ethereum
+      ecosystem === ETHEREUM_ECOSYSTEM_ID
         ? erc20TokenSetupResult.ethereumTxIds
         : erc20TokenSetupResult.bnbTxIds;
     console.info(`${ecosystem} TX IDS`, erc20TokenSetupEvmTxIds);
@@ -294,7 +294,7 @@ const TestPage = (): ReactElement => {
     await ethereumWallet.switchNetwork(ethereumChain.chainId);
     for (const token of tokens) {
       const ethereumDetails = token.detailsByEcosystem.get(
-        EcosystemId.Ethereum,
+        ETHEREUM_ECOSYSTEM_ID,
       );
       if (!ethereumDetails) {
         continue;
@@ -310,7 +310,7 @@ const TestPage = (): ReactElement => {
 
     await bnbWallet.switchNetwork(bnbChain.chainId);
     for (const token of tokens) {
-      const bnbDetails = token.detailsByEcosystem.get(EcosystemId.Bnb);
+      const bnbDetails = token.detailsByEcosystem.get(BNB_ECOSYSTEM_ID);
       if (!bnbDetails) {
         continue;
       }
@@ -334,7 +334,7 @@ const TestPage = (): ReactElement => {
     await ethereumWallet.switchNetwork(ethereumChain.chainId);
     for (const token of tokens) {
       const ethereumDetails = token.detailsByEcosystem.get(
-        EcosystemId.Ethereum,
+        ETHEREUM_ECOSYSTEM_ID,
       );
       if (!ethereumDetails) {
         continue;
@@ -350,7 +350,7 @@ const TestPage = (): ReactElement => {
 
     await bnbWallet.switchNetwork(bnbChain.chainId);
     for (const token of tokens) {
-      const bnbDetails = token.detailsByEcosystem.get(EcosystemId.Bnb);
+      const bnbDetails = token.detailsByEcosystem.get(BNB_ECOSYSTEM_ID);
       if (!bnbDetails) {
         continue;
       }
@@ -374,7 +374,7 @@ const TestPage = (): ReactElement => {
       const wormholeAsset = new PublicKey(token).toBytes();
       const foreignAsset = await getForeignAssetEth(
         ethereumChain.wormhole.tokenBridge,
-        evmConnections[EcosystemId.Ethereum].provider,
+        evmConnections[ETHEREUM_ECOSYSTEM_ID].provider,
         WormholeChainId.Solana,
         wormholeAsset,
       );
@@ -391,7 +391,7 @@ const TestPage = (): ReactElement => {
       const wormholeAsset = new PublicKey(token).toBytes();
       const foreignAsset = await getForeignAssetEth(
         bnbChain.wormhole.tokenBridge,
-        evmConnections[EcosystemId.Bnb].provider,
+        evmConnections[BNB_ECOSYSTEM_ID].provider,
         WormholeChainId.Solana,
         wormholeAsset,
       );
@@ -412,11 +412,11 @@ const TestPage = (): ReactElement => {
 
         <EuiPageContent>
           <EuiPageContentBody>
-            <ConnectButton ecosystemId={EcosystemId.Solana} />
+            <ConnectButton ecosystemId={SOLANA_ECOSYSTEM_ID} />
             &nbsp;
-            <ConnectButton ecosystemId={EcosystemId.Ethereum} />
+            <ConnectButton ecosystemId={ETHEREUM_ECOSYSTEM_ID} />
             &nbsp;
-            <ConnectButton ecosystemId={EcosystemId.Bnb} />
+            <ConnectButton ecosystemId={BNB_ECOSYSTEM_ID} />
             &nbsp;
             <EuiButton onClick={addToastHandler}>Notify</EuiButton>
             &nbsp;
@@ -443,13 +443,13 @@ const TestPage = (): ReactElement => {
             <EuiSpacer />
             <EuiButton
               isDisabled={!solanaAddress || !ethereumAddress}
-              onClick={() => handleSetUpEvmTokens(EcosystemId.Ethereum)}
+              onClick={() => handleSetUpEvmTokens(ETHEREUM_ECOSYSTEM_ID)}
             >
               Set up Wormhole tokens (Ethereum)
             </EuiButton>
             <EuiButton
               isDisabled={!solanaAddress || !bnbAddress}
-              onClick={() => handleSetUpEvmTokens(EcosystemId.Bnb)}
+              onClick={() => handleSetUpEvmTokens(BNB_ECOSYSTEM_ID)}
             >
               Set up Wormhole tokens (BNB)
             </EuiButton>

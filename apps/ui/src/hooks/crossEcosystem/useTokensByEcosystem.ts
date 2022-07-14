@@ -1,7 +1,7 @@
 import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { ReadonlyRecord } from "../../utils";
@@ -17,9 +17,9 @@ export const useTokensByEcosystem = (): ReadonlyRecord<
     tokens.filter((tokenSpec) => tokenSpec.detailsByEcosystem.get(ecosystem));
 
   return {
-    [EcosystemId.Solana]: filterTokensByEcosystem(EcosystemId.Solana),
-    [EcosystemId.Ethereum]: filterTokensByEcosystem(EcosystemId.Ethereum),
-    [EcosystemId.Bnb]: filterTokensByEcosystem(EcosystemId.Bnb),
+    [SOLANA_ECOSYSTEM_ID]: filterTokensByEcosystem(SOLANA_ECOSYSTEM_ID),
+    [ETHEREUM_ECOSYSTEM_ID]: filterTokensByEcosystem(ETHEREUM_ECOSYSTEM_ID),
+    [BNB_ECOSYSTEM_ID]: filterTokensByEcosystem(BNB_ECOSYSTEM_ID),
     [EcosystemId.Avalanche]: filterTokensByEcosystem(EcosystemId.Avalanche),
     [EcosystemId.Polygon]: filterTokensByEcosystem(EcosystemId.Polygon),
     [EcosystemId.Aurora]: filterTokensByEcosystem(EcosystemId.Aurora),

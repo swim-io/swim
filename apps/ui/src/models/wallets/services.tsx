@@ -66,37 +66,37 @@ const solletInfo: WalletServiceInfo = {
   name: "Sollet",
   url: "https://www.sollet.io",
   icon: `${OYSTER_ASSETS_URL}sollet.svg`,
-  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
 };
 const solongInfo: WalletServiceInfo = {
   name: "Solong",
   url: "https://solongwallet.com",
   icon: `${OYSTER_ASSETS_URL}solong.png`,
-  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
 };
 const solflareInfo: WalletServiceInfo = {
   name: "Solflare",
   url: "https://solflare.com/access-wallet",
   icon: `${OYSTER_ASSETS_URL}solflare.svg`,
-  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
 };
 const mathWalletInfo: WalletServiceInfo = {
   name: "MathWallet",
   url: "https://www.mathwallet.org",
   icon: MATHWALLET_ICON,
-  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
 };
 const ledgerInfo: WalletServiceInfo = {
   name: "Ledger",
   url: "https://www.ledger.com",
   icon: LEDGER_ICON,
-  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
 };
 const phantomInfo: WalletServiceInfo = {
   name: "Phantom",
   url: "https://phantom.app",
   icon: PHANTOM_ICON,
-  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
 };
 
 const metaMaskInfo: Omit<WalletServiceInfo, "ecosystem"> = {
@@ -129,12 +129,12 @@ const addMetaMaskEcosystemInfo = (
 
 const ethereumMetaMaskInfo: WalletServiceInfo = {
   ...metaMaskInfo,
-  ecosystem: ECOSYSTEMS[EcosystemId.Ethereum],
+  ecosystem: ECOSYSTEMS[ETHEREUM_ECOSYSTEM_ID],
 };
 
 const bnbMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Bnb],
+  ECOSYSTEMS[BNB_ECOSYSTEM_ID],
   "https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain",
 );
 const avalancheMetaMaskInfo = addMetaMaskEcosystemInfo(
@@ -271,9 +271,9 @@ export const SOLANA_WALLET_SERVICES: readonly SolanaWalletService<SolanaWalletAd
   ];
 
 export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {
-  [EcosystemId.Solana]: SOLANA_WALLET_SERVICES,
-  [EcosystemId.Ethereum]: ETHEREUM_WALLET_SERVICES,
-  [EcosystemId.Bnb]: BNB_WALLET_SERVICES,
+  [SOLANA_ECOSYSTEM_ID]: SOLANA_WALLET_SERVICES,
+  [ETHEREUM_ECOSYSTEM_ID]: ETHEREUM_WALLET_SERVICES,
+  [BNB_ECOSYSTEM_ID]: BNB_WALLET_SERVICES,
   [EcosystemId.Avalanche]: AVALANCHE_WALLET_SERVICES,
   [EcosystemId.Polygon]: POLYGON_WALLET_SERVICES,
   [EcosystemId.Aurora]: AURORA_WALLET_SERVICES,

@@ -8,9 +8,9 @@ import type { ReadonlyRecord } from "../../utils";
 
 export interface ChainsByEcosystem
   extends ReadonlyRecord<EcosystemId, ChainSpec | null> {
-  readonly [EcosystemId.Solana]: SolanaSpec | null;
-  readonly [EcosystemId.Ethereum]: EvmSpec | null;
-  readonly [EcosystemId.Bnb]: EvmSpec | null;
+  readonly [SOLANA_ECOSYSTEM_ID]: SolanaSpec | null;
+  readonly [ETHEREUM_ECOSYSTEM_ID]: EvmSpec | null;
+  readonly [BNB_ECOSYSTEM_ID]: EvmSpec | null;
   readonly [EcosystemId.Avalanche]: EvmSpec | null;
   readonly [EcosystemId.Polygon]: EvmSpec | null;
   readonly [EcosystemId.Aurora]: EvmSpec | null;
@@ -23,8 +23,8 @@ export const useChainsByEcosystem = (): ChainsByEcosystem => {
   const { chains } = useEnvironment(selectConfig, shallow);
   const [solana] = chains[Protocol.Solana];
   const [ethereum, bnb, avalanche, polygon, aurora, fantom, karura, acala] = [
-    EcosystemId.Ethereum,
-    EcosystemId.Bnb,
+    ETHEREUM_ECOSYSTEM_ID,
+    BNB_ECOSYSTEM_ID,
     EcosystemId.Avalanche,
     EcosystemId.Polygon,
     EcosystemId.Aurora,
@@ -38,9 +38,9 @@ export const useChainsByEcosystem = (): ChainsByEcosystem => {
   );
 
   return {
-    [EcosystemId.Solana]: solana,
-    [EcosystemId.Ethereum]: ethereum,
-    [EcosystemId.Bnb]: bnb,
+    [SOLANA_ECOSYSTEM_ID]: solana,
+    [ETHEREUM_ECOSYSTEM_ID]: ethereum,
+    [BNB_ECOSYSTEM_ID]: bnb,
     [EcosystemId.Avalanche]: avalanche,
     [EcosystemId.Polygon]: polygon,
     [EcosystemId.Aurora]: aurora,

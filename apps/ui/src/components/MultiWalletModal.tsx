@@ -1,5 +1,3 @@
-import shallow from "zustand/shallow.js";
-
 import {
   EuiButtonEmpty,
   EuiButtonIcon,
@@ -17,18 +15,19 @@ import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import type { ReactElement } from "react";
 import { useState } from "react";
+import shallow from "zustand/shallow.js";
 
+import type { Protocol } from "../config";
 import {
   PROTOCOL_NAMES,
   getEcosystemsForProtocol,
   isEcosystemEnabled,
-  Protocol,
 } from "../config";
 import {
-  selectSelectedServiceByProtocol,
   selectConfig,
+  selectSelectedServiceByProtocol,
 } from "../core/selectors";
-import { useWalletAdapter, useEnvironment } from "../core/store";
+import { useEnvironment, useWalletAdapter } from "../core/store";
 import { useEvmWallet, useSolanaWallet, useWalletService } from "../hooks";
 import EVM_SVG from "../images/ecosystems/ethereum-color.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";

@@ -14,7 +14,7 @@ interface BaseTx {
 }
 
 export interface SolanaTx extends BaseTx {
-  readonly ecosystem: EcosystemId.Solana;
+  readonly ecosystem: SOLANA_ECOSYSTEM_ID;
   readonly parsedTx: solana.ParsedTransactionWithMeta;
 }
 
@@ -25,11 +25,11 @@ export interface EvmTx extends BaseTx {
 }
 
 export interface EthereumTx extends EvmTx {
-  readonly ecosystem: EcosystemId.Ethereum;
+  readonly ecosystem: ETHEREUM_ECOSYSTEM_ID;
 }
 
 export interface BnbTx extends EvmTx {
-  readonly ecosystem: EcosystemId.Bnb;
+  readonly ecosystem: BNB_ECOSYSTEM_ID;
 }
 
 export interface AvalancheTx extends EvmTx {
@@ -66,13 +66,13 @@ export interface TxWithTokenId<T extends Tx = Tx> {
 }
 
 export const isSolanaTx = (tx: Tx): tx is SolanaTx =>
-  tx.ecosystem === EcosystemId.Solana;
+  tx.ecosystem === SOLANA_ECOSYSTEM_ID;
 
 export const isEthereumTx = (tx: Tx): tx is EthereumTx =>
-  tx.ecosystem === EcosystemId.Ethereum;
+  tx.ecosystem === ETHEREUM_ECOSYSTEM_ID;
 
 export const isBnbTx = (tx: Tx): tx is BnbTx =>
-  tx.ecosystem === EcosystemId.Bnb;
+  tx.ecosystem === BNB_ECOSYSTEM_ID;
 
 export const isAvalancheTx = (tx: Tx): tx is AvalancheTx =>
   tx.ecosystem === EcosystemId.Avalanche;

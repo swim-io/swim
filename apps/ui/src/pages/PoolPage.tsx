@@ -106,10 +106,10 @@ export const PoolPageInner = ({
   useTitle(poolSpec.displayName);
   const navigate = useNavigate();
   const { showPrompt: showRegisterEthereumTokenPrompt } = useRegisterErc20Token(
-    EcosystemId.Ethereum,
+    ETHEREUM_ECOSYSTEM_ID,
   );
   const { showPrompt: showRegisterBnbTokenPrompt } = useRegisterErc20Token(
-    EcosystemId.Bnb,
+    BNB_ECOSYSTEM_ID,
   );
   const {
     tokens,
@@ -257,7 +257,7 @@ export const PoolPageInner = ({
               <StatList listItems={poolInfoStats} />
             </>
           )}
-          {lpToken.detailsByEcosystem.has(EcosystemId.Ethereum) && (
+          {lpToken.detailsByEcosystem.has(ETHEREUM_ECOSYSTEM_ID) && (
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}
@@ -267,7 +267,7 @@ export const PoolPageInner = ({
               Add LP token to Metamask
             </EuiButtonEmpty>
           )}
-          {lpToken.detailsByEcosystem.has(EcosystemId.Bnb) && (
+          {lpToken.detailsByEcosystem.has(BNB_ECOSYSTEM_ID) && (
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}

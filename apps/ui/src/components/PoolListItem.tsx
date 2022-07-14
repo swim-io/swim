@@ -1,5 +1,3 @@
-import shallow from "zustand/shallow.js";
-
 import {
   EuiCard,
   EuiFlexGroup,
@@ -13,11 +11,12 @@ import {
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
+import shallow from "zustand/shallow.js";
 
-import { selectConfig } from "../core/selectors";
-import { useEnvironment } from "../core/store";
 import { atomicToHumanString } from "../amounts";
 import type { EcosystemId, TokenSpec } from "../config";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import { groupBy } from "../utils";
 
 import { TokenIcon } from "./TokenIcon";

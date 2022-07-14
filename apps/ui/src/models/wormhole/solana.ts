@@ -75,7 +75,7 @@ export const isLockSplTx = (
     return false;
   }
 
-  return token.nativeEcosystem === EcosystemId.Solana
+  return token.nativeEcosystem === SOLANA_ECOSYSTEM_ID
     ? getAmountTransferredFromAccount(
         parsedTx,
         splTokenAccountAddress,
@@ -120,7 +120,7 @@ export const isRedeemOnSolanaTx = (
   ) {
     return false;
   }
-  return token.nativeEcosystem === EcosystemId.Solana
+  return token.nativeEcosystem === SOLANA_ECOSYSTEM_ID
     ? getAmountTransferredToAccount(parsedTx, splTokenAccount).greaterThan(0)
     : getAmountMintedToAccount(parsedTx, splTokenAccount).greaterThan(0);
 };
@@ -331,7 +331,7 @@ export async function* generateLockSplTokensTxs(
       solanaPublicKey.toBase58(),
       splTokenAccountAddress,
       fromTokenDetails.address,
-      BigInt(amount.toAtomicString(EcosystemId.Solana)),
+      BigInt(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)),
       evmAddressToWormhole(evmWallet.address),
       evmEcosystem.wormholeChainId,
       token.nativeEcosystem === evmChain.ecosystem
@@ -352,7 +352,7 @@ export async function* generateLockSplTokensTxs(
     const txId = await solanaConnection.sendAndConfirmTx(signTransaction, tx);
     const parsedTx = await solanaConnection.getParsedTx(txId);
     yield {
-      ecosystem: EcosystemId.Solana,
+      ecosystem: SOLANA_ECOSYSTEM_ID,
       txId,
       timestamp: parsedTx.blockTime ?? null,
       interactionId,
@@ -400,7 +400,7 @@ export const lockSplTokens = async (
       solanaWallet.publicKey.toBase58(),
       splTokenAccountAddress,
       fromTokenDetails.address,
-      BigInt(amount.toAtomicString(EcosystemId.Solana)),
+      BigInt(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)),
       evmAddressToWormhole(evmWallet.address),
       evmEcosystem.wormholeChainId,
       token.nativeEcosystem === evmChain.ecosystem

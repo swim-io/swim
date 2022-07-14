@@ -56,7 +56,7 @@ export const getTransferredAmounts = (
         [tokenSpec.id]: Amount.fromAtomic(
           tokenSpec,
           amount,
-          EcosystemId.Solana,
+          SOLANA_ECOSYSTEM_ID,
         ),
       };
     },

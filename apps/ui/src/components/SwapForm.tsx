@@ -11,7 +11,9 @@ import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId } from "../config";
+import type { EcosystemId } from "../config";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
@@ -105,9 +107,9 @@ export const SwapForm = ({
   const isSmallEthSwap =
     fromToken.isStablecoin &&
     [fromToken.nativeEcosystem, toToken.nativeEcosystem].includes(
-      EcosystemId.Ethereum,
+      ETHEREUM_ECOSYSTEM_ID,
     ) &&
-    inputAmount.toHuman(EcosystemId.Solana).lt(200);
+    inputAmount.toHuman(SOLANA_ECOSYSTEM_ID).lt(200);
 
   const getSwapFormErrors = useGetSwapFormErrors(
     fromToken,

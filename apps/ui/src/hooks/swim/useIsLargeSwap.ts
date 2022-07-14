@@ -1,7 +1,7 @@
 import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { Amount } from "../../models";
@@ -29,10 +29,10 @@ export const useIsLargeSwap = (
   return (
     (fromToken.isStablecoin &&
       inputPoolUsdValue !== null &&
-      inputAmount.toHuman(EcosystemId.Solana).gt(inputPoolUsdValue.mul(0.1))) ||
+      inputAmount.toHuman(SOLANA_ECOSYSTEM_ID).gt(inputPoolUsdValue.mul(0.1))) ||
     (toToken.isStablecoin &&
       outputPoolUsdValue !== null &&
       outputAmount !== null &&
-      outputAmount.toHuman(EcosystemId.Solana).gt(outputPoolUsdValue.mul(0.1)))
+      outputAmount.toHuman(SOLANA_ECOSYSTEM_ID).gt(outputPoolUsdValue.mul(0.1)))
   );
 };

@@ -48,8 +48,8 @@ export const useRemoveFeesEstimationQuery = (
     karuraGasPrice,
     acalaGasPrice,
   ] = [
-    useGasPriceQuery(EcosystemId.Ethereum).data ?? ZERO,
-    useGasPriceQuery(EcosystemId.Bnb).data ?? ZERO,
+    useGasPriceQuery(ETHEREUM_ECOSYSTEM_ID).data ?? ZERO,
+    useGasPriceQuery(BNB_ECOSYSTEM_ID).data ?? ZERO,
     useGasPriceQuery(EcosystemId.Avalanche).data ?? ZERO,
     useGasPriceQuery(EcosystemId.Polygon).data ?? ZERO,
     useGasPriceQuery(EcosystemId.Aurora).data ?? ZERO,
@@ -84,9 +84,9 @@ export const useRemoveFeesEstimationQuery = (
     ECOSYSTEM_IDS,
   );
   return {
-    [EcosystemId.Solana]: SOLANA_FEE,
-    [EcosystemId.Ethereum]: ethGas.mul(ethGasPrice.toString()),
-    [EcosystemId.Bnb]: bnbGas.mul(bnbGasPrice.toString()),
+    [SOLANA_ECOSYSTEM_ID]: SOLANA_FEE,
+    [ETHEREUM_ECOSYSTEM_ID]: ethGas.mul(ethGasPrice.toString()),
+    [BNB_ECOSYSTEM_ID]: bnbGas.mul(bnbGasPrice.toString()),
     [EcosystemId.Avalanche]: avalancheGas.mul(avalancheGasPrice.toString()),
     [EcosystemId.Polygon]: polygonGas.mul(polygonGasPrice.toString()),
     [EcosystemId.Aurora]: auroraGas.mul(auroraGasPrice.toString()),

@@ -1,8 +1,7 @@
-import shallow from "zustand/shallow.js";
-
 import { EuiIcon } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
+import shallow from "zustand/shallow.js";
 
 import type { EcosystemId, TokenSpec } from "../config";
 import { selectConfig } from "../core/selectors";

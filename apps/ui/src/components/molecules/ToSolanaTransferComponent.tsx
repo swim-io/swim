@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import type { Interaction, ToSolanaTransferState } from "../../models";
 import { getFromEcosystemOfToSolanaTransfer } from "../../models";
 import { isNotNull } from "../../utils";
@@ -31,13 +31,13 @@ export const ToSolanaTransferComponent: React.FC<Props> = ({
   }));
   const postVaaTxProps = postVaaOnSolana.map((txId) => ({
     txId,
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
   }));
   const claimTokenTxProp =
     claimTokenOnSolana !== null
       ? {
           txId: claimTokenOnSolana,
-          ecosystem: EcosystemId.Solana,
+          ecosystem: SOLANA_ECOSYSTEM_ID,
         }
       : null;
   const completedTxProps = [
@@ -53,7 +53,7 @@ export const ToSolanaTransferComponent: React.FC<Props> = ({
     <Transfer
       token={token}
       from={fromEcosystem}
-      to={EcosystemId.Solana}
+      to={SOLANA_ECOSYSTEM_ID}
       isLoading={isLoading}
       transactions={completedTxProps}
     />

@@ -1,5 +1,5 @@
 import type { EvmEcosystemId } from "../../config";
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
 
@@ -7,8 +7,8 @@ export const useIsEvmGasPriceLoading = (
   ecosystemIds: readonly EvmEcosystemId[],
 ): boolean => {
   const isGasPriceLoading = {
-    [EcosystemId.Ethereum]: useGasPriceQuery(EcosystemId.Ethereum).isLoading,
-    [EcosystemId.Bnb]: useGasPriceQuery(EcosystemId.Bnb).isLoading,
+    [ETHEREUM_ECOSYSTEM_ID]: useGasPriceQuery(ETHEREUM_ECOSYSTEM_ID).isLoading,
+    [BNB_ECOSYSTEM_ID]: useGasPriceQuery(BNB_ECOSYSTEM_ID).isLoading,
     [EcosystemId.Avalanche]: useGasPriceQuery(EcosystemId.Avalanche).isLoading,
     [EcosystemId.Polygon]: useGasPriceQuery(EcosystemId.Polygon).isLoading,
     [EcosystemId.Aurora]: useGasPriceQuery(EcosystemId.Aurora).isLoading,

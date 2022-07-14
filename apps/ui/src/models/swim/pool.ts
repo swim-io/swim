@@ -3,7 +3,7 @@ import type { SwimPoolState } from "@swim-io/solana-types";
 import { deserializeSwimPool } from "@swim-io/solana-types";
 
 import type { Config, PoolSpec, SolanaPoolSpec, TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { findOrThrow } from "../../utils";
 import type { SolanaTx, Tx } from "../crossEcosystem";
@@ -59,4 +59,4 @@ export const getPoolState = async (
 };
 
 export const isSolanaPool = (pool: PoolSpec): pool is SolanaPoolSpec =>
-  pool.ecosystem === EcosystemId.Solana;
+  pool.ecosystem === SOLANA_ECOSYSTEM_ID;

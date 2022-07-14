@@ -33,7 +33,7 @@ const getPoolMath = ({
   );
 
   const tokenBalances = poolTokenAccounts.map((tokenAccount, i) =>
-    Amount.fromAtomicBn(poolTokens[i], tokenAccount.amount, EcosystemId.Solana),
+    Amount.fromAtomicBn(poolTokens[i], tokenAccount.amount, SOLANA_ECOSYSTEM_ID),
   );
 
   // calculate amp factor
@@ -55,17 +55,17 @@ const getPoolMath = ({
   const lpSupply = Amount.fromAtomicBn(
     lpToken,
     poolLpMint.supply,
-    EcosystemId.Solana,
+    SOLANA_ECOSYSTEM_ID,
   );
   const maxDecimals = Math.max(...poolTokenDecimals);
   const tolerance = new Decimal(10).pow(-maxDecimals);
 
   return new PoolMath(
-    tokenBalances.map((amount) => amount.toHuman(EcosystemId.Solana)),
+    tokenBalances.map((amount) => amount.toHuman(SOLANA_ECOSYSTEM_ID)),
     ampFactor,
     humanLpFee,
     humanGovernanceFee,
-    lpSupply.toHuman(EcosystemId.Solana),
+    lpSupply.toHuman(SOLANA_ECOSYSTEM_ID),
     tolerance,
   );
 };

@@ -17,11 +17,11 @@ export const useEvmTxFeesEstimates = (
     EvmEcosystemId,
     UseQueryResult<Decimal | null, Error>
   > = {
-    [EcosystemId.Ethereum]: useEvmTxFeesEstimateQuery(
-      EcosystemId.Ethereum,
+    [ETHEREUM_ECOSYSTEM_ID]: useEvmTxFeesEstimateQuery(
+      ETHEREUM_ECOSYSTEM_ID,
       interaction,
     ),
-    [EcosystemId.Bnb]: useEvmTxFeesEstimateQuery(EcosystemId.Bnb, interaction),
+    [BNB_ECOSYSTEM_ID]: useEvmTxFeesEstimateQuery(BNB_ECOSYSTEM_ID, interaction),
     [EcosystemId.Avalanche]: useEvmTxFeesEstimateQuery(
       EcosystemId.Avalanche,
       interaction,
@@ -50,8 +50,8 @@ export const useEvmTxFeesEstimates = (
 
   return {
     estimates: {
-      [EcosystemId.Ethereum]: queries[EcosystemId.Ethereum].data ?? null,
-      [EcosystemId.Bnb]: queries[EcosystemId.Bnb].data ?? null,
+      [ETHEREUM_ECOSYSTEM_ID]: queries[ETHEREUM_ECOSYSTEM_ID].data ?? null,
+      [BNB_ECOSYSTEM_ID]: queries[BNB_ECOSYSTEM_ID].data ?? null,
       [EcosystemId.Avalanche]: queries[EcosystemId.Avalanche].data ?? null,
       [EcosystemId.Polygon]: queries[EcosystemId.Polygon].data ?? null,
       [EcosystemId.Aurora]: queries[EcosystemId.Aurora].data ?? null,

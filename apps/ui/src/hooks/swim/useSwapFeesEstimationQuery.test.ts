@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import {
   BNB_BUSD,
   ETHEREUM_USDT,
@@ -55,7 +55,7 @@ describe("useSwapFeesEstimationQuery", () => {
   describe("loaded", () => {
     beforeEach(() => {
       useGasPriceQueryMock.mockImplementation((ecosystemId: EcosystemId) =>
-        ecosystemId === EcosystemId.Ethereum
+        ecosystemId === ETHEREUM_ECOSYSTEM_ID
           ? { data: new Decimal(7e-8) }
           : { data: new Decimal(5e-9) },
       );

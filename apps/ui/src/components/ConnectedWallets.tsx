@@ -1,11 +1,10 @@
-import shallow from "zustand/shallow.js";
-
 import { EuiIcon, EuiListGroup } from "@elastic/eui";
 import type { ReactElement } from "react";
+import shallow from "zustand/shallow.js";
 
+import type { EcosystemId } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
-import type { EcosystemId } from "../config";
 import { useWallets } from "../hooks";
 import type { ReadonlyRecord } from "../utils";
 import { shortenAddress } from "../utils";

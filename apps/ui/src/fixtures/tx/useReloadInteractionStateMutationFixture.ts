@@ -34,9 +34,9 @@ export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION = {
     env: Env.Devnet,
     submittedAt: 1656406521938,
     connectedWallets: {
-      [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-      [EcosystemId.Bnb]: null,
-      [EcosystemId.Ethereum]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
+      [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+      [BNB_ECOSYSTEM_ID]: null,
+      [ETHEREUM_ECOSYSTEM_ID]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
       [EcosystemId.Acala]: null,
       [EcosystemId.Aurora]: null,
       [EcosystemId.Avalanche]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",

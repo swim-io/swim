@@ -1,12 +1,12 @@
-import shallow from "zustand/shallow.js";
-
 import { Env } from "@swim-io/core-types";
 import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
+import shallow from "zustand/shallow.js";
 
-import type { ReadonlyRecord } from "../utils";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
+import type { ReadonlyRecord } from "../utils";
+
 import type { ChainsByProtocol } from "./chains";
 import type { EcosystemId, UiEcosystemConfig } from "./ecosystem";
 import type { PoolSpec } from "./pools";
@@ -73,7 +73,7 @@ export const overrideLocalnetIp = (config: Config, ip: string): Config => ({
       ...config.chains[SOLANA_PROTOCOL].slice(1),
     ],
     [EVM_PROTOCOL]: config.chains[EVM_PROTOCOL].map(
-      (chainSpec: { rpcUrls: string[] }) => ({
+      (chainSpec: { readonly rpcUrls: readonly string[] }) => ({
         ...chainSpec,
         rpcUrls: chainSpec.rpcUrls.map((rpcUrl: string) =>
           rpcUrl.replace(LOCALHOST_REGEXP, ip),

@@ -14,7 +14,7 @@ export const getNativeTokenDetails = (tokenSpec: TokenSpec): TokenDetails => {
 
 export const getSolanaTokenDetails = (tokenSpec: TokenSpec): TokenDetails => {
   const solanaTokenDetails =
-    tokenSpec.detailsByEcosystem.get(EcosystemId.Solana) ?? null;
+    tokenSpec.detailsByEcosystem.get(SOLANA_ECOSYSTEM_ID) ?? null;
   if (solanaTokenDetails === null) {
     throw new Error("Solana token details not found");
   }

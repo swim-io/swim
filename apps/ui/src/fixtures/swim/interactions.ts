@@ -132,7 +132,7 @@ export const ADD: AddInteraction = {
       new Decimal(5969.99730442),
     ),
   },
-  lpTokenTargetEcosystem: EcosystemId.Solana,
+  lpTokenTargetEcosystem: SOLANA_ECOSYSTEM_ID,
   id: "b8b3e6b61df832c9815467f5fdc1fd6b",
   poolIds: ["hexapool"],
   env: Env.CustomLocalnet,

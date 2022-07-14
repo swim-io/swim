@@ -3,7 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { MOCK_SOL_WALLET } from "../../fixtures";
@@ -77,10 +77,10 @@ describe("useToSolanaTransferMutation", () => {
       ),
     });
     useWalletsMock.mockReturnValue({
-      [EcosystemId.Bnb]: {
+      [BNB_ECOSYSTEM_ID]: {
         wallet: {},
       },
-      [EcosystemId.Solana]: {
+      [SOLANA_ECOSYSTEM_ID]: {
         wallet: MOCK_SOL_WALLET,
       },
     } as Wallets);
@@ -92,7 +92,7 @@ describe("useToSolanaTransferMutation", () => {
       },
     } as any);
     useEvmConnectionsMock.mockReturnValue({
-      [EcosystemId.Bnb]: {
+      [BNB_ECOSYSTEM_ID]: {
         txReceiptCache: {},
         getTxReceiptOrThrow: jest.fn(({ hash }) =>
           Promise.resolve({

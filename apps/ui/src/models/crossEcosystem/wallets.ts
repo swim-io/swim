@@ -17,9 +17,9 @@ export interface EvmWalletInterface {
 }
 
 export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
-  readonly [EcosystemId.Solana]: SolanaWalletInterface;
-  readonly [EcosystemId.Ethereum]: EvmWalletInterface;
-  readonly [EcosystemId.Bnb]: EvmWalletInterface;
+  readonly [SOLANA_ECOSYSTEM_ID]: SolanaWalletInterface;
+  readonly [ETHEREUM_ECOSYSTEM_ID]: EvmWalletInterface;
+  readonly [BNB_ECOSYSTEM_ID]: EvmWalletInterface;
   readonly [EcosystemId.Avalanche]: EvmWalletInterface;
   readonly [EcosystemId.Polygon]: EvmWalletInterface;
   readonly [EcosystemId.Aurora]: EvmWalletInterface;

@@ -2,7 +2,7 @@ import { EuiFormRow, EuiSpacer } from "@elastic/eui";
 import type React from "react";
 
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import { useSolanaWallet } from "../../hooks";
 import { ConnectButton } from "../ConnectButton";
 

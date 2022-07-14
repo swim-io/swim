@@ -13,6 +13,7 @@ import {
   EuiSpacer,
   EuiText,
 } from "@elastic/eui";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useMemo, useState } from "react";
@@ -21,11 +22,10 @@ import shallow from "zustand/shallow.js";
 import {
   ECOSYSTEMS,
   ECOSYSTEM_IDS,
-  EcosystemId,
   getNativeTokenDetails,
   isEcosystemEnabled,
 } from "../config";
-import type { PoolSpec, TokenSpec } from "../config";
+import type { EcosystemId, PoolSpec, TokenSpec } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
@@ -203,9 +203,8 @@ export const AddForm = ({
   const isInteractionInProgress = useHasActiveInteraction();
   const userNativeBalances = useUserNativeBalances();
 
-  const [lpTargetEcosystem, setLpTargetEcosystem] = useState(
-    EcosystemId.Solana,
-  );
+  const [lpTargetEcosystem, setLpTargetEcosystem] =
+    useState(SOLANA_ECOSYSTEM_ID);
 
   const [formInputAmounts, setFormInputAmounts] = useState<readonly string[]>(
     poolTokens.map(() => "0"),
@@ -251,7 +250,7 @@ export const AddForm = ({
     }
     try {
       const { lpOutputAmount } = poolMath.add(
-        inputAmounts.map((amount) => amount.toHuman(EcosystemId.Solana)),
+        inputAmounts.map((amount) => amount.toHuman(SOLANA_ECOSYSTEM_ID)),
       );
       return Amount.fromHuman(lpToken, lpOutputAmount);
     } catch {
@@ -355,7 +354,7 @@ export const AddForm = ({
 
     const requiredEcosystems = new Set(
       [
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
         lpTargetEcosystem,
         ...poolTokens.map((tokenSpec, i) => {
           const inputAmount = inputAmounts[i];
@@ -388,8 +387,8 @@ export const AddForm = ({
 
     // Need some SOL for network fee
     if (
-      userNativeBalances[EcosystemId.Solana].greaterThan(0) &&
-      userNativeBalances[EcosystemId.Solana].lessThan(0.01)
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].greaterThan(0) &&
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].lessThan(0.01)
     ) {
       errors = [
         ...errors,

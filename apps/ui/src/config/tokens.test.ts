@@ -50,7 +50,7 @@ const generateSuite = (env: Env): void => {
     it("specifies valid Solana addresses", () => {
       const solanaAddresses = getAddressesForEcosystem(
         tokens,
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
       );
       expect(() =>
         solanaAddresses.forEach((address) => new PublicKey(address)),
@@ -60,7 +60,7 @@ const generateSuite = (env: Env): void => {
     it("specifies valid Ethereum addresses", () => {
       const ethereumAddresses = getAddressesForEcosystem(
         tokens,
-        EcosystemId.Ethereum,
+        ETHEREUM_ECOSYSTEM_ID,
       );
       expect(
         ethereumAddresses.every((address) => address.startsWith("0x")),
@@ -69,7 +69,7 @@ const generateSuite = (env: Env): void => {
     });
 
     it("specifies valid BNB addresses", () => {
-      const bnbAddresses = getAddressesForEcosystem(tokens, EcosystemId.Bnb);
+      const bnbAddresses = getAddressesForEcosystem(tokens, BNB_ECOSYSTEM_ID);
       expect(bnbAddresses.every((address) => address.startsWith("0x"))).toBe(
         true,
       );

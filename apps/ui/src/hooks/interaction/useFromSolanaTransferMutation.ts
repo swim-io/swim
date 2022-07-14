@@ -57,7 +57,7 @@ const getTransferredAmountsByTokenId = async (
     txIds.map(async (txId) => {
       const parsedTx = await solanaConnection.getParsedTx(txId);
       return {
-        ecosystem: EcosystemId.Solana as const,
+        ecosystem: SOLANA_ECOSYSTEM_ID as const,
         txId,
         timestamp: parsedTx.blockTime ?? null,
         interactionId: interaction.id,
@@ -93,7 +93,7 @@ export const useFromSolanaTransferMutation = () => {
     const { interaction } = interactionState;
     const { fromSolanaTransfers } = interactionState;
 
-    const solanaWallet = wallets[EcosystemId.Solana].wallet;
+    const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
     if (!solanaWallet) {
       throw new Error("No Solana wallet");
     }
@@ -179,7 +179,7 @@ export const useFromSolanaTransferMutation = () => {
           solanaWalletAddress,
           splTokenAccount.address.toBase58(),
           solanaTokenDetails.address,
-          BigInt(amount.toAtomicString(EcosystemId.Solana)),
+          BigInt(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)),
           evmAddressToWormhole(evmWalletAddress),
           evmEcosystem.wormholeChainId,
           token.nativeEcosystem === evmChain.ecosystem

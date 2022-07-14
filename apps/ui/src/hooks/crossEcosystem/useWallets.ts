@@ -1,12 +1,12 @@
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import type { Wallets } from "../../models";
 import { useEvmWallet } from "../evm/useEvmWallet";
 import { useSolanaWallet } from "../solana/useSolanaWallet";
 
 export const useWallets = (): Wallets => ({
-  [EcosystemId.Solana]: useSolanaWallet(),
-  [EcosystemId.Ethereum]: useEvmWallet(),
-  [EcosystemId.Bnb]: useEvmWallet(),
+  [SOLANA_ECOSYSTEM_ID]: useSolanaWallet(),
+  [ETHEREUM_ECOSYSTEM_ID]: useEvmWallet(),
+  [BNB_ECOSYSTEM_ID]: useEvmWallet(),
   [EcosystemId.Avalanche]: useEvmWallet(),
   [EcosystemId.Polygon]: useEvmWallet(),
   [EcosystemId.Aurora]: useEvmWallet(),

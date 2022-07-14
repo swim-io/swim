@@ -1,7 +1,9 @@
 import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
-import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import type { EcosystemId, TokenSpec } from "../../config";
 import { Amount } from "../../models";
 import { useErc20BalanceQuery } from "../evm";
 
@@ -14,15 +16,15 @@ export const useUserLpBalances = (
     ? Amount.fromAtomicBn(
         lpTokenSpec,
         userLpTokenAccountSolana.amount,
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
       )
     : null;
 
   // ethereum
   const ethereumTokenContractAddress =
-    lpTokenSpec.detailsByEcosystem.get(EcosystemId.Ethereum)?.address ?? null;
+    lpTokenSpec.detailsByEcosystem.get(ETHEREUM_ECOSYSTEM_ID)?.address ?? null;
   const { data: userLpBalanceEthereumAtomic = null } = useErc20BalanceQuery(
-    EcosystemId.Ethereum,
+    ETHEREUM_ECOSYSTEM_ID,
     ethereumTokenContractAddress,
   );
   const userLpBalanceEthereum =
@@ -30,31 +32,25 @@ export const useUserLpBalances = (
       ? Amount.fromAtomic(
           lpTokenSpec,
           userLpBalanceEthereumAtomic,
-          EcosystemId.Ethereum,
+          ETHEREUM_ECOSYSTEM_ID,
         )
       : null;
 
   // bnb
   const bnbTokenContractAddress =
-    lpTokenSpec.detailsByEcosystem.get(EcosystemId.Bnb)?.address ?? null;
+    lpTokenSpec.detailsByEcosystem.get(BNB_ECOSYSTEM_ID)?.address ?? null;
   const { data: userLpBalanceBnbAtomic = null } = useErc20BalanceQuery(
-    EcosystemId.Bnb,
+    BNB_ECOSYSTEM_ID,
     bnbTokenContractAddress,
   );
   const userLpBalanceBnb =
     bnbTokenContractAddress && userLpBalanceBnbAtomic
-      ? Amount.fromAtomic(lpTokenSpec, userLpBalanceBnbAtomic, EcosystemId.Bnb)
+      ? Amount.fromAtomic(lpTokenSpec, userLpBalanceBnbAtomic, BNB_ECOSYSTEM_ID)
       : null;
 
   return {
-    [EcosystemId.Solana]: userLpBalanceSolana,
-    [EcosystemId.Ethereum]: userLpBalanceEthereum,
-    [EcosystemId.Bnb]: userLpBalanceBnb,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Polygon]: null,
-    [EcosystemId.Aurora]: null,
-    [EcosystemId.Fantom]: null,
-    [EcosystemId.Karura]: null,
-    [EcosystemId.Acala]: null,
+    [SOLANA_ECOSYSTEM_ID]: userLpBalanceSolana,
+    [ETHEREUM_ECOSYSTEM_ID]: userLpBalanceEthereum,
+    [BNB_ECOSYSTEM_ID]: userLpBalanceBnb,
   };
 };

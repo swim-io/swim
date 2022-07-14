@@ -2,7 +2,7 @@ import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { filterMap, findOrThrow } from "../../utils";
 import { Amount } from "../amount";
@@ -37,7 +37,7 @@ export const getRequiredEcosystems = (
         ...params.inputAmounts.values(),
       ]);
       return new Set([
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
         lpTokenTargetEcosystem,
         ...inputEcosystems,
       ]);
@@ -48,7 +48,7 @@ export const getRequiredEcosystems = (
         ...params.minimumOutputAmounts.values(),
       ]);
       return new Set([
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
         lpTokenSourceEcosystem,
         ...outputEcosystems,
       ]);
@@ -61,7 +61,7 @@ export const getRequiredEcosystems = (
       );
       const outputEcosystem = outputToken.nativeEcosystem;
       return new Set([
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
         lpTokenSourceEcosystem,
         outputEcosystem,
       ]);
@@ -72,7 +72,7 @@ export const getRequiredEcosystems = (
         ...params.exactOutputAmounts.values(),
       ]);
       return new Set([
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
         lpTokenSourceEcosystem,
         ...outputEcosystems,
       ]);
@@ -83,7 +83,7 @@ export const getRequiredEcosystems = (
       } = interactionSpec;
       const inputEcosystem = exactInputAmount.tokenSpec.nativeEcosystem;
       const outputEcosystem = minimumOutputAmount.tokenSpec.nativeEcosystem;
-      return new Set([EcosystemId.Solana, inputEcosystem, outputEcosystem]);
+      return new Set([SOLANA_ECOSYSTEM_ID, inputEcosystem, outputEcosystem]);
     }
     default:
       throw new Error("Unknown instruction");
@@ -110,9 +110,9 @@ export const getConnectedWallets = (
           }
         : accumulator,
     {
-      [EcosystemId.Solana]: null,
-      [EcosystemId.Ethereum]: null,
-      [EcosystemId.Bnb]: null,
+      [SOLANA_ECOSYSTEM_ID]: null,
+      [ETHEREUM_ECOSYSTEM_ID]: null,
+      [BNB_ECOSYSTEM_ID]: null,
       [EcosystemId.Avalanche]: null,
       [EcosystemId.Polygon]: null,
       [EcosystemId.Aurora]: null,
@@ -131,15 +131,15 @@ export const getPoolUsdValue = (
     ? poolTokenAccounts.reduce((acc, account) => {
         const tokenSpec = tokens.find(
           (spec) =>
-            spec.detailsByEcosystem.get(EcosystemId.Solana)?.address ===
+            spec.detailsByEcosystem.get(SOLANA_ECOSYSTEM_ID)?.address ===
             account.mint.toBase58(),
         );
         if (!tokenSpec) {
           throw new Error("Token spec not found");
         }
         return acc.add(
-          Amount.fromU64(tokenSpec, account.amount, EcosystemId.Solana).toHuman(
-            EcosystemId.Solana,
+          Amount.fromU64(tokenSpec, account.amount, SOLANA_ECOSYSTEM_ID).toHuman(
+            SOLANA_ECOSYSTEM_ID,
           ),
         );
       }, new Decimal(0))

@@ -34,7 +34,7 @@ export const useGetSwapFormErrors = (
 
     // Require source token to have a connected wallet
     if (
-      fromToken.nativeEcosystem !== EcosystemId.Solana &&
+      fromToken.nativeEcosystem !== SOLANA_ECOSYSTEM_ID &&
       !wallets[fromToken.nativeEcosystem].connected
     ) {
       errors = [
@@ -45,7 +45,7 @@ export const useGetSwapFormErrors = (
 
     // Require destination token to have a connected wallet
     if (
-      toToken.nativeEcosystem !== EcosystemId.Solana &&
+      toToken.nativeEcosystem !== SOLANA_ECOSYSTEM_ID &&
       !wallets[toToken.nativeEcosystem].connected
     ) {
       errors = [
@@ -57,7 +57,7 @@ export const useGetSwapFormErrors = (
     // Require non-zero native balances
     const requiredEcosystems = new Set(
       [
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
         fromToken.nativeEcosystem,
         toToken.nativeEcosystem,
       ].filter(isNotNull),
@@ -73,8 +73,8 @@ export const useGetSwapFormErrors = (
 
     // Need some SOL for network fee
     if (
-      userNativeBalances[EcosystemId.Solana].greaterThan(0) &&
-      userNativeBalances[EcosystemId.Solana].lessThan(0.01)
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].greaterThan(0) &&
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].lessThan(0.01)
     ) {
       errors = [
         ...errors,

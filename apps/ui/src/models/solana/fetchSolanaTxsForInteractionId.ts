@@ -81,7 +81,7 @@ export const fetchSolanaTxsForInteractionId = async (
 
   return txInfosAndInteractionIds.map(
     ({ signatureInfo: { blockTime, signature } }, index) => ({
-      ecosystem: EcosystemId.Solana as const,
+      ecosystem: SOLANA_ECOSYSTEM_ID as const,
       txId: signature,
       timestamp: blockTime ?? null,
       interactionId,

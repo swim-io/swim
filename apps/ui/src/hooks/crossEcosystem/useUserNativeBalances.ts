@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { useEvmUserNativeBalanceQuery } from "../evm";
 import { useSolBalanceQuery } from "../solana";
@@ -11,10 +11,10 @@ export const useUserNativeBalances = (): ReadonlyRecord<
 > => {
   const { data: solBalance = new Decimal(0) } = useSolBalanceQuery();
   const { data: ethBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
-    EcosystemId.Ethereum,
+    ETHEREUM_ECOSYSTEM_ID,
   );
   const { data: bnbBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
-    EcosystemId.Bnb,
+    BNB_ECOSYSTEM_ID,
   );
   const { data: avaxBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
     EcosystemId.Avalanche,
@@ -35,9 +35,9 @@ export const useUserNativeBalances = (): ReadonlyRecord<
   );
 
   return {
-    [EcosystemId.Solana]: solBalance,
-    [EcosystemId.Ethereum]: ethBalance,
-    [EcosystemId.Bnb]: bnbBalance,
+    [SOLANA_ECOSYSTEM_ID]: solBalance,
+    [ETHEREUM_ECOSYSTEM_ID]: ethBalance,
+    [BNB_ECOSYSTEM_ID]: bnbBalance,
     [EcosystemId.Avalanche]: avaxBalance,
     [EcosystemId.Polygon]: maticBalance,
     [EcosystemId.Aurora]: auroraEthBalance,

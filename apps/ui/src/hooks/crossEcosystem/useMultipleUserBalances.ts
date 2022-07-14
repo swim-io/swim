@@ -2,7 +2,7 @@ import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import { Amount, findTokenAccountForMint } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 import { useErc20BalancesQuery } from "../evm";
@@ -24,9 +24,9 @@ const getContractAddressesByEcosystem = (
         karuraAddress,
         acalaAddress,
       ] = [
-        EcosystemId.Solana,
-        EcosystemId.Ethereum,
-        EcosystemId.Bnb,
+        SOLANA_ECOSYSTEM_ID,
+        ETHEREUM_ECOSYSTEM_ID,
+        BNB_ECOSYSTEM_ID,
         EcosystemId.Avalanche,
         EcosystemId.Polygon,
         EcosystemId.Aurora,
@@ -37,13 +37,13 @@ const getContractAddressesByEcosystem = (
         (ecosystemId) => detailsByEcosystem.get(ecosystemId)?.address ?? null,
       );
       return {
-        [EcosystemId.Solana]: solanaAddress
+        [SOLANA_ECOSYSTEM_ID]: solanaAddress
           ? [...accumulator.solana, solanaAddress]
           : accumulator.solana,
-        [EcosystemId.Ethereum]: ethereumAddress
+        [ETHEREUM_ECOSYSTEM_ID]: ethereumAddress
           ? [...accumulator.ethereum, ethereumAddress]
           : accumulator.ethereum,
-        [EcosystemId.Bnb]: bnbAddress
+        [BNB_ECOSYSTEM_ID]: bnbAddress
           ? [...accumulator.bnb, bnbAddress]
           : accumulator.bnb,
         [EcosystemId.Avalanche]: avalancheAddress
@@ -67,9 +67,9 @@ const getContractAddressesByEcosystem = (
       };
     },
     {
-      [EcosystemId.Solana]: [],
-      [EcosystemId.Ethereum]: [],
-      [EcosystemId.Bnb]: [],
+      [SOLANA_ECOSYSTEM_ID]: [],
+      [ETHEREUM_ECOSYSTEM_ID]: [],
+      [BNB_ECOSYSTEM_ID]: [],
       [EcosystemId.Avalanche]: [],
       [EcosystemId.Polygon]: [],
       [EcosystemId.Aurora]: [],
@@ -130,10 +130,10 @@ export const useMultipleUserBalances = (
       : null,
   );
   const ethereumBalances = useErc20BalancesQuery(
-    EcosystemId.Ethereum,
+    ETHEREUM_ECOSYSTEM_ID,
     ethereum,
   );
-  const bnbBalances = useErc20BalancesQuery(EcosystemId.Bnb, bnb);
+  const bnbBalances = useErc20BalancesQuery(BNB_ECOSYSTEM_ID, bnb);
   const avalancheBalances = useErc20BalancesQuery(
     EcosystemId.Avalanche,
     avalanche,
@@ -147,7 +147,7 @@ export const useMultipleUserBalances = (
   return new Map(
     tokenSpecs.map((tokenSpec, i) => {
       switch (tokenSpec.nativeEcosystem) {
-        case EcosystemId.Solana: {
+        case SOLANA_ECOSYSTEM_ID: {
           const tokenAccount = solanaTokenAccounts[i];
           return [
             tokenSpec.id,
@@ -155,23 +155,23 @@ export const useMultipleUserBalances = (
               ? Amount.fromAtomicBn(
                   tokenSpec,
                   tokenAccount.amount,
-                  EcosystemId.Solana,
+                  SOLANA_ECOSYSTEM_ID,
                 )
               : null,
           ];
         }
-        case EcosystemId.Ethereum: {
+        case ETHEREUM_ECOSYSTEM_ID: {
           return getEvmTokenIdAndBalance(
             tokenSpec,
-            EcosystemId.Ethereum,
+            ETHEREUM_ECOSYSTEM_ID,
             ethereumBalances,
             ethereum,
           );
         }
-        case EcosystemId.Bnb: {
+        case BNB_ECOSYSTEM_ID: {
           return getEvmTokenIdAndBalance(
             tokenSpec,
-            EcosystemId.Bnb,
+            BNB_ECOSYSTEM_ID,
             bnbBalances,
             bnb,
           );

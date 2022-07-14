@@ -182,9 +182,9 @@ export class EvmConnection {
         return new LocalnetProvider(rpcUrls[0]);
       case EcosystemId.Aurora:
       case EcosystemId.Fantom:
-      case EcosystemId.Bnb:
+      case BNB_ECOSYSTEM_ID:
       case EcosystemId.Avalanche:
-      case EcosystemId.Ethereum:
+      case ETHEREUM_ECOSYSTEM_ID:
       case EcosystemId.Polygon:
         switch (env) {
           case Env.Mainnet:
@@ -211,12 +211,12 @@ export class EvmConnection {
     ecosystemId: EvmEcosystemId,
   ): Provider {
     switch (ecosystemId) {
-      case EcosystemId.Ethereum:
+      case ETHEREUM_ECOSYSTEM_ID:
         return new ethers.providers.EtherscanProvider(
           getEtherscanNetwork(env),
           ETHERSCAN_API_KEY,
         );
-      case EcosystemId.Bnb:
+      case BNB_ECOSYSTEM_ID:
         try {
           return new MoralisProvider(env, getBnbRpcUrl(env), MORALIS_ID);
         } catch (error) {

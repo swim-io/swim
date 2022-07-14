@@ -37,8 +37,8 @@ export const useEvmConnections = (): ReadonlyRecord<
   EvmEcosystemId,
   EvmConnection
 > => ({
-  [EcosystemId.Ethereum]: useEvmConnection(EcosystemId.Ethereum),
-  [EcosystemId.Bnb]: useEvmConnection(EcosystemId.Bnb),
+  [ETHEREUM_ECOSYSTEM_ID]: useEvmConnection(ETHEREUM_ECOSYSTEM_ID),
+  [BNB_ECOSYSTEM_ID]: useEvmConnection(BNB_ECOSYSTEM_ID),
   [EcosystemId.Avalanche]: useEvmConnection(EcosystemId.Avalanche),
   [EcosystemId.Polygon]: useEvmConnection(EcosystemId.Polygon),
   [EcosystemId.Aurora]: useEvmConnection(EcosystemId.Aurora),

@@ -27,7 +27,7 @@ describe("Pool tests", () => {
   describe("isPoolTx", () => {
     it("returns false for EVM tx", () => {
       const contractAddress = "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC";
-      const ecosystemId = EcosystemId.Ethereum;
+      const ecosystemId = ETHEREUM_ECOSYSTEM_ID;
       const txResponse: ethers.providers.TransactionResponse =
         mock<ethers.providers.TransactionResponse>();
       const txReceipt: ethers.providers.TransactionReceipt =
@@ -50,7 +50,7 @@ describe("Pool tests", () => {
         transaction: parsedWormholeRedeemEvmUnlockWrappedTx.transaction,
       };
       const txs: SolanaTx = {
-        ecosystem: EcosystemId.Solana,
+        ecosystem: SOLANA_ECOSYSTEM_ID,
         parsedTx: ptx,
         txId: "string",
         timestamp: 123456789,
@@ -66,7 +66,7 @@ describe("Pool tests", () => {
         transaction: parsedWormholeRedeemEvmUnlockWrappedTx.transaction,
       };
       const txs: SolanaTx = {
-        ecosystem: EcosystemId.Solana,
+        ecosystem: SOLANA_ECOSYSTEM_ID,
         parsedTx: ptx,
         txId: "string",
         timestamp: 123456789,

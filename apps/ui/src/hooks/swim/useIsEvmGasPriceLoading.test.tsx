@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
@@ -34,12 +34,12 @@ describe("useAddFeesEstimationQuery", () => {
 
     it("should return true if required evm gas price is loading", async () => {
       useGasPriceQueryMock.mockImplementation((ecosystemId: EcosystemId) =>
-        ecosystemId === EcosystemId.Ethereum
+        ecosystemId === ETHEREUM_ECOSYSTEM_ID
           ? { isLoading: true, data: undefined }
           : { isLoading: false, data: new Decimal(5e-9) },
       );
       const { result } = renderHookWithAppContext(() =>
-        useIsEvmGasPriceLoading([EcosystemId.Ethereum]),
+        useIsEvmGasPriceLoading([ETHEREUM_ECOSYSTEM_ID]),
       );
       expect(result.current).toEqual(true);
     });
@@ -48,12 +48,12 @@ describe("useAddFeesEstimationQuery", () => {
   describe("loaded", () => {
     it("should return false if required evm gas price is loaded", async () => {
       useGasPriceQueryMock.mockImplementation((ecosystemId: EcosystemId) =>
-        ecosystemId === EcosystemId.Ethereum
+        ecosystemId === ETHEREUM_ECOSYSTEM_ID
           ? { isLoading: false, data: new Decimal(5e-9) }
           : { isLoading: true, data: undefined },
       );
       const { result } = renderHookWithAppContext(() =>
-        useIsEvmGasPriceLoading([EcosystemId.Ethereum]),
+        useIsEvmGasPriceLoading([ETHEREUM_ECOSYSTEM_ID]),
       );
       expect(result.current).toEqual(false);
     });
@@ -65,8 +65,8 @@ describe("useAddFeesEstimationQuery", () => {
       });
       const { result } = renderHookWithAppContext(() =>
         useIsEvmGasPriceLoading([
-          EcosystemId.Ethereum,
-          EcosystemId.Bnb,
+          ETHEREUM_ECOSYSTEM_ID,
+          BNB_ECOSYSTEM_ID,
           EcosystemId.Polygon,
           EcosystemId.Avalanche,
         ]),

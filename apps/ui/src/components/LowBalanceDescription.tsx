@@ -1,13 +1,11 @@
-import shallow from "zustand/shallow.js";
-
-import type { FC, ReactElement } from "react";
-
-import type { EcosystemConfig } from "@swim-io/core-types";
-import { selectConfig } from "../core/selectors";
-import { useEnvironment } from "../core/store";
-import { EcosystemId, UiEcosystemConfig } from "../config";
 import { ACALA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-acala";
 import { KARURA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-karura";
+import type { FC, ReactElement } from "react";
+import shallow from "zustand/shallow.js";
+
+import type { EcosystemId, UiEcosystemConfig } from "../config";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 
 const ecosystemIdToDoc = new Map([
   [
@@ -59,8 +57,8 @@ export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
   const isLowPolkadotBalance = lowBalanceWallets.some((ecosystemId) =>
     ecosystemIdToDoc.has(ecosystemId),
   );
+  const { ecosystems } = useEnvironment(selectConfig, shallow);
   const lowBalanceEcosystems = lowBalanceWallets.map((ecosystemId) => {
-    const { ecosystems } = useEnvironment(selectConfig, shallow);
     return ecosystems[ecosystemId];
   });
   return (

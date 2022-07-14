@@ -51,7 +51,7 @@ export const useToSolanaTransferMutation = () => {
   const solanaConnection = useSolanaConnection();
   const evmConnections = useEvmConnections();
   const wallets = useWallets();
-  const solanaWallet = wallets[EcosystemId.Solana].wallet;
+  const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
   const solanaWormhole = chains[Protocol.Solana][0].wormhole;
   const updateInteractionState = useInteractionState(
     (state) => state.updateInteractionState,

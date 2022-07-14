@@ -120,10 +120,7 @@ const isSingleChainSolanaSwapCompleted = (
 };
 
 const isSingleChainEvmSwapCompleted = (
-  state: Pick<
-    SingleChainEvmSwapInteractionState,
-    "approvalTxIds" | "onChainSwapTxId"
-  >,
+  state: Pick<SingleChainEvmSwapInteractionState, "onChainSwapTxId">,
 ): boolean => {
   return state.onChainSwapTxId !== null;
 };
@@ -131,7 +128,7 @@ const isSingleChainEvmSwapCompleted = (
 const isCrossChainEvmToEvmSwapCompleted = (
   state: Pick<
     CrossChainEvmSwapInteractionState,
-    "approvalTxIds" | "swapAndTransferTxId" | "receiveAndSwapTxId"
+    "swapAndTransferTxId" | "receiveAndSwapTxId"
   >,
 ): boolean => {
   return (
@@ -143,7 +140,6 @@ const isCrossChainEvmToEvmSwapCompleted = (
 const isCrossChainEvmToSolanaSwapCompleted = (
   state: Pick<
     CrossChainEvmToSolanaSwapInteractionState,
-    | "approvalTxIds"
     | "postVaaOnSolanaTxIds"
     | "requiredSplTokenAccounts"
     | "swapAndTransferTxId"

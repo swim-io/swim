@@ -3,6 +3,7 @@ import { EuiListGroup, EuiText } from "@elastic/eui";
 
 import { SwapTransfer } from "../../components/molecules/SwapTransfer";
 import { Transfer } from "../../components/molecules/Transfer";
+import { TxEcosystemList } from "../../components/molecules/TxList";
 import { TxListItem } from "../../components/molecules/TxListItem";
 import type { Env } from "../../config";
 import { DEVNET_SWIMUSD, EcosystemId, findTokenById } from "../../config";
@@ -132,6 +133,7 @@ const buildEvmPoolOperationStep = (
   env: Env,
 ): EuiStepProps => {
   const {
+    approvalTxIds,
     interaction: {
       params: { fromTokenDetail, toTokenDetail },
     },
@@ -150,15 +152,26 @@ const buildEvmPoolOperationStep = (
     title: "Swap tokens",
     status,
     children: (
-      <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-        {interactionState.approvalTxIds.map((txId) => (
-          <TxListItem key={txId} ecosystem={fromEcosystemId} txId={txId} />
-        ))}
+      <EuiListGroup gutterSize="none" flush showToolTips>
+        {approvalTxIds.length && (
+          <>
+            <EuiText size="m">
+              <span>Approval transactions</span>
+
+              <TxEcosystemList
+                transactions={approvalTxIds}
+                ecosystemId={fromEcosystemId}
+              />
+            </EuiText>
+            <br />
+          </>
+        )}
+
         <SwapTransfer
           ecosystemId={fromEcosystemId}
           fromToken={fromToken}
           toToken={toToken}
-          isLoading={interactionState.onChainSwapTxId === null}
+          isLoading={status === "loading"}
           transactions={[interactionState.onChainSwapTxId].filter(isNotNull)}
         />
       </EuiListGroup>

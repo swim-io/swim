@@ -1,10 +1,10 @@
-import { EuiListGroup, EuiLoadingSpinner, EuiText } from "@elastic/eui";
+import { EuiLoadingSpinner, EuiText } from "@elastic/eui";
 import type { VFC } from "react";
 
 import type { EcosystemId, TokenSpec } from "../../config";
 import { ECOSYSTEMS } from "../../config";
 
-import { TxListItem } from "./TxListItem";
+import { TxList } from "./TxList";
 
 interface Props {
   readonly token: TokenSpec;
@@ -30,10 +30,6 @@ export const Transfer: VFC<Props> = ({
       <span>{`Transfer ${token.project.displayName} from ${ECOSYSTEMS[from].displayName} to ${ECOSYSTEMS[to].displayName}`}</span>
     </span>
     <br />
-    <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-      {transactions.map(({ txId, ecosystem }) => (
-        <TxListItem key={txId} txId={txId} ecosystem={ecosystem} />
-      ))}
-    </EuiListGroup>
+    <TxList transactions={transactions} />
   </EuiText>
 );

@@ -6,6 +6,9 @@ import { useMutation } from "react-query";
 
 import { Env, useEnvironment } from "../../core/store";
 import {
+  MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPETED_WITH_APPROVALS,
+  MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED,
+  MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
   MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_COMPLETED,
   MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS,
   MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS,
@@ -82,4 +85,20 @@ SingleChainSolanaCreatedSplTokenAccounts.args = {
 export const SingleChainSolanaCompleted = Template.bind({});
 SingleChainSolanaCompleted.args = {
   interactionState: MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_COMPLETED,
+};
+
+export const SingleChainEvmInit = Template.bind({});
+SingleChainEvmInit.args = {
+  interactionState: MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
+};
+
+export const SingleChainEvmCompleted = Template.bind({});
+SingleChainEvmCompleted.args = {
+  interactionState: MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED,
+};
+
+export const SingleChainEvmCompletedWithApprovals = Template.bind({});
+SingleChainEvmCompletedWithApprovals.args = {
+  interactionState:
+    MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPETED_WITH_APPROVALS,
 };

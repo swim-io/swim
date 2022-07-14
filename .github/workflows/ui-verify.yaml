@@ -25,6 +25,7 @@ jobs:
       REACT_APP_MORALIS_TESTNET_URL: "https://example.com"
       REACT_APP_SOLANA_MAINNET_RPC_URL: "https://solana-api.projectserum.com"
       REACT_APP_KARURA_MAINNET_RPC_URL: "https://eth-rpc-karura.aca-api.network"
+      REACT_APP_KARURA_MAINNET_SUBQL_URL: "https://karura-evm-subql.aca-api.network"
       SKIP_PREFLIGHT_CHECK: true
 
     steps:

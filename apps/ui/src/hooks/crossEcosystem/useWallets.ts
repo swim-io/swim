@@ -1,4 +1,4 @@
-import type { EcosystemId } from "../../config";
+import { EcosystemId } from "../../config";
 import type { Wallets } from "../../models";
 import { useEvmWallet } from "../evm/useEvmWallet";
 import { useSolanaWallet } from "../solana/useSolanaWallet";

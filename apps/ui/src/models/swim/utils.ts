@@ -1,8 +1,8 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 
+import { EcosystemId } from "../../config";
 import type { TokenSpec } from "../../config";
-import type { EcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { filterMap, findOrThrow } from "../../utils";
 import { Amount } from "../amount";
@@ -138,9 +138,11 @@ export const getPoolUsdValue = (
           throw new Error("Token spec not found");
         }
         return acc.add(
-          Amount.fromU64(tokenSpec, account.amount, SOLANA_ECOSYSTEM_ID).toHuman(
+          Amount.fromU64(
+            tokenSpec,
+            account.amount,
             SOLANA_ECOSYSTEM_ID,
-          ),
+          ).toHuman(SOLANA_ECOSYSTEM_ID),
         );
       }, new Decimal(0))
     : null;

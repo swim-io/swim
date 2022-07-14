@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 
-import type { EcosystemId } from "../../config";
+import { EcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { getRecordKeys } from "../../utils";
 

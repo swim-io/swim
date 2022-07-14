@@ -3,7 +3,7 @@ import { utils } from "ethers";
 
 import { getUniqueSize } from "../utils";
 
-import { EcosystemId } from "./ecosystem";
+import type { EcosystemId } from "./ecosystem";
 import { Env } from "./env";
 import type { TokenSpec } from "./tokens";
 import { TOKENS as tokensByEnv } from "./tokens";

@@ -7,9 +7,9 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
 import type { Env } from "../../config";
-import type { EcosystemId } from "../../config";
 import { isEachNotNull } from "../../utils";
 import type { Amount } from "../amount";
 import type { SolanaConnection } from "../solana";
@@ -449,7 +449,8 @@ export class SwimDefiInstructor {
         defiInstruction: SwimDefiInstruction.RemoveExactBurn,
         exactBurnAmount: exactBurnAmount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
         outputTokenIndex,
-        minimumOutputAmount: minimumOutputAmount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
+        minimumOutputAmount:
+          minimumOutputAmount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
       },
       data,
     );
@@ -524,7 +525,8 @@ export class SwimDefiInstructor {
           amount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
         ),
         outputTokenIndex,
-        minimumOutputAmount: minimumOutputAmount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
+        minimumOutputAmount:
+          minimumOutputAmount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
       },
       data,
     );

@@ -136,7 +136,11 @@ const useSolanaPoolOperationStep = (
           .map(({ txId }) => txId)
           .filter(isNotNull)
           .map((txId) => (
-            <TxListItem key={txId} ecosystem={SOLANA_ECOSYSTEM_ID} txId={txId} />
+            <TxListItem
+              key={txId}
+              ecosystem={SOLANA_ECOSYSTEM_ID}
+              txId={txId}
+            />
           ))}
       </EuiListGroup>
     ),

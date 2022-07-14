@@ -1,5 +1,5 @@
+import { EcosystemId } from "../../config";
 import type { EvmEcosystemId } from "../../config";
-import type { EcosystemId } from "../../config";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
 

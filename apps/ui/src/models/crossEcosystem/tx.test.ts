@@ -1,7 +1,9 @@
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { ethers } from "ethers";
 import { mock } from "jest-mock-extended";
 
-import type { EcosystemId } from "../../config";
 import { parsedSwimSwapTx } from "../../fixtures/solana/txs";
 
 import type { BnbTx, EthereumTx, SolanaTx } from "./tx";

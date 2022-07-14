@@ -1,6 +1,6 @@
-import type { ReadonlyRecord } from "../utils";
-
 import { Env } from "@swim-io/core-types";
+
+import type { ReadonlyRecord } from "../utils";
 
 export interface WormholeConfig {
   readonly endpoint: string;

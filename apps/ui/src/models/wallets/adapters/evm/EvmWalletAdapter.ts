@@ -1,17 +1,16 @@
-import shallow from "zustand/shallow.js";
-
 import * as Sentry from "@sentry/react";
 import type { SeverityLevel } from "@sentry/types";
+import type { EvmProtocol } from "@swim-io/evm-types";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import type { Signer } from "ethers";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
+import shallow from "zustand/shallow.js";
 
-import { selectConfig } from "../../../../core/selectors";
-import { useEnvironment } from "../../../../core/store";
 import type { EcosystemId, EvmChainId, TokenSpec } from "../../../../config";
 import { ALL_UNIQUE_CHAINS } from "../../../../config";
-import type { EvmProtocol } from "@swim-io/evm-types";
-import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { selectConfig } from "../../../../core/selectors";
+import { useEnvironment } from "../../../../core/store";
 import { captureException } from "../../../../errors";
 import { sleep } from "../../../../utils";
 

@@ -31,7 +31,7 @@ import { SlippageButton } from "../components/SlippageButton";
 import { StatList } from "../components/StatList";
 import { NativeTokenIcon, TokenIcon } from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
-import { EcosystemId, getSolanaTokenDetails } from "../config";
+import { getSolanaTokenDetails } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import {
@@ -108,9 +108,8 @@ export const PoolPageInner = ({
   const { showPrompt: showRegisterEthereumTokenPrompt } = useRegisterErc20Token(
     ETHEREUM_ECOSYSTEM_ID,
   );
-  const { showPrompt: showRegisterBnbTokenPrompt } = useRegisterErc20Token(
-    BNB_ECOSYSTEM_ID,
-  );
+  const { showPrompt: showRegisterBnbTokenPrompt } =
+    useRegisterErc20Token(BNB_ECOSYSTEM_ID);
   const {
     tokens,
     lpToken,

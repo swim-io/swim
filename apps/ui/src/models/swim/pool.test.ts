@@ -1,9 +1,11 @@
 import type solana from "@solana/web3.js";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { ethers } from "ethers";
 import { mock, mockDeep } from "jest-mock-extended";
 
 import type { Config } from "../../config";
-import { CONFIGS, EcosystemId } from "../../config";
+import { CONFIGS } from "../../config";
 import { Env } from "../../config/env";
 import { parsedWormholeRedeemEvmUnlockWrappedTx } from "../../fixtures/solana/txs";
 import type { EvmTx, SolanaTx } from "../crossEcosystem";

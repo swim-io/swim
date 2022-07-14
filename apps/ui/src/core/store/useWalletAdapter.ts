@@ -4,7 +4,7 @@ import create from "zustand";
 import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
 
-import { Protocol } from "../../config";
+import type { Protocol } from "../../config";
 import { captureException } from "../../errors";
 import type {
   EvmWalletAdapter,
@@ -60,7 +60,7 @@ const isValidSelectedServiceByProtocol = (
     typeof (persistedState as any).selectedServiceByProtocol === "object" &&
     Object.keys((persistedState as any).selectedServiceByProtocol || {}).every(
       (key) =>
-        [Protocol.Evm.toString(), Protocol.Solana.toString()].includes(key),
+        [EVM_PROTOCOL.toString(), SOLANA_PROTOCOL.toString()].includes(key),
     ) &&
     Object.values((persistedState as any).selectedServiceByProtocol).every(
       (value) => value === null || isWalletServiceId(value),
@@ -74,8 +74,8 @@ export const useWalletAdapter = create(
       evm: null,
       solana: null,
       selectedServiceByProtocol: {
-        [Protocol.Evm]: null,
-        [Protocol.Solana]: null,
+        [EVM_PROTOCOL]: null,
+        [SOLANA_PROTOCOL]: null,
       },
       connectService: async ({
         protocol,
@@ -84,7 +84,7 @@ export const useWalletAdapter = create(
         options = {},
       }) => {
         const state = get();
-        const previous = protocol === Protocol.Evm ? state.evm : state.solana;
+        const previous = protocol === EVM_PROTOCOL ? state.evm : state.solana;
 
         if (previous) await state.disconnectService({ protocol });
 
@@ -129,11 +129,11 @@ export const useWalletAdapter = create(
               draft.selectedServiceByProtocol[protocol] = serviceId;
 
               switch (adapter.protocol) {
-                case Protocol.Evm: {
+                case EVM_PROTOCOL: {
                   draft.evm = adapter;
                   break;
                 }
-                case Protocol.Solana: {
+                case SOLANA_PROTOCOL: {
                   draft.solana = adapter;
                   break;
                 }
@@ -149,7 +149,7 @@ export const useWalletAdapter = create(
         options = { silently: false },
       }) => {
         const state = get();
-        const adapter = protocol === Protocol.Evm ? state.evm : state.solana;
+        const adapter = protocol === EVM_PROTOCOL ? state.evm : state.solana;
 
         if (adapter) {
           if (adapter.connected && !options.silently)
@@ -166,11 +166,11 @@ export const useWalletAdapter = create(
             draft.selectedServiceByProtocol[protocol] = null;
 
             switch (protocol) {
-              case Protocol.Evm: {
+              case EVM_PROTOCOL: {
                 draft.evm = null;
                 break;
               }
-              case Protocol.Solana: {
+              case SOLANA_PROTOCOL: {
                 draft.solana = null;
                 break;
               }

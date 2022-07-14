@@ -3,17 +3,17 @@ import {
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  SOLANA_PROTOCOL,
+} from "@swim-io/plugin-ecosystem-solana";
 import type { ethers } from "ethers";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import type { EvmEcosystemId } from "../../config";
-import {
-  ECOSYSTEMS,
-  EcosystemId,
-  Protocol,
-  getSolanaTokenDetails,
-} from "../../config";
+import { ECOSYSTEMS, getSolanaTokenDetails } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { EvmConnection, EvmTx } from "../../models";
@@ -52,7 +52,7 @@ export const useToSolanaTransferMutation = () => {
   const evmConnections = useEvmConnections();
   const wallets = useWallets();
   const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
-  const solanaWormhole = chains[Protocol.Solana][0].wormhole;
+  const solanaWormhole = chains[SOLANA_PROTOCOL][0].wormhole;
   const updateInteractionState = useInteractionState(
     (state) => state.updateInteractionState,
   );
@@ -89,7 +89,7 @@ export const useToSolanaTransferMutation = () => {
       }
       const evmConnection = evmConnections[fromEcosystem];
       const evmChain = findOrThrow(
-        chains[Protocol.Evm],
+        chains[EVM_PROTOCOL],
         ({ ecosystem }) => ecosystem === fromEcosystem,
       );
       const fromTokenDetails = token.detailsByEcosystem.get(fromEcosystem);
@@ -148,7 +148,7 @@ export const useToSolanaTransferMutation = () => {
           interaction,
         );
         const evmChain = findOrThrow(
-          chains[Protocol.Evm],
+          chains[EVM_PROTOCOL],
           ({ ecosystem }) => ecosystem === fromEcosystem,
         );
         const evmConnection = evmConnections[fromEcosystem];
@@ -175,7 +175,7 @@ export const useToSolanaTransferMutation = () => {
         interaction,
       );
       const evmChain = findOrThrow(
-        chains[Protocol.Evm],
+        chains[EVM_PROTOCOL],
         ({ ecosystem }) => ecosystem === fromEcosystem,
       );
       const sequence = sequences[index];

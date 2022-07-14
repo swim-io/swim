@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { Protocol } from "../../../config";
+import type { Protocol } from "../../../config";
 import type { WalletAdapter } from "../../../models";
 import { WalletServiceId } from "../../../models";
 import { EvmWeb3WalletAdapter } from "../../../models/wallets/adapters/evm";
@@ -11,10 +11,10 @@ import type { WalletAdapterState } from "../useWalletAdapter";
 import { useWalletAdapter } from "../useWalletAdapter";
 
 const getProtocolAdapter = (state: WalletAdapterState, protocol: Protocol) =>
-  protocol === Protocol.Evm ? state.evm : state.solana;
+  protocol === EVM_PROTOCOL ? state.evm : state.solana;
 
 const createWalletAdapter = (protocol: Protocol) =>
-  protocol === Protocol.Evm
+  protocol === EVM_PROTOCOL
     ? new EvmWeb3WalletAdapter("serviceName", "serviceUrl", () => null)
     : new PhantomAdapter();
 
@@ -25,10 +25,10 @@ describe("useWalletAdapter", () => {
     expect(result.current.solana).toBeNull();
   });
 
-  [Protocol.Evm, Protocol.Solana].forEach((protocol) => {
+  [EVM_PROTOCOL, SOLANA_PROTOCOL].forEach((protocol) => {
     describe(`Protocol ${protocol}`, () => {
       const serviceId =
-        protocol === Protocol.Evm
+        protocol === EVM_PROTOCOL
           ? WalletServiceId.MetaMask
           : WalletServiceId.Phantom;
 
@@ -229,12 +229,12 @@ const createMockConnectImplementation = (
     let address: string | null = null;
 
     switch (protocol) {
-      case Protocol.Evm: {
+      case EVM_PROTOCOL: {
         address = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1";
         Object.assign(adapter, { address });
         break;
       }
-      case Protocol.Solana: {
+      case SOLANA_PROTOCOL: {
         address = "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J";
         Object.assign(adapter, { publicKey: new PublicKey(address) });
         break;
@@ -252,11 +252,11 @@ const createMockDisconnectImplementation = (
 ) => {
   return async () => {
     switch (protocol) {
-      case Protocol.Evm: {
+      case EVM_PROTOCOL: {
         Object.assign(adapter, { address: null });
         break;
       }
-      case Protocol.Solana: {
+      case SOLANA_PROTOCOL: {
         Object.assign(adapter, { publicKey: null });
         break;
       }

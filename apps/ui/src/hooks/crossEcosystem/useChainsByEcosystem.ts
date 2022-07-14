@@ -1,7 +1,14 @@
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  SOLANA_PROTOCOL,
+} from "@swim-io/plugin-ecosystem-solana";
 import shallow from "zustand/shallow.js";
 
 import type { ChainSpec, EvmSpec, SolanaSpec } from "../../config";
-import { EcosystemId, Protocol } from "../../config";
+import { EcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { ReadonlyRecord } from "../../utils";
@@ -21,7 +28,7 @@ export interface ChainsByEcosystem
 
 export const useChainsByEcosystem = (): ChainsByEcosystem => {
   const { chains } = useEnvironment(selectConfig, shallow);
-  const [solana] = chains[Protocol.Solana];
+  const [solana] = chains[SOLANA_PROTOCOL];
   const [ethereum, bnb, avalanche, polygon, aurora, fantom, karura, acala] = [
     ETHEREUM_ECOSYSTEM_ID,
     BNB_ECOSYSTEM_ID,
@@ -33,7 +40,7 @@ export const useChainsByEcosystem = (): ChainsByEcosystem => {
     EcosystemId.Acala,
   ].map(
     (ecosystemId) =>
-      chains[Protocol.Evm].find((chain) => chain.ecosystem === ecosystemId) ??
+      chains[EVM_PROTOCOL].find((chain) => chain.ecosystem === ecosystemId) ??
       null,
   );
 

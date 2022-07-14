@@ -1,6 +1,6 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
-import type PoolMath from "@swim-io/pool-math";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
+import type PoolMath from "@swim-io/pool-math";
 import type Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
@@ -68,7 +68,7 @@ const getToSolanaTransferAmounts = (
   switch (interaction.type) {
     case InteractionType.Swap:
       return interaction.params.exactInputAmount.tokenSpec.nativeEcosystem !==
-      SOLANA_ECOSYSTEM_ID
+        SOLANA_ECOSYSTEM_ID
         ? [interaction.params.exactInputAmount]
         : [];
     case InteractionType.Add:

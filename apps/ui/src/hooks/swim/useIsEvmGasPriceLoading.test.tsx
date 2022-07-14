@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
-import type { EcosystemId } from "../../config";
+import { EcosystemId } from "../../config";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";

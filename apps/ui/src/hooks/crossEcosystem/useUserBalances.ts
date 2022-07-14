@@ -1,7 +1,7 @@
 import type Decimal from "decimal.js";
 
+import { EcosystemId } from "../../config";
 import type { TokenSpec } from "../../config";
-import type { EcosystemId } from "../../config";
 import { Amount } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 import { useErc20BalanceQuery } from "../evm";

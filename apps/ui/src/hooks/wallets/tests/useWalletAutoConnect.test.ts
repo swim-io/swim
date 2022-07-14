@@ -1,7 +1,9 @@
 // import { waitFor } from "@testing-library/react";
+
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import { renderHook } from "@testing-library/react-hooks";
 
-import { Protocol } from "../../../config";
 import { useWalletAdapter as walletAdapterStore } from "../../../core/store";
 import { WalletServiceId, createAdapter } from "../../../models";
 import { mockOf } from "../../../testUtils";
@@ -30,8 +32,8 @@ describe("useWalletAutoConnect", () => {
     beforeEach(() =>
       walletAdapterStore.setState({
         selectedServiceByProtocol: {
-          [Protocol.Evm]: WalletServiceId.MetaMask,
-          [Protocol.Solana]: null,
+          [EVM_PROTOCOL]: WalletServiceId.MetaMask,
+          [SOLANA_PROTOCOL]: null,
         },
       }),
     );
@@ -41,7 +43,7 @@ describe("useWalletAutoConnect", () => {
       createAdapterMock.mockReturnValue({
         isUnlocked: () => Promise.resolve(true),
         hasConnectedBefore: () => Promise.resolve(true),
-        protocol: Protocol.Evm,
+        protocol: EVM_PROTOCOL,
         on: jest.fn(),
         connect,
       });
@@ -57,7 +59,7 @@ describe("useWalletAutoConnect", () => {
       createAdapterMock.mockReturnValue({
         isUnlocked: () => Promise.resolve(false),
         hasConnectedBefore: () => Promise.resolve(true),
-        protocol: Protocol.Evm,
+        protocol: EVM_PROTOCOL,
         on: jest.fn(),
         connect,
       });
@@ -75,7 +77,7 @@ describe("useWalletAutoConnect", () => {
       createAdapterMock.mockReturnValue({
         isUnlocked: () => Promise.resolve(true),
         hasConnectedBefore: () => Promise.resolve(false),
-        protocol: Protocol.Evm,
+        protocol: EVM_PROTOCOL,
         on: jest.fn(),
         connect,
       });
@@ -94,8 +96,8 @@ describe("useWalletAutoConnect", () => {
     beforeEach(() =>
       walletAdapterStore.setState({
         selectedServiceByProtocol: {
-          [Protocol.Evm]: null,
-          [Protocol.Solana]: WalletServiceId.Phantom,
+          [EVM_PROTOCOL]: null,
+          [SOLANA_PROTOCOL]: WalletServiceId.Phantom,
         },
       }),
     );
@@ -106,7 +108,7 @@ describe("useWalletAutoConnect", () => {
       createAdapterMock.mockReturnValue({
         on: jest.fn(),
         connect,
-        protocol: Protocol.Solana,
+        protocol: SOLANA_PROTOCOL,
       });
 
       const { waitForNextUpdate } = renderHook(() => useWalletAutoConnect());
@@ -127,8 +129,8 @@ describe("useWalletAutoConnect", () => {
     beforeEach(() =>
       walletAdapterStore.setState({
         selectedServiceByProtocol: {
-          [Protocol.Evm]: null,
-          [Protocol.Solana]: WalletServiceId.Solong,
+          [EVM_PROTOCOL]: null,
+          [SOLANA_PROTOCOL]: WalletServiceId.Solong,
         },
       }),
     );
@@ -139,7 +141,7 @@ describe("useWalletAutoConnect", () => {
       createAdapterMock.mockReturnValue({
         connect,
         on: jest.fn(),
-        protocol: Protocol.Solana,
+        protocol: SOLANA_PROTOCOL,
       });
 
       const { waitForNextUpdate } = renderHook(() => useWalletAutoConnect());

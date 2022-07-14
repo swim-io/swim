@@ -1,11 +1,10 @@
-import shallow from "zustand/shallow.js";
-
 import { EuiListGroup, EuiLoadingSpinner, EuiText } from "@elastic/eui";
 import type { VFC } from "react";
+import shallow from "zustand/shallow.js";
 
+import type { EcosystemId, TokenSpec } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import type { EcosystemId, TokenSpec } from "../../config";
 
 import { TxListItem } from "./TxListItem";
 

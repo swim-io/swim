@@ -1,8 +1,10 @@
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import { useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import type { EvmEcosystemId } from "../../config";
-import { EcosystemId, Protocol } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { EvmConnection } from "../../models";
@@ -16,7 +18,7 @@ export const useEvmConnection = (
   const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
   const chainSpec = findOrThrow(
-    chains[Protocol.Evm],
+    chains[EVM_PROTOCOL],
     (chain) => chain.ecosystem === ecosystemId,
   );
 

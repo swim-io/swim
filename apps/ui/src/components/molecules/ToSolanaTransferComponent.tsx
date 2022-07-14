@@ -1,7 +1,6 @@
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type React from "react";
 
-import type { EcosystemId } from "../../config";
-import type { Interaction, ToSolanaTransferState } from "../../models";
 import { getFromEcosystemOfToSolanaTransfer } from "../../models";
 import { isNotNull } from "../../utils";
 

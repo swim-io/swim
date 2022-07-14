@@ -1,6 +1,8 @@
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { CONFIGS, Protocol } from "../../../config";
+import { CONFIGS } from "../../../config";
 import { Env, useEnvironment, useWalletAdapter } from "../../../core/store";
 import {
   WalletServiceId,
@@ -32,7 +34,7 @@ describe("useWalletService", () => {
 
   it("should call useWalletAdapter connectService with the correct createAdapter", async () => {
     const config = CONFIGS[Env.Localnet];
-    const [{ endpoint }] = config.chains[Protocol.Solana];
+    const [{ endpoint }] = config.chains[SOLANA_PROTOCOL];
 
     const connectServiceMock = jest.fn();
     const disconnectServiceMock = jest.fn();
@@ -41,7 +43,7 @@ describe("useWalletService", () => {
       disconnectService: disconnectServiceMock,
     });
     const serviceId = WalletServiceId.MetaMask;
-    const protocol = Protocol.Evm;
+    const protocol = EVM_PROTOCOL;
     const mockAdapter = {};
     createAdapterMock.mockReturnValue(mockAdapter);
 
@@ -60,7 +62,7 @@ describe("useWalletService", () => {
     expect(createAdapterMock).toBeCalledTimes(1);
     expect(createAdapterMock).toHaveBeenCalledWith(
       "metamask",
-      Protocol.Evm,
+      EVM_PROTOCOL,
       endpoint,
     );
   });
@@ -72,7 +74,7 @@ describe("useWalletService", () => {
       connectService: connectServiceMock,
       disconnectService: disconnectServiceMock,
     });
-    const protocol = Protocol.Evm;
+    const protocol = EVM_PROTOCOL;
 
     const { result } = renderHook(() => useWalletService());
 

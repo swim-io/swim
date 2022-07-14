@@ -1,8 +1,9 @@
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../config";
-import type { EcosystemId } from "../config";
 
 import { Amount } from "./amount";
 

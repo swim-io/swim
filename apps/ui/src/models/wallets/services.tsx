@@ -1,11 +1,10 @@
 import { EuiButtonIcon } from "@elastic/eui";
 import type { ReactElement } from "react";
 
-import type { Ecosystem } from "../../config";
+import type { Ecosystem, Protocol } from "../../config";
 import {
   ECOSYSTEMS,
   EcosystemId,
-  Protocol,
   getEcosystemsForProtocol,
 } from "../../config";
 import LEDGER_ICON from "../../images/wallets/ledger.svg";
@@ -304,12 +303,12 @@ export const createAdapter = (
   const service = findServiceForProtocol(serviceId, protocol);
 
   switch (protocol) {
-    case Protocol.Evm: {
+    case EVM_PROTOCOL: {
       if (!service.adapter)
         throw new Error(`Adapter is required for protocol ${protocol}`);
       return new service.adapter();
     }
-    case Protocol.Solana: {
+    case SOLANA_PROTOCOL: {
       if (service.adapter) {
         return new service.adapter();
       } else {

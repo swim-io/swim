@@ -1,6 +1,5 @@
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
-import type { EcosystemId } from "../../config";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 
 import { SwapFormSolanaConnectButton } from "./SwapFormSolanaConnectButton";
 

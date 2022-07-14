@@ -4,8 +4,13 @@ import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import type { PoolSpec, SolanaPoolSpec, TokenSpec } from "../../config";
-import { EcosystemId, getSolanaTokenDetails } from "../../config";
+import type {
+  EcosystemId,
+  PoolSpec,
+  SolanaPoolSpec,
+  TokenSpec,
+} from "../../config";
+import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { findTokenAccountForMint, getPoolUsdValue } from "../../models";

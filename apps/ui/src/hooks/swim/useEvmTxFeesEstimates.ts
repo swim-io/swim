@@ -21,7 +21,10 @@ export const useEvmTxFeesEstimates = (
       ETHEREUM_ECOSYSTEM_ID,
       interaction,
     ),
-    [BNB_ECOSYSTEM_ID]: useEvmTxFeesEstimateQuery(BNB_ECOSYSTEM_ID, interaction),
+    [BNB_ECOSYSTEM_ID]: useEvmTxFeesEstimateQuery(
+      BNB_ECOSYSTEM_ID,
+      interaction,
+    ),
     [EcosystemId.Avalanche]: useEvmTxFeesEstimateQuery(
       EcosystemId.Avalanche,
       interaction,

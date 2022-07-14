@@ -1,8 +1,9 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId, getSolanaTokenDetails } from "../../config";
+import { getSolanaTokenDetails } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { Amount } from "../amount";
 import type { Tx } from "../crossEcosystem";

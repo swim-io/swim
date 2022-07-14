@@ -1,14 +1,13 @@
 import { EuiListGroupItem } from "@elastic/eui";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-
-import { AVALANCHE_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-avalance";
-import { POLYGON_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-polygon";
+import { ACALA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-acala";
 import { AURORA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-aurora";
+import { AVALANCHE_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-avalance";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import { FANTOM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-fantom";
 import { KARURA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-karura";
-import { ACALA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-acala";
+import { POLYGON_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-polygon";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { FC } from "react";
 
 import type { EcosystemId } from "../../config";

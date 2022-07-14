@@ -1,6 +1,7 @@
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 
-import { EcosystemId, Env } from "../../config";
+import { Env } from "../../config";
 import type { AddInteraction, SwapInteraction } from "../../models";
 import { Amount, InteractionType } from "../../models";
 

@@ -1,4 +1,5 @@
-import { EcosystemId } from "./ecosystem";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
+
 import type { Env } from "./env";
 import type { TokenDetails, TokenSpec } from "./tokens";
 import { TOKENS } from "./tokens";

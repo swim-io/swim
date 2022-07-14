@@ -1,7 +1,7 @@
 import shallow from "zustand/shallow.js";
 
+import { EcosystemId } from "../../config";
 import type { TokenSpec } from "../../config";
-import type { EcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { ReadonlyRecord } from "../../utils";

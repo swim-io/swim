@@ -16,6 +16,13 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import { PublicKey } from "@solana/web3.js";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  SOLANA_PROTOCOL,
+} from "@swim-io/plugin-ecosystem-solana";
 import BN from "bn.js";
 import type { ReactElement } from "react";
 import { Fragment, useMemo, useState } from "react";
@@ -24,12 +31,7 @@ import shallow from "zustand/shallow.js";
 
 import { ConnectButton } from "../components/ConnectButton";
 import type { EvmEcosystemId } from "../config";
-import {
-  EcosystemId,
-  Protocol,
-  WormholeChainId,
-  getSolanaTokenDetails,
-} from "../config";
+import { WormholeChainId, getSolanaTokenDetails } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import {
@@ -120,11 +122,11 @@ const TestPage = (): ReactElement => {
   const swimUsdTokenSolanaDetails = getSolanaTokenDetails(swimUsdToken);
   const xSwimTokenSolanaDetails = getSolanaTokenDetails(xSwimToken);
 
-  const solanaChain = chains[Protocol.Solana].find(Boolean)!;
-  const ethereumChain = chains[Protocol.Evm].find(
+  const solanaChain = chains[SOLANA_PROTOCOL].find(Boolean)!;
+  const ethereumChain = chains[EVM_PROTOCOL].find(
     (chain) => chain.ecosystem === ETHEREUM_ECOSYSTEM_ID,
   )!;
-  const bnbChain = chains[Protocol.Evm].find(
+  const bnbChain = chains[EVM_PROTOCOL].find(
     (chain) => chain.ecosystem === BNB_ECOSYSTEM_ID,
   )!;
 

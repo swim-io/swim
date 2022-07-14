@@ -1,10 +1,10 @@
 import { EuiCallOut, EuiSpacer, EuiText } from "@elastic/eui";
 import { Connection } from "@solana/web3.js";
+import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { Protocol } from "../config";
 import { selectConfig } from "../core/selectors";
 import { Env, useEnvironment } from "../core/store";
 
@@ -16,7 +16,7 @@ export const SolanaTpsWarning = (): ReactElement => {
   const [tps, setTps] = useState<number>(2000);
   const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
-  const [chain] = chains[Protocol.Solana];
+  const [chain] = chains[SOLANA_PROTOCOL];
   const { endpoint } = chain;
   // TODO: There is a bug with getRecentPerformanceSamples in which a new connection needs to be made.
   // Fix pending: https://github.com/solana-labs/solana/issues/19419

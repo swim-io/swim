@@ -1,7 +1,9 @@
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import { useMutation, useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import { Protocol, getSolanaTokenDetails } from "../../config";
+import { getSolanaTokenDetails } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {
@@ -41,7 +43,7 @@ export const useReloadInteractionStateMutation = () => {
   const { tokens, chains, pools } = useEnvironment(selectConfig, shallow);
 
   return useMutation(async (interactionId: string) => {
-    const solanaChainSpec = chains[Protocol.Solana][0];
+    const solanaChainSpec = chains[SOLANA_PROTOCOL][0];
     const solanaWormhole = solanaChainSpec.wormhole;
 
     const interactionState = getInteractionState(interactionId);
@@ -96,7 +98,7 @@ export const useReloadInteractionStateMutation = () => {
       );
       if (txIds.approveAndTransferEvmToken.length === 0) {
         const sourceChainSpec = findOrThrow(
-          chains[Protocol.Evm],
+          chains[EVM_PROTOCOL],
           (chain) => chain.ecosystem === fromEcosystem,
         );
         const sourceWormhole = sourceChainSpec.wormhole;
@@ -208,7 +210,7 @@ export const useReloadInteractionStateMutation = () => {
 
       if (txIds.claimTokenOnEvm === null) {
         const destinationChainSpec = findOrThrow(
-          chains[Protocol.Evm],
+          chains[EVM_PROTOCOL],
           (chain) => chain.ecosystem === toEcosystem,
         );
         const destinationWormhole = destinationChainSpec.wormhole;

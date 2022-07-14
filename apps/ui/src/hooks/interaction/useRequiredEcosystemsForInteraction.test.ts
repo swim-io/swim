@@ -1,6 +1,8 @@
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import { useQueryClient } from "react-query";
 
-import type { EcosystemId } from "../../config";
 import {
   BNB_USDT_TO_ETH_USDC_SWAP,
   ETH_USDC_TO_SOL_USDC_SWAP,

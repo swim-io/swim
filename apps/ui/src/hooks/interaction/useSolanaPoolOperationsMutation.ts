@@ -1,7 +1,7 @@
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import type { EcosystemId } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {

@@ -14,11 +14,11 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { PublicKey, Transaction } from "@solana/web3.js";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
 import {
   ECOSYSTEMS,
-  EcosystemId,
   WormholeChainId,
   getSolanaTokenDetails,
 } from "../../config";

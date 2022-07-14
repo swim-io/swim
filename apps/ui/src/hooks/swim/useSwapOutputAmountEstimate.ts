@@ -1,8 +1,8 @@
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../../config";
-import type { EcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import {

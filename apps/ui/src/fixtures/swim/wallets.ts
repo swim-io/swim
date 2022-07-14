@@ -1,4 +1,4 @@
-import type { EcosystemId } from "../../config";
+import { EcosystemId } from "../../config";
 import type { Wallets } from "../../models";
 
 export const MOCK_WALLETS = {

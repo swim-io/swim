@@ -1,7 +1,8 @@
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
-import { ECOSYSTEMS, EcosystemId } from "../../config";
+import { ECOSYSTEMS } from "../../config";
 import type { Amount } from "../../models";
 import { isValidSlippageFraction } from "../../models";
 import { isNotNull } from "../../utils";

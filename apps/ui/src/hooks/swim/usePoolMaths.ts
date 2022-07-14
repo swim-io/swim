@@ -1,8 +1,9 @@
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import PoolMath from "@swim-io/pool-math";
 import Decimal from "decimal.js";
 
 import { BNtoDecimal, atomicToHuman } from "../../amounts";
-import { EcosystemId, getSolanaTokenDetails } from "../../config";
+import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { Amount } from "../../models";
@@ -33,7 +34,11 @@ const getPoolMath = ({
   );
 
   const tokenBalances = poolTokenAccounts.map((tokenAccount, i) =>
-    Amount.fromAtomicBn(poolTokens[i], tokenAccount.amount, SOLANA_ECOSYSTEM_ID),
+    Amount.fromAtomicBn(
+      poolTokens[i],
+      tokenAccount.amount,
+      SOLANA_ECOSYSTEM_ID,
+    ),
   );
 
   // calculate amp factor

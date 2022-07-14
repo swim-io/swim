@@ -1,6 +1,6 @@
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type PoolMath from "@swim-io/pool-math";
 
-import type { EcosystemId } from "../../config";
 import type { PoolSpec, TokenSpec } from "../../config";
 import { findOrThrow } from "../../utils";
 import { Amount } from "../amount";

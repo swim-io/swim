@@ -1,15 +1,19 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import shallow from "zustand/shallow.js";
 
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
-import { Env, ChainConfig } from "@swim-io/core-types";
+import type { ChainConfig } from "@swim-io/core-types";
+import { Env } from "@swim-io/core-types";
 import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { SOLANA_ECOSYSTEM_ID, SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  SOLANA_PROTOCOL,
+} from "@swim-io/plugin-ecosystem-solana";
+import shallow from "zustand/shallow.js";
 
-import { selectConfig } from "../../core/selectors";
-import { useEnvironment } from "../../core/store";
 import type { TokenSpec } from "../../config";
 import { TOKENS } from "../../config";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import {
   parsedSwimSwapTx,
   parsedWormholePostVaaTxs,

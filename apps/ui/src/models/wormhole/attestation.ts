@@ -10,10 +10,12 @@ import {
   parseSequenceFromLogSolana,
   postVaaSolanaWithRetry,
 } from "@certusone/wormhole-sdk";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import type { ContractReceipt } from "ethers";
 
 import type { EvmSpec, WormholeChainSpec, WormholeConfig } from "../../config";
-import { ECOSYSTEMS, EcosystemId, WormholeChainId } from "../../config";
+import { ECOSYSTEMS, WormholeChainId } from "../../config";
 import type { SolanaConnection } from "../solana";
 import { DEFAULT_MAX_RETRIES } from "../solana";
 import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";

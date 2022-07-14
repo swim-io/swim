@@ -1,6 +1,8 @@
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
-import { EcosystemId, TOKENS } from "../../config";
+import { TOKENS } from "../../config";
 
 import { Transfer } from "./Transfer";
 

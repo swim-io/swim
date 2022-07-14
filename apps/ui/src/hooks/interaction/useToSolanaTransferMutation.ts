@@ -191,7 +191,7 @@ export const useToSolanaTransferMutation = () => {
       });
       const unlockSplTokenTxIdsGenerator = generateUnlockSplTokenTxIds(
         interactionId,
-        wormhole.endpoint,
+        wormhole.rpcUrls,
         ECOSYSTEMS[fromEcosystem].wormholeChainId,
         getEmitterAddressEth(evmChain.wormhole.tokenBridge),
         sequence,

@@ -133,28 +133,19 @@ export const MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT: SingleChainSo
 
 export const MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS: SingleChainSolanaSwapInteractionState =
   {
-    interaction: SINGLE_CHAIN_SOLANA_INTERACTION,
-    interactionType: InteractionType.SwapV2,
-    swapType: SwapType.SingleChainSolana,
+    ...MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT,
     requiredSplTokenAccounts: SPL_TOKEN_ACCOUNTS_EXISTING,
-    solanaPoolOperations: SOLANA_POOLS_OPERATIONS_INIT,
   };
 
 export const MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS: SingleChainSolanaSwapInteractionState =
   {
-    interaction: SINGLE_CHAIN_SOLANA_INTERACTION,
-    interactionType: InteractionType.SwapV2,
-    swapType: SwapType.SingleChainSolana,
+    ...MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT,
     requiredSplTokenAccounts: SPL_TOKEN_ACCOUNTS_CREATED,
-    solanaPoolOperations: SOLANA_POOLS_OPERATIONS_INIT,
   };
 
 export const MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_COMPLETED: SingleChainSolanaSwapInteractionState =
   {
-    interaction: SINGLE_CHAIN_SOLANA_INTERACTION,
-    interactionType: InteractionType.SwapV2,
-    swapType: SwapType.SingleChainSolana,
-    requiredSplTokenAccounts: SPL_TOKEN_ACCOUNTS_CREATED,
+    ...MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS,
     solanaPoolOperations: SOLANA_POOLS_OPERATIONS_COMPLETED,
   };
 
@@ -200,25 +191,18 @@ export const MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT: SingleChainEvmSw
 
 export const MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED: SingleChainEvmSwapInteractionState =
   {
-    interaction: SINGLE_CHAIN_EVM_INTERACTION,
-    interactionType: InteractionType.SwapV2,
-    swapType: SwapType.SingleChainEvm,
-    approvalTxIds: [],
+    ...MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
     onChainSwapTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
   };
 
 export const MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPETED_WITH_APPROVALS: SingleChainEvmSwapInteractionState =
   {
-    interaction: SINGLE_CHAIN_EVM_INTERACTION,
-    interactionType: InteractionType.SwapV2,
-    swapType: SwapType.SingleChainEvm,
+    ...MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED,
     approvalTxIds: [
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7cab",
     ],
-    onChainSwapTxId:
-      "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
   };
 
 const CROSS_CHAIN_EVM_INTERACTION: InteractionV2 = {
@@ -264,10 +248,7 @@ export const MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT: CrossChainEvmSwap
 
 export const MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER: CrossChainEvmSwapInteractionState =
   {
-    interaction: CROSS_CHAIN_EVM_INTERACTION,
-    interactionType: InteractionType.SwapV2,
-    swapType: SwapType.CrossChainEvmToEvm,
-    approvalTxIds: [],
+    ...MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
     swapAndTransferTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
     receiveAndSwapTxId: null,
@@ -275,10 +256,7 @@ export const MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER: Cros
 
 export const MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED: CrossChainEvmSwapInteractionState =
   {
-    interaction: CROSS_CHAIN_EVM_INTERACTION,
-    interactionType: InteractionType.SwapV2,
-    swapType: SwapType.CrossChainEvmToEvm,
-    approvalTxIds: [],
+    ...MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
     swapAndTransferTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
     receiveAndSwapTxId:
@@ -287,17 +265,11 @@ export const MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED: CrossChainEv
 
 export const MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED_WITH_APPROVALS: CrossChainEvmSwapInteractionState =
   {
-    interaction: CROSS_CHAIN_EVM_INTERACTION,
-    interactionType: InteractionType.SwapV2,
-    swapType: SwapType.CrossChainEvmToEvm,
+    ...MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED,
     approvalTxIds: [
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
     ],
-    swapAndTransferTxId:
-      "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
-    receiveAndSwapTxId:
-      "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7ca2",
   };
 
 const CROSS_CHAIN_SOLANA_TO_EVM_INTERACTION: InteractionV2 = {

@@ -1,31 +1,33 @@
 import { EuiButton, EuiCallOut, EuiSpacer } from "@elastic/eui";
-import type React from "react";
+import type { VFC } from "react";
 
 import { selectInteractionError } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { formatErrorJsx } from "../../errors";
-import { useWallets } from "../../hooks";
 import {
   InteractionStatusV2,
-  useHasActiveInteraction,
+  useHasActiveInteractionV2,
   useInteractionStatusV2,
   useResumeInteraction,
-} from "../../hooks/interaction";
+  useWallets,
+} from "../../hooks";
 import { isEveryAddressConnected } from "../../models";
-import type { InteractionStateV2 } from "../../models/swim/interactionStateV2";
+import type { InteractionStateV2 } from "../../models";
 
 interface Props {
   readonly interactionState: InteractionStateV2;
 }
 
-const RetryOrResumeButton = ({
+interface RetryOrResumeButtonProps {
+  readonly title: string;
+  readonly onClick: VoidFunction;
+  readonly disabled: boolean;
+}
+
+const RetryOrResumeButton: VFC<RetryOrResumeButtonProps> = ({
   title,
   onClick,
   disabled,
-}: {
-  readonly title: string;
-  readonly onClick: () => void;
-  readonly disabled: boolean;
 }) => (
   <>
     <EuiButton
@@ -53,15 +55,13 @@ const RetryOrResumeButton = ({
   </>
 );
 
-export const InteractionRetryCalloutV2: React.FC<Props> = ({
-  interactionState,
-}) => {
+export const InteractionRetryCalloutV2: VFC<Props> = ({ interactionState }) => {
   const { interaction } = interactionState;
   const error = useInteractionState((state) =>
     selectInteractionError(state, interaction.id),
   );
   const resumeInteraction = useResumeInteraction();
-  const hasActiveInteraction = useHasActiveInteraction();
+  const hasActiveInteraction = useHasActiveInteractionV2();
   const interactionStatus = useInteractionStatusV2(interactionState);
   const wallets = useWallets();
   const disabled =
@@ -69,8 +69,8 @@ export const InteractionRetryCalloutV2: React.FC<Props> = ({
     !isEveryAddressConnected(interaction.connectedWallets, wallets);
 
   if (
-    interactionStatus === InteractionStatusV2.Completed
-    // || interactionStatus === InteractionStatusV2.Active
+    interactionStatus === InteractionStatusV2.Completed ||
+    interactionStatus === InteractionStatusV2.Active
   ) {
     return null;
   }

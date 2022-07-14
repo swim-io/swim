@@ -1,9 +1,7 @@
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import {
-  ADD,
-  // BNB_USDT_TO_ETH_USDC_SWAP,
-} from "../../fixtures/swim/interactions";
+import { SINGLE_CHAIN_SOLANA_INTERACTION } from "../../fixtures/swim/interactionStateV2";
+import { ADD } from "../../fixtures/swim/interactions";
 
 import { InteractionTitleV2 } from "./InteractionTitleV2";
 
@@ -16,10 +14,10 @@ const Template: ComponentStory<typeof InteractionTitleV2> = (args) => (
   <InteractionTitleV2 {...args} />
 );
 
-// export const Swap = Template.bind({});
-// Swap.args = {
-//   interaction: BNB_USDT_TO_ETH_USDC_SWAP,
-// };
+export const Swap = Template.bind({});
+Swap.args = {
+  interaction: SINGLE_CHAIN_SOLANA_INTERACTION,
+};
 
 export const Add = Template.bind({});
 Add.args = {

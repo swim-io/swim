@@ -12,11 +12,11 @@ import { useEffect, useState } from "react";
 
 import {
   InteractionStatusV2,
+  useEuiStepPropsForInteractionV2,
   useInteractionStatusV2,
-} from "../../hooks/interaction";
-import { useEuiStepPropsForInteractionV2 } from "../../hooks/interaction/useEuiStepPropsForInteractionV2";
-import { useReloadInteractionStateMutation } from "../../hooks/interaction/useReloadInteractionStateMutation";
-import type { InteractionStateV2 } from "../../models/swim/interactionStateV2";
+  useReloadInteractionStateMutation,
+} from "../../hooks";
+import type { InteractionStateV2 } from "../../models";
 import { isNotNull } from "../../utils";
 
 import { InteractionRetryCalloutV2 } from "./InteractionRetryCalloutV2";

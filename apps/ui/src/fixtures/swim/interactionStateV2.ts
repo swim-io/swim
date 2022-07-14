@@ -1,20 +1,17 @@
 import Decimal from "decimal.js";
 
 import { EcosystemId, Env } from "../../config";
-import { Amount, InteractionType } from "../../models";
-import type {
-  RequiredSplTokenAccounts,
-  SolanaPoolOperationState,
-  SwapInteractionV2,
-} from "../../models";
+import { Amount, InteractionType, SwapType } from "../../models";
 import type {
   CrossChainEvmSwapInteractionState,
   CrossChainEvmToSolanaSwapInteractionState,
   CrossChainSolanaToEvmSwapInteractionState,
+  RequiredSplTokenAccounts,
   SingleChainEvmSwapInteractionState,
   SingleChainSolanaSwapInteractionState,
-} from "../../models/swim/interactionStateV2";
-import { SwapType } from "../../models/swim/interactionStateV2";
+  SolanaPoolOperationState,
+  SwapInteractionV2,
+} from "../../models";
 
 import {
   BNB_BUSD,
@@ -25,7 +22,7 @@ import {
   SOLANA_USDT,
 } from "./tokens";
 
-const SINGLE_CHAIN_SOLANA_INTERACTION: SwapInteractionV2 = {
+export const SINGLE_CHAIN_SOLANA_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
     fromTokenDetail: {

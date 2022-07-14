@@ -8,7 +8,6 @@ import { TxListItem } from "../../components/molecules/TxListItem";
 import type { Env } from "../../config";
 import { DEVNET_SWIMUSD, EcosystemId, findTokenById } from "../../config";
 import { useEnvironment } from "../../core/store";
-import { InteractionType } from "../../models";
 import type {
   CrossChainEvmSwapInteractionState,
   CrossChainEvmToSolanaSwapInteractionState,
@@ -16,14 +15,15 @@ import type {
   InteractionStateV2,
   SingleChainEvmSwapInteractionState,
   SingleChainSolanaSwapInteractionState,
-} from "../../models/swim/interactionStateV2";
+} from "../../models";
 import {
+  InteractionType,
   SwapType,
   isCompleteTransferAndInteractWithPoolOnTargetChainCompleted,
   isInteractWithPoolAndInitiateTransferOnSourceChainCompleted,
   isRequiredSplTokenAccountsCompletedV2,
   isSolanaPoolOperationsCompletedV2,
-} from "../../models/swim/interactionStateV2";
+} from "../../models";
 import { isNotNull } from "../../utils";
 
 import {

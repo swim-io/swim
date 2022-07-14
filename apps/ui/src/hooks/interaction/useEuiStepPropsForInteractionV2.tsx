@@ -209,33 +209,46 @@ const buildSwapAndTransferStep = (
     title: "Initiate transfer",
     status,
     children: (
-      <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-        <>
-          <SwapTransfer
-            ecosystemId={fromEcosystemId}
-            fromToken={fromToken}
-            toToken={swimUSD}
-            isLoading={swapAndTransferTxId === null}
-            transactions={[]}
-          />
-          <Transfer
-            from={fromEcosystemId}
-            to={toEcosystemId}
-            token={swimUSD}
-            isLoading={swapAndTransferTxId === null}
-            transactions={
-              swapAndTransferTxId === null
-                ? []
-                : [
-                    {
-                      txId: swapAndTransferTxId,
-                      ecosystem: fromEcosystemId,
-                    },
-                  ]
-            }
-          />
-        </>
-      </EuiListGroup>
+      <>
+        {(interactionState.swapType === SwapType.CrossChainEvmToEvm ||
+          interactionState.swapType === SwapType.CrossChainEvmToSolana) &&
+          interactionState.approvalTxIds.length > 0 && (
+            <>
+              <EuiText size="m">
+                <span>Approval transactions</span>
+
+                <TxEcosystemList
+                  transactions={interactionState.approvalTxIds}
+                  ecosystemId={fromEcosystemId}
+                />
+              </EuiText>
+              <br />
+            </>
+          )}
+        <SwapTransfer
+          ecosystemId={fromEcosystemId}
+          fromToken={fromToken}
+          toToken={swimUSD}
+          isLoading={status === "loading"}
+          transactions={[]}
+        />
+        <Transfer
+          from={fromEcosystemId}
+          to={toEcosystemId}
+          token={swimUSD}
+          isLoading={status === "loading"}
+          transactions={
+            swapAndTransferTxId === null
+              ? []
+              : [
+                  {
+                    txId: swapAndTransferTxId,
+                    ecosystem: fromEcosystemId,
+                  },
+                ]
+          }
+        />
+      </>
     ),
   };
 };
@@ -267,15 +280,13 @@ const buildReceiveAndSwapStep = (
     title: "Receive and swap",
     status,
     children: (
-      <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-        <SwapTransfer
-          ecosystemId={toEcosystemId}
-          fromToken={swimUSD}
-          toToken={toToken}
-          isLoading={receiveAndSwapTxId === null}
-          transactions={[receiveAndSwapTxId].filter(isNotNull)}
-        />
-      </EuiListGroup>
+      <SwapTransfer
+        ecosystemId={toEcosystemId}
+        fromToken={swimUSD}
+        toToken={toToken}
+        isLoading={status === "loading"}
+        transactions={[receiveAndSwapTxId].filter(isNotNull)}
+      />
     ),
   };
 };

@@ -6,6 +6,10 @@ import { useMutation } from "react-query";
 
 import { Env, useEnvironment } from "../../core/store";
 import {
+  MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED,
+  MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED_WITH_APPROVALS,
+  MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
+  MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER,
   MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPETED_WITH_APPROVALS,
   MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED,
   MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
@@ -101,4 +105,26 @@ export const SingleChainEvmCompletedWithApprovals = Template.bind({});
 SingleChainEvmCompletedWithApprovals.args = {
   interactionState:
     MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPETED_WITH_APPROVALS,
+};
+
+export const CrossChainEvmSwapInit = Template.bind({});
+CrossChainEvmSwapInit.args = {
+  interactionState: MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
+};
+
+export const CrossChainEvmSwapSwapAndTransferCompleted = Template.bind({});
+CrossChainEvmSwapSwapAndTransferCompleted.args = {
+  interactionState:
+    MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER,
+};
+
+export const CrossChainEvmSwapCompleted = Template.bind({});
+CrossChainEvmSwapCompleted.args = {
+  interactionState: MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED,
+};
+
+export const CrossChainEvmSwapCompletedWithApproval = Template.bind({});
+CrossChainEvmSwapCompletedWithApproval.args = {
+  interactionState:
+    MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED_WITH_APPROVALS,
 };

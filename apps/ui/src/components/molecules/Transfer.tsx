@@ -29,7 +29,6 @@ export const Transfer: VFC<Props> = ({
       {isLoading && <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />}
       <span>{`Transfer ${token.project.displayName} from ${ECOSYSTEMS[from].displayName} to ${ECOSYSTEMS[to].displayName}`}</span>
     </span>
-    <br />
     <TxList transactions={transactions} />
   </EuiText>
 );

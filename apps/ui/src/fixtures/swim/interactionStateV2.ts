@@ -8,6 +8,7 @@ import type {
   SolanaPoolOperationState,
 } from "../../models";
 import type {
+  CrossChainEvmSwapInteractionState,
   SingleChainEvmSwapInteractionState,
   SingleChainSolanaSwapInteractionState,
 } from "../../models/swim/interactionStateV2";
@@ -217,4 +218,83 @@ export const MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPETED_WITH_APPROVAL
     ],
     onChainSwapTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
+  };
+
+const CROSS_CHAIN_EVM_INTERACTION: InteractionV2 = {
+  type: InteractionType.SwapV2,
+  params: {
+    fromTokenDetail: {
+      tokenId: "devnet-ethereum-usdc",
+      ecosystemId: EcosystemId.Ethereum,
+      value: new Decimal("100"),
+    },
+    toTokenDetail: {
+      tokenId: "devnet-bnb-usdt",
+      ecosystemId: EcosystemId.Bnb,
+      value: new Decimal("101"),
+    },
+  },
+  id: "2eed9eef597a2aa14314845afe87079f",
+  poolIds: ["devnet-ethereum-usdc-usdt", "devnet-bnb-busd-usdt"],
+  env: Env.Devnet,
+  submittedAt: 1653624596234,
+  connectedWallets: {
+    [EcosystemId.Solana]: null,
+    [EcosystemId.Bnb]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
+    [EcosystemId.Ethereum]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
+    [EcosystemId.Acala]: null,
+    [EcosystemId.Aurora]: null,
+    [EcosystemId.Avalanche]: null,
+    [EcosystemId.Fantom]: null,
+    [EcosystemId.Karura]: null,
+    [EcosystemId.Polygon]: null,
+  },
+};
+
+export const MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT: CrossChainEvmSwapInteractionState =
+  {
+    interaction: CROSS_CHAIN_EVM_INTERACTION,
+    interactionType: InteractionType.SwapV2,
+    swapType: SwapType.CrossChainEvmToEvm,
+    approvalTxIds: [],
+    swapAndTransferTxId: null,
+    receiveAndSwapTxId: null,
+  };
+
+export const MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER: CrossChainEvmSwapInteractionState =
+  {
+    interaction: CROSS_CHAIN_EVM_INTERACTION,
+    interactionType: InteractionType.SwapV2,
+    swapType: SwapType.CrossChainEvmToEvm,
+    approvalTxIds: [],
+    swapAndTransferTxId:
+      "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
+    receiveAndSwapTxId: null,
+  };
+
+export const MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED: CrossChainEvmSwapInteractionState =
+  {
+    interaction: CROSS_CHAIN_EVM_INTERACTION,
+    interactionType: InteractionType.SwapV2,
+    swapType: SwapType.CrossChainEvmToEvm,
+    approvalTxIds: [],
+    swapAndTransferTxId:
+      "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
+    receiveAndSwapTxId:
+      "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7ca2",
+  };
+
+export const MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED_WITH_APPROVALS: CrossChainEvmSwapInteractionState =
+  {
+    interaction: CROSS_CHAIN_EVM_INTERACTION,
+    interactionType: InteractionType.SwapV2,
+    swapType: SwapType.CrossChainEvmToEvm,
+    approvalTxIds: [
+      "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
+      "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
+    ],
+    swapAndTransferTxId:
+      "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
+    receiveAndSwapTxId:
+      "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7ca2",
   };

@@ -315,21 +315,18 @@ const buildPostVaaAndClaimToken = (
   );
 
   return {
-    title: "Complete transfer and clain token on Solana",
+    title: "Complete transfer and claim token on Solana",
     status,
     children: (
-      <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-        <SwapTransfer
-          ecosystemId={EcosystemId.Solana}
-          fromToken={swimUSD}
-          toToken={toToken}
-          isLoading={claimTokenOnSolanaTxId === null}
-          transactions={[
-            ...postVaaOnSolanaTxIds,
-            claimTokenOnSolanaTxId,
-          ].filter(isNotNull)}
-        />
-      </EuiListGroup>
+      <SwapTransfer
+        ecosystemId={EcosystemId.Solana}
+        fromToken={swimUSD}
+        toToken={toToken}
+        isLoading={status === "loading"}
+        transactions={[...postVaaOnSolanaTxIds, claimTokenOnSolanaTxId].filter(
+          isNotNull,
+        )}
+      />
     ),
   };
 };

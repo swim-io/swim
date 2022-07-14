@@ -10,6 +10,12 @@ import {
   MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED_WITH_APPROVALS,
   MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
   MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER,
+  MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_COMPLETED,
+  MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS,
+  MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS,
+  MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_INIT,
+  MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_POST_VAA_COMPLETED,
+  MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER_COMPLETED,
   MOCK_CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_COMPLETED,
   MOCK_CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS,
   MOCK_CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS,
@@ -167,4 +173,45 @@ export const CrossChainSolanaToEvmSwapCompleted = Template.bind({});
 CrossChainSolanaToEvmSwapCompleted.args = {
   interactionState:
     MOCK_CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_COMPLETED,
+};
+
+export const CrossChainEvmToSolanaSwapInit = Template.bind({});
+CrossChainEvmToSolanaSwapInit.args = {
+  interactionState: MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_INIT,
+};
+
+export const CrossChainEvmToSolanaSwapExistingSplTokenAccounts = Template.bind(
+  {},
+);
+CrossChainEvmToSolanaSwapExistingSplTokenAccounts.args = {
+  interactionState:
+    MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS,
+};
+
+export const CrossChainEvmToSolanaSwapCreatedSplTokenAccounts = Template.bind(
+  {},
+);
+CrossChainEvmToSolanaSwapCreatedSplTokenAccounts.args = {
+  interactionState:
+    MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS,
+};
+
+export const CrossChainEvmToSolanaSwapSwapAndTransferCompleted = Template.bind(
+  {},
+);
+CrossChainEvmToSolanaSwapSwapAndTransferCompleted.args = {
+  interactionState:
+    MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER_COMPLETED,
+};
+
+export const CrossChainEvmToSolanaSwapPostVaaCompleted = Template.bind({});
+CrossChainEvmToSolanaSwapPostVaaCompleted.args = {
+  interactionState:
+    MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_POST_VAA_COMPLETED,
+};
+
+export const CrossChainEvmToSolanaSwapCompleted = Template.bind({});
+CrossChainEvmToSolanaSwapCompleted.args = {
+  interactionState:
+    MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_COMPLETED,
 };

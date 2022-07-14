@@ -3,12 +3,13 @@ import Decimal from "decimal.js";
 import { EcosystemId, Env } from "../../config";
 import { Amount, InteractionType } from "../../models";
 import type {
-  InteractionV2,
   RequiredSplTokenAccounts,
   SolanaPoolOperationState,
+  SwapInteractionV2,
 } from "../../models";
 import type {
   CrossChainEvmSwapInteractionState,
+  CrossChainEvmToSolanaSwapInteractionState,
   CrossChainSolanaToEvmSwapInteractionState,
   SingleChainEvmSwapInteractionState,
   SingleChainSolanaSwapInteractionState,
@@ -24,7 +25,7 @@ import {
   SOLANA_USDT,
 } from "./tokens";
 
-const SINGLE_CHAIN_SOLANA_INTERACTION: InteractionV2 = {
+const SINGLE_CHAIN_SOLANA_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
     fromTokenDetail: {
@@ -149,7 +150,7 @@ export const MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_COMPLETED: SingleCh
     solanaPoolOperations: SOLANA_POOLS_OPERATIONS_COMPLETED,
   };
 
-const SINGLE_CHAIN_EVM_INTERACTION: InteractionV2 = {
+const SINGLE_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
     fromTokenDetail: {
@@ -205,7 +206,7 @@ export const MOCK_SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPETED_WITH_APPROVAL
     ],
   };
 
-const CROSS_CHAIN_EVM_INTERACTION: InteractionV2 = {
+const CROSS_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
     fromTokenDetail: {
@@ -272,7 +273,7 @@ export const MOCK_CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED_WITH_APPROVAL
     ],
   };
 
-const CROSS_CHAIN_SOLANA_TO_EVM_INTERACTION: InteractionV2 = {
+const CROSS_CHAIN_SOLANA_TO_EVM_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
     fromTokenDetail: {
@@ -339,4 +340,82 @@ export const MOCK_CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_COMPLETED: Cr
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
     receiveAndSwapTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7cab",
+  };
+
+const CROSS_CHAIN_EVM_TO_SOLANA_INTERACTION: SwapInteractionV2 = {
+  type: InteractionType.SwapV2,
+  params: {
+    fromTokenDetail: {
+      tokenId: "devnet-bnb-usdt",
+      ecosystemId: EcosystemId.Bnb,
+      value: new Decimal("101"),
+    },
+    toTokenDetail: {
+      tokenId: "devnet-solana-usdc",
+      ecosystemId: EcosystemId.Solana,
+      value: new Decimal("100"),
+    },
+  },
+  id: "2eed9eef597a2aa14314845afe87079f",
+  poolIds: ["devnet-solana-usdc-usdt", "devnet-bnb-busd-usdt"],
+  env: Env.Devnet,
+  submittedAt: 1653624596234,
+  connectedWallets: {
+    [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    [EcosystemId.Bnb]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
+    [EcosystemId.Ethereum]: null,
+    [EcosystemId.Acala]: null,
+    [EcosystemId.Aurora]: null,
+    [EcosystemId.Avalanche]: null,
+    [EcosystemId.Fantom]: null,
+    [EcosystemId.Karura]: null,
+    [EcosystemId.Polygon]: null,
+  },
+};
+
+export const MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_INIT: CrossChainEvmToSolanaSwapInteractionState =
+  {
+    interaction: CROSS_CHAIN_EVM_TO_SOLANA_INTERACTION,
+    interactionType: InteractionType.SwapV2,
+    swapType: SwapType.CrossChainEvmToSolana,
+    requiredSplTokenAccounts: SPL_TOKEN_ACCOUNTS_INIT,
+    approvalTxIds: [],
+    swapAndTransferTxId: null,
+    postVaaOnSolanaTxIds: [],
+    claimTokenOnSolanaTxId: null,
+  };
+
+export const MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS: CrossChainEvmToSolanaSwapInteractionState =
+  {
+    ...MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_INIT,
+    requiredSplTokenAccounts: SPL_TOKEN_ACCOUNTS_EXISTING,
+  };
+
+export const MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS: CrossChainEvmToSolanaSwapInteractionState =
+  {
+    ...MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_INIT,
+    requiredSplTokenAccounts: SPL_TOKEN_ACCOUNTS_CREATED,
+  };
+
+export const MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER_COMPLETED: CrossChainEvmToSolanaSwapInteractionState =
+  {
+    ...MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS,
+    swapAndTransferTxId:
+      "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
+  };
+
+export const MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_POST_VAA_COMPLETED: CrossChainEvmToSolanaSwapInteractionState =
+  {
+    ...MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER_COMPLETED,
+    postVaaOnSolanaTxIds: [
+      "53r98E5EiffkmJ6WVA2VKmq78LVCT4zcRVxo76EWoUFiNpdxbno7UVeUT6oQgsVM3xeU99mQmnUjFVscz7PC1gK8",
+      "53r98E5EiffkmJ6WVA2VKmq78LVCT4zcRVxo76EWoUFiNpdxbno7UVeUT6oQgsVM3xeU99mQmnUjFVscz7PC1gK9",
+    ],
+  };
+
+export const MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_COMPLETED: CrossChainEvmToSolanaSwapInteractionState =
+  {
+    ...MOCK_CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_POST_VAA_COMPLETED,
+    claimTokenOnSolanaTxId:
+      "53r98E5EiffkmJ6WVA2VKmq78LVCT4zcRVxo76EWoUFiNpdxbno7UVeUT6oQgsVM3xeU99mQmnUjFVscz7PC1gK8",
   };

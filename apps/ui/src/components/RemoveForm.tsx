@@ -298,6 +298,8 @@ export const RemoveForm = ({
       onChange("0");
     } else if (outputAmount.isNegative()) {
       errors = ["Amount must be greater than or equal to zero"];
+    } else if (outputAmount.isValidDecimals(tokenSpec.nativeEcosystem)) {
+      errors = ["Too many decimals"];
     }
 
     setOutputAmountErrors(

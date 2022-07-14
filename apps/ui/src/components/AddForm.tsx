@@ -60,6 +60,7 @@ import { PoolPausedAlert } from "./PoolPausedAlert";
 import { RecentInteractions } from "./RecentInteractions";
 import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { TokenIcon } from "./TokenIcon";
+import { token } from "@project-serum/anchor/dist/cjs/utils";
 
 interface TokenAddPanelProps {
   readonly tokenSpec: TokenSpec;
@@ -308,6 +309,8 @@ export const AddForm = ({
         //   errors = ["During testing, all transactions are limited to $5"];
       } else if (amount.isNegative()) {
         errors = ["Amount must be greater than or equal to zero"];
+      } else if (amount.isValidDecimals(tokenSpec.nativeEcosystem)) {
+        errors = ["Too many decimals"];
       }
 
       setInputAmountErrors([

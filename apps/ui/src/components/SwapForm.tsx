@@ -11,7 +11,7 @@ import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId } from "../config";
+import { EcosystemId, getNativeTokenDetails } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
@@ -130,6 +130,8 @@ export const SwapForm = ({
       errors = [...errors, "Amount must be greater than 0"];
     } else if (fromTokenBalance && currentInputAmount.gt(fromTokenBalance)) {
       errors = [...errors, "Amount cannot exceed available balance"];
+    } else if (currentInputAmount.isValidDecimals(fromToken.nativeEcosystem)) {
+      errors = [...errors, "Too many decimals"];
     } else {
       errors = [];
     }

@@ -192,4 +192,11 @@ export class Amount {
       throw new Error("Amounts are for different tokens");
     }
   }
+
+  isValidDecimals(ecosystemId: EcosystemId): boolean {
+    const numDecimals = this.value.isInteger()
+      ? 0
+      : this.value.toString().split(".")[1].length;
+    return numDecimals < this.details(ecosystemId).decimals;
+  }
 }

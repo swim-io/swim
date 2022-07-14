@@ -104,7 +104,7 @@ export const SwapForm = ({
 
   const isLargeSwap = useIsLargeSwap(fromToken, toToken, inputAmount);
   const isSmallEthSwap =
-    fromToken.isStablecoin &&
+    fromToken.project.isStablecoin &&
     [fromToken.nativeEcosystem, toToken.nativeEcosystem].includes(
       ETHEREUM_ECOSYSTEM_ID,
     ) &&

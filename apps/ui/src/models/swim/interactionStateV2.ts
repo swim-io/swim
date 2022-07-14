@@ -2,6 +2,7 @@ import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
 import type {
   AddInteraction,
+  InteractionType,
   RemoveExactBurnInteraction,
   RemoveExactOutputInteraction,
   RemoveUniformInteraction,
@@ -22,6 +23,7 @@ export enum SwapType {
 
 export interface SingleChainSolanaSwapInteractionState {
   readonly interaction: SwapInteractionV2;
+  readonly interactionType: InteractionType.SwapV2;
   readonly swapType: SwapType.SingleChainSolana;
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
   readonly solanaPoolOperations: readonly SolanaPoolOperationState[];
@@ -29,6 +31,7 @@ export interface SingleChainSolanaSwapInteractionState {
 
 export interface SingleChainEvmSwapInteractionState {
   readonly interaction: SwapInteractionV2;
+  readonly interactionType: InteractionType.SwapV2;
   readonly swapType: SwapType.SingleChainEvm;
   readonly approvalTxIds: readonly EvmTx["txId"][];
   readonly onChainSwapTxId: EvmTx["txId"] | null;
@@ -36,6 +39,7 @@ export interface SingleChainEvmSwapInteractionState {
 
 export interface CrossChainEvmSwapInteractionState {
   readonly interaction: SwapInteractionV2;
+  readonly interactionType: InteractionType.SwapV2;
   readonly swapType: SwapType.CrossChainEvmToEvm;
   readonly approvalTxIds: readonly EvmTx["txId"][];
   readonly swapAndTransferTxId: EvmTx["txId"] | null;
@@ -44,6 +48,7 @@ export interface CrossChainEvmSwapInteractionState {
 
 export interface CrossChainSolanaToEvmSwapInteractionState {
   readonly interaction: SwapInteractionV2;
+  readonly interactionType: InteractionType.SwapV2;
   readonly swapType: SwapType.CrossChainSolanaToEvm;
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
   readonly swapAndTransferTxId: SolanaTx["txId"] | null; // TODO: Confirm it can be done in 1 tx
@@ -52,16 +57,18 @@ export interface CrossChainSolanaToEvmSwapInteractionState {
 
 export interface CrossChainEvmToSolanaSwapInteractionState {
   readonly interaction: SwapInteractionV2;
+  readonly interactionType: InteractionType.SwapV2;
   readonly swapType: SwapType.CrossChainEvmToSolana;
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
   readonly approvalTxIds: readonly EvmTx["txId"][];
   readonly swapAndTransferTxId: EvmTx["txId"] | null;
-  readonly postVaaOnSolana: readonly SolanaTx["txId"][];
-  readonly claimTokenOnSolana: SolanaTx["txId"] | null;
+  readonly postVaaOnSolanaTxIds: readonly SolanaTx["txId"][];
+  readonly claimTokenOnSolanaTxId: SolanaTx["txId"] | null;
 }
 
 export interface AddInteractionState {
   readonly interaction: AddInteraction;
+  readonly interactionType: InteractionType.Add;
   readonly approvalTxIds: readonly EvmTx["txId"][];
   readonly addTxId: string | null;
 }
@@ -71,6 +78,10 @@ export interface RemoveInteractionState {
     | RemoveUniformInteraction
     | RemoveExactBurnInteraction
     | RemoveExactOutputInteraction;
+  readonly interactionType:
+    | InteractionType.RemoveExactBurn
+    | InteractionType.RemoveExactOutput
+    | InteractionType.RemoveUniform;
   readonly approvalTxIds: readonly EvmTx["txId"][];
   readonly removeTxId: string | null;
 }

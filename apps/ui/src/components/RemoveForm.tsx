@@ -342,7 +342,7 @@ export const RemoveForm = ({
       const tokenSpec = findOrThrow(config.tokens, (token) => token.id === id);
       return {
         value: id,
-        text: `${tokenSpec.displayName} (${
+        text: `${tokenSpec.project.displayName} (${
           ECOSYSTEMS[tokenSpec.nativeEcosystem].displayName
         })`,
       };
@@ -560,14 +560,14 @@ export const RemoveForm = ({
   };
 
   const maximumLpBurnLabel = poolSpec.isStakingPool
-    ? `Maximum required ${lpToken.symbol} tokens: `
-    : `Maximum required LP tokens (${lpToken.symbol}): `;
+    ? `Maximum required ${lpToken.project.symbol} tokens: `
+    : `Maximum required LP tokens (${lpToken.project.symbol}): `;
 
   return (
     <EuiForm component="form" onSubmit={handleFormSubmit}>
       <EuiSpacer size="m" />
       <EuiFormRow
-        label={`Use LP tokens (${lpToken.symbol}) from`}
+        label={`Use LP tokens (${lpToken.project.symbol}) from`}
         helpText={
           lpTokenSourceEcosystem === SOLANA_ECOSYSTEM_ID ||
           method !== RemoveMethod.ExactOutput
@@ -721,7 +721,7 @@ export const RemoveForm = ({
                     }
                     prepend={
                       <EuiButtonEmpty size="xs">
-                        <TokenIcon {...tokenSpec} />
+                        <TokenIcon {...tokenSpec.project} />
                       </EuiButtonEmpty>
                     }
                   />

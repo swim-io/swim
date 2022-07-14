@@ -27,12 +27,10 @@ export const useIsLargeSwap = (
   const outputPoolUsdValue = pools[pools.length - 1].poolUsdValue;
   const outputAmount = useSwapOutputAmountEstimate(inputAmount, toToken);
   return (
-    (fromToken.isStablecoin &&
+    (fromToken.project.isStablecoin &&
       inputPoolUsdValue !== null &&
-      inputAmount
-        .toHuman(SOLANA_ECOSYSTEM_ID)
-        .gt(inputPoolUsdValue.mul(0.1))) ||
-    (toToken.isStablecoin &&
+      inputAmount.toHuman(EcosystemId.Solana).gt(inputPoolUsdValue.mul(0.1))) ||
+    (toToken.project.isStablecoin &&
       outputPoolUsdValue !== null &&
       outputAmount !== null &&
       outputAmount.toHuman(SOLANA_ECOSYSTEM_ID).gt(outputPoolUsdValue.mul(0.1)))

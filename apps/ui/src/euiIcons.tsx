@@ -47,6 +47,8 @@ import { icon as EuiIconRefresh } from "@elastic/eui/es/components/icon/assets/r
 // @ts-expect-error no definitions
 import { icon as EuiIconReturnKey } from "@elastic/eui/es/components/icon/assets/return_key";
 // @ts-expect-error no definitions
+import { icon as EuiIconSearch } from "@elastic/eui/es/components/icon/assets/search";
+// @ts-expect-error no definitions
 import { icon as EuiIconVector } from "@elastic/eui/es/components/icon/assets/vector";
 // @ts-expect-error no definitions
 import { icon as EuiIconVisGauge } from "@elastic/eui/es/components/icon/assets/vis_gauge";
@@ -79,6 +81,7 @@ export const _ = appendIconComponentCache({
   questionInCircle: EuiIconQuestionInCircle,
   refresh: EuiIconRefresh,
   returnKey: EuiIconReturnKey,
+  search: EuiIconSearch,
   vector: EuiIconVector,
   visGauge: EuiIconVisGauge,
 });

@@ -1,6 +1,9 @@
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
+import { deduplicate } from "../utils";
 
+import type { Ecosystem } from "./ecosystem";
+import { ECOSYSTEMS, EcosystemId } from "./ecosystem";
 import type { Env } from "./env";
+import type { PoolSpec } from "./pools";
 import type { TokenDetails, TokenSpec } from "./tokens";
 import { TOKENS } from "./tokens";
 
@@ -28,4 +31,22 @@ export const findTokenById = (tokenId: string, env: Env): TokenSpec => {
     throw new Error(`Token not found for ${tokenId} ${env}`);
   }
   return tokenSpec;
+};
+
+export const getPoolTokenEcosystems = (
+  pool: PoolSpec,
+  env: Env,
+): readonly Ecosystem[] => {
+  return deduplicate(
+    (id) => id,
+    pool.tokens.map((tokenId) => findTokenById(tokenId, env).nativeEcosystem),
+  ).map((ecosystemId) => ECOSYSTEMS[ecosystemId]);
+};
+
+export const hasTokenEcosystem = (
+  pool: PoolSpec,
+  env: Env,
+  ecosystemId: EcosystemId,
+): boolean => {
+  return getPoolTokenEcosystems(pool, env).some(({ id }) => id === ecosystemId);
 };

@@ -6,7 +6,7 @@ import { InteractionType } from "../../models";
 import {
   AmountWithTokenIcon,
   AmountsWithTokenIcons,
-  NativeTokenIcon,
+  TokenSpecIcon,
 } from "../TokenIcon";
 
 interface Props {
@@ -37,8 +37,8 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
             ecosystem={SOLANA_ECOSYSTEM_ID}
           />{" "}
           <span>for</span>{" "}
-          <NativeTokenIcon
-            {...interaction.params.minimumOutputAmount.tokenSpec}
+          <TokenSpecIcon
+            token={interaction.params.minimumOutputAmount.tokenSpec}
           />
         </div>
       );

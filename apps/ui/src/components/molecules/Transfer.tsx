@@ -31,7 +31,7 @@ export const Transfer: VFC<Props> = ({
   <EuiText size="m">
     <span style={{ display: "flex", alignItems: "center" }}>
       {isLoading && <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />}
-      <span>{`Transfer ${token.displayName} from ${ecosystems[from].displayName} to ${ecosystems[to].displayName}`}</span>
+      <span>{`Transfer ${token.project.displayName} from ${ECOSYSTEMS[from].displayName} to ${ECOSYSTEMS[to].displayName}`}</span>
     </span>
     <br />
     <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>

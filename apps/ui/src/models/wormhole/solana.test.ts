@@ -1,19 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-import type { ParsedTransactionWithMeta } from "@solana/web3.js";
-import type { ChainConfig } from "@swim-io/core-types";
-import { Env } from "@swim-io/core-types";
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import type { TokenSpec, WormholeChainSpec } from "../../config";
 import {
-  SOLANA_ECOSYSTEM_ID,
-  SOLANA_PROTOCOL,
-} from "@swim-io/plugin-ecosystem-solana";
-import shallow from "zustand/shallow.js";
-
-import type { TokenSpec } from "../../config";
-import { TOKENS } from "../../config";
-import { selectConfig } from "../../core/selectors";
-import { useEnvironment } from "../../core/store";
+  CHAINS,
+  EcosystemId,
+  Env,
+  PROJECTS,
+  Protocol,
+  TOKENS,
+  TokenProjectId,
+} from "../../config";
 import {
   parsedSwimSwapTx,
   parsedWormholePostVaaTxs,
@@ -81,11 +77,8 @@ describe("models - Wormhole utils", () => {
         "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
       const token: TokenSpec = {
         id: "test-token",
-        symbol: "TEST",
-        displayName: "Test Token",
-        icon: ":)",
-        isStablecoin: false,
-        nativeEcosystem: SOLANA_ECOSYSTEM_ID,
+        project: PROJECTS[TokenProjectId.Swim],
+        nativeEcosystem: EcosystemId.Solana,
         detailsByEcosystem: new Map([
           [SOLANA_ECOSYSTEM_ID, { address: "xxx", decimals: 8 }],
           [BNB_ECOSYSTEM_ID, { address: "xxx", decimals: 18 }],

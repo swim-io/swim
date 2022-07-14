@@ -7,7 +7,7 @@ import { TxListItem } from "./TxListItem";
 
 type TxEcosystemListProps = {
   readonly ecosystemId: EcosystemId;
-  readonly transactions: ReadonlyArray<string>;
+  readonly transactions: readonly string[];
 };
 
 const Root: FC = ({ children }) => (
@@ -28,10 +28,10 @@ export const TxEcosystemList: VFC<TxEcosystemListProps> = ({
 );
 
 type TxListProps = {
-  readonly transactions: ReadonlyArray<{
+  readonly transactions: readonly {
     readonly txId: string;
     readonly ecosystem: EcosystemId;
-  }>;
+  }[];
 };
 
 export const TxList: VFC<TxListProps> = ({ transactions }) => (

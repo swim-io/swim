@@ -194,7 +194,6 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
     tokens: ["mainnet-bnb-gmt", "mainnet-solana-gmt"],
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "meta-aurora-usdc",
     ecosystem: EcosystemId.Solana,
     displayName: "Aurora USDC",
@@ -216,7 +215,6 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
     tokens: ["mainnet-aurora-usdc", "mainnet-solana-lp-hexapool"],
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "meta-aurora-usdt",
     ecosystem: EcosystemId.Solana,
     displayName: "Aurora USDT",
@@ -304,7 +302,6 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
     tokens: ["mainnet-karura-ausd", "mainnet-solana-lp-hexapool"],
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "meta-karura-usdt",
     ecosystem: EcosystemId.Solana,
     displayName: "Karura USDT",
@@ -660,7 +657,6 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     tokens: ["devnet-bnb-gmt", "devnet-solana-gmt"],
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "meta-aurora-usdc",
     ecosystem: EcosystemId.Solana,
     displayName: "Aurora USDC",
@@ -682,7 +678,6 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     tokens: ["devnet-aurora-usdc", "devnet-solana-lp-hexapool"],
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "meta-aurora-usdt",
     ecosystem: EcosystemId.Solana,
     displayName: "Aurora USDT",
@@ -767,7 +762,6 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     tokens: ["devnet-karura-ausd", "devnet-solana-lp-hexapool"],
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "meta-karura-usdt",
     ecosystem: EcosystemId.Solana,
     displayName: "Karura USDT",

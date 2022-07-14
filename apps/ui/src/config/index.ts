@@ -1,10 +1,14 @@
-import type { ReadonlyRecord } from "../utils";
+import shallow from "zustand/shallow.js";
 
+import { Env } from "@swim-io/core-types";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
+
+import type { ReadonlyRecord } from "../utils";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import type { ChainsByProtocol } from "./chains";
-import { CHAINS } from "./chains";
-import type { EcosystemId } from "./ecosystem";
-import { ECOSYSTEM_CONFIGS, SOLANA_PROTOCOL, EVM_PROTOCOL, } from "./ecosystem";
-import { Env } from "./env";
+import type { EcosystemId, UiEcosystemConfig } from "./ecosystem";
 import type { PoolSpec } from "./pools";
 import { POOLS } from "./pools";
 import { REDEEMER } from "./redeemer";
@@ -14,7 +18,6 @@ import { TOKENS } from "./tokens";
 import type { WormholeConfig } from "./wormhole";
 import { WORMHOLE_CONFIGS } from "./wormhole";
 
-export * from "./chains";
 export * from "./ecosystem";
 export * from "./env";
 export * from "./pools";
@@ -23,7 +26,7 @@ export * from "./utils";
 export * from "./wormhole";
 
 export interface Config {
-  readonly ecosystems: ReadonlyRecord<EcosystemId, EcosystemConfig>;
+  readonly ecosystems: ReadonlyRecord<EcosystemId, UiEcosystemConfig>;
   readonly chains: ChainsByProtocol;
   readonly pools: readonly PoolSpec[];
   readonly tokens: readonly TokenSpec[];
@@ -31,9 +34,11 @@ export interface Config {
   readonly redeemer: RedeemerSpec;
 }
 
+const { ecosystems, chains } = useEnvironment(selectConfig, shallow);
+
 const buildConfig = (env: Env): Config => ({
-  ecosystems: ECOSYSTEM_CONFIGS,
-  chains: CHAINS[env],
+  ecosystems: ecosystems,
+  chains: chains[env],
   pools: POOLS[env],
   tokens: TOKENS[env],
   wormhole: WORMHOLE_CONFIGS[env],
@@ -43,8 +48,8 @@ const buildConfig = (env: Env): Config => ({
 export const CONFIGS: ReadonlyRecord<Env, Config> = {
   [Env.Mainnet]: buildConfig(Env.Mainnet),
   [Env.Devnet]: buildConfig(Env.Devnet),
-  [Env.Localnet]: buildConfig(Env.Localnet),
-  [Env.CustomLocalnet]: buildConfig(Env.CustomLocalnet),
+  [Env.Local]: buildConfig(Env.Local),
+  [Env.Custom]: buildConfig(Env.Custom),
 };
 
 const LOCALHOST_REGEXP = /localhost|127\.0\.0\.1/;
@@ -67,11 +72,13 @@ export const overrideLocalnetIp = (config: Config, ip: string): Config => ({
       },
       ...config.chains[SOLANA_PROTOCOL].slice(1),
     ],
-    [EVM_PROTOCOL]: config.chains[EVM_PROTOCOL].map((chainSpec) => ({
-      ...chainSpec,
-      rpcUrls: chainSpec.rpcUrls.map((rpcUrl) =>
-        rpcUrl.replace(LOCALHOST_REGEXP, ip),
-      ),
-    })),
+    [EVM_PROTOCOL]: config.chains[EVM_PROTOCOL].map(
+      (chainSpec: { rpcUrls: string[] }) => ({
+        ...chainSpec,
+        rpcUrls: chainSpec.rpcUrls.map((rpcUrl: string) =>
+          rpcUrl.replace(LOCALHOST_REGEXP, ip),
+        ),
+      }),
+    ),
   },
 });

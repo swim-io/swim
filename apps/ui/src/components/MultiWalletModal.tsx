@@ -24,7 +24,10 @@ import {
   isEcosystemEnabled,
   Protocol,
 } from "../config";
-import { selectSelectedServiceByProtocol, selectConfig } from "../core/selectors";
+import {
+  selectSelectedServiceByProtocol,
+  selectConfig,
+} from "../core/selectors";
 import { useWalletAdapter, useEnvironment } from "../core/store";
 import { useEvmWallet, useSolanaWallet, useWalletService } from "../hooks";
 import EVM_SVG from "../images/ecosystems/ethereum-color.svg";

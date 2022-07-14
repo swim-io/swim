@@ -1,8 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import type { ParsedTransactionWithMeta } from "@solana/web3.js";
+import shallow from "zustand/shallow.js";
 
-import type { TokenSpec, WormholeChainSpec } from "../../config";
-import { CHAINS, EcosystemId, Env, Protocol, TOKENS } from "../../config";
+import type { ParsedTransactionWithMeta } from "@solana/web3.js";
+import { Env, ChainConfig } from "@swim-io/core-types";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { SOLANA_ECOSYSTEM_ID, SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
+
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
+import type { TokenSpec } from "../../config";
+import { TOKENS } from "../../config";
 import {
   parsedSwimSwapTx,
   parsedWormholePostVaaTxs,
@@ -62,7 +69,7 @@ describe("models - Wormhole utils", () => {
     it("returns true for a tx which locks native SPL tokens", () => {
       const interactionId = "e45794d6c5a2750a589f875c84089f81";
       const tokenBridge = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
-      const wormholeChainId: WormholeChainSpec = {
+      const wormholeChainId: ChainConfig = {
         bridge: "bridge",
         tokenBridge: tokenBridge,
       };
@@ -74,15 +81,15 @@ describe("models - Wormhole utils", () => {
         displayName: "Test Token",
         icon: ":)",
         isStablecoin: false,
-        nativeEcosystem: EcosystemId.Solana,
+        nativeEcosystem: SOLANA_ECOSYSTEM_ID,
         detailsByEcosystem: new Map([
-          [EcosystemId.Solana, { address: "xxx", decimals: 8 }],
-          [EcosystemId.Bnb, { address: "xxx", decimals: 18 }],
+          [SOLANA_ECOSYSTEM_ID, { address: "xxx", decimals: 8 }],
+          [BNB_ECOSYSTEM_ID, { address: "xxx", decimals: 18 }],
         ]),
       };
       const tx: SolanaTx = {
         interactionId,
-        ecosystem: EcosystemId.Solana,
+        ecosystem: SOLANA_ECOSYSTEM_ID,
         timestamp: parsedSwimSwapTx.blockTime ?? null,
         txId: parsedSwimSwapTx.transaction.signatures[0],
         parsedTx: parsedSwimSwapTx,
@@ -111,13 +118,14 @@ describe("models - Wormhole utils", () => {
       "returns true for txs which post VAAs",
       (parsedTx) => {
         const interactionId = "e45794d6c5a2750a589f875c84089f81";
+        const { chains } = useEnvironment(selectConfig, shallow);
         const wormholeChainSpec =
-          CHAINS[Env.Mainnet][Protocol.Solana][0].wormhole;
+          chains[Env.Mainnet][SOLANA_PROTOCOL][0].wormhole;
         const signatureSetAddress =
           "2XjLRw6BTVTTL5hLDdKyLtPL6toGM7HkKJivGjtZBotp";
         const tx: SolanaTx = {
           interactionId,
-          ecosystem: EcosystemId.Solana,
+          ecosystem: SOLANA_ECOSYSTEM_ID,
           timestamp: parsedTx.blockTime!,
           txId: parsedTx.transaction.signatures[0],
           parsedTx,
@@ -136,13 +144,14 @@ describe("models - Wormhole utils", () => {
 
     it("returns false for a tx which mints Wormhole-wrapped SPL tokens", () => {
       const interactionId = "e45794d6c5a2750a589f875c84089f81";
+      const { chains } = useEnvironment(selectConfig, shallow);
       const wormholeChainSpec =
-        CHAINS[Env.Mainnet][Protocol.Solana][0].wormhole;
+        chains[Env.Mainnet][SOLANA_PROTOCOL][0].wormhole;
       const signatureSetAddress =
         "2XjLRw6BTVTTL5hLDdKyLtPL6toGM7HkKJivGjtZBotp";
       const tx: SolanaTx = {
         interactionId,
-        ecosystem: EcosystemId.Solana,
+        ecosystem: SOLANA_ECOSYSTEM_ID,
         timestamp: parsedWormholeRedeemEvmUnlockWrappedTx.blockTime!,
         txId: parsedWormholeRedeemEvmUnlockWrappedTx.transaction.signatures[0],
         parsedTx: parsedWormholeRedeemEvmUnlockWrappedTx,
@@ -165,15 +174,16 @@ describe("models - Wormhole utils", () => {
       "returns false for txs which post VAAs",
       (parsedTx) => {
         const interactionId = "e45794d6c5a2750a589f875c84089f81";
+        const { chains } = useEnvironment(selectConfig, shallow);
         const wormholeChainSpec =
-          CHAINS[Env.Mainnet][Protocol.Solana][0].wormhole;
+          chains[Env.Mainnet][SOLANA_PROTOCOL][0].wormhole;
         const tokenSpec = TOKENS[Env.Mainnet].find(
           (token) => token.id === "mainnet-bnb-busd",
         )!;
         const splTokenAccount = "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
         const tx: SolanaTx = {
           interactionId,
-          ecosystem: EcosystemId.Solana,
+          ecosystem: SOLANA_ECOSYSTEM_ID,
           timestamp: parsedTx.blockTime!,
           txId: parsedTx.transaction.signatures[0],
           parsedTx,
@@ -193,15 +203,16 @@ describe("models - Wormhole utils", () => {
 
     it("returns true for a tx which redeems Wormhole-wrapped SPL tokens", () => {
       const interactionId = "e45794d6c5a2750a589f875c84089f81";
+      const { chains } = useEnvironment(selectConfig, shallow);
       const wormholeChainSpec =
-        CHAINS[Env.Mainnet][Protocol.Solana][0].wormhole;
+        chains[Env.Mainnet][SOLANA_PROTOCOL][0].wormhole;
       const tokenSpec = TOKENS[Env.Mainnet].find(
         (token) => token.id === "mainnet-bnb-busd",
       )!;
       const splTokenAccount = "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
       const tx: SolanaTx = {
         interactionId,
-        ecosystem: EcosystemId.Solana,
+        ecosystem: SOLANA_ECOSYSTEM_ID,
         timestamp: parsedWormholeRedeemEvmUnlockWrappedTx.blockTime!,
         txId: parsedWormholeRedeemEvmUnlockWrappedTx.transaction.signatures[0],
         parsedTx: parsedWormholeRedeemEvmUnlockWrappedTx,

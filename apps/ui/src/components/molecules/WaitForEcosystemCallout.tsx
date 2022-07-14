@@ -1,14 +1,17 @@
 import { EuiCallOut, EuiSpacer } from "@elastic/eui";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { POLYGON_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-polygon";
+
 import type React from "react";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 
 interface Props {
   readonly ecosystemId: EcosystemId;
 }
 
 export const WaitForEcosystemCallout: React.FC<Props> = ({ ecosystemId }) => {
-  if (ecosystemId === EcosystemId.Ethereum) {
+  if (ecosystemId === ETHEREUM_ECOSYSTEM_ID) {
     return (
       <>
         <EuiCallOut
@@ -20,7 +23,7 @@ export const WaitForEcosystemCallout: React.FC<Props> = ({ ecosystemId }) => {
       </>
     );
   }
-  if (ecosystemId === EcosystemId.Polygon) {
+  if (ecosystemId === POLYGON_ECOSYSTEM_ID) {
     return (
       <>
         <EuiCallOut

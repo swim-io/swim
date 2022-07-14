@@ -1,11 +1,11 @@
 import type { EuiStepProps, EuiStepStatus } from "@elastic/eui";
 import { EuiListGroup, EuiText } from "@elastic/eui";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
 import { FromSolanaTransferComponent } from "../../components/molecules/FromSolanaTransferComponent";
 import { ToSolanaTransferComponent } from "../../components/molecules/ToSolanaTransferComponent";
 import { TxListItem } from "../../components/molecules/TxListItem";
 import { WaitForEcosystemCallout } from "../../components/molecules/WaitForEcosystemCallout";
-import { EcosystemId } from "../../config";
 import type { InteractionState } from "../../models";
 import {
   InteractionStateStep,
@@ -69,7 +69,7 @@ const usePrepareSplTokenAccountsStep = (
             .map((txId) => (
               <TxListItem
                 key={txId}
-                ecosystem={EcosystemId.Solana}
+                ecosystem={SOLANA_ECOSYSTEM_ID}
                 txId={txId}
               />
             ))}
@@ -136,7 +136,7 @@ const useSolanaPoolOperationStep = (
           .map(({ txId }) => txId)
           .filter(isNotNull)
           .map((txId) => (
-            <TxListItem key={txId} ecosystem={EcosystemId.Solana} txId={txId} />
+            <TxListItem key={txId} ecosystem={SOLANA_ECOSYSTEM_ID} txId={txId} />
           ))}
       </EuiListGroup>
     ),

@@ -96,9 +96,8 @@ export const RemoveForm = ({
   const wallets = useWallets();
   const userNativeBalances = useUserNativeBalances();
 
-  const [lpTokenSourceEcosystem, setLpTokenSourceEcosystem] = useState(
-    SOLANA_ECOSYSTEM_ID,
-  );
+  const [lpTokenSourceEcosystem, setLpTokenSourceEcosystem] =
+    useState(SOLANA_ECOSYSTEM_ID);
   const [method, setMethod] = useState(RemoveMethod.ExactBurn);
   const [outputToken, setOutputToken] = useState(poolSpec.tokens[0]);
   const [burnPercentage, setBurnPercentage] = useState(0);
@@ -430,9 +429,7 @@ export const RemoveForm = ({
       if (userNativeBalances[ecosystem].isZero()) {
         errors = [
           ...errors,
-          `Empty balance in ${
-            ECOSYSTEMS[SOLANA_ECOSYSTEM_ID].displayName
-          } wallet. You will need some funds to pay for transaction fees.`,
+          `Empty balance in ${ECOSYSTEMS[SOLANA_ECOSYSTEM_ID].displayName} wallet. You will need some funds to pay for transaction fees.`,
         ];
       }
     });
@@ -572,7 +569,7 @@ export const RemoveForm = ({
       <EuiFormRow
         label={`Use LP tokens (${lpToken.symbol}) from`}
         helpText={
-          lpTokenSourceEcosystem ===SOLANA_ECOSYSTEM_ID ||
+          lpTokenSourceEcosystem === SOLANA_ECOSYSTEM_ID ||
           method !== RemoveMethod.ExactOutput
             ? ""
             : `The estimated LP tokens needed (including slippage) will be transferred from ${ECOSYSTEMS[lpTokenSourceEcosystem].displayName} to Solana, and any unused tokens will remain in your LP token account on Solana.`

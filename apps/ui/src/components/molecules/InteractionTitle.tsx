@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { EcosystemId } from "../../config";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { Interaction } from "../../models";
 import { InteractionType } from "../../models";
 import {
@@ -34,7 +34,7 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
           <span>Swap</span>{" "}
           <AmountWithTokenIcon
             amount={exactInputAmount}
-            ecosystem={EcosystemId.Solana}
+            ecosystem={SOLANA_ECOSYSTEM_ID}
           />{" "}
           <span>for</span>{" "}
           <NativeTokenIcon

@@ -1,25 +1,6 @@
 import type { ReadonlyRecord } from "../utils";
 
-import { Env } from "./env";
-
-/** Adapted from @certusone/wormhole-sdk ChainId
- * https://pkg.go.dev/github.com/certusone/wormhole/node/pkg/vaa#ChainID
- */
-export const enum WormholeChainId {
-  Solana = 1,
-  Ethereum = 2,
-  Terra = 3,
-  Bnb = 4,
-  Polygon = 5, // NOTE: in some parts of the code, the listed order is swapped with Avalanche but ID is the same
-  Avalanche = 6,
-  Oasis = 7,
-  Algorand = 8,
-  Aurora = 9,
-  Fantom = 10,
-  Karura = 11,
-  Acala = 12,
-  Klaytn = 13,
-}
+import { Env } from "@swim-io/core-types";
 
 export interface WormholeConfig {
   readonly endpoint: string;
@@ -41,6 +22,6 @@ const LOCALNET_WORMHOLE_CONFIG: WormholeConfig = {
 export const WORMHOLE_CONFIGS: ReadonlyRecord<Env, WormholeConfig> = {
   [Env.Mainnet]: MAINNET_WORMHOLE_CONFIG,
   [Env.Devnet]: DEVNET_WORMHOLE_CONFIG,
-  [Env.Localnet]: LOCALNET_WORMHOLE_CONFIG,
-  [Env.CustomLocalnet]: LOCALNET_WORMHOLE_CONFIG,
+  [Env.Local]: LOCALNET_WORMHOLE_CONFIG,
+  [Env.Custom]: LOCALNET_WORMHOLE_CONFIG,
 };

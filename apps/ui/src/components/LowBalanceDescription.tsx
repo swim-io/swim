@@ -2,12 +2,10 @@ import shallow from "zustand/shallow.js";
 
 import type { FC, ReactElement } from "react";
 
-import type {
-  EcosystemConfig,
-} from "@swim-io/core-types";
+import type { EcosystemConfig } from "@swim-io/core-types";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
-import { EcosystemId } from "../config";
+import { EcosystemId, UiEcosystemConfig } from "../config";
 import { ACALA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-acala";
 import { KARURA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-karura";
 
@@ -22,7 +20,7 @@ const ecosystemIdToDoc = new Map([
   ],
 ]);
 
-const createListItem = (ecosystem: Ecosystem): ReactElement => {
+const createListItem = (ecosystem: UiEcosystemConfig): ReactElement => {
   if (ecosystemIdToDoc.has(ecosystem.id)) {
     return (
       <li key={ecosystem.displayName}>

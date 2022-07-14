@@ -1,11 +1,12 @@
 import type { EuiButtonProps, PropsForButton } from "@elastic/eui";
 import { EuiButton, EuiHideFor, EuiIcon, EuiShowFor } from "@elastic/eui";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import type { ReactElement } from "react";
 import { useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import type { EcosystemId } from "../config";
-import { EVM_PROTOCOL, SOLANA_PROTOCOL } from "../config";
 import {
   selectConfig,
   selectSelectedServiceByProtocol,

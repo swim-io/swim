@@ -185,9 +185,10 @@ export const isInteractWithPoolAndInitiateTransferOnSourceChainCompleted = (
         case SwapType.CrossChainSolanaToEvm: {
           return isSwapAndTransferCompleted(state.swapAndTransferTxId);
         }
+        default: {
+          throw new Error("Found new unhandled swapType");
+        }
       }
-      // looks like eslint is buggy with nested switch statements and needs this unreachable break?
-      break;
     }
     case InteractionType.Add:
       return false;
@@ -223,9 +224,10 @@ export const isCompleteTransferAndInteractWithPoolOnTargetChainCompleted = (
         case SwapType.CrossChainSolanaToEvm: {
           return isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId);
         }
+        default: {
+          throw new Error("Found new unhandled swapType");
+        }
       }
-      // looks like eslint is buggy with nested switch statements and needs this unreachable break?
-      break;
     }
     case InteractionType.Add:
       return false;
@@ -259,9 +261,10 @@ export const isInteractionCompletedV2 = (
         case SwapType.CrossChainSolanaToEvm: {
           return isCrossChainSolanaToEvmSwapCompleted(interactionState);
         }
+        default: {
+          throw new Error("Found new unhandled swapType");
+        }
       }
-      // looks like eslint is buggy with nested switch statements and needs this unreachable break?
-      break;
     }
     case InteractionType.Add:
       return false;

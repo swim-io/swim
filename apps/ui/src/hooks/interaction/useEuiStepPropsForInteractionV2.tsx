@@ -152,8 +152,8 @@ const buildEvmPoolOperationStep = (
     title: "Swap tokens",
     status,
     children: (
-      <EuiListGroup gutterSize="none" flush showToolTips>
-        {approvalTxIds.length && (
+      <>
+        {approvalTxIds.length > 0 && (
           <>
             <EuiText size="m">
               <span>Approval transactions</span>
@@ -174,7 +174,7 @@ const buildEvmPoolOperationStep = (
           isLoading={status === "loading"}
           transactions={[interactionState.onChainSwapTxId].filter(isNotNull)}
         />
-      </EuiListGroup>
+      </>
     ),
   };
 };

@@ -5,7 +5,12 @@ import { useEffect } from "react";
 import { useMutation } from "react-query";
 
 import { Env, useEnvironment } from "../../core/store";
-import { MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_COMPLETED } from "../../fixtures/swim/interactionStateV2";
+import {
+  MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_COMPLETED,
+  MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS,
+  MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS,
+  MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT,
+} from "../../fixtures/swim/interactionStateV2";
 import { INTERACTION_MUTATION_KEY } from "../../hooks/interaction";
 import { sleep } from "../../utils";
 
@@ -55,6 +60,23 @@ const Template: ComponentStory<typeof InteractionStateComponentV2> = (args) => {
       </EuiButton>
     </>
   );
+};
+
+export const SingleChainSolanaInit = Template.bind({});
+SingleChainSolanaInit.args = {
+  interactionState: MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT,
+};
+
+export const SingleChainSolanaExistingSplTokenAccounts = Template.bind({});
+SingleChainSolanaExistingSplTokenAccounts.args = {
+  interactionState:
+    MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS,
+};
+
+export const SingleChainSolanaCreatedSplTokenAccounts = Template.bind({});
+SingleChainSolanaCreatedSplTokenAccounts.args = {
+  interactionState:
+    MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS,
 };
 
 export const SingleChainSolanaCompleted = Template.bind({});

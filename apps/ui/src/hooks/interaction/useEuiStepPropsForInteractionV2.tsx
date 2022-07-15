@@ -19,10 +19,10 @@ import type {
 import {
   InteractionType,
   SwapType,
-  isTargetChainOperationCompleted,
-  isSourceChainOperationCompleted,
   isRequiredSplTokenAccountsCompletedV2,
   isSolanaPoolOperationsCompletedV2,
+  isSourceChainOperationCompleted,
+  isTargetChainOperationCompleted,
 } from "../../models";
 import { isNotNull } from "../../utils";
 

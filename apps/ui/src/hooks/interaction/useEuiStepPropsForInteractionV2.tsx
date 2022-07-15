@@ -369,8 +369,10 @@ export const useEuiStepPropsForInteractionV2 = (
             buildReceiveAndSwapStep(state, status, env),
           ].filter(isNotNull);
         }
+        default: {
+          throw new Error("New SwapType found");
+        }
       }
-      break; // unreachable but eslint complains otherwise... nested switch eslint bug?
     }
     case InteractionType.Add:
       return [];

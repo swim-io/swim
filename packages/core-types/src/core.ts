@@ -5,6 +5,9 @@ export enum Env {
   Custom = "Custom",
 }
 
+export const isValidEnv = (envValue: string): envValue is Env =>
+  (Object.values(Env) as readonly string[]).includes(envValue);
+
 export interface ChainConfig<E extends string, C extends number> {
   readonly name: string;
   readonly env: Env;

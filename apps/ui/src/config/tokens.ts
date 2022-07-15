@@ -785,8 +785,162 @@ export const DEVNET_SWIMUSD: TokenSpec = {
   ]),
 };
 
+const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-ethereum-lp-primary",
+    project: PROJECTS[TokenProjectId.SwimUsd], // TODO: Update
+    nativeEcosystem: EcosystemId.Ethereum,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Ethereum,
+        {
+          address: "0x1111111111111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-bnb-lp-primary",
+    project: PROJECTS[TokenProjectId.SwimUsd], // TODO: Update
+    nativeEcosystem: EcosystemId.Bnb,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Bnb,
+        {
+          address: "0x1111111111111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-avalanche-lp-primary",
+    project: PROJECTS[TokenProjectId.SwimUsd], // TODO: Update
+    nativeEcosystem: EcosystemId.Avalanche,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Avalanche,
+        {
+          address: "0x1111111111111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-polygon-lp-primary",
+    project: PROJECTS[TokenProjectId.SwimUsd], // TODO: Update
+    nativeEcosystem: EcosystemId.Polygon,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Polygon,
+        {
+          address: "0x1111111111111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-aurora-lp-primary",
+    project: PROJECTS[TokenProjectId.SwimUsd], // TODO: Update
+    nativeEcosystem: EcosystemId.Aurora,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Aurora,
+        {
+          address: "0x1111111111111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled:
+      !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_AURORA_USN,
+    id: "devnet-aurora-lp-meta-usn",
+    project: PROJECTS[TokenProjectId.SwimUsd], // TODO: Update
+    nativeEcosystem: EcosystemId.Aurora,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Aurora,
+        {
+          address: "0x1111111111111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-fantom-lp-primary",
+    project: PROJECTS[TokenProjectId.SwimUsd], // TODO: Update
+    nativeEcosystem: EcosystemId.Fantom,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Fantom,
+        {
+          address: "0x1111111111111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-karura-lp-primary",
+    project: PROJECTS[TokenProjectId.SwimUsd], // TODO: Update
+    nativeEcosystem: EcosystemId.Karura,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Karura,
+        {
+          address: "0x1111111111111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled:
+      !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_KARURA_AUSD,
+    id: "devnet-karura-lp-meta-ausd",
+    project: PROJECTS[TokenProjectId.SwimUsd], // TODO: Update
+    nativeEcosystem: EcosystemId.Karura,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Karura,
+        {
+          address: "0x1111111111111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-acala-lp-meta-ausd",
+    project: PROJECTS[TokenProjectId.SwimUsd], // TODO: Update
+    nativeEcosystem: EcosystemId.Acala,
+    detailsByEcosystem: new Map([
+      [
+        EcosystemId.Acala,
+        {
+          address: "0x1111111111111111111111111111111111111111", // TODO: Update
+          decimals: 8,
+        },
+      ],
+    ]),
+  },
+];
+
 const DEVNET_TOKENS: readonly TokenSpec[] = [
-  DEVNET_SWIMUSD,
   {
     id: "devnet-solana-usdc",
     project: PROJECTS[TokenProjectId.Usdc],
@@ -1448,6 +1602,8 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
       ],
     ]),
   },
+  DEVNET_SWIMUSD,
+  ...DEVNET_TOKENS_FOR_RESTRUCTURE,
 ].filter((spec) => !spec.isDisabled);
 
 const LOCALNET_TOKENS: readonly TokenSpec[] = [

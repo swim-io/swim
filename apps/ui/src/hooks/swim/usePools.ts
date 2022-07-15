@@ -4,8 +4,12 @@ import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import type { PoolSpec, SolanaPoolSpec, TokenSpec } from "../../config";
-import { EcosystemId, getSolanaTokenDetails } from "../../config";
+import type { PoolSpec, TokenSpec } from "../../config";
+import {
+  EcosystemId,
+  getSolanaTokenDetails,
+  isEvmEcosystemId,
+} from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { findTokenAccountForMint, getPoolUsdValue } from "../../models";
@@ -47,7 +51,6 @@ const constructPool = (
     allTokens,
     (tokenSpec) => tokenSpec.id === poolSpec.lpToken,
   );
-  const lpTokenMintAddress = getSolanaTokenDetails(lpToken).address;
 
   const tokens = poolSpec.tokens.map(
     (tokenId) =>
@@ -61,6 +64,22 @@ const constructPool = (
     ...new Set(tokens.map((tokenSpec) => tokenSpec.nativeEcosystem)),
   ];
 
+  if (isEvmEcosystemId(poolSpec.ecosystem)) {
+    // TODO: Make it work for both Solana and EVM pool
+    return {
+      spec: poolSpec,
+      nativeEcosystems,
+      lpToken,
+      tokens,
+      state: poolState ?? null,
+      poolLpMint,
+      poolTokenAccounts,
+      userLpTokenAccount: null,
+      poolUsdValue: null,
+      isPoolPaused: poolState?.isPaused ?? null,
+    };
+  }
+  const lpTokenMintAddress = getSolanaTokenDetails(lpToken).address;
   const userLpTokenAccount =
     walletAddress !== null && splTokenAccounts !== null
       ? findTokenAccountForMint(
@@ -90,6 +109,7 @@ const constructPool = (
 };
 
 export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
+  // TODO: Make it work for both Solana and EVM pool
   const { pools, tokens: allTokens } = useEnvironment(selectConfig, shallow);
   const { address: walletAddress } = useSolanaWallet();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
@@ -99,12 +119,11 @@ export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
   const poolStates = usePoolStates(poolSpecs);
   const lpMints = usePoolLpMints(poolSpecs);
   const liquidityQueries = useLiquidityQueries(
-    poolSpecs
-      .filter(
-        (poolSpec): poolSpec is SolanaPoolSpec =>
-          poolSpec.ecosystem === EcosystemId.Solana,
-      )
-      .map((poolSpec) => [...poolSpec.tokenAccounts.values()]),
+    poolSpecs.map((poolSpec) =>
+      poolSpec.ecosystem === EcosystemId.Solana
+        ? [...poolSpec.tokenAccounts.values()]
+        : [],
+    ),
   );
 
   return poolSpecs.map((poolSpec, i) =>

@@ -4,7 +4,9 @@ import type {
   EcosystemPlugin,
   Env,
   GasToken,
+  Tx,
 } from "@swim-io/core-types";
+import type { ethers } from "ethers";
 
 // evm-types
 export type EvmProtocol = "evm";
@@ -23,6 +25,11 @@ export interface EvmEcosystemConfig<
   CC extends EvmChainConfig<E, C> = EvmChainConfig<E, C>,
 > extends EcosystemConfig<EvmProtocol, E, W, C, CC> {
   readonly chains: readonly CC[];
+}
+
+export interface EvmTx<EcosystemId extends string> extends Tx<EcosystemId> {
+  readonly txResponse: ethers.providers.TransactionResponse;
+  readonly txReceipt: ethers.providers.TransactionReceipt;
 }
 
 export const createEvmEcosystemPlugin = <

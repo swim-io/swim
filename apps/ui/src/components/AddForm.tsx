@@ -308,7 +308,7 @@ export const AddForm = ({
         //   errors = ["During testing, all transactions are limited to $5"];
       } else if (amount.isNegative()) {
         errors = ["Amount must be greater than or equal to zero"];
-      }  else if (amount.isValidDecimals(tokenSpec.nativeEcosystem)) {
+      } else if (amount.isValidDecimals(tokenSpec.nativeEcosystem)) {
         errors = ["Too many decimals"];
       }
 

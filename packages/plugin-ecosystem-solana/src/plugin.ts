@@ -1,7 +1,9 @@
+import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import type {
   ChainConfig,
   EcosystemConfig,
   EcosystemPlugin,
+  Tx,
 } from "@swim-io/core-types";
 import { Env } from "@swim-io/core-types";
 
@@ -37,6 +39,13 @@ export type SolanaEcosystemConfig = EcosystemConfig<
   SolanaChainId,
   SolanaChainConfig
 >;
+
+export interface SolanaTx extends Tx<SolanaEcosystemId> {
+  readonly parsedTx: ParsedTransactionWithMeta;
+}
+
+export const isSolanaTx = (tx: Tx<string>): tx is SolanaTx =>
+  tx.ecosystem === SOLANA_ECOSYSTEM_ID;
 
 const presetChains: ReadonlyMap<Env, SolanaChainConfig> = new Map([
   [

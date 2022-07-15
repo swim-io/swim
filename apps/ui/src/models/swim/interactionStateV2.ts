@@ -152,7 +152,7 @@ const isClaimTokenOnSolanaTransferCompleted = (
   claimTokenOnSolanaTxId: SolanaTx["txId"] | null,
 ): boolean => claimTokenOnSolanaTxId !== null;
 
-export const isInteractWithPoolAndInitiateTransferOnSourceChainCompleted = (
+export const isSourceChainOperationCompleted = (
   state: SwapInteractionState,
 ): boolean => {
   switch (state.swapType) {
@@ -177,7 +177,7 @@ export const isInteractWithPoolAndInitiateTransferOnSourceChainCompleted = (
   }
 };
 
-export const isCompleteTransferAndInteractWithPoolOnTargetChainCompleted = (
+export const isTargetChainOperationCompleted = (
   state: SwapInteractionState,
 ): boolean => {
   switch (state.swapType) {

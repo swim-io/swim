@@ -19,8 +19,8 @@ import type {
 import {
   InteractionType,
   SwapType,
-  isCompleteTransferAndInteractWithPoolOnTargetChainCompleted,
-  isInteractWithPoolAndInitiateTransferOnSourceChainCompleted,
+  isTargetChainOperationCompleted,
+  isSourceChainOperationCompleted,
   isRequiredSplTokenAccountsCompletedV2,
   isSolanaPoolOperationsCompletedV2,
 } from "../../models";
@@ -143,9 +143,7 @@ const buildEvmPoolOperationStep = (
   const toToken = findTokenById(toTokenDetail.tokenId, env);
   const status = getEuiStepStatus(
     interactionStatus,
-    isInteractWithPoolAndInitiateTransferOnSourceChainCompleted(
-      interactionState,
-    ),
+    isSourceChainOperationCompleted(interactionState),
   );
 
   return {
@@ -200,9 +198,7 @@ const buildSwapAndTransferStep = (
   const swimUSD = DEVNET_SWIMUSD; // TODO find swimUSD for each env
   const status = getEuiStepStatus(
     interactionStatus,
-    isInteractWithPoolAndInitiateTransferOnSourceChainCompleted(
-      interactionState,
-    ),
+    isSourceChainOperationCompleted(interactionState),
   );
 
   return {
@@ -271,9 +267,7 @@ const buildReceiveAndSwapStep = (
   const swimUSD = DEVNET_SWIMUSD; // TODO find swimUSD for each env
   const status = getEuiStepStatus(
     interactionStatus,
-    isCompleteTransferAndInteractWithPoolOnTargetChainCompleted(
-      interactionState,
-    ),
+    isTargetChainOperationCompleted(interactionState),
   );
 
   return {
@@ -309,9 +303,7 @@ const buildPostVaaAndClaimToken = (
 
   const status = getEuiStepStatus(
     interactionStatus,
-    isCompleteTransferAndInteractWithPoolOnTargetChainCompleted(
-      interactionState,
-    ),
+    isTargetChainOperationCompleted(interactionState),
   );
 
   return {

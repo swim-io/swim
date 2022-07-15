@@ -8,11 +8,11 @@ import {
   htmlIdGenerator,
 } from "@elastic/eui";
 import * as Sentry from "@sentry/react";
+import { isValidEnv } from "@swim-io/core-types";
 import { useState } from "react";
 import type { ReactElement } from "react";
 import shallow from "zustand/shallow.js";
 
-import { isValidEnv } from "../config";
 import { selectEnvs } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 

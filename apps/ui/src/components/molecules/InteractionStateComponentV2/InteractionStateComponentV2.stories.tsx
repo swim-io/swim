@@ -1,10 +1,11 @@
 import { EuiButton, EuiSpacer } from "@elastic/eui";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
+import { Env } from "@swim-io/core-types";
 import type { FC } from "react";
 import { useEffect } from "react";
 import { useMutation } from "react-query";
 
-import { Env, useEnvironment } from "../../../core/store";
+import { useEnvironment } from "../../../core/store";
 import {
   CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED,
   CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED_WITH_APPROVALS,

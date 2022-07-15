@@ -2,17 +2,10 @@ import { useIsMutating } from "react-query";
 
 import { selectInteractionErrorV2 } from "../../core/selectors";
 import { useInteractionStateV2 } from "../../core/store";
-import { isInteractionCompletedV2 } from "../../models";
+import { InteractionStatusV2, isInteractionCompletedV2 } from "../../models";
 import type { InteractionStateV2 } from "../../models";
 
 import { INTERACTION_MUTATION_KEY_V2 } from "./useInteractionMutationV2";
-
-export const enum InteractionStatusV2 {
-  Incomplete,
-  Active,
-  Completed,
-  Error,
-}
 
 export const useInteractionStatusV2 = (
   interactionState: InteractionStateV2,

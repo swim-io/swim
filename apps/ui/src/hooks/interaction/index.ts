@@ -1,6 +1,5 @@
 export * from "./useCreateInteractionState";
 export * from "./useEuiStepPropsForInteraction";
-export * from "./useEuiStepPropsForInteractionV2";
 export * from "./useHasActiveInteraction";
 export * from "./useHasActiveInteractionV2";
 export * from "./useInteraction";

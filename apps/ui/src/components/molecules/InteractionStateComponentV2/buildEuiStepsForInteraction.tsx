@@ -1,13 +1,8 @@
 import type { EuiStepProps, EuiStepStatus } from "@elastic/eui";
 import { EuiListGroup, EuiText } from "@elastic/eui";
 
-import { SwapTransfer } from "../../components/molecules/SwapTransfer";
-import { Transfer } from "../../components/molecules/Transfer";
-import { TxEcosystemList } from "../../components/molecules/TxList";
-import { TxListItem } from "../../components/molecules/TxListItem";
-import type { Env } from "../../config";
-import { DEVNET_SWIMUSD, EcosystemId, findTokenById } from "../../config";
-import { useEnvironment } from "../../core/store";
+import type { Env } from "../../../config";
+import { DEVNET_SWIMUSD, EcosystemId, findTokenById } from "../../../config";
 import type {
   CrossChainEvmSwapInteractionState,
   CrossChainEvmToSolanaSwapInteractionState,
@@ -15,21 +10,21 @@ import type {
   InteractionStateV2,
   SingleChainEvmSwapInteractionState,
   SingleChainSolanaSwapInteractionState,
-} from "../../models";
+} from "../../../models";
 import {
+  InteractionStatusV2,
   InteractionType,
   SwapType,
   isRequiredSplTokenAccountsCompletedV2,
   isSolanaPoolOperationsCompletedV2,
   isSourceChainOperationCompleted,
   isTargetChainOperationCompleted,
-} from "../../models";
-import { isNotNull } from "../../utils";
-
-import {
-  InteractionStatusV2,
-  useInteractionStatusV2,
-} from "./useInteractionStatusV2";
+} from "../../../models";
+import { isNotNull } from "../../../utils";
+import { SwapTransfer } from "../SwapTransfer";
+import { Transfer } from "../Transfer";
+import { TxEcosystemList } from "../TxList";
+import { TxListItem } from "../TxListItem";
 
 const getEuiStepStatus = (
   interactionStatus: InteractionStatusV2,
@@ -323,12 +318,11 @@ const buildPostVaaAndClaimToken = (
   };
 };
 
-export const useEuiStepPropsForInteractionV2 = (
+export const buildEuiStepsForInteraction = (
   state: InteractionStateV2,
+  status: InteractionStatusV2,
+  env: Env,
 ): readonly EuiStepProps[] => {
-  const { env } = useEnvironment();
-  const status = useInteractionStatusV2(state);
-
   switch (state.interactionType) {
     case InteractionType.SwapV2: {
       switch (state.swapType) {

@@ -5,13 +5,12 @@ import { selectInteractionError } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { formatErrorJsx } from "../../errors";
 import {
-  InteractionStatusV2,
   useHasActiveInteractionV2,
   useInteractionStatusV2,
   useResumeInteraction,
   useWallets,
 } from "../../hooks";
-import { isEveryAddressConnected } from "../../models";
+import { InteractionStatusV2, isEveryAddressConnected } from "../../models";
 import type { InteractionStateV2 } from "../../models";
 
 interface Props {

@@ -363,55 +363,59 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
 
 export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
   {
+    isDisabled: !isPoolRestructureEnabled(),
     id: "devnet-solana-usdc-usdt",
     ecosystem: EcosystemId.Solana,
     displayName: "Solana USDC USDT",
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    contract: "1111111111111111111111111111111111111111111", // TODO: Update
-    address: "1111111111111111111111111111111111111111111", // TODO: Update
-    authority: "11111111111111111111111111111111111111111111", // TODO: Update
+    contract: "11111111111111111111111111111111", // TODO: Update
+    address: "11111111111111111111111111111111", // TODO: Update
+    authority: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-swimusd",
     tokenAccounts: new Map([
-      ["devnet-solana-usdc", "11111111111111111111111111111111111111111111"], // TODO: Update
-      ["devnet-solana-usdt", "11111111111111111111111111111111111111111111"], // TODO: Update
+      ["devnet-solana-usdc", "11111111111111111111111111111111"], // TODO: Update
+      ["devnet-solana-usdt", "11111111111111111111111111111111"], // TODO: Update
     ]),
     tokens: ["devnet-solana-usdc", "devnet-solana-usdt"],
   },
   {
+    isDisabled: !isPoolRestructureEnabled(),
     id: "devnet-ethereum-usdc-usdt",
     ecosystem: EcosystemId.Ethereum,
     displayName: "Ethereum USDC USDT",
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "1111111111111111111111111111111111111111111", // TODO: Update
+    address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-ethereum-lp-primary",
     tokens: ["devnet-swimusd", "devnet-ethereum-usdc", "devnet-ethereum-usdt"],
   },
   {
+    isDisabled: !isPoolRestructureEnabled(),
     id: "devnet-bnb-busd-usdt",
     ecosystem: EcosystemId.Bnb,
     displayName: "BNB BUSD USDT",
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "1111111111111111111111111111111111111111111", // TODO: Update
+    address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-bnb-lp-primary",
     tokens: ["devnet-swimusd", "devnet-bnb-busd", "devnet-bnb-usdt"],
   },
   {
+    isDisabled: !isPoolRestructureEnabled(),
     id: "devnet-avalanche-usdc-usdt",
     ecosystem: EcosystemId.Avalanche,
     displayName: "Avalanche USDC USDT",
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "1111111111111111111111111111111111111111111", // TODO: Update
+    address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-avalanche-lp-primary",
     tokens: [
@@ -421,85 +425,95 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     ],
   },
   {
+    isDisabled: !isPoolRestructureEnabled(),
     id: "devnet-polygon-usdc-usdt",
     ecosystem: EcosystemId.Polygon,
     displayName: "Polygon USDC USDT",
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "1111111111111111111111111111111111111111111", // TODO: Update
+    address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-polygon-lp-primary",
     tokens: ["devnet-swimusd", "devnet-polygon-usdc", "devnet-polygon-usdt"],
   },
   {
+    isDisabled: !isPoolRestructureEnabled(),
     id: "devnet-aurora-usdc-usdt",
     ecosystem: EcosystemId.Aurora,
     displayName: "Aurora USDC USDT",
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "1111111111111111111111111111111111111111111", // TODO: Update
+    address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-aurora-lp-primary",
     tokens: ["devnet-swimusd", "devnet-aurora-usdc", "devnet-aurora-usdt"],
   },
   {
+    isDisabled:
+      !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "devnet-aurora-usn",
     ecosystem: EcosystemId.Aurora,
     displayName: "Aurora USN",
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "1111111111111111111111111111111111111111111", // TODO: Update
+    address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-aurora-lp-meta-usn",
     tokens: ["devnet-swimusd", "devnet-aurora-usn"],
   },
   {
+    isDisabled: !isPoolRestructureEnabled(),
     id: "devnet-fantom-usdc",
     ecosystem: EcosystemId.Fantom,
     displayName: "Fantom USDC",
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "1111111111111111111111111111111111111111111", // TODO: Update
+    address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-fantom-lp-primary",
     tokens: ["devnet-swimusd", "devnet-fantom-usdc"],
   },
   {
+    isDisabled: !isPoolRestructureEnabled(),
     id: "devnet-karura-usdt",
     ecosystem: EcosystemId.Karura,
     displayName: "Karura USDT",
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "1111111111111111111111111111111111111111111", // TODO: Update
+    address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-karura-lp-primary",
     tokens: ["devnet-swimusd", "devnet-karura-usdt"],
   },
   {
+    isDisabled:
+      !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "devnet-karura-ausd",
     ecosystem: EcosystemId.Karura,
     displayName: "Karura aUSD",
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "1111111111111111111111111111111111111111111", // TODO: Update
+    address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-karura-lp-meta-ausd",
     tokens: ["devnet-swimusd", "devnet-karura-ausd"],
   },
   {
+    isDisabled:
+      !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_ACALA,
     id: "devnet-meta-acala-ausd",
     ecosystem: EcosystemId.Acala,
     displayName: "Aurora aUSD",
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "1111111111111111111111111111111111111111111", // TODO: Update
+    address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-acala-lp-meta-ausd",
     tokens: ["devnet-swimusd", "devnet-acala-ausd"],
@@ -821,6 +835,7 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     ]),
     tokens: ["devnet-solana-swim"],
   },
+  ...DEVNET_POOLS_FOR_RESTRUCTURE,
 ].filter((spec) => !spec.isDisabled);
 
 const LOCALNET_POOLS: readonly PoolSpec[] = [
@@ -874,9 +889,7 @@ const LOCALNET_POOLS: readonly PoolSpec[] = [
 
 export const POOLS: ReadonlyRecord<Env, readonly PoolSpec[]> = {
   [Env.Mainnet]: MAINNET_POOLS,
-  [Env.Devnet]: isPoolRestructureEnabled()
-    ? [...DEVNET_POOLS, ...DEVNET_POOLS_FOR_RESTRUCTURE]
-    : DEVNET_POOLS,
+  [Env.Devnet]: DEVNET_POOLS,
   [Env.Localnet]: LOCALNET_POOLS,
   [Env.CustomLocalnet]: LOCALNET_POOLS,
 };

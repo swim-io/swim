@@ -11,7 +11,7 @@ import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId, getNativeTokenDetails } from "../config";
+import { EcosystemId } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";

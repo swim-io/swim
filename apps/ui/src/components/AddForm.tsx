@@ -60,7 +60,6 @@ import { PoolPausedAlert } from "./PoolPausedAlert";
 import { RecentInteractions } from "./RecentInteractions";
 import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { TokenIcon } from "./TokenIcon";
-import { token } from "@project-serum/anchor/dist/cjs/utils";
 
 interface TokenAddPanelProps {
   readonly tokenSpec: TokenSpec;

@@ -1,10 +1,10 @@
 import { Env } from "@swim-io/core-types";
 import { EVM_PROTOCOL } from "@swim-io/evm-types";
-import {
+import type {
   SolanaChainConfig,
   SolanaEcosystemConfig,
-  SOLANA_PROTOCOL,
 } from "@swim-io/plugin-ecosystem-solana";
+import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 
 import type { ReadonlyRecord } from "../utils";
 

@@ -198,9 +198,8 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
     tokens: ["mainnet-bnb-gmt", "mainnet-solana-gmt"],
   },
   // {
-  //   isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
   //   id: "meta-aurora-usdc",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Aurora USDC",
   //   isStakingPool: false,
   //   isStableSwap: true,
@@ -220,9 +219,8 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   //   tokens: ["mainnet-aurora-usdc", "mainnet-solana-lp-hexapool"],
   // },
   // {
-  //   isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
   //   id: "meta-aurora-usdt",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Aurora USDT",
   //   isStakingPool: false,
   //   isStableSwap: true,
@@ -244,7 +242,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   // {
   //   isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
   //   id: "meta-aurora-usn",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Aurora USN",
   //   isStakingPool: false,
   //   isStableSwap: true,
@@ -266,7 +264,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   // {
   //   isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
   //   id: "meta-fantom-usdc",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Fantom USDC",
   //   isStakingPool: false,
   //   isStableSwap: true,
@@ -288,7 +286,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   // {
   //   isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
   //   id: "meta-karura-ausd",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Karura AUSD",
   //   isStakingPool: false,
   //   isStableSwap: true,
@@ -308,9 +306,8 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   //   tokens: ["mainnet-karura-ausd", "mainnet-solana-lp-hexapool"],
   // },
   // {
-  //   isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
   //   id: "meta-karura-usdt",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Karura USDT",
   //   isStakingPool: false,
   //   isStableSwap: true,
@@ -332,7 +329,7 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   // {
   //   isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
   //   id: "meta-acala-ausd",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Acala AUSD",
   //   isStakingPool: false,
   //   isStableSwap: true,
@@ -664,9 +661,8 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     tokens: ["devnet-bnb-gmt", "devnet-solana-gmt"],
   },
   // {
-  //   isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
   //   id: "meta-aurora-usdc",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Aurora USDC",
   //   isStakingPool: false,
   //   isStableSwap: true,
@@ -686,9 +682,8 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
   //   tokens: ["devnet-aurora-usdc", "devnet-solana-lp-hexapool"],
   // },
   // {
-  //   isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
   //   id: "meta-aurora-usdt",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Aurora USDT",
   //   isStakingPool: false,
   //   isStableSwap: true,
@@ -710,7 +705,7 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
   // {
   //   isDisabled: true, // TODO: Enable when deployed on devnet
   //   id: "meta-aurora-usn",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Aurora USN",
   //   isStakingPool: false,
   //   isStableSwap: true,
@@ -729,7 +724,7 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
   // {
   //   isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
   //   id: "meta-fantom-usdc",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Fantom USDC",
   //   isStakingPool: false,
   //   isStableSwap: true,
@@ -751,7 +746,7 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
   // {
   //   isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
   //   id: "meta-karura-ausd",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Karura AUSD",
   //   isStakingPool: false,
   //   isStableSwap: true,
@@ -771,9 +766,8 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
   //   tokens: ["devnet-karura-ausd", "devnet-solana-lp-hexapool"],
   // },
   // {
-  //   isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
   //   id: "meta-karura-usdt",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Karura USDT",
   //   isStakingPool: false,
   //   isStableSwap: true,
@@ -795,7 +789,7 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
   // {
   //   isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
   //   id: "meta-acala-ausd",
-  //   ecosystem: SOLANA_ECOSYSTEM_ID,
+  //   ecosystem: EcosystemId.Solana,
   //   displayName: "Acala AUSD",
   //   isStakingPool: false,
   //   isStableSwap: true,

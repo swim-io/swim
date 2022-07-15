@@ -10,13 +10,15 @@ import type {
   BnbEcosystemId,
   BnbWormholeChainId,
 } from "@swim-io/plugin-ecosystem-bnb";
-import bnbPlugin from "@swim-io/plugin-ecosystem-bnb";
+import bnbPlugin, { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
 import type {
   EthereumChainId,
   EthereumEcosystemId,
   EthereumWormholeChainId,
 } from "@swim-io/plugin-ecosystem-ethereum";
-import ethereumPlugin from "@swim-io/plugin-ecosystem-ethereum";
+import ethereumPlugin, {
+  ETHEREUM_ECOSYSTEM_ID,
+} from "@swim-io/plugin-ecosystem-ethereum";
 import type {
   SolanaChainConfig,
   SolanaEcosystemConfig,
@@ -25,6 +27,7 @@ import type {
   SolanaWormholeChainId,
 } from "@swim-io/plugin-ecosystem-solana";
 import solanaPlugin, {
+  SOLANA_ECOSYSTEM_ID,
   SOLANA_PROTOCOL,
   SolanaChainId,
 } from "@swim-io/plugin-ecosystem-solana";
@@ -64,8 +67,23 @@ const ecosystemPlugins = [solanaPlugin, ...evmEcosystemPlugins];
 export const EVM_ECOSYSTEM_IDS = evmEcosystemPlugins.map((plugin) => plugin.id);
 export const ECOSYSTEM_IDS = ecosystemPlugins.map((plugin) => plugin.id);
 
-export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean =>
-  ECOSYSTEM_IDS.includes(ecosystemId);
+export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean => {
+  switch (ecosystemId) {
+    case SOLANA_ECOSYSTEM_ID:
+    case ETHEREUM_ECOSYSTEM_ID:
+    case BNB_ECOSYSTEM_ID:
+      // case EcosystemId.Avalanche:
+      // case EcosystemId.Polygon:
+      // case EcosystemId.Aurora:
+      // case EcosystemId.Fantom:
+      // case EcosystemId.Karura:
+      return true;
+    // case EcosystemId.Acala:
+    //   return !!process.env.REACT_APP_ENABLE_ACALA;
+    default:
+      return false;
+  }
+};
 
 export const isEvmEcosystemId = (
   ecosystemId: EcosystemId,

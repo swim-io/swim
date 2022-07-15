@@ -156,3 +156,10 @@ export type InteractionV2 =
   | RemoveExactBurnInteraction
   | RemoveExactOutputInteraction
   | SwapInteractionV2;
+
+export const enum InteractionStatusV2 {
+  Incomplete,
+  Active,
+  Completed,
+  Error,
+}

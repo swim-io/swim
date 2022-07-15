@@ -1,5 +1,5 @@
 import { Keypair } from "@solana/web3.js";
-import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import { useEffect } from "react";
 import { useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
@@ -10,9 +10,9 @@ import { SolanaConnection } from "../../models";
 
 export const useSolanaConnection = (): SolanaConnection => {
   const { env } = useEnvironment();
-  const { chains } = useEnvironment(selectConfig, shallow);
-  const [chain] = chains[SOLANA_PROTOCOL];
-  const { endpoint, wsEndpoint } = chain;
+  const { ecosystems } = useEnvironment(selectConfig, shallow);
+  const [solanaChain] = ecosystems[SOLANA_ECOSYSTEM_ID].chains;
+  const { endpoint, wsEndpoint } = solanaChain;
 
   const queryClient = useQueryClient();
   const queryKey = [env, "solanaConnection"];

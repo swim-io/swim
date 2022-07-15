@@ -1,41 +1,43 @@
-import { ethers } from "ethers";
+export {};
 
-import { EvmChainId } from "../../config";
-import { findOrThrow } from "../../utils";
+// import { ethers } from "ethers";
 
-export const enum PolygonNetwork {
-  Mainnet = "polygon-mainnet",
-  Testnet = "polygon-testnet",
-}
+// import { EvmChainId } from "../../config";
+// import { findOrThrow } from "../../utils";
 
-const networks = [
-  {
-    name: PolygonNetwork.Mainnet,
-    chainId: EvmChainId.PolygonMainnet,
-  },
-  {
-    name: PolygonNetwork.Testnet,
-    chainId: EvmChainId.PolygonTestnet,
-  },
-];
+// export const enum PolygonNetwork {
+//   Mainnet = "polygon-mainnet",
+//   Testnet = "polygon-testnet",
+// }
 
-export class PolygonScanProvider extends ethers.providers.EtherscanProvider {
-  public constructor(network?: PolygonNetwork, apiKey?: string) {
-    const standardNetwork = network
-      ? findOrThrow(networks, ({ name }) => name === network)
-      : PolygonNetwork.Mainnet;
+// const networks = [
+//   {
+//     name: PolygonNetwork.Mainnet,
+//     chainId: EvmChainId.PolygonMainnet,
+//   },
+//   {
+//     name: PolygonNetwork.Testnet,
+//     chainId: EvmChainId.PolygonTestnet,
+//   },
+// ];
 
-    super(standardNetwork, apiKey);
-  }
+// export class PolygonScanProvider extends ethers.providers.EtherscanProvider {
+//   public constructor(network?: PolygonNetwork, apiKey?: string) {
+//     const standardNetwork = network
+//       ? findOrThrow(networks, ({ name }) => name === network)
+//       : PolygonNetwork.Mainnet;
 
-  public getBaseUrl(): string {
-    switch (this.network.name) {
-      case PolygonNetwork.Mainnet:
-        return "https://api.polygonscan.com/";
-      case PolygonNetwork.Testnet:
-        return "https://api-testnet.polygonscan.com/";
-      default:
-        throw new Error("Unknown network");
-    }
-  }
-}
+//     super(standardNetwork, apiKey);
+//   }
+
+//   public getBaseUrl(): string {
+//     switch (this.network.name) {
+//       case PolygonNetwork.Mainnet:
+//         return "https://api.polygonscan.com/";
+//       case PolygonNetwork.Testnet:
+//         return "https://api-testnet.polygonscan.com/";
+//       default:
+//         throw new Error("Unknown network");
+//     }
+//   }
+// }

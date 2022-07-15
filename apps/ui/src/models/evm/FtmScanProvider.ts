@@ -1,41 +1,43 @@
-import { ethers } from "ethers";
+export {};
 
-import { EvmChainId } from "../../config";
-import { findOrThrow } from "../../utils";
+// import { ethers } from "ethers";
 
-export const enum FantomNetwork {
-  Mainnet = "fantom-mainnet",
-  Testnet = "fantom-testnet",
-}
+// import { EvmChainId } from "../../config";
+// import { findOrThrow } from "../../utils";
 
-const networks = [
-  {
-    name: FantomNetwork.Mainnet,
-    chainId: EvmChainId.FantomMainnet,
-  },
-  {
-    name: FantomNetwork.Testnet,
-    chainId: EvmChainId.FantomTestnet,
-  },
-];
+// export const enum FantomNetwork {
+//   Mainnet = "fantom-mainnet",
+//   Testnet = "fantom-testnet",
+// }
 
-export class FtmScanProvider extends ethers.providers.EtherscanProvider {
-  public constructor(network?: FantomNetwork, apiKey?: string) {
-    const standardNetwork = network
-      ? findOrThrow(networks, ({ name }) => name === network)
-      : FantomNetwork.Mainnet;
+// const networks = [
+//   {
+//     name: FantomNetwork.Mainnet,
+//     chainId: EvmChainId.FantomMainnet,
+//   },
+//   {
+//     name: FantomNetwork.Testnet,
+//     chainId: EvmChainId.FantomTestnet,
+//   },
+// ];
 
-    super(standardNetwork, apiKey);
-  }
+// export class FtmScanProvider extends ethers.providers.EtherscanProvider {
+//   public constructor(network?: FantomNetwork, apiKey?: string) {
+//     const standardNetwork = network
+//       ? findOrThrow(networks, ({ name }) => name === network)
+//       : FantomNetwork.Mainnet;
 
-  public getBaseUrl(): string {
-    switch (this.network.name) {
-      case FantomNetwork.Mainnet:
-        return "https://api.ftmscan.com/";
-      case FantomNetwork.Testnet:
-        return "https://api-testnet.ftmscan.com/";
-      default:
-        throw new Error("Unknown network");
-    }
-  }
-}
+//     super(standardNetwork, apiKey);
+//   }
+
+//   public getBaseUrl(): string {
+//     switch (this.network.name) {
+//       case FantomNetwork.Mainnet:
+//         return "https://api.ftmscan.com/";
+//       case FantomNetwork.Testnet:
+//         return "https://api-testnet.ftmscan.com/";
+//       default:
+//         throw new Error("Unknown network");
+//     }
+//   }
+// }

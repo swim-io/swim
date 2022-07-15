@@ -19,25 +19,26 @@ interface Props {
   }>;
 }
 
-const { ecosystems } = useEnvironment(selectConfig, shallow);
-
 export const Transfer: VFC<Props> = ({
   token,
   from,
   to,
   isLoading,
   transactions,
-}) => (
-  <EuiText size="m">
-    <span style={{ display: "flex", alignItems: "center" }}>
-      {isLoading && <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />}
-      <span>{`Transfer ${token.project.displayName} from ${ECOSYSTEMS[from].displayName} to ${ECOSYSTEMS[to].displayName}`}</span>
-    </span>
-    <br />
-    <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
-      {transactions.map(({ txId, ecosystem }) => (
-        <TxListItem key={txId} txId={txId} ecosystem={ecosystem} />
-      ))}
-    </EuiListGroup>
-  </EuiText>
-);
+}) => {
+  const { ecosystems } = useEnvironment(selectConfig, shallow);
+  return (
+    <EuiText size="m">
+      <span style={{ display: "flex", alignItems: "center" }}>
+        {isLoading && <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />}
+        <span>{`Transfer ${token.project.displayName} from ${ecosystems[from].displayName} to ${ecosystems[to].displayName}`}</span>
+      </span>
+      <br />
+      <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
+        {transactions.map(({ txId, ecosystem }) => (
+          <TxListItem key={txId} txId={txId} ecosystem={ecosystem} />
+        ))}
+      </EuiListGroup>
+    </EuiText>
+  );
+};

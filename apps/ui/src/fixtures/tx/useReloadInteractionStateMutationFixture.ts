@@ -1,7 +1,11 @@
 import { PublicKey } from "@solana/web3.js";
+import { Env } from "@swim-io/core-types";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 
-import { EcosystemId, Env, findTokenById } from "../../config";
+import { findTokenById } from "../../config";
 import type { EvmTx, SolanaTx } from "../../models";
 import { Amount } from "../../models";
 
@@ -37,12 +41,12 @@ export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION = {
       [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
       [BNB_ECOSYSTEM_ID]: null,
       [ETHEREUM_ECOSYSTEM_ID]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
-      [EcosystemId.Acala]: null,
-      [EcosystemId.Aurora]: null,
-      [EcosystemId.Avalanche]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
-      [EcosystemId.Fantom]: null,
-      [EcosystemId.Karura]: null,
-      [EcosystemId.Polygon]: null,
+      // [EcosystemId.Acala]: null,
+      // [EcosystemId.Aurora]: null,
+      // [EcosystemId.Avalanche]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
+      // [EcosystemId.Fantom]: null,
+      // [EcosystemId.Karura]: null,
+      // [EcosystemId.Polygon]: null,
     },
   },
   requiredSplTokenAccounts: {},

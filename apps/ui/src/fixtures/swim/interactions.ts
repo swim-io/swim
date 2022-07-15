@@ -1,7 +1,7 @@
+import { Env } from "@swim-io/core-types";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 
-import { Env } from "../../config";
 import type { AddInteraction, SwapInteraction } from "../../models";
 import { Amount, InteractionType } from "../../models";
 
@@ -23,18 +23,18 @@ export const ETH_USDC_TO_SOL_USDC_SWAP: SwapInteraction = {
   },
   id: "05c0e3ea832571ae4c64e80b2e2a12f9",
   poolIds: ["hexapool"],
-  env: Env.CustomLocalnet,
+  env: Env.Custom,
   submittedAt: 1652947628411,
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
     bnb: null,
-    avalanche: null,
-    polygon: null,
-    aurora: null,
-    fantom: null,
-    karura: null,
-    acala: null,
+    // avalanche: null,
+    // polygon: null,
+    // aurora: null,
+    // fantom: null,
+    // karura: null,
+    // acala: null,
   },
 };
 
@@ -49,18 +49,18 @@ export const SOL_USDC_TO_ETH_USDC_SWAP: SwapInteraction = {
   },
   id: "0e9cdbbb60f72e02f99e3c81f447b0a8",
   poolIds: ["hexapool"],
-  env: Env.CustomLocalnet,
+  env: Env.Custom,
   submittedAt: 1652947575631,
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
     bnb: null,
-    avalanche: null,
-    polygon: null,
-    aurora: null,
-    fantom: null,
-    karura: null,
-    acala: null,
+    // avalanche: null,
+    // polygon: null,
+    // aurora: null,
+    // fantom: null,
+    // karura: null,
+    // acala: null,
   },
 };
 
@@ -75,18 +75,18 @@ export const SOL_USDC_TO_SOL_USDT_SWAP: SwapInteraction = {
   },
   id: "53e03b0127787c2ff0c9d6df1ed75a94",
   poolIds: ["hexapool"],
-  env: Env.CustomLocalnet,
+  env: Env.Custom,
   submittedAt: 1652947560467,
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: null,
     bnb: null,
-    avalanche: null,
-    polygon: null,
-    aurora: null,
-    fantom: null,
-    karura: null,
-    acala: null,
+    // avalanche: null,
+    // polygon: null,
+    // aurora: null,
+    // fantom: null,
+    // karura: null,
+    // acala: null,
   },
 };
 
@@ -101,18 +101,18 @@ export const BNB_USDT_TO_ETH_USDC_SWAP: SwapInteraction = {
   },
   id: "1e8cdbbb60f72e02f99e3c81f447b0a8",
   poolIds: ["hexapool"],
-  env: Env.CustomLocalnet,
+  env: Env.Custom,
   submittedAt: 1652947575631,
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
     bnb: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
-    avalanche: null,
-    polygon: null,
-    aurora: null,
-    fantom: null,
-    karura: null,
-    acala: null,
+    // avalanche: null,
+    // polygon: null,
+    // aurora: null,
+    // fantom: null,
+    // karura: null,
+    // acala: null,
   },
 };
 
@@ -136,18 +136,18 @@ export const ADD: AddInteraction = {
   lpTokenTargetEcosystem: SOLANA_ECOSYSTEM_ID,
   id: "b8b3e6b61df832c9815467f5fdc1fd6b",
   poolIds: ["hexapool"],
-  env: Env.CustomLocalnet,
+  env: Env.Custom,
   submittedAt: 1653063505510,
   connectedWallets: {
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
     bnb: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
-    avalanche: null,
-    polygon: null,
-    aurora: null,
-    fantom: null,
-    karura: null,
-    acala: null,
+    // avalanche: null,
+    // polygon: null,
+    // aurora: null,
+    // fantom: null,
+    // karura: null,
+    // acala: null,
   },
 };
 

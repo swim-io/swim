@@ -14,6 +14,8 @@ import {
   EuiTitle,
   EuiToolTip,
 } from "@elastic/eui";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";

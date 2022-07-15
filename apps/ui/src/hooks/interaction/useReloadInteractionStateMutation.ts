@@ -1,5 +1,4 @@
-import { EVM_PROTOCOL } from "@swim-io/evm-types";
-import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import { useMutation, useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
@@ -40,12 +39,12 @@ export const useReloadInteractionStateMutation = () => {
     (state) => state.updateInteractionState,
   );
   const getInteractionState = useInteractionState(selectGetInteractionState);
-  const { tokens, chains, pools } = useEnvironment(selectConfig, shallow);
+  const { env } = useEnvironment();
+  const { tokens, ecosystems, pools } = useEnvironment(selectConfig, shallow);
+  const solanaEcosystem = ecosystems[SOLANA_ECOSYSTEM_ID];
+  const [solanaChain] = solanaEcosystem.chains;
 
   return useMutation(async (interactionId: string) => {
-    const solanaChainSpec = chains[SOLANA_PROTOCOL][0];
-    const solanaWormhole = solanaChainSpec.wormhole;
-
     const interactionState = getInteractionState(interactionId);
 
     const {
@@ -98,14 +97,13 @@ export const useReloadInteractionStateMutation = () => {
       );
       if (txIds.approveAndTransferEvmToken.length === 0) {
         const sourceChainSpec = findOrThrow(
-          chains[EVM_PROTOCOL],
-          (chain) => chain.ecosystem === fromEcosystem,
+          ecosystems[fromEcosystem].chains,
+          (chain) => chain.env === env,
         );
-        const sourceWormhole = sourceChainSpec.wormhole;
         const match = evmTxs.find(
           (evmTx) =>
             evmTx.ecosystem === fromEcosystem &&
-            isLockEvmTx(sourceWormhole, token, evmTx),
+            isLockEvmTx(sourceChainSpec.wormholeTokenBridge, token, evmTx),
         );
         if (match) {
           updateInteractionState(interactionId, (draft) => {
@@ -124,7 +122,7 @@ export const useReloadInteractionStateMutation = () => {
       if (txIds.postVaaOnSolana.length === 0) {
         const match = solanaTxs.filter((solanaTx) =>
           isPostVaaSolanaTx(
-            solanaWormhole,
+            solanaChain.wormholeBridge,
             transfer.signatureSetAddress,
             solanaTx,
           ),
@@ -141,7 +139,7 @@ export const useReloadInteractionStateMutation = () => {
       if (txIds.claimTokenOnSolana === null) {
         const match = solanaTxs.find((solanaTx) =>
           isRedeemOnSolanaTx(
-            solanaWormhole,
+            solanaChain.wormholeTokenBridge,
             token,
             splTokenAccountAddress,
             solanaTx,
@@ -198,7 +196,12 @@ export const useReloadInteractionStateMutation = () => {
 
       if (txIds.transferSplToken === null) {
         const match = solanaTxs.find((solanaTx) =>
-          isLockSplTx(solanaWormhole, splTokenAccountAddress, token, solanaTx),
+          isLockSplTx(
+            solanaChain.wormholeTokenBridge,
+            splTokenAccountAddress,
+            token,
+            solanaTx,
+          ),
         );
         if (match) {
           updateInteractionState(interactionId, (draft) => {
@@ -210,12 +213,11 @@ export const useReloadInteractionStateMutation = () => {
 
       if (txIds.claimTokenOnEvm === null) {
         const destinationChainSpec = findOrThrow(
-          chains[EVM_PROTOCOL],
-          (chain) => chain.ecosystem === toEcosystem,
+          ecosystems[toEcosystem].chains,
+          (chain) => chain.env === env,
         );
-        const destinationWormhole = destinationChainSpec.wormhole;
         const match = evmTxs.find((evmTx) =>
-          isUnlockEvmTx(destinationWormhole, token, evmTx),
+          isUnlockEvmTx(destinationChainSpec.wormholeTokenBridge, token, evmTx),
         );
         if (match) {
           updateInteractionState(interactionId, (draft) => {

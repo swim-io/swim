@@ -1,3 +1,4 @@
+import type { Env } from "@swim-io/core-types";
 import { produce } from "immer";
 import create from "zustand";
 import type { GetState, SetState, StoreApi } from "zustand";
@@ -6,12 +7,6 @@ import { persist } from "zustand/middleware.js";
 
 import { DEFAULT_ENV, isValidEnv } from "../../config";
 
-export enum Env {
-  Mainnet = "Mainnet",
-  Devnet = "Devnet",
-  Localnet = "Localnet",
-  CustomLocalnet = "CustomLocalnet",
-}
 export interface EnvironmentState {
   readonly env: Env;
   readonly customLocalnetIp: string | null;

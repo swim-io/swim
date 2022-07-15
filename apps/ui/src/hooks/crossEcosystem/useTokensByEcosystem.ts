@@ -1,7 +1,9 @@
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId } from "../../config";
-import type { TokenSpec } from "../../config";
+import type { EcosystemId, TokenSpec } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { ReadonlyRecord } from "../../utils";
@@ -20,11 +22,11 @@ export const useTokensByEcosystem = (): ReadonlyRecord<
     [SOLANA_ECOSYSTEM_ID]: filterTokensByEcosystem(SOLANA_ECOSYSTEM_ID),
     [ETHEREUM_ECOSYSTEM_ID]: filterTokensByEcosystem(ETHEREUM_ECOSYSTEM_ID),
     [BNB_ECOSYSTEM_ID]: filterTokensByEcosystem(BNB_ECOSYSTEM_ID),
-    [EcosystemId.Avalanche]: filterTokensByEcosystem(EcosystemId.Avalanche),
-    [EcosystemId.Polygon]: filterTokensByEcosystem(EcosystemId.Polygon),
-    [EcosystemId.Aurora]: filterTokensByEcosystem(EcosystemId.Aurora),
-    [EcosystemId.Fantom]: filterTokensByEcosystem(EcosystemId.Fantom),
-    [EcosystemId.Karura]: filterTokensByEcosystem(EcosystemId.Karura),
-    [EcosystemId.Acala]: filterTokensByEcosystem(EcosystemId.Acala),
+    // [EcosystemId.Avalanche]: filterTokensByEcosystem(EcosystemId.Avalanche),
+    // [EcosystemId.Polygon]: filterTokensByEcosystem(EcosystemId.Polygon),
+    // [EcosystemId.Aurora]: filterTokensByEcosystem(EcosystemId.Aurora),
+    // [EcosystemId.Fantom]: filterTokensByEcosystem(EcosystemId.Fantom),
+    // [EcosystemId.Karura]: filterTokensByEcosystem(EcosystemId.Karura),
+    // [EcosystemId.Acala]: filterTokensByEcosystem(EcosystemId.Acala),
   };
 };

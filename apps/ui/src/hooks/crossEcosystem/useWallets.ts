@@ -1,4 +1,7 @@
-import { EcosystemId } from "../../config";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
+
 import type { Wallets } from "../../models";
 import { useEvmWallet } from "../evm/useEvmWallet";
 import { useSolanaWallet } from "../solana/useSolanaWallet";
@@ -7,10 +10,10 @@ export const useWallets = (): Wallets => ({
   [SOLANA_ECOSYSTEM_ID]: useSolanaWallet(),
   [ETHEREUM_ECOSYSTEM_ID]: useEvmWallet(),
   [BNB_ECOSYSTEM_ID]: useEvmWallet(),
-  [EcosystemId.Avalanche]: useEvmWallet(),
-  [EcosystemId.Polygon]: useEvmWallet(),
-  [EcosystemId.Aurora]: useEvmWallet(),
-  [EcosystemId.Fantom]: useEvmWallet(),
-  [EcosystemId.Karura]: useEvmWallet(),
-  [EcosystemId.Acala]: useEvmWallet(),
+  // [EcosystemId.Avalanche]: useEvmWallet(),
+  // [EcosystemId.Polygon]: useEvmWallet(),
+  // [EcosystemId.Aurora]: useEvmWallet(),
+  // [EcosystemId.Fantom]: useEvmWallet(),
+  // [EcosystemId.Karura]: useEvmWallet(),
+  // [EcosystemId.Acala]: useEvmWallet(),
 });

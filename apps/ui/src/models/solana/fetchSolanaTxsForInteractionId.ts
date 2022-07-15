@@ -1,9 +1,9 @@
 import type { ConfirmedSignatureInfo } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
+import { Env } from "@swim-io/core-types";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { QueryClient } from "react-query";
 
-import { Env } from "../../config";
 import type { SolanaTx } from "../crossEcosystem";
 import { INTERACTION_ID_LENGTH_HEX } from "../utils";
 
@@ -33,7 +33,7 @@ const addSolanaInteractionId = async (
   }
 
   // The workaround below requires many RPC calls which we don't want anywhere but localnet
-  if (env !== Env.Localnet && env !== Env.CustomLocalnet) {
+  if (env !== Env.Local && env !== Env.Custom) {
     return { signatureInfo, interactionId: null };
   }
 

@@ -29,7 +29,9 @@ export const useIsLargeSwap = (
   return (
     (fromToken.project.isStablecoin &&
       inputPoolUsdValue !== null &&
-      inputAmount.toHuman(EcosystemId.Solana).gt(inputPoolUsdValue.mul(0.1))) ||
+      inputAmount
+        .toHuman(SOLANA_ECOSYSTEM_ID)
+        .gt(inputPoolUsdValue.mul(0.1))) ||
     (toToken.project.isStablecoin &&
       outputPoolUsdValue !== null &&
       outputAmount !== null &&

@@ -204,7 +204,7 @@ export const AddForm = ({
   const userNativeBalances = useUserNativeBalances();
 
   const [lpTargetEcosystem, setLpTargetEcosystem] =
-    useState(SOLANA_ECOSYSTEM_ID);
+    useState<EcosystemId>(SOLANA_ECOSYSTEM_ID);
 
   const [formInputAmounts, setFormInputAmounts] = useState<readonly string[]>(
     poolTokens.map(() => "0"),
@@ -270,7 +270,8 @@ export const AddForm = ({
       id: ecosystemId,
       label: (
         <>
-          <EuiIcon type={ecosystem.logo} />
+          {/* TODO: Logo */}
+          <EuiIcon type={"xxx"} />
           &nbsp;{ecosystem.displayName}
         </>
       ),

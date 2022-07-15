@@ -1,10 +1,13 @@
 import { PublicKey } from "@solana/web3.js";
+import { Env } from "@swim-io/core-types";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import { utils } from "ethers";
 
 import { getUniqueSize } from "../utils";
 
 import type { EcosystemId } from "./ecosystem";
-import { Env } from "./env";
 import type { TokenSpec } from "./tokens";
 import { TOKENS as tokensByEnv } from "./tokens";
 
@@ -87,5 +90,5 @@ const generateSuite = (env: Env): void => {
 
 describe("Swim tokens config", () => {
   generateSuite(Env.Mainnet);
-  generateSuite(Env.Localnet);
+  generateSuite(Env.Local);
 });

@@ -44,13 +44,12 @@ export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
       >
         <ul>
           {txFeeArray.map(({ ecosystemId, txFee }) => {
-            const { displayName, nativeTokenSymbol } =
-              config.ecosystems[ecosystemId];
+            const { displayName, gasToken } = config.ecosystems[ecosystemId];
             return (
               <li key={ecosystemId}>
                 {displayName}
                 {": ~"}
-                {decimalRemoveTrailingZero(txFee)} {nativeTokenSymbol}
+                {decimalRemoveTrailingZero(txFee)} {gasToken.symbol}
               </li>
             );
           })}

@@ -1,8 +1,8 @@
 import { Env } from "@swim-io/core-types";
 import type {
-  EvmChainConfig,
-  EvmEcosystemConfig,
   EvmProtocol,
+  EvmChainConfig as GenericEvmChainConfig,
+  EvmEcosystemConfig as GenericEvmEcosystemConfig,
 } from "@swim-io/evm-types";
 import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import type {
@@ -46,13 +46,15 @@ export type EvmWormholeChainId = EthereumWormholeChainId | BnbWormholeChainId;
 export type WormholeChainId = SolanaWormholeChainId | EvmWormholeChainId;
 export type EvmChainId = EthereumChainId | BnbChainId;
 export type ChainId = SolanaChainId | EvmChainId;
-export type UiEvmEcosystemConfig = EvmEcosystemConfig<
+export type EvmChainConfig = GenericEvmChainConfig<EvmEcosystemId, EvmChainId>;
+export type ChainConfig = SolanaChainConfig | EvmChainConfig;
+export type EvmEcosystemConfig = GenericEvmEcosystemConfig<
   EvmEcosystemId,
   EvmWormholeChainId,
   EvmChainId,
-  EvmChainConfig<EvmEcosystemId, EvmChainId>
+  EvmChainConfig
 >;
-export type UiEcosystemConfig = SolanaEcosystemConfig | UiEvmEcosystemConfig;
+export type EcosystemConfig = SolanaEcosystemConfig | EvmEcosystemConfig;
 
 const SOLANA_MAINNET_RPC_URL = process.env.REACT_APP_SOLANA_MAINNET_RPC_URL;
 const SOLANA_MAINNET_WS_URL = process.env.REACT_APP_SOLANA_MAINNET_WS_URL;
@@ -70,7 +72,7 @@ export const isEvmEcosystemId = (
 ): ecosystemId is EvmEcosystemId =>
   (EVM_ECOSYSTEM_IDS as readonly string[]).includes(ecosystemId);
 
-export const ECOSYSTEM_LIST: readonly UiEcosystemConfig[] = [
+export const ECOSYSTEM_LIST: readonly EcosystemConfig[] = [
   solanaPlugin.createEcosystemConfig([
     {
       ...solanaPlugin.presetChains.get(Env.Mainnet)!,
@@ -119,23 +121,17 @@ export const ECOSYSTEM_LIST: readonly UiEcosystemConfig[] = [
   ]),
 ];
 
-export const ECOSYSTEMS: ReadonlyRecord<
-  EvmEcosystemId,
-  EvmEcosystemConfig<EvmEcosystemId, EvmWormholeChainId, EvmChainId>
-> &
+export const ECOSYSTEMS: ReadonlyRecord<EvmEcosystemId, EvmEcosystemConfig> &
   ReadonlyRecord<SolanaEcosystemId, SolanaEcosystemConfig> = Object.fromEntries(
   ECOSYSTEM_LIST.map((ecosystem) => [ecosystem.id, ecosystem]),
-) as ReadonlyRecord<
-  EvmEcosystemId,
-  EvmEcosystemConfig<EvmEcosystemId, EvmWormholeChainId, EvmChainId>
-> &
+) as ReadonlyRecord<EvmEcosystemId, EvmEcosystemConfig> &
   ReadonlyRecord<SolanaEcosystemId, SolanaEcosystemConfig>;
 
 export const getEcosystemsForProtocol = (
   protocol: Protocol,
 ): readonly EcosystemId[] => {
   return filterMap(
-    (ecosystem: UiEcosystemConfig) => ecosystem.protocol === protocol,
+    (ecosystem: EcosystemConfig) => ecosystem.protocol === protocol,
     (ecosystem) => ecosystem.id,
     ECOSYSTEM_LIST,
   );
@@ -143,10 +139,7 @@ export const getEcosystemsForProtocol = (
 
 export const ALL_UNIQUE_CHAINS = ECOSYSTEM_LIST.reduce<{
   readonly [SOLANA_PROTOCOL]: readonly SolanaChainConfig[];
-  readonly [EVM_PROTOCOL]: readonly EvmChainConfig<
-    EvmEcosystemId,
-    EvmChainId
-  >[];
+  readonly [EVM_PROTOCOL]: readonly EvmChainConfig[];
 }>(
   (chains, ecosystem) => ({
     ...chains,

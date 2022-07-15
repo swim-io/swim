@@ -1,6 +1,7 @@
+import { Env } from "@swim-io/core-types";
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { DEFAULT_ENV, Env } from "../../../config";
+import { DEFAULT_ENV } from "../../../config";
 import { useEnvironment } from "../useEnvironment";
 
 describe("useEnvironment", () => {

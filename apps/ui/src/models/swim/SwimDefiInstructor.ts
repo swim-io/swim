@@ -7,9 +7,9 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
+import type { Env } from "@swim-io/core-types";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
-import type { Env } from "../../config";
 import { isEachNotNull } from "../../utils";
 import type { Amount } from "../amount";
 import type { SolanaConnection } from "../solana";

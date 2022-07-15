@@ -16,12 +16,11 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import { PublicKey } from "@solana/web3.js";
-import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
 import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import {
   SOLANA_ECOSYSTEM_ID,
-  SOLANA_PROTOCOL,
+  SOLANA_WORMHOLE_CHAIN_ID,
 } from "@swim-io/plugin-ecosystem-solana";
 import BN from "bn.js";
 import type { ReactElement } from "react";
@@ -31,7 +30,7 @@ import shallow from "zustand/shallow.js";
 
 import { ConnectButton } from "../components/ConnectButton";
 import type { EvmEcosystemId } from "../config";
-import { WormholeChainId, getSolanaTokenDetails } from "../config";
+import { getSolanaTokenDetails } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import {
@@ -54,7 +53,7 @@ const SWIM_POOL_FEE_DECIMALS = 6;
 const TestPage = (): ReactElement => {
   const { env } = useEnvironment();
   const {
-    chains,
+    ecosystems,
     tokens,
     wormhole: wormholeConfig,
   } = useEnvironment(selectConfig, shallow);
@@ -122,13 +121,9 @@ const TestPage = (): ReactElement => {
   const swimUsdTokenSolanaDetails = getSolanaTokenDetails(swimUsdToken);
   const xSwimTokenSolanaDetails = getSolanaTokenDetails(xSwimToken);
 
-  const solanaChain = chains[SOLANA_PROTOCOL].find(Boolean)!;
-  const ethereumChain = chains[EVM_PROTOCOL].find(
-    (chain) => chain.ecosystem === ETHEREUM_ECOSYSTEM_ID,
-  )!;
-  const bnbChain = chains[EVM_PROTOCOL].find(
-    (chain) => chain.ecosystem === BNB_ECOSYSTEM_ID,
-  )!;
+  const [solanaChain] = ecosystems[SOLANA_ECOSYSTEM_ID].chains;
+  const [ethereumChain] = ecosystems[ETHEREUM_ECOSYSTEM_ID].chains;
+  const [bnbChain] = ecosystems[BNB_ECOSYSTEM_ID].chains;
 
   const [governanceAddress, setGovernanceAddress] = useState(
     "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
@@ -184,7 +179,7 @@ const TestPage = (): ReactElement => {
 
     const splTokenSetupResult = await setUpSplTokensOnEvm(
       wormholeConfig,
-      solanaChain.wormhole,
+      solanaChain,
       evmChain,
       solanaConnection,
       solanaWallet,
@@ -206,7 +201,7 @@ const TestPage = (): ReactElement => {
     const erc20TokenSetupResult = await setUpErc20Tokens(
       wormholeConfig,
       evmChain,
-      solanaChain.wormhole,
+      solanaChain,
       solanaConnection,
       solanaWallet,
       evmWallet,
@@ -252,7 +247,7 @@ const TestPage = (): ReactElement => {
 
     const splTokenEthereumSetupResult = await setUpSplTokensOnEvm(
       wormholeConfig,
-      solanaChain.wormhole,
+      solanaChain,
       ethereumChain,
       solanaConnection,
       solanaWallet,
@@ -265,7 +260,7 @@ const TestPage = (): ReactElement => {
 
     const splTokenBnbSetupResult = await setUpSplTokensOnEvm(
       wormholeConfig,
-      solanaChain.wormhole,
+      solanaChain,
       bnbChain,
       solanaConnection,
       solanaWallet,
@@ -302,7 +297,7 @@ const TestPage = (): ReactElement => {
         continue;
       }
       const receipt = await approveEth(
-        ethereumChain.wormhole.tokenBridge,
+        ethereumChain.wormholeTokenBridge,
         ethereumDetails.address,
         ethereumWallet.signer,
         hugeAmount,
@@ -317,7 +312,7 @@ const TestPage = (): ReactElement => {
         continue;
       }
       const receipt = await approveEth(
-        bnbChain.wormhole.tokenBridge,
+        bnbChain.wormholeTokenBridge,
         bnbDetails.address,
         bnbWallet.signer,
         hugeAmount,
@@ -342,7 +337,7 @@ const TestPage = (): ReactElement => {
         continue;
       }
       const receipt = await approveEth(
-        ethereumChain.wormhole.tokenBridge,
+        ethereumChain.wormholeTokenBridge,
         ethereumDetails.address,
         ethereumWallet.signer,
         zero,
@@ -357,7 +352,7 @@ const TestPage = (): ReactElement => {
         continue;
       }
       const receipt = await approveEth(
-        bnbChain.wormhole.tokenBridge,
+        bnbChain.wormholeTokenBridge,
         bnbDetails.address,
         bnbWallet.signer,
         zero,
@@ -375,9 +370,9 @@ const TestPage = (): ReactElement => {
     ]) {
       const wormholeAsset = new PublicKey(token).toBytes();
       const foreignAsset = await getForeignAssetEth(
-        ethereumChain.wormhole.tokenBridge,
+        ethereumChain.wormholeTokenBridge,
         evmConnections[ETHEREUM_ECOSYSTEM_ID].provider,
-        WormholeChainId.Solana,
+        SOLANA_WORMHOLE_CHAIN_ID,
         wormholeAsset,
       );
       console.info(`${token}: ${foreignAsset}`);
@@ -392,9 +387,9 @@ const TestPage = (): ReactElement => {
     ]) {
       const wormholeAsset = new PublicKey(token).toBytes();
       const foreignAsset = await getForeignAssetEth(
-        bnbChain.wormhole.tokenBridge,
+        bnbChain.wormholeTokenBridge,
         evmConnections[BNB_ECOSYSTEM_ID].provider,
-        WormholeChainId.Solana,
+        SOLANA_WORMHOLE_CHAIN_ID,
         wormholeAsset,
       );
       console.info(`${token}: ${foreignAsset}`);

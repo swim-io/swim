@@ -1,4 +1,5 @@
 import type solana from "@solana/web3.js";
+import { Env } from "@swim-io/core-types";
 import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { ethers } from "ethers";
@@ -6,7 +7,6 @@ import { mock, mockDeep } from "jest-mock-extended";
 
 import type { Config } from "../../config";
 import { CONFIGS } from "../../config";
-import { Env } from "../../config/env";
 import { parsedWormholeRedeemEvmUnlockWrappedTx } from "../../fixtures/solana/txs";
 import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
@@ -15,7 +15,7 @@ import { getTokensByPool, isPoolTx } from "./pool";
 describe("Pool tests", () => {
   describe("getTokensByPool", () => {
     it("returns tokens by pool id for localnet", () => {
-      const localnetConfig: Config = CONFIGS[Env.Localnet];
+      const localnetConfig: Config = CONFIGS[Env.Local];
       const result = getTokensByPool(localnetConfig);
 
       localnetConfig.pools.forEach((pool) => {

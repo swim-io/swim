@@ -1,3 +1,5 @@
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import { produce } from "immer";
 import type { GetState, SetState } from "zustand";
 import create from "zustand";

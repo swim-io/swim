@@ -1,7 +1,9 @@
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
@@ -67,8 +69,8 @@ describe("useAddFeesEstimationQuery", () => {
         useIsEvmGasPriceLoading([
           ETHEREUM_ECOSYSTEM_ID,
           BNB_ECOSYSTEM_ID,
-          EcosystemId.Polygon,
-          EcosystemId.Avalanche,
+          // EcosystemId.Polygon,
+          // EcosystemId.Avalanche,
         ]),
       );
       expect(result.current).toEqual(false);

@@ -3,11 +3,7 @@ import {
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
-import { EVM_PROTOCOL } from "@swim-io/evm-types";
-import {
-  SOLANA_ECOSYSTEM_ID,
-  SOLANA_PROTOCOL,
-} from "@swim-io/plugin-ecosystem-solana";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { ethers } from "ethers";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
@@ -47,16 +43,17 @@ const txResponseToTx = async (
 
 export const useToSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
-  const { chains, wormhole } = useEnvironment(selectConfig, shallow);
+  const { env } = useEnvironment();
+  const { ecosystems, wormhole } = useEnvironment(selectConfig, shallow);
   const solanaConnection = useSolanaConnection();
   const evmConnections = useEvmConnections();
   const wallets = useWallets();
   const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
-  const solanaWormhole = chains[SOLANA_PROTOCOL][0].wormhole;
   const updateInteractionState = useInteractionState(
     (state) => state.updateInteractionState,
   );
   const getInteractionState = useInteractionState(selectGetInteractionState);
+  const [solanaChain] = ecosystems[SOLANA_ECOSYSTEM_ID].chains;
 
   return useMutation(async (interactionId: string) => {
     if (!solanaWallet) {
@@ -89,8 +86,8 @@ export const useToSolanaTransferMutation = () => {
       }
       const evmConnection = evmConnections[fromEcosystem];
       const evmChain = findOrThrow(
-        chains[EVM_PROTOCOL],
-        ({ ecosystem }) => ecosystem === fromEcosystem,
+        ecosystems[fromEcosystem].chains,
+        (chain) => chain.env === env,
       );
       const fromTokenDetails = token.detailsByEcosystem.get(fromEcosystem);
       if (!fromTokenDetails) {
@@ -148,8 +145,8 @@ export const useToSolanaTransferMutation = () => {
           interaction,
         );
         const evmChain = findOrThrow(
-          chains[EVM_PROTOCOL],
-          ({ ecosystem }) => ecosystem === fromEcosystem,
+          ecosystems[fromEcosystem].chains,
+          (chain) => chain.env === env,
         );
         const evmConnection = evmConnections[fromEcosystem];
         const transferResponse = await evmConnection.provider.getTransaction(
@@ -164,7 +161,7 @@ export const useToSolanaTransferMutation = () => {
 
         return parseSequenceFromLogEth(
           transferTx.txReceipt,
-          evmChain.wormhole.bridge,
+          evmChain.wormholeBridge,
         );
       }),
     );
@@ -175,8 +172,8 @@ export const useToSolanaTransferMutation = () => {
         interaction,
       );
       const evmChain = findOrThrow(
-        chains[EVM_PROTOCOL],
-        ({ ecosystem }) => ecosystem === fromEcosystem,
+        ecosystems[fromEcosystem].chains,
+        (chain) => chain.env === env,
       );
       const sequence = sequences[index];
       // Claim token completed, skip
@@ -193,9 +190,9 @@ export const useToSolanaTransferMutation = () => {
         interactionId,
         wormhole.rpcUrls,
         ECOSYSTEMS[fromEcosystem].wormholeChainId,
-        getEmitterAddressEth(evmChain.wormhole.tokenBridge),
+        getEmitterAddressEth(evmChain.wormholeTokenBridge),
         sequence,
-        solanaWormhole,
+        solanaChain,
         solanaConnection,
         solanaWallet,
         signatureKeyPair,

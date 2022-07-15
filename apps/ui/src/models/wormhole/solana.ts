@@ -13,14 +13,11 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { PublicKey, Transaction } from "@solana/web3.js";
+import type { SolanaChainConfig } from "@swim-io/plugin-ecosystem-solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
-import type { TokenSpec, WormholeChainSpec } from "../../config";
-import {
-  EcosystemId,
-  WormholeChainId,
-  getSolanaTokenDetails,
-} from "../../config";
+import type { TokenSpec, WormholeChainId } from "../../config";
+import { getSolanaTokenDetails } from "../../config";
 import type { SolanaTx } from "../crossEcosystem";
 import type { SolanaConnection } from "../solana";
 import {
@@ -34,7 +31,7 @@ import type { SolanaWalletAdapter } from "../wallets";
 
 import {
   DEFAULT_WORMHOLE_RETRIES,
-  POLYGON_WORMHOLE_RETRIES,
+  // POLYGON_WORMHOLE_RETRIES,
 } from "./constants";
 import { postVaaSolanaWithRetry, redeemOnSolana } from "./overrides";
 
@@ -54,14 +51,14 @@ export const parseSequenceFromLogSolana = (
 };
 
 export const isLockSplTx = (
-  wormholeChainSpec: WormholeChainSpec,
+  wormholeTokenBridge: string,
   splTokenAccountAddress: string,
   token: TokenSpec,
   { parsedTx }: SolanaTx,
 ): boolean => {
   if (
     !parsedTx.transaction.message.instructions.some(
-      (ix) => ix.programId.toBase58() === wormholeChainSpec.tokenBridge,
+      (ix) => ix.programId.toBase58() === wormholeTokenBridge,
     )
   ) {
     return false;
@@ -84,7 +81,7 @@ export const isPartiallyDecodedInstruction = (
   !!(ix as PartiallyDecodedInstruction).accounts;
 
 export const isPostVaaSolanaTx = (
-  wormholeChainSpec: WormholeChainSpec,
+  wormholeBridge: string,
   signatureSetAddress: string | null,
   tx: SolanaTx,
 ): boolean => {
@@ -94,20 +91,20 @@ export const isPostVaaSolanaTx = (
   return tx.parsedTx.transaction.message.instructions.some(
     (ix) =>
       isPartiallyDecodedInstruction(ix) &&
-      ix.programId.toBase58() === wormholeChainSpec.bridge &&
+      ix.programId.toBase58() === wormholeBridge &&
       ix.accounts.some((account) => account.toBase58() === signatureSetAddress),
   );
 };
 
 export const isRedeemOnSolanaTx = (
-  wormholeChainSpec: WormholeChainSpec,
+  wormholeTokenBridge: string,
   token: TokenSpec,
   splTokenAccount: string,
   { parsedTx }: SolanaTx,
 ): boolean => {
   if (
     !parsedTx.transaction.message.instructions.some(
-      (ix) => ix.programId.toBase58() === wormholeChainSpec.tokenBridge,
+      (ix) => ix.programId.toBase58() === wormholeTokenBridge,
     )
   ) {
     return false;
@@ -173,7 +170,7 @@ export async function* generateUnlockSplTokenTxIds(
   wormholeChainId: WormholeChainId,
   emitterAddress: string,
   sequence: string,
-  solanaWormhole: WormholeChainSpec,
+  solanaChain: SolanaChainConfig,
   solanaConnection: SolanaConnection,
   solanaWallet: SolanaWalletAdapter,
   signatureSetKeypair: Keypair,
@@ -183,9 +180,10 @@ export async function* generateUnlockSplTokenTxIds(
     throw new Error("No Solana public key");
   }
   const retries =
-    wormholeChainId === WormholeChainId.Polygon
-      ? POLYGON_WORMHOLE_RETRIES
-      : DEFAULT_WORMHOLE_RETRIES;
+    // wormholeChainId === WormholeChainId.Polygon
+    //   ? POLYGON_WORMHOLE_RETRIES
+    // :
+    DEFAULT_WORMHOLE_RETRIES;
   const { vaaBytes } = await getSignedVAAWithRetry(
     [...wormholeRpcUrls],
     wormholeChainId,
@@ -199,7 +197,7 @@ export async function* generateUnlockSplTokenTxIds(
     interactionId,
     solanaConnection,
     solanaWallet.signTransaction.bind(solanaWallet),
-    solanaWormhole.bridge,
+    solanaChain.wormholeBridge,
     solanaPublicKey.toBase58(),
     Buffer.from(vaaBytes),
     signatureSetKeypair,
@@ -209,8 +207,8 @@ export async function* generateUnlockSplTokenTxIds(
   }
   const redeemTx = await redeemOnSolana(
     interactionId,
-    solanaWormhole.bridge,
-    solanaWormhole.tokenBridge,
+    solanaChain.wormholeBridge,
+    solanaChain.wormholeTokenBridge,
     solanaPublicKey.toBase58(),
     vaaBytes,
   );
@@ -226,7 +224,7 @@ export const unlockSplToken = async (
   wormholeChainId: WormholeChainId,
   emitterAddress: string,
   sequence: string,
-  solanaWormhole: WormholeChainSpec,
+  solanaChain: SolanaChainConfig,
   solanaConnection: SolanaConnection,
   solanaWallet: SolanaWalletAdapter,
 ): Promise<readonly string[]> => {
@@ -235,9 +233,10 @@ export const unlockSplToken = async (
     throw new Error("No Solana public key");
   }
   const retries =
-    wormholeChainId === WormholeChainId.Polygon
-      ? POLYGON_WORMHOLE_RETRIES
-      : DEFAULT_WORMHOLE_RETRIES;
+    // wormholeChainId === WormholeChainId.Polygon
+    //   ? POLYGON_WORMHOLE_RETRIES
+    //   :
+    DEFAULT_WORMHOLE_RETRIES;
   const { vaaBytes } = await getSignedVAAWithRetry(
     [...wormholeRpcUrls],
     wormholeChainId,
@@ -251,14 +250,14 @@ export const unlockSplToken = async (
     interactionId,
     solanaConnection,
     solanaWallet.signTransaction.bind(solanaWallet),
-    solanaWormhole.bridge,
+    solanaChain.wormholeBridge,
     solanaPublicKey.toBase58(),
     Buffer.from(vaaBytes),
   );
   const tx = await redeemOnSolana(
     interactionId,
-    solanaWormhole.bridge,
-    solanaWormhole.tokenBridge,
+    solanaChain.wormholeBridge,
+    solanaChain.wormholeTokenBridge,
     solanaPublicKey.toBase58(),
     vaaBytes,
   );

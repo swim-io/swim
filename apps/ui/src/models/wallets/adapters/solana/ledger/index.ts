@@ -1,6 +1,7 @@
 import type Transport from "@ledgerhq/hw-transport";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import type { PublicKey, Transaction } from "@solana/web3.js";
+import type { SolanaProtocol } from "@swim-io/plugin-ecosystem-solana";
 import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import EventEmitter from "eventemitter3";
 
@@ -16,7 +17,7 @@ export class LedgerWalletAdapter
   _connecting: boolean;
   _publicKey: PublicKey | null;
   _transport: Transport | null;
-  readonly protocol: SOLANA_PROTOCOL;
+  readonly protocol: SolanaProtocol;
 
   constructor() {
     super();

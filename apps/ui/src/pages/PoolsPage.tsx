@@ -25,15 +25,19 @@ import shallow from "zustand/shallow.js";
 
 import { atomicToTvlString, u64ToDecimal } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
-import type { PoolSpec, SolanaPoolSpec, TokenSpec } from "../config";
-import {
+import type {
   EcosystemId,
-  PROJECTS,
+  PoolSpec,
+  SolanaPoolSpec,
   TokenProjectId,
+  TokenSpec,
+} from "../config";
+import {
+  // PROJECTS,
   getPoolTokenEcosystems,
   getSolanaTokenDetails,
   hasTokenEcosystem,
-  isEcosystemEnabled,
+  // isEcosystemEnabled,
 } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
@@ -187,7 +191,8 @@ const PoolsPage = (): ReactElement => {
           >
             <EuiFlexItem grow={false} style={{ marginRight: 20 }}>
               <EuiIcon
-                type={ecosystem.logo}
+                // TODO: Logo
+                type={"ecosystem.logo"}
                 size="m"
                 title={ecosystem.displayName}
               />
@@ -246,7 +251,7 @@ const PoolsPage = (): ReactElement => {
     return 0;
   });
 
-  const isUnfiltered = tokenProjectId === "all" && ecosystemId === "all";
+  // const isUnfiltered = tokenProjectId === "all" && ecosystemId === "all";
   const listSpacerSize = "l";
 
   const content = isLoading ? (
@@ -288,7 +293,7 @@ const PoolsPage = (): ReactElement => {
         />
       )}
 
-      {(isUnfiltered || ecosystemId === EcosystemId.Aurora) && (
+      {/* {(isUnfiltered || ecosystemId === EcosystemId.Aurora) && (
         <>
           <EuiSpacer size={listSpacerSize} />
 
@@ -305,7 +310,7 @@ const PoolsPage = (): ReactElement => {
               {
                 id: "mainnet-solana-lp-hexapool",
                 project: PROJECTS[TokenProjectId.SwimUsd],
-                nativeEcosystem: EcosystemId.Solana,
+                nativeEcosystem: SOLANA_ECOSYSTEM_ID,
                 detailsByEcosystem: new Map(),
               },
             ]}
@@ -331,7 +336,7 @@ const PoolsPage = (): ReactElement => {
                 {
                   id: "mainnet-solana-lp-hexapool",
                   project: PROJECTS[TokenProjectId.SwimUsd],
-                  nativeEcosystem: EcosystemId.Solana,
+                  nativeEcosystem: SOLANA_ECOSYSTEM_ID,
                   detailsByEcosystem: new Map(),
                 },
               ]}
@@ -352,7 +357,7 @@ const PoolsPage = (): ReactElement => {
                 {
                   id: "mainnet-solana-lp-hexapool",
                   project: PROJECTS[TokenProjectId.SwimUsd],
-                  nativeEcosystem: EcosystemId.Solana,
+                  nativeEcosystem: SOLANA_ECOSYSTEM_ID,
                   detailsByEcosystem: new Map(),
                 },
               ]}
@@ -378,13 +383,13 @@ const PoolsPage = (): ReactElement => {
                 {
                   id: "mainnet-solana-lp-hexapool",
                   project: PROJECTS[TokenProjectId.SwimUsd],
-                  nativeEcosystem: EcosystemId.Solana,
+                  nativeEcosystem: SOLANA_ECOSYSTEM_ID,
                   detailsByEcosystem: new Map(),
                 },
               ]}
             />
           </>
-        )}
+        )} */}
     </>
   );
 

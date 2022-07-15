@@ -1,3 +1,5 @@
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
+
 import type { EcosystemId } from "../../config";
 
 import type { InteractionState } from "./interactionState";

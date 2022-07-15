@@ -1,4 +1,5 @@
 import type { MintInfo, AccountInfo as TokenAccount } from "@solana/spl-token";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { SwimPoolState } from "@swim-io/solana-types";
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";

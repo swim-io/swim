@@ -1,42 +1,42 @@
 import { BscscanProvider } from "@ethers-ancillary/bsc";
+import { Env } from "@swim-io/core-types";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
 
-import type { EvmEcosystemId, EvmSpec } from "../../config";
-import { EcosystemId, Env, isEcosystemEnabled } from "../../config";
+import type { EvmChainConfig, EvmEcosystemId } from "../../config";
+import { isEcosystemEnabled } from "../../config";
 import { isNotNull } from "../../utils";
 
-import { AuroraNetwork, AuroraScanProvider } from "./AuroraScanProvider";
-import { FantomNetwork, FtmScanProvider } from "./FtmScanProvider";
+// import { AuroraNetwork, AuroraScanProvider } from "./AuroraScanProvider";
+// import { FantomNetwork, FtmScanProvider } from "./FtmScanProvider";
 import { LocalnetProvider } from "./LocalnetProvider";
 import { MoralisProvider } from "./MoralisProvider";
-import { PolkadotProvider } from "./PolkadotProvider";
-import { PolygonNetwork, PolygonScanProvider } from "./PolygonScanProvider";
-import { AvalancheNetwork, SnowTraceProvider } from "./SnowTraceProvider";
+// import { PolkadotProvider } from "./PolkadotProvider";
+// import { PolygonNetwork, PolygonScanProvider } from "./PolygonScanProvider";
+// import { AvalancheNetwork, SnowTraceProvider } from "./SnowTraceProvider";
 import { Erc20Factory } from "./erc20";
 
 type EtherscanProvider = ethers.providers.EtherscanProvider;
 type TransactionReceipt = ethers.providers.TransactionReceipt;
 type TransactionResponse = ethers.providers.TransactionResponse;
 
-export type Provider =
-  | MoralisProvider
-  | EtherscanProvider
-  | LocalnetProvider
-  | PolkadotProvider;
+export type Provider = MoralisProvider | EtherscanProvider | LocalnetProvider;
+// | PolkadotProvider;
 
 // TODO: Use proper endpoints via env
 const BNB_MAINNET_RPC_URL = process.env.REACT_APP_BNB_MAINNET_RPC_URL;
 const BNB_TESTNET_RPC_URL = process.env.REACT_APP_BNB_TESTNET_RPC_URL;
 
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
-const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
-const FTMSCAN_API_KEY = process.env.REACT_APP_FTMSCAN_API_KEY;
-const AURORASCAN_API_KEY = process.env.REACT_APP_AURORASCAN_API_KEY;
-const SNOWTRACE_API_KEY = process.env.REACT_APP_SNOWTRACE_API_KEY;
+// const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
+// const FTMSCAN_API_KEY = process.env.REACT_APP_FTMSCAN_API_KEY;
+// const AURORASCAN_API_KEY = process.env.REACT_APP_AURORASCAN_API_KEY;
+// const SNOWTRACE_API_KEY = process.env.REACT_APP_SNOWTRACE_API_KEY;
 
-const KARURA_MAINNET_RPC_URL = process.env.REACT_APP_KARURA_MAINNET_RPC_URL;
-const KARURA_MAINNET_SUBQL_URL = process.env.REACT_APP_KARURA_MAINNET_SUBQL_URL;
+// const KARURA_MAINNET_RPC_URL = process.env.REACT_APP_KARURA_MAINNET_RPC_URL;
+// const KARURA_MAINNET_SUBQL_URL = process.env.REACT_APP_KARURA_MAINNET_SUBQL_URL;
 
 const MORALIS_ID = "Swim UI";
 
@@ -70,50 +70,50 @@ const getBscscanNetwork = (env: Env): ethers.providers.Networkish => {
   }
 };
 
-const getPolygonScanNetwork = (env: Env): PolygonNetwork => {
-  switch (env) {
-    case Env.Mainnet:
-      return PolygonNetwork.Mainnet;
-    case Env.Devnet:
-      return PolygonNetwork.Testnet;
-    default:
-      throw new Error(`PolygonScan does not support ${env}`);
-  }
-};
+// const getPolygonScanNetwork = (env: Env): PolygonNetwork => {
+//   switch (env) {
+//     case Env.Mainnet:
+//       return PolygonNetwork.Mainnet;
+//     case Env.Devnet:
+//       return PolygonNetwork.Testnet;
+//     default:
+//       throw new Error(`PolygonScan does not support ${env}`);
+//   }
+// };
 
-const getSnowTraceNetwork = (env: Env): AvalancheNetwork => {
-  switch (env) {
-    case Env.Mainnet:
-      return AvalancheNetwork.Mainnet;
-    case Env.Devnet:
-      return AvalancheNetwork.Testnet;
-    default:
-      throw new Error(`SnowTrace does not support ${env}`);
-  }
-};
+// const getSnowTraceNetwork = (env: Env): AvalancheNetwork => {
+//   switch (env) {
+//     case Env.Mainnet:
+//       return AvalancheNetwork.Mainnet;
+//     case Env.Devnet:
+//       return AvalancheNetwork.Testnet;
+//     default:
+//       throw new Error(`SnowTrace does not support ${env}`);
+//   }
+// };
 
-// TODO: Move this function to FtmScanProvider.ts
-const getFtmScanNetwork = (env: Env): FantomNetwork => {
-  switch (env) {
-    case Env.Mainnet:
-      return FantomNetwork.Mainnet;
-    case Env.Devnet:
-      return FantomNetwork.Testnet;
-    default:
-      throw new Error(`FtmScan does not support ${env}`);
-  }
-};
+// // TODO: Move this function to FtmScanProvider.ts
+// const getFtmScanNetwork = (env: Env): FantomNetwork => {
+//   switch (env) {
+//     case Env.Mainnet:
+//       return FantomNetwork.Mainnet;
+//     case Env.Devnet:
+//       return FantomNetwork.Testnet;
+//     default:
+//       throw new Error(`FtmScan does not support ${env}`);
+//   }
+// };
 
-const getAuroraScanNetwork = (env: Env): AuroraNetwork => {
-  switch (env) {
-    case Env.Mainnet:
-      return AuroraNetwork.Mainnet;
-    case Env.Devnet:
-      return AuroraNetwork.Testnet;
-    default:
-      throw new Error(`AuroraScan does not support ${env}`);
-  }
-};
+// const getAuroraScanNetwork = (env: Env): AuroraNetwork => {
+//   switch (env) {
+//     case Env.Mainnet:
+//       return AuroraNetwork.Mainnet;
+//     case Env.Devnet:
+//       return AuroraNetwork.Testnet;
+//     default:
+//       throw new Error(`AuroraScan does not support ${env}`);
+//   }
+// };
 
 const getBnbRpcUrl = (env: Env): string => {
   switch (env) {
@@ -132,77 +132,77 @@ const getBnbRpcUrl = (env: Env): string => {
   }
 };
 
-const getKaruraProvider = (env: Env): string => {
-  switch (env) {
-    case Env.Mainnet:
-      if (KARURA_MAINNET_RPC_URL === undefined) {
-        throw new Error("KARURA_MAINNET_RPC_URL is undefined");
-      }
-      return KARURA_MAINNET_RPC_URL;
-    case Env.Devnet:
-    default:
-      throw new Error(
-        `Karura provider (AcalaProvider) does not support ${env}`,
-      );
-  }
-};
+// const getKaruraProvider = (env: Env): string => {
+//   switch (env) {
+//     case Env.Mainnet:
+//       if (KARURA_MAINNET_RPC_URL === undefined) {
+//         throw new Error("KARURA_MAINNET_RPC_URL is undefined");
+//       }
+//       return KARURA_MAINNET_RPC_URL;
+//     case Env.Devnet:
+//     default:
+//       throw new Error(
+//         `Karura provider (AcalaProvider) does not support ${env}`,
+//       );
+//   }
+// };
 
-const getKaruraSubQl = (env: Env): string => {
-  switch (env) {
-    case Env.Mainnet:
-      if (KARURA_MAINNET_SUBQL_URL === undefined) {
-        throw new Error("KARURA_MAINNET_SUBQL_URL is undefined");
-      }
-      return KARURA_MAINNET_SUBQL_URL;
-    case Env.Devnet:
-    default:
-      throw new Error(`Karura SubQL does not support ${env}`);
-  }
-};
+// const getKaruraSubQl = (env: Env): string => {
+//   switch (env) {
+//     case Env.Mainnet:
+//       if (KARURA_MAINNET_SUBQL_URL === undefined) {
+//         throw new Error("KARURA_MAINNET_SUBQL_URL is undefined");
+//       }
+//       return KARURA_MAINNET_SUBQL_URL;
+//     case Env.Devnet:
+//     default:
+//       throw new Error(`Karura SubQL does not support ${env}`);
+//   }
+// };
 
 export class EvmConnection {
   public provider: Provider;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly txReceiptCache: Map<string, TransactionReceipt>;
 
-  constructor(env: Env, chainSpec: EvmSpec) {
+  constructor(env: Env, chainSpec: EvmChainConfig) {
     this.provider = EvmConnection.getIndexerProvider(env, chainSpec);
     this.txReceiptCache = new Map();
   }
 
   public static getIndexerProvider(
     env: Env,
-    { ecosystem, rpcUrls }: EvmSpec,
+    { ecosystemId, publicRpcUrl }: EvmChainConfig,
   ): Provider {
-    if (!isEcosystemEnabled(ecosystem)) {
-      return new LocalnetProvider(rpcUrls[0]);
+    if (!isEcosystemEnabled(ecosystemId)) {
+      return new LocalnetProvider(publicRpcUrl);
     }
-    switch (ecosystem) {
-      case EcosystemId.Acala:
-        return new LocalnetProvider(rpcUrls[0]);
-      case EcosystemId.Aurora:
-      case EcosystemId.Fantom:
+    switch (ecosystemId) {
+      // case EcosystemId.Acala:
+      //   return new LocalnetProvider(publicRpcUrl);
+      // case EcosystemId.Aurora:
+      // case EcosystemId.Fantom:
+      // case EcosystemId.Avalanche:
+      // case EcosystemId.Polygon:
       case BNB_ECOSYSTEM_ID:
-      case EcosystemId.Avalanche:
       case ETHEREUM_ECOSYSTEM_ID:
-      case EcosystemId.Polygon:
         switch (env) {
           case Env.Mainnet:
           case Env.Devnet:
-            return EvmConnection.getPublicEvmIndexerProvider(env, ecosystem);
+            return EvmConnection.getPublicEvmIndexerProvider(env, ecosystemId);
           default: {
-            return new LocalnetProvider(rpcUrls[0]);
+            return new LocalnetProvider(publicRpcUrl);
           }
         }
-      case EcosystemId.Karura:
-        switch (env) {
-          case Env.Mainnet:
-            return EvmConnection.getPublicEvmIndexerProvider(env, ecosystem);
-          case Env.Devnet:
-          default: {
-            return new LocalnetProvider(rpcUrls[0]);
-          }
-        }
+      // case EcosystemId.Karura:
+      //   switch (env) {
+      //     case Env.Mainnet:
+      //       return EvmConnection.getPublicEvmIndexerProvider(env, ecosystem);
+      //     case Env.Devnet:
+      //     default: {
+      //       return new LocalnetProvider(publicRpcUrl);
+      //     }
+      //   }
     }
   }
 
@@ -227,37 +227,37 @@ export class EvmConnection {
           }
           return new BscscanProvider(getBscscanNetwork(env));
         }
-      case EcosystemId.Avalanche: {
-        return new SnowTraceProvider(
-          getSnowTraceNetwork(env),
-          SNOWTRACE_API_KEY,
-        );
-      }
-      case EcosystemId.Polygon: {
-        return new PolygonScanProvider(
-          getPolygonScanNetwork(env),
-          POLYGONSCAN_API_KEY,
-        );
-      }
-      case EcosystemId.Karura: {
-        return new PolkadotProvider(
-          getKaruraProvider(env),
-          getKaruraSubQl(env),
-        );
-      }
+      // case EcosystemId.Avalanche: {
+      //   return new SnowTraceProvider(
+      //     getSnowTraceNetwork(env),
+      //     SNOWTRACE_API_KEY,
+      //   );
+      // }
+      // case EcosystemId.Polygon: {
+      //   return new PolygonScanProvider(
+      //     getPolygonScanNetwork(env),
+      //     POLYGONSCAN_API_KEY,
+      //   );
+      // }
+      // case EcosystemId.Karura: {
+      //   return new PolkadotProvider(
+      //     getKaruraProvider(env),
+      //     getKaruraSubQl(env),
+      //   );
+      // }
       // TODO: Refactor repetitive code for PolygonScanProvider, SnowTraceProvider, FtmScanProvider, AuroraScanProvider
       // Provider classes are the same.
       // Differences are in `{X}Network`, `{X}Provider#constructor`, and URLs in `{X}Provider#getBaseUrl`
       // In EvmConnection, code is almost the same in `get{X}Network` functions and in switch-case in `getPublicEvmIndexerProvider`
-      case EcosystemId.Fantom: {
-        return new FtmScanProvider(getFtmScanNetwork(env), FTMSCAN_API_KEY);
-      }
-      case EcosystemId.Aurora: {
-        return new AuroraScanProvider(
-          getAuroraScanNetwork(env),
-          AURORASCAN_API_KEY,
-        );
-      }
+      // case EcosystemId.Fantom: {
+      //   return new FtmScanProvider(getFtmScanNetwork(env), FTMSCAN_API_KEY);
+      // }
+      // case EcosystemId.Aurora: {
+      //   return new AuroraScanProvider(
+      //     getAuroraScanNetwork(env),
+      //     AURORASCAN_API_KEY,
+      //   );
+      // }
       default:
         throw new Error(`Unsupported EVM ecosystem: ${ecosystemId}`);
     }

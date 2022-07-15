@@ -12,10 +12,12 @@ import {
 } from "@certusone/wormhole-sdk";
 import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
 import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import type { SolanaChainConfig } from "@swim-io/plugin-ecosystem-solana";
+import { SOLANA_WORMHOLE_CHAIN_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { ContractReceipt } from "ethers";
 
-import type { EvmSpec, WormholeChainSpec, WormholeConfig } from "../../config";
-import { ECOSYSTEMS, WormholeChainId } from "../../config";
+import type { ChainConfig, EvmChainConfig, WormholeConfig } from "../../config";
+import { ECOSYSTEMS } from "../../config";
 import type { SolanaConnection } from "../solana";
 import { DEFAULT_MAX_RETRIES } from "../solana";
 import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
@@ -34,7 +36,7 @@ export interface AttestationResult {
 }
 
 export const attestSplToken = async (
-  solanaWormhole: WormholeChainSpec,
+  chain: ChainConfig,
   solanaConnection: SolanaConnection,
   solanaWallet: SolanaWalletAdapter,
   mintAddress: string,
@@ -45,8 +47,8 @@ export const attestSplToken = async (
 
   const tx = await attestFromSolana(
     solanaConnection.rawConnection,
-    solanaWormhole.bridge,
-    solanaWormhole.tokenBridge,
+    chain.wormholeBridge,
+    chain.wormholeTokenBridge,
     solanaWallet.publicKey.toBase58(),
     mintAddress,
   );
@@ -59,7 +61,7 @@ export const attestSplToken = async (
 
   const sequence = parseSequenceFromLogSolana(info);
   const emitterAddress = await getEmitterAddressSolana(
-    solanaWormhole.tokenBridge,
+    chain.wormholeTokenBridge,
   );
 
   return {
@@ -71,8 +73,8 @@ export const attestSplToken = async (
 
 export const setUpSplTokensOnEvm = async (
   { rpcUrls }: WormholeConfig,
-  solanaWormhole: WormholeChainSpec,
-  evmChain: EvmSpec,
+  solanaChain: SolanaChainConfig,
+  evmChain: EvmChainConfig,
   solanaConnection: SolanaConnection,
   solanaWallet: SolanaWalletAdapter,
   evmWallet: EvmWalletAdapter,
@@ -86,12 +88,7 @@ export const setUpSplTokensOnEvm = async (
 
   const attestations = await Promise.all(
     mintAddresses.map((mintAddress) =>
-      attestSplToken(
-        solanaWormhole,
-        solanaConnection,
-        solanaWallet,
-        mintAddress,
-      ),
+      attestSplToken(solanaChain, solanaConnection, solanaWallet, mintAddress),
     ),
   );
 
@@ -99,7 +96,7 @@ export const setUpSplTokensOnEvm = async (
     attestations.map(({ emitterAddress, sequence }) =>
       getSignedVAAWithRetry(
         [...rpcUrls],
-        WormholeChainId.Solana,
+        SOLANA_WORMHOLE_CHAIN_ID,
         emitterAddress,
         sequence,
       ),
@@ -112,7 +109,7 @@ export const setUpSplTokensOnEvm = async (
     evmReceipts = [
       ...evmReceipts,
       await createWrappedOnEth(
-        evmChain.wormhole.tokenBridge,
+        evmChain.wormholeTokenBridge,
         evmWallet.signer,
         vaaBytes,
       ),
@@ -121,13 +118,14 @@ export const setUpSplTokensOnEvm = async (
   const evmTxIds = evmReceipts.map(({ transactionHash }) => transactionHash);
   return {
     solanaTxIds: attestations.map(({ txId }) => txId),
-    ethereumTxIds: evmChain.ecosystem === ETHEREUM_ECOSYSTEM_ID ? evmTxIds : [],
-    bnbTxIds: evmChain.ecosystem === BNB_ECOSYSTEM_ID ? evmTxIds : [],
+    ethereumTxIds:
+      evmChain.ecosystemId === ETHEREUM_ECOSYSTEM_ID ? evmTxIds : [],
+    bnbTxIds: evmChain.ecosystemId === BNB_ECOSYSTEM_ID ? evmTxIds : [],
   };
 };
 
 export const attestErc20Token = async (
-  evmChain: EvmSpec,
+  evmChain: EvmChainConfig,
   evmWallet: EvmWalletAdapter,
   tokenContractAddress: string,
 ): Promise<AttestationResult> => {
@@ -138,12 +136,12 @@ export const attestErc20Token = async (
   await evmWallet.switchNetwork(evmChain.chainId);
 
   const receipt = await attestFromEth(
-    evmChain.wormhole.tokenBridge,
+    evmChain.wormholeTokenBridge,
     evmWallet.signer,
     tokenContractAddress,
   );
-  const sequence = parseSequenceFromLogEth(receipt, evmChain.wormhole.bridge);
-  const emitterAddress = getEmitterAddressEth(evmChain.wormhole.tokenBridge);
+  const sequence = parseSequenceFromLogEth(receipt, evmChain.wormholeBridge);
+  const emitterAddress = getEmitterAddressEth(evmChain.wormholeTokenBridge);
 
   return {
     txId: receipt.transactionHash,
@@ -154,8 +152,8 @@ export const attestErc20Token = async (
 
 export const setUpErc20Tokens = async (
   { rpcUrls }: WormholeConfig,
-  evmChain: EvmSpec,
-  solanaWormhole: WormholeChainSpec,
+  evmChain: EvmChainConfig,
+  solanaChain: SolanaChainConfig,
   solanaConnection: SolanaConnection,
   solanaWallet: SolanaWalletAdapter,
   evmWallet: EvmWalletAdapter,
@@ -170,7 +168,7 @@ export const setUpErc20Tokens = async (
     ];
   }
 
-  const evmEcosystem = ECOSYSTEMS[evmChain.ecosystem];
+  const evmEcosystem = ECOSYSTEMS[evmChain.ecosystemId];
   const vaas = await Promise.all(
     attestations.map(({ emitterAddress, sequence }) =>
       getSignedVAAWithRetry(
@@ -190,7 +188,7 @@ export const setUpErc20Tokens = async (
       return postVaaSolanaWithRetry(
         solanaConnection.rawConnection,
         solanaWallet.signTransaction.bind(solanaWallet),
-        solanaWormhole.bridge,
+        solanaChain.wormholeBridge,
         solanaWallet.publicKey.toBase58(),
         Buffer.from(vaaBytes),
         DEFAULT_MAX_RETRIES,
@@ -205,8 +203,8 @@ export const setUpErc20Tokens = async (
       }
       const tx = await createWrappedOnSolana(
         solanaConnection.rawConnection,
-        solanaWormhole.bridge,
-        solanaWormhole.tokenBridge,
+        solanaChain.wormholeBridge,
+        solanaChain.wormholeTokenBridge,
         solanaWallet.publicKey.toBase58(),
         vaaBytes,
       );
@@ -221,7 +219,8 @@ export const setUpErc20Tokens = async (
 
   return {
     solanaTxIds,
-    ethereumTxIds: evmChain.ecosystem === ETHEREUM_ECOSYSTEM_ID ? evmTxIds : [],
-    bnbTxIds: evmChain.ecosystem === BNB_ECOSYSTEM_ID ? evmTxIds : [],
+    ethereumTxIds:
+      evmChain.ecosystemId === ETHEREUM_ECOSYSTEM_ID ? evmTxIds : [],
+    bnbTxIds: evmChain.ecosystemId === BNB_ECOSYSTEM_ID ? evmTxIds : [],
   };
 };

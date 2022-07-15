@@ -1,10 +1,11 @@
 import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../config";
-import { EcosystemId, PROJECTS, TokenProjectId } from "../config";
+import { PROJECTS, TokenProjectId } from "../config";
 
 import { Amount } from "./amount";
 
@@ -32,7 +33,7 @@ describe("Amount", () => {
   const defaultNonStablecoinTokenSpec: TokenSpec = {
     id: "test-token",
     project: PROJECTS[TokenProjectId.Swim],
-    nativeEcosystem: EcosystemId.Solana,
+    nativeEcosystem: SOLANA_ECOSYSTEM_ID,
     detailsByEcosystem: new Map([
       [SOLANA_ECOSYSTEM_ID, { address: "xxx", decimals: 8 }],
       [BNB_ECOSYSTEM_ID, { address: "xxx", decimals: 18 }],
@@ -41,7 +42,7 @@ describe("Amount", () => {
   const defaultStablecoinTokenSpec: TokenSpec = {
     id: "test-stablecoin",
     project: PROJECTS[TokenProjectId.Usdc],
-    nativeEcosystem: EcosystemId.Solana,
+    nativeEcosystem: SOLANA_ECOSYSTEM_ID,
     detailsByEcosystem: new Map([
       [SOLANA_ECOSYSTEM_ID, { address: "xxx", decimals: 8 }],
       [BNB_ECOSYSTEM_ID, { address: "xxx", decimals: 18 }],

@@ -1,6 +1,6 @@
 import type { Keypair } from "@solana/web3.js";
 
-import type { EvmSpec, TokenDetails, TokenSpec } from "../../config";
+import type { EvmChainConfig, TokenDetails, TokenSpec } from "../../config";
 import type { Amount } from "../amount";
 import type { Tx } from "../crossEcosystem";
 import type { EvmConnection } from "../evm";
@@ -11,7 +11,7 @@ export interface WormholeTransfer {
   readonly token: TokenSpec;
   readonly amount: Amount;
   readonly splTokenAccountAddress: string;
-  readonly evmChain: EvmSpec;
+  readonly evmChain: EvmChainConfig;
   readonly evmWallet: EvmWalletAdapter;
   readonly evmConnection: EvmConnection;
   readonly fromTokenDetails: TokenDetails;

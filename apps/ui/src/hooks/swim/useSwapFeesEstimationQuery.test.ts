@@ -1,3 +1,4 @@
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 

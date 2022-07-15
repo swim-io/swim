@@ -1,4 +1,3 @@
-import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
 import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import { useQueryClient } from "react-query";
@@ -16,11 +15,9 @@ export const useEvmConnection = (
 ): EvmConnection => {
   const queryClient = useQueryClient();
   const { env } = useEnvironment();
-  const { chains } = useEnvironment(selectConfig, shallow);
-  const chainSpec = findOrThrow(
-    chains[EVM_PROTOCOL],
-    (chain) => chain.ecosystem === ecosystemId,
-  );
+  const { ecosystems } = useEnvironment(selectConfig, shallow);
+  const ecosystem = ecosystems[ecosystemId];
+  const chainSpec = findOrThrow(ecosystem.chains, (chain) => chain.env === env);
 
   const queryKey = [env, "evmConnection", ecosystemId];
 
@@ -41,10 +38,10 @@ export const useEvmConnections = (): ReadonlyRecord<
 > => ({
   [ETHEREUM_ECOSYSTEM_ID]: useEvmConnection(ETHEREUM_ECOSYSTEM_ID),
   [BNB_ECOSYSTEM_ID]: useEvmConnection(BNB_ECOSYSTEM_ID),
-  [EcosystemId.Avalanche]: useEvmConnection(EcosystemId.Avalanche),
-  [EcosystemId.Polygon]: useEvmConnection(EcosystemId.Polygon),
-  [EcosystemId.Aurora]: useEvmConnection(EcosystemId.Aurora),
-  [EcosystemId.Fantom]: useEvmConnection(EcosystemId.Fantom),
-  [EcosystemId.Karura]: useEvmConnection(EcosystemId.Karura),
-  [EcosystemId.Acala]: useEvmConnection(EcosystemId.Acala),
+  // [EcosystemId.Avalanche]: useEvmConnection(EcosystemId.Avalanche),
+  // [EcosystemId.Polygon]: useEvmConnection(EcosystemId.Polygon),
+  // [EcosystemId.Aurora]: useEvmConnection(EcosystemId.Aurora),
+  // [EcosystemId.Fantom]: useEvmConnection(EcosystemId.Fantom),
+  // [EcosystemId.Karura]: useEvmConnection(EcosystemId.Karura),
+  // [EcosystemId.Acala]: useEvmConnection(EcosystemId.Acala),
 });

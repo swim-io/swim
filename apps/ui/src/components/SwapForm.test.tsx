@@ -1,7 +1,7 @@
+import { Env } from "@swim-io/core-types";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import type { FC } from "react";
 
-import { Env } from "../config";
 import { useEnvironment as environmentStore } from "../core/store";
 import { renderWithAppContext } from "../testUtils";
 

@@ -1,4 +1,5 @@
 import Wallet from "@project-serum/sol-wallet-adapter";
+import type { SolanaProtocol } from "@swim-io/plugin-ecosystem-solana";
 import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 
 import type { SolanaWalletAdapter } from "./SolanaWalletAdapter";
@@ -7,7 +8,7 @@ export class SolanaDefaultWalletAdapter
   extends Wallet
   implements SolanaWalletAdapter
 {
-  readonly protocol: SOLANA_PROTOCOL;
+  readonly protocol: SolanaProtocol;
 
   constructor(provider: unknown, network: string) {
     super(provider, network);

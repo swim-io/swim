@@ -1,41 +1,43 @@
-import { ethers } from "ethers";
+export {};
 
-import { EvmChainId } from "../../config";
-import { findOrThrow } from "../../utils";
+// import { ethers } from "ethers";
 
-export const enum AvalancheNetwork {
-  Mainnet = "avalanche-mainnet",
-  Testnet = "avalanche-testnet",
-}
+// import { EvmChainId } from "../../config";
+// import { findOrThrow } from "../../utils";
 
-const networks = [
-  {
-    name: AvalancheNetwork.Mainnet,
-    chainId: EvmChainId.AvalancheMainnet,
-  },
-  {
-    name: AvalancheNetwork.Testnet,
-    chainId: EvmChainId.AvalancheTestnet,
-  },
-];
+// export const enum AvalancheNetwork {
+//   Mainnet = "avalanche-mainnet",
+//   Testnet = "avalanche-testnet",
+// }
 
-export class SnowTraceProvider extends ethers.providers.EtherscanProvider {
-  public constructor(network?: AvalancheNetwork, apiKey?: string) {
-    const standardNetwork = network
-      ? findOrThrow(networks, ({ name }) => name === network)
-      : AvalancheNetwork.Mainnet;
+// const networks = [
+//   {
+//     name: AvalancheNetwork.Mainnet,
+//     chainId: EvmChainId.AvalancheMainnet,
+//   },
+//   {
+//     name: AvalancheNetwork.Testnet,
+//     chainId: EvmChainId.AvalancheTestnet,
+//   },
+// ];
 
-    super(standardNetwork, apiKey);
-  }
+// export class SnowTraceProvider extends ethers.providers.EtherscanProvider {
+//   public constructor(network?: AvalancheNetwork, apiKey?: string) {
+//     const standardNetwork = network
+//       ? findOrThrow(networks, ({ name }) => name === network)
+//       : AvalancheNetwork.Mainnet;
 
-  public getBaseUrl(): string {
-    switch (this.network.name) {
-      case AvalancheNetwork.Mainnet:
-        return "https://api.snowtrace.io";
-      case AvalancheNetwork.Testnet:
-        return "https://api-testnet.snowtrace.io";
-      default:
-        throw new Error("Unknown network");
-    }
-  }
-}
+//     super(standardNetwork, apiKey);
+//   }
+
+//   public getBaseUrl(): string {
+//     switch (this.network.name) {
+//       case AvalancheNetwork.Mainnet:
+//         return "https://api.snowtrace.io";
+//       case AvalancheNetwork.Testnet:
+//         return "https://api-testnet.snowtrace.io";
+//       default:
+//         throw new Error("Unknown network");
+//     }
+//   }
+// }

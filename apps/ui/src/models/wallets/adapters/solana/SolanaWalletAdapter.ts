@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/react";
 import type { SeverityLevel } from "@sentry/types";
 import type { Transaction } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
+import type { SolanaProtocol } from "@swim-io/plugin-ecosystem-solana";
 import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import EventEmitter from "eventemitter3";
 
@@ -20,7 +21,7 @@ export interface SolanaWalletAdapter extends EventEmitter {
   ) => Promise<Transaction[]>;
   readonly connect: (args?: any) => Promise<unknown>;
   readonly disconnect: () => Promise<void>;
-  readonly protocol: SOLANA_PROTOCOL;
+  readonly protocol: SolanaProtocol;
 }
 
 export class SolanaWeb3WalletAdapter
@@ -30,7 +31,7 @@ export class SolanaWeb3WalletAdapter
   serviceName: string;
   serviceUrl: string;
   publicKey: PublicKey | null;
-  readonly protocol: SOLANA_PROTOCOL;
+  readonly protocol: SolanaProtocol;
 
   protected getService: () => any;
   protected connecting: boolean;

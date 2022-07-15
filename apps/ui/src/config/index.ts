@@ -1,11 +1,12 @@
 import { Env } from "@swim-io/core-types";
-import { EVM_PROTOCOL } from "@swim-io/evm-types";
-import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
+import type {
+  SolanaEcosystemConfig,
+  SolanaEcosystemId,
+} from "@swim-io/plugin-ecosystem-solana";
 
 import type { ReadonlyRecord } from "../utils";
 
-import type { ChainsByProtocol } from "./chains";
-import type { EcosystemId, UiEcosystemConfig } from "./ecosystem";
+import type { EvmEcosystemConfig, EvmEcosystemId } from "./ecosystem";
 import { ECOSYSTEMS } from "./ecosystem";
 import type { PoolSpec } from "./pools";
 import { POOLS } from "./pools";
@@ -25,8 +26,11 @@ export * from "./utils";
 export * from "./wormhole";
 
 export interface Config {
-  readonly ecosystems: ReadonlyRecord<EcosystemId, UiEcosystemConfig>;
-  readonly chains: ChainsByProtocol;
+  readonly ecosystems: ReadonlyRecord<
+    SolanaEcosystemId,
+    SolanaEcosystemConfig
+  > &
+    ReadonlyRecord<EvmEcosystemId, EvmEcosystemConfig>;
   readonly pools: readonly PoolSpec[];
   readonly tokens: readonly TokenSpec[];
   readonly wormhole: WormholeConfig;
@@ -35,7 +39,6 @@ export interface Config {
 
 const buildConfig = (env: Env): Config => ({
   ecosystems: ECOSYSTEMS,
-  chains: chains[env],
   pools: POOLS[env],
   tokens: TOKENS[env],
   wormhole: WORMHOLE_CONFIGS[env],
@@ -49,35 +52,36 @@ export const CONFIGS: ReadonlyRecord<Env, Config> = {
   [Env.Custom]: buildConfig(Env.Custom),
 };
 
-const LOCALHOST_REGEXP = /localhost|127\.0\.0\.1/;
+// TODO: Add support for custom env
+// const LOCALHOST_REGEXP = /localhost|127\.0\.0\.1/;
 
-export const overrideLocalnetIp = (config: Config, ip: string): Config => ({
-  ...config,
-  wormhole: {
-    ...config.wormhole,
-    rpcUrls: config.wormhole.rpcUrls.map((rpcUrl) =>
-      rpcUrl.replace(LOCALHOST_REGEXP, ip),
-    ),
-  },
-  chains: {
-    ...config.chains,
-    [SOLANA_PROTOCOL]: [
-      {
-        ...config.chains[SOLANA_PROTOCOL][0],
-        endpoint: config.chains[SOLANA_PROTOCOL][0].endpoint.replace(
-          LOCALHOST_REGEXP,
-          ip,
-        ),
-      },
-      ...config.chains[SOLANA_PROTOCOL].slice(1),
-    ],
-    [EVM_PROTOCOL]: config.chains[EVM_PROTOCOL].map(
-      (chainSpec: { readonly rpcUrls: readonly string[] }) => ({
-        ...chainSpec,
-        rpcUrls: chainSpec.rpcUrls.map((rpcUrl: string) =>
-          rpcUrl.replace(LOCALHOST_REGEXP, ip),
-        ),
-      }),
-    ),
-  },
-});
+// export const overrideLocalnetIp = (config: Config, ip: string): Config => ({
+//   ...config,
+//   wormhole: {
+//     ...config.wormhole,
+//     rpcUrls: config.wormhole.rpcUrls.map((rpcUrl) =>
+//       rpcUrl.replace(LOCALHOST_REGEXP, ip),
+//     ),
+//   },
+//   chains: {
+//     ...config.chains,
+//     [SOLANA_PROTOCOL]: [
+//       {
+//         ...config.chains[SOLANA_PROTOCOL][0],
+//         endpoint: config.chains[SOLANA_PROTOCOL][0].endpoint.replace(
+//           LOCALHOST_REGEXP,
+//           ip,
+//         ),
+//       },
+//       ...config.chains[SOLANA_PROTOCOL].slice(1),
+//     ],
+//     [EVM_PROTOCOL]: config.chains[EVM_PROTOCOL].map(
+//       (chainSpec: { readonly rpcUrls: readonly string[] }) => ({
+//         ...chainSpec,
+//         rpcUrls: chainSpec.rpcUrls.map((rpcUrl: string) =>
+//           rpcUrl.replace(LOCALHOST_REGEXP, ip),
+//         ),
+//       }),
+//     ),
+//   },
+// });

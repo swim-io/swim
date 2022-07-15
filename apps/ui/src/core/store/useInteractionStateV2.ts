@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import type { Env } from "@swim-io/core-types";
 import type { Draft } from "immer";
 import { castDraft, produce } from "immer";
 import type { GetState, SetState } from "zustand";
@@ -6,8 +7,6 @@ import create from "zustand";
 
 import type { InteractionStateV2, InteractionV2 } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
-
-import type { Env } from "./useEnvironment";
 
 export interface InteractionStoreV2 {
   readonly errorMap: ReadonlyRecord<InteractionV2["id"], Error | undefined>;

@@ -34,10 +34,9 @@ export const TokenSearchModal = ({
   handleSelectToken,
   tokenOptionIds,
 }: TokenSearchModalProps): ReactElement => {
-  const { tokens } = useEnvironment(selectConfig, shallow);
+  const { ecosystems, tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptionIds.map((tokenId) => {
     const tokenSpec = findOrThrow(tokens, ({ id }) => id === tokenId);
-    const { ecosystems } = useEnvironment(selectConfig, shallow);
     const ecosystem = ecosystems[tokenSpec.nativeEcosystem];
     return {
       label: `${tokenSpec.project.symbol} on ${ecosystem.displayName}`,

@@ -1,5 +1,8 @@
 import { EVM_PROTOCOL } from "@swim-io/evm-types";
-import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  SOLANA_PROTOCOL,
+} from "@swim-io/plugin-ecosystem-solana";
 import { useEffect } from "react";
 import shallow from "zustand/shallow.js";
 
@@ -10,8 +13,9 @@ import { WalletServiceId, createAdapter } from "../../models";
 import { waitFor } from "../../utils";
 
 export const useWalletAutoConnect = (): null => {
-  const { chains } = useEnvironment(selectConfig, shallow);
-  const [{ endpoint }] = chains[SOLANA_PROTOCOL];
+  const { ecosystems } = useEnvironment(selectConfig, shallow);
+  const solanaEcosystem = ecosystems[SOLANA_ECOSYSTEM_ID];
+  const [{ endpoint }] = solanaEcosystem.chains;
   const { connectService, selectedServiceByProtocol } = useWalletAdapter();
 
   useEffect(() => {

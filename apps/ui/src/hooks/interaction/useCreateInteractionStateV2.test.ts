@@ -1,3 +1,7 @@
+import { Env } from "@swim-io/core-types";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 
@@ -7,8 +11,6 @@ import {
   DEVNET_POOLS,
   DEVNET_POOLS_FOR_RESTRUCTURE,
   DEVNET_SWIMUSD,
-  EcosystemId,
-  Env,
   findTokenById,
 } from "../../config";
 import { selectConfig } from "../../core/selectors";
@@ -77,12 +79,12 @@ describe("useCreateInteractionStateV2", () => {
       params: {
         fromTokenDetail: {
           tokenId: "devnet-solana-usdc",
-          ecosystemId: EcosystemId.Solana,
+          ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
         toTokenDetail: {
           tokenId: "devnet-solana-usdt",
-          ecosystemId: EcosystemId.Solana,
+          ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
       },
@@ -100,12 +102,12 @@ describe("useCreateInteractionStateV2", () => {
       params: {
         fromTokenDetail: {
           tokenId: "devnet-ethereum-usdc",
-          ecosystemId: EcosystemId.Ethereum,
+          ecosystemId: ETHEREUM_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
         toTokenDetail: {
           tokenId: "devnet-ethereum-usdt",
-          ecosystemId: EcosystemId.Ethereum,
+          ecosystemId: ETHEREUM_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
       },
@@ -123,12 +125,12 @@ describe("useCreateInteractionStateV2", () => {
       params: {
         fromTokenDetail: {
           tokenId: "devnet-solana-usdc",
-          ecosystemId: EcosystemId.Solana,
+          ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
         toTokenDetail: {
           tokenId: "devnet-ethereum-usdc",
-          ecosystemId: EcosystemId.Ethereum,
+          ecosystemId: ETHEREUM_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
       },
@@ -146,12 +148,12 @@ describe("useCreateInteractionStateV2", () => {
       params: {
         fromTokenDetail: {
           tokenId: "devnet-ethereum-usdc",
-          ecosystemId: EcosystemId.Ethereum,
+          ecosystemId: ETHEREUM_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
         toTokenDetail: {
           tokenId: "devnet-solana-usdc",
-          ecosystemId: EcosystemId.Solana,
+          ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
       },
@@ -169,12 +171,12 @@ describe("useCreateInteractionStateV2", () => {
       params: {
         fromTokenDetail: {
           tokenId: "devnet-ethereum-usdc",
-          ecosystemId: EcosystemId.Ethereum,
+          ecosystemId: ETHEREUM_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
         toTokenDetail: {
           tokenId: "devnet-bnb-usdt",
-          ecosystemId: EcosystemId.Bnb,
+          ecosystemId: BNB_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
       },
@@ -197,7 +199,7 @@ describe("useCreateInteractionStateV2", () => {
         ],
         minimumMintAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
       },
-      lpTokenTargetEcosystem: EcosystemId.Solana,
+      lpTokenTargetEcosystem: SOLANA_ECOSYSTEM_ID,
     });
     expect(interactionState).toMatchSnapshot();
   });
@@ -217,7 +219,7 @@ describe("useCreateInteractionStateV2", () => {
         ],
         maximumBurnAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
       },
-      lpTokenSourceEcosystem: EcosystemId.Solana,
+      lpTokenSourceEcosystem: SOLANA_ECOSYSTEM_ID,
     });
     expect(interactionState).toMatchSnapshot();
   });

@@ -4,7 +4,8 @@ import { Fragment } from "react";
 import shallow from "zustand/shallow.js";
 
 import type { EcosystemId, TokenProject, TokenSpec } from "../config";
-import { ECOSYSTEMS } from "../config";
+import { selectConfig } from "../core/selectors";
+import { useEnvironment } from "../core/store";
 import type { Amount } from "../models/amount";
 
 export interface TokenIconProps
@@ -32,7 +33,8 @@ export const TokenIcon = ({
           <span>on</span>{" "}
           <span style={{ whiteSpace: "nowrap" }}>
             <EuiIcon
-              type={ecosystem.logo}
+              // TODO: Logo
+              type={"ecosystem.logo"}
               size="m"
               title={ecosystem.displayName}
             />
@@ -99,7 +101,8 @@ export const EcosystemIcon = ({
   const ecosystem = ecosystems[ecosystemId];
   return (
     <span style={{ whiteSpace: "nowrap" }}>
-      <EuiIcon type={ecosystem.logo} size="m" title={ecosystem.displayName} />
+      {/* TODO: Logo */}
+      <EuiIcon type={"ecosystem.logo"} size="m" title={ecosystem.displayName} />
       &nbsp;{ecosystem.displayName}
     </span>
   );

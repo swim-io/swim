@@ -113,7 +113,8 @@ const ProtocolWalletOptionsList = ({
             isEcosystemEnabled,
             (ecosystemId) => (
               <li key={ecosystemId}>
-                <EuiIcon type={ecosystems[ecosystemId].logo} size="m" />
+                {/* TODO: Logo */}
+                <EuiIcon type={"ecosystems[ecosystemId].logo"} size="m" />
                 {ecosystems[ecosystemId].displayName}
               </li>
             ),

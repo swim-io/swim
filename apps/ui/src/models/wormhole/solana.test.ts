@@ -1,15 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import type { ParsedTransactionWithMeta } from "@solana/web3.js";
+import { Env } from "@swim-io/core-types";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
-import type { TokenSpec, WormholeChainSpec } from "../../config";
-import {
-  CHAINS,
-  EcosystemId,
-  Env,
-  PROJECTS,
-  Protocol,
-  TOKENS,
-  TokenProjectId,
-} from "../../config";
+import type { TokenSpec } from "../../config";
+import { PROJECTS, TOKENS, TokenProjectId } from "../../config";
 import {
   parsedSwimSwapTx,
   parsedWormholePostVaaTxs,
@@ -25,6 +21,9 @@ import {
 } from "./solana";
 
 describe("models - Wormhole utils", () => {
+  const wormholeBridge = "Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o";
+  const wormholeTokenBridge = "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE";
+
   describe("parseSequenceFromLogSolana 94176", () => {
     const SOLANA_SEQ_LOG = "Program log: Sequence: 94176";
     it("finds the sequence from a Wormhole tx", () => {
@@ -68,17 +67,12 @@ describe("models - Wormhole utils", () => {
   describe("isLockSplTx", () => {
     it("returns true for a tx which locks native SPL tokens", () => {
       const interactionId = "e45794d6c5a2750a589f875c84089f81";
-      const tokenBridge = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
-      const wormholeChainId: ChainConfig = {
-        bridge: "bridge",
-        tokenBridge: tokenBridge,
-      };
       const splTokenAccountAddress =
         "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
       const token: TokenSpec = {
         id: "test-token",
         project: PROJECTS[TokenProjectId.Swim],
-        nativeEcosystem: EcosystemId.Solana,
+        nativeEcosystem: SOLANA_ECOSYSTEM_ID,
         detailsByEcosystem: new Map([
           [SOLANA_ECOSYSTEM_ID, { address: "xxx", decimals: 8 }],
           [BNB_ECOSYSTEM_ID, { address: "xxx", decimals: 18 }],
@@ -93,7 +87,7 @@ describe("models - Wormhole utils", () => {
       };
 
       expect(
-        isLockSplTx(wormholeChainId, splTokenAccountAddress, token, tx),
+        isLockSplTx(wormholeTokenBridge, splTokenAccountAddress, token, tx),
       ).toBe(true);
     });
     it.todo("returns true for a tx which burns Wormhole-wrapped SPL tokens");
@@ -115,9 +109,6 @@ describe("models - Wormhole utils", () => {
       "returns true for txs which post VAAs",
       (parsedTx) => {
         const interactionId = "e45794d6c5a2750a589f875c84089f81";
-        const { chains } = useEnvironment(selectConfig, shallow);
-        const wormholeChainSpec =
-          chains[Env.Mainnet][SOLANA_PROTOCOL][0].wormhole;
         const signatureSetAddress =
           "2XjLRw6BTVTTL5hLDdKyLtPL6toGM7HkKJivGjtZBotp";
         const tx: SolanaTx = {
@@ -129,7 +120,7 @@ describe("models - Wormhole utils", () => {
         };
 
         const result = isPostVaaSolanaTx(
-          wormholeChainSpec,
+          wormholeBridge,
           signatureSetAddress,
           tx,
         );
@@ -141,9 +132,6 @@ describe("models - Wormhole utils", () => {
 
     it("returns false for a tx which mints Wormhole-wrapped SPL tokens", () => {
       const interactionId = "e45794d6c5a2750a589f875c84089f81";
-      const { chains } = useEnvironment(selectConfig, shallow);
-      const wormholeChainSpec =
-        chains[Env.Mainnet][SOLANA_PROTOCOL][0].wormhole;
       const signatureSetAddress =
         "2XjLRw6BTVTTL5hLDdKyLtPL6toGM7HkKJivGjtZBotp";
       const tx: SolanaTx = {
@@ -154,11 +142,7 @@ describe("models - Wormhole utils", () => {
         parsedTx: parsedWormholeRedeemEvmUnlockWrappedTx,
       };
 
-      const result = isPostVaaSolanaTx(
-        wormholeChainSpec,
-        signatureSetAddress,
-        tx,
-      );
+      const result = isPostVaaSolanaTx(wormholeBridge, signatureSetAddress, tx);
       expect(result).toBe(false);
     });
   });
@@ -171,9 +155,6 @@ describe("models - Wormhole utils", () => {
       "returns false for txs which post VAAs",
       (parsedTx) => {
         const interactionId = "e45794d6c5a2750a589f875c84089f81";
-        const { chains } = useEnvironment(selectConfig, shallow);
-        const wormholeChainSpec =
-          chains[Env.Mainnet][SOLANA_PROTOCOL][0].wormhole;
         const tokenSpec = TOKENS[Env.Mainnet].find(
           (token) => token.id === "mainnet-bnb-busd",
         )!;
@@ -187,7 +168,7 @@ describe("models - Wormhole utils", () => {
         };
 
         const result = isRedeemOnSolanaTx(
-          wormholeChainSpec,
+          wormholeTokenBridge,
           tokenSpec,
           splTokenAccount,
           tx,
@@ -200,9 +181,6 @@ describe("models - Wormhole utils", () => {
 
     it("returns true for a tx which redeems Wormhole-wrapped SPL tokens", () => {
       const interactionId = "e45794d6c5a2750a589f875c84089f81";
-      const { chains } = useEnvironment(selectConfig, shallow);
-      const wormholeChainSpec =
-        chains[Env.Mainnet][SOLANA_PROTOCOL][0].wormhole;
       const tokenSpec = TOKENS[Env.Mainnet].find(
         (token) => token.id === "mainnet-bnb-busd",
       )!;
@@ -216,20 +194,12 @@ describe("models - Wormhole utils", () => {
       };
 
       const result = isRedeemOnSolanaTx(
-        wormholeChainSpec,
+        wormholeTokenBridge,
         tokenSpec,
         splTokenAccount,
         tx,
       );
       expect(result).toBe(true);
     });
-  });
-
-  describe("isUnlockSplTx", () => {
-    it.todo("returns false for a tx which locks native SPL tokens");
-    it.todo("returns false for a tx which burns Wormhole-wrapped SPL tokens");
-    it.todo("returns true for txs which post VAAs");
-    it.todo("returns true for a tx which unlocks native SPL tokens");
-    it.todo("returns true for a tx which mints Wormhole-wrapped SPL tokens");
   });
 });

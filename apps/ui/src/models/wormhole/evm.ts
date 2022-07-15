@@ -1,16 +1,16 @@
 import { getAllowanceEth } from "@certusone/wormhole-sdk";
 import { PublicKey } from "@solana/web3.js";
+import { SOLANA_WORMHOLE_CHAIN_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { ethers } from "ethers";
 
-import type { TokenSpec, WormholeChainSpec } from "../../config";
-import { WormholeChainId } from "../../config";
+import type { TokenSpec } from "../../config";
 import type { EvmTx } from "../crossEcosystem";
 
 import { approveEth, transferFromEth } from "./overrides";
 import type { WormholeTransfer } from "./transfer";
 
 export const isLockEvmTx = (
-  wormholeChainSpec: WormholeChainSpec,
+  wormholeTokenBridge: string,
   token: TokenSpec,
   tx: EvmTx,
 ): boolean => {
@@ -18,10 +18,7 @@ export const isLockEvmTx = (
   if (evmTokenDetails === null) {
     return false;
   }
-  if (
-    tx.txResponse.to?.toLowerCase() !==
-    wormholeChainSpec.tokenBridge.toLowerCase()
-  ) {
+  if (tx.txResponse.to?.toLowerCase() !== wormholeTokenBridge.toLowerCase()) {
     return false;
   }
   return tx.txReceipt.logs.some(
@@ -31,7 +28,7 @@ export const isLockEvmTx = (
 };
 
 export const isUnlockEvmTx = (
-  wormholeChainSpec: WormholeChainSpec,
+  wormholeTokenBridge: string,
   token: TokenSpec,
   tx: EvmTx,
 ): boolean => {
@@ -39,10 +36,7 @@ export const isUnlockEvmTx = (
   if (evmTokenDetails === null) {
     return false;
   }
-  if (
-    tx.txReceipt.to.toLowerCase() !==
-    wormholeChainSpec.tokenBridge.toLowerCase()
-  ) {
+  if (tx.txReceipt.to.toLowerCase() !== wormholeTokenBridge.toLowerCase()) {
     return false;
   }
   return tx.txReceipt.logs.some(
@@ -70,9 +64,11 @@ export const lockEvmToken = async ({
 
   await evmWallet.switchNetwork(evmChain.chainId);
 
-  const transferAmountAtomicString = amount.toAtomicString(evmChain.ecosystem);
+  const transferAmountAtomicString = amount.toAtomicString(
+    evmChain.ecosystemId,
+  );
   const allowance = await getAllowanceEth(
-    evmChain.wormhole.tokenBridge,
+    evmChain.wormholeTokenBridge,
     evmTokenDetails.address,
     evmSigner,
   );
@@ -85,7 +81,7 @@ export const lockEvmToken = async ({
       // Note this is required by some ERC20 implementations such as USDT
       // See line 205 here: https://etherscan.io/address/0xdac17f958d2ee523a2206206994597c13d831ec7#code
       const resetApprovalResponse = await approveEth(
-        evmChain.wormhole.tokenBridge,
+        evmChain.wormholeTokenBridge,
         evmTokenDetails.address,
         evmSigner,
         "0",
@@ -95,7 +91,7 @@ export const lockEvmToken = async ({
         : approvalResponses;
     }
     const approvalResponse = await approveEth(
-      evmChain.wormhole.tokenBridge,
+      evmChain.wormholeTokenBridge,
       evmTokenDetails.address,
       evmSigner,
       transferAmountAtomicString,
@@ -112,17 +108,17 @@ export const lockEvmToken = async ({
 
   const transferResponse = await transferFromEth(
     interactionId,
-    evmChain.wormhole.tokenBridge,
+    evmChain.wormholeTokenBridge,
     evmSigner,
     evmTokenDetails.address,
     transferAmountAtomicString,
-    WormholeChainId.Solana,
+    SOLANA_WORMHOLE_CHAIN_ID,
     new PublicKey(splTokenAccountAddress).toBytes(),
   );
 
   if (transferResponse === null) {
     throw new Error(
-      `Transaction not found (lock/burn from ${evmChain.ecosystem})`,
+      `Transaction not found (lock/burn from ${evmChain.ecosystemId})`,
     );
   }
 

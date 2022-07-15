@@ -1,9 +1,10 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
+import type { Env } from "@swim-io/core-types";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type Decimal from "decimal.js";
 
-import type { Env, SolanaPoolSpec } from "../../config";
+import type { SolanaPoolSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { findOrThrow } from "../../utils";
 import { Amount } from "../amount";

@@ -1,4 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import type { Protocol } from "../../../config";

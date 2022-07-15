@@ -97,7 +97,7 @@ export const RemoveForm = ({
   const userNativeBalances = useUserNativeBalances();
 
   const [lpTokenSourceEcosystem, setLpTokenSourceEcosystem] =
-    useState(SOLANA_ECOSYSTEM_ID);
+    useState<EcosystemId>(SOLANA_ECOSYSTEM_ID);
   const [method, setMethod] = useState(RemoveMethod.ExactBurn);
   const [outputToken, setOutputToken] = useState(poolSpec.tokens[0]);
   const [burnPercentage, setBurnPercentage] = useState(0);
@@ -304,8 +304,7 @@ export const RemoveForm = ({
   const lpSourceEcosystemOptions: readonly EuiRadioGroupOption[] = [
     ...lpToken.detailsByEcosystem.keys(),
   ].map((ecosystemId) => {
-    const { ecosystems } = useEnvironment(selectConfig, shallow);
-    const ecosystem = ecosystems[ecosystemId];
+    const ecosystem = config.ecosystems[ecosystemId];
     const lpBalance = userLpBalances[ecosystemId];
     const lpBalanceSuffix = lpBalance && (
       <>
@@ -317,7 +316,8 @@ export const RemoveForm = ({
       id: ecosystemId,
       label: (
         <>
-          <EuiIcon type={ecosystem.logo} />
+          {/* TODO: Logo */}
+          <EuiIcon type={"ecosystem.logo"} />
           &nbsp;{ecosystem.displayName}
           {lpBalanceSuffix}
         </>

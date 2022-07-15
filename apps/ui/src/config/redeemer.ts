@@ -1,6 +1,6 @@
-import type { ReadonlyRecord } from "../utils";
+import { Env } from "@swim-io/core-types";
 
-import { Env } from "./env";
+import type { ReadonlyRecord } from "../utils";
 
 export interface RedeemerSpec {
   readonly programAddress: string;
@@ -39,6 +39,6 @@ const LOCALNET_REDEEMER: RedeemerSpec = {
 export const REDEEMER: ReadonlyRecord<Env, RedeemerSpec> = {
   [Env.Mainnet]: MAINNET_REDEEMER,
   [Env.Devnet]: DEVNET_REDEEMER,
-  [Env.Localnet]: LOCALNET_REDEEMER,
-  [Env.CustomLocalnet]: LOCALNET_REDEEMER,
+  [Env.Local]: LOCALNET_REDEEMER,
+  [Env.Custom]: LOCALNET_REDEEMER,
 };

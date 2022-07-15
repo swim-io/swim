@@ -14,6 +14,9 @@ import {
   EuiTextColor,
   EuiTitle,
 } from "@elastic/eui";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { ReactElement, VFC } from "react";
 import { useNavigate } from "react-router";
 
@@ -21,8 +24,8 @@ import { SwimIconType } from "../components/CustomIconType";
 import { GlassPanel } from "../components/GlassPanel";
 import { InvestorsList } from "../components/InvestorsList";
 import { Roadmap } from "../components/Roadmap";
-import type { Ecosystem } from "../config";
-import { ECOSYSTEMS, EcosystemId } from "../config";
+import type { EcosystemConfig } from "../config";
+import { ECOSYSTEMS } from "../config";
 import { useTitle } from "../hooks";
 import ECOSYSTEM_DIAGRAM from "../images/ecosystem_diagram.svg";
 import DISCORD_SVG from "../images/social/discord.svg";
@@ -37,11 +40,11 @@ const HomePage = (): ReactElement => {
     ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
     ECOSYSTEMS[ETHEREUM_ECOSYSTEM_ID],
     ECOSYSTEMS[BNB_ECOSYSTEM_ID],
-    ECOSYSTEMS[EcosystemId.Avalanche],
-    ECOSYSTEMS[EcosystemId.Polygon],
-    ECOSYSTEMS[EcosystemId.Fantom],
-    ECOSYSTEMS[EcosystemId.Aurora],
-    ECOSYSTEMS[EcosystemId.Karura],
+    // ECOSYSTEMS[EcosystemId.Avalanche],
+    // ECOSYSTEMS[EcosystemId.Polygon],
+    // ECOSYSTEMS[EcosystemId.Fantom],
+    // ECOSYSTEMS[EcosystemId.Aurora],
+    // ECOSYSTEMS[EcosystemId.Karura],
   ];
 
   return (
@@ -584,16 +587,17 @@ const HomePage = (): ReactElement => {
 export default HomePage;
 
 type PromotedEcosystemProps = {
-  readonly ecosystem: Ecosystem;
+  readonly ecosystem: EcosystemConfig;
 };
 
 const PromotedEcosystem: VFC<PromotedEcosystemProps> = ({ ecosystem }) => (
   <EuiFlexItem grow={false}>
     <EuiShowFor sizes={["xs"]}>
-      <EuiIcon type={ecosystem.logo} title={ecosystem.displayName} size="l" />
+      {/* TODO: Ecosystem logos */}
+      <EuiIcon type={"xxx"} title={ecosystem.displayName} size="l" />
     </EuiShowFor>
     <EuiHideFor sizes={["xs"]}>
-      <EuiIcon type={ecosystem.logo} title={ecosystem.displayName} size="xxl" />
+      <EuiIcon type={"xxx"} title={ecosystem.displayName} size="xxl" />
     </EuiHideFor>
   </EuiFlexItem>
 );

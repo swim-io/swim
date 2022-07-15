@@ -1,12 +1,15 @@
 import { EuiButtonIcon } from "@elastic/eui";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  SOLANA_PROTOCOL,
+} from "@swim-io/plugin-ecosystem-solana";
 import type { ReactElement } from "react";
 
-import type { Ecosystem, Protocol } from "../../config";
-import {
-  ECOSYSTEMS,
-  EcosystemId,
-  getEcosystemsForProtocol,
-} from "../../config";
+import type { EcosystemConfig, EcosystemId, Protocol } from "../../config";
+import { ECOSYSTEMS, getEcosystemsForProtocol } from "../../config";
 import LEDGER_ICON from "../../images/wallets/ledger.svg";
 import MATHWALLET_ICON from "../../images/wallets/mathwallet.svg";
 import METAMASK_ICON from "../../images/wallets/metamask.svg";
@@ -43,7 +46,7 @@ export interface WalletServiceInfo {
   readonly url: string;
   readonly icon: string;
   readonly helpText?: ReactElement;
-  readonly ecosystem: Ecosystem;
+  readonly ecosystem: EcosystemConfig;
 }
 
 export interface WalletService<T extends WalletAdapter = WalletAdapter> {
@@ -106,7 +109,7 @@ const metaMaskInfo: Omit<WalletServiceInfo, "ecosystem"> = {
 
 const addMetaMaskEcosystemInfo = (
   info: Omit<WalletServiceInfo, "ecosystem">,
-  ecosystem: Ecosystem,
+  ecosystem: EcosystemConfig,
   url: string,
 ): WalletServiceInfo => {
   const title = `How to add ${ecosystem.displayName} to Metamask`;
@@ -136,46 +139,46 @@ const bnbMetaMaskInfo = addMetaMaskEcosystemInfo(
   ECOSYSTEMS[BNB_ECOSYSTEM_ID],
   "https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain",
 );
-const avalancheMetaMaskInfo = addMetaMaskEcosystemInfo(
-  metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Avalanche],
-  "https://support.avax.network/en/articles/4626956-how-do-i-set-up-metamask-on-avalanche",
-);
-const polygonMetaMaskInfo = addMetaMaskEcosystemInfo(
-  metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Polygon],
-  "https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/",
-);
-const auroraMetaMaskInfo = addMetaMaskEcosystemInfo(
-  metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Aurora],
-  "https://doc.aurora.dev/interact/metamask/",
-);
-const fantomMetaMaskInfo = addMetaMaskEcosystemInfo(
-  metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Fantom],
-  "https://docs.fantom.foundation/tutorials/set-up-metamask",
-);
-const karuraMetaMaskInfo = addMetaMaskEcosystemInfo(
-  metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Karura],
-  "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network",
-);
-const acalaMetaMaskInfo = addMetaMaskEcosystemInfo(
-  metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Acala],
-  "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network",
-);
+// const avalancheMetaMaskInfo = addMetaMaskEcosystemInfo(
+//   metaMaskInfo,
+//   ECOSYSTEMS[EcosystemId.Avalanche],
+//   "https://support.avax.network/en/articles/4626956-how-do-i-set-up-metamask-on-avalanche",
+// );
+// const polygonMetaMaskInfo = addMetaMaskEcosystemInfo(
+//   metaMaskInfo,
+//   ECOSYSTEMS[EcosystemId.Polygon],
+//   "https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/",
+// );
+// const auroraMetaMaskInfo = addMetaMaskEcosystemInfo(
+//   metaMaskInfo,
+//   ECOSYSTEMS[EcosystemId.Aurora],
+//   "https://doc.aurora.dev/interact/metamask/",
+// );
+// const fantomMetaMaskInfo = addMetaMaskEcosystemInfo(
+//   metaMaskInfo,
+//   ECOSYSTEMS[EcosystemId.Fantom],
+//   "https://docs.fantom.foundation/tutorials/set-up-metamask",
+// );
+// const karuraMetaMaskInfo = addMetaMaskEcosystemInfo(
+//   metaMaskInfo,
+//   ECOSYSTEMS[EcosystemId.Karura],
+//   "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network",
+// );
+// const acalaMetaMaskInfo = addMetaMaskEcosystemInfo(
+//   metaMaskInfo,
+//   ECOSYSTEMS[EcosystemId.Acala],
+//   "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network",
+// );
 
 const {
-  acala,
-  aurora,
-  avalanche,
+  // acala,
+  // aurora,
+  // avalanche,
   bnb,
   ethereum,
-  fantom,
-  karura,
-  polygon,
+  // fantom,
+  // karura,
+  // polygon,
   solana,
 } = adapters;
 
@@ -194,54 +197,54 @@ export const BNB_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] = [
     adapter: bnb.MetaMaskAdapter,
   },
 ];
-export const AVALANCHE_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
-  [
-    {
-      id: WalletServiceId.MetaMask,
-      info: avalancheMetaMaskInfo,
-      adapter: avalanche.MetaMaskAdapter,
-    },
-  ];
-export const POLYGON_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
-  [
-    {
-      id: WalletServiceId.MetaMask,
-      info: polygonMetaMaskInfo,
-      adapter: polygon.MetaMaskAdapter,
-    },
-  ];
-export const AURORA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
-  [
-    {
-      id: WalletServiceId.MetaMask,
-      info: auroraMetaMaskInfo,
-      adapter: aurora.MetaMaskAdapter,
-    },
-  ];
-export const FANTOM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
-  [
-    {
-      id: WalletServiceId.MetaMask,
-      info: fantomMetaMaskInfo,
-      adapter: fantom.MetaMaskAdapter,
-    },
-  ];
-export const KARURA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
-  [
-    {
-      id: WalletServiceId.MetaMask,
-      info: karuraMetaMaskInfo,
-      adapter: karura.MetaMaskAdapter,
-    },
-  ];
-export const ACALA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
-  [
-    {
-      id: WalletServiceId.MetaMask,
-      info: acalaMetaMaskInfo,
-      adapter: acala.MetaMaskAdapter,
-    },
-  ];
+// export const AVALANCHE_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
+//   [
+//     {
+//       id: WalletServiceId.MetaMask,
+//       info: avalancheMetaMaskInfo,
+//       adapter: avalanche.MetaMaskAdapter,
+//     },
+//   ];
+// export const POLYGON_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
+//   [
+//     {
+//       id: WalletServiceId.MetaMask,
+//       info: polygonMetaMaskInfo,
+//       adapter: polygon.MetaMaskAdapter,
+//     },
+//   ];
+// export const AURORA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
+//   [
+//     {
+//       id: WalletServiceId.MetaMask,
+//       info: auroraMetaMaskInfo,
+//       adapter: aurora.MetaMaskAdapter,
+//     },
+//   ];
+// export const FANTOM_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
+//   [
+//     {
+//       id: WalletServiceId.MetaMask,
+//       info: fantomMetaMaskInfo,
+//       adapter: fantom.MetaMaskAdapter,
+//     },
+//   ];
+// export const KARURA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
+//   [
+//     {
+//       id: WalletServiceId.MetaMask,
+//       info: karuraMetaMaskInfo,
+//       adapter: karura.MetaMaskAdapter,
+//     },
+//   ];
+// export const ACALA_WALLET_SERVICES: readonly WalletService<EvmWalletAdapter>[] =
+//   [
+//     {
+//       id: WalletServiceId.MetaMask,
+//       info: acalaMetaMaskInfo,
+//       adapter: acala.MetaMaskAdapter,
+//     },
+//   ];
 
 export const SOLANA_WALLET_SERVICES: readonly SolanaWalletService<SolanaWalletAdapter>[] =
   [
@@ -273,12 +276,12 @@ export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {
   [SOLANA_ECOSYSTEM_ID]: SOLANA_WALLET_SERVICES,
   [ETHEREUM_ECOSYSTEM_ID]: ETHEREUM_WALLET_SERVICES,
   [BNB_ECOSYSTEM_ID]: BNB_WALLET_SERVICES,
-  [EcosystemId.Avalanche]: AVALANCHE_WALLET_SERVICES,
-  [EcosystemId.Polygon]: POLYGON_WALLET_SERVICES,
-  [EcosystemId.Aurora]: AURORA_WALLET_SERVICES,
-  [EcosystemId.Fantom]: FANTOM_WALLET_SERVICES,
-  [EcosystemId.Karura]: KARURA_WALLET_SERVICES,
-  [EcosystemId.Acala]: ACALA_WALLET_SERVICES,
+  // [EcosystemId.Avalanche]: AVALANCHE_WALLET_SERVICES,
+  // [EcosystemId.Polygon]: POLYGON_WALLET_SERVICES,
+  // [EcosystemId.Aurora]: AURORA_WALLET_SERVICES,
+  // [EcosystemId.Fantom]: FANTOM_WALLET_SERVICES,
+  // [EcosystemId.Karura]: KARURA_WALLET_SERVICES,
+  // [EcosystemId.Acala]: ACALA_WALLET_SERVICES,
 };
 
 const findServiceForProtocol = (

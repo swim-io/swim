@@ -1,9 +1,10 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
+import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 
-import type { PoolSpec, TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
-import type { TokenSpec } from "../../config";
+import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { filterMap, findOrThrow } from "../../utils";
 import { Amount } from "../amount";
@@ -115,12 +116,12 @@ export const getConnectedWallets = (
       [SOLANA_ECOSYSTEM_ID]: null,
       [ETHEREUM_ECOSYSTEM_ID]: null,
       [BNB_ECOSYSTEM_ID]: null,
-      [EcosystemId.Avalanche]: null,
-      [EcosystemId.Polygon]: null,
-      [EcosystemId.Aurora]: null,
-      [EcosystemId.Fantom]: null,
-      [EcosystemId.Karura]: null,
-      [EcosystemId.Acala]: null,
+      // [EcosystemId.Avalanche]: null,
+      // [EcosystemId.Polygon]: null,
+      // [EcosystemId.Aurora]: null,
+      // [EcosystemId.Fantom]: null,
+      // [EcosystemId.Karura]: null,
+      // [EcosystemId.Acala]: null,
     },
   );
 };
@@ -165,15 +166,15 @@ export const getConnectedWalletsV2 = (
           }
         : accumulator,
     {
-      [EcosystemId.Solana]: null,
-      [EcosystemId.Ethereum]: null,
-      [EcosystemId.Bnb]: null,
-      [EcosystemId.Avalanche]: null,
-      [EcosystemId.Polygon]: null,
-      [EcosystemId.Aurora]: null,
-      [EcosystemId.Fantom]: null,
-      [EcosystemId.Karura]: null,
-      [EcosystemId.Acala]: null,
+      [SOLANA_ECOSYSTEM_ID]: null,
+      [ETHEREUM_ECOSYSTEM_ID]: null,
+      [BNB_ECOSYSTEM_ID]: null,
+      // [EcosystemId.Avalanche]: null,
+      // [EcosystemId.Polygon]: null,
+      // [EcosystemId.Aurora]: null,
+      // [EcosystemId.Fantom]: null,
+      // [EcosystemId.Karura]: null,
+      // [EcosystemId.Acala]: null,
     },
   );
 };

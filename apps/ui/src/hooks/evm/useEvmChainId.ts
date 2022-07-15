@@ -8,8 +8,9 @@ import { findOrThrow } from "../../utils";
 export const useEvmChainId = (ecosystemId: EvmEcosystemId): EvmChainId => {
   const { env } = useEnvironment();
   const { ecosystems } = useEnvironment(selectConfig, shallow);
+  const ecosystem = ecosystems[ecosystemId];
   const currentChain = findOrThrow(
-    ecosystems[ecosystemId].chains,
+    ecosystem.chains,
     (chain) => chain.env === env,
   );
   return currentChain.chainId;

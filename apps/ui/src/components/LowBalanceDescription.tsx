@@ -1,33 +1,31 @@
-import { ACALA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-acala";
-import { KARURA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-karura";
 import type { FC, ReactElement } from "react";
 import shallow from "zustand/shallow.js";
 
-import type { EcosystemId, UiEcosystemConfig } from "../config";
+import type { EcosystemConfig, EcosystemId } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 
-const ecosystemIdToDoc = new Map([
-  [
-    ACALA_ECOSYSTEM_ID,
-    "https://wiki.acala.network/get-started/acala-network/acala-account#existential-deposit",
-  ],
-  [
-    KARURA_ECOSYSTEM_ID,
-    "https://wiki.acala.network/get-started/get-started/karura-account#existential-deposit",
-  ],
-]);
+// const ecosystemIdToDoc = new Map([
+//   [
+//     ACALA_ECOSYSTEM_ID,
+//     "https://wiki.acala.network/get-started/acala-network/acala-account#existential-deposit",
+//   ],
+//   [
+//     KARURA_ECOSYSTEM_ID,
+//     "https://wiki.acala.network/get-started/get-started/karura-account#existential-deposit",
+//   ],
+// ]);
 
-const createListItem = (ecosystem: UiEcosystemConfig): ReactElement => {
-  if (ecosystemIdToDoc.has(ecosystem.id)) {
-    return (
-      <li key={ecosystem.displayName}>
-        <a href={ecosystemIdToDoc.get(ecosystem.id)}>
-          {`${ecosystem.displayName}*`}
-        </a>
-      </li>
-    );
-  }
+const createListItem = (ecosystem: EcosystemConfig): ReactElement => {
+  // if (ecosystemIdToDoc.has(ecosystem.id)) {
+  //   return (
+  //     <li key={ecosystem.displayName}>
+  //       <a href={ecosystemIdToDoc.get(ecosystem.id)}>
+  //         {`${ecosystem.displayName}*`}
+  //       </a>
+  //     </li>
+  //   );
+  // }
   return <li key={ecosystem.id}>{ecosystem.displayName}</li>;
 };
 
@@ -35,28 +33,28 @@ interface Props {
   readonly lowBalanceWallets: readonly EcosystemId[];
 }
 
-interface LowPolkadotBalanceWarningProps {
-  readonly isVisible: boolean;
-}
+// interface LowPolkadotBalanceWarningProps {
+//   readonly isVisible: boolean;
+// }
 
-const LowPolkadotBalanceWarning = ({
-  isVisible,
-}: LowPolkadotBalanceWarningProps): ReactElement | null => {
-  if (!isVisible) {
-    return null;
-  }
-  return (
-    <>
-      *Polkadot chains require a minimum balance in order not to be deactivated
-      according to Existential Deposit requirements.
-    </>
-  );
-};
+// const LowPolkadotBalanceWarning = ({
+//   isVisible,
+// }: LowPolkadotBalanceWarningProps): ReactElement | null => {
+//   if (!isVisible) {
+//     return null;
+//   }
+//   return (
+//     <>
+//       *Polkadot chains require a minimum balance in order not to be deactivated
+//       according to Existential Deposit requirements.
+//     </>
+//   );
+// };
 
 export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
-  const isLowPolkadotBalance = lowBalanceWallets.some((ecosystemId) =>
-    ecosystemIdToDoc.has(ecosystemId),
-  );
+  // const isLowPolkadotBalance = lowBalanceWallets.some((ecosystemId) =>
+  //   ecosystemIdToDoc.has(ecosystemId),
+  // );
   const { ecosystems } = useEnvironment(selectConfig, shallow);
   const lowBalanceEcosystems = lowBalanceWallets.map((ecosystemId) => {
     return ecosystems[ecosystemId];
@@ -70,7 +68,7 @@ export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
       <ul>
         {lowBalanceEcosystems.map((ecosystem) => createListItem(ecosystem))}
       </ul>
-      <LowPolkadotBalanceWarning isVisible={isLowPolkadotBalance} />
+      {/* <LowPolkadotBalanceWarning isVisible={isLowPolkadotBalance} /> */}
     </p>
   );
 };

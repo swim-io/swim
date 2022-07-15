@@ -1,9 +1,10 @@
+import { Env } from "@swim-io/core-types";
 import { EVM_PROTOCOL } from "@swim-io/evm-types";
-import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { CONFIGS } from "../../../config";
-import { Env, useEnvironment, useWalletAdapter } from "../../../core/store";
+import { useEnvironment, useWalletAdapter } from "../../../core/store";
 import {
   WalletServiceId,
   createAdapter,
@@ -29,12 +30,12 @@ const createAdapterMock = mockOf(createAdapter);
 
 describe("useWalletService", () => {
   beforeEach(() => {
-    useEnvironmentMock.mockReturnValue(CONFIGS[Env.Localnet]);
+    useEnvironmentMock.mockReturnValue(CONFIGS[Env.Local]);
   });
 
   it("should call useWalletAdapter connectService with the correct createAdapter", async () => {
-    const config = CONFIGS[Env.Localnet];
-    const [{ endpoint }] = config.chains[SOLANA_PROTOCOL];
+    const config = CONFIGS[Env.Local];
+    const [{ endpoint }] = config.ecosystems[SOLANA_ECOSYSTEM_ID].chains;
 
     const connectServiceMock = jest.fn();
     const disconnectServiceMock = jest.fn();

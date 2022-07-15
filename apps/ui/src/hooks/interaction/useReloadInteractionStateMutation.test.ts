@@ -1,10 +1,11 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
+import { Env } from "@swim-io/core-types";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
 import { selectGetInteractionState } from "../../core/selectors";
-import { Env, useEnvironment, useInteractionState } from "../../core/store";
+import { useEnvironment, useInteractionState } from "../../core/store";
 import {
   EVM_TXS_FOR_RELOAD_INTERACTION,
   MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION,

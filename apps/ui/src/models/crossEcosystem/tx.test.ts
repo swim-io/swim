@@ -6,8 +6,8 @@ import { mock } from "jest-mock-extended";
 
 import { parsedSwimSwapTx } from "../../fixtures/solana/txs";
 
-import type { BnbTx, EthereumTx, SolanaTx } from "./tx";
-import { isBnbTx, isEthereumTx, isEvmTx, isSolanaTx } from "./tx";
+import type { EvmTx, SolanaTx } from "./tx";
+import { isEvmTx, isSolanaTx } from "./tx";
 
 describe("Cross-ecosystem tx", () => {
   const defaultTimestamp = 1642762608;
@@ -20,7 +20,7 @@ describe("Cross-ecosystem tx", () => {
     parsedTx: parsedSwimSwapTx,
   };
 
-  const ethereumTx: EthereumTx = {
+  const ethereumTx: EvmTx = {
     ecosystem: ETHEREUM_ECOSYSTEM_ID,
     txId: "0x743087e871039d66b82fcb2cb719f6a541e650e05735c32c1be871ef9ae9a456",
     timestamp: defaultTimestamp,
@@ -29,7 +29,7 @@ describe("Cross-ecosystem tx", () => {
     txReceipt: mock<ethers.providers.TransactionReceipt>(),
   };
 
-  const bnbTx: BnbTx = {
+  const bnbTx: EvmTx = {
     ...ethereumTx,
     ecosystem: BNB_ECOSYSTEM_ID,
   };
@@ -42,28 +42,6 @@ describe("Cross-ecosystem tx", () => {
     it("returns false if the ecosystem is not Solana", () => {
       expect(isSolanaTx(ethereumTx)).toBe(false);
       expect(isSolanaTx(bnbTx)).toBe(false);
-    });
-  });
-
-  describe("isEthereumTx", () => {
-    it("returns true if the ecosystem is Ethereum", () => {
-      expect(isEthereumTx(ethereumTx)).toBe(true);
-    });
-
-    it("returns false if the ecosystem is not Ethereum", () => {
-      expect(isEthereumTx(solanaTx)).toBe(false);
-      expect(isEthereumTx(bnbTx)).toBe(false);
-    });
-  });
-
-  describe("isBnbTx", () => {
-    it("returns true if the ecosystem is BNB", () => {
-      expect(isBnbTx(bnbTx)).toBe(true);
-    });
-
-    it("returns false if the ecosystem is not BNB", () => {
-      expect(isBnbTx(solanaTx)).toBe(false);
-      expect(isBnbTx(ethereumTx)).toBe(false);
     });
   });
 

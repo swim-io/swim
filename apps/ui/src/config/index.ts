@@ -26,7 +26,6 @@ import type { WormholeConfig } from "./wormhole";
 import { WORMHOLE_CONFIGS } from "./wormhole";
 
 export * from "./ecosystem";
-export * from "./env";
 export * from "./pools";
 export * from "./projects";
 export * from "./tokens";
@@ -94,6 +93,8 @@ export const CONFIGS: ReadonlyRecord<Env, Config> = {
   [Env.Local]: buildConfig(Env.Local),
   [Env.Custom]: buildConfig(Env.Custom),
 };
+
+export const DEFAULT_ENV = Env.Mainnet;
 
 // TODO: Add support for custom env
 // const LOCALHOST_REGEXP = /localhost|127\.0\.0\.1/;

@@ -20,7 +20,6 @@ import {
   useIsLargeSwap,
   usePoolMaths,
   usePools,
-  useSplTokenAccountsQuery,
   useSwapFeesEstimationQuery,
   useSwapOutputAmountEstimate,
   useSwapTokens,
@@ -58,12 +57,12 @@ export const SwapFormV2 = ({
 }: SwapFormProps): ReactElement => {
   const config = useEnvironment(selectConfig, shallow);
   const { notify } = useNotification();
-  const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const userNativeBalances = useUserNativeBalances();
   const startNewInteraction = useStartNewInteraction(() => {
     setFormInputAmount("0");
   });
   const isInteractionInProgress = useHasActiveInteraction();
+  // TODO: support swimUSD, change type from tokenId to TokenTransferDetail
   const {
     fromToken,
     toToken,
@@ -74,6 +73,7 @@ export const SwapFormV2 = ({
   } = useSwapTokens();
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
+  // TODO: change to getRequiredPoolsForSwapV2
   const requiredPools = getRequiredPoolsForSwap(
     config.pools,
     fromToken.id,
@@ -94,6 +94,7 @@ export const SwapFormV2 = ({
     [],
   );
 
+  // TODO: need a V2 since number of tx is different now
   const feesEstimation = useSwapFeesEstimationQuery(fromToken, toToken);
 
   const inputAmount = defaultIfError(
@@ -109,6 +110,7 @@ export const SwapFormV2 = ({
     ) &&
     inputAmount.toHuman(EcosystemId.Solana).lt(200);
 
+  // TODO: revisit all errors
   const getSwapFormErrors = useGetSwapFormErrors(
     fromToken,
     toToken,
@@ -118,6 +120,7 @@ export const SwapFormV2 = ({
   const isInputAmountPositive =
     !inputAmount.isNegative() && !inputAmount.isZero();
 
+  // TODO: Need a V2
   const outputAmount = useSwapOutputAmountEstimate(inputAmount, toToken);
   const fromTokenUserBalances = useUserBalanceAmounts(fromToken);
   const fromTokenBalance = fromTokenUserBalances[fromToken.nativeEcosystem];
@@ -196,7 +199,6 @@ export const SwapFormV2 = ({
 
     // These are just for type safety and should in theory not happen
     if (
-      splTokenAccounts === null ||
       outputAmount === null ||
       maxSlippageFraction === null ||
       !isEachNotNull(poolMaths)
@@ -212,6 +214,7 @@ export const SwapFormV2 = ({
     const minimumOutputAmount = outputAmount.sub(
       outputAmount.mul(maxSlippageFraction),
     );
+    // TODO: need a V2
     startNewInteraction({
       type: InteractionType.Swap,
       params: {
@@ -234,6 +237,7 @@ export const SwapFormV2 = ({
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
       <EuiSpacer />
 
+      {/* TODO: make it accept TokenTransferDetail? */}
       <TokenAmountInput
         value={formInputAmount}
         token={fromToken}
@@ -281,6 +285,7 @@ export const SwapFormV2 = ({
 
       <EuiSpacer />
 
+      {/* TODO: Remove */}
       <SwapFormSolanaConnectButton
         fromEcosystem={fromToken.nativeEcosystem}
         toEcosystem={toToken.nativeEcosystem}
@@ -302,6 +307,8 @@ export const SwapFormV2 = ({
           <EuiSpacer />
         </>
       )}
+
+      {/* TODO: Show only when Solana is required */}
       <SolanaTpsWarning />
 
       <PoolPausedAlert isVisible={isRequiredPoolPaused} />

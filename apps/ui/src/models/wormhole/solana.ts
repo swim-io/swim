@@ -168,7 +168,7 @@ export async function* generatePostVaaSolanaTxIds(
 
 export async function* generateUnlockSplTokenTxIds(
   interactionId: string,
-  wormholeEndpoint: string,
+  wormholeRpcUrls: readonly string[],
   wormholeChainId: WormholeChainId,
   emitterAddress: string,
   sequence: string,
@@ -186,7 +186,7 @@ export async function* generateUnlockSplTokenTxIds(
       ? POLYGON_WORMHOLE_RETRIES
       : DEFAULT_WORMHOLE_RETRIES;
   const { vaaBytes } = await getSignedVAAWithRetry(
-    [wormholeEndpoint],
+    [...wormholeRpcUrls],
     wormholeChainId,
     emitterAddress,
     sequence,
@@ -221,7 +221,7 @@ export async function* generateUnlockSplTokenTxIds(
 
 export const unlockSplToken = async (
   interactionId: string,
-  wormholeEndpoint: string,
+  wormholeRpcUrls: readonly string[],
   wormholeChainId: WormholeChainId,
   emitterAddress: string,
   sequence: string,
@@ -238,7 +238,7 @@ export const unlockSplToken = async (
       ? POLYGON_WORMHOLE_RETRIES
       : DEFAULT_WORMHOLE_RETRIES;
   const { vaaBytes } = await getSignedVAAWithRetry(
-    [wormholeEndpoint],
+    [...wormholeRpcUrls],
     wormholeChainId,
     emitterAddress,
     sequence,

@@ -32,6 +32,11 @@ export const Layout = ({
               <CustomHeaderLogo key="custom-header-logo" />,
               <EuiHeaderLinks key="eui-header-links">
                 <CustomHeaderLink to={"/swap"}>Swap</CustomHeaderLink>
+                {process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE && (
+                  <CustomHeaderLink to={"/swapV2"}>
+                    [WIP] SwapV2
+                  </CustomHeaderLink>
+                )}
                 <CustomHeaderLink to={"/pools"}>Pools</CustomHeaderLink>
                 {/* TODO: Enable when token is launched */}
                 {/* <CustomHeaderLink to={"/stake"}>Stake</CustomHeaderLink> */}

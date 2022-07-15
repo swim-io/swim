@@ -1,17 +1,12 @@
-import shallow from "zustand/shallow.js";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
 
 import type { EvmChainId, EvmEcosystemId } from "../../config";
-import { selectConfig } from "../../core/selectors";
-import { useEnvironment } from "../../core/store";
-import { findOrThrow } from "../../utils";
+import { useEcosystem } from "../crossEcosystem/useEcosystems";
 
 export const useEvmChainId = (ecosystemId: EvmEcosystemId): EvmChainId => {
-  const { env } = useEnvironment();
-  const { ecosystems } = useEnvironment(selectConfig, shallow);
-  const ecosystem = ecosystems[ecosystemId];
-  const currentChain = findOrThrow(
-    ecosystem.chains,
-    (chain) => chain.env === env,
-  );
-  return currentChain.chainId;
+  const ecosystem = useEcosystem(ecosystemId);
+  if (ecosystem === null || ecosystem.protocol !== EVM_PROTOCOL) {
+    throw new Error("Missing ecosystem");
+  }
+  return ecosystem.chain.chainId;
 };

@@ -37,7 +37,10 @@ export const TokenSearchModal = ({
   const { ecosystems, tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptionIds.map((tokenId) => {
     const tokenSpec = findOrThrow(tokens, ({ id }) => id === tokenId);
-    const ecosystem = ecosystems[tokenSpec.nativeEcosystem];
+    const ecosystem = findOrThrow(
+      ecosystems,
+      ({ id }) => id === tokenSpec.nativeEcosystem,
+    );
     return {
       label: `${tokenSpec.project.symbol} on ${ecosystem.displayName}`,
       searchableLabel: `${tokenSpec.project.symbol} ${tokenSpec.project.displayName} ${ecosystem.displayName}`,

@@ -1,11 +1,9 @@
 import { EuiIcon } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
-import shallow from "zustand/shallow.js";
 
 import type { EcosystemId, TokenProject, TokenSpec } from "../config";
-import { selectConfig } from "../core/selectors";
-import { useEnvironment } from "../core/store";
+import { useEcosystem } from "../hooks";
 import type { Amount } from "../models/amount";
 
 export interface TokenIconProps
@@ -21,8 +19,7 @@ export const TokenIcon = ({
   ecosystemId,
   showFullName = false,
 }: TokenIconProps): ReactElement => {
-  const { ecosystems } = useEnvironment(selectConfig, shallow);
-  const ecosystem = ecosystemId ? ecosystems[ecosystemId] : null;
+  const ecosystem = useEcosystem(ecosystemId ?? null);
   return (
     <span>
       <EuiIcon type={icon} size="l" title={symbol} />
@@ -97,8 +94,10 @@ export interface EcosystemIconProps {
 export const EcosystemIcon = ({
   ecosystemId,
 }: EcosystemIconProps): ReactElement => {
-  const { ecosystems } = useEnvironment(selectConfig, shallow);
-  const ecosystem = ecosystems[ecosystemId];
+  const ecosystem = useEcosystem(ecosystemId);
+  if (ecosystem === null) {
+    throw new Error("Missing ecosystem");
+  }
   return (
     <span style={{ whiteSpace: "nowrap" }}>
       {/* TODO: Logo */}

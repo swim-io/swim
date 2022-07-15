@@ -7,7 +7,7 @@ import type { UseQueryResult } from "react-query";
 import type { EcosystemId, TokenSpec } from "../../config";
 import { Amount, findTokenAccountForMint } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
-import { useErc20BalancesQuery } from "../evm";
+import { useErc20BalancesQuery } from "../evm/useErc20BalancesQuery";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 
 const getContractAddressesByEcosystem = (

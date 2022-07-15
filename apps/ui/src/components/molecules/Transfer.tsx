@@ -1,10 +1,8 @@
 import { EuiListGroup, EuiLoadingSpinner, EuiText } from "@elastic/eui";
 import type { VFC } from "react";
-import shallow from "zustand/shallow.js";
 
 import type { EcosystemId, TokenSpec } from "../../config";
-import { selectConfig } from "../../core/selectors";
-import { useEnvironment } from "../../core/store";
+import { useEcosystem } from "../../hooks";
 
 import { TxListItem } from "./TxListItem";
 
@@ -26,12 +24,16 @@ export const Transfer: VFC<Props> = ({
   isLoading,
   transactions,
 }) => {
-  const { ecosystems } = useEnvironment(selectConfig, shallow);
+  const fromEcosystem = useEcosystem(from);
+  const toEcosystem = useEcosystem(to);
+  if (fromEcosystem === null || toEcosystem === null) {
+    throw new Error("Missing ecosystem");
+  }
   return (
     <EuiText size="m">
       <span style={{ display: "flex", alignItems: "center" }}>
         {isLoading && <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />}
-        <span>{`Transfer ${token.project.displayName} from ${ecosystems[from].displayName} to ${ecosystems[to].displayName}`}</span>
+        <span>{`Transfer ${token.project.displayName} from ${fromEcosystem.displayName} to ${toEcosystem.displayName}`}</span>
       </span>
       <br />
       <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>

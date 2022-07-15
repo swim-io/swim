@@ -17,7 +17,6 @@ import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useMemo, useState } from "react";
-import shallow from "zustand/shallow.js";
 
 import {
   ECOSYSTEMS,
@@ -26,11 +25,11 @@ import {
   isEcosystemEnabled,
 } from "../config";
 import type { EcosystemId, PoolSpec, TokenSpec } from "../config";
-import { selectConfig } from "../core/selectors";
-import { useEnvironment, useNotification } from "../core/store";
+import { useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   useAddFeesEstimationQuery,
+  useEcosystems,
   useMultipleUserBalances,
   usePool,
   usePoolMath,
@@ -186,7 +185,6 @@ export const AddForm = ({
   maxSlippageFraction,
 }: AddFormProps): ReactElement => {
   const { notify } = useNotification();
-  const config = useEnvironment(selectConfig, shallow);
   const wallets = useWallets();
   const {
     tokens: poolTokens,
@@ -348,40 +346,38 @@ export const AddForm = ({
     }
   };
 
+  const requiredEcosystemIds = new Set(
+    [
+      SOLANA_ECOSYSTEM_ID,
+      lpTargetEcosystem,
+      ...poolTokens.map((tokenSpec, i) => {
+        const inputAmount = inputAmounts[i];
+        return inputAmount !== null && !inputAmount.isZero()
+          ? tokenSpec.nativeEcosystem
+          : null;
+      }),
+    ].filter(isNotNull),
+  );
+  const requiredEcosystems = useEcosystems([...requiredEcosystemIds]);
+
   const handleSubmit = (): void => {
     // reset everything
     setFormErrors([]);
     let errors: readonly string[] = [];
 
-    const requiredEcosystems = new Set(
-      [
-        SOLANA_ECOSYSTEM_ID,
-        lpTargetEcosystem,
-        ...poolTokens.map((tokenSpec, i) => {
-          const inputAmount = inputAmounts[i];
-          return inputAmount !== null && !inputAmount.isZero()
-            ? tokenSpec.nativeEcosystem
-            : null;
-        }),
-      ].filter(isNotNull),
-    );
-
     // Require connected wallets
     requiredEcosystems.forEach((ecosystem) => {
-      if (!wallets[ecosystem].connected) {
-        errors = [
-          ...errors,
-          `Connect ${config.ecosystems[ecosystem].displayName} wallet`,
-        ];
+      if (ecosystem !== null && !wallets[ecosystem.id].connected) {
+        errors = [...errors, `Connect ${ecosystem.displayName} wallet`];
       }
     });
 
     // Require non-zero native balances
     requiredEcosystems.forEach((ecosystem) => {
-      if (userNativeBalances[ecosystem].isZero()) {
+      if (ecosystem !== null && userNativeBalances[ecosystem.id].isZero()) {
         errors = [
           ...errors,
-          `Empty balance in ${config.ecosystems[ecosystem].displayName} wallet. You will need some funds to pay for transaction fees.`,
+          `Empty balance in ${ecosystem.displayName} wallet. You will need some funds to pay for transaction fees.`,
         ];
       }
     });

@@ -1,9 +1,8 @@
 import type { FC, ReactElement } from "react";
-import shallow from "zustand/shallow.js";
 
 import type { EcosystemConfig, EcosystemId } from "../config";
-import { selectConfig } from "../core/selectors";
-import { useEnvironment } from "../core/store";
+import { useEcosystems } from "../hooks";
+import { isNotNull } from "../utils";
 
 // const ecosystemIdToDoc = new Map([
 //   [
@@ -55,10 +54,7 @@ export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
   // const isLowPolkadotBalance = lowBalanceWallets.some((ecosystemId) =>
   //   ecosystemIdToDoc.has(ecosystemId),
   // );
-  const { ecosystems } = useEnvironment(selectConfig, shallow);
-  const lowBalanceEcosystems = lowBalanceWallets.map((ecosystemId) => {
-    return ecosystems[ecosystemId];
-  });
+  const lowBalanceEcosystems = useEcosystems(lowBalanceWallets);
   return (
     <p>
       <span>
@@ -66,7 +62,9 @@ export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
         cover all of the required transaction fees:
       </span>
       <ul>
-        {lowBalanceEcosystems.map((ecosystem) => createListItem(ecosystem))}
+        {lowBalanceEcosystems
+          .filter(isNotNull)
+          .map((ecosystem) => createListItem(ecosystem))}
       </ul>
       {/* <LowPolkadotBalanceWarning isVisible={isLowPolkadotBalance} /> */}
     </p>

@@ -16,6 +16,7 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import { PublicKey } from "@solana/web3.js";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
 import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import {
@@ -34,9 +35,11 @@ import { getSolanaTokenDetails } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import {
+  useEcosystem,
   useEvmConnections,
   usePool,
   useSolanaConnection,
+  useSolanaEcosystem,
   useTokensByEcosystem,
   useWallets,
 } from "../hooks";
@@ -52,11 +55,10 @@ const SWIM_POOL_FEE_DECIMALS = 6;
 
 const TestPage = (): ReactElement => {
   const { env } = useEnvironment();
-  const {
-    ecosystems,
-    tokens,
-    wormhole: wormholeConfig,
-  } = useEnvironment(selectConfig, shallow);
+  const { tokens, wormhole: wormholeConfig } = useEnvironment(
+    selectConfig,
+    shallow,
+  );
   const queryClient = useQueryClient();
   const [currentPool, setCurrentPool] = useState("hexapool");
   const secretKeys = currentPool === "swimlake" ? keysSwimLake : keysHexaPool;
@@ -121,9 +123,19 @@ const TestPage = (): ReactElement => {
   const swimUsdTokenSolanaDetails = getSolanaTokenDetails(swimUsdToken);
   const xSwimTokenSolanaDetails = getSolanaTokenDetails(xSwimToken);
 
-  const [solanaChain] = ecosystems[SOLANA_ECOSYSTEM_ID].chains;
-  const [ethereumChain] = ecosystems[ETHEREUM_ECOSYSTEM_ID].chains;
-  const [bnbChain] = ecosystems[BNB_ECOSYSTEM_ID].chains;
+  const solanaChain = useSolanaEcosystem().chain;
+  const ethereumEcosystem = useEcosystem(ETHEREUM_ECOSYSTEM_ID);
+  const bnbEcosystem = useEcosystem(BNB_ECOSYSTEM_ID);
+  if (
+    ethereumEcosystem === null ||
+    bnbEcosystem === null ||
+    ethereumEcosystem.protocol !== EVM_PROTOCOL ||
+    bnbEcosystem.protocol !== EVM_PROTOCOL
+  ) {
+    throw new Error("Missing ecosystem");
+  }
+  const ethereumChain = ethereumEcosystem.chain;
+  const bnbChain = bnbEcosystem.chain;
 
   const [governanceAddress, setGovernanceAddress] = useState(
     "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",

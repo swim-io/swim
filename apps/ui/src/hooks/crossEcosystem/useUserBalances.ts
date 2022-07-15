@@ -6,7 +6,7 @@ import type Decimal from "decimal.js";
 import type { EcosystemId, TokenSpec } from "../../config";
 import { Amount } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
-import { useErc20BalanceQuery } from "../evm";
+import { useErc20BalanceQuery } from "../evm/useErc20BalanceQuery";
 import { useSplUserBalance } from "../solana";
 
 export const useUserBalances = (

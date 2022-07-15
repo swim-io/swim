@@ -3,6 +3,7 @@ import {
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { ethers } from "ethers";
 import { useMutation } from "react-query";
@@ -20,7 +21,7 @@ import {
 } from "../../models";
 import { getFromEcosystemOfToSolanaTransfer } from "../../models/swim/transfer";
 import { findOrThrow } from "../../utils";
-import { useWallets } from "../crossEcosystem";
+import { useSolanaEcosystem, useWallets } from "../crossEcosystem";
 import { useEvmConnections } from "../evm";
 import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
 
@@ -43,7 +44,6 @@ const txResponseToTx = async (
 
 export const useToSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
-  const { env } = useEnvironment();
   const { ecosystems, wormhole } = useEnvironment(selectConfig, shallow);
   const solanaConnection = useSolanaConnection();
   const evmConnections = useEvmConnections();
@@ -53,7 +53,8 @@ export const useToSolanaTransferMutation = () => {
     (state) => state.updateInteractionState,
   );
   const getInteractionState = useInteractionState(selectGetInteractionState);
-  const [solanaChain] = ecosystems[SOLANA_ECOSYSTEM_ID].chains;
+  const solanaEcosystem = useSolanaEcosystem();
+  const solanaChain = solanaEcosystem.chain;
 
   return useMutation(async (interactionId: string) => {
     if (!solanaWallet) {
@@ -85,10 +86,14 @@ export const useToSolanaTransferMutation = () => {
         throw new Error("No EVM wallet");
       }
       const evmConnection = evmConnections[fromEcosystem];
-      const evmChain = findOrThrow(
-        ecosystems[fromEcosystem].chains,
-        (chain) => chain.env === env,
+      const evmEcosystem = findOrThrow(
+        ecosystems,
+        (ecosystem) => ecosystem.id === fromEcosystem,
       );
+      if (evmEcosystem.protocol !== EVM_PROTOCOL) {
+        throw new Error("Missing ecosystem");
+      }
+      const evmChain = evmEcosystem.chain;
       const fromTokenDetails = token.detailsByEcosystem.get(fromEcosystem);
       if (!fromTokenDetails) {
         throw new Error("No token detail");
@@ -145,9 +150,9 @@ export const useToSolanaTransferMutation = () => {
           interaction,
         );
         const evmChain = findOrThrow(
-          ecosystems[fromEcosystem].chains,
-          (chain) => chain.env === env,
-        );
+          ecosystems,
+          (ecosystem) => ecosystem.id === fromEcosystem,
+        ).chain;
         const evmConnection = evmConnections[fromEcosystem];
         const transferResponse = await evmConnection.provider.getTransaction(
           transferTxId,
@@ -172,9 +177,9 @@ export const useToSolanaTransferMutation = () => {
         interaction,
       );
       const evmChain = findOrThrow(
-        ecosystems[fromEcosystem].chains,
-        (chain) => chain.env === env,
-      );
+        ecosystems,
+        (ecosystem) => ecosystem.id === fromEcosystem,
+      ).chain;
       const sequence = sequences[index];
       // Claim token completed, skip
       if (sequence === null) {

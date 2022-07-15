@@ -27,6 +27,7 @@ import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
+  useEcosystems,
   usePool,
   usePoolMath,
   useRemoveFeesEstimationQuery,
@@ -301,29 +302,31 @@ export const RemoveForm = ({
     );
   };
 
-  const lpSourceEcosystemOptions: readonly EuiRadioGroupOption[] = [
+  const lpSourceEcosystems = useEcosystems([
     ...lpToken.detailsByEcosystem.keys(),
-  ].map((ecosystemId) => {
-    const ecosystem = config.ecosystems[ecosystemId];
-    const lpBalance = userLpBalances[ecosystemId];
-    const lpBalanceSuffix = lpBalance && (
-      <>
-        &#8200;(
-        {lpBalance.toFormattedHumanString(lpToken.nativeEcosystem)})
-      </>
-    );
-    return {
-      id: ecosystemId,
-      label: (
+  ]);
+
+  const lpSourceEcosystemOptions: readonly EuiRadioGroupOption[] =
+    lpSourceEcosystems.filter(isNotNull).map((ecosystem) => {
+      const lpBalance = userLpBalances[ecosystem.id];
+      const lpBalanceSuffix = lpBalance && (
         <>
-          {/* TODO: Logo */}
-          <EuiIcon type={"ecosystem.logo"} />
-          &nbsp;{ecosystem.displayName}
-          {lpBalanceSuffix}
+          &#8200;(
+          {lpBalance.toFormattedHumanString(lpToken.nativeEcosystem)})
         </>
-      ),
-    };
-  });
+      );
+      return {
+        id: ecosystem.id,
+        label: (
+          <>
+            {/* TODO: Logo */}
+            <EuiIcon type={"ecosystem.logo"} />
+            &nbsp;{ecosystem.displayName}
+            {lpBalanceSuffix}
+          </>
+        ),
+      };
+    });
 
   const methodOptions: readonly EuiRadioGroupOption[] =
     poolTokens.length > 1

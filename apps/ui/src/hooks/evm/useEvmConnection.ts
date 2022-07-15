@@ -1,30 +1,30 @@
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
 import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import { useQueryClient } from "react-query";
-import shallow from "zustand/shallow.js";
 
 import type { EvmEcosystemId } from "../../config";
-import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { EvmConnection } from "../../models";
-import { findOrThrow } from "../../utils";
 import type { ReadonlyRecord } from "../../utils";
+import { useEcosystem } from "../crossEcosystem/useEcosystems";
 
 export const useEvmConnection = (
   ecosystemId: EvmEcosystemId,
 ): EvmConnection => {
   const queryClient = useQueryClient();
   const { env } = useEnvironment();
-  const { ecosystems } = useEnvironment(selectConfig, shallow);
-  const ecosystem = ecosystems[ecosystemId];
-  const chainSpec = findOrThrow(ecosystem.chains, (chain) => chain.env === env);
+  const ecosystem = useEcosystem(ecosystemId);
+  if (ecosystem === null || ecosystem.protocol !== EVM_PROTOCOL) {
+    throw new Error("Missing ecosystem");
+  }
 
   const queryKey = [env, "evmConnection", ecosystemId];
 
   const connection =
     queryClient.getQueryData<EvmConnection>(queryKey) ||
     (function createEvmConnection(): EvmConnection {
-      const evmConnection = new EvmConnection(env, chainSpec);
+      const evmConnection = new EvmConnection(env, ecosystem.chain);
       queryClient.setQueryData(queryKey, evmConnection);
       return evmConnection;
     })();

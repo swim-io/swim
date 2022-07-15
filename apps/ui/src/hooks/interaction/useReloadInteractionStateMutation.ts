@@ -1,4 +1,3 @@
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import { useMutation, useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
@@ -21,6 +20,7 @@ import {
   isUnlockEvmTx,
 } from "../../models";
 import { findOrThrow } from "../../utils";
+import { useSolanaEcosystem } from "../crossEcosystem";
 import { useEvmConnections, useEvmWallet } from "../evm";
 import {
   useSolanaConnection,
@@ -39,10 +39,9 @@ export const useReloadInteractionStateMutation = () => {
     (state) => state.updateInteractionState,
   );
   const getInteractionState = useInteractionState(selectGetInteractionState);
-  const { env } = useEnvironment();
   const { tokens, ecosystems, pools } = useEnvironment(selectConfig, shallow);
-  const solanaEcosystem = ecosystems[SOLANA_ECOSYSTEM_ID];
-  const [solanaChain] = solanaEcosystem.chains;
+  const solanaEcosystem = useSolanaEcosystem();
+  const solanaChain = solanaEcosystem.chain;
 
   return useMutation(async (interactionId: string) => {
     const interactionState = getInteractionState(interactionId);
@@ -97,9 +96,9 @@ export const useReloadInteractionStateMutation = () => {
       );
       if (txIds.approveAndTransferEvmToken.length === 0) {
         const sourceChainSpec = findOrThrow(
-          ecosystems[fromEcosystem].chains,
-          (chain) => chain.env === env,
-        );
+          ecosystems,
+          (ecosystem) => ecosystem.id === fromEcosystem,
+        ).chain;
         const match = evmTxs.find(
           (evmTx) =>
             evmTx.ecosystem === fromEcosystem &&
@@ -213,9 +212,9 @@ export const useReloadInteractionStateMutation = () => {
 
       if (txIds.claimTokenOnEvm === null) {
         const destinationChainSpec = findOrThrow(
-          ecosystems[toEcosystem].chains,
-          (chain) => chain.env === env,
-        );
+          ecosystems,
+          (ecosystem) => ecosystem.id === toEcosystem,
+        ).chain;
         const match = evmTxs.find((evmTx) =>
           isUnlockEvmTx(destinationChainSpec.wormholeTokenBridge, token, evmTx),
         );

@@ -1,14 +1,11 @@
 import { EuiCallOut, EuiSpacer, EuiText } from "@elastic/eui";
 import { Connection } from "@solana/web3.js";
 import { Env } from "@swim-io/core-types";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import shallow from "zustand/shallow.js";
 
-import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
-import { findOrThrow } from "../utils";
+import { useSolanaEcosystem } from "../hooks";
 
 const INTERVAL_FREQUENCY_MS = 60000; // 1 minute.
 const SAMPLES_LIMIT = 5;
@@ -17,11 +14,8 @@ export const SolanaTpsWarning = (): ReactElement => {
   // Assume Solana TPS healthy.
   const [tps, setTps] = useState<number>(2000);
   const { env } = useEnvironment();
-  const { ecosystems } = useEnvironment(selectConfig, shallow);
-  const { endpoint } = findOrThrow(
-    ecosystems[SOLANA_ECOSYSTEM_ID].chains,
-    (chain) => chain.env === env,
-  );
+  const solanaEcosystem = useSolanaEcosystem();
+  const { endpoint } = solanaEcosystem.chain;
   // TODO: There is a bug with getRecentPerformanceSamples in which a new connection needs to be made.
   // Fix pending: https://github.com/solana-labs/solana/issues/19419
   const connection = useMemo<Connection>(() => {

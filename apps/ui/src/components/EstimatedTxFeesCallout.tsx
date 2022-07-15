@@ -3,7 +3,6 @@ import type { FC } from "react";
 import shallow from "zustand/shallow.js";
 
 import { decimalRemoveTrailingZero } from "../amounts";
-import { ECOSYSTEM_IDS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import type { FeesEstimation } from "../models";
@@ -13,7 +12,7 @@ interface Props {
 }
 
 export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
-  const config = useEnvironment(selectConfig, shallow);
+  const { ecosystems } = useEnvironment(selectConfig, shallow);
   if (feesEstimation === null) {
     return (
       <>
@@ -27,12 +26,15 @@ export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
       </>
     );
   }
-  const txFeeArray = ECOSYSTEM_IDS.map((ecosystemId) => {
-    return {
-      ecosystemId,
-      txFee: feesEstimation[ecosystemId],
-    };
-  }).filter(({ txFee }) => !txFee.isZero());
+
+  const txFeeArray = ecosystems
+    .map((ecosystem) => {
+      return {
+        ecosystem: ecosystem,
+        txFee: feesEstimation[ecosystem.id],
+      };
+    })
+    .filter(({ txFee }) => !txFee.isZero());
 
   return (
     <>
@@ -43,10 +45,10 @@ export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
         style={{ paddingLeft: 12 }}
       >
         <ul>
-          {txFeeArray.map(({ ecosystemId, txFee }) => {
-            const { displayName, gasToken } = config.ecosystems[ecosystemId];
+          {txFeeArray.map(({ ecosystem, txFee }) => {
+            const { displayName, gasToken } = ecosystem;
             return (
-              <li key={ecosystemId}>
+              <li key={ecosystem.id}>
                 {displayName}
                 {": ~"}
                 {decimalRemoveTrailingZero(txFee)} {gasToken.symbol}

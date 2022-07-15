@@ -1,13 +1,12 @@
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import shallow from "zustand/shallow.js";
 
 import type { Protocol } from "../../config";
-import { selectConfig, selectWalletAdapterApi } from "../../core/selectors";
+import { selectWalletAdapterApi } from "../../core/selectors";
 import type { WalletAdapterState } from "../../core/store";
-import { useEnvironment, useWalletAdapter } from "../../core/store";
+import { useWalletAdapter } from "../../core/store";
 import type { WalletService } from "../../models";
 import { createAdapter } from "../../models";
-import { findOrThrow } from "../../utils";
+import { useSolanaEcosystem } from "../crossEcosystem";
 
 type WalletServiceApi = Pick<WalletAdapterState, "disconnectService"> & {
   readonly connectService: ({
@@ -24,12 +23,8 @@ export const useWalletService = (): WalletServiceApi => {
     selectWalletAdapterApi,
     shallow,
   );
-  const { env } = useEnvironment();
-  const { ecosystems } = useEnvironment(selectConfig, shallow);
-  const { endpoint } = findOrThrow(
-    ecosystems[SOLANA_ECOSYSTEM_ID].chains,
-    (chain) => chain.env === env,
-  );
+  const solanaEcosystem = useSolanaEcosystem();
+  const { endpoint } = solanaEcosystem.chain;
 
   return {
     connectService: ({ serviceId, protocol }) =>

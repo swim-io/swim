@@ -4,6 +4,7 @@ import {
 } from "@certusone/wormhole-sdk";
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { Transaction } from "@solana/web3.js";
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import {
   SOLANA_ECOSYSTEM_ID,
   SOLANA_WORMHOLE_CHAIN_ID,
@@ -28,7 +29,7 @@ import {
 import { getToEcosystemOfFromSolanaTransfer } from "../../models/swim/transfer";
 import { DEFAULT_WORMHOLE_RETRIES } from "../../models/wormhole/constants";
 import { findOrThrow, isEachNotNull } from "../../utils";
-import { useWallets } from "../crossEcosystem";
+import { useSolanaEcosystem, useWallets } from "../crossEcosystem";
 import { useEvmConnections } from "../evm";
 import {
   useSolanaConnection,
@@ -74,17 +75,14 @@ const getTransferredAmountsByTokenId = async (
 
 export const useFromSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
-  const { env } = useEnvironment();
   const config = useEnvironment(selectConfig);
   const { ecosystems, wormhole } = config;
   const evmConnections = useEvmConnections();
   const solanaConnection = useSolanaConnection();
   const wallets = useWallets();
   const { address: solanaWalletAddress } = useSolanaWallet();
-  const solanaChain = findOrThrow(
-    ecosystems[SOLANA_ECOSYSTEM_ID].chains,
-    (chain) => chain.env === env,
-  );
+  const solanaEcosystem = useSolanaEcosystem();
+  const solanaChain = solanaEcosystem.chain;
   const updateInteractionState = useInteractionState(
     (state) => state.updateInteractionState,
   );
@@ -222,10 +220,14 @@ export const useFromSolanaTransferMutation = () => {
       if (!evmWallet) {
         throw new Error("No EVM wallet");
       }
-      const evmChain = findOrThrow(
-        ecosystems[toEcosystem].chains,
-        (chain) => chain.env === env,
+      const evmEcosystem = findOrThrow(
+        ecosystems,
+        (ecosystem) => ecosystem.id === toEcosystem,
       );
+      if (evmEcosystem.protocol !== EVM_PROTOCOL) {
+        throw new Error("Missing ecosystem");
+      }
+      const evmChain = evmEcosystem.chain;
       const parsedTx = await solanaConnection.getParsedTx(transferSplTokenTxId);
       const sequence = parseSequenceFromLogSolana(parsedTx);
       const emitterAddress = await getEmitterAddressSolana(
@@ -253,7 +255,7 @@ export const useFromSolanaTransferMutation = () => {
       );
       if (redeemResponse === null) {
         throw new Error(
-          `Transaction not found: (unlock/mint on ${ecosystems[toEcosystem].displayName})`,
+          `Transaction not found: (unlock/mint on ${evmEcosystem.displayName})`,
         );
       }
       const evmReceipt = await evmConnections[toEcosystem].getTxReceiptOrThrow(

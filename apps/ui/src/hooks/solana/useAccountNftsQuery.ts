@@ -1,14 +1,11 @@
 import { programs as metaplexPrograms } from "@metaplex/js";
 import type { MetadataJson, MetadataJsonAttribute } from "@metaplex/js";
 import { PublicKey } from "@solana/web3.js";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
-import shallow from "zustand/shallow.js";
 
-import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import { findOrThrow } from "../../utils";
+import { useSolanaEcosystem } from "../crossEcosystem/useEcosystems";
 
 import { useSolanaConnection } from "./useSolanaConnection";
 import { useSolanaWallet } from "./useSolanaWallet";
@@ -58,12 +55,8 @@ const fetchNftUri = async (uri: string): Promise<uriPayload> => {
 
 export const useAccountNfts = (): UseQueryResult<readonly NftData[], Error> => {
   const { env } = useEnvironment();
-  const { ecosystems } = useEnvironment(selectConfig, shallow);
-  const solanaEcosystem = ecosystems[SOLANA_ECOSYSTEM_ID];
-  const { otterTotCollection } = findOrThrow(
-    solanaEcosystem.chains,
-    (chain) => chain.env === env,
-  );
+  const solanaEcosystem = useSolanaEcosystem();
+  const { otterTotCollection } = solanaEcosystem.chain;
   const solanaConnection = useSolanaConnection();
   const ownerAddress = useSolanaWallet().address;
   return useQuery(

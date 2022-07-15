@@ -4,15 +4,12 @@ import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import type { ReactElement } from "react";
 import { useState } from "react";
-import shallow from "zustand/shallow.js";
 
 import type { EcosystemId } from "../config";
+import { selectSelectedServiceByProtocol } from "../core/selectors";
+import { useWalletAdapter } from "../core/store";
 import {
-  selectConfig,
-  selectSelectedServiceByProtocol,
-} from "../core/selectors";
-import { useEnvironment, useWalletAdapter } from "../core/store";
-import {
+  useEcosystem,
   useEvmWallet,
   useSolanaWallet,
   useWalletService,
@@ -42,13 +39,15 @@ export const ConnectButton = ({
   ...rest
 }: ConnectButtonProps): ReactElement => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const { ecosystems } = useEnvironment(selectConfig, shallow);
   const { disconnectService } = useWalletService();
   const selectedServiceByProtocol = useWalletAdapter(
     selectSelectedServiceByProtocol,
   );
   const hasActiveInteraction = useHasActiveInteraction();
-  const ecosystem = ecosystems[ecosystemId];
+  const ecosystem = useEcosystem(ecosystemId);
+  if (ecosystem === null) {
+    throw new Error("Missing ecosystem");
+  }
   const protocol = ecosystem.protocol;
   const wallets = useWallets();
   const { connected, address } = wallets[ecosystemId];

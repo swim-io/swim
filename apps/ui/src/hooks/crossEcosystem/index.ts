@@ -1,4 +1,6 @@
+export * from "./useChains";
 export * from "./useCoinGeckoPricesQuery";
+export * from "./useEcosystems";
 export * from "./useMultipleUserBalances";
 export * from "./useTokensByEcosystem";
 export * from "./useUserBalances";

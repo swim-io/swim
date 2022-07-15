@@ -15,20 +15,21 @@ import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import type { ReactElement } from "react";
 import { useState } from "react";
-import shallow from "zustand/shallow.js";
 
-import type { Protocol } from "../config";
+import type { EcosystemConfigWithSingleChain, Protocol } from "../config";
 import {
   PROTOCOL_NAMES,
   getEcosystemsForProtocol,
   isEcosystemEnabled,
 } from "../config";
+import { selectSelectedServiceByProtocol } from "../core/selectors";
+import { useWalletAdapter } from "../core/store";
 import {
-  selectConfig,
-  selectSelectedServiceByProtocol,
-} from "../core/selectors";
-import { useEnvironment, useWalletAdapter } from "../core/store";
-import { useEvmWallet, useSolanaWallet, useWalletService } from "../hooks";
+  useEcosystems,
+  useEvmWallet,
+  useSolanaWallet,
+  useWalletService,
+} from "../hooks";
 import EVM_SVG from "../images/ecosystems/ethereum-color.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
 import type { WalletServiceId } from "../models";
@@ -37,6 +38,7 @@ import {
   filterMap,
   findOrThrow,
   groupBy,
+  isNotNull,
   isUserOnMobileDevice,
   shortenAddress,
 } from "../utils";
@@ -99,7 +101,7 @@ const ProtocolWalletOptionsList = ({
     />
   );
 
-  const { ecosystems } = useEnvironment(selectConfig, shallow);
+  const ecosystems = useEcosystems(ecosystemIds);
 
   const popover = (
     <EuiPopover
@@ -107,18 +109,21 @@ const ProtocolWalletOptionsList = ({
       isOpen={isPopoverOpen}
       closePopover={handlePopoverClose}
     >
-      {ecosystemIds.length > 1 && (
+      {ecosystems.length > 1 && (
         <ul className="protocolWalletOptionsList__ecosystems">
           {filterMap(
-            isEcosystemEnabled,
-            (ecosystemId) => (
-              <li key={ecosystemId}>
+            (
+              ecosystem: EcosystemConfigWithSingleChain | null,
+            ): ecosystem is EcosystemConfigWithSingleChain =>
+              isNotNull(ecosystem) && isEcosystemEnabled(ecosystem.id),
+            (ecosystem) => (
+              <li key={ecosystem.id}>
                 {/* TODO: Logo */}
                 <EuiIcon type={"ecosystems[ecosystemId].logo"} size="m" />
-                {ecosystems[ecosystemId].displayName}
+                {ecosystem.displayName}
               </li>
             ),
-            ecosystemIds,
+            ecosystems,
           )}
         </ul>
       )}

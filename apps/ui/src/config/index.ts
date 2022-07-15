@@ -1,12 +1,14 @@
 import { Env } from "@swim-io/core-types";
-import type {
+import { EVM_PROTOCOL } from "@swim-io/evm-types";
+import {
+  SolanaChainConfig,
   SolanaEcosystemConfig,
-  SolanaEcosystemId,
+  SOLANA_PROTOCOL,
 } from "@swim-io/plugin-ecosystem-solana";
 
 import type { ReadonlyRecord } from "../utils";
 
-import type { EvmEcosystemConfig, EvmEcosystemId } from "./ecosystem";
+import type { EvmChainConfig, EvmEcosystemConfig } from "./ecosystem";
 import { ECOSYSTEMS } from "./ecosystem";
 import type { PoolSpec } from "./pools";
 import { POOLS } from "./pools";
@@ -25,25 +27,57 @@ export * from "./tokens";
 export * from "./utils";
 export * from "./wormhole";
 
+export type EcosystemConfigWithSingleChain =
+  | (SolanaEcosystemConfig & { readonly chain: SolanaChainConfig })
+  | (EvmEcosystemConfig & { readonly chain: EvmChainConfig });
+
 export interface Config {
-  readonly ecosystems: ReadonlyRecord<
-    SolanaEcosystemId,
-    SolanaEcosystemConfig
-  > &
-    ReadonlyRecord<EvmEcosystemId, EvmEcosystemConfig>;
+  readonly ecosystems: readonly EcosystemConfigWithSingleChain[];
   readonly pools: readonly PoolSpec[];
   readonly tokens: readonly TokenSpec[];
   readonly wormhole: WormholeConfig;
   readonly redeemer: RedeemerSpec;
 }
 
-const buildConfig = (env: Env): Config => ({
-  ecosystems: ECOSYSTEMS,
-  pools: POOLS[env],
-  tokens: TOKENS[env],
-  wormhole: WORMHOLE_CONFIGS[env],
-  redeemer: REDEEMER[env],
-});
+const buildConfig = (env: Env): Config => {
+  const ecosystems = Object.values(ECOSYSTEMS).reduce<
+    readonly EcosystemConfigWithSingleChain[]
+  >((accumulator, ecosystem): readonly EcosystemConfigWithSingleChain[] => {
+    switch (ecosystem.protocol) {
+      case SOLANA_PROTOCOL: {
+        const chain = ecosystem.chains.find((c) => c.env === env) ?? null;
+        return chain === null
+          ? accumulator
+          : [
+              ...accumulator,
+              {
+                ...ecosystem,
+                chain,
+              },
+            ];
+      }
+      case EVM_PROTOCOL: {
+        const chain = ecosystem.chains.find((c) => c.env === env) ?? null;
+        return chain === null
+          ? accumulator
+          : [
+              ...accumulator,
+              {
+                ...ecosystem,
+                chain,
+              },
+            ];
+      }
+    }
+  }, []);
+  return {
+    ecosystems,
+    pools: POOLS[env],
+    tokens: TOKENS[env],
+    wormhole: WORMHOLE_CONFIGS[env],
+    redeemer: REDEEMER[env],
+  };
+};
 
 export const CONFIGS: ReadonlyRecord<Env, Config> = {
   [Env.Mainnet]: buildConfig(Env.Mainnet),

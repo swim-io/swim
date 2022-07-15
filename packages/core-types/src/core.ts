@@ -61,3 +61,11 @@ export interface EcosystemPlugin<
     chains?: readonly CC[],
   ) => EcosystemConfig<Protocol, EcosystemId, WormholeChainId, ChainId, CC>;
 }
+
+export interface Tx<EcosystemId extends string> {
+  readonly ecosystem: EcosystemId;
+  readonly txId: string;
+  /** The time in seconds since Unix epoch */
+  readonly timestamp: number | null;
+  readonly interactionId: string | null;
+}

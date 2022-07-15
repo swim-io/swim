@@ -76,6 +76,8 @@ const buildConfig = (env: Env): Config => {
               },
             ];
       }
+      default:
+        throw new Error("Unknown protocol");
     }
   }, []);
   return {

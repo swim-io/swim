@@ -1,9 +1,9 @@
+import type { SolanaTx } from "@swim-io/plugin-ecosystem-solana";
 import type Decimal from "decimal.js";
 
-import type { TokenSpec } from "../../config";
+import type { EvmTx, TokenSpec } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { isNotNull } from "../../utils";
-import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
 import type { Interaction } from "./interaction";
 import type { OperationSpec } from "./operation";

@@ -13,12 +13,14 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { PublicKey, Transaction } from "@solana/web3.js";
-import type { SolanaChainConfig } from "@swim-io/plugin-ecosystem-solana";
+import type {
+  SolanaChainConfig,
+  SolanaTx,
+} from "@swim-io/plugin-ecosystem-solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
 import type { TokenSpec, WormholeChainId } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
-import type { SolanaTx } from "../crossEcosystem";
 import type { SolanaConnection } from "../solana";
 import {
   createMemoIx,

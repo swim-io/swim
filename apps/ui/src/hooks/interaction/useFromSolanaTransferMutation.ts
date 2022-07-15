@@ -11,11 +11,11 @@ import {
 } from "@swim-io/plugin-ecosystem-solana";
 import { useMutation } from "react-query";
 
-import type { Config } from "../../config";
+import type { Config, Tx } from "../../config";
 import { ECOSYSTEMS, getSolanaTokenDetails } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
-import type { InteractionState, SolanaConnection, Tx } from "../../models";
+import type { InteractionState, SolanaConnection } from "../../models";
 import {
   Amount,
   evmAddressToWormhole,

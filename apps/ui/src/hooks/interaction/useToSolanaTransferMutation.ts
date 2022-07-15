@@ -9,11 +9,11 @@ import type { ethers } from "ethers";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import type { EvmEcosystemId } from "../../config";
+import type { EvmEcosystemId, EvmTx } from "../../config";
 import { ECOSYSTEMS, getSolanaTokenDetails } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
-import type { EvmConnection, EvmTx } from "../../models";
+import type { EvmConnection } from "../../models";
 import {
   Amount,
   generateUnlockSplTokenTxIds,

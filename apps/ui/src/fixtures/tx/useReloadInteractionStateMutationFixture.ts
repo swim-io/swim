@@ -2,11 +2,12 @@ import { PublicKey } from "@solana/web3.js";
 import { Env } from "@swim-io/core-types";
 import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
 import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
+import type { SolanaTx } from "@swim-io/plugin-ecosystem-solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 
+import type { EvmTx } from "../../config";
 import { findTokenById } from "../../config";
-import type { EvmTx, SolanaTx } from "../../models";
 import { Amount } from "../../models";
 
 export const SOLANA_USDC = findTokenById("devnet-solana-usdc", Env.Devnet);

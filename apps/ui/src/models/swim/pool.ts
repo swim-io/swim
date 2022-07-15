@@ -1,13 +1,21 @@
 import { PublicKey } from "@solana/web3.js";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
+import type { SolanaTx } from "@swim-io/plugin-ecosystem-solana";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  isSolanaTx,
+} from "@swim-io/plugin-ecosystem-solana";
 import type { SwimPoolState } from "@swim-io/solana-types";
 import { deserializeSwimPool } from "@swim-io/solana-types";
 
-import type { Config, PoolSpec, SolanaPoolSpec, TokenSpec } from "../../config";
+import type {
+  Config,
+  PoolSpec,
+  SolanaPoolSpec,
+  TokenSpec,
+  Tx,
+} from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { findOrThrow } from "../../utils";
-import type { SolanaTx, Tx } from "../crossEcosystem";
-import { isSolanaTx } from "../crossEcosystem";
 import type { SolanaConnection } from "../solana";
 
 export type TokensByPoolId = ReadonlyRecord<

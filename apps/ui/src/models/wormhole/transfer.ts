@@ -1,8 +1,7 @@
 import type { Keypair } from "@solana/web3.js";
 
-import type { EvmChainConfig, TokenDetails, TokenSpec } from "../../config";
+import type { EvmChainConfig, TokenDetails, TokenSpec, Tx } from "../../config";
 import type { Amount } from "../amount";
-import type { Tx } from "../crossEcosystem";
 import type { EvmConnection } from "../evm";
 import type { EvmWalletAdapter } from "../wallets";
 

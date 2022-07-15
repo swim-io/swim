@@ -3,8 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 import { SOLANA_WORMHOLE_CHAIN_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { ethers } from "ethers";
 
-import type { TokenSpec } from "../../config";
-import type { EvmTx } from "../crossEcosystem";
+import type { EvmTx, TokenSpec } from "../../config";
 
 import { approveEth, transferFromEth } from "./overrides";
 import type { WormholeTransfer } from "./transfer";

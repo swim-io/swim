@@ -1,14 +1,20 @@
 import { Env } from "@swim-io/core-types";
+import type { EvmTx as GenericEvmTx } from "@swim-io/evm-types";
 import { EVM_PROTOCOL } from "@swim-io/evm-types";
 import type {
   SolanaChainConfig,
   SolanaEcosystemConfig,
+  SolanaTx,
 } from "@swim-io/plugin-ecosystem-solana";
 import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 
 import type { ReadonlyRecord } from "../utils";
 
-import type { EvmChainConfig, EvmEcosystemConfig } from "./ecosystem";
+import type {
+  EvmChainConfig,
+  EvmEcosystemConfig,
+  EvmEcosystemId,
+} from "./ecosystem";
 import { ECOSYSTEMS } from "./ecosystem";
 import type { PoolSpec } from "./pools";
 import { POOLS } from "./pools";
@@ -26,6 +32,9 @@ export * from "./projects";
 export * from "./tokens";
 export * from "./utils";
 export * from "./wormhole";
+
+export type EvmTx = GenericEvmTx<EvmEcosystemId>;
+export type Tx = SolanaTx | EvmTx;
 
 export type EcosystemConfigWithSingleChain =
   | (SolanaEcosystemConfig & { readonly chain: SolanaChainConfig })

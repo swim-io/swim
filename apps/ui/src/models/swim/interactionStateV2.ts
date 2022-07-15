@@ -1,5 +1,7 @@
+import type { SolanaTx } from "@swim-io/plugin-ecosystem-solana";
+
+import type { EvmTx } from "../../config";
 import { isNotNull } from "../../utils";
-import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
 import type {
   AddInteraction,

@@ -15,12 +15,11 @@ import {
   useEuiStepPropsForInteractionV2,
   useInteractionStatusV2,
   useReloadInteractionStateMutation,
-} from "../../hooks";
-import type { InteractionStateV2 } from "../../models";
-import { isNotNull } from "../../utils";
-
-import { InteractionRetryCalloutV2 } from "./InteractionRetryCalloutV2";
-import { InteractionTitleV2 } from "./InteractionTitleV2";
+} from "../../../hooks";
+import type { InteractionStateV2 } from "../../../models";
+import { isNotNull } from "../../../utils";
+import { InteractionRetryCalloutV2 } from "../InteractionRetryCalloutV2";
+import { InteractionTitleV2 } from "../InteractionTitleV2";
 
 interface Props {
   readonly interactionState: InteractionStateV2;

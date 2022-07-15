@@ -4,7 +4,7 @@ import type { FC } from "react";
 import { useEffect } from "react";
 import { useMutation } from "react-query";
 
-import { Env, useEnvironment } from "../../core/store";
+import { Env, useEnvironment } from "../../../core/store";
 import {
   CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED,
   CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED_WITH_APPROVALS,
@@ -28,9 +28,9 @@ import {
   SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS,
   SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS,
   SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT,
-} from "../../fixtures/swim/interactionStateV2";
-import { INTERACTION_MUTATION_KEY_V2 } from "../../hooks";
-import { sleep } from "../../utils";
+} from "../../../fixtures/swim/interactionStateV2";
+import { INTERACTION_MUTATION_KEY_V2 } from "../../../hooks";
+import { sleep } from "../../../utils";
 
 import { InteractionStateComponentV2 } from "./InteractionStateComponentV2";
 

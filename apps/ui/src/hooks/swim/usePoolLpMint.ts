@@ -1,5 +1,6 @@
 import type { MintInfo } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { UseQueryResult } from "react-query";
 import { useQueries } from "react-query";
 import shallow from "zustand/shallow.js";
@@ -18,19 +19,21 @@ export const usePoolLpMints = (
   const { env } = useEnvironment();
   const { tokens } = useEnvironment(selectConfig, shallow);
   const solanaConnection = useSolanaConnection();
-  const lpTokens = poolSpecs.map((poolSpec) =>
-    findOrThrow(tokens, (tokenSpec) => tokenSpec.id === poolSpec.lpToken),
-  );
-  const lpTokenMintAddresses = lpTokens.map(
-    (lpToken) => getSolanaTokenDetails(lpToken).address,
-  );
 
   return useQueries(
     poolSpecs.map((poolSpec, i) => ({
       queryKey: ["poolLpMintAccount", env, poolSpec.id],
       queryFn: async () => {
+        if (poolSpec.ecosystem !== SOLANA_ECOSYSTEM_ID) {
+          return null;
+        }
+        const lpToken = findOrThrow(
+          tokens,
+          (tokenSpec) => tokenSpec.id === poolSpec.lpToken,
+        );
+        const lpTokenMintAddress = getSolanaTokenDetails(lpToken).address;
         const account = await solanaConnection.getAccountInfo(
-          new PublicKey(lpTokenMintAddresses[i]),
+          new PublicKey(lpTokenMintAddress),
         );
         return account ? deserializeMint(account.data) : null;
       },

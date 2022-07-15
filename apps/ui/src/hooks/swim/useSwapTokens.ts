@@ -27,6 +27,10 @@ export const useSwapTokens = (): SwapTokens => {
       pools
         .filter((pool) => !pool.isStakingPool)
         .flatMap((pool) => pool.tokens)
+        // Remove duplicated tokenId
+        .filter(
+          (tokenId, index, tokenIds) => tokenIds.indexOf(tokenId) === index,
+        )
         // TODO: Remove this if we want to support swimUSD swaps
         .filter((tokenId) => pools.every((pool) => pool.lpToken !== tokenId)),
     [pools],

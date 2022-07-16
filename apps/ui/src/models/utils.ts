@@ -29,3 +29,13 @@ export const getIncludedEvmEcosystemIds = (
     .filter((amount): amount is Amount => amount !== null && !amount.isZero())
     .map((amount) => amount.tokenSpec.nativeEcosystem)
     .filter(isEvmEcosystemId);
+
+export const isValidDecimals = (
+  amount: Amount,
+  ecosystemId: EcosystemId,
+): boolean => {
+  const numDecimals = amount.value.isInteger()
+    ? 0
+    : amount.value.toString().split(".")[1].length;
+  return numDecimals < amount.details(ecosystemId).decimals;
+};

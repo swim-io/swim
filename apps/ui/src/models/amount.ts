@@ -7,7 +7,7 @@ import type { EcosystemId, TokenDetails, TokenSpec } from "../config";
 
 export class Amount {
   public readonly tokenSpec: TokenSpec;
-  private readonly value: Decimal;
+  public readonly value: Decimal;
 
   private constructor(tokenSpec: TokenSpec, value: Decimal) {
     this.tokenSpec = tokenSpec;
@@ -179,14 +179,7 @@ export class Amount {
     return new Amount(this.tokenSpec, result);
   }
 
-  isValidDecimals(ecosystemId: EcosystemId): boolean {
-    const numDecimals = this.value.isInteger()
-      ? 0
-      : this.value.toString().split(".")[1].length;
-    return numDecimals < this.details(ecosystemId).decimals;
-  }
-
-  private details(ecosystemId: EcosystemId): TokenDetails {
+  details(ecosystemId: EcosystemId): TokenDetails {
     const details = this.tokenSpec.detailsByEcosystem.get(ecosystemId);
     if (!details) {
       throw new Error("No token details for ecosystem");

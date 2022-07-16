@@ -36,6 +36,7 @@ import {
   InteractionType,
   getLowBalanceWallets,
   getRequiredPoolsForSwap,
+  isValidDecimals,
 } from "../models";
 import { defaultIfError, isEachNotNull } from "../utils";
 
@@ -130,7 +131,7 @@ export const SwapForm = ({
       errors = [...errors, "Amount must be greater than 0"];
     } else if (fromTokenBalance && currentInputAmount.gt(fromTokenBalance)) {
       errors = [...errors, "Amount cannot exceed available balance"];
-    } else if (currentInputAmount.isValidDecimals(fromToken.nativeEcosystem)) {
+    } else if (isValidDecimals(currentInputAmount, fromToken.nativeEcosystem)) {
       errors = [...errors, "Too many decimals"];
     } else {
       errors = [];

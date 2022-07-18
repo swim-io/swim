@@ -53,7 +53,7 @@ const buildConfig = (env: Env): Config => {
   >((accumulator, ecosystem): readonly EcosystemConfigWithSingleChain[] => {
     switch (ecosystem.protocol) {
       case SOLANA_PROTOCOL: {
-        const chain = ecosystem.chains.find((c) => c.env === env) ?? null;
+        const chain = ecosystem.chains.get(env) ?? null;
         return chain === null
           ? accumulator
           : [
@@ -65,7 +65,7 @@ const buildConfig = (env: Env): Config => {
             ];
       }
       case EVM_PROTOCOL: {
-        const chain = ecosystem.chains.find((c) => c.env === env) ?? null;
+        const chain = ecosystem.chains.get(env) ?? null;
         return chain === null
           ? accumulator
           : [

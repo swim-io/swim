@@ -81,52 +81,69 @@ export const isEvmEcosystemId = (
   (EVM_ECOSYSTEM_IDS as readonly string[]).includes(ecosystemId);
 
 export const ECOSYSTEM_LIST: readonly EcosystemConfig[] = [
-  solanaPlugin.createEcosystemConfig([
-    {
-      ...solanaPlugin.presetChains.get(Env.Mainnet)!,
-      endpoint: SOLANA_MAINNET_RPC_URL ?? "https://solana-api.projectserum.com",
-      wsEndpoint: SOLANA_MAINNET_WS_URL ?? "",
-    },
-    solanaPlugin.presetChains.get(Env.Devnet)!,
-    {
-      env: Env.Local,
-      name: "Solana Localnet",
-      ecosystemId: "solana",
-      chainId: SolanaChainId.Localnet,
-      wormholeBridge: "Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o",
-      wormholeTokenBridge: "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE",
-      endpoint: "http://127.0.0.1:8899",
-      wsEndpoint: "",
-      tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      otterTotCollection: "", // TODO: Deploy on localnet
-    },
-  ]),
-  ethereumPlugin.createEcosystemConfig([
-    ethereumPlugin.presetChains.get(Env.Mainnet)!,
-    ethereumPlugin.presetChains.get(Env.Devnet)!,
-    {
-      env: Env.Local,
-      name: "Ethereum Localnet",
-      ecosystemId: "ethereum",
-      chainId: 1337 as const,
-      publicRpcUrl: "http://localhost:8545",
-      wormholeBridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
-      wormholeTokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
-    },
-  ]),
-  bnbPlugin.createEcosystemConfig([
-    bnbPlugin.presetChains.get(Env.Mainnet)!,
-    bnbPlugin.presetChains.get(Env.Devnet)!,
-    {
-      env: Env.Local,
-      name: "BNB Chain Localnet",
-      ecosystemId: "bnb",
-      chainId: 1397 as const,
-      publicRpcUrl: "http://localhost:8546",
-      wormholeBridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
-      wormholeTokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
-    },
-  ]),
+  solanaPlugin.createEcosystemConfig(
+    new Map([
+      ...solanaPlugin.presetChains,
+      [
+        Env.Mainnet,
+        {
+          ...solanaPlugin.presetChains.get(Env.Mainnet)!,
+          endpoint:
+            SOLANA_MAINNET_RPC_URL ?? "https://solana-api.projectserum.com",
+          wsEndpoint: SOLANA_MAINNET_WS_URL ?? "",
+        },
+      ],
+      [
+        Env.Local,
+        {
+          env: Env.Local,
+          name: "Solana Localnet",
+          ecosystemId: "solana",
+          chainId: SolanaChainId.Localnet,
+          wormholeBridge: "Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o",
+          wormholeTokenBridge: "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE",
+          endpoint: "http://127.0.0.1:8899",
+          wsEndpoint: "",
+          tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          otterTotCollection: "", // TODO: Deploy on localnet
+        },
+      ],
+    ]),
+  ),
+  ethereumPlugin.createEcosystemConfig(
+    new Map([
+      ...ethereumPlugin.presetChains,
+      [
+        Env.Local,
+        {
+          env: Env.Local,
+          name: "Ethereum Localnet",
+          ecosystemId: "ethereum",
+          chainId: 1337 as const,
+          publicRpcUrl: "http://localhost:8545",
+          wormholeBridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
+          wormholeTokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
+        },
+      ],
+    ]),
+  ),
+  bnbPlugin.createEcosystemConfig(
+    new Map([
+      ...bnbPlugin.presetChains,
+      [
+        Env.Local,
+        {
+          env: Env.Local,
+          name: "BNB Chain Localnet",
+          ecosystemId: "bnb",
+          chainId: 1397 as const,
+          publicRpcUrl: "http://localhost:8546",
+          wormholeBridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
+          wormholeTokenBridge: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
+        },
+      ],
+    ]),
+  ),
 ];
 
 export const ECOSYSTEMS: ReadonlyRecord<EvmEcosystemId, EvmEcosystemConfig> &

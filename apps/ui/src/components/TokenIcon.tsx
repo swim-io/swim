@@ -4,6 +4,9 @@ import { Fragment } from "react";
 
 import type { EcosystemId, TokenProject, TokenSpec } from "../config";
 import { ECOSYSTEMS } from "../config";
+import { selectTokenSpec } from "../core/selectors";
+import { useEnvironment } from "../core/store";
+import type { TokenOption } from "../models";
 import type { Amount } from "../models/amount";
 
 export interface TokenIconProps
@@ -85,6 +88,16 @@ export type TokenSpecIconProps = { readonly token: TokenSpec };
 export const TokenSpecIcon = ({ token }: TokenSpecIconProps): ReactElement => (
   <TokenIcon {...token.project} ecosystemId={token.nativeEcosystem} />
 );
+
+export type TokenOptionIconProps = { readonly tokenOption: TokenOption };
+
+export const TokenOptionIcon = ({
+  tokenOption,
+}: TokenOptionIconProps): ReactElement => {
+  const { tokenId, ecosystemId } = tokenOption;
+  const tokenSpec = useEnvironment(selectTokenSpec(tokenId));
+  return <TokenIcon {...tokenSpec.project} ecosystemId={ecosystemId} />;
+};
 
 export interface EcosystemIconProps {
   readonly ecosystemId: EcosystemId;

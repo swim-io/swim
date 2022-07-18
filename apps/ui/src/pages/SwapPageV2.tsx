@@ -14,7 +14,7 @@ import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { RecentInteractions } from "../components/RecentInteractions";
+import { RecentInteractionsV2 } from "../components/RecentInteractionsV2";
 import { SlippageButton } from "../components/SlippageButton";
 import { SwapFormV2 } from "../components/SwapFormV2";
 import { selectConfig } from "../core/selectors";
@@ -72,7 +72,7 @@ const SwapPageV2 = (): ReactElement => {
             )}
 
             <EuiSpacer />
-            <RecentInteractions
+            <RecentInteractionsV2
               title="Recent swaps"
               interactionTypes={INTERACTION_GROUP_SWAP}
             />

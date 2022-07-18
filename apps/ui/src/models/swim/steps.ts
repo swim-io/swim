@@ -10,7 +10,7 @@ import type {
   Interaction,
   InteractionSpec,
   InteractionSpecV2,
-  TokenTransferDetail,
+  TokenOption,
 } from "./interaction";
 import { InteractionType } from "./interaction";
 import type { OperationSpec } from "./operation";
@@ -414,8 +414,8 @@ export const getRequiredPoolsForSwap = (
 
 export const getRequiredPoolsForSwapV2 = (
   poolSpecs: readonly PoolSpec[],
-  fromTokenDetail: TokenTransferDetail,
-  toTokenDetail: TokenTransferDetail,
+  fromTokenDetail: TokenOption,
+  toTokenDetail: TokenOption,
 ): readonly PoolSpec[] => {
   const restructuredPools = poolSpecs.filter((pool) => !pool.isLegacyPool);
   const inputPool = findOrThrow(

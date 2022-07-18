@@ -11,3 +11,4 @@ export * from "./useReloadInteractionStateMutation";
 export * from "./useRequiredEcosystemsForInteraction";
 export * from "./useResumeInteraction";
 export * from "./useStartNewInteraction";
+export * from "./useStartNewInteractionV2";

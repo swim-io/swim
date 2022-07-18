@@ -1,3 +1,4 @@
+import { EcosystemId, isEvmEcosystemId } from "../../config";
 import { isNotNull } from "../../utils";
 import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
@@ -7,6 +8,7 @@ import type {
   RemoveExactOutputInteraction,
   RemoveUniformInteraction,
   SwapInteractionV2,
+  TokenOption,
 } from "./interaction";
 import { InteractionType } from "./interaction";
 import type {
@@ -98,6 +100,33 @@ export type InteractionStateV2 =
   | SwapInteractionState
   | AddInteractionState
   | RemoveInteractionState;
+
+export const getSwapType = (
+  fromTokenOption: TokenOption,
+  toTokenOption: TokenOption,
+): SwapType => {
+  const fromEcosystem = fromTokenOption.ecosystemId;
+  const toEcosystem = toTokenOption.ecosystemId;
+  if (
+    fromEcosystem === EcosystemId.Solana &&
+    toEcosystem === EcosystemId.Solana
+  ) {
+    return SwapType.SingleChainSolana;
+  }
+  if (isEvmEcosystemId(fromEcosystem) && isEvmEcosystemId(toEcosystem)) {
+    return fromEcosystem === toEcosystem
+      ? SwapType.SingleChainEvm
+      : SwapType.CrossChainEvmToEvm;
+  }
+  if (fromEcosystem === EcosystemId.Solana && isEvmEcosystemId(toEcosystem)) {
+    return SwapType.CrossChainSolanaToEvm;
+  }
+  if (isEvmEcosystemId(fromEcosystem) && toEcosystem === EcosystemId.Solana) {
+    return SwapType.CrossChainEvmToSolana;
+  }
+
+  throw new Error("Unknown swap type");
+};
 
 export const isRequiredSplTokenAccountsCompletedV2 = (
   accountState: RequiredSplTokenAccounts,

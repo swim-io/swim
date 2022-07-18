@@ -11,19 +11,21 @@ import {
 import type React from "react";
 
 import type { TokenSpec } from "../../config";
-import { getNativeTokenDetails } from "../../config";
+import { selectTokenSpec } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
+import type { TokenOption } from "../../models";
 import { Amount } from "../../models";
 import { ConnectButton } from "../ConnectButton";
-import { TokenSelect } from "../TokenSelect";
+import { TokenSelectV2 } from "../TokenSelectV2";
 
 import { UserBalanceDisplay } from "./UserBalanceDisplay";
 
 interface Props {
   readonly value: string;
-  readonly token: TokenSpec;
-  readonly tokenOptionIds: readonly string[];
+  readonly selectedTokenOption: TokenOption;
+  readonly tokenOptions: readonly TokenOption[];
   readonly placeholder: string;
-  readonly onSelectToken: (tokenId: string) => void;
+  readonly onSelectTokenOption: (tokenOption: TokenOption) => void;
   readonly onChangeValue?: (value: string) => void;
   readonly onBlur?: () => void;
   readonly disabled: boolean;
@@ -57,20 +59,26 @@ const getTokenLabel = (): React.ReactElement => {
   );
 };
 
-export const TokenAmountInput: React.FC<Props> = ({
+export const TokenAmountInputV2: React.FC<Props> = ({
   value,
-  token,
-  tokenOptionIds,
+  selectedTokenOption,
+  tokenOptions,
   placeholder,
   disabled,
   errors,
-  onSelectToken,
+  onSelectTokenOption,
   onChangeValue,
   onBlur,
   showConstantSwapTip,
 }) => {
-  const { nativeEcosystem } = token;
-  const tokenNativeDetails = getNativeTokenDetails(token);
+  const { tokenId, ecosystemId } = selectedTokenOption;
+  const token = useEnvironment(selectTokenSpec(tokenId));
+
+  const tokenDetails = token.detailsByEcosystem.get(ecosystemId) ?? null;
+  if (tokenDetails === null) {
+    throw new Error("Native token details not found");
+  }
+
   const readOnly = !onChangeValue;
 
   return (
@@ -81,10 +89,10 @@ export const TokenAmountInput: React.FC<Props> = ({
           // TODO: Preferably leave pool logic out a token-related component.
           label={showConstantSwapTip ? getTokenLabel() : null}
         >
-          <TokenSelect
-            onSelectToken={onSelectToken}
-            tokenOptionIds={tokenOptionIds}
-            token={token}
+          <TokenSelectV2
+            onSelectTokenOption={onSelectTokenOption}
+            tokenOptions={tokenOptions}
+            selectedTokenOption={selectedTokenOption}
           />
         </EuiFormRow>
       </EuiFlexItem>
@@ -94,11 +102,11 @@ export const TokenAmountInput: React.FC<Props> = ({
           labelAppend={
             <UserBalanceDisplay
               token={token}
-              ecosystemId={token.nativeEcosystem}
+              ecosystemId={ecosystemId}
               onClick={
                 onChangeValue
                   ? (newAmount) =>
-                      onChangeValue(newAmount.toHumanString(nativeEcosystem))
+                      onChangeValue(newAmount.toHumanString(ecosystemId))
                   : undefined
               }
             />
@@ -117,7 +125,7 @@ export const TokenAmountInput: React.FC<Props> = ({
             <EuiFieldNumber
               placeholder={placeholder}
               value={value}
-              step={10 ** -tokenNativeDetails.decimals}
+              step={10 ** -tokenDetails.decimals}
               min={0}
               onChange={(e) => onChangeValue(e.target.value)}
               disabled={disabled}
@@ -129,7 +137,7 @@ export const TokenAmountInput: React.FC<Props> = ({
       </EuiFlexItem>
       <EuiFlexItem style={{ minWidth: "180px" }}>
         <EuiFormRow hasEmptyLabelSpace>
-          <ConnectButton ecosystemId={nativeEcosystem} fullWidth />
+          <ConnectButton ecosystemId={ecosystemId} fullWidth />
         </EuiFormRow>
       </EuiFlexItem>
     </EuiFlexGroup>

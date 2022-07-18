@@ -124,9 +124,11 @@ export type Interaction =
   | SwapInteraction;
 
 // V2 for Pool Restructure
-export interface TokenTransferDetail {
+export interface TokenOption {
   readonly tokenId: string;
   readonly ecosystemId: EcosystemId;
+}
+export interface TokenTransferDetail extends TokenOption {
   readonly value: Decimal;
 }
 

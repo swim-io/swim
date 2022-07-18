@@ -1,7 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 
-import { useSplTokenAccountsQuery, useWallets } from "..";
 import {
   CONFIGS,
   DEVNET_POOLS,
@@ -16,6 +15,8 @@ import { useEnvironment } from "../../core/store";
 import { MOCK_TOKEN_ACCOUNTS, MOCK_WALLETS } from "../../fixtures";
 import { Amount, InteractionType, generateId } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
+import { useWallets } from "../crossEcosystem";
+import { useSplTokenAccountsQuery } from "../solana";
 
 import { useCreateInteractionStateV2 } from "./useCreateInteractionStateV2";
 
@@ -38,10 +39,14 @@ jest.mock("../../core/selectors", () => ({
   selectConfig: jest.fn(),
 }));
 
-jest.mock("..", () => ({
-  ...jest.requireActual(".."),
-  useSplTokenAccountsQuery: jest.fn(),
+jest.mock("../crossEcosystem", () => ({
+  ...jest.requireActual("../crossEcosystem"),
   useWallets: jest.fn(),
+}));
+
+jest.mock("../solana", () => ({
+  ...jest.requireActual("../solana"),
+  useSplTokenAccountsQuery: jest.fn(),
 }));
 
 // Make typescript happy with jest

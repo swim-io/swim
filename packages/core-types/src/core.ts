@@ -10,7 +10,6 @@ export const isValidEnv = (envValue: string): envValue is Env =>
 
 export interface ChainConfig<E extends string, C extends number> {
   readonly name: string;
-  readonly env: Env;
   readonly ecosystemId: E;
   readonly chainId: C;
   readonly wormholeBridge: string;

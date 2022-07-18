@@ -33,7 +33,6 @@ const presetChains: ReadonlyMap<Env, BnbChainConfig> = new Map([
     {
       name: "BNB Chain Mainnet",
       ecosystemId: BNB_ECOSYSTEM_ID,
-      env: Env.Mainnet,
       chainId: BnbChainId.Mainnet,
       wormholeBridge: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B",
       wormholeTokenBridge: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7",
@@ -45,7 +44,6 @@ const presetChains: ReadonlyMap<Env, BnbChainConfig> = new Map([
     {
       name: "BNB Chain Testnet",
       ecosystemId: BNB_ECOSYSTEM_ID,
-      env: Env.Devnet,
       chainId: BnbChainId.Testnet,
       wormholeBridge: "0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D",
       wormholeTokenBridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09",

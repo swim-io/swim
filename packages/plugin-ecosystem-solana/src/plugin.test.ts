@@ -1,6 +1,6 @@
 import { plugin } from "./plugin";
 
-describe("createSolanaEcosystemConfig", () => {
+describe("createEcosystemConfig", () => {
   test("creates an ecosystem config", () => {
     const result = plugin.createEcosystemConfig();
     expect(result).toStrictEqual({
@@ -13,7 +13,7 @@ describe("createSolanaEcosystemConfig", () => {
         symbol: "SOL",
         decimals: 9,
       },
-      chains: [...plugin.presetChains.values()],
+      chains: plugin.presetChains,
     });
   });
 });

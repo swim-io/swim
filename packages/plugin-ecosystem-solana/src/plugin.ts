@@ -53,7 +53,6 @@ const presetChains: ReadonlyMap<Env, SolanaChainConfig> = new Map([
     {
       name: "Solana Mainnet Beta",
       ecosystemId: SOLANA_ECOSYSTEM_ID,
-      env: Env.Mainnet,
       chainId: SolanaChainId.MainnetBeta,
       wormholeBridge: "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth",
       wormholeTokenBridge: "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb",
@@ -68,7 +67,6 @@ const presetChains: ReadonlyMap<Env, SolanaChainConfig> = new Map([
     {
       name: "Solana Devnet",
       ecosystemId: SOLANA_ECOSYSTEM_ID,
-      env: Env.Devnet,
       chainId: SolanaChainId.Devnet,
       wormholeBridge: "3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5",
       wormholeTokenBridge: "DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe",

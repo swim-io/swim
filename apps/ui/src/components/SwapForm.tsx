@@ -6,8 +6,6 @@ import {
   EuiFormRow,
   EuiSpacer,
 } from "@elastic/eui";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
@@ -105,10 +103,8 @@ export const SwapForm = ({
   const isLargeSwap = useIsLargeSwap(fromToken, toToken, inputAmount);
   const isSmallEthSwap =
     fromToken.project.isStablecoin &&
-    [fromToken.nativeEcosystem, toToken.nativeEcosystem].includes(
-      ETHEREUM_ECOSYSTEM_ID,
-    ) &&
-    inputAmount.toHuman(SOLANA_ECOSYSTEM_ID).lt(200);
+    [fromToken.nativeEcosystem, toToken.nativeEcosystem].includes("ethereum") &&
+    inputAmount.toHuman("solana").lt(200);
 
   const getSwapFormErrors = useGetSwapFormErrors(
     fromToken,

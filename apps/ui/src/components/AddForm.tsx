@@ -13,7 +13,6 @@ import {
   EuiSpacer,
   EuiText,
 } from "@elastic/eui";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useMemo, useState } from "react";
@@ -202,7 +201,7 @@ export const AddForm = ({
   const userNativeBalances = useUserNativeBalances();
 
   const [lpTargetEcosystem, setLpTargetEcosystem] =
-    useState<EcosystemId>(SOLANA_ECOSYSTEM_ID);
+    useState<EcosystemId>("solana");
 
   const [formInputAmounts, setFormInputAmounts] = useState<readonly string[]>(
     poolTokens.map(() => "0"),
@@ -248,7 +247,7 @@ export const AddForm = ({
     }
     try {
       const { lpOutputAmount } = poolMath.add(
-        inputAmounts.map((amount) => amount.toHuman(SOLANA_ECOSYSTEM_ID)),
+        inputAmounts.map((amount) => amount.toHuman("solana")),
       );
       return Amount.fromHuman(lpToken, lpOutputAmount);
     } catch {
@@ -346,9 +345,9 @@ export const AddForm = ({
     }
   };
 
-  const requiredEcosystemIds = new Set(
+  const requiredEcosystemIds: ReadonlySet<EcosystemId> = new Set(
     [
-      SOLANA_ECOSYSTEM_ID,
+      "solana" as const,
       lpTargetEcosystem,
       ...poolTokens.map((tokenSpec, i) => {
         const inputAmount = inputAmounts[i];
@@ -384,8 +383,8 @@ export const AddForm = ({
 
     // Need some SOL for network fee
     if (
-      userNativeBalances[SOLANA_ECOSYSTEM_ID].greaterThan(0) &&
-      userNativeBalances[SOLANA_ECOSYSTEM_ID].lessThan(0.01)
+      userNativeBalances.solana.greaterThan(0) &&
+      userNativeBalances.solana.lessThan(0.01)
     ) {
       errors = [
         ...errors,

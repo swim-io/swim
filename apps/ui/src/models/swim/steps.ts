@@ -1,4 +1,3 @@
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type PoolMath from "@swim-io/pool-math";
 
 import type { PoolSpec, TokenSpec } from "../../config";
@@ -227,9 +226,7 @@ export const createOperationSpecs = (
         );
         const { stableInputAmount } = outputPoolMath.swapExactOutput(
           inputIndex,
-          minimumOutputAmounts.map((amount) =>
-            amount.toHuman(SOLANA_ECOSYSTEM_ID),
-          ),
+          minimumOutputAmounts.map((amount) => amount.toHuman("solana")),
         );
         const minimumMintAmount = Amount.fromHuman(
           inputPoolTokens.lpToken,
@@ -258,7 +255,7 @@ export const createOperationSpecs = (
                 // NOTE: This will be overriden when we know the correct amount
                 // For now we set the amount to 1 to distinguish it from the others
                 token.id === inputPoolTokens.lpToken.id
-                  ? Amount.fromAtomicString(token, "1", SOLANA_ECOSYSTEM_ID)
+                  ? Amount.fromAtomicString(token, "1", "solana")
                   : Amount.zero(token),
               ),
               outputTokenIndex: outputPoolTokens.tokens.findIndex(
@@ -278,9 +275,7 @@ export const createOperationSpecs = (
             : Amount.zero(token),
         );
         const { lpInputAmount } = outputPoolMath.removeExactOutput(
-          minimumOutputAmounts.map((amount) =>
-            amount.toHuman(SOLANA_ECOSYSTEM_ID),
-          ),
+          minimumOutputAmounts.map((amount) => amount.toHuman("solana")),
         );
         const inputPoolMinimumOutputAmount = Amount.fromHuman(
           outputPoolTokens.lpToken,
@@ -338,9 +333,7 @@ export const createOperationSpecs = (
       );
       const { stableInputAmount } = outputPoolMath.swapExactOutput(
         outputPoolInputIndex,
-        minimumOutputAmounts.map((amount) =>
-          amount.toHuman(SOLANA_ECOSYSTEM_ID),
-        ),
+        minimumOutputAmounts.map((amount) => amount.toHuman("solana")),
       );
       const minimumInputPoolOutputAmount = Amount.fromHuman(
         inputPoolTokens.lpToken,
@@ -370,7 +363,7 @@ export const createOperationSpecs = (
               // NOTE: This will be overriden when we know the correct amount
               // For now we set the amount to 1 to distinguish it from the others
               token.id === inputPoolOutputToken.id
-                ? Amount.fromAtomicString(token, "1", SOLANA_ECOSYSTEM_ID)
+                ? Amount.fromAtomicString(token, "1", "solana")
                 : Amount.zero(token),
             ),
             outputTokenIndex: outputPoolTokens.tokens.findIndex(

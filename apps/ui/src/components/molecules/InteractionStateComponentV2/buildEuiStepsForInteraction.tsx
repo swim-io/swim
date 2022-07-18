@@ -1,7 +1,6 @@
 import type { EuiStepProps, EuiStepStatus } from "@elastic/eui";
 import { EuiListGroup, EuiText } from "@elastic/eui";
 import type { Env } from "@swim-io/core-types";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
 import { DEVNET_SWIMUSD, findTokenById } from "../../../config";
 import type {
@@ -76,11 +75,7 @@ const buildPrepareSplTokenAccountStep = (
             .map(({ txId }) => txId)
             .filter(isNotNull)
             .map((txId) => (
-              <TxListItem
-                key={txId}
-                ecosystem={SOLANA_ECOSYSTEM_ID}
-                txId={txId}
-              />
+              <TxListItem key={txId} ecosystem={"solana"} txId={txId} />
             ))}
         </EuiListGroup>
       </EuiText>
@@ -111,7 +106,7 @@ const buildSolanaPoolOperationStep = (
     status,
     children: (
       <SwapTransfer
-        ecosystemId={SOLANA_ECOSYSTEM_ID}
+        ecosystemId={"solana"}
         fromToken={fromToken}
         toToken={toToken}
         isLoading={status === "loading"}
@@ -307,7 +302,7 @@ const buildPostVaaAndClaimToken = (
     status,
     children: (
       <SwapTransfer
-        ecosystemId={SOLANA_ECOSYSTEM_ID}
+        ecosystemId={"solana"}
         fromToken={swimUSD}
         toToken={toToken}
         isLoading={status === "loading"}

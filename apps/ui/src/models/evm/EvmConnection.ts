@@ -1,7 +1,5 @@
 import { BscscanProvider } from "@ethers-ancillary/bsc";
 import { Env } from "@swim-io/core-types";
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
 
@@ -184,8 +182,8 @@ export class EvmConnection {
       // case EcosystemId.Fantom:
       // case EcosystemId.Avalanche:
       // case EcosystemId.Polygon:
-      case BNB_ECOSYSTEM_ID:
-      case ETHEREUM_ECOSYSTEM_ID:
+      case "bnb":
+      case "ethereum":
         switch (env) {
           case Env.Mainnet:
           case Env.Devnet:
@@ -211,12 +209,12 @@ export class EvmConnection {
     ecosystemId: EvmEcosystemId,
   ): Provider {
     switch (ecosystemId) {
-      case ETHEREUM_ECOSYSTEM_ID:
+      case "ethereum":
         return new ethers.providers.EtherscanProvider(
           getEtherscanNetwork(env),
           ETHERSCAN_API_KEY,
         );
-      case BNB_ECOSYSTEM_ID:
+      case "bnb":
         try {
           return new MoralisProvider(env, getBnbRpcUrl(env), MORALIS_ID);
         } catch (error) {

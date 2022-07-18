@@ -5,10 +5,7 @@ import {
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { Transaction } from "@solana/web3.js";
 import { EVM_PROTOCOL } from "@swim-io/evm-types";
-import {
-  SOLANA_ECOSYSTEM_ID,
-  SOLANA_WORMHOLE_CHAIN_ID,
-} from "@swim-io/plugin-ecosystem-solana";
+import solanaPlugin from "@swim-io/plugin-ecosystem-solana";
 import { useMutation } from "react-query";
 
 import type { Config, Tx } from "../../config";
@@ -56,7 +53,7 @@ const getTransferredAmountsByTokenId = async (
     txIds.map(async (txId) => {
       const parsedTx = await solanaConnection.getParsedTx(txId);
       return {
-        ecosystem: SOLANA_ECOSYSTEM_ID,
+        ecosystem: solanaPlugin.id,
         txId,
         timestamp: parsedTx.blockTime ?? null,
         interactionId: interaction.id,
@@ -93,7 +90,7 @@ export const useFromSolanaTransferMutation = () => {
     const { interaction } = interactionState;
     const { fromSolanaTransfers } = interactionState;
 
-    const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
+    const solanaWallet = wallets[solanaPlugin.id].wallet;
     if (!solanaWallet) {
       throw new Error("No Solana wallet");
     }
@@ -175,7 +172,7 @@ export const useFromSolanaTransferMutation = () => {
           solanaWalletAddress,
           splTokenAccount.address.toBase58(),
           solanaTokenDetails.address,
-          BigInt(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)),
+          BigInt(amount.toAtomicString(solanaPlugin.id)),
           evmAddressToWormhole(evmWalletAddress),
           evmEcosystem.wormholeChainId,
           token.nativeEcosystem === toEcosystem
@@ -235,7 +232,7 @@ export const useFromSolanaTransferMutation = () => {
       );
       const vaaBytesResponse = await getSignedVAAWithRetry(
         [...wormhole.rpcUrls],
-        SOLANA_WORMHOLE_CHAIN_ID,
+        solanaPlugin.wormholeChainId,
         emitterAddress,
         sequence,
         undefined,

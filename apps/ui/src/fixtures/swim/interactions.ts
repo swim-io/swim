@@ -1,5 +1,4 @@
 import { Env } from "@swim-io/core-types";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 
 import type { AddInteraction, SwapInteraction } from "../../models";
@@ -133,7 +132,7 @@ export const ADD: AddInteraction = {
       new Decimal(5969.99730442),
     ),
   },
-  lpTokenTargetEcosystem: SOLANA_ECOSYSTEM_ID,
+  lpTokenTargetEcosystem: "solana",
   id: "b8b3e6b61df832c9815467f5fdc1fd6b",
   poolIds: ["hexapool"],
   env: Env.Custom,

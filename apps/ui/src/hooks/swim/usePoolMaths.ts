@@ -1,4 +1,3 @@
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import PoolMath from "@swim-io/pool-math";
 import Decimal from "decimal.js";
 
@@ -34,11 +33,7 @@ const getPoolMath = ({
   );
 
   const tokenBalances = poolTokenAccounts.map((tokenAccount, i) =>
-    Amount.fromAtomicBn(
-      poolTokens[i],
-      tokenAccount.amount,
-      SOLANA_ECOSYSTEM_ID,
-    ),
+    Amount.fromAtomicBn(poolTokens[i], tokenAccount.amount, "solana"),
   );
 
   // calculate amp factor
@@ -57,20 +52,16 @@ const getPoolMath = ({
     poolSpec.feeDecimals,
   );
 
-  const lpSupply = Amount.fromAtomicBn(
-    lpToken,
-    poolLpMint.supply,
-    SOLANA_ECOSYSTEM_ID,
-  );
+  const lpSupply = Amount.fromAtomicBn(lpToken, poolLpMint.supply, "solana");
   const maxDecimals = Math.max(...poolTokenDecimals);
   const tolerance = new Decimal(10).pow(-maxDecimals);
 
   return new PoolMath(
-    tokenBalances.map((amount) => amount.toHuman(SOLANA_ECOSYSTEM_ID)),
+    tokenBalances.map((amount) => amount.toHuman("solana")),
     ampFactor,
     humanLpFee,
     humanGovernanceFee,
-    lpSupply.toHuman(SOLANA_ECOSYSTEM_ID),
+    lpSupply.toHuman("solana"),
     tolerance,
   );
 };

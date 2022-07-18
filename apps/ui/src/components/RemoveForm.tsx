@@ -13,9 +13,6 @@ import {
   EuiSelect,
   EuiSpacer,
 } from "@elastic/eui";
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -98,7 +95,7 @@ export const RemoveForm = ({
   const userNativeBalances = useUserNativeBalances();
 
   const [lpTokenSourceEcosystem, setLpTokenSourceEcosystem] =
-    useState<EcosystemId>(SOLANA_ECOSYSTEM_ID);
+    useState<EcosystemId>("solana");
   const [method, setMethod] = useState(RemoveMethod.ExactBurn);
   const [outputToken, setOutputToken] = useState(poolSpec.tokens[0]);
   const [burnPercentage, setBurnPercentage] = useState(0);
@@ -119,9 +116,9 @@ export const RemoveForm = ({
       ],
     }),
     {
-      [SOLANA_ECOSYSTEM_ID]: [],
-      [ETHEREUM_ECOSYSTEM_ID]: [],
-      [BNB_ECOSYSTEM_ID]: [],
+      solana: [],
+      ethereum: [],
+      bnb: [],
     },
   );
 
@@ -153,7 +150,7 @@ export const RemoveForm = ({
         ? Amount.fromAtomicString(
             lpToken,
             poolLpMint.supply.toString(),
-            SOLANA_ECOSYSTEM_ID,
+            "solana",
           )
         : null,
     [poolLpMint, lpToken],
@@ -181,7 +178,7 @@ export const RemoveForm = ({
 
       const removeUniformAmounts =
         method === RemoveMethod.Uniform && burnPercentage > 0
-          ? poolMath.removeUniform(exactBurnAmount.toHuman(SOLANA_ECOSYSTEM_ID))
+          ? poolMath.removeUniform(exactBurnAmount.toHuman("solana"))
           : null;
 
       // eslint-disable-next-line functional/prefer-readonly-type
@@ -197,7 +194,7 @@ export const RemoveForm = ({
           outputToken === tokenSpec.id
         ) {
           const { stableOutputAmount } = poolMath.removeExactBurn(
-            exactBurnAmount.toHuman(SOLANA_ECOSYSTEM_ID),
+            exactBurnAmount.toHuman("solana"),
             tokenIndex,
           );
           estimatedOutputAmountDecimal = stableOutputAmount;
@@ -270,7 +267,7 @@ export const RemoveForm = ({
         return null;
       }
       const { lpInputAmount } = poolMath.removeExactOutput(
-        outputAmounts.map((amount) => amount.toHuman(SOLANA_ECOSYSTEM_ID)),
+        outputAmounts.map((amount) => amount.toHuman("solana")),
       );
       return Amount.fromHuman(lpToken, lpInputAmount);
     }, null);
@@ -404,9 +401,9 @@ export const RemoveForm = ({
       return;
     }
 
-    const requiredEcosystems = new Set(
+    const requiredEcosystems: ReadonlySet<EcosystemId> = new Set(
       [
-        SOLANA_ECOSYSTEM_ID,
+        "solana" as const,
         lpTokenSourceEcosystem,
         ...poolTokens.map((tokenSpec, i) => {
           const outputAmount = outputAmounts[i];
@@ -432,15 +429,15 @@ export const RemoveForm = ({
       if (userNativeBalances[ecosystem].isZero()) {
         errors = [
           ...errors,
-          `Empty balance in ${ECOSYSTEMS[SOLANA_ECOSYSTEM_ID].displayName} wallet. You will need some funds to pay for transaction fees.`,
+          `Empty balance in ${ECOSYSTEMS["solana"].displayName} wallet. You will need some funds to pay for transaction fees.`,
         ];
       }
     });
 
     // Need some SOL for network fee
     if (
-      userNativeBalances[SOLANA_ECOSYSTEM_ID].greaterThan(0) &&
-      userNativeBalances[SOLANA_ECOSYSTEM_ID].lessThan(0.01)
+      userNativeBalances["solana"].greaterThan(0) &&
+      userNativeBalances["solana"].lessThan(0.01)
     ) {
       errors = [
         ...errors,
@@ -572,7 +569,7 @@ export const RemoveForm = ({
       <EuiFormRow
         label={`Use LP tokens (${lpToken.project.symbol}) from`}
         helpText={
-          lpTokenSourceEcosystem === SOLANA_ECOSYSTEM_ID ||
+          lpTokenSourceEcosystem === "solana" ||
           method !== RemoveMethod.ExactOutput
             ? ""
             : `The estimated LP tokens needed (including slippage) will be transferred from ${ECOSYSTEMS[lpTokenSourceEcosystem].displayName} to Solana, and any unused tokens will remain in your LP token account on Solana.`

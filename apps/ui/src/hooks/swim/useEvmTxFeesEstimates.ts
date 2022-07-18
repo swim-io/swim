@@ -1,5 +1,3 @@
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 
@@ -19,14 +17,8 @@ export const useEvmTxFeesEstimates = (
     EvmEcosystemId,
     UseQueryResult<Decimal | null, Error>
   > = {
-    [ETHEREUM_ECOSYSTEM_ID]: useEvmTxFeesEstimateQuery(
-      ETHEREUM_ECOSYSTEM_ID,
-      interaction,
-    ),
-    [BNB_ECOSYSTEM_ID]: useEvmTxFeesEstimateQuery(
-      BNB_ECOSYSTEM_ID,
-      interaction,
-    ),
+    ethereum: useEvmTxFeesEstimateQuery("ethereum", interaction),
+    bnb: useEvmTxFeesEstimateQuery("bnb", interaction),
     // [EcosystemId.Avalanche]: useEvmTxFeesEstimateQuery(
     //   EcosystemId.Avalanche,
     //   interaction,
@@ -55,8 +47,8 @@ export const useEvmTxFeesEstimates = (
 
   return {
     estimates: {
-      [ETHEREUM_ECOSYSTEM_ID]: queries[ETHEREUM_ECOSYSTEM_ID].data ?? null,
-      [BNB_ECOSYSTEM_ID]: queries[BNB_ECOSYSTEM_ID].data ?? null,
+      ethereum: queries.ethereum.data ?? null,
+      bnb: queries.bnb.data ?? null,
       // [EcosystemId.Avalanche]: queries[EcosystemId.Avalanche].data ?? null,
       // [EcosystemId.Polygon]: queries[EcosystemId.Polygon].data ?? null,
       // [EcosystemId.Aurora]: queries[EcosystemId.Aurora].data ?? null,

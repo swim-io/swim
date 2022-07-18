@@ -1,4 +1,3 @@
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
@@ -55,10 +54,10 @@ export const useSolanaPoolOperationsMutation = () => {
       pools,
       (spec) => spec.id === outputState.operation.poolId,
     );
-    if (inputPoolSpec.ecosystem !== SOLANA_ECOSYSTEM_ID) {
+    if (inputPoolSpec.ecosystem !== "solana") {
       throw new Error("Expect Solana pool");
     }
-    if (outputPoolSpec.ecosystem !== SOLANA_ECOSYSTEM_ID) {
+    if (outputPoolSpec.ecosystem !== "solana") {
       throw new Error("Expect Solana pool");
     }
 

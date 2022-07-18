@@ -1,5 +1,4 @@
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 
 import { SwapFormSolanaConnectButton } from "./SwapFormSolanaConnectButton";
 
@@ -14,6 +13,6 @@ const Template: ComponentStory<typeof SwapFormSolanaConnectButton> = (args) => (
 
 export const Button = Template.bind({});
 Button.args = {
-  fromEcosystem: ETHEREUM_ECOSYSTEM_ID,
-  toEcosystem: ETHEREUM_ECOSYSTEM_ID,
+  fromEcosystem: "ethereum",
+  toEcosystem: "ethereum",
 };

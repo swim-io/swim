@@ -10,10 +10,8 @@ import {
   parseSequenceFromLogSolana,
   postVaaSolanaWithRetry,
 } from "@certusone/wormhole-sdk";
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import type { SolanaChainConfig } from "@swim-io/plugin-ecosystem-solana";
-import { SOLANA_WORMHOLE_CHAIN_ID } from "@swim-io/plugin-ecosystem-solana";
+import solanaPlugin from "@swim-io/plugin-ecosystem-solana";
 import type { ContractReceipt } from "ethers";
 
 import type { ChainConfig, EvmChainConfig, WormholeConfig } from "../../config";
@@ -96,7 +94,7 @@ export const setUpSplTokensOnEvm = async (
     attestations.map(({ emitterAddress, sequence }) =>
       getSignedVAAWithRetry(
         [...rpcUrls],
-        SOLANA_WORMHOLE_CHAIN_ID,
+        solanaPlugin.wormholeChainId,
         emitterAddress,
         sequence,
       ),
@@ -118,9 +116,8 @@ export const setUpSplTokensOnEvm = async (
   const evmTxIds = evmReceipts.map(({ transactionHash }) => transactionHash);
   return {
     solanaTxIds: attestations.map(({ txId }) => txId),
-    ethereumTxIds:
-      evmChain.ecosystemId === ETHEREUM_ECOSYSTEM_ID ? evmTxIds : [],
-    bnbTxIds: evmChain.ecosystemId === BNB_ECOSYSTEM_ID ? evmTxIds : [],
+    ethereumTxIds: evmChain.ecosystemId === "ethereum" ? evmTxIds : [],
+    bnbTxIds: evmChain.ecosystemId === "bnb" ? evmTxIds : [],
   };
 };
 
@@ -219,8 +216,7 @@ export const setUpErc20Tokens = async (
 
   return {
     solanaTxIds,
-    ethereumTxIds:
-      evmChain.ecosystemId === ETHEREUM_ECOSYSTEM_ID ? evmTxIds : [],
-    bnbTxIds: evmChain.ecosystemId === BNB_ECOSYSTEM_ID ? evmTxIds : [],
+    ethereumTxIds: evmChain.ecosystemId === "ethereum" ? evmTxIds : [],
+    bnbTxIds: evmChain.ecosystemId === "bnb" ? evmTxIds : [],
   };
 };

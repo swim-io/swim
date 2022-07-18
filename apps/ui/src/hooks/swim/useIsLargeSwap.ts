@@ -1,4 +1,3 @@
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../../config";
@@ -29,12 +28,10 @@ export const useIsLargeSwap = (
   return (
     (fromToken.project.isStablecoin &&
       inputPoolUsdValue !== null &&
-      inputAmount
-        .toHuman(SOLANA_ECOSYSTEM_ID)
-        .gt(inputPoolUsdValue.mul(0.1))) ||
+      inputAmount.toHuman("solana").gt(inputPoolUsdValue.mul(0.1))) ||
     (toToken.project.isStablecoin &&
       outputPoolUsdValue !== null &&
       outputAmount !== null &&
-      outputAmount.toHuman(SOLANA_ECOSYSTEM_ID).gt(outputPoolUsdValue.mul(0.1)))
+      outputAmount.toHuman("solana").gt(outputPoolUsdValue.mul(0.1)))
   );
 };

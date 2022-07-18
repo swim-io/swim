@@ -1,7 +1,6 @@
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type Decimal from "decimal.js";
 
-import type { TokenSpec } from "../../config";
+import type { EcosystemId, TokenSpec } from "../../config";
 import { ECOSYSTEMS } from "../../config";
 import type { Amount } from "../../models";
 import { isValidSlippageFraction } from "../../models";
@@ -35,7 +34,7 @@ export const useGetSwapFormErrors = (
 
     // Require source token to have a connected wallet
     if (
-      fromToken.nativeEcosystem !== SOLANA_ECOSYSTEM_ID &&
+      fromToken.nativeEcosystem !== "solana" &&
       !wallets[fromToken.nativeEcosystem].connected
     ) {
       errors = [
@@ -46,7 +45,7 @@ export const useGetSwapFormErrors = (
 
     // Require destination token to have a connected wallet
     if (
-      toToken.nativeEcosystem !== SOLANA_ECOSYSTEM_ID &&
+      toToken.nativeEcosystem !== "solana" &&
       !wallets[toToken.nativeEcosystem].connected
     ) {
       errors = [
@@ -56,9 +55,9 @@ export const useGetSwapFormErrors = (
     }
 
     // Require non-zero native balances
-    const requiredEcosystems = new Set(
+    const requiredEcosystems: ReadonlySet<EcosystemId> = new Set(
       [
-        SOLANA_ECOSYSTEM_ID,
+        "solana" as const,
         fromToken.nativeEcosystem,
         toToken.nativeEcosystem,
       ].filter(isNotNull),
@@ -74,8 +73,8 @@ export const useGetSwapFormErrors = (
 
     // Need some SOL for network fee
     if (
-      userNativeBalances[SOLANA_ECOSYSTEM_ID].greaterThan(0) &&
-      userNativeBalances[SOLANA_ECOSYSTEM_ID].lessThan(0.01)
+      userNativeBalances.solana.greaterThan(0) &&
+      userNativeBalances.solana.lessThan(0.01)
     ) {
       errors = [
         ...errors,

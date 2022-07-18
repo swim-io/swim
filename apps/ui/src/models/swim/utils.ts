@@ -1,7 +1,4 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 
 import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
@@ -39,22 +36,14 @@ export const getRequiredEcosystems = (
       const inputEcosystems = mapNonZeroAmountsToNativeEcosystems(tokens, [
         ...params.inputAmounts.values(),
       ]);
-      return new Set([
-        SOLANA_ECOSYSTEM_ID,
-        lpTokenTargetEcosystem,
-        ...inputEcosystems,
-      ]);
+      return new Set(["solana", lpTokenTargetEcosystem, ...inputEcosystems]);
     }
     case InteractionType.RemoveUniform: {
       const { params, lpTokenSourceEcosystem } = interactionSpec;
       const outputEcosystems = mapNonZeroAmountsToNativeEcosystems(tokens, [
         ...params.minimumOutputAmounts.values(),
       ]);
-      return new Set([
-        SOLANA_ECOSYSTEM_ID,
-        lpTokenSourceEcosystem,
-        ...outputEcosystems,
-      ]);
+      return new Set(["solana", lpTokenSourceEcosystem, ...outputEcosystems]);
     }
     case InteractionType.RemoveExactBurn: {
       const { params, lpTokenSourceEcosystem } = interactionSpec;
@@ -63,22 +52,14 @@ export const getRequiredEcosystems = (
         (token) => token.id === params.minimumOutputAmount.tokenId,
       );
       const outputEcosystem = outputToken.nativeEcosystem;
-      return new Set([
-        SOLANA_ECOSYSTEM_ID,
-        lpTokenSourceEcosystem,
-        outputEcosystem,
-      ]);
+      return new Set(["solana", lpTokenSourceEcosystem, outputEcosystem]);
     }
     case InteractionType.RemoveExactOutput: {
       const { params, lpTokenSourceEcosystem } = interactionSpec;
       const outputEcosystems = mapNonZeroAmountsToNativeEcosystems(tokens, [
         ...params.exactOutputAmounts.values(),
       ]);
-      return new Set([
-        SOLANA_ECOSYSTEM_ID,
-        lpTokenSourceEcosystem,
-        ...outputEcosystems,
-      ]);
+      return new Set(["solana", lpTokenSourceEcosystem, ...outputEcosystems]);
     }
     case InteractionType.Swap: {
       const {
@@ -86,7 +67,7 @@ export const getRequiredEcosystems = (
       } = interactionSpec;
       const inputEcosystem = exactInputAmount.tokenSpec.nativeEcosystem;
       const outputEcosystem = minimumOutputAmount.tokenSpec.nativeEcosystem;
-      return new Set([SOLANA_ECOSYSTEM_ID, inputEcosystem, outputEcosystem]);
+      return new Set(["solana", inputEcosystem, outputEcosystem]);
     }
     default:
       throw new Error("Unknown instruction");
@@ -113,9 +94,9 @@ export const getConnectedWallets = (
           }
         : accumulator,
     {
-      [SOLANA_ECOSYSTEM_ID]: null,
-      [ETHEREUM_ECOSYSTEM_ID]: null,
-      [BNB_ECOSYSTEM_ID]: null,
+      solana: null,
+      ethereum: null,
+      bnb: null,
       // [EcosystemId.Avalanche]: null,
       // [EcosystemId.Polygon]: null,
       // [EcosystemId.Aurora]: null,
@@ -166,9 +147,9 @@ export const getConnectedWalletsV2 = (
           }
         : accumulator,
     {
-      [SOLANA_ECOSYSTEM_ID]: null,
-      [ETHEREUM_ECOSYSTEM_ID]: null,
-      [BNB_ECOSYSTEM_ID]: null,
+      solana: null,
+      ethereum: null,
+      bnb: null,
       // [EcosystemId.Avalanche]: null,
       // [EcosystemId.Polygon]: null,
       // [EcosystemId.Aurora]: null,
@@ -187,18 +168,14 @@ export const getPoolUsdValue = (
     ? poolTokenAccounts.reduce((acc, account) => {
         const tokenSpec = tokens.find(
           (spec) =>
-            spec.detailsByEcosystem.get(SOLANA_ECOSYSTEM_ID)?.address ===
+            spec.detailsByEcosystem.get("solana")?.address ===
             account.mint.toBase58(),
         );
         if (!tokenSpec) {
           throw new Error("Token spec not found");
         }
         return acc.add(
-          Amount.fromU64(
-            tokenSpec,
-            account.amount,
-            SOLANA_ECOSYSTEM_ID,
-          ).toHuman(SOLANA_ECOSYSTEM_ID),
+          Amount.fromU64(tokenSpec, account.amount, "solana").toHuman("solana"),
         );
       }, new Decimal(0))
     : null;

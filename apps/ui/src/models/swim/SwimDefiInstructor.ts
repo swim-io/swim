@@ -8,7 +8,6 @@ import {
   TransactionInstruction,
 } from "@solana/web3.js";
 import type { Env } from "@swim-io/core-types";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
 import { isEachNotNull } from "../../utils";
 import type { Amount } from "../amount";
@@ -368,10 +367,8 @@ export class SwimDefiInstructor {
       {
         instruction: SwimInstruction.DeFi,
         defiInstruction: SwimDefiInstruction.Add,
-        inputAmounts: inputAmounts.map((amount) =>
-          amount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
-        ),
-        minimumMintAmount: minimumMintAmount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
+        inputAmounts: inputAmounts.map((amount) => amount.toAtomicBn("solana")),
+        minimumMintAmount: minimumMintAmount.toAtomicBn("solana"),
       },
       data,
     );
@@ -412,9 +409,9 @@ export class SwimDefiInstructor {
       {
         instruction: SwimInstruction.DeFi,
         defiInstruction: SwimDefiInstruction.RemoveUniform,
-        exactBurnAmount: exactBurnAmount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
+        exactBurnAmount: exactBurnAmount.toAtomicBn("solana"),
         minimumOutputAmounts: minimumOutputAmounts.map((amount) =>
-          amount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
+          amount.toAtomicBn("solana"),
         ),
       },
       data,
@@ -447,10 +444,9 @@ export class SwimDefiInstructor {
       {
         instruction: SwimInstruction.DeFi,
         defiInstruction: SwimDefiInstruction.RemoveExactBurn,
-        exactBurnAmount: exactBurnAmount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
+        exactBurnAmount: exactBurnAmount.toAtomicBn("solana"),
         outputTokenIndex,
-        minimumOutputAmount:
-          minimumOutputAmount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
+        minimumOutputAmount: minimumOutputAmount.toAtomicBn("solana"),
       },
       data,
     );
@@ -481,9 +477,9 @@ export class SwimDefiInstructor {
       {
         instruction: SwimInstruction.DeFi,
         defiInstruction: SwimDefiInstruction.RemoveExactOutput,
-        maximumBurnAmount: maximumBurnAmount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
+        maximumBurnAmount: maximumBurnAmount.toAtomicBn("solana"),
         exactOutputAmounts: exactOutputAmounts.map((amount) =>
-          amount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
+          amount.toAtomicBn("solana"),
         ),
       },
       data,
@@ -522,11 +518,10 @@ export class SwimDefiInstructor {
         instruction: SwimInstruction.DeFi,
         defiInstruction: SwimDefiInstruction.Swap,
         exactInputAmounts: exactInputAmounts.map((amount) =>
-          amount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
+          amount.toAtomicBn("solana"),
         ),
         outputTokenIndex,
-        minimumOutputAmount:
-          minimumOutputAmount.toAtomicBn(SOLANA_ECOSYSTEM_ID),
+        minimumOutputAmount: minimumOutputAmount.toAtomicBn("solana"),
       },
       data,
     );
@@ -564,7 +559,7 @@ export class SwimDefiInstructor {
       this.signer.publicKey,
       [],
       // See https://github.com/solana-labs/solana-program-library/issues/2563
-      new u64(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)),
+      new u64(amount.toAtomicString("solana")),
     );
   }
 

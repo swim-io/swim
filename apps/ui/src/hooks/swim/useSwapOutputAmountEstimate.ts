@@ -1,4 +1,3 @@
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
@@ -142,7 +141,7 @@ export const useSwapOutputAmountEstimate = (
         const { lpOutputAmount } = inputPoolMath.add(
           inputPoolTokens.tokens.map((token) =>
             token.id === exactInputAmount.tokenId
-              ? exactInputAmount.toHuman(SOLANA_ECOSYSTEM_ID)
+              ? exactInputAmount.toHuman("solana")
               : ZERO,
           ),
         );
@@ -159,7 +158,7 @@ export const useSwapOutputAmountEstimate = (
         const { stableOutputAmount } = inputPoolMath.swapExactInput(
           inputPoolTokens.tokens.map((token) =>
             token.id === exactInputAmount.tokenId
-              ? exactInputAmount.toHuman(SOLANA_ECOSYSTEM_ID)
+              ? exactInputAmount.toHuman("solana")
               : ZERO,
           ),
           inputPoolOutputTokenIndex,
@@ -192,7 +191,7 @@ export const useSwapOutputAmountEstimate = (
     switch (outputPoolInstruction) {
       case SwimDefiInstruction.RemoveExactBurn: {
         const { stableOutputAmount } = outputPoolMath.removeExactBurn(
-          inputPoolOutputAmount.toHuman(SOLANA_ECOSYSTEM_ID),
+          inputPoolOutputAmount.toHuman("solana"),
           outputPoolOutputTokenIndex,
         );
         return ensureNonNegative(Amount.fromHuman(toToken, stableOutputAmount));
@@ -207,7 +206,7 @@ export const useSwapOutputAmountEstimate = (
               token.id === inputPoolOutputAmount.tokenId
                 ? inputPoolOutputAmount
                 : Amount.zero(token);
-            return amount.toHuman(SOLANA_ECOSYSTEM_ID);
+            return amount.toHuman("solana");
           }),
           outputPoolOutputTokenIndex,
         );

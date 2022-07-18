@@ -1,4 +1,3 @@
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type React from "react";
 
 import type { FromSolanaTransferState, Interaction } from "../../models";
@@ -24,7 +23,7 @@ export const FromSolanaTransferComponent: React.FC<Props> = ({
   const transferSplTokenTxProps = transferSplToken
     ? {
         txId: transferSplToken,
-        ecosystem: SOLANA_ECOSYSTEM_ID,
+        ecosystem: "solana" as const,
       }
     : null;
   const claimTokenOnEvmTxProps = claimTokenOnEvm
@@ -44,7 +43,7 @@ export const FromSolanaTransferComponent: React.FC<Props> = ({
   return (
     <Transfer
       token={token}
-      from={SOLANA_ECOSYSTEM_ID}
+      from={"solana"}
       to={toEcosystem}
       isLoading={isLoading}
       transactions={completedTxs}

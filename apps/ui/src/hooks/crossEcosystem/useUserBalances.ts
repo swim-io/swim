@@ -1,6 +1,3 @@
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type Decimal from "decimal.js";
 
 import type { EcosystemId, TokenSpec } from "../../config";
@@ -14,15 +11,15 @@ export const useUserBalances = (
 ): ReadonlyRecord<EcosystemId, Decimal | null> => {
   // order of hooks can't change, so we pass in null values if we don't actually need the value
   const splBalance = useSplUserBalance(
-    tokenSpec?.detailsByEcosystem.get(SOLANA_ECOSYSTEM_ID)?.address ?? null,
+    tokenSpec?.detailsByEcosystem.get("solana")?.address ?? null,
   );
   const { data: ethereumTokenBalance = null } = useErc20BalanceQuery(
-    ETHEREUM_ECOSYSTEM_ID,
-    tokenSpec?.detailsByEcosystem.get(ETHEREUM_ECOSYSTEM_ID)?.address ?? null,
+    "ethereum",
+    tokenSpec?.detailsByEcosystem.get("ethereum")?.address ?? null,
   );
   const { data: bnbTokenBalance = null } = useErc20BalanceQuery(
-    BNB_ECOSYSTEM_ID,
-    tokenSpec?.detailsByEcosystem.get(BNB_ECOSYSTEM_ID)?.address ?? null,
+    "bnb",
+    tokenSpec?.detailsByEcosystem.get("bnb")?.address ?? null,
   );
   // const { data: avalancheTokenBalance = null } = useErc20BalanceQuery(
   //   EcosystemId.Avalanche,
@@ -50,9 +47,9 @@ export const useUserBalances = (
   // );
 
   return {
-    [SOLANA_ECOSYSTEM_ID]: splBalance,
-    [ETHEREUM_ECOSYSTEM_ID]: ethereumTokenBalance,
-    [BNB_ECOSYSTEM_ID]: bnbTokenBalance,
+    solana: splBalance,
+    ethereum: ethereumTokenBalance,
+    bnb: bnbTokenBalance,
     // [EcosystemId.Avalanche]: avalancheTokenBalance,
     // [EcosystemId.Polygon]: polygonTokenBalance,
     // [EcosystemId.Aurora]: auroraTokenBalance,
@@ -78,30 +75,22 @@ export const useUserBalanceAmounts = (
   } = useUserBalances(tokenSpec);
 
   const solanaAmount =
-    solanaBalance && tokenSpec?.detailsByEcosystem.get(SOLANA_ECOSYSTEM_ID)
-      ? Amount.fromAtomicString(
-          tokenSpec,
-          solanaBalance.toString(),
-          SOLANA_ECOSYSTEM_ID,
-        )
+    solanaBalance && tokenSpec?.detailsByEcosystem.get("solana")
+      ? Amount.fromAtomicString(tokenSpec, solanaBalance.toString(), "solana")
       : null;
 
   const ethereumAmount =
-    ethereumBalance && tokenSpec?.detailsByEcosystem.get(ETHEREUM_ECOSYSTEM_ID)
+    ethereumBalance && tokenSpec?.detailsByEcosystem.get("ethereum")
       ? Amount.fromAtomicString(
           tokenSpec,
           ethereumBalance.toString(),
-          ETHEREUM_ECOSYSTEM_ID,
+          "ethereum",
         )
       : null;
 
   const bnbAmount =
-    bnbBalance && tokenSpec?.detailsByEcosystem.get(BNB_ECOSYSTEM_ID)
-      ? Amount.fromAtomicString(
-          tokenSpec,
-          bnbBalance.toString(),
-          BNB_ECOSYSTEM_ID,
-        )
+    bnbBalance && tokenSpec?.detailsByEcosystem.get("bnb")
+      ? Amount.fromAtomicString(tokenSpec, bnbBalance.toString(), "bnb")
       : null;
 
   // const avalancheAmount =
@@ -159,9 +148,9 @@ export const useUserBalanceAmounts = (
   //     : null;
 
   return {
-    [SOLANA_ECOSYSTEM_ID]: solanaAmount,
-    [ETHEREUM_ECOSYSTEM_ID]: ethereumAmount,
-    [BNB_ECOSYSTEM_ID]: bnbAmount,
+    solana: solanaAmount,
+    ethereum: ethereumAmount,
+    bnb: bnbAmount,
     // [EcosystemId.Avalanche]: avalancheAmount,
     // [EcosystemId.Polygon]: polygonAmount,
     // [EcosystemId.Aurora]: auroraAmount,

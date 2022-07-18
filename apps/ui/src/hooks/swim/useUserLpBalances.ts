@@ -1,7 +1,4 @@
 import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
 import type { EcosystemId, TokenSpec } from "../../config";
 import { Amount } from "../../models";
@@ -16,41 +13,37 @@ export const useUserLpBalances = (
     ? Amount.fromAtomicBn(
         lpTokenSpec,
         userLpTokenAccountSolana.amount,
-        SOLANA_ECOSYSTEM_ID,
+        "solana",
       )
     : null;
 
   // ethereum
   const ethereumTokenContractAddress =
-    lpTokenSpec.detailsByEcosystem.get(ETHEREUM_ECOSYSTEM_ID)?.address ?? null;
+    lpTokenSpec.detailsByEcosystem.get("ethereum")?.address ?? null;
   const { data: userLpBalanceEthereumAtomic = null } = useErc20BalanceQuery(
-    ETHEREUM_ECOSYSTEM_ID,
+    "ethereum",
     ethereumTokenContractAddress,
   );
   const userLpBalanceEthereum =
     ethereumTokenContractAddress && userLpBalanceEthereumAtomic
-      ? Amount.fromAtomic(
-          lpTokenSpec,
-          userLpBalanceEthereumAtomic,
-          ETHEREUM_ECOSYSTEM_ID,
-        )
+      ? Amount.fromAtomic(lpTokenSpec, userLpBalanceEthereumAtomic, "ethereum")
       : null;
 
   // bnb
   const bnbTokenContractAddress =
-    lpTokenSpec.detailsByEcosystem.get(BNB_ECOSYSTEM_ID)?.address ?? null;
+    lpTokenSpec.detailsByEcosystem.get("bnb")?.address ?? null;
   const { data: userLpBalanceBnbAtomic = null } = useErc20BalanceQuery(
-    BNB_ECOSYSTEM_ID,
+    "bnb",
     bnbTokenContractAddress,
   );
   const userLpBalanceBnb =
     bnbTokenContractAddress && userLpBalanceBnbAtomic
-      ? Amount.fromAtomic(lpTokenSpec, userLpBalanceBnbAtomic, BNB_ECOSYSTEM_ID)
+      ? Amount.fromAtomic(lpTokenSpec, userLpBalanceBnbAtomic, "bnb")
       : null;
 
   return {
-    [SOLANA_ECOSYSTEM_ID]: userLpBalanceSolana,
-    [ETHEREUM_ECOSYSTEM_ID]: userLpBalanceEthereum,
-    [BNB_ECOSYSTEM_ID]: userLpBalanceBnb,
+    solana: userLpBalanceSolana,
+    ethereum: userLpBalanceEthereum,
+    bnb: userLpBalanceBnb,
   };
 };

@@ -1,5 +1,4 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import shallow from "zustand/shallow.js";
 
 import { useSplTokenAccountsQuery, useWallets } from "..";
@@ -35,10 +34,7 @@ const getSwapType = (interaction: SwapInteractionV2): SwapType => {
   const { fromTokenDetail, toTokenDetail } = interaction.params;
   const fromEcosystem = fromTokenDetail.ecosystemId;
   const toEcosystem = toTokenDetail.ecosystemId;
-  if (
-    fromEcosystem === SOLANA_ECOSYSTEM_ID &&
-    toEcosystem === SOLANA_ECOSYSTEM_ID
-  ) {
+  if (fromEcosystem === "solana" && toEcosystem === "solana") {
     return SwapType.SingleChainSolana;
   }
   if (isEvmEcosystemId(fromEcosystem) && isEvmEcosystemId(toEcosystem)) {
@@ -46,10 +42,10 @@ const getSwapType = (interaction: SwapInteractionV2): SwapType => {
       ? SwapType.SingleChainEvm
       : SwapType.CrossChainEvmToEvm;
   }
-  if (fromEcosystem === SOLANA_ECOSYSTEM_ID && isEvmEcosystemId(toEcosystem)) {
+  if (fromEcosystem === "solana" && isEvmEcosystemId(toEcosystem)) {
     return SwapType.CrossChainSolanaToEvm;
   }
-  if (isEvmEcosystemId(fromEcosystem) && toEcosystem === SOLANA_ECOSYSTEM_ID) {
+  if (isEvmEcosystemId(fromEcosystem) && toEcosystem === "solana") {
     return SwapType.CrossChainEvmToSolana;
   }
 
@@ -81,7 +77,7 @@ export const calculateRequiredSplTokenAccounts = (
     ? [fromToken, toToken, swimUSD]
     : [fromToken, toToken];
   const mints = filterMap(
-    (token: TokenSpec) => token.nativeEcosystem === SOLANA_ECOSYSTEM_ID,
+    (token: TokenSpec) => token.nativeEcosystem === "solana",
     (token) => getSolanaTokenDetails(token).address,
     requiredTokens,
   );
@@ -199,7 +195,7 @@ export const useCreateInteractionStateV2 = () => {
   const wallets = useWallets();
   const { env } = useEnvironment();
   const { data: tokenAccounts = [] } = useSplTokenAccountsQuery();
-  const solanaWalletAddress = wallets[SOLANA_ECOSYSTEM_ID].address;
+  const solanaWalletAddress = wallets["solana"].address;
 
   return (interactionSpec: InteractionSpecV2): InteractionStateV2 => {
     const requiredPools = getRequiredPools(config.pools, interactionSpec);

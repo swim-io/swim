@@ -1,6 +1,3 @@
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import shallow from "zustand/shallow.js";
 
 import type { EcosystemId, TokenSpec } from "../../config";
@@ -19,9 +16,9 @@ export const useTokensByEcosystem = (): ReadonlyRecord<
     tokens.filter((tokenSpec) => tokenSpec.detailsByEcosystem.get(ecosystem));
 
   return {
-    [SOLANA_ECOSYSTEM_ID]: filterTokensByEcosystem(SOLANA_ECOSYSTEM_ID),
-    [ETHEREUM_ECOSYSTEM_ID]: filterTokensByEcosystem(ETHEREUM_ECOSYSTEM_ID),
-    [BNB_ECOSYSTEM_ID]: filterTokensByEcosystem(BNB_ECOSYSTEM_ID),
+    solana: filterTokensByEcosystem("solana"),
+    ethereum: filterTokensByEcosystem("ethereum"),
+    bnb: filterTokensByEcosystem("bnb"),
     // [EcosystemId.Avalanche]: filterTokensByEcosystem(EcosystemId.Avalanche),
     // [EcosystemId.Polygon]: filterTokensByEcosystem(EcosystemId.Polygon),
     // [EcosystemId.Aurora]: filterTokensByEcosystem(EcosystemId.Aurora),

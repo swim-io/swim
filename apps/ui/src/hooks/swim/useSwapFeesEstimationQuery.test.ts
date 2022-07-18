@@ -1,4 +1,3 @@
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
@@ -56,7 +55,7 @@ describe("useSwapFeesEstimationQuery", () => {
   describe("loaded", () => {
     beforeEach(() => {
       useGasPriceQueryMock.mockImplementation((ecosystemId: EcosystemId) =>
-        ecosystemId === ETHEREUM_ECOSYSTEM_ID
+        ecosystemId === "ethereum"
           ? { data: new Decimal(7e-8) }
           : { data: new Decimal(5e-9) },
       );

@@ -2,7 +2,6 @@ import type { ConfirmedSignatureInfo } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import { Env } from "@swim-io/core-types";
 import type { SolanaTx } from "@swim-io/plugin-ecosystem-solana";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { QueryClient } from "react-query";
 
 import { INTERACTION_ID_LENGTH_HEX } from "../utils";
@@ -82,7 +81,7 @@ export const fetchSolanaTxsForInteractionId = async (
 
   return txInfosAndInteractionIds.map(
     ({ signatureInfo: { blockTime, signature } }, index) => ({
-      ecosystem: SOLANA_ECOSYSTEM_ID,
+      ecosystem: "solana",
       txId: signature,
       timestamp: blockTime ?? null,
       interactionId,

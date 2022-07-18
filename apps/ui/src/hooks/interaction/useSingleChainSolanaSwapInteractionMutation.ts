@@ -1,4 +1,3 @@
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
@@ -35,10 +34,10 @@ export const useSingleChainSolanaSwapInteractionMutation = () => {
         config.pools,
         (pool) => pool.id === interaction.poolIds[0],
       );
-      if (poolSpec.ecosystem !== SOLANA_ECOSYSTEM_ID) {
+      if (poolSpec.ecosystem !== "solana") {
         throw new Error("Expected Solana pool");
       }
-      const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
+      const solanaWallet = wallets.solana.wallet;
       if (solanaWallet === null) {
         throw new Error("Missing Solana wallet");
       }

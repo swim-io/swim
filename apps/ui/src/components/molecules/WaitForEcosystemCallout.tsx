@@ -1,5 +1,4 @@
 import { EuiCallOut, EuiSpacer } from "@elastic/eui";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import type React from "react";
 
 import type { EcosystemId } from "../../config";
@@ -9,7 +8,7 @@ interface Props {
 }
 
 export const WaitForEcosystemCallout: React.FC<Props> = ({ ecosystemId }) => {
-  if (ecosystemId === ETHEREUM_ECOSYSTEM_ID) {
+  if (ecosystemId === "ethereum") {
     return (
       <>
         <EuiCallOut

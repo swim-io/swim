@@ -1,5 +1,4 @@
 import { EuiFormRow, EuiSpacer } from "@elastic/eui";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type React from "react";
 
 import type { EcosystemId } from "../../config";
@@ -17,11 +16,7 @@ export const SwapFormSolanaConnectButton: React.FC<Props> = ({
   toEcosystem,
 }) => {
   const { connected } = useSolanaWallet();
-  if (
-    connected ||
-    fromEcosystem === SOLANA_ECOSYSTEM_ID ||
-    toEcosystem === SOLANA_ECOSYSTEM_ID
-  ) {
+  if (connected || fromEcosystem === "solana" || toEcosystem === "solana") {
     return null;
   }
 
@@ -31,7 +26,7 @@ export const SwapFormSolanaConnectButton: React.FC<Props> = ({
         fullWidth
         helpText="This swap will route through Solana, so you need to connect a Solana wallet with SOL to pay for transaction fees."
       >
-        <ConnectButton ecosystemId={SOLANA_ECOSYSTEM_ID} fullWidth />
+        <ConnectButton ecosystemId={"solana"} fullWidth />
       </EuiFormRow>
       <EuiSpacer />
     </>

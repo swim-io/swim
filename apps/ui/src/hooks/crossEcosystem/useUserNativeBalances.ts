@@ -1,6 +1,3 @@
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 
 import type { EcosystemId } from "../../config";
@@ -13,11 +10,10 @@ export const useUserNativeBalances = (): ReadonlyRecord<
   Decimal
 > => {
   const { data: solBalance = new Decimal(0) } = useSolBalanceQuery();
-  const { data: ethBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
-    ETHEREUM_ECOSYSTEM_ID,
-  );
+  const { data: ethBalance = new Decimal(0) } =
+    useEvmUserNativeBalanceQuery("ethereum");
   const { data: bnbBalance = new Decimal(0) } =
-    useEvmUserNativeBalanceQuery(BNB_ECOSYSTEM_ID);
+    useEvmUserNativeBalanceQuery("bnb");
   // const { data: avaxBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
   //   EcosystemId.Avalanche,
   // );
@@ -37,9 +33,9 @@ export const useUserNativeBalances = (): ReadonlyRecord<
   // );
 
   return {
-    [SOLANA_ECOSYSTEM_ID]: solBalance,
-    [ETHEREUM_ECOSYSTEM_ID]: ethBalance,
-    [BNB_ECOSYSTEM_ID]: bnbBalance,
+    solana: solBalance,
+    ethereum: ethBalance,
+    bnb: bnbBalance,
     // [EcosystemId.Avalanche]: avaxBalance,
     // [EcosystemId.Polygon]: maticBalance,
     // [EcosystemId.Aurora]: auroraEthBalance,

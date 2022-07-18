@@ -1,6 +1,4 @@
 import { EVM_PROTOCOL } from "@swim-io/evm-types";
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import { useQueryClient } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
@@ -36,8 +34,8 @@ export const useEvmConnections = (): ReadonlyRecord<
   EvmEcosystemId,
   EvmConnection
 > => ({
-  [ETHEREUM_ECOSYSTEM_ID]: useEvmConnection(ETHEREUM_ECOSYSTEM_ID),
-  [BNB_ECOSYSTEM_ID]: useEvmConnection(BNB_ECOSYSTEM_ID),
+  ethereum: useEvmConnection("ethereum"),
+  bnb: useEvmConnection("bnb"),
   // [EcosystemId.Avalanche]: useEvmConnection(EcosystemId.Avalanche),
   // [EcosystemId.Polygon]: useEvmConnection(EcosystemId.Polygon),
   // [EcosystemId.Aurora]: useEvmConnection(EcosystemId.Aurora),

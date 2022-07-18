@@ -1,5 +1,3 @@
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
-
 import type { EcosystemId } from "../../config";
 
 import type { InteractionState } from "./interactionState";
@@ -31,7 +29,7 @@ export const getNextTxInfo = ({
   if (!isRequiredSplTokenAccountsCompleted(requiredSplTokenAccounts)) {
     return {
       step: InteractionStateStep.PrepareSplTokenAccounts,
-      ecosystem: SOLANA_ECOSYSTEM_ID,
+      ecosystem: "solana",
       transferTokenId: null,
     };
   }
@@ -47,7 +45,7 @@ export const getNextTxInfo = ({
     const ecosystem =
       txIds.approveAndTransferEvmToken.length === 0
         ? token.nativeEcosystem
-        : SOLANA_ECOSYSTEM_ID;
+        : "solana";
     return {
       step: InteractionStateStep.ToSolanaTransfers,
       ecosystem,
@@ -58,7 +56,7 @@ export const getNextTxInfo = ({
   if (!isSolanaPoolOperationsCompleted(solanaPoolOperations)) {
     return {
       step: InteractionStateStep.SolanaPoolOperations,
-      ecosystem: SOLANA_ECOSYSTEM_ID,
+      ecosystem: "solana",
       transferTokenId: null,
     };
   }
@@ -72,9 +70,7 @@ export const getNextTxInfo = ({
     }
     const { txIds, token } = incompleteTransfer;
     const ecosystem =
-      txIds.transferSplToken === null
-        ? SOLANA_ECOSYSTEM_ID
-        : token.nativeEcosystem;
+      txIds.transferSplToken === null ? "solana" : token.nativeEcosystem;
     return {
       step: InteractionStateStep.FromSolanaTransfers,
       ecosystem,

@@ -1,7 +1,4 @@
 import { Env } from "@swim-io/core-types";
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 
 import { Amount, InteractionType, SwapType } from "../../models";
@@ -30,12 +27,12 @@ export const SINGLE_CHAIN_SOLANA_INTERACTION: SwapInteractionV2 = {
   params: {
     fromTokenDetail: {
       tokenId: "devnet-solana-usdc",
-      ecosystemId: SOLANA_ECOSYSTEM_ID,
+      ecosystemId: "solana",
       value: new Decimal("100"),
     },
     toTokenDetail: {
       tokenId: "devnet-solana-usdt",
-      ecosystemId: SOLANA_ECOSYSTEM_ID,
+      ecosystemId: "solana",
       value: new Decimal("101"),
     },
   },
@@ -44,9 +41,9 @@ export const SINGLE_CHAIN_SOLANA_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-    [BNB_ECOSYSTEM_ID]: null,
-    [ETHEREUM_ECOSYSTEM_ID]: null,
+    solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    bnb: null,
+    ethereum: null,
     // [EcosystemId.Acala]: null,
     // [EcosystemId.Aurora]: null,
     // [EcosystemId.Avalanche]: null,
@@ -154,12 +151,12 @@ const SINGLE_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   params: {
     fromTokenDetail: {
       tokenId: "devnet-ethereum-usdc",
-      ecosystemId: ETHEREUM_ECOSYSTEM_ID,
+      ecosystemId: "ethereum",
       value: new Decimal("100"),
     },
     toTokenDetail: {
       tokenId: "devnet-ethereum-usdt",
-      ecosystemId: ETHEREUM_ECOSYSTEM_ID,
+      ecosystemId: "ethereum",
       value: new Decimal("101"),
     },
   },
@@ -168,9 +165,9 @@ const SINGLE_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [SOLANA_ECOSYSTEM_ID]: null,
-    [BNB_ECOSYSTEM_ID]: null,
-    [ETHEREUM_ECOSYSTEM_ID]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
+    solana: null,
+    bnb: null,
+    ethereum: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
     // [EcosystemId.Acala]: null,
     // [EcosystemId.Aurora]: null,
     // [EcosystemId.Avalanche]: null,
@@ -210,12 +207,12 @@ const CROSS_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   params: {
     fromTokenDetail: {
       tokenId: "devnet-ethereum-usdc",
-      ecosystemId: ETHEREUM_ECOSYSTEM_ID,
+      ecosystemId: "ethereum",
       value: new Decimal("100"),
     },
     toTokenDetail: {
       tokenId: "devnet-bnb-usdt",
-      ecosystemId: BNB_ECOSYSTEM_ID,
+      ecosystemId: "bnb",
       value: new Decimal("101"),
     },
   },
@@ -224,9 +221,9 @@ const CROSS_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [SOLANA_ECOSYSTEM_ID]: null,
-    [BNB_ECOSYSTEM_ID]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
-    [ETHEREUM_ECOSYSTEM_ID]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
+    solana: null,
+    bnb: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
+    ethereum: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
     // [EcosystemId.Acala]: null,
     // [EcosystemId.Aurora]: null,
     // [EcosystemId.Avalanche]: null,
@@ -277,12 +274,12 @@ const CROSS_CHAIN_SOLANA_TO_EVM_INTERACTION: SwapInteractionV2 = {
   params: {
     fromTokenDetail: {
       tokenId: "devnet-solana-usdc",
-      ecosystemId: SOLANA_ECOSYSTEM_ID,
+      ecosystemId: "solana",
       value: new Decimal("100"),
     },
     toTokenDetail: {
       tokenId: "devnet-bnb-usdt",
-      ecosystemId: BNB_ECOSYSTEM_ID,
+      ecosystemId: "bnb",
       value: new Decimal("101"),
     },
   },
@@ -291,9 +288,9 @@ const CROSS_CHAIN_SOLANA_TO_EVM_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-    [BNB_ECOSYSTEM_ID]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
-    [ETHEREUM_ECOSYSTEM_ID]: null,
+    solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    bnb: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
+    ethereum: null,
     // [EcosystemId.Acala]: null,
     // [EcosystemId.Aurora]: null,
     // [EcosystemId.Avalanche]: null,
@@ -346,12 +343,12 @@ const CROSS_CHAIN_EVM_TO_SOLANA_INTERACTION: SwapInteractionV2 = {
   params: {
     fromTokenDetail: {
       tokenId: "devnet-bnb-usdt",
-      ecosystemId: BNB_ECOSYSTEM_ID,
+      ecosystemId: "bnb",
       value: new Decimal("101"),
     },
     toTokenDetail: {
       tokenId: "devnet-solana-usdc",
-      ecosystemId: SOLANA_ECOSYSTEM_ID,
+      ecosystemId: "solana",
       value: new Decimal("100"),
     },
   },
@@ -360,9 +357,9 @@ const CROSS_CHAIN_EVM_TO_SOLANA_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-    [BNB_ECOSYSTEM_ID]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
-    [ETHEREUM_ECOSYSTEM_ID]: null,
+    solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    bnb: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
+    ethereum: null,
     // [EcosystemId.Acala]: null,
     // [EcosystemId.Aurora]: null,
     // [EcosystemId.Avalanche]: null,

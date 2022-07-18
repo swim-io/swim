@@ -1,5 +1,4 @@
 import type { Env } from "@swim-io/core-types";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
 import { deduplicate } from "../utils";
 
@@ -19,8 +18,7 @@ export const getNativeTokenDetails = (tokenSpec: TokenSpec): TokenDetails => {
 };
 
 export const getSolanaTokenDetails = (tokenSpec: TokenSpec): TokenDetails => {
-  const solanaTokenDetails =
-    tokenSpec.detailsByEcosystem.get(SOLANA_ECOSYSTEM_ID) ?? null;
+  const solanaTokenDetails = tokenSpec.detailsByEcosystem.get("solana") ?? null;
   if (solanaTokenDetails === null) {
     throw new Error("Solana token details not found");
   }

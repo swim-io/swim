@@ -5,29 +5,16 @@ import type {
   EvmEcosystemConfig as GenericEvmEcosystemConfig,
 } from "@swim-io/evm-types";
 import { EVM_PROTOCOL } from "@swim-io/evm-types";
-import type {
-  BnbChainId,
-  BnbEcosystemId,
-  BnbWormholeChainId,
-} from "@swim-io/plugin-ecosystem-bnb";
-import bnbPlugin, { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import type {
-  EthereumChainId,
-  EthereumEcosystemId,
-  EthereumWormholeChainId,
-} from "@swim-io/plugin-ecosystem-ethereum";
-import ethereumPlugin, {
-  ETHEREUM_ECOSYSTEM_ID,
-} from "@swim-io/plugin-ecosystem-ethereum";
+import type { BnbChainId } from "@swim-io/plugin-ecosystem-bnb";
+import bnbPlugin from "@swim-io/plugin-ecosystem-bnb";
+import type { EthereumChainId } from "@swim-io/plugin-ecosystem-ethereum";
+import ethereumPlugin from "@swim-io/plugin-ecosystem-ethereum";
 import type {
   SolanaChainConfig,
   SolanaEcosystemConfig,
-  SolanaEcosystemId,
   SolanaProtocol,
-  SolanaWormholeChainId,
 } from "@swim-io/plugin-ecosystem-solana";
 import solanaPlugin, {
-  SOLANA_ECOSYSTEM_ID,
   SOLANA_PROTOCOL,
   SolanaChainId,
 } from "@swim-io/plugin-ecosystem-solana";
@@ -42,10 +29,13 @@ export const PROTOCOL_NAMES: Record<Protocol, string> = {
   [EVM_PROTOCOL]: "EVM",
 };
 
-export type { SolanaEcosystemId } from "@swim-io/plugin-ecosystem-solana";
-export type EvmEcosystemId = EthereumEcosystemId | BnbEcosystemId;
+export type SolanaEcosystemId = typeof solanaPlugin.id;
+export type EvmEcosystemId = typeof ethereumPlugin.id | typeof bnbPlugin.id;
 export type EcosystemId = SolanaEcosystemId | EvmEcosystemId;
-export type EvmWormholeChainId = EthereumWormholeChainId | BnbWormholeChainId;
+export type SolanaWormholeChainId = typeof solanaPlugin.wormholeChainId;
+export type EvmWormholeChainId =
+  | typeof ethereumPlugin.wormholeChainId
+  | typeof bnbPlugin.wormholeChainId;
 export type WormholeChainId = SolanaWormholeChainId | EvmWormholeChainId;
 export type EvmChainId = EthereumChainId | BnbChainId;
 export type ChainId = SolanaChainId | EvmChainId;
@@ -69,9 +59,9 @@ export const ECOSYSTEM_IDS = ecosystemPlugins.map((plugin) => plugin.id);
 
 export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean => {
   switch (ecosystemId) {
-    case SOLANA_ECOSYSTEM_ID:
-    case ETHEREUM_ECOSYSTEM_ID:
-    case BNB_ECOSYSTEM_ID:
+    case solanaPlugin.id:
+    case ethereumPlugin.id:
+    case bnbPlugin.id:
       // case EcosystemId.Avalanche:
       // case EcosystemId.Polygon:
       // case EcosystemId.Aurora:

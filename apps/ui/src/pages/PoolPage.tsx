@@ -14,8 +14,6 @@ import {
   EuiTitle,
   EuiToolTip,
 } from "@elastic/eui";
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
@@ -107,11 +105,10 @@ export const PoolPageInner = ({
 }: PoolPageInnerProps): ReactElement => {
   useTitle(poolSpec.displayName);
   const navigate = useNavigate();
-  const { showPrompt: showRegisterEthereumTokenPrompt } = useRegisterErc20Token(
-    ETHEREUM_ECOSYSTEM_ID,
-  );
+  const { showPrompt: showRegisterEthereumTokenPrompt } =
+    useRegisterErc20Token("ethereum");
   const { showPrompt: showRegisterBnbTokenPrompt } =
-    useRegisterErc20Token(BNB_ECOSYSTEM_ID);
+    useRegisterErc20Token("bnb");
   const {
     tokens,
     lpToken,
@@ -258,7 +255,7 @@ export const PoolPageInner = ({
               <StatList listItems={poolInfoStats} />
             </>
           )}
-          {lpToken.detailsByEcosystem.has(ETHEREUM_ECOSYSTEM_ID) && (
+          {lpToken.detailsByEcosystem.has("ethereum") && (
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}
@@ -268,7 +265,7 @@ export const PoolPageInner = ({
               Add LP token to Metamask
             </EuiButtonEmpty>
           )}
-          {lpToken.detailsByEcosystem.has(BNB_ECOSYSTEM_ID) && (
+          {lpToken.detailsByEcosystem.has("bnb") && (
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}

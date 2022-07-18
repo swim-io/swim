@@ -1,7 +1,4 @@
 import { EuiListGroupItem } from "@elastic/eui";
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { FC } from "react";
 
 import type { EcosystemId } from "../../config";
@@ -14,11 +11,11 @@ interface Props {
 const getHref = (ecosystemId: EcosystemId, txId: string): string => {
   // TODO: Support different environments (devnet).
   switch (ecosystemId) {
-    case SOLANA_ECOSYSTEM_ID:
+    case "solana":
       return `https://solana.fm/tx/${txId}`;
-    case ETHEREUM_ECOSYSTEM_ID:
+    case "ethereum":
       return `https://etherscan.io/tx/${txId}`;
-    case BNB_ECOSYSTEM_ID:
+    case "bnb":
       return `https://bscscan.com/tx/${txId}`;
     // case AVALANCHE_ECOSYSTEM_ID:
     //   return `https://snowtrace.io/tx/${txId}`;

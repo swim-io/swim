@@ -1,6 +1,3 @@
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 
 import type { EcosystemId, EvmEcosystemId } from "../../config";
@@ -46,8 +43,8 @@ export const useAddFeesEstimationQuery = (
     // karuraGasPrice,
     // acalaGasPrice,
   ] = [
-    useGasPriceQuery(ETHEREUM_ECOSYSTEM_ID).data ?? ZERO,
-    useGasPriceQuery(BNB_ECOSYSTEM_ID).data ?? ZERO,
+    useGasPriceQuery("ethereum").data ?? ZERO,
+    useGasPriceQuery("bnb").data ?? ZERO,
     // useGasPriceQuery(EcosystemId.Avalanche).data ?? ZERO,
     // useGasPriceQuery(EcosystemId.Polygon).data ?? ZERO,
     // useGasPriceQuery(EcosystemId.Aurora).data ?? ZERO,
@@ -81,9 +78,9 @@ export const useAddFeesEstimationQuery = (
     ECOSYSTEM_IDS,
   );
   return {
-    [SOLANA_ECOSYSTEM_ID]: SOLANA_FEE,
-    [ETHEREUM_ECOSYSTEM_ID]: ethGas.mul(ethGasPrice.toString()),
-    [BNB_ECOSYSTEM_ID]: bnbGas.mul(bnbGasPrice.toString()),
+    solana: SOLANA_FEE,
+    ethereum: ethGas.mul(ethGasPrice.toString()),
+    bnb: bnbGas.mul(bnbGasPrice.toString()),
     // [EcosystemId.Avalanche]: avalancheGas.mul(avalancheGasPrice.toString()),
     // [EcosystemId.Polygon]: polygonGas.mul(polygonGasPrice.toString()),
     // [EcosystemId.Aurora]: auroraGas.mul(auroraGasPrice.toString()),

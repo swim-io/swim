@@ -17,7 +17,6 @@ import type {
   SolanaChainConfig,
   SolanaTx,
 } from "@swim-io/plugin-ecosystem-solana";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
 import type { TokenSpec, WormholeChainId } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
@@ -66,7 +65,7 @@ export const isLockSplTx = (
     return false;
   }
 
-  return token.nativeEcosystem === SOLANA_ECOSYSTEM_ID
+  return token.nativeEcosystem === "solana"
     ? getAmountTransferredFromAccount(
         parsedTx,
         splTokenAccountAddress,
@@ -111,7 +110,7 @@ export const isRedeemOnSolanaTx = (
   ) {
     return false;
   }
-  return token.nativeEcosystem === SOLANA_ECOSYSTEM_ID
+  return token.nativeEcosystem === "solana"
     ? getAmountTransferredToAccount(parsedTx, splTokenAccount).greaterThan(0)
     : getAmountMintedToAccount(parsedTx, splTokenAccount).greaterThan(0);
 };

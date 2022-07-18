@@ -1,7 +1,6 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import type { Env } from "@swim-io/core-types";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type Decimal from "decimal.js";
 
 import type { SolanaPoolSpec } from "../../config";
@@ -112,7 +111,7 @@ export const setOutputOperationInputAmount = (
   outputOperationSpec: OperationSpec,
   tx: ParsedTransactionWithMeta,
 ): OperationSpec => {
-  const walletAddress = interaction.connectedWallets[SOLANA_ECOSYSTEM_ID];
+  const walletAddress = interaction.connectedWallets.solana;
   if (walletAddress === null) {
     throw new Error("Missing Solana wallet");
   }
@@ -134,7 +133,7 @@ export const setOutputOperationInputAmount = (
       const newInputAmount = Amount.fromAtomic(
         inputAmount.tokenSpec,
         transferredAmount,
-        SOLANA_ECOSYSTEM_ID,
+        "solana",
       );
       return {
         ...outputOperationSpec,
@@ -159,7 +158,7 @@ export const setOutputOperationInputAmount = (
       const newInputAmount = Amount.fromAtomic(
         inputAmount.tokenSpec,
         transferredAmount,
-        SOLANA_ECOSYSTEM_ID,
+        "solana",
       );
       return {
         ...outputOperationSpec,
@@ -185,7 +184,7 @@ export const setOutputOperationInputAmount = (
       const newInputAmount = Amount.fromAtomic(
         inputAmount.tokenSpec,
         transferredAmount,
-        SOLANA_ECOSYSTEM_ID,
+        "solana",
       );
       return {
         ...outputOperationSpec,

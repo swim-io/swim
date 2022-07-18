@@ -1,5 +1,4 @@
 import { EuiFlexGroup, EuiLoadingSpinner, EuiSpacer } from "@elastic/eui";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { ReactElement } from "react";
 
 import { ConnectButton } from "./ConnectButton";
@@ -39,7 +38,7 @@ export const DefaultNftBox = ({
     >
       <BoxText nftProblem={nftProblem} />
       <EuiSpacer />
-      <ConnectButton size="s" ecosystemId={SOLANA_ECOSYSTEM_ID} />
+      <ConnectButton size="s" ecosystemId={"solana"} />
     </EuiFlexGroup>
   );
 };

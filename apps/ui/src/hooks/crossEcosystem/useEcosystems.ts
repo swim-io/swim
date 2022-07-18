@@ -2,10 +2,7 @@ import type {
   SolanaChainConfig,
   SolanaEcosystemConfig,
 } from "@swim-io/plugin-ecosystem-solana";
-import {
-  SOLANA_ECOSYSTEM_ID,
-  SOLANA_PROTOCOL,
-} from "@swim-io/plugin-ecosystem-solana";
+import { SOLANA_PROTOCOL } from "@swim-io/plugin-ecosystem-solana";
 import shallow from "zustand/shallow.js";
 
 import type { EcosystemConfigWithSingleChain, EcosystemId } from "../../config";
@@ -31,7 +28,7 @@ export const useEcosystem = (
 export const useSolanaEcosystem = (): SolanaEcosystemConfig & {
   readonly chain: SolanaChainConfig;
 } => {
-  const ecosystem = useEcosystem(SOLANA_ECOSYSTEM_ID);
+  const ecosystem = useEcosystem("solana");
   if (ecosystem === null || ecosystem.protocol !== SOLANA_PROTOCOL) {
     throw new Error("Invalid Solana ecosystem");
   }

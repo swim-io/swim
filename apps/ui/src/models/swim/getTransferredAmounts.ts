@@ -1,8 +1,5 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
-import {
-  SOLANA_ECOSYSTEM_ID,
-  isSolanaTx,
-} from "@swim-io/plugin-ecosystem-solana";
+import { isSolanaTx } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 
 import type { TokenSpec, Tx } from "../../config";
@@ -55,11 +52,7 @@ export const getTransferredAmounts = (
 
       return {
         ...accumulator,
-        [tokenSpec.id]: Amount.fromAtomic(
-          tokenSpec,
-          amount,
-          SOLANA_ECOSYSTEM_ID,
-        ),
+        [tokenSpec.id]: Amount.fromAtomic(tokenSpec, amount, "solana"),
       };
     },
     {},

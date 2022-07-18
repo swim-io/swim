@@ -1,6 +1,3 @@
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-
 import type { EvmEcosystemId } from "../../config";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
@@ -9,8 +6,8 @@ export const useIsEvmGasPriceLoading = (
   ecosystemIds: readonly EvmEcosystemId[],
 ): boolean => {
   const isGasPriceLoading = {
-    [ETHEREUM_ECOSYSTEM_ID]: useGasPriceQuery(ETHEREUM_ECOSYSTEM_ID).isLoading,
-    [BNB_ECOSYSTEM_ID]: useGasPriceQuery(BNB_ECOSYSTEM_ID).isLoading,
+    ethereum: useGasPriceQuery("ethereum").isLoading,
+    bnb: useGasPriceQuery("bnb").isLoading,
     // [EcosystemId.Avalanche]: useGasPriceQuery(EcosystemId.Avalanche).isLoading,
     // [EcosystemId.Polygon]: useGasPriceQuery(EcosystemId.Polygon).isLoading,
     // [EcosystemId.Aurora]: useGasPriceQuery(EcosystemId.Aurora).isLoading,

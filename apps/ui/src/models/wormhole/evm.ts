@@ -1,6 +1,6 @@
 import { getAllowanceEth } from "@certusone/wormhole-sdk";
 import { PublicKey } from "@solana/web3.js";
-import { SOLANA_WORMHOLE_CHAIN_ID } from "@swim-io/plugin-ecosystem-solana";
+import solanaPlugin from "@swim-io/plugin-ecosystem-solana";
 import type { ethers } from "ethers";
 
 import type { EvmTx, TokenSpec } from "../../config";
@@ -111,7 +111,7 @@ export const lockEvmToken = async ({
     evmSigner,
     evmTokenDetails.address,
     transferAmountAtomicString,
-    SOLANA_WORMHOLE_CHAIN_ID,
+    solanaPlugin.wormholeChainId,
     new PublicKey(splTokenAccountAddress).toBytes(),
   );
 

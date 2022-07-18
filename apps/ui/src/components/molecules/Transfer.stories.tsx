@@ -1,6 +1,4 @@
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 
 import { TOKENS } from "../../config";
 
@@ -18,16 +16,16 @@ const Template: ComponentStory<typeof Transfer> = (args) => (
 export const Loading = Template.bind({});
 Loading.args = {
   token: TOKENS.Mainnet[0],
-  from: SOLANA_ECOSYSTEM_ID,
-  to: ETHEREUM_ECOSYSTEM_ID,
+  from: "solana",
+  to: "ethereum",
   isLoading: true,
   transactions: [
     {
-      ecosystem: ETHEREUM_ECOSYSTEM_ID,
+      ecosystem: "ethereum",
       txId: "0x3b0458fab01fea217bc0b1b64550cec1b347e30ecf5b965c359da707d51dad7f",
     },
     {
-      ecosystem: ETHEREUM_ECOSYSTEM_ID,
+      ecosystem: "ethereum",
       txId: "0x3b0458fab01fea217bc0b1b64550cec1b347e30ecf5b965c359da707d50dad7f",
     },
   ],
@@ -36,16 +34,16 @@ Loading.args = {
 export const Loaded = Template.bind({});
 Loaded.args = {
   token: TOKENS.Mainnet[0],
-  from: SOLANA_ECOSYSTEM_ID,
-  to: ETHEREUM_ECOSYSTEM_ID,
+  from: "solana",
+  to: "ethereum",
   isLoading: false,
   transactions: [
     {
-      ecosystem: ETHEREUM_ECOSYSTEM_ID,
+      ecosystem: "ethereum",
       txId: "0x3b0458fab01fea217bc0b1b64550cec1b347e30ecf5b965c359da707d51dad7f",
     },
     {
-      ecosystem: ETHEREUM_ECOSYSTEM_ID,
+      ecosystem: "ethereum",
       txId: "0x3b0458fab01fea217bc0b1b64550cec1b347e30ecf5b965c359da707d50dad7f",
     },
   ],

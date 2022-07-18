@@ -1,7 +1,4 @@
 import { Env } from "@swim-io/core-types";
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import Decimal from "decimal.js";
 
 import type { PersistedInteractionState } from "../../core/store/idb/helpers";
@@ -29,9 +26,9 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
     env: Env.Custom,
     submittedAt: 1653624596234,
     connectedWallets: {
-      [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-      [BNB_ECOSYSTEM_ID]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
-      [ETHEREUM_ECOSYSTEM_ID]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+      bnb: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
       // [EcosystemId.Acala]: null,
       // [EcosystemId.Aurora]: null,
       // [EcosystemId.Avalanche]: null,
@@ -117,9 +114,9 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
     env: Env.Custom,
     submittedAt: 1653624596234,
     connectedWallets: {
-      [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-      [BNB_ECOSYSTEM_ID]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
-      [ETHEREUM_ECOSYSTEM_ID]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+      bnb: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
       // [EcosystemId.Acala]: null,
       // [EcosystemId.Aurora]: null,
       // [EcosystemId.Avalanche]: null,

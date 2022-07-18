@@ -14,9 +14,6 @@ import {
   EuiTextColor,
   EuiTitle,
 } from "@elastic/eui";
-import { BNB_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-bnb";
-import { ETHEREUM_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-ethereum";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { ReactElement, VFC } from "react";
 import { useNavigate } from "react-router";
 
@@ -37,9 +34,9 @@ const HomePage = (): ReactElement => {
   useTitle("");
   const navigate = useNavigate();
   const promotedEcosystems = [
-    ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
-    ECOSYSTEMS[ETHEREUM_ECOSYSTEM_ID],
-    ECOSYSTEMS[BNB_ECOSYSTEM_ID],
+    ECOSYSTEMS.solana,
+    ECOSYSTEMS.ethereum,
+    ECOSYSTEMS.bnb,
     // ECOSYSTEMS[EcosystemId.Avalanche],
     // ECOSYSTEMS[EcosystemId.Polygon],
     // ECOSYSTEMS[EcosystemId.Fantom],

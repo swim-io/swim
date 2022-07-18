@@ -4,7 +4,6 @@ import {
 } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
 import { EVM_PROTOCOL } from "@swim-io/evm-types";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/plugin-ecosystem-solana";
 import type { ethers } from "ethers";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
@@ -48,7 +47,7 @@ export const useToSolanaTransferMutation = () => {
   const solanaConnection = useSolanaConnection();
   const evmConnections = useEvmConnections();
   const wallets = useWallets();
-  const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
+  const solanaWallet = wallets.solana.wallet;
   const updateInteractionState = useInteractionState(
     (state) => state.updateInteractionState,
   );

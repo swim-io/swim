@@ -24,7 +24,7 @@ export interface EvmEcosystemConfig<
   C extends number,
   CC extends EvmChainConfig<E, C> = EvmChainConfig<E, C>,
 > extends EcosystemConfig<EvmProtocol, E, W, C, CC> {
-  readonly chains: readonly CC[];
+  readonly chains: ReadonlyMap<Env, CC>;
 }
 
 export interface EvmTx<EcosystemId extends string> extends Tx<EcosystemId> {
@@ -55,7 +55,7 @@ export const createEvmEcosystemPlugin = <
     ...baseInfo,
     presetChains,
     createEcosystemConfig: (
-      chains: readonly CC[] = [...presetChains.values()],
+      chains: ReadonlyMap<Env, CC> = presetChains,
     ): EvmEcosystemConfig<E, W, C, CC> => ({
       ...baseInfo,
       chains,

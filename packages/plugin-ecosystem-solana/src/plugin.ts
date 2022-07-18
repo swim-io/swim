@@ -101,7 +101,7 @@ const baseInfo: Omit<
 };
 
 const createEcosystemConfig = (
-  chains: readonly SolanaChainConfig[] = [...presetChains.values()],
+  chains: ReadonlyMap<Env, SolanaChainConfig> = presetChains,
 ): SolanaEcosystemConfig => ({
   ...baseInfo,
   chains,

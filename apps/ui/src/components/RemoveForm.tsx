@@ -41,7 +41,6 @@ import {
   INTERACTION_GROUP_REMOVE,
   InteractionType,
   getLowBalanceWallets,
-  isValidDecimals,
   isValidSlippageFraction,
 } from "../models";
 import type { ReadonlyRecord } from "../utils";
@@ -299,7 +298,7 @@ export const RemoveForm = ({
       onChange("0");
     } else if (outputAmount.isNegative()) {
       errors = ["Amount must be greater than or equal to zero"];
-    } else if (isValidDecimals(outputAmount, tokenSpec.nativeEcosystem)) {
+    } else if (outputAmount.requiresRounding(tokenSpec.nativeEcosystem)) {
       errors = ["Too many decimals"];
     }
 

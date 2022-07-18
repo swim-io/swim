@@ -48,7 +48,6 @@ import {
   INTERACTION_GROUP_ADD,
   InteractionType,
   getLowBalanceWallets,
-  isValidDecimals,
   isValidSlippageFraction,
 } from "../models";
 import { filterMap, isEachNotNull, isNotNull } from "../utils";
@@ -309,7 +308,7 @@ export const AddForm = ({
         //   errors = ["During testing, all transactions are limited to $5"];
       } else if (amount.isNegative()) {
         errors = ["Amount must be greater than or equal to zero"];
-      } else if (isValidDecimals(amount, tokenSpec.nativeEcosystem)) {
+      } else if (amount.requiresRounding(tokenSpec.nativeEcosystem)) {
         errors = ["Too many decimals"];
       }
 

@@ -43,21 +43,22 @@ export const createEvmEcosystemPlugin = <
   displayName: string,
   gasToken: GasToken,
   presetChains: ReadonlyMap<Env, CC>,
-): EcosystemPlugin<EvmProtocol, E, W, C, CC> => ({
-  protocol: EVM_PROTOCOL,
-  id: ecosystemId,
-  wormholeChainId,
-  displayName,
-  gasToken,
-  presetChains,
-  createEcosystemConfig: (
-    chains: readonly CC[] = [...presetChains.values()],
-  ): EvmEcosystemConfig<E, W, C, CC> => ({
+): EcosystemPlugin<EvmProtocol, E, W, C, CC> => {
+  const baseInfo: Omit<EcosystemConfig<EvmProtocol, E, W, C>, "chains"> = {
     id: ecosystemId,
     protocol: EVM_PROTOCOL,
-    wormholeChainId: wormholeChainId,
+    wormholeChainId,
     displayName,
     gasToken,
-    chains,
-  }),
-});
+  };
+  return {
+    ...baseInfo,
+    presetChains,
+    createEcosystemConfig: (
+      chains: readonly CC[] = [...presetChains.values()],
+    ): EvmEcosystemConfig<E, W, C, CC> => ({
+      ...baseInfo,
+      chains,
+    }),
+  };
+};

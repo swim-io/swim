@@ -7,11 +7,11 @@ import type {
 } from "@swim-io/evm-types";
 import { createEvmEcosystemPlugin } from "@swim-io/evm-types";
 
-export type BnbEcosystemId = "bnb";
-export const BNB_ECOSYSTEM_ID: BnbEcosystemId = "bnb";
+type BnbEcosystemId = "bnb";
+const BNB_ECOSYSTEM_ID: BnbEcosystemId = "bnb";
 
-export type BnbWormholeChainId = 2;
-export const BNB_WORMHOLE_CHAIN_ID: BnbWormholeChainId = 2;
+type BnbWormholeChainId = 2;
+const BNB_WORMHOLE_CHAIN_ID: BnbWormholeChainId = 2;
 
 export enum BnbChainId {
   Mainnet = 56,

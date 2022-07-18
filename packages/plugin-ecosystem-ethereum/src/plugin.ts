@@ -7,11 +7,11 @@ import type {
 } from "@swim-io/evm-types";
 import { createEvmEcosystemPlugin } from "@swim-io/evm-types";
 
-export type EthereumEcosystemId = "ethereum";
-export const ETHEREUM_ECOSYSTEM_ID: EthereumEcosystemId = "ethereum";
+type EthereumEcosystemId = "ethereum";
+const ETHEREUM_ECOSYSTEM_ID: EthereumEcosystemId = "ethereum";
 
-export type EthereumWormholeChainId = 2;
-export const ETHEREUM_WORMHOLE_CHAIN_ID: EthereumWormholeChainId = 2;
+type EthereumWormholeChainId = 2;
+const ETHEREUM_WORMHOLE_CHAIN_ID: EthereumWormholeChainId = 2;
 
 export enum EthereumChainId {
   Mainnet = 1,

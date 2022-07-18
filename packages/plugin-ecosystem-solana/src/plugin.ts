@@ -10,11 +10,11 @@ import { Env } from "@swim-io/core-types";
 export type SolanaProtocol = "solana-protocol";
 export const SOLANA_PROTOCOL: SolanaProtocol = "solana-protocol";
 
-export type SolanaEcosystemId = "solana";
-export const SOLANA_ECOSYSTEM_ID: SolanaEcosystemId = "solana";
+type SolanaEcosystemId = "solana";
+const SOLANA_ECOSYSTEM_ID: SolanaEcosystemId = "solana";
 
-export type SolanaWormholeChainId = 1;
-export const SOLANA_WORMHOLE_CHAIN_ID: SolanaWormholeChainId = 1;
+type SolanaWormholeChainId = 1;
+const SOLANA_WORMHOLE_CHAIN_ID: SolanaWormholeChainId = 1;
 
 /** Adapted from @solana/spl-token-registry ENV */
 export enum SolanaChainId {
@@ -80,7 +80,15 @@ const presetChains: ReadonlyMap<Env, SolanaChainConfig> = new Map([
   ],
 ]);
 
-const baseInfo = {
+const baseInfo: Omit<
+  EcosystemConfig<
+    SolanaProtocol,
+    SolanaEcosystemId,
+    SolanaWormholeChainId,
+    SolanaChainId
+  >,
+  "chains"
+> = {
   id: SOLANA_ECOSYSTEM_ID,
   protocol: SOLANA_PROTOCOL,
   wormholeChainId: SOLANA_WORMHOLE_CHAIN_ID,

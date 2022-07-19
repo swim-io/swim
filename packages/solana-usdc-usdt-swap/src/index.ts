@@ -1,12 +1,14 @@
 import type { Layout } from "@project-serum/borsh";
 import { array, struct, u64, u8 } from "@project-serum/borsh";
 import { TOKEN_PROGRAM_ID, createApproveInstruction } from "@solana/spl-token";
-import type { AccountMeta } from "@solana/web3.js";
+import type { AccountMeta, Connection } from "@solana/web3.js";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import type {
   SwimPoolConstantState,
   SwimPoolMutableState,
+  SwimPoolState,
 } from "@swim-io/solana-types";
+import { deserializeSwimPool } from "@swim-io/solana-types";
 import BN from "bn.js";
 
 export { PoolMath } from "@swim-io/pool-math";
@@ -18,6 +20,8 @@ interface SwimPoolConstantProperties {
   readonly stateKey: PublicKey;
   readonly authorityKey: PublicKey;
 }
+
+export type SwimPool = SwimPoolConstantProperties & SwimPoolState;
 
 export const hexapool: SwimPoolConstantProperties &
   SwimPoolConstantState &
@@ -178,3 +182,20 @@ export function createApproveAndSwapIx(
     ),
   ];
 }
+
+export const getSwimPool = async (
+  solanaConnection: Connection,
+): Promise<SwimPool> => {
+  const accountInfo = await solanaConnection.getAccountInfo(hexapool.stateKey);
+  if (accountInfo === null) {
+    throw new Error("Could not retrieve account info");
+  }
+  const poolState = deserializeSwimPool(
+    hexapool.numberOfTokens,
+    accountInfo.data,
+  );
+  return {
+    ...hexapool,
+    ...poolState,
+  };
+};

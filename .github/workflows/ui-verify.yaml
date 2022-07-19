@@ -52,6 +52,7 @@ jobs:
           echo REACT_APP_BNB_TESTNET_RPC_URL=$REACT_APP_BNB_TESTNET_RPC_URL >> .env
           echo REACT_APP_MORALIS_TESTNET_URL=$REACT_APP_MORALIS_TESTNET_URL >> .env
           echo REACT_APP_SOLANA_MAINNET_RPC_URL=$REACT_APP_SOLANA_MAINNET_RPC_URL >> .env
+          echo REACT_APP_ENABLE_POOL_RESTRUCTURE=true >> .env
           cat .env
       - name: Build Storybook
         run: yarn build-storybook --quiet

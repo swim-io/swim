@@ -3,28 +3,52 @@ import { array, struct, u64, u8 } from "@project-serum/borsh";
 import { TOKEN_PROGRAM_ID, createApproveInstruction } from "@solana/spl-token";
 import type { AccountMeta } from "@solana/web3.js";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
+import type {
+  SwimPoolConstantState,
+  SwimPoolMutableState,
+} from "@swim-io/solana-types";
 import BN from "bn.js";
 
 export { PoolMath } from "@swim-io/pool-math";
+export { deserializeSwimPool } from "@swim-io/solana-types";
 
-export const hexaPool = {
+interface SwimPoolConstantProperties {
+  readonly numberOfTokens: number;
+  readonly programId: PublicKey;
+  readonly stateKey: PublicKey;
+  readonly authorityKey: PublicKey;
+}
+
+export const hexapool: SwimPoolConstantProperties &
+  SwimPoolConstantState &
+  Pick<SwimPoolMutableState, "governanceFeeKey"> = {
   numberOfTokens: 6,
   programId: new PublicKey("SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC"),
   stateKey: new PublicKey("8cUvGTFvSWx9WPebYYfDxwiJPdGx2EJUtpve6jP9SBma"),
+  nonce: 0,
   authorityKey: new PublicKey("AfhhYsLMXXyDxQ1B7tNqLTXXDHYtDxCzPcnXWXzHAvDb"),
-  tokenKeys: [
-    //the pool's token accounts
-    "5uBU2zUG8xTLA6XwwcTFWib1p7EjCBzWbiy44eVASTfV", //solana-usdc
-    "Hv7yPYnGs6fpN3o1NZvkima9mKDrRDJtNxf23oKLCjau", //solana-usdt
-    "4R6b4aibi46JzAnuA8ZWXrHAsR1oZBTZ8dqkuer3LsbS", //ethereum-usdc
-    "2DMUL42YEb4g1HAKXhUxL3Yjfgoj4VvRqKwheorfFcPV", //ethereum-usdt
-    "DukQAFyxR41nbbq2FBUDMyrtF2CRmWBREjZaTVj4u9As", //bsc-busd
-    "9KMH3p8cUocvQRbJfKRAStKG52xCCWNmEPsJm5gc8fzw", //bsc-usdt
-  ].map((address) => new PublicKey(address)),
   lpMintKey: new PublicKey("BJUH9GJLaMSLV1E7B3SQLCy9eCfyr6zsrwGcpS2MkqR1"),
   governanceFeeKey: new PublicKey(
     "9Yau6DnqYasBUKcyxQJQZqThvUnqZ32ZQuUCcC2AdT9P",
   ),
+  lpDecimalEqualizer: 0,
+  tokenMintKeys: [
+    new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"), // solana-usdc
+    new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"), // solana-usdt
+    new PublicKey("A9mUU4qviSctJVPJdBJWkb28deg915LYJKrzQ19ji3FM"), // ethereum-usdc
+    new PublicKey("Dn4noZ5jgGfkntzcQSUZ8czkreiZ1ForXYoV2H8Dm7S1"), // ethereum-usdt
+    new PublicKey("5RpUwQ8wtdPCZHhu6MERp2RGrpobsbZ6MH5dDHkUjs2"), // bnb-busd
+    new PublicKey("8qJSyQprMC57TWKaYEmetUR3UUiTP2M3hXdcvFhkZdmv"), // bnb-usdt
+  ],
+  tokenDecimalEqualizers: [2, 2, 2, 2, 0, 0],
+  tokenKeys: [
+    new PublicKey("5uBU2zUG8xTLA6XwwcTFWib1p7EjCBzWbiy44eVASTfV"), // solana-usdc
+    new PublicKey("Hv7yPYnGs6fpN3o1NZvkima9mKDrRDJtNxf23oKLCjau"), // solana-usdt
+    new PublicKey("4R6b4aibi46JzAnuA8ZWXrHAsR1oZBTZ8dqkuer3LsbS"), // ethereum-usdc
+    new PublicKey("2DMUL42YEb4g1HAKXhUxL3Yjfgoj4VvRqKwheorfFcPV"), // ethereum-usdt
+    new PublicKey("DukQAFyxR41nbbq2FBUDMyrtF2CRmWBREjZaTVj4u9As"), // bnb-busd
+    new PublicKey("9KMH3p8cUocvQRbJfKRAStKG52xCCWNmEPsJm5gc8fzw"), // bnb-usdt
+  ],
 };
 
 export enum SwapDirection {
@@ -69,14 +93,14 @@ export function createSwapIx(
   if (userTokenKeys.length !== 2)
     throw new Error("must specify user's USDC and USDT account keys");
 
-  const { programId } = hexaPool;
+  const { programId } = hexapool;
   const exactInputAmounts = Array.from({
-    length: hexaPool.tokenKeys.length,
+    length: hexapool.tokenKeys.length,
   }).map((_, i) => (i === direction ? exactInputAmount : new BN(0)));
   const outputTokenIndex = (direction + 1) % 2;
   const filledTokenKeys = [
     ...userTokenKeys,
-    ...hexaPool.tokenKeys.slice(2).map(() => hexaPool.stateKey),
+    ...hexapool.tokenKeys.slice(2).map(() => hexapool.stateKey),
   ];
 
   const defiInstructionEnumVal = 1;
@@ -96,11 +120,11 @@ export function createSwapIx(
   ): AccountMeta => ({ pubkey, isSigner, isWritable });
 
   const keys = [
-    toAccountMeta(hexaPool.stateKey, true),
-    toAccountMeta(hexaPool.authorityKey),
-    ...hexaPool.tokenKeys.map((pubkey) => toAccountMeta(pubkey, true)),
-    toAccountMeta(hexaPool.lpMintKey, true),
-    toAccountMeta(hexaPool.governanceFeeKey, true),
+    toAccountMeta(hexapool.stateKey, true),
+    toAccountMeta(hexapool.authorityKey),
+    ...hexapool.tokenKeys.map((pubkey) => toAccountMeta(pubkey, true)),
+    toAccountMeta(hexapool.lpMintKey, true),
+    toAccountMeta(hexapool.governanceFeeKey, true),
     toAccountMeta(userDelegateKey, false, true),
     ...filledTokenKeys.map((pubkey) => toAccountMeta(pubkey, true)),
     toAccountMeta(TOKEN_PROGRAM_ID),
@@ -111,7 +135,7 @@ export function createSwapIx(
     [
       u8("instruction"),
       u8("defiInstruction"),
-      array(u64(), hexaPool.numberOfTokens, "exactInputAmounts"),
+      array(u64(), hexapool.numberOfTokens, "exactInputAmounts"),
       u8("outputTokenIndex"),
       u64("minimumOutputAmount"),
     ],

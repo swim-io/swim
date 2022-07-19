@@ -180,10 +180,7 @@ export class Amount {
   }
 
   requiresRounding(ecosystemId: EcosystemId): boolean {
-    const numDecimals = this.value.isInteger()
-      ? 0
-      : this.value.toString().split(".")[1].length;
-    return numDecimals < this.details(ecosystemId).decimals;
+    return this.value.decimalPlaces() > this.details(ecosystem).decimals;
   }
 
   private details(ecosystemId: EcosystemId): TokenDetails {

@@ -2,17 +2,14 @@ import { PublicKey } from "@solana/web3.js";
 import type {
   SwimPoolConstantState,
   SwimPoolMutableState,
-  SwimPoolState,
 } from "@swim-io/solana-types";
 
-interface SwimPoolConstantProperties {
+export interface SwimPoolConstantProperties {
   readonly numberOfTokens: number;
   readonly programId: PublicKey;
   readonly stateKey: PublicKey;
   readonly authorityKey: PublicKey;
 }
-
-export type SwimPool = SwimPoolConstantProperties & SwimPoolState;
 
 export const hexapool: SwimPoolConstantProperties &
   SwimPoolConstantState &

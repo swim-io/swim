@@ -1,8 +1,11 @@
 import type { Connection } from "@solana/web3.js";
+import type { SwimPoolState } from "@swim-io/solana-types";
 import { deserializeSwimPool } from "@swim-io/solana-types";
 
-import type { SwimPool } from "./hexapool";
+import type { SwimPoolConstantProperties } from "./hexapool";
 import { hexapool } from "./hexapool";
+
+export type SwimPool = SwimPoolConstantProperties & SwimPoolState;
 
 export const getSwimPool = async (
   solanaConnection: Connection,

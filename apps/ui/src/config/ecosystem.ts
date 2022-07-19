@@ -96,7 +96,6 @@ export const ECOSYSTEM_LIST: readonly EcosystemConfig[] = [
       [
         Env.Local,
         {
-          env: Env.Local,
           name: "Solana Localnet",
           ecosystemId: "solana",
           chainId: SolanaChainId.Localnet,
@@ -116,7 +115,6 @@ export const ECOSYSTEM_LIST: readonly EcosystemConfig[] = [
       [
         Env.Local,
         {
-          env: Env.Local,
           name: "Ethereum Localnet",
           ecosystemId: "ethereum",
           chainId: 1337 as const,
@@ -133,7 +131,6 @@ export const ECOSYSTEM_LIST: readonly EcosystemConfig[] = [
       [
         Env.Local,
         {
-          env: Env.Local,
           name: "BNB Chain Localnet",
           ecosystemId: "bnb",
           chainId: 1397 as const,

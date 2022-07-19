@@ -102,8 +102,6 @@ export const SwapFormV2 = ({
   const isSmallEthSwap = (() => false)();
   const getSwapFormErrors = (_: boolean) => [];
   const isInputAmountPositive = (() => true)();
-
-  // TODO: Need a V2
   const outputAmount = inputAmount;
   const fromTokenUserBalances = useUserBalanceAmounts(fromTokenSpec);
   const fromTokenBalance = fromTokenUserBalances[fromTokenOption.ecosystemId];

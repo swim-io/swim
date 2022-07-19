@@ -180,7 +180,7 @@ export class Amount {
   }
 
   requiresRounding(ecosystemId: EcosystemId): boolean {
-    return this.value.decimalPlaces() > this.details(ecosystem).decimals;
+    return this.value.decimalPlaces() > this.details(ecosystemId).decimals;
   }
 
   private details(ecosystemId: EcosystemId): TokenDetails {

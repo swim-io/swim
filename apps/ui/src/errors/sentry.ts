@@ -18,7 +18,12 @@ export const setupSentry = (): void => {
       // We disable the default BrowserTracing because we set custom Swap/Add/Remove transaction types
       // new Integrations.BrowserTracing(),
     ],
+
     environment: process.env.REACT_APP_ENV,
+
+    // Circumvent ad-blockers
+    // Tunnel Sentry requests via Cloudflare Worker
+    tunnel: "https://tunnel.swim.io/",
 
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.

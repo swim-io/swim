@@ -5,37 +5,75 @@ Minimalist package to create swap and approve instructions for Solana-native USD
 ## Example usage
 
 ```js
-const web3 = require("@solana/web3.js");
+const { Connection, PublicKey } = require("@solana/web3.js");
 const {
   SwapDirection,
   createApproveAndSwapIx,
-  createSwapIx,
-  hexaPool,
+  createPoolMath,
+  getSwimPool,
 } = require("@swim-io/solana-usdc-usdt-swap");
-const BN = require("bn.js");
+const Decimal = require("decimal.js");
 
-const defaultPubkey = web3.PublicKey.default;
+// Initialize a Solana Connection
+const solanaConnection = new Connection(/* your arguments */);
 
-console.log("HEXAPOOL", hexaPool);
+// Gather required keys
+const ownerPublicKey = new PublicKey(/* user wallet address */);
+const delegateKeypair = Keypair.generate();
+const usdcTokenAccountPublicKey =
+  new PublicKey(/* user token account address */);
+const usdtTokenAccountPublicKey =
+  new PublicKey(/* user token account address */);
 
-const swapIx = createSwapIx(
-  SwapDirection.UsdtToUsdc,
-  new BN("12345678901234567890"),
-  new BN("2"),
-  [defaultPubkey, defaultPubkey],
-  defaultPubkey,
+// Gather intended swap info
+const direction = SwapDirection.UsdcToUsdt;
+const inputAmount = new Decimal("1.234"); // whole units of USDC
+const inputTokenIndex = 0;
+const outputTokenIndex = 1;
+const slippageFraction = 0.005; // 0.5%
+
+// Fetch Swim Hexapool state
+const swimPool = await getSwimPool(solanaConnection);
+const poolMath = createPoolMath(swimPool);
+
+// Calculate expected output for current state
+const { stableOutputAmount } = poolMath.swapExactInput(
+  [inputAmount, new Decimal(0)],
+  outputTokenIndex,
+);
+console.log(
+  `Expected output for ${inputAmount} USDC: ${stableOutputAmount} USDT`,
 );
 
-console.log("SWAP IX", swapIx);
+// Calculate expected price impact for current state
+const priceImpact = poolMath.priceImpact(
+  inputAmount,
+  inputTokenIndex,
+  outputTokenIndex,
+);
+console.log(
+  `Expected price impact when swapping ${inputAmount} USDC to USDT: ${priceImpact}`,
+);
 
+// Build instructions for a swap
+const minimumOutputAmount = stableOutputAmount.mul(1 - slippageFraction);
 const approveAndSwapIxs = createApproveAndSwapIx(
-  SwapDirection.UsdcToUsdt,
-  new BN("12345678901234567890"),
-  new BN("2"),
-  [defaultPubkey, defaultPubkey],
-  defaultPubkey,
-  defaultPubkey,
+  direction,
+  inputAmount,
+  minimumOutputAmount,
+  [usdcTokenAccountPublicKey, usdtTokenAccountPublicKey],
+  delegateKeypair.publicKey,
+  ownerPublicKey,
 );
 
-console.log("APPROVE AND SWAP IXS", approveAndSwapIxs);
+// Build a transaction and submit it to the Solana blockchain
+const tx = new Transaction({
+  feePayer: ownerPublicKey,
+});
+tx.add(...approveAndSwapIxs);
+tx.partialSign(delegateKeypair);
+const signedTx = userWallet.signTransaction(tx);
+const txId = await solanaConnection.sendRawTransaction(signedTx.serialize());
+
+console.log(`Transaction submitted: ${txId}`);
 ```

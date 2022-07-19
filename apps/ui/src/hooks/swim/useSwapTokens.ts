@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../../config";
@@ -9,11 +10,18 @@ import { findOrThrow } from "../../utils";
 interface SwapTokens {
   readonly fromToken: TokenSpec;
   readonly toToken: TokenSpec;
-  readonly setFromTokenId: (fromTokenId: string) => void;
-  readonly setToTokenId: (toTokenId: string) => void;
   readonly fromTokenOptionsIds: readonly string[];
   readonly toTokenOptionsIds: readonly string[];
+  readonly setFromTokenId: (fromTokenId: string) => void;
+  readonly setToTokenId: (toTokenId: string) => void;
+  readonly setFromToTokens: (x: string, y: string) => void;
 }
+
+const convertTokenIdToUrl = (id: string): string => {
+  // Assumes token id is {environment}-chain-token in lowercase (doesn't work for LP tokens).
+  // TODO: Handle swimUSD's unique id: mainnet-solana-lp-hexapool.
+  return id.split("-").slice(1).join("-");
+};
 
 const swimUsdRegExp = /-solana-lp-hexapool$/;
 // TODO: Make this check more robust
@@ -21,7 +29,23 @@ const isSwimUsdPool = (pool: PoolSpec): boolean =>
   [pool.lpToken, ...pool.tokens].some((key) => swimUsdRegExp.test(key));
 
 export const useSwapTokens = (): SwapTokens => {
+  const navigate = useNavigate();
+  const { env } = useEnvironment();
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
+  // TODO: Handle invalid url parameters.
+  const { fromToken: fromTokenUrl, toToken: toTokenUrl } = useParams<{
+    readonly fromToken?: string;
+    readonly toToken?: string;
+  }>();
+
+  const convertTokenUrlToTokenId = (url?: string): TokenSpec | undefined => {
+    if (!url) {
+      return undefined;
+    }
+    const tid = env.toLowerCase() + "-" + url;
+    return tokens.find(({ id }) => id === tid);
+  };
+
   const fromTokenOptionsIds = useMemo(
     () =>
       pools
@@ -54,13 +78,8 @@ export const useSwapTokens = (): SwapTokens => {
 
   const defaultFromTokenId = fromTokenOptionsIds[0];
 
-  const [fromTokenId, setFromTokenId] = useState(defaultFromTokenId);
-  const [toTokenId, setToTokenId] = useState(
-    () => getOutputTokens(fromTokenId)[0],
-  );
-
   const fromToken =
-    tokens.find(({ id }) => id === fromTokenId) ||
+    convertTokenUrlToTokenId(fromTokenUrl) ||
     tokens.find(({ id }) => id === defaultFromTokenId);
 
   if (!fromToken) throw new Error("Can't figure out fromToken");
@@ -68,31 +87,50 @@ export const useSwapTokens = (): SwapTokens => {
   const toTokenOptionsIds = getOutputTokens(fromToken.id);
 
   const toToken =
-    (toTokenOptionsIds.includes(toTokenId) &&
-      tokens.find(({ id }) => id === toTokenId)) ||
+    convertTokenUrlToTokenId(toTokenUrl) ||
     tokens.find(({ id }) => id === toTokenOptionsIds[0]);
 
   if (!toToken) throw new Error("Can't figure out toToken");
 
-  useEffect(() => {
-    if (fromToken.id !== fromTokenId) {
-      setFromTokenId(defaultFromTokenId);
-      setToTokenId(getOutputTokens(fromToken.id)[0]);
-    }
-  }, [defaultFromTokenId, getOutputTokens, fromToken.id, fromTokenId]);
+  const setFromTokenId = (fromTokenId: string) => {
+    const newOutputTokenOptions = getOutputTokens(fromTokenId);
+    navigate(
+      `/swap/${convertTokenIdToUrl(fromTokenId)}/to/${convertTokenIdToUrl(
+        newOutputTokenOptions.find((id) => id === toToken.id)
+          ? toToken.id
+          : newOutputTokenOptions[0],
+      )}`,
+    );
+  };
 
-  useEffect(() => {
-    if (!toTokenOptionsIds.find((tokenId) => tokenId === toToken.id)) {
-      setToTokenId(toTokenOptionsIds[0]);
-    }
-  }, [toToken.id, toTokenOptionsIds]);
+  const setToTokenId = (toTokenId: string) => {
+    navigate(
+      `/swap/${convertTokenIdToUrl(fromToken.id)}/to/${convertTokenIdToUrl(
+        toTokenOptionsIds.find((id) => id === toTokenId)
+          ? toTokenId
+          : toTokenOptionsIds[0],
+      )}`,
+    );
+  };
+
+  const setFromToTokens = (fromTokenId: string, toTokenId: string) => {
+    const newOutputTokenOptions = getOutputTokens(fromTokenId);
+    navigate(
+      `/swap/${convertTokenIdToUrl(fromTokenId)}/to/${convertTokenIdToUrl(
+        newOutputTokenOptions.find((id) => id === toTokenId)
+          ? toTokenId
+          : newOutputTokenOptions[0],
+      )}`,
+    );
+  };
 
   return {
     fromToken,
     toToken,
-    setFromTokenId,
-    setToTokenId,
     fromTokenOptionsIds,
     toTokenOptionsIds,
+    setFromTokenId,
+    setToTokenId,
+    setFromToTokens,
   };
 };

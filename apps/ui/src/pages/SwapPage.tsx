@@ -27,7 +27,7 @@ import "./SwapPage.scss";
 
 const SwapPage = (): ReactElement => {
   const { pools } = useEnvironment(selectConfig, shallow);
-
+  // TODO: Update title with token and chains.
   useTitle("Swap");
 
   const nonStakingPools = useMemo(

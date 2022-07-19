@@ -61,6 +61,10 @@ function App(): ReactElement {
               <Route path="pools/:poolId" element={<PoolPage />} />
               <Route path="stake" element={<StakePage poolId="swimlake" />} />
               <Route path="swap" element={<SwapPage />} />
+              <Route
+                path="swap/:fromToken/to/:toToken"
+                element={<SwapPage />}
+              />
               {process.env.REACT_APP_ENABLE_NFT && (
                 <Route path="otter-tots" element={<OtterTotsPage />} />
               )}

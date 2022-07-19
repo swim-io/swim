@@ -67,10 +67,11 @@ export const SwapForm = ({
   const {
     fromToken,
     toToken,
-    setFromTokenId,
-    setToTokenId,
     fromTokenOptionsIds,
     toTokenOptionsIds,
+    setFromTokenId,
+    setToTokenId,
+    setFromToTokens,
   } = useSwapTokens();
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
@@ -254,8 +255,7 @@ export const SwapForm = ({
           size="m"
           iconSize="xl"
           onClick={() => {
-            setFromTokenId(toToken.id);
-            setToTokenId(fromToken.id);
+            setFromToTokens(toToken.id, fromToken.id);
           }}
           className="swapForm__flipIcon"
           aria-label="Flip direction"

@@ -28,7 +28,8 @@
     "@solana/web3.js": "^1.31.0",
     "@swim-io/pool-math": "workspace:^",
     "@swim-io/solana-types": "workspace:^",
-    "bn.js": "^5.2.0"
+    "bn.js": "^5.2.0",
+    "decimal.js": "^10.3.1"
   },
   "devDependencies": {
     "@swim-io/eslint-config": "workspace:^",

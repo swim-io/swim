@@ -76,16 +76,16 @@ export interface SwapDefiInstruction {
  * and ampfactor, and the current LP and governance fee.
  * Slippage is the difference between the actual output amount and the expected output amount due to
  * changes in the various parameters (typically only changes in the pool balances).
- * @param direction determines the user's input and output token account of the swap
- * @param exactInputAmount the number of tokens taken from the user's input account
- * @param minimumOutputAmount the minimum number of (net) output tokens the user must receive for the
- *                            swap instruction to succeed. net outputs below this threshold (no matter
+ * @param direction Determines the user's input and output token account of the swap
+ * @param exactInputAmount The number of tokens taken from the user's input account
+ * @param minimumOutputAmount The minimum number of (net) output tokens the user must receive for the
+ *                            swap instruction to succeed. Net outputs below this threshold (no matter
  *                            the cause - e.g. fees, slippage, ...) will cause the instruction to fail.
- * @param userTokenKeys user's token accounts, must be passed using fixed order [USDC, USDT] (even when
+ * @param userTokenKeys User's token accounts, must be passed using fixed order [USDC, USDT] (even when
  *                      swap direction is USDT -> USDC)
- * @param userDelegateKey the SPL token delegate account which must be authorized to take at least
+ * @param userDelegateKey The SPL token delegate account which must be authorized to take at least
  *                        exactInputAmount tokens from the input account
- * @returns the composed swap instruction
+ * @returns The composed swap instruction
  */
 export function createSwapIx(
   direction: SwapDirection,

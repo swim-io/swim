@@ -62,7 +62,7 @@ function App(): ReactElement {
               <Route path="stake" element={<StakePage poolId="swimlake" />} />
               <Route path="swap" element={<SwapPage />} />
               <Route
-                path="swap/:fromToken/to/:toToken"
+                path="swap/:fromEcosystem/to/:toEcosystem"
                 element={<SwapPage />}
               />
               {process.env.REACT_APP_ENABLE_NFT && (

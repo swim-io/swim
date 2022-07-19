@@ -14,10 +14,10 @@ interface SwapTokens {
   readonly toTokenOptionsIds: readonly string[];
   readonly setFromTokenId: (fromTokenId: string) => void;
   readonly setToTokenId: (toTokenId: string) => void;
-  readonly setFromToTokens: (x: string, y: string) => void;
+  readonly setFromAndToTokens: (fromTokenId: string, toTokenId: string) => void;
 }
 
-const convertTokenIdToUrl = (id: string): string => {
+const convertTokenIdToUrlParam = (id: string): string => {
   // Assumes token id is {environment}-chain-token in lowercase (doesn't work for LP tokens).
   // TODO: Handle swimUSD's unique id: mainnet-solana-lp-hexapool.
   return id.split("-").slice(1).join("-");
@@ -33,12 +33,12 @@ export const useSwapTokens = (): SwapTokens => {
   const { env } = useEnvironment();
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
   // TODO: Handle invalid url parameters.
-  const { fromToken: fromTokenUrl, toToken: toTokenUrl } = useParams<{
-    readonly fromToken?: string;
-    readonly toToken?: string;
+  const { fromEcosystem: fromUrlParam, toEcosystem: toUrlParam } = useParams<{
+    readonly fromEcosystem?: string;
+    readonly toEcosystem?: string;
   }>();
 
-  const convertTokenUrlToTokenId = (url?: string): TokenSpec | undefined => {
+  const convertUrlParamToToken = (url?: string): TokenSpec | undefined => {
     if (!url) {
       return undefined;
     }
@@ -79,7 +79,7 @@ export const useSwapTokens = (): SwapTokens => {
   const defaultFromTokenId = fromTokenOptionsIds[0];
 
   const fromToken =
-    convertTokenUrlToTokenId(fromTokenUrl) ||
+    convertUrlParamToToken(fromUrlParam) ||
     tokens.find(({ id }) => id === defaultFromTokenId);
 
   if (!fromToken) throw new Error("Can't figure out fromToken");
@@ -87,7 +87,7 @@ export const useSwapTokens = (): SwapTokens => {
   const toTokenOptionsIds = getOutputTokens(fromToken.id);
 
   const toToken =
-    convertTokenUrlToTokenId(toTokenUrl) ||
+    convertUrlParamToToken(toUrlParam) ||
     tokens.find(({ id }) => id === toTokenOptionsIds[0]);
 
   if (!toToken) throw new Error("Can't figure out toToken");
@@ -95,7 +95,9 @@ export const useSwapTokens = (): SwapTokens => {
   const setFromTokenId = (fromTokenId: string) => {
     const newOutputTokenOptions = getOutputTokens(fromTokenId);
     navigate(
-      `/swap/${convertTokenIdToUrl(fromTokenId)}/to/${convertTokenIdToUrl(
+      `/swap/${convertTokenIdToUrlParam(
+        fromTokenId,
+      )}/to/${convertTokenIdToUrlParam(
         newOutputTokenOptions.find((id) => id === toToken.id)
           ? toToken.id
           : newOutputTokenOptions[0],
@@ -105,7 +107,9 @@ export const useSwapTokens = (): SwapTokens => {
 
   const setToTokenId = (toTokenId: string) => {
     navigate(
-      `/swap/${convertTokenIdToUrl(fromToken.id)}/to/${convertTokenIdToUrl(
+      `/swap/${convertTokenIdToUrlParam(
+        fromToken.id,
+      )}/to/${convertTokenIdToUrlParam(
         toTokenOptionsIds.find((id) => id === toTokenId)
           ? toTokenId
           : toTokenOptionsIds[0],
@@ -113,10 +117,12 @@ export const useSwapTokens = (): SwapTokens => {
     );
   };
 
-  const setFromToTokens = (fromTokenId: string, toTokenId: string) => {
+  const setFromAndToTokens = (fromTokenId: string, toTokenId: string) => {
     const newOutputTokenOptions = getOutputTokens(fromTokenId);
     navigate(
-      `/swap/${convertTokenIdToUrl(fromTokenId)}/to/${convertTokenIdToUrl(
+      `/swap/${convertTokenIdToUrlParam(
+        fromTokenId,
+      )}/to/${convertTokenIdToUrlParam(
         newOutputTokenOptions.find((id) => id === toTokenId)
           ? toTokenId
           : newOutputTokenOptions[0],
@@ -131,6 +137,6 @@ export const useSwapTokens = (): SwapTokens => {
     toTokenOptionsIds,
     setFromTokenId,
     setToTokenId,
-    setFromToTokens,
+    setFromAndToTokens,
   };
 };

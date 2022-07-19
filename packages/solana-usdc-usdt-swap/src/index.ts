@@ -91,12 +91,9 @@ export function createSwapIx(
   direction: SwapDirection,
   exactInputAmount: BN,
   minimumOutputAmount: BN,
-  userTokenKeys: readonly PublicKey[],
+  userTokenKeys: readonly [PublicKey, PublicKey],
   userDelegateKey: PublicKey,
 ): TransactionInstruction {
-  if (userTokenKeys.length !== 2)
-    throw new Error("must specify user's USDC and USDT account keys");
-
   const { programId } = hexapool;
   const exactInputAmounts = Array.from({
     length: hexapool.tokenKeys.length,
@@ -162,7 +159,7 @@ export function createApproveAndSwapIx(
   direction: SwapDirection,
   exactInputAmount: BN,
   minimumOutputAmount: BN,
-  userTokenKeys: readonly PublicKey[],
+  userTokenKeys: readonly [PublicKey, PublicKey],
   userDelegateKey: PublicKey,
   ownerKey: PublicKey,
 ): readonly TransactionInstruction[] {

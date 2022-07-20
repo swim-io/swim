@@ -5,7 +5,6 @@ import {
   createWrappedOnSolana,
   getEmitterAddressEth,
   getEmitterAddressSolana,
-  getSignedVAAWithRetry,
   parseSequenceFromLogEth,
   parseSequenceFromLogSolana,
   postVaaSolanaWithRetry,
@@ -17,6 +16,8 @@ import { ECOSYSTEMS, EcosystemId, WormholeChainId } from "../../config";
 import type { SolanaConnection } from "../solana";
 import { DEFAULT_MAX_RETRIES } from "../solana";
 import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
+
+import { getSignedVAAWithRetry } from "./guardiansRpc";
 
 // TODO: Refactor to use Tx instead of CrossChainResult
 interface CrossChainResult {

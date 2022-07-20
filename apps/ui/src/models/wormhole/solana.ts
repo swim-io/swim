@@ -2,7 +2,6 @@ import {
   chunks,
   createPostVaaInstructionSolana,
   createVerifySignaturesInstructionsSolana,
-  getSignedVAAWithRetry,
 } from "@certusone/wormhole-sdk";
 import type {
   Keypair,
@@ -35,6 +34,7 @@ import {
   DEFAULT_WORMHOLE_RETRIES,
   POLYGON_WORMHOLE_RETRIES,
 } from "./constants";
+import { getSignedVAAWithRetry } from "./guardiansRpc";
 import { postVaaSolanaWithRetry, redeemOnSolana } from "./overrides";
 
 // Adapted from https://github.com/certusone/wormhole/blob/83b97bedb8c54618b191c20e4e18ba438a716cfa/sdk/js/src/bridge/parseSequenceFromLog.ts#L71-L81

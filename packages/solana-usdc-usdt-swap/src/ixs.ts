@@ -21,7 +21,6 @@ export interface SwapDefiInstruction {
   readonly minimumOutputAmount: BN;
 }
 
-const SWIM_USD_DECIMALS = 8;
 const TOKEN_DECIMALS = [
   6, // solana-usdc
   6, // solana-usdt
@@ -57,18 +56,19 @@ export function createSwapIx(
   userDelegateKey: PublicKey,
 ): TransactionInstruction {
   const { programId } = hexapool;
+  const inputTokenIndex = direction;
+  const outputTokenIndex = (direction + 1) % 2;
   const exactInputAmounts = Array.from({
     length: hexapool.tokenKeys.length,
   }).map((_, i) =>
     i === direction
-      ? decimalToBN(exactInputAmount, TOKEN_DECIMALS[i])
+      ? decimalToBN(exactInputAmount, TOKEN_DECIMALS[inputTokenIndex])
       : new BN(0),
   );
   const minimumOutputAmountBN = decimalToBN(
     minimumOutputAmount,
-    SWIM_USD_DECIMALS,
+    TOKEN_DECIMALS[outputTokenIndex],
   );
-  const outputTokenIndex = (direction + 1) % 2;
   const filledTokenKeys = [
     ...userTokenKeys,
     ...hexapool.tokenKeys.slice(2).map(() => hexapool.stateKey),
@@ -133,8 +133,9 @@ export function createApproveAndSwapIxs(
   userDelegateKey: PublicKey,
   ownerKey: PublicKey,
 ): readonly [TransactionInstruction, TransactionInstruction] {
+  const inputTokenIndex = direction;
   const inputAmount = BigInt(
-    decimalToBN(exactInputAmount, TOKEN_DECIMALS[direction]).toString(),
+    decimalToBN(exactInputAmount, TOKEN_DECIMALS[inputTokenIndex]).toString(),
   );
   return [
     createApproveInstruction(

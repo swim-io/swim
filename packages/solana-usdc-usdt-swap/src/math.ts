@@ -5,7 +5,7 @@ import type { SwimPool } from "./state";
 
 export const createPoolMath = (swimPool: SwimPool): PoolMath =>
   new PoolMath(
-    swimPool.numberOfTokens,
+    swimPool.tokenBalances,
     new Decimal(swimPool.ampFactor.targetValue.value.toString()),
     new Decimal(swimPool.lpFee).div(
       Decimal.pow(10, swimPool.lpDecimalEqualizer),

@@ -17,6 +17,11 @@ jest.mock(
       children({ height: 600, width: 600 }),
 );
 
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => jest.fn(),
+}));
+
 const findFromTokenButton = () => screen.queryAllByRole("button")[0];
 const findToTokenButton = () => screen.queryAllByRole("button")[3];
 

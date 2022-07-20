@@ -181,6 +181,10 @@ export class Amount {
     return new Amount(this.tokenSpec, result);
   }
 
+  requiresRounding(ecosystemId: EcosystemId): boolean {
+    return this.value.decimalPlaces() > this.details(ecosystemId).decimals;
+  }
+
   private details(ecosystemId: EcosystemId): TokenDetails {
     const details = this.tokenSpec.detailsByEcosystem.get(ecosystemId);
     if (!details) {

@@ -6400,6 +6400,7 @@ __metadata:
     eventemitter3: ^4.0.7
     graphql: ^16.5.0
     graphql-request: ^4.3.0
+    grpc-web: ^1.3.1
     immer: ^9.0.15
     jest-mock-extended: ^2.0.6
     moment: ^2.29.3
@@ -14933,6 +14934,13 @@ __metadata:
   version: 1.3.0
   resolution: "growly@npm:1.3.0"
   checksum: 53cdecd4c16d7d9154a9061a9ccb87d602e957502ca69b529d7d1b2436c2c0b700ec544fc6b3e4cd115d59b81e62e44ce86bd0521403b579d3a2a97d7ce72a44
+  languageName: node
+  linkType: hard
+
+"grpc-web@npm:^1.3.1":
+  version: 1.3.1
+  resolution: "grpc-web@npm:1.3.1"
+  checksum: 4a423f467f8b8dce7eceae898411b94a28e179e875fddb4bbda8e7be5ffc0c6a61180131751f22e8a38ab5229dc4788aa84bbfe91f44ef4505b01c0928142589
   languageName: node
   linkType: hard
 

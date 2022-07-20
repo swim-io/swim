@@ -5,14 +5,14 @@ Minimalist package to create swap and approve instructions for Solana-native USD
 ## Example usage
 
 ```js
-const { Connection, PublicKey } = require("@solana/web3.js");
-const {
+import { Connection, PublicKey } from "@solana/web3.js";
+import {
   SwapDirection,
   createApproveAndSwapIx,
   createPoolMath,
   fetchSwimPool,
-} = require("@swim-io/solana-usdc-usdt-swap");
-const Decimal = require("decimal.js");
+} from "@swim-io/solana-usdc-usdt-swap";
+import Decimal from "decimal.js";
 
 // Initialize a Solana Connection
 const solanaConnection = new Connection(/* your arguments */);
@@ -28,8 +28,8 @@ const usdtTokenAccountPublicKey =
 // Gather intended swap info
 const direction = SwapDirection.UsdcToUsdt;
 const inputAmount = new Decimal("1.234"); // whole units of USDC
-const inputTokenIndex = 0;
-const outputTokenIndex = 1;
+const inputTokenIndex = direction;
+const outputTokenIndex = 1 - direction;
 const slippageFraction = 0.005; // 0.5%
 
 // Fetch Swim Hexapool state and initialize pool math

@@ -1,13 +1,8 @@
-import type { EcosystemId } from "../../config";
+import type { TokenOption } from "../../models";
 import { findOrThrow } from "../../utils";
 import type { EnvironmentState } from "../store";
 
 import { selectConfig } from "./environment";
-
-interface TokenOption {
-  readonly tokenId: string;
-  readonly ecosystemId: EcosystemId;
-}
 
 const swimUsdRegExp = /-swimusd$/;
 const isSwimUsdTokenId = (tokenId: string): boolean =>
@@ -42,5 +37,6 @@ export const selectSwapTokenOptions = (
     }),
   );
 
+  console.log("rerun selectSwapTokenOptions");
   return [...nonLpTokenOptions, ...swimUsdOptions];
 };

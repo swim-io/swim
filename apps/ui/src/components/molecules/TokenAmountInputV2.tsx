@@ -11,8 +11,7 @@ import {
 import type React from "react";
 
 import type { TokenSpec } from "../../config";
-import { selectTokenSpec } from "../../core/selectors";
-import { useEnvironment } from "../../core/store";
+import { useToken } from "../../hooks";
 import type { TokenOption } from "../../models";
 import { Amount } from "../../models";
 import { ConnectButton } from "../ConnectButton";
@@ -72,7 +71,7 @@ export const TokenAmountInputV2: React.FC<Props> = ({
   showConstantSwapTip,
 }) => {
   const { tokenId, ecosystemId } = selectedTokenOption;
-  const token = useEnvironment(selectTokenSpec(tokenId));
+  const token = useToken(tokenId);
 
   const tokenDetails = token.detailsByEcosystem.get(ecosystemId) ?? null;
   if (tokenDetails === null) {

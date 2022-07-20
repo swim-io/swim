@@ -60,11 +60,7 @@ export const RecentInteractionsV2 = ({
       >
         <EuiSpacer />
         <EuiPanel color="subdued">
-          {!wallets.solana.connected
-            ? "Connect your wallets to see recent interactions."
-            : !didLoadSplTokenAccounts
-            ? "Loading..."
-            : interactionStates.length === 0
+          {interactionStates.length === 0
             ? "Interactions are stored per browser. If you used incognito mode, they will not show up here."
             : recentInteractions.map((interactionState, i) => {
                 return (

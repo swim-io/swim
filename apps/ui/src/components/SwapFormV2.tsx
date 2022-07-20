@@ -99,7 +99,12 @@ export const SwapFormV2 = ({
 
   // TODO: create V2 of these check
   const isLargeSwap = (() => false)();
-  const isSmallEthSwap = (() => false)();
+  const isSmallEthSwap =
+    fromTokenSpec.project.isStablecoin &&
+    [fromTokenOption.ecosystemId, toTokenOption.ecosystemId].includes(
+      EcosystemId.Ethereum,
+    ) &&
+    inputAmount.lt(200);
   const getSwapFormErrors = (_: boolean) => [];
   const isInputAmountPositive = (() => true)();
   const outputAmount = inputAmount;
@@ -163,7 +168,6 @@ export const SwapFormV2 = ({
     } else {
       handleSwapAndCatch(false);
     }
-    handleSwapAndCatch(false);
   };
 
   const handleSwapAndCatch = (allowLargeSwap: boolean): void => {

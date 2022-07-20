@@ -15,3 +15,4 @@ export * from "./useSwapOutputAmountEstimate";
 export * from "./useSwapTokens";
 export * from "./useSwapTokensV2";
 export * from "./useUserLpBalances";
+export * from "./useToken";

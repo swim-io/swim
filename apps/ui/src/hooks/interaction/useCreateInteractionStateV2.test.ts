@@ -202,7 +202,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for Remove", async () => {
+  it("should create state for RemoveExactOutput", async () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -216,6 +216,43 @@ describe("useCreateInteractionStateV2", () => {
           Amount.fromHuman(SOLANA_USDT, new Decimal("10")),
         ],
         maximumBurnAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
+      },
+      lpTokenSourceEcosystem: EcosystemId.Solana,
+    });
+    expect(interactionState).toMatchSnapshot();
+  });
+
+  it("should create state for RemoveExactBurn", async () => {
+    const { result } = renderHookWithAppContext(() =>
+      useCreateInteractionStateV2(),
+    );
+    const createInteractionState = result.current;
+    const interactionState = createInteractionState({
+      type: InteractionType.RemoveExactBurn,
+      poolId: "devnet-solana-usdc-usdt",
+      params: {
+        minimumOutputAmount: Amount.fromHuman(SOLANA_USDC, new Decimal("110")),
+        exactBurnAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
+      },
+      lpTokenSourceEcosystem: EcosystemId.Solana,
+    });
+    expect(interactionState).toMatchSnapshot();
+  });
+
+  it("should create state for RemoveUniform", async () => {
+    const { result } = renderHookWithAppContext(() =>
+      useCreateInteractionStateV2(),
+    );
+    const createInteractionState = result.current;
+    const interactionState = createInteractionState({
+      type: InteractionType.RemoveUniform,
+      poolId: "devnet-solana-usdc-usdt",
+      params: {
+        minimumOutputAmounts: [
+          Amount.fromHuman(SOLANA_USDC, new Decimal("100")),
+          Amount.fromHuman(SOLANA_USDT, new Decimal("10")),
+        ],
+        exactBurnAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
       },
       lpTokenSourceEcosystem: EcosystemId.Solana,
     });

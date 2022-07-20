@@ -70,6 +70,8 @@ export interface CrossChainEvmToSolanaSwapInteractionState {
 export interface AddInteractionState {
   readonly interaction: AddInteraction;
   readonly interactionType: InteractionType.Add;
+  /** Needed only for solana based pools */
+  readonly requiredSplTokenAccounts: RequiredSplTokenAccounts | null;
   readonly approvalTxIds: readonly EvmTx["txId"][];
   readonly addTxId: string | null;
 }
@@ -83,6 +85,8 @@ export interface RemoveInteractionState {
     | InteractionType.RemoveExactBurn
     | InteractionType.RemoveExactOutput
     | InteractionType.RemoveUniform;
+  /** Needed only for solana based pools */
+  readonly requiredSplTokenAccounts: RequiredSplTokenAccounts | null;
   readonly approvalTxIds: readonly EvmTx["txId"][];
   readonly removeTxId: string | null;
 }
@@ -151,6 +155,14 @@ const isReceiveAndSwapTransferCompleted = (
 const isClaimTokenOnSolanaTransferCompleted = (
   claimTokenOnSolanaTxId: SolanaTx["txId"] | null,
 ): boolean => claimTokenOnSolanaTxId !== null;
+
+export const isRemoveInteractionCompleted = (
+  interactionState: RemoveInteractionState,
+) => interactionState.removeTxId !== null;
+
+export const isAddInteractionCompleted = (
+  interactionState: AddInteractionState,
+) => interactionState.addTxId !== null;
 
 export const isSourceChainOperationCompleted = (
   state: SwapInteractionState,
@@ -231,12 +243,12 @@ export const isInteractionCompletedV2 = (
       }
     }
     case InteractionType.Add:
-      return false;
+      return isAddInteractionCompleted(interactionState);
     case InteractionType.RemoveUniform:
-      return false;
+      return isRemoveInteractionCompleted(interactionState);
     case InteractionType.RemoveExactBurn:
-      return false;
+      return isRemoveInteractionCompleted(interactionState);
     case InteractionType.RemoveExactOutput:
-      return false;
+      return isRemoveInteractionCompleted(interactionState);
   }
 };

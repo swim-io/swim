@@ -17,7 +17,7 @@ import type { SolanaConnection } from "../solana";
 import { DEFAULT_MAX_RETRIES } from "../solana";
 import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
 
-import { getSignedVAAWithRetry } from "./guardiansRpc";
+import { getSignedVaaWithRetry } from "./guardiansRpc";
 
 // TODO: Refactor to use Tx instead of CrossChainResult
 interface CrossChainResult {
@@ -96,7 +96,7 @@ export const setUpSplTokensOnEvm = async (
 
   const vaas = await Promise.all(
     attestations.map(({ emitterAddress, sequence }) =>
-      getSignedVAAWithRetry(
+      getSignedVaaWithRetry(
         [...rpcUrls],
         WormholeChainId.Solana,
         emitterAddress,
@@ -172,7 +172,7 @@ export const setUpErc20Tokens = async (
   const evmEcosystem = ECOSYSTEMS[evmChain.ecosystem];
   const vaas = await Promise.all(
     attestations.map(({ emitterAddress, sequence }) =>
-      getSignedVAAWithRetry(
+      getSignedVaaWithRetry(
         [...rpcUrls],
         evmEcosystem.wormholeChainId,
         emitterAddress,

@@ -12,7 +12,7 @@ const isRpcError = (error: unknown): error is RpcError => {
 // message: requested VAA not found in store, code: 5
 // message: Response closed without headers, code: 2
 
-export const getSignedVAAWithRetry: typeof originalGetSignedVAAWithRetry = (
+export const getSignedVaaWithRetry: typeof originalGetSignedVAAWithRetry = (
   ...args
 ) =>
   originalGetSignedVAAWithRetry(...args).catch((error) => {

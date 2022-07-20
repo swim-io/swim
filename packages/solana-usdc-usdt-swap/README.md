@@ -10,7 +10,7 @@ const {
   SwapDirection,
   createApproveAndSwapIx,
   createPoolMath,
-  getSwimPool,
+  fetchSwimPool,
 } = require("@swim-io/solana-usdc-usdt-swap");
 const Decimal = require("decimal.js");
 
@@ -32,8 +32,8 @@ const inputTokenIndex = 0;
 const outputTokenIndex = 1;
 const slippageFraction = 0.005; // 0.5%
 
-// Fetch Swim Hexapool state
-const swimPool = await getSwimPool(solanaConnection);
+// Fetch Swim Hexapool state and initialize pool math
+const swimPool = await fetchSwimPool(solanaConnection);
 const poolMath = createPoolMath(swimPool);
 
 // Calculate expected output for current state

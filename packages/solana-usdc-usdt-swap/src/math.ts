@@ -1,7 +1,7 @@
 import PoolMath from "@swim-io/pool-math";
 import Decimal from "decimal.js";
 
-import type { SwimPool } from "./hexapool";
+import type { SwimPool } from "./state";
 
 export const createPoolMath = (swimPool: SwimPool): PoolMath =>
   new PoolMath(

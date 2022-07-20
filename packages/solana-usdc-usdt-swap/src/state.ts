@@ -7,7 +7,7 @@ import { hexapool } from "./hexapool";
 
 export type SwimPool = SwimPoolConstantProperties & SwimPoolState;
 
-export const getSwimPool = async (
+export const fetchSwimPool = async (
   solanaConnection: Connection,
 ): Promise<SwimPool> => {
   const accountInfo = await solanaConnection.getAccountInfo(hexapool.stateKey);

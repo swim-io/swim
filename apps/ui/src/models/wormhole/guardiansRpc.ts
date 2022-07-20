@@ -5,7 +5,11 @@ import { StatusCode } from "grpc-web";
 import { SwimError } from "../../errors";
 
 const isRpcError = (error: unknown): error is RpcError => {
-  return error instanceof Error && "code" in error;
+  return (
+    error instanceof Error &&
+    "code" in error &&
+    Object.values(StatusCode).includes((error as any).code)
+  );
 };
 
 // Common RPC errors as seen in Swim

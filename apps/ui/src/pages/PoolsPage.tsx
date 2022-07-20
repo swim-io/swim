@@ -20,7 +20,7 @@ import {
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import { atomicToTvlString, u64ToDecimal } from "../amounts";
@@ -48,12 +48,17 @@ type TokenProjectSelectType = TokenProjectId | "all";
 const PoolsPage = (): ReactElement => {
   useTitle("Pools");
 
-  const [ecosystemId, setEcosystemId] = useState<EcosystemSelectType>("all");
-  const [tokenProjectId, setTokenProjectId] =
-    useState<TokenProjectSelectType>("all");
-
-  const { env } = useEnvironment();
-  const { pools, tokens } = useEnvironment(selectConfig, shallow);
+  const {
+    env,
+    ecosystems,
+    tokens,
+    tokenProjects,
+    pools,
+    ecosystemId,
+    setEcosystemId,
+    tokenProjectId,
+    setTokenProjectId,
+  } = useFilters();
 
   const solanaPools = pools.filter(isSolanaPool);
 
@@ -131,16 +136,7 @@ const PoolsPage = (): ReactElement => {
   const selectTokenOptions = useMemo(
     () => [
       { inputDisplay: "All Tokens", value: "all", icon: null },
-      ...sortBy(
-        deduplicate(
-          (project) => project.id,
-          tokens
-            .map((token) => token.project)
-            .filter((project) => project.symbol !== "SWIM" && !project.isLP),
-        ),
-        "displayName",
-        (value) => (typeof value === "string" ? value.toLowerCase() : value),
-      ).map((project) => ({
+      ...tokenProjects.map((project) => ({
         value: project.id,
         inputDisplay: (
           <EuiFlexGroup
@@ -163,18 +159,10 @@ const PoolsPage = (): ReactElement => {
         icon: null,
       })),
     ],
-    [tokens],
+    [tokenProjects],
   );
 
   const selectEcosystemOptions = useMemo(() => {
-    const ecosystems = sortBy(
-      deduplicate(
-        ({ id }) => id,
-        pools.flatMap((pool) => getPoolTokenEcosystems(pool, env)),
-      ),
-      "displayName",
-    );
-
     return [
       { inputDisplay: "All Chains", value: "all", icon: null },
       ...ecosystems.map((ecosystem) => ({
@@ -200,7 +188,7 @@ const PoolsPage = (): ReactElement => {
         icon: null,
       })),
     ];
-  }, [env, pools]);
+  }, [ecosystems]);
 
   const projectsPerPool: ReadonlyRecord<
     PoolSpec["id"],
@@ -465,3 +453,67 @@ const PoolsPage = (): ReactElement => {
 };
 
 export default PoolsPage;
+
+function useFilters() {
+  const [ecosystemId, setEcosystemId] = useState<EcosystemSelectType>("all");
+  const [tokenProjectId, setTokenProjectId] =
+    useState<TokenProjectSelectType>("all");
+
+  const { env } = useEnvironment();
+  const { pools, tokens } = useEnvironment(selectConfig, shallow);
+
+  const tokenProjects = useMemo(
+    () =>
+      sortBy(
+        deduplicate(
+          (project) => project.id,
+          tokens
+            .map((token) => token.project)
+            .filter((project) => project.symbol !== "SWIM" && !project.isLP),
+        ),
+        "displayName",
+        (value) => (typeof value === "string" ? value.toLowerCase() : value),
+      ),
+    [tokens],
+  );
+
+  const ecosystems = useMemo(
+    () =>
+      sortBy(
+        deduplicate(
+          ({ id }) => id,
+          pools.flatMap((pool) => getPoolTokenEcosystems(pool, env)),
+        ),
+        "displayName",
+      ),
+    [pools, env],
+  );
+
+  useEffect(() => {
+    if (
+      tokenProjectId !== "all" &&
+      !tokenProjects.find((project) => project.id === tokenProjectId)
+    )
+      setTokenProjectId("all");
+  }, [tokens, tokenProjectId, tokenProjects]);
+
+  useEffect(() => {
+    if (
+      ecosystemId !== "all" &&
+      !ecosystems.find((ecosystem) => ecosystem.id === ecosystemId)
+    )
+      setEcosystemId("all");
+  }, [ecosystemId, ecosystems]);
+
+  return {
+    env,
+    ecosystems,
+    tokens,
+    tokenProjects,
+    pools,
+    ecosystemId,
+    setEcosystemId,
+    tokenProjectId,
+    setTokenProjectId,
+  };
+}

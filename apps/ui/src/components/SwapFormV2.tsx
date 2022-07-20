@@ -8,7 +8,7 @@ import {
 } from "@elastic/eui";
 import Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import { EcosystemId } from "../config";
@@ -137,15 +137,6 @@ export const SwapFormV2 = ({
     }
     setInputAmountErrors(errors);
   };
-
-  // re-validate input amount after user connected a wallet
-  const fromTokenBalancePrimitive = fromTokenBalance?.toPrimitive();
-  useEffect(() => {
-    if (fromTokenBalancePrimitive && !inputAmount.isZero()) {
-      handleInputAmountChange(inputAmount);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fromTokenBalancePrimitive]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();

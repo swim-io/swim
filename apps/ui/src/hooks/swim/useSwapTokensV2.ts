@@ -1,10 +1,11 @@
 import { useState } from "react";
 
-import { useToken } from "./useToken";
 import type { TokenSpec } from "../../config";
 import { selectSwapTokenOptions } from "../../core/selectors/swapTokenOptions";
 import { useEnvironment } from "../../core/store";
 import type { TokenOption } from "../../models";
+
+import { useToken } from "./useToken";
 
 interface SwapTokensV2 {
   readonly fromTokenOption: TokenOption;
@@ -37,7 +38,9 @@ export const useSwapTokensV2 = (): SwapTokensV2 => {
     setToTokenOption,
     fromTokenOptions: tokenOptions,
     toTokenOptions: tokenOptions.filter(
-      ({ tokenId }) => tokenId !== fromTokenOption.tokenId,
+      ({ tokenId, ecosystemId }) =>
+        tokenId !== fromTokenOption.tokenId &&
+        ecosystemId !== fromTokenOption.ecosystemId,
     ),
   };
 };

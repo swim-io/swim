@@ -8,7 +8,7 @@ import type { ReactElement } from "react";
 import { Fragment, useEffect } from "react";
 
 import { useEnvironment, useInteractionStateV2 } from "../core/store";
-import { useSplTokenAccountsQuery, useWallets } from "../hooks";
+import { useWallets } from "../hooks";
 import { isEveryAddressConnected } from "../models";
 import type { InteractionType } from "../models";
 
@@ -33,7 +33,6 @@ export const RecentInteractionsV2 = ({
     loadInteractionStatesFromIDB(env);
   }, [env, loadInteractionStatesFromIDB]);
 
-  const { isSuccess: didLoadSplTokenAccounts } = useSplTokenAccountsQuery();
   const wallets = useWallets();
   // Don’t display current interaction
   const { recentInteractionId, interactionStates } = useInteractionStateV2();

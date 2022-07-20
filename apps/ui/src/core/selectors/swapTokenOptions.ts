@@ -36,7 +36,5 @@ export const selectSwapTokenOptions = (
       ecosystemId,
     }),
   );
-
-  console.log("rerun selectSwapTokenOptions");
   return [...nonLpTokenOptions, ...swimUsdOptions];
 };

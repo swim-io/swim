@@ -8,13 +8,10 @@ import {
 } from "@elastic/eui";
 import moment from "moment";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useEnvironment } from "../../../core/store";
-import {
-  useInteractionStatusV2,
-  useReloadInteractionStateMutation,
-} from "../../../hooks";
+import { useInteractionStatusV2 } from "../../../hooks";
 import type { InteractionStateV2 } from "../../../models";
 import { InteractionStatusV2 } from "../../../models";
 import { isNotNull } from "../../../utils";
@@ -39,8 +36,18 @@ export const InteractionStateComponentV2: React.FC<Props> = ({
     env,
   );
   const timeInMoment = moment(interaction.submittedAt);
-  const { mutate: reloadInteractionState } =
-    useReloadInteractionStateMutation();
+
+  // TODO: make a V2 of reload state
+  const reloadInteractionState = useCallback(
+    (
+      id: string,
+      option: {
+        readonly onSettled: () => void;
+      },
+    ) => {},
+    [],
+  );
+
   const [needReload, setNeedReload] = useState(
     interactionStatus === InteractionStatusV2.Incomplete,
   );

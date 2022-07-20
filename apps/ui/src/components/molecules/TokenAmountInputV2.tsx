@@ -41,7 +41,6 @@ const getReadonlyDisplayValue = (token: TokenSpec, value: string) => {
   );
 };
 
-// TODO: Make code DRY.
 const getTokenLabel = (): React.ReactElement => {
   return (
     <EuiText size="xs">

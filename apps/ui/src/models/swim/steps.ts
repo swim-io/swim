@@ -414,21 +414,21 @@ export const getRequiredPoolsForSwap = (
 
 export const getRequiredPoolsForSwapV2 = (
   poolSpecs: readonly PoolSpec[],
-  fromTokenDetail: TokenOption,
-  toTokenDetail: TokenOption,
+  fromTokenOption: TokenOption,
+  toTokenOption: TokenOption,
 ): readonly PoolSpec[] => {
   const restructuredPools = poolSpecs.filter((pool) => !pool.isLegacyPool);
   const inputPool = findOrThrow(
     restructuredPools,
     (pool) =>
-      pool.ecosystem === fromTokenDetail.ecosystemId &&
-      pool.tokens.includes(fromTokenDetail.tokenId),
+      pool.ecosystem === fromTokenOption.ecosystemId &&
+      pool.tokens.includes(fromTokenOption.tokenId),
   );
   const outputPool = findOrThrow(
     restructuredPools,
     (pool) =>
-      pool.ecosystem === toTokenDetail.ecosystemId &&
-      pool.tokens.includes(toTokenDetail.tokenId),
+      pool.ecosystem === toTokenOption.ecosystemId &&
+      pool.tokens.includes(toTokenOption.tokenId),
   );
   if (inputPool === outputPool) {
     return [inputPool];

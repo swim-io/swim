@@ -71,9 +71,9 @@ const generateSuite = (env: Env): void => {
     });
 
     it("does not specify a token account address more than once for Solana pool", () => {
-      const tokenAccountAddresses = solanaPools.flatMap((pool) => [
-        ...pool.tokenAccounts.values(),
-      ]);
+      const tokenAccountAddresses = solanaPools
+        .filter((pool) => !pool.isLegacyPool)
+        .flatMap((pool) => [...pool.tokenAccounts.values()]);
       const nUnique = getUniqueSize(tokenAccountAddresses);
       expect(nUnique).toBe(tokenAccountAddresses.length);
     });

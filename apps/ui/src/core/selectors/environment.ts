@@ -1,5 +1,4 @@
-import { CONFIGS, DEFAULT_ENV, overrideLocalnetIp } from "../../config";
-import { Env } from "../store";
+import { CONFIGS, DEFAULT_ENV, Env, overrideLocalnetIp } from "../../config";
 import type { EnvironmentState } from "../store";
 
 export const selectEnvs = (state: EnvironmentState) =>

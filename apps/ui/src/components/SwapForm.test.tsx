@@ -7,18 +7,16 @@ import type { UseQueryResult } from "react-query";
 import { EcosystemId, Env } from "../config";
 import { useEnvironment as environmentStore } from "../core/store";
 import {
+  useErc20BalanceQuery,
   useGetSwapFormErrors,
+  useLiquidityQueries,
+  useSolanaConnection,
+  useSplTokenAccountsQuery,
+  useSplUserBalance,
+  useStartNewInteraction,
   useSwapFeesEstimationQuery,
   useUserNativeBalances,
 } from "../hooks";
-import { useErc20BalanceQuery } from "../hooks/evm";
-import { useStartNewInteraction } from "../hooks/interaction";
-import {
-  useLiquidityQueries,
-  useSplTokenAccountsQuery,
-  useSplUserBalance,
-} from "../hooks/solana";
-import { useSolanaConnection } from "../hooks/solana/useSolanaConnection";
 import { mockOf, renderWithAppContext } from "../testUtils";
 
 import { SwapForm } from "./SwapForm";

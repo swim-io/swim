@@ -1166,7 +1166,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "devnet-solana-lp-meta-aurora-usn",
     project: PROJECTS[TokenProjectId.SwimAuroraUsnMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,
@@ -1493,7 +1493,7 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EcosystemId.Aurora),
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "devnet-aurora-usn",
     project: PROJECTS[TokenProjectId.Usn],
     nativeEcosystem: EcosystemId.Aurora,

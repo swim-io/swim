@@ -39,7 +39,7 @@ export const useSwapTokensV2 = (): SwapTokensV2 => {
     fromTokenOptions: tokenOptions,
     toTokenOptions: tokenOptions.filter(
       ({ tokenId, ecosystemId }) =>
-        tokenId !== fromTokenOption.tokenId &&
+        tokenId !== fromTokenOption.tokenId ||
         ecosystemId !== fromTokenOption.ecosystemId,
     ),
   };

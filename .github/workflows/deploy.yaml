@@ -53,22 +53,21 @@ jobs:
         id: cache-build
         with:
           path: ${{ env.BUILD_PATH }}
-          key: swim-ui-build
-          # key: swim-ui-build-${{ github.head_ref || github.ref_name }}-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.[jt]sx?') }}
-          # restore-keys: |
-          #   swim-ui-build-${{ github.head_ref || github.ref_name }}-${{ hashFiles('**/package-lock.json') }}-
-          #   swim-ui-build-${{ github.head_ref || github.ref_name }}-
-          #   swim-ui-build-
+          key: swim-ui-build-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.[jt]sx?') }}-${{ github.head_ref || github.ref_name }}
+          restore-keys: |
+            swim-ui-build-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.[jt]sx?') }}-
+            swim-ui-build-${{ hashFiles('**/package-lock.json') }}-
+            swim-ui-build-
 
-      # - name: Build UI
-      #   env:
-      #     NODE_OPTIONS: "--max_old_space_size=8192"
-      #   run: yarn release-ui
+      - name: Build UI
+        env:
+          NODE_OPTIONS: "--max_old_space_size=8192"
+        run: yarn release-ui
 
       - name: Upload build to Cloudflare
         uses: cloudflare/wrangler-action@2.0.0
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
           workingDirectory: ./apps/ui/build
           command: pages publish --project-name=test-direct-upload-swim-ui

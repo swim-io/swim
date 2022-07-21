@@ -31,7 +31,8 @@
     "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
-    "@swim-io/core-types": "workspace:^"
+    "@swim-io/core-types": "workspace:^",
+    "@swim-io/utils": "workspace:^"
   },
   "devDependencies": {
     "@swim-io/eslint-config": "workspace:^",

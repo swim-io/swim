@@ -1,4 +1,5 @@
-import type { ReadonlyRecord, TokenProject } from "@swim-io/core-types";
+import type { TokenProject } from "@swim-io/core-types";
+import type { ReadonlyRecord } from "@swim-io/utils";
 
 export enum TokenProjectId {
   Ausd = "ausd",

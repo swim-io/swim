@@ -13,6 +13,7 @@ import {
   EuiSpacer,
   EuiText,
 } from "@elastic/eui";
+import { filterMap, isEachNotNull, isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useMemo, useState } from "react";
@@ -26,7 +27,6 @@ import {
   isEcosystemEnabled,
 } from "../config";
 import type { PoolSpec, TokenSpec } from "../config";
-import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
@@ -50,7 +50,6 @@ import {
   getLowBalanceWallets,
   isValidSlippageFraction,
 } from "../models";
-import { filterMap, isEachNotNull, isNotNull } from "../utils";
 
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
@@ -60,6 +59,7 @@ import { PoolPausedAlert } from "./PoolPausedAlert";
 import { RecentInteractions } from "./RecentInteractions";
 import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { TokenIcon } from "./TokenIcon";
+import { selectEcosystems } from "../core/selectors";
 
 interface TokenAddPanelProps {
   readonly tokenSpec: TokenSpec;
@@ -185,8 +185,8 @@ export const AddForm = ({
   poolSpec,
   maxSlippageFraction,
 }: AddFormProps): ReactElement => {
+  const ecosystems = useEnvironment(selectEcosystems, shallow);
   const { notify } = useNotification();
-  const config = useEnvironment(selectConfig, shallow);
   const wallets = useWallets();
   const {
     tokens: poolTokens,
@@ -373,7 +373,7 @@ export const AddForm = ({
       if (!wallets[ecosystem].connected) {
         errors = [
           ...errors,
-          `Connect ${config.ecosystems[ecosystem].displayName} wallet`,
+          `Connect ${ecosystems[ecosystem].displayName} wallet`,
         ];
       }
     });
@@ -383,7 +383,7 @@ export const AddForm = ({
       if (userNativeBalances[ecosystem].isZero()) {
         errors = [
           ...errors,
-          `Empty balance in ${config.ecosystems[ecosystem].displayName} wallet. You will need some funds to pay for transaction fees.`,
+          `Empty balance in ${ecosystems[ecosystem].displayName} wallet. You will need some funds to pay for transaction fees.`,
         ];
       }
     });

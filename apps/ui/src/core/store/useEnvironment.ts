@@ -1,11 +1,11 @@
+import { Env, isValidEnv } from "@swim-io/core-types";
 import { produce } from "immer";
 import create from "zustand";
 import type { GetState, SetState, StoreApi } from "zustand";
 import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
 
-import type { Env } from "../../config";
-import { DEFAULT_ENV, isValidEnv } from "../../config";
+export const DEFAULT_ENV = Env.Mainnet;
 
 export interface EnvironmentState {
   readonly env: Env;

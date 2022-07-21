@@ -349,9 +349,7 @@ const PoolsPage = (): ReactElement => {
             <EuiSuperSelect
               options={selectTokenOptions}
               valueOfSelected={tokenProjectId}
-              onChange={(value) =>
-                setTokenProjectId(value as TokenProjectSelectType)
-              }
+              onChange={(value) => setTokenProjectId(value)}
               hasDividers
             />
           </EuiFormRow>
@@ -362,7 +360,7 @@ const PoolsPage = (): ReactElement => {
             <EuiSuperSelect
               options={selectEcosystemOptions}
               valueOfSelected={ecosystemId}
-              onChange={(value) => setEcosystemId(value as EcosystemSelectType)}
+              onChange={(value) => setEcosystemId(value)}
               hasDividers
               style={{
                 minWidth: 160,

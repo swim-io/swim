@@ -60,3 +60,6 @@ export const getPoolState = async (
 
 export const isSolanaPool = (pool: PoolSpec): pool is SolanaPoolSpec =>
   pool.ecosystem === EcosystemId.Solana;
+
+export const isPoolRestructureEnabled = (): boolean =>
+  !!process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE;

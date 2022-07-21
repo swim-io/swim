@@ -31,20 +31,20 @@ Execute these commands in _root_ directory
 #### Relationship between root directories in UI
 
 ```sh
-yarn exec depcruise --include-only "^apps/ui/src/.+/" --collapse 4 --output-type dot apps/ui/src |\
+yarn exec depcruise --include-only "^apps/ui/src/.+/" --exclude "__mocks__/|\\.(stories|test)\\.(js|ts|tsx)" --collapse 4 --output-type dot apps/ui/src |\
   dot -T png > docs/dependency_graphs/ui_root_directories.png
 ```
 
 #### Relationship between directories in `hooks` in UI
 
 ```sh
-yarn exec depcruise --include-only "^apps/ui/src/hooks/.+/" --collapse 5 --output-type dot apps/ui/src |\
+yarn exec depcruise --include-only "^apps/ui/src/hooks/.+/" --exclude "__mocks__/|\\.(stories|test)\\.(js|ts|tsx)" --collapse 5 --output-type dot apps/ui/src |\
   dot -T png > docs/dependency_graphs/ui_hook_directories.png
 ```
 
 #### Relationship between directories in `models` in UI
 
 ```sh
-yarn exec depcruise --include-only "^apps/ui/src/models/.+/" --collapse 5 --output-type dot apps/ui/src |\
+yarn exec depcruise --include-only "^apps/ui/src/models/.+/" --exclude "__mocks__/|\\.(stories|test)\\.(js|ts|tsx)" --collapse 5 --output-type dot apps/ui/src |\
   dot -T png > docs/dependency_graphs/ui_model_directories.png
 ```

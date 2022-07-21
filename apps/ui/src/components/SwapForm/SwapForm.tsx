@@ -224,7 +224,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
     setConfirmModalDescription(null);
   };
 
-  const handleConfirmModalConfirm = async (): Promise<void> => {
+  const handleConfirmModalConfirm = (): void => {
     setConfirmModalDescription(null);
     handleSwapAndCatch(true);
   };

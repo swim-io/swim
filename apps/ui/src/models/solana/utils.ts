@@ -420,23 +420,26 @@ const getMultipleSolanaAccountsCore = async (
 
   // TODO: Replace with a public method once available
   // See https://github.com/solana-labs/solana/issues/12302
-  const unsafeRes = await (rawConnection as UnsafeConnection)._rpcRequest(
+  const unsafeRes = (await (rawConnection as UnsafeConnection)._rpcRequest(
     "getMultipleAccounts",
     args,
-  );
+  )) as {
+    readonly error?: Record<string, unknown>;
+    readonly result?: {
+      readonly value?: readonly AccountInfo<readonly string[]>[];
+    };
+  };
 
   if (unsafeRes.error) {
     throw new Error(
-      "Failed to get info about account " + unsafeRes.error.message,
+      "Failed to get info about account " + String(unsafeRes.error.message),
     );
   }
   if (!unsafeRes.result?.value) {
     throw new Error("Failed to get info about account");
   }
 
-  const array = unsafeRes.result.value as readonly AccountInfo<
-    readonly string[]
-  >[];
+  const array = unsafeRes.result.value;
   return { keys, array };
 };
 

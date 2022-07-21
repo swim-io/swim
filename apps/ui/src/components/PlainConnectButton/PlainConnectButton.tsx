@@ -4,6 +4,7 @@ import type {
   PropsForButton,
 } from "@elastic/eui";
 import { EuiButton, EuiIcon } from "@elastic/eui";
+import classnames from "classnames";
 import type { ReactElement } from "react";
 
 import "./PlainConnectButton.scss";
@@ -34,9 +35,9 @@ export const PlainConnectButton = ({
 }: PlainConnectButtonProps): ReactElement => (
   <ButtonComponent
     {...rest}
-    className={`plainConnectButton ${className} ${
-      connected ? "plainConnectButton--connected" : ""
-    }`}
+    className={classnames("plainConnectButton", className, {
+      "plainConnectButton--connected": connected,
+    })}
     iconSide="left"
   >
     <span>{children}</span>

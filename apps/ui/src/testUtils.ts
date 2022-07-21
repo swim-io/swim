@@ -5,8 +5,10 @@ import type { ReactElement } from "react";
 
 import { AppContext } from "./contexts";
 
-export const mockOf = <T>(v: (...any: any) => T): jest.Mock<Partial<T>> =>
-  v as unknown as jest.Mock<Partial<T>>;
+// eslint-disable-next-line functional/prefer-readonly-type
+export const mockOf = <T, Y extends any[]>(
+  v: (...args: Y) => T,
+): jest.Mock<Partial<T>, Y> => v as unknown as jest.Mock<Partial<T>, Y>;
 
 export const renderHookWithAppContext: typeof renderHook = (
   callback,

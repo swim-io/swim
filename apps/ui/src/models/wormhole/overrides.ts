@@ -1,4 +1,4 @@
-/* eslint-disable functional/immutable-data, functional/prefer-readonly-type */
+/* eslint-disable @typescript-eslint/unbound-method, functional/immutable-data, functional/prefer-readonly-type */
 import type { ChainId } from "@certusone/wormhole-sdk";
 import {
   Bridge__factory,
@@ -252,7 +252,9 @@ export const redeemOnSolana = async (
   signedVAA: Uint8Array,
 ): Promise<Transaction> => {
   const { parse_vaa } = await importCoreWasm();
-  const parsedVAA = parse_vaa(signedVAA);
+  const parsedVAA = parse_vaa(signedVAA) as {
+    payload: Iterable<number>;
+  };
   const isSolanaNative =
     Buffer.from(new Uint8Array(parsedVAA.payload)).readUInt16BE(65) ===
     CHAIN_ID_SOLANA;

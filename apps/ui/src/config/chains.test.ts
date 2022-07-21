@@ -5,7 +5,7 @@ import { getUniqueSize } from "../utils";
 
 import type { ChainSpec } from "./chains";
 import { CHAINS as chainsByEnv } from "./chains";
-import type { Ecosystem } from "./ecosystem";
+import type { EcosystemId } from "./ecosystem";
 import { Protocol } from "./ecosystem";
 import { Env } from "./env";
 
@@ -21,10 +21,12 @@ const generateSuite = (env: Env): void => {
     });
 
     it("specifies no more than one chain per ecosystem", () => {
-      const ecosystems = Object.values(chains).reduce<readonly Ecosystem[]>(
+      const ecosystems = (
+        Object.values(chains) as ReadonlyArray<readonly ChainSpec[]>
+      ).reduce<readonly EcosystemId[]>(
         (accumulator, chainSpecs) => [
           ...accumulator,
-          ...chainSpecs.map((chainSpec: ChainSpec) => chainSpec.ecosystem),
+          ...chainSpecs.map((chainSpec) => chainSpec.ecosystem),
         ],
         [],
       );

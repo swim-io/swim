@@ -31,7 +31,9 @@ export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
 export const getAddressesByEcosystem = (
   wallets: Wallets,
 ): ReadonlyRecord<EcosystemId, string | null> =>
-  Object.entries(wallets).reduce<ReadonlyRecord<string, string | null>>(
+  (
+    Object.entries(wallets) as ReadonlyArray<readonly [EcosystemId, BaseWallet]>
+  ).reduce<ReadonlyRecord<string, string | null>>(
     (accumulator, [ecosystemId, { address }]) => ({
       ...accumulator,
       [ecosystemId]: address,

@@ -1,4 +1,4 @@
-/* eslint-disable import/extensions */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, import/extensions */
 
 // @ts-expect-error no definitions
 import { icon as EuiIconAlert } from "@elastic/eui/es/components/icon/assets/alert";

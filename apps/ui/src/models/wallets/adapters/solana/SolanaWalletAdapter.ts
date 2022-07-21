@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 import type { SeverityLevel } from "@sentry/types";
-import type { Transaction } from "@solana/web3.js";
+import type { PublicKeyInitData, Transaction } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import EventEmitter from "eventemitter3";
 
@@ -23,7 +23,19 @@ export interface SolanaWalletAdapter extends EventEmitter {
   readonly protocol: Protocol.Solana;
 }
 
-export class SolanaWeb3WalletAdapter
+export interface SolanaWeb3WalletService {
+  readonly signAllTransactions: (
+    // eslint-disable-next-line functional/prefer-readonly-type
+    transactions: Transaction[],
+    // eslint-disable-next-line functional/prefer-readonly-type
+  ) => Promise<Transaction[]>;
+  readonly signTransaction: (transaction: Transaction) => Promise<Transaction>;
+  readonly getAccount: () => Promise<PublicKeyInitData>;
+}
+
+export class SolanaWeb3WalletAdapter<
+    S extends SolanaWeb3WalletService = SolanaWeb3WalletService,
+  >
   extends EventEmitter
   implements SolanaWalletAdapter
 {
@@ -35,7 +47,11 @@ export class SolanaWeb3WalletAdapter
   protected getService: () => any;
   protected connecting: boolean;
 
-  constructor(serviceName: string, serviceUrl: string, getService: () => any) {
+  constructor(
+    serviceName: string,
+    serviceUrl: string,
+    getService: () => S | null,
+  ) {
     super();
     this.serviceName = serviceName;
     this.serviceUrl = serviceUrl;
@@ -44,7 +60,9 @@ export class SolanaWeb3WalletAdapter
     this.connecting = false;
     this.protocol = Protocol.Solana;
 
-    this.on("connect", this.onPublicKeySet);
+    this.on("connect", () => {
+      this.onPublicKeySet();
+    });
   }
 
   public get address(): string | null {
@@ -55,7 +73,7 @@ export class SolanaWeb3WalletAdapter
     return !!this.address;
   }
 
-  protected get service(): any {
+  protected get service(): S | null | undefined {
     return this.getService();
   }
 
@@ -63,6 +81,7 @@ export class SolanaWeb3WalletAdapter
     return "Solana Wallet";
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   public async signAllTransactions(
     // eslint-disable-next-line functional/prefer-readonly-type
     transactions: Transaction[],
@@ -79,6 +98,7 @@ export class SolanaWeb3WalletAdapter
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async signTransaction(transaction: Transaction): Promise<Transaction> {
     if (!this.service) {
       throw new Error("No wallet service connected");
@@ -123,6 +143,7 @@ export class SolanaWeb3WalletAdapter
   }
 
   async connectService(args?: any): Promise<void> {
+    // @ts-expect-error probably need to handle when this.service does not exist
     const publicKey = await this.service.getAccount();
     this.publicKey = new PublicKey(publicKey);
     this.emit("connect", this.publicKey);
@@ -130,6 +151,7 @@ export class SolanaWeb3WalletAdapter
     this.connecting = false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async disconnect(): Promise<void> {
     if (this.publicKey) {
       this.publicKey = null;

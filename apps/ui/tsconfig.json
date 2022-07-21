@@ -2,18 +2,13 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "noEmit": true,
     "skipLibCheck": true,
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "module": "esnext"
+    "module": "esnext",
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

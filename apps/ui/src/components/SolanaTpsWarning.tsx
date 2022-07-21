@@ -46,10 +46,9 @@ export const SolanaTpsWarning = (): ReactElement => {
   }, [connection]);
 
   useEffect(() => {
-    const interval = setInterval(
-      async () => await checkSolanaTps(),
-      INTERVAL_FREQUENCY_MS,
-    );
+    const interval = setInterval(() => {
+      checkSolanaTps().catch(console.error);
+    }, INTERVAL_FREQUENCY_MS);
 
     return () => {
       clearInterval(interval);

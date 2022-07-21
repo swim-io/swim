@@ -39,7 +39,7 @@ export const useCoinGeckoPricesQuery = (): UseQueryResult<
         "Content-Type": "application/json",
       },
     });
-    const result: CoinGeckoResult = await data.json();
+    const result = (await data.json()) as CoinGeckoResult;
 
     return new Map(
       coinGeckoIds.flatMap((coinGeckoId) =>

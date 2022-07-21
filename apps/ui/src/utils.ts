@@ -55,11 +55,9 @@ export const chunks = <T>(
   array: readonly T[],
   size: number,
 ): readonly (readonly T[])[] =>
-  // eslint-disable-next-line functional/prefer-readonly-type
-  Array.apply<number, T[], readonly (readonly T[])[]>(
-    0,
-    new Array(Math.ceil(array.length / size)),
-  ).map((_, index) => array.slice(index * size, (index + 1) * size));
+  Array.from({ length: Math.ceil(array.length / size) }).map((_, index) =>
+    array.slice(index * size, (index + 1) * size),
+  );
 
 export const groupBy = <T, K extends keyof any>(
   list: readonly T[],

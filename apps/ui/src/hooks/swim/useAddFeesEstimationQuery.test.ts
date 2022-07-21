@@ -30,7 +30,7 @@ describe("useAddFeesEstimationQuery", () => {
   });
 
   describe("loading", () => {
-    it("should return null when the required gas price is still loading", async () => {
+    it("should return null when the required gas price is still loading", () => {
       useGasPriceQueryMock.mockReturnValue({
         isLoading: true,
         data: undefined,
@@ -51,7 +51,7 @@ describe("useAddFeesEstimationQuery", () => {
       expect(result.current).toEqual(null);
     });
 
-    it("should return valid estimation for Solana only add, even when evm gas price are loading", async () => {
+    it("should return valid estimation for Solana only add, even when evm gas price are loading", () => {
       useGasPriceQueryMock.mockReturnValue({
         isLoading: true,
         data: undefined,
@@ -84,7 +84,7 @@ describe("useAddFeesEstimationQuery", () => {
       );
     });
 
-    it("should return valid estimation for Solana only add", async () => {
+    it("should return valid estimation for Solana only add", () => {
       const { result } = renderHookWithAppContext(() =>
         useAddFeesEstimationQuery(
           [
@@ -103,7 +103,7 @@ describe("useAddFeesEstimationQuery", () => {
       expect(result.current?.bnb).toEqual(new Decimal(0));
     });
 
-    it("should return eth estimation for Ethereum lpTarget", async () => {
+    it("should return eth estimation for Ethereum lpTarget", () => {
       const { result } = renderHookWithAppContext(() =>
         useAddFeesEstimationQuery(
           [
@@ -122,7 +122,7 @@ describe("useAddFeesEstimationQuery", () => {
       expect(result.current?.bnb).toEqual(new Decimal(0));
     });
 
-    it("should return BNB estimation for BNB lpTarget", async () => {
+    it("should return BNB estimation for BNB lpTarget", () => {
       const { result } = renderHookWithAppContext(() =>
         useAddFeesEstimationQuery(
           [
@@ -141,7 +141,7 @@ describe("useAddFeesEstimationQuery", () => {
       expect(result.current?.bnb).toEqual(new Decimal(0.0015));
     });
 
-    it("should return valid estimation for mixed input amounts", async () => {
+    it("should return valid estimation for mixed input amounts", () => {
       const { result } = renderHookWithAppContext(() =>
         useAddFeesEstimationQuery(
           [

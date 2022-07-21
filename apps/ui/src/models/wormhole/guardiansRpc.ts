@@ -9,7 +9,9 @@ const isRpcError = (error: unknown): error is RpcError => {
   return (
     error instanceof Error &&
     "code" in error &&
-    Object.values(StatusCode).includes((error as any).code)
+    Object.values(StatusCode).includes(
+      (error as Record<string, unknown>).code as string,
+    )
   );
 };
 
@@ -22,7 +24,9 @@ const INTERNAL_ERROR_MESSAGE =
 const UNAVAILABLE_MESSAGE =
   "We are unable to reach the Wormhole guardians. Please try again later.";
 
-const MESSAGES: ReadonlyRecord<StatusCode, string | undefined> = {
+// @typescript-eslint/no-unsafe-member-access has bug on imported enum
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+const MESSAGES: Partial<ReadonlyRecord<StatusCode, string>> = {
   [StatusCode.INTERNAL]: INTERNAL_ERROR_MESSAGE,
   [StatusCode.INVALID_ARGUMENT]: INTERNAL_ERROR_MESSAGE,
   [StatusCode.NOT_FOUND]:
@@ -30,12 +34,15 @@ const MESSAGES: ReadonlyRecord<StatusCode, string | undefined> = {
   [StatusCode.UNAVAILABLE]: UNAVAILABLE_MESSAGE,
   [StatusCode.UNKNOWN]: UNAVAILABLE_MESSAGE,
 };
+/* eslint-enable @typescript-eslint/no-unsafe-member-access */
 
 export const getSignedVaaWithRetry: typeof originalGetSignedVAAWithRetry = (
   ...args
 ) =>
   originalGetSignedVAAWithRetry(...args).catch((error) => {
     if (isRpcError(error)) {
+      // bug on @typescript-eslint/no-unsafe-member-access to treat `error` as any
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const message = MESSAGES[error.code];
       if (message) throw new SwimError(message, error);
     }

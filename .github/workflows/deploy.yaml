@@ -1,6 +1,7 @@
 name: "Deploy UI to production"
 
 on:
+  workflow_dispatch:
   push:
     # branches:
     #   - master
@@ -8,6 +9,9 @@ on:
     #   - "apps/ui/*"
 
 jobs:
+  verify:
+    uses: ./.github/workflows/ui-verify.yaml
+
   production-deploy:
     runs-on: ubuntu-latest
 
@@ -21,15 +25,6 @@ jobs:
       BUILD_PATH: ./app/ui/build
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: "yarn"
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
       - name: Get production environment variables from Cloudflare Pages
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}
@@ -64,4 +59,4 @@ jobs:
       #     apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       #     accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       #     workingDirectory: './apps/ui/build'
-      #     command: pages publish
+      #     command: pages publish --project-name=swim-ui

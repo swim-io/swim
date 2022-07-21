@@ -6,9 +6,7 @@ on:
       - "apps/ui/**.tsx"
       - "apps/ui/**.json"
       - "apps/ui/**.scss"
-  push:
-    branches:
-      - master
+  workflow_call:
 
 jobs:
   verify:
@@ -30,8 +28,8 @@ jobs:
       SKIP_PREFLIGHT_CHECK: true
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: "yarn"

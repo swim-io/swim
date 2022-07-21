@@ -10,7 +10,7 @@ import type {
   Interaction,
   InteractionSpec,
   InteractionSpecV2,
-  SwapInteractionSpecV2,
+  TokenOption,
 } from "./interaction";
 import { InteractionType } from "./interaction";
 import type { OperationSpec } from "./operation";
@@ -414,21 +414,21 @@ export const getRequiredPoolsForSwap = (
 
 export const getRequiredPoolsForSwapV2 = (
   poolSpecs: readonly PoolSpec[],
-  interaction: SwapInteractionSpecV2,
+  fromTokenOption: TokenOption,
+  toTokenOption: TokenOption,
 ): readonly PoolSpec[] => {
-  const { fromTokenDetail, toTokenDetail } = interaction.params;
   const restructuredPools = poolSpecs.filter((pool) => !pool.isLegacyPool);
   const inputPool = findOrThrow(
     restructuredPools,
     (pool) =>
-      pool.ecosystem === fromTokenDetail.ecosystemId &&
-      pool.tokens.includes(fromTokenDetail.tokenId),
+      pool.ecosystem === fromTokenOption.ecosystemId &&
+      pool.tokens.includes(fromTokenOption.tokenId),
   );
   const outputPool = findOrThrow(
     restructuredPools,
     (pool) =>
-      pool.ecosystem === toTokenDetail.ecosystemId &&
-      pool.tokens.includes(toTokenDetail.tokenId),
+      pool.ecosystem === toTokenOption.ecosystemId &&
+      pool.tokens.includes(toTokenOption.tokenId),
   );
   if (inputPool === outputPool) {
     return [inputPool];
@@ -459,7 +459,11 @@ export const getRequiredPools = (
         interactionSpec.params.minimumOutputAmount.tokenId,
       );
     case InteractionType.SwapV2:
-      return getRequiredPoolsForSwapV2(poolSpecs, interactionSpec);
+      return getRequiredPoolsForSwapV2(
+        poolSpecs,
+        interactionSpec.params.fromTokenDetail,
+        interactionSpec.params.toTokenDetail,
+      );
     default:
       throw new Error("Unknown interaction type");
   }

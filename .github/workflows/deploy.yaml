@@ -15,6 +15,11 @@ jobs:
   production-deploy:
     runs-on: ubuntu-latest
 
+    # Allow only one concurrent deployment
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+
     # Doesn't needed here?
     # defaults:
     #   run:

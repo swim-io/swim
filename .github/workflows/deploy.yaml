@@ -72,7 +72,7 @@ jobs:
 
       - name: Debug
         run: |
-          ls -la
+          ls -la ${{ env.BUILD_PATH }}
 
       - name: Upload build to Cloudflare
         uses: cloudflare/wrangler-action@2.0.0

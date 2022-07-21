@@ -59,9 +59,12 @@ jobs:
         run: yarn build-storybook --quiet
       - name: Publish Storybook
         id: publish_storybook
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
-          CLOUDFLARE_API_TOKEN=${{ secrets.CF_SWIM_PAGES_API_TOKEN }} CLOUDFLARE_ACCOUNT_ID=${{ secrets.CF_ACCOUNT_ID }} npx --yes wrangler@2 pages publish storybook-static --project-name=ui-storybook --branch=${{ github.head_ref || github.ref_name }} > wrangler-output.txt
-          echo "::set-output name=storybook-deployment::$(cat wrangler-output.txt | grep Deployment)"
+          npx --yes wrangler@2 pages publish storybook-static --project-name=ui-storybook --branch=${{ github.head_ref || github.ref_name }} | tee wrangler-output.txt
+          echo "::set-output name=storybook-deployment::$(grep Deployment wrangler-output.txt)"
       - name: Find storybook comment
         uses: peter-evans/find-comment@v2
         if: ${{ github.event_name == 'pull_request' }}
@@ -70,18 +73,12 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
           body-includes: ui-storybook.pages.dev
-      - name: Create storybook comment
-        if: ${{ github.event_name == 'pull_request' && steps.find-storybook-comment.outputs.comment-id == '' }}
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            ${{ steps.publish_storybook.outputs.storybook-deployment }}
-      - name: Update storybook comment
-        if: ${{ github.event_name == 'pull_request' && steps.find-storybook-comment.outputs.comment-id != '' }}
+      - name: Create or update storybook comment
+        if: ${{ github.event_name == 'pull_request' }}
         uses: peter-evans/create-or-update-comment@v2
         with:
           comment-id: ${{ steps.find-storybook-comment.outputs.comment-id }}
-          edit-mode: replace
+          issue-number: ${{ github.event.pull_request.number }}
           body: |
             ${{ steps.publish_storybook.outputs.storybook-deployment }}
+          edit-mode: replace

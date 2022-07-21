@@ -6243,6 +6243,7 @@ __metadata:
   dependencies:
     "@swim-io/core-types": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/token-projects": "workspace:^"
     "@typescript-eslint/eslint-plugin": ^5.29.0
     "@typescript-eslint/parser": ^5.29.0
     eslint: ^8.18.0
@@ -6362,6 +6363,27 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@swim-io/redeemer@workspace:^, @swim-io/redeemer@workspace:packages/redeemer":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/redeemer@workspace:packages/redeemer"
+  dependencies:
+    "@swim-io/core-types": "workspace:^"
+    "@swim-io/eslint-config": "workspace:^"
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^26.5.3
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.2
+    prettier: ^2.7.1
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
 "@swim-io/solana-types@npm:^0.2.0":
   version: 0.2.0
   resolution: "@swim-io/solana-types@npm:0.2.0"
@@ -6437,6 +6459,7 @@ __metadata:
     "@solana/web3.js": ^1.48.0
     "@swim-io/core-types": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/token-projects": "workspace:^"
     "@types/jest": ^28.1.3
     "@typescript-eslint/eslint-plugin": ^5.29.0
     "@typescript-eslint/parser": ^5.29.0
@@ -6450,6 +6473,28 @@ __metadata:
     jest: ^28.1.1
     prettier: ^2.7.1
     ts-jest: ^28.0.5
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
+"@swim-io/token-projects@workspace:^, @swim-io/token-projects@workspace:packages/token-projects":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/token-projects@workspace:packages/token-projects"
+  dependencies:
+    "@swim-io/core-types": "workspace:^"
+    "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/utils": "workspace:^"
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^26.5.3
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.2
+    prettier: ^2.7.1
     typescript: ^4.7.4
   languageName: unknown
   linkType: soft
@@ -6491,11 +6536,15 @@ __metadata:
     "@storybook/node-logger": ^6.5.9
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.9
+    "@swim-io/core-types": "workspace:^"
     "@swim-io/eslint-config": ^0.3.0
     "@swim-io/evm": "workspace:^"
     "@swim-io/pool-math": ^0.2.0
+    "@swim-io/redeemer": "workspace:^"
     "@swim-io/solana": "workspace:^"
     "@swim-io/solana-types": ^0.2.0
+    "@swim-io/utils": "workspace:^"
+    "@swim-io/wormhole": "workspace:^"
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^7.0.2
@@ -6544,6 +6593,47 @@ __metadata:
     web-vitals: ^1.1.2
     webpack: 4.44.2
     zustand: ^4.0.0-rc.1
+  languageName: unknown
+  linkType: soft
+
+"@swim-io/utils@workspace:^, @swim-io/utils@workspace:packages/utils":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/utils@workspace:packages/utils"
+  dependencies:
+    "@swim-io/eslint-config": "workspace:^"
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^26.5.3
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.2
+    prettier: ^2.7.1
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
+"@swim-io/wormhole@workspace:^, @swim-io/wormhole@workspace:packages/wormhole":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/wormhole@workspace:packages/wormhole"
+  dependencies:
+    "@swim-io/core-types": "workspace:^"
+    "@swim-io/eslint-config": "workspace:^"
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^26.5.3
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.2
+    prettier: ^2.7.1
+    typescript: ^4.7.4
   languageName: unknown
   linkType: soft
 

@@ -9,36 +9,49 @@ on:
     #   - "apps/ui/*"
 
 jobs:
-  verify:
-    uses: ./.github/workflows/ui-verify.yaml
+  # verify:
+  #   uses: ./.github/workflows/ui-verify.yaml
 
   production-deploy:
     runs-on: ubuntu-latest
 
+    # Doesn't needed here?
     # defaults:
     #   run:
     #     working-directory: ./apps/ui
 
-    needs: [verify]
+    # needs: [verify]
 
     env:
       BUILD_PATH: ./app/ui/build
 
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
       - name: Get production environment variables from Cloudflare Pages
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
+          set -x
+
           # Get production environment variables from Cloudflare Pages
           # https://api.cloudflare.com/#pages-project-get-project
           # and append it to $GITHUB_ENV
           # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
           curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/swim-ui" \
-            -H "X-Auth-Key: $CLOUDFLARE_API_TOKEN" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
             -H "Content-Type: application/json" \
             --compressed |
             jq -r '.result.deployment_configs.production.env_vars | to_entries[] | "\(.key)=\(.value.value)"' >> "$GITHUB_ENV"
+
+          set +x
 
       - uses: actions/cache@v3
         id: cache-build

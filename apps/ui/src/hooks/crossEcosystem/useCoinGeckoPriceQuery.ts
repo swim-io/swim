@@ -2,7 +2,8 @@ import Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
-import { Env, useEnvironment } from "../../core/store";
+import { Env } from "../../config";
+import { useEnvironment } from "../../core/store";
 import type { ReadonlyRecord } from "../../utils";
 
 type CoinGeckoResult = ReadonlyRecord<

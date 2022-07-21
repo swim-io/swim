@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { CONFIGS, Protocol } from "../../../config";
-import { Env, useEnvironment, useWalletAdapter } from "../../../core/store";
+import { CONFIGS, Env, Protocol } from "../../../config";
+import { useEnvironment, useWalletAdapter } from "../../../core/store";
 import {
   WalletServiceId,
   createAdapter,

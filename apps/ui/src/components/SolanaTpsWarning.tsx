@@ -4,9 +4,9 @@ import type { ReactElement } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { Protocol } from "../config";
+import { Env, Protocol } from "../config";
 import { selectConfig } from "../core/selectors";
-import { Env, useEnvironment } from "../core/store";
+import { useEnvironment } from "../core/store";
 
 const INTERVAL_FREQUENCY_MS = 60000; // 1 minute.
 const SAMPLES_LIMIT = 5;

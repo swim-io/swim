@@ -23,7 +23,7 @@ jobs:
     # needs: [verify]
 
     env:
-      BUILD_PATH: ./app/ui/build
+      BUILD_PATH: app/ui/build
 
     steps:
       - uses: actions/checkout@v3
@@ -68,6 +68,7 @@ jobs:
         with:
           name: ui-build-artifact
           path: ${{ env.BUILD_PATH }}
+          retention-days: 2
       # - name: Upload build to Cloudflare
       #   uses: cloudflare/wrangler-action@2.0.0
       #   with:

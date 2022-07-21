@@ -15,7 +15,7 @@ export interface TokenDetails {
 
 export interface TokenConfig {
   readonly id: string;
-  readonly project: TokenProject;
+  readonly projectId: string;
   readonly nativeEcosystemId: string;
   readonly nativeDetails: TokenDetails;
   /**

@@ -1,4 +1,4 @@
-import type { TokenProject } from "@swim-io/core-types";
+import type { ReadonlyRecord, TokenProject } from "@swim-io/core-types";
 
 export enum TokenProjectId {
   Ausd = "ausd",
@@ -26,8 +26,11 @@ export enum TokenProjectId {
   XSwim = "xswim",
 }
 
-export const TOKEN_PROJECTS: readonly TokenProject[] = [
-  {
+export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
+  TokenProjectId,
+  TokenProject
+> = {
+  [TokenProjectId.Usdc]: {
     id: TokenProjectId.Usdc,
     symbol: "USDC",
     displayName: "USD Coin",
@@ -35,7 +38,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: true,
     isLp: false,
   },
-  {
+  [TokenProjectId.Usdt]: {
     id: TokenProjectId.Usdt,
     symbol: "USDT",
     displayName: "Tether USD",
@@ -43,7 +46,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: true,
     isLp: false,
   },
-  {
+  [TokenProjectId.Usn]: {
     id: TokenProjectId.Usn,
     symbol: "USN",
     displayName: "USN",
@@ -51,7 +54,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: true,
     isLp: false,
   },
-  {
+  [TokenProjectId.Busd]: {
     id: TokenProjectId.Busd,
     symbol: "BUSD",
     displayName: "Binance USD",
@@ -59,7 +62,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: true,
     isLp: false,
   },
-  {
+  [TokenProjectId.Ausd]: {
     id: TokenProjectId.Ausd,
     symbol: "aUSD",
     displayName: "Acala USD",
@@ -67,7 +70,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: true,
     isLp: false,
   },
-  {
+  [TokenProjectId.Gst]: {
     id: TokenProjectId.Gst,
     symbol: "GST",
     displayName: "Green Satoshi Token",
@@ -75,7 +78,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: false,
   },
-  {
+  [TokenProjectId.Gmt]: {
     id: TokenProjectId.Gmt,
     symbol: "GMT",
     displayName: "STEPN",
@@ -83,7 +86,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: false,
   },
-  {
+  [TokenProjectId.SwimUsd]: {
     id: TokenProjectId.SwimUsd,
     symbol: "swimUSD",
     displayName: "swimUSD (Swim Hexapool LP)",
@@ -91,7 +94,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: true,
     isLp: true,
   },
-  {
+  [TokenProjectId.Swim]: {
     id: TokenProjectId.Swim,
     symbol: "SWIM",
     displayName: "Swim Protocol Token",
@@ -99,7 +102,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: false,
   },
-  {
+  [TokenProjectId.XSwim]: {
     id: TokenProjectId.XSwim,
     symbol: "xSWIM",
     displayName: "xSWIM (SwimLake LP)",
@@ -107,7 +110,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-  {
+  [TokenProjectId.SwimAvalancheUsdcLp]: {
     id: TokenProjectId.SwimAvalancheUsdcLp,
     symbol: "SWIM-AVALANCHE-USDC-LP",
     displayName: "Avalanche USDC LP",
@@ -115,7 +118,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-  {
+  [TokenProjectId.SwimAvalancheUsdtLp]: {
     id: TokenProjectId.SwimAvalancheUsdtLp,
     symbol: "SWIM-AVALANCHE-USDT-LP",
     displayName: "Avalanche USDT LP",
@@ -123,7 +126,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-  {
+  [TokenProjectId.SwimPolygonUsdcLp]: {
     id: TokenProjectId.SwimPolygonUsdcLp,
     symbol: "SWIM-POLYGON-USDC-LP",
     displayName: "Polygon USDC LP",
@@ -131,7 +134,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-  {
+  [TokenProjectId.SwimPolygonUsdtLp]: {
     id: TokenProjectId.SwimPolygonUsdtLp,
     symbol: "SWIM-POLYGON-USDT-LP",
     displayName: "Polygon USDT LP",
@@ -139,7 +142,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-  {
+  [TokenProjectId.SwimSolanaGstBinanceGstLp]: {
     id: TokenProjectId.SwimSolanaGstBinanceGstLp,
     symbol: "solaGST-binaGST",
     displayName: "Swim Solana GST Binance GST LP",
@@ -147,7 +150,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-  {
+  [TokenProjectId.SwimSolanaGmtBinanceGmtLp]: {
     id: TokenProjectId.SwimSolanaGmtBinanceGmtLp,
     symbol: "solaGMT-binaGMT",
     displayName: "Swim Solana GMT Binance GMT LP",
@@ -155,7 +158,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-  {
+  [TokenProjectId.SwimAuroraUsdcLp]: {
     id: TokenProjectId.SwimAuroraUsdcLp,
     symbol: "SWIM-AURORA-USDC-LP",
     displayName: "Aurora USDC LP",
@@ -163,7 +166,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-  {
+  [TokenProjectId.SwimAuroraUsdtLp]: {
     id: TokenProjectId.SwimAuroraUsdtLp,
     symbol: "SWIM-AURORA-USDT-LP",
     displayName: "Aurora USDT LP",
@@ -171,7 +174,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-  {
+  [TokenProjectId.SwimAuroraUsnLp]: {
     id: TokenProjectId.SwimAuroraUsnLp,
     symbol: "SWIM-AURORA-USN-LP",
     displayName: "Aurora USN LP",
@@ -179,7 +182,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-  {
+  [TokenProjectId.SwimFantomUsdcLp]: {
     id: TokenProjectId.SwimFantomUsdcLp,
     symbol: "SWIM-FANTOM-USDC-LP",
     displayName: "Fantom USDC LP",
@@ -187,7 +190,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-  {
+  [TokenProjectId.SwimKaruraAusdLp]: {
     id: TokenProjectId.SwimKaruraAusdLp,
     symbol: "SWIM-KARURA-AUSD-LP",
     displayName: "Karura AUSD LP",
@@ -195,7 +198,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-  {
+  [TokenProjectId.SwimKaruraUsdtLp]: {
     id: TokenProjectId.SwimKaruraUsdtLp,
     symbol: "SWIM-KARURA-USDT-LP",
     displayName: "Karura USDT LP",
@@ -203,7 +206,7 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-  {
+  [TokenProjectId.SwimAcalaAusdLp]: {
     id: TokenProjectId.SwimAcalaAusdLp,
     symbol: "SWIM-ACALA-AUSD-LP",
     displayName: "Acala AUSD LP",
@@ -211,4 +214,6 @@ export const TOKEN_PROJECTS: readonly TokenProject[] = [
     isStablecoin: false,
     isLp: true,
   },
-];
+};
+
+export const TOKEN_PROJECTS = Object.values(TOKEN_PROJECTS_BY_ID);

@@ -23,7 +23,7 @@ jobs:
     # needs: [verify]
 
     env:
-      BUILD_PATH: app/ui/build
+      BUILD_PATH: apps/ui/build
       ACTIONS_STEP_DEBUG: true
 
     steps:

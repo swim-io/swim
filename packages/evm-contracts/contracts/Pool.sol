@@ -58,7 +58,7 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
   function initialize(
     string memory lpTokenName,
     string memory lpTokenSymbol,
-    address lpTokenImpl,
+    address lpTokenAddress,
     int8 lpTokenEqualizer,
     address[] memory poolTokenAddresses,
     int8[] memory poolTokenEqualizers,
@@ -67,9 +67,9 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     uint32 _governanceFee,
     address _governanceFeeRecipient
   ) public initializer {
-    LpToken lpToken = LpToken(Clones.clone(lpTokenImpl));
+    LpToken lpToken = LpToken(lpTokenAddress);
     require(lpToken.initialize(lpTokenName, lpTokenSymbol), "LpToken initialization failed");
-    lpTokenData.addr = address(lpToken);
+    lpTokenData.addr = lpTokenAddress;
     lpTokenData.equalizer = lpTokenEqualizer;
 
     uint _tokenCount = poolTokenAddresses.length;
@@ -78,7 +78,7 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     tokenCount = uint8(_tokenCount);
 
     //enforce that swimUSD is always the first token
-    require(poolTokenAddresses[0] == ROUTING_CONTRACT.swimUsdAddress());
+    //TODO require(poolTokenAddresses[0] == ROUTING_CONTRACT.swimUsdAddress());
     for (uint i = 0; i < _tokenCount; ++i) {
       //TODO do we want any form of checking here? (e.g. duplicates)
       poolTokensData[i].addr = poolTokenAddresses[i];
@@ -380,6 +380,14 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
 
   //intentionally empty (we only want the onlyGovernance modifier "side-effect")
   function _authorizeUpgrade(address) internal override onlyGovernance {}
+
+  function upgradeLpToken(address newImplementation) external onlyGovernance {
+    LpToken(lpTokenData.addr).upgradeTo(newImplementation);
+  }
+
+  function upgradeLpToken(address newImplementation, bytes memory data) external onlyGovernance {
+    LpToken(lpTokenData.addr).upgradeToAndCall(newImplementation, data);
+  }
 
   // -------------------------------- INTERNAL --------------------------------
 

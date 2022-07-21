@@ -1,21 +1,27 @@
 import * as dotenv from "dotenv";
 
-import { HardhatUserConfig, task } from "hardhat/config";
-import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-waffle";
+import { task } from "hardhat/config";
+import 'hardhat-deploy';
+import { HardhatUserConfig } from "hardhat/types";
+//import "@nomiclabs/hardhat-etherscan";
+import "@nomiclabs/hardhat-ethers";
+import "@nomicfoundation/hardhat-chai-matchers";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 
 dotenv.config();
 
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
+task("accounts", "Prints the list of accounts", async (_, hre) => {
+  const named = await hre.getNamedAccounts()
 
-  for (const account of accounts) {
-    console.log(account.address);
+  for (const [name, address] of Object.entries(named)) {
+    console.log(name, address);
+  }
+
+  const unnamed = await hre.getUnnamedAccounts();
+  for (const address of unnamed) {
+    console.log(address);
   }
 });
 
@@ -45,7 +51,12 @@ const config: HardhatUserConfig = {
       },
     },
   },
+  defaultNetwork: "hardhat",
   networks: {
+    hardhat: {
+      deploy: ["./deploy/hardhat/"],
+      autoImpersonate: true,
+    },
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
       accounts:
@@ -58,7 +69,7 @@ const config: HardhatUserConfig = {
       chainId: 4,
     },
     localhost: {
-      url: "http://127.0.0.1:8545/", // yarn hardhat node -> spins node on local netwrok as ganache
+      url: "http://127.0.0.1:8545/", // yarn hardhat node -> spins node on local network as ganache
       // accounts: No need for this! Thanks Hardhat!
       chainId: 31337,
     },
@@ -67,11 +78,30 @@ const config: HardhatUserConfig = {
     enabled: true,
     outputFile: "gas-report.txt",
     currency: "USD",
-    // coinmarketcap: process.env.COINMARKETCAP_API_KEY,
-    // token: "MATIC"
   },
-  etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+  namedAccounts: {
+    deployer: {
+      default: 0,
+    },
+    governance: {
+      default: 1,
+    },
+    governanceFeeRecipient: {
+      default: 2,
+    },
+    testLiquidityProvider: {
+      default: 10,
+    },
+    testUser: {
+      default: 11,
+    },
+  },
+  external: {
+    contracts: [
+      {
+        artifacts: "node_modules/hardhat-deploy/extendedArtifacts",
+      },
+    ],
   },
 };
 

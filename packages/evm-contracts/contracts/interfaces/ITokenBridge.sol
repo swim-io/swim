@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.0;
 
+import "./IWormhole.sol";
+
 interface ITokenBridge {
   function transferTokensWithPayload(
     address token,
@@ -24,4 +26,6 @@ interface ITokenBridge {
   function completeTransferWithPayload(bytes memory encodedVm) external returns (bytes memory);
 
   function wrappedAsset(uint16 tokenChainId, bytes32 tokenAddress) external view returns (address);
+
+  function wormhole() external view returns (IWormhole);
 }

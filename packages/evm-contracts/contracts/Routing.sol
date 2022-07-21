@@ -27,8 +27,6 @@ contract Routing is
   bytes32 private constant SWIM_USD_SOLANA_ADDRESS = 0x0;
   uint8 private constant SWIM_USD_TOKEN_INDEX = 0;
   uint16 private constant WORMHOLE_SOLANA_CHAIN_ID = 1;
-  address public constant WORMHOLE_CORE_BRIDGE_ADDRESS =
-    address(0xC89Ce4735882C9F0f0FE26686c53074E09B0D550);
 
   uint32 private wormholeNonce;
   address public swimUsdAddress;
@@ -52,7 +50,7 @@ contract Routing is
     __ReentrancyGuard_init();
     wormholeNonce = 0;
     tokenBridge = ITokenBridge(tokenBridgeAddress);
-    wormhole = IWormhole(WORMHOLE_CORE_BRIDGE_ADDRESS);
+    wormhole = tokenBridge.wormhole();
     swimUsdAddress = tokenBridge.wrappedAsset(WORMHOLE_SOLANA_CHAIN_ID, SWIM_USD_SOLANA_ADDRESS);
   }
 

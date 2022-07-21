@@ -3,20 +3,31 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
-contract LpToken is ERC20BurnableUpgradeable, OwnableUpgradeable {
+//The full inheritance hierarchy:
+// UUPSUpgradeable -> IERC1822Proxiable, ERC1967Upgrade
+// ERC20BurnableUpgradeable -> Initializable, ContextUpgradeable, ERC20Upgradeable
+// ContextUpgradeable -> Initializable
+// ERC20Upgradeable -> Initializable, ContextUpgradeable, IERC20Upgradeable, IERC20MetadataUpgradeable
+// OwnableUpgradeable -> Initializable, ContextUpgradeable
+// (Initializeable, ERC1967Upgrade have no parents, IERC* are interfaces)
+//
+//Of all those, only ERC20Upgradeable and OwnableUpgradeable have a non-empty initialize.
+contract LpToken is UUPSUpgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable {
 
   function initialize(string memory name, string memory symbol)
     external initializer returns (bool)
   {
-    __Context_init_unchained();
     __ERC20_init_unchained(name, symbol);
     __Ownable_init_unchained();
     return true;
   }
 
   function mint(address recipient, uint amount) external onlyOwner {
-      //require(amount != 0, "LPToken: cannot mint 0");
       _mint(recipient, amount);
   }
+
+  //intentionally empty (we only want the onlyOwner modifier "side-effect")
+  function _authorizeUpgrade(address) internal override onlyOwner {}
 }

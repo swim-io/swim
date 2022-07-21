@@ -6237,7 +6237,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/evm@workspace:packages/evm":
+"@swim-io/evm@workspace:^, @swim-io/evm@workspace:packages/evm":
   version: 0.0.0-use.local
   resolution: "@swim-io/evm@workspace:packages/evm"
   dependencies:
@@ -6430,7 +6430,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/solana@workspace:packages/solana":
+"@swim-io/solana@workspace:^, @swim-io/solana@workspace:packages/solana":
   version: 0.0.0-use.local
   resolution: "@swim-io/solana@workspace:packages/solana"
   dependencies:
@@ -6492,7 +6492,9 @@ __metadata:
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.9
     "@swim-io/eslint-config": ^0.3.0
+    "@swim-io/evm": "workspace:^"
     "@swim-io/pool-math": ^0.2.0
+    "@swim-io/solana": "workspace:^"
     "@swim-io/solana-types": ^0.2.0
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5

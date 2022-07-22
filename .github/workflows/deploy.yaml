@@ -28,7 +28,7 @@ jobs:
     # needs: [verify]
 
     env:
-      BUILD_PATH: apps/ui/build
+      BUILD_PATH: ./apps/ui/build
       ACTIONS_STEP_DEBUG: true
 
     steps:
@@ -68,16 +68,13 @@ jobs:
       - name: Build UI
         env:
           NODE_OPTIONS: "--max_old_space_size=8192"
-        run: yarn release-ui
-
-      - name: Debug
         run: |
-          ls -la ${{ env.BUILD_PATH }}
+          yarn release-ui
+          la -la ${{ env.BUILD_PATH }}
 
       - name: Upload build to Cloudflare
         uses: cloudflare/wrangler-action@2.0.0
         with:
           apiToken: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          workingDirectory: ${{ env.BUILD_PATH }}
-          command: pages publish --project-name=test-direct-upload-swim-ui
+          command: pages publish --project-name=test-direct-upload-swim-ui ${{ env.BUILD_PATH }}

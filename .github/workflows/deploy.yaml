@@ -72,13 +72,11 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
           # yarn release-ui
-          pwd
           mkdir -p ${{ env.BUILD_PATH }}
           echo 42 > ${{ env.BUILD_PATH }}/answer.txt
-          ls -la ${{ env.BUILD_PATH }}
-          ls -la
 
-          yarn dlx wrangler@2 pages publish --project-name=test-direct-upload-swim-ui ${{ env.BUILD_PATH }}
+          npx --yes wrangler@2 pages publish ${{ env.BUILD_PATH }} --project-name=test-direct-upload-swim-ui --branch=${{ github.head_ref || github.ref_name }}
+          # yarn dlx wrangler@2 pages publish ${{ env.BUILD_PATH }} --project-name=test-direct-upload-swim-ui --branch=${{ github.head_ref || github.ref_name }}
 
       # - name: Upload build to Cloudflare
       #   uses: cloudflare/wrangler-action@2.0.0

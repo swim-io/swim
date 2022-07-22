@@ -10,10 +10,10 @@ interface Props {
   readonly from: EcosystemId;
   readonly to: EcosystemId;
   readonly isLoading: boolean;
-  readonly transactions: ReadonlyArray<{
+  readonly transactions: readonly {
     readonly txId: string;
     readonly ecosystem: EcosystemId;
-  }>;
+  }[];
 }
 
 export const Transfer: VFC<Props> = ({

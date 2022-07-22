@@ -32,7 +32,7 @@ export const getAddressesByEcosystem = (
   wallets: Wallets,
 ): ReadonlyRecord<EcosystemId, string | null> =>
   (
-    Object.entries(wallets) as ReadonlyArray<readonly [EcosystemId, BaseWallet]>
+    Object.entries(wallets) as readonly (readonly [EcosystemId, BaseWallet])[]
   ).reduce<ReadonlyRecord<string, string | null>>(
     (accumulator, [ecosystemId, { address }]) => ({
       ...accumulator,

@@ -22,7 +22,7 @@ const generateSuite = (env: Env): void => {
 
     it("specifies no more than one chain per ecosystem", () => {
       const ecosystems = (
-        Object.values(chains) as ReadonlyArray<readonly ChainSpec[]>
+        Object.values(chains) as readonly (readonly ChainSpec[])[]
       ).reduce<readonly EcosystemId[]>(
         (accumulator, chainSpecs) => [
           ...accumulator,

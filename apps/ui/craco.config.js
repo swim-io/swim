@@ -72,20 +72,20 @@ module.exports = {
         webpackConfig.devtool = "source-map";
 
         // Upload source maps to Sentry
-        if (!process.env.SENTRY_RELEASE) {
-          throw new Error("SENTRY_RELEASE is not set");
-        }
-        webpackConfig.plugins = [
-          ...webpackConfig.plugins,
-          new SentryWebpackPlugin({
-            authToken: process.env.SENTRY_AUTH_TOKEN,
-            org: "swim",
-            project: "ui",
-            release: process.env.SENTRY_RELEASE,
-            include: "build",
-            ignoreFile: ".gitignore",
-          }),
-        ];
+        // if (!process.env.SENTRY_RELEASE) {
+        //   throw new Error("SENTRY_RELEASE is not set");
+        // }
+        // webpackConfig.plugins = [
+        //   ...webpackConfig.plugins,
+        //   new SentryWebpackPlugin({
+        //     authToken: process.env.SENTRY_AUTH_TOKEN,
+        //     org: "swim",
+        //     project: "ui",
+        //     release: process.env.SENTRY_RELEASE,
+        //     include: "build",
+        //     ignoreFile: ".gitignore",
+        //   }),
+        // ];
       }
 
       return webpackConfig;

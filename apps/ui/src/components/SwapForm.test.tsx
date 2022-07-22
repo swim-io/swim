@@ -71,7 +71,6 @@ const useSplUserBalanceMock = mockOf(useSplUserBalance);
 const useLiquidityQueriesMock = mockOf(useLiquidityQueries);
 
 const findFromTokenButton = () => screen.queryAllByRole("button")[0];
-const findToTokenButton = () => screen.queryAllByRole("button")[4];
 
 describe("SwapForm", () => {
   beforeEach(() => {

@@ -446,7 +446,6 @@ function useEcosystemFilter() {
 
   return {
     ecosystems,
-    pools,
     ecosystemId,
     setEcosystemId,
   };

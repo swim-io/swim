@@ -21,8 +21,9 @@ const queryClient = new QueryClient({
       },
     },
     mutations: {
-      // eslint-disable-next-line @typescript-eslint/require-await
-      onError: async (err: unknown) => captureException(err),
+      onError: (err: unknown) => {
+        captureException(err);
+      },
     },
   },
 });

@@ -2,8 +2,12 @@ export type ReadonlyRecord<K extends string | number | symbol, T> = Readonly<
   Record<K, T>
 >;
 export const getRecordKeys = <T extends string | number | symbol>(
-  record: ReadonlyRecord<T, any>,
+  record: ReadonlyRecord<T, unknown>,
 ): readonly T[] => Object.keys(record) as unknown as readonly T[];
+export const getRecordEntries = <K extends string, V>(
+  record: ReadonlyRecord<K, V>,
+): readonly (readonly [K, V])[] =>
+  Object.entries(record) as unknown as readonly (readonly [K, V])[];
 
 export function shortenAddress(address: string, chars = 5): string {
   return `${address.slice(0, chars)}...${address.slice(-chars)}`;

@@ -28,8 +28,8 @@ export const deserializeTokenAccount = (
   const decodedAccountLayout = AccountLayout.decode(
     data,
   ) as DecodedAccountLayout;
-  // @ts-expect-error the fields are initialized afterwards
-  const tokenAccount: TokenAccount = {};
+
+  const tokenAccount: Partial<TokenAccount> = {};
   tokenAccount.address = pubkey;
   tokenAccount.mint = new PublicKey(decodedAccountLayout.mint);
   tokenAccount.owner = new PublicKey(decodedAccountLayout.owner);
@@ -66,7 +66,7 @@ export const deserializeTokenAccount = (
     );
   }
 
-  return tokenAccount;
+  return tokenAccount as TokenAccount;
 };
 
 type DecodedMintLayout = {
@@ -89,8 +89,8 @@ export const deserializeMint = (data: Buffer): MintInfo => {
   // missing `decode` in `Layout` type
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const decodedMintLayout = MintLayout.decode(data) as DecodedMintLayout;
-  // @ts-expect-error the fields are initialized afterwards
-  const mintInfo: MintInfo = {};
+
+  const mintInfo: Partial<MintInfo> = {};
 
   if (decodedMintLayout.mintAuthorityOption === 0) {
     mintInfo.mintAuthority = null;
@@ -107,5 +107,5 @@ export const deserializeMint = (data: Buffer): MintInfo => {
     mintInfo.freezeAuthority = new PublicKey(decodedMintLayout.freezeAuthority);
   }
 
-  return mintInfo;
+  return mintInfo as MintInfo;
 };

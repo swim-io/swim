@@ -81,7 +81,6 @@ export class SolanaWeb3WalletAdapter<
     return "Solana Wallet";
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   public async signAllTransactions(
     // eslint-disable-next-line functional/prefer-readonly-type
     transactions: Transaction[],
@@ -92,20 +91,19 @@ export class SolanaWeb3WalletAdapter<
     }
 
     try {
-      return this.service.signAllTransactions(transactions);
+      return await this.service.signAllTransactions(transactions);
     } catch (error) {
       throw new SolanaWalletError("", error);
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   async signTransaction(transaction: Transaction): Promise<Transaction> {
     if (!this.service) {
       throw new Error("No wallet service connected");
     }
 
     try {
-      return this.service.signTransaction(transaction);
+      return await this.service.signTransaction(transaction);
     } catch (error) {
       throw new SolanaWalletError("", error);
     }

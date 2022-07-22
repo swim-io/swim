@@ -1,5 +1,6 @@
 import type { EcosystemId } from "../../config";
 import { isEcosystemEnabled } from "../../config";
+import { getRecordEntries } from "../../utils";
 import type { ReadonlyRecord } from "../../utils";
 import type { BaseWallet } from "../swim";
 import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
@@ -31,9 +32,7 @@ export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
 export const getAddressesByEcosystem = (
   wallets: Wallets,
 ): ReadonlyRecord<EcosystemId, string | null> =>
-  (
-    Object.entries(wallets) as readonly (readonly [EcosystemId, BaseWallet])[]
-  ).reduce<ReadonlyRecord<string, string | null>>(
+  getRecordEntries(wallets).reduce<ReadonlyRecord<string, string | null>>(
     (accumulator, [ecosystemId, { address }]) => ({
       ...accumulator,
       [ecosystemId]: address,

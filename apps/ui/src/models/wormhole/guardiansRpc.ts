@@ -24,8 +24,6 @@ const INTERNAL_ERROR_MESSAGE =
 const UNAVAILABLE_MESSAGE =
   "We are unable to reach the Wormhole guardians. Please try again later.";
 
-// @typescript-eslint/no-unsafe-member-access has bug on imported enum
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 const MESSAGES: Partial<ReadonlyRecord<StatusCode, string>> = {
   [StatusCode.INTERNAL]: INTERNAL_ERROR_MESSAGE,
   [StatusCode.INVALID_ARGUMENT]: INTERNAL_ERROR_MESSAGE,
@@ -34,7 +32,6 @@ const MESSAGES: Partial<ReadonlyRecord<StatusCode, string>> = {
   [StatusCode.UNAVAILABLE]: UNAVAILABLE_MESSAGE,
   [StatusCode.UNKNOWN]: UNAVAILABLE_MESSAGE,
 };
-/* eslint-enable @typescript-eslint/no-unsafe-member-access */
 
 export const getSignedVaaWithRetry: typeof originalGetSignedVAAWithRetry = (
   ...args

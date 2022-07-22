@@ -15,6 +15,7 @@ import { findOrThrow } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
 
+// eslint-disable-next-line import/no-unused-modules
 export const useSwapInteractionMutation = () => {
   const { env } = useEnvironment();
   const config = useEnvironment(selectConfig, shallow);

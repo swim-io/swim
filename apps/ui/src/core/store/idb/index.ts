@@ -116,6 +116,7 @@ export const putInteractionStateToDb = (interactionState: InteractionState) => {
     });
 };
 
+// eslint-disable-next-line import/no-unused-modules
 export const resetDb = () => {
   return idb.transaction("rw", idb.interactionStates, async () => {
     await Promise.all(idb.tables.map((table) => table.clear()));

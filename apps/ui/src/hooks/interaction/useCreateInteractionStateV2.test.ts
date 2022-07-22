@@ -1,7 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 
-import { useSplTokenAccountsQuery, useWallets } from "..";
 import {
   CONFIGS,
   DEVNET_POOLS,
@@ -16,6 +15,8 @@ import { useEnvironment } from "../../core/store";
 import { MOCK_TOKEN_ACCOUNTS, MOCK_WALLETS } from "../../fixtures";
 import { Amount, InteractionType, generateId } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
+import { useWallets } from "../crossEcosystem";
+import { useSplTokenAccountsQuery } from "../solana";
 
 import { useCreateInteractionStateV2 } from "./useCreateInteractionStateV2";
 
@@ -38,10 +39,14 @@ jest.mock("../../core/selectors", () => ({
   selectConfig: jest.fn(),
 }));
 
-jest.mock("..", () => ({
-  ...jest.requireActual(".."),
-  useSplTokenAccountsQuery: jest.fn(),
+jest.mock("../crossEcosystem", () => ({
+  ...jest.requireActual("../crossEcosystem"),
   useWallets: jest.fn(),
+}));
+
+jest.mock("../solana", () => ({
+  ...jest.requireActual("../solana"),
+  useSplTokenAccountsQuery: jest.fn(),
 }));
 
 // Make typescript happy with jest
@@ -202,7 +207,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for Remove", async () => {
+  it("should create state for RemoveExactOutput", async () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -216,6 +221,43 @@ describe("useCreateInteractionStateV2", () => {
           Amount.fromHuman(SOLANA_USDT, new Decimal("10")),
         ],
         maximumBurnAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
+      },
+      lpTokenSourceEcosystem: EcosystemId.Solana,
+    });
+    expect(interactionState).toMatchSnapshot();
+  });
+
+  it("should create state for RemoveExactBurn", async () => {
+    const { result } = renderHookWithAppContext(() =>
+      useCreateInteractionStateV2(),
+    );
+    const createInteractionState = result.current;
+    const interactionState = createInteractionState({
+      type: InteractionType.RemoveExactBurn,
+      poolId: "devnet-solana-usdc-usdt",
+      params: {
+        minimumOutputAmount: Amount.fromHuman(SOLANA_USDC, new Decimal("110")),
+        exactBurnAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
+      },
+      lpTokenSourceEcosystem: EcosystemId.Solana,
+    });
+    expect(interactionState).toMatchSnapshot();
+  });
+
+  it("should create state for RemoveUniform", async () => {
+    const { result } = renderHookWithAppContext(() =>
+      useCreateInteractionStateV2(),
+    );
+    const createInteractionState = result.current;
+    const interactionState = createInteractionState({
+      type: InteractionType.RemoveUniform,
+      poolId: "devnet-solana-usdc-usdt",
+      params: {
+        minimumOutputAmounts: [
+          Amount.fromHuman(SOLANA_USDC, new Decimal("100")),
+          Amount.fromHuman(SOLANA_USDT, new Decimal("10")),
+        ],
+        exactBurnAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
       },
       lpTokenSourceEcosystem: EcosystemId.Solana,
     });

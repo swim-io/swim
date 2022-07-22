@@ -1,74 +1,55 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import shallow from "zustand/shallow.js";
 
-import { useSplTokenAccountsQuery, useWallets } from "..";
 import type { PoolSpec, TokenSpec } from "../../config";
 import {
   DEVNET_SWIMUSD,
   EcosystemId,
   findTokenById,
   getSolanaTokenDetails,
-  isEvmEcosystemId,
 } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type {
+  AddInteraction,
   InteractionSpecV2,
+  InteractionStateV2,
   InteractionV2,
+  RemoveExactBurnInteraction,
+  RemoveExactOutputInteraction,
+  RemoveUniformInteraction,
   RequiredSplTokenAccounts,
   SwapInteractionV2,
 } from "../../models";
 import {
   Amount,
   InteractionType,
+  SwapType,
   SwimDefiInstruction,
   findTokenAccountForMint,
   generateId,
   getConnectedWalletsV2,
   getRequiredPools,
+  getSwapType,
 } from "../../models";
-import type { InteractionStateV2 } from "../../models/swim/interactionStateV2";
-import { SwapType } from "../../models/swim/interactionStateV2";
 import { filterMap } from "../../utils";
-
-const getSwapType = (interaction: SwapInteractionV2): SwapType => {
-  const { fromTokenDetail, toTokenDetail } = interaction.params;
-  const fromEcosystem = fromTokenDetail.ecosystemId;
-  const toEcosystem = toTokenDetail.ecosystemId;
-  if (
-    fromEcosystem === EcosystemId.Solana &&
-    toEcosystem === EcosystemId.Solana
-  ) {
-    return SwapType.SingleChainSolana;
-  }
-  if (isEvmEcosystemId(fromEcosystem) && isEvmEcosystemId(toEcosystem)) {
-    return fromEcosystem === toEcosystem
-      ? SwapType.SingleChainEvm
-      : SwapType.CrossChainEvmToEvm;
-  }
-  if (fromEcosystem === EcosystemId.Solana && isEvmEcosystemId(toEcosystem)) {
-    return SwapType.CrossChainSolanaToEvm;
-  }
-  if (isEvmEcosystemId(fromEcosystem) && toEcosystem === EcosystemId.Solana) {
-    return SwapType.CrossChainEvmToSolana;
-  }
-
-  throw new Error("Unknown swap type");
-};
+import { useWallets } from "../crossEcosystem";
+import { useSplTokenAccountsQuery } from "../solana";
 
 export const calculateRequiredSplTokenAccounts = (
   interaction: SwapInteractionV2,
   tokenAccounts: readonly TokenAccount[],
   walletAddress: string | null,
 ): RequiredSplTokenAccounts => {
-  const swapType = getSwapType(interaction);
+  const { fromTokenDetail, toTokenDetail } = interaction.params;
+  const swapType = getSwapType(fromTokenDetail, toTokenDetail);
   if (
     swapType === SwapType.SingleChainEvm ||
     swapType === SwapType.CrossChainEvmToEvm
   ) {
     return {};
   }
-  const { fromTokenDetail, toTokenDetail } = interaction.params;
+
   const fromToken = findTokenById(fromTokenDetail.tokenId, interaction.env);
   const toToken = findTokenById(toTokenDetail.tokenId, interaction.env);
   // TODO: Find a better way to get swimUSD per env
@@ -104,13 +85,84 @@ export const calculateRequiredSplTokenAccounts = (
   }, {});
 };
 
+export const calculateRequiredSplTokenAccountsForAddRemove = (
+  interaction:
+    | AddInteraction
+    | RemoveUniformInteraction
+    | RemoveExactBurnInteraction
+    | RemoveExactOutputInteraction,
+  tokenAccounts: readonly TokenAccount[],
+  walletAddress: string | null,
+): RequiredSplTokenAccounts | null => {
+  if (
+    interaction.type === InteractionType.Add &&
+    interaction.lpTokenTargetEcosystem !== EcosystemId.Solana
+  )
+    return null;
+
+  if (
+    interaction.type !== InteractionType.Add &&
+    interaction.lpTokenSourceEcosystem !== EcosystemId.Solana
+  )
+    return null;
+
+  const requiredTokens: readonly TokenSpec[] = (() => {
+    switch (interaction.type) {
+      case InteractionType.Add: {
+        return [
+          ...interaction.params.inputAmounts,
+          interaction.params.minimumMintAmount,
+        ].map((amount) => amount.tokenSpec);
+      }
+      case InteractionType.RemoveExactBurn:
+        return [
+          interaction.params.exactBurnAmount,
+          interaction.params.minimumOutputAmount,
+        ].map((amount) => amount.tokenSpec);
+      case InteractionType.RemoveExactOutput:
+        return [
+          ...interaction.params.exactOutputAmounts,
+          interaction.params.maximumBurnAmount,
+        ].map((amount) => amount.tokenSpec);
+      case InteractionType.RemoveUniform:
+        return [
+          ...interaction.params.minimumOutputAmounts,
+          interaction.params.exactBurnAmount,
+        ].map((amount) => amount.tokenSpec);
+    }
+  })();
+  const mints = filterMap(
+    (token: TokenSpec) => token.nativeEcosystem === EcosystemId.Solana,
+    (token) => getSolanaTokenDetails(token).address,
+    requiredTokens,
+  );
+  if (walletAddress === null) {
+    throw new Error("No Solana wallet address found");
+  }
+  return mints.reduce((requiredAccounts, mint) => {
+    const accountForMint = findTokenAccountForMint(
+      mint,
+      walletAddress,
+      tokenAccounts,
+    );
+    return {
+      ...requiredAccounts,
+      [mint]: {
+        isExistingAccount: accountForMint !== null,
+        txId: null,
+      },
+    };
+  }, {});
+};
+
 const createSwapInteractionState = (
   interaction: SwapInteractionV2,
   tokenAccounts: readonly TokenAccount[],
   solanaWalletAddress: string | null,
   requiredPools: readonly PoolSpec[],
 ): InteractionStateV2 => {
-  const swapType = getSwapType(interaction);
+  const { fromTokenDetail, toTokenDetail } = interaction.params;
+  const swapType = getSwapType(fromTokenDetail, toTokenDetail);
   const requiredSplTokenAccounts = calculateRequiredSplTokenAccounts(
     interaction,
     tokenAccounts,
@@ -118,7 +170,6 @@ const createSwapInteractionState = (
   );
   switch (swapType) {
     case SwapType.SingleChainSolana: {
-      const { fromTokenDetail, toTokenDetail } = interaction.params;
       const fromToken = findTokenById(fromTokenDetail.tokenId, interaction.env);
       const toToken = findTokenById(toTokenDetail.tokenId, interaction.env);
       if (requiredPools.length !== 1) {
@@ -224,6 +275,12 @@ export const useCreateInteractionStateV2 = () => {
         return {
           interaction,
           interactionType: interaction.type,
+          requiredSplTokenAccounts:
+            calculateRequiredSplTokenAccountsForAddRemove(
+              interaction,
+              tokenAccounts,
+              solanaWalletAddress,
+            ),
           approvalTxIds: [],
           removeTxId: null,
         };
@@ -231,6 +288,12 @@ export const useCreateInteractionStateV2 = () => {
         return {
           interaction,
           interactionType: interaction.type,
+          requiredSplTokenAccounts:
+            calculateRequiredSplTokenAccountsForAddRemove(
+              interaction,
+              tokenAccounts,
+              solanaWalletAddress,
+            ),
           approvalTxIds: [],
           addTxId: null,
         };

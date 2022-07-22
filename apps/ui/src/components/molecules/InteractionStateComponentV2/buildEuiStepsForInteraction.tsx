@@ -1,13 +1,15 @@
 import type { EuiStepProps, EuiStepStatus } from "@elastic/eui";
-import { EuiListGroup, EuiText } from "@elastic/eui";
+import { EuiListGroup, EuiLoadingSpinner, EuiText } from "@elastic/eui";
 
 import type { Env } from "../../../config";
 import { DEVNET_SWIMUSD, EcosystemId, findTokenById } from "../../../config";
 import type {
+  AddInteractionState,
   CrossChainEvmSwapInteractionState,
   CrossChainEvmToSolanaSwapInteractionState,
   CrossChainSolanaToEvmSwapInteractionState,
   InteractionStateV2,
+  RemoveInteractionState,
   SingleChainEvmSwapInteractionState,
   SingleChainSolanaSwapInteractionState,
 } from "../../../models";
@@ -15,6 +17,8 @@ import {
   InteractionStatusV2,
   InteractionType,
   SwapType,
+  isAddInteractionCompleted,
+  isRemoveInteractionCompleted,
   isRequiredSplTokenAccountsCompletedV2,
   isSolanaPoolOperationsCompletedV2,
   isSourceChainOperationCompleted,
@@ -46,10 +50,14 @@ const buildPrepareSplTokenAccountStep = (
   interactionState:
     | SingleChainSolanaSwapInteractionState
     | CrossChainEvmToSolanaSwapInteractionState
-    | CrossChainSolanaToEvmSwapInteractionState,
+    | CrossChainSolanaToEvmSwapInteractionState
+    | AddInteractionState
+    | RemoveInteractionState,
   interactionStatus: InteractionStatusV2,
 ): EuiStepProps | null => {
   const { requiredSplTokenAccounts } = interactionState;
+
+  if (requiredSplTokenAccounts === null) return null;
 
   // Add create account step, if there are missing accounts
   const missingAccounts = Object.values(requiredSplTokenAccounts).filter(
@@ -68,7 +76,13 @@ const buildPrepareSplTokenAccountStep = (
     status,
     children: (
       <EuiText size="m">
-        <span>Create SPL token accounts</span>
+        <span style={{ display: "flex", alignItems: "center" }}>
+          {status === "loading" && (
+            <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />
+          )}
+          <span>Create SPL token accounts</span>
+        </span>
+
         <br />
         <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
           {missingAccounts
@@ -318,6 +332,164 @@ const buildPostVaaAndClaimToken = (
   };
 };
 
+const buildRemoveStep = (
+  interactionState: RemoveInteractionState,
+  interactionStatus: InteractionStatusV2,
+): EuiStepProps => {
+  const { interaction, removeTxId } = interactionState;
+  const { lpTokenSourceEcosystem } = interaction;
+  const status = getEuiStepStatus(
+    interactionStatus,
+    isRemoveInteractionCompleted(interactionState),
+  );
+
+  return {
+    title: "Swap LP tokens",
+    status,
+    children: (
+      <>
+        {interactionState.approvalTxIds.length > 0 && (
+          <>
+            <EuiText size="m">
+              <span>Approval transactions</span>
+
+              <TxEcosystemList
+                transactions={interactionState.approvalTxIds}
+                ecosystemId={lpTokenSourceEcosystem}
+              />
+            </EuiText>
+            <br />
+          </>
+        )}
+
+        {interaction.type === InteractionType.RemoveUniform && (
+          <>
+            {interaction.params.minimumOutputAmounts.map((outputAmount) => {
+              const { exactBurnAmount } = interaction.params;
+
+              return (
+                <SwapTransfer
+                  key={outputAmount.tokenId}
+                  fromToken={exactBurnAmount.tokenSpec}
+                  toToken={outputAmount.tokenSpec}
+                  ecosystemId={lpTokenSourceEcosystem}
+                  isLoading={status === "loading"}
+                  transactions={[]}
+                />
+              );
+            })}
+            {removeTxId && (
+              <EuiText size="m">
+                <TxEcosystemList
+                  transactions={[removeTxId]}
+                  ecosystemId={lpTokenSourceEcosystem}
+                />
+              </EuiText>
+            )}
+          </>
+        )}
+
+        {interaction.type === InteractionType.RemoveExactBurn && (
+          <>
+            <SwapTransfer
+              key={interaction.params.minimumOutputAmount.tokenId}
+              fromToken={interaction.params.exactBurnAmount.tokenSpec}
+              toToken={interaction.params.minimumOutputAmount.tokenSpec}
+              ecosystemId={lpTokenSourceEcosystem}
+              isLoading={status === "loading"}
+              transactions={[removeTxId].filter(isNotNull)}
+            />
+          </>
+        )}
+
+        {interaction.type === InteractionType.RemoveExactOutput && (
+          <>
+            {interaction.params.exactOutputAmounts.map((outputAmount) => {
+              const { maximumBurnAmount } = interaction.params;
+
+              return (
+                <SwapTransfer
+                  key={outputAmount.tokenId}
+                  fromToken={maximumBurnAmount.tokenSpec}
+                  toToken={outputAmount.tokenSpec}
+                  ecosystemId={lpTokenSourceEcosystem}
+                  isLoading={status === "loading"}
+                  transactions={[]}
+                />
+              );
+            })}
+            {removeTxId && (
+              <EuiText size="m">
+                <TxEcosystemList
+                  transactions={[removeTxId]}
+                  ecosystemId={lpTokenSourceEcosystem}
+                />
+              </EuiText>
+            )}
+          </>
+        )}
+      </>
+    ),
+  };
+};
+
+export const buildAddStep = (
+  interactionState: AddInteractionState,
+  interactionStatus: InteractionStatusV2,
+): EuiStepProps => {
+  const { interaction, addTxId } = interactionState;
+  const { lpTokenTargetEcosystem } = interaction;
+  const status = getEuiStepStatus(
+    interactionStatus,
+    isAddInteractionCompleted(interactionState),
+  );
+
+  return {
+    title: "Swap LP tokens",
+    status,
+    children: (
+      <>
+        {interactionState.approvalTxIds.length > 0 && (
+          <>
+            <EuiText size="m">
+              <span>Approval transactions</span>
+
+              <TxEcosystemList
+                transactions={interactionState.approvalTxIds}
+                ecosystemId={lpTokenTargetEcosystem}
+              />
+            </EuiText>
+            <br />
+          </>
+        )}
+
+        {interaction.params.inputAmounts.map((inputAmount) => {
+          const { minimumMintAmount } = interaction.params;
+
+          return (
+            <SwapTransfer
+              key={inputAmount.tokenId}
+              fromToken={inputAmount.tokenSpec}
+              toToken={minimumMintAmount.tokenSpec}
+              ecosystemId={minimumMintAmount.tokenSpec.nativeEcosystem}
+              isLoading={status === "loading"}
+              transactions={[]}
+            />
+          );
+        })}
+        {addTxId && (
+          <EuiText size="m">
+            <TxEcosystemList
+              transactions={[addTxId]}
+              ecosystemId={lpTokenTargetEcosystem}
+            />
+          </EuiText>
+        )}
+      </>
+    ),
+  };
+};
+
 export const buildEuiStepsForInteraction = (
   state: InteractionStateV2,
   status: InteractionStatusV2,
@@ -361,12 +533,24 @@ export const buildEuiStepsForInteraction = (
       }
     }
     case InteractionType.Add:
-      return [];
+      return [
+        buildPrepareSplTokenAccountStep(state, status),
+        buildAddStep(state, status),
+      ].filter(isNotNull);
     case InteractionType.RemoveExactBurn:
-      return [];
+      return [
+        buildPrepareSplTokenAccountStep(state, status),
+        buildRemoveStep(state, status),
+      ].filter(isNotNull);
     case InteractionType.RemoveExactOutput:
-      return [];
+      return [
+        buildPrepareSplTokenAccountStep(state, status),
+        buildRemoveStep(state, status),
+      ].filter(isNotNull);
     case InteractionType.RemoveUniform:
-      return [];
+      return [
+        buildPrepareSplTokenAccountStep(state, status),
+        buildRemoveStep(state, status),
+      ].filter(isNotNull);
   }
 };

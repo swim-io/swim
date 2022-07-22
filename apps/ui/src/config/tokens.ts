@@ -785,7 +785,7 @@ export const DEVNET_SWIMUSD: TokenSpec = {
   ]),
 };
 
-const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
+export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
   {
     isDisabled: !isPoolRestructureEnabled(),
     id: "devnet-ethereum-lp-primary",
@@ -940,7 +940,7 @@ const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
   },
 ];
 
-const DEVNET_TOKENS: readonly TokenSpec[] = [
+export const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     id: "devnet-solana-usdc",
     project: PROJECTS[TokenProjectId.Usdc],

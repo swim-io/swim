@@ -34,10 +34,68 @@ Object {
     "type": 1,
   },
   "interactionType": 1,
+  "requiredSplTokenAccounts": Object {
+    "11111111111111111111111111111111": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+  },
 }
 `;
 
-exports[`useCreateInteractionStateV2 should create state for Remove 1`] = `
+exports[`useCreateInteractionStateV2 should create state for RemoveExactBurn 1`] = `
+Object {
+  "approvalTxIds": Array [],
+  "interaction": Object {
+    "connectedWallets": Object {
+      "acala": null,
+      "aurora": null,
+      "avalanche": null,
+      "bnb": null,
+      "ethereum": null,
+      "fantom": null,
+      "karura": null,
+      "polygon": null,
+      "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    },
+    "env": "Devnet",
+    "id": "11111111111111111111111111111111",
+    "lpTokenSourceEcosystem": "solana",
+    "params": Object {
+      "exactBurnAmount": "110",
+      "minimumOutputAmount": "110",
+    },
+    "poolId": "devnet-solana-usdc-usdt",
+    "poolIds": Array [
+      "devnet-solana-usdc-usdt",
+    ],
+    "submittedAt": 1657544558283,
+    "type": 3,
+  },
+  "interactionType": 3,
+  "removeTxId": null,
+  "requiredSplTokenAccounts": Object {
+    "11111111111111111111111111111111": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+  },
+}
+`;
+
+exports[`useCreateInteractionStateV2 should create state for RemoveExactOutput 1`] = `
 Object {
   "approvalTxIds": Array [],
   "interaction": Object {
@@ -71,6 +129,71 @@ Object {
   },
   "interactionType": 4,
   "removeTxId": null,
+  "requiredSplTokenAccounts": Object {
+    "11111111111111111111111111111111": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+  },
+}
+`;
+
+exports[`useCreateInteractionStateV2 should create state for RemoveUniform 1`] = `
+Object {
+  "approvalTxIds": Array [],
+  "interaction": Object {
+    "connectedWallets": Object {
+      "acala": null,
+      "aurora": null,
+      "avalanche": null,
+      "bnb": null,
+      "ethereum": null,
+      "fantom": null,
+      "karura": null,
+      "polygon": null,
+      "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    },
+    "env": "Devnet",
+    "id": "11111111111111111111111111111111",
+    "lpTokenSourceEcosystem": "solana",
+    "params": Object {
+      "exactBurnAmount": "110",
+      "minimumOutputAmounts": Array [
+        "100",
+        "10",
+      ],
+    },
+    "poolId": "devnet-solana-usdc-usdt",
+    "poolIds": Array [
+      "devnet-solana-usdc-usdt",
+    ],
+    "submittedAt": 1657544558283,
+    "type": 2,
+  },
+  "interactionType": 2,
+  "removeTxId": null,
+  "requiredSplTokenAccounts": Object {
+    "11111111111111111111111111111111": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+  },
 }
 `;
 

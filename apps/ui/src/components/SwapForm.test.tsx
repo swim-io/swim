@@ -1,9 +1,23 @@
+import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import Decimal from "decimal.js";
 import type { FC } from "react";
+import type { UseQueryResult } from "react-query";
 
-import { Env } from "../config";
+import { EcosystemId, Env } from "../config";
 import { useEnvironment as environmentStore } from "../core/store";
-import { renderWithAppContext } from "../testUtils";
+import {
+  useErc20BalanceQuery,
+  useGetSwapFormErrors,
+  useLiquidityQueries,
+  useSolanaConnection,
+  useSplTokenAccountsQuery,
+  useSplUserBalance,
+  useStartNewInteraction,
+  useSwapFeesEstimationQuery,
+  useUserNativeBalances,
+} from "../hooks";
+import { mockOf, renderWithAppContext } from "../testUtils";
 
 import { SwapForm } from "./SwapForm";
 
@@ -17,10 +31,82 @@ jest.mock(
       children({ height: 600, width: 600 }),
 );
 
+jest.mock("../hooks/solana", () => ({
+  ...jest.requireActual("../hooks/solana"),
+  useSplTokenAccountsQuery: jest.fn(),
+  useSplUserBalance: jest.fn(),
+  useLiquidityQueries: jest.fn(),
+}));
+
+jest.mock("../hooks/solana/useSolanaConnection", () => ({
+  ...jest.requireActual("../hooks/solana/useSolanaConnection"),
+  useSolanaConnection: jest.fn(),
+}));
+
+jest.mock("../hooks/interaction", () => ({
+  ...jest.requireActual("../hooks/interaction"),
+  useStartNewInteraction: jest.fn(),
+}));
+
+jest.mock("../hooks/evm", () => ({
+  ...jest.requireActual("../hooks/evm"),
+  useErc20BalanceQuery: jest.fn(),
+}));
+
+jest.mock("../hooks", () => ({
+  ...jest.requireActual("../hooks"),
+  useGetSwapFormErrors: jest.fn(),
+  useSwapFeesEstimationQuery: jest.fn(),
+  useUserNativeBalances: jest.fn(),
+}));
+
+const useGetSwapFormErrorsMock = mockOf(useGetSwapFormErrors);
+const useSolanaConnectionMock = mockOf(useSolanaConnection);
+const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
+const useStartNewInteractionMock = mockOf(useStartNewInteraction);
+const useSwapFeesEstimationQueryMock = mockOf(useSwapFeesEstimationQuery);
+const useErc20BalanceQueryMock = mockOf(useErc20BalanceQuery);
+const useUserNativeBalancesMock = mockOf(useUserNativeBalances);
+const useSplUserBalanceMock = mockOf(useSplUserBalance);
+const useLiquidityQueriesMock = mockOf(useLiquidityQueries);
+
 const findFromTokenButton = () => screen.queryAllByRole("button")[0];
-const findToTokenButton = () => screen.queryAllByRole("button")[3];
+const findToTokenButton = () => screen.queryAllByRole("button")[4];
 
 describe("SwapForm", () => {
+  beforeEach(() => {
+    useSolanaConnectionMock.mockReturnValue({
+      getAccountInfo(publicKey, commitment?) {
+        return Promise.resolve(null);
+      },
+    });
+    useSplTokenAccountsQueryMock.mockReturnValue({
+      data: [],
+    });
+
+    const zero = new Decimal(0);
+    const balances = {
+      [EcosystemId.Solana]: zero,
+      [EcosystemId.Ethereum]: zero,
+      [EcosystemId.Bnb]: zero,
+      [EcosystemId.Avalanche]: zero,
+      [EcosystemId.Polygon]: zero,
+      [EcosystemId.Aurora]: zero,
+      [EcosystemId.Fantom]: zero,
+      [EcosystemId.Karura]: zero,
+      [EcosystemId.Acala]: zero,
+    };
+    useUserNativeBalancesMock.mockReturnValue(balances);
+    useStartNewInteractionMock.mockReturnValue(jest.fn());
+    useSwapFeesEstimationQueryMock.mockReturnValue(null);
+    useGetSwapFormErrorsMock.mockReturnValue(() => []);
+    useErc20BalanceQueryMock.mockReturnValue({ data: zero });
+    useSplUserBalanceMock.mockReturnValue(zero);
+    useLiquidityQueriesMock.mockReturnValue([
+      { data: [] },
+    ] as unknown as readonly UseQueryResult<readonly TokenAccount[], Error>[]);
+  });
+
   beforeEach(() => {
     // currently we can't change the env unless a custom localnet ip is set
     environmentStore.getState().setCustomLocalnetIp("122.122.122.12");

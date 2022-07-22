@@ -1,0 +1,98 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`swapTokenOptions selectSwapTokenOptions should return swap options 1`] = `
+Array [
+  Object {
+    "ecosystemId": "solana",
+    "tokenId": "devnet-solana-usdc",
+  },
+  Object {
+    "ecosystemId": "solana",
+    "tokenId": "devnet-solana-usdt",
+  },
+  Object {
+    "ecosystemId": "ethereum",
+    "tokenId": "devnet-ethereum-usdc",
+  },
+  Object {
+    "ecosystemId": "ethereum",
+    "tokenId": "devnet-ethereum-usdt",
+  },
+  Object {
+    "ecosystemId": "bnb",
+    "tokenId": "devnet-bnb-busd",
+  },
+  Object {
+    "ecosystemId": "bnb",
+    "tokenId": "devnet-bnb-usdt",
+  },
+  Object {
+    "ecosystemId": "avalanche",
+    "tokenId": "devnet-avalanche-usdc",
+  },
+  Object {
+    "ecosystemId": "avalanche",
+    "tokenId": "devnet-avalanche-usdt",
+  },
+  Object {
+    "ecosystemId": "polygon",
+    "tokenId": "devnet-polygon-usdc",
+  },
+  Object {
+    "ecosystemId": "polygon",
+    "tokenId": "devnet-polygon-usdt",
+  },
+  Object {
+    "ecosystemId": "aurora",
+    "tokenId": "devnet-aurora-usdc",
+  },
+  Object {
+    "ecosystemId": "aurora",
+    "tokenId": "devnet-aurora-usdt",
+  },
+  Object {
+    "ecosystemId": "fantom",
+    "tokenId": "devnet-fantom-usdc",
+  },
+  Object {
+    "ecosystemId": "karura",
+    "tokenId": "devnet-karura-usdt",
+  },
+  Object {
+    "ecosystemId": "solana",
+    "tokenId": "devnet-swimusd",
+  },
+  Object {
+    "ecosystemId": "acala",
+    "tokenId": "devnet-swimusd",
+  },
+  Object {
+    "ecosystemId": "aurora",
+    "tokenId": "devnet-swimusd",
+  },
+  Object {
+    "ecosystemId": "avalanche",
+    "tokenId": "devnet-swimusd",
+  },
+  Object {
+    "ecosystemId": "bnb",
+    "tokenId": "devnet-swimusd",
+  },
+  Object {
+    "ecosystemId": "ethereum",
+    "tokenId": "devnet-swimusd",
+  },
+  Object {
+    "ecosystemId": "fantom",
+    "tokenId": "devnet-swimusd",
+  },
+  Object {
+    "ecosystemId": "karura",
+    "tokenId": "devnet-swimusd",
+  },
+  Object {
+    "ecosystemId": "polygon",
+    "tokenId": "devnet-swimusd",
+  },
+]
+`;

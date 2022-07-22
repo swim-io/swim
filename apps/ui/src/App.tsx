@@ -21,6 +21,7 @@ import SecurityPage from "./pages/SecurityPage";
 import SetCustomLocalnetPage from "./pages/SetCustomLocalnetPage";
 import StakePage from "./pages/StakePage";
 import SwapPage from "./pages/SwapPage";
+import SwapPageV2 from "./pages/SwapPageV2";
 import TestPage from "./pages/TestPage";
 import TosPage from "./pages/TosPage";
 
@@ -61,6 +62,9 @@ function App(): ReactElement {
               <Route path="pools/:poolId" element={<PoolPage />} />
               <Route path="stake" element={<StakePage poolId="swimlake" />} />
               <Route path="swap" element={<SwapPage />} />
+              {process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE && (
+                <Route path="swapV2" element={<SwapPageV2 />} />
+              )}
               {process.env.REACT_APP_ENABLE_NFT && (
                 <Route path="otter-tots" element={<OtterTotsPage />} />
               )}

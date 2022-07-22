@@ -5,7 +5,7 @@ import { selectInteractionError } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { formatErrorJsx } from "../../errors";
 import {
-  useHasActiveInteractionV2,
+  useHasActiveInteraction,
   useInteractionStatusV2,
   useResumeInteraction,
   useWallets,
@@ -60,7 +60,7 @@ export const InteractionRetryCalloutV2: VFC<Props> = ({ interactionState }) => {
     selectInteractionError(state, interaction.id),
   );
   const resumeInteraction = useResumeInteraction();
-  const hasActiveInteraction = useHasActiveInteractionV2();
+  const hasActiveInteraction = useHasActiveInteraction();
   const interactionStatus = useInteractionStatusV2(interactionState);
   const wallets = useWallets();
   const disabled =

@@ -1,3 +1,4 @@
+import { EcosystemId, isEvmEcosystemId } from "../../config";
 import { isNotNull } from "../../utils";
 import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
@@ -7,6 +8,7 @@ import type {
   RemoveExactOutputInteraction,
   RemoveUniformInteraction,
   SwapInteractionV2,
+  TokenOption,
 } from "./interaction";
 import { InteractionType } from "./interaction";
 import type {
@@ -70,6 +72,8 @@ export interface CrossChainEvmToSolanaSwapInteractionState {
 export interface AddInteractionState {
   readonly interaction: AddInteraction;
   readonly interactionType: InteractionType.Add;
+  /** Needed only for solana based pools */
+  readonly requiredSplTokenAccounts: RequiredSplTokenAccounts | null;
   readonly approvalTxIds: readonly EvmTx["txId"][];
   readonly addTxId: string | null;
 }
@@ -83,6 +87,8 @@ export interface RemoveInteractionState {
     | InteractionType.RemoveExactBurn
     | InteractionType.RemoveExactOutput
     | InteractionType.RemoveUniform;
+  /** Needed only for solana based pools */
+  readonly requiredSplTokenAccounts: RequiredSplTokenAccounts | null;
   readonly approvalTxIds: readonly EvmTx["txId"][];
   readonly removeTxId: string | null;
 }
@@ -98,6 +104,33 @@ export type InteractionStateV2 =
   | SwapInteractionState
   | AddInteractionState
   | RemoveInteractionState;
+
+export const getSwapType = (
+  fromTokenOption: TokenOption,
+  toTokenOption: TokenOption,
+): SwapType => {
+  const fromEcosystem = fromTokenOption.ecosystemId;
+  const toEcosystem = toTokenOption.ecosystemId;
+  if (
+    fromEcosystem === EcosystemId.Solana &&
+    toEcosystem === EcosystemId.Solana
+  ) {
+    return SwapType.SingleChainSolana;
+  }
+  if (isEvmEcosystemId(fromEcosystem) && isEvmEcosystemId(toEcosystem)) {
+    return fromEcosystem === toEcosystem
+      ? SwapType.SingleChainEvm
+      : SwapType.CrossChainEvmToEvm;
+  }
+  if (fromEcosystem === EcosystemId.Solana && isEvmEcosystemId(toEcosystem)) {
+    return SwapType.CrossChainSolanaToEvm;
+  }
+  if (isEvmEcosystemId(fromEcosystem) && toEcosystem === EcosystemId.Solana) {
+    return SwapType.CrossChainEvmToSolana;
+  }
+
+  throw new Error("Unknown swap type");
+};
 
 export const isRequiredSplTokenAccountsCompletedV2 = (
   accountState: RequiredSplTokenAccounts,
@@ -151,6 +184,14 @@ const isReceiveAndSwapTransferCompleted = (
 const isClaimTokenOnSolanaTransferCompleted = (
   claimTokenOnSolanaTxId: SolanaTx["txId"] | null,
 ): boolean => claimTokenOnSolanaTxId !== null;
+
+export const isRemoveInteractionCompleted = (
+  interactionState: RemoveInteractionState,
+) => interactionState.removeTxId !== null;
+
+export const isAddInteractionCompleted = (
+  interactionState: AddInteractionState,
+) => interactionState.addTxId !== null;
 
 export const isSourceChainOperationCompleted = (
   state: SwapInteractionState,
@@ -231,12 +272,12 @@ export const isInteractionCompletedV2 = (
       }
     }
     case InteractionType.Add:
-      return false;
+      return isAddInteractionCompleted(interactionState);
     case InteractionType.RemoveUniform:
-      return false;
+      return isRemoveInteractionCompleted(interactionState);
     case InteractionType.RemoveExactBurn:
-      return false;
+      return isRemoveInteractionCompleted(interactionState);
     case InteractionType.RemoveExactOutput:
-      return false;
+      return isRemoveInteractionCompleted(interactionState);
   }
 };

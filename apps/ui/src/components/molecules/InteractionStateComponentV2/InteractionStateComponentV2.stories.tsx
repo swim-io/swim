@@ -6,6 +6,14 @@ import { useMutation } from "react-query";
 
 import { Env, useEnvironment } from "../../../core/store";
 import {
+  ADD_INTERACTION_STATE_ETHEREUM_COMPLETED,
+  ADD_INTERACTION_STATE_ETHEREUM_COMPLETED_WITH_APPROVALS,
+  ADD_INTERACTION_STATE_ETHEREUM_INIT,
+  ADD_INTERACTION_STATE_SOLANA_COMPLETED,
+  ADD_INTERACTION_STATE_SOLANA_COMPLETED_WITH_APPROVALS,
+  ADD_INTERACTION_STATE_SOLANA_CREATED_SPL_TOKEN_ACCOUNTS,
+  ADD_INTERACTION_STATE_SOLANA_EXISTING_SPL_TOKEN_ACCOUNTS,
+  ADD_INTERACTION_STATE_SOLANA_INIT,
   CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED,
   CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED_WITH_APPROVALS,
   CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
@@ -21,6 +29,20 @@ import {
   CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS,
   CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_INIT,
   CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER_COMPLETED,
+  REMOVE_EXACT_BURN_INTERACTION_STATE_ETHEREUM_COMPLETED,
+  REMOVE_EXACT_BURN_INTERACTION_STATE_ETHEREUM_COMPLETED_WITH_APPROVALS,
+  REMOVE_EXACT_BURN_INTERACTION_STATE_ETHEREUM_INIT,
+  REMOVE_EXACT_OUTPUT_INTERACTION_STATE_ETHEREUM_COMPLETED,
+  REMOVE_EXACT_OUTPUT_INTERACTION_STATE_ETHEREUM_COMPLETED_WITH_APPROVALS,
+  REMOVE_EXACT_OUTPUT_INTERACTION_STATE_ETHEREUM_INIT,
+  REMOVE_UNIFORM_INTERACTION_STATE_ETHEREUM_COMPLETED,
+  REMOVE_UNIFORM_INTERACTION_STATE_ETHEREUM_COMPLETED_WITH_APPROVALS,
+  REMOVE_UNIFORM_INTERACTION_STATE_ETHEREUM_INIT,
+  REMOVE_UNIFORM_INTERACTION_STATE_SOLANA_COMPLETED,
+  REMOVE_UNIFORM_INTERACTION_STATE_SOLANA_COMPLETED_WITH_APPROVALS,
+  REMOVE_UNIFORM_INTERACTION_STATE_SOLANA_CREATED_SPL_TOKEN_ACCOUNTS,
+  REMOVE_UNIFORM_INTERACTION_STATE_SOLANA_EXISTING_SPL_TOKEN_ACCOUNTS,
+  REMOVE_UNIFORM_INTERACTION_STATE_SOLANA_INIT,
   SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPETED_WITH_APPROVALS,
   SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED,
   SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
@@ -211,4 +233,127 @@ CrossChainEvmToSolanaSwapPostVaaCompleted.args = {
 export const CrossChainEvmToSolanaSwapCompleted = Template.bind({});
 CrossChainEvmToSolanaSwapCompleted.args = {
   interactionState: CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_COMPLETED,
+};
+
+export const AddInteractionSolanaInit = Template.bind({});
+AddInteractionSolanaInit.args = {
+  interactionState: ADD_INTERACTION_STATE_SOLANA_INIT,
+};
+
+export const AddInteractionSolanaExistingSplTokenAccounts = Template.bind({});
+AddInteractionSolanaExistingSplTokenAccounts.args = {
+  interactionState: ADD_INTERACTION_STATE_SOLANA_EXISTING_SPL_TOKEN_ACCOUNTS,
+};
+
+export const AddInteractionSolanaCreatedSplTokenAccounts = Template.bind({});
+AddInteractionSolanaCreatedSplTokenAccounts.args = {
+  interactionState: ADD_INTERACTION_STATE_SOLANA_CREATED_SPL_TOKEN_ACCOUNTS,
+};
+
+export const AddInteractionSolanaCompleted = Template.bind({});
+AddInteractionSolanaCompleted.args = {
+  interactionState: ADD_INTERACTION_STATE_SOLANA_COMPLETED,
+};
+
+export const AddInteractionSolanaCompletedWithApprovals = Template.bind({});
+AddInteractionSolanaCompletedWithApprovals.args = {
+  interactionState: ADD_INTERACTION_STATE_SOLANA_COMPLETED_WITH_APPROVALS,
+};
+
+export const AddInteractionEthereumInit = Template.bind({});
+AddInteractionEthereumInit.args = {
+  interactionState: ADD_INTERACTION_STATE_ETHEREUM_INIT,
+};
+
+export const AddInteractionEthereumCompleted = Template.bind({});
+AddInteractionEthereumCompleted.args = {
+  interactionState: ADD_INTERACTION_STATE_ETHEREUM_COMPLETED,
+};
+
+export const AddInteractionEthereumCompletedWithApprovals = Template.bind({});
+AddInteractionEthereumCompletedWithApprovals.args = {
+  interactionState: ADD_INTERACTION_STATE_ETHEREUM_COMPLETED_WITH_APPROVALS,
+};
+
+export const RemoveUniformInteractionSolanaInit = Template.bind({});
+RemoveUniformInteractionSolanaInit.args = {
+  interactionState: REMOVE_UNIFORM_INTERACTION_STATE_SOLANA_INIT,
+};
+
+export const RemoveUniformInteractionSolanaExistingSplTokenAccounts =
+  Template.bind({});
+RemoveUniformInteractionSolanaExistingSplTokenAccounts.args = {
+  interactionState:
+    REMOVE_UNIFORM_INTERACTION_STATE_SOLANA_EXISTING_SPL_TOKEN_ACCOUNTS,
+};
+
+export const RemoveUniformInteractionSolanaCreatedSplAccounts = Template.bind(
+  {},
+);
+RemoveUniformInteractionSolanaCreatedSplAccounts.args = {
+  interactionState:
+    REMOVE_UNIFORM_INTERACTION_STATE_SOLANA_CREATED_SPL_TOKEN_ACCOUNTS,
+};
+
+export const RemoveUniformInteractionSolanaCompleted = Template.bind({});
+RemoveUniformInteractionSolanaCompleted.args = {
+  interactionState: REMOVE_UNIFORM_INTERACTION_STATE_SOLANA_COMPLETED,
+};
+
+export const RemoveUniformInteractionSolanaCompletedWithApprovals =
+  Template.bind({});
+RemoveUniformInteractionSolanaCompletedWithApprovals.args = {
+  interactionState:
+    REMOVE_UNIFORM_INTERACTION_STATE_SOLANA_COMPLETED_WITH_APPROVALS,
+};
+
+export const RemoveUniformInteractionEthereumInit = Template.bind({});
+RemoveUniformInteractionEthereumInit.args = {
+  interactionState: REMOVE_UNIFORM_INTERACTION_STATE_ETHEREUM_INIT,
+};
+
+export const RemoveUniformInteractionEthereumCompleted = Template.bind({});
+RemoveUniformInteractionEthereumCompleted.args = {
+  interactionState: REMOVE_UNIFORM_INTERACTION_STATE_ETHEREUM_COMPLETED,
+};
+
+export const RemoveUniformInteractionEthereumCompletedWithApprovals =
+  Template.bind({});
+RemoveUniformInteractionEthereumCompletedWithApprovals.args = {
+  interactionState:
+    REMOVE_UNIFORM_INTERACTION_STATE_ETHEREUM_COMPLETED_WITH_APPROVALS,
+};
+
+export const RemoveExactBurnInteractionEthereumInit = Template.bind({});
+RemoveExactBurnInteractionEthereumInit.args = {
+  interactionState: REMOVE_EXACT_BURN_INTERACTION_STATE_ETHEREUM_INIT,
+};
+
+export const RemoveExactBurnInteractionEthereumCompleted = Template.bind({});
+RemoveExactBurnInteractionEthereumCompleted.args = {
+  interactionState: REMOVE_EXACT_BURN_INTERACTION_STATE_ETHEREUM_COMPLETED,
+};
+
+export const RemoveExactBurnInteractionEthereumCompletedWithApprovals =
+  Template.bind({});
+RemoveExactBurnInteractionEthereumCompletedWithApprovals.args = {
+  interactionState:
+    REMOVE_EXACT_BURN_INTERACTION_STATE_ETHEREUM_COMPLETED_WITH_APPROVALS,
+};
+
+export const RemoveExactOutoutInteractionEthereumInit = Template.bind({});
+RemoveExactOutoutInteractionEthereumInit.args = {
+  interactionState: REMOVE_EXACT_OUTPUT_INTERACTION_STATE_ETHEREUM_INIT,
+};
+
+export const RemoveExactOutoutInteractionEthereumCompleted = Template.bind({});
+RemoveExactOutoutInteractionEthereumCompleted.args = {
+  interactionState: REMOVE_EXACT_OUTPUT_INTERACTION_STATE_ETHEREUM_COMPLETED,
+};
+
+export const RemoveExactOutoutInteractionEthereumCompletedWithApprovals =
+  Template.bind({});
+RemoveExactOutoutInteractionEthereumCompletedWithApprovals.args = {
+  interactionState:
+    REMOVE_EXACT_OUTPUT_INTERACTION_STATE_ETHEREUM_COMPLETED_WITH_APPROVALS,
 };

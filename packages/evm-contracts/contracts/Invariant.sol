@@ -1,7 +1,10 @@
 //SPDX-License-Identifier: TODO
 pragma solidity ^0.8.0;
 
+import "hardhat/console.sol";
+
 import "./Constants.sol";
+import "./PoolErrors.sol";
 import "./CenterAlignment.sol";
 import "./Equalize.sol";
 
@@ -95,7 +98,7 @@ using CenterAlignment for uint;
 
 function sum(Equalized[] memory arr) internal pure returns (uint ret) { unchecked {
   for (uint i = 0; i < arr.length; ++i) {
-    ret += uint(Equalized.unwrap(arr[i]));
+    ret += Equalized.unwrap(arr[i]);
   }
 }}
 
@@ -172,7 +175,7 @@ function calculateUnknownBalance(
 
   if (ampFactor == 0) {
     unknownBalance = depth * depth;
-    unknownBalance /= uint(Equalized.unwrap(knownBalances[0]));
+    unknownBalance /= Equalized.unwrap(knownBalances[0]);
     unknownBalance >>= 2; //= division by 4 but 2 gas cheaper
   }
   else {
@@ -181,7 +184,7 @@ function calculateUnknownBalance(
       //shifts up by at most 64 bits:
       numeratorFixed *= depth;
       //shifts down by at most 64 bits:
-      numeratorFixed /= uint(Equalized.unwrap(knownBalances[i]));
+      numeratorFixed /= Equalized.unwrap(knownBalances[i]);
       numeratorFixed /= knownBalances.length;
       (numeratorFixed, shift) = numeratorFixed.keepAligned(shift);
     }
@@ -195,7 +198,14 @@ function calculateUnknownBalance(
 
     unknownBalance = initialGuess != 0 ? initialGuess : depth / 2;
     uint previousUnknownBalance;
+    //uint loops = 0; //TODO remove after testing
     do {
+      // ++loops; //TODO remove after testing
+      // console.log("unknownBalance: %o", unknownBalance);
+      // if (loops > 15) {
+      //   console.log("breaking unknown balance loop");
+      //   break;
+      // }
       previousUnknownBalance = unknownBalance;
       //Even in the most extreme case, i.e. tokenCount = 6, ampFactor = 1,
       // and balances perfectly extreme, the numerator will never exceed
@@ -212,10 +222,9 @@ function calculateUnknownBalance(
   require(unknownBalance > 0);
 
   //ensure that unknownBalance never blows up above the allowed maximum
-  require(
-    unknownBalance < uint(Equalize.MAX_AMOUNT),
-    "unknown balance exceeds MAX_AMOUNT"
-  );
+  if (unknownBalance > Equalize.MAX_AMOUNT)
+    revert Invariant_UnknownBalanceTooLarge(unknownBalance);
+  //console.log("returning from calc unknown balance");
   return Equalized.wrap(uint64(unknownBalance));
 }}
 
@@ -223,7 +232,7 @@ function calculateDepth(
   Equalized[] memory poolBalances,
   uint ampFactor,
   uint initialGuess
-) internal pure returns(uint depth) { unchecked {
+) internal view returns(uint depth) { unchecked {
   //assumptions (already enforced elsewhere):
   // 2 <= poolBalances.length <= 6
   // ampFactor >= ONE_AMP_SHIFTED || (ampFactor == 0 && poolBalances.length == 2)
@@ -231,8 +240,8 @@ function calculateDepth(
 
   if (ampFactor == 0) {
     depth = 4;
-    depth *= uint(Equalized.unwrap(poolBalances[0]));
-    depth *= uint(Equalized.unwrap(poolBalances[1]));
+    depth *= Equalized.unwrap(poolBalances[0]);
+    depth *= Equalized.unwrap(poolBalances[1]);
     depth = sqrt(depth);
     return depth;
   }
@@ -243,16 +252,24 @@ function calculateDepth(
   uint denominatorFixedAmpUnits = ampFactor - ONE_AMP_SHIFTED; //at most 30 bits
   depth = initialGuess != 0 ? initialGuess : poolBalanceSum; //at most 64 bits
   uint previousDepth;
+  uint loops = 0; //TODO remove after testing
   do {
+    ++loops; //TODO remove after testing
+    console.log("depth: %o", depth);
+    if (loops > 15) {
+      console.log("breaking depth loop");
+      break;
+    }
     previousDepth = depth;
 
     (uint reciprocalDecay, int shift) = uint(1).toAligned();
     for (uint i = 0; i < tokenCount; ++i) {
       reciprocalDecay *= depth;
-      reciprocalDecay /= uint(Equalized.unwrap(poolBalances[i])) * tokenCount;
+      reciprocalDecay /= Equalized.unwrap(poolBalances[i]) * tokenCount;
       (reciprocalDecay, shift) = reciprocalDecay.keepAligned(shift);
     }
 
+    //TODO comment below outdated!
     //We keep the AMP_SHIFT so we can just add our FixedAmpUnits variables.
     //By always keeping AMP_SHIFT, independent of whether reciprocalDecay
     // is very large or very small, we actually give up on AMP_SHIFT number
@@ -266,22 +283,28 @@ function calculateDepth(
 
     (uint numRD, int numShift) = tmpReciprocalDecay.keepAligned(shift);
     numRD *= depth;
-    numRD = numRD.fromAligned(numShift);
 
     uint denomRD = tmpReciprocalDecay + reciprocalDecay;
-    denomRD = denomRD.fromAligned(shift);
+    if (shift != numShift) //shift can only be smaller
+      denomRD <<= uint(numShift - shift); //now numRD and denomRD have the same shift
+    shift = -shift; //instead of downshifting numRD and denomRD (and sacrificing precision)
+                    // we instead upshift
 
-    uint numerator = numeratorFixedAmpUnits + numRD; //can overflow
-    require(numerator > numRD); //=> protect against possible overflow
+    uint numerator = numeratorFixedAmpUnits.fromAligned(shift) + numRD; //can overflow
+    if (numerator < numRD) //=> protect against possible overflow
+      revert Invariant_NumericOverflow();
     //if denominator were to overflow, then numerator already did
     // hence nothing to check
-    uint denominator = denominatorFixedAmpUnits + denomRD;
+    uint denominator = denominatorFixedAmpUnits.fromAligned(shift) + denomRD;
+    console.log("numerator: %o", numerator);
+    console.log("denominator: %o", denominator);
     depth = numerator / denominator; //TODO rounded div?
   } while (absDiff(previousDepth, depth) > 1);
 
   //TODO test to ensure that this can never happen
   require(depth > 0);
 
+  console.log("ret depth");
   return depth;
 }}
 

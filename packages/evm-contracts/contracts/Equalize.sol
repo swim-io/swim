@@ -1,10 +1,12 @@
 //SPDX-License-Identifier: TODO
 pragma solidity ^0.8.0;
 
+import "./PoolErrors.sol";
+
 type Equalized is uint;
 
 library Equalize {
-  uint public constant MAX_AMOUNT = 1<<61; //non-inclusive!
+  uint public constant MAX_AMOUNT = (1<<61)-1;
 
   function to(uint amount, int8 equalizer)
     internal pure returns (Equalized) {
@@ -14,13 +16,15 @@ library Equalize {
     uint equalized;
     if (equalizer < 0) {
       unchecked {equalized = amount / uint(10)**(uint(int(-equalizer)));}
-      require(equalized > 0, "losing all precision when equalizing");
+      if (equalized == 0)
+        revert Equalize_LosingAllPrecision(amount, equalizer);
     }
     else {
       unchecked {equalized = uint(10)**(uint(int(equalizer)));}
       equalized *= amount; //SafeMath!
     }
-    require(equalized < MAX_AMOUNT, "MAX_AMOUNT exceeded");
+    if(equalized > MAX_AMOUNT)
+      revert Equalize_MaxAmountExceeded(amount, equalizer);
     return Equalized.wrap(equalized);
   }
 
@@ -37,7 +41,8 @@ library Equalize {
     }
     else {
       unchecked {amount /= uint(10)**(uint(int(equalizer)));}
-      require(amount > 0, "losing all precision when deequalizing");
+      if (amount == 0)
+        revert Equalize_LosingAllPrecision(Equalized.unwrap(equalized), equalizer);
     }
     return amount;
   }

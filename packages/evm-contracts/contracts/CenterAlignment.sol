@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: TODO
 pragma solidity ^0.8.0;
 
+import "./PoolErrors.sol";
+
 library CenterAlignment {
 // In the following constants and functions we think of a built-in uint
 //  as an array an array of 4 uint64, i.e. uint64[4] and use this to keep a
@@ -48,10 +50,8 @@ function fromAligned(uint val, int shift)
   if (shift < 0) {
     uint unshift = uint(-shift);
     //ensure we aren't overflowing on rightshift
-    require(
-      unshift < BITS_PER_UINT && val < (1<<(BITS_PER_UINT-unshift)),
-      "overflow on fromAligned"
-    );
+    if (unshift >= BITS_PER_UINT || val >= (1<<(BITS_PER_UINT-unshift)))
+      revert Invariant_NumericOverflow();
     return val << unshift;
   }
   //potentially underflowing to 0 is ok

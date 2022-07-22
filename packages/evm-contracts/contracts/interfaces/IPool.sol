@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "../PoolErrors.sol";
+
 struct TokenBalance {
   address tokenAddres;
   uint256 balance;

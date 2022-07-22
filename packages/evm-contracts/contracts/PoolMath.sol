@@ -1,6 +1,7 @@
 //SPDX-License-Identifier: TODO
 pragma solidity ^0.8.0;
 
+import "./PoolErrors.sol";
 import "./Equalize.sol";
 import "./Invariant.sol";
 
@@ -22,11 +23,11 @@ function addRemove(
   bool isAdd,
   Equalized[] memory amounts,
   Pool memory pool
-) internal pure returns (
+) internal view returns (
   Equalized userLpAmount,
   Equalized governanceMintAmount
 ) { unchecked {
-  uint initialDepth = Invariant.calculateDepth(pool.balances,pool.ampFactor, 0);
+  uint initialDepth = Invariant.calculateDepth(pool.balances, pool.ampFactor, 0);
   uint sumPoolBalances = 0;
   uint sumUpdatedBalances = 0;
   Equalized[] memory updatedBalances = new Equalized[](pool.balances.length);
@@ -36,7 +37,7 @@ function addRemove(
     uint updatedBalance = isAdd ? balance + amount : balance - amount;
     updatedBalances[i] = Equalized.wrap(updatedBalance);
     sumPoolBalances += balance;
-    sumUpdatedBalances = updatedBalance;
+    sumUpdatedBalances += updatedBalance;
   }
   uint updatedDepth = Invariant.calculateDepth(
     updatedBalances,
@@ -58,7 +59,8 @@ function addRemove(
       uint feeAmount = isAdd //rounding?
         ? taxbase *pool.totalFee / FEE_DECIMAL_FACTOR
         : taxbase * FEE_DECIMAL_FACTOR / (FEE_DECIMAL_FACTOR - pool.totalFee) - taxbase;
-      require(updatedBalance > feeAmount, "impossible remove");
+      if(updatedBalance <= feeAmount)
+        revert PoolMath_ImpossibleRemove();
       uint feeAdjustedBalance = updatedBalance - feeAmount;
       feeAdjustedBalances[i] = Equalized.wrap(feeAdjustedBalance);
     }
@@ -93,7 +95,7 @@ function swap(
   Equalized[] memory amounts,
   uint8 index,
   Pool memory pool
-) internal pure returns (
+) internal view returns (
   Equalized userTokenAmount,
   Equalized governanceMintAmount
 ) { unchecked {
@@ -160,7 +162,7 @@ function removeExactBurn(
   Equalized burnAmount,
   uint8 outputIndex,
   Pool memory pool
-) internal pure returns (
+) internal view returns (
   Equalized outputAmount,
   Equalized governanceMintAmount
 ) { unchecked {

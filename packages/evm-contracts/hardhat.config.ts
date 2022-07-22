@@ -34,7 +34,7 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 100000, // Optimize heavily for runtime gas cost rather than deployment gas cost
+        runs: 1000, // Optimize heavily for runtime gas cost rather than deployment gas cost
       },
       outputSelection: {
         "*": {

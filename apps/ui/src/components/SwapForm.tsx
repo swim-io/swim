@@ -72,6 +72,7 @@ export const SwapForm = ({
     setFromTokenId,
     setToTokenId,
     setFromAndToTokens,
+    hasUrlError,
   } = useSwapTokens();
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
@@ -233,8 +234,8 @@ export const SwapForm = ({
   const isStableSwap = requiredPools.every((pool) => pool.isStableSwap);
   return (
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
+      {hasUrlError && <EuiCallOut title="Invalid URL inputs" color="danger" />}
       <EuiSpacer />
-
       <TokenAmountInput
         value={formInputAmount}
         token={fromToken}

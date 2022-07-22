@@ -15,6 +15,7 @@ interface SwapTokens {
   readonly setFromTokenId: (fromTokenId: string) => void;
   readonly setToTokenId: (toTokenId: string) => void;
   readonly setFromAndToTokens: (fromTokenId: string, toTokenId: string) => void;
+  readonly hasUrlError: boolean;
 }
 
 const convertTokenIdToUrlParam = (id: string): string => {
@@ -32,7 +33,6 @@ export const useSwapTokens = (): SwapTokens => {
   const navigate = useNavigate();
   const { env } = useEnvironment();
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
-  // TODO: Handle invalid url parameters.
   const { fromEcosystem: fromUrlParam, toEcosystem: toUrlParam } = useParams<{
     readonly fromEcosystem?: string;
     readonly toEcosystem?: string;
@@ -78,6 +78,8 @@ export const useSwapTokens = (): SwapTokens => {
 
   const defaultFromTokenId = fromTokenOptionsIds[0];
 
+  let hasUrlError = (fromUrlParam &&
+    !convertUrlParamToToken(fromUrlParam)) as boolean;
   const fromToken =
     convertUrlParamToToken(fromUrlParam) ||
     tokens.find(({ id }) => id === defaultFromTokenId);
@@ -86,9 +88,16 @@ export const useSwapTokens = (): SwapTokens => {
 
   const toTokenOptionsIds = getOutputTokens(fromToken.id);
 
+  const potentialToToken = convertUrlParamToToken(toUrlParam);
+  hasUrlError = (!hasUrlError &&
+    fromUrlParam &&
+    (!potentialToToken ||
+      !toTokenOptionsIds.find((id) => potentialToToken.id === id))) as boolean;
+
   const toToken =
-    convertUrlParamToToken(toUrlParam) ||
-    tokens.find(({ id }) => id === toTokenOptionsIds[0]);
+    potentialToToken && !hasUrlError
+      ? potentialToToken
+      : tokens.find(({ id }) => id === toTokenOptionsIds[0]);
 
   if (!toToken) throw new Error("Can't figure out toToken");
 
@@ -138,5 +147,6 @@ export const useSwapTokens = (): SwapTokens => {
     setFromTokenId,
     setToTokenId,
     setFromAndToTokens,
+    hasUrlError,
   };
 };

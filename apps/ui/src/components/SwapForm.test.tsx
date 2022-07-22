@@ -1,4 +1,4 @@
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import type { FC } from "react";
 
 import { Env } from "../config";
@@ -23,7 +23,6 @@ jest.mock("react-router-dom", () => ({
 }));
 
 const findFromTokenButton = () => screen.queryAllByRole("button")[0];
-const findToTokenButton = () => screen.queryAllByRole("button")[3];
 
 describe("SwapForm", () => {
   beforeEach(() => {
@@ -44,33 +43,5 @@ describe("SwapForm", () => {
 
     expect(environmentStore.getState().env).toBe(Env.Devnet);
     expect(findFromTokenButton()).toHaveTextContent("USDC on Ethereum");
-  });
-
-  it("should update toToken options when fromToken changes", async () => {
-    expect(findToTokenButton()).toHaveTextContent("USDT on Solana");
-
-    fireEvent.click(findFromTokenButton());
-
-    await waitFor(() => {
-      return screen.findByPlaceholderText("Search tokens");
-    });
-
-    fireEvent.click(screen.getByTitle("GST Green Satoshi Token BNB Chain"));
-
-    expect(findToTokenButton()).toHaveTextContent("GST on Solana");
-  });
-
-  it("should update toToken options when fromToken is updated with toToken value", async () => {
-    expect(findToTokenButton()).toHaveTextContent("USDT on Solana");
-
-    fireEvent.click(findFromTokenButton());
-
-    await waitFor(() => {
-      return screen.findByPlaceholderText("Search tokens");
-    });
-
-    fireEvent.click(screen.getByTitle("USDT Tether USD Solana"));
-
-    expect(findToTokenButton()).toHaveTextContent("USDC on Solana");
   });
 });

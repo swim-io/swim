@@ -20,7 +20,6 @@ import {
   isAddInteractionCompleted,
   isRemoveInteractionCompleted,
   isRequiredSplTokenAccountsCompletedV2,
-  isSolanaPoolOperationsCompletedV2,
   isSourceChainOperationCompleted,
   isTargetChainOperationCompleted,
 } from "../../../models";
@@ -107,20 +106,20 @@ const buildSolanaPoolOperationStep = (
   env: Env,
 ): EuiStepProps | null => {
   const {
-    solanaPoolOperations,
+    onChainSwapTxId,
     interaction: {
       params: { fromTokenDetail, toTokenDetail },
     },
   } = interactionState;
   const status = getEuiStepStatus(
     interactionStatus,
-    isSolanaPoolOperationsCompletedV2(solanaPoolOperations),
+    isSourceChainOperationCompleted(interactionState),
   );
   const fromToken = findTokenById(fromTokenDetail.tokenId, env);
   const toToken = findTokenById(toTokenDetail.tokenId, env);
 
   return {
-    title: "Perform pool operation(s) on Solana",
+    title: "Perform pool operation on Solana",
     status,
     children: (
       <SwapTransfer
@@ -128,9 +127,7 @@ const buildSolanaPoolOperationStep = (
         fromToken={fromToken}
         toToken={toToken}
         isLoading={status === "loading"}
-        transactions={solanaPoolOperations
-          .map(({ txId }) => txId)
-          .filter(isNotNull)}
+        transactions={[onChainSwapTxId].filter(isNotNull)}
       />
     ),
   };

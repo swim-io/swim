@@ -11,10 +11,7 @@ import type {
   TokenOption,
 } from "./interaction";
 import { InteractionType } from "./interaction";
-import type {
-  RequiredSplTokenAccounts,
-  SolanaPoolOperationState,
-} from "./interactionState";
+import type { RequiredSplTokenAccounts } from "./interactionState";
 
 export enum SwapType {
   SingleChainSolana = "SingleChainSolana",
@@ -29,7 +26,7 @@ export interface SingleChainSolanaSwapInteractionState {
   readonly interactionType: InteractionType.SwapV2;
   readonly swapType: SwapType.SingleChainSolana;
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
-  readonly solanaPoolOperations: readonly SolanaPoolOperationState[];
+  readonly onChainSwapTxId: SolanaTx["txId"] | null;
 }
 
 export interface SingleChainEvmSwapInteractionState {
@@ -139,14 +136,10 @@ export const isRequiredSplTokenAccountsCompletedV2 = (
     (state) => state.isExistingAccount || isNotNull(state.txId),
   );
 
-export const isSolanaPoolOperationsCompletedV2 = (
-  operations: readonly SolanaPoolOperationState[],
-) => operations.every((operation) => isNotNull(operation.txId));
-
 const isSingleChainSolanaSwapCompleted = (
   state: SingleChainSolanaSwapInteractionState,
 ): boolean => {
-  return isSolanaPoolOperationsCompletedV2(state.solanaPoolOperations);
+  return state.onChainSwapTxId !== null;
 };
 
 const isSingleChainEvmSwapCompleted = (

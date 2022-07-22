@@ -8,6 +8,7 @@ import type {
   FromSolanaTransferState,
   Interaction,
   InteractionState,
+  InteractionStateV2,
   OperationSpec,
   RemoveExactBurnInteraction,
   RemoveExactBurnOperationSpec,
@@ -18,6 +19,7 @@ import type {
   RequiredSplTokenAccounts,
   SolanaPoolOperationState,
   SwapInteraction,
+  SwapInteractionSpecV2,
   SwapOperationSpec,
   ToSolanaTransferState,
 } from "../../../models";
@@ -615,3 +617,42 @@ export const prepareInteractionState = (
     operation: prepareSolanaPoolOperation(state.operation),
   })),
 });
+
+export type PreparedInteractionV2 =
+  | PreparedAddInteraction
+  | PreparedRemoveUniformInteraction
+  | PreparedRemoveExactBurnInteraction
+  | PreparedRemoveExactOutputInteraction
+  | SwapInteractionSpecV2;
+
+export interface PersistedInteractionStateV2
+  extends Omit<InteractionStateV2, "interaction"> {
+  readonly interaction: PreparedInteractionV2;
+}
+
+// export const prepareInteractionState = (
+//   interactionState: InteractionState,
+// ): PersistedInteractionState => ({
+//   ...interactionState,
+//   fromSolanaTransfers: interactionState.fromSolanaTransfers.map((transfer) => ({
+//     ...transfer,
+//     token: { id: transfer.token.id },
+//     value:
+//       transfer.value instanceof Decimal
+//         ? transfer.value.toJSON()
+//         : transfer.value,
+//   })),
+//   toSolanaTransfers: interactionState.toSolanaTransfers.map((transfer) => ({
+//     ...transfer,
+//     token: { id: transfer.token.id },
+//     value:
+//       transfer.value instanceof Decimal
+//         ? transfer.value.toJSON()
+//         : transfer.value,
+//   })),
+//   interaction: prepareInteraction(interactionState.interaction),
+//   solanaPoolOperations: interactionState.solanaPoolOperations.map((state) => ({
+//     ...state,
+//     operation: prepareSolanaPoolOperation(state.operation),
+//   })),
+// });

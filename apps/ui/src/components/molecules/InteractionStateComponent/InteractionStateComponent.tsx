@@ -10,16 +10,15 @@ import moment from "moment";
 import type React from "react";
 import { useEffect, useState } from "react";
 
-import {
-  InteractionStatus,
-  useInteractionStatus,
-} from "../../../hooks/interaction";
-import { useEuiStepPropsForInteraction } from "../../../hooks/interaction/useEuiStepPropsForInteraction";
+import { useInteractionStatus } from "../../../hooks/interaction";
 import { useReloadInteractionStateMutation } from "../../../hooks/interaction/useReloadInteractionStateMutation";
 import type { InteractionState } from "../../../models";
+import { InteractionStatus } from "../../../models";
 import { isNotNull } from "../../../utils";
 import { InteractionRetryCallout } from "../InteractionRetryCallout";
 import { InteractionTitle } from "../InteractionTitle";
+
+import { buildEuiStepsForInteraction } from "./buildEuiStepsForInteraction";
 
 interface Props {
   readonly interactionState: InteractionState;
@@ -30,7 +29,10 @@ export const InteractionStateComponent: React.FC<Props> = ({
 }) => {
   const { interaction } = interactionState;
   const interactionStatus = useInteractionStatus(interactionState);
-  const steps = useEuiStepPropsForInteraction(interactionState);
+  const steps = buildEuiStepsForInteraction(
+    interactionState,
+    interactionStatus,
+  );
   const timeInMoment = moment(interaction.submittedAt);
   const { mutate: reloadInteractionState } =
     useReloadInteractionStateMutation();

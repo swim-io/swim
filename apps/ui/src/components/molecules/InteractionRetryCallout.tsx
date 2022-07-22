@@ -6,12 +6,11 @@ import { useInteractionState } from "../../core/store";
 import { formatErrorJsx } from "../../errors";
 import { useWallets } from "../../hooks";
 import {
-  InteractionStatus,
   useHasActiveInteraction,
   useInteractionStatus,
   useResumeInteraction,
 } from "../../hooks/interaction";
-import { isEveryAddressConnected } from "../../models";
+import { InteractionStatus, isEveryAddressConnected } from "../../models";
 import type { InteractionState } from "../../models";
 
 interface Props {

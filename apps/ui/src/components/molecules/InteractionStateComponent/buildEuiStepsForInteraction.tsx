@@ -1,26 +1,22 @@
 import type { EuiStepProps, EuiStepStatus } from "@elastic/eui";
 import { EuiListGroup, EuiText } from "@elastic/eui";
 
-import { FromSolanaTransferComponent } from "../../components/molecules/FromSolanaTransferComponent";
-import { ToSolanaTransferComponent } from "../../components/molecules/ToSolanaTransferComponent";
-import { TxListItem } from "../../components/molecules/TxListItem";
-import { WaitForEcosystemCallout } from "../../components/molecules/WaitForEcosystemCallout";
-import { EcosystemId } from "../../config";
-import type { InteractionState } from "../../models";
+import { EcosystemId } from "../../../config";
+import type { InteractionState } from "../../../models";
 import {
   InteractionStateStep,
+  InteractionStatus,
   getNextTxInfo,
   isFromSolanaTransfersCompleted,
   isRequiredSplTokenAccountsCompleted,
   isSolanaPoolOperationsCompleted,
   isToSolanaTransfersCompleted,
-} from "../../models";
-import { isNotNull } from "../../utils";
-
-import {
-  InteractionStatus,
-  useInteractionStatus,
-} from "./useInteractionStatus";
+} from "../../../models";
+import { isNotNull } from "../../../utils";
+import { FromSolanaTransferComponent } from "../FromSolanaTransferComponent";
+import { ToSolanaTransferComponent } from "../ToSolanaTransferComponent";
+import { TxListItem } from "../TxListItem";
+import { WaitForEcosystemCallout } from "../WaitForEcosystemCallout";
 
 const getEuiStepStatus = (
   interactionStatus: InteractionStatus,
@@ -38,10 +34,10 @@ const getEuiStepStatus = (
   return "incomplete";
 };
 
-const usePrepareSplTokenAccountsStep = (
+const buildPrepareSplTokenAccountsStep = (
   interactionState: InteractionState,
+  interactionStatus: InteractionStatus,
 ): EuiStepProps | null => {
-  const interactionStatus = useInteractionStatus(interactionState);
   const { requiredSplTokenAccounts } = interactionState;
 
   // Add create account step, if there are missing accounts
@@ -79,10 +75,10 @@ const usePrepareSplTokenAccountsStep = (
   };
 };
 
-const useToSolanaTransfersStep = (
+const buildToSolanaTransfersStep = (
   interactionState: InteractionState,
+  interactionStatus: InteractionStatus,
 ): EuiStepProps | null => {
-  const interactionStatus = useInteractionStatus(interactionState);
   const { toSolanaTransfers } = interactionState;
 
   if (toSolanaTransfers.length === 0) {
@@ -118,10 +114,10 @@ const useToSolanaTransfersStep = (
   };
 };
 
-const useSolanaPoolOperationStep = (
+const buildSolanaPoolOperationStep = (
   interactionState: InteractionState,
+  interactionStatus: InteractionStatus,
 ): EuiStepProps | null => {
-  const interactionStatus = useInteractionStatus(interactionState);
   const { solanaPoolOperations } = interactionState;
   const status = getEuiStepStatus(
     interactionStatus,
@@ -143,10 +139,10 @@ const useSolanaPoolOperationStep = (
   };
 };
 
-const useFromSolanaTransfersStep = (
+const buildFromSolanaTransfersStep = (
   interactionState: InteractionState,
+  interactionStatus: InteractionStatus,
 ): EuiStepProps | null => {
-  const interactionStatus = useInteractionStatus(interactionState);
   const { fromSolanaTransfers } = interactionState;
   if (fromSolanaTransfers.length === 0) {
     return null;
@@ -181,13 +177,14 @@ const useFromSolanaTransfersStep = (
   };
 };
 
-export const useEuiStepPropsForInteraction = (
-  interactionState: InteractionState,
+export const buildEuiStepsForInteraction = (
+  state: InteractionState,
+  status: InteractionStatus,
 ): readonly EuiStepProps[] => {
   return [
-    usePrepareSplTokenAccountsStep(interactionState),
-    useToSolanaTransfersStep(interactionState),
-    useSolanaPoolOperationStep(interactionState),
-    useFromSolanaTransfersStep(interactionState),
+    buildPrepareSplTokenAccountsStep(state, status),
+    buildToSolanaTransfersStep(state, status),
+    buildSolanaPoolOperationStep(state, status),
+    buildFromSolanaTransfersStep(state, status),
   ].filter(isNotNull);
 };

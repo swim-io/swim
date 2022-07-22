@@ -33,12 +33,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      # - uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 16
-      #     cache: "yarn"
-      # - name: Install dependencies
-      #   run: yarn install --frozen-lockfile
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
       - name: Get production environment variables from Cloudflare Pages
         env:
@@ -59,10 +59,10 @@ jobs:
         id: cache-build
         with:
           path: ${{ env.BUILD_PATH }}
-          key: swim-ui-build-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.[jt]sx?') }}-${{ github.head_ref || github.ref_name }}
+          key: swim-ui-build-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/*.[jt]sx?') }}-${{ github.head_ref || github.ref_name }}
           restore-keys: |
-            swim-ui-build-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.[jt]sx?') }}-
-            swim-ui-build-${{ hashFiles('**/package-lock.json') }}-
+            swim-ui-build-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/*.[jt]sx?') }}-
+            swim-ui-build-${{ hashFiles('**/yarn.lock') }}-
             swim-ui-build-
 
       - name: Build UI and direct upload to Cloudflare Pages

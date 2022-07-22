@@ -23,7 +23,7 @@ import type {
 
 import "./NftCarousel.scss";
 
-export interface NftCarouselProps {
+interface Props {
   readonly nfts: readonly NftData[];
 }
 
@@ -48,7 +48,7 @@ const rarityColumns = [
 const redeemPassword = "redeem";
 const redemptionAmount = "3000 xSWIM";
 
-export const NftCarousel = ({ nfts }: NftCarouselProps): ReactElement => {
+export const NftCarousel = ({ nfts }: Props): ReactElement => {
   const [activeNft, setActiveNft] = useState<NftData | null>(null);
   const [passwordInput, setPasswordInput] = useState("");
   const { notify } = useNotification();

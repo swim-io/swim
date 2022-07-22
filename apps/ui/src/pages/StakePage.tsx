@@ -13,11 +13,11 @@ import { useEnvironment } from "../core/store";
 
 import { PoolPageInner } from "./PoolPage";
 
-export interface StakePageProps {
+interface Props {
   readonly poolId: string;
 }
 
-const StakePage = ({ poolId }: StakePageProps): ReactElement => {
+const StakePage = ({ poolId }: Props): ReactElement => {
   const { pools } = useEnvironment(selectConfig, shallow);
   const poolSpec = pools.find((pool) => pool.id === poolId) ?? null;
   return (

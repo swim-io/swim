@@ -96,7 +96,7 @@ const getPoolTitle = (poolSpec: PoolSpec): ReactElement => {
   );
 };
 
-export interface PoolPageInnerProps {
+interface PoolPageInnerProps {
   readonly poolSpec: PoolSpec; // TODO: In PoolPage component, poolSpec can be null, that case should be taken as an option
 }
 

@@ -59,13 +59,13 @@ import { RecentInteractions } from "./RecentInteractions";
 import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { TokenIcon } from "./TokenIcon";
 
-export const enum RemoveMethod {
+const enum RemoveMethod {
   Uniform = "uniform",
   ExactBurn = "exactBurn",
   ExactOutput = "exactOutput",
 }
 
-export interface RemoveFormProps {
+interface Props {
   readonly poolSpec: PoolSpec;
   readonly maxSlippageFraction: Decimal | null;
 }
@@ -73,7 +73,7 @@ export interface RemoveFormProps {
 export const RemoveForm = ({
   poolSpec,
   maxSlippageFraction,
-}: RemoveFormProps): ReactElement => {
+}: Props): ReactElement => {
   const config = useEnvironment(selectConfig, shallow);
   const {
     tokens: poolTokens,

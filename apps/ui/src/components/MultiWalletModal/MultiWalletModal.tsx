@@ -159,13 +159,11 @@ const ProtocolWalletOptionsList = ({
   );
 };
 
-export interface MultiWalletModalProps {
+interface Props {
   readonly handleClose: () => void;
 }
 
-export const MultiWalletModal = ({
-  handleClose,
-}: MultiWalletModalProps): ReactElement => {
+export const MultiWalletModal = ({ handleClose }: Props): ReactElement => {
   return (
     <CustomModal onClose={handleClose}>
       <EuiModalHeader>

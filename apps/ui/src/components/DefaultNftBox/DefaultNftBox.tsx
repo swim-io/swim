@@ -6,7 +6,7 @@ import { ConnectButton } from "../ConnectButton";
 
 import "./DefaultNftBox.scss";
 
-export interface DefaultNftBoxProps {
+interface Props {
   readonly nftProblem: NftProblem;
 }
 
@@ -16,7 +16,7 @@ export const enum NftProblem {
   Empty,
 }
 
-const BoxText = ({ nftProblem }: DefaultNftBoxProps): ReactElement => {
+const BoxText = ({ nftProblem }: Props): ReactElement => {
   switch (nftProblem) {
     case NftProblem.NoWallet:
       return <p>Connect your wallet to view and redeem your Otter Tots!</p>;
@@ -27,9 +27,7 @@ const BoxText = ({ nftProblem }: DefaultNftBoxProps): ReactElement => {
   }
 };
 
-export const DefaultNftBox = ({
-  nftProblem,
-}: DefaultNftBoxProps): ReactElement => {
+export const DefaultNftBox = ({ nftProblem }: Props): ReactElement => {
   return (
     <EuiFlexGroup
       justifyContent="center"

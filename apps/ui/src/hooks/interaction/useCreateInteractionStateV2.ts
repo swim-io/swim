@@ -36,7 +36,7 @@ import { filterMap } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useSplTokenAccountsQuery } from "../solana";
 
-export const calculateRequiredSplTokenAccounts = (
+const calculateRequiredSplTokenAccounts = (
   interaction: SwapInteractionV2,
   tokenAccounts: readonly TokenAccount[],
   walletAddress: string | null,
@@ -85,7 +85,7 @@ export const calculateRequiredSplTokenAccounts = (
   }, {});
 };
 
-export const calculateRequiredSplTokenAccountsForAddRemove = (
+const calculateRequiredSplTokenAccountsForAddRemove = (
   interaction:
     | AddInteraction
     | RemoveUniformInteraction

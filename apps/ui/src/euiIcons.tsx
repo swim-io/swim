@@ -57,7 +57,7 @@ import { appendIconComponentCache } from "@elastic/eui/es/components/icon/icon";
 
 // Preload specific icons to stop LoadChunkError("Cant find icon")
 // Context: https://github.com/elastic/eui/blob/main/wiki/consuming.md#failing-icon-imports
-export const _ = appendIconComponentCache({
+appendIconComponentCache({
   advancedSettingsApp: EuiIconAppAdvancedSettings,
   alert: EuiIconAlert,
   appSecurity: EuiIconAppSecurity,

@@ -48,13 +48,11 @@ import { TokenAmountInput } from "../molecules/TokenAmountInput";
 
 import "./SwapForm.scss";
 
-export interface SwapFormProps {
+interface Props {
   readonly maxSlippageFraction: Decimal | null;
 }
 
-export const SwapForm = ({
-  maxSlippageFraction,
-}: SwapFormProps): ReactElement => {
+export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const config = useEnvironment(selectConfig, shallow);
   const { notify } = useNotification();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();

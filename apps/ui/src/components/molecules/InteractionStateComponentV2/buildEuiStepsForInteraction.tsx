@@ -433,7 +433,7 @@ const buildRemoveStep = (
   };
 };
 
-export const buildAddStep = (
+const buildAddStep = (
   interactionState: AddInteractionState,
   interactionStatus: InteractionStatusV2,
 ): EuiStepProps => {

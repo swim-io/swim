@@ -7,7 +7,7 @@ declare global {
     ethereum?: ExternalProvider & {
       isMathWallet?: boolean;
 
-      /* all the methods in `_metamask` are considered experimental/unstable */
+      /** All the methods in `_metamask` are considered experimental/unstable */
       _metamask?: {
         isUnlocked?: () => Promise<boolean>;
       };

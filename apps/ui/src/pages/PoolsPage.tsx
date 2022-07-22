@@ -48,19 +48,14 @@ type TokenProjectSelectType = TokenProjectId | "all";
 const PoolsPage = (): ReactElement => {
   useTitle("Pools");
 
-  const {
-    env,
-    ecosystems,
-    tokens,
-    tokenProjects,
-    pools,
-    ecosystemId,
-    setEcosystemId,
+  const { tokens } = useEnvironment(selectConfig, shallow);
+  const { ecosystems, ecosystemId, setEcosystemId } = useEcosystemFilter();
+  const { tokenProjects, tokenProjectId, setTokenProjectId } =
+    useTokenProjectFilter();
+  const { filteredPools, solanaPools } = useFilteredPools(
     tokenProjectId,
-    setTokenProjectId,
-  } = useFilters();
-
-  const solanaPools = pools.filter(isSolanaPool);
+    ecosystemId,
+  );
 
   const allPoolTokenAccountAddresses = solanaPools.flatMap((poolSpec) => [
     ...poolSpec.tokenAccounts.values(),
@@ -190,36 +185,6 @@ const PoolsPage = (): ReactElement => {
     ];
   }, [ecosystems]);
 
-  const projectsPerPool: ReadonlyRecord<
-    PoolSpec["id"],
-    readonly TokenProjectId[]
-  > = useMemo(() => {
-    return pools.reduce(
-      (accumulator, pool) => ({
-        ...accumulator,
-        [pool.id]: deduplicate(
-          (id) => id,
-          pool.tokens
-            .map((tokenId) =>
-              findOrThrow(tokens, (token) => token.id === tokenId),
-            )
-            .flatMap((token) => token.project.id),
-        ),
-      }),
-      {},
-    );
-  }, [pools, tokens]);
-
-  const filteredPools = solanaPools
-    .filter((pool) => {
-      if (tokenProjectId === "all") return true;
-      return projectsPerPool[pool.id].includes(tokenProjectId);
-    })
-    .filter((pool) => {
-      if (ecosystemId === "all") return true;
-      return hasTokenEcosystem(pool, env, ecosystemId);
-    });
-
   const tvl = filteredPools.reduce(
     (prev, pool) => prev.add(poolUsdTotals[pool.id]),
     new Decimal(0),
@@ -239,7 +204,7 @@ const PoolsPage = (): ReactElement => {
 
   const content = isLoading ? (
     <>
-      {solanaPools.map((pool) => (
+      {filteredPools.map((pool) => (
         <Fragment key={pool.id}>
           <EuiSpacer size={listSpacerSize} />
           <EuiPanel>
@@ -454,13 +419,43 @@ const PoolsPage = (): ReactElement => {
 
 export default PoolsPage;
 
-function useFilters() {
+function useEcosystemFilter() {
+  const { env } = useEnvironment();
+  const { pools } = useEnvironment(selectConfig, shallow);
   const [ecosystemId, setEcosystemId] = useState<EcosystemSelectType>("all");
+
+  const ecosystems = useMemo(
+    () =>
+      sortBy(
+        deduplicate(
+          ({ id }) => id,
+          pools.flatMap((pool) => getPoolTokenEcosystems(pool, env)),
+        ),
+        "displayName",
+      ),
+    [pools, env],
+  );
+
+  useEffect(() => {
+    if (
+      ecosystemId !== "all" &&
+      !ecosystems.find((ecosystem) => ecosystem.id === ecosystemId)
+    )
+      setEcosystemId("all");
+  }, [ecosystemId, ecosystems]);
+
+  return {
+    ecosystems,
+    pools,
+    ecosystemId,
+    setEcosystemId,
+  };
+}
+
+function useTokenProjectFilter() {
+  const { tokens } = useEnvironment(selectConfig, shallow);
   const [tokenProjectId, setTokenProjectId] =
     useState<TokenProjectSelectType>("all");
-
-  const { env } = useEnvironment();
-  const { pools, tokens } = useEnvironment(selectConfig, shallow);
 
   const tokenProjects = useMemo(
     () =>
@@ -477,18 +472,6 @@ function useFilters() {
     [tokens],
   );
 
-  const ecosystems = useMemo(
-    () =>
-      sortBy(
-        deduplicate(
-          ({ id }) => id,
-          pools.flatMap((pool) => getPoolTokenEcosystems(pool, env)),
-        ),
-        "displayName",
-      ),
-    [pools, env],
-  );
-
   useEffect(() => {
     if (
       tokenProjectId !== "all" &&
@@ -497,23 +480,53 @@ function useFilters() {
       setTokenProjectId("all");
   }, [tokens, tokenProjectId, tokenProjects]);
 
-  useEffect(() => {
-    if (
-      ecosystemId !== "all" &&
-      !ecosystems.find((ecosystem) => ecosystem.id === ecosystemId)
-    )
-      setEcosystemId("all");
-  }, [ecosystemId, ecosystems]);
-
   return {
-    env,
-    ecosystems,
-    tokens,
     tokenProjects,
-    pools,
-    ecosystemId,
-    setEcosystemId,
     tokenProjectId,
     setTokenProjectId,
+  };
+}
+
+function useFilteredPools(
+  tokenProjectId: TokenProjectSelectType,
+  ecosystemId: EcosystemSelectType,
+) {
+  const { env } = useEnvironment();
+  const { pools, tokens } = useEnvironment(selectConfig, shallow);
+
+  const projectsPerPool: ReadonlyRecord<
+    PoolSpec["id"],
+    readonly TokenProjectId[]
+  > = useMemo(() => {
+    return pools.reduce(
+      (accumulator, pool) => ({
+        ...accumulator,
+        [pool.id]: deduplicate(
+          (id) => id,
+          pool.tokens
+            .map((tokenId) =>
+              findOrThrow(tokens, (token) => token.id === tokenId),
+            )
+            .flatMap((token) => token.project.id),
+        ),
+      }),
+      {},
+    );
+  }, [pools, tokens]);
+
+  const solanaPools = useMemo(() => pools.filter(isSolanaPool), [pools]);
+  const filteredPools = solanaPools
+    .filter((pool) => {
+      if (tokenProjectId === "all") return true;
+      return projectsPerPool[pool.id].includes(tokenProjectId);
+    })
+    .filter((pool) => {
+      if (ecosystemId === "all") return true;
+      return hasTokenEcosystem(pool, env, ecosystemId);
+    });
+
+  return {
+    solanaPools,
+    filteredPools,
   };
 }

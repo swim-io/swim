@@ -1,9 +1,12 @@
 export type ReadonlyRecord<K extends string | number | symbol, T> = Readonly<
   Record<K, T>
 >;
-export const getRecordKeys = <T extends string | number | symbol>(
+export const getRecordKeys = <T extends string>(
   record: ReadonlyRecord<T, unknown>,
 ): readonly T[] => Object.keys(record) as unknown as readonly T[];
+export const getRecordValues = <K extends string, V>(
+  record: ReadonlyRecord<K, V>,
+): readonly V[] => Object.values<V>(record);
 export const getRecordEntries = <K extends string, V>(
   record: ReadonlyRecord<K, V>,
 ): readonly (readonly [K, V])[] =>

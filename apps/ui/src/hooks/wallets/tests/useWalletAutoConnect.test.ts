@@ -90,7 +90,7 @@ describe("useWalletAutoConnect", () => {
   });
 
   describe("Phantom support", () => {
-    beforeAll(() => (window.phantom = {}));
+    beforeAll(() => ((window as any).phantom = {}));
     beforeEach(() =>
       walletAdapterStore.setState({
         selectedServiceByProtocol: {
@@ -99,7 +99,7 @@ describe("useWalletAutoConnect", () => {
         },
       }),
     );
-    afterAll(() => delete window.phantom);
+    afterAll(() => delete (window as any).phantom);
 
     it("should call connect when phantom is selected and present", async () => {
       const connect = jest.fn().mockImplementation(() => Promise.resolve());
@@ -119,7 +119,7 @@ describe("useWalletAutoConnect", () => {
   describe("Solong support", () => {
     beforeAll(
       () =>
-        (window.solong = {
+        ((window as any).solong = {
           selectAccount: () =>
             Promise.resolve("6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J"),
         }),
@@ -132,7 +132,7 @@ describe("useWalletAutoConnect", () => {
         },
       }),
     );
-    afterAll(() => delete window.solong);
+    afterAll(() => delete (window as any).solong);
 
     it("should call connect when solong is selected and present", async () => {
       const connect = jest.fn().mockImplementation(() => Promise.resolve());

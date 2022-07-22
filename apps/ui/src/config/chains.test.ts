@@ -1,9 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
 import { utils } from "ethers";
 
-import { getUniqueSize } from "../utils";
+import { getRecordValues, getUniqueSize } from "../utils";
 
-import type { ChainSpec } from "./chains";
 import { CHAINS as chainsByEnv } from "./chains";
 import type { EcosystemId } from "./ecosystem";
 import { Protocol } from "./ecosystem";
@@ -21,9 +20,7 @@ const generateSuite = (env: Env): void => {
     });
 
     it("specifies no more than one chain per ecosystem", () => {
-      const ecosystems = (
-        Object.values(chains) as readonly (readonly ChainSpec[])[]
-      ).reduce<readonly EcosystemId[]>(
+      const ecosystems = getRecordValues(chains).reduce<readonly EcosystemId[]>(
         (accumulator, chainSpecs) => [
           ...accumulator,
           ...chainSpecs.map((chainSpec) => chainSpec.ecosystem),

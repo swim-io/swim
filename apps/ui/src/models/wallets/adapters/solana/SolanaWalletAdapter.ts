@@ -141,7 +141,10 @@ export class SolanaWeb3WalletAdapter<
   }
 
   async connectService(args?: any): Promise<void> {
-    // @ts-expect-error probably need to handle when this.service does not exist
+    if (!this.service) {
+      throw new Error("No wallet service available");
+    }
+
     const publicKey = await this.service.getAccount();
     this.publicKey = new PublicKey(publicKey);
     this.emit("connect", this.publicKey);

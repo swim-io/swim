@@ -1,24 +1,22 @@
-/* eslint-disable functional/prefer-readonly-type */
-
 import type { ExternalProvider } from "@ethersproject/providers";
 
 declare global {
   interface Window {
-    ethereum?: ExternalProvider & {
-      isMathWallet?: boolean;
+    readonly ethereum?: ExternalProvider & {
+      readonly isMathWallet?: boolean;
 
       /** All the methods in `_metamask` are considered experimental/unstable */
-      _metamask?: {
-        isUnlocked?: () => Promise<boolean>;
+      readonly _metamask?: {
+        readonly isUnlocked?: () => Promise<boolean>;
       };
     };
-    phantom?: Record<string, unknown>;
-    solana?: {
-      isMathWallet?: boolean;
-      isPhantom?: boolean;
+    readonly phantom?: Record<string, unknown>;
+    readonly solana?: {
+      readonly isMathWallet?: boolean;
+      readonly isPhantom?: boolean;
     };
-    solong?: {
-      selectAccount: () => Promise<string>;
+    readonly solong?: {
+      readonly selectAccount: () => Promise<string>;
     };
   }
 }

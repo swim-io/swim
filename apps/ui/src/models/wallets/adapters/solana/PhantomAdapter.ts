@@ -30,12 +30,15 @@ export class PhantomAdapter extends SolanaWeb3WalletAdapter<PhantomProvider> {
   }
 
   async connectService(args?: any): Promise<void> {
-    // may need to handle if service does not exist
-    if (!this.service) return;
+    if (!this.service) {
+      throw new Error("No wallet service available");
+    }
 
     // note the listener is on the service, not the adapter
     this.service.on("connect", () => {
-      if (!this.service) return;
+      if (!this.service) {
+        throw new Error("No wallet service connected");
+      }
 
       this.publicKey = this.service.publicKey;
       this.emit("connect", this.publicKey);

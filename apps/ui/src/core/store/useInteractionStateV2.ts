@@ -7,6 +7,7 @@ import create from "zustand";
 import type { Env } from "../../config";
 import type { InteractionStateV2, InteractionV2 } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
+import { findOrThrow } from "../../utils";
 
 export interface InteractionStoreV2 {
   readonly errorMap: ReadonlyRecord<InteractionV2["id"], Error | undefined>;
@@ -14,6 +15,7 @@ export interface InteractionStoreV2 {
   readonly recentInteractionId: string | null;
   readonly setInteractionError: (id: string, error: Error | undefined) => void;
   readonly addInteractionState: (interactionState: InteractionStateV2) => void;
+  readonly getInteractionState: (id: string) => InteractionStateV2;
   readonly loadInteractionStatesFromIDB: (env: Env) => void;
   readonly updateInteractionState: (
     interactionId: string,
@@ -33,6 +35,11 @@ export const useInteractionStateV2 = create(
         }),
       );
     },
+    getInteractionState: (id: string) =>
+      findOrThrow(
+        get().interactionStates,
+        ({ interaction }) => interaction.id === id,
+      ),
     loadInteractionStatesFromIDB: async () => {
       // TODO: load interaction state from db
     },

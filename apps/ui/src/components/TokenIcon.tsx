@@ -97,19 +97,3 @@ export const TokenOptionIcon = ({
   const tokenSpec = useToken(tokenId);
   return <TokenIcon {...tokenSpec.project} ecosystemId={ecosystemId} />;
 };
-
-export interface EcosystemIconProps {
-  readonly ecosystemId: EcosystemId;
-}
-
-export const EcosystemIcon = ({
-  ecosystemId,
-}: EcosystemIconProps): ReactElement => {
-  const ecosystem = ECOSYSTEMS[ecosystemId];
-  return (
-    <span style={{ whiteSpace: "nowrap" }}>
-      <EuiIcon type={ecosystem.logo} size="m" title={ecosystem.displayName} />
-      &nbsp;{ecosystem.displayName}
-    </span>
-  );
-};

@@ -32,6 +32,7 @@ export const atomicToTvlString = (amount: Decimal): string => {
   }
 };
 
+// eslint-disable-next-line import/no-unused-modules
 export const humanToAtomic = (amount: Decimal, decimals = 0): Decimal => {
   return amount.mul(Decimal.pow(10, decimals));
 };
@@ -56,6 +57,7 @@ const buildAmountRegExp = (decimals: number): RegExp =>
         `^(?<big>(?:[1-9][0-9]*|0))(\\.(?<small>[0-9]{1,${decimals}}))?$`,
       );
 
+// eslint-disable-next-line import/no-unused-modules
 export const parseAmount = (amount: string, decimals = 0): string => {
   if (amount.match(/^0+$/)) {
     return "0";
@@ -71,12 +73,15 @@ export const parseAmount = (amount: string, decimals = 0): string => {
     : `${big === "0" ? "" : big}${small}${"0".repeat(decimals - small.length)}`;
 };
 
+// eslint-disable-next-line import/no-unused-modules
 export const parseToDecimalOrThrow = (amount: string, decimals = 0): Decimal =>
   new Decimal(parseAmount(amount, decimals));
 
+// eslint-disable-next-line import/no-unused-modules
 export const parseToDecimal = (amount: string, decimals = 0): Decimal | null =>
   defaultIfError(() => parseToDecimalOrThrow(amount, decimals), null);
 
+// eslint-disable-next-line import/no-unused-modules
 export const decimalToBN = (decimal: Decimal): BN => new BN(decimal.toFixed(0));
 export const BNtoDecimal = (bn: BN): Decimal => new Decimal(bn.toString());
 

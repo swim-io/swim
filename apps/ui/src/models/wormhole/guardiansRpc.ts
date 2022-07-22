@@ -38,8 +38,6 @@ export const getSignedVaaWithRetry: typeof originalGetSignedVAAWithRetry = (
 ) =>
   originalGetSignedVAAWithRetry(...args).catch((error) => {
     if (isRpcError(error)) {
-      // bug on @typescript-eslint/no-unsafe-member-access to treat `error` as any
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const message = MESSAGES[error.code];
       if (message) throw new SwimError(message, error);
     }

@@ -49,6 +49,13 @@
       "rules": {
         "import/no-unused-modules": "off"
       }
+    },
+    {
+      "files": ["src/contracts/**/*.ts"],
+      "rules": {
+        // eslint comments are auto generated
+        "eslint-comments/no-unlimited-disable": "off"
+      }
     }
   ]
 }

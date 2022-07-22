@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { render } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import type { ReactElement } from "react";

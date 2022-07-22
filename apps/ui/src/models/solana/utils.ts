@@ -403,7 +403,7 @@ export const findOrCreateSplTokenAccount = async (
 
 type UnsafeConnection = CustomConnection & {
   // See https://github.com/solana-labs/solana/blob/5e424826ba52e643bbd8e761b7bee11f699eb46c/web3.js/src/connection.ts#L66
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   readonly _rpcRequest: (methodName: string, args: readonly any[]) => any;
 };
 

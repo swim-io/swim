@@ -72,4 +72,5 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
           yarn release-ui
+          ls -la ${{ env.BUILD_PATH }}
           npx --yes wrangler@2 pages publish ${{ env.BUILD_PATH }} --project-name=test-direct-upload-swim-ui --branch=${{ github.head_ref || github.ref_name }}

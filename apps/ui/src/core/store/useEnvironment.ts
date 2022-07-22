@@ -54,18 +54,21 @@ export const useEnvironment = create(
         persistedState: unknown,
         currentState: EnvironmentState,
       ): EnvironmentState => {
-        if (typeof persistedState === "object" && persistedState !== null) {
-          const { env, customLocalnetIp } = persistedState as Record<
-            string,
-            unknown
-          >;
-          if (typeof env === "string" && isValidEnv(env)) {
-            if (typeof customLocalnetIp === "string") {
-              return { ...currentState, env, customLocalnetIp };
-            }
-            return { ...currentState, ...persistedState };
-          }
+        if (typeof persistedState !== "object" || persistedState === null) {
+          return currentState;
         }
+
+        const { env, customLocalnetIp } = persistedState as Record<
+          string,
+          unknown
+        >;
+        if (typeof env === "string" && isValidEnv(env)) {
+          if (typeof customLocalnetIp === "string") {
+            return { ...currentState, env, customLocalnetIp };
+          }
+          return { ...currentState, ...persistedState };
+        }
+
         return currentState;
       },
     },

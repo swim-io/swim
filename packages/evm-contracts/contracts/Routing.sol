@@ -5,7 +5,9 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./interfaces/IPool.sol";
 import "./interfaces/IRouting.sol";
@@ -17,12 +19,14 @@ import "./SwimPayload.sol";
 
 contract Routing is
   IRouting,
+  Initializable,
   PausableUpgradeable,
   OwnableUpgradeable,
   ReentrancyGuardUpgradeable,
   UUPSUpgradeable
 {
   using SwimPayload for bytes;
+  using SafeERC20 for IERC20;
 
   bytes32 private constant SWIM_USD_SOLANA_ADDRESS = 0x0;
   uint8 private constant SWIM_USD_TOKEN_INDEX = 0;
@@ -30,6 +34,7 @@ contract Routing is
 
   uint32 private wormholeNonce;
   address public swimUsdAddress;
+
   ITokenBridge public tokenBridge;
   IWormhole public wormhole;
 
@@ -80,28 +85,33 @@ contract Routing is
     address toOwner,
     address toToken,
     uint256 minimumOutputAmount
-  ) public whenNotPaused returns (uint256 outputAmount) {
+  ) public payable whenNotPaused returns (uint256 outputAmount) {
     (address fromPool, uint8 fromIndex) = getPoolAndIndex(fromToken);
     (address toPool, uint8 toIndex) = getPoolAndIndex(toToken);
 
     acquire(fromToken, inputAmount);
-    approve(fromPool, fromToken, inputAmount);
+    outputAmount = inputAmount;
 
-    uint256 receivedSwimUsdAmount = IPool(fromPool).swap(
-      inputAmount,
-      fromIndex,
-      SWIM_USD_TOKEN_INDEX,
-      0
-    );
+    if (fromToken != swimUsdAddress) {
+      approve(fromPool, fromToken, inputAmount);
 
-    approve(toPool, swimUsdAddress, receivedSwimUsdAmount);
+      outputAmount = IPool(fromPool).swap(
+        inputAmount,
+        fromIndex,
+        SWIM_USD_TOKEN_INDEX,
+        0
+      );
+    }
+    if (toToken != swimUsdAddress) {
+      approve(toPool, swimUsdAddress, outputAmount);
 
-    outputAmount = IPool(toPool).swap(
-      receivedSwimUsdAmount,
-      SWIM_USD_TOKEN_INDEX,
-      toIndex,
-      minimumOutputAmount
-    );
+      outputAmount = IPool(toPool).swap(
+        outputAmount,
+        SWIM_USD_TOKEN_INDEX,
+        toIndex,
+        minimumOutputAmount
+      );
+    }
 
     transfer(toToken, toOwner, outputAmount);
 
@@ -127,14 +137,18 @@ contract Routing is
     (address fromPool, uint8 fromIndex) = getPoolAndIndex(fromToken);
 
     acquire(fromToken, inputAmount);
-    approve(fromPool, fromToken, inputAmount);
+    uint256 receivedSwimUsdAmount = inputAmount;
 
-    uint256 receivedSwimUsdAmount = IPool(fromPool).swap(
-      inputAmount,
-      fromIndex,
-      SWIM_USD_TOKEN_INDEX,
-      firstMinimumOutputAmount
-    );
+    if (fromToken != swimUsdAddress) {
+      approve(fromPool, fromToken, inputAmount);
+
+      receivedSwimUsdAmount = IPool(fromPool).swap(
+        inputAmount,
+        fromIndex,
+        SWIM_USD_TOKEN_INDEX,
+        firstMinimumOutputAmount
+      );
+    }
 
     approve(address(tokenBridge), swimUsdAddress, receivedSwimUsdAmount);
 
@@ -218,21 +232,26 @@ contract Routing is
     (address toPool, uint8 toIndex) = getPoolAndIndex(toToken);
 
     uint256 receivedSwimUsdAmount = IERC20(swimUsdAddress).balanceOf(address(this));
-    approve(toPool, swimUsdAddress, receivedSwimUsdAmount);
+    outputToken = toToken;
+    outputAmount = minimumOutputAmount;
 
-    try
-      IPool(toPool).swap(
-        receivedSwimUsdAmount,
-        SWIM_USD_TOKEN_INDEX,
-        toIndex,
-        minimumOutputAmount
-      )
-    returns (uint256 _outputAmount) {
-      outputAmount = _outputAmount;
-      outputToken = toToken;
-    } catch {
-      outputAmount = receivedSwimUsdAmount;
-      outputToken = swimUsdAddress;
+    if (toToken != swimUsdAddress) {
+      approve(toPool, swimUsdAddress, receivedSwimUsdAmount);
+
+      try
+        IPool(toPool).swap(
+          receivedSwimUsdAmount,
+          SWIM_USD_TOKEN_INDEX,
+          toIndex,
+          minimumOutputAmount
+        )
+      returns (uint256 _outputAmount) {
+        outputAmount = _outputAmount;
+        outputToken = toToken;
+      } catch {
+        outputAmount = receivedSwimUsdAmount;
+        outputToken = swimUsdAddress;
+      }
     }
 
     transfer(toToken, toOwner, outputAmount);
@@ -285,21 +304,15 @@ contract Routing is
   }
 
   function acquire(address token, uint256 amount) internal {
-    if (!IERC20(token).transferFrom(msg.sender, address(this), amount)) {
-      revert Routing__TokenTransferFromFailed(msg.sender, address(this), amount);
-    }
+    IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
   }
 
   function transfer(address token, address recipient, uint256 amount) internal {
-    if (!IERC20(token).transfer(recipient, amount)) {
-      revert Routing__TokenTransferFailed(recipient, amount);
-    }
+    IERC20(token).safeTransfer(recipient, amount);
   }
 
   function approve(address delegate, address token, uint256 amount) internal {
-    if (!IERC20(token).approve(delegate, amount)) {
-      revert Routing__TokenApprovalFailed(delegate, amount);
-    }
+    IERC20(token).safeApprove(delegate, amount);
   }
 
   function getPoolAndIndex(address token) internal view returns(address, uint8) {

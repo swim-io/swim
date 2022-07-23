@@ -6,9 +6,6 @@ import "./IPool.sol";
 interface IRouting {
   error Routing__ErrorMessage(string message);
   error Routing__TokenNotRegistered(bytes20 addressOrTokenNumber);
-  error Routing__TokenTransferFailed(address sender, uint256 amount);
-  error Routing__TokenTransferFromFailed(address sender, address receiver, uint256 amount);
-  error Routing__TokenApprovalFailed(address spender, uint256 amount);
 
   event TokenRegistered(uint16 indexed tokenId, address indexed tokenContract, address chainPool);
 
@@ -39,7 +36,7 @@ interface IRouting {
     address toOwner,
     address toToken,
     uint256 minimumOutputAmount
-  ) external returns (uint256 outputAmount);
+  ) external payable returns (uint256 outputAmount);
 
   function swapAndTransfer(
     address fromToken,

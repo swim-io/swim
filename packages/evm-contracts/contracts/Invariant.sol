@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./Constants.sol";
+import "./PoolErrors.sol";
 import "./CenterAlignment.sol";
 import "./Equalize.sol";
 
@@ -95,7 +96,7 @@ using CenterAlignment for uint;
 
 function sum(Equalized[] memory arr) internal pure returns (uint ret) { unchecked {
   for (uint i = 0; i < arr.length; ++i) {
-    ret += uint(Equalized.unwrap(arr[i]));
+    ret += Equalized.unwrap(arr[i]);
   }
 }}
 
@@ -172,24 +173,21 @@ function calculateUnknownBalance(
 
   if (ampFactor == 0) {
     unknownBalance = depth * depth;
-    unknownBalance /= uint(Equalized.unwrap(knownBalances[0]));
+    unknownBalance /= Equalized.unwrap(knownBalances[0]);
     unknownBalance >>= 2; //= division by 4 but 2 gas cheaper
   }
   else {
-    (uint numeratorFixed, int shift) = depth.toAligned();
+    uint tokenCount = knownBalances.length + 1;
+    (uint numeratorFixed, int shift) =
+      (((depth * depth) << AMP_SHIFT) / (ampFactor * tokenCount)).toAligned();
     for (uint i = 0; i < knownBalances.length; ++i) {
       //shifts up by at most 64 bits:
       numeratorFixed *= depth;
       //shifts down by at most 64 bits:
-      numeratorFixed /= uint(Equalized.unwrap(knownBalances[i]));
-      numeratorFixed /= knownBalances.length;
+      numeratorFixed /= Equalized.unwrap(knownBalances[i]) * tokenCount;
       (numeratorFixed, shift) = numeratorFixed.keepAligned(shift);
     }
-    numeratorFixed *= depth;
-    (numeratorFixed, shift) = numeratorFixed.keepAligned(shift);
     numeratorFixed = numeratorFixed.fromAligned(shift);
-    numeratorFixed <<= AMP_SHIFT;
-    numeratorFixed /= ampFactor * knownBalances.length;
 
     uint denominatorFixed = sum(knownBalances) + ((depth << AMP_SHIFT) / ampFactor);
 
@@ -212,10 +210,8 @@ function calculateUnknownBalance(
   require(unknownBalance > 0);
 
   //ensure that unknownBalance never blows up above the allowed maximum
-  require(
-    unknownBalance < uint(Equalize.MAX_AMOUNT),
-    "unknown balance exceeds MAX_AMOUNT"
-  );
+  if (unknownBalance > Equalize.MAX_AMOUNT)
+    revert Invariant_UnknownBalanceTooLarge(unknownBalance);
   return Equalized.wrap(uint64(unknownBalance));
 }}
 
@@ -231,8 +227,8 @@ function calculateDepth(
 
   if (ampFactor == 0) {
     depth = 4;
-    depth *= uint(Equalized.unwrap(poolBalances[0]));
-    depth *= uint(Equalized.unwrap(poolBalances[1]));
+    depth *= Equalized.unwrap(poolBalances[0]);
+    depth *= Equalized.unwrap(poolBalances[1]);
     depth = sqrt(depth);
     return depth;
   }
@@ -249,33 +245,34 @@ function calculateDepth(
     (uint reciprocalDecay, int shift) = uint(1).toAligned();
     for (uint i = 0; i < tokenCount; ++i) {
       reciprocalDecay *= depth;
-      reciprocalDecay /= uint(Equalized.unwrap(poolBalances[i])) * tokenCount;
+      reciprocalDecay /= Equalized.unwrap(poolBalances[i]) * tokenCount;
       (reciprocalDecay, shift) = reciprocalDecay.keepAligned(shift);
     }
 
-    //We keep the AMP_SHIFT so we can just add our FixedAmpUnits variables.
-    //By always keeping AMP_SHIFT, independent of whether reciprocalDecay
-    // is very large or very small, we actually give up on AMP_SHIFT number
-    // of bits that we could use to support larger reciprocalDecay results
-    // (i.e. pools that are very out of whack with several large balances
-    // and one very small balance).
-    //Not relevant in practice though (see numbers above), so better to just
-    // save the gas and associated code complexity.
     shift -= int(AMP_SHIFT);
     uint tmpReciprocalDecay = reciprocalDecay * tokenCount;
 
     (uint numRD, int numShift) = tmpReciprocalDecay.keepAligned(shift);
     numRD *= depth;
-    numRD = numRD.fromAligned(numShift);
 
     uint denomRD = tmpReciprocalDecay + reciprocalDecay;
-    denomRD = denomRD.fromAligned(shift);
+    if (shift != numShift) //shift can only be smaller
+      denomRD <<= uint(numShift - shift); //now numRD and denomRD have the same shift
 
-    uint numerator = numeratorFixedAmpUnits + numRD; //can overflow
-    require(numerator > numRD); //=> protect against possible overflow
-    //if denominator were to overflow, then numerator already did
-    // hence nothing to check
-    uint denominator = denominatorFixedAmpUnits + denomRD;
+    uint numerator;
+    uint denominator;
+    if (shift < 256-(64+31)) {
+      shift = -shift;
+      //instead of rightshifting numRD and denomRD (and sacrificing precision), we instead
+      // leftshift our *FixedAmpUnits values
+      numerator = numeratorFixedAmpUnits.fromAligned(shift) + numRD;
+      denominator = denominatorFixedAmpUnits.fromAligned(shift) + denomRD;
+    }
+    else {
+      numerator = numeratorFixedAmpUnits + numRD.fromAligned(shift);
+      denominator = denominatorFixedAmpUnits + denomRD.fromAligned(shift);
+    }
+
     depth = numerator / denominator; //TODO rounded div?
   } while (absDiff(previousDepth, depth) > 1);
 

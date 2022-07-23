@@ -26,7 +26,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const poolLogic = await get("PoolLogic");
   const tokenEqualizer = -12; //keep 6 of the 18 decimals (all tokens have 18 decimals)
-  const ampFactor = 1<<10;
+  const ampFactor = 1_000; //1 with 3 decimals
   const lpFee = 300; //fee as 100th of a bip (6 decimals, 1 = 100 % fee)
   const governanceFee = 100;
   const initializeEncoded = (new ethers.utils.Interface(poolLogic.abi))

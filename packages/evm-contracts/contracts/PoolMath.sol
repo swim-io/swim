@@ -1,6 +1,7 @@
 //SPDX-License-Identifier: TODO
 pragma solidity ^0.8.0;
 
+import "./PoolErrors.sol";
 import "./Equalize.sol";
 import "./Invariant.sol";
 
@@ -26,7 +27,7 @@ function addRemove(
   Equalized userLpAmount,
   Equalized governanceMintAmount
 ) { unchecked {
-  uint initialDepth = Invariant.calculateDepth(pool.balances,pool.ampFactor, 0);
+  uint initialDepth = Invariant.calculateDepth(pool.balances, pool.ampFactor, 0);
   uint sumPoolBalances = 0;
   uint sumUpdatedBalances = 0;
   Equalized[] memory updatedBalances = new Equalized[](pool.balances.length);
@@ -36,7 +37,7 @@ function addRemove(
     uint updatedBalance = isAdd ? balance + amount : balance - amount;
     updatedBalances[i] = Equalized.wrap(updatedBalance);
     sumPoolBalances += balance;
-    sumUpdatedBalances = updatedBalance;
+    sumUpdatedBalances += updatedBalance;
   }
   uint updatedDepth = Invariant.calculateDepth(
     updatedBalances,
@@ -58,7 +59,8 @@ function addRemove(
       uint feeAmount = isAdd //rounding?
         ? taxbase *pool.totalFee / FEE_DECIMAL_FACTOR
         : taxbase * FEE_DECIMAL_FACTOR / (FEE_DECIMAL_FACTOR - pool.totalFee) - taxbase;
-      require(updatedBalance > feeAmount, "impossible remove");
+      if(updatedBalance <= feeAmount)
+        revert PoolMath_ImpossibleRemove();
       uint feeAdjustedBalance = updatedBalance - feeAmount;
       feeAdjustedBalances[i] = Equalized.wrap(feeAdjustedBalance);
     }
@@ -80,12 +82,11 @@ function addRemove(
       )
     );
   }
-  else {
+  else
     userLpAmount = Equalized.wrap( //rounding?
       (isAdd ? updatedDepth - initialDepth : initialDepth - updatedDepth)
       * Equalized.unwrap(pool.totalLpSupply) / initialDepth
     );
-  }
 }}
 
 function swap(
@@ -106,12 +107,12 @@ function swap(
     updatedBalances[i] = Equalized.wrap(updatedBalance);
   }
   Equalized[] memory knownBalances = new Equalized[](pool.balances.length-1);
-  if (isInput &&pool.totalFee != 0) {
+  if (isInput && pool.totalFee != 0) {
     for (uint i = 0; i < knownBalances.length; ++i) {
       uint j = i < index ? i : i+1;
       uint amount = Equalized.unwrap(amounts[j]);
       uint updatedBalance = Equalized.unwrap(updatedBalances[j]);
-      uint inputFeeAmount = amount *pool.totalFee / FEE_DECIMAL_FACTOR; //rounding?
+      uint inputFeeAmount = amount * pool.totalFee / FEE_DECIMAL_FACTOR; //rounding?
       uint knownBalance = updatedBalance - inputFeeAmount;
       knownBalances[i] = Equalized.wrap(knownBalance);
     }
@@ -135,11 +136,9 @@ function swap(
   }
   else {
     _userTokenAmount = unknownBalance - Equalized.unwrap(pool.balances[index]);
-    if (pool.totalFee != 0) {
+    if (pool.totalFee != 0)
       _userTokenAmount = //rounding?
-        _userTokenAmount * FEE_DECIMAL_FACTOR / (FEE_DECIMAL_FACTOR - pool.totalFee)
-        - _userTokenAmount;
-    }
+        _userTokenAmount * FEE_DECIMAL_FACTOR / (FEE_DECIMAL_FACTOR - pool.totalFee);
     updatedBalances[index] =
       Equalized.wrap(Equalized.unwrap(updatedBalances[index]) + _userTokenAmount);
   }
@@ -187,13 +186,15 @@ function removeExactBurn(
     uint taxableFraction = ( //rounding?
       (sumPoolBalances - Equalized.unwrap(pool.balances[outputIndex]))<<64
     ) / sumPoolBalances;
-    //totalFee is less than FEE_DECIMAL_FACTOR/2, hence 2<<64 is an upper bound for the quotient,
+    //totalFee is less than FEE_DECIMAL_FACTOR/2, hence 1<<64 is an upper bound for the quotient,
     // and therefore overall fee is < 1<<64, i.e. fits in 64 bits or less:
     uint fee = (FEE_DECIMAL_FACTOR<<64) / (FEE_DECIMAL_FACTOR - pool.totalFee) - (1<<64); //rounding?
     outputAmount = Equalized.wrap(
-      baseAmount - fee * (
-        //(64 bits * 64 bits) / (64 bits + (64 bits * 64 bits)>>64) = 128 / 64 = 64 bits or less:
-        (baseAmount * taxableFraction) / ((1<<64) + ((taxableFraction * fee)>>64))
+      baseAmount - ((
+          //(64 bits * 64 bits) / (64 bits + (64 bits * 64 bits)>>64) = 128 / 64 = 64 bits or less:
+          ((baseAmount * taxableFraction) / ((1<<64) + ((taxableFraction * fee)>>64)))
+        * fee
+        ) >> 64
       )
     );
     //In the next line we're assigning to a function parameter (bad) that's a reference too
@@ -214,9 +215,8 @@ function removeExactBurn(
       )
     );
   }
-  else {
+  else
     outputAmount = Equalized.wrap(baseAmount);
-  }
 }}
 
 }

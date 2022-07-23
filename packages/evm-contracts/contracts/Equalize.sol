@@ -8,8 +8,7 @@ type Equalized is uint;
 library Equalize {
   uint public constant MAX_AMOUNT = (1<<61)-1;
 
-  function to(uint amount, int8 equalizer)
-    internal pure returns (Equalized) {
+  function to(uint amount, int8 equalizer) internal pure returns (Equalized) {
     if (amount == 0)
       return Equalized.wrap(0);
 
@@ -28,8 +27,7 @@ library Equalize {
     return Equalized.wrap(equalized);
   }
 
-  function from(Equalized equalized, int8 equalizer)
-    internal pure returns (uint) {
+  function from(Equalized equalized, int8 equalizer) internal pure returns (uint) {
     uint amount = Equalized.unwrap(equalized);
     if (amount == 0)
       return 0;

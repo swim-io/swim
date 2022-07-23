@@ -51,7 +51,7 @@ function fromAligned(uint val, int shift)
     uint unshift = uint(-shift);
     //ensure we aren't overflowing on rightshift
     if (unshift >= BITS_PER_UINT || val >= (1<<(BITS_PER_UINT-unshift)))
-      revert Invariant_NumericOverflow();
+      revert CenterAlignment_NumericOverflow();
     return val << unshift;
   }
   //potentially underflowing to 0 is ok

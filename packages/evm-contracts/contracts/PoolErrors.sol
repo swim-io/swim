@@ -5,8 +5,9 @@ pragma solidity ^0.8.0;
 error Equalize_MaxAmountExceeded(uint amount, int8 equalizer);
 error Equalize_LosingAllPrecision(uint value, int8 equalizer);
 
+error CenterAlignment_NumericOverflow();
+
 error Invariant_UnknownBalanceTooLarge(uint unknownBalance);
-error Invariant_NumericOverflow();
 
 error PoolMath_ImpossibleRemove();
 

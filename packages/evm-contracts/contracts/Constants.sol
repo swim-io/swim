@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 uint constant MAX_TOKEN_COUNT = 6;
 uint constant FEE_DECIMALS = 6; //enough to represent 100th of a bip
-uint constant FEE_DECIMAL_FACTOR = 10**FEE_DECIMALS;
+uint constant FEE_MULTIPLIER = 10**FEE_DECIMALS;
 
 //Min and max equalizers are somewhat arbitrary, though shifting down by more than 18 decimals
 // will almost certainly be unintentional and shifting up by more than 4 digits will almost
@@ -25,3 +25,6 @@ uint constant MAX_AMP_RELATIVE_ADJUSTMENT = 10;
 //amp factor for internal respresentation (shifting can be efficiently combined with other pool math)
 uint constant AMP_SHIFT = 10; //number of bits ampFactor is shifted to the left
 uint constant ONE_AMP_SHIFTED = 1 << AMP_SHIFT;
+
+uint constant MARGINAL_PRICE_DECIMALS = 18;
+uint constant MARGINAL_PRICE_MULTIPLIER = 10**MARGINAL_PRICE_DECIMALS;

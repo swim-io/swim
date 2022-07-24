@@ -6177,6 +6177,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.30.5
     "@typescript-eslint/parser": ^5.30.5
     chai: ^4.3.6
+    chai-bn: ^0.3.1
     dotenv: ^16.0.1
     eslint: ^8.19.0
     eslint-config-prettier: ^8.5.0
@@ -10702,6 +10703,16 @@ __metadata:
   peerDependencies:
     chai: ">= 2.1.2 < 5"
   checksum: 7262868a5b51a12af4e432838ddf97a893109266a505808e1868ba63a12de7ee1166e9d43b5c501a190c377c1b11ecb9ff8e093c89f097ad96c397e8ec0f8d6a
+  languageName: node
+  linkType: hard
+
+"chai-bn@npm:^0.3.1":
+  version: 0.3.1
+  resolution: "chai-bn@npm:0.3.1"
+  peerDependencies:
+    bn.js: ^5.0.0
+    chai: ^4.0.0
+  checksum: 316a82b98df2a1e66edeee0e835fd7b418c3b5e1794b69264eb76be65d1ecea1f3a9ce2f1f94ec7f0f6964c579c2986999d7bcab98d30f9160ec753b4fdfd692
   languageName: node
   linkType: hard
 

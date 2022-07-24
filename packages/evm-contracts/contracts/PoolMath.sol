@@ -30,8 +30,8 @@ function addRemove(
   uint initialDepth = Invariant.calculateDepth(pool.balances, pool.ampFactor, 0);
   uint sumPoolBalances = 0;
   uint sumUpdatedBalances = 0;
-  Equalized[] memory updatedBalances = new Equalized[](pool.balances.length);
-  for (uint i = 0; i < pool.balances.length; ++i) {
+  Equalized[] memory updatedBalances = new Equalized[](pool.tokenCount);
+  for (uint i = 0; i < pool.tokenCount; ++i) {
     uint balance = Equalized.unwrap(pool.balances[i]);
     uint amount = Equalized.unwrap(amounts[i]);
     uint updatedBalance = isAdd ? balance + amount : balance - amount;
@@ -46,8 +46,8 @@ function addRemove(
   );
 
   if (pool.totalFee != 0) {
-    Equalized[] memory feeAdjustedBalances = new Equalized[](pool.balances.length);
-    for (uint i = 0; i < pool.balances.length; ++i) {
+    Equalized[] memory feeAdjustedBalances = new Equalized[](pool.tokenCount);
+    for (uint i = 0; i < pool.tokenCount; ++i) {
       uint updatedBalance = Equalized.unwrap(updatedBalances[i]);
       uint scaledBalance = //rounding?
         Equalized.unwrap(pool.balances[i]) * sumUpdatedBalances / sumPoolBalances;
@@ -57,8 +57,8 @@ function addRemove(
       //We calculate feeAmount = taxbase * (isAdd ?pool.totalFee : (1/(1-totalFee)-1))
       // but in a way that correctly handles FEE_DECIMALS and is compatible with uint arithmetic.
       uint feeAmount = isAdd //rounding?
-        ? taxbase *pool.totalFee / FEE_DECIMAL_FACTOR
-        : taxbase * FEE_DECIMAL_FACTOR / (FEE_DECIMAL_FACTOR - pool.totalFee) - taxbase;
+        ? taxbase *pool.totalFee / FEE_MULTIPLIER
+        : taxbase * FEE_MULTIPLIER / (FEE_MULTIPLIER - pool.totalFee) - taxbase;
       if(updatedBalance <= feeAmount)
         revert PoolMath_ImpossibleRemove();
       uint feeAdjustedBalance = updatedBalance - feeAmount;
@@ -99,20 +99,20 @@ function swap(
   Equalized governanceMintAmount
 ) { unchecked {
   uint initialDepth = Invariant.calculateDepth(pool.balances,pool.ampFactor, 0);
-  Equalized[] memory updatedBalances = new Equalized[](pool.balances.length);
-  for (uint i = 0; i < pool.balances.length; ++i) {
+  Equalized[] memory updatedBalances = new Equalized[](pool.tokenCount);
+  for (uint i = 0; i < pool.tokenCount; ++i) {
     uint balance = Equalized.unwrap(pool.balances[i]);
     uint amount = Equalized.unwrap(amounts[i]);
     uint updatedBalance = isInput ? balance + amount : balance - amount;
     updatedBalances[i] = Equalized.wrap(updatedBalance);
   }
-  Equalized[] memory knownBalances = new Equalized[](pool.balances.length-1);
+  Equalized[] memory knownBalances = new Equalized[](pool.tokenCount-1);
   if (isInput && pool.totalFee != 0) {
     for (uint i = 0; i < knownBalances.length; ++i) {
       uint j = i < index ? i : i+1;
       uint amount = Equalized.unwrap(amounts[j]);
       uint updatedBalance = Equalized.unwrap(updatedBalances[j]);
-      uint inputFeeAmount = amount * pool.totalFee / FEE_DECIMAL_FACTOR; //rounding?
+      uint inputFeeAmount = amount * pool.totalFee / FEE_MULTIPLIER; //rounding?
       uint knownBalance = updatedBalance - inputFeeAmount;
       knownBalances[i] = Equalized.wrap(knownBalance);
     }
@@ -138,7 +138,7 @@ function swap(
     _userTokenAmount = unknownBalance - Equalized.unwrap(pool.balances[index]);
     if (pool.totalFee != 0)
       _userTokenAmount = //rounding?
-        _userTokenAmount * FEE_DECIMAL_FACTOR / (FEE_DECIMAL_FACTOR - pool.totalFee);
+        _userTokenAmount * FEE_MULTIPLIER / (FEE_MULTIPLIER - pool.totalFee);
     updatedBalances[index] =
       Equalized.wrap(Equalized.unwrap(updatedBalances[index]) + _userTokenAmount);
   }
@@ -168,7 +168,7 @@ function removeExactBurn(
   uint updatedDepth = //rounding?
     Invariant.calculateDepth(pool.balances, pool.ampFactor, 0) //initialDepth
     * updatedLpSupply / Equalized.unwrap(pool.totalLpSupply);
-  Equalized[] memory knownBalances = new Equalized[](pool.balances.length-1);
+  Equalized[] memory knownBalances = new Equalized[](pool.tokenCount-1);
   for (uint i = 0; i < knownBalances.length; ++i) {
     uint j = i < outputIndex ? i : i+1;
     knownBalances[i] = pool.balances[j];
@@ -186,14 +186,14 @@ function removeExactBurn(
     uint taxableFraction = ( //rounding?
       (sumPoolBalances - Equalized.unwrap(pool.balances[outputIndex]))<<64
     ) / sumPoolBalances;
-    //totalFee is less than FEE_DECIMAL_FACTOR/2, hence 1<<64 is an upper bound for the quotient,
+    //totalFee is less than FEE_MULTIPLIER/2, hence 1<<64 is an upper bound for the quotient,
     // and therefore overall fee is < 1<<64, i.e. fits in 64 bits or less:
-    uint fee = (FEE_DECIMAL_FACTOR<<64) / (FEE_DECIMAL_FACTOR - pool.totalFee) - (1<<64); //rounding?
+    uint fee = (FEE_MULTIPLIER<<64) / (FEE_MULTIPLIER - pool.totalFee) - (1<<64); //rounding?
     outputAmount = Equalized.wrap(
-      baseAmount - ((
-          //(64 bits * 64 bits) / (64 bits + (64 bits * 64 bits)>>64) = 128 / 64 = 64 bits or less:
+      baseAmount - (
+        ( //(64 bits * 64 bits) / (64 bits + (64 bits * 64 bits)>>64) = 128 / 64 = 64 bits or less:
           ((baseAmount * taxableFraction) / ((1<<64) + ((taxableFraction * fee)>>64)))
-        * fee
+          * fee
         ) >> 64
       )
     );
@@ -201,7 +201,7 @@ function removeExactBurn(
     // (way worse still). Otoh, we're not using pool.balances for anything else, neither inside
     // this function, nor within the larger context of the entire contract invocation. Hence,
     // copying the entire array and wasting a bunch of gas in the process, just to neurotically
-    //and autistically avoid a code smell is even less palatable. So here goes...
+    // and autistically avoid a code smell is even less palatable. So here goes...
     pool.balances[outputIndex] = Equalized.wrap(
       Equalized.unwrap(pool.balances[outputIndex]) - Equalized.unwrap(outputAmount)
     );

@@ -148,6 +148,18 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     return state;
   }
 
+  //calculate marginal prices measured in lp tokens
+  // so marginally, removing 1 lp token will give you marginalPrice[i] i-tokens
+  //returned in fixed point representation using 18 decimals (see MARGINAL_PRICES_DECIMALS)
+  // so 1 = 1e18, 0.5 = 5e17, and so on
+  function getMarginalPrices() external view returns (uint[] memory) {
+    return Invariant.marginalPrices(
+      getEqualizedPoolBalances(tokenCount),
+      getAmpFactor(),
+      Equalize.to(LpToken(lpTokenData.addr).totalSupply(), lpTokenData.equalizer)
+    );
+  }
+
   // ----------------------------- DEFI LIQUIDITY -----------------------------
 
   //always available, even when paused!
@@ -440,8 +452,8 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     // 1) Anything even close to approaching this is already entirely insane.
     // 2) To avoid theoretical overflow/underflow issues when calculating the inverse fee,
     //    of 1/(1-fee)-1 would exceed 100 % if fee were to exceeds 50 %.
-    if (_totalFee >= FEE_DECIMAL_FACTOR/2)
-      revert Pool_TotalFeeTooLarge(_totalFee, uint32(FEE_DECIMAL_FACTOR/2 - 1));
+    if (_totalFee >= FEE_MULTIPLIER/2)
+      revert Pool_TotalFeeTooLarge(_totalFee, uint32(FEE_MULTIPLIER/2 - 1));
     if (_governanceFee != 0 && governanceFeeRecipient == address(0))
       revert Pool_NonZeroGovernanceFeeButNoRecipient();
     totalFee = _totalFee;
@@ -497,16 +509,20 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     lpEqualizer = lpTokenData.equalizer;
     pool = PoolMath.Pool(
       uint8(_tokenCount),
-      new Equalized[](_tokenCount),
+      getEqualizedPoolBalances(_tokenCount),
       getAmpFactor(),
       totalFee,
       governanceFee,
       Equalize.to(lpToken.totalSupply(), lpEqualizer)
     );
+  }}
 
+  function getEqualizedPoolBalances(uint _tokenCount)
+    internal view returns(Equalized[] memory poolBalances) { unchecked {
+    poolBalances = new Equalized[](_tokenCount);
     for (uint i = 0; i < _tokenCount; ++i) {
       uint balance = IERC20(poolTokensData[i].addr).balanceOf(address(this));
-      pool.balances[i] = Equalize.to(balance, poolTokensData[i].equalizer);
+      poolBalances[i] = Equalize.to(balance, poolTokensData[i].equalizer);
     }
   }}
 

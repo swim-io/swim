@@ -217,7 +217,7 @@ function calculateUnknownBalance(
 
 function calculateDepth(
   Equalized[] memory poolBalances,
-  uint ampFactor,
+  uint32 ampFactor,
   uint initialGuess
 ) internal pure returns(uint depth) { unchecked {
   //assumptions (already enforced elsewhere):
@@ -226,7 +226,7 @@ function calculateDepth(
   // 0 < poolBalances[i] < MAX_AMOUNT for all i
 
   if (ampFactor == 0) {
-    depth = 4;
+    depth = 4; //better precision by including the 4 in the subsequent sqrt
     depth *= Equalized.unwrap(poolBalances[0]);
     depth *= Equalized.unwrap(poolBalances[1]);
     depth = sqrt(depth);
@@ -280,6 +280,48 @@ function calculateDepth(
   require(depth > 0);
 
   return depth;
+}}
+
+function marginalPrices(
+  Equalized[] memory poolBalances,
+  uint32 ampFactor,
+  Equalized lpSupply
+)
+  internal pure returns (uint[] memory) { unchecked {
+  uint tokenCount = poolBalances.length;
+  uint[] memory prices = new uint[](tokenCount);
+
+  if (ampFactor == 0) {
+    // with x := poolBalances[0], y := poolBalances[1]
+    // constant product invarant:   x*y = (depth/2)^2
+    // hence:                     depth = 2 * sqrt(x*y)
+    // derive by d/dx:       d depth/dx = 1/sqrt(x*y) * y
+    // => marginalPrice(x) = y / sqrt(x*y) = y / (2*depth)
+    // or when priced in lpSupply: marginalPrice(x) = y / (2*lpSupply)
+    prices[0] = Equalized.unwrap(poolBalances[1]) *
+      (MARGINAL_PRICE_MULTIPLIER/2) / Equalized.unwrap(lpSupply);
+    prices[1] = Equalized.unwrap(poolBalances[0]) *
+      (MARGINAL_PRICE_MULTIPLIER/2) / Equalized.unwrap(lpSupply);
+    return prices;
+  }
+
+  uint depth = Invariant.calculateDepth(poolBalances, ampFactor, 0);
+  (uint reciprocalDecay, int shift) = MARGINAL_PRICE_MULTIPLIER.toAligned();
+  for (uint i = 0; i < tokenCount; ++i) {
+    reciprocalDecay *= depth;
+    reciprocalDecay /= Equalized.unwrap(poolBalances[i]) * tokenCount;
+    (reciprocalDecay, shift) = reciprocalDecay.keepAligned(shift);
+  }
+  uint ampMinusOneShifted = (MARGINAL_PRICE_MULTIPLIER * (ampFactor - ONE_AMP_SHIFTED))
+    .fromAligned(-shift + int(AMP_SHIFT));
+  uint denominator = (ampMinusOneShifted + (tokenCount + 1) * reciprocalDecay) / 1e18;
+  uint depthTimesDecay = depth * reciprocalDecay;
+  uint numeratorAmp = (MARGINAL_PRICE_MULTIPLIER * ampFactor)
+    .fromAligned(-shift + int(AMP_SHIFT));
+  for (uint i = 0; i < tokenCount; ++i)
+    prices[i] = (numeratorAmp + depthTimesDecay/Equalized.unwrap(poolBalances[i])) / denominator;
+
+  return prices;
 }}
 
 }

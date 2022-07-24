@@ -1,6 +1,345 @@
 {
-  "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+  "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
   "abi": [
+    {
+      "inputs": [],
+      "name": "CenterAlignment_NumericOverflow",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int8",
+          "name": "equalizer",
+          "type": "int8"
+        }
+      ],
+      "name": "Equalize_LosingAllPrecision",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int8",
+          "name": "equalizer",
+          "type": "int8"
+        }
+      ],
+      "name": "Equalize_MaxAmountExceeded",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "unknownBalance",
+          "type": "uint256"
+        }
+      ],
+      "name": "Invariant_UnknownBalanceTooLarge",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "PoolMath_ImpossibleRemove",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "count",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "expected",
+          "type": "uint8"
+        }
+      ],
+      "name": "Pool_AmountCountMismatch",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "poolbalance",
+          "type": "uint256"
+        }
+      ],
+      "name": "Pool_AmountExceedsSupply",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Pool_AmpFactorIsFixedForConstantProductPools",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "current",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "target",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "threshold",
+          "type": "uint32"
+        }
+      ],
+      "name": "Pool_AmpFactorRelativeAdjustmentTooLarge",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "target",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "minimum",
+          "type": "uint32"
+        }
+      ],
+      "name": "Pool_AmpFactorTargetTimestampTooSmall",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "ampFactor",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "maximum",
+          "type": "uint32"
+        }
+      ],
+      "name": "Pool_AmpFactorTooLarge",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "ampFactor",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "minimum",
+          "type": "uint32"
+        }
+      ],
+      "name": "Pool_AmpFactorTooSmall",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "tokenCount",
+          "type": "uint8"
+        }
+      ],
+      "name": "Pool_ConstantProductNotSupportedForTokenCount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Pool_GovernanceOnly",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "missingAmountIndex",
+          "type": "uint8"
+        }
+      ],
+      "name": "Pool_InitialAddMustIncludeAllTokens",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "tokenIndex",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "tokenCount",
+          "type": "uint8"
+        }
+      ],
+      "name": "Pool_InvalidTokenIndex",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Pool_IsPaused",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Pool_LpTokenInitializationFailed",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "value",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "maximum",
+          "type": "uint8"
+        }
+      ],
+      "name": "Pool_MaxTokenCountExceeded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Pool_NonZeroGovernanceFeeButNoRecipient",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "tokenIndex",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Pool_RequestedTokenAmountNotZero",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "threshold",
+          "type": "uint256"
+        }
+      ],
+      "name": "Pool_SlippageExceeded",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "count",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "expected",
+          "type": "uint8"
+        }
+      ],
+      "name": "Pool_TokenEqualizerCountMismatch",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "int8",
+          "name": "equalizer",
+          "type": "int8"
+        },
+        {
+          "internalType": "int8",
+          "name": "maximum",
+          "type": "int8"
+        }
+      ],
+      "name": "Pool_TokenEqualizerTooLarge",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "int8",
+          "name": "equalizer",
+          "type": "int8"
+        },
+        {
+          "internalType": "int8",
+          "name": "minimum",
+          "type": "int8"
+        }
+      ],
+      "name": "Pool_TokenEqualizerTooSmall",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "totalFee",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "maximum",
+          "type": "uint32"
+        }
+      ],
+      "name": "Pool_TotalFeeTooLarge",
+      "type": "error"
+    },
     {
       "anonymous": false,
       "inputs": [
@@ -116,33 +455,7 @@
     },
     {
       "inputs": [],
-      "name": "ampInitialValue",
-      "outputs": [
-        {
-          "internalType": "uint32",
-          "name": "",
-          "type": "uint32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "ampTargetTimestamp",
-      "outputs": [
-        {
-          "internalType": "uint32",
-          "name": "",
-          "type": "uint32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "ampTargetValue",
       "outputs": [
         {
           "internalType": "uint32",

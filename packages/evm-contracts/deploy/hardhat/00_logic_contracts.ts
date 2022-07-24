@@ -26,6 +26,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     autoMine: true,
   });
   await save("RoutingLogic", routingLogic);
+
+  const tokenBridgeLogic = await deploy("MockTokenBridge", {
+    from: deployer,
+    args: [],
+    autoMine: true,
+  });
+  await save("TokenBridgeLogic", tokenBridgeLogic);
 };
 export default func;
 func.id = "LogicContracts";

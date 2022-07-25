@@ -43,6 +43,8 @@ module.exports = {
         "src/fixtures/**/*",
       ],
       rules: {
+        // Storybook/Jest magic
+        // keep fixtures around even if they aren't used right now
         "import/no-unused-modules": "off",
       },
     },

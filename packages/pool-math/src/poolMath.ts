@@ -357,18 +357,34 @@ export class PoolMath {
   }
 
   marginalPrices(): readonly Decimal[] {
+    if (this.ampFactor.isZero()) {
+      //constant product invariant: \prod balances[i] = (depth/tokenCount)^tokenCount
+      //  hence: depth = tokenCount * (\prod balances[i])^(1/tokenCount)
+      //derivative of depth with respect to one of the balances j:
+      //  depth' = (\prod balances[i])^(1/tokenCount-1) * \prod_{i \neq j} balances[i]
+      //         = (\prod balances[i])^(1/tokenCount) / balances[j]
+      //         = depth / (tokenCount * balances[j])
+      // and when priced in lp (i.e. * depth/lpSupply)
+      const fixed = this._depth
+        .mul(this._depth)
+        .div(this.lpSupply)
+        .div(this.tokenCount);
+      return arrayCreate(this.tokenCount, (i) => fixed.div(this.balances[i]));
+    }
+
     const reciprocalDecay = arrayProd(
       this.balances.map((balance: Decimal) =>
         this._depth.div(balance.mul(this.tokenCount)),
       ),
     );
+    const fixed1 = this._depth.mul(reciprocalDecay);
     const denominator = this.ampFactor
       .sub(1)
       .add(reciprocalDecay.mul(this.tokenCount + 1));
+    const pricedInLp = this._depth.div(this.lpSupply);
+    const fixed2 = denominator.div(pricedInLp);
     return arrayCreate(this.tokenCount, (i) =>
-      this.ampFactor
-        .add(this._depth.mul(reciprocalDecay).div(this.balances[i]))
-        .div(denominator),
+      this.ampFactor.add(fixed1.div(this.balances[i])).div(fixed2),
     );
   }
 

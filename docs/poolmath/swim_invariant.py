@@ -32,14 +32,18 @@ class SwimPool:
 
   def marginal_prices(self):
     depth = self.depth()
+    if self.amp_factor == 0:
+      fixed = depth * depth / (self.token_count * self.lp_supply)
+      return [fixed / balance for balance in self.balances]
+
     reciprocal_decay = Decimal(1)
     for balance in self.balances:
       reciprocal_decay *= depth / (self.token_count * balance)
+    fixed1 = depth * reciprocal_decay
     denominator = (self.amp_factor - 1) + (self.token_count + 1) * reciprocal_decay
-    return [
-      (self.amp_factor + depth * reciprocal_decay / balance) / denominator
-      for balance in self.balances
-    ]
+    pricedInLp = depth / self.lp_supply
+    fixed2 = denominator / pricedInLp
+    return [(self.amp_factor + fixed1 / balance) / fixed2 for balance in self.balances]
 
   def swap_exact_input(self, input_amounts, output_index, min_output_amount=0):
     return self.__swap(True, input_amounts, output_index, min_output_amount)

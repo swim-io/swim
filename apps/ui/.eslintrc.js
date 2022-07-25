@@ -3,6 +3,8 @@ require("@swim-io/eslint-config/patch/modern-module-resolution");
 module.exports = {
   extends: ["@swim-io/eslint-config/react"],
   rules: {
+    // Enable periodically - we don’t want the linter to force us to upgrade at inconvenient times
+    "deprecation/deprecation": "off",
     // rules we maybe want
     "import/no-unused-modules": ["error", { unusedExports: true }],
     "functional/immutable-data": [

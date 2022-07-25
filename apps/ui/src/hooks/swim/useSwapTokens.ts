@@ -43,7 +43,7 @@ export const useSwapTokens = (): SwapTokens => {
     if (!param) {
       return null;
     }
-    const tid = env.toLowerCase() + "-" + param;
+    const tid = env.toLowerCase() + "-" + param.toLowerCase();
     return tokens.find(({ id }) => id === tid) ?? null;
   };
   const fromTokenOptionsIds = useMemo(
@@ -115,7 +115,7 @@ export const useSwapTokens = (): SwapTokens => {
     const newOutputTokenOptions = getOutputTokens(fromTokenArg.id);
     const toTokenUrlParam = convertTokenSpecToUrlParam(
       newOutputTokenOptions.find((id) => id === toTokenArg.id)
-        ? toToken
+        ? toTokenArg
         : findOrThrow(tokens, ({ id }) => id === newOutputTokenOptions[0]),
     );
     navigate(`/swap/${fromTokenUrlParam}/to/${toTokenUrlParam}`);

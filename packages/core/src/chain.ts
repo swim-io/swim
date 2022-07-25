@@ -3,9 +3,13 @@ import type { TokenConfig } from "./token";
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /** Configuration interface for Wormhole-supported blockchains */
 =======
 >>>>>>> def57a39 (refactor(core): Adjust wormhole properties in ChainConfig)
+=======
+/** Configuration interface for Wormhole-supported blockchains */
+>>>>>>> 527a7a8a (docs(core): Add docstrings to types)
 export interface WormholeConfig {
   /** The core (generic) VAA bridge contract */
   readonly bridge: string;
@@ -14,6 +18,9 @@ export interface WormholeConfig {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 527a7a8a (docs(core): Add docstrings to types)
 /** Ecosystem-neutral blockchain configuration interface */
 export interface ChainConfig {
   readonly name: string;

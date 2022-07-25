@@ -1166,7 +1166,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: true, // TODO: Enable when deployed on devnet
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN, // TODO: Enable when deployed on devnet
     id: "devnet-solana-lp-meta-aurora-usn",
     project: PROJECTS[TokenProjectId.SwimAuroraUsnMetaPoolLp],
     nativeEcosystem: EcosystemId.Solana,

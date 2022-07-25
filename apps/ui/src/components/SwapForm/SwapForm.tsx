@@ -233,7 +233,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const isStableSwap = requiredPools.every((pool) => pool.isStableSwap);
   return (
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
-      {hasUrlError && <EuiCallOut title="Invalid URL inputs" color="danger" />}
+      {hasUrlError && <EuiCallOut title="Invalid swap URL" color="danger" />}
       <EuiSpacer />
 
       <TokenAmountInput

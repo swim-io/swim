@@ -20,7 +20,7 @@ export interface InteractionStore {
   readonly recentInteractionId: string | null;
   readonly setInteractionError: (id: string, error: Error | undefined) => void;
   readonly addInteractionState: (interactionState: InteractionState) => void;
-  readonly loadInteractionStatesFromIDB: (env: Env) => void;
+  readonly loadInteractionStatesFromIDB: (env: Env) => Promise<void>;
   readonly updateInteractionState: (
     interactionId: string,
     updateCallback: (interactionState: Draft<InteractionState>) => void,

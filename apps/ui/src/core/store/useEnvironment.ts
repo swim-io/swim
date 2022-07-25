@@ -51,16 +51,24 @@ export const useEnvironment = create(
         customLocalnetIp: state.customLocalnetIp,
       }),
       merge: (
-        persistedState: any, // TODO: Set type to unknown and validate
+        persistedState: unknown,
         currentState: EnvironmentState,
       ): EnvironmentState => {
-        const { env, customLocalnetIp } = persistedState;
-        if (isValidEnv(env)) {
-          if (customLocalnetIp !== null) {
+        if (typeof persistedState !== "object" || persistedState === null) {
+          return currentState;
+        }
+
+        const { env, customLocalnetIp } = persistedState as Record<
+          string,
+          unknown
+        >;
+        if (typeof env === "string" && isValidEnv(env)) {
+          if (typeof customLocalnetIp === "string") {
             return { ...currentState, env, customLocalnetIp };
           }
           return { ...currentState, ...persistedState };
         }
+
         return currentState;
       },
     },

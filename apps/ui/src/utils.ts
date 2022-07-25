@@ -1,9 +1,16 @@
 export type ReadonlyRecord<K extends string | number | symbol, T> = Readonly<
   Record<K, T>
 >;
-export const getRecordKeys = <T extends string | number | symbol>(
-  record: ReadonlyRecord<T, any>,
+export const getRecordKeys = <T extends string>(
+  record: ReadonlyRecord<T, unknown>,
 ): readonly T[] => Object.keys(record) as unknown as readonly T[];
+export const getRecordValues = <K extends string, V>(
+  record: ReadonlyRecord<K, V>,
+): readonly V[] => Object.values<V>(record);
+export const getRecordEntries = <K extends string, V>(
+  record: ReadonlyRecord<K, V>,
+): readonly (readonly [K, V])[] =>
+  Object.entries(record) as unknown as readonly (readonly [K, V])[];
 
 export function shortenAddress(address: string, chars = 5): string {
   return `${address.slice(0, chars)}...${address.slice(-chars)}`;
@@ -55,11 +62,9 @@ export const chunks = <T>(
   array: readonly T[],
   size: number,
 ): readonly (readonly T[])[] =>
-  // eslint-disable-next-line functional/prefer-readonly-type
-  Array.apply<number, T[], readonly (readonly T[])[]>(
-    0,
-    new Array(Math.ceil(array.length / size)),
-  ).map((_, index) => array.slice(index * size, (index + 1) * size));
+  Array.from({ length: Math.ceil(array.length / size) }).map((_, index) =>
+    array.slice(index * size, (index + 1) * size),
+  );
 
 export const groupBy = <T, K extends keyof any>(
   list: readonly T[],

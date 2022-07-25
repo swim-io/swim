@@ -80,7 +80,9 @@ export class EvmWeb3WalletAdapter
     const provider = this.getWalletProvider();
     if (!provider) return false;
     try {
-      return (await provider.send("eth_accounts", [])).length > 0;
+      return (
+        ((await provider.send("eth_accounts", [])) as readonly any[]).length > 0
+      );
     } catch {
       return false;
     }
@@ -101,10 +103,10 @@ export class EvmWeb3WalletAdapter
 
     this.connecting = true;
     try {
-      const [address] = await this.walletProvider.send(
+      const [address] = (await this.walletProvider.send(
         "eth_requestAccounts",
         [],
-      );
+      )) as readonly string[];
       this.address = address;
       this.emit("connect", this.address);
 
@@ -116,7 +118,7 @@ export class EvmWeb3WalletAdapter
       const level: SeverityLevel = "info";
       Sentry.addBreadcrumb({
         category: "wallet",
-        message: `Connected to ${sentryContextKey} ${this.address}`,
+        message: `Connected to ${sentryContextKey} ${String(this.address)}`,
         level,
       });
     } catch (error) {
@@ -151,8 +153,11 @@ export class EvmWeb3WalletAdapter
       await this.walletProvider.send("wallet_switchEthereumChain", [
         { chainId: hexValue(chainId) },
       ]);
-    } catch (switchError: any) {
-      if (switchError.code === METAMASK_unrecognizedChainId) {
+    } catch (switchError: unknown) {
+      if (
+        (switchError as Record<string, unknown>).code ===
+        METAMASK_unrecognizedChainId
+      ) {
         const evmSpec = ALL_UNIQUE_CHAINS[Protocol.Evm].find(
           (spec) => spec.chainId === chainId,
         );
@@ -168,7 +173,10 @@ export class EvmWeb3WalletAdapter
             rpcUrls: evmSpec.rpcUrls,
           },
         ]);
-      } else if (switchError.code === METAMASK_methodNotFound) {
+      } else if (
+        (switchError as Record<string, unknown>).code ===
+        METAMASK_methodNotFound
+      ) {
         this.emit(
           "error",
           `${this.serviceName} error`,
@@ -198,18 +206,16 @@ export class EvmWeb3WalletAdapter
 
     await sleep(200); // Sleep briefly, otherwise Metamask ignores the second prompt
 
-    const wasAdded: boolean = await this.walletProvider.send(
-      "wallet_watchAsset",
-      {
-        type: "ERC20", // Initially only supports ERC20, but eventually more!
-        options: {
-          address: details.address, // The address that the token is at.
-          symbol: tokenSpec.project.symbol, // A ticker symbol or shorthand, up to 5 chars.
-          decimals: details.decimals, // The number of decimals in the token
-          // TODO: image: tokenSpec.icon, // A string url of the token logo
-        },
-      } as any,
-    );
+    const wasAdded = (await this.walletProvider.send("wallet_watchAsset", {
+      // @ts-expect-error the type is wrong in walletProvider.send, the params should not be an array
+      type: "ERC20", // Initially only supports ERC20, but eventually more!
+      options: {
+        address: details.address, // The address that the token is at.
+        symbol: tokenSpec.project.symbol, // A ticker symbol or shorthand, up to 5 chars.
+        decimals: details.decimals, // The number of decimals in the token
+        // TODO: image: tokenSpec.icon, // A string url of the token logo
+      },
+    })) as boolean;
     return wasAdded;
   }
 

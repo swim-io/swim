@@ -9,7 +9,9 @@ const isRpcError = (error: unknown): error is RpcError => {
   return (
     error instanceof Error &&
     "code" in error &&
-    Object.values(StatusCode).includes((error as any).code)
+    Object.values(StatusCode).includes(
+      (error as Record<string, unknown>).code as string,
+    )
   );
 };
 
@@ -22,7 +24,7 @@ const INTERNAL_ERROR_MESSAGE =
 const UNAVAILABLE_MESSAGE =
   "We are unable to reach the Wormhole guardians. Please try again later.";
 
-const MESSAGES: ReadonlyRecord<StatusCode, string | undefined> = {
+const MESSAGES: Partial<ReadonlyRecord<StatusCode, string>> = {
   [StatusCode.INTERNAL]: INTERNAL_ERROR_MESSAGE,
   [StatusCode.INVALID_ARGUMENT]: INTERNAL_ERROR_MESSAGE,
   [StatusCode.NOT_FOUND]:

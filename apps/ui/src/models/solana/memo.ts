@@ -6,7 +6,7 @@ import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 export const MEMO_PROGRAM_ID = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
 
 const memoInstruction = (length: number): Layout<readonly number[]> =>
-  array(u8(), length);
+  array(u8() as Layout<number>, length);
 
 export const createMemoIx = (
   memo: string,

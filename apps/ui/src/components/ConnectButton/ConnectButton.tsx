@@ -104,7 +104,7 @@ export const MultiConnectButton = ({
   const solana = useSolanaWallet();
   const hasActiveInteraction = useHasActiveInteraction();
 
-  const connectedWalletServiceIds: ReadonlyArray<WalletServiceId> = deduplicate<
+  const connectedWalletServiceIds: readonly WalletServiceId[] = deduplicate<
     WalletServiceId,
     WalletServiceId
   >(

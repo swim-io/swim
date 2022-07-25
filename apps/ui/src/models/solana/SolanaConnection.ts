@@ -49,9 +49,9 @@ export class SolanaConnection {
   public getMinimumBalanceForRentExemption: InstanceType<
     typeof Connection
   >["getMinimumBalanceForRentExemption"];
-  public getRecentBlockhash: InstanceType<
+  public getLatestBlockhash: InstanceType<
     typeof Connection
-  >["getRecentBlockhash"];
+  >["getLatestBlockhash"];
   public getSignaturesForAddress: InstanceType<
     typeof Connection
   >["getSignaturesForAddress"];
@@ -84,7 +84,7 @@ export class SolanaConnection {
       this.rawConnection.getMinimumBalanceForRentExemption.bind(
         this.rawConnection,
       );
-    this.getRecentBlockhash = this.rawConnection.getRecentBlockhash.bind(
+    this.getLatestBlockhash = this.rawConnection.getLatestBlockhash.bind(
       this.rawConnection,
     );
     this.getSignaturesForAddress =

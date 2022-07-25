@@ -30,7 +30,7 @@ export const RecentInteractionsV2 = ({
     (state) => state.loadInteractionStatesFromIDB,
   );
   useEffect(() => {
-    loadInteractionStatesFromIDB(env);
+    loadInteractionStatesFromIDB(env).catch(console.error);
   }, [env, loadInteractionStatesFromIDB]);
 
   const wallets = useWallets();

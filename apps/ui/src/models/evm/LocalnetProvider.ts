@@ -16,7 +16,9 @@ export class LocalnetProvider extends JsonRpcProvider {
   ): Promise<readonly TransactionResponse[]> {
     const end = endBlock ?? (await this.getBlockNumber());
     const start = startBlock ?? end - DEFAULT_RECENT_BLOCKS;
-    const blocksToFetch = [...new Array(end - start)].map((_, i) => end - i);
+    const blocksToFetch = Array.from({ length: end - start }).map(
+      (_, i) => end - i,
+    );
     const blocks = await Promise.all(
       blocksToFetch.map((blockHeight) =>
         this.getBlockWithTransactions(blockHeight),

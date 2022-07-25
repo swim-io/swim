@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react";
-import type { SeverityLevel } from "@sentry/types";
+import type { Extras, SeverityLevel } from "@sentry/types";
 import type { ReactElement } from "react";
 
 import { SwimError } from "./classes";
@@ -13,7 +13,7 @@ import { extractErrorMessage } from "./parse";
  */
 export const captureException = (
   error: unknown,
-  context?: any,
+  context?: Extras,
 ): string | null => {
   if (error === null || error === undefined) {
     return null;
@@ -56,7 +56,7 @@ export const captureException = (
 export const captureAndWrapException = (
   userErrorMessage: string,
   error: unknown,
-  context?: any,
+  context?: Extras,
 ): SwimError => {
   const eventId = captureException(error, context);
 

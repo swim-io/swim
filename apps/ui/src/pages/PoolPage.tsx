@@ -261,7 +261,9 @@ export const PoolPageInner = ({
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}
-              onClick={() => showRegisterEthereumTokenPrompt(lpToken)}
+              onClick={() => {
+                showRegisterEthereumTokenPrompt(lpToken).catch(console.error);
+              }}
               iconType={ETHEREUM_SVG}
             >
               Add LP token to Metamask
@@ -271,7 +273,9 @@ export const PoolPageInner = ({
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}
-              onClick={() => showRegisterBnbTokenPrompt(lpToken)}
+              onClick={() => {
+                showRegisterBnbTokenPrompt(lpToken).catch(console.error);
+              }}
               iconType={BNB_SVG}
             >
               Add LP token to Metamask

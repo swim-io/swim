@@ -14,8 +14,8 @@ export const useWalletAutoConnect = (): null => {
   const { connectService, selectedServiceByProtocol } = useWalletAdapter();
 
   useEffect(() => {
-    void (async () => {
-      [Protocol.Evm, Protocol.Solana].forEach(async (protocol) => {
+    Promise.all(
+      [Protocol.Evm, Protocol.Solana].map(async (protocol) => {
         const serviceId = selectedServiceByProtocol[protocol];
 
         if (serviceId) {
@@ -35,7 +35,7 @@ export const useWalletAutoConnect = (): null => {
               }
             } else if (serviceId === WalletServiceId.Phantom) {
               const foundPhantom = await waitFor(
-                () => (window as any).phantom !== undefined,
+                () => window.phantom !== undefined,
                 timeoutForWalletToBeFound,
               );
 
@@ -51,12 +51,12 @@ export const useWalletAutoConnect = (): null => {
                 });
             } else if (serviceId === WalletServiceId.Solong) {
               const foundSolong = await waitFor(
-                () => (window as any).solong !== undefined,
+                () => window.solong !== undefined,
                 timeoutForWalletToBeFound,
               );
 
               if (foundSolong) {
-                const address = await (window as any).solong?.selectAccount();
+                const address = await window.solong?.selectAccount();
 
                 if (address)
                   await connectService({
@@ -71,8 +71,8 @@ export const useWalletAutoConnect = (): null => {
             captureException(error);
           }
         }
-      });
-    })();
+      }),
+    ).catch(console.error);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- we want this to run only once on app boot
 
   return null;

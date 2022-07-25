@@ -1,6 +1,7 @@
-import type { PublicKey, Transaction } from "@solana/web3.js";
+import type { PublicKey } from "@solana/web3.js";
 
 import { SolanaWeb3WalletAdapter } from "./SolanaWalletAdapter";
+import type { SolanaWeb3WalletService } from "./SolanaWalletAdapter";
 
 type PhantomEvent = "disconnect" | "connect";
 type PhantomRequestMethod =
@@ -9,32 +10,36 @@ type PhantomRequestMethod =
   | "signTransaction"
   | "signAllTransactions";
 
-interface PhantomProvider {
-  readonly publicKey?: PublicKey;
+interface PhantomProvider extends SolanaWeb3WalletService {
+  readonly publicKey: PublicKey;
   readonly isConnected?: boolean;
   readonly autoApprove?: boolean;
-  readonly signTransaction: (transaction: Transaction) => Promise<Transaction>;
-  readonly signAllTransactions: (
-    transactions: readonly Transaction[],
-  ) => Promise<readonly Transaction[]>;
-  readonly connect: () => Promise<void>;
+  readonly connect: (args?: any) => Promise<void>;
   readonly disconnect: () => Promise<void>;
   readonly on: (event: PhantomEvent, handler: (args: any) => void) => void;
   readonly request: (method: PhantomRequestMethod, params: any) => Promise<any>;
   readonly listeners: (event: PhantomEvent) => readonly (() => void)[];
 }
 
-const getPhantomService = (): PhantomProvider =>
-  (window as any).solana?.isPhantom ? (window as any).solana : null;
+const getPhantomService = (): PhantomProvider | null =>
+  window.solana?.isPhantom ? (window.solana as PhantomProvider) : null;
 
-export class PhantomAdapter extends SolanaWeb3WalletAdapter {
+export class PhantomAdapter extends SolanaWeb3WalletAdapter<PhantomProvider> {
   constructor() {
     super("Phantom", "https://phantom.app", getPhantomService);
   }
 
   async connectService(args?: any): Promise<void> {
+    if (!this.service) {
+      throw new Error("No wallet service available");
+    }
+
     // note the listener is on the service, not the adapter
     this.service.on("connect", () => {
+      if (!this.service) {
+        throw new Error("No wallet service connected");
+      }
+
       this.publicKey = this.service.publicKey;
       this.emit("connect", this.publicKey);
 

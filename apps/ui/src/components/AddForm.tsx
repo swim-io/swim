@@ -462,7 +462,7 @@ export const AddForm = ({
       {filterMap(
         isEcosystemEnabled,
         (ecosystemId) => {
-          const indices = [...new Array(poolTokens.length)]
+          const indices = Array.from({ length: poolTokens.length })
             .map((_, i) => i)
             .filter((i) => poolTokens[i].nativeEcosystem === ecosystemId);
           const isRelevant = (_: any, i: number): boolean =>

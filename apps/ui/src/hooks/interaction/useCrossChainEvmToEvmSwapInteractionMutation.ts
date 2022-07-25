@@ -7,6 +7,7 @@ import { InteractionType, SwapType } from "../../models";
 export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
   const { updateInteractionState } = useInteractionStateV2();
   return useMutation(
+    // eslint-disable-next-line @typescript-eslint/require-await
     async (interactionState: CrossChainEvmSwapInteractionState) => {
       const { interaction } = interactionState;
 

@@ -90,3 +90,10 @@ export const isInteractionCompleted = ({
   isToSolanaTransfersCompleted(toSolanaTransfers) &&
   isSolanaPoolOperationsCompleted(solanaPoolOperations) &&
   isFromSolanaTransfersCompleted(fromSolanaTransfers);
+
+export const enum InteractionStatus {
+  Incomplete,
+  Active,
+  Completed,
+  Error,
+}

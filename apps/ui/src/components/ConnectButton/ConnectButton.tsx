@@ -28,7 +28,7 @@ import { SingleWalletModal } from "../SingleWalletModal";
 
 import "./ConnectButton.scss";
 
-export type ConnectButtonProps = Omit<
+type Props = Omit<
   PlainConnectButtonProps,
   "children" | "connected" | "onClick"
 > & {
@@ -38,7 +38,7 @@ export type ConnectButtonProps = Omit<
 export const ConnectButton = ({
   ecosystemId,
   ...rest
-}: ConnectButtonProps): ReactElement => {
+}: Props): ReactElement => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { ecosystems } = useEnvironment(selectConfig, shallow);
   const { disconnectService } = useWalletService();

@@ -21,6 +21,7 @@
 
     // rules we maybe want
     "@sayari/no-unwrapped-jsx-text": "error",
+    "import/no-unused-modules": ["error", { "unusedExports": true }],
     "functional/immutable-data": [
       "error",
       { "ignorePattern": ["this", "draft"] }
@@ -48,6 +49,16 @@
       "rules": {
         "functional/immutable-data": "off",
         "import/no-anonymous-default-export": "off"
+      }
+    },
+    {
+      "files": [
+        "src/**/*.stories.@(js|jsx|ts|tsx)",
+        "src/__mocks__/**/*",
+        "src/fixtures/**/*"
+      ],
+      "rules": {
+        "import/no-unused-modules": "off"
       }
     }
   ]

@@ -40,13 +40,11 @@ import { TokenAmountInputV2 } from "../molecules/TokenAmountInputV2";
 
 import "./SwapFormV2.scss";
 
-export interface SwapFormProps {
+interface Props {
   readonly maxSlippageFraction: Decimal | null;
 }
 
-export const SwapFormV2 = ({
-  maxSlippageFraction,
-}: SwapFormProps): ReactElement => {
+export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
   const config = useEnvironment(selectConfig, shallow);
   const { notify } = useNotification();
   const userNativeBalances = useUserNativeBalances();

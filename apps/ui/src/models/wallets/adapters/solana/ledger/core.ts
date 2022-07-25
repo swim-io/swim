@@ -63,10 +63,7 @@ function harden(n = 0): number {
   return (n | BIP32_HARDENED_BIT) >>> 0;
 }
 
-export function getSolanaDerivationPath(
-  account?: number,
-  change?: number,
-): Buffer {
+function getSolanaDerivationPath(account?: number, change?: number): Buffer {
   let length;
   if (account !== undefined) {
     if (change !== undefined) {
@@ -104,7 +101,7 @@ export async function signTransaction(
   return signBytes(transport, messageBytes, derivationPath);
 }
 
-export async function signBytes(
+async function signBytes(
   transport: Transport,
   bytes: Buffer,
   derivationPath: Buffer = getSolanaDerivationPath(),

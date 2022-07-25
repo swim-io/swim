@@ -23,7 +23,7 @@ import type {
 } from "../../../models";
 import { Amount, InteractionType, SwimDefiInstruction } from "../../../models";
 
-export interface PreparedAddInteraction extends Omit<AddInteraction, "params"> {
+interface PreparedAddInteraction extends Omit<AddInteraction, "params"> {
   readonly params: {
     readonly inputAmounts: readonly PreparedAmount[];
     readonly minimumMintAmount: PreparedAmount;
@@ -31,7 +31,7 @@ export interface PreparedAddInteraction extends Omit<AddInteraction, "params"> {
   readonly lpTokenTargetEcosystem: EcosystemId;
 }
 
-export interface PreparedRemoveUniformInteraction
+interface PreparedRemoveUniformInteraction
   extends Omit<RemoveUniformInteraction, "params"> {
   readonly params: {
     readonly exactBurnAmount: PreparedAmount;
@@ -40,7 +40,7 @@ export interface PreparedRemoveUniformInteraction
   readonly lpTokenSourceEcosystem: EcosystemId;
 }
 
-export interface PreparedRemoveExactBurnInteraction
+interface PreparedRemoveExactBurnInteraction
   extends Omit<RemoveExactBurnInteraction, "params"> {
   readonly params: {
     readonly exactBurnAmount: PreparedAmount;
@@ -49,7 +49,7 @@ export interface PreparedRemoveExactBurnInteraction
   readonly lpTokenSourceEcosystem: EcosystemId;
 }
 
-export interface PreparedRemoveExactOutputInteraction
+interface PreparedRemoveExactOutputInteraction
   extends Omit<RemoveExactOutputInteraction, "params"> {
   readonly params: {
     readonly maximumBurnAmount: PreparedAmount;
@@ -58,30 +58,28 @@ export interface PreparedRemoveExactOutputInteraction
   readonly lpTokenSourceEcosystem: EcosystemId;
 }
 
-export interface PreparedSwapInteraction
-  extends Omit<SwapInteraction, "params"> {
+interface PreparedSwapInteraction extends Omit<SwapInteraction, "params"> {
   readonly params: {
     readonly exactInputAmount: PreparedAmount;
     readonly minimumOutputAmount: PreparedAmount;
   };
 }
 
-export type PreparedInteraction =
+type PreparedInteraction =
   | PreparedAddInteraction
   | PreparedRemoveUniformInteraction
   | PreparedRemoveExactBurnInteraction
   | PreparedRemoveExactOutputInteraction
   | PreparedSwapInteraction;
 
-export interface PreparedAddOperationSpec
-  extends Omit<AddOperationSpec, "params"> {
+interface PreparedAddOperationSpec extends Omit<AddOperationSpec, "params"> {
   readonly params: {
     readonly inputAmounts: readonly PreparedAmount[];
     readonly minimumMintAmount: PreparedAmount;
   };
 }
 
-export interface PreparedRemoveUniformOperationSpec
+interface PreparedRemoveUniformOperationSpec
   extends Omit<RemoveUniformOperationSpec, "params"> {
   readonly params: {
     readonly exactBurnAmount: PreparedAmount;
@@ -89,7 +87,7 @@ export interface PreparedRemoveUniformOperationSpec
   };
 }
 
-export interface PreparedRemoveExactBurnOperationSpec
+interface PreparedRemoveExactBurnOperationSpec
   extends Omit<RemoveExactBurnOperationSpec, "params"> {
   readonly params: {
     readonly exactBurnAmount: PreparedAmount;
@@ -98,7 +96,7 @@ export interface PreparedRemoveExactBurnOperationSpec
   };
 }
 
-export interface PreparedRemoveExactOutputOperationSpec
+interface PreparedRemoveExactOutputOperationSpec
   extends Omit<RemoveExactOutputOperationSpec, "params"> {
   readonly params: {
     readonly maximumBurnAmount: PreparedAmount;
@@ -106,8 +104,7 @@ export interface PreparedRemoveExactOutputOperationSpec
   };
 }
 
-export interface PreparedSwapOperationSpec
-  extends Omit<SwapOperationSpec, "params"> {
+interface PreparedSwapOperationSpec extends Omit<SwapOperationSpec, "params"> {
   readonly params: {
     readonly exactInputAmounts: readonly PreparedAmount[];
     readonly outputTokenIndex: number;
@@ -115,19 +112,19 @@ export interface PreparedSwapOperationSpec
   };
 }
 
-export type PreparedOperationSpec =
+type PreparedOperationSpec =
   | PreparedAddOperationSpec
   | PreparedRemoveUniformOperationSpec
   | PreparedRemoveExactBurnOperationSpec
   | PreparedRemoveExactOutputOperationSpec
   | PreparedSwapOperationSpec;
 
-export interface PreparedSolanaPoolOperationState
+interface PreparedSolanaPoolOperationState
   extends Omit<SolanaPoolOperationState, "operation"> {
   readonly operation: PreparedOperationSpec;
 }
 
-export interface PersistedFromSolanaTransfer
+interface PersistedFromSolanaTransfer
   extends Omit<FromSolanaTransferState, "token" | "value"> {
   readonly token: {
     readonly id: string;
@@ -135,7 +132,7 @@ export interface PersistedFromSolanaTransfer
   readonly value: string | null;
 }
 
-export interface PersistedToSolanaTransfer
+interface PersistedToSolanaTransfer
   extends Omit<ToSolanaTransferState, "token" | "value"> {
   readonly token: {
     readonly id: string;
@@ -150,7 +147,8 @@ export type PersistedInteractionState = {
   readonly solanaPoolOperations: readonly PreparedSolanaPoolOperationState[];
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
 };
-export interface PreparedAmount {
+
+interface PreparedAmount {
   readonly tokenId: string;
   readonly value: string;
 }
@@ -441,9 +439,7 @@ export const deserializeInteractionState = (
   ),
 });
 
-export const prepareInteraction = (
-  interaction: Interaction,
-): PreparedInteraction => {
+const prepareInteraction = (interaction: Interaction): PreparedInteraction => {
   switch (interaction.type) {
     case InteractionType.Add:
       return {

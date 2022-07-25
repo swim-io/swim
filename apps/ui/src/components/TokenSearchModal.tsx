@@ -24,7 +24,7 @@ const renderTokenOption = (option: TokenOption) => {
   return <TokenSpecIcon token={option.data} />;
 };
 
-export interface TokenSearchModalProps {
+interface Props {
   readonly handleClose: () => void;
   readonly handleSelectToken: (tokenId: string) => void;
   readonly tokenOptionIds: readonly string[];
@@ -34,7 +34,7 @@ export const TokenSearchModal = ({
   handleClose,
   handleSelectToken,
   tokenOptionIds,
-}: TokenSearchModalProps): ReactElement => {
+}: Props): ReactElement => {
   const { tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptionIds.map((tokenId) => {
     const tokenSpec = findOrThrow(tokens, ({ id }) => id === tokenId);

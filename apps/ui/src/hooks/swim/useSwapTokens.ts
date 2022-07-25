@@ -38,7 +38,7 @@ export const useSwapTokens = (): SwapTokens => {
     readonly toEcosystem?: string;
   }>();
 
-  const convertUrlParamToToken = (url?: string): TokenSpec | undefined => {
+  const findTokenForParam = (param?: string): TokenSpec | null => {
     if (!url) {
       return undefined;
     }

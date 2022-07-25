@@ -5,7 +5,7 @@ module.exports = {
   rules: {
     // Enable periodically - we don’t want the linter to force us to upgrade at inconvenient times
     "deprecation/deprecation": "off",
-    // rules we maybe want
+    // no point exporting unused code since this isn't a library
     "import/no-unused-modules": ["error", { unusedExports: true }],
     // allow mutable state on class instances and zustand drafts
     "functional/immutable-data": [

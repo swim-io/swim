@@ -422,6 +422,7 @@ Object {
     "type": 5,
   },
   "interactionType": 5,
+  "onChainSwapTxId": null,
   "requiredSplTokenAccounts": Object {
     "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
       "isExistingAccount": false,
@@ -432,23 +433,6 @@ Object {
       "txId": null,
     },
   },
-  "solanaPoolOperations": Array [
-    Object {
-      "operation": Object {
-        "instruction": 1,
-        "interactionId": "11111111111111111111111111111111",
-        "params": Object {
-          "exactInputAmounts": Array [
-            "1000",
-          ],
-          "minimumOutputAmount": "1000",
-          "outputTokenIndex": 1,
-        },
-        "poolId": "devnet-solana-usdc-usdt",
-      },
-      "txId": null,
-    },
-  ],
   "swapType": "SingleChainSolana",
 }
 `;

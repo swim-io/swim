@@ -675,7 +675,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       [
         EcosystemId.Solana,
         {
-          address: "11111111111111111111111111111111", // TODO: Update
+          address: "11111111111111111111111111111112", // TODO: Update
           decimals: 6, // TODO: Update
         },
       ],

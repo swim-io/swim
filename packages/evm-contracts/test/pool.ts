@@ -188,7 +188,7 @@ describe("Pool Defi Operations", function () {
     expect(swapExactInputGovFee).to.be.closeTo(swapExactOutputGovFee, tolerance);
   });
 
-  it("Check marginal prices gives correct results",async function () {
+  it("Check marginal prices are correct for stable swap", async function () {
     const {execute, read} = deployments;
     const {testLiquidityProvider} = await getNamedAccounts();
     const {poolProxy} = await setupTest();
@@ -205,4 +205,8 @@ describe("Pool Defi Operations", function () {
     for (let i = 0; i < expectedPrices.length; ++i)
       expect(actualPrices[i]).to.be.closeTo(expectedPrices[i], tolerance);
   });
+
+  // it("Check marginal prices are correct for constant product", async function () {
+    //TODO
+  // });
 });

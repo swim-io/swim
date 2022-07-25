@@ -74,7 +74,7 @@ const config: HardhatUserConfig = {
             "evm.bytecode.sourceMap",
             "ir",
             // "irOptimized",
-            // "evm.assembly",
+            "evm.assembly",
           ],
           // "": ["ast"],
         },
@@ -164,13 +164,13 @@ const config: HardhatUserConfig = {
       default: 11,
     },
   },
-  external: {
-    contracts: [
-      {
-        artifacts: "node_modules/hardhat-deploy/extendedArtifacts",
-      },
-    ],
-  },
+  // external: {
+  //   contracts: [
+  //     {
+  //       artifacts: "node_modules/hardhat-deploy/extendedArtifacts",
+  //     },
+  //   ],
+  // },
 };
 
 export default config;

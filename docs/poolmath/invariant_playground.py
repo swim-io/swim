@@ -237,5 +237,16 @@ def wtf():
   print("balances:", pool.balances)
   print("lp supply:", pool.lp_supply)
 
-imbalanced_testing()
+#imbalanced_testing()
+
+amp_factor = Decimal(1)
+lp_fee = Decimal("0.0003")
+gov_fee = Decimal("0.0001")
+tolerance = Decimal(0.1)
+pool = SwimPool(3, amp_factor, lp_fee, gov_fee, tolerance)
+pool.add([10_000_000,10_000_000,10_000_000])
+pool.remove_exact_output([1_000_000, 4_000_000, 7_000_000])
+print(pool.lp_supply)
+print(pool.marginal_prices())
+
 

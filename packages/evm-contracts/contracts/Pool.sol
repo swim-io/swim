@@ -64,6 +64,7 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     uint32 ampFactor,
     uint32 lpFee,
     uint32 _governanceFee,
+    address _governance,
     address _governanceFeeRecipient
   ) public initializer {
     LpToken lpToken = LpToken(lpTokenAddress);
@@ -109,10 +110,10 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     ampTargetValue = toInternalAmpValue(ampFactor);
     ampTargetTimestamp = 0;
 
+    governance = _governance;
     governanceFeeRecipient = _governanceFeeRecipient;
     _setFees(lpFee, _governanceFee);
     paused = false;
-    governance = msg.sender;
   }
 
   modifier notPaused {

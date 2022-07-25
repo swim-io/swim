@@ -1,7 +1,7 @@
 import math
 from decimal import *
 
-getcontext().prec = 350
+getcontext().prec = 20
 
 printNumerics = False
 
@@ -92,14 +92,14 @@ class SwimPool:
         # print("-     feeless_amount:", feeless_amount)
         if self.__total_fee > 0:
             taxable_percentage = 1 - self.balances[output_index] / sum(self.balances)
-            # print("- taxable_percentage:", taxable_percentage)
+            print("- taxable_percentage:", taxable_percentage)
             fee = (1 / (1 - self.__total_fee)) - 1
             original_amount = feeless_amount / (1 + taxable_percentage * fee)
-            # print("-    original_amount:", original_amount)
+            print("-    original_amount:", original_amount)
             taxbase = original_amount * taxable_percentage
-            # print("-            taxbase:", taxbase)
+            print("-            taxbase:", taxbase)
             fee_amount = fee * taxbase
-            # print("-         fee_amount:", fee_amount)
+            print("-         fee_amount:", fee_amount)
             output_amount = feeless_amount - fee_amount
             updated_balances = [
                 self.balances[i]
@@ -110,11 +110,11 @@ class SwimPool:
             total_fee_depth = (
                 self.__calc_depth(updated_balances, updated_depth) - updated_depth
             )
-            # print("-    total_fee_depth:", total_fee_depth)
+            print("-    total_fee_depth:", total_fee_depth)
             governance_depth = total_fee_depth * (
                 self.governance_fee / self.__total_fee
             )
-            # print("-   governance_depth:", governance_depth)
+            print("-   governance_depth:", governance_depth)
             # adjust for lp token appreciation
             updated_lp_supply = self.lp_supply - burn_amount
             lp_depth = updated_depth + total_fee_depth - governance_depth
@@ -306,10 +306,10 @@ class SwimPool:
                 # print(f"* Breciprocal_decay: {toBitsValueString(reciprocal_decay)}")
                 reciprocal_decay *= depth_approx / Decimal(self.token_count * balance)
 
-            numerator = Decimal(SA + self.token_count * depth_approx * reciprocal_decay)
+            numerator = Decimal(SA + self.token_count * depth_approx * reciprocal_decay) * 1024
             denominator = (
                 Decimal(A - 1) + Decimal(self.token_count + 1) * reciprocal_decay
-            )
+            ) * 1024
             depth_next = numerator / denominator
 
             if printNumerics:
@@ -380,9 +380,9 @@ class SwimPool:
               denominatorMinRB = min(denominatorMinRB, requiredBits(denominator))
               missingMinRB     = min(missingMinRB,     requiredBits(missing_balance_next))
 
-            # print(f"*         numerator: {toBitsValueString(numerator)}")
-            # print(f"*       denominator: {toBitsValueString(denominator)}")
-            # print(f"*   missing_balance: {toBitsValueString(missing_balance_next)}")
+            print(f"*         numerator: {toBitsValueString(numerator)}")
+            print(f"*       denominator: {toBitsValueString(denominator)}")
+            print(f"*   missing_balance: {toBitsValueString(missing_balance_next)}")
             if abs(missing_balance_next - missing_balance_approx) <= self.tolerance:
               if printNumerics:
                 print(f"missing_balance converged after {i + 1} iterations")

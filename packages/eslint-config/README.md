@@ -54,7 +54,7 @@ module.exports = {
 };
 ```
 
-If you are using this config in monorepo, and experiencing the error `ESLint couldn't determine the plugin "xxx" uniquely`, you could apply this patch in your `.eslintrc.js`:
+If you are using this config in a monorepo, and experiencing the error `ESLint couldn't determine the plugin "xxx" uniquely`, you can apply this patch in your `.eslintrc.js` file to solve the issue:
 
 ```js
 require("@swim-io/eslint-config/patch/modern-module-resolution");

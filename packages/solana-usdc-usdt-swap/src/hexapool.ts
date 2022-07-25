@@ -9,6 +9,7 @@ export interface SwimPoolConstantProperties {
   readonly programId: PublicKey;
   readonly stateKey: PublicKey;
   readonly authorityKey: PublicKey;
+  readonly feeDecimals: number;
 }
 
 export const hexapool: SwimPoolConstantProperties &
@@ -23,6 +24,7 @@ export const hexapool: SwimPoolConstantProperties &
   governanceFeeKey: new PublicKey(
     "9Yau6DnqYasBUKcyxQJQZqThvUnqZ32ZQuUCcC2AdT9P",
   ),
+  feeDecimals: 6,
   lpDecimalEqualizer: 0,
   tokenMintKeys: [
     new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"), // solana-usdc

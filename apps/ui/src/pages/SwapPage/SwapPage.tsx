@@ -19,7 +19,7 @@ import { SlippageButton } from "../../components/SlippageButton";
 import { SwapForm } from "../../components/SwapForm";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import { useSwapTokens, useTitle } from "../../hooks";
+import { useTitle } from "../../hooks";
 import { INTERACTION_GROUP_SWAP } from "../../models";
 import { defaultIfError } from "../../utils";
 
@@ -28,10 +28,8 @@ import "./SwapPage.scss";
 const SwapPage = (): ReactElement => {
   const { pools } = useEnvironment(selectConfig, shallow);
 
-  const { fromToken, toToken } = useSwapTokens();
-  useTitle(
-    `Swap ${fromToken.project.symbol} on ${fromToken.nativeEcosystem} to ${toToken.project.symbol} on ${toToken.nativeEcosystem}`,
-  );
+  // TODO: use useSwapTokens() hook and pass down props to SwapForm.
+  useTitle("Swap");
 
   const nonStakingPools = useMemo(
     () => pools.filter((pool) => !pool.isStakingPool),

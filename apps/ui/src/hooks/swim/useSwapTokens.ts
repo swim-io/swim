@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
 import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../../config";

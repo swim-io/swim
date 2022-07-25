@@ -1,6 +1,7 @@
 import type { PoolConfig } from "./pool";
 import type { TokenConfig } from "./token";
 
+<<<<<<< HEAD
 /** Configuration interface for Wormhole-supported blockchains */
 export interface WormholeConfig {
   /** The core (generic) VAA bridge contract */
@@ -14,6 +15,13 @@ export interface ChainConfig {
   readonly name: string;
   readonly chainId: number;
   readonly wormhole: WormholeConfig;
+=======
+export interface ChainConfig {
+  readonly name: string;
+  readonly chainId: number;
+  readonly wormholeBridge: string;
+  readonly wormholeTokenBridge: string;
+>>>>>>> aa8ce89c (feat(core): Add package)
   readonly tokens: readonly TokenConfig[];
   readonly pools: readonly PoolConfig[];
 }

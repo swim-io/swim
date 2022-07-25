@@ -81,7 +81,7 @@ export const useSwapTokens = (): SwapTokens => {
   let hasUrlError = fromUrlParam && !potentialFromToken;
 
   const fromToken =
-    potentialFromToken || tokens.find(({ id }) => id === defaultFromTokenId);
+    potentialFromToken ?? findOrThrow(tokens, ({ id }) => id === defaultFromTokenId);
 
   if (!fromToken) throw new Error("Can't figure out fromToken");
 

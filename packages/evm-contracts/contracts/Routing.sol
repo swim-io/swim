@@ -18,7 +18,6 @@ import "./SwimPayload.sol";
 
 contract Routing is
   IRouting,
-  Initializable,
   PausableUpgradeable,
   OwnableUpgradeable,
   ReentrancyGuardUpgradeable,
@@ -88,11 +87,11 @@ contract Routing is
     (address fromPool, uint8 fromIndex) = getPoolAndIndex(fromToken);
     (address toPool, uint8 toIndex) = getPoolAndIndex(toToken);
 
-    acquire(fromToken, inputAmount);
+    IERC20(fromToken).safeTransferFrom(msg.sender, address(this), inputAmount);
     outputAmount = inputAmount;
 
     if (fromToken != swimUsdAddress) {
-      approve(fromPool, fromToken, inputAmount);
+      IERC20(fromToken).safeApprove(fromPool, inputAmount);
 
       outputAmount = IPool(fromPool).swap(
         inputAmount,
@@ -102,7 +101,7 @@ contract Routing is
       );
     }
     if (toToken != swimUsdAddress) {
-      approve(toPool, swimUsdAddress, outputAmount);
+      IERC20(swimUsdAddress).safeApprove(toPool, outputAmount);
 
       outputAmount = IPool(toPool).swap(
         outputAmount,
@@ -112,7 +111,7 @@ contract Routing is
       );
     }
 
-    transfer(toToken, toOwner, outputAmount);
+    IERC20(toToken).safeTransfer(toOwner, outputAmount);
 
     emit OnChainSwap(toOwner, fromToken, toToken, outputAmount);
   }
@@ -135,11 +134,11 @@ contract Routing is
   ) external payable whenNotPaused returns (uint64 wormholeSequence) {
     (address fromPool, uint8 fromIndex) = getPoolAndIndex(fromToken);
 
-    acquire(fromToken, inputAmount);
+    IERC20(fromToken).safeTransferFrom(msg.sender, address(this), inputAmount);
     uint256 receivedSwimUsdAmount = inputAmount;
 
     if (fromToken != swimUsdAddress) {
-      approve(fromPool, fromToken, inputAmount);
+      IERC20(fromToken).safeApprove(fromPool, inputAmount);
 
       receivedSwimUsdAmount = IPool(fromPool).swap(
         inputAmount,
@@ -149,7 +148,7 @@ contract Routing is
       );
     }
 
-    approve(address(tokenBridge), swimUsdAddress, receivedSwimUsdAmount);
+    IERC20(swimUsdAddress).safeApprove(address(tokenBridge), receivedSwimUsdAmount);
 
     if (wormholeRecipientChain == WORMHOLE_SOLANA_CHAIN_ID) {
       uint256 arbiterFee = 0;
@@ -235,7 +234,7 @@ contract Routing is
     outputAmount = minimumOutputAmount;
 
     if (toToken != swimUsdAddress) {
-      approve(toPool, swimUsdAddress, receivedSwimUsdAmount);
+      IERC20(swimUsdAddress).safeApprove(toPool, receivedSwimUsdAmount);
 
       try
         IPool(toPool).swap(
@@ -253,7 +252,7 @@ contract Routing is
       }
     }
 
-    transfer(toToken, toOwner, outputAmount);
+    IERC20(toToken).safeTransfer(toOwner, outputAmount);
 
     uint64 sequence = wormhole.parseVM(encodedVm).sequence;
     emit ReceiveAndSwap(toOwner, sequence, outputToken, outputAmount);
@@ -300,18 +299,6 @@ contract Routing is
       pools[i] = IPool(poolAddresses[i]).getState();
     }
     return pools;
-  }
-
-  function acquire(address token, uint256 amount) internal {
-    IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
-  }
-
-  function transfer(address token, address recipient, uint256 amount) internal {
-    IERC20(token).safeTransfer(recipient, amount);
-  }
-
-  function approve(address delegate, address token, uint256 amount) internal {
-    IERC20(token).safeApprove(delegate, amount);
   }
 
   function getPoolAndIndex(address token) internal view returns(address, uint8) {

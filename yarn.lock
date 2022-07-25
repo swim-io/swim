@@ -5798,6 +5798,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@swim-io/eslint-config@workspace:packages/eslint-config"
   dependencies:
+    "@rushstack/eslint-patch": ^1.1.4
     "@sayari/eslint-plugin": ^0.0.1-rc.4
     "@typescript-eslint/eslint-plugin": ^5.30
     "@typescript-eslint/parser": ^5.30
@@ -6031,7 +6032,6 @@ __metadata:
     "@project-serum/anchor": ^0.24.2
     "@project-serum/borsh": ^0.2.5
     "@project-serum/sol-wallet-adapter": ^0.2.4
-    "@rushstack/eslint-patch": ^1.1.4
     "@sayari/eslint-plugin": ^0.0.1-rc.4
     "@sentry/react": ^7.3.0
     "@sentry/tracing": ^7.3.0

@@ -1,4 +1,4 @@
-require("@rushstack/eslint-patch/modern-module-resolution");
+require("@swim-io/eslint-config/patch/modern-module-resolution");
 
 module.exports = {
   extends: ["@swim-io/eslint-config/react"],

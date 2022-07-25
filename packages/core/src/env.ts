@@ -1,3 +1,4 @@
+/** The various environments in which Swim might be used */
 export enum Env {
   Mainnet = "Mainnet",
   Devnet = "Devnet",
@@ -5,5 +6,5 @@ export enum Env {
   Custom = "Custom",
 }
 
-export const isValidEnv = (envValue: string): envValue is Env =>
-  (Object.values(Env) as readonly string[]).includes(envValue);
+export const isValidEnv = (env: string): env is Env =>
+  (Object.values(Env) as readonly string[]).includes(env);

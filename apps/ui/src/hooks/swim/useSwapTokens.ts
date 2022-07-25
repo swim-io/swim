@@ -14,7 +14,7 @@ interface SwapTokens {
   readonly toTokenOptionsIds: readonly string[];
   readonly setFromTokenId: (fromTokenId: string) => void;
   readonly setToTokenId: (toTokenId: string) => void;
-  readonly setFromAndToTokens: (fromTokenId: string, toTokenId: string) => void;
+  readonly setFromAndToTokenIds: (fromTokenId: string, toTokenId: string) => void;
   readonly hasUrlError: boolean;
 }
 

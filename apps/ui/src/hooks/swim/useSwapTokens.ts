@@ -77,7 +77,7 @@ export const useSwapTokens = (): SwapTokens => {
 
   const defaultFromTokenId = fromTokenOptionsIds[0];
 
-  const potentialFromToken = convertUrlParamToToken(fromUrlParam);
+  const maybeFromToken = convertUrlParamToToken(fromUrlParam);
   let hasUrlError = fromUrlParam && !potentialFromToken;
 
   const fromToken =

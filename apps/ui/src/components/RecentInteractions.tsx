@@ -16,7 +16,7 @@ import { MultiConnectButton } from "./ConnectButton";
 import { ConnectedWallets } from "./ConnectedWallets";
 import { InteractionStateComponent } from "./molecules/InteractionStateComponent";
 
-export interface RecentInteractionsProps {
+interface Props {
   readonly title: string;
   readonly interactionTypes: ReadonlySet<InteractionType>;
 }
@@ -24,7 +24,7 @@ export interface RecentInteractionsProps {
 export const RecentInteractions = ({
   title,
   interactionTypes,
-}: RecentInteractionsProps): ReactElement => {
+}: Props): ReactElement => {
   const env = useEnvironment((state) => state.env);
   const loadInteractionStatesFromIDB = useInteractionState(
     (state) => state.loadInteractionStatesFromIDB,

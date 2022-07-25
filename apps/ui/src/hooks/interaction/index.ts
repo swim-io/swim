@@ -1,5 +1,4 @@
 export * from "./useCreateInteractionState";
-export * from "./useEuiStepPropsForInteraction";
 export * from "./useHasActiveInteraction";
 export * from "./useInteraction";
 export * from "./useInteractionMutation";

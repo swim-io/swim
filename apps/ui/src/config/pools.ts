@@ -713,7 +713,7 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     tokens: ["devnet-aurora-usdt", "devnet-solana-lp-hexapool"],
   },
   {
-    isDisabled: true, // TODO: Enable when deployed on devnet
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN, // TODO: Enable when deployed on devnet
     id: "meta-aurora-usn",
     ecosystem: EcosystemId.Solana,
     displayName: "Aurora USN",

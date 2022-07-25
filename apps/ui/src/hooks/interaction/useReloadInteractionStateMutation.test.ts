@@ -3,8 +3,9 @@ import { PublicKey } from "@solana/web3.js";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
+import { Env } from "../../config";
 import { selectGetInteractionState } from "../../core/selectors";
-import { Env, useEnvironment, useInteractionState } from "../../core/store";
+import { useEnvironment, useInteractionState } from "../../core/store";
 import {
   EVM_TXS_FOR_RELOAD_INTERACTION,
   MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION,

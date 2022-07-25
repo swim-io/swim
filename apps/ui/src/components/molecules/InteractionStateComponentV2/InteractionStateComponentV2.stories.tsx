@@ -4,7 +4,8 @@ import type { FC } from "react";
 import { useEffect } from "react";
 import { useMutation } from "react-query";
 
-import { Env, useEnvironment } from "../../../core/store";
+import { Env } from "../../../config";
+import { useEnvironment } from "../../../core/store";
 import {
   ADD_INTERACTION_STATE_ETHEREUM_COMPLETED,
   ADD_INTERACTION_STATE_ETHEREUM_COMPLETED_WITH_APPROVALS,

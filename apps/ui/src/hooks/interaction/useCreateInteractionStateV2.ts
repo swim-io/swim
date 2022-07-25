@@ -22,10 +22,8 @@ import type {
   SwapInteractionV2,
 } from "../../models";
 import {
-  Amount,
   InteractionType,
   SwapType,
-  SwimDefiInstruction,
   findTokenAccountForMint,
   generateId,
   getConnectedWalletsV2,
@@ -36,7 +34,7 @@ import { filterMap } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useSplTokenAccountsQuery } from "../solana";
 
-export const calculateRequiredSplTokenAccounts = (
+const calculateRequiredSplTokenAccounts = (
   interaction: SwapInteractionV2,
   tokenAccounts: readonly TokenAccount[],
   walletAddress: string | null,
@@ -85,7 +83,7 @@ export const calculateRequiredSplTokenAccounts = (
   }, {});
 };
 
-export const calculateRequiredSplTokenAccountsForAddRemove = (
+const calculateRequiredSplTokenAccountsForAddRemove = (
   interaction:
     | AddInteraction
     | RemoveUniformInteraction
@@ -170,39 +168,12 @@ const createSwapInteractionState = (
   );
   switch (swapType) {
     case SwapType.SingleChainSolana: {
-      const fromToken = findTokenById(fromTokenDetail.tokenId, interaction.env);
-      const toToken = findTokenById(toTokenDetail.tokenId, interaction.env);
-      if (requiredPools.length !== 1) {
-        throw new Error("Single chain Solana Swap should only require 1 pool");
-      }
-      const poolSpec = requiredPools[0];
       return {
         interaction,
         interactionType: interaction.type,
         swapType,
         requiredSplTokenAccounts,
-        solanaPoolOperations: [
-          {
-            operation: {
-              interactionId: interaction.id,
-              poolId: poolSpec.id,
-              instruction: SwimDefiInstruction.Swap,
-              params: {
-                exactInputAmounts: [
-                  Amount.fromHuman(fromToken, fromTokenDetail.value),
-                ],
-                outputTokenIndex: poolSpec.tokens.findIndex(
-                  (tokenId) => tokenId === toTokenDetail.tokenId,
-                ),
-                minimumOutputAmount: Amount.fromHuman(
-                  toToken,
-                  toTokenDetail.value,
-                ),
-              },
-            },
-            txId: null,
-          },
-        ],
+        onChainSwapTxId: null,
       };
     }
     case SwapType.SingleChainEvm:

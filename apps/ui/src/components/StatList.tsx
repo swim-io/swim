@@ -1,7 +1,7 @@
 import { EuiFlexGroup, EuiFlexItem } from "@elastic/eui";
 import type { FunctionComponent, ReactElement, ReactNode } from "react";
 
-export interface StatListProps {
+interface Props {
   readonly listItems?: ReadonlyArray<{
     readonly title: NonNullable<ReactNode>;
     readonly description: NonNullable<ReactNode>;
@@ -9,7 +9,7 @@ export interface StatListProps {
   }>;
 }
 
-export const StatList: FunctionComponent<StatListProps> = ({
+export const StatList: FunctionComponent<Props> = ({
   listItems,
 }): ReactElement => {
   return (

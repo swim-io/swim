@@ -250,6 +250,31 @@ describe("PoolMath", () => {
     },
   );
 
+  test.each([
+    [[1, 4], 4, ["2", "0.5"]],
+    [[1, 4], 2, ["4", "1"]],
+    [[1, 2, 4], 6, ["2", "1", "0.5"]],
+    [[1, 2, 4], 3, ["4", "2", "1"]],
+  ])(
+    "marginal prices for constant product pool",
+    (balances, lpSupply, expectedPrices) => {
+      const ampFactor = new Decimal("0");
+      const irrelevant = new Decimal("0");
+      const lpFee = irrelevant;
+      const governanceFee = irrelevant;
+      const pool = new PoolMath(
+        balances.map((b) => new Decimal(b)),
+        ampFactor,
+        lpFee,
+        governanceFee,
+        new Decimal(lpSupply),
+      );
+      expect(pool.marginalPrices()).toEqual(
+        expectedPrices.map((p) => new Decimal(p)),
+      );
+    },
+  );
+
   test("analytic (partial derivative) marginal prices agree with difference quotient method", () => {
     //epsilon is used to calculate the difference quotient from both sides to approximate
     // the partial derivative (=marginal price)
@@ -265,6 +290,10 @@ describe("PoolMath", () => {
     const governanceFee = irrelevant;
     const ampFactor = new Decimal(20);
     const pool = new PoolMath(balances, ampFactor, lpFee, governanceFee);
+    //importantly, since marginalPrices are given in lp tokens, this test
+    // relies on the default initialization of lpSupply = depth!
+    // (otherwise, we'd have to adjust for lpSupply in our difference quotient
+    //  function too)
     const marginalPrices = pool.marginalPrices();
 
     const marginalPriceDifferenceQuotient = (i: number): Decimal => {

@@ -49,7 +49,7 @@ export const useSwapTokens = (): SwapTokens => {
   const fromTokenOptionsIds = useMemo(
     () =>
       pools
-        .filter((pool) => !pool.isStakingPool)
+        .filter((pool) => !pool.isStakingPool && !pool.isDisabled)
         .flatMap((pool) => pool.tokens)
         // Remove duplicated tokenId
         .filter(

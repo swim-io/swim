@@ -7,7 +7,7 @@ import type { TokenSpec } from "../config";
 import { TokenSpecIcon } from "./TokenIcon";
 import { TokenSearchModal } from "./TokenSearchModal";
 
-export interface TokenSelectProps {
+interface Props {
   readonly onSelectToken: (tokenId: string) => void;
   readonly tokenOptionIds: readonly string[];
   readonly token: TokenSpec;
@@ -17,7 +17,7 @@ export const TokenSelect = ({
   onSelectToken,
   tokenOptionIds,
   token,
-}: TokenSelectProps): ReactElement => {
+}: Props): ReactElement => {
   const [showModal, setShowModal] = useState(false);
 
   const openModal = useCallback(() => setShowModal(true), [setShowModal]);

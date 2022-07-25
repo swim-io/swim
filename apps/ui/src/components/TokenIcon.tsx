@@ -8,7 +8,7 @@ import { useToken } from "../hooks";
 import type { TokenOption } from "../models";
 import type { Amount } from "../models/amount";
 
-export interface TokenIconProps
+interface TokenIconProps
   extends Pick<TokenProject, "icon" | "symbol" | "displayName"> {
   readonly ecosystemId?: EcosystemId;
   readonly showFullName?: boolean;
@@ -44,7 +44,7 @@ export const TokenIcon = ({
   );
 };
 
-export interface AmountWithTokenIconProps {
+interface AmountWithTokenIconProps {
   readonly amount: Amount;
   readonly ecosystem: EcosystemId;
 }
@@ -61,7 +61,7 @@ export const AmountWithTokenIcon = ({
   );
 };
 
-export interface AmountsWithTokenIconsProps {
+interface AmountsWithTokenIconsProps {
   readonly amounts: readonly Amount[];
 }
 
@@ -82,13 +82,13 @@ export const AmountsWithTokenIcons = ({
   </>
 );
 
-export type TokenSpecIconProps = { readonly token: TokenSpec };
+type TokenSpecIconProps = { readonly token: TokenSpec };
 
 export const TokenSpecIcon = ({ token }: TokenSpecIconProps): ReactElement => (
   <TokenIcon {...token.project} ecosystemId={token.nativeEcosystem} />
 );
 
-export type TokenOptionIconProps = { readonly tokenOption: TokenOption };
+type TokenOptionIconProps = { readonly tokenOption: TokenOption };
 
 export const TokenOptionIcon = ({
   tokenOption,
@@ -96,20 +96,4 @@ export const TokenOptionIcon = ({
   const { tokenId, ecosystemId } = tokenOption;
   const tokenSpec = useToken(tokenId);
   return <TokenIcon {...tokenSpec.project} ecosystemId={ecosystemId} />;
-};
-
-export interface EcosystemIconProps {
-  readonly ecosystemId: EcosystemId;
-}
-
-export const EcosystemIcon = ({
-  ecosystemId,
-}: EcosystemIconProps): ReactElement => {
-  const ecosystem = ECOSYSTEMS[ecosystemId];
-  return (
-    <span style={{ whiteSpace: "nowrap" }}>
-      <EuiIcon type={ecosystem.logo} size="m" title={ecosystem.displayName} />
-      &nbsp;{ecosystem.displayName}
-    </span>
-  );
 };

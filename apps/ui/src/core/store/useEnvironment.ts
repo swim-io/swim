@@ -4,14 +4,9 @@ import type { GetState, SetState, StoreApi } from "zustand";
 import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
 
+import type { Env } from "../../config";
 import { DEFAULT_ENV, isValidEnv } from "../../config";
 
-export enum Env {
-  Mainnet = "Mainnet",
-  Devnet = "Devnet",
-  Localnet = "Localnet",
-  CustomLocalnet = "CustomLocalnet",
-}
 export interface EnvironmentState {
   readonly env: Env;
   readonly customLocalnetIp: string | null;

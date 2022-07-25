@@ -7,6 +7,7 @@ module.exports = {
     "deprecation/deprecation": "off",
     // rules we maybe want
     "import/no-unused-modules": ["error", { unusedExports: true }],
+    // allow mutable state on class instances and zustand drafts
     "functional/immutable-data": [
       "error",
       { ignorePattern: ["this", "draft"] },

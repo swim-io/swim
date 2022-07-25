@@ -21,7 +21,7 @@ import SecurityPage from "./pages/SecurityPage";
 import SetCustomLocalnetPage from "./pages/SetCustomLocalnetPage";
 import StakePage from "./pages/StakePage";
 import SwapPage from "./pages/SwapPage";
-import SwapPageV2 from "./pages/SwapPage2";
+import SwapPageV2 from "./pages/SwapPageV2";
 import TestPage from "./pages/TestPage";
 import TosPage from "./pages/TosPage";
 

@@ -33,6 +33,7 @@ module.exports = {
         // used when asserting with expect.stringMatching() where it returns `any`
         "@typescript-eslint/no-unsafe-assignment": "off",
         "functional/immutable-data": "off",
+        // these are expected by Storybook
         "import/no-anonymous-default-export": "off",
       },
     },

@@ -16,15 +16,15 @@ import { useEnvironment } from "../core/store";
 import { findOrThrow } from "../utils";
 
 import { CustomModal } from "./CustomModal";
-import { NativeTokenIcon } from "./TokenIcon";
+import { TokenSpecIcon } from "./TokenIcon";
 
 type TokenOption = EuiSelectableOption<{ readonly data: Readonly<TokenSpec> }>;
 
 const renderTokenOption = (option: TokenOption) => {
-  return <NativeTokenIcon {...option.data} />;
+  return <TokenSpecIcon token={option.data} />;
 };
 
-export interface TokenSearchModalProps {
+interface Props {
   readonly handleClose: () => void;
   readonly handleSelectToken: (tokenId: string) => void;
   readonly tokenOptionIds: readonly string[];
@@ -34,14 +34,14 @@ export const TokenSearchModal = ({
   handleClose,
   handleSelectToken,
   tokenOptionIds,
-}: TokenSearchModalProps): ReactElement => {
+}: Props): ReactElement => {
   const { tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptionIds.map((tokenId) => {
     const tokenSpec = findOrThrow(tokens, ({ id }) => id === tokenId);
     const ecosystem = ECOSYSTEMS[tokenSpec.nativeEcosystem];
     return {
-      label: `${tokenSpec.symbol} on ${ecosystem.displayName}`,
-      searchableLabel: `${tokenSpec.symbol} ${tokenSpec.displayName} ${ecosystem.displayName}`,
+      label: `${tokenSpec.project.symbol} on ${ecosystem.displayName}`,
+      searchableLabel: `${tokenSpec.project.symbol} ${tokenSpec.project.displayName} ${ecosystem.displayName}`,
       showIcons: false,
       data: tokenSpec,
     };

@@ -1,14 +1,15 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 
-import type { TokenSpec } from "../../config";
+import type { PoolSpec, TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { filterMap, findOrThrow } from "../../utils";
 import { Amount } from "../amount";
 
-import type { InteractionSpec } from "./interaction";
+import type { InteractionSpec, InteractionSpecV2 } from "./interaction";
 import { InteractionType } from "./interaction";
+import { getRequiredPools } from "./steps";
 
 const mapNonZeroAmountsToNativeEcosystems = (
   tokens: readonly TokenSpec[],
@@ -123,11 +124,64 @@ export const getConnectedWallets = (
   );
 };
 
+export const getRequiredEcosystemsV2 = (
+  interactionSpec: InteractionSpecV2,
+  poolSpecs: readonly PoolSpec[],
+): ReadonlySet<EcosystemId> => {
+  switch (interactionSpec.type) {
+    case InteractionType.Add:
+    case InteractionType.RemoveUniform:
+    case InteractionType.RemoveExactBurn:
+    case InteractionType.RemoveExactOutput: {
+      const { poolId } = interactionSpec;
+      const poolSpec = findOrThrow(poolSpecs, (pool) => pool.id === poolId);
+      return new Set([poolSpec.ecosystem]);
+    }
+    case InteractionType.SwapV2: {
+      const requiredPools = getRequiredPools(poolSpecs, interactionSpec);
+      return new Set(requiredPools.map((pool) => pool.ecosystem));
+    }
+    default:
+      throw new Error("Unknown instruction");
+  }
+};
+
+export const getConnectedWalletsV2 = (
+  interactionSpec: InteractionSpecV2,
+  poolSpecs: readonly PoolSpec[],
+  wallets: ReadonlyRecord<EcosystemId, BaseWallet>,
+): ReadonlyRecord<EcosystemId, string | null> => {
+  const requiredEcosystems = getRequiredEcosystemsV2(
+    interactionSpec,
+    poolSpecs,
+  );
+  return Object.entries(wallets).reduce(
+    (accumulator, [ecosystemId, { address }]) =>
+      requiredEcosystems.has(ecosystemId as EcosystemId)
+        ? {
+            ...accumulator,
+            [ecosystemId]: address,
+          }
+        : accumulator,
+    {
+      [EcosystemId.Solana]: null,
+      [EcosystemId.Ethereum]: null,
+      [EcosystemId.Bnb]: null,
+      [EcosystemId.Avalanche]: null,
+      [EcosystemId.Polygon]: null,
+      [EcosystemId.Aurora]: null,
+      [EcosystemId.Fantom]: null,
+      [EcosystemId.Karura]: null,
+      [EcosystemId.Acala]: null,
+    },
+  );
+};
+
 export const getPoolUsdValue = (
   tokens: readonly TokenSpec[],
   poolTokenAccounts: readonly TokenAccount[],
 ): Decimal | null =>
-  tokens.every((tokenSpec) => tokenSpec.isStablecoin)
+  tokens.every((tokenSpec) => tokenSpec.project.isStablecoin)
     ? poolTokenAccounts.reduce((acc, account) => {
         const tokenSpec = tokens.find(
           (spec) =>

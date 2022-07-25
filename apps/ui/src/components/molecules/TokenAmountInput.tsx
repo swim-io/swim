@@ -94,6 +94,7 @@ export const TokenAmountInput: React.FC<Props> = ({
           labelAppend={
             <UserBalanceDisplay
               token={token}
+              ecosystemId={token.nativeEcosystem}
               onClick={
                 onChangeValue
                   ? (newAmount) =>

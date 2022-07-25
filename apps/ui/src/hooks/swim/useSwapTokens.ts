@@ -18,17 +18,19 @@ interface SwapTokens {
 const swimUsdRegExp = /-solana-lp-hexapool$/;
 // TODO: Make this check more robust
 const isSwimUsdPool = (pool: PoolSpec): boolean =>
-  [pool.lpToken, ...pool.tokenAccounts.keys()].some((key) =>
-    swimUsdRegExp.test(key),
-  );
+  [pool.lpToken, ...pool.tokens].some((key) => swimUsdRegExp.test(key));
 
 export const useSwapTokens = (): SwapTokens => {
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
   const fromTokenOptionsIds = useMemo(
     () =>
       pools
-        .filter((pool) => !pool.isStakingPool)
-        .flatMap((pool) => [...pool.tokenAccounts.keys()])
+        .filter((pool) => !pool.isStakingPool && !pool.isDisabled)
+        .flatMap((pool) => pool.tokens)
+        // Remove duplicated tokenId
+        .filter(
+          (tokenId, index, tokenIds) => tokenIds.indexOf(tokenId) === index,
+        )
         // TODO: Remove this if we want to support swimUSD swaps
         .filter((tokenId) => pools.every((pool) => pool.lpToken !== tokenId)),
     [pools],
@@ -38,13 +40,11 @@ export const useSwapTokens = (): SwapTokens => {
   const getOutputTokens = useCallback(
     (fromTokenId: string): readonly string[] => {
       const inputPool = findOrThrow(pools, (pool) =>
-        pool.tokenAccounts.has(fromTokenId),
+        pool.tokens.includes(fromTokenId),
       );
       const connectedTokens = isSwimUsdPool(inputPool)
-        ? pools
-            .filter(isSwimUsdPool)
-            .flatMap((pool) => [...pool.tokenAccounts.keys()])
-        : [...inputPool.tokenAccounts.keys()];
+        ? pools.filter(isSwimUsdPool).flatMap((pool) => pool.tokens)
+        : inputPool.tokens;
       return connectedTokens.filter(
         (tokenId) => tokenId !== fromTokenId && !swimUsdRegExp.test(tokenId),
       );

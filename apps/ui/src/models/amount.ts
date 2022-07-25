@@ -41,7 +41,9 @@ export class Amount {
   ): Amount {
     const details = tokenSpec.detailsByEcosystem.get(ecosystemId);
     if (!details) {
-      throw new Error("No token details for ecosystem");
+      throw new Error(
+        `No token details for ecosystem ${ecosystemId} and token '${tokenSpec.id}'`,
+      );
     }
     const convertedValue = value.div(10 ** details.decimals);
     return new Amount(tokenSpec, convertedValue);
@@ -110,7 +112,7 @@ export class Amount {
 
   toFormattedHumanString(ecosystemId: EcosystemId): string {
     const humanString = this.toHuman(ecosystemId).toFixed(
-      this.tokenSpec.isStablecoin ? 2 : undefined,
+      this.tokenSpec.project.isStablecoin ? 2 : undefined,
     );
 
     // NOTE: Safari doesn't support lookbehind :(
@@ -177,6 +179,10 @@ export class Amount {
   div(scalar: Decimal | number): Amount {
     const result = this.value.div(scalar);
     return new Amount(this.tokenSpec, result);
+  }
+
+  requiresRounding(ecosystemId: EcosystemId): boolean {
+    return this.value.decimalPlaces() > this.details(ecosystemId).decimals;
   }
 
   private details(ecosystemId: EcosystemId): TokenDetails {

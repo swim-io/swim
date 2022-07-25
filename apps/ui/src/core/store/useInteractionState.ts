@@ -4,6 +4,7 @@ import { castDraft, produce } from "immer";
 import type { GetState, SetState } from "zustand";
 import create from "zustand";
 
+import type { Env } from "../../config";
 import type { Interaction, InteractionState } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 
@@ -12,7 +13,6 @@ import {
   getInteractionStatesFromDb,
   putInteractionStateToDb,
 } from "./idb";
-import type { Env } from "./useEnvironment";
 
 export interface InteractionStore {
   readonly errorMap: ReadonlyRecord<Interaction["id"], Error | undefined>;

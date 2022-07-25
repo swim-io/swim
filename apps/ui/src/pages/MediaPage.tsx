@@ -8,6 +8,7 @@ import {
   EuiPageContent,
   EuiPageContentBody,
   EuiSpacer,
+  EuiText,
   EuiTitle,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
@@ -28,6 +29,13 @@ const MediaPage = (): ReactElement => {
             <EuiTitle>
               <h2>Media</h2>
             </EuiTitle>
+            <EuiSpacer />
+            <EuiText>
+              <p>
+                <b>Press inquiries: </b>{" "}
+                <a href="mailto:media@swim.io">media@swim.io</a>
+              </p>
+            </EuiText>
             <EuiSpacer />
             <EuiFlexGrid columns={3}>
               <EuiFlexItem>

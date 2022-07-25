@@ -17,9 +17,7 @@ import { isUserOnMobileDevice } from "../utils";
 import { CustomModal } from "./CustomModal";
 import { MobileDeviceDisclaimer } from "./MobileDeviceDisclaimer";
 
-export interface SingleWalletModalProps<
-  W extends WalletService = WalletService,
-> {
+interface Props<W extends WalletService = WalletService> {
   readonly currentService: WalletService["id"] | null;
   readonly protocol: Protocol;
   readonly services: readonly W[];
@@ -31,7 +29,7 @@ export const SingleWalletModal = <W extends WalletService = WalletService>({
   protocol,
   services,
   handleClose,
-}: SingleWalletModalProps<W>): ReactElement => {
+}: Props<W>): ReactElement => {
   const { connectService } = useWalletService();
   return (
     <CustomModal onClose={handleClose}>

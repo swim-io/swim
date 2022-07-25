@@ -2,7 +2,7 @@ import BN from "bn.js";
 import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../config";
-import { EcosystemId } from "../config";
+import { EcosystemId, PROJECTS, TokenProjectId } from "../config";
 
 import { Amount } from "./amount";
 
@@ -29,10 +29,7 @@ const staticMethodConstructionCases: readonly StaticMethodConstructionCase[] = [
 describe("Amount", () => {
   const defaultNonStablecoinTokenSpec: TokenSpec = {
     id: "test-token",
-    symbol: "TEST",
-    displayName: "Test Token",
-    icon: ":)",
-    isStablecoin: false,
+    project: PROJECTS[TokenProjectId.Swim],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [EcosystemId.Solana, { address: "xxx", decimals: 8 }],
@@ -41,10 +38,7 @@ describe("Amount", () => {
   };
   const defaultStablecoinTokenSpec: TokenSpec = {
     id: "test-stablecoin",
-    symbol: "STABLE",
-    displayName: "Test Stablecoin",
-    icon: ":)",
-    isStablecoin: true,
+    project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
       [EcosystemId.Solana, { address: "xxx", decimals: 8 }],

@@ -4,15 +4,12 @@ import type { ReactElement } from "react";
 import { useLocation } from "react-router";
 import { Link } from "react-router-dom";
 
-export type CustomHeaderLinkProps = EuiHeaderLinkProps & {
+type Props = EuiHeaderLinkProps & {
   readonly to: string;
 };
 
 // wrap EuiHeaderLink to enable react-router
-export const CustomHeaderLink = ({
-  to,
-  ...rest
-}: CustomHeaderLinkProps): ReactElement => {
+export const CustomHeaderLink = ({ to, ...rest }: Props): ReactElement => {
   const location = useLocation();
   const isActive = location.pathname === to;
   return (

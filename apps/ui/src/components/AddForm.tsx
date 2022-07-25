@@ -119,7 +119,7 @@ const TokenAddPanel = ({
         isInvalid={errors.length > 0}
         prepend={
           <EuiButtonEmpty size="xs">
-            <TokenIcon {...tokenSpec} />
+            <TokenIcon {...tokenSpec.project} />
           </EuiButtonEmpty>
         }
       />
@@ -197,7 +197,9 @@ export const AddForm = ({
   const poolMath = usePoolMath(poolSpec.id);
   const userBalances = useMultipleUserBalances(poolTokens);
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
-  const startNewInteraction = useStartNewInteraction();
+  const startNewInteraction = useStartNewInteraction(() => {
+    setFormInputAmounts(poolTokens.map(() => "0"));
+  });
   const isInteractionInProgress = useHasActiveInteraction();
   const userNativeBalances = useUserNativeBalances();
 
@@ -306,6 +308,8 @@ export const AddForm = ({
         //   errors = ["During testing, all transactions are limited to $5"];
       } else if (amount.isNegative()) {
         errors = ["Amount must be greater than or equal to zero"];
+      } else if (amount.requiresRounding(tokenSpec.nativeEcosystem)) {
+        errors = ["Too many decimals"];
       }
 
       setInputAmountErrors([
@@ -447,8 +451,8 @@ export const AddForm = ({
   };
 
   const receiveLabel = poolSpec.isStakingPool
-    ? `Receive ${lpToken.symbol} on`
-    : `Receive LP tokens (${lpToken.symbol}) on`;
+    ? `Receive ${lpToken.project.symbol} on`
+    : `Receive LP tokens (${lpToken.project.symbol}) on`;
 
   return (
     <EuiForm component="form" className="addForm" onSubmit={handleFormSubmit}>

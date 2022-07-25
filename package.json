@@ -22,8 +22,8 @@
     "build": "yarn workspaces foreach --topological-dev --parallel --verbose run build",
     "build-packages": "yarn workspaces foreach --topological-dev --parallel --verbose --no-private run build",
     "release-ui": "yarn workspace @swim-io/ui release",
-    "publish-next": "yarn workspaces foreach --no-private exec yarn npm publish --access public --tag next",
-    "publish-latest": "yarn workspaces foreach --no-private exec yarn npm publish --access public",
+    "publish-next": "yarn workspaces foreach --no-private npm publish --access public --tag next",
+    "publish-latest": "yarn workspaces foreach --no-private npm publish --access public",
     "postinstall": "husky install"
   },
   "resolutions": {
@@ -34,6 +34,8 @@
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
-    "husky": "^8.0.1"
+    "dependency-cruiser": "^11.12.0",
+    "husky": "^8.0.1",
+    "nx": "14.4.3"
   }
 }

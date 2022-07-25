@@ -5,7 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import EventEmitter from "eventemitter3";
 
 import { Protocol } from "../../../../config";
-import { SolanaWalletError } from "../../../../errors";
+import { SolanaWalletError, captureException } from "../../../../errors";
 
 // TODO: Migrate to @solana/wallet-adapter.
 export interface SolanaWalletAdapter extends EventEmitter {
@@ -116,8 +116,7 @@ export class SolanaWeb3WalletAdapter
         `Connection to ${this.serviceName} failed.`,
       );
 
-      Sentry.captureException(error);
-      console.error(error);
+      captureException(error);
 
       this.connecting = false;
     }

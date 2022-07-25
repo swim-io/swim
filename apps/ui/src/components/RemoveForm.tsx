@@ -59,13 +59,13 @@ import { RecentInteractions } from "./RecentInteractions";
 import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { TokenIcon } from "./TokenIcon";
 
-export const enum RemoveMethod {
+const enum RemoveMethod {
   Uniform = "uniform",
   ExactBurn = "exactBurn",
   ExactOutput = "exactOutput",
 }
 
-export interface RemoveFormProps {
+interface Props {
   readonly poolSpec: PoolSpec;
   readonly maxSlippageFraction: Decimal | null;
 }
@@ -73,7 +73,7 @@ export interface RemoveFormProps {
 export const RemoveForm = ({
   poolSpec,
   maxSlippageFraction,
-}: RemoveFormProps): ReactElement => {
+}: Props): ReactElement => {
   const config = useEnvironment(selectConfig, shallow);
   const {
     tokens: poolTokens,
@@ -83,7 +83,11 @@ export const RemoveForm = ({
   } = usePool(poolSpec.id);
   const poolMath = usePoolMath(poolSpec.id);
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
-  const startNewInteraction = useStartNewInteraction();
+  const startNewInteraction = useStartNewInteraction(() => {
+    if (method === RemoveMethod.ExactOutput) {
+      setFormOutputAmounts(formOutputAmounts.map(() => "0"));
+    }
+  });
   const isInteractionInProgress = useHasActiveInteraction();
   const userLpBalances = useUserLpBalances(lpToken, userLpTokenAccount);
   const wallets = useWallets();
@@ -93,9 +97,7 @@ export const RemoveForm = ({
     EcosystemId.Solana,
   );
   const [method, setMethod] = useState(RemoveMethod.ExactBurn);
-  const [outputToken, setOutputToken] = useState(
-    [...poolSpec.tokenAccounts.keys()][0],
-  );
+  const [outputToken, setOutputToken] = useState(poolSpec.tokens[0]);
   const [burnPercentage, setBurnPercentage] = useState(0);
 
   const userLpBalance = userLpBalances[lpTokenSourceEcosystem];
@@ -296,6 +298,8 @@ export const RemoveForm = ({
       onChange("0");
     } else if (outputAmount.isNegative()) {
       errors = ["Amount must be greater than or equal to zero"];
+    } else if (outputAmount.requiresRounding(tokenSpec.nativeEcosystem)) {
+      errors = ["Too many decimals"];
     }
 
     setOutputAmountErrors(
@@ -338,17 +342,17 @@ export const RemoveForm = ({
           { id: RemoveMethod.ExactOutput, label: "Enter exact output amount" },
         ];
 
-  const outputTokenOptions: readonly EuiSelectOption[] = [
-    ...poolSpec.tokenAccounts.keys(),
-  ].map((id) => {
-    const tokenSpec = findOrThrow(config.tokens, (token) => token.id === id);
-    return {
-      value: id,
-      text: `${tokenSpec.displayName} (${
-        ECOSYSTEMS[tokenSpec.nativeEcosystem].displayName
-      })`,
-    };
-  });
+  const outputTokenOptions: readonly EuiSelectOption[] = poolSpec.tokens.map(
+    (id) => {
+      const tokenSpec = findOrThrow(config.tokens, (token) => token.id === id);
+      return {
+        value: id,
+        text: `${tokenSpec.project.displayName} (${
+          ECOSYSTEMS[tokenSpec.nativeEcosystem].displayName
+        })`,
+      };
+    },
+  );
 
   const createOnChange = (tokenSpec: TokenSpec) => (value: string) => {
     const i = poolTokens.findIndex(({ id }) => id === tokenSpec.id);
@@ -563,14 +567,14 @@ export const RemoveForm = ({
   };
 
   const maximumLpBurnLabel = poolSpec.isStakingPool
-    ? `Maximum required ${lpToken.symbol} tokens: `
-    : `Maximum required LP tokens (${lpToken.symbol}): `;
+    ? `Maximum required ${lpToken.project.symbol} tokens: `
+    : `Maximum required LP tokens (${lpToken.project.symbol}): `;
 
   return (
     <EuiForm component="form" onSubmit={handleFormSubmit}>
       <EuiSpacer size="m" />
       <EuiFormRow
-        label={`Use LP tokens (${lpToken.symbol}) from`}
+        label={`Use LP tokens (${lpToken.project.symbol}) from`}
         helpText={
           lpTokenSourceEcosystem === EcosystemId.Solana ||
           method !== RemoveMethod.ExactOutput
@@ -724,7 +728,7 @@ export const RemoveForm = ({
                     }
                     prepend={
                       <EuiButtonEmpty size="xs">
-                        <TokenIcon {...tokenSpec} />
+                        <TokenIcon {...tokenSpec.project} />
                       </EuiButtonEmpty>
                     }
                   />

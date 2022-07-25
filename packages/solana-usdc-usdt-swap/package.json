@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/solana-usdc-usdt-swap",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Create Swim swap instructions for hexapool to swap Solana native USDC and USDT",
   "main": "build",
   "types": "types",
@@ -12,8 +12,15 @@
     "!**/fixtures/"
   ],
   "scripts": {
+    "typecheck": "tsc",
     "format": "prettier --write \"./src/**/*.ts\"",
-    "build": "rm -rf ./build/ ./types/ && tsc"
+    "format:check": "prettier --check \"./src/**/*.ts\"",
+    "lint": "eslint \"./src/**/*.ts\"",
+    "lint:fix": "eslint --fix \"./src/**/*.ts\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "verify": "yarn typecheck && yarn format:check && yarn lint",
+    "build": "rm -rf ./build/ ./types/ && tsc",
+    "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
     "@project-serum/borsh": "^0.2.3",
@@ -23,8 +30,21 @@
     "bn.js": "^5.2.0"
   },
   "devDependencies": {
+    "@swim-io/eslint-config": "workspace:^",
     "@types/bn.js": "^5.1.0",
+    "@types/jest": "^28.1.3",
+    "@typescript-eslint/eslint-plugin": "^5.29.0",
+    "@typescript-eslint/parser": "^5.29.0",
+    "eslint": "^8.18.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-deprecation": "^1.3.2",
+    "eslint-plugin-functional": "^4.2.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.5.3",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^28.1.1",
     "prettier": "^2.7.1",
+    "ts-jest": "^28.0.5",
     "typescript": "^4.7.4"
   },
   "peerDependencies": {

@@ -1,0 +1,11 @@
+{
+  "extends": ["@swim-io/eslint-config/js-only"],
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "functional/immutable-data": "off",
+    "import/no-commonjs": "off",
+    "import/unambiguous": "off"
+  }
+}

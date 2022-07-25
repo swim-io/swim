@@ -1,0 +1,438 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useCreateInteractionStateV2 should create state for Add 1`] = `
+Object {
+  "addTxId": null,
+  "approvalTxIds": Array [],
+  "interaction": Object {
+    "connectedWallets": Object {
+      "acala": null,
+      "aurora": null,
+      "avalanche": null,
+      "bnb": null,
+      "ethereum": null,
+      "fantom": null,
+      "karura": null,
+      "polygon": null,
+      "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    },
+    "env": "Devnet",
+    "id": "11111111111111111111111111111111",
+    "lpTokenTargetEcosystem": "solana",
+    "params": Object {
+      "inputAmounts": Array [
+        "100",
+        "10",
+      ],
+      "minimumMintAmount": "110",
+    },
+    "poolId": "devnet-solana-usdc-usdt",
+    "poolIds": Array [
+      "devnet-solana-usdc-usdt",
+    ],
+    "submittedAt": 1657544558283,
+    "type": 1,
+  },
+  "interactionType": 1,
+  "requiredSplTokenAccounts": Object {
+    "11111111111111111111111111111111": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+  },
+}
+`;
+
+exports[`useCreateInteractionStateV2 should create state for RemoveExactBurn 1`] = `
+Object {
+  "approvalTxIds": Array [],
+  "interaction": Object {
+    "connectedWallets": Object {
+      "acala": null,
+      "aurora": null,
+      "avalanche": null,
+      "bnb": null,
+      "ethereum": null,
+      "fantom": null,
+      "karura": null,
+      "polygon": null,
+      "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    },
+    "env": "Devnet",
+    "id": "11111111111111111111111111111111",
+    "lpTokenSourceEcosystem": "solana",
+    "params": Object {
+      "exactBurnAmount": "110",
+      "minimumOutputAmount": "110",
+    },
+    "poolId": "devnet-solana-usdc-usdt",
+    "poolIds": Array [
+      "devnet-solana-usdc-usdt",
+    ],
+    "submittedAt": 1657544558283,
+    "type": 3,
+  },
+  "interactionType": 3,
+  "removeTxId": null,
+  "requiredSplTokenAccounts": Object {
+    "11111111111111111111111111111111": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+  },
+}
+`;
+
+exports[`useCreateInteractionStateV2 should create state for RemoveExactOutput 1`] = `
+Object {
+  "approvalTxIds": Array [],
+  "interaction": Object {
+    "connectedWallets": Object {
+      "acala": null,
+      "aurora": null,
+      "avalanche": null,
+      "bnb": null,
+      "ethereum": null,
+      "fantom": null,
+      "karura": null,
+      "polygon": null,
+      "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    },
+    "env": "Devnet",
+    "id": "11111111111111111111111111111111",
+    "lpTokenSourceEcosystem": "solana",
+    "params": Object {
+      "exactOutputAmounts": Array [
+        "100",
+        "10",
+      ],
+      "maximumBurnAmount": "110",
+    },
+    "poolId": "devnet-solana-usdc-usdt",
+    "poolIds": Array [
+      "devnet-solana-usdc-usdt",
+    ],
+    "submittedAt": 1657544558283,
+    "type": 4,
+  },
+  "interactionType": 4,
+  "removeTxId": null,
+  "requiredSplTokenAccounts": Object {
+    "11111111111111111111111111111111": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+  },
+}
+`;
+
+exports[`useCreateInteractionStateV2 should create state for RemoveUniform 1`] = `
+Object {
+  "approvalTxIds": Array [],
+  "interaction": Object {
+    "connectedWallets": Object {
+      "acala": null,
+      "aurora": null,
+      "avalanche": null,
+      "bnb": null,
+      "ethereum": null,
+      "fantom": null,
+      "karura": null,
+      "polygon": null,
+      "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    },
+    "env": "Devnet",
+    "id": "11111111111111111111111111111111",
+    "lpTokenSourceEcosystem": "solana",
+    "params": Object {
+      "exactBurnAmount": "110",
+      "minimumOutputAmounts": Array [
+        "100",
+        "10",
+      ],
+    },
+    "poolId": "devnet-solana-usdc-usdt",
+    "poolIds": Array [
+      "devnet-solana-usdc-usdt",
+    ],
+    "submittedAt": 1657544558283,
+    "type": 2,
+  },
+  "interactionType": 2,
+  "removeTxId": null,
+  "requiredSplTokenAccounts": Object {
+    "11111111111111111111111111111111": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+  },
+}
+`;
+
+exports[`useCreateInteractionStateV2 should create state for Swap from ETHEREUM USDC to BNB USDT 1`] = `
+Object {
+  "approvalTxIds": Array [],
+  "interaction": Object {
+    "connectedWallets": Object {
+      "acala": null,
+      "aurora": null,
+      "avalanche": null,
+      "bnb": "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      "ethereum": "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      "fantom": null,
+      "karura": null,
+      "polygon": null,
+      "solana": null,
+    },
+    "env": "Devnet",
+    "id": "11111111111111111111111111111111",
+    "params": Object {
+      "fromTokenDetail": Object {
+        "ecosystemId": "ethereum",
+        "tokenId": "devnet-ethereum-usdc",
+        "value": "1000",
+      },
+      "toTokenDetail": Object {
+        "ecosystemId": "bnb",
+        "tokenId": "devnet-bnb-usdt",
+        "value": "1000",
+      },
+    },
+    "poolIds": Array [
+      "devnet-ethereum-usdc-usdt",
+      "devnet-bnb-busd-usdt",
+    ],
+    "submittedAt": 1657544558283,
+    "type": 5,
+  },
+  "interactionType": 5,
+  "receiveAndSwapTxId": null,
+  "swapAndTransferTxId": null,
+  "swapType": "CrossChainEvmToEvm",
+}
+`;
+
+exports[`useCreateInteractionStateV2 should create state for Swap from ETHEREUM USDC to ETHEREUM USDT 1`] = `
+Object {
+  "approvalTxIds": Array [],
+  "interaction": Object {
+    "connectedWallets": Object {
+      "acala": null,
+      "aurora": null,
+      "avalanche": null,
+      "bnb": null,
+      "ethereum": "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      "fantom": null,
+      "karura": null,
+      "polygon": null,
+      "solana": null,
+    },
+    "env": "Devnet",
+    "id": "11111111111111111111111111111111",
+    "params": Object {
+      "fromTokenDetail": Object {
+        "ecosystemId": "ethereum",
+        "tokenId": "devnet-ethereum-usdc",
+        "value": "1000",
+      },
+      "toTokenDetail": Object {
+        "ecosystemId": "ethereum",
+        "tokenId": "devnet-ethereum-usdt",
+        "value": "1000",
+      },
+    },
+    "poolIds": Array [
+      "devnet-ethereum-usdc-usdt",
+    ],
+    "submittedAt": 1657544558283,
+    "type": 5,
+  },
+  "interactionType": 5,
+  "onChainSwapTxId": null,
+  "swapType": "SingleChainEvm",
+}
+`;
+
+exports[`useCreateInteractionStateV2 should create state for Swap from ETHEREUM USDC to SOLANA USDC 1`] = `
+Object {
+  "approvalTxIds": Array [],
+  "claimTokenOnSolanaTxId": null,
+  "interaction": Object {
+    "connectedWallets": Object {
+      "acala": null,
+      "aurora": null,
+      "avalanche": null,
+      "bnb": null,
+      "ethereum": "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      "fantom": null,
+      "karura": null,
+      "polygon": null,
+      "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    },
+    "env": "Devnet",
+    "id": "11111111111111111111111111111111",
+    "params": Object {
+      "fromTokenDetail": Object {
+        "ecosystemId": "ethereum",
+        "tokenId": "devnet-ethereum-usdc",
+        "value": "1000",
+      },
+      "toTokenDetail": Object {
+        "ecosystemId": "solana",
+        "tokenId": "devnet-solana-usdc",
+        "value": "1000",
+      },
+    },
+    "poolIds": Array [
+      "devnet-ethereum-usdc-usdt",
+      "devnet-solana-usdc-usdt",
+    ],
+    "submittedAt": 1657544558283,
+    "type": 5,
+  },
+  "interactionType": 5,
+  "postVaaOnSolanaTxIds": Array [],
+  "requiredSplTokenAccounts": Object {
+    "11111111111111111111111111111111": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+  },
+  "swapAndTransferTxId": null,
+  "swapType": "CrossChainEvmToSolana",
+}
+`;
+
+exports[`useCreateInteractionStateV2 should create state for Swap from SOLANA USDC to ETHEREUM USDC 1`] = `
+Object {
+  "interaction": Object {
+    "connectedWallets": Object {
+      "acala": null,
+      "aurora": null,
+      "avalanche": null,
+      "bnb": null,
+      "ethereum": "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      "fantom": null,
+      "karura": null,
+      "polygon": null,
+      "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    },
+    "env": "Devnet",
+    "id": "11111111111111111111111111111111",
+    "params": Object {
+      "fromTokenDetail": Object {
+        "ecosystemId": "solana",
+        "tokenId": "devnet-solana-usdc",
+        "value": "1000",
+      },
+      "toTokenDetail": Object {
+        "ecosystemId": "ethereum",
+        "tokenId": "devnet-ethereum-usdc",
+        "value": "1000",
+      },
+    },
+    "poolIds": Array [
+      "devnet-solana-usdc-usdt",
+      "devnet-ethereum-usdc-usdt",
+    ],
+    "submittedAt": 1657544558283,
+    "type": 5,
+  },
+  "interactionType": 5,
+  "receiveAndSwapTxId": null,
+  "requiredSplTokenAccounts": Object {
+    "11111111111111111111111111111111": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+  },
+  "swapAndTransferTxId": null,
+  "swapType": "CrossChainSolanaToEvm",
+}
+`;
+
+exports[`useCreateInteractionStateV2 should create state for Swap from SOLANA USDC to SOLANA USDT 1`] = `
+Object {
+  "interaction": Object {
+    "connectedWallets": Object {
+      "acala": null,
+      "aurora": null,
+      "avalanche": null,
+      "bnb": null,
+      "ethereum": null,
+      "fantom": null,
+      "karura": null,
+      "polygon": null,
+      "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    },
+    "env": "Devnet",
+    "id": "11111111111111111111111111111111",
+    "params": Object {
+      "fromTokenDetail": Object {
+        "ecosystemId": "solana",
+        "tokenId": "devnet-solana-usdc",
+        "value": "1000",
+      },
+      "toTokenDetail": Object {
+        "ecosystemId": "solana",
+        "tokenId": "devnet-solana-usdt",
+        "value": "1000",
+      },
+    },
+    "poolIds": Array [
+      "devnet-solana-usdc-usdt",
+    ],
+    "submittedAt": 1657544558283,
+    "type": 5,
+  },
+  "interactionType": 5,
+  "onChainSwapTxId": null,
+  "requiredSplTokenAccounts": Object {
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+    "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
+  },
+  "swapType": "SingleChainSolana",
+}
+`;

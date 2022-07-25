@@ -5,6 +5,7 @@
 // Runtime Environment's members available in the global scope.
 import { ethers, run, network } from "hardhat";
 import "dotenv/config";
+import verify from "./helpers";
 
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -31,21 +32,6 @@ async function main() {
   if (network.config.chainId === 4 && process.env.ETHERSCAN_API_KEY) {
     await routing.deployTransaction.wait(6);
     await verify(routing.address, []);
-  }
-}
-
-async function verify(contractAddress: string, args: any) {
-  try {
-    await run("verify:verify", {
-      address: contractAddress,
-      constructor: args,
-    });
-  } catch (e: any) {
-    if (e?.message?.toLowerCase().includes("already verified")) {
-      console.log("Already Verified");
-    } else {
-      console.log(e);
-    }
   }
 }
 

@@ -12,16 +12,17 @@ interface SwapTokens {
   readonly toToken: TokenSpec;
   readonly fromTokenOptionsIds: readonly string[];
   readonly toTokenOptionsIds: readonly string[];
-  readonly setFromTokenId: (fromTokenId: string) => void;
-  readonly setToTokenId: (toTokenId: string) => void;
-  readonly setFromAndToTokenIds: (fromTokenId: string, toTokenId: string) => void;
+  readonly setFromToken: (fromTokenParam: TokenSpec) => void;
+  readonly setToToken: (toTokenParam: TokenSpec) => void;
+  readonly setFromAndToTokens: (
+    fromTokenParam: TokenSpec,
+    toTokenParam: TokenSpec,
+  ) => void;
   readonly hasUrlError: boolean;
 }
 
-const convertTokenIdToUrlParam = (id: string): string => {
-  // Assumes token id is {environment}-chain-token in lowercase (doesn't work for LP tokens).
-  // TODO: Handle swimUSD's unique id: mainnet-solana-lp-hexapool.
-  return id.split("-").slice(1).join("-");
+const convertTokenSpecToUrlParam = (token: TokenSpec): string => {
+  return token.nativeEcosystem + "-" + token.project.symbol;
 };
 
 const swimUsdRegExp = /-solana-lp-hexapool$/;
@@ -33,17 +34,17 @@ export const useSwapTokens = (): SwapTokens => {
   const navigate = useNavigate();
   const { env } = useEnvironment();
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
-  const { fromEcosystem: fromUrlParam, toEcosystem: toUrlParam } = useParams<{
-    readonly fromEcosystem?: string;
-    readonly toEcosystem?: string;
+  const { fromToken: fromUrlParam, toToken: toUrlParam } = useParams<{
+    readonly fromToken?: string;
+    readonly toToken?: string;
   }>();
 
   const findTokenForParam = (param?: string): TokenSpec | null => {
-    if (!url) {
-      return undefined;
+    if (!param) {
+      return null;
     }
-    const tid = env.toLowerCase() + "-" + url;
-    return tokens.find(({ id }) => id === tid);
+    const tid = env.toLowerCase() + "-" + param;
+    return tokens.find(({ id }) => id === tid) ?? null;
   };
   const fromTokenOptionsIds = useMemo(
     () =>
@@ -77,75 +78,56 @@ export const useSwapTokens = (): SwapTokens => {
 
   const defaultFromTokenId = fromTokenOptionsIds[0];
 
-  const maybeFromToken = convertUrlParamToToken(fromUrlParam);
-  let hasUrlError = fromUrlParam && !potentialFromToken;
+  const maybeFromToken = findTokenForParam(fromUrlParam);
+  const hasFromUrlError = (fromUrlParam && !maybeFromToken) as boolean;
 
   const fromToken =
-    potentialFromToken ?? findOrThrow(tokens, ({ id }) => id === defaultFromTokenId);
-
-  if (!fromToken) throw new Error("Can't figure out fromToken");
+    maybeFromToken ??
+    findOrThrow(tokens, ({ id }) => id === defaultFromTokenId);
 
   const toTokenOptionsIds = getOutputTokens(fromToken.id);
 
-  const potentialToToken = convertUrlParamToToken(toUrlParam);
-  hasUrlError =
-    hasUrlError ||
+  const maybeToToken = findTokenForParam(toUrlParam);
+  const hasToUrlError =
+    hasFromUrlError ||
     ((fromUrlParam &&
-      (!potentialToToken ||
-        !toTokenOptionsIds.find(
-          (id) => id === potentialToToken.id,
-        ))) as boolean);
+      (!maybeToToken ||
+        !toTokenOptionsIds.find((id) => id === maybeToToken.id))) as boolean);
 
   const toToken =
-    potentialToToken && !hasUrlError
-      ? potentialToToken
-      : tokens.find(({ id }) => id === toTokenOptionsIds[0]);
-  if (!toToken) throw new Error("Can't figure out toToken");
+    maybeToToken && !hasToUrlError
+      ? maybeToToken
+      : findOrThrow(tokens, ({ id }) => id === toTokenOptionsIds[0]);
 
-  const setFromTokenId = (fromTokenId: string) => {
-    const newOutputTokenOptions = getOutputTokens(fromTokenId);
-    navigate(
-      `/swap/${convertTokenIdToUrlParam(
-        fromTokenId,
-      )}/to/${convertTokenIdToUrlParam(
-        newOutputTokenOptions.find((id) => id === toToken.id)
-          ? toToken.id
-          : newOutputTokenOptions[0],
-      )}`,
-    );
+  const setFromToken = (fromTokenArg: TokenSpec) => {
+    setFromAndToTokens(fromTokenArg, toToken);
   };
 
-  const setToTokenId = (toTokenId: string) => {
-    navigate(
-      `/swap/${convertTokenIdToUrlParam(
-        fromToken.id,
-      )}/to/${convertTokenIdToUrlParam(
-        toTokenOptionsIds.find((id) => id === toTokenId)
-          ? toTokenId
-          : toTokenOptionsIds[0],
-      )}`,
-    );
+  const setToToken = (toTokenArg: TokenSpec) => {
+    setFromAndToTokens(fromToken, toTokenArg);
   };
 
-  const setFromAndToTokens = (fromTokenId: string, toTokenId: string) => {
-    const newOutputTokenOptions = getOutputTokens(fromTokenId);
-    navigate(
-      `/swap/${convertTokenIdToUrlParam(
-        fromTokenId,
-      )}/to/${convertTokenIdToUrlParam(
-        newOutputTokenOptions.find((id) => id === toTokenId)
-          ? toTokenId
-          : newOutputTokenOptions[0],
-      )}`,
+  const setFromAndToTokens = (
+    fromTokenArg: TokenSpec,
+    toTokenArg: TokenSpec,
+  ) => {
+    const fromTokenUrlParam = convertTokenSpecToUrlParam(fromTokenArg);
+    const newOutputTokenOptions = getOutputTokens(fromTokenArg.id);
+    const toTokenUrlParam = convertTokenSpecToUrlParam(
+      newOutputTokenOptions.find((id) => id === toTokenArg.id)
+        ? toToken
+        : findOrThrow(tokens, ({ id }) => id === newOutputTokenOptions[0]),
     );
+    navigate(`/swap/${fromTokenUrlParam}/to/${toTokenUrlParam}`);
   };
+  const hasUrlError = hasToUrlError || hasFromUrlError;
   return {
     fromToken,
     toToken,
     fromTokenOptionsIds,
     toTokenOptionsIds,
-    setFromTokenId,
-    setToTokenId,
+    setFromToken,
+    setToToken,
     setFromAndToTokens,
     hasUrlError,
   };

@@ -8,7 +8,7 @@ import { TokenSpecIcon } from "./TokenIcon";
 import { TokenSearchModal } from "./TokenSearchModal";
 
 interface Props {
-  readonly onSelectToken: (tokenId: string) => void;
+  readonly onSelectToken: (token: TokenSpec) => void;
   readonly tokenOptionIds: readonly string[];
   readonly token: TokenSpec;
 }

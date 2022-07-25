@@ -63,7 +63,7 @@ function App(): ReactElement {
               <Route path="stake" element={<StakePage poolId="swimlake" />} />
               <Route path="swap" element={<SwapPage />} />
               <Route
-                path="swap/:fromEcosystem/to/:toEcosystem"
+                path="swap/:fromToken/to/:toToken"
                 element={<SwapPage />}
               />
               {process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE && (

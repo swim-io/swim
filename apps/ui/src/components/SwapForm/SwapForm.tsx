@@ -66,8 +66,8 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
     toToken,
     fromTokenOptionsIds,
     toTokenOptionsIds,
-    setFromTokenId,
-    setToTokenId,
+    setFromToken,
+    setToToken,
     setFromAndToTokens,
     hasUrlError,
   } = useSwapTokens();
@@ -243,7 +243,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         placeholder={"Enter amount"}
         disabled={isInteractionInProgress}
         errors={inputAmountErrors}
-        onSelectToken={setFromTokenId}
+        onSelectToken={setFromToken}
         onChangeValue={(value) => setFormInputAmount(value)}
         onBlur={() => handleInputAmountChange(inputAmount)}
         showConstantSwapTip={!isStableSwap}
@@ -256,7 +256,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
           size="m"
           iconSize="xl"
           onClick={() => {
-            setFromAndToTokens(toToken.id, fromToken.id);
+            setFromAndToTokens(toToken, fromToken);
           }}
           className="swapForm__flipIcon"
           aria-label="Flip direction"
@@ -275,7 +275,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         placeholder={"Output"}
         disabled={isInteractionInProgress}
         errors={[]}
-        onSelectToken={setToTokenId}
+        onSelectToken={setToToken}
         // Never show constant swap on "To Form".
         showConstantSwapTip={false}
       />

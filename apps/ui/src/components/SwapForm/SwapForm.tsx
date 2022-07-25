@@ -64,10 +64,12 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const {
     fromToken,
     toToken,
-    setFromTokenId,
-    setToTokenId,
     fromTokenOptionsIds,
     toTokenOptionsIds,
+    setFromTokenId,
+    setToTokenId,
+    setFromAndToTokens,
+    hasUrlError,
   } = useSwapTokens();
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
@@ -231,6 +233,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const isStableSwap = requiredPools.every((pool) => pool.isStableSwap);
   return (
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
+      {hasUrlError && <EuiCallOut title="Invalid URL inputs" color="danger" />}
       <EuiSpacer />
 
       <TokenAmountInput
@@ -253,8 +256,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
           size="m"
           iconSize="xl"
           onClick={() => {
-            setFromTokenId(toToken.id);
-            setToTokenId(fromToken.id);
+            setFromAndToTokens(toToken.id, fromToken.id);
           }}
           className="swapForm__flipIcon"
           aria-label="Flip direction"

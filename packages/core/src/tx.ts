@@ -1,3 +1,4 @@
+/** Ecosystem-neutral transaction interface */
 export interface Tx {
   readonly id: string;
   readonly ecosystemId: string;

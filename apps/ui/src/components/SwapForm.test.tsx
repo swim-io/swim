@@ -31,6 +31,11 @@ jest.mock(
       children({ height: 600, width: 600 }),
 );
 
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => jest.fn(),
+}));
+
 jest.mock("../hooks/solana", () => ({
   ...jest.requireActual("../hooks/solana"),
   useSplTokenAccountsQuery: jest.fn(),

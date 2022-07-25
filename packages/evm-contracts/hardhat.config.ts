@@ -110,6 +110,15 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       ...sharedNetworkConfig,
     },
+    mainnet: {
+      ...sharedNetworkConfig,
+      url: "https://mainnet.infura.io/v3/KEY",
+      accounts: {
+        mnemonic: MNEMONIC,
+      },
+      saveDeployments: true,
+      chainId: 1,
+    },
     mumbai: {
       ...sharedNetworkConfig,
       url: `https://polygon-mumbai.infura.io/v3/${"KEY"}`,
@@ -119,26 +128,30 @@ const config: HardhatUserConfig = {
       url: `https://polygon-mainnet.infura.io/v3/${"KEY"}`,
       chainId: 137,
     },
-    bsc: {
+    bnbTestnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      chainId: 97,
+      gasPrice: 20000000000,
       ...sharedNetworkConfig,
-      url: `https://bsc-dataseed.binance.org/`,
+    },
+    bnbMainnet: {
+      url: "https://bsc-dataseed.binance.org/",
+      chainId: 56,
+      gasPrice: 20000000000,
+      ...sharedNetworkConfig,
     },
     fantomTestnet: {
       ...sharedNetworkConfig,
       url: `https://rpc.testnet.fantom.network/`,
     },
-    avalanche: {
+    avalancheTestnet: {
       ...sharedNetworkConfig,
       url: `https://api.avax.network/ext/bc/C/rpc`,
+      chainId: 43113,
     },
-    mainnet: {
-      ...sharedNetworkConfig,
-      url: "https://",
-      //   accounts: {
-      //     mnemonic: MNEMONIC,
-      //   },
-      saveDeployments: true,
-      chainId: 1,
+    avalancheLocalhost: {
+      url: "https://localhost:9650/ext/bc/C/rpc",
+      chainId: 43112,
     },
   },
   deterministicDeployment,

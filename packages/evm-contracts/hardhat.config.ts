@@ -30,7 +30,7 @@ task("accounts", "Prints the list of accounts", async (_, hre) => {
 });
 
 const DEFAULT_MNEMONIC =
-  "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
+  "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"; // TODO
 
 const sharedNetworkConfig: HttpNetworkUserConfig = {};
 if (PRIVATE_KEY) {

@@ -50,5 +50,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 export default func;
 func.id = "deploy_routing_contract";
-func.tags = ["Routing"];
+func.tags = ["RoutingProxy"];
 func.dependencies = ["TokenBridgeLogic"];

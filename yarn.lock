@@ -3954,6 +3954,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nomicfoundation/hardhat-network-helpers@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@nomicfoundation/hardhat-network-helpers@npm:1.0.3"
+  dependencies:
+    ethereumjs-util: ^7.1.4
+  peerDependencies:
+    hardhat: ^2.0.0
+  checksum: d2538070c84b6982b0eed76dad96d5119ca074e2b046cfeebdb71f99ac44c47aa77ba44ea3773d5a1c27da4998837462372fb0a9e12c1668e1398c85ec8bca0a
+  languageName: node
+  linkType: hard
+
 "@nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers@0.3.0-beta.13":
   version: 0.3.0-beta.13
   resolution: "hardhat-deploy-ethers@npm:0.3.0-beta.13"
@@ -6125,6 +6136,7 @@ __metadata:
   dependencies:
     "@gnosis.pm/safe-singleton-factory": ^1.0.11
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.2
+    "@nomicfoundation/hardhat-network-helpers": ^1.0.3
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@0.3.0-beta.13"
     "@nomiclabs/hardhat-etherscan": ^3.1.0
     "@openzeppelin/contracts": ^4.7.1

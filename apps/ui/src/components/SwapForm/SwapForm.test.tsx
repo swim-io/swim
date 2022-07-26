@@ -1,10 +1,11 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { Env } from "@swim-io/core";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import Decimal from "decimal.js";
 import type { FC } from "react";
 import type { UseQueryResult } from "react-query";
 
-import { EcosystemId, Env } from "../../config";
+import { EcosystemId } from "../../config";
 import { useEnvironment as environmentStore } from "../../core/store";
 import {
   useErc20BalanceQuery,
@@ -108,7 +109,7 @@ describe("SwapForm", () => {
   });
 
   beforeEach(() => {
-    // currently we can't change the env unless a custom localnet ip is set
+    // currently we can't change the env unless a custom IP is set
     environmentStore.getState().setCustomLocalnetIp("122.122.122.12");
     environmentStore.getState().setEnv(Env.Mainnet);
 

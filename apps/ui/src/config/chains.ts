@@ -1,8 +1,9 @@
+import { Env } from "@swim-io/core";
+
 import type { ReadonlyRecord } from "../utils";
 
 import type { EvmEcosystemId, SolanaEcosystemId } from "./ecosystem";
 import { EcosystemId, Protocol } from "./ecosystem";
-import { Env } from "./env";
 
 const SOLANA_MAINNET_RPC_URL = process.env.REACT_APP_SOLANA_MAINNET_RPC_URL;
 const SOLANA_MAINNET_WS_URL = process.env.REACT_APP_SOLANA_MAINNET_WS_URL;
@@ -388,7 +389,7 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
       endpoint: "http://127.0.0.1:8899",
       wsEndpoint: "",
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      otterTotCollection: "", // TODO: Deploy on localnet
+      otterTotCollection: "", // TODO: Deploy on teamnet
     },
   ],
   [Protocol.Evm]: [
@@ -499,6 +500,6 @@ export const ALL_UNIQUE_CHAINS = {
 export const CHAINS: ReadonlyRecord<Env, ChainsByProtocol> = {
   [Env.Mainnet]: MAINNET_CHAINS,
   [Env.Devnet]: DEVNET_CHAINS,
-  [Env.Localnet]: LOCALNET_CHAINS,
-  [Env.CustomLocalnet]: LOCALNET_CHAINS,
+  [Env.Local]: LOCALNET_CHAINS,
+  [Env.Custom]: LOCALNET_CHAINS,
 };

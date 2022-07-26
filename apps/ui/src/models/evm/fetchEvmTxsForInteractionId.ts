@@ -1,7 +1,8 @@
+import type { Env } from "@swim-io/core";
 import type { ethers } from "ethers";
 import type { QueryClient } from "react-query";
 
-import type { EcosystemId, Env, EvmEcosystemId } from "../../config";
+import type { EcosystemId, EvmEcosystemId } from "../../config";
 import { isEvmEcosystemId } from "../../config";
 import type { ReadonlyRecord } from "../../utils";
 import { isNotNull } from "../../utils";

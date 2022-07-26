@@ -1,16 +1,20 @@
-import { CONFIGS, DEFAULT_ENV, Env, overrideLocalnetIp } from "../../config";
+import { Env } from "@swim-io/core";
+
+import { CONFIGS, overrideLocalnetIp } from "../../config";
 import type { EnvironmentState } from "../store";
+
+export const DEFAULT_ENV = Env.Mainnet;
 
 export const selectEnvs = (state: EnvironmentState) =>
   state.customLocalnetIp === null ? [DEFAULT_ENV] : Object.values(Env);
 
 export const selectConfig = (state: EnvironmentState) => {
-  if (state.env !== Env.CustomLocalnet) {
+  if (state.env !== Env.Custom) {
     return CONFIGS[state.env];
   }
   const config =
     state.customLocalnetIp === null
-      ? CONFIGS[Env.Localnet]
-      : overrideLocalnetIp(CONFIGS[Env.Localnet], state.customLocalnetIp);
+      ? CONFIGS[Env.Local]
+      : overrideLocalnetIp(CONFIGS[Env.Local], state.customLocalnetIp);
   return config;
 };

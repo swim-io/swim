@@ -1,7 +1,7 @@
 import type { EuiStepProps, EuiStepStatus } from "@elastic/eui";
 import { EuiListGroup, EuiLoadingSpinner, EuiText } from "@elastic/eui";
+import type { Env } from "@swim-io/core";
 
-import type { Env } from "../../../config";
 import { DEVNET_SWIMUSD, EcosystemId, findTokenById } from "../../../config";
 import type {
   AddInteractionState,

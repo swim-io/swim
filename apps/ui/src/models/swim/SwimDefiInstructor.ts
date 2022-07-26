@@ -7,8 +7,8 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
+import type { Env } from "@swim-io/core";
 
-import type { Env } from "../../config";
 import { EcosystemId } from "../../config";
 import { isEachNotNull } from "../../utils";
 import type { Amount } from "../amount";

@@ -1,6 +1,7 @@
+import { Env } from "@swim-io/core";
 import Decimal from "decimal.js";
 
-import { EcosystemId, Env } from "../../config";
+import { EcosystemId } from "../../config";
 import type { PersistedInteractionState } from "../../core/store/idb/helpers";
 import type { InteractionState } from "../../models";
 import { Amount } from "../../models";
@@ -23,7 +24,7 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
     },
     id: "5eed9eef597a2aa14314845afe87079f",
     poolIds: ["hexapool"],
-    env: Env.CustomLocalnet,
+    env: Env.Custom,
     submittedAt: 1653624596234,
     connectedWallets: {
       [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
@@ -111,7 +112,7 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
     },
     id: "5eed9eef597a2aa14314845afe87079f",
     poolIds: ["hexapool"],
-    env: Env.CustomLocalnet,
+    env: Env.Custom,
     submittedAt: 1653624596234,
     connectedWallets: {
       [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",

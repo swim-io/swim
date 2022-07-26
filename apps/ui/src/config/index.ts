@@ -1,10 +1,11 @@
+import { Env } from "@swim-io/core";
+
 import type { ReadonlyRecord } from "../utils";
 
 import type { ChainsByProtocol } from "./chains";
 import { CHAINS } from "./chains";
 import type { Ecosystem, EcosystemId } from "./ecosystem";
 import { ECOSYSTEMS, Protocol } from "./ecosystem";
-import { Env } from "./env";
 import type { PoolSpec } from "./pools";
 import { POOLS } from "./pools";
 import { REDEEMER } from "./redeemer";
@@ -16,7 +17,6 @@ import { WORMHOLE_CONFIGS } from "./wormhole";
 
 export * from "./chains";
 export * from "./ecosystem";
-export * from "./env";
 export * from "./pools";
 export * from "./projects";
 export * from "./tokens";
@@ -44,8 +44,8 @@ const buildConfig = (env: Env): Config => ({
 export const CONFIGS: ReadonlyRecord<Env, Config> = {
   [Env.Mainnet]: buildConfig(Env.Mainnet),
   [Env.Devnet]: buildConfig(Env.Devnet),
-  [Env.Localnet]: buildConfig(Env.Localnet),
-  [Env.CustomLocalnet]: buildConfig(Env.CustomLocalnet),
+  [Env.Local]: buildConfig(Env.Local),
+  [Env.Custom]: buildConfig(Env.Custom),
 };
 
 const LOCALHOST_REGEXP = /localhost|127\.0\.0\.1/;

@@ -1,4 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
+import { Env } from "@swim-io/core";
 import { utils } from "ethers";
 
 import { getRecordValues, getUniqueSize } from "../utils";
@@ -6,7 +7,6 @@ import { getRecordValues, getUniqueSize } from "../utils";
 import { CHAINS as chainsByEnv } from "./chains";
 import type { EcosystemId } from "./ecosystem";
 import { Protocol } from "./ecosystem";
-import { Env } from "./env";
 
 const generateSuite = (env: Env): void => {
   const title = env.toString();
@@ -74,5 +74,5 @@ const generateSuite = (env: Env): void => {
 
 describe("Chains config", () => {
   generateSuite(Env.Mainnet);
-  generateSuite(Env.Localnet);
+  generateSuite(Env.Local);
 });

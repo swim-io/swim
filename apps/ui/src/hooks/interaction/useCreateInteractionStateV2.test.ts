@@ -1,3 +1,4 @@
+import { Env } from "@swim-io/core";
 import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 
@@ -7,7 +8,6 @@ import {
   DEVNET_POOLS_FOR_RESTRUCTURE,
   DEVNET_SWIMUSD,
   EcosystemId,
-  Env,
   findTokenById,
 } from "../../config";
 import { selectConfig } from "../../core/selectors";

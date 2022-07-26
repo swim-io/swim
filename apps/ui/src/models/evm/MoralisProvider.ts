@@ -2,10 +2,11 @@ import type {
   BlockTag,
   TransactionReceipt,
 } from "@ethersproject/abstract-provider";
+import { Env } from "@swim-io/core";
 import { BigNumber, ethers } from "ethers";
 import { Moralis } from "moralis";
 
-import { Env, EvmChainId } from "../../config";
+import { EvmChainId } from "../../config";
 
 type TransactionResponse = ethers.providers.TransactionResponse;
 

@@ -1,8 +1,9 @@
+import { Env } from "@swim-io/core";
+
 import type { ReadonlyRecord } from "../utils";
 
 import type { EvmEcosystemId } from "./ecosystem";
 import { EcosystemId, isEcosystemEnabled } from "./ecosystem";
-import { Env } from "./env";
 
 export interface BasePoolSpec {
   readonly id: string;
@@ -890,6 +891,6 @@ const LOCALNET_POOLS: readonly PoolSpec[] = [
 export const POOLS: ReadonlyRecord<Env, readonly PoolSpec[]> = {
   [Env.Mainnet]: MAINNET_POOLS,
   [Env.Devnet]: DEVNET_POOLS,
-  [Env.Localnet]: LOCALNET_POOLS,
-  [Env.CustomLocalnet]: LOCALNET_POOLS,
+  [Env.Local]: LOCALNET_POOLS,
+  [Env.Custom]: LOCALNET_POOLS,
 };

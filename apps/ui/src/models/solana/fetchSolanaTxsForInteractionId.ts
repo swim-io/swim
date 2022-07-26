@@ -1,8 +1,9 @@
 import type { ConfirmedSignatureInfo } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
+import { Env } from "@swim-io/core";
 import type { QueryClient } from "react-query";
 
-import { EcosystemId, Env } from "../../config";
+import { EcosystemId } from "../../config";
 import type { SolanaTx } from "../crossEcosystem";
 import { INTERACTION_ID_LENGTH_HEX } from "../utils";
 
@@ -22,7 +23,7 @@ const addSolanaInteractionId = async (
   readonly signatureInfo: ConfirmedSignatureInfo;
   readonly interactionId: string | null;
 }> => {
-  // NOTE: This seems to work on mainnet but not localnet
+  // NOTE: This seems to work on mainnet but not teamnet
   if (signatureInfo.memo !== null) {
     // for some reason, memo returns "z7f8sdzfidf" as "[32] z7f8sdzfidf", so we strip the weird prefix
     return {
@@ -31,8 +32,8 @@ const addSolanaInteractionId = async (
     };
   }
 
-  // The workaround below requires many RPC calls which we don't want anywhere but localnet
-  if (env !== Env.Localnet && env !== Env.CustomLocalnet) {
+  // The workaround below requires many RPC calls which we don't want anywhere but local/teamnet
+  if (env !== Env.Local && env !== Env.Custom) {
     return { signatureInfo, interactionId: null };
   }
 

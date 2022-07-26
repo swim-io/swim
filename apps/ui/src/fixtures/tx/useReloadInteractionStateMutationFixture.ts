@@ -1,7 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
+import { Env } from "@swim-io/core";
 import Decimal from "decimal.js";
 
-import { EcosystemId, Env, findTokenById } from "../../config";
+import { EcosystemId, findTokenById } from "../../config";
 import type { EvmTx, InteractionState, SolanaTx } from "../../models";
 import { Amount } from "../../models";
 

@@ -1,7 +1,8 @@
+import { Env } from "@swim-io/core";
+
 import type { ReadonlyRecord } from "../utils";
 
 import { EcosystemId, isEcosystemEnabled } from "./ecosystem";
-import { Env } from "./env";
 import { isPoolRestructureEnabled } from "./pools";
 import type { TokenProject } from "./projects";
 import { PROJECTS, TokenProjectId } from "./projects";
@@ -1808,6 +1809,6 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
 export const TOKENS: ReadonlyRecord<Env, readonly TokenSpec[]> = {
   [Env.Mainnet]: MAINNET_TOKENS,
   [Env.Devnet]: DEVNET_TOKENS,
-  [Env.Localnet]: LOCALNET_TOKENS,
-  [Env.CustomLocalnet]: LOCALNET_TOKENS,
+  [Env.Local]: LOCALNET_TOKENS,
+  [Env.Custom]: LOCALNET_TOKENS,
 };

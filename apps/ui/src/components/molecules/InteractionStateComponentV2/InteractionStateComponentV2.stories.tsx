@@ -1,10 +1,10 @@
 import { EuiButton, EuiSpacer } from "@elastic/eui";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
+import { Env } from "@swim-io/core";
 import type { FC } from "react";
 import { useEffect } from "react";
 import { useMutation } from "react-query";
 
-import { Env } from "../../../config";
 import { useEnvironment } from "../../../core/store";
 import {
   ADD_INTERACTION_STATE_ETHEREUM_COMPLETED,

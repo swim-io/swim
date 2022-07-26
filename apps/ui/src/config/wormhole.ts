@@ -1,6 +1,6 @@
-import type { ReadonlyRecord } from "../utils";
+import { Env } from "@swim-io/core";
 
-import { Env } from "./env";
+import type { ReadonlyRecord } from "../utils";
 
 /** Adapted from @certusone/wormhole-sdk ChainId
  * https://pkg.go.dev/github.com/certusone/wormhole/node/pkg/vaa#ChainID
@@ -47,6 +47,6 @@ const LOCALNET_WORMHOLE_CONFIG: WormholeConfig = {
 export const WORMHOLE_CONFIGS: ReadonlyRecord<Env, WormholeConfig> = {
   [Env.Mainnet]: MAINNET_WORMHOLE_CONFIG,
   [Env.Devnet]: DEVNET_WORMHOLE_CONFIG,
-  [Env.Localnet]: LOCALNET_WORMHOLE_CONFIG,
-  [Env.CustomLocalnet]: LOCALNET_WORMHOLE_CONFIG,
+  [Env.Local]: LOCALNET_WORMHOLE_CONFIG,
+  [Env.Custom]: LOCALNET_WORMHOLE_CONFIG,
 };

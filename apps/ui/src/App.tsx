@@ -54,7 +54,7 @@ function App(): ReactElement {
           <Layout>
             <Routes>
               <Route
-                path="set-custom-localnet"
+                path="set-custom-env"
                 element={<SetCustomLocalnetPage />}
               />
               <Route path="test" element={<TestPage />} />

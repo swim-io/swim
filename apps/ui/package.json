@@ -54,10 +54,15 @@
     "@sentry/types": "^7.5.0",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.44.3",
+<<<<<<< HEAD
     "@swim-io/core": "^0.5.0",
     "@swim-io/pool-math": "^0.5.0",
     "@swim-io/solana-types": "^0.5.0",
     "@swim-io/utils": "^0.5.0",
+=======
+    "@swim-io/pool-math": "^0.4.0",
+    "@swim-io/solana-types": "^0.4.0",
+>>>>>>> ced25a06 (chore(ui): Update swim packages to v0.4.0)
     "bn.js": "^5.2.1",
     "classnames": "^2.3.1",
     "decimal.js": "^10.3.1",

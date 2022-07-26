@@ -1609,7 +1609,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
 
 const LOCALNET_TOKENS: readonly TokenSpec[] = [
   {
-    id: "localnet-solana-usdc",
+    id: "local-solana-usdc",
     project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -1637,7 +1637,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-solana-usdt",
+    id: "local-solana-usdt",
     project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -1665,7 +1665,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-solana-lp-hexapool",
+    id: "local-solana-lp-hexapool",
     project: PROJECTS[TokenProjectId.SwimUsd],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -1693,7 +1693,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-solana-swim",
+    id: "local-solana-swim",
     project: PROJECTS[TokenProjectId.Swim],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -1707,7 +1707,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-solana-lp-swimlake",
+    id: "local-solana-lp-swimlake",
     project: PROJECTS[TokenProjectId.XSwim],
     nativeEcosystem: EcosystemId.Solana,
     detailsByEcosystem: new Map([
@@ -1721,7 +1721,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-ethereum-usdc",
+    id: "local-ethereum-usdc",
     project: PROJECTS[TokenProjectId.Usdc],
     nativeEcosystem: EcosystemId.Ethereum,
     detailsByEcosystem: new Map([
@@ -1742,7 +1742,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-ethereum-usdt",
+    id: "local-ethereum-usdt",
     project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Ethereum,
     detailsByEcosystem: new Map([
@@ -1763,7 +1763,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-bnb-busd",
+    id: "local-bnb-busd",
     project: PROJECTS[TokenProjectId.Busd],
     nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([
@@ -1784,7 +1784,7 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-bnb-usdt",
+    id: "local-bnb-usdt",
     project: PROJECTS[TokenProjectId.Usdt],
     nativeEcosystem: EcosystemId.Bnb,
     detailsByEcosystem: new Map([

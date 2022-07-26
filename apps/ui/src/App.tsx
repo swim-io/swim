@@ -53,7 +53,7 @@ function App(): ReactElement {
         <AppContext>
           <Layout>
             <Routes>
-              <Route path="set-custom-env" element={<SetCustomIpPage />} />
+              <Route path="set-custom-ip" element={<SetCustomIpPage />} />
               <Route path="test" element={<TestPage />} />
               <Route path="pools" element={<PoolsPage />} />
               <Route path="pools/:poolId" element={<PoolPage />} />

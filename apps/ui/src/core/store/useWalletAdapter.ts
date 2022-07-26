@@ -1,3 +1,4 @@
+import { truncate } from "@swim-io/utils";
 import { produce } from "immer";
 import type { GetState, SetState } from "zustand";
 import create from "zustand";
@@ -13,7 +14,6 @@ import type {
   WalletServiceId,
 } from "../../models";
 import { isWalletServiceId } from "../../models";
-import { shortenAddress } from "../../utils";
 
 import { useNotification as notificationStore } from "./useNotification";
 
@@ -105,7 +105,7 @@ export const useWalletAdapter = create(
           if (adapter.address) {
             notify(
               "Wallet update",
-              `Connected to wallet ${shortenAddress(adapter.address)}`,
+              `Connected to wallet ${truncate(adapter.address)}`,
               "info",
               7000,
             );

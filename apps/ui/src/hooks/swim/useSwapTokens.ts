@@ -1,10 +1,10 @@
+import { findOrThrow } from "@swim-io/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import { findOrThrow } from "../../utils";
 
 interface SwapTokens {
   readonly fromToken: TokenSpec;

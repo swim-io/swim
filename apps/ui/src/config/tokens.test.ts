@@ -1,7 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
+import { getUniqueSize } from "@swim-io/utils";
 import { utils } from "ethers";
-
-import { getUniqueSize } from "../utils";
 
 import { EcosystemId } from "./ecosystem";
 import { Env } from "./env";

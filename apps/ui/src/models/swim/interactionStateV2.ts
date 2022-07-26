@@ -1,5 +1,6 @@
+import { isNotNull } from "@swim-io/utils";
+
 import { EcosystemId, isEvmEcosystemId } from "../../config";
-import { isNotNull } from "../../utils";
 import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
 import type {

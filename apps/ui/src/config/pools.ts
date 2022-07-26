@@ -1,4 +1,4 @@
-import type { ReadonlyRecord } from "../utils";
+import type { ReadonlyRecord } from "@swim-io/utils";
 
 import type { EvmEcosystemId } from "./ecosystem";
 import { EcosystemId, isEcosystemEnabled } from "./ecosystem";

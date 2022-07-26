@@ -7,10 +7,10 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
+import { isEachNotNull } from "@swim-io/utils";
 
 import type { Env } from "../../config";
 import { EcosystemId } from "../../config";
-import { isEachNotNull } from "../../utils";
 import type { Amount } from "../amount";
 import type { SolanaConnection } from "../solana";
 import { createMemoIx, findTokenAccountForMint } from "../solana";

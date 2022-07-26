@@ -1,7 +1,8 @@
+import { getRecordEntries } from "@swim-io/utils";
+import type { ReadonlyRecord } from "@swim-io/utils";
+
 import type { EcosystemId } from "../../config";
 import { isEcosystemEnabled } from "../../config";
-import { getRecordEntries } from "../../utils";
-import type { ReadonlyRecord } from "../../utils";
 import type { BaseWallet } from "../swim";
 import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
 

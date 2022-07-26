@@ -1,4 +1,4 @@
-import { deduplicate } from "../utils";
+import { deduplicate } from "@swim-io/utils";
 
 import type { Ecosystem } from "./ecosystem";
 import { ECOSYSTEMS, EcosystemId } from "./ecosystem";

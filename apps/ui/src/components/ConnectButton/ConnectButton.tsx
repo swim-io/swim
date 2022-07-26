@@ -1,5 +1,6 @@
 import type { EuiButtonProps, PropsForButton } from "@elastic/eui";
 import { EuiButton, EuiHideFor, EuiIcon, EuiShowFor } from "@elastic/eui";
+import { deduplicate, isNotNull, truncate } from "@swim-io/utils";
 import type { ReactElement } from "react";
 import { useState } from "react";
 import shallow from "zustand/shallow.js";
@@ -20,7 +21,6 @@ import {
 import { useHasActiveInteraction } from "../../hooks/interaction";
 import type { WalletServiceId } from "../../models";
 import { WALLET_SERVICES, walletServiceInfo } from "../../models";
-import { deduplicate, isNotNull, shortenAddress } from "../../utils";
 import { MultiWalletModal } from "../MultiWalletModal";
 import type { PlainConnectButtonProps } from "../PlainConnectButton";
 import { PlainConnectButton } from "../PlainConnectButton";
@@ -69,7 +69,7 @@ export const ConnectButton = ({
         isDisabled={hasActiveInteraction}
       >
         {connected && address ? (
-          shortenAddress(address)
+          truncate(address)
         ) : (
           <>
             <EuiShowFor sizes={["xs"]}>Connect</EuiShowFor>

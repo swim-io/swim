@@ -1,7 +1,7 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
 import type { EcosystemId, Env } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
 import type { Amount } from "../amount";
 
 /**

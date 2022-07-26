@@ -1,5 +1,6 @@
 import { EuiButton, EuiSpacer } from "@elastic/eui";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
+import { sleep } from "@swim-io/utils";
 import type { FC } from "react";
 import { useEffect } from "react";
 import { useMutation } from "react-query";
@@ -53,7 +54,6 @@ import {
   SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT,
 } from "../../../fixtures/swim/interactionStateV2";
 import { INTERACTION_MUTATION_KEY_V2 } from "../../../hooks";
-import { sleep } from "../../../utils";
 
 import { InteractionStateComponentV2 } from "./InteractionStateComponentV2";
 

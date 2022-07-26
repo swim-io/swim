@@ -1,4 +1,4 @@
-import type { ReadonlyRecord } from "../utils";
+import type { ReadonlyRecord } from "@swim-io/utils";
 
 import { Env } from "./env";
 

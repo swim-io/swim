@@ -1,9 +1,9 @@
 import { getSignedVAAWithRetry as originalGetSignedVAAWithRetry } from "@certusone/wormhole-sdk";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import type { RpcError } from "grpc-web";
 import { StatusCode } from "grpc-web";
 
 import { SwimError } from "../../errors";
-import type { ReadonlyRecord } from "../../utils";
 
 const isRpcError = (error: unknown): error is RpcError => {
   return (

@@ -1,5 +1,6 @@
 import type { MintInfo, AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { SwimPoolState } from "@swim-io/solana-types";
+import { findOrThrow, isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 import shallow from "zustand/shallow.js";
@@ -13,7 +14,6 @@ import {
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { findTokenAccountForMint, getPoolUsdValue } from "../../models";
-import { findOrThrow, isNotNull } from "../../utils";
 import {
   useLiquidityQueries,
   useSolanaWallet,

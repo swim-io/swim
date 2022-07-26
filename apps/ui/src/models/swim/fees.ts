@@ -1,8 +1,8 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { getRecordKeys } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
 import { EcosystemId } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
-import { getRecordKeys } from "../../utils";
 
 export type FeesEstimation = ReadonlyRecord<EcosystemId, Decimal>;
 

@@ -18,6 +18,8 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { deduplicate, filterMap, findOrThrow, sortBy } from "@swim-io/utils";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { Fragment, useEffect, useMemo, useState } from "react";
@@ -39,8 +41,6 @@ import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { useCoinGeckoPricesQuery, useLiquidityQuery, useTitle } from "../hooks";
 import { isSolanaPool } from "../models";
-import { deduplicate, filterMap, findOrThrow, sortBy } from "../utils";
-import type { ReadonlyRecord } from "../utils";
 
 type EcosystemSelectType = EcosystemId | "all";
 type TokenProjectSelectType = TokenProjectId | "all";

@@ -1,8 +1,8 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
-import { isNotNull } from "../../utils";
 import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
 import type { Interaction } from "./interaction";

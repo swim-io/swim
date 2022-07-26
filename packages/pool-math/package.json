@@ -1,6 +1,10 @@
 {
   "name": "@swim-io/pool-math",
+<<<<<<< HEAD
   "version": "0.5.0",
+=======
+  "version": "0.4.0",
+>>>>>>> 5782b81b (chore: Bump version)
   "description": "A package for calculating input/output amounts for Swim liquidity pools.",
   "main": "build",
   "types": "types",

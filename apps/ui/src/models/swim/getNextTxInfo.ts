@@ -44,7 +44,7 @@ export const getNextTxInfo = ({
     const { txIds, token } = incompleteTransfer;
     const ecosystem =
       txIds.approveAndTransferEvmToken.length === 0
-        ? token.nativeEcosystem
+        ? token.nativeEcosystemId
         : EcosystemId.Solana;
     return {
       step: InteractionStateStep.ToSolanaTransfers,
@@ -72,7 +72,7 @@ export const getNextTxInfo = ({
     const ecosystem =
       txIds.transferSplToken === null
         ? EcosystemId.Solana
-        : token.nativeEcosystem;
+        : token.nativeEcosystemId;
     return {
       step: InteractionStateStep.FromSolanaTransfers,
       ecosystem,

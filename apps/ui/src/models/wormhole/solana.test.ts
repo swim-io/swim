@@ -6,7 +6,6 @@ import type { TokenSpec, WormholeChainSpec } from "../../config";
 import {
   CHAINS,
   EcosystemId,
-  PROJECTS,
   Protocol,
   TOKENS,
   TokenProjectId,
@@ -78,10 +77,10 @@ describe("models - Wormhole utils", () => {
         "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
       const token: TokenSpec = {
         id: "test-token",
-        project: PROJECTS[TokenProjectId.Swim],
-        nativeEcosystem: EcosystemId.Solana,
-        detailsByEcosystem: new Map([
-          [EcosystemId.Solana, { address: "xxx", decimals: 8 }],
+        projectId: TokenProjectId.Swim,
+        nativeEcosystemId: EcosystemId.Solana,
+        nativeDetails: { address: "xxx", decimals: 8 },
+        wrappedDetails: new Map([
           [EcosystemId.Bnb, { address: "xxx", decimals: 18 }],
         ]),
       };

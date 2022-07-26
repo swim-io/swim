@@ -30,7 +30,7 @@ const getTransferToTokens = (
     case InteractionType.Swap:
       return tokens.filter(
         (token) =>
-          token.nativeEcosystem === ecosystemId &&
+          token.nativeEcosystemId === ecosystemId &&
           token.id === interaction.params.exactInputAmount.tokenId,
       );
     case InteractionType.Add:
@@ -40,7 +40,7 @@ const getTransferToTokens = (
             (amount) => amount.tokenId === token.id,
           ) ?? null;
         return (
-          token.nativeEcosystem === ecosystemId &&
+          token.nativeEcosystemId === ecosystemId &&
           inputAmount !== null &&
           !inputAmount.isZero()
         );
@@ -66,7 +66,7 @@ const getTransferFromTokens = (
     case InteractionType.Swap:
       return tokens.filter(
         (token) =>
-          token.nativeEcosystem === ecosystemId &&
+          token.nativeEcosystemId === ecosystemId &&
           token.id === interaction.params.minimumOutputAmount.tokenId,
       );
     case InteractionType.Add:
@@ -80,7 +80,7 @@ const getTransferFromTokens = (
             (amount) => amount.tokenId === token.id,
           ) ?? null;
         return (
-          token.nativeEcosystem === ecosystemId &&
+          token.nativeEcosystemId === ecosystemId &&
           outputAmount !== null &&
           !outputAmount.isZero()
         );
@@ -88,7 +88,7 @@ const getTransferFromTokens = (
     case InteractionType.RemoveExactBurn:
       return tokens.filter(
         (token) =>
-          token.nativeEcosystem === ecosystemId &&
+          token.nativeEcosystemId === ecosystemId &&
           token.id === interaction.params.minimumOutputAmount.tokenId,
       );
     case InteractionType.RemoveExactOutput:
@@ -98,7 +98,7 @@ const getTransferFromTokens = (
             (amount) => amount.tokenId === token.id,
           ) ?? null;
         return (
-          token.nativeEcosystem === ecosystemId &&
+          token.nativeEcosystemId === ecosystemId &&
           outputAmount !== null &&
           !outputAmount.isZero()
         );

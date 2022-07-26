@@ -463,7 +463,7 @@ function useTokenProjectFilter() {
           (project) => project.id,
           tokens
             .map((token) => token.project)
-            .filter((project) => project.symbol !== "SWIM" && !project.isLP),
+            .filter((project) => project.symbol !== "SWIM" && !project.isLp),
         ),
         "displayName",
         (value) => (typeof value === "string" ? value.toLowerCase() : value),

@@ -1,9 +1,8 @@
-import { Env } from "@swim-io/core";
+import { Env, TokenProject } from "@swim-io/core";
 import type { ReadonlyRecord } from "@swim-io/utils";
 
 import { EcosystemId, isEcosystemEnabled } from "./ecosystem";
 import { isPoolRestructureEnabled } from "./pools";
-import type { TokenProject } from "./projects";
 import { PROJECTS, TokenProjectId } from "./projects";
 
 export interface TokenDetails {

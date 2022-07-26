@@ -21,9 +21,7 @@ interface SwapTokens {
   readonly hasUrlError: boolean;
 }
 
-const convertTokenSpecToUrlParam = (token: TokenSpec): string => {
-  return token.nativeEcosystem + "-" + token.project.symbol;
-};
+const convertTokenSpecToUrlParam = (token: TokenSpec): string => `${token.nativeEcosystem}-${token.project.symbol}`.toLowercase();
 
 const swimUsdRegExp = /-solana-lp-hexapool$/;
 // TODO: Make this check more robust
@@ -43,7 +41,7 @@ export const useSwapTokens = (): SwapTokens => {
     if (!param) {
       return null;
     }
-    const tid = env.toLowerCase() + "-" + param.toLowerCase();
+    const txId = env.toLowerCase() + "-" + param.toLowerCase();
     return tokens.find(({ id }) => id === tid) ?? null;
   };
   const fromTokenOptionsIds = useMemo(
@@ -89,7 +87,6 @@ export const useSwapTokens = (): SwapTokens => {
 
   const maybeToToken = findTokenForParam(toUrlParam);
   const hasToUrlError =
-    hasFromUrlError ||
     ((fromUrlParam &&
       (!maybeToToken ||
         !toTokenOptionsIds.find((id) => id === maybeToToken.id))) as boolean);

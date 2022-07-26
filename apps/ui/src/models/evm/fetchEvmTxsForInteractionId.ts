@@ -33,10 +33,10 @@ export const fetchEvmTxForInteractionId = async (
   );
 
   const nestedTxs = await Promise.all(
-    requiredEvmEcosystems.map(async (ecosystem) => {
-      const connection = evmConnections[ecosystem];
+    requiredEvmEcosystems.map(async (ecosystemId) => {
+      const connection = evmConnections[ecosystemId];
       const history = await queryClient.fetchQuery(
-        [env, "evmHistory", ecosystem, evmAddress],
+        [env, "evmHistory", ecosystemId, evmAddress],
         async () => (await connection.getHistory(evmAddress)) ?? [],
       );
       const matchedTxResponses = history.filter(
@@ -50,8 +50,8 @@ export const fetchEvmTxForInteractionId = async (
               return null;
             }
             return {
-              ecosystem,
-              txId: txResponse.hash,
+              ecosystemId,
+              id: txResponse.hash,
               timestamp: txResponse.timestamp ?? null,
               interactionId: interactionId,
               txResponse,

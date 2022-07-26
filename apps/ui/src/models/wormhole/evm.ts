@@ -14,7 +14,7 @@ export const isLockEvmTx = (
   token: TokenSpec,
   tx: EvmTx,
 ): boolean => {
-  const evmTokenDetails = token.detailsByEcosystem.get(tx.ecosystem) ?? null;
+  const evmTokenDetails = token.detailsByEcosystem.get(tx.ecosystemId) ?? null;
   if (evmTokenDetails === null) {
     return false;
   }
@@ -35,7 +35,7 @@ export const isUnlockEvmTx = (
   token: TokenSpec,
   tx: EvmTx,
 ): boolean => {
-  const evmTokenDetails = token.detailsByEcosystem.get(tx.ecosystem) ?? null;
+  const evmTokenDetails = token.detailsByEcosystem.get(tx.ecosystemId) ?? null;
   if (evmTokenDetails === null) {
     return false;
   }

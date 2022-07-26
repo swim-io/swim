@@ -33,9 +33,9 @@ describe("Pool tests", () => {
       const txReceipt: ethers.providers.TransactionReceipt =
         mock<ethers.providers.TransactionReceipt>();
       const tx: EvmTx = {
-        txId: "string",
+        id: "string",
         timestamp: 123456789,
-        ecosystem: ecosystemId,
+        ecosystemId: ecosystemId,
         txResponse: txResponse,
         txReceipt: txReceipt,
         interactionId: "1",
@@ -50,9 +50,9 @@ describe("Pool tests", () => {
         transaction: parsedWormholeRedeemEvmUnlockWrappedTx.transaction,
       };
       const txs: SolanaTx = {
-        ecosystem: EcosystemId.Solana,
+        ecosystemId: EcosystemId.Solana,
         parsedTx: ptx,
-        txId: "string",
+        id: "string",
         timestamp: 123456789,
         interactionId: "1",
       };
@@ -66,9 +66,9 @@ describe("Pool tests", () => {
         transaction: parsedWormholeRedeemEvmUnlockWrappedTx.transaction,
       };
       const txs: SolanaTx = {
-        ecosystem: EcosystemId.Solana,
+        ecosystemId: EcosystemId.Solana,
         parsedTx: ptx,
-        txId: "string",
+        id: "string",
         timestamp: 123456789,
         interactionId: "1",
       };

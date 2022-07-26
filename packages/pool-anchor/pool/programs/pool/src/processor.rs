@@ -81,13 +81,8 @@ pub mod Processor {
 
         let pool_account = ctx.accounts.state;
         //msg!("[DEV] TOKEN_COUNT: {}", TOKEN_COUNT);
-        //msg!("[DEV] checking if pool is large enought to be rent exempt");
-        if !Rent::get()?.is_exempt(pool_account.lamports(), pool_account.data_len()) {
-            return Err(ProgramError::AccountNotRentExempt);
-        }
-        //msg!("[DEV] pool passed rent exmption check");
-        //msg!("[DEV] check_and_deserialize_pool_state");
 
+        //msg!("[DEV] check_and_deserialize_pool_state");
         match Self::check_and_deserialize_pool_state(&pool_account, &ctx.program_id) {
             Err(ProgramError::UninitializedAccount) => (),
             Err(e) => return Err(e),
@@ -255,9 +250,6 @@ pub mod Processor {
         let lp_total_supply =
             Self::check_program_owner_and_unpack::<MintState>(lp_mint_account)?.supply;
         let governance_fee_account = ctx.accounts.governance_fee_account;
-        if *governance_fee_account.key != pool_state.governance_fee_key {
-            return Err(PoolError::InvalidGovernanceFeeAccount.into());
-        }
         //msg!("[DEV] checked governance_fee_account");
 
         let user_authority_account = ctx.accounts.user_authority_account;

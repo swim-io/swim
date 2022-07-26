@@ -369,7 +369,10 @@ pub struct ProcessDefiInstruction<'info> {
     pub token_account_two: Account<'info, TokenAccount>,
     #[account(mut)]
     pub lp_mint: Account<'info, Mint>,
-    #[account(mut)]
+    #[account(
+      mut,
+      constraint = governance_fee_account.key == state.governance_fee_key @ PoolError::InvalidGovernanceFeeAccount
+    )]
     pub governance_fee_account: AccountInfo<'info, TokenAccount>,
     pub user_authority_account: Signer<'info>,
     pub token_program_account: AccountInfo<'info>,

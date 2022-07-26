@@ -12,7 +12,7 @@ export * from "./useRemoveFeesEstimationQuery";
 export * from "./useSwapFeesEstimationQuery";
 export * from "./useSwapFeesEstimationQueryV2";
 export * from "./useSwapOutputAmountEstimate";
-export * from "./useSwapTokens";
+export * from "./useSwapTokensContext";
 export * from "./useSwapTokensV2";
 export * from "./useUserLpBalances";
 export * from "./useToken";

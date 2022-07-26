@@ -23,7 +23,7 @@ import {
   useSplTokenAccountsQuery,
   useSwapFeesEstimationQuery,
   useSwapOutputAmountEstimate,
-  useSwapTokens,
+  useSwapTokensContext,
   useUserBalanceAmounts,
   useUserNativeBalances,
 } from "../../hooks";
@@ -70,7 +70,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
     setToToken,
     setFromAndToTokens,
     hasUrlError,
-  } = useSwapTokens();
+  } = useSwapTokensContext();
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const requiredPools = getRequiredPoolsForSwap(

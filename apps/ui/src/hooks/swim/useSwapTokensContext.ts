@@ -7,7 +7,7 @@ import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { findOrThrow } from "../../utils";
 
-interface SwapTokens {
+interface SwapTokensContext {
   readonly fromToken: TokenSpec;
   readonly toToken: TokenSpec;
   readonly fromTokenOptionsIds: readonly string[];
@@ -21,16 +21,16 @@ interface SwapTokens {
   readonly hasUrlError: boolean;
 }
 
-const convertTokenSpecToUrlParam = (token: TokenSpec): string => `${token.nativeEcosystem}-${token.project.symbol}`.toLowercase();
+const convertTokenSpecToUrlParam = (token: TokenSpec): string =>
+  `${token.nativeEcosystem}-${token.project.symbol}`.toLowerCase();
 
 const swimUsdRegExp = /-solana-lp-hexapool$/;
 // TODO: Make this check more robust
 const isSwimUsdPool = (pool: PoolSpec): boolean =>
   [pool.lpToken, ...pool.tokens].some((key) => swimUsdRegExp.test(key));
 
-export const useSwapTokens = (): SwapTokens => {
+export const useSwapTokensContext = (): SwapTokensContext => {
   const navigate = useNavigate();
-  const { env } = useEnvironment();
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
   const { fromToken: fromUrlParam, toToken: toUrlParam } = useParams<{
     readonly fromToken?: string;
@@ -41,8 +41,15 @@ export const useSwapTokens = (): SwapTokens => {
     if (!param) {
       return null;
     }
-    const txId = env.toLowerCase() + "-" + param.toLowerCase();
-    return tokens.find(({ id }) => id === tid) ?? null;
+    const [ecosystemId, projectSymbol] = param.split("-");
+    return (
+      tokens.find((token) => {
+        return (
+          token.project.symbol.toLowerCase() === projectSymbol &&
+          token.nativeEcosystem.toLowerCase() === ecosystemId
+        );
+      }) ?? null
+    );
   };
   const fromTokenOptionsIds = useMemo(
     () =>
@@ -86,23 +93,14 @@ export const useSwapTokens = (): SwapTokens => {
   const toTokenOptionsIds = getOutputTokens(fromToken.id);
 
   const maybeToToken = findTokenForParam(toUrlParam);
-  const hasToUrlError =
-    ((fromUrlParam &&
-      (!maybeToToken ||
-        !toTokenOptionsIds.find((id) => id === maybeToToken.id))) as boolean);
+  const hasToUrlError = (fromUrlParam &&
+    (!maybeToToken ||
+      !toTokenOptionsIds.find((id) => id === maybeToToken.id))) as boolean;
 
   const toToken =
     maybeToToken && !hasToUrlError
       ? maybeToToken
       : findOrThrow(tokens, ({ id }) => id === toTokenOptionsIds[0]);
-
-  const setFromToken = (fromTokenArg: TokenSpec) => {
-    setFromAndToTokens(fromTokenArg, toToken);
-  };
-
-  const setToToken = (toTokenArg: TokenSpec) => {
-    setFromAndToTokens(fromToken, toTokenArg);
-  };
 
   const setFromAndToTokens = (
     fromTokenArg: TokenSpec,
@@ -117,6 +115,15 @@ export const useSwapTokens = (): SwapTokens => {
     );
     navigate(`/swap/${fromTokenUrlParam}/to/${toTokenUrlParam}`);
   };
+
+  const setFromToken = (fromTokenArg: TokenSpec) => {
+    setFromAndToTokens(fromTokenArg, toToken);
+  };
+
+  const setToToken = (toTokenArg: TokenSpec) => {
+    setFromAndToTokens(fromToken, toTokenArg);
+  };
+
   const hasUrlError = hasToUrlError || hasFromUrlError;
   return {
     fromToken,

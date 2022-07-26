@@ -27,6 +27,7 @@ export const useErc20BalanceQuery = (
     },
     {
       enabled: isEcosystemEnabled(ecosystemId),
+      staleTime: 60_000, // cache 1min
     },
   );
 };

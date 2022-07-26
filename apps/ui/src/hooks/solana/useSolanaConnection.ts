@@ -8,7 +8,6 @@ import { useEnvironment } from "../../core/store";
 import { SolanaConnection } from "../../models";
 
 export const useSolanaConnection = (): SolanaConnection => {
-  const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
   const [chain] = chains[Protocol.Solana];
   const { endpoint, wsEndpoint } = chain;

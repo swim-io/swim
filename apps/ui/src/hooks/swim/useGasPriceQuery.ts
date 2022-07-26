@@ -27,6 +27,7 @@ export const useGasPriceQuery = (
     },
     {
       enabled: isEcosystemEnabled(evmEcosystemId),
+      staleTime: 60_000, // cache 1min
     },
   );
 };

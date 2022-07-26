@@ -29,5 +29,8 @@ export const useSolBalanceQuery = (): UseQueryResult<Decimal, Error> => {
         return new Decimal(0);
       }
     },
+    {
+      staleTime: 60_000, // cache 1min
+    },
   );
 };

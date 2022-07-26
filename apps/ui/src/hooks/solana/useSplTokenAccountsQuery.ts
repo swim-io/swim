@@ -25,20 +25,24 @@ export const useSplTokenAccountsQuery = (
   const address = owner ?? userAddress;
 
   const queryKey = getSplTokenAccountsQueryKey(env, address);
-  const query = useQuery<readonly TokenAccount[], Error>(queryKey, async () => {
-    if (address === null) {
-      return [];
-    }
-    const { value: accounts } = await solanaConnection.getTokenAccountsByOwner(
-      new PublicKey(address),
-      {
-        programId: TOKEN_PROGRAM_ID,
-      },
-    );
-    return accounts.map((account) =>
-      deserializeTokenAccount(account.pubkey, account.account.data),
-    );
-  });
+  const query = useQuery<readonly TokenAccount[], Error>(
+    queryKey,
+    async () => {
+      if (address === null) {
+        return [];
+      }
+      const { value: accounts } =
+        await solanaConnection.getTokenAccountsByOwner(new PublicKey(address), {
+          programId: TOKEN_PROGRAM_ID,
+        });
+      return accounts.map((account) =>
+        deserializeTokenAccount(account.pubkey, account.account.data),
+      );
+    },
+    {
+      staleTime: 60_000, // cache 1min
+    },
+  );
 
   return query;
 };

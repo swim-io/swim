@@ -33,6 +33,7 @@ export const useErc20BalancesQuery = (
         return connection.getErc20Balance(contractAddress, walletAddress);
       },
       enabled: isEcosystemEnabled(ecosystemId),
+      staleTime: 60_000, // cache 1min
     })),
     // useQueries does not support types without casting
     // See https://github.com/tannerlinsley/react-query/issues/1675

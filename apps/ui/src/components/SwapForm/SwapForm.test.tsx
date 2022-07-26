@@ -110,7 +110,7 @@ describe("SwapForm", () => {
 
   beforeEach(() => {
     // currently we can't change the env unless a custom IP is set
-    environmentStore.getState().setCustomLocalnetIp("122.122.122.12");
+    environmentStore.getState().setCustomIp("122.122.122.12");
     environmentStore.getState().setEnv(Env.Mainnet);
 
     renderWithAppContext(<SwapForm maxSlippageFraction={null} />);

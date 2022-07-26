@@ -839,7 +839,7 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
   ...DEVNET_POOLS_FOR_RESTRUCTURE,
 ].filter((spec) => !spec.isDisabled);
 
-const LOCALNET_POOLS: readonly PoolSpec[] = [
+const LOCAL_POOLS: readonly PoolSpec[] = [
   {
     id: "hexapool",
     ecosystem: EcosystemId.Solana,
@@ -891,6 +891,6 @@ const LOCALNET_POOLS: readonly PoolSpec[] = [
 export const POOLS: ReadonlyRecord<Env, readonly PoolSpec[]> = {
   [Env.Mainnet]: MAINNET_POOLS,
   [Env.Devnet]: DEVNET_POOLS,
-  [Env.Local]: LOCALNET_POOLS,
-  [Env.Custom]: LOCALNET_POOLS,
+  [Env.Local]: LOCAL_POOLS,
+  [Env.Custom]: LOCAL_POOLS,
 };

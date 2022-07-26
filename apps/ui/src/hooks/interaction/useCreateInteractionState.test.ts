@@ -63,7 +63,7 @@ describe("useCreateInteractionState", () => {
     renderHookWithAppContext(() => useQueryClient().clear());
     const { result: envStore } = renderHook(() => useEnvironment());
     act(() => {
-      envStore.current.setCustomLocalnetIp("127.0.0.1");
+      envStore.current.setCustomIp("127.0.0.1");
       envStore.current.setEnv(Env.Local);
     });
     useSolanaWalletMock.mockReturnValue({

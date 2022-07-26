@@ -59,14 +59,14 @@ import { InteractionStateComponentV2 } from "./InteractionStateComponentV2";
 
 // TODO eventually remove when tokens are available in mainnet?
 const EnvSwitcher: FC<any> = ({ children }) => {
-  const { env, setEnv, setCustomLocalnetIp } = useEnvironment();
+  const { env, setEnv, setCustomIp } = useEnvironment();
 
   useEffect(() => {
     if (env !== Env.Devnet) {
-      setCustomLocalnetIp("12.12.14.1");
+      setCustomIp("12.12.14.1");
       setEnv(Env.Devnet);
     }
-  }, [env, setEnv, setCustomLocalnetIp]);
+  }, [env, setEnv, setCustomIp]);
 
   if (env !== Env.Devnet) return <p>Please wait while we switch to Devnet</p>;
 

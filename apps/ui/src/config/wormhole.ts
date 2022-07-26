@@ -40,13 +40,13 @@ const DEVNET_WORMHOLE_CONFIG: WormholeConfig = {
   rpcUrls: ["https://wormhole-v2-testnet-api.certus.one"],
 };
 
-const LOCALNET_WORMHOLE_CONFIG: WormholeConfig = {
+const LOCAL_WORMHOLE_CONFIG: WormholeConfig = {
   rpcUrls: ["http://127.0.0.1:7071"],
 };
 
 export const WORMHOLE_CONFIGS: ReadonlyRecord<Env, WormholeConfig> = {
   [Env.Mainnet]: MAINNET_WORMHOLE_CONFIG,
   [Env.Devnet]: DEVNET_WORMHOLE_CONFIG,
-  [Env.Local]: LOCALNET_WORMHOLE_CONFIG,
-  [Env.Custom]: LOCALNET_WORMHOLE_CONFIG,
+  [Env.Local]: LOCAL_WORMHOLE_CONFIG,
+  [Env.Custom]: LOCAL_WORMHOLE_CONFIG,
 };

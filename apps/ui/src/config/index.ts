@@ -50,7 +50,7 @@ export const CONFIGS: ReadonlyRecord<Env, Config> = {
 
 const LOCALHOST_REGEXP = /localhost|127\.0\.0\.1/;
 
-export const overrideLocalnetIp = (config: Config, ip: string): Config => ({
+export const overrideLocalIp = (config: Config, ip: string): Config => ({
   ...config,
   wormhole: {
     ...config.wormhole,

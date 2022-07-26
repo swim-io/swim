@@ -28,7 +28,7 @@ const DEVNET_REDEEMER: RedeemerSpec = {
 };
 
 // TODO: Setup Redeemer on teamnet.
-const LOCALNET_REDEEMER: RedeemerSpec = {
+const LOCAL_REDEEMER: RedeemerSpec = {
   programAddress: "",
   programPda: "",
   nftCollection: "",
@@ -39,6 +39,6 @@ const LOCALNET_REDEEMER: RedeemerSpec = {
 export const REDEEMER: ReadonlyRecord<Env, RedeemerSpec> = {
   [Env.Mainnet]: MAINNET_REDEEMER,
   [Env.Devnet]: DEVNET_REDEEMER,
-  [Env.Local]: LOCALNET_REDEEMER,
-  [Env.Custom]: LOCALNET_REDEEMER,
+  [Env.Local]: LOCAL_REDEEMER,
+  [Env.Custom]: LOCAL_REDEEMER,
 };

@@ -13,34 +13,34 @@ export const enum SolanaChainId {
   MainnetBeta = 101,
   Testnet = 102,
   Devnet = 103,
-  Localnet = 104,
+  Local = 104,
 }
 
 export const enum EvmChainId {
   EthereumMainnet = 1,
   EthereumGoerli = 5,
-  EthereumLocalnet = 1337,
+  EthereumLocal = 1337,
   BnbMainnet = 56,
   BnbTestnet = 97,
-  BnbLocalnet = 1397,
+  BnbLocal = 1397,
   PolygonMainnet = 137,
   PolygonTestnet = 80001,
-  PolygonLocalnet = 80002, // TODO: This is a placeholder
+  PolygonLocal = 80002, // TODO: This is a placeholder
   AvalancheMainnet = 43114, // C-Chain
   AvalancheTestnet = 43113,
-  AvalancheLocalnet = 43112, // TODO: This is a placeholder
+  AvalancheLocal = 43112, // TODO: This is a placeholder
   AuroraMainnet = 1313161554,
   AuroraTestnet = 1313161555,
-  AuroraLocalnet = 1313161556, // TODO: This is a placeholder
+  AuroraLocal = 1313161556, // TODO: This is a placeholder
   FantomMainnet = 250,
   FantomTestnet = 4002,
-  FantomLocalnet = 4003, // TODO: This is a placeholder
+  FantomLocal = 4003, // TODO: This is a placeholder
   KaruraMainnet = 686,
   KaruraTestnet = 596,
-  KaruraLocalnet = 606, // TODO: This is a placeholder
+  KaruraLocal = 606, // TODO: This is a placeholder
   AcalaMainnet = 787,
   AcalaTestnet = 597,
-  AcalaLocalnet = 607, // TODO: This is a placeholder
+  AcalaLocal = 607, // TODO: This is a placeholder
 }
 
 export const EVM_CHAIN_ID_TO_ECOSYSTEM: ReadonlyRecord<
@@ -49,28 +49,28 @@ export const EVM_CHAIN_ID_TO_ECOSYSTEM: ReadonlyRecord<
 > = {
   [EvmChainId.EthereumMainnet]: EcosystemId.Ethereum,
   [EvmChainId.EthereumGoerli]: EcosystemId.Ethereum,
-  [EvmChainId.EthereumLocalnet]: EcosystemId.Ethereum,
+  [EvmChainId.EthereumLocal]: EcosystemId.Ethereum,
   [EvmChainId.BnbMainnet]: EcosystemId.Bnb,
   [EvmChainId.BnbTestnet]: EcosystemId.Bnb,
-  [EvmChainId.BnbLocalnet]: EcosystemId.Bnb,
+  [EvmChainId.BnbLocal]: EcosystemId.Bnb,
   [EvmChainId.PolygonMainnet]: EcosystemId.Polygon,
   [EvmChainId.PolygonTestnet]: EcosystemId.Polygon,
-  [EvmChainId.PolygonLocalnet]: EcosystemId.Polygon,
+  [EvmChainId.PolygonLocal]: EcosystemId.Polygon,
   [EvmChainId.AvalancheMainnet]: EcosystemId.Avalanche,
   [EvmChainId.AvalancheTestnet]: EcosystemId.Avalanche,
-  [EvmChainId.AvalancheLocalnet]: EcosystemId.Avalanche,
+  [EvmChainId.AvalancheLocal]: EcosystemId.Avalanche,
   [EvmChainId.AuroraMainnet]: EcosystemId.Aurora,
   [EvmChainId.AuroraTestnet]: EcosystemId.Aurora,
-  [EvmChainId.AuroraLocalnet]: EcosystemId.Aurora,
+  [EvmChainId.AuroraLocal]: EcosystemId.Aurora,
   [EvmChainId.FantomMainnet]: EcosystemId.Fantom,
   [EvmChainId.FantomTestnet]: EcosystemId.Fantom,
-  [EvmChainId.FantomLocalnet]: EcosystemId.Fantom,
+  [EvmChainId.FantomLocal]: EcosystemId.Fantom,
   [EvmChainId.KaruraMainnet]: EcosystemId.Karura,
   [EvmChainId.KaruraTestnet]: EcosystemId.Karura,
-  [EvmChainId.KaruraLocalnet]: EcosystemId.Karura,
+  [EvmChainId.KaruraLocal]: EcosystemId.Karura,
   [EvmChainId.AcalaMainnet]: EcosystemId.Acala,
   [EvmChainId.AcalaTestnet]: EcosystemId.Acala,
-  [EvmChainId.AcalaLocalnet]: EcosystemId.Acala,
+  [EvmChainId.AcalaLocal]: EcosystemId.Acala,
 };
 
 export interface WormholeChainSpec {
@@ -377,11 +377,11 @@ const DEVNET_CHAINS: ChainsByProtocol = {
   ],
 };
 
-const LOCALNET_CHAINS: ChainsByProtocol = {
+const LOCAL_CHAINS: ChainsByProtocol = {
   [Protocol.Solana]: [
     {
       ecosystem: EcosystemId.Solana,
-      chainId: SolanaChainId.Localnet,
+      chainId: SolanaChainId.Local,
       wormhole: {
         bridge: "Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o",
         tokenBridge: "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE",
@@ -395,8 +395,8 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
   [Protocol.Evm]: [
     {
       ecosystem: EcosystemId.Ethereum,
-      chainId: EvmChainId.EthereumLocalnet,
-      chainName: "Ethereum Localnet",
+      chainId: EvmChainId.EthereumLocal,
+      chainName: "Ethereum Local",
       nativeCurrency: ETHEREUM_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8545"],
       wormhole: {
@@ -406,8 +406,8 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
     },
     {
       ecosystem: EcosystemId.Bnb,
-      chainId: EvmChainId.BnbLocalnet,
-      chainName: "BNB Chain Localnet",
+      chainId: EvmChainId.BnbLocal,
+      chainName: "BNB Chain Local",
       nativeCurrency: BNB_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8546"],
       wormhole: {
@@ -417,8 +417,8 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
     },
     {
       ecosystem: EcosystemId.Avalanche,
-      chainId: EvmChainId.AvalancheLocalnet,
-      chainName: "Avalanche Localnet",
+      chainId: EvmChainId.AvalancheLocal,
+      chainName: "Avalanche Local",
       nativeCurrency: AVALANCHE_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8547"],
       wormhole: {
@@ -428,8 +428,8 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
     },
     {
       ecosystem: EcosystemId.Polygon,
-      chainId: EvmChainId.PolygonLocalnet,
-      chainName: "Polygon Localnet",
+      chainId: EvmChainId.PolygonLocal,
+      chainName: "Polygon Local",
       nativeCurrency: POLYGON_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8548"],
       wormhole: {
@@ -439,8 +439,8 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
     },
     {
       ecosystem: EcosystemId.Aurora,
-      chainId: EvmChainId.AuroraLocalnet,
-      chainName: "Aurora Localnet",
+      chainId: EvmChainId.AuroraLocal,
+      chainName: "Aurora Local",
       nativeCurrency: AURORA_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8549"],
       wormhole: {
@@ -450,8 +450,8 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
     },
     {
       ecosystem: EcosystemId.Fantom,
-      chainId: EvmChainId.FantomLocalnet,
-      chainName: "Fantom Localnet",
+      chainId: EvmChainId.FantomLocal,
+      chainName: "Fantom Local",
       nativeCurrency: FANTOM_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8550"],
       wormhole: {
@@ -461,8 +461,8 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
     },
     {
       ecosystem: EcosystemId.Karura,
-      chainId: EvmChainId.KaruraLocalnet,
-      chainName: "Karura Localnet",
+      chainId: EvmChainId.KaruraLocal,
+      chainName: "Karura Local",
       nativeCurrency: KARURA_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8551"],
       wormhole: {
@@ -472,8 +472,8 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
     },
     {
       ecosystem: EcosystemId.Acala,
-      chainId: EvmChainId.AcalaLocalnet,
-      chainName: "Acala Localnet",
+      chainId: EvmChainId.AcalaLocal,
+      chainName: "Acala Local",
       nativeCurrency: ACALA_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8552"],
       wormhole: {
@@ -488,18 +488,18 @@ export const ALL_UNIQUE_CHAINS = {
   [Protocol.Solana]: [
     ...MAINNET_CHAINS[Protocol.Solana],
     ...DEVNET_CHAINS[Protocol.Solana],
-    ...LOCALNET_CHAINS[Protocol.Solana],
+    ...LOCAL_CHAINS[Protocol.Solana],
   ],
   [Protocol.Evm]: [
     ...MAINNET_CHAINS[Protocol.Evm],
     ...DEVNET_CHAINS[Protocol.Evm],
-    ...LOCALNET_CHAINS[Protocol.Evm],
+    ...LOCAL_CHAINS[Protocol.Evm],
   ],
 };
 
 export const CHAINS: ReadonlyRecord<Env, ChainsByProtocol> = {
   [Env.Mainnet]: MAINNET_CHAINS,
   [Env.Devnet]: DEVNET_CHAINS,
-  [Env.Local]: LOCALNET_CHAINS,
-  [Env.Custom]: LOCALNET_CHAINS,
+  [Env.Local]: LOCAL_CHAINS,
+  [Env.Custom]: LOCAL_CHAINS,
 };

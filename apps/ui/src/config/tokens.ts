@@ -1607,7 +1607,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   ...DEVNET_TOKENS_FOR_RESTRUCTURE,
 ].filter((spec) => !spec.isDisabled);
 
-const LOCALNET_TOKENS: readonly TokenSpec[] = [
+const LOCAL_TOKENS: readonly TokenSpec[] = [
   {
     id: "local-solana-usdc",
     project: PROJECTS[TokenProjectId.Usdc],
@@ -1809,6 +1809,6 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
 export const TOKENS: ReadonlyRecord<Env, readonly TokenSpec[]> = {
   [Env.Mainnet]: MAINNET_TOKENS,
   [Env.Devnet]: DEVNET_TOKENS,
-  [Env.Local]: LOCALNET_TOKENS,
-  [Env.Custom]: LOCALNET_TOKENS,
+  [Env.Local]: LOCAL_TOKENS,
+  [Env.Custom]: LOCAL_TOKENS,
 };

@@ -12,8 +12,8 @@ interface SwapTokensContext {
   readonly toToken: TokenSpec;
   readonly fromTokenOptionsIds: readonly string[];
   readonly toTokenOptionsIds: readonly string[];
-  readonly setFromToken: (fromTokenParam: TokenSpec) => void;
-  readonly setToToken: (toTokenParam: TokenSpec) => void;
+  readonly setFromToken: (newFromToken: TokenSpec) => void;
+  readonly setToToken: (newToToken: TokenSpec) => void;
   readonly setFromAndToTokens: (
     fromTokenParam: TokenSpec,
     toTokenParam: TokenSpec,
@@ -66,7 +66,7 @@ export const useSwapTokensContext = (): SwapTokensContext => {
   );
 
   // TODO: Handle swimUSD as a swappable token
-  const getOutputTokens = useCallback(
+  const getToTokenOptionsIds = useCallback(
     (fromTokenId: string): readonly string[] => {
       const inputPool = findOrThrow(pools, (pool) =>
         pool.tokens.includes(fromTokenId),
@@ -95,7 +95,7 @@ export const useSwapTokensContext = (): SwapTokensContext => {
   const maybeToToken = findTokenForParam(toUrlParam);
   const hasToUrlError = (fromUrlParam &&
     (!maybeToToken ||
-      !toTokenOptionsIds.find((id) => id === maybeToToken.id))) as boolean;
+      !toTokenOptionsIds.find((id) => id === maybeToToken.id)));
 
   const toToken =
     maybeToToken && !hasToUrlError
@@ -107,7 +107,7 @@ export const useSwapTokensContext = (): SwapTokensContext => {
     toTokenArg: TokenSpec,
   ) => {
     const fromTokenUrlParam = convertTokenSpecToUrlParam(fromTokenArg);
-    const newOutputTokenOptions = getOutputTokens(fromTokenArg.id);
+    const newToTokenOptions = getOutputTokens(fromTokenArg.id);
     const toTokenUrlParam = convertTokenSpecToUrlParam(
       newOutputTokenOptions.find((id) => id === toTokenArg.id)
         ? toTokenArg

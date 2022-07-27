@@ -6,6 +6,7 @@ import {
   EuiFormRow,
   EuiSpacer,
 } from "@elastic/eui";
+import { defaultIfError } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useState } from "react";
@@ -30,7 +31,6 @@ import {
   getLowBalanceWallets,
   getRequiredPoolsForSwapV2,
 } from "../../models";
-import { defaultIfError } from "../../utils";
 import { ConfirmModal } from "../ConfirmModal";
 import { EstimatedTxFeesCallout } from "../EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "../LowBalanceDescription";

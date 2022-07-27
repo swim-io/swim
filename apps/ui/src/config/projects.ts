@@ -1,3 +1,5 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
+
 import AUSD_SVG from "../images/tokens/ausd.svg";
 import BUSD_SVG from "../images/tokens/busd.svg";
 import GMT_SVG from "../images/tokens/gmt.svg";
@@ -21,7 +23,6 @@ import USDC_SVG from "../images/tokens/usdc.svg";
 import USDT_SVG from "../images/tokens/usdt.svg";
 import USN_SVG from "../images/tokens/usn.svg";
 import XSWIM_TOKEN_SVG from "../images/tokens/xswim.svg";
-import type { ReadonlyRecord } from "../utils";
 
 export enum TokenProjectId {
   Ausd = "ausd",

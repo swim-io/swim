@@ -1,6 +1,5 @@
 import { Env } from "@swim-io/core";
-
-import type { ReadonlyRecord } from "../utils";
+import type { ReadonlyRecord } from "@swim-io/utils";
 
 export interface RedeemerSpec {
   readonly programAddress: string;

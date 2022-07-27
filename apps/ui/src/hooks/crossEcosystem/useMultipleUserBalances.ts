@@ -1,10 +1,10 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
 import { Amount, findTokenAccountForMint } from "../../models";
-import type { ReadonlyRecord } from "../../utils";
 import { useErc20BalancesQuery } from "../evm";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 

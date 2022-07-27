@@ -1,10 +1,10 @@
+import { isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
 import { ECOSYSTEMS, EcosystemId } from "../../config";
 import type { Amount } from "../../models";
 import { isValidSlippageFraction } from "../../models";
-import { isNotNull } from "../../utils";
 import {
   useUserBalanceAmounts,
   useUserNativeBalances,

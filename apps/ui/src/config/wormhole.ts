@@ -1,6 +1,5 @@
 import { Env } from "@swim-io/core";
-
-import type { ReadonlyRecord } from "../utils";
+import type { ReadonlyRecord } from "@swim-io/utils";
 
 /** Adapted from @certusone/wormhole-sdk ChainId
  * https://pkg.go.dev/github.com/certusone/wormhole/node/pkg/vaa#ChainID

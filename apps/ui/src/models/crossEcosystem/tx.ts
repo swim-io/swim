@@ -1,10 +1,10 @@
 import type solana from "@solana/web3.js";
 import type { Tx as BaseTx } from "@swim-io/core";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import type { ethers } from "ethers";
 
 import type { EvmEcosystemId } from "../../config";
 import { EcosystemId, isEvmEcosystemId } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
 
 export interface SolanaTx extends BaseTx {
   readonly ecosystemId: EcosystemId.Solana;

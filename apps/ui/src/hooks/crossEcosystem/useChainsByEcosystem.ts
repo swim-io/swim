@@ -1,10 +1,10 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
 import shallow from "zustand/shallow.js";
 
 import type { ChainSpec, EvmSpec, SolanaSpec } from "../../config";
 import { EcosystemId, Protocol } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import type { ReadonlyRecord } from "../../utils";
 
 export interface ChainsByEcosystem
   extends ReadonlyRecord<EcosystemId, ChainSpec | null> {

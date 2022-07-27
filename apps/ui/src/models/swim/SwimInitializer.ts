@@ -14,8 +14,8 @@ import {
 } from "@solana/web3.js";
 import type { DecimalBN } from "@swim-io/solana-types";
 import { swimPool } from "@swim-io/solana-types";
+import { chunks } from "@swim-io/utils";
 
-import { chunks } from "../../utils";
 import type { SolanaConnection } from "../solana";
 import {
   createSplTokenAccount,

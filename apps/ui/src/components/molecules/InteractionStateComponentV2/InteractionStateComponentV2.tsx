@@ -6,6 +6,7 @@ import {
   EuiText,
   EuiTitle,
 } from "@elastic/eui";
+import { isNotNull } from "@swim-io/utils";
 import moment from "moment";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
@@ -14,7 +15,6 @@ import { useEnvironment } from "../../../core/store";
 import { useInteractionStatusV2 } from "../../../hooks";
 import type { InteractionStateV2 } from "../../../models";
 import { InteractionStatusV2 } from "../../../models";
-import { isNotNull } from "../../../utils";
 import { InteractionRetryCalloutV2 } from "../InteractionRetryCalloutV2";
 import { InteractionTitleV2 } from "../InteractionTitleV2";
 

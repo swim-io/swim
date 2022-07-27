@@ -11,6 +11,7 @@ import {
   EuiSpacer,
   EuiTitle,
 } from "@elastic/eui";
+import { filterMap, findOrThrow, groupBy, truncate } from "@swim-io/utils";
 import type { ReactElement } from "react";
 import { useState } from "react";
 
@@ -28,13 +29,7 @@ import EVM_SVG from "../../images/ecosystems/ethereum-color.svg";
 import SOLANA_SVG from "../../images/ecosystems/solana.svg";
 import type { WalletServiceId } from "../../models";
 import { WALLET_SERVICES } from "../../models";
-import {
-  filterMap,
-  findOrThrow,
-  groupBy,
-  isUserOnMobileDevice,
-  shortenAddress,
-} from "../../utils";
+import { isUserOnMobileDevice } from "../../utils";
 import { CustomModal } from "../CustomModal";
 import { MobileDeviceDisclaimer } from "../MobileDeviceDisclaimer";
 import { PlainConnectButton } from "../PlainConnectButton";
@@ -150,7 +145,7 @@ const ProtocolWalletOptionsList = ({
             helpText={service.info.helpText}
           >
             {connectedServiceWallet && connectedServiceWallet.address
-              ? shortenAddress(connectedServiceWallet.address)
+              ? truncate(connectedServiceWallet.address)
               : service.info.name}
           </PlainConnectButton>
         );

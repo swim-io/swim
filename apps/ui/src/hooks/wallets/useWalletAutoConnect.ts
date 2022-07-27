@@ -1,3 +1,4 @@
+import { waitFor } from "@swim-io/utils";
 import { useEffect } from "react";
 import shallow from "zustand/shallow.js";
 
@@ -6,7 +7,6 @@ import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useWalletAdapter } from "../../core/store";
 import { captureException } from "../../errors";
 import { WalletServiceId, createAdapter } from "../../models";
-import { waitFor } from "../../utils";
 
 export const useWalletAutoConnect = (): null => {
   const { chains } = useEnvironment(selectConfig, shallow);

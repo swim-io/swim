@@ -1,8 +1,7 @@
 import type { u64 } from "@solana/spl-token";
+import { defaultIfError } from "@swim-io/utils";
 import BN from "bn.js";
 import Decimal from "decimal.js";
-
-import { defaultIfError } from "./utils";
 
 const ONE_TRILLION = new Decimal("1000000000000");
 const ONE_BILLION = new Decimal("1000000000");

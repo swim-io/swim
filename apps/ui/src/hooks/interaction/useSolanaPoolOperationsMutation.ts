@@ -1,3 +1,4 @@
+import { findOrThrow, isNotNull } from "@swim-io/utils";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
@@ -9,7 +10,6 @@ import {
   getTokensByPool,
   setOutputOperationInputAmount,
 } from "../../models";
-import { findOrThrow, isNotNull } from "../../utils";
 import {
   useSolanaConnection,
   useSolanaWallet,

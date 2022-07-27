@@ -1,8 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import { Env } from "@swim-io/core";
+import { getRecordValues, getUniqueSize } from "@swim-io/utils";
 import { utils } from "ethers";
-
-import { getRecordValues, getUniqueSize } from "../utils";
 
 import { CHAINS as chainsByEnv } from "./chains";
 import type { EcosystemId } from "./ecosystem";

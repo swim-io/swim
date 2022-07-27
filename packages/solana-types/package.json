@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/solana-types",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "A package for serializing/deserializing Swim types relating to Solana.",
   "main": "build",
   "types": "types",

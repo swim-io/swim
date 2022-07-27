@@ -9,12 +9,12 @@ import {
   EuiSpacer,
   EuiText,
 } from "@elastic/eui";
+import { defaultIfError } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ChangeEvent, ReactElement } from "react";
 import { useMemo, useState } from "react";
 
 import { isValidSlippageFraction } from "../models";
-import { defaultIfError } from "../utils";
 
 const SLIPPAGE_PRESETS = [
   {

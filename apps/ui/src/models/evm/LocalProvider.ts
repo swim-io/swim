@@ -1,6 +1,5 @@
+import { filterMap, isNotNull } from "@swim-io/utils";
 import { providers } from "ethers";
-
-import { filterMap, isNotNull } from "../../utils";
 
 const { JsonRpcProvider } = providers;
 

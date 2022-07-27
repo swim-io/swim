@@ -26,7 +26,7 @@ contract Routing is
   using SwimPayload for bytes;
   using SafeERC20 for IERC20;
 
-  bytes32 private constant SWIM_USD_SOLANA_ADDRESS = 0x0;
+  bytes32 private constant SWIM_USD_SOLANA_ADDRESS = bytes32(0x44a0a063099540e87e0163a6e27266a364c35930208cfaded5b79377713906e9);
   uint8 private constant SWIM_USD_TOKEN_INDEX = 0;
   uint16 private constant WORMHOLE_SOLANA_CHAIN_ID = 1;
 

@@ -45,7 +45,7 @@
   },
   "scripts": {
     "start": "hardhat node",
-    "deploy": "hardhat run --network goerli scripts/swimUSDToken.ts",
+    "deploy": "hardhat run --network bnbTestnet scripts/routing.ts",
     "deploy-custom": "rm -rf deployments/custom && yarn deploy-all custom",
     "deploy-all": "hardhat deploy-contracts --network",
     "compile": "hardhat compile",

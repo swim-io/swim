@@ -175,9 +175,9 @@ const config: HardhatUserConfig = {
     currency: "USD",
   },
   etherscan: {
-    // apiKey: BSCSCAN_API_KEY,
+    apiKey: BSCSCAN_API_KEY,
     // apiKey: AVAXSCAN_APY_KEY,
-    apiKey: ETHERSCAN_API_KEY,
+    // apiKey: ETHERSCAN_API_KEY,
   },
   namedAccounts: {
     deployer: {

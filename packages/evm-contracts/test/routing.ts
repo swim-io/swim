@@ -13,8 +13,8 @@ describe("Deployment", () => {
   const swimUSDAddress = "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199";
 
   async function deployTokenFixture() {
-    const RoutingFactory = await ethers.getContractFactory("Routing");
     const [owner, addr1, addr2] = await ethers.getSigners();
+    const RoutingFactory = await ethers.getContractFactory("Routing");
 
     const routingProxy = await upgrades.deployProxy(RoutingFactory, []);
 

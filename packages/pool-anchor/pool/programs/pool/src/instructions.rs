@@ -3,6 +3,7 @@ use anchor_spl::token::*;
 
 use {
     crate::decimal::DecimalU64,
+    crate::error::PoolError,
     crate::state::PoolState,
     borsh::BorshSerialize,
     solana_program::{
@@ -347,8 +348,10 @@ pub fn create_governance_ix<const TOKEN_COUNT: usize>(
 pub struct ProcessInit<'info> {
     // Not sure what the best way of specifying payer is here since we derive it
     // Should triple check that this logic isn't susceptible to re-initialization attacks
-    #[account(init_if_needed, has_one = lp_mint_key, has_one = governance_key, has_one = governance_fee_key)]
-    pub state: Account<'info, PoolState>,
+    #[account(init_if_needed, payer = payer, space = PoolState::LEN, has_one = lp_mint, has_one = governance_account, has_one = governance_fee_account)]
+    pub state: Account<'info, PoolState<2>>,
+    #[account(mut)]
+    pub payer: Signer<'info>,
     pub lp_mint: Account<'info, Mint>,
     pub token_mint_one: Account<'info, Mint>,
     pub token_mint_two: Account<'info, Mint>,
@@ -356,13 +359,14 @@ pub struct ProcessInit<'info> {
     pub token_account_two: Account<'info, TokenAccount>,
     pub governance_account: AccountInfo<'info>,
     pub governance_fee_account: Account<'info, TokenAccount>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
 pub struct ProcessDefiInstruction<'info> {
     #[account(mut)]
-    pub state: Account<'info, PoolState>,
-    pub authority: Signer<'info>,
+    pub state: Account<'info, PoolState<2>>,
+    pub authority: AccountInfo<'info>,
     #[account(mut)]
     pub token_account_one: Account<'info, TokenAccount>,
     #[account(mut)]
@@ -373,8 +377,8 @@ pub struct ProcessDefiInstruction<'info> {
       mut,
       constraint = governance_fee_account.key == state.governance_fee_key @ PoolError::InvalidGovernanceFeeAccount
     )]
-    pub governance_fee_account: AccountInfo<'info, TokenAccount>,
-    pub user_authority_account: Signer<'info>,
+    pub governance_fee_account: Account<'info, TokenAccount>,
+    pub user_authority_account: AccountInfo<'info>,
     pub token_program_account: AccountInfo<'info>,
     #[account(mut)]
     pub user_lp_token_account: Account<'info, TokenAccount>,
@@ -387,7 +391,7 @@ pub struct ProcessDefiInstruction<'info> {
 #[derive(Accounts)]
 pub struct ProcessGovernanceInstruction<'info> {
     #[account(mut)]
-    pub state: Account<'info, PoolState>,
-    pub governance_account: Signer<'info>,
+    pub state: Account<'info, PoolState<2>>,
+    pub governance_account: AccountInfo<'info>,
     pub governance_fee_account: Account<'info, TokenAccount>,
 }

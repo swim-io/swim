@@ -38,4 +38,44 @@ impl<const TOKEN_COUNT: usize> PoolState<TOKEN_COUNT> {
     pub fn is_initialized(&self) -> bool {
         self.lp_mint_key != Pubkey::default()
     }
+
+    pub const LEN: usize =
+        // anchor account discriminator
+        8 +
+        // nonce
+        1 +
+        // is_paused
+        1 +
+        // amp_factor
+        32 +
+        // lp_fee
+        32 +
+        // governance_fee
+        32 +
+        // lp_mint_key
+        32 +
+        // lp_decimal_equalizer
+        1 +
+        // token_mint_keys
+        32 * TOKEN_COUNT +
+        // token_decimal_equalizers
+        1 * TOKEN_COUNT +
+        // token_keys
+        32 * TOKEN_COUNT +
+        // governance_key
+        32 +
+        // governance_fee_key
+        32 +
+        // prepared_governance_key
+        32 +
+        // governance_transition_ts
+        8 +
+        // prepared_lp_fee
+        32 +
+        // prepared_governance_fee
+        32 +
+        // fee_transition_ts
+        8 +
+        // previous_depth
+        16;
 }

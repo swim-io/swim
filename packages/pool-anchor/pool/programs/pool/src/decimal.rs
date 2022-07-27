@@ -25,7 +25,7 @@ use std::{
 
 use uint::construct_uint;
 construct_uint! {
-  #[derive(AnchorSerialize, AnchorDeserialize, Eq, PartialEq, Clone, Copy, Debug)]
+    #[derive(AnchorSerialize, AnchorDeserialize, Eq, PartialEq, Clone, Copy, Debug)]
     pub struct U128(2);
 }
 
@@ -43,6 +43,7 @@ impl U128 {
 }
 
 construct_uint! {
+    #[derive(AnchorSerialize, AnchorDeserialize, Eq, PartialEq, Clone, Copy, Debug)]
     pub struct U256(4);
 }
 

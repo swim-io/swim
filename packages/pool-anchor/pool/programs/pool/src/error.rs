@@ -70,6 +70,7 @@ impl From<PoolError> for ProgramError {
     }
 }
 
+// This doesn't look to be used in the code anywhere
 // pub fn to_error_msg(error: &ProgramError) -> String {
 //     match error {
 //         ProgramError::Custom(ec) if *ec < OFFSET as u32 => {

@@ -26,7 +26,6 @@ export const useEvmUserNativeBalanceQuery = (
     },
     {
       enabled: isEcosystemEnabled(ecosystemId),
-      staleTime: 60_000, // cache 1min
     },
   );
 };

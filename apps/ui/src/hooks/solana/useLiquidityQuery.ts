@@ -68,7 +68,6 @@ export const useLiquidityQueries = (
           ),
         );
       },
-      staleTime: 60_000, // cache 1min
     })),
     // useQueries does not support types without casting
     // See https://github.com/tannerlinsley/react-query/issues/1675

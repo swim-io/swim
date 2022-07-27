@@ -36,7 +36,6 @@ export const usePoolLpMints = (
         );
         return account ? deserializeMint(account.data) : null;
       },
-      staleTime: 60_000, // cache 1min
     })),
   ) as readonly UseQueryResult<MintInfo | null, Error>[];
 };

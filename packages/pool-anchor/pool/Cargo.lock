@@ -922,8 +922,6 @@ dependencies = [
  "anchor-spl",
  "arbitrary",
  "arrayvec",
- "borsh",
- "borsh-derive",
  "honggfuzz",
  "num-derive",
  "num-traits",

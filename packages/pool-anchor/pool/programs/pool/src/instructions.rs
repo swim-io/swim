@@ -5,7 +5,6 @@ use {
     crate::decimal::DecimalU64,
     crate::error::PoolError,
     crate::state::PoolState,
-    borsh::BorshSerialize,
     solana_program::{
         clock::UnixTimestamp,
         instruction::{AccountMeta, Instruction},

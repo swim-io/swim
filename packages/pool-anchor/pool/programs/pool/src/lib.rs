@@ -14,7 +14,6 @@ use {
         pool_fee::PoolFee,
         state::PoolState,
     },
-    borsh::{BorshDeserialize, BorshSerialize},
     common::{create_array, create_result_array},
     solana_program::{
         account_info::AccountInfo,

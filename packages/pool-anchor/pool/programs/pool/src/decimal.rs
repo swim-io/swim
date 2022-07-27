@@ -11,14 +11,12 @@
 // be able to fail and could hence be replaced by unsafe_* calls to reduce strain on compute budget.
 use anchor_lang::prelude::*;
 
-use borsh::BorshDeserialize;
 use std::{
     cmp,
     cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd},
     convert::TryFrom,
     fmt,
     fmt::{Display, Formatter},
-    io,
     iter::{Product, Sum},
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
 };
@@ -416,20 +414,20 @@ macro_rules! unsigned_decimal {
             }
         }
 
-        impl BorshDeserialize for $name {
-            fn deserialize(buf: &mut &[u8]) -> Result<Self, io::Error> {
-                let value = <$value_type>::deserialize(buf)?;
-                let decimals = <u8>::deserialize(buf)?;
-                if decimals > Self::MAX_DECIMALS {
-                    Err(io::Error::new(
-                        io::ErrorKind::InvalidData,
-                        format!("decimals value out of bounds: {}", decimals),
-                    ))
-                } else {
-                    Ok(Self { value, decimals })
-                }
-            }
-        }
+        // impl BorshDeserialize for $name {
+        //     fn deserialize(buf: &mut &[u8]) -> Result<Self, io::Error> {
+        //         let value = <$value_type>::deserialize(buf)?;
+        //         let decimals = <u8>::deserialize(buf)?;
+        //         if decimals > Self::MAX_DECIMALS {
+        //             Err(io::Error::new(
+        //                 io::ErrorKind::InvalidData,
+        //                 format!("decimals value out of bounds: {}", decimals),
+        //             ))
+        //         } else {
+        //             Ok(Self { value, decimals })
+        //         }
+        //     }
+        // }
 
         impl PartialEq for $name {
             fn eq(&self, other: &Self) -> bool {

@@ -606,7 +606,7 @@ const HomePage = (): ReactElement => {
                 iconType={TELEGRAM_SVG}
                 fill
                 size="s"
-                href="https://t.me/joinchat/Mnc1WjrKcq8yYTM1"
+                href="https://t.me/TeddyP21"
               >
                 Telegram
               </EuiButton>

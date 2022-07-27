@@ -15,6 +15,7 @@ module.exports = {
         "solana-types",
         "solana-usdc-usdt-swap",
         "ui",
+        "utils",
       ],
     ],
     "subject-case": [0, "never"],

@@ -1,6 +1,5 @@
 import { Env } from "@swim-io/core";
-
-import type { ReadonlyRecord } from "../utils";
+import type { ReadonlyRecord } from "@swim-io/utils";
 
 import type { ChainsByProtocol } from "./chains";
 import { CHAINS } from "./chains";

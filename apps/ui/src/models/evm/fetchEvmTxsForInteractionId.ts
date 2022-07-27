@@ -1,11 +1,11 @@
 import type { Env } from "@swim-io/core";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { isNotNull } from "@swim-io/utils";
 import type { ethers } from "ethers";
 import type { QueryClient } from "react-query";
 
 import type { EcosystemId, EvmEcosystemId } from "../../config";
 import { isEvmEcosystemId } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
-import { isNotNull } from "../../utils";
 import type { EvmTx } from "../crossEcosystem";
 import { INTERACTION_ID_LENGTH_HEX } from "../utils";
 

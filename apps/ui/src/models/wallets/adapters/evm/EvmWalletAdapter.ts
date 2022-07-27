@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/react";
 import type { SeverityLevel } from "@sentry/types";
+import { sleep } from "@swim-io/utils";
 import type { Signer } from "ethers";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
@@ -7,7 +8,6 @@ import EventEmitter from "eventemitter3";
 import type { EcosystemId, EvmChainId, TokenSpec } from "../../../../config";
 import { ALL_UNIQUE_CHAINS, ECOSYSTEMS, Protocol } from "../../../../config";
 import { captureException } from "../../../../errors";
-import { sleep } from "../../../../utils";
 
 type Web3Provider = ethers.providers.Web3Provider;
 

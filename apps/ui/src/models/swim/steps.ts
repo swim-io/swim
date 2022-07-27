@@ -1,8 +1,8 @@
 import type PoolMath from "@swim-io/pool-math";
+import { findOrThrow } from "@swim-io/utils";
 
 import { EcosystemId } from "../../config";
 import type { PoolSpec, TokenSpec } from "../../config";
-import { findOrThrow } from "../../utils";
 import { Amount } from "../amount";
 
 import { SwimDefiInstruction } from "./instructions";

@@ -1,11 +1,11 @@
 import { EuiButton, EuiSpacer } from "@elastic/eui";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
+import { sleep } from "@swim-io/utils";
 import { useMutation } from "react-query";
 
 import { MOCK_INTERACTION_STATE } from "../../../fixtures/swim/interactionState";
 import { INTERACTION_MUTATION_KEY } from "../../../hooks/interaction";
 import type { InteractionState } from "../../../models";
-import { sleep } from "../../../utils";
 
 import { InteractionStateComponent } from "./InteractionStateComponent";
 

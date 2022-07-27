@@ -1,3 +1,5 @@
+import { findOrThrow } from "@swim-io/utils";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import { useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
@@ -6,8 +8,6 @@ import { EcosystemId, Protocol } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { EvmConnection } from "../../models";
-import { findOrThrow } from "../../utils";
-import type { ReadonlyRecord } from "../../utils";
 
 export const useEvmConnection = (
   ecosystemId: EvmEcosystemId,

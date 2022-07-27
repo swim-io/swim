@@ -1,3 +1,4 @@
+import { findOrThrow } from "@swim-io/utils";
 import { useMutation, useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
@@ -19,7 +20,6 @@ import {
   isSolanaPool,
   isUnlockEvmTx,
 } from "../../models";
-import { findOrThrow } from "../../utils";
 import { useEvmConnections, useEvmWallet } from "../evm";
 import {
   useSolanaConnection,

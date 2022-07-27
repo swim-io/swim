@@ -1,5 +1,6 @@
+import { findOrThrow } from "@swim-io/utils";
+
 import type { TokenOption } from "../../models";
-import { findOrThrow } from "../../utils";
 import type { EnvironmentState } from "../store";
 
 import { selectConfig } from "./environment";

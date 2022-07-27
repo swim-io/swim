@@ -8,9 +8,9 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { Connection, PublicKey } from "@solana/web3.js";
+import { sleep } from "@swim-io/utils";
 
 import { SwimError } from "../../errors";
-import { sleep } from "../../utils";
 
 import { deserializeTokenAccount } from "./parsers";
 import { getAssociatedTokenAddress } from "./utils";

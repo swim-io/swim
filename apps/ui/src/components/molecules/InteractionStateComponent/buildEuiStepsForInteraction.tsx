@@ -1,5 +1,6 @@
 import type { EuiStepProps, EuiStepStatus } from "@elastic/eui";
 import { EuiListGroup, EuiText } from "@elastic/eui";
+import { isNotNull } from "@swim-io/utils";
 
 import { EcosystemId } from "../../../config";
 import type { InteractionState } from "../../../models";
@@ -12,7 +13,6 @@ import {
   isSolanaPoolOperationsCompleted,
   isToSolanaTransfersCompleted,
 } from "../../../models";
-import { isNotNull } from "../../../utils";
 import { FromSolanaTransferComponent } from "../FromSolanaTransferComponent";
 import { ToSolanaTransferComponent } from "../ToSolanaTransferComponent";
 import { TxListItem } from "../TxListItem";

@@ -1,3 +1,4 @@
+import { filterMap } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
 import type { EvmEcosystemId } from "../../config";
@@ -11,7 +12,6 @@ import {
   countNonZeroAmounts,
   getIncludedEvmEcosystemIds,
 } from "../../models";
-import { filterMap } from "../../utils";
 
 import { useGasPriceQuery } from "./useGasPriceQuery";
 import { useIsEvmGasPriceLoading } from "./useIsEvmGasPriceLoading";

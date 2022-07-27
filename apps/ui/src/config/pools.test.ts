@@ -1,8 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
 import { Env } from "@swim-io/core";
+import { getUniqueSize } from "@swim-io/utils";
 
 import { isSolanaPool } from "../models";
-import { getUniqueSize } from "../utils";
 
 import { POOLS as poolsByEnv } from "./pools";
 import type { SolanaPoolSpec } from "./pools";

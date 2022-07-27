@@ -1,10 +1,10 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
 import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import type { ReadonlyRecord } from "../../utils";
 
 export const useTokensByEcosystem = (): ReadonlyRecord<
   EcosystemId,

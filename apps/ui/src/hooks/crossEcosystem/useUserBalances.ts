@@ -1,9 +1,9 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
 import { Amount } from "../../models";
-import type { ReadonlyRecord } from "../../utils";
 import { useErc20BalanceQuery } from "../evm";
 import { useSplUserBalance } from "../solana";
 

@@ -14,6 +14,7 @@ import {
   EuiTitle,
   EuiToolTip,
 } from "@elastic/eui";
+import { defaultIfError, pluralizeEn } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
@@ -42,7 +43,6 @@ import {
 } from "../hooks";
 import BNB_SVG from "../images/ecosystems/bnb.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
-import { defaultIfError, pluralize } from "../utils";
 
 const humanizeUsdAmount = (amount: string): string =>
   atomicToHumanString(new Decimal(amount), 2);
@@ -237,13 +237,13 @@ export const PoolPageInner = ({
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiTitle size="xxs">
-            <h4>{pluralize("Pool Balance", tokens.length > 1)}</h4>
+            <h4>{pluralizeEn("Pool Balance", tokens.length > 1)}</h4>
           </EuiTitle>
           <EuiSpacer size="s" />
           <StatList listItems={reserveStats} />
           <EuiSpacer />
           <EuiTitle size="xxs">
-            <h4>{pluralize("User Balance", tokens.length > 1)}</h4>
+            <h4>{pluralizeEn("User Balance", tokens.length > 1)}</h4>
           </EuiTitle>
           <EuiSpacer size="s" />
           <StatList listItems={userLpStats} />

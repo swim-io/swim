@@ -1,11 +1,12 @@
 import { findOrThrow } from "@swim-io/utils";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
+import { useFromTokenOptionsIds } from "./useSwapTokenOptions";
 
 interface SwapTokensContext {
   readonly fromToken: TokenSpec;
@@ -51,19 +52,7 @@ export const useSwapTokensContext = (): SwapTokensContext => {
       }) ?? null
     );
   };
-  const fromTokenOptionsIds = useMemo(
-    () =>
-      pools
-        .filter((pool) => !pool.isStakingPool && !pool.isDisabled)
-        .flatMap((pool) => pool.tokens)
-        // Remove duplicated tokenId
-        .filter(
-          (tokenId, index, tokenIds) => tokenIds.indexOf(tokenId) === index,
-        )
-        // TODO: Remove this if we want to support swimUSD swaps
-        .filter((tokenId) => pools.every((pool) => pool.lpToken !== tokenId)),
-    [pools],
-  );
+  const fromTokenOptionsIds = useFromTokenOptionsIds();
 
   // TODO: Handle swimUSD as a swappable token
   const getToTokenOptionsIds = useCallback(

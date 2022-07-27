@@ -77,3 +77,20 @@ const txId = await solanaConnection.sendRawTransaction(signedTx.serialize());
 
 console.log(`Transaction submitted: ${txId}`);
 ```
+
+## Governance fee account
+
+The swap transaction instruction requires the public key of the governance fee account since that account is referenced by the swap instruction processor. This account has been set to `9Yau6DnqYasBUKcyxQJQZqThvUnqZ32ZQuUCcC2AdT9P` initially, but is subject to change as the governance of Swim evolves. By default the instruction creation functions use the initial governance fee public key as a hardcoded value. However, this can be overridden in the event that it ever changes, eg:
+
+```ts
+const swimPool = await fetchSwimPool(solanaConnection);
+const approveAndSwapIxs = createApproveAndSwapIx(
+  direction,
+  inputAmount,
+  minimumOutputAmount,
+  [usdcTokenAccountPublicKey, usdtTokenAccountPublicKey],
+  delegateKeypair.publicKey,
+  ownerPublicKey,
+  swimPool.governanceFeeKey,
+);
+```

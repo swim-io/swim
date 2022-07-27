@@ -17,7 +17,10 @@ export enum InteractionType {
   SwapV2,
 }
 
-export const INTERACTION_GROUP_SWAP = new Set([InteractionType.Swap]);
+export const INTERACTION_GROUP_SWAP = new Set([
+  InteractionType.Swap,
+  InteractionType.SwapV2,
+]);
 export const INTERACTION_GROUP_ADD = new Set([InteractionType.Add]);
 export const INTERACTION_GROUP_REMOVE = new Set([
   InteractionType.RemoveUniform,

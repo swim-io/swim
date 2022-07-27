@@ -9,6 +9,12 @@ import type { InteractionStateV2, InteractionV2 } from "../../models";
 import type { ReadonlyRecord } from "../../utils";
 import { findOrThrow } from "../../utils";
 
+import {
+  addInteractionStateToDbV2,
+  getInteractionStatesFromDbV2,
+  putInteractionStateToDbV2,
+} from "./idb";
+
 export interface InteractionStoreV2 {
   readonly errorMap: ReadonlyRecord<InteractionV2["id"], Error | undefined>;
   readonly interactionStates: readonly InteractionStateV2[];
@@ -40,8 +46,13 @@ export const useInteractionStateV2 = create(
         get().interactionStates,
         ({ interaction }) => interaction.id === id,
       ),
-    loadInteractionStatesFromIDB: async () => {
-      // TODO: load interaction state from db
+    loadInteractionStatesFromIDB: async (env) => {
+      const data = await getInteractionStatesFromDbV2(env);
+      set(
+        produce<InteractionStoreV2>((draft) => {
+          draft.interactionStates = castDraft(data);
+        }),
+      );
     },
     addInteractionState: (interactionState) => {
       set(
@@ -50,7 +61,7 @@ export const useInteractionStateV2 = create(
           draft.recentInteractionId = interactionState.interaction.id;
         }),
       );
-      // TODO: add interaction state to db
+      addInteractionStateToDbV2(interactionState);
     },
     updateInteractionState: (interactionId, updateCallback) => {
       set(
@@ -73,7 +84,7 @@ export const useInteractionStateV2 = create(
       if (!updatedInteractionState) {
         throw new Error("Updated interaction state not found");
       }
-      // TODO: update interaction state in db
+      putInteractionStateToDbV2(updatedInteractionState);
     },
   }),
 );

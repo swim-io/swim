@@ -1,6 +1,7 @@
 import Decimal from "decimal.js";
 
 import { EcosystemId, Env } from "../../config";
+import type { PersistedInteractionStateV2 } from "../../core/store/idb/helpers";
 import { Amount, InteractionType, SwapType } from "../../models";
 import type {
   AddInteraction,
@@ -688,3 +689,49 @@ export const REMOVE_EXACT_OUTPUT_INTERACTION_STATE_ETHEREUM_COMPLETED_WITH_APPRO
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7cab",
     ],
   };
+
+export const MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT = {
+  interaction: {
+    connectedWallets: {
+      acala: null,
+      aurora: null,
+      avalanche: null,
+      bnb: null,
+      ethereum: null,
+      fantom: null,
+      karura: null,
+      polygon: null,
+      solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    },
+    env: Env.Devnet,
+    id: "2eed9eef597a2aa14314845afe87079f",
+    params: {
+      fromTokenDetail: {
+        ecosystemId: EcosystemId.Solana,
+        tokenId: "devnet-solana-usdc",
+        value: "100",
+      },
+      toTokenDetail: {
+        ecosystemId: EcosystemId.Solana,
+        tokenId: "devnet-solana-usdt",
+        value: "101",
+      },
+    },
+    poolIds: ["devnet-solana-usdc-usdt"],
+    submittedAt: 1653624596234,
+    type: 5,
+  },
+  interactionType: InteractionType.SwapV2,
+  swapType: SwapType.SingleChainSolana,
+  onChainSwapTxId: null,
+  requiredSplTokenAccounts: {
+    "9idXDPGb5jfwaf5fxjiMacgUcwpy3ZHfdgqSjAV5XLDr": {
+      isExistingAccount: false,
+      txId: null,
+    },
+    Ep9cMbgyG46b6PVvJNypopc6i8TFzvUVmGiT4MA1PhSb: {
+      isExistingAccount: false,
+      txId: null,
+    },
+  },
+} as PersistedInteractionStateV2;

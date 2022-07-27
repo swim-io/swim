@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 
-import type { EcosystemId, Env } from "../../../config";
+import type { Env } from "../../../config";
 import { findTokenById, isValidEnv } from "../../../config";
 import type {
   AddInteraction,
@@ -9,6 +9,7 @@ import type {
   Interaction,
   InteractionState,
   InteractionStateV2,
+  InteractionV2,
   OperationSpec,
   RemoveExactBurnInteraction,
   RemoveExactBurnOperationSpec,
@@ -19,9 +20,10 @@ import type {
   RequiredSplTokenAccounts,
   SolanaPoolOperationState,
   SwapInteraction,
-  SwapInteractionSpecV2,
+  SwapInteractionV2,
   SwapOperationSpec,
   ToSolanaTransferState,
+  TokenTransferDetail,
 } from "../../../models";
 import { Amount, InteractionType, SwimDefiInstruction } from "../../../models";
 
@@ -30,7 +32,6 @@ interface PreparedAddInteraction extends Omit<AddInteraction, "params"> {
     readonly inputAmounts: readonly PreparedAmount[];
     readonly minimumMintAmount: PreparedAmount;
   };
-  readonly lpTokenTargetEcosystem: EcosystemId;
 }
 
 interface PreparedRemoveUniformInteraction
@@ -39,7 +40,6 @@ interface PreparedRemoveUniformInteraction
     readonly exactBurnAmount: PreparedAmount;
     readonly minimumOutputAmounts: readonly PreparedAmount[];
   };
-  readonly lpTokenSourceEcosystem: EcosystemId;
 }
 
 interface PreparedRemoveExactBurnInteraction
@@ -48,7 +48,6 @@ interface PreparedRemoveExactBurnInteraction
     readonly exactBurnAmount: PreparedAmount;
     readonly minimumOutputAmount: PreparedAmount;
   };
-  readonly lpTokenSourceEcosystem: EcosystemId;
 }
 
 interface PreparedRemoveExactOutputInteraction
@@ -57,7 +56,6 @@ interface PreparedRemoveExactOutputInteraction
     readonly maximumBurnAmount: PreparedAmount;
     readonly exactOutputAmounts: readonly PreparedAmount[];
   };
-  readonly lpTokenSourceEcosystem: EcosystemId;
 }
 
 interface PreparedSwapInteraction extends Omit<SwapInteraction, "params"> {
@@ -614,43 +612,169 @@ export const prepareInteractionState = (
   })),
 });
 
-// eslint-disable-next-line import/no-unused-modules
-export type PreparedInteractionV2 =
+/**
+ * InteractionStateV2
+ */
+
+interface PreparedSwapInteractionV2 extends Omit<SwapInteractionV2, "params"> {
+  readonly params: {
+    readonly fromTokenDetail: PreparedTokenTransferDetail;
+    readonly toTokenDetail: PreparedTokenTransferDetail;
+  };
+}
+
+type PreparedInteractionV2 =
   | PreparedAddInteraction
   | PreparedRemoveUniformInteraction
   | PreparedRemoveExactBurnInteraction
   | PreparedRemoveExactOutputInteraction
-  | SwapInteractionSpecV2;
+  | PreparedSwapInteractionV2;
 
-// eslint-disable-next-line import/no-unused-modules
 export interface PersistedInteractionStateV2
   extends Omit<InteractionStateV2, "interaction"> {
   readonly interaction: PreparedInteractionV2;
 }
 
-// export const prepareInteractionState = (
-//   interactionState: InteractionState,
-// ): PersistedInteractionState => ({
-//   ...interactionState,
-//   fromSolanaTransfers: interactionState.fromSolanaTransfers.map((transfer) => ({
-//     ...transfer,
-//     token: { id: transfer.token.id },
-//     value:
-//       transfer.value instanceof Decimal
-//         ? transfer.value.toJSON()
-//         : transfer.value,
-//   })),
-//   toSolanaTransfers: interactionState.toSolanaTransfers.map((transfer) => ({
-//     ...transfer,
-//     token: { id: transfer.token.id },
-//     value:
-//       transfer.value instanceof Decimal
-//         ? transfer.value.toJSON()
-//         : transfer.value,
-//   })),
-//   interaction: prepareInteraction(interactionState.interaction),
-//   solanaPoolOperations: interactionState.solanaPoolOperations.map((state) => ({
-//     ...state,
-//     operation: prepareSolanaPoolOperation(state.operation),
-//   })),
-// });
+interface PreparedTokenTransferDetail
+  extends Omit<TokenTransferDetail, "value"> {
+  readonly value: string;
+}
+
+const serializeTokenTransferDetail = (
+  tokenTransferDetail: TokenTransferDetail,
+): PreparedTokenTransferDetail => ({
+  ...tokenTransferDetail,
+  value: tokenTransferDetail.value.toString(),
+});
+
+const prepareInteractionV2 = (
+  interaction: InteractionV2,
+): PreparedInteractionV2 => {
+  switch (interaction.type) {
+    case InteractionType.Add:
+      return {
+        ...interaction,
+        params: {
+          ...interaction.params,
+          inputAmounts: interaction.params.inputAmounts.map(
+            fromAmountToPreparedAmount,
+          ),
+          minimumMintAmount: fromAmountToPreparedAmount(
+            interaction.params.minimumMintAmount,
+          ),
+        },
+      };
+    case InteractionType.RemoveUniform:
+      return {
+        ...interaction,
+        params: {
+          ...interaction.params,
+          exactBurnAmount: fromAmountToPreparedAmount(
+            interaction.params.exactBurnAmount,
+          ),
+          minimumOutputAmounts: interaction.params.minimumOutputAmounts.map(
+            fromAmountToPreparedAmount,
+          ),
+        },
+      };
+    case InteractionType.RemoveExactBurn:
+      return {
+        ...interaction,
+        params: {
+          ...interaction.params,
+          exactBurnAmount: fromAmountToPreparedAmount(
+            interaction.params.exactBurnAmount,
+          ),
+          minimumOutputAmount: fromAmountToPreparedAmount(
+            interaction.params.minimumOutputAmount,
+          ),
+        },
+      };
+    case InteractionType.RemoveExactOutput:
+      return {
+        ...interaction,
+        params: {
+          ...interaction.params,
+          maximumBurnAmount: fromAmountToPreparedAmount(
+            interaction.params.maximumBurnAmount,
+          ),
+          exactOutputAmounts: interaction.params.exactOutputAmounts.map(
+            fromAmountToPreparedAmount,
+          ),
+        },
+      };
+    case InteractionType.SwapV2:
+      return {
+        ...interaction,
+        params: {
+          ...interaction.params,
+          fromTokenDetail: serializeTokenTransferDetail(
+            interaction.params.fromTokenDetail,
+          ),
+          toTokenDetail: serializeTokenTransferDetail(
+            interaction.params.toTokenDetail,
+          ),
+        },
+      };
+    default:
+      throw new Error("Unknown interaction type");
+  }
+};
+
+export const prepareInteractionStateV2 = (
+  interactionState: InteractionStateV2,
+): PersistedInteractionStateV2 => {
+  return {
+    ...interactionState,
+    interaction: prepareInteractionV2(interactionState.interaction),
+  };
+};
+
+const populateSwapInteractionV2 = (
+  interaction: PreparedSwapInteractionV2,
+): SwapInteractionV2 => {
+  const {
+    params: { fromTokenDetail, toTokenDetail },
+  } = interaction;
+  return {
+    ...interaction,
+    params: {
+      fromTokenDetail: {
+        ...fromTokenDetail,
+        value: new Decimal(fromTokenDetail.value),
+      },
+      toTokenDetail: {
+        ...toTokenDetail,
+        value: new Decimal(toTokenDetail.value),
+      },
+    },
+  };
+};
+
+const populateInteractionV2 = (
+  interaction: PreparedInteractionV2,
+): InteractionV2 => {
+  switch (interaction.type) {
+    case InteractionType.Add:
+      return populateAddInteraction(interaction);
+    case InteractionType.RemoveUniform:
+      return populateRemoveUniformInteraction(interaction);
+    case InteractionType.RemoveExactBurn:
+      return populateRemoveExactBurnInteraction(interaction);
+    case InteractionType.RemoveExactOutput:
+      return populateRemoveExactOutputInteraction(interaction);
+    case InteractionType.SwapV2:
+      return populateSwapInteractionV2(interaction);
+    default:
+      throw new Error("Interaction not recognized");
+  }
+};
+
+export const deserializeInteractionStateV2 = (
+  persistedState: PersistedInteractionStateV2,
+): InteractionStateV2 => {
+  return {
+    ...persistedState,
+    interaction: populateInteractionV2(persistedState.interaction),
+  } as InteractionStateV2;
+};

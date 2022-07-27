@@ -44,7 +44,7 @@ export const InteractionStateComponentV2: React.FC<Props> = ({
       option: {
         readonly onSettled: () => void;
       },
-    ) => {},
+    ) => option.onSettled(),
     [],
   );
 

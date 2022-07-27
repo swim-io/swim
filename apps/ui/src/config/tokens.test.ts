@@ -1,9 +1,9 @@
 import { PublicKey } from "@solana/web3.js";
+import { Env } from "@swim-io/core";
 import { getUniqueSize } from "@swim-io/utils";
 import { utils } from "ethers";
 
 import { EcosystemId } from "./ecosystem";
-import { Env } from "./env";
 import type { TokenSpec } from "./tokens";
 import { TOKENS as tokensByEnv } from "./tokens";
 
@@ -86,5 +86,5 @@ const generateSuite = (env: Env): void => {
 
 describe("Swim tokens config", () => {
   generateSuite(Env.Mainnet);
-  generateSuite(Env.Localnet);
+  generateSuite(Env.Local);
 });

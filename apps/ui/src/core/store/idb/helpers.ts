@@ -1,7 +1,9 @@
+import type { Env } from "@swim-io/core";
+import { isValidEnv } from "@swim-io/core";
 import Decimal from "decimal.js";
 
-import type { EcosystemId, Env } from "../../../config";
-import { findTokenById, isValidEnv } from "../../../config";
+import type { EcosystemId } from "../../../config";
+import { findTokenById } from "../../../config";
 import type {
   AddInteraction,
   AddOperationSpec,

@@ -1,10 +1,10 @@
 import crypto from "crypto";
 
+import { Env } from "@swim-io/core";
 import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
-import { Env } from "../../config";
 import { useEnvironment } from "../../core/store";
 import {
   BNB_USDT,
@@ -63,8 +63,8 @@ describe("useCreateInteractionState", () => {
     renderHookWithAppContext(() => useQueryClient().clear());
     const { result: envStore } = renderHook(() => useEnvironment());
     act(() => {
-      envStore.current.setCustomLocalnetIp("127.0.0.1");
-      envStore.current.setEnv(Env.Localnet);
+      envStore.current.setCustomIp("127.0.0.1");
+      envStore.current.setEnv(Env.Local);
     });
     useSolanaWalletMock.mockReturnValue({
       address: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",

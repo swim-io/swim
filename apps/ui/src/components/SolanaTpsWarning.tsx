@@ -1,10 +1,11 @@
 import { EuiCallOut, EuiSpacer, EuiText } from "@elastic/eui";
 import { Connection } from "@solana/web3.js";
+import { Env } from "@swim-io/core";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { Env, Protocol } from "../config";
+import { Protocol } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 

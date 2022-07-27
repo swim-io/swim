@@ -1,8 +1,8 @@
+import type { Env } from "@swim-io/core";
 import { isNotNull } from "@swim-io/utils";
 import type { Table } from "dexie";
 import Dexie from "dexie";
 
-import type { Env } from "../../../config";
 import type { InteractionState, InteractionType } from "../../../models";
 import { INTERACTION_GROUPS } from "../../../models";
 

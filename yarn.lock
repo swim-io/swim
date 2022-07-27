@@ -5794,6 +5794,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@swim-io/core@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "@swim-io/core@npm:0.5.0"
+  checksum: ca26e13523d7c90bb364435e4ee06bbba9aa066e975a8d27046338ea7d0388b31557ea20cc3f8b3fd651ab64ac3d2bb50f60f66a160ff178af6e3cddd5c43f26
+  languageName: node
+  linkType: hard
+
 "@swim-io/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@swim-io/core@workspace:packages/core"
@@ -6070,6 +6077,7 @@ __metadata:
     "@storybook/node-logger": ^6.5.9
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.9
+    "@swim-io/core": ^0.5.0
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/pool-math": ^0.5.0
     "@swim-io/solana-types": ^0.5.0

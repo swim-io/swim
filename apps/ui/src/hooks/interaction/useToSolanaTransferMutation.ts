@@ -37,8 +37,8 @@ const txResponseToTx = async (
   const txReceipt = await evmConnection.getTxReceiptOrThrow(txResponse);
   return {
     interactionId,
-    ecosystem: ecosystemId,
-    txId: txReceipt.transactionHash,
+    ecosystemId,
+    id: txReceipt.transactionHash,
     timestamp: txResponse.timestamp ?? null,
     txResponse,
     txReceipt,
@@ -127,13 +127,13 @@ export const useToSolanaTransferMutation = () => {
 
       // Update transfer state with txId
       const approveAndTransferEvmTokenTxIds = [...approvalTxs, transferTx].map(
-        ({ txId }) => txId,
+        ({ id }) => id,
       );
       updateInteractionState(interactionId, (draft) => {
         draft.toSolanaTransfers[index].txIds.approveAndTransferEvmToken =
           approveAndTransferEvmTokenTxIds;
       });
-      transferTxIds = [...transferTxIds, transferTx.txId];
+      transferTxIds = [...transferTxIds, transferTx.id];
     }
 
     const sequences = await Promise.all(

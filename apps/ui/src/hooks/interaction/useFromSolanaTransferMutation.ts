@@ -52,11 +52,11 @@ const getTransferredAmountsByTokenId = async (
   } = outputOperation;
   const { tokens, lpToken } = tokensByPoolId[poolId];
   const txs: readonly Tx[] = await Promise.all(
-    txIds.map(async (txId) => {
-      const parsedTx = await solanaConnection.getParsedTx(txId);
+    txIds.map(async (id) => {
+      const parsedTx = await solanaConnection.getParsedTx(id);
       return {
-        ecosystem: EcosystemId.Solana as const,
-        txId,
+        id,
+        ecosystemId: EcosystemId.Solana,
         timestamp: parsedTx.blockTime ?? null,
         interactionId: interaction.id,
         parsedTx,

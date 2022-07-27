@@ -1,8 +1,8 @@
+import { Env } from "@swim-io/core";
 import type { ReadonlyRecord } from "@swim-io/utils";
 
 import type { EvmEcosystemId } from "./ecosystem";
 import { EcosystemId, isEcosystemEnabled } from "./ecosystem";
-import { Env } from "./env";
 
 export interface BasePoolSpec {
   readonly id: string;
@@ -838,7 +838,7 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
   ...DEVNET_POOLS_FOR_RESTRUCTURE,
 ].filter((spec) => !spec.isDisabled);
 
-const LOCALNET_POOLS: readonly PoolSpec[] = [
+const LOCAL_POOLS: readonly PoolSpec[] = [
   {
     id: "hexapool",
     ecosystem: EcosystemId.Solana,
@@ -850,22 +850,22 @@ const LOCALNET_POOLS: readonly PoolSpec[] = [
     address: "PLSVJHkSe1wQgocGJx9d7KnfjXsPykq7cgLFHwXFRxV",
     authority: "3yRFKgKqAQBX3LaC5soLLsywua5FS7JCCWaJ5LQpnE2v",
     feeDecimals: 6,
-    lpToken: "localnet-solana-lp-hexapool",
+    lpToken: "local-solana-lp-hexapool",
     tokenAccounts: new Map([
-      ["localnet-solana-usdc", "TP19UrkLUihiEg3y98VjM8Gmh7GjWayucsbpyo195wC"],
-      ["localnet-solana-usdt", "TP2gzosaKJNf5UjM8eWKKnN7Yni1uLbYJr88rvEvgPA"],
-      ["localnet-ethereum-usdc", "TP3feUviS5XoqEpzz2d9iHhYip1wFaP7Zf4gmEXRVZ7"],
-      ["localnet-ethereum-usdt", "TP4VVUhiHKBxzT6N3ThsivkHZtNtJTyx9HzYwLherjQ"],
-      ["localnet-bnb-busd", "TP5Zu7nEzkif6zyz5pQaC3G9aPJ1PFSTfpvhQfDC2yr"],
-      ["localnet-bnb-usdt", "TP6DaXSavPoCHKrKb5dcwtAkxM9b4Dwh4isd7fQ8hCb"],
+      ["local-solana-usdc", "TP19UrkLUihiEg3y98VjM8Gmh7GjWayucsbpyo195wC"],
+      ["local-solana-usdt", "TP2gzosaKJNf5UjM8eWKKnN7Yni1uLbYJr88rvEvgPA"],
+      ["local-ethereum-usdc", "TP3feUviS5XoqEpzz2d9iHhYip1wFaP7Zf4gmEXRVZ7"],
+      ["local-ethereum-usdt", "TP4VVUhiHKBxzT6N3ThsivkHZtNtJTyx9HzYwLherjQ"],
+      ["local-bnb-busd", "TP5Zu7nEzkif6zyz5pQaC3G9aPJ1PFSTfpvhQfDC2yr"],
+      ["local-bnb-usdt", "TP6DaXSavPoCHKrKb5dcwtAkxM9b4Dwh4isd7fQ8hCb"],
     ]),
     tokens: [
-      "localnet-solana-usdc",
-      "localnet-solana-usdt",
-      "localnet-ethereum-usdc",
-      "localnet-ethereum-usdt",
-      "localnet-bnb-busd",
-      "localnet-bnb-usdt",
+      "local-solana-usdc",
+      "local-solana-usdt",
+      "local-ethereum-usdc",
+      "local-ethereum-usdt",
+      "local-bnb-busd",
+      "local-bnb-usdt",
     ],
   },
   {
@@ -879,17 +879,17 @@ const LOCALNET_POOLS: readonly PoolSpec[] = [
     address: "PLSupkMugKscXq7cGMEqKMVU66YdPaAH8AHohCNHasE",
     authority: "2VpHusCv5wWgcPLMreRqgCxSHpcdftgkjycsPVN5k2wg",
     feeDecimals: 6,
-    lpToken: "localnet-solana-lp-swimlake",
+    lpToken: "local-solana-lp-swimlake",
     tokenAccounts: new Map([
-      ["localnet-solana-swim", "TP8n5tqhUXVE3uGeKMT8tDMY5BJ8aNmbzuzFNCJqjLE"],
+      ["local-solana-swim", "TP8n5tqhUXVE3uGeKMT8tDMY5BJ8aNmbzuzFNCJqjLE"],
     ]),
-    tokens: ["localnet-solana-swim"],
+    tokens: ["local-solana-swim"],
   },
 ];
 
 export const POOLS: ReadonlyRecord<Env, readonly PoolSpec[]> = {
   [Env.Mainnet]: MAINNET_POOLS,
   [Env.Devnet]: DEVNET_POOLS,
-  [Env.Localnet]: LOCALNET_POOLS,
-  [Env.CustomLocalnet]: LOCALNET_POOLS,
+  [Env.Local]: LOCAL_POOLS,
+  [Env.Custom]: LOCAL_POOLS,
 };

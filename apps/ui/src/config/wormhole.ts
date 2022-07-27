@@ -1,6 +1,5 @@
+import { Env } from "@swim-io/core";
 import type { ReadonlyRecord } from "@swim-io/utils";
-
-import { Env } from "./env";
 
 /** Adapted from @certusone/wormhole-sdk ChainId
  * https://pkg.go.dev/github.com/certusone/wormhole/node/pkg/vaa#ChainID
@@ -40,13 +39,13 @@ const DEVNET_WORMHOLE_CONFIG: WormholeConfig = {
   rpcUrls: ["https://wormhole-v2-testnet-api.certus.one"],
 };
 
-const LOCALNET_WORMHOLE_CONFIG: WormholeConfig = {
+const LOCAL_WORMHOLE_CONFIG: WormholeConfig = {
   rpcUrls: ["http://127.0.0.1:7071"],
 };
 
 export const WORMHOLE_CONFIGS: ReadonlyRecord<Env, WormholeConfig> = {
   [Env.Mainnet]: MAINNET_WORMHOLE_CONFIG,
   [Env.Devnet]: DEVNET_WORMHOLE_CONFIG,
-  [Env.Localnet]: LOCALNET_WORMHOLE_CONFIG,
-  [Env.CustomLocalnet]: LOCALNET_WORMHOLE_CONFIG,
+  [Env.Local]: LOCAL_WORMHOLE_CONFIG,
+  [Env.Custom]: LOCAL_WORMHOLE_CONFIG,
 };

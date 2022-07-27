@@ -112,10 +112,10 @@ const TestPage = (): ReactElement => {
   const lpTokenSolanaDetails = getSolanaTokenDetails(lpToken);
 
   const swimUsdToken = solanaTokens.find(
-    (token) => token.id === "localnet-solana-lp-hexapool",
+    (token) => token.id === "local-solana-lp-hexapool",
   )!;
   const xSwimToken = solanaTokens.find(
-    (token) => token.id === "localnet-solana-lp-swimlake",
+    (token) => token.id === "local-solana-lp-swimlake",
   )!;
   const swimUsdTokenSolanaDetails = getSolanaTokenDetails(swimUsdToken);
   const xSwimTokenSolanaDetails = getSolanaTokenDetails(xSwimToken);

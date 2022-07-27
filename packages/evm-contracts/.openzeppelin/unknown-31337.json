@@ -1,0 +1,466 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    "txHash": "0x300acdc4c6f0c6a0223607568c381536e20c0433346589ee9eebc1d1b4c1f3b5"
+  },
+  "proxies": [
+    {
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "txHash": "0xa9cf6f0c68c91a7676dfe1756b2bdce6e47e41a7ba7e6c21e334b56998239afe",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "d81f48aea98d88ab3e6c30df1f3e4fdd5258a313d927af786b25701f9097dc23": {
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "txHash": "0x6f688decf094034bb2a5be5244e1629e3e2b968de986f3024879a8d634b95a7f",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:29"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:116"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:74"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:211"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:107"
+          },
+          {
+            "label": "wormholeNonce",
+            "offset": 0,
+            "slot": "301",
+            "type": "t_uint32",
+            "contract": "Routing",
+            "src": "contracts/Routing.sol:33"
+          },
+          {
+            "label": "swimUsdAddress",
+            "offset": 4,
+            "slot": "301",
+            "type": "t_address",
+            "contract": "Routing",
+            "src": "contracts/Routing.sol:34"
+          },
+          {
+            "label": "tokenBridge",
+            "offset": 0,
+            "slot": "302",
+            "type": "t_contract(ITokenBridge)8911",
+            "contract": "Routing",
+            "src": "contracts/Routing.sol:35"
+          },
+          {
+            "label": "wormhole",
+            "offset": 0,
+            "slot": "303",
+            "type": "t_contract(IWormhole)9038",
+            "contract": "Routing",
+            "src": "contracts/Routing.sol:36"
+          },
+          {
+            "label": "tokenNumberMapping",
+            "offset": 0,
+            "slot": "304",
+            "type": "t_mapping(t_uint16,t_struct(TokenInfo)7559_storage)",
+            "contract": "Routing",
+            "src": "contracts/Routing.sol:45"
+          },
+          {
+            "label": "tokenAddressMapping",
+            "offset": 0,
+            "slot": "305",
+            "type": "t_mapping(t_address,t_struct(TokenInfo)7559_storage)",
+            "contract": "Routing",
+            "src": "contracts/Routing.sol:46"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(ITokenBridge)8911": {
+            "label": "contract ITokenBridge",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IWormhole)9038": {
+            "label": "contract IWormhole",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_struct(TokenInfo)7559_storage)": {
+            "label": "mapping(address => struct Routing.TokenInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint16,t_struct(TokenInfo)7559_storage)": {
+            "label": "mapping(uint16 => struct Routing.TokenInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(TokenInfo)7559_storage": {
+            "label": "struct Routing.TokenInfo",
+            "members": [
+              {
+                "label": "tokenNumber",
+                "type": "t_uint16",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "tokenAddress",
+                "type": "t_address",
+                "offset": 2,
+                "slot": "0"
+              },
+              {
+                "label": "poolAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "tokenIndexInPool",
+                "type": "t_uint8",
+                "offset": 20,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "7e202efa5f2db97aea35a8119e35b6706c1fa7c2ee9822d25b3fd6e7c4708774": {
+      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "txHash": "0xab674e2d35207891b204e2066eacea788015f9595cc807305c3747489b80e7f5",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:29"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:116"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:74"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:211"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:107"
+          },
+          {
+            "label": "wormholeNonce",
+            "offset": 0,
+            "slot": "301",
+            "type": "t_uint32",
+            "contract": "Routing",
+            "src": "contracts/Routing.sol:34"
+          },
+          {
+            "label": "swimUsdAddress",
+            "offset": 4,
+            "slot": "301",
+            "type": "t_address",
+            "contract": "Routing",
+            "src": "contracts/Routing.sol:35"
+          },
+          {
+            "label": "tokenBridge",
+            "offset": 0,
+            "slot": "302",
+            "type": "t_contract(ITokenBridge)8976",
+            "contract": "Routing",
+            "src": "contracts/Routing.sol:36"
+          },
+          {
+            "label": "wormhole",
+            "offset": 0,
+            "slot": "303",
+            "type": "t_contract(IWormhole)9103",
+            "contract": "Routing",
+            "src": "contracts/Routing.sol:37"
+          },
+          {
+            "label": "tokenNumberMapping",
+            "offset": 0,
+            "slot": "304",
+            "type": "t_mapping(t_uint16,t_struct(TokenInfo)7624_storage)",
+            "contract": "Routing",
+            "src": "contracts/Routing.sol:46"
+          },
+          {
+            "label": "tokenAddressMapping",
+            "offset": 0,
+            "slot": "305",
+            "type": "t_mapping(t_address,t_struct(TokenInfo)7624_storage)",
+            "contract": "Routing",
+            "src": "contracts/Routing.sol:47"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(ITokenBridge)8976": {
+            "label": "contract ITokenBridge",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IWormhole)9103": {
+            "label": "contract IWormhole",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_struct(TokenInfo)7624_storage)": {
+            "label": "mapping(address => struct Routing.TokenInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint16,t_struct(TokenInfo)7624_storage)": {
+            "label": "mapping(uint16 => struct Routing.TokenInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(TokenInfo)7624_storage": {
+            "label": "struct Routing.TokenInfo",
+            "members": [
+              {
+                "label": "tokenNumber",
+                "type": "t_uint16",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "tokenAddress",
+                "type": "t_address",
+                "offset": 2,
+                "slot": "0"
+              },
+              {
+                "label": "poolAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "tokenIndexInPool",
+                "type": "t_uint8",
+                "offset": 20,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint16": {
+            "label": "uint16",
+            "numberOfBytes": "2"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    }
+  }
+}

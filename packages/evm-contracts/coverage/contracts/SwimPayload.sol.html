@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts/SwimPayload.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> SwimPayload.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/13</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/4</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/5</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/17</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">//SPDX-License-Identifier: TODO
+pragma solidity ^0.8.0;
+&nbsp;
+//   1 byte - swim internal payload version number
+// 32 bytes - logical owner/recipient (will use ATA of owner and token on Solana)
+//  2 bytes - swimTokenNumber (support up to 65k different tokens, just to be safe)
+// 32 bytes - minimum output amount (using 32 bytes like Wormhole)
+// 16 bytes - memo/interactionId (??) (current memo is 16 bytes - can't use Wormhole sequence due to Solana originating transactions (only receive sequence number in last transaction on Solana, hence no id for earlier transactions))
+// ?? bytes - propeller parameters (propellerEnabled: bool / gasTokenPrefundingAmount: uint256 / propellerFee (?? - similar to wormhole arbiter fee))
+&nbsp;
+library SwimPayload {
+  error SwimPayload__InvalidVersion();
+  error SwimPayload__TooShort();
+&nbsp;
+  uint8 private constant SWIM_PAYLOAD_VERSION = 1;
+&nbsp;
+  uint private constant VERSION_OFFSET = 0;
+  uint private constant VERSION_SIZE = 1;
+  uint private constant VERSION_MINLEN = VERSION_OFFSET + VERSION_SIZE;
+&nbsp;
+  uint private constant OWNER_OFFSET = VERSION_MINLEN;
+  uint private constant OWNER_SIZE = 32;
+  uint private constant OWNER_MINLEN = OWNER_OFFSET + OWNER_SIZE;
+&nbsp;
+  uint private constant TOKEN_NUMBER_OFFSET = OWNER_MINLEN;
+  uint private constant TOKEN_NUMBER_SIZE = 2;
+  uint private constant TOKEN_NUMBER_MINLEN = TOKEN_NUMBER_OFFSET + TOKEN_NUMBER_SIZE;
+&nbsp;
+  uint private constant THRESHOLD_OFFSET = TOKEN_NUMBER_MINLEN;
+  uint private constant THRESHOLD_SIZE = 32;
+  uint private constant THRESHOLD_MINLEN = THRESHOLD_OFFSET + THRESHOLD_SIZE;
+&nbsp;
+  uint private constant SOLIDITY_ARRAY_LENGTH_SIZE = 32;
+&nbsp;
+<span class="fstat-no" title="function not covered" >  function checkVersion(bytes memory swimPayload) internal pure {</span>
+<span class="cstat-no" title="statement not covered" >    checkLength(swimPayload, VERSION_MINLEN)</span>;
+<span class="cstat-no" title="statement not covered" >    if (uint8(swimPayload[0]) != SWIM_PAYLOAD_VERSION) {</span>
+      revert SwimPayload__InvalidVersion();
+    }
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  function decodeOwner(bytes memory swimPayload) internal pure returns (address) { unchecked {</span>
+<span class="cstat-no" title="statement not covered" >    checkLength(swimPayload, OWNER_MINLEN)</span>;
+<span class="cstat-no" title="statement not covered" >    uint offset = SOLIDITY_ARRAY_LENGTH_SIZE + OWNER_OFFSET;</span>
+<span class="cstat-no" title="statement not covered" >    uint swimOwner;</span>
+    //memory-safe annotation only becomes available with Solidity 0.8.13
+    assembly /*("memory-safe")*/ {
+      swimOwner := mload(add(swimPayload, offset))
+    }
+<span class="cstat-no" title="statement not covered" >    return address(uint160(swimOwner));</span>
+  }}
+&nbsp;
+<span class="fstat-no" title="function not covered" >  function decodeSwapParameters(bytes memory swimPayload)</span>
+    internal pure returns (uint16, uint) { unchecked {
+<span class="cstat-no" title="statement not covered" >    checkLength(swimPayload, THRESHOLD_MINLEN)</span>;
+<span class="cstat-no" title="statement not covered" >    uint16 tokenNumber =</span>
+        (uint16(uint8(swimPayload[TOKEN_NUMBER_OFFSET]))&lt;&lt;8)
+      + uint16(uint8(swimPayload[TOKEN_NUMBER_OFFSET+1]));
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    uint offset = SOLIDITY_ARRAY_LENGTH_SIZE + THRESHOLD_OFFSET;</span>
+<span class="cstat-no" title="statement not covered" >    uint thresholdAmount;</span>
+    assembly /*("memory-safe")*/ {
+      thresholdAmount := mload(add(swimPayload, offset))
+    }
+<span class="cstat-no" title="statement not covered" >    return (tokenNumber, thresholdAmount);</span>
+  }}
+&nbsp;
+<span class="fstat-no" title="function not covered" >  function encode(bytes32 toOwner) internal pure returns (bytes memory swimPayload) {</span>
+<span class="cstat-no" title="statement not covered" >    return abi.encodePacked(SWIM_PAYLOAD_VERSION, toOwner);</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  function checkLength(bytes memory swimPayload, uint minimumLength) private pure {</span>
+<span class="cstat-no" title="statement not covered" >    if (swimPayload.length &lt; minimumLength) {</span>
+      revert SwimPayload__TooShort();
+    }
+  }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jul 12 2022 12:54:42 GMT+0200 (Central European Summer Time)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

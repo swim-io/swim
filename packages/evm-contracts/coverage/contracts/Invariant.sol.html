@@ -1,0 +1,929 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts/Invariant.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> Invariant.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/72</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/26</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/6</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/74</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">//SPDX-License-Identifier: TODO
+pragma solidity ^0.8.0;
+&nbsp;
+import "./Constants.sol";
+import "./CenterAlignment.sol";
+import "./Equalize.sol";
+&nbsp;
+library Invariant {
+using CenterAlignment for uint;
+&nbsp;
+// RESTRICTIONS:
+// * Equalizeds use at most 61 bits (= ~18 digits).
+// * MAX_TOKEN_COUNT = 6 so that:
+//    * so TOKEN_COUNT+1 fits in 3 bits
+//    * sum of pool balances (and hence maximum depth) fits in 64 bits
+//      (depth is always less than or equal the sum of the pool balances)
+// * ampFactor fits within 30 bits (including decimals, i.e. AMP_SHIFT):
+//    * 2^20 = 1_048_576 ~= 10^6 so the max amp value of 1M fits in 20 bits
+//    * we use AMP_SHIFT = 10 bits for the fractional part (i.e. ~3 decimals)
+&nbsp;
+// General Considerations:
+//
+// uint    =&gt; 2^256 ~= 1.1 * 10^77
+// uint128 =&gt; 2^128 ~= 3.4 * 10^38
+// uint64  =&gt; 2^64  ~= 1.8 * 10^19
+//
+// We use a precision of 61 bits (18 digits, max value: 2^61 ~= 2.3 * 10^18)
+//  for all amounts (fixed point!). This is enough to accurately represent:
+//  * sensible USD amounts: Using 6 decimals for (sub)cents, this leaves us
+//                          with 12 digits, i.e. enough to represent $1T-1
+//                          999_999_999_999.000_000 USD =&gt; 18 digits
+//  * sensible ETH amounts: Using Gwei (10^9 Gwei = 1 ETH) as the base unit,
+//                          we can handle 1B-1 ETH (total supply: ~121M ETH)
+//                          999_999_999.000_000_000 ETH =&gt; 18 digits
+//  * arbitrary BTC amounts: 100M = 10^8 Satoshis = 1 BTC, 21M BTC = 2.1 * 10^7
+//                           hence can be at most 2.1 * 10^15 Satoshis
+//                           21_000_000.000_000_00 BTC =&gt; 16 digits
+//
+// By default, we're not using Solidity's built-in SafeMath (overflow and
+//  underflow protection) because it's expensive and we've done the numerics
+//  to ensure that all results (including intermediate results) will always
+//  stay within sensible bounds. Hence the pervasive use of unchecked blocks.
+&nbsp;
+// Some worst case analysis for calculateDepth and calculateUnknownBalance:
+//  (based on swim_invariant.py code)
+//
+//  Scenario 1: tokenCount=6, ampFactor=1, balances=[10^19] + [1]*5
+//   The most out of whack the pool can possibly be given our prerequisites.
+//   * calculateDepth
+//      calculateDepth requires 198 iterations to converge (so given that
+//       Python Decimals are slightly more accurate than uint256, we would
+//       expect about ~200 iterations for EVM code).
+//      At their largest, variable's bit consumption is:
+//       * reciprocalDecay: 301 bits
+//       * numerator:       366 bits (+10 bits for AMP_SHIFT)
+//       * denominator:     303 bits (+10 bits for AMP_SHIFT)
+//       * depth:            63 bits
+//      And this does not include AMP_SHIFT (which would another 10 bits to
+//       numerator and denominator).
+//      Therefore, fromAlign() will fail to undo the alignment and hence revert
+//       to prevent overflow.
+//      For completeness sake: The actual/final depth value would be 1246115.3
+//   * calculateUnknownBalance
+//      calculateUnknownBalance for the first balance (numerically the worst
+//       case) requires 49 iterations to converge and would even stay within
+//       the required bit limits:
+//       * reciprocalDecay:  89 bits
+//       * numeratorFixed:  127 bits
+//       * denominatorFixed: 21 bits
+//       * numerator:       210 bits
+//       * denominator:     106 bits
+//       * unknownBalance:  105 bits
+//
+//  Hence our our main concern is calculateDepth.
+//
+//  Scenario 2: tokenCount=6, ampFactor=1, balances=[10^19] + [10^8]*5
+//   In this scenario, the pool is still comically out of whack with a
+//   difference of 11 orders of magnitudes between the balances.
+//   * calculateDepth
+//      calculateDepth now requires 113 iterations to converge.
+//      Largest bit consumption
+//       * reciprocalDecay: 168 bits
+//       * numerator:       233 bits (+10 bits for AMP_SHIFT)
+//       * denominator:     171 bits (+10 bits for AMP_SHIFT)
+//       * depth:            63 bits
+//      So even after taking AMP_SHIFT into account, we can now conveniently
+//       accommodate all intermediate results.
+//      depth value: 645422243910.3
+//
+//  So in conclusion, our math implementation in here will work just fine
+//   in all realistic and even some very unrealistic scenarios and is more
+//   robust than any of the other AMM stablecurve implementations out there
+//   which overflow a lot earlier, while also maintaining accuracy and keeping
+//   gas costs low.
+&nbsp;
+<span class="fstat-no" title="function not covered" >function sum(Equalized[] memory arr) internal pure returns (uint ret) { unchecked {</span>
+<span class="cstat-no" title="statement not covered" >  for (uint i = 0; i &lt; arr.length; ++i) {</span>
+<span class="cstat-no" title="statement not covered" >    ret += uint(Equalized.unwrap(arr[i]))</span>;
+  }
+}}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function absDiff(uint lhs, uint rhs) private pure returns(uint) { unchecked {</span>
+<span class="cstat-no" title="statement not covered" >  return lhs &gt; rhs ? lhs-rhs : rhs-lhs;</span>
+}}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function min(uint lhs, uint rhs) private pure returns(uint) {</span>
+<span class="cstat-no" title="statement not covered" >  return lhs &lt; rhs ? lhs : rhs;</span>
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function sqrt(uint radicand) private pure returns(uint) { unchecked {</span>
+<span class="cstat-no" title="statement not covered" >  if (radicand == 0) {</span>
+<span class="cstat-no" title="statement not covered" >      return 0;</span>
+  }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  uint msbHelper = radicand;</span> //msb = most significant bit
+<span class="cstat-no" title="statement not covered" >  uint root = 1;</span>
+  //TODO check if this can't be put in a loop and have solc unroll the loop
+<span class="cstat-no" title="statement not covered" >  if (msbHelper &gt;&gt; 128 &gt; 0) {</span>
+<span class="cstat-no" title="statement not covered" >      msbHelper &gt;&gt;= 128</span>;
+<span class="cstat-no" title="statement not covered" >      root &lt;&lt;= 64</span>;
+  }
+<span class="cstat-no" title="statement not covered" >  if (msbHelper &gt;&gt; 64 &gt; 0) {</span>
+<span class="cstat-no" title="statement not covered" >      msbHelper &gt;&gt;= 64</span>;
+<span class="cstat-no" title="statement not covered" >      root &lt;&lt;= 32</span>;
+  }
+<span class="cstat-no" title="statement not covered" >  if (msbHelper &gt;&gt; 32 &gt; 0) {</span>
+<span class="cstat-no" title="statement not covered" >      msbHelper &gt;&gt;= 32</span>;
+<span class="cstat-no" title="statement not covered" >      root &lt;&lt;= 16</span>;
+  }
+<span class="cstat-no" title="statement not covered" >  if (msbHelper &gt;&gt; 16 &gt; 0) {</span>
+<span class="cstat-no" title="statement not covered" >      msbHelper &gt;&gt;= 16</span>;
+<span class="cstat-no" title="statement not covered" >      root &lt;&lt;= 8</span>;
+  }
+<span class="cstat-no" title="statement not covered" >  if (msbHelper &gt;&gt; 8 &gt; 0) {</span>
+<span class="cstat-no" title="statement not covered" >      msbHelper &gt;&gt;= 8</span>;
+<span class="cstat-no" title="statement not covered" >      root &lt;&lt;= 4</span>;
+  }
+<span class="cstat-no" title="statement not covered" >  if (msbHelper &gt;&gt; 4 &gt; 0) {</span>
+<span class="cstat-no" title="statement not covered" >      msbHelper &gt;&gt;= 4</span>;
+<span class="cstat-no" title="statement not covered" >      root &lt;&lt;= 2</span>;
+  }
+<span class="cstat-no" title="statement not covered" >  if (msbHelper &gt;&gt; 2 &gt; 0) {</span>
+<span class="cstat-no" title="statement not covered" >      root &lt;&lt;= 1</span>;
+  }
+&nbsp;
+  //TODO also a prime candidate for loop unrolling
+  //     in fact, we probably know how many iterations we'll need at most (we can keep count!)
+  //     so we could just jump to the right number of leftover iterations...
+<span class="cstat-no" title="statement not covered" >  root = (root + radicand / root) &gt;&gt; 1</span>;
+<span class="cstat-no" title="statement not covered" >  root = (root + radicand / root) &gt;&gt; 1</span>;
+<span class="cstat-no" title="statement not covered" >  root = (root + radicand / root) &gt;&gt; 1</span>;
+<span class="cstat-no" title="statement not covered" >  root = (root + radicand / root) &gt;&gt; 1</span>;
+<span class="cstat-no" title="statement not covered" >  root = (root + radicand / root) &gt;&gt; 1</span>;
+<span class="cstat-no" title="statement not covered" >  root = (root + radicand / root) &gt;&gt; 1</span>;
+<span class="cstat-no" title="statement not covered" >  root = (root + radicand / root) &gt;&gt; 1</span>;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  return min(root, radicand / root);</span>
+}}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function calculateUnknownBalance(</span>
+  Equalized[] memory knownBalances,
+  uint depth,
+  uint32 ampFactor, //contains implicit shift by AMP_SHIFT bits
+  uint initialGuess
+) internal pure returns(Equalized) { unchecked {
+  //assumptions (already enforced elsewhere):
+  // 1 &lt;= knownBalances.length &lt;= 5
+  // ampFactor &gt;= ONE_AMP_SHIFTED || (ampFactor == 0 &amp;&amp; knownBalances.length == 1)
+  // depth &gt; 0
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  uint unknownBalance;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (ampFactor == 0) {</span>
+<span class="cstat-no" title="statement not covered" >    unknownBalance = depth * depth</span>;
+<span class="cstat-no" title="statement not covered" >    unknownBalance /= uint(Equalized.unwrap(knownBalances[0]))</span>;
+<span class="cstat-no" title="statement not covered" >    unknownBalance &gt;&gt;= 2</span>; //= division by 4 but 2 gas cheaper
+  }
+  else {
+<span class="cstat-no" title="statement not covered" >    (uint numeratorFixed, int shift) = depth.toAligned();</span>
+<span class="cstat-no" title="statement not covered" >    for (uint i = 0; i &lt; knownBalances.length; ++i) {</span>
+      //shifts up by at most 64 bits:
+<span class="cstat-no" title="statement not covered" >      numeratorFixed *= depth</span>;
+      //shifts down by at most 64 bits:
+<span class="cstat-no" title="statement not covered" >      numeratorFixed /= uint(Equalized.unwrap(knownBalances[i]))</span>;
+<span class="cstat-no" title="statement not covered" >      numeratorFixed /= knownBalances.length</span>;
+<span class="cstat-no" title="statement not covered" >      (numeratorFixed, shift) = numeratorFixed.keepAligned(shift)</span>;
+    }
+<span class="cstat-no" title="statement not covered" >    numeratorFixed *= depth</span>;
+<span class="cstat-no" title="statement not covered" >    (numeratorFixed, shift) = numeratorFixed.keepAligned(shift)</span>;
+<span class="cstat-no" title="statement not covered" >    numeratorFixed = numeratorFixed.fromAligned(shift)</span>;
+<span class="cstat-no" title="statement not covered" >    numeratorFixed &lt;&lt;= AMP_SHIFT</span>;
+<span class="cstat-no" title="statement not covered" >    numeratorFixed /= ampFactor * knownBalances.length</span>;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    uint denominatorFixed = sum(knownBalances) + ((depth &lt;&lt; AMP_SHIFT) / ampFactor);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    unknownBalance = initialGuess != 0 ? initialGuess : depth / 2</span>;
+<span class="cstat-no" title="statement not covered" >    uint previousUnknownBalance;</span>
+    do {
+      previousUnknownBalance = unknownBalance;
+      //Even in the most extreme case, i.e. tokenCount = 6, ampFactor = 1,
+      // and balances perfectly extreme, the numerator will never exceed
+      // 210 bits, and the  denominator will
+      // and unknown balance will never exceed 105 bits, hence this can never overflow.
+      uint numerator = numeratorFixed + unknownBalance * unknownBalance;
+      uint denominator = (denominatorFixed + unknownBalance * 2) - depth;
+      //TODO should we use rounded div here? (via (num + denom/2)/denom)
+      unknownBalance = numerator / denominator;
+    } while (absDiff(previousUnknownBalance, unknownBalance) &gt; 1);
+  }
+&nbsp;
+  //TODO test to ensure that this can never happen due to rounding
+<span class="cstat-no" title="statement not covered" >  require(unknownBalance &gt; 0)</span>;
+&nbsp;
+  //ensure that unknownBalance never blows up above the allowed maximum
+<span class="cstat-no" title="statement not covered" >  require(</span>
+    unknownBalance &lt; uint(Equalize.MAX_AMOUNT),
+    "unknown balance exceeds MAX_AMOUNT"
+  );
+<span class="cstat-no" title="statement not covered" >  return Equalized.wrap(uint64(unknownBalance));</span>
+}}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function calculateDepth(</span>
+  Equalized[] memory poolBalances,
+  uint ampFactor,
+  uint initialGuess
+) internal pure returns(uint depth) { unchecked {
+  //assumptions (already enforced elsewhere):
+  // 2 &lt;= poolBalances.length &lt;= 6
+  // ampFactor &gt;= ONE_AMP_SHIFTED || (ampFactor == 0 &amp;&amp; poolBalances.length == 2)
+  // 0 &lt; poolBalances[i] &lt; MAX_AMOUNT for all i
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (ampFactor == 0) {</span>
+<span class="cstat-no" title="statement not covered" >    depth = 4</span>;
+<span class="cstat-no" title="statement not covered" >    depth *= uint(Equalized.unwrap(poolBalances[0]))</span>;
+<span class="cstat-no" title="statement not covered" >    depth *= uint(Equalized.unwrap(poolBalances[1]))</span>;
+<span class="cstat-no" title="statement not covered" >    depth = sqrt(depth)</span>;
+<span class="cstat-no" title="statement not covered" >    return depth;</span>
+  }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  uint tokenCount = poolBalances.length;</span> //at most 3 bits
+<span class="cstat-no" title="statement not covered" >  uint poolBalanceSum = sum(poolBalances);</span> //at most 64 bits
+<span class="cstat-no" title="statement not covered" >  uint numeratorFixedAmpUnits = poolBalanceSum * ampFactor;</span> //at most 94 bits
+<span class="cstat-no" title="statement not covered" >  uint denominatorFixedAmpUnits = ampFactor - ONE_AMP_SHIFTED;</span> //at most 30 bits
+<span class="cstat-no" title="statement not covered" >  depth = initialGuess != 0 ? initialGuess : poolBalanceSum</span>; //at most 64 bits
+<span class="cstat-no" title="statement not covered" >  uint previousDepth;</span>
+  do {
+    previousDepth = depth;
+&nbsp;
+    (uint reciprocalDecay, int shift) = uint(1).toAligned();
+    for (uint i = 0; i &lt; tokenCount; ++i) {
+      reciprocalDecay *= depth;
+      reciprocalDecay /= uint(Equalized.unwrap(poolBalances[i])) * tokenCount;
+      (reciprocalDecay, shift) = reciprocalDecay.keepAligned(shift);
+    }
+&nbsp;
+    //We keep the AMP_SHIFT so we can just add our FixedAmpUnits variables.
+    //By always keeping AMP_SHIFT, independent of whether reciprocalDecay
+    // is very large or very small, we actually give up on AMP_SHIFT number
+    // of bits that we could use to support larger reciprocalDecay results
+    // (i.e. pools that are very out of whack with several large balances
+    // and one very small balance).
+    //Not relevant in practice though (see numbers above), so better to just
+    // save the gas and associated code complexity.
+    shift -= int(AMP_SHIFT);
+    uint tmpReciprocalDecay = reciprocalDecay * tokenCount;
+&nbsp;
+    (uint numRD, int numShift) = tmpReciprocalDecay.keepAligned(shift);
+    numRD *= depth;
+    numRD = numRD.fromAligned(numShift);
+&nbsp;
+    uint denomRD = tmpReciprocalDecay + reciprocalDecay;
+    denomRD = denomRD.fromAligned(shift);
+&nbsp;
+    uint numerator = numeratorFixedAmpUnits + numRD; //can overflow
+    require(numerator &gt; numRD); //=&gt; protect against possible overflow
+    //if denominator were to overflow, then numerator already did
+    // hence nothing to check
+    uint denominator = denominatorFixedAmpUnits + denomRD;
+    depth = numerator / denominator; //TODO rounded div?
+  } while (absDiff(previousDepth, depth) &gt; 1);
+&nbsp;
+  //TODO test to ensure that this can never happen
+<span class="cstat-no" title="statement not covered" >  require(depth &gt; 0)</span>;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  return depth;</span>
+}}
+&nbsp;
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jul 12 2022 12:54:42 GMT+0200 (Central European Summer Time)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

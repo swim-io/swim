@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts/CenterAlignment.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> CenterAlignment.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/11</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/8</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/3</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/11</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">//SPDX-License-Identifier: TODO
+pragma solidity ^0.8.0;
+&nbsp;
+library CenterAlignment {
+// In the following constants and functions we think of a built-in uint
+//  as an array an array of 4 uint64, i.e. uint64[4] and use this to keep a
+//  block of 64 significant bits "center-aligned" i.e. within the bounds of the
+//  second and third uint64 (i.e. in the middle 128 bits), or in other words,
+//  out of the lower and upper 64 bits.
+//  This way we can always safely multiply or divide with an arbitrary uint64
+//  value without losing any significant bits, hence always holding on to full
+//  precision of our full 64 bit value, without having to constantly adjust the
+//  alignment i.e. shift up or shift down.
+//
+// The shift parameter tracks how far val needs to be RIGHT shifted to deflate
+//  val back to its original/base alignment (after we originally inflating it
+//  by center shifting it.)
+&nbsp;
+uint constant BITS_PER_UINT = 256;
+uint constant ALIGNMENT_SHIFT = BITS_PER_UINT/4; //=64
+uint constant CENTERING_SHIFT = ALIGNMENT_SHIFT + ALIGNMENT_SHIFT/2; //=96
+//shift right when greater than ALIGNMENT_UPPER_THRESHOLD
+uint constant ALIGNMENT_UPPER_THRESHOLD = (1 &lt;&lt; (ALIGNMENT_SHIFT*3)) - 1;
+//shift left less than ALIGNMENT_LOWER_THRESHOLD
+uint constant ALIGNMENT_LOWER_THRESHOLD = 1 &lt;&lt; (ALIGNMENT_SHIFT*2);
+&nbsp;
+<span class="fstat-no" title="function not covered" >function toAligned(uint val) internal pure returns (uint, int) {</span>
+<span class="cstat-no" title="statement not covered" >  return (val &lt;&lt; CENTERING_SHIFT, int(CENTERING_SHIFT));</span>
+}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function keepAligned(uint val, int shift)</span>
+  internal pure returns (uint, int) { unchecked {
+<span class="cstat-no" title="statement not covered" >  if (val &gt; ALIGNMENT_UPPER_THRESHOLD) {</span>
+    //val has grown large enough to occupy space in the upper uint64
+    // =&gt; shift down and decrease required right shift
+<span class="cstat-no" title="statement not covered" >    return (val &gt;&gt; ALIGNMENT_SHIFT, shift - int(ALIGNMENT_SHIFT));</span>
+  }
+<span class="cstat-no" title="statement not covered" >  if (val &lt; ALIGNMENT_LOWER_THRESHOLD) {</span>
+    //val has shrunk so much that it doesn't occupy the upper half anymore
+    // =&gt; shift up and increase required right shift
+<span class="cstat-no" title="statement not covered" >    return (val &lt;&lt; ALIGNMENT_SHIFT, shift + int(ALIGNMENT_SHIFT));</span>
+  }
+<span class="cstat-no" title="statement not covered" >  return (val, shift);</span>
+}}
+&nbsp;
+<span class="fstat-no" title="function not covered" >function fromAligned(uint val, int shift)</span>
+  internal pure returns (uint) { unchecked {
+<span class="cstat-no" title="statement not covered" >  if (shift &lt; 0) {</span>
+<span class="cstat-no" title="statement not covered" >    uint unshift = uint(-shift);</span>
+    //ensure we aren't overflowing on rightshift
+<span class="cstat-no" title="statement not covered" >    require(</span>
+      unshift &lt; BITS_PER_UINT &amp;&amp; val &lt; (1&lt;&lt;(BITS_PER_UINT-unshift)),
+      "overflow on fromAligned"
+    );
+<span class="cstat-no" title="statement not covered" >    return val &lt;&lt; unshift;</span>
+  }
+  //potentially underflowing to 0 is ok
+<span class="cstat-no" title="statement not covered" >  return val &gt;&gt; uint(shift);</span>
+}}
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jul 12 2022 12:54:42 GMT+0200 (Central European Summer Time)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

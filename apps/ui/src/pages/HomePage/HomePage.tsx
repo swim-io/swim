@@ -566,7 +566,7 @@ const HomePage = (): ReactElement => {
         <EuiSpacer size="xxl" />*/}
 
         <EuiPanel color="transparent">
-          <EuiTitle size="l" className="roadmap__title">
+          <EuiTitle size="l" className="section__title">
             <h2>
               <EuiTextColor color="ghost">Roadmap</EuiTextColor>
             </h2>
@@ -575,6 +575,47 @@ const HomePage = (): ReactElement => {
           <Roadmap />
         </EuiPanel>
 
+        <EuiSpacer size="xxl" />
+        <EuiSpacer size="xxl" />
+        <EuiSpacer size="xxl" />
+
+        <EuiPanel color="transparent" style={{ textAlign: "center" }}>
+          <EuiTitle size="l" className="section__title">
+            <h2>
+              <EuiTextColor color="ghost">
+                Are you looking to integrate with us ?
+              </EuiTextColor>
+            </h2>
+          </EuiTitle>
+          <EuiSpacer />
+          <EuiFlexGroup justifyContent="center" responsive={false} wrap={true}>
+            <EuiFlexItem grow={false}>
+              <EuiButton
+                color="ghost"
+                iconType={TWITTER_SVG}
+                fill
+                size="s"
+                href="https://twitter.com/SwimProtocol"
+              >
+                Twitter
+              </EuiButton>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiButton
+                color="ghost"
+                iconType={TELEGRAM_SVG}
+                fill
+                size="s"
+                href="https://t.me/joinchat/Mnc1WjrKcq8yYTM1"
+              >
+                Telegram
+              </EuiButton>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </EuiPanel>
+
+        <EuiSpacer size="xxl" />
+        <EuiSpacer size="xxl" />
         <EuiSpacer size="xxl" />
       </EuiPageBody>
     </EuiPage>

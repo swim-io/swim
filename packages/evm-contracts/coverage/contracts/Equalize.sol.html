@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts/Equalize.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> Equalize.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/20</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/14</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/2</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/20</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">//SPDX-License-Identifier: TODO
+pragma solidity ^0.8.0;
+&nbsp;
+type Equalized is uint;
+&nbsp;
+library Equalize {
+  uint public constant MAX_AMOUNT = 1&lt;&lt;61; //non-inclusive!
+&nbsp;
+<span class="fstat-no" title="function not covered" >  function to(uint amount, int8 equalizer)</span>
+    internal pure returns (Equalized) {
+<span class="cstat-no" title="statement not covered" >    if (amount == 0)</span>
+<span class="cstat-no" title="statement not covered" >      return Equalized.wrap(0);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    uint equalized;</span>
+<span class="cstat-no" title="statement not covered" >    if (equalizer &lt; 0) {</span>
+      unchecked {<span class="cstat-no" title="statement not covered" >equalized = amount / uint(10)**(uint(int(-equalizer)))</span>;}
+<span class="cstat-no" title="statement not covered" >      require(equalized &gt; 0, "losing all precision when equalizing")</span>;
+    }
+    else {
+      unchecked {<span class="cstat-no" title="statement not covered" >equalized = uint(10)**(uint(int(equalizer)))</span>;}
+<span class="cstat-no" title="statement not covered" >      equalized *= amount</span>; //SafeMath!
+    }
+<span class="cstat-no" title="statement not covered" >    require(equalized &lt; MAX_AMOUNT, "MAX_AMOUNT exceeded")</span>;
+<span class="cstat-no" title="statement not covered" >    return Equalized.wrap(equalized);</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  function from(Equalized equalized, int8 equalizer)</span>
+    internal pure returns (uint) {
+<span class="cstat-no" title="statement not covered" >    uint amount = Equalized.unwrap(equalized);</span>
+<span class="cstat-no" title="statement not covered" >    if (amount == 0)</span>
+<span class="cstat-no" title="statement not covered" >      return 0;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    if (equalizer &lt; 0) {</span>
+<span class="cstat-no" title="statement not covered" >      uint tmp;</span>
+      unchecked {<span class="cstat-no" title="statement not covered" >tmp = uint(10)**(uint(int(-equalizer)))</span>;}
+<span class="cstat-no" title="statement not covered" >      amount *= tmp</span>; //SafeMath!
+    }
+    else {
+      unchecked {<span class="cstat-no" title="statement not covered" >amount /= uint(10)**(uint(int(equalizer)))</span>;}
+<span class="cstat-no" title="statement not covered" >      require(amount &gt; 0, "losing all precision when deequalizing")</span>;
+    }
+<span class="cstat-no" title="statement not covered" >    return amount;</span>
+  }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jul 12 2022 12:54:42 GMT+0200 (Central European Summer Time)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

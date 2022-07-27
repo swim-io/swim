@@ -1,10 +1,10 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
+import type { Env } from "@swim-io/core";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
-import type { Env } from "../../config";
 import { useEnvironment } from "../../core/store";
 import { deserializeTokenAccount } from "../../models";
 

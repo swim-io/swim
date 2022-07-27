@@ -1,3 +1,4 @@
+import { Env } from "@swim-io/core";
 import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 
@@ -7,7 +8,6 @@ import {
   DEVNET_POOLS_FOR_RESTRUCTURE,
   DEVNET_SWIMUSD,
   EcosystemId,
-  Env,
   findTokenById,
 } from "../../config";
 import { selectConfig } from "../../core/selectors";
@@ -59,7 +59,7 @@ describe("useCreateInteractionStateV2", () => {
   beforeEach(() => {
     const { result: envStore } = renderHook(() => useEnvironment());
     act(() => {
-      envStore.current.setCustomLocalnetIp("127.0.0.1");
+      envStore.current.setCustomIp("127.0.0.1");
       envStore.current.setEnv(Env.Devnet);
     });
     generateIdMock.mockReturnValue("11111111111111111111111111111111");

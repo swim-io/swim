@@ -54,6 +54,7 @@
     "@sentry/types": "^7.5.0",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.44.3",
+    "@swim-io/core": "^0.4.0",
     "@swim-io/pool-math": "^0.4.0",
     "@swim-io/solana-types": "^0.4.0",
     "bn.js": "^5.2.1",

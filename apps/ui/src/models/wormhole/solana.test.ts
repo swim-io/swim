@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
+import { Env } from "@swim-io/core";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
 import {
   CHAINS,
   EcosystemId,
-  Env,
   PROJECTS,
   Protocol,
   TOKENS,
@@ -87,9 +87,9 @@ describe("models - Wormhole utils", () => {
       };
       const tx: SolanaTx = {
         interactionId,
-        ecosystem: EcosystemId.Solana,
+        ecosystemId: EcosystemId.Solana,
         timestamp: parsedSwimSwapTx.blockTime ?? null,
-        txId: parsedSwimSwapTx.transaction.signatures[0],
+        id: parsedSwimSwapTx.transaction.signatures[0],
         parsedTx: parsedSwimSwapTx,
       };
 
@@ -122,9 +122,9 @@ describe("models - Wormhole utils", () => {
           "2XjLRw6BTVTTL5hLDdKyLtPL6toGM7HkKJivGjtZBotp";
         const tx: SolanaTx = {
           interactionId,
-          ecosystem: EcosystemId.Solana,
+          ecosystemId: EcosystemId.Solana,
           timestamp: parsedTx.blockTime!,
-          txId: parsedTx.transaction.signatures[0],
+          id: parsedTx.transaction.signatures[0],
           parsedTx,
         };
 
@@ -147,9 +147,9 @@ describe("models - Wormhole utils", () => {
         "2XjLRw6BTVTTL5hLDdKyLtPL6toGM7HkKJivGjtZBotp";
       const tx: SolanaTx = {
         interactionId,
-        ecosystem: EcosystemId.Solana,
+        ecosystemId: EcosystemId.Solana,
         timestamp: parsedWormholeRedeemEvmUnlockWrappedTx.blockTime!,
-        txId: parsedWormholeRedeemEvmUnlockWrappedTx.transaction.signatures[0],
+        id: parsedWormholeRedeemEvmUnlockWrappedTx.transaction.signatures[0],
         parsedTx: parsedWormholeRedeemEvmUnlockWrappedTx,
       };
 
@@ -178,9 +178,9 @@ describe("models - Wormhole utils", () => {
         const splTokenAccount = "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
         const tx: SolanaTx = {
           interactionId,
-          ecosystem: EcosystemId.Solana,
+          ecosystemId: EcosystemId.Solana,
           timestamp: parsedTx.blockTime!,
-          txId: parsedTx.transaction.signatures[0],
+          id: parsedTx.transaction.signatures[0],
           parsedTx,
         };
 
@@ -206,9 +206,9 @@ describe("models - Wormhole utils", () => {
       const splTokenAccount = "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
       const tx: SolanaTx = {
         interactionId,
-        ecosystem: EcosystemId.Solana,
+        ecosystemId: EcosystemId.Solana,
         timestamp: parsedWormholeRedeemEvmUnlockWrappedTx.blockTime!,
-        txId: parsedWormholeRedeemEvmUnlockWrappedTx.transaction.signatures[0],
+        id: parsedWormholeRedeemEvmUnlockWrappedTx.transaction.signatures[0],
         parsedTx: parsedWormholeRedeemEvmUnlockWrappedTx,
       };
 

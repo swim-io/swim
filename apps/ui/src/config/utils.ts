@@ -1,8 +1,9 @@
+import type { Env } from "@swim-io/core";
+
 import { deduplicate } from "../utils";
 
 import type { Ecosystem } from "./ecosystem";
 import { ECOSYSTEMS, EcosystemId } from "./ecosystem";
-import type { Env } from "./env";
 import type { PoolSpec } from "./pools";
 import type { TokenDetails, TokenSpec } from "./tokens";
 import { TOKENS } from "./tokens";

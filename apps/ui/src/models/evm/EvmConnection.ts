@@ -1,14 +1,15 @@
 import { BscscanProvider } from "@ethers-ancillary/bsc";
+import { Env } from "@swim-io/core";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
 
 import type { EvmEcosystemId, EvmSpec } from "../../config";
-import { EcosystemId, Env, isEcosystemEnabled } from "../../config";
+import { EcosystemId, isEcosystemEnabled } from "../../config";
 import { isNotNull } from "../../utils";
 
 import { AuroraNetwork, AuroraScanProvider } from "./AuroraScanProvider";
 import { FantomNetwork, FtmScanProvider } from "./FtmScanProvider";
-import { LocalnetProvider } from "./LocalnetProvider";
+import { LocalProvider } from "./LocalProvider";
 import { MoralisProvider } from "./MoralisProvider";
 import { PolkadotProvider } from "./PolkadotProvider";
 import { PolygonNetwork, PolygonScanProvider } from "./PolygonScanProvider";
@@ -22,7 +23,7 @@ type TransactionResponse = ethers.providers.TransactionResponse;
 export type Provider =
   | MoralisProvider
   | EtherscanProvider
-  | LocalnetProvider
+  | LocalProvider
   | PolkadotProvider;
 
 // TODO: Use proper endpoints via env
@@ -175,11 +176,11 @@ export class EvmConnection {
     { ecosystem, rpcUrls }: EvmSpec,
   ): Provider {
     if (!isEcosystemEnabled(ecosystem)) {
-      return new LocalnetProvider(rpcUrls[0]);
+      return new LocalProvider(rpcUrls[0]);
     }
     switch (ecosystem) {
       case EcosystemId.Acala:
-        return new LocalnetProvider(rpcUrls[0]);
+        return new LocalProvider(rpcUrls[0]);
       case EcosystemId.Aurora:
       case EcosystemId.Fantom:
       case EcosystemId.Bnb:
@@ -191,7 +192,7 @@ export class EvmConnection {
           case Env.Devnet:
             return EvmConnection.getPublicEvmIndexerProvider(env, ecosystem);
           default: {
-            return new LocalnetProvider(rpcUrls[0]);
+            return new LocalProvider(rpcUrls[0]);
           }
         }
       case EcosystemId.Karura:
@@ -200,7 +201,7 @@ export class EvmConnection {
             return EvmConnection.getPublicEvmIndexerProvider(env, ecosystem);
           case Env.Devnet:
           default: {
-            return new LocalnetProvider(rpcUrls[0]);
+            return new LocalProvider(rpcUrls[0]);
           }
         }
     }

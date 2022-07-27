@@ -1,3 +1,4 @@
+import { findOrThrow } from "@swim-io/utils";
 import { useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import shallow from "zustand/shallow.js";
@@ -5,7 +6,6 @@ import shallow from "zustand/shallow.js";
 import type { PoolSpec, TokenSpec } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import { findOrThrow } from "../../utils";
 
 interface SwapTokensContext {
   readonly fromToken: TokenSpec;
@@ -15,8 +15,8 @@ interface SwapTokensContext {
   readonly setFromToken: (newFromToken: TokenSpec) => void;
   readonly setToToken: (newToToken: TokenSpec) => void;
   readonly setFromAndToTokens: (
-    fromTokenParam: TokenSpec,
-    toTokenParam: TokenSpec,
+    newFromToken: TokenSpec,
+    newToToken: TokenSpec,
   ) => void;
   readonly hasUrlError: boolean;
 }
@@ -90,12 +90,11 @@ export const useSwapTokensContext = (): SwapTokensContext => {
     maybeFromToken ??
     findOrThrow(tokens, ({ id }) => id === defaultFromTokenId);
 
-  const toTokenOptionsIds = getOutputTokens(fromToken.id);
+  const toTokenOptionsIds = getToTokenOptionsIds(fromToken.id);
 
   const maybeToToken = findTokenForParam(toUrlParam);
-  const hasToUrlError = (
-    (!maybeToToken ||
-      !toTokenOptionsIds.find((id) => id === maybeToToken.id)));
+  const hasToUrlError =
+    !maybeToToken || !toTokenOptionsIds.find((id) => id === maybeToToken.id);
 
   const toToken =
     maybeToToken && !hasToUrlError
@@ -103,25 +102,25 @@ export const useSwapTokensContext = (): SwapTokensContext => {
       : findOrThrow(tokens, ({ id }) => id === toTokenOptionsIds[0]);
 
   const setFromAndToTokens = (
-    fromTokenArg: TokenSpec,
-    toTokenArg: TokenSpec,
+    newFromToken: TokenSpec,
+    newToToken: TokenSpec,
   ) => {
-    const fromTokenUrlParam = convertTokenSpecToUrlParam(fromTokenArg);
-    const newToTokenOptions = getOutputTokens(fromTokenArg.id);
+    const fromTokenUrlParam = convertTokenSpecToUrlParam(newFromToken);
+    const newToTokenOptions = getToTokenOptionsIds(newFromToken.id);
     const toTokenUrlParam = convertTokenSpecToUrlParam(
-      newOutputTokenOptions.find((id) => id === toTokenArg.id)
-        ? toTokenArg
-        : findOrThrow(tokens, ({ id }) => id === newOutputTokenOptions[0]),
+      newToTokenOptions.find((id) => id === newToToken.id)
+        ? newToToken
+        : findOrThrow(tokens, ({ id }) => id === newToTokenOptions[0]),
     );
     navigate(`/swap/${fromTokenUrlParam}/to/${toTokenUrlParam}`);
   };
 
-  const setFromToken = (fromTokenArg: TokenSpec) => {
-    setFromAndToTokens(fromTokenArg, toToken);
+  const setFromToken = (newFromToken: TokenSpec) => {
+    setFromAndToTokens(newFromToken, toToken);
   };
 
-  const setToToken = (toTokenArg: TokenSpec) => {
-    setFromAndToTokens(fromToken, toTokenArg);
+  const setToToken = (newToToken: TokenSpec) => {
+    setFromAndToTokens(fromToken, newToToken);
   };
 
   const hasUrlError = hasToUrlError || hasFromUrlError;

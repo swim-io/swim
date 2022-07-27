@@ -42,6 +42,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         ampFactor,
         lpFee,
         governanceFee,
+        governance,
         governanceFeeRecipient
       ],
   );
@@ -52,8 +53,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });
   await save("PoolProxy", {abi: poolLogic.abi, address: poolProxy.address});
-
-  await execute("PoolProxy", {from: deployer}, "transferGovernance", governance);
 };
 export default func;
 func.id = 'Pool';

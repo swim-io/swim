@@ -196,13 +196,13 @@ const config: HardhatUserConfig = {
       default: 11,
     },
   },
-  // external: {
-  //   contracts: [
-  //     {
-  //       artifacts: "node_modules/hardhat-deploy/extendedArtifacts",
-  //     },
-  //   ],
-  // },
+  external: {
+    contracts: [
+      {
+        artifacts: "node_modules/hardhat-deploy/extendedArtifacts",
+      },
+    ],
+  },
 };
 
 export default config;

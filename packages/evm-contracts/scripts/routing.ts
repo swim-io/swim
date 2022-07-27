@@ -4,24 +4,14 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import { ethers, run, network } from "hardhat";
-import "dotenv/config";
+import { BN } from "bn.js";
 import verify from "./helpers";
+import "dotenv/config";
 
 async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
-
-  // We get the contract to deploy
-  // const Greeter = await ethers.getContractFactory("Greeter");
-  // const greeter = await Greeter.deploy("Hello, Hardhat!");
-
-  // await greeter.deployed();
-
-  // console.log("Greeter deployed to:", greeter.address);
+  const BnbTestnetChainId = 97;
+  const tokenBridgeAdr = "0x9dcF9D205C9De35334D646BeE44b2D2859712A09";
+  const [owner] = await ethers.getSigners();
 
   const Routing = await ethers.getContractFactory("Routing");
   const routing = await Routing.deploy();
@@ -29,7 +19,10 @@ async function main() {
   await routing.deployed();
 
   console.log("Routing deployed to:", routing.address);
-  if (network.config.chainId === 4 && process.env.ETHERSCAN_API_KEY) {
+
+  await routing.initialize(tokenBridgeAdr);
+
+  if (network.config.chainId === BnbTestnetChainId) {
     await routing.deployTransaction.wait(6);
     await verify(routing.address, []);
   }

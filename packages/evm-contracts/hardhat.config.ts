@@ -4,8 +4,9 @@ import { getSingletonFactoryInfo } from "@gnosis.pm/safe-singleton-factory";
 import { BigNumber } from "ethers";
 import { task } from "hardhat/config";
 import { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
-//import "@nomiclabs/hardhat-etherscan";
+import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
+import "@openzeppelin/hardhat-upgrades";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@typechain/hardhat";
 import "hardhat-deploy";
@@ -13,8 +14,15 @@ import "hardhat-gas-reporter";
 import "solidity-coverage";
 
 dotenv.config();
-const { MNEMONIC, MAINNET_RPC_URL, ETHERSCAN_API_KEY, PRIVATE_KEY, DETERMINISTIC_DEPLOYMENT } =
-  process.env;
+const {
+  MNEMONIC,
+  MAINNET_RPC_URL,
+  ETHERSCAN_API_KEY,
+  BSCSCAN_API_KEY,
+  AVAXSCAN_APY_KEY,
+  PRIVATE_KEY,
+  DETERMINISTIC_DEPLOYMENT,
+} = process.env;
 
 task("accounts", "Prints the list of accounts", async (_, hre) => {
   const named = await hre.getNamedAccounts();
@@ -34,6 +42,7 @@ const DEFAULT_MNEMONIC =
 
 const sharedNetworkConfig: HttpNetworkUserConfig = {};
 if (PRIVATE_KEY) {
+  // console.log("PRIVATE KEY", PRIVATE_KEY);
   sharedNetworkConfig.accounts = PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [];
 } else {
   sharedNetworkConfig.accounts = {
@@ -110,15 +119,20 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       ...sharedNetworkConfig,
     },
-    mainnet: {
+    goerli: {
+      url: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+      chainId: 5,
       ...sharedNetworkConfig,
-      url: "https://mainnet.infura.io/v3/KEY",
-      accounts: {
-        mnemonic: MNEMONIC,
-      },
-      saveDeployments: true,
-      chainId: 1,
     },
+    // mainnet: {
+    //   ...sharedNetworkConfig,
+    //   url: "https://mainnet.infura.io/v3/KEY",
+    //   accounts: {
+    //     mnemonic: MNEMONIC,
+    //   },
+    //   saveDeployments: true,
+    //   chainId: 1,
+    // },
     mumbai: {
       ...sharedNetworkConfig,
       url: `https://polygon-mumbai.infura.io/v3/${"KEY"}`,
@@ -144,9 +158,9 @@ const config: HardhatUserConfig = {
       ...sharedNetworkConfig,
       url: `https://rpc.testnet.fantom.network/`,
     },
-    avalancheTestnet: {
+    avalancheFujiTestnet: {
       ...sharedNetworkConfig,
-      url: `https://api.avax.network/ext/bc/C/rpc`,
+      url: "https://api.avax-test.network/ext/bc/C/rpc",
       chainId: 43113,
     },
     avalancheLocalhost: {
@@ -159,6 +173,11 @@ const config: HardhatUserConfig = {
     enabled: true,
     outputFile: "gas-report.txt",
     currency: "USD",
+  },
+  etherscan: {
+    // apiKey: BSCSCAN_API_KEY,
+    // apiKey: AVAXSCAN_APY_KEY,
+    apiKey: ETHERSCAN_API_KEY,
   },
   namedAccounts: {
     deployer: {

@@ -11,7 +11,7 @@ interface Props {
   readonly fromToken: TokenSpec;
   readonly toToken: TokenSpec;
   readonly isLoading: boolean;
-  readonly transactions: ReadonlyArray<string>;
+  readonly transactions: readonly string[];
 }
 
 export const SwapTransfer: VFC<Props> = ({

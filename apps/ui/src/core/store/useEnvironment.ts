@@ -1,17 +1,18 @@
+import type { Env } from "@swim-io/core";
+import { isValidEnv } from "@swim-io/core";
 import { produce } from "immer";
 import create from "zustand";
 import type { GetState, SetState, StoreApi } from "zustand";
 import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
 
-import type { Env } from "../../config";
-import { DEFAULT_ENV, isValidEnv } from "../../config";
+import { DEFAULT_ENV } from "../selectors";
 
 export interface EnvironmentState {
   readonly env: Env;
-  readonly customLocalnetIp: string | null;
+  readonly customIp: string | null;
   readonly setEnv: (newEnv: Env) => void;
-  readonly setCustomLocalnetIp: (ip: string | null) => void;
+  readonly setCustomIp: (ip: string | null) => void;
 }
 
 export const useEnvironment = create(
@@ -22,20 +23,20 @@ export const useEnvironment = create(
       api: StoreApi<EnvironmentState>,
     ) => ({
       env: DEFAULT_ENV,
-      customLocalnetIp: null,
+      customIp: null,
       setEnv: (newEnv: Env) => {
         set(
           produce<EnvironmentState>((draft) => {
-            if (api.getState().customLocalnetIp !== null) {
+            if (api.getState().customIp !== null) {
               draft.env = newEnv;
             }
           }),
         );
       },
-      setCustomLocalnetIp: (ip: string | null) => {
+      setCustomIp: (ip: string | null) => {
         set(
           produce<EnvironmentState>((draft) => {
-            draft.customLocalnetIp = ip;
+            draft.customIp = ip;
             draft.env = isValidEnv(api.getState().env)
               ? api.getState().env
               : DEFAULT_ENV;
@@ -48,19 +49,24 @@ export const useEnvironment = create(
       getStorage: (): StateStorage => localStorage,
       partialize: (state: EnvironmentState) => ({
         env: state.env,
-        customLocalnetIp: state.customLocalnetIp,
+        customIp: state.customIp,
       }),
       merge: (
-        persistedState: any, // TODO: Set type to unknown and validate
+        persistedState: unknown,
         currentState: EnvironmentState,
       ): EnvironmentState => {
-        const { env, customLocalnetIp } = persistedState;
-        if (isValidEnv(env)) {
-          if (customLocalnetIp !== null) {
-            return { ...currentState, env, customLocalnetIp };
+        if (typeof persistedState !== "object" || persistedState === null) {
+          return currentState;
+        }
+
+        const { env, customIp } = persistedState as Record<string, unknown>;
+        if (typeof env === "string" && isValidEnv(env)) {
+          if (typeof customIp === "string") {
+            return { ...currentState, env, customIp };
           }
           return { ...currentState, ...persistedState };
         }
+
         return currentState;
       },
     },

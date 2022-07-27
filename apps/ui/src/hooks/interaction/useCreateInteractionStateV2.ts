@@ -1,4 +1,5 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { filterMap } from "@swim-io/utils";
 import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../../config";
@@ -30,7 +31,6 @@ import {
   getRequiredPools,
   getSwapType,
 } from "../../models";
-import { filterMap } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useSplTokenAccountsQuery } from "../solana";
 

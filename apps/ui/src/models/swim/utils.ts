@@ -1,10 +1,10 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { filterMap, findOrThrow } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
 import type { PoolSpec, TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
-import { filterMap, findOrThrow } from "../../utils";
 import { Amount } from "../amount";
 
 import type { InteractionSpec, InteractionSpecV2 } from "./interaction";

@@ -2,11 +2,11 @@ import { EuiFlexGroup, EuiFlexItem } from "@elastic/eui";
 import type { FunctionComponent, ReactElement, ReactNode } from "react";
 
 interface Props {
-  readonly listItems?: ReadonlyArray<{
+  readonly listItems?: readonly {
     readonly title: NonNullable<ReactNode>;
     readonly description: NonNullable<ReactNode>;
     readonly key: string;
-  }>;
+  }[];
 }
 
 export const StatList: FunctionComponent<Props> = ({

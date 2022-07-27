@@ -8,6 +8,7 @@ import {
   EuiTitle,
   EuiToolTip,
 } from "@elastic/eui";
+import { chunks } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { createElement } from "react";
@@ -15,7 +16,6 @@ import { useNavigate } from "react-router-dom";
 
 import { atomicToHumanString } from "../amounts";
 import type { TokenSpec } from "../config";
-import { chunks } from "../utils";
 
 import { TokenSpecIcon } from "./TokenIcon";
 

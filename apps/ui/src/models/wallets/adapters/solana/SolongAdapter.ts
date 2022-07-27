@@ -1,7 +1,7 @@
 import { SolanaWeb3WalletAdapter } from "./SolanaWalletAdapter";
 
 const getSolongService = (): any => {
-  const { solong } = window as any;
+  const { solong } = window;
   if (!solong) {
     return null;
   }

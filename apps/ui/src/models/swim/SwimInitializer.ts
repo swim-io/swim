@@ -14,8 +14,8 @@ import {
 } from "@solana/web3.js";
 import type { DecimalBN } from "@swim-io/solana-types";
 import { swimPool } from "@swim-io/solana-types";
+import { chunks } from "@swim-io/utils";
 
-import { chunks } from "../../utils";
 import type { SolanaConnection } from "../solana";
 import {
   createSplTokenAccount,
@@ -98,7 +98,8 @@ export class SwimInitializer {
     const tokenAccountKeypairs =
       tokenAccountSecretKeys?.map((secretKey) =>
         Keypair.fromSecretKey(secretKey),
-      ) ?? [...new Array(this.numberOfTokens)].map(() => Keypair.generate());
+      ) ??
+      Array.from({ length: this.numberOfTokens }).map(() => Keypair.generate());
     this.tokenAccounts = tokenAccountKeypairs.map(
       (keypair) => keypair.publicKey,
     );
@@ -247,7 +248,7 @@ export class SwimInitializer {
     });
   }
 
-  private async getFreshTransaction(): Promise<Transaction> {
+  private getFreshTransaction(): Transaction {
     return new Transaction({
       feePayer: this.signer.publicKey,
     });
@@ -298,12 +299,14 @@ export class SwimInitializer {
       fromPubkey: this.signer.publicKey,
       newAccountPubkey: lpMintKeypair.publicKey,
       lamports: createMintLamports,
+      // missing `span` in `Layout` type
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       space: MintLayout.span,
       programId: TOKEN_PROGRAM_ID,
     });
     const initMintIx = this.createMintInitIx(lpTokenDecimals);
 
-    const tx = await this.getFreshTransaction();
+    const tx = this.getFreshTransaction();
     tx.add(createStateAccountIx, createLpTokenAccountIx, initMintIx);
     return this.signAndSendTransaction(tx, [stateKeypair, lpMintKeypair]);
   }
@@ -336,6 +339,8 @@ export class SwimInitializer {
           fromPubkey: this.signer.publicKey,
           newAccountPubkey: tokenKeypair.publicKey,
           lamports: createAccountLamports,
+          // missing `span` in `Layout` type
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           space: AccountLayout.span,
           programId: TOKEN_PROGRAM_ID,
         });
@@ -355,7 +360,7 @@ export class SwimInitializer {
       { instructions: [], keypairs: [] },
     );
 
-    const tx = await this.getFreshTransaction();
+    const tx = this.getFreshTransaction();
     tx.add(...instructions);
     return this.signAndSendTransaction(tx, keypairs);
   }
@@ -367,7 +372,7 @@ export class SwimInitializer {
   ): Promise<string> {
     const initPoolIx = this.createPoolInitIx(ampFactor, lpFee, governanceFee);
 
-    const tx = await this.getFreshTransaction();
+    const tx = this.getFreshTransaction();
     tx.add(initPoolIx);
     return this.signAndSendTransaction(tx);
   }

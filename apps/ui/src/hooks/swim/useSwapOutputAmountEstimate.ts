@@ -1,3 +1,4 @@
+import { isEachNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
@@ -11,7 +12,6 @@ import {
   getRequiredPoolsForSwap,
   getTokensByPool,
 } from "../../models";
-import { isEachNotNull } from "../../utils";
 
 import { usePoolMaths } from "./usePoolMaths";
 

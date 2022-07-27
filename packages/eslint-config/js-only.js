@@ -1,10 +1,11 @@
 module.exports = {
   root: true,
-  plugins: ["functional", "import", "jest", "prettier"],
+  plugins: ["eslint-comments", "functional", "import", "jest", "prettier"],
   extends: [
     "eslint:recommended",
     "prettier",
     "plugin:prettier/recommended",
+    "plugin:eslint-comments/recommended",
     "plugin:import/recommended",
     "plugin:functional/external-recommended",
     "plugin:functional/no-mutations",
@@ -18,6 +19,11 @@ module.exports = {
     "no-console": ["warn", { allow: ["error", "info", "table", "warn"] }],
     "no-undef": "error",
     "sort-imports": ["error", { ignoreDeclarationSort: true }],
+
+    // allow disable eslint rules for whole file without re-enable it in the end of the file
+    "eslint-comments/disable-enable-pair": ["error", { allowWholeFile: true }],
+    // make sure every eslint-disable comments are in use
+    "eslint-comments/no-unused-disable": "error",
 
     // functional
     "functional/immutable-data": ["error", { ignorePattern: "this" }],

@@ -1,7 +1,9 @@
+import type { Env } from "@swim-io/core";
+import { isValidEnv } from "@swim-io/core";
 import Decimal from "decimal.js";
 
-import type { EcosystemId, Env } from "../../../config";
-import { findTokenById, isValidEnv } from "../../../config";
+import type { EcosystemId } from "../../../config";
+import { findTokenById } from "../../../config";
 import type {
   AddInteraction,
   AddOperationSpec,
@@ -614,6 +616,7 @@ export const prepareInteractionState = (
   })),
 });
 
+// eslint-disable-next-line import/no-unused-modules
 export type PreparedInteractionV2 =
   | PreparedAddInteraction
   | PreparedRemoveUniformInteraction
@@ -621,6 +624,7 @@ export type PreparedInteractionV2 =
   | PreparedRemoveExactOutputInteraction
   | SwapInteractionSpecV2;
 
+// eslint-disable-next-line import/no-unused-modules
 export interface PersistedInteractionStateV2
   extends Omit<InteractionStateV2, "interaction"> {
   readonly interaction: PreparedInteractionV2;

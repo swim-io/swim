@@ -1,6 +1,5 @@
-import type { ReadonlyRecord } from "../utils";
-
-import { Env } from "./env";
+import { Env } from "@swim-io/core";
+import type { ReadonlyRecord } from "@swim-io/utils";
 
 export interface RedeemerSpec {
   readonly programAddress: string;
@@ -27,8 +26,8 @@ const DEVNET_REDEEMER: RedeemerSpec = {
   vaultTokenAccount: "tJQbYYmxKqzqaswHrq8Mg7ZqmB9DNhs35SKdsEKABo9",
 };
 
-// TODO: Setup Redeemer on localnet.
-const LOCALNET_REDEEMER: RedeemerSpec = {
+// TODO: Setup Redeemer on teamnet.
+const LOCAL_REDEEMER: RedeemerSpec = {
   programAddress: "",
   programPda: "",
   nftCollection: "",
@@ -39,6 +38,6 @@ const LOCALNET_REDEEMER: RedeemerSpec = {
 export const REDEEMER: ReadonlyRecord<Env, RedeemerSpec> = {
   [Env.Mainnet]: MAINNET_REDEEMER,
   [Env.Devnet]: DEVNET_REDEEMER,
-  [Env.Localnet]: LOCALNET_REDEEMER,
-  [Env.CustomLocalnet]: LOCALNET_REDEEMER,
+  [Env.Local]: LOCAL_REDEEMER,
+  [Env.Custom]: LOCAL_REDEEMER,
 };

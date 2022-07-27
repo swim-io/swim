@@ -5,6 +5,7 @@ module.exports = {
       2,
       "always",
       [
+        "core",
         "eslint-config",
         "pool-deployment",
         "pool-math",
@@ -14,6 +15,7 @@ module.exports = {
         "solana-types",
         "solana-usdc-usdt-swap",
         "ui",
+        "utils",
       ],
     ],
     "subject-case": [0, "never"],

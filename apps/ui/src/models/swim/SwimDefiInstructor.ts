@@ -7,10 +7,10 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
+import type { Env } from "@swim-io/core";
+import { isEachNotNull } from "@swim-io/utils";
 
-import type { Env } from "../../config";
 import { EcosystemId } from "../../config";
-import { isEachNotNull } from "../../utils";
 import type { Amount } from "../amount";
 import type { SolanaConnection } from "../solana";
 import { createMemoIx, findTokenAccountForMint } from "../solana";
@@ -153,11 +153,7 @@ export class SwimDefiInstructor {
       (indices, amount, i) => (amount.isZero() ? indices : [...indices, i]),
       [],
     );
-    await this.ensureUserTokenAccounts(
-      tokenMintIndices,
-      splTokenAccounts,
-      true,
-    );
+    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts, true);
 
     const userTransferAuthority = Keypair.generate();
     const ixs = this.createAllAddIxs(operation, userTransferAuthority);
@@ -188,7 +184,7 @@ export class SwimDefiInstructor {
     splTokenAccounts: readonly TokenAccount[],
   ): Promise<string> {
     const tokenMintIndices = this.userTokenAccounts.map((_, i) => i);
-    await this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
+    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
 
     const userTransferAuthority = Keypair.generate();
     const ixs = this.createAllRemoveUniformIxs(
@@ -232,7 +228,7 @@ export class SwimDefiInstructor {
   ): Promise<string> {
     const { params } = operation;
     const tokenMintIndices = [params.outputTokenIndex];
-    await this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
+    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
 
     const userTransferAuthority = Keypair.generate();
     const ixs = this.createAllRemoveExactBurnIxs(
@@ -280,7 +276,7 @@ export class SwimDefiInstructor {
       (indices, amount, i) => (amount.isZero() ? indices : [...indices, i]),
       [],
     );
-    await this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
+    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
 
     const userTransferAuthority = Keypair.generate();
     const ixs = this.createAllRemoveExactOutputIxs(
@@ -329,7 +325,7 @@ export class SwimDefiInstructor {
           : [...indices, i],
       [],
     );
-    await this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
+    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
 
     const userTransferAuthority = Keypair.generate();
     const ixs = this.createAllSwapIxs(operation, userTransferAuthority);
@@ -617,11 +613,11 @@ export class SwimDefiInstructor {
     return this.signAndSendTransaction(tx, userTransferAuthority);
   }
 
-  private async ensureUserTokenAccounts(
+  private ensureUserTokenAccounts(
     tokenMintIndices: readonly number[],
     splTokenAccounts: readonly TokenAccount[],
     isLpTokenAccountNeeded = false,
-  ): Promise<void> {
+  ): void {
     if (!this.signer.publicKey) {
       throw new Error("No wallet public key");
     }

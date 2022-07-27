@@ -1,3 +1,4 @@
+import { truncate } from "@swim-io/utils";
 import { produce } from "immer";
 import type { GetState, SetState } from "zustand";
 import create from "zustand";
@@ -13,7 +14,6 @@ import type {
   WalletServiceId,
 } from "../../models";
 import { isWalletServiceId } from "../../models";
-import { shortenAddress } from "../../utils";
 
 import { useNotification as notificationStore } from "./useNotification";
 
@@ -54,15 +54,24 @@ export interface WalletAdapterState {
 const isValidSelectedServiceByProtocol = (
   persistedState: unknown,
 ): persistedState is Pick<WalletAdapterState, "selectedServiceByProtocol"> => {
+  if (typeof persistedState !== "object" || persistedState === null) {
+    return false;
+  }
+
+  const selectedServiceByProtocol = (persistedState as Record<string, unknown>)
+    .selectedServiceByProtocol as Record<string, string | null> | null;
+  if (
+    typeof selectedServiceByProtocol !== "object" ||
+    selectedServiceByProtocol === null
+  ) {
+    return false;
+  }
+
   return (
-    persistedState != null &&
-    typeof persistedState === "object" &&
-    typeof (persistedState as any).selectedServiceByProtocol === "object" &&
-    Object.keys((persistedState as any).selectedServiceByProtocol || {}).every(
-      (key) =>
-        [Protocol.Evm.toString(), Protocol.Solana.toString()].includes(key),
+    Object.keys(selectedServiceByProtocol).every((key) =>
+      [Protocol.Evm.toString(), Protocol.Solana.toString()].includes(key),
     ) &&
-    Object.values((persistedState as any).selectedServiceByProtocol).every(
+    Object.values(selectedServiceByProtocol).every(
       (value) => value === null || isWalletServiceId(value),
     )
   );
@@ -96,7 +105,7 @@ export const useWalletAdapter = create(
           if (adapter.address) {
             notify(
               "Wallet update",
-              `Connected to wallet ${shortenAddress(adapter.address)}`,
+              `Connected to wallet ${truncate(adapter.address)}`,
               "info",
               7000,
             );

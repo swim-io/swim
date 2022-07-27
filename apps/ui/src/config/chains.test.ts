@@ -1,13 +1,11 @@
 import { PublicKey } from "@solana/web3.js";
+import { Env } from "@swim-io/core";
+import { getRecordValues, getUniqueSize } from "@swim-io/utils";
 import { utils } from "ethers";
 
-import { getUniqueSize } from "../utils";
-
-import type { ChainSpec } from "./chains";
 import { CHAINS as chainsByEnv } from "./chains";
-import type { Ecosystem } from "./ecosystem";
+import type { EcosystemId } from "./ecosystem";
 import { Protocol } from "./ecosystem";
-import { Env } from "./env";
 
 const generateSuite = (env: Env): void => {
   const title = env.toString();
@@ -21,10 +19,10 @@ const generateSuite = (env: Env): void => {
     });
 
     it("specifies no more than one chain per ecosystem", () => {
-      const ecosystems = Object.values(chains).reduce<readonly Ecosystem[]>(
+      const ecosystems = getRecordValues(chains).reduce<readonly EcosystemId[]>(
         (accumulator, chainSpecs) => [
           ...accumulator,
-          ...chainSpecs.map((chainSpec: ChainSpec) => chainSpec.ecosystem),
+          ...chainSpecs.map((chainSpec) => chainSpec.ecosystem),
         ],
         [],
       );
@@ -75,5 +73,5 @@ const generateSuite = (env: Env): void => {
 
 describe("Chains config", () => {
   generateSuite(Env.Mainnet);
-  generateSuite(Env.Localnet);
+  generateSuite(Env.Local);
 });

@@ -1,6 +1,7 @@
+import { Env } from "@swim-io/core";
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { CONFIGS, Env, Protocol } from "../../../config";
+import { CONFIGS, Protocol } from "../../../config";
 import { useEnvironment, useWalletAdapter } from "../../../core/store";
 import {
   WalletServiceId,
@@ -27,11 +28,11 @@ const createAdapterMock = mockOf(createAdapter);
 
 describe("useWalletService", () => {
   beforeEach(() => {
-    useEnvironmentMock.mockReturnValue(CONFIGS[Env.Localnet]);
+    useEnvironmentMock.mockReturnValue(CONFIGS[Env.Local]);
   });
 
   it("should call useWalletAdapter connectService with the correct createAdapter", async () => {
-    const config = CONFIGS[Env.Localnet];
+    const config = CONFIGS[Env.Local];
     const [{ endpoint }] = config.chains[Protocol.Solana];
 
     const connectServiceMock = jest.fn();

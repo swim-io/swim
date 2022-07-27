@@ -154,7 +154,9 @@ export const NftCarousel = ({ nfts }: Props): ReactElement => {
         <EuiConfirmModal
           title="Redeem your otter?"
           onCancel={hideRedeemModal}
-          onConfirm={executeRedeem}
+          onConfirm={() => {
+            executeRedeem().catch(console.error);
+          }}
           confirmButtonText="Redeem"
           cancelButtonText="Cancel"
           buttonColor="danger"

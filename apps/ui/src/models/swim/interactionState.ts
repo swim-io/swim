@@ -1,8 +1,8 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
-import { isNotNull } from "../../utils";
 import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
 import type { Interaction } from "./interaction";
@@ -18,7 +18,7 @@ export interface InteractionState {
 
 export interface TokenAccountState {
   readonly isExistingAccount: boolean;
-  readonly txId: SolanaTx["txId"] | null;
+  readonly txId: SolanaTx["id"] | null;
 }
 
 /**
@@ -34,23 +34,23 @@ export interface ToSolanaTransferState {
   readonly value: Decimal;
   readonly signatureSetAddress: string | null;
   readonly txIds: {
-    readonly approveAndTransferEvmToken: readonly EvmTx["txId"][];
-    readonly postVaaOnSolana: readonly SolanaTx["txId"][];
-    readonly claimTokenOnSolana: SolanaTx["txId"] | null;
+    readonly approveAndTransferEvmToken: readonly EvmTx["id"][];
+    readonly postVaaOnSolana: readonly SolanaTx["id"][];
+    readonly claimTokenOnSolana: SolanaTx["id"] | null;
   };
 }
 
 export interface SolanaPoolOperationState {
   readonly operation: OperationSpec;
-  readonly txId: SolanaTx["txId"] | null;
+  readonly txId: SolanaTx["id"] | null;
 }
 
 export interface FromSolanaTransferState {
   readonly token: TokenSpec;
   readonly value: Decimal | null;
   readonly txIds: {
-    readonly transferSplToken: SolanaTx["txId"] | null;
-    readonly claimTokenOnEvm: EvmTx["txId"] | null;
+    readonly transferSplToken: SolanaTx["id"] | null;
+    readonly claimTokenOnEvm: EvmTx["id"] | null;
   };
 }
 

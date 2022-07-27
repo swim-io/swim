@@ -8,9 +8,9 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { Connection, PublicKey } from "@solana/web3.js";
+import { sleep } from "@swim-io/utils";
 
 import { SwimError } from "../../errors";
-import { sleep } from "../../utils";
 
 import { deserializeTokenAccount } from "./parsers";
 import { getAssociatedTokenAddress } from "./utils";
@@ -49,9 +49,9 @@ export class SolanaConnection {
   public getMinimumBalanceForRentExemption: InstanceType<
     typeof Connection
   >["getMinimumBalanceForRentExemption"];
-  public getRecentBlockhash: InstanceType<
+  public getLatestBlockhash: InstanceType<
     typeof Connection
-  >["getRecentBlockhash"];
+  >["getLatestBlockhash"];
   public getSignaturesForAddress: InstanceType<
     typeof Connection
   >["getSignaturesForAddress"];
@@ -84,7 +84,7 @@ export class SolanaConnection {
       this.rawConnection.getMinimumBalanceForRentExemption.bind(
         this.rawConnection,
       );
-    this.getRecentBlockhash = this.rawConnection.getRecentBlockhash.bind(
+    this.getLatestBlockhash = this.rawConnection.getLatestBlockhash.bind(
       this.rawConnection,
     );
     this.getSignaturesForAddress =

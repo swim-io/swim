@@ -30,7 +30,7 @@ export const RecentInteractions = ({
     (state) => state.loadInteractionStatesFromIDB,
   );
   useEffect(() => {
-    loadInteractionStatesFromIDB(env);
+    loadInteractionStatesFromIDB(env).catch(console.error);
   }, [env, loadInteractionStatesFromIDB]);
 
   const { isSuccess: didLoadSplTokenAccounts } = useSplTokenAccountsQuery();

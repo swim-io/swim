@@ -18,7 +18,7 @@ import PoolPage from "./pages/PoolPage";
 import PoolsPage from "./pages/PoolsPage";
 import RedeemPage from "./pages/RedeemPage";
 import SecurityPage from "./pages/SecurityPage";
-import SetCustomLocalnetPage from "./pages/SetCustomLocalnetPage";
+import SetCustomIpPage from "./pages/SetCustomIpPage";
 import StakePage from "./pages/StakePage";
 import SwapPage from "./pages/SwapPage";
 import SwapPageV2 from "./pages/SwapPageV2";
@@ -53,10 +53,7 @@ function App(): ReactElement {
         <AppContext>
           <Layout>
             <Routes>
-              <Route
-                path="set-custom-localnet"
-                element={<SetCustomLocalnetPage />}
-              />
+              <Route path="set-custom-ip" element={<SetCustomIpPage />} />
               <Route path="test" element={<TestPage />} />
               <Route path="pools" element={<PoolsPage />} />
               <Route path="pools/:poolId" element={<PoolPage />} />

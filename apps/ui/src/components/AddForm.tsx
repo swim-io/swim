@@ -13,6 +13,7 @@ import {
   EuiSpacer,
   EuiText,
 } from "@elastic/eui";
+import { filterMap, isEachNotNull, isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useMemo, useState } from "react";
@@ -50,7 +51,6 @@ import {
   getLowBalanceWallets,
   isValidSlippageFraction,
 } from "../models";
-import { filterMap, isEachNotNull, isNotNull } from "../utils";
 
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
@@ -462,7 +462,7 @@ export const AddForm = ({
       {filterMap(
         isEcosystemEnabled,
         (ecosystemId) => {
-          const indices = [...new Array(poolTokens.length)]
+          const indices = Array.from({ length: poolTokens.length })
             .map((_, i) => i)
             .filter((i) => poolTokens[i].nativeEcosystem === ecosystemId);
           const isRelevant = (_: any, i: number): boolean =>

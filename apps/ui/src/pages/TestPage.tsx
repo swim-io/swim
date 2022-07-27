@@ -16,6 +16,7 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import { PublicKey } from "@solana/web3.js";
+import { sleep } from "@swim-io/utils";
 import BN from "bn.js";
 import type { ReactElement } from "react";
 import { Fragment, useMemo, useState } from "react";
@@ -45,7 +46,6 @@ import {
   setUpErc20Tokens,
   setUpSplTokensOnEvm,
 } from "../models";
-import { sleep } from "../utils";
 
 const SWIM_POOL_FEE_DECIMALS = 6;
 
@@ -112,10 +112,10 @@ const TestPage = (): ReactElement => {
   const lpTokenSolanaDetails = getSolanaTokenDetails(lpToken);
 
   const swimUsdToken = solanaTokens.find(
-    (token) => token.id === "localnet-solana-lp-hexapool",
+    (token) => token.id === "local-solana-lp-hexapool",
   )!;
   const xSwimToken = solanaTokens.find(
-    (token) => token.id === "localnet-solana-lp-swimlake",
+    (token) => token.id === "local-solana-lp-swimlake",
   )!;
   const swimUsdTokenSolanaDetails = getSolanaTokenDetails(swimUsdToken);
   const xSwimTokenSolanaDetails = getSolanaTokenDetails(xSwimToken);
@@ -378,7 +378,7 @@ const TestPage = (): ReactElement => {
         WormholeChainId.Solana,
         wormholeAsset,
       );
-      console.info(`${token}: ${foreignAsset}`);
+      console.info(`${token}: ${String(foreignAsset)}`);
     }
   };
   const getWrappedTokensBNB = async (): Promise<void> => {
@@ -395,7 +395,7 @@ const TestPage = (): ReactElement => {
         WormholeChainId.Solana,
         wormholeAsset,
       );
-      console.info(`${token}: ${foreignAsset}`);
+      console.info(`${token}: ${String(foreignAsset)}`);
     }
   };
 
@@ -422,11 +422,19 @@ const TestPage = (): ReactElement => {
             &nbsp;
             <EuiButton onClick={throwError}>Throw error</EuiButton>
             &nbsp;
-            <EuiButton onClick={approveErc20Bnb20}>
+            <EuiButton
+              onClick={() => {
+                approveErc20Bnb20().catch(console.error);
+              }}
+            >
               Approve ERC20/BNB20
             </EuiButton>
             &nbsp;
-            <EuiButton onClick={unapproveErc20BNB20}>
+            <EuiButton
+              onClick={() => {
+                unapproveErc20BNB20().catch(console.error);
+              }}
+            >
               Unapprove ERC20/BNB20
             </EuiButton>
             <EuiSpacer />
@@ -443,13 +451,17 @@ const TestPage = (): ReactElement => {
             <EuiSpacer />
             <EuiButton
               isDisabled={!solanaAddress || !ethereumAddress}
-              onClick={() => handleSetUpEvmTokens(EcosystemId.Ethereum)}
+              onClick={() => {
+                handleSetUpEvmTokens(EcosystemId.Ethereum).catch(console.error);
+              }}
             >
               Set up Wormhole tokens (Ethereum)
             </EuiButton>
             <EuiButton
               isDisabled={!solanaAddress || !bnbAddress}
-              onClick={() => handleSetUpEvmTokens(EcosystemId.Bnb)}
+              onClick={() => {
+                handleSetUpEvmTokens(EcosystemId.Bnb).catch(console.error);
+              }}
             >
               Set up Wormhole tokens (BNB)
             </EuiButton>
@@ -548,14 +560,21 @@ const TestPage = (): ReactElement => {
             />
             <EuiSpacer />
             <EuiButton
-              onClick={initPool}
+              onClick={() => {
+                initPool().catch(console.error);
+              }}
               isDisabled={
                 solanaAddress === null || (!useRandomInitKeys && !!poolState)
               }
             >
               Init pool
             </EuiButton>
-            <EuiButton onClick={attestLpToken} isDisabled={!poolState}>
+            <EuiButton
+              onClick={() => {
+                attestLpToken().catch(console.error);
+              }}
+              isDisabled={!poolState}
+            >
               Attest LP token
             </EuiButton>
             <EuiSpacer />
@@ -677,10 +696,18 @@ const TestPage = (): ReactElement => {
                 </Fragment>
               ))}
             </code>
-            <EuiButton onClick={getWrappedTokensEth}>
+            <EuiButton
+              onClick={() => {
+                getWrappedTokensEth().catch(console.error);
+              }}
+            >
               Get wrapped tokens (Ethereum)
             </EuiButton>
-            <EuiButton onClick={getWrappedTokensBNB}>
+            <EuiButton
+              onClick={() => {
+                getWrappedTokensBNB().catch(console.error);
+              }}
+            >
               Get wrapped tokens (BNB)
             </EuiButton>
           </EuiPageContentBody>

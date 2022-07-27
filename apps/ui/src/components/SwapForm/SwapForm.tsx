@@ -6,6 +6,7 @@ import {
   EuiFormRow,
   EuiSpacer,
 } from "@elastic/eui";
+import { defaultIfError, isEachNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
@@ -37,7 +38,6 @@ import {
   getLowBalanceWallets,
   getRequiredPoolsForSwap,
 } from "../../models";
-import { defaultIfError, isEachNotNull } from "../../utils";
 import { ConfirmModal } from "../ConfirmModal";
 import { EstimatedTxFeesCallout } from "../EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "../LowBalanceDescription";
@@ -224,7 +224,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
     setConfirmModalDescription(null);
   };
 
-  const handleConfirmModalConfirm = async (): Promise<void> => {
+  const handleConfirmModalConfirm = (): void => {
     setConfirmModalDescription(null);
     handleSwapAndCatch(true);
   };

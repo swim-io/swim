@@ -44,7 +44,7 @@ Lints all `.{ts,tsx}` files in the `src` directory, with or without the `--fix` 
 
 By default, you only have access to Mainnet. For development, you'll likely want to setup a development blockchain environment. There are several options for this, (A) is recommended.
 
-To view more networks in the environment switcher in the upper right corner of the UI, visit [http://localhost:3000/set-custom-localnet?ip=159.223.16.33](http://localhost:3000/set-custom-localnet?ip=159.223.16.33).
+To view more networks in the environment switcher in the upper right corner of the UI, visit [http://localhost:3000/set-custom-ip?ip=159.223.16.33](http://localhost:3000/set-custom-ip?ip=159.223.16.33).
 
 ### (A) Connect to our shared Wormhole setup
 

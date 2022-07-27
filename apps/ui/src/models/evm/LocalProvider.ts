@@ -1,6 +1,5 @@
+import { filterMap, isNotNull } from "@swim-io/utils";
 import { providers } from "ethers";
-
-import { filterMap, isNotNull } from "../../utils";
 
 const { JsonRpcProvider } = providers;
 
@@ -8,7 +7,7 @@ type TransactionResponse = providers.TransactionResponse;
 
 const DEFAULT_RECENT_BLOCKS = 100;
 
-export class LocalnetProvider extends JsonRpcProvider {
+export class LocalProvider extends JsonRpcProvider {
   async getHistory(
     address: string,
     startBlock?: number,
@@ -16,7 +15,9 @@ export class LocalnetProvider extends JsonRpcProvider {
   ): Promise<readonly TransactionResponse[]> {
     const end = endBlock ?? (await this.getBlockNumber());
     const start = startBlock ?? end - DEFAULT_RECENT_BLOCKS;
-    const blocksToFetch = [...new Array(end - start)].map((_, i) => end - i);
+    const blocksToFetch = Array.from({ length: end - start }).map(
+      (_, i) => end - i,
+    );
     const blocks = await Promise.all(
       blocksToFetch.map((blockHeight) =>
         this.getBlockWithTransactions(blockHeight),

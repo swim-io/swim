@@ -1,6 +1,7 @@
+import { Env } from "@swim-io/core";
 import Decimal from "decimal.js";
 
-import { EcosystemId, Env } from "../../config";
+import { EcosystemId } from "../../config";
 import { Amount, InteractionType, SwapType } from "../../models";
 import type {
   AddInteraction,

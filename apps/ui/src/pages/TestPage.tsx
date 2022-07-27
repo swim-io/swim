@@ -16,6 +16,7 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import { PublicKey } from "@solana/web3.js";
+import { sleep } from "@swim-io/utils";
 import BN from "bn.js";
 import type { ReactElement } from "react";
 import { Fragment, useMemo, useState } from "react";
@@ -45,7 +46,6 @@ import {
   setUpErc20Tokens,
   setUpSplTokensOnEvm,
 } from "../models";
-import { sleep } from "../utils";
 
 const SWIM_POOL_FEE_DECIMALS = 6;
 
@@ -112,10 +112,10 @@ const TestPage = (): ReactElement => {
   const lpTokenSolanaDetails = getSolanaTokenDetails(lpToken);
 
   const swimUsdToken = solanaTokens.find(
-    (token) => token.id === "localnet-solana-lp-hexapool",
+    (token) => token.id === "local-solana-lp-hexapool",
   )!;
   const xSwimToken = solanaTokens.find(
-    (token) => token.id === "localnet-solana-lp-swimlake",
+    (token) => token.id === "local-solana-lp-swimlake",
   )!;
   const swimUsdTokenSolanaDetails = getSolanaTokenDetails(swimUsdToken);
   const xSwimTokenSolanaDetails = getSolanaTokenDetails(xSwimToken);

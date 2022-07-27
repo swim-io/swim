@@ -1,11 +1,11 @@
 import { PublicKey } from "@solana/web3.js";
 import type { SwimPoolState } from "@swim-io/solana-types";
 import { deserializeSwimPool } from "@swim-io/solana-types";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { findOrThrow } from "@swim-io/utils";
 
 import type { Config, PoolSpec, SolanaPoolSpec, TokenSpec } from "../../config";
 import { EcosystemId } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
-import { findOrThrow } from "../../utils";
 import type { SolanaTx, Tx } from "../crossEcosystem";
 import { isSolanaTx } from "../crossEcosystem";
 import type { SolanaConnection } from "../solana";

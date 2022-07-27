@@ -10,13 +10,13 @@ import type {
   ParsedTransactionWithMeta,
 } from "@solana/web3.js";
 import { MAX_SEED_LENGTH, PublicKey, Transaction } from "@solana/web3.js";
+import type { Env } from "@swim-io/core";
+import { chunks, sleep } from "@swim-io/utils";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
 import type { QueryClient } from "react-query";
 
-import type { Env } from "../../config";
-import { chunks, sleep } from "../../utils";
 import type { SolanaWalletAdapter } from "../wallets";
 
 import type { CustomConnection, SolanaConnection } from "./SolanaConnection";

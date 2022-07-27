@@ -9,6 +9,7 @@ import {
   EuiSpacer,
   EuiTitle,
 } from "@elastic/eui";
+import { defaultIfError } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
@@ -21,7 +22,6 @@ import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { useTitle } from "../../hooks";
 import { INTERACTION_GROUP_SWAP } from "../../models";
-import { defaultIfError } from "../../utils";
 
 import "./SwapPageV2.scss";
 

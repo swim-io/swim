@@ -5,6 +5,7 @@ import {
   EuiSelectable,
 } from "@elastic/eui";
 import type { EuiSelectableOption } from "@elastic/eui";
+import { findOrThrow } from "@swim-io/utils";
 import type { ReactElement } from "react";
 import { useCallback } from "react";
 import shallow from "zustand/shallow.js";
@@ -13,7 +14,6 @@ import type { TokenSpec } from "../config";
 import { ECOSYSTEMS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
-import { findOrThrow } from "../utils";
 
 import { CustomModal } from "./CustomModal";
 import { TokenSpecIcon } from "./TokenIcon";

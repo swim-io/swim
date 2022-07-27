@@ -1,6 +1,7 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { Transaction } from "@solana/web3.js";
+import { findOrThrow, isEachNotNull } from "@swim-io/utils";
 import { useMutation } from "react-query";
 
 import type { Config } from "../../config";
@@ -27,7 +28,6 @@ import {
 import { getToEcosystemOfFromSolanaTransfer } from "../../models/swim/transfer";
 import { DEFAULT_WORMHOLE_RETRIES } from "../../models/wormhole/constants";
 import { getSignedVaaWithRetry } from "../../models/wormhole/guardiansRpc";
-import { findOrThrow, isEachNotNull } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useEvmConnections } from "../evm";
 import {
@@ -52,11 +52,11 @@ const getTransferredAmountsByTokenId = async (
   } = outputOperation;
   const { tokens, lpToken } = tokensByPoolId[poolId];
   const txs: readonly Tx[] = await Promise.all(
-    txIds.map(async (txId) => {
-      const parsedTx = await solanaConnection.getParsedTx(txId);
+    txIds.map(async (id) => {
+      const parsedTx = await solanaConnection.getParsedTx(id);
       return {
-        ecosystem: EcosystemId.Solana as const,
-        txId,
+        id,
+        ecosystemId: EcosystemId.Solana,
         timestamp: parsedTx.blockTime ?? null,
         interactionId: interaction.id,
         parsedTx,

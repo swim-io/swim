@@ -1,3 +1,4 @@
+import { findOrThrow } from "@swim-io/utils";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
@@ -11,7 +12,6 @@ import {
   doSingleSolanaPoolOperation,
   getTokensByPool,
 } from "../../models";
-import { findOrThrow } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
 

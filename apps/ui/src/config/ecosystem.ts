@@ -1,3 +1,6 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { filterMap } from "@swim-io/utils";
+
 import ACALA_SVG from "../images/ecosystems/acala.svg";
 import AURORA_SVG from "../images/ecosystems/aurora.svg";
 import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
@@ -7,8 +10,6 @@ import FANTOM_SVG from "../images/ecosystems/fantom.svg";
 import KARURA_SVG from "../images/ecosystems/karura.svg";
 import POLYGON_SVG from "../images/ecosystems/polygon.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
-import type { ReadonlyRecord } from "../utils";
-import { filterMap } from "../utils";
 
 import { WormholeChainId } from "./wormhole";
 

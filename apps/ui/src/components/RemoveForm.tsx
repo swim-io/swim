@@ -13,6 +13,13 @@ import {
   EuiSelect,
   EuiSpacer,
 } from "@elastic/eui";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import {
+  defaultIfError,
+  findOrThrow,
+  isEachNotNull,
+  isNotNull,
+} from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -43,13 +50,6 @@ import {
   getLowBalanceWallets,
   isValidSlippageFraction,
 } from "../models";
-import type { ReadonlyRecord } from "../utils";
-import {
-  defaultIfError,
-  findOrThrow,
-  isEachNotNull,
-  isNotNull,
-} from "../utils";
 
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";

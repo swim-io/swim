@@ -1,11 +1,11 @@
 import { EuiIcon, EuiListGroup } from "@elastic/eui";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { truncate } from "@swim-io/utils";
 import type { ReactElement } from "react";
 
 import type { EcosystemId } from "../config";
 import { ECOSYSTEMS } from "../config";
 import { useWallets } from "../hooks";
-import type { ReadonlyRecord } from "../utils";
-import { shortenAddress } from "../utils";
 
 interface ConnectedWalletsProps {
   readonly walletAddresses: ReadonlyRecord<EcosystemId, string | null>;
@@ -27,7 +27,7 @@ export const ConnectedWallets = ({
               label: (
                 <>
                   <EuiIcon type={ECOSYSTEMS[ecosystemId as EcosystemId].logo} />{" "}
-                  {shortenAddress(address as string)}
+                  {truncate(address as string)}
                   <span>&nbsp;(not connected)</span>
                 </>
               ),
@@ -39,7 +39,7 @@ export const ConnectedWallets = ({
               label: (
                 <>
                   <EuiIcon type={ECOSYSTEMS[ecosystemId as EcosystemId].logo} />{" "}
-                  {shortenAddress(address as string)}
+                  {truncate(address as string)}
                   <span>&nbsp;(connected)</span>
                 </>
               ),
@@ -51,7 +51,7 @@ export const ConnectedWallets = ({
               label: (
                 <>
                   <EuiIcon type={ECOSYSTEMS[ecosystemId as EcosystemId].logo} />{" "}
-                  {shortenAddress(address as string)}
+                  {truncate(address as string)}
                   <span>&nbsp;(different account)</span>
                 </>
               ),

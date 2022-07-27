@@ -1,6 +1,7 @@
+import { Env } from "@swim-io/core";
 import Decimal from "decimal.js";
 
-import { EcosystemId, Env } from "../../config";
+import { EcosystemId } from "../../config";
 import type { PersistedInteractionState } from "../../core/store/idb/helpers";
 import type { InteractionState } from "../../models";
 import { Amount } from "../../models";
@@ -23,7 +24,7 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
     },
     id: "5eed9eef597a2aa14314845afe87079f",
     poolIds: ["hexapool"],
-    env: Env.CustomLocalnet,
+    env: Env.Custom,
     submittedAt: 1653624596234,
     connectedWallets: {
       [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
@@ -101,17 +102,17 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
     type: 0,
     params: {
       exactInputAmount: {
-        tokenId: "localnet-bnb-usdt",
+        tokenId: "local-bnb-usdt",
         value: "1001",
       },
       minimumOutputAmount: {
-        tokenId: "localnet-ethereum-usdc",
+        tokenId: "local-ethereum-usdc",
         value: "995.624615",
       },
     },
     id: "5eed9eef597a2aa14314845afe87079f",
     poolIds: ["hexapool"],
-    env: Env.CustomLocalnet,
+    env: Env.Custom,
     submittedAt: 1653624596234,
     connectedWallets: {
       [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
@@ -138,7 +139,7 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
   toSolanaTransfers: [
     {
       token: {
-        id: "localnet-bnb-usdt",
+        id: "local-bnb-usdt",
       },
       value: "1001",
       signatureSetAddress: null,
@@ -157,16 +158,16 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
         instruction: 1,
         params: {
           exactInputAmounts: [
-            { tokenId: "localnet-solana-usdc", value: "0" },
-            { tokenId: "localnet-solana-usdt", value: "0" },
-            { tokenId: "localnet-ethereum-usdc", value: "0" },
-            { tokenId: "localnet-ethereum-usdt", value: "0" },
-            { tokenId: "localnet-bnb-busd", value: "0" },
-            { tokenId: "localnet-bnb-usdt", value: "1001" },
+            { tokenId: "local-solana-usdc", value: "0" },
+            { tokenId: "local-solana-usdt", value: "0" },
+            { tokenId: "local-ethereum-usdc", value: "0" },
+            { tokenId: "local-ethereum-usdt", value: "0" },
+            { tokenId: "local-bnb-busd", value: "0" },
+            { tokenId: "local-bnb-usdt", value: "1001" },
           ],
           outputTokenIndex: 2,
           minimumOutputAmount: {
-            tokenId: "localnet-ethereum-usdc",
+            tokenId: "local-ethereum-usdc",
             value: "995.624615",
           },
         },
@@ -177,7 +178,7 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
   fromSolanaTransfers: [
     {
       token: {
-        id: "localnet-ethereum-usdc",
+        id: "local-ethereum-usdc",
       },
       value: null,
       txIds: {

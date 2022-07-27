@@ -1,10 +1,10 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
 import { EcosystemId, isEcosystemEnabled } from "../../config";
 import type { Interaction } from "../../models";
-import type { ReadonlyRecord } from "../../utils";
 
 import { useEvmTxFeesEstimateQuery } from "./useEvmTxFeesEstimateQuery";
 

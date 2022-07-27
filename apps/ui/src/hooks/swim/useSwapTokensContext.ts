@@ -1,12 +1,15 @@
 import { findOrThrow } from "@swim-io/utils";
-import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import shallow from "zustand/shallow.js";
 
-import type { PoolSpec, TokenSpec } from "../../config";
+import type { TokenSpec } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import { useFromTokenOptionsIds } from "./useSwapTokenOptions";
+
+import {
+  useFromTokenOptionsIds,
+  useToTokenOptionsIds,
+} from "./useSwapTokenOptions";
 
 interface SwapTokensContext {
   readonly fromToken: TokenSpec;
@@ -25,14 +28,9 @@ interface SwapTokensContext {
 const convertTokenSpecToUrlParam = (token: TokenSpec): string =>
   `${token.nativeEcosystem}-${token.project.symbol}`.toLowerCase();
 
-const swimUsdRegExp = /-solana-lp-hexapool$/;
-// TODO: Make this check more robust
-const isSwimUsdPool = (pool: PoolSpec): boolean =>
-  [pool.lpToken, ...pool.tokens].some((key) => swimUsdRegExp.test(key));
-
 export const useSwapTokensContext = (): SwapTokensContext => {
   const navigate = useNavigate();
-  const { pools, tokens } = useEnvironment(selectConfig, shallow);
+  const { tokens } = useEnvironment(selectConfig, shallow);
   const { fromToken: fromUrlParam, toToken: toUrlParam } = useParams<{
     readonly fromToken?: string;
     readonly toToken?: string;
@@ -55,25 +53,12 @@ export const useSwapTokensContext = (): SwapTokensContext => {
   const fromTokenOptionsIds = useFromTokenOptionsIds();
 
   // TODO: Handle swimUSD as a swappable token
-  const getToTokenOptionsIds = useCallback(
-    (fromTokenId: string): readonly string[] => {
-      const inputPool = findOrThrow(pools, (pool) =>
-        pool.tokens.includes(fromTokenId),
-      );
-      const connectedTokens = isSwimUsdPool(inputPool)
-        ? pools.filter(isSwimUsdPool).flatMap((pool) => pool.tokens)
-        : inputPool.tokens;
-      return connectedTokens.filter(
-        (tokenId) => tokenId !== fromTokenId && !swimUsdRegExp.test(tokenId),
-      );
-    },
-    [pools],
-  );
+  const getToTokenOptionsIds = useToTokenOptionsIds();
 
   const defaultFromTokenId = fromTokenOptionsIds[0];
 
   const maybeFromToken = findTokenForParam(fromUrlParam);
-  const hasFromUrlError = (fromUrlParam && !maybeFromToken) as boolean;
+  const hasFromUrlError = !!fromUrlParam && !maybeFromToken;
 
   const fromToken =
     maybeFromToken ??
@@ -83,7 +68,8 @@ export const useSwapTokensContext = (): SwapTokensContext => {
 
   const maybeToToken = findTokenForParam(toUrlParam);
   const hasToUrlError =
-    !maybeToToken || !toTokenOptionsIds.find((id) => id === maybeToToken.id);
+    !!toUrlParam &&
+    (!maybeToToken || !toTokenOptionsIds.find((id) => id === maybeToToken.id));
 
   const toToken =
     maybeToToken && !hasToUrlError

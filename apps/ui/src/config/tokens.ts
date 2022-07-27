@@ -12,6 +12,9 @@ export interface TokenSpec extends TokenConfig {
   readonly wrappedDetails: ReadonlyMap<EcosystemId, TokenDetails>;
 }
 
+// NOTE: Use a shared empty map to save memory
+const EMPTY_MAP: TokenSpec["wrappedDetails"] = new Map();
+
 const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     id: "mainnet-solana-usdc",
@@ -71,7 +74,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB",
       decimals: 9,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-gmt",
@@ -81,7 +84,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx",
       decimals: 9,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-hexapool",
@@ -116,7 +119,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "DKwsWeqHrB8R1u2DFMHKtq4iqaQNgPgUbHTJyXPqkTzK",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-meta-avalanche-usdt",
@@ -126,7 +129,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "5rwvDmUbcnZTwZ4Zywev2wnDbyDDD2vcsGU2Xmy7aRNS",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-meta-polygon-usdc",
@@ -136,7 +139,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "ANFojEXhiEQQoovhBs77XmBQuqbe59UBygRWViyf4945",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-meta-polygon-usdt",
@@ -146,7 +149,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "2Nx6L79dHHgHcJtNfZWukQkWZvf5h4bps34zuh1gjtdP",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-gst",
@@ -156,7 +159,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "8YYBkTNhpY9mFdCdZWM6mHNf8J6A9hGfimb33LEiiZ3x",
       decimals: 9,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-gmt",
@@ -166,7 +169,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "2x7MjgopLXd3qETGLpY19cyZjHvVnGkrwVjTkJnBza4A",
       decimals: 9,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-meta-aurora-usdc",
@@ -176,7 +179,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "9qRe2nBrR2rTXxRaV1PZN9hZnqq3UXgoFWTbP6NE3MEu",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-meta-aurora-usdt",
@@ -186,7 +189,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "4XPDxtGbcM7bAPKZxALd2s862n3WoG4xPPvyCPVULKAb",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
@@ -197,7 +200,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "3eXCU7YoiCq3rZ6787pPFJE7TXBsKuTZ49wH2kFnuTeF",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
@@ -208,7 +211,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "J5ifGexAQTg76TresJhJSqTPJLT6BNxrV5rwNJTTz4Cx",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
@@ -219,7 +222,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "8vzXSNVAX4fymEFahJFh1ypzDBFv3QMVaZ4GtJWHrRjU",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-meta-karura-usdt",
@@ -229,7 +232,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "2sXvitirRSjgTTNzGNWAFZWSqEx87kDoTJvqG9JSyivh",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
@@ -240,7 +243,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "11111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-ethereum-usdc",
@@ -561,7 +564,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "swimnKEr963p7EbCjsSnBCoYwytuZHPm3zbq6fKLHXb",
       decimals: 6,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: true,
@@ -572,7 +575,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
       address: "SwiMNJ49SxkqMaVWLGGVRH25kE5dBnD2RQoiQUnKtMC",
       decimals: 6,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
 ].filter((spec) => !spec.isDisabled);
 
@@ -655,7 +658,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
@@ -666,7 +669,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
@@ -677,7 +680,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
@@ -688,7 +691,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
@@ -699,7 +702,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled:
@@ -711,7 +714,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
@@ -722,7 +725,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
@@ -733,7 +736,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled:
@@ -745,7 +748,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
@@ -756,7 +759,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
 ];
 
@@ -769,7 +772,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc",
       decimals: 6,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-usdt",
@@ -779,7 +782,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY",
       decimals: 6,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-gst",
@@ -789,7 +792,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "FYxTtPiGxNSDouZQftVRHFqraFJyLvNbTXzZj8X2gKQP",
       decimals: 9,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-gmt",
@@ -799,7 +802,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "3xsNPBpf7UAKpJsLTqiPqHT3ZBKPDndj1rJFM7xaSJcV",
       decimals: 9,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-hexapool",
@@ -834,7 +837,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "swimnKEr963p7EbCjsSnBCoYwytuZHPm3zbq6fKLHXb",
       decimals: 6,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-swimlake",
@@ -844,7 +847,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "A8UVBwvj1XcdP5okoMqkjhCQGLaqQ8iJDYnNxAMbsNNF",
       decimals: 6,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-meta-avalanche-usdc",
@@ -854,7 +857,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "DU15RXzuPWTLC4tbAcQvtXbDkHFrY8u6CxgTdhz2Mt8c",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-meta-avalanche-usdt",
@@ -864,7 +867,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "D6PuZckpEcBhVcpfgjgbWnARhFD3ApHhvnxBGWR6MW5Z",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-meta-polygon-usdc",
@@ -874,7 +877,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "6WBFbyA3XJ3T2BeqA9JbyZFfj3KTCRtnC8MJANBsVNrz",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-meta-polygon-usdt",
@@ -884,7 +887,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "HH3RwS94BWhR4bKeNYGvr2CfSLRQ2Kq6EYSDTKgGLgET",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-gst",
@@ -894,7 +897,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "BM3sXSfRg1yKzf2AbTA5QV76MdnKHi9M8D7VCGzDEYM1",
       decimals: 9,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-gmt",
@@ -904,7 +907,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "5VUZL2JcvbmjuT1DzDyWJ4mwtEH8unKyuQj3k38j8Ngs",
       decimals: 9,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-meta-aurora-usdc",
@@ -914,7 +917,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "AQiHPuuBPsq4MLLjLv2WHRFbrNB1JHZeR4mQGVJTwVHn",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-meta-aurora-usdt",
@@ -924,7 +927,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "utXdXdUMaS5qrBDDUg5btQMGL2CedouzmMPbYMJPEZD",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
@@ -935,7 +938,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "11111111111111111111111111111111", // TODO: Update
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
@@ -946,7 +949,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "4hmRgsk3hSdK1gXV7rg1pStwYtntKmbcFQyKqsZ4USis",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
@@ -957,7 +960,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "4idDPnTYR4J9YhXmayKZYW8QBrASuuiTAxfkWUeaL3ap",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
@@ -968,7 +971,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "882uzB9euTbBQJ6MrGrvxjXSTQi23VBQZcLcTH4E5Xow",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
@@ -979,7 +982,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
       address: "BTbHtbUtDX5WAUSxPgELzy9VsbMbKAVFQ2hykNrD3X7L",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-ethereum-usdc",
@@ -1380,7 +1383,7 @@ const LOCAL_TOKENS: readonly TokenSpec[] = [
       address: "SWMPqjB9AAtpCbatAEEGK67wNBCN1HDW6VypX7E5r9g",
       decimals: 6,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "local-solana-lp-swimlake",
@@ -1390,7 +1393,7 @@ const LOCAL_TOKENS: readonly TokenSpec[] = [
       address: "xSwy12tTsuYwM2Hd7ceNmvDftgxJ2ZSTycjzAfrNwPW",
       decimals: 8,
     },
-    wrappedDetails: new Map(),
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "local-ethereum-usdc",

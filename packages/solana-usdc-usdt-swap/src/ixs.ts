@@ -6,7 +6,7 @@ import { TransactionInstruction } from "@solana/web3.js";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
-import { hexapool } from "./hexapool";
+import { hexapool, initialGovernanceFeeKey } from "./hexapool";
 
 export enum SwapDirection {
   UsdcToUsdt,
@@ -46,6 +46,7 @@ const decimalToBN = (decimalAmount: Decimal, tokenDecimals: number): BN =>
  *                      swap direction is USDT -> USDC)
  * @param userDelegateKey The SPL token delegate account which must be authorized to take at least
  *                        exactInputAmount tokens from the input account
+ * @param governanceFeeKey The public key of the current governance fee account. Defaults to the original key.
  * @returns The composed swap instruction
  */
 export function createSwapIx(
@@ -54,6 +55,7 @@ export function createSwapIx(
   minimumOutputAmount: Decimal,
   userTokenKeys: readonly [PublicKey, PublicKey],
   userDelegateKey: PublicKey,
+  governanceFeeKey = initialGovernanceFeeKey,
 ): TransactionInstruction {
   const { programId } = hexapool;
   const inputTokenIndex = direction;
@@ -95,7 +97,7 @@ export function createSwapIx(
     toAccountMeta(hexapool.authorityKey),
     ...hexapool.tokenKeys.map((pubkey) => toAccountMeta(pubkey, true)),
     toAccountMeta(hexapool.lpMintKey, true),
-    toAccountMeta(hexapool.governanceFeeKey, true),
+    toAccountMeta(governanceFeeKey, true),
     toAccountMeta(userDelegateKey, false, true),
     ...filledTokenKeys.map((pubkey) => toAccountMeta(pubkey, true)),
     toAccountMeta(TOKEN_PROGRAM_ID),
@@ -132,6 +134,7 @@ export function createApproveAndSwapIxs(
   userTokenKeys: readonly [PublicKey, PublicKey],
   userDelegateKey: PublicKey,
   ownerKey: PublicKey,
+  governanceFeeKey = initialGovernanceFeeKey,
 ): readonly [TransactionInstruction, TransactionInstruction] {
   const inputTokenIndex = direction;
   const inputAmount = BigInt(
@@ -150,6 +153,7 @@ export function createApproveAndSwapIxs(
       minimumOutputAmount,
       userTokenKeys,
       userDelegateKey,
+      governanceFeeKey,
     ),
   ];
 }

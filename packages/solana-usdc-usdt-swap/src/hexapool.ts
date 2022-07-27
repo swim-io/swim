@@ -1,8 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import type {
-  SwimPoolConstantState,
-  SwimPoolMutableState,
-} from "@swim-io/solana-types";
+import type { SwimPoolConstantState } from "@swim-io/solana-types";
 
 export interface SwimPoolConstantProperties {
   readonly numberOfTokens: number;
@@ -12,18 +9,13 @@ export interface SwimPoolConstantProperties {
   readonly feeDecimals: number;
 }
 
-export const hexapool: SwimPoolConstantProperties &
-  SwimPoolConstantState &
-  Pick<SwimPoolMutableState, "governanceFeeKey"> = {
+export const hexapool: SwimPoolConstantProperties & SwimPoolConstantState = {
   numberOfTokens: 6,
   programId: new PublicKey("SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC"),
   stateKey: new PublicKey("8cUvGTFvSWx9WPebYYfDxwiJPdGx2EJUtpve6jP9SBma"),
   nonce: 0,
   authorityKey: new PublicKey("AfhhYsLMXXyDxQ1B7tNqLTXXDHYtDxCzPcnXWXzHAvDb"),
   lpMintKey: new PublicKey("BJUH9GJLaMSLV1E7B3SQLCy9eCfyr6zsrwGcpS2MkqR1"),
-  governanceFeeKey: new PublicKey(
-    "9Yau6DnqYasBUKcyxQJQZqThvUnqZ32ZQuUCcC2AdT9P",
-  ),
   feeDecimals: 6,
   lpDecimalEqualizer: 0,
   tokenMintKeys: [
@@ -44,3 +36,7 @@ export const hexapool: SwimPoolConstantProperties &
     new PublicKey("9KMH3p8cUocvQRbJfKRAStKG52xCCWNmEPsJm5gc8fzw"), // bnb-usdt
   ],
 };
+
+export const initialGovernanceFeeKey = new PublicKey(
+  "9Yau6DnqYasBUKcyxQJQZqThvUnqZ32ZQuUCcC2AdT9P",
+);

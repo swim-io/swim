@@ -14,6 +14,7 @@ module.exports = {
         "quarry-deployment",
         "solana-types",
         "solana-usdc-usdt-swap",
+        "token-projects",
         "ui",
         "utils",
       ],

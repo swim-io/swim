@@ -49,6 +49,18 @@ export enum TokenProjectId {
   Usdt = "usdt",
   Usn = "usn",
   XSwim = "xswim",
+  // V2
+  SwimPrimaryPoolLp = "swim-primary-pool-lp",
+  SwimEthereumPrimaryPoolLp = "swim-ethereum-primary-pool-lp",
+  SwimBnbPrimaryPoolLp = "swim-bnb-primary-pool-lp",
+  SwimAvalanchePrimaryPoolLp = "swim-avalanche-primary-pool-lp",
+  SwimPolygonPrimaryPoolLp = "swim-polygon-primary-pool-lp",
+  SwimAuroraPrimaryPoolLp = "swim-aurora-primary-pool-lp",
+  SwimAuroraUsnPoolLp = "swim-aurora-usn-pool-lp",
+  SwimFantomPrimaryPoolLp = "swim-fantom-primary-pool-lp",
+  SwimKaruraPrimaryPoolLp = "swim-karura-primary-pool-lp",
+  SwimKaruraAusdPoolLp = "swim-karura-ausd-pool-lp",
+  SwimAcalaAusdPoolLp = "swim-acala-ausd-pool-lp",
 }
 
 export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
@@ -236,6 +248,96 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     symbol: "SWIM-ACALA-AUSD-LP",
     displayName: "Acala AUSD LP",
     icon: LP_ACALA_AUSD_SVG,
+    isStablecoin: false,
+    isLp: true,
+  },
+  // V2
+  // TODO: Reassign swimUSD to this token
+  [TokenProjectId.SwimPrimaryPoolLp]: {
+    id: TokenProjectId.SwimPrimaryPoolLp,
+    symbol: "SWIM-PRIMARY-POOL-LP",
+    displayName: "swimUSD (Swim Primary LP)",
+    icon: SWIM_USD_SVG, // TODO: update
+    isStablecoin: true,
+    isLp: true,
+  },
+  [TokenProjectId.SwimEthereumPrimaryPoolLp]: {
+    id: TokenProjectId.SwimEthereumPrimaryPoolLp,
+    symbol: "SWIM-ETHEREUM-PRIMARY-POOL-LP",
+    displayName: "Ethereum Primary-Pool Lp",
+    icon: SWIM_USD_SVG, // TODO: update
+    isStablecoin: false,
+    isLp: true,
+  },
+  [TokenProjectId.SwimBnbPrimaryPoolLp]: {
+    id: TokenProjectId.SwimBnbPrimaryPoolLp,
+    symbol: "SWIM-BNB-PRIMARY-POOL-LP",
+    displayName: "Bnb Primary-Pool Lp",
+    icon: SWIM_USD_SVG, // TODO: update
+    isStablecoin: false,
+    isLp: true,
+  },
+  [TokenProjectId.SwimAvalanchePrimaryPoolLp]: {
+    id: TokenProjectId.SwimAvalanchePrimaryPoolLp,
+    symbol: "SWIM-AVALANCHE-PRIMARY-POOL-LP",
+    displayName: "Avalanche Primary-Pool Lp",
+    icon: SWIM_USD_SVG, // TODO: update
+    isStablecoin: false,
+    isLp: true,
+  },
+  [TokenProjectId.SwimPolygonPrimaryPoolLp]: {
+    id: TokenProjectId.SwimPolygonPrimaryPoolLp,
+    symbol: "SWIM-POLYGON-PRIMARY-POOL-LP",
+    displayName: "Polygon Primary-Pool Lp",
+    icon: SWIM_USD_SVG, // TODO: update
+    isStablecoin: false,
+    isLp: true,
+  },
+  [TokenProjectId.SwimAuroraPrimaryPoolLp]: {
+    id: TokenProjectId.SwimAuroraPrimaryPoolLp,
+    symbol: "SWIM-AURORA-PRIMARY-POOL-LP",
+    displayName: "Aurora Primary-Pool Lp",
+    icon: SWIM_USD_SVG, // TODO: update
+    isStablecoin: false,
+    isLp: true,
+  },
+  [TokenProjectId.SwimAuroraUsnPoolLp]: {
+    id: TokenProjectId.SwimAuroraUsnPoolLp,
+    symbol: "SWIM-AURORA-USN-POOL-LP",
+    displayName: "Aurora Usn-Pool Lp",
+    icon: SWIM_USD_SVG, // TODO: update
+    isStablecoin: false,
+    isLp: true,
+  },
+  [TokenProjectId.SwimFantomPrimaryPoolLp]: {
+    id: TokenProjectId.SwimFantomPrimaryPoolLp,
+    symbol: "SWIM-FANTOM-PRIMARY-POOL-LP",
+    displayName: "Fantom Primary-Pool Lp",
+    icon: SWIM_USD_SVG, // TODO: update
+    isStablecoin: false,
+    isLp: true,
+  },
+  [TokenProjectId.SwimKaruraPrimaryPoolLp]: {
+    id: TokenProjectId.SwimKaruraPrimaryPoolLp,
+    symbol: "SWIM-KARURA-PRIMARY-POOL-LP",
+    displayName: "Karura Primary-Pool Lp",
+    icon: SWIM_USD_SVG, // TODO: update
+    isStablecoin: false,
+    isLp: true,
+  },
+  [TokenProjectId.SwimKaruraAusdPoolLp]: {
+    id: TokenProjectId.SwimKaruraAusdPoolLp,
+    symbol: "SWIM-KARURA-AUSD-POOL-LP",
+    displayName: "Karura Ausd-Pool Lp",
+    icon: SWIM_USD_SVG, // TODO: update
+    isStablecoin: false,
+    isLp: true,
+  },
+  [TokenProjectId.SwimAcalaAusdPoolLp]: {
+    id: TokenProjectId.SwimAcalaAusdPoolLp,
+    symbol: "SWIM-ACALA-AUSD-POOL-LP",
+    displayName: "Acala Ausd-Pool Lp",
+    icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
   },

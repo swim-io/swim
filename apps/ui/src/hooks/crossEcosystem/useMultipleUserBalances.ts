@@ -3,7 +3,7 @@ import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import { EcosystemId, getTokenDetailsForEcosystem } from "../../config";
 import { Amount, findTokenAccountForMint } from "../../models";
 import { useErc20BalancesQuery } from "../evm";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
@@ -12,7 +12,7 @@ const getContractAddressesByEcosystem = (
   tokenSpecs: readonly TokenSpec[],
 ): ReadonlyRecord<EcosystemId, readonly string[]> =>
   tokenSpecs.reduce<ReadonlyRecord<EcosystemId, readonly string[]>>(
-    (accumulator, { detailsByEcosystem }) => {
+    (accumulator, tokenSpec) => {
       const [
         solanaAddress,
         ethereumAddress,
@@ -34,7 +34,8 @@ const getContractAddressesByEcosystem = (
         EcosystemId.Karura,
         EcosystemId.Acala,
       ].map(
-        (ecosystemId) => detailsByEcosystem.get(ecosystemId)?.address ?? null,
+        (ecosystemId) =>
+          getTokenDetailsForEcosystem(tokenSpec, ecosystemId)?.address ?? null,
       );
       return {
         [EcosystemId.Solana]: solanaAddress
@@ -85,7 +86,7 @@ const getEvmTokenIdAndBalance = (
   balances: readonly UseQueryResult<Decimal | null, Error>[],
   contractAddresses: readonly string[],
 ): readonly [string, Amount | null] => {
-  const address = tokenSpec.detailsByEcosystem.get(ecosystemId)?.address;
+  const address = getTokenDetailsForEcosystem(tokenSpec, ecosystemId)?.address;
   if (!address) {
     return [tokenSpec.id, null];
   }
@@ -146,7 +147,7 @@ export const useMultipleUserBalances = (
 
   return new Map(
     tokenSpecs.map((tokenSpec, i) => {
-      switch (tokenSpec.nativeEcosystem) {
+      switch (tokenSpec.nativeEcosystemId) {
         case EcosystemId.Solana: {
           const tokenAccount = solanaTokenAccounts[i];
           return [

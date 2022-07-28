@@ -16,7 +16,7 @@ export const UserBalanceDisplay: React.FC<Props> = ({
   onClick,
 }) => {
   const tokenUserBalances = useUserBalanceAmounts(token);
-  const tokenBalance = tokenUserBalances[token.nativeEcosystem];
+  const tokenBalance = tokenUserBalances[token.nativeEcosystemId];
 
   return (
     <EuiText size="xs">

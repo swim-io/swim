@@ -12,7 +12,11 @@ import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId } from "../../config";
+import {
+  EcosystemId,
+  PROJECTS,
+  getTokenDetailsForEcosystem,
+} from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useNotification } from "../../core/store";
 import { captureAndWrapException } from "../../errors";
@@ -97,7 +101,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
   // TODO: create V2 of these check
   const isLargeSwap = (() => false)();
   const isSmallEthSwap =
-    fromTokenSpec.project.isStablecoin &&
+    PROJECTS[fromTokenSpec.projectId].isStablecoin &&
     [fromTokenOption.ecosystemId, toTokenOption.ecosystemId].includes(
       EcosystemId.Ethereum,
     ) &&
@@ -107,7 +111,8 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
   const outputAmount = inputAmount;
   const fromTokenUserBalances = useUserBalanceAmounts(fromTokenSpec);
   const fromTokenBalance = fromTokenUserBalances[fromTokenOption.ecosystemId];
-  const outputEcosystemDetail = toTokenSpec.detailsByEcosystem.get(
+  const outputEcosystemDetail = getTokenDetailsForEcosystem(
+    toTokenSpec,
     toTokenOption.ecosystemId,
   );
   const outputAmountString = outputEcosystemDetail

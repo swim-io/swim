@@ -30,7 +30,7 @@ export const FromSolanaTransferComponent: React.FC<Props> = ({
   const claimTokenOnEvmTxProps = claimTokenOnEvm
     ? {
         txId: claimTokenOnEvm,
-        ecosystem: token.nativeEcosystem,
+        ecosystem: token.nativeEcosystemId,
       }
     : null;
 

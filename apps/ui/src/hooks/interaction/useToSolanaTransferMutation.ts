@@ -14,6 +14,7 @@ import {
   EcosystemId,
   Protocol,
   getSolanaTokenDetails,
+  getTokenDetailsForEcosystem,
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
@@ -92,7 +93,10 @@ export const useToSolanaTransferMutation = () => {
         chains[Protocol.Evm],
         ({ ecosystem }) => ecosystem === fromEcosystem,
       );
-      const fromTokenDetails = token.detailsByEcosystem.get(fromEcosystem);
+      const fromTokenDetails = getTokenDetailsForEcosystem(
+        token,
+        fromEcosystem,
+      );
       if (!fromTokenDetails) {
         throw new Error("No token detail");
       }

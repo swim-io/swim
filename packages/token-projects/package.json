@@ -26,8 +26,8 @@
     "format:check": "prettier --check \"./src/**/*.ts\"",
     "lint": "eslint \"./src/**/*.ts\"",
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
-    "test": "echo \"Error: no test specified\"",
-    "verify": "yarn typecheck && yarn format:check && yarn lint",
+    "test": "jest",
+    "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test --watchAll=false",
     "build": "rm -rf ./build/ ./types/ && yarn encode-images && tsc",
     "prepare": "yarn verify && yarn build"
   },
@@ -51,6 +51,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^28.1.2",
     "prettier": "^2.7.1",
+    "ts-jest": "^28.0.5",
     "typescript": "^4.7.4"
   }
 }

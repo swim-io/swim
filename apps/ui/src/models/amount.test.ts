@@ -1,8 +1,9 @@
+import { TokenProjectId } from "@swim-io/token-projects";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../config";
-import { EcosystemId, TokenProjectId } from "../config";
+import { EcosystemId } from "../config";
 
 import { Amount } from "./amount";
 

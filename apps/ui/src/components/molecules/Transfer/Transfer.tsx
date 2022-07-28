@@ -1,8 +1,9 @@
 import { EuiLoadingSpinner, EuiText } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { VFC } from "react";
 
 import type { EcosystemId, TokenSpec } from "../../../config";
-import { ECOSYSTEMS, PROJECTS } from "../../../config";
+import { ECOSYSTEMS } from "../../../config";
 import { TxList } from "../TxList";
 
 interface Props {
@@ -26,9 +27,11 @@ export const Transfer: VFC<Props> = ({
   <EuiText size="m">
     <span style={{ display: "flex", alignItems: "center" }}>
       {isLoading && <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />}
-      <span>{`Transfer ${PROJECTS[token.projectId].displayName} from ${
-        ECOSYSTEMS[from].displayName
-      } to ${ECOSYSTEMS[to].displayName}`}</span>
+      <span>{`Transfer ${
+        TOKEN_PROJECTS_BY_ID[token.projectId].displayName
+      } from ${ECOSYSTEMS[from].displayName} to ${
+        ECOSYSTEMS[to].displayName
+      }`}</span>
     </span>
     <TxList transactions={transactions} />
   </EuiText>

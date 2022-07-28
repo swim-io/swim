@@ -1,10 +1,11 @@
 import { EuiIcon } from "@elastic/eui";
 import type { TokenProject } from "@swim-io/core";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
 
 import type { EcosystemId, TokenSpec } from "../config";
-import { ECOSYSTEMS, PROJECTS } from "../config";
+import { ECOSYSTEMS } from "../config";
 import { useToken } from "../hooks";
 import type { TokenOption } from "../models";
 import type { Amount } from "../models/amount";
@@ -87,7 +88,7 @@ type TokenSpecIconProps = { readonly token: TokenSpec };
 
 export const TokenSpecIcon = ({ token }: TokenSpecIconProps): ReactElement => (
   <TokenIcon
-    {...PROJECTS[token.projectId]}
+    {...TOKEN_PROJECTS_BY_ID[token.projectId]}
     ecosystemId={token.nativeEcosystemId}
   />
 );
@@ -100,6 +101,9 @@ export const TokenOptionIcon = ({
   const { tokenId, ecosystemId } = tokenOption;
   const tokenSpec = useToken(tokenId);
   return (
-    <TokenIcon {...PROJECTS[tokenSpec.projectId]} ecosystemId={ecosystemId} />
+    <TokenIcon
+      {...TOKEN_PROJECTS_BY_ID[tokenSpec.projectId]}
+      ecosystemId={ecosystemId}
+    />
   );
 };

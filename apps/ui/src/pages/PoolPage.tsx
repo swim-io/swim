@@ -14,6 +14,7 @@ import {
   EuiTitle,
   EuiToolTip,
 } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { defaultIfError, pluralizeEn } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
@@ -34,7 +35,6 @@ import { TokenIcon, TokenSpecIcon } from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
 import {
   EcosystemId,
-  PROJECTS,
   getSolanaTokenDetails,
   getTokenDetailsForEcosystem,
 } from "../config";
@@ -158,7 +158,10 @@ export const PoolPageInner = ({
     const userLpBalance = userLpBalances[ecosystemId];
     return {
       title: (
-        <TokenIcon {...PROJECTS[lpToken.projectId]} ecosystemId={ecosystemId} />
+        <TokenIcon
+          {...TOKEN_PROJECTS_BY_ID[lpToken.projectId]}
+          ecosystemId={ecosystemId}
+        />
       ),
       description: userLpBalance
         ? userLpBalance.toFormattedHumanString(ecosystemId)

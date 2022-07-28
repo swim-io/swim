@@ -515,7 +515,7 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
     ) -> InvariantResult<Decimal> {
         if amp_factor.is_zero() {
             //constant product branch
-            return Ok(((pool_balances[0] * pool_balances[1]).integer_sqrt() * U128::from(2)).into());
+            return Ok(((pool_balances[0] * pool_balances[1]).integer_sqrt() * U128::from(2i32)).into());
         }
 
         let pool_balances_times_n: [_; TOKEN_COUNT] =

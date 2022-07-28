@@ -1,8 +1,17 @@
+
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::clock::UnixTimestamp;
+use crate::{
+  amp_factor::AmpFactor,
+  pool_fee::PoolFee,
+};
+// use pool_lib::amp_factor::AmpFactor;
+// use pool_lib::pool_fee;
+// use pool_lib::pool_fee::PoolFee;
 
-use solana_program::{clock::UnixTimestamp, pubkey::Pubkey};
+// use solana_program::{clock::UnixTimestamp, pubkey::Pubkey};
 
-use crate::{amp_factor::AmpFactor, pool_fee::PoolFee};
+use crate::{TOKEN_COUNT};
 
 //arguably, various fields should be Options (e.g. all the prepared_* fields)
 //the advantage of taking a special value approach is that serialized data
@@ -10,8 +19,8 @@ use crate::{amp_factor::AmpFactor, pool_fee::PoolFee};
 //size of a serialized PoolState in order to ensure that the pool's state
 //account has space and sol to be rent exempt in all cases)
 #[account]
-pub struct PoolState<const TOKEN_COUNT: usize> {
-    pub nonce: u8,
+pub struct TwoPool {
+    pub bump: u8,
     pub is_paused: bool,
     pub amp_factor: AmpFactor,
     pub lp_fee: PoolFee,
@@ -27,31 +36,29 @@ pub struct PoolState<const TOKEN_COUNT: usize> {
     pub governance_key: Pubkey,
     pub governance_fee_key: Pubkey,
     pub prepared_governance_key: Pubkey,
-    pub governance_transition_ts: UnixTimestamp,
+    pub governance_transition_ts: i64,
     pub prepared_lp_fee: PoolFee,
     pub prepared_governance_fee: PoolFee,
-    pub fee_transition_ts: UnixTimestamp,
+    pub fee_transition_ts: i64,
     pub previous_depth: u128,
 }
 
-impl<const TOKEN_COUNT: usize> PoolState<TOKEN_COUNT> {
-    pub fn is_initialized(&self) -> bool {
-        self.lp_mint_key != Pubkey::default()
-    }
+impl TwoPool {
+    // pub fn is_initialized(&self) -> bool {
+    //     self.lp_mint_key != Pubkey::default()
+    // }
 
     pub const LEN: usize =
-        // anchor account discriminator
-        8 +
         // nonce
         1 +
         // is_paused
         1 +
         // amp_factor
-        32 +
+        AmpFactor::LEN +
         // lp_fee
-        32 +
+        PoolFee::LEN +
         // governance_fee
-        32 +
+        PoolFee::LEN +
         // lp_mint_key
         32 +
         // lp_decimal_equalizer
@@ -71,9 +78,9 @@ impl<const TOKEN_COUNT: usize> PoolState<TOKEN_COUNT> {
         // governance_transition_ts
         8 +
         // prepared_lp_fee
-        32 +
+        PoolFee::LEN +
         // prepared_governance_fee
-        32 +
+        PoolFee::LEN +
         // fee_transition_ts
         8 +
         // previous_depth

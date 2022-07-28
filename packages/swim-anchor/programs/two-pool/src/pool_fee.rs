@@ -9,31 +9,49 @@ const DECIMALS: u8 = 6;
 pub type ValueT = u32;
 type DecT = DecimalU64;
 
-#[derive(AnchorSerialize, AnchorDeserialize, Eq, PartialEq, Clone, Copy, Debug)]
-pub struct PoolFee(ValueT);
+//NOTE: anchor does not handle unit type structs well
+// #[derive(AnchorSerialize, AnchorDeserialize, Debug, Default, Clone)]
+// pub struct PoolFee(ValueT);
+
+// TODO: update this later to just store the value & decimals
+#[derive(AnchorSerialize, AnchorDeserialize, Debug, Default, Clone)]
+pub struct PoolFee{
+  pub value: u32
+}
+
+
+
+
 
 impl PoolFee {
-    pub fn new(fee: DecT) -> Result<Self, PoolError> {
+    pub const LEN: usize = 4;
+    pub fn new(fee: DecT) -> Result<Self> {
         let mut ret = Self::default();
         ret.set(fee)?;
         Ok(ret)
     }
 
-    pub fn set(&mut self, fee: DecT) -> Result<(), PoolError> {
+    pub fn set(&mut self, fee: DecT) -> Result<()> {
         let floored_fee = fee.floor(DECIMALS);
         if fee >= DecT::from(1) || floored_fee != fee {
             //fee has to be less than 100 % and decimals have to fit
-            return Err(PoolError::InvalidFeeInput);
+            return err!(PoolError::InvalidFeeInput);
         }
 
-        self.0 = (floored_fee.get_raw() * 10u64.pow((DECIMALS - floored_fee.get_decimals()) as u32))
-            as u32;
+        // self.0 = (floored_fee.get_raw() * 10u64.pow((DECIMALS - floored_fee.get_decimals()) as u32))
+        //     as u32;
+        self.value = (floored_fee.get_raw() * 10u64.pow((DECIMALS - floored_fee.get_decimals()) as u32))
+        as u32;
 
         Ok(())
     }
 
     pub fn get(&self) -> DecT {
-        DecT::new(self.0 as u64, DECIMALS).unwrap()
+        DecT::new(
+          self.value as u64,
+          // self.0 as u64,
+          DECIMALS
+        ).unwrap()
     }
 }
 

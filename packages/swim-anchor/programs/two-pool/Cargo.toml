@@ -1,0 +1,52 @@
+[package]
+name = "two-pool"
+version = "0.1.0"
+edition = "2021"
+homepage = "https://swim.io"
+keywords = ["solana", "swim", "program", "pool"]
+license = "BUSL-1.1"
+
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "two_pool"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+#fuzz = ["arbitrary", "roots"]
+
+
+
+#[features]
+#no-entrypoint = []
+#test-bpf = []
+#fuzz = ["arbitrary", "roots"]
+
+
+[dependencies]
+#solana related dependencies
+# loosely pinned to same version as anchor
+#solana-program = "1.10.33"
+#spl-token = { version = "3.2.0", features = ["no-entrypoint"] }
+
+
+#anchor
+anchor-lang = { version = "0.25.0" }
+anchor-spl = "0.25.0"
+
+#pool-lib = { path = "../pool-lib", version = "^0.1.0" }
+borsh = { version = "0.9.3", features = ["const-generics"] }
+borsh-derive = "0.9.1"
+
+#numerics
+# This must be pinned to 0.9.1 until Solana's Rust fork supports Rust >=1.56.1
+uint = { version = "=0.9.1", default-features = false }
+rust_decimal = {version = "1.25", features = [ "maths", "borsh" ] }
+rust_decimal_macros = "1.25"
+
+#misc
+arrayvec = "0.7.2"

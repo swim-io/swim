@@ -915,27 +915,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pool-lib"
-version = "1.0.0"
-dependencies = [
- "anchor-lang",
- "anchor-spl",
- "arbitrary",
- "arrayvec",
- "honggfuzz",
- "num-derive",
- "num-traits",
- "roots",
- "rust_decimal",
- "rust_decimal_macros",
- "solana-program",
- "solana-security-txt",
- "spl-token",
- "thiserror",
- "uint",
-]
-
-[[package]]
 name = "ppv-lite86"
 version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1417,6 +1396,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d82e1a7758622a465f8cee077614c73484dac5b836c02ff6a40d5d1010324d7"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "two-pool"
+version = "1.0.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+ "arbitrary",
+ "arrayvec",
+ "honggfuzz",
+ "num-derive",
+ "num-traits",
+ "roots",
+ "rust_decimal",
+ "rust_decimal_macros",
+ "solana-program",
+ "solana-security-txt",
+ "spl-token",
+ "thiserror",
+ "uint",
 ]
 
 [[package]]

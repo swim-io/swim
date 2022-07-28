@@ -9,7 +9,7 @@
 // All math in this module is implemented in such a way that all operations that *aren't*
 // don't explicitly use checked_* (i.e. all the inline ops like +,-,*,/,%, etc.) should never
 // be able to fail and could hence be replaced by unsafe_* calls to reduce strain on compute budget.
-use anchor_lang::prelude::*;
+// use anchor_lang::prelude::*;
 
 use std::{
     cmp,
@@ -20,10 +20,14 @@ use std::{
     iter::{Product, Sum},
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
 };
+use borsh::{BorshDeserialize, BorshSchema, BorshSerialize};
 
 use uint::construct_uint;
+
+
+
 construct_uint! {
-    #[derive(AnchorSerialize, AnchorDeserialize, Eq, PartialEq, Clone, Copy, Debug)]
+    #[derive(anchor_lang::prelude::AnchorSerialize, anchor_lang::prelude::AnchorDeserialize, BorshSchema)]
     pub struct U128(2);
 }
 
@@ -40,12 +44,12 @@ impl U128 {
     }
 }
 
+
 construct_uint! {
-    #[derive(AnchorSerialize, AnchorDeserialize, Eq, PartialEq, Clone, Copy, Debug)]
     pub struct U256(4);
 }
 
-#[error_code]
+#[anchor_lang::prelude::error_code]
 pub enum DecimalError {
     #[msg("Maximum decimals exceeded")]
     MaxDecimalsExceeded,
@@ -135,7 +139,7 @@ const fn create_bit_to_dec_array() -> [u8; BIT_TO_DEC_SIZE] {
         i += 1;
     }
 }
-
+//unsigned_decimal! {DecimalU64, normal_cast, to_uint128, from_uint128, u64, U128, 64, 19}
 macro_rules! unsigned_decimal {
     (
     $name:ident,
@@ -147,7 +151,7 @@ macro_rules! unsigned_decimal {
     $bits:expr, //<$value_type>::BITS is still unstable
     $max_decimals:expr $(,)? //floor(log_10(2^bits-1))
 ) => {
-        #[derive(AnchorSerialize, AnchorDeserialize, Eq, PartialEq, Clone, Copy, Debug)]
+        #[derive(anchor_lang::prelude::AnchorSerialize, anchor_lang::prelude::AnchorDeserialize, Clone, Copy, Debug)]
         pub struct $name {
             value: $value_type,
             decimals: u8,
@@ -205,7 +209,14 @@ macro_rules! unsigned_decimal {
                 }
             }
 
-            pub const fn new(value: $value_type, decimals: u8) -> Result<Self, DecimalError> {
+            // pub const fn new(value: $value_type, decimals: u8) -> Result<Self, DecimalError> {
+            //     if decimals > Self::MAX_DECIMALS {
+            //         return Err(anchor_lang::prelude::error!(DecimalError::MaxDecimalsExceeded.into()));
+            //     }
+            //     Ok(Self { value, decimals })
+            // }
+
+             pub const fn new(value: $value_type, decimals: u8) -> Result<Self, DecimalError> {
                 if decimals > Self::MAX_DECIMALS {
                     return Err(DecimalError::MaxDecimalsExceeded);
                 }
@@ -798,8 +809,7 @@ macro_rules! impl_interop {
             type Error = DecimalError;
 
             fn try_from(v: $larger_name) -> Result<Self, Self::Error> {
-                Self::shift_to_fit(v.get_raw(), v.get_decimals())
-                    .ok_or(DecimalError::ConversionError)
+                Self::shift_to_fit(v.get_raw(), v.get_decimals()).ok_or(DecimalError::ConversionError.into())
             }
         }
     };

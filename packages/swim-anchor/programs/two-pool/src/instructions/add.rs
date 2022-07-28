@@ -251,6 +251,8 @@ pub fn handle_add(
 
 
 
+  let pool_state = &mut ctx.accounts.pool;
+  pool_state.previous_depth = latest_depth;
   Ok(mint_amount)
 	// msg!("add_and_wormhole_transfer");
 	// handle_approve(&ctx, &pool_add_params)?;

@@ -194,6 +194,7 @@ describe("TwoPool", () => {
   });
 
   it("Can add to pool", async () => {
+    const previousDepthBefore = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
     userUsdcAtaAddr = (await getOrCreateAssociatedTokenAccount(
       provider.connection,
       payer,
@@ -307,5 +308,12 @@ describe("TwoPool", () => {
     const userLpTokenAccountBalance = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
     console.log(`userLpTokenAccountBalance: ${userLpTokenAccountBalance.toString()}`);
     assert(userLpTokenAccountBalance.gt(new anchor.BN(0)));
+    const previousDepthAfter = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
+    console.log(`
+      previousDepthBefore: ${previousDepthBefore.toString()}
+      previousDepthAfter: ${previousDepthAfter.toString()}
+    `);
+    assert(previousDepthAfter.gt(previousDepthBefore));
+
   });
 });

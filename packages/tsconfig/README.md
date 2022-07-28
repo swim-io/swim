@@ -12,26 +12,26 @@ npm install --save-dev @swim-io/tsconfig
 
 ## Usage
 
-In TS projects extend from the default config in your ESLint configuration file:
+In TS projects extend from the default config in your TypeScript configuration file:
 
-```js
-module.exports = {
-  extends: ["@swim-io/tsconfig/tsconfig-base.json"],
-};
+```json
+{
+  "extends": "@swim-io/tsconfig/tsconfig-base.json"
+}
 ```
 
 In React projects extend from the react config:
 
-```js
-module.exports = {
-  extends: ["@swim-io/tsconfig/tsconfig-react.json"],
-};
+```json
+{
+  "extends": "@swim-io/tsconfig/tsconfig-react.json"
+}
 ```
 
 In library projects extend from the library config:
 
-```js
-module.exports = {
-  extends: ["@swim-io/tsconfig/tsconfig-library.json"],
-};
+```json
+{
+  "extends": "@swim-io/tsconfig/tsconfig-library.json"
+}
 ```

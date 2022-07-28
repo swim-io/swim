@@ -50,17 +50,17 @@ export enum TokenProjectId {
   Usn = "usn",
   XSwim = "xswim",
   // V2
-  SwimPrimaryPoolLp = "swim-primary-pool-lp",
-  SwimEthereumPrimaryPoolLp = "swim-ethereum-primary-pool-lp",
-  SwimBnbPrimaryPoolLp = "swim-bnb-primary-pool-lp",
-  SwimAvalanchePrimaryPoolLp = "swim-avalanche-primary-pool-lp",
-  SwimPolygonPrimaryPoolLp = "swim-polygon-primary-pool-lp",
-  SwimAuroraPrimaryPoolLp = "swim-aurora-primary-pool-lp",
-  SwimAuroraUsnPoolLp = "swim-aurora-usn-pool-lp",
-  SwimFantomPrimaryPoolLp = "swim-fantom-primary-pool-lp",
-  SwimKaruraPrimaryPoolLp = "swim-karura-primary-pool-lp",
-  SwimKaruraAusdPoolLp = "swim-karura-ausd-pool-lp",
-  SwimAcalaAusdPoolLp = "swim-acala-ausd-pool-lp",
+  SwimLpSolanaUsdcUsdt = "swim-lp-solana-usdc-usdt",
+  SwimLpEthereumUsdcUsdt = "swim-lp-ethereum-usdc-usdt",
+  SwimLpBnbBusdUsdt = "swim-lp-bnb-busd-usdt",
+  SwimLpAvalancheUsdcUsdt = "swim-lp-avalanche-usdc-usdt",
+  SwimLpPolygonUsdcUsdt = "swim-lp-polygon-usdc-usdt",
+  SwimLpAuroraUsdcUsdt = "swim-lp-aurora-usdc-usdt",
+  SwimLpAuroraUsn = "swim-lp-aurora-usn",
+  SwimLpFantomUsdc = "swim-lp-fantom-usdc",
+  SwimLpKaruraUsdt = "swim-lp-karura-usdt",
+  SwimLpKaruraAusd = "swim-lp-karura-ausd",
+  SwimLpAcalaAusd = "swim-lp-acala-ausd",
 }
 
 export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
@@ -253,90 +253,90 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
   },
   // V2
   // TODO: Reassign swimUSD to this token
-  [TokenProjectId.SwimPrimaryPoolLp]: {
-    id: TokenProjectId.SwimPrimaryPoolLp,
-    symbol: "SWIM-PRIMARY-POOL-LP",
-    displayName: "swimUSD (Swim Primary LP)",
+  [TokenProjectId.SwimLpSolanaUsdcUsdt]: {
+    id: TokenProjectId.SwimLpSolanaUsdcUsdt,
+    symbol: "swimUSDv2", // TODO: update
+    displayName: "swimUSD (v2)", // TODO: update
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: true,
     isLp: true,
   },
-  [TokenProjectId.SwimEthereumPrimaryPoolLp]: {
-    id: TokenProjectId.SwimEthereumPrimaryPoolLp,
-    symbol: "SWIM-ETHEREUM-PRIMARY-POOL-LP",
-    displayName: "Ethereum Primary-Pool Lp",
+  [TokenProjectId.SwimLpEthereumUsdcUsdt]: {
+    id: TokenProjectId.SwimLpEthereumUsdcUsdt,
+    symbol: "SWIM-LP-ETHEREUM-USDC-USDT",
+    displayName: "Ethereum USDC/USDT Pool LP",
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
   },
-  [TokenProjectId.SwimBnbPrimaryPoolLp]: {
-    id: TokenProjectId.SwimBnbPrimaryPoolLp,
-    symbol: "SWIM-BNB-PRIMARY-POOL-LP",
-    displayName: "Bnb Primary-Pool Lp",
+  [TokenProjectId.SwimLpBnbBusdUsdt]: {
+    id: TokenProjectId.SwimLpBnbBusdUsdt,
+    symbol: "SWIM-LP-BNB-BUSD-USDT",
+    displayName: "BNB BUSD/USDT Pool LP",
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
   },
-  [TokenProjectId.SwimAvalanchePrimaryPoolLp]: {
-    id: TokenProjectId.SwimAvalanchePrimaryPoolLp,
-    symbol: "SWIM-AVALANCHE-PRIMARY-POOL-LP",
-    displayName: "Avalanche Primary-Pool Lp",
+  [TokenProjectId.SwimLpAvalancheUsdcUsdt]: {
+    id: TokenProjectId.SwimLpAvalancheUsdcUsdt,
+    symbol: "SWIM-LP-AVALANCHE-USDC-USDT",
+    displayName: "Avalanche USDC/USDT Pool LP",
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
   },
-  [TokenProjectId.SwimPolygonPrimaryPoolLp]: {
-    id: TokenProjectId.SwimPolygonPrimaryPoolLp,
-    symbol: "SWIM-POLYGON-PRIMARY-POOL-LP",
-    displayName: "Polygon Primary-Pool Lp",
+  [TokenProjectId.SwimLpPolygonUsdcUsdt]: {
+    id: TokenProjectId.SwimLpPolygonUsdcUsdt,
+    symbol: "SWIM-LP-POLYGON-USDC-USDT",
+    displayName: "Polygon USDC/USDT Pool LP",
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
   },
-  [TokenProjectId.SwimAuroraPrimaryPoolLp]: {
-    id: TokenProjectId.SwimAuroraPrimaryPoolLp,
-    symbol: "SWIM-AURORA-PRIMARY-POOL-LP",
-    displayName: "Aurora Primary-Pool Lp",
+  [TokenProjectId.SwimLpAuroraUsdcUsdt]: {
+    id: TokenProjectId.SwimLpAuroraUsdcUsdt,
+    symbol: "SWIM-LP-AURORA-USDC-USDT",
+    displayName: "Aurora USDC/USDT Pool LP",
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
   },
-  [TokenProjectId.SwimAuroraUsnPoolLp]: {
-    id: TokenProjectId.SwimAuroraUsnPoolLp,
-    symbol: "SWIM-AURORA-USN-POOL-LP",
-    displayName: "Aurora Usn-Pool Lp",
+  [TokenProjectId.SwimLpAuroraUsn]: {
+    id: TokenProjectId.SwimLpAuroraUsn,
+    symbol: "SWIM-LP-AURORA-USN",
+    displayName: "Aurora USN Pool LP",
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
   },
-  [TokenProjectId.SwimFantomPrimaryPoolLp]: {
-    id: TokenProjectId.SwimFantomPrimaryPoolLp,
-    symbol: "SWIM-FANTOM-PRIMARY-POOL-LP",
-    displayName: "Fantom Primary-Pool Lp",
+  [TokenProjectId.SwimLpFantomUsdc]: {
+    id: TokenProjectId.SwimLpFantomUsdc,
+    symbol: "SWIM-LP-FANTOM-USDC",
+    displayName: "Fantom USDC Pool LP",
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
   },
-  [TokenProjectId.SwimKaruraPrimaryPoolLp]: {
-    id: TokenProjectId.SwimKaruraPrimaryPoolLp,
-    symbol: "SWIM-KARURA-PRIMARY-POOL-LP",
-    displayName: "Karura Primary-Pool Lp",
+  [TokenProjectId.SwimLpKaruraUsdt]: {
+    id: TokenProjectId.SwimLpKaruraUsdt,
+    symbol: "SWIM-LP-KARURA-USDT",
+    displayName: "Karura USDT Pool LP",
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
   },
-  [TokenProjectId.SwimKaruraAusdPoolLp]: {
-    id: TokenProjectId.SwimKaruraAusdPoolLp,
-    symbol: "SWIM-KARURA-AUSD-POOL-LP",
-    displayName: "Karura Ausd-Pool Lp",
+  [TokenProjectId.SwimLpKaruraAusd]: {
+    id: TokenProjectId.SwimLpKaruraAusd,
+    symbol: "SWIM-LP-KARURA-AUSD",
+    displayName: "Karura AUSD Pool LP",
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
   },
-  [TokenProjectId.SwimAcalaAusdPoolLp]: {
-    id: TokenProjectId.SwimAcalaAusdPoolLp,
-    symbol: "SWIM-ACALA-AUSD-POOL-LP",
-    displayName: "Acala Ausd-Pool Lp",
+  [TokenProjectId.SwimLpAcalaAusd]: {
+    id: TokenProjectId.SwimLpAcalaAusd,
+    symbol: "SWIM-LP-ACALA-AUSD",
+    displayName: "Acala AUSD Pool LP",
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,

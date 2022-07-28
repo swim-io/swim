@@ -6051,6 +6051,8 @@ __metadata:
 "@swim-io/tsconfig@workspace:^, @swim-io/tsconfig@workspace:packages/tsconfig":
   version: 0.0.0-use.local
   resolution: "@swim-io/tsconfig@workspace:packages/tsconfig"
+  dependencies:
+    prettier: ^2.7.1
   peerDependencies:
     typescript: ^4.7.4
   languageName: unknown

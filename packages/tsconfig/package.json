@@ -25,5 +25,8 @@
   },
   "peerDependencies": {
     "typescript": "^4.7.4"
+  },
+  "devDependencies": {
+    "prettier": "^2.7.1"
   }
 }

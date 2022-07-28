@@ -17,7 +17,6 @@ import { WORMHOLE_CONFIGS } from "./wormhole";
 export * from "./chains";
 export * from "./ecosystem";
 export * from "./pools";
-export * from "./projects";
 export * from "./tokens";
 export * from "./utils";
 export * from "./wormhole";

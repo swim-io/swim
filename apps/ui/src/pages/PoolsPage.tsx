@@ -18,6 +18,7 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { TOKEN_PROJECTS_BY_ID, TokenProjectId } from "@swim-io/token-projects";
 import { deduplicate, filterMap, findOrThrow, sortBy } from "@swim-io/utils";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import Decimal from "decimal.js";
@@ -30,8 +31,6 @@ import { PoolListItem } from "../components/PoolListItem";
 import type { PoolSpec, SolanaPoolSpec, TokenSpec } from "../config";
 import {
   EcosystemId,
-  PROJECTS,
-  TokenProjectId,
   getPoolTokenEcosystems,
   getSolanaTokenDetails,
   hasTokenEcosystem,
@@ -86,7 +85,7 @@ const PoolsPage = (): ReactElement => {
     if (
       tokenSpecs.every(
         (tokenSpec) =>
-          PROJECTS[tokenSpec.projectId].isStablecoin ||
+          TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].isStablecoin ||
           !!prices.get(tokenSpec.id),
       )
     ) {
@@ -110,7 +109,7 @@ const PoolsPage = (): ReactElement => {
         const humanAmount = u64ToDecimal(current.amount).div(
           new Decimal(10).pow(solanaDetails.decimals),
         );
-        const price = PROJECTS[tokenSpec.projectId].isStablecoin
+        const price = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].isStablecoin
           ? new Decimal(1)
           : prices.get(tokenSpec.id) ?? new Decimal(1);
         return prev.add(humanAmount.mul(price));
@@ -495,7 +494,7 @@ function useTokenProjectFilter() {
         deduplicate(
           (project) => project.id,
           tokens
-            .map((token) => PROJECTS[token.projectId])
+            .map((token) => TOKEN_PROJECTS_BY_ID[token.projectId])
             .filter((project) => project.symbol !== "SWIM" && !project.isLp),
         ),
         "displayName",

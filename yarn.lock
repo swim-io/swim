@@ -6048,6 +6048,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@swim-io/token-projects@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@swim-io/token-projects@npm:0.6.0"
+  dependencies:
+    "@swim-io/core": ^0.6.0
+    "@swim-io/utils": ^0.6.0
+  checksum: 658997f669be3e347467ec78ade715cc2b99bbb92b5a0a87d23facf9bcbcb44c3bbcec00635bea9056f521610985f25ffe126a47f08990f9f0f48fec9060fe1e
+  languageName: node
+  linkType: hard
+
 "@swim-io/token-projects@workspace:packages/token-projects":
   version: 0.0.0-use.local
   resolution: "@swim-io/token-projects@workspace:packages/token-projects"
@@ -6126,6 +6136,7 @@ __metadata:
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/pool-math": ^0.6.0
     "@swim-io/solana-types": ^0.6.0
+    "@swim-io/token-projects": ^0.6.0
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": ^0.6.0
     "@testing-library/jest-dom": ^5.16.4

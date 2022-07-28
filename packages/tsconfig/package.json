@@ -16,7 +16,7 @@
   },
   "scripts": {
     "format": "prettier --write \"*.js\"",
-    "format:check": "prettier --check index.js",
+    "format:check": "prettier --check *.json",
     "lint": "echo \"Skipped: json only repo\"",
     "lint:fix": "echo \"Skipped: json only repo\"",
     "test": "echo \"Error: no test specified\" && exit 1",

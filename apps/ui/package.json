@@ -56,6 +56,7 @@
     "@solana/web3.js": "^1.44.3",
     "@swim-io/core": "^0.7.0",
     "@swim-io/pool-math": "^0.7.0",
+    "@swim-io/redeemer": "workspace:^",
     "@swim-io/solana-types": "^0.7.0",
     "@swim-io/token-projects": "^0.7.0",
     "@swim-io/utils": "^0.7.0",

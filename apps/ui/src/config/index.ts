@@ -1,4 +1,6 @@
 import { Env } from "@swim-io/core";
+import type { RedeemerConfig } from "@swim-io/redeemer";
+import { redeemerConfigs } from "@swim-io/redeemer";
 import type { ReadonlyRecord } from "@swim-io/utils";
 
 import type { ChainsByProtocol } from "./chains";
@@ -7,8 +9,6 @@ import type { Ecosystem, EcosystemId } from "./ecosystem";
 import { ECOSYSTEMS, Protocol } from "./ecosystem";
 import type { PoolSpec } from "./pools";
 import { POOLS } from "./pools";
-import { REDEEMER } from "./redeemer";
-import type { RedeemerSpec } from "./redeemer";
 import type { TokenSpec } from "./tokens";
 import { TOKENS } from "./tokens";
 import type { WormholeConfig } from "./wormhole";
@@ -27,7 +27,7 @@ export interface Config {
   readonly pools: readonly PoolSpec[];
   readonly tokens: readonly TokenSpec[];
   readonly wormhole: WormholeConfig;
-  readonly redeemer: RedeemerSpec;
+  readonly redeemer: RedeemerConfig | null;
 }
 
 const buildConfig = (env: Env): Config => ({
@@ -36,7 +36,7 @@ const buildConfig = (env: Env): Config => ({
   pools: POOLS[env],
   tokens: TOKENS[env],
   wormhole: WORMHOLE_CONFIGS[env],
-  redeemer: REDEEMER[env],
+  redeemer: redeemerConfigs.get(env) ?? null,
 });
 
 export const CONFIGS: ReadonlyRecord<Env, Config> = {

@@ -1,3 +1,4 @@
 build/
 types/
+!src/types/
 src/images/

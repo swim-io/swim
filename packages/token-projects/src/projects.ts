@@ -1,29 +1,29 @@
 import type { TokenProject } from "@swim-io/core";
 import type { ReadonlyRecord } from "@swim-io/utils";
 
-import AUSD_SVG from "./images/ausd";
-import BUSD_SVG from "./images/busd";
-import GMT_SVG from "./images/gmt";
-import GST_SVG from "./images/gst";
-import LP_ACALA_AUSD_SVG from "./images/lp_acala_ausd";
-import LP_AURORA_USDC_SVG from "./images/lp_aurora_usdc";
-import LP_AURORA_USDT_SVG from "./images/lp_aurora_usdt";
-import LP_AURORA_USN_SVG from "./images/lp_aurora_usn";
-import LP_AVALANCHE_USDC_SVG from "./images/lp_avalanche_usdc";
-import LP_AVALANCHE_USDT_SVG from "./images/lp_avalanche_usdt";
-import LP_FANTOM_USDC_SVG from "./images/lp_fantom_usdc";
-import LP_GMT_SVG from "./images/lp_gmt";
-import LP_GST_SVG from "./images/lp_gst";
-import LP_KARURA_AUSD_SVG from "./images/lp_karura_ausd";
-import LP_KARURA_USDT_SVG from "./images/lp_karura_usdt";
-import LP_POLYGON_USDC_SVG from "./images/lp_polygon_usdc";
-import LP_POLYGON_USDT_SVG from "./images/lp_polygon_usdt";
-import SWIM_TOKEN_SVG from "./images/swim";
-import SWIM_USD_SVG from "./images/swim_usd";
-import USDC_SVG from "./images/usdc";
-import USDT_SVG from "./images/usdt";
-import USN_SVG from "./images/usn";
-import XSWIM_TOKEN_SVG from "./images/xswim";
+import AUSD_SVG from "~/images/ausd.svg";
+import BUSD_SVG from "~/images/busd.svg";
+import GMT_SVG from "~/images/gmt.svg";
+import GST_SVG from "~/images/gst.svg";
+import LP_ACALA_AUSD_SVG from "~/images/lp_acala_ausd.svg";
+import LP_AURORA_USDC_SVG from "~/images/lp_aurora_usdc.svg";
+import LP_AURORA_USDT_SVG from "~/images/lp_aurora_usdt.svg";
+import LP_AURORA_USN_SVG from "~/images/lp_aurora_usn.svg";
+import LP_AVALANCHE_USDC_SVG from "~/images/lp_avalanche_usdc.svg";
+import LP_AVALANCHE_USDT_SVG from "~/images/lp_avalanche_usdt.svg";
+import LP_FANTOM_USDC_SVG from "~/images/lp_fantom_usdc.svg";
+import LP_GMT_SVG from "~/images/lp_gmt.svg";
+import LP_GST_SVG from "~/images/lp_gst.svg";
+import LP_KARURA_AUSD_SVG from "~/images/lp_karura_ausd.svg";
+import LP_KARURA_USDT_SVG from "~/images/lp_karura_usdt.svg";
+import LP_POLYGON_USDC_SVG from "~/images/lp_polygon_usdc.svg";
+import LP_POLYGON_USDT_SVG from "~/images/lp_polygon_usdt.svg";
+import SWIM_TOKEN_SVG from "~/images/swim.svg";
+import SWIM_USD_SVG from "~/images/swim_usd.svg";
+import USDC_SVG from "~/images/usdc.svg";
+import USDT_SVG from "~/images/usdt.svg";
+import USN_SVG from "~/images/usn.svg";
+import XSWIM_TOKEN_SVG from "~/images/xswim.svg";
 
 export enum TokenProjectId {
   Ausd = "ausd",

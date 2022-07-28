@@ -8,7 +8,11 @@
     "outDir": "build",
     "rootDir": "src",
     "skipLibCheck": true,
-    "target": "es5"
+    "target": "es5",
+    "paths": {
+      "~/images/*": ["images/*"]
+    }
   },
+  "typeRoots": ["./node_modules/@types", "./src/types"],
   "include": ["src"]
 }

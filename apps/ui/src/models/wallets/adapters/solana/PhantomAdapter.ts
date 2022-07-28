@@ -29,7 +29,7 @@ export class PhantomAdapter extends SolanaWeb3WalletAdapter<PhantomProvider> {
     super("Phantom", "https://phantom.app", getPhantomService);
   }
 
-  async connectService(args?: any): Promise<void> {
+  override async connectService(args?: any): Promise<void> {
     if (!this.service) {
       throw new Error("No wallet service available");
     }
@@ -51,7 +51,7 @@ export class PhantomAdapter extends SolanaWeb3WalletAdapter<PhantomProvider> {
     }
   }
 
-  async disconnect(): Promise<void> {
+  override async disconnect(): Promise<void> {
     if (this.service) {
       await this.service.disconnect();
     }

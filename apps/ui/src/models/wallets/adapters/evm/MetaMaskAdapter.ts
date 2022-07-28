@@ -23,7 +23,7 @@ export class MetaMaskAdapter extends EvmWeb3WalletAdapter {
     super("MetaMask", "https://metamask.io", getMetaMaskService, isUnlocked);
   }
 
-  async connect(): Promise<void> {
+  override async connect(): Promise<void> {
     await super.connect();
 
     // Experimental method

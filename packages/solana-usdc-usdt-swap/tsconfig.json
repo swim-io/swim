@@ -1,14 +1,10 @@
 {
-  "extends": "../../tsconfig.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@swim-io/tsconfig/tsconfig-library.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "declaration": true,
-    "declarationDir": "types",
-    "module": "commonjs",
-    "outDir": "build",
-    "rootDir": "src",
-    "skipLibCheck": true,
-    "target": "es2020"
+    "declarationDir": "types/",
+    "outDir": "build/",
+    "rootDir": "src/"
   },
-  "include": ["src"]
+  "include": ["src/"]
 }

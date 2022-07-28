@@ -1,4 +1,4 @@
-# ESLint config
+# TypeScript config
 
 Shared default TypeScript configuration for Swim TS projects.
 

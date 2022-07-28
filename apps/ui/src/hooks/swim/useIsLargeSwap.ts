@@ -1,7 +1,8 @@
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId, PROJECTS } from "../../config";
+import { EcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { Amount } from "../../models";
@@ -27,10 +28,10 @@ export const useIsLargeSwap = (
   const outputPoolUsdValue = pools[pools.length - 1].poolUsdValue;
   const outputAmount = useSwapOutputAmountEstimate(inputAmount, toToken);
   return (
-    (PROJECTS[fromToken.projectId].isStablecoin &&
+    (TOKEN_PROJECTS_BY_ID[fromToken.projectId].isStablecoin &&
       inputPoolUsdValue !== null &&
       inputAmount.toHuman(EcosystemId.Solana).gt(inputPoolUsdValue.mul(0.1))) ||
-    (PROJECTS[toToken.projectId].isStablecoin &&
+    (TOKEN_PROJECTS_BY_ID[toToken.projectId].isStablecoin &&
       outputPoolUsdValue !== null &&
       outputAmount !== null &&
       outputAmount.toHuman(EcosystemId.Solana).gt(outputPoolUsdValue.mul(0.1)))

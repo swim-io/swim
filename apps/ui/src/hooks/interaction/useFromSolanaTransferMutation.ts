@@ -4,6 +4,7 @@ import {
 } from "@certusone/wormhole-sdk";
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { Transaction } from "@solana/web3.js";
+import { WormholeChainId } from "@swim-io/core";
 import { findOrThrow, isEachNotNull } from "@swim-io/utils";
 import { useMutation } from "react-query";
 
@@ -100,6 +101,9 @@ export const useFromSolanaTransferMutation = () => {
     }
     if (!solanaWalletAddress) {
       throw new Error("No Solana wallet address");
+    }
+    if (!wormhole) {
+      throw new Error("No Wormhole RPC configured");
     }
 
     const poolOperationTxIds = interactionState.solanaPoolOperations.map(

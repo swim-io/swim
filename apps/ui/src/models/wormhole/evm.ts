@@ -3,6 +3,7 @@ import {
   getAllowanceEth,
 } from "@certusone/wormhole-sdk";
 import { PublicKey } from "@solana/web3.js";
+import { WormholeChainId } from "@swim-io/core";
 import type { ethers } from "ethers";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";

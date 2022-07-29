@@ -5794,7 +5794,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-<<<<<<< HEAD
 "@swim-io/core@npm:^0.5.0":
   version: 0.5.0
   resolution: "@swim-io/core@npm:0.5.0"
@@ -5802,26 +5801,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-=======
->>>>>>> aa8ce89c (feat(core): Add package)
 "@swim-io/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@swim-io/core@workspace:packages/core"
   dependencies:
     "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/tsconfig": "workspace:^"
     "@typescript-eslint/eslint-plugin": ^5.29.0
     "@typescript-eslint/parser": ^5.29.0
     eslint: ^8.18.0
     eslint-config-prettier: ^8.5.0
     eslint-plugin-deprecation: ^1.3.2
-<<<<<<< HEAD
-<<<<<<< HEAD
     eslint-plugin-eslint-comments: ^3.2.0
-=======
->>>>>>> aa8ce89c (feat(core): Add package)
-=======
-    eslint-plugin-eslint-comments: ^3.2.0
->>>>>>> c9ad0dd9 (fix(core): Add missing ESLint plugin)
     eslint-plugin-functional: ^4.2.1
     eslint-plugin-import: ^2.26.0
     eslint-plugin-jest: ^25.7.0
@@ -5884,6 +5875,7 @@ __metadata:
     "@solana/spl-token": ^0.2.0
     "@solana/web3.js": ^1.31.0
     "@swim-io/pool-sdk": "workspace:packages/pool-sdk"
+    "@swim-io/tsconfig": "workspace:^"
     "@types/bs58": ^4.0.1
     bs58: ^4.0.1
     decimal.js: ^10.3.1
@@ -5892,21 +5884,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-<<<<<<< HEAD
 "@swim-io/pool-math@npm:^0.5.0":
   version: 0.5.0
   resolution: "@swim-io/pool-math@npm:0.5.0"
   dependencies:
     decimal.js: ^10.3.1
   checksum: 99b53e86a5f8b46d126bdfd79908437bdf4dc7d85fa5088de2a2d3a24e1ccb9127e77d1244de340c04550844b8d4bb2d54acd45d857c589144731cfe43d30d27
-=======
-"@swim-io/pool-math@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@swim-io/pool-math@npm:0.4.0"
-  dependencies:
-    decimal.js: ^10.3.1
-  checksum: 5fe7937a444dbbc0d4d305d01f5eaad44d5eca4db8bdec1c92d829d0108ea594c773c0c10d4ed59933dffe8e29a0f5fca2e1630fe5f67f46360d8ed5199c1324
->>>>>>> ced25a06 (chore(ui): Update swim packages to v0.4.0)
   languageName: node
   linkType: hard
 
@@ -5915,6 +5898,7 @@ __metadata:
   resolution: "@swim-io/pool-math@workspace:packages/pool-math"
   dependencies:
     "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/tsconfig": "workspace:^"
     "@types/jest": ^28.1.3
     "@typescript-eslint/eslint-plugin": ^5.30.5
     "@typescript-eslint/parser": ^5.30.5
@@ -5942,6 +5926,7 @@ __metadata:
     "@solana/spl-token": ^0.2.0
     "@solana/web3.js": ^1.31.0
     "@swim-io/pool-sdk": "workspace:packages/pool-sdk"
+    "@swim-io/tsconfig": "workspace:^"
     "@types/bs58": ^4.0.1
     bs58: ^4.0.1
     decimal.js: ^10.3.1
@@ -5958,6 +5943,7 @@ __metadata:
     "@project-serum/borsh": ^0.2.3
     "@solana/spl-token": ^0.2.0
     "@solana/web3.js": ^1.31.0
+    "@swim-io/tsconfig": "workspace:^"
     "@types/bn.js": ^5.1.0
     "@types/bs58": ^4.0.1
     bn.js: ^5.2.1
@@ -5981,6 +5967,7 @@ __metadata:
     "@solana/spl-token": ^0.2.0
     "@solana/web3.js": ^1.31.0
     "@swim-io/pool-sdk": "workspace:packages/pool-sdk"
+    "@swim-io/tsconfig": "workspace:^"
     "@types/bs58": ^4.0.1
     bs58: ^4.0.1
     decimal.js: ^10.3.1
@@ -5989,24 +5976,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-<<<<<<< HEAD
 "@swim-io/solana-types@npm:^0.5.0":
   version: 0.5.0
   resolution: "@swim-io/solana-types@npm:0.5.0"
-=======
-"@swim-io/solana-types@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@swim-io/solana-types@npm:0.4.0"
->>>>>>> ced25a06 (chore(ui): Update swim packages to v0.4.0)
   dependencies:
     "@project-serum/borsh": ^0.2.5
     "@solana/web3.js": ^1.44.2
     bn.js: ^5.2.1
-<<<<<<< HEAD
   checksum: 47078b69a20201700b0eb695f8a041cd76e2860297d3953145840ce29d153c10401a4268cf9193bbd30d6707160daca9620adc387c45f98ff2f1b04dc24d1c09
-=======
-  checksum: 7d5c083b98a59445716baf588dbf62a84c1587f565526a653a9b3f08db1242b53836eebe4aa986a08c1f3645a06fde0b0d2f99ad3339b8c9ad1d8a256210e3fd
->>>>>>> ced25a06 (chore(ui): Update swim packages to v0.4.0)
   languageName: node
   linkType: hard
 
@@ -6017,6 +5994,7 @@ __metadata:
     "@project-serum/borsh": ^0.2.5
     "@solana/web3.js": ^1.44.2
     "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/tsconfig": "workspace:^"
     "@types/bn.js": ^5.1.0
     "@types/jest": ^28.1.3
     "@typescript-eslint/eslint-plugin": ^5.29.0
@@ -6046,6 +6024,7 @@ __metadata:
     "@solana/web3.js": ^1.31.0
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/pool-math": "workspace:^"
+    "@swim-io/tsconfig": "workspace:^"
     "@types/bn.js": ^5.1.0
     "@types/jest": ^28.1.3
     "@typescript-eslint/eslint-plugin": ^5.29.0
@@ -6066,6 +6045,16 @@ __metadata:
   peerDependencies:
     "@solana/web3.js": ^1
     bn.js: ^5
+  languageName: unknown
+  linkType: soft
+
+"@swim-io/tsconfig@workspace:^, @swim-io/tsconfig@workspace:packages/tsconfig":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/tsconfig@workspace:packages/tsconfig"
+  dependencies:
+    prettier: ^2.7.1
+  peerDependencies:
+    typescript: ^4.7.4
   languageName: unknown
   linkType: soft
 
@@ -6108,14 +6097,10 @@ __metadata:
     "@storybook/react": ^6.5.9
     "@swim-io/core": ^0.5.0
     "@swim-io/eslint-config": "workspace:^"
-<<<<<<< HEAD
     "@swim-io/pool-math": ^0.5.0
     "@swim-io/solana-types": ^0.5.0
+    "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": ^0.5.0
-=======
-    "@swim-io/pool-math": ^0.4.0
-    "@swim-io/solana-types": ^0.4.0
->>>>>>> ced25a06 (chore(ui): Update swim packages to v0.4.0)
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^7.0.2
@@ -6180,6 +6165,7 @@ __metadata:
   resolution: "@swim-io/utils@workspace:packages/utils"
   dependencies:
     "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/tsconfig": "workspace:^"
     "@typescript-eslint/eslint-plugin": ^5.29.0
     "@typescript-eslint/parser": ^5.29.0
     eslint: ^8.18.0

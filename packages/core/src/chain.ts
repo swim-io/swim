@@ -1,19 +1,19 @@
-import type { ChainConfig } from "./chain";
-import type { Env } from "./env";
+import type { PoolConfig } from "./pool";
+import type { TokenConfig } from "./token";
 
-/** Basic properties of the primary gas token used by an ecosystem */
-export interface GasToken {
-  readonly name: string;
-  readonly symbol: string;
-  readonly decimals: number;
+/** Configuration interface for Wormhole-supported blockchains */
+export interface WormholeConfig {
+  /** The core (generic) VAA bridge contract */
+  readonly bridge: string;
+  /** The portal token bridge application contract */
+  readonly portal: string;
 }
 
-/** Configuration interface which any ecosystem has to support */
-export interface EcosystemConfig {
-  readonly protocol: string;
-  readonly id: string;
-  readonly wormholeChainId: number;
-  readonly displayName: string;
-  readonly gasToken: GasToken;
-  readonly chains: ReadonlyMap<Env, ChainConfig>;
+/** Ecosystem-neutral blockchain configuration interface */
+export interface ChainConfig {
+  readonly name: string;
+  readonly chainId: number;
+  readonly wormhole: WormholeConfig;
+  readonly tokens: readonly TokenConfig[];
+  readonly pools: readonly PoolConfig[];
 }

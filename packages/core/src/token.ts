@@ -3,7 +3,7 @@
  * different chains, which are technically independent tokens but share many features. Note that
  * these are not wrapped versions of some single original token.
  */
- export interface TokenProject {
+export interface TokenProject {
   readonly id: string;
   readonly symbol: string;
   readonly displayName: string;

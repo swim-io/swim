@@ -60,7 +60,7 @@ const calculateRequiredSplTokenAccounts = (
     ? [fromToken, toToken, swimUSD]
     : [fromToken, toToken];
   const mints = filterMap(
-    (token: TokenSpec) => token.nativeEcosystem === EcosystemId.Solana,
+    (token: TokenSpec) => token.nativeEcosystemId === EcosystemId.Solana,
     (token) => getSolanaTokenDetails(token).address,
     requiredTokens,
   );
@@ -130,7 +130,7 @@ const calculateRequiredSplTokenAccountsForAddRemove = (
     }
   })();
   const mints = filterMap(
-    (token: TokenSpec) => token.nativeEcosystem === EcosystemId.Solana,
+    (token: TokenSpec) => token.nativeEcosystemId === EcosystemId.Solana,
     (token) => getSolanaTokenDetails(token).address,
     requiredTokens,
   );

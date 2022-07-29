@@ -66,7 +66,7 @@ export const isLockSplTx = (
     return false;
   }
 
-  return token.nativeEcosystem === EcosystemId.Solana
+  return token.nativeEcosystemId === EcosystemId.Solana
     ? getAmountTransferredFromAccount(
         parsedTx,
         splTokenAccountAddress,
@@ -111,7 +111,7 @@ export const isRedeemOnSolanaTx = (
   ) {
     return false;
   }
-  return token.nativeEcosystem === EcosystemId.Solana
+  return token.nativeEcosystemId === EcosystemId.Solana
     ? getAmountTransferredToAccount(parsedTx, splTokenAccount).greaterThan(0)
     : getAmountMintedToAccount(parsedTx, splTokenAccount).greaterThan(0);
 };

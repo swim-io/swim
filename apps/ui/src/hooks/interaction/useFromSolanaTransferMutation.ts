@@ -11,6 +11,7 @@ import {
   Protocol,
   WormholeChainId,
   getSolanaTokenDetails,
+  getTokenDetailsForEcosystem,
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
@@ -133,7 +134,7 @@ export const useFromSolanaTransferMutation = () => {
       const value =
         transfer.value ??
         transferredAmounts[transfer.token.id]?.toHuman(
-          transfer.token.nativeEcosystem,
+          transfer.token.nativeEcosystemId,
         );
       if (!value) {
         throw new Error("Unknown transfer amount");
@@ -153,9 +154,9 @@ export const useFromSolanaTransferMutation = () => {
         chains[Protocol.Evm],
         ({ ecosystem }) => ecosystem === toEcosystem,
       );
-      const tokenDetail = token.detailsByEcosystem.get(toEcosystem);
-      if (!tokenDetail) {
-        throw new Error("No token detail");
+      const tokenDetails = getTokenDetailsForEcosystem(token, toEcosystem);
+      if (!tokenDetails) {
+        throw new Error("No token details");
       }
       const splTokenAccount = findTokenAccountForMint(
         solanaTokenDetails.address,
@@ -180,12 +181,13 @@ export const useFromSolanaTransferMutation = () => {
           BigInt(amount.toAtomicString(EcosystemId.Solana)),
           evmAddressToWormhole(evmWalletAddress),
           evmEcosystem.wormholeChainId,
-          token.nativeEcosystem === evmChain.ecosystem
+          token.nativeEcosystemId === evmChain.ecosystem
             ? evmAddressToWormhole(
-                token.detailsByEcosystem.get(evmChain.ecosystem)?.address ?? "",
+                getTokenDetailsForEcosystem(token, evmChain.ecosystem)
+                  ?.address ?? "",
               )
             : undefined,
-          token.nativeEcosystem === evmChain.ecosystem
+          token.nativeEcosystemId === evmChain.ecosystem
             ? evmEcosystem.wormholeChainId
             : undefined,
         );

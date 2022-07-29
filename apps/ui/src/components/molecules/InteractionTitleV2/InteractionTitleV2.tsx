@@ -69,7 +69,7 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
           <span>Remove</span>{" "}
           <AmountWithTokenIcon
             amount={minimumOutputAmount}
-            ecosystem={minimumOutputAmount.tokenSpec.nativeEcosystem}
+            ecosystem={minimumOutputAmount.tokenSpec.nativeEcosystemId}
           />
           <span>.</span>
         </div>

@@ -2,7 +2,7 @@ name: "Verify eslint-config build"
 on:
   pull_request:
     paths:
-      - "packages/eslint-config/**.ts"
+      - "packages/eslint-config/**.cjs"
       - "packages/eslint-config/**.json"
   push:
     branches:

@@ -1,3 +1,4 @@
+import type { TokenProject } from "@swim-io/core";
 import type { ReadonlyRecord } from "@swim-io/utils";
 
 import AUSD_SVG from "../images/tokens/ausd.svg";
@@ -50,15 +51,6 @@ export enum TokenProjectId {
   XSwim = "xswim",
 }
 
-export interface TokenProject {
-  readonly id: TokenProjectId;
-  readonly symbol: string;
-  readonly displayName: string;
-  readonly icon: string;
-  readonly isStablecoin: boolean;
-  readonly isLP: boolean;
-}
-
 export const PROJECT_LIST: readonly TokenProject[] = [
   {
     id: TokenProjectId.Usdc,
@@ -66,7 +58,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "USD Coin",
     icon: USDC_SVG,
     isStablecoin: true,
-    isLP: false,
+    isLp: false,
   },
   {
     id: TokenProjectId.Usdt,
@@ -74,7 +66,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Tether USD",
     icon: USDT_SVG,
     isStablecoin: true,
-    isLP: false,
+    isLp: false,
   },
   {
     id: TokenProjectId.Usn,
@@ -82,7 +74,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "USN",
     icon: USN_SVG,
     isStablecoin: true,
-    isLP: false,
+    isLp: false,
   },
   {
     id: TokenProjectId.Busd,
@@ -90,7 +82,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Binance USD",
     icon: BUSD_SVG,
     isStablecoin: true,
-    isLP: false,
+    isLp: false,
   },
   {
     id: TokenProjectId.Ausd,
@@ -98,7 +90,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Acala USD",
     icon: AUSD_SVG,
     isStablecoin: true,
-    isLP: false,
+    isLp: false,
   },
   {
     id: TokenProjectId.Gst,
@@ -106,7 +98,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Green Satoshi Token",
     icon: GST_SVG,
     isStablecoin: false,
-    isLP: false,
+    isLp: false,
   },
   {
     id: TokenProjectId.Gmt,
@@ -114,7 +106,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "STEPN",
     icon: GMT_SVG,
     isStablecoin: false,
-    isLP: false,
+    isLp: false,
   },
   {
     id: TokenProjectId.SwimUsd,
@@ -122,7 +114,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "swimUSD (Swim Hexapool LP)",
     icon: SWIM_USD_SVG,
     isStablecoin: true,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.Swim,
@@ -130,7 +122,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Swim Protocol Token",
     icon: SWIM_TOKEN_SVG,
     isStablecoin: false,
-    isLP: false,
+    isLp: false,
   },
   {
     id: TokenProjectId.XSwim,
@@ -138,7 +130,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "xSWIM (SwimLake LP)",
     icon: XSWIM_TOKEN_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.SwimAvalancheUsdcMetaPoolLp,
@@ -146,7 +138,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Avalanche USDC Meta-Pool LP",
     icon: LP_META_AVALANCHE_USDC_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.SwimAvalancheUsdtMetaPoolLp,
@@ -154,7 +146,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Avalanche USDT Meta-Pool LP",
     icon: LP_META_AVALANCHE_USDT_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.SwimPolygonUsdcMetaPoolLp,
@@ -162,7 +154,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Polygon USDC Meta-Pool LP",
     icon: LP_META_POLYGON_USDC_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.SwimPolygonUsdtMetaPoolLp,
@@ -170,7 +162,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Polygon USDT Meta-Pool LP",
     icon: LP_META_POLYGON_USDT_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.SwimSolanaGstBinanceGstLp,
@@ -178,7 +170,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Swim Solana GST Binance GST LP",
     icon: LP_GST_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.SwimSolanaGmtBinanceGmtLp,
@@ -186,7 +178,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Swim Solana GMT Binance GMT LP",
     icon: LP_GMT_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.SwimAuroraUsdcMetaPoolLp,
@@ -194,7 +186,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Aurora USDC Meta-Pool LP",
     icon: LP_META_AURORA_USDC_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.SwimAuroraUsdtMetaPoolLp,
@@ -202,7 +194,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Aurora USDT Meta-Pool LP",
     icon: LP_META_AURORA_USDT_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.SwimAuroraUsnMetaPoolLp,
@@ -210,7 +202,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Aurora USN Meta-Pool LP",
     icon: LP_META_AURORA_USN_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.SwimFantomUsdcMetaPoolLp,
@@ -218,7 +210,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Fantom USDC Meta-Pool LP",
     icon: LP_META_FANTOM_USDC_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.SwimKaruraAusdMetaPoolLp,
@@ -226,7 +218,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Karura AUSD Meta-Pool LP",
     icon: LP_META_KARURA_AUSD_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.SwimKaruraUsdtMetaPoolLp,
@@ -234,7 +226,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Karura USDT Meta-Pool LP",
     icon: LP_META_KARURA_USDT_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
   {
     id: TokenProjectId.SwimAcalaAusdMetaPoolLp,
@@ -242,7 +234,7 @@ export const PROJECT_LIST: readonly TokenProject[] = [
     displayName: "Acala AUSD Meta-Pool LP",
     icon: LP_META_ACALA_AUSD_SVG,
     isStablecoin: false,
-    isLP: true,
+    isLp: true,
   },
 ];
 

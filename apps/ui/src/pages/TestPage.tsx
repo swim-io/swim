@@ -91,23 +91,17 @@ const TestPage = (): ReactElement => {
   } = useTokensByEcosystem();
 
   const nativeSolanaTokenAddresses = solanaTokens
-    .filter((token) => token.nativeEcosystem === EcosystemId.Solana)
+    .filter((token) => token.nativeEcosystemId === EcosystemId.Solana)
     .filter((token) => !token.id.includes("-lp-"))
     .map((token) => getSolanaTokenDetails(token).address);
   const nativeEthereumTokenAddresses = ethereumTokens
-    .filter((token) => token.nativeEcosystem === EcosystemId.Ethereum)
+    .filter((token) => token.nativeEcosystemId === EcosystemId.Ethereum)
     .filter((token) => !token.id.includes("-lp-"))
-    .map((token) => {
-      const details = token.detailsByEcosystem.get(EcosystemId.Ethereum)!;
-      return details.address;
-    });
+    .map((token) => token.nativeDetails.address);
   const nativeBnbTokenAddresses = bnbTokens
-    .filter((token) => token.nativeEcosystem === EcosystemId.Bnb)
+    .filter((token) => token.nativeEcosystemId === EcosystemId.Bnb)
     .filter((token) => !token.id.includes("-lp-"))
-    .map((token) => {
-      const details = token.detailsByEcosystem.get(EcosystemId.Bnb)!;
-      return details.address;
-    });
+    .map((token) => token.nativeDetails.address);
 
   const lpTokenSolanaDetails = getSolanaTokenDetails(lpToken);
 
@@ -293,9 +287,7 @@ const TestPage = (): ReactElement => {
 
     await ethereumWallet.switchNetwork(ethereumChain.chainId);
     for (const token of tokens) {
-      const ethereumDetails = token.detailsByEcosystem.get(
-        EcosystemId.Ethereum,
-      );
+      const ethereumDetails = token.wrappedDetails.get(EcosystemId.Ethereum);
       if (!ethereumDetails) {
         continue;
       }
@@ -310,7 +302,7 @@ const TestPage = (): ReactElement => {
 
     await bnbWallet.switchNetwork(bnbChain.chainId);
     for (const token of tokens) {
-      const bnbDetails = token.detailsByEcosystem.get(EcosystemId.Bnb);
+      const bnbDetails = token.wrappedDetails.get(EcosystemId.Bnb);
       if (!bnbDetails) {
         continue;
       }
@@ -333,9 +325,7 @@ const TestPage = (): ReactElement => {
 
     await ethereumWallet.switchNetwork(ethereumChain.chainId);
     for (const token of tokens) {
-      const ethereumDetails = token.detailsByEcosystem.get(
-        EcosystemId.Ethereum,
-      );
+      const ethereumDetails = token.wrappedDetails.get(EcosystemId.Ethereum);
       if (!ethereumDetails) {
         continue;
       }
@@ -350,7 +340,7 @@ const TestPage = (): ReactElement => {
 
     await bnbWallet.switchNetwork(bnbChain.chainId);
     for (const token of tokens) {
-      const bnbDetails = token.detailsByEcosystem.get(EcosystemId.Bnb);
+      const bnbDetails = token.wrappedDetails.get(EcosystemId.Bnb);
       if (!bnbDetails) {
         continue;
       }

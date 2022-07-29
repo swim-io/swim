@@ -11,6 +11,7 @@ import {
 import type React from "react";
 
 import type { TokenSpec } from "../../config";
+import { getTokenDetailsForEcosystem } from "../../config";
 import { useToken } from "../../hooks";
 import type { TokenOption } from "../../models";
 import { Amount } from "../../models";
@@ -37,7 +38,7 @@ const getReadonlyDisplayValue = (token: TokenSpec, value: string) => {
     return "";
   }
   return Amount.fromHumanString(token, value).toFormattedHumanString(
-    token.nativeEcosystem,
+    token.nativeEcosystemId,
   );
 };
 
@@ -72,7 +73,7 @@ export const TokenAmountInputV2: React.FC<Props> = ({
   const { tokenId, ecosystemId } = selectedTokenOption;
   const token = useToken(tokenId);
 
-  const tokenDetails = token.detailsByEcosystem.get(ecosystemId) ?? null;
+  const tokenDetails = getTokenDetailsForEcosystem(token, ecosystemId);
   if (tokenDetails === null) {
     throw new Error("Native token details not found");
   }

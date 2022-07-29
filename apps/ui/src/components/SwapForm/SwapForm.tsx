@@ -12,7 +12,7 @@ import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId } from "../../config";
+import { EcosystemId, PROJECTS } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useNotification } from "../../core/store";
 import { captureAndWrapException } from "../../errors";
@@ -102,8 +102,8 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
 
   const isLargeSwap = useIsLargeSwap(fromToken, toToken, inputAmount);
   const isSmallEthSwap =
-    fromToken.project.isStablecoin &&
-    [fromToken.nativeEcosystem, toToken.nativeEcosystem].includes(
+    PROJECTS[fromToken.projectId].isStablecoin &&
+    [fromToken.nativeEcosystemId, toToken.nativeEcosystemId].includes(
       EcosystemId.Ethereum,
     ) &&
     inputAmount.toHuman(EcosystemId.Solana).lt(200);
@@ -119,7 +119,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
 
   const outputAmount = useSwapOutputAmountEstimate(inputAmount, toToken);
   const fromTokenUserBalances = useUserBalanceAmounts(fromToken);
-  const fromTokenBalance = fromTokenUserBalances[fromToken.nativeEcosystem];
+  const fromTokenBalance = fromTokenUserBalances[fromToken.nativeEcosystemId];
 
   const handleInputAmountChange = (currentInputAmount: Amount | null): void => {
     let errors: readonly string[] = [];
@@ -129,7 +129,9 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       errors = [...errors, "Amount must be greater than 0"];
     } else if (fromTokenBalance && currentInputAmount.gt(fromTokenBalance)) {
       errors = [...errors, "Amount cannot exceed available balance"];
-    } else if (currentInputAmount.requiresRounding(fromToken.nativeEcosystem)) {
+    } else if (
+      currentInputAmount.requiresRounding(fromToken.nativeEcosystemId)
+    ) {
       errors = [...errors, "Too many decimals"];
     } else {
       errors = [];
@@ -269,7 +271,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       />
 
       <TokenAmountInput
-        value={outputAmount?.toHumanString(toToken.nativeEcosystem) ?? ""}
+        value={outputAmount?.toHumanString(toToken.nativeEcosystemId) ?? ""}
         token={toToken}
         tokenOptionIds={toTokenOptionsIds}
         placeholder={"Output"}
@@ -283,8 +285,8 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       <EuiSpacer />
 
       <SwapFormSolanaConnectButton
-        fromEcosystem={fromToken.nativeEcosystem}
-        toEcosystem={toToken.nativeEcosystem}
+        fromEcosystem={fromToken.nativeEcosystemId}
+        toEcosystem={toToken.nativeEcosystemId}
       />
 
       {isInputAmountPositive && (

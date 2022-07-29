@@ -15,6 +15,7 @@ module.exports = {
         "solana-types",
         "solana-usdc-usdt-swap",
         "token-projects",
+        "tsconfig",
         "ui",
         "utils",
       ],

@@ -1,0 +1,32 @@
+{
+  "name": "@swim-io/tsconfig",
+  "version": "0.5.0",
+  "description": "Shared default TypeScript configuration for Swim TS projects.",
+  "files": [
+    "*.json",
+    "*.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/swim-io/swim/tree/master/packages/tsconfig"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "format": "prettier --write \"*.js\"",
+    "format:check": "prettier --check *.json",
+    "lint": "echo \"Skipped: json only repo\"",
+    "lint:fix": "echo \"Skipped: json only repo\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "verify": "yarn format:check && yarn lint",
+    "prepare": "yarn verify"
+  },
+  "peerDependencies": {
+    "typescript": "^4.7.4"
+  },
+  "devDependencies": {
+    "prettier": "^2.7.1"
+  }
+}

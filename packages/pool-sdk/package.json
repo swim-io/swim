@@ -26,6 +26,7 @@
     "decimal.js": "^10.3.1"
   },
   "devDependencies": {
+    "@swim-io/tsconfig": "workspace:^",
     "@types/bn.js": "^5.1.0",
     "@types/bs58": "^4.0.1",
     "prettier": "^2.7.1",

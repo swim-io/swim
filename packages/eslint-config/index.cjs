@@ -1,5 +1,49 @@
+const tsConfig = {
+  plugins: ["@typescript-eslint", "deprecation"],
+  extends: [
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:import/typescript",
+  ],
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    project: "./tsconfig.json",
+  },
+  rules: {
+    // @typescript-eslint
+    "@typescript-eslint/consistent-type-imports": "error",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/member-ordering": "error",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/no-unnecessary-condition": "error",
+    "@typescript-eslint/no-unnecessary-type-assertion": "error",
+    "@typescript-eslint/no-unsafe-call": "off",
+    "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/no-shadow": "error",
+    "@typescript-eslint/prefer-readonly-parameter-types": "off",
+
+    // deprecation
+    "deprecation/deprecation": "warn",
+  },
+  overrides: [
+    {
+      files: ["**/*.test.{cts,mts,ts,tsx}"],
+      env: {
+        node: true,
+      },
+      rules: {
+        "@typescript-eslint/no-unsafe-argument": "off",
+        "@typescript-eslint/no-unsafe-call": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-return": "off",
+      },
+    },
+  ],
+};
+
 module.exports = {
-  root: true,
   plugins: ["eslint-comments", "functional", "import", "jest", "prettier"],
   extends: [
     "eslint:recommended",
@@ -13,6 +57,7 @@ module.exports = {
   ],
   env: {
     "jest/globals": true,
+    node: true,
   },
   rules: {
     // Vanilla ESLint
@@ -50,4 +95,18 @@ module.exports = {
     ],
     "import/unambiguous": "error",
   },
+  overrides: [
+    {
+      files: ["*.cjs"],
+      rules: {
+        "functional/immutable-data": "off", // `exports` object is mutable
+        "import/no-commonjs": "off",
+        "import/unambiguous": "off",
+      },
+    },
+    {
+      files: ["*.{cts,mts,ts,tsx}"],
+      ...tsConfig,
+    },
+  ],
 };

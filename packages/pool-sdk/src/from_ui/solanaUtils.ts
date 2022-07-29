@@ -11,7 +11,7 @@ import BN from "bn.js";
  * Thrown if the owner of a token account is a PDA (Program Derived Address)
  */
 export class TokenOwnerOffCurveError extends Error {
-  name = "TokenOwnerOffCurveError";
+  override name = "TokenOwnerOffCurveError";
 }
 
 /**

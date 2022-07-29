@@ -39,3 +39,6 @@ test-ledger/
 
 # Storybook output directory
 storybook-static
+
+# TypeScript
+tsconfig.tsbuildinfo

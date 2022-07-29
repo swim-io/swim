@@ -11,6 +11,7 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import "./interfaces/IPool.sol";
 import "./interfaces/IRouting.sol";
+import "./interfaces/ISwimFactory.sol";
 
 import "./LpToken.sol";
 import "./Constants.sol";
@@ -30,7 +31,9 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
 
   using SafeERC20 for IERC20;
 
-  IRouting constant ROUTING_CONTRACT = IRouting(address(0x0));
+  address constant LP_TOKEN_LOGIC = address(0xdf0dFe41fC9fF3E8c8D33a6DD31dc8Ab8CeB56d6);
+  ISwimFactory constant SWIM_FACTORY = ISwimFactory(address(0x77C1f7813D79c8e6E37DE1aA631B6F961fD45648));
+  IRouting constant ROUTING_CONTRACT = IRouting(address(0x591bf69E5dAa731e26a87fe0C5b394263A8c3375));
 
   //slot (26/32 bytes used)
   uint8  public /*immutable*/ tokenCount;
@@ -57,7 +60,7 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
   function initialize(
     string memory lpTokenName,
     string memory lpTokenSymbol,
-    address lpTokenAddress,
+    bytes32 lpSalt,
     int8 lpTokenEqualizer,
     address[] memory poolTokenAddresses,
     int8[] memory poolTokenEqualizers,
@@ -67,10 +70,8 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     address _governance,
     address _governanceFeeRecipient
   ) public initializer {
-    LpToken lpToken = LpToken(lpTokenAddress);
-    if (!lpToken.initialize(lpTokenName, lpTokenSymbol))
-      revert Pool_LpTokenInitializationFailed();
-    lpTokenData.addr = lpTokenAddress;
+    //moved to a separate function to avoid stack too deep
+    lpTokenData.addr = deployLpToken(lpTokenName, lpTokenSymbol, lpSalt);
     lpTokenData.equalizer = lpTokenEqualizer;
 
     uint _tokenCount = poolTokenAddresses.length;
@@ -84,11 +85,10 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     tokenCount = uint8(_tokenCount);
 
     //enforce that swimUSD is always the first token
-    //TODO
-    //if (poolTokenAddresses[0] != ROUTING_CONTRACT.swimUsdAddress())
-    //  revert Pool_FirstTokenNotSwimUSD(poolTokenAddresses[0], ROUTING_CONTRACT.swimUsdAddress());
+    if (poolTokenAddresses[0] != ROUTING_CONTRACT.swimUsdAddress())
+      revert Pool_FirstTokenNotSwimUSD(poolTokenAddresses[0], ROUTING_CONTRACT.swimUsdAddress());
+
     for (uint i = 0; i < _tokenCount; ++i) {
-      //TODO do we want any form of checking here? (e.g. duplicates)
       poolTokensData[i].addr = poolTokenAddresses[i];
       if (poolTokenEqualizers[i] < MIN_EQUALIZER)
         revert Pool_TokenEqualizerTooSmall(poolTokenEqualizers[i], MIN_EQUALIZER);
@@ -446,6 +446,27 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
   }
 
   // -------------------------------- INTERNAL --------------------------------
+
+  function deployLpToken(string memory lpTokenName, string memory lpTokenSymbol, bytes32 lpSalt)
+    internal returns (address) {
+    try
+      SWIM_FACTORY.createProxy(
+        LP_TOKEN_LOGIC,
+        lpSalt,
+        //abi.encodeCall(LpToken.initialize, (address(this), lpTokenName, lpTokenSymbol))
+        abi.encodeWithSignature(
+          "initialize(address,string,string)",
+          address(this),
+          lpTokenName,
+          lpTokenSymbol
+        )
+      )
+    returns (address lpTokenAddress) {
+      return lpTokenAddress;
+    } catch {
+      revert Pool_LpTokenInitializationFailed();
+    }
+  }
 
   function _setFees(uint32 lpFee, uint32 _governanceFee) internal {
     uint32 _totalFee = lpFee + _governanceFee; //SafeMath!

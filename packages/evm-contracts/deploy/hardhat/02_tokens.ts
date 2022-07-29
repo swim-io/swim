@@ -13,6 +13,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       args: [name, symbol],
       autoMine: true,
     });
+    console.log(symbol + ":", deployedContract.address);
     await save(symbol, deployedContract);
   }
 };

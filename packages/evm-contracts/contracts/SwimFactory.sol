@@ -2,14 +2,15 @@
 pragma solidity ^0.8.0;
 
 import "./BlankLogic.sol";
+import "./interfaces/ISwimFactory.sol";
 
 interface IUUPSUpgradeable {
   function upgradeToAndCall(address newImplementation, bytes memory data) external payable;
 }
 
 //Our deploy code for proxy (all numbers in hex):
-// PUSH32 360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc (PUSH32 = 7F)
 // PUSH20 blankLogicAddress (PUSH20 = 73)
+// PUSH32 360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc (PUSH32 = 7F)
 // SSTORE (= 55)
 // PUSH2 proxyContractSize (= 2FA (762 in base 10)) (PUSH2 = 61)
 // DUP1 (= 80)
@@ -23,8 +24,8 @@ interface IUUPSUpgradeable {
 //Deploy code length:
 // 33 + 21 + 1 + 3 + 1 + 2 + 2 + 1 + 2 + 1 + 1 = 68 = 0x44
 //Deploy opcode:
-// 7F360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382b
-// bc73XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5561####8060ZZ600039
+// 73XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7F360894a13ba1a3210667
+// c828492db98dca3e2076cc3735a920a3ca505d382bbc5561####8060ZZ600039
 // 6000F300
 //
 //Where:
@@ -71,7 +72,7 @@ interface IUUPSUpgradeable {
 //
 //762 (stripped length) + 1 (invalid opcode) + 96 (fingerprint) = 855 (original code length)
 
-contract DeterministicFactory {
+contract SwimFactory is ISwimFactory {
 
   uint private constant PROXY_DEPLOYMENT_CODESIZE = 68;
   uint private constant PROXY_STRIPPED_DEPLOYEDCODESIZE = 762;
@@ -82,21 +83,26 @@ contract DeterministicFactory {
 
   event ContractCreated(address indexed addr, bool isLogic);
 
-  address private owner;
+  address public owner;
   uint private reentrancyCount;
   address private blankLogicAddress;
 
-  constructor() {
-    owner = msg.sender;
+  constructor(address _owner) {
+    owner = _owner;
     blankLogicAddress = address(new BlankLogic());
   }
 
   modifier onlyOwnerOrAlreadyDeploying() {
-      require(msg.sender == owner || reentrancyCount > 0);
-      ++reentrancyCount;
-        _;
-      --reentrancyCount;
-    }
+    require(msg.sender == owner || reentrancyCount > 0);
+    ++reentrancyCount;
+      _;
+    --reentrancyCount;
+  }
+
+  function transferOwnership(address newOwner) external {
+    require(msg.sender == owner, "Not Authorized");
+    owner = newOwner;
+  }
 
   function createLogic(bytes memory code, bytes32 salt)
     external onlyOwnerOrAlreadyDeploying returns (address) {
@@ -109,7 +115,10 @@ contract DeterministicFactory {
     external onlyOwnerOrAlreadyDeploying returns (address) {
     bytes memory code = proxyDeploymentCode();
     address proxy = create2(code, salt);
-    IUUPSUpgradeable(proxy).upgradeToAndCall(implementation, call);
+    try IUUPSUpgradeable(proxy).upgradeToAndCall(implementation, call) {}
+    catch (bytes memory lowLevelData) {
+      revert ProxyConstructorFailed(lowLevelData);
+    }
     emit ContractCreated(proxy, false);
 		return proxy;
   }
@@ -128,29 +137,29 @@ contract DeterministicFactory {
 		bytes memory _code = code;
 		bytes32 _salt = salt;
 		address ct;
+    bool failed;
 		assembly /*("memory-safe")*/ {
-			ct := create2(0, add(_code, 0x20), mload(_code), _salt)
-			if iszero(extcodesize(ct)) { revert(0, 0) }
+			ct := create2(0, add(_code, 32), mload(_code), _salt)
+			failed := iszero(extcodesize(ct))
 		}
+    if (failed)
+      revert ContractAlreadyExists(ct);
 		return ct;
 	}
 
   function determineAddress(bytes memory code, bytes32 salt) internal view returns (address) {
-    return address(bytes20(keccak256(abi.encodePacked(
-			bytes1(0xff),
-			address(this),
-			salt,
-			keccak256(code)
-		)) << 0x60));
+    return address(bytes20(keccak256(
+      abi.encodePacked(bytes1(0xff),	address(this), salt, keccak256(code))
+    ) << 96));
   }
 
   function proxyDeploymentCode() internal view returns (bytes memory) {
     // doesn't work because stack too deep... => gotta do it ourselves
     // return bytes.concat(
-    //   bytes1(0x7f), //PUSH32
-    //   IMPLEMENTATION_SLOT, //sstore key argument
     //   bytes1(0x73), //PUSH20
     //   bytes20(blankLogicAddress), //sstore val argument
+    //   bytes1(0x7f), //PUSH32
+    //   IMPLEMENTATION_SLOT, //sstore key argument
     //   bytes1(0x55), //SSTORE
     //   bytes1(0x61), //PUSH2
     //   bytes2(uint16(PROXY_STRIPPED_DEPLOYEDCODESIZE)), //return len argument
@@ -195,18 +204,19 @@ contract DeterministicFactory {
     uint _blankLogicAddress = uint(uint160(blankLogicAddress));
     bytes memory code = new bytes(PROXY_TOTAL_CODESIZE);
     assembly /*("memory-safe")*/ {
-      mstore(add(code, 32), shl(248, 0x7f))
-      mstore(add(code, 33), _IMPLEMENTATION_SLOT)
-      mstore(add(code, 65), add(add(add(add(add(add(
+      mstore(add(code, 32), add(add(
         shl(248, 0x73),
         shl(88, _blankLogicAddress)),
-        shl(72, 0x5561)),
-        shl(56, _PROXY_STRIPPED_DEPLOYEDCODESIZE)),
-        shl(40, 0x8060)),
-        shl(32, _PROXY_DEPLOYMENT_CODESIZE)),
-        0x60003960)
+        shl(80, 0x7f))
       )
-      mstore(add(code, 97), shl(240, 0xf3))
+      mstore(add(code, 54), _IMPLEMENTATION_SLOT)
+      mstore(add(code, 86), add(add(add(add(
+        shl(240, 0x5561),
+        shl(224, _PROXY_STRIPPED_DEPLOYEDCODESIZE)),
+        shl(208, 0x8060)),
+        shl(200, _PROXY_DEPLOYMENT_CODESIZE)),
+        shl(144, 0x6000396000f300))
+      )
       mstore(add(code, 100), 0x60806040523661001357610011610017565b005b6100115b6100276100226100)
       mstore(add(code, 132), 0x74565b6100b9565b565b606061004e8383604051806060016040528060278152)
       mstore(add(code, 164), 0x6020016102fb602791396100dd565b9392505050565b73ffffffffffffffffff)

@@ -6,6 +6,9 @@ import "../interfaces/ITokenBridge.sol";
 
 contract MockTokenBridge is ITokenBridge {
 
+  IWormhole constant WOMRHOLE = IWormhole(address(0xC89Ce4735882C9F0f0FE26686c53074E09B0D550));
+  address constant SWIM_USD = address(0x0165878A594ca255338adfa4d48449f69242Eb8F);
+
    function transferTokensWithPayload(
     address token,
     uint256 amount,
@@ -33,13 +36,11 @@ contract MockTokenBridge is ITokenBridge {
   }
 
   function wrappedAsset(uint16 tokenChainId, bytes32 tokenAddress) external view returns (address) {
-    return 0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199;
+    return SWIM_USD;
   }
 
   function wormhole() external view returns (IWormhole) {
-    address a = address(0xC89Ce4735882C9F0f0FE26686c53074E09B0D550);
-    IWormhole _wormhole = IWormhole(a);
-    return _wormhole;
+    return WOMRHOLE;
   }
 
 }

@@ -24,7 +24,7 @@ import {
   useSplTokenAccountsQuery,
   useSwapFeesEstimationQuery,
   useSwapOutputAmountEstimate,
-  useSwapTokens,
+  useSwapTokensContext,
   useUserBalanceAmounts,
   useUserNativeBalances,
 } from "../../hooks";
@@ -64,11 +64,13 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const {
     fromToken,
     toToken,
-    setFromTokenId,
-    setToTokenId,
     fromTokenOptionsIds,
     toTokenOptionsIds,
-  } = useSwapTokens();
+    setFromToken,
+    setToToken,
+    setFromAndToTokens,
+    hasUrlError,
+  } = useSwapTokensContext();
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const requiredPools = getRequiredPoolsForSwap(
@@ -231,6 +233,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const isStableSwap = requiredPools.every((pool) => pool.isStableSwap);
   return (
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
+      {hasUrlError && <EuiCallOut title="Invalid URL inputs" color="danger" />}
       <EuiSpacer />
 
       <TokenAmountInput
@@ -240,7 +243,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         placeholder={"Enter amount"}
         disabled={isInteractionInProgress}
         errors={inputAmountErrors}
-        onSelectToken={setFromTokenId}
+        onSelectToken={setFromToken}
         onChangeValue={(value) => setFormInputAmount(value)}
         onBlur={() => handleInputAmountChange(inputAmount)}
         showConstantSwapTip={!isStableSwap}
@@ -253,8 +256,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
           size="m"
           iconSize="xl"
           onClick={() => {
-            setFromTokenId(toToken.id);
-            setToTokenId(fromToken.id);
+            setFromAndToTokens(toToken, fromToken);
           }}
           className="swapForm__flipIcon"
           aria-label="Flip direction"
@@ -273,7 +275,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         placeholder={"Output"}
         disabled={isInteractionInProgress}
         errors={[]}
-        onSelectToken={setToTokenId}
+        onSelectToken={setToToken}
         // Never show constant swap on "To Form".
         showConstantSwapTip={false}
       />

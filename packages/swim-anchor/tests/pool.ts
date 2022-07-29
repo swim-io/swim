@@ -1,5 +1,5 @@
 import * as anchor from "@project-serum/anchor";
-import { Program } from "@project-serum/anchor";
+import { Program, SplToken } from "@project-serum/anchor";
 import { TwoPool } from "../target/types/two_pool";
 import {web3, Spl} from "@project-serum/anchor";
 import { assert, expect } from "chai";
@@ -16,7 +16,6 @@ describe("TwoPool", () => {
   anchor.setProvider(provider);
 
   const program = anchor.workspace.TwoPool as Program<TwoPool>;
-  const coder = program.coder;
 
   let flagshipPool: web3.PublicKey;
 
@@ -90,55 +89,6 @@ describe("TwoPool", () => {
     );
 
 
-    // userUsdcAtaAddr = await getAssociatedTokenAddress(
-    //   usdcKeypair.publicKey,
-    //   provider.publicKey,
-    // );
-    //
-    // userUsdtAtaAddr = await getAssociatedTokenAddress(
-    //   usdtKeypair.publicKey,
-    //   provider.publicKey,
-    // );
-    // userUsdcAtaAddr = (await getOrCreateAssociatedTokenAccount(
-    //   provider.connection,
-    //   payer,
-    //   usdcKeypair.publicKey,
-    //   provider.publicKey,
-    // )).address;
-    //
-    // userUsdtAtaAddr = (await getOrCreateAssociatedTokenAccount(
-    //   provider.connection,
-    //   payer,
-    //   usdtKeypair.publicKey,
-    //   provider.publicKey,
-    // )).address;
-    //
-    // userSwimUsdAtaAddr = (await getOrCreateAssociatedTokenAccount(
-    //   provider.connection,
-    //   payer,
-    //   swimUsdKeypair.publicKey,
-    //   provider.publicKey,
-    // )).address;
-    //
-    // await mintTo(
-    //   provider.connection,
-    //   payer,
-    //   usdcKeypair.publicKey,
-    //   userUsdcAtaAddr,
-    //   payer,
-    //   1000000
-    // );
-    //
-    // await mintTo(
-    //   provider.connection,
-    //   payer,
-    //   usdtKeypair.publicKey,
-    //   userUsdtAtaAddr,
-    //   payer,
-    //   1000000
-    // );
-
-
     console.log(`initialized pool token accounts`);
 
     governanceFeeAddr = await getAssociatedTokenAddress(
@@ -154,7 +104,6 @@ describe("TwoPool", () => {
       poolUsdtTokenAccount: ${poolUsdtAtaAddr.toBase58()}
       governanceFeeAddr: ${governanceFeeAddr.toBase58()}
     `);
-
 
   });
   it("Is initialized!", async () => {
@@ -191,10 +140,421 @@ describe("TwoPool", () => {
     const poolData = await program.account.twoPool.fetch(pool);
     console.log(`poolData: ${JSON.stringify(poolData, null, 2)}`);
     assert(poolData.ampFactor.targetValue.value.eq(ampFactor.value));
+    await setupUserAssociatedTokenAccts();
   });
+
+
 
   it("Can add to pool", async () => {
     const previousDepthBefore = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
+
+    const inputAmounts = [new anchor.BN(100_000_000), new anchor.BN(100_000_000)];
+    const minimumMintAmount = new anchor.BN(0);
+    const addParams = {
+      inputAmounts,
+      minimumMintAmount,
+    }
+    let userTransferAuthority = web3.Keypair.generate();
+    const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+      [userUsdcAtaAddr, userUsdtAtaAddr],
+      inputAmounts,
+      userTransferAuthority.publicKey,
+      payer
+    )
+    const tx = await program
+      .methods
+      .add(
+        addParams
+      )
+      .accounts({
+
+        poolTokenAccount0: poolUsdcAtaAddr,
+        poolTokenAccount1: poolUsdtAtaAddr,
+        lpMint: swimUsdKeypair.publicKey,
+        governanceFee: governanceFeeAddr,
+        userTransferAuthority: userTransferAuthority.publicKey,
+        userTokenAccount0: userUsdcAtaAddr,
+        userTokenAccount1: userUsdtAtaAddr,
+        userLpTokenAccount: userSwimUsdAtaAddr,
+        tokenProgram: splToken.programId,
+      })
+      .preInstructions(approveIxs)
+      .postInstructions(revokeIxs)
+      .signers([userTransferAuthority])
+      .rpc();
+
+
+    console.log("Your transaction signature", tx);
+
+    const userLpTokenAccountBalance = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
+    console.log(`userLpTokenAccountBalance: ${userLpTokenAccountBalance.toString()}`);
+    assert(userLpTokenAccountBalance.gt(new anchor.BN(0)));
+    const previousDepthAfter = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
+    console.log(`
+      previousDepth
+        Before: ${previousDepthBefore.toString()}
+        After:  ${previousDepthAfter.toString()}
+    `);
+    assert(previousDepthAfter.gt(previousDepthBefore));
+
+  });
+
+  it("Can swap exact input to pool", async () => {
+    const previousDepthBefore = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
+    const userUsdcTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
+    const userUsdtTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    const exactInputAmounts = [new anchor.BN(100_000), new anchor.BN(0)];
+    const outputTokenIndex = 1;
+    const minimumOutputAmount = new anchor.BN(0);
+    const swapExactInputParams = {
+      exactInputAmounts,
+      outputTokenIndex,
+      minimumOutputAmount,
+    }
+    let userTransferAuthority = web3.Keypair.generate();
+    const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+      [userUsdcAtaAddr, userUsdtAtaAddr],
+      exactInputAmounts,
+      userTransferAuthority.publicKey,
+      payer
+    )
+
+    const tx = await program
+      .methods
+      .swapExactInput(
+        swapExactInputParams
+      )
+      .accounts({
+
+        poolTokenAccount0: poolUsdcAtaAddr,
+        poolTokenAccount1: poolUsdtAtaAddr,
+        lpMint: swimUsdKeypair.publicKey,
+        governanceFee: governanceFeeAddr,
+        userTransferAuthority: userTransferAuthority.publicKey,
+        userTokenAccount0: userUsdcAtaAddr,
+        userTokenAccount1: userUsdtAtaAddr,
+        tokenProgram: splToken.programId,
+      })
+      .preInstructions(approveIxs)
+      .postInstructions(revokeIxs)
+      .signers([userTransferAuthority])
+      .rpc();
+
+    console.log("Your transaction signature", tx);
+    const previousDepthAfter = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
+    console.log(`
+      previousDepth
+        Before: ${previousDepthBefore.toString()}
+        After:  ${previousDepthAfter.toString()}
+    `);
+    assert(!previousDepthAfter.eq(previousDepthBefore));
+    const userUsdcTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
+    const userUsdtTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    console.log(`
+      userUsdcTokenAcctBalance
+        Before: ${userUsdcTokenAcctBalanceBefore.toString()}
+        After:  ${userUsdcTokenAcctBalanceAfter.toString()}
+
+      userUsdtTokenAcctBalance
+        Before: ${userUsdtTokenAcctBalanceBefore.toString()}
+        After:  ${userUsdtTokenAcctBalanceAfter.toString()}
+    `);
+    assert(userUsdcTokenAcctBalanceAfter.eq(userUsdcTokenAcctBalanceBefore.sub(exactInputAmounts[0])));
+    assert(userUsdtTokenAcctBalanceAfter.gt(userUsdtTokenAcctBalanceBefore));
+  });
+
+  it("Can swap exact output to pool", async () => {
+    const previousDepthBefore = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
+    const userUsdcTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
+    const userUsdtTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    const inputTokenIndex = 0;
+    const maximumInputAmount = new anchor.BN(100_000)
+    const maximumInputAmounts = [
+      maximumInputAmount,
+      new anchor.BN(0)
+    ];
+    maximumInputAmounts[inputTokenIndex] = maximumInputAmount;
+    const exactOutputAmounts = [new anchor.BN(0), new anchor.BN(50_000)];
+    const swapExactOutputParams = {
+      maximumInputAmount,
+      inputTokenIndex,
+      exactOutputAmounts,
+    }
+    let userTransferAuthority = web3.Keypair.generate();
+    const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+      [userUsdcAtaAddr, userUsdtAtaAddr],
+      maximumInputAmounts,
+      userTransferAuthority.publicKey,
+      payer
+    )
+
+    const tx = await program
+      .methods
+      .swapExactOutput(
+        swapExactOutputParams
+      )
+      .accounts({
+
+        poolTokenAccount0: poolUsdcAtaAddr,
+        poolTokenAccount1: poolUsdtAtaAddr,
+        lpMint: swimUsdKeypair.publicKey,
+        governanceFee: governanceFeeAddr,
+        userTransferAuthority: userTransferAuthority.publicKey,
+        userTokenAccount0: userUsdcAtaAddr,
+        userTokenAccount1: userUsdtAtaAddr,
+        tokenProgram: splToken.programId,
+      })
+      .preInstructions(approveIxs)
+      .postInstructions(revokeIxs)
+      .signers([userTransferAuthority])
+      .rpc();
+
+
+    console.log("Your transaction signature", tx);
+    const previousDepthAfter = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
+    console.log(`
+      previousDepth
+        Before: ${previousDepthBefore.toString()}
+        After:  ${previousDepthAfter.toString()}
+    `);
+    assert(!previousDepthAfter.eq(previousDepthBefore));
+    const userUsdcTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
+    const userUsdtTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    console.log(`
+      userUsdcTokenAcctBalance
+        Before: ${userUsdcTokenAcctBalanceBefore.toString()}
+        After:  ${userUsdcTokenAcctBalanceAfter.toString()}
+
+      userUsdtTokenAcctBalance
+        Before: ${userUsdtTokenAcctBalanceBefore.toString()}
+        After:  ${userUsdtTokenAcctBalanceAfter.toString()}
+    `);
+    assert(userUsdcTokenAcctBalanceAfter.lt(userUsdcTokenAcctBalanceBefore));
+    assert(userUsdtTokenAcctBalanceAfter.eq(userUsdtTokenAcctBalanceBefore.add(exactOutputAmounts[1])));
+
+  });
+
+  it("Can remove uniform", async() => {
+    const previousDepthBefore = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
+    const userUsdcTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
+    const userUsdtTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    const userSwimUsdTokenAcctBalanceBefore = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
+    const exactBurnAmount = new anchor.BN(100_000)
+    const minimumOutputAmounts = [new anchor.BN(10_000), new anchor.BN(10_000)];
+    const removeUniformParams = {
+      exactBurnAmount,
+      minimumOutputAmounts,
+    }
+    let userTransferAuthority = web3.Keypair.generate();
+    const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+      [userSwimUsdAtaAddr],
+      [exactBurnAmount],
+      userTransferAuthority.publicKey,
+      payer
+    )
+
+    const tx = await program
+      .methods
+      .removeUniform(
+        removeUniformParams
+      )
+      .accounts({
+
+        poolTokenAccount0: poolUsdcAtaAddr,
+        poolTokenAccount1: poolUsdtAtaAddr,
+        lpMint: swimUsdKeypair.publicKey,
+        governanceFee: governanceFeeAddr,
+        userTransferAuthority: userTransferAuthority.publicKey,
+        userTokenAccount0: userUsdcAtaAddr,
+        userTokenAccount1: userUsdtAtaAddr,
+        userLpTokenAccount: userSwimUsdAtaAddr,
+        tokenProgram: splToken.programId,
+      })
+      .preInstructions(approveIxs)
+      .postInstructions(revokeIxs)
+      .signers([userTransferAuthority])
+      .rpc();
+
+
+    console.log("Your transaction signature", tx);
+    const previousDepthAfter = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
+    console.log(`
+      previousDepth
+        Before: ${previousDepthBefore.toString()}
+        After:  ${previousDepthAfter.toString()}
+    `);
+    assert(!previousDepthAfter.eq(previousDepthBefore));
+    const userUsdcTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
+    const userUsdtTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    const userSwimUsdTokenAcctBalanceAfter = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
+    console.log(`
+      userUsdcTokenAcctBalance
+        Before: ${userUsdcTokenAcctBalanceBefore.toString()}
+        After:  ${userUsdcTokenAcctBalanceAfter.toString()}
+
+      userUsdtTokenAcctBalance
+        Before: ${userUsdtTokenAcctBalanceBefore.toString()}
+        After:  ${userUsdtTokenAcctBalanceAfter.toString()}
+
+      userSwimUsdTokenAcctBalance
+        Before: ${userSwimUsdTokenAcctBalanceBefore.toString()}
+        After:  ${userSwimUsdTokenAcctBalanceAfter.toString()}
+    `);
+    assert(userUsdcTokenAcctBalanceAfter.gte(userUsdcTokenAcctBalanceBefore.add(minimumOutputAmounts[0])));
+    assert(userUsdtTokenAcctBalanceAfter.gte(userUsdtTokenAcctBalanceBefore.add(minimumOutputAmounts[1])));
+    assert(userSwimUsdTokenAcctBalanceAfter.eq(userSwimUsdTokenAcctBalanceBefore.sub(exactBurnAmount)));
+  });
+
+  it("Can remove exact burn", async() => {
+    const previousDepthBefore = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
+    const userUsdcTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
+    const userUsdtTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    const userSwimUsdTokenAcctBalanceBefore = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
+    const exactBurnAmount = new anchor.BN(100_000)
+    const outputTokenIndex = 0;
+    const minimumOutputAmount = new anchor.BN(10_000);
+    const removeExactBurnParams = {
+      exactBurnAmount,
+      outputTokenIndex,
+      minimumOutputAmount,
+    }
+    let userTransferAuthority = web3.Keypair.generate();
+    const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+      [userSwimUsdAtaAddr],
+      [exactBurnAmount],
+      userTransferAuthority.publicKey,
+      payer
+    )
+
+    const tx = await program
+      .methods
+      .removeExactBurn(
+        removeExactBurnParams
+      )
+      .accounts({
+
+        poolTokenAccount0: poolUsdcAtaAddr,
+        poolTokenAccount1: poolUsdtAtaAddr,
+        lpMint: swimUsdKeypair.publicKey,
+        governanceFee: governanceFeeAddr,
+        userTransferAuthority: userTransferAuthority.publicKey,
+        userTokenAccount0: userUsdcAtaAddr,
+        userTokenAccount1: userUsdtAtaAddr,
+        userLpTokenAccount: userSwimUsdAtaAddr,
+        tokenProgram: splToken.programId,
+      })
+      .preInstructions(approveIxs)
+      .postInstructions(revokeIxs)
+      .signers([userTransferAuthority])
+      .rpc();
+
+
+    console.log("Your transaction signature", tx);
+    const previousDepthAfter = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
+    console.log(`
+      previousDepth
+        Before: ${previousDepthBefore.toString()}
+        After:  ${previousDepthAfter.toString()}
+    `);
+    assert(!previousDepthAfter.eq(previousDepthBefore));
+    const userUsdcTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
+    const userUsdtTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    const userSwimUsdTokenAcctBalanceAfter = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
+    console.log(`
+      userUsdcTokenAcctBalance
+        Before: ${userUsdcTokenAcctBalanceBefore.toString()}
+        After:  ${userUsdcTokenAcctBalanceAfter.toString()}
+
+      userUsdtTokenAcctBalance
+        Before: ${userUsdtTokenAcctBalanceBefore.toString()}
+        After:  ${userUsdtTokenAcctBalanceAfter.toString()}
+
+      userSwimUsdTokenAcctBalance
+        Before: ${userSwimUsdTokenAcctBalanceBefore.toString()}
+        After:  ${userSwimUsdTokenAcctBalanceAfter.toString()}
+    `);
+    assert(userUsdcTokenAcctBalanceAfter.gte(userUsdcTokenAcctBalanceBefore.add(minimumOutputAmount)));
+    assert(userUsdtTokenAcctBalanceAfter.eq(userUsdtTokenAcctBalanceBefore));
+    assert(userSwimUsdTokenAcctBalanceAfter.eq(userSwimUsdTokenAcctBalanceBefore.sub(exactBurnAmount)));
+
+  });
+
+
+  it("Can remove exact output", async() => {
+    const previousDepthBefore = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
+    const userUsdcTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
+    const userUsdtTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    const userSwimUsdTokenAcctBalanceBefore = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
+    const maximumBurnAmount = new anchor.BN(100_000)
+    const exactOutputAmounts = [new anchor.BN(10_000), new anchor.BN(10_000)];
+    const removeExactOutputParams = {
+      maximumBurnAmount,
+      exactOutputAmounts,
+    }
+    let userTransferAuthority = web3.Keypair.generate();
+    const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+      [userSwimUsdAtaAddr],
+      [maximumBurnAmount],
+      userTransferAuthority.publicKey,
+      payer
+    )
+
+    const tx = await program
+      .methods
+      .removeExactOutput(
+        removeExactOutputParams
+      )
+      .accounts({
+        poolTokenAccount0: poolUsdcAtaAddr,
+        poolTokenAccount1: poolUsdtAtaAddr,
+        lpMint: swimUsdKeypair.publicKey,
+        governanceFee: governanceFeeAddr,
+        userTransferAuthority: userTransferAuthority.publicKey,
+        userTokenAccount0: userUsdcAtaAddr,
+        userTokenAccount1: userUsdtAtaAddr,
+        userLpTokenAccount: userSwimUsdAtaAddr,
+        tokenProgram: splToken.programId,
+      })
+      .preInstructions(approveIxs)
+      .postInstructions(revokeIxs)
+      .signers([userTransferAuthority])
+      .rpc();
+
+
+    console.log("Your transaction signature", tx);
+    const previousDepthAfter = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
+    console.log(`
+      previousDepth
+        Before: ${previousDepthBefore.toString()}
+        After:  ${previousDepthAfter.toString()}
+    `);
+    assert(!previousDepthAfter.eq(previousDepthBefore));
+    const userUsdcTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
+    const userUsdtTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    const userSwimUsdTokenAcctBalanceAfter = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
+    console.log(`
+      userUsdcTokenAcctBalance
+        Before: ${userUsdcTokenAcctBalanceBefore.toString()}
+        After:  ${userUsdcTokenAcctBalanceAfter.toString()}
+
+      userUsdtTokenAcctBalance
+        Before: ${userUsdtTokenAcctBalanceBefore.toString()}
+        After:  ${userUsdtTokenAcctBalanceAfter.toString()}
+
+      userSwimUsdTokenAcctBalance
+        Before: ${userSwimUsdTokenAcctBalanceBefore.toString()}
+        After:  ${userSwimUsdTokenAcctBalanceAfter.toString()}
+    `);
+    assert(userUsdcTokenAcctBalanceAfter.eq(userUsdcTokenAcctBalanceBefore.add(exactOutputAmounts[0])));
+    assert(userUsdtTokenAcctBalanceAfter.eq(userUsdtTokenAcctBalanceBefore.add(exactOutputAmounts[1])));
+    assert(userSwimUsdTokenAcctBalanceAfter.gte(userSwimUsdTokenAcctBalanceBefore.sub(maximumBurnAmount)));
+
+  });
+
+
+  /** Helper functions */
+
+  async function setupUserAssociatedTokenAccts() {
     userUsdcAtaAddr = (await getOrCreateAssociatedTokenAccount(
       provider.connection,
       payer,
@@ -222,7 +582,7 @@ describe("TwoPool", () => {
       usdcKeypair.publicKey,
       userUsdcAtaAddr,
       payer,
-      1_000_000_000
+      1_000_000_000_000_000
     );
 
     await mintTo(
@@ -231,89 +591,45 @@ describe("TwoPool", () => {
       usdtKeypair.publicKey,
       userUsdtAtaAddr,
       payer,
-      1_000_000_000
+      1_000_000_000_000_000
     );
-    const inputAmounts = [new anchor.BN(100_000), new anchor.BN(100_000)];
-    const minimumMintAmount = new anchor.BN(0);
-    const addParams = {
-      inputAmounts,
-      minimumMintAmount,
-    }
-    let userTransferAuthority = web3.Keypair.generate();
-    const tx = await program
-      .methods
-      .add(
-        addParams
-      )
-      .accounts({
+  }
 
-        poolTokenAccount0: poolUsdcAtaAddr,
-        poolTokenAccount1: poolUsdtAtaAddr,
-        lpMint: swimUsdKeypair.publicKey,
-        governanceFee: governanceFeeAddr,
-        userTransferAuthority: userTransferAuthority.publicKey,
-        userTokenAccount0: userUsdcAtaAddr,
-        userTokenAccount1: userUsdtAtaAddr,
-        userLpTokenAccount: userSwimUsdAtaAddr,
-        tokenProgram: splToken.programId,
+  async function getApproveAndRevokeIxs(
+    tokenAccounts: Array<web3.PublicKey>,
+    amounts: Array<anchor.BN>,
+    delegate: web3.PublicKey,
+    authority: web3.Keypair
+  ): Promise<Array<Array<web3.TransactionInstruction>>> {
+
+    const approveIxs = await Promise.all(
+      tokenAccounts.map((tokenAccount, i) => {
+        return splToken
+          .methods
+          .approve(amounts[i])
+          .accounts({
+            source: tokenAccount,
+            delegate,
+            authority: authority.publicKey
+          })
+          .signers([authority])
+          .instruction();
       })
-      .preInstructions([
-          await splToken
-            .methods
-            .approve(inputAmounts[0])
-            .accounts({
-              source: userUsdcAtaAddr,
-              delegate: userTransferAuthority.publicKey,
-              authority: provider.publicKey
-            })
-            .signers([payer])
-            .instruction(),
-        await splToken
-          .methods
-          .approve(inputAmounts[1])
-          .accounts({
-            source: userUsdtAtaAddr,
-            delegate: userTransferAuthority.publicKey,
-            authority: provider.publicKey
-          })
-          .signers([payer])
-          .instruction(),
-      ])
-      .postInstructions([
-        await splToken
+    );
+    const revokeIxs = await Promise.all(
+      tokenAccounts.map((tokenAccount, i) => {
+        return splToken
           .methods
           .revoke()
           .accounts({
-            source: userUsdcAtaAddr,
-            authority: provider.publicKey
+            source: tokenAccount,
+            authority: authority.publicKey
           })
-          .signers([payer])
-          .instruction(),
-        await splToken
-          .methods
-          .revoke()
-          .accounts({
-            source: userUsdtAtaAddr,
-            authority: provider.publicKey
-          })
-          .signers([payer])
-          .instruction(),
-      ])
-      .signers([userTransferAuthority]);
-
-    const txSig = await tx.rpc({skipPreflight: true});
-
-    console.log("Your transaction signature", txSig);
-
-    const userLpTokenAccountBalance = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
-    console.log(`userLpTokenAccountBalance: ${userLpTokenAccountBalance.toString()}`);
-    assert(userLpTokenAccountBalance.gt(new anchor.BN(0)));
-    const previousDepthAfter = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
-    console.log(`
-      previousDepthBefore: ${previousDepthBefore.toString()}
-      previousDepthAfter: ${previousDepthAfter.toString()}
-    `);
-    assert(previousDepthAfter.gt(previousDepthBefore));
-
-  });
+          .signers([authority])
+          .instruction();
+      }));
+    return [approveIxs, revokeIxs];
+  }
 });
+
+

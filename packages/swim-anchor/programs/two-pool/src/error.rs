@@ -68,6 +68,18 @@ pub enum PoolError {
   InvalidTimestamp,
   #[msg("Add Requires at least one token")]
   AddRequiresAtLeastOneToken,
+  #[msg("Invalid parameters for Swap Exact Input")]
+  InvalidSwapExactInputParameters,
+  #[msg("Invalid parameters for Swap Exact Output")]
+  InvalidSwapExactOutputParameters,
+  #[msg("Invalid parameters for Remove Uniform")]
+  InvalidRemoveUniformParameters,
+  #[msg("Invalid parameters for Remove Exact Burn")]
+  InvalidRemoveExactBurnParameters,
+  #[msg("Invalid parameters for Remove Exact Output")]
+  InvalidRemoveExactOutputParameters,
+  #[msg("Invalid parameters for Remove Exact Output")]
+  InsufficientPoolTokenAccountBalance,
 }
 
 // impl From<PoolError> for ProgramError {

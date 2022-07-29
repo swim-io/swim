@@ -90,9 +90,6 @@ pub struct AddParams {
 }
 
 impl<'info> Add<'info> {
-	//Note: some of the checks are excessive (checked in CPI etc) and add.rs to compute budget but since we now have access to requesting
-	//  up to 1.4M compute budget per transaction, better safe than sorry to perform them.
-	//TODO: leave this as simple log for now. can add checks later when needed.
 	pub fn accounts(ctx: &Context<Add>) -> Result<()> {
     let pool_state = &ctx.accounts.pool;
     require!(!pool_state.is_paused, PoolError::PoolIsPaused);
@@ -119,16 +116,16 @@ pub fn handle_add(
 ) -> Result<u64> {
   //TODO:
   require!(pool_add_params.input_amounts.iter().any(|&x| x > 0), PoolError::AddRequiresAtLeastOneToken);
-  let lp_mint_supply = ctx.accounts.lp_mint.supply;
+  let lp_total_supply = ctx.accounts.lp_mint.supply;
   //initial add to pool must add all tokens
-  if lp_mint_supply == 0 {
+  if lp_total_supply == 0 {
     for i in 0..TOKEN_COUNT {
       require_gt!(pool_add_params.input_amounts[i], 0u64, PoolError::InitialAddRequiresAllTokens);
     }
   }
 
 
-  let pool_state = &ctx.accounts.pool;
+  let pool = &ctx.accounts.pool;
   let user_token_accounts = [
     &ctx.accounts.user_token_account_0,
     &ctx.accounts.user_token_account_1,
@@ -150,19 +147,19 @@ pub fn handle_add(
   let current_ts = Clock::get()?.unix_timestamp;
   require_gt!(current_ts, 0i64, PoolError::InvalidTimestamp);
   let (user_amount, governance_mint_amount, latest_depth) = Invariant::<TOKEN_COUNT>::add(
-    &array_equalize(pool_add_params.input_amounts, pool_state.token_decimal_equalizers),
-    &array_equalize(pool_balances, pool_state.token_decimal_equalizers),
-    pool_state.amp_factor.get(current_ts),
-    pool_state.lp_fee.get(),
-    pool_state.governance_fee.get(),
-    to_equalized(lp_mint_supply, pool_state.lp_decimal_equalizer),
-    pool_state.previous_depth.into(),
+    &array_equalize(pool_add_params.input_amounts, pool.token_decimal_equalizers),
+    &array_equalize(pool_balances, pool.token_decimal_equalizers),
+    pool.amp_factor.get(current_ts),
+    pool.lp_fee.get(),
+    pool.governance_fee.get(),
+    to_equalized(lp_total_supply, pool.lp_decimal_equalizer),
+    pool.previous_depth.into(),
   )?;
   let (mint_amount, governance_mint_amount, latest_depth) = result_from_equalized(
     user_amount,
-    pool_state.lp_decimal_equalizer,
+    pool.lp_decimal_equalizer,
     governance_mint_amount,
-    pool_state.lp_decimal_equalizer,
+    pool.lp_decimal_equalizer,
     latest_depth,
   );
   require_gte!(mint_amount, pool_add_params.minimum_mint_amount, PoolError::OutsideSpecifiedLimits);
@@ -199,10 +196,10 @@ pub fn handle_add(
       },
       &[&[
         &b"two_pool".as_ref(),
-        &pool_state.token_mint_keys[0].as_ref(),
-        &pool_state.token_mint_keys[1].as_ref(),
+        &pool.token_mint_keys[0].as_ref(),
+        &pool.token_mint_keys[1].as_ref(),
         &ctx.accounts.lp_mint.key().as_ref(),
-        &[pool_state.bump],
+        &[pool.bump],
       ]],
     ),
     mint_amount
@@ -220,10 +217,10 @@ pub fn handle_add(
         },
         &[&[
           &b"two_pool".as_ref(),
-          &pool_state.token_mint_keys[0].as_ref(),
-          &pool_state.token_mint_keys[1].as_ref(),
+          &pool.token_mint_keys[0].as_ref(),
+          &pool.token_mint_keys[1].as_ref(),
           &ctx.accounts.lp_mint.key().as_ref(),
-          &[pool_state.bump],
+          &[pool.bump],
         ]],
       ),
       governance_mint_amount
@@ -299,6 +296,17 @@ pub fn array_equalize(
     .try_into().unwrap()
 }
 
+/// `result_from_equalized` takes in a user's amount, the user's equalizer, the governance mint amount,
+/// the lp decimal equalizer, and the latest depth, and returns the user's amount, the governance mint
+/// amount, and the latest depth
+///
+/// Arguments:
+///
+/// * `user_amount`: The amount of tokens the user is staking
+/// * `user_equalizer`: The equalizer of the user's token.
+/// * `governance_mint_amount`: The amount of governance tokens that will be minted to the user.
+/// * `lp_decimal_equalizer`: The equalizer for the LP token. should always be pool_state.lp_decimal_equalizer
+/// * `latest_depth`: The amount of liquidity in the pool.
 pub fn result_from_equalized(
   user_amount: U128,
   user_equalizer: u8,

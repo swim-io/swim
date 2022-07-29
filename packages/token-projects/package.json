@@ -21,6 +21,7 @@
   },
   "scripts": {
     "encode-images": "./scripts/encode-images.sh",
+    "optimize-images": "svgo -f ./images",
     "typecheck": "tsc",
     "format": "prettier --write \"./src/**/*.ts\"",
     "format:check": "prettier --check \"./src/**/*.ts\"",
@@ -28,7 +29,7 @@
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
     "test": "jest",
     "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test --watchAll=false",
-    "build": "rm -rf ./build/ ./types/ && yarn encode-images && tsc",
+    "build": "rm -rf ./build/ ./types/ && yarn optimize-images && yarn encode-images && tsc",
     "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
@@ -50,6 +51,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^28.1.2",
     "prettier": "^2.7.1",
+    "svgo": "^2.8.0",
     "ts-jest": "^28.0.5",
     "typescript": "^4.7.4"
   }

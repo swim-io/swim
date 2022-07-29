@@ -203,6 +203,7 @@ describe("TwoPool", () => {
     const previousDepthBefore = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
     const userUsdcTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
     const userUsdtTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    const governanceFeeAcctBalanceBefore = (await splToken.account.token.fetch(governanceFeeAddr)).amount;
     const exactInputAmounts = [new anchor.BN(100_000), new anchor.BN(0)];
     const outputTokenIndex = 1;
     const minimumOutputAmount = new anchor.BN(0);
@@ -250,6 +251,8 @@ describe("TwoPool", () => {
     assert(!previousDepthAfter.eq(previousDepthBefore));
     const userUsdcTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
     const userUsdtTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    const governanceFeeAcctBalanceAfter = (await splToken.account.token.fetch(governanceFeeAddr)).amount;
+
     console.log(`
       userUsdcTokenAcctBalance
         Before: ${userUsdcTokenAcctBalanceBefore.toString()}
@@ -258,15 +261,22 @@ describe("TwoPool", () => {
       userUsdtTokenAcctBalance
         Before: ${userUsdtTokenAcctBalanceBefore.toString()}
         After:  ${userUsdtTokenAcctBalanceAfter.toString()}
+
+      governanceFeeAcctBalance
+        Before: ${governanceFeeAcctBalanceBefore.toString()}
+        After:  ${governanceFeeAcctBalanceAfter.toString()}
     `);
     assert(userUsdcTokenAcctBalanceAfter.eq(userUsdcTokenAcctBalanceBefore.sub(exactInputAmounts[0])));
     assert(userUsdtTokenAcctBalanceAfter.gt(userUsdtTokenAcctBalanceBefore));
+    assert(governanceFeeAcctBalanceAfter.gt(governanceFeeAcctBalanceBefore));
   });
 
   it("Can swap exact output to pool", async () => {
     const previousDepthBefore = (await program.account.twoPool.fetch(flagshipPool)).previousDepth;
     const userUsdcTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
     const userUsdtTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    const governanceFeeAcctBalanceBefore = (await splToken.account.token.fetch(governanceFeeAddr)).amount;
+
     const inputTokenIndex = 0;
     const maximumInputAmount = new anchor.BN(100_000)
     const maximumInputAmounts = [
@@ -320,6 +330,8 @@ describe("TwoPool", () => {
     assert(!previousDepthAfter.eq(previousDepthBefore));
     const userUsdcTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
     const userUsdtTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
+    const governanceFeeAcctBalanceAfter = (await splToken.account.token.fetch(governanceFeeAddr)).amount;
+
     console.log(`
       userUsdcTokenAcctBalance
         Before: ${userUsdcTokenAcctBalanceBefore.toString()}
@@ -328,9 +340,14 @@ describe("TwoPool", () => {
       userUsdtTokenAcctBalance
         Before: ${userUsdtTokenAcctBalanceBefore.toString()}
         After:  ${userUsdtTokenAcctBalanceAfter.toString()}
+
+      governanceFeeAcctBalance
+        Before: ${governanceFeeAcctBalanceBefore.toString()}
+        After:  ${governanceFeeAcctBalanceAfter.toString()}
     `);
     assert(userUsdcTokenAcctBalanceAfter.lt(userUsdcTokenAcctBalanceBefore));
     assert(userUsdtTokenAcctBalanceAfter.eq(userUsdtTokenAcctBalanceBefore.add(exactOutputAmounts[1])));
+    assert(governanceFeeAcctBalanceAfter.gt(governanceFeeAcctBalanceBefore));
 
   });
 
@@ -339,6 +356,7 @@ describe("TwoPool", () => {
     const userUsdcTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
     const userUsdtTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
     const userSwimUsdTokenAcctBalanceBefore = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
+    const governanceFeeAcctBalanceBefore = (await splToken.account.token.fetch(governanceFeeAddr)).amount;
     const exactBurnAmount = new anchor.BN(100_000)
     const minimumOutputAmounts = [new anchor.BN(10_000), new anchor.BN(10_000)];
     const removeUniformParams = {
@@ -387,6 +405,7 @@ describe("TwoPool", () => {
     const userUsdcTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
     const userUsdtTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
     const userSwimUsdTokenAcctBalanceAfter = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
+    const governanceFeeAcctBalanceAfter = (await splToken.account.token.fetch(governanceFeeAddr)).amount;
     console.log(`
       userUsdcTokenAcctBalance
         Before: ${userUsdcTokenAcctBalanceBefore.toString()}
@@ -399,10 +418,15 @@ describe("TwoPool", () => {
       userSwimUsdTokenAcctBalance
         Before: ${userSwimUsdTokenAcctBalanceBefore.toString()}
         After:  ${userSwimUsdTokenAcctBalanceAfter.toString()}
+
+      governanceFeeAcctBalance
+        Before: ${governanceFeeAcctBalanceBefore.toString()}
+        After:  ${governanceFeeAcctBalanceAfter.toString()}
     `);
     assert(userUsdcTokenAcctBalanceAfter.gte(userUsdcTokenAcctBalanceBefore.add(minimumOutputAmounts[0])));
     assert(userUsdtTokenAcctBalanceAfter.gte(userUsdtTokenAcctBalanceBefore.add(minimumOutputAmounts[1])));
     assert(userSwimUsdTokenAcctBalanceAfter.eq(userSwimUsdTokenAcctBalanceBefore.sub(exactBurnAmount)));
+    assert(governanceFeeAcctBalanceAfter.eq(governanceFeeAcctBalanceBefore));
   });
 
   it("Can remove exact burn", async() => {
@@ -410,6 +434,7 @@ describe("TwoPool", () => {
     const userUsdcTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
     const userUsdtTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
     const userSwimUsdTokenAcctBalanceBefore = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
+    const governanceFeeAcctBalanceBefore = (await splToken.account.token.fetch(governanceFeeAddr)).amount;
     const exactBurnAmount = new anchor.BN(100_000)
     const outputTokenIndex = 0;
     const minimumOutputAmount = new anchor.BN(10_000);
@@ -460,6 +485,7 @@ describe("TwoPool", () => {
     const userUsdcTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
     const userUsdtTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
     const userSwimUsdTokenAcctBalanceAfter = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
+    const governanceFeeAcctBalanceAfter = (await splToken.account.token.fetch(governanceFeeAddr)).amount;
     console.log(`
       userUsdcTokenAcctBalance
         Before: ${userUsdcTokenAcctBalanceBefore.toString()}
@@ -472,10 +498,15 @@ describe("TwoPool", () => {
       userSwimUsdTokenAcctBalance
         Before: ${userSwimUsdTokenAcctBalanceBefore.toString()}
         After:  ${userSwimUsdTokenAcctBalanceAfter.toString()}
+
+      governanceFeeAcctBalance
+        Before: ${governanceFeeAcctBalanceBefore.toString()}
+        After:  ${governanceFeeAcctBalanceAfter.toString()}
     `);
     assert(userUsdcTokenAcctBalanceAfter.gte(userUsdcTokenAcctBalanceBefore.add(minimumOutputAmount)));
     assert(userUsdtTokenAcctBalanceAfter.eq(userUsdtTokenAcctBalanceBefore));
     assert(userSwimUsdTokenAcctBalanceAfter.eq(userSwimUsdTokenAcctBalanceBefore.sub(exactBurnAmount)));
+    assert(governanceFeeAcctBalanceAfter.gt(governanceFeeAcctBalanceBefore));
 
   });
 
@@ -485,8 +516,14 @@ describe("TwoPool", () => {
     const userUsdcTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
     const userUsdtTokenAcctBalanceBefore = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
     const userSwimUsdTokenAcctBalanceBefore = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
-    const maximumBurnAmount = new anchor.BN(100_000)
-    const exactOutputAmounts = [new anchor.BN(10_000), new anchor.BN(10_000)];
+    const governanceFeeAcctBalanceBefore = (await splToken.account.token.fetch(governanceFeeAddr)).amount;
+    const maximumBurnAmount = new anchor.BN(3_000_000)
+
+    //TODO: investigate this:
+    //    if the output amounts were within 20_000 of each other then no goverance fee
+    //    would be minted. is this due to approximation/values used?
+    //    with decimals of 6 this is < 1 USDC. is the governance fee just too small in those cases?
+    const exactOutputAmounts = [new anchor.BN(1_000_000), new anchor.BN(1_200_000)];
     const removeExactOutputParams = {
       maximumBurnAmount,
       exactOutputAmounts,
@@ -532,6 +569,7 @@ describe("TwoPool", () => {
     const userUsdcTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdcAtaAddr)).amount;
     const userUsdtTokenAcctBalanceAfter = (await splToken.account.token.fetch(userUsdtAtaAddr)).amount;
     const userSwimUsdTokenAcctBalanceAfter = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
+    const governanceFeeAcctBalanceAfter = (await splToken.account.token.fetch(governanceFeeAddr)).amount;
     console.log(`
       userUsdcTokenAcctBalance
         Before: ${userUsdcTokenAcctBalanceBefore.toString()}
@@ -544,10 +582,15 @@ describe("TwoPool", () => {
       userSwimUsdTokenAcctBalance
         Before: ${userSwimUsdTokenAcctBalanceBefore.toString()}
         After:  ${userSwimUsdTokenAcctBalanceAfter.toString()}
+
+      governanceFeeAcctBalance
+        Before: ${governanceFeeAcctBalanceBefore.toString()}
+        After:  ${governanceFeeAcctBalanceAfter.toString()}
     `);
     assert(userUsdcTokenAcctBalanceAfter.eq(userUsdcTokenAcctBalanceBefore.add(exactOutputAmounts[0])));
     assert(userUsdtTokenAcctBalanceAfter.eq(userUsdtTokenAcctBalanceBefore.add(exactOutputAmounts[1])));
     assert(userSwimUsdTokenAcctBalanceAfter.gte(userSwimUsdTokenAcctBalanceBefore.sub(maximumBurnAmount)));
+    assert(governanceFeeAcctBalanceAfter.gt(governanceFeeAcctBalanceBefore));
 
   });
 

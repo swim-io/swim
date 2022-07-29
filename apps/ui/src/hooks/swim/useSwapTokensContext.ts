@@ -2,7 +2,8 @@ import { findOrThrow } from "@swim-io/utils";
 import { useNavigate, useParams } from "react-router-dom";
 import shallow from "zustand/shallow.js";
 
-import { PROJECTS, TokenSpec } from "../../config";
+import type { TokenSpec } from "../../config";
+import { PROJECTS } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 
@@ -26,7 +27,9 @@ interface SwapTokensContext {
 }
 
 const convertTokenSpecToUrlParam = (token: TokenSpec): string =>
-  `${token.nativeEcosystemId}-${PROJECTS[token.projectId]}`.toLowerCase();
+  `${token.nativeEcosystemId}-${
+    PROJECTS[token.projectId].symbol
+  }`.toLowerCase();
 
 export const useSwapTokensContext = (): SwapTokensContext => {
   const navigate = useNavigate();

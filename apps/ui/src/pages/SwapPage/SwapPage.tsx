@@ -33,7 +33,9 @@ const SwapPage = (): ReactElement => {
   const fromEcosystemName = ECOSYSTEMS[fromToken.nativeEcosystemId].displayName;
   const toEcosystemName = ECOSYSTEMS[toToken.nativeEcosystemId].displayName;
   useTitle(
-    `Swap ${fromEcosystemName} ${PROJECTS[fromToken.projectId].displayName} to ${toEcosystemName} ${PROJECTS[toToken.projectId].displayName}`,
+    `Swap ${fromEcosystemName} ${
+      PROJECTS[fromToken.projectId].displayName
+    } to ${toEcosystemName} ${PROJECTS[toToken.projectId].displayName}`,
   );
 
   const nonStakingPools = useMemo(

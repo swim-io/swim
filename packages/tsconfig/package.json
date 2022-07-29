@@ -15,7 +15,7 @@
     "registry": "https://registry.npmjs.org"
   },
   "scripts": {
-    "format": "prettier --write \"*.js\"",
+    "format": "prettier --write \"*.json\"",
     "format:check": "prettier --check *.json",
     "lint": "echo \"Skipped: json only repo\"",
     "lint:fix": "echo \"Skipped: json only repo\"",

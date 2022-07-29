@@ -30,19 +30,23 @@ npm install --save-dev @sayari/eslint-plugin eslint-config-react-app eslint-plug
 
 ## Usage
 
-In TS projects extend from the default config in your ESLint configuration file:
+In JS/TS projects extend from the default config in your ESLint configuration file `.eslintrc.cjs`:
 
 ```js
 module.exports = {
-  extends: ["@swim-io"],
+  extends: ["@swim-io/eslint-config"],
 };
 ```
 
-In JS projects extend from the JS-only config:
+For TS projects, mark the `tsconfigRootDir` for detecting `tsconfig.json` location:
 
 ```js
 module.exports = {
-  extends: ["@swim-io/eslint-config/js-only"],
+  extends: ["@swim-io/eslint-config"],
+  parserOptions: {
+    // Make sure correct `tsconfig.json` is found in monorepo
+    tsconfigRootDir: __dirname,
+  },
 };
 ```
 
@@ -54,8 +58,8 @@ module.exports = {
 };
 ```
 
-If you are using this config in a monorepo, and experiencing the error `ESLint couldn't determine the plugin "xxx" uniquely`, you can apply this patch in your `.eslintrc.js` file to solve the issue:
+If you are using this config in a monorepo, and experiencing the error `ESLint couldn't determine the plugin "xxx" uniquely`, you can apply this patch in your `.eslintrc.cjs` file to solve the issue:
 
 ```js
-require("@swim-io/eslint-config/patch/modern-module-resolution");
+require("@swim-io/eslint-config/patch/modern-module-resolution.cjs");
 ```

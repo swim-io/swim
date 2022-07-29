@@ -30,9 +30,6 @@ const tsConfig = {
   overrides: [
     {
       files: ["**/*.test.{cts,mts,ts,tsx}"],
-      env: {
-        node: true,
-      },
       rules: {
         "@typescript-eslint/no-unsafe-argument": "off",
         "@typescript-eslint/no-unsafe-call": "off",
@@ -44,7 +41,7 @@ const tsConfig = {
 };
 
 module.exports = {
-  plugins: ["eslint-comments", "functional", "import", "jest", "prettier"],
+  plugins: ["eslint-comments", "functional", "import", "prettier"],
   extends: [
     "eslint:recommended",
     "prettier",
@@ -53,11 +50,7 @@ module.exports = {
     "plugin:import/recommended",
     "plugin:functional/external-recommended",
     "plugin:functional/no-mutations",
-    "plugin:jest/recommended",
   ],
-  env: {
-    "jest/globals": true,
-  },
   rules: {
     // Vanilla ESLint
     "no-console": ["warn", { allow: ["error", "info", "table", "warn"] }],
@@ -104,6 +97,14 @@ module.exports = {
         "functional/immutable-data": "off", // `exports` object is mutable
         "import/no-commonjs": "off",
         "import/unambiguous": "off",
+      },
+    },
+    {
+      files: ["**/*.test.{cjs,cts,js,mjs,mts,ts,tsx}"],
+      plugins: ["jest"],
+      extends: ["plugin:jest/recommended"],
+      env: {
+        node: true,
       },
     },
     {

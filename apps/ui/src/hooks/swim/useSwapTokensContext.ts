@@ -2,7 +2,7 @@ import { findOrThrow } from "@swim-io/utils";
 import { useNavigate, useParams } from "react-router-dom";
 import shallow from "zustand/shallow.js";
 
-import type { TokenSpec } from "../../config";
+import { PROJECTS, TokenSpec } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 
@@ -26,7 +26,7 @@ interface SwapTokensContext {
 }
 
 const convertTokenSpecToUrlParam = (token: TokenSpec): string =>
-  `${token.nativeEcosystem}-${token.project.symbol}`.toLowerCase();
+  `${token.nativeEcosystemId}-${PROJECTS[token.projectId]}`.toLowerCase();
 
 export const useSwapTokensContext = (): SwapTokensContext => {
   const navigate = useNavigate();
@@ -44,8 +44,8 @@ export const useSwapTokensContext = (): SwapTokensContext => {
     return (
       tokens.find((token) => {
         return (
-          token.project.symbol.toLowerCase() === projectSymbol &&
-          token.nativeEcosystem.toLowerCase() === ecosystemId
+          PROJECTS[token.projectId].symbol.toLowerCase() === projectSymbol &&
+          token.nativeEcosystemId.toLowerCase() === ecosystemId
         );
       }) ?? null
     );

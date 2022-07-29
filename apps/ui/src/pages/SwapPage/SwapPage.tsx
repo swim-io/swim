@@ -18,7 +18,7 @@ import shallow from "zustand/shallow.js";
 import { RecentInteractions } from "../../components/RecentInteractions";
 import { SlippageButton } from "../../components/SlippageButton";
 import { SwapForm } from "../../components/SwapForm";
-import { ECOSYSTEMS } from "../../config";
+import { ECOSYSTEMS, PROJECTS } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { useSwapTokensContext, useTitle } from "../../hooks";
@@ -30,10 +30,10 @@ const SwapPage = (): ReactElement => {
   const { pools } = useEnvironment(selectConfig, shallow);
 
   const { fromToken, toToken } = useSwapTokensContext();
-  const fromEcosystemName = ECOSYSTEMS[fromToken.nativeEcosystem].displayName;
-  const toEcosystemName = ECOSYSTEMS[toToken.nativeEcosystem].displayName;
+  const fromEcosystemName = ECOSYSTEMS[fromToken.nativeEcosystemId].displayName;
+  const toEcosystemName = ECOSYSTEMS[toToken.nativeEcosystemId].displayName;
   useTitle(
-    `Swap ${fromEcosystemName} ${fromToken.project.displayName} to ${toEcosystemName} ${toToken.project.displayName}`,
+    `Swap ${fromEcosystemName} ${PROJECTS[fromToken.projectId].displayName} to ${toEcosystemName} ${PROJECTS[toToken.projectId].displayName}`,
   );
 
   const nonStakingPools = useMemo(

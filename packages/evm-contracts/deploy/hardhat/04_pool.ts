@@ -4,10 +4,9 @@ import 'hardhat-deploy';
 import "@nomiclabs/hardhat-ethers";
 import { deployProxy } from "../../utils/factoryDeploy";
 import { Pool } from "../../typechain-types/contracts/Pool";
-import { getArtifactFromContractOutput } from 'hardhat/internal/artifacts';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployer, governance, governanceFeeRecipient} = await hre.getNamedAccounts();
+  const {governance, governanceFeeRecipient} = await hre.getNamedAccounts();
   const {ethers} = hre;
   const {get, getArtifact, save} = hre.deployments;
 
@@ -21,7 +20,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const lpName = "Test Pool LP";
   const lpSymbol = "LP";
   const lpSalt = "0x"+"00".repeat(31)+"11";
-  const tokenEqualizer = -12; //keep 6 of the 18 decimals (all tokens have 18 decimals)
+  const tokenEqualizer = -2; //keep 6 of the 18 decimals (all tokens have 18 decimals)
   const ampFactor = 1_000; //1 with 3 decimals
   const lpFee = 300; //fee as 100th of a bip (6 decimals, 1 = 100 % fee)
   const governanceFee = 100;
@@ -33,8 +32,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         lpSymbol,
         lpSalt,
         tokenEqualizer,
-        [tokens["swimUSD"].address, tokens["USDC"].address, tokens["USDT"].address],
-        [tokenEqualizer, tokenEqualizer, tokenEqualizer],
+        [tokens["USDC"].address, tokens["USDT"].address],
+        [tokenEqualizer, tokenEqualizer],
         ampFactor,
         lpFee,
         governanceFee,
@@ -56,7 +55,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     address: lpProxyAddress,
     receipt: poolProxy.receipt,
     transactionHash: poolProxy.transactionHash,
-    args: [lpName, lpSymbol],
+    args: [poolProxy.address, lpName, lpSymbol],
   };
   console.log("LpTokenProxy:", lpProxyAddress);
   await save("LpTokenProxy", lpTokenProxy);

@@ -33,7 +33,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       args: [],
       transactionHash: receipt.transactionHash,
       receipt,
-      newlyDeployed: true
+      newlyDeployed: true,
     };
     await save(logicContract, deployment);
   }

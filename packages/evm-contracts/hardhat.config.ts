@@ -1,7 +1,5 @@
 import * as dotenv from "dotenv";
 
-import { getSingletonFactoryInfo } from "@gnosis.pm/safe-singleton-factory";
-import { BigNumber } from "ethers";
 import { task } from "hardhat/config";
 import { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
 //import "@nomiclabs/hardhat-etherscan";
@@ -14,7 +12,7 @@ import "solidity-coverage";
 import {getContractAddress} from "@ethersproject/address";
 
 dotenv.config();
-const { FACTORY_MNEMONIC, MNEMONIC, MAINNET_RPC_URL, ETHERSCAN_API_KEY, PRIVATE_KEY, DETERMINISTIC_DEPLOYMENT } =
+const { FACTORY_MNEMONIC, MNEMONIC } =
   process.env;
 
 task("accounts", "Prints the list of accounts", async (_, hre) => {
@@ -63,7 +61,6 @@ task(
 task("presign", "Generates and prints a Deterministic Factory tx", async (_, hre) => {
   const { deployer } = await hre.getNamedAccounts();
   const { ethers } = hre;
-  const { rawTx } = hre.deployments;
   await hre.run("compile");
   const deployData = (await ethers.getContractFactory("SwimFactory")).getDeployTransaction(deployer);
   const deployTx = {
@@ -79,36 +76,15 @@ task("presign", "Generates and prints a Deterministic Factory tx", async (_, hre
     return;
   }
   const wallet = ethers.Wallet.fromMnemonic(FACTORY_MNEMONIC);
-  await rawTx({from: deployer, to: wallet.address, value: "2522443125000000"}); //TODO
   const signedTx = await wallet.signTransaction(deployTx);
   console.log(signedTx);
 });
 
-const DEFAULT_MNEMONIC =
-  "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"; // TODO
-
 const sharedNetworkConfig: HttpNetworkUserConfig = {};
-if (PRIVATE_KEY) {
-  sharedNetworkConfig.accounts = PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [];
-} else {
-  sharedNetworkConfig.accounts = {
-    mnemonic: MNEMONIC || DEFAULT_MNEMONIC,
-  };
-}
 
-const deterministicDeployment =
-  DETERMINISTIC_DEPLOYMENT == "true"
-    ? (network: string) => {
-        const info = getSingletonFactoryInfo(parseInt(network));
-        if (!info) return undefined;
-        return {
-          factory: info.address,
-          deployer: info.signerAddress,
-          funding: BigNumber.from(info.gasLimit).mul(BigNumber.from(info.gasPrice)).toString(),
-          signedTx: info.transaction,
-        };
-      }
-    : undefined;
+sharedNetworkConfig.accounts = {
+  mnemonic: MNEMONIC!,
+};
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -166,6 +142,11 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       ...sharedNetworkConfig,
     },
+    goerli: {
+      url: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+      chainId: 5,
+      ...sharedNetworkConfig,
+    },
     mumbai: {
       ...sharedNetworkConfig,
       url: `https://polygon-mumbai.infura.io/v3/${"KEY"}`,
@@ -179,6 +160,12 @@ const config: HardhatUserConfig = {
       ...sharedNetworkConfig,
       url: `https://bsc-dataseed.binance.org/`,
     },
+    bnbTestnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      chainId: 97,
+      gasPrice: 20000000000,
+      ...sharedNetworkConfig,
+    },
     fantomTestnet: {
       ...sharedNetworkConfig,
       url: `https://rpc.testnet.fantom.network/`,
@@ -186,6 +173,11 @@ const config: HardhatUserConfig = {
     avalanche: {
       ...sharedNetworkConfig,
       url: `https://api.avax.network/ext/bc/C/rpc`,
+    },
+    avalancheFujiTestnet: {
+      ...sharedNetworkConfig,
+      url: "https://api.avax-test.network/ext/bc/C/rpc",
+      chainId: 43113,
     },
     mainnet: {
       ...sharedNetworkConfig,
@@ -197,7 +189,6 @@ const config: HardhatUserConfig = {
       chainId: 1,
     },
   },
-  deterministicDeployment,
   gasReporter: {
     enabled: true,
     outputFile: "gas-report.txt",

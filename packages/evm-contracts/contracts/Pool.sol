@@ -34,6 +34,7 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
   address constant LP_TOKEN_LOGIC = address(0xdf0dFe41fC9fF3E8c8D33a6DD31dc8Ab8CeB56d6);
   ISwimFactory constant SWIM_FACTORY = ISwimFactory(address(0x77C1f7813D79c8e6E37DE1aA631B6F961fD45648));
   IRouting constant ROUTING_CONTRACT = IRouting(address(0x591bf69E5dAa731e26a87fe0C5b394263A8c3375));
+  int8 constant SWIM_USD_EQUALIZER = -2;
 
   //slot (26/32 bytes used)
   uint8  public /*immutable*/ tokenCount;
@@ -74,27 +75,28 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     lpTokenData.addr = deployLpToken(lpTokenName, lpTokenSymbol, lpSalt);
     lpTokenData.equalizer = lpTokenEqualizer;
 
-    uint _tokenCount = poolTokenAddresses.length;
+    uint _tokenCount = poolTokenAddresses.length + 1;
     if (_tokenCount > MAX_TOKEN_COUNT)
       revert Pool_MaxTokenCountExceeded(uint8(_tokenCount), uint8(MAX_TOKEN_COUNT));
-    if (poolTokenEqualizers.length != _tokenCount)
+    if (poolTokenEqualizers.length != poolTokenAddresses.length)
       revert Pool_TokenEqualizerCountMismatch(
         uint8(poolTokenEqualizers.length),
         uint8(_tokenCount)
       );
     tokenCount = uint8(_tokenCount);
 
-    //enforce that swimUSD is always the first token
-    if (poolTokenAddresses[0] != ROUTING_CONTRACT.swimUsdAddress())
-      revert Pool_FirstTokenNotSwimUSD(poolTokenAddresses[0], ROUTING_CONTRACT.swimUsdAddress());
+    //swimUSD is always the first token
+    poolTokensData[0].addr = ROUTING_CONTRACT.swimUsdAddress();
+    poolTokensData[0].equalizer = SWIM_USD_EQUALIZER;
 
-    for (uint i = 0; i < _tokenCount; ++i) {
-      poolTokensData[i].addr = poolTokenAddresses[i];
+    for (uint i = 0; i < poolTokenAddresses.length; ++i) {
+      TokenWithEqualizer storage poolToken = poolTokensData[i+1];
+      poolToken.addr = poolTokenAddresses[i];
       if (poolTokenEqualizers[i] < MIN_EQUALIZER)
         revert Pool_TokenEqualizerTooSmall(poolTokenEqualizers[i], MIN_EQUALIZER);
       if (poolTokenEqualizers[i] > MAX_EQUALIZER)
         revert Pool_TokenEqualizerTooLarge(poolTokenEqualizers[i], MAX_EQUALIZER);
-      poolTokensData[i].equalizer = poolTokenEqualizers[i];
+      poolToken.equalizer = poolTokenEqualizers[i];
     }
 
     if (ampFactor == 0) {

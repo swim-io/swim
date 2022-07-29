@@ -15,7 +15,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const initializeEncoded = new ethers.utils.Interface(routing.abi).encodeFunctionData(
     "initialize",
-    [tokenBridge.address]
+    [deployer, tokenBridge.address]
   );
 
   await deployProxy("RoutingProxy", "Routing", "0x"+"00".repeat(32), hre, initializeEncoded);

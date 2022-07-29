@@ -57,7 +57,6 @@ module.exports = {
   ],
   env: {
     "jest/globals": true,
-    node: true,
   },
   rules: {
     // Vanilla ESLint
@@ -98,6 +97,9 @@ module.exports = {
   overrides: [
     {
       files: ["*.cjs"],
+      env: {
+        node: true,
+      },
       rules: {
         "functional/immutable-data": "off", // `exports` object is mutable
         "import/no-commonjs": "off",

@@ -1,7 +1,5 @@
 import * as dotenv from "dotenv";
 
-import { getSingletonFactoryInfo } from "@gnosis.pm/safe-singleton-factory";
-import { BigNumber } from "ethers";
 import { task } from "hardhat/config";
 import { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-etherscan";
@@ -12,6 +10,7 @@ import "@typechain/hardhat";
 import "hardhat-deploy";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
+import { deterministicDeployment } from "./helper-config";
 
 dotenv.config();
 const {
@@ -50,26 +49,12 @@ if (PRIVATE_KEY) {
   };
 }
 
-const deterministicDeployment =
-  DETERMINISTIC_DEPLOYMENT == "true"
-    ? (network: string) => {
-        const info = getSingletonFactoryInfo(parseInt(network));
-        if (!info) return undefined;
-        return {
-          factory: info.address,
-          deployer: info.signerAddress,
-          funding: BigNumber.from(info.gasLimit).mul(BigNumber.from(info.gasPrice)).toString(),
-          signedTx: info.transaction,
-        };
-      }
-    : undefined;
-
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.9", // Latest solc version that's supported by Hardhat
+    version: "0.8.9",
     settings: {
       optimizer: {
         enabled: true,
@@ -96,7 +81,8 @@ const config: HardhatUserConfig = {
       deploy: ["./deploy/hardhat/"],
       autoImpersonate: true,
       allowUnlimitedContractSize: true,
-      // gas: 1000000,
+      gasPrice: 20000000000,
+      gas: 60000000000,
       chainId: 31337,
       // // If you want to do some forking, uncomment this
       // forking: {
@@ -168,7 +154,7 @@ const config: HardhatUserConfig = {
       chainId: 43112,
     },
   },
-  deterministicDeployment,
+  deterministicDeployment: deterministicDeployment(DETERMINISTIC_DEPLOYMENT),
   gasReporter: {
     enabled: true,
     outputFile: "gas-report.txt",

@@ -1,13 +1,12 @@
 //SPDX-License-Identifier: TODO
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
-
-error Equalize_MaxAmountExceeded(uint amount, int8 equalizer);
-error Equalize_LosingAllPrecision(uint value, int8 equalizer);
+error Equalize_MaxAmountExceeded(uint256 amount, int8 equalizer);
+error Equalize_LosingAllPrecision(uint256 value, int8 equalizer);
 
 error CenterAlignment_NumericOverflow();
 
-error Invariant_UnknownBalanceTooLarge(uint unknownBalance);
+error Invariant_UnknownBalanceTooLarge(uint256 unknownBalance);
 
 error PoolMath_ImpossibleRemove();
 
@@ -30,9 +29,9 @@ error Pool_NonZeroGovernanceFeeButNoRecipient();
 //defi errors:
 error Pool_AmountCountMismatch(uint8 count, uint8 expected);
 error Pool_InvalidTokenIndex(uint8 tokenIndex, uint8 tokenCount);
-error Pool_SlippageExceeded(address token, uint amount, uint threshold);
-error Pool_AmountExceedsSupply(address token, uint amount, uint poolbalance);
-error Pool_RequestedTokenAmountNotZero(uint8 tokenIndex, uint amount);
+error Pool_SlippageExceeded(address token, uint256 amount, uint256 threshold);
+error Pool_AmountExceedsSupply(address token, uint256 amount, uint256 poolbalance);
+error Pool_RequestedTokenAmountNotZero(uint8 tokenIndex, uint256 amount);
 error Pool_InitialAddMustIncludeAllTokens(uint8 missingAmountIndex);
 
 error Pool_IsPaused();

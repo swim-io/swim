@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import "hardhat-deploy";
 import { developmentChains, VERIFICATION_BLOCK_CONFIRMATIONS, SALT } from "../../helper-config";
 
-const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+const deployRouting: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await hre.getNamedAccounts();
   const { ethers, network } = hre;
   const { save, get, deploy, log } = hre.deployments;
@@ -48,7 +48,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await save("RoutingProxy", { abi: routingLogic.abi, address: routingProxy.address });
 };
 
-export default func;
-func.id = "deploy_routing_contract";
-func.tags = ["RoutingProxy"];
-func.dependencies = ["TokenBridgeLogic"];
+export default deployRouting;
+deployRouting.id = "deploy_routing_contract";
+deployRouting.tags = ["RoutingProxy"];
+deployRouting.dependencies = ["TokenBridgeLogic"];

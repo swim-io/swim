@@ -10,7 +10,6 @@ import "dotenv/config";
 import { developmentChains, SALT, VERIFICATION_BLOCK_CONFIRMATIONS } from "../helper-config";
 
 async function main() {
-  const { deploy, save } = deployments;
   const chainId = 97;
   const tokenBridgeAdr = "0x9dcF9D205C9De35334D646BeE44b2D2859712A09";
 
@@ -20,8 +19,12 @@ async function main() {
 
   const [deployer] = await ethers.getSigners();
 
-  const Routing = await ethers.getContractFactory("Routing");
-  const routing = await Routing.deploy();
+  const RoutingFactory = await ethers.getContractFactory("Routing");
+  let routingProxy = await upgrades.deployProxy(RoutingFactory, [tokenBridgeAdr], {
+    initializer: "initialize",
+    kind: "uups",
+  });
+  routingProxy = await routingProxy.deployed();
 
   // const r = await routing.deployed();
 
@@ -29,14 +32,14 @@ async function main() {
 
   // await r.initialize(tokenBridgeAdr);
 
-  // console.log("owner routing", await routing.owner());
+  console.log("owner routing", await routingProxy.owner(), deployer.address);
   // console.log("r routing", await r.owner());
 
-  console.log("routing abi", Routing);
+  // console.log("routing abi", Routing);
 
   // const initializeEncoded = new ethers.utils.Interface(routing.abi).encodeFunctionData(
   //   "initialize",
-  //   [tokenBridgeAdr]
+  //   [tokenBridgeAddress]
   // );
 
   // const routingProxy = await deploy("Routing", {
@@ -58,12 +61,12 @@ async function main() {
   //   autoMine: true,
   // });
 
-  // console.log("Routing proxy before", routingProxy.address);
+  console.log("Routing proxy deployed", routingProxy.address);
 
-  // if (network.config.chainId === chainId) {
-  //   await routing.deployTransaction.wait(6);
-  //   await verify(routing.address, []);
-  // }
+  if (network.config.chainId === chainId) {
+    await routingProxy.deployTransaction.wait(6);
+    await verify(routingProxy.address, []);
+  }
 
   // console.log("Routing proxy", routingProxy.address);
 }

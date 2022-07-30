@@ -1,12 +1,13 @@
 //SPDX-License-Identifier: TODO
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 import "./interfaces/IPool.sol";
 import "./interfaces/IRouting.sol";
@@ -18,15 +19,17 @@ import "./SwimPayload.sol";
 
 contract Routing is
   IRouting,
+  Initializable,
   PausableUpgradeable,
   OwnableUpgradeable,
-  ReentrancyGuardUpgradeable,
-  UUPSUpgradeable
+  UUPSUpgradeable,
+  ReentrancyGuardUpgradeable
 {
   using SwimPayload for bytes;
-  using SafeERC20 for IERC20;
+  using SafeERC20Upgradeable for IERC20Upgradeable;
 
-  bytes32 private constant SWIM_USD_SOLANA_ADDRESS = bytes32(0x44a0a063099540e87e0163a6e27266a364c35930208cfaded5b79377713906e9);
+  bytes32 private constant SWIM_USD_SOLANA_ADDRESS =
+    bytes32(0x44a0a063099540e87e0163a6e27266a364c35930208cfaded5b79377713906e9);
   uint8 private constant SWIM_USD_TOKEN_INDEX = 0;
   uint16 private constant WORMHOLE_SOLANA_CHAIN_ID = 1;
 
@@ -45,6 +48,11 @@ contract Routing is
 
   mapping(uint16 => TokenInfo) tokenNumberMapping;
   mapping(address => TokenInfo) tokenAddressMapping;
+
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() {
+    _disableInitializers();
+  }
 
   function initialize(address tokenBridgeAddress) public initializer {
     __Pausable_init();
@@ -87,21 +95,16 @@ contract Routing is
     (address fromPool, uint8 fromIndex) = getPoolAndIndex(fromToken);
     (address toPool, uint8 toIndex) = getPoolAndIndex(toToken);
 
-    IERC20(fromToken).safeTransferFrom(msg.sender, address(this), inputAmount);
+    IERC20Upgradeable(fromToken).safeTransferFrom(msg.sender, address(this), inputAmount);
     outputAmount = inputAmount;
 
     if (fromToken != swimUsdAddress) {
-      IERC20(fromToken).safeApprove(fromPool, inputAmount);
+      IERC20Upgradeable(fromToken).safeApprove(fromPool, inputAmount);
 
-      outputAmount = IPool(fromPool).swap(
-        inputAmount,
-        fromIndex,
-        SWIM_USD_TOKEN_INDEX,
-        0
-      );
+      outputAmount = IPool(fromPool).swap(inputAmount, fromIndex, SWIM_USD_TOKEN_INDEX, 0);
     }
     if (toToken != swimUsdAddress) {
-      IERC20(swimUsdAddress).safeApprove(toPool, outputAmount);
+      IERC20Upgradeable(swimUsdAddress).safeApprove(toPool, outputAmount);
 
       outputAmount = IPool(toPool).swap(
         outputAmount,
@@ -111,7 +114,7 @@ contract Routing is
       );
     }
 
-    IERC20(toToken).safeTransfer(toOwner, outputAmount);
+    IERC20Upgradeable(toToken).safeTransfer(toOwner, outputAmount);
 
     emit OnChainSwap(toOwner, fromToken, toToken, outputAmount);
   }
@@ -134,11 +137,11 @@ contract Routing is
   ) external payable whenNotPaused returns (uint64 wormholeSequence) {
     (address fromPool, uint8 fromIndex) = getPoolAndIndex(fromToken);
 
-    IERC20(fromToken).safeTransferFrom(msg.sender, address(this), inputAmount);
+    IERC20Upgradeable(fromToken).safeTransferFrom(msg.sender, address(this), inputAmount);
     uint256 receivedSwimUsdAmount = inputAmount;
 
     if (fromToken != swimUsdAddress) {
-      IERC20(fromToken).safeApprove(fromPool, inputAmount);
+      IERC20Upgradeable(fromToken).safeApprove(fromPool, inputAmount);
 
       receivedSwimUsdAmount = IPool(fromPool).swap(
         inputAmount,
@@ -148,7 +151,7 @@ contract Routing is
       );
     }
 
-    IERC20(swimUsdAddress).safeApprove(address(tokenBridge), receivedSwimUsdAmount);
+    IERC20Upgradeable(swimUsdAddress).safeApprove(address(tokenBridge), receivedSwimUsdAmount);
 
     if (wormholeRecipientChain == WORMHOLE_SOLANA_CHAIN_ID) {
       uint256 arbiterFee = 0;
@@ -210,12 +213,15 @@ contract Routing is
    * @return outputToken Type of token that user will receive
    */
   function receiveAndSwap(bytes memory encodedVm)
-    external whenNotPaused returns (uint256 outputAmount, address outputToken) {
+    external
+    whenNotPaused
+    returns (uint256 outputAmount, address outputToken)
+  {
     bytes memory swimPayload = tokenBridge.completeTransferWithPayload(encodedVm);
     swimPayload.checkVersion();
 
     address toOwner = swimPayload.decodeOwner();
-    (uint16 tokenNumber, uint minimumOutputAmount) = swimPayload.decodeSwapParameters();
+    (uint16 tokenNumber, uint256 minimumOutputAmount) = swimPayload.decodeSwapParameters();
     address toToken = getTokenAddress(tokenNumber);
 
     return _receiveAndSwap(encodedVm, toOwner, toToken, minimumOutputAmount);
@@ -229,12 +235,12 @@ contract Routing is
   ) internal returns (uint256 outputAmount, address outputToken) {
     (address toPool, uint8 toIndex) = getPoolAndIndex(toToken);
 
-    uint256 receivedSwimUsdAmount = IERC20(swimUsdAddress).balanceOf(address(this));
+    uint256 receivedSwimUsdAmount = IERC20Upgradeable(swimUsdAddress).balanceOf(address(this));
     outputToken = toToken;
     outputAmount = minimumOutputAmount;
 
     if (toToken != swimUsdAddress) {
-      IERC20(swimUsdAddress).safeApprove(toPool, receivedSwimUsdAmount);
+      IERC20Upgradeable(swimUsdAddress).safeApprove(toPool, receivedSwimUsdAmount);
 
       try
         IPool(toPool).swap(
@@ -252,7 +258,7 @@ contract Routing is
       }
     }
 
-    IERC20(toToken).safeTransfer(toOwner, outputAmount);
+    IERC20Upgradeable(toToken).safeTransfer(toOwner, outputAmount);
 
     uint64 sequence = wormhole.parseVM(encodedVm).sequence;
     emit ReceiveAndSwap(toOwner, sequence, outputToken, outputAmount);
@@ -291,7 +297,10 @@ contract Routing is
    * @return PoolState List of objects of pool details
    */
   function getPoolStates(address[] memory poolAddresses)
-    external view returns (PoolState[] memory) {
+    external
+    view
+    returns (PoolState[] memory)
+  {
     uint256 poolCount = poolAddresses.length;
     PoolState[] memory pools = new PoolState[](poolCount);
 
@@ -301,7 +310,7 @@ contract Routing is
     return pools;
   }
 
-  function getPoolAndIndex(address token) internal view returns(address, uint8) {
+  function getPoolAndIndex(address token) internal view returns (address, uint8) {
     TokenInfo storage info = tokenAddressMapping[token];
     address pool = info.poolAddress;
     if (pool == address(0)) {
@@ -310,7 +319,7 @@ contract Routing is
     return (pool, info.tokenIndexInPool);
   }
 
-  function getTokenAddress(uint16 tokenNumber) internal view returns(address) {
+  function getTokenAddress(uint16 tokenNumber) internal view returns (address) {
     address token = tokenNumberMapping[tokenNumber].tokenAddress;
     if (token == address(0)) {
       revert Routing__TokenNotRegistered(bytes20(uint160(tokenNumber)));

@@ -1,9 +1,9 @@
 //SPDX-License-Identifier: TODO
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 //The full inheritance hierarchy:
 // UUPSUpgradeable -> IERC1822Proxiable, ERC1967Upgrade
@@ -15,17 +15,18 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 //
 //Of all those, only ERC20Upgradeable and OwnableUpgradeable have a non-empty initialize.
 contract LpToken is UUPSUpgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable {
-
   function initialize(string memory name, string memory symbol)
-    external initializer returns (bool)
+    external
+    initializer
+    returns (bool)
   {
     __ERC20_init_unchained(name, symbol);
     __Ownable_init_unchained();
     return true;
   }
 
-  function mint(address recipient, uint amount) external onlyOwner {
-      _mint(recipient, amount);
+  function mint(address recipient, uint256 amount) external onlyOwner {
+    _mint(recipient, amount);
   }
 
   //intentionally empty (we only want the onlyOwner modifier "side-effect")

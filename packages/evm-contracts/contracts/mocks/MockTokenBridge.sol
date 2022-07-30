@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: TODO
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
 import "../interfaces/ITokenBridge.sol";
 
 contract MockTokenBridge is ITokenBridge {
-
-   function transferTokensWithPayload(
+  function transferTokensWithPayload(
     address token,
     uint256 amount,
     uint16 recipientChain,
@@ -41,5 +40,4 @@ contract MockTokenBridge is ITokenBridge {
     IWormhole _wormhole = IWormhole(a);
     return _wormhole;
   }
-
 }

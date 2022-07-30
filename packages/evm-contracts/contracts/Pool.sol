@@ -1,13 +1,14 @@
 //SPDX-License-Identifier: TODO
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 //import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 //We aren't using the contracts-upgradable version of UUPSUpgradable because it doesn't
 // have a constructor anyway and we don't want to pointlessly gunk up the storage
 // with empty uint blocks of size 50 (as the upgradable versions of the contracts do).
-import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "./interfaces/IPool.sol";
 import "./interfaces/IRouting.sol";
@@ -21,16 +22,16 @@ import "./PoolMath.sol";
 //We'll use uint32 for timestamps. 2^32 seconds ~= 136 years, i.e. it will last us until the early
 // 22nd century... so we ought to be fine.
 
-contract Pool is IPool, UUPSUpgradeable, Initializable {
+contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   struct TokenWithEqualizer { //uses 22/32 bytes of its slot
     address addr;
     int8 equalizer; //it's cheaper to (densely) store the equalizers than the blown up values
   }
 
-  using SafeERC20 for IERC20;
+  using SafeERC20Upgradeable for IERC20Upgradeable;
 
-  IRouting constant ROUTING_CONTRACT = IRouting(address(0x0));
+  IRouting constant ROUTING_CONTRACT = IRouting(address(0x4Eb25024846770C92b74177dE1aeB71D2c1814cF));
 
   //slot (26/32 bytes used)
   uint8  public /*immutable*/ tokenCount;
@@ -142,7 +143,7 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     for (uint i = 0; i < _tokenCount; ++i) {
       state.balances[i] = TokenBalance(
         poolTokensData[i].addr,
-        IERC20(poolTokensData[i].addr).balanceOf(address(this))
+        IERC20Upgradeable(poolTokensData[i].addr).balanceOf(address(this))
       );
     }
 
@@ -175,7 +176,7 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     outputAmounts = new uint[](_tokenCount);
 
     for (uint i = 0; i < _tokenCount; ++i) {
-      IERC20 poolToken = IERC20(poolTokensData[i].addr);
+      IERC20Upgradeable poolToken = IERC20Upgradeable(poolTokensData[i].addr);
       uint poolBalance = poolToken.balanceOf(address(this));
       //The mulDiv in the next line can theoretically have a phantom overflow (burn amount is
       // always less than totalLpSupply, so a true overflow is impossible). However, for this
@@ -463,14 +464,14 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
 
   function safeTransferFrom(uint inputAmount, uint tokenIndex) internal {
     if (inputAmount > 0) {
-      IERC20 poolToken = IERC20(poolTokensData[tokenIndex].addr);
+      IERC20Upgradeable poolToken = IERC20Upgradeable(poolTokensData[tokenIndex].addr);
       poolToken.safeTransferFrom(msg.sender, address(this), inputAmount);
     }
   }
 
   function safeTransfer(uint outputAmount, uint tokenIndex) internal {
     if (outputAmount > 0) {
-      IERC20 poolToken = IERC20(poolTokensData[tokenIndex].addr);
+      IERC20Upgradeable poolToken = IERC20Upgradeable(poolTokensData[tokenIndex].addr);
       poolToken.safeTransfer(msg.sender, outputAmount);
     }
   }
@@ -522,7 +523,7 @@ contract Pool is IPool, UUPSUpgradeable, Initializable {
     internal view returns(Equalized[] memory poolBalances) { unchecked {
     poolBalances = new Equalized[](_tokenCount);
     for (uint i = 0; i < _tokenCount; ++i) {
-      uint balance = IERC20(poolTokensData[i].addr).balanceOf(address(this));
+      uint balance = IERC20Upgradeable(poolTokensData[i].addr).balanceOf(address(this));
       poolBalances[i] = Equalize.to(balance, poolTokensData[i].equalizer);
     }
   }}

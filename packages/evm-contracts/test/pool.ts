@@ -92,7 +92,7 @@ describe("Pool Defi Operations", function () {
     const {execute, read} = deployments;
     const {governanceFeeRecipient, testUser} = await getNamedAccounts();
 
-    const expectedLp = toAtomic("0.976045");
+    const expectedLp = toAtomic("0.976045224943763100");
     const expectedUsdc = toAtomic("0.999495");
     const expectedGovFee = toAtomic("0.000063");
 

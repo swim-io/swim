@@ -10,18 +10,10 @@ import "@typechain/hardhat";
 import "hardhat-deploy";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
-import { deterministicDeployment } from "./helper-config";
+import { getContractAddress } from "@ethersproject/address";
 
 dotenv.config();
-const {
-  MNEMONIC,
-  MAINNET_RPC_URL,
-  ETHERSCAN_API_KEY,
-  BSCSCAN_API_KEY,
-  AVAXSCAN_APY_KEY,
-  PRIVATE_KEY,
-  DETERMINISTIC_DEPLOYMENT,
-} = process.env;
+const { FACTORY_MNEMONIC, MNEMONIC, BSCSCAN_API_KEY } = process.env;
 
 task("accounts", "Prints the list of accounts", async (_, hre) => {
   const named = await hre.getNamedAccounts();
@@ -36,18 +28,65 @@ task("accounts", "Prints the list of accounts", async (_, hre) => {
   }
 });
 
-const DEFAULT_MNEMONIC =
-  "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"; // TODO
+task(
+  "factoryAddress",
+  "Prints the address the SwimFactory will be deployed to given a deployer address",
+  async (_, { ethers }) => {
+    if (typeof FACTORY_MNEMONIC === "undefined") {
+      console.log("Factory Mnemonic not set in environment");
+      return;
+    }
+    const wallet = ethers.Wallet.fromMnemonic(FACTORY_MNEMONIC);
+    console.log(getContractAddress({ from: wallet.address, nonce: 0 }));
+  }
+);
+
+//TODO doesn't work, how to deploy the factory and only the factory so I can call it's determine* functions?
+// task("logicAddress", "Prints the address a logic contract will be deployed to given a its salt",
+//   async ({logicContract, salt}, hre) => {
+//     hre.run("deploy", {tags: ["FactoryFromPresigned"]});
+//     const { getArtifact, read } = hre.deployments;
+//     const logicDeployedBytecode = await (await getArtifact(logicContract)).deployedBytecode;
+//     console.log(await read("SwimFactory", "determineLogicAddress", logicDeployedBytecode, salt));
+//   },
+// ).addParam("logic", "name of the artifact/contract").addParam("salt");
+// task("proxyAddress", "Prints the address a proxy contract will be deployed to given its salt",
+//   async ({salt}, hre) => {
+//     hre.run("deploy", {tags: ["FactoryFromPresigned"]});
+//     const { read } = hre.deployments;
+//     console.log(await read("SwimFactory", "determineLogicAddress", salt));
+//   },
+// ).addParam("salt", "salt passed to the create2 call in SwimFactory");
+
+task("presign", "Generates and prints a Deterministic Factory tx", async (_, hre) => {
+  const { deployer } = await hre.getNamedAccounts();
+  const { ethers } = hre;
+  await hre.run("compile");
+  const deployData = (await ethers.getContractFactory("SwimFactory")).getDeployTransaction(
+    deployer
+  );
+  const deployTx = {
+    ...deployData,
+    to: undefined,
+    nonce: 0,
+    gasLimit: ethers.BigNumber.from("2000000"),
+    chainId: 31337,
+    gasPrice: ethers.BigNumber.from("1875000000"), //TODO
+  };
+  if (typeof FACTORY_MNEMONIC === "undefined") {
+    console.log("Factory Mnemonic not set in environment");
+    return;
+  }
+  const wallet = ethers.Wallet.fromMnemonic(FACTORY_MNEMONIC);
+  const signedTx = await wallet.signTransaction(deployTx);
+  console.log(signedTx);
+});
 
 const sharedNetworkConfig: HttpNetworkUserConfig = {};
-if (PRIVATE_KEY) {
-  // console.log("PRIVATE KEY", PRIVATE_KEY);
-  sharedNetworkConfig.accounts = PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [];
-} else {
-  sharedNetworkConfig.accounts = {
-    mnemonic: MNEMONIC || DEFAULT_MNEMONIC,
-  };
-}
+
+sharedNetworkConfig.accounts = {
+  mnemonic: MNEMONIC!,
+};
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -79,6 +118,7 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       deploy: ["./deploy/hardhat/"],
+      loggingEnabled: false, //true,
       autoImpersonate: true,
       allowUnlimitedContractSize: true,
       gasPrice: 20000000000,
@@ -110,15 +150,15 @@ const config: HardhatUserConfig = {
       chainId: 5,
       ...sharedNetworkConfig,
     },
-    // mainnet: {
-    //   ...sharedNetworkConfig,
-    //   url: "https://mainnet.infura.io/v3/KEY",
-    //   accounts: {
-    //     mnemonic: MNEMONIC,
-    //   },
-    //   saveDeployments: true,
-    //   chainId: 1,
-    // },
+    mainnet: {
+      ...sharedNetworkConfig,
+      url: "https://mainnet.infura.io/v3/KEY",
+      accounts: {
+        mnemonic: MNEMONIC,
+      },
+      saveDeployments: true,
+      chainId: 1,
+    },
     mumbai: {
       ...sharedNetworkConfig,
       url: `https://polygon-mumbai.infura.io/v3/${"KEY"}`,
@@ -154,7 +194,6 @@ const config: HardhatUserConfig = {
       chainId: 43112,
     },
   },
-  deterministicDeployment: deterministicDeployment(DETERMINISTIC_DEPLOYMENT),
   gasReporter: {
     enabled: true,
     outputFile: "gas-report.txt",

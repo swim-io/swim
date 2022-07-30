@@ -127,28 +127,30 @@ def testing():
     # print_pool(pool)
 
 def imbalanced_testing():
-    switch = 1
-    diff = 19
+    switch = 0
 
-    oom = 19-diff
+    diff = 6
+    oom = 13
     basic_amounts = (Decimal(10 ** (oom + diff)), Decimal(10 ** oom))
     amount1, amount2 = basic_amounts[:: (2 * switch - 1)]
     token_count = 6
+    amp = 1  # * token_count
     balances = [amount1] + [amount2] * (token_count - 1)
-    amp = 1
+    # balances = [Decimal(b * 10 ** oom) for b in [20, 10, 20, 5, 2, 1]]
     tolerance = 0.1
     max_iterations = 1000
-
     pool = SwimPool(token_count, amp, 0, 0, tolerance, max_iterations)
     pool.balances = balances
-    print("balances:", balances)
-    print("----------------------------------------------------------")
-    depth = pool.depth()
-    print(f"depth: {depth:.1f}")
-    print("----------------------------------------------------------")
-    print(f"missing balance[0]: {pool._SwimPool__calc_missing_balance(balances[1:], depth):.1f}")
-    print("----------------------------------------------------------")
-    print(f"missing balance[{token_count-1}]: {pool._SwimPool__calc_missing_balance(balances[:-1], depth):.1f}")
+    depth = pool._SwimPool__calc_depth(pool.balances)
+    pool.lp_supply = Decimal(depth)
+
+    # depth = p._SwimPool__calc_depth(p.balances, depth * Decimal("1.01"))
+    excluded = token_count - 1
+    known_balances = [balance for i, balance in enumerate(balances) if i != excluded]
+    missing_balance = pool._SwimPool__calc_missing_balance(known_balances, depth)
+    missing_balance = pool._SwimPool__calc_missing_balance(
+        known_balances, depth, missing_balance * Decimal("1.01")
+    )
 
 
 # imbalanced_testing()
@@ -237,16 +239,5 @@ def wtf():
   print("balances:", pool.balances)
   print("lp supply:", pool.lp_supply)
 
-#imbalanced_testing()
-
-amp_factor = Decimal(1)
-lp_fee = Decimal("0.0003")
-gov_fee = Decimal("0.0001")
-tolerance = Decimal(0.1)
-pool = SwimPool(3, amp_factor, lp_fee, gov_fee, tolerance)
-pool.add([10_000_000,10_000_000,10_000_000])
-pool.remove_exact_output([1_000_000, 4_000_000, 7_000_000])
-print(pool.lp_supply)
-print(pool.marginal_prices())
-
+wtf()
 

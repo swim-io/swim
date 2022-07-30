@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import "../PoolErrors.sol";
 
 struct TokenBalance {
-  address tokenAddres;
+  address tokenAddress;
   uint256 balance;
 }
 

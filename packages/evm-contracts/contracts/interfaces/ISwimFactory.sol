@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-interface IDeterministicFactory {
+error ContractAlreadyExists(address contrct);
+error ProxyConstructorFailed(bytes lowLevelData);
+
+interface ISwimFactory {
   function createLogic(bytes memory code, bytes32 salt) external returns (address);
 
   function createProxy(

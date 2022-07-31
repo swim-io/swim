@@ -21,7 +21,7 @@ const USDT_EQUALIZER = 0;
 dotenv.config();
 const { FACTORY_MNEMONIC, MNEMONIC } = process.env;
 
-const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+module.exports = async function (hre: HardhatRuntimeEnvironment) {
   const { save, get, getArtifact, rawTx } = hre.deployments;
   const { deployer, governance, governanceFeeRecipient } = await hre.getNamedAccounts();
   const { ethers } = hre;
@@ -31,50 +31,40 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       throw Error("Factory Mnemonic not set in environment");
     const factDeployer = ethers.Wallet.fromMnemonic(FACTORY_MNEMONIC);
     const deployerWallet = ethers.Wallet.fromMnemonic(MNEMONIC!);
-    await deployerWallet.sendTransaction({to: factDeployer.address, value: "3750000000000000"});
-    const contract = await (await ethers.getContractFactory("SwimFactory")).connect(factDeployer).deploy(deployer);
+    await deployerWallet.sendTransaction({ to: factDeployer.address, value: "3750000000000000" });
+    const contract = await (await ethers.getContractFactory("SwimFactory"))
+      .connect(factDeployer)
+      .deploy(deployer);
     //await contract.deployed();
     const txHash = contract.deployTransaction.hash;
 
     const ethersTx = await hre.ethers.provider.getTransaction(txHash);
     const receipt = await hre.network.provider.send("eth_getTransactionReceipt", [txHash]);
     //const deployedTx = await hre.network.provider.send("eth_getTransactionByHash", [txHash]);
-    const factoryAddress = ((ethersTx as unknown) as {creates: string}).creates;
+    const factoryAddress = (ethersTx as unknown as { creates: string }).creates;
     console.log("SwimFactory:", factoryAddress);
 
     const deployment = {
-      ...await getArtifact("SwimFactory"),
+      ...(await getArtifact("SwimFactory")),
       address: factoryAddress,
       args: [deployer],
       transactionHash: receipt.hash,
       receipt,
       newlyDeployed: true,
-    }
+    };
     await save("SwimFactory", deployment);
   };
 
-  const deployLogic = async (logicContract: string, salt: string = "0x"+"00".repeat(32)) => {
+  const deployLogic = async (logicContract: string, salt: string = "0x" + "00".repeat(32)) => {
     const { save, read, execute, getArtifact } = hre.deployments;
     const { deployer } = await hre.getNamedAccounts();
 
     const logic = await getArtifact(logicContract);
     const bytecode = logic.bytecode;
 
-    const ctAddress = await read(
-      "SwimFactory",
-      {},
-      "determineLogicAddress",
-      bytecode,
-      salt
-    );
+    const ctAddress = await read("SwimFactory", {}, "determineLogicAddress", bytecode, salt);
 
-    const receipt = await execute(
-      "SwimFactory",
-      {from: deployer},
-      "createLogic",
-      bytecode,
-      salt,
-    );
+    const receipt = await execute("SwimFactory", { from: deployer }, "createLogic", bytecode, salt);
 
     const deployment = {
       ...logic,
@@ -86,7 +76,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     };
     await save(logicContract, deployment);
     console.log(logicContract, "(logic):", (await hre.deployments.get(logicContract)).address);
-  }
+  };
 
   const deployRouting = async () => {
     const routing = await getArtifact("Routing");
@@ -95,46 +85,45 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       [deployer, WORMHOLE_TOKEN_BRIDGE]
     );
 
-    await deployProxy("RoutingProxy", "Routing", "0x"+"00".repeat(32), hre, initializeEncoded);
+    await deployProxy("RoutingProxy", "Routing", "0x" + "00".repeat(32), hre, initializeEncoded);
     console.log("RoutingProxy:", (await hre.deployments.get("RoutingProxy")).address);
-  }
+  };
 
   const deployPool = async () => {
     const pool = await getArtifact("Pool");
     const lpName = "Test Pool LP";
     const lpSymbol = "LP";
-    const lpSalt = "0x"+"00".repeat(31)+"11";
+    const lpSalt = "0x" + "00".repeat(31) + "11";
     const ampFactor = 1_000; //1 with 3 decimals
     const lpFee = 300; //fee as 100th of a bip (6 decimals, 1 = 100 % fee)
     const governanceFee = 100;
-    const initializeEncoded = (new ethers.utils.Interface(pool.abi))
-      .encodeFunctionData(
-        "initialize",
-        [
-          lpName,
-          lpSymbol,
-          lpSalt,
-          LP_EQUALIZER,
-          [USDC_ADDRESS, USDT_ADDRESS],
-          [USDC_EQUALIZER, USDT_EQUALIZER],
-          ampFactor,
-          lpFee,
-          governanceFee,
-          governance,
-          governanceFeeRecipient
-        ],
+    const initializeEncoded = new ethers.utils.Interface(pool.abi).encodeFunctionData(
+      "initialize",
+      [
+        lpName,
+        lpSymbol,
+        lpSalt,
+        LP_EQUALIZER,
+        [USDC_ADDRESS, USDT_ADDRESS],
+        [USDC_EQUALIZER, USDT_EQUALIZER],
+        ampFactor,
+        lpFee,
+        governanceFee,
+        governance,
+        governanceFeeRecipient,
+      ]
     );
 
-    const poolSalt = "0x"+"00".repeat(31)+"01";
+    const poolSalt = "0x" + "00".repeat(31) + "01";
     const poolProxy = await deployProxy("PoolProxy", "Pool", poolSalt, hre, initializeEncoded);
     console.log("PoolProxy:", poolProxy.address);
     //TODO save lp token as deployment
     //console.log(JSON.stringify(await hre.network.provider.send("eth_getCode", [poolProxy.address])));
-    const epp = await ethers.getContract("PoolProxy") as Pool;
+    const epp = (await ethers.getContract("PoolProxy")) as Pool;
     const state = await epp.getState();
     const lpProxyAddress = state.totalLPSupply.tokenAddress;
     const lpTokenProxy = {
-      ...await getArtifact("LpToken"),
+      ...(await getArtifact("LpToken")),
       address: lpProxyAddress,
       receipt: poolProxy.receipt,
       transactionHash: poolProxy.transactionHash,
@@ -153,11 +142,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const poolAddress = (await get("PoolProxy")).address;
 
-  const routing = await ethers.getContract("RoutingProxy") as Routing;
+  const routing = (await ethers.getContract("RoutingProxy")) as Routing;
   await routing.registerToken(USDC_TOKENNUMBER, USDC_ADDRESS, poolAddress, 1);
   await routing.registerToken(USDT_TOKENNUMBER, USDT_ADDRESS, poolAddress, 2);
-}
+};
 
-export default func;
-func.id = 'all';
-func.tags = ['all'];
+module.exports.id = "all";
+module.exports.tags = ["all"];

@@ -1,3 +1,4 @@
+
 export const networkConfig = {
   default: {
     name: "hardhat",
@@ -27,4 +28,4 @@ export const networkConfig = {
 
 export const developmentChains = ["hardhat", "localhost"];
 export const VERIFICATION_BLOCK_CONFIRMATIONS = 6;
-export const SALT = "0x3327";
+export const SALT = "0x" + "00".repeat(32);

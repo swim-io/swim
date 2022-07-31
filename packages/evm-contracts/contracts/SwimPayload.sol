@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: TODO
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
 //   1 byte - swim internal payload version number
 // 32 bytes - logical owner/recipient (will use ATA of owner and token on Solana)
@@ -14,23 +14,23 @@ library SwimPayload {
 
   uint8 private constant SWIM_PAYLOAD_VERSION = 1;
 
-  uint private constant VERSION_OFFSET = 0;
-  uint private constant VERSION_SIZE = 1;
-  uint private constant VERSION_MINLEN = VERSION_OFFSET + VERSION_SIZE;
+  uint256 private constant VERSION_OFFSET = 0;
+  uint256 private constant VERSION_SIZE = 1;
+  uint256 private constant VERSION_MINLEN = VERSION_OFFSET + VERSION_SIZE;
 
-  uint private constant OWNER_OFFSET = VERSION_MINLEN;
-  uint private constant OWNER_SIZE = 32;
-  uint private constant OWNER_MINLEN = OWNER_OFFSET + OWNER_SIZE;
+  uint256 private constant OWNER_OFFSET = VERSION_MINLEN;
+  uint256 private constant OWNER_SIZE = 32;
+  uint256 private constant OWNER_MINLEN = OWNER_OFFSET + OWNER_SIZE;
 
-  uint private constant TOKEN_NUMBER_OFFSET = OWNER_MINLEN;
-  uint private constant TOKEN_NUMBER_SIZE = 2;
-  uint private constant TOKEN_NUMBER_MINLEN = TOKEN_NUMBER_OFFSET + TOKEN_NUMBER_SIZE;
+  uint256 private constant TOKEN_NUMBER_OFFSET = OWNER_MINLEN;
+  uint256 private constant TOKEN_NUMBER_SIZE = 2;
+  uint256 private constant TOKEN_NUMBER_MINLEN = TOKEN_NUMBER_OFFSET + TOKEN_NUMBER_SIZE;
 
-  uint private constant THRESHOLD_OFFSET = TOKEN_NUMBER_MINLEN;
-  uint private constant THRESHOLD_SIZE = 32;
-  uint private constant THRESHOLD_MINLEN = THRESHOLD_OFFSET + THRESHOLD_SIZE;
+  uint256 private constant THRESHOLD_OFFSET = TOKEN_NUMBER_MINLEN;
+  uint256 private constant THRESHOLD_SIZE = 32;
+  uint256 private constant THRESHOLD_MINLEN = THRESHOLD_OFFSET + THRESHOLD_SIZE;
 
-  uint private constant SOLIDITY_ARRAY_LENGTH_SIZE = 32;
+  uint256 private constant SOLIDITY_ARRAY_LENGTH_SIZE = 32;
 
   function checkVersion(bytes memory swimPayload) internal pure {
     checkLength(swimPayload, VERSION_MINLEN);
@@ -39,37 +39,41 @@ library SwimPayload {
     }
   }
 
-  function decodeOwner(bytes memory swimPayload) internal pure returns (address) { unchecked {
-    checkLength(swimPayload, OWNER_MINLEN);
-    uint offset = SOLIDITY_ARRAY_LENGTH_SIZE + OWNER_OFFSET;
-    uint swimOwner;
-    //memory-safe annotation only becomes available with Solidity 0.8.13
-    assembly /*("memory-safe")*/ {
-      swimOwner := mload(add(swimPayload, offset))
+  function decodeOwner(bytes memory swimPayload) internal pure returns (address) {
+    unchecked {
+      checkLength(swimPayload, OWNER_MINLEN);
+      uint256 offset = SOLIDITY_ARRAY_LENGTH_SIZE + OWNER_OFFSET;
+      uint256 swimOwner;
+      //memory-safe annotation only becomes available with Solidity 0.8.13
+      assembly /*("memory-safe")*/
+      {
+        swimOwner := mload(add(swimPayload, offset))
+      }
+      return address(uint160(swimOwner));
     }
-    return address(uint160(swimOwner));
-  }}
+  }
 
-  function decodeSwapParameters(bytes memory swimPayload)
-    internal pure returns (uint16, uint) { unchecked {
-    checkLength(swimPayload, THRESHOLD_MINLEN);
-    uint16 tokenNumber =
-        (uint16(uint8(swimPayload[TOKEN_NUMBER_OFFSET]))<<8)
-      + uint16(uint8(swimPayload[TOKEN_NUMBER_OFFSET+1]));
+  function decodeSwapParameters(bytes memory swimPayload) internal pure returns (uint16, uint256) {
+    unchecked {
+      checkLength(swimPayload, THRESHOLD_MINLEN);
+      uint16 tokenNumber = (uint16(uint8(swimPayload[TOKEN_NUMBER_OFFSET])) << 8) +
+        uint16(uint8(swimPayload[TOKEN_NUMBER_OFFSET + 1]));
 
-    uint offset = SOLIDITY_ARRAY_LENGTH_SIZE + THRESHOLD_OFFSET;
-    uint thresholdAmount;
-    assembly /*("memory-safe")*/ {
-      thresholdAmount := mload(add(swimPayload, offset))
+      uint256 offset = SOLIDITY_ARRAY_LENGTH_SIZE + THRESHOLD_OFFSET;
+      uint256 thresholdAmount;
+      assembly /*("memory-safe")*/
+      {
+        thresholdAmount := mload(add(swimPayload, offset))
+      }
+      return (tokenNumber, thresholdAmount);
     }
-    return (tokenNumber, thresholdAmount);
-  }}
+  }
 
   function encode(bytes32 toOwner) internal pure returns (bytes memory swimPayload) {
     return abi.encodePacked(SWIM_PAYLOAD_VERSION, toOwner);
   }
 
-  function checkLength(bytes memory swimPayload, uint minimumLength) private pure {
+  function checkLength(bytes memory swimPayload, uint256 minimumLength) private pure {
     if (swimPayload.length < minimumLength) {
       revert TooShort();
     }

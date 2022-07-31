@@ -8,7 +8,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await hre.getNamedAccounts();
   const { deploy, get } = hre.deployments;
 
-  const tokenBridge = await deploy("MockTokenBridge", {from: deployer});
+  const tokenBridge = await deploy("MockTokenBridge", { from: deployer });
   console.log("MockTokenBridge:", tokenBridge.address);
 
   const routing = await get("Routing");
@@ -18,7 +18,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     [deployer, tokenBridge.address]
   );
 
-  await deployProxy("RoutingProxy", "Routing", "0x"+"00".repeat(32), hre, initializeEncoded);
+  await deployProxy("RoutingProxy", "Routing", "0x" + "00".repeat(32), hre, initializeEncoded);
   console.log("RoutingProxy:", (await hre.deployments.get("RoutingProxy")).address);
 };
 

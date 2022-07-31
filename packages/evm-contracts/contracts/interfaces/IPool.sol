@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
 import "../PoolErrors.sol";
 
@@ -23,7 +23,7 @@ struct PoolState {
 }
 
 interface IPool {
-  function getState() external view returns(PoolState memory state);
+  function getState() external view returns (PoolState memory state);
 
   function swap(
     uint256 inputAmount,
@@ -33,33 +33,32 @@ interface IPool {
   ) external returns (uint256 outputAmount);
 
   function swapExactOutput(
-    uint maximumInputAmount,
+    uint256 maximumInputAmount,
     uint8 inputTokenIndex,
-    uint[] memory outputAmounts
-  ) external returns(uint inputAmount);
+    uint256[] memory outputAmounts
+  ) external returns (uint256 inputAmount);
 
   function swapExactInput(
-    uint[] memory inputAmounts,
+    uint256[] memory inputAmounts,
     uint8 outputTokenIndex,
-    uint minimumOutputAmount
-  ) external returns(uint outputAmount);
+    uint256 minimumOutputAmount
+  ) external returns (uint256 outputAmount);
 
   function removeExactBurn(
-    uint burnAmount,
+    uint256 burnAmount,
     uint8 outputTokenIndex,
-    uint minimumOutputAmount
-  ) external returns(uint outputAmount);
+    uint256 minimumOutputAmount
+  ) external returns (uint256 outputAmount);
 
-  function removeExactOutput(
-    uint[] memory outputAmounts,
-    uint maximumBurnAmount
-  ) external returns(uint burnAmount);
+  function removeExactOutput(uint256[] memory outputAmounts, uint256 maximumBurnAmount)
+    external
+    returns (uint256 burnAmount);
 
-  function add(
-    uint[] memory inputAmounts,
-    uint minimumMintAmount
-  ) external returns(uint mintAmount);
+  function add(uint256[] memory inputAmounts, uint256 minimumMintAmount)
+    external
+    returns (uint256 mintAmount);
 
-  function removeUniform(uint burnAmount, uint[] memory minimumOutputAmounts)
-    external returns(uint[] memory outputAmounts);
+  function removeUniform(uint256 burnAmount, uint256[] memory minimumOutputAmounts)
+    external
+    returns (uint256[] memory outputAmounts);
 }

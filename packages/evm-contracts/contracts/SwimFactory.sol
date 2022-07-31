@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: TODO
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
 import "./BlankLogic.sol";
 import "./interfaces/ISwimFactory.sol";
@@ -73,18 +73,17 @@ interface IUUPSUpgradeable {
 //762 (stripped length) + 1 (invalid opcode) + 96 (fingerprint) = 855 (original code length)
 
 contract SwimFactory is ISwimFactory {
-
-  uint private constant PROXY_DEPLOYMENT_CODESIZE = 68;
-  uint private constant PROXY_STRIPPED_DEPLOYEDCODESIZE = 762;
-  uint private constant PROXY_TOTAL_CODESIZE =
+  uint256 private constant PROXY_DEPLOYMENT_CODESIZE = 68;
+  uint256 private constant PROXY_STRIPPED_DEPLOYEDCODESIZE = 762;
+  uint256 private constant PROXY_TOTAL_CODESIZE =
     PROXY_DEPLOYMENT_CODESIZE + PROXY_STRIPPED_DEPLOYEDCODESIZE;
-  uint private constant IMPLEMENTATION_SLOT =
+  uint256 private constant IMPLEMENTATION_SLOT =
     0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
   event ContractCreated(address indexed addr, bool isLogic);
 
   address public owner;
-  uint private reentrancyCount;
+  uint256 private reentrancyCount;
   address private blankLogicAddress;
 
   constructor(address _owner) {
@@ -95,7 +94,7 @@ contract SwimFactory is ISwimFactory {
   modifier onlyOwnerOrAlreadyDeploying() {
     require(msg.sender == owner || reentrancyCount > 0);
     ++reentrancyCount;
-      _;
+    _;
     --reentrancyCount;
   }
 
@@ -105,27 +104,34 @@ contract SwimFactory is ISwimFactory {
   }
 
   function createLogic(bytes memory code, bytes32 salt)
-    external onlyOwnerOrAlreadyDeploying returns (address) {
+    external
+    onlyOwnerOrAlreadyDeploying
+    returns (address)
+  {
     address logic = create2(code, salt);
-		emit ContractCreated(logic, true);
-		return logic;
+    emit ContractCreated(logic, true);
+    return logic;
   }
 
-  function createProxy(address implementation, bytes32 salt, bytes memory call)
-    external onlyOwnerOrAlreadyDeploying returns (address) {
+  function createProxy(
+    address implementation,
+    bytes32 salt,
+    bytes memory call
+  ) external onlyOwnerOrAlreadyDeploying returns (address) {
     bytes memory code = proxyDeploymentCode();
     address proxy = create2(code, salt);
-    try IUUPSUpgradeable(proxy).upgradeToAndCall(implementation, call) {}
-    catch (bytes memory lowLevelData) {
+    try IUUPSUpgradeable(proxy).upgradeToAndCall(implementation, call) {} catch (
+      bytes memory lowLevelData
+    ) {
       revert ProxyConstructorFailed(lowLevelData);
     }
     emit ContractCreated(proxy, false);
-		return proxy;
+    return proxy;
   }
 
   function determineLogicAddress(bytes memory code, bytes32 salt) external view returns (address) {
-		return determineAddress(code, salt);
-	}
+    return determineAddress(code, salt);
+  }
 
   function determineProxyAddress(bytes32 salt) external view returns (address) {
     return determineAddress(proxyDeploymentCode(), salt);
@@ -133,24 +139,27 @@ contract SwimFactory is ISwimFactory {
 
   // -------------------------------- INTERNAL --------------------------------
 
-  function create2(bytes memory code, bytes32 salt) internal returns(address) {
-		bytes memory _code = code;
-		bytes32 _salt = salt;
-		address ct;
+  function create2(bytes memory code, bytes32 salt) internal returns (address) {
+    bytes memory _code = code;
+    bytes32 _salt = salt;
+    address ct;
     bool failed;
-		assembly /*("memory-safe")*/ {
-			ct := create2(0, add(_code, 32), mload(_code), _salt)
-			failed := iszero(extcodesize(ct))
-		}
-    if (failed)
-      revert ContractAlreadyExists(ct);
-		return ct;
-	}
+    assembly ("memory-safe")
+    {
+      ct := create2(0, add(_code, 32), mload(_code), _salt)
+      failed := iszero(extcodesize(ct))
+    }
+    if (failed) revert ContractAlreadyExists(ct);
+    return ct;
+  }
 
   function determineAddress(bytes memory code, bytes32 salt) internal view returns (address) {
-    return address(bytes20(keccak256(
-      abi.encodePacked(bytes1(0xff),	address(this), salt, keccak256(code))
-    ) << 96));
+    return
+      address(
+        bytes20(
+          keccak256(abi.encodePacked(bytes1(0xff), address(this), salt, keccak256(code))) << 96
+        )
+      );
   }
 
   function proxyDeploymentCode() internal view returns (bytes memory) {
@@ -198,24 +207,27 @@ contract SwimFactory is ISwimFactory {
     //   bytes32(0x6020870161025d565b601f017fffffffffffffffffffffffffffffffffffffff),
     //   bytes26(0xffffffffffffffffffffffffe016919091016040019291505056)
     // );
-    uint _PROXY_DEPLOYMENT_CODESIZE = PROXY_DEPLOYMENT_CODESIZE;
-    uint _PROXY_STRIPPED_DEPLOYEDCODESIZE = PROXY_STRIPPED_DEPLOYEDCODESIZE;
-    uint _IMPLEMENTATION_SLOT = IMPLEMENTATION_SLOT;
-    uint _blankLogicAddress = uint(uint160(blankLogicAddress));
+    uint256 _PROXY_DEPLOYMENT_CODESIZE = PROXY_DEPLOYMENT_CODESIZE;
+    uint256 _PROXY_STRIPPED_DEPLOYEDCODESIZE = PROXY_STRIPPED_DEPLOYEDCODESIZE;
+    uint256 _IMPLEMENTATION_SLOT = IMPLEMENTATION_SLOT;
+    uint256 _blankLogicAddress = uint256(uint160(blankLogicAddress));
     bytes memory code = new bytes(PROXY_TOTAL_CODESIZE);
-    assembly /*("memory-safe")*/ {
-      mstore(add(code, 32), add(add(
-        shl(248, 0x73),
-        shl(88, _blankLogicAddress)),
-        shl(80, 0x7f))
-      )
+    assembly ("memory-safe")
+    {
+      mstore(add(code, 32), add(add(shl(248, 0x73), shl(88, _blankLogicAddress)), shl(80, 0x7f)))
       mstore(add(code, 54), _IMPLEMENTATION_SLOT)
-      mstore(add(code, 86), add(add(add(add(
-        shl(240, 0x5561),
-        shl(224, _PROXY_STRIPPED_DEPLOYEDCODESIZE)),
-        shl(208, 0x8060)),
-        shl(200, _PROXY_DEPLOYMENT_CODESIZE)),
-        shl(144, 0x6000396000f300))
+      mstore(
+        add(code, 86),
+        add(
+          add(
+            add(
+              add(shl(240, 0x5561), shl(224, _PROXY_STRIPPED_DEPLOYEDCODESIZE)),
+              shl(208, 0x8060)
+            ),
+            shl(200, _PROXY_DEPLOYMENT_CODESIZE)
+          ),
+          shl(144, 0x6000396000f300)
+        )
       )
       mstore(add(code, 100), 0x60806040523661001357610011610017565b005b6100115b6100276100226100)
       mstore(add(code, 132), 0x74565b6100b9565b565b606061004e8383604051806060016040528060278152)

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache 2
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
 import "./IStructs.sol";
 
@@ -28,10 +28,7 @@ interface IWormhole is IStructs {
       string memory reason
     );
 
-  function verifyVM(IStructs.VM memory vm)
-    external
-    view
-    returns (bool valid, string memory reason);
+  function verifyVM(IStructs.VM memory vm) external view returns (bool valid, string memory reason);
 
   function verifySignatures(
     bytes32 hash,
@@ -39,24 +36,15 @@ interface IWormhole is IStructs {
     IStructs.GuardianSet memory guardianSet
   ) external pure returns (bool valid, string memory reason);
 
-  function parseVM(bytes memory encodedVM)
-    external
-    pure
-    returns (IStructs.VM memory vm);
+  function parseVM(bytes memory encodedVM) external pure returns (IStructs.VM memory vm);
 
-  function getGuardianSet(uint32 index)
-    external
-    view
-    returns (IStructs.GuardianSet memory);
+  function getGuardianSet(uint32 index) external view returns (IStructs.GuardianSet memory);
 
   function getCurrentGuardianSetIndex() external view returns (uint32);
 
   function getGuardianSetExpiry() external view returns (uint32);
 
-  function governanceActionIsConsumed(bytes32 hash)
-    external
-    view
-    returns (bool);
+  function governanceActionIsConsumed(bytes32 hash) external view returns (bool);
 
   function isInitialized(address impl) external view returns (bool);
 

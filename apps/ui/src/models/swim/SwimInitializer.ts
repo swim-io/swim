@@ -248,9 +248,12 @@ export class SwimInitializer {
     });
   }
 
-  private getFreshTransaction(): Transaction {
+  private async getFreshTransaction(): Promise<Transaction> {
+    const latestBlock = await this.solanaConnection.getLatestBlockhash();
     return new Transaction({
       feePayer: this.signer.publicKey,
+      blockhash: latestBlock.blockhash,
+      lastValidBlockHeight: latestBlock.lastValidBlockHeight,
     });
   }
 
@@ -306,7 +309,7 @@ export class SwimInitializer {
     });
     const initMintIx = this.createMintInitIx(lpTokenDecimals);
 
-    const tx = this.getFreshTransaction();
+    const tx = await this.getFreshTransaction();
     tx.add(createStateAccountIx, createLpTokenAccountIx, initMintIx);
     return this.signAndSendTransaction(tx, [stateKeypair, lpMintKeypair]);
   }
@@ -360,7 +363,7 @@ export class SwimInitializer {
       { instructions: [], keypairs: [] },
     );
 
-    const tx = this.getFreshTransaction();
+    const tx = await this.getFreshTransaction();
     tx.add(...instructions);
     return this.signAndSendTransaction(tx, keypairs);
   }
@@ -372,7 +375,7 @@ export class SwimInitializer {
   ): Promise<string> {
     const initPoolIx = this.createPoolInitIx(ampFactor, lpFee, governanceFee);
 
-    const tx = this.getFreshTransaction();
+    const tx = await this.getFreshTransaction();
     tx.add(initPoolIx);
     return this.signAndSendTransaction(tx);
   }

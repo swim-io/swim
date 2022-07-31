@@ -144,15 +144,21 @@ export async function* generatePostVaaSolanaTxIds(
   // The verify signatures instructions can be batched into groups of 2 safely,
   // reducing the total number of transactions
   const batchableChunks = chunks([...ixs], 2);
+  const latestBlock = await solanaConnection.getLatestBlockhash();
   const unsignedTxs = batchableChunks.map((chunk) =>
-    new Transaction({ feePayer: new PublicKey(payer) }).add(...chunk, memoIx),
+    new Transaction({
+      feePayer: new PublicKey(payer),
+      blockhash: latestBlock.blockhash,
+      lastValidBlockHeight: latestBlock.lastValidBlockHeight,
+    }).add(...chunk, memoIx),
   );
   // The postVaa instruction can only execute after the verifySignature transactions have
   // successfully completed
-  const finalTx = new Transaction({ feePayer: new PublicKey(payer) }).add(
-    finalIx,
-    memoIx,
-  );
+  const finalTx = new Transaction({
+    feePayer: new PublicKey(payer),
+    blockhash: latestBlock.blockhash,
+    lastValidBlockHeight: latestBlock.lastValidBlockHeight,
+  }).add(finalIx, memoIx);
 
   // The signatureSet keypair also needs to sign the verifySignature transactions, thus a wrapper is needed
   const partialSignWrapper = async (tx: Transaction): Promise<Transaction> => {
@@ -208,6 +214,7 @@ export async function* generateUnlockSplTokenTxIds(
   }
   const redeemTx = await redeemOnSolana(
     interactionId,
+    solanaConnection,
     solanaWormhole.bridge,
     solanaWormhole.tokenBridge,
     solanaPublicKey.toBase58(),
@@ -256,6 +263,7 @@ export const unlockSplToken = async (
   );
   const tx = await redeemOnSolana(
     interactionId,
+    solanaConnection,
     solanaWormhole.bridge,
     solanaWormhole.tokenBridge,
     solanaPublicKey.toBase58(),

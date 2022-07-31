@@ -357,8 +357,12 @@ export const createSplTokenAccount = async (
     wallet.publicKey,
     wallet.publicKey,
   );
+
+  const latestBlock = await solanaConnection.getLatestBlockhash();
   const tx = new Transaction({
     feePayer: wallet.publicKey,
+    blockhash: latestBlock.blockhash,
+    lastValidBlockHeight: latestBlock.lastValidBlockHeight,
   });
   tx.add(ix);
   return solanaConnection.sendAndConfirmTx(

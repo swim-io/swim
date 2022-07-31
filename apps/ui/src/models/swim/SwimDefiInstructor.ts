@@ -606,8 +606,11 @@ export class SwimDefiInstructor {
     if (!this.signer.publicKey) {
       throw new Error("No wallet public key");
     }
+    const latestBlock = await this.solanaConnection.getLatestBlockhash();
     const tx = new Transaction({
       feePayer: this.signer.publicKey,
+      blockhash: latestBlock.blockhash,
+      lastValidBlockHeight: latestBlock.lastValidBlockHeight,
     });
     tx.add(...ixs);
     return this.signAndSendTransaction(tx, userTransferAuthority);

@@ -121,9 +121,14 @@ export class SolanaConnection {
     }
     while (remainingAttempts >= 0) {
       try {
+        const latestBlock = await this.rawConnection.getLatestBlockhash();
         // If the Solana network is busy this can time out
         return await this.rawConnection.confirmTransaction(
-          txId,
+          {
+            signature: txId,
+            blockhash: latestBlock.blockhash,
+            lastValidBlockHeight: latestBlock.lastValidBlockHeight,
+          },
           commitmentLevel,
         );
       } catch (e) {

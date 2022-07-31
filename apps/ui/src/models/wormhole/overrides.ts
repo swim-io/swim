@@ -164,12 +164,13 @@ export const transferFromSolana = async (
         ),
   );
   const memoIx = createMemoIx(interactionId, []);
-  const tx = new Transaction({ feePayer: new PublicKey(payerAddress) }).add(
-    transferIx,
-    approvalIx,
-    ix,
-    memoIx,
-  );
+
+  const latestBlock = await solanaConnection.getLatestBlockhash();
+  const tx = new Transaction({
+    feePayer: new PublicKey(payerAddress),
+    blockhash: latestBlock.blockhash,
+    lastValidBlockHeight: latestBlock.lastValidBlockHeight,
+  }).add(transferIx, approvalIx, ix, memoIx);
   return { tx, messageKeypair };
 };
 
@@ -205,23 +206,27 @@ export const postVaaSolanaWithRetry = async (
     signatureSet,
   );
 
+  const latestBlock = await solanaConnection.getLatestBlockhash();
+
   // The verify signatures instructions can be batched into groups of 2 safely,
   // reducing the total number of transactions.
   const batchableChunks = chunks([...ixs], 2);
   batchableChunks.forEach((chunk) => {
-    const tx = new Transaction({ feePayer: new PublicKey(payer) }).add(
-      ...chunk,
-      memoIx,
-    );
+    const tx = new Transaction({
+      feePayer: new PublicKey(payer),
+      blockhash: latestBlock.blockhash,
+      lastValidBlockHeight: latestBlock.lastValidBlockHeight,
+    }).add(...chunk, memoIx);
     unsignedTxs.push(tx);
   });
 
   // The postVaa instruction can only execute after the verifySignature transactions have
   // successfully completed.
-  const finalTx = new Transaction({ feePayer: new PublicKey(payer) }).add(
-    finalIx,
-    memoIx,
-  );
+  const finalTx = new Transaction({
+    feePayer: new PublicKey(payer),
+    blockhash: latestBlock.blockhash,
+    lastValidBlockHeight: latestBlock.lastValidBlockHeight,
+  }).add(finalIx, memoIx);
 
   // The signatureSet keypair also needs to sign the verifySignature transactions, thus a wrapper is needed.
   const partialSignWrapper = async (tx: Transaction): Promise<Transaction> => {
@@ -246,6 +251,7 @@ export const postVaaSolanaWithRetry = async (
  * */
 export const redeemOnSolana = async (
   interactionId: string,
+  solanaConnection: SolanaConnection,
   bridgeAddress: string,
   tokenBridgeAddress: string,
   payerAddress: string,
@@ -285,9 +291,11 @@ export const redeemOnSolana = async (
     );
   }
   const memoIx = createMemoIx(interactionId, []);
-  const tx = new Transaction({ feePayer: new PublicKey(payerAddress) }).add(
-    ...ixs,
-    memoIx,
-  );
+  const latestBlock = await solanaConnection.getLatestBlockhash();
+  const tx = new Transaction({
+    feePayer: new PublicKey(payerAddress),
+    blockhash: latestBlock.blockhash,
+    lastValidBlockHeight: latestBlock.lastValidBlockHeight,
+  }).add(...ixs, memoIx);
   return tx;
 };

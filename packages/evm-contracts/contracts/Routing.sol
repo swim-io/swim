@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: TODO
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.15;
 
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";

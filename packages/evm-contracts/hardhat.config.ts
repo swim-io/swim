@@ -13,7 +13,15 @@ import "solidity-coverage";
 import { getContractAddress } from "@ethersproject/address";
 
 dotenv.config();
-const { FACTORY_MNEMONIC, MNEMONIC, BSCSCAN_API_KEY } = process.env;
+const {
+  FACTORY_MNEMONIC,
+  MNEMONIC,
+  BSCSCAN_API_KEY,
+  ETHERSCAN_API_KEY,
+  DEPLOYER_PK,
+  FACTORY_PK,
+  GOUVERNANCE_PK,
+} = process.env;
 
 task("accounts", "Prints the list of accounts", async (_, hre) => {
   const named = await hre.getNamedAccounts();
@@ -93,7 +101,7 @@ sharedNetworkConfig.accounts = {
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.9",
+    version: "0.8.15",
     settings: {
       optimizer: {
         enabled: true,
@@ -148,7 +156,8 @@ const config: HardhatUserConfig = {
     goerli: {
       url: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
       chainId: 5,
-      ...sharedNetworkConfig,
+      // ...sharedNetworkConfig,
+      accounts: [DEPLOYER_PK!, FACTORY_PK!, GOUVERNANCE_PK!, GOUVERNANCE_PK!],
     },
     mainnet: {
       ...sharedNetworkConfig,
@@ -200,9 +209,9 @@ const config: HardhatUserConfig = {
     currency: "USD",
   },
   etherscan: {
-    apiKey: BSCSCAN_API_KEY,
+    // apiKey: BSCSCAN_API_KEY,
     // apiKey: AVAXSCAN_APY_KEY,
-    // apiKey: ETHERSCAN_API_KEY,
+    apiKey: ETHERSCAN_API_KEY,
   },
   namedAccounts: {
     deployer: {

@@ -1,19 +1,3 @@
-import { getSingletonFactoryInfo } from "@gnosis.pm/safe-singleton-factory";
-import { BigNumber } from "ethers";
-
-export const deterministicDeployment = (DETERMINISTIC_DEPLOYMENT: string | undefined) =>
-  DETERMINISTIC_DEPLOYMENT == "true"
-    ? (network: string) => {
-        const info = getSingletonFactoryInfo(parseInt(network));
-        if (!info) return undefined;
-        return {
-          factory: info.address,
-          deployer: info.signerAddress,
-          funding: BigNumber.from(info.gasLimit).mul(BigNumber.from(info.gasPrice)).toString(),
-          signedTx: info.transaction,
-        };
-      }
-    : undefined;
 
 export const networkConfig = {
   default: {
@@ -44,4 +28,4 @@ export const networkConfig = {
 
 export const developmentChains = ["hardhat", "localhost"];
 export const VERIFICATION_BLOCK_CONFIRMATIONS = 6;
-export const SALT = "0x3327";
+export const SALT = "0x" + "00".repeat(32);

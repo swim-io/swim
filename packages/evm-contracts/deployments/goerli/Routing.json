@@ -1,5 +1,5 @@
 {
-  "address": "0xDCF192d434ad84EeB5F155238283d184995CAA2F",
+  "address": "0x32f1400b3F3C26A3dC8e66Af2D517a8798eAC41F",
   "abi": [
     {
       "inputs": [],
@@ -692,11 +692,11 @@
     }
   ],
   "receipt": {
-    "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "transactionIndex": 0,
-    "blockHash": "0x29ebe510035d50b2ab5fd48ad48c37d592c543404a2110bf3e8fce831e83d075",
-    "blockNumber": 2
+    "to": "0x1c4955A6caAc65eA5faB4ceBaBa619C287a322A7",
+    "from": "0x1c4955A6caAc65eA5faB4ceBaBa619C287a322A7",
+    "transactionIndex": null,
+    "blockHash": null,
+    "blockNumber": null
   },
   "args": [],
   "numDeployments": 1,

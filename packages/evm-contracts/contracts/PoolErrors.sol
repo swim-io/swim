@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: TODO
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.15;
 
 error Equalize_MaxAmountExceeded(uint256 amount, int8 equalizer);
 error Equalize_LosingAllPrecision(uint256 value, int8 equalizer);

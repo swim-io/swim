@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: TODO
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.15;
 
 import "../interfaces/ITokenBridge.sol";
 

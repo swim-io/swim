@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: TODO
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.15;
 
 import "./BlankLogic.sol";
 import "./interfaces/ISwimFactory.sol";
@@ -144,7 +144,7 @@ contract SwimFactory is ISwimFactory {
     bytes32 _salt = salt;
     address ct;
     bool failed;
-    assembly /*("memory-safe")*/
+    assembly ("memory-safe")
     {
       ct := create2(0, add(_code, 32), mload(_code), _salt)
       failed := iszero(extcodesize(ct))
@@ -212,7 +212,7 @@ contract SwimFactory is ISwimFactory {
     uint256 _IMPLEMENTATION_SLOT = IMPLEMENTATION_SLOT;
     uint256 _blankLogicAddress = uint256(uint160(blankLogicAddress));
     bytes memory code = new bytes(PROXY_TOTAL_CODESIZE);
-    assembly /*("memory-safe")*/
+    assembly ("memory-safe")
     {
       mstore(add(code, 32), add(add(shl(248, 0x73), shl(88, _blankLogicAddress)), shl(80, 0x7f)))
       mstore(add(code, 54), _IMPLEMENTATION_SLOT)

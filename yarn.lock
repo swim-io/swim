@@ -6167,7 +6167,7 @@ __metadata:
     hardhat-gas-reporter: ^1.0.8
     prettier: ^2.7.1
     prettier-plugin-solidity: ^1.0.0-dev.23
-    solc: ^0.8.9
+    solc: ^0.8.15
     solhint: ^3.3.7
     solidity-coverage: ^0.7.21
     ts-node: ^10.9.1
@@ -26538,7 +26538,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"solc@npm:^0.8.9":
+"solc@npm:^0.8.15":
   version: 0.8.15
   resolution: "solc@npm:0.8.15"
   dependencies:

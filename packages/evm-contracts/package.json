@@ -4,7 +4,6 @@
   "description": "",
   "private": true,
   "devDependencies": {
-    "@gnosis.pm/safe-singleton-factory": "^1.0.11",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.2",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.3",
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@0.3.0-beta.13",
@@ -35,7 +34,7 @@
     "hardhat-gas-reporter": "^1.0.8",
     "prettier": "^2.7.1",
     "prettier-plugin-solidity": "^1.0.0-dev.23",
-    "solc": "^0.8.9",
+    "solc": "^0.8.15",
     "solhint": "^3.3.7",
     "solidity-coverage": "^0.7.21",
     "ts-node": "^10.9.1",
@@ -45,9 +44,9 @@
   },
   "scripts": {
     "start": "hardhat node",
-    "deploy": "hardhat run --network bnbTestnet scripts/routing-registerTokens.ts",
+    "deploy": "hardhat run --network goerli scripts/01_goerli_deployment.ts",
     "deploy-custom": "rm -rf deployments/custom && yarn deploy-all custom",
-    "deploy-all": "hardhat deploy-contracts --network",
+    "deploy-all": "hardhat run --network localhost scripts/01_goerli_deployment.ts",
     "compile": "hardhat compile",
     "test": "hardhat test",
     "test:staging": "hardhat test --network rinkeby",

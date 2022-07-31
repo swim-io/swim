@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: TODO
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.15;
 
 uint256 constant MAX_TOKEN_COUNT = 6;
 uint256 constant FEE_DECIMALS = 6; //enough to represent 100th of a bip

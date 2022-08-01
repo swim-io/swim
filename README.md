@@ -27,6 +27,6 @@ This approach uses [Lerna-style locked versioning](https://github.com/lerna/lern
 
 ## To-do
 
-- ESLint
 - CLI example
 - Consider Yarn’s Plug'n'Play - see [these notes on migrating](https://github.com/cosmos/cosmjs/blob/main/docs/YARN.md#step-14-enable-plug-n-play)
+- Do not remove `tsconfig.tsbuildinfo` every time we build, which reduces the effectiveness of incremental build (<https://github.com/Microsoft/TypeScript/issues/30602>)

@@ -27,7 +27,7 @@
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
     "test": "echo \"Error: no test specified\"",
     "verify": "yarn typecheck && yarn format:check && yarn lint",
-    "build": "rm -rf ./build/ ./types/ && tsc",
+    "build": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && tsc",
     "prepare": "yarn verify && yarn build"
   },
   "devDependencies": {

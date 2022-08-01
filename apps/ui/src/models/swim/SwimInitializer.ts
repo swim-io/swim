@@ -4,12 +4,11 @@ import {
   TOKEN_PROGRAM_ID,
   Token,
 } from "@solana/spl-token";
-import type { AccountMeta } from "@solana/web3.js";
+import type { AccountMeta, Transaction } from "@solana/web3.js";
 import {
   Keypair,
   PublicKey,
   SystemProgram,
-  Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
 import type { DecimalBN } from "@swim-io/solana-types";
@@ -19,6 +18,7 @@ import { chunks } from "@swim-io/utils";
 import type { SolanaConnection } from "../solana";
 import {
   createSplTokenAccount,
+  createTransaction,
   findAssociatedTokenAccountAddress,
   findProgramAddress,
 } from "../solana";
@@ -248,12 +248,9 @@ export class SwimInitializer {
     });
   }
 
-  private async getFreshTransaction(): Promise<Transaction> {
-    const latestBlock = await this.solanaConnection.getLatestBlockhash();
-    return new Transaction({
+  private getFreshTransaction(): Transaction {
+    return createTransaction({
       feePayer: this.signer.publicKey,
-      blockhash: latestBlock.blockhash,
-      lastValidBlockHeight: latestBlock.lastValidBlockHeight,
     });
   }
 
@@ -309,7 +306,7 @@ export class SwimInitializer {
     });
     const initMintIx = this.createMintInitIx(lpTokenDecimals);
 
-    const tx = await this.getFreshTransaction();
+    const tx = this.getFreshTransaction();
     tx.add(createStateAccountIx, createLpTokenAccountIx, initMintIx);
     return this.signAndSendTransaction(tx, [stateKeypair, lpMintKeypair]);
   }
@@ -363,7 +360,7 @@ export class SwimInitializer {
       { instructions: [], keypairs: [] },
     );
 
-    const tx = await this.getFreshTransaction();
+    const tx = this.getFreshTransaction();
     tx.add(...instructions);
     return this.signAndSendTransaction(tx, keypairs);
   }
@@ -375,7 +372,7 @@ export class SwimInitializer {
   ): Promise<string> {
     const initPoolIx = this.createPoolInitIx(ampFactor, lpFee, governanceFee);
 
-    const tx = await this.getFreshTransaction();
+    const tx = this.getFreshTransaction();
     tx.add(initPoolIx);
     return this.signAndSendTransaction(tx);
   }

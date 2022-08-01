@@ -13,13 +13,13 @@ import {
   ixFromRust,
 } from "@certusone/wormhole-sdk";
 import { TOKEN_PROGRAM_ID, Token, u64 } from "@solana/spl-token";
-import type { TransactionInstruction } from "@solana/web3.js";
-import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import type { Transaction, TransactionInstruction } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import type { ethers } from "ethers";
 
 import { Erc20Factory } from "../evm";
 import type { SolanaConnection } from "../solana";
-import { createMemoIx } from "../solana";
+import { createMemoIx, createTransaction } from "../solana";
 
 export const approveEth = async (
   tokenBridgeAddress: string,
@@ -165,11 +165,8 @@ export const transferFromSolana = async (
   );
   const memoIx = createMemoIx(interactionId, []);
 
-  const latestBlock = await solanaConnection.getLatestBlockhash();
-  const tx = new Transaction({
+  const tx = createTransaction({
     feePayer: new PublicKey(payerAddress),
-    blockhash: latestBlock.blockhash,
-    lastValidBlockHeight: latestBlock.lastValidBlockHeight,
   }).add(transferIx, approvalIx, ix, memoIx);
   return { tx, messageKeypair };
 };
@@ -206,26 +203,20 @@ export const postVaaSolanaWithRetry = async (
     signatureSet,
   );
 
-  const latestBlock = await solanaConnection.getLatestBlockhash();
-
   // The verify signatures instructions can be batched into groups of 2 safely,
   // reducing the total number of transactions.
   const batchableChunks = chunks([...ixs], 2);
   batchableChunks.forEach((chunk) => {
-    const tx = new Transaction({
+    const tx = createTransaction({
       feePayer: new PublicKey(payer),
-      blockhash: latestBlock.blockhash,
-      lastValidBlockHeight: latestBlock.lastValidBlockHeight,
     }).add(...chunk, memoIx);
     unsignedTxs.push(tx);
   });
 
   // The postVaa instruction can only execute after the verifySignature transactions have
   // successfully completed.
-  const finalTx = new Transaction({
+  const finalTx = createTransaction({
     feePayer: new PublicKey(payer),
-    blockhash: latestBlock.blockhash,
-    lastValidBlockHeight: latestBlock.lastValidBlockHeight,
   }).add(finalIx, memoIx);
 
   // The signatureSet keypair also needs to sign the verifySignature transactions, thus a wrapper is needed.
@@ -291,11 +282,8 @@ export const redeemOnSolana = async (
     );
   }
   const memoIx = createMemoIx(interactionId, []);
-  const latestBlock = await solanaConnection.getLatestBlockhash();
-  const tx = new Transaction({
+  const tx = createTransaction({
     feePayer: new PublicKey(payerAddress),
-    blockhash: latestBlock.blockhash,
-    lastValidBlockHeight: latestBlock.lastValidBlockHeight,
   }).add(...ixs, memoIx);
   return tx;
 };

@@ -8,6 +8,7 @@ import type {
   AccountInfo,
   Commitment,
   ParsedTransactionWithMeta,
+  TransactionBlockhashCtor,
 } from "@solana/web3.js";
 import { MAX_SEED_LENGTH, PublicKey, Transaction } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
@@ -358,11 +359,8 @@ export const createSplTokenAccount = async (
     wallet.publicKey,
   );
 
-  const latestBlock = await solanaConnection.getLatestBlockhash();
-  const tx = new Transaction({
+  const tx = createTransaction({
     feePayer: wallet.publicKey,
-    blockhash: latestBlock.blockhash,
-    lastValidBlockHeight: latestBlock.lastValidBlockHeight,
   });
   tx.add(ix);
   return solanaConnection.sendAndConfirmTx(
@@ -473,4 +471,13 @@ export const getMultipleSolanaAccounts = async (
     }),
   );
   return { keys, array };
+};
+
+type CreateTransactionOpts = Omit<
+  TransactionBlockhashCtor,
+  "blockhash" | "lastValidBlockHeight"
+>;
+/** Create transaction with dummy blockhash and lastValidBlockHeight, expected to be overwritten by solanaConnection.sendAndConfirmTx to prevent expired blockhash */
+export const createTransaction = (opts: CreateTransactionOpts): Transaction => {
+  return new Transaction({ ...opts, blockhash: "", lastValidBlockHeight: 0 });
 };

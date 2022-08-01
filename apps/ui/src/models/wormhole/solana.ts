@@ -8,10 +8,11 @@ import type {
   ParsedInstruction,
   ParsedTransactionWithMeta,
   PartiallyDecodedInstruction,
+  Transaction,
   TransactionInstruction,
   TransactionResponse,
 } from "@solana/web3.js";
-import { PublicKey, Transaction } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
 import {
@@ -23,6 +24,7 @@ import type { SolanaTx } from "../crossEcosystem";
 import type { SolanaConnection } from "../solana";
 import {
   createMemoIx,
+  createTransaction,
   getAmountBurnedByMint,
   getAmountMintedToAccount,
   getAmountTransferredFromAccount,
@@ -144,20 +146,15 @@ export async function* generatePostVaaSolanaTxIds(
   // The verify signatures instructions can be batched into groups of 2 safely,
   // reducing the total number of transactions
   const batchableChunks = chunks([...ixs], 2);
-  const latestBlock = await solanaConnection.getLatestBlockhash();
   const unsignedTxs = batchableChunks.map((chunk) =>
-    new Transaction({
+    createTransaction({
       feePayer: new PublicKey(payer),
-      blockhash: latestBlock.blockhash,
-      lastValidBlockHeight: latestBlock.lastValidBlockHeight,
     }).add(...chunk, memoIx),
   );
   // The postVaa instruction can only execute after the verifySignature transactions have
   // successfully completed
-  const finalTx = new Transaction({
+  const finalTx = createTransaction({
     feePayer: new PublicKey(payer),
-    blockhash: latestBlock.blockhash,
-    lastValidBlockHeight: latestBlock.lastValidBlockHeight,
   }).add(finalIx, memoIx);
 
   // The signatureSet keypair also needs to sign the verifySignature transactions, thus a wrapper is needed

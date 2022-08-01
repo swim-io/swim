@@ -32,6 +32,13 @@ mod common;
 // type DecT = DecimalU64;
 
 pub const TOKEN_COUNT: usize = 2;
+
+//TODO: option to have separate programIds depending on cluster
+// https://solana.stackexchange.com/questions/848/how-to-have-a-different-program-id-depending-on-the-cluster
+// #[cfg(feature = "mainnet")]
+// declare_id!("8ghymvPffJbkLHqYfSKdE8moRH5gSf4AQav9qtZfu77H");
+// #[cfg(not(feature = "mainnet"))]
+// declare_id!("DLANS7Qh31fFWLujEMtn5kyd87H8ZUbhwtfMurrSHYn9");
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 #[program]

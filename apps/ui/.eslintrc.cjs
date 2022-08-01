@@ -1,7 +1,8 @@
 require("@swim-io/eslint-config/patch/modern-module-resolution.cjs");
 
 module.exports = {
-  extends: ["@swim-io/eslint-config/react"],
+  plugins: ["i18next"],
+  extends: ["@swim-io/eslint-config/react", "plugin:i18next/recommended"],
   parserOptions: {
     // Make sure correct `tsconfig.json` is found in monorepo
     tsconfigRootDir: __dirname,

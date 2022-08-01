@@ -44,7 +44,7 @@
   },
   "scripts": {
     "start": "hardhat node",
-    "deploy": "hardhat run --network goerli scripts/01_goerli_deployment.ts",
+    "deploy": "hardhat run --network localhost scripts/01_goerli_deployment.ts",
     "deploy-custom": "rm -rf deployments/custom && yarn deploy-all custom",
     "deploy-all": "hardhat run --network localhost scripts/01_goerli_deployment.ts",
     "compile": "hardhat compile",

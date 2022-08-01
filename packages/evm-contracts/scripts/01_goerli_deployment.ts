@@ -1,31 +1,11 @@
 import { ethers, network, deployments } from "hardhat";
 import { DeploymentSubmission } from "hardhat-deploy/dist/types";
-import { deployProxy } from "../utils/factory_v2";
+import { deployProxy } from "../utils/factoryDeployProxy";
 import * as dotenv from "dotenv";
+import { ONCHAIN_ADDRESSES, SWIM_FACTORY_ADDRESS, DEFAULT_SALT } from "../utils/deploymentConfig";
 
 dotenv.config();
 const { FACTORY_MNEMONIC } = process.env;
-
-const USDC_TOKENNUMBER = 1;
-const USDT_TOKENNUMBER = 2;
-
-const LP_EQUALIZER = -2;
-//usdc and usdt both already have 6 decimals
-const USDC_EQUALIZER = 0;
-const USDT_EQUALIZER = 0;
-
-const SWIM_FACTORY_ADDRESS = "0x77C1f7813D79c8e6E37DE1aA631B6F961fD45648";
-const DEFAULT_SALT = "0x" + "00".repeat(32);
-
-const GOERLI = {
-  WORMHOLE_TOKEN_BRIDGE: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
-  USDC: "0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557",
-  USDT: "0x509Ee0d083DdF8AC028f2a56731412edD63223B9",
-};
-
-const ONCHAIN_ADDRESSES = {
-  5: GOERLI,
-};
 
 const isDeployed = async (address: string) => (await ethers.provider.getCode(address)).length > 2;
 
@@ -36,8 +16,7 @@ async function main() {
   console.log("executing deployment script for chain:", chainId);
 
   const addresses = ONCHAIN_ADDRESSES[chainId as keyof typeof ONCHAIN_ADDRESSES];
-  if (!addresses)
-    throw Error("Network with chainId " + chainId + " not implemented yet");
+  if (!addresses) throw Error("Network with chainId " + chainId + " not implemented yet");
 
   const [deployer, governance, governanceFeeRecipient] = await ethers.getSigners();
 
@@ -49,14 +28,23 @@ async function main() {
 
     if (typeof FACTORY_MNEMONIC === "undefined")
       throw Error("Factory Mnemonic not set in environment");
-    const factoryDeployer = await (ethers.Wallet.fromMnemonic(FACTORY_MNEMONIC).connect(deployer.provider!));
+    const factoryDeployer = await ethers.Wallet.fromMnemonic(FACTORY_MNEMONIC).connect(
+      deployer.provider!
+    );
 
-    if (await factoryDeployer.getTransactionCount() != 0)
-      throw Error("factory deployer " + factoryDeployer.address + " has nonzero transaction count on network " + chainId);
+    if ((await factoryDeployer.getTransactionCount()) != 0)
+      throw Error(
+        "factory deployer " +
+          factoryDeployer.address +
+          " has nonzero transaction count on network " +
+          chainId
+      );
 
     const swimFactoryFactory = await ethers.getContractFactory("SwimFactory");
-    const gasEstimate = deployer.estimateGas(await swimFactoryFactory.getDeployTransaction(deployer.address));
-    const {maxFeePerGas} = (await ethers.getDefaultProvider().getFeeData());
+    const gasEstimate = deployer.estimateGas(
+      await swimFactoryFactory.getDeployTransaction(deployer.address)
+    );
+    const { maxFeePerGas } = await ethers.getDefaultProvider().getFeeData();
     const maxCost = (await gasEstimate).mul(maxFeePerGas!);
     const curBalance = await factoryDeployer.getBalance();
 
@@ -66,14 +54,21 @@ async function main() {
         throw Error("deployer has insufficient funds to send to factory deployer");
       //strictly speaking this could still fail because we have to pay for the
       // gas of the transaction too and then there might not be enough left...
-      await deployer.sendTransaction({to: factoryDeployer.address, value: topup});
+      await deployer.sendTransaction({ to: factoryDeployer.address, value: topup });
     }
 
     console.log("deployer:", deployer.address, "factoryDeployer:", factoryDeployer.address);
 
-    const swimFactory = await (await swimFactoryFactory.connect(factoryDeployer).deploy(deployer.address)).deployed();
+    const swimFactory = await (
+      await swimFactoryFactory.connect(factoryDeployer).deploy(deployer.address)
+    ).deployed();
     if (swimFactory.address != SWIM_FACTORY_ADDRESS)
-      throw Error("deployed SwimFactory has unexpected address - expected: " + SWIM_FACTORY_ADDRESS + " but got: " + swimFactory.address);
+      throw Error(
+        "deployed SwimFactory has unexpected address - expected: " +
+          SWIM_FACTORY_ADDRESS +
+          " but got: " +
+          swimFactory.address
+      );
 
     const txHash = swimFactory.deployTransaction.hash;
 
@@ -93,7 +88,7 @@ async function main() {
     console.log("SwimFactory", swimFactory.address, await swimFactory.owner());
     console.log("THash", txHash);
     return swimFactory;
-  }
+  };
 
   const swimFactory = await deploySwimFactory();
 
@@ -156,24 +151,20 @@ async function main() {
     }
 
     const artifacts = await getArtifact("Pool");
-    const lpName = "Test Pool LP";
-    const lpSymbol = "LP";
-    const lpSalt = "0x" + "00".repeat(31) + "11";
-    const ampFactor = 1_000; //1 with 3 decimals
-    const lpFee = 300; //fee as 100th of a bip (6 decimals, 1 = 100 % fee)
-    const governanceFee = 100;
+    const tokenAddresses = addresses.TOKENS.map((token) => token.address);
+    const tokenEqualizer = addresses.TOKENS.map((token) => token.equalizer);
     const initializeEncoded = new ethers.utils.Interface(artifacts.abi).encodeFunctionData(
       "initialize",
       [
-        lpName,
-        lpSymbol,
-        lpSalt,
-        LP_EQUALIZER,
-        [addresses.USDC, addresses.USDT],
-        [USDC_EQUALIZER, USDT_EQUALIZER],
-        ampFactor,
-        lpFee,
-        governanceFee,
+        addresses.POOL.lpName,
+        addresses.POOL.lpSymbol,
+        addresses.POOL.lpSalt,
+        addresses.POOL.lpEquilizer,
+        tokenAddresses,
+        tokenEqualizer,
+        addresses.POOL.ampFactor,
+        addresses.POOL.lpFee,
+        addresses.POOL.governanceFee,
         governance.address,
         governanceFeeRecipient.address,
       ]
@@ -182,7 +173,9 @@ async function main() {
     const poolProxy = await deployProxy(
       "PoolProxy",
       "Pool",
-      (await get("Pool")).address,
+      (
+        await get("Pool")
+      ).address,
       swimFactory,
       poolSalt,
       initializeEncoded
@@ -194,7 +187,7 @@ async function main() {
       address: (await get("LpToken")).address,
       receipt: poolProxy.receipt,
       transactionHash: poolProxy.transactionHash,
-      args: [poolProxy.address, lpName, lpSymbol],
+      args: [poolProxy.address, addresses.POOL.lpName, addresses.POOL.lpSymbol],
     };
     console.log("LpTokenProxy:", lpTokenProxy);
     await save("LpTokenProxy", lpTokenProxy);
@@ -207,12 +200,20 @@ async function main() {
   await deployPool();
 
   const poolAddress = (await get("PoolProxy")).address;
+  const routingProxy = (await get("RoutingProxy")).address;
 
-  // const routingProxy = await ethers.getContractAt("Routing", (await get("RoutingProxy")).address);
-  // await routingProxy.registerToken(USDC_TOKENNUMBER, addresses.USDC, poolAddress, 1);
-  // await routingProxy.registerToken(USDT_TOKENNUMBER, addresses.USDT, poolAddress, 2);
-
-  // console.log("Routing proxy", routingProxy.address);
+  if (!poolAddress || !routingProxy) {
+    console.log("routing proxy", routingProxy);
+    console.log("pool proxy", poolAddress);
+    throw Error("Pool or Routing address not found");
+  }
+  const routing = await ethers.getContractAt("Routing", routingProxy);
+  await Promise.allSettled(
+    addresses.TOKENS.map(
+      async (token) =>
+        await routing.registerToken(token.routingIndex, token.address, poolAddress, token.poolIndex)
+    )
+  );
 }
 
 main()

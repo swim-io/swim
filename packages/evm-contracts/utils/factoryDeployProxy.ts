@@ -1,5 +1,5 @@
 import "@openzeppelin/hardhat-upgrades";
-import { ethers, deployments } from "hardhat";
+import { deployments } from "hardhat";
 import { Contract } from "ethers";
 import { Deployment, DeploymentSubmission } from "hardhat-deploy/types";
 

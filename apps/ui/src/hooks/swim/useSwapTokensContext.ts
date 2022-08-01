@@ -72,7 +72,7 @@ export const useSwapTokensContext = (): SwapTokensContext => {
   const maybeToToken = findTokenForParam(toUrlParam);
   const hasToUrlError =
     !!toUrlParam &&
-    (!maybeToToken || !toTokenOptionsIds.includes(maybeToToken.id);
+    (!maybeToToken || !toTokenOptionsIds.includes(maybeToToken.id));
 
   const toToken =
     maybeToToken && !hasToUrlError

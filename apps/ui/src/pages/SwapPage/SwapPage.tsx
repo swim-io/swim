@@ -31,11 +31,11 @@ const SwapPage = (): ReactElement => {
 
   const { fromToken, toToken } = useSwapTokensContext();
   const fromEcosystemName = ECOSYSTEMS[fromToken.nativeEcosystemId].displayName;
+  const fromTokenProjectId = PROJECTS[fromToken.projectId].displayName;
   const toEcosystemName = ECOSYSTEMS[toToken.nativeEcosystemId].displayName;
+  const toTokenProjectId = PROJECTS[toToken.projectId].displayName;
   useTitle(
-    `Swap ${fromEcosystemName} ${
-      PROJECTS[fromToken.projectId].displayName
-    } to ${toEcosystemName} ${PROJECTS[toToken.projectId].displayName}`,
+    `Swap ${fromEcosystemName} ${fromTokenProjectId} to ${toEcosystemName} ${toTokenProjectId}`,
   );
 
   const nonStakingPools = useMemo(

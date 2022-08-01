@@ -44,58 +44,42 @@ export class CustomConnection extends Connection {
  * We want to use this for eg getting txs
  */
 export class SolanaConnection {
-  public getAccountInfo: InstanceType<typeof Connection>["getAccountInfo"];
-  public getBalance: InstanceType<typeof Connection>["getBalance"];
-  public getMinimumBalanceForRentExemption: InstanceType<
+  public getAccountInfo!: InstanceType<typeof Connection>["getAccountInfo"];
+  public getBalance!: InstanceType<typeof Connection>["getBalance"];
+  public getMinimumBalanceForRentExemption!: InstanceType<
     typeof Connection
   >["getMinimumBalanceForRentExemption"];
-  public getLatestBlockhash: InstanceType<
+  public getLatestBlockhash!: InstanceType<
     typeof Connection
   >["getLatestBlockhash"];
-  public getSignaturesForAddress: InstanceType<
+  public getSignaturesForAddress!: InstanceType<
     typeof Connection
   >["getSignaturesForAddress"];
-  public getTokenAccountsByOwner: InstanceType<
+  public getTokenAccountsByOwner!: InstanceType<
     typeof Connection
   >["getTokenAccountsByOwner"];
-  public onAccountChange: InstanceType<typeof Connection>["onAccountChange"];
-  public removeAccountChangeListener: InstanceType<
+  public onAccountChange!: InstanceType<typeof Connection>["onAccountChange"];
+  public removeAccountChangeListener!: InstanceType<
     typeof Connection
   >["removeAccountChangeListener"];
 
-  public rawConnection: CustomConnection;
+  public rawConnections: readonly CustomConnection[];
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly txCache: Map<string, TransactionResponse>;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
+  private rpcIndex = -1;
 
-  constructor(endpoint: string, wsEndpoint: string) {
-    this.rawConnection = new CustomConnection(endpoint, {
-      commitment: DEFAULT_COMMITMENT_LEVEL,
-      confirmTransactionInitialTimeout: 60 * 1000,
-      disableRetryOnRateLimit: true,
-      wsEndpoint: wsEndpoint,
+  constructor(endpoints: readonly string[], wsEndpoints: readonly string[]) {
+    this.rawConnections = endpoints.map((endpoint, i) => {
+      return new CustomConnection(endpoint, {
+        commitment: DEFAULT_COMMITMENT_LEVEL,
+        confirmTransactionInitialTimeout: 60 * 1000,
+        disableRetryOnRateLimit: true,
+        wsEndpoint: wsEndpoints[i],
+      });
     });
-    this.getAccountInfo = this.rawConnection.getAccountInfo.bind(
-      this.rawConnection,
-    );
-    this.getBalance = this.rawConnection.getBalance.bind(this.rawConnection);
-    this.getMinimumBalanceForRentExemption =
-      this.rawConnection.getMinimumBalanceForRentExemption.bind(
-        this.rawConnection,
-      );
-    this.getLatestBlockhash = this.rawConnection.getLatestBlockhash.bind(
-      this.rawConnection,
-    );
-    this.getSignaturesForAddress =
-      this.rawConnection.getSignaturesForAddress.bind(this.rawConnection);
-    this.getTokenAccountsByOwner =
-      this.rawConnection.getTokenAccountsByOwner.bind(this.rawConnection);
-    this.onAccountChange = this.rawConnection.onAccountChange.bind(
-      this.rawConnection,
-    );
-    this.removeAccountChangeListener =
-      this.rawConnection.removeAccountChangeListener.bind(this.rawConnection);
+    this.incrementRpcProvider();
 
     // NOTE: This design assumes no tx ID collisions between different environments eg Mainnet-beta and devnet.
     this.txCache = new Map<string, TransactionResponse>();
@@ -109,8 +93,6 @@ export class SolanaConnection {
       commitmentLevel = undefined,
     }: GetSolanaTransactionOptions = {},
   ): Promise<RpcResponseAndContext<SignatureResult>> {
-    let remainingAttempts = maxRetries;
-    let lastError = null;
     // confirmTransaction() always fails if the signature is processed,
     // call getSignature() beforehand to circumvent.
     // TODO: Remove signature code once issue is addressed.
@@ -119,23 +101,19 @@ export class SolanaConnection {
     if (signatureStatus) {
       return signatureStatus;
     }
-    while (remainingAttempts >= 0) {
+    return this.callWithRetry(maxRetries, async () => {
       try {
-        // If the Solana network is busy this can time out
-        return await this.rawConnection.confirmTransaction(
+        return await this.rawConnections[this.rpcIndex].confirmTransaction(
           txId,
           commitmentLevel,
         );
-      } catch (e) {
-        --remainingAttempts;
-        lastError = e;
-        await sleep(DEFAULT_SLEEP_MS);
+      } catch (error) {
+        throw new SwimError(
+          `Transaction with ID ${txId} did not confirm`,
+          error,
+        );
       }
-    }
-    throw new SwimError(
-      `Transaction with ID ${txId} did not confirm`,
-      lastError,
-    );
+    });
   }
 
   async sendAndConfirmTx(
@@ -143,11 +121,13 @@ export class SolanaConnection {
     unsignedTx: Transaction,
     options: GetSolanaTransactionOptions = {},
   ): Promise<string> {
-    const { blockhash } = await this.rawConnection.getLatestBlockhash();
+    const { blockhash } = await this.rawConnections[
+      this.rpcIndex
+    ].getLatestBlockhash();
     // eslint-disable-next-line functional/immutable-data
     unsignedTx.recentBlockhash = blockhash;
     const signed = await signTransaction(unsignedTx);
-    const txId = await this.rawConnection.sendRawTransaction(
+    const txId = await this.rawConnections[this.rpcIndex].sendRawTransaction(
       signed.serialize(),
     );
     await this.confirmTx(txId, options);
@@ -188,22 +168,21 @@ export class SolanaConnection {
       maxRetries,
       commitmentLevel,
     });
-
+    // TODO: Check this comment
     // NOTE: Sometimes txs aren’t found straightaway even after confirming.
     // So we retry getting the tx too if necessary.
-    let remainingAttempts = maxRetries;
-    while (remainingAttempts >= 0) {
-      const txResponse = await this.rawConnection.getTransaction(txId, {
+    return this.callWithRetry(maxRetries, async () => {
+      const txResponse = await this.rawConnections[
+        this.rpcIndex
+      ].getTransaction(txId, {
         commitment: commitmentLevel,
       });
       if (txResponse !== null) {
         this.txCache.set(txId, txResponse);
         return txResponse;
       }
-      await sleep(DEFAULT_SLEEP_MS);
-      --remainingAttempts;
-    }
-    throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+      throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+    });
   }
 
   async getParsedTx(
@@ -223,23 +202,16 @@ export class SolanaConnection {
       maxRetries,
       commitmentLevel,
     });
-
-    // NOTE: Sometimes txs aren’t found straightaway even after confirming.
-    // So we retry getting the tx too if necessary.
-    let remainingAttempts = maxRetries;
-    while (remainingAttempts >= 0) {
-      const txResponse = await this.rawConnection.getParsedTransaction(
-        txId,
-        commitmentLevel,
-      );
+    return this.callWithRetry(maxRetries, async () => {
+      const txResponse = await this.rawConnections[
+        this.rpcIndex
+      ].getParsedTransaction(txId, commitmentLevel);
       if (txResponse !== null) {
         this.parsedTxCache.set(txId, txResponse);
         return txResponse;
       }
-      await sleep(DEFAULT_SLEEP_MS);
-      --remainingAttempts;
-    }
-    throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+      throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+    });
   }
 
   async getParsedTxs(
@@ -249,8 +221,7 @@ export class SolanaConnection {
       commitmentLevel = undefined,
     }: GetSolanaTransactionOptions = {},
   ): Promise<readonly ParsedTransactionWithMeta[]> {
-    let remainingAttempts = maxRetries;
-    while (remainingAttempts >= 0) {
+    return this.callWithRetry(maxRetries, async () => {
       const missingTxIds = txIds.filter(
         (txId) => !this.parsedTxCache.get(txId),
       );
@@ -265,20 +236,16 @@ export class SolanaConnection {
         });
       }
       // NOTE: Sometimes this won’t find all the txs immediately so we retry if necessary
-      const txResponses = await this.rawConnection.getParsedTransactions(
-        missingTxIds,
-        commitmentLevel,
-      );
+      const txResponses = await this.rawConnections[
+        this.rpcIndex
+      ].getParsedTransactions(missingTxIds, commitmentLevel);
       txResponses.forEach((txResponse, i) => {
         if (txResponse !== null) {
           this.parsedTxCache.set(missingTxIds[i], txResponse);
         }
       });
-
-      await sleep(DEFAULT_SLEEP_MS);
-      --remainingAttempts;
-    }
-    throw new SwimError(`One or more transactions did not confirm`);
+      throw new SwimError(`One or more transactions did not confirm`);
+    });
   }
 
   async getTokenAccountWithRetry(
@@ -295,17 +262,16 @@ export class SolanaConnection {
       mintPubkey,
       ownerPubkey,
     ).toBase58();
-
-    let remainingAttempts = maxRetries;
-    while (remainingAttempts >= 0) {
-      const { value: accounts } =
-        await this.rawConnection.getTokenAccountsByOwner(
-          ownerPubkey,
-          {
-            mint: mintPubkey,
-          },
-          commitmentLevel,
-        );
+    return this.callWithRetry(maxRetries, async () => {
+      const { value: accounts } = await this.rawConnections[
+        this.rpcIndex
+      ].getTokenAccountsByOwner(
+        ownerPubkey,
+        {
+          mint: mintPubkey,
+        },
+        commitmentLevel,
+      );
       const tokenAccount =
         accounts.find(
           ({ pubkey }) => pubkey.toBase58() === associatedTokenAccountAddress,
@@ -316,13 +282,10 @@ export class SolanaConnection {
           tokenAccount.account.data,
         );
       }
-      await sleep(DEFAULT_SLEEP_MS);
-      --remainingAttempts;
-    }
-
-    throw new Error(
-      "Successfully created SPL token account but failed to fetch it",
-    );
+      throw new Error(
+        "Successfully created SPL token account but failed to fetch it",
+      );
+    });
   }
 
   // Looks for a signature, only returns a value if there's no error
@@ -331,10 +294,9 @@ export class SolanaConnection {
     txId: string,
   ): Promise<RpcResponseAndContext<SignatureResult> | null> {
     try {
-      const { context, value } = await this.rawConnection.getSignatureStatus(
-        txId,
-        { searchTransactionHistory: true },
-      );
+      const { context, value } = await this.rawConnections[
+        this.rpcIndex
+      ].getSignatureStatus(txId, { searchTransactionHistory: true });
       if (!value) {
         return null;
       }
@@ -345,5 +307,59 @@ export class SolanaConnection {
     } catch {
       return null;
     }
+  }
+
+  private incrementRpcProvider() {
+    this.rpcIndex += 1 % this.rawConnections.length;
+    this.getAccountInfo = this.rawConnections[
+      this.rpcIndex
+    ].getAccountInfo.bind(this.rawConnections[this.rpcIndex]);
+    this.getBalance = this.rawConnections[this.rpcIndex].getBalance.bind(
+      this.rawConnections[this.rpcIndex],
+    );
+    this.getMinimumBalanceForRentExemption = this.rawConnections[
+      this.rpcIndex
+    ].getMinimumBalanceForRentExemption.bind(
+      this.rawConnections[this.rpcIndex],
+    );
+    this.getLatestBlockhash = this.rawConnections[
+      this.rpcIndex
+    ].getLatestBlockhash.bind(this.rawConnections[this.rpcIndex]);
+    this.getSignaturesForAddress = this.rawConnections[
+      this.rpcIndex
+    ].getSignaturesForAddress.bind(this.rawConnections[this.rpcIndex]);
+    this.getTokenAccountsByOwner = this.rawConnections[
+      this.rpcIndex
+    ].getTokenAccountsByOwner.bind(this.rawConnections[this.rpcIndex]);
+    this.onAccountChange = this.rawConnections[
+      this.rpcIndex
+    ].onAccountChange.bind(this.rawConnections[this.rpcIndex]);
+    this.removeAccountChangeListener = this.rawConnections[
+      this.rpcIndex
+    ].removeAccountChangeListener.bind(this.rawConnections[this.rpcIndex]);
+  }
+
+  private async callWithRetry<T, U extends readonly any[]>(
+    maxRetries: number,
+    fn: (...param: U) => Promise<T>,
+    ...args: U
+  ): Promise<T> {
+    let attempts = 0;
+    while (attempts < maxRetries) {
+      attempts++;
+      try {
+        return await fn(...args);
+      } catch (error: unknown) {
+        if (attempts >= maxRetries) {
+          throw error;
+        } else if (error instanceof Error && error.name === "NetworkError") {
+          this.incrementRpcProvider();
+        } else {
+          await sleep(DEFAULT_SLEEP_MS);
+        }
+      }
+    }
+    // NOTE: This check is only here for type safety and should never happen
+    throw new SwimError("callWithRetry Error");
   }
 }

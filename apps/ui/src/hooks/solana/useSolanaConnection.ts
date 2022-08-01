@@ -10,11 +10,11 @@ import { SolanaConnection } from "../../models";
 export const useSolanaConnection = (): SolanaConnection => {
   const { chains } = useEnvironment(selectConfig, shallow);
   const [chain] = chains[Protocol.Solana];
-  const { endpoint, wsEndpoint } = chain;
+  const { endpoints, wsEndpoints } = chain;
 
   const connection = useMemo(
-    () => new SolanaConnection(endpoint, wsEndpoint),
-    [endpoint, wsEndpoint],
+    () => new SolanaConnection(endpoints, wsEndpoints),
+    [endpoints, wsEndpoints],
   );
 
   // The websocket library solana/web3.js uses closes its websocket connection when the subscription list

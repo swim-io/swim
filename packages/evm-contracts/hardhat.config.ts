@@ -15,12 +15,10 @@ import { getContractAddress } from "@ethersproject/address";
 dotenv.config();
 const {
   FACTORY_MNEMONIC,
-  MNEMONIC,
+  GOERLI_MNEMONIC,
+  BNB_TESTNET_MNEMONIC,
   BSCSCAN_API_KEY,
   ETHERSCAN_API_KEY,
-  DEPLOYER_PK,
-  FACTORY_PK,
-  GOUVERNANCE_PK,
 } = process.env;
 
 task("accounts", "Prints the list of accounts", async (_, hre) => {
@@ -92,10 +90,6 @@ task("presign", "Generates and prints a Deterministic Factory tx", async (_, hre
 
 const sharedNetworkConfig: HttpNetworkUserConfig = {};
 
-sharedNetworkConfig.accounts = {
-  mnemonic: MNEMONIC!,
-};
-
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
@@ -146,9 +140,17 @@ const config: HardhatUserConfig = {
     goerli: {
       url: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
       chainId: 5,
-      ...sharedNetworkConfig,
-      //accounts: [DEPLOYER_PK!, FACTORY_PK!, GOUVERNANCE_PK!, GOUVERNANCE_PK!],
+      accounts: {
+        mnemonic: GOERLI_MNEMONIC,
+      },
     },
+    bnbtestnet: {
+      url: "https://data-seed-prebsc-2-s2.binance.org:8545",
+      chainId: 97,
+      accounts: {
+        mnemonic: BNB_TESTNET_MNEMONIC,
+      },
+    }
   },
   gasReporter: {
     enabled: true,

@@ -6,25 +6,31 @@ import * as dotenv from "dotenv";
 dotenv.config();
 const { FACTORY_MNEMONIC } = process.env;
 
-const USDC_TOKENNUMBER = 1;
-const USDT_TOKENNUMBER = 2;
-
 const LP_EQUALIZER = -2;
-//usdc and usdt both already have 6 decimals
-const USDC_EQUALIZER = 0;
-const USDT_EQUALIZER = 0;
 
 const SWIM_FACTORY_ADDRESS = "0x77C1f7813D79c8e6E37DE1aA631B6F961fD45648";
 const DEFAULT_SALT = "0x" + "00".repeat(32);
 
 const GOERLI = {
-  WORMHOLE_TOKEN_BRIDGE: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
-  USDC: "0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557",
-  USDT: "0x509Ee0d083DdF8AC028f2a56731412edD63223B9",
+  wormholeTokenBridge: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
+  poolTokens: [
+    //usdc and usdt both already have 6 decimals on Goerli
+    {address: "0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557", tokenNumber: 1, equalizer: 0}, //USDC
+    {address: "0x509Ee0d083DdF8AC028f2a56731412edD63223B9", tokenNumber: 2, equalizer: 0}, //USDT
+  ],
 };
 
-const ONCHAIN_ADDRESSES = {
+const BNB_TESTNET = {
+  wormholeTokenBridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09",
+  poolTokens: [
+    {address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC", tokenNumber: 3, equalizer: -12}, //BUSD
+    {address: "0x98529E942FD121d9C470c3d4431A008257E0E714", tokenNumber: 2, equalizer: -12}, //USDT
+  ],
+};
+
+const CHAIN_SPECIFIC = {
   5: GOERLI,
+  97: BNB_TESTNET,
 };
 
 const isDeployed = async (address: string) => (await ethers.provider.getCode(address)).length > 2;
@@ -35,8 +41,8 @@ async function main() {
   const chainId = (await ethers.provider.detectNetwork()).chainId;
   console.log("executing deployment script for chain:", chainId);
 
-  const addresses = ONCHAIN_ADDRESSES[chainId as keyof typeof ONCHAIN_ADDRESSES];
-  if (!addresses)
+  const chainSpecific = CHAIN_SPECIFIC[chainId as keyof typeof CHAIN_SPECIFIC];
+  if (!chainSpecific)
     throw Error("Network with chainId " + chainId + " not implemented yet");
 
   const [deployer, governance, governanceFeeRecipient] = await ethers.getSigners();
@@ -133,7 +139,7 @@ async function main() {
     const routingContract = await get("Routing");
     const initializeEncoded = new ethers.utils.Interface(artifacts.abi).encodeFunctionData(
       "initialize",
-      [deployer.address, addresses.WORMHOLE_TOKEN_BRIDGE]
+      [deployer.address, chainSpecific.wormholeTokenBridge]
     );
 
     const routingProxy = await deployProxy(
@@ -169,8 +175,8 @@ async function main() {
         lpSymbol,
         lpSalt,
         LP_EQUALIZER,
-        [addresses.USDC, addresses.USDT],
-        [USDC_EQUALIZER, USDT_EQUALIZER],
+        chainSpecific.poolTokens.map((t) => t.address),
+        chainSpecific.poolTokens.map((t) => t.equalizer),
         ampFactor,
         lpFee,
         governanceFee,
@@ -196,7 +202,6 @@ async function main() {
       transactionHash: poolProxy.transactionHash,
       args: [poolProxy.address, lpName, lpSymbol],
     };
-    console.log("LpTokenProxy:", lpTokenProxy);
     await save("LpTokenProxy", lpTokenProxy);
   };
 
@@ -208,9 +213,11 @@ async function main() {
 
   const poolAddress = (await get("PoolProxy")).address;
 
-  // const routingProxy = await ethers.getContractAt("Routing", (await get("RoutingProxy")).address);
-  // await routingProxy.registerToken(USDC_TOKENNUMBER, addresses.USDC, poolAddress, 1);
-  // await routingProxy.registerToken(USDT_TOKENNUMBER, addresses.USDT, poolAddress, 2);
+  const routingProxy = await ethers.getContractAt("Routing", (await get("RoutingProxy")).address);
+  for (let i = 0; i < chainSpecific.poolTokens.length; ++i) {
+    const poolToken = chainSpecific.poolTokens[i];
+    await routingProxy.registerToken(poolToken.tokenNumber, poolToken.address, poolAddress, i+1);
+  }
 
   // console.log("Routing proxy", routingProxy.address);
 }

@@ -19,7 +19,7 @@
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
     "test": "jest",
     "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test --watchAll=false",
-    "build": "rm -rf ./build/ ./types/ && tsc",
+    "build": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && tsc",
     "prepare": "yarn verify && yarn build"
   },
   "dependencies": {

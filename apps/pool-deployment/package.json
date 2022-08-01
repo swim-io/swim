@@ -13,7 +13,7 @@
   "scripts": {
     "start": "tsc && node ./build/deployment.js",
     "format": "prettier --write \"./src/**/*.ts\"",
-    "build": "rm -rf ./build/ ./types/ && tsc"
+    "build": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && tsc"
   },
   "dependencies": {
     "@project-serum/borsh": "^0.2.3",

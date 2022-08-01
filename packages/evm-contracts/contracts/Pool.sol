@@ -32,7 +32,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
-  address constant LP_TOKEN_LOGIC = address(0xdf0dFe41fC9fF3E8c8D33a6DD31dc8Ab8CeB56d6);
+  address constant LP_TOKEN_LOGIC = address(0x3804BE1CeB87D2FD560560CA323FAd77FdB60258);
   ISwimFactory constant SWIM_FACTORY = ISwimFactory(address(0x77C1f7813D79c8e6E37DE1aA631B6F961fD45648));
   IRouting constant ROUTING_CONTRACT = IRouting(address(0x591bf69E5dAa731e26a87fe0C5b394263A8c3375));
   int8 constant SWIM_USD_EQUALIZER = -2;

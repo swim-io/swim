@@ -3021,13 +3021,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gnosis.pm/safe-singleton-factory@npm:^1.0.11":
-  version: 1.0.11
-  resolution: "@gnosis.pm/safe-singleton-factory@npm:1.0.11"
-  checksum: 284d6057db2443d959dd6b01dad89ea0c630b42f99c69fc979aeb5dd12e40359094611dff086bfc3d40e131cd7ea3e0779e7ef9ed2efe78eedb835397991e119
-  languageName: node
-  linkType: hard
-
 "@hapi/address@npm:2.x.x":
   version: 2.1.4
   resolution: "@hapi/address@npm:2.1.4"
@@ -6136,7 +6129,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@swim-io/contracts@workspace:packages/evm-contracts"
   dependencies:
-    "@gnosis.pm/safe-singleton-factory": ^1.0.11
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.2
     "@nomicfoundation/hardhat-network-helpers": ^1.0.3
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@0.3.0-beta.13"

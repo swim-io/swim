@@ -143,64 +143,11 @@ const config: HardhatUserConfig = {
       chainId: 31337,
       allowUnlimitedContractSize: true,
     },
-    ropsten: {
-      url: process.env.ROPSTEN_URL || "",
-      ...sharedNetworkConfig,
-    },
-    rinkeby: {
-      url: process.env.RINKEBY_URL || "",
-      chainId: 4,
-      saveDeployments: true,
-      ...sharedNetworkConfig,
-    },
     goerli: {
       url: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
       chainId: 5,
-      // ...sharedNetworkConfig,
-      accounts: [DEPLOYER_PK!, FACTORY_PK!, GOUVERNANCE_PK!, GOUVERNANCE_PK!],
-    },
-    mainnet: {
       ...sharedNetworkConfig,
-      url: "https://mainnet.infura.io/v3/KEY",
-      accounts: {
-        mnemonic: MNEMONIC,
-      },
-      saveDeployments: true,
-      chainId: 1,
-    },
-    mumbai: {
-      ...sharedNetworkConfig,
-      url: `https://polygon-mumbai.infura.io/v3/${"KEY"}`,
-    },
-    polygon: {
-      ...sharedNetworkConfig,
-      url: `https://polygon-mainnet.infura.io/v3/${"KEY"}`,
-      chainId: 137,
-    },
-    bnbTestnet: {
-      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
-      chainId: 97,
-      gasPrice: 20000000000,
-      ...sharedNetworkConfig,
-    },
-    bnbMainnet: {
-      url: "https://bsc-dataseed.binance.org/",
-      chainId: 56,
-      gasPrice: 20000000000,
-      ...sharedNetworkConfig,
-    },
-    fantomTestnet: {
-      ...sharedNetworkConfig,
-      url: `https://rpc.testnet.fantom.network/`,
-    },
-    avalancheFujiTestnet: {
-      ...sharedNetworkConfig,
-      url: "https://api.avax-test.network/ext/bc/C/rpc",
-      chainId: 43113,
-    },
-    avalancheLocalhost: {
-      url: "https://localhost:9650/ext/bc/C/rpc",
-      chainId: 43112,
+      //accounts: [DEPLOYER_PK!, FACTORY_PK!, GOUVERNANCE_PK!, GOUVERNANCE_PK!],
     },
   },
   gasReporter: {

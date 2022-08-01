@@ -7,16 +7,13 @@ export async function deployProxy(
   name: string,
   logicName: string,
   logicAddress: string,
-  factoryContract: Contract,
+  swimFactory: Contract,
   salt: string,
   encodedData?: string
 ): Promise<Deployment> {
   const { save, getArtifact } = deployments;
-  const [deployer] = await ethers.getSigners();
-  const proxyAddress = await factoryContract.determineProxyAddress(salt);
-  const receipt = await factoryContract
-    .attach(deployer.address)
-    .createProxy(logicAddress, salt, encodedData);
+  const proxyAddress = await swimFactory.determineProxyAddress(salt);
+  const receipt = await swimFactory.createProxy(logicAddress, salt, encodedData);
   const artifact = await getArtifact(logicName);
 
   const deployment: DeploymentSubmission = {

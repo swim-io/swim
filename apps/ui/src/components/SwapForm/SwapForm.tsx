@@ -26,7 +26,7 @@ import {
   useSwapFeesEstimationQuery,
   useSwapOutputAmountEstimate,
   useSwapTokensContext,
-  useUserBalanceAmounts,
+  useUserBalanceAmount,
   useUserNativeBalances,
 } from "../../hooks";
 import {
@@ -57,7 +57,6 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const config = useEnvironment(selectConfig, shallow);
   const { notify } = useNotification();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
-  const userNativeBalances = useUserNativeBalances();
   const startNewInteraction = useStartNewInteraction(() => {
     setFormInputAmount("0");
   });
@@ -95,6 +94,9 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   );
 
   const feesEstimation = useSwapFeesEstimationQuery(fromToken, toToken);
+  const userNativeBalances = useUserNativeBalances(
+    [fromToken.nativeEcosystemId, toToken.nativeEcosystemId].filter(Boolean),
+  );
 
   const inputAmount = defaultIfError(
     () => Amount.fromHumanString(fromToken, formInputAmount),
@@ -119,8 +121,10 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
     !inputAmount.isNegative() && !inputAmount.isZero();
 
   const outputAmount = useSwapOutputAmountEstimate(inputAmount, toToken);
-  const fromTokenUserBalances = useUserBalanceAmounts(fromToken);
-  const fromTokenBalance = fromTokenUserBalances[fromToken.nativeEcosystemId];
+  const fromTokenBalance = useUserBalanceAmount(
+    fromToken,
+    fromToken.nativeEcosystemId,
+  );
 
   const handleInputAmountChange = (currentInputAmount: Amount | null): void => {
     let errors: readonly string[] = [];

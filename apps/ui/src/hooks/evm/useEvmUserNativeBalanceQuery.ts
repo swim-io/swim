@@ -1,5 +1,5 @@
 import Decimal from "decimal.js";
-import type { UseQueryResult } from "react-query";
+import type { UseQueryOptions, UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
@@ -11,6 +11,7 @@ import { useEvmWallet } from "./useEvmWallet";
 
 export const useEvmUserNativeBalanceQuery = (
   ecosystemId: EvmEcosystemId,
+  options?: UseQueryOptions<Decimal, Error>,
 ): UseQueryResult<Decimal, Error> => {
   const { env } = useEnvironment();
   const evmConnection = useEvmConnection(ecosystemId);
@@ -25,7 +26,8 @@ export const useEvmUserNativeBalanceQuery = (
       return evmConnection.getEthBalance(walletAddress);
     },
     {
-      enabled: isEcosystemEnabled(ecosystemId),
+      ...options,
+      enabled: isEcosystemEnabled(ecosystemId) && options?.enabled,
     },
   );
 };

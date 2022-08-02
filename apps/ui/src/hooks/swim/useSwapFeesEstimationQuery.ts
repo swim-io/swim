@@ -1,8 +1,7 @@
-import { filterMap } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
 import type { EvmEcosystemId, TokenSpec } from "../../config";
-import { ECOSYSTEM_IDS, EcosystemId, isEvmEcosystemId } from "../../config";
+import { EcosystemId, isEvmEcosystemId } from "../../config";
 import type { FeesEstimation } from "../../models";
 import {
   APPROVAL_CEILING,
@@ -37,6 +36,13 @@ export const useSwapFeesEstimationQuery = (
   fromToken: TokenSpec | null,
   toToken: TokenSpec | null,
 ): FeesEstimation | null => {
+  const requiredEvmEcosystemIds = Array.from(
+    new Set([fromToken?.nativeEcosystemId, toToken?.nativeEcosystemId]),
+  ).filter(
+    (ecosystemId): ecosystemId is EvmEcosystemId =>
+      ecosystemId !== undefined && isEvmEcosystemId(ecosystemId),
+  );
+
   const [
     ethGasPrice,
     bnbGasPrice,
@@ -47,53 +53,63 @@ export const useSwapFeesEstimationQuery = (
     karuraGasPrice,
     acalaGasPrice,
   ] = [
-    useGasPriceQuery(EcosystemId.Ethereum).data ?? ZERO,
-    useGasPriceQuery(EcosystemId.Bnb).data ?? ZERO,
-    useGasPriceQuery(EcosystemId.Avalanche).data ?? ZERO,
-    useGasPriceQuery(EcosystemId.Polygon).data ?? ZERO,
-    useGasPriceQuery(EcosystemId.Aurora).data ?? ZERO,
-    useGasPriceQuery(EcosystemId.Fantom).data ?? ZERO,
-    useGasPriceQuery(EcosystemId.Karura).data ?? ZERO,
-    useGasPriceQuery(EcosystemId.Acala).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Ethereum, {
+      enabled: requiredEvmEcosystemIds.includes(EcosystemId.Ethereum),
+    }).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Bnb, {
+      enabled: requiredEvmEcosystemIds.includes(EcosystemId.Bnb),
+    }).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Avalanche, {
+      enabled: requiredEvmEcosystemIds.includes(EcosystemId.Avalanche),
+    }).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Polygon, {
+      enabled: requiredEvmEcosystemIds.includes(EcosystemId.Polygon),
+    }).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Aurora, {
+      enabled: requiredEvmEcosystemIds.includes(EcosystemId.Aurora),
+    }).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Fantom, {
+      enabled: requiredEvmEcosystemIds.includes(EcosystemId.Fantom),
+    }).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Karura, {
+      enabled: requiredEvmEcosystemIds.includes(EcosystemId.Karura),
+    }).data ?? ZERO,
+    useGasPriceQuery(EcosystemId.Acala, {
+      enabled: requiredEvmEcosystemIds.includes(EcosystemId.Acala),
+    }).data ?? ZERO,
   ];
-  const requiredEvmEcosystemIds = [
-    fromToken?.nativeEcosystemId,
-    toToken?.nativeEcosystemId,
-  ].filter(
-    (ecosystemId): ecosystemId is EvmEcosystemId =>
-      ecosystemId !== undefined && isEvmEcosystemId(ecosystemId),
-  );
   const isRequiredGasPriceLoading = useIsEvmGasPriceLoading(
     requiredEvmEcosystemIds,
   );
   if (isRequiredGasPriceLoading) {
     return null;
   }
-  const [
-    ethGas,
-    bnbGas,
-    avalancheGas,
-    polygonGas,
-    auroraGas,
-    fantomGas,
-    karuraGas,
-    acalaGas,
-  ] = filterMap(
-    isEvmEcosystemId,
-    (ecosystemId: EvmEcosystemId) =>
-      calculateGas(ecosystemId, fromToken, toToken),
-    ECOSYSTEM_IDS,
-  );
 
+  const calcGas = (ecosystemId: EvmEcosystemId): Decimal =>
+    calculateGas(ecosystemId, fromToken, toToken);
   return {
     [EcosystemId.Solana]: SOLANA_FEE,
-    [EcosystemId.Ethereum]: ethGas.mul(ethGasPrice.toString()),
-    [EcosystemId.Bnb]: bnbGas.mul(bnbGasPrice.toString()),
-    [EcosystemId.Avalanche]: avalancheGas.mul(avalancheGasPrice.toString()),
-    [EcosystemId.Polygon]: polygonGas.mul(polygonGasPrice.toString()),
-    [EcosystemId.Aurora]: auroraGas.mul(auroraGasPrice.toString()),
-    [EcosystemId.Fantom]: fantomGas.mul(fantomGasPrice.toString()),
-    [EcosystemId.Karura]: karuraGas.mul(karuraGasPrice.toString()),
-    [EcosystemId.Acala]: acalaGas.mul(acalaGasPrice.toString()),
+    [EcosystemId.Ethereum]: calcGas(EcosystemId.Ethereum).mul(
+      ethGasPrice.toString(),
+    ),
+    [EcosystemId.Bnb]: calcGas(EcosystemId.Bnb).mul(bnbGasPrice.toString()),
+    [EcosystemId.Avalanche]: calcGas(EcosystemId.Avalanche).mul(
+      avalancheGasPrice.toString(),
+    ),
+    [EcosystemId.Polygon]: calcGas(EcosystemId.Polygon).mul(
+      polygonGasPrice.toString(),
+    ),
+    [EcosystemId.Aurora]: calcGas(EcosystemId.Aurora).mul(
+      auroraGasPrice.toString(),
+    ),
+    [EcosystemId.Fantom]: calcGas(EcosystemId.Fantom).mul(
+      fantomGasPrice.toString(),
+    ),
+    [EcosystemId.Karura]: calcGas(EcosystemId.Karura).mul(
+      karuraGasPrice.toString(),
+    ),
+    [EcosystemId.Acala]: calcGas(EcosystemId.Acala).mul(
+      acalaGasPrice.toString(),
+    ),
   };
 };

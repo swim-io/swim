@@ -2,7 +2,7 @@ import { EuiLink, EuiText } from "@elastic/eui";
 import type React from "react";
 
 import type { EcosystemId, TokenSpec } from "../../config";
-import { useUserBalanceAmounts } from "../../hooks";
+import { useUserBalanceAmount } from "../../hooks";
 import type { Amount } from "../../models";
 
 interface Props {
@@ -15,8 +15,7 @@ export const UserBalanceDisplay: React.FC<Props> = ({
   ecosystemId,
   onClick,
 }) => {
-  const tokenUserBalances = useUserBalanceAmounts(token);
-  const tokenBalance = tokenUserBalances[token.nativeEcosystemId];
+  const tokenBalance = useUserBalanceAmount(token, token.nativeEcosystemId);
 
   return (
     <EuiText size="xs">

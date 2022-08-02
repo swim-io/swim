@@ -6,7 +6,7 @@ import { ECOSYSTEMS, EcosystemId } from "../../config";
 import type { Amount } from "../../models";
 import { isValidSlippageFraction } from "../../models";
 import {
-  useUserBalanceAmounts,
+  useUserBalanceAmount,
   useUserNativeBalances,
   useWallets,
 } from "../crossEcosystem";
@@ -20,10 +20,22 @@ export const useGetSwapFormErrors = (
   maxSlippageFraction: Decimal | null,
 ) => {
   const wallets = useWallets();
-  const userNativeBalances = useUserNativeBalances();
-  const fromTokenUserBalances = useUserBalanceAmounts(fromToken);
-  const fromTokenBalance = fromTokenUserBalances[fromToken.nativeEcosystemId];
+  const fromTokenBalance = useUserBalanceAmount(
+    fromToken,
+    fromToken.nativeEcosystemId,
+  );
   const isLargeSwap = useIsLargeSwap(fromToken, toToken, inputAmount);
+
+  const requiredEcosystems = new Set(
+    [
+      EcosystemId.Solana,
+      fromToken.nativeEcosystemId,
+      toToken.nativeEcosystemId,
+    ].filter(isNotNull),
+  );
+  const userNativeBalances = useUserNativeBalances(
+    Array.from(requiredEcosystems),
+  );
 
   return (allowLargeSwap: boolean) => {
     let errors: readonly string[] = [];
@@ -55,13 +67,6 @@ export const useGetSwapFormErrors = (
     }
 
     // Require non-zero native balances
-    const requiredEcosystems = new Set(
-      [
-        EcosystemId.Solana,
-        fromToken.nativeEcosystemId,
-        toToken.nativeEcosystemId,
-      ].filter(isNotNull),
-    );
     requiredEcosystems.forEach((ecosystem) => {
       if (userNativeBalances[ecosystem].isZero()) {
         errors = [

@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 import { utils as ethersUtils } from "ethers";
-import type { UseQueryResult } from "react-query";
+import type { UseQueryOptions, UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import type { EvmEcosystemId } from "../../config";
@@ -12,10 +12,11 @@ import { useEvmConnection } from "../evm";
 // e.g. ETH for Ethereum, BNB for Binance Smart Chain
 export const useGasPriceQuery = (
   evmEcosystemId: EvmEcosystemId,
+  options?: UseQueryOptions<Decimal, Error>,
 ): UseQueryResult<Decimal, Error> => {
   const { env } = useEnvironment();
   const connection = useEvmConnection(evmEcosystemId);
-  return useQuery(
+  return useQuery<Decimal, Error>(
     ["gasPrice", env, evmEcosystemId],
     async () => {
       const gasPriceInWei = await connection.provider.getGasPrice();
@@ -26,7 +27,8 @@ export const useGasPriceQuery = (
       return gasPriceInNativeCurrency.mul(1.1);
     },
     {
-      enabled: isEcosystemEnabled(evmEcosystemId),
+      ...options,
+      enabled: isEcosystemEnabled(evmEcosystemId) && options?.enabled,
     },
   );
 };

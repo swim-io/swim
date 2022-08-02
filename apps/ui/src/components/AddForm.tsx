@@ -36,7 +36,7 @@ import {
   usePool,
   usePoolMath,
   useSplTokenAccountsQuery,
-  useUserBalanceAmounts,
+  useUserBalanceAmount,
   useUserNativeBalances,
   useWallets,
 } from "../hooks";
@@ -79,8 +79,7 @@ const TokenAddPanel = ({
   onBlur,
 }: TokenAddPanelProps): ReactElement => {
   const tokenProject = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId];
-  const balanceAmounts = useUserBalanceAmounts(tokenSpec);
-  const balance = balanceAmounts[tokenSpec.nativeEcosystemId];
+  const balance = useUserBalanceAmount(tokenSpec, tokenSpec.nativeEcosystemId);
 
   return (
     <EuiFormRow

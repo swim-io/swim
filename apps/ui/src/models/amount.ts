@@ -1,11 +1,12 @@
 import type { u64 } from "@solana/spl-token";
 import type { TokenDetails } from "@swim-io/core";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
 import { u64ToDecimal } from "../amounts";
 import type { EcosystemId, TokenSpec } from "../config";
-import { PROJECTS, getTokenDetailsForEcosystem } from "../config";
+import { getTokenDetailsForEcosystem } from "../config";
 
 export class Amount {
   public readonly tokenSpec: TokenSpec;
@@ -114,7 +115,9 @@ export class Amount {
 
   toFormattedHumanString(ecosystemId: EcosystemId): string {
     const humanString = this.toHuman(ecosystemId).toFixed(
-      PROJECTS[this.tokenSpec.projectId].isStablecoin ? 2 : undefined,
+      TOKEN_PROJECTS_BY_ID[this.tokenSpec.projectId].isStablecoin
+        ? 2
+        : undefined,
     );
 
     // NOTE: Safari doesn't support lookbehind :(

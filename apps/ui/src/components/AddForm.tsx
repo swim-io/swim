@@ -13,6 +13,7 @@ import {
   EuiSpacer,
   EuiText,
 } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { filterMap, isEachNotNull, isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
@@ -23,7 +24,6 @@ import {
   ECOSYSTEMS,
   ECOSYSTEM_IDS,
   EcosystemId,
-  PROJECTS,
   isEcosystemEnabled,
 } from "../config";
 import type { PoolSpec, TokenSpec } from "../config";
@@ -78,7 +78,7 @@ const TokenAddPanel = ({
   onChange,
   onBlur,
 }: TokenAddPanelProps): ReactElement => {
-  const tokenProject = PROJECTS[tokenSpec.projectId];
+  const tokenProject = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId];
   const balanceAmounts = useUserBalanceAmounts(tokenSpec);
   const balance = balanceAmounts[tokenSpec.nativeEcosystemId];
 
@@ -451,7 +451,7 @@ export const AddForm = ({
     });
   };
 
-  const lpTokenProject = PROJECTS[lpToken.projectId];
+  const lpTokenProject = TOKEN_PROJECTS_BY_ID[lpToken.projectId];
   const receiveLabel = poolSpec.isStakingPool
     ? `Receive ${lpTokenProject.symbol} on`
     : `Receive LP tokens (${lpTokenProject.symbol}) on`;

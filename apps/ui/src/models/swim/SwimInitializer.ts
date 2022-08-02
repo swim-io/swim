@@ -4,12 +4,11 @@ import {
   TOKEN_PROGRAM_ID,
   Token,
 } from "@solana/spl-token";
-import type { AccountMeta } from "@solana/web3.js";
+import type { AccountMeta, Transaction } from "@solana/web3.js";
 import {
   Keypair,
   PublicKey,
   SystemProgram,
-  Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
 import type { DecimalBN } from "@swim-io/solana-types";
@@ -19,6 +18,7 @@ import { chunks } from "@swim-io/utils";
 import type { SolanaConnection } from "../solana";
 import {
   createSplTokenAccount,
+  createTx,
   findAssociatedTokenAccountAddress,
   findProgramAddress,
 } from "../solana";
@@ -249,7 +249,7 @@ export class SwimInitializer {
   }
 
   private getFreshTransaction(): Transaction {
-    return new Transaction({
+    return createTx({
       feePayer: this.signer.publicKey,
     });
   }

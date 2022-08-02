@@ -1,0 +1,14 @@
+{
+  "sdk": {
+    "publishQuiet": true,
+    "requireModule": ["ts-node/register"],
+    "require": ["step_definitions/sdk/*.ts"],
+    "tags": "@sdk"
+  },
+  "ui": {
+    "publishQuiet": true,
+    "requireModule": ["ts-node/register"],
+    "require": ["step_definitions/ui/*.ts"],
+    "tags": "@ui"
+  }
+}

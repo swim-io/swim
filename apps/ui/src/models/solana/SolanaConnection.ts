@@ -121,9 +121,14 @@ export class SolanaConnection {
     }
     while (remainingAttempts >= 0) {
       try {
+        const latestBlock = await this.rawConnection.getLatestBlockhash();
         // If the Solana network is busy this can time out
         return await this.rawConnection.confirmTransaction(
-          txId,
+          {
+            signature: txId,
+            blockhash: latestBlock.blockhash,
+            lastValidBlockHeight: latestBlock.lastValidBlockHeight,
+          },
           commitmentLevel,
         );
       } catch (e) {
@@ -143,9 +148,11 @@ export class SolanaConnection {
     unsignedTx: Transaction,
     options: GetSolanaTransactionOptions = {},
   ): Promise<string> {
-    const { blockhash } = await this.rawConnection.getLatestBlockhash();
+    const latestBlock = await this.rawConnection.getLatestBlockhash();
     // eslint-disable-next-line functional/immutable-data
-    unsignedTx.recentBlockhash = blockhash;
+    unsignedTx.recentBlockhash = latestBlock.blockhash;
+    // eslint-disable-next-line functional/immutable-data
+    unsignedTx.lastValidBlockHeight = latestBlock.lastValidBlockHeight;
     const signed = await signTransaction(unsignedTx);
     const txId = await this.rawConnection.sendRawTransaction(
       signed.serialize(),

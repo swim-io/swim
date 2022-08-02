@@ -5794,10 +5794,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/core@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "@swim-io/core@npm:0.6.0"
-  checksum: bbbe6e0ed20cb35029511ffc6f1077e36306cc949215a2e714dfd376295ce9abcc84e30a7cfa2c425825575404954d2aaf6b0168aa053658089a81ec58866fee
+"@swim-io/core@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@swim-io/core@npm:0.7.0"
+  checksum: ac77fc30a272f583721fd5488045075bb18002ecfed8b10284aa12d02f8d6e8a39e0552737ef5f025d422d9c982b1d3f712c7d1e9b8ee485e2b61e22d6b68392
   languageName: node
   linkType: hard
 
@@ -5884,12 +5884,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/pool-math@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "@swim-io/pool-math@npm:0.6.0"
+"@swim-io/pool-math@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@swim-io/pool-math@npm:0.7.0"
   dependencies:
     decimal.js: ^10.3.1
-  checksum: b46ee3507923c93b422f5b9bb9cc65c33f4c871eabd96e5958f155ab14445310aed2b95aaa6fd3ed696ff1e599748b2fe5ab577bb6a77deb02c3ef7207c5bb94
+  checksum: dc1e793a270d5e964371387f7b591a246b628d744054b571c5845febde93e7b6ab11c6ce44e3c7896f3fd0fd35a617cf4347608c64ea69e84432f9c1a16123a4
   languageName: node
   linkType: hard
 
@@ -5976,14 +5976,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/solana-types@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "@swim-io/solana-types@npm:0.6.0"
+"@swim-io/solana-types@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@swim-io/solana-types@npm:0.7.0"
   dependencies:
     "@project-serum/borsh": ^0.2.5
     "@solana/web3.js": ^1.44.2
     bn.js: ^5.2.1
-  checksum: 52670e86d18059bf7625504c04ecb78394a655f50b0ec6f7e1b7dfcfb24af1b302664c66d961626981b93241687a79df52c47167748098ef4e4ab0147e6b2d31
+  checksum: 0f08650749bb6b942131348274297d1ba4f99916c4273c5500f14c2591169c41217ffa3eaedd53d17dc21a21bd7fdece6771235a953e64a785b6e46271234d18
   languageName: node
   linkType: hard
 
@@ -6048,13 +6048,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/token-projects@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "@swim-io/token-projects@npm:0.6.0"
+"@swim-io/token-projects@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@swim-io/token-projects@npm:0.7.0"
   dependencies:
-    "@swim-io/core": ^0.6.0
-    "@swim-io/utils": ^0.6.0
-  checksum: 658997f669be3e347467ec78ade715cc2b99bbb92b5a0a87d23facf9bcbcb44c3bbcec00635bea9056f521610985f25ffe126a47f08990f9f0f48fec9060fe1e
+    "@swim-io/core": ^0.7.0
+    "@swim-io/utils": ^0.7.0
+  checksum: 8dd28058a546033f142bcc49cbb5e9a279c8018594f82167b1a0020408794fd4f0514020918c3e9aafdca92afd18af403016fc3b01dad980e950eed357a15343
   languageName: node
   linkType: hard
 
@@ -6132,13 +6132,13 @@ __metadata:
     "@storybook/node-logger": ^6.5.9
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.9
-    "@swim-io/core": ^0.6.0
+    "@swim-io/core": ^0.7.0
     "@swim-io/eslint-config": "workspace:^"
-    "@swim-io/pool-math": ^0.6.0
-    "@swim-io/solana-types": ^0.6.0
-    "@swim-io/token-projects": ^0.6.0
+    "@swim-io/pool-math": ^0.7.0
+    "@swim-io/solana-types": ^0.7.0
+    "@swim-io/token-projects": ^0.7.0
     "@swim-io/tsconfig": "workspace:^"
-    "@swim-io/utils": ^0.6.0
+    "@swim-io/utils": ^0.7.0
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^7.0.2
@@ -6191,10 +6191,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/utils@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "@swim-io/utils@npm:0.6.0"
-  checksum: 38a6793bf8ae503f7f0a13d5f457c392c6b142fe370fb8defc34b6c59507a763cf2e3e07abf6e1d24144bfc48f248eb9af499ef44de0d020772a7388c70c3526
+"@swim-io/utils@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@swim-io/utils@npm:0.7.0"
+  checksum: b16d6cf6cb531dfd105a2200a81da549890e7e98d54ae554035936e37ff3072e67b71fdb7255cb137b0f4f7dd7394e67f56d327fa14f7a4aad84e5143071babd
   languageName: node
   linkType: hard
 

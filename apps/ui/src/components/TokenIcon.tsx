@@ -25,7 +25,7 @@ export const TokenIcon = ({
   const ecosystem = ecosystemId ? ECOSYSTEMS[ecosystemId] : null;
   return (
     <span>
-      <EuiIcon type={icon} size="l" title={symbol} />
+      <EuiIcon type={icon} size="m" title={symbol} />
       &nbsp;<span>{showFullName ? displayName : symbol}</span>
       {ecosystem && (
         <span>

@@ -81,6 +81,7 @@ contract SwimFactory is ISwimFactory {
     0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
   event ContractCreated(address indexed addr, bool isLogic);
+  event TransferOwnership(address indexed from, address indexed to);
 
   address public owner;
   uint256 private reentrancyCount;
@@ -101,6 +102,7 @@ contract SwimFactory is ISwimFactory {
   function transferOwnership(address newOwner) external {
     require(msg.sender == owner, "Not Authorized");
     owner = newOwner;
+    emit TransferOwnership(msg.sender, newOwner);
   }
 
   function createLogic(bytes memory code, bytes32 salt)

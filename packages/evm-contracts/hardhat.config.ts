@@ -126,6 +126,7 @@ const config: HardhatUserConfig = {
       gasPrice: 20000000000,
       gas: 60000000000,
       chainId: 31337,
+      blockGasLimit: 60000893784,
       // // If you want to do some forking, uncomment this
       // forking: {
       //   url: MAINNET_RPC_URL
@@ -150,7 +151,7 @@ const config: HardhatUserConfig = {
       accounts: {
         mnemonic: BNB_TESTNET_MNEMONIC,
       },
-    }
+    },
   },
   gasReporter: {
     enabled: true,

@@ -6,8 +6,9 @@ use anchor_spl::token::{
   Token,
   TokenAccount,
 };
-use crate::{array_equalize, error::*, TOKEN_COUNT, TwoPool};
+use crate::{AmpFactor, DecimalU64Anchor, array_equalize, to_equalized, error::*, TOKEN_COUNT, TwoPool};
 use crate::decimal::U128;
+use crate::common::create_array;
 use crate::invariant::Invariant;
 
 #[derive(Accounts)]
@@ -95,28 +96,10 @@ impl<'info> MarginalPrices<'info> {
     Ok(())
   }
 }
-/**
-const reciprocalDecay = arrayProd(
-      this.balances.map((balance: Decimal) =>
-        // is this previous_depth?
-        this._depth.div(balance.mul(this.tokenCount)),
-      ),
-    );
-    const fixed1 = this._depth.mul(reciprocalDecay);
-    const denominator = this.ampFactor
-      .sub(1)
-      .add(reciprocalDecay.mul(this.tokenCount + 1));
-    const pricedInLp = this._depth.div(this.lpSupply);
-    const fixed2 = denominator.div(pricedInLp);
-    return arrayCreate(this.tokenCount, (i) =>
-      this.ampFactor.add(fixed1.div(this.balances[i])).div(fixed2),
-    );
-*/
+
 pub fn handle_marginal_prices(
   ctx: Context<MarginalPrices>,
-) -> Result<Vec<u64>> {
-
-
+) -> Result<[DecimalU64Anchor; TOKEN_COUNT]> {
   let pool = &ctx.accounts.pool;
   let user_token_accounts = [
     &ctx.accounts.user_token_account_0,
@@ -126,14 +109,20 @@ pub fn handle_marginal_prices(
     &ctx.accounts.pool_token_account_0,
     &ctx.accounts.pool_token_account_1,
   ];
+  let lp_total_supply = ctx.accounts.lp_mint.supply;
   let pool_balances = [
     ctx.accounts.pool_token_account_0.amount,
     ctx.accounts.pool_token_account_1.amount,
   ];
   let current_ts = Clock::get()?.unix_timestamp;
   require_gt!(current_ts, 0i64, PoolError::InvalidTimestamp);
-//TODO: @ivan fill in implementation details here for handle marginal prices
 
-  Ok(vec![0u64; TOKEN_COUNT])
+  let marginal_prices = Invariant::<TOKEN_COUNT>::marginal_prices(
+    &array_equalize(pool_balances, pool.token_decimal_equalizers),
+    pool.amp_factor.get(current_ts),
+    to_equalized(lp_total_supply, pool.lp_decimal_equalizer),
+    pool.previous_depth.into(),
+  )?;
 
+  Ok(create_array(|i| marginal_prices[i].into()))
 }

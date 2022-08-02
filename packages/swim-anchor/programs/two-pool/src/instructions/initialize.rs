@@ -95,14 +95,14 @@ pub fn handle_initialize(
   lp_fee: DecimalU64Anchor,
   governance_fee: DecimalU64Anchor,
 ) -> Result<()> {
-  let fee_sum = lp_fee.to_decimal_u64() + governance_fee.to_decimal_u64();
+  let fee_sum = DecimalU64::from(lp_fee) + DecimalU64::from(governance_fee);
   require_gt!(DecimalU64::const_from(1), fee_sum, PoolError::InvalidFeeInput);
   let two_pool = &mut ctx.accounts.pool;
   two_pool.bump = *ctx.bumps.get("pool").unwrap();
   two_pool.is_paused = false;
-  two_pool.amp_factor = AmpFactor::new(amp_factor.to_decimal_u64())?;
-  two_pool.lp_fee = PoolFee::new(lp_fee.to_decimal_u64())?;
-  two_pool.governance_fee = PoolFee::new(governance_fee.to_decimal_u64())?;
+  two_pool.amp_factor = AmpFactor::new(amp_factor.into())?;
+  two_pool.lp_fee = PoolFee::new(lp_fee.into())?;
+  two_pool.governance_fee = PoolFee::new(governance_fee.into())?;
   two_pool.lp_mint_key = ctx.accounts.lp_mint.key();
 
   let mut decimal_range_min = ctx.accounts.lp_mint.decimals;

@@ -287,6 +287,34 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
         )
     }
 
+    pub fn marginal_prices(
+        pool_balances: &[AmountT; TOKEN_COUNT],
+        amp_factor: DecT,
+        lp_total_supply: AmountT,
+        previous_depth: AmountT,
+    ) -> Result<[DecT; TOKEN_COUNT], PoolError> {
+        let dec_lp_total_supply = Decimal::from(lp_total_supply);
+        let dec_amp_factor = Decimal::from(amp_factor);
+        if dec_amp_factor.is_zero() {
+            //constant product branch (TOKEN_COUNT == 2)
+            return Ok(create_array(|i| (Decimal::from(pool_balances[1-i]) / dec_lp_total_supply).into()));
+        }
+        let n = AmountT::from(TOKEN_COUNT);
+        let depth = Self::calculate_depth(pool_balances, dec_amp_factor, previous_depth.into())?;
+        let reciprocal_decay = pool_balances.iter().fold(Decimal::one(), |acc, &pool_balance| {
+            acc * (depth / Decimal::from(pool_balance * n))
+        });
+        let priced_in_lp = depth / dec_lp_total_supply;
+        let denominator =
+            dec_amp_factor
+            - Decimal::one()
+            + reciprocal_decay * Decimal::from(TOKEN_COUNT + 1);
+        let fixed = denominator / priced_in_lp;
+        Ok(create_array(
+            |i| ((dec_amp_factor + (depth / Decimal::from(pool_balances[i])) * reciprocal_decay) / fixed).into()
+        ))
+    }
+
     fn swap(
         is_exact_input: bool, //false => exact output
         amounts: &[AmountT; TOKEN_COUNT],

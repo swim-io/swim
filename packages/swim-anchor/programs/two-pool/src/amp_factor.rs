@@ -198,9 +198,9 @@ impl AmpFactor {
             err!(PoolError::InvalidAmpFactorValue)
         } else {
             Ok(AmpFactor {
-                initial_value: DecimalU64Anchor::from_decimal_u64(MIN_AMP_VALUE), //irrelevant dummy value
+                initial_value: MIN_AMP_VALUE.into(), //irrelevant dummy value
                 initial_ts: 0,
-                target_value: DecimalU64Anchor::from_decimal_u64(amp_factor),
+                target_value: amp_factor.into(),
                 target_ts: 0,
             })
         }
@@ -222,8 +222,8 @@ impl AmpFactor {
     /// the maximum _relative_ change to a factor of 10 (i.e. amp_factor at most do
     /// a 10x over a day (not +10, but potentially much more))
     pub fn get(&self, current_ts: TimestampT) -> ValueT {
-        let target_value = self.target_value.to_decimal_u64();
-        let initial_value = self.initial_value.to_decimal_u64();
+        let target_value: ValueT = self.target_value.into();
+        let initial_value: ValueT = self.initial_value.into();
         if current_ts >= self.target_ts {
             //check if we are inside an adjustment window
             //not in an adjustment window
@@ -276,9 +276,9 @@ impl AmpFactor {
             return err!(PoolError::InvalidAmpFactorValue);
         }
 
-        self.initial_value = DecimalU64Anchor::from_decimal_u64(initial_value);
+        self.initial_value = initial_value.into();
         self.initial_ts = current_ts;
-        self.target_value = DecimalU64Anchor::from_decimal_u64(target_value);
+        self.target_value = target_value.into();
         self.target_ts = target_ts;
 
         Ok(())

@@ -134,18 +134,25 @@ pub mod two_pool {
 pub struct DecimalU64Anchor {
   pub value: u64,
   pub decimals: u8,
+  //TODO DecimalU64Anchor must ensure that decimals is <= 19 (= DecimalU64::MAX_DECIMALS)
 }
 
 impl DecimalU64Anchor {
   pub const LEN: usize = 8 + 1;
-  pub fn from_decimal_u64(v: DecimalU64) -> DecimalU64Anchor {
-    DecimalU64Anchor {
+}
+
+impl From<DecimalU64> for DecimalU64Anchor {
+  fn from(v: DecimalU64) -> Self {
+    Self {
       value: v.get_raw(),
       decimals: v.get_decimals(),
     }
   }
+}
 
-  pub fn to_decimal_u64(self) -> DecimalU64 {
-    DecimalU64::new(self.value, self.decimals).unwrap()
+impl From<DecimalU64Anchor> for DecimalU64 {
+  fn from(v: DecimalU64Anchor) -> Self {
+    //unwrap is only safe one DecimalU64Anchor enforces decimals upper bound of 19
+    Self::new(v.value, v.decimals).unwrap()
   }
 }

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@swim-io/tsconfig/tsconfig-base.json",
+  "compilerOptions": {
+    "lib": ["dom"],
+    "noEmit": true,
+    "rootDir": "step_definitions/"
+  },
+  "include": ["step_definitions/"]
+}

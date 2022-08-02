@@ -29,7 +29,7 @@
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
     "test": "jest",
     "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test --watchAll=false",
-    "build": "rm -rf ./build/ ./types/ && yarn optimize-images && yarn encode-images && tsc",
+    "build": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && yarn optimize-images && yarn encode-images && tsc",
     "prepare": "yarn verify && yarn build"
   },
   "dependencies": {

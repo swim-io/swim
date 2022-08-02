@@ -1,6 +1,7 @@
 import type { Keypair } from "@solana/web3.js";
+import type { TokenDetails } from "@swim-io/core";
 
-import type { EvmSpec, TokenDetails, TokenSpec } from "../../config";
+import type { EvmSpec, TokenSpec } from "../../config";
 import type { Amount } from "../amount";
 import type { Tx } from "../crossEcosystem";
 import type { EvmConnection } from "../evm";

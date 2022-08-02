@@ -22,11 +22,11 @@ const calculateGas = (
   toToken: TokenSpec | null,
 ): Decimal => {
   const fromRequirements =
-    fromToken?.nativeEcosystem === ecosystemId
+    fromToken?.nativeEcosystemId === ecosystemId
       ? [APPROVAL_CEILING, TRANSFER_CEILING]
       : [];
   const toRequirements =
-    toToken?.nativeEcosystem === ecosystemId ? [REDEEM_CEILING] : [];
+    toToken?.nativeEcosystemId === ecosystemId ? [REDEEM_CEILING] : [];
   return [...fromRequirements, ...toRequirements].reduce(
     (acc, requirement) => acc.plus(requirement),
     ZERO,
@@ -57,8 +57,8 @@ export const useSwapFeesEstimationQuery = (
     useGasPriceQuery(EcosystemId.Acala).data ?? ZERO,
   ];
   const requiredEvmEcosystemIds = [
-    fromToken?.nativeEcosystem,
-    toToken?.nativeEcosystem,
+    fromToken?.nativeEcosystemId,
+    toToken?.nativeEcosystemId,
   ].filter(
     (ecosystemId): ecosystemId is EvmEcosystemId =>
       ecosystemId !== undefined && isEvmEcosystemId(ecosystemId),

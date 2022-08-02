@@ -22,7 +22,7 @@ export const useGetSwapFormErrors = (
   const wallets = useWallets();
   const userNativeBalances = useUserNativeBalances();
   const fromTokenUserBalances = useUserBalanceAmounts(fromToken);
-  const fromTokenBalance = fromTokenUserBalances[fromToken.nativeEcosystem];
+  const fromTokenBalance = fromTokenUserBalances[fromToken.nativeEcosystemId];
   const isLargeSwap = useIsLargeSwap(fromToken, toToken, inputAmount);
 
   return (allowLargeSwap: boolean) => {
@@ -34,23 +34,23 @@ export const useGetSwapFormErrors = (
 
     // Require source token to have a connected wallet
     if (
-      fromToken.nativeEcosystem !== EcosystemId.Solana &&
-      !wallets[fromToken.nativeEcosystem].connected
+      fromToken.nativeEcosystemId !== EcosystemId.Solana &&
+      !wallets[fromToken.nativeEcosystemId].connected
     ) {
       errors = [
         ...errors,
-        `Connect ${ECOSYSTEMS[fromToken.nativeEcosystem].displayName} wallet`,
+        `Connect ${ECOSYSTEMS[fromToken.nativeEcosystemId].displayName} wallet`,
       ];
     }
 
     // Require destination token to have a connected wallet
     if (
-      toToken.nativeEcosystem !== EcosystemId.Solana &&
-      !wallets[toToken.nativeEcosystem].connected
+      toToken.nativeEcosystemId !== EcosystemId.Solana &&
+      !wallets[toToken.nativeEcosystemId].connected
     ) {
       errors = [
         ...errors,
-        `Connect ${ECOSYSTEMS[toToken.nativeEcosystem].displayName} wallet`,
+        `Connect ${ECOSYSTEMS[toToken.nativeEcosystemId].displayName} wallet`,
       ];
     }
 
@@ -58,8 +58,8 @@ export const useGetSwapFormErrors = (
     const requiredEcosystems = new Set(
       [
         EcosystemId.Solana,
-        fromToken.nativeEcosystem,
-        toToken.nativeEcosystem,
+        fromToken.nativeEcosystemId,
+        toToken.nativeEcosystemId,
       ].filter(isNotNull),
     );
     requiredEcosystems.forEach((ecosystem) => {

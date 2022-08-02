@@ -1,6 +1,6 @@
 import { findOrThrow } from "@swim-io/utils";
 import type { ReadonlyRecord } from "@swim-io/utils";
-import { useQueryClient } from "react-query";
+import { useMemo } from "react";
 import shallow from "zustand/shallow.js";
 
 import type { EvmEcosystemId } from "../../config";
@@ -12,7 +12,6 @@ import { EvmConnection } from "../../models";
 export const useEvmConnection = (
   ecosystemId: EvmEcosystemId,
 ): EvmConnection => {
-  const queryClient = useQueryClient();
   const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
   const chainSpec = findOrThrow(
@@ -20,17 +19,7 @@ export const useEvmConnection = (
     (chain) => chain.ecosystem === ecosystemId,
   );
 
-  const queryKey = [env, "evmConnection", ecosystemId];
-
-  const connection =
-    queryClient.getQueryData<EvmConnection>(queryKey) ||
-    (function createEvmConnection(): EvmConnection {
-      const evmConnection = new EvmConnection(env, chainSpec);
-      queryClient.setQueryData(queryKey, evmConnection);
-      return evmConnection;
-    })();
-
-  return connection;
+  return useMemo(() => new EvmConnection(env, chainSpec), [env, chainSpec]);
 };
 
 export const useEvmConnections = (): ReadonlyRecord<

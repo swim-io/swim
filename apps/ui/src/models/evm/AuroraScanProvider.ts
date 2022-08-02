@@ -28,7 +28,7 @@ export class AuroraScanProvider extends ethers.providers.EtherscanProvider {
     super(standardNetwork, apiKey);
   }
 
-  public getBaseUrl(): string {
+  public override getBaseUrl(): string {
     switch (this.network.name) {
       case AuroraNetwork.Mainnet:
         return "https://api.aurorascan.dev/";

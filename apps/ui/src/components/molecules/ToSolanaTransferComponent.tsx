@@ -27,7 +27,7 @@ export const ToSolanaTransferComponent: React.FC<Props> = ({
     txIds;
   const approveAndTransferTxProps = approveAndTransferEvmToken.map((txId) => ({
     txId,
-    ecosystem: token.nativeEcosystem,
+    ecosystem: token.nativeEcosystemId,
   }));
   const postVaaTxProps = postVaaOnSolana.map((txId) => ({
     txId,

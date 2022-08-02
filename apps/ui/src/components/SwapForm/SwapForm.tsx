@@ -12,7 +12,7 @@ import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId } from "../../config";
+import { EcosystemId, PROJECTS } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useNotification } from "../../core/store";
 import { captureAndWrapException } from "../../errors";
@@ -24,7 +24,7 @@ import {
   useSplTokenAccountsQuery,
   useSwapFeesEstimationQuery,
   useSwapOutputAmountEstimate,
-  useSwapTokens,
+  useSwapTokensContext,
   useUserBalanceAmounts,
   useUserNativeBalances,
 } from "../../hooks";
@@ -64,11 +64,13 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const {
     fromToken,
     toToken,
-    setFromTokenId,
-    setToTokenId,
     fromTokenOptionsIds,
     toTokenOptionsIds,
-  } = useSwapTokens();
+    setFromToken,
+    setToToken,
+    setFromAndToTokens,
+    hasUrlError,
+  } = useSwapTokensContext();
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const requiredPools = getRequiredPoolsForSwap(
@@ -100,8 +102,8 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
 
   const isLargeSwap = useIsLargeSwap(fromToken, toToken, inputAmount);
   const isSmallEthSwap =
-    fromToken.project.isStablecoin &&
-    [fromToken.nativeEcosystem, toToken.nativeEcosystem].includes(
+    PROJECTS[fromToken.projectId].isStablecoin &&
+    [fromToken.nativeEcosystemId, toToken.nativeEcosystemId].includes(
       EcosystemId.Ethereum,
     ) &&
     inputAmount.toHuman(EcosystemId.Solana).lt(200);
@@ -117,7 +119,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
 
   const outputAmount = useSwapOutputAmountEstimate(inputAmount, toToken);
   const fromTokenUserBalances = useUserBalanceAmounts(fromToken);
-  const fromTokenBalance = fromTokenUserBalances[fromToken.nativeEcosystem];
+  const fromTokenBalance = fromTokenUserBalances[fromToken.nativeEcosystemId];
 
   const handleInputAmountChange = (currentInputAmount: Amount | null): void => {
     let errors: readonly string[] = [];
@@ -127,7 +129,9 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       errors = [...errors, "Amount must be greater than 0"];
     } else if (fromTokenBalance && currentInputAmount.gt(fromTokenBalance)) {
       errors = [...errors, "Amount cannot exceed available balance"];
-    } else if (currentInputAmount.requiresRounding(fromToken.nativeEcosystem)) {
+    } else if (
+      currentInputAmount.requiresRounding(fromToken.nativeEcosystemId)
+    ) {
       errors = [...errors, "Too many decimals"];
     } else {
       errors = [];
@@ -231,6 +235,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const isStableSwap = requiredPools.every((pool) => pool.isStableSwap);
   return (
     <EuiForm component="form" className="swapForm" onSubmit={handleSubmit}>
+      {hasUrlError && <EuiCallOut title="Invalid swap URL" color="danger" />}
       <EuiSpacer />
 
       <TokenAmountInput
@@ -240,7 +245,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         placeholder={"Enter amount"}
         disabled={isInteractionInProgress}
         errors={inputAmountErrors}
-        onSelectToken={setFromTokenId}
+        onSelectToken={setFromToken}
         onChangeValue={(value) => setFormInputAmount(value)}
         onBlur={() => handleInputAmountChange(inputAmount)}
         showConstantSwapTip={!isStableSwap}
@@ -253,8 +258,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
           size="m"
           iconSize="xl"
           onClick={() => {
-            setFromTokenId(toToken.id);
-            setToTokenId(fromToken.id);
+            setFromAndToTokens(toToken, fromToken);
           }}
           className="swapForm__flipIcon"
           aria-label="Flip direction"
@@ -267,13 +271,13 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       />
 
       <TokenAmountInput
-        value={outputAmount?.toHumanString(toToken.nativeEcosystem) ?? ""}
+        value={outputAmount?.toHumanString(toToken.nativeEcosystemId) ?? ""}
         token={toToken}
         tokenOptionIds={toTokenOptionsIds}
         placeholder={"Output"}
         disabled={isInteractionInProgress}
         errors={[]}
-        onSelectToken={setToTokenId}
+        onSelectToken={setToToken}
         // Never show constant swap on "To Form".
         showConstantSwapTip={false}
       />
@@ -281,8 +285,8 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       <EuiSpacer />
 
       <SwapFormSolanaConnectButton
-        fromEcosystem={fromToken.nativeEcosystem}
-        toEcosystem={toToken.nativeEcosystem}
+        fromEcosystem={fromToken.nativeEcosystemId}
+        toEcosystem={toToken.nativeEcosystemId}
       />
 
       {isInputAmountPositive && (

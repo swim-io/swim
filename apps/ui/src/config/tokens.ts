@@ -1,10 +1,10 @@
 import { Env } from "@swim-io/core";
 import type { TokenConfig, TokenDetails } from "@swim-io/core";
+import { TokenProjectId } from "@swim-io/token-projects";
 import type { ReadonlyRecord } from "@swim-io/utils";
 
 import { EcosystemId, isEcosystemEnabled } from "./ecosystem";
 import { isPoolRestructureEnabled } from "./pools";
-import { TokenProjectId } from "./projects";
 
 export interface TokenSpec extends TokenConfig {
   readonly projectId: TokenProjectId;
@@ -113,7 +113,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-meta-avalanche-usdc",
-    projectId: TokenProjectId.SwimAvalancheUsdcMetaPoolLp,
+    projectId: TokenProjectId.SwimAvalancheUsdcLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "DKwsWeqHrB8R1u2DFMHKtq4iqaQNgPgUbHTJyXPqkTzK",
@@ -123,7 +123,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-meta-avalanche-usdt",
-    projectId: TokenProjectId.SwimAvalancheUsdtMetaPoolLp,
+    projectId: TokenProjectId.SwimAvalancheUsdtLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "5rwvDmUbcnZTwZ4Zywev2wnDbyDDD2vcsGU2Xmy7aRNS",
@@ -133,7 +133,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-meta-polygon-usdc",
-    projectId: TokenProjectId.SwimPolygonUsdcMetaPoolLp,
+    projectId: TokenProjectId.SwimPolygonUsdcLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "ANFojEXhiEQQoovhBs77XmBQuqbe59UBygRWViyf4945",
@@ -143,7 +143,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-meta-polygon-usdt",
-    projectId: TokenProjectId.SwimPolygonUsdtMetaPoolLp,
+    projectId: TokenProjectId.SwimPolygonUsdtLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "2Nx6L79dHHgHcJtNfZWukQkWZvf5h4bps34zuh1gjtdP",
@@ -173,7 +173,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-meta-aurora-usdc",
-    projectId: TokenProjectId.SwimAuroraUsdcMetaPoolLp,
+    projectId: TokenProjectId.SwimAuroraUsdcLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "9qRe2nBrR2rTXxRaV1PZN9hZnqq3UXgoFWTbP6NE3MEu",
@@ -183,7 +183,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-meta-aurora-usdt",
-    projectId: TokenProjectId.SwimAuroraUsdtMetaPoolLp,
+    projectId: TokenProjectId.SwimAuroraUsdtLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "4XPDxtGbcM7bAPKZxALd2s862n3WoG4xPPvyCPVULKAb",
@@ -194,7 +194,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "mainnet-solana-lp-meta-aurora-usn",
-    projectId: TokenProjectId.SwimAuroraUsnMetaPoolLp,
+    projectId: TokenProjectId.SwimAuroraUsnLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "3eXCU7YoiCq3rZ6787pPFJE7TXBsKuTZ49wH2kFnuTeF",
@@ -205,7 +205,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
     id: "mainnet-solana-lp-meta-fantom-usdc",
-    projectId: TokenProjectId.SwimFantomUsdcMetaPoolLp,
+    projectId: TokenProjectId.SwimFantomUsdcLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "J5ifGexAQTg76TresJhJSqTPJLT6BNxrV5rwNJTTz4Cx",
@@ -216,7 +216,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "mainnet-solana-lp-meta-karura-ausd",
-    projectId: TokenProjectId.SwimKaruraAusdMetaPoolLp,
+    projectId: TokenProjectId.SwimKaruraAusdLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "8vzXSNVAX4fymEFahJFh1ypzDBFv3QMVaZ4GtJWHrRjU",
@@ -226,7 +226,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-meta-karura-usdt",
-    projectId: TokenProjectId.SwimKaruraUsdtMetaPoolLp,
+    projectId: TokenProjectId.SwimKaruraUsdtLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "2sXvitirRSjgTTNzGNWAFZWSqEx87kDoTJvqG9JSyivh",
@@ -237,7 +237,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
     id: "mainnet-solana-lp-meta-acala-ausd",
-    projectId: TokenProjectId.SwimAcalaAusdMetaPoolLp,
+    projectId: TokenProjectId.SwimAcalaAusdLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "11111111111111111111111111111111", // TODO: Update
@@ -851,7 +851,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-avalanche-usdc",
-    projectId: TokenProjectId.SwimAvalancheUsdcMetaPoolLp,
+    projectId: TokenProjectId.SwimAvalancheUsdcLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "DU15RXzuPWTLC4tbAcQvtXbDkHFrY8u6CxgTdhz2Mt8c",
@@ -861,7 +861,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-avalanche-usdt",
-    projectId: TokenProjectId.SwimAvalancheUsdtMetaPoolLp,
+    projectId: TokenProjectId.SwimAvalancheUsdtLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "D6PuZckpEcBhVcpfgjgbWnARhFD3ApHhvnxBGWR6MW5Z",
@@ -871,7 +871,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-polygon-usdc",
-    projectId: TokenProjectId.SwimPolygonUsdcMetaPoolLp,
+    projectId: TokenProjectId.SwimPolygonUsdcLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "6WBFbyA3XJ3T2BeqA9JbyZFfj3KTCRtnC8MJANBsVNrz",
@@ -881,7 +881,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-polygon-usdt",
-    projectId: TokenProjectId.SwimPolygonUsdtMetaPoolLp,
+    projectId: TokenProjectId.SwimPolygonUsdtLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "HH3RwS94BWhR4bKeNYGvr2CfSLRQ2Kq6EYSDTKgGLgET",
@@ -911,7 +911,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-aurora-usdc",
-    projectId: TokenProjectId.SwimAuroraUsdcMetaPoolLp,
+    projectId: TokenProjectId.SwimAuroraUsdcLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "AQiHPuuBPsq4MLLjLv2WHRFbrNB1JHZeR4mQGVJTwVHn",
@@ -921,7 +921,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-lp-meta-aurora-usdt",
-    projectId: TokenProjectId.SwimAuroraUsdtMetaPoolLp,
+    projectId: TokenProjectId.SwimAuroraUsdtLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "utXdXdUMaS5qrBDDUg5btQMGL2CedouzmMPbYMJPEZD",
@@ -932,7 +932,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "devnet-solana-lp-meta-aurora-usn",
-    projectId: TokenProjectId.SwimAuroraUsnMetaPoolLp,
+    projectId: TokenProjectId.SwimAuroraUsnLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "11111111111111111111111111111111", // TODO: Update
@@ -943,7 +943,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
     id: "devnet-solana-lp-meta-fantom-usdc",
-    projectId: TokenProjectId.SwimFantomUsdcMetaPoolLp,
+    projectId: TokenProjectId.SwimFantomUsdcLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "4hmRgsk3hSdK1gXV7rg1pStwYtntKmbcFQyKqsZ4USis",
@@ -954,7 +954,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "devnet-solana-lp-meta-karura-ausd",
-    projectId: TokenProjectId.SwimKaruraAusdMetaPoolLp,
+    projectId: TokenProjectId.SwimKaruraAusdLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "4idDPnTYR4J9YhXmayKZYW8QBrASuuiTAxfkWUeaL3ap",
@@ -965,7 +965,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "devnet-solana-lp-meta-karura-usdt",
-    projectId: TokenProjectId.SwimKaruraUsdtMetaPoolLp,
+    projectId: TokenProjectId.SwimKaruraUsdtLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "882uzB9euTbBQJ6MrGrvxjXSTQi23VBQZcLcTH4E5Xow",
@@ -976,7 +976,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
     id: "devnet-solana-lp-meta-acala-ausd",
-    projectId: TokenProjectId.SwimAcalaAusdMetaPoolLp,
+    projectId: TokenProjectId.SwimAcalaAusdLp,
     nativeEcosystemId: EcosystemId.Solana,
     nativeDetails: {
       address: "BTbHtbUtDX5WAUSxPgELzy9VsbMbKAVFQ2hykNrD3X7L",

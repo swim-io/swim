@@ -1,19 +1,14 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { TOKEN_PROGRAM_ID, Token, u64 } from "@solana/spl-token";
-import type { AccountMeta } from "@solana/web3.js";
-import {
-  Keypair,
-  PublicKey,
-  Transaction,
-  TransactionInstruction,
-} from "@solana/web3.js";
+import type { AccountMeta, Transaction } from "@solana/web3.js";
+import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
 import { isEachNotNull } from "@swim-io/utils";
 
 import { EcosystemId } from "../../config";
 import type { Amount } from "../amount";
 import type { SolanaConnection } from "../solana";
-import { createMemoIx, findTokenAccountForMint } from "../solana";
+import { createMemoIx, createTx, findTokenAccountForMint } from "../solana";
 import type { SolanaWalletAdapter } from "../wallets";
 
 import {
@@ -606,7 +601,7 @@ export class SwimDefiInstructor {
     if (!this.signer.publicKey) {
       throw new Error("No wallet public key");
     }
-    const tx = new Transaction({
+    const tx = createTx({
       feePayer: this.signer.publicKey,
     });
     tx.add(...ixs);

@@ -103,8 +103,16 @@ export class SolanaConnection {
     }
     return this.callWithRetry(maxRetries, async () => {
       try {
+        const latestBlock = await this.rawConnections[
+          this.rpcIndex
+        ].getLatestBlockhash();
+        // If the Solana network is busy this can time out
         return await this.rawConnections[this.rpcIndex].confirmTransaction(
-          txId,
+          {
+            signature: txId,
+            blockhash: latestBlock.blockhash,
+            lastValidBlockHeight: latestBlock.lastValidBlockHeight,
+          },
           commitmentLevel,
         );
       } catch (error) {
@@ -121,11 +129,13 @@ export class SolanaConnection {
     unsignedTx: Transaction,
     options: GetSolanaTransactionOptions = {},
   ): Promise<string> {
-    const { blockhash } = await this.rawConnections[
+    const latestBlock = await this.rawConnections[
       this.rpcIndex
     ].getLatestBlockhash();
     // eslint-disable-next-line functional/immutable-data
-    unsignedTx.recentBlockhash = blockhash;
+    unsignedTx.recentBlockhash = latestBlock.blockhash;
+    // eslint-disable-next-line functional/immutable-data
+    unsignedTx.lastValidBlockHeight = latestBlock.lastValidBlockHeight;
     const signed = await signTransaction(unsignedTx);
     const txId = await this.rawConnections[this.rpcIndex].sendRawTransaction(
       signed.serialize(),

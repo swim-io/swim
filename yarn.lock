@@ -6494,17 +6494,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/solana-types@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "@swim-io/solana-types@npm:0.11.0"
-  dependencies:
-    "@project-serum/borsh": ^0.2.5
-    "@solana/web3.js": ^1.44.2
-    bn.js: ^5.2.1
-  checksum: 2dc4aabf78b5cd79f1d98934ec7573175d5df235d9c4ccec6057a9d27a4c90ea4ecc402e8f93a9a886d15a69738f1c89749ebf03e4fd413e0ad2be1b41d4f4a6
-  languageName: node
-  linkType: hard
-
 "@swim-io/solana-types@workspace:packages/solana-types":
   version: 0.0.0-use.local
   resolution: "@swim-io/solana-types@workspace:packages/solana-types"
@@ -6687,7 +6676,7 @@ __metadata:
     "@swim-io/evm-contracts": ^0.11.0
     "@swim-io/pool-math": ^0.11.0
     "@swim-io/redeemer": ^0.11.0
-    "@swim-io/solana-types": ^0.11.0
+    "@swim-io/solana": "workspace:^"
     "@swim-io/token-projects": ^0.11.0
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": ^0.11.0

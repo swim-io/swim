@@ -359,7 +359,7 @@ export const createSplTokenAccount = async (
     wallet.publicKey,
   );
 
-  const tx = createTransaction({
+  const tx = createTx({
     feePayer: wallet.publicKey,
   });
   tx.add(ix);
@@ -473,11 +473,11 @@ export const getMultipleSolanaAccounts = async (
   return { keys, array };
 };
 
-type CreateTransactionOpts = Omit<
+type CreateTxOptions = Omit<
   TransactionBlockhashCtor,
   "blockhash" | "lastValidBlockHeight"
 >;
 /** Create transaction with dummy blockhash and lastValidBlockHeight, expected to be overwritten by solanaConnection.sendAndConfirmTx to prevent expired blockhash */
-export const createTransaction = (opts: CreateTransactionOpts): Transaction => {
+export const createTx = (opts: CreateTxOptions): Transaction => {
   return new Transaction({ ...opts, blockhash: "", lastValidBlockHeight: 0 });
 };

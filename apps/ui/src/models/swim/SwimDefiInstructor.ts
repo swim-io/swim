@@ -8,11 +8,7 @@ import { isEachNotNull } from "@swim-io/utils";
 import { EcosystemId } from "../../config";
 import type { Amount } from "../amount";
 import type { SolanaConnection } from "../solana";
-import {
-  createMemoIx,
-  createTransaction,
-  findTokenAccountForMint,
-} from "../solana";
+import { createMemoIx, createTx, findTokenAccountForMint } from "../solana";
 import type { SolanaWalletAdapter } from "../wallets";
 
 import {
@@ -605,7 +601,7 @@ export class SwimDefiInstructor {
     if (!this.signer.publicKey) {
       throw new Error("No wallet public key");
     }
-    const tx = createTransaction({
+    const tx = createTx({
       feePayer: this.signer.publicKey,
     });
     tx.add(...ixs);

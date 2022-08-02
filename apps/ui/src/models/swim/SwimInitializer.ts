@@ -18,7 +18,7 @@ import { chunks } from "@swim-io/utils";
 import type { SolanaConnection } from "../solana";
 import {
   createSplTokenAccount,
-  createTransaction,
+  createTx,
   findAssociatedTokenAccountAddress,
   findProgramAddress,
 } from "../solana";
@@ -249,7 +249,7 @@ export class SwimInitializer {
   }
 
   private getFreshTransaction(): Transaction {
-    return createTransaction({
+    return createTx({
       feePayer: this.signer.publicKey,
     });
   }

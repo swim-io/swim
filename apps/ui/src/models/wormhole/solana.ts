@@ -24,7 +24,7 @@ import type { SolanaTx } from "../crossEcosystem";
 import type { SolanaConnection } from "../solana";
 import {
   createMemoIx,
-  createTransaction,
+  createTx,
   getAmountBurnedByMint,
   getAmountMintedToAccount,
   getAmountTransferredFromAccount,
@@ -147,13 +147,13 @@ export async function* generatePostVaaSolanaTxIds(
   // reducing the total number of transactions
   const batchableChunks = chunks([...ixs], 2);
   const unsignedTxs = batchableChunks.map((chunk) =>
-    createTransaction({
+    createTx({
       feePayer: new PublicKey(payer),
     }).add(...chunk, memoIx),
   );
   // The postVaa instruction can only execute after the verifySignature transactions have
   // successfully completed
-  const finalTx = createTransaction({
+  const finalTx = createTx({
     feePayer: new PublicKey(payer),
   }).add(finalIx, memoIx);
 

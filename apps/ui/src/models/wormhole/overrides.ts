@@ -19,7 +19,7 @@ import type { ethers } from "ethers";
 
 import { Erc20Factory } from "../evm";
 import type { SolanaConnection } from "../solana";
-import { createMemoIx, createTransaction } from "../solana";
+import { createMemoIx, createTx } from "../solana";
 
 export const approveEth = async (
   tokenBridgeAddress: string,
@@ -165,7 +165,7 @@ export const transferFromSolana = async (
   );
   const memoIx = createMemoIx(interactionId, []);
 
-  const tx = createTransaction({
+  const tx = createTx({
     feePayer: new PublicKey(payerAddress),
   }).add(transferIx, approvalIx, ix, memoIx);
   return { tx, messageKeypair };
@@ -207,7 +207,7 @@ export const postVaaSolanaWithRetry = async (
   // reducing the total number of transactions.
   const batchableChunks = chunks([...ixs], 2);
   batchableChunks.forEach((chunk) => {
-    const tx = createTransaction({
+    const tx = createTx({
       feePayer: new PublicKey(payer),
     }).add(...chunk, memoIx);
     unsignedTxs.push(tx);
@@ -215,7 +215,7 @@ export const postVaaSolanaWithRetry = async (
 
   // The postVaa instruction can only execute after the verifySignature transactions have
   // successfully completed.
-  const finalTx = createTransaction({
+  const finalTx = createTx({
     feePayer: new PublicKey(payer),
   }).add(finalIx, memoIx);
 
@@ -282,7 +282,7 @@ export const redeemOnSolana = async (
     );
   }
   const memoIx = createMemoIx(interactionId, []);
-  const tx = createTransaction({
+  const tx = createTx({
     feePayer: new PublicKey(payerAddress),
   }).add(...ixs, memoIx);
   return tx;

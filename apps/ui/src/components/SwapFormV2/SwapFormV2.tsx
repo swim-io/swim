@@ -6,17 +6,14 @@ import {
   EuiFormRow,
   EuiSpacer,
 } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { defaultIfError } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useState } from "react";
 import shallow from "zustand/shallow.js";
 
-import {
-  EcosystemId,
-  PROJECTS,
-  getTokenDetailsForEcosystem,
-} from "../../config";
+import { EcosystemId, getTokenDetailsForEcosystem } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useNotification } from "../../core/store";
 import { captureAndWrapException } from "../../errors";
@@ -101,7 +98,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
   // TODO: create V2 of these check
   const isLargeSwap = (() => false)();
   const isSmallEthSwap =
-    PROJECTS[fromTokenSpec.projectId].isStablecoin &&
+    TOKEN_PROJECTS_BY_ID[fromTokenSpec.projectId].isStablecoin &&
     [fromTokenOption.ecosystemId, toTokenOption.ecosystemId].includes(
       EcosystemId.Ethereum,
     ) &&

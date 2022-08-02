@@ -13,13 +13,13 @@ import {
   ixFromRust,
 } from "@certusone/wormhole-sdk";
 import { TOKEN_PROGRAM_ID, Token, u64 } from "@solana/spl-token";
-import type { TransactionInstruction } from "@solana/web3.js";
-import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import type { Transaction, TransactionInstruction } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import type { ethers } from "ethers";
 
 import { Erc20Factory } from "../evm";
 import type { SolanaConnection } from "../solana";
-import { createMemoIx } from "../solana";
+import { createMemoIx, createTx } from "../solana";
 
 export const approveEth = async (
   tokenBridgeAddress: string,
@@ -164,12 +164,10 @@ export const transferFromSolana = async (
         ),
   );
   const memoIx = createMemoIx(interactionId, []);
-  const tx = new Transaction({ feePayer: new PublicKey(payerAddress) }).add(
-    transferIx,
-    approvalIx,
-    ix,
-    memoIx,
-  );
+
+  const tx = createTx({
+    feePayer: new PublicKey(payerAddress),
+  }).add(transferIx, approvalIx, ix, memoIx);
   return { tx, messageKeypair };
 };
 
@@ -209,19 +207,17 @@ export const postVaaSolanaWithRetry = async (
   // reducing the total number of transactions.
   const batchableChunks = chunks([...ixs], 2);
   batchableChunks.forEach((chunk) => {
-    const tx = new Transaction({ feePayer: new PublicKey(payer) }).add(
-      ...chunk,
-      memoIx,
-    );
+    const tx = createTx({
+      feePayer: new PublicKey(payer),
+    }).add(...chunk, memoIx);
     unsignedTxs.push(tx);
   });
 
   // The postVaa instruction can only execute after the verifySignature transactions have
   // successfully completed.
-  const finalTx = new Transaction({ feePayer: new PublicKey(payer) }).add(
-    finalIx,
-    memoIx,
-  );
+  const finalTx = createTx({
+    feePayer: new PublicKey(payer),
+  }).add(finalIx, memoIx);
 
   // The signatureSet keypair also needs to sign the verifySignature transactions, thus a wrapper is needed.
   const partialSignWrapper = async (tx: Transaction): Promise<Transaction> => {
@@ -246,6 +242,7 @@ export const postVaaSolanaWithRetry = async (
  * */
 export const redeemOnSolana = async (
   interactionId: string,
+  solanaConnection: SolanaConnection,
   bridgeAddress: string,
   tokenBridgeAddress: string,
   payerAddress: string,
@@ -285,9 +282,8 @@ export const redeemOnSolana = async (
     );
   }
   const memoIx = createMemoIx(interactionId, []);
-  const tx = new Transaction({ feePayer: new PublicKey(payerAddress) }).add(
-    ...ixs,
-    memoIx,
-  );
+  const tx = createTx({
+    feePayer: new PublicKey(payerAddress),
+  }).add(...ixs, memoIx);
   return tx;
 };

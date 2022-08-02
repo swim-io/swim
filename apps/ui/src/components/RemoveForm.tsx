@@ -13,6 +13,7 @@ import {
   EuiSelect,
   EuiSpacer,
 } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import {
   defaultIfError,
@@ -26,7 +27,7 @@ import { useEffect, useMemo, useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../config";
-import { ECOSYSTEMS, EcosystemId, PROJECTS } from "../config";
+import { ECOSYSTEMS, EcosystemId } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
@@ -348,7 +349,7 @@ export const RemoveForm = ({
       const tokenSpec = findOrThrow(config.tokens, (token) => token.id === id);
       return {
         value: id,
-        text: `${PROJECTS[tokenSpec.projectId].displayName} (${
+        text: `${TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].displayName} (${
           ECOSYSTEMS[tokenSpec.nativeEcosystemId].displayName
         })`,
       };
@@ -567,7 +568,7 @@ export const RemoveForm = ({
     }
   };
 
-  const lpTokenProject = PROJECTS[lpToken.projectId];
+  const lpTokenProject = TOKEN_PROJECTS_BY_ID[lpToken.projectId];
   const maximumLpBurnLabel = poolSpec.isStakingPool
     ? `Maximum required ${lpTokenProject.symbol} tokens: `
     : `Maximum required LP tokens (${lpTokenProject.symbol}): `;
@@ -730,7 +731,9 @@ export const RemoveForm = ({
                     }
                     prepend={
                       <EuiButtonEmpty size="xs">
-                        <TokenIcon {...PROJECTS[tokenSpec.projectId]} />
+                        <TokenIcon
+                          {...TOKEN_PROJECTS_BY_ID[tokenSpec.projectId]}
+                        />
                       </EuiButtonEmpty>
                     }
                   />

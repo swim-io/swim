@@ -8,10 +8,11 @@ import type {
   ParsedInstruction,
   ParsedTransactionWithMeta,
   PartiallyDecodedInstruction,
+  Transaction,
   TransactionInstruction,
   TransactionResponse,
 } from "@solana/web3.js";
-import { PublicKey, Transaction } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
 import {
@@ -23,6 +24,7 @@ import type { SolanaTx } from "../crossEcosystem";
 import type { SolanaConnection } from "../solana";
 import {
   createMemoIx,
+  createTx,
   getAmountBurnedByMint,
   getAmountMintedToAccount,
   getAmountTransferredFromAccount,
@@ -145,14 +147,15 @@ export async function* generatePostVaaSolanaTxIds(
   // reducing the total number of transactions
   const batchableChunks = chunks([...ixs], 2);
   const unsignedTxs = batchableChunks.map((chunk) =>
-    new Transaction({ feePayer: new PublicKey(payer) }).add(...chunk, memoIx),
+    createTx({
+      feePayer: new PublicKey(payer),
+    }).add(...chunk, memoIx),
   );
   // The postVaa instruction can only execute after the verifySignature transactions have
   // successfully completed
-  const finalTx = new Transaction({ feePayer: new PublicKey(payer) }).add(
-    finalIx,
-    memoIx,
-  );
+  const finalTx = createTx({
+    feePayer: new PublicKey(payer),
+  }).add(finalIx, memoIx);
 
   // The signatureSet keypair also needs to sign the verifySignature transactions, thus a wrapper is needed
   const partialSignWrapper = async (tx: Transaction): Promise<Transaction> => {
@@ -208,6 +211,7 @@ export async function* generateUnlockSplTokenTxIds(
   }
   const redeemTx = await redeemOnSolana(
     interactionId,
+    solanaConnection,
     solanaWormhole.bridge,
     solanaWormhole.tokenBridge,
     solanaPublicKey.toBase58(),
@@ -256,6 +260,7 @@ export const unlockSplToken = async (
   );
   const tx = await redeemOnSolana(
     interactionId,
+    solanaConnection,
     solanaWormhole.bridge,
     solanaWormhole.tokenBridge,
     solanaPublicKey.toBase58(),

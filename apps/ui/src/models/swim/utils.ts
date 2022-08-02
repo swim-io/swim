@@ -1,14 +1,11 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { filterMap, findOrThrow } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
 import type { PoolSpec, TokenSpec } from "../../config";
-import {
-  EcosystemId,
-  PROJECTS,
-  getTokenDetailsForEcosystem,
-} from "../../config";
+import { EcosystemId, getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../amount";
 
 import type { InteractionSpec, InteractionSpecV2 } from "./interaction";
@@ -185,7 +182,9 @@ export const getPoolUsdValue = (
   tokens: readonly TokenSpec[],
   poolTokenAccounts: readonly TokenAccount[],
 ): Decimal | null =>
-  tokens.every((tokenSpec) => PROJECTS[tokenSpec.projectId].isStablecoin)
+  tokens.every(
+    (tokenSpec) => TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].isStablecoin,
+  )
     ? poolTokenAccounts.reduce((acc, account) => {
         const tokenSpec = tokens.find(
           (spec) =>

@@ -47,6 +47,7 @@
     "deploy": "hardhat run scripts/deployment.ts",
     "deploy-custom": "rm -rf deployments/custom && yarn deploy-all custom",
     "deploy-all": "hardhat run --network localhost scripts/01_goerli_deployment.ts",
+    "transfer-ownership": "hardhat run scripts/transfer_ownership.ts",
     "compile": "hardhat compile",
     "test": "hardhat test",
     "test:staging": "hardhat test --network rinkeby",

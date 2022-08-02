@@ -10,6 +10,8 @@ import { useToken } from "../hooks";
 import type { TokenOption } from "../models";
 import type { Amount } from "../models/amount";
 
+import "./TokenIcon.scss";
+
 interface TokenIconProps
   extends Pick<TokenProject, "icon" | "symbol" | "displayName"> {
   readonly ecosystemId?: EcosystemId;
@@ -26,7 +28,7 @@ export const TokenIcon = ({
   const ecosystem = ecosystemId ? ECOSYSTEMS[ecosystemId] : null;
   return (
     <span>
-      <EuiIcon type={icon} size="m" title={symbol} />
+      <EuiIcon className="tokenIcon" type={icon} size="m" title={symbol} />
       &nbsp;<span>{showFullName ? displayName : symbol}</span>
       {ecosystem && (
         <span>
@@ -34,6 +36,7 @@ export const TokenIcon = ({
           <span>on</span>{" "}
           <span style={{ whiteSpace: "nowrap" }}>
             <EuiIcon
+              className="tokenIcon"
               type={ecosystem.logo}
               size="m"
               title={ecosystem.displayName}

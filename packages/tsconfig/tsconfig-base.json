@@ -22,9 +22,10 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    // translate to chrome >= 73, safari >= 13, firefox >= 67, nodejs >= 14
+    // translate to chrome >= 73, safari >= 12.1, firefox >= 64, nodejs >= 12
     // https://github.com/wessberg/browserslist-generator
-    "target": "es2020",
+    // es2020 is not supported by webpack 4
+    "target": "es2019",
     "useDefineForClassFields": true
   }
 }

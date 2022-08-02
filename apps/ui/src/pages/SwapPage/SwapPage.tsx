@@ -9,6 +9,7 @@ import {
   EuiSpacer,
   EuiTitle,
 } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { defaultIfError } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
@@ -18,7 +19,7 @@ import shallow from "zustand/shallow.js";
 import { RecentInteractions } from "../../components/RecentInteractions";
 import { SlippageButton } from "../../components/SlippageButton";
 import { SwapForm } from "../../components/SwapForm";
-import { ECOSYSTEMS, PROJECTS } from "../../config";
+import { ECOSYSTEMS } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { useSwapTokensContext, useTitle } from "../../hooks";
@@ -31,9 +32,10 @@ const SwapPage = (): ReactElement => {
 
   const { fromToken, toToken } = useSwapTokensContext();
   const fromEcosystemName = ECOSYSTEMS[fromToken.nativeEcosystemId].displayName;
-  const fromTokenProjectId = PROJECTS[fromToken.projectId].displayName;
+  const fromTokenProjectId =
+    TOKEN_PROJECTS_BY_ID[fromToken.projectId].displayName;
   const toEcosystemName = ECOSYSTEMS[toToken.nativeEcosystemId].displayName;
-  const toTokenProjectId = PROJECTS[toToken.projectId].displayName;
+  const toTokenProjectId = TOKEN_PROJECTS_BY_ID[toToken.projectId].displayName;
   useTitle(
     `Swap ${fromEcosystemName} ${fromTokenProjectId} to ${toEcosystemName} ${toTokenProjectId}`,
   );

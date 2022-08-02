@@ -27,7 +27,7 @@ const TOKEN_DECIMALS = [
 ];
 
 const decimalToBN = (decimalAmount: Decimal, tokenDecimals: number): BN =>
-  new BN(decimalAmount.mul(Decimal.pow(10, tokenDecimals)).toString());
+  new BN(decimalAmount.mul(Decimal.pow(10, tokenDecimals)).round().toString());
 
 /**
  * Create Solana native USDC <> USDT swap instructions for Swim hexapool

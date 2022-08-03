@@ -4,8 +4,6 @@ import Decimal from "decimal.js";
 
 import { BNtoDecimal, atomicToHuman } from "../../amounts";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
-import { selectConfig } from "../../core/selectors";
-import { useEnvironment } from "../../core/store";
 import { Amount } from "../../models";
 
 import type { PoolData } from "./usePools";
@@ -78,16 +76,3 @@ export const usePoolMaths = (
 };
 
 export const usePoolMath = (poolId: string) => usePoolMaths([poolId])[0];
-
-export const usePoolMathByPoolIds = () => {
-  const config = useEnvironment(selectConfig);
-  const poolIds = config.pools.map(({ id }) => id);
-  const pools = usePools(poolIds);
-  return poolIds.reduce(
-    (accumulator, id, i) => ({
-      ...accumulator,
-      [id]: getPoolMath(pools[i]),
-    }),
-    {},
-  );
-};

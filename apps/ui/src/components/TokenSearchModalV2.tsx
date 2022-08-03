@@ -5,6 +5,7 @@ import {
   EuiSelectable,
 } from "@elastic/eui";
 import type { EuiSelectableOption } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { findOrThrow } from "@swim-io/utils";
 import type { ReactElement } from "react";
 import { useCallback } from "react";
@@ -40,9 +41,10 @@ export const TokenSearchModalV2 = ({
     const { tokenId, ecosystemId } = option;
     const tokenSpec = findOrThrow(tokens, ({ id }) => id === tokenId);
     const ecosystem = ECOSYSTEMS[ecosystemId];
+    const tokenProject = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId];
     return {
-      label: `${tokenSpec.project.symbol} on ${ecosystem.displayName}`,
-      searchableLabel: `${tokenSpec.project.symbol} ${tokenSpec.project.displayName} ${ecosystem.displayName}`,
+      label: `${tokenProject.symbol} on ${ecosystem.displayName}`,
+      searchableLabel: `${tokenProject.symbol} ${tokenProject.displayName} ${ecosystem.displayName}`,
       showIcons: false,
       data: option,
     };

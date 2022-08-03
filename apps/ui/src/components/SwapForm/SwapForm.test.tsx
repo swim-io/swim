@@ -1,9 +1,11 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { Env } from "@swim-io/core";
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import Decimal from "decimal.js";
 import type { FC } from "react";
 import type { UseQueryResult } from "react-query";
+import { MemoryRouter, Route, Routes } from "react-router";
 
 import { EcosystemId } from "../../config";
 import { useEnvironment as environmentStore } from "../../core/store";
@@ -113,7 +115,20 @@ describe("SwapForm", () => {
     environmentStore.getState().setCustomIp("122.122.122.12");
     environmentStore.getState().setEnv(Env.Mainnet);
 
-    renderWithAppContext(<SwapForm maxSlippageFraction={null} />);
+    renderWithAppContext(
+      <MemoryRouter initialEntries={["/swap"]}>
+        <Routes>
+          <Route
+            path="swap"
+            element={<SwapForm maxSlippageFraction={null} />}
+          />
+          <Route
+            path="swap/:fromToken/to/:toToken"
+            element={<SwapForm maxSlippageFraction={null} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
   });
 
   it("should update token options when env changes", () => {
@@ -131,13 +146,13 @@ describe("SwapForm", () => {
   it("should update toToken options when fromToken changes", async () => {
     expect(findToTokenButton()).toHaveTextContent("USDT on Solana");
 
-    fireEvent.click(findFromTokenButton());
+    userEvent.click(findFromTokenButton());
 
     await waitFor(() => {
       return screen.findByPlaceholderText("Search tokens");
     });
 
-    fireEvent.click(screen.getByTitle("GST Green Satoshi Token BNB Chain"));
+    userEvent.click(screen.getByTitle("GST Green Satoshi Token BNB Chain"));
 
     expect(findToTokenButton()).toHaveTextContent("GST on Solana");
   });
@@ -145,13 +160,13 @@ describe("SwapForm", () => {
   it("should update toToken options when fromToken is updated with toToken value", async () => {
     expect(findToTokenButton()).toHaveTextContent("USDT on Solana");
 
-    fireEvent.click(findFromTokenButton());
+    userEvent.click(findFromTokenButton());
 
     await waitFor(() => {
       return screen.findByPlaceholderText("Search tokens");
     });
 
-    fireEvent.click(screen.getByTitle("USDT Tether USD Solana"));
+    userEvent.click(screen.getByTitle("USDT Tether USD Solana"));
 
     expect(findToTokenButton()).toHaveTextContent("USDC on Solana");
   });

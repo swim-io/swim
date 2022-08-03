@@ -13,6 +13,7 @@ import {
   EuiSelect,
   EuiSpacer,
 } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import {
   defaultIfError,
@@ -110,8 +111,8 @@ export const RemoveForm = ({
   > = poolTokens.reduce(
     (accumulator, tokenSpec) => ({
       ...accumulator,
-      [tokenSpec.nativeEcosystem]: [
-        ...accumulator[tokenSpec.nativeEcosystem],
+      [tokenSpec.nativeEcosystemId]: [
+        ...accumulator[tokenSpec.nativeEcosystemId],
         tokenSpec,
       ],
     }),
@@ -214,7 +215,7 @@ export const RemoveForm = ({
         // eslint-disable-next-line functional/immutable-data
         newFormOutputAmounts.push(
           // toHumanString because thousands separators would mess up the conversion
-          estimatedOutputAmount.toHumanString(tokenSpec.nativeEcosystem),
+          estimatedOutputAmount.toHumanString(tokenSpec.nativeEcosystemId),
         );
       }
 
@@ -298,7 +299,7 @@ export const RemoveForm = ({
       onChange("0");
     } else if (outputAmount.isNegative()) {
       errors = ["Amount must be greater than or equal to zero"];
-    } else if (outputAmount.requiresRounding(tokenSpec.nativeEcosystem)) {
+    } else if (outputAmount.requiresRounding(tokenSpec.nativeEcosystemId)) {
       errors = ["Too many decimals"];
     }
 
@@ -308,14 +309,15 @@ export const RemoveForm = ({
   };
 
   const lpSourceEcosystemOptions: readonly EuiRadioGroupOption[] = [
-    ...lpToken.detailsByEcosystem.keys(),
+    lpToken.nativeEcosystemId,
+    ...lpToken.wrappedDetails.keys(),
   ].map((ecosystemId) => {
     const ecosystem = ECOSYSTEMS[ecosystemId];
     const lpBalance = userLpBalances[ecosystemId];
     const lpBalanceSuffix = lpBalance && (
       <>
         &#8200;(
-        {lpBalance.toFormattedHumanString(lpToken.nativeEcosystem)})
+        {lpBalance.toFormattedHumanString(lpToken.nativeEcosystemId)})
       </>
     );
     return {
@@ -347,8 +349,8 @@ export const RemoveForm = ({
       const tokenSpec = findOrThrow(config.tokens, (token) => token.id === id);
       return {
         value: id,
-        text: `${tokenSpec.project.displayName} (${
-          ECOSYSTEMS[tokenSpec.nativeEcosystem].displayName
+        text: `${TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].displayName} (${
+          ECOSYSTEMS[tokenSpec.nativeEcosystemId].displayName
         })`,
       };
     },
@@ -413,7 +415,7 @@ export const RemoveForm = ({
         ...poolTokens.map((tokenSpec, i) => {
           const outputAmount = outputAmounts[i];
           return outputAmount !== null && !outputAmount.isZero()
-            ? tokenSpec.nativeEcosystem
+            ? tokenSpec.nativeEcosystemId
             : null;
         }),
       ].filter(isNotNull),
@@ -566,15 +568,16 @@ export const RemoveForm = ({
     }
   };
 
+  const lpTokenProject = TOKEN_PROJECTS_BY_ID[lpToken.projectId];
   const maximumLpBurnLabel = poolSpec.isStakingPool
-    ? `Maximum required ${lpToken.project.symbol} tokens: `
-    : `Maximum required LP tokens (${lpToken.project.symbol}): `;
+    ? `Maximum required ${lpTokenProject.symbol} tokens: `
+    : `Maximum required LP tokens (${lpTokenProject.symbol}): `;
 
   return (
     <EuiForm component="form" onSubmit={handleFormSubmit}>
       <EuiSpacer size="m" />
       <EuiFormRow
-        label={`Use LP tokens (${lpToken.project.symbol}) from`}
+        label={`Use LP tokens (${lpTokenProject.symbol}) from`}
         helpText={
           lpTokenSourceEcosystem === EcosystemId.Solana ||
           method !== RemoveMethod.ExactOutput
@@ -707,7 +710,7 @@ export const RemoveForm = ({
                         : outputAmountsById
                             .get(tokenSpec.id)
                             ?.toFormattedHumanString(
-                              tokenSpec.nativeEcosystem,
+                              tokenSpec.nativeEcosystemId,
                             ) ?? "0"
                     }
                     fullWidth
@@ -728,7 +731,9 @@ export const RemoveForm = ({
                     }
                     prepend={
                       <EuiButtonEmpty size="xs">
-                        <TokenIcon {...tokenSpec.project} />
+                        <TokenIcon
+                          {...TOKEN_PROJECTS_BY_ID[tokenSpec.projectId]}
+                        />
                       </EuiButtonEmpty>
                     }
                   />

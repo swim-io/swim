@@ -468,7 +468,7 @@ const buildAddStep = (
               key={inputAmount.tokenId}
               fromToken={inputAmount.tokenSpec}
               toToken={minimumMintAmount.tokenSpec}
-              ecosystemId={minimumMintAmount.tokenSpec.nativeEcosystem}
+              ecosystemId={minimumMintAmount.tokenSpec.nativeEcosystemId}
               isLoading={status === "loading"}
               transactions={[]}
             />

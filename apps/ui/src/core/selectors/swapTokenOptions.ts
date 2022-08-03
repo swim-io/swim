@@ -25,17 +25,18 @@ export const selectSwapTokenOptions = (
     .map((tokenId) => findOrThrow(tokens, ({ id }) => id === tokenId));
   const nonLpTokenOptions = nonLpTokenSpecs.map((spec) => ({
     tokenId: spec.id,
-    ecosystemId: spec.nativeEcosystem,
+    ecosystemId: spec.nativeEcosystemId,
   }));
 
   const swimUsdSpec = findOrThrow(tokens, (token) =>
     isSwimUsdTokenId(token.id),
   );
-  const swimUsdOptions = [...swimUsdSpec.detailsByEcosystem.keys()].map(
-    (ecosystemId) => ({
-      tokenId: swimUsdSpec.id,
-      ecosystemId,
-    }),
-  );
+  const swimUsdOptions = [
+    swimUsdSpec.nativeEcosystemId,
+    ...swimUsdSpec.wrappedDetails.keys(),
+  ].map((ecosystemId) => ({
+    tokenId: swimUsdSpec.id,
+    ecosystemId,
+  }));
   return [...nonLpTokenOptions, ...swimUsdOptions];
 };

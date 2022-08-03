@@ -1,9 +1,12 @@
 import type { u64 } from "@solana/spl-token";
+import type { TokenDetails } from "@swim-io/core";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
 import { u64ToDecimal } from "../amounts";
-import type { EcosystemId, TokenDetails, TokenSpec } from "../config";
+import type { EcosystemId, TokenSpec } from "../config";
+import { getTokenDetailsForEcosystem } from "../config";
 
 export class Amount {
   public readonly tokenSpec: TokenSpec;
@@ -39,7 +42,7 @@ export class Amount {
     value: Decimal,
     ecosystemId: EcosystemId,
   ): Amount {
-    const details = tokenSpec.detailsByEcosystem.get(ecosystemId);
+    const details = getTokenDetailsForEcosystem(tokenSpec, ecosystemId);
     if (!details) {
       throw new Error(
         `No token details for ecosystem ${ecosystemId} and token '${tokenSpec.id}'`,
@@ -112,7 +115,9 @@ export class Amount {
 
   toFormattedHumanString(ecosystemId: EcosystemId): string {
     const humanString = this.toHuman(ecosystemId).toFixed(
-      this.tokenSpec.project.isStablecoin ? 2 : undefined,
+      TOKEN_PROJECTS_BY_ID[this.tokenSpec.projectId].isStablecoin
+        ? 2
+        : undefined,
     );
 
     // NOTE: Safari doesn't support lookbehind :(
@@ -127,11 +132,11 @@ export class Amount {
   }
 
   toJSON(): string {
-    return this.toHumanString(this.tokenSpec.nativeEcosystem);
+    return this.toHumanString(this.tokenSpec.nativeEcosystemId);
   }
 
   toPrimitive(): string {
-    return this.toHumanString(this.tokenSpec.nativeEcosystem);
+    return this.toHumanString(this.tokenSpec.nativeEcosystemId);
   }
 
   equals(amount: Amount): boolean {
@@ -186,7 +191,7 @@ export class Amount {
   }
 
   private details(ecosystemId: EcosystemId): TokenDetails {
-    const details = this.tokenSpec.detailsByEcosystem.get(ecosystemId);
+    const details = getTokenDetailsForEcosystem(this.tokenSpec, ecosystemId);
     if (!details) {
       throw new Error("No token details for ecosystem");
     }

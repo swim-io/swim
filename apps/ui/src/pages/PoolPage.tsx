@@ -14,6 +14,7 @@ import {
   EuiTitle,
   EuiToolTip,
 } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { defaultIfError, pluralizeEn } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
@@ -32,7 +33,11 @@ import { SlippageButton } from "../components/SlippageButton";
 import { StatList } from "../components/StatList";
 import { TokenIcon, TokenSpecIcon } from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
-import { EcosystemId, getSolanaTokenDetails } from "../config";
+import {
+  EcosystemId,
+  getSolanaTokenDetails,
+  getTokenDetailsForEcosystem,
+} from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import {
@@ -146,18 +151,24 @@ export const PoolPageInner = ({
   });
 
   const userLpBalances = useUserLpBalances(lpToken, userLpTokenAccount);
-  const userLpStats = [...lpToken.detailsByEcosystem.keys()].map(
-    (ecosystemId) => {
-      const userLpBalance = userLpBalances[ecosystemId];
-      return {
-        title: <TokenIcon {...lpToken.project} ecosystemId={ecosystemId} />,
-        description: userLpBalance
-          ? userLpBalance.toFormattedHumanString(ecosystemId)
-          : "-",
-        key: ecosystemId,
-      };
-    },
-  );
+  const userLpStats = [
+    lpToken.nativeEcosystemId,
+    ...lpToken.wrappedDetails.keys(),
+  ].map((ecosystemId) => {
+    const userLpBalance = userLpBalances[ecosystemId];
+    return {
+      title: (
+        <TokenIcon
+          {...TOKEN_PROJECTS_BY_ID[lpToken.projectId]}
+          ecosystemId={ecosystemId}
+        />
+      ),
+      description: userLpBalance
+        ? userLpBalance.toFormattedHumanString(ecosystemId)
+        : "-",
+      key: ecosystemId,
+    };
+  });
 
   const poolInfoStats = poolState
     ? [
@@ -257,7 +268,8 @@ export const PoolPageInner = ({
               <StatList listItems={poolInfoStats} />
             </>
           )}
-          {lpToken.detailsByEcosystem.has(EcosystemId.Ethereum) && (
+          {getTokenDetailsForEcosystem(lpToken, EcosystemId.Ethereum) !==
+            null && (
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}
@@ -269,7 +281,7 @@ export const PoolPageInner = ({
               Add LP token to Metamask
             </EuiButtonEmpty>
           )}
-          {lpToken.detailsByEcosystem.has(EcosystemId.Bnb) && (
+          {getTokenDetailsForEcosystem(lpToken, EcosystemId.Bnb) !== null && (
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}

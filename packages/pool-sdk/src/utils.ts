@@ -18,7 +18,7 @@ import {
 import * as bs58 from "bs58";
 
 export class AssertionError extends Error {
-  name = "AssertionError";
+  override name = "AssertionError";
 }
 
 export function assert(condition: any, message: string = "") {

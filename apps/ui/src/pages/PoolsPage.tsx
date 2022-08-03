@@ -18,6 +18,7 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { TOKEN_PROJECTS_BY_ID, TokenProjectId } from "@swim-io/token-projects";
 import { deduplicate, filterMap, findOrThrow, sortBy } from "@swim-io/utils";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import Decimal from "decimal.js";
@@ -30,8 +31,6 @@ import { PoolListItem } from "../components/PoolListItem";
 import type { PoolSpec, SolanaPoolSpec, TokenSpec } from "../config";
 import {
   EcosystemId,
-  PROJECTS,
-  TokenProjectId,
   getPoolTokenEcosystems,
   getSolanaTokenDetails,
   hasTokenEcosystem,
@@ -86,7 +85,8 @@ const PoolsPage = (): ReactElement => {
     if (
       tokenSpecs.every(
         (tokenSpec) =>
-          tokenSpec.project.isStablecoin || !!prices.get(tokenSpec.id),
+          TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].isStablecoin ||
+          !!prices.get(tokenSpec.id),
       )
     ) {
       if (allPoolTokenAccounts === null) {
@@ -109,7 +109,7 @@ const PoolsPage = (): ReactElement => {
         const humanAmount = u64ToDecimal(current.amount).div(
           new Decimal(10).pow(solanaDetails.decimals),
         );
-        const price = tokenSpec.project.isStablecoin
+        const price = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].isStablecoin
           ? new Decimal(1)
           : prices.get(tokenSpec.id) ?? new Decimal(1);
         return prev.add(humanAmount.mul(price));
@@ -251,15 +251,23 @@ const PoolsPage = (): ReactElement => {
             tokenSpecs={[
               {
                 id: "placeholder-aurora-native-usn",
-                project: PROJECTS[TokenProjectId.Usn],
-                nativeEcosystem: EcosystemId.Aurora,
-                detailsByEcosystem: new Map(),
+                projectId: TokenProjectId.Usn,
+                nativeEcosystemId: EcosystemId.Aurora,
+                nativeDetails: {
+                  address: "",
+                  decimals: 0,
+                },
+                wrappedDetails: new Map(),
               },
               {
                 id: "mainnet-solana-lp-hexapool",
-                project: PROJECTS[TokenProjectId.SwimUsd],
-                nativeEcosystem: EcosystemId.Solana,
-                detailsByEcosystem: new Map(),
+                projectId: TokenProjectId.SwimUsd,
+                nativeEcosystemId: EcosystemId.Solana,
+                nativeDetails: {
+                  address: "",
+                  decimals: 0,
+                },
+                wrappedDetails: new Map(),
               },
             ]}
           />
@@ -277,15 +285,23 @@ const PoolsPage = (): ReactElement => {
               tokenSpecs={[
                 {
                   id: "placeholder-karura-native-ausd",
-                  project: PROJECTS[TokenProjectId.Ausd],
-                  nativeEcosystem: EcosystemId.Karura,
-                  detailsByEcosystem: new Map(),
+                  projectId: TokenProjectId.Ausd,
+                  nativeEcosystemId: EcosystemId.Karura,
+                  nativeDetails: {
+                    address: "",
+                    decimals: 0,
+                  },
+                  wrappedDetails: new Map(),
                 },
                 {
                   id: "mainnet-solana-lp-hexapool",
-                  project: PROJECTS[TokenProjectId.SwimUsd],
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
+                  projectId: TokenProjectId.SwimUsd,
+                  nativeEcosystemId: EcosystemId.Solana,
+                  nativeDetails: {
+                    address: "",
+                    decimals: 0,
+                  },
+                  wrappedDetails: new Map(),
                 },
               ]}
             />
@@ -298,15 +314,23 @@ const PoolsPage = (): ReactElement => {
               tokenSpecs={[
                 {
                   id: "placeholder-karura-native-usdt",
-                  project: PROJECTS[TokenProjectId.Usdt],
-                  nativeEcosystem: EcosystemId.Karura,
-                  detailsByEcosystem: new Map(),
+                  projectId: TokenProjectId.Usdt,
+                  nativeEcosystemId: EcosystemId.Karura,
+                  nativeDetails: {
+                    address: "",
+                    decimals: 0,
+                  },
+                  wrappedDetails: new Map(),
                 },
                 {
                   id: "mainnet-solana-lp-hexapool",
-                  project: PROJECTS[TokenProjectId.SwimUsd],
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
+                  projectId: TokenProjectId.SwimUsd,
+                  nativeEcosystemId: EcosystemId.Solana,
+                  nativeDetails: {
+                    address: "",
+                    decimals: 0,
+                  },
+                  wrappedDetails: new Map(),
                 },
               ]}
             />
@@ -324,15 +348,23 @@ const PoolsPage = (): ReactElement => {
               tokenSpecs={[
                 {
                   id: "placeholder-acala-native-ausd",
-                  project: PROJECTS[TokenProjectId.Ausd],
-                  nativeEcosystem: EcosystemId.Acala,
-                  detailsByEcosystem: new Map(),
+                  projectId: TokenProjectId.Ausd,
+                  nativeEcosystemId: EcosystemId.Acala,
+                  nativeDetails: {
+                    address: "",
+                    decimals: 0,
+                  },
+                  wrappedDetails: new Map(),
                 },
                 {
                   id: "mainnet-solana-lp-hexapool",
-                  project: PROJECTS[TokenProjectId.SwimUsd],
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
+                  projectId: TokenProjectId.SwimUsd,
+                  nativeEcosystemId: EcosystemId.Solana,
+                  nativeDetails: {
+                    address: "",
+                    decimals: 0,
+                  },
+                  wrappedDetails: new Map(),
                 },
               ]}
             />
@@ -462,8 +494,8 @@ function useTokenProjectFilter() {
         deduplicate(
           (project) => project.id,
           tokens
-            .map((token) => token.project)
-            .filter((project) => project.symbol !== "SWIM" && !project.isLP),
+            .map((token) => TOKEN_PROJECTS_BY_ID[token.projectId])
+            .filter((project) => project.symbol !== "SWIM" && !project.isLp),
         ),
         "displayName",
         (value) => (typeof value === "string" ? value.toLowerCase() : value),
@@ -506,7 +538,7 @@ function useFilteredPools(
             .map((tokenId) =>
               findOrThrow(tokens, (token) => token.id === tokenId),
             )
-            .flatMap((token) => token.project.id),
+            .flatMap((token) => token.projectId),
         ),
       }),
       {},

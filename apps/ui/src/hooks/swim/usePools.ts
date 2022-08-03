@@ -61,7 +61,7 @@ const constructPool = (
   }
 
   const nativeEcosystems = [
-    ...new Set(tokens.map((tokenSpec) => tokenSpec.nativeEcosystem)),
+    ...new Set(tokens.map((tokenSpec) => tokenSpec.nativeEcosystemId)),
   ];
 
   if (isEvmEcosystemId(poolSpec.ecosystem)) {

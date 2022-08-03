@@ -8,6 +8,7 @@ import type {
   AccountInfo,
   Commitment,
   ParsedTransactionWithMeta,
+  TransactionBlockhashCtor,
 } from "@solana/web3.js";
 import { MAX_SEED_LENGTH, PublicKey, Transaction } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
@@ -32,7 +33,7 @@ export type WithSplTokenAccounts<T> = T & {
  * Thrown if the owner of a token account is a PDA (Program Derived Address)
  */
 export class TokenOwnerOffCurveError extends Error {
-  name = "TokenOwnerOffCurveError";
+  override name = "TokenOwnerOffCurveError";
 }
 
 /**
@@ -357,7 +358,8 @@ export const createSplTokenAccount = async (
     wallet.publicKey,
     wallet.publicKey,
   );
-  const tx = new Transaction({
+
+  const tx = createTx({
     feePayer: wallet.publicKey,
   });
   tx.add(ix);
@@ -469,4 +471,13 @@ export const getMultipleSolanaAccounts = async (
     }),
   );
   return { keys, array };
+};
+
+type CreateTxOptions = Omit<
+  TransactionBlockhashCtor,
+  "blockhash" | "lastValidBlockHeight"
+>;
+/** Create transaction with dummy blockhash and lastValidBlockHeight, expected to be overwritten by solanaConnection.sendAndConfirmTx to prevent expired blockhash */
+export const createTx = (opts: CreateTxOptions): Transaction => {
+  return new Transaction({ ...opts, blockhash: "", lastValidBlockHeight: 0 });
 };

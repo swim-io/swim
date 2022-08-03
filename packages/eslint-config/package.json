@@ -1,10 +1,14 @@
 {
   "name": "@swim-io/eslint-config",
-  "version": "0.5.0",
+  "version": "0.7.0",
   "description": "Shared default ESLint configuration for Swim TS projects.",
-  "main": "index.js",
+  "exports": {
+    ".": "./index.cjs",
+    "./patch/modern-module-resolution.cjs": "./patch/modern-module-resolution.cjs",
+    "./react": "./react.cjs"
+  },
   "files": [
-    "*.js",
+    "*.cjs",
     "*.md"
   ],
   "repository": {
@@ -16,10 +20,10 @@
     "registry": "https://registry.npmjs.org"
   },
   "scripts": {
-    "format": "prettier --write \"*.js\"",
-    "format:check": "prettier --check index.js",
-    "lint": "eslint \"./*.js\"",
-    "lint:fix": "eslint --fix \"./*.js\"",
+    "format": "prettier --write \"*.{cjs,js}\"",
+    "format:check": "prettier --check index.{cjs,js}",
+    "lint": "eslint \"./*.{cjs,js}\"",
+    "lint:fix": "eslint --fix \"./*.{cjs,js}\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "verify": "yarn format:check && yarn lint",
     "prepare": "yarn verify"

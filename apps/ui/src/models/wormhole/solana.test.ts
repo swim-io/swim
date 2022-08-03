@@ -1,16 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import { Env } from "@swim-io/core";
+import { TokenProjectId } from "@swim-io/token-projects";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
-import {
-  CHAINS,
-  EcosystemId,
-  PROJECTS,
-  Protocol,
-  TOKENS,
-  TokenProjectId,
-} from "../../config";
+import { CHAINS, EcosystemId, Protocol, TOKENS } from "../../config";
 import {
   parsedSwimSwapTx,
   parsedWormholePostVaaTxs,
@@ -78,10 +72,10 @@ describe("models - Wormhole utils", () => {
         "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
       const token: TokenSpec = {
         id: "test-token",
-        project: PROJECTS[TokenProjectId.Swim],
-        nativeEcosystem: EcosystemId.Solana,
-        detailsByEcosystem: new Map([
-          [EcosystemId.Solana, { address: "xxx", decimals: 8 }],
+        projectId: TokenProjectId.Swim,
+        nativeEcosystemId: EcosystemId.Solana,
+        nativeDetails: { address: "xxx", decimals: 8 },
+        wrappedDetails: new Map([
           [EcosystemId.Bnb, { address: "xxx", decimals: 18 }],
         ]),
       };

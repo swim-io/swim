@@ -6,13 +6,14 @@ import { utils } from "ethers";
 import { EcosystemId } from "./ecosystem";
 import type { TokenSpec } from "./tokens";
 import { TOKENS as tokensByEnv } from "./tokens";
+import { getTokenDetailsForEcosystem } from "./utils";
 
 const getAddressesForEcosystem = (
   tokens: readonly TokenSpec[],
-  ecosystem: EcosystemId,
+  ecosystemId: EcosystemId,
 ): readonly string[] =>
-  tokens.reduce<readonly string[]>((addresses, { detailsByEcosystem }) => {
-    const tokenDetails = detailsByEcosystem.get(ecosystem);
+  tokens.reduce<readonly string[]>((addresses, tokenSpec) => {
+    const tokenDetails = getTokenDetailsForEcosystem(tokenSpec, ecosystemId);
     return tokenDetails ? [...addresses, tokenDetails.address] : addresses;
   }, []);
 
@@ -38,7 +39,7 @@ const generateSuite = (env: Env): void => {
     // NOTE: We may have to rethink this test if eg tokens on Ethereum/BNB can be deployed at the same address
     it("does not specify an address more than once", () => {
       const allAddresses = tokens.flatMap((token) =>
-        [...token.detailsByEcosystem.values()].map(
+        [token.nativeDetails, ...token.wrappedDetails.values()].map(
           (details) => details.address,
         ),
       );
@@ -75,11 +76,11 @@ const generateSuite = (env: Env): void => {
       expect(bnbAddresses.every(utils.isAddress)).toBe(true);
     });
 
-    it("specifies token details for each token’s native Wormhole ecosystem", () => {
+    it("does not specify token details for any token’s native Wormhole ecosystem", () => {
       const nativeEcosystemDetails = tokens.map((token) =>
-        token.detailsByEcosystem.get(token.nativeEcosystem),
+        token.wrappedDetails.get(token.nativeEcosystemId),
       );
-      expect(nativeEcosystemDetails.every(Boolean)).toBe(true);
+      expect(nativeEcosystemDetails.some(Boolean)).toBe(false);
     });
   });
 };

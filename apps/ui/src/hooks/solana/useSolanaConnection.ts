@@ -18,6 +18,7 @@ export const useSolanaConnection = (): SolanaConnection => {
   const queryKey = [env, "solanaConnection"];
 
   const connection =
+    // used as context cache to avoid multiple instances
     queryClient.getQueryData<SolanaConnection>(queryKey) ||
     (function createSolanaConnection(): SolanaConnection {
       const solanaConnection = new SolanaConnection(endpoint, wsEndpoint);

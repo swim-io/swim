@@ -23,6 +23,7 @@ export const useEvmConnection = (
   const queryKey = [env, "evmConnection", ecosystemId];
 
   const connection =
+    // used as context cache to avoid multiple instances
     queryClient.getQueryData<EvmConnection>(queryKey) ||
     (function createEvmConnection(): EvmConnection {
       const evmConnection = new EvmConnection(env, chainSpec);

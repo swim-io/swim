@@ -25,14 +25,6 @@ export const useSolanaConnection = (): SolanaConnection => {
       return solanaConnection;
     })();
 
-  // const connection = useMemo(
-  //   () => {
-  //     console.log("New Solana connection");
-  //     return new SolanaConnection(endpoint, wsEndpoint)
-  //   },
-  //   [endpoint, wsEndpoint],
-  // );
-
   // The websocket library solana/web3.js uses closes its websocket connection when the subscription list
   // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.
   // This is a hack to prevent the list from ever getting empty

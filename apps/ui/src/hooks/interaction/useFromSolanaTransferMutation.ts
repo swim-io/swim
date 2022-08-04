@@ -101,6 +101,9 @@ export const useFromSolanaTransferMutation = () => {
     if (!solanaWalletAddress) {
       throw new Error("No Solana wallet address");
     }
+    if (!wormhole) {
+      throw new Error("No Wormhole RPC configured");
+    }
 
     const poolOperationTxIds = interactionState.solanaPoolOperations.map(
       ({ txId }) => txId,

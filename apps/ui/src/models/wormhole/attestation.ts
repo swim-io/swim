@@ -10,9 +10,10 @@ import {
   parseSequenceFromLogSolana,
   postVaaSolanaWithRetry,
 } from "@certusone/wormhole-sdk";
+import type { WormholeConfig } from "@swim-io/core";
 import type { ContractReceipt } from "ethers";
 
-import type { EvmSpec, WormholeChainSpec, WormholeConfig } from "../../config";
+import type { EvmSpec, WormholeChainSpec } from "../../config";
 import { ECOSYSTEMS, EcosystemId } from "../../config";
 import type { SolanaConnection } from "../solana";
 import { DEFAULT_MAX_RETRIES } from "../solana";

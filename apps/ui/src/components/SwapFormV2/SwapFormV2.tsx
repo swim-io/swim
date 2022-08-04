@@ -85,7 +85,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     [],
   );
 
-  const feesEstimation = useSwapFeesEstimationQueryV2(
+  const { data: feesEstimation = null } = useSwapFeesEstimationQueryV2(
     fromTokenOption,
     toTokenOption,
   );

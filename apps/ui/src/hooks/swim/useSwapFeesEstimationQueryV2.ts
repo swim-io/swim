@@ -1,55 +1,64 @@
-import Decimal from "decimal.js";
+import { useQuery, useQueryClient } from "react-query";
 
 import { EcosystemId } from "../../config";
+import { useEnvironment } from "../../core/store";
 import type { FeesEstimation, TokenOption } from "../../models";
-import { SOLANA_FEE, SwapType, getSwapType } from "../../models";
-
-const ZERO = new Decimal(0);
-
-const ZERO_FEE = {
-  [EcosystemId.Solana]: ZERO,
-  [EcosystemId.Ethereum]: ZERO,
-  [EcosystemId.Bnb]: ZERO,
-  [EcosystemId.Avalanche]: ZERO,
-  [EcosystemId.Polygon]: ZERO,
-  [EcosystemId.Aurora]: ZERO,
-  [EcosystemId.Fantom]: ZERO,
-  [EcosystemId.Karura]: ZERO,
-  [EcosystemId.Acala]: ZERO,
-};
+import {
+  SOLANA_FEE,
+  SwapType,
+  ZERO_FEE,
+  getRedeemFee,
+  getSwapType,
+  getTransferFee,
+} from "../../models";
+import { useEvmConnections } from "../evm";
 
 export const useSwapFeesEstimationQueryV2 = (
-  fromToken: TokenOption,
-  toToken: TokenOption,
-): FeesEstimation | null => {
-  const swapType = getSwapType(fromToken, toToken);
-  // const [
-  //   ethGasPrice,
-  //   bnbGasPrice,
-  //   avalancheGasPrice,
-  //   polygonGasPrice,
-  //   auroraGasPrice,
-  //   fantomGasPrice,
-  //   karuraGasPrice,
-  //   acalaGasPrice,
-  // ] = [
-  //   useGasPriceQuery(EcosystemId.Ethereum).data ?? ZERO,
-  //   useGasPriceQuery(EcosystemId.Bnb).data ?? ZERO,
-  //   useGasPriceQuery(EcosystemId.Avalanche).data ?? ZERO,
-  //   useGasPriceQuery(EcosystemId.Polygon).data ?? ZERO,
-  //   useGasPriceQuery(EcosystemId.Aurora).data ?? ZERO,
-  //   useGasPriceQuery(EcosystemId.Fantom).data ?? ZERO,
-  //   useGasPriceQuery(EcosystemId.Karura).data ?? ZERO,
-  //   useGasPriceQuery(EcosystemId.Acala).data ?? ZERO,
-  // ];
+  fromTokenOption: TokenOption,
+  toTokenOption: TokenOption,
+) => {
+  const { env } = useEnvironment();
+  const queryClient = useQueryClient();
+  const evmConnections = useEvmConnections();
 
-  switch (swapType) {
-    case SwapType.SingleChainSolana:
-      return {
-        ...ZERO_FEE,
-        [EcosystemId.Solana]: SOLANA_FEE,
-      };
-    default:
-      return null;
-  }
+  const swapType = getSwapType(fromTokenOption, toTokenOption);
+  const fromEcosystem = fromTokenOption.ecosystemId;
+  const toEcosystem = toTokenOption.ecosystemId;
+  return useQuery<FeesEstimation, Error>(
+    [env, "useSwapFeesEstimationQueryV2", fromEcosystem, toEcosystem],
+    async () => {
+      const transferFee = await getTransferFee(
+        env,
+        queryClient,
+        fromEcosystem,
+        evmConnections,
+      );
+      const redeemFee = await getRedeemFee(
+        env,
+        queryClient,
+        toEcosystem,
+        evmConnections,
+      );
+      switch (swapType) {
+        case SwapType.SingleChainSolana:
+          return {
+            ...ZERO_FEE,
+            [EcosystemId.Solana]: SOLANA_FEE,
+          };
+        case SwapType.SingleChainEvm:
+          return {
+            ...ZERO_FEE,
+            [fromEcosystem]: transferFee.add(redeemFee),
+          };
+        case SwapType.CrossChainEvmToEvm:
+        case SwapType.CrossChainEvmToSolana:
+        case SwapType.CrossChainSolanaToEvm:
+          return {
+            ...ZERO_FEE,
+            [fromEcosystem]: transferFee,
+            [toEcosystem]: redeemFee,
+          };
+      }
+    },
+  );
 };

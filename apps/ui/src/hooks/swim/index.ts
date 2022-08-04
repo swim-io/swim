@@ -1,4 +1,5 @@
 export * from "./useAddFeesEstimationQuery";
+export * from "./useAddFeesEstimationQueryV2";
 export * from "./useEvmTxFeesEstimateQuery";
 export * from "./useEvmTxFeesEstimates";
 export * from "./useGetSwapFormErrors";
@@ -9,6 +10,7 @@ export * from "./usePools";
 export * from "./usePoolState";
 export * from "./useRedeemMutation";
 export * from "./useRemoveFeesEstimationQuery";
+export * from "./useRemoveFeesEstimationQueryV2";
 export * from "./useSwapFeesEstimationQuery";
 export * from "./useSwapFeesEstimationQueryV2";
 export * from "./useSwapOutputAmountEstimate";

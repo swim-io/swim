@@ -5794,10 +5794,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/core@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "@swim-io/core@npm:0.9.0"
-  checksum: 74a8964beb021d4972e81f8aa3cdf19b55e5afde317917068763a3c7c5932ca6c049cc4a2135fe8f16e1f9e56a26cb47e3aaef7c3c2e08043c595b20f40de49e
+"@swim-io/core@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "@swim-io/core@npm:0.10.0"
+  checksum: e0ea286e5581da1ea4fb2c5e1aab7c8680c17a03a33c0e8a3076d7d53be2428b69a57ff0ed37134bb2a371f98bcadf967419fbe8f05c3a1ff05d2f03a9c7c1eb
   languageName: node
   linkType: hard
 
@@ -5884,12 +5884,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/pool-math@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "@swim-io/pool-math@npm:0.9.0"
+"@swim-io/pool-math@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "@swim-io/pool-math@npm:0.10.0"
   dependencies:
     decimal.js: ^10.3.1
-  checksum: 9d204716ab900cd7d7e6d4d6282f9c23dbba0bcc491fdc98c4ed52a667c4dedbdce2109822f8e00f9b06ee0ae668d15a27f7c21d9e46ad18527acc603f17e1d4
+  checksum: 8f658234ce0d9078aa9a294efd4c373d11abfdcdab34fb6462cddaf06268d48bfc6061598e573287fdc423ad72aca07e076d42047a79749b6ef4006788b5d5eb
   languageName: node
   linkType: hard
 
@@ -5976,14 +5976,46 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/solana-types@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "@swim-io/solana-types@npm:0.9.0"
+"@swim-io/redeemer@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "@swim-io/redeemer@npm:0.10.0"
+  dependencies:
+    "@swim-io/core": ^0.10.0
+  checksum: 024bc14b98b786f9994a5e19eaac4afb50d5e13237efc016210e18efaf161d4274235bcafc318a79f34cc90c8b9572180e242497d9c9198ff559537ffe5567e8
+  languageName: node
+  linkType: hard
+
+"@swim-io/redeemer@workspace:packages/redeemer":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/redeemer@workspace:packages/redeemer"
+  dependencies:
+    "@swim-io/core": "workspace:^"
+    "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/tsconfig": "workspace:^"
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-eslint-comments: ^3.2.0
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^25.7.0
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.2
+    prettier: ^2.7.1
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
+"@swim-io/solana-types@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "@swim-io/solana-types@npm:0.10.0"
   dependencies:
     "@project-serum/borsh": ^0.2.5
     "@solana/web3.js": ^1.44.2
     bn.js: ^5.2.1
-  checksum: daff5f5f219941f4e63bec0e90131b9decb11c902d6971c6f268b330717e1cf945da854b3b91298418dac31a100690c939e659746a75e70617281aa605bf0148
+  checksum: d5aae88463b0b6b03bcac8f9bd76c038f00014b211e37d38118d1b7b839edac5173fd33bf96503bddb286f03bf4a149959e77576f33ae3e8a0c7bc8840de81c3
   languageName: node
   linkType: hard
 
@@ -6048,13 +6080,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/token-projects@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "@swim-io/token-projects@npm:0.9.0"
+"@swim-io/token-projects@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "@swim-io/token-projects@npm:0.10.0"
   dependencies:
-    "@swim-io/core": ^0.9.0
-    "@swim-io/utils": ^0.9.0
-  checksum: 0c7a94c2e6a663dd238c429c8877b4f5f8084e3b6f42292e11877a245eb135a3f185df7dc02aff038237f93ba0a7e3a2e67a8dca620f8439f64a7b6ef87cabef
+    "@swim-io/core": ^0.10.0
+    "@swim-io/utils": ^0.10.0
+  checksum: a254345b0d3af29da48e8d146f687c7a2dee739a5b92cae8fe2b756665e298ab31f084ec360eba8911c9b0562ae1a86680161f1b82c53e53ab36c204e212fad4
   languageName: node
   linkType: hard
 
@@ -6132,13 +6164,14 @@ __metadata:
     "@storybook/node-logger": ^6.5.9
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.9
-    "@swim-io/core": ^0.9.0
+    "@swim-io/core": ^0.10.0
     "@swim-io/eslint-config": "workspace:^"
-    "@swim-io/pool-math": ^0.9.0
-    "@swim-io/solana-types": ^0.9.0
-    "@swim-io/token-projects": ^0.9.0
+    "@swim-io/pool-math": ^0.10.0
+    "@swim-io/redeemer": ^0.10.0
+    "@swim-io/solana-types": ^0.10.0
+    "@swim-io/token-projects": ^0.10.0
     "@swim-io/tsconfig": "workspace:^"
-    "@swim-io/utils": ^0.9.0
+    "@swim-io/utils": ^0.10.0
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^7.0.2
@@ -6191,10 +6224,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/utils@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "@swim-io/utils@npm:0.9.0"
-  checksum: 80c3e97cc2edf2c07f1aacddee5e34469d7aa6bdaa1818185ef99a18809cc4b66d5e2781eed8924289ded05731dcb65e8c90ea8eac47649a5bd01a60e380c56d
+"@swim-io/utils@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "@swim-io/utils@npm:0.10.0"
+  checksum: c525af097f8268939b43af76669e1f69ecff0bd203f68d40e22c974e128bd5f3963062fda82dd6217437d49ad351ee40ac604a08bc68c24ddac2d80b719d2a2a
   languageName: node
   linkType: hard
 

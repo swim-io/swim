@@ -4232,15 +4232,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/browser@npm:7.3.0":
-  version: 7.3.0
-  resolution: "@sentry/browser@npm:7.3.0"
+"@sentry/browser@npm:7.8.1":
+  version: 7.8.1
+  resolution: "@sentry/browser@npm:7.8.1"
   dependencies:
-    "@sentry/core": 7.3.0
-    "@sentry/types": 7.3.0
-    "@sentry/utils": 7.3.0
+    "@sentry/core": 7.8.1
+    "@sentry/types": 7.8.1
+    "@sentry/utils": 7.8.1
     tslib: ^1.9.3
-  checksum: 3af324a2cdb357ff142fdc99fbeeac3426020e21bf97369c1f0d8815e8be23695470efa95e038c772d3e29c1c5099f107d16f2b79257f2e514d27234cfe3e683
+  checksum: 188d8b2d5b3e52d8682e35ca9d5a585d0ec060dccb08698f847d1701e45fe7057c779a61c7c120b03c90c5fec3cea94dbe5cd9ae4f2fc62affed936ea6165c89
   languageName: node
   linkType: hard
 
@@ -4261,86 +4261,79 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/core@npm:7.3.0":
-  version: 7.3.0
-  resolution: "@sentry/core@npm:7.3.0"
+"@sentry/core@npm:7.8.1":
+  version: 7.8.1
+  resolution: "@sentry/core@npm:7.8.1"
   dependencies:
-    "@sentry/hub": 7.3.0
-    "@sentry/types": 7.3.0
-    "@sentry/utils": 7.3.0
+    "@sentry/hub": 7.8.1
+    "@sentry/types": 7.8.1
+    "@sentry/utils": 7.8.1
     tslib: ^1.9.3
-  checksum: 176856840462c881c9a2ea30c5af209b64516201e5d7978e3960473fead6fc10547c556185e3636a2eade6856b293d190212825f9e8ff6fe4331fcdb0f6c213a
+  checksum: 6fa019f49f4476a0d04b3efbe1d2f5b9ff5be14a5b2bff848ae97f7215113a6e768ac73d670f4d992af3e8defa495dfa31e5a9d3a6a38740f9b780ea088db172
   languageName: node
   linkType: hard
 
-"@sentry/hub@npm:7.3.0":
-  version: 7.3.0
-  resolution: "@sentry/hub@npm:7.3.0"
+"@sentry/hub@npm:7.8.1":
+  version: 7.8.1
+  resolution: "@sentry/hub@npm:7.8.1"
   dependencies:
-    "@sentry/types": 7.3.0
-    "@sentry/utils": 7.3.0
+    "@sentry/types": 7.8.1
+    "@sentry/utils": 7.8.1
     tslib: ^1.9.3
-  checksum: a052a7c940e1f6af16ca2c61f1e184eaf0d7874598ec4eae3a28c8b5ea6a19cf3b89106768aaeea19deb9816bdd316ec0218764c2e66cc92a87e2e404d6e0dd6
+  checksum: a764749e311dd9e71cfe1fe2c6e781009ab4874e506e34615f723e11174a60ac97671b6f89de66cc3a208e64b4616d35901b5b231efe0785f54d60dc783b5014
   languageName: node
   linkType: hard
 
-"@sentry/react@npm:^7.3.0":
-  version: 7.3.0
-  resolution: "@sentry/react@npm:7.3.0"
+"@sentry/react@npm:^7.8.1":
+  version: 7.8.1
+  resolution: "@sentry/react@npm:7.8.1"
   dependencies:
-    "@sentry/browser": 7.3.0
-    "@sentry/types": 7.3.0
-    "@sentry/utils": 7.3.0
+    "@sentry/browser": 7.8.1
+    "@sentry/types": 7.8.1
+    "@sentry/utils": 7.8.1
     hoist-non-react-statics: ^3.3.2
     tslib: ^1.9.3
   peerDependencies:
     react: 15.x || 16.x || 17.x || 18.x
-  checksum: df3ac3a12fbe3519636542fe7369a2a2a45b299c5e28b7619232b01e30289bbfa4b7ee06953dfc7c8c01b47789f225e98fef21ec768c706769e31b0e034e72f1
+  checksum: 61304accd5bee307ed4dd8f1f1fd330b156958e31d1b22b7e94b5924d1abf98d88597730859cfbc7cfe0787a2ac8013ae854d1d2c3c50320012e654952111f55
   languageName: node
   linkType: hard
 
-"@sentry/tracing@npm:^7.3.0":
-  version: 7.3.0
-  resolution: "@sentry/tracing@npm:7.3.0"
+"@sentry/tracing@npm:^7.8.1":
+  version: 7.8.1
+  resolution: "@sentry/tracing@npm:7.8.1"
   dependencies:
-    "@sentry/hub": 7.3.0
-    "@sentry/types": 7.3.0
-    "@sentry/utils": 7.3.0
+    "@sentry/hub": 7.8.1
+    "@sentry/types": 7.8.1
+    "@sentry/utils": 7.8.1
     tslib: ^1.9.3
-  checksum: e76d217d287d6cf74e2f1aabe57f9167e8d022f7bc0d9c721cb0aabc5e30043729cbfbc910a3c2f7930d211c2e8f7c4150e450ceaf0b50252255b4a63bbe576d
+  checksum: 30accfb7db611e04faccb32de46d7c9259a77f3a07a41f594b825bb7d26eb827c4dc3bcc7a3e39a4cb543edff588e0c38ba0927babfb4f9d549e3d8a578d8267
   languageName: node
   linkType: hard
 
-"@sentry/types@npm:7.3.0":
-  version: 7.3.0
-  resolution: "@sentry/types@npm:7.3.0"
-  checksum: 3ddbc3c7ebf2caad2d97a4c7a25f14791f642f7baadfa3c02857e433c0377ca7e6df4d3fc7e197717f2d6f8fca876178d01c827b5c1b42adba92115c62e18daf
+"@sentry/types@npm:7.8.1, @sentry/types@npm:^7.8.1":
+  version: 7.8.1
+  resolution: "@sentry/types@npm:7.8.1"
+  checksum: b06961923034b46d75a4cc2aef6658d14899f45483ff2c159dee281ab32c1180a5c972bfc5b443deece75ea815f9c7d05f1a77b52b559204dea6cbf8173660a7
   languageName: node
   linkType: hard
 
-"@sentry/types@npm:^7.5.0":
-  version: 7.5.0
-  resolution: "@sentry/types@npm:7.5.0"
-  checksum: ec049818c382cf46c3b66b8df2487b90411fe89ca0ad978e5d40bd6de4f0ae75af77afaf729662f9218fb0c33967e6a1ac71f7911697afa3d5e87c1ccd8d15f5
-  languageName: node
-  linkType: hard
-
-"@sentry/utils@npm:7.3.0":
-  version: 7.3.0
-  resolution: "@sentry/utils@npm:7.3.0"
+"@sentry/utils@npm:7.8.1":
+  version: 7.8.1
+  resolution: "@sentry/utils@npm:7.8.1"
   dependencies:
-    "@sentry/types": 7.3.0
+    "@sentry/types": 7.8.1
     tslib: ^1.9.3
-  checksum: 2696b1bfad1ad2e8e2aa7dd822fb0546d680b06aa302c3a8e8c8da0577fb9938da094f3eda589b2a1c216e1c84a81a5119b30136fd013de9c3a4513aece55d05
+  checksum: 7777e86885513fb5ef7baa22e71f0e4e8cbf8d00db6a00775444c2b3fe8d2935f39756374e058adb99673fb8618e0fb105d2f24f537ed60ce84977e68a2178f2
   languageName: node
   linkType: hard
 
-"@sentry/webpack-plugin@npm:^1.18.9":
-  version: 1.18.9
-  resolution: "@sentry/webpack-plugin@npm:1.18.9"
+"@sentry/webpack-plugin@npm:^1.19.0":
+  version: 1.19.0
+  resolution: "@sentry/webpack-plugin@npm:1.19.0"
   dependencies:
     "@sentry/cli": ^1.74.4
-  checksum: ff6edfebddd45a9d77686fe118661428ad309207b0ea6d579e38ea7edd0c390e7c84deb9e755bb0b5b118d628890e5be2146ace8c8ae72444d9d054c9c032a6d
+  checksum: 08a48378e0177f175337ef41107734aa6c1fcc76a806067d099048e71508184ee1b5b9889cc2ff4b9b2ef49242d1649ba1a47f5073d4173231c9ab60643fdba8
   languageName: node
   linkType: hard
 
@@ -6116,10 +6109,10 @@ __metadata:
     "@project-serum/borsh": ^0.2.5
     "@project-serum/sol-wallet-adapter": ^0.2.4
     "@sayari/eslint-plugin": ^0.0.1-rc.4
-    "@sentry/react": ^7.3.0
-    "@sentry/tracing": ^7.3.0
-    "@sentry/types": ^7.5.0
-    "@sentry/webpack-plugin": ^1.18.9
+    "@sentry/react": ^7.8.1
+    "@sentry/tracing": ^7.8.1
+    "@sentry/types": ^7.8.1
+    "@sentry/webpack-plugin": ^1.19.0
     "@solana/spl-token": ^0.1.8
     "@solana/web3.js": ^1.44.3
     "@storybook/addon-actions": ^6.5.9

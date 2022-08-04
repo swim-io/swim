@@ -18,9 +18,10 @@ export const SolanaTpsWarning = (): ReactElement => {
   const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
   const [chain] = chains[Protocol.Solana];
-  const { endpoint } = chain;
+  const { endpoints } = chain;
   // TODO: There is a bug with getRecentPerformanceSamples in which a new connection needs to be made.
   // Fix pending: https://github.com/solana-labs/solana/issues/19419
+  const endpoint = endpoints[0];
   const connection = useMemo<Connection>(() => {
     return new Connection(endpoint);
   }, [endpoint]);

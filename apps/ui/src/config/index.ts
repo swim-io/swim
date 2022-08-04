@@ -59,10 +59,12 @@ export const overrideLocalIp = (config: Config, ip: string): Config => ({
     [Protocol.Solana]: [
       {
         ...config.chains[Protocol.Solana][0],
-        endpoint: config.chains[Protocol.Solana][0].endpoint.replace(
-          LOCALHOST_REGEXP,
-          ip,
-        ),
+        endpoints: [
+          config.chains[Protocol.Solana][0].endpoints[0].replace(
+            LOCALHOST_REGEXP,
+            ip,
+          ),
+        ],
       },
       ...config.chains[Protocol.Solana].slice(1),
     ],

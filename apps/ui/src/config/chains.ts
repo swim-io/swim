@@ -87,7 +87,9 @@ export interface SolanaSpec extends ChainSpec {
   readonly ecosystem: SolanaEcosystemId;
   /** This should be unique for a given Env */
   readonly chainId: SolanaChainId;
+  // Note, subsequent endpoints are used as fallbacks for SolanaConnection.
   readonly endpoints: readonly string[];
+  // TODO: Remove since we're no longer using.
   readonly wsEndpoints: readonly string[];
   readonly tokenContract: string;
   readonly otterTotCollection: string;

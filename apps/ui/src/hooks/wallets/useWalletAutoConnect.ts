@@ -10,7 +10,7 @@ import { WalletServiceId, createAdapter } from "../../models";
 
 export const useWalletAutoConnect = (): null => {
   const { chains } = useEnvironment(selectConfig, shallow);
-  const [{ endpoint }] = chains[Protocol.Solana];
+  const [{ endpoints }] = chains[Protocol.Solana];
   const { connectService, selectedServiceByProtocol } = useWalletAdapter();
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export const useWalletAutoConnect = (): null => {
 
         if (serviceId) {
           try {
-            const adapter = createAdapter(serviceId, protocol, endpoint);
+            const adapter = createAdapter(serviceId, protocol, endpoints[0]);
             const options = { silentError: true };
             const timeoutForWalletToBeFound = 2000;
 

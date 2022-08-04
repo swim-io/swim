@@ -162,6 +162,9 @@ const TestPage = (): ReactElement => {
     if (!solanaWallet) {
       throw new Error("No Solana wallet");
     }
+    if (!wormholeConfig) {
+      throw new Error("No Wormhole RPC configured");
+    }
     const evmWallet =
       ecosystem === EcosystemId.Ethereum ? ethereumWallet : bnbWallet;
     if (!evmWallet) {
@@ -239,6 +242,9 @@ const TestPage = (): ReactElement => {
     }
     if (!bnbWallet) {
       throw new Error("No BNB wallet");
+    }
+    if (!wormholeConfig) {
+      throw new Error("No Wormhole RPC configured");
     }
 
     const splTokenEthereumSetupResult = await setUpSplTokensOnEvm(

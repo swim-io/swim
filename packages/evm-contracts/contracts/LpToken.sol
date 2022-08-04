@@ -15,15 +15,24 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 //
 //Of all those, only ERC20Upgradeable and OwnableUpgradeable have a non-empty initialize.
 contract LpToken is UUPSUpgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable {
+  uint8 public _decimals;
+
   function initialize(
     address owner,
     string memory name,
-    string memory symbol
+    string memory symbol,
+    uint8 __decimals
   ) external initializer returns (bool) {
+    _decimals = __decimals;
     __ERC20_init_unchained(name, symbol);
     __Ownable_init_unchained();
     _transferOwnership(owner);
     return true;
+  }
+
+  //because openzeppelin made it public instead of external, we have to override explicitly...
+  function decimals() public view override returns(uint8) {
+    return _decimals;
   }
 
   function mint(address recipient, uint256 amount) external onlyOwner {

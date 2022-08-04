@@ -7,7 +7,7 @@ interface IRouting {
   error Routing__ErrorMessage(string message);
   error Routing__TokenNotRegistered(bytes20 addressOrTokenNumber);
 
-  event TokenRegistered(uint16 indexed tokenId, address indexed tokenContract, address chainPool);
+  event TokenRegistered(uint16 indexed tokenId, address indexed tokenContract, address pool);
 
   event OnChainSwap(
     address indexed to,

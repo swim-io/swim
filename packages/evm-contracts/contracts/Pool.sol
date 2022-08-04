@@ -62,7 +62,8 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   function initialize(
     string memory lpTokenName,
     string memory lpTokenSymbol,
-    bytes32 lpSalt,
+    bytes32 lpTokenSalt,
+    uint8 lpTokenDecimals,
     int8 lpTokenEqualizer,
     address[] memory poolTokenAddresses,
     int8[] memory poolTokenEqualizers,
@@ -73,7 +74,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     address _governanceFeeRecipient
   ) public initializer {
     //moved to a separate function to avoid stack too deep
-    lpTokenData.addr = deployLpToken(lpTokenName, lpTokenSymbol, lpSalt);
+    lpTokenData.addr = deployLpToken(lpTokenName, lpTokenSymbol, lpTokenDecimals, lpTokenSalt);
     lpTokenData.equalizer = lpTokenEqualizer;
 
     uint _tokenCount = poolTokenAddresses.length + 1;
@@ -129,6 +130,10 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     if (msg.sender != governance)
       revert Pool_GovernanceOnly();
     _;
+  }
+
+  function getLpToken() external view returns(address) {
+    return lpTokenData.addr;
   }
 
   function getState() external view returns(PoolState memory) {
@@ -450,18 +455,23 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   // -------------------------------- INTERNAL --------------------------------
 
-  function deployLpToken(string memory lpTokenName, string memory lpTokenSymbol, bytes32 lpSalt)
-    internal returns (address) {
+  function deployLpToken(
+    string memory lpTokenName,
+    string memory lpTokenSymbol,
+    uint8 lpTokenDecimals,
+    bytes32 lpTokenSalt
+  ) internal returns (address) {
     try
       SWIM_FACTORY.createProxy(
         LP_TOKEN_LOGIC,
-        lpSalt,
+        lpTokenSalt,
         //abi.encodeCall(LpToken.initialize, (address(this), lpTokenName, lpTokenSymbol))
         abi.encodeWithSignature(
           "initialize(address,string,string)",
           address(this),
           lpTokenName,
-          lpTokenSymbol
+          lpTokenSymbol,
+          lpTokenDecimals
         )
       )
     returns (address lpTokenAddress) {

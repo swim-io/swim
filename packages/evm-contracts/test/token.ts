@@ -1,6 +1,5 @@
 import { expect } from "chai";
-import { ethers, deployments } from "hardhat";
-import { Contract, ContractFactory } from "ethers";
+import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { BN } from "bn.js";
 
@@ -14,7 +13,7 @@ describe("Token contract", function () {
     const Token = await ethers.getContractFactory("ERC20Token");
     const [owner, addr1, addr2] = await ethers.getSigners();
 
-    const hardhatToken = await Token.deploy(name, symbol);
+    const hardhatToken = await Token.deploy(name, symbol, 18);
 
     await hardhatToken.deployed();
 

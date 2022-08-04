@@ -4,39 +4,24 @@ import { task } from "hardhat/config";
 import { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
-import "@openzeppelin/hardhat-upgrades";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@typechain/hardhat";
-import "hardhat-deploy";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import { getContractAddress } from "@ethersproject/address";
+import { BigNumber, formatFixed } from "@ethersproject/bignumber";
 
 dotenv.config();
 const {
   FACTORY_MNEMONIC,
-  GOERLI_MNEMONIC,
-  BNB_TESTNET_MNEMONIC,
+  MNEMONIC,
   BSCSCAN_API_KEY,
   ETHERSCAN_API_KEY,
 } = process.env;
 
-task("accounts", "Prints the list of accounts", async (_, hre) => {
-  const named = await hre.getNamedAccounts();
-
-  for (const [name, address] of Object.entries(named)) {
-    console.log(name, address);
-  }
-
-  const unnamed = await hre.getUnnamedAccounts();
-  for (const address of unnamed) {
-    console.log(address);
-  }
-});
-
 task(
   "factoryAddress",
-  "Prints the address the SwimFactory will be deployed to given a deployer address",
+  "Prints the address the SwimFactory will be deployed to given the FACTORY_MNEMONIC",
   async (_, { ethers }) => {
     if (typeof FACTORY_MNEMONIC === "undefined") {
       console.log("Factory Mnemonic not set in environment");
@@ -47,29 +32,67 @@ task(
   }
 );
 
-//TODO doesn't work, how to deploy the factory and only the factory so I can call it's determine* functions?
+task("deploy", "run the deployment script",
+  async (_, hre) => {
+    await hre.run("compile");
+    await hre.run("run", {script:"scripts/deployment.ts"});
+});
+
+task("updates", "Updates a given proxy contract to a new implementation via updateTo",
+  async ({proxy, logic, owner}, hre) => {
+    const { ethers } = hre;
+    const _owner = owner ? await ethers.getSigner(owner) : (await ethers.getSigners())[0];
+    const _proxy = (await ethers.getContractAt("BlankLogic", proxy)).connect(_owner);
+    await _proxy.upgradeTo(logic);
+
+})
+.addPositionalParam("proxy", "address of the proxy that will be upgraded")
+.addPositionalParam("logic", "address of the logic contract that will serve as the new implementation")
+.addOptionalPositionalParam("owner", "owner who's authorized to execute the upgrade", "");
+
+task("pool-state", "Print state of given pool",
+  async ({pool}, {ethers}) => {
+    const [isPaused, balances, lpSupply, ampFactorDec, lpFeeDec, govFeeDec] =
+      await (await ethers.getContractAt("Pool", pool)).getState();
+    const decimaltoFixed = (decimal: [BigNumber, number]) => formatFixed(decimal[0], decimal[1]);
+    const getDecimals = async (address:string) =>
+      (await ethers.getContractAt("ERC20", address)).decimals();
+    const toTokenInfo = async (token: [string, BigNumber]) => ({
+      address: token[0],
+      amount: decimaltoFixed([token[1], await getDecimals(token[0])]),
+    });
+    const state = {
+      isPaused,
+      balances: await Promise.all(balances.map(toTokenInfo)),
+      lpSupply: await toTokenInfo(lpSupply),
+      ampFactor: decimaltoFixed(ampFactorDec),
+      lpFee: decimaltoFixed(lpFeeDec),
+      govFee: decimaltoFixed(govFeeDec),
+    };
+    console.log(JSON.stringify(state, null, 2));
+})
+.addPositionalParam("pool", "address of the pool");
+
 // task("logicAddress", "Prints the address a logic contract will be deployed to given a its salt",
 //   async ({logicContract, salt}, hre) => {
-//     hre.run("deploy", {tags: ["FactoryFromPresigned"]});
-//     const { getArtifact, read } = hre.deployments;
-//     const logicDeployedBytecode = await (await getArtifact(logicContract)).deployedBytecode;
-//     console.log(await read("SwimFactory", "determineLogicAddress", logicDeployedBytecode, salt));
+//     await hre.run("compile");
+//     //TODO
 //   },
-// ).addParam("logic", "name of the artifact/contract").addParam("salt");
+// ).addParam("logic", "name of the contract").addParam("salt");
+
 // task("proxyAddress", "Prints the address a proxy contract will be deployed to given its salt",
 //   async ({salt}, hre) => {
-//     hre.run("deploy", {tags: ["FactoryFromPresigned"]});
-//     const { read } = hre.deployments;
-//     console.log(await read("SwimFactory", "determineLogicAddress", salt));
+//     //TODO
 //   },
 // ).addParam("salt", "salt passed to the create2 call in SwimFactory");
 
 task("presign", "Generates and prints a Deterministic Factory tx", async (_, hre) => {
-  const { deployer } = await hre.getNamedAccounts();
-  const { ethers } = hre;
   await hre.run("compile");
+
+  const { ethers } = hre;
+  const [deployer] = await ethers.getSigners();
   const deployData = (await ethers.getContractFactory("SwimFactory")).getDeployTransaction(
-    deployer
+    deployer.address
   );
   const deployTx = {
     ...deployData,
@@ -88,7 +111,9 @@ task("presign", "Generates and prints a Deterministic Factory tx", async (_, hre
   console.log(signedTx);
 });
 
-const sharedNetworkConfig: HttpNetworkUserConfig = {};
+const sharedNetworkConfig: HttpNetworkUserConfig = {
+  accounts: {mnemonic: MNEMONIC!},
+};
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -99,7 +124,7 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 1000, // Optimize heavily for runtime gas cost rather than deployment gas cost
+        runs: 1, // Optimize heavily for runtime gas cost rather than deployment gas cost
       },
       outputSelection: {
         "*": {
@@ -119,38 +144,25 @@ const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
-      deploy: ["./deploy/hardhat/"],
-      loggingEnabled: false, //true,
-      autoImpersonate: true,
-      allowUnlimitedContractSize: true,
-      gasPrice: 20000000000,
-      gas: 60000000000,
+      loggingEnabled: false,
       chainId: 31337,
-      blockGasLimit: 60000893784,
-      // // If you want to do some forking, uncomment this
-      // forking: {
-      //   url: MAINNET_RPC_URL
-      // }
+      //allowUnlimitedContractSize: true,
+      //blockGasLimit: 1000000000000,
     },
     localhost: {
       url: "http://127.0.0.1:8545/", // yarn hardhat node -> spins node on local network as ganache
       // accounts: No need for this, generated by Hardhat!
       chainId: 31337,
-      allowUnlimitedContractSize: true,
     },
     goerli: {
       url: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
       chainId: 5,
-      accounts: {
-        mnemonic: GOERLI_MNEMONIC,
-      },
+      ...sharedNetworkConfig,
     },
     bnbtestnet: {
-      url: "https://data-seed-prebsc-2-s2.binance.org:8545",
+      url: "https://apis.ankr.com/f958c7d8af2244c686cad678b7b39fc8/40368bdfe11e91019e93b8797c65a1f3/binance/full/test",
       chainId: 97,
-      accounts: {
-        mnemonic: BNB_TESTNET_MNEMONIC,
-      },
+      ...sharedNetworkConfig,
     },
   },
   gasReporter: {
@@ -162,30 +174,6 @@ const config: HardhatUserConfig = {
     // apiKey: BSCSCAN_API_KEY,
     // apiKey: AVAXSCAN_APY_KEY,
     apiKey: ETHERSCAN_API_KEY,
-  },
-  namedAccounts: {
-    deployer: {
-      default: 0,
-    },
-    governance: {
-      default: 1,
-    },
-    governanceFeeRecipient: {
-      default: 2,
-    },
-    testLiquidityProvider: {
-      default: 10,
-    },
-    testUser: {
-      default: 11,
-    },
-  },
-  external: {
-    contracts: [
-      {
-        artifacts: "node_modules/hardhat-deploy/extendedArtifacts",
-      },
-    ],
   },
 };
 

@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/redeemer",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Swim Redeemer code.",
   "main": "build",
   "types": "types",

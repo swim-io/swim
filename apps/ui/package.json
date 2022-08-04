@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@certusone/wormhole-sdk": "^0.4.5",
-    "@craco/craco": "^6.4.3",
+    "@craco/craco": "^6.4.5",
     "@elastic/datemath": "^5.0.3",
     "@elastic/eui": "^38.2.0",
     "@ethers-ancillary/bsc": "^0.0.3",

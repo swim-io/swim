@@ -94,9 +94,10 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   );
 
   const feesEstimation = useSwapFeesEstimationQuery(fromToken, toToken);
-  const userNativeBalances = useUserNativeBalances(
-    [fromToken.nativeEcosystemId, toToken.nativeEcosystemId].filter(Boolean),
-  );
+  const userNativeBalances = useUserNativeBalances([
+    fromToken.nativeEcosystemId,
+    toToken.nativeEcosystemId,
+  ]);
 
   const inputAmount = defaultIfError(
     () => Amount.fromHumanString(fromToken, formInputAmount),

@@ -8,7 +8,7 @@ import { useSplTokenAccountsQuery } from "./useSplTokenAccountsQuery";
 export const useSplUserBalance = (
   mintAddress: string | null,
   {
-    enabled,
+    enabled = true,
   }: {
     /** Set this to `false` to disable automatic refetching when mounts
      * @defaultValue true
@@ -19,7 +19,7 @@ export const useSplUserBalance = (
   const { address: walletAddress } = useSolanaWallet();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery(
     undefined,
-    { enabled: enabled ?? true },
+    { enabled },
   );
   const splTokenAccount =
     mintAddress !== null && walletAddress !== null && splTokenAccounts !== null

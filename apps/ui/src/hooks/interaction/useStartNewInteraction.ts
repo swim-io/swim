@@ -7,7 +7,7 @@ export const useStartNewInteraction = (onMutateSuccess?: VoidFunction) => {
   const { addInteractionState } = useInteractionState();
   const { mutate } = useInteractionMutation();
   const createInteractionState = useCreateInteractionState({
-    onCreate(interactionState) {
+    onCreate: (interactionState): void => {
       addInteractionState(interactionState);
       mutate(interactionState.interaction.id, {
         onSuccess: onMutateSuccess,

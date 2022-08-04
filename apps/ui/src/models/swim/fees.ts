@@ -20,28 +20,26 @@ export const getLowBalanceWallets = (
   if (feesEstimation === null) {
     return [];
   }
-  return getRecordKeys(feesEstimation as FeesEstimation).filter(
-    (ecosystemId) => {
-      const fee = feesEstimation[ecosystemId];
-      if (!fee) {
-        throw new Error(`Cannot find fee in ${ecosystemId}`);
-      }
+  return getRecordKeys(feesEstimation).filter((ecosystemId) => {
+    const fee = feesEstimation[ecosystemId];
+    if (!fee) {
+      throw new Error(`Cannot find fee in ${ecosystemId}`);
+    }
 
-      const userNativeBalance = userNativeBalances[ecosystemId];
-      if (!userNativeBalance) {
-        throw new Error(`Cannot find user native balance in ${ecosystemId}`);
-      }
+    const userNativeBalance = userNativeBalances[ecosystemId];
+    if (!userNativeBalance) {
+      throw new Error(`Cannot find user native balance in ${ecosystemId}`);
+    }
 
-      if (
-        [EcosystemId.Acala, EcosystemId.Karura].includes(ecosystemId) &&
-        !fee.isZero() &&
-        userNativeBalance.lessThan(POLKADOT_EXISTENTIAL_DEPOSIT_AMOUNT.add(fee))
-      ) {
-        // If a Polkadot related tx is susceptible to dropping below the existential deposit requirement,
-        // their tx may fail (or their account may get reaped).
-        return true;
-      }
-      return userNativeBalance.lessThan(fee);
-    },
-  );
+    if (
+      [EcosystemId.Acala, EcosystemId.Karura].includes(ecosystemId) &&
+      !fee.isZero() &&
+      userNativeBalance.lessThan(POLKADOT_EXISTENTIAL_DEPOSIT_AMOUNT.add(fee))
+    ) {
+      // If a Polkadot related tx is susceptible to dropping below the existential deposit requirement,
+      // their tx may fail (or their account may get reaped).
+      return true;
+    }
+    return userNativeBalance.lessThan(fee);
+  });
 };

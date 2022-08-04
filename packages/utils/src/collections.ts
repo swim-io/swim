@@ -3,15 +3,15 @@ export type ReadonlyRecord<K extends string | number | symbol, T> = Readonly<
 >;
 
 export const getRecordKeys = <T extends string>(
-  record: ReadonlyRecord<T, unknown>,
+  record: Partial<ReadonlyRecord<T, unknown>>,
 ): readonly T[] => Object.keys(record) as unknown as readonly T[];
 
 export const getRecordValues = <K extends string, V>(
-  record: ReadonlyRecord<K, V>,
-): readonly V[] => Object.values<V>(record);
+  record: Partial<ReadonlyRecord<K, V>>,
+): readonly V[] => Object.values(record);
 
 export const getRecordEntries = <K extends string, V>(
-  record: ReadonlyRecord<K, V>,
+  record: Partial<ReadonlyRecord<K, V>>,
 ): readonly (readonly [K, V])[] =>
   Object.entries(record) as unknown as readonly (readonly [K, V])[];
 

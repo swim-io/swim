@@ -33,7 +33,9 @@ export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
 export const getAddressesByEcosystem = (
   wallets: Wallets,
 ): ReadonlyRecord<EcosystemId, string | null> =>
-  getRecordEntries(wallets).reduce<ReadonlyRecord<string, string | null>>(
+  getRecordEntries<EcosystemId, SolanaWalletInterface | EvmWalletInterface>(
+    wallets,
+  ).reduce<ReadonlyRecord<string, string | null>>(
     (accumulator, [ecosystemId, { address }]) => ({
       ...accumulator,
       [ecosystemId]: address,

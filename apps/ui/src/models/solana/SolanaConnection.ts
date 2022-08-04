@@ -74,6 +74,7 @@ export class SolanaConnection {
   private readonly wsEndpoints: readonly string[];
 
   constructor(endpoints: readonly string[], wsEndpoints: readonly string[]) {
+    console.log(endpoints[0]);
     this.endpoints = endpoints;
     this.wsEndpoints = wsEndpoints;
     this.rawConnections = endpoints.map((_) => null);
@@ -336,7 +337,7 @@ export class SolanaConnection {
 
   private incrementRpcProvider() {
     this.rawConnections[this.rpcIndex] = null;
-    this.rpcIndex += 1 % this.rawConnections.length;
+    this.rpcIndex = (this.rpcIndex + 1) % this.rawConnections.length;
     this.rawConnections[this.rpcIndex] = new CustomConnection(
       this.endpoints[this.rpcIndex],
       {

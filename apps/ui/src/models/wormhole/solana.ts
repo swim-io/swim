@@ -1,4 +1,6 @@
+import type { ChainId as WormholeChainId } from "@certusone/wormhole-sdk";
 import {
+  CHAINS as WORMHOLE_CHAIN_IDS,
   chunks,
   createPostVaaInstructionSolana,
   createVerifySignaturesInstructionsSolana,
@@ -15,11 +17,7 @@ import type {
 import { PublicKey } from "@solana/web3.js";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
-import {
-  EcosystemId,
-  WormholeChainId,
-  getSolanaTokenDetails,
-} from "../../config";
+import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import type { SolanaTx } from "../crossEcosystem";
 import type { SolanaConnection } from "../solana";
 import {
@@ -185,7 +183,7 @@ export async function* generateUnlockSplTokenTxIds(
     throw new Error("No Solana public key");
   }
   const retries =
-    wormholeChainId === WormholeChainId.Polygon
+    wormholeChainId === WORMHOLE_CHAIN_IDS.polygon
       ? POLYGON_WORMHOLE_RETRIES
       : DEFAULT_WORMHOLE_RETRIES;
   const { vaaBytes } = await getSignedVaaWithRetry(
@@ -238,7 +236,7 @@ export const unlockSplToken = async (
     throw new Error("No Solana public key");
   }
   const retries =
-    wormholeChainId === WormholeChainId.Polygon
+    wormholeChainId === WORMHOLE_CHAIN_IDS.polygon
       ? POLYGON_WORMHOLE_RETRIES
       : DEFAULT_WORMHOLE_RETRIES;
   const { vaaBytes } = await getSignedVaaWithRetry(

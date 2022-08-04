@@ -1,3 +1,5 @@
+import type { ChainId as WormholeChainId } from "@certusone/wormhole-sdk";
+import { CHAINS as WORMHOLE_CHAIN_IDS } from "@certusone/wormhole-sdk";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { filterMap } from "@swim-io/utils";
 
@@ -10,8 +12,6 @@ import FANTOM_SVG from "../images/ecosystems/fantom.svg";
 import KARURA_SVG from "../images/ecosystems/karura.svg";
 import POLYGON_SVG from "../images/ecosystems/polygon.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
-
-import { WormholeChainId } from "./wormhole";
 
 export const enum Protocol {
   Solana = "solana-protocol",
@@ -110,7 +110,7 @@ export const ECOSYSTEM_LIST: readonly Ecosystem[] = [
   {
     id: EcosystemId.Solana,
     protocol: Protocol.Solana,
-    wormholeChainId: WormholeChainId.Solana,
+    wormholeChainId: WORMHOLE_CHAIN_IDS.solana,
     displayName: "Solana",
     logo: SOLANA_SVG,
     nativeTokenSymbol: "SOL",
@@ -118,7 +118,7 @@ export const ECOSYSTEM_LIST: readonly Ecosystem[] = [
   {
     id: EcosystemId.Ethereum,
     protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Ethereum,
+    wormholeChainId: WORMHOLE_CHAIN_IDS.ethereum,
     displayName: "Ethereum",
     logo: ETHEREUM_SVG,
     nativeTokenSymbol: "ETH",
@@ -126,7 +126,7 @@ export const ECOSYSTEM_LIST: readonly Ecosystem[] = [
   {
     id: EcosystemId.Bnb,
     protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Bnb,
+    wormholeChainId: WORMHOLE_CHAIN_IDS.bsc,
     displayName: "BNB Chain",
     logo: BNB_SVG,
     nativeTokenSymbol: "BNB",
@@ -134,7 +134,7 @@ export const ECOSYSTEM_LIST: readonly Ecosystem[] = [
   {
     id: EcosystemId.Avalanche,
     protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Avalanche,
+    wormholeChainId: WORMHOLE_CHAIN_IDS.avalanche,
     displayName: "Avalanche",
     logo: AVALANCHE_SVG,
     nativeTokenSymbol: "AVAX",
@@ -142,7 +142,7 @@ export const ECOSYSTEM_LIST: readonly Ecosystem[] = [
   {
     id: EcosystemId.Polygon,
     protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Polygon,
+    wormholeChainId: WORMHOLE_CHAIN_IDS.polygon,
     displayName: "Polygon",
     logo: POLYGON_SVG,
     nativeTokenSymbol: "MATIC",
@@ -150,7 +150,7 @@ export const ECOSYSTEM_LIST: readonly Ecosystem[] = [
   {
     id: EcosystemId.Aurora,
     protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Aurora,
+    wormholeChainId: WORMHOLE_CHAIN_IDS.aurora,
     displayName: "Aurora",
     logo: AURORA_SVG,
     nativeTokenSymbol: "ETH",
@@ -158,7 +158,7 @@ export const ECOSYSTEM_LIST: readonly Ecosystem[] = [
   {
     id: EcosystemId.Fantom,
     protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Fantom,
+    wormholeChainId: WORMHOLE_CHAIN_IDS.fantom,
     displayName: "Fantom",
     logo: FANTOM_SVG,
     nativeTokenSymbol: "FTM",
@@ -166,7 +166,7 @@ export const ECOSYSTEM_LIST: readonly Ecosystem[] = [
   {
     id: EcosystemId.Karura,
     protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Karura,
+    wormholeChainId: WORMHOLE_CHAIN_IDS.karura,
     displayName: "Karura",
     logo: KARURA_SVG,
     nativeTokenSymbol: "KAR",
@@ -174,7 +174,7 @@ export const ECOSYSTEM_LIST: readonly Ecosystem[] = [
   {
     id: EcosystemId.Acala,
     protocol: Protocol.Evm,
-    wormholeChainId: WormholeChainId.Acala,
+    wormholeChainId: WORMHOLE_CHAIN_IDS.acala,
     displayName: "Acala",
     logo: ACALA_SVG,
     nativeTokenSymbol: "ACA",

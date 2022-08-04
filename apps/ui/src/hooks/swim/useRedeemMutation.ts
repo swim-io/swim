@@ -36,6 +36,9 @@ export const useRedeemMutation = (
   const { redeemer } = useEnvironment(selectConfig, shallow);
   const queryClient = useQueryClient();
   return useMutation(async (): Promise<string> => {
+    if (!redeemer) {
+      throw new Error("Missing Redeemer config");
+    }
     if (!nft || !nft.metadata.collection || !anchorProvider) {
       throw new Error(
         "Calling 'redeem' requires a connected wallet and an NFT",

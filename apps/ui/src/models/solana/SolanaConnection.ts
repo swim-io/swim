@@ -74,7 +74,6 @@ export class SolanaConnection {
   private readonly wsEndpoints: readonly string[];
 
   constructor(endpoints: readonly string[], wsEndpoints: readonly string[]) {
-    console.log(endpoints[0]);
     this.endpoints = endpoints;
     this.wsEndpoints = wsEndpoints;
     this.rawConnections = endpoints.map((_) => null);

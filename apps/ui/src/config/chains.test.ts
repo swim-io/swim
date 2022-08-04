@@ -3,7 +3,7 @@ import { Env } from "@swim-io/core";
 import { getRecordValues, getUniqueSize } from "@swim-io/utils";
 import { utils } from "ethers";
 
-import { CHAINS as chainsByEnv } from "./chains";
+import { CHAINS as chainsByEnv, EvmSpec, SolanaSpec } from "./chains";
 import type { EcosystemId } from "./ecosystem";
 import { Protocol } from "./ecosystem";
 
@@ -19,7 +19,10 @@ const generateSuite = (env: Env): void => {
     });
 
     it("specifies no more than one chain per ecosystem", () => {
-      const ecosystems = getRecordValues(chains).reduce<readonly EcosystemId[]>(
+      const ecosystems = getRecordValues<
+        Protocol,
+        readonly (SolanaSpec | EvmSpec)[]
+      >(chains).reduce<readonly EcosystemId[]>(
         (accumulator, chainSpecs) => [
           ...accumulator,
           ...chainSpecs.map((chainSpec) => chainSpec.ecosystem),

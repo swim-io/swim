@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
 import "../PoolErrors.sol";
@@ -16,7 +16,7 @@ struct Decimal {
 struct PoolState {
   bool paused;
   TokenBalance[] balances;
-  TokenBalance totalLPSupply;
+  TokenBalance totalLpSupply;
   Decimal ampFactor;
   Decimal lpFee;
   Decimal governanceFee;

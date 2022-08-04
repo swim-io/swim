@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: TODO
+//SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
@@ -31,7 +31,7 @@ contract LpToken is UUPSUpgradeable, ERC20BurnableUpgradeable, OwnableUpgradeabl
   }
 
   //because openzeppelin made it public instead of external, we have to override explicitly...
-  function decimals() public view override returns(uint8) {
+  function decimals() public view override returns (uint8) {
     return _decimals;
   }
 

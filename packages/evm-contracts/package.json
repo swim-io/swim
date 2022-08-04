@@ -1,8 +1,24 @@
 {
-  "name": "@swim-io/contracts",
-  "version": "0.1.0",
+  "name": "@swim-io/evm-contracts",
+  "version": "0.3.0",
   "description": "",
   "private": true,
+  "scripts": {
+    "start": "hardhat node",
+    "deploy": "hardhat deploy",
+    "update": "hardhat update",
+    "pool-state": "hardhat pool-state",
+    "compile": "hardhat compile",
+    "clean": "hardhat clean",
+    "test": "hardhat test",
+    "test:staging": "hardhat test --network rinkeby",
+    "test:fixtures": "hardhat test --deploy-fixture --network localhost",
+    "transfer-ownership": "hardhat run scripts/transfer_ownership.ts",
+    "lint": "solhint 'contracts/*.sol'",
+    "lint:fix": "solhint 'contracts/*.sol' --fix",
+    "format": "prettier --write .",
+    "coverage": "hardhat coverage"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.2",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.3",
@@ -11,6 +27,8 @@
     "@openzeppelin/contracts": "^4.7.2",
     "@openzeppelin/contracts-upgradeable": "^4.7.2",
     "@openzeppelin/hardhat-upgrades": "^1.19.1",
+    "@swim-io/eslint-config": "workspace:^",
+    "@swim-io/tsconfig": "workspace:^",
     "@typechain/ethers-v5": "^10.1.0",
     "@typechain/hardhat": "^6.1.2",
     "@types/chai": "^4.3.1",
@@ -38,23 +56,6 @@
     "solidity-coverage": "^0.7.21",
     "ts-node": "^10.9.1",
     "typechain": "^8.1.0",
-    "typescript": "^4.7.4",
-    "xdeployer": "^1.1.16"
-  },
-  "scripts": {
-    "start": "hardhat node",
-    "deploy": "hardhat deploy",
-    "update": "hardhat update",
-    "pool-state": "hardhat pool-state",
-    "compile": "hardhat compile",
-    "clean": "hardhat clean",
-    "test": "hardhat test",
-    "test:staging": "hardhat test --network rinkeby",
-    "test:fixtures": "hardhat test --deploy-fixture --network localhost",
-    "transfer-ownership": "hardhat run scripts/transfer_ownership.ts",
-    "lint": "solhint 'contracts/*.sol'",
-    "lint:fix": "solhint 'contracts/*.sol' --fix",
-    "format": "prettier --write .",
-    "coverage": "hardhat coverage"
+    "typescript": "^4.7.4"
   }
 }

@@ -6157,49 +6157,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/contracts@workspace:packages/evm-contracts":
-  version: 0.0.0-use.local
-  resolution: "@swim-io/contracts@workspace:packages/evm-contracts"
-  dependencies:
-    "@nomicfoundation/hardhat-chai-matchers": ^1.0.2
-    "@nomicfoundation/hardhat-network-helpers": ^1.0.3
-    "@nomiclabs/hardhat-ethers": ^2.1.0
-    "@nomiclabs/hardhat-etherscan": ^3.1.0
-    "@openzeppelin/contracts": ^4.7.2
-    "@openzeppelin/contracts-upgradeable": ^4.7.2
-    "@openzeppelin/hardhat-upgrades": ^1.19.1
-    "@typechain/ethers-v5": ^10.1.0
-    "@typechain/hardhat": ^6.1.2
-    "@types/chai": ^4.3.1
-    "@types/mocha": ^9.1.1
-    "@types/node": ^18.6.2
-    "@typescript-eslint/eslint-plugin": ^5.31.0
-    "@typescript-eslint/parser": ^5.31.0
-    chai: ^4.3.6
-    chai-bn: ^0.3.1
-    dotenv: ^16.0.1
-    eslint: ^8.20.0
-    eslint-config-prettier: ^8.5.0
-    eslint-config-standard: ^17.0.0
-    eslint-plugin-import: ^2.26.0
-    eslint-plugin-node: ^11.1.0
-    eslint-plugin-prettier: ^4.2.1
-    eslint-plugin-promise: ^6.0.0
-    ethers: ^5.6.9
-    hardhat: ^2.10.1
-    hardhat-gas-reporter: ^1.0.8
-    prettier: ^2.7.1
-    prettier-plugin-solidity: ^1.0.0-dev.23
-    solc: ^0.8.15
-    solhint: ^3.3.7
-    solidity-coverage: ^0.7.21
-    ts-node: ^10.9.1
-    typechain: ^8.1.0
-    typescript: ^4.7.4
-    xdeployer: ^1.1.16
-  languageName: unknown
-  linkType: soft
-
 "@swim-io/core@npm:^0.10.0":
   version: 0.10.0
   resolution: "@swim-io/core@npm:0.10.0"
@@ -6270,6 +6227,50 @@ __metadata:
       optional: true
     eslint-plugin-react:
       optional: true
+  languageName: unknown
+  linkType: soft
+
+"@swim-io/evm-contracts@workspace:packages/evm-contracts":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/evm-contracts@workspace:packages/evm-contracts"
+  dependencies:
+    "@nomicfoundation/hardhat-chai-matchers": ^1.0.2
+    "@nomicfoundation/hardhat-network-helpers": ^1.0.3
+    "@nomiclabs/hardhat-ethers": ^2.1.0
+    "@nomiclabs/hardhat-etherscan": ^3.1.0
+    "@openzeppelin/contracts": ^4.7.2
+    "@openzeppelin/contracts-upgradeable": ^4.7.2
+    "@openzeppelin/hardhat-upgrades": ^1.19.1
+    "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/tsconfig": "workspace:^"
+    "@typechain/ethers-v5": ^10.1.0
+    "@typechain/hardhat": ^6.1.2
+    "@types/chai": ^4.3.1
+    "@types/mocha": ^9.1.1
+    "@types/node": ^18.6.2
+    "@typescript-eslint/eslint-plugin": ^5.31.0
+    "@typescript-eslint/parser": ^5.31.0
+    chai: ^4.3.6
+    chai-bn: ^0.3.1
+    dotenv: ^16.0.1
+    eslint: ^8.20.0
+    eslint-config-prettier: ^8.5.0
+    eslint-config-standard: ^17.0.0
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-node: ^11.1.0
+    eslint-plugin-prettier: ^4.2.1
+    eslint-plugin-promise: ^6.0.0
+    ethers: ^5.6.9
+    hardhat: ^2.10.1
+    hardhat-gas-reporter: ^1.0.8
+    prettier: ^2.7.1
+    prettier-plugin-solidity: ^1.0.0-dev.23
+    solc: ^0.8.15
+    solhint: ^3.3.7
+    solidity-coverage: ^0.7.21
+    ts-node: ^10.9.1
+    typechain: ^8.1.0
+    typescript: ^4.7.4
   languageName: unknown
   linkType: soft
 
@@ -31032,17 +31033,6 @@ __metadata:
   bin:
     x-default-browser: bin/x-default-browser.js
   checksum: 9649fe6b4b91de93d5a48a5042b55a6e15c87d2514bc4f2e12582f8b25c1a6810fafc6f4c454fb531540e431e32a0a26ac130e418c0ce5c6ca892fb01945ea9e
-  languageName: node
-  linkType: hard
-
-"xdeployer@npm:^1.1.16":
-  version: 1.1.16
-  resolution: "xdeployer@npm:1.1.16"
-  peerDependencies:
-    "@nomiclabs/hardhat-ethers": ^2.1.0
-    "@openzeppelin/contracts": ^4.7.0
-    hardhat: ^2.10.1
-  checksum: 8f9d34ef560f543915d51e7f080324ffce4436a6fe130f9b25b675c09568197f2543d8633112e8b75882cae044ddcb44016d4a4d45c4f0ff6c3921d0415ed63e
   languageName: node
   linkType: hard
 

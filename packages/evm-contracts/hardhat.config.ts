@@ -12,12 +12,7 @@ import { getContractAddress } from "@ethersproject/address";
 import { BigNumber, formatFixed } from "@ethersproject/bignumber";
 
 dotenv.config();
-const {
-  FACTORY_MNEMONIC,
-  MNEMONIC,
-  BSCSCAN_API_KEY,
-  ETHERSCAN_API_KEY,
-} = process.env;
+const { FACTORY_MNEMONIC, MNEMONIC, BSCSCAN_API_KEY, ETHERSCAN_API_KEY } = process.env;
 
 task(
   "factoryAddress",
@@ -32,46 +27,49 @@ task(
   }
 );
 
-task("deploy", "run the deployment script",
-  async (_, hre) => {
-    await hre.run("compile");
-    await hre.run("run", {script:"scripts/deployment.ts"});
+task("deploy", "run the deployment script", async (_, hre) => {
+  await hre.run("compile");
+  await hre.run("run", { script: "scripts/deployment.ts" });
 });
 
-task("updates", "Updates a given proxy contract to a new implementation via updateTo",
-  async ({proxy, logic, owner}, hre) => {
+task(
+  "updates",
+  "Updates a given proxy contract to a new implementation via updateTo",
+  async ({ proxy, logic, owner }, hre) => {
     const { ethers } = hre;
     const _owner = owner ? await ethers.getSigner(owner) : (await ethers.getSigners())[0];
     const _proxy = (await ethers.getContractAt("BlankLogic", proxy)).connect(_owner);
     await _proxy.upgradeTo(logic);
+  }
+)
+  .addPositionalParam("proxy", "address of the proxy that will be upgraded")
+  .addPositionalParam(
+    "logic",
+    "address of the logic contract that will serve as the new implementation"
+  )
+  .addOptionalPositionalParam("owner", "owner who's authorized to execute the upgrade", "");
 
-})
-.addPositionalParam("proxy", "address of the proxy that will be upgraded")
-.addPositionalParam("logic", "address of the logic contract that will serve as the new implementation")
-.addOptionalPositionalParam("owner", "owner who's authorized to execute the upgrade", "");
-
-task("pool-state", "Print state of given pool",
-  async ({pool}, {ethers}) => {
-    const [isPaused, balances, lpSupply, ampFactorDec, lpFeeDec, govFeeDec] =
-      await (await ethers.getContractAt("Pool", pool)).getState();
-    const decimaltoFixed = (decimal: [BigNumber, number]) => formatFixed(decimal[0], decimal[1]);
-    const getDecimals = async (address:string) =>
-      (await ethers.getContractAt("ERC20", address)).decimals();
-    const toTokenInfo = async (token: [string, BigNumber]) => ({
-      address: token[0],
-      amount: decimaltoFixed([token[1], await getDecimals(token[0])]),
-    });
-    const state = {
-      isPaused,
-      balances: await Promise.all(balances.map(toTokenInfo)),
-      lpSupply: await toTokenInfo(lpSupply),
-      ampFactor: decimaltoFixed(ampFactorDec),
-      lpFee: decimaltoFixed(lpFeeDec),
-      govFee: decimaltoFixed(govFeeDec),
-    };
-    console.log(JSON.stringify(state, null, 2));
-})
-.addPositionalParam("pool", "address of the pool");
+task("pool-state", "Print state of given pool", async ({ pool }, { ethers }) => {
+  const [isPaused, balances, lpSupply, ampFactorDec, lpFeeDec, govFeeDec] = await (
+    await ethers.getContractAt("Pool", pool)
+  ).getState();
+  const decimaltoFixed = (decimal: [BigNumber, number]) => formatFixed(decimal[0], decimal[1]);
+  const getDecimals = async (address: string) =>
+    (await ethers.getContractAt("ERC20", address)).decimals();
+  const toTokenInfo = async (token: [string, BigNumber]) => ({
+    address: token[0],
+    amount: decimaltoFixed([token[1], await getDecimals(token[0])]),
+  });
+  const state = {
+    isPaused,
+    balances: await Promise.all(balances.map(toTokenInfo)),
+    lpSupply: await toTokenInfo(lpSupply),
+    ampFactor: decimaltoFixed(ampFactorDec),
+    lpFee: decimaltoFixed(lpFeeDec),
+    govFee: decimaltoFixed(govFeeDec),
+  };
+  console.log(JSON.stringify(state, null, 2));
+}).addPositionalParam("pool", "address of the pool");
 
 // task("logicAddress", "Prints the address a logic contract will be deployed to given a its salt",
 //   async ({logicContract, salt}, hre) => {
@@ -112,7 +110,7 @@ task("presign", "Generates and prints a Deterministic Factory tx", async (_, hre
 });
 
 const sharedNetworkConfig: HttpNetworkUserConfig = {
-  accounts: {mnemonic: MNEMONIC!},
+  accounts: { mnemonic: MNEMONIC! },
 };
 
 // You need to export an object to set up your config

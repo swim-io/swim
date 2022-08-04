@@ -12,7 +12,7 @@ interface ITokenBridge {
     bytes32 recipient,
     uint32 nonce,
     bytes memory payload
-  ) external payable returns (uint64);
+  ) external payable returns (uint64 sequence);
 
   function transferTokens(
     address token,

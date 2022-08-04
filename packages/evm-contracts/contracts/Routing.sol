@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: TODO
+//SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
@@ -78,7 +78,7 @@ contract Routing is
    * @param toOwner the address of token beneficiary
    * @param inputAmount the amount of tokens the user wants to swap from
    * @param minimumOutputAmount the min amount the user would like to receive, or revert
-   * @return outputAmount The amount of tokent that will be received
+   * @return outputAmount The amount of tokens that will be received
    */
 
   function onChainSwap(
@@ -87,7 +87,7 @@ contract Routing is
     address toOwner,
     address toToken,
     uint256 minimumOutputAmount
-  ) public payable whenNotPaused returns (uint256 outputAmount) {
+  ) external payable whenNotPaused returns (uint256 outputAmount) {
     (address fromPool, uint8 fromIndex) = getPoolAndIndex(fromToken);
     (address toPool, uint8 toIndex) = getPoolAndIndex(toToken);
 
@@ -178,7 +178,7 @@ contract Routing is
   }
 
   /**
-   * @notice Complete a contract-controlled transfer of  an ERC20 token and swaps for toToken in parameters.
+   * @notice Complete a contract-controlled transfer of an ERC20 token and swaps for toToken in parameters.
    * If swap fails, user receives swimUsd token
    * @dev The transaction can only be redeemed by the recipient, logical owner.
    * @param encodedVm A byte array containing a VAA signed by the guardians.

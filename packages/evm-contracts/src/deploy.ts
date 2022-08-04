@@ -135,12 +135,8 @@ export async function deployLogic(name: string, salt?: string): Promise<Contract
   const bytecode = (await ethers.getContractFactory(name)).bytecode;
   const swimFactory = await ethers.getContractAt("SwimFactory", SWIM_FACTORY_ADDRESS);
   const logicAddress = await swimFactory.determineLogicAddress(bytecode, deploySalt);
-  console.log("logicAddress", logicAddress);
-  if (!await isDeployed(logicAddress)) {
-    console.log("not deployed", bytecode.length);
+  if (!await isDeployed(logicAddress))
     await swimFactory.createLogic(bytecode, deploySalt);
-    console.log("deployed");
-  }
 
   return ethers.getContractAt(name, logicAddress);
 };

@@ -1,6 +1,5 @@
 import type { EcosystemId, EvmEcosystemId } from "../config";
 import { isEvmEcosystemId } from "../config";
-;
 
 import type { Amount } from "./amount";
 

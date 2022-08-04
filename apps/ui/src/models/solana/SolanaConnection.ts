@@ -391,7 +391,6 @@ export class SolanaConnection {
         }
       }
     }
-    // NOTE: This check is only here for type safety and should never happen
     throw retryFailureError;
   }
 }

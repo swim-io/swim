@@ -8,15 +8,16 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { Connection, PublicKey } from "@solana/web3.js";
+import { sleep } from "@swim-io/utils";
 
 import { SwimError } from "../../errors";
-import { callWithRetry } from "../utils";
 
 import { deserializeTokenAccount } from "./parsers";
 import { getAssociatedTokenAddress } from "./utils";
 
 export const DEFAULT_MAX_RETRIES = 10;
 export const DEFAULT_COMMITMENT_LEVEL: Finality = "confirmed";
+const DEFAULT_SLEEP_MS = 1000;
 
 interface GetSolanaTransactionOptions {
   readonly maxRetries?: number;
@@ -77,7 +78,6 @@ export class SolanaConnection {
     this.wsEndpoints = wsEndpoints;
     this.rawConnections = endpoints.map((_) => null);
     this.incrementRpcProvider();
-
     // NOTE: This design assumes no tx ID collisions between different environments eg Mainnet-beta and devnet.
     this.txCache = new Map<string, TransactionResponse>();
     this.parsedTxCache = new Map<string, ParsedTransactionWithMeta>();
@@ -87,9 +87,8 @@ export class SolanaConnection {
     const connection = this.rawConnections[this.rpcIndex];
     if (connection === null) {
       throw new SwimError("Solana connection is uninitialized");
-    } else {
-      return connection;
     }
+    return connection;
   }
 
   async confirmTx(
@@ -107,27 +106,20 @@ export class SolanaConnection {
     if (signatureStatus) {
       return signatureStatus;
     }
-    return callWithRetry(
+    return this.callWithRetry(
       async () => {
-        try {
-          const latestBlock = await this.rawConnection.getLatestBlockhash();
-          // If the Solana network is busy this can time out
-          return await this.rawConnection.confirmTransaction(
-            {
-              signature: txId,
-              blockhash: latestBlock.blockhash,
-              lastValidBlockHeight: latestBlock.lastValidBlockHeight,
-            },
-            commitmentLevel,
-          );
-        } catch (error) {
-          throw new SwimError(
-            `Transaction with ID ${txId} did not confirm`,
-            error,
-          );
-        }
+        const latestBlock = await this.rawConnection.getLatestBlockhash();
+        // If the Solana network is busy this can time out
+        return await this.rawConnection.confirmTransaction(
+          {
+            signature: txId,
+            blockhash: latestBlock.blockhash,
+            lastValidBlockHeight: latestBlock.lastValidBlockHeight,
+          },
+          commitmentLevel,
+        );
       },
-      () => this.incrementRpcProvider(),
+      new SwimError(`Transaction with ID ${txId} did not confirm`),
       maxRetries,
     );
   }
@@ -184,20 +176,20 @@ export class SolanaConnection {
       maxRetries,
       commitmentLevel,
     });
+
     // NOTE: Sometimes txs aren’t found straightaway even after confirming.
     // So we retry getting the tx too if necessary.
-    return callWithRetry(
+    return this.callWithRetry(
       async () => {
         const txResponse = await this.rawConnection.getTransaction(txId, {
           commitment: commitmentLevel,
         });
         if (txResponse !== null) {
           this.txCache.set(txId, txResponse);
-          return txResponse;
         }
-        throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+        return txResponse;
       },
-      () => this.incrementRpcProvider(),
+      new SwimError(`Transaction with ID ${txId} did not confirm`),
       maxRetries,
     );
   }
@@ -219,7 +211,10 @@ export class SolanaConnection {
       maxRetries,
       commitmentLevel,
     });
-    return callWithRetry(
+
+    // NOTE: Sometimes txs aren’t found straightaway even after confirming.
+    // So we retry getting the tx too if necessary.
+    return this.callWithRetry(
       async () => {
         const txResponse = await this.rawConnection.getParsedTransaction(
           txId,
@@ -227,11 +222,10 @@ export class SolanaConnection {
         );
         if (txResponse !== null) {
           this.parsedTxCache.set(txId, txResponse);
-          return txResponse;
         }
-        throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+        return txResponse;
       },
-      () => this.incrementRpcProvider(),
+      new SwimError(`Transaction with ID ${txId} did not confirm`),
       maxRetries,
     );
   }
@@ -243,7 +237,7 @@ export class SolanaConnection {
       commitmentLevel = undefined,
     }: GetSolanaTransactionOptions = {},
   ): Promise<readonly ParsedTransactionWithMeta[]> {
-    return callWithRetry(
+    return this.callWithRetry(
       async () => {
         const missingTxIds = txIds.filter(
           (txId) => !this.parsedTxCache.get(txId),
@@ -268,9 +262,9 @@ export class SolanaConnection {
             this.parsedTxCache.set(missingTxIds[i], txResponse);
           }
         });
-        throw new SwimError(`One or more transactions did not confirm`);
+        return null;
       },
-      () => this.incrementRpcProvider(),
+      new SwimError(`One or more transactions did not confirm`),
       maxRetries,
     );
   }
@@ -289,7 +283,7 @@ export class SolanaConnection {
       mintPubkey,
       ownerPubkey,
     ).toBase58();
-    return callWithRetry(
+    return this.callWithRetry(
       async () => {
         const { value: accounts } =
           await this.rawConnection.getTokenAccountsByOwner(
@@ -309,11 +303,11 @@ export class SolanaConnection {
             tokenAccount.account.data,
           );
         }
-        throw new Error(
-          "Successfully created SPL token account but failed to fetch it",
-        );
+        return null;
       },
-      () => this.incrementRpcProvider(),
+      new SwimError(
+        "Successfully created SPL token account but failed to fetch it",
+      ),
       maxRetries,
     );
   }
@@ -341,6 +335,7 @@ export class SolanaConnection {
   }
 
   private incrementRpcProvider() {
+    this.rawConnections[this.rpcIndex] = null;
     this.rpcIndex += 1 % this.rawConnections.length;
     this.rawConnections[this.rpcIndex] = new CustomConnection(
       this.endpoints[this.rpcIndex],
@@ -372,5 +367,31 @@ export class SolanaConnection {
     );
     this.removeAccountChangeListener =
       this.rawConnection.removeAccountChangeListener.bind(this.rawConnection);
+  }
+
+  private async callWithRetry<T>(
+    fn: () => Promise<T | null>,
+    retryFailureError: SwimError,
+    maxRetries: number,
+    sleepy = DEFAULT_SLEEP_MS,
+  ): Promise<T> {
+    let attempts = 0;
+    let returnValue = null;
+    while (returnValue === null) {
+      attempts++;
+      try {
+        returnValue = await fn();
+      } catch (error: unknown) {
+        if (attempts >= maxRetries) {
+          throw error;
+        } else if (error instanceof Error && error.name === "NetworkError") {
+          this.incrementRpcProvider();
+        } else {
+          await sleep(sleepy);
+        }
+      }
+    }
+    // NOTE: This check is only here for type safety and should never happen
+    throw retryFailureError;
   }
 }

@@ -14,12 +14,6 @@ export const useSolanaConnection = (): SolanaConnection => {
   const [chain] = chains[Protocol.Solana];
   const { endpoints, wsEndpoints } = chain;
 
-<<<<<<< HEAD
-  const connection = useMemo(
-    () => new SolanaConnection(endpoints, wsEndpoints),
-    [endpoints, wsEndpoints],
-  );
-=======
   const queryClient = useQueryClient();
   const queryKey = [env, "solanaConnection"];
 
@@ -27,11 +21,10 @@ export const useSolanaConnection = (): SolanaConnection => {
     // used as context cache to avoid multiple instances
     queryClient.getQueryData<SolanaConnection>(queryKey) ||
     (function createSolanaConnection(): SolanaConnection {
-      const solanaConnection = new SolanaConnection(endpoint, wsEndpoint);
+      const solanaConnection = new SolanaConnection(endpoints, wsEndpoints);
       queryClient.setQueryData(queryKey, solanaConnection);
       return solanaConnection;
     })();
->>>>>>> 1c2e272c0c4dd07665990e32e0a921de922e5b22
 
   // The websocket library solana/web3.js uses closes its websocket connection when the subscription list
   // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.

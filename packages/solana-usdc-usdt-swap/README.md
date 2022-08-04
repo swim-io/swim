@@ -35,10 +35,11 @@ const slippageFraction = 0.005; // 0.5%
 // Fetch Swim Hexapool state and initialize pool math
 const swimPool = await fetchSwimPool(solanaConnection);
 const poolMath = createPoolMath(swimPool);
+const nonSolanaNativeTokenInputAmounts = new Array(4).fill(new Decimal(0));
 
 // Calculate expected output for current state
 const { stableOutputAmount } = poolMath.swapExactInput(
-  [inputAmount, new Decimal(0)],
+  [inputAmount, new Decimal(0), ...nonSolanaNativeTokenInputAmounts],
   outputTokenIndex,
 );
 console.log(
@@ -67,7 +68,11 @@ const approveAndSwapIxs = createApproveAndSwapIx(
 );
 
 // Build a transaction and submit it to the Solana blockchain
+const { blockhash, lastValidBlockHeight } =
+  await solanaConnection.getLatestBlockhash();
 const tx = new Transaction({
+  blockhash,
+  lastValidBlockHeight,
   feePayer: ownerPublicKey,
 });
 tx.add(...approveAndSwapIxs);

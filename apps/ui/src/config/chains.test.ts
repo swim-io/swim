@@ -3,7 +3,8 @@ import { Env } from "@swim-io/core";
 import { getRecordValues, getUniqueSize } from "@swim-io/utils";
 import { utils } from "ethers";
 
-import { CHAINS as chainsByEnv, EvmSpec, SolanaSpec } from "./chains";
+import type { EvmSpec, SolanaSpec } from "./chains";
+import { CHAINS as chainsByEnv } from "./chains";
 import type { EcosystemId } from "./ecosystem";
 import { Protocol } from "./ecosystem";
 

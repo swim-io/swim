@@ -1,10 +1,11 @@
+import { Env } from "@swim-io/core";
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { useEnvironment } from "..";
-import { DEFAULT_ENV, Env } from "../../../config";
+import { DEFAULT_ENV } from "../../selectors";
+import { useEnvironment } from "../useEnvironment";
 
 describe("useEnvironment", () => {
-  const CUSTOM_LOCALNET_IP = "123.4.5.6";
+  const CUSTOM_IP = "123.4.5.6";
   beforeEach(() => {
     jest.clearAllMocks();
     jest.clearAllTimers();
@@ -18,54 +19,54 @@ describe("useEnvironment", () => {
 
     const initState = {
       env: DEFAULT_ENV,
-      customLocalnetIp: null,
+      customIp: null,
     };
 
     expect(result.current).toEqual(expect.objectContaining(initState));
   });
-  it("calls setEnv func with Devnet argument, but returns Mainnet env as customLocalnetIp is null", () => {
+  it("calls setEnv func with Devnet argument, but returns Mainnet env as customIp is null", () => {
     const { result: state } = renderHook(() => useEnvironment());
 
     act(() => {
       state.current.setEnv(Env.Devnet);
     });
 
-    expect(state.current.customLocalnetIp).toEqual(null);
+    expect(state.current.customIp).toEqual(null);
     expect(state.current.env).toEqual(DEFAULT_ENV);
   });
-  it("calls setCustomLocalnetIp func and sets customLocalnetIp with new IP", () => {
+  it("calls setCustomIp func and sets customIp with new IP", () => {
     const { result: state } = renderHook(() => useEnvironment());
 
     act(() => {
-      state.current.setCustomLocalnetIp(CUSTOM_LOCALNET_IP);
+      state.current.setCustomIp(CUSTOM_IP);
     });
     const expected = {
-      customLocalnetIp: CUSTOM_LOCALNET_IP,
+      customIp: CUSTOM_IP,
       env: useEnvironment.getState().env,
     };
 
     expect(state.current).toEqual(expect.objectContaining(expected));
   });
-  it("calls setCustomLocalnetIp func with null IP and keeps default values", () => {
+  it("calls setCustomIp func with null IP and keeps default values", () => {
     const { result: state } = renderHook(() => useEnvironment());
 
     act(() => {
-      state.current.setCustomLocalnetIp(null);
+      state.current.setCustomIp(null);
     });
 
-    expect(state.current.customLocalnetIp).toEqual(null);
+    expect(state.current.customIp).toEqual(null);
     expect(state.current.env).toEqual(Env.Mainnet);
   });
-  it("calls setEnv func with Devnet argument and returns Devnet env as customLocalnetIp is not null", () => {
+  it("calls setEnv func with Devnet argument and returns Devnet env as customIp is not null", () => {
     const { result } = renderHook(() => useEnvironment());
 
     act(() => {
-      result.current.setCustomLocalnetIp(CUSTOM_LOCALNET_IP);
+      result.current.setCustomIp(CUSTOM_IP);
     });
     act(() => {
       result.current.setEnv(Env.Devnet);
     });
-    expect(result.current.customLocalnetIp).toEqual(CUSTOM_LOCALNET_IP);
+    expect(result.current.customIp).toEqual(CUSTOM_IP);
     expect(result.current.env).toEqual(Env.Devnet);
   });
 });

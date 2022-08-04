@@ -17,7 +17,7 @@ export function useLocalStorageState<T>(
   });
 
   const setLocalStorageState = useCallback(
-    (newState) => {
+    (newState: T) => {
       const changed = state !== newState;
       if (!changed) {
         return;

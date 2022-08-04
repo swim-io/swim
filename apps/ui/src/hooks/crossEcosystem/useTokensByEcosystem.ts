@@ -1,10 +1,10 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
 import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import { EcosystemId, getTokenDetailsForEcosystem } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import type { ReadonlyRecord } from "../../utils";
 
 export const useTokensByEcosystem = (): ReadonlyRecord<
   EcosystemId,
@@ -12,9 +12,11 @@ export const useTokensByEcosystem = (): ReadonlyRecord<
 > => {
   const { tokens } = useEnvironment(selectConfig, shallow);
   const filterTokensByEcosystem = (
-    ecosystem: EcosystemId,
+    ecosystemId: EcosystemId,
   ): readonly TokenSpec[] =>
-    tokens.filter((tokenSpec) => tokenSpec.detailsByEcosystem.get(ecosystem));
+    tokens.filter((tokenSpec) =>
+      getTokenDetailsForEcosystem(tokenSpec, ecosystemId),
+    );
 
   return {
     [EcosystemId.Solana]: filterTokensByEcosystem(EcosystemId.Solana),

@@ -13,6 +13,8 @@ import {
   EuiSpacer,
   EuiText,
 } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
+import { filterMap, isEachNotNull, isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useMemo, useState } from "react";
@@ -22,7 +24,6 @@ import {
   ECOSYSTEMS,
   ECOSYSTEM_IDS,
   EcosystemId,
-  getNativeTokenDetails,
   isEcosystemEnabled,
 } from "../config";
 import type { PoolSpec, TokenSpec } from "../config";
@@ -50,7 +51,6 @@ import {
   getLowBalanceWallets,
   isValidSlippageFraction,
 } from "../models";
-import { filterMap, isEachNotNull, isNotNull } from "../utils";
 
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
@@ -78,9 +78,9 @@ const TokenAddPanel = ({
   onChange,
   onBlur,
 }: TokenAddPanelProps): ReactElement => {
+  const tokenProject = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId];
   const balanceAmounts = useUserBalanceAmounts(tokenSpec);
-  const balance = balanceAmounts[tokenSpec.nativeEcosystem];
-  const { decimals: nativeDecimals } = getNativeTokenDetails(tokenSpec);
+  const balance = balanceAmounts[tokenSpec.nativeEcosystemId];
 
   return (
     <EuiFormRow
@@ -92,10 +92,10 @@ const TokenAddPanel = ({
           {balance !== null ? (
             <EuiLink
               onClick={() => {
-                onChange(balance.toHumanString(tokenSpec.nativeEcosystem));
+                onChange(balance.toHumanString(tokenSpec.nativeEcosystemId));
               }}
             >
-              {balance.toFormattedHumanString(tokenSpec.nativeEcosystem)}
+              {balance.toFormattedHumanString(tokenSpec.nativeEcosystemId)}
             </EuiLink>
           ) : (
             "-"
@@ -109,7 +109,7 @@ const TokenAddPanel = ({
         placeholder="Enter amount"
         name={tokenSpec.id}
         value={inputAmount}
-        step={10 ** -nativeDecimals}
+        step={10 ** -tokenSpec.nativeDetails.decimals}
         fullWidth
         disabled={disabled}
         onChange={(e) => {
@@ -119,7 +119,7 @@ const TokenAddPanel = ({
         isInvalid={errors.length > 0}
         prepend={
           <EuiButtonEmpty size="xs">
-            <TokenIcon {...tokenSpec} />
+            <TokenIcon {...tokenProject} />
           </EuiButtonEmpty>
         }
       />
@@ -197,7 +197,9 @@ export const AddForm = ({
   const poolMath = usePoolMath(poolSpec.id);
   const userBalances = useMultipleUserBalances(poolTokens);
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
-  const startNewInteraction = useStartNewInteraction();
+  const startNewInteraction = useStartNewInteraction(() => {
+    setFormInputAmounts(poolTokens.map(() => "0"));
+  });
   const isInteractionInProgress = useHasActiveInteraction();
   const userNativeBalances = useUserNativeBalances();
 
@@ -262,7 +264,8 @@ export const AddForm = ({
       : null;
 
   const lpTargetEcosystemOptions: readonly EuiRadioGroupOption[] = [
-    ...lpToken.detailsByEcosystem.keys(),
+    lpToken.nativeEcosystemId,
+    ...lpToken.wrappedDetails.keys(),
   ].map((ecosystemId) => {
     const ecosystem = ECOSYSTEMS[ecosystemId];
     return {
@@ -298,14 +301,16 @@ export const AddForm = ({
         errors = ["Invalid number"];
       } else if (
         amount
-          .toAtomic(tokenSpec.nativeEcosystem)
-          .gt(userBalance.toAtomic(tokenSpec.nativeEcosystem))
+          .toAtomic(tokenSpec.nativeEcosystemId)
+          .gt(userBalance.toAtomic(tokenSpec.nativeEcosystemId))
       ) {
         errors = ["Amount cannot exceed available balance"];
-        // } else if (amount.toHuman(tokenSpec.nativeEcosystem).gt(5)) {
+        // } else if (amount.toHuman(tokenSpec.nativeEcosystemId).gt(5)) {
         //   errors = ["During testing, all transactions are limited to $5"];
       } else if (amount.isNegative()) {
         errors = ["Amount must be greater than or equal to zero"];
+      } else if (amount.requiresRounding(tokenSpec.nativeEcosystemId)) {
+        errors = ["Too many decimals"];
       }
 
       setInputAmountErrors([
@@ -358,7 +363,7 @@ export const AddForm = ({
         ...poolTokens.map((tokenSpec, i) => {
           const inputAmount = inputAmounts[i];
           return inputAmount !== null && !inputAmount.isZero()
-            ? tokenSpec.nativeEcosystem
+            ? tokenSpec.nativeEcosystemId
             : null;
         }),
       ].filter(isNotNull),
@@ -446,9 +451,10 @@ export const AddForm = ({
     });
   };
 
+  const lpTokenProject = TOKEN_PROJECTS_BY_ID[lpToken.projectId];
   const receiveLabel = poolSpec.isStakingPool
-    ? `Receive ${lpToken.symbol} on`
-    : `Receive LP tokens (${lpToken.symbol}) on`;
+    ? `Receive ${lpTokenProject.symbol} on`
+    : `Receive LP tokens (${lpTokenProject.symbol}) on`;
 
   return (
     <EuiForm component="form" className="addForm" onSubmit={handleFormSubmit}>
@@ -458,9 +464,9 @@ export const AddForm = ({
       {filterMap(
         isEcosystemEnabled,
         (ecosystemId) => {
-          const indices = [...new Array(poolTokens.length)]
+          const indices = Array.from({ length: poolTokens.length })
             .map((_, i) => i)
-            .filter((i) => poolTokens[i].nativeEcosystem === ecosystemId);
+            .filter((i) => poolTokens[i].nativeEcosystemId === ecosystemId);
           const isRelevant = (_: any, i: number): boolean =>
             indices.includes(i);
           const tokens = poolTokens.filter(isRelevant);

@@ -1,12 +1,15 @@
-import { getAllowanceEth } from "@certusone/wormhole-sdk";
+import {
+  CHAINS as WORMHOLE_CHAIN_IDS,
+  getAllowanceEth,
+} from "@certusone/wormhole-sdk";
 import { PublicKey } from "@solana/web3.js";
 import type { ethers } from "ethers";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
-import { WormholeChainId } from "../../config";
+import { getTokenDetailsForEcosystem } from "../../config";
 import type { EvmTx } from "../crossEcosystem";
 
-import { approveEth, redeemOnEth, transferFromEth } from "./overrides";
+import { approveEth, transferFromEth } from "./overrides";
 import type { WormholeTransfer } from "./transfer";
 
 export const isLockEvmTx = (
@@ -14,8 +17,8 @@ export const isLockEvmTx = (
   token: TokenSpec,
   tx: EvmTx,
 ): boolean => {
-  const evmTokenDetails = token.detailsByEcosystem.get(tx.ecosystem) ?? null;
-  if (evmTokenDetails === null) {
+  const tokenDetails = getTokenDetailsForEcosystem(token, tx.ecosystemId);
+  if (tokenDetails === null) {
     return false;
   }
   if (
@@ -25,8 +28,7 @@ export const isLockEvmTx = (
     return false;
   }
   return tx.txReceipt.logs.some(
-    (log) =>
-      log.address.toLowerCase() === evmTokenDetails.address.toLowerCase(),
+    (log) => log.address.toLowerCase() === tokenDetails.address.toLowerCase(),
   );
 };
 
@@ -35,8 +37,8 @@ export const isUnlockEvmTx = (
   token: TokenSpec,
   tx: EvmTx,
 ): boolean => {
-  const evmTokenDetails = token.detailsByEcosystem.get(tx.ecosystem) ?? null;
-  if (evmTokenDetails === null) {
+  const tokenDetails = getTokenDetailsForEcosystem(token, tx.ecosystemId);
+  if (tokenDetails === null) {
     return false;
   }
   if (
@@ -46,8 +48,7 @@ export const isUnlockEvmTx = (
     return false;
   }
   return tx.txReceipt.logs.some(
-    (log) =>
-      log.address.toLowerCase() === evmTokenDetails.address.toLowerCase(),
+    (log) => log.address.toLowerCase() === tokenDetails.address.toLowerCase(),
   );
 };
 
@@ -116,7 +117,7 @@ export const lockEvmToken = async ({
     evmSigner,
     evmTokenDetails.address,
     transferAmountAtomicString,
-    WormholeChainId.Solana,
+    WORMHOLE_CHAIN_IDS.solana,
     new PublicKey(splTokenAccountAddress).toBytes(),
   );
 
@@ -130,32 +131,4 @@ export const lockEvmToken = async ({
     approvalResponses,
     transferResponse,
   };
-};
-
-export const unlockEvmToken = async (
-  transfer: WormholeTransfer,
-  vaaBytes: Uint8Array,
-): Promise<ethers.providers.TransactionResponse> => {
-  const { interactionId, evmChain, evmWallet } = transfer;
-  const evmSigner = evmWallet.signer;
-  if (evmSigner === null) {
-    throw new Error("Missing EVM signer");
-  }
-
-  await evmWallet.switchNetwork(evmChain.chainId);
-
-  const redeemResponse = await redeemOnEth(
-    interactionId,
-    evmChain.wormhole.tokenBridge,
-    evmSigner,
-    vaaBytes,
-  );
-
-  if (redeemResponse === null) {
-    throw new Error(
-      `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
-    );
-  }
-
-  return redeemResponse;
 };

@@ -65,6 +65,13 @@ const TosPage = (): ReactElement => {
                 Control, the United Nations Security Council, the European Union
                 or its Member States, or any other government authorities.
               </span>
+              <br />
+              <br />
+              <span>
+                <span>Contact us at </span>
+                <a href="mailto:info@swim.io">info@swim.io</a>
+                {"."}
+              </span>
             </EuiText>
           </EuiPageContentBody>
         </EuiPageContent>

@@ -1,7 +1,7 @@
+import { findOrThrow } from "@swim-io/utils";
 import { ethers } from "ethers";
 
 import { EvmChainId } from "../../config";
-import { findOrThrow } from "../../utils";
 
 export const enum AvalancheNetwork {
   Mainnet = "avalanche-mainnet",
@@ -28,7 +28,7 @@ export class SnowTraceProvider extends ethers.providers.EtherscanProvider {
     super(standardNetwork, apiKey);
   }
 
-  public getBaseUrl(): string {
+  public override getBaseUrl(): string {
     switch (this.network.name) {
       case AvalancheNetwork.Mainnet:
         return "https://api.snowtrace.io";

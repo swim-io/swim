@@ -2,11 +2,12 @@ import { useMutation, useQueryClient } from "react-query";
 
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
-import { createSplTokenAccount } from "../../models";
+import { createSplTokenAccount, findTokenAccountForMint } from "../../models";
 import {
   getSplTokenAccountsQueryKey,
   useSolanaConnection,
   useSolanaWallet,
+  useSplTokenAccountsQuery,
 } from "../solana";
 
 export const usePrepareSplTokenAccountMutation = () => {
@@ -17,6 +18,7 @@ export const usePrepareSplTokenAccountMutation = () => {
   );
   const getInteractionState = useInteractionState(selectGetInteractionState);
   const queryClient = useQueryClient();
+  const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
 
   return useMutation(async (interactionId: string) => {
     if (wallet === null) {
@@ -29,9 +31,16 @@ export const usePrepareSplTokenAccountMutation = () => {
     const { interaction, requiredSplTokenAccounts } =
       getInteractionState(interactionId);
 
-    const missingAccountMints = Object.entries(requiredSplTokenAccounts)
-      .filter(([_mint, accountState]) => accountState.account === null)
-      .map(([mint, _accountState]) => mint);
+    const missingAccountMints = Object.keys(requiredSplTokenAccounts).filter(
+      (mint) => {
+        const accountForMint = findTokenAccountForMint(
+          mint,
+          solanaAddress,
+          splTokenAccounts,
+        );
+        return accountForMint === null;
+      },
+    );
     await Promise.all(
       missingAccountMints.map(async (mint) => {
         const creationTxId = await createSplTokenAccount(
@@ -40,14 +49,8 @@ export const usePrepareSplTokenAccountMutation = () => {
           mint,
         );
         await solanaConnection.confirmTx(creationTxId);
-        const account = await solanaConnection.getTokenAccountWithRetry(
-          mint,
-          solanaAddress,
-        );
-
         // Update interactionState
         updateInteractionState(interaction.id, (draft) => {
-          draft.requiredSplTokenAccounts[mint].account = account;
           draft.requiredSplTokenAccounts[mint].txId = creationTxId;
         });
       }),

@@ -3,6 +3,7 @@ import {
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
+import { findOrThrow } from "@swim-io/utils";
 import type { ethers } from "ethers";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
@@ -13,6 +14,7 @@ import {
   EcosystemId,
   Protocol,
   getSolanaTokenDetails,
+  getTokenDetailsForEcosystem,
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
@@ -23,7 +25,6 @@ import {
   lockEvmToken,
 } from "../../models";
 import { getFromEcosystemOfToSolanaTransfer } from "../../models/swim/transfer";
-import { findOrThrow } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useEvmConnections } from "../evm";
 import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
@@ -37,8 +38,8 @@ const txResponseToTx = async (
   const txReceipt = await evmConnection.getTxReceiptOrThrow(txResponse);
   return {
     interactionId,
-    ecosystem: ecosystemId,
-    txId: txReceipt.transactionHash,
+    ecosystemId,
+    id: txReceipt.transactionHash,
     timestamp: txResponse.timestamp ?? null,
     txResponse,
     txReceipt,
@@ -61,6 +62,9 @@ export const useToSolanaTransferMutation = () => {
   return useMutation(async (interactionId: string) => {
     if (!solanaWallet) {
       throw new Error("No Solana wallet");
+    }
+    if (!wormhole) {
+      throw new Error("No Wormhole RPC configured");
     }
 
     const { interaction, toSolanaTransfers } =
@@ -92,7 +96,10 @@ export const useToSolanaTransferMutation = () => {
         chains[Protocol.Evm],
         ({ ecosystem }) => ecosystem === fromEcosystem,
       );
-      const fromTokenDetails = token.detailsByEcosystem.get(fromEcosystem);
+      const fromTokenDetails = getTokenDetailsForEcosystem(
+        token,
+        fromEcosystem,
+      );
       if (!fromTokenDetails) {
         throw new Error("No token detail");
       }
@@ -127,13 +134,13 @@ export const useToSolanaTransferMutation = () => {
 
       // Update transfer state with txId
       const approveAndTransferEvmTokenTxIds = [...approvalTxs, transferTx].map(
-        ({ txId }) => txId,
+        ({ id }) => id,
       );
       updateInteractionState(interactionId, (draft) => {
         draft.toSolanaTransfers[index].txIds.approveAndTransferEvmToken =
           approveAndTransferEvmTokenTxIds;
       });
-      transferTxIds = [...transferTxIds, transferTx.txId];
+      transferTxIds = [...transferTxIds, transferTx.id];
     }
 
     const sequences = await Promise.all(
@@ -191,7 +198,7 @@ export const useToSolanaTransferMutation = () => {
       });
       const unlockSplTokenTxIdsGenerator = generateUnlockSplTokenTxIds(
         interactionId,
-        wormhole.endpoint,
+        wormhole.rpcUrls,
         ECOSYSTEMS[fromEcosystem].wormholeChainId,
         getEmitterAddressEth(evmChain.wormhole.tokenBridge),
         sequence,

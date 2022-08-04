@@ -1,8 +1,8 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { useInteractionState } from "..";
 import { MOCK_INTERACTION_STATE } from "../../../fixtures/swim/interactionState";
 import { ETH_USDC_TO_SOL_USDC_SWAP } from "../../../fixtures/swim/interactions";
+import { useInteractionState } from "../useInteractionState";
 
 jest.mock("../idb", () => ({
   ...jest.requireActual("../idb"),
@@ -15,7 +15,7 @@ describe("useInteraction", () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
-  it("initially returns empty interactionStates array", async () => {
+  it("initially returns empty interactionStates array", () => {
     const { result } = renderHook(() => useInteractionState());
     const partialState = {
       errorMap: {},
@@ -24,7 +24,7 @@ describe("useInteraction", () => {
     };
     expect(result.current).toEqual(expect.objectContaining(partialState));
   });
-  it("adds new interactionStates in store", async () => {
+  it("adds new interactionStates in store", () => {
     const { result } = renderHook(() => useInteractionState());
     const NEW_INTERACTION_STATE = {
       ...MOCK_INTERACTION_STATE,
@@ -44,7 +44,7 @@ describe("useInteraction", () => {
       NEW_INTERACTION_STATE.interaction.id,
     );
   });
-  it("runs updateInteractionState and calls the update callback function", async () => {
+  it("runs updateInteractionState and calls the update callback function", () => {
     const { result } = renderHook(() => useInteractionState());
     const mockUpdateCB = jest.fn();
 

@@ -1,10 +1,11 @@
 import { PublicKey } from "@solana/web3.js";
 import type { SwimPoolState } from "@swim-io/solana-types";
 import { deserializeSwimPool } from "@swim-io/solana-types";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { findOrThrow } from "@swim-io/utils";
 
-import type { Config, PoolSpec, TokenSpec } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
-import { findOrThrow } from "../../utils";
+import type { Config, PoolSpec, SolanaPoolSpec, TokenSpec } from "../../config";
+import { EcosystemId } from "../../config";
 import type { SolanaTx, Tx } from "../crossEcosystem";
 import { isSolanaTx } from "../crossEcosystem";
 import type { SolanaConnection } from "../solana";
@@ -19,10 +20,10 @@ export type TokensByPoolId = ReadonlyRecord<
 
 export const getTokensByPool = ({ pools, tokens }: Config): TokensByPoolId =>
   pools.reduce(
-    (accumulator, { id: poolId, tokenAccounts, lpToken }) => ({
+    (accumulator, { id: poolId, tokens: poolTokens, lpToken }) => ({
       ...accumulator,
       [poolId]: {
-        tokens: [...tokenAccounts.keys()].map((tokenId) =>
+        tokens: poolTokens.map((tokenId) =>
           findOrThrow(tokens, (token) => token.id === tokenId),
         ),
         lpToken: findOrThrow(tokens, (token) => token.id === lpToken),
@@ -48,7 +49,7 @@ export const getPoolState = async (
   solanaConnection: SolanaConnection,
   poolSpec: PoolSpec,
 ): Promise<SwimPoolState | null> => {
-  const numberOfTokens = poolSpec.tokenAccounts.size;
+  const numberOfTokens = poolSpec.tokens.length;
   const accountInfo = await solanaConnection.getAccountInfo(
     new PublicKey(poolSpec.address),
   );
@@ -56,3 +57,6 @@ export const getPoolState = async (
     ? deserializeSwimPool(numberOfTokens, accountInfo.data)
     : null;
 };
+
+export const isSolanaPool = (pool: PoolSpec): pool is SolanaPoolSpec =>
+  pool.ecosystem === EcosystemId.Solana;

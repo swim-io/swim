@@ -8,18 +8,15 @@ import type { ReactElement } from "react";
 import { Fragment, useEffect } from "react";
 
 import { useEnvironment, useInteractionState } from "../core/store";
-import {
-  isEveryAddressConnected,
-  useSplTokenAccountsQuery,
-  useWallets,
-} from "../hooks";
+import { useSplTokenAccountsQuery, useWallets } from "../hooks";
+import { isEveryAddressConnected } from "../models";
 import type { InteractionType } from "../models";
 
 import { MultiConnectButton } from "./ConnectButton";
 import { ConnectedWallets } from "./ConnectedWallets";
 import { InteractionStateComponent } from "./molecules/InteractionStateComponent";
 
-export interface RecentInteractionsProps {
+interface Props {
   readonly title: string;
   readonly interactionTypes: ReadonlySet<InteractionType>;
 }
@@ -27,13 +24,13 @@ export interface RecentInteractionsProps {
 export const RecentInteractions = ({
   title,
   interactionTypes,
-}: RecentInteractionsProps): ReactElement => {
+}: Props): ReactElement => {
   const env = useEnvironment((state) => state.env);
   const loadInteractionStatesFromIDB = useInteractionState(
     (state) => state.loadInteractionStatesFromIDB,
   );
   useEffect(() => {
-    loadInteractionStatesFromIDB(env);
+    loadInteractionStatesFromIDB(env).catch(console.error);
   }, [env, loadInteractionStatesFromIDB]);
 
   const { isSuccess: didLoadSplTokenAccounts } = useSplTokenAccountsQuery();

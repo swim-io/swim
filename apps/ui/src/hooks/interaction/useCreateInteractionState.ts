@@ -1,14 +1,10 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type PoolMath from "@swim-io/pool-math";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { isEachNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
-import {
-  usePoolMathByPoolIds,
-  useSolanaWallet,
-  useSplTokenAccountsQuery,
-  useWallets,
-} from "..";
 import type { Config, TokenSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
@@ -33,8 +29,9 @@ import {
   getRequiredTokens,
   getTokensByPool,
 } from "../../models";
-import type { ReadonlyRecord } from "../../utils";
-import { isEachNotNull } from "../../utils";
+import { useWallets } from "../crossEcosystem";
+import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
+import { usePoolMathByPoolIds } from "../swim";
 
 export const createRequiredSplTokenAccounts = (
   requiredTokens: readonly TokenSpec[],
@@ -58,7 +55,6 @@ export const createRequiredSplTokenAccounts = (
       ...state,
       [mint]: {
         isExistingAccount: accountForMint !== null,
-        account: accountForMint,
         txId: null,
       },
     };
@@ -70,14 +66,14 @@ const getToSolanaTransferAmounts = (
 ): readonly Amount[] => {
   switch (interaction.type) {
     case InteractionType.Swap:
-      return interaction.params.exactInputAmount.tokenSpec.nativeEcosystem !==
+      return interaction.params.exactInputAmount.tokenSpec.nativeEcosystemId !==
         EcosystemId.Solana
         ? [interaction.params.exactInputAmount]
         : [];
     case InteractionType.Add:
       return interaction.params.inputAmounts.filter(
         (amount) =>
-          amount.tokenSpec.nativeEcosystem !== EcosystemId.Solana &&
+          amount.tokenSpec.nativeEcosystemId !== EcosystemId.Solana &&
           !amount.isZero(),
       );
     case InteractionType.RemoveExactBurn:
@@ -97,7 +93,7 @@ export const createToSolanaTransfers = (
 ): readonly ToSolanaTransferState[] => {
   return getToSolanaTransferAmounts(interaction).map((amount) => {
     const fromToken = amount.tokenSpec;
-    const fromEcosystem = fromToken.nativeEcosystem;
+    const fromEcosystem = fromToken.nativeEcosystemId;
     return {
       token: fromToken,
       value: amount.toHuman(fromEcosystem),
@@ -146,7 +142,7 @@ const getFromSolanaTransferTokenAndValues = (
     case InteractionType.Swap:
     case InteractionType.RemoveExactBurn:
       return interaction.params.minimumOutputAmount.tokenSpec
-        .nativeEcosystem !== EcosystemId.Solana
+        .nativeEcosystemId !== EcosystemId.Solana
         ? [
             {
               token: interaction.params.minimumOutputAmount.tokenSpec,
@@ -166,7 +162,7 @@ const getFromSolanaTransferTokenAndValues = (
     case InteractionType.RemoveUniform:
       return interaction.params.minimumOutputAmounts
         .filter(
-          (amount) => amount.tokenSpec.nativeEcosystem !== EcosystemId.Solana,
+          (amount) => amount.tokenSpec.nativeEcosystemId !== EcosystemId.Solana,
         )
         .map((amount) => ({
           token: amount.tokenSpec,
@@ -176,12 +172,12 @@ const getFromSolanaTransferTokenAndValues = (
       return interaction.params.exactOutputAmounts
         .filter(
           (amount) =>
-            amount.tokenSpec.nativeEcosystem !== EcosystemId.Solana &&
+            amount.tokenSpec.nativeEcosystemId !== EcosystemId.Solana &&
             !amount.isZero(),
         )
         .map((amount) => ({
           token: amount.tokenSpec,
-          value: amount.toHuman(amount.tokenSpec.nativeEcosystem),
+          value: amount.toHuman(amount.tokenSpec.nativeEcosystemId),
         }));
   }
 };
@@ -228,8 +224,6 @@ export const useCreateInteractionState = () => {
       poolIds: requiredPools.map((pool) => pool.id),
       env,
       submittedAt: Date.now(),
-      signatureSetKeypairs: {},
-      previousSignatureSetAddresses: {},
       connectedWallets,
     };
     return {

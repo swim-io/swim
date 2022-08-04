@@ -2,7 +2,7 @@ import type { EuiGlobalToastListToast } from "@elastic/eui";
 import { cleanup } from "@testing-library/react";
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { useNotification } from "..";
+import { useNotification } from "../useNotification";
 
 describe("useNotification", () => {
   afterEach(() => {
@@ -10,11 +10,11 @@ describe("useNotification", () => {
     jest.resetAllMocks();
     cleanup();
   });
-  it("initially returns empty toast array", async () => {
+  it("initially returns empty toast array", () => {
     const { result } = renderHook(() => useNotification());
     expect(result.current.toasts).toEqual([]);
   });
-  it("returns new toast from store", async () => {
+  it("returns new toast from store", () => {
     const { result } = renderHook(() => useNotification());
     const toast: EuiGlobalToastListToast = {
       id: expect.stringMatching(/^toast0\.\d+$/),
@@ -29,7 +29,7 @@ describe("useNotification", () => {
 
     expect(result.current.toasts).toEqual([toast]);
   });
-  it("removes created toast from store", async () => {
+  it("removes created toast from store", () => {
     const { result } = renderHook(() => useNotification());
     act(() => {
       result.current.notify("Notification1", "First notification", "success");

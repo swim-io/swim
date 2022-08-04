@@ -1,79 +1,30 @@
-import AUSD_SVG from "../images/tokens/ausd.svg";
-import BUSD_SVG from "../images/tokens/busd.svg";
-import GMT_SVG from "../images/tokens/gmt.svg";
-import GST_SVG from "../images/tokens/gst.svg";
-import LP_GMT_SVG from "../images/tokens/lp_gmt.svg";
-import LP_GST_SVG from "../images/tokens/lp_gst.svg";
-import LP_META_ACALA_AUSD_SVG from "../images/tokens/lp_metapool_acala_ausd.svg";
-import LP_META_AURORA_USDC_SVG from "../images/tokens/lp_metapool_aurora_usdc.svg";
-import LP_META_AURORA_USDT_SVG from "../images/tokens/lp_metapool_aurora_usdt.svg";
-import LP_META_AURORA_USN_SVG from "../images/tokens/lp_metapool_aurora_usn.svg";
-import LP_META_AVALANCHE_USDC_SVG from "../images/tokens/lp_metapool_avalanche_usdc.svg";
-import LP_META_AVALANCHE_USDT_SVG from "../images/tokens/lp_metapool_avalanche_usdt.svg";
-import LP_META_FANTOM_USDC_SVG from "../images/tokens/lp_metapool_fantom_usdc.svg";
-import LP_META_KARURA_AUSD_SVG from "../images/tokens/lp_metapool_karura_ausd.svg";
-import LP_META_KARURA_USDT_SVG from "../images/tokens/lp_metapool_karura_usdt.svg";
-import LP_META_POLYGON_USDC_SVG from "../images/tokens/lp_metapool_polygon_usdc.svg";
-import LP_META_POLYGON_USDT_SVG from "../images/tokens/lp_metapool_polygon_usdt.svg";
-import SWIM_TOKEN_SVG from "../images/tokens/swim_token.svg";
-import SWIM_USD_SVG from "../images/tokens/swim_usd.svg";
-import USDC_SVG from "../images/tokens/usdc.svg";
-import USDT_SVG from "../images/tokens/usdt.svg";
-import USN_SVG from "../images/tokens/usn.svg";
-import type { ReadonlyRecord } from "../utils";
+import { Env } from "@swim-io/core";
+import type { TokenConfig, TokenDetails } from "@swim-io/core";
+import { TokenProjectId } from "@swim-io/token-projects";
+import type { ReadonlyRecord } from "@swim-io/utils";
 
 import { EcosystemId, isEcosystemEnabled } from "./ecosystem";
-import { Env } from "./env";
+import { isPoolRestructureEnabled } from "./pools";
 
-export interface TokenDetails {
-  readonly address: string;
-  readonly decimals: number;
+export interface TokenSpec extends TokenConfig {
+  readonly projectId: TokenProjectId;
+  readonly nativeEcosystemId: EcosystemId;
+  readonly wrappedDetails: ReadonlyMap<EcosystemId, TokenDetails>;
 }
 
-export type TokenDetailsByEcosystem = ReadonlyMap<EcosystemId, TokenDetails>;
-
-export interface TokenSpec {
-  readonly id: string;
-  readonly symbol: string;
-  readonly displayName: string;
-  readonly icon: string;
-  readonly isStablecoin: boolean;
-  readonly nativeEcosystem: EcosystemId;
-  readonly detailsByEcosystem: TokenDetailsByEcosystem;
-  readonly isDisabled?: boolean;
-}
-
-const AUSD_SYMBOL = "aUSD";
-const AUSD_NAME = "Acala USD";
-const BUSD_SYMBOL = "BUSD";
-const BUSD_NAME = "Binance USD";
-const GST_SYMBOL = "GST";
-const GST_NAME = "Green Satoshi Token";
-const GMT_SYMBOL = "GMT";
-const GMT_NAME = "STEPN";
-const USDC_SYMBOL = "USDC";
-const USDC_NAME = "USD Coin";
-const USDT_SYMBOL = "USDT";
-const USDT_NAME = "Tether USD";
-const USN_SYMBOL = "USN";
-const USN_NAME = "USN";
+// NOTE: Use a shared empty map to save memory
+const EMPTY_MAP: TokenSpec["wrappedDetails"] = new Map();
 
 const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     id: "mainnet-solana-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Ethereum,
         {
@@ -92,19 +43,13 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Ethereum,
         {
@@ -123,53 +68,33 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-gst",
-    symbol: GST_SYMBOL,
-    displayName: GST_NAME,
-    icon: GST_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB",
-          decimals: 9,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.Gst,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB",
+      decimals: 9,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-gmt",
-    symbol: GMT_SYMBOL,
-    displayName: GMT_NAME,
-    icon: GMT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx",
-          decimals: 9,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.Gmt,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx",
+      decimals: 9,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-hexapool",
-    symbol: "swimUSD",
-    displayName: "swimUSD (Swim Hexapool LP)",
-    icon: SWIM_USD_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "BJUH9GJLaMSLV1E7B3SQLCy9eCfyr6zsrwGcpS2MkqR1",
-          decimals: 8,
-        },
-      ],
+    projectId: TokenProjectId.SwimUsd,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "BJUH9GJLaMSLV1E7B3SQLCy9eCfyr6zsrwGcpS2MkqR1",
+      decimals: 8,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Ethereum,
         {
@@ -188,247 +113,147 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-solana-lp-meta-avalanche-usdc",
-    symbol: "SWIM-AVALANCHE-USDC-META-POOL-LP",
-    displayName: "Avalanche USDC Meta-Pool LP",
-    icon: LP_META_AVALANCHE_USDC_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "DKwsWeqHrB8R1u2DFMHKtq4iqaQNgPgUbHTJyXPqkTzK",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimAvalancheUsdcLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "DKwsWeqHrB8R1u2DFMHKtq4iqaQNgPgUbHTJyXPqkTzK",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-meta-avalanche-usdt",
-    symbol: "SWIM-AVALANCHE-USDT-META-POOL-LP",
-    displayName: "Avalanche USDT Meta-Pool LP",
-    icon: LP_META_AVALANCHE_USDT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "5rwvDmUbcnZTwZ4Zywev2wnDbyDDD2vcsGU2Xmy7aRNS",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimAvalancheUsdtLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "5rwvDmUbcnZTwZ4Zywev2wnDbyDDD2vcsGU2Xmy7aRNS",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-meta-polygon-usdc",
-    symbol: "SWIM-POLYGON-USDC-META-POOL-LP",
-    displayName: "Polygon USDC Meta-Pool LP",
-    icon: LP_META_POLYGON_USDC_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "ANFojEXhiEQQoovhBs77XmBQuqbe59UBygRWViyf4945",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimPolygonUsdcLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "ANFojEXhiEQQoovhBs77XmBQuqbe59UBygRWViyf4945",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-meta-polygon-usdt",
-    symbol: "SWIM-POLYGON-USDT-META-POOL-LP",
-    displayName: "Polygon USDT Meta-Pool LP",
-    icon: LP_META_POLYGON_USDT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "2Nx6L79dHHgHcJtNfZWukQkWZvf5h4bps34zuh1gjtdP",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimPolygonUsdtLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "2Nx6L79dHHgHcJtNfZWukQkWZvf5h4bps34zuh1gjtdP",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-gst",
-    symbol: "solaGST-binaGST",
-    displayName: "Swim Solana GST Binance GST LP",
-    icon: LP_GST_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "8YYBkTNhpY9mFdCdZWM6mHNf8J6A9hGfimb33LEiiZ3x",
-          decimals: 9,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimSolanaGstBinanceGstLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "8YYBkTNhpY9mFdCdZWM6mHNf8J6A9hGfimb33LEiiZ3x",
+      decimals: 9,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-solana-lp-gmt",
-    symbol: "solaGMT-binaGMT",
-    displayName: "Swim Solana GMT Binance GMT LP",
-    icon: LP_GMT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "2x7MjgopLXd3qETGLpY19cyZjHvVnGkrwVjTkJnBza4A",
-          decimals: 9,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimSolanaGmtBinanceGmtLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "2x7MjgopLXd3qETGLpY19cyZjHvVnGkrwVjTkJnBza4A",
+      decimals: 9,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "mainnet-solana-lp-meta-aurora-usdc",
-    symbol: "SWIM-AURORA-USDC-META-POOL-LP",
-    displayName: "Aurora USDC Meta-Pool LP",
-    icon: LP_META_AURORA_USDC_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "9qRe2nBrR2rTXxRaV1PZN9hZnqq3UXgoFWTbP6NE3MEu",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimAuroraUsdcLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "9qRe2nBrR2rTXxRaV1PZN9hZnqq3UXgoFWTbP6NE3MEu",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "mainnet-solana-lp-meta-aurora-usdt",
-    symbol: "SWIM-AURORA-USDT-META-POOL-LP",
-    displayName: "Aurora USDT Meta-Pool LP",
-    icon: LP_META_AURORA_USDT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "4XPDxtGbcM7bAPKZxALd2s862n3WoG4xPPvyCPVULKAb",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimAuroraUsdtLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "4XPDxtGbcM7bAPKZxALd2s862n3WoG4xPPvyCPVULKAb",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "mainnet-solana-lp-meta-aurora-usn",
-    symbol: "SWIM-AURORA-USN-META-POOL-LP",
-    displayName: "Aurora USN Meta-Pool LP",
-    icon: LP_META_AURORA_USN_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "3eXCU7YoiCq3rZ6787pPFJE7TXBsKuTZ49wH2kFnuTeF",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimAuroraUsnLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "3eXCU7YoiCq3rZ6787pPFJE7TXBsKuTZ49wH2kFnuTeF",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
     id: "mainnet-solana-lp-meta-fantom-usdc",
-    symbol: "SWIM-FANTOM-USDC-META-POOL-LP",
-    displayName: "Fantom USDC Meta-Pool LP",
-    icon: LP_META_FANTOM_USDC_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "J5ifGexAQTg76TresJhJSqTPJLT6BNxrV5rwNJTTz4Cx",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimFantomUsdcLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "J5ifGexAQTg76TresJhJSqTPJLT6BNxrV5rwNJTTz4Cx",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "mainnet-solana-lp-meta-karura-ausd",
-    symbol: "SWIM-KARURA-AUSD-META-POOL-LP",
-    displayName: "Karura AUSD Meta-Pool LP",
-    icon: LP_META_KARURA_AUSD_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "8vzXSNVAX4fymEFahJFh1ypzDBFv3QMVaZ4GtJWHrRjU",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimKaruraAusdLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "8vzXSNVAX4fymEFahJFh1ypzDBFv3QMVaZ4GtJWHrRjU",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "mainnet-solana-lp-meta-karura-usdt",
-    symbol: "SWIM-KARURA-USDT-META-POOL-LP",
-    displayName: "Karura USDT Meta-Pool LP",
-    icon: LP_META_KARURA_USDT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "2sXvitirRSjgTTNzGNWAFZWSqEx87kDoTJvqG9JSyivh",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimKaruraUsdtLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "2sXvitirRSjgTTNzGNWAFZWSqEx87kDoTJvqG9JSyivh",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
     id: "mainnet-solana-lp-meta-acala-ausd",
-    symbol: "SWIM-ACALA-AUSD-META-POOL-LP",
-    displayName: "Acala AUSD Meta-Pool LP",
-    icon: LP_META_ACALA_AUSD_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "11111111111111111111111111111111", // TODO: Update
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimAcalaAusdLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "11111111111111111111111111111111", // TODO: Update
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "mainnet-ethereum-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Ethereum,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Ethereum,
-        {
-          address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Ethereum,
+    nativeDetails: {
+      address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -440,19 +265,13 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-ethereum-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Ethereum,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Ethereum,
-        {
-          address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Ethereum,
+    nativeDetails: {
+      address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -464,19 +283,13 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-bnb-busd",
-    symbol: BUSD_SYMBOL,
-    displayName: BUSD_NAME,
-    icon: BUSD_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Bnb,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Bnb,
-        {
-          address: "0xe9e7cea3dedca5984780bafc599bd69add087d56",
-          decimals: 18,
-        },
-      ],
+    projectId: TokenProjectId.Busd,
+    nativeEcosystemId: EcosystemId.Bnb,
+    nativeDetails: {
+      address: "0xe9e7cea3dedca5984780bafc599bd69add087d56",
+      decimals: 18,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -488,19 +301,13 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-bnb-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Bnb,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Bnb,
-        {
-          address: "0x55d398326f99059ff775485246999027b3197955",
-          decimals: 18,
-        },
-      ],
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Bnb,
+    nativeDetails: {
+      address: "0x55d398326f99059ff775485246999027b3197955",
+      decimals: 18,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -512,19 +319,13 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-bnb-gst",
-    symbol: GST_SYMBOL,
-    displayName: GST_NAME,
-    icon: GST_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Bnb,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Bnb,
-        {
-          address: "0x4a2c860cec6471b9f5f5a336eb4f38bb21683c98",
-          decimals: 8,
-        },
-      ],
+    projectId: TokenProjectId.Gst,
+    nativeEcosystemId: EcosystemId.Bnb,
+    nativeDetails: {
+      address: "0x4a2c860cec6471b9f5f5a336eb4f38bb21683c98",
+      decimals: 8,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -536,19 +337,13 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-bnb-gmt",
-    symbol: GMT_SYMBOL,
-    displayName: GMT_NAME,
-    icon: GMT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Bnb,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Bnb,
-        {
-          address: "0x3019bf2a2ef8040c242c9a4c5c4bd4c81678b2a1",
-          decimals: 8,
-        },
-      ],
+    projectId: TokenProjectId.Gmt,
+    nativeEcosystemId: EcosystemId.Bnb,
+    nativeDetails: {
+      address: "0x3019bf2a2ef8040c242c9a4c5c4bd4c81678b2a1",
+      decimals: 8,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -560,19 +355,13 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-avalanche-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Avalanche,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Avalanche,
-        {
-          address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Avalanche,
+    nativeDetails: {
+      address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -584,19 +373,13 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-avalanche-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Avalanche,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Avalanche,
-        {
-          address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Avalanche,
+    nativeDetails: {
+      address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -608,19 +391,13 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-polygon-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Polygon,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Polygon,
-        {
-          address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Polygon,
+    nativeDetails: {
+      address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -632,19 +409,13 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "mainnet-polygon-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Polygon,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Polygon,
-        {
-          address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Polygon,
+    nativeDetails: {
+      address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -655,21 +426,14 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "mainnet-aurora-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Aurora,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Aurora,
-        {
-          address: "0xB12BFcA5A55806AaF64E99521918A4bf0fC40802",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Aurora,
+    nativeDetails: {
+      address: "0xB12BFcA5A55806AaF64E99521918A4bf0fC40802",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -680,21 +444,14 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "mainnet-aurora-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Aurora,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Aurora,
-        {
-          address: "0x4988a896b1227218e4A686fdE5EabdcAbd91571f",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Aurora,
+    nativeDetails: {
+      address: "0x4988a896b1227218e4A686fdE5EabdcAbd91571f",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -707,19 +464,13 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "mainnet-aurora-usn",
-    symbol: USN_SYMBOL,
-    displayName: USN_NAME,
-    icon: USN_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Aurora,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Aurora,
-        {
-          address: "0x5183e1B1091804BC2602586919E6880ac1cf2896",
-          decimals: 18,
-        },
-      ],
+    projectId: TokenProjectId.Usn,
+    nativeEcosystemId: EcosystemId.Aurora,
+    nativeDetails: {
+      address: "0x5183e1B1091804BC2602586919E6880ac1cf2896",
+      decimals: 18,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -732,19 +483,13 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
     id: "mainnet-fantom-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Fantom,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Fantom,
-        {
-          address: "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Fantom,
+    nativeDetails: {
+      address: "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -757,19 +502,13 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "mainnet-karura-ausd",
-    symbol: AUSD_SYMBOL,
-    displayName: AUSD_NAME,
-    icon: AUSD_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Karura,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Karura,
-        {
-          address: "0x0000000000000000000100000000000000000081",
-          decimals: 12,
-        },
-      ],
+    projectId: TokenProjectId.Ausd,
+    nativeEcosystemId: EcosystemId.Karura,
+    nativeDetails: {
+      address: "0x0000000000000000000100000000000000000081",
+      decimals: 12,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -780,21 +519,14 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_KARURA_USDT,
     id: "mainnet-karura-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Karura,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Karura,
-        {
-          address: "0x0000000000000000000500000000000000000007",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Karura,
+    nativeDetails: {
+      address: "0x0000000000000000000500000000000000000007",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -807,114 +539,280 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
     id: "mainnet-acala-ausd",
-    symbol: AUSD_SYMBOL,
-    displayName: AUSD_NAME,
-    icon: AUSD_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Acala,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Acala,
-        {
-          address: "0x0000000000000000000000000000000000000000", // TODO: Update
-          decimals: 6, // TODO: Update
-        },
-      ],
+    projectId: TokenProjectId.Ausd,
+    nativeEcosystemId: EcosystemId.Acala,
+    nativeDetails: {
+      address: "0x0000000000000000000000000000000000000000", // TODO: Update
+      decimals: 6, // TODO: Update
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
-          address: "11111111111111111111111111111111", // TODO: Update
+          address: "11111111111111111111111111111112", // TODO: Update
           decimals: 6, // TODO: Update
         },
       ],
     ]),
+  },
+  {
+    isDisabled: true,
+    id: "mainnet-solana-swim",
+    projectId: TokenProjectId.Swim,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "swimnKEr963p7EbCjsSnBCoYwytuZHPm3zbq6fKLHXb",
+      decimals: 6,
+    },
+    wrappedDetails: EMPTY_MAP,
+  },
+  {
+    isDisabled: true,
+    id: "mainnet-solana-lp-swimlake",
+    projectId: TokenProjectId.XSwim,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "SwiMNJ49SxkqMaVWLGGVRH25kE5dBnD2RQoiQUnKtMC",
+      decimals: 6,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
 ].filter((spec) => !spec.isDisabled);
 
-const DEVNET_TOKENS: readonly TokenSpec[] = [
+export const DEVNET_SWIMUSD: TokenSpec = {
+  isDisabled: !isPoolRestructureEnabled(),
+  id: "devnet-swimusd",
+  projectId: TokenProjectId.SwimUsd,
+  nativeEcosystemId: EcosystemId.Solana,
+  nativeDetails: {
+    address: "11111111111111111111111111111111", // TODO: Update
+    decimals: 8,
+  },
+  wrappedDetails: new Map([
+    [
+      EcosystemId.Acala,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Aurora,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Avalanche,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Bnb,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Ethereum,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Fantom,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Karura,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+    [
+      EcosystemId.Polygon,
+      {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+    ],
+  ]),
+};
+
+export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-ethereum-lp-primary",
+    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    nativeEcosystemId: EcosystemId.Ethereum,
+    nativeDetails: {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-bnb-lp-primary",
+    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    nativeEcosystemId: EcosystemId.Bnb,
+    nativeDetails: {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-avalanche-lp-primary",
+    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    nativeEcosystemId: EcosystemId.Avalanche,
+    nativeDetails: {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-polygon-lp-primary",
+    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    nativeEcosystemId: EcosystemId.Polygon,
+    nativeDetails: {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-aurora-lp-primary",
+    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    nativeEcosystemId: EcosystemId.Aurora,
+    nativeDetails: {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
+  },
+  {
+    isDisabled:
+      !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_AURORA_USN,
+    id: "devnet-aurora-lp-meta-usn",
+    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    nativeEcosystemId: EcosystemId.Aurora,
+    nativeDetails: {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-fantom-lp-primary",
+    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    nativeEcosystemId: EcosystemId.Fantom,
+    nativeDetails: {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-karura-lp-primary",
+    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    nativeEcosystemId: EcosystemId.Karura,
+    nativeDetails: {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
+  },
+  {
+    isDisabled:
+      !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_KARURA_AUSD,
+    id: "devnet-karura-lp-meta-ausd",
+    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    nativeEcosystemId: EcosystemId.Karura,
+    nativeDetails: {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
+  },
+  {
+    isDisabled: !isPoolRestructureEnabled(),
+    id: "devnet-acala-lp-meta-ausd",
+    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    nativeEcosystemId: EcosystemId.Acala,
+    nativeDetails: {
+      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
+  },
+];
+
+export const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     id: "devnet-solana-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc",
-          decimals: 6,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc",
+      decimals: 6,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY",
-          decimals: 6,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY",
+      decimals: 6,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-gst",
-    symbol: GST_SYMBOL,
-    displayName: GST_NAME,
-    icon: GST_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "FYxTtPiGxNSDouZQftVRHFqraFJyLvNbTXzZj8X2gKQP",
-          decimals: 9,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.Gst,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "FYxTtPiGxNSDouZQftVRHFqraFJyLvNbTXzZj8X2gKQP",
+      decimals: 9,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-gmt",
-    symbol: GMT_SYMBOL,
-    displayName: GMT_NAME,
-    icon: GMT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "3xsNPBpf7UAKpJsLTqiPqHT3ZBKPDndj1rJFM7xaSJcV",
-          decimals: 9,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.Gmt,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "3xsNPBpf7UAKpJsLTqiPqHT3ZBKPDndj1rJFM7xaSJcV",
+      decimals: 9,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-hexapool",
-    symbol: "swimUSD",
-    displayName: "swimUSD (Swim Hexapool LP)",
-    icon: SWIM_USD_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr",
-          decimals: 8,
-        },
-      ],
+    projectId: TokenProjectId.SwimUsd,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr",
+      decimals: 8,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Ethereum,
         {
@@ -933,281 +831,168 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-solana-swim",
-    symbol: "SWIM",
-    displayName: "Swim Protocol Token",
-    icon: SWIM_TOKEN_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "swimnKEr963p7EbCjsSnBCoYwytuZHPm3zbq6fKLHXb",
-          decimals: 6,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.Swim,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "swimnKEr963p7EbCjsSnBCoYwytuZHPm3zbq6fKLHXb",
+      decimals: 6,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-swimlake",
-    symbol: "xSWIM",
-    displayName: "xSWIM (SwimLake LP)",
-    icon: SWIM_USD_SVG, // TODO: Change?
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "A8UVBwvj1XcdP5okoMqkjhCQGLaqQ8iJDYnNxAMbsNNF",
-          decimals: 6,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.XSwim,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "A8UVBwvj1XcdP5okoMqkjhCQGLaqQ8iJDYnNxAMbsNNF",
+      decimals: 6,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-meta-avalanche-usdc",
-    symbol: "SWIM-AVALANCHE-USDC-META-POOL-LP",
-    displayName: "Avalanche USDC Meta-Pool LP",
-    icon: LP_META_AVALANCHE_USDC_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "DU15RXzuPWTLC4tbAcQvtXbDkHFrY8u6CxgTdhz2Mt8c",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimAvalancheUsdcLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "DU15RXzuPWTLC4tbAcQvtXbDkHFrY8u6CxgTdhz2Mt8c",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-meta-avalanche-usdt",
-    symbol: "SWIM-AVALANCHE-USDT-META-POOL-LP",
-    displayName: "Avalanche USDT Meta-Pool LP",
-    icon: LP_META_AVALANCHE_USDT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "D6PuZckpEcBhVcpfgjgbWnARhFD3ApHhvnxBGWR6MW5Z",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimAvalancheUsdtLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "D6PuZckpEcBhVcpfgjgbWnARhFD3ApHhvnxBGWR6MW5Z",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-meta-polygon-usdc",
-    symbol: "SWIM-POLYGON-USDC-META-POOL-LP",
-    displayName: "Polygon USDC Meta-Pool LP",
-    icon: LP_META_POLYGON_USDC_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "6WBFbyA3XJ3T2BeqA9JbyZFfj3KTCRtnC8MJANBsVNrz",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimPolygonUsdcLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "6WBFbyA3XJ3T2BeqA9JbyZFfj3KTCRtnC8MJANBsVNrz",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-meta-polygon-usdt",
-    symbol: "SWIM-POLYGON-USDT-META-POOL-LP",
-    displayName: "Polygon USDT Meta-Pool LP",
-    icon: LP_META_POLYGON_USDT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "HH3RwS94BWhR4bKeNYGvr2CfSLRQ2Kq6EYSDTKgGLgET",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimPolygonUsdtLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "HH3RwS94BWhR4bKeNYGvr2CfSLRQ2Kq6EYSDTKgGLgET",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-gst",
-    symbol: "solaGST-binaGST",
-    displayName: "Swim Solana GST Binance GST LP",
-    icon: LP_GST_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "BM3sXSfRg1yKzf2AbTA5QV76MdnKHi9M8D7VCGzDEYM1",
-          decimals: 9,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimSolanaGstBinanceGstLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "BM3sXSfRg1yKzf2AbTA5QV76MdnKHi9M8D7VCGzDEYM1",
+      decimals: 9,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-solana-lp-gmt",
-    symbol: "solaGMT-binaGMT",
-    displayName: "Swim Solana GMT Binance GMT LP",
-    icon: LP_GMT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "5VUZL2JcvbmjuT1DzDyWJ4mwtEH8unKyuQj3k38j8Ngs",
-          decimals: 9,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimSolanaGmtBinanceGmtLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "5VUZL2JcvbmjuT1DzDyWJ4mwtEH8unKyuQj3k38j8Ngs",
+      decimals: 9,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "devnet-solana-lp-meta-aurora-usdc",
-    symbol: "SWIM-AURORA-USDC-META-POOL-LP",
-    displayName: "Aurora USDC Meta-Pool LP",
-    icon: LP_META_AURORA_USDC_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "AQiHPuuBPsq4MLLjLv2WHRFbrNB1JHZeR4mQGVJTwVHn",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimAuroraUsdcLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "AQiHPuuBPsq4MLLjLv2WHRFbrNB1JHZeR4mQGVJTwVHn",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "devnet-solana-lp-meta-aurora-usdt",
-    symbol: "SWIM-AURORA-USDT-META-POOL-LP",
-    displayName: "Aurora USDT Meta-Pool LP",
-    icon: LP_META_AURORA_USDT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "utXdXdUMaS5qrBDDUg5btQMGL2CedouzmMPbYMJPEZD",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimAuroraUsdtLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "utXdXdUMaS5qrBDDUg5btQMGL2CedouzmMPbYMJPEZD",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
-    isDisabled: true, // TODO: Enable when deployed on devnet
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "devnet-solana-lp-meta-aurora-usn",
-    symbol: "SWIM-AURORA-USN-META-POOL-LP",
-    displayName: "Aurora USN Meta-Pool LP",
-    icon: LP_META_AURORA_USN_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "11111111111111111111111111111111", // TODO: Update
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimAuroraUsnLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "11111111111111111111111111111111", // TODO: Update
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
     id: "devnet-solana-lp-meta-fantom-usdc",
-    symbol: "SWIM-FANTOM-USDC-META-POOL-LP",
-    displayName: "Fantom USDC Meta-Pool LP",
-    icon: LP_META_FANTOM_USDC_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "4hmRgsk3hSdK1gXV7rg1pStwYtntKmbcFQyKqsZ4USis",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimFantomUsdcLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "4hmRgsk3hSdK1gXV7rg1pStwYtntKmbcFQyKqsZ4USis",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "devnet-solana-lp-meta-karura-ausd",
-    symbol: "SWIM-KARURA-AUSD-META-POOL-LP",
-    displayName: "Karura AUSD Meta-Pool LP",
-    icon: LP_META_KARURA_AUSD_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "4idDPnTYR4J9YhXmayKZYW8QBrASuuiTAxfkWUeaL3ap",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimKaruraAusdLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "4idDPnTYR4J9YhXmayKZYW8QBrASuuiTAxfkWUeaL3ap",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "devnet-solana-lp-meta-karura-usdt",
-    symbol: "SWIM-KARURA-USDT-META-POOL-LP",
-    displayName: "Karura USDT Meta-Pool LP",
-    icon: LP_META_KARURA_USDT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "882uzB9euTbBQJ6MrGrvxjXSTQi23VBQZcLcTH4E5Xow",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimKaruraUsdtLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "882uzB9euTbBQJ6MrGrvxjXSTQi23VBQZcLcTH4E5Xow",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
     id: "devnet-solana-lp-meta-acala-ausd",
-    symbol: "SWIM-ACALA-AUSD-META-POOL-LP",
-    displayName: "Acala AUSD Meta-Pool LP",
-    icon: LP_META_ACALA_AUSD_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "BTbHtbUtDX5WAUSxPgELzy9VsbMbKAVFQ2hykNrD3X7L",
-          decimals: 8,
-        },
-      ],
-    ]),
+    projectId: TokenProjectId.SwimAcalaAusdLp,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "BTbHtbUtDX5WAUSxPgELzy9VsbMbKAVFQ2hykNrD3X7L",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
     id: "devnet-ethereum-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Ethereum,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Ethereum,
-        {
-          address: "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Ethereum,
+    nativeDetails: {
+      address: "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1219,19 +1004,13 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-ethereum-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Ethereum,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Ethereum,
-        {
-          address: "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Ethereum,
+    nativeDetails: {
+      address: "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1243,19 +1022,13 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-bnb-busd",
-    symbol: BUSD_SYMBOL,
-    displayName: BUSD_NAME,
-    icon: BUSD_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Bnb,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Bnb,
-        {
-          address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
-          decimals: 18,
-        },
-      ],
+    projectId: TokenProjectId.Busd,
+    nativeEcosystemId: EcosystemId.Bnb,
+    nativeDetails: {
+      address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+      decimals: 18,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1267,19 +1040,13 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-bnb-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Bnb,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Bnb,
-        {
-          address: "0x98529E942FD121d9C470c3d4431A008257E0E714",
-          decimals: 18,
-        },
-      ],
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Bnb,
+    nativeDetails: {
+      address: "0x98529E942FD121d9C470c3d4431A008257E0E714",
+      decimals: 18,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1291,19 +1058,13 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-bnb-gst",
-    symbol: GST_SYMBOL,
-    displayName: GST_NAME,
-    icon: GST_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Bnb,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Bnb,
-        {
-          address: "0x73160078948280B8680e5F1eB2964698928E8cd7",
-          decimals: 8,
-        },
-      ],
+    projectId: TokenProjectId.Gst,
+    nativeEcosystemId: EcosystemId.Bnb,
+    nativeDetails: {
+      address: "0x73160078948280B8680e5F1eB2964698928E8cd7",
+      decimals: 8,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1315,19 +1076,13 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-bnb-gmt",
-    symbol: GMT_SYMBOL,
-    displayName: GMT_NAME,
-    icon: GMT_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Bnb,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Bnb,
-        {
-          address: "0x1F65D61D01E3f10b34B855287b32D7bfbEA088D0",
-          decimals: 8,
-        },
-      ],
+    projectId: TokenProjectId.Gmt,
+    nativeEcosystemId: EcosystemId.Bnb,
+    nativeDetails: {
+      address: "0x1F65D61D01E3f10b34B855287b32D7bfbEA088D0",
+      decimals: 8,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1339,19 +1094,13 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-avalanche-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Avalanche,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Avalanche,
-        {
-          address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Avalanche,
+    nativeDetails: {
+      address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1363,19 +1112,13 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-avalanche-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Avalanche,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Avalanche,
-        {
-          address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Avalanche,
+    nativeDetails: {
+      address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1387,19 +1130,13 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-polygon-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Polygon,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Polygon,
-        {
-          address: "0x0a0d7cEA57faCBf5DBD0D3b5169Ab00AC8Cf7dd1",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Polygon,
+    nativeDetails: {
+      address: "0x0a0d7cEA57faCBf5DBD0D3b5169Ab00AC8Cf7dd1",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1411,19 +1148,13 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   },
   {
     id: "devnet-polygon-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Polygon,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Polygon,
-        {
-          address: "0x2Ac9183EC64F71AfB73909c7C028Db14d35FAD2F",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Polygon,
+    nativeDetails: {
+      address: "0x2Ac9183EC64F71AfB73909c7C028Db14d35FAD2F",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1434,21 +1165,14 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDC,
     id: "devnet-aurora-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Aurora,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Aurora,
-        {
-          address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Aurora,
+    nativeDetails: {
+      address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1459,21 +1183,14 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USDT,
     id: "devnet-aurora-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Aurora,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Aurora,
-        {
-          address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Aurora,
+    nativeDetails: {
+      address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1484,21 +1201,15 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    isDisabled: true, // TODO: Enable when deployed on devnet
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "devnet-aurora-usn",
-    symbol: USN_SYMBOL,
-    displayName: USN_NAME,
-    icon: USN_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Aurora,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Aurora,
-        {
-          address: "0x0000000000000000000000000000000000000000", // TODO: Update
-          decimals: 18,
-        },
-      ],
+    projectId: TokenProjectId.Usn,
+    nativeEcosystemId: EcosystemId.Aurora,
+    nativeDetails: {
+      address: "0x0000000000000000000000000000000000000000", // TODO: Update
+      decimals: 18,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1511,19 +1222,13 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Fantom),
     id: "devnet-fantom-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Fantom,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Fantom,
-        {
-          address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
-          decimals: 6,
-        },
-      ],
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Fantom,
+    nativeDetails: {
+      address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1536,19 +1241,13 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "devnet-karura-ausd",
-    symbol: AUSD_SYMBOL,
-    displayName: AUSD_NAME,
-    icon: AUSD_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Karura,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Karura,
-        {
-          address: "0x074370ca8Fea9e8f1C5eE23f34CBdcD3FB7a66aD",
-          decimals: 12,
-        },
-      ],
+    projectId: TokenProjectId.Ausd,
+    nativeEcosystemId: EcosystemId.Karura,
+    nativeDetails: {
+      address: "0x074370ca8Fea9e8f1C5eE23f34CBdcD3FB7a66aD",
+      decimals: 12,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1561,19 +1260,13 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Karura),
     id: "devnet-karura-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Karura,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Karura,
-        {
-          address: "0x535d5e3b1ff7de526fe180e654a41350903c328d",
-          decimals: 18,
-        },
-      ],
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Karura,
+    nativeDetails: {
+      address: "0x535d5e3b1ff7de526fe180e654a41350903c328d",
+      decimals: 18,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1586,19 +1279,13 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
   {
     isDisabled: !isEcosystemEnabled(EcosystemId.Acala),
     id: "devnet-acala-ausd",
-    symbol: AUSD_SYMBOL,
-    displayName: AUSD_NAME,
-    icon: AUSD_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Acala,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Acala,
-        {
-          address: "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B",
-          decimals: 12,
-        },
-      ],
+    projectId: TokenProjectId.Ausd,
+    nativeEcosystemId: EcosystemId.Acala,
+    nativeDetails: {
+      address: "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B",
+      decimals: 12,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1608,24 +1295,20 @@ const DEVNET_TOKENS: readonly TokenSpec[] = [
       ],
     ]),
   },
+  DEVNET_SWIMUSD,
+  ...DEVNET_TOKENS_FOR_RESTRUCTURE,
 ].filter((spec) => !spec.isDisabled);
 
-const LOCALNET_TOKENS: readonly TokenSpec[] = [
+const LOCAL_TOKENS: readonly TokenSpec[] = [
   {
-    id: "localnet-solana-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "USCAD1T3pV246XwC5kBFXpEjuudS1zT1tTNYhxby9vy",
-          decimals: 6,
-        },
-      ],
+    id: "local-solana-usdc",
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "USCAD1T3pV246XwC5kBFXpEjuudS1zT1tTNYhxby9vy",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Ethereum,
         {
@@ -1643,20 +1326,14 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-solana-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "USTPJc7bSkXxRPP1ZdxihfxtfgWNrcRPrE4KEC6EK23",
-          decimals: 6,
-        },
-      ],
+    id: "local-solana-usdt",
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "USTPJc7bSkXxRPP1ZdxihfxtfgWNrcRPrE4KEC6EK23",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Ethereum,
         {
@@ -1674,20 +1351,14 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-solana-lp-hexapool",
-    symbol: "swimUSD",
-    displayName: "swimUSD (Swim Hexapool LP)",
-    icon: SWIM_USD_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "LPTufpWWSucDqq1hib8vxj1uJxTh2bkE7ZTo65LH4J2",
-          decimals: 8,
-        },
-      ],
+    id: "local-solana-lp-hexapool",
+    projectId: TokenProjectId.SwimUsd,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "LPTufpWWSucDqq1hib8vxj1uJxTh2bkE7ZTo65LH4J2",
+      decimals: 8,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Ethereum,
         {
@@ -1705,54 +1376,34 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-solana-swim",
-    symbol: "SWIM",
-    displayName: "Swim Protocol Token",
-    icon: SWIM_TOKEN_SVG,
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "SWMPqjB9AAtpCbatAEEGK67wNBCN1HDW6VypX7E5r9g",
-          decimals: 6,
-        },
-      ],
-    ]),
+    id: "local-solana-swim",
+    projectId: TokenProjectId.Swim,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "SWMPqjB9AAtpCbatAEEGK67wNBCN1HDW6VypX7E5r9g",
+      decimals: 6,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "localnet-solana-lp-swimlake",
-    symbol: "xSWIM",
-    displayName: "xSWIM (SwimLake LP)",
-    icon: SWIM_USD_SVG, // TODO: Change?
-    isStablecoin: false,
-    nativeEcosystem: EcosystemId.Solana,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Solana,
-        {
-          address: "xSwy12tTsuYwM2Hd7ceNmvDftgxJ2ZSTycjzAfrNwPW",
-          decimals: 8,
-        },
-      ],
-    ]),
+    id: "local-solana-lp-swimlake",
+    projectId: TokenProjectId.XSwim,
+    nativeEcosystemId: EcosystemId.Solana,
+    nativeDetails: {
+      address: "xSwy12tTsuYwM2Hd7ceNmvDftgxJ2ZSTycjzAfrNwPW",
+      decimals: 8,
+    },
+    wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "localnet-ethereum-usdc",
-    symbol: USDC_SYMBOL,
-    displayName: USDC_NAME,
-    icon: USDC_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Ethereum,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Ethereum,
-        {
-          address: "0xFcCeD5E997E7fb1D0594518D3eD57245bB8ed17E",
-          decimals: 6,
-        },
-      ],
+    id: "local-ethereum-usdc",
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: EcosystemId.Ethereum,
+    nativeDetails: {
+      address: "0xFcCeD5E997E7fb1D0594518D3eD57245bB8ed17E",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1763,20 +1414,14 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-ethereum-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Ethereum,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Ethereum,
-        {
-          address: "0xdAA71FBBA28C946258DD3d5FcC9001401f72270F",
-          decimals: 6,
-        },
-      ],
+    id: "local-ethereum-usdt",
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Ethereum,
+    nativeDetails: {
+      address: "0xdAA71FBBA28C946258DD3d5FcC9001401f72270F",
+      decimals: 6,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1787,20 +1432,14 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-bnb-busd",
-    symbol: BUSD_SYMBOL,
-    displayName: BUSD_NAME,
-    icon: BUSD_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Bnb,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Bnb,
-        {
-          address: "0xCeeFD27e0542aFA926B87d23936c79c276A48277",
-          decimals: 18,
-        },
-      ],
+    id: "local-bnb-busd",
+    projectId: TokenProjectId.Busd,
+    nativeEcosystemId: EcosystemId.Bnb,
+    nativeDetails: {
+      address: "0xCeeFD27e0542aFA926B87d23936c79c276A48277",
+      decimals: 18,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1811,20 +1450,14 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
     ]),
   },
   {
-    id: "localnet-bnb-usdt",
-    symbol: USDT_SYMBOL,
-    displayName: USDT_NAME,
-    icon: USDT_SVG,
-    isStablecoin: true,
-    nativeEcosystem: EcosystemId.Bnb,
-    detailsByEcosystem: new Map([
-      [
-        EcosystemId.Bnb,
-        {
-          address: "0x988B6CFBf3332FF98FFBdED665b1F53a61f92612",
-          decimals: 18,
-        },
-      ],
+    id: "local-bnb-usdt",
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: EcosystemId.Bnb,
+    nativeDetails: {
+      address: "0x988B6CFBf3332FF98FFBdED665b1F53a61f92612",
+      decimals: 18,
+    },
+    wrappedDetails: new Map([
       [
         EcosystemId.Solana,
         {
@@ -1839,6 +1472,6 @@ const LOCALNET_TOKENS: readonly TokenSpec[] = [
 export const TOKENS: ReadonlyRecord<Env, readonly TokenSpec[]> = {
   [Env.Mainnet]: MAINNET_TOKENS,
   [Env.Devnet]: DEVNET_TOKENS,
-  [Env.Localnet]: LOCALNET_TOKENS,
-  [Env.CustomLocalnet]: LOCALNET_TOKENS,
+  [Env.Local]: LOCAL_TOKENS,
+  [Env.Custom]: LOCAL_TOKENS,
 };

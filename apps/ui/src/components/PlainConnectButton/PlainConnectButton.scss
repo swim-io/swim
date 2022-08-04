@@ -1,0 +1,20 @@
+@import "../../eui";
+
+.plainConnectButton {
+  $self: &;
+
+  &__exitIcon {
+    display: none;
+    margin-left: 5px;
+  }
+
+  &--connected:hover {
+    background-color: $euiColorDanger !important;
+    color: $euiColorGhost;
+    border: none;
+
+    #{ $self }__exitIcon {
+      display: inline-block;
+    }
+  }
+}

@@ -9,5 +9,7 @@ export * from "./steps";
 export * from "./getTransferredAmounts";
 export * from "./utils";
 export * from "./interactionState";
+export * from "./interactionStateV2";
 export * from "./getNextTxInfo";
 export * from "./transfer";
+export * from "./doSingleSolanaPoolOperation";

@@ -1,7 +1,7 @@
 import { EuiConfirmModal } from "@elastic/eui";
 import type { ReactElement, ReactNode } from "react";
 
-export interface ConfirmModalProps {
+interface Props {
   readonly isVisible: boolean;
   readonly onCancel: () => void;
   readonly onConfirm: () => void;
@@ -19,7 +19,7 @@ export const ConfirmModal = ({
   cancelText,
   confirmText,
   promptText,
-}: ConfirmModalProps): ReactElement =>
+}: Props): ReactElement =>
   isVisible ? (
     <EuiConfirmModal
       title={titleText}

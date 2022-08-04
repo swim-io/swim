@@ -1,19 +1,12 @@
 {
-  "extends": "../../tsconfig.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@swim-io/tsconfig/tsconfig-react.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "noEmit": true,
-    "skipLibCheck": true,
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "module": "esnext"
+    "baseUrl": "src/",
+    "noEmit": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src/"]
 }

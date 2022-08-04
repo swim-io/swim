@@ -7,15 +7,12 @@ import {
   EuiToolTip,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const Footer = (): ReactElement | null => {
   const navigate = useNavigate();
   const listGroupHeaderSize = "s";
   const listGroupItemSize = "xs";
-  if (useLocation().pathname === "/swap") {
-    return null;
-  }
 
   return (
     <EuiPanel

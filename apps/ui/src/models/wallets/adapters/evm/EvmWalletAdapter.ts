@@ -1,12 +1,19 @@
 import * as Sentry from "@sentry/react";
 import type { SeverityLevel } from "@sentry/types";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
+import { sleep } from "@swim-io/utils";
 import type { Signer } from "ethers";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 
 import type { EcosystemId, EvmChainId, TokenSpec } from "../../../../config";
-import { ALL_UNIQUE_CHAINS, ECOSYSTEMS, Protocol } from "../../../../config";
-import { sleep } from "../../../../utils";
+import {
+  ALL_UNIQUE_CHAINS,
+  ECOSYSTEMS,
+  Protocol,
+  getTokenDetailsForEcosystem,
+} from "../../../../config";
+import { captureException } from "../../../../errors";
 
 type Web3Provider = ethers.providers.Web3Provider;
 
@@ -79,7 +86,9 @@ export class EvmWeb3WalletAdapter
     const provider = this.getWalletProvider();
     if (!provider) return false;
     try {
-      return (await provider.send("eth_accounts", [])).length > 0;
+      return (
+        ((await provider.send("eth_accounts", [])) as readonly any[]).length > 0
+      );
     } catch {
       return false;
     }
@@ -100,10 +109,10 @@ export class EvmWeb3WalletAdapter
 
     this.connecting = true;
     try {
-      const [address] = await this.walletProvider.send(
+      const [address] = (await this.walletProvider.send(
         "eth_requestAccounts",
         [],
-      );
+      )) as readonly string[];
       this.address = address;
       this.emit("connect", this.address);
 
@@ -115,14 +124,12 @@ export class EvmWeb3WalletAdapter
       const level: SeverityLevel = "info";
       Sentry.addBreadcrumb({
         category: "wallet",
-        message: `Connected to ${sentryContextKey} ${this.address}`,
+        message: `Connected to ${sentryContextKey} ${String(this.address)}`,
         level,
       });
     } catch (error) {
       await this.disconnect();
-      // TODO: parse actual errors from this
-      // Sentry.captureException(error);
-      console.error(error);
+      captureException(error);
     }
     this.connecting = false;
   }
@@ -152,8 +159,11 @@ export class EvmWeb3WalletAdapter
       await this.walletProvider.send("wallet_switchEthereumChain", [
         { chainId: hexValue(chainId) },
       ]);
-    } catch (switchError: any) {
-      if (switchError.code === METAMASK_unrecognizedChainId) {
+    } catch (switchError: unknown) {
+      if (
+        (switchError as Record<string, unknown>).code ===
+        METAMASK_unrecognizedChainId
+      ) {
         const evmSpec = ALL_UNIQUE_CHAINS[Protocol.Evm].find(
           (spec) => spec.chainId === chainId,
         );
@@ -169,7 +179,10 @@ export class EvmWeb3WalletAdapter
             rpcUrls: evmSpec.rpcUrls,
           },
         ]);
-      } else if (switchError.code === METAMASK_methodNotFound) {
+      } else if (
+        (switchError as Record<string, unknown>).code ===
+        METAMASK_methodNotFound
+      ) {
         this.emit(
           "error",
           `${this.serviceName} error`,
@@ -189,7 +202,7 @@ export class EvmWeb3WalletAdapter
     if (!this.walletProvider) {
       throw new Error("No wallet provider");
     }
-    const details = tokenSpec.detailsByEcosystem.get(ecosystemId);
+    const details = getTokenDetailsForEcosystem(tokenSpec, ecosystemId);
     if (!details) {
       throw new Error(
         `No ${ECOSYSTEMS[ecosystemId].displayName} details for token`,
@@ -199,18 +212,16 @@ export class EvmWeb3WalletAdapter
 
     await sleep(200); // Sleep briefly, otherwise Metamask ignores the second prompt
 
-    const wasAdded: boolean = await this.walletProvider.send(
-      "wallet_watchAsset",
-      {
-        type: "ERC20", // Initially only supports ERC20, but eventually more!
-        options: {
-          address: details.address, // The address that the token is at.
-          symbol: tokenSpec.symbol, // A ticker symbol or shorthand, up to 5 chars.
-          decimals: details.decimals, // The number of decimals in the token
-          // TODO: image: tokenSpec.icon, // A string url of the token logo
-        },
-      } as any,
-    );
+    const wasAdded = (await this.walletProvider.send("wallet_watchAsset", {
+      // @ts-expect-error the type is wrong in walletProvider.send, the params should not be an array
+      type: "ERC20", // Initially only supports ERC20, but eventually more!
+      options: {
+        address: details.address, // The address that the token is at.
+        symbol: TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].symbol, // A ticker symbol or shorthand, up to 5 chars.
+        decimals: details.decimals, // The number of decimals in the token
+        // TODO: image: tokenSpec.icon, // A string url of the token logo
+      },
+    })) as boolean;
     return wasAdded;
   }
 

@@ -14,16 +14,20 @@ interface EthError {
   readonly data?: EthErrorInternalData; // unclear if optional
 }
 
-export const isEthError = (error: any): error is EthError => {
-  if (error.code === undefined || typeof error.code !== "number") {
+export const isEthError = (error: unknown): error is EthError => {
+  if (typeof error !== "object" || error === null) return false;
+
+  const code = (error as Record<string, unknown>).code;
+
+  if (typeof code !== "number") {
     return false;
   }
 
-  if (error.code > -32999 && error.code < -32000) {
+  if (code > -32999 && code < -32000) {
     return true; // Eth RPC error
   }
 
-  if (error.code >= 4000 && error.code <= 5000) {
+  if (code >= 4000 && code <= 5000) {
     return true; // Eth provider error
   }
 

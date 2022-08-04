@@ -1,7 +1,7 @@
 import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import { EcosystemId, getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../../models";
 import { useErc20BalanceQuery } from "../evm";
 
@@ -20,7 +20,8 @@ export const useUserLpBalances = (
 
   // ethereum
   const ethereumTokenContractAddress =
-    lpTokenSpec.detailsByEcosystem.get(EcosystemId.Ethereum)?.address ?? null;
+    getTokenDetailsForEcosystem(lpTokenSpec, EcosystemId.Ethereum)?.address ??
+    null;
   const { data: userLpBalanceEthereumAtomic = null } = useErc20BalanceQuery(
     EcosystemId.Ethereum,
     ethereumTokenContractAddress,
@@ -36,7 +37,7 @@ export const useUserLpBalances = (
 
   // bnb
   const bnbTokenContractAddress =
-    lpTokenSpec.detailsByEcosystem.get(EcosystemId.Bnb)?.address ?? null;
+    getTokenDetailsForEcosystem(lpTokenSpec, EcosystemId.Bnb)?.address ?? null;
   const { data: userLpBalanceBnbAtomic = null } = useErc20BalanceQuery(
     EcosystemId.Bnb,
     bnbTokenContractAddress,

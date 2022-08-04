@@ -1,0 +1,62 @@
+{
+  "name": "@swim-io/eslint-config",
+  "version": "0.10.0",
+  "description": "Shared default ESLint configuration for Swim TS projects.",
+  "exports": {
+    ".": "./index.cjs",
+    "./patch/modern-module-resolution.cjs": "./patch/modern-module-resolution.cjs",
+    "./react": "./react.cjs"
+  },
+  "files": [
+    "*.cjs",
+    "*.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/swim-io/swim/tree/master/packages/eslint-config"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "format": "prettier --write \"*.{cjs,js}\"",
+    "format:check": "prettier --check index.{cjs,js}",
+    "lint": "eslint \"./*.{cjs,js}\"",
+    "lint:fix": "eslint --fix \"./*.{cjs,js}\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "verify": "yarn format:check && yarn lint",
+    "prepare": "yarn verify"
+  },
+  "peerDependencies": {
+    "eslint": ">= 8.19",
+    "eslint-config-prettier": "^8.5",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-functional": "^4.2",
+    "eslint-plugin-import": "^2.26",
+    "eslint-plugin-jest": "^25.7.0",
+    "eslint-plugin-prettier": "^4.2"
+  },
+  "optionalDependencies": {
+    "@sayari/eslint-plugin": "^0.0.1-rc.4",
+    "@typescript-eslint/eslint-plugin": "^5.30",
+    "@typescript-eslint/parser": "^5.30",
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-deprecation": "^1.3",
+    "eslint-plugin-react": "^7.29.4"
+  },
+  "dependencies": {
+    "@rushstack/eslint-patch": "^1.1.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.19.0",
+    "eslint-config-prettier": "^8.5",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-functional": "^4.2.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^25.7.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "jest": "^28.1.2",
+    "prettier": "^2.7.1"
+  }
+}

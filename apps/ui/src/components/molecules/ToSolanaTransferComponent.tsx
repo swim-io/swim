@@ -1,9 +1,9 @@
+import { isNotNull } from "@swim-io/utils";
 import type React from "react";
 
 import { EcosystemId } from "../../config";
 import type { Interaction, ToSolanaTransferState } from "../../models";
 import { getFromEcosystemOfToSolanaTransfer } from "../../models";
-import { isNotNull } from "../../utils";
 
 import { Transfer } from "./Transfer";
 
@@ -27,7 +27,7 @@ export const ToSolanaTransferComponent: React.FC<Props> = ({
     txIds;
   const approveAndTransferTxProps = approveAndTransferEvmToken.map((txId) => ({
     txId,
-    ecosystem: token.nativeEcosystem,
+    ecosystem: token.nativeEcosystemId,
   }));
   const postVaaTxProps = postVaaOnSolana.map((txId) => ({
     txId,

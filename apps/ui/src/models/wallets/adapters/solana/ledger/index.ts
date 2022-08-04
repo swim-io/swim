@@ -1,10 +1,10 @@
 import type Transport from "@ledgerhq/hw-transport";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import type { PublicKey, Transaction } from "@solana/web3.js";
+import { assertIsError } from "@swim-io/utils";
 import EventEmitter from "eventemitter3";
 
 import { Protocol } from "../../../../../config";
-import { assertIsError } from "../../../../../utils";
 import type { SolanaWalletAdapter } from "../SolanaWalletAdapter";
 
 import { getPublicKey, signTransaction } from "./core";

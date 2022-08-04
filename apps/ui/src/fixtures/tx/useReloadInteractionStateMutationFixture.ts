@@ -1,8 +1,9 @@
 import { PublicKey } from "@solana/web3.js";
+import { Env } from "@swim-io/core";
 import Decimal from "decimal.js";
 
-import { EcosystemId, Env, findTokenById } from "../../config";
-import type { EvmTx, SolanaTx } from "../../models";
+import { EcosystemId, findTokenById } from "../../config";
+import type { EvmTx, InteractionState, SolanaTx } from "../../models";
 import { Amount } from "../../models";
 
 export const SOLANA_USDC = findTokenById("devnet-solana-usdc", Env.Devnet);
@@ -22,7 +23,7 @@ const AVALANCHE_USDC = findTokenById("devnet-avalanche-usdc", Env.Devnet);
  * - create interaction in UI
  * - then copy the state from IndexedDB
  */
-export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION = {
+export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION: InteractionState = {
   interaction: {
     type: 0,
     params: {
@@ -33,8 +34,6 @@ export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION = {
     poolIds: ["hexapool", "meta-avalanche-usdc"],
     env: Env.Devnet,
     submittedAt: 1656406521938,
-    signatureSetKeypairs: {},
-    previousSignatureSetAddresses: {},
     connectedWallets: {
       [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
       [EcosystemId.Bnb]: null,
@@ -115,10 +114,10 @@ export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION = {
   ],
 };
 
-export const SOLANA_TXS_FOR_RELOAD_INTERACTION = [
+export const SOLANA_TXS_FOR_RELOAD_INTERACTION: readonly SolanaTx[] = [
   {
-    ecosystem: "solana",
-    txId: "53PBEMpqPraH1KFGSQfGn8JR62kndfU6iv6XqeJdDtpuEyD9FLkGjtnUZUB6TPv4H8A7kVxk2WiyEJPY7bLCNQGC",
+    ecosystemId: "solana",
+    id: "53PBEMpqPraH1KFGSQfGn8JR62kndfU6iv6XqeJdDtpuEyD9FLkGjtnUZUB6TPv4H8A7kVxk2WiyEJPY7bLCNQGC",
     timestamp: 1656406854,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
     parsedTx: {
@@ -467,8 +466,8 @@ export const SOLANA_TXS_FOR_RELOAD_INTERACTION = [
     },
   },
   {
-    ecosystem: "solana",
-    txId: "53mCCVJEvoERa1anMkJxm5JD3doRcMBoQVyw8ZgtJ5sMuDZsw1QaW8worMbsbWBqAhwAheURKNKA7xrafSHyDEjA",
+    ecosystemId: "solana",
+    id: "53mCCVJEvoERa1anMkJxm5JD3doRcMBoQVyw8ZgtJ5sMuDZsw1QaW8worMbsbWBqAhwAheURKNKA7xrafSHyDEjA",
     timestamp: 1656406848,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
     parsedTx: {
@@ -834,8 +833,8 @@ export const SOLANA_TXS_FOR_RELOAD_INTERACTION = [
     },
   },
   {
-    ecosystem: "solana",
-    txId: "4LCZusMofy5oPLZe5cX5VCn4T1n6qgGsxCRhbwTVAcKSvZRvQLdeEWXJef2m5sD9u6XfRgRNRcBHJBwB48tun2eQ",
+    ecosystemId: "solana",
+    id: "4LCZusMofy5oPLZe5cX5VCn4T1n6qgGsxCRhbwTVAcKSvZRvQLdeEWXJef2m5sD9u6XfRgRNRcBHJBwB48tun2eQ",
     timestamp: 1656406843,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
     parsedTx: {
@@ -1329,8 +1328,8 @@ export const SOLANA_TXS_FOR_RELOAD_INTERACTION = [
     },
   },
   {
-    ecosystem: "solana",
-    txId: "5UfH9wni8vGP8Ch2KQp2JjoPKyWssFjePVpxAduFErWQVFEfF7Av3iCK9wA7CyQTWUkHZtr6ThoWxZXjr73dVQqF",
+    ecosystemId: "solana",
+    id: "5UfH9wni8vGP8Ch2KQp2JjoPKyWssFjePVpxAduFErWQVFEfF7Av3iCK9wA7CyQTWUkHZtr6ThoWxZXjr73dVQqF",
     timestamp: 1656406839,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
     parsedTx: {
@@ -1626,8 +1625,8 @@ export const SOLANA_TXS_FOR_RELOAD_INTERACTION = [
     },
   },
   {
-    ecosystem: "solana",
-    txId: "reEurpv1vonjzLPpqoMWvcNV5bbJmhJwfPPM7d7PEEVcb8mN6DzZTqPtYMLcenJ6VLMa3naXe4gPzPkxurjQy4e",
+    ecosystemId: "solana",
+    id: "reEurpv1vonjzLPpqoMWvcNV5bbJmhJwfPPM7d7PEEVcb8mN6DzZTqPtYMLcenJ6VLMa3naXe4gPzPkxurjQy4e",
     timestamp: 1656406836,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
     parsedTx: {
@@ -1796,8 +1795,8 @@ export const SOLANA_TXS_FOR_RELOAD_INTERACTION = [
     },
   },
   {
-    ecosystem: "solana",
-    txId: "61FvZ4bp3Ua2ED6cv32rqZnLnW5hGDYMf6racBeoZXJaxzVUVZzEEqtut29aqeBoGwxk3Dhr7mbXY6ziVpCDiHTT",
+    ecosystemId: "solana",
+    id: "61FvZ4bp3Ua2ED6cv32rqZnLnW5hGDYMf6racBeoZXJaxzVUVZzEEqtut29aqeBoGwxk3Dhr7mbXY6ziVpCDiHTT",
     timestamp: 1656406832,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
     parsedTx: {
@@ -1966,8 +1965,8 @@ export const SOLANA_TXS_FOR_RELOAD_INTERACTION = [
 
 export const EVM_TXS_FOR_RELOAD_INTERACTION = [
   {
-    ecosystem: "ethereum",
-    txId: "0xdacf9f474992e86e079b588573eff53542f1722386280c55aa71057e5771732f",
+    ecosystemId: "ethereum",
+    id: "0xdacf9f474992e86e079b588573eff53542f1722386280c55aa71057e5771732f",
     timestamp: 1656406577,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
     txResponse: {
@@ -2079,8 +2078,8 @@ export const EVM_TXS_FOR_RELOAD_INTERACTION = [
     },
   },
   {
-    ecosystem: "avalanche",
-    txId: "0x5ddfb1925096babf7939393b62970700a4db183a5dd9ae36dfd2fc9c5d7da302",
+    ecosystemId: "avalanche",
+    id: "0x5ddfb1925096babf7939393b62970700a4db183a5dd9ae36dfd2fc9c5d7da302",
     timestamp: 1656406883,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
     txResponse: {

@@ -1,16 +1,20 @@
+import { findOrThrow, isNotNull } from "@swim-io/utils";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import { useSolanaWallet, useSplTokenAccountsQuery } from "..";
+import { EcosystemId } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
-import { getTokensByPool } from "../../models";
-import { findOrThrow, isNotNull } from "../../utils";
-import { useSolanaConnection } from "../solana";
 import {
-  doSinglePoolOperation,
+  doSingleSolanaPoolOperation,
+  getTokensByPool,
   setOutputOperationInputAmount,
-} from "../swim/usePoolOperationsGenerator";
+} from "../../models";
+import {
+  useSolanaConnection,
+  useSolanaWallet,
+  useSplTokenAccountsQuery,
+} from "../solana";
 
 export const useSolanaPoolOperationsMutation = () => {
   const { env } = useEnvironment();
@@ -41,14 +45,26 @@ export const useSolanaPoolOperationsMutation = () => {
     }
 
     const inputState = solanaPoolOperations[0];
+    const outputState = solanaPoolOperations[solanaPoolOperations.length - 1];
     const inputOperation = inputState.operation;
     const inputPoolSpec = findOrThrow(
       pools,
       (spec) => spec.id === inputOperation.poolId,
     );
+    const outputPoolSpec = findOrThrow(
+      pools,
+      (spec) => spec.id === outputState.operation.poolId,
+    );
+    if (inputPoolSpec.ecosystem !== EcosystemId.Solana) {
+      throw new Error("Expect Solana pool");
+    }
+    if (outputPoolSpec.ecosystem !== EcosystemId.Solana) {
+      throw new Error("Expect Solana pool");
+    }
+
     let inputTxId = inputState.txId;
     if (inputTxId === null) {
-      inputTxId = await doSinglePoolOperation(
+      inputTxId = await doSingleSolanaPoolOperation(
         env,
         solanaConnection,
         wallet,
@@ -68,13 +84,10 @@ export const useSolanaPoolOperationsMutation = () => {
     if (solanaPoolOperations.length !== 2) {
       throw new Error("Unknown interaction route");
     }
-    const outputState = solanaPoolOperations[1];
-
     // Return if output operation is already done
     if (outputState.txId !== null) {
       return;
     }
-
     const parsedInputTx = await solanaConnection.getParsedTx(inputTxId);
     const outputOperation = setOutputOperationInputAmount(
       splTokenAccounts,
@@ -83,11 +96,7 @@ export const useSolanaPoolOperationsMutation = () => {
       outputState.operation,
       parsedInputTx,
     );
-    const outputPoolSpec = findOrThrow(
-      pools,
-      (spec) => spec.id === outputOperation.poolId,
-    );
-    const outputTxId = await doSinglePoolOperation(
+    const outputTxId = await doSingleSolanaPoolOperation(
       env,
       solanaConnection,
       wallet,

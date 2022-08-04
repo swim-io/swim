@@ -1,8 +1,7 @@
-import * as Sentry from "@sentry/react";
-
 import type { EvmEcosystemId, TokenSpec } from "../../config";
 import { ECOSYSTEMS } from "../../config";
 import { useNotification } from "../../core/store";
+import { captureException } from "../../errors";
 
 import { useEvmChainId } from "./useEvmChainId";
 import { useEvmWallet } from "./useEvmWallet";
@@ -32,7 +31,7 @@ export const useRegisterErc20Token = (
       await wallet.registerToken(tokenSpec, ecosystemId, evmChainId);
     } catch (error) {
       notify("Error", "Failed to add token", "error");
-      Sentry.captureException(error);
+      captureException(error);
     }
   };
 

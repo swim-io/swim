@@ -1,7 +1,8 @@
-import type { Keypair } from "@solana/web3.js";
+import type { Env } from "@swim-io/core";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import type Decimal from "decimal.js";
 
-import type { EcosystemId, Env } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
+import type { EcosystemId } from "../../config";
 import type { Amount } from "../amount";
 
 /**
@@ -14,6 +15,7 @@ export enum InteractionType {
   RemoveUniform,
   RemoveExactBurn,
   RemoveExactOutput,
+  SwapV2,
 }
 
 export const INTERACTION_GROUP_SWAP = new Set([InteractionType.Swap]);
@@ -96,13 +98,6 @@ interface BaseInteraction {
   readonly poolIds: readonly string[];
   readonly env: Env;
   readonly submittedAt: number;
-  /** Record of token ID to keypairs for a signature set used in posting Wormhole VAAs to Solana */
-  readonly signatureSetKeypairs: ReadonlyRecord<string, Keypair | undefined>;
-  /** Previous keypairs for use finding txs */
-  readonly previousSignatureSetAddresses: ReadonlyRecord<
-    string,
-    string | undefined
-  >;
   readonly connectedWallets: ReadonlyRecord<EcosystemId, string | null>;
 }
 
@@ -128,3 +123,45 @@ export type Interaction =
   | RemoveExactBurnInteraction
   | RemoveExactOutputInteraction
   | SwapInteraction;
+
+// V2 for Pool Restructure
+export interface TokenOption {
+  readonly tokenId: string;
+  readonly ecosystemId: EcosystemId;
+}
+export interface TokenTransferDetail extends TokenOption {
+  readonly value: Decimal;
+}
+
+export interface SwapInteractionSpecV2 extends BaseInteractionSpec {
+  readonly type: InteractionType.SwapV2;
+  readonly params: {
+    readonly fromTokenDetail: TokenTransferDetail;
+    readonly toTokenDetail: TokenTransferDetail;
+  };
+}
+
+export type InteractionSpecV2 =
+  | SwapInteractionSpecV2
+  | AddInteractionSpec
+  | RemoveUniformInteractionSpec
+  | RemoveExactBurnInteractionSpec
+  | RemoveExactOutputInteractionSpec;
+
+export interface SwapInteractionV2
+  extends BaseInteraction,
+    SwapInteractionSpecV2 {}
+
+export type InteractionV2 =
+  | AddInteraction
+  | RemoveUniformInteraction
+  | RemoveExactBurnInteraction
+  | RemoveExactOutputInteraction
+  | SwapInteractionV2;
+
+export const enum InteractionStatusV2 {
+  Incomplete,
+  Active,
+  Completed,
+  Error,
+}

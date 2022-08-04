@@ -14,6 +14,8 @@ import {
   EuiTitle,
   EuiToolTip,
 } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
+import { defaultIfError, pluralizeEn } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
@@ -29,9 +31,13 @@ import { AddForm } from "../components/AddForm";
 import { RemoveForm } from "../components/RemoveForm";
 import { SlippageButton } from "../components/SlippageButton";
 import { StatList } from "../components/StatList";
-import { NativeTokenIcon, TokenIcon } from "../components/TokenIcon";
+import { TokenIcon, TokenSpecIcon } from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
-import { EcosystemId, getSolanaTokenDetails } from "../config";
+import {
+  EcosystemId,
+  getSolanaTokenDetails,
+  getTokenDetailsForEcosystem,
+} from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import {
@@ -42,7 +48,6 @@ import {
 } from "../hooks";
 import BNB_SVG from "../images/ecosystems/bnb.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
-import { defaultIfError, pluralize } from "../utils";
 
 const humanizeUsdAmount = (amount: string): string =>
   atomicToHumanString(new Decimal(amount), 2);
@@ -96,7 +101,7 @@ const getPoolTitle = (poolSpec: PoolSpec): ReactElement => {
   );
 };
 
-export interface PoolPageInnerProps {
+interface PoolPageInnerProps {
   readonly poolSpec: PoolSpec; // TODO: In PoolPage component, poolSpec can be null, that case should be taken as an option
 }
 
@@ -132,7 +137,7 @@ export const PoolPageInner = ({
           account && account.mint.toBase58() === solanaDetails.address,
       ) ?? null;
     return {
-      title: <NativeTokenIcon {...tokenSpec} />,
+      title: <TokenSpecIcon token={tokenSpec} />,
       description: poolTokenAccount
         ? humanizeUsdAmount(
             displayAmount(
@@ -146,18 +151,24 @@ export const PoolPageInner = ({
   });
 
   const userLpBalances = useUserLpBalances(lpToken, userLpTokenAccount);
-  const userLpStats = [...lpToken.detailsByEcosystem.keys()].map(
-    (ecosystemId) => {
-      const userLpBalance = userLpBalances[ecosystemId];
-      return {
-        title: <TokenIcon {...lpToken} ecosystemId={ecosystemId} />,
-        description: userLpBalance
-          ? userLpBalance.toFormattedHumanString(ecosystemId)
-          : "-",
-        key: ecosystemId,
-      };
-    },
-  );
+  const userLpStats = [
+    lpToken.nativeEcosystemId,
+    ...lpToken.wrappedDetails.keys(),
+  ].map((ecosystemId) => {
+    const userLpBalance = userLpBalances[ecosystemId];
+    return {
+      title: (
+        <TokenIcon
+          {...TOKEN_PROJECTS_BY_ID[lpToken.projectId]}
+          ecosystemId={ecosystemId}
+        />
+      ),
+      description: userLpBalance
+        ? userLpBalance.toFormattedHumanString(ecosystemId)
+        : "-",
+      key: ecosystemId,
+    };
+  });
 
   const poolInfoStats = poolState
     ? [
@@ -237,13 +248,13 @@ export const PoolPageInner = ({
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiTitle size="xxs">
-            <h4>{pluralize("Pool Balance", tokens.length > 1)}</h4>
+            <h4>{pluralizeEn("Pool Balance", tokens.length > 1)}</h4>
           </EuiTitle>
           <EuiSpacer size="s" />
           <StatList listItems={reserveStats} />
           <EuiSpacer />
           <EuiTitle size="xxs">
-            <h4>{pluralize("User Balance", tokens.length > 1)}</h4>
+            <h4>{pluralizeEn("User Balance", tokens.length > 1)}</h4>
           </EuiTitle>
           <EuiSpacer size="s" />
           <StatList listItems={userLpStats} />
@@ -257,21 +268,26 @@ export const PoolPageInner = ({
               <StatList listItems={poolInfoStats} />
             </>
           )}
-          {lpToken.detailsByEcosystem.has(EcosystemId.Ethereum) && (
+          {getTokenDetailsForEcosystem(lpToken, EcosystemId.Ethereum) !==
+            null && (
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}
-              onClick={() => showRegisterEthereumTokenPrompt(lpToken)}
+              onClick={() => {
+                showRegisterEthereumTokenPrompt(lpToken).catch(console.error);
+              }}
               iconType={ETHEREUM_SVG}
             >
               Add LP token to Metamask
             </EuiButtonEmpty>
           )}
-          {lpToken.detailsByEcosystem.has(EcosystemId.Bnb) && (
+          {getTokenDetailsForEcosystem(lpToken, EcosystemId.Bnb) !== null && (
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}
-              onClick={() => showRegisterBnbTokenPrompt(lpToken)}
+              onClick={() => {
+                showRegisterBnbTokenPrompt(lpToken).catch(console.error);
+              }}
               iconType={BNB_SVG}
             >
               Add LP token to Metamask

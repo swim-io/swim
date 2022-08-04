@@ -11,7 +11,6 @@ import {
 import type React from "react";
 
 import type { TokenSpec } from "../../config";
-import { getNativeTokenDetails } from "../../config";
 import { Amount } from "../../models";
 import { ConnectButton } from "../ConnectButton";
 import { TokenSelect } from "../TokenSelect";
@@ -23,7 +22,7 @@ interface Props {
   readonly token: TokenSpec;
   readonly tokenOptionIds: readonly string[];
   readonly placeholder: string;
-  readonly onSelectToken: (tokenId: string) => void;
+  readonly onSelectToken: (token: TokenSpec) => void;
   readonly onChangeValue?: (value: string) => void;
   readonly onBlur?: () => void;
   readonly disabled: boolean;
@@ -36,7 +35,7 @@ const getReadonlyDisplayValue = (token: TokenSpec, value: string) => {
     return "";
   }
   return Amount.fromHumanString(token, value).toFormattedHumanString(
-    token.nativeEcosystem,
+    token.nativeEcosystemId,
   );
 };
 
@@ -69,8 +68,6 @@ export const TokenAmountInput: React.FC<Props> = ({
   onBlur,
   showConstantSwapTip,
 }) => {
-  const { nativeEcosystem } = token;
-  const tokenNativeDetails = getNativeTokenDetails(token);
   const readOnly = !onChangeValue;
 
   return (
@@ -94,10 +91,13 @@ export const TokenAmountInput: React.FC<Props> = ({
           labelAppend={
             <UserBalanceDisplay
               token={token}
+              ecosystemId={token.nativeEcosystemId}
               onClick={
                 onChangeValue
                   ? (newAmount) =>
-                      onChangeValue(newAmount.toHumanString(nativeEcosystem))
+                      onChangeValue(
+                        newAmount.toHumanString(token.nativeEcosystemId),
+                      )
                   : undefined
               }
             />
@@ -116,7 +116,7 @@ export const TokenAmountInput: React.FC<Props> = ({
             <EuiFieldNumber
               placeholder={placeholder}
               value={value}
-              step={10 ** -tokenNativeDetails.decimals}
+              step={10 ** -token.nativeDetails.decimals}
               min={0}
               onChange={(e) => onChangeValue(e.target.value)}
               disabled={disabled}
@@ -128,7 +128,7 @@ export const TokenAmountInput: React.FC<Props> = ({
       </EuiFlexItem>
       <EuiFlexItem style={{ minWidth: "180px" }}>
         <EuiFormRow hasEmptyLabelSpace>
-          <ConnectButton ecosystemId={nativeEcosystem} fullWidth />
+          <ConnectButton ecosystemId={token.nativeEcosystemId} fullWidth />
         </EuiFormRow>
       </EuiFlexItem>
     </EuiFlexGroup>

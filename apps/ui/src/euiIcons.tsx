@@ -1,4 +1,4 @@
-/* eslint-disable import/extensions */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, import/extensions */
 
 // @ts-expect-error no definitions
 import { icon as EuiIconAlert } from "@elastic/eui/es/components/icon/assets/alert";
@@ -47,6 +47,8 @@ import { icon as EuiIconRefresh } from "@elastic/eui/es/components/icon/assets/r
 // @ts-expect-error no definitions
 import { icon as EuiIconReturnKey } from "@elastic/eui/es/components/icon/assets/return_key";
 // @ts-expect-error no definitions
+import { icon as EuiIconSearch } from "@elastic/eui/es/components/icon/assets/search";
+// @ts-expect-error no definitions
 import { icon as EuiIconVector } from "@elastic/eui/es/components/icon/assets/vector";
 // @ts-expect-error no definitions
 import { icon as EuiIconVisGauge } from "@elastic/eui/es/components/icon/assets/vis_gauge";
@@ -55,7 +57,7 @@ import { appendIconComponentCache } from "@elastic/eui/es/components/icon/icon";
 
 // Preload specific icons to stop LoadChunkError("Cant find icon")
 // Context: https://github.com/elastic/eui/blob/main/wiki/consuming.md#failing-icon-imports
-export const _ = appendIconComponentCache({
+appendIconComponentCache({
   advancedSettingsApp: EuiIconAppAdvancedSettings,
   alert: EuiIconAlert,
   appSecurity: EuiIconAppSecurity,
@@ -79,6 +81,7 @@ export const _ = appendIconComponentCache({
   questionInCircle: EuiIconQuestionInCircle,
   refresh: EuiIconRefresh,
   returnKey: EuiIconReturnKey,
+  search: EuiIconSearch,
   vector: EuiIconVector,
   visGauge: EuiIconVisGauge,
 });

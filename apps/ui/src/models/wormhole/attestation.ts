@@ -1,22 +1,25 @@
 import {
+  CHAINS as WORMHOLE_CHAIN_IDS,
   attestFromEth,
   attestFromSolana,
   createWrappedOnEth,
   createWrappedOnSolana,
   getEmitterAddressEth,
   getEmitterAddressSolana,
-  getSignedVAAWithRetry,
   parseSequenceFromLogEth,
   parseSequenceFromLogSolana,
   postVaaSolanaWithRetry,
 } from "@certusone/wormhole-sdk";
+import type { WormholeConfig } from "@swim-io/core";
 import type { ContractReceipt } from "ethers";
 
-import type { EvmSpec, WormholeChainSpec, WormholeConfig } from "../../config";
-import { ECOSYSTEMS, EcosystemId, WormholeChainId } from "../../config";
+import type { EvmSpec, WormholeChainSpec } from "../../config";
+import { ECOSYSTEMS, EcosystemId } from "../../config";
 import type { SolanaConnection } from "../solana";
 import { DEFAULT_MAX_RETRIES } from "../solana";
 import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
+
+import { getSignedVaaWithRetry } from "./guardiansRpc";
 
 // TODO: Refactor to use Tx instead of CrossChainResult
 interface CrossChainResult {
@@ -68,7 +71,7 @@ export const attestSplToken = async (
 };
 
 export const setUpSplTokensOnEvm = async (
-  { endpoint }: WormholeConfig,
+  { rpcUrls }: WormholeConfig,
   solanaWormhole: WormholeChainSpec,
   evmChain: EvmSpec,
   solanaConnection: SolanaConnection,
@@ -95,9 +98,9 @@ export const setUpSplTokensOnEvm = async (
 
   const vaas = await Promise.all(
     attestations.map(({ emitterAddress, sequence }) =>
-      getSignedVAAWithRetry(
-        [endpoint],
-        WormholeChainId.Solana,
+      getSignedVaaWithRetry(
+        [...rpcUrls],
+        WORMHOLE_CHAIN_IDS.solana,
         emitterAddress,
         sequence,
       ),
@@ -151,7 +154,7 @@ export const attestErc20Token = async (
 };
 
 export const setUpErc20Tokens = async (
-  { endpoint }: WormholeConfig,
+  { rpcUrls }: WormholeConfig,
   evmChain: EvmSpec,
   solanaWormhole: WormholeChainSpec,
   solanaConnection: SolanaConnection,
@@ -171,8 +174,8 @@ export const setUpErc20Tokens = async (
   const evmEcosystem = ECOSYSTEMS[evmChain.ecosystem];
   const vaas = await Promise.all(
     attestations.map(({ emitterAddress, sequence }) =>
-      getSignedVAAWithRetry(
-        [endpoint],
+      getSignedVaaWithRetry(
+        [...rpcUrls],
         evmEcosystem.wormholeChainId,
         emitterAddress,
         sequence,

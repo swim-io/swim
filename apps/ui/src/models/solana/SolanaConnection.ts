@@ -8,9 +8,9 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { Connection, PublicKey } from "@solana/web3.js";
+import { sleep } from "@swim-io/utils";
 
 import { SwimError } from "../../errors";
-import { sleep } from "../../utils";
 
 import { deserializeTokenAccount } from "./parsers";
 import { getAssociatedTokenAddress } from "./utils";
@@ -49,9 +49,9 @@ export class SolanaConnection {
   public getMinimumBalanceForRentExemption: InstanceType<
     typeof Connection
   >["getMinimumBalanceForRentExemption"];
-  public getRecentBlockhash: InstanceType<
+  public getLatestBlockhash: InstanceType<
     typeof Connection
-  >["getRecentBlockhash"];
+  >["getLatestBlockhash"];
   public getSignaturesForAddress: InstanceType<
     typeof Connection
   >["getSignaturesForAddress"];
@@ -84,7 +84,7 @@ export class SolanaConnection {
       this.rawConnection.getMinimumBalanceForRentExemption.bind(
         this.rawConnection,
       );
-    this.getRecentBlockhash = this.rawConnection.getRecentBlockhash.bind(
+    this.getLatestBlockhash = this.rawConnection.getLatestBlockhash.bind(
       this.rawConnection,
     );
     this.getSignaturesForAddress =
@@ -121,9 +121,14 @@ export class SolanaConnection {
     }
     while (remainingAttempts >= 0) {
       try {
+        const latestBlock = await this.rawConnection.getLatestBlockhash();
         // If the Solana network is busy this can time out
         return await this.rawConnection.confirmTransaction(
-          txId,
+          {
+            signature: txId,
+            blockhash: latestBlock.blockhash,
+            lastValidBlockHeight: latestBlock.lastValidBlockHeight,
+          },
           commitmentLevel,
         );
       } catch (e) {
@@ -143,9 +148,11 @@ export class SolanaConnection {
     unsignedTx: Transaction,
     options: GetSolanaTransactionOptions = {},
   ): Promise<string> {
-    const { blockhash } = await this.rawConnection.getLatestBlockhash();
+    const latestBlock = await this.rawConnection.getLatestBlockhash();
     // eslint-disable-next-line functional/immutable-data
-    unsignedTx.recentBlockhash = blockhash;
+    unsignedTx.recentBlockhash = latestBlock.blockhash;
+    // eslint-disable-next-line functional/immutable-data
+    unsignedTx.lastValidBlockHeight = latestBlock.lastValidBlockHeight;
     const signed = await signTransaction(unsignedTx);
     const txId = await this.rawConnection.sendRawTransaction(
       signed.serialize(),

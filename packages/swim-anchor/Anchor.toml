@@ -3,7 +3,8 @@ seeds = true
 skip-lint = false
 
 [programs.localnet]
-two_pool = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+#two_pool = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+two_pool = "8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM"
 
 [registry]
 url = "https://api.apr.dev"

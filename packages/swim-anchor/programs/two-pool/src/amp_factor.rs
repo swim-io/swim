@@ -285,87 +285,87 @@ impl AmpFactor {
     }
 }
 
-// #[cfg(all(test, not(feature = "test-bpf")))]
-// mod tests {
-//     use super::*;
+#[cfg(all(test, not(feature = "test-bpf")))]
+mod tests {
+    use super::*;
 
-//     fn new_u64(value: u64, decimals: u8) -> ValueT {
-//         ValueT::new(value, decimals).unwrap()
-//     }
+    fn new_u64(value: u64, decimals: u8) -> ValueT {
+        ValueT::new(value, decimals).unwrap()
+    }
 
-//     #[test]
-//     fn new_amp_factor() {
-//         assert!(AmpFactor::new(MIN_AMP_VALUE - new_u64(1, 1)).is_err());
-//         assert!(AmpFactor::new(MAX_AMP_VALUE + 1).is_err());
+    #[test]
+    fn new_amp_factor() {
+        assert!(AmpFactor::new(MIN_AMP_VALUE - new_u64(1, 1)).is_err());
+        assert!(AmpFactor::new(MAX_AMP_VALUE + 1).is_err());
 
-//         assert!(AmpFactor::new(ValueT::from(0)).is_ok());
-//         assert!(AmpFactor::new(MIN_AMP_VALUE).is_ok());
-//         assert!(AmpFactor::new(MIN_AMP_VALUE + 1).is_ok());
-//         assert!(AmpFactor::new((MIN_AMP_VALUE + MAX_AMP_VALUE) / 2).is_ok());
-//         assert!(AmpFactor::new(MAX_AMP_VALUE - 1).is_ok());
-//         assert!(AmpFactor::new(MAX_AMP_VALUE).is_ok());
-//     }
+        assert!(AmpFactor::new(ValueT::from(0)).is_ok());
+        assert!(AmpFactor::new(MIN_AMP_VALUE).is_ok());
+        assert!(AmpFactor::new(MIN_AMP_VALUE + 1).is_ok());
+        assert!(AmpFactor::new((MIN_AMP_VALUE + MAX_AMP_VALUE) / 2).is_ok());
+        assert!(AmpFactor::new(MAX_AMP_VALUE - 1).is_ok());
+        assert!(AmpFactor::new(MAX_AMP_VALUE).is_ok());
+    }
 
-//     #[test]
-//     fn valid_set_target_upward() {
-//         let mut amp = AmpFactor::new(new_u64(10000, 0)).unwrap();
-//         assert_eq!(amp.get(1), 10000);
+    #[test]
+    fn valid_set_target_upward() {
+        let mut amp = AmpFactor::new(new_u64(10000, 0)).unwrap();
+        assert_eq!(amp.get(1), 10000);
 
-//         amp.set_target(20000, new_u64(20000, 0), 106400).unwrap();
+        amp.set_target(20000, new_u64(20000, 0), 106400).unwrap();
 
-//         assert_eq!(amp.get(20000), 10000);
-//         assert_eq!(
-//             amp.get(30000),
-//             new_u64(11157407407407407407, 15) //11157.407407407407407
-//         );
-//         assert_eq!(
-//             amp.get(50000),
-//             new_u64(13472222222222222222, 15) //13472.222222222222222
-//         );
-//         assert_eq!(
-//             amp.get(70000),
-//             new_u64(15787037037037037037, 15) //15787.037037037037037
-//         );
-//         assert_eq!(
-//             amp.get(90000),
-//             new_u64(18101851851851851851, 15) //18101.851851851851851
-//         );
-//         assert_eq!(amp.get(106400), 20000);
-//     }
+        assert_eq!(amp.get(20000), 10000);
+        assert_eq!(
+            amp.get(30000),
+            new_u64(11157407407407407407, 15) //11157.407407407407407
+        );
+        assert_eq!(
+            amp.get(50000),
+            new_u64(13472222222222222222, 15) //13472.222222222222222
+        );
+        assert_eq!(
+            amp.get(70000),
+            new_u64(15787037037037037037, 15) //15787.037037037037037
+        );
+        assert_eq!(
+            amp.get(90000),
+            new_u64(18101851851851851851, 15) //18101.851851851851851
+        );
+        assert_eq!(amp.get(106400), 20000);
+    }
 
-//     #[test]
-//     fn valid_set_target_downward() {
-//         let mut amp = AmpFactor::new(ValueT::from(20000)).unwrap();
-//         assert_eq!(amp.get(1), 20000);
+    #[test]
+    fn valid_set_target_downward() {
+        let mut amp = AmpFactor::new(ValueT::from(20000)).unwrap();
+        assert_eq!(amp.get(1), 20000);
 
-//         amp.set_target(20000, ValueT::from(10000), 106400).unwrap();
+        amp.set_target(20000, ValueT::from(10000), 106400).unwrap();
 
-//         assert_eq!(amp.get(20000), 20000);
-//         assert_eq!(amp.get(36400), new_u64(18101851851851851852, 15));
-//         assert_eq!(amp.get(56400), new_u64(15787037037037037038, 15));
-//         assert_eq!(amp.get(76400), new_u64(13472222222222222223, 15));
-//         assert_eq!(amp.get(96400), new_u64(11157407407407407408, 15));
-//         assert_eq!(amp.get(106400), 10000);
-//     }
+        assert_eq!(amp.get(20000), 20000);
+        assert_eq!(amp.get(36400), new_u64(18101851851851851852, 15));
+        assert_eq!(amp.get(56400), new_u64(15787037037037037038, 15));
+        assert_eq!(amp.get(76400), new_u64(13472222222222222223, 15));
+        assert_eq!(amp.get(96400), new_u64(11157407407407407408, 15));
+        assert_eq!(amp.get(106400), 10000);
+    }
 
-//     #[test]
-//     #[should_panic]
-//     fn invalid_set_target() {
-//         //Target value set to 20x initial value
-//         let mut amp = AmpFactor::new(ValueT::from(1000)).unwrap();
-//         amp.set_target(20000, ValueT::from(20000), 106400).unwrap();
-//     }
+    #[test]
+    #[should_panic]
+    fn invalid_set_target() {
+        //Target value set to 20x initial value
+        let mut amp = AmpFactor::new(ValueT::from(1000)).unwrap();
+        amp.set_target(20000, ValueT::from(20000), 106400).unwrap();
+    }
 
-//     #[test]
-//     #[should_panic]
-//     fn invalid_adjustment_window() {
-//         let mut amp = AmpFactor::new(ValueT::from(10000)).unwrap();
-//         amp.set_target(20000, ValueT::from(20000), 50000).unwrap();
-//     }
+    #[test]
+    #[should_panic]
+    fn invalid_adjustment_window() {
+        let mut amp = AmpFactor::new(ValueT::from(10000)).unwrap();
+        amp.set_target(20000, ValueT::from(20000), 50000).unwrap();
+    }
 
-//     // #[test]
-//     // fn test_set_wide_window() {
-//     //     let mut amp = AmpFactor::new(ValutT::from(1000)).unwrap();
-//     //     amp.set_target(200)
-//     // }
-// }
+    // #[test]
+    // fn test_set_wide_window() {
+    //     let mut amp = AmpFactor::new(ValutT::from(1000)).unwrap();
+    //     amp.set_target(200)
+    // }
+}

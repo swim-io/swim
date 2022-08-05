@@ -591,7 +591,34 @@ describe("TwoPool", () => {
     assert(userUsdtTokenAcctBalanceAfter.eq(userUsdtTokenAcctBalanceBefore.add(exactOutputAmounts[1])));
     assert(userSwimUsdTokenAcctBalanceAfter.gte(userSwimUsdTokenAcctBalanceBefore.sub(maximumBurnAmount)));
     assert(governanceFeeAcctBalanceAfter.gt(governanceFeeAcctBalanceBefore));
+  });
 
+  it("Can get marginal prices", async() => {
+    try{
+      const poolTokenAccount0Balance = (await splToken.account.token.fetch(poolUsdcAtaAddr)).amount;
+      const poolTokenAccount1Balance = (await splToken.account.token.fetch(poolUsdtAtaAddr)).amount;
+      const lpMintBalance = (await splToken.account.mint.fetch(swimUsdKeypair.publicKey)).supply;
+      const poolState = await program.account.twoPool.fetch(flagshipPool);
+      console.log(`
+        poolTokenAccount0Balance: ${poolTokenAccount0Balance.toString()}
+        poolTokenAccount1Balance: ${poolTokenAccount1Balance.toString()}
+        poolState.previousDepth: ${poolState.previousDepth.toString()}
+        lpMintBalance: ${lpMintBalance.toString()}
+        ampFactor: ${poolState.ampFactor.targetValue.value.toString()}
+      `)
+      const tx = await program
+        .methods
+        .marginalPrices()
+        .accounts({
+          poolTokenAccount0: poolUsdcAtaAddr,
+          poolTokenAccount1: poolUsdtAtaAddr,
+          lpMint: swimUsdKeypair.publicKey,
+        })
+        .view();
+      console.log(`marginalPrices: ${tx}`);
+    } catch (e) {
+      console.log(`error: ${JSON.stringify(e)}`);
+    }
   });
 
 

@@ -735,7 +735,8 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
 
 #[cfg(all(test, not(feature = "test-bpf")))]
 mod tests {
-    use super::*;
+  use crate::{array_equalize, to_equalized};
+  use super::*;
     use crate::decimal::DecimalU128;
 
     const BASE: AmountT = ten_to_the(10);
@@ -1034,4 +1035,29 @@ mod tests {
             amounts, yielded_output, government_mint_amount
         );
     }
+
+  //         poolTokenAccount0Balance: 98999963
+  //         poolTokenAccount1Balance: 98600116
+  //         poolState.previousDepth: 197600076
+  //         lpMintBalance: 197599985
+  //         ampFactor: 300
+  #[test]
+  fn marginal_prices() {
+    const TOKEN_COUNT:usize = 2;
+    let amp_factor = DecT::new(300, 0).unwrap();
+    let pool_balances:[u64; TOKEN_COUNT] = [
+      98999963,
+      98600116
+    ];
+    let token_decimal_equalizers = [0u8; TOKEN_COUNT];
+    let lp_total_supply = 197599985;
+    let lp_decimal_equalizer = 0u8;
+    let previous_depth = 197600076u128;
+    Invariant::<TOKEN_COUNT>::marginal_prices(
+      &array_equalize(pool_balances, token_decimal_equalizers),
+      amp_factor,
+      to_equalized(lp_total_supply, lp_decimal_equalizer),
+      previous_depth.into()
+    ).unwrap();
+  }
 }

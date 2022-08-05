@@ -68,11 +68,12 @@ export class SolanaConnection {
   private readonly txCache: Map<string, TransactionResponse>;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
-  private rpcIndex = -1;
+  private rpcIndex;
   private readonly endpoints: readonly string[];
 
   constructor(endpoints: readonly string[]) {
     this.endpoints = endpoints;
+    this.rpcIndex = 0;
     this.rawConnection = new CustomConnection(this.endpoints[this.rpcIndex], {
       commitment: DEFAULT_COMMITMENT_LEVEL,
       confirmTransactionInitialTimeout: 60 * 1000,

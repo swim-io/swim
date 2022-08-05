@@ -15,6 +15,7 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import type { ReactElement, VFC } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 
 import { SwimIconType } from "../../components/CustomIconType";
@@ -31,6 +32,8 @@ import TWITTER_SVG from "../../images/social/twitter.svg";
 import "./HomePage.scss";
 
 const HomePage = (): ReactElement => {
+  const { t } = useTranslation();
+
   useTitle("");
   const navigate = useNavigate();
   const promotedEcosystems = [
@@ -71,7 +74,7 @@ const HomePage = (): ReactElement => {
             <EuiTitle size="l">
               <h1 style={{ fontSize: "40px" }}>
                 <EuiTextColor color="ghost">
-                  The Seamless Multi-Chain Liquidity Protocol
+                  {t("home_page.introduction_header")}
                 </EuiTextColor>
                 <div
                   className="bubble"
@@ -91,9 +94,7 @@ const HomePage = (): ReactElement => {
             <EuiText
               style={{ maxWidth: "700px", margin: "auto", fontSize: "23px" }}
             >
-              Swim provides a simple way to transfer tokens across chains via
-              multi-token liquidity pools and Solana’s Wormhole. No more delays,
-              centralized bridges, or wrapped assets.
+              {t("home_page.introduction_details")}
             </EuiText>
           </EuiText>
           <EuiSpacer size="xxl" />

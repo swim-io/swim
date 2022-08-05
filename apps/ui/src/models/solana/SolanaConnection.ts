@@ -63,32 +63,20 @@ export class SolanaConnection {
     typeof Connection
   >["removeAccountChangeListener"];
 
-  // eslint-disable-next-line functional/prefer-readonly-type
-  public rawConnections: (CustomConnection | null)[];
+  public rawConnection!: CustomConnection;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly txCache: Map<string, TransactionResponse>;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
   private rpcIndex = -1;
   private readonly endpoints: readonly string[];
-  private readonly wsEndpoints: readonly string[];
 
-  constructor(endpoints: readonly string[], wsEndpoints: readonly string[]) {
+  constructor(endpoints: readonly string[]) {
     this.endpoints = endpoints;
-    this.wsEndpoints = wsEndpoints;
-    this.rawConnections = endpoints.map((_) => null);
     this.incrementRpcProvider();
     // NOTE: This design assumes no tx ID collisions between different environments eg Mainnet-beta and devnet.
     this.txCache = new Map<string, TransactionResponse>();
     this.parsedTxCache = new Map<string, ParsedTransactionWithMeta>();
-  }
-
-  get rawConnection(): CustomConnection {
-    const connection = this.rawConnections[this.rpcIndex];
-    if (connection === null) {
-      throw new SwimError("Solana connection is uninitialized");
-    }
-    return connection;
   }
 
   async confirmTx(
@@ -335,17 +323,12 @@ export class SolanaConnection {
   }
 
   private incrementRpcProvider() {
-    this.rawConnections[this.rpcIndex] = null;
-    this.rpcIndex = (this.rpcIndex + 1) % this.rawConnections.length;
-    this.rawConnections[this.rpcIndex] = new CustomConnection(
-      this.endpoints[this.rpcIndex],
-      {
-        commitment: DEFAULT_COMMITMENT_LEVEL,
-        confirmTransactionInitialTimeout: 60 * 1000,
-        disableRetryOnRateLimit: true,
-        wsEndpoint: this.wsEndpoints[this.rpcIndex],
-      },
-    );
+    this.rpcIndex = (this.rpcIndex + 1) % this.endpoints.length;
+    this.rawConnection = new CustomConnection(this.endpoints[this.rpcIndex], {
+      commitment: DEFAULT_COMMITMENT_LEVEL,
+      confirmTransactionInitialTimeout: 60 * 1000,
+      disableRetryOnRateLimit: true,
+    });
 
     this.getAccountInfo = this.rawConnection.getAccountInfo.bind(
       this.rawConnection,
@@ -373,10 +356,9 @@ export class SolanaConnection {
     fn: () => Promise<T | null>,
     retryFailureError: SwimError,
     maxRetries: number,
-    sleepy = DEFAULT_SLEEP_MS,
   ): Promise<T> {
     let attempts = 0;
-    let returnValue = null;
+    let returnValue;
     while (returnValue === null) {
       attempts++;
       try {
@@ -387,7 +369,7 @@ export class SolanaConnection {
         } else if (error instanceof Error && error.name === "NetworkError") {
           this.incrementRpcProvider();
         } else {
-          await sleep(sleepy);
+          await sleep(DEFAULT_SLEEP_MS);
         }
       }
     }

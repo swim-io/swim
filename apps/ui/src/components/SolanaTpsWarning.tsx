@@ -1,13 +1,10 @@
 import { EuiCallOut, EuiSpacer, EuiText } from "@elastic/eui";
-import { Connection } from "@solana/web3.js";
 import { Env } from "@swim-io/core";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import shallow from "zustand/shallow.js";
+import { useCallback, useEffect, useState } from "react";
 
-import { Protocol } from "../config";
-import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
+import { useSolanaConnection } from "../hooks/solana";
 
 const INTERVAL_FREQUENCY_MS = 60000; // 1 minute.
 const SAMPLES_LIMIT = 5;
@@ -16,20 +13,13 @@ export const SolanaTpsWarning = (): ReactElement => {
   // Assume Solana TPS healthy.
   const [tps, setTps] = useState<number>(2000);
   const { env } = useEnvironment();
-  const { chains } = useEnvironment(selectConfig, shallow);
-  const [chain] = chains[Protocol.Solana];
-  const { endpoints } = chain;
-  // TODO: There is a bug with getRecentPerformanceSamples in which a new connection needs to be made.
-  // Fix pending: https://github.com/solana-labs/solana/issues/19419
-  const endpoint = endpoints[0];
-  const connection = useMemo<Connection>(() => {
-    return new Connection(endpoint);
-  }, [endpoint]);
+  const connection = useSolanaConnection();
   const checkSolanaTps = useCallback(async () => {
     try {
-      const samples = await connection.getRecentPerformanceSamples(
-        SAMPLES_LIMIT,
-      );
+      const samples =
+        await connection.rawConnection.getRecentPerformanceSamples(
+          SAMPLES_LIMIT,
+        );
       if (samples.length >= 1) {
         const stats = samples.reduce(
           ({ numTps, numSeconds }, sample) => ({

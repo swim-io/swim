@@ -53,7 +53,7 @@
     "@sentry/tracing": "^7.9.0",
     "@sentry/types": "^7.9.0",
     "@solana/spl-token": "^0.1.8",
-    "@solana/web3.js": "^1.44.3",
+    "@solana/web3.js": "^1.50.1",
     "@swim-io/core": "^0.7.0",
     "@swim-io/pool-math": "^0.7.0",
     "@swim-io/solana-types": "^0.7.0",

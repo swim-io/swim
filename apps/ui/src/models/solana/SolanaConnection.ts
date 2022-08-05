@@ -73,7 +73,7 @@ export class SolanaConnection {
 
   constructor(endpoints: readonly string[]) {
     this.endpoints = endpoints;
-    this.rpcIndex = 0;
+    this.rpcIndex = -1;
     this.incrementRpcProvider();
 
     // NOTE: This design assumes no tx ID collisions between different environments eg Mainnet-beta and devnet.
@@ -321,6 +321,9 @@ export class SolanaConnection {
       this.endpoints.length === 1 &&
       (this.rawConnection as CustomConnection | undefined) !== undefined
     ) {
+      // Skip initializing a new connection if there are no fallback endpoints
+      // or if it is the first call, for which rawConnection would be undefined
+      // since it is declared with definite assingment assertion.
       return;
     }
     this.rpcIndex = (this.rpcIndex + 1) % this.endpoints.length;

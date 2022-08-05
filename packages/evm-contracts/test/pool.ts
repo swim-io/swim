@@ -1,13 +1,13 @@
-import { expect, use } from "chai";
-import { ethers } from "hardhat";
-import { Contract } from "ethers";
-import { BN } from "bn.js";
-import { BigNumber, parseFixed, formatFixed } from "@ethersproject/bignumber";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BigNumber, formatFixed, parseFixed } from "@ethersproject/bignumber";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BN } from "bn.js";
+import { expect, use } from "chai";
+import type { Contract } from "ethers";
+import { ethers } from "hardhat";
 
 import { FACTORY_PRESIGNED, SALTS } from "../src/config";
-import { deployLogic, deployProxy, deployPoolAndRegister } from "../src/deploy";
+import { deployLogic, deployPoolAndRegister, deployProxy } from "../src/deploy";
 
 use(require("chai-bn")(BN));
 
@@ -26,14 +26,17 @@ describe("Pool Defi Operations", function () {
 
       const toHuman = (atomic: BigNumber) => formatFixed(atomic, decimals);
 
-      const balanceOf = async (account: { address: string }) =>
+      const balanceOf = async (account: { readonly address: string }) =>
         await contract.balanceOf(account.address);
 
-      const mint = async (to: { address: string }, amount: BigNumber) =>
+      const mint = async (to: { readonly address: string }, amount: BigNumber) =>
         contract.connect(deployer).mint(to.address, amount);
 
-      const approve = async (from: SignerWithAddress, to: { address: string }, amount: BigNumber) =>
-        contract.connect(from).approve(to.address, amount);
+      const approve = async (
+        from: SignerWithAddress,
+        to: { readonly address: string },
+        amount: BigNumber
+      ) => contract.connect(from).approve(to.address, amount);
 
       return { contract, address, toAtomic, toHuman, balanceOf, mint, approve };
     };
@@ -114,8 +117,9 @@ describe("Pool Defi Operations", function () {
     await usdc.approve(user, pool, usdc.toAtomic(1));
 
     type AtomicConversionSupported = string | BigNumber | number;
-    const toAtomicAmounts = (human: AtomicConversionSupported | AtomicConversionSupported[]) =>
-      tokens.map((t, i) => t.toAtomic(Array.isArray(human) ? human[i] : human));
+    const toAtomicAmounts = (
+      human: AtomicConversionSupported | readonly AtomicConversionSupported[]
+    ) => tokens.map((t, i) => t.toAtomic(Array.isArray(human) ? human[i] : human));
 
     return {
       deployer,

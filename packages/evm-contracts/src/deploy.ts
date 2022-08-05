@@ -1,10 +1,10 @@
-import { ethers } from "hardhat";
-import { Contract } from "ethers";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { getContractAddress } from "@ethersproject/address";
-
-import { SWIM_FACTORY_ADDRESS, DEFAULTS } from "../src/config";
+import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { makeUpgradeProxy } from "@openzeppelin/hardhat-upgrades/dist/upgrade-proxy";
+import { Contract } from "ethers";
+import { ethers } from "hardhat";
+
+import { DEFAULTS, SWIM_FACTORY_ADDRESS } from "./config";
 
 const ERC1967_IMPLEMENTATION_SLOT =
   "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc";
@@ -19,16 +19,16 @@ export async function isDeployed(address: string): Promise<boolean> {
 }
 
 type PoolInfo = {
-  salt: string;
-  lpSalt: string;
-  tokens: { address: string; tokenNumber: number }[];
-  precision?: number;
-  lpName?: string;
-  lpSymbol?: string;
-  lpDecimals?: number;
-  ampFactor?: number;
-  lpFee?: number;
-  govFee?: number;
+  readonly salt: string;
+  readonly lpSalt: string;
+  readonly tokens: readonly { readonly address: string; readonly tokenNumber: number }[];
+  readonly precision?: number;
+  readonly lpName?: string;
+  readonly lpSymbol?: string;
+  readonly lpDecimals?: number;
+  readonly ampFactor?: number;
+  readonly lpFee?: number;
+  readonly govFee?: number;
 };
 
 export async function deployPoolAndRegister(

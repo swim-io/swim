@@ -2,9 +2,8 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@swim-io/tsconfig/tsconfig-library.json",
   "compilerOptions": {
-    "declarationDir": "types/",
-    "outDir": "build/",
-    "rootDir": "typechain-types/"
+    "rootDir": "./"
   },
-  "include": ["typechain-types/"]
+  "include": ["./scripts", "./test", "./typechain-types"],
+  "files": ["./hardhat.config.ts"]
 }

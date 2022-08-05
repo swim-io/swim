@@ -26,7 +26,12 @@
     "lint": "solhint 'contracts/*.sol'",
     "lint:fix": "solhint 'contracts/*.sol' --fix",
     "format": "prettier --write .",
-    "coverage": "hardhat coverage"
+    "format:check": "prettier --check .",
+    "coverage": "hardhat coverage",
+    "typecheck": "tsc",
+    "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test",
+    "build": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && tsc",
+    "prepare": "yarn verify && yarn build"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.2",

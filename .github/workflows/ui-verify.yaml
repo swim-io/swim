@@ -47,7 +47,7 @@ jobs:
       - name: Check format
         run: yarn format:check
       - name: Check Build
-        run: SKIP_SENTRY=true yarn build
+        run: NODE_OPTIONS="--max_old_space_size=4096" DISABLE_ESLINT_PLUGIN=true SKIP_SENTRY=true yarn build
       - name: "Create .env file for storybook"
         run: |
           touch .env

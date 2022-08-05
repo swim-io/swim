@@ -1,18 +1,18 @@
 import * as Sentry from "@sentry/react";
+import type { Env } from "@swim-io/core";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import type { Draft } from "immer";
 import { castDraft, produce } from "immer";
 import type { GetState, SetState } from "zustand";
 import create from "zustand";
 
 import type { Interaction, InteractionState } from "../../models";
-import type { ReadonlyRecord } from "../../utils";
 
 import {
   addInteractionStateToDb,
   getInteractionStatesFromDb,
   putInteractionStateToDb,
 } from "./idb";
-import type { Env } from "./useEnvironment";
 
 export interface InteractionStore {
   readonly errorMap: ReadonlyRecord<Interaction["id"], Error | undefined>;
@@ -20,7 +20,7 @@ export interface InteractionStore {
   readonly recentInteractionId: string | null;
   readonly setInteractionError: (id: string, error: Error | undefined) => void;
   readonly addInteractionState: (interactionState: InteractionState) => void;
-  readonly loadInteractionStatesFromIDB: (env: Env) => void;
+  readonly loadInteractionStatesFromIDB: (env: Env) => Promise<void>;
   readonly updateInteractionState: (
     interactionId: string,
     updateCallback: (interactionState: Draft<InteractionState>) => void,

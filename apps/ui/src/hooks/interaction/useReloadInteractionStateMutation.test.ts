@@ -1,10 +1,11 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
+import { Env } from "@swim-io/core";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
 import { selectGetInteractionState } from "../../core/selectors";
-import { Env, useEnvironment, useInteractionState } from "../../core/store";
+import { useEnvironment, useInteractionState } from "../../core/store";
 import {
   EVM_TXS_FOR_RELOAD_INTERACTION,
   MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION,
@@ -58,7 +59,7 @@ describe("useReloadInteractionStateMutation", () => {
     }));
 
     act(() => {
-      result.current.envStore.setCustomLocalnetIp("127.0.0.1");
+      result.current.envStore.setCustomIp("127.0.0.1");
       result.current.envStore.setEnv(Env.Devnet);
       result.current.interactionStore.addInteractionState(
         MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION,

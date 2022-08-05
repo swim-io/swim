@@ -34,7 +34,7 @@ interface uriPayload {
 }
 
 const fetchNftUri = async (uri: string): Promise<uriPayload> => {
-  const uriPayload: MetadataJson = await fetch(uri).then((rawData) =>
+  const uriPayload = await fetch(uri).then<MetadataJson>((rawData) =>
     rawData.json(),
   );
   const attributesWithRarity = !uriPayload.attributes

@@ -1,4 +1,6 @@
 import { EuiButtonIcon } from "@elastic/eui";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { findOrThrow } from "@swim-io/utils";
 import type { ReactElement } from "react";
 
 import type { Ecosystem } from "../../config";
@@ -12,8 +14,6 @@ import LEDGER_ICON from "../../images/wallets/ledger.svg";
 import MATHWALLET_ICON from "../../images/wallets/mathwallet.svg";
 import METAMASK_ICON from "../../images/wallets/metamask.svg";
 import PHANTOM_ICON from "../../images/wallets/phantom.svg";
-import type { ReadonlyRecord } from "../../utils";
-import { findOrThrow } from "../../utils";
 
 import type {
   EvmWalletAdapter,

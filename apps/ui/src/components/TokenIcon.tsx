@@ -1,14 +1,16 @@
 import { EuiIcon } from "@elastic/eui";
+import type { TokenProject } from "@swim-io/core";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
 
-import type { EcosystemId, TokenProject, TokenSpec } from "../config";
+import type { EcosystemId, TokenSpec } from "../config";
 import { ECOSYSTEMS } from "../config";
 import { useToken } from "../hooks";
 import type { TokenOption } from "../models";
 import type { Amount } from "../models/amount";
 
-export interface TokenIconProps
+interface TokenIconProps
   extends Pick<TokenProject, "icon" | "symbol" | "displayName"> {
   readonly ecosystemId?: EcosystemId;
   readonly showFullName?: boolean;
@@ -24,7 +26,7 @@ export const TokenIcon = ({
   const ecosystem = ecosystemId ? ECOSYSTEMS[ecosystemId] : null;
   return (
     <span>
-      <EuiIcon type={icon} size="l" title={symbol} />
+      <EuiIcon type={icon} size="m" title={symbol} />
       &nbsp;<span>{showFullName ? displayName : symbol}</span>
       {ecosystem && (
         <span>
@@ -44,7 +46,7 @@ export const TokenIcon = ({
   );
 };
 
-export interface AmountWithTokenIconProps {
+interface AmountWithTokenIconProps {
   readonly amount: Amount;
   readonly ecosystem: EcosystemId;
 }
@@ -61,7 +63,7 @@ export const AmountWithTokenIcon = ({
   );
 };
 
-export interface AmountsWithTokenIconsProps {
+interface AmountsWithTokenIconsProps {
   readonly amounts: readonly Amount[];
 }
 
@@ -74,7 +76,7 @@ export const AmountsWithTokenIcons = ({
         {amounts.length > 1 && i === amounts.length - 1 && <span> and </span>}
         <AmountWithTokenIcon
           amount={amount}
-          ecosystem={amount.tokenSpec.nativeEcosystem}
+          ecosystem={amount.tokenSpec.nativeEcosystemId}
         />
         <span>{i === amounts.length - 1 ? "." : ", "}</span>
       </Fragment>
@@ -82,34 +84,26 @@ export const AmountsWithTokenIcons = ({
   </>
 );
 
-export type TokenSpecIconProps = { readonly token: TokenSpec };
+type TokenSpecIconProps = { readonly token: TokenSpec };
 
 export const TokenSpecIcon = ({ token }: TokenSpecIconProps): ReactElement => (
-  <TokenIcon {...token.project} ecosystemId={token.nativeEcosystem} />
+  <TokenIcon
+    {...TOKEN_PROJECTS_BY_ID[token.projectId]}
+    ecosystemId={token.nativeEcosystemId}
+  />
 );
 
-export type TokenOptionIconProps = { readonly tokenOption: TokenOption };
+type TokenOptionIconProps = { readonly tokenOption: TokenOption };
 
 export const TokenOptionIcon = ({
   tokenOption,
 }: TokenOptionIconProps): ReactElement => {
   const { tokenId, ecosystemId } = tokenOption;
   const tokenSpec = useToken(tokenId);
-  return <TokenIcon {...tokenSpec.project} ecosystemId={ecosystemId} />;
-};
-
-export interface EcosystemIconProps {
-  readonly ecosystemId: EcosystemId;
-}
-
-export const EcosystemIcon = ({
-  ecosystemId,
-}: EcosystemIconProps): ReactElement => {
-  const ecosystem = ECOSYSTEMS[ecosystemId];
   return (
-    <span style={{ whiteSpace: "nowrap" }}>
-      <EuiIcon type={ecosystem.logo} size="m" title={ecosystem.displayName} />
-      &nbsp;{ecosystem.displayName}
-    </span>
+    <TokenIcon
+      {...TOKEN_PROJECTS_BY_ID[tokenSpec.projectId]}
+      ecosystemId={ecosystemId}
+    />
   );
 };

@@ -1,7 +1,7 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
 import { EcosystemId } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
 import { useEvmUserNativeBalanceQuery } from "../evm";
 import { useSolBalanceQuery } from "../solana";
 

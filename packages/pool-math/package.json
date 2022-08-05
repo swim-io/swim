@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/pool-math",
-  "version": "0.3.0",
+  "version": "0.10.0",
   "description": "A package for calculating input/output amounts for Swim liquidity pools.",
   "main": "build",
   "types": "types",
@@ -19,7 +19,7 @@
     "lint:fix": "eslint --fix \"./src/**/*.ts\"",
     "test": "jest",
     "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test --watchAll=false",
-    "build": "rm -rf ./build/ ./types/ && tsc",
+    "build": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && tsc",
     "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
@@ -27,15 +27,17 @@
   },
   "devDependencies": {
     "@swim-io/eslint-config": "workspace:^",
+    "@swim-io/tsconfig": "workspace:^",
     "@types/jest": "^28.1.3",
     "@typescript-eslint/eslint-plugin": "^5.30.5",
     "@typescript-eslint/parser": "^5.30.5",
     "eslint": "^8.19.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-deprecation": "^1.3.2",
+    "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-functional": "^4.2.1",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jest": "^26.5.3",
+    "eslint-plugin-jest": "^25.7.0",
     "eslint-plugin-prettier": "^4.2.1",
     "jest": "^28.1.1",
     "prettier": "^2.7.1",

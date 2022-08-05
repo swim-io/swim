@@ -1,3 +1,4 @@
+import { Env } from "@swim-io/core";
 import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 
@@ -7,7 +8,6 @@ import {
   DEVNET_POOLS_FOR_RESTRUCTURE,
   DEVNET_SWIMUSD,
   EcosystemId,
-  Env,
   findTokenById,
 } from "../../config";
 import { selectConfig } from "../../core/selectors";
@@ -59,7 +59,7 @@ describe("useCreateInteractionStateV2", () => {
   beforeEach(() => {
     const { result: envStore } = renderHook(() => useEnvironment());
     act(() => {
-      envStore.current.setCustomLocalnetIp("127.0.0.1");
+      envStore.current.setCustomIp("127.0.0.1");
       envStore.current.setEnv(Env.Devnet);
     });
     generateIdMock.mockReturnValue("11111111111111111111111111111111");
@@ -72,7 +72,7 @@ describe("useCreateInteractionStateV2", () => {
     jest.spyOn(Date, "now").mockImplementation(() => 1657544558283);
   });
 
-  it("should create state for Swap from SOLANA USDC to SOLANA USDT", async () => {
+  it("should create state for Swap from SOLANA USDC to SOLANA USDT", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -95,7 +95,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for Swap from ETHEREUM USDC to ETHEREUM USDT", async () => {
+  it("should create state for Swap from ETHEREUM USDC to ETHEREUM USDT", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -118,7 +118,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for Swap from SOLANA USDC to ETHEREUM USDC", async () => {
+  it("should create state for Swap from SOLANA USDC to ETHEREUM USDC", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -141,7 +141,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for Swap from ETHEREUM USDC to SOLANA USDC", async () => {
+  it("should create state for Swap from ETHEREUM USDC to SOLANA USDC", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -164,7 +164,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for Swap from ETHEREUM USDC to BNB USDT", async () => {
+  it("should create state for Swap from ETHEREUM USDC to BNB USDT", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -187,7 +187,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for Add", async () => {
+  it("should create state for Add", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -207,7 +207,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for RemoveExactOutput", async () => {
+  it("should create state for RemoveExactOutput", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -227,7 +227,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for RemoveExactBurn", async () => {
+  it("should create state for RemoveExactBurn", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -244,7 +244,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for RemoveUniform", async () => {
+  it("should create state for RemoveUniform", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );

@@ -1,17 +1,23 @@
+import { findOrThrow } from "@swim-io/utils";
+import Decimal from "decimal.js";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import { EcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useInteractionStateV2 } from "../../core/store";
-import type { SingleChainSolanaSwapInteractionState } from "../../models";
+import type {
+  OperationSpec,
+  SingleChainSolanaSwapInteractionState,
+} from "../../models";
 import {
+  Amount,
   InteractionType,
   SwapType,
+  SwimDefiInstruction,
   doSingleSolanaPoolOperation,
   getTokensByPool,
 } from "../../models";
-import { findOrThrow } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
 
@@ -27,7 +33,10 @@ export const useSingleChainSolanaSwapInteractionMutation = () => {
 
   return useMutation(
     async (interactionState: SingleChainSolanaSwapInteractionState) => {
-      const { interaction, solanaPoolOperations } = interactionState;
+      const { interaction } = interactionState;
+      const {
+        params: { fromTokenDetail, toTokenDetail },
+      } = interaction;
       if (interaction.poolIds.length !== 1) {
         throw new Error("Single chain solana swap should only have 1 pool ID");
       }
@@ -42,9 +51,29 @@ export const useSingleChainSolanaSwapInteractionMutation = () => {
       if (solanaWallet === null) {
         throw new Error("Missing Solana wallet");
       }
-      if (solanaPoolOperations.length !== 1) {
-        throw new Error("Invalid number of operation");
-      }
+      const toToken = findOrThrow(
+        config.tokens,
+        (token) => token.id === toTokenDetail.tokenId,
+      );
+      const operation: OperationSpec = {
+        interactionId: interaction.id,
+        poolId: poolSpec.id,
+        instruction: SwimDefiInstruction.Swap,
+        params: {
+          exactInputAmounts: tokensByPoolId[poolSpec.id].tokens.map((token) =>
+            Amount.fromHuman(
+              token,
+              token.id === fromTokenDetail.tokenId
+                ? fromTokenDetail.value
+                : new Decimal(0),
+            ),
+          ),
+          outputTokenIndex: poolSpec.tokens.findIndex(
+            (tokenId) => tokenId === toTokenDetail.tokenId,
+          ),
+          minimumOutputAmount: Amount.fromHuman(toToken, toTokenDetail.value),
+        },
+      };
       const txId = await doSingleSolanaPoolOperation(
         env,
         solanaConnection,
@@ -52,7 +81,7 @@ export const useSingleChainSolanaSwapInteractionMutation = () => {
         splTokenAccounts,
         tokensByPoolId,
         poolSpec,
-        solanaPoolOperations[0].operation,
+        operation,
       );
       updateInteractionState(interaction.id, (draft) => {
         if (draft.interactionType !== InteractionType.SwapV2) {
@@ -61,7 +90,7 @@ export const useSingleChainSolanaSwapInteractionMutation = () => {
         if (draft.swapType !== SwapType.SingleChainSolana) {
           throw new Error("Swap type mismatch");
         }
-        draft.solanaPoolOperations[0].txId = txId;
+        draft.onChainSwapTxId = txId;
       });
     },
   );

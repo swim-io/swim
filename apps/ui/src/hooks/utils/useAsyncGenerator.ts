@@ -1,6 +1,5 @@
+import { assertIsError } from "@swim-io/utils";
 import { useReducer, useState } from "react";
-
-import { assertIsError } from "../../utils";
 
 // Roughly matches react-query’s UseMutationResult
 export type UseAsyncGeneratorResult<Params, Result> = {

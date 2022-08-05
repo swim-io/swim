@@ -5,6 +5,8 @@ import {
   EuiSelectable,
 } from "@elastic/eui";
 import type { EuiSelectableOption } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
+import { findOrThrow } from "@swim-io/utils";
 import type { ReactElement } from "react";
 import { useCallback } from "react";
 import shallow from "zustand/shallow.js";
@@ -13,7 +15,6 @@ import { ECOSYSTEMS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import type { TokenOption } from "../models";
-import { findOrThrow } from "../utils";
 
 import { CustomModal } from "./CustomModal";
 import { TokenOptionIcon } from "./TokenIcon";
@@ -24,7 +25,7 @@ const renderOption = (option: Option) => {
   return <TokenOptionIcon tokenOption={option.data} />;
 };
 
-export interface TokenSearchModalProps {
+interface Props {
   readonly handleClose: () => void;
   readonly handleSelectTokenOption: (tokenOption: TokenOption) => void;
   readonly tokenOptions: readonly TokenOption[];
@@ -34,15 +35,16 @@ export const TokenSearchModalV2 = ({
   handleClose,
   handleSelectTokenOption,
   tokenOptions,
-}: TokenSearchModalProps): ReactElement => {
+}: Props): ReactElement => {
   const { tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptions.map((option) => {
     const { tokenId, ecosystemId } = option;
     const tokenSpec = findOrThrow(tokens, ({ id }) => id === tokenId);
     const ecosystem = ECOSYSTEMS[ecosystemId];
+    const tokenProject = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId];
     return {
-      label: `${tokenSpec.project.symbol} on ${ecosystem.displayName}`,
-      searchableLabel: `${tokenSpec.project.symbol} ${tokenSpec.project.displayName} ${ecosystem.displayName}`,
+      label: `${tokenProject.symbol} on ${ecosystem.displayName}`,
+      searchableLabel: `${tokenProject.symbol} ${tokenProject.displayName} ${ecosystem.displayName}`,
       showIcons: false,
       data: option,
     };

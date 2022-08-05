@@ -22,20 +22,44 @@ For TS projects also install these optional dependencies:
 npm install --save-dev @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-plugin-deprecation
 ```
 
-## Usage
+For React projects also install these optional dependencies:
 
-In TS projects extend from the default config in your ESLint configuration file:
-
-```json
-{
-  "extends": ["@swim-io"]
-}
+```sh
+npm install --save-dev @sayari/eslint-plugin eslint-config-react-app eslint-plugin-react
 ```
 
-In JS projects extend from the JS-only config:
+## Usage
 
-```json
-{
-  "extends": ["@swim-io/eslint-config/js-only"]
-}
+In JS/TS projects extend from the default config in your ESLint configuration file `.eslintrc.cjs`:
+
+```js
+module.exports = {
+  extends: ["@swim-io/eslint-config"],
+};
+```
+
+For TS projects, mark the `tsconfigRootDir` for detecting `tsconfig.json` location:
+
+```js
+module.exports = {
+  extends: ["@swim-io/eslint-config"],
+  parserOptions: {
+    // Make sure correct `tsconfig.json` is found in monorepo
+    tsconfigRootDir: __dirname,
+  },
+};
+```
+
+In React projects extend from the react config:
+
+```js
+module.exports = {
+  extends: ["@swim-io/eslint-config/react"],
+};
+```
+
+If you are using this config in a monorepo, and experiencing the error `ESLint couldn't determine the plugin "xxx" uniquely`, you can apply this patch in your `.eslintrc.cjs` file to solve the issue:
+
+```js
+require("@swim-io/eslint-config/patch/modern-module-resolution.cjs");
 ```

@@ -1,9 +1,9 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import { EcosystemId, getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../../models";
-import type { ReadonlyRecord } from "../../utils";
 import { useErc20BalanceQuery } from "../evm";
 import { useSplUserBalance } from "../solana";
 
@@ -12,39 +12,57 @@ export const useUserBalances = (
 ): ReadonlyRecord<EcosystemId, Decimal | null> => {
   // order of hooks can't change, so we pass in null values if we don't actually need the value
   const splBalance = useSplUserBalance(
-    tokenSpec?.detailsByEcosystem.get(EcosystemId.Solana)?.address ?? null,
+    tokenSpec &&
+      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Solana)?.address ??
+        null),
   );
   const { data: ethereumTokenBalance = null } = useErc20BalanceQuery(
     EcosystemId.Ethereum,
-    tokenSpec?.detailsByEcosystem.get(EcosystemId.Ethereum)?.address ?? null,
+    tokenSpec &&
+      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Ethereum)?.address ??
+        null),
   );
   const { data: bnbTokenBalance = null } = useErc20BalanceQuery(
     EcosystemId.Bnb,
-    tokenSpec?.detailsByEcosystem.get(EcosystemId.Bnb)?.address ?? null,
+    tokenSpec &&
+      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Bnb)?.address ??
+        null),
   );
   const { data: avalancheTokenBalance = null } = useErc20BalanceQuery(
     EcosystemId.Avalanche,
-    tokenSpec?.detailsByEcosystem.get(EcosystemId.Avalanche)?.address ?? null,
+    tokenSpec &&
+      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Avalanche)?.address ??
+        null),
   );
   const { data: polygonTokenBalance = null } = useErc20BalanceQuery(
     EcosystemId.Polygon,
-    tokenSpec?.detailsByEcosystem.get(EcosystemId.Polygon)?.address ?? null,
+    tokenSpec &&
+      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Polygon)?.address ??
+        null),
   );
   const { data: auroraTokenBalance = null } = useErc20BalanceQuery(
     EcosystemId.Aurora,
-    tokenSpec?.detailsByEcosystem.get(EcosystemId.Aurora)?.address ?? null,
+    tokenSpec &&
+      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Aurora)?.address ??
+        null),
   );
   const { data: fantomTokenBalance = null } = useErc20BalanceQuery(
     EcosystemId.Fantom,
-    tokenSpec?.detailsByEcosystem.get(EcosystemId.Fantom)?.address ?? null,
+    tokenSpec &&
+      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Fantom)?.address ??
+        null),
   );
   const { data: karuraTokenBalance = null } = useErc20BalanceQuery(
     EcosystemId.Karura,
-    tokenSpec?.detailsByEcosystem.get(EcosystemId.Karura)?.address ?? null,
+    tokenSpec &&
+      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Karura)?.address ??
+        null),
   );
   const { data: acalaTokenBalance = null } = useErc20BalanceQuery(
     EcosystemId.Acala,
-    tokenSpec?.detailsByEcosystem.get(EcosystemId.Acala)?.address ?? null,
+    tokenSpec &&
+      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Acala)?.address ??
+        null),
   );
 
   return {
@@ -76,7 +94,9 @@ export const useUserBalanceAmounts = (
   } = useUserBalances(tokenSpec);
 
   const solanaAmount =
-    solanaBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Solana)
+    solanaBalance &&
+    tokenSpec &&
+    getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Solana)
       ? Amount.fromAtomicString(
           tokenSpec,
           solanaBalance.toString(),
@@ -85,7 +105,9 @@ export const useUserBalanceAmounts = (
       : null;
 
   const ethereumAmount =
-    ethereumBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Ethereum)
+    ethereumBalance &&
+    tokenSpec &&
+    getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Ethereum)
       ? Amount.fromAtomicString(
           tokenSpec,
           ethereumBalance.toString(),
@@ -94,7 +116,9 @@ export const useUserBalanceAmounts = (
       : null;
 
   const bnbAmount =
-    bnbBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Bnb)
+    bnbBalance &&
+    tokenSpec &&
+    getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Bnb)
       ? Amount.fromAtomicString(
           tokenSpec,
           bnbBalance.toString(),
@@ -103,7 +127,9 @@ export const useUserBalanceAmounts = (
       : null;
 
   const avalancheAmount =
-    avalancheBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Avalanche)
+    avalancheBalance &&
+    tokenSpec &&
+    getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Avalanche)
       ? Amount.fromAtomicString(
           tokenSpec,
           avalancheBalance.toString(),
@@ -112,7 +138,9 @@ export const useUserBalanceAmounts = (
       : null;
 
   const polygonAmount =
-    polygonBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Polygon)
+    polygonBalance &&
+    tokenSpec &&
+    getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Polygon)
       ? Amount.fromAtomicString(
           tokenSpec,
           polygonBalance.toString(),
@@ -121,7 +149,9 @@ export const useUserBalanceAmounts = (
       : null;
 
   const auroraAmount =
-    auroraBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Aurora)
+    auroraBalance &&
+    tokenSpec &&
+    getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Aurora)
       ? Amount.fromAtomicString(
           tokenSpec,
           auroraBalance.toString(),
@@ -130,7 +160,9 @@ export const useUserBalanceAmounts = (
       : null;
 
   const fantomAmount =
-    fantomBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Fantom)
+    fantomBalance &&
+    tokenSpec &&
+    getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Fantom)
       ? Amount.fromAtomicString(
           tokenSpec,
           fantomBalance.toString(),
@@ -139,7 +171,9 @@ export const useUserBalanceAmounts = (
       : null;
 
   const karuraAmount =
-    karuraBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Karura)
+    karuraBalance &&
+    tokenSpec &&
+    getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Karura)
       ? Amount.fromAtomicString(
           tokenSpec,
           karuraBalance.toString(),
@@ -148,7 +182,9 @@ export const useUserBalanceAmounts = (
       : null;
 
   const acalaAmount =
-    acalaBalance && tokenSpec?.detailsByEcosystem.get(EcosystemId.Acala)
+    acalaBalance &&
+    tokenSpec &&
+    getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Acala)
       ? Amount.fromAtomicString(
           tokenSpec,
           acalaBalance.toString(),

@@ -1,9 +1,9 @@
+import { isNotNull } from "@swim-io/utils";
 import type React from "react";
 
 import { EcosystemId } from "../../config";
 import type { FromSolanaTransferState, Interaction } from "../../models";
 import { getToEcosystemOfFromSolanaTransfer } from "../../models";
-import { isNotNull } from "../../utils";
 
 import { Transfer } from "./Transfer";
 
@@ -30,7 +30,7 @@ export const FromSolanaTransferComponent: React.FC<Props> = ({
   const claimTokenOnEvmTxProps = claimTokenOnEvm
     ? {
         txId: claimTokenOnEvm,
-        ecosystem: token.nativeEcosystem,
+        ecosystem: token.nativeEcosystemId,
       }
     : null;
 

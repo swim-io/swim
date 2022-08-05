@@ -16,12 +16,15 @@ const queryClient = new QueryClient({
       refetchOnMount: true,
       refetchOnReconnect: true,
       refetchOnWindowFocus: true,
+      staleTime: 60_000, // cache 1min by default
       onError: (err) => {
         console.error(err);
       },
     },
     mutations: {
-      onError: async (err: unknown) => captureException(err),
+      onError: (err: unknown) => {
+        captureException(err);
+      },
     },
   },
 });

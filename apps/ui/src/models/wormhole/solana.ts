@@ -1,4 +1,6 @@
+import type { ChainId as WormholeChainId } from "@certusone/wormhole-sdk";
 import {
+  CHAINS as WORMHOLE_CHAIN_IDS,
   chunks,
   createPostVaaInstructionSolana,
   createVerifySignaturesInstructionsSolana,
@@ -8,21 +10,19 @@ import type {
   ParsedInstruction,
   ParsedTransactionWithMeta,
   PartiallyDecodedInstruction,
+  Transaction,
   TransactionInstruction,
   TransactionResponse,
 } from "@solana/web3.js";
-import { PublicKey, Transaction } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
-import {
-  EcosystemId,
-  WormholeChainId,
-  getSolanaTokenDetails,
-} from "../../config";
+import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import type { SolanaTx } from "../crossEcosystem";
 import type { SolanaConnection } from "../solana";
 import {
   createMemoIx,
+  createTx,
   getAmountBurnedByMint,
   getAmountMintedToAccount,
   getAmountTransferredFromAccount,
@@ -66,7 +66,7 @@ export const isLockSplTx = (
     return false;
   }
 
-  return token.nativeEcosystem === EcosystemId.Solana
+  return token.nativeEcosystemId === EcosystemId.Solana
     ? getAmountTransferredFromAccount(
         parsedTx,
         splTokenAccountAddress,
@@ -111,7 +111,7 @@ export const isRedeemOnSolanaTx = (
   ) {
     return false;
   }
-  return token.nativeEcosystem === EcosystemId.Solana
+  return token.nativeEcosystemId === EcosystemId.Solana
     ? getAmountTransferredToAccount(parsedTx, splTokenAccount).greaterThan(0)
     : getAmountMintedToAccount(parsedTx, splTokenAccount).greaterThan(0);
 };
@@ -145,14 +145,15 @@ export async function* generatePostVaaSolanaTxIds(
   // reducing the total number of transactions
   const batchableChunks = chunks([...ixs], 2);
   const unsignedTxs = batchableChunks.map((chunk) =>
-    new Transaction({ feePayer: new PublicKey(payer) }).add(...chunk, memoIx),
+    createTx({
+      feePayer: new PublicKey(payer),
+    }).add(...chunk, memoIx),
   );
   // The postVaa instruction can only execute after the verifySignature transactions have
   // successfully completed
-  const finalTx = new Transaction({ feePayer: new PublicKey(payer) }).add(
-    finalIx,
-    memoIx,
-  );
+  const finalTx = createTx({
+    feePayer: new PublicKey(payer),
+  }).add(finalIx, memoIx);
 
   // The signatureSet keypair also needs to sign the verifySignature transactions, thus a wrapper is needed
   const partialSignWrapper = async (tx: Transaction): Promise<Transaction> => {
@@ -182,7 +183,7 @@ export async function* generateUnlockSplTokenTxIds(
     throw new Error("No Solana public key");
   }
   const retries =
-    wormholeChainId === WormholeChainId.Polygon
+    wormholeChainId === WORMHOLE_CHAIN_IDS.polygon
       ? POLYGON_WORMHOLE_RETRIES
       : DEFAULT_WORMHOLE_RETRIES;
   const { vaaBytes } = await getSignedVaaWithRetry(
@@ -208,6 +209,7 @@ export async function* generateUnlockSplTokenTxIds(
   }
   const redeemTx = await redeemOnSolana(
     interactionId,
+    solanaConnection,
     solanaWormhole.bridge,
     solanaWormhole.tokenBridge,
     solanaPublicKey.toBase58(),
@@ -234,7 +236,7 @@ export const unlockSplToken = async (
     throw new Error("No Solana public key");
   }
   const retries =
-    wormholeChainId === WormholeChainId.Polygon
+    wormholeChainId === WORMHOLE_CHAIN_IDS.polygon
       ? POLYGON_WORMHOLE_RETRIES
       : DEFAULT_WORMHOLE_RETRIES;
   const { vaaBytes } = await getSignedVaaWithRetry(
@@ -256,6 +258,7 @@ export const unlockSplToken = async (
   );
   const tx = await redeemOnSolana(
     interactionId,
+    solanaConnection,
     solanaWormhole.bridge,
     solanaWormhole.tokenBridge,
     solanaPublicKey.toBase58(),

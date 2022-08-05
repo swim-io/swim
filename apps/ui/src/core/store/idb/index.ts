@@ -1,10 +1,10 @@
+import type { Env } from "@swim-io/core";
+import { isNotNull } from "@swim-io/utils";
 import type { Table } from "dexie";
 import Dexie from "dexie";
 
-import type { Env } from "../../../config";
 import type { InteractionState, InteractionType } from "../../../models";
 import { INTERACTION_GROUPS } from "../../../models";
-import { isNotNull } from "../../../utils";
 
 import type { PersistedInteractionState } from "./helpers";
 import {
@@ -116,6 +116,7 @@ export const putInteractionStateToDb = (interactionState: InteractionState) => {
     });
 };
 
+// eslint-disable-next-line import/no-unused-modules
 export const resetDb = () => {
   return idb.transaction("rw", idb.interactionStates, async () => {
     await Promise.all(idb.tables.map((table) => table.clear()));

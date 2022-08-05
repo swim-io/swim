@@ -1,9 +1,12 @@
-import { getAllowanceEth } from "@certusone/wormhole-sdk";
+import {
+  CHAINS as WORMHOLE_CHAIN_IDS,
+  getAllowanceEth,
+} from "@certusone/wormhole-sdk";
 import { PublicKey } from "@solana/web3.js";
 import type { ethers } from "ethers";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
-import { WormholeChainId } from "../../config";
+import { getTokenDetailsForEcosystem } from "../../config";
 import type { EvmTx } from "../crossEcosystem";
 
 import { approveEth, transferFromEth } from "./overrides";
@@ -14,8 +17,8 @@ export const isLockEvmTx = (
   token: TokenSpec,
   tx: EvmTx,
 ): boolean => {
-  const evmTokenDetails = token.detailsByEcosystem.get(tx.ecosystem) ?? null;
-  if (evmTokenDetails === null) {
+  const tokenDetails = getTokenDetailsForEcosystem(token, tx.ecosystemId);
+  if (tokenDetails === null) {
     return false;
   }
   if (
@@ -25,8 +28,7 @@ export const isLockEvmTx = (
     return false;
   }
   return tx.txReceipt.logs.some(
-    (log) =>
-      log.address.toLowerCase() === evmTokenDetails.address.toLowerCase(),
+    (log) => log.address.toLowerCase() === tokenDetails.address.toLowerCase(),
   );
 };
 
@@ -35,8 +37,8 @@ export const isUnlockEvmTx = (
   token: TokenSpec,
   tx: EvmTx,
 ): boolean => {
-  const evmTokenDetails = token.detailsByEcosystem.get(tx.ecosystem) ?? null;
-  if (evmTokenDetails === null) {
+  const tokenDetails = getTokenDetailsForEcosystem(token, tx.ecosystemId);
+  if (tokenDetails === null) {
     return false;
   }
   if (
@@ -46,8 +48,7 @@ export const isUnlockEvmTx = (
     return false;
   }
   return tx.txReceipt.logs.some(
-    (log) =>
-      log.address.toLowerCase() === evmTokenDetails.address.toLowerCase(),
+    (log) => log.address.toLowerCase() === tokenDetails.address.toLowerCase(),
   );
 };
 
@@ -116,7 +117,7 @@ export const lockEvmToken = async ({
     evmSigner,
     evmTokenDetails.address,
     transferAmountAtomicString,
-    WormholeChainId.Solana,
+    WORMHOLE_CHAIN_IDS.solana,
     new PublicKey(splTokenAccountAddress).toBytes(),
   );
 

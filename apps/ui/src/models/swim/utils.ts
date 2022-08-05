@@ -1,10 +1,11 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { filterMap, findOrThrow } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
 import type { PoolSpec, TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
-import { filterMap, findOrThrow } from "../../utils";
+import { EcosystemId, getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../amount";
 
 import type { InteractionSpec, InteractionSpecV2 } from "./interaction";
@@ -22,7 +23,7 @@ const mapNonZeroAmountsToNativeEcosystems = (
         tokens,
         (token) => token.id === amount.tokenId,
       );
-      return tokenSpec.nativeEcosystem;
+      return tokenSpec.nativeEcosystemId;
     },
     amounts,
   );
@@ -60,7 +61,7 @@ export const getRequiredEcosystems = (
         tokens,
         (token) => token.id === params.minimumOutputAmount.tokenId,
       );
-      const outputEcosystem = outputToken.nativeEcosystem;
+      const outputEcosystem = outputToken.nativeEcosystemId;
       return new Set([
         EcosystemId.Solana,
         lpTokenSourceEcosystem,
@@ -82,8 +83,8 @@ export const getRequiredEcosystems = (
       const {
         params: { exactInputAmount, minimumOutputAmount },
       } = interactionSpec;
-      const inputEcosystem = exactInputAmount.tokenSpec.nativeEcosystem;
-      const outputEcosystem = minimumOutputAmount.tokenSpec.nativeEcosystem;
+      const inputEcosystem = exactInputAmount.tokenSpec.nativeEcosystemId;
+      const outputEcosystem = minimumOutputAmount.tokenSpec.nativeEcosystemId;
       return new Set([EcosystemId.Solana, inputEcosystem, outputEcosystem]);
     }
     default:
@@ -181,11 +182,13 @@ export const getPoolUsdValue = (
   tokens: readonly TokenSpec[],
   poolTokenAccounts: readonly TokenAccount[],
 ): Decimal | null =>
-  tokens.every((tokenSpec) => tokenSpec.project.isStablecoin)
+  tokens.every(
+    (tokenSpec) => TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].isStablecoin,
+  )
     ? poolTokenAccounts.reduce((acc, account) => {
         const tokenSpec = tokens.find(
           (spec) =>
-            spec.detailsByEcosystem.get(EcosystemId.Solana)?.address ===
+            getTokenDetailsForEcosystem(spec, EcosystemId.Solana)?.address ===
             account.mint.toBase58(),
         );
         if (!tokenSpec) {

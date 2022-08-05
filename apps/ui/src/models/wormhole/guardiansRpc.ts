@@ -1,15 +1,17 @@
 import { getSignedVAAWithRetry as originalGetSignedVAAWithRetry } from "@certusone/wormhole-sdk";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import type { RpcError } from "grpc-web";
 import { StatusCode } from "grpc-web";
 
 import { SwimError } from "../../errors";
-import type { ReadonlyRecord } from "../../utils";
 
 const isRpcError = (error: unknown): error is RpcError => {
   return (
     error instanceof Error &&
     "code" in error &&
-    Object.values(StatusCode).includes((error as any).code)
+    Object.values(StatusCode).includes(
+      (error as Record<string, unknown>).code as string,
+    )
   );
 };
 
@@ -22,7 +24,7 @@ const INTERNAL_ERROR_MESSAGE =
 const UNAVAILABLE_MESSAGE =
   "We are unable to reach the Wormhole guardians. Please try again later.";
 
-const MESSAGES: ReadonlyRecord<StatusCode, string | undefined> = {
+const MESSAGES: Partial<ReadonlyRecord<StatusCode, string>> = {
   [StatusCode.INTERNAL]: INTERNAL_ERROR_MESSAGE,
   [StatusCode.INVALID_ARGUMENT]: INTERNAL_ERROR_MESSAGE,
   [StatusCode.NOT_FOUND]:

@@ -1,7 +1,8 @@
 import type { EuiStepProps, EuiStepStatus } from "@elastic/eui";
 import { EuiListGroup, EuiLoadingSpinner, EuiText } from "@elastic/eui";
+import type { Env } from "@swim-io/core";
+import { isNotNull } from "@swim-io/utils";
 
-import type { Env } from "../../../config";
 import { DEVNET_SWIMUSD, EcosystemId, findTokenById } from "../../../config";
 import type {
   AddInteractionState,
@@ -20,11 +21,9 @@ import {
   isAddInteractionCompleted,
   isRemoveInteractionCompleted,
   isRequiredSplTokenAccountsCompletedV2,
-  isSolanaPoolOperationsCompletedV2,
   isSourceChainOperationCompleted,
   isTargetChainOperationCompleted,
 } from "../../../models";
-import { isNotNull } from "../../../utils";
 import { SwapTransfer } from "../SwapTransfer";
 import { Transfer } from "../Transfer";
 import { TxEcosystemList } from "../TxList";
@@ -107,20 +106,20 @@ const buildSolanaPoolOperationStep = (
   env: Env,
 ): EuiStepProps | null => {
   const {
-    solanaPoolOperations,
+    onChainSwapTxId,
     interaction: {
       params: { fromTokenDetail, toTokenDetail },
     },
   } = interactionState;
   const status = getEuiStepStatus(
     interactionStatus,
-    isSolanaPoolOperationsCompletedV2(solanaPoolOperations),
+    isSourceChainOperationCompleted(interactionState),
   );
   const fromToken = findTokenById(fromTokenDetail.tokenId, env);
   const toToken = findTokenById(toTokenDetail.tokenId, env);
 
   return {
-    title: "Perform pool operation(s) on Solana",
+    title: "Perform pool operation on Solana",
     status,
     children: (
       <SwapTransfer
@@ -128,9 +127,7 @@ const buildSolanaPoolOperationStep = (
         fromToken={fromToken}
         toToken={toToken}
         isLoading={status === "loading"}
-        transactions={solanaPoolOperations
-          .map(({ txId }) => txId)
-          .filter(isNotNull)}
+        transactions={[onChainSwapTxId].filter(isNotNull)}
       />
     ),
   };
@@ -433,7 +430,7 @@ const buildRemoveStep = (
   };
 };
 
-export const buildAddStep = (
+const buildAddStep = (
   interactionState: AddInteractionState,
   interactionStatus: InteractionStatusV2,
 ): EuiStepProps => {
@@ -471,7 +468,7 @@ export const buildAddStep = (
               key={inputAmount.tokenId}
               fromToken={inputAmount.tokenSpec}
               toToken={minimumMintAmount.tokenSpec}
-              ecosystemId={minimumMintAmount.tokenSpec.nativeEcosystem}
+              ecosystemId={minimumMintAmount.tokenSpec.nativeEcosystemId}
               isLoading={status === "loading"}
               transactions={[]}
             />

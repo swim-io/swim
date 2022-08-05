@@ -10,7 +10,7 @@ Libraries live in `packages` and applications live in `apps`. As you can see in 
 
 ## Publish to npm
 
-This approach uses [Lerna-style locked versioning](https://github.com/lerna/lerna#fixedlocked-mode-default), which simplifies a bunch of things at the cost of empty releases for some packages some of the time.
+This approach uses [Lerna-style locked versioning](https://lerna.js.org/docs/features/version-and-publish#fixedlocked-mode-default), which simplifies a bunch of things at the cost of empty releases for some packages some of the time.
 
 ### One-time setup
 
@@ -21,12 +21,12 @@ This approach uses [Lerna-style locked versioning](https://github.com/lerna/lern
 1. Run `yarn clean && git clean -xdf ./packages && yarn install && yarn build-packages`
 1. `yarn workspaces foreach --no-private version <major|minor|patch>`
 1. If a file has been created under `.yarn/versions` which stores "undecided" package version info, delete it (this is not relevant to our fixed versioning approach).
-1. Run `git add . && git commit -m "Bump version" && git tag "v<version>`"
+1. Run `git add . && git commit -m "chore: Bump version" && git tag v<version>`"
 1. Either pre-release `yarn publish-next` or stable release `yarn publish-latest`
 1. Run `git push && git push --tags`
 
 ## To-do
 
-- ESLint
 - CLI example
 - Consider Yarn’s Plug'n'Play - see [these notes on migrating](https://github.com/cosmos/cosmjs/blob/main/docs/YARN.md#step-14-enable-plug-n-play)
+- Do not remove `tsconfig.tsbuildinfo` every time we build, which reduces the effectiveness of incremental build (<https://github.com/Microsoft/TypeScript/issues/30602>)

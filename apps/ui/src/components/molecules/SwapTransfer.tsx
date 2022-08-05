@@ -1,4 +1,5 @@
 import { EuiLoadingSpinner, EuiText } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { VFC } from "react";
 
 import type { EcosystemId, TokenSpec } from "../../config";
@@ -11,7 +12,7 @@ interface Props {
   readonly fromToken: TokenSpec;
   readonly toToken: TokenSpec;
   readonly isLoading: boolean;
-  readonly transactions: ReadonlyArray<string>;
+  readonly transactions: readonly string[];
 }
 
 export const SwapTransfer: VFC<Props> = ({
@@ -24,7 +25,11 @@ export const SwapTransfer: VFC<Props> = ({
   <EuiText size="m">
     <span style={{ display: "flex", alignItems: "center" }}>
       {isLoading && <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />}
-      <span>{`Swap ${fromToken.project.displayName} to ${toToken.project.displayName} on ${ECOSYSTEMS[ecosystemId].displayName}`}</span>
+      <span>{`Swap ${
+        TOKEN_PROJECTS_BY_ID[fromToken.projectId].displayName
+      } to ${TOKEN_PROJECTS_BY_ID[toToken.projectId].displayName} on ${
+        ECOSYSTEMS[ecosystemId].displayName
+      }`}</span>
     </span>
     <TxEcosystemList transactions={transactions} ecosystemId={ecosystemId} />
   </EuiText>

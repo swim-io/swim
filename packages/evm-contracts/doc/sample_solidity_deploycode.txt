@@ -1,0 +1,44 @@
+
+example deploy code
+taken from here: https://medium.com/@hayeah/diving-into-the-ethereum-vm-part-5-the-smart-contract-creation-process-cb7b6133b855
+
+60606040523415600e57600080fd5b5b603680601c6000396000f300
+
+length: 28 = 0x1c
+
+60 60 - push1 60
+- stack [60]
+60 40 - push1 40
+- stack [40, 60]
+52 - mstore 60 at 40
+- stack []
+34 - call value
+- stack [call value (ought to be 0)]
+15 - isZero
+stack [bool(was call value 0)]
+60 0e - push1 0e
+- stack [0e, bool]
+57 - jumpif
+- stack []
+60 00 - push1 00
+- stack [00]
+80 - dup1
+- stack [00, 00]
+fd - revert
+5b - jumpdest 0e
+5b - jumpdest 0f (why is this here?!?)
+60 36 - push1 36
+- stack [36]
+80 - dup1
+- stack [36, 36]
+60 1c - push1 1c
+- stack [1c, 36, 36]
+60 00 - push1 00
+- stack [00, 1c, 36, 36]
+39 - codecopy 00 = target dest, 1c start
+- stack [36]
+60 00 - push1 00
+[00, 36]
+f3 - return
+-  stack []
+00 - stop

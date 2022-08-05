@@ -44,26 +44,26 @@ export class CustomConnection extends Connection {
  * We want to use this for eg getting txs
  */
 export class SolanaConnection {
-  public getAccountInfo!: InstanceType<typeof Connection>["getAccountInfo"];
-  public getBalance!: InstanceType<typeof Connection>["getBalance"];
-  public getMinimumBalanceForRentExemption!: InstanceType<
+  public getAccountInfo: InstanceType<typeof Connection>["getAccountInfo"];
+  public getBalance: InstanceType<typeof Connection>["getBalance"];
+  public getMinimumBalanceForRentExemption: InstanceType<
     typeof Connection
   >["getMinimumBalanceForRentExemption"];
-  public getLatestBlockhash!: InstanceType<
+  public getLatestBlockhash: InstanceType<
     typeof Connection
   >["getLatestBlockhash"];
-  public getSignaturesForAddress!: InstanceType<
+  public getSignaturesForAddress: InstanceType<
     typeof Connection
   >["getSignaturesForAddress"];
-  public getTokenAccountsByOwner!: InstanceType<
+  public getTokenAccountsByOwner: InstanceType<
     typeof Connection
   >["getTokenAccountsByOwner"];
-  public onAccountChange!: InstanceType<typeof Connection>["onAccountChange"];
-  public removeAccountChangeListener!: InstanceType<
+  public onAccountChange: InstanceType<typeof Connection>["onAccountChange"];
+  public removeAccountChangeListener: InstanceType<
     typeof Connection
   >["removeAccountChangeListener"];
 
-  public rawConnection!: CustomConnection;
+  public rawConnection: CustomConnection;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly txCache: Map<string, TransactionResponse>;
   // eslint-disable-next-line functional/prefer-readonly-type
@@ -73,7 +73,33 @@ export class SolanaConnection {
 
   constructor(endpoints: readonly string[]) {
     this.endpoints = endpoints;
-    this.incrementRpcProvider();
+    this.rawConnection = new CustomConnection(this.endpoints[this.rpcIndex], {
+      commitment: DEFAULT_COMMITMENT_LEVEL,
+      confirmTransactionInitialTimeout: 60 * 1000,
+      disableRetryOnRateLimit: true,
+    });
+
+    this.getAccountInfo = this.rawConnection.getAccountInfo.bind(
+      this.rawConnection,
+    );
+    this.getBalance = this.rawConnection.getBalance.bind(this.rawConnection);
+    this.getMinimumBalanceForRentExemption =
+      this.rawConnection.getMinimumBalanceForRentExemption.bind(
+        this.rawConnection,
+      );
+    this.getLatestBlockhash = this.rawConnection.getLatestBlockhash.bind(
+      this.rawConnection,
+    );
+    this.getSignaturesForAddress =
+      this.rawConnection.getSignaturesForAddress.bind(this.rawConnection);
+    this.getTokenAccountsByOwner =
+      this.rawConnection.getTokenAccountsByOwner.bind(this.rawConnection);
+    this.onAccountChange = this.rawConnection.onAccountChange.bind(
+      this.rawConnection,
+    );
+    this.removeAccountChangeListener =
+      this.rawConnection.removeAccountChangeListener.bind(this.rawConnection);
+
     // NOTE: This design assumes no tx ID collisions between different environments eg Mainnet-beta and devnet.
     this.txCache = new Map<string, TransactionResponse>();
     this.parsedTxCache = new Map<string, ParsedTransactionWithMeta>();
@@ -315,6 +341,9 @@ export class SolanaConnection {
   }
 
   private incrementRpcProvider() {
+    if (this.endpoints.length === 1) {
+      return;
+    }
     this.rpcIndex = (this.rpcIndex + 1) % this.endpoints.length;
     this.rawConnection = new CustomConnection(this.endpoints[this.rpcIndex], {
       commitment: DEFAULT_COMMITMENT_LEVEL,

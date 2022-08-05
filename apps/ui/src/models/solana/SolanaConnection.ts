@@ -94,22 +94,24 @@ export class SolanaConnection {
     if (signatureStatus) {
       return signatureStatus;
     }
-    return this.callWithRetry(
-      async () => {
-        const latestBlock = await this.rawConnection.getLatestBlockhash();
-        // If the Solana network is busy this can time out
-        return await this.rawConnection.confirmTransaction(
-          {
-            signature: txId,
-            blockhash: latestBlock.blockhash,
-            lastValidBlockHeight: latestBlock.lastValidBlockHeight,
-          },
-          commitmentLevel,
-        );
-      },
-      new SwimError(`Transaction with ID ${txId} did not confirm`),
-      maxRetries,
-    );
+    return this.callWithRetry(async () => {
+      const latestBlock = await this.rawConnection.getLatestBlockhash();
+      // If the Solana network is busy this can time out
+      const signatureResult = await this.rawConnection.confirmTransaction(
+        {
+          signature: txId,
+          blockhash: latestBlock.blockhash,
+          lastValidBlockHeight: latestBlock.lastValidBlockHeight,
+        },
+        commitmentLevel,
+      );
+      if (!signatureResult.value.err) {
+        return signatureResult;
+      }
+      throw new SwimError(
+        `Transaction with ID ${txId} did not confirm: ${signatureResult.value.err.toString()}`,
+      );
+    }, maxRetries);
   }
 
   async sendAndConfirmTx(
@@ -167,19 +169,16 @@ export class SolanaConnection {
 
     // NOTE: Sometimes txs aren’t found straightaway even after confirming.
     // So we retry getting the tx too if necessary.
-    return this.callWithRetry(
-      async () => {
-        const txResponse = await this.rawConnection.getTransaction(txId, {
-          commitment: commitmentLevel,
-        });
-        if (txResponse !== null) {
-          this.txCache.set(txId, txResponse);
-        }
+    return this.callWithRetry(async () => {
+      const txResponse = await this.rawConnection.getTransaction(txId, {
+        commitment: commitmentLevel,
+      });
+      if (txResponse !== null) {
+        this.txCache.set(txId, txResponse);
         return txResponse;
-      },
-      new SwimError(`Transaction with ID ${txId} did not confirm`),
-      maxRetries,
-    );
+      }
+      throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+    }, maxRetries);
   }
 
   async getParsedTx(
@@ -202,20 +201,17 @@ export class SolanaConnection {
 
     // NOTE: Sometimes txs aren’t found straightaway even after confirming.
     // So we retry getting the tx too if necessary.
-    return this.callWithRetry(
-      async () => {
-        const txResponse = await this.rawConnection.getParsedTransaction(
-          txId,
-          commitmentLevel,
-        );
-        if (txResponse !== null) {
-          this.parsedTxCache.set(txId, txResponse);
-        }
+    return this.callWithRetry(async () => {
+      const txResponse = await this.rawConnection.getParsedTransaction(
+        txId,
+        commitmentLevel,
+      );
+      if (txResponse !== null) {
+        this.parsedTxCache.set(txId, txResponse);
         return txResponse;
-      },
-      new SwimError(`Transaction with ID ${txId} did not confirm`),
-      maxRetries,
-    );
+      }
+      throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+    }, maxRetries);
   }
 
   async getParsedTxs(
@@ -250,9 +246,9 @@ export class SolanaConnection {
             this.parsedTxCache.set(missingTxIds[i], txResponse);
           }
         });
-        return null;
+        throw new SwimError(`One or more transactions did not confirm`);
       },
-      new SwimError(`One or more transactions did not confirm`),
+
       maxRetries,
     );
   }
@@ -271,33 +267,29 @@ export class SolanaConnection {
       mintPubkey,
       ownerPubkey,
     ).toBase58();
-    return this.callWithRetry(
-      async () => {
-        const { value: accounts } =
-          await this.rawConnection.getTokenAccountsByOwner(
-            ownerPubkey,
-            {
-              mint: mintPubkey,
-            },
-            commitmentLevel,
-          );
-        const tokenAccount =
-          accounts.find(
-            ({ pubkey }) => pubkey.toBase58() === associatedTokenAccountAddress,
-          ) ?? null;
-        if (tokenAccount !== null) {
-          return deserializeTokenAccount(
-            tokenAccount.pubkey,
-            tokenAccount.account.data,
-          );
-        }
-        return null;
-      },
-      new SwimError(
+    return this.callWithRetry(async () => {
+      const { value: accounts } =
+        await this.rawConnection.getTokenAccountsByOwner(
+          ownerPubkey,
+          {
+            mint: mintPubkey,
+          },
+          commitmentLevel,
+        );
+      const tokenAccount =
+        accounts.find(
+          ({ pubkey }) => pubkey.toBase58() === associatedTokenAccountAddress,
+        ) ?? null;
+      if (tokenAccount !== null) {
+        return deserializeTokenAccount(
+          tokenAccount.pubkey,
+          tokenAccount.account.data,
+        );
+      }
+      throw new SwimError(
         "Successfully created SPL token account but failed to fetch it",
-      ),
-      maxRetries,
-    );
+      );
+    }, maxRetries);
   }
 
   // Looks for a signature, only returns a value if there's no error
@@ -353,16 +345,14 @@ export class SolanaConnection {
   }
 
   private async callWithRetry<T>(
-    fn: () => Promise<T | null>,
-    retryFailureError: SwimError,
+    fn: () => Promise<T>,
     maxRetries: number,
   ): Promise<T> {
     let attempts = 0;
-    let returnValue;
-    while (returnValue === null) {
+    while (attempts < maxRetries) {
       attempts++;
       try {
-        returnValue = await fn();
+        return await fn();
       } catch (error: unknown) {
         if (attempts >= maxRetries) {
           throw error;
@@ -373,6 +363,6 @@ export class SolanaConnection {
         }
       }
     }
-    throw retryFailureError;
+    throw new SwimError("callWithRetry bug, this code should be unreachable.");
   }
 }

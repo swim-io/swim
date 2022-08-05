@@ -1,9 +1,12 @@
-import { getAllowanceEth } from "@certusone/wormhole-sdk";
+import {
+  CHAINS as WORMHOLE_CHAIN_IDS,
+  getAllowanceEth,
+} from "@certusone/wormhole-sdk";
 import { PublicKey } from "@solana/web3.js";
 import type { ethers } from "ethers";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
-import { WormholeChainId, getTokenDetailsForEcosystem } from "../../config";
+import { getTokenDetailsForEcosystem } from "../../config";
 import type { EvmTx } from "../crossEcosystem";
 
 import { approveEth, transferFromEth } from "./overrides";
@@ -114,7 +117,7 @@ export const lockEvmToken = async ({
     evmSigner,
     evmTokenDetails.address,
     transferAmountAtomicString,
-    WormholeChainId.Solana,
+    WORMHOLE_CHAIN_IDS.solana,
     new PublicKey(splTokenAccountAddress).toBytes(),
   );
 

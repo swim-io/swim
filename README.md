@@ -10,7 +10,7 @@ Libraries live in `packages` and applications live in `apps`. As you can see in 
 
 ## Publish to npm
 
-This approach uses [Lerna-style locked versioning](https://github.com/lerna/lerna#fixedlocked-mode-default), which simplifies a bunch of things at the cost of empty releases for some packages some of the time.
+This approach uses [Lerna-style locked versioning](https://lerna.js.org/docs/features/version-and-publish#fixedlocked-mode-default), which simplifies a bunch of things at the cost of empty releases for some packages some of the time.
 
 ### One-time setup
 

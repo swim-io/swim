@@ -63,6 +63,9 @@ export const useToSolanaTransferMutation = () => {
     if (!solanaWallet) {
       throw new Error("No Solana wallet");
     }
+    if (!wormhole) {
+      throw new Error("No Wormhole RPC configured");
+    }
 
     const { interaction, toSolanaTransfers } =
       getInteractionState(interactionId);

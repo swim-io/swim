@@ -12,6 +12,7 @@ module.exports = {
         "pool-playground",
         "pool-sdk",
         "quarry-deployment",
+        "redeemer",
         "solana-types",
         "solana-usdc-usdt-swap",
         "token-projects",

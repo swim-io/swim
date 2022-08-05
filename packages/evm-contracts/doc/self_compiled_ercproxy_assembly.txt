@@ -1,0 +1,1456 @@
+/* \"contracts/ERCProxy.sol\":630:1349  contract ERCProxy is Proxy, ERC1967Upgrade {... */
+  mstore(0x40, 0x80)
+    /* \"contracts/ERCProxy.sol\":1017:1129  constructor(address _logic, bytes memory _data) payable {... */
+  mload(0x40)
+  sub(codesize, bytecodeSize)
+  dup1
+  bytecodeSize
+  dup4
+  codecopy
+  dup2
+  add
+  0x40
+  dup2
+  swap1
+  mstore
+  tag_1
+  swap2
+  tag_2
+  jump\t// in
+tag_1:
+    /* \"contracts/ERCProxy.sol\":1083:1122  _upgradeToAndCall(_logic, _data, false) */
+  tag_5
+    /* \"contracts/ERCProxy.sol\":1101:1107  _logic */
+  dup3
+    /* \"contracts/ERCProxy.sol\":1109:1114  _data */
+  dup3
+    /* \"contracts/ERCProxy.sol\":1116:1121  false */
+  0x00
+    /* \"contracts/ERCProxy.sol\":1083:1100  _upgradeToAndCall */
+  tag_6
+    /* \"contracts/ERCProxy.sol\":1083:1122  _upgradeToAndCall(_logic, _data, false) */
+  jump\t// in
+tag_5:
+    /* \"contracts/ERCProxy.sol\":1017:1129  constructor(address _logic, bytes memory _data) payable {... */
+  pop
+  pop
+    /* \"contracts/ERCProxy.sol\":630:1349  contract ERCProxy is Proxy, ERC1967Upgrade {... */
+  jump(tag_52)
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2183:2478  function _upgradeToAndCall(... */
+tag_6:
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2321:2350  _upgradeTo(newImplementation) */
+  tag_9
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2332:2349  newImplementation */
+  dup4
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2321:2331  _upgradeTo */
+  tag_10
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2321:2350  _upgradeTo(newImplementation) */
+  jump\t// in
+tag_9:
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2378:2379  0 */
+  0x00
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2364:2368  data */
+  dup3
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2364:2375  data.length */
+  mload
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2364:2379  data.length > 0 */
+  gt
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2364:2392  data.length > 0 || forceCall */
+  dup1
+  tag_11
+  jumpi
+  pop
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2383:2392  forceCall */
+  dup1
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2364:2392  data.length > 0 || forceCall */
+tag_11:
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2360:2472  if (data.length > 0 || forceCall) {... */
+  iszero
+  tag_12
+  jumpi
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2408:2461  Address.functionDelegateCall(newImplementation, data) */
+  tag_13
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2437:2454  newImplementation */
+  dup4
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2456:2460  data */
+  dup4
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2408:2436  Address.functionDelegateCall */
+  or(tag_0_10, shl(0x20, tag_14))
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2408:2461  Address.functionDelegateCall(newImplementation, data) */
+  0x20
+  shr
+  jump\t// in
+tag_13:
+  pop
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2360:2472  if (data.length > 0 || forceCall) {... */
+tag_12:
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2183:2478  function _upgradeToAndCall(... */
+  pop
+  pop
+  pop
+  jump\t// out
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1897:2049  function _upgradeTo(address newImplementation) internal {... */
+tag_10:
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1963:2000  _setImplementation(newImplementation) */
+  tag_16
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1982:1999  newImplementation */
+  dup2
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1963:1981  _setImplementation */
+  tag_17
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1963:2000  _setImplementation(newImplementation) */
+  jump\t// in
+tag_16:
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":2015:2042  Upgraded(newImplementation) */
+  mload(0x40)
+  sub(shl(0xa0, 0x01), 0x01)
+  dup3
+  and
+  swap1
+  0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b
+  swap1
+  0x00
+  swap1
+  log2
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1897:2049  function _upgradeTo(address newImplementation) internal {... */
+  pop
+  jump\t// out
+    /* \"@openzeppelin/contracts/utils/Address.sol\":6570:6768  function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {... */
+tag_14:
+    /* \"@openzeppelin/contracts/utils/Address.sol\":6653:6665  bytes memory */
+  0x60
+    /* \"@openzeppelin/contracts/utils/Address.sol\":6684:6761  functionDelegateCall(target, data, \"Address: low-level delegate call failed\") */
+  tag_19
+    /* \"@openzeppelin/contracts/utils/Address.sol\":6705:6711  target */
+  dup4
+    /* \"@openzeppelin/contracts/utils/Address.sol\":6713:6717  data */
+  dup4
+    /* \"@openzeppelin/contracts/utils/Address.sol\":6684:6761  functionDelegateCall(target, data, \"Address: low-level delegate call failed\") */
+  mload(0x40)
+  dup1
+  0x60
+  add
+  0x40
+  mstore
+  dup1
+  0x27
+  dup2
+  mstore
+  0x20
+  add
+  data_9fdcd12e4b726339b32a442b0a448365d5d85c96b2d2cff917b4f66c63110398
+  0x27
+  swap2
+  codecopy
+    /* \"@openzeppelin/contracts/utils/Address.sol\":6684:6704  functionDelegateCall */
+  tag_20
+    /* \"@openzeppelin/contracts/utils/Address.sol\":6684:6761  functionDelegateCall(target, data, \"Address: low-level delegate call failed\") */
+  jump\t// in
+tag_19:
+    /* \"@openzeppelin/contracts/utils/Address.sol\":6677:6761  return functionDelegateCall(target, data, \"Address: low-level delegate call failed\") */
+  swap4
+    /* \"@openzeppelin/contracts/utils/Address.sol\":6570:6768  function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {... */
+  swap3
+  pop
+  pop
+  pop
+  jump\t// out
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1532:1791  function _setImplementation(address newImplementation) private {... */
+tag_17:
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1613:1650  Address.isContract(newImplementation) */
+  tag_22
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1632:1649  newImplementation */
+  dup2
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1613:1631  Address.isContract */
+  or(tag_0_11, shl(0x20, tag_23))
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1613:1650  Address.isContract(newImplementation) */
+  0x20
+  shr
+  jump\t// in
+tag_22:
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1605:1700  require(Address.isContract(newImplementation), \"ERC1967: new implementation is not a contract\") */
+  tag_24
+  jumpi
+  mload(0x40)
+  shl(0xe5, 0x461bcd)
+  dup2
+  mstore
+    /* \"#utility.yul\":1666:1668   */
+  0x20
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1605:1700  require(Address.isContract(newImplementation), \"ERC1967: new implementation is not a contract\") */
+  0x04
+  dup3
+  add
+    /* \"#utility.yul\":1648:1669   */
+  mstore
+    /* \"#utility.yul\":1705:1707   */
+  0x2d
+    /* \"#utility.yul\":1685:1703   */
+  0x24
+  dup3
+  add
+    /* \"#utility.yul\":1678:1708   */
+  mstore
+    /* \"#utility.yul\":1744:1778   */
+  0x455243313936373a206e657720696d706c656d656e746174696f6e206973206e
+    /* \"#utility.yul\":1724:1742   */
+  0x44
+  dup3
+  add
+    /* \"#utility.yul\":1717:1779   */
+  mstore
+  shl(0x9a, 0x1bdd08184818dbdb9d1c9858dd)
+    /* \"#utility.yul\":1795:1813   */
+  0x64
+  dup3
+  add
+    /* \"#utility.yul\":1788:1831   */
+  mstore
+    /* \"#utility.yul\":1848:1867   */
+  0x84
+  add
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1605:1700  require(Address.isContract(newImplementation), \"ERC1967: new implementation is not a contract\") */
+tag_25:
+  mload(0x40)
+  dup1
+  swap2
+  sub
+  swap1
+  revert
+tag_24:
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1767:1784  newImplementation */
+  dup1
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1710:1758  StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT) */
+  tag_27
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1030:1096  0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc */
+  0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1737:1757  _IMPLEMENTATION_SLOT */
+  0x00
+  shl
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1710:1736  StorageSlot.getAddressSlot */
+  or(tag_0_12, shl(0x20, tag_28))
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1710:1758  StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT) */
+  0x20
+  shr
+  jump\t// in
+tag_27:
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1710:1784  StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation */
+  dup1
+  sload
+  not(sub(shl(0xa0, 0x01), 0x01))
+  and
+  sub(shl(0xa0, 0x01), 0x01)
+  swap3
+  swap1
+  swap3
+  and
+  swap2
+  swap1
+  swap2
+  or
+  swap1
+  sstore
+  pop
+    /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1532:1791  function _setImplementation(address newImplementation) private {... */
+  jump\t// out
+    /* \"@openzeppelin/contracts/utils/Address.sol\":6954:7341  function functionDelegateCall(... */
+tag_20:
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7095:7107  bytes memory */
+  0x60
+  sub(shl(0xa0, 0x01), 0x01)
+    /* \"@openzeppelin/contracts/utils/Address.sol\":1465:1484  account.code.length */
+  dup5
+  and
+  extcodesize
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7119:7188  require(isContract(target), \"Address: delegate call to non-contract\") */
+  tag_31
+  jumpi
+  mload(0x40)
+  shl(0xe5, 0x461bcd)
+  dup2
+  mstore
+    /* \"#utility.yul\":2080:2082   */
+  0x20
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7119:7188  require(isContract(target), \"Address: delegate call to non-contract\") */
+  0x04
+  dup3
+  add
+    /* \"#utility.yul\":2062:2083   */
+  mstore
+    /* \"#utility.yul\":2119:2121   */
+  0x26
+    /* \"#utility.yul\":2099:2117   */
+  0x24
+  dup3
+  add
+    /* \"#utility.yul\":2092:2122   */
+  mstore
+    /* \"#utility.yul\":2158:2192   */
+  0x416464726573733a2064656c65676174652063616c6c20746f206e6f6e2d636f
+    /* \"#utility.yul\":2138:2156   */
+  0x44
+  dup3
+  add
+    /* \"#utility.yul\":2131:2193   */
+  mstore
+  shl(0xd2, 0x1b9d1c9858dd)
+    /* \"#utility.yul\":2209:2227   */
+  0x64
+  dup3
+  add
+    /* \"#utility.yul\":2202:2238   */
+  mstore
+    /* \"#utility.yul\":2255:2274   */
+  0x84
+  add
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7119:7188  require(isContract(target), \"Address: delegate call to non-contract\") */
+  tag_25
+    /* \"#utility.yul\":1878:2280   */
+  jump
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7119:7188  require(isContract(target), \"Address: delegate call to non-contract\") */
+tag_31:
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7200:7212  bool success */
+  0x00
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7214:7237  bytes memory returndata */
+  dup1
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7241:7247  target */
+  dup6
+  sub(shl(0xa0, 0x01), 0x01)
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7241:7260  target.delegatecall */
+  and
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7261:7265  data */
+  dup6
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7241:7266  target.delegatecall(data) */
+  mload(0x40)
+  tag_34
+  swap2
+  swap1
+  tag_35
+  jump\t// in
+tag_34:
+  0x00
+  mload(0x40)
+  dup1
+  dup4
+  sub
+  dup2
+  dup6
+  gas
+  delegatecall
+  swap2
+  pop
+  pop
+  returndatasize
+  dup1
+  0x00
+  dup2
+  eq
+  tag_38
+  jumpi
+  mload(0x40)
+  swap2
+  pop
+  and(add(returndatasize, 0x3f), not(0x1f))
+  dup3
+  add
+  0x40
+  mstore
+  returndatasize
+  dup3
+  mstore
+  returndatasize
+  0x00
+  0x20
+  dup5
+  add
+  returndatacopy
+  jump(tag_37)
+tag_38:
+  0x60
+  swap2
+  pop
+tag_37:
+  pop
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7199:7266  (bool success, bytes memory returndata) = target.delegatecall(data) */
+  swap1
+  swap3
+  pop
+  swap1
+  pop
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7283:7334  verifyCallResult(success, returndata, errorMessage) */
+  tag_39
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7199:7266  (bool success, bytes memory returndata) = target.delegatecall(data) */
+  dup3
+  dup3
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7321:7333  errorMessage */
+  dup7
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7283:7299  verifyCallResult */
+  tag_40
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7283:7334  verifyCallResult(success, returndata, errorMessage) */
+  jump\t// in
+tag_39:
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7276:7334  return verifyCallResult(success, returndata, errorMessage) */
+  swap7
+    /* \"@openzeppelin/contracts/utils/Address.sol\":6954:7341  function functionDelegateCall(... */
+  swap6
+  pop
+  pop
+  pop
+  pop
+  pop
+  pop
+  jump\t// out
+    /* \"@openzeppelin/contracts/utils/Address.sol\":1175:1495  function isContract(address account) internal view returns (bool) {... */
+tag_23:
+  sub(shl(0xa0, 0x01), 0x01)
+    /* \"@openzeppelin/contracts/utils/Address.sol\":1465:1484  account.code.length */
+  and
+  extcodesize
+    /* \"@openzeppelin/contracts/utils/Address.sol\":1465:1488  account.code.length > 0 */
+  iszero
+  iszero
+  swap1
+    /* \"@openzeppelin/contracts/utils/Address.sol\":1175:1495  function isContract(address account) internal view returns (bool) {... */
+  jump\t// out
+    /* \"@openzeppelin/contracts/utils/StorageSlot.sol\":1614:1804  function getAddressSlot(bytes32 slot) internal pure returns (AddressSlot storage r) {... */
+tag_28:
+    /* \"@openzeppelin/contracts/utils/StorageSlot.sol\":1784:1788  slot */
+  swap1
+    /* \"@openzeppelin/contracts/utils/StorageSlot.sol\":1614:1804  function getAddressSlot(bytes32 slot) internal pure returns (AddressSlot storage r) {... */
+  jump\t// out
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7561:8303  function verifyCallResult(... */
+tag_40:
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7707:7719  bytes memory */
+  0x60
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7735:7742  success */
+  dup4
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7731:8297  if (success) {... */
+  iszero
+  tag_44
+  jumpi
+  pop
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7765:7775  returndata */
+  dup2
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7758:7775  return returndata */
+  jump(tag_19)
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7731:8297  if (success) {... */
+tag_44:
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7876:7893  returndata.length */
+  dup3
+  mload
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7876:7897  returndata.length > 0 */
+  iszero
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7872:8287  if (returndata.length > 0) {... */
+  tag_46
+  jumpi
+    /* \"@openzeppelin/contracts/utils/Address.sol\":8120:8130  returndata */
+  dup3
+    /* \"@openzeppelin/contracts/utils/Address.sol\":8114:8131  mload(returndata) */
+  mload
+    /* \"@openzeppelin/contracts/utils/Address.sol\":8180:8195  returndata_size */
+  dup1
+    /* \"@openzeppelin/contracts/utils/Address.sol\":8167:8177  returndata */
+  dup5
+    /* \"@openzeppelin/contracts/utils/Address.sol\":8163:8165  32 */
+  0x20
+    /* \"@openzeppelin/contracts/utils/Address.sol\":8159:8178  add(32, returndata) */
+  add
+    /* \"@openzeppelin/contracts/utils/Address.sol\":8152:8196  revert(add(32, returndata), returndata_size) */
+  revert
+    /* \"@openzeppelin/contracts/utils/Address.sol\":7872:8287  if (returndata.length > 0) {... */
+tag_46:
+    /* \"@openzeppelin/contracts/utils/Address.sol\":8259:8271  errorMessage */
+  dup2
+    /* \"@openzeppelin/contracts/utils/Address.sol\":8252:8272  revert(errorMessage) */
+  mload(0x40)
+  shl(0xe5, 0x461bcd)
+  dup2
+  mstore
+  0x04
+  add
+  tag_25
+  swap2
+  swap1
+  tag_49
+  jump\t// in
+    /* \"#utility.yul\":14:141   */
+tag_50:
+    /* \"#utility.yul\":75:85   */
+  0x4e487b71
+    /* \"#utility.yul\":70:73   */
+  0xe0
+    /* \"#utility.yul\":66:86   */
+  shl
+    /* \"#utility.yul\":63:64   */
+  0x00
+    /* \"#utility.yul\":56:87   */
+  mstore
+    /* \"#utility.yul\":106:110   */
+  0x41
+    /* \"#utility.yul\":103:104   */
+  0x04
+    /* \"#utility.yul\":96:111   */
+  mstore
+    /* \"#utility.yul\":130:134   */
+  0x24
+    /* \"#utility.yul\":127:128   */
+  0x00
+    /* \"#utility.yul\":120:135   */
+  revert
+    /* \"#utility.yul\":146:404   */
+tag_51:
+    /* \"#utility.yul\":218:219   */
+  0x00
+    /* \"#utility.yul\":228:341   */
+tag_55:
+    /* \"#utility.yul\":242:248   */
+  dup4
+    /* \"#utility.yul\":239:240   */
+  dup2
+    /* \"#utility.yul\":236:249   */
+  lt
+    /* \"#utility.yul\":228:341   */
+  iszero
+  tag_57
+  jumpi
+    /* \"#utility.yul\":318:329   */
+  dup2
+  dup2
+  add
+    /* \"#utility.yul\":312:330   */
+  mload
+    /* \"#utility.yul\":299:310   */
+  dup4
+  dup3
+  add
+    /* \"#utility.yul\":292:331   */
+  mstore
+    /* \"#utility.yul\":264:266   */
+  0x20
+    /* \"#utility.yul\":257:267   */
+  add
+    /* \"#utility.yul\":228:341   */
+  jump(tag_55)
+tag_57:
+    /* \"#utility.yul\":359:365   */
+  dup4
+    /* \"#utility.yul\":356:357   */
+  dup2
+    /* \"#utility.yul\":353:366   */
+  gt
+    /* \"#utility.yul\":350:398   */
+  iszero
+  tag_13
+  jumpi
+  pop
+  pop
+    /* \"#utility.yul\":394:395   */
+  0x00
+    /* \"#utility.yul\":376:392   */
+  swap2
+  add
+    /* \"#utility.yul\":369:396   */
+  mstore
+    /* \"#utility.yul\":146:404   */
+  jump\t// out
+    /* \"#utility.yul\":409:1459   */
+tag_2:
+    /* \"#utility.yul\":497:503   */
+  0x00
+    /* \"#utility.yul\":505:511   */
+  dup1
+    /* \"#utility.yul\":558:560   */
+  0x40
+    /* \"#utility.yul\":546:555   */
+  dup4
+    /* \"#utility.yul\":537:544   */
+  dup6
+    /* \"#utility.yul\":533:556   */
+  sub
+    /* \"#utility.yul\":529:561   */
+  slt
+    /* \"#utility.yul\":526:578   */
+  iszero
+  tag_60
+  jumpi
+    /* \"#utility.yul\":574:575   */
+  0x00
+    /* \"#utility.yul\":571:572   */
+  dup1
+    /* \"#utility.yul\":564:576   */
+  revert
+    /* \"#utility.yul\":526:578   */
+tag_60:
+    /* \"#utility.yul\":600:616   */
+  dup3
+  mload
+  sub(shl(0xa0, 0x01), 0x01)
+    /* \"#utility.yul\":645:676   */
+  dup2
+  and
+    /* \"#utility.yul\":635:677   */
+  dup2
+  eq
+    /* \"#utility.yul\":625:695   */
+  tag_61
+  jumpi
+    /* \"#utility.yul\":691:692   */
+  0x00
+    /* \"#utility.yul\":688:689   */
+  dup1
+    /* \"#utility.yul\":681:693   */
+  revert
+    /* \"#utility.yul\":625:695   */
+tag_61:
+    /* \"#utility.yul\":763:765   */
+  0x20
+    /* \"#utility.yul\":748:766   */
+  dup5
+  add
+    /* \"#utility.yul\":742:767   */
+  mload
+    /* \"#utility.yul\":714:719   */
+  swap1
+  swap3
+  pop
+  sub(shl(0x40, 0x01), 0x01)
+    /* \"#utility.yul\":816:830   */
+  dup1
+  dup3
+  gt
+    /* \"#utility.yul\":813:847   */
+  iszero
+  tag_62
+  jumpi
+    /* \"#utility.yul\":843:844   */
+  0x00
+    /* \"#utility.yul\":840:841   */
+  dup1
+    /* \"#utility.yul\":833:845   */
+  revert
+    /* \"#utility.yul\":813:847   */
+tag_62:
+    /* \"#utility.yul\":881:887   */
+  dup2
+    /* \"#utility.yul\":870:879   */
+  dup6
+    /* \"#utility.yul\":866:888   */
+  add
+    /* \"#utility.yul\":856:888   */
+  swap2
+  pop
+    /* \"#utility.yul\":926:933   */
+  dup6
+    /* \"#utility.yul\":919:923   */
+  0x1f
+    /* \"#utility.yul\":915:917   */
+  dup4
+    /* \"#utility.yul\":911:924   */
+  add
+    /* \"#utility.yul\":907:934   */
+  slt
+    /* \"#utility.yul\":897:952   */
+  tag_63
+  jumpi
+    /* \"#utility.yul\":948:949   */
+  0x00
+    /* \"#utility.yul\":945:946   */
+  dup1
+    /* \"#utility.yul\":938:950   */
+  revert
+    /* \"#utility.yul\":897:952   */
+tag_63:
+    /* \"#utility.yul\":977:979   */
+  dup2
+    /* \"#utility.yul\":971:980   */
+  mload
+    /* \"#utility.yul\":999:1001   */
+  dup2
+    /* \"#utility.yul\":995:997   */
+  dup2
+    /* \"#utility.yul\":992:1002   */
+  gt
+    /* \"#utility.yul\":989:1025   */
+  iszero
+  tag_65
+  jumpi
+    /* \"#utility.yul\":1005:1023   */
+  tag_65
+  tag_50
+  jump\t// in
+tag_65:
+    /* \"#utility.yul\":1080:1082   */
+  0x40
+    /* \"#utility.yul\":1074:1083   */
+  mload
+    /* \"#utility.yul\":1048:1050   */
+  0x1f
+    /* \"#utility.yul\":1134:1147   */
+  dup3
+  add
+  not(0x1f)
+    /* \"#utility.yul\":1130:1152   */
+  swap1
+  dup2
+  and
+    /* \"#utility.yul\":1154:1156   */
+  0x3f
+    /* \"#utility.yul\":1126:1157   */
+  add
+    /* \"#utility.yul\":1122:1162   */
+  and
+    /* \"#utility.yul\":1110:1163   */
+  dup2
+  add
+  swap1
+    /* \"#utility.yul\":1178:1196   */
+  dup4
+  dup3
+  gt
+    /* \"#utility.yul\":1198:1220   */
+  dup2
+  dup4
+  lt
+    /* \"#utility.yul\":1175:1221   */
+  or
+    /* \"#utility.yul\":1172:1244   */
+  iszero
+  tag_67
+  jumpi
+    /* \"#utility.yul\":1224:1242   */
+  tag_67
+  tag_50
+  jump\t// in
+tag_67:
+    /* \"#utility.yul\":1264:1274   */
+  dup2
+    /* \"#utility.yul\":1260:1262   */
+  0x40
+    /* \"#utility.yul\":1253:1275   */
+  mstore
+    /* \"#utility.yul\":1299:1301   */
+  dup3
+    /* \"#utility.yul\":1291:1297   */
+  dup2
+    /* \"#utility.yul\":1284:1302   */
+  mstore
+    /* \"#utility.yul\":1339:1346   */
+  dup9
+    /* \"#utility.yul\":1334:1336   */
+  0x20
+    /* \"#utility.yul\":1329:1331   */
+  dup5
+    /* \"#utility.yul\":1325:1327   */
+  dup8
+    /* \"#utility.yul\":1321:1332   */
+  add
+    /* \"#utility.yul\":1317:1337   */
+  add
+    /* \"#utility.yul\":1314:1347   */
+  gt
+    /* \"#utility.yul\":1311:1364   */
+  iszero
+  tag_68
+  jumpi
+    /* \"#utility.yul\":1360:1361   */
+  0x00
+    /* \"#utility.yul\":1357:1358   */
+  dup1
+    /* \"#utility.yul\":1350:1362   */
+  revert
+    /* \"#utility.yul\":1311:1364   */
+tag_68:
+    /* \"#utility.yul\":1373:1428   */
+  tag_69
+    /* \"#utility.yul\":1425:1427   */
+  dup4
+    /* \"#utility.yul\":1420:1422   */
+  0x20
+    /* \"#utility.yul\":1412:1418   */
+  dup4
+    /* \"#utility.yul\":1408:1423   */
+  add
+    /* \"#utility.yul\":1403:1405   */
+  0x20
+    /* \"#utility.yul\":1399:1401   */
+  dup9
+    /* \"#utility.yul\":1395:1406   */
+  add
+    /* \"#utility.yul\":1373:1428   */
+  tag_51
+  jump\t// in
+tag_69:
+    /* \"#utility.yul\":1447:1453   */
+  dup1
+    /* \"#utility.yul\":1437:1453   */
+  swap6
+  pop
+  pop
+  pop
+  pop
+  pop
+  pop
+    /* \"#utility.yul\":409:1459   */
+  swap3
+  pop
+  swap3
+  swap1
+  pop
+  jump\t// out
+    /* \"#utility.yul\":2285:2559   */
+tag_35:
+    /* \"#utility.yul\":2414:2417   */
+  0x00
+    /* \"#utility.yul\":2452:2458   */
+  dup3
+    /* \"#utility.yul\":2446:2459   */
+  mload
+    /* \"#utility.yul\":2468:2521   */
+  tag_73
+    /* \"#utility.yul\":2514:2520   */
+  dup2
+    /* \"#utility.yul\":2509:2512   */
+  dup5
+    /* \"#utility.yul\":2502:2506   */
+  0x20
+    /* \"#utility.yul\":2494:2500   */
+  dup8
+    /* \"#utility.yul\":2490:2507   */
+  add
+    /* \"#utility.yul\":2468:2521   */
+  tag_51
+  jump\t// in
+tag_73:
+    /* \"#utility.yul\":2537:2553   */
+  swap2
+  swap1
+  swap2
+  add
+  swap3
+    /* \"#utility.yul\":2285:2559   */
+  swap2
+  pop
+  pop
+  jump\t// out
+    /* \"#utility.yul\":2564:2947   */
+tag_49:
+    /* \"#utility.yul\":2713:2715   */
+  0x20
+    /* \"#utility.yul\":2702:2711   */
+  dup2
+    /* \"#utility.yul\":2695:2716   */
+  mstore
+    /* \"#utility.yul\":2676:2680   */
+  0x00
+    /* \"#utility.yul\":2745:2751   */
+  dup3
+    /* \"#utility.yul\":2739:2752   */
+  mload
+    /* \"#utility.yul\":2788:2794   */
+  dup1
+    /* \"#utility.yul\":2783:2785   */
+  0x20
+    /* \"#utility.yul\":2772:2781   */
+  dup5
+    /* \"#utility.yul\":2768:2786   */
+  add
+    /* \"#utility.yul\":2761:2795   */
+  mstore
+    /* \"#utility.yul\":2804:2870   */
+  tag_75
+    /* \"#utility.yul\":2863:2869   */
+  dup2
+    /* \"#utility.yul\":2858:2860   */
+  0x40
+    /* \"#utility.yul\":2847:2856   */
+  dup6
+    /* \"#utility.yul\":2843:2861   */
+  add
+    /* \"#utility.yul\":2838:2840   */
+  0x20
+    /* \"#utility.yul\":2830:2836   */
+  dup8
+    /* \"#utility.yul\":2826:2841   */
+  add
+    /* \"#utility.yul\":2804:2870   */
+  tag_51
+  jump\t// in
+tag_75:
+    /* \"#utility.yul\":2931:2933   */
+  0x1f
+    /* \"#utility.yul\":2910:2925   */
+  add
+  not(0x1f)
+    /* \"#utility.yul\":2906:2935   */
+  and
+    /* \"#utility.yul\":2891:2936   */
+  swap2
+  swap1
+  swap2
+  add
+    /* \"#utility.yul\":2938:2940   */
+  0x40
+    /* \"#utility.yul\":2887:2941   */
+  add
+  swap3
+    /* \"#utility.yul\":2564:2947   */
+  swap2
+  pop
+  pop
+  jump\t// out
+tag_52:
+    /* \"contracts/ERCProxy.sol\":630:1349  contract ERCProxy is Proxy, ERC1967Upgrade {... */
+  dataSize(sub_0)
+  dup1
+  dataOffset(sub_0)
+  0x00
+  codecopy
+  0x00
+  return
+stop
+data_9fdcd12e4b726339b32a442b0a448365d5d85c96b2d2cff917b4f66c63110398 416464726573733a206c6f772d6c6576656c2064656c65676174652063616c6c206661696c6564
+
+sub_0: assembly {
+        /* \"contracts/ERCProxy.sol\":630:1349  contract ERCProxy is Proxy, ERC1967Upgrade {... */
+      mstore(0x40, 0x80)
+      jumpi(tag_2, calldatasize)
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":2898:2909  _fallback() */
+      tag_5
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":2898:2907  _fallback */
+      tag_6
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":2898:2909  _fallback() */
+      jump\t// in
+    tag_5:
+        /* \"contracts/ERCProxy.sol\":630:1349  contract ERCProxy is Proxy, ERC1967Upgrade {... */
+      stop
+    tag_2:
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":2675:2686  _fallback() */
+      tag_5
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":2322:2432  function _fallback() internal virtual {... */
+    tag_6:
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":2397:2425  _delegate(_implementation()) */
+      tag_16
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":2407:2424  _implementation() */
+      tag_17
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":2407:2422  _implementation */
+      tag_18
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":2407:2424  _implementation() */
+      jump\t// in
+    tag_17:
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":2397:2406  _delegate */
+      tag_19
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":2397:2425  _delegate(_implementation()) */
+      jump\t// in
+    tag_16:
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":2322:2432  function _fallback() internal virtual {... */
+      jump\t// out
+        /* \"@openzeppelin/contracts/utils/Address.sol\":6570:6768  function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {... */
+    tag_10:
+        /* \"@openzeppelin/contracts/utils/Address.sol\":6653:6665  bytes memory */
+      0x60
+        /* \"@openzeppelin/contracts/utils/Address.sol\":6684:6761  functionDelegateCall(target, data, \"Address: low-level delegate call failed\") */
+      tag_21
+        /* \"@openzeppelin/contracts/utils/Address.sol\":6705:6711  target */
+      dup4
+        /* \"@openzeppelin/contracts/utils/Address.sol\":6713:6717  data */
+      dup4
+        /* \"@openzeppelin/contracts/utils/Address.sol\":6684:6761  functionDelegateCall(target, data, \"Address: low-level delegate call failed\") */
+      mload(0x40)
+      dup1
+      0x60
+      add
+      0x40
+      mstore
+      dup1
+      0x27
+      dup2
+      mstore
+      0x20
+      add
+      data_9fdcd12e4b726339b32a442b0a448365d5d85c96b2d2cff917b4f66c63110398
+      0x27
+      swap2
+      codecopy
+        /* \"@openzeppelin/contracts/utils/Address.sol\":6684:6704  functionDelegateCall */
+      tag_22
+        /* \"@openzeppelin/contracts/utils/Address.sol\":6684:6761  functionDelegateCall(target, data, \"Address: low-level delegate call failed\") */
+      jump\t// in
+    tag_21:
+        /* \"@openzeppelin/contracts/utils/Address.sol\":6677:6761  return functionDelegateCall(target, data, \"Address: low-level delegate call failed\") */
+      swap4
+        /* \"@openzeppelin/contracts/utils/Address.sol\":6570:6768  function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {... */
+      swap3
+      pop
+      pop
+      pop
+      jump\t// out
+        /* \"@openzeppelin/contracts/utils/Address.sol\":1175:1495  function isContract(address account) internal view returns (bool) {... */
+    tag_11:
+        /* \"@openzeppelin/contracts/utils/Address.sol\":1465:1484  account.code.length */
+      0xffffffffffffffffffffffffffffffffffffffff
+      and
+      extcodesize
+        /* \"@openzeppelin/contracts/utils/Address.sol\":1465:1488  account.code.length > 0 */
+      iszero
+      iszero
+      swap1
+        /* \"@openzeppelin/contracts/utils/Address.sol\":1175:1495  function isContract(address account) internal view returns (bool) {... */
+      jump\t// out
+        /* \"@openzeppelin/contracts/utils/StorageSlot.sol\":1614:1804  function getAddressSlot(bytes32 slot) internal pure returns (AddressSlot storage r) {... */
+    tag_12:
+        /* \"@openzeppelin/contracts/utils/StorageSlot.sol\":1784:1788  slot */
+      swap1
+        /* \"@openzeppelin/contracts/utils/StorageSlot.sol\":1614:1804  function getAddressSlot(bytes32 slot) internal pure returns (AddressSlot storage r) {... */
+      jump\t// out
+        /* \"contracts/ERCProxy.sol\":1207:1347  function _implementation() internal view virtual override returns (address impl) {... */
+    tag_18:
+        /* \"contracts/ERCProxy.sol\":1274:1286  address impl */
+      0x00
+        /* \"contracts/ERCProxy.sol\":1305:1340  ERC1967Upgrade._getImplementation() */
+      tag_27
+        /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1030:1096  0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc */
+      0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
+        /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1380:1434  StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value */
+      sload
+      0xffffffffffffffffffffffffffffffffffffffff
+      and
+      swap1
+        /* \"@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade.sol\":1301:1441  function _getImplementation() internal view returns (address) {... */
+      jump
+        /* \"contracts/ERCProxy.sol\":1305:1340  ERC1967Upgrade._getImplementation() */
+    tag_27:
+        /* \"contracts/ERCProxy.sol\":1298:1340  return ERC1967Upgrade._getImplementation() */
+      swap1
+      pop
+        /* \"contracts/ERCProxy.sol\":1207:1347  function _implementation() internal view virtual override returns (address impl) {... */
+      swap1
+      jump\t// out
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":948:1843  function _delegate(address implementation) internal virtual {... */
+    tag_19:
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1286:1300  calldatasize() */
+      calldatasize
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1283:1284  0 */
+      0x00
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1280:1281  0 */
+      dup1
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1267:1301  calldatacopy(0, 0, calldatasize()) */
+      calldatacopy
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1500:1501  0 */
+      0x00
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1497:1498  0 */
+      dup1
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1481:1495  calldatasize() */
+      calldatasize
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1478:1479  0 */
+      0x00
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1462:1476  implementation */
+      dup5
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1455:1460  gas() */
+      gas
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1442:1502  delegatecall(gas(), implementation, 0, calldatasize(), 0, 0) */
+      delegatecall
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1576:1592  returndatasize() */
+      returndatasize
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1573:1574  0 */
+      0x00
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1570:1571  0 */
+      dup1
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1555:1593  returndatacopy(0, 0, returndatasize()) */
+      returndatacopy
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1614:1620  result */
+      dup1
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1681:1747  case 0 {... */
+      dup1
+      iszero
+      tag_31
+      jumpi
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1796:1812  returndatasize() */
+      returndatasize
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1793:1794  0 */
+      0x00
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1786:1813  return(0, returndatasize()) */
+      return
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1681:1747  case 0 {... */
+    tag_31:
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1716:1732  returndatasize() */
+      returndatasize
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1713:1714  0 */
+      0x00
+        /* \"@openzeppelin/contracts/proxy/Proxy.sol\":1706:1733  revert(0, returndatasize()) */
+      revert
+        /* \"@openzeppelin/contracts/utils/Address.sol\":6954:7341  function functionDelegateCall(... */
+    tag_22:
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7095:7107  bytes memory */
+      0x60
+        /* \"@openzeppelin/contracts/utils/Address.sol\":1465:1484  account.code.length */
+      0xffffffffffffffffffffffffffffffffffffffff
+      dup5
+      and
+      extcodesize
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7119:7188  require(isContract(target), \"Address: delegate call to non-contract\") */
+      tag_34
+      jumpi
+      mload(0x40)
+      shl(0xe5, 0x461bcd)
+      dup2
+      mstore
+        /* \"#utility.yul\":216:218   */
+      0x20
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7119:7188  require(isContract(target), \"Address: delegate call to non-contract\") */
+      0x04
+      dup3
+      add
+        /* \"#utility.yul\":198:219   */
+      mstore
+        /* \"#utility.yul\":255:257   */
+      0x26
+        /* \"#utility.yul\":235:253   */
+      0x24
+      dup3
+      add
+        /* \"#utility.yul\":228:258   */
+      mstore
+        /* \"#utility.yul\":294:328   */
+      0x416464726573733a2064656c65676174652063616c6c20746f206e6f6e2d636f
+        /* \"#utility.yul\":274:292   */
+      0x44
+      dup3
+      add
+        /* \"#utility.yul\":267:329   */
+      mstore
+        /* \"#utility.yul\":365:373   */
+      0x6e74726163740000000000000000000000000000000000000000000000000000
+        /* \"#utility.yul\":345:363   */
+      0x64
+      dup3
+      add
+        /* \"#utility.yul\":338:374   */
+      mstore
+        /* \"#utility.yul\":391:410   */
+      0x84
+      add
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7119:7188  require(isContract(target), \"Address: delegate call to non-contract\") */
+    tag_35:
+      mload(0x40)
+      dup1
+      swap2
+      sub
+      swap1
+      revert
+    tag_34:
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7200:7212  bool success */
+      0x00
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7214:7237  bytes memory returndata */
+      dup1
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7241:7247  target */
+      dup6
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7241:7260  target.delegatecall */
+      0xffffffffffffffffffffffffffffffffffffffff
+      and
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7261:7265  data */
+      dup6
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7241:7266  target.delegatecall(data) */
+      mload(0x40)
+      tag_37
+      swap2
+      swap1
+      tag_38
+      jump\t// in
+    tag_37:
+      0x00
+      mload(0x40)
+      dup1
+      dup4
+      sub
+      dup2
+      dup6
+      gas
+      delegatecall
+      swap2
+      pop
+      pop
+      returndatasize
+      dup1
+      0x00
+      dup2
+      eq
+      tag_41
+      jumpi
+      mload(0x40)
+      swap2
+      pop
+      and(add(returndatasize, 0x3f), not(0x1f))
+      dup3
+      add
+      0x40
+      mstore
+      returndatasize
+      dup3
+      mstore
+      returndatasize
+      0x00
+      0x20
+      dup5
+      add
+      returndatacopy
+      jump(tag_40)
+    tag_41:
+      0x60
+      swap2
+      pop
+    tag_40:
+      pop
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7199:7266  (bool success, bytes memory returndata) = target.delegatecall(data) */
+      swap2
+      pop
+      swap2
+      pop
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7283:7334  verifyCallResult(success, returndata, errorMessage) */
+      tag_42
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7300:7307  success */
+      dup3
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7309:7319  returndata */
+      dup3
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7321:7333  errorMessage */
+      dup7
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7283:7299  verifyCallResult */
+      tag_43
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7283:7334  verifyCallResult(success, returndata, errorMessage) */
+      jump\t// in
+    tag_42:
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7276:7334  return verifyCallResult(success, returndata, errorMessage) */
+      swap7
+        /* \"@openzeppelin/contracts/utils/Address.sol\":6954:7341  function functionDelegateCall(... */
+      swap6
+      pop
+      pop
+      pop
+      pop
+      pop
+      pop
+      jump\t// out
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7561:8303  function verifyCallResult(... */
+    tag_43:
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7707:7719  bytes memory */
+      0x60
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7735:7742  success */
+      dup4
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7731:8297  if (success) {... */
+      iszero
+      tag_47
+      jumpi
+      pop
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7765:7775  returndata */
+      dup2
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7758:7775  return returndata */
+      jump(tag_21)
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7731:8297  if (success) {... */
+    tag_47:
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7876:7893  returndata.length */
+      dup3
+      mload
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7876:7897  returndata.length > 0 */
+      iszero
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7872:8287  if (returndata.length > 0) {... */
+      tag_49
+      jumpi
+        /* \"@openzeppelin/contracts/utils/Address.sol\":8120:8130  returndata */
+      dup3
+        /* \"@openzeppelin/contracts/utils/Address.sol\":8114:8131  mload(returndata) */
+      mload
+        /* \"@openzeppelin/contracts/utils/Address.sol\":8180:8195  returndata_size */
+      dup1
+        /* \"@openzeppelin/contracts/utils/Address.sol\":8167:8177  returndata */
+      dup5
+        /* \"@openzeppelin/contracts/utils/Address.sol\":8163:8165  32 */
+      0x20
+        /* \"@openzeppelin/contracts/utils/Address.sol\":8159:8178  add(32, returndata) */
+      add
+        /* \"@openzeppelin/contracts/utils/Address.sol\":8152:8196  revert(add(32, returndata), returndata_size) */
+      revert
+        /* \"@openzeppelin/contracts/utils/Address.sol\":7872:8287  if (returndata.length > 0) {... */
+    tag_49:
+        /* \"@openzeppelin/contracts/utils/Address.sol\":8259:8271  errorMessage */
+      dup2
+        /* \"@openzeppelin/contracts/utils/Address.sol\":8252:8272  revert(errorMessage) */
+      mload(0x40)
+      shl(0xe5, 0x461bcd)
+      dup2
+      mstore
+      0x04
+      add
+      tag_35
+      swap2
+      swap1
+      tag_52
+      jump\t// in
+        /* \"#utility.yul\":421:679   */
+    tag_53:
+        /* \"#utility.yul\":493:494   */
+      0x00
+        /* \"#utility.yul\":503:616   */
+    tag_57:
+        /* \"#utility.yul\":517:523   */
+      dup4
+        /* \"#utility.yul\":514:515   */
+      dup2
+        /* \"#utility.yul\":511:524   */
+      lt
+        /* \"#utility.yul\":503:616   */
+      iszero
+      tag_59
+      jumpi
+        /* \"#utility.yul\":593:604   */
+      dup2
+      dup2
+      add
+        /* \"#utility.yul\":587:605   */
+      mload
+        /* \"#utility.yul\":574:585   */
+      dup4
+      dup3
+      add
+        /* \"#utility.yul\":567:606   */
+      mstore
+        /* \"#utility.yul\":539:541   */
+      0x20
+        /* \"#utility.yul\":532:542   */
+      add
+        /* \"#utility.yul\":503:616   */
+      jump(tag_57)
+    tag_59:
+        /* \"#utility.yul\":634:640   */
+      dup4
+        /* \"#utility.yul\":631:632   */
+      dup2
+        /* \"#utility.yul\":628:641   */
+      gt
+        /* \"#utility.yul\":625:673   */
+      iszero
+      tag_60
+      jumpi
+        /* \"#utility.yul\":669:670   */
+      0x00
+        /* \"#utility.yul\":660:666   */
+      dup5
+        /* \"#utility.yul\":655:658   */
+      dup5
+        /* \"#utility.yul\":651:667   */
+      add
+        /* \"#utility.yul\":644:671   */
+      mstore
+        /* \"#utility.yul\":625:673   */
+    tag_60:
+      pop
+        /* \"#utility.yul\":421:679   */
+      pop
+      pop
+      pop
+      jump\t// out
+        /* \"#utility.yul\":684:958   */
+    tag_38:
+        /* \"#utility.yul\":813:816   */
+      0x00
+        /* \"#utility.yul\":851:857   */
+      dup3
+        /* \"#utility.yul\":845:858   */
+      mload
+        /* \"#utility.yul\":867:920   */
+      tag_62
+        /* \"#utility.yul\":913:919   */
+      dup2
+        /* \"#utility.yul\":908:911   */
+      dup5
+        /* \"#utility.yul\":901:905   */
+      0x20
+        /* \"#utility.yul\":893:899   */
+      dup8
+        /* \"#utility.yul\":889:906   */
+      add
+        /* \"#utility.yul\":867:920   */
+      tag_53
+      jump\t// in
+    tag_62:
+        /* \"#utility.yul\":936:952   */
+      swap2
+      swap1
+      swap2
+      add
+      swap3
+        /* \"#utility.yul\":684:958   */
+      swap2
+      pop
+      pop
+      jump\t// out
+        /* \"#utility.yul\":963:1346   */
+    tag_52:
+        /* \"#utility.yul\":1112:1114   */
+      0x20
+        /* \"#utility.yul\":1101:1110   */
+      dup2
+        /* \"#utility.yul\":1094:1115   */
+      mstore
+        /* \"#utility.yul\":1075:1079   */
+      0x00
+        /* \"#utility.yul\":1144:1150   */
+      dup3
+        /* \"#utility.yul\":1138:1151   */
+      mload
+        /* \"#utility.yul\":1187:1193   */
+      dup1
+        /* \"#utility.yul\":1182:1184   */
+      0x20
+        /* \"#utility.yul\":1171:1180   */
+      dup5
+        /* \"#utility.yul\":1167:1185   */
+      add
+        /* \"#utility.yul\":1160:1194   */
+      mstore
+        /* \"#utility.yul\":1203:1269   */
+      tag_64
+        /* \"#utility.yul\":1262:1268   */
+      dup2
+        /* \"#utility.yul\":1257:1259   */
+      0x40
+        /* \"#utility.yul\":1246:1255   */
+      dup6
+        /* \"#utility.yul\":1242:1260   */
+      add
+        /* \"#utility.yul\":1237:1239   */
+      0x20
+        /* \"#utility.yul\":1229:1235   */
+      dup8
+        /* \"#utility.yul\":1225:1240   */
+      add
+        /* \"#utility.yul\":1203:1269   */
+      tag_53
+      jump\t// in
+    tag_64:
+        /* \"#utility.yul\":1330:1332   */
+      0x1f
+        /* \"#utility.yul\":1309:1324   */
+      add
+      not(0x1f)
+        /* \"#utility.yul\":1305:1334   */
+      and
+        /* \"#utility.yul\":1290:1335   */
+      swap2
+      swap1
+      swap2
+      add
+        /* \"#utility.yul\":1337:1339   */
+      0x40
+        /* \"#utility.yul\":1286:1340   */
+      add
+      swap3
+        /* \"#utility.yul\":963:1346   */
+      swap2
+      pop
+      pop
+      jump\t// out
+    stop
+    data_9fdcd12e4b726339b32a442b0a448365d5d85c96b2d2cff917b4f66c63110398 416464726573733a206c6f772d6c6576656c2064656c65676174652063616c6c206661696c6564
+
+    auxdata: 0xa2646970667358221220310a2113a48862de97bb0c976a1b59a38f2864f7ed811e16b1fe8d1d0244a23c64736f6c63430008090033
+}
+",
+

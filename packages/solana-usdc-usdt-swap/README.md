@@ -5,20 +5,45 @@ Minimalist package to create swap and approve instructions for Solana-native USD
 ## Example usage
 
 ```js
-import { Connection, PublicKey } from "@solana/web3.js";
+import {
+  Connection,
+  PublicKey,
+  Transaction,
+  Keypair,
+  sendAndConfirmTransaction,
+  LAMPORTS_PER_SOL,
+} from "@solana/web3.js";
 import {
   SwapDirection,
-  createApproveAndSwapIx,
+  createApproveAndSwapIxs,
   createPoolMath,
   fetchSwimPool,
 } from "@swim-io/solana-usdc-usdt-swap";
 import Decimal from "decimal.js";
+import * as bip39 from "bip39";
+import { derivePath } from "ed25519-hd-key";
 
 // Initialize a Solana Connection
 const solanaConnection = new Connection(/* your arguments */);
 
+const mnemonic = "mnemonic phrase";
+const seed = await bip39.mnemonicToSeed(mnemonic, "password if any");
+const path = `m/44'/501'/0'/0'`;
+const userWallet = Keypair.fromSeed(
+  derivePath(path, seed.toString("hex")).key
+);
+
+// Check account balance
+const balance = await solanaConnection.getBalance(
+  userWallet.publicKey,
+);
+
+// Convert lamports to SOL
+const userBalance = new Decimal(balance).dividedBy(LAMPORTS_PER_SOL);
+
+console.log(`User wallet balance: ${userBalance} SOL`);
+
 // Gather required keys
-const ownerPublicKey = new PublicKey(/* user wallet address */);
 const delegateKeypair = Keypair.generate();
 const usdcTokenAccountPublicKey =
   new PublicKey(/* user token account address */);
@@ -58,13 +83,13 @@ console.log(
 
 // Build instructions for a swap
 const minimumOutputAmount = stableOutputAmount.mul(1 - slippageFraction);
-const approveAndSwapIxs = createApproveAndSwapIx(
+const approveAndSwapIxs = createApproveAndSwapIxs(
   direction,
   inputAmount,
   minimumOutputAmount,
   [usdcTokenAccountPublicKey, usdtTokenAccountPublicKey],
   delegateKeypair.publicKey,
-  ownerPublicKey,
+  userWallet.publicKey,
 );
 
 // Build a transaction and submit it to the Solana blockchain
@@ -73,12 +98,11 @@ const { blockhash, lastValidBlockHeight } =
 const tx = new Transaction({
   blockhash,
   lastValidBlockHeight,
-  feePayer: ownerPublicKey,
+  feePayer: userWallet.publicKey,
 });
 tx.add(...approveAndSwapIxs);
-tx.partialSign(delegateKeypair);
-const signedTx = userWallet.signTransaction(tx);
-const txId = await solanaConnection.sendRawTransaction(signedTx.serialize());
+
+const txId = await sendAndConfirmTransaction(solanaConnection, tx, [delegateKeypair, userWallet]);
 
 console.log(`Transaction submitted: ${txId}`);
 ```
@@ -89,13 +113,13 @@ The swap transaction instruction requires the public key of the governance fee a
 
 ```ts
 const swimPool = await fetchSwimPool(solanaConnection);
-const approveAndSwapIxs = createApproveAndSwapIx(
+const approveAndSwapIxs = createApproveAndSwapIxs(
   direction,
   inputAmount,
   minimumOutputAmount,
   [usdcTokenAccountPublicKey, usdtTokenAccountPublicKey],
   delegateKeypair.publicKey,
-  ownerPublicKey,
+  userWallet.publicKey,
   swimPool.governanceFeeKey,
 );
 ```

@@ -6,6 +6,7 @@ on:
       - "apps/ui/**.tsx"
       - "apps/ui/**.json"
       - "apps/ui/**.scss"
+      - "yarn.lock"
   push:
     branches:
       - master
@@ -45,6 +46,8 @@ jobs:
         run: yarn test --watchAll=false
       - name: Check format
         run: yarn format:check
+      - name: Check Build
+        run: yarn build
       - name: "Create .env file for storybook"
         run: |
           touch .env

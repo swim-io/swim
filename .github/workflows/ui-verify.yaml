@@ -47,7 +47,8 @@ jobs:
       - name: Check format
         run: yarn format:check
       - name: Check Build
-        run: NODE_OPTIONS="--max_old_space_size=4096" DISABLE_ESLINT_PLUGIN=true SKIP_SENTRY=true yarn build
+        # CI=false to skip errors for missing optional dependencies which we don't use (@walletconnect/web3-provider, @web3auth/web3auth, magic-sdk)
+        run: CI=false NODE_OPTIONS="--max_old_space_size=4096" DISABLE_ESLINT_PLUGIN=true SKIP_SENTRY=true yarn build
       - name: "Create .env file for storybook"
         run: |
           touch .env

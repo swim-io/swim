@@ -25,7 +25,12 @@ export const TokenSelect = ({
 
   return (
     <>
-      <EuiButton onClick={openModal} fullWidth>
+      <EuiButton
+        iconType="arrowDown"
+        iconSide="right"
+        onClick={openModal}
+        fullWidth
+      >
         <TokenSpecIcon token={token} />
       </EuiButton>
       {showModal && (

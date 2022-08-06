@@ -1,4 +1,5 @@
-.tokenIcon {
-  position: relative;
-  top: -2px;
+.tokenIconItem {
+  display: "inline-flex";
+  align-items: "center";
+  white-space: "nowrap";
 }

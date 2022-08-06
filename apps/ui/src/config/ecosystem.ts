@@ -57,11 +57,11 @@ export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean => {
     case EcosystemId.Ethereum:
     case EcosystemId.Bnb:
     case EcosystemId.Avalanche:
+      return true;
     case EcosystemId.Polygon:
     case EcosystemId.Aurora:
     case EcosystemId.Fantom:
     case EcosystemId.Karura:
-      return true;
     case EcosystemId.Acala:
       return !!process.env.REACT_APP_ENABLE_ACALA;
     default:

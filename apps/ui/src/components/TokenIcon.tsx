@@ -27,23 +27,19 @@ export const TokenIcon = ({
 }: TokenIconProps): ReactElement => {
   const ecosystem = ecosystemId ? ECOSYSTEMS[ecosystemId] : null;
   return (
-    <span>
-      <EuiIcon className="tokenIcon" type={icon} size="m" title={symbol} />
+    <span className="tokenIconItem">
+      <EuiIcon type={icon} size="m" title={symbol} />
       &nbsp;<span>{showFullName ? displayName : symbol}</span>
       {ecosystem && (
-        <span>
-          {" "}
-          <span>on</span>{" "}
-          <span style={{ whiteSpace: "nowrap" }}>
-            <EuiIcon
-              className="tokenIcon"
-              type={ecosystem.logo}
-              size="m"
-              title={ecosystem.displayName}
-            />
-            &nbsp;{ecosystem.displayName}
-          </span>
-        </span>
+        <>
+          <span>&nbsp;on&nbsp;</span>
+          <EuiIcon
+            type={ecosystem.logo}
+            size="m"
+            title={ecosystem.displayName}
+          />
+          &nbsp;{ecosystem.displayName}
+        </>
       )}
     </span>
   );
@@ -59,8 +55,8 @@ export const AmountWithTokenIcon = ({
   ecosystem,
 }: AmountWithTokenIconProps): ReactElement => {
   return (
-    <span>
-      {amount.toFormattedHumanString(ecosystem)}{" "}
+    <span className="tokenIconItem">
+      {amount.toFormattedHumanString(ecosystem)}&nbsp;
       <TokenSpecIcon token={amount.tokenSpec} />
     </span>
   );

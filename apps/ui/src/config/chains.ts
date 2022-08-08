@@ -13,7 +13,9 @@ const getSolanaMainnetRpcUrls = () => {
     try {
       return SOLANA_MAINNET_RPC_URLS.split(" ").filter((url) => url);
       // eslint-disable-next-line no-empty
-    } catch {}
+    } catch {
+      // Invalid env variable, fallback to default case.
+    }
   }
   return [SOLANA_MAINNET_RPC_URL || "https://solana-api.projectserum.com"];
 };

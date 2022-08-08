@@ -1,15 +1,17 @@
 import { EuiCallOut, EuiLoadingSpinner, EuiSpacer } from "@elastic/eui";
+import type Decimal from "decimal.js";
 import type { FC } from "react";
 import shallow from "zustand/shallow.js";
 
 import { decimalRemoveTrailingZero } from "../amounts";
+import type { EcosystemId } from "../config";
 import { ECOSYSTEM_IDS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import type { FeesEstimation } from "../models";
 
 interface Props {
-  readonly feesEstimation: FeesEstimation | null;
+  readonly feesEstimation: Partial<FeesEstimation> | null;
 }
 
 export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
@@ -32,7 +34,16 @@ export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
       ecosystemId,
       txFee: feesEstimation[ecosystemId],
     };
-  }).filter(({ txFee }) => !txFee.isZero());
+  }).filter(
+    (
+      txFeeObj,
+    ): txFeeObj is {
+      readonly ecosystemId: EcosystemId;
+      readonly txFee: Decimal;
+    } => {
+      return txFeeObj.txFee !== undefined && !txFeeObj.txFee.isZero();
+    },
+  );
 
   return (
     <>

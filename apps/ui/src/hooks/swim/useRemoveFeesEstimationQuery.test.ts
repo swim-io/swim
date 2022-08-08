@@ -1,6 +1,7 @@
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
+import type { EvmEcosystemId } from "../../config";
 import { EcosystemId } from "../../config";
 import {
   BNB_BUSD,
@@ -13,15 +14,21 @@ import {
 import { Amount } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
-import { useGasPriceQuery } from "./useGasPriceQuery";
+import { useGasPriceQueries } from "./useGasPriceQuery";
 import { useRemoveFeesEstimationQuery } from "./useRemoveFeesEstimationQuery";
 
-jest.mock("./useGasPriceQuery", () => ({
-  useGasPriceQuery: jest.fn(),
-}));
+jest.mock("./useGasPriceQuery", () => {
+  const mockedUseGasPriceQueries = jest.fn();
+  return {
+    ...jest.requireActual("./useGasPriceQuery"),
+    useGasPriceQuery: (evmEcosystemId: EvmEcosystemId) =>
+      mockedUseGasPriceQueries([evmEcosystemId])[0],
+    useGasPriceQueries: mockedUseGasPriceQueries,
+  };
+});
 
 // Make typescript happy with jest
-const useGasPriceQueryMock = mockOf(useGasPriceQuery);
+const useGasPriceQueriesMock = mockOf(useGasPriceQueries);
 
 describe("useRemoveFeesEstimationQuery", () => {
   beforeEach(() => {
@@ -31,10 +38,14 @@ describe("useRemoveFeesEstimationQuery", () => {
 
   describe("loading", () => {
     it("should return null when the required gas price is still loading", () => {
-      useGasPriceQueryMock.mockReturnValue({
-        isLoading: true,
-        data: undefined,
-      });
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => ({
+            isLoading: true,
+            data: undefined,
+          }));
+        },
+      );
       const { result } = renderHookWithAppContext(() =>
         useRemoveFeesEstimationQuery(
           [
@@ -52,10 +63,14 @@ describe("useRemoveFeesEstimationQuery", () => {
     });
 
     it("should return valid estimation for Solana only add, even when evm gas price are loading", () => {
-      useGasPriceQueryMock.mockReturnValue({
-        isLoading: true,
-        data: undefined,
-      });
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => ({
+            isLoading: true,
+            data: undefined,
+          }));
+        },
+      );
       const { result } = renderHookWithAppContext(() =>
         useRemoveFeesEstimationQuery(
           [
@@ -77,10 +92,14 @@ describe("useRemoveFeesEstimationQuery", () => {
 
   describe("loaded", () => {
     beforeEach(() => {
-      useGasPriceQueryMock.mockImplementation((ecosystemId: EcosystemId) =>
-        ecosystemId === EcosystemId.Ethereum
-          ? { data: new Decimal(7e-8) }
-          : { data: new Decimal(5e-9) },
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => {
+            return ecosystemId === EcosystemId.Ethereum
+              ? { data: new Decimal(7e-8) }
+              : { data: new Decimal(5e-9) };
+          });
+        },
       );
     });
 

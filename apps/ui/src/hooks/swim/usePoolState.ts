@@ -18,6 +18,8 @@ export const usePoolStates = (
       queryKey: ["poolState", env, poolSpec.id],
       queryFn: async () => getPoolState(solanaConnection, poolSpec),
     })),
+    // useQueries does not support types without casting
+    // See https://github.com/tannerlinsley/react-query/issues/1675
   ) as readonly UseQueryResult<SwimPoolState | null, Error>[];
 };
 

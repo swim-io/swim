@@ -5,7 +5,6 @@ import type { EvmEcosystemId, SolanaEcosystemId } from "./ecosystem";
 import { EcosystemId, Protocol } from "./ecosystem";
 
 const SOLANA_MAINNET_RPC_URL = process.env.REACT_APP_SOLANA_MAINNET_RPC_URL;
-const SOLANA_MAINNET_WS_URL = process.env.REACT_APP_SOLANA_MAINNET_WS_URL;
 
 /** Adapted from @solana/spl-token-registry ENV */
 export const enum SolanaChainId {

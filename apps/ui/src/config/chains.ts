@@ -5,6 +5,7 @@ import type { EvmEcosystemId, SolanaEcosystemId } from "./ecosystem";
 import { EcosystemId, Protocol } from "./ecosystem";
 
 const SOLANA_MAINNET_RPC_URL = process.env.REACT_APP_SOLANA_MAINNET_RPC_URL;
+const SOLANA_MAINET_RPC_URLS = process.env.REACT_APP_SOLANA_MAINNET_RPC_URLS;
 
 /** Adapted from @solana/spl-token-registry ENV */
 export const enum SolanaChainId {
@@ -170,9 +171,9 @@ const MAINNET_CHAINS: ChainsByProtocol = {
         bridge: "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth",
         tokenBridge: "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb",
       },
-      endpoints: [
-        SOLANA_MAINNET_RPC_URL ?? "https://solana-api.projectserum.com",
-      ],
+      endpoints: SOLANA_MAINET_RPC_URLS
+        ? SOLANA_MAINET_RPC_URLS.split(" ").filter((url) => url)
+        : [SOLANA_MAINNET_RPC_URL ?? "https://solana-api.projectserum.com"],
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
       otterTotCollection: "EpozLY9dQ1jnaU5Wof524K7p9uHYxkuLF2hi32cf8W9s",
     },

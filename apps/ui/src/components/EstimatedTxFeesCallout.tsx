@@ -1,6 +1,7 @@
 import { EuiCallOut, EuiLoadingSpinner, EuiSpacer } from "@elastic/eui";
 import type Decimal from "decimal.js";
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import { decimalRemoveTrailingZero } from "../amounts";
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
+  const { t } = useTranslation();
   const config = useEnvironment(selectConfig, shallow);
   if (feesEstimation === null) {
     return (
@@ -22,7 +24,7 @@ export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
         <EuiCallOut iconType="visGauge" size="s" style={{ paddingLeft: 12 }}>
           <EuiLoadingSpinner size="m" />
           <span className="euiCallOutHeader__title" style={{ marginLeft: 8 }}>
-            Estimating Transaction Fees...
+            {t("general.estimating_transaction_fees")}
           </span>
         </EuiCallOut>
         <EuiSpacer />
@@ -50,7 +52,7 @@ export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
       <EuiCallOut
         size="s"
         iconType="visGauge"
-        title={`Estimated Transaction Fees`}
+        title={t("general.estimated_transaction_fees")}
         style={{ paddingLeft: 12 }}
       >
         <ul>

@@ -2,6 +2,7 @@ import { EuiIcon, EuiListGroup } from "@elastic/eui";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { truncate } from "@swim-io/utils";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { EcosystemId } from "../config";
 import { ECOSYSTEMS } from "../config";
@@ -14,6 +15,7 @@ interface ConnectedWalletsProps {
 export const ConnectedWallets = ({
   walletAddresses,
 }: ConnectedWalletsProps): ReactElement => {
+  const { t } = useTranslation();
   const wallets = useWallets();
 
   return (
@@ -27,8 +29,9 @@ export const ConnectedWallets = ({
               label: (
                 <>
                   <EuiIcon type={ECOSYSTEMS[ecosystemId as EcosystemId].logo} />{" "}
-                  {truncate(address as string)}
-                  <span>&nbsp;(not connected)</span>
+                  {t("recent_interactions.connected_wallet_is_not_connected", {
+                    walletAddress: truncate(address as string),
+                  })}
                 </>
               ),
               color: "subdued",
@@ -39,8 +42,9 @@ export const ConnectedWallets = ({
               label: (
                 <>
                   <EuiIcon type={ECOSYSTEMS[ecosystemId as EcosystemId].logo} />{" "}
-                  {truncate(address as string)}
-                  <span>&nbsp;(connected)</span>
+                  {t("recent_interactions.connected_wallet_is_connected", {
+                    walletAddress: truncate(address as string),
+                  })}
                 </>
               ),
               color: "text",
@@ -51,8 +55,10 @@ export const ConnectedWallets = ({
               label: (
                 <>
                   <EuiIcon type={ECOSYSTEMS[ecosystemId as EcosystemId].logo} />{" "}
-                  {truncate(address as string)}
-                  <span>&nbsp;(different account)</span>
+                  {t(
+                    "recent_interactions.connected_wallet_is_different_account",
+                    { walletAddress: truncate(address as string) },
+                  )}
                 </>
               ),
               color: "text",

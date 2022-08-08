@@ -12,6 +12,7 @@ setupSentry();
 
 ReactDOM.render(
   <StrictMode>
+    {/* Needed for i18next */}
     <Suspense fallback="loading">
       <App />
     </Suspense>

@@ -24,5 +24,11 @@ i18next
     fallbackLng: "en",
     // Helps finding issues with loading not working.
     debug: process.env.NODE_ENV === "development",
+    react: {
+      // Work around Google Translate issue with React apps https://github.com/facebook/react/issues/11538
+      transWrapTextNodes: "span",
+    },
   })
   .catch(console.error);
+
+export { i18next };

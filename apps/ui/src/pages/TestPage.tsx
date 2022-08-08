@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-non-null-assertion, i18next/no-literal-string */
 import { approveEth, getForeignAssetEth } from "@certusone/wormhole-sdk";
 import {
   EuiButton,

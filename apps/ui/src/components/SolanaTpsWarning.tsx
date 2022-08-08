@@ -2,6 +2,7 @@ import { EuiCallOut, EuiSpacer, EuiText } from "@elastic/eui";
 import { Env } from "@swim-io/core";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 
 import { useEnvironment } from "../core/store";
 import { useSolanaConnection } from "../hooks/solana";
@@ -10,6 +11,7 @@ const INTERVAL_FREQUENCY_MS = 60000; // 1 minute.
 const SAMPLES_LIMIT = 5;
 
 export const SolanaTpsWarning = (): ReactElement => {
+  const { t } = useTranslation();
   // Assume Solana TPS healthy.
   const [tps, setTps] = useState<number>(2000);
   const { env } = useEnvironment();
@@ -53,12 +55,19 @@ export const SolanaTpsWarning = (): ReactElement => {
   }
   return tps === 0 ? (
     <>
-      <EuiCallOut title="Solana Network Down" color="danger">
+      <EuiCallOut
+        title={t("solana_tps_warning.network_down_title")}
+        color="danger"
+      >
         <EuiText>
           <p>
-            {"We've detected downtime on the "}
-            <a href="https://status.solana.com/">Solana Network </a>
-            {" and thus advise against swapping at this time."}
+            <Trans
+              i18nKey="solana_tps_warning.network_down_description"
+              components={{
+                // eslint-disable-next-line jsx-a11y/anchor-has-content
+                a: <a href="https://status.solana.com/" />,
+              }}
+            />
           </p>
         </EuiText>
       </EuiCallOut>
@@ -66,13 +75,15 @@ export const SolanaTpsWarning = (): ReactElement => {
     </>
   ) : (
     <>
-      <EuiCallOut title="Solana Network Congested" color="warning">
+      <EuiCallOut
+        title={t("solana_tps_warning.network_congested_title")}
+        color="warning"
+      >
         <EuiText>
           <p>
-            {`Solana’s Transactions Per Second is low (${tps.toLocaleString(
-              undefined,
-              { maximumFractionDigits: 2 },
-            )} TPS), causing network congestion. Please proceed with caution as transactions may take a long time to confirm.`}
+            {t("solana_tps_warning.network_congested_description", {
+              tps: tps.toLocaleString(undefined, { maximumFractionDigits: 2 }),
+            })}
           </p>
         </EuiText>
       </EuiCallOut>

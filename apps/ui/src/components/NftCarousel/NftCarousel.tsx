@@ -12,6 +12,7 @@ import {
 } from "@elastic/eui";
 import type { ChangeEvent, ReactElement } from "react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Carousel } from "react-responsive-carousel";
 
 import { useNotification } from "../../core/store";
@@ -49,6 +50,7 @@ const redeemPassword = "redeem";
 const redemptionAmount = "3000 xSWIM";
 
 export const NftCarousel = ({ nfts }: Props): ReactElement => {
+  const { t } = useTranslation();
   const [activeNft, setActiveNft] = useState<NftData | null>(null);
   const [passwordInput, setPasswordInput] = useState("");
   const { notify } = useNotification();
@@ -142,7 +144,7 @@ export const NftCarousel = ({ nfts }: Props): ReactElement => {
                       showRedeemModal(nft);
                     }}
                   >
-                    Redeem
+                    {t("redeem_page.redeem_button")}
                   </EuiButton>
                 </EuiFlexItem>
               </EuiFlexGroup>
@@ -158,7 +160,7 @@ export const NftCarousel = ({ nfts }: Props): ReactElement => {
             executeRedeem().catch(console.error);
           }}
           confirmButtonText="Redeem"
-          cancelButtonText="Cancel"
+          cancelButtonText={t("general.cancel_button")}
           buttonColor="danger"
           confirmButtonDisabled={passwordInput.toLowerCase() !== redeemPassword}
           isLoading={isLoading}

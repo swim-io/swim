@@ -44,6 +44,8 @@ module.exports = {
             "@typescript-eslint/no-unsafe-assignment": "off",
             // allow mutation in test files for convenience
             "functional/immutable-data": "off",
+            // test files do not need 18n
+            "i18next/no-literal-string": "off",
             // these are expected by Storybook
             "import/no-anonymous-default-export": "off",
           },

@@ -9,3 +9,4 @@ Notion ticket: N/A
 - [ ] Docs have been updated or are unnecessary
 - [ ] Preview deployment works (visit the Cloudflare preview URL)
 - [ ] Manual testing in #product-testing completed or unnecessary
+- [ ] New translations do not contain any security vulnerabilities (e.g. should not allow translator to update email/url)

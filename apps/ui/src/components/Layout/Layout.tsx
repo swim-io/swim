@@ -5,6 +5,7 @@ import {
   EuiSpacer,
 } from "@elastic/eui";
 import type { ReactElement, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { MultiConnectButton } from "../ConnectButton";
 import { CustomHeaderLink } from "../CustomHeaderLink";
@@ -20,6 +21,7 @@ export const Layout = ({
 }: {
   readonly children?: ReactNode;
 }): ReactElement => {
+  const { t } = useTranslation();
   return (
     <Waves footer={<Footer />}>
       <EuiSpacer />
@@ -31,16 +33,22 @@ export const Layout = ({
             items: [
               <CustomHeaderLogo key="custom-header-logo" />,
               <EuiHeaderLinks key="eui-header-links">
-                <CustomHeaderLink to={"/swap"}>Swap</CustomHeaderLink>
+                <CustomHeaderLink to={"/swap"}>
+                  {t("nav.swap")}
+                </CustomHeaderLink>
                 {process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE && (
                   <CustomHeaderLink to={"/swapV2"}>
-                    [WIP] SwapV2
+                    {t("nav.swap_v2")}
                   </CustomHeaderLink>
                 )}
-                <CustomHeaderLink to={"/pools"}>Pools</CustomHeaderLink>
+                <CustomHeaderLink to={"/pools"}>
+                  {t("nav.pools")}
+                </CustomHeaderLink>
                 {/* TODO: Enable when token is launched */}
                 {/* <CustomHeaderLink to={"/stake"}>Stake</CustomHeaderLink> */}
-                <CustomHeaderLink to={"/help"}>Help</CustomHeaderLink>
+                <CustomHeaderLink to={"/help"}>
+                  {t("nav.help")}
+                </CustomHeaderLink>
               </EuiHeaderLinks>,
             ],
             borders: "right",

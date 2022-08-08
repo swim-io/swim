@@ -7,9 +7,11 @@ import {
   EuiToolTip,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 export const Footer = (): ReactElement | null => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const listGroupHeaderSize = "s";
   const listGroupItemSize = "xs";
@@ -27,7 +29,7 @@ export const Footer = (): ReactElement | null => {
           <EuiListGroup gutterSize="none">
             <EuiListGroupItem label="App" size={listGroupHeaderSize} />
             <EuiListGroupItem
-              label="Swap"
+              label={t("nav.swap")}
               href="/swap"
               onClick={(e) => {
                 e.preventDefault();
@@ -36,7 +38,7 @@ export const Footer = (): ReactElement | null => {
               size={listGroupItemSize}
             />
             <EuiListGroupItem
-              label="Pools"
+              label={t("nav.pools")}
               href="/pools"
               onClick={(e) => {
                 e.preventDefault();
@@ -44,17 +46,17 @@ export const Footer = (): ReactElement | null => {
               }}
               size={listGroupItemSize}
             />
-            <EuiToolTip position="right" content="Coming soon!">
+            <EuiToolTip position="right" content={t("nav.coming_soon")}>
               <EuiListGroupItem
-                label="Stake"
+                label={t("nav.stake")}
                 size={listGroupItemSize}
                 isDisabled={true}
               />
             </EuiToolTip>
             <div />
-            <EuiToolTip position="right" content="Coming soon!">
+            <EuiToolTip position="right" content={t("nav.coming_soon")}>
               <EuiListGroupItem
-                label="NFTs"
+                label={t("nav.nfts")}
                 size={listGroupItemSize}
                 isDisabled={true}
               />
@@ -65,22 +67,22 @@ export const Footer = (): ReactElement | null => {
           <EuiListGroup gutterSize="none">
             <EuiListGroupItem label="Protocol" size={listGroupHeaderSize} />
             <EuiListGroupItem
-              label="Jobs"
+              label={t("nav.jobs")}
               href="https://apply.workable.com/swim/"
               size={listGroupItemSize}
             />
             <EuiListGroupItem
-              label="Audit"
+              label={t("nav.audit")}
               href="/audits/kudelski.pdf"
               size={listGroupItemSize}
             />
             <EuiListGroupItem
-              label="Bug Bounty"
+              label={t("nav.bug_bounty")}
               href="https://immunefi.com/bounty/swimprotocol/"
               size={listGroupItemSize}
             />
             <EuiListGroupItem
-              label="Security"
+              label={t("nav.security")}
               href="/security"
               onClick={(e) => {
                 e.preventDefault();
@@ -89,7 +91,7 @@ export const Footer = (): ReactElement | null => {
               size={listGroupItemSize}
             />
             <EuiListGroupItem
-              label="Terms of Service"
+              label={t("nav.terms_of_service")}
               href="/tos"
               onClick={(e) => {
                 e.preventDefault();
@@ -98,7 +100,7 @@ export const Footer = (): ReactElement | null => {
               size={listGroupItemSize}
             />
             <EuiListGroupItem
-              label="Media"
+              label={t("nav.media")}
               href="/media"
               onClick={(e) => {
                 e.preventDefault();
@@ -112,22 +114,22 @@ export const Footer = (): ReactElement | null => {
           <EuiListGroup gutterSize="none">
             <EuiListGroupItem label="Learn" size={listGroupHeaderSize} />
             <EuiListGroupItem
-              label="Blog"
+              label={t("nav.blog")}
               href="https://blog.swim.io"
               size={listGroupItemSize}
             />
             <EuiListGroupItem
-              label="FAQ"
+              label={t("nav.faq")}
               href="https://docs.swim.io/alpha-launch/faq-alpha-launch"
               size={listGroupItemSize}
             />
             <EuiListGroupItem
-              label="Docs"
+              label={t("nav.product_documentation")}
               href="https://docs.swim.io/"
               size={listGroupItemSize}
             />
             <EuiListGroupItem
-              label="Github"
+              label={t("nav.github")}
               href="https://github.com/swim-io"
               size={listGroupItemSize}
             />
@@ -137,17 +139,17 @@ export const Footer = (): ReactElement | null => {
           <EuiListGroup gutterSize="none">
             <EuiListGroupItem label="Community" size={listGroupHeaderSize} />
             <EuiListGroupItem
-              label="Twitter"
+              label={t("nav.twitter")}
               href="https://twitter.com/SwimProtocol"
               size={listGroupItemSize}
             />
             <EuiListGroupItem
-              label="Discord"
+              label={t("nav.discord")}
               href="https://discord.gg/wGrxQ7GAgP"
               size={listGroupItemSize}
             />
             <EuiListGroupItem
-              label="Telegram"
+              label={t("nav.telegram")}
               href="https://t.me/joinchat/Mnc1WjrKcq8yYTM1"
               size={listGroupItemSize}
             />

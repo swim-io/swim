@@ -10,6 +10,7 @@ import { isNotNull } from "@swim-io/utils";
 import moment from "moment";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useEnvironment } from "../../../core/store";
 import { useInteractionStatusV2 } from "../../../hooks";
@@ -27,6 +28,7 @@ interface Props {
 export const InteractionStateComponentV2: React.FC<Props> = ({
   interactionState,
 }) => {
+  const { t } = useTranslation();
   const { interaction } = interactionState;
   const { env } = useEnvironment();
   const interactionStatus = useInteractionStatusV2(interactionState);
@@ -78,14 +80,14 @@ export const InteractionStateComponentV2: React.FC<Props> = ({
       />
       {needReload ? (
         <EuiButton size="s" isLoading={true}>
-          Loading
+          {t("recent_interactions.reload_interaction_state")}
         </EuiButton>
       ) : (
         <InteractionRetryCalloutV2 interactionState={interactionState} />
       )}
       {interactionStatus === InteractionStatusV2.Completed && (
         <EuiBadge color="success" iconType="check">
-          Completed
+          {t("recent_interactions.completed_interaction_state")}
         </EuiBadge>
       )}
     </>

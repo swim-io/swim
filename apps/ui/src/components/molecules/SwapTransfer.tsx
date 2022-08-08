@@ -21,16 +21,18 @@ export const SwapTransfer: VFC<Props> = ({
   toToken,
   isLoading,
   transactions,
-}) => (
-  <EuiText size="m">
-    <span style={{ display: "flex", alignItems: "center" }}>
-      {isLoading && <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />}
-      <span>{`Swap ${
-        TOKEN_PROJECTS_BY_ID[fromToken.projectId].displayName
-      } to ${TOKEN_PROJECTS_BY_ID[toToken.projectId].displayName} on ${
-        ECOSYSTEMS[ecosystemId].displayName
-      }`}</span>
-    </span>
-    <TxEcosystemList transactions={transactions} ecosystemId={ecosystemId} />
-  </EuiText>
-);
+}) => {
+  return (
+    <EuiText size="m">
+      <span style={{ display: "flex", alignItems: "center" }}>
+        {isLoading && <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />}
+        <span>{`Swap ${
+          TOKEN_PROJECTS_BY_ID[fromToken.projectId].displayName
+        } to ${TOKEN_PROJECTS_BY_ID[toToken.projectId].displayName} on ${
+          ECOSYSTEMS[ecosystemId].displayName
+        }`}</span>
+      </span>
+      <TxEcosystemList transactions={transactions} ecosystemId={ecosystemId} />
+    </EuiText>
+  );
+};

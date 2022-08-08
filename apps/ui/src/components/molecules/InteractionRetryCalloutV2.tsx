@@ -1,5 +1,6 @@
 import { EuiButton, EuiCallOut, EuiSpacer } from "@elastic/eui";
 import type { VFC } from "react";
+import { useTranslation } from "react-i18next";
 
 import { selectInteractionError } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
@@ -27,32 +28,35 @@ const RetryOrResumeButton: VFC<RetryOrResumeButtonProps> = ({
   title,
   onClick,
   disabled,
-}) => (
-  <>
-    <EuiButton
-      iconType="refresh"
-      onClick={onClick}
-      size="s"
-      isDisabled={disabled}
-    >
-      {title}
-    </EuiButton>
-    &nbsp;&nbsp;
-    <EuiButton
-      href="/help"
-      onClick={(e) => {
-        e.preventDefault();
-        window.open("/help", "_blank");
-      }}
-      color="warning"
-      iconType="popout"
-      iconSide="right"
-      size="s"
-    >
-      Get help
-    </EuiButton>
-  </>
-);
+}) => {
+  const { t } = useTranslation();
+  return (
+    <>
+      <EuiButton
+        iconType="refresh"
+        onClick={onClick}
+        size="s"
+        isDisabled={disabled}
+      >
+        {title}
+      </EuiButton>
+      &nbsp;&nbsp;
+      <EuiButton
+        href="/help"
+        onClick={(e) => {
+          e.preventDefault();
+          window.open("/help", "_blank");
+        }}
+        color="warning"
+        iconType="popout"
+        iconSide="right"
+        size="s"
+      >
+        {t("general.get_help_button")}
+      </EuiButton>
+    </>
+  );
+};
 
 export const InteractionRetryCalloutV2: VFC<Props> = ({ interactionState }) => {
   const { interaction } = interactionState;

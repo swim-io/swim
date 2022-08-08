@@ -74,7 +74,7 @@ const HomePage = (): ReactElement => {
             <EuiTitle size="l">
               <h1 style={{ fontSize: "40px" }}>
                 <EuiTextColor color="ghost">
-                  {t("home_page.introduction_header")}
+                  {t("home_page.short_introduction")}
                 </EuiTextColor>
                 <div
                   className="bubble"
@@ -94,7 +94,7 @@ const HomePage = (): ReactElement => {
             <EuiText
               style={{ maxWidth: "700px", margin: "auto", fontSize: "23px" }}
             >
-              {t("home_page.introduction_details")}
+              {t("home_page.long_introduction")}
             </EuiText>
           </EuiText>
           <EuiSpacer size="xxl" />
@@ -111,12 +111,12 @@ const HomePage = (): ReactElement => {
                   navigate("/swap");
                 }}
               >
-                Launch App
+                {t("home_page.launch_app")}
               </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiButton color="ghost" fill href="/whitepaper.pdf">
-                Whitepaper
+                {t("glossary.whitepaper")}
               </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>
@@ -133,7 +133,7 @@ const HomePage = (): ReactElement => {
                 size="s"
                 href="https://twitter.com/SwimProtocol"
               >
-                Twitter
+                {t("nav.twitter")}
               </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
@@ -144,7 +144,7 @@ const HomePage = (): ReactElement => {
                 size="s"
                 href="https://discord.gg/wGrxQ7GAgP"
               >
-                Discord
+                {t("nav.discord")}
               </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
@@ -155,7 +155,7 @@ const HomePage = (): ReactElement => {
                 size="s"
                 href="https://blog.swim.io"
               >
-                Blog
+                {t("nav.blog")}
               </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
@@ -166,7 +166,7 @@ const HomePage = (): ReactElement => {
                 size="s"
                 href="https://t.me/joinchat/Mnc1WjrKcq8yYTM1"
               >
-                Telegram
+                {t("nav.telegram")}
               </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>
@@ -179,11 +179,14 @@ const HomePage = (): ReactElement => {
           <EuiFlexItem>
             <GlassPanel
               icon={<EuiIcon size="xxl" type="home" color="ghost" />}
-              title={<EuiTextColor color="ghost">Native Assets</EuiTextColor>}
+              title={
+                <EuiTextColor color="ghost">
+                  {t("home_page.native_assets")}
+                </EuiTextColor>
+              }
             >
               <EuiText color="ghost">
-                No more bridge-wrapped assets — swap, send, and receive native
-                assets.
+                {t("home_page.native_assets_description")}
               </EuiText>
               <EuiSpacer />
             </GlassPanel>
@@ -193,11 +196,15 @@ const HomePage = (): ReactElement => {
               icon={
                 <EuiIcon size="xxl" type="advancedSettingsApp" color="ghost" />
               }
-              title={<EuiTextColor color="ghost">Dynamic Rates</EuiTextColor>}
+              title={
+                <EuiTextColor color="ghost">
+                  {t("home_page.dynamic_rates")}
+                </EuiTextColor>
+              }
               display="transparent"
             >
               <EuiText color="ghost">
-                Natural market incentives balance liquidity ratios.
+                {t("home_page.dynamic_rates_description")}
               </EuiText>
             </GlassPanel>
           </EuiFlexItem>
@@ -206,13 +213,13 @@ const HomePage = (): ReactElement => {
               icon={<EuiIcon size="xxl" type="indexPatternApp" color="ghost" />}
               title={
                 <EuiTextColor color="ghost">
-                  Multi-Wallet Compatible
+                  {t("home_page.multi_wallet_compatible")}
                 </EuiTextColor>
               }
               display="transparent"
             >
               <EuiText color="ghost">
-                See your balances across several chains.
+                {t("home_page.multi_wallet_compatible_description")}
               </EuiText>
             </GlassPanel>
           </EuiFlexItem>
@@ -226,7 +233,9 @@ const HomePage = (): ReactElement => {
           <div className="explanationDiagram">
             <EuiSpacer size="l" />
             <EuiTitle size="l">
-              <h2 style={{ color: "#1F62D2" }}>Dive-In</h2>
+              <h2 style={{ color: "#1F62D2" }}>
+                {t("home_page.dive_in_our_features")}
+              </h2>
             </EuiTitle>
             <EuiSpacer size="xxl" />
             <EuiImage
@@ -236,8 +245,7 @@ const HomePage = (): ReactElement => {
             />
             <EuiSpacer size="l" />
             <EuiText style={{ color: "#1F62D2" }}>
-              Bridging as easy as stableswap trading. Swim across our liquidity
-              pools from chain to chain.
+              {t("home_page.dive_in_our_features_description")}
             </EuiText>
             <EuiSpacer size="xxl" />
           </div>
@@ -250,7 +258,9 @@ const HomePage = (): ReactElement => {
         <div style={{ position: "relative" }}>
           <EuiTitle size="l">
             <h2>
-              <EuiTextColor color="ghost">Our Investors</EuiTextColor>
+              <EuiTextColor color="ghost">
+                {t("home_page.our_investors")}
+              </EuiTextColor>
             </h2>
           </EuiTitle>
           <EuiSpacer />
@@ -258,7 +268,9 @@ const HomePage = (): ReactElement => {
           <GlassPanel title="">
             <EuiTitle size="m">
               <h2>
-                <EuiTextColor color="ghost">Proudly backed by</EuiTextColor>
+                <EuiTextColor color="ghost">
+                  {t("home_page.invested_by")}
+                </EuiTextColor>
               </h2>
             </EuiTitle>
             <EuiSpacer />
@@ -273,7 +285,9 @@ const HomePage = (): ReactElement => {
         <div style={{ position: "relative" }}>
           <EuiTitle size="l">
             <h2>
-              <EuiTextColor color="ghost">Why Swim?</EuiTextColor>
+              <EuiTextColor color="ghost">
+                {t("home_page.why_swim")}
+              </EuiTextColor>
             </h2>
           </EuiTitle>
           <EuiSpacer />
@@ -283,16 +297,12 @@ const HomePage = (): ReactElement => {
                 icon={<EuiIcon size="xxl" type="vector" color="ghost" />}
                 title={
                   <EuiTextColor color="ghost">
-                    Bridging a Multi-Chain World
+                    {t("home_page.bridging_a_multi_chain_world")}
                   </EuiTextColor>
                 }
               >
                 <EuiText color="ghost">
-                  DeFi has become a fragmented multi-chain universe. Solana
-                  ecosystem growth has been stunted due to barriers of entry and
-                  a lack of user-friendly bridges. Leveraging Wormhole
-                  technology and Solana’s scalability, Swim connects capital
-                  seamlessly between networks.
+                  {t("home_page.bridging_a_multi_chain_world_description")}
                 </EuiText>
               </GlassPanel>
             </EuiFlexItem>
@@ -300,15 +310,13 @@ const HomePage = (): ReactElement => {
               <GlassPanel
                 icon={<EuiIcon size="xxl" type="merge" color="ghost" />}
                 title={
-                  <EuiTextColor color="ghost">AMM Style Bridge</EuiTextColor>
+                  <EuiTextColor color="ghost">
+                    {t("home_page.amm_style_bridge")}
+                  </EuiTextColor>
                 }
               >
                 <EuiText color="ghost">
-                  Swim’s novel cross-chain stableswap approach to a bridge
-                  design makes bridging as easy as trading in a stable swap
-                  pool. Users can bridge easier by only using native assets,
-                  native gas tokens & wallets while still having all the
-                  benefits of Wormhole speed and decentralization.
+                  {t("home_page.amm_style_bridge_description")}
                 </EuiText>
               </GlassPanel>
             </EuiFlexItem>
@@ -316,14 +324,13 @@ const HomePage = (): ReactElement => {
               <GlassPanel
                 icon={<EuiIcon size="xxl" type="layers" color="ghost" />}
                 title={
-                  <EuiTextColor color="ghost">Core Building Block</EuiTextColor>
+                  <EuiTextColor color="ghost">
+                    {t("home_page.core_building_block")}
+                  </EuiTextColor>
                 }
               >
                 <EuiText color="ghost">
-                  Positioning ourselves as a DeFi primitive in the Solana and
-                  crosschain ecosystem, Swim aims to act as the first point of
-                  contact for new Solana users, at the same time creating a
-                  fundamental building block in the multichain world.
+                  {t("home_page.core_building_block_description")}
                 </EuiText>
               </GlassPanel>
             </EuiFlexItem>
@@ -349,7 +356,9 @@ const HomePage = (): ReactElement => {
         <div style={{ position: "relative" }}>
           <EuiTitle size="l">
             <h2>
-              <EuiTextColor color="ghost">Audited and Verified</EuiTextColor>
+              <EuiTextColor color="ghost">
+                {t("home_page.audited_and_verified")}
+              </EuiTextColor>
             </h2>
           </EuiTitle>
           <EuiSpacer />
@@ -357,17 +366,20 @@ const HomePage = (): ReactElement => {
             <EuiFlexItem>
               <GlassPanel
                 icon={<EuiIcon size="xxl" type="securityApp" color="ghost" />}
-                title={<EuiTextColor color="ghost">Audit</EuiTextColor>}
+                title={
+                  <EuiTextColor color="ghost">
+                    {t("home_page.audit")}
+                  </EuiTextColor>
+                }
                 layout="horizontal"
               >
                 <EuiText color="ghost">
-                  Learn about the Security Assessment for Swim Pool by Kudelski
-                  Security.
+                  {t("home_page.audit_description")}
                 </EuiText>
                 <EuiFlexGroup justifyContent="flexEnd">
                   <EuiFlexItem grow={false}>
                     <EuiButton color="ghost" fill href="/audits/kudelski.pdf">
-                      Audit Report
+                      {t("home_page.go_to_audit_report")}
                     </EuiButton>
                   </EuiFlexItem>
                 </EuiFlexGroup>
@@ -378,14 +390,13 @@ const HomePage = (): ReactElement => {
                 icon={<EuiIcon size="xxl" type="bug" color="ghost" />}
                 title={
                   <EuiTextColor color="ghost">
-                    $ 100,000 Bug Bounty Program
+                    {t("home_page.bug_bounty_program")}
                   </EuiTextColor>
                 }
                 layout="horizontal"
               >
                 <EuiText color="ghost">
-                  We offer up to $100,000 to incentivize ethical hackers to
-                  search for security vulnerabilities in the protocol.
+                  {t("home_page.bug_bounty_program_description")}
                 </EuiText>
                 <EuiFlexGroup justifyContent="flexEnd">
                   <EuiFlexItem grow={false}>
@@ -394,7 +405,7 @@ const HomePage = (): ReactElement => {
                       fill
                       href="https://immunefi.com/bounty/swimprotocol/"
                     >
-                      Visit Immunefi
+                      {t("home_page.go_to_bug_bounty_program")}
                     </EuiButton>
                   </EuiFlexItem>
                 </EuiFlexGroup>
@@ -569,7 +580,9 @@ const HomePage = (): ReactElement => {
         <EuiPanel color="transparent">
           <EuiTitle size="l" className="roadmap__title">
             <h2>
-              <EuiTextColor color="ghost">Roadmap</EuiTextColor>
+              <EuiTextColor color="ghost">
+                {t("home_page.roadmap")}
+              </EuiTextColor>
             </h2>
           </EuiTitle>
           <EuiSpacer />

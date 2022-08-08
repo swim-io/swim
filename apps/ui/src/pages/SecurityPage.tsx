@@ -8,71 +8,63 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
+import { Trans, useTranslation } from "react-i18next";
 
 import { useTitle } from "../hooks";
 
 const SecurityPage = (): ReactElement => {
-  useTitle("Security Policy");
+  const { t } = useTranslation();
+  useTitle(t("security_page.title"));
   return (
     <EuiPage className="securityPage" restrictWidth={800}>
       <EuiPageBody>
         <EuiPageContent verticalPosition="center">
           <EuiPageContentBody>
             <EuiTitle>
-              <h2>Security Policy</h2>
+              <h2>{t("security_page.title")}</h2>
             </EuiTitle>
             <EuiSpacer />
             <EuiText>
+              <p>{t("security_page.encourage_the_community_to_participate")}</p>
               <p>
-                We value the work done by security researchers. We are committed
-                to working with this community to verify, reproduce, and respond
-                to legitimate reported vulnerabilities. We encourage the
-                community to participate in our responsible reporting process.
-              </p>
-              <p>
-                If you are a security researcher and would like to report a
-                security vulnerability, please send an email to: admin@swim.io.
-                Please provide your name, contact information, and company name
-                (if applicable) with each report.
+                {t("security_page.how_to_report_security_vulnerability", {
+                  email: "admin@swim.io",
+                })}
               </p>
 
               <p>
-                <a href="/pgp-key.txt">Download our PGP Key</a>
+                <a href="/pgp-key.txt">{t("security_page.download_pgp_key")}</a>
               </p>
 
               <p>
-                <span>You may also report vulnerabilities through our</span>{" "}
-                <a href="https://immunefi.com/bounty/swimprotocol/">
-                  bug bounty program on Immunefi
-                </a>
-                <span>.</span>
+                <Trans
+                  i18nKey="security_page.report_via_immunefi"
+                  components={{
+                    // eslint-disable-next-line jsx-a11y/anchor-has-content
+                    a: <a href="https://immunefi.com/bounty/swimprotocol/" />,
+                  }}
+                />
               </p>
 
-              <h3>Responsible Disclosure Guidelines</h3>
+              <h3>{t("security_page.responsible_disclosure_guidelines")}</h3>
               <p>
                 <span>
-                  To encourage responsible reporting, we commit that we will not
-                  take legal action against you or ask law enforcement to
-                  investigate you if you comply with the following Responsible
-                  Disclosure Guidelines:
+                  {t(
+                    "security_page.responsible_disclosure_guidelines_introduction",
+                  )}
                 </span>
                 <ul>
                   <li>
-                    Provide details of the vulnerability, including information
-                    needed to reproduce and validate the vulnerability and a
-                    Proof of Concept (POC)
+                    {t("security_page.responsible_disclosure_guideline1")}
                   </li>
                   <li>
-                    Make a good faith effort to avoid privacy violations,
-                    destruction of data and interruption or degradation of our
-                    services
+                    {t("security_page.responsible_disclosure_guideline2")}
                   </li>
                   <li>
-                    Do not modify or access data that does not belong to you
+                    {t("security_page.responsible_disclosure_guideline3")}
                   </li>
                   <li>
-                    Give us a reasonable time to correct the issue before making
-                    any information public
+                    {t("security_page.responsible_disclosure_guideline4")}
                   </li>
                 </ul>
               </p>

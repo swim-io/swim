@@ -3,6 +3,7 @@ import { EuiListGroup, EuiText } from "@elastic/eui";
 import { isNotNull } from "@swim-io/utils";
 
 import { EcosystemId } from "../../../config";
+import { i18next } from "../../../i18n";
 import type { InteractionState } from "../../../models";
 import {
   InteractionStateStep,
@@ -52,11 +53,13 @@ const buildPrepareSplTokenAccountsStep = (
     isRequiredSplTokenAccountsCompleted(requiredSplTokenAccounts),
   );
   return {
-    title: "Prepare Solana accounts",
+    title: i18next.t("recent_interactions.prepare_solana_accounts_title"),
     status,
     children: (
       <EuiText size="m">
-        <span>Create SPL token accounts</span>
+        <span>
+          {i18next.t("recent_interactions.prepare_solana_accounts_create_step")}
+        </span>
         <br />
         <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
           {missingAccounts

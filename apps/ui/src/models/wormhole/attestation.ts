@@ -1,5 +1,4 @@
 import {
-  CHAINS as WORMHOLE_CHAIN_IDS,
   attestFromEth,
   attestFromSolana,
   createWrappedOnEth,
@@ -10,10 +9,11 @@ import {
   parseSequenceFromLogSolana,
   postVaaSolanaWithRetry,
 } from "@certusone/wormhole-sdk";
+import type { WormholeConfig } from "@swim-io/core";
 import type { ContractReceipt } from "ethers";
 
-import type { EvmSpec, WormholeChainSpec, WormholeConfig } from "../../config";
-import { ECOSYSTEMS, EcosystemId } from "../../config";
+import type { EvmSpec, WormholeChainSpec } from "../../config";
+import { ECOSYSTEMS, EcosystemId, WormholeChainId } from "../../config";
 import type { SolanaConnection } from "../solana";
 import { DEFAULT_MAX_RETRIES } from "../solana";
 import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
@@ -99,7 +99,7 @@ export const setUpSplTokensOnEvm = async (
     attestations.map(({ emitterAddress, sequence }) =>
       getSignedVaaWithRetry(
         [...rpcUrls],
-        WORMHOLE_CHAIN_IDS.solana,
+        WormholeChainId.Solana,
         emitterAddress,
         sequence,
       ),

@@ -1,4 +1,7 @@
-import { Env } from "@swim-io/core";
+import type { WormholeConfig } from "@swim-io/core";
+import { Env, wormholeConfigs } from "@swim-io/core";
+import type { RedeemerConfig } from "@swim-io/redeemer";
+import { redeemerConfigs } from "@swim-io/redeemer";
 import type { ReadonlyRecord } from "@swim-io/utils";
 
 import type { ChainsByProtocol } from "./chains";
@@ -7,12 +10,8 @@ import type { Ecosystem, EcosystemId } from "./ecosystem";
 import { ECOSYSTEMS, Protocol } from "./ecosystem";
 import type { PoolSpec } from "./pools";
 import { POOLS } from "./pools";
-import { REDEEMER } from "./redeemer";
-import type { RedeemerSpec } from "./redeemer";
 import type { TokenSpec } from "./tokens";
 import { TOKENS } from "./tokens";
-import type { WormholeConfig } from "./wormhole";
-import { WORMHOLE_CONFIGS } from "./wormhole";
 
 export * from "./chains";
 export * from "./ecosystem";
@@ -26,8 +25,8 @@ export interface Config {
   readonly chains: ChainsByProtocol;
   readonly pools: readonly PoolSpec[];
   readonly tokens: readonly TokenSpec[];
-  readonly wormhole: WormholeConfig;
-  readonly redeemer: RedeemerSpec;
+  readonly wormhole: WormholeConfig | null;
+  readonly redeemer: RedeemerConfig | null;
 }
 
 const buildConfig = (env: Env): Config => ({
@@ -35,8 +34,8 @@ const buildConfig = (env: Env): Config => ({
   chains: CHAINS[env],
   pools: POOLS[env],
   tokens: TOKENS[env],
-  wormhole: WORMHOLE_CONFIGS[env],
-  redeemer: REDEEMER[env],
+  wormhole: wormholeConfigs.get(env) ?? null,
+  redeemer: redeemerConfigs.get(env) ?? null,
 });
 
 export const CONFIGS: ReadonlyRecord<Env, Config> = {
@@ -50,7 +49,7 @@ const LOCALHOST_REGEXP = /localhost|127\.0\.0\.1/;
 
 export const overrideLocalIp = (config: Config, ip: string): Config => ({
   ...config,
-  wormhole: {
+  wormhole: config.wormhole && {
     ...config.wormhole,
     rpcUrls: config.wormhole.rpcUrls.map((rpcUrl) =>
       rpcUrl.replace(LOCALHOST_REGEXP, ip),

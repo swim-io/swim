@@ -4,6 +4,7 @@ on:
     paths:
       - "packages/pool-math/**.ts"
       - "packages/pool-math/**.json"
+      - "yarn.lock"
   push:
     branches:
       - master

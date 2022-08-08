@@ -10,7 +10,7 @@ export const useSplUserBalance = (
   {
     enabled = true,
   }: {
-    /** Set this to `false` to disable automatic refetching when mounts
+    /** Set this to `false` to disable automatic fetching when mounts
      * @defaultValue true
      */
     readonly enabled?: boolean;

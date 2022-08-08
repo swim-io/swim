@@ -6,12 +6,12 @@ import { EcosystemId, Protocol } from "./ecosystem";
 
 // TODO: Remove REACT_APP_SOLANA_MAINNET_RPC_URL in favor of multiple URLs.
 const SOLANA_MAINNET_RPC_URL = process.env.REACT_APP_SOLANA_MAINNET_RPC_URL;
-const SOLANA_MAINET_RPC_URLS = process.env.REACT_APP_SOLANA_MAINNET_RPC_URLS;
+const SOLANA_MAINNET_RPC_URLS = process.env.REACT_APP_SOLANA_MAINNET_RPC_URLS;
 
 const getSolanaRpcs = () => {
-  if (SOLANA_MAINET_RPC_URLS) {
+  if (SOLANA_MAINNET_RPC_URLS) {
     try {
-      return SOLANA_MAINET_RPC_URLS.split(" ").filter((url) => url);
+      return SOLANA_MAINNET_RPC_URLS.split(" ").filter((url) => url);
       // eslint-disable-next-line no-empty
     } catch {}
   }

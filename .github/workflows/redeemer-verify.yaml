@@ -4,6 +4,7 @@ on:
     paths:
       - "packages/redeemer/**.ts"
       - "packages/redeemer/**.json"
+      - "yarn.lock"
   push:
     branches:
       - master

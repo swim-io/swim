@@ -12,7 +12,6 @@ const getSolanaMainnetRpcUrls = () => {
   if (SOLANA_MAINNET_RPC_URLS) {
     try {
       return SOLANA_MAINNET_RPC_URLS.split(" ").filter((url) => url);
-      // eslint-disable-next-line no-empty
     } catch {
       // Invalid env variable, fallback to default case.
     }
@@ -184,7 +183,7 @@ const MAINNET_CHAINS: ChainsByProtocol = {
         bridge: "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth",
         tokenBridge: "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb",
       },
-      endpoints: getSolanaRpcs(),
+      endpoints: getSolanaMainnetRpcUrls(),
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
       otterTotCollection: "EpozLY9dQ1jnaU5Wof524K7p9uHYxkuLF2hi32cf8W9s",
     },

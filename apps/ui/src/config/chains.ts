@@ -4,8 +4,6 @@ import type { ReadonlyRecord } from "@swim-io/utils";
 import type { EvmEcosystemId, SolanaEcosystemId } from "./ecosystem";
 import { EcosystemId, Protocol } from "./ecosystem";
 
-// TODO: Remove REACT_APP_SOLANA_MAINNET_RPC_URL in favor of multiple URLs.
-const SOLANA_MAINNET_RPC_URL = process.env.REACT_APP_SOLANA_MAINNET_RPC_URL;
 const SOLANA_MAINNET_RPC_URLS = process.env.REACT_APP_SOLANA_MAINNET_RPC_URLS;
 
 const getSolanaMainnetRpcUrls = () => {
@@ -16,7 +14,7 @@ const getSolanaMainnetRpcUrls = () => {
       // Invalid env variable, fallback to default case.
     }
   }
-  return [SOLANA_MAINNET_RPC_URL || "https://solana-api.projectserum.com"];
+  return ["https://solana-api.projectserum.com"];
 };
 
 /** Adapted from @solana/spl-token-registry ENV */

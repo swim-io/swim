@@ -1,6 +1,4 @@
 export * from "./useAddFeesEstimationQuery";
-export * from "./useEvmTxFeesEstimateQuery";
-export * from "./useEvmTxFeesEstimates";
 export * from "./useGetSwapFormErrors";
 export * from "./useIsLargeSwap";
 export * from "./usePoolLpMint";

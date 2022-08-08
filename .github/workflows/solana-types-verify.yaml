@@ -4,6 +4,7 @@ on:
     paths:
       - "packages/solana-types/**.ts"
       - "packages/solana-types/**.json"
+      - "yarn.lock"
   push:
     branches:
       - master

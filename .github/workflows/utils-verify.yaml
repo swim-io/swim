@@ -4,6 +4,7 @@ on:
     paths:
       - "packages/utils/**.ts"
       - "packages/utils/**.json"
+      - "yarn.lock"
   push:
     branches:
       - master

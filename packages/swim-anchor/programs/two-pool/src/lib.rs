@@ -64,22 +64,22 @@ pub mod two_pool {
   #[access_control(Add::accounts(&ctx))]
   pub fn add(
     ctx: Context<Add>,
-    pool_add_params: AddParams,
+    params: AddParams,
   ) -> Result<u64> {
     handle_add(
       ctx,
-      pool_add_params,
+      params,
     )
   }
 
   #[access_control(SwapExactInput::accounts(&ctx))]
   pub fn swap_exact_input(
     ctx: Context<SwapExactInput>,
-    swap_exact_input_params: SwapExactInputParams,
+    params: SwapExactInputParams,
   ) -> Result<u64> {
     handle_swap_exact_input(
       ctx,
-      swap_exact_input_params,
+      params,
     )
   }
 
@@ -89,44 +89,44 @@ pub mod two_pool {
   #[access_control(SwapExactOutput::accounts(&ctx))]
   pub fn swap_exact_output(
     ctx: Context<SwapExactOutput>,
-    swap_exact_output_params: SwapExactOutputParams,
+    params: SwapExactOutputParams,
   ) -> Result<Vec<u64>> {
     handle_swap_exact_output(
       ctx,
-      swap_exact_output_params,
+      params,
     )
   }
 
   #[access_control(RemoveUniform::accounts(&ctx))]
   pub fn remove_uniform(
     ctx: Context<RemoveUniform>,
-    remove_uniform_params: RemoveUniformParams,
+    params: RemoveUniformParams,
   ) -> Result<Vec<u64>> {
     handle_remove_uniform(
       ctx,
-      remove_uniform_params,
+      params,
     )
   }
 
   #[access_control(RemoveExactBurn::accounts(&ctx))]
   pub fn remove_exact_burn(
     ctx: Context<RemoveExactBurn>,
-    remove_exact_burn_params: RemoveExactBurnParams,
+    params: RemoveExactBurnParams,
   ) -> Result<u64> {
     handle_remove_exact_burn(
       ctx,
-      remove_exact_burn_params,
+      params,
     )
   }
 
   #[access_control(RemoveExactOutput::accounts(&ctx))]
   pub fn remove_exact_output(
     ctx: Context<RemoveExactOutput>,
-    remove_exact_output_params: RemoveExactOutputParams,
+    params: RemoveExactOutputParams,
   ) -> Result<Vec<u64>> {
     handle_remove_exact_output(
       ctx,
-      remove_exact_output_params,
+      params,
     )
   }
 
@@ -137,6 +137,78 @@ pub mod two_pool {
       ctx,
     )
   }
+
+  /** Governance Ixs **/
+
+  #[access_control(PrepareGovernanceTransition::accounts(&ctx))]
+  pub fn prepare_governance_transition(
+    ctx: Context<PrepareGovernanceTransition>,
+    params: PrepareGovernanceTransitionParams,
+  ) -> Result<()> {
+    handle_prepare_governance_transition(
+      ctx,
+      params,
+    )
+  }
+
+  #[access_control(EnactGovernanceTransition::accounts(&ctx))]
+  pub fn enact_governance_transition(
+    ctx: Context<EnactGovernanceTransition>,
+  ) -> Result<()> {
+    handle_enact_governance_transition(ctx)
+  }
+
+  #[access_control(PrepareFeeChange::accounts(&ctx))]
+  pub fn prepare_fee_change(
+    ctx: Context<PrepareFeeChange>,
+    params: PrepareFeeChangeParams,
+  ) -> Result<()> {
+    handle_prepare_fee_change(
+      ctx,
+      params,
+    )
+  }
+
+  #[access_control(EnactFeeChange::accounts(&ctx))]
+  pub fn enact_fee_change(
+    ctx: Context<EnactFeeChange>,
+  ) -> Result<()> {
+    handle_enact_fee_change(ctx)
+  }
+
+  #[access_control(ChangeGovernanceFeeAccount::accounts(&ctx))]
+  pub fn change_governance_fee_account(
+    ctx: Context<ChangeGovernanceFeeAccount>,
+    params: ChangeGovernanceFeeAccountParams,
+  ) -> Result<()> {
+    handle_change_governance_fee_account(
+      ctx,
+      params,
+    )
+  }
+
+  #[access_control(AdjustAmpFactor::accounts(&ctx))]
+  pub fn adjust_amp_factor(
+    ctx: Context<AdjustAmpFactor>,
+    params: AdjustAmpFactorParams,
+  ) -> Result<()> {
+    handle_adjust_amp_factor(
+      ctx,
+      params,
+    )
+  }
+
+  #[access_control(SetPaused::accounts(&ctx))]
+  pub fn set_paused(
+    ctx: Context<SetPaused>,
+    params: SetPausedParams,
+  ) -> Result<()> {
+    handle_set_paused(
+      ctx,
+      params,
+    )
+  }
+
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Eq, PartialEq, Clone, Copy, Debug)]

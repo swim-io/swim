@@ -6,7 +6,7 @@ use anchor_spl::token::{
   Token,
   TokenAccount,
 };
-use crate::{array_equalize, result_from_equalized, to_equalized, TOKEN_COUNT, TwoPool};
+use crate::{array_equalize, get_current_ts, result_from_equalized, to_equalized, TOKEN_COUNT, TwoPool};
 use crate::{
   error::*,
   invariant::Invariant
@@ -141,8 +141,8 @@ pub fn handle_remove_exact_output(
   ];
 
 
-  let current_ts = Clock::get()?.unix_timestamp;
-  require_gt!(current_ts, 0i64, PoolError::InvalidTimestamp);
+  let current_ts = get_current_ts()?;
+
   let (burn_amount, governance_mint_amount,  latest_depth) = Invariant::<TOKEN_COUNT>::remove_exact_output(
     &array_equalize(exact_output_amounts, pool.token_decimal_equalizers),
     &array_equalize(pool_balances, pool.token_decimal_equalizers),

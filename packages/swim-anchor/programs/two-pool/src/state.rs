@@ -4,6 +4,7 @@ use anchor_lang::solana_program::clock::UnixTimestamp;
 use crate::{
   amp_factor::AmpFactor,
   pool_fee::PoolFee,
+  error::*,
 };
 // use pool_lib::amp_factor::AmpFactor;
 // use pool_lib::pool_fee;
@@ -18,6 +19,7 @@ use crate::{TOKEN_COUNT};
 //always has the same size (otherwise we'll have to figure out the maximum
 //size of a serialized PoolState in order to ensure that the pool's state
 //account has space and sol to be rent exempt in all cases)
+#[derive(Debug)]
 #[account]
 pub struct TwoPool {
     pub bump: u8,
@@ -85,4 +87,23 @@ impl TwoPool {
         8 +
         // previous_depth
         16;
+
+
+  // Note: this is a workaround for to be able to declare the seeds in the
+  //  governance ix. anchor does not handle using `pool.token_mint_keys[0]` directly
+  //  in the #[account] macro
+  pub fn get_token_mint_0(&self) -> Result<Pubkey> {
+    Ok(self.token_mint_keys[0])
+  }
+
+  pub fn get_token_mint_1(&self) -> Result<Pubkey> {
+    Ok(self.token_mint_keys[1])
+  }
+
+  // Note: this didn't work.
+  // pub fn get_token_mint(&self, token_index: u8) -> Result<Pubkey> {
+  //   let token_index = token_index as usize;
+  //   require!(token_index < TOKEN_COUNT, PoolError::InvalidTokenIndex);
+  //   Ok(self.token_mint_keys[token_index])
+  // }
 }

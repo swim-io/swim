@@ -55,6 +55,7 @@ pub struct Initialize<'info> {
   //TODO: should this be a signer?
   /// CHECK: keypair for governance instructions
   pub governance_account: UncheckedAccount<'info>,
+  //TODO: should we force this associated_token::authority check?
   #[account(
     init,
     payer = payer,

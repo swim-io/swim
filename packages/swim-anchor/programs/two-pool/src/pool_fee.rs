@@ -14,7 +14,7 @@ type DecT = DecimalU64;
 // pub struct PoolFee(ValueT);
 
 // TODO: update this later to just store the value & decimals
-#[derive(AnchorSerialize, AnchorDeserialize, Debug, Default, Clone)]
+#[derive(AnchorSerialize, AnchorDeserialize, Debug, Default, Clone, PartialEq, Eq)]
 pub struct PoolFee{
   pub value: u32
 }

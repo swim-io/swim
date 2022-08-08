@@ -1,13 +1,8 @@
-// pool_lib::generate_errors!();
-
 use anchor_lang::prelude::*;
 
-// Do we still need the offset?
 
-//OFFSET is used to deal with technical debt imposed on us by SPL::ProgramError
-// ProgramError uses the Custom variant to store other errors (such as spl token TokenError but also our PoolError)
-// so to distinguish TokenErrors from PoolErrors, we're offsetting PoolErrors by 100 while TokenErrors start at 0
-// const OFFSET: isize = 100;
+// custom anchor errors start at 6000
+// https://www.anchor-lang.com/docs/errors
 
 #[error_code]
 #[derive(Eq, PartialEq)]
@@ -23,7 +18,7 @@ pub enum PoolError {
   #[msg("LP token mint has a positive balance")]
   MintHasBalance,
 
-  // 105
+
   #[msg("Pool does not have mint authority of LP token mint")]
   InvalidMintAuthority,
   #[msg("LP token mint's freeze authority is set")]
@@ -35,7 +30,7 @@ pub enum PoolError {
   #[msg("Token account's close authority is set")]
   TokenAccountHasCloseAuthority,
 
-  // 110
+
   #[msg("Invalid governance account")]
   InvalidGovernanceAccount,
   #[msg("Invalid governance fee account")]
@@ -47,7 +42,7 @@ pub enum PoolError {
   #[msg("Not enough time has passed since prepare instruction")]
   InsufficientDelay,
 
-  //115
+
   #[msg("Nothing to enact")]
   InvalidEnact,
   #[msg("Pool is paused")]
@@ -59,7 +54,7 @@ pub enum PoolError {
   #[msg("Initial add to pool must include all tokens")]
   InitialAddRequiresAllTokens,
 
-  //120
+
   #[msg("Remove can't be completed due to the approximative nature of fee math implementation")]
   ImpossibleRemove,
   #[msg("The maximum difference in decimals between tokens in the pool has been exceeded")]
@@ -80,6 +75,8 @@ pub enum PoolError {
   InvalidRemoveExactOutputParameters,
   #[msg("Invalid parameters for Remove Exact Output")]
   InsufficientPoolTokenAccountBalance,
+  #[msg("Invalid Token Index")]
+  InvalidTokenIndex,
 }
 
 // impl From<PoolError> for ProgramError {

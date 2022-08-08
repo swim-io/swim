@@ -8,7 +8,7 @@ import { EcosystemId, Protocol } from "./ecosystem";
 const SOLANA_MAINNET_RPC_URL = process.env.REACT_APP_SOLANA_MAINNET_RPC_URL;
 const SOLANA_MAINNET_RPC_URLS = process.env.REACT_APP_SOLANA_MAINNET_RPC_URLS;
 
-const getSolanaRpcs = () => {
+const getSolanaMainnetRpcUrls = () => {
   if (SOLANA_MAINNET_RPC_URLS) {
     try {
       return SOLANA_MAINNET_RPC_URLS.split(" ").filter((url) => url);

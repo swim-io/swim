@@ -1,8 +1,8 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type PoolMath from "@swim-io/pool-math";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import { isEachNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
-import { useEffect, useState } from "react";
 import shallow from "zustand/shallow.js";
 
 import type { Config, TokenSpec } from "../../config";
@@ -31,7 +31,7 @@ import {
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
-import { usePoolMaths } from "../swim";
+import { usePoolMathByPoolIds } from "../swim";
 
 export const createRequiredSplTokenAccounts = (
   requiredTokens: readonly TokenSpec[],
@@ -110,10 +110,11 @@ export const createToSolanaTransfers = (
 export const createSolanaPoolOperations = (
   interaction: Interaction,
   config: Config,
-  poolMaths: readonly (PoolMath | null)[],
+  poolMathsByPoolId: ReadonlyRecord<string, PoolMath | null>,
 ): readonly SolanaPoolOperationState[] => {
   const tokensByPoolId = getTokensByPool(config);
   const requiredPools = getRequiredPools(config.pools, interaction);
+  const poolMaths = requiredPools.map(({ id }) => poolMathsByPoolId[id]);
 
   if (!isEachNotNull(poolMaths)) {
     throw new Error("Required pool math not available");
@@ -196,56 +197,36 @@ export const createFromSolanaTransfers = (
   );
 };
 
-export const useCreateInteractionState = ({
-  onCreate,
-}: {
-  readonly onCreate: (interactionState: InteractionState) => void;
-}) => {
+export const useCreateInteractionState = () => {
   const config = useEnvironment(selectConfig, shallow);
   const wallets = useWallets();
   const { env } = useEnvironment();
   const tokensByPoolId = getTokensByPool(config);
   const { data: tokenAccounts = [] } = useSplTokenAccountsQuery();
   const { address: walletAddress } = useSolanaWallet();
+  const poolMathsByPoolId = usePoolMathByPoolIds();
 
-  const [pendingInteractionSpec, setPendingInteractionSpec] =
-    useState<InteractionSpec | null>(null);
-  const poolMaths = usePoolMaths(
-    pendingInteractionSpec
-      ? getRequiredPools(config.pools, pendingInteractionSpec).map(
-          (pool) => pool.id,
-        )
-      : [],
-  );
-
-  useEffect((): void => {
-    // poolMaths is not fetched
-    if (poolMaths.length === 0 || !isEachNotNull(poolMaths)) return;
-    if (!pendingInteractionSpec) return;
-
-    const requiredPools = getRequiredPools(
-      config.pools,
-      pendingInteractionSpec,
-    );
+  return (interactionSpec: InteractionSpec): InteractionState => {
+    const requiredPools = getRequiredPools(config.pools, interactionSpec);
     const requiredTokens = getRequiredTokens(
       tokensByPoolId,
       requiredPools,
-      pendingInteractionSpec,
+      interactionSpec,
     );
     const connectedWallets = getConnectedWallets(
       config.tokens,
-      pendingInteractionSpec,
+      interactionSpec,
       wallets,
     );
     const interaction = {
-      ...pendingInteractionSpec,
+      ...interactionSpec,
       id: generateId(),
       poolIds: requiredPools.map((pool) => pool.id),
       env,
       submittedAt: Date.now(),
       connectedWallets,
     };
-    const interactionState: InteractionState = {
+    return {
       interaction,
       requiredSplTokenAccounts: createRequiredSplTokenAccounts(
         requiredTokens,
@@ -256,26 +237,9 @@ export const useCreateInteractionState = ({
       solanaPoolOperations: createSolanaPoolOperations(
         interaction,
         config,
-        poolMaths,
+        poolMathsByPoolId,
       ),
       fromSolanaTransfers: createFromSolanaTransfers(interaction),
     };
-
-    setPendingInteractionSpec(null);
-    onCreate(interactionState);
-  }, [
-    config,
-    env,
-    onCreate,
-    pendingInteractionSpec,
-    poolMaths,
-    tokenAccounts,
-    tokensByPoolId,
-    walletAddress,
-    wallets,
-  ]);
-
-  return (interactionSpec: InteractionSpec): void => {
-    setPendingInteractionSpec(interactionSpec);
   };
 };

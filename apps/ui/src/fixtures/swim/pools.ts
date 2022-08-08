@@ -1,9 +1,9 @@
 import PoolMath from "@swim-io/pool-math";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
-export const MOCK_POOL_MATHS: readonly (PoolMath | null)[] = [
-  // hexapool
-  new PoolMath(
+export const MOCK_POOL_MATHS_BY_ID: ReadonlyRecord<string, PoolMath | null> = {
+  hexapool: new PoolMath(
     [
       new Decimal(11041106.707843),
       new Decimal(10983453.389835),
@@ -18,4 +18,5 @@ export const MOCK_POOL_MATHS: readonly (PoolMath | null)[] = [
     new Decimal(66000008.28327289),
     new Decimal(1e-8),
   ),
-];
+  swimlake: null,
+};

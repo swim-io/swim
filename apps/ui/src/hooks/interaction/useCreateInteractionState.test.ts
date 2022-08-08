@@ -9,17 +9,16 @@ import { useEnvironment } from "../../core/store";
 import {
   BNB_USDT,
   ETHEREUM_USDC,
-  MOCK_POOL_MATHS,
+  MOCK_POOL_MATHS_BY_ID,
   MOCK_TOKEN_ACCOUNTS,
   MOCK_WALLETS,
   SOLANA_USDC,
 } from "../../fixtures";
-import type { InteractionState } from "../../models";
 import { Amount, InteractionType } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useWallets } from "../crossEcosystem";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
-import { usePoolMaths } from "../swim";
+import { usePoolMathByPoolIds } from "../swim";
 
 import { useCreateInteractionState } from "./useCreateInteractionState";
 
@@ -37,7 +36,7 @@ jest.mock("../../contexts", () => ({
 
 jest.mock("../crossEcosystem", () => ({
   ...jest.requireActual("../crossEcosystem"),
-  usePoolMaths: jest.fn(),
+  usePoolMathByPoolIds: jest.fn(),
   useWallets: jest.fn(),
 }));
 
@@ -49,12 +48,12 @@ jest.mock("../solana", () => ({
 
 jest.mock("../swim", () => ({
   ...jest.requireActual("../swim"),
-  usePoolMaths: jest.fn(),
+  usePoolMathByPoolIds: jest.fn(),
 }));
 
 // Make typescript happy with jest
 const useSolanaWalletMock = mockOf(useSolanaWallet);
-const usePoolMathsMock = mockOf(usePoolMaths);
+const usePoolMathByPoolIdsMock = mockOf(usePoolMathByPoolIds);
 const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
 const useWalletsMock = mockOf(useWallets);
 
@@ -70,33 +69,26 @@ describe("useCreateInteractionState", () => {
     useSolanaWalletMock.mockReturnValue({
       address: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     });
-    usePoolMathsMock.mockReturnValue(MOCK_POOL_MATHS);
+    usePoolMathByPoolIdsMock.mockReturnValue(MOCK_POOL_MATHS_BY_ID);
     useSplTokenAccountsQueryMock.mockReturnValue({ data: MOCK_TOKEN_ACCOUNTS });
     useWalletsMock.mockReturnValue(MOCK_WALLETS);
   });
 
   it("should create state from ETHEREUM USDC to SOLANA USDC", () => {
-    const onCreate = jest.fn();
-
     const { result } = renderHookWithAppContext(() =>
-      useCreateInteractionState({ onCreate }),
+      useCreateInteractionState(),
     );
     const createInteractionState = result.current;
-    act(() => {
-      createInteractionState({
-        type: InteractionType.Swap,
-        params: {
-          exactInputAmount: Amount.fromHuman(ETHEREUM_USDC, new Decimal(1001)),
-          minimumOutputAmount: Amount.fromHuman(
-            SOLANA_USDC,
-            new Decimal(995.624615),
-          ),
-        },
-      });
+    const interactionState = createInteractionState({
+      type: InteractionType.Swap,
+      params: {
+        exactInputAmount: Amount.fromHuman(ETHEREUM_USDC, new Decimal(1001)),
+        minimumOutputAmount: Amount.fromHuman(
+          SOLANA_USDC,
+          new Decimal(995.624615),
+        ),
+      },
     });
-
-    expect(onCreate).toHaveBeenCalled();
-    const interactionState: InteractionState = onCreate.mock.calls[0][0];
 
     const {
       requiredSplTokenAccounts,
@@ -119,28 +111,21 @@ describe("useCreateInteractionState", () => {
   });
 
   it("create state from SOLANA USDC to ETHEREUM USDC", () => {
-    const onCreate = jest.fn();
-
     useSplTokenAccountsQueryMock.mockReturnValue({ data: [] });
     const { result } = renderHookWithAppContext(() =>
-      useCreateInteractionState({ onCreate }),
+      useCreateInteractionState(),
     );
     const createInteractionState = result.current;
-    act(() => {
-      createInteractionState({
-        type: InteractionType.Swap,
-        params: {
-          exactInputAmount: Amount.fromHuman(SOLANA_USDC, new Decimal(1001)),
-          minimumOutputAmount: Amount.fromHuman(
-            ETHEREUM_USDC,
-            new Decimal(995.624615),
-          ),
-        },
-      });
+    const interactionState = createInteractionState({
+      type: InteractionType.Swap,
+      params: {
+        exactInputAmount: Amount.fromHuman(SOLANA_USDC, new Decimal(1001)),
+        minimumOutputAmount: Amount.fromHuman(
+          ETHEREUM_USDC,
+          new Decimal(995.624615),
+        ),
+      },
     });
-
-    expect(onCreate).toHaveBeenCalled();
-    const interactionState: InteractionState = onCreate.mock.calls[0][0];
 
     const {
       requiredSplTokenAccounts,
@@ -163,28 +148,21 @@ describe("useCreateInteractionState", () => {
   });
 
   it("create state from BNB USDT to ETHEREUM USDC", () => {
-    const onCreate = jest.fn();
-
     useSplTokenAccountsQueryMock.mockReturnValue({ data: [] });
     const { result } = renderHookWithAppContext(() =>
-      useCreateInteractionState({ onCreate }),
+      useCreateInteractionState(),
     );
     const createInteractionState = result.current;
-    act(() => {
-      createInteractionState({
-        type: InteractionType.Swap,
-        params: {
-          exactInputAmount: Amount.fromHuman(BNB_USDT, new Decimal(1001)),
-          minimumOutputAmount: Amount.fromHuman(
-            ETHEREUM_USDC,
-            new Decimal(995.624615),
-          ),
-        },
-      });
+    const interactionState = createInteractionState({
+      type: InteractionType.Swap,
+      params: {
+        exactInputAmount: Amount.fromHuman(BNB_USDT, new Decimal(1001)),
+        minimumOutputAmount: Amount.fromHuman(
+          ETHEREUM_USDC,
+          new Decimal(995.624615),
+        ),
+      },
     });
-
-    expect(onCreate).toHaveBeenCalled();
-    const interactionState: InteractionState = onCreate.mock.calls[0][0];
 
     const {
       requiredSplTokenAccounts,

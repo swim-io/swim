@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion, i18next/no-literal-string */
-import { approveEth, getForeignAssetEth } from "@certusone/wormhole-sdk";
+import {
+  CHAINS as WORMHOLE_CHAIN_ID,
+  approveEth,
+  getForeignAssetEth,
+} from "@certusone/wormhole-sdk";
 import {
   EuiButton,
   EuiCheckbox,
@@ -25,12 +29,7 @@ import shallow from "zustand/shallow.js";
 
 import { ConnectButton } from "../components/ConnectButton";
 import type { EvmEcosystemId } from "../config";
-import {
-  EcosystemId,
-  Protocol,
-  WormholeChainId,
-  getSolanaTokenDetails,
-} from "../config";
+import { EcosystemId, Protocol, getSolanaTokenDetails } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import {
@@ -372,7 +371,7 @@ const TestPage = (): ReactElement => {
       const foreignAsset = await getForeignAssetEth(
         ethereumChain.wormhole.tokenBridge,
         evmConnections[EcosystemId.Ethereum].provider,
-        WormholeChainId.Solana,
+        WORMHOLE_CHAIN_ID.solana,
         wormholeAsset,
       );
       console.info(`${token}: ${String(foreignAsset)}`);
@@ -389,7 +388,7 @@ const TestPage = (): ReactElement => {
       const foreignAsset = await getForeignAssetEth(
         bnbChain.wormhole.tokenBridge,
         evmConnections[EcosystemId.Bnb].provider,
-        WormholeChainId.Solana,
+        WORMHOLE_CHAIN_ID.solana,
         wormholeAsset,
       );
       console.info(`${token}: ${String(foreignAsset)}`);

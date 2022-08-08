@@ -1,4 +1,7 @@
-import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
+import {
+  CHAINS as WORMHOLE_CHAIN_ID,
+  getEmitterAddressSolana,
+} from "@certusone/wormhole-sdk";
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { Transaction } from "@solana/web3.js";
 import { findOrThrow, isEachNotNull } from "@swim-io/utils";
@@ -9,7 +12,6 @@ import {
   ECOSYSTEMS,
   EcosystemId,
   Protocol,
-  WormholeChainId,
   getSolanaTokenDetails,
   getTokenDetailsForEcosystem,
 } from "../../config";
@@ -238,7 +240,7 @@ export const useFromSolanaTransferMutation = () => {
       );
       const vaaBytesResponse = await getSignedVaaWithRetry(
         [...wormhole.rpcUrls],
-        WormholeChainId.Solana,
+        WORMHOLE_CHAIN_ID.solana,
         emitterAddress,
         sequence,
         undefined,

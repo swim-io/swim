@@ -15,7 +15,7 @@ const getSolanaRpcs = () => {
       // eslint-disable-next-line no-empty
     } catch {}
   }
-  return [SOLANA_MAINNET_RPC_URL ?? "https://solana-api.projectserum.com"];
+  return [SOLANA_MAINNET_RPC_URL || "https://solana-api.projectserum.com"];
 };
 
 /** Adapted from @solana/spl-token-registry ENV */

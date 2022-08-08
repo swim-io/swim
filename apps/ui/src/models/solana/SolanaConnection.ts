@@ -7,7 +7,7 @@ import type {
   Transaction,
   TransactionResponse,
 } from "@solana/web3.js";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { sleep } from "@swim-io/utils";
 
 import { SwimError } from "../../errors";
@@ -70,6 +70,12 @@ export class SolanaConnection {
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
   private rpcIndex;
   private readonly endpoints: readonly string[];
+
+  // TODO: Check if this is still necessary.
+  // The websocket library solana/web3.js closes its websocket connection when the subscription list
+  // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.
+  // This is a hack to prevent the list from ever getting empty
+  private subscriptionId!: number;
 
   constructor(endpoints: readonly string[]) {
     this.endpoints = endpoints;
@@ -325,12 +331,21 @@ export class SolanaConnection {
       // and it is not being called in the constructor (when this.rawConnection is still undefined)
       return;
     }
+    if ((this.subscriptionId as number | undefined) !== undefined) {
+      this.rawConnection
+        .removeAccountChangeListener(this.subscriptionId)
+        .catch(console.error);
+    }
     this.rpcIndex = (this.rpcIndex + 1) % this.endpoints.length;
     this.rawConnection = new CustomConnection(this.endpoints[this.rpcIndex], {
       commitment: DEFAULT_COMMITMENT_LEVEL,
       confirmTransactionInitialTimeout: 60 * 1000,
       disableRetryOnRateLimit: true,
     });
+    this.subscriptionId = this.rawConnection.onAccountChange(
+      Keypair.generate().publicKey,
+      () => {},
+    );
 
     this.getAccountInfo = this.rawConnection.getAccountInfo.bind(
       this.rawConnection,

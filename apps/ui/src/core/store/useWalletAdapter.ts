@@ -1,5 +1,6 @@
 import { truncate } from "@swim-io/utils";
 import { produce } from "immer";
+import type { GetState, SetState } from "zustand";
 import create from "zustand";
 import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
@@ -77,13 +78,8 @@ const isValidSelectedServiceByProtocol = (
 };
 
 export const useWalletAdapter = create(
-  persist<
-    WalletAdapterState,
-    [], // eslint-disable-line functional/prefer-readonly-type
-    [], // eslint-disable-line functional/prefer-readonly-type
-    Pick<WalletAdapterState, "selectedServiceByProtocol">
-  >(
-    (set, get) => ({
+  persist<WalletAdapterState>(
+    (set: SetState<WalletAdapterState>, get: GetState<WalletAdapterState>) => ({
       evm: null,
       solana: null,
       selectedServiceByProtocol: {

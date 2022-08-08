@@ -2,6 +2,7 @@ import type { Env } from "@swim-io/core";
 import { isValidEnv } from "@swim-io/core";
 import { produce } from "immer";
 import create from "zustand";
+import type { GetState, SetState, StoreApi } from "zustand";
 import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
 
@@ -15,15 +16,18 @@ export interface EnvironmentState {
 }
 
 export const useEnvironment = create(
-  // eslint-disable-next-line functional/prefer-readonly-type
-  persist<EnvironmentState, [], [], Pick<EnvironmentState, "env" | "customIp">>(
-    (set, get) => ({
+  persist<EnvironmentState>(
+    (
+      set: SetState<EnvironmentState>,
+      get: GetState<EnvironmentState>,
+      api: StoreApi<EnvironmentState>,
+    ) => ({
       env: DEFAULT_ENV,
       customIp: null,
       setEnv: (newEnv: Env) => {
         set(
           produce<EnvironmentState>((draft) => {
-            if (get().customIp !== null) {
+            if (api.getState().customIp !== null) {
               draft.env = newEnv;
             }
           }),
@@ -33,7 +37,9 @@ export const useEnvironment = create(
         set(
           produce<EnvironmentState>((draft) => {
             draft.customIp = ip;
-            draft.env = isValidEnv(get().env) ? get().env : DEFAULT_ENV;
+            draft.env = isValidEnv(api.getState().env)
+              ? api.getState().env
+              : DEFAULT_ENV;
           }),
         );
       },

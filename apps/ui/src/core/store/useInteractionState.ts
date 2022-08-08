@@ -3,6 +3,7 @@ import type { Env } from "@swim-io/core";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import type { Draft } from "immer";
 import { castDraft, produce } from "immer";
+import type { GetState, SetState } from "zustand";
 import create from "zustand";
 
 import type { Interaction, InteractionState } from "../../models";
@@ -26,57 +27,59 @@ export interface InteractionStore {
   ) => void;
 }
 
-export const useInteractionState = create<InteractionStore>((set, get) => ({
-  errorMap: {},
-  interactionStates: [],
-  recentInteractionId: null,
-  setInteractionError: (id: string, error: Error | undefined) => {
-    set(
-      produce<InteractionStore>((draft) => {
-        draft.errorMap[id] = error;
-      }),
-    );
-  },
-  loadInteractionStatesFromIDB: async (env) => {
-    const data = await getInteractionStatesFromDb(env);
-    if (data) {
+export const useInteractionState = create(
+  (set: SetState<InteractionStore>, get: GetState<InteractionStore>) => ({
+    errorMap: {},
+    interactionStates: [],
+    recentInteractionId: null,
+    setInteractionError: (id: string, error: Error | undefined) => {
       set(
         produce<InteractionStore>((draft) => {
-          draft.interactionStates = castDraft(data);
+          draft.errorMap[id] = error;
         }),
       );
-    }
-  },
-  addInteractionState: (interactionState) => {
-    set(
-      produce<InteractionStore>((draft) => {
-        draft.interactionStates.unshift(castDraft(interactionState));
-        draft.recentInteractionId = interactionState.interaction.id;
-      }),
-    );
-    addInteractionStateToDb(interactionState);
-  },
-  updateInteractionState: (interactionId, updateCallback) => {
-    set(
-      produce<InteractionStore>((draft) => {
-        const index = draft.interactionStates.findIndex(
-          ({ interaction }) => interaction.id === interactionId,
+    },
+    loadInteractionStatesFromIDB: async (env) => {
+      const data = await getInteractionStatesFromDb(env);
+      if (data) {
+        set(
+          produce<InteractionStore>((draft) => {
+            draft.interactionStates = castDraft(data);
+          }),
         );
-        if (index > -1) {
-          updateCallback(draft.interactionStates[index]);
-        } else {
-          Sentry.captureMessage(
-            "Failed to find interactionStates in updateInteractionState store function",
+      }
+    },
+    addInteractionState: (interactionState) => {
+      set(
+        produce<InteractionStore>((draft) => {
+          draft.interactionStates.unshift(castDraft(interactionState));
+          draft.recentInteractionId = interactionState.interaction.id;
+        }),
+      );
+      addInteractionStateToDb(interactionState);
+    },
+    updateInteractionState: (interactionId, updateCallback) => {
+      set(
+        produce<InteractionStore>((draft) => {
+          const index = draft.interactionStates.findIndex(
+            ({ interaction }) => interaction.id === interactionId,
           );
-        }
-      }),
-    );
-    const updatedInteractionState = get().interactionStates.find(
-      ({ interaction }) => interaction.id === interactionId,
-    );
-    if (!updatedInteractionState) {
-      throw new Error("Updated interaction state not found");
-    }
-    putInteractionStateToDb(updatedInteractionState);
-  },
-}));
+          if (index > -1) {
+            updateCallback(draft.interactionStates[index]);
+          } else {
+            Sentry.captureMessage(
+              "Failed to find interactionStates in updateInteractionState store function",
+            );
+          }
+        }),
+      );
+      const updatedInteractionState = get().interactionStates.find(
+        ({ interaction }) => interaction.id === interactionId,
+      );
+      if (!updatedInteractionState) {
+        throw new Error("Updated interaction state not found");
+      }
+      putInteractionStateToDb(updatedInteractionState);
+    },
+  }),
+);

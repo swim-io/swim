@@ -331,9 +331,10 @@ export class SolanaConnection {
       // and it is not being called in the constructor (when this.rawConnection is still undefined)
       return;
     }
-    if ((this.subscriptionId as number | undefined) !== undefined) {
+    if ((this.dummySubscriptionId as number | undefined) !== undefined) {
+      // Remove old dummy subscription if it has been initialized.
       this.rawConnection
-        .removeAccountChangeListener(this.subscriptionId)
+        .removeAccountChangeListener(this.dummySubscriptionId)
         .catch(console.error);
     }
     this.rpcIndex = (this.rpcIndex + 1) % this.endpoints.length;
@@ -342,7 +343,7 @@ export class SolanaConnection {
       confirmTransactionInitialTimeout: 60 * 1000,
       disableRetryOnRateLimit: true,
     });
-    this.subscriptionId = this.rawConnection.onAccountChange(
+    this.dummySubscriptionId = this.rawConnection.onAccountChange(
       Keypair.generate().publicKey,
       () => {},
     );

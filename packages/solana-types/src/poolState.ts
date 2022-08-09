@@ -17,26 +17,35 @@ import type BN from "bn.js";
 import type { AmpFactor } from "./ampFactor";
 import { ampFactor } from "./ampFactor";
 
-export interface SwimPoolState {
+type Timestamp = BN;
+
+export interface SwimPoolConstantState {
   readonly nonce: number;
-  readonly isPaused: boolean;
-  readonly ampFactor: AmpFactor;
-  readonly lpFee: number;
-  readonly governanceFee: number;
   readonly lpMintKey: PublicKey;
   readonly lpDecimalEqualizer: number;
   readonly tokenMintKeys: readonly PublicKey[];
   readonly tokenDecimalEqualizers: readonly number[];
   readonly tokenKeys: readonly PublicKey[];
+}
+
+export interface SwimPoolMutableState {
+  readonly isPaused: boolean;
+  readonly ampFactor: AmpFactor;
+  readonly lpFee: number;
+  readonly governanceFee: number;
   readonly governanceKey: PublicKey;
   readonly governanceFeeKey: PublicKey;
   readonly preparedGovernanceKey: PublicKey;
-  readonly governanceTransitionTs: BN;
+  readonly governanceTransitionTs: Timestamp;
   readonly preparedLpFee: number;
   readonly preparedGovernanceFee: number;
-  readonly feeTransitionTs: BN;
+  readonly feeTransitionTs: Timestamp;
   readonly previousDepth: BN;
 }
+
+export interface SwimPoolState
+  extends SwimPoolConstantState,
+    SwimPoolMutableState {}
 
 export const swimPool = (
   numberOfTokens: number,

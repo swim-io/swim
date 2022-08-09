@@ -1,4 +1,4 @@
-import { EuiButton } from "@elastic/eui";
+import { EuiButton, EuiFlexGroup, EuiFlexItem } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { useCallback, useState } from "react";
 
@@ -31,7 +31,11 @@ export const TokenSelect = ({
         onClick={openModal}
         fullWidth
       >
-        <TokenSpecIcon token={token} />
+        <EuiFlexGroup alignItems="center" justifyContent="center">
+          <EuiFlexItem>
+            <TokenSpecIcon token={token} />
+          </EuiFlexItem>
+        </EuiFlexGroup>
       </EuiButton>
       {showModal && (
         <TokenSearchModal

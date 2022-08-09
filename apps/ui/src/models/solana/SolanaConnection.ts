@@ -78,6 +78,7 @@ export class SolanaConnection {
   private dummySubscriptionId!: number;
 
   constructor(endpoints: readonly string[]) {
+    console.log("new connection");
     this.endpoints = endpoints;
     this.rpcIndex = -1;
     this.incrementRpcProvider();

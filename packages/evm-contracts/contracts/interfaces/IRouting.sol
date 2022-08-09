@@ -10,9 +10,9 @@ interface IRouting {
   event TokenRegistered(uint16 indexed tokenId, address indexed tokenContract, address pool);
 
   event OnChainSwap(
-    address indexed to,
-    address fromToken,
-    address toToken,
+    address to,
+    address indexed fromToken,
+    address indexed toToken,
     uint256 outputAmount,
     bytes16 indexed interactionId
   );

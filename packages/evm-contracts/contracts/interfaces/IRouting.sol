@@ -11,14 +11,14 @@ interface IRouting {
 
   event OnChainSwap(
     address to,
-    address indexed fromToken,
-    address indexed toToken,
+    address fromToken,
+    address toToken,
     uint256 outputAmount,
     bytes16 indexed interactionId
   );
 
   event SwapAndTransfer(
-    address indexed from,
+    address from,
     uint64 wormholeSequence,
     address token,
     uint256 inputAmount,
@@ -26,7 +26,7 @@ interface IRouting {
   );
 
   event ReceiveAndSwap(
-    address indexed from,
+    address from,
     uint64 wormholeSequence,
     address token,
     uint256 amount,

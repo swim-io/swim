@@ -15,7 +15,6 @@ wallet = "./sdk/tests/pool_test.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./sdk/tests/tsconfig.json -t 1000000 sdk/tests/**/*.ts"
-#initialize_pool = "yarn run scripts:build && sdk/scripts/dist/initialize_pool.js"
 initialize_pool = "yarn run sdk:build && yarn run ts-node sdk/scripts/initialize_pool.ts"
 
 [test.validator]

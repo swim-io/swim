@@ -75,7 +75,7 @@ export class SolanaConnection {
   // The websocket library solana/web3.js closes its websocket connection when the subscription list
   // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.
   // This is a hack to prevent the list from ever getting empty
-  private subscriptionId!: number;
+  private dummySubscriptionId!: number;
 
   constructor(endpoints: readonly string[]) {
     this.endpoints = endpoints;

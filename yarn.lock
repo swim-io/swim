@@ -6448,7 +6448,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/solana-types@workspace:packages/solana-types":
+"@swim-io/solana-types@workspace:^, @swim-io/solana-types@workspace:packages/solana-types":
   version: 0.0.0-use.local
   resolution: "@swim-io/solana-types@workspace:packages/solana-types"
   dependencies:
@@ -6485,12 +6485,14 @@ __metadata:
     "@solana/web3.js": ^1.31.0
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/pool-math": "workspace:^"
+    "@swim-io/solana-types": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@types/bn.js": ^5.1.0
     "@types/jest": ^28.1.3
     "@typescript-eslint/eslint-plugin": ^5.29.0
     "@typescript-eslint/parser": ^5.29.0
     bn.js: ^5.2.0
+    decimal.js: ^10.3.1
     eslint: ^8.18.0
     eslint-config-prettier: ^8.5.0
     eslint-plugin-deprecation: ^1.3.2

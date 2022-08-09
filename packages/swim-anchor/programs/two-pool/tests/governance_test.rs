@@ -209,10 +209,12 @@ async fn test_fee_change() {
             },
         })
         .args(two_pool::instruction::PrepareFeeChange {
-            params: PrepareFeeChangeParams {
-                lp_fee,
-                governance_fee,
-            },
+            lp_fee,
+            governance_fee,
+            // params: PrepareFeeChangeParams {
+            //     lp_fee,
+            //     governance_fee,
+            // },
         })
         .instructions()
         .unwrap()
@@ -481,16 +483,14 @@ impl DeployedPoolProgramTestContext {
                 rent: anchor_lang::prelude::Rent::id(),
             })
             .args(two_pool::instruction::Initialize {
-                // params: two_pool::instruction::InitializeParams {
+                // params: InitializeParams {
                 //     amp_factor,
                 //     lp_fee,
                 //     governance_fee,
                 // },
-                params: InitializeParams {
-                    amp_factor,
-                    lp_fee,
-                    governance_fee,
-                },
+                amp_factor,
+                lp_fee,
+                governance_fee,
             })
             .instructions()
             .unwrap()

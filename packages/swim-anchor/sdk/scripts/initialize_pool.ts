@@ -6,7 +6,7 @@ import { Program, SplToken } from "@project-serum/anchor";
 import {
   TwoPoolContext, twoPoolToString,
   writePoolStateToFile,
-} from "@swim-io/swim-anchor-sdk";
+} from "../src";
 import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Account, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
 import fs from "fs";
@@ -42,6 +42,7 @@ const usdcKeypair = web3.Keypair.generate();
 const usdtKeypair = web3.Keypair.generate();
 const swimUsdKeypair = web3.Keypair.generate();
 const governanceKeypair = web3.Keypair.generate();
+const pauseKeypair = web3.Keypair.generate();
 
 let poolUsdcAtaAddr: web3.PublicKey = web3.PublicKey.default;
 let poolUsdtAtaAddr: web3.PublicKey = web3.PublicKey.default;
@@ -54,18 +55,29 @@ let userSwimUsdAtaAddr: web3.PublicKey = web3.PublicKey.default;
 
 const ampFactor  = { value: new anchor.BN(300), decimals: 0 };
 const lpFee =  { value: new anchor.BN(300), decimals: 6 }; //lp fee = .000300 = 0.0300% 3bps
-const governanceFeeValue = { value: new anchor.BN(100), decimals: 6 }; //gov fee = .000100 = (0.0100%) 1bps
+const governanceFee = { value: new anchor.BN(100), decimals: 6 }; //gov fee = .000100 = (0.0100%) 1bps
 
 let flagshipPool: web3.PublicKey  = web3.PublicKey.default;
-
+type DecimalU64Anchor = {
+  value: anchor.BN;
+  decimals: number;
+}
 
 async function initialize(){
   console.log("hi2");
   await setup();
+  const params = {
+    ampFactor,
+    lpFee,
+    governanceFee,
+  }
   const tx = await program
     .methods
+    // .initialize(params)
     .initialize(
-      ampFactor, lpFee, governanceFeeValue,
+      ampFactor,
+      lpFee,
+      governanceFee
     )
     .accounts({
       payer: provider.publicKey,
@@ -74,6 +86,7 @@ async function initialize(){
       lpMint: swimUsdKeypair.publicKey,
       poolTokenAccount0: poolUsdcAtaAddr,
       poolTokenAccount1: poolUsdtAtaAddr,
+      pauseKey: pauseKeypair.publicKey,
       governanceAccount: governanceKeypair.publicKey,
       governanceFeeAccount: governanceFeeAddr,
       tokenProgram: splToken.programId,

@@ -25,3 +25,6 @@ check your npm version. npm lts/gallium (v16.15.1 as of this writing) works but 
    into the correct directory for each program
 2. adjust visibility of imports/crates to only expose what's needed
 3. enhance lp metadata tests with mpl js storage mock logic
+4. anchor can't handle nested custom structs for inputs into ixs.
+    1. look into using just u32 for lp_fee, gov_fee for ix inputs.
+

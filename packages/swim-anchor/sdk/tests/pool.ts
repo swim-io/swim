@@ -121,7 +121,12 @@ describe("TwoPool", () => {
     }
     const tx = await program
       .methods
-      .initialize(params)
+      // .initialize(params)
+      .initialize(
+        ampFactor,
+        lpFee,
+        governanceFee,
+      )
       .accounts({
         payer: provider.publicKey,
         poolMint0: usdcKeypair.publicKey,
@@ -832,8 +837,10 @@ describe("TwoPool", () => {
       }
       const tx = await program
         .methods
+        // .prepareFeeChange(params)
         .prepareFeeChange(
-          params
+          newLpFee,
+          newGovernanceFee,
         )
         .accounts({
           commonGovernance: {

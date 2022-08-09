@@ -26,10 +26,12 @@ impl<'info> PrepareFeeChange<'info> {
 
 pub fn handle_prepare_fee_change(
     ctx: Context<PrepareFeeChange>,
-    params: PrepareFeeChangeParams,
+    // params: PrepareFeeChangeParams,
+    lp_fee: DecimalU64Anchor,
+    governance_fee: DecimalU64Anchor,
 ) -> Result<()> {
-    let lp_fee: DecimalU64 = params.lp_fee.into();
-    let governance_fee: DecimalU64 = params.governance_fee.into();
+    let lp_fee: DecimalU64 = lp_fee.into();
+    let governance_fee: DecimalU64 = governance_fee.into();
     require_gt!(
         DecimalU64::from(1),
         lp_fee + governance_fee,

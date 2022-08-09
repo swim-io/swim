@@ -100,6 +100,7 @@ impl<'info> Initialize<'info> {
     }
 }
 
+//Note: not using this for now. anchor has a problem with structs containing custom structs.
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct InitializeParams {
     pub amp_factor: DecimalU64Anchor,
@@ -107,8 +108,13 @@ pub struct InitializeParams {
     pub governance_fee: DecimalU64Anchor,
 }
 
-pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> Result<()> {
-    let fee_sum = DecimalU64::from(params.lp_fee) + DecimalU64::from(params.governance_fee);
+pub fn handle_initialize(
+    ctx: Context<Initialize>,
+    amp_factor: DecimalU64Anchor,
+    lp_fee: DecimalU64Anchor,
+    governance_fee: DecimalU64Anchor,
+) -> Result<()> {
+    let fee_sum = DecimalU64::from(lp_fee) + DecimalU64::from(governance_fee);
     require_gt!(
         DecimalU64::const_from(1),
         fee_sum,
@@ -117,9 +123,12 @@ pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> 
     let two_pool = &mut ctx.accounts.pool;
     two_pool.bump = *ctx.bumps.get("pool").unwrap();
     two_pool.is_paused = false;
-    two_pool.amp_factor = AmpFactor::new(params.amp_factor.into())?;
-    two_pool.lp_fee = PoolFee::new(params.lp_fee.into())?;
-    two_pool.governance_fee = PoolFee::new(params.governance_fee.into())?;
+    // two_pool.amp_factor = AmpFactor::new(params.amp_factor.into())?;
+    // two_pool.lp_fee = PoolFee::new(params.lp_fee.into())?;
+    // two_pool.governance_fee = PoolFee::new(params.governance_fee.into())?;
+    two_pool.amp_factor = AmpFactor::new(amp_factor.into())?;
+    two_pool.lp_fee = PoolFee::new(lp_fee.into())?;
+    two_pool.governance_fee = PoolFee::new(governance_fee.into())?;
     two_pool.lp_mint_key = ctx.accounts.lp_mint.key();
 
     let mut decimal_range_min = ctx.accounts.lp_mint.decimals;
@@ -140,7 +149,7 @@ pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> 
     );
 
     require_gte!(
-        8,
+        8u8,
         decimal_range_max - decimal_range_min,
         PoolError::MaxDecimalDifferenceExceeded
     );

@@ -2,9 +2,9 @@
     "scripts": {
         "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
         "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
-        "idl": "anchor build -i $INIT_CWD/src/artifacts -t $INIT_CWD/src/artifacts",
+        "idl": "anchor build -i $INIT_CWD/sdk/src/artifacts -t $INIT_CWD/sdk/src/artifacts",
         "sdk:build": "rm -rf ./sdk/dist && tsc -p sdk/src",
-        "scripts:build": "yarn run sdk:build && rm -rf scripts/dist && tsc -p sdk/scripts/tsconfig.json && chmod +x sdk/scripts/dist/initialize_pool.js"
+        "scripts:build": "yarn run idl && yarn run sdk:build && rm -rf sdk/scripts/dist && tsc -p sdk/scripts/tsconfig.json && chmod +x sdk/scripts/dist/initialize_pool.js"
     },
     "workspaces": [
         "sdk",

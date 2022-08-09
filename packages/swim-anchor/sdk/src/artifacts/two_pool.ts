@@ -68,6 +68,11 @@ export type TwoPool = {
           "isSigner": false
         },
         {
+          "name": "pauseKey",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "governanceAccount",
           "isMut": false,
           "isSigner": false
@@ -202,7 +207,7 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "poolAddParams",
+          "name": "params",
           "type": {
             "defined": "AddParams"
           }
@@ -288,7 +293,7 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "swapExactInputParams",
+          "name": "params",
           "type": {
             "defined": "SwapExactInputParams"
           }
@@ -374,7 +379,7 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "swapExactOutputParams",
+          "name": "params",
           "type": {
             "defined": "SwapExactOutputParams"
           }
@@ -467,7 +472,7 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "removeUniformParams",
+          "name": "params",
           "type": {
             "defined": "RemoveUniformParams"
           }
@@ -560,7 +565,7 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "removeExactBurnParams",
+          "name": "params",
           "type": {
             "defined": "RemoveExactBurnParams"
           }
@@ -651,7 +656,7 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "removeExactOutputParams",
+          "name": "params",
           "type": {
             "defined": "RemoveExactOutputParams"
           }
@@ -721,6 +726,608 @@ export type TwoPool = {
           2
         ]
       }
+    },
+    {
+      "name": "prepareGovernanceTransition",
+      "docs": [
+        "Governance Ixs *"
+      ],
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "upcomingGovernanceKey",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "enactGovernanceTransition",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "prepareFeeChange",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "lpFee",
+          "type": {
+            "defined": "DecimalU64Anchor"
+          }
+        },
+        {
+          "name": "governanceFee",
+          "type": {
+            "defined": "DecimalU64Anchor"
+          }
+        }
+      ]
+    },
+    {
+      "name": "enactFeeChange",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "changeGovernanceFeeAccount",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        },
+        {
+          "name": "newGovernanceFee",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "newGovernanceFeeKey",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "adjustAmpFactor",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "AdjustAmpFactorParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "setPaused",
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool.lp_mint_key"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pauseKey",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "paused",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "changePauseKey",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "newPauseKey",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "createLpMetadata",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        },
+        {
+          "name": "createMetadataAccounts",
+          "accounts": [
+            {
+              "name": "metadata",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "mint",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "mintAuthority",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "payer",
+              "isMut": true,
+              "isSigner": true
+            },
+            {
+              "name": "updateAuthority",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "systemProgram",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "rent",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "mplTokenMetadata",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "CreateLpMetadataParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "updateLpMetadata",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        },
+        {
+          "name": "updateMetadataAccounts",
+          "accounts": [
+            {
+              "name": "metadata",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "updateAuthority",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "mplTokenMetadata",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "UpdateLpMetadataParams"
+          }
+        }
+      ]
     }
   ],
   "accounts": [
@@ -789,6 +1396,10 @@ export type TwoPool = {
                 2
               ]
             }
+          },
+          {
+            "name": "pauseKey",
+            "type": "publicKey"
           },
           {
             "name": "governanceKey",
@@ -876,6 +1487,255 @@ export type TwoPool = {
           {
             "name": "minimumMintAmount",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AdjustAmpFactorParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "targetTs",
+            "type": "i64"
+          },
+          {
+            "name": "targetValue",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreateLpMetadataParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "data",
+            "type": {
+              "defined": "AnchorDataV2"
+            }
+          },
+          {
+            "name": "isMutable",
+            "type": "bool"
+          },
+          {
+            "name": "updateAuthorityIsSigner",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AnchorDataV2",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "docs": [
+              "The name of the asset"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "docs": [
+              "The symbol for the asset"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "docs": [
+              "URI pointing to JSON representing the asset"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "sellerFeeBasisPoints",
+            "docs": [
+              "Royalty basis points that goes to creators in secondary sales (0-10000)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "creators",
+            "docs": [
+              "Array of creators, optional"
+            ],
+            "type": {
+              "option": {
+                "vec": {
+                  "defined": "AnchorCreator"
+                }
+              }
+            }
+          },
+          {
+            "name": "collection",
+            "docs": [
+              "Collection"
+            ],
+            "type": {
+              "option": {
+                "defined": "AnchorCollection"
+              }
+            }
+          },
+          {
+            "name": "uses",
+            "docs": [
+              "Uses"
+            ],
+            "type": {
+              "option": {
+                "defined": "AnchorUses"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AnchorCreator",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "address",
+            "type": "publicKey"
+          },
+          {
+            "name": "verified",
+            "type": "bool"
+          },
+          {
+            "name": "share",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AnchorUses",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "useMethod",
+            "type": {
+              "defined": "AnchorUseMethod"
+            }
+          },
+          {
+            "name": "remaining",
+            "type": "u64"
+          },
+          {
+            "name": "total",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AnchorCollection",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "verified",
+            "type": "bool"
+          },
+          {
+            "name": "key",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PrepareFeeChangeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lpFee",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          },
+          {
+            "name": "governanceFee",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateLpMetadataParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "newUpdateAuthority",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "data",
+            "type": {
+              "option": {
+                "defined": "AnchorDataV2"
+              }
+            }
+          },
+          {
+            "name": "primarySaleHappened",
+            "type": {
+              "option": "bool"
+            }
+          },
+          {
+            "name": "isMutable",
+            "type": {
+              "option": "bool"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "InitializeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "ampFactor",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          },
+          {
+            "name": "lpFee",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          },
+          {
+            "name": "governanceFee",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
           }
         ]
       }
@@ -1114,6 +1974,29 @@ export type TwoPool = {
           },
           {
             "name": "InsufficientPoolTokenAccountBalance"
+          },
+          {
+            "name": "InvalidTokenIndex"
+          },
+          {
+            "name": "InvalidPauseKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AnchorUseMethod",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Burn"
+          },
+          {
+            "name": "Multiple"
+          },
+          {
+            "name": "Single"
           }
         ]
       }
@@ -1203,6 +2086,11 @@ export const IDL: TwoPool = {
           "isSigner": false
         },
         {
+          "name": "pauseKey",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "governanceAccount",
           "isMut": false,
           "isSigner": false
@@ -1337,7 +2225,7 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "poolAddParams",
+          "name": "params",
           "type": {
             "defined": "AddParams"
           }
@@ -1423,7 +2311,7 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "swapExactInputParams",
+          "name": "params",
           "type": {
             "defined": "SwapExactInputParams"
           }
@@ -1509,7 +2397,7 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "swapExactOutputParams",
+          "name": "params",
           "type": {
             "defined": "SwapExactOutputParams"
           }
@@ -1602,7 +2490,7 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "removeUniformParams",
+          "name": "params",
           "type": {
             "defined": "RemoveUniformParams"
           }
@@ -1695,7 +2583,7 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "removeExactBurnParams",
+          "name": "params",
           "type": {
             "defined": "RemoveExactBurnParams"
           }
@@ -1786,7 +2674,7 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "removeExactOutputParams",
+          "name": "params",
           "type": {
             "defined": "RemoveExactOutputParams"
           }
@@ -1856,6 +2744,608 @@ export const IDL: TwoPool = {
           2
         ]
       }
+    },
+    {
+      "name": "prepareGovernanceTransition",
+      "docs": [
+        "Governance Ixs *"
+      ],
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "upcomingGovernanceKey",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "enactGovernanceTransition",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "prepareFeeChange",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "lpFee",
+          "type": {
+            "defined": "DecimalU64Anchor"
+          }
+        },
+        {
+          "name": "governanceFee",
+          "type": {
+            "defined": "DecimalU64Anchor"
+          }
+        }
+      ]
+    },
+    {
+      "name": "enactFeeChange",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "changeGovernanceFeeAccount",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        },
+        {
+          "name": "newGovernanceFee",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "newGovernanceFeeKey",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "adjustAmpFactor",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "AdjustAmpFactorParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "setPaused",
+      "accounts": [
+        {
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TwoPool",
+                "path": "pool.lp_mint_key"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pauseKey",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "paused",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "changePauseKey",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "newPauseKey",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "createLpMetadata",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        },
+        {
+          "name": "createMetadataAccounts",
+          "accounts": [
+            {
+              "name": "metadata",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "mint",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "mintAuthority",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "payer",
+              "isMut": true,
+              "isSigner": true
+            },
+            {
+              "name": "updateAuthority",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "systemProgram",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "rent",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "mplTokenMetadata",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "CreateLpMetadataParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "updateLpMetadata",
+      "accounts": [
+        {
+          "name": "commonGovernance",
+          "accounts": [
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TwoPool",
+                    "path": "pool.lp_mint_key"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "governance",
+              "isMut": false,
+              "isSigner": true
+            }
+          ]
+        },
+        {
+          "name": "updateMetadataAccounts",
+          "accounts": [
+            {
+              "name": "metadata",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "updateAuthority",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "mplTokenMetadata",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "UpdateLpMetadataParams"
+          }
+        }
+      ]
     }
   ],
   "accounts": [
@@ -1924,6 +3414,10 @@ export const IDL: TwoPool = {
                 2
               ]
             }
+          },
+          {
+            "name": "pauseKey",
+            "type": "publicKey"
           },
           {
             "name": "governanceKey",
@@ -2011,6 +3505,255 @@ export const IDL: TwoPool = {
           {
             "name": "minimumMintAmount",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AdjustAmpFactorParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "targetTs",
+            "type": "i64"
+          },
+          {
+            "name": "targetValue",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreateLpMetadataParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "data",
+            "type": {
+              "defined": "AnchorDataV2"
+            }
+          },
+          {
+            "name": "isMutable",
+            "type": "bool"
+          },
+          {
+            "name": "updateAuthorityIsSigner",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AnchorDataV2",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "docs": [
+              "The name of the asset"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "docs": [
+              "The symbol for the asset"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "docs": [
+              "URI pointing to JSON representing the asset"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "sellerFeeBasisPoints",
+            "docs": [
+              "Royalty basis points that goes to creators in secondary sales (0-10000)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "creators",
+            "docs": [
+              "Array of creators, optional"
+            ],
+            "type": {
+              "option": {
+                "vec": {
+                  "defined": "AnchorCreator"
+                }
+              }
+            }
+          },
+          {
+            "name": "collection",
+            "docs": [
+              "Collection"
+            ],
+            "type": {
+              "option": {
+                "defined": "AnchorCollection"
+              }
+            }
+          },
+          {
+            "name": "uses",
+            "docs": [
+              "Uses"
+            ],
+            "type": {
+              "option": {
+                "defined": "AnchorUses"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AnchorCreator",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "address",
+            "type": "publicKey"
+          },
+          {
+            "name": "verified",
+            "type": "bool"
+          },
+          {
+            "name": "share",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AnchorUses",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "useMethod",
+            "type": {
+              "defined": "AnchorUseMethod"
+            }
+          },
+          {
+            "name": "remaining",
+            "type": "u64"
+          },
+          {
+            "name": "total",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AnchorCollection",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "verified",
+            "type": "bool"
+          },
+          {
+            "name": "key",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PrepareFeeChangeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lpFee",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          },
+          {
+            "name": "governanceFee",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateLpMetadataParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "newUpdateAuthority",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "data",
+            "type": {
+              "option": {
+                "defined": "AnchorDataV2"
+              }
+            }
+          },
+          {
+            "name": "primarySaleHappened",
+            "type": {
+              "option": "bool"
+            }
+          },
+          {
+            "name": "isMutable",
+            "type": {
+              "option": "bool"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "InitializeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "ampFactor",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          },
+          {
+            "name": "lpFee",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
+          },
+          {
+            "name": "governanceFee",
+            "type": {
+              "defined": "DecimalU64Anchor"
+            }
           }
         ]
       }
@@ -2249,6 +3992,29 @@ export const IDL: TwoPool = {
           },
           {
             "name": "InsufficientPoolTokenAccountBalance"
+          },
+          {
+            "name": "InvalidTokenIndex"
+          },
+          {
+            "name": "InvalidPauseKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AnchorUseMethod",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Burn"
+          },
+          {
+            "name": "Multiple"
+          },
+          {
+            "name": "Single"
           }
         ]
       }

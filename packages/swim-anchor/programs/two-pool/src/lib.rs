@@ -58,8 +58,13 @@ pub mod two_pool {
     use super::*;
 
     #[access_control(Initialize::accounts(&ctx))]
-    pub fn initialize(ctx: Context<Initialize>, params: InitializeParams) -> Result<()> {
-        handle_initialize(ctx, params)
+    pub fn initialize(
+        ctx: Context<Initialize>,
+        amp_factor: DecimalU64Anchor,
+        lp_fee: DecimalU64Anchor,
+        governance_fee: DecimalU64Anchor,
+    ) -> Result<()> {
+        handle_initialize(ctx, amp_factor, lp_fee, governance_fee)
     }
 
     #[access_control(Add::accounts(&ctx))]
@@ -133,9 +138,12 @@ pub mod two_pool {
     #[access_control(PrepareFeeChange::accounts(&ctx))]
     pub fn prepare_fee_change(
         ctx: Context<PrepareFeeChange>,
-        params: PrepareFeeChangeParams,
+        lp_fee: DecimalU64Anchor,
+        governance_fee: DecimalU64Anchor,
+        // params: PrepareFeeChangeParams,
     ) -> Result<()> {
-        handle_prepare_fee_change(ctx, params)
+        // handle_prepare_fee_change(ctx, params)
+        handle_prepare_fee_change(ctx, lp_fee, governance_fee)
     }
 
     #[access_control(EnactFeeChange::accounts(&ctx))]

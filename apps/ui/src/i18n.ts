@@ -4,6 +4,8 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import resourcesToBackend from "i18next-resources-to-backend";
 import { initReactI18next } from "react-i18next";
 
+import enTranslation from "./locales/en/translation.json";
+
 // eslint-disable-next-line import/no-named-as-default-member
 i18next
   .use(LanguageDetector)
@@ -28,6 +30,16 @@ i18next
       // Work around Google Translate issue with React apps https://github.com/facebook/react/issues/11538
       transWrapTextNodes: "span",
     },
+    ...(process.env.NODE_ENV === "test"
+      ? {
+          resources: {
+            en: {
+              // easier to test without waiting to download i18n files
+              translation: enTranslation,
+            },
+          },
+        }
+      : {}),
   })
   .catch(console.error);
 

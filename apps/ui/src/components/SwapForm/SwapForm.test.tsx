@@ -4,10 +4,8 @@ import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Decimal from "decimal.js";
 import type { FC } from "react";
-import { Suspense } from "react";
 import type { UseQueryResult } from "react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { v4 as uuidV4 } from "uuid";
 
 import { EcosystemId } from "../../config";
 import { useEnvironment as environmentStore } from "../../core/store";
@@ -112,36 +110,25 @@ describe("SwapForm", () => {
     ] as unknown as readonly UseQueryResult<readonly TokenAccount[], Error>[]);
   });
 
-  beforeEach(async () => {
+  beforeEach(() => {
     // currently we can't change the env unless a custom IP is set
     environmentStore.getState().setCustomIp("122.122.122.12");
     environmentStore.getState().setEnv(Env.Mainnet);
 
-    const loadingText = uuidV4();
-
     renderWithAppContext(
-      // Needed for i18next
-      <Suspense fallback={loadingText}>
-        <MemoryRouter initialEntries={["/swap"]}>
-          <Routes>
-            <Route
-              path="swap"
-              element={<SwapForm maxSlippageFraction={null} />}
-            />
-            <Route
-              path="swap/:fromToken/to/:toToken"
-              element={<SwapForm maxSlippageFraction={null} />}
-            />
-          </Routes>
-        </MemoryRouter>
-      </Suspense>,
+      <MemoryRouter initialEntries={["/swap"]}>
+        <Routes>
+          <Route
+            path="swap"
+            element={<SwapForm maxSlippageFraction={null} />}
+          />
+          <Route
+            path="swap/:fromToken/to/:toToken"
+            element={<SwapForm maxSlippageFraction={null} />}
+          />
+        </Routes>
+      </MemoryRouter>,
     );
-
-    // make sure i18n is loaded before tests
-    await waitFor(() => {
-      // eslint-disable-next-line jest/no-standalone-expect
-      expect(screen.queryByText(loadingText)).toBeNull();
-    });
   });
 
   it("should update token options when env changes", () => {

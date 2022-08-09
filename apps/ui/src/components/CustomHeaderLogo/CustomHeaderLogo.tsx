@@ -18,7 +18,7 @@ export const CustomHeaderLogo = (): ReactElement => {
         style={{ width: "36px", height: "36px" }}
       />
       <span className="euiHeaderLogo__text" style={{ color: "#2065D8" }}>
-        {t("general.company_name_in_logo")}
+        {t("general.company_name").toUpperCase()}
       </span>
     </Link>
   );

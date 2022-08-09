@@ -97,7 +97,7 @@ const buildToSolanaTransfersStep = (
     nextTxInfo !== null &&
     nextTxInfo.step === InteractionStateStep.ToSolanaTransfers;
   return {
-    title: "Bridge tokens to Solana",
+    title: i18next.t("recent_interactions.bridge_tokens_to_solana"),
     status,
     children: (
       <>
@@ -127,7 +127,7 @@ const buildSolanaPoolOperationStep = (
     isSolanaPoolOperationsCompleted(solanaPoolOperations),
   );
   return {
-    title: "Perform pool operation(s) on Solana",
+    title: i18next.t("recent_interactions.perform_pool_operations_on_solana"),
     status,
     children: (
       <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
@@ -160,7 +160,7 @@ const buildFromSolanaTransfersStep = (
     nextTxInfo !== null &&
     nextTxInfo.step === InteractionStateStep.FromSolanaTransfers;
   return {
-    title: "Bridge tokens from Solana",
+    title: i18next.t("recent_interactions.bridge_tokens_from_solana"),
     status,
     children: (
       <>

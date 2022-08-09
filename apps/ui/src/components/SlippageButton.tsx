@@ -79,7 +79,7 @@ export const SlippageButton = ({
   const cogButton = (
     <EuiButtonIcon
       iconType="gear"
-      aria-label="Settings"
+      aria-label={t("slippage_button.settings")}
       onClick={() => {
         setIsCogOpen(!isCogOpen);
       }}

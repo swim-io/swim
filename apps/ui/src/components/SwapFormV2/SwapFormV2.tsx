@@ -197,8 +197,8 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
       maxSlippageFraction === null
     ) {
       notify(
-        t("general.unexpected_form_error_title"),
-        t("general.unexpected_form_error_description"),
+        t("notify.unexpected_form_error_title"),
+        t("notify.unexpected_form_error_description"),
         "error",
       );
       return;
@@ -260,7 +260,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
             setToTokenOption(fromTokenOption);
           }}
           className="swapForm__flipIcon"
-          aria-label="Flip direction"
+          aria-label={t("swap_form.flip_direction_button")}
           disabled={isInteractionInProgress}
         />
       </div>
@@ -273,7 +273,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
         value={outputAmountString}
         selectedTokenOption={toTokenOption}
         tokenOptions={toTokenOptions}
-        placeholder={"Output"}
+        placeholder={t("swap_form.output_amount")}
         disabled={isInteractionInProgress}
         errors={[]}
         onSelectTokenOption={setToTokenOption}

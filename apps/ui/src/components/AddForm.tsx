@@ -436,8 +436,8 @@ export const AddForm = ({
       poolMath === null
     ) {
       notify(
-        t("general.unexpected_form_error_title"),
-        t("general.unexpected_form_error_description"),
+        t("notify.unexpected_form_error_title"),
+        t("notify.unexpected_form_error_description"),
         "error",
       );
       return;

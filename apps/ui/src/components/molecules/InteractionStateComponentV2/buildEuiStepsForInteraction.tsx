@@ -124,7 +124,7 @@ const buildSolanaPoolOperationStep = (
   const toToken = findTokenById(toTokenDetail.tokenId, env);
 
   return {
-    title: "Perform pool operation on Solana",
+    title: i18next.t("recent_interactions.perform_pool_operation_on_solana"),
     status,
     children: (
       <SwapTransfer
@@ -158,7 +158,7 @@ const buildEvmPoolOperationStep = (
   );
 
   return {
-    title: "Swap tokens",
+    title: i18next.t("recent_interactions.swap_tokens"),
     status,
     children: (
       <>
@@ -215,7 +215,7 @@ const buildSwapAndTransferStep = (
   );
 
   return {
-    title: "Initiate transfer",
+    title: i18next.t("recent_interactions.initiate_transfer"),
     status,
     children: (
       <>
@@ -286,7 +286,7 @@ const buildReceiveAndSwapStep = (
   );
 
   return {
-    title: "Receive and swap",
+    title: i18next.t("recent_interactions.receive_and_swap"),
     status,
     children: (
       <SwapTransfer
@@ -322,7 +322,9 @@ const buildPostVaaAndClaimToken = (
   );
 
   return {
-    title: "Complete transfer and claim token on Solana",
+    title: i18next.t(
+      "recent_interactions.complete_transfer_and_claim_token_on_solana",
+    ),
     status,
     children: (
       <SwapTransfer
@@ -350,7 +352,7 @@ const buildRemoveStep = (
   );
 
   return {
-    title: "Swap LP tokens",
+    title: i18next.t("recent_interactions.swap_lp_tokens"),
     status,
     children: (
       <>
@@ -453,7 +455,7 @@ const buildAddStep = (
   );
 
   return {
-    title: "Swap LP tokens",
+    title: i18next.t("recent_interactions.swap_lp_tokens"),
     status,
     children: (
       <>

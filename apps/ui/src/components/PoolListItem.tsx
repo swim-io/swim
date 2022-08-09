@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 
 import { atomicToHumanString } from "../amounts";
 import type { TokenSpec } from "../config";
+import { i18next } from "../i18n";
 
 import { TokenSpecIcon } from "./TokenIcon";
 
@@ -30,7 +31,7 @@ const appendConstantSwapIcon = (poolName: string): string | ReactElement => {
         <EuiToolTip
           key="tooltip"
           position="right"
-          content="This pool uses a constant product curve, prices deviate from 1:1."
+          content={i18next.t("pool_page.pool_price_explanation")}
         >
           <EuiIcon size="l" type="questionInCircle" color="primary" />
         </EuiToolTip>,

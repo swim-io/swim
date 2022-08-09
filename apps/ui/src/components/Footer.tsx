@@ -27,7 +27,7 @@ export const Footer = (): ReactElement | null => {
       <EuiFlexGroup justifyContent="spaceEvenly" style={{ maxWidth: "1200px" }}>
         <EuiFlexItem grow={false}>
           <EuiListGroup gutterSize="none">
-            <EuiListGroupItem label="App" size={listGroupHeaderSize} />
+            <EuiListGroupItem label={t("nav.app")} size={listGroupHeaderSize} />
             <EuiListGroupItem
               label={t("nav.swap")}
               href="/swap"
@@ -65,7 +65,10 @@ export const Footer = (): ReactElement | null => {
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiListGroup gutterSize="none">
-            <EuiListGroupItem label="Protocol" size={listGroupHeaderSize} />
+            <EuiListGroupItem
+              label={t("nav.protocol")}
+              size={listGroupHeaderSize}
+            />
             <EuiListGroupItem
               label={t("nav.jobs")}
               href="https://apply.workable.com/swim/"
@@ -112,7 +115,10 @@ export const Footer = (): ReactElement | null => {
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiListGroup gutterSize="none">
-            <EuiListGroupItem label="Learn" size={listGroupHeaderSize} />
+            <EuiListGroupItem
+              label={t("nav.learn")}
+              size={listGroupHeaderSize}
+            />
             <EuiListGroupItem
               label={t("nav.blog")}
               href="https://blog.swim.io"
@@ -137,7 +143,10 @@ export const Footer = (): ReactElement | null => {
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
           <EuiListGroup gutterSize="none">
-            <EuiListGroupItem label="Community" size={listGroupHeaderSize} />
+            <EuiListGroupItem
+              label={t("nav.community")}
+              size={listGroupHeaderSize}
+            />
             <EuiListGroupItem
               label={t("nav.twitter")}
               href="https://twitter.com/SwimProtocol"

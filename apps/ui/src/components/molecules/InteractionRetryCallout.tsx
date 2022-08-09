@@ -59,6 +59,7 @@ const RetryOrResumeButton = ({
 export const InteractionRetryCallout: React.FC<Props> = ({
   interactionState,
 }) => {
+  const { t } = useTranslation();
   const { interaction } = interactionState;
   const error = useInteractionState((state) =>
     selectInteractionError(state, interaction.id),
@@ -81,7 +82,7 @@ export const InteractionRetryCallout: React.FC<Props> = ({
   if (error) {
     return (
       <EuiCallOut
-        title="Sorry, there was an error"
+        title={t("recent_interactions.error_title")}
         color="danger"
         iconType="alert"
         style={{ wordBreak: "break-word" }} // break long transaction IDs
@@ -89,7 +90,7 @@ export const InteractionRetryCallout: React.FC<Props> = ({
         {formatErrorJsx(error)}
         <EuiSpacer />
         <RetryOrResumeButton
-          title={"Retry"}
+          title={t("recent_interactions.retry_button")}
           disabled={disabled}
           onClick={() => resumeInteraction(interaction.id)}
         />
@@ -99,7 +100,7 @@ export const InteractionRetryCallout: React.FC<Props> = ({
 
   return (
     <RetryOrResumeButton
-      title={"Resume"}
+      title={t("recent_interactions.resume_button")}
       disabled={disabled}
       onClick={() => resumeInteraction(interaction.id)}
     />

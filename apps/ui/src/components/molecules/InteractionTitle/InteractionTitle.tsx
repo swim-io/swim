@@ -42,11 +42,11 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
           style={{
             display: "inline-flex",
             alignContent: "center",
-            whiteSpace: 'pre'
+            whiteSpace: "pre",
           }}
         >
           <Trans
-            i18nKey="recent_interactions.swap_tokens"
+            i18nKey="recent_interactions.swap_tokens_for"
             components={{
               tokenAmounts: (
                 <AmountWithTokenIcon

@@ -424,8 +424,8 @@ export const RemoveForm = ({
     // pool errors
     if (!poolLpAmount) {
       notify(
-        t("remove_token_form.could_not_fetch_pool_lp_amount_error_title"),
-        t("remove_token_form.could_not_fetch_pool_lp_amount_error_description"),
+        t("notify.could_not_fetch_pool_lp_amount_error_title"),
+        t("notify.could_not_fetch_pool_lp_amount_error_description"),
         "error",
       );
       return;
@@ -539,8 +539,8 @@ export const RemoveForm = ({
       poolMath === null
     ) {
       notify(
-        t("general.unexpected_form_error_title"),
-        t("general.unexpected_form_error_description"),
+        t("notify.unexpected_form_error_title"),
+        t("notify.unexpected_form_error_description"),
         "error",
       );
       return;
@@ -647,8 +647,8 @@ export const RemoveForm = ({
               userHasAllLpTokens
             ) {
               notify(
-                t("remove_token_form.burn_all_lp_tokens_error_title"),
-                t("remove_token_form.burn_all_lp_tokens_error_description"),
+                t("notify.burn_all_lp_tokens_error_title"),
+                t("notify.burn_all_lp_tokens_error_description"),
                 "error",
               );
               return;

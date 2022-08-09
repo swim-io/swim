@@ -43,7 +43,7 @@ export class SwimError extends Error {
       msg += ` (${this.eventId})`;
     }
     if (!msg) {
-      msg = "Unknown error";
+      msg = i18next.t("general.unknown_error");
     }
     return msg;
   }

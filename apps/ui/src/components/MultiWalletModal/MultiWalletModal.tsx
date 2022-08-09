@@ -46,6 +46,7 @@ const ProtocolWalletOptionsList = ({
   icon,
   protocol,
 }: ProtocolWalletOptionsListProps): ReactElement => {
+  const { t } = useTranslation();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const selectedServiceByProtocol = useWalletAdapter(
     selectSelectedServiceByProtocol,
@@ -84,7 +85,9 @@ const ProtocolWalletOptionsList = ({
     <EuiButtonIcon
       onClick={handleButtonClick}
       iconType="questionInCircle"
-      aria-label={`See the supported chains of the ${PROTOCOL_NAMES[protocol]} protocol`}
+      aria-label={t("multi_wallet_modal.see_supported_chains_for_protocol", {
+        protocolName: PROTOCOL_NAMES[protocol],
+      })}
       style={{ marginLeft: 10 }}
     />
   );

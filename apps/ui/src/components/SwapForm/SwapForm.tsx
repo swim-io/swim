@@ -213,8 +213,8 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       !isEachNotNull(poolMaths)
     ) {
       notify(
-        t("general.unexpected_form_error_title"),
-        t("general.unexpected_form_error_description"),
+        t("notify.unexpected_form_error_title"),
+        t("notify.unexpected_form_error_description"),
         "error",
       );
       return;
@@ -271,7 +271,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
             setFromAndToTokens(toToken, fromToken);
           }}
           className="swapForm__flipIcon"
-          aria-label="Flip direction"
+          aria-label={t("swap_form.flip_direction_button")}
           disabled={isInteractionInProgress}
         />
       </div>
@@ -284,7 +284,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         value={outputAmount?.toHumanString(toToken.nativeEcosystemId) ?? ""}
         token={toToken}
         tokenOptionIds={toTokenOptionsIds}
-        placeholder={"Output"}
+        placeholder={t("swap_form.output_amount")}
         disabled={isInteractionInProgress}
         errors={[]}
         onSelectToken={setToToken}

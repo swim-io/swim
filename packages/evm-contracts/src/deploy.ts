@@ -1,13 +1,10 @@
-import { ethers } from "hardhat";
-import { Contract } from "ethers";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { getContractAddress } from "@ethersproject/address";
-
-import {
-  SWIM_FACTORY_ADDRESS,
-  DEFAULTS,
- } from "../src/config";
+import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { makeUpgradeProxy } from "@openzeppelin/hardhat-upgrades/dist/upgrade-proxy";
+import { Contract } from "ethers";
+import { ethers } from "hardhat";
+
+import { DEFAULTS, SWIM_FACTORY_ADDRESS } from "./config";
 
 const ERC1967_IMPLEMENTATION_SLOT =
   "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc";
@@ -22,16 +19,16 @@ export async function isDeployed(address: string): Promise<boolean> {
 }
 
 type PoolInfo = {
-  salt: string,
-  lpSalt: string,
-  tokens: {address: string, tokenNumber: number}[]
-  precision?: number,
-  lpName?: string,
-  lpSymbol?: string,
-  lpDecimals?: number,
-  ampFactor?: number,
-  lpFee?: number,
-  govFee?: number,
+  readonly salt: string;
+  readonly lpSalt: string;
+  readonly tokens: readonly { readonly address: string; readonly tokenNumber: number }[];
+  readonly precision?: number;
+  readonly lpName?: string;
+  readonly lpSymbol?: string;
+  readonly lpDecimals?: number;
+  readonly ampFactor?: number;
+  readonly lpFee?: number;
+  readonly govFee?: number;
 };
 
 export async function deployPoolAndRegister(
@@ -39,10 +36,10 @@ export async function deployPoolAndRegister(
   poolLogic: Contract,
   routingProxy: Contract,
   governance: SignerWithAddress,
-  governanceFeeRecipient: SignerWithAddress,
+  governanceFeeRecipient: SignerWithAddress
 ): Promise<Contract> {
   const tokenInfo = await Promise.all(
-    pool.tokens.map(async ({address}) => {
+    pool.tokens.map(async ({ address }) => {
       const token = await ethers.getContractAt("ERC20", address);
       return {
         symbol: await token.symbol(),
@@ -53,38 +50,35 @@ export async function deployPoolAndRegister(
 
   const lpDecimals = pool.lpDecimals ?? DEFAULTS.lpDecimals;
   const precision = pool.precision ?? DEFAULTS.precision;
-  const poolProxy = await deployProxy(
-    poolLogic,
-    pool.salt,
-    [
-      pool.lpName ?? "Swim " + tokenInfo.map(({symbol}) => symbol).join("-") + "-Pool LP",
-      pool.lpSymbol ?? tokenInfo.map(({symbol}) => symbol).join("-")+"-LP",
-      pool.lpSalt,
-      lpDecimals,
-      precision - lpDecimals,
-      pool.tokens.map((token) => token.address),
-      tokenInfo.map(({decimals}) => precision - decimals),
-      pool.ampFactor ?? DEFAULTS.amp,
-      pool.lpFee ?? DEFAULTS.lpFee,
-      pool.govFee ?? DEFAULTS.governanceFee,
-      governance.address,
-      governanceFeeRecipient.address,
-    ],
-  );
+  const poolProxy = await deployProxy(poolLogic, pool.salt, [
+    pool.lpName ?? "Swim " + tokenInfo.map(({ symbol }) => symbol).join("-") + "-Pool LP",
+    pool.lpSymbol ?? tokenInfo.map(({ symbol }) => symbol).join("-") + "-LP",
+    pool.lpSalt,
+    lpDecimals,
+    precision - lpDecimals,
+    pool.tokens.map((token) => token.address),
+    tokenInfo.map(({ decimals }) => precision - decimals),
+    pool.ampFactor ?? DEFAULTS.amp,
+    pool.lpFee ?? DEFAULTS.lpFee,
+    pool.govFee ?? DEFAULTS.governanceFee,
+    governance.address,
+    governanceFeeRecipient.address,
+  ]);
 
   for (let i = 0; i < pool.tokens.length; ++i) {
     const poolToken = pool.tokens[i];
     const filter = routingProxy.filters.TokenRegistered(poolToken.tokenNumber);
     const tokenReregisteredEvents = await routingProxy.queryFilter(filter);
-    const currentlyRegisteredPool = tokenReregisteredEvents.length > 0 ?
-      tokenReregisteredEvents[tokenReregisteredEvents.length - 1] :
-      "";
+    const currentlyRegisteredPool =
+      tokenReregisteredEvents.length > 0
+        ? tokenReregisteredEvents[tokenReregisteredEvents.length - 1]
+        : "";
     if (currentlyRegisteredPool === poolProxy.address)
       await routingProxy.registerToken(
         poolToken.tokenNumber,
         poolToken.address,
         poolProxy.address,
-        i + 1,
+        i + 1
       );
   }
 
@@ -94,19 +88,22 @@ export async function deployPoolAndRegister(
 export async function deployProxy(
   logic: Contract,
   salt: string,
-  initializeArguments: readonly any[],
+  initializeArguments: readonly any[]
 ): Promise<Contract> {
   const swimFactory = await getSwimFactory();
   const proxyAddress = await swimFactory.determineProxyAddress(salt);
   const initializeEncoded = logic.interface.encodeFunctionData("initialize", initializeArguments);
   if (await isDeployed(proxyAddress)) {
     const slot = await ethers.provider.getStorageAt(proxyAddress, ERC1967_IMPLEMENTATION_SLOT);
-    const actualLogic = ethers.utils.getAddress("0x" + slot.substring(2+2*12));
+    const actualLogic = ethers.utils.getAddress("0x" + slot.substring(2 + 2 * 12));
     if (actualLogic !== logic.address)
       throw Error(
-        "Unexpected logic for Proxy " + proxyAddress +
-        " - expected: " + logic.address +
-        " but found: " + actualLogic
+        "Unexpected logic for Proxy " +
+          proxyAddress +
+          " - expected: " +
+          logic.address +
+          " but found: " +
+          actualLogic
       );
 
     const filter = swimFactory.filters.ContractCreated(proxyAddress);
@@ -116,40 +113,44 @@ export async function deployProxy(
     const suffixIndex = index === -1 ? -1 : index + initializeEncoded.length - 2;
     if (
       index === -1 ||
-      deployData.substring(suffixIndex) !== "0".repeat(deployData.length-suffixIndex)
+      deployData.substring(suffixIndex) !== "0".repeat(deployData.length - suffixIndex)
     )
       console.warn(
-        "Deployment transaction of proxy", proxyAddress, "for logic contract", logic.address,
-        "was already deployed with different initialize arguments - expected:", initializeEncoded,
-        "but full original calldata was:", deployData
+        "Deployment transaction of proxy",
+        proxyAddress,
+        "for logic contract",
+        logic.address,
+        "was already deployed with different initialize arguments - expected:",
+        initializeEncoded,
+        "but full original calldata was:",
+        deployData
       );
-  }
-  else
-    await swimFactory.createProxy(logic.address, salt, initializeEncoded);
+  } else await swimFactory.createProxy(logic.address, salt, initializeEncoded);
 
   return new Contract(proxyAddress, logic.interface, logic.provider);
-};
+}
 
 export async function deployLogic(name: string, salt?: string): Promise<Contract> {
   const deploySalt = salt ?? DEFAULTS.salt;
   const bytecode = (await ethers.getContractFactory(name)).bytecode;
   const swimFactory = await ethers.getContractAt("SwimFactory", SWIM_FACTORY_ADDRESS);
   const logicAddress = await swimFactory.determineLogicAddress(bytecode, deploySalt);
-  if (!await isDeployed(logicAddress))
-    await swimFactory.createLogic(bytecode, deploySalt);
+  if (!(await isDeployed(logicAddress))) await swimFactory.createLogic(bytecode, deploySalt);
 
   return ethers.getContractAt(name, logicAddress);
-};
+}
 
-export async function deploySwimFactory(owner: SignerWithAddress, factoryMnemonic?: string): Promise<Contract> {
+export async function deploySwimFactory(
+  owner: SignerWithAddress,
+  factoryMnemonic?: string
+): Promise<Contract> {
   if (await isDeployed(SWIM_FACTORY_ADDRESS)) {
     //console.log("SwimFactory was already deployed at:", SWIM_FACTORY_ADDRESS);
     const swimFactory = await getSwimFactory();
     const actualOwner = await swimFactory.owner();
     if (actualOwner !== owner.address)
       throw Error(
-        "Unexpected SwimFactory owner - expected: " + owner.address +
-        " but found: " + actualOwner
+        "Unexpected SwimFactory owner - expected: " + owner.address + " but found: " + actualOwner
       );
     return swimFactory;
   }
@@ -162,18 +163,22 @@ export async function deploySwimFactory(owner: SignerWithAddress, factoryMnemoni
   );
 
   if ((await factoryDeployer.getTransactionCount()) !== 0)
-    throw Error("SwimFactory deployer " + factoryDeployer.address + " has nonzero transaction count");
+    throw Error(
+      "SwimFactory deployer " + factoryDeployer.address + " has nonzero transaction count"
+    );
 
   const precalculatedAddress = getContractAddress({ from: factoryDeployer.address, nonce: 0 });
   if (precalculatedAddress !== SWIM_FACTORY_ADDRESS)
     throw Error(
-      "Unexpected precalulated SwimFactory address - expected: " + SWIM_FACTORY_ADDRESS +
-      " but got: " + precalculatedAddress
+      "Unexpected precalulated SwimFactory address - expected: " +
+        SWIM_FACTORY_ADDRESS +
+        " but got: " +
+        precalculatedAddress
     );
 
-  const swimFactoryFactory =
-    (await ethers.getContractFactory("SwimFactory"))
-    .connect(factoryDeployer);
+  const swimFactoryFactory = (await ethers.getContractFactory("SwimFactory")).connect(
+    factoryDeployer
+  );
 
   const gasEstimate = factoryDeployer.estimateGas(
     await swimFactoryFactory.getDeployTransaction(owner.address)
@@ -192,17 +197,17 @@ export async function deploySwimFactory(owner: SignerWithAddress, factoryMnemoni
     await owner.sendTransaction({ to: factoryDeployer.address, value: topUp });
   }
 
-  const swimFactory = await (
-    await swimFactoryFactory.deploy(owner.address)
-  ).deployed();
+  const swimFactory = await (await swimFactoryFactory.deploy(owner.address)).deployed();
 
   if (swimFactory.address !== SWIM_FACTORY_ADDRESS)
     throw Error(
-      "Unexpected deployed SwimFactory address - expected: " + SWIM_FACTORY_ADDRESS +
-      " but got: " + swimFactory.address
+      "Unexpected deployed SwimFactory address - expected: " +
+        SWIM_FACTORY_ADDRESS +
+        " but got: " +
+        swimFactory.address
     );
 
   // const txHash = swimFactory.deployTransaction.hash;
   // const receipt = await network.provider.send("eth_getTransactionReceipt", [txHash]);
   return swimFactory;
-};
+}

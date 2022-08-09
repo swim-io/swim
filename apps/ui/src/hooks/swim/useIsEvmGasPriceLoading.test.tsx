@@ -4,17 +4,17 @@ import { useQueryClient } from "react-query";
 import { EcosystemId } from "../../config";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
-import { useGasPriceQuery } from "./useGasPriceQuery";
+import { useGasPriceQueries } from "./useGasPriceQuery";
 import { useIsEvmGasPriceLoading } from "./useIsEvmGasPriceLoading";
 
 jest.mock("./useGasPriceQuery", () => ({
-  useGasPriceQuery: jest.fn(),
+  useGasPriceQueries: jest.fn(),
 }));
 
 // Make typescript happy with jest
-const useGasPriceQueryMock = mockOf(useGasPriceQuery);
+const useGasPriceQueriesMock = mockOf(useGasPriceQueries);
 
-describe("useAddFeesEstimationQuery", () => {
+describe("useIsEvmGasPriceLoading", () => {
   beforeEach(() => {
     // Reset queryClient cache, otherwise test might return previous value
     renderHookWithAppContext(() => useQueryClient().clear());
@@ -22,10 +22,14 @@ describe("useAddFeesEstimationQuery", () => {
 
   describe("loading", () => {
     it("should return false for empty array", () => {
-      useGasPriceQueryMock.mockReturnValue({
-        isLoading: true,
-        data: undefined,
-      });
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => ({
+            isLoading: true,
+            data: undefined,
+          }));
+        },
+      );
       const { result } = renderHookWithAppContext(() =>
         useIsEvmGasPriceLoading([]),
       );
@@ -33,10 +37,14 @@ describe("useAddFeesEstimationQuery", () => {
     });
 
     it("should return true if required evm gas price is loading", () => {
-      useGasPriceQueryMock.mockImplementation((ecosystemId: EcosystemId) =>
-        ecosystemId === EcosystemId.Ethereum
-          ? { isLoading: true, data: undefined }
-          : { isLoading: false, data: new Decimal(5e-9) },
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => {
+            return ecosystemId === EcosystemId.Ethereum
+              ? { isLoading: true, data: undefined }
+              : { isLoading: false, data: new Decimal(5e-9) };
+          });
+        },
       );
       const { result } = renderHookWithAppContext(() =>
         useIsEvmGasPriceLoading([EcosystemId.Ethereum]),
@@ -47,10 +55,14 @@ describe("useAddFeesEstimationQuery", () => {
 
   describe("loaded", () => {
     it("should return false if required evm gas price is loaded", () => {
-      useGasPriceQueryMock.mockImplementation((ecosystemId: EcosystemId) =>
-        ecosystemId === EcosystemId.Ethereum
-          ? { isLoading: false, data: new Decimal(5e-9) }
-          : { isLoading: true, data: undefined },
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => {
+            return ecosystemId === EcosystemId.Ethereum
+              ? { isLoading: false, data: new Decimal(5e-9) }
+              : { isLoading: true, data: undefined };
+          });
+        },
       );
       const { result } = renderHookWithAppContext(() =>
         useIsEvmGasPriceLoading([EcosystemId.Ethereum]),
@@ -59,10 +71,14 @@ describe("useAddFeesEstimationQuery", () => {
     });
 
     it("should return false if all evm gas price are loaded", () => {
-      useGasPriceQueryMock.mockReturnValue({
-        isLoading: false,
-        data: new Decimal(5e-9),
-      });
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => ({
+            isLoading: false,
+            data: new Decimal(5e-9),
+          }));
+        },
+      );
       const { result } = renderHookWithAppContext(() =>
         useIsEvmGasPriceLoading([
           EcosystemId.Ethereum,

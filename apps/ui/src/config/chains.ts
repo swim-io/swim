@@ -4,8 +4,20 @@ import type { ReadonlyRecord } from "@swim-io/utils";
 import type { EvmEcosystemId, SolanaEcosystemId } from "./ecosystem";
 import { EcosystemId, Protocol } from "./ecosystem";
 
+// TODO: Remove REACT_APP_SOLANA_MAINNET_RPC_URL in favor of multiple URLs.
 const SOLANA_MAINNET_RPC_URL = process.env.REACT_APP_SOLANA_MAINNET_RPC_URL;
-const SOLANA_MAINNET_WS_URL = process.env.REACT_APP_SOLANA_MAINNET_WS_URL;
+const SOLANA_MAINNET_RPC_URLS = process.env.REACT_APP_SOLANA_MAINNET_RPC_URLS;
+
+const getSolanaMainnetRpcUrls = () => {
+  if (SOLANA_MAINNET_RPC_URLS) {
+    try {
+      return SOLANA_MAINNET_RPC_URLS.split(" ").filter((url) => url);
+    } catch {
+      // Invalid env variable, fallback to default case.
+    }
+  }
+  return [SOLANA_MAINNET_RPC_URL || "https://solana-api.projectserum.com"];
+};
 
 /** Adapted from @solana/spl-token-registry ENV */
 export const enum SolanaChainId {
@@ -87,8 +99,8 @@ export interface SolanaSpec extends ChainSpec {
   readonly ecosystem: SolanaEcosystemId;
   /** This should be unique for a given Env */
   readonly chainId: SolanaChainId;
-  readonly endpoint: string;
-  readonly wsEndpoint: string;
+  // Note, subsequent endpoints are used as fallbacks for SolanaConnection.
+  readonly endpoints: readonly string[];
   readonly tokenContract: string;
   readonly otterTotCollection: string;
 }
@@ -171,8 +183,7 @@ const MAINNET_CHAINS: ChainsByProtocol = {
         bridge: "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth",
         tokenBridge: "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb",
       },
-      endpoint: SOLANA_MAINNET_RPC_URL ?? "https://solana-api.projectserum.com",
-      wsEndpoint: SOLANA_MAINNET_WS_URL ?? "",
+      endpoints: getSolanaMainnetRpcUrls(),
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
       otterTotCollection: "EpozLY9dQ1jnaU5Wof524K7p9uHYxkuLF2hi32cf8W9s",
     },
@@ -278,8 +289,7 @@ const DEVNET_CHAINS: ChainsByProtocol = {
         bridge: "3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5",
         tokenBridge: "DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe",
       },
-      endpoint: "https://api.devnet.solana.com",
-      wsEndpoint: "",
+      endpoints: ["https://api.devnet.solana.com"],
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
       otterTotCollection: "6rVZuenNaw3uECQjMjTLcfrXYKszpESEGi9HZnffJstn",
     },
@@ -385,8 +395,7 @@ const LOCAL_CHAINS: ChainsByProtocol = {
         bridge: "Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o",
         tokenBridge: "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE",
       },
-      endpoint: "http://127.0.0.1:8899",
-      wsEndpoint: "",
+      endpoints: ["http://127.0.0.1:8899"],
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
       otterTotCollection: "", // TODO: Deploy on teamnet
     },

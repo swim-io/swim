@@ -87,11 +87,5 @@ export const BNtoDecimal = (bn: BN): Decimal => new Decimal(bn.toString());
 export const u64ToDecimal = (number: u64): Decimal =>
   new Decimal(number.toString());
 
-export const sumToDecimal = (amounts: readonly Decimal.Value[]): Decimal =>
-  amounts.reduce(
-    (sum: Decimal, amount: Decimal.Value): Decimal => sum.add(amount),
-    new Decimal(0),
-  );
-
 export const decimalRemoveTrailingZero = (decimal: Decimal): string =>
   decimal.toString().replace(/^(\d+\.\d*?[1-9])0+$/, "$1");

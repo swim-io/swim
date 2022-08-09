@@ -20,7 +20,7 @@ import { captureAndWrapException } from "../../errors";
 import {
   useSwapFeesEstimationQueryV2,
   useSwapTokensV2,
-  useUserBalanceAmounts,
+  useUserBalanceAmount,
   useUserNativeBalances,
 } from "../../hooks";
 import {
@@ -106,8 +106,10 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
   const getSwapFormErrors = (_: boolean) => [];
   const isInputAmountPositive = (() => true)();
   const outputAmount = inputAmount;
-  const fromTokenUserBalances = useUserBalanceAmounts(fromTokenSpec);
-  const fromTokenBalance = fromTokenUserBalances[fromTokenOption.ecosystemId];
+  const fromTokenBalance = useUserBalanceAmount(
+    fromTokenSpec,
+    fromTokenOption.ecosystemId,
+  );
   const outputEcosystemDetail = getTokenDetailsForEcosystem(
     toTokenSpec,
     toTokenOption.ecosystemId,

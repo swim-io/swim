@@ -30,13 +30,20 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
     case InteractionType.Swap: {
       const { exactInputAmount } = interaction.params;
       return (
-        <div title={interaction.id}>
-          <span>Swap</span>{" "}
+        <div
+          title={interaction.id}
+          style={{
+            display: "inline-flex",
+            alignContent: "center",
+          }}
+        >
+          <span>Swap</span>&nbsp;
           <AmountWithTokenIcon
             amount={exactInputAmount}
             ecosystem={EcosystemId.Solana}
-          />{" "}
-          <span>for</span>{" "}
+          />
+          &nbsp;
+          <span>for</span>&nbsp;
           <TokenSpecIcon
             token={interaction.params.minimumOutputAmount.tokenSpec}
           />

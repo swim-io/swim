@@ -10,6 +10,8 @@ import { useToken } from "../hooks";
 import type { TokenOption } from "../models";
 import type { Amount } from "../models/amount";
 
+import "./TokenIcon.scss";
+
 interface TokenIconProps
   extends Pick<TokenProject, "icon" | "symbol" | "displayName"> {
   readonly ecosystemId?: EcosystemId;
@@ -25,22 +27,19 @@ export const TokenIcon = ({
 }: TokenIconProps): ReactElement => {
   const ecosystem = ecosystemId ? ECOSYSTEMS[ecosystemId] : null;
   return (
-    <span>
+    <span className="tokenIconItem">
       <EuiIcon type={icon} size="m" title={symbol} />
       &nbsp;<span>{showFullName ? displayName : symbol}</span>
       {ecosystem && (
-        <span>
-          {" "}
-          <span>on</span>{" "}
-          <span style={{ whiteSpace: "nowrap" }}>
-            <EuiIcon
-              type={ecosystem.logo}
-              size="m"
-              title={ecosystem.displayName}
-            />
-            &nbsp;{ecosystem.displayName}
-          </span>
-        </span>
+        <>
+          <span>&nbsp;on&nbsp;</span>
+          <EuiIcon
+            type={ecosystem.logo}
+            size="m"
+            title={ecosystem.displayName}
+          />
+          &nbsp;{ecosystem.displayName}
+        </>
       )}
     </span>
   );
@@ -56,8 +55,8 @@ export const AmountWithTokenIcon = ({
   ecosystem,
 }: AmountWithTokenIconProps): ReactElement => {
   return (
-    <span>
-      {amount.toFormattedHumanString(ecosystem)}{" "}
+    <span className="tokenIconItem">
+      {amount.toFormattedHumanString(ecosystem)}&nbsp;
       <TokenSpecIcon token={amount.tokenSpec} />
     </span>
   );

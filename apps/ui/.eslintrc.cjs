@@ -73,14 +73,16 @@ module.exports = {
     },
     {
       files: ["**/*.json"],
-      parser: "jsonc-eslint-parser",
       overrides: [
         {
+          files: ["!src/locales/**/*.json"],
+          parser: "jsonc-eslint-parser",
+        },
+        {
           files: ["src/locales/**/*.json"],
-          plugins: ["eslint-plugin-jsonc"],
-          extends: ["plugin:jsonc/recommended-with-jsonc"],
+          plugins: ["eslint-plugin-i18n-json"],
           rules: {
-            "jsonc/sort-keys": "error",
+            "i18n-json/sorted-keys": "error",
           },
         },
       ],

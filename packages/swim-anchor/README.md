@@ -23,3 +23,5 @@ check your npm version. npm lts/gallium (v16.15.1 as of this writing) works but 
 ## To Dos
 1. update `yarn idl` cmd once propeller is added to monorepo so that idl artifacts are generated
    into the correct directory for each program
+2. adjust visibility of imports/crates to only expose what's needed
+3. enhance lp metadata tests with mpl js storage mock logic

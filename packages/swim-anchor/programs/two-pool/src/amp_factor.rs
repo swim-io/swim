@@ -1,11 +1,11 @@
-use anchor_lang::prelude::*;
+use {
+    crate::{decimal::DecimalU64, error::PoolError, DecimalU64Anchor},
+    anchor_lang::{prelude::*, solana_program::clock::UnixTimestamp},
+    rust_decimal::prelude::*,
+    rust_decimal_macros::dec,
+    std::ops::{Add, Sub},
+};
 
-use std::ops::{Add, Sub};
-use anchor_lang::solana_program::clock::UnixTimestamp;
-
-use crate::{decimal::DecimalU64, DecimalU64Anchor, error::PoolError};
-use rust_decimal::prelude::*;
-use rust_decimal_macros::dec;
 // seconds since unix epoch
 
 pub type TimestampT = UnixTimestamp;
@@ -27,7 +27,6 @@ pub const MAX_AMP_VALUE: ValueT = ValueT::const_from(10u64.pow(6));
 // pub const MIN_AMP_VALUE: ValueT = Decimal::ONE;
 // pub const MAX_AMP_VALUE: ValueT = Decimal::from_parts(1_000_000, 0,0,false,0);
 
-
 pub const MIN_ADJUSTMENT_WINDOW: TimestampT = 60 * 60 * 24;
 pub const MAX_RELATIVE_ADJUSTMENT: ValueT = ValueT::const_from(10);
 // pub const MAX_RELATIVE_ADJUSTMENT: ValueT = match Decimal::try_new(10,0) {
@@ -35,7 +34,6 @@ pub const MAX_RELATIVE_ADJUSTMENT: ValueT = ValueT::const_from(10);
 //   Err(e) => panic!("{:?}", e)
 // };
 // pub const MAX_RELATIVE_ADJUSTMENT: ValueT = Decimal::TEN;
-
 
 #[derive(AnchorSerialize, AnchorDeserialize, Eq, PartialEq, Clone, Copy, Debug)]
 pub struct AmpFactor {
@@ -50,18 +48,15 @@ pub struct AmpFactor {
     // initial_ts: TimestampT,
     // target_value: ValueT,
     // target_ts: TimestampT,
-  initial_value: DecimalU64Anchor,
-  initial_ts: i64,
-  target_value: DecimalU64Anchor,
-  target_ts: i64,
+    initial_value: DecimalU64Anchor,
+    initial_ts: i64,
+    target_value: DecimalU64Anchor,
+    target_ts: i64,
 }
 
 impl AmpFactor {
-  pub const LEN: usize = 2 * DecimalU64Anchor::LEN + 2 * 8;
+    pub const LEN: usize = 2 * DecimalU64Anchor::LEN + 2 * 8;
 }
-
-
-
 
 // impl From<DecimalU64Anchor> for DecimalU64 {
 //   fn from(v: DecimalU64Anchor) -> DecimalU64 {
@@ -181,7 +176,6 @@ impl AmpFactor {
 // }
 // }
 
-
 impl Default for AmpFactor {
     fn default() -> Self {
         AmpFactor::new(MIN_AMP_VALUE).unwrap()
@@ -191,9 +185,9 @@ impl Default for AmpFactor {
 impl AmpFactor {
     pub fn new(amp_factor: ValueT) -> Result<AmpFactor> {
         if !(MIN_AMP_VALUE..=MAX_AMP_VALUE).contains(&amp_factor)
-            &&
-          // amp_factor != Decimal::ZERO
-          amp_factor != ValueT::const_from(0)
+      &&
+      // amp_factor != Decimal::ZERO
+      amp_factor != ValueT::const_from(0)
         {
             err!(PoolError::InvalidAmpFactorValue)
         } else {
@@ -227,7 +221,7 @@ impl AmpFactor {
         if current_ts >= self.target_ts {
             //check if we are inside an adjustment window
             //not in an adjustment window
-          target_value
+            target_value
         } else {
             assert!(current_ts >= self.initial_ts);
 

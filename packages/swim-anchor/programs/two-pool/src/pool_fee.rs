@@ -1,10 +1,12 @@
 //naming: pool_fee to distinguish from other fees (such as Solana's fee sysvar)
-use anchor_lang::prelude::*;
-
-use crate::{decimal::DecimalU64, error::PoolError};
+use {
+    crate::{decimal::DecimalU64, error::PoolError},
+    anchor_lang::prelude::*,
+};
 
 //fees are stored with a resolution of one hundredth of a basis point, i.e. 10^-6
 const DECIMALS: u8 = 6;
+
 //10^(DECIMALS+2) has to fit into ValueT
 pub type ValueT = u32;
 type DecT = DecimalU64;
@@ -15,13 +17,9 @@ type DecT = DecimalU64;
 
 // TODO: update this later to just store the value & decimals
 #[derive(AnchorSerialize, AnchorDeserialize, Debug, Default, Clone, PartialEq, Eq)]
-pub struct PoolFee{
-  pub value: u32
+pub struct PoolFee {
+    pub value: u32,
 }
-
-
-
-
 
 impl PoolFee {
     pub const LEN: usize = 4;
@@ -40,18 +38,20 @@ impl PoolFee {
 
         // self.0 = (floored_fee.get_raw() * 10u64.pow((DECIMALS - floored_fee.get_decimals()) as u32))
         //     as u32;
-        self.value = (floored_fee.get_raw() * 10u64.pow((DECIMALS - floored_fee.get_decimals()) as u32))
-        as u32;
+        self.value = (floored_fee.get_raw()
+            * 10u64.pow((DECIMALS - floored_fee.get_decimals()) as u32))
+            as u32;
 
         Ok(())
     }
 
     pub fn get(&self) -> DecT {
         DecT::new(
-          self.value as u64,
-          // self.0 as u64,
-          DECIMALS
-        ).unwrap()
+            self.value as u64,
+            // self.0 as u64,
+            DECIMALS,
+        )
+        .unwrap()
     }
 }
 

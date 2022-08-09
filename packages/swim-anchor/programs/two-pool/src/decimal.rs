@@ -11,20 +11,18 @@
 // be able to fail and could hence be replaced by unsafe_* calls to reduce strain on compute budget.
 // use anchor_lang::prelude::*;
 
-use std::{
-    cmp,
-    cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd},
-    convert::TryFrom,
-    fmt,
-    fmt::{Display, Formatter},
-    iter::{Product, Sum},
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
+use {
+    borsh::{BorshDeserialize, BorshSchema, BorshSerialize},
+    std::{
+        cmp,
+        cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd},
+        convert::TryFrom,
+        fmt::{self, Display, Formatter},
+        iter::{Product, Sum},
+        ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
+    },
+    uint::construct_uint,
 };
-use borsh::{BorshDeserialize, BorshSchema, BorshSerialize};
-
-use uint::construct_uint;
-
-
 
 construct_uint! {
     #[derive(anchor_lang::prelude::AnchorSerialize, anchor_lang::prelude::AnchorDeserialize, BorshSchema)]
@@ -44,7 +42,6 @@ impl U128 {
     }
 }
 
-
 construct_uint! {
     pub struct U256(4);
 }
@@ -60,8 +57,10 @@ pub enum DecimalError {
 pub const fn ten_to_the(exp: u8) -> u128 {
     TEN_TO_THE[exp as usize]
 }
+
 const U128_MAX_DECIMALS: usize = 39;
 const TEN_TO_THE: [u128; U128_MAX_DECIMALS] = create_ten_to_the();
+
 const fn create_ten_to_the() -> [u128; U128_MAX_DECIMALS] {
     let mut ttt = [1 as u128; U128_MAX_DECIMALS];
     let mut i = 1;
@@ -111,8 +110,10 @@ const fn create_ten_to_the() -> [u128; U128_MAX_DECIMALS] {
 // get_order_of_magnitude(26u8) = 2 but still get_unused_decimals(255u8) = 0
 // while:
 // get_order_of_magnitude(25u8) = 2 however get_unused_decimals(255u8) = 1
-const BIT_TO_DEC_SIZE: usize = 128 + 2; //u128::BITS is still an unstable feature
+const BIT_TO_DEC_SIZE: usize = 128 + 2;
+//u128::BITS is still an unstable feature
 const BIT_TO_DEC_ARRAY: [u8; BIT_TO_DEC_SIZE] = create_bit_to_dec_array();
+
 const fn create_bit_to_dec_array() -> [u8; BIT_TO_DEC_SIZE] {
     let mut btd = [0; BIT_TO_DEC_SIZE];
     let mut pot: u128 = 10;
@@ -151,7 +152,13 @@ macro_rules! unsigned_decimal {
     $bits:expr, //<$value_type>::BITS is still unstable
     $max_decimals:expr $(,)? //floor(log_10(2^bits-1))
 ) => {
-        #[derive(anchor_lang::prelude::AnchorSerialize, anchor_lang::prelude::AnchorDeserialize, Clone, Copy, Debug)]
+        #[derive(
+            anchor_lang::prelude::AnchorSerialize,
+            anchor_lang::prelude::AnchorDeserialize,
+            Clone,
+            Copy,
+            Debug,
+        )]
         pub struct $name {
             value: $value_type,
             decimals: u8,
@@ -216,7 +223,7 @@ macro_rules! unsigned_decimal {
             //     Ok(Self { value, decimals })
             // }
 
-             pub const fn new(value: $value_type, decimals: u8) -> Result<Self, DecimalError> {
+            pub const fn new(value: $value_type, decimals: u8) -> Result<Self, DecimalError> {
                 if decimals > Self::MAX_DECIMALS {
                     return Err(DecimalError::MaxDecimalsExceeded);
                 }
@@ -809,7 +816,8 @@ macro_rules! impl_interop {
             type Error = DecimalError;
 
             fn try_from(v: $larger_name) -> Result<Self, Self::Error> {
-                Self::shift_to_fit(v.get_raw(), v.get_decimals()).ok_or(DecimalError::ConversionError.into())
+                Self::shift_to_fit(v.get_raw(), v.get_decimals())
+                    .ok_or(DecimalError::ConversionError.into())
             }
         }
     };

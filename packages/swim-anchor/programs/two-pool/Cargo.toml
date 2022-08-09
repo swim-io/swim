@@ -37,7 +37,9 @@ test-bpf = []
 
 #anchor
 anchor-lang = { version = "0.25.0" }
-anchor-spl = "0.25.0"
+anchor-spl = { version = "0.25.0", features = ["metadata"] }
+mpl-token-metadata = { version = "1.2.7", features = ["no-entrypoint"] }
+solana-security-txt = "1.0.1"
 
 #pool-lib = { path = "../pool-lib", version = "^0.1.0" }
 borsh = { version = "0.9.3", features = ["const-generics"] }
@@ -46,7 +48,7 @@ borsh-derive = "0.9.1"
 #numerics
 # This must be pinned to 0.9.1 until Solana's Rust fork supports Rust >=1.56.1
 uint = { version = "=0.9.1", default-features = false }
-rust_decimal = {version = "1.25", features = [ "maths", "borsh" ] }
+rust_decimal = { version = "1.25", features = ["maths", "borsh"] }
 rust_decimal_macros = "1.25"
 
 #misc
@@ -55,7 +57,7 @@ arrayvec = "0.7.2"
 # using solana-program-test & anchor rust client
 # for testing governance instructions since need to be able to warp_to_slot
 [dev-dependencies]
-anchor-client = { version = "0.25.0",  features = ["debug"]}
+anchor-client = { version = "0.25.0", features = ["debug"] }
 solana-program-test = "~1.10.29"
-spl-associated-token-account = { version = "~1.0.5", features = ["no-entrypoint"]}
+spl-associated-token-account = { version = "~1.0.5", features = ["no-entrypoint"] }
 

@@ -1,38 +1,40 @@
-use anchor_lang::prelude::*;
-use crate::{
-  common_governance::*,
-  DecimalU64,
-  DecimalU64Anchor,
-  get_current_ts,
-  PoolFee,
-  UnixTimestamp,
-  error::PoolError::*
+use {
+    crate::{
+        common_governance::*, error::*, get_current_ts, governance::ENACT_DELAY, DecimalU64,
+        DecimalU64Anchor, PoolFee, TwoPool, UnixTimestamp,
+    },
+    anchor_lang::prelude::*,
 };
-use crate::governance::ENACT_DELAY;
 
 #[derive(Accounts)]
 pub struct SetPaused<'info> {
-  pub common_governance: CommonGovernance<'info>,
+    #[account(
+    mut,
+    seeds = [
+    b"two_pool".as_ref(),
+    pool.get_token_mint_0().unwrap().as_ref(),
+    pool.get_token_mint_1().unwrap().as_ref(),
+    pool.lp_mint_key.as_ref(),
+    ],
+    bump = pool.bump
+    )]
+    pub pool: Account<'info, TwoPool>,
+    pub pause_key: Signer<'info>,
 }
-
-#[derive(AnchorSerialize, AnchorDeserialize)]
-pub struct SetPausedParams {
-  paused: bool,
-}
-
 
 impl<'info> SetPaused<'info> {
-  pub fn accounts(ctx: &Context<SetPaused>) -> Result<()> {
-    CommonGovernance::accounts(&ctx.accounts.common_governance)?;
-    Ok(())
-  }
+    pub fn accounts(ctx: &Context<SetPaused>) -> Result<()> {
+        require_keys_eq!(
+            ctx.accounts.pause_key.key(),
+            ctx.accounts.pool.pause_key,
+            PoolError::InvalidPauseKey
+        );
+        Ok(())
+    }
 }
 
-pub fn handle_set_paused(
-  ctx: Context<SetPaused>,
-  params: SetPausedParams,
-) -> Result<()> {
-  let pool = &mut ctx.accounts.common_governance.pool;
-  pool.is_paused = params.paused;
-  Ok(())
+pub fn handle_set_paused(ctx: Context<SetPaused>, paused: bool) -> Result<()> {
+    let pool = &mut ctx.accounts.pool;
+    pool.is_paused = paused;
+    Ok(())
 }

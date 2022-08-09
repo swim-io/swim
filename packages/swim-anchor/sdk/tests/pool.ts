@@ -7,6 +7,7 @@ import { assert, expect } from "chai";
 import { Account, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import { twoPoolToString } from "../src";
+import { findMetadataPda, Metaplex, TokenMetadataProgram, toMetadata, toMetadataAccount } from "@metaplex-foundation/js";
 
 
 
@@ -14,6 +15,7 @@ describe("TwoPool", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   const payer = (provider.wallet as NodeWallet).payer;
+  const metaplex = Metaplex.make(provider.connection);
 
   anchor.setProvider(provider);
 
@@ -23,16 +25,18 @@ describe("TwoPool", () => {
 
   const splToken = Spl.token(provider);
   const splAssociatedToken = Spl.associatedToken(provider);
+
   const mintDecimals = 6;
   const usdcKeypair = web3.Keypair.generate();
   const usdtKeypair = web3.Keypair.generate();
   const swimUsdKeypair = web3.Keypair.generate();
   const governanceKeypair = web3.Keypair.generate();
+  const pauseKeypair = web3.Keypair.generate();
+  const newPauseKeypair = web3.Keypair.generate();
 
   let poolUsdcAtaAddr: web3.PublicKey;
   let poolUsdtAtaAddr: web3.PublicKey;
   let governanceFeeAddr: web3.PublicKey;
-  let governanceFeeAccount: Account;
 
   let userUsdcAtaAddr: web3.PublicKey;
   let userUsdtAtaAddr: web3.PublicKey;
@@ -110,11 +114,14 @@ describe("TwoPool", () => {
   });
   it("Is initialized!", async () => {
     // Add your test here.
+    const params = {
+      ampFactor,
+      lpFee,
+      governanceFee,
+    }
     const tx = await program
       .methods
-      .initialize(
-        ampFactor, lpFee, governanceFee,
-      )
+      .initialize(params)
       .accounts({
         payer: provider.publicKey,
         poolMint0: usdcKeypair.publicKey,
@@ -122,6 +129,7 @@ describe("TwoPool", () => {
         lpMint: swimUsdKeypair.publicKey,
         poolTokenAccount0: poolUsdcAtaAddr,
         poolTokenAccount1: poolUsdtAtaAddr,
+        pauseKey: pauseKeypair.publicKey,
         governanceAccount: governanceKeypair.publicKey,
         governanceFeeAccount: governanceFeeAddr,
         tokenProgram: splToken.programId,
@@ -164,9 +172,7 @@ describe("TwoPool", () => {
       )
       const tx = await program
         .methods
-        .add(
-          addParams
-        )
+        .add(addParams)
         .accounts({
 
           poolTokenAccount0: poolUsdcAtaAddr,
@@ -223,9 +229,7 @@ describe("TwoPool", () => {
 
       const tx = await program
         .methods
-        .swapExactInput(
-          swapExactInputParams
-        )
+        .swapExactInput(swapExactInputParams)
         .accounts({
 
           poolTokenAccount0: poolUsdcAtaAddr,
@@ -301,9 +305,7 @@ describe("TwoPool", () => {
 
       const tx = await program
         .methods
-        .swapExactOutput(
-          swapExactOutputParams
-        )
+        .swapExactOutput(swapExactOutputParams)
         .accounts({
 
           poolTokenAccount0: poolUsdcAtaAddr,
@@ -374,9 +376,7 @@ describe("TwoPool", () => {
 
       const tx = await program
         .methods
-        .removeUniform(
-          removeUniformParams
-        )
+        .removeUniform(removeUniformParams)
         .accounts({
 
           poolTokenAccount0: poolUsdcAtaAddr,
@@ -454,9 +454,7 @@ describe("TwoPool", () => {
 
       const tx = await program
         .methods
-        .removeExactBurn(
-          removeExactBurnParams
-        )
+        .removeExactBurn(removeExactBurnParams)
         .accounts({
 
           poolTokenAccount0: poolUsdcAtaAddr,
@@ -539,9 +537,7 @@ describe("TwoPool", () => {
 
       const tx = await program
         .methods
-        .removeExactOutput(
-          removeExactOutputParams
-        )
+        .removeExactOutput(removeExactOutputParams)
         .accounts({
           poolTokenAccount0: poolUsdcAtaAddr,
           poolTokenAccount1: poolUsdtAtaAddr,
@@ -636,9 +632,7 @@ describe("TwoPool", () => {
       }
       const tx = await program
         .methods
-        .adjustAmpFactor(
-          params
-        )
+        .adjustAmpFactor(params)
         .accounts({
           commonGovernance: {
             pool: flagshipPool,
@@ -660,16 +654,12 @@ describe("TwoPool", () => {
       console.log(`sending pauseTxn`);
       await program
         .methods
-        .setPaused(
-          { paused }
-        )
+        .setPaused(paused)
         .accounts({
-          commonGovernance: {
-            pool: flagshipPool,
-            governance: governanceKeypair.publicKey,
-          }
+          pool: flagshipPool,
+          pauseKey: pauseKeypair.publicKey,
         })
-        .signers([governanceKeypair])
+        .signers([pauseKeypair])
         .rpc();
 
       poolData = await program.account.twoPool.fetch(flagshipPool);
@@ -695,11 +685,8 @@ describe("TwoPool", () => {
       try{
         const swapExactInputTx = await program
           .methods
-          .swapExactInput(
-            swapExactInputParams
-          )
+          .swapExactInput(swapExactInputParams)
           .accounts({
-
             poolTokenAccount0: poolUsdcAtaAddr,
             poolTokenAccount1: poolUsdtAtaAddr,
             lpMint: swimUsdKeypair.publicKey,
@@ -723,16 +710,12 @@ describe("TwoPool", () => {
       paused = false;
       await program
         .methods
-        .setPaused(
-          { paused }
-        )
+        .setPaused(paused)
         .accounts({
-          commonGovernance: {
-            pool: flagshipPool,
-            governance: governanceKeypair.publicKey,
-          }
+          pool: flagshipPool,
+          pauseKey: pauseKeypair.publicKey,
         })
-        .signers([governanceKeypair])
+        .signers([pauseKeypair])
         .rpc();
 
       poolData = await program.account.twoPool.fetch(flagshipPool);
@@ -742,11 +725,8 @@ describe("TwoPool", () => {
       try{
         const swapExactInputTx = await program
           .methods
-          .swapExactInput(
-            swapExactInputParams
-          )
+          .swapExactInput(swapExactInputParams)
           .accounts({
-
             poolTokenAccount0: poolUsdcAtaAddr,
             poolTokenAccount1: poolUsdtAtaAddr,
             lpMint: swimUsdKeypair.publicKey,
@@ -766,6 +746,77 @@ describe("TwoPool", () => {
         console.log(`should not have thrown error: ${JSON.stringify(e)}`);
         assert(false);
       }
+
+
+
+
+    })
+
+    it("Can update pool's pause key", async() => {
+
+      const tx = await program
+        .methods
+        .changePauseKey(newPauseKeypair.publicKey)
+        .accounts({
+          commonGovernance: {
+            pool: flagshipPool,
+            governance: governanceKeypair.publicKey,
+          }
+        })
+        .signers([governanceKeypair])
+        .rpc();
+
+      let poolData = await program.account.twoPool.fetch(flagshipPool);
+      assert(poolData.pauseKey.equals(newPauseKeypair.publicKey));
+      let paused = true;
+
+      try{
+        console.log(`sending pauseTxn expected to fail`);
+        await program
+          .methods
+          .setPaused(paused)
+          .accounts({
+            pool: flagshipPool,
+            pauseKey: pauseKeypair.publicKey,
+          })
+          .signers([pauseKeypair])
+          .rpc();
+      } catch (_err) {
+        console.log(`successfully threw error: ${JSON.stringify(_err)}`);
+        assert.isTrue(_err instanceof AnchorError);
+        const err: AnchorError = _err;
+        assert.strictEqual(err.error.errorMessage, "Invalid Pause Key");
+      }
+
+      await program
+        .methods
+        .setPaused(paused)
+        .accounts({
+          pool: flagshipPool,
+          pauseKey: newPauseKeypair.publicKey,
+        })
+        .signers([newPauseKeypair])
+        .rpc();
+
+      poolData = await program.account.twoPool.fetch(flagshipPool);
+      assert.isTrue(poolData.isPaused);
+
+      paused = false;
+      await program
+        .methods
+        .setPaused(
+          paused
+        )
+        .accounts({
+          pool: flagshipPool,
+          pauseKey: newPauseKeypair.publicKey,
+        })
+        .signers([newPauseKeypair])
+        .rpc();
+
+      poolData = await program.account.twoPool.fetch(flagshipPool);
+      assert.isTrue(!poolData.isPaused);
+
 
 
 
@@ -807,7 +858,7 @@ describe("TwoPool", () => {
       const tx = await program
         .methods
         .prepareGovernanceTransition(
-          params
+          upcomingGovernanceKey
         )
         .accounts({
           commonGovernance: {
@@ -830,13 +881,10 @@ describe("TwoPool", () => {
         swimUsdKeypair.publicKey,
         newGovernanceFeeOwner,
       )).address;
-      const params = {
-        newGovernanceFeeKey
-      }
       const tx = await program
         .methods
         .changeGovernanceFeeAccount(
-          params
+          newGovernanceFeeKey
         )
         .accounts({
           commonGovernance: {
@@ -855,13 +903,10 @@ describe("TwoPool", () => {
     it("Throws error when changing governance fee account to invalid token account", async() => {
       try{
         const newGovernanceFeeKey = userUsdcAtaAddr;
-        const params = {
-          newGovernanceFeeKey
-        }
         const tx = await program
           .methods
           .changeGovernanceFeeAccount(
-            params
+            newGovernanceFeeKey
           )
           .accounts({
             commonGovernance: {
@@ -874,11 +919,8 @@ describe("TwoPool", () => {
           .rpc();
         assert(false);
       } catch (_err) {
-        console.log(`_err: ${JSON.stringify(_err)}`);
-        assert.isTrue(_err instanceof AnchorError);
-        const err: AnchorError = _err;
-
-        console.log(`anchorErr: ${JSON.stringify(err)}`);
+        // console.log(`_err: ${JSON.stringify(_err)}`);
+        // console.log(`anchorErr: ${JSON.stringify(err)}`);
         //anchorErr: {
         // "errorLogs":[
         //    "Program log: AnchorError occurred. Error Code: ConstraintTokenMint. Error Number: 2014. Error Message: A token mint constraint was violated."
@@ -901,10 +943,205 @@ describe("TwoPool", () => {
         //      "stack":["8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM"]
         //    }
         //  }
+        assert.isTrue(_err instanceof AnchorError);
+        const err: AnchorError = _err;
         assert.strictEqual(err.error.errorMessage, "A token mint constraint was violated")
       }
     });
+    it("Can create mpl token metadata for lp token", async() => {
+      const name = "swimUSD";
+      const symbol = "swimUSD";
+      const uri = "https://dummy_uri.com";
+      const sellerFeeBasisPoints = 1;
+      const params = {
+        data: {
+          name,
+          symbol,
+          uri,
+          sellerFeeBasisPoints,
+          creators: null,
+          collection: null,
+          uses: null,
+        },
+        isMutable: true,
+        updateAuthorityIsSigner: true,
+      }
+      const metadataPda = findMetadataPda(swimUsdKeypair.publicKey);
+      console.log(`metadataPda: ${metadataPda.toBase58()}`);
+      const tx = await program
+        .methods
+        .createLpMetadata(
+          params
+        )
+        .accounts({
+          commonGovernance: {
+            pool: flagshipPool,
+            governance: governanceKeypair.publicKey,
+          },
+          createMetadataAccounts: {
+            metadata: metadataPda,
+            mint: swimUsdKeypair.publicKey,
+            mintAuthority: flagshipPool,
+            payer: provider.publicKey,
+            updateAuthority: flagshipPool,
+            systemProgram: web3.SystemProgram.programId,
+            rent: web3.SYSVAR_RENT_PUBKEY,
+          },
+          mplTokenMetadata: TokenMetadataProgram.publicKey
+        })
+        .signers([governanceKeypair])
+        .rpc({skipPreflight: true});
+
+      const metadataAccount = toMetadataAccount(
+        await metaplex.rpc().getAccount(metadataPda)
+      );
+
+       const metadata = toMetadata(metadataAccount);
+       console.log(`metadata: ${JSON.stringify(metadata)}`);
+       assert.equal(metadata.name, name);
+       assert.equal(metadata.symbol, symbol);
+       assert.equal(metadata.uri, uri);
+       assert.equal(metadata.sellerFeeBasisPoints, sellerFeeBasisPoints);
+    });
+
+    it("Can update mpl token metadata for lp token", async() => {
+      const name = "swimUSD_v2";
+      const symbol = "swimUSD_v2";
+      const uri = "https://dummy_uri.com";
+      const sellerFeeBasisPoints = 2;
+      const params = {
+        newUpdateAuthority: null,
+        data: {
+          name,
+          symbol,
+          uri,
+          sellerFeeBasisPoints,
+          creators: null,
+          collection: null,
+          uses: null,
+        },
+        primarySaleHappened: null,
+        isMutable: null,
+      };
+      const newUpdateAuthority = null;
+      const data = {
+        name,
+          symbol,
+          uri,
+          sellerFeeBasisPoints,
+          creators: null,
+          collection: null,
+          uses: null,
+      };
+      const primarySaleHappened = null;
+      const isMutable =  null;
+      const metadataPda = findMetadataPda(swimUsdKeypair.publicKey);
+      console.log(`metadataPda: ${metadataPda.toBase58()}`);
+      const tx = await program
+        .methods
+        .updateLpMetadata(
+          params,
+          // newUpdateAuthority,
+          // data,
+          // // null,
+          // primarySaleHappened,
+          // isMutable,
+        )
+        .accounts({
+          commonGovernance: {
+            pool: flagshipPool,
+            governance: governanceKeypair.publicKey,
+          },
+          updateMetadataAccounts: {
+            metadata: metadataPda,
+            updateAuthority: flagshipPool,
+          },
+          mplTokenMetadata: TokenMetadataProgram.publicKey
+        })
+        .signers([governanceKeypair])
+        .rpc({skipPreflight: true});
+
+      // console.log(`txSig: ${tx}`);
+      // await provider.connection.confirmTransaction({
+      //   signature: tx,
+      //   ...(await provider.connection.getLatestBlockhash()),
+      // });
+
+      const metadataAccount = toMetadataAccount(
+        await metaplex.rpc().getAccount(metadataPda)
+      );
+
+      const metadata = toMetadata(metadataAccount);
+      console.log(`metadata: ${JSON.stringify(metadata)}`);
+      assert.equal(metadata.name, name);
+      assert.equal(metadata.symbol, symbol);
+      assert.equal(metadata.uri, uri);
+      assert.equal(metadata.sellerFeeBasisPoints, sellerFeeBasisPoints);
+    });
+
+    it("should fail when invalid update authority attempts to update lp token metadata", async() => {
+
+      const name = "swimUSD_v3";
+      const symbol = "swimUSD_v3";
+      const uri = "https://dummy_uri.com";
+      const sellerFeeBasisPoints = 2;
+      const params = {
+        newUpdateAuthority: null,
+        data: {
+          name,
+          symbol,
+          uri,
+          sellerFeeBasisPoints,
+          creators: null,
+          collection: null,
+          uses: null,
+        },
+        primarySaleHappened: null,
+        isMutable: null,
+      }
+
+      const metadataPda = findMetadataPda(swimUsdKeypair.publicKey);
+      console.log(`metadataPda: ${metadataPda.toBase58()}`);
+      try{
+        const tx = await program
+          .methods
+          .updateLpMetadata(
+            params,
+          )
+          .accounts({
+            commonGovernance: {
+              pool: flagshipPool,
+              governance: governanceKeypair.publicKey,
+            },
+            updateMetadataAccounts: {
+              metadata: metadataPda,
+              updateAuthority: web3.Keypair.generate().publicKey,
+            },
+            mplTokenMetadata: TokenMetadataProgram.publicKey
+          })
+          .signers([governanceKeypair])
+          .rpc({skipPreflight: true});
+
+        assert(false);
+      } catch (_err) {
+        // no _err object. its a cpi failure
+        // Transaction executed in slot 29:
+        //   Signature: 4pcSvagKL81esLhvvhh8gbDsHQUGpiooNNjXuhtsUBZnQZN3Y5bs9nhJ3dbTXV5LDcLMZUQkx7jfr4LHKxCZfm6b
+        //   Status: Error processing Instruction 0: Cross-program invocation with unauthorized signer or writable account
+        //   Log Messages:
+        //     Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM invoke [1]
+        //     Program log: Instruction: UpdateLpMetadata
+        //     8xaQHzj1v7R3XbQ2c3tjzpWoYRJgaYU4oFzCvq9Suf3c's signer privilege escalated
+        //     Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM consumed 12361 of 200000 compute units
+        //     Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM failed: Cross-program invocation with unauthorized signer or writable account
+        assert(true);
+      }
+    });
+
+
   })
+
+
 
 
   it("Can print pool state in friendly format", async() => {

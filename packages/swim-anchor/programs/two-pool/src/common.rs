@@ -1,5 +1,4 @@
-use arrayvec::ArrayVec;
-use std::fmt::Debug;
+use {arrayvec::ArrayVec, std::fmt::Debug};
 
 //final unwraps are safe because we know that there is enough capacity
 

@@ -17,3 +17,10 @@ wallet = "./sdk/tests/pool_test.json"
 test = "yarn run ts-mocha -p ./sdk/tests/tsconfig.json -t 1000000 sdk/tests/**/*.ts"
 #initialize_pool = "yarn run scripts:build && sdk/scripts/dist/initialize_pool.js"
 initialize_pool = "yarn run ts-node sdk/scripts/initialize_pool.ts"
+
+[test.validator]
+url="https://api.devnet.solana.com"
+
+# load mpl-token-metadata program from devnet
+[[test.validator.clone]]
+address="metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"

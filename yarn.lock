@@ -6252,6 +6252,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@swim-io/evm-contracts@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "@swim-io/evm-contracts@npm:0.11.0"
+  checksum: 861772ad5a153673994f78b63b852322d87fc80b28f8293167021d174d64046d2d4bfd5866c370bf2b5ffa0614452cce25e624b359e46c71c0dfb3dd8adfc98e
+  languageName: node
+  linkType: hard
+
 "@swim-io/evm-contracts@workspace:packages/evm-contracts":
   version: 0.0.0-use.local
   resolution: "@swim-io/evm-contracts@workspace:packages/evm-contracts"
@@ -6597,6 +6604,7 @@ __metadata:
     "@storybook/react": ^6.5.10
     "@swim-io/core": ^0.11.0
     "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/evm-contracts": ^0.11.0
     "@swim-io/pool-math": ^0.11.0
     "@swim-io/redeemer": ^0.11.0
     "@swim-io/solana-types": ^0.11.0

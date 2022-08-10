@@ -1,14 +1,43 @@
 import { PublicKey } from "@solana/web3.js";
+import { Routing__factory } from "@swim-io/evm-contracts";
 import type { SwimPoolState } from "@swim-io/solana-types";
 import { deserializeSwimPool } from "@swim-io/solana-types";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { findOrThrow } from "@swim-io/utils";
+import type Decimal from "decimal.js";
 
-import type { Config, PoolSpec, SolanaPoolSpec, TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import { atomicToHuman, bnOrBigNumberToDecimal } from "../../amounts";
+import type {
+  Config,
+  EvmEcosystemId,
+  EvmPoolSpec,
+  PoolSpec,
+  SolanaPoolSpec,
+  TokenSpec,
+} from "../../config";
+import { EcosystemId, isEvmEcosystemId } from "../../config";
 import type { SolanaTx, Tx } from "../crossEcosystem";
 import { isSolanaTx } from "../crossEcosystem";
+import type { EvmConnection } from "../evm";
 import type { SolanaConnection } from "../solana";
+
+import { atomicStringToHumanDecimal } from "./atomicString";
+
+export interface SolanaPoolState extends SwimPoolState {
+  readonly ecosystem: EcosystemId.Solana;
+}
+
+export interface EvmPoolState {
+  readonly ecosystem: EvmEcosystemId;
+  readonly isPaused: boolean;
+  readonly balances: readonly Decimal[];
+  readonly totalLPSupply: Decimal;
+  readonly ampFactor: Decimal;
+  readonly lpFee: Decimal;
+  readonly governanceFee: Decimal;
+}
+
+export type PoolState = SolanaPoolState | EvmPoolState;
 
 export type TokensByPoolId = ReadonlyRecord<
   string, // Pool ID
@@ -45,18 +74,79 @@ export const isPoolTx = (
   );
 };
 
-export const getPoolState = async (
+export const isSolanaPool = (pool: PoolSpec): pool is SolanaPoolSpec =>
+  pool.ecosystem === EcosystemId.Solana;
+
+export const getSolanaPoolState = async (
   solanaConnection: SolanaConnection,
-  poolSpec: PoolSpec,
-): Promise<SwimPoolState | null> => {
+  poolSpec: SolanaPoolSpec,
+): Promise<SolanaPoolState | null> => {
   const numberOfTokens = poolSpec.tokens.length;
   const accountInfo = await solanaConnection.getAccountInfo(
     new PublicKey(poolSpec.address),
   );
-  return accountInfo
-    ? deserializeSwimPool(numberOfTokens, accountInfo.data)
-    : null;
+  if (accountInfo === null) {
+    return null;
+  }
+  const swimPool = deserializeSwimPool(numberOfTokens, accountInfo.data);
+  return {
+    ...swimPool,
+    ecosystem: EcosystemId.Solana,
+  };
 };
 
-export const isSolanaPool = (pool: PoolSpec): pool is SolanaPoolSpec =>
-  pool.ecosystem === EcosystemId.Solana;
+export const getEvmPoolState = async (
+  evmConnections: ReadonlyRecord<EvmEcosystemId, EvmConnection>,
+  poolSpec: EvmPoolSpec,
+  tokens: readonly TokenSpec[],
+  routingContractAddress: string,
+): Promise<EvmPoolState> => {
+  const { ecosystem, address } = poolSpec;
+  const contract = Routing__factory.connect(
+    routingContractAddress,
+    evmConnections[ecosystem].provider,
+  );
+  const lpToken = findOrThrow(tokens, ({ id }) => id === poolSpec.lpToken);
+  const poolTokens = poolSpec.tokens.map((tokenId) =>
+    findOrThrow(tokens, ({ id }) => id === tokenId),
+  );
+  const [state] = await contract.getPoolStates([address]);
+  return {
+    isPaused: state.paused,
+    ecosystem,
+    balances: poolTokens.map((token, i) =>
+      atomicStringToHumanDecimal(
+        state.balances[i][1].toString(),
+        token,
+        token.nativeEcosystemId,
+      ),
+    ),
+    totalLPSupply: atomicStringToHumanDecimal(
+      state.totalLpSupply[1].toString(),
+      lpToken,
+      lpToken.nativeEcosystemId,
+    ),
+    ampFactor: bnOrBigNumberToDecimal(
+      state.ampFactor[0].div(10 ** state.ampFactor[1]),
+    ),
+    lpFee: atomicToHuman(
+      bnOrBigNumberToDecimal(state.lpFee[0].div(state.lpFee[1])),
+      poolSpec.feeDecimals,
+    ),
+    governanceFee: atomicToHuman(
+      bnOrBigNumberToDecimal(
+        state.governanceFee[0].div(state.governanceFee[1]),
+      ),
+      poolSpec.feeDecimals,
+    ),
+  };
+};
+
+export const isEvmPoolState = (
+  poolState: PoolState | null,
+): poolState is EvmPoolState =>
+  poolState !== null && isEvmEcosystemId(poolState.ecosystem);
+
+export const isSolanaPoolState = (
+  poolState: PoolState,
+): poolState is SolanaPoolState => poolState.ecosystem === EcosystemId.Solana;

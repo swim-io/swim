@@ -1,4 +1,5 @@
 import type { Env, TokenDetails } from "@swim-io/core";
+import { TokenProjectId } from "@swim-io/token-projects";
 import { deduplicate } from "@swim-io/utils";
 
 import type { Ecosystem } from "./ecosystem";
@@ -50,3 +51,6 @@ export const hasTokenEcosystem = (
   ecosystemId: EcosystemId,
 ): boolean =>
   getPoolTokenEcosystems(pool, env).some(({ id }) => id === ecosystemId);
+
+export const isSwimUsd = (token: TokenSpec) =>
+  token.projectId === TokenProjectId.SwimLpSolanaUsdcUsdt;

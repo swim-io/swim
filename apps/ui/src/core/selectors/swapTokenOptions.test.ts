@@ -19,7 +19,7 @@ jest.mock("./environment", () => ({
 const selectConfigMock = mockOf(selectConfig);
 
 const DISABLED_POOLS = new Set([
-  "devnet-meta-acala-ausd",
+  "devnet-acala-ausd",
   "devnet-karura-ausd",
   "devnet-aurora-usn",
 ]);

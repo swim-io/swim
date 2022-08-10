@@ -582,7 +582,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
 export const DEVNET_SWIMUSD: TokenSpec = {
   isDisabled: !isPoolRestructureEnabled(),
   id: "devnet-swimusd",
-  projectId: TokenProjectId.SwimUsd,
+  projectId: TokenProjectId.SwimLpSolanaUsdcUsdt,
   nativeEcosystemId: EcosystemId.Solana,
   nativeDetails: {
     address: "11111111111111111111111111111111", // TODO: Update
@@ -651,30 +651,30 @@ export const DEVNET_SWIMUSD: TokenSpec = {
 export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-ethereum-lp-primary",
-    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    id: "devnet-ethereum-lp-usdc-usdt",
+    projectId: TokenProjectId.SwimLpEthereumUsdcUsdt, // TODO: Update
     nativeEcosystemId: EcosystemId.Ethereum,
     nativeDetails: {
-      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      address: "0x3251239Dc476CED28EC2BCE7493D049bb7Ce18Dc", // TODO: Update
       decimals: 8,
     },
     wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-bnb-lp-primary",
-    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    id: "devnet-bnb-lp-busd-usdt",
+    projectId: TokenProjectId.SwimLpBnbBusdUsdt, // TODO: Update
     nativeEcosystemId: EcosystemId.Bnb,
     nativeDetails: {
-      address: "0x1111111111111111111111111111111111111111", // TODO: Update
+      address: "0xaadEE3D65519d1674a9DAeD7CC7e1f878323E455", // TODO: Update
       decimals: 8,
     },
     wrappedDetails: EMPTY_MAP,
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-avalanche-lp-primary",
-    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    id: "devnet-avalanche-lp-usdc-usdt",
+    projectId: TokenProjectId.SwimLpAvalancheUsdcUsdt, // TODO: Update
     nativeEcosystemId: EcosystemId.Avalanche,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
@@ -684,8 +684,8 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-polygon-lp-primary",
-    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    id: "devnet-polygon-lp-usdc-usdt",
+    projectId: TokenProjectId.SwimLpPolygonUsdcUsdt, // TODO: Update
     nativeEcosystemId: EcosystemId.Polygon,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
@@ -695,8 +695,8 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-aurora-lp-primary",
-    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    id: "devnet-aurora-lp-usdc-usdt",
+    projectId: TokenProjectId.SwimLpAuroraUsdcUsdt, // TODO: Update
     nativeEcosystemId: EcosystemId.Aurora,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
@@ -707,8 +707,8 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
   {
     isDisabled:
       !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "devnet-aurora-lp-meta-usn",
-    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    id: "devnet-aurora-lp-usn",
+    projectId: TokenProjectId.SwimLpAuroraUsn, // TODO: Update
     nativeEcosystemId: EcosystemId.Aurora,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
@@ -718,8 +718,8 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-fantom-lp-primary",
-    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    id: "devnet-fantom-lp-usdc",
+    projectId: TokenProjectId.SwimLpFantomUsdc, // TODO: Update
     nativeEcosystemId: EcosystemId.Fantom,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
@@ -729,8 +729,8 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-karura-lp-primary",
-    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    id: "devnet-karura-lp-usdt",
+    projectId: TokenProjectId.SwimLpKaruraUsdt, // TODO: Update
     nativeEcosystemId: EcosystemId.Karura,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
@@ -741,8 +741,8 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
   {
     isDisabled:
       !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_KARURA_AUSD,
-    id: "devnet-karura-lp-meta-ausd",
-    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    id: "devnet-karura-lp-ausd",
+    projectId: TokenProjectId.SwimLpKaruraAusd, // TODO: Update
     nativeEcosystemId: EcosystemId.Karura,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update
@@ -752,8 +752,8 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-acala-lp-meta-ausd",
-    projectId: TokenProjectId.SwimUsd, // TODO: Update
+    id: "devnet-acala-lp-ausd",
+    projectId: TokenProjectId.SwimLpAcalaAusd, // TODO: Update
     nativeEcosystemId: EcosystemId.Acala,
     nativeDetails: {
       address: "0x1111111111111111111111111111111111111111", // TODO: Update

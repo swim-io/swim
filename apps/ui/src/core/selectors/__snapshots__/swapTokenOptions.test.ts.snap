@@ -11,6 +11,10 @@ Array [
     "tokenId": "devnet-solana-usdt",
   },
   Object {
+    "ecosystemId": "solana",
+    "tokenId": "devnet-solana-lp-hexapool",
+  },
+  Object {
     "ecosystemId": "ethereum",
     "tokenId": "devnet-ethereum-usdc",
   },

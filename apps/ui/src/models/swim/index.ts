@@ -13,3 +13,4 @@ export * from "./interactionStateV2";
 export * from "./getNextTxInfo";
 export * from "./transfer";
 export * from "./doSingleSolanaPoolOperation";
+export * from "./atomicString";

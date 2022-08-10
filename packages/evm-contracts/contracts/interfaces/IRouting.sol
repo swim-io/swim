@@ -14,7 +14,7 @@ interface IRouting {
     address fromToken,
     address toToken,
     uint256 outputAmount,
-    bytes16 indexed interactionId
+    bytes16 indexed memo
   );
 
   event SwapAndTransfer(
@@ -22,7 +22,7 @@ interface IRouting {
     uint64 wormholeSequence,
     address token,
     uint256 inputAmount,
-    bytes16 indexed interactionId
+    bytes16 indexed memo
   );
 
   event ReceiveAndSwap(
@@ -30,7 +30,7 @@ interface IRouting {
     uint64 wormholeSequence,
     address token,
     uint256 amount,
-    bytes16 indexed interactionId
+    bytes16 indexed memo
   );
 
   function onChainSwap(
@@ -39,7 +39,7 @@ interface IRouting {
     address toOwner,
     address toToken,
     uint256 minimumOutputAmount,
-    bytes16 interactionId
+    bytes16 memo
   ) external payable returns (uint256 outputAmount);
 
   function swapAndTransfer(
@@ -48,17 +48,17 @@ interface IRouting {
     uint256 firstMinimumOutputAmount,
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
-    bytes16 interactionId
+    bytes16 memo
   ) external payable returns (uint64 wormholeSequence);
 
   function receiveAndSwap(
     bytes memory encodedVm,
     address toToken,
     uint256 minimumOutputAmount,
-    bytes16 interactionId
+    bytes16 memo
   ) external returns (uint256 outputAmount, address outpuToken);
 
-  function receiveAndSwap(bytes memory encodedVm, bytes16 interactionId)
+  function receiveAndSwap(bytes memory encodedVm, bytes16 memo)
     external
     returns (uint256 outputAmount, address outputToken);
 

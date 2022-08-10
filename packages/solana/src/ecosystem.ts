@@ -23,7 +23,6 @@ const mainnet: SolanaChainConfig = {
     portal: "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb",
   },
   endpoints: ["https://solana-api.projectserum.com"],
-  wsEndpoints: [],
   tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
   otterTotCollection: "EpozLY9dQ1jnaU5Wof524K7p9uHYxkuLF2hi32cf8W9s",
   tokens: [
@@ -117,7 +116,6 @@ const devnet: SolanaChainConfig = {
     portal: "DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe",
   },
   endpoints: ["https://api.devnet.solana.com"],
-  wsEndpoints: [],
   tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
   otterTotCollection: "6rVZuenNaw3uECQjMjTLcfrXYKszpESEGi9HZnffJstn",
   tokens: [],
@@ -132,7 +130,6 @@ const localnet: SolanaChainConfig = {
     portal: "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE",
   },
   endpoints: ["http://127.0.0.1:8899"],
-  wsEndpoints: [],
   tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
   otterTotCollection: "", // TODO: Deploy on localnet
   tokens: [],

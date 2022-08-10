@@ -114,17 +114,22 @@ impl<'info> SwapExactInput<'info> {
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct SwapExactInputParams {
-    exact_input_amounts: [u64; TOKEN_COUNT],
-    output_token_index: u8,
-    minimum_output_amount: u64,
+    pub exact_input_amounts: [u64; TOKEN_COUNT],
+    pub output_token_index: u8,
+    pub minimum_output_amount: u64,
 }
 
 pub fn handle_swap_exact_input(
     ctx: Context<SwapExactInput>,
     swap_exact_input_params: SwapExactInputParams,
+    // exact_input_amounts: [u64; TOKEN_COUNT],
+    // output_token_index: u8,
+    // minimum_output_amount: u64,
 ) -> Result<u64> {
+    // let output_token_index = output_token_index as usize;
     let output_token_index = swap_exact_input_params.output_token_index as usize;
     let exact_input_amounts = swap_exact_input_params.exact_input_amounts;
+    let minimum_output_amount = swap_exact_input_params.minimum_output_amount;
     if exact_input_amounts.iter().all(|amount| *amount == 0)
         || output_token_index >= TOKEN_COUNT
         || exact_input_amounts[output_token_index] != 0
@@ -169,7 +174,7 @@ pub fn handle_swap_exact_input(
         pool.lp_decimal_equalizer,
         latest_depth,
     );
-    let minimum_output_amount = swap_exact_input_params.minimum_output_amount;
+
     require_gte!(
         output_amount,
         minimum_output_amount,

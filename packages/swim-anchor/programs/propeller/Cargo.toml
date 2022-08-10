@@ -1,0 +1,49 @@
+[package]
+name = "propeller"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "propeller"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+devnet = []
+mainnet = []
+
+[dependencies]
+anchor-lang = "0.25.0"
+anchor-spl = "0.25.0"
+# TODO: might need to check this dependency version.
+spl-token = "3.3.0"
+switchboard-v2 = "^0.1.11"
+two-pool = { path = "../two-pool", features = ["cpi"] }
+
+#solana-program = "~1.9.13"
+#two-pool = { git = "https://github.com/swim-io/pool-internal", features = ["no-entrypoint"] }
+#two-pool = { git = "https://github.com/swim-io/pool-internal", branch = "update-user-auth", features = ["no-entrypoint"] }
+#two-pool = {git = "https://github.com/swim-io/pool-internal/tree/update-user-auth", features = ["no-entrypoint"]}
+
+#token-bridge = { git = "https://github.com/swimricky/wormhole", branch = "feat/token-bridge-proxy", features = ["cpi"] }
+#wormhole-bridge-solana = { git = "https://github.com/swimricky/wormhole", branch = "feat/token-bridge-proxy", features = ["no-entrypoint", "cpi"] }
+static-pubkey = "1.0.3"
+
+# copied from wh-icco
+num-traits = "0.2"
+num-derive = "0.3"
+borsh = "0.9.3"
+hex = "0.4.3"
+num = "0.4"
+itertools = "0.8"
+
+# from wormhole
+# needed to deserialize vaa & vaa payload
+##updated version from 0.9 to 0.11.1
+primitive-types = { version="0.11.1", default-features=false }
+byteorder = "1.4.3"

@@ -108,10 +108,10 @@ impl<'info> CreateLpMetadata<'info> {
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct CreateLpMetadataParams {
-    data: AnchorDataV2,
-    is_mutable: bool,
+    pub data: AnchorDataV2,
+    pub is_mutable: bool,
     //default to true? update auth is pool state itself and should be a signer
-    update_authority_is_signer: bool,
+    pub update_authority_is_signer: bool,
 }
 
 pub fn handle_create_lp_metadata(

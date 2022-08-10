@@ -13,8 +13,8 @@ use {
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct RemoveUniformParams {
-    exact_burn_amount: u64,
-    minimum_output_amounts: [u64; TOKEN_COUNT],
+    pub exact_burn_amount: u64,
+    pub minimum_output_amounts: [u64; TOKEN_COUNT],
 }
 
 #[derive(Accounts)]

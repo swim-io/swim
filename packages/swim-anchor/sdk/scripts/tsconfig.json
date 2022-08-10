@@ -12,6 +12,8 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
+  "include": ["../tests/poolTestUtils.ts"],
+
   "references": [
     {
       "path": "../src"

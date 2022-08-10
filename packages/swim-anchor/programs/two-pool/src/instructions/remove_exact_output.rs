@@ -13,8 +13,8 @@ use {
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct RemoveExactOutputParams {
-    maximum_burn_amount: u64,
-    exact_output_amounts: [u64; TOKEN_COUNT],
+    pub maximum_burn_amount: u64,
+    pub exact_output_amounts: [u64; TOKEN_COUNT],
 }
 
 #[derive(Accounts)]

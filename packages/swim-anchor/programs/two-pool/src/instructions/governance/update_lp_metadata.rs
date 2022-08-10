@@ -50,10 +50,10 @@ impl<'info> UpdateMetadataAccounts<'info> {
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct UpdateLpMetadataParams {
-    new_update_authority: Option<Pubkey>,
-    data: Option<AnchorDataV2>,
-    primary_sale_happened: Option<bool>,
-    is_mutable: Option<bool>,
+    pub new_update_authority: Option<Pubkey>,
+    pub data: Option<AnchorDataV2>,
+    pub primary_sale_happened: Option<bool>,
+    pub is_mutable: Option<bool>,
 }
 
 pub fn handle_update_lp_metadata(

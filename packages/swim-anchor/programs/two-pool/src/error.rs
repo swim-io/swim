@@ -74,6 +74,12 @@ pub enum PoolError {
     InvalidTokenIndex,
     #[msg("Invalid Pause Key")]
     InvalidPauseKey,
+    #[msg("Not a valid Switchboard account")]
+    InvalidSwitchboardAccount,
+    #[msg("Switchboard feed has not been updated in 5 minutes")]
+    StaleFeed,
+    #[msg("Switchboard feed exceeded provided confidence interval")]
+    ConfidenceIntervalExceeded,
 }
 
 // impl From<PoolError> for ProgramError {

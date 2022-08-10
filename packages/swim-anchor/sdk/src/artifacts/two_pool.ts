@@ -207,10 +207,17 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "inputAmounts",
           "type": {
-            "defined": "AddParams"
+            "array": [
+              "u64",
+              2
+            ]
           }
+        },
+        {
+          "name": "minimumMintAmount",
+          "type": "u64"
         }
       ],
       "returns": "u64"
@@ -293,10 +300,21 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "exactInputAmounts",
           "type": {
-            "defined": "SwapExactInputParams"
+            "array": [
+              "u64",
+              2
+            ]
           }
+        },
+        {
+          "name": "outputTokenIndex",
+          "type": "u8"
+        },
+        {
+          "name": "minimumOutputAmount",
+          "type": "u64"
         }
       ],
       "returns": "u64"
@@ -379,9 +397,20 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "maximumInputAmount",
+          "type": "u64"
+        },
+        {
+          "name": "inputTokenIndex",
+          "type": "u8"
+        },
+        {
+          "name": "exactOutputAmounts",
           "type": {
-            "defined": "SwapExactOutputParams"
+            "array": [
+              "u64",
+              2
+            ]
           }
         }
       ],
@@ -472,9 +501,16 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "exactBurnAmount",
+          "type": "u64"
+        },
+        {
+          "name": "minimumOutputAmounts",
           "type": {
-            "defined": "RemoveUniformParams"
+            "array": [
+              "u64",
+              2
+            ]
           }
         }
       ],
@@ -565,10 +601,16 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
-          "type": {
-            "defined": "RemoveExactBurnParams"
-          }
+          "name": "exactBurnAmount",
+          "type": "u64"
+        },
+        {
+          "name": "outputTokenIndex",
+          "type": "u8"
+        },
+        {
+          "name": "minimumOutputAmount",
+          "type": "u64"
         }
       ],
       "returns": "u64"
@@ -656,9 +698,16 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "maximumBurnAmount",
+          "type": "u64"
+        },
+        {
+          "name": "exactOutputAmounts",
           "type": {
-            "defined": "RemoveExactOutputParams"
+            "array": [
+              "u64",
+              2
+            ]
           }
         }
       ],
@@ -1046,9 +1095,13 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "targetTs",
+          "type": "i64"
+        },
+        {
+          "name": "targetValue",
           "type": {
-            "defined": "AdjustAmpFactorParams"
+            "defined": "DecimalU64Anchor"
           }
         }
       ]
@@ -1247,10 +1300,18 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "data",
           "type": {
-            "defined": "CreateLpMetadataParams"
+            "defined": "AnchorDataV2"
           }
+        },
+        {
+          "name": "isMutable",
+          "type": "bool"
+        },
+        {
+          "name": "updateAuthorityIsSigner",
+          "type": "bool"
         }
       ]
     },
@@ -1322,9 +1383,29 @@ export type TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "newUpdateAuthority",
           "type": {
-            "defined": "UpdateLpMetadataParams"
+            "option": "publicKey"
+          }
+        },
+        {
+          "name": "data",
+          "type": {
+            "option": {
+              "defined": "AnchorDataV2"
+            }
+          }
+        },
+        {
+          "name": "primarySaleHappened",
+          "type": {
+            "option": "bool"
+          }
+        },
+        {
+          "name": "isMutable",
+          "type": {
+            "option": "bool"
           }
         }
       ]
@@ -1980,6 +2061,15 @@ export type TwoPool = {
           },
           {
             "name": "InvalidPauseKey"
+          },
+          {
+            "name": "InvalidSwitchboardAccount"
+          },
+          {
+            "name": "StaleFeed"
+          },
+          {
+            "name": "ConfidenceIntervalExceeded"
           }
         ]
       }
@@ -2225,10 +2315,17 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "inputAmounts",
           "type": {
-            "defined": "AddParams"
+            "array": [
+              "u64",
+              2
+            ]
           }
+        },
+        {
+          "name": "minimumMintAmount",
+          "type": "u64"
         }
       ],
       "returns": "u64"
@@ -2311,10 +2408,21 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "exactInputAmounts",
           "type": {
-            "defined": "SwapExactInputParams"
+            "array": [
+              "u64",
+              2
+            ]
           }
+        },
+        {
+          "name": "outputTokenIndex",
+          "type": "u8"
+        },
+        {
+          "name": "minimumOutputAmount",
+          "type": "u64"
         }
       ],
       "returns": "u64"
@@ -2397,9 +2505,20 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "maximumInputAmount",
+          "type": "u64"
+        },
+        {
+          "name": "inputTokenIndex",
+          "type": "u8"
+        },
+        {
+          "name": "exactOutputAmounts",
           "type": {
-            "defined": "SwapExactOutputParams"
+            "array": [
+              "u64",
+              2
+            ]
           }
         }
       ],
@@ -2490,9 +2609,16 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "exactBurnAmount",
+          "type": "u64"
+        },
+        {
+          "name": "minimumOutputAmounts",
           "type": {
-            "defined": "RemoveUniformParams"
+            "array": [
+              "u64",
+              2
+            ]
           }
         }
       ],
@@ -2583,10 +2709,16 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
-          "type": {
-            "defined": "RemoveExactBurnParams"
-          }
+          "name": "exactBurnAmount",
+          "type": "u64"
+        },
+        {
+          "name": "outputTokenIndex",
+          "type": "u8"
+        },
+        {
+          "name": "minimumOutputAmount",
+          "type": "u64"
         }
       ],
       "returns": "u64"
@@ -2674,9 +2806,16 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "maximumBurnAmount",
+          "type": "u64"
+        },
+        {
+          "name": "exactOutputAmounts",
           "type": {
-            "defined": "RemoveExactOutputParams"
+            "array": [
+              "u64",
+              2
+            ]
           }
         }
       ],
@@ -3064,9 +3203,13 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "targetTs",
+          "type": "i64"
+        },
+        {
+          "name": "targetValue",
           "type": {
-            "defined": "AdjustAmpFactorParams"
+            "defined": "DecimalU64Anchor"
           }
         }
       ]
@@ -3265,10 +3408,18 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "data",
           "type": {
-            "defined": "CreateLpMetadataParams"
+            "defined": "AnchorDataV2"
           }
+        },
+        {
+          "name": "isMutable",
+          "type": "bool"
+        },
+        {
+          "name": "updateAuthorityIsSigner",
+          "type": "bool"
         }
       ]
     },
@@ -3340,9 +3491,29 @@ export const IDL: TwoPool = {
       ],
       "args": [
         {
-          "name": "params",
+          "name": "newUpdateAuthority",
           "type": {
-            "defined": "UpdateLpMetadataParams"
+            "option": "publicKey"
+          }
+        },
+        {
+          "name": "data",
+          "type": {
+            "option": {
+              "defined": "AnchorDataV2"
+            }
+          }
+        },
+        {
+          "name": "primarySaleHappened",
+          "type": {
+            "option": "bool"
+          }
+        },
+        {
+          "name": "isMutable",
+          "type": {
+            "option": "bool"
           }
         }
       ]
@@ -3998,6 +4169,15 @@ export const IDL: TwoPool = {
           },
           {
             "name": "InvalidPauseKey"
+          },
+          {
+            "name": "InvalidSwitchboardAccount"
+          },
+          {
+            "name": "StaleFeed"
+          },
+          {
+            "name": "ConfidenceIntervalExceeded"
           }
         ]
       }

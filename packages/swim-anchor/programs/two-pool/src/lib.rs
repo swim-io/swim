@@ -68,17 +68,45 @@ pub mod two_pool {
     }
 
     #[access_control(Add::accounts(&ctx))]
-    pub fn add(ctx: Context<Add>, params: AddParams) -> Result<u64> {
+    pub fn add(
+        ctx: Context<Add>,
+        input_amounts: [u64; TOKEN_COUNT],
+        minimum_mint_amount: u64,
+        // params: AddParams
+    ) -> Result<u64> {
+        let params = AddParams {
+            input_amounts,
+            minimum_mint_amount,
+        };
         handle_add(ctx, params)
+        // handle_add(ctx, input_amounts, minimum_mint_amount)
     }
 
     #[access_control(SwapExactInput::accounts(&ctx))]
     pub fn swap_exact_input(
         ctx: Context<SwapExactInput>,
-        params: SwapExactInputParams,
+        exact_input_amounts: [u64; TOKEN_COUNT],
+        output_token_index: u8,
+        minimum_output_amount: u64,
+        // params: SwapExactInputParams,
     ) -> Result<u64> {
+        let params = SwapExactInputParams {
+            exact_input_amounts,
+            output_token_index,
+            minimum_output_amount,
+        };
         handle_swap_exact_input(ctx, params)
+        // let output_token_index = params.output_token_index as usize;
+        // let exact_input_amounts = params.exact_input_amounts;
+        // let minimum_output_amount = params.minimum_output_amount;
+        // handle_swap_exact_input(ctx, params)
     }
+    // pub fn swap_exact_input(
+    //     ctx: Context<SwapExactInput>,
+    //     params: SwapExactInputParams,
+    // ) -> Result<u64> {
+    //     handle_swap_exact_input(ctx, params)
+    // }
 
     //returning cpi data from this is a little redundant since it's already passed in the params
     //but keeping for parity with other ixs
@@ -86,32 +114,59 @@ pub mod two_pool {
     #[access_control(SwapExactOutput::accounts(&ctx))]
     pub fn swap_exact_output(
         ctx: Context<SwapExactOutput>,
-        params: SwapExactOutputParams,
+        maximum_input_amount: u64,
+        input_token_index: u8,
+        exact_output_amounts: [u64; TOKEN_COUNT], // params: SwapExactOutputParams,
     ) -> Result<Vec<u64>> {
+        let params = SwapExactOutputParams {
+            maximum_input_amount,
+            input_token_index,
+            exact_output_amounts,
+        };
         handle_swap_exact_output(ctx, params)
     }
 
     #[access_control(RemoveUniform::accounts(&ctx))]
     pub fn remove_uniform(
         ctx: Context<RemoveUniform>,
-        params: RemoveUniformParams,
+        exact_burn_amount: u64,
+        minimum_output_amounts: [u64; TOKEN_COUNT],
+        // params: RemoveUniformParams,
     ) -> Result<Vec<u64>> {
+        let params = RemoveUniformParams {
+            exact_burn_amount,
+            minimum_output_amounts,
+        };
         handle_remove_uniform(ctx, params)
     }
 
     #[access_control(RemoveExactBurn::accounts(&ctx))]
     pub fn remove_exact_burn(
         ctx: Context<RemoveExactBurn>,
-        params: RemoveExactBurnParams,
+        exact_burn_amount: u64,
+        output_token_index: u8,
+        minimum_output_amount: u64,
+        // params: RemoveExactBurnParams,
     ) -> Result<u64> {
+        let params = RemoveExactBurnParams {
+            exact_burn_amount,
+            output_token_index,
+            minimum_output_amount,
+        };
         handle_remove_exact_burn(ctx, params)
     }
 
     #[access_control(RemoveExactOutput::accounts(&ctx))]
     pub fn remove_exact_output(
         ctx: Context<RemoveExactOutput>,
-        params: RemoveExactOutputParams,
+        maximum_burn_amount: u64,
+        exact_output_amounts: [u64; TOKEN_COUNT],
+        // params: RemoveExactOutputParams,
     ) -> Result<Vec<u64>> {
+        let params = RemoveExactOutputParams {
+            maximum_burn_amount,
+            exact_output_amounts,
+        };
         handle_remove_exact_output(ctx, params)
     }
 
@@ -162,8 +217,14 @@ pub mod two_pool {
     #[access_control(AdjustAmpFactor::accounts(&ctx))]
     pub fn adjust_amp_factor(
         ctx: Context<AdjustAmpFactor>,
-        params: AdjustAmpFactorParams,
+        target_ts: i64,
+        target_value: DecimalU64Anchor,
+        // params: AdjustAmpFactorParams,
     ) -> Result<()> {
+        let params = AdjustAmpFactorParams {
+            target_ts,
+            target_value,
+        };
         handle_adjust_amp_factor(ctx, params)
     }
 
@@ -180,16 +241,34 @@ pub mod two_pool {
     #[access_control(CreateLpMetadata::accounts(&ctx))]
     pub fn create_lp_metadata(
         ctx: Context<CreateLpMetadata>,
-        params: CreateLpMetadataParams,
+        data: AnchorDataV2,
+        is_mutable: bool,
+        update_authority_is_signer: bool,
+        // params: CreateLpMetadataParams,
     ) -> Result<()> {
+        let params = CreateLpMetadataParams {
+            data,
+            is_mutable,
+            update_authority_is_signer,
+        };
         handle_create_lp_metadata(ctx, params)
     }
 
     #[access_control(UpdateLpMetadata::accounts(&ctx))]
     pub fn update_lp_metadata(
         ctx: Context<UpdateLpMetadata>,
-        params: UpdateLpMetadataParams,
+        new_update_authority: Option<Pubkey>,
+        data: Option<AnchorDataV2>,
+        primary_sale_happened: Option<bool>,
+        is_mutable: Option<bool>,
+        // params: UpdateLpMetadataParams,
     ) -> Result<()> {
+        let params = UpdateLpMetadataParams {
+            new_update_authority,
+            data,
+            primary_sale_happened,
+            is_mutable,
+        };
         handle_update_lp_metadata(ctx, params)
     }
 }

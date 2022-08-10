@@ -23,14 +23,14 @@ use {
 #[derive(Accounts)]
 pub struct Add<'info> {
     #[account(
-  mut,
-  seeds = [
-  b"two_pool".as_ref(),
-  pool_token_account_0.mint.as_ref(),
-  pool_token_account_1.mint.as_ref(),
-  lp_mint.key().as_ref(),
-  ],
-  bump = pool.bump
+    mut,
+    seeds = [
+    b"two_pool".as_ref(),
+    pool_token_account_0.mint.as_ref(),
+    pool_token_account_1.mint.as_ref(),
+    lp_mint.key().as_ref(),
+    ],
+    bump = pool.bump
   )]
     pub pool: Account<'info, TwoPool>,
     // /// TODO: could be removed if initialized with pool_v2
@@ -123,10 +123,16 @@ impl<'info> Add<'info> {
 }
 
 //
-pub fn handle_add(ctx: Context<Add>, pool_add_params: AddParams) -> Result<u64> {
-    //TODO:
+pub fn handle_add(
+    ctx: Context<Add>,
+    params: AddParams,
+    // input_amounts: [u64; TOKEN_COUNT],
+    // minimum_mint_amount: u64,
+) -> Result<u64> {
+    let input_amounts = params.input_amounts;
+    let minimum_mint_amount = params.minimum_mint_amount;
     require!(
-        pool_add_params.input_amounts.iter().any(|&x| x > 0),
+        input_amounts.iter().any(|&x| x > 0),
         PoolError::AddRequiresAtLeastOneToken
     );
     let lp_total_supply = ctx.accounts.lp_mint.supply;
@@ -134,7 +140,7 @@ pub fn handle_add(ctx: Context<Add>, pool_add_params: AddParams) -> Result<u64> 
     if lp_total_supply == 0 {
         for i in 0..TOKEN_COUNT {
             require_gt!(
-                pool_add_params.input_amounts[i],
+                input_amounts[i],
                 0u64,
                 PoolError::InitialAddRequiresAllTokens
             );
@@ -163,7 +169,7 @@ pub fn handle_add(ctx: Context<Add>, pool_add_params: AddParams) -> Result<u64> 
     let current_ts = Clock::get()?.unix_timestamp;
     require_gt!(current_ts, 0i64, PoolError::InvalidTimestamp);
     let (user_amount, governance_mint_amount, latest_depth) = Invariant::<TOKEN_COUNT>::add(
-        &array_equalize(pool_add_params.input_amounts, pool.token_decimal_equalizers),
+        &array_equalize(input_amounts, pool.token_decimal_equalizers),
         &array_equalize(pool_balances, pool.token_decimal_equalizers),
         pool.amp_factor.get(current_ts),
         pool.lp_fee.get(),
@@ -180,7 +186,7 @@ pub fn handle_add(ctx: Context<Add>, pool_add_params: AddParams) -> Result<u64> 
     );
     require_gte!(
         mint_amount,
-        pool_add_params.minimum_mint_amount,
+        minimum_mint_amount,
         PoolError::OutsideSpecifiedLimits
     );
     let mut token_accounts = zip(
@@ -189,7 +195,7 @@ pub fn handle_add(ctx: Context<Add>, pool_add_params: AddParams) -> Result<u64> 
     );
     for i in 0..TOKEN_COUNT {
         let (user_token_account, pool_token_account) = token_accounts.next().unwrap();
-        if pool_add_params.input_amounts[i] > 0 {
+        if input_amounts[i] > 0 {
             token::transfer(
                 CpiContext::new(
                     ctx.accounts.token_program.to_account_info(),
@@ -200,7 +206,7 @@ pub fn handle_add(ctx: Context<Add>, pool_add_params: AddParams) -> Result<u64> 
                         authority: ctx.accounts.user_transfer_authority.to_account_info(),
                     },
                 ),
-                pool_add_params.input_amounts[i],
+                input_amounts[i],
             )?;
         }
     }

@@ -13,8 +13,8 @@ pub struct AdjustAmpFactor<'info> {
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct AdjustAmpFactorParams {
-    target_ts: i64,
-    target_value: DecimalU64Anchor,
+    pub target_ts: i64,
+    pub target_value: DecimalU64Anchor,
 }
 
 impl<'info> AdjustAmpFactor<'info> {

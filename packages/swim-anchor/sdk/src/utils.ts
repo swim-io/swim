@@ -1,7 +1,8 @@
 import { TwoPool } from "./artifacts/two_pool";
 import TwoPoolIDL from "./artifacts/two_pool.json";
 import fs from "fs";
-import { Program, web3 } from "@project-serum/anchor";
+import { Program, SplToken, web3 } from "@project-serum/anchor";
+import * as anchor from "@project-serum/anchor";
 
 export const twoPoolToString = async (
   program: Program<TwoPool>,
@@ -49,3 +50,39 @@ export const writePoolStateToFile = (
 ) => {
   fs.writeFileSync(poolStatePath, poolStateStr);
 };
+
+export const getApproveAndRevokeIxs = async (
+  splToken: Program<SplToken>,
+  tokenAccounts: Array<web3.PublicKey>,
+  amounts: Array<anchor.BN>,
+  delegate: web3.PublicKey,
+  authority: web3.Keypair
+): Promise<Array<Array<web3.TransactionInstruction>>> => {
+  const approveIxs = await Promise.all(
+    tokenAccounts.map((tokenAccount, i) => {
+      return splToken
+        .methods
+        .approve(amounts[i])
+        .accounts({
+          source: tokenAccount,
+          delegate,
+          authority: authority.publicKey
+        })
+        .signers([authority])
+        .instruction();
+    })
+  );
+  const revokeIxs = await Promise.all(
+    tokenAccounts.map((tokenAccount, i) => {
+      return splToken
+        .methods
+        .revoke()
+        .accounts({
+          source: tokenAccount,
+          authority: authority.publicKey
+        })
+        .signers([authority])
+        .instruction();
+    }));
+  return [approveIxs, revokeIxs];
+}

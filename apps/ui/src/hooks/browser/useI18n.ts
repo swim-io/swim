@@ -17,6 +17,6 @@ export const useIntlListSeparators = () => {
 
   return {
     comma: result[1]?.value ?? ", ",
-    conjunction: result[3]?.value ?? " and ",
+    conjunction: result[3]?.value ?? ", and ",
   };
 };

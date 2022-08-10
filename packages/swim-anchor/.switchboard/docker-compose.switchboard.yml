@@ -15,4 +15,4 @@ services:
     #  - RPC_URL=${RPC_URL}
 secrets:
   PAYER_SECRETS:
-    file: /Users/rchen/work/swim/swim-monorepo/packages/swim-anchor/sdk/tests/test_wallet.json
+    file: ../sdk/tests/test_wallet.json

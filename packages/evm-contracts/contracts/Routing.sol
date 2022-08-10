@@ -3,6 +3,7 @@ pragma solidity ^0.8.15;
 
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
@@ -20,6 +21,7 @@ import "./SwimPayload.sol";
 contract Routing is
   IRouting,
   Initializable,
+  AccessControlUpgradeable,
   PausableUpgradeable,
   OwnableUpgradeable,
   UUPSUpgradeable,
@@ -32,6 +34,7 @@ contract Routing is
     0x44a0a063099540e87e0163a6e27266a364c35930208cfaded5b79377713906e9; //hexapool swimUSD
   uint8 private constant SWIM_USD_TOKEN_INDEX = 0;
   uint16 private constant WORMHOLE_SOLANA_CHAIN_ID = 1;
+  bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
   uint32 private wormholeNonce;
   address public swimUsdAddress;
@@ -49,23 +52,28 @@ contract Routing is
   mapping(uint16 => TokenInfo) tokenNumberMapping;
   mapping(address => TokenInfo) tokenAddressMapping;
 
-  function initialize(address owner, address tokenBridgeAddress) public initializer {
+  function initialize(
+    address owner,
+    address pauser,
+    address tokenBridgeAddress
+  ) public initializer {
     __Pausable_init();
     __Ownable_init();
     __UUPSUpgradeable_init();
     __ReentrancyGuard_init();
     _transferOwnership(owner);
+    _grantRole(PAUSER_ROLE, pauser);
     wormholeNonce = 0;
     tokenBridge = ITokenBridge(tokenBridgeAddress);
     wormhole = tokenBridge.wormhole();
     swimUsdAddress = tokenBridge.wrappedAsset(WORMHOLE_SOLANA_CHAIN_ID, SWIM_USD_SOLANA_ADDRESS);
   }
 
-  function pause() public onlyOwner {
+  function pause() public onlyRole(PAUSER_ROLE) {
     _pause();
   }
 
-  function unpause() public onlyOwner {
+  function unpause() public onlyRole(PAUSER_ROLE) {
     _unpause();
   }
 
@@ -296,7 +304,6 @@ contract Routing is
 
   /**
    * @notice Gets liquidities for all given pool adresses
-   * @dev TODO : when pools are done
    * @param poolAddresses Addresses of pools
    * @return PoolState List of objects of pool details
    */

@@ -3,7 +3,8 @@ pragma solidity ^0.8.15;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 //import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 //We aren't using the contracts-upgradable version of UUPSUpgradable because it doesn't
 // have a constructor anyway and we don't want to pointlessly gunk up the storage
@@ -23,7 +24,7 @@ import "./PoolMath.sol";
 //We'll use uint32 for timestamps. 2^32 seconds ~= 136 years, i.e. it will last us until the early
 // 22nd century... so we ought to be fine.
 
-contract Pool is IPool, Initializable, UUPSUpgradeable {
+contract Pool is IPool, Initializable, AccessControlUpgradeable, PausableUpgradeable, UUPSUpgradeable {
 
   struct TokenWithEqualizer { //uses 22/32 bytes of its slot
     address addr;
@@ -36,10 +37,11 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   ISwimFactory constant SWIM_FACTORY = ISwimFactory(address(0x77C1f7813D79c8e6E37DE1aA631B6F961fD45648));
   IRouting constant ROUTING_CONTRACT = IRouting(address(0x591bf69E5dAa731e26a87fe0C5b394263A8c3375));
   int8 constant SWIM_USD_EQUALIZER = -2;
+  bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+  bytes32 public constant GOVERNANCE_ROLE = keccak256("GOVERNANCE_ROLE");
 
   //slot (26/32 bytes used)
   uint8  public /*immutable*/ tokenCount;
-  bool   public paused;
   uint32 public totalFee;
   uint32 public governanceFee;
   uint32 private ampInitialValue; //in internal, i.e. AMP_SHIFTED representation
@@ -54,10 +56,14 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   TokenWithEqualizer[MAX_TOKEN_COUNT] public /*immutable*/ poolTokensData;
 
   //slot
-  address public governance;
-
-  //slot
   address public governanceFeeRecipient;
+
+  struct Governance {
+    address governance;
+    address pauser;
+    address governanceFeeRecipient;
+    uint32 governanceFee;
+  }
 
   function initialize(
     string memory lpTokenName,
@@ -69,22 +75,29 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     int8[] memory poolTokenEqualizers,
     uint32 ampFactor,
     uint32 lpFee,
-    uint32 _governanceFee,
-    address _governance,
-    address _governanceFeeRecipient
+    Governance memory governanceData
+    // uint32 _governanceFee,
+    // address _governance,
+    // address _governanceFeeRecipient,
+    // address _pauser
   ) public initializer {
+    __Pausable_init();
+    _grantRole(PAUSER_ROLE, governanceData.pauser);
+    _grantRole(GOVERNANCE_ROLE, governanceData.governance);
     //moved to a separate function to avoid stack too deep
     lpTokenData.addr = deployLpToken(lpTokenName, lpTokenSymbol, lpTokenDecimals, lpTokenSalt);
     lpTokenData.equalizer = lpTokenEqualizer;
 
     uint _tokenCount = poolTokenAddresses.length + 1;
-    if (_tokenCount > MAX_TOKEN_COUNT)
+    if (_tokenCount > MAX_TOKEN_COUNT) {
       revert Pool_MaxTokenCountExceeded(uint8(_tokenCount), uint8(MAX_TOKEN_COUNT));
-    if (poolTokenEqualizers.length != poolTokenAddresses.length)
+    }
+    if (poolTokenEqualizers.length != poolTokenAddresses.length) {
       revert Pool_TokenEqualizerCountMismatch(
         uint8(poolTokenEqualizers.length),
         uint8(_tokenCount)
       );
+    }
     tokenCount = uint8(_tokenCount);
 
     //swimUSD is always the first token
@@ -103,33 +116,22 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
     if (ampFactor == 0) {
       //ampFactor == 0 => constant product (only supported for 2 tokens)
-      if (_tokenCount != 2)
+      if (_tokenCount != 2) {
         revert Pool_ConstantProductNotSupportedForTokenCount(uint8(_tokenCount));
-    }
-    else
+      }
+    } else {
       checkAmpRange(ampFactor);
+    }
 
     ampInitialValue = 0;
     ampInitialTimestamp = 0;
     ampTargetValue = toInternalAmpValue(ampFactor);
     ampTargetTimestamp = 0;
 
-    governance = _governance;
-    governanceFeeRecipient = _governanceFeeRecipient;
-    _setFees(lpFee, _governanceFee);
-    paused = false;
-  }
-
-  modifier notPaused {
-    if(paused)
-      revert Pool_IsPaused();
-    _;
-  }
-
-  modifier onlyGovernance {
-    if (msg.sender != governance)
-      revert Pool_GovernanceOnly();
-    _;
+    // governanceFeeRecipient = governanceFeeRecipient;
+    // _setFees(lpFee, _governanceFee);
+    governanceFeeRecipient = governanceData.governanceFeeRecipient;
+    _setFees(lpFee, governanceData.governanceFee);
   }
 
   function getLpToken() external view returns(address) {
@@ -139,7 +141,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   function getState() external view returns(PoolState memory) {
     uint _tokenCount = tokenCount;
     PoolState memory state = PoolState(
-      paused,
+      paused(),
       new TokenBalance[](_tokenCount),
       TokenBalance(lpTokenData.addr, LpToken(lpTokenData.addr).totalSupply()),
       Decimal(toExternalAmpValue(getAmpFactor()), uint8(AMP_DECIMALS)),
@@ -153,7 +155,6 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
         IERC20Upgradeable(poolTokensData[i].addr).balanceOf(address(this))
       );
     }
-
     return state;
   }
 
@@ -175,15 +176,17 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     uint[] memory inputAmounts,
     uint minimumMintAmount,
     bytes16 memo
-  ) external notPaused returns(uint mintAmount) { unchecked {
+  ) external whenNotPaused returns(uint mintAmount) { unchecked {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     Equalized[] memory eInputAmounts = equalizeAmounts(inputAmounts, _tokenCount);
     Equalized eMintAmount;
     if (Equalized.unwrap(pool.totalLpSupply) == 0) {
-      for (uint i = 0; i < _tokenCount; ++i)
-        if (inputAmounts[i] == 0)
+      for (uint i = 0; i < _tokenCount; ++i) {
+        if (inputAmounts[i] == 0) {
           revert Pool_InitialAddMustIncludeAllTokens(uint8(i));
+        }
+      }
       uint depth = Invariant.calculateDepth(eInputAmounts, pool.ampFactor, 0);
       //In all other circumstances, the amount of LP tokens minted or burned is
       // proportional to the generated/consumed depth, where the current depth
@@ -194,17 +197,18 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       // an abuse because Equalizeds are supposed to only take up to 61
       // bits while depth can take up to 64 bits.
       eMintAmount = Equalized.wrap(depth);
-    }
-    else {
+    } else {
       Equalized eGovernanceMintAmount;
       (eMintAmount, eGovernanceMintAmount) = PoolMath.addRemove(true, eInputAmounts, pool);
       mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
     }
     mintAmount = Equalize.from(eMintAmount, lpEqualizer);
-    if (mintAmount < minimumMintAmount)
+    if (mintAmount < minimumMintAmount) {
       revert Pool_SlippageExceeded(address(lpToken), mintAmount, minimumMintAmount);
-    for (uint i = 0; i < _tokenCount; ++i)
+    }
+    for (uint i = 0; i < _tokenCount; ++i) {
       safeTransferFrom(inputAmounts[i], i);
+    }
     lpToken.mint(msg.sender, mintAmount);
 
     emit Add(inputAmounts, minimumMintAmount, mintAmount, memo);
@@ -213,7 +217,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   //always available, even when paused!
   //maximally robust and conservative implementation
   function removeUniform(uint burnAmount, uint[] memory minimumOutputAmounts, bytes16 memo)
-    external returns(uint[] memory outputAmounts) {
+    external whenNotPaused returns(uint[] memory outputAmounts) {
     uint _tokenCount = tokenCount;
     LpToken lpToken = LpToken(lpTokenData.addr);
     uint totalLpSupply = lpToken.totalSupply();
@@ -229,8 +233,9 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       // to happen, both poolBalance and burnAmount have to exceed 10^38 which is realistically
       // impossible, even after accounting for the standard 18 decimals.
       uint outputAmount = poolBalance * burnAmount / totalLpSupply; //SafeMath!
-      if (outputAmount < minimumOutputAmounts[i])
+      if (outputAmount < minimumOutputAmounts[i]) {
         revert Pool_SlippageExceeded(address(poolToken), outputAmount, minimumOutputAmounts[i]);
+      }
       poolToken.safeTransfer(msg.sender, outputAmount);
       outputAmounts[i] = outputAmount;
     }
@@ -243,13 +248,13 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     uint[] memory outputAmounts,
     uint maximumBurnAmount,
     bytes16 memo
-  ) external notPaused returns(uint burnAmount) { unchecked {
+  ) external whenNotPaused returns(uint burnAmount) { unchecked {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     Equalized[] memory eOutputAmounts = equalizeAmounts(outputAmounts, _tokenCount);
     //We could also immediately transfer, but that would be a lot more gas inefficient for
     // transactions that fail due to slippage.
-    for (uint i = 0; i < _tokenCount;  ++i)
+    for (uint i = 0; i < _tokenCount;  ++i) {
       //strictly speaking there is a case where >= is fine, namely if all pool balances are removed
       // at the same time and we don't run into any rounding errors due to equalization...)
       if (Equalized.unwrap(eOutputAmounts[i]) >= Equalized.unwrap(pool.balances[i]))
@@ -258,16 +263,19 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
           outputAmounts[i],
           Equalize.from(pool.balances[i], poolTokensData[i].equalizer)
         );
+    }
 
     (Equalized eBurnAmount, Equalized eGovernanceMintAmount) =
      PoolMath.addRemove(false, eOutputAmounts, pool);
 
     burnAmount = Equalize.from(eBurnAmount, lpEqualizer);
-    if (burnAmount > maximumBurnAmount)
+    if (burnAmount > maximumBurnAmount) {
       revert Pool_SlippageExceeded(address(lpToken), burnAmount, maximumBurnAmount);
+    }
     lpToken.burnFrom(msg.sender, burnAmount);
-    for (uint i = 0; i < _tokenCount; ++i)
+    for (uint i = 0; i < _tokenCount; ++i) {
       safeTransfer(outputAmounts[i], i);
+    }
     mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
 
     emit RemoveExactOutput(burnAmount, outputAmounts, memo);
@@ -278,30 +286,32 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     uint8 outputTokenIndex,
     uint minimumOutputAmount,
     bytes16 memo
-  ) external notPaused returns(uint outputAmount) {
+  ) external whenNotPaused returns(uint outputAmount) {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     checkIndex(outputTokenIndex, _tokenCount);
     Equalized eBurnAmount = Equalize.to(burnAmount, lpEqualizer);
     //We could also immediately transfer, but that would be a lot more gas inefficient for
     // transactions that fail due to slippage.
-    if (Equalized.unwrap(eBurnAmount) >= Equalized.unwrap(pool.totalLpSupply))
+    if (Equalized.unwrap(eBurnAmount) >= Equalized.unwrap(pool.totalLpSupply)) {
       revert Pool_AmountExceedsSupply(
         address(lpToken),
         burnAmount,
         Equalize.from(pool.totalLpSupply, lpEqualizer)
       );
+    }
 
     (Equalized eOutputAmount, Equalized eGovernanceMintAmount) =
       PoolMath.removeExactBurn(eBurnAmount, outputTokenIndex, pool);
 
     outputAmount = Equalize.from(eOutputAmount, poolTokensData[outputTokenIndex].equalizer);
-    if (outputAmount < minimumOutputAmount)
+    if (outputAmount < minimumOutputAmount) {
       revert Pool_SlippageExceeded(
         poolTokensData[outputTokenIndex].addr,
         outputAmount,
         minimumOutputAmount
       );
+    }
     lpToken.burnFrom(msg.sender, burnAmount);
     safeTransfer(outputAmount, outputTokenIndex);
     mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
@@ -316,26 +326,29 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     uint[] memory inputAmounts,
     uint8 outputTokenIndex,
     uint minimumOutputAmount
-  ) public notPaused returns(uint outputAmount) { unchecked {
+  ) public whenNotPaused returns(uint outputAmount) { unchecked {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     checkIndex(outputTokenIndex, _tokenCount);
-    if (inputAmounts[outputTokenIndex] != 0)
+    if (inputAmounts[outputTokenIndex] != 0) {
       revert Pool_RequestedTokenAmountNotZero(outputTokenIndex, inputAmounts[outputTokenIndex]);
+    }
     Equalized[] memory eInputAmounts = equalizeAmounts(inputAmounts, _tokenCount);
 
     (Equalized eOutputAmount, Equalized eGovernanceMintAmount) =
       PoolMath.swap(true, eInputAmounts, outputTokenIndex, pool);
 
     outputAmount = Equalize.from(eOutputAmount, poolTokensData[outputTokenIndex].equalizer);
-    if (outputAmount < minimumOutputAmount)
+    if (outputAmount < minimumOutputAmount) {
       revert Pool_SlippageExceeded(
         poolTokensData[outputTokenIndex].addr,
         outputAmount,
         minimumOutputAmount
       );
-    for (uint i = 0; i < _tokenCount; ++i)
+    }
+    for (uint i = 0; i < _tokenCount; ++i) {
       safeTransferFrom(inputAmounts[i], i);
+    }
     safeTransfer(outputAmount, outputTokenIndex);
     mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
   }}
@@ -344,36 +357,41 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     uint maximumInputAmount,
     uint8 inputTokenIndex,
     uint[] memory outputAmounts
-  ) external notPaused returns(uint inputAmount) { unchecked {
+  ) external whenNotPaused returns(uint inputAmount) { unchecked {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     checkIndex(inputTokenIndex, _tokenCount);
-    if (outputAmounts[inputTokenIndex] != 0)
+    if (outputAmounts[inputTokenIndex] != 0) {
       revert Pool_RequestedTokenAmountNotZero(inputTokenIndex, outputAmounts[inputTokenIndex]);
+    }
     Equalized[] memory eOutputAmounts = equalizeAmounts(outputAmounts, _tokenCount);
     //We could also immediately transfer, but that would be a lot more gas inefficient for
     // transactions that fail due to slippage.
-    for (uint i = 0; i < _tokenCount; ++i)
-      if (Equalized.unwrap(eOutputAmounts[i]) >= Equalized.unwrap(pool.balances[i]))
+    for (uint i = 0; i < _tokenCount; ++i) {
+      if (Equalized.unwrap(eOutputAmounts[i]) >= Equalized.unwrap(pool.balances[i])) {
         revert Pool_AmountExceedsSupply(
           poolTokensData[i].addr,
           outputAmounts[i],
           Equalize.from(pool.balances[i], poolTokensData[i].equalizer)
         );
+      }
+    }
 
     (Equalized eInputAmount, Equalized eGovernanceMintAmount) =
       PoolMath.swap(false, eOutputAmounts, inputTokenIndex, pool);
 
     inputAmount = Equalize.from(eInputAmount, poolTokensData[inputTokenIndex].equalizer);
-    if (inputAmount > maximumInputAmount)
+    if (inputAmount > maximumInputAmount) {
       revert Pool_SlippageExceeded(
         poolTokensData[inputTokenIndex].addr,
         inputAmount,
         maximumInputAmount
       );
+    }
     safeTransferFrom(inputAmount, inputTokenIndex);
-    for (uint i = 0; i < _tokenCount; ++i)
+    for (uint i = 0; i < _tokenCount; ++i) {
       safeTransfer(outputAmounts[i], i);
+    }
     mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
   }}
 
@@ -383,7 +401,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     uint8 inputTokenIndex,
     uint8 outputTokenIndex,
     uint minimumOutputAmount
-  ) external notPaused returns(uint outputAmount) {
+  ) external whenNotPaused returns(uint outputAmount) {
     uint _tokenCount = tokenCount;
     checkIndex(inputTokenIndex, _tokenCount);
 
@@ -397,38 +415,41 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   // ------------------------------- GOVERNANCE -------------------------------
 
-  function setFees(uint32 lpFee, uint32 _governanceFee) external onlyGovernance {
+  function setFees(uint32 lpFee, uint32 _governanceFee) external onlyRole(GOVERNANCE_ROLE) {
     _setFees(lpFee, _governanceFee);
   }
 
-  function adjustAmpFactor(uint32 targetValue, uint32 targetTimestamp) external onlyGovernance {
+  function adjustAmpFactor(uint32 targetValue, uint32 targetTimestamp) external onlyRole(GOVERNANCE_ROLE) {
     checkAmpRange(targetValue);
     uint _targetTimestamp = uint(targetTimestamp);
     uint minimumTargetTimestamp = block.timestamp + MIN_AMP_ADJUSTMENT_WINDOW;
-    if (_targetTimestamp < minimumTargetTimestamp)
+    if (_targetTimestamp < minimumTargetTimestamp) {
       revert Pool_AmpFactorTargetTimestampTooSmall(targetTimestamp, uint32(minimumTargetTimestamp));
+    }
     uint currentAmpFactor = uint(getAmpFactor());
-    if (currentAmpFactor == 0)
+    if (currentAmpFactor == 0) {
       revert Pool_AmpFactorIsFixedForConstantProductPools();
+    }
     uint _ampTargetValue = uint(toInternalAmpValue(targetValue));
 
     if (currentAmpFactor <= _ampTargetValue) {
       uint threshold = currentAmpFactor * MAX_AMP_RELATIVE_ADJUSTMENT;
-      if (_ampTargetValue > threshold)
+      if (_ampTargetValue > threshold) {
         revert Pool_AmpFactorRelativeAdjustmentTooLarge(
           toExternalAmpValue(uint32(currentAmpFactor)),
           targetValue,
           toExternalAmpValue(uint32(threshold))
         );
-    }
-    else {
+      }
+    } else {
       uint threshold = _ampTargetValue * MAX_AMP_RELATIVE_ADJUSTMENT;
-      if (_ampTargetValue < threshold)
+      if (_ampTargetValue < threshold) {
         revert Pool_AmpFactorRelativeAdjustmentTooLarge(
           toExternalAmpValue(uint32(currentAmpFactor)),
           targetValue,
           toExternalAmpValue(uint32(threshold))
         );
+      }
     }
 
     ampInitialValue = uint32(block.timestamp);
@@ -437,31 +458,36 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     ampTargetTimestamp = targetTimestamp;
   }
 
-  function setPaused(bool _paused) external onlyGovernance {
-    paused = _paused;
-    emit Paused(paused);
+
+  function pause() public onlyRole(PAUSER_ROLE) {
+    _pause();
   }
 
-  function transferGovernance(address _governance) external onlyGovernance {
-    governance = _governance;
-    emit TransferGovernance(governance);
+  function unpause() public onlyRole(PAUSER_ROLE) {
+    _unpause();
   }
 
-  function changeGovernanceFeeRecipient(address _governanceFeeRecipient) external onlyGovernance {
-    if (governanceFee != 0 && _governanceFeeRecipient == address(0))
+  function transferGovernance(address _governance) external onlyRole(GOVERNANCE_ROLE) {
+    grantRole(GOVERNANCE_ROLE, _governance);
+    emit TransferGovernance(msg.sender, _governance);
+  }
+
+  function changeGovernanceFeeRecipient(address _governanceFeeRecipient) external onlyRole(GOVERNANCE_ROLE) {
+    if (governanceFee != 0 && _governanceFeeRecipient == address(0)) {
       revert Pool_NonZeroGovernanceFeeButNoRecipient();
+    }
     governanceFeeRecipient = _governanceFeeRecipient;
     emit ChangeGovernanceFeeRecipient(governanceFeeRecipient);
   }
 
   //intentionally empty (we only want the onlyGovernance modifier "side-effect")
-  function _authorizeUpgrade(address) internal override onlyGovernance {}
+  function _authorizeUpgrade(address) internal override onlyRole(GOVERNANCE_ROLE) {}
 
-  function upgradeLpToken(address newImplementation) external onlyGovernance {
+  function upgradeLpToken(address newImplementation) external onlyRole(GOVERNANCE_ROLE) {
     LpToken(lpTokenData.addr).upgradeTo(newImplementation);
   }
 
-  function upgradeLpToken(address newImplementation, bytes memory data) external onlyGovernance {
+  function upgradeLpToken(address newImplementation, bytes memory data) external onlyRole(GOVERNANCE_ROLE) {
     LpToken(lpTokenData.addr).upgradeToAndCall(newImplementation, data);
   }
 
@@ -499,10 +525,12 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     // 1) Anything even close to approaching this is already entirely insane.
     // 2) To avoid theoretical overflow/underflow issues when calculating the inverse fee,
     //    of 1/(1-fee)-1 would exceed 100 % if fee were to exceeds 50 %.
-    if (_totalFee >= FEE_MULTIPLIER/2)
+    if (_totalFee >= FEE_MULTIPLIER/2) {
       revert Pool_TotalFeeTooLarge(_totalFee, uint32(FEE_MULTIPLIER/2 - 1));
-    if (_governanceFee != 0 && governanceFeeRecipient == address(0))
+    }
+    if (_governanceFee != 0 && governanceFeeRecipient == address(0)) {
       revert Pool_NonZeroGovernanceFeeButNoRecipient();
+    }
     totalFee = _totalFee;
     governanceFee = _governanceFee;
   }
@@ -536,11 +564,13 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   function equalizeAmounts(uint[] memory amounts, uint _tokenCount)
     internal view returns(Equalized[] memory equalized) {
-    if (amounts.length != _tokenCount)
+    if (amounts.length != _tokenCount) {
       revert Pool_AmountCountMismatch(uint8(amounts.length), uint8(_tokenCount));
+    }
     equalized = new Equalized[](_tokenCount);
-    for (uint i = 0; i < _tokenCount; ++i)
+    for (uint i = 0; i < _tokenCount; ++i) {
       equalized[i] = Equalize.to(amounts[i], poolTokensData[i].equalizer);
+    }
   }
 
   //function for cutting down on boiler plate code
@@ -585,23 +615,26 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       int totalAdjustmentTime = _ampTargetTimestamp - _ampInitialTimestamp;
       int delta = totalValueDifference * timeSinceInitial / totalAdjustmentTime;
       ampFactor = uint32(uint(_ampInitialValue + delta));
-    }
-    else
+    } else {
       ampFactor = ampTargetValue;
+    }
   }}
 
   // ------------------------------ INTERNAL PURE -----------------------------
 
   function checkIndex(uint8 index, uint _tokenCount) internal pure {
-    if (index >= _tokenCount)
+    if (index >= _tokenCount) {
       revert Pool_InvalidTokenIndex(index, uint8 (_tokenCount));
+    }
   }
 
   function checkAmpRange(uint32 ampFactor) internal pure {
-    if (ampFactor > MAX_AMP_FACTOR)
+    if (ampFactor > MAX_AMP_FACTOR) {
       revert Pool_AmpFactorTooLarge(ampFactor, MAX_AMP_FACTOR);
-    if (ampFactor < AMP_MULTIPLIER)
+    }
+    if (ampFactor < AMP_MULTIPLIER) {
       revert Pool_AmpFactorTooSmall(ampFactor, uint32(AMP_MULTIPLIER));
+    }
   }
 
   function toInternalAmpValue(uint32 ampFactor) internal pure returns (uint32) { unchecked {

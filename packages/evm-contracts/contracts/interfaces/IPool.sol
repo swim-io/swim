@@ -39,7 +39,7 @@ interface IPool {
   event RemoveExactOutput(uint256 burnAmount, uint256[] outputAmounts, bytes16 indexed memo);
   event RemoveUniform(uint256 burnAmount, uint256[] outputAmounts, bytes16 indexed memo);
   event Paused(bool paused);
-  event TransferGovernance(address indexed newGovernance);
+  event TransferGovernance(address indexed from, address indexed to);
   event ChangeGovernanceFeeRecipient(address indexed governanceFeeRecepient);
 
   function getState() external view returns (PoolState memory state);

@@ -131,7 +131,7 @@ const config: HardhatUserConfig = {
             "evm.bytecode",
             "evm.bytecode.sourceMap",
             "ir",
-            // "irOptimized",
+            "irOptimized",
             "evm.assembly",
           ],
           // "": ["ast"],

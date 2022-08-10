@@ -171,33 +171,6 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   // ----------------------------- DEFI LIQUIDITY -----------------------------
 
-  //always available, even when paused!
-  //maximally robust and conservative implementation
-  function removeUniform(uint burnAmount, uint[] memory minimumOutputAmounts, bytes16 memo)
-    external returns(uint[] memory outputAmounts) {
-    uint _tokenCount = tokenCount;
-    LpToken lpToken = LpToken(lpTokenData.addr);
-    uint totalLpSupply = lpToken.totalSupply();
-
-    lpToken.burnFrom(msg.sender, burnAmount);
-    outputAmounts = new uint[](_tokenCount);
-
-    for (uint i = 0; i < _tokenCount; ++i) {
-      IERC20Upgradeable poolToken = IERC20Upgradeable(poolTokensData[i].addr);
-      uint poolBalance = poolToken.balanceOf(address(this));
-      //The mulDiv in the next line can theoretically have a phantom overflow (burn amount is
-      // always less than totalLpSupply, so a true overflow is impossible). However, for this
-      // to happen, both poolBalance and burnAmount have to exceed 10^38 which is realistically
-      // impossible, even after accounting for the standard 18 decimals.
-      uint outputAmount = poolBalance * burnAmount / totalLpSupply; //SafeMath!
-      if (outputAmount < minimumOutputAmounts[i])
-        revert Pool_SlippageExceeded(address(poolToken), outputAmount, minimumOutputAmounts[i]);
-      poolToken.safeTransfer(msg.sender, outputAmount);
-      outputAmounts[i] = outputAmount;
-    }
-    emit RemoveUniform(burnAmount, minimumOutputAmounts, outputAmounts, memo);
-  }
-
   function add(
     uint[] memory inputAmounts,
     uint minimumMintAmount,
@@ -237,6 +210,35 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     emit Add(inputAmounts, minimumMintAmount, mintAmount, memo);
   }}
 
+  //always available, even when paused!
+  //maximally robust and conservative implementation
+  function removeUniform(uint burnAmount, uint[] memory minimumOutputAmounts, bytes16 memo)
+    external returns(uint[] memory outputAmounts) {
+    uint _tokenCount = tokenCount;
+    LpToken lpToken = LpToken(lpTokenData.addr);
+    uint totalLpSupply = lpToken.totalSupply();
+
+    lpToken.burnFrom(msg.sender, burnAmount);
+    outputAmounts = new uint[](_tokenCount);
+
+    for (uint i = 0; i < _tokenCount; ++i) {
+      IERC20Upgradeable poolToken = IERC20Upgradeable(poolTokensData[i].addr);
+      uint poolBalance = poolToken.balanceOf(address(this));
+      //The mulDiv in the next line can theoretically have a phantom overflow (burn amount is
+      // always less than totalLpSupply, so a true overflow is impossible). However, for this
+      // to happen, both poolBalance and burnAmount have to exceed 10^38 which is realistically
+      // impossible, even after accounting for the standard 18 decimals.
+      uint outputAmount = poolBalance * burnAmount / totalLpSupply; //SafeMath!
+      if (outputAmount < minimumOutputAmounts[i])
+        revert Pool_SlippageExceeded(address(poolToken), outputAmount, minimumOutputAmounts[i]);
+      poolToken.safeTransfer(msg.sender, outputAmount);
+      outputAmounts[i] = outputAmount;
+    }
+    emit RemoveUniform(burnAmount, outputAmounts, memo);
+  }
+
+
+
   function removeExactOutput(
     uint[] memory outputAmounts,
     uint maximumBurnAmount,
@@ -268,7 +270,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       safeTransfer(outputAmounts[i], i);
     mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
 
-    emit RemoveExactOutput(outputAmounts, maximumBurnAmount, burnAmount, memo);
+    emit RemoveExactOutput(burnAmount, outputAmounts, memo);
   }}
 
   function removeExactBurn(
@@ -442,14 +444,14 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   function transferGovernance(address _governance) external onlyGovernance {
     governance = _governance;
-    emit TransferGovernance(_governance);
+    emit TransferGovernance(governance);
   }
 
   function changeGovernanceFeeRecipient(address _governanceFeeRecipient) external onlyGovernance {
     if (governanceFee != 0 && _governanceFeeRecipient == address(0))
       revert Pool_NonZeroGovernanceFeeButNoRecipient();
     governanceFeeRecipient = _governanceFeeRecipient;
-    emit ChangeGovernanceFeeRecipient(_governanceFeeRecipient);
+    emit ChangeGovernanceFeeRecipient(governanceFeeRecipient);
   }
 
   //intentionally empty (we only want the onlyGovernance modifier "side-effect")

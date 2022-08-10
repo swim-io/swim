@@ -36,18 +36,8 @@ interface IPool {
     uint256 outputAmount,
     bytes16 indexed memo
   );
-  event RemoveExactOutput(
-    uint256[] outputAmounts,
-    uint256 maximumBurnAmount,
-    uint256 burnAmount,
-    bytes16 indexed memo
-  );
-  event RemoveUniform(
-    uint256 burnAmount,
-    uint256[] minimumOutputAmounts,
-    uint256[] outputAmounts,
-    bytes16 indexed memo
-  );
+  event RemoveExactOutput(uint256 burnAmount, uint256[] outputAmounts, bytes16 indexed memo);
+  event RemoveUniform(uint256 burnAmount, uint256[] outputAmounts, bytes16 indexed memo);
   event Paused(bool paused);
   event TransferGovernance(address indexed newGovernance);
   event ChangeGovernanceFeeRecipient(address indexed governanceFeeRecepient);

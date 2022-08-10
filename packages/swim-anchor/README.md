@@ -26,5 +26,11 @@ check your npm version. npm lts/gallium (v16.15.1 as of this writing) works but 
 2. adjust visibility of imports/crates to only expose what's needed
 3. enhance lp metadata tests with mpl js storage mock logic
 4. anchor can't handle nested custom structs for inputs into ixs.
-    1. look into using just u32 for lp_fee, gov_fee for ix inputs.
+    1. look into using just u32 for lp_fee, gov_fee for ix inputs represented as pips
+5. Might have to think about seeds used to initialize pool PDA.
+    1. not sure if susceptible to [pda sharing exploit](https://github.com/coral-xyz/anchor/pull/2041/files#diff-f48ff5c23fd7492bb7255324f1160735f7b0771fde6e1782a198c81d44363c34)
+    2. don't think so since as part of the process to initialize the pool pda, you need to initialize the lp_mint so
+        we should be safe from anyone being able to initialize another pda ("share" it)
+    3. to be safe, could alternatively create pool token accounts outside of the initialize ix,
+        then use those as seeds for the pool state pda. that would be closer to secure solution from exploit docs
 

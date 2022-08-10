@@ -334,6 +334,7 @@ export class SolanaConnection {
     }
     if ((this.dummySubscriptionId as number | undefined) !== undefined) {
       // Remove old dummy subscription if it has been initialized.
+      console.log("removing connection");
       this.rawConnection
         .removeAccountChangeListener(this.dummySubscriptionId)
         .catch(console.error);

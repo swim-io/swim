@@ -173,7 +173,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   //always available, even when paused!
   //maximally robust and conservative implementation
-  function removeUniform(uint burnAmount, uint[] memory minimumOutputAmounts)
+  function removeUniform(uint burnAmount, uint[] memory minimumOutputAmounts, bytes16 memo)
     external returns(uint[] memory outputAmounts) {
     uint _tokenCount = tokenCount;
     LpToken lpToken = LpToken(lpTokenData.addr);
@@ -195,11 +195,13 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       poolToken.safeTransfer(msg.sender, outputAmount);
       outputAmounts[i] = outputAmount;
     }
+    emit RemoveUniform(burnAmount, minimumOutputAmounts, outputAmounts, memo);
   }
 
   function add(
     uint[] memory inputAmounts,
-    uint minimumMintAmount
+    uint minimumMintAmount,
+    bytes16 memo
   ) external notPaused returns(uint mintAmount) { unchecked {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
@@ -231,11 +233,14 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     for (uint i = 0; i < _tokenCount; ++i)
       safeTransferFrom(inputAmounts[i], i);
     lpToken.mint(msg.sender, mintAmount);
+
+    emit Add(inputAmounts, minimumMintAmount, mintAmount, memo);
   }}
 
   function removeExactOutput(
     uint[] memory outputAmounts,
-    uint maximumBurnAmount
+    uint maximumBurnAmount,
+    bytes16 memo
   ) external notPaused returns(uint burnAmount) { unchecked {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
@@ -262,12 +267,15 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     for (uint i = 0; i < _tokenCount; ++i)
       safeTransfer(outputAmounts[i], i);
     mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
+
+    emit RemoveExactOutput(outputAmounts, maximumBurnAmount, burnAmount, memo);
   }}
 
   function removeExactBurn(
     uint burnAmount,
     uint8 outputTokenIndex,
-    uint minimumOutputAmount
+    uint minimumOutputAmount,
+    bytes16 memo
   ) external notPaused returns(uint outputAmount) {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
@@ -295,6 +303,8 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     lpToken.burnFrom(msg.sender, burnAmount);
     safeTransfer(outputAmount, outputTokenIndex);
     mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
+
+    emit RemoveExactBurn(burnAmount, outputTokenIndex, minimumOutputAmount, outputAmount, memo);
   }
 
   // ------------------------------- DEFI SWAP --------------------------------
@@ -427,19 +437,19 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   function setPaused(bool _paused) external onlyGovernance {
     paused = _paused;
-    //emit event
+    emit Paused(paused);
   }
 
   function transferGovernance(address _governance) external onlyGovernance {
     governance = _governance;
-    //emit event
+    emit TransferGovernance(_governance);
   }
 
   function changeGovernanceFeeRecipient(address _governanceFeeRecipient) external onlyGovernance {
     if (governanceFee != 0 && _governanceFeeRecipient == address(0))
       revert Pool_NonZeroGovernanceFeeButNoRecipient();
     governanceFeeRecipient = _governanceFeeRecipient;
-    //emit event
+    emit ChangeGovernanceFeeRecipient(_governanceFeeRecipient);
   }
 
   //intentionally empty (we only want the onlyGovernance modifier "side-effect")

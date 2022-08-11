@@ -15,10 +15,7 @@ export const usePoolStateQueries = (
   poolSpecs: readonly PoolSpec[],
 ): readonly UseQueryResult<PoolState | null, Error>[] => {
   const { env } = useEnvironment();
-  const { tokens, routingContractAddress } = useEnvironment(
-    selectConfig,
-    shallow,
-  );
+  const { tokens, evmRoutingContract } = useEnvironment(selectConfig, shallow);
   const solanaConnection = useSolanaConnection();
   const evmConnections = useEvmConnections();
 
@@ -33,7 +30,7 @@ export const usePoolStateQueries = (
           evmConnections[poolSpec.ecosystem],
           poolSpec,
           tokens,
-          routingContractAddress,
+          evmRoutingContract,
         );
       },
     })),

@@ -1,6 +1,6 @@
 import type { Connection, PublicKey } from "@solana/web3.js";
-import type { SwimPoolState } from "@swim-io/solana-types";
-import { deserializeSwimPool } from "@swim-io/solana-types";
+import type { SwimPoolState } from "@swim-io/solana";
+import { deserializeSwimPool } from "@swim-io/solana";
 import Decimal from "decimal.js";
 
 import type { SwimPoolConstantProperties } from "./hexapool";

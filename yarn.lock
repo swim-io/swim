@@ -4826,7 +4826,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@solana/web3.js@npm:^1.17.0, @solana/web3.js@npm:^1.21.0, @solana/web3.js@npm:^1.24.0, @solana/web3.js@npm:^1.30.2, @solana/web3.js@npm:^1.31.0, @solana/web3.js@npm:^1.32.0, @solana/web3.js@npm:^1.36.0, @solana/web3.js@npm:^1.44.2, @solana/web3.js@npm:^1.44.3":
+"@solana/web3.js@npm:^1.17.0, @solana/web3.js@npm:^1.21.0, @solana/web3.js@npm:^1.24.0, @solana/web3.js@npm:^1.30.2, @solana/web3.js@npm:^1.31.0, @solana/web3.js@npm:^1.32.0, @solana/web3.js@npm:^1.36.0, @solana/web3.js@npm:^1.44.3":
   version: 1.44.3
   resolution: "@solana/web3.js@npm:1.44.3"
   dependencies:
@@ -4847,6 +4847,31 @@ __metadata:
     superstruct: ^0.14.2
     tweetnacl: ^1.0.0
   checksum: ef35951ad947d5f830fcc8d5b444424ce65752f4f935d5a4eccae85f4867eeb2e8e3e89005a2ee217771253d1c5428e7537de339c557f22c8cb5e2f5204ec5df
+  languageName: node
+  linkType: hard
+
+"@solana/web3.js@npm:^1.44.2":
+  version: 1.52.0
+  resolution: "@solana/web3.js@npm:1.52.0"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+    "@ethersproject/sha2": ^5.5.0
+    "@solana/buffer-layout": ^4.0.0
+    bigint-buffer: ^1.1.5
+    bn.js: ^5.0.0
+    borsh: ^0.7.0
+    bs58: ^4.0.1
+    buffer: 6.0.1
+    fast-stable-stringify: ^1.0.0
+    jayson: ^3.4.4
+    js-sha3: ^0.8.0
+    node-fetch: 2
+    react-native-url-polyfill: ^1.3.0
+    rpc-websockets: ^7.5.0
+    secp256k1: ^4.0.2
+    superstruct: ^0.14.2
+    tweetnacl: ^1.0.3
+  checksum: be162bc31ea9a9f3e025e740f077bba2164ca6882e211fa5f694407cf44fac5038c8149691d12c5170cf4cca5a3c7adb82c04f0b34bdbc3d1429d7db21d3ba8f
   languageName: node
   linkType: hard
 
@@ -6480,7 +6505,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/solana-types@workspace:^, @swim-io/solana-types@workspace:packages/solana-types":
+"@swim-io/solana-types@workspace:packages/solana-types":
   version: 0.0.0-use.local
   resolution: "@swim-io/solana-types@workspace:packages/solana-types"
   dependencies:
@@ -6517,7 +6542,7 @@ __metadata:
     "@solana/web3.js": ^1.31.0
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/pool-math": "workspace:^"
-    "@swim-io/solana-types": "workspace:^"
+    "@swim-io/solana": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@types/bn.js": ^5.1.0
     "@types/jest": ^28.1.3
@@ -6543,7 +6568,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/solana@workspace:packages/solana":
+"@swim-io/solana@workspace:^, @swim-io/solana@workspace:packages/solana":
   version: 0.0.0-use.local
   resolution: "@swim-io/solana@workspace:packages/solana"
   dependencies:

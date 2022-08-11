@@ -234,7 +234,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       safeTransferFrom(inputAmounts[i], i);
     lpToken.mint(msg.sender, mintAmount);
 
-    emit Add(inputAmounts, minimumMintAmount, mintAmount, memo);
+    emit Add(inputAmounts, mintAmount, memo);
   }}
 
 
@@ -305,7 +305,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     safeTransfer(outputAmount, outputTokenIndex);
     mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
 
-    emit RemoveExactBurn(burnAmount, outputTokenIndex, minimumOutputAmount, outputAmount, memo);
+    emit RemoveExactBurn(burnAmount, outputTokenIndex, outputAmount, memo);
   }
 
   // ------------------------------- DEFI SWAP --------------------------------

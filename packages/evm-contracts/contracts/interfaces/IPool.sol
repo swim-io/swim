@@ -23,21 +23,18 @@ struct PoolState {
 }
 
 interface IPool {
-  event Add(
-    uint256[] inputAmounts,
-    uint256 minimumMintAmount,
-    uint256 mintAmount,
-    bytes16 indexed memo
-  );
+  event RemoveUniform(uint256 burnAmount, uint256[] outputAmounts, bytes16 indexed memo);
+
+  event Add(uint256[] inputAmounts, uint256 mintAmount, bytes16 indexed memo);
+
+  event RemoveExactOutput(uint256 burnAmount, uint256[] outputAmounts, bytes16 indexed memo);
+
   event RemoveExactBurn(
     uint256 burnAmount,
     uint8 outputTokenIndex,
-    uint256 minimumOutputAmount,
     uint256 outputAmount,
     bytes16 indexed memo
   );
-  event RemoveExactOutput(uint256 burnAmount, uint256[] outputAmounts, bytes16 indexed memo);
-  event RemoveUniform(uint256 burnAmount, uint256[] outputAmounts, bytes16 indexed memo);
   event Paused(bool paused);
   event TransferGovernance(address indexed from, address indexed to);
   event ChangeGovernanceFeeRecipient(address indexed governanceFeeRecepient);

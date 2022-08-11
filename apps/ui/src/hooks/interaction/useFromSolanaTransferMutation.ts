@@ -32,10 +32,7 @@ import { DEFAULT_WORMHOLE_RETRIES } from "../../models/wormhole/constants";
 import { getSignedVaaWithRetry } from "../../models/wormhole/guardiansRpc";
 import { useWallets } from "../crossEcosystem";
 import { useEvmConnections } from "../evm";
-import {
-  useSolanaWallet,
-  useSplTokenAccountsQuery,
-} from "../solana";
+import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 
 const getTransferredAmountsByTokenId = async (
   interactionState: InteractionState,

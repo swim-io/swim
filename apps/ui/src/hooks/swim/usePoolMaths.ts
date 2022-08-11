@@ -3,7 +3,7 @@ import { isEachNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
 import { atomicToHuman, bnOrBigNumberToDecimal } from "../../amounts";
-import { EcosystemId } from "../../config";
+import { EcosystemId, getTokenDetailsForEcosystem } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { Amount, isEvmPoolState } from "../../models";
@@ -23,9 +23,16 @@ const getPoolMath = ({
     return null;
   }
 
-  const poolTokenDecimals = poolTokens.map(
-    (tokenSpec) => tokenSpec.nativeDetails.decimals,
-  );
+  const poolTokenDecimals = poolTokens.map((tokenSpec) => {
+    const tokenDetails = getTokenDetailsForEcosystem(
+      tokenSpec,
+      poolSpec.ecosystem,
+    );
+    if (tokenDetails === null) {
+      throw new Error("Token details not found");
+    }
+    return tokenDetails.decimals;
+  });
   const maxDecimals = Math.max(...poolTokenDecimals);
   const tolerance = new Decimal(10).pow(-maxDecimals);
   if (isEvmPoolState(poolState)) {

@@ -13,9 +13,10 @@ import type {
   EvmPoolSpec,
   PoolSpec,
   SolanaPoolSpec,
-  TokenSpec,
-} from "../../config";
-import { EcosystemId, isEvmEcosystemId } from "../../config";
+  TokenSpec} from "../../config";
+import {
+  getTokenDetailsForEcosystem
+ EcosystemId, isEvmEcosystemId } from "../../config";
 import type { SolanaTx, Tx } from "../crossEcosystem";
 import { isSolanaTx } from "../crossEcosystem";
 import type { EvmConnection } from "../evm";
@@ -112,12 +113,16 @@ export const getEvmPoolState = async (
   return {
     isPaused: state.paused,
     ecosystem,
-    balances: poolTokens.map((token, i) =>
-      atomicToHuman(
+    balances: poolTokens.map((token, i) => {
+      const tokenDetails = getTokenDetailsForEcosystem(token, ecosystem);
+      if (tokenDetails === null) {
+        throw new Error("Token details not found");
+      }
+      return atomicToHuman(
         new Decimal(state.balances[i][1].toString()),
-        token.nativeDetails.decimals,
-      ),
-    ),
+        tokenDetails.decimals,
+      );
+    }),
     totalLpSupply: atomicToHuman(
       new Decimal(state.totalLpSupply[1].toString()),
       lpToken.nativeDetails.decimals,

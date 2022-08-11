@@ -5,10 +5,10 @@ import type { Env } from "@swim-io/core";
 import type { UseQueryOptions, UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
+import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { useEnvironment } from "../../core/store";
 import { deserializeTokenAccount } from "../../models";
 
-import { useSolanaConnection } from "./useSolanaConnection";
 import { useSolanaWallet } from "./useSolanaWallet";
 
 export const getSplTokenAccountsQueryKey = (

@@ -18,6 +18,7 @@ import {
 import { PublicKey } from "@solana/web3.js";
 import { sleep } from "@swim-io/utils";
 import BN from "bn.js";
+import { useSolanaConnection } from "contexts/SolanaConnection";
 import type { ReactElement } from "react";
 import { Fragment, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
@@ -36,7 +37,6 @@ import { useEnvironment, useNotification } from "../core/store";
 import {
   useEvmConnections,
   usePool,
-  useSolanaConnection,
   useTokensByEcosystem,
   useWallets,
 } from "../hooks";

@@ -4,6 +4,7 @@ import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import { EcosystemId } from "../../config";
+import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useInteractionStateV2 } from "../../core/store";
 import type {
@@ -19,7 +20,7 @@ import {
   getTokensByPool,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
-import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
+import { useSplTokenAccountsQuery } from "../solana";
 
 export const useSingleChainSolanaSwapInteractionMutation = () => {
   const { env } = useEnvironment();

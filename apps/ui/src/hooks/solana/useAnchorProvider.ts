@@ -1,6 +1,6 @@
 import { AnchorProvider } from "@project-serum/anchor";
+import { useSolanaConnection } from "../../contexts/SolanaConnection";
 
-import { useSolanaConnection } from "./useSolanaConnection";
 import { useSolanaWallet } from "./useSolanaWallet";
 
 export const useAnchorProvider = (): AnchorProvider | null => {

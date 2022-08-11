@@ -3,6 +3,7 @@ import type { Idl } from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
+import { useSolanaConnection } from "contexts/SolanaConnection";
 import type { UseMutationResult } from "react-query";
 import { useMutation, useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
@@ -15,7 +16,6 @@ import type { NftData } from "../solana";
 import {
   useAnchorProvider,
   useCreateSplTokenAccountsMutation,
-  useSolanaConnection,
 } from "../solana";
 
 // Note, this address should be somewhere more general if it ever has a usecase beyond the redeemer.

@@ -3,8 +3,8 @@ import { Env } from "@swim-io/core";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
 
+import { useSolanaConnection } from "../contexts/SolanaConnection";
 import { useEnvironment } from "../core/store";
-import { useSolanaConnection } from "../hooks/solana";
 
 const INTERVAL_FREQUENCY_MS = 60000; // 1 minute.
 const SAMPLES_LIMIT = 5;

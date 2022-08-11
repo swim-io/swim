@@ -6,10 +6,10 @@ import { useQuery } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import { Protocol } from "../../config";
+import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 
-import { useSolanaConnection } from "./useSolanaConnection";
 import { useSolanaWallet } from "./useSolanaWallet";
 
 const {

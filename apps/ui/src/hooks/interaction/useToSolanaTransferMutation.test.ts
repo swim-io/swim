@@ -4,6 +4,7 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
 import { EcosystemId } from "../../config";
+import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { MOCK_SOL_WALLET } from "../../fixtures";
@@ -13,7 +14,7 @@ import type { Wallets } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useWallets } from "../crossEcosystem";
 import { useEvmConnections } from "../evm";
-import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
+import { useSplTokenAccountsQuery } from "../solana";
 
 import { useToSolanaTransferMutation } from "./useToSolanaTransferMutation";
 

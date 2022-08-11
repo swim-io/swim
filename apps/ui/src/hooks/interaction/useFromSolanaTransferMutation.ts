@@ -13,6 +13,7 @@ import {
   getSolanaTokenDetails,
   getTokenDetailsForEcosystem,
 } from "../../config";
+import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { InteractionState, SolanaConnection, Tx } from "../../models";
@@ -32,7 +33,6 @@ import { getSignedVaaWithRetry } from "../../models/wormhole/guardiansRpc";
 import { useWallets } from "../crossEcosystem";
 import { useEvmConnections } from "../evm";
 import {
-  useSolanaConnection,
   useSolanaWallet,
   useSplTokenAccountsQuery,
 } from "../solana";

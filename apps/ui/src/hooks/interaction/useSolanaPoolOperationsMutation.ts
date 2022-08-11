@@ -3,6 +3,7 @@ import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import { EcosystemId } from "../../config";
+import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {
@@ -10,11 +11,7 @@ import {
   getTokensByPool,
   setOutputOperationInputAmount,
 } from "../../models";
-import {
-  useSolanaConnection,
-  useSolanaWallet,
-  useSplTokenAccountsQuery,
-} from "../solana";
+import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 
 export const useSolanaPoolOperationsMutation = () => {
   const { env } = useEnvironment();

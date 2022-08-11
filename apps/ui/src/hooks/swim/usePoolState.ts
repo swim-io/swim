@@ -3,9 +3,9 @@ import type { UseQueryResult } from "react-query";
 import { useQueries, useQuery } from "react-query";
 
 import type { PoolSpec } from "../../config";
+import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { useEnvironment } from "../../core/store";
 import { getPoolState } from "../../models";
-import { useSolanaConnection } from "../solana";
 
 export const usePoolStates = (
   poolSpecs: readonly PoolSpec[],

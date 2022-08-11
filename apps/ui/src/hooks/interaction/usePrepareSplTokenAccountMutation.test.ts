@@ -9,7 +9,7 @@ import { MOCK_INTERACTION_STATE } from "../../fixtures/swim/interactionState";
 import type { SolanaWalletInterface } from "../../models";
 import { createSplTokenAccount } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
-import { useSolanaConnection, useSolanaWallet } from "../solana";
+import { useSolanaWallet } from "../solana";
 
 import { usePrepareSplTokenAccountMutation } from "./usePrepareSplTokenAccountMutation";
 

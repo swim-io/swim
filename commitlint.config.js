@@ -15,7 +15,6 @@ module.exports = {
         "quarry-deployment",
         "redeemer",
         "solana",
-        "solana-types",
         "solana-usdc-usdt-swap",
         "token-projects",
         "tsconfig",

@@ -2,6 +2,7 @@ import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
+import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { MOCK_SOL_WALLET } from "../../fixtures";

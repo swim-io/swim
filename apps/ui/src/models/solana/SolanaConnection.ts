@@ -331,23 +331,18 @@ export class SolanaConnection {
       // and it is not being called in the constructor (when this.rawConnection is still undefined)
       return;
     }
-    if ((this.dummySubscriptionId as number | undefined) !== undefined) {
-      // Remove old dummy subscription if it has been initialized.
-      this.rawConnection
-        .removeAccountChangeListener(this.dummySubscriptionId)
-        .catch(console.error);
-    }
+    // if ((this.dummySubscriptionId as number | undefined) !== undefined) {
+    //   // Remove old dummy subscription if it has been initialized.
+    //   this.rawConnection
+    //     .removeAccountChangeListener(this.dummySubscriptionId)
+    //     .catch(console.error);
+    // }
     this.rpcIndex = (this.rpcIndex + 1) % this.endpoints.length;
     this.rawConnection = new CustomConnection(this.endpoints[this.rpcIndex], {
       commitment: DEFAULT_COMMITMENT_LEVEL,
       confirmTransactionInitialTimeout: 60 * 1000,
       disableRetryOnRateLimit: true,
     });
-    this.dummySubscriptionId = this.rawConnection.onAccountChange(
-      Keypair.generate().publicKey,
-      () => {},
-    );
-
     this.getAccountInfo = this.rawConnection.getAccountInfo.bind(
       this.rawConnection,
     );
@@ -368,6 +363,10 @@ export class SolanaConnection {
     );
     this.removeAccountChangeListener =
       this.rawConnection.removeAccountChangeListener.bind(this.rawConnection);
+    // this.dummySubscriptionId = this.rawConnection.onAccountChange(
+    //   Keypair.generate().publicKey,
+    //   () => {},
+    // );
   }
 
   private async callWithRetry<T>(

@@ -33,7 +33,7 @@ export const SolanaConnectionProvider = ({
 export const useSolanaConnection = (): SolanaConnection => {
   const context = useContext(SolanaConnectionContext);
   if (!context) {
-    throw new Error("fuck");
+    throw new Error("Missing Solana connection context");
   }
   return context;
 };

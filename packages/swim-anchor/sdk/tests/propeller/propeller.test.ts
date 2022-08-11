@@ -61,6 +61,12 @@ import {LAMPORTS_PER_SOL, PublicKey} from "@solana/web3.js";
 import {SwitchboardTestContext} from "@switchboard-xyz/sbv2-utils";
 import { setupPoolPrereqs, setupUserAssociatedTokenAccts } from "../twoPool/poolTestUtils";
 import { getApproveAndRevokeIxs } from "../../src";
+// this just breaks everything for some reason...
+// import { MEMO_PROGRAM_ID } from "@solana/spl-memo";
+const MEMO_PROGRAM_ID: PublicKey = new PublicKey(
+  'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr',
+);
+
 // import {getAssociatedTokenAddress} from "@solana/spl-token/src/state";
 
 // import {WORMHOLE_CORE_BRIDGE, WORMHOLE_TOKEN_BRIDGE} from "./wormhole_utils";
@@ -667,12 +673,14 @@ describe("propeller", () => {
       userTransferAuthority.publicKey,
       payer
     )
+    const memo = Buffer.from("hahahallala", "utf-8");
     const tx = await propellerProgram
       .methods
       // .add(addParams)
       .add(
         inputAmounts,
         minimumMintAmount,
+        memo,
       )
       .accounts({
         // propeller: propeller,
@@ -685,6 +693,7 @@ describe("propeller", () => {
         userTokenAccount1: userUsdtAtaAddr,
         userLpTokenAccount: userSwimUsdAtaAddr,
         tokenProgram: splToken.programId,
+        memo: MEMO_PROGRAM_ID,
         twoPoolProgram: twoPoolProgram.programId,
       })
       .preInstructions(approveIxs)
@@ -692,8 +701,18 @@ describe("propeller", () => {
       .signers([userTransferAuthority])
       .rpc({skipPreflight: true});
 
+    await connection.confirmTransaction(
+      {
+        signature: tx,
+        ...(await connection.getLatestBlockhash())
+      },
+      "confirmed"
+    );
     const userLpTokenBalanceAfter = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
     console.log(`userLpTokenBalanceAfter: ${userLpTokenBalanceAfter.toString()}`);
+
+    const txnInfo = await connection.getTransaction(tx, {commitment: "confirmed"});
+    console.log(`txnInfo: ${JSON.stringify(txnInfo, null, 2)}`);
   });
 
   describe.skip("Old tests", () => {
@@ -2062,62 +2081,6 @@ describe("propeller", () => {
   });
 
 });
-
-/**
- * Note: preInstructions has a bug where the signers for it are not done correctly
- * @param approveAmount
- * @param authority - owner of the user token accounts
- * @param delegate -
- * @param user_token_accounts
- */
-// async function getApproveAndRevokeIxs(approveAmount: anchor.BN, authority: web3.PublicKey, delegate: web3.PublicKey, user_token_accounts: web3.PublicKey[]) {
-// 	const approve_0_ix = await splToken
-// 		.methods
-// 		.approve(approveAmount)
-// 		.accounts({
-// 			source: user_token_accounts[0],
-// 			delegate,
-// 			authority
-// 		})
-// 		// .signers([signer])
-// 		.instruction();
-//
-// 	const approve_1_ix = await splToken
-// 		.methods
-// 		.approve(approveAmount)
-// 		.accounts({
-// 			source: user_token_accounts[1],
-// 			delegate,
-// 			authority
-// 		})
-// 		// .signers([signer])
-// 		.instruction();
-//
-// 	const revoke_0_ix = await splToken
-// 		.methods
-// 		.revoke()
-// 		.accounts({
-// 			source: user_token_accounts[0],
-// 			authority
-// 		})
-// 		// .signers([signer])
-// 		.instruction();
-//
-// 	const revoke_1_ix = await splToken
-// 		.methods
-// 		.revoke()
-// 		.accounts({
-// 			source: user_token_accounts[1],
-// 			authority
-// 		})
-// 		// .signers([signer])
-// 		.instruction();
-//
-// 	return [
-// 		[approve_0_ix, approve_1_ix],
-// 		[revoke_0_ix, revoke_1_ix]
-// 	];
-// }
 
 async function getPropellerPda(mint: web3.PublicKey): Promise<web3.PublicKey> {
 	return (await web3.PublicKey.findProgramAddress(

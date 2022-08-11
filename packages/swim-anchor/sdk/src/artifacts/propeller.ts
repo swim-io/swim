@@ -189,6 +189,11 @@ export type Propeller = {
           "isSigner": false
         },
         {
+          "name": "memo",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -207,6 +212,10 @@ export type Propeller = {
         {
           "name": "minimumMintAmount",
           "type": "u64"
+        },
+        {
+          "name": "memo",
+          "type": "bytes"
         }
       ],
       "returns": "u64"
@@ -867,27 +876,6 @@ export type Propeller = {
           },
           {
             "name": "relayerFee",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "AddParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "inputAmounts",
-            "type": {
-              "array": [
-                "u64",
-                2
-              ]
-            }
-          },
-          {
-            "name": "minimumMintAmount",
             "type": "u64"
           }
         ]
@@ -1580,6 +1568,11 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
+          "name": "memo",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -1598,6 +1591,10 @@ export const IDL: Propeller = {
         {
           "name": "minimumMintAmount",
           "type": "u64"
+        },
+        {
+          "name": "memo",
+          "type": "bytes"
         }
       ],
       "returns": "u64"
@@ -2258,27 +2255,6 @@ export const IDL: Propeller = {
           },
           {
             "name": "relayerFee",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "AddParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "inputAmounts",
-            "type": {
-              "array": [
-                "u64",
-                2
-              ]
-            }
-          },
-          {
-            "name": "minimumMintAmount",
             "type": "u64"
           }
         ]

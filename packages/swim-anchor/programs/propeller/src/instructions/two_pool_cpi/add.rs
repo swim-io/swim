@@ -1,6 +1,6 @@
 use {
     crate::Propeller,
-    anchor_lang::prelude::*,
+    anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::token::{Mint, Token, TokenAccount},
     two_pool::{
         gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT,
@@ -64,6 +64,9 @@ pub struct Add<'info> {
     pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
 
     pub token_program: Program<'info, Token>,
+    #[account(executable, address = spl_memo::id())]
+    ///CHECK: memo program
+    pub memo: UncheckedAccount<'info>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
 }
 
@@ -71,7 +74,9 @@ pub fn handle_add(
     ctx: Context<Add>,
     input_amounts: [u64; TOKEN_COUNT],
     minimum_mint_amount: u64,
+    memo: &[u8],
 ) -> Result<u64> {
+    let test = spl_memo::id();
     let cpi_ctx = CpiContext::new(
         ctx.accounts.two_pool_program.to_account_info(),
         two_pool::cpi::accounts::Add {
@@ -90,11 +95,9 @@ pub fn handle_add(
     );
 
     let result = two_pool::cpi::add(cpi_ctx, input_amounts, minimum_mint_amount)?;
-    Ok(result.get())
-}
-
-#[derive(AnchorSerialize, AnchorDeserialize)]
-pub struct AddParams {
-    pub input_amounts: [u64; TOKEN_COUNT],
-    pub minimum_mint_amount: u64,
+    let return_val = result.get();
+    let memo_ix = spl_memo::build_memo(memo, &[]);
+    invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
+    anchor_lang::prelude::msg!("return_val: {:?}", return_val);
+    Ok(return_val)
 }

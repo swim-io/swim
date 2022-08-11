@@ -56,8 +56,9 @@ pub mod propeller {
         ctx: Context<Add>,
         input_amounts: [u64; TOKEN_COUNT],
         minimum_mint_amount: u64,
+        memo: Vec<u8>,
     ) -> Result<u64> {
-        handle_add(ctx, input_amounts, minimum_mint_amount)
+        handle_add(ctx, input_amounts, minimum_mint_amount, memo.as_slice())
     }
 
     //pool_v1 ixs

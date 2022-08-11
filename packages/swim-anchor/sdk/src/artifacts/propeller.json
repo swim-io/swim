@@ -189,6 +189,11 @@
           "isSigner": false
         },
         {
+          "name": "memo",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -207,6 +212,10 @@
         {
           "name": "minimumMintAmount",
           "type": "u64"
+        },
+        {
+          "name": "memo",
+          "type": "bytes"
         }
       ],
       "returns": "u64"
@@ -867,27 +876,6 @@
           },
           {
             "name": "relayerFee",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "AddParams",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "inputAmounts",
-            "type": {
-              "array": [
-                "u64",
-                2
-              ]
-            }
-          },
-          {
-            "name": "minimumMintAmount",
             "type": "u64"
           }
         ]

@@ -8,7 +8,7 @@ import {
 } from "../src";
 
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-import { setupPoolPrereqs, setupUserAssociatedTokenAccts } from "../tests/poolTestUtils";
+import { setupPoolPrereqs, setupUserAssociatedTokenAccts } from "../tests/twoPool/poolTestUtils";
 
 const provider = anchor.AnchorProvider.env();
 const payer = (provider.wallet as NodeWallet).payer;

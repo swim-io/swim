@@ -1,14 +1,15 @@
 import * as anchor from "@project-serum/anchor";
 import { AnchorError, Program, SplToken } from "@project-serum/anchor";
 // import { TwoPool } from "../target/types/two_pool";
-import { TwoPool } from "../src/artifacts/two_pool";
+import { TwoPool } from "../../src/artifacts/two_pool";
 import {web3, Spl} from "@project-serum/anchor";
 import { assert, expect } from "chai";
 import { Account, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-import { getApproveAndRevokeIxs, twoPoolToString } from "../src";
+import { getApproveAndRevokeIxs, twoPoolToString } from "../../src";
 import { findMetadataPda, Metaplex, TokenMetadataProgram, toMetadata, toMetadataAccount } from "@metaplex-foundation/js";
 import { setupPoolPrereqs, setupUserAssociatedTokenAccts } from "./poolTestUtils";
+import { parsePoolAccount } from "../../src/poolDecoder";
 
 
 
@@ -1179,6 +1180,12 @@ describe("TwoPool", () => {
   it("Can print pool state in friendly format", async() => {
     const poolState = await twoPoolToString(twoPoolProgram, flagshipPool);
     console.log(poolState);
+  });
+
+  it("Can fetch & deserialize pool state", async() => {
+    const accountInfo = await provider.connection.getAccountInfo(flagshipPool);
+    const poolAccountData = parsePoolAccount(accountInfo!.data);
+    console.log(`poolAccountData: ${JSON.stringify(poolAccountData)}`);
   });
 
 

@@ -59,7 +59,7 @@ import { parseUnits } from "ethers/lib/utils";
 import {tryUint8ArrayToNative} from "@certusone/wormhole-sdk/lib/cjs/utils/array";
 import {LAMPORTS_PER_SOL, PublicKey} from "@solana/web3.js";
 import {SwitchboardTestContext} from "@switchboard-xyz/sbv2-utils";
-import { setupPoolPrereqs, setupUserAssociatedTokenAccts } from "../poolTestUtils";
+import { setupPoolPrereqs, setupUserAssociatedTokenAccts } from "../twoPool/poolTestUtils";
 import { getApproveAndRevokeIxs } from "../../src";
 // import {getAssociatedTokenAddress} from "@solana/spl-token/src/state";
 

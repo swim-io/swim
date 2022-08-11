@@ -12,6 +12,14 @@ run the following command from the `swim-anchor` directory and update any releva
     1. this runs the alias under the `[scripts]` section in the `Anchor.toml`
     2. to test on localnet, start anchor test validator first with `anchor localnet`.
 
+## Tests
+1. to run the tests in sdk/tests run any of the following from `package/swim-anchor`
+```sh
+yarn run test:propeller
+yarn run test:pool
+yarn run test
+```
+
 ### Troubleshooting
 1. if running into an error like this
 ```

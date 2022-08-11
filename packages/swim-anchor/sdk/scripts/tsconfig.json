@@ -12,7 +12,9 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["../tests/poolTestUtils.ts"],
+  "include": [
+    "../tests/twoPool/poolTestUtils.ts"
+  ],
 
   "references": [
     {

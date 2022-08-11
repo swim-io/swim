@@ -4,9 +4,12 @@
         "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
         "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
         "idl": "anchor build -i $INIT_CWD/sdk/src/artifacts -t $INIT_CWD/sdk/src/artifacts",
+        "idl:pool": "anchor idl parse -f programs/two-pool/src/lib.rs -o $INIT_CWD/sdk/src/artifacts/two_pool.json -t $INIT_CWD/sdk/src/artifacts/two_pool.ts",
         "sdk:build": "rm -rf ./sdk/dist && tsc -p sdk/src",
         "scripts:build": "yarn run idl && yarn run sdk:build && rm -rf sdk/scripts/dist && tsc -p sdk/scripts/tsconfig.json && chmod +x sdk/scripts/dist/initialize_pool.js",
-        "test:e2e": "yarn run idl && anchor test "
+        "test": "yarn run idl && anchor test",
+        "test:propeller": "yarn run idl && anchor test propeller",
+        "test:pool": "yarn run idl && anchor test pool"
     },
     "workspaces": [
         "sdk",

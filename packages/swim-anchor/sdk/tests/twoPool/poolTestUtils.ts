@@ -1,5 +1,5 @@
 import { Program, SplToken, web3 } from "@project-serum/anchor";
-import { TwoPool } from "../src/artifacts/two_pool";
+import { TwoPool } from "../../src/artifacts/two_pool";
 import { getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
 

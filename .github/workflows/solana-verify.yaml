@@ -24,6 +24,8 @@ jobs:
           cache: "yarn"
       - name: Install dependencies
         run: yarn install --immutable
+      - name: Build dependencies
+        run: yarn workspaces foreach --topological-dev --parallel --recursive --from @swim-io/solana run build
       - name: Check types
         run: yarn typecheck
       - name: Check format

@@ -1,6 +1,6 @@
-import { useSolanaConnection } from "contexts/SolanaConnection";
 import { useMutation, useQueryClient } from "react-query";
 
+import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { createSplTokenAccount, findTokenAccountForMint } from "../../models";

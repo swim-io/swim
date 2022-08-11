@@ -1,15 +1,14 @@
 {
     "scripts": {
-        "anchor_build": "bash -ac '. test.env && anchor build'",
+        "build:anchor": "anchor build -i $INIT_CWD/sdk/src/artifacts -t $INIT_CWD/sdk/src/artifacts",
         "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
         "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
-        "idl": "anchor build -i $INIT_CWD/sdk/src/artifacts -t $INIT_CWD/sdk/src/artifacts",
         "idl:pool": "anchor idl parse -f programs/two-pool/src/lib.rs -o $INIT_CWD/sdk/src/artifacts/two_pool.json -t $INIT_CWD/sdk/src/artifacts/two_pool.ts",
         "sdk:build": "rm -rf ./sdk/dist && tsc -p sdk/src",
-        "scripts:build": "yarn run idl && yarn run sdk:build && rm -rf sdk/scripts/dist && tsc -p sdk/scripts/tsconfig.json && chmod +x sdk/scripts/dist/initialize_pool.js",
-        "test": "yarn run idl && anchor test",
-        "test:propeller": "yarn run idl && anchor test propeller",
-        "test:pool": "yarn run idl && anchor test pool"
+        "scripts:build": "yarn run build:anchor && yarn run sdk:build && rm -rf sdk/scripts/dist && tsc -p sdk/scripts/tsconfig.json && chmod +x sdk/scripts/dist/initialize_pool.js",
+        "test": "yarn run build:anchor && anchor test",
+        "test:propeller": "yarn run build:anchor && anchor test propeller",
+        "test:pool": "yarn run build:anchor && anchor test pool"
     },
     "workspaces": [
         "sdk",

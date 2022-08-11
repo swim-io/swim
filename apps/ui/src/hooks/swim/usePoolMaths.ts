@@ -3,7 +3,7 @@ import { isEachNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
 import { atomicToHuman, bnOrBigNumberToDecimal } from "../../amounts";
-import { EcosystemId, getSolanaTokenDetails } from "../../config";
+import { EcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { Amount, isEvmPoolState } from "../../models";
@@ -24,7 +24,7 @@ const getPoolMath = ({
   }
 
   const poolTokenDecimals = poolTokens.map(
-    (tokenSpec) => getSolanaTokenDetails(tokenSpec).decimals,
+    (tokenSpec) => tokenSpec.nativeDetails.decimals,
   );
   const maxDecimals = Math.max(...poolTokenDecimals);
   const tolerance = new Decimal(10).pow(-maxDecimals);
@@ -34,7 +34,7 @@ const getPoolMath = ({
       poolState.ampFactor,
       poolState.lpFee,
       poolState.governanceFee,
-      poolState.totalLPSupply,
+      poolState.totalLpSupply,
       tolerance,
     );
   }

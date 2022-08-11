@@ -24,16 +24,16 @@ export const usePoolStateQueries = (
 
   return useQueries(
     poolSpecs.map((poolSpec) => ({
-      queryKey: ["poolState", env, poolSpec.id],
+      queryKey: [env, "poolState", poolSpec.id],
       queryFn: async () => {
         if (poolSpec.ecosystem === EcosystemId.Solana) {
           return await getSolanaPoolState(solanaConnection, poolSpec);
         }
         return await getEvmPoolState(
-          evmConnections,
+          evmConnections[poolSpec.ecosystem],
           poolSpec,
           tokens,
-          routingContractAddress[poolSpec.ecosystem],
+          routingContractAddress,
         );
       },
     })),

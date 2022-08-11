@@ -29,7 +29,7 @@ export interface EvmPoolState {
   readonly ecosystem: EvmEcosystemId;
   readonly isPaused: boolean;
   readonly balances: readonly Decimal[];
-  readonly totalLPSupply: Decimal;
+  readonly totalLpSupply: Decimal;
   readonly ampFactor: Decimal;
   readonly lpFee: Decimal;
   readonly governanceFee: Decimal;
@@ -94,7 +94,7 @@ export const getSolanaPoolState = async (
 };
 
 export const getEvmPoolState = async (
-  evmConnections: ReadonlyRecord<EvmEcosystemId, EvmConnection>,
+  evmConnection: EvmConnection,
   poolSpec: EvmPoolSpec,
   tokens: readonly TokenSpec[],
   routingContractAddress: string,
@@ -102,7 +102,7 @@ export const getEvmPoolState = async (
   const { ecosystem, address } = poolSpec;
   const contract = Routing__factory.connect(
     routingContractAddress,
-    evmConnections[ecosystem].provider,
+    evmConnection.provider,
   );
   const lpToken = findOrThrow(tokens, ({ id }) => id === poolSpec.lpToken);
   const poolTokens = poolSpec.tokens.map((tokenId) =>
@@ -118,7 +118,7 @@ export const getEvmPoolState = async (
         token.nativeDetails.decimals,
       ),
     ),
-    totalLPSupply: atomicToHuman(
+    totalLpSupply: atomicToHuman(
       new Decimal(state.totalLpSupply[1].toString()),
       lpToken.nativeDetails.decimals,
     ),

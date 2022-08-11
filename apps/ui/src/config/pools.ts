@@ -392,11 +392,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     address: "0x37FFb2ee5A3ab1785bD5179243EDD27dDeADF823", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-ethereum-lp-usdc-usdt",
-    tokens: [
-      "devnet-solana-lp-hexapool",
-      "devnet-ethereum-usdc",
-      "devnet-ethereum-usdt",
-    ],
+    tokens: ["devnet-swimusd", "devnet-ethereum-usdc", "devnet-ethereum-usdt"],
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
@@ -409,7 +405,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     address: "0xCCDAa7C3046F7032c39d9172cdb0a6a2A683af03", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-bnb-lp-busd-usdt",
-    tokens: ["devnet-solana-lp-hexapool", "devnet-bnb-busd", "devnet-bnb-usdt"],
+    tokens: ["devnet-swimusd", "devnet-bnb-busd", "devnet-bnb-usdt"],
   },
   {
     isDisabled: !isPoolRestructureEnabled(),

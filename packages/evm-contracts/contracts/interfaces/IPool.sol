@@ -63,18 +63,17 @@ interface IPool {
     uint256 minimumOutputAmount
   ) external returns (uint256 outputAmount);
 
+  function removeUniform(
+    uint256 burnAmount,
+    uint256[] memory minimumOutputAmounts,
+    bytes16 memo
+  ) external returns (uint256[] memory outputAmounts);
+
   function add(
     uint256[] memory inputAmounts,
     uint256 minimumMintAmount,
     bytes16 memo
   ) external returns (uint256 mintAmount);
-
-  function removeExactBurn(
-    uint256 burnAmount,
-    uint8 outputTokenIndex,
-    uint256 minimumOutputAmount,
-    bytes16 memo
-  ) external returns (uint256 outputAmount);
 
   function removeExactOutput(
     uint256[] memory outputAmounts,
@@ -82,9 +81,10 @@ interface IPool {
     bytes16 memo
   ) external returns (uint256 burnAmount);
 
-  function removeUniform(
+  function removeExactBurn(
     uint256 burnAmount,
-    uint256[] memory minimumOutputAmounts,
+    uint8 outputTokenIndex,
+    uint256 minimumOutputAmount,
     bytes16 memo
-  ) external returns (uint256[] memory outputAmounts);
+  ) external returns (uint256 outputAmount);
 }

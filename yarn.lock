@@ -6328,6 +6328,33 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@swim-io/evm@workspace:packages/evm":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/evm@workspace:packages/evm"
+  dependencies:
+    "@swim-io/core": "workspace:^"
+    "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/tsconfig": "workspace:^"
+    "@types/jest": ^28.1.3
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-eslint-comments: ^3.2.0
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^25.7.0
+    eslint-plugin-prettier: ^4.0.0
+    ethers: ^5.6.9
+    jest: ^28.1.2
+    prettier: ^2.7.1
+    svgo: ^2.8.0
+    ts-jest: ^28.0.5
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
 "@swim-io/pool-deployment@workspace:apps/pool-deployment":
   version: 0.0.0-use.local
   resolution: "@swim-io/pool-deployment@workspace:apps/pool-deployment"

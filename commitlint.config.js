@@ -7,6 +7,7 @@ module.exports = {
       [
         "core",
         "eslint-config",
+        "evm",
         "evm-contracts",
         "pool-deployment",
         "pool-math",

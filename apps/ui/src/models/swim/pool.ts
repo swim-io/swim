@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import { Routing__factory } from "@swim-io/evm-contracts";
-import type { SwimPoolState } from "@swim-io/solana-types";
-import { deserializeSwimPool } from "@swim-io/solana-types";
+import type { SwimPoolState } from "@swim-io/solana";
+import { deserializeSwimPool } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { findOrThrow } from "@swim-io/utils";
 import Decimal from "decimal.js";

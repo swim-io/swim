@@ -77,10 +77,6 @@ const constructPool = (
   }
 
   if (isEvmPoolState(poolState)) {
-    const poolUsdValue = poolState.balances.reduce(
-      (sum, balance) => sum.add(balance),
-      new Decimal(0),
-    );
     return {
       spec: poolSpec,
       nativeEcosystems,
@@ -90,7 +86,7 @@ const constructPool = (
       poolLpMint,
       poolTokenAccounts,
       userLpTokenAccount: null,
-      poolUsdValue: poolUsdValue,
+      poolUsdValue: Decimal.sum(...poolState.balances),
       isPoolPaused: poolState.isPaused,
     };
   }

@@ -4,7 +4,7 @@ import type { SwimPoolState } from "@swim-io/solana-types";
 import { deserializeSwimPool } from "@swim-io/solana-types";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { findOrThrow } from "@swim-io/utils";
-import type Decimal from "decimal.js";
+import Decimal from "decimal.js";
 
 import { atomicToHuman, bnOrBigNumberToDecimal } from "../../amounts";
 import type {
@@ -20,8 +20,6 @@ import type { SolanaTx, Tx } from "../crossEcosystem";
 import { isSolanaTx } from "../crossEcosystem";
 import type { EvmConnection } from "../evm";
 import type { SolanaConnection } from "../solana";
-
-import { atomicStringToHumanDecimal } from "./atomicString";
 
 export interface SolanaPoolState extends SwimPoolState {
   readonly ecosystem: EcosystemId.Solana;
@@ -115,29 +113,21 @@ export const getEvmPoolState = async (
     isPaused: state.paused,
     ecosystem,
     balances: poolTokens.map((token, i) =>
-      atomicStringToHumanDecimal(
-        state.balances[i][1].toString(),
-        token,
-        token.nativeEcosystemId,
+      atomicToHuman(
+        new Decimal(state.balances[i][1].toString()),
+        token.nativeDetails.decimals,
       ),
     ),
-    totalLPSupply: atomicStringToHumanDecimal(
-      state.totalLpSupply[1].toString(),
-      lpToken,
-      lpToken.nativeEcosystemId,
+    totalLPSupply: atomicToHuman(
+      new Decimal(state.totalLpSupply[1].toString()),
+      lpToken.nativeDetails.decimals,
     ),
-    ampFactor: bnOrBigNumberToDecimal(
-      state.ampFactor[0].div(10 ** state.ampFactor[1]),
+    ampFactor: bnOrBigNumberToDecimal(state.ampFactor[0]).div(
+      10 ** state.ampFactor[1],
     ),
-    lpFee: atomicToHuman(
-      bnOrBigNumberToDecimal(state.lpFee[0].div(state.lpFee[1])),
-      poolSpec.feeDecimals,
-    ),
-    governanceFee: atomicToHuman(
-      bnOrBigNumberToDecimal(
-        state.governanceFee[0].div(state.governanceFee[1]),
-      ),
-      poolSpec.feeDecimals,
+    lpFee: bnOrBigNumberToDecimal(state.lpFee[0]).div(10 ** state.lpFee[1]),
+    governanceFee: bnOrBigNumberToDecimal(state.governanceFee[0]).div(
+      10 ** state.governanceFee[1],
     ),
   };
 };

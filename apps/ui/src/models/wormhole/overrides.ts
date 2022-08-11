@@ -15,11 +15,12 @@ import {
 import { TOKEN_PROGRAM_ID, Token, u64 } from "@solana/spl-token";
 import type { Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Keypair, PublicKey } from "@solana/web3.js";
+import { createMemoIx } from "@swim-io/solana";
 import type { ethers } from "ethers";
 
 import { Erc20Factory } from "../evm";
 import type { SolanaConnection } from "../solana";
-import { createMemoIx, createTx } from "../solana";
+import { createTx } from "../solana";
 
 export const approveEth = async (
   tokenBridgeAddress: string,

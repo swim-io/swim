@@ -153,11 +153,13 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
       );
     } else if (isLargeSwap) {
       setConfirmModalDescription(
-        "You're trying to swap >10% of the pool size which may impact the price.",
+        t("swap_form.require_warning_swap_too_large_amount", {
+          percentage: 10,
+        }),
       );
     } else if (isSmallEthSwap) {
       setConfirmModalDescription(
-        "The Ethereum gas fees might be high relative to the swap amount.",
+        t("swap_form.require_warning_gas_fee_may_be_high"),
       );
     } else {
       handleSwapAndCatch(false);

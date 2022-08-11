@@ -27,7 +27,10 @@ export const WaitForEcosystemCallout: React.FC<Props> = ({ ecosystemId }) => {
       <>
         <EuiCallOut
           size="s"
-          title={t("recent_interactions.polygon_waiting_time")}
+          title={t("recent_interactions.polygon_waiting_time", {
+            confirmations: 512,
+            minutes: 18,
+          })}
           iconType="clock"
         />
         <EuiSpacer size="s" />

@@ -5,13 +5,16 @@ import { useCallback, useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 
 import { useEnvironment } from "../core/store";
-import { useSolanaConnection } from "../hooks/solana";
+import { useIntlNumberFormatter, useSolanaConnection } from "../hooks";
 
 const INTERVAL_FREQUENCY_MS = 60000; // 1 minute.
 const SAMPLES_LIMIT = 5;
 
 export const SolanaTpsWarning = (): ReactElement => {
   const { t } = useTranslation();
+  const numberFormatter = useIntlNumberFormatter({
+    maximumFractionDigits: 2,
+  });
   // Assume Solana TPS healthy.
   const [tps, setTps] = useState<number>(2000);
   const { env } = useEnvironment();
@@ -82,7 +85,7 @@ export const SolanaTpsWarning = (): ReactElement => {
         <EuiText>
           <p>
             {t("solana_tps_warning.network_congested_description", {
-              tps: tps.toLocaleString(undefined, { maximumFractionDigits: 2 }),
+              tps: numberFormatter.format(tps),
             })}
           </p>
         </EuiText>

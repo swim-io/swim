@@ -92,7 +92,12 @@ export const useGetSwapFormErrors = (
       userNativeBalances[EcosystemId.Solana].greaterThan(0) &&
       userNativeBalances[EcosystemId.Solana].lessThan(0.01)
     ) {
-      errors = [...errors, t("general.require_some_balance_in_solana_wallet")];
+      errors = [
+        ...errors,
+        t("general.require_some_balance_in_solana_wallet", {
+          minimumFee: 0.01,
+        }),
+      ];
     }
 
     // Require enough user balances
@@ -108,7 +113,9 @@ export const useGetSwapFormErrors = (
       // If not allowed, limit swap size to 10% of pool supply
       errors = [
         ...errors,
-        t("swap_form.require_swap_size_must_be_less_than_x_of_pool_supply"),
+        t("swap_form.require_swap_size_must_be_less_than_x_of_pool_supply", {
+          percentage: 10,
+        }),
       ];
     }
 

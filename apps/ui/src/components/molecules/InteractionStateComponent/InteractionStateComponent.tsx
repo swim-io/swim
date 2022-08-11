@@ -7,11 +7,14 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import { isNotNull } from "@swim-io/utils";
-import moment from "moment";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import {
+  useIntlDateTimeFormatter,
+  useIntlRelativeTimeFromNow,
+} from "../../../hooks";
 import { useInteractionStatus } from "../../../hooks/interaction";
 import { useReloadInteractionStateMutation } from "../../../hooks/interaction/useReloadInteractionStateMutation";
 import type { InteractionState } from "../../../models";
@@ -29,13 +32,18 @@ export const InteractionStateComponent: React.FC<Props> = ({
   interactionState,
 }) => {
   const { t } = useTranslation();
+  const dateTimeFormatter = useIntlDateTimeFormatter({
+    dateStyle: "full",
+    timeStyle: "full",
+  });
+  const relativeTimeFromNow = useIntlRelativeTimeFromNow();
+
   const { interaction } = interactionState;
   const interactionStatus = useInteractionStatus(interactionState);
   const steps = buildEuiStepsForInteraction(
     interactionState,
     interactionStatus,
   );
-  const timeInMoment = moment(interaction.submittedAt);
   const { mutate: reloadInteractionState } =
     useReloadInteractionStateMutation();
   const [needReload, setNeedReload] = useState(
@@ -57,8 +65,11 @@ export const InteractionStateComponent: React.FC<Props> = ({
           <InteractionTitle interaction={interaction} />
         </h3>
       </EuiTitle>
-      <EuiText size="s" title={timeInMoment.toLocaleString()}>
-        {timeInMoment.fromNow()}
+      <EuiText
+        size="s"
+        title={dateTimeFormatter.format(interaction.submittedAt)}
+      >
+        {relativeTimeFromNow(interaction.submittedAt)}
       </EuiText>
       <EuiSpacer />
       <EuiSteps

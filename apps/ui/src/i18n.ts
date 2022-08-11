@@ -6,6 +6,8 @@ import { initReactI18next } from "react-i18next";
 
 import enTranslation from "./locales/en/translation.json";
 
+const fallbackLanguage = "en";
+
 // eslint-disable-next-line import/no-named-as-default-member
 i18next
   .use(LanguageDetector)
@@ -23,7 +25,7 @@ i18next
   )
   .use(initReactI18next)
   .init({
-    fallbackLng: "en",
+    fallbackLng: fallbackLanguage,
     // Helps finding issues with loading not working.
     debug: process.env.NODE_ENV === "development",
     react: {
@@ -44,3 +46,25 @@ i18next
   .catch(console.error);
 
 export { i18next };
+
+export const fallbackLanguageIfNotSupported = <
+  T extends {
+    readonly supportedLocalesOf: (language: string) => readonly string[];
+    new (): InstanceType<T>;
+  },
+  L extends string,
+>(
+  IntlMethod: T,
+  language: L,
+): L | typeof fallbackLanguage => {
+  try {
+    if (IntlMethod.supportedLocalesOf(language).length === 0) {
+      // valid locale but not supported
+      return fallbackLanguage;
+    }
+  } catch {
+    // invalid locale
+    return fallbackLanguage;
+  }
+  return language;
+};

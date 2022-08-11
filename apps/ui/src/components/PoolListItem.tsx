@@ -14,7 +14,7 @@ import type { ReactElement } from "react";
 import { createElement } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { atomicToHumanString } from "../amounts";
+import { atomicToCurrencyString } from "../amounts";
 import type { TokenSpec } from "../config";
 import { i18next } from "../i18n";
 
@@ -99,7 +99,7 @@ export const PoolListItem = ({
             <EuiFlexItem style={{ margin: flexItemMargin }}>
               {totalUsd !== null && (
                 <EuiStat
-                  title={`$${atomicToHumanString(totalUsd, 2)}`}
+                  title={atomicToCurrencyString(totalUsd)}
                   description=""
                   titleSize={titleSize}
                   isLoading={totalUsd.eq(new Decimal(-1))}

@@ -9,5 +9,13 @@ module.exports = {
   ],
   rules: {
     "@sayari/no-unwrapped-jsx-text": "error",
+    "react-hooks/exhaustive-deps": [
+      "error",
+      {
+        // support package `use-deep-compare`
+        additionalHooks:
+          "(useDeepCompareCallback|useDeepCompareEffect|useDeepCompareMemo)",
+      },
+    ],
   },
 };

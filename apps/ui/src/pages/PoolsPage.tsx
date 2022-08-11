@@ -428,7 +428,7 @@ const PoolsPage = (): ReactElement => {
                   <p>
                     <b>
                       {`TVL: ${
-                        tvl.isPositive() ? "$" + atomicToTvlString(tvl) : "--"
+                        tvl.isPositive() ? atomicToTvlString(tvl) : "--"
                       }`}
                     </b>
                   </p>

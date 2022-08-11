@@ -1,16 +1,38 @@
 import type { u64 } from "@solana/spl-token";
-import { defaultIfError } from "@swim-io/utils";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
-const ONE_TRILLION = new Decimal("1000000000000");
-const ONE_BILLION = new Decimal("1000000000");
-const ONE_MILLION = new Decimal("1000000");
-const ONE_THOUSAND = new Decimal("1000");
-const SIG_DIGITS = 4;
+import { fallbackLanguageIfNotSupported, i18next } from "./i18n";
+
+export const atomicToCurrencyString = (
+  amount: Decimal,
+  options?: Omit<Intl.NumberFormatOptions, "style">,
+): string => {
+  const language = fallbackLanguageIfNotSupported(
+    Intl.NumberFormat,
+    i18next.language,
+  );
+  const numberFormatter = new Intl.NumberFormat(language, {
+    style: "currency",
+    currency: "USD",
+    currencyDisplay: "narrowSymbol",
+    ...options,
+    minimumFractionDigits: options?.minimumFractionDigits ?? 2,
+    maximumFractionDigits: options?.maximumFractionDigits ?? 2,
+  });
+  return numberFormatter.format(amount.toNumber());
+};
 
 export const atomicToHumanString = (amount: Decimal, decimals = 0): string => {
-  return amount.toFixed(decimals).replace(/\d(?=(\d{3})+\.)/g, "$&,");
+  const language = fallbackLanguageIfNotSupported(
+    Intl.NumberFormat,
+    i18next.language,
+  );
+  const numberFormatter = new Intl.NumberFormat(language, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+  return numberFormatter.format(amount.toNumber());
 };
 
 export const atomicToHuman = (amount: Decimal, decimals = 0): Decimal => {
@@ -18,17 +40,24 @@ export const atomicToHuman = (amount: Decimal, decimals = 0): Decimal => {
 };
 
 export const atomicToTvlString = (amount: Decimal): string => {
-  if (amount.greaterThanOrEqualTo(ONE_TRILLION)) {
-    return amount.toSD(SIG_DIGITS).div(ONE_TRILLION).toString() + "T";
-  } else if (amount.greaterThanOrEqualTo(ONE_BILLION)) {
-    return amount.toSD(SIG_DIGITS).div(ONE_BILLION).toString() + "B";
-  } else if (amount.greaterThanOrEqualTo(ONE_MILLION)) {
-    return amount.toSD(SIG_DIGITS).div(ONE_MILLION).toString() + "M";
-  } else if (amount.greaterThanOrEqualTo(ONE_THOUSAND)) {
-    return amount.toSD(SIG_DIGITS).div(ONE_THOUSAND).toString() + "K";
-  } else {
-    return atomicToHumanString(amount.toSD(SIG_DIGITS));
-  }
+  const language = fallbackLanguageIfNotSupported(
+    Intl.NumberFormat,
+    i18next.language,
+  );
+  const numberFormatter = new Intl.NumberFormat(language, {
+    style: "currency",
+    currency: "USD",
+    currencyDisplay: "narrowSymbol",
+    notation: "compact",
+    ...(amount.toNumber() < 1000
+      ? {
+          maximumFractionDigits: 0,
+        }
+      : {
+          maximumSignificantDigits: 4,
+        }),
+  });
+  return numberFormatter.format(amount.toNumber());
 };
 
 // eslint-disable-next-line import/no-unused-modules
@@ -36,49 +65,25 @@ export const humanToAtomic = (amount: Decimal, decimals = 0): Decimal => {
   return amount.mul(Decimal.pow(10, decimals));
 };
 
-export const displayAmount = (amount: string, decimals = 0): string =>
-  amount === "0"
-    ? "0"
-    : amount.length <= decimals
-    ? `0.${"0".repeat(decimals - amount.length)}${amount}`
-    : `${amount.slice(0, -decimals)}.${amount.slice(-decimals)}`;
-
-/* Like displayAmount but displays as percentage value instead */
-export const displayPercentage = (amount: string, decimals = 0): string =>
-  amount.length <= decimals - 2
-    ? `0.${"0".repeat(decimals - amount.length - 2)}${amount}%`
-    : `${amount.slice(0, -(decimals - 2))}.${amount.slice(-(decimals - 2))}%`;
-
-const buildAmountRegExp = (decimals: number): RegExp =>
-  decimals === 0
-    ? new RegExp(`^(?<big>(?:[1-9][0-9]*|0))$`)
-    : new RegExp(
-        `^(?<big>(?:[1-9][0-9]*|0))(\\.(?<small>[0-9]{1,${decimals}}))?$`,
-      );
-
-// eslint-disable-next-line import/no-unused-modules
-export const parseAmount = (amount: string, decimals = 0): string => {
-  if (amount.match(/^0+$/)) {
-    return "0";
-  }
-  const amountRegExp = buildAmountRegExp(decimals);
-  const matches = amount.match(amountRegExp);
-  if (!matches || !matches.groups) {
-    throw new Error("Invalid amount");
-  }
-  const { big = "", small = "" } = matches.groups;
-  return decimals === 0
-    ? big
-    : `${big === "0" ? "" : big}${small}${"0".repeat(decimals - small.length)}`;
+export const displayAmount = (amount: string, decimals = 0): string => {
+  return new Decimal(amount).div(10 ** decimals).toFixed(decimals);
 };
 
-// eslint-disable-next-line import/no-unused-modules
-export const parseToDecimalOrThrow = (amount: string, decimals = 0): Decimal =>
-  new Decimal(parseAmount(amount, decimals));
-
-// eslint-disable-next-line import/no-unused-modules
-export const parseToDecimal = (amount: string, decimals = 0): Decimal | null =>
-  defaultIfError(() => parseToDecimalOrThrow(amount, decimals), null);
+/* Like displayAmount but displays as percentage value instead */
+export const displayPercentage = (amount: string, decimals = 2): string => {
+  const language = fallbackLanguageIfNotSupported(
+    Intl.NumberFormat,
+    i18next.language,
+  );
+  const numberFormatter = new Intl.NumberFormat(language, {
+    style: "percent",
+    minimumFractionDigits: decimals - 2,
+    maximumFractionDigits: decimals - 2,
+  });
+  return numberFormatter.format(
+    new Decimal(amount).div(10 ** decimals).toNumber(),
+  );
+};
 
 // eslint-disable-next-line import/no-unused-modules
 export const decimalToBN = (decimal: Decimal): BN => new BN(decimal.toFixed(0));
@@ -86,6 +91,3 @@ export const BNtoDecimal = (bn: BN): Decimal => new Decimal(bn.toString());
 
 export const u64ToDecimal = (number: u64): Decimal =>
   new Decimal(number.toString());
-
-export const decimalRemoveTrailingZero = (decimal: Decimal): string =>
-  decimal.toString().replace(/^(\d+\.\d*?[1-9])0+$/, "$1");

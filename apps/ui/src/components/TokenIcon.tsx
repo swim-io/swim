@@ -87,7 +87,7 @@ interface AmountsWithTokenIconsProps {
 export const AmountsWithTokenIcons = ({
   amounts,
 }: AmountsWithTokenIconsProps): ReactElement => {
-  const { comma, conjunction } = useIntlListSeparators();
+  const { comma, conjunction } = useIntlListSeparators({ type: "conjunction" });
   return (
     <>
       {amounts.map((amount, i) => (

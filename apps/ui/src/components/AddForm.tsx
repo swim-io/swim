@@ -400,7 +400,12 @@ export const AddForm = ({
       userNativeBalances[EcosystemId.Solana].greaterThan(0) &&
       userNativeBalances[EcosystemId.Solana].lessThan(0.01)
     ) {
-      errors = [...errors, t("general.require_some_balance_in_solana_wallet")];
+      errors = [
+        ...errors,
+        t("general.require_some_balance_in_solana_wallet", {
+          minimumFee: 0.01,
+        }),
+      ];
     }
 
     // Require at least one amount

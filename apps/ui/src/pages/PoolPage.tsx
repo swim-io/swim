@@ -50,9 +50,6 @@ import {
 import BNB_SVG from "../images/ecosystems/bnb.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
 
-const humanizeUsdAmount = (amount: string): string =>
-  atomicToHumanString(new Decimal(amount), 2);
-
 const PoolPage = (): ReactElement => {
   const { t } = useTranslation();
   const { poolId } = useParams<{ readonly poolId: string }>();
@@ -146,11 +143,14 @@ export const PoolPageInner = ({
     return {
       title: <TokenSpecIcon token={tokenSpec} />,
       description: poolTokenAccount
-        ? humanizeUsdAmount(
-            displayAmount(
-              poolTokenAccount.amount.toString(),
-              solanaDetails.decimals,
+        ? atomicToHumanString(
+            new Decimal(
+              displayAmount(
+                poolTokenAccount.amount.toString(),
+                solanaDetails.decimals,
+              ),
             ),
+            2,
           )
         : "-",
       key: tokenSpec.id,

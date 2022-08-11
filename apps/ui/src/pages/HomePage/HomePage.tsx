@@ -14,10 +14,12 @@ import {
   EuiTextColor,
   EuiTitle,
 } from "@elastic/eui";
+import Decimal from "decimal.js";
 import type { ReactElement, VFC } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 
+import { atomicToCurrencyString } from "../../amounts";
 import { SwimIconType } from "../../components/CustomIconType";
 import { GlassPanel } from "../../components/GlassPanel";
 import { InvestorsList } from "../../components/InvestorsList";
@@ -46,6 +48,10 @@ const HomePage = (): ReactElement => {
     ECOSYSTEMS[EcosystemId.Aurora],
     ECOSYSTEMS[EcosystemId.Karura],
   ];
+
+  const bountyAmount = atomicToCurrencyString(new Decimal(100000), {
+    minimumFractionDigits: 0,
+  });
 
   return (
     <EuiPage restrictWidth className="homepage">
@@ -390,13 +396,15 @@ const HomePage = (): ReactElement => {
                 icon={<EuiIcon size="xxl" type="bug" color="ghost" />}
                 title={
                   <EuiTextColor color="ghost">
-                    {t("home_page.bug_bounty_program")}
+                    {t("home_page.bug_bounty_program", { bountyAmount })}
                   </EuiTextColor>
                 }
                 layout="horizontal"
               >
                 <EuiText color="ghost">
-                  {t("home_page.bug_bounty_program_description")}
+                  {t("home_page.bug_bounty_program_description", {
+                    bountyAmount,
+                  })}
                 </EuiText>
                 <EuiFlexGroup justifyContent="flexEnd">
                   <EuiFlexItem grow={false}>

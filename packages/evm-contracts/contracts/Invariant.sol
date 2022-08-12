@@ -2,11 +2,12 @@
 pragma solidity ^0.8.15;
 
 import "./Constants.sol";
-import "./PoolErrors.sol";
 import "./CenterAlignment.sol";
 import "./Equalize.sol";
 
 library Invariant {
+  error UnknownBalanceTooLarge(uint256 unknownBalance);
+
   using CenterAlignment for uint256;
 
   // RESTRICTIONS:
@@ -213,11 +214,11 @@ library Invariant {
       }
 
       //TODO test to ensure that this can never happen due to rounding
-      require(unknownBalance > 0);
+      require(unknownBalance > 0, "unknownBalance not higher then 0");
 
       //ensure that unknownBalance never blows up above the allowed maximum
       if (unknownBalance > Equalize.MAX_AMOUNT)
-        revert Invariant_UnknownBalanceTooLarge(unknownBalance);
+        revert UnknownBalanceTooLarge(unknownBalance);
       return Equalized.wrap(uint64(unknownBalance));
     }
   }
@@ -285,7 +286,7 @@ library Invariant {
       } while (absDiff(previousDepth, depth) > 1);
 
       //TODO test to ensure that this can never happen
-      require(depth > 0);
+      require(depth > 0, "depth not higher then 0");
 
       return depth;
     }

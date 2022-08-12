@@ -1,7 +1,3 @@
-import * as dotenv from "dotenv";
-
-import { task } from "hardhat/config";
-import { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
@@ -9,10 +5,14 @@ import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import { getContractAddress } from "@ethersproject/address";
-import { BigNumber, formatFixed } from "@ethersproject/bignumber";
+import type { BigNumber } from "@ethersproject/bignumber";
+import { formatFixed } from "@ethersproject/bignumber";
+import * as dotenv from "dotenv";
+import { task } from "hardhat/config";
+import type { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
 
 dotenv.config();
-const { FACTORY_MNEMONIC, MNEMONIC, BSCSCAN_API_KEY, ETHERSCAN_API_KEY } = process.env;
+const { FACTORY_MNEMONIC, MNEMONIC, ETHERSCAN_API_KEY } = process.env;
 
 task(
   "factoryAddress",
@@ -33,13 +33,13 @@ task("deploy", "run the deployment script", async (_, hre) => {
 });
 
 task(
-  "updates",
+  "update",
   "Updates a given proxy contract to a new implementation via updateTo",
   async ({ proxy, logic, owner }, hre) => {
     const { ethers } = hre;
     const _owner = owner ? await ethers.getSigner(owner) : (await ethers.getSigners())[0];
     const _proxy = (await ethers.getContractAt("BlankLogic", proxy)).connect(_owner);
-    await _proxy.upgradeTo(logic);
+    await (await _proxy.upgradeTo(logic)).wait();
   }
 )
   .addPositionalParam("proxy", "address of the proxy that will be upgraded")
@@ -53,10 +53,11 @@ task("pool-state", "Print state of given pool", async ({ pool }, { ethers }) => 
   const [isPaused, balances, lpSupply, ampFactorDec, lpFeeDec, govFeeDec] = await (
     await ethers.getContractAt("Pool", pool)
   ).getState();
-  const decimaltoFixed = (decimal: [BigNumber, number]) => formatFixed(decimal[0], decimal[1]);
+  const decimaltoFixed = (decimal: readonly [BigNumber, number]) =>
+    formatFixed(decimal[0], decimal[1]);
   const getDecimals = async (address: string) =>
     (await ethers.getContractAt("ERC20", address)).decimals();
-  const toTokenInfo = async (token: [string, BigNumber]) => ({
+  const toTokenInfo = async (token: readonly [string, BigNumber]) => ({
     address: token[0],
     amount: decimaltoFixed([token[1], await getDecimals(token[0])]),
   });
@@ -70,19 +71,6 @@ task("pool-state", "Print state of given pool", async ({ pool }, { ethers }) => 
   };
   console.log(JSON.stringify(state, null, 2));
 }).addPositionalParam("pool", "address of the pool");
-
-// task("logicAddress", "Prints the address a logic contract will be deployed to given a its salt",
-//   async ({logicContract, salt}, hre) => {
-//     await hre.run("compile");
-//     //TODO
-//   },
-// ).addParam("logic", "name of the contract").addParam("salt");
-
-// task("proxyAddress", "Prints the address a proxy contract will be deployed to given its salt",
-//   async ({salt}, hre) => {
-//     //TODO
-//   },
-// ).addParam("salt", "salt passed to the create2 call in SwimFactory");
 
 task("presign", "Generates and prints a Deterministic Factory tx", async (_, hre) => {
   await hre.run("compile");
@@ -122,7 +110,7 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 1, // Optimize heavily for runtime gas cost rather than deployment gas cost
+        runs: 1000, // Optimize heavily for runtime gas cost rather than deployment gas cost
       },
       outputSelection: {
         "*": {
@@ -130,8 +118,8 @@ const config: HardhatUserConfig = {
             "metadata",
             "evm.bytecode",
             "evm.bytecode.sourceMap",
-            "ir",
-            // "irOptimized",
+            //"ir",
+            //"irOptimized",
             "evm.assembly",
           ],
           // "": ["ast"],
@@ -144,8 +132,8 @@ const config: HardhatUserConfig = {
     hardhat: {
       loggingEnabled: false,
       chainId: 31337,
-      //allowUnlimitedContractSize: true,
-      //blockGasLimit: 1000000000000,
+      allowUnlimitedContractSize: true,
+      blockGasLimit: 10000000000,
     },
     localhost: {
       url: "http://127.0.0.1:8545/", // yarn hardhat node -> spins node on local network as ganache

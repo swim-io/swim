@@ -1,6 +1,9 @@
 export * from "./useAddFeesEstimationQuery";
 export * from "./useGetSwapFormErrors";
+export * from "./useGetSwapFormErrorsV2";
 export * from "./useIsLargeSwap";
+export * from "./useIsLargeSwapV2";
+export * from "./useIsRequiredPoolsPaused";
 export * from "./usePoolLpMint";
 export * from "./usePoolMaths";
 export * from "./usePools";
@@ -10,6 +13,7 @@ export * from "./useRemoveFeesEstimationQuery";
 export * from "./useSwapFeesEstimationQuery";
 export * from "./useSwapFeesEstimationQueryV2";
 export * from "./useSwapOutputAmountEstimate";
+export * from "./useSwapOutputAmountEstimateV2";
 export * from "./useSwapTokenOptions";
 export * from "./useSwapTokensContext";
 export * from "./useSwapTokensV2";

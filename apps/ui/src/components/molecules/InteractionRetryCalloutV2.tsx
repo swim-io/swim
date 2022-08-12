@@ -1,13 +1,13 @@
 import { EuiButton, EuiCallOut, EuiSpacer } from "@elastic/eui";
 import type { VFC } from "react";
 
-import { selectInteractionError } from "../../core/selectors";
-import { useInteractionState } from "../../core/store";
+import { selectInteractionErrorV2 } from "../../core/selectors";
+import { useInteractionStateV2 } from "../../core/store";
 import { formatErrorJsx } from "../../errors";
 import {
   useHasActiveInteraction,
+  useInteractionMutationV2,
   useInteractionStatusV2,
-  useResumeInteraction,
   useWallets,
 } from "../../hooks";
 import { InteractionStatusV2, isEveryAddressConnected } from "../../models";
@@ -56,10 +56,10 @@ const RetryOrResumeButton: VFC<RetryOrResumeButtonProps> = ({
 
 export const InteractionRetryCalloutV2: VFC<Props> = ({ interactionState }) => {
   const { interaction } = interactionState;
-  const error = useInteractionState((state) =>
-    selectInteractionError(state, interaction.id),
+  const error = useInteractionStateV2((state) =>
+    selectInteractionErrorV2(state, interaction.id),
   );
-  const resumeInteraction = useResumeInteraction();
+  const { mutate: resumeInteraction } = useInteractionMutationV2();
   const hasActiveInteraction = useHasActiveInteraction();
   const interactionStatus = useInteractionStatusV2(interactionState);
   const wallets = useWallets();

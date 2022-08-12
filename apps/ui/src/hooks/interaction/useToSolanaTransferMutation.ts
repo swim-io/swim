@@ -41,8 +41,8 @@ const txResponseToTx = async (
     ecosystemId,
     id: txReceipt.transactionHash,
     timestamp: txResponse.timestamp ?? null,
-    txResponse,
-    txReceipt,
+    response: txResponse,
+    receipt: txReceipt,
   };
 };
 
@@ -170,7 +170,7 @@ export const useToSolanaTransferMutation = () => {
         );
 
         return parseSequenceFromLogEth(
-          transferTx.txReceipt,
+          transferTx.receipt,
           evmChain.wormhole.bridge,
         );
       }),

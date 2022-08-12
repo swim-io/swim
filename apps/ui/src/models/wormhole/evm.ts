@@ -19,12 +19,12 @@ export const isLockEvmTx = (
     return false;
   }
   if (
-    tx.txResponse.to?.toLowerCase() !==
+    tx.response.to?.toLowerCase() !==
     wormholeChainSpec.tokenBridge.toLowerCase()
   ) {
     return false;
   }
-  return tx.txReceipt.logs.some(
+  return tx.receipt.logs.some(
     (log) => log.address.toLowerCase() === tokenDetails.address.toLowerCase(),
   );
 };
@@ -39,12 +39,11 @@ export const isUnlockEvmTx = (
     return false;
   }
   if (
-    tx.txReceipt.to.toLowerCase() !==
-    wormholeChainSpec.tokenBridge.toLowerCase()
+    tx.receipt.to.toLowerCase() !== wormholeChainSpec.tokenBridge.toLowerCase()
   ) {
     return false;
   }
-  return tx.txReceipt.logs.some(
+  return tx.receipt.logs.some(
     (log) => log.address.toLowerCase() === tokenDetails.address.toLowerCase(),
   );
 };

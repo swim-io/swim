@@ -1,7 +1,6 @@
-import type { Tx as BaseTx } from "@swim-io/core";
+import type { EvmTx as BaseEvmTx } from "@swim-io/evm";
 import type { SolanaTx as BaseSolanaTx } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
-import type { ethers } from "ethers";
 
 import type { EvmEcosystemId } from "../../config";
 import { EcosystemId, isEvmEcosystemId } from "../../config";
@@ -10,10 +9,8 @@ export interface SolanaTx extends BaseSolanaTx {
   readonly ecosystemId: EcosystemId.Solana;
 }
 
-export interface EvmTx extends BaseTx {
+export interface EvmTx extends BaseEvmTx {
   readonly ecosystemId: EvmEcosystemId;
-  readonly txResponse: ethers.providers.TransactionResponse;
-  readonly txReceipt: ethers.providers.TransactionReceipt;
 }
 
 export type Tx = SolanaTx | EvmTx;

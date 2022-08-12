@@ -27,7 +27,6 @@
   "general.amount_of_tokens_too_many_decimals": "Too many decimals",
   "general.cancel_button": "Cancel",
   "general.cannot_confirm_transfer_vaa_error": "Could not confirm transfer with Wormhole guardians. This usually happens when the source blockchain is congested. Please try again later.",
-  "general.company_name": "Swim",
   "general.connect_specific_wallet": "Connect {{ecosystemName}} wallet",
   "general.created_spl_token_account_but_failed_to_fetch_error": "Successfully created SPL token account but failed to fetch it",
   "general.download": "Download",

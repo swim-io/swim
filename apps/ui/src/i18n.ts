@@ -29,6 +29,7 @@ i18next
     // Helps finding issues with loading not working.
     debug: process.env.NODE_ENV === "development",
     react: {
+      transSupportBasicHtmlNodes: false,
       // Work around Google Translate issue with React apps https://github.com/facebook/react/issues/11538
       transWrapTextNodes: "span",
     },
@@ -59,7 +60,7 @@ export const fallbackLanguageIfNotSupported = <
 ): L | typeof fallbackLanguage => {
   try {
     if (IntlMethod.supportedLocalesOf(language).length === 0) {
-      // valid locale but not supported
+      // valid language but no locales supported
       return fallbackLanguage;
     }
   } catch {

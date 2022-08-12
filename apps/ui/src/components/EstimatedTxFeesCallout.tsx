@@ -18,7 +18,7 @@ interface Props {
 export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
   const { t } = useTranslation();
   const numberFormatter = useIntlNumberFormatter({
-    maximumFractionDigits: 20, // max value allowed
+    maximumSignificantDigits: 4,
   });
   const config = useEnvironment(selectConfig, shallow);
   if (feesEstimation === null) {

@@ -49,7 +49,7 @@ const HomePage = (): ReactElement => {
     ECOSYSTEMS[EcosystemId.Karura],
   ];
 
-  const bountyAmount = atomicToCurrencyString(new Decimal(100000), {
+  const bountyAmount = atomicToCurrencyString(new Decimal(100_000), {
     minimumFractionDigits: 0,
   });
 

@@ -1,9 +1,10 @@
 require("@swim-io/eslint-config/patch/modern-module-resolution.cjs");
 
 module.exports = {
+  root: true,
   overrides: [
     {
-      files: ["**/*.{cjs,js,mts}"],
+      files: ["**/*.{cjs,js,mjs}"],
       extends: ["@swim-io/eslint-config"],
     },
     {
@@ -44,7 +45,7 @@ module.exports = {
             "@typescript-eslint/no-unsafe-assignment": "off",
             // allow mutation in test files for convenience
             "functional/immutable-data": "off",
-            // test files do not need 18n
+            // test files do not need i18n
             "i18next/no-literal-string": "off",
             // these are expected by Storybook
             "import/no-anonymous-default-export": "off",

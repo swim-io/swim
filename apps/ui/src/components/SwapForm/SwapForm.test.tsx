@@ -8,12 +8,12 @@ import type { UseQueryResult } from "react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
 
 import { EcosystemId } from "../../config";
-import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { useEnvironment as environmentStore } from "../../core/store";
 import {
   useErc20BalanceQuery,
   useGetSwapFormErrors,
   useLiquidityQueries,
+  useSolanaConnection,
   useSplTokenAccountsQuery,
   useSplUserBalance,
   useStartNewInteraction,

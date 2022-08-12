@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from "react";
-import { createContext, useContext, useMemo } from "react";
+import { createContext, useMemo } from "react";
 import shallow from "zustand/shallow.js";
 
 import { Protocol } from "../config/ecosystem";
@@ -7,7 +7,7 @@ import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { SolanaConnection } from "../models";
 
-const SolanaConnectionContext: React.Context<null | SolanaConnection> =
+export const SolanaConnectionContext: React.Context<null | SolanaConnection> =
   createContext<null | SolanaConnection>(null);
 
 export const SolanaConnectionProvider = ({
@@ -28,12 +28,4 @@ export const SolanaConnectionProvider = ({
       {children}
     </SolanaConnectionContext.Provider>
   );
-};
-
-export const useSolanaConnection = (): SolanaConnection => {
-  const context = useContext(SolanaConnectionContext);
-  if (!context) {
-    throw new Error("Missing Solana connection context");
-  }
-  return context;
 };

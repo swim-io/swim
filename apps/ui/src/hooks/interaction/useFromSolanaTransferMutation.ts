@@ -13,7 +13,6 @@ import {
   getSolanaTokenDetails,
   getTokenDetailsForEcosystem,
 } from "../../config";
-import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { InteractionState, SolanaConnection, Tx } from "../../models";
@@ -32,7 +31,11 @@ import { DEFAULT_WORMHOLE_RETRIES } from "../../models/wormhole/constants";
 import { getSignedVaaWithRetry } from "../../models/wormhole/guardiansRpc";
 import { useWallets } from "../crossEcosystem";
 import { useEvmConnections } from "../evm";
-import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
+import {
+  useSolanaConnection,
+  useSolanaWallet,
+  useSplTokenAccountsQuery,
+} from "../solana";
 
 const getTransferredAmountsByTokenId = async (
   interactionState: InteractionState,

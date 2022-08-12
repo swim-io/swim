@@ -7,7 +7,6 @@ import type { UseMutationResult } from "react-query";
 import { useMutation, useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import redeemerIdl from "../../idl/redeem.json";
@@ -16,6 +15,7 @@ import type { NftData } from "../solana";
 import {
   useAnchorProvider,
   useCreateSplTokenAccountsMutation,
+  useSolanaConnection,
 } from "../solana";
 
 // Note, this address should be somewhere more general if it ever has a usecase beyond the redeemer.

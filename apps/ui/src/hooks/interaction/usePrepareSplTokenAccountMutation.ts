@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "react-query";
 
-import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { createSplTokenAccount, findTokenAccountForMint } from "../../models";
 import {
   getSplTokenAccountsQueryKey,
+  useSolanaConnection,
   useSolanaWallet,
   useSplTokenAccountsQuery,
 } from "../solana";
@@ -61,7 +61,7 @@ export const usePrepareSplTokenAccountMutation = () => {
         interaction.env,
         solanaAddress,
       );
-      await queryClient.refetchQueries(splTokenAccountsQueryKey, undefined, {});
+      await queryClient.refetchQueries(splTokenAccountsQueryKey);
     }
   });
 };

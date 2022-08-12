@@ -2,7 +2,6 @@ import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
-import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { MOCK_SOL_WALLET } from "../../fixtures";
@@ -10,7 +9,7 @@ import { MOCK_INTERACTION_STATE } from "../../fixtures/swim/interactionState";
 import type { SolanaWalletInterface } from "../../models";
 import { createSplTokenAccount } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
-import { useSolanaWallet } from "../solana";
+import { useSolanaConnection, useSolanaWallet } from "../solana";
 
 import { usePrepareSplTokenAccountMutation } from "./usePrepareSplTokenAccountMutation";
 

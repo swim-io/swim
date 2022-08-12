@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import { Protocol, getSolanaTokenDetails } from "../../config";
-import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {
@@ -22,7 +21,11 @@ import {
   isUnlockEvmTx,
 } from "../../models";
 import { useEvmConnections, useEvmWallet } from "../evm";
-import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
+import {
+  useSolanaConnection,
+  useSolanaWallet,
+  useSplTokenAccountsQuery,
+} from "../solana";
 
 export const useReloadInteractionStateMutation = () => {
   const queryClient = useQueryClient();

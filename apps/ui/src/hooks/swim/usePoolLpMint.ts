@@ -7,10 +7,10 @@ import shallow from "zustand/shallow.js";
 
 import type { PoolSpec } from "../../config";
 import { EcosystemId, getSolanaTokenDetails } from "../../config";
-import { useSolanaConnection } from "../../contexts/SolanaConnection";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { deserializeMint } from "../../models";
+import { useSolanaConnection } from "../solana";
 
 export const usePoolLpMints = (
   poolSpecs: readonly PoolSpec[],

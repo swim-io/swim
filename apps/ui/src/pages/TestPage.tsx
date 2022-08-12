@@ -31,19 +31,18 @@ import {
   WormholeChainId,
   getSolanaTokenDetails,
 } from "../config";
-import { useSolanaConnection } from "../contexts/SolanaConnection";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import {
   useEvmConnections,
   usePool,
+  useSolanaConnection,
   useTokensByEcosystem,
   useWallets,
 } from "../hooks";
 import { keysHexaPool, keysSwimLake } from "../keys";
 import {
   SwimInitializer,
-  isSolanaPoolState,
   setUpErc20Tokens,
   setUpSplTokensOnEvm,
 } from "../models";
@@ -575,7 +574,7 @@ const TestPage = (): ReactElement => {
               Attest LP token
             </EuiButton>
             <EuiSpacer />
-            {poolState && isSolanaPoolState(poolState) && (
+            {poolState && (
               <>
                 <h2>Pool state</h2>
                 <table>

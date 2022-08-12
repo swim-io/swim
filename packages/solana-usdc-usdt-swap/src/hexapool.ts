@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import type { SwimPoolConstantState } from "@swim-io/solana-types";
+import type { SwimPoolConstantState } from "@swim-io/solana";
 
 export interface SwimPoolConstantProperties {
   readonly numberOfTokens: number;

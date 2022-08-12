@@ -1,4 +1,5 @@
 import { Env } from "@swim-io/core";
+import { SolanaChainId } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 
 import type { EvmEcosystemId, SolanaEcosystemId } from "./ecosystem";
@@ -18,14 +19,6 @@ const getSolanaMainnetRpcUrls = () => {
   }
   return [SOLANA_MAINNET_RPC_URL || "https://solana-api.projectserum.com"];
 };
-
-/** Adapted from @solana/spl-token-registry ENV */
-export const enum SolanaChainId {
-  MainnetBeta = 101,
-  Testnet = 102,
-  Devnet = 103,
-  Local = 104,
-}
 
 export const enum EvmChainId {
   EthereumMainnet = 1,
@@ -390,7 +383,7 @@ const LOCAL_CHAINS: ChainsByProtocol = {
   [Protocol.Solana]: [
     {
       ecosystem: EcosystemId.Solana,
-      chainId: SolanaChainId.Local,
+      chainId: SolanaChainId.Localnet,
       wormhole: {
         bridge: "Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o",
         tokenBridge: "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE",

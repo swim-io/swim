@@ -1,10 +1,9 @@
-name: "Verify solana-types build"
+name: "Verify solana build"
 on:
   pull_request:
     paths:
-      - "packages/solana-types/**.ts"
-      - "packages/solana-types/**.json"
-      - "yarn.lock"
+      - "packages/solana/**.ts"
+      - "packages/solana/**.json"
   push:
     branches:
       - master
@@ -15,7 +14,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./packages/solana-types
+        working-directory: ./packages/solana
 
     steps:
       - uses: actions/checkout@v2
@@ -25,6 +24,8 @@ jobs:
           cache: "yarn"
       - name: Install dependencies
         run: yarn install --immutable
+      - name: Build dependencies
+        run: yarn workspaces foreach --topological-dev --parallel --recursive --from @swim-io/solana run build
       - name: Check types
         run: yarn typecheck
       - name: Check format

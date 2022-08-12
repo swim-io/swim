@@ -11,8 +11,8 @@ import {
   SystemProgram,
   TransactionInstruction,
 } from "@solana/web3.js";
-import type { DecimalBN } from "@swim-io/solana-types";
-import { swimPool } from "@swim-io/solana-types";
+import type { DecimalBN } from "@swim-io/solana";
+import { swimPool } from "@swim-io/solana";
 import { chunks } from "@swim-io/utils";
 
 import type { SolanaConnection } from "../solana";

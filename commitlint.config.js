@@ -14,7 +14,7 @@ module.exports = {
         "pool-sdk",
         "quarry-deployment",
         "redeemer",
-        "solana-types",
+        "solana",
         "solana-usdc-usdt-swap",
         "token-projects",
         "tsconfig",

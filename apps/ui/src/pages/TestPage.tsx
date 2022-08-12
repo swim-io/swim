@@ -43,6 +43,7 @@ import {
 import { keysHexaPool, keysSwimLake } from "../keys";
 import {
   SwimInitializer,
+  isSolanaPoolState,
   setUpErc20Tokens,
   setUpSplTokensOnEvm,
 } from "../models";
@@ -574,7 +575,7 @@ const TestPage = (): ReactElement => {
               Attest LP token
             </EuiButton>
             <EuiSpacer />
-            {poolState && (
+            {poolState && isSolanaPoolState(poolState) && (
               <>
                 <h2>Pool state</h2>
                 <table>

@@ -35,11 +35,11 @@ Object {
   },
   "interactionType": 1,
   "requiredSplTokenAccounts": Object {
-    "11111111111111111111111111111111": Object {
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
       "isExistingAccount": false,
       "txId": null,
     },
-    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+    "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr": Object {
       "isExistingAccount": false,
       "txId": null,
     },
@@ -83,11 +83,11 @@ Object {
   "interactionType": 3,
   "removeTxId": null,
   "requiredSplTokenAccounts": Object {
-    "11111111111111111111111111111111": Object {
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
       "isExistingAccount": false,
       "txId": null,
     },
-    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+    "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr": Object {
       "isExistingAccount": false,
       "txId": null,
     },
@@ -130,11 +130,11 @@ Object {
   "interactionType": 4,
   "removeTxId": null,
   "requiredSplTokenAccounts": Object {
-    "11111111111111111111111111111111": Object {
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
       "isExistingAccount": false,
       "txId": null,
     },
-    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+    "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr": Object {
       "isExistingAccount": false,
       "txId": null,
     },
@@ -181,11 +181,11 @@ Object {
   "interactionType": 2,
   "removeTxId": null,
   "requiredSplTokenAccounts": Object {
-    "11111111111111111111111111111111": Object {
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
       "isExistingAccount": false,
       "txId": null,
     },
-    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+    "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr": Object {
       "isExistingAccount": false,
       "txId": null,
     },
@@ -321,11 +321,11 @@ Object {
   "interactionType": 5,
   "postVaaOnSolanaTxIds": Array [],
   "requiredSplTokenAccounts": Object {
-    "11111111111111111111111111111111": Object {
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
       "isExistingAccount": false,
       "txId": null,
     },
-    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+    "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr": Object {
       "isExistingAccount": false,
       "txId": null,
     },
@@ -373,11 +373,11 @@ Object {
   "interactionType": 5,
   "receiveAndSwapTxId": null,
   "requiredSplTokenAccounts": Object {
-    "11111111111111111111111111111111": Object {
+    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
       "isExistingAccount": false,
       "txId": null,
     },
-    "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc": Object {
+    "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr": Object {
       "isExistingAccount": false,
       "txId": null,
     },

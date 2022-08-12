@@ -1,19 +1,18 @@
 import type { MintInfo, AccountInfo as TokenAccount } from "@solana/spl-token";
-import type { SwimPoolState } from "@swim-io/solana-types";
 import { findOrThrow, isNotNull } from "@swim-io/utils";
-import type Decimal from "decimal.js";
-import type { UseQueryResult } from "react-query";
+import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../../config";
-import {
-  EcosystemId,
-  getSolanaTokenDetails,
-  isEvmEcosystemId,
-} from "../../config";
+import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import { findTokenAccountForMint, getPoolUsdValue } from "../../models";
+import type { PoolState } from "../../models";
+import {
+  findTokenAccountForMint,
+  getPoolUsdValue,
+  isEvmPoolState,
+} from "../../models";
 import {
   useLiquidityQueries,
   useSolanaWallet,
@@ -21,14 +20,14 @@ import {
 } from "../solana";
 
 import { usePoolLpMints } from "./usePoolLpMint";
-import { usePoolStates } from "./usePoolState";
+import { usePoolStateQueries } from "./usePoolStateQueries";
 
 export interface PoolData {
   readonly spec: PoolSpec;
   readonly nativeEcosystems: readonly EcosystemId[];
   readonly lpToken: TokenSpec;
   readonly tokens: readonly TokenSpec[];
-  readonly state: SwimPoolState | null;
+  readonly state: PoolState | null;
   readonly poolLpMint: MintInfo | null;
   readonly poolTokenAccounts: readonly (TokenAccount | null)[] | null;
   readonly userLpTokenAccount: TokenAccount | null;
@@ -41,11 +40,9 @@ const constructPool = (
   poolSpec: PoolSpec,
   walletAddress: string | null,
   splTokenAccounts: readonly TokenAccount[] | null,
-  { data: poolState = null }: UseQueryResult<SwimPoolState | null, Error>,
-  { data: poolLpMint = null }: UseQueryResult<MintInfo | null, Error>,
-  {
-    data: poolTokenAccounts = null,
-  }: UseQueryResult<readonly TokenAccount[] | null, Error>,
+  poolState: PoolState | null = null,
+  poolLpMint: MintInfo | null = null,
+  poolTokenAccounts: readonly TokenAccount[] | null = null,
 ): PoolData => {
   const lpToken = findOrThrow(
     allTokens,
@@ -64,19 +61,33 @@ const constructPool = (
     ...new Set(tokens.map((tokenSpec) => tokenSpec.nativeEcosystemId)),
   ];
 
-  if (isEvmEcosystemId(poolSpec.ecosystem)) {
-    // TODO: Make it work for both Solana and EVM pool
+  if (poolState === null) {
     return {
       spec: poolSpec,
       nativeEcosystems,
       lpToken,
       tokens,
-      state: poolState ?? null,
+      state: poolState,
       poolLpMint,
       poolTokenAccounts,
       userLpTokenAccount: null,
       poolUsdValue: null,
-      isPoolPaused: poolState?.isPaused ?? null,
+      isPoolPaused: null,
+    };
+  }
+
+  if (isEvmPoolState(poolState)) {
+    return {
+      spec: poolSpec,
+      nativeEcosystems,
+      lpToken,
+      tokens,
+      state: poolState,
+      poolLpMint,
+      poolTokenAccounts,
+      userLpTokenAccount: null,
+      poolUsdValue: Decimal.sum(...poolState.balances),
+      isPoolPaused: poolState.isPaused,
     };
   }
   const lpTokenMintAddress = getSolanaTokenDetails(lpToken).address;
@@ -99,24 +110,23 @@ const constructPool = (
     nativeEcosystems,
     lpToken,
     tokens,
-    state: poolState ?? null,
+    state: poolState,
     poolLpMint,
     poolTokenAccounts,
     userLpTokenAccount,
     poolUsdValue,
-    isPoolPaused: poolState?.isPaused ?? null,
+    isPoolPaused: poolState.isPaused,
   };
 };
 
 export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
-  // TODO: Make it work for both Solana and EVM pool
   const { pools, tokens: allTokens } = useEnvironment(selectConfig, shallow);
   const { address: walletAddress } = useSolanaWallet();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const poolSpecs = poolIds.map((poolId) =>
     findOrThrow(pools, (pool) => pool.id === poolId),
   );
-  const poolStates = usePoolStates(poolSpecs);
+  const poolStates = usePoolStateQueries(poolSpecs);
   const lpMints = usePoolLpMints(poolSpecs);
   const liquidityQueries = useLiquidityQueries(
     poolSpecs.map((poolSpec) =>
@@ -132,9 +142,9 @@ export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
       poolSpec,
       walletAddress,
       splTokenAccounts,
-      poolStates[i],
-      lpMints[i],
-      liquidityQueries[i],
+      poolStates[i].data,
+      lpMints[i].data,
+      liquidityQueries[i].data,
     ),
   );
 };

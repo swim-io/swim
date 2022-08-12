@@ -4,8 +4,6 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import resourcesToBackend from "i18next-resources-to-backend";
 import { initReactI18next } from "react-i18next";
 
-import enTranslation from "./locales/en/translation.json";
-
 const fallbackLanguage = "en";
 
 // eslint-disable-next-line import/no-named-as-default-member
@@ -38,7 +36,12 @@ i18next
           resources: {
             en: {
               // easier to test without waiting to download i18n files
-              translation: enTranslation,
+              // do not use import because it cannot be removed by tree shaking in webpack 4
+              // eslint-disable-next-line @typescript-eslint/no-var-requires
+              translation: require("./locales/en/translation.json") as Record<
+                string,
+                unknown
+              >,
             },
           },
         }

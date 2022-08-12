@@ -1,0 +1,37 @@
+name: "Verify evm-contracts build"
+on:
+  pull_request:
+    paths:
+      - "packages/evm-contracts/**.ts"
+      - "packages/evm-contracts/**.json"
+      - "yarn.lock"
+  push:
+    branches:
+      - master
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./packages/evm-contracts
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Check format
+        run: yarn format:check
+      - name: Check Solidity lint
+        run: yarn lint:sol --max-warnings=0
+      - name: Check TypeScript lint
+        run: yarn lint:ts --max-warnings=0
+      - name: Check build
+        run: yarn build
+      - name: Test
+        run: yarn test

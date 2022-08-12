@@ -9,8 +9,7 @@ module.exports = {
     },
     {
       files: ["**/*.{cts,mts,ts,tsx}"],
-      plugins: ["i18next"],
-      extends: ["@swim-io/eslint-config/react", "plugin:i18next/recommended"],
+      extends: ["@swim-io/eslint-config/react"],
       parserOptions: {
         // Make sure correct `tsconfig.json` is found in monorepo
         tsconfigRootDir: __dirname,
@@ -45,8 +44,6 @@ module.exports = {
             "@typescript-eslint/no-unsafe-assignment": "off",
             // allow mutation in test files for convenience
             "functional/immutable-data": "off",
-            // test files do not need i18n
-            "i18next/no-literal-string": "off",
             // these are expected by Storybook
             "import/no-anonymous-default-export": "off",
           },

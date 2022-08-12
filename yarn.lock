@@ -6259,6 +6259,7 @@ __metadata:
     eslint-plugin-deprecation: ^1.3
     eslint-plugin-eslint-comments: ^3.2.0
     eslint-plugin-functional: ^4.2.1
+    eslint-plugin-i18next: ^6.0.0-4
     eslint-plugin-import: ^2.26.0
     eslint-plugin-jest: ^25.7.0
     eslint-plugin-prettier: ^4.2.1
@@ -6270,6 +6271,7 @@ __metadata:
     eslint-config-prettier: ^8.5
     eslint-plugin-eslint-comments: ^3.2.0
     eslint-plugin-functional: ^4.2
+    eslint-plugin-i18next: ^6.0.0-4
     eslint-plugin-import: ^2.26
     eslint-plugin-jest: ^25.7.0
     eslint-plugin-prettier: ^4.2
@@ -6283,6 +6285,8 @@ __metadata:
     eslint-config-react-app:
       optional: true
     eslint-plugin-deprecation:
+      optional: true
+    eslint-plugin-i18next:
       optional: true
     eslint-plugin-react:
       optional: true

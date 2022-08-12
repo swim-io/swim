@@ -27,6 +27,7 @@ export interface SolanaChainConfig extends ChainConfig {
 }
 
 export interface SolanaEcosystemConfig extends EcosystemConfig {
+  readonly protocol: SolanaProtocol;
   readonly chains: ReadonlyMap<Env, SolanaChainConfig>;
 }
 

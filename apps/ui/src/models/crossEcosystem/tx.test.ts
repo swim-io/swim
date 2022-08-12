@@ -23,8 +23,8 @@ describe("Cross-ecosystem tx", () => {
     id: "0x743087e871039d66b82fcb2cb719f6a541e650e05735c32c1be871ef9ae9a456",
     timestamp: defaultTimestamp,
     interactionId: defaultInteractionId,
-    txResponse: mock<ethers.providers.TransactionResponse>(),
-    txReceipt: mock<ethers.providers.TransactionReceipt>(),
+    response: mock<ethers.providers.TransactionResponse>(),
+    receipt: mock<ethers.providers.TransactionReceipt>(),
   };
 
   const bnbTx: EvmTx = {

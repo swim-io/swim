@@ -55,8 +55,8 @@ export const fetchEvmTxForInteractionId = async (
               id: txResponse.hash,
               timestamp: txResponse.timestamp ?? null,
               interactionId: interactionId,
-              txResponse,
-              txReceipt,
+              response: txResponse,
+              receipt: txReceipt,
             };
           },
         ),

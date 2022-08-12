@@ -48,8 +48,8 @@ describe("Pool tests", () => {
         id: "string",
         timestamp: 123456789,
         ecosystemId: ecosystemId,
-        txResponse: txResponse,
-        txReceipt: txReceipt,
+        response: txResponse,
+        receipt: txReceipt,
         interactionId: "1",
       };
       expect(isPoolTx(contractAddress, tx)).toBe(false);

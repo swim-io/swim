@@ -6328,7 +6328,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/evm@workspace:packages/evm":
+"@swim-io/evm@workspace:^, @swim-io/evm@workspace:packages/evm":
   version: 0.0.0-use.local
   resolution: "@swim-io/evm@workspace:packages/evm"
   dependencies:
@@ -6660,6 +6660,7 @@ __metadata:
     "@storybook/react": ^6.5.10
     "@swim-io/core": ^0.12.0
     "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/evm": "workspace:^"
     "@swim-io/evm-contracts": ^0.12.0
     "@swim-io/pool-math": ^0.12.0
     "@swim-io/redeemer": ^0.12.0

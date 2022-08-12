@@ -22,7 +22,6 @@ export interface SolanaPoolConfig extends PoolConfig {
 
 export interface SolanaChainConfig extends ChainConfig {
   readonly pools: readonly SolanaPoolConfig[];
-  readonly publicRpcUrls: readonly string[];
   readonly tokenContract: string;
   readonly otterTotCollection: string;
 }

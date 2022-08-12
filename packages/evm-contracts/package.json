@@ -33,7 +33,7 @@
     "coverage": "hardhat coverage",
     "typecheck": "tsc",
     "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test",
-    "build": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && tsc",
+    "build": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && yarn clean && yarn compile && tsc",
     "prepare": "yarn verify && yarn build"
   },
   "devDependencies": {

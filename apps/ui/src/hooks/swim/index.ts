@@ -3,7 +3,7 @@ export * from "./useGetSwapFormErrors";
 export * from "./useGetSwapFormErrorsV2";
 export * from "./useIsLargeSwap";
 export * from "./useIsLargeSwapV2";
-export * from "./useIsRequiredPoolsPaused";
+export * from "./useIsRequiredPoolPaused";
 export * from "./usePoolLpMint";
 export * from "./usePoolMaths";
 export * from "./usePools";

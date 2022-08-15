@@ -2,7 +2,7 @@ import type { PoolSpec } from "config";
 
 import { usePoolStateQueries } from "./usePoolStateQueries";
 
-export const useIsRequiredPoolsPaused = (
+export const useIsRequiredPoolPaused = (
   poolSpecs: readonly PoolSpec[],
 ): boolean => {
   const poolStateQueries = usePoolStateQueries(poolSpecs);

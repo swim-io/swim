@@ -8,14 +8,14 @@ import { EcosystemId, getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { isEvmPoolState, isSolanaPool } from "../../models";
-import { useLiquidityQueries } from "../solana";
+import { useSolanaLiquidityQueries } from "../solana";
 
 import { usePoolStateQueries } from "./usePoolStateQueries";
 
 export const usePoolBalances = (poolSpecs: readonly PoolSpec[]) => {
   const { tokens } = useEnvironment(selectConfig, shallow);
   const poolStateQueries = usePoolStateQueries(poolSpecs);
-  const liquidityQueries = useLiquidityQueries(
+  const liquidityQueries = useSolanaLiquidityQueries(
     poolSpecs.map((poolSpec) =>
       poolSpec.ecosystem === EcosystemId.Solana
         ? [...poolSpec.tokenAccounts.values()]

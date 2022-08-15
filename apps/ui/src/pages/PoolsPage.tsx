@@ -38,7 +38,11 @@ import {
 } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
-import { useCoinGeckoPricesQuery, useLiquidityQuery, useTitle } from "../hooks";
+import {
+  useCoinGeckoPricesQuery,
+  useSolanaLiquidityQuery,
+  useTitle,
+} from "../hooks";
 import { isSolanaPool } from "../models";
 
 type EcosystemSelectType = EcosystemId | "all";
@@ -59,7 +63,7 @@ const PoolsPage = (): ReactElement => {
   const allPoolTokenAccountAddresses = solanaPools.flatMap((poolSpec) => [
     ...poolSpec.tokenAccounts.values(),
   ]);
-  const { data: allPoolTokenAccounts = null } = useLiquidityQuery(
+  const { data: allPoolTokenAccounts = null } = useSolanaLiquidityQuery(
     allPoolTokenAccountAddresses,
   );
 

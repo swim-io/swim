@@ -1,3 +1,4 @@
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
@@ -65,7 +66,12 @@ export const useGetSwapFormErrorsV2 = (
       fromTokenBalance &&
       inputAmount.gt(fromTokenBalance.toHuman(fromTokenOption.ecosystemId))
     ) {
-      errors = [...errors, "Insufficient funds"];
+      errors = [
+        ...errors,
+        `Insufficient funds for ${
+          ECOSYSTEMS[fromTokenOption.ecosystemId].displayName
+        } ${TOKEN_PROJECTS_BY_ID[fromToken.projectId].displayName}`,
+      ];
     }
 
     if (inputAmount.isZero()) {

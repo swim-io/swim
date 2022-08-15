@@ -1,7 +1,8 @@
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
-import Decimal from "decimal.js";
+import type Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
+import { sum } from "../../amounts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { TokenOption } from "../../models";
@@ -10,13 +11,6 @@ import { getRequiredPoolsForSwapV2 } from "../../models";
 import { usePoolBalances } from "./usePoolBalances";
 import { useSwapOutputAmountEstimateV2 } from "./useSwapOutputAmountEstimateV2";
 import { useToken } from "./useToken";
-
-const sum = (balances: readonly Decimal[] | null) => {
-  if (balances === null) {
-    return new Decimal(-1);
-  }
-  return Decimal.sum(...balances);
-};
 
 export const useIsLargeSwapV2 = (
   fromTokenOption: TokenOption,
@@ -41,10 +35,10 @@ export const useIsLargeSwapV2 = (
   );
   return (
     (TOKEN_PROJECTS_BY_ID[fromToken.projectId].isStablecoin &&
-      inputBalance.isPositive() &&
+      inputBalance !== null &&
       inputAmount.gt(inputBalance.mul(0.1))) ||
     (TOKEN_PROJECTS_BY_ID[toToken.projectId].isStablecoin &&
-      outputBalance.isPositive() &&
+      outputBalance !== null &&
       outputAmount !== null &&
       outputAmount.gt(outputBalance.mul(0.1)))
   );

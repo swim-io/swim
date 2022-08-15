@@ -91,3 +91,10 @@ export const u64ToDecimal = (number: u64): Decimal =>
 
 export const decimalRemoveTrailingZero = (decimal: Decimal): string =>
   decimal.toString().replace(/^(\d+\.\d*?[1-9])0+$/, "$1");
+
+export const sum = (balances: readonly Decimal[] | null) => {
+  if (balances === null) {
+    return null;
+  }
+  return Decimal.sum(...balances);
+};

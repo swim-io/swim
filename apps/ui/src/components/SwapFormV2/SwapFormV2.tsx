@@ -20,7 +20,7 @@ import { captureAndWrapException } from "../../errors";
 import {
   useGetSwapFormErrorsV2,
   useIsLargeSwapV2,
-  useIsRequiredPoolsPaused,
+  useIsRequiredPoolPaused,
   useSwapFeesEstimationQueryV2,
   useSwapOutputAmountEstimateV2,
   useSwapTokensV2,
@@ -76,7 +76,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     toTokenOption,
   );
 
-  const isRequiredPoolPaused = useIsRequiredPoolsPaused(requiredPools);
+  const isRequiredPoolPaused = useIsRequiredPoolPaused(requiredPools);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [confirmModalDescription, setConfirmModalDescription] =

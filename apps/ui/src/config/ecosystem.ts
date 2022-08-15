@@ -1,15 +1,25 @@
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { filterMap } from "@swim-io/utils";
 
-import ACALA_SVG from "../images/ecosystems/acala.svg";
-import AURORA_SVG from "../images/ecosystems/aurora.svg";
-import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
-import BNB_SVG from "../images/ecosystems/bnb.svg";
-import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
-import FANTOM_SVG from "../images/ecosystems/fantom.svg";
-import KARURA_SVG from "../images/ecosystems/karura.svg";
-import POLYGON_SVG from "../images/ecosystems/polygon.svg";
-import SOLANA_SVG from "../images/ecosystems/solana.svg";
+const ACALA_SVG = "../images/ecosystems/acala.svg";
+const AURORA_SVG = "../images/ecosystems/aurora.svg";
+const AVALANCHE_SVG = "../images/ecosystems/avalanche.svg";
+const BNB_SVG = "../images/ecosystems/bnb.svg";
+const ETHEREUM_SVG = "../images/ecosystems/ethereum.svg";
+const FANTOM_SVG = "../images/ecosystems/fantom.svg";
+const KARURA_SVG = "../images/ecosystems/karura.svg";
+const POLYGON_SVG = "../images/ecosystems/polygon.svg";
+const SOLANA_SVG = "../images/ecosystems/solana.svg";
+
+// import ACALA_SVG from "../images/ecosystems/acala.svg";
+// import AURORA_SVG from "../images/ecosystems/aurora.svg";
+// import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
+// import BNB_SVG from "../images/ecosystems/bnb.svg";
+// import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+// import FANTOM_SVG from "../images/ecosystems/fantom.svg";
+// import KARURA_SVG from "../images/ecosystems/karura.svg";
+// import POLYGON_SVG from "../images/ecosystems/polygon.svg";
+// import SOLANA_SVG from "../images/ecosystems/solana.svg";
 
 import { WormholeChainId } from "./wormhole";
 

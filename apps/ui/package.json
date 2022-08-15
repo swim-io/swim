@@ -16,7 +16,8 @@
     "types:generate": "typechain --target=ethers-v5 --out-dir=src/contracts/ abi/*.json",
     "verify": "yarn typecheck && yarn lint && yarn test --watchAll=false && yarn format:check",
     "storybook": "DISABLE_ESLINT_PLUGIN=true start-storybook -p 6006",
-    "build-storybook": "DISABLE_ESLINT_PLUGIN=true build-storybook"
+    "build-storybook": "DISABLE_ESLINT_PLUGIN=true build-storybook",
+    "airdrop": "TS_NODE_COMPILER_OPTIONS='{ \"module\": \"commonjs\" }' ts-node ./src/airdrop.ts"
   },
   "browserslist": {
     "production": [
@@ -123,6 +124,7 @@
     "eslint-plugin-react": "^7.29.4",
     "jest-mock-extended": "^2.0.6",
     "prettier": "^2.7.1",
+    "ts-node": "^10.9.1",
     "typechain": "^5.2.0",
     "typescript": "~4.7.4",
     "webpack": "4.44.2"

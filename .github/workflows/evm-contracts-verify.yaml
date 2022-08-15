@@ -17,6 +17,11 @@ jobs:
       run:
         working-directory: ./packages/evm-contracts
 
+    env:
+      MNEMONIC: "test test test test test test test test test test test junk"
+      FACTORY_MNEMONIC: "test test test test test test test test test test test junk"
+      ETHERSCAN_API_KEY: "XRJNAJSHABY3I6GUJYGHIVTSGCQ2S2Y75J"
+
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -31,6 +36,13 @@ jobs:
         run: yarn lint:sol --max-warnings=0
       - name: Check TypeScript lint
         run: yarn lint:ts --max-warnings=0
+      - name: "Create .env file for deployment"
+        run: |
+          touch .env
+          echo MNEMONIC=$MNEMONIC >> .env
+          echo FACTORY_MNEMONIC=$FACTORY_MNEMONIC >> .env
+          echo ETHERSCAN_API_KEY=$ETHERSCAN_API_KEY >> .env
+          cat .env
       - name: Check build
         run: yarn build
       - name: Test

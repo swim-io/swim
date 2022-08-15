@@ -12,7 +12,7 @@ import { task } from "hardhat/config";
 import type { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
 
 dotenv.config();
-const { FACTORY_MNEMONIC, MNEMONIC, BSCSCAN_API_KEY, ETHERSCAN_API_KEY } = process.env;
+const { FACTORY_MNEMONIC, MNEMONIC, ETHERSCAN_API_KEY } = process.env;
 
 task(
   "factoryAddress",

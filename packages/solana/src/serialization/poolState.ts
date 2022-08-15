@@ -17,7 +17,8 @@ import type BN from "bn.js";
 import type { AmpFactor } from "./ampFactor";
 import { ampFactor } from "./ampFactor";
 
-type Timestamp = BN;
+export type Timestamp = BN;
+type U8 = (property?: string) => Layout<number>;
 
 export interface SwimPoolConstantState {
   readonly nonce: number;
@@ -61,8 +62,7 @@ export const swimPool = (
       publicKey("lpMintKey"),
       u8("lpDecimalEqualizer"),
       array(publicKey(), numberOfTokens, "tokenMintKeys"),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      array(u8(), numberOfTokens, "tokenDecimalEqualizers"),
+      array((u8 as U8)(), numberOfTokens, "tokenDecimalEqualizers"),
       array(publicKey(), numberOfTokens, "tokenKeys"),
       publicKey("governanceKey"),
       publicKey("governanceFeeKey"),

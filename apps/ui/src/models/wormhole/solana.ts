@@ -13,6 +13,7 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
+import { createMemoIx } from "@swim-io/solana";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
 import {
@@ -23,7 +24,6 @@ import {
 import type { SolanaTx } from "../crossEcosystem";
 import type { SolanaConnection } from "../solana";
 import {
-  createMemoIx,
   createTx,
   getAmountBurnedByMint,
   getAmountMintedToAccount,

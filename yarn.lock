@@ -4826,7 +4826,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@solana/web3.js@npm:^1.17.0, @solana/web3.js@npm:^1.21.0, @solana/web3.js@npm:^1.24.0, @solana/web3.js@npm:^1.30.2, @solana/web3.js@npm:^1.31.0, @solana/web3.js@npm:^1.32.0, @solana/web3.js@npm:^1.36.0, @solana/web3.js@npm:^1.44.2, @solana/web3.js@npm:^1.44.3":
+"@solana/web3.js@npm:^1.17.0, @solana/web3.js@npm:^1.21.0, @solana/web3.js@npm:^1.24.0, @solana/web3.js@npm:^1.30.2, @solana/web3.js@npm:^1.31.0, @solana/web3.js@npm:^1.32.0, @solana/web3.js@npm:^1.36.0, @solana/web3.js@npm:^1.44.3":
   version: 1.44.3
   resolution: "@solana/web3.js@npm:1.44.3"
   dependencies:
@@ -4847,6 +4847,31 @@ __metadata:
     superstruct: ^0.14.2
     tweetnacl: ^1.0.0
   checksum: ef35951ad947d5f830fcc8d5b444424ce65752f4f935d5a4eccae85f4867eeb2e8e3e89005a2ee217771253d1c5428e7537de339c557f22c8cb5e2f5204ec5df
+  languageName: node
+  linkType: hard
+
+"@solana/web3.js@npm:^1.48.0":
+  version: 1.50.1
+  resolution: "@solana/web3.js@npm:1.50.1"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+    "@ethersproject/sha2": ^5.5.0
+    "@solana/buffer-layout": ^4.0.0
+    bigint-buffer: ^1.1.5
+    bn.js: ^5.0.0
+    borsh: ^0.7.0
+    bs58: ^4.0.1
+    buffer: 6.0.1
+    fast-stable-stringify: ^1.0.0
+    jayson: ^3.4.4
+    js-sha3: ^0.8.0
+    node-fetch: 2
+    react-native-url-polyfill: ^1.3.0
+    rpc-websockets: ^7.5.0
+    secp256k1: ^4.0.2
+    superstruct: ^0.14.2
+    tweetnacl: ^1.0.0
+  checksum: 49dca7b9caa776a6184b6008af74907d55b4dde3652babd066d316b585e00f7e2d63d1fb450b7a32591c371dfcee3d4bbfff98409ed80a07216a90dc58c7fb86
   languageName: node
   linkType: hard
 
@@ -6179,10 +6204,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/core@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "@swim-io/core@npm:0.11.0"
-  checksum: 49e4291d17107e601d39b1c5205038c180bb1f18a927d18178fc4cb6fcf1f3b4b90a45f773d2d60434c09de7330301a658752451eea365d6acb64f69fa0dd108
+"@swim-io/core@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "@swim-io/core@npm:0.12.0"
+  checksum: ec8fd55812bb75d74f3f379b83a7b84cb1dfbd9e73c6e2713f161ffeaadaafe14405fabfa4d3d3fa685977440d4bb816755df3028a90f8ba54aa3bcc893b5569
   languageName: node
   linkType: hard
 
@@ -6252,10 +6277,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/evm-contracts@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "@swim-io/evm-contracts@npm:0.11.0"
-  checksum: 861772ad5a153673994f78b63b852322d87fc80b28f8293167021d174d64046d2d4bfd5866c370bf2b5ffa0614452cce25e624b359e46c71c0dfb3dd8adfc98e
+"@swim-io/evm-contracts@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "@swim-io/evm-contracts@npm:0.12.0"
+  checksum: 0645496d7d30db7d6cfd30bdb98a6ba1305bb52eb256418fa3314aac410e80b9975bfd507ef2d8c8a0c271a246b9b741c202f4c389f15f521dd7c82823f577b0
   languageName: node
   linkType: hard
 
@@ -6320,12 +6345,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/pool-math@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "@swim-io/pool-math@npm:0.11.0"
+"@swim-io/pool-math@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "@swim-io/pool-math@npm:0.12.0"
   dependencies:
     decimal.js: ^10.3.1
-  checksum: 4d212590d6e039072cf08713c5a72491b97d84e02b3b16d21f93c93bf78e6280c892abc5dd5922eeedb6f1c52b3046af1179542b68ab8624d9bf36e892ffc1ae
+  checksum: ab9307ac76eac948cefaacb5e0a22e81e12afd08be2f02433b3d8e1822b0eb8fded6e7c28c0879420264e9882a10279f61f931ea8cc44391459bb2c8488573c4
   languageName: node
   linkType: hard
 
@@ -6412,12 +6437,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/redeemer@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "@swim-io/redeemer@npm:0.11.0"
+"@swim-io/redeemer@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "@swim-io/redeemer@npm:0.12.0"
   dependencies:
-    "@swim-io/core": ^0.11.0
-  checksum: 2c0aca5cc1dcbe016087c8e92537c7fe5a3c8a4ec4cd913d1c3fc431e26ea852bf8bd74181934d5f819bc09736ec9f141779067b3860d7ab5ed588085d3c146d
+    "@swim-io/core": ^0.12.0
+  checksum: e1214ff5a48ef6845332a3d3ab6c3d2d8c5604f2ddb697ae39207db113120c23770236ee26319e12e438293bd400a779cc7fc408f262685f4bf71ad56d299f4a
   languageName: node
   linkType: hard
 
@@ -6444,45 +6469,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/solana-types@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "@swim-io/solana-types@npm:0.11.0"
-  dependencies:
-    "@project-serum/borsh": ^0.2.5
-    "@solana/web3.js": ^1.44.2
-    bn.js: ^5.2.1
-  checksum: 2dc4aabf78b5cd79f1d98934ec7573175d5df235d9c4ccec6057a9d27a4c90ea4ecc402e8f93a9a886d15a69738f1c89749ebf03e4fd413e0ad2be1b41d4f4a6
-  languageName: node
-  linkType: hard
-
-"@swim-io/solana-types@workspace:^, @swim-io/solana-types@workspace:packages/solana-types":
-  version: 0.0.0-use.local
-  resolution: "@swim-io/solana-types@workspace:packages/solana-types"
-  dependencies:
-    "@project-serum/borsh": ^0.2.5
-    "@solana/web3.js": ^1.44.2
-    "@swim-io/eslint-config": "workspace:^"
-    "@swim-io/tsconfig": "workspace:^"
-    "@types/bn.js": ^5.1.0
-    "@types/jest": ^28.1.3
-    "@typescript-eslint/eslint-plugin": ^5.29.0
-    "@typescript-eslint/parser": ^5.29.0
-    bn.js: ^5.2.1
-    eslint: ^8.18.0
-    eslint-config-prettier: ^8.5.0
-    eslint-plugin-deprecation: ^1.3.2
-    eslint-plugin-eslint-comments: ^3.2.0
-    eslint-plugin-functional: ^4.2.1
-    eslint-plugin-import: ^2.26.0
-    eslint-plugin-jest: ^25.7.0
-    eslint-plugin-prettier: ^4.0.0
-    jest: ^28.1.1
-    prettier: ^2.7.1
-    ts-jest: ^28.0.5
-    typescript: ^4.7.4
-  languageName: unknown
-  linkType: soft
-
 "@swim-io/solana-usdc-usdt-swap@workspace:packages/solana-usdc-usdt-swap":
   version: 0.0.0-use.local
   resolution: "@swim-io/solana-usdc-usdt-swap@workspace:packages/solana-usdc-usdt-swap"
@@ -6492,7 +6478,7 @@ __metadata:
     "@solana/web3.js": ^1.31.0
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/pool-math": "workspace:^"
-    "@swim-io/solana-types": "workspace:^"
+    "@swim-io/solana": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@types/bn.js": ^5.1.0
     "@types/jest": ^28.1.3
@@ -6518,17 +6504,60 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/token-projects@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "@swim-io/token-projects@npm:0.11.0"
+"@swim-io/solana@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "@swim-io/solana@npm:0.12.0"
   dependencies:
-    "@swim-io/core": ^0.11.0
-    "@swim-io/utils": ^0.11.0
-  checksum: f4bc8277dae984254611cdb3286921cc2f4852a42424ce62f13ed972e3dd1a01c9286663723a04fa1cc177a9578615fb36dff0dde22580917465f1230bb98456
+    "@project-serum/borsh": ^0.2.5
+    "@solana/web3.js": ^1.48.0
+    "@swim-io/core": ^0.12.0
+    "@swim-io/token-projects": ^0.12.0
+    bn.js: ^5.2.1
+  checksum: 21785c27a334dbc6b92709180c992cf3c0306289f5e5ffcd570ac1f28880f9408026fc1d6f30b8c2343a584dca838938a1d2954cb36a6100adb0ccd0951df7d1
   languageName: node
   linkType: hard
 
-"@swim-io/token-projects@workspace:packages/token-projects":
+"@swim-io/solana@workspace:^, @swim-io/solana@workspace:packages/solana":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/solana@workspace:packages/solana"
+  dependencies:
+    "@project-serum/borsh": ^0.2.5
+    "@solana/web3.js": ^1.48.0
+    "@swim-io/core": "workspace:^"
+    "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/token-projects": "workspace:^"
+    "@swim-io/tsconfig": "workspace:^"
+    "@types/bn.js": ^5.1.0
+    "@types/jest": ^28.1.3
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    bn.js: ^5.2.1
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-eslint-comments: ^3.2.0
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^25.7.0
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.1
+    prettier: ^2.7.1
+    ts-jest: ^28.0.5
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
+"@swim-io/token-projects@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "@swim-io/token-projects@npm:0.12.0"
+  dependencies:
+    "@swim-io/core": ^0.12.0
+    "@swim-io/utils": ^0.12.0
+  checksum: 70988279ff2a538d65f47f3a8d03f285bd79306feed1e37649a0c7a30928b20612e3b79356229ad7571530ece20900221e0b45d03151494662c590f5af10749c
+  languageName: node
+  linkType: hard
+
+"@swim-io/token-projects@workspace:^, @swim-io/token-projects@workspace:packages/token-projects":
   version: 0.0.0-use.local
   resolution: "@swim-io/token-projects@workspace:packages/token-projects"
   dependencies:
@@ -6602,20 +6631,19 @@ __metadata:
     "@storybook/node-logger": ^6.5.10
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.10
-    "@swim-io/core": ^0.11.0
+    "@swim-io/core": ^0.12.0
     "@swim-io/eslint-config": "workspace:^"
-    "@swim-io/evm-contracts": ^0.11.0
-    "@swim-io/pool-math": ^0.11.0
-    "@swim-io/redeemer": ^0.11.0
-    "@swim-io/solana-types": ^0.11.0
-    "@swim-io/token-projects": ^0.11.0
+    "@swim-io/evm-contracts": ^0.12.0
+    "@swim-io/pool-math": ^0.12.0
+    "@swim-io/redeemer": ^0.12.0
+    "@swim-io/solana": ^0.12.0
+    "@swim-io/token-projects": ^0.12.0
     "@swim-io/tsconfig": "workspace:^"
-    "@swim-io/utils": ^0.11.0
+    "@swim-io/utils": ^0.12.0
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^7.0.2
     "@testing-library/user-event": ^13.5.0
-    "@typechain/ethers-v5": ^7.2.0
     "@types/bn.js": ^5.1.0
     "@types/jest": ^28.1.3
     "@types/node": ^18.0.0
@@ -6654,7 +6682,6 @@ __metadata:
     react-router: ^6.3.0
     react-router-dom: ^6.3.0
     react-scripts: 4.0.3
-    typechain: ^5.2.0
     typescript: ~4.7.4
     wasm-loader: ^1.3.0
     web-vitals: ^1.1.2
@@ -6663,10 +6690,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/utils@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "@swim-io/utils@npm:0.11.0"
-  checksum: b36c25f60341aca81f6917aa421dbfaf3374ca816ab99db33007f5fc27d5922eb1fe31a809d605dcab21cc0dbbbecbdd95d2e43ae9c9b2e8e76ff3203053e5ba
+"@swim-io/utils@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "@swim-io/utils@npm:0.12.0"
+  checksum: 5331f5427b4ce6aa1fd47d68a4ffba6eaee296b52b187998a17c713f1e04124c0137536d23da66364f459fa53137f1916d891719f655ccad832191e42b58d6ca
   languageName: node
   linkType: hard
 
@@ -6919,23 +6946,6 @@ __metadata:
     typechain: ^8.1.0
     typescript: ">=4.3.0"
   checksum: 452ad685ce792ddefebdcb8ae72f4343ed1411f91701250e273c1a0dd79753d0d40f311cff19ec0c4fd6a9b9cf23e55eb9ae1b94cb388fbc54c122ae4d0e6f47
-  languageName: node
-  linkType: hard
-
-"@typechain/ethers-v5@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "@typechain/ethers-v5@npm:7.2.0"
-  dependencies:
-    lodash: ^4.17.15
-    ts-essentials: ^7.0.1
-  peerDependencies:
-    "@ethersproject/abi": ^5.0.0
-    "@ethersproject/bytes": ^5.0.0
-    "@ethersproject/providers": ^5.0.0
-    ethers: ^5.1.3
-    typechain: ^5.0.0
-    typescript: ">=4.0.0"
-  checksum: 23c7bcb6ef3582fe7ec32dec26bd5067a751b7e3b88ece0b98b2c4bb9623ac074f079ebe3dbcdf57f7e659d8d3a3f018105bd660806f6e7bdafa0dc56c5de450
   languageName: node
   linkType: hard
 
@@ -9260,24 +9270,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"array-back@npm:^1.0.3, array-back@npm:^1.0.4":
-  version: 1.0.4
-  resolution: "array-back@npm:1.0.4"
-  dependencies:
-    typical: ^2.6.0
-  checksum: 37a8be4cd4920b3d07bdbef40dae83bb37948f5d49601da98a6e48ba5496e9a0008e7f3f2184bcf4d3501bd371a048c9bdca7dc3cc5c3d5b1eb189bbba7b55db
-  languageName: node
-  linkType: hard
-
-"array-back@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "array-back@npm:2.0.0"
-  dependencies:
-    typical: ^2.6.1
-  checksum: ab36ab3504b25116b47541fb0ac78ff13d1e991f33d98c361edd3aada3ed818a900b619bd67b195dd4e41b9256c27e8cdd6a69ece507e482f1207d07670ed6bd
-  languageName: node
-  linkType: hard
-
 "array-back@npm:^3.0.1, array-back@npm:^3.1.0":
   version: 3.1.0
   resolution: "array-back@npm:3.1.0"
@@ -10684,7 +10676,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^5.0.5, buffer@npm:^5.5.0, buffer@npm:^5.6.0":
+"buffer@npm:^5.0.5, buffer@npm:^5.4.3, buffer@npm:^5.5.0, buffer@npm:^5.6.0":
   version: 5.7.1
   resolution: "buffer@npm:5.7.1"
   dependencies:
@@ -11677,19 +11669,6 @@ __metadata:
   version: 1.2.9
   resolution: "command-exists@npm:1.2.9"
   checksum: 729ae3d88a2058c93c58840f30341b7f82688a573019535d198b57a4d8cb0135ced0ad7f52b591e5b28a90feb2c675080ce916e56254a0f7c15cb2395277cac3
-  languageName: node
-  linkType: hard
-
-"command-line-args@npm:^4.0.7":
-  version: 4.0.7
-  resolution: "command-line-args@npm:4.0.7"
-  dependencies:
-    array-back: ^2.0.0
-    find-replace: ^1.0.3
-    typical: ^2.6.1
-  bin:
-    command-line-args: bin/cli.js
-  checksum: 618109143fbca741048d54a5d31a2a5e166fbda318ed1419c1ca66877ce92ed80d6768a52a2e6392eb751f16ca7755d4014ced6f5f858a68d0cbe793bab6e3ee
   languageName: node
   linkType: hard
 
@@ -15568,16 +15547,6 @@ __metadata:
     make-dir: ^3.0.2
     pkg-dir: ^4.1.0
   checksum: 1e61c2e64f5c0b1c535bd85939ae73b0e5773142713273818cc0b393ee3555fb0fd44e1a5b161b8b6c3e03e98c2fcc9c227d784850a13a90a8ab576869576817
-  languageName: node
-  linkType: hard
-
-"find-replace@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "find-replace@npm:1.0.3"
-  dependencies:
-    array-back: ^1.0.4
-    test-value: ^2.1.0
-  checksum: fd95f44e59bd54ea1c0169480952b339a4642cd62d81236fef7f87146d3bc00a042b17d81f896712e8542e01fe5c84e82ac37b6b77b4e3422abbcf7c13bbacfd
   languageName: node
   linkType: hard
 
@@ -24314,7 +24283,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.1.2, prettier@npm:^2.3.1, prettier@npm:^2.7.1":
+"prettier@npm:^2.3.1, prettier@npm:^2.7.1":
   version: 2.7.1
   resolution: "prettier@npm:2.7.1"
   bin:
@@ -25159,6 +25128,17 @@ __metadata:
   version: 1.0.0
   resolution: "react-native-crypto-js@npm:1.0.0"
   checksum: 74aa3f16820b8d76fbb21a0bff720f0152e21ecc5e46edb4d1d01dcb86af4da934f4d8a1d5059bf8680bbc5090852b302b29bb742980c45137bfed6cef5991d3
+  languageName: node
+  linkType: hard
+
+"react-native-url-polyfill@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "react-native-url-polyfill@npm:1.3.0"
+  dependencies:
+    whatwg-url-without-unicode: 8.0.0-3
+  peerDependencies:
+    react-native: "*"
+  checksum: 24ef81493a642b9359c1e8048de4da84fb554ffcf35677f9d8b11956d700faa4b9ac9d74f56aee67dd8d8b4ef6d9879e7431848785880ada657f8bec0211b00a
   languageName: node
   linkType: hard
 
@@ -26394,6 +26374,25 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: 4fe3bb0deca4333c5f57370babb473f4f53d037a10f01ece9dc457b631bc8a8eff3859e4f875fb6a4f5f240f0f8b1ab3cb45bfdf980293d3bdfe4c4cfeba4217
+  languageName: node
+  linkType: hard
+
+"rpc-websockets@npm:^7.5.0":
+  version: 7.5.0
+  resolution: "rpc-websockets@npm:7.5.0"
+  dependencies:
+    "@babel/runtime": ^7.17.2
+    bufferutil: ^4.0.1
+    eventemitter3: ^4.0.7
+    utf-8-validate: ^5.0.2
+    uuid: ^8.3.2
+    ws: ^8.5.0
+  dependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: cd4c999e54161f9f40e162f57d7f3313edf086ff5facefbdc0629d52066e9843ace987681dbff8b4329db225deb69f58c528d7818a9c7e89f0100969b7789c2d
   languageName: node
   linkType: hard
 
@@ -28565,16 +28564,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"test-value@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "test-value@npm:2.1.0"
-  dependencies:
-    array-back: ^1.0.3
-    typical: ^2.6.0
-  checksum: ce41ef4100c9ac84630e78d1ca06706714587faf255e44296ace1fc7bf5b888c160b8c0229d31467252a3b2b57197965194391f6ee0c54f33e0b8e3af3a33a0c
-  languageName: node
-  linkType: hard
-
 "text-diff@npm:^1.0.1":
   version: 1.0.1
   resolution: "text-diff@npm:1.0.1"
@@ -29260,28 +29249,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typechain@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "typechain@npm:5.2.0"
-  dependencies:
-    "@types/prettier": ^2.1.1
-    command-line-args: ^4.0.7
-    debug: ^4.1.1
-    fs-extra: ^7.0.0
-    glob: ^7.1.6
-    js-sha3: ^0.8.0
-    lodash: ^4.17.15
-    mkdirp: ^1.0.4
-    prettier: ^2.1.2
-    ts-essentials: ^7.0.1
-  peerDependencies:
-    typescript: ">=4.1.0"
-  bin:
-    typechain: dist/cli/cli.js
-  checksum: 1116e835a355b0d9dc9be77ebbfe972e1fe93eec6dc71cabaaada9e606c2bbaa18c786a22388e41ea3d2745fee1479b542b45dd9ebab4f60b2773524668a5d05
-  languageName: node
-  linkType: hard
-
 "typechain@npm:^8.1.0":
   version: 8.1.0
   resolution: "typechain@npm:8.1.0"
@@ -29344,13 +29311,6 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 96d3030cb01143570567cb4f3a616b10df65f658f0e74e853e77a089a6a954e35c800be7db8b9bfe9a1ae05d9c2897e281359f65e4caa1caf266368e1c4febd3
-  languageName: node
-  linkType: hard
-
-"typical@npm:^2.6.0, typical@npm:^2.6.1":
-  version: 2.6.1
-  resolution: "typical@npm:2.6.1"
-  checksum: 6af04fefe50d90d3471f058b2cdc0f49b7436bdd605cd00acea7965926ff388a5a7d692ef144f45fccee6f8e896c065702ecc44b69057e2ce88c09e897c7d3a4
   languageName: node
   linkType: hard
 
@@ -30895,6 +30855,17 @@ __metadata:
   version: 2.3.0
   resolution: "whatwg-mimetype@npm:2.3.0"
   checksum: 23eb885940bcbcca4ff841c40a78e9cbb893ec42743993a42bf7aed16085b048b44b06f3402018931687153550f9a32d259dfa524e4f03577ab898b6965e5383
+  languageName: node
+  linkType: hard
+
+"whatwg-url-without-unicode@npm:8.0.0-3":
+  version: 8.0.0-3
+  resolution: "whatwg-url-without-unicode@npm:8.0.0-3"
+  dependencies:
+    buffer: ^5.4.3
+    punycode: ^2.1.1
+    webidl-conversions: ^5.0.0
+  checksum: 1fe266f7161e0bd961087c1254a5a59d1138c3d402064495eed65e7590d9caed5a1d9acfd6e7a1b0bf0431253b0e637ee3e4ffc08387cd60e0b2ddb9d4687a4b
   languageName: node
   linkType: hard
 

@@ -1,2 +1,2 @@
-export type { Erc20 } from "../../contracts";
-export { Erc20__factory as Erc20Factory } from "../../contracts";
+export type { ERC20 as Erc20 } from "@swim-io/evm-contracts";
+export { ERC20__factory as Erc20Factory } from "@swim-io/evm-contracts";

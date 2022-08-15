@@ -47,36 +47,6 @@ export const enum EvmChainId {
   AcalaLocal = 607, // TODO: This is a placeholder
 }
 
-export const EVM_CHAIN_ID_TO_ECOSYSTEM: ReadonlyRecord<
-  EvmChainId,
-  EvmEcosystemId
-> = {
-  [EvmChainId.EthereumMainnet]: EcosystemId.Ethereum,
-  [EvmChainId.EthereumGoerli]: EcosystemId.Ethereum,
-  [EvmChainId.EthereumLocal]: EcosystemId.Ethereum,
-  [EvmChainId.BnbMainnet]: EcosystemId.Bnb,
-  [EvmChainId.BnbTestnet]: EcosystemId.Bnb,
-  [EvmChainId.BnbLocal]: EcosystemId.Bnb,
-  [EvmChainId.PolygonMainnet]: EcosystemId.Polygon,
-  [EvmChainId.PolygonTestnet]: EcosystemId.Polygon,
-  [EvmChainId.PolygonLocal]: EcosystemId.Polygon,
-  [EvmChainId.AvalancheMainnet]: EcosystemId.Avalanche,
-  [EvmChainId.AvalancheTestnet]: EcosystemId.Avalanche,
-  [EvmChainId.AvalancheLocal]: EcosystemId.Avalanche,
-  [EvmChainId.AuroraMainnet]: EcosystemId.Aurora,
-  [EvmChainId.AuroraTestnet]: EcosystemId.Aurora,
-  [EvmChainId.AuroraLocal]: EcosystemId.Aurora,
-  [EvmChainId.FantomMainnet]: EcosystemId.Fantom,
-  [EvmChainId.FantomTestnet]: EcosystemId.Fantom,
-  [EvmChainId.FantomLocal]: EcosystemId.Fantom,
-  [EvmChainId.KaruraMainnet]: EcosystemId.Karura,
-  [EvmChainId.KaruraTestnet]: EcosystemId.Karura,
-  [EvmChainId.KaruraLocal]: EcosystemId.Karura,
-  [EvmChainId.AcalaMainnet]: EcosystemId.Acala,
-  [EvmChainId.AcalaTestnet]: EcosystemId.Acala,
-  [EvmChainId.AcalaLocal]: EcosystemId.Acala,
-};
-
 export interface WormholeChainSpec {
   readonly bridge: string;
   readonly tokenBridge: string;

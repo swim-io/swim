@@ -10,7 +10,7 @@ export const atomicToCurrencyString = (
 ): string => {
   const language = fallbackLanguageIfNotSupported(
     Intl.NumberFormat,
-    i18next.language,
+    i18next.resolvedLanguage,
   );
   const numberFormatter = new Intl.NumberFormat(language, {
     style: "currency",
@@ -26,7 +26,7 @@ export const atomicToCurrencyString = (
 export const atomicToHumanString = (amount: Decimal, decimals = 0): string => {
   const language = fallbackLanguageIfNotSupported(
     Intl.NumberFormat,
-    i18next.language,
+    i18next.resolvedLanguage,
   );
   const numberFormatter = new Intl.NumberFormat(language, {
     minimumFractionDigits: decimals,
@@ -42,7 +42,7 @@ export const atomicToHuman = (amount: Decimal, decimals = 0): Decimal => {
 export const atomicToTvlString = (amount: Decimal): string => {
   const language = fallbackLanguageIfNotSupported(
     Intl.NumberFormat,
-    i18next.language,
+    i18next.resolvedLanguage,
   );
   const numberFormatter = new Intl.NumberFormat(language, {
     style: "currency",
@@ -73,7 +73,7 @@ export const displayAmount = (amount: string, decimals = 0): string => {
 export const displayPercentage = (amount: string, decimals = 2): string => {
   const language = fallbackLanguageIfNotSupported(
     Intl.NumberFormat,
-    i18next.language,
+    i18next.resolvedLanguage,
   );
   const numberFormatter = new Intl.NumberFormat(language, {
     style: "percent",

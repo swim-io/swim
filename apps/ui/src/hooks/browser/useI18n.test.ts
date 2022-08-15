@@ -23,14 +23,14 @@ describe("useI18n", () => {
       timeZone: "UTC",
     } as const;
 
-    const originalLanguage = i18next.language;
+    const originalLanguage = i18next.resolvedLanguage;
 
     afterEach(() => {
-      i18next.language = originalLanguage;
+      i18next.resolvedLanguage = originalLanguage;
     });
 
     it("should format in english style", () => {
-      i18next.language = "en";
+      i18next.resolvedLanguage = "en";
 
       const { result } = renderHook(() =>
         useIntlDateTimeFormatter(dateTimeOptions),
@@ -41,7 +41,7 @@ describe("useI18n", () => {
     });
 
     it("should format in french style", () => {
-      i18next.language = "fr";
+      i18next.resolvedLanguage = "fr";
 
       const { result } = renderHook(() =>
         useIntlDateTimeFormatter(dateTimeOptions),
@@ -52,7 +52,7 @@ describe("useI18n", () => {
     });
 
     it("should format in english style if language is not supported", () => {
-      i18next.language = "fake_not_supported";
+      i18next.resolvedLanguage = "fake_not_supported";
 
       const { result } = renderHook(() =>
         useIntlDateTimeFormatter(dateTimeOptions),
@@ -64,14 +64,14 @@ describe("useI18n", () => {
   });
 
   describe("useIntlListSeparators", () => {
-    const originalLanguage = i18next.language;
+    const originalLanguage = i18next.resolvedLanguage;
 
     afterEach(() => {
-      i18next.language = originalLanguage;
+      i18next.resolvedLanguage = originalLanguage;
     });
 
     it("responses comma and conjunction in english", () => {
-      i18next.language = "en";
+      i18next.resolvedLanguage = "en";
 
       const { result: conjunctionResult } = renderHook(() =>
         useIntlListSeparators({ type: "conjunction" }),
@@ -93,7 +93,7 @@ describe("useI18n", () => {
     });
 
     it("responses comma and conjunction in chinese", () => {
-      i18next.language = "zh-TW";
+      i18next.resolvedLanguage = "zh-TW";
 
       const { result: conjunctionResult } = renderHook(() =>
         useIntlListSeparators({ type: "conjunction" }),
@@ -115,7 +115,7 @@ describe("useI18n", () => {
     });
 
     it("responses comma and conjunction in english if language is not supported", () => {
-      i18next.language = "fake_not_supported";
+      i18next.resolvedLanguage = "fake_not_supported";
 
       const { result: conjunctionResult } = renderHook(() =>
         useIntlListSeparators({ type: "conjunction" }),
@@ -126,28 +126,28 @@ describe("useI18n", () => {
   });
 
   describe("useIntlNumberFormatter", () => {
-    const originalLanguage = i18next.language;
+    const originalLanguage = i18next.resolvedLanguage;
 
     afterEach(() => {
-      i18next.language = originalLanguage;
+      i18next.resolvedLanguage = originalLanguage;
     });
 
     it("should format in english style", () => {
-      i18next.language = "en";
+      i18next.resolvedLanguage = "en";
 
       const { result } = renderHook(() => useIntlNumberFormatter());
       expect(result.current.format(1234)).toBe("1,234");
     });
 
     it("should format in french style", () => {
-      i18next.language = "fr";
+      i18next.resolvedLanguage = "fr";
 
       const { result } = renderHook(() => useIntlNumberFormatter());
       expect(result.current.format(1234)).toBe("1 234");
     });
 
     it("should format in english style if language is not supported", () => {
-      i18next.language = "fake_not_supported";
+      i18next.resolvedLanguage = "fake_not_supported";
 
       const { result } = renderHook(() => useIntlNumberFormatter());
       expect(result.current.format(1234)).toBe("1,234");
@@ -155,7 +155,7 @@ describe("useI18n", () => {
   });
 
   describe("useIntlRelativeTimeFromNow", () => {
-    const originalLanguage = i18next.language;
+    const originalLanguage = i18next.resolvedLanguage;
     const msPerSecond = 1000;
     const msPerMinute = 60 * msPerSecond;
     const msPerHour = msPerMinute * 60;
@@ -168,7 +168,7 @@ describe("useI18n", () => {
     });
 
     afterEach(() => {
-      i18next.language = originalLanguage;
+      i18next.resolvedLanguage = originalLanguage;
     });
 
     afterAll(() => {
@@ -176,7 +176,7 @@ describe("useI18n", () => {
     });
 
     it("should format in english", () => {
-      i18next.language = "en";
+      i18next.resolvedLanguage = "en";
 
       const now = new Date();
       jest.setSystemTime(now);
@@ -188,7 +188,7 @@ describe("useI18n", () => {
     });
 
     it("should format in french", () => {
-      i18next.language = "fr";
+      i18next.resolvedLanguage = "fr";
 
       const now = new Date();
       jest.setSystemTime(now);
@@ -200,7 +200,7 @@ describe("useI18n", () => {
     });
 
     it("should format in english if language is not supported", () => {
-      i18next.language = "fake_not_supported";
+      i18next.resolvedLanguage = "fake_not_supported";
 
       const now = new Date();
       jest.setSystemTime(now);

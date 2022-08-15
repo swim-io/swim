@@ -117,7 +117,7 @@ export class Amount {
   toFormattedHumanString(ecosystemId: EcosystemId): string {
     const language = fallbackLanguageIfNotSupported(
       Intl.NumberFormat,
-      i18next.language,
+      i18next.resolvedLanguage,
     );
     const numberFormatter = new Intl.NumberFormat(language, {
       ...(TOKEN_PROJECTS_BY_ID[this.tokenSpec.projectId].isStablecoin

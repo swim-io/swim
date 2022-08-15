@@ -30,8 +30,8 @@ const createUseIntlFormatter = <
     const { i18n } = useTranslation();
 
     const language = useMemo(() => {
-      return fallbackLanguageIfNotSupported(IntlMethod, i18n.language);
-    }, [i18n.language]);
+      return fallbackLanguageIfNotSupported(IntlMethod, i18n.resolvedLanguage);
+    }, [i18n.resolvedLanguage]);
 
     const formatter = useMemo(() => {
       return new IntlMethod(language, memoizedOptions);

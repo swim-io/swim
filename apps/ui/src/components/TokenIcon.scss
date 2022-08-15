@@ -3,3 +3,9 @@
   align-items: center;
   white-space: pre;
 }
+
+.tokenName {
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -13,7 +13,6 @@ module.exports = {
       rules: {
         // used when asserting with expect.stringMatching() where it returns `any`
         "@typescript-eslint/no-unsafe-assignment": "off",
-        "@typescript-eslint/no-unsafe-argument": "off",
       },
     },
   ],

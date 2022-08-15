@@ -145,8 +145,8 @@ const config: HardhatUserConfig = {
     hardhat: {
       loggingEnabled: false,
       chainId: 31337,
-      //allowUnlimitedContractSize: true,
-      //blockGasLimit: 1000000000000,
+      allowUnlimitedContractSize: true,
+      blockGasLimit: 10000000000,
     },
     localhost: {
       url: "http://127.0.0.1:8545/", // yarn hardhat node -> spins node on local network as ganache

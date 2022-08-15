@@ -1,5 +1,4 @@
 import {
-  EuiFieldNumber,
   EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
@@ -14,6 +13,7 @@ import type { TokenSpec } from "../../config";
 import { i18next } from "../../i18n";
 import { Amount } from "../../models";
 import { ConnectButton } from "../ConnectButton";
+import { EuiFieldIntlNumber } from "../EuiFieldIntlNumber";
 import { TokenSelect } from "../TokenSelect";
 
 import { UserBalanceDisplay } from "./UserBalanceDisplay";
@@ -113,12 +113,12 @@ export const TokenAmountInput: React.FC<Props> = ({
               readOnly
             />
           ) : (
-            <EuiFieldNumber
+            <EuiFieldIntlNumber
               placeholder={placeholder}
-              value={value}
+              defaultValue={value}
               step={10 ** -token.nativeDetails.decimals}
               min={0}
-              onChange={(e) => onChangeValue(e.target.value)}
+              onValueChange={onChangeValue}
               disabled={disabled}
               onBlur={onBlur}
               isInvalid={errors.length > 0}

@@ -1,8 +1,27 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeepCompareMemo } from "use-deep-compare";
 
 import { fallbackLanguageIfNotSupported } from "../../i18n";
+
+export const useI18nLanguage = () => {
+  const { i18n } = useTranslation();
+
+  const [language, setLanguage] = useState(i18n.resolvedLanguage);
+  useEffect(() => {
+    const listener = () => {
+      setLanguage(i18n.resolvedLanguage);
+    };
+
+    i18n.on("languageChanged", listener);
+
+    return () => {
+      i18n.off("languageChanged", listener);
+    };
+  }, [i18n]);
+
+  return language;
+};
 
 type IntlOptionsType<T> = T extends new (
   locales?: any,
@@ -27,11 +46,11 @@ const createUseIntlFormatter = <
   ): InstanceType<T> {
     const memoizedOptions = useDeepCompareMemo(() => options, [options]);
 
-    const { i18n } = useTranslation();
+    const i18nLanguage = useI18nLanguage();
 
     const language = useMemo(() => {
-      return fallbackLanguageIfNotSupported(IntlMethod, i18n.resolvedLanguage);
-    }, [i18n.resolvedLanguage]);
+      return fallbackLanguageIfNotSupported(IntlMethod, i18nLanguage);
+    }, [i18nLanguage]);
 
     const formatter = useMemo(() => {
       return new IntlMethod(language, memoizedOptions);

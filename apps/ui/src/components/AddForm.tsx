@@ -3,7 +3,6 @@ import {
   EuiButton,
   EuiButtonEmpty,
   EuiCallOut,
-  EuiFieldNumber,
   EuiForm,
   EuiFormRow,
   EuiIcon,
@@ -56,6 +55,7 @@ import {
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
+import { EuiFieldIntlNumber } from "./EuiFieldIntlNumber";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
 import { RecentInteractions } from "./RecentInteractions";
@@ -106,16 +106,14 @@ const TokenAddPanel = ({
       isInvalid={errors.length > 0}
       error={errors}
     >
-      <EuiFieldNumber
+      <EuiFieldIntlNumber
         placeholder={t("general.enter_amount_of_tokens")}
         name={tokenSpec.id}
-        value={inputAmount}
+        defaultValue={inputAmount}
         step={10 ** -tokenSpec.nativeDetails.decimals}
         fullWidth
         disabled={disabled}
-        onChange={(e) => {
-          onChange(e.target.value);
-        }}
+        onValueChange={onChange}
         onBlur={onBlur}
         isInvalid={errors.length > 0}
         prepend={

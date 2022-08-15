@@ -1,8 +1,8 @@
+import type { EvmEcosystemId } from "@swim-io/evm";
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 import { useQueries } from "react-query";
 
-import type { EvmEcosystemId } from "../../config";
 import { isEcosystemEnabled } from "../../config";
 import { useEnvironment } from "../../core/store";
 

@@ -1,10 +1,11 @@
-import type PoolMath from "@swim-io/pool-math/types";
+import type PoolMath from "@swim-io/pool-math";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { isEachNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../../config";
-import { EcosystemId, isSwimUsd } from "../../config";
+import { isSwimUsd } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { TokenOption } from "../../models";
@@ -33,7 +34,7 @@ const getOutputAmount = (
     // Transfer
     return inputAmount;
   }
-  if (poolSpec.ecosystem === EcosystemId.Solana && isSwimUsd(toToken)) {
+  if (poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID && isSwimUsd(toToken)) {
     // Add
     const inputAmounts = poolToken.tokens.map((token) =>
       token.id === fromToken.id ? inputAmount : ZERO,
@@ -41,7 +42,7 @@ const getOutputAmount = (
     const { lpOutputAmount } = poolMath.add(inputAmounts);
     return lpOutputAmount;
   }
-  if (poolSpec.ecosystem === EcosystemId.Solana && isSwimUsd(fromToken)) {
+  if (poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID && isSwimUsd(fromToken)) {
     // Remove
     const outputIndex = poolToken.tokens.findIndex(
       (token) => token.id === toToken.id,

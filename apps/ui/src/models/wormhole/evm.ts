@@ -1,10 +1,10 @@
 import { getAllowanceEth } from "@certusone/wormhole-sdk";
 import { PublicKey } from "@solana/web3.js";
+import type { EvmTx } from "@swim-io/evm";
 import type { ethers } from "ethers";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
 import { WormholeChainId, getTokenDetailsForEcosystem } from "../../config";
-import type { EvmTx } from "../crossEcosystem";
 
 import { approveEth, transferFromEth } from "./overrides";
 import type { WormholeTransfer } from "./transfer";

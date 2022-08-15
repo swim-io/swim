@@ -3,22 +3,22 @@ import {
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
+import type { EvmEcosystemId, EvmTx } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import type { ethers } from "ethers";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import type { EvmEcosystemId } from "../../config";
 import {
   ECOSYSTEMS,
-  EcosystemId,
   Protocol,
   getSolanaTokenDetails,
   getTokenDetailsForEcosystem,
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
-import type { EvmConnection, EvmTx } from "../../models";
+import type { EvmConnection } from "../../models";
 import {
   Amount,
   generateUnlockSplTokenTxIds,
@@ -52,7 +52,7 @@ export const useToSolanaTransferMutation = () => {
   const solanaConnection = useSolanaConnection();
   const evmConnections = useEvmConnections();
   const wallets = useWallets();
-  const solanaWallet = wallets[EcosystemId.Solana].wallet;
+  const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
   const solanaWormhole = chains[Protocol.Solana][0].wormhole;
   const updateInteractionState = useInteractionState(
     (state) => state.updateInteractionState,

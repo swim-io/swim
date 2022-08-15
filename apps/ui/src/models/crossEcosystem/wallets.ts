@@ -1,3 +1,5 @@
+import type { EvmEcosystemId } from "@swim-io/evm";
+import type { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { getRecordEntries } from "@swim-io/utils";
 import type { ReadonlyRecord } from "@swim-io/utils";
 
@@ -19,15 +21,15 @@ export interface EvmWalletInterface {
 }
 
 export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
-  readonly [EcosystemId.Solana]: SolanaWalletInterface;
-  readonly [EcosystemId.Ethereum]: EvmWalletInterface;
-  readonly [EcosystemId.Bnb]: EvmWalletInterface;
-  readonly [EcosystemId.Avalanche]: EvmWalletInterface;
-  readonly [EcosystemId.Polygon]: EvmWalletInterface;
-  readonly [EcosystemId.Aurora]: EvmWalletInterface;
-  readonly [EcosystemId.Fantom]: EvmWalletInterface;
-  readonly [EcosystemId.Karura]: EvmWalletInterface;
-  readonly [EcosystemId.Acala]: EvmWalletInterface;
+  readonly [SOLANA_ECOSYSTEM_ID]: SolanaWalletInterface;
+  readonly [EvmEcosystemId.Ethereum]: EvmWalletInterface;
+  readonly [EvmEcosystemId.Bnb]: EvmWalletInterface;
+  readonly [EvmEcosystemId.Avalanche]: EvmWalletInterface;
+  readonly [EvmEcosystemId.Polygon]: EvmWalletInterface;
+  readonly [EvmEcosystemId.Aurora]: EvmWalletInterface;
+  readonly [EvmEcosystemId.Fantom]: EvmWalletInterface;
+  readonly [EvmEcosystemId.Karura]: EvmWalletInterface;
+  readonly [EvmEcosystemId.Acala]: EvmWalletInterface;
 }
 
 export const getAddressesByEcosystem = (

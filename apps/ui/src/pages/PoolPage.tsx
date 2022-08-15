@@ -14,6 +14,7 @@ import {
   EuiTitle,
   EuiToolTip,
 } from "@elastic/eui";
+import { EvmEcosystemId } from "@swim-io/evm";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { defaultIfError } from "@swim-io/utils";
 import Decimal from "decimal.js";
@@ -34,11 +35,7 @@ import { SlippageButton } from "../components/SlippageButton";
 import { StatList } from "../components/StatList";
 import { TokenIcon, TokenSpecIcon } from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
-import {
-  EcosystemId,
-  getSolanaTokenDetails,
-  getTokenDetailsForEcosystem,
-} from "../config";
+import { getSolanaTokenDetails, getTokenDetailsForEcosystem } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import {
@@ -115,10 +112,10 @@ export const PoolPageInner = ({
   useTitle(poolSpec.displayName);
   const navigate = useNavigate();
   const { showPrompt: showRegisterEthereumTokenPrompt } = useRegisterErc20Token(
-    EcosystemId.Ethereum,
+    EvmEcosystemId.Ethereum,
   );
   const { showPrompt: showRegisterBnbTokenPrompt } = useRegisterErc20Token(
-    EcosystemId.Bnb,
+    EvmEcosystemId.Bnb,
   );
   const {
     tokens,
@@ -283,7 +280,7 @@ export const PoolPageInner = ({
               <StatList listItems={poolInfoStats} />
             </>
           )}
-          {getTokenDetailsForEcosystem(lpToken, EcosystemId.Ethereum) !==
+          {getTokenDetailsForEcosystem(lpToken, EvmEcosystemId.Ethereum) !==
             null && (
             <EuiButtonEmpty
               flush="left"
@@ -296,7 +293,8 @@ export const PoolPageInner = ({
               {t("pool_page.add_lp_token_to_metamask")}
             </EuiButtonEmpty>
           )}
-          {getTokenDetailsForEcosystem(lpToken, EcosystemId.Bnb) !== null && (
+          {getTokenDetailsForEcosystem(lpToken, EvmEcosystemId.Bnb) !==
+            null && (
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}

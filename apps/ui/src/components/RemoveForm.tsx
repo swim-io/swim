@@ -13,6 +13,8 @@ import {
   EuiSelect,
   EuiSpacer,
 } from "@elastic/eui";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import {
@@ -27,8 +29,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import type { PoolSpec, TokenSpec } from "../config";
-import { ECOSYSTEMS, EcosystemId } from "../config";
+import type { EcosystemId, PoolSpec, TokenSpec } from "../config";
+import { ECOSYSTEMS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
@@ -96,9 +98,8 @@ export const RemoveForm = ({
   const wallets = useWallets();
   const userNativeBalances = useUserNativeBalances();
 
-  const [lpTokenSourceEcosystem, setLpTokenSourceEcosystem] = useState(
-    EcosystemId.Solana,
-  );
+  const [lpTokenSourceEcosystem, setLpTokenSourceEcosystem] =
+    useState<EcosystemId>(SOLANA_ECOSYSTEM_ID);
   const [method, setMethod] = useState(RemoveMethod.ExactBurn);
   const [outputToken, setOutputToken] = useState(poolSpec.tokens[0]);
   const [burnPercentage, setBurnPercentage] = useState(0);
@@ -119,15 +120,15 @@ export const RemoveForm = ({
       ],
     }),
     {
-      [EcosystemId.Solana]: [],
-      [EcosystemId.Ethereum]: [],
-      [EcosystemId.Bnb]: [],
-      [EcosystemId.Avalanche]: [],
-      [EcosystemId.Polygon]: [],
-      [EcosystemId.Aurora]: [],
-      [EcosystemId.Fantom]: [],
-      [EcosystemId.Karura]: [],
-      [EcosystemId.Acala]: [],
+      [SOLANA_ECOSYSTEM_ID]: [],
+      [EvmEcosystemId.Ethereum]: [],
+      [EvmEcosystemId.Bnb]: [],
+      [EvmEcosystemId.Avalanche]: [],
+      [EvmEcosystemId.Polygon]: [],
+      [EvmEcosystemId.Aurora]: [],
+      [EvmEcosystemId.Fantom]: [],
+      [EvmEcosystemId.Karura]: [],
+      [EvmEcosystemId.Acala]: [],
     },
   );
 
@@ -159,7 +160,7 @@ export const RemoveForm = ({
         ? Amount.fromAtomicString(
             lpToken,
             poolLpMint.supply.toString(),
-            EcosystemId.Solana,
+            SOLANA_ECOSYSTEM_ID,
           )
         : null,
     [poolLpMint, lpToken],
@@ -187,7 +188,7 @@ export const RemoveForm = ({
 
       const removeUniformAmounts =
         method === RemoveMethod.Uniform && burnPercentage > 0
-          ? poolMath.removeUniform(exactBurnAmount.toHuman(EcosystemId.Solana))
+          ? poolMath.removeUniform(exactBurnAmount.toHuman(SOLANA_ECOSYSTEM_ID))
           : null;
 
       // eslint-disable-next-line functional/prefer-readonly-type
@@ -203,7 +204,7 @@ export const RemoveForm = ({
           outputToken === tokenSpec.id
         ) {
           const { stableOutputAmount } = poolMath.removeExactBurn(
-            exactBurnAmount.toHuman(EcosystemId.Solana),
+            exactBurnAmount.toHuman(SOLANA_ECOSYSTEM_ID),
             tokenIndex,
           );
           estimatedOutputAmountDecimal = stableOutputAmount;
@@ -276,7 +277,7 @@ export const RemoveForm = ({
         return null;
       }
       const { lpInputAmount } = poolMath.removeExactOutput(
-        outputAmounts.map((amount) => amount.toHuman(EcosystemId.Solana)),
+        outputAmounts.map((amount) => amount.toHuman(SOLANA_ECOSYSTEM_ID)),
       );
       return Amount.fromHuman(lpToken, lpInputAmount);
     }, null);
@@ -433,7 +434,7 @@ export const RemoveForm = ({
 
     const requiredEcosystems = new Set(
       [
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
         lpTokenSourceEcosystem,
         ...poolTokens.map((tokenSpec, i) => {
           const outputAmount = outputAmounts[i];
@@ -462,7 +463,7 @@ export const RemoveForm = ({
         errors = [
           ...errors,
           t("general.require_non_empty_balance_in_specific_wallet", {
-            ecosystemName: ECOSYSTEMS[EcosystemId.Solana].displayName,
+            ecosystemName: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID].displayName,
           }),
         ];
       }
@@ -470,8 +471,8 @@ export const RemoveForm = ({
 
     // Need some SOL for network fee
     if (
-      userNativeBalances[EcosystemId.Solana].greaterThan(0) &&
-      userNativeBalances[EcosystemId.Solana].lessThan(0.01)
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].greaterThan(0) &&
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].lessThan(0.01)
     ) {
       errors = [
         ...errors,
@@ -620,7 +621,7 @@ export const RemoveForm = ({
           tokenSymbol: lpTokenProject.symbol,
         })}
         helpText={
-          lpTokenSourceEcosystem === EcosystemId.Solana ||
+          lpTokenSourceEcosystem === SOLANA_ECOSYSTEM_ID ||
           method !== RemoveMethod.ExactOutput
             ? ""
             : t("remove_token_form.lp_tokens_explanation", {

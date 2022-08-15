@@ -403,6 +403,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   function adjustAmpFactor(uint32 targetValue, uint32 targetTimestamp) external onlyGovernance {
     checkAmpRange(targetValue);
     uint _targetTimestamp = uint(targetTimestamp);
+    // solhint-disable-next-line not-rely-on-time
     uint minimumTargetTimestamp = block.timestamp + MIN_AMP_ADJUSTMENT_WINDOW;
     if (_targetTimestamp < minimumTargetTimestamp)
       revert Pool_AmpFactorTargetTimestampTooSmall(targetTimestamp, uint32(minimumTargetTimestamp));
@@ -429,7 +430,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
           toExternalAmpValue(uint32(threshold))
         );
     }
-
+    // solhint-disable-next-line not-rely-on-time
     ampInitialValue = uint32(block.timestamp);
     ampInitialTimestamp = uint32(currentAmpFactor);
     ampTargetValue = uint32(_ampTargetValue);
@@ -573,6 +574,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   }}
 
   function getAmpFactor() internal view returns(uint32 ampFactor) { unchecked {
+     // solhint-disable-next-line not-rely-on-time
     int currentTimestamp = int(block.timestamp);
     int _ampTargetTimestamp = int(uint(ampTargetTimestamp));
     if (currentTimestamp < _ampTargetTimestamp) {

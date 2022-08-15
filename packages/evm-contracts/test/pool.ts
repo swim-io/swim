@@ -145,6 +145,7 @@ describe("Pool Defi Operations", function () {
       toAtomicAmounts,
     };
   }
+  // eslint-disable-next-line no-console
   console.log(testFixture);
 
   // it("Check basic pool deployment parameters", async function () {

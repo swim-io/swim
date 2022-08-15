@@ -1,4 +1,3 @@
-/* eslint-disable-file @typescript-eslint/no-unsafe-assignment */
 import { getContractAddress } from "@ethersproject/address";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract } from "ethers";
@@ -45,9 +44,11 @@ export async function deployPoolAndRegister(
 ): Promise<Contract> {
   const tokenInfo: readonly TokenInfo[] = await Promise.all(
     pool.tokens.map(async ({ address }) => {
-      const token = await ethers.getContractAt("ERC20", address);
+      const token: Contract = await ethers.getContractAt("ERC20", address);
       return {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         symbol: await token.symbol(),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         decimals: await token.decimals(),
       };
     })

@@ -1,8 +1,9 @@
 import { BigNumber, formatFixed, parseFixed } from "@ethersproject/bignumber";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+// import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BN } from "bn.js";
-import { expect, use } from "chai";
+// import { expect, use } from "chai";
+import { use } from "chai";
 import CBN from "chai-bn";
 import type { Contract } from "ethers";
 import { ethers } from "hardhat";
@@ -12,7 +13,7 @@ import { deployLogic, deployPoolAndRegister, deployProxy } from "../src/deploy";
 
 describe("Pool Defi Operations", function () {
   const baseAmount = BigNumber.from("10");
-  const tolerance = 2;
+  // const tolerance = 2;
 
   before(() => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -144,17 +145,18 @@ describe("Pool Defi Operations", function () {
       toAtomicAmounts,
     };
   }
+  console.log(testFixture);
 
   // it("Check basic pool deployment parameters", async function () {
   //   const { pool, governance, liquidityProvider, lpToken } = await loadFixture(testFixture);
 
-  //   expect(await pool.governance()).to.equal(governance);
-  //   expect(await lpToken.contract.owner()).to.equal(pool);
-  //   expect(await lpToken.balanceOf(liquidityProvider)).to.equal(
-  //     lpToken.toAtomic(baseAmount).mul(3)
-  //   );
+  // expect(await pool.governance()).to.equal(governance);
+  // expect(await lpToken.contract.owner()).to.equal(pool);
+  // expect(await lpToken.balanceOf(liquidityProvider)).to.equal(
+  //   lpToken.toAtomic(baseAmount).mul(3)
+  // );
 
-  //   //console.log(JSON.stringify(await read("PoolProxy", {}, "getState"), null, 2));
+  //console.log(JSON.stringify(await read("PoolProxy", {}, "getState"), null, 2));
   // });
 
   // it("RemoveUniform should empty the pool and allow refilling after", async function () {

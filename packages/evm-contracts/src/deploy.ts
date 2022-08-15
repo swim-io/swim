@@ -1,4 +1,4 @@
-// eslint-disable @typescript-eslint/no-unsafe-assignment
+/* eslint-disable-file @typescript-eslint/no-unsafe-assignment */
 import { getContractAddress } from "@ethersproject/address";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract } from "ethers";
@@ -133,8 +133,11 @@ export async function deployProxy(
 export async function deployLogic(name: string, salt?: string): Promise<Contract> {
   const deploySalt = salt ?? DEFAULTS.salt;
   const bytecode = (await ethers.getContractFactory(name)).bytecode;
-  const swimFactory = await ethers.getContractAt("SwimFactory", SWIM_FACTORY_ADDRESS);
-  const logicAddress: string = await swimFactory.determineLogicAddress(bytecode, deploySalt);
+  const swimFactory: Contract = await ethers.getContractAt("SwimFactory", SWIM_FACTORY_ADDRESS);
+  const logicAddress: string = (await swimFactory.determineLogicAddress(
+    bytecode,
+    deploySalt
+  )) as string;
   if (!(await isDeployed(logicAddress))) await swimFactory.createLogic(bytecode, deploySalt);
 
   return ethers.getContractAt(name, logicAddress);

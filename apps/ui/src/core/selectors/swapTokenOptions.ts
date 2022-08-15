@@ -1,13 +1,10 @@
 import { findOrThrow } from "@swim-io/utils";
 
+import { isSwimUsd } from "../../config";
 import type { TokenOption } from "../../models";
 import type { EnvironmentState } from "../store";
 
 import { selectConfig } from "./environment";
-
-const swimUsdRegExp = /-swimusd$/;
-const isSwimUsdTokenId = (tokenId: string): boolean =>
-  swimUsdRegExp.test(tokenId);
 
 export const selectSwapTokenOptions = (
   state: EnvironmentState,
@@ -28,9 +25,7 @@ export const selectSwapTokenOptions = (
     ecosystemId: spec.nativeEcosystemId,
   }));
 
-  const swimUsdSpec = findOrThrow(tokens, (token) =>
-    isSwimUsdTokenId(token.id),
-  );
+  const swimUsdSpec = findOrThrow(tokens, isSwimUsd);
   const swimUsdOptions = [
     swimUsdSpec.nativeEcosystemId,
     ...swimUsdSpec.wrappedDetails.keys(),

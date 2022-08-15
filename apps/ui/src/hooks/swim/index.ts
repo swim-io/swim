@@ -4,7 +4,7 @@ export * from "./useIsLargeSwap";
 export * from "./usePoolLpMint";
 export * from "./usePoolMaths";
 export * from "./usePools";
-export * from "./usePoolState";
+export * from "./usePoolStateQueries";
 export * from "./useRedeemMutation";
 export * from "./useRemoveFeesEstimationQuery";
 export * from "./useSwapFeesEstimationQuery";

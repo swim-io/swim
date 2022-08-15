@@ -2,6 +2,7 @@ import type { u64 } from "@solana/spl-token";
 import { defaultIfError } from "@swim-io/utils";
 import BN from "bn.js";
 import Decimal from "decimal.js";
+import type { BigNumber } from "ethers";
 
 const ONE_TRILLION = new Decimal("1000000000000");
 const ONE_BILLION = new Decimal("1000000000");
@@ -82,7 +83,8 @@ export const parseToDecimal = (amount: string, decimals = 0): Decimal | null =>
 
 // eslint-disable-next-line import/no-unused-modules
 export const decimalToBN = (decimal: Decimal): BN => new BN(decimal.toFixed(0));
-export const BNtoDecimal = (bn: BN): Decimal => new Decimal(bn.toString());
+export const bnOrBigNumberToDecimal = (bn: BN | BigNumber): Decimal =>
+  new Decimal(bn.toString());
 
 export const u64ToDecimal = (number: u64): Decimal =>
   new Decimal(number.toString());

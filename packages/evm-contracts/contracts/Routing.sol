@@ -46,8 +46,8 @@ contract Routing is
     uint8 tokenIndexInPool;
   }
 
-  mapping(uint16 => TokenInfo) tokenNumberMapping;
-  mapping(address => TokenInfo) tokenAddressMapping;
+  mapping(uint16 => TokenInfo) public tokenNumberMapping;
+  mapping(address => TokenInfo) public tokenAddressMapping;
 
   function initialize(address owner, address tokenBridgeAddress) public initializer {
     __Pausable_init();

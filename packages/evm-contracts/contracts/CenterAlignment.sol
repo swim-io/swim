@@ -18,13 +18,13 @@ library CenterAlignment {
   //  val back to its original/base alignment (after we originally inflating it
   //  by center shifting it.)
 
-  uint256 constant BITS_PER_UINT = 256;
-  uint256 constant ALIGNMENT_SHIFT = BITS_PER_UINT / 4; //=64
-  uint256 constant CENTERING_SHIFT = ALIGNMENT_SHIFT + ALIGNMENT_SHIFT / 2; //=96
+  uint256 private constant BITS_PER_UINT = 256;
+  uint256 private constant ALIGNMENT_SHIFT = BITS_PER_UINT / 4; //=64
+  uint256 private constant CENTERING_SHIFT = ALIGNMENT_SHIFT + ALIGNMENT_SHIFT / 2; //=96
   //shift right when greater than ALIGNMENT_UPPER_THRESHOLD
-  uint256 constant ALIGNMENT_UPPER_THRESHOLD = (1 << (ALIGNMENT_SHIFT * 3)) - 1;
+  uint256 private constant ALIGNMENT_UPPER_THRESHOLD = (1 << (ALIGNMENT_SHIFT * 3)) - 1;
   //shift left less than ALIGNMENT_LOWER_THRESHOLD
-  uint256 constant ALIGNMENT_LOWER_THRESHOLD = 1 << (ALIGNMENT_SHIFT * 2);
+  uint256 private constant ALIGNMENT_LOWER_THRESHOLD = 1 << (ALIGNMENT_SHIFT * 2);
 
   function toAligned(uint256 val) internal pure returns (uint256, int256) {
     return (val << CENTERING_SHIFT, int256(CENTERING_SHIFT));

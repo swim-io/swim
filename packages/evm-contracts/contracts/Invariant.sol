@@ -213,7 +213,7 @@ library Invariant {
       }
 
       //TODO test to ensure that this can never happen due to rounding
-      require(unknownBalance > 0);
+      require(unknownBalance > 0, "unknownBalance not higher then 0");
 
       //ensure that unknownBalance never blows up above the allowed maximum
       if (unknownBalance > Equalize.MAX_AMOUNT)
@@ -285,7 +285,7 @@ library Invariant {
       } while (absDiff(previousDepth, depth) > 1);
 
       //TODO test to ensure that this can never happen
-      require(depth > 0);
+      require(depth > 0, "depth not higher then 0");
 
       return depth;
     }

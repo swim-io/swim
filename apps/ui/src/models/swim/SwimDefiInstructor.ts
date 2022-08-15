@@ -3,12 +3,13 @@ import { TOKEN_PROGRAM_ID, Token, u64 } from "@solana/spl-token";
 import type { AccountMeta, Transaction } from "@solana/web3.js";
 import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
+import { createMemoIx } from "@swim-io/solana";
 import { isEachNotNull } from "@swim-io/utils";
 
 import { EcosystemId } from "../../config";
 import type { Amount } from "../amount";
 import type { SolanaConnection } from "../solana";
-import { createMemoIx, createTx, findTokenAccountForMint } from "../solana";
+import { createTx, findTokenAccountForMint } from "../solana";
 import type { SolanaWalletAdapter } from "../wallets";
 
 import {

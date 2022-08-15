@@ -78,6 +78,7 @@ contract Routing is
    * @param toOwner the address of token beneficiary
    * @param inputAmount the amount of tokens the user wants to swap from
    * @param minimumOutputAmount the min amount the user would like to receive, or revert
+   * @param memo bytes16 current memo
    * @return outputAmount The amount of tokens that will be received
    */
 
@@ -86,7 +87,8 @@ contract Routing is
     uint256 inputAmount,
     address toOwner,
     address toToken,
-    uint256 minimumOutputAmount
+    uint256 minimumOutputAmount,
+    bytes16 memo
   ) external payable whenNotPaused returns (uint256 outputAmount) {
     (address fromPool, uint8 fromIndex) = getPoolAndIndex(fromToken);
     (address toPool, uint8 toIndex) = getPoolAndIndex(toToken);
@@ -112,7 +114,7 @@ contract Routing is
 
     IERC20Upgradeable(toToken).safeTransfer(toOwner, outputAmount);
 
-    emit OnChainSwap(toOwner, fromToken, toToken, outputAmount);
+    emit OnChainSwap(toOwner, fromToken, toToken, outputAmount, memo);
   }
 
   /**
@@ -121,6 +123,7 @@ contract Routing is
    * @param inputAmount the amount of tokens user wants to swap from
    * @param wormholeRecipientChain Wormhole receiver chain
    * @param toOwner the address of token beneficiary
+   * @param memo bytes16 current memo
    * @return wormholeSequence Wormhole Sequence
    */
 
@@ -129,7 +132,8 @@ contract Routing is
     uint256 inputAmount,
     uint256 firstMinimumOutputAmount,
     uint16 wormholeRecipientChain,
-    bytes32 toOwner
+    bytes32 toOwner,
+    bytes16 memo
   ) external payable whenNotPaused returns (uint64 wormholeSequence) {
     (address fromPool, uint8 fromIndex) = getPoolAndIndex(fromToken);
 
@@ -174,7 +178,7 @@ contract Routing is
 
     ++wormholeNonce;
 
-    emit SwapAndTransfer(msg.sender, wormholeSequence, fromToken, inputAmount);
+    emit SwapAndTransfer(msg.sender, wormholeSequence, fromToken, inputAmount, memo);
   }
 
   /**
@@ -184,12 +188,14 @@ contract Routing is
    * @param encodedVm A byte array containing a VAA signed by the guardians.
    * @param toToken the token address user wants to swap from
    * @param minimumOutputAmount Minimum output amount expected
+   * @param memo bytes16 current memo
    * @return outputAmount Amount that user will receive
    */
   function receiveAndSwap(
     bytes memory encodedVm,
     address toToken,
-    uint256 minimumOutputAmount
+    uint256 minimumOutputAmount,
+    bytes16 memo
   ) external whenNotPaused returns (uint256 outputAmount, address outputToken) {
     bytes memory swimPayload = tokenBridge.completeTransferWithPayload(encodedVm);
     swimPayload.checkVersion();
@@ -198,17 +204,18 @@ contract Routing is
       revert Routing__ErrorMessage("Sender is not the owner!");
     }
 
-    return _receiveAndSwap(encodedVm, msg.sender, toToken, minimumOutputAmount);
+    return _receiveAndSwap(encodedVm, msg.sender, toToken, minimumOutputAmount, memo);
   }
 
   /**
    * @notice Complete a contract-controlled transfer of an ERC20 token and swaps for token address in payload.
    * If swap fails, user receives swimUsd token.
    * @param encodedVm A byte array containing a VAA signed by the guardians.
+   * @param memo bytes16 current memo
    * @return outputAmount Amount that user will receive
    * @return outputToken Type of token that user will receive
    */
-  function receiveAndSwap(bytes memory encodedVm)
+  function receiveAndSwap(bytes memory encodedVm, bytes16 memo)
     external
     whenNotPaused
     returns (uint256 outputAmount, address outputToken)
@@ -220,14 +227,15 @@ contract Routing is
     (uint16 tokenNumber, uint256 minimumOutputAmount) = swimPayload.decodeSwapParameters();
     address toToken = getTokenAddress(tokenNumber);
 
-    return _receiveAndSwap(encodedVm, toOwner, toToken, minimumOutputAmount);
+    return _receiveAndSwap(encodedVm, toOwner, toToken, minimumOutputAmount, memo);
   }
 
   function _receiveAndSwap(
     bytes memory encodedVm,
     address toOwner,
     address toToken,
-    uint256 minimumOutputAmount
+    uint256 minimumOutputAmount,
+    bytes16 memo
   ) internal returns (uint256 outputAmount, address outputToken) {
     (address toPool, uint8 toIndex) = getPoolAndIndex(toToken);
 
@@ -257,7 +265,7 @@ contract Routing is
     IERC20Upgradeable(toToken).safeTransfer(toOwner, outputAmount);
 
     uint64 sequence = wormhole.parseVM(encodedVm).sequence;
-    emit ReceiveAndSwap(toOwner, sequence, outputToken, outputAmount);
+    emit ReceiveAndSwap(toOwner, sequence, outputToken, outputAmount, memo);
   }
 
   /**

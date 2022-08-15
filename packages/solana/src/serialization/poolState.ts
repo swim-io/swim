@@ -17,26 +17,36 @@ import type BN from "bn.js";
 import type { AmpFactor } from "./ampFactor";
 import { ampFactor } from "./ampFactor";
 
-export interface SwimPoolState {
+export type Timestamp = BN;
+type U8 = (property?: string) => Layout<number>;
+
+export interface SwimPoolConstantState {
   readonly nonce: number;
-  readonly isPaused: boolean;
-  readonly ampFactor: AmpFactor;
-  readonly lpFee: number;
-  readonly governanceFee: number;
   readonly lpMintKey: PublicKey;
   readonly lpDecimalEqualizer: number;
   readonly tokenMintKeys: readonly PublicKey[];
   readonly tokenDecimalEqualizers: readonly number[];
   readonly tokenKeys: readonly PublicKey[];
+}
+
+export interface SwimPoolMutableState {
+  readonly isPaused: boolean;
+  readonly ampFactor: AmpFactor;
+  readonly lpFee: number;
+  readonly governanceFee: number;
   readonly governanceKey: PublicKey;
   readonly governanceFeeKey: PublicKey;
   readonly preparedGovernanceKey: PublicKey;
-  readonly governanceTransitionTs: BN;
+  readonly governanceTransitionTs: Timestamp;
   readonly preparedLpFee: number;
   readonly preparedGovernanceFee: number;
-  readonly feeTransitionTs: BN;
+  readonly feeTransitionTs: Timestamp;
   readonly previousDepth: BN;
 }
+
+export interface SwimPoolState
+  extends SwimPoolConstantState,
+    SwimPoolMutableState {}
 
 export const swimPool = (
   numberOfTokens: number,
@@ -52,8 +62,7 @@ export const swimPool = (
       publicKey("lpMintKey"),
       u8("lpDecimalEqualizer"),
       array(publicKey(), numberOfTokens, "tokenMintKeys"),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      array(u8(), numberOfTokens, "tokenDecimalEqualizers"),
+      array((u8 as U8)(), numberOfTokens, "tokenDecimalEqualizers"),
       array(publicKey(), numberOfTokens, "tokenKeys"),
       publicKey("governanceKey"),
       publicKey("governanceFeeKey"),

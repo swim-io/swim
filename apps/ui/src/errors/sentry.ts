@@ -38,6 +38,8 @@ export const setupSentry = (): void => {
       process.env.REACT_APP_ENV ?? "",
     ),
 
+    ignoreErrors: IGNORE_ERRORS,
+
     denyUrls: [
       // Chrome extensions
       /extensions\//i,
@@ -53,11 +55,6 @@ const beforeSend = (
   // extract error message
   const error = hint?.originalException ?? null;
   const errorMessage = error instanceof Error ? error.message : error;
-
-  // Ignore benign and known errors
-  if (IGNORE_ERRORS.includes(event.message ?? "")) {
-    return null;
-  }
 
   // eslint-disable-next-line functional/immutable-data
   event.fingerprint = fixFingerprint(event.fingerprint, errorMessage ?? "");

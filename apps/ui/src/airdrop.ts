@@ -1,5 +1,5 @@
-const fs = require("fs/promises");
-const path = require("path");
+import yargs, { string } from "yargs"
+import { hideBin } from "yargs/helpers"
 
 import { Env } from "@swim-io/core";
 import { findOrThrow } from "@swim-io/utils";
@@ -9,20 +9,39 @@ import type { Config, EvmSpec, TokenSpec } from "./config";
 import { CONFIGS, Protocol } from "./config";
 import { Erc20Factory, EvmConnection } from "./models/evm";
 
-const ENV = Env.Devnet;
+import "dotenv/config"
 
 async function main() {
-  // TODO: Get from cli arg
-  const tokenId = "devnet-fantom-usdc";
-
-  // TODO: Get from cli arg
-  const receiverAddress = "0xdf9Fb66F089A2c64C74B0B7D750CB661947Efa28";
-
-  // TODO: Get from cli arg
-  const amount = 1;
-
   // Get tokens and chains configs
+  const ENV = Env.Devnet;
   const { tokens, chains }: Config = CONFIGS[ENV];
+
+  const args = await yargs(hideBin(process.argv))
+    .scriptName("airdrop")
+    .usage("$0 [args]")
+    .command("airdrop", "send devnet tokens to the receiver", () => {}, (argv) => {
+      console.info(argv)
+    })
+    .option("token", {
+      type: "string",
+      choices: tokens.map(({ id }: TokenSpec) => id),
+      demandOption: true,
+    })
+    .option("receiverAddress", {
+      type: "string",
+      alias: "to",
+      demandOption: true,
+    })
+    .option("amount", {
+      type: "string",
+    })
+    .help()
+    .parse()
+
+  const tokenId = args.token;
+  const receiverAddress = args.receiverAddress;
+  const amount = args.amount || 1;
+
   const tokenSpec = findOrThrow(tokens, ({ id }: TokenSpec) => id === tokenId);
 
   // Get a token contract

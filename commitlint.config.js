@@ -21,6 +21,7 @@ module.exports = {
         "tsconfig",
         "ui",
         "utils",
+        "wormhole",
       ],
     ],
     "subject-case": [0, "never"],

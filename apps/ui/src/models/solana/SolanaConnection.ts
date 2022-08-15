@@ -1,12 +1,13 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type {
   Finality,
+  ParsedTransactionWithMeta,
   RpcResponseAndContext,
   SignatureResult,
   Transaction,
   TransactionResponse,
 } from "@solana/web3.js";
-import { Keypair, ParsedTransactionWithMeta } from "@solana/web3.js";
+import { Keypair } from "@solana/web3.js";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { sleep } from "@swim-io/utils";
 

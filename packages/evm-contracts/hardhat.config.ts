@@ -1,7 +1,3 @@
-import * as dotenv from "dotenv";
-
-import { task } from "hardhat/config";
-import { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
@@ -9,7 +5,11 @@ import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import { getContractAddress } from "@ethersproject/address";
-import { BigNumber, formatFixed } from "@ethersproject/bignumber";
+import type { BigNumber } from "@ethersproject/bignumber";
+import { formatFixed } from "@ethersproject/bignumber";
+import * as dotenv from "dotenv";
+import { task } from "hardhat/config";
+import type { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
 
 dotenv.config();
 const { FACTORY_MNEMONIC, MNEMONIC, BSCSCAN_API_KEY, ETHERSCAN_API_KEY } = process.env;
@@ -53,10 +53,11 @@ task("pool-state", "Print state of given pool", async ({ pool }, { ethers }) => 
   const [isPaused, balances, lpSupply, ampFactorDec, lpFeeDec, govFeeDec] = await (
     await ethers.getContractAt("Pool", pool)
   ).getState();
-  const decimaltoFixed = (decimal: [BigNumber, number]) => formatFixed(decimal[0], decimal[1]);
+  const decimaltoFixed = (decimal: readonly [BigNumber, number]) =>
+    formatFixed(decimal[0], decimal[1]);
   const getDecimals = async (address: string) =>
     (await ethers.getContractAt("ERC20", address)).decimals();
-  const toTokenInfo = async (token: [string, BigNumber]) => ({
+  const toTokenInfo = async (token: readonly [string, BigNumber]) => ({
     address: token[0],
     amount: decimaltoFixed([token[1], await getDecimals(token[0])]),
   });

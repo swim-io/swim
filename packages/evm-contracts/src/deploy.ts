@@ -128,7 +128,7 @@ export async function deployLogic(name: string, salt?: string): Promise<Contract
   const deploySalt = salt ?? DEFAULTS.salt;
   const bytecode = (await ethers.getContractFactory(name)).bytecode;
   const swimFactory = await ethers.getContractAt("SwimFactory", SWIM_FACTORY_ADDRESS);
-  const logicAddress = await swimFactory.determineLogicAddress(bytecode, deploySalt);
+  const logicAddress: string = await swimFactory.determineLogicAddress(bytecode, deploySalt);
   if (!(await isDeployed(logicAddress))) await swimFactory.createLogic(bytecode, deploySalt);
 
   return ethers.getContractAt(name, logicAddress);
@@ -156,17 +156,12 @@ export async function deploySwimFactory(
   const factoryDeployer = ethers.Wallet.fromMnemonic(factoryMnemonic).connect(owner.provider!);
 
   if ((await factoryDeployer.getTransactionCount()) !== 0)
-    throw Error(
-      "SwimFactory deployer " + factoryDeployer.address + " has nonzero transaction count"
-    );
+    throw Error(`SwimFactory deployer ${factoryDeployer.address} has nonzero transaction count`);
 
   const precalculatedAddress = getContractAddress({ from: factoryDeployer.address, nonce: 0 });
   if (precalculatedAddress !== SWIM_FACTORY_ADDRESS)
     throw Error(
-      "Unexpected precalulated SwimFactory address - expected: " +
-        SWIM_FACTORY_ADDRESS +
-        " but got: " +
-        precalculatedAddress
+      `Unexpected precalulated SwimFactory address - expected: ${SWIM_FACTORY_ADDRESS} but got: ${precalculatedAddress}`
     );
 
   const swimFactoryFactory = (await ethers.getContractFactory("SwimFactory")).connect(

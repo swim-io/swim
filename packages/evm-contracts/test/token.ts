@@ -40,7 +40,6 @@ describe("Token contract", function () {
     });
 
     it("Should assign the total supply of tokens to the owner", async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const ownerBalance = await hardhatToken.balanceOf(owner.address);
       expect(await hardhatToken.totalSupply()).to.equal(ownerBalance);
     });

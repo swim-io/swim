@@ -19,9 +19,6 @@ async function main() {
   const args = await yargs(hideBin(process.argv))
     .scriptName("airdrop")
     .usage("$0 [args]")
-    .command("airdrop", "send devnet tokens to the receiver", () => {}, (argv) => {
-      console.info(argv)
-    })
     .option("token", {
       type: "string",
       choices: tokens.map(({ id }: TokenSpec) => id),

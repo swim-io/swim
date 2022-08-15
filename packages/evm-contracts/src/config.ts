@@ -1,5 +1,22 @@
 export const SWIM_FACTORY_ADDRESS = "0x77C1f7813D79c8e6E37DE1aA631B6F961fD45648";
 
+interface IToken {
+  readonly address: string;
+  readonly tokenNumber: number;
+}
+interface IPoolInfo {
+  readonly salt: string;
+  readonly lpSalt: string;
+  readonly lpName: string;
+  readonly lpSymbol: string;
+  readonly tokens: readonly IToken[];
+}
+export interface IDeployment {
+  readonly name: string;
+  readonly wormholeTokenBridge: string;
+  readonly pools: readonly IPoolInfo[];
+}
+
 export const TOKEN_NUMBERS = {
   USDC: 1,
   USDT: 2,

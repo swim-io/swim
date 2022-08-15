@@ -1,6 +1,5 @@
 import { getContractAddress } from "@ethersproject/address";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { makeUpgradeProxy } from "@openzeppelin/hardhat-upgrades/dist/upgrade-proxy";
 import { Contract } from "ethers";
 import { ethers } from "hardhat";
 
@@ -91,19 +90,14 @@ export async function deployProxy(
   initializeArguments: readonly any[]
 ): Promise<Contract> {
   const swimFactory = await getSwimFactory();
-  const proxyAddress = await swimFactory.determineProxyAddress(salt);
+  const proxyAddress: string = (await swimFactory.determineProxyAddress(salt)) as string;
   const initializeEncoded = logic.interface.encodeFunctionData("initialize", initializeArguments);
   if (await isDeployed(proxyAddress)) {
     const slot = await ethers.provider.getStorageAt(proxyAddress, ERC1967_IMPLEMENTATION_SLOT);
     const actualLogic = ethers.utils.getAddress("0x" + slot.substring(2 + 2 * 12));
     if (actualLogic !== logic.address)
       throw Error(
-        "Unexpected logic for Proxy " +
-          proxyAddress +
-          " - expected: " +
-          logic.address +
-          " but found: " +
-          actualLogic
+        `Unexpected logic for Proxy ${proxyAddress} - expected: ${logic.address} but found: ${actualLogic}`
       );
 
     const filter = swimFactory.filters.ContractCreated(proxyAddress);
@@ -145,12 +139,12 @@ export async function deploySwimFactory(
   factoryMnemonic?: string
 ): Promise<Contract> {
   if (await isDeployed(SWIM_FACTORY_ADDRESS)) {
-    //console.log("SwimFactory was already deployed at:", SWIM_FACTORY_ADDRESS);
+    // console.log("SwimFactory was already deployed at:", SWIM_FACTORY_ADDRESS);
     const swimFactory = await getSwimFactory();
-    const actualOwner = await swimFactory.owner();
+    const actualOwner: string = (await swimFactory.owner()) as string;
     if (actualOwner !== owner.address)
       throw Error(
-        "Unexpected SwimFactory owner - expected: " + owner.address + " but found: " + actualOwner
+        `Unexpected SwimFactory owner - expected: ${owner.address} but found:  ${actualOwner}`
       );
     return swimFactory;
   }
@@ -158,9 +152,8 @@ export async function deploySwimFactory(
   if (typeof factoryMnemonic === "undefined")
     throw Error("SwimFactory Mnemonic required for SwimFactory deployment");
 
-  const factoryDeployer = await ethers.Wallet.fromMnemonic(factoryMnemonic).connect(
-    owner.provider!
-  );
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const factoryDeployer = ethers.Wallet.fromMnemonic(factoryMnemonic).connect(owner.provider!);
 
   if ((await factoryDeployer.getTransactionCount()) !== 0)
     throw Error(
@@ -181,11 +174,14 @@ export async function deploySwimFactory(
   );
 
   const gasEstimate = factoryDeployer.estimateGas(
-    await swimFactoryFactory.getDeployTransaction(owner.address)
+    swimFactoryFactory.getDeployTransaction(owner.address)
   );
 
   const { maxFeePerGas } = await ethers.getDefaultProvider().getFeeData();
-  const maxCost = (await gasEstimate).mul(maxFeePerGas!);
+  if (!maxFeePerGas) {
+    throw Error("Max fee per gas could not be retrived");
+  }
+  const maxCost = (await gasEstimate).mul(maxFeePerGas);
   const curBalance = await factoryDeployer.getBalance();
 
   if (curBalance.lt(maxCost)) {
@@ -201,10 +197,7 @@ export async function deploySwimFactory(
 
   if (swimFactory.address !== SWIM_FACTORY_ADDRESS)
     throw Error(
-      "Unexpected deployed SwimFactory address - expected: " +
-        SWIM_FACTORY_ADDRESS +
-        " but got: " +
-        swimFactory.address
+      `Unexpected deployed SwimFactory address - expected: ${SWIM_FACTORY_ADDRESS}  but got: ${swimFactory.address}`
     );
 
   // const txHash = swimFactory.deployTransaction.hash;

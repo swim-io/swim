@@ -1,6 +1,8 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BN } from "bn.js";
 import { expect } from "chai";
+import type { Contract } from "ethers";
 import { ethers } from "hardhat";
 
 describe("Token contract", function () {
@@ -21,8 +23,8 @@ describe("Token contract", function () {
   }
 
   describe("Deployment", () => {
-    let hardhatToken: any;
-    let owner: any;
+    let hardhatToken: Contract;
+    let owner: SignerWithAddress;
     beforeEach(async () => {
       const data = await loadFixture(deployTokenFixture);
       hardhatToken = data.hardhatToken;
@@ -38,6 +40,7 @@ describe("Token contract", function () {
     });
 
     it("Should assign the total supply of tokens to the owner", async () => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const ownerBalance = await hardhatToken.balanceOf(owner.address);
       expect(await hardhatToken.totalSupply()).to.equal(ownerBalance);
     });

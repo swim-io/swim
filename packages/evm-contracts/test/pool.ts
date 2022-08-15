@@ -1,19 +1,24 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { BigNumber, formatFixed, parseFixed } from "@ethersproject/bignumber";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BN } from "bn.js";
 import { expect, use } from "chai";
+import CBN from "chai-bn";
 import type { Contract } from "ethers";
 import { ethers } from "hardhat";
 
 import { FACTORY_PRESIGNED, SALTS } from "../src/config";
 import { deployLogic, deployPoolAndRegister, deployProxy } from "../src/deploy";
 
-use(require("chai-bn")(BN));
-
 describe("Pool Defi Operations", function () {
   const baseAmount = BigNumber.from("10");
   const tolerance = 2;
+
+  before(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    use(CBN(BN));
+  });
 
   async function testFixture() {
     const [deployer, governance, govFeeRecip, liquidityProvider, user] = await ethers.getSigners();
@@ -30,13 +35,13 @@ describe("Pool Defi Operations", function () {
         await contract.balanceOf(account.address);
 
       const mint = async (to: { readonly address: string }, amount: BigNumber) =>
-        contract.connect(deployer).mint(to.address, amount);
+        await contract.connect(deployer).mint(to.address, amount);
 
       const approve = async (
         from: SignerWithAddress,
         to: { readonly address: string },
         amount: BigNumber
-      ) => contract.connect(from).approve(to.address, amount);
+      ) => await contract.connect(from).approve(to.address, amount);
 
       return { contract, address, toAtomic, toHuman, balanceOf, mint, approve };
     };
@@ -50,7 +55,9 @@ describe("Pool Defi Operations", function () {
     const [swimUSD, usdc, usdt] = await Promise.all(
       tokenData.map(async ([symbol, name, decimals], tokenNumber) => {
         const erc20Factory = await ethers.getContractFactory("ERC20Token");
-        const contract = await (await erc20Factory.deploy(name, symbol, decimals)).deployed();
+        const contract = await (
+          await erc20Factory.deploy(name as string, symbol as string, decimals as number)
+        ).deployed();
         return Object.assign(tokenWrapper(contract, decimals as number), { tokenNumber });
       })
     );
@@ -99,7 +106,7 @@ describe("Pool Defi Operations", function () {
     );
 
     const lpToken = tokenWrapper(
-      await ethers.getContractAt("LpToken", await pool.getLpToken()),
+      await ethers.getContractAt("LpToken", (await pool.getLpToken()) as string),
       lpDecimals
     );
 
@@ -119,7 +126,10 @@ describe("Pool Defi Operations", function () {
     type AtomicConversionSupported = string | BigNumber | number;
     const toAtomicAmounts = (
       human: AtomicConversionSupported | readonly AtomicConversionSupported[]
-    ) => tokens.map((t, i) => t.toAtomic(Array.isArray(human) ? human[i] : human));
+    ) =>
+      tokens.map((t, i) =>
+        t.toAtomic((Array.isArray(human) ? human[i] : human) as AtomicConversionSupported)
+      );
 
     return {
       deployer,
@@ -242,7 +252,7 @@ describe("Pool Defi Operations", function () {
     const { swapUserUsdc, swapGovFee } = await swap();
 
     const swapExactInput = async () => {
-      const { pool, govFeeRecip, lpToken, usdc, usdt, user, toAtomicAmounts } = await loadFixture(
+      const { pool, govFeeRecip, lpToken, usdt, user, toAtomicAmounts } = await loadFixture(
         testFixture
       );
       await pool.connect(user).swapExactInput(toAtomicAmounts([0, 1, 0]), 2, 0);
@@ -311,7 +321,7 @@ describe("Pool Defi Operations", function () {
       .removeExactOutput(toAtomicAmounts([1, 4, 7]), baseAmount.mul(3));
 
     const actualLpSupply = await lpToken.contract.totalSupply();
-    const actualPrices = await pool.getMarginalPrices();
+    const actualPrices: readonly string[] = await pool.getMarginalPrices();
     expect(actualLpSupply).to.be.closeTo(expectedLpSupply, tolerance);
     for (let i = 0; i < expectedPrices.length; ++i)
       expect(actualPrices[i]).to.be.closeTo(expectedPrices[i], tolerance);

@@ -1,13 +1,17 @@
-import { ethers } from "hardhat";
 import * as dotenv from "dotenv";
+import { ethers } from "hardhat";
+
+import type { IDeployment } from "../src/config";
 import { CHAINS, SALTS } from "../src/config";
-import { deploySwimFactory, deployLogic, deployProxy, deployPoolAndRegister } from "../src/deploy";
+import { deployLogic, deployPoolAndRegister, deployProxy, deploySwimFactory } from "../src/deploy";
 
 async function main() {
   const chainId = (await ethers.provider.detectNetwork()).chainId;
 
-  const chainConfig = CHAINS[chainId as keyof typeof CHAINS];
-  if (!chainConfig) throw Error("Network with chainId " + chainId + " not implemented yet");
+  if (!chainId || CHAINS[chainId]) {
+    throw Error(`Network with chainId ${chainId}  not implemented yet`);
+  }
+  const chainConfig: IDeployment = CHAINS[chainId] as IDeployment;
 
   console.log("executing deployment script for", chainConfig.name);
 
@@ -18,11 +22,10 @@ async function main() {
   const routingLogic = await deployLogic("Routing", SALTS.routingLogic);
   await deployLogic("LpToken", SALTS.lpToken);
   const poolLogic = await deployLogic("Pool", SALTS.poolLogic);
-  const routingProxy = await deployProxy(
-    routingLogic,
-    SALTS.routingProxy,
-    [deployer.address, chainConfig.wormholeTokenBridge]
-  );
+  const routingProxy = await deployProxy(routingLogic, SALTS.routingProxy, [
+    deployer.address,
+    chainConfig.wormholeTokenBridge,
+  ]);
 
   for (const pool of chainConfig.pools)
     await deployPoolAndRegister(pool, poolLogic, routingProxy, governance, governanceFeeRecipient);

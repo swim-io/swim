@@ -1,6 +1,7 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
-import type {
+import {
   Finality,
+  Keypair,
   ParsedTransactionWithMeta,
   RpcResponseAndContext,
   SignatureResult,
@@ -70,6 +71,7 @@ export class SolanaConnection {
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
   private rpcIndex;
   private readonly endpoints: readonly string[];
+  private dummySubscriptionId!: number;
 
   constructor(endpoints: readonly string[]) {
     this.endpoints = endpoints;
@@ -325,6 +327,12 @@ export class SolanaConnection {
       // and it is not being called in the constructor (when this.rawConnection is still undefined)
       return;
     }
+    if ((this.dummySubscriptionId as number | undefined) !== undefined) {
+      // Remove old dummy subscription if it has been initialized.
+      this.rawConnection
+        .removeAccountChangeListener(this.dummySubscriptionId)
+        .catch(console.error);
+    }
     this.rpcIndex = (this.rpcIndex + 1) % this.endpoints.length;
     this.rawConnection = new CustomConnection(this.endpoints[this.rpcIndex], {
       commitment: DEFAULT_COMMITMENT_LEVEL,
@@ -351,6 +359,10 @@ export class SolanaConnection {
     );
     this.removeAccountChangeListener =
       this.rawConnection.removeAccountChangeListener.bind(this.rawConnection);
+    this.dummySubscriptionId = this.rawConnection.onAccountChange(
+      Keypair.generate().publicKey,
+      () => {},
+    );
   }
 
   private async callWithRetry<T>(

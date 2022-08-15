@@ -2,7 +2,7 @@ import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 
 import type { EvmChainConfig, EvmEcosystemConfig } from "../protocol";
-import { EVM_PROTOCOL } from "../protocol";
+import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
 export enum EthereumChainId {
   Mainnet = 1,
@@ -12,7 +12,7 @@ export enum EthereumChainId {
   Localnet = 1337,
 }
 
-const mainnet: EvmChainConfig = {
+const mainnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
   name: "Ethereum Mainnet",
   chainId: EthereumChainId.Mainnet,
   wormhole: {
@@ -24,7 +24,7 @@ const mainnet: EvmChainConfig = {
   pools: [],
 };
 
-const devnet: EvmChainConfig = {
+const devnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
   name: "Ethereum Görli Testnet",
   chainId: EthereumChainId.Goerli,
   wormhole: {
@@ -36,7 +36,7 @@ const devnet: EvmChainConfig = {
   pools: [],
 };
 
-const localnet: EvmChainConfig = {
+const localnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
   name: "Ethereum Localnet",
   chainId: EthereumChainId.Localnet,
   wormhole: {
@@ -48,7 +48,10 @@ const localnet: EvmChainConfig = {
   pools: [],
 };
 
-const chains: ReadonlyMap<Env, EvmChainConfig> = new Map([
+const chains: ReadonlyMap<
+  Env,
+  EvmChainConfig<EvmEcosystemId.Ethereum>
+> = new Map([
   [Env.Mainnet, mainnet],
   [Env.Devnet, devnet],
   [Env.Local, localnet],
@@ -60,8 +63,8 @@ const gasToken: GasToken = {
   decimals: 18,
 };
 
-export const ethereum: EvmEcosystemConfig = {
-  id: "ethereum",
+export const ethereum: EvmEcosystemConfig<EvmEcosystemId.Ethereum> = {
+  id: EvmEcosystemId.Ethereum,
   protocol: EVM_PROTOCOL,
   wormholeChainId: 2,
   displayName: "Ethereum",

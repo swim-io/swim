@@ -93,7 +93,7 @@ contract SwimFactory is ISwimFactory {
   }
 
   modifier onlyOwnerOrAlreadyDeploying() {
-    require(msg.sender == owner || reentrancyCount > 0);
+    require(msg.sender == owner || reentrancyCount > 0, "Not owner or already deployed");
     ++reentrancyCount;
     _;
     --reentrancyCount;
@@ -209,24 +209,24 @@ contract SwimFactory is ISwimFactory {
     //   bytes32(0x6020870161025d565b601f017fffffffffffffffffffffffffffffffffffffff),
     //   bytes26(0xffffffffffffffffffffffffe016919091016040019291505056)
     // );
-    uint256 _PROXY_DEPLOYMENT_CODESIZE = PROXY_DEPLOYMENT_CODESIZE;
-    uint256 _PROXY_STRIPPED_DEPLOYEDCODESIZE = PROXY_STRIPPED_DEPLOYEDCODESIZE;
-    uint256 _IMPLEMENTATION_SLOT = IMPLEMENTATION_SLOT;
+    uint256 _proxyDeploymentCodesize = PROXY_DEPLOYMENT_CODESIZE;
+    uint256 _proxyStrippedDeployedCodesize = PROXY_STRIPPED_DEPLOYEDCODESIZE;
+    uint256 _implementationSlot = IMPLEMENTATION_SLOT;
     uint256 _blankLogicAddress = uint256(uint160(blankLogicAddress));
     bytes memory code = new bytes(PROXY_TOTAL_CODESIZE);
     assembly ("memory-safe")
     {
       mstore(add(code, 32), add(add(shl(248, 0x73), shl(88, _blankLogicAddress)), shl(80, 0x7f)))
-      mstore(add(code, 54), _IMPLEMENTATION_SLOT)
+      mstore(add(code, 54), _implementationSlot)
       mstore(
         add(code, 86),
         add(
           add(
             add(
-              add(shl(240, 0x5561), shl(224, _PROXY_STRIPPED_DEPLOYEDCODESIZE)),
+              add(shl(240, 0x5561), shl(224, _proxyStrippedDeployedCodesize)),
               shl(208, 0x8060)
             ),
-            shl(200, _PROXY_DEPLOYMENT_CODESIZE)
+            shl(200, _proxyDeploymentCodesize)
           ),
           shl(144, 0x6000396000f300)
         )

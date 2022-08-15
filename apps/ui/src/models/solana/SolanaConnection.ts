@@ -7,8 +7,7 @@ import type {
   Transaction,
   TransactionResponse,
 } from "@solana/web3.js";
-import { Keypair } from "@solana/web3.js";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { sleep } from "@swim-io/utils";
 
 import { SwimError } from "../../errors";

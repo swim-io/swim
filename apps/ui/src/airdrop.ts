@@ -13,14 +13,13 @@ const ENV = Env.Devnet;
 
 async function main() {
   // TODO: Get from cli arg
-  const tokenId = "devnet-ethereum-usdc";
+  const tokenId = "devnet-fantom-usdc";
 
   // TODO: Get from cli arg
-  // Hippo wallet (dev bank)
-  const receiverAddress = "0x866450d3256310D51Ff3aac388608e30d03d7841";
+  const receiverAddress = "0xdf9Fb66F089A2c64C74B0B7D750CB661947Efa28";
 
   // TODO: Get from cli arg
-  const amount = 1 / 10e5;
+  const amount = 1;
 
   // Get tokens and chains configs
   const { tokens, chains }: Config = CONFIGS[ENV];
@@ -30,16 +29,37 @@ async function main() {
   const chainSpec = findOrThrow(
     chains[Protocol.Evm] as EvmSpec[],
     ({ ecosystem }: EvmSpec) => ecosystem === tokenSpec.nativeEcosystemId,
+    );
+
+    const evmProvider = EvmConnection.getIndexerProvider(ENV, chainSpec);
+
+  // Hippo wallet (dev bank)
+  const mnemonic = process.env.DEVNET_MNEMONIC_PHRASE;
+  const senderWallet = ethers.Wallet.fromMnemonic(mnemonic.trim()).connect(
+    evmProvider,
   );
 
-  const evmProvider = EvmConnection.getIndexerProvider(ENV, chainSpec);
+  // Get a token contract address
+  const contractAddress = tokenSpec.nativeDetails.address;
+  const tokenContract = Erc20Factory.connect(contractAddress, senderWallet);
 
-  // Read devnet bank wallet from mnemonic
-  const mnemonicPath = path.resolve(
-    "../ui/src/keys/wallet-accounts/0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1.txt",
+  console.log(
+    `Attempting to send ${amount.toString()} ${tokenSpec.projectId} on ${
+      tokenSpec.nativeEcosystemId
+    } (${contractAddress}) from ${senderWallet.address} to ${receiverAddress}`,
   );
-  const mnemonic = await fs.readFile(mnemonicPath, "utf-8");
-  const senderWallet = ethers.Wallet.fromMnemonic(mnemonic.trim()).connect(evmProvider);
+
+  const senderTokenBalance = await tokenContract.balanceOf(
+    senderWallet.address,
+  );
+  const gasTokensBalanceInWei = await evmProvider.getBalance(
+    senderWallet.address,
+  );
+  console.log(
+    `Sender (${senderWallet.address}) has ${senderTokenBalance} ${
+      tokenSpec.projectId
+    }. Gas tokens balance: ${ethers.utils.formatUnits(gasTokensBalanceInWei)}`,
+  );
 
   // Convert to ERC20 decimals
   const numberOfTokens = ethers.utils.parseUnits(
@@ -47,22 +67,22 @@ async function main() {
     tokenSpec.nativeDetails.decimals,
   );
 
-  // Get a token contract address
-  const contractAddress = tokenSpec.nativeDetails.address;
+  const txReceipt = await (
+    await tokenContract.transfer(receiverAddress, numberOfTokens)
+  ).wait();
   console.log(
-    `Attempting to send ${numberOfTokens.toString()} ${tokenSpec.projectId
-    } on ${tokenSpec.nativeEcosystemId} (${contractAddress}) from ${senderWallet.address
-    } to ${receiverAddress}`,
+    `Transaction completed with ${txReceipt.status} status. ID: ${txReceipt.transactionHash}. Gas used: ${txReceipt.gasUsed}`,
   );
 
-  const tokenContract = Erc20Factory.connect(contractAddress, senderWallet);
-
-  const txReceipt = await tokenContract.transfer(
-    receiverAddress,
-    numberOfTokens,
+  console.log(
+    `Balance after. Sender: ${await tokenContract.balanceOf(
+      senderWallet.address,
+    )} ${tokenSpec.projectId}. Receiver: ${await tokenContract.balanceOf(
+      receiverAddress,
+    )} ${tokenSpec.projectId}. Gas tokens: ${ethers.utils.formatUnits(
+      await evmProvider.getBalance(senderWallet.address),
+    )}`,
   );
-  const txId = await txReceipt.wait();
-  console.log(`Transaction ID: ${txId.transactionHash}`);
 }
 
 main()

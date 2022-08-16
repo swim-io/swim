@@ -2,6 +2,7 @@ import { EuiButtonIcon } from "@elastic/eui";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { findOrThrow } from "@swim-io/utils";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { Ecosystem } from "../../config";
 import {
@@ -105,25 +106,35 @@ const metaMaskInfo: Omit<WalletServiceInfo, "ecosystem"> = {
   icon: METAMASK_ICON,
 };
 
+interface MetaMaskHelpTextProps {
+  readonly ecosystem: Ecosystem;
+  readonly url: string;
+}
+const MetaMaskHelpText = ({ ecosystem, url }: MetaMaskHelpTextProps) => {
+  const { t } = useTranslation();
+  const title = t("general.how_to_add_ecosystem_to_metamask", {
+    ecosystemName: ecosystem.displayName,
+  });
+  return (
+    <EuiButtonIcon
+      iconType="questionInCircle"
+      aria-label={title}
+      title={title}
+      href={url}
+      target="_blank"
+      iconSize="m"
+    />
+  );
+};
 const addMetaMaskEcosystemInfo = (
   info: Omit<WalletServiceInfo, "ecosystem">,
   ecosystem: Ecosystem,
   url: string,
 ): WalletServiceInfo => {
-  const title = `How to add ${ecosystem.displayName} to Metamask`;
   return {
     ...info,
     ecosystem,
-    helpText: (
-      <EuiButtonIcon
-        iconType="questionInCircle"
-        aria-label={title}
-        title={title}
-        href={url}
-        target="_blank"
-        iconSize="m"
-      />
-    ),
+    helpText: <MetaMaskHelpText ecosystem={ecosystem} url={url} />,
   };
 };
 

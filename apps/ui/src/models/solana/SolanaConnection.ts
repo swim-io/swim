@@ -11,6 +11,7 @@ import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { sleep } from "@swim-io/utils";
 
 import { SwimError } from "../../errors";
+import { i18next } from "../../i18n";
 
 import { deserializeTokenAccount } from "./parsers";
 import { getAssociatedTokenAddress } from "./utils";
@@ -117,7 +118,9 @@ export class SolanaConnection {
         return signatureResult;
       }
       throw new SwimError(
-        `Transaction with ID ${txId} did not confirm: ${signatureResult.value.err.toString()}`,
+        i18next.t("general.transaction_not_confirmed_error", { txId }) +
+          ": " +
+          signatureResult.value.err.toString(),
       );
     }, maxRetries);
   }
@@ -185,7 +188,9 @@ export class SolanaConnection {
         this.txCache.set(txId, txResponse);
         return txResponse;
       }
-      throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+      throw new SwimError(
+        i18next.t("general.transaction_not_confirmed_error", { txId }),
+      );
     }, maxRetries);
   }
 
@@ -218,7 +223,9 @@ export class SolanaConnection {
         this.parsedTxCache.set(txId, txResponse);
         return txResponse;
       }
-      throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+      throw new SwimError(
+        i18next.t("general.transaction_not_confirmed_error", { txId }),
+      );
     }, maxRetries);
   }
 
@@ -254,7 +261,9 @@ export class SolanaConnection {
             this.parsedTxCache.set(missingTxIds[i], txResponse);
           }
         });
-        throw new SwimError(`One or more transactions did not confirm`);
+        throw new SwimError(
+          i18next.t("general.one_or_more_transaction_not_confirmed_error"),
+        );
       },
 
       maxRetries,
@@ -295,7 +304,9 @@ export class SolanaConnection {
         );
       }
       throw new SwimError(
-        "Successfully created SPL token account but failed to fetch it",
+        i18next.t(
+          "general.created_spl_token_account_but_failed_to_fetch_error",
+        ),
       );
     }, maxRetries);
   }

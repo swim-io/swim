@@ -14,6 +14,7 @@ import {
 import { filterMap, findOrThrow, groupBy, truncate } from "@swim-io/utils";
 import type { ReactElement } from "react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   ECOSYSTEMS,
@@ -45,6 +46,7 @@ const ProtocolWalletOptionsList = ({
   icon,
   protocol,
 }: ProtocolWalletOptionsListProps): ReactElement => {
+  const { t } = useTranslation();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const selectedServiceByProtocol = useWalletAdapter(
     selectSelectedServiceByProtocol,
@@ -83,7 +85,9 @@ const ProtocolWalletOptionsList = ({
     <EuiButtonIcon
       onClick={handleButtonClick}
       iconType="questionInCircle"
-      aria-label={`See the supported chains of the ${PROTOCOL_NAMES[protocol]} protocol`}
+      aria-label={t("multi_wallet_modal.see_supported_chains_for_protocol", {
+        protocolName: PROTOCOL_NAMES[protocol],
+      })}
       style={{ marginLeft: 10 }}
     />
   );
@@ -159,11 +163,12 @@ interface Props {
 }
 
 export const MultiWalletModal = ({ handleClose }: Props): ReactElement => {
+  const { t } = useTranslation();
   return (
     <CustomModal onClose={handleClose}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          <h1>Connect Wallets</h1>
+          <h1>{t("multi_wallet_modal.title")}</h1>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
 

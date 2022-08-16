@@ -1,5 +1,6 @@
 import { EuiButton, EuiCallOut, EuiSpacer } from "@elastic/eui";
 import type { VFC } from "react";
+import { useTranslation } from "react-i18next";
 
 import { selectInteractionError } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
@@ -27,34 +28,38 @@ const RetryOrResumeButton: VFC<RetryOrResumeButtonProps> = ({
   title,
   onClick,
   disabled,
-}) => (
-  <>
-    <EuiButton
-      iconType="refresh"
-      onClick={onClick}
-      size="s"
-      isDisabled={disabled}
-    >
-      {title}
-    </EuiButton>
-    &nbsp;&nbsp;
-    <EuiButton
-      href="/help"
-      onClick={(e) => {
-        e.preventDefault();
-        window.open("/help", "_blank");
-      }}
-      color="warning"
-      iconType="popout"
-      iconSide="right"
-      size="s"
-    >
-      Get help
-    </EuiButton>
-  </>
-);
+}) => {
+  const { t } = useTranslation();
+  return (
+    <>
+      <EuiButton
+        iconType="refresh"
+        onClick={onClick}
+        size="s"
+        isDisabled={disabled}
+      >
+        {title}
+      </EuiButton>
+      &nbsp;&nbsp;
+      <EuiButton
+        href="/help"
+        onClick={(e) => {
+          e.preventDefault();
+          window.open("/help", "_blank");
+        }}
+        color="warning"
+        iconType="popout"
+        iconSide="right"
+        size="s"
+      >
+        {t("general.get_help_button")}
+      </EuiButton>
+    </>
+  );
+};
 
 export const InteractionRetryCalloutV2: VFC<Props> = ({ interactionState }) => {
+  const { t } = useTranslation();
   const { interaction } = interactionState;
   const error = useInteractionState((state) =>
     selectInteractionError(state, interaction.id),
@@ -77,7 +82,7 @@ export const InteractionRetryCalloutV2: VFC<Props> = ({ interactionState }) => {
   if (error) {
     return (
       <EuiCallOut
-        title="Sorry, there was an error"
+        title={t("recent_interactions.error_title")}
         color="danger"
         iconType="alert"
         style={{ wordBreak: "break-word" }} // break long transaction IDs
@@ -85,7 +90,7 @@ export const InteractionRetryCalloutV2: VFC<Props> = ({ interactionState }) => {
         {formatErrorJsx(error)}
         <EuiSpacer />
         <RetryOrResumeButton
-          title={"Retry"}
+          title={t("recent_interactions.retry_button")}
           disabled={disabled}
           onClick={() => resumeInteraction(interaction.id)}
         />
@@ -95,7 +100,7 @@ export const InteractionRetryCalloutV2: VFC<Props> = ({ interactionState }) => {
 
   return (
     <RetryOrResumeButton
-      title={"Resume"}
+      title={t("recent_interactions.resume_button")}
       disabled={disabled}
       onClick={() => resumeInteraction(interaction.id)}
     />

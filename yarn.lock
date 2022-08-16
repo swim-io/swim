@@ -27228,8 +27228,8 @@ __metadata:
   linkType: hard
 
 "solc@npm:^0.8.15":
-  version: 0.8.15
-  resolution: "solc@npm:0.8.15"
+  version: 0.8.16
+  resolution: "solc@npm:0.8.16"
   dependencies:
     command-exists: ^1.2.8
     commander: ^8.1.0
@@ -27240,7 +27240,7 @@ __metadata:
     tmp: 0.0.33
   bin:
     solcjs: solc.js
-  checksum: a11de198bc5d481485a4a4803fb08a81a56dd9ffa7cdc62f8d6d5fc669f72e7cb4b22789004d54481353463421f6e6e3d1dffe7365b6d0ed5f37baee303266db
+  checksum: 9c160f13fc1c83837c9fd70402db9373b678e9c2b05866f63528ce5adf2cbd961b4db4de70b8cdcd808671d551c5cf29ebd91c79bb98904db63e7d71ac8cb6f4
   languageName: node
   linkType: hard
 

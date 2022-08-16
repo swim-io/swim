@@ -44,11 +44,15 @@ interface IRouting {
 
   function swapAndTransfer(
     address fromToken,
+    address toToken,
     uint256 inputAmount,
     uint256 firstMinimumOutputAmount,
+    uint256 secondMinimumOutputAmount,
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
-    bytes16 memo
+    bytes16 memo,
+    bool propellerEnabled,
+    bool gasKickStart
   ) external payable returns (uint64 wormholeSequence);
 
   function receiveAndSwap(

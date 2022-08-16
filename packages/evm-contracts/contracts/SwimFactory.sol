@@ -146,8 +146,7 @@ contract SwimFactory is ISwimFactory {
     bytes32 _salt = salt;
     address ct;
     bool failed;
-    assembly ("memory-safe")
-    {
+    assembly ("memory-safe") {
       ct := create2(0, add(_code, 32), mload(_code), _salt)
       failed := iszero(extcodesize(ct))
     }
@@ -214,18 +213,14 @@ contract SwimFactory is ISwimFactory {
     uint256 _implementationSlot = IMPLEMENTATION_SLOT;
     uint256 _blankLogicAddress = uint256(uint160(blankLogicAddress));
     bytes memory code = new bytes(PROXY_TOTAL_CODESIZE);
-    assembly ("memory-safe")
-    {
+    assembly ("memory-safe") {
       mstore(add(code, 32), add(add(shl(248, 0x73), shl(88, _blankLogicAddress)), shl(80, 0x7f)))
       mstore(add(code, 54), _implementationSlot)
       mstore(
         add(code, 86),
         add(
           add(
-            add(
-              add(shl(240, 0x5561), shl(224, _proxyStrippedDeployedCodesize)),
-              shl(208, 0x8060)
-            ),
+            add(add(shl(240, 0x5561), shl(224, _proxyStrippedDeployedCodesize)), shl(208, 0x8060)),
             shl(200, _proxyDeploymentCodesize)
           ),
           shl(144, 0x6000396000f300)

@@ -13,32 +13,37 @@ contract MockTokenBridge is ITokenBridge {
   }
 
   function transferTokensWithPayload(
-    address /*token*/,
-    uint256 /*amount*/,
-    uint16 /*recipientChain*/,
-    bytes32 /*recipient*/,
-    uint32 /*nonce*/,
+    address, /*token*/
+    uint256, /*amount*/
+    uint16, /*recipientChain*/
+    bytes32, /*recipient*/
+    uint32, /*nonce*/
     bytes memory /*payload*/
   ) public payable returns (uint64) {
     return 100;
   }
 
   function transferTokens(
-    address /*token*/,
-    uint256 /*amount*/,
-    uint16 /*recipientChain*/,
-    bytes32 /*recipient*/,
-    uint256 /*arbiterFee*/,
+    address, /*token*/
+    uint256, /*amount*/
+    uint16, /*recipientChain*/
+    bytes32, /*recipient*/
+    uint256, /*arbiterFee*/
     uint32 /*nonce*/
   ) external payable returns (uint64 sequence) {
     return 64;
   }
 
-  function completeTransferWithPayload(bytes memory /*encodedVm*/) external pure returns (bytes memory) {
+  function completeTransferWithPayload(
+    bytes memory /*encodedVm*/
+  ) external pure returns (bytes memory) {
     return hex"01020304";
   }
 
-  function wrappedAsset(uint16 /*tokenChainId*/, bytes32 /*tokenAddress*/) external view returns (address) {
+  function wrappedAsset(
+    uint16, /*tokenChainId*/
+    bytes32 /*tokenAddress*/
+  ) external view returns (address) {
     return swimUSD;
   }
 

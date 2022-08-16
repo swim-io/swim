@@ -44,8 +44,7 @@ library SwimPayload {
       checkLength(swimPayload, OWNER_MINLEN);
       uint256 offset = SOLIDITY_ARRAY_LENGTH_SIZE + OWNER_OFFSET;
       uint256 swimOwner;
-      assembly ("memory-safe")
-      {
+      assembly ("memory-safe") {
         swimOwner := mload(add(swimPayload, offset))
       }
       return address(uint160(swimOwner));
@@ -60,16 +59,33 @@ library SwimPayload {
 
       uint256 offset = SOLIDITY_ARRAY_LENGTH_SIZE + THRESHOLD_OFFSET;
       uint256 thresholdAmount;
-      assembly ("memory-safe")
-      {
+      assembly ("memory-safe") {
         thresholdAmount := mload(add(swimPayload, offset))
       }
       return (tokenNumber, thresholdAmount);
     }
   }
 
-  function encode(bytes32 toOwner) internal pure returns (bytes memory swimPayload) {
-    return abi.encodePacked(SWIM_PAYLOAD_VERSION, toOwner);
+  function encode(
+    bytes32 toOwner,
+    uint16 tokenNumber,
+    uint256 minOutputAmount,
+    bytes16 memo,
+    bool propellerEnabled,
+    uint256 propellerMinThreshold,
+    bool gasKickStart
+  ) internal pure returns (bytes memory swimPayload) {
+    return
+      abi.encodePacked(
+        SWIM_PAYLOAD_VERSION,
+        toOwner,
+        tokenNumber,
+        minOutputAmount,
+        memo,
+        propellerEnabled,
+        propellerMinThreshold,
+        gasKickStart
+      );
   }
 
   function checkLength(bytes memory swimPayload, uint256 minimumLength) private pure {

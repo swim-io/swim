@@ -120,20 +120,29 @@ contract Routing is
   /**
    * @notice Swap and send ERC20 token through portal
    * @param fromToken the token user wants to swap from
+   * @param toToken the token user wants to swap to
    * @param inputAmount the amount of tokens user wants to swap from
+   * @param firstMinimumOutputAmount expected minimum amount after swap
+   * @param secondMinimumOutputAmount expected minimum abount after wormhole transfer
    * @param wormholeRecipientChain Wormhole receiver chain
    * @param toOwner the address of token beneficiary
    * @param memo bytes16 current memo
+   * @param propellerEnabled bool that activates propeller feature
+   * @param gasKickStart bool true if extra gas activated on propeller
    * @return wormholeSequence Wormhole Sequence
    */
 
   function swapAndTransfer(
     address fromToken,
+    address toToken,
     uint256 inputAmount,
     uint256 firstMinimumOutputAmount,
+    uint256 secondMinimumOutputAmount,
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
-    bytes16 memo
+    bytes16 memo,
+    bool propellerEnabled,
+    bool gasKickStart
   ) external payable whenNotPaused returns (uint64 wormholeSequence) {
     (address fromPool, uint8 fromIndex) = getPoolAndIndex(fromToken);
 
@@ -164,7 +173,17 @@ contract Routing is
         wormholeNonce
       );
     } else {
-      bytes memory swimPayload = SwimPayload.encode(toOwner);
+      uint256 propellerMinThreashold = 100;
+      (, uint8 toIndex) = getPoolAndIndex(toToken);
+      bytes memory swimPayload = SwimPayload.encode(
+        toOwner,
+        toIndex,
+        secondMinimumOutputAmount,
+        memo,
+        propellerEnabled,
+        propellerMinThreashold,
+        gasKickStart
+      ); // TODO
       bytes32 thisAddress = bytes32(uint256(uint160(address(this))));
       wormholeSequence = tokenBridge.transferTokensWithPayload(
         swimUsdAddress,

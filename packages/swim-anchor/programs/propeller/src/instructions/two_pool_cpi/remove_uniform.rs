@@ -8,7 +8,7 @@ use {
 };
 
 #[derive(Accounts)]
-pub struct RemoveExactBurn<'info> {
+pub struct RemoveUniform<'info> {
     #[account(
   mut,
   seeds = [
@@ -56,10 +56,11 @@ pub struct RemoveExactBurn<'info> {
     pub user_token_account_1: Box<Account<'info, TokenAccount>>,
 
     #[account(
-    mut,
-    token::mint = lp_mint,
-    )]
+  mut,
+  token::mint = lp_mint,
+  )]
     pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
+
     // //TODO: probably need a user_transfer_auth account since either the user or propeller could be payer for txn.
     // //  payer could be the same as user_auth if user manually completing the txn but still need
     // //  to have a separate field to account for it
@@ -72,16 +73,15 @@ pub struct RemoveExactBurn<'info> {
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
 }
 
-pub fn handle_remove_exact_burn(
-    ctx: Context<RemoveExactBurn>,
+pub fn handle_remove_uniform(
+    ctx: Context<RemoveUniform>,
     exact_burn_amount: u64,
-    output_token_index: u8,
-    minimum_output_amount: u64,
+    minimum_output_amounts: [u64; TOKEN_COUNT],
     memo: &[u8],
-) -> Result<u64> {
+) -> Result<Vec<u64>> {
     let cpi_ctx = CpiContext::new(
         ctx.accounts.two_pool_program.to_account_info(),
-        two_pool::cpi::accounts::RemoveExactBurn {
+        two_pool::cpi::accounts::RemoveUniform {
             pool: ctx.accounts.pool.to_account_info(),
             pool_token_account_0: ctx.accounts.pool_token_account_0.to_account_info(),
             pool_token_account_1: ctx.accounts.pool_token_account_1.to_account_info(),
@@ -94,15 +94,11 @@ pub fn handle_remove_exact_burn(
             token_program: ctx.accounts.token_program.to_account_info(),
         },
     );
-    let result = two_pool::cpi::remove_exact_burn(
-        cpi_ctx,
-        exact_burn_amount,
-        output_token_index,
-        minimum_output_amount,
-    )?;
+
+    let result = two_pool::cpi::remove_uniform(cpi_ctx, exact_burn_amount, minimum_output_amounts)?;
     let return_val = result.get();
     let memo_ix = spl_memo::build_memo(memo, &[]);
     invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
-    anchor_lang::prelude::msg!("remove_exact_burn return_val: {:?}", return_val);
+    anchor_lang::prelude::msg!("remove_uniform return_val: {:?}", return_val);
     Ok(return_val)
 }

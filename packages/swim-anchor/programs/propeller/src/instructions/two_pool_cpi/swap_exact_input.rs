@@ -8,58 +8,53 @@ use {
 };
 
 #[derive(Accounts)]
-pub struct RemoveExactBurn<'info> {
+pub struct SwapExactInput<'info> {
     #[account(
-  mut,
-  seeds = [
-  b"two_pool".as_ref(),
-  pool_token_account_0.mint.as_ref(),
-  pool_token_account_1.mint.as_ref(),
-  lp_mint.key().as_ref(),
-  ],
-  bump = pool.bump,
-  seeds::program = two_pool_program.key()
-  )]
+    mut,
+    seeds = [
+    b"two_pool".as_ref(),
+    pool_token_account_0.mint.as_ref(),
+    pool_token_account_1.mint.as_ref(),
+    lp_mint.key().as_ref(),
+    ],
+    bump = pool.bump,
+    seeds::program = two_pool_program.key()
+    )]
     pub pool: Account<'info, TwoPool>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[0],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[0],
+    token::authority = pool,
+    )]
     pub pool_token_account_0: Box<Account<'info, TokenAccount>>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[1],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[1],
+    token::authority = pool,
+    )]
     pub pool_token_account_1: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub lp_mint: Box<Account<'info, Mint>>,
     #[account(
-  mut,
-  token::mint = lp_mint
-  )]
+    mut,
+    token::mint = lp_mint
+    )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
 
     pub user_transfer_authority: Signer<'info>,
 
     #[account(
-  mut,
-  token::mint = pool_token_account_0.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_0.mint,
+    )]
     pub user_token_account_0: Box<Account<'info, TokenAccount>>,
 
     #[account(
-  mut,
-  token::mint = pool_token_account_1.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_1.mint,
+    )]
     pub user_token_account_1: Box<Account<'info, TokenAccount>>,
 
-    #[account(
-    mut,
-    token::mint = lp_mint,
-    )]
-    pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
     // //TODO: probably need a user_transfer_auth account since either the user or propeller could be payer for txn.
     // //  payer could be the same as user_auth if user manually completing the txn but still need
     // //  to have a separate field to account for it
@@ -72,16 +67,16 @@ pub struct RemoveExactBurn<'info> {
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
 }
 
-pub fn handle_remove_exact_burn(
-    ctx: Context<RemoveExactBurn>,
-    exact_burn_amount: u64,
+pub fn handle_swap_exact_input(
+    ctx: Context<SwapExactInput>,
+    exact_input_amounts: [u64; TOKEN_COUNT],
     output_token_index: u8,
     minimum_output_amount: u64,
     memo: &[u8],
 ) -> Result<u64> {
     let cpi_ctx = CpiContext::new(
         ctx.accounts.two_pool_program.to_account_info(),
-        two_pool::cpi::accounts::RemoveExactBurn {
+        two_pool::cpi::accounts::SwapExactInput {
             pool: ctx.accounts.pool.to_account_info(),
             pool_token_account_0: ctx.accounts.pool_token_account_0.to_account_info(),
             pool_token_account_1: ctx.accounts.pool_token_account_1.to_account_info(),
@@ -90,19 +85,19 @@ pub fn handle_remove_exact_burn(
             user_transfer_authority: ctx.accounts.user_transfer_authority.to_account_info(),
             user_token_account_0: ctx.accounts.user_token_account_0.to_account_info(),
             user_token_account_1: ctx.accounts.user_token_account_1.to_account_info(),
-            user_lp_token_account: ctx.accounts.user_lp_token_account.to_account_info(),
             token_program: ctx.accounts.token_program.to_account_info(),
         },
     );
-    let result = two_pool::cpi::remove_exact_burn(
+
+    let result = two_pool::cpi::swap_exact_input(
         cpi_ctx,
-        exact_burn_amount,
+        exact_input_amounts,
         output_token_index,
         minimum_output_amount,
     )?;
     let return_val = result.get();
     let memo_ix = spl_memo::build_memo(memo, &[]);
     invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
-    anchor_lang::prelude::msg!("remove_exact_burn return_val: {:?}", return_val);
+    anchor_lang::prelude::msg!("swap_exact_input return_val: {:?}", return_val);
     Ok(return_val)
 }

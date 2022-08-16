@@ -2,6 +2,7 @@ import { Program, SplToken, web3 } from "@project-serum/anchor";
 import { TwoPool } from "../../src/artifacts/two_pool";
 import { getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
+import { Commitment, ConfirmOptions } from "@solana/web3.js";
 
 /**
  * It initializes the mints for the tokens that will be used in the pool, and then *CALCULATES* the pool token accounts and
@@ -98,6 +99,8 @@ export async function setupUserAssociatedTokenAccts(
   lpMint: web3.PublicKey,
   amount: number | bigint,
   payer: web3.Keypair,
+  commitment?: Commitment,
+  confirmOptions?: ConfirmOptions,
 ) {
   let userPoolTokenAtas:Array<web3.PublicKey> = [];
   for (let i = 0; i < mints.length; i++) {
@@ -108,7 +111,11 @@ export async function setupUserAssociatedTokenAccts(
       payer,
       mint,
       owner,
+      false,
+      commitment,
+      confirmOptions
     )).address
+    console.log(`mint[${i}]: ${mint}. created/retrieved userAta: ${userAta}`);
     await mintTo(
       connection,
       payer,
@@ -117,6 +124,7 @@ export async function setupUserAssociatedTokenAccts(
       mintAuthority,
       amount
     );
+    console.log(`minted ${amount} to ${userAta}`);
     userPoolTokenAtas.push(userAta);
   }
   const userLpTokenAta = (await getOrCreateAssociatedTokenAccount(
@@ -124,8 +132,11 @@ export async function setupUserAssociatedTokenAccts(
     payer,
     lpMint,
     owner,
+    false,
+    commitment,
+    confirmOptions
   )).address
-
+  console.log(`lpMint: ${lpMint}. created/retrieved userLpTokenAta: ${userLpTokenAta}`);
   return {
     userPoolTokenAtas,
     userLpTokenAta

@@ -1,11 +1,13 @@
 use {
-    crate::{env::*, Propeller, PropellerError},
+    crate::{env::*, Propeller, PropellerError, SwimPayload},
     anchor_lang::prelude::*,
     borsh::{BorshDeserialize, BorshSerialize},
     byteorder::{BigEndian, ReadBytesExt, WriteBytesExt},
     primitive_types::U256,
+    sha3::Digest,
     std::{
         io::{Cursor, ErrorKind, Read, Write},
+        ops::{Deref, DerefMut},
         str::FromStr,
     },
 };
@@ -69,13 +71,13 @@ pub struct BridgeConfig {
 
 /// [From womrhole repo]
 #[repr(transparent)]
-#[derive(Default)]
+#[derive(Debug)]
 pub struct PostedMessageData {
     pub message: MessageData,
 }
 
 // #[derive(Debug, Default, BorshDeserialize, BorshSerialize)]
-#[derive(Debug, Default, AnchorDeserialize, AnchorSerialize)]
+#[derive(Debug, AnchorDeserialize, AnchorSerialize, Clone)]
 pub struct MessageData {
     /// Header of the posted VAA
     pub vaa_version: u8,
@@ -106,6 +108,7 @@ pub struct MessageData {
 
     /// Message payload aka `PayloadTransferWithPayload`
     pub payload: Vec<u8>,
+    // pub payload: PayloadTransferWithPayload,
     // pub payload: MessageData,
 }
 
@@ -131,6 +134,7 @@ impl anchor_lang::AccountSerialize for MessageData {}
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct PayloadTransferWithPayload {
+    pub message_type: u8,
     /// Amount being transferred (big-endian uint256)
     pub amount: U256,
 
@@ -149,14 +153,15 @@ pub struct PayloadTransferWithPayload {
     /// Sender of the transaction
     pub from_address: Address,
     /// Arbitrary payload
-    pub payload: Vec<u8>,
+    // pub payload: Vec<u8>,
+    pub payload: SwimPayload,
 }
 
 impl AnchorDeserialize for PayloadTransferWithPayload {
     fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
         let mut v = Cursor::new(buf);
-
-        if v.read_u8()? != 3 {
+        let message_type = v.read_u8()?;
+        if message_type != 3 {
             // return Err(error!(PropellerError::InvalidPayloadTypeInVaa)).into()
             // return Err(ProgramError::BorshIoError("Wrong Payload Type".to_string()).into());
             return Err(std::io::Error::new(
@@ -185,15 +190,17 @@ impl AnchorDeserialize for PayloadTransferWithPayload {
 
         let mut payload = vec![];
         v.read_to_end(&mut payload)?;
+        let swim_payload = SwimPayload::deserialize(&mut payload.as_slice())?;
 
         Ok(PayloadTransferWithPayload {
+            message_type,
             amount,
             token_address,
             token_chain,
             to,
             to_chain,
             from_address,
-            payload,
+            payload: swim_payload,
         })
     }
 }
@@ -216,7 +223,8 @@ impl AnchorSerialize for PayloadTransferWithPayload {
 
         writer.write_all(&self.from_address)?;
 
-        writer.write_all(self.payload.as_slice())?;
+        AnchorSerialize::serialize(&self.payload, writer)?;
+        // writer.write_all(self.payload.as_slice())?;
 
         Ok(())
     }
@@ -238,32 +246,150 @@ impl AnchorDeserialize for PostedMessageData {
     }
 }
 
-pub fn get_message_data<'info>(vaa_account: &AccountInfo<'info>) -> Result<MessageData> {
+pub fn get_message_data(vaa_account: &AccountInfo) -> Result<MessageData> {
     Ok(PostedMessageData::try_from_slice(&vaa_account.data.borrow())?.message)
 }
 
+pub fn get_transfer_with_payload_from_message_account(
+    vaa_account: &AccountInfo,
+) -> Result<PayloadTransferWithPayload> {
+    let message_data = get_message_data(&vaa_account)?;
+    let payload_transfer_with_payload =
+        deserialize_message_payload(&mut message_data.payload.as_slice())?;
+    Ok(payload_transfer_with_payload)
+}
+
+pub fn deserialize_message_payload(buf: &mut &[u8]) -> Result<PayloadTransferWithPayload> {
+    Ok(PayloadTransferWithPayload::deserialize(buf)?)
+}
 /** Adding PostedVAA version here for parity */
 
 #[repr(transparent)]
-#[derive(Default)]
+#[derive(Clone)]
 pub struct PostedVAAData {
     pub message: MessageData,
 }
 
+impl AccountSerialize for PostedVAAData {
+    fn try_serialize<W: Write>(&self, writer: &mut W) -> Result<()> {
+        if writer.write_all(b"vaa").is_err() {
+            return Err(anchor_lang::error::ErrorCode::AccountDidNotSerialize.into());
+        }
+        if AnchorSerialize::serialize(self, writer).is_err() {
+            return Err(anchor_lang::error::ErrorCode::AccountDidNotSerialize.into());
+        }
+        Ok(())
+    }
+}
+impl AccountDeserialize for PostedVAAData {
+    fn try_deserialize(buf: &mut &[u8]) -> Result<Self> {
+        anchor_lang::prelude::msg!("starting try_deserialize");
+        let expected: [&[u8]; 3] = [b"vaa", b"msg", b"msu"];
+        let magic: &[u8] = &buf[0..3];
+        if !expected.contains(&magic) {
+            // return Err(Error::new(InvalidData, "Magic mismatch."));
+            return Err(anchor_lang::error::ErrorCode::AccountDidNotDeserialize.into());
+        };
+        anchor_lang::prelude::msg!("passed expected magic check");
+        // let mut buf = [0; 3];
+        // reader.read_exact(&mut buf)?;
+        // if buf != b"vaa" {
+        //     return Err(anchor_lang::error::ErrorCode::AccountDidNotDeserialize.into());
+        // }
+        *buf = &buf[3..];
+        Ok(AnchorDeserialize::deserialize(buf)?)
+    }
+    fn try_deserialize_unchecked(buf: &mut &[u8]) -> Result<Self> {
+        anchor_lang::prelude::msg!("starting try_deserialize_unchecked");
+        let mut data: &[u8] = &buf[3..];
+        AnchorDeserialize::deserialize(&mut data)
+            .map_err(|_| anchor_lang::error::ErrorCode::AccountDidNotDeserialize.into())
+    }
+}
+
 impl AnchorSerialize for PostedVAAData {
     fn serialize<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
-        writer.write(b"vaa")?;
+        // writer.write(b"vaa")?;
         BorshSerialize::serialize(&self.message, writer)
     }
 }
 
 impl AnchorDeserialize for PostedVAAData {
     fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
-        *buf = &buf[3..];
+        // *buf = &buf[3..];
         Ok(PostedVAAData {
             message: <MessageData as BorshDeserialize>::deserialize(buf)?,
         })
     }
 }
 
+impl Deref for PostedVAAData {
+    type Target = MessageData;
+
+    fn deref(&self) -> &Self::Target {
+        &self.message
+    }
+}
+
+impl DerefMut for PostedVAAData {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.message
+    }
+}
+
+impl anchor_lang::Owner for PostedVAAData {
+    fn owner() -> Pubkey {
+        crate::env::CORE_BRIDGE
+    }
+}
+
 pub struct MessageAccount {}
+
+pub const VERIFY_SIGNATURES_INSTRUCTION: u8 = 7;
+
+#[derive(AnchorSerialize, AnchorDeserialize, Debug)]
+pub struct ClaimData {
+    pub claimed: bool,
+}
+
+/*
+This is created by the wasm post_vaa_ix() function.
+It takes a full vaa (AnchorSwimPayloadVAA) and strips out the signatures
+ */
+#[derive(Default, AnchorSerialize, AnchorDeserialize, Clone, Debug)]
+pub struct PostVAAData {
+    // Header part
+    pub version: u8,
+    pub guardian_set_index: u32,
+
+    // Body part
+    pub timestamp: u32,
+    pub nonce: u32,
+    pub emitter_chain: u16,
+    pub emitter_address: [u8; 32],
+    pub sequence: u64,
+    pub consistency_level: u8,
+    pub payload: Vec<u8>,
+}
+
+// Convert a full VAA structure into the serialization of its unique components, this structure is
+// what is hashed and verified by Guardians.
+pub fn serialize_vaa(vaa: &PostVAAData) -> Vec<u8> {
+    let mut v = Cursor::new(Vec::new());
+    v.write_u32::<BigEndian>(vaa.timestamp).unwrap();
+    v.write_u32::<BigEndian>(vaa.nonce).unwrap();
+    v.write_u16::<BigEndian>(vaa.emitter_chain).unwrap();
+    v.write_all(&vaa.emitter_address).unwrap();
+    v.write_u64::<BigEndian>(vaa.sequence).unwrap();
+    v.write_u8(vaa.consistency_level).unwrap();
+    v.write_all(&vaa.payload).unwrap();
+    v.into_inner()
+}
+
+// Hash a VAA, this combines serialization and hashing.
+pub fn hash_vaa(vaa: &PostVAAData) -> [u8; 32] {
+    let body = serialize_vaa(vaa);
+    let mut h = sha3::Keccak256::default();
+    h.write_all(body.as_slice()).unwrap();
+    h.finalize().into()
+}

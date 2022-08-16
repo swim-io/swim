@@ -20,7 +20,10 @@ use constants::{SEED_PREFIX_CUSTODIAN, TOKEN_COUNT};
 // use two_pool::TOKEN_COUNT as TOKEN_COUNT;
 use state::{Propeller, PropellerSender};
 use {
-    crate::two_pool_cpi::add::*,
+    crate::two_pool_cpi::{
+        add::*, remove_exact_burn::*, remove_exact_output::*, remove_uniform::*,
+        swap_exact_input::*, swap_exact_output::*,
+    },
     anchor_lang::{prelude::*, solana_program},
     anchor_spl::token::{Mint, Token, TokenAccount},
     error::PropellerError,
@@ -47,8 +50,10 @@ pub mod propeller {
     use super::*;
     // use two_pool::TOKEN_COUNT;
 
-    pub fn initialize(ctx: Context<Initialize>, initialize_params: InitializeParams) -> Result<()> {
-        handle_initialize(ctx, initialize_params)?;
+    #[inline(never)]
+    #[access_control(Initialize::accounts(&ctx, &params))]
+    pub fn initialize(ctx: Context<Initialize>, params: InitializeParams) -> Result<()> {
+        handle_initialize(ctx, params)?;
         Ok(())
     }
 
@@ -59,6 +64,116 @@ pub mod propeller {
         memo: Vec<u8>,
     ) -> Result<u64> {
         handle_add(ctx, input_amounts, minimum_mint_amount, memo.as_slice())
+    }
+
+    pub fn swap_exact_input(
+        ctx: Context<SwapExactInput>,
+        exact_input_amounts: [u64; TOKEN_COUNT],
+        output_token_index: u8,
+        minimum_output_amount: u64,
+        memo: Vec<u8>,
+    ) -> Result<u64> {
+        handle_swap_exact_input(
+            ctx,
+            exact_input_amounts,
+            output_token_index,
+            minimum_output_amount,
+            memo.as_slice(),
+        )
+    }
+
+    pub fn swap_exact_output(
+        ctx: Context<SwapExactOutput>,
+        maximum_input_amount: u64,
+        input_token_index: u8,
+        exact_output_amounts: [u64; TOKEN_COUNT], // params: SwapExactOutputParams,
+        memo: Vec<u8>,
+    ) -> Result<Vec<u64>> {
+        handle_swap_exact_output(
+            ctx,
+            maximum_input_amount,
+            input_token_index,
+            exact_output_amounts,
+            memo.as_slice(),
+        )
+    }
+
+    pub fn remove_uniform(
+        ctx: Context<RemoveUniform>,
+        exact_burn_amount: u64,
+        minimum_output_amounts: [u64; TOKEN_COUNT],
+        memo: Vec<u8>,
+    ) -> Result<Vec<u64>> {
+        handle_remove_uniform(
+            ctx,
+            exact_burn_amount,
+            minimum_output_amounts,
+            memo.as_slice(),
+        )
+    }
+
+    pub fn remove_exact_burn(
+        ctx: Context<RemoveExactBurn>,
+        exact_burn_amount: u64,
+        output_token_index: u8,
+        minimum_output_amount: u64,
+        memo: Vec<u8>,
+    ) -> Result<u64> {
+        handle_remove_exact_burn(
+            ctx,
+            exact_burn_amount,
+            output_token_index,
+            minimum_output_amount,
+            memo.as_slice(),
+        )
+    }
+
+    pub fn remove_exact_output(
+        ctx: Context<RemoveExactOutput>,
+        maximum_burn_amount: u64,
+        exact_output_amounts: [u64; TOKEN_COUNT],
+        memo: Vec<u8>,
+    ) -> Result<Vec<u64>> {
+        handle_remove_exact_output(
+            ctx,
+            maximum_burn_amount,
+            exact_output_amounts,
+            memo.as_slice(),
+        )
+    }
+
+    #[access_control(TransferNativeWithPayload::accounts(&ctx))]
+    pub fn transfer_native_with_payload(
+        ctx: Context<TransferNativeWithPayload>,
+        nonce: u32,
+        target_chain: u16,
+        amount: u64,
+        target_token_id: u16,
+        target_token: Vec<u8>,
+        owner: Vec<u8>,
+        gas_kickstart: bool,
+        propeller_enabled: bool,
+        memo: Vec<u8>,
+    ) -> Result<()> {
+        handle_transfer_native_with_payload(
+            ctx,
+            nonce,
+            target_chain,
+            amount,
+            target_token_id,
+            target_token,
+            owner,
+            gas_kickstart,
+            propeller_enabled,
+            memo,
+        )
+    }
+
+    #[inline(never)]
+    #[access_control(CompleteNativeWithPayload::accounts(&ctx))]
+    pub fn complete_native_with_payload(ctx: Context<CompleteNativeWithPayload>) -> Result<()> {
+        handle_complete_native_with_payload(ctx)
+        // Ok(())
     }
 
     //pool_v1 ixs
@@ -132,41 +247,29 @@ pub mod propeller {
     //     )
     // }
 
-    #[access_control(TransferNativeWithPayload::accounts(&ctx))]
-    pub fn transfer_native_with_payload(
-        ctx: Context<TransferNativeWithPayload>,
-        nonce: u32,
-        target_chain: u16,
-        amount: u64,
-        target_token_id: u16,
-        target_token: Vec<u8>,
-        owner: Vec<u8>,
-        gas_kickstart: bool,
-    ) -> Result<()> {
-        handle_transfer_native_with_payload(
-            ctx,
-            nonce,
-            target_chain,
-            amount,
-            target_token_id,
-            target_token,
-            owner,
-            gas_kickstart,
-        )
-    }
+    // #[inline(never)]
+    // #[access_control(CompleteToUser::accounts(&ctx))]
+    // pub fn complete_to_user(ctx: Context<ProcessSwimPayload>) -> Result<()> {
+    //     handle_process_swim_payload(ctx)
+    //     // Ok(())
+    // }
 
-    #[inline(never)]
-    #[access_control(CompleteNativeWithPayload::accounts(&ctx))]
-    pub fn complete_native_with_payload(ctx: Context<CompleteNativeWithPayload>) -> Result<()> {
-        handle_complete_native_with_payload(ctx)
-        // Ok(())
-    }
-    #[inline(never)]
-    #[access_control(CompleteToUser::accounts(&ctx))]
-    pub fn complete_to_user(ctx: Context<CompleteToUser>) -> Result<()> {
-        handle_complete_to_user(ctx)
-        // Ok(())
-    }
+    // #[inline(never)]
+    // #[access_control(Secp256k1AndVerify::accounts(&ctx))]
+    // pub fn secp256k1_and_verify(
+    //     ctx: Context<Secp256k1AndVerify>,
+    //     secp_payload: Vec<u8>,
+    //     guardian_set_index: u32,
+    //     verify_signatures_data: VerifySignaturesData,
+    // ) -> Result<()> {
+    //     handle_secp256k1_and_verify(
+    //         ctx,
+    //         secp_payload,
+    //         guardian_set_index,
+    //         verify_signatures_data,
+    //     )
+    //     // Ok(())
+    // }
 
     /*
     // pub fn test_wormhole(

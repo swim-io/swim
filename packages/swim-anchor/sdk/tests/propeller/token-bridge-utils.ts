@@ -1,13 +1,28 @@
-import {ChainId, CHAIN_ID_ETH, CHAIN_ID_SOLANA, tryNativeToHexString, getSignedVAAHash} from "@certusone/wormhole-sdk";
+import {
+  ChainId,
+  CHAIN_ID_ETH,
+  CHAIN_ID_SOLANA,
+  tryNativeToHexString,
+  getSignedVAAHash,
+  hexToUint8Array, tryHexToNativeAssetString, toChainName,
+} from "@certusone/wormhole-sdk";
 import { web3, BN } from "@project-serum/anchor";
 import * as BufferLayout from "@solana/buffer-layout";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import * as byteify from "byteify";
 // import { toBigNumberHex } from "./utils";
-import { ParsedVaa, parseVaa, signAndEncodeVaa, WORMHOLE_TOKEN_BRIDGE } from "./wormhole-utils";
+import {
+  formatParsedVaa, formatPostedMessage,
+  ParsedPostedMessage,
+  ParsedVaa, parsePostedMessage,
+  parseVaa,
+  signAndEncodeVaa,
+  WORMHOLE_TOKEN_BRIDGE,
+} from "./wormhole-utils";
 import { BigNumber, BigNumberish } from "ethers";
 // import { PostVaaMethod } from "./types";
 import keccak256 from "keccak256";
+import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
 
 export function toBigNumberHex(value: BigNumberish, numBytes: number): string {
 	return BigNumber.from(value)
@@ -218,43 +233,50 @@ export function hashVaa(signedVaa: Buffer): Buffer {
 	return keccak256(body);
 }
 
-export function parseVaa(signedVaa: Buffer): ParsedVaa {
-	const sigStart = 6;
-	const numSigners = signedVaa[5];
-	const sigLength = 66;
-
-	const guardianSignatures: GuardianSignature[] = [];
-	for (let i = 0; i < numSigners; ++i) {
-		const start = i * sigLength + 1;
-		guardianSignatures.push({
-			r: signedVaa.subarray(start, start + 32),
-			s: signedVaa.subarray(start + 32, start + 64),
-			v: signedVaa[start + 64],
-		});
-	}
-
-	const body = signedVaa.subarray(sigStart + sigLength * numSigners);
-
-	return {
-		version: signedVaa[0]!,
-		guardianSignatures,
-		timestamp: body.readUint32BE(0),
-		nonce: body.readUint32BE(4),
-		emitterChain: body.readUint16BE(8) as ChainId,
-		emitterAddress: body.subarray(10, 42),
-		sequence: body.readBigUint64BE(42),
-		consistencyLevel: body[50]!,
-		data: body.subarray(51),
-		hash: keccak256(body),
-	};
-}
+// export function parseVaa(signedVaa: Buffer): ParsedVaa {
+// 	const sigStart = 6;
+// 	const numSigners = signedVaa[5];
+// 	const sigLength = 66;
+//
+// 	const guardianSignatures: GuardianSignature[] = [];
+// 	for (let i = 0; i < numSigners; ++i) {
+// 		const start = i * sigLength + 1;
+// 		guardianSignatures.push({
+// 			r: signedVaa.subarray(start, start + 32),
+// 			s: signedVaa.subarray(start + 32, start + 64),
+// 			v: signedVaa[start + 64],
+// 		});
+// 	}
+//
+// 	const body = signedVaa.subarray(sigStart + sigLength * numSigners);
+//
+// 	return {
+// 		version: signedVaa[0]!,
+// 		guardianSignatures,
+// 		timestamp: body.readUint32BE(0),
+// 		nonce: body.readUint32BE(4),
+// 		emitterChain: body.readUint16BE(8) as ChainId,
+// 		emitterAddress: body.subarray(10, 42),
+// 		sequence: body.readBigUint64BE(42),
+// 		consistencyLevel: body[50]!,
+// 		data: body.subarray(51),
+// 		hash: keccak256(body),
+// 	};
+// }
 
 export const deriveMessagePda = async (
 	signedVaa: Buffer,
 	programId: web3.PublicKey
 ) => {
 	const hash = hashVaa(signedVaa);
-	// hash: 274c0a03bb0adc52db0ed7da9b420b124a1f0f26e453a65abb55a7c7fd97da27
+  // const hexHash = await getSignedVAAHash(signedVaa);
+  // const hash2 = Buffer.from(hexToUint8Array(hexHash));
+  // console.log(`
+  //   hash: ${hash.toString("hex")}
+  //   hash2: ${hash2.toString("hex")}
+  // `);
+
+  // hash: 274c0a03bb0adc52db0ed7da9b420b124a1f0f26e453a65abb55a7c7fd97da27
 	// hash2: 0x16d2678d4355b164a74337080f7141f3b8f54ed951156118a3f4af4b9d09450c
 	// hash2BufferHex: 307831366432363738643433353562313634613734333337303830663731343166336238663534656439353131353631313861336634616634623964303934353063
 	// const hash2 = await getSignedVAAHash(Uint8Array.from(signedVaa));
@@ -268,6 +290,7 @@ export const deriveMessagePda = async (
 	);
 }
 
+
 export const deriveEndpointPda = async(
 	foreignChain: ChainId,
 	foreignTokenBridge: Buffer,
@@ -280,6 +303,7 @@ export const deriveEndpointPda = async(
 		], programId
 	);
 }
+
 
 export interface ParsedAttestMetaVaa {
 	core: ParsedVaa;
@@ -303,33 +327,112 @@ export function parseAttestMetaVaa(signedVaa: Buffer): ParsedAttestMetaVaa {
 	};
 }
 
-export interface ParsedTokenTransfer {
+// should have used generics on this instead.smh.
+export interface ParsedTokenTransferSignedVaa {
 	core: ParsedVaa;
-	messageType: number;
-	amount: string;
-	tokenAddress: Buffer;
-	tokenChain: ChainId;
-	receiver: Buffer;
-	toChain: ChainId;
-	fee: string;
-	payload: Buffer;
+  tokenTransfer: ParsedTokenTransfer;
+}
+export interface ParsedTokenTransferPostedMessage {
+  core: ParsedPostedMessage;
+  tokenTransfer: ParsedTokenTransfer;
 }
 
-export function parseTokenTransfer(signedVaa: Buffer): ParsedTokenTransfer {
+export interface ParsedTokenTransfer {
+  messageType: number;
+  amount: string;
+  tokenAddress: Buffer;
+  tokenChain: ChainId;
+  to: Buffer;
+  toChain: ChainId;
+  fromAddress: Buffer;
+  // fee: string;
+  payload: Buffer;
+}
+
+export function parseTokenTransferSignedVaa(signedVaa: Buffer): ParsedTokenTransferSignedVaa {
 	const parsed = parseVaa(signedVaa);
 	const data = parsed.data;
-
+  const tokenTransfer = parseTokenTransfer(data);
 	return {
 		core: parsed,
-		messageType: data[0]!,
-		amount: new BN(data.subarray(1, 33)).toString(),
-		tokenAddress: data.subarray(33, 65),
-		tokenChain: data.readUint16BE(65) as ChainId,
-		receiver: data.subarray(67, 99),
-		toChain: data.readUint16BE(99) as ChainId,
-		fee: new BN(data.subarray(101, 133)).toString(),
-		payload: data.subarray(133),
+    tokenTransfer,
+		// messageType: data[0]!,
+		// amount: new BN(data.subarray(1, 33)).toString(),
+		// tokenAddress: data.subarray(33, 65),
+		// tokenChain: data.readUint16BE(65) as ChainId,
+		// to: data.subarray(67, 99),
+		// toChain: data.readUint16BE(99) as ChainId,
+		// fromAddress: data.subarray(101, 133),
+		// payload: data.subarray(133),
 	};
+}
+
+function parseTokenTransfer(data: Buffer): ParsedTokenTransfer {
+  return {
+    messageType: data[0]!,
+    amount: new BN(data.subarray(1, 33)).toString(),
+    tokenAddress: data.subarray(33, 65),
+    tokenChain: data.readUint16BE(65) as ChainId,
+    to: data.subarray(67, 99),
+    toChain: data.readUint16BE(99) as ChainId,
+    fromAddress: data.subarray(101, 133),
+    payload: data.subarray(133),
+  }
+}
+
+export async function parseTokenTransferPostedMessage(postedMessage: Buffer): Promise<ParsedTokenTransferPostedMessage> {
+  const parsed = await parsePostedMessage(postedMessage);
+  const data = parsed.data;
+  const tokenTransfer = parseTokenTransfer(data);
+  return {
+    core: parsed,
+    tokenTransfer
+  }
+}
+
+export function formatParsedTokenTransferPostedMessage(parsedMessage: ParsedTokenTransferPostedMessage) {
+  const formattedParsedVaa = formatPostedMessage(parsedMessage.core);
+  const formattedTokenTransfer = formatParsedTokenTransfer(parsedMessage.tokenTransfer);
+
+  return {
+    // ...parsedVaa,
+  core: formattedParsedVaa,
+  tokenTransfer: formattedTokenTransfer,
+  }
+}
+export function formatParsedTokenTransferSignedVaa(parsedVaa: ParsedTokenTransferSignedVaa) {
+  const formattedParsedVaa = formatParsedVaa(parsedVaa.core);
+  const formattedTokenTransfer = formatParsedTokenTransfer(parsedVaa.tokenTransfer);
+
+  return {
+    // ...parsedVaa,
+    core: formattedParsedVaa,
+    tokenTransfer: formattedTokenTransfer,
+    // tokenTransfer: {
+    //   ...parsedTokenTransfer,
+    //   amount: parsedTokenTransfer.amount.toString(),
+    //   // tokenAddress: tryHexToNativeAssetString(parsedTokenTransfer.tokenAddress, parsedTokenTransfer.tokenChain),
+    //   tokenAddress: tryUint8ArrayToNative(parsedTokenTransfer.tokenAddress, parsedTokenTransfer.tokenChain),
+    //   tokenChain: toChainName(parsedTokenTransfer.tokenChain),
+    //   // to: tryHexToNativeAssetString(parsedTokenTransfer.to, parsedTokenTransfer.toChain),
+    //   to: tryUint8ArrayToNative(parsedTokenTransfer.to, parsedTokenTransfer.toChain),
+    //   toChain: toChainName(parsedTokenTransfer.toChain),
+    //   fromAddress: tryUint8ArrayToNative(parsedTokenTransfer.fromAddress, formattedParsedVaa.emitterChain),
+    // }
+  };
+}
+
+function formatParsedTokenTransfer(parsedTokenTransfer: ParsedTokenTransfer) {
+  return {
+    ...parsedTokenTransfer,
+    amount: parsedTokenTransfer.amount.toString(),
+    tokenAddress: tryUint8ArrayToNative(parsedTokenTransfer.tokenAddress, parsedTokenTransfer.tokenChain),
+    tokenChain: toChainName(parsedTokenTransfer.tokenChain),
+    to: tryUint8ArrayToNative(parsedTokenTransfer.to, parsedTokenTransfer.toChain),
+    toChain: toChainName(parsedTokenTransfer.toChain),
+    fromAddress: tryUint8ArrayToNative(parsedTokenTransfer.fromAddress, parsedTokenTransfer.tokenChain),
+    payload: parsedTokenTransfer.payload.toString('hex'),
+  }
 }
 
 // below is experimental and is not used in the program test

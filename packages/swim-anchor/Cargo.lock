@@ -2537,6 +2537,7 @@ dependencies = [
  "num-derive",
  "num-traits",
  "primitive-types",
+ "sha3 0.9.1",
  "spl-memo",
  "spl-token",
  "static-pubkey",

@@ -76,7 +76,6 @@ pub fn handle_add(
     minimum_mint_amount: u64,
     memo: &[u8],
 ) -> Result<u64> {
-    let test = spl_memo::id();
     let cpi_ctx = CpiContext::new(
         ctx.accounts.two_pool_program.to_account_info(),
         two_pool::cpi::accounts::Add {
@@ -91,13 +90,12 @@ pub fn handle_add(
             user_lp_token_account: ctx.accounts.user_lp_token_account.to_account_info(),
             token_program: ctx.accounts.token_program.to_account_info(),
         },
-        // &[&gen_pool_signer_seeds!(ctx.accounts.two_pool)[..]],
     );
 
     let result = two_pool::cpi::add(cpi_ctx, input_amounts, minimum_mint_amount)?;
     let return_val = result.get();
     let memo_ix = spl_memo::build_memo(memo, &[]);
     invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
-    anchor_lang::prelude::msg!("return_val: {:?}", return_val);
+    anchor_lang::prelude::msg!("add return_val: {:?}", return_val);
     Ok(return_val)
 }

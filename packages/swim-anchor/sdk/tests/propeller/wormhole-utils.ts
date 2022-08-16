@@ -3,8 +3,9 @@ import { PublicKey } from "@solana/web3.js";
 export const WORMHOLE_CORE_BRIDGE = new PublicKey("Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o");
 export const WORMHOLE_TOKEN_BRIDGE = new PublicKey("B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE");
 
-import { ChainId } from "@certusone/wormhole-sdk";
+import { CHAIN_ID_SOLANA, ChainId, importCoreWasm, tryHexToNativeAssetString } from "@certusone/wormhole-sdk";
 import keccak256 from "keccak256";
+import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
 
 const elliptic = require("elliptic");
 /** from wormhole-icco **/
@@ -84,6 +85,55 @@ export interface ParsedVaa {
 	data: Buffer;
 	hash: Buffer;
 }
+//{
+//  "vaa_version":0,
+//  "consistency_level":32,
+//  "vaa_time":0,
+//  "vaa_signature_account":"11111111111111111111111111111111",
+//  "submission_time":1660407020,
+//  "nonce":48460,
+//  "sequence":0,
+//  "emitter_chain":1,
+//  "emitter_address":"ENG1wQ7CQKH8ibAJ1hSLmJgL9Ucg6DRDbj752ZAfidLA"
+//  }
+export interface ParsedPostedMessage {
+  vaaVersion: number,
+  vaaSignatureAccount: Buffer;
+  timestamp: number;
+  nonce: number;
+  emitterChain: ChainId;
+  emitterAddress: Buffer;
+  sequence: bigint;
+  consistencyLevel: number;
+  data: Buffer;
+  // hash: Buffer;
+}
+
+export async function parsePostedMessage(postedMessageBuffer: Buffer): Promise<ParsedPostedMessage> {
+  const {parse_posted_message} = await importCoreWasm();
+  const postedMessage = parse_posted_message(postedMessageBuffer);
+  return {
+    vaaVersion: postedMessage.vaa_version,
+    vaaSignatureAccount: Buffer.from(postedMessage.vaa_signature_account),
+    timestamp: postedMessage.vaa_time,
+    nonce: postedMessage.nonce,
+    emitterChain: postedMessage.emitter_chain,
+    emitterAddress: Buffer.from(postedMessage.emitter_address),
+    sequence: postedMessage.sequence,
+    consistencyLevel: postedMessage.consistency_level,
+    data: Buffer.from(postedMessage.payload),
+  }
+}
+
+export function formatPostedMessage(postedMessage: ParsedPostedMessage) {
+  return {
+    ...postedMessage,
+    vaaSignatureAccount: tryUint8ArrayToNative(postedMessage.vaaSignatureAccount, CHAIN_ID_SOLANA),
+    emitterAddress: tryUint8ArrayToNative(postedMessage.emitterAddress, postedMessage.emitterChain),
+    sequence: postedMessage.sequence.toString(),
+    data: postedMessage.data.toString("hex")
+  }
+}
 
 export function parseVaa(signedVaa: Buffer): ParsedVaa {
 	const sigStart = 6;
@@ -114,4 +164,23 @@ export function parseVaa(signedVaa: Buffer): ParsedVaa {
 		data: body.subarray(51),
 		hash: keccak256(body),
 	};
+}
+
+export function formatParsedVaa(parsedVaa: ParsedVaa) {
+  const signatures = parsedVaa.guardianSignatures.map(({ r, s, v }) => {
+    return {
+      r: r.toString("hex"),
+      s: s.toString("hex"),
+      v,
+    }
+  });
+  return {
+    ...parsedVaa,
+    data: parsedVaa.data.toString("hex"),
+    hash: parsedVaa.hash.toString("hex"),
+    sequence: parsedVaa.sequence.toString(),
+    guardianSignatures: signatures,
+    // emitter_address: tryHexToNativeAssetString(parsedVaa.emitterAddress.toString("hex"), parsedVaa.emitterChain),
+    emitterAddress: tryUint8ArrayToNative(parsedVaa.emitterAddress, parsedVaa.emitterChain),
+  }
 }

@@ -41,4 +41,6 @@ check your npm version. npm lts/gallium (v16.15.1 as of this writing) works but 
         we should be safe from anyone being able to initialize another pda ("share" it)
     3. to be safe, could alternatively create pool token accounts outside of the initialize ix,
         then use those as seeds for the pool state pda. that would be closer to secure solution from exploit docs
+6. maybe add a version field to `TwoPool` state (and seeds to derive pda)
+    1. look into if versioning still worth it since accounts can now be re-allocated.
 

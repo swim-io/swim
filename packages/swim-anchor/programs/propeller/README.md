@@ -1,4 +1,27 @@
+# Deployment
+** VERY IMPORTANT **
+1. since we're using rust `#[cfg]` features to conditionally determine which wormhole/tokenbridge
+addresses should be used (since they're different between mainnet, devnet and localnet), you must build for
+environment and deployment separately
+```
+# building for localnet(default) testing
+anchor build
+anchor deploy
+
+# building for devnet
+anchor build -- --features devnet
+anchor deploy
+
+# building for mainnet
+anchor build -- --features mainnet
+anchor deploy
+```
+  1. actually this might not even be needed. can initialize the propeller state with what the addresses should be.
+
 # To Do:
+1. mappings
+    1. tokenIdMapping: mapping(tokenId: uint16 => (tokenContract: address, poolOnThisChain: address, tokenIndexInPool: uint8))
+    2. tokenAddressMapping: mapping(tokenContract: address => (tokenId: uint16, poolOnThisChain: address, tokenIndexInPool: uint8)
 
 ## Dev
 1. switch to using `#[access_control(...)]` for validation instead?

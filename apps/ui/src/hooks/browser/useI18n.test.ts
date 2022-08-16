@@ -70,7 +70,7 @@ describe("useI18n", () => {
       i18next.resolvedLanguage = originalLanguage;
     });
 
-    it("responses comma and conjunction in english", () => {
+    it("handles comma and conjunction in english", () => {
       i18next.resolvedLanguage = "en";
 
       const { result: conjunctionResult } = renderHook(() =>
@@ -92,7 +92,7 @@ describe("useI18n", () => {
       expect(unitResult.current.conjunction).toBe(", ");
     });
 
-    it("responses comma and conjunction in chinese", () => {
+    it("handles comma and conjunction in chinese", () => {
       i18next.resolvedLanguage = "zh-TW";
 
       const { result: conjunctionResult } = renderHook(() =>
@@ -114,7 +114,7 @@ describe("useI18n", () => {
       expect(unitResult.current.conjunction).toBe(" ");
     });
 
-    it("responses comma and conjunction in english if language is not supported", () => {
+    it("handles comma and conjunction in english if language is not supported", () => {
       i18next.resolvedLanguage = "fake_not_supported";
 
       const { result: conjunctionResult } = renderHook(() =>

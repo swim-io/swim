@@ -1,4 +1,4 @@
 # ignore auto-generated files
 build/
-src/contracts
+storybook-static/
 src/keys/**/*.json

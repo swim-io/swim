@@ -1,2 +1,4 @@
 # ignore auto-generated files
+build/
 src/contracts
+src/keys/**/*.json

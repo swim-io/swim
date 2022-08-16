@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import type { EvmEcosystemId, TokenSpec } from "../../config";
 import { ECOSYSTEMS } from "../../config";
 import { useNotification } from "../../core/store";
@@ -13,6 +15,7 @@ interface RegisterErc20TokenResult {
 export const useRegisterErc20Token = (
   ecosystemId: EvmEcosystemId,
 ): RegisterErc20TokenResult => {
+  const { t } = useTranslation();
   const { notify } = useNotification();
   const { wallet } = useEvmWallet();
   const evmChainId = useEvmChainId(ecosystemId);
@@ -20,8 +23,10 @@ export const useRegisterErc20Token = (
   const showPrompt = async (tokenSpec: TokenSpec): Promise<void> => {
     if (!wallet) {
       notify(
-        "No wallet",
-        `Connect ${ECOSYSTEMS[ecosystemId].displayName} wallet first`,
+        t("notify.register_token_without_wallet_title"),
+        t("notify.register_token_without_wallet_description", {
+          ecosystemName: ECOSYSTEMS[ecosystemId].displayName,
+        }),
         "warning",
       );
       return;
@@ -30,7 +35,11 @@ export const useRegisterErc20Token = (
     try {
       await wallet.registerToken(tokenSpec, ecosystemId, evmChainId);
     } catch (error) {
-      notify("Error", "Failed to add token", "error");
+      notify(
+        t("notify.register_token_failed_title"),
+        t("notify.register_token_failed_description"),
+        "error",
+      );
       captureException(error);
     }
   };

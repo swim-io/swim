@@ -9,6 +9,7 @@ import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { findOrThrow } from "@swim-io/utils";
 import type { ReactElement } from "react";
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../config";
@@ -36,6 +37,7 @@ export const TokenSearchModal = ({
   handleSelectToken,
   tokenOptionIds,
 }: Props): ReactElement => {
+  const { t } = useTranslation();
   const { tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptionIds.map((tokenId) => {
     const tokenSpec = findOrThrow(tokens, ({ id }) => id === tokenId);
@@ -68,7 +70,7 @@ export const TokenSearchModal = ({
     >
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          <h1>Select a token</h1>
+          <h1>{t("token_search_modal.title")}</h1>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
 
@@ -79,7 +81,7 @@ export const TokenSearchModal = ({
           searchable
           searchProps={{
             id: "token-search",
-            placeholder: "Search tokens",
+            placeholder: t("token_search_modal.search_tokens"),
             isClearable: true,
           }}
           onChange={onSelectToken}

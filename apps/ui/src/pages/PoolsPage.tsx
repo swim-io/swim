@@ -24,6 +24,7 @@ import type { ReadonlyRecord } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { Fragment, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import { atomicToTvlString, u64ToDecimal } from "../amounts";
@@ -49,7 +50,8 @@ type EcosystemSelectType = EcosystemId | "all";
 type TokenProjectSelectType = TokenProjectId | "all";
 
 const PoolsPage = (): ReactElement => {
-  useTitle("Pools");
+  const { t } = useTranslation();
+  useTitle(t("nav.pools"));
 
   const { tokens } = useEnvironment(selectConfig, shallow);
   const { ecosystems, ecosystemId, setEcosystemId } = useEcosystemFilter();
@@ -134,7 +136,7 @@ const PoolsPage = (): ReactElement => {
 
   const selectTokenOptions = useMemo(
     () => [
-      { inputDisplay: "All Tokens", value: "all", icon: null },
+      { inputDisplay: t("pools_page.all_tokens"), value: "all", icon: null },
       ...tokenProjects.map((project) => ({
         value: project.id,
         inputDisplay: (
@@ -158,12 +160,12 @@ const PoolsPage = (): ReactElement => {
         icon: null,
       })),
     ],
-    [tokenProjects],
+    [t, tokenProjects],
   );
 
   const selectEcosystemOptions = useMemo(() => {
     return [
-      { inputDisplay: "All Chains", value: "all", icon: null },
+      { inputDisplay: t("pools_page.all_chains"), value: "all", icon: null },
       ...ecosystems.map((ecosystem) => ({
         value: ecosystem.id,
         inputDisplay: (
@@ -187,7 +189,7 @@ const PoolsPage = (): ReactElement => {
         icon: null,
       })),
     ];
-  }, [ecosystems]);
+  }, [ecosystems, t]);
 
   const tvl = filteredPools.reduce(
     (prev, pool) => prev.add(poolUsdTotals[pool.id]),
@@ -239,9 +241,9 @@ const PoolsPage = (): ReactElement => {
       ) : (
         <EuiEmptyPrompt
           iconType="alert"
-          title={<h2>No pools found</h2>}
+          title={<h2>{t("general.error_cannot_found_pools")}</h2>}
           titleSize="xs"
-          body="Try adjusting your filter. (Are you on the right network?)"
+          body={t("general.action_on_error_cannot_found_pools")}
         />
       )}
 
@@ -251,7 +253,7 @@ const PoolsPage = (): ReactElement => {
 
           <PoolListItem
             poolName="Aurora USN"
-            betaBadgeLabel="Coming Soon"
+            betaBadgeLabel={t("pools_page.coming_soon")}
             tokenSpecs={[
               {
                 id: "placeholder-aurora-native-usn",
@@ -285,7 +287,7 @@ const PoolsPage = (): ReactElement => {
 
             <PoolListItem
               poolName="Karura aUSD"
-              betaBadgeLabel="Coming Soon"
+              betaBadgeLabel={t("pools_page.coming_soon")}
               tokenSpecs={[
                 {
                   id: "placeholder-karura-native-ausd",
@@ -314,7 +316,7 @@ const PoolsPage = (): ReactElement => {
 
             <PoolListItem
               poolName="Karura USDT"
-              betaBadgeLabel="Coming Soon"
+              betaBadgeLabel={t("pools_page.coming_soon")}
               tokenSpecs={[
                 {
                   id: "placeholder-karura-native-usdt",
@@ -348,7 +350,7 @@ const PoolsPage = (): ReactElement => {
 
             <PoolListItem
               poolName="Acala aUSD"
-              betaBadgeLabel="Coming Soon"
+              betaBadgeLabel={t("pools_page.coming_soon")}
               tokenSpecs={[
                 {
                   id: "placeholder-acala-native-ausd",
@@ -381,7 +383,7 @@ const PoolsPage = (): ReactElement => {
     <EuiFlexItem grow={false}>
       <EuiFlexGroup alignItems="center">
         <EuiFlexItem grow={false}>
-          <EuiFormRow label="Token">
+          <EuiFormRow label={t("glossary.crypto_token")}>
             <EuiSuperSelect
               options={selectTokenOptions}
               valueOfSelected={tokenProjectId}
@@ -394,7 +396,7 @@ const PoolsPage = (): ReactElement => {
         </EuiFlexItem>
 
         <EuiFlexItem grow={false}>
-          <EuiFormRow label="Chain">
+          <EuiFormRow label={t("glossary.chain_protocol")}>
             <EuiSuperSelect
               options={selectEcosystemOptions}
               valueOfSelected={ecosystemId}
@@ -422,7 +424,7 @@ const PoolsPage = (): ReactElement => {
             >
               <EuiFlexItem grow={false}>
                 <EuiTitle>
-                  <h2>Pools</h2>
+                  <h2>{t("nav.pools")}</h2>
                 </EuiTitle>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
@@ -430,7 +432,7 @@ const PoolsPage = (): ReactElement => {
                   <p>
                     <b>
                       {`TVL: ${
-                        tvl.isPositive() ? "$" + atomicToTvlString(tvl) : "--"
+                        tvl.isPositive() ? atomicToTvlString(tvl) : "--"
                       }`}
                     </b>
                   </p>

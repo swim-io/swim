@@ -1,14 +1,13 @@
-import type solana from "@solana/web3.js";
 import type { Tx as BaseTx } from "@swim-io/core";
+import type { SolanaTx as BaseSolanaTx } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import type { ethers } from "ethers";
 
 import type { EvmEcosystemId } from "../../config";
 import { EcosystemId, isEvmEcosystemId } from "../../config";
 
-export interface SolanaTx extends BaseTx {
+export interface SolanaTx extends BaseSolanaTx {
   readonly ecosystemId: EcosystemId.Solana;
-  readonly parsedTx: solana.ParsedTransactionWithMeta;
 }
 
 export interface EvmTx extends BaseTx {

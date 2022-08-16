@@ -89,7 +89,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["*.cjs"],
+      files: ["**/*.cjs"],
       env: {
         node: true,
       },

@@ -11,6 +11,7 @@ import { defaultIfError } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import { EcosystemId, getTokenDetailsForEcosystem } from "../../config";
@@ -50,6 +51,7 @@ interface Props {
 }
 
 export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
+  const { t } = useTranslation();
   const config = useEnvironment(selectConfig, shallow);
   const { notify } = useNotification();
   const userNativeBalances = useUserNativeBalances();
@@ -140,16 +142,16 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
   ): void => {
     let errors: readonly string[] = [];
     if (currentInputAmount === null) {
-      errors = [...errors, "Invalid amount"];
+      errors = [...errors, t("general.amount_of_tokens_invalid")];
     } else if (currentInputAmount.isNegative() || currentInputAmount.isZero()) {
-      errors = [...errors, "Amount must be greater than 0"];
+      errors = [...errors, t("general.amount_of_tokens_less_than_one")];
     } else if (
       fromTokenBalance &&
       currentInputAmount.gt(
         fromTokenBalance.toHuman(fromTokenOption.ecosystemId),
       )
     ) {
-      errors = [...errors, "Amount cannot exceed available balance"];
+      errors = [...errors, t("general.amount_of_tokens_exceed_balance")];
     } else {
       errors = [];
     }
@@ -168,11 +170,13 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
       );
     } else if (isLargeSwap) {
       setConfirmModalDescription(
-        "You're trying to swap >10% of the pool size which may impact the price.",
+        t("swap_form.require_warning_swap_too_large_amount", {
+          percentage: 10,
+        }),
       );
     } else if (isSmallEthSwap) {
       setConfirmModalDescription(
-        "The Ethereum gas fees might be high relative to the swap amount.",
+        t("swap_form.require_warning_gas_fee_may_be_high"),
       );
     } else {
       handleSwapAndCatch(false);
@@ -188,7 +192,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
       handleSwap(allowLargeSwap);
     } catch (error) {
       const swimError = captureAndWrapException(
-        "An unexpected error occurred",
+        t("general.unexpected_error"),
         error,
       );
       setFormErrors([swimError.toPrettyString()]);
@@ -208,8 +212,8 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     // These are just for type safety and should in theory not happen
     if (outputAmount === null || maxSlippageFraction === null) {
       notify(
-        "Form error",
-        "There was an unexpected error submitting the form. Developers were notified.",
+        t("notify.unexpected_form_error_title"),
+        t("notify.unexpected_form_error_description"),
         "error",
       );
       return;
@@ -251,7 +255,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
         value={formInputAmount}
         selectedTokenOption={fromTokenOption}
         tokenOptions={fromTokenOptions}
-        placeholder={"Enter amount"}
+        placeholder={t("general.enter_amount_of_tokens")}
         disabled={isInteractionInProgress}
         errors={inputAmountErrors}
         onSelectTokenOption={setFromTokenOption}
@@ -271,7 +275,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
             setToTokenOption(fromTokenOption);
           }}
           className="swapForm__flipIcon"
-          aria-label="Flip direction"
+          aria-label={t("swap_form.flip_direction_button")}
           disabled={isInteractionInProgress}
         />
       </div>
@@ -284,7 +288,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
         value={outputAmountString}
         selectedTokenOption={toTokenOption}
         tokenOptions={toTokenOptions}
-        placeholder={"Output"}
+        placeholder={t("swap_form.output_amount")}
         disabled={isInteractionInProgress}
         errors={[]}
         onSelectTokenOption={setToTokenOption}
@@ -300,7 +304,10 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
 
       {formErrors.length > 0 && (
         <>
-          <EuiCallOut title="Please fix these issues" color="danger">
+          <EuiCallOut
+            title={t("general.please_fix_issues_in_form")}
+            color="danger"
+          >
             <ul>
               {formErrors.map((error) => (
                 <li key={error}>{error}</li>
@@ -325,7 +332,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
           isLoading={isInteractionInProgress}
           isDisabled={isRequiredPoolPaused || isSubmitted}
         >
-          Swap
+          {t("swap_form.swap_button")}
         </EuiButton>
       </EuiFormRow>
 
@@ -333,9 +340,9 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
         isVisible={isConfirmModalVisible}
         onCancel={handleConfirmModalCancel}
         onConfirm={handleConfirmModalConfirm}
-        titleText="Execute swap?"
-        cancelText="Cancel"
-        confirmText="Swap"
+        titleText={t("swap_modal.title")}
+        cancelText={t("general.cancel_button")}
+        confirmText={t("swap_modal.confirm_button")}
         promptText={confirmModalDescription}
       />
     </EuiForm>

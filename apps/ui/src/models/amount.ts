@@ -7,6 +7,7 @@ import Decimal from "decimal.js";
 import { u64ToDecimal } from "../amounts";
 import type { EcosystemId, TokenSpec } from "../config";
 import { getTokenDetailsForEcosystem } from "../config";
+import { fallbackLanguageIfNotSupported, i18next } from "../i18n";
 
 export class Amount {
   public readonly tokenSpec: TokenSpec;
@@ -114,21 +115,22 @@ export class Amount {
   }
 
   toFormattedHumanString(ecosystemId: EcosystemId): string {
-    const humanString = this.toHuman(ecosystemId).toFixed(
-      TOKEN_PROJECTS_BY_ID[this.tokenSpec.projectId].isStablecoin
-        ? 2
-        : undefined,
+    const language = fallbackLanguageIfNotSupported(
+      Intl.NumberFormat,
+      i18next.resolvedLanguage,
     );
+    const numberFormatter = new Intl.NumberFormat(language, {
+      ...(TOKEN_PROJECTS_BY_ID[this.tokenSpec.projectId].isStablecoin
+        ? {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }
+        : {
+            maximumFractionDigits: 20, // max value allowed
+          }),
+    });
 
-    // NOTE: Safari doesn't support lookbehind :(
-    const parts = humanString.split(".");
-    const withThousandsSeparators = parts[0].replace(
-      /\B(?=(\d{3})+(?!\d))/g,
-      ",",
-    );
-    return parts.length > 1
-      ? `${withThousandsSeparators}.${parts[1]}`
-      : withThousandsSeparators;
+    return numberFormatter.format(this.toHuman(ecosystemId).toNumber());
   }
 
   toJSON(): string {

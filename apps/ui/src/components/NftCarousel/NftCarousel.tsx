@@ -12,6 +12,7 @@ import {
 } from "@elastic/eui";
 import type { ChangeEvent, ReactElement } from "react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Carousel } from "react-responsive-carousel";
 
 import { useNotification } from "../../core/store";
@@ -27,28 +28,11 @@ interface Props {
   readonly nfts: readonly NftData[];
 }
 
-const rarityColumns = [
-  {
-    field: "traitType",
-    name: "Trait Type",
-  },
-  {
-    field: "value",
-    name: "Trait",
-  },
-  {
-    field: "rarity",
-    name: "Rarity",
-    render: (rarityNumber: number) => {
-      return "🔥".repeat(rarityNumber);
-    },
-  },
-];
-
 const redeemPassword = "redeem";
 const redemptionAmount = "3000 xSWIM";
 
 export const NftCarousel = ({ nfts }: Props): ReactElement => {
+  const { t } = useTranslation();
   const [activeNft, setActiveNft] = useState<NftData | null>(null);
   const [passwordInput, setPasswordInput] = useState("");
   const { notify } = useNotification();
@@ -68,8 +52,8 @@ export const NftCarousel = ({ nfts }: Props): ReactElement => {
     try {
       await mutateAsync(activeNft);
       notify(
-        "Success",
-        `Redeemed Otter Tot for ${redemptionAmount}`,
+        t("notify.redeem_success_title"),
+        t("notify.redeem_success_description", { redemptionAmount }),
         "success",
       );
       hideRedeemModal();
@@ -78,9 +62,27 @@ export const NftCarousel = ({ nfts }: Props): ReactElement => {
     }
   };
 
+  const rarityColumns = [
+    {
+      field: "traitType",
+      name: t("redeem_page.nft_trait_type"),
+    },
+    {
+      field: "value",
+      name: t("redeem_page.nft_trait"),
+    },
+    {
+      field: "rarity",
+      name: t("redeem_page.nft_rarity"),
+      render: (rarityNumber: number) => {
+        return "🔥".repeat(rarityNumber);
+      },
+    },
+  ];
+
   const generateTable = (attributes: readonly NftAttribute[]): ReactElement => (
     <EuiBasicTable<NftAttribute>
-      tableCaption="Nft Traits"
+      tableCaption={t("redeem_page.nft_nft_traits_title")}
       columns={rarityColumns}
       items={[...attributes]}
       rowHeader="traitType"
@@ -142,7 +144,7 @@ export const NftCarousel = ({ nfts }: Props): ReactElement => {
                       showRedeemModal(nft);
                     }}
                   >
-                    Redeem
+                    {t("redeem_page.redeem_button")}
                   </EuiButton>
                 </EuiFlexItem>
               </EuiFlexGroup>
@@ -152,19 +154,22 @@ export const NftCarousel = ({ nfts }: Props): ReactElement => {
       </Carousel>
       {isRedeemModalVisible && (
         <EuiConfirmModal
-          title="Redeem your otter?"
+          title={t("redeem_page.redeem_modal_title")}
           onCancel={hideRedeemModal}
           onConfirm={() => {
             executeRedeem().catch(console.error);
           }}
-          confirmButtonText="Redeem"
-          cancelButtonText="Cancel"
+          confirmButtonText={t("redeem_page.redeem_button")}
+          cancelButtonText={t("general.cancel_button")}
           buttonColor="danger"
           confirmButtonDisabled={passwordInput.toLowerCase() !== redeemPassword}
           isLoading={isLoading}
         >
           <EuiFormRow
-            label={`Type the word "${redeemPassword}" to burn your otter for ${redemptionAmount}. Warning, this is irreversible.`}
+            label={t("redeem_page.warning_for_burn_otter", {
+              redeemPassword,
+              redemptionAmount,
+            })}
           >
             <EuiFieldText
               name="redeem"

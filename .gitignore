@@ -38,7 +38,7 @@ yarn-error.log*
 test-ledger/
 
 # Storybook output directory
-storybook-static
+storybook-static/
 
 # TypeScript
 tsconfig.tsbuildinfo

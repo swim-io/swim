@@ -16,6 +16,7 @@ import { TOKENS } from "./tokens";
 
 export * from "./chains";
 export * from "./ecosystem";
+export * from "./i18n";
 export * from "./pools";
 export * from "./tokens";
 export * from "./utils";

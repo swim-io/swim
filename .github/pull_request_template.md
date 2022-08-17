@@ -9,3 +9,5 @@ Notion ticket: N/A
 - [ ] Docs have been updated or are unnecessary
 - [ ] Preview deployment works (visit the Cloudflare preview URL)
 - [ ] Manual testing in #product-testing completed or unnecessary
+- [ ] New i18n strings do not contain any security vulnerabilities (e.g. should not allow translator to update email/url)
+- [ ] When fetching new translations from external sources, do a sanity check (e.g. get people who speak the language to check, shove all new translations into Google translate)

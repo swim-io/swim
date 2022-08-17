@@ -7,12 +7,16 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import { isNotNull } from "@swim-io/utils";
-import moment from "moment";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useEnvironment } from "../../../core/store";
-import { useInteractionStatusV2 } from "../../../hooks";
+import {
+  useInteractionStatusV2,
+  useIntlDateTimeFormatter,
+  useIntlRelativeTimeFromNow,
+} from "../../../hooks";
 import type { InteractionStateV2 } from "../../../models";
 import { InteractionStatusV2 } from "../../../models";
 import { InteractionRetryCalloutV2 } from "../InteractionRetryCalloutV2";
@@ -27,6 +31,13 @@ interface Props {
 export const InteractionStateComponentV2: React.FC<Props> = ({
   interactionState,
 }) => {
+  const { t } = useTranslation();
+  const dateTimeFormatter = useIntlDateTimeFormatter({
+    dateStyle: "full",
+    timeStyle: "full",
+  });
+  const relativeTimeFromNow = useIntlRelativeTimeFromNow();
+
   const { interaction } = interactionState;
   const { env } = useEnvironment();
   const interactionStatus = useInteractionStatusV2(interactionState);
@@ -35,7 +46,6 @@ export const InteractionStateComponentV2: React.FC<Props> = ({
     interactionStatus,
     env,
   );
-  const timeInMoment = moment(interaction.submittedAt);
 
   // TODO: make a V2 of reload state
   const reloadInteractionState = useCallback(
@@ -67,8 +77,11 @@ export const InteractionStateComponentV2: React.FC<Props> = ({
           <InteractionTitleV2 interaction={interaction} />
         </h3>
       </EuiTitle>
-      <EuiText size="s" title={timeInMoment.toLocaleString()}>
-        {timeInMoment.fromNow()}
+      <EuiText
+        size="s"
+        title={dateTimeFormatter.format(interaction.submittedAt)}
+      >
+        {relativeTimeFromNow(interaction.submittedAt)}
       </EuiText>
       <EuiSpacer />
       <EuiSteps
@@ -78,14 +91,14 @@ export const InteractionStateComponentV2: React.FC<Props> = ({
       />
       {needReload ? (
         <EuiButton size="s" isLoading={true}>
-          Loading
+          {t("recent_interactions.reload_interaction_state")}
         </EuiButton>
       ) : (
         <InteractionRetryCalloutV2 interactionState={interactionState} />
       )}
       {interactionStatus === InteractionStatusV2.Completed && (
         <EuiBadge color="success" iconType="check">
-          Completed
+          {t("recent_interactions.completed_interaction_state")}
         </EuiBadge>
       )}
     </>

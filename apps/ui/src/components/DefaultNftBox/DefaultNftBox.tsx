@@ -1,5 +1,6 @@
 import { EuiFlexGroup, EuiLoadingSpinner, EuiSpacer } from "@elastic/eui";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
 import { EcosystemId } from "../../config";
 import { ConnectButton } from "../ConnectButton";
@@ -17,13 +18,14 @@ export const enum NftProblem {
 }
 
 const BoxText = ({ nftProblem }: Props): ReactElement => {
+  const { t } = useTranslation();
   switch (nftProblem) {
     case NftProblem.NoWallet:
-      return <p>Connect your wallet to view and redeem your Otter Tots!</p>;
+      return <p>{t("redeem_page.connect_wallet_to_redeem")}</p>;
     case NftProblem.Loading:
       return <EuiLoadingSpinner size="xl" />;
     case NftProblem.Empty:
-      return <p>Get an Otter Tot to view and redeem here!</p>;
+      return <p>{t("redeem_page.redeem_here")}</p>;
   }
 };
 

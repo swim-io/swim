@@ -1,5 +1,4 @@
 import {
-  EuiFieldNumber,
   EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
@@ -11,8 +10,10 @@ import {
 import type React from "react";
 
 import type { TokenSpec } from "../../config";
+import { i18next } from "../../i18n";
 import { Amount } from "../../models";
 import { ConnectButton } from "../ConnectButton";
+import { EuiFieldIntlNumber } from "../EuiFieldIntlNumber";
 import { TokenSelect } from "../TokenSelect";
 
 import { UserBalanceDisplay } from "./UserBalanceDisplay";
@@ -44,10 +45,10 @@ const getTokenLabel = (): React.ReactElement => {
   return (
     <EuiText size="xs">
       <p>
-        {"Constant product swap  "}
+        <span>{i18next.t("swap_form.constant_product_swap")}&nbsp;&nbsp;</span>
         <EuiToolTip
           position="right"
-          content="This pool uses a constant product curve, prices deviate from 1:1."
+          content={i18next.t("pool_page.pool_price_explanation")}
         >
           <EuiIcon size="m" type="questionInCircle" color="primary" />
         </EuiToolTip>
@@ -69,7 +70,6 @@ export const TokenAmountInput: React.FC<Props> = ({
   showConstantSwapTip,
 }) => {
   const readOnly = !onChangeValue;
-
   return (
     <EuiFlexGroup>
       <EuiFlexItem grow={2}>
@@ -113,12 +113,12 @@ export const TokenAmountInput: React.FC<Props> = ({
               readOnly
             />
           ) : (
-            <EuiFieldNumber
+            <EuiFieldIntlNumber
               placeholder={placeholder}
-              value={value}
+              defaultValue={value}
               step={10 ** -token.nativeDetails.decimals}
               min={0}
-              onChange={(e) => onChangeValue(e.target.value)}
+              onValueChange={onChangeValue}
               disabled={disabled}
               onBlur={onBlur}
               isInvalid={errors.length > 0}

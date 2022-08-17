@@ -8,6 +8,7 @@ import {
 } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { Protocol } from "../config";
 import { useWalletService } from "../hooks/wallets";
@@ -30,12 +31,13 @@ export const SingleWalletModal = <W extends WalletService = WalletService>({
   services,
   handleClose,
 }: Props<W>): ReactElement => {
+  const { t } = useTranslation();
   const { connectService } = useWalletService();
   return (
     <CustomModal onClose={handleClose}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          <h1>Select Wallet</h1>
+          <h1>{t("single_wallet_modal.title")}</h1>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
 

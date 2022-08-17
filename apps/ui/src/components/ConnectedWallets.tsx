@@ -1,7 +1,8 @@
 import { EuiIcon, EuiListGroup } from "@elastic/eui";
 import type { ReadonlyRecord } from "@swim-io/utils";
-import { truncate } from "@swim-io/utils";
+import { getRecordEntries, truncate } from "@swim-io/utils";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { EcosystemId } from "../config";
 import { ECOSYSTEMS } from "../config";
@@ -14,33 +15,39 @@ interface ConnectedWalletsProps {
 export const ConnectedWallets = ({
   walletAddresses,
 }: ConnectedWalletsProps): ReactElement => {
+  const { t } = useTranslation();
   const wallets = useWallets();
 
   return (
     <EuiListGroup
       bordered
-      listItems={Object.entries(walletAddresses)
-        .filter(([_, address]) => address !== null)
+      listItems={getRecordEntries(walletAddresses)
+        .filter(
+          <K, V>(entry: readonly [K, V | null]): entry is readonly [K, V] =>
+            entry[1] !== null,
+        )
         .map(([ecosystemId, address]) => {
-          if (!wallets[ecosystemId as EcosystemId].connected) {
+          if (!wallets[ecosystemId].connected) {
             return {
               label: (
                 <>
-                  <EuiIcon type={ECOSYSTEMS[ecosystemId as EcosystemId].logo} />{" "}
-                  {truncate(address as string)}
-                  <span>&nbsp;(not connected)</span>
+                  <EuiIcon type={ECOSYSTEMS[ecosystemId].logo} />{" "}
+                  {t("recent_interactions.connected_wallet_is_not_connected", {
+                    walletAddress: truncate(address),
+                  })}
                 </>
               ),
               color: "subdued",
               iconType: "offline",
             };
-          } else if (wallets[ecosystemId as EcosystemId].address === address) {
+          } else if (wallets[ecosystemId].address === address) {
             return {
               label: (
                 <>
-                  <EuiIcon type={ECOSYSTEMS[ecosystemId as EcosystemId].logo} />{" "}
-                  {truncate(address as string)}
-                  <span>&nbsp;(connected)</span>
+                  <EuiIcon type={ECOSYSTEMS[ecosystemId].logo} />{" "}
+                  {t("recent_interactions.connected_wallet_is_connected", {
+                    walletAddress: truncate(address),
+                  })}
                 </>
               ),
               color: "text",
@@ -50,9 +57,11 @@ export const ConnectedWallets = ({
             return {
               label: (
                 <>
-                  <EuiIcon type={ECOSYSTEMS[ecosystemId as EcosystemId].logo} />{" "}
-                  {truncate(address as string)}
-                  <span>&nbsp;(different account)</span>
+                  <EuiIcon type={ECOSYSTEMS[ecosystemId].logo} />{" "}
+                  {t(
+                    "recent_interactions.connected_wallet_is_different_account",
+                    { walletAddress: truncate(address) },
+                  )}
                 </>
               ),
               color: "text",

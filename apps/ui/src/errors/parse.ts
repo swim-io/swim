@@ -1,3 +1,5 @@
+import { i18next } from "../i18n";
+
 import { extractEthErrorMessage, isEthError } from "./evm";
 import { extractSolanaErrorMessage, isSolanaError } from "./solana";
 
@@ -12,7 +14,7 @@ export const extractErrorMessage = (error: unknown): string => {
 
   if (error instanceof Error) {
     if (/requested VAA not found in store/i.test(error.message)) {
-      return "Transfer not detected by Wormhole guardians. This usually happens when the network is congested. Please retry later.";
+      return i18next.t("vaa_error.transfer_not_detected");
     }
     return error.message;
   }

@@ -12,8 +12,8 @@ import { useEnvironment as environmentStore } from "../../core/store";
 import {
   useErc20BalanceQuery,
   useGetSwapFormErrors,
-  useLiquidityQueries,
   useSolanaConnection,
+  useSolanaLiquidityQueries,
   useSplTokenAccountsQuery,
   useSplUserBalance,
   useStartNewInteraction,
@@ -38,7 +38,7 @@ jest.mock("../../hooks/solana", () => ({
   ...jest.requireActual("../../hooks/solana"),
   useSplTokenAccountsQuery: jest.fn(),
   useSplUserBalance: jest.fn(),
-  useLiquidityQueries: jest.fn(),
+  useSolanaLiquidityQueries: jest.fn(),
 }));
 
 jest.mock("../../hooks/solana/useSolanaConnection", () => ({
@@ -71,7 +71,7 @@ const useSwapFeesEstimationQueryMock = mockOf(useSwapFeesEstimationQuery);
 const useErc20BalanceQueryMock = mockOf(useErc20BalanceQuery);
 const useUserNativeBalancesMock = mockOf(useUserNativeBalances);
 const useSplUserBalanceMock = mockOf(useSplUserBalance);
-const useLiquidityQueriesMock = mockOf(useLiquidityQueries);
+const useSolanaLiquidityQueriesMock = mockOf(useSolanaLiquidityQueries);
 
 const findFromTokenButton = () => screen.queryAllByRole("button")[0];
 const findToTokenButton = () => screen.queryAllByRole("button")[4];
@@ -105,7 +105,7 @@ describe("SwapForm", () => {
     useGetSwapFormErrorsMock.mockReturnValue(() => []);
     useErc20BalanceQueryMock.mockReturnValue({ data: zero });
     useSplUserBalanceMock.mockReturnValue(zero);
-    useLiquidityQueriesMock.mockReturnValue([
+    useSolanaLiquidityQueriesMock.mockReturnValue([
       { data: [] },
     ] as unknown as readonly UseQueryResult<readonly TokenAccount[], Error>[]);
   });

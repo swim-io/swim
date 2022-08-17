@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/token-projects",
-  "version": "0.10.0",
+  "version": "0.12.0",
   "description": "A registry of token projects used by Swim.",
   "main": "build",
   "types": "types",

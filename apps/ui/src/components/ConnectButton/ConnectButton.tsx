@@ -3,6 +3,7 @@ import { EuiButton, EuiHideFor, EuiIcon, EuiShowFor } from "@elastic/eui";
 import { deduplicate, isNotNull, truncate } from "@swim-io/utils";
 import type { ReactElement } from "react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import type { EcosystemId } from "../../config";
@@ -39,6 +40,7 @@ export const ConnectButton = ({
   ecosystemId,
   ...rest
 }: Props): ReactElement => {
+  const { t } = useTranslation();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { ecosystems } = useEnvironment(selectConfig, shallow);
   const { disconnectService } = useWalletService();
@@ -72,9 +74,13 @@ export const ConnectButton = ({
           truncate(address)
         ) : (
           <>
-            <EuiShowFor sizes={["xs"]}>Connect</EuiShowFor>
+            <EuiShowFor sizes={["xs"]}>
+              {t("connect_button.connect_wallet_button_mobile")}
+            </EuiShowFor>
             <EuiHideFor sizes={["xs"]}>
-              Connect {ecosystem.displayName}
+              {t("connect_button.connect_wallet_button_desktop", {
+                ecosystemName: ecosystem.displayName,
+              })}
             </EuiHideFor>
           </>
         )}
@@ -94,6 +100,7 @@ export const ConnectButton = ({
 export const MultiConnectButton = ({
   ...rest
 }: PropsForButton<EuiButtonProps>): ReactElement => {
+  const { t } = useTranslation();
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const closeModal = (): void => setIsWalletModalOpen(false);
   const openModal = (): void => setIsWalletModalOpen(true);
@@ -131,13 +138,21 @@ export const MultiConnectButton = ({
             size="l"
           />
         ))}
-        &nbsp;{nConnected}
-        <span>&nbsp;connected</span>
+        <span>
+          &nbsp;
+          {t("connect_button.number_of_wallets_connected", {
+            numberOfWallets: nConnected,
+          })}
+        </span>
       </>
     ) : (
       <>
-        <EuiShowFor sizes={["xs"]}>Connect</EuiShowFor>
-        <EuiHideFor sizes={["xs"]}>Connect Wallets</EuiHideFor>
+        <EuiShowFor sizes={["xs"]}>
+          {t("connect_button.connect_wallets_button_mobile")}
+        </EuiShowFor>
+        <EuiHideFor sizes={["xs"]}>
+          {t("connect_button.connect_wallets_button_desktop")}
+        </EuiHideFor>
       </>
     );
 

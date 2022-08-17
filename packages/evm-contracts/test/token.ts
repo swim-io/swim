@@ -1,7 +1,7 @@
-import { expect } from "chai";
-import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { BN } from "bn.js";
+import { expect } from "chai";
+import { ethers } from "hardhat";
 
 describe("Token contract", function () {
   const name = "SwimUSD";

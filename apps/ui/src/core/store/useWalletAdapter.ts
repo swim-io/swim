@@ -1,12 +1,12 @@
 import { truncate } from "@swim-io/utils";
 import { produce } from "immer";
-import type { GetState, SetState } from "zustand";
 import create from "zustand";
 import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
 
 import { Protocol } from "../../config";
 import { captureException } from "../../errors";
+import { i18next } from "../../i18n";
 import type {
   EvmWalletAdapter,
   SolanaWalletAdapter,
@@ -78,8 +78,13 @@ const isValidSelectedServiceByProtocol = (
 };
 
 export const useWalletAdapter = create(
-  persist<WalletAdapterState>(
-    (set: SetState<WalletAdapterState>, get: GetState<WalletAdapterState>) => ({
+  persist<
+    WalletAdapterState,
+    [], // eslint-disable-line functional/prefer-readonly-type
+    [], // eslint-disable-line functional/prefer-readonly-type
+    Pick<WalletAdapterState, "selectedServiceByProtocol">
+  >(
+    (set, get) => ({
       evm: null,
       solana: null,
       selectedServiceByProtocol: {
@@ -104,15 +109,21 @@ export const useWalletAdapter = create(
         const handleConnect = (): void => {
           if (adapter.address) {
             notify(
-              "Wallet update",
-              `Connected to wallet ${truncate(adapter.address)}`,
+              i18next.t<string>("notify.connected_to_wallet_title"),
+              i18next.t<string>("notify.connected_to_wallet_description", {
+                walletAddress: truncate(adapter.address),
+              }),
               "info",
               7000,
             );
           }
         };
         const handleDisconnect = (): void => {
-          notify("Wallet update", "Disconnected from wallet", "warning");
+          notify(
+            i18next.t<string>("notify.disconnected_from_wallet_title"),
+            i18next.t<string>("notify.disconnected_from_wallet_description"),
+            "warning",
+          );
           void disconnect();
         };
         const handleError = (title: string, description: string): void => {

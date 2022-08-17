@@ -1,3 +1,6 @@
+// do not translate terms of service for legal reasons
+/* eslint-disable i18next/no-literal-string */
+
 import {
   EuiPage,
   EuiPageBody,
@@ -8,18 +11,20 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useTitle } from "../hooks";
 
 const TosPage = (): ReactElement => {
-  useTitle("Terms of Service");
+  const { t } = useTranslation();
+  useTitle(t("nav.terms_of_service"));
   return (
     <EuiPage className="tosPage" restrictWidth={800}>
       <EuiPageBody>
         <EuiPageContent verticalPosition="center">
           <EuiPageContentBody>
             <EuiTitle>
-              <h2>Terms of Service</h2>
+              <h2>{t("nav.terms_of_service")}</h2>
             </EuiTitle>
             <EuiSpacer />
             <EuiText>

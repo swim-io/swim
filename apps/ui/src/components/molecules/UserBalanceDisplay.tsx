@@ -1,8 +1,9 @@
 import { EuiLink, EuiText } from "@elastic/eui";
 import type React from "react";
+import { useTranslation } from "react-i18next";
 
 import type { EcosystemId, TokenSpec } from "../../config";
-import { useUserBalanceAmounts } from "../../hooks";
+import { useUserBalanceAmount } from "../../hooks";
 import type { Amount } from "../../models";
 
 interface Props {
@@ -15,12 +16,12 @@ export const UserBalanceDisplay: React.FC<Props> = ({
   ecosystemId,
   onClick,
 }) => {
-  const tokenUserBalances = useUserBalanceAmounts(token);
-  const tokenBalance = tokenUserBalances[token.nativeEcosystemId];
+  const { t } = useTranslation();
+  const tokenBalance = useUserBalanceAmount(token, token.nativeEcosystemId);
 
   return (
     <EuiText size="xs">
-      <span>Balance:</span>{" "}
+      <span>{t("swap_form.user_balance")}&nbsp;</span>
       <span>
         {tokenBalance === null ? (
           "-"

@@ -389,9 +389,9 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "11111111111111111111111111111111", // TODO: Update
+    address: "0x37FFb2ee5A3ab1785bD5179243EDD27dDeADF823", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-ethereum-lp-primary",
+    lpToken: "devnet-ethereum-lp-usdc-usdt",
     tokens: ["devnet-swimusd", "devnet-ethereum-usdc", "devnet-ethereum-usdt"],
   },
   {
@@ -402,9 +402,9 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "11111111111111111111111111111111", // TODO: Update
+    address: "0xCCDAa7C3046F7032c39d9172cdb0a6a2A683af03", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-bnb-lp-primary",
+    lpToken: "devnet-bnb-lp-busd-usdt",
     tokens: ["devnet-swimusd", "devnet-bnb-busd", "devnet-bnb-usdt"],
   },
   {
@@ -417,7 +417,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-avalanche-lp-primary",
+    lpToken: "devnet-avalanche-lp-usdc-usdt",
     tokens: [
       "devnet-swimusd",
       "devnet-avalanche-usdc",
@@ -434,7 +434,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-polygon-lp-primary",
+    lpToken: "devnet-polygon-lp-usdc-usdt",
     tokens: ["devnet-swimusd", "devnet-polygon-usdc", "devnet-polygon-usdt"],
   },
   {
@@ -447,7 +447,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-aurora-lp-primary",
+    lpToken: "devnet-aurora-lp-usdc-usdt",
     tokens: ["devnet-swimusd", "devnet-aurora-usdc", "devnet-aurora-usdt"],
   },
   {
@@ -461,7 +461,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-aurora-lp-meta-usn",
+    lpToken: "devnet-aurora-lp-usn",
     tokens: ["devnet-swimusd", "devnet-aurora-usn"],
   },
   {
@@ -474,7 +474,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-fantom-lp-primary",
+    lpToken: "devnet-fantom-lp-usdc",
     tokens: ["devnet-swimusd", "devnet-fantom-usdc"],
   },
   {
@@ -487,7 +487,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-karura-lp-primary",
+    lpToken: "devnet-karura-lp-usdt",
     tokens: ["devnet-swimusd", "devnet-karura-usdt"],
   },
   {
@@ -501,13 +501,13 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-karura-lp-meta-ausd",
+    lpToken: "devnet-karura-lp-ausd",
     tokens: ["devnet-swimusd", "devnet-karura-ausd"],
   },
   {
     isDisabled:
       !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_ACALA,
-    id: "devnet-meta-acala-ausd",
+    id: "devnet-acala-ausd",
     ecosystem: EcosystemId.Acala,
     displayName: "Aurora aUSD",
     isStakingPool: false,
@@ -515,7 +515,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-acala-lp-meta-ausd",
+    lpToken: "devnet-acala-lp-ausd",
     tokens: ["devnet-swimusd", "devnet-acala-ausd"],
   },
 ];

@@ -29,10 +29,8 @@ async function ledgerSend(
 
   if (payload.length > MAX_PAYLOAD) {
     while (payload.length - payloadOffset > MAX_PAYLOAD) {
-      const chunk = payload.subarray(
-        payloadOffset,
-        payloadOffset + MAX_PAYLOAD,
-      );
+      // TODO: Replace this use of `.slice` but be careful not to break anything
+      const chunk = payload.slice(payloadOffset, payloadOffset + MAX_PAYLOAD);
       payloadOffset += MAX_PAYLOAD;
       console.info(
         "send",
@@ -54,11 +52,13 @@ async function ledgerSend(
     }
   }
 
-  const chunk = payload.subarray(payloadOffset);
+  // TODO: Replace this use of `.slice` but be careful not to break anything
+  const chunk = payload.slice(payloadOffset);
   console.info("send", p2.toString(16), chunk.length.toString(16), chunk);
   const reply = await transport.send(LEDGER_CLA, instruction, p1, p2, chunk);
 
-  return reply.subarray(0, reply.length - 2);
+  // TODO: Replace this use of `.slice` but be careful not to break anything
+  return reply.slice(0, reply.length - 2);
 }
 
 const BIP32_HARDENED_BIT = (1 << 31) >>> 0;

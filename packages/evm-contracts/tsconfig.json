@@ -1,11 +1,10 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@swim-io/tsconfig/tsconfig-library.json",
   "compilerOptions": {
-    "skipLibCheck": true,
-    "baseUrl": ".",
-    "declaration": true,
-    "declarationDir": "types",
-    "outDir": "dist"
+    "declarationDir": "types/",
+    "outDir": "build/",
+    "rootDir": "typechain-types/"
   },
-  "include": ["./scripts", "./test", "./typechain"],
-  "files": ["./hardhat.config.ts"]
+  "include": ["typechain-types/"]
 }

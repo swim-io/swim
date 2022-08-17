@@ -6,6 +6,7 @@ import {
   EuiSpacer,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
 import { DefaultNftBox, NftProblem } from "../components/DefaultNftBox";
 import { NftCarousel } from "../components/NftCarousel";
@@ -13,8 +14,8 @@ import { useSolanaWallet, useTitle } from "../hooks";
 import { useAccountNfts } from "../hooks/solana/useAccountNftsQuery";
 
 const RedeemPage = (): ReactElement => {
-  const title = "Redeem";
-  useTitle(title);
+  const { t } = useTranslation();
+  useTitle(t("nav.redeem"));
   const isConnected = useSolanaWallet().connected;
   const { isLoading, data: nfts = [] } = useAccountNfts();
 

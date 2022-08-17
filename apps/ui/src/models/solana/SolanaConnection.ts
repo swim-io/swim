@@ -7,10 +7,11 @@ import type {
   Transaction,
   TransactionResponse,
 } from "@solana/web3.js";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { sleep } from "@swim-io/utils";
 
 import { SwimError } from "../../errors";
+import { i18next } from "../../i18n";
 
 import { deserializeTokenAccount } from "./parsers";
 import { getAssociatedTokenAddress } from "./utils";
@@ -44,58 +45,43 @@ export class CustomConnection extends Connection {
  * We want to use this for eg getting txs
  */
 export class SolanaConnection {
-  public getAccountInfo: InstanceType<typeof Connection>["getAccountInfo"];
-  public getBalance: InstanceType<typeof Connection>["getBalance"];
-  public getMinimumBalanceForRentExemption: InstanceType<
+  public getAccountInfo!: InstanceType<typeof Connection>["getAccountInfo"];
+  public getBalance!: InstanceType<typeof Connection>["getBalance"];
+  public getMinimumBalanceForRentExemption!: InstanceType<
     typeof Connection
   >["getMinimumBalanceForRentExemption"];
-  public getLatestBlockhash: InstanceType<
+  public getLatestBlockhash!: InstanceType<
     typeof Connection
   >["getLatestBlockhash"];
-  public getSignaturesForAddress: InstanceType<
+  public getSignaturesForAddress!: InstanceType<
     typeof Connection
   >["getSignaturesForAddress"];
-  public getTokenAccountsByOwner: InstanceType<
+  public getTokenAccountsByOwner!: InstanceType<
     typeof Connection
   >["getTokenAccountsByOwner"];
-  public onAccountChange: InstanceType<typeof Connection>["onAccountChange"];
-  public removeAccountChangeListener: InstanceType<
+  public onAccountChange!: InstanceType<typeof Connection>["onAccountChange"];
+  public removeAccountChangeListener!: InstanceType<
     typeof Connection
   >["removeAccountChangeListener"];
 
-  public rawConnection: CustomConnection;
+  public rawConnection!: CustomConnection;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly txCache: Map<string, TransactionResponse>;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
+  private rpcIndex;
+  private readonly endpoints: readonly string[];
 
-  constructor(endpoint: string, wsEndpoint: string) {
-    this.rawConnection = new CustomConnection(endpoint, {
-      commitment: DEFAULT_COMMITMENT_LEVEL,
-      confirmTransactionInitialTimeout: 60 * 1000,
-      disableRetryOnRateLimit: true,
-      wsEndpoint: wsEndpoint,
-    });
-    this.getAccountInfo = this.rawConnection.getAccountInfo.bind(
-      this.rawConnection,
-    );
-    this.getBalance = this.rawConnection.getBalance.bind(this.rawConnection);
-    this.getMinimumBalanceForRentExemption =
-      this.rawConnection.getMinimumBalanceForRentExemption.bind(
-        this.rawConnection,
-      );
-    this.getLatestBlockhash = this.rawConnection.getLatestBlockhash.bind(
-      this.rawConnection,
-    );
-    this.getSignaturesForAddress =
-      this.rawConnection.getSignaturesForAddress.bind(this.rawConnection);
-    this.getTokenAccountsByOwner =
-      this.rawConnection.getTokenAccountsByOwner.bind(this.rawConnection);
-    this.onAccountChange = this.rawConnection.onAccountChange.bind(
-      this.rawConnection,
-    );
-    this.removeAccountChangeListener =
-      this.rawConnection.removeAccountChangeListener.bind(this.rawConnection);
+  // TODO: Check if this is still necessary.
+  // The websocket library solana/web3.js closes its websocket connection when the subscription list
+  // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.
+  // This is a hack to prevent the list from ever getting empty
+  private dummySubscriptionId!: number;
+
+  constructor(endpoints: readonly string[]) {
+    this.endpoints = endpoints;
+    this.rpcIndex = -1;
+    this.incrementRpcProvider();
 
     // NOTE: This design assumes no tx ID collisions between different environments eg Mainnet-beta and devnet.
     this.txCache = new Map<string, TransactionResponse>();
@@ -109,8 +95,6 @@ export class SolanaConnection {
       commitmentLevel = undefined,
     }: GetSolanaTransactionOptions = {},
   ): Promise<RpcResponseAndContext<SignatureResult>> {
-    let remainingAttempts = maxRetries;
-    let lastError = null;
     // confirmTransaction() always fails if the signature is processed,
     // call getSignature() beforehand to circumvent.
     // TODO: Remove signature code once issue is addressed.
@@ -119,28 +103,26 @@ export class SolanaConnection {
     if (signatureStatus) {
       return signatureStatus;
     }
-    while (remainingAttempts >= 0) {
-      try {
-        const latestBlock = await this.rawConnection.getLatestBlockhash();
-        // If the Solana network is busy this can time out
-        return await this.rawConnection.confirmTransaction(
-          {
-            signature: txId,
-            blockhash: latestBlock.blockhash,
-            lastValidBlockHeight: latestBlock.lastValidBlockHeight,
-          },
-          commitmentLevel,
-        );
-      } catch (e) {
-        --remainingAttempts;
-        lastError = e;
-        await sleep(DEFAULT_SLEEP_MS);
+    return this.callWithRetry(async () => {
+      const latestBlock = await this.rawConnection.getLatestBlockhash();
+      // If the Solana network is busy this can time out
+      const signatureResult = await this.rawConnection.confirmTransaction(
+        {
+          signature: txId,
+          blockhash: latestBlock.blockhash,
+          lastValidBlockHeight: latestBlock.lastValidBlockHeight,
+        },
+        commitmentLevel,
+      );
+      if (!signatureResult.value.err) {
+        return signatureResult;
       }
-    }
-    throw new SwimError(
-      `Transaction with ID ${txId} did not confirm`,
-      lastError,
-    );
+      throw new SwimError(
+        i18next.t("general.transaction_not_confirmed_error", { txId }) +
+          ": " +
+          signatureResult.value.err.toString(),
+      );
+    }, maxRetries);
   }
 
   async sendAndConfirmTx(
@@ -198,8 +180,7 @@ export class SolanaConnection {
 
     // NOTE: Sometimes txs aren’t found straightaway even after confirming.
     // So we retry getting the tx too if necessary.
-    let remainingAttempts = maxRetries;
-    while (remainingAttempts >= 0) {
+    return this.callWithRetry(async () => {
       const txResponse = await this.rawConnection.getTransaction(txId, {
         commitment: commitmentLevel,
       });
@@ -207,10 +188,10 @@ export class SolanaConnection {
         this.txCache.set(txId, txResponse);
         return txResponse;
       }
-      await sleep(DEFAULT_SLEEP_MS);
-      --remainingAttempts;
-    }
-    throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+      throw new SwimError(
+        i18next.t("general.transaction_not_confirmed_error", { txId }),
+      );
+    }, maxRetries);
   }
 
   async getParsedTx(
@@ -233,8 +214,7 @@ export class SolanaConnection {
 
     // NOTE: Sometimes txs aren’t found straightaway even after confirming.
     // So we retry getting the tx too if necessary.
-    let remainingAttempts = maxRetries;
-    while (remainingAttempts >= 0) {
+    return this.callWithRetry(async () => {
       const txResponse = await this.rawConnection.getParsedTransaction(
         txId,
         commitmentLevel,
@@ -243,10 +223,10 @@ export class SolanaConnection {
         this.parsedTxCache.set(txId, txResponse);
         return txResponse;
       }
-      await sleep(DEFAULT_SLEEP_MS);
-      --remainingAttempts;
-    }
-    throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+      throw new SwimError(
+        i18next.t("general.transaction_not_confirmed_error", { txId }),
+      );
+    }, maxRetries);
   }
 
   async getParsedTxs(
@@ -256,36 +236,38 @@ export class SolanaConnection {
       commitmentLevel = undefined,
     }: GetSolanaTransactionOptions = {},
   ): Promise<readonly ParsedTransactionWithMeta[]> {
-    let remainingAttempts = maxRetries;
-    while (remainingAttempts >= 0) {
-      const missingTxIds = txIds.filter(
-        (txId) => !this.parsedTxCache.get(txId),
-      );
-      if (missingTxIds.length === 0) {
-        return txIds.map((txId) => {
-          const tx = this.parsedTxCache.get(txId);
-          if (!tx) {
-            // NOTE: This check is only here for type safety and should never happen
-            throw new Error("Missing transaction");
-          }
-          return tx;
-        });
-      }
-      // NOTE: Sometimes this won’t find all the txs immediately so we retry if necessary
-      const txResponses = await this.rawConnection.getParsedTransactions(
-        missingTxIds,
-        commitmentLevel,
-      );
-      txResponses.forEach((txResponse, i) => {
-        if (txResponse !== null) {
-          this.parsedTxCache.set(missingTxIds[i], txResponse);
+    return this.callWithRetry(
+      async () => {
+        const missingTxIds = txIds.filter(
+          (txId) => !this.parsedTxCache.get(txId),
+        );
+        if (missingTxIds.length === 0) {
+          return txIds.map((txId) => {
+            const tx = this.parsedTxCache.get(txId);
+            if (!tx) {
+              // NOTE: This check is only here for type safety and should never happen
+              throw new Error("Missing transaction");
+            }
+            return tx;
+          });
         }
-      });
+        // NOTE: Sometimes this won’t find all the txs immediately so we retry if necessary
+        const txResponses = await this.rawConnection.getParsedTransactions(
+          missingTxIds,
+          commitmentLevel,
+        );
+        txResponses.forEach((txResponse, i) => {
+          if (txResponse !== null) {
+            this.parsedTxCache.set(missingTxIds[i], txResponse);
+          }
+        });
+        throw new SwimError(
+          i18next.t("general.one_or_more_transaction_not_confirmed_error"),
+        );
+      },
 
-      await sleep(DEFAULT_SLEEP_MS);
-      --remainingAttempts;
-    }
-    throw new SwimError(`One or more transactions did not confirm`);
+      maxRetries,
+    );
   }
 
   async getTokenAccountWithRetry(
@@ -302,9 +284,7 @@ export class SolanaConnection {
       mintPubkey,
       ownerPubkey,
     ).toBase58();
-
-    let remainingAttempts = maxRetries;
-    while (remainingAttempts >= 0) {
+    return this.callWithRetry(async () => {
       const { value: accounts } =
         await this.rawConnection.getTokenAccountsByOwner(
           ownerPubkey,
@@ -323,13 +303,12 @@ export class SolanaConnection {
           tokenAccount.account.data,
         );
       }
-      await sleep(DEFAULT_SLEEP_MS);
-      --remainingAttempts;
-    }
-
-    throw new Error(
-      "Successfully created SPL token account but failed to fetch it",
-    );
+      throw new SwimError(
+        i18next.t(
+          "general.created_spl_token_account_but_failed_to_fetch_error",
+        ),
+      );
+    }, maxRetries);
   }
 
   // Looks for a signature, only returns a value if there's no error
@@ -352,5 +331,75 @@ export class SolanaConnection {
     } catch {
       return null;
     }
+  }
+
+  private incrementRpcProvider() {
+    if (
+      this.endpoints.length === 1 &&
+      (this.rawConnection as CustomConnection | undefined) !== undefined
+    ) {
+      // Skip initializing a new connection if there are no fallback endpoints
+      // and it is not being called in the constructor (when this.rawConnection is still undefined)
+      return;
+    }
+    if ((this.dummySubscriptionId as number | undefined) !== undefined) {
+      // Remove old dummy subscription if it has been initialized.
+      this.rawConnection
+        .removeAccountChangeListener(this.dummySubscriptionId)
+        .catch(console.error);
+    }
+    this.rpcIndex = (this.rpcIndex + 1) % this.endpoints.length;
+    this.rawConnection = new CustomConnection(this.endpoints[this.rpcIndex], {
+      commitment: DEFAULT_COMMITMENT_LEVEL,
+      confirmTransactionInitialTimeout: 60 * 1000,
+      disableRetryOnRateLimit: true,
+    });
+    this.dummySubscriptionId = this.rawConnection.onAccountChange(
+      Keypair.generate().publicKey,
+      () => {},
+    );
+
+    this.getAccountInfo = this.rawConnection.getAccountInfo.bind(
+      this.rawConnection,
+    );
+    this.getBalance = this.rawConnection.getBalance.bind(this.rawConnection);
+    this.getMinimumBalanceForRentExemption =
+      this.rawConnection.getMinimumBalanceForRentExemption.bind(
+        this.rawConnection,
+      );
+    this.getLatestBlockhash = this.rawConnection.getLatestBlockhash.bind(
+      this.rawConnection,
+    );
+    this.getSignaturesForAddress =
+      this.rawConnection.getSignaturesForAddress.bind(this.rawConnection);
+    this.getTokenAccountsByOwner =
+      this.rawConnection.getTokenAccountsByOwner.bind(this.rawConnection);
+    this.onAccountChange = this.rawConnection.onAccountChange.bind(
+      this.rawConnection,
+    );
+    this.removeAccountChangeListener =
+      this.rawConnection.removeAccountChangeListener.bind(this.rawConnection);
+  }
+
+  private async callWithRetry<T>(
+    fn: () => Promise<T>,
+    maxRetries: number,
+  ): Promise<T> {
+    let attempts = 0;
+    while (attempts < maxRetries) {
+      attempts++;
+      try {
+        return await fn();
+      } catch (error: unknown) {
+        if (attempts >= maxRetries) {
+          throw error;
+        } else if (error instanceof Error && error.name === "NetworkError") {
+          this.incrementRpcProvider();
+        } else {
+          await sleep(DEFAULT_SLEEP_MS);
+        }
+      }
+    }
+    throw new SwimError("callWithRetry bug, this code should be unreachable.");
   }
 }

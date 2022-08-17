@@ -20,7 +20,7 @@ import { SwimDefiInstruction } from "./instructions";
 import type { Interaction } from "./interaction";
 import type { OperationSpec } from "./operation";
 import type { TokensByPoolId } from "./pool";
-import { getPoolState } from "./pool";
+import { getSolanaPoolState } from "./pool";
 
 export const doSingleSolanaPoolOperation = async (
   env: Env,
@@ -35,7 +35,7 @@ export const doSingleSolanaPoolOperation = async (
   if (walletAddress === null) {
     throw new Error("Missing Solana wallet");
   }
-  const poolState = await getPoolState(solanaConnection, poolSpec);
+  const poolState = await getSolanaPoolState(solanaConnection, poolSpec);
   if (poolState === null) {
     throw new Error("Missing pool state");
   }

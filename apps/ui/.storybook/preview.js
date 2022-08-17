@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import "../src/App.scss";
 import { AppContext } from "../src/contexts";
 
@@ -13,8 +15,11 @@ export const parameters = {
 
 export const decorators = [
   (Story) => (
-    <AppContext>
-      <Story />
-    </AppContext>
+    // Needed for i18next
+    <Suspense fallback="loading">
+      <AppContext>
+        <Story />
+      </AppContext>
+    </Suspense>
   ),
 ];

@@ -124,7 +124,7 @@ export const TokenAmountInputV2: React.FC<Props> = ({
           ) : (
             <EuiFieldIntlNumber
               placeholder={placeholder}
-              defaultValue={value}
+              value={value}
               step={10 ** -tokenDetails.decimals}
               min={0}
               onValueChange={onChangeValue}

@@ -84,6 +84,31 @@ export const useIntlListSeparators = (
   };
 };
 
+export const useIntlNumberSeparators = () => {
+  const numberFormatter = useIntlNumberFormatter();
+
+  return useMemo(() => {
+    const parts = numberFormatter.formatToParts(1234.5);
+
+    const decimalSeparator = parts.find(
+      (part) => part.type === "decimal",
+    )?.value;
+    if (!decimalSeparator) {
+      throw new Error("Could not find decimal separator");
+    }
+
+    const groupSeparator = parts.find((part) => part.type === "group")?.value;
+    if (!groupSeparator) {
+      throw new Error("Could not find group separator");
+    }
+
+    return {
+      decimal: decimalSeparator,
+      group: groupSeparator,
+    };
+  }, [numberFormatter]);
+};
+
 export const useIntlRelativeTimeFromNow = (
   options?: Intl.RelativeTimeFormatOptions,
 ) => {

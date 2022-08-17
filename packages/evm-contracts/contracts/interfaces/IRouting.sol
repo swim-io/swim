@@ -6,6 +6,7 @@ import "./IPool.sol";
 interface IRouting {
   error Routing__ErrorMessage(string message);
   error Routing__TokenNotRegistered(bytes20 addressOrTokenNumber);
+  error Routing__NotEnoughGasTokens(uint256 minGasPrice, uint256 gasTokensAmount);
 
   event TokenRegistered(uint16 indexed tokenId, address indexed tokenContract, address pool);
 
@@ -33,6 +34,16 @@ interface IRouting {
     bytes16 indexed memo
   );
 
+  struct PropellerData {
+    bytes32 toOwner;
+    address toToken;
+    uint256 secondMinimumOutputAmount;
+    uint16 wormholeRecipientChain;
+    bytes16 memo;
+    bool propellerEnabled;
+    bool gasKickStart;
+  }
+
   function onChainSwap(
     address fromToken,
     uint256 inputAmount,
@@ -44,15 +55,9 @@ interface IRouting {
 
   function swapAndTransfer(
     address fromToken,
-    address toToken,
     uint256 inputAmount,
     uint256 firstMinimumOutputAmount,
-    uint256 secondMinimumOutputAmount,
-    uint16 wormholeRecipientChain,
-    bytes32 toOwner,
-    bytes16 memo,
-    bool propellerEnabled,
-    bool gasKickStart
+    PropellerData memory propellerData
   ) external payable returns (uint64 wormholeSequence);
 
   function receiveAndSwap(

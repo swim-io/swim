@@ -120,29 +120,17 @@ contract Routing is
   /**
    * @notice Swap and send ERC20 token through portal
    * @param fromToken the token user wants to swap from
-   * @param toToken the token user wants to swap to
    * @param inputAmount the amount of tokens user wants to swap from
    * @param firstMinimumOutputAmount expected minimum amount after swap
-   * @param secondMinimumOutputAmount expected minimum abount after wormhole transfer
-   * @param wormholeRecipientChain Wormhole receiver chain
-   * @param toOwner the address of token beneficiary
-   * @param memo bytes16 current memo
-   * @param propellerEnabled bool that activates propeller feature
-   * @param gasKickStart bool true if extra gas activated on propeller
+   * @param propellerData struct with data for wormhole transfer
    * @return wormholeSequence Wormhole Sequence
    */
 
   function swapAndTransfer(
     address fromToken,
-    address toToken,
     uint256 inputAmount,
     uint256 firstMinimumOutputAmount,
-    uint256 secondMinimumOutputAmount,
-    uint16 wormholeRecipientChain,
-    bytes32 toOwner,
-    bytes16 memo,
-    bool propellerEnabled,
-    bool gasKickStart
+    PropellerData memory propellerData
   ) external payable whenNotPaused returns (uint64 wormholeSequence) {
     (address fromPool, uint8 fromIndex) = getPoolAndIndex(fromToken);
 
@@ -162,42 +150,51 @@ contract Routing is
 
     IERC20Upgradeable(swimUsdAddress).safeApprove(address(tokenBridge), receivedSwimUsdAmount);
 
-    if (wormholeRecipientChain == WORMHOLE_SOLANA_CHAIN_ID) {
+    wormholeSequence = _tokenBridgeTransfer(receivedSwimUsdAmount, propellerData);
+    ++wormholeNonce;
+
+    emit SwapAndTransfer(msg.sender, wormholeSequence, fromToken, inputAmount, propellerData.memo);
+  }
+
+  function _tokenBridgeTransfer(uint256 receivedSwimUsdAmount, PropellerData memory propellerData)
+    internal
+    returns (uint64 wormholeSequence)
+  {
+    if (propellerData.wormholeRecipientChain == WORMHOLE_SOLANA_CHAIN_ID) {
       uint256 arbiterFee = 0;
       wormholeSequence = tokenBridge.transferTokens(
         swimUsdAddress,
         receivedSwimUsdAmount,
         WORMHOLE_SOLANA_CHAIN_ID,
-        toOwner,
+        propellerData.toOwner,
         arbiterFee,
         wormholeNonce
       );
     } else {
       uint256 propellerMinThreashold = 100;
-      (, uint8 toIndex) = getPoolAndIndex(toToken);
+      if (receivedSwimUsdAmount <= propellerMinThreashold) {
+        revert Routing__NotEnoughGasTokens(propellerMinThreashold, receivedSwimUsdAmount);
+      }
+      (, uint8 toIndex) = getPoolAndIndex(propellerData.toToken);
       bytes memory swimPayload = SwimPayload.encode(
-        toOwner,
+        propellerData.toOwner,
         toIndex,
-        secondMinimumOutputAmount,
-        memo,
-        propellerEnabled,
+        propellerData.secondMinimumOutputAmount,
+        propellerData.memo,
+        propellerData.propellerEnabled,
         propellerMinThreashold,
-        gasKickStart
+        propellerData.gasKickStart
       ); // TODO
       bytes32 thisAddress = bytes32(uint256(uint160(address(this))));
       wormholeSequence = tokenBridge.transferTokensWithPayload(
         swimUsdAddress,
         receivedSwimUsdAmount,
-        wormholeRecipientChain,
+        propellerData.wormholeRecipientChain,
         thisAddress,
         wormholeNonce,
         swimPayload
       );
     }
-
-    ++wormholeNonce;
-
-    emit SwapAndTransfer(msg.sender, wormholeSequence, fromToken, inputAmount, memo);
   }
 
   /**

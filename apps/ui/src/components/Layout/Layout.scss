@@ -29,7 +29,9 @@
 /* add hacky custom footer */
 .footer {
   display: flex;
-  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 12px;
   background-color: #f9fafd !important; // bottom wave
 }
 

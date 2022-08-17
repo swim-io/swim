@@ -5,7 +5,7 @@ import {
   EuiPopover,
   EuiPopoverTitle,
   EuiSelectable,
-  htmlIdGenerator,
+  useGeneratedHtmlId,
 } from "@elastic/eui";
 import * as Sentry from "@sentry/react";
 import { isValidEnv } from "@swim-io/core";
@@ -35,13 +35,13 @@ export const EnvSelector = (): ReactElement => {
   };
 
   const handleButtonClick = (): void => {
-    setIsOpen(!isOpen);
+    setIsOpen((prevState) => !prevState);
   };
   const closePopover = (): void => {
     setIsOpen(false);
   };
 
-  const id = htmlIdGenerator()();
+  const id = useGeneratedHtmlId({ prefix: "envSelector" });
 
   const envOptions: readonly EuiSelectableOption[] = envs.map(
     (name: string) => ({

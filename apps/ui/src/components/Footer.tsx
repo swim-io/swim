@@ -10,6 +10,8 @@ import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import { Language } from "../config";
+
 import { LanguageSelectorDropdown } from "./LanguageSelector";
 
 export const Footer = (): ReactElement | null => {
@@ -171,9 +173,7 @@ export const Footer = (): ReactElement | null => {
         </EuiFlexItem>
       </EuiFlexGroup>
 
-      {process.env.REACT_APP_ENABLE_LANGUAGE_SELECTOR === "true" ? (
-        <LanguageSelectorDropdown />
-      ) : null}
+      {Object.keys(Language).length > 1 ? <LanguageSelectorDropdown /> : null}
     </EuiPanel>
   );
 };

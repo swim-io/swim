@@ -7,6 +7,7 @@ import {
 import type { ReactElement, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
+import { Language } from "../../config";
 import { MultiConnectButton } from "../ConnectButton";
 import { CustomHeaderLink } from "../CustomHeaderLink";
 import { CustomHeaderLogo } from "../CustomHeaderLogo";
@@ -60,7 +61,7 @@ export const Layout = ({
                 <MultiConnectButton size="s" fullWidth />
               </EuiHeaderSectionItem>,
               <EnvSelector key="env-selector" />,
-              ...(process.env.REACT_APP_ENABLE_LANGUAGE_SELECTOR === "true"
+              ...(Object.keys(Language).length > 1
                 ? [<LanguageSelectorButton key="language-selector" />]
                 : []),
             ],

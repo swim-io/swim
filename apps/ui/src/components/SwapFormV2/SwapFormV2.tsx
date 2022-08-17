@@ -19,7 +19,11 @@ import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useNotification } from "../../core/store";
 import { captureAndWrapException } from "../../errors";
 import {
+  useGetSwapFormErrorsV2,
+  useIsLargeSwapV2,
+  useIsRequiredPoolPaused,
   useSwapFeesEstimationQueryV2,
+  useSwapOutputAmountEstimateV2,
   useSwapTokensV2,
   useUserBalanceAmount,
   useUserNativeBalances,
@@ -74,8 +78,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     toTokenOption,
   );
 
-  // TODO: get required pool status
-  const isRequiredPoolPaused = (() => false)();
+  const isRequiredPoolPaused = useIsRequiredPoolPaused(requiredPools);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [confirmModalDescription, setConfirmModalDescription] =
@@ -87,7 +90,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     [],
   );
 
-  const feesEstimation = useSwapFeesEstimationQueryV2(
+  const { data: feesEstimation = null } = useSwapFeesEstimationQueryV2(
     fromTokenOption,
     toTokenOption,
   );
@@ -97,17 +100,30 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     new Decimal(0),
   );
 
-  // TODO: create V2 of these check
-  const isLargeSwap = (() => false)();
+  const isLargeSwap = useIsLargeSwapV2(
+    fromTokenOption,
+    toTokenOption,
+    inputAmount,
+  );
   const isSmallEthSwap =
     TOKEN_PROJECTS_BY_ID[fromTokenSpec.projectId].isStablecoin &&
     [fromTokenOption.ecosystemId, toTokenOption.ecosystemId].includes(
       EcosystemId.Ethereum,
     ) &&
     inputAmount.lt(200);
-  const getSwapFormErrors = (_: boolean) => [];
-  const isInputAmountPositive = (() => true)();
-  const outputAmount = inputAmount;
+  const getSwapFormErrors = useGetSwapFormErrorsV2(
+    fromTokenOption,
+    toTokenOption,
+    inputAmount,
+    maxSlippageFraction,
+  );
+  const isInputAmountPositive =
+    !inputAmount.isNegative() && !inputAmount.isZero();
+  const outputAmount = useSwapOutputAmountEstimateV2(
+    fromTokenOption,
+    toTokenOption,
+    inputAmount,
+  );
   const fromTokenBalance = useUserBalanceAmount(
     fromTokenSpec,
     fromTokenOption.ecosystemId,
@@ -116,9 +132,10 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     toTokenSpec,
     toTokenOption.ecosystemId,
   );
-  const outputAmountString = outputEcosystemDetail
-    ? outputAmount.toPrecision(outputEcosystemDetail.decimals)
-    : "0";
+  const outputAmountString =
+    outputAmount !== null && outputEcosystemDetail
+      ? outputAmount.toDecimalPlaces(outputEcosystemDetail.decimals).toString()
+      : "0";
 
   const handleInputAmountChange = (
     currentInputAmount: Decimal | null,
@@ -193,11 +210,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     }
 
     // These are just for type safety and should in theory not happen
-    if (
-      // outputAmount === null ||
-      // !isEachNotNull(poolMaths) ||
-      maxSlippageFraction === null
-    ) {
+    if (outputAmount === null || maxSlippageFraction === null) {
       notify(
         t("notify.unexpected_form_error_title"),
         t("notify.unexpected_form_error_description"),

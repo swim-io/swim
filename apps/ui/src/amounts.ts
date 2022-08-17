@@ -93,3 +93,10 @@ export const bnOrBigNumberToDecimal = (bn: BN | BigNumber): Decimal =>
 
 export const u64ToDecimal = (number: u64): Decimal =>
   new Decimal(number.toString());
+
+export const sum = (balances: readonly Decimal[] | null) => {
+  if (balances === null) {
+    return null;
+  }
+  return Decimal.sum(...balances);
+};

@@ -11,7 +11,7 @@ import {
 
 import { useSolanaConnection } from "./useSolanaConnection";
 
-export const useLiquidityQuery = (
+export const useSolanaLiquidityQuery = (
   tokenAccountAddresses: readonly string[],
 ): UseQueryResult<readonly (TokenAccount | null)[], Error> => {
   const { env } = useEnvironment();
@@ -44,7 +44,7 @@ export const useLiquidityQuery = (
   );
 };
 
-export const useLiquidityQueries = (
+export const useSolanaLiquidityQueries = (
   tokenAccountAddresses: readonly (readonly string[])[],
 ): readonly UseQueryResult<readonly TokenAccount[], Error>[] => {
   const { env } = useEnvironment();

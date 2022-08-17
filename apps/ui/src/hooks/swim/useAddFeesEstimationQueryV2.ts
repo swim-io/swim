@@ -16,6 +16,7 @@ export const useAddFeesEstimationQueryV2 = (
 
   return useQuery<FeesEstimation, Error>(
     [env, "useAddFeesEstimationQueryV2", poolEcosystem, nonZeroTokenCount],
+    // TODO: estimation fee logic
     () => ZERO_FEE,
   );
 };

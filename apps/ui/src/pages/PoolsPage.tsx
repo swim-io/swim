@@ -48,13 +48,13 @@ const PoolsPage = (): ReactElement => {
   const { ecosystems, ecosystemId, setEcosystemId } = useEcosystemFilter();
   const { tokenProjects, tokenProjectId, setTokenProjectId } =
     useTokenProjectFilter();
-  const { filteredPools, poolWithUsdValues } = useFilteredPools(
+  const { filteredPools, poolsWithUsdValues } = useFilteredPools(
     tokenProjectId,
     ecosystemId,
   );
 
   const poolTokens: ReadonlyRecord<PoolSpec["id"], readonly TokenSpec[]> =
-    poolWithUsdValues.reduce(
+    poolsWithUsdValues.reduce(
       (accumulator, { poolSpec }) => ({
         ...accumulator,
         [poolSpec.id]: poolSpec.tokens.map((id) =>
@@ -447,7 +447,7 @@ function useFilteredPools(
   const { pools, tokens } = useEnvironment(selectConfig, shallow);
 
   const poolUsdValues = usePoolUsdValues(pools);
-  const poolWithUsdValues = pools.map((poolSpec, i) => ({
+  const poolsWithUsdValues = pools.map((poolSpec, i) => ({
     poolSpec,
     usdValue: poolUsdValues[i],
   }));
@@ -472,7 +472,7 @@ function useFilteredPools(
     );
   }, [pools, tokens]);
 
-  const filteredPools = poolWithUsdValues
+  const filteredPools = poolsWithUsdValues
     .filter(({ poolSpec }) => {
       if (tokenProjectId === "all") return true;
       return projectsPerPool[poolSpec.id].includes(tokenProjectId);
@@ -483,7 +483,7 @@ function useFilteredPools(
     });
 
   return {
-    poolWithUsdValues,
+    poolsWithUsdValues,
     filteredPools,
   };
 }

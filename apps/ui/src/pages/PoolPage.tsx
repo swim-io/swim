@@ -151,7 +151,10 @@ export const PoolPageInner = ({
             }}
           />
         ),
-        description: humanizeUsdAmount(poolState.balances[i].toString()),
+        description: atomicToHumanString(
+          new Decimal(poolState.balances[i].toString()),
+          2,
+        ),
         key: tokenSpec.id,
       };
     }

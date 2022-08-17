@@ -13,14 +13,14 @@ import { usePoolBalances } from "./usePoolBalances";
 
 export const usePoolUsdValues = (poolSpecs: readonly PoolSpec[]) => {
   const { tokens } = useEnvironment(selectConfig, shallow);
-  const poolBalances = usePoolBalances(poolSpecs);
+  const balancesByPool = usePoolBalances(poolSpecs);
   const { data: prices = new Map<TokenSpec["id"], Decimal | null>() } =
     useCoinGeckoPricesQuery();
 
   return poolSpecs.map((poolSpec, index) => {
-    const poolBalance = poolBalances[index];
+    const poolBalance = balancesByPool[index];
     if (poolBalance === null) {
-      return new Decimal(-1);
+      return new Decimal(0);
     }
     if (isSolanaPool(poolSpec)) {
       const poolTokens = poolSpec.tokens.map((tokenId) =>
@@ -33,7 +33,7 @@ export const usePoolUsdValues = (poolSpecs: readonly PoolSpec[]) => {
             !prices.get(tokenSpec.id),
         )
       ) {
-        return new Decimal(-1);
+        return new Decimal(0);
       }
       return poolTokens.reduce((sum, tokenSpec, i) => {
         const price = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].isStablecoin

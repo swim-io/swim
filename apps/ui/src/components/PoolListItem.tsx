@@ -61,7 +61,7 @@ export const PoolListItem = ({
   const poolId = poolSpec?.id ?? null;
   const isStableSwap = poolSpec?.isStableSwap ?? null;
   const isLegacyPool = poolSpec?.isLegacyPool ?? true;
-  const poolEcosystem = poolSpec?.ecosystem;
+  const poolEcosystem = poolSpec?.ecosystem ?? null;
 
   return (
     <EuiCard
@@ -94,7 +94,7 @@ export const PoolListItem = ({
                   <TokenIcon
                     {...TOKEN_PROJECTS_BY_ID[tokenSpec.projectId]}
                     ecosystemId={
-                      !isLegacyPool && poolEcosystem
+                      !isLegacyPool && poolEcosystem !== null
                         ? poolEcosystem
                         : tokenSpec.nativeEcosystemId
                     }

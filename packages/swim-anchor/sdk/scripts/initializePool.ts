@@ -1,31 +1,51 @@
 #!/usr/bin/env node
 
 import * as anchor from "@project-serum/anchor";
+import * as path from 'path';
+import * as fs from 'fs';
 import {web3, Spl} from "@project-serum/anchor";
 import {
+  getApproveAndRevokeIxs,
   TwoPoolContext, twoPoolToString,
   writePoolStateToFile,
 } from "../src";
 
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import { setupPoolPrereqs, setupUserAssociatedTokenAccts } from "../tests/twoPool/poolTestUtils";
+import { Keypair } from "@solana/web3.js";
 
-const provider = anchor.AnchorProvider.env();
+const envProvider = anchor.AnchorProvider.env();
+const commitment = "confirmed" as web3.Commitment;
+const rpcCommitmentConfig = {
+  commitment,
+  preflightCommitment: commitment,
+  skipPreflight: true
+};
+
+const provider = new anchor.AnchorProvider(
+  envProvider.connection,
+  envProvider.wallet,
+  rpcCommitmentConfig
+);
 const payer = (provider.wallet as NodeWallet).payer;
-
+anchor.setProvider(provider);
 console.log(`anchorProvider pubkey: ${provider.publicKey.toBase58()}`);
 
-const programId = new web3.PublicKey(
-  "8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM"
-);
-
-
-const twoPoolContext = TwoPoolContext.withProvider(
+// const programId = new web3.PublicKey(
+//   "8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM"
+// );
+//
+//
+// const twoPoolContext = TwoPoolContext.withProvider(
+//   provider,
+//   programId
+// );
+const twoPoolContext = TwoPoolContext.fromWorkspace(
   provider,
-  programId
+  anchor.workspace.TwoPool
 );
 
-const program = twoPoolContext.program;
+const twoPoolProgram = twoPoolContext.program;
 
 
 const splToken = Spl.token(provider);
@@ -60,13 +80,21 @@ type DecimalU64Anchor = {
   decimals: number;
 }
 
+const outDir = path.resolve(__dirname, "output", new Date().getTime().toString());
+if (!fs.existsSync(outDir)) {
+  fs.mkdirSync(outDir);
+}
+const poolStatePath = path.resolve(outDir, "poolState.json");
+const pauseKeyPath = path.resolve(outDir, "pauseKey.json");
+const governanceKeyPath = path.resolve(outDir, "governanceKey.json");
+
 async function initialize(){
   ({
     poolPubkey: flagshipPool,
     poolTokenAccounts: [poolUsdcAtaAddr, poolUsdtAtaAddr],
     governanceFeeAccount: governanceFeeAddr,
   } = await setupPoolPrereqs(
-    program,
+    twoPoolProgram,
     splToken,
     poolMintKeypairs,
     poolMintDecimals,
@@ -79,7 +107,7 @@ async function initialize(){
     lpFee,
     governanceFee,
   }
-  const tx = await program
+  const tx = await twoPoolProgram
     .methods
     // .initialize(params)
     .initialize(
@@ -120,11 +148,16 @@ async function initialize(){
   );
   console.log("Transaction has been confirmed");
 
-  let path = "/tmp/two_pool_state.json";
-  let twoPoolStr = await twoPoolToString(program, flagshipPool);
+  const twoPoolStr = await twoPoolToString(twoPoolProgram, flagshipPool);
+  console.log(`twoPool: ${twoPoolStr}`);
 
-  writePoolStateToFile(path, twoPoolStr);
+  console.log(`writing pool state, pause & gov keys to ${outDir}`);
+  writePoolStateToFile(poolStatePath, twoPoolStr);
+  writeKeypairToFile(pauseKeyPath, pauseKeypair);
+  writeKeypairToFile(governanceKeyPath, governanceKeypair);
+}
 
+async function add() {
   ({
     userPoolTokenAtas: [userUsdcAtaAddr, userUsdtAtaAddr],
     userLpTokenAta: userSwimUsdAtaAddr
@@ -137,15 +170,75 @@ async function initialize(){
     initialMintAmount,
     payer
   ));
+
+  const inputAmounts = [new anchor.BN(500_000_000_000), new anchor.BN(400_000_000_000)];
+  const minimumMintAmount = new anchor.BN(0);
+
+  let userTransferAuthority = web3.Keypair.generate();
+  const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+    splToken,
+    [userUsdcAtaAddr, userUsdtAtaAddr],
+    inputAmounts,
+    userTransferAuthority.publicKey,
+    payer
+  )
+  const tx = await twoPoolProgram
+    .methods
+    // .add(addParams)
+    .add(
+      inputAmounts,
+      minimumMintAmount,
+    )
+    .accounts({
+
+      poolTokenAccount0: poolUsdcAtaAddr,
+      poolTokenAccount1: poolUsdtAtaAddr,
+      lpMint: swimUsdKeypair.publicKey,
+      governanceFee: governanceFeeAddr,
+      userTransferAuthority: userTransferAuthority.publicKey,
+      userTokenAccount0: userUsdcAtaAddr,
+      userTokenAccount1: userUsdtAtaAddr,
+      userLpTokenAccount: userSwimUsdAtaAddr,
+      tokenProgram: splToken.programId,
+    })
+    .preInstructions(approveIxs)
+    .postInstructions(revokeIxs)
+    .signers([userTransferAuthority])
+    .rpc();
+
+  const userUsdcAta = await tokenAccountToJson(userUsdcAtaAddr);
+  const userUsdtAta = await tokenAccountToJson(userUsdtAtaAddr);
+  const userSwimUsdAta = await tokenAccountToJson(userSwimUsdAtaAddr);
+
+  console.log(`
+    userUsdcAta: ${userUsdcAta}
+    userUsdtAta: ${userUsdtAta}
+    userSwimUsdAta: ${userSwimUsdAta}
+  `);
 }
 
-async function add() {
+const tokenAccountToJson = async (key: web3.PublicKey) => {
+  const tokenAccount = await splToken.account.token.fetch(key);
 
-}
+  const tokenAccountFormatted  = {
+    key,
+    ...tokenAccount,
+    amount: tokenAccount.amount.toString(),
+    delegatedAmount: tokenAccount.delegatedAmount.toString(),
+  };
+  return JSON.stringify(tokenAccountFormatted, null, 2);
+};
 
+const writeKeypairToFile = (keypairPath: string, keypair: Keypair) => {
+  fs.writeFileSync(keypairPath, "[" + keypair.secretKey.toString() + "]");
+};
 
 async function main() {
   await initialize();
+  console.log(`intitialized pool`);
+  await add();
+  console.log(`seeded pool and user accounts`);
 }
+
 
 main();

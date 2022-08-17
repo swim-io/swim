@@ -28,6 +28,14 @@ export class TwoPoolContext {
     );
   }
 
+  public static fromWorkspace(
+    provider: AnchorProvider,
+    program: Program,
+    opts: ConfirmOptions = AnchorProvider.defaultOptions()
+  ) {
+    return new TwoPoolContext(provider, provider.wallet, program, opts);
+  }
+
   public static withProvider(
     provider: AnchorProvider,
     programId: PublicKey,

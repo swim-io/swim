@@ -7,10 +7,11 @@ run the following command from the `swim-anchor` directory and update any releva
 `yarn run idl`
 
 ## Scripts (WIP)
-1. To run the initialize_pool script run
-  `anchor run initialize_pool`
-    1. this runs the alias under the `[scripts]` section in the `Anchor.toml`
-    2. to test on localnet, start anchor test validator first with `anchor localnet`.
+1. localnet (requires starting a local test validator with `anchor localnet` first)
+`anchor run initialize_pool`
+2. devnet
+`anchor run --provider.cluster devnet initialize_pool`
+
 
 ## Tests
 1. to run the tests in sdk/tests run any of the following from `package/swim-anchor`
@@ -27,6 +28,8 @@ FetchError: request to http://localhost:8899/ failed, reason: connect ECONNREFUS
 ```
 check your npm version. npm lts/gallium (v16.15.1 as of this writing) works but v18.4.0 hits this issue
 
+## Deployment
+`anchor deploy --provider.cluster devnet --program-name two-pool --program-keypair ~/work/swim/keypairs/devnet/pool_restructure/two_pool_anchor.json`
 
 ## To Dos
 1. update `yarn idl` cmd once propeller is added to monorepo so that idl artifacts are generated

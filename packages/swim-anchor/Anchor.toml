@@ -17,7 +17,7 @@ wallet = "./sdk/tests/test_wallet.json"
 [scripts]
 #test = "yarn run ts-mocha -p ./sdk/tests/tsconfig.json -t 1000000 sdk/tests/**/pool.test.ts"
 test = "./scripts/run_anchor_test.sh"
-initialize_pool = "yarn run sdk:build && yarn run ts-node sdk/scripts/initializePool.ts"
+initialize_pool = "yarn run build:anchor && yarn run ts-node sdk/scripts/initializePool.ts"
 
 [test]
 startup_wait = 100000

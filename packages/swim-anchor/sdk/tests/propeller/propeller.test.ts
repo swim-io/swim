@@ -103,7 +103,7 @@ const confirmedCommitment = {commitment: "confirmed" as web3.Finality};
 const commitment = "confirmed" as web3.Commitment;
 const rpcCommitmentConfig = {
   commitment,
-  preflightCommitment: "confirmed" as web3.Commitment,
+  preflightCommitment: commitment,
   skipPreflight: true
 };
 const provider = new anchor.AnchorProvider(

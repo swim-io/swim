@@ -4,6 +4,8 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import resourcesToBackend from "i18next-resources-to-backend";
 import { initReactI18next } from "react-i18next";
 
+import { Language } from "./config";
+
 const fallbackLanguage = "en";
 
 // eslint-disable-next-line import/no-named-as-default-member
@@ -24,6 +26,8 @@ i18next
   .use(initReactI18next)
   .init({
     fallbackLng: fallbackLanguage,
+    supportedLngs: Object.values(Language),
+    nonExplicitSupportedLngs: true,
     // Helps finding issues with loading not working.
     debug: process.env.NODE_ENV === "development",
     react: {

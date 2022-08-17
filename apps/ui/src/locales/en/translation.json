@@ -50,6 +50,7 @@
   "general.require_a_valid_max_slippage_setting": "Provide a valid max slippage setting",
   "general.require_non_empty_balance_in_specific_wallet": "Empty balance in {{ecosystemName}} wallet. You will need some funds to pay for transaction fees.",
   "general.require_some_balance_in_solana_wallet": "Low SOL in Solana wallet. You will need up to ~{{minimumFee}} SOL to pay for network fees.",
+  "general.select_language": "Select language",
   "general.select_network": "Select network",
   "general.settings": "Settings",
   "general.transaction_not_confirmed_error": "Transaction with ID {{txId}} did not confirm",

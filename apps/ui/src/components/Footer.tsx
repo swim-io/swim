@@ -10,6 +10,10 @@ import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import { Language } from "../config";
+
+import { LanguageSelectorDropdown } from "./LanguageSelector";
+
 export const Footer = (): ReactElement | null => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -24,7 +28,10 @@ export const Footer = (): ReactElement | null => {
       borderRadius="none"
       className="footer"
     >
-      <EuiFlexGroup justifyContent="spaceEvenly" style={{ maxWidth: "1200px" }}>
+      <EuiFlexGroup
+        justifyContent="spaceEvenly"
+        style={{ maxWidth: "1200px", width: "100%" }}
+      >
         <EuiFlexItem grow={false}>
           <EuiListGroup gutterSize="none">
             <EuiListGroupItem label={t("nav.app")} size={listGroupHeaderSize} />
@@ -165,6 +172,8 @@ export const Footer = (): ReactElement | null => {
           </EuiListGroup>
         </EuiFlexItem>
       </EuiFlexGroup>
+
+      {Object.keys(Language).length > 1 ? <LanguageSelectorDropdown /> : null}
     </EuiPanel>
   );
 };

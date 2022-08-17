@@ -7,11 +7,13 @@ import {
 import type { ReactElement, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
+import { Language } from "../../config";
 import { MultiConnectButton } from "../ConnectButton";
 import { CustomHeaderLink } from "../CustomHeaderLink";
 import { CustomHeaderLogo } from "../CustomHeaderLogo";
 import { EnvSelector } from "../EnvSelector";
 import { Footer } from "../Footer";
+import { LanguageSelectorButton } from "../LanguageSelector";
 import { Waves } from "../Waves";
 
 import "./Layout.scss";
@@ -59,6 +61,9 @@ export const Layout = ({
                 <MultiConnectButton size="s" fullWidth />
               </EuiHeaderSectionItem>,
               <EnvSelector key="env-selector" />,
+              ...(Object.keys(Language).length > 1
+                ? [<LanguageSelectorButton key="language-selector" />]
+                : []),
             ],
             borders: "none",
           },

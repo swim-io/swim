@@ -5,8 +5,8 @@ import type { SolanaConnection } from "../../models/solana";
 
 export const useSolanaConnection = (): SolanaConnection => {
   const solanaConnection = useContext(SolanaConnectionContext);
-  if (!context) {
+  if (!solanaConnection) {
     throw new Error("Missing Solana connection context");
   }
-  return context;
+  return solanaConnection;
 };

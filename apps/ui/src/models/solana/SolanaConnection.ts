@@ -71,6 +71,10 @@ export class SolanaConnection {
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
   private rpcIndex;
   private readonly endpoints: readonly string[];
+  // TODO: Check if this is still necessary.
+  // The websocket library solana/web3.js closes its websocket connection when the subscription list
+  // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.
+  // This is a hack to prevent the list from ever getting empty
   private dummySubscriptionId!: number;
 
   constructor(endpoints: readonly string[]) {

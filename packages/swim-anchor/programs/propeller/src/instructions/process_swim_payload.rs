@@ -2,6 +2,7 @@ pub use switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_
 use {
     crate::{
         create_token_id_mapping::{PoolInstruction, TokenIdMapping},
+        deserialize_message_payload,
         error::*,
         get_message_data, get_transfer_with_payload_from_message_account, hash_vaa, ClaimData,
         PayloadTransferWithPayload, PostVAAData, PostedVAAData, Propeller, SwimPayload,
@@ -274,6 +275,16 @@ pub fn handle_process_swim_payload(
     require!(claim_data.claimed, PropellerError::ClaimNotClaimed);
     msg!("claim_data: {:?}", claim_data);
 
+    let payload_transfer_with_payload_from_vaa: PayloadTransferWithPayload =
+        deserialize_message_payload(&mut vaa.payload.as_slice())?;
+    require_eq!(
+        payload_transfer_with_payload_from_vaa
+            .payload
+            .target_token_id,
+        swim_payload.target_token_id
+    );
+    require_eq!(swim_payload.target_token_id, target_token_id);
+
     let mut transfer_amount = amount.as_u64();
     if ctx.accounts.token_bridge_mint.decimals > 8 {
         transfer_amount *= 10u64.pow((ctx.accounts.token_bridge_mint.decimals - 8) as u32);
@@ -352,6 +363,7 @@ pub fn handle_process_swim_payload(
         // }
     }
 
+    msg!("transfer_amount - fee: {}", transfer_amount);
     if swim_payload.target_token_id == SWIM_USD_TARGET_TOKEN_INDEX {
         // simply transfer out swimUSD to logical recipient
     } else {

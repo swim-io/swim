@@ -259,8 +259,12 @@ pub fn get_transfer_with_payload_from_message_account(
     Ok(payload_transfer_with_payload)
 }
 
-pub fn deserialize_message_payload(buf: &mut &[u8]) -> Result<PayloadTransferWithPayload> {
-    Ok(PayloadTransferWithPayload::deserialize(buf)?)
+pub fn deserialize_message_payload<T: AnchorDeserialize>(buf: &mut &[u8]) -> Result<T> {
+    Ok(T::deserialize(buf)?)
+}
+
+pub fn deserialize_swim_payload(buf: &mut &[u8]) -> Result<SwimPayload> {
+    Ok(SwimPayload::deserialize(buf)?)
 }
 /** Adding PostedVAA version here for parity */
 

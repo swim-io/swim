@@ -15,6 +15,7 @@ module.exports = {
         "redeemer",
         "solana-types",
         "solana-usdc-usdt-swap",
+        "swim-anchor",
         "token-projects",
         "tsconfig",
         "ui",

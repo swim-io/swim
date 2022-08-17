@@ -1,10 +1,14 @@
 {
     "scripts": {
+        "build:anchor": "anchor build -i $INIT_CWD/sdk/src/artifacts -t $INIT_CWD/sdk/src/artifacts",
         "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
         "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
-        "idl": "anchor build -i $INIT_CWD/sdk/src/artifacts -t $INIT_CWD/sdk/src/artifacts",
+        "idl:pool": "anchor idl parse -f programs/two-pool/src/lib.rs -o $INIT_CWD/sdk/src/artifacts/two_pool.json -t $INIT_CWD/sdk/src/artifacts/two_pool.ts",
         "sdk:build": "rm -rf ./sdk/dist && tsc -p sdk/src",
-        "scripts:build": "yarn run idl && yarn run sdk:build && rm -rf sdk/scripts/dist && tsc -p sdk/scripts/tsconfig.json && chmod +x sdk/scripts/dist/initialize_pool.js"
+        "scripts:build": "yarn run build:anchor && yarn run sdk:build && rm -rf sdk/scripts/dist && tsc -p sdk/scripts/tsconfig.json && chmod +x sdk/scripts/dist/initialize_pool.js",
+        "test": "yarn run build:anchor && anchor test",
+        "test:propeller": "yarn run build:anchor && anchor test propeller",
+        "test:pool": "yarn run build:anchor && anchor test pool"
     },
     "workspaces": [
         "sdk",
@@ -16,15 +20,24 @@
         "@solana/web3.js": "^1.50.1"
     },
     "devDependencies": {
+        "@certusone/wormhole-sdk": "^0.6.0",
+        "@certusone/wormhole-sdk-wasm": "^0.0.1",
+        "@ethersproject/bytes": "^5.6.1",
         "@metaplex-foundation/js": "^0.14.0",
         "@types/bn.js": "^5.1.0",
         "@types/chai": "^4.3.0",
         "@types/mocha": "^9.0.0",
+        "byteify": "^2.0.10",
         "chai": "^4.3.4",
+        "elliptic": "^6.5.4",
+        "ethers": "^5.6.9",
+        "keccak256": "^1.0.6",
+        "long": "^5.2.0",
         "mocha": "^9.0.3",
         "prettier": "^2.6.2",
         "ts-mocha": "^10.0.0",
         "ts-node": "^10.9.1",
-        "typescript": "^4.3.5"
+        "typescript": "^4.3.5",
+        "web3-utils": "^1.7.5"
     }
 }

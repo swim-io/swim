@@ -30,9 +30,7 @@ use {
     std::rc::Rc,
     two_pool::{
         amp_factor::AmpFactor,
-        instructions::{
-            InitializeParams, PrepareFeeChangeParams, PrepareGovernanceTransition, ENACT_DELAY,
-        },
+        instructions::{PrepareFeeChangeParams, PrepareGovernanceTransition, ENACT_DELAY},
         pool_fee::PoolFee,
         state::TwoPool,
         DecimalU64Anchor,

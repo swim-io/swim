@@ -2,21 +2,14 @@
 
 import * as anchor from "@project-serum/anchor";
 import {web3, Spl} from "@project-serum/anchor";
-import { Program, SplToken } from "@project-serum/anchor";
 import {
   TwoPoolContext, twoPoolToString,
   writePoolStateToFile,
 } from "../src";
-import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { Account, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
-import fs from "fs";
-import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-// const connectionUrl = "https://devnet.genesysgo.net/";
 
-// const provider = anchor.AnchorProvider.local(
-//   connectionUrl,
-//   {commitment: "confirmed"}
-// );
+import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+import { setupPoolPrereqs, setupUserAssociatedTokenAccts } from "../tests/twoPool/poolTestUtils";
+
 const provider = anchor.AnchorProvider.env();
 const payer = (provider.wallet as NodeWallet).payer;
 
@@ -40,14 +33,18 @@ const splAssociatedToken = Spl.associatedToken(provider);
 const mintDecimals = 6;
 const usdcKeypair = web3.Keypair.generate();
 const usdtKeypair = web3.Keypair.generate();
+const poolMintKeypairs = [usdcKeypair, usdtKeypair];
+const poolMintDecimals = [mintDecimals, mintDecimals];
+const poolMintAuthorities = [payer, payer];
 const swimUsdKeypair = web3.Keypair.generate();
 const governanceKeypair = web3.Keypair.generate();
 const pauseKeypair = web3.Keypair.generate();
 
+const initialMintAmount = 1_000_000_000_000;
+
 let poolUsdcAtaAddr: web3.PublicKey = web3.PublicKey.default;
 let poolUsdtAtaAddr: web3.PublicKey = web3.PublicKey.default;
 let governanceFeeAddr: web3.PublicKey = web3.PublicKey.default;
-let governanceFeeAccount: Account;
 
 let userUsdcAtaAddr: web3.PublicKey = web3.PublicKey.default;
 let userUsdtAtaAddr: web3.PublicKey = web3.PublicKey.default;
@@ -64,8 +61,19 @@ type DecimalU64Anchor = {
 }
 
 async function initialize(){
-  console.log("hi2");
-  await setup();
+  ({
+    poolPubkey: flagshipPool,
+    poolTokenAccounts: [poolUsdcAtaAddr, poolUsdtAtaAddr],
+    governanceFeeAccount: governanceFeeAddr,
+  } = await setupPoolPrereqs(
+    program,
+    splToken,
+    poolMintKeypairs,
+    poolMintDecimals,
+    poolMintAuthorities.map((keypair) => keypair.publicKey),
+    swimUsdKeypair.publicKey,
+    governanceKeypair.publicKey,
+  ));
   const params = {
     ampFactor,
     lpFee,
@@ -117,119 +125,24 @@ async function initialize(){
 
   writePoolStateToFile(path, twoPoolStr);
 
-  await setupUserAssociatedTokenAccts();
+  ({
+    userPoolTokenAtas: [userUsdcAtaAddr, userUsdtAtaAddr],
+    userLpTokenAta: userSwimUsdAtaAddr
+  }  = await setupUserAssociatedTokenAccts(
+    provider.connection,
+    provider.publicKey,
+    poolMintKeypairs.map(kp => kp.publicKey),
+    poolMintAuthorities,
+    swimUsdKeypair.publicKey,
+    initialMintAmount,
+    payer
+  ));
 }
 
 async function add() {
 
 }
 
-async function setup() {
-  // await provider.connection.requestAirdrop(provider.publicKey, LAMPORTS_PER_SOL);
-  await splToken
-    .methods
-    .initializeMint(mintDecimals, provider.publicKey, null)
-    .accounts({
-      mint: usdcKeypair.publicKey,
-    })
-    .preInstructions([
-      await splToken.account.mint.createInstruction(usdcKeypair),
-    ])
-    .signers([usdcKeypair])
-    .rpc();
-
-  await splToken
-    .methods
-    .initializeMint(mintDecimals, provider.publicKey, null)
-    .accounts({
-      mint: usdtKeypair.publicKey,
-    })
-    .preInstructions([
-      await splToken.account.mint.createInstruction(usdtKeypair),
-    ])
-    .signers([usdtKeypair])
-    .rpc();
-
-  [flagshipPool] = await web3.PublicKey.findProgramAddress(
-    [
-      Buffer.from("two_pool"),
-      usdcKeypair.publicKey.toBytes(),
-      usdtKeypair.publicKey.toBytes(),
-      swimUsdKeypair.publicKey.toBytes(),
-    ],
-    program.programId
-  );
-
-  poolUsdcAtaAddr = await getAssociatedTokenAddress(
-    usdcKeypair.publicKey,
-    flagshipPool,
-    true
-  );
-
-  poolUsdtAtaAddr = await getAssociatedTokenAddress(
-    usdtKeypair.publicKey,
-    flagshipPool,
-    true
-  );
-
-
-  console.log(`initialized pool token accounts`);
-
-  governanceFeeAddr = await getAssociatedTokenAddress(
-    swimUsdKeypair.publicKey,
-    governanceKeypair.publicKey,
-  );
-
-
-  console.log(`initialized governance fee account`);
-
-  console.log(`
-      poolUsdcTokenAccount: ${poolUsdcAtaAddr.toBase58()}
-      poolUsdtTokenAccount: ${poolUsdtAtaAddr.toBase58()}
-      governanceFeeAddr: ${governanceFeeAddr.toBase58()}
-    `);
-}
-
-async function setupUserAssociatedTokenAccts() {
-  userUsdcAtaAddr = (await getOrCreateAssociatedTokenAccount(
-    provider.connection,
-    payer,
-    usdcKeypair.publicKey,
-    provider.publicKey,
-  )).address;
-
-  userUsdtAtaAddr = (await getOrCreateAssociatedTokenAccount(
-    provider.connection,
-    payer,
-    usdtKeypair.publicKey,
-    provider.publicKey,
-  )).address;
-
-  userSwimUsdAtaAddr = (await getOrCreateAssociatedTokenAccount(
-    provider.connection,
-    payer,
-    swimUsdKeypair.publicKey,
-    provider.publicKey,
-  )).address;
-
-  await mintTo(
-    provider.connection,
-    payer,
-    usdcKeypair.publicKey,
-    userUsdcAtaAddr,
-    payer,
-    1_000_000_000_000_000
-  );
-
-  await mintTo(
-    provider.connection,
-    payer,
-    usdtKeypair.publicKey,
-    userUsdtAtaAddr,
-    payer,
-    1_000_000_000_000_000
-  );
-}
 
 async function main() {
   await initialize();

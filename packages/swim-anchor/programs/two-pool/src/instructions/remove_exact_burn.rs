@@ -13,9 +13,9 @@ use {
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct RemoveExactBurnParams {
-    exact_burn_amount: u64,
-    output_token_index: u8,
-    minimum_output_amount: u64,
+    pub exact_burn_amount: u64,
+    pub output_token_index: u8,
+    pub minimum_output_amount: u64,
 }
 
 #[derive(Accounts)]

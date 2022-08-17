@@ -12,6 +12,14 @@ run the following command from the `swim-anchor` directory and update any releva
     1. this runs the alias under the `[scripts]` section in the `Anchor.toml`
     2. to test on localnet, start anchor test validator first with `anchor localnet`.
 
+## Tests
+1. to run the tests in sdk/tests run any of the following from `package/swim-anchor`
+```sh
+yarn run test:propeller
+yarn run test:pool
+yarn run test
+```
+
 ### Troubleshooting
 1. if running into an error like this
 ```
@@ -33,4 +41,6 @@ check your npm version. npm lts/gallium (v16.15.1 as of this writing) works but 
         we should be safe from anyone being able to initialize another pda ("share" it)
     3. to be safe, could alternatively create pool token accounts outside of the initialize ix,
         then use those as seeds for the pool state pda. that would be closer to secure solution from exploit docs
+6. maybe add a version field to `TwoPool` state (and seeds to derive pda)
+    1. look into if versioning still worth it since accounts can now be re-allocated.
 

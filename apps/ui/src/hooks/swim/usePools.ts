@@ -14,7 +14,7 @@ import {
   isEvmPoolState,
 } from "../../models";
 import {
-  useLiquidityQueries,
+  useSolanaLiquidityQueries,
   useSolanaWallet,
   useSplTokenAccountsQuery,
 } from "../solana";
@@ -128,7 +128,7 @@ export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
   );
   const poolStates = usePoolStateQueries(poolSpecs);
   const lpMints = usePoolLpMints(poolSpecs);
-  const liquidityQueries = useLiquidityQueries(
+  const liquidityQueries = useSolanaLiquidityQueries(
     poolSpecs.map((poolSpec) =>
       poolSpec.ecosystem === EcosystemId.Solana
         ? [...poolSpec.tokenAccounts.values()]

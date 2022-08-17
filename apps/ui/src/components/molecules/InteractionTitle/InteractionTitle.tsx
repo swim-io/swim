@@ -1,4 +1,5 @@
 import type React from "react";
+import { Trans } from "react-i18next";
 
 import { EcosystemId } from "../../../config";
 import type { Interaction } from "../../../models";
@@ -22,8 +23,14 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
       );
       return (
         <div title={interaction.id}>
-          <span>Add&nbsp;</span>
-          <AmountsWithTokenIcons amounts={nonZeroInputAmounts} />
+          <Trans
+            i18nKey="recent_interactions.add_tokens"
+            components={{
+              tokenAmounts: (
+                <AmountsWithTokenIcons amounts={nonZeroInputAmounts} />
+              ),
+            }}
+          />
         </div>
       );
     }
@@ -35,17 +42,24 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
           style={{
             display: "inline-flex",
             alignContent: "center",
+            whiteSpace: "pre",
           }}
         >
-          <span>Swap</span>&nbsp;
-          <AmountWithTokenIcon
-            amount={exactInputAmount}
-            ecosystem={EcosystemId.Solana}
-          />
-          &nbsp;
-          <span>for</span>&nbsp;
-          <TokenSpecIcon
-            token={interaction.params.minimumOutputAmount.tokenSpec}
+          <Trans
+            i18nKey="recent_interactions.swap_tokens_for"
+            components={{
+              tokenAmounts: (
+                <AmountWithTokenIcon
+                  amount={exactInputAmount}
+                  ecosystem={EcosystemId.Solana}
+                />
+              ),
+              tokenName: (
+                <TokenSpecIcon
+                  token={interaction.params.minimumOutputAmount.tokenSpec}
+                />
+              ),
+            }}
           />
         </div>
       );
@@ -57,8 +71,14 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
       );
       return (
         <div title={interaction.id}>
-          <span>Remove&nbsp;</span>
-          <AmountsWithTokenIcons amounts={nonZeroOutputAmounts} />
+          <Trans
+            i18nKey="recent_interactions.remove_tokens"
+            components={{
+              tokenAmounts: (
+                <AmountsWithTokenIcons amounts={nonZeroOutputAmounts} />
+              ),
+            }}
+          />
         </div>
       );
     }
@@ -66,12 +86,17 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
       const { minimumOutputAmount } = interaction.params;
       return (
         <div title={interaction.id}>
-          <span>Remove</span>{" "}
-          <AmountWithTokenIcon
-            amount={minimumOutputAmount}
-            ecosystem={minimumOutputAmount.tokenSpec.nativeEcosystemId}
+          <Trans
+            i18nKey="recent_interactions.remove_tokens"
+            components={{
+              tokenAmounts: (
+                <AmountWithTokenIcon
+                  amount={minimumOutputAmount}
+                  ecosystem={minimumOutputAmount.tokenSpec.nativeEcosystemId}
+                />
+              ),
+            }}
           />
-          <span>.</span>
         </div>
       );
     }
@@ -82,8 +107,14 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
       );
       return (
         <div title={interaction.id}>
-          <span>Remove&nbsp;</span>
-          <AmountsWithTokenIcons amounts={nonZeroOutputAmounts} />
+          <Trans
+            i18nKey="recent_interactions.remove_tokens"
+            components={{
+              tokenAmounts: (
+                <AmountsWithTokenIcons amounts={nonZeroOutputAmounts} />
+              ),
+            }}
+          />
         </div>
       );
     }

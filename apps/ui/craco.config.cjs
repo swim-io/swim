@@ -54,9 +54,7 @@ module.exports = {
         cacheGroups: {
           default: false,
         },
-        chunks(chunk) {
-          return false;
-        },
+        chunks: () => false,
       };
       webpackConfig.optimization.chunkIds = "named";
       webpackConfig.output.filename =

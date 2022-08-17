@@ -12,6 +12,19 @@ export const TRANSFER_CEILING = 120000;
 export const REDEEM_CEILING = 300000;
 export const SOLANA_FEE = new Decimal(0.01);
 const POLKADOT_EXISTENTIAL_DEPOSIT_AMOUNT = new Decimal(0.1);
+export const ZERO = new Decimal(0);
+
+export const ZERO_FEE = {
+  [EcosystemId.Solana]: ZERO,
+  [EcosystemId.Ethereum]: ZERO,
+  [EcosystemId.Bnb]: ZERO,
+  [EcosystemId.Avalanche]: ZERO,
+  [EcosystemId.Polygon]: ZERO,
+  [EcosystemId.Aurora]: ZERO,
+  [EcosystemId.Fantom]: ZERO,
+  [EcosystemId.Karura]: ZERO,
+  [EcosystemId.Acala]: ZERO,
+};
 
 export const getLowBalanceWallets = (
   feesEstimation: Partial<FeesEstimation> | null,

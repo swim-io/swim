@@ -215,8 +215,10 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       !isEachNotNull(poolMaths)
     ) {
       notify(
-        t("notify.unexpected_form_error_title"),
-        t("notify.unexpected_form_error_description"),
+        // t("notify.unexpected_form_error_title"),
+        "Form error",
+        // t("notify.unexpected_form_error_description"),
+        "There was an unexpected error submitting the form. Developers were notified.",
         "error",
       );
       return;

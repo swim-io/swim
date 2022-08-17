@@ -424,8 +424,10 @@ export const RemoveForm = ({
     // pool errors
     if (!poolLpAmount) {
       notify(
-        t("notify.could_not_fetch_pool_lp_amount_error_title"),
-        t("notify.could_not_fetch_pool_lp_amount_error_description"),
+        // t("notify.could_not_fetch_pool_lp_amount_error_title"),
+        "Pool error",
+        // t("notify.could_not_fetch_pool_lp_amount_error_description"),
+        "Could not fetch pool LP amount",
         "error",
       );
       return;
@@ -544,8 +546,10 @@ export const RemoveForm = ({
       poolMath === null
     ) {
       notify(
-        t("notify.unexpected_form_error_title"),
-        t("notify.unexpected_form_error_description"),
+        // t("notify.unexpected_form_error_title"),
+        "Form error",
+        // t("notify.unexpected_form_error_description"),
+        "There was an unexpected error submitting the form. Developers were notified.",
         "error",
       );
       return;
@@ -652,8 +656,10 @@ export const RemoveForm = ({
               userHasAllLpTokens
             ) {
               notify(
-                t("notify.burn_all_lp_tokens_error_title"),
-                t("notify.burn_all_lp_tokens_error_description"),
+                // t("notify.burn_all_lp_tokens_error_title"),
+                "Invalid action",
+                // t("notify.burn_all_lp_tokens_error_description"),
+                "You are the only LP token holder. Please use the proportional remove method or select a lower burn percentage.",
                 "error",
               );
               return;

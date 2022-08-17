@@ -109,10 +109,12 @@ export const useWalletAdapter = create(
         const handleConnect = (): void => {
           if (adapter.address) {
             notify(
-              i18next.t<string>("notify.connected_to_wallet_title"),
-              i18next.t<string>("notify.connected_to_wallet_description", {
-                walletAddress: truncate(adapter.address),
-              }),
+              // i18next.t<string>("notify.connected_to_wallet_title"),
+              "Wallet update",
+              // i18next.t<string>("notify.connected_to_wallet_description", {
+              //   walletAddress: truncate(adapter.address),
+              // }),
+              `Connected to wallet ${truncate(adapter.address)}}`,
               "info",
               7000,
             );
@@ -120,8 +122,10 @@ export const useWalletAdapter = create(
         };
         const handleDisconnect = (): void => {
           notify(
-            i18next.t<string>("notify.disconnected_from_wallet_title"),
-            i18next.t<string>("notify.disconnected_from_wallet_description"),
+            // i18next.t<string>("notify.disconnected_from_wallet_title"),
+            "Wallet update",
+            // i18next.t<string>("notify.disconnected_from_wallet_description"),
+            "Disconnected from wallet",
             "warning",
           );
           void disconnect();

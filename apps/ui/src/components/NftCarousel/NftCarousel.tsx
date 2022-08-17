@@ -52,8 +52,10 @@ export const NftCarousel = ({ nfts }: Props): ReactElement => {
     try {
       await mutateAsync(activeNft);
       notify(
-        t("notify.redeem_success_title"),
-        t("notify.redeem_success_description", { redemptionAmount }),
+        // t("notify.redeem_success_title"),
+        "Success",
+        // t("notify.redeem_success_description", { redemptionAmount }),
+        `Redeemed Otter Tot for ${redemptionAmount}`,
         "success",
       );
       hideRedeemModal();

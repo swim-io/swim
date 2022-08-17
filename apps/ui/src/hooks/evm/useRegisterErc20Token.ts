@@ -23,10 +23,12 @@ export const useRegisterErc20Token = (
   const showPrompt = async (tokenSpec: TokenSpec): Promise<void> => {
     if (!wallet) {
       notify(
-        t("notify.register_token_without_wallet_title"),
-        t("notify.register_token_without_wallet_description", {
-          ecosystemName: ECOSYSTEMS[ecosystemId].displayName,
-        }),
+        // t("notify.register_token_without_wallet_title"),
+        "No wallet",
+        // t("notify.register_token_without_wallet_description", {
+        //   ecosystemName: ECOSYSTEMS[ecosystemId].displayName,
+        // }),
+        `Connect ${ECOSYSTEMS[ecosystemId].displayName} wallet first`,
         "warning",
       );
       return;
@@ -36,8 +38,10 @@ export const useRegisterErc20Token = (
       await wallet.registerToken(tokenSpec, ecosystemId, evmChainId);
     } catch (error) {
       notify(
-        t("notify.register_token_failed_title"),
-        t("notify.register_token_failed_description"),
+        // t("notify.register_token_failed_title"),
+        "Error",
+        // t("notify.register_token_failed_description"),
+        "Failed to add token",
         "error",
       );
       captureException(error);

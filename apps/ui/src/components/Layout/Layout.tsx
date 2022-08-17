@@ -12,6 +12,7 @@ import { CustomHeaderLink } from "../CustomHeaderLink";
 import { CustomHeaderLogo } from "../CustomHeaderLogo";
 import { EnvSelector } from "../EnvSelector";
 import { Footer } from "../Footer";
+import { LanguageSelectorButton } from "../LanguageSelector";
 import { Waves } from "../Waves";
 
 import "./Layout.scss";
@@ -59,6 +60,9 @@ export const Layout = ({
                 <MultiConnectButton size="s" fullWidth />
               </EuiHeaderSectionItem>,
               <EnvSelector key="env-selector" />,
+              ...(process.env.REACT_APP_ENABLE_LANGUAGE_SELECTOR === "true"
+                ? [<LanguageSelectorButton key="language-selector" />]
+                : []),
             ],
             borders: "none",
           },

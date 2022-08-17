@@ -1,11 +1,8 @@
 .tokenIconItem {
-  display: inline-flex;
-  align-items: center;
-  white-space: pre;
-}
+  white-space: pre-wrap;
+  max-width: 250px;
 
-.tokenName {
-  max-width: 80px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  .euiIcon {
+    vertical-align: text-bottom;
+  }
 }

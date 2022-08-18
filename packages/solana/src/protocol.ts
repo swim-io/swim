@@ -10,7 +10,11 @@ import type {
 export type SolanaProtocol = "solana-protocol";
 export const SOLANA_PROTOCOL: SolanaProtocol = "solana-protocol";
 
+export type SolanaEcosystemId = "solana";
+export const SOLANA_ECOSYSTEM_ID: SolanaEcosystemId = "solana";
+
 export interface SolanaPoolConfig extends PoolConfig {
+  readonly ecosystemId: SolanaEcosystemId;
   /** The Swim program ID */
   readonly contract: string;
   /**
@@ -22,15 +26,20 @@ export interface SolanaPoolConfig extends PoolConfig {
 
 export interface SolanaChainConfig extends ChainConfig {
   readonly pools: readonly SolanaPoolConfig[];
-  readonly publicRpcUrls: readonly string[];
   readonly tokenContract: string;
   readonly otterTotCollection: string;
 }
 
 export interface SolanaEcosystemConfig extends EcosystemConfig {
+  readonly id: SolanaEcosystemId;
+  readonly protocol: SolanaProtocol;
   readonly chains: ReadonlyMap<Env, SolanaChainConfig>;
 }
 
 export interface SolanaTx extends Tx {
+  readonly ecosystemId: SolanaEcosystemId;
   readonly parsedTx: ParsedTransactionWithMeta;
 }
+
+export const isSolanaTx = (tx: Tx): tx is SolanaTx =>
+  tx.ecosystemId === SOLANA_ECOSYSTEM_ID;

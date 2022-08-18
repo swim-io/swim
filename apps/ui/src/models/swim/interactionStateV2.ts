@@ -1,7 +1,8 @@
+import type { EvmTx } from "@swim-io/evm";
+import { isEvmEcosystemId } from "@swim-io/evm";
+import type { SolanaTx } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { isNotNull } from "@swim-io/utils";
-
-import { EcosystemId, isEvmEcosystemId } from "../../config";
-import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
 import type {
   AddInteraction,
@@ -110,8 +111,8 @@ export const getSwapType = (
   const fromEcosystem = fromTokenOption.ecosystemId;
   const toEcosystem = toTokenOption.ecosystemId;
   if (
-    fromEcosystem === EcosystemId.Solana &&
-    toEcosystem === EcosystemId.Solana
+    fromEcosystem === SOLANA_ECOSYSTEM_ID &&
+    toEcosystem === SOLANA_ECOSYSTEM_ID
   ) {
     return SwapType.SingleChainSolana;
   }
@@ -120,10 +121,10 @@ export const getSwapType = (
       ? SwapType.SingleChainEvm
       : SwapType.CrossChainEvmToEvm;
   }
-  if (fromEcosystem === EcosystemId.Solana && isEvmEcosystemId(toEcosystem)) {
+  if (fromEcosystem === SOLANA_ECOSYSTEM_ID && isEvmEcosystemId(toEcosystem)) {
     return SwapType.CrossChainSolanaToEvm;
   }
-  if (isEvmEcosystemId(fromEcosystem) && toEcosystem === EcosystemId.Solana) {
+  if (isEvmEcosystemId(fromEcosystem) && toEcosystem === SOLANA_ECOSYSTEM_ID) {
     return SwapType.CrossChainEvmToSolana;
   }
 

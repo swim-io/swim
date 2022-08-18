@@ -6,6 +6,7 @@ import {
   useIntlDateTimeFormatter,
   useIntlListSeparators,
   useIntlNumberFormatter,
+  useIntlNumberSeparators,
   useIntlRelativeTimeFromNow,
 } from "./useI18n";
 
@@ -151,6 +152,38 @@ describe("useI18n", () => {
 
       const { result } = renderHook(() => useIntlNumberFormatter());
       expect(result.current.format(1234)).toBe("1,234");
+    });
+  });
+
+  describe("useIntlNumberSeparators", () => {
+    const originalLanguage = i18next.resolvedLanguage;
+
+    afterEach(() => {
+      i18next.resolvedLanguage = originalLanguage;
+    });
+
+    it("should handle in english style", () => {
+      i18next.resolvedLanguage = "en";
+
+      const { result } = renderHook(() => useIntlNumberSeparators());
+      expect(result.current.decimal).toBe(".");
+      expect(result.current.group).toBe(",");
+    });
+
+    it("should handle in french style", () => {
+      i18next.resolvedLanguage = "fr";
+
+      const { result } = renderHook(() => useIntlNumberSeparators());
+      expect(result.current.decimal).toBe(",");
+      expect(result.current.group).toBe(" ");
+    });
+
+    it("should handle in english style if language is not supported", () => {
+      i18next.resolvedLanguage = "fake_not_supported";
+
+      const { result } = renderHook(() => useIntlNumberSeparators());
+      expect(result.current.decimal).toBe(".");
+      expect(result.current.group).toBe(",");
     });
   });
 

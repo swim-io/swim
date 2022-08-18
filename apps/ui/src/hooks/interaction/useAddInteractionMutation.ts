@@ -1,8 +1,9 @@
+import { isEvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId, isEvmEcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useInteractionStateV2 } from "../../core/store";
 import type { AddInteractionState } from "../../models";
@@ -32,8 +33,8 @@ export const useAddInteractionMutation = () => {
       (pool) => pool.id === interaction.poolId,
     );
 
-    if (poolSpec.ecosystem === EcosystemId.Solana) {
-      const solanaWallet = wallets[EcosystemId.Solana].wallet;
+    if (poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID) {
+      const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
       if (solanaWallet === null) {
         throw new Error("Missing Solana wallet");
       }

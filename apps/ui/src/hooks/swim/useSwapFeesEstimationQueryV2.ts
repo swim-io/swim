@@ -13,6 +13,7 @@ export const useSwapFeesEstimationQueryV2 = (
   const toEcosystem = toTokenOption.ecosystemId;
   return useQuery<FeesEstimation, Error>(
     [env, "useSwapFeesEstimationQueryV2", fromEcosystem, toEcosystem],
+    // TODO: estimation fee logic
     () => ZERO_FEE,
   );
 };

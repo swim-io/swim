@@ -1,7 +1,17 @@
 import { PublicKey } from "@solana/web3.js";
+import type { EvmEcosystemId } from "@swim-io/evm";
+import { isEvmEcosystemId } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
-import type { SwimPoolState } from "@swim-io/solana";
-import { deserializeSwimPool } from "@swim-io/solana";
+import type {
+  SolanaEcosystemId,
+  SolanaTx,
+  SwimPoolState,
+} from "@swim-io/solana";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  deserializeSwimPool,
+  isSolanaTx,
+} from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { findOrThrow } from "@swim-io/utils";
 import Decimal from "decimal.js";
@@ -9,24 +19,18 @@ import Decimal from "decimal.js";
 import { atomicToHuman, bnOrBigNumberToDecimal } from "../../amounts";
 import type {
   Config,
-  EvmEcosystemId,
   EvmPoolSpec,
   PoolSpec,
   SolanaPoolSpec,
   TokenSpec,
 } from "../../config";
-import {
-  EcosystemId,
-  getTokenDetailsForEcosystem,
-  isEvmEcosystemId,
-} from "../../config";
-import type { SolanaTx, Tx } from "../crossEcosystem";
-import { isSolanaTx } from "../crossEcosystem";
+import { getTokenDetailsForEcosystem } from "../../config";
+import type { Tx } from "../crossEcosystem";
 import type { EvmConnection } from "../evm";
 import type { SolanaConnection } from "../solana";
 
 export interface SolanaPoolState extends SwimPoolState {
-  readonly ecosystem: EcosystemId.Solana;
+  readonly ecosystem: SolanaEcosystemId;
 }
 
 export interface EvmPoolState {
@@ -77,7 +81,7 @@ export const isPoolTx = (
 };
 
 export const isSolanaPool = (pool: PoolSpec): pool is SolanaPoolSpec =>
-  pool.ecosystem === EcosystemId.Solana;
+  pool.ecosystem === SOLANA_ECOSYSTEM_ID;
 
 export const getSolanaPoolState = async (
   solanaConnection: SolanaConnection,
@@ -93,7 +97,7 @@ export const getSolanaPoolState = async (
   const swimPool = deserializeSwimPool(numberOfTokens, accountInfo.data);
   return {
     ...swimPool,
-    ecosystem: EcosystemId.Solana,
+    ecosystem: SOLANA_ECOSYSTEM_ID,
   };
 };
 
@@ -151,4 +155,4 @@ export const isEvmPoolState = (
 
 export const isSolanaPoolState = (
   poolState: PoolState,
-): poolState is SolanaPoolState => poolState.ecosystem === EcosystemId.Solana;
+): poolState is SolanaPoolState => poolState.ecosystem === SOLANA_ECOSYSTEM_ID;

@@ -1,10 +1,10 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@swim-io/tsconfig/tsconfig-library.json",
   "compilerOptions": {
-    "types": ["mocha", "chai"],
-    "typeRoots": ["./node_modules/@types"],
-    "lib": ["es2015"],
-    "module": "commonjs",
-    "target": "es6",
-    "esModuleInterop": true
-  }
+    "declarationDir": "types/",
+    "outDir": "build/",
+    "rootDir": "src/"
+  },
+  "include": ["src/"]
 }

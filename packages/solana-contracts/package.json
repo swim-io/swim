@@ -32,6 +32,7 @@
     "@certusone/wormhole-sdk-wasm": "^0.0.1",
     "@ethersproject/bytes": "^5.6.1",
     "@metaplex-foundation/js": "^0.14.0",
+    "@swim-io/tsconfig": "workspace:^",
     "@types/bn.js": "^5.1.0",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.0.0",

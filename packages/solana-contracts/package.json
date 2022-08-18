@@ -22,7 +22,10 @@
     "test": "yarn run build:anchor && anchor test",
     "test:propeller": "yarn run build:anchor && anchor test propeller",
     "test:pool": "yarn run build:anchor && anchor test pool",
-    "init": "yarn run ts-node ./scripts/initializePool.ts"
+    "init": "yarn run ts-node ./scripts/initializePool.ts",
+    "typecheck": "tsc",
+    "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test",
+    "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
     "@project-serum/anchor": "^0.25.0",

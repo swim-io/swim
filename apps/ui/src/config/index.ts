@@ -20,7 +20,6 @@ export * from "./i18n";
 export * from "./pools";
 export * from "./tokens";
 export * from "./utils";
-export * from "./wormhole";
 
 export interface Config {
   readonly ecosystems: ReadonlyRecord<EcosystemId, Ecosystem>;

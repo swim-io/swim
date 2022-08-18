@@ -16,7 +16,7 @@ import {
 import {
   setupPoolPrereqs,
   setupUserAssociatedTokenAccts,
-} from "../tests/twoPool/poolTestUtils";
+} from "../test/twoPool/poolTestUtils";
 
 const envProvider = anchor.AnchorProvider.env();
 const commitment = "confirmed" as web3.Commitment;

@@ -209,7 +209,10 @@
         {
           "name": "inputAmounts",
           "type": {
-            "array": ["u64", 2]
+            "array": [
+              "u64",
+              2
+            ]
           }
         },
         {
@@ -299,7 +302,10 @@
         {
           "name": "exactInputAmounts",
           "type": {
-            "array": ["u64", 2]
+            "array": [
+              "u64",
+              2
+            ]
           }
         },
         {
@@ -401,7 +407,10 @@
         {
           "name": "exactOutputAmounts",
           "type": {
-            "array": ["u64", 2]
+            "array": [
+              "u64",
+              2
+            ]
           }
         }
       ],
@@ -498,7 +507,10 @@
         {
           "name": "minimumOutputAmounts",
           "type": {
-            "array": ["u64", 2]
+            "array": [
+              "u64",
+              2
+            ]
           }
         }
       ],
@@ -692,7 +704,10 @@
         {
           "name": "exactOutputAmounts",
           "type": {
-            "array": ["u64", 2]
+            "array": [
+              "u64",
+              2
+            ]
           }
         }
       ],
@@ -763,7 +778,9 @@
     },
     {
       "name": "prepareGovernanceTransition",
-      "docs": ["Governance Ixs *"],
+      "docs": [
+        "Governance Ixs *"
+      ],
       "accounts": [
         {
           "name": "commonGovernance",
@@ -1437,19 +1454,28 @@
           {
             "name": "tokenMintKeys",
             "type": {
-              "array": ["publicKey", 2]
+              "array": [
+                "publicKey",
+                2
+              ]
             }
           },
           {
             "name": "tokenDecimalEqualizers",
             "type": {
-              "array": ["u8", 2]
+              "array": [
+                "u8",
+                2
+              ]
             }
           },
           {
             "name": "tokenKeys",
             "type": {
-              "array": ["publicKey", 2]
+              "array": [
+                "publicKey",
+                2
+              ]
             }
           },
           {
@@ -1533,7 +1559,10 @@
           {
             "name": "inputAmounts",
             "type": {
-              "array": ["u64", 2]
+              "array": [
+                "u64",
+                2
+              ]
             }
           },
           {
@@ -1590,17 +1619,23 @@
         "fields": [
           {
             "name": "name",
-            "docs": ["The name of the asset"],
+            "docs": [
+              "The name of the asset"
+            ],
             "type": "string"
           },
           {
             "name": "symbol",
-            "docs": ["The symbol for the asset"],
+            "docs": [
+              "The symbol for the asset"
+            ],
             "type": "string"
           },
           {
             "name": "uri",
-            "docs": ["URI pointing to JSON representing the asset"],
+            "docs": [
+              "URI pointing to JSON representing the asset"
+            ],
             "type": "string"
           },
           {
@@ -1612,7 +1647,9 @@
           },
           {
             "name": "creators",
-            "docs": ["Array of creators, optional"],
+            "docs": [
+              "Array of creators, optional"
+            ],
             "type": {
               "option": {
                 "vec": {
@@ -1623,7 +1660,9 @@
           },
           {
             "name": "collection",
-            "docs": ["Collection"],
+            "docs": [
+              "Collection"
+            ],
             "type": {
               "option": {
                 "defined": "AnchorCollection"
@@ -1632,7 +1671,9 @@
           },
           {
             "name": "uses",
-            "docs": ["Uses"],
+            "docs": [
+              "Uses"
+            ],
             "type": {
               "option": {
                 "defined": "AnchorUses"
@@ -1812,7 +1853,10 @@
           {
             "name": "exactOutputAmounts",
             "type": {
-              "array": ["u64", 2]
+              "array": [
+                "u64",
+                2
+              ]
             }
           }
         ]
@@ -1830,7 +1874,10 @@
           {
             "name": "minimumOutputAmounts",
             "type": {
-              "array": ["u64", 2]
+              "array": [
+                "u64",
+                2
+              ]
             }
           }
         ]
@@ -1844,7 +1891,10 @@
           {
             "name": "exactInputAmounts",
             "type": {
-              "array": ["u64", 2]
+              "array": [
+                "u64",
+                2
+              ]
             }
           },
           {
@@ -1874,7 +1924,10 @@
           {
             "name": "exactOutputAmounts",
             "type": {
-              "array": ["u64", 2]
+              "array": [
+                "u64",
+                2
+              ]
             }
           }
         ]

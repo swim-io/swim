@@ -1,17 +1,21 @@
 #!/usr/bin/env node
 
 import * as anchor from "@project-serum/anchor";
-import * as path from 'path';
-import * as fs from 'fs';
-import {web3, Spl} from "@project-serum/anchor";
+import * as path from "path";
+import * as fs from "fs";
+import { web3, Spl } from "@project-serum/anchor";
 import {
   getApproveAndRevokeIxs,
-  TwoPoolContext, twoPoolToString,
+  TwoPoolContext,
+  twoPoolToString,
   writePoolStateToFile,
 } from "../src";
 
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-import { setupPoolPrereqs, setupUserAssociatedTokenAccts } from "../tests/twoPool/poolTestUtils";
+import {
+  setupPoolPrereqs,
+  setupUserAssociatedTokenAccts,
+} from "../tests/twoPool/poolTestUtils";
 import { Keypair } from "@solana/web3.js";
 
 const envProvider = anchor.AnchorProvider.env();
@@ -19,13 +23,13 @@ const commitment = "confirmed" as web3.Commitment;
 const rpcCommitmentConfig = {
   commitment,
   preflightCommitment: commitment,
-  skipPreflight: true
+  skipPreflight: true,
 };
 
 const provider = new anchor.AnchorProvider(
   envProvider.connection,
   envProvider.wallet,
-  rpcCommitmentConfig
+  rpcCommitmentConfig,
 );
 const payer = (provider.wallet as NodeWallet).payer;
 anchor.setProvider(provider);
@@ -42,11 +46,10 @@ console.log(`anchorProvider pubkey: ${provider.publicKey.toBase58()}`);
 // );
 const twoPoolContext = TwoPoolContext.fromWorkspace(
   provider,
-  anchor.workspace.TwoPool
+  anchor.workspace.TwoPool,
 );
 
 const twoPoolProgram = twoPoolContext.program;
-
 
 const splToken = Spl.token(provider);
 const splAssociatedToken = Spl.associatedToken(provider);
@@ -70,17 +73,21 @@ let userUsdcAtaAddr: web3.PublicKey = web3.PublicKey.default;
 let userUsdtAtaAddr: web3.PublicKey = web3.PublicKey.default;
 let userSwimUsdAtaAddr: web3.PublicKey = web3.PublicKey.default;
 
-const ampFactor  = { value: new anchor.BN(300), decimals: 0 };
-const lpFee =  { value: new anchor.BN(300), decimals: 6 }; //lp fee = .000300 = 0.0300% 3bps
+const ampFactor = { value: new anchor.BN(300), decimals: 0 };
+const lpFee = { value: new anchor.BN(300), decimals: 6 }; //lp fee = .000300 = 0.0300% 3bps
 const governanceFee = { value: new anchor.BN(100), decimals: 6 }; //gov fee = .000100 = (0.0100%) 1bps
 
-let flagshipPool: web3.PublicKey  = web3.PublicKey.default;
+let flagshipPool: web3.PublicKey = web3.PublicKey.default;
 type DecimalU64Anchor = {
   value: anchor.BN;
   decimals: number;
-}
+};
 
-const outDir = path.resolve(__dirname, "output", new Date().getTime().toString());
+const outDir = path.resolve(
+  __dirname,
+  "output",
+  new Date().getTime().toString(),
+);
 if (!fs.existsSync(outDir)) {
   fs.mkdirSync(outDir);
 }
@@ -88,7 +95,7 @@ const poolStatePath = path.resolve(outDir, "poolState.json");
 const pauseKeyPath = path.resolve(outDir, "pauseKey.json");
 const governanceKeyPath = path.resolve(outDir, "governanceKey.json");
 
-async function initialize(){
+async function initialize() {
   ({
     poolPubkey: flagshipPool,
     poolTokenAccounts: [poolUsdcAtaAddr, poolUsdtAtaAddr],
@@ -106,15 +113,10 @@ async function initialize(){
     ampFactor,
     lpFee,
     governanceFee,
-  }
-  const tx = await twoPoolProgram
-    .methods
+  };
+  const tx = await twoPoolProgram.methods
     // .initialize(params)
-    .initialize(
-      ampFactor,
-      lpFee,
-      governanceFee
-    )
+    .initialize(ampFactor, lpFee, governanceFee)
     .accounts({
       payer: provider.publicKey,
       poolMint0: usdcKeypair.publicKey,
@@ -132,20 +134,17 @@ async function initialize(){
     })
     .signers([swimUsdKeypair]);
   const pool = (await tx.pubkeys()).pool;
-  console.log(`poolKey: ${pool!.toBase58()}, expected: ${flagshipPool.toBase58()}`);
-
-  const txSig = await tx.rpc(
-    {commitment: "confirmed"},
+  console.log(
+    `poolKey: ${pool!.toBase58()}, expected: ${flagshipPool.toBase58()}`,
   );
 
+  const txSig = await tx.rpc({ commitment: "confirmed" });
 
   console.log("Your transaction signature", txSig);
-  await provider.connection.confirmTransaction(
-    {
-      signature: txSig,
-      ...(await provider.connection.getLatestBlockhash())
-    }
-  );
+  await provider.connection.confirmTransaction({
+    signature: txSig,
+    ...(await provider.connection.getLatestBlockhash()),
+  });
   console.log("Transaction has been confirmed");
 
   const twoPoolStr = await twoPoolToString(twoPoolProgram, flagshipPool);
@@ -160,18 +159,21 @@ async function initialize(){
 async function add() {
   ({
     userPoolTokenAtas: [userUsdcAtaAddr, userUsdtAtaAddr],
-    userLpTokenAta: userSwimUsdAtaAddr
-  }  = await setupUserAssociatedTokenAccts(
+    userLpTokenAta: userSwimUsdAtaAddr,
+  } = await setupUserAssociatedTokenAccts(
     provider.connection,
     provider.publicKey,
-    poolMintKeypairs.map(kp => kp.publicKey),
+    poolMintKeypairs.map((kp) => kp.publicKey),
     poolMintAuthorities,
     swimUsdKeypair.publicKey,
     initialMintAmount,
-    payer
+    payer,
   ));
 
-  const inputAmounts = [new anchor.BN(500_000_000_000), new anchor.BN(400_000_000_000)];
+  const inputAmounts = [
+    new anchor.BN(500_000_000_000),
+    new anchor.BN(400_000_000_000),
+  ];
   const minimumMintAmount = new anchor.BN(0);
 
   let userTransferAuthority = web3.Keypair.generate();
@@ -180,17 +182,12 @@ async function add() {
     [userUsdcAtaAddr, userUsdtAtaAddr],
     inputAmounts,
     userTransferAuthority.publicKey,
-    payer
-  )
-  const tx = await twoPoolProgram
-    .methods
+    payer,
+  );
+  const tx = await twoPoolProgram.methods
     // .add(addParams)
-    .add(
-      inputAmounts,
-      minimumMintAmount,
-    )
+    .add(inputAmounts, minimumMintAmount)
     .accounts({
-
       poolTokenAccount0: poolUsdcAtaAddr,
       poolTokenAccount1: poolUsdtAtaAddr,
       lpMint: swimUsdKeypair.publicKey,
@@ -220,7 +217,7 @@ async function add() {
 const tokenAccountToJson = async (key: web3.PublicKey) => {
   const tokenAccount = await splToken.account.token.fetch(key);
 
-  const tokenAccountFormatted  = {
+  const tokenAccountFormatted = {
     key,
     ...tokenAccount,
     amount: tokenAccount.amount.toString(),
@@ -239,6 +236,5 @@ async function main() {
   await add();
   console.log(`seeded pool and user accounts`);
 }
-
 
 main();

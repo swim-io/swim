@@ -6,28 +6,26 @@ import * as anchor from "@project-serum/anchor";
 
 export const twoPoolToString = async (
   program: Program<TwoPool>,
-  twoPoolKey: web3.PublicKey
+  twoPoolKey: web3.PublicKey,
 ): Promise<string> => {
-  let twoPool = (await program.account.twoPool.fetch(twoPoolKey));
-  let twoPoolFixed =
-    {
-      key: twoPoolKey.toString(),
-      ...twoPool,
-      ampFactor: formatAmpFactor(twoPool.ampFactor),
-      previousDepth: twoPool.previousDepth.toString(),
+  let twoPool = await program.account.twoPool.fetch(twoPoolKey);
+  let twoPoolFixed = {
+    key: twoPoolKey.toString(),
+    ...twoPool,
+    ampFactor: formatAmpFactor(twoPool.ampFactor),
+    previousDepth: twoPool.previousDepth.toString(),
   };
 
   return JSON.stringify(twoPoolFixed, null, 2);
-}
+};
 export const twoPoolReplacer = (key: string, value: any) => {
   if (key === "ampFactor") {
     return formatAmpFactor(value);
-  }
-  else if (key === "previousDepth") {
+  } else if (key === "previousDepth") {
     return value.toString();
   }
   return value;
-}
+};
 
 export const formatAmpFactor = (ampFactor: any) => {
   return {
@@ -41,12 +39,12 @@ export const formatAmpFactor = (ampFactor: any) => {
       decimals: ampFactor.targetValue.decimals,
     },
     targetTs: ampFactor.targetTs.toString(),
-  }
+  };
 };
 
 export const writePoolStateToFile = (
   poolStatePath: string,
-  poolStateStr: string
+  poolStateStr: string,
 ) => {
   fs.writeFileSync(poolStatePath, poolStateStr);
 };
@@ -56,33 +54,32 @@ export const getApproveAndRevokeIxs = async (
   tokenAccounts: Array<web3.PublicKey>,
   amounts: Array<anchor.BN>,
   delegate: web3.PublicKey,
-  authority: web3.Keypair
+  authority: web3.Keypair,
 ): Promise<Array<Array<web3.TransactionInstruction>>> => {
   const approveIxs = await Promise.all(
     tokenAccounts.map((tokenAccount, i) => {
-      return splToken
-        .methods
+      return splToken.methods
         .approve(amounts[i])
         .accounts({
           source: tokenAccount,
           delegate,
-          authority: authority.publicKey
+          authority: authority.publicKey,
         })
         .signers([authority])
         .instruction();
-    })
+    }),
   );
   const revokeIxs = await Promise.all(
     tokenAccounts.map((tokenAccount, i) => {
-      return splToken
-        .methods
+      return splToken.methods
         .revoke()
         .accounts({
           source: tokenAccount,
-          authority: authority.publicKey
+          authority: authority.publicKey,
         })
         .signers([authority])
         .instruction();
-    }));
+    }),
+  );
   return [approveIxs, revokeIxs];
-}
+};

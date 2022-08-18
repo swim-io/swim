@@ -4,7 +4,9 @@ import {
   CHAIN_ID_SOLANA,
   tryNativeToHexString,
   getSignedVAAHash,
-  hexToUint8Array, tryHexToNativeAssetString, toChainName,
+  hexToUint8Array,
+  tryHexToNativeAssetString,
+  toChainName,
 } from "@certusone/wormhole-sdk";
 import { web3, BN } from "@project-serum/anchor";
 import * as BufferLayout from "@solana/buffer-layout";
@@ -12,9 +14,11 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import * as byteify from "byteify";
 // import { toBigNumberHex } from "./utils";
 import {
-  formatParsedVaa, formatPostedMessage,
+  formatParsedVaa,
+  formatPostedMessage,
   ParsedPostedMessage,
-  ParsedVaa, parsePostedMessage,
+  ParsedVaa,
+  parsePostedMessage,
   parseVaa,
   signAndEncodeVaa,
   WORMHOLE_TOKEN_BRIDGE,
@@ -25,64 +29,66 @@ import keccak256 from "keccak256";
 import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
 
 export function toBigNumberHex(value: BigNumberish, numBytes: number): string {
-	return BigNumber.from(value)
-	                .toHexString()
-	                .substring(2)
-	                .padStart(numBytes * 2, "0");
+  return BigNumber.from(value)
+    .toHexString()
+    .substring(2)
+    .padStart(numBytes * 2, "0");
 }
 
-
 export type PostVaaMethod = (
-	connection: web3.Connection,
-	signTransaction: (transaction: web3.Transaction) => Promise<web3.Transaction>,
-	bridge_id: string,
-	payer: string,
-	vaa: Buffer,
-	maxRetries: number
+  connection: web3.Connection,
+  signTransaction: (transaction: web3.Transaction) => Promise<web3.Transaction>,
+  bridge_id: string,
+  payer: string,
+  vaa: Buffer,
+  maxRetries: number,
 ) => Promise<void>;
 
-export function encodeTokenBridgeRegistration(chain: ChainId, bridgeAddress: string) {
-	const encoded = Buffer.alloc(69);
+export function encodeTokenBridgeRegistration(
+  chain: ChainId,
+  bridgeAddress: string,
+) {
+  const encoded = Buffer.alloc(69);
 
-	// required label for governance
-	const label = Buffer.from("TokenBridge");
-	encoded.write(label.toString("hex"), 32 - label.length, "hex");
-	encoded.writeUint8(1, 32);
-	// skip 2 bytes
-	encoded.writeUint16BE(chain as number, 35);
-	encoded.write(tryNativeToHexString(bridgeAddress, chain), 37, "hex");
+  // required label for governance
+  const label = Buffer.from("TokenBridge");
+  encoded.write(label.toString("hex"), 32 - label.length, "hex");
+  encoded.writeUint8(1, 32);
+  // skip 2 bytes
+  encoded.writeUint16BE(chain as number, 35);
+  encoded.write(tryNativeToHexString(bridgeAddress, chain), 37, "hex");
 
-	return encoded;
+  return encoded;
 }
 
 export function encodeAttestMeta(
-	tokenAddress: Buffer,
-	tokenChain: number,
-	decimals: number,
-	symbol: string,
-	name: string
+  tokenAddress: Buffer,
+  tokenChain: number,
+  decimals: number,
+  symbol: string,
+  name: string,
 ) {
-	if (tokenAddress.length != 32) {
-		throw Error("tokenAddress.length != 32");
-	}
+  if (tokenAddress.length != 32) {
+    throw Error("tokenAddress.length != 32");
+  }
 
-	if (symbol.length > 64) {
-		throw Error("symbol.length > 64");
-	}
+  if (symbol.length > 64) {
+    throw Error("symbol.length > 64");
+  }
 
-	if (name.length > 64) {
-		throw Error("name.length > 64");
-	}
+  if (name.length > 64) {
+    throw Error("name.length > 64");
+  }
 
-	const encoded = Buffer.alloc(100);
-	encoded.writeUint8(2, 0);
-	encoded.write(tokenAddress.toString("hex"), 1, "hex");
-	encoded.writeUint16BE(tokenChain, 33);
-	encoded.writeUint8(decimals, 35);
-	encoded.write(symbol, 37);
-	encoded.write(name, 68);
+  const encoded = Buffer.alloc(100);
+  encoded.writeUint8(2, 0);
+  encoded.write(tokenAddress.toString("hex"), 1, "hex");
+  encoded.writeUint16BE(tokenChain, 33);
+  encoded.writeUint8(decimals, 35);
+  encoded.write(symbol, 37);
+  encoded.write(name, 68);
 
-	return encoded;
+  return encoded;
 }
 
 /**
@@ -104,21 +110,25 @@ export function encodeAttestMeta(
  * }
  */
 export function encodeTokenTransfer(
-	amount: string,
-	tokenAddress: Buffer,
-	tokenChain: number,
-	receiver: web3.PublicKey
+  amount: string,
+  tokenAddress: Buffer,
+  tokenChain: number,
+  receiver: web3.PublicKey,
 ) {
-	const encoded = Buffer.alloc(133);
-	encoded.writeUint8(1, 0); // regular transfer
-	encoded.write(toBigNumberHex(amount, 32), 1, "hex");
-	encoded.write(tokenAddress.toString("hex"), 33, "hex");
-	encoded.writeUint16BE(tokenChain, 65);
-	encoded.write(tryNativeToHexString(receiver.toString(), CHAIN_ID_SOLANA), 67, "hex");
-	encoded.writeUint16BE(CHAIN_ID_SOLANA as number, 99);
+  const encoded = Buffer.alloc(133);
+  encoded.writeUint8(1, 0); // regular transfer
+  encoded.write(toBigNumberHex(amount, 32), 1, "hex");
+  encoded.write(tokenAddress.toString("hex"), 33, "hex");
+  encoded.writeUint16BE(tokenChain, 65);
+  encoded.write(
+    tryNativeToHexString(receiver.toString(), CHAIN_ID_SOLANA),
+    67,
+    "hex",
+  );
+  encoded.writeUint16BE(CHAIN_ID_SOLANA as number, 99);
 
-	// last 32 bytes is a fee, which we are setting to zero. So noop
-	return encoded;
+  // last 32 bytes is a fee, which we are setting to zero. So noop
+  return encoded;
 }
 
 /**
@@ -142,57 +152,65 @@ export function encodeTokenTransfer(
  * }
  */
 export function encodeTokenTransferWithPayload(
-	amount: string,
-	tokenAddress: Buffer,
-	tokenChain: number,
-	to: web3.PublicKey,
-	from: Buffer,
-	payload: Buffer,
+  amount: string,
+  tokenAddress: Buffer,
+  tokenChain: number,
+  to: web3.PublicKey,
+  from: Buffer,
+  payload: Buffer,
 ) {
-	const encoded = Buffer.alloc(
-		1 //payloadType
-		+ 32  //amount
-		+ 32  //tokenAddress
-		+ 2  //tokenChain
-		+ 32  //to
-		+ 2  //to_chain
-		// + 32  //fee
-		+ 32 //from_address
-		+ payload.length
-	);
+  const encoded = Buffer.alloc(
+    1 + //payloadType
+      32 + //amount
+      32 + //tokenAddress
+      2 + //tokenChain
+      32 + //to
+      2 + //to_chain
+      // + 32  //fee
+      32 + //from_address
+      payload.length,
+  );
 
-	console.log(`[encodeTokenTransferWithPayload] - encoded.length: ${encoded.length}`);
-	console.log(`
+  console.log(
+    `[encodeTokenTransferWithPayload] - encoded.length: ${encoded.length}`,
+  );
+  console.log(`
 		amountHexLenght: ${toBigNumberHex(amount, 32).length}
 		tokenAddrHexLength: ${tokenAddress.toString("hex").length}
-		receiverHexLength: ${tryNativeToHexString(to.toString(), CHAIN_ID_SOLANA).length}
+		receiverHexLength: ${
+      tryNativeToHexString(to.toString(), CHAIN_ID_SOLANA).length
+    }
 		fromHexLength: ${from.toString("hex").length}
 		payloadHexLength: ${payload.toString("hex").length}
-	`)
-	//payloadType
-	encoded.writeUint8(3, 0); // transfer with payload
-	//amount
-	encoded.write(toBigNumberHex(amount, 32), 1, "hex"); //u256
-	//tokenAddress
-	encoded.write(tokenAddress.toString("hex"), 33, "hex"); //address
-	//tokenChain
-	encoded.writeUint16BE(tokenChain, 65);
-	//to
-	encoded.write(tryNativeToHexString(to.toString(), CHAIN_ID_SOLANA), 67, "hex");
-	//to_chain
-	encoded.writeUint16BE(CHAIN_ID_SOLANA as number, 99);
-	//from_address
-	encoded.write(from.toString("hex"), 101, "hex");
-	// //TODO: not sure if this is correct. may need to make a "swimPayload" type with a "to_wormhole_encoding()" method
-	encoded.write(payload.toString("hex"), 133, "hex");
-	//fee
-	// encoded.write(toBigNumberHex(amount, 32), 101, "hex");
-	//from_address
-	// encoded.write(from.toString("hex"), 133, "hex");
-	//
-	// //TODO: not sure if this is correct. may need to make a "swimPayload" type with a "to_wormhole_encoding()" method
-	// encoded.write(payload.toString("hex"), 165, "hex");
-	return encoded;
+	`);
+  //payloadType
+  encoded.writeUint8(3, 0); // transfer with payload
+  //amount
+  encoded.write(toBigNumberHex(amount, 32), 1, "hex"); //u256
+  //tokenAddress
+  encoded.write(tokenAddress.toString("hex"), 33, "hex"); //address
+  //tokenChain
+  encoded.writeUint16BE(tokenChain, 65);
+  //to
+  encoded.write(
+    tryNativeToHexString(to.toString(), CHAIN_ID_SOLANA),
+    67,
+    "hex",
+  );
+  //to_chain
+  encoded.writeUint16BE(CHAIN_ID_SOLANA as number, 99);
+  //from_address
+  encoded.write(from.toString("hex"), 101, "hex");
+  // //TODO: not sure if this is correct. may need to make a "swimPayload" type with a "to_wormhole_encoding()" method
+  encoded.write(payload.toString("hex"), 133, "hex");
+  //fee
+  // encoded.write(toBigNumberHex(amount, 32), 101, "hex");
+  //from_address
+  // encoded.write(from.toString("hex"), 133, "hex");
+  //
+  // //TODO: not sure if this is correct. may need to make a "swimPayload" type with a "to_wormhole_encoding()" method
+  // encoded.write(payload.toString("hex"), 165, "hex");
+  return encoded;
 }
 
 /**
@@ -219,18 +237,18 @@ export function encodeTokenTransferWithPayload(
  * }
  */
 export interface GuardianSignature {
-	r: Buffer;
-	s: Buffer;
-	v: number;
+  r: Buffer;
+  s: Buffer;
+  v: number;
 }
 
 export function hashVaa(signedVaa: Buffer): Buffer {
-	const sigStart = 6;
-	const numSigners = signedVaa[5]!;
-	const sigLength = 66;
+  const sigStart = 6;
+  const numSigners = signedVaa[5]!;
+  const sigLength = 66;
 
-	const body = signedVaa.subarray(sigStart + sigLength * numSigners);
-	return keccak256(body);
+  const body = signedVaa.subarray(sigStart + sigLength * numSigners);
+  return keccak256(body);
 }
 
 // export function parseVaa(signedVaa: Buffer): ParsedVaa {
@@ -265,10 +283,10 @@ export function hashVaa(signedVaa: Buffer): Buffer {
 // }
 
 export const deriveMessagePda = async (
-	signedVaa: Buffer,
-	programId: web3.PublicKey
+  signedVaa: Buffer,
+  programId: web3.PublicKey,
 ) => {
-	const hash = hashVaa(signedVaa);
+  const hash = hashVaa(signedVaa);
   // const hexHash = await getSignedVAAHash(signedVaa);
   // const hash2 = Buffer.from(hexToUint8Array(hexHash));
   // console.log(`
@@ -277,59 +295,56 @@ export const deriveMessagePda = async (
   // `);
 
   // hash: 274c0a03bb0adc52db0ed7da9b420b124a1f0f26e453a65abb55a7c7fd97da27
-	// hash2: 0x16d2678d4355b164a74337080f7141f3b8f54ed951156118a3f4af4b9d09450c
-	// hash2BufferHex: 307831366432363738643433353562313634613734333337303830663731343166336238663534656439353131353631313861336634616634623964303934353063
-	// const hash2 = await getSignedVAAHash(Uint8Array.from(signedVaa));
-	// console.log(`
-	// 	hash: ${hash.toString("hex")}
-	// 	hash2: ${hash2}
-	// 	hash2BufferHex: ${Buffer.from(hash2).toString("hex")}
-	// `);
-	return await web3.PublicKey.findProgramAddress(
-		[Buffer.from("PostedVAA"), hash], programId
-	);
-}
+  // hash2: 0x16d2678d4355b164a74337080f7141f3b8f54ed951156118a3f4af4b9d09450c
+  // hash2BufferHex: 307831366432363738643433353562313634613734333337303830663731343166336238663534656439353131353631313861336634616634623964303934353063
+  // const hash2 = await getSignedVAAHash(Uint8Array.from(signedVaa));
+  // console.log(`
+  // 	hash: ${hash.toString("hex")}
+  // 	hash2: ${hash2}
+  // 	hash2BufferHex: ${Buffer.from(hash2).toString("hex")}
+  // `);
+  return await web3.PublicKey.findProgramAddress(
+    [Buffer.from("PostedVAA"), hash],
+    programId,
+  );
+};
 
-
-export const deriveEndpointPda = async(
-	foreignChain: ChainId,
-	foreignTokenBridge: Buffer,
-	programId: web3.PublicKey,
+export const deriveEndpointPda = async (
+  foreignChain: ChainId,
+  foreignTokenBridge: Buffer,
+  programId: web3.PublicKey,
 ) => {
-	return await web3.PublicKey.findProgramAddress(
-		[
-			byteify.serializeUint16(foreignChain as number),
-			foreignTokenBridge
-		], programId
-	);
-}
-
+  return await web3.PublicKey.findProgramAddress(
+    [byteify.serializeUint16(foreignChain as number), foreignTokenBridge],
+    programId,
+  );
+};
 
 export interface ParsedAttestMetaVaa {
-	core: ParsedVaa;
-	address: Buffer;
-	chain: ChainId;
-	decimals: number;
-	symbol: string;
-	name: string;
+  core: ParsedVaa;
+  address: Buffer;
+  chain: ChainId;
+  decimals: number;
+  symbol: string;
+  name: string;
 }
 
 export function parseAttestMetaVaa(signedVaa: Buffer): ParsedAttestMetaVaa {
-	const parsed = parseVaa(signedVaa);
-	const data = parsed.data;
-	return {
-		core: parsed,
-		address: data.subarray(1, 33),
-		chain: data.readUint16BE(33) as ChainId,
-		decimals: data[35]!,
-		symbol: data.subarray(36, 68).toString().replace("\0", ""),
-		name: data.subarray(68, 100).toString().replace("\0", ""),
-	};
+  const parsed = parseVaa(signedVaa);
+  const data = parsed.data;
+  return {
+    core: parsed,
+    address: data.subarray(1, 33),
+    chain: data.readUint16BE(33) as ChainId,
+    decimals: data[35]!,
+    symbol: data.subarray(36, 68).toString().replace("\0", ""),
+    name: data.subarray(68, 100).toString().replace("\0", ""),
+  };
 }
 
 // should have used generics on this instead.smh.
 export interface ParsedTokenTransferSignedVaa {
-	core: ParsedVaa;
+  core: ParsedVaa;
   tokenTransfer: ParsedTokenTransfer;
 }
 export interface ParsedTokenTransferPostedMessage {
@@ -349,22 +364,24 @@ export interface ParsedTokenTransfer {
   payload: Buffer;
 }
 
-export function parseTokenTransferSignedVaa(signedVaa: Buffer): ParsedTokenTransferSignedVaa {
-	const parsed = parseVaa(signedVaa);
-	const data = parsed.data;
+export function parseTokenTransferSignedVaa(
+  signedVaa: Buffer,
+): ParsedTokenTransferSignedVaa {
+  const parsed = parseVaa(signedVaa);
+  const data = parsed.data;
   const tokenTransfer = parseTokenTransfer(data);
-	return {
-		core: parsed,
+  return {
+    core: parsed,
     tokenTransfer,
-		// messageType: data[0]!,
-		// amount: new BN(data.subarray(1, 33)).toString(),
-		// tokenAddress: data.subarray(33, 65),
-		// tokenChain: data.readUint16BE(65) as ChainId,
-		// to: data.subarray(67, 99),
-		// toChain: data.readUint16BE(99) as ChainId,
-		// fromAddress: data.subarray(101, 133),
-		// payload: data.subarray(133),
-	};
+    // messageType: data[0]!,
+    // amount: new BN(data.subarray(1, 33)).toString(),
+    // tokenAddress: data.subarray(33, 65),
+    // tokenChain: data.readUint16BE(65) as ChainId,
+    // to: data.subarray(67, 99),
+    // toChain: data.readUint16BE(99) as ChainId,
+    // fromAddress: data.subarray(101, 133),
+    // payload: data.subarray(133),
+  };
 }
 
 function parseTokenTransfer(data: Buffer): ParsedTokenTransfer {
@@ -377,32 +394,42 @@ function parseTokenTransfer(data: Buffer): ParsedTokenTransfer {
     toChain: data.readUint16BE(99) as ChainId,
     fromAddress: data.subarray(101, 133),
     payload: data.subarray(133),
-  }
+  };
 }
 
-export async function parseTokenTransferPostedMessage(postedMessage: Buffer): Promise<ParsedTokenTransferPostedMessage> {
+export async function parseTokenTransferPostedMessage(
+  postedMessage: Buffer,
+): Promise<ParsedTokenTransferPostedMessage> {
   const parsed = await parsePostedMessage(postedMessage);
   const data = parsed.data;
   const tokenTransfer = parseTokenTransfer(data);
   return {
     core: parsed,
-    tokenTransfer
-  }
+    tokenTransfer,
+  };
 }
 
-export function formatParsedTokenTransferPostedMessage(parsedMessage: ParsedTokenTransferPostedMessage) {
+export function formatParsedTokenTransferPostedMessage(
+  parsedMessage: ParsedTokenTransferPostedMessage,
+) {
   const formattedParsedVaa = formatPostedMessage(parsedMessage.core);
-  const formattedTokenTransfer = formatParsedTokenTransfer(parsedMessage.tokenTransfer);
+  const formattedTokenTransfer = formatParsedTokenTransfer(
+    parsedMessage.tokenTransfer,
+  );
 
   return {
     // ...parsedVaa,
-  core: formattedParsedVaa,
-  tokenTransfer: formattedTokenTransfer,
-  }
+    core: formattedParsedVaa,
+    tokenTransfer: formattedTokenTransfer,
+  };
 }
-export function formatParsedTokenTransferSignedVaa(parsedVaa: ParsedTokenTransferSignedVaa) {
+export function formatParsedTokenTransferSignedVaa(
+  parsedVaa: ParsedTokenTransferSignedVaa,
+) {
   const formattedParsedVaa = formatParsedVaa(parsedVaa.core);
-  const formattedTokenTransfer = formatParsedTokenTransfer(parsedVaa.tokenTransfer);
+  const formattedTokenTransfer = formatParsedTokenTransfer(
+    parsedVaa.tokenTransfer,
+  );
 
   return {
     // ...parsedVaa,
@@ -426,32 +453,47 @@ function formatParsedTokenTransfer(parsedTokenTransfer: ParsedTokenTransfer) {
   return {
     ...parsedTokenTransfer,
     amount: parsedTokenTransfer.amount.toString(),
-    tokenAddress: tryUint8ArrayToNative(parsedTokenTransfer.tokenAddress, parsedTokenTransfer.tokenChain),
+    tokenAddress: tryUint8ArrayToNative(
+      parsedTokenTransfer.tokenAddress,
+      parsedTokenTransfer.tokenChain,
+    ),
     tokenChain: toChainName(parsedTokenTransfer.tokenChain),
-    to: tryUint8ArrayToNative(parsedTokenTransfer.to, parsedTokenTransfer.toChain),
+    to: tryUint8ArrayToNative(
+      parsedTokenTransfer.to,
+      parsedTokenTransfer.toChain,
+    ),
     toChain: toChainName(parsedTokenTransfer.toChain),
-    fromAddress: tryUint8ArrayToNative(parsedTokenTransfer.fromAddress, parsedTokenTransfer.tokenChain),
-    payload: parsedTokenTransfer.payload.toString('hex'),
-  }
+    fromAddress: tryUint8ArrayToNative(
+      parsedTokenTransfer.fromAddress,
+      parsedTokenTransfer.tokenChain,
+    ),
+    payload: parsedTokenTransfer.payload.toString("hex"),
+  };
 }
 
 // below is experimental and is not used in the program test
 
 // Couldn't find an export in the spl token program so Dev just looked it up on rust docs
 // https://docs.rs/spl-token-metadata/latest/src/spl_token_metadata/lib.rs.html#14
-export const SPL_METADATA_PROGRAM = new web3.PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
+export const SPL_METADATA_PROGRAM = new web3.PublicKey(
+  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+);
 export async function getMintMetaPdas(mintKey: web3.PublicKey) {
-	// const programId = this.programId;
-	const [splMetaKey] = await web3.PublicKey.findProgramAddress(
-		[Buffer.from("metadata"), SPL_METADATA_PROGRAM.toBuffer(), mintKey.toBuffer()],
-		SPL_METADATA_PROGRAM
-	);
-	const [mintMetaKey] = await web3.PublicKey.findProgramAddress(
-		[Buffer.from("meta"), mintKey.toBuffer()],
-		WORMHOLE_TOKEN_BRIDGE
-	);
+  // const programId = this.programId;
+  const [splMetaKey] = await web3.PublicKey.findProgramAddress(
+    [
+      Buffer.from("metadata"),
+      SPL_METADATA_PROGRAM.toBuffer(),
+      mintKey.toBuffer(),
+    ],
+    SPL_METADATA_PROGRAM,
+  );
+  const [mintMetaKey] = await web3.PublicKey.findProgramAddress(
+    [Buffer.from("meta"), mintKey.toBuffer()],
+    WORMHOLE_TOKEN_BRIDGE,
+  );
 
-	return [splMetaKey, mintMetaKey];
+  return [splMetaKey, mintMetaKey];
 }
 //
 // const CreateWrappedData = BufferLayout.struct<Readonly<{}>>([]);
@@ -630,4 +672,3 @@ export async function getMintMetaPdas(mintKey: web3.PublicKey) {
 // 		);
 // 	}
 // }
-

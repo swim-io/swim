@@ -260,10 +260,7 @@
         {
           "name": "inputAmounts",
           "type": {
-            "array": [
-              "u64",
-              2
-            ]
+            "array": ["u64", 2]
           }
         },
         {
@@ -372,10 +369,7 @@
         {
           "name": "exactInputAmounts",
           "type": {
-            "array": [
-              "u64",
-              2
-            ]
+            "array": ["u64", 2]
           }
         },
         {
@@ -496,10 +490,7 @@
         {
           "name": "exactOutputAmounts",
           "type": {
-            "array": [
-              "u64",
-              2
-            ]
+            "array": ["u64", 2]
           }
         },
         {
@@ -615,10 +606,7 @@
         {
           "name": "minimumOutputAmounts",
           "type": {
-            "array": [
-              "u64",
-              2
-            ]
+            "array": ["u64", 2]
           }
         },
         {
@@ -850,10 +838,7 @@
         {
           "name": "exactOutputAmounts",
           "type": {
-            "array": [
-              "u64",
-              2
-            ]
+            "array": ["u64", 2]
           }
         },
         {
@@ -1273,9 +1258,7 @@
           "name": "to",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "owned by redeemer"
-          ]
+          "docs": ["owned by redeemer"]
         },
         {
           "name": "redeemer",
@@ -1301,10 +1284,7 @@
           "name": "feeRecipient",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "this is \"to_fees\"",
-            "TODO: type as TokenAccount?"
-          ]
+          "docs": ["this is \"to_fees\"", "TODO: type as TokenAccount?"]
         },
         {
           "name": "custody",
@@ -1489,10 +1469,7 @@
           {
             "name": "targetAddress",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -1576,10 +1553,7 @@
           {
             "name": "emitterAddress",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -1627,14 +1601,9 @@
         "fields": [
           {
             "name": "signers",
-            "docs": [
-              "instruction indices of signers (-1 for missing)"
-            ],
+            "docs": ["instruction indices of signers (-1 for missing)"],
             "type": {
-              "array": [
-                "i8",
-                19
-              ]
+              "array": ["i8", 19]
             }
           }
         ]
@@ -1642,9 +1611,7 @@
     },
     {
       "name": "TransferData",
-      "docs": [
-        "* Same as TransferNative & TransferWrapped Data."
-      ],
+      "docs": ["* Same as TransferNative & TransferWrapped Data."],
       "type": {
         "kind": "struct",
         "fields": [
@@ -1663,10 +1630,7 @@
           {
             "name": "targetAddress",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -1695,10 +1659,7 @@
           {
             "name": "targetAddress",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -1720,24 +1681,18 @@
     },
     {
       "name": "PostMessageData",
-      "docs": [
-        "Data that goes into a [`wormhole::Instruction::PostMessage`]"
-      ],
+      "docs": ["Data that goes into a [`wormhole::Instruction::PostMessage`]"],
       "type": {
         "kind": "struct",
         "fields": [
           {
             "name": "nonce",
-            "docs": [
-              "Unique nonce for this message"
-            ],
+            "docs": ["Unique nonce for this message"],
             "type": "u32"
           },
           {
             "name": "payload",
-            "docs": [
-              "Message payload"
-            ],
+            "docs": ["Message payload"],
             "type": "bytes"
           },
           {
@@ -1766,9 +1721,7 @@
           },
           {
             "name": "lastLamports",
-            "docs": [
-              "Lamports in the collection account"
-            ],
+            "docs": ["Lamports in the collection account"],
             "type": "u64"
           },
           {
@@ -1814,77 +1767,54 @@
         "fields": [
           {
             "name": "vaaVersion",
-            "docs": [
-              "Header of the posted VAA"
-            ],
+            "docs": ["Header of the posted VAA"],
             "type": "u8"
           },
           {
             "name": "consistencyLevel",
-            "docs": [
-              "Level of consistency requested by the emitter"
-            ],
+            "docs": ["Level of consistency requested by the emitter"],
             "type": "u8"
           },
           {
             "name": "vaaTime",
-            "docs": [
-              "Time the vaa was submitted"
-            ],
+            "docs": ["Time the vaa was submitted"],
             "type": "u32"
           },
           {
             "name": "vaaSignatureAccount",
-            "docs": [
-              "Account where signatures are stored"
-            ],
+            "docs": ["Account where signatures are stored"],
             "type": "publicKey"
           },
           {
             "name": "submissionTime",
-            "docs": [
-              "Time the posted message was created"
-            ],
+            "docs": ["Time the posted message was created"],
             "type": "u32"
           },
           {
             "name": "nonce",
-            "docs": [
-              "Unique nonce for this message"
-            ],
+            "docs": ["Unique nonce for this message"],
             "type": "u32"
           },
           {
             "name": "sequence",
-            "docs": [
-              "Sequence number of this message"
-            ],
+            "docs": ["Sequence number of this message"],
             "type": "u64"
           },
           {
             "name": "emitterChain",
-            "docs": [
-              "Emitter of the message"
-            ],
+            "docs": ["Emitter of the message"],
             "type": "u16"
           },
           {
             "name": "emitterAddress",
-            "docs": [
-              "Emitter of the message"
-            ],
+            "docs": ["Emitter of the message"],
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "payload",
-            "docs": [
-              "Message payload aka `PayloadTransferWithPayload`"
-            ],
+            "docs": ["Message payload aka `PayloadTransferWithPayload`"],
             "type": "bytes"
           }
         ]
@@ -1930,10 +1860,7 @@
           {
             "name": "emitterAddress",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {

@@ -198,8 +198,8 @@ async function add() {
       userLpTokenAccount: userSwimUsdAtaAddr,
       tokenProgram: splToken.programId,
     })
-    .preInstructions(approveIxs)
-    .postInstructions(revokeIxs)
+    .preInstructions([...approveIxs])
+    .postInstructions([...revokeIxs])
     .signers([userTransferAuthority])
     .rpc();
 

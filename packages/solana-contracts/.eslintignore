@@ -1,0 +1,6 @@
+!.*
+.switchboard/
+build/
+node_modules/
+programs/
+types/

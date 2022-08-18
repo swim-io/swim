@@ -67,7 +67,7 @@ interface IRouting {
     bytes16 memo
   ) external returns (uint256 outputAmount, address outpuToken);
 
-  function receiveAndSwap(bytes memory encodedVm, bytes16 memo)
+  function receiveAndSwap(bytes memory encodedVm)
     external
     returns (uint256 outputAmount, address outputToken);
 

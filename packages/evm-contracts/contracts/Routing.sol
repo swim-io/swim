@@ -160,7 +160,10 @@ contract Routing is
     internal
     returns (uint64 wormholeSequence)
   {
-    if (propellerData.wormholeRecipientChain == WORMHOLE_SOLANA_CHAIN_ID) {
+    if (
+      propellerData.wormholeRecipientChain == WORMHOLE_SOLANA_CHAIN_ID &&
+      !propellerData.propellerEnabled
+    ) {
       uint256 arbiterFee = 0;
       wormholeSequence = tokenBridge.transferTokens(
         swimUsdAddress,
@@ -227,11 +230,10 @@ contract Routing is
    * @notice Complete a contract-controlled transfer of an ERC20 token and swaps for token address in payload.
    * If swap fails, user receives swimUsd token.
    * @param encodedVm A byte array containing a VAA signed by the guardians.
-   * @param memo bytes16 current memo
    * @return outputAmount Amount that user will receive
    * @return outputToken Type of token that user will receive
    */
-  function receiveAndSwap(bytes memory encodedVm, bytes16 memo)
+  function receiveAndSwap(bytes memory encodedVm)
     external
     whenNotPaused
     returns (uint256 outputAmount, address outputToken)
@@ -240,7 +242,8 @@ contract Routing is
     swimPayload.checkVersion();
 
     address toOwner = swimPayload.decodeOwner();
-    (uint16 tokenNumber, uint256 minimumOutputAmount) = swimPayload.decodeSwapParameters();
+    (uint16 tokenNumber, uint256 minimumOutputAmount, bytes16 memo) = swimPayload
+      .decodeSwapParameters();
     address toToken = getTokenAddress(tokenNumber);
 
     return _receiveAndSwap(encodedVm, toOwner, toToken, minimumOutputAmount, memo);

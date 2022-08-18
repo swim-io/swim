@@ -30,6 +30,10 @@ library SwimPayload {
   uint256 private constant THRESHOLD_SIZE = 32;
   uint256 private constant THRESHOLD_MINLEN = THRESHOLD_OFFSET + THRESHOLD_SIZE;
 
+  uint256 private constant MEMO_OFFSET = THRESHOLD_MINLEN;
+  uint256 private constant MEMO_SIZE = 16;
+  uint256 private constant MEMO_MINLEN = MEMO_OFFSET + MEMO_SIZE;
+
   uint256 private constant SOLIDITY_ARRAY_LENGTH_SIZE = 32;
 
   function checkVersion(bytes memory swimPayload) internal pure {
@@ -51,9 +55,17 @@ library SwimPayload {
     }
   }
 
-  function decodeSwapParameters(bytes memory swimPayload) internal pure returns (uint16, uint256) {
+  function decodeSwapParameters(bytes memory swimPayload)
+    internal
+    pure
+    returns (
+      uint16,
+      uint256,
+      bytes16
+    )
+  {
     unchecked {
-      checkLength(swimPayload, THRESHOLD_MINLEN);
+      checkLength(swimPayload, MEMO_MINLEN);
       uint16 tokenNumber = (uint16(uint8(swimPayload[TOKEN_NUMBER_OFFSET])) << 8) +
         uint16(uint8(swimPayload[TOKEN_NUMBER_OFFSET + 1]));
 
@@ -62,7 +74,13 @@ library SwimPayload {
       assembly ("memory-safe") {
         thresholdAmount := mload(add(swimPayload, offset))
       }
-      return (tokenNumber, thresholdAmount);
+
+      bytes memory memo = new bytes(16);
+      for (uint256 i = MEMO_OFFSET; i < MEMO_SIZE; i++) {
+        memo[i] = swimPayload[i];
+      }
+      
+      return (tokenNumber, thresholdAmount, bytes16(memo));
     }
   }
 

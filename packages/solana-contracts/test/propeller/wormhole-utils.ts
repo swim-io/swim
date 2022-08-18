@@ -1,4 +1,12 @@
+import type { ChainId } from "@certusone/wormhole-sdk";
+import {
+  CHAIN_ID_SOLANA,
+  importCoreWasm,
+  tryHexToNativeAssetString,
+} from "@certusone/wormhole-sdk";
+import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
 import { PublicKey } from "@solana/web3.js";
+import keccak256 from "keccak256";
 
 export const WORMHOLE_CORE_BRIDGE = new PublicKey(
   "Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o",
@@ -6,15 +14,6 @@ export const WORMHOLE_CORE_BRIDGE = new PublicKey(
 export const WORMHOLE_TOKEN_BRIDGE = new PublicKey(
   "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE",
 );
-
-import {
-  CHAIN_ID_SOLANA,
-  ChainId,
-  importCoreWasm,
-  tryHexToNativeAssetString,
-} from "@certusone/wormhole-sdk";
-import keccak256 from "keccak256";
-import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
 
 const elliptic = require("elliptic");
 /** from wormhole-icco **/
@@ -79,22 +78,22 @@ export function signAndEncodeVaa(
 }
 
 export interface GuardianSignature {
-  r: Buffer;
-  s: Buffer;
-  v: number;
+  readonly r: Buffer;
+  readonly s: Buffer;
+  readonly v: number;
 }
 
 export interface ParsedVaa {
-  version: number;
-  guardianSignatures: GuardianSignature[];
-  timestamp: number;
-  nonce: number;
-  emitterChain: ChainId;
-  emitterAddress: Buffer;
-  sequence: bigint;
-  consistencyLevel: number;
-  data: Buffer;
-  hash: Buffer;
+  readonly version: number;
+  readonly guardianSignatures: readonly GuardianSignature[];
+  readonly timestamp: number;
+  readonly nonce: number;
+  readonly emitterChain: ChainId;
+  readonly emitterAddress: Buffer;
+  readonly sequence: bigint;
+  readonly consistencyLevel: number;
+  readonly data: Buffer;
+  readonly hash: Buffer;
 }
 //{
 //  "vaa_version":0,
@@ -108,15 +107,15 @@ export interface ParsedVaa {
 //  "emitter_address":"ENG1wQ7CQKH8ibAJ1hSLmJgL9Ucg6DRDbj752ZAfidLA"
 //  }
 export interface ParsedPostedMessage {
-  vaaVersion: number;
-  vaaSignatureAccount: Buffer;
-  timestamp: number;
-  nonce: number;
-  emitterChain: ChainId;
-  emitterAddress: Buffer;
-  sequence: bigint;
-  consistencyLevel: number;
-  data: Buffer;
+  readonly vaaVersion: number;
+  readonly vaaSignatureAccount: Buffer;
+  readonly timestamp: number;
+  readonly nonce: number;
+  readonly emitterChain: ChainId;
+  readonly emitterAddress: Buffer;
+  readonly sequence: bigint;
+  readonly consistencyLevel: number;
+  readonly data: Buffer;
   // hash: Buffer;
 }
 
@@ -159,7 +158,7 @@ export function parseVaa(signedVaa: Buffer): ParsedVaa {
   const numSigners = signedVaa[5]!;
   const sigLength = 66;
 
-  const guardianSignatures: GuardianSignature[] = [];
+  const guardianSignatures: readonly GuardianSignature[] = [];
   for (let i = 0; i < numSigners; ++i) {
     const start = i * sigLength + 1;
     guardianSignatures.push({

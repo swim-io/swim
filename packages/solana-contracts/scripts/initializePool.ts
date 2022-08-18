@@ -1,22 +1,23 @@
 #!/usr/bin/env node
 
-import * as anchor from "@project-serum/anchor";
-import * as path from "path";
 import * as fs from "fs";
-import { web3, Spl } from "@project-serum/anchor";
+import * as path from "path";
+
+import * as anchor from "@project-serum/anchor";
+import { Spl, web3 } from "@project-serum/anchor";
+import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+import type { Keypair } from "@solana/web3.js";
+
 import {
-  getApproveAndRevokeIxs,
   TwoPoolContext,
+  getApproveAndRevokeIxs,
   twoPoolToString,
   writePoolStateToFile,
 } from "../src";
-
-import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import {
   setupPoolPrereqs,
   setupUserAssociatedTokenAccts,
 } from "../tests/twoPool/poolTestUtils";
-import { Keypair } from "@solana/web3.js";
 
 const envProvider = anchor.AnchorProvider.env();
 const commitment = "confirmed" as web3.Commitment;
@@ -79,8 +80,8 @@ const governanceFee = { value: new anchor.BN(100), decimals: 6 }; //gov fee = .0
 
 let flagshipPool: web3.PublicKey = web3.PublicKey.default;
 type DecimalU64Anchor = {
-  value: anchor.BN;
-  decimals: number;
+  readonly value: anchor.BN;
+  readonly decimals: number;
 };
 
 const outDir = path.resolve(
@@ -176,7 +177,7 @@ async function add() {
   ];
   const minimumMintAmount = new anchor.BN(0);
 
-  let userTransferAuthority = web3.Keypair.generate();
+  const userTransferAuthority = web3.Keypair.generate();
   const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
     splToken,
     [userUsdcAtaAddr, userUsdtAtaAddr],

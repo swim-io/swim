@@ -1,986 +1,986 @@
 export type Propeller = {
-  version: "0.1.0";
-  name: "propeller";
-  instructions: [
+  readonly version: "0.1.0";
+  readonly name: "propeller";
+  readonly instructions: readonly [
     {
-      name: "initialize";
-      accounts: [
+      readonly name: "initialize";
+      readonly accounts: readonly [
         {
-          name: "propeller";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "propeller";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "propeller";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "propeller";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "Mint";
-                path: "token_bridge_mint";
-              },
-            ];
-          };
-        },
-        {
-          name: "propellerSender";
-          isMut: false;
-          isSigner: false;
-          pda: {
-            seeds: [
-              {
-                kind: "const";
-                type: "string";
-                value: "sender";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "Mint";
+                readonly path: "token_bridge_mint";
               },
             ];
           };
         },
         {
-          name: "propellerRedeemer";
-          isMut: false;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "propellerSender";
+          readonly isMut: false;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "redeemer";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "sender";
               },
             ];
           };
         },
         {
-          name: "propellerRedeemerEscrow";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "admin";
-          isMut: false;
-          isSigner: true;
-        },
-        {
-          name: "tokenBridgeMint";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "payer";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "associatedTokenProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "rent";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "pool";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "propellerRedeemer";
+          readonly isMut: false;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "two_pool";
-              },
-              {
-                kind: "account";
-                type: "publicKey";
-                account: "Mint";
-                path: "pool_token_mint_0";
-              },
-              {
-                kind: "account";
-                type: "publicKey";
-                account: "Mint";
-                path: "pool_token_mint_1";
-              },
-              {
-                kind: "account";
-                type: "publicKey";
-                account: "Mint";
-                path: "lp_mint";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "redeemer";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              path: "two_pool_program";
+          };
+        },
+        {
+          readonly name: "propellerRedeemerEscrow";
+          readonly isMut: true;
+          readonly isSigner: false;
+        },
+        {
+          readonly name: "admin";
+          readonly isMut: false;
+          readonly isSigner: true;
+        },
+        {
+          readonly name: "tokenBridgeMint";
+          readonly isMut: false;
+          readonly isSigner: false;
+        },
+        {
+          readonly name: "payer";
+          readonly isMut: true;
+          readonly isSigner: true;
+        },
+        {
+          readonly name: "tokenProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
+        },
+        {
+          readonly name: "associatedTokenProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
+        },
+        {
+          readonly name: "systemProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
+        },
+        {
+          readonly name: "rent";
+          readonly isMut: false;
+          readonly isSigner: false;
+        },
+        {
+          readonly name: "pool";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
+              {
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "two_pool";
+              },
+              {
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "Mint";
+                readonly path: "pool_token_mint_0";
+              },
+              {
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "Mint";
+                readonly path: "pool_token_mint_1";
+              },
+              {
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "Mint";
+                readonly path: "lp_mint";
+              },
+            ];
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly path: "two_pool_program";
             };
           };
         },
         {
-          name: "poolTokenMint0";
-          isMut: false;
-          isSigner: false;
+          readonly name: "poolTokenMint0";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "poolTokenMint1";
-          isMut: false;
-          isSigner: false;
+          readonly name: "poolTokenMint1";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "lpMint";
-          isMut: false;
-          isSigner: false;
+          readonly name: "lpMint";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "twoPoolProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "twoPoolProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
       ];
-      args: [
+      readonly args: readonly [
         {
-          name: "params";
-          type: {
-            defined: "InitializeParams";
+          readonly name: "params";
+          readonly type: {
+            readonly defined: "InitializeParams";
           };
         },
       ];
     },
     {
-      name: "add";
-      accounts: [
+      readonly name: "add";
+      readonly accounts: readonly [
         {
-          name: "pool";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "pool";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "two_pool";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "two_pool";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "TokenAccount";
-                path: "pool_token_account_0.mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "TokenAccount";
+                readonly path: "pool_token_account_0.mint";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "TokenAccount";
-                path: "pool_token_account_1.mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "TokenAccount";
+                readonly path: "pool_token_account_1.mint";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "Mint";
-                path: "lp_mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "Mint";
+                readonly path: "lp_mint";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              path: "two_pool_program";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly path: "two_pool_program";
             };
           };
         },
         {
-          name: "poolTokenAccount0";
-          isMut: true;
-          isSigner: false;
+          readonly name: "poolTokenAccount0";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "poolTokenAccount1";
-          isMut: true;
-          isSigner: false;
+          readonly name: "poolTokenAccount1";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "lpMint";
-          isMut: true;
-          isSigner: false;
+          readonly name: "lpMint";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "governanceFee";
-          isMut: true;
-          isSigner: false;
+          readonly name: "governanceFee";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userTransferAuthority";
-          isMut: false;
-          isSigner: true;
+          readonly name: "userTransferAuthority";
+          readonly isMut: false;
+          readonly isSigner: true;
         },
         {
-          name: "userTokenAccount0";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userTokenAccount0";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userTokenAccount1";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userTokenAccount1";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userLpTokenAccount";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userLpTokenAccount";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "tokenProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "memo";
-          isMut: false;
-          isSigner: false;
+          readonly name: "memo";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "twoPoolProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "twoPoolProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
       ];
-      args: [
+      readonly args: readonly [
         {
-          name: "inputAmounts";
-          type: {
-            array: ["u64", 2];
+          readonly name: "inputAmounts";
+          readonly type: {
+            readonly array: readonly ["u64", 2];
           };
         },
         {
-          name: "minimumMintAmount";
-          type: "u64";
+          readonly name: "minimumMintAmount";
+          readonly type: "u64";
         },
         {
-          name: "memo";
-          type: "bytes";
+          readonly name: "memo";
+          readonly type: "bytes";
         },
       ];
-      returns: "u64";
+      readonly returns: "u64";
     },
     {
-      name: "swapExactInput";
-      accounts: [
+      readonly name: "swapExactInput";
+      readonly accounts: readonly [
         {
-          name: "pool";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "pool";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "two_pool";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "two_pool";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "TokenAccount";
-                path: "pool_token_account_0.mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "TokenAccount";
+                readonly path: "pool_token_account_0.mint";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "TokenAccount";
-                path: "pool_token_account_1.mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "TokenAccount";
+                readonly path: "pool_token_account_1.mint";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "Mint";
-                path: "lp_mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "Mint";
+                readonly path: "lp_mint";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              path: "two_pool_program";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly path: "two_pool_program";
             };
           };
         },
         {
-          name: "poolTokenAccount0";
-          isMut: true;
-          isSigner: false;
+          readonly name: "poolTokenAccount0";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "poolTokenAccount1";
-          isMut: true;
-          isSigner: false;
+          readonly name: "poolTokenAccount1";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "lpMint";
-          isMut: true;
-          isSigner: false;
+          readonly name: "lpMint";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "governanceFee";
-          isMut: true;
-          isSigner: false;
+          readonly name: "governanceFee";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userTransferAuthority";
-          isMut: false;
-          isSigner: true;
+          readonly name: "userTransferAuthority";
+          readonly isMut: false;
+          readonly isSigner: true;
         },
         {
-          name: "userTokenAccount0";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userTokenAccount0";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userTokenAccount1";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userTokenAccount1";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "tokenProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "memo";
-          isMut: false;
-          isSigner: false;
+          readonly name: "memo";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "twoPoolProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "twoPoolProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
       ];
-      args: [
+      readonly args: readonly [
         {
-          name: "exactInputAmounts";
-          type: {
-            array: ["u64", 2];
+          readonly name: "exactInputAmounts";
+          readonly type: {
+            readonly array: readonly ["u64", 2];
           };
         },
         {
-          name: "outputTokenIndex";
-          type: "u8";
+          readonly name: "outputTokenIndex";
+          readonly type: "u8";
         },
         {
-          name: "minimumOutputAmount";
-          type: "u64";
+          readonly name: "minimumOutputAmount";
+          readonly type: "u64";
         },
         {
-          name: "memo";
-          type: "bytes";
+          readonly name: "memo";
+          readonly type: "bytes";
         },
       ];
-      returns: "u64";
+      readonly returns: "u64";
     },
     {
-      name: "swapExactOutput";
-      accounts: [
+      readonly name: "swapExactOutput";
+      readonly accounts: readonly [
         {
-          name: "pool";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "pool";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "two_pool";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "two_pool";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "TokenAccount";
-                path: "pool_token_account_0.mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "TokenAccount";
+                readonly path: "pool_token_account_0.mint";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "TokenAccount";
-                path: "pool_token_account_1.mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "TokenAccount";
+                readonly path: "pool_token_account_1.mint";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "Mint";
-                path: "lp_mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "Mint";
+                readonly path: "lp_mint";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              path: "two_pool_program";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly path: "two_pool_program";
             };
           };
         },
         {
-          name: "poolTokenAccount0";
-          isMut: true;
-          isSigner: false;
+          readonly name: "poolTokenAccount0";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "poolTokenAccount1";
-          isMut: true;
-          isSigner: false;
+          readonly name: "poolTokenAccount1";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "lpMint";
-          isMut: true;
-          isSigner: false;
+          readonly name: "lpMint";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "governanceFee";
-          isMut: true;
-          isSigner: false;
+          readonly name: "governanceFee";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userTransferAuthority";
-          isMut: false;
-          isSigner: true;
+          readonly name: "userTransferAuthority";
+          readonly isMut: false;
+          readonly isSigner: true;
         },
         {
-          name: "userTokenAccount0";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userTokenAccount0";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userTokenAccount1";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userTokenAccount1";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "tokenProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "memo";
-          isMut: false;
-          isSigner: false;
+          readonly name: "memo";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "twoPoolProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "twoPoolProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
       ];
-      args: [
+      readonly args: readonly [
         {
-          name: "maximumInputAmount";
-          type: "u64";
+          readonly name: "maximumInputAmount";
+          readonly type: "u64";
         },
         {
-          name: "inputTokenIndex";
-          type: "u8";
+          readonly name: "inputTokenIndex";
+          readonly type: "u8";
         },
         {
-          name: "exactOutputAmounts";
-          type: {
-            array: ["u64", 2];
+          readonly name: "exactOutputAmounts";
+          readonly type: {
+            readonly array: readonly ["u64", 2];
           };
         },
         {
-          name: "memo";
-          type: "bytes";
+          readonly name: "memo";
+          readonly type: "bytes";
         },
       ];
-      returns: {
-        vec: "u64";
+      readonly returns: {
+        readonly vec: "u64";
       };
     },
     {
-      name: "removeUniform";
-      accounts: [
+      readonly name: "removeUniform";
+      readonly accounts: readonly [
         {
-          name: "pool";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "pool";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "two_pool";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "two_pool";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "TokenAccount";
-                path: "pool_token_account_0.mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "TokenAccount";
+                readonly path: "pool_token_account_0.mint";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "TokenAccount";
-                path: "pool_token_account_1.mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "TokenAccount";
+                readonly path: "pool_token_account_1.mint";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "Mint";
-                path: "lp_mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "Mint";
+                readonly path: "lp_mint";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              path: "two_pool_program";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly path: "two_pool_program";
             };
           };
         },
         {
-          name: "poolTokenAccount0";
-          isMut: true;
-          isSigner: false;
+          readonly name: "poolTokenAccount0";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "poolTokenAccount1";
-          isMut: true;
-          isSigner: false;
+          readonly name: "poolTokenAccount1";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "lpMint";
-          isMut: true;
-          isSigner: false;
+          readonly name: "lpMint";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "governanceFee";
-          isMut: true;
-          isSigner: false;
+          readonly name: "governanceFee";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userTransferAuthority";
-          isMut: false;
-          isSigner: true;
+          readonly name: "userTransferAuthority";
+          readonly isMut: false;
+          readonly isSigner: true;
         },
         {
-          name: "userTokenAccount0";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userTokenAccount0";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userTokenAccount1";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userTokenAccount1";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userLpTokenAccount";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userLpTokenAccount";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "tokenProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "memo";
-          isMut: false;
-          isSigner: false;
+          readonly name: "memo";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "twoPoolProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "twoPoolProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
       ];
-      args: [
+      readonly args: readonly [
         {
-          name: "exactBurnAmount";
-          type: "u64";
+          readonly name: "exactBurnAmount";
+          readonly type: "u64";
         },
         {
-          name: "minimumOutputAmounts";
-          type: {
-            array: ["u64", 2];
+          readonly name: "minimumOutputAmounts";
+          readonly type: {
+            readonly array: readonly ["u64", 2];
           };
         },
         {
-          name: "memo";
-          type: "bytes";
+          readonly name: "memo";
+          readonly type: "bytes";
         },
       ];
-      returns: {
-        vec: "u64";
+      readonly returns: {
+        readonly vec: "u64";
       };
     },
     {
-      name: "removeExactBurn";
-      accounts: [
+      readonly name: "removeExactBurn";
+      readonly accounts: readonly [
         {
-          name: "pool";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "pool";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "two_pool";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "two_pool";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "TokenAccount";
-                path: "pool_token_account_0.mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "TokenAccount";
+                readonly path: "pool_token_account_0.mint";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "TokenAccount";
-                path: "pool_token_account_1.mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "TokenAccount";
+                readonly path: "pool_token_account_1.mint";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "Mint";
-                path: "lp_mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "Mint";
+                readonly path: "lp_mint";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              path: "two_pool_program";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly path: "two_pool_program";
             };
           };
         },
         {
-          name: "poolTokenAccount0";
-          isMut: true;
-          isSigner: false;
+          readonly name: "poolTokenAccount0";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "poolTokenAccount1";
-          isMut: true;
-          isSigner: false;
+          readonly name: "poolTokenAccount1";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "lpMint";
-          isMut: true;
-          isSigner: false;
+          readonly name: "lpMint";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "governanceFee";
-          isMut: true;
-          isSigner: false;
+          readonly name: "governanceFee";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userTransferAuthority";
-          isMut: false;
-          isSigner: true;
+          readonly name: "userTransferAuthority";
+          readonly isMut: false;
+          readonly isSigner: true;
         },
         {
-          name: "userTokenAccount0";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userTokenAccount0";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userTokenAccount1";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userTokenAccount1";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userLpTokenAccount";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userLpTokenAccount";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "tokenProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "memo";
-          isMut: false;
-          isSigner: false;
+          readonly name: "memo";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "twoPoolProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "twoPoolProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
       ];
-      args: [
+      readonly args: readonly [
         {
-          name: "exactBurnAmount";
-          type: "u64";
+          readonly name: "exactBurnAmount";
+          readonly type: "u64";
         },
         {
-          name: "outputTokenIndex";
-          type: "u8";
+          readonly name: "outputTokenIndex";
+          readonly type: "u8";
         },
         {
-          name: "minimumOutputAmount";
-          type: "u64";
+          readonly name: "minimumOutputAmount";
+          readonly type: "u64";
         },
         {
-          name: "memo";
-          type: "bytes";
+          readonly name: "memo";
+          readonly type: "bytes";
         },
       ];
-      returns: "u64";
+      readonly returns: "u64";
     },
     {
-      name: "removeExactOutput";
-      accounts: [
+      readonly name: "removeExactOutput";
+      readonly accounts: readonly [
         {
-          name: "pool";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "pool";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "two_pool";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "two_pool";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "TokenAccount";
-                path: "pool_token_account_0.mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "TokenAccount";
+                readonly path: "pool_token_account_0.mint";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "TokenAccount";
-                path: "pool_token_account_1.mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "TokenAccount";
+                readonly path: "pool_token_account_1.mint";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "Mint";
-                path: "lp_mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "Mint";
+                readonly path: "lp_mint";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              path: "two_pool_program";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly path: "two_pool_program";
             };
           };
         },
         {
-          name: "poolTokenAccount0";
-          isMut: true;
-          isSigner: false;
+          readonly name: "poolTokenAccount0";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "poolTokenAccount1";
-          isMut: true;
-          isSigner: false;
+          readonly name: "poolTokenAccount1";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "lpMint";
-          isMut: true;
-          isSigner: false;
+          readonly name: "lpMint";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "governanceFee";
-          isMut: true;
-          isSigner: false;
+          readonly name: "governanceFee";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userTransferAuthority";
-          isMut: false;
-          isSigner: true;
+          readonly name: "userTransferAuthority";
+          readonly isMut: false;
+          readonly isSigner: true;
         },
         {
-          name: "userTokenAccount0";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userTokenAccount0";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userTokenAccount1";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userTokenAccount1";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "userLpTokenAccount";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userLpTokenAccount";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "tokenProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "memo";
-          isMut: false;
-          isSigner: false;
+          readonly name: "memo";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "twoPoolProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "twoPoolProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
       ];
-      args: [
+      readonly args: readonly [
         {
-          name: "maximumBurnAmount";
-          type: "u64";
+          readonly name: "maximumBurnAmount";
+          readonly type: "u64";
         },
         {
-          name: "exactOutputAmounts";
-          type: {
-            array: ["u64", 2];
+          readonly name: "exactOutputAmounts";
+          readonly type: {
+            readonly array: readonly ["u64", 2];
           };
         },
         {
-          name: "memo";
-          type: "bytes";
+          readonly name: "memo";
+          readonly type: "bytes";
         },
       ];
-      returns: {
-        vec: "u64";
+      readonly returns: {
+        readonly vec: "u64";
       };
     },
     {
-      name: "transferNativeWithPayload";
-      accounts: [
+      readonly name: "transferNativeWithPayload";
+      readonly accounts: readonly [
         {
-          name: "propeller";
-          isMut: false;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "propeller";
+          readonly isMut: false;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "propeller";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "propeller";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "Mint";
-                path: "token_bridge_mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "Mint";
+                readonly path: "token_bridge_mint";
               },
             ];
           };
         },
         {
-          name: "payer";
-          isMut: true;
-          isSigner: true;
+          readonly name: "payer";
+          readonly isMut: true;
+          readonly isSigner: true;
         },
         {
-          name: "tokenBridgeConfig";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "tokenBridgeConfig";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "config";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "config";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              account: "Propeller";
-              path: "propeller";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly account: "Propeller";
+              readonly path: "propeller";
             };
           };
         },
         {
-          name: "userTokenBridgeAccount";
-          isMut: true;
-          isSigner: false;
+          readonly name: "userTokenBridgeAccount";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "tokenBridgeMint";
-          isMut: true;
-          isSigner: false;
+          readonly name: "tokenBridgeMint";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "custody";
-          isMut: true;
-          isSigner: false;
+          readonly name: "custody";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "tokenBridge";
-          isMut: false;
-          isSigner: false;
+          readonly name: "tokenBridge";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "custodySigner";
-          isMut: false;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "custodySigner";
+          readonly isMut: false;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "custody_signer";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "custody_signer";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              path: "token_bridge";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly path: "token_bridge";
             };
           };
         },
         {
-          name: "authoritySigner";
-          isMut: false;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "authoritySigner";
+          readonly isMut: false;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "authority_signer";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "authority_signer";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              path: "token_bridge";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly path: "token_bridge";
             };
           };
         },
         {
-          name: "wormholeConfig";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "wormholeConfig";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "Bridge";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "Bridge";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              account: "Propeller";
-              path: "propeller";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly account: "Propeller";
+              readonly path: "propeller";
             };
           };
         },
         {
-          name: "wormholeMessage";
-          isMut: true;
-          isSigner: true;
-          docs: [
+          readonly name: "wormholeMessage";
+          readonly isMut: true;
+          readonly isSigner: true;
+          readonly docs: readonly [
             "Note:",
             "switched to using a `Signer`",
             "instead of a PDA since a normal token bridge transfer",
@@ -994,80 +994,80 @@ export type Propeller = {
           ];
         },
         {
-          name: "wormholeEmitter";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "wormholeEmitter";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "emitter";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "emitter";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              account: "Propeller";
-              path: "propeller";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly account: "Propeller";
+              readonly path: "propeller";
             };
           };
         },
         {
-          name: "wormholeSequence";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "wormholeSequence";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "Sequence";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "Sequence";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                path: "wormhole_emitter";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly path: "wormhole_emitter";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              account: "Propeller";
-              path: "propeller";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly account: "Propeller";
+              readonly path: "propeller";
             };
           };
         },
         {
-          name: "wormholeFeeCollector";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "wormholeFeeCollector";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "fee_collector";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "fee_collector";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              account: "Propeller";
-              path: "propeller";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly account: "Propeller";
+              readonly path: "propeller";
             };
           };
         },
         {
-          name: "clock";
-          isMut: false;
-          isSigner: false;
+          readonly name: "clock";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "sender";
-          isMut: false;
-          isSigner: false;
-          docs: [
+          readonly name: "sender";
+          readonly isMut: false;
+          readonly isSigner: false;
+          readonly docs: readonly [
             "Transfers with payload also include the address of the account or contract",
             'that sent the transfer. Semantically this is identical to "msg.sender" on',
             "EVM chains, i.e. it is the address of the immediate caller of the token",
@@ -1101,134 +1101,134 @@ export type Propeller = {
             "that case the PDA's address will directly be encoded into the payload",
             "instead of the sender program's id.",
           ];
-          pda: {
-            seeds: [
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "sender";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "sender";
               },
             ];
           };
         },
         {
-          name: "rent";
-          isMut: false;
-          isSigner: false;
+          readonly name: "rent";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "systemProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "wormhole";
-          isMut: false;
-          isSigner: false;
+          readonly name: "wormhole";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "tokenProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "memo";
-          isMut: false;
-          isSigner: false;
+          readonly name: "memo";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
       ];
-      args: [
+      readonly args: readonly [
         {
-          name: "nonce";
-          type: "u32";
+          readonly name: "nonce";
+          readonly type: "u32";
         },
         {
-          name: "targetChain";
-          type: "u16";
+          readonly name: "targetChain";
+          readonly type: "u16";
         },
         {
-          name: "amount";
-          type: "u64";
+          readonly name: "amount";
+          readonly type: "u64";
         },
         {
-          name: "targetTokenId";
-          type: "u16";
+          readonly name: "targetTokenId";
+          readonly type: "u16";
         },
         {
-          name: "targetToken";
-          type: "bytes";
+          readonly name: "targetToken";
+          readonly type: "bytes";
         },
         {
-          name: "owner";
-          type: "bytes";
+          readonly name: "owner";
+          readonly type: "bytes";
         },
         {
-          name: "gasKickstart";
-          type: "bool";
+          readonly name: "gasKickstart";
+          readonly type: "bool";
         },
         {
-          name: "propellerEnabled";
-          type: "bool";
+          readonly name: "propellerEnabled";
+          readonly type: "bool";
         },
         {
-          name: "memo";
-          type: "bytes";
+          readonly name: "memo";
+          readonly type: "bytes";
         },
       ];
     },
     {
-      name: "completeNativeWithPayload";
-      accounts: [
+      readonly name: "completeNativeWithPayload";
+      readonly accounts: readonly [
         {
-          name: "propeller";
-          isMut: false;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "propeller";
+          readonly isMut: false;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "propeller";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "propeller";
               },
               {
-                kind: "account";
-                type: "publicKey";
-                account: "Propeller";
-                path: "propeller.token_bridge_mint";
+                readonly kind: "account";
+                readonly type: "publicKey";
+                readonly account: "Propeller";
+                readonly path: "propeller.token_bridge_mint";
               },
             ];
           };
         },
         {
-          name: "payer";
-          isMut: true;
-          isSigner: true;
+          readonly name: "payer";
+          readonly isMut: true;
+          readonly isSigner: true;
         },
         {
-          name: "tokenBridgeConfig";
-          isMut: true;
-          isSigner: false;
-          pda: {
-            seeds: [
+          readonly name: "tokenBridgeConfig";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "config";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "config";
               },
             ];
-            programId: {
-              kind: "account";
-              type: "publicKey";
-              account: "Propeller";
-              path: "propeller";
+            readonly programId: {
+              readonly kind: "account";
+              readonly type: "publicKey";
+              readonly account: "Propeller";
+              readonly path: "propeller";
             };
           };
         },
         {
-          name: "message";
-          isMut: false;
-          isSigner: false;
-          docs: [
+          readonly name: "message";
+          readonly isMut: false;
+          readonly isSigner: false;
+          readonly docs: readonly [
             "contains the VAA",
             "{",
             "...MessageData:",
@@ -1239,10 +1239,10 @@ export type Propeller = {
           ];
         },
         {
-          name: "claim";
-          isMut: true;
-          isSigner: false;
-          docs: [
+          readonly name: "claim";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly docs: readonly [
             "seeds = [",
             "vaa.emitter_address, vaa.emitter_chain, vaa.sequence",
             "],",
@@ -1250,849 +1250,862 @@ export type Propeller = {
           ];
         },
         {
-          name: "endpoint";
-          isMut: false;
-          isSigner: false;
+          readonly name: "endpoint";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "to";
-          isMut: true;
-          isSigner: false;
-          docs: ["owned by redeemer"];
+          readonly name: "to";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly docs: readonly ["owned by redeemer"];
         },
         {
-          name: "redeemer";
-          isMut: false;
-          isSigner: false;
-          docs: [
+          readonly name: "redeemer";
+          readonly isMut: false;
+          readonly isSigner: false;
+          readonly docs: readonly [
             'redeemer will be PDA derived from ["redeemer"], seeds::program = propeller::id()',
             "will have to be signed when it invokes complete_transfer_with_payload",
             "if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to",
             "(NOT the `to` account)",
           ];
-          pda: {
-            seeds: [
+          readonly pda: {
+            readonly seeds: readonly [
               {
-                kind: "const";
-                type: "string";
-                value: "redeemer";
+                readonly kind: "const";
+                readonly type: "string";
+                readonly value: "redeemer";
               },
             ];
           };
         },
         {
-          name: "feeRecipient";
-          isMut: true;
-          isSigner: false;
-          docs: ['this is "to_fees"', "TODO: type as TokenAccount?"];
+          readonly name: "feeRecipient";
+          readonly isMut: true;
+          readonly isSigner: false;
+          readonly docs: readonly [
+            'this is "to_fees"',
+            "TODO: type as TokenAccount?",
+          ];
         },
         {
-          name: "custody";
-          isMut: true;
-          isSigner: false;
+          readonly name: "custody";
+          readonly isMut: true;
+          readonly isSigner: false;
         },
         {
-          name: "mint";
-          isMut: false;
-          isSigner: false;
+          readonly name: "mint";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "custodySigner";
-          isMut: false;
-          isSigner: false;
+          readonly name: "custodySigner";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "rent";
-          isMut: false;
-          isSigner: false;
+          readonly name: "rent";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "systemProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "wormhole";
-          isMut: false;
-          isSigner: false;
+          readonly name: "wormhole";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          readonly name: "tokenProgram";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
         {
-          name: "tokenBridge";
-          isMut: false;
-          isSigner: false;
+          readonly name: "tokenBridge";
+          readonly isMut: false;
+          readonly isSigner: false;
         },
       ];
-      args: [];
+      readonly args: readonly [];
     },
   ];
-  accounts: [
+  readonly accounts: readonly [
     {
-      name: "tokenIdMapping";
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "tokenIdMapping";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "outputTokenIndex";
-            type: "u16";
+            readonly name: "outputTokenIndex";
+            readonly type: "u16";
           },
           {
-            name: "pool";
-            type: "publicKey";
+            readonly name: "pool";
+            readonly type: "publicKey";
           },
           {
-            name: "poolTokenIndex";
-            type: "u8";
+            readonly name: "poolTokenIndex";
+            readonly type: "u8";
           },
           {
-            name: "poolTokenMint";
-            type: "publicKey";
+            readonly name: "poolTokenMint";
+            readonly type: "publicKey";
           },
           {
-            name: "poolIx";
-            type: {
-              defined: "PoolInstruction";
+            readonly name: "poolIx";
+            readonly type: {
+              readonly defined: "PoolInstruction";
             };
           },
           {
-            name: "bump";
-            type: "u8";
+            readonly name: "bump";
+            readonly type: "u8";
           },
         ];
       };
     },
     {
-      name: "propellerSender";
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "propellerSender";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "bump";
-            type: "u8";
+            readonly name: "bump";
+            readonly type: "u8";
           },
         ];
       };
     },
     {
-      name: "propellerRedeemer";
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "propellerRedeemer";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "bump";
-            type: "u8";
+            readonly name: "bump";
+            readonly type: "u8";
           },
         ];
       };
     },
     {
-      name: "propeller";
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "propeller";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "bump";
-            type: "u8";
+            readonly name: "bump";
+            readonly type: "u8";
           },
           {
-            name: "nonce";
-            type: "u32";
+            readonly name: "nonce";
+            readonly type: "u32";
           },
           {
-            name: "admin";
-            type: "publicKey";
+            readonly name: "admin";
+            readonly type: "publicKey";
           },
           {
-            name: "wormhole";
-            type: "publicKey";
+            readonly name: "wormhole";
+            readonly type: "publicKey";
           },
           {
-            name: "tokenBridge";
-            type: "publicKey";
+            readonly name: "tokenBridge";
+            readonly type: "publicKey";
           },
           {
-            name: "tokenBridgeMint";
-            type: "publicKey";
+            readonly name: "tokenBridgeMint";
+            readonly type: "publicKey";
           },
           {
-            name: "senderBump";
-            type: "u8";
+            readonly name: "senderBump";
+            readonly type: "u8";
           },
           {
-            name: "redeemerBump";
-            type: "u8";
+            readonly name: "redeemerBump";
+            readonly type: "u8";
           },
           {
-            name: "gasKickstartAmount";
-            type: "u64";
+            readonly name: "gasKickstartAmount";
+            readonly type: "u64";
           },
           {
-            name: "propellerFee";
-            docs: [
+            readonly name: "propellerFee";
+            readonly docs: readonly [
               "TODO: should this be in swimUSD or native gas?",
               "fee that payer of complete txn will take from transferred amount",
             ];
-            type: "u64";
+            readonly type: "u64";
           },
           {
-            name: "propellerMinThreshold";
-            type: "u64";
+            readonly name: "propellerMinThreshold";
+            readonly type: "u64";
           },
           {
-            name: "marginalPricePool";
-            type: "publicKey";
+            readonly name: "marginalPricePool";
+            readonly type: "publicKey";
           },
           {
-            name: "marginalPricePoolTokenMint";
-            type: "publicKey";
+            readonly name: "marginalPricePoolTokenMint";
+            readonly type: "publicKey";
           },
           {
-            name: "marginalPricePoolTokenIndex";
-            type: "u8";
+            readonly name: "marginalPricePoolTokenIndex";
+            readonly type: "u8";
           },
         ];
       };
     },
     {
-      name: "chainMap";
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "chainMap";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "chainId";
-            type: "u16";
+            readonly name: "chainId";
+            readonly type: "u16";
           },
           {
-            name: "targetAddress";
-            type: {
-              array: ["u8", 32];
+            readonly name: "targetAddress";
+            readonly type: {
+              readonly array: readonly ["u8", 32];
             };
           },
           {
-            name: "bump";
-            type: "u8";
+            readonly name: "bump";
+            readonly type: "u8";
           },
         ];
       };
     },
   ];
-  types: [
+  readonly types: readonly [
     {
-      name: "InitializeParams";
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "InitializeParams";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "gasKickstartAmount";
-            type: "u64";
+            readonly name: "gasKickstartAmount";
+            readonly type: "u64";
           },
           {
-            name: "propellerFee";
-            type: "u64";
+            readonly name: "propellerFee";
+            readonly type: "u64";
           },
           {
-            name: "propellerMinThreshold";
-            type: "u64";
+            readonly name: "propellerMinThreshold";
+            readonly type: "u64";
           },
           {
-            name: "marginalPricePool";
-            type: "publicKey";
+            readonly name: "marginalPricePool";
+            readonly type: "publicKey";
           },
           {
-            name: "marginalPricePoolTokenIndex";
-            type: "u8";
+            readonly name: "marginalPricePoolTokenIndex";
+            readonly type: "u8";
           },
           {
-            name: "marginalPricePoolTokenMint";
-            type: "publicKey";
+            readonly name: "marginalPricePoolTokenMint";
+            readonly type: "publicKey";
           },
         ];
       };
     },
     {
-      name: "AnchorSwimPayloadVAA";
-      docs: [
+      readonly name: "AnchorSwimPayloadVAA";
+      readonly docs: readonly [
         'This is "raw" VAA directly from guardian network',
         "probably not needed.",
       ];
-      type: {
-        kind: "struct";
-        fields: [
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "version";
-            type: "u8";
+            readonly name: "version";
+            readonly type: "u8";
           },
           {
-            name: "guardianSetIndex";
-            type: "u32";
+            readonly name: "guardianSetIndex";
+            readonly type: "u32";
           },
           {
-            name: "signatures";
-            type: {
-              vec: {
-                defined: "AnchorVAASignature";
+            readonly name: "signatures";
+            readonly type: {
+              readonly vec: {
+                readonly defined: "AnchorVAASignature";
               };
             };
           },
           {
-            name: "timestamp";
-            type: "u32";
+            readonly name: "timestamp";
+            readonly type: "u32";
           },
           {
-            name: "nonce";
-            type: "u32";
+            readonly name: "nonce";
+            readonly type: "u32";
           },
           {
-            name: "emitterChain";
-            type: "u16";
+            readonly name: "emitterChain";
+            readonly type: "u16";
           },
           {
-            name: "emitterAddress";
-            type: {
-              array: ["u8", 32];
+            readonly name: "emitterAddress";
+            readonly type: {
+              readonly array: readonly ["u8", 32];
             };
           },
           {
-            name: "sequence";
-            type: "u64";
+            readonly name: "sequence";
+            readonly type: "u64";
           },
           {
-            name: "consistencyLevel";
-            type: "u8";
+            readonly name: "consistencyLevel";
+            readonly type: "u8";
           },
           {
-            name: "payload";
-            type: "bytes";
-          },
-        ];
-      };
-    },
-    {
-      name: "AnchorVAASignature";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "signature";
-            type: "bytes";
-          },
-          {
-            name: "guardianIndex";
-            type: "u8";
+            readonly name: "payload";
+            readonly type: "bytes";
           },
         ];
       };
     },
     {
-      name: "CompleteNativeWithPayloadData";
-      type: {
-        kind: "struct";
-        fields: [];
+      readonly name: "AnchorVAASignature";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
+          {
+            readonly name: "signature";
+            readonly type: "bytes";
+          },
+          {
+            readonly name: "guardianIndex";
+            readonly type: "u8";
+          },
+        ];
       };
     },
     {
-      name: "VerifySignaturesData";
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "CompleteNativeWithPayloadData";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [];
+      };
+    },
+    {
+      readonly name: "VerifySignaturesData";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "signers";
-            docs: ["instruction indices of signers (-1 for missing)"];
-            type: {
-              array: ["i8", 19];
+            readonly name: "signers";
+            readonly docs: readonly [
+              "instruction indices of signers (-1 for missing)",
+            ];
+            readonly type: {
+              readonly array: readonly ["i8", 19];
             };
           },
         ];
       };
     },
     {
-      name: "TransferData";
-      docs: ["* Same as TransferNative & TransferWrapped Data."];
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "TransferData";
+      readonly docs: readonly [
+        "* Same as TransferNative & TransferWrapped Data.",
+      ];
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "nonce";
-            type: "u32";
+            readonly name: "nonce";
+            readonly type: "u32";
           },
           {
-            name: "amount";
-            type: "u64";
+            readonly name: "amount";
+            readonly type: "u64";
           },
           {
-            name: "fee";
-            type: "u64";
+            readonly name: "fee";
+            readonly type: "u64";
           },
           {
-            name: "targetAddress";
-            type: {
-              array: ["u8", 32];
+            readonly name: "targetAddress";
+            readonly type: {
+              readonly array: readonly ["u8", 32];
             };
           },
           {
-            name: "targetChain";
-            type: "u16";
+            readonly name: "targetChain";
+            readonly type: "u16";
           },
         ];
       };
     },
     {
-      name: "TransferWithPayloadData";
-      docs: [
+      readonly name: "TransferWithPayloadData";
+      readonly docs: readonly [
         "* Same as TransferNativeWithPayloadData & TransferWrappedWithPayloadData.\n* this is the data that goes into the Instruction.",
       ];
-      type: {
-        kind: "struct";
-        fields: [
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "nonce";
-            type: "u32";
+            readonly name: "nonce";
+            readonly type: "u32";
           },
           {
-            name: "amount";
-            type: "u64";
+            readonly name: "amount";
+            readonly type: "u64";
           },
           {
-            name: "targetAddress";
-            type: {
-              array: ["u8", 32];
+            readonly name: "targetAddress";
+            readonly type: {
+              readonly array: readonly ["u8", 32];
             };
           },
           {
-            name: "targetChain";
-            type: "u16";
+            readonly name: "targetChain";
+            readonly type: "u16";
           },
           {
-            name: "payload";
-            type: "bytes";
+            readonly name: "payload";
+            readonly type: "bytes";
           },
           {
-            name: "cpiProgramId";
-            type: {
-              option: "publicKey";
+            readonly name: "cpiProgramId";
+            readonly type: {
+              readonly option: "publicKey";
             };
           },
         ];
       };
     },
     {
-      name: "PostMessageData";
-      docs: ["Data that goes into a [`wormhole::Instruction::PostMessage`]"];
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "PostMessageData";
+      readonly docs: readonly [
+        "Data that goes into a [`wormhole::Instruction::PostMessage`]",
+      ];
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "nonce";
-            docs: ["Unique nonce for this message"];
-            type: "u32";
+            readonly name: "nonce";
+            readonly docs: readonly ["Unique nonce for this message"];
+            readonly type: "u32";
           },
           {
-            name: "payload";
-            docs: ["Message payload"];
-            type: "bytes";
+            readonly name: "payload";
+            readonly docs: readonly ["Message payload"];
+            readonly type: "bytes";
           },
           {
-            name: "consistencyLevel";
-            docs: [
+            readonly name: "consistencyLevel";
+            readonly docs: readonly [
               "Commitment Level required for an attestation to be produced",
             ];
-            type: {
-              defined: "ConsistencyLevel";
+            readonly type: {
+              readonly defined: "ConsistencyLevel";
             };
           },
         ];
       };
     },
     {
-      name: "BridgeData";
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "BridgeData";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "guardianSetIndex";
-            docs: [
+            readonly name: "guardianSetIndex";
+            readonly docs: readonly [
               "The current guardian set index, used to decide which signature sets to accept.",
             ];
-            type: "u32";
+            readonly type: "u32";
           },
           {
-            name: "lastLamports";
-            docs: ["Lamports in the collection account"];
-            type: "u64";
+            readonly name: "lastLamports";
+            readonly docs: readonly ["Lamports in the collection account"];
+            readonly type: "u64";
           },
           {
-            name: "config";
-            docs: [
+            readonly name: "config";
+            readonly docs: readonly [
               "Bridge configuration, which is set once upon initialization.",
             ];
-            type: {
-              defined: "BridgeConfig";
+            readonly type: {
+              readonly defined: "BridgeConfig";
             };
           },
         ];
       };
     },
     {
-      name: "BridgeConfig";
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "BridgeConfig";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "guardianSetExpirationTime";
-            docs: [
+            readonly name: "guardianSetExpirationTime";
+            readonly docs: readonly [
               "Period for how long a guardian set is valid after it has been replaced by a new one.  This",
               "guarantees that VAAs issued by that set can still be submitted for a certain period.  In",
               "this period we still trust the old guardian set.",
             ];
-            type: "u32";
+            readonly type: "u32";
           },
           {
-            name: "fee";
-            docs: [
+            readonly name: "fee";
+            readonly docs: readonly [
               "Amount of lamports that needs to be paid to the protocol to post a message",
             ];
-            type: "u64";
+            readonly type: "u64";
           },
         ];
       };
     },
     {
-      name: "MessageData";
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "MessageData";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "vaaVersion";
-            docs: ["Header of the posted VAA"];
-            type: "u8";
+            readonly name: "vaaVersion";
+            readonly docs: readonly ["Header of the posted VAA"];
+            readonly type: "u8";
           },
           {
-            name: "consistencyLevel";
-            docs: ["Level of consistency requested by the emitter"];
-            type: "u8";
+            readonly name: "consistencyLevel";
+            readonly docs: readonly [
+              "Level of consistency requested by the emitter",
+            ];
+            readonly type: "u8";
           },
           {
-            name: "vaaTime";
-            docs: ["Time the vaa was submitted"];
-            type: "u32";
+            readonly name: "vaaTime";
+            readonly docs: readonly ["Time the vaa was submitted"];
+            readonly type: "u32";
           },
           {
-            name: "vaaSignatureAccount";
-            docs: ["Account where signatures are stored"];
-            type: "publicKey";
+            readonly name: "vaaSignatureAccount";
+            readonly docs: readonly ["Account where signatures are stored"];
+            readonly type: "publicKey";
           },
           {
-            name: "submissionTime";
-            docs: ["Time the posted message was created"];
-            type: "u32";
+            readonly name: "submissionTime";
+            readonly docs: readonly ["Time the posted message was created"];
+            readonly type: "u32";
           },
           {
-            name: "nonce";
-            docs: ["Unique nonce for this message"];
-            type: "u32";
+            readonly name: "nonce";
+            readonly docs: readonly ["Unique nonce for this message"];
+            readonly type: "u32";
           },
           {
-            name: "sequence";
-            docs: ["Sequence number of this message"];
-            type: "u64";
+            readonly name: "sequence";
+            readonly docs: readonly ["Sequence number of this message"];
+            readonly type: "u64";
           },
           {
-            name: "emitterChain";
-            docs: ["Emitter of the message"];
-            type: "u16";
+            readonly name: "emitterChain";
+            readonly docs: readonly ["Emitter of the message"];
+            readonly type: "u16";
           },
           {
-            name: "emitterAddress";
-            docs: ["Emitter of the message"];
-            type: {
-              array: ["u8", 32];
+            readonly name: "emitterAddress";
+            readonly docs: readonly ["Emitter of the message"];
+            readonly type: {
+              readonly array: readonly ["u8", 32];
             };
           },
           {
-            name: "payload";
-            docs: ["Message payload aka `PayloadTransferWithPayload`"];
-            type: "bytes";
+            readonly name: "payload";
+            readonly docs: readonly [
+              "Message payload aka `PayloadTransferWithPayload`",
+            ];
+            readonly type: "bytes";
           },
         ];
       };
     },
     {
-      name: "ClaimData";
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "ClaimData";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "claimed";
-            type: "bool";
+            readonly name: "claimed";
+            readonly type: "bool";
           },
         ];
       };
     },
     {
-      name: "PostVAAData";
-      type: {
-        kind: "struct";
-        fields: [
+      readonly name: "PostVAAData";
+      readonly type: {
+        readonly kind: "struct";
+        readonly fields: readonly [
           {
-            name: "version";
-            type: "u8";
+            readonly name: "version";
+            readonly type: "u8";
           },
           {
-            name: "guardianSetIndex";
-            type: "u32";
+            readonly name: "guardianSetIndex";
+            readonly type: "u32";
           },
           {
-            name: "timestamp";
-            type: "u32";
+            readonly name: "timestamp";
+            readonly type: "u32";
           },
           {
-            name: "nonce";
-            type: "u32";
+            readonly name: "nonce";
+            readonly type: "u32";
           },
           {
-            name: "emitterChain";
-            type: "u16";
+            readonly name: "emitterChain";
+            readonly type: "u16";
           },
           {
-            name: "emitterAddress";
-            type: {
-              array: ["u8", 32];
+            readonly name: "emitterAddress";
+            readonly type: {
+              readonly array: readonly ["u8", 32];
             };
           },
           {
-            name: "sequence";
-            type: "u64";
+            readonly name: "sequence";
+            readonly type: "u64";
           },
           {
-            name: "consistencyLevel";
-            type: "u8";
+            readonly name: "consistencyLevel";
+            readonly type: "u8";
           },
           {
-            name: "payload";
-            type: "bytes";
-          },
-        ];
-      };
-    },
-    {
-      name: "PoolInstruction";
-      type: {
-        kind: "enum";
-        variants: [
-          {
-            name: "RemoveExactBurn";
-          },
-          {
-            name: "SwapExactInput";
+            readonly name: "payload";
+            readonly type: "bytes";
           },
         ];
       };
     },
     {
-      name: "SwimPayloadVersion";
-      type: {
-        kind: "enum";
-        variants: [
+      readonly name: "PoolInstruction";
+      readonly type: {
+        readonly kind: "enum";
+        readonly variants: readonly [
           {
-            name: "V0";
+            readonly name: "RemoveExactBurn";
           },
           {
-            name: "V1";
-          },
-        ];
-      };
-    },
-    {
-      name: "ConsistencyLevel";
-      type: {
-        kind: "enum";
-        variants: [
-          {
-            name: "Confirmed";
-          },
-          {
-            name: "Finalized";
+            readonly name: "SwapExactInput";
           },
         ];
       };
     },
     {
-      name: "Instruction";
-      type: {
-        kind: "enum";
-        variants: [
+      readonly name: "SwimPayloadVersion";
+      readonly type: {
+        readonly kind: "enum";
+        readonly variants: readonly [
           {
-            name: "Initialize";
+            readonly name: "V0";
           },
           {
-            name: "PostMessage";
+            readonly name: "V1";
+          },
+        ];
+      };
+    },
+    {
+      readonly name: "ConsistencyLevel";
+      readonly type: {
+        readonly kind: "enum";
+        readonly variants: readonly [
+          {
+            readonly name: "Confirmed";
           },
           {
-            name: "PostVAA";
+            readonly name: "Finalized";
+          },
+        ];
+      };
+    },
+    {
+      readonly name: "Instruction";
+      readonly type: {
+        readonly kind: "enum";
+        readonly variants: readonly [
+          {
+            readonly name: "Initialize";
           },
           {
-            name: "SetFees";
+            readonly name: "PostMessage";
           },
           {
-            name: "TransferFees";
+            readonly name: "PostVAA";
           },
           {
-            name: "UpgradeContract";
+            readonly name: "SetFees";
           },
           {
-            name: "UpgradeGuardianSet";
+            readonly name: "TransferFees";
           },
           {
-            name: "VerifySignatures";
+            readonly name: "UpgradeContract";
+          },
+          {
+            readonly name: "UpgradeGuardianSet";
+          },
+          {
+            readonly name: "VerifySignatures";
           },
         ];
       };
     },
   ];
-  errors: [
+  readonly errors: readonly [
     {
-      code: 6000;
-      name: "InsufficientFunds";
-      msg: "InsufficientFunds";
+      readonly code: 6000;
+      readonly name: "InsufficientFunds";
+      readonly msg: "InsufficientFunds";
     },
     {
-      code: 6001;
-      name: "InvalidAccount";
-      msg: "InvalidAccount";
+      readonly code: 6001;
+      readonly name: "InvalidAccount";
+      readonly msg: "InvalidAccount";
     },
     {
-      code: 6002;
-      name: "InvalidRemainingAccounts";
-      msg: "InvalidRemainingAccounts";
+      readonly code: 6002;
+      readonly name: "InvalidRemainingAccounts";
+      readonly msg: "InvalidRemainingAccounts";
     },
     {
-      code: 6003;
-      name: "InvalidTokenBridgeAddress";
-      msg: "InvalidTokenBridgeAddress";
+      readonly code: 6003;
+      readonly name: "InvalidTokenBridgeAddress";
+      readonly msg: "InvalidTokenBridgeAddress";
     },
     {
-      code: 6004;
-      name: "InvalidTokenDecimals";
-      msg: "InvalidTokenDecimals";
+      readonly code: 6004;
+      readonly name: "InvalidTokenDecimals";
+      readonly msg: "InvalidTokenDecimals";
     },
     {
-      code: 6005;
-      name: "InvalidTokenIndex";
-      msg: "InvalidTokenIndex";
+      readonly code: 6005;
+      readonly name: "InvalidTokenIndex";
+      readonly msg: "InvalidTokenIndex";
     },
     {
-      code: 6006;
-      name: "InvalidVaaAction";
-      msg: "InvalidVaaAction";
+      readonly code: 6006;
+      readonly name: "InvalidVaaAction";
+      readonly msg: "InvalidVaaAction";
     },
     {
-      code: 6007;
-      name: "InvalidWormholeAddress";
-      msg: "InvalidWormholeAddress";
+      readonly code: 6007;
+      readonly name: "InvalidWormholeAddress";
+      readonly msg: "InvalidWormholeAddress";
     },
     {
-      code: 6008;
-      name: "InvalidVaaPayload";
-      msg: "InvalidVaaPayload";
+      readonly code: 6008;
+      readonly name: "InvalidVaaPayload";
+      readonly msg: "InvalidVaaPayload";
     },
     {
-      code: 6009;
-      name: "NothingToClaim";
-      msg: "NothingToClaim";
+      readonly code: 6009;
+      readonly name: "NothingToClaim";
+      readonly msg: "NothingToClaim";
     },
     {
-      code: 6010;
-      name: "TransferNotAllowed";
-      msg: "TransferNotAllowed";
+      readonly code: 6010;
+      readonly name: "TransferNotAllowed";
+      readonly msg: "TransferNotAllowed";
     },
     {
-      code: 6011;
-      name: "InvalidCpiReturnProgramId";
-      msg: "Incorrect ProgramId for CPI return value";
+      readonly code: 6011;
+      readonly name: "InvalidCpiReturnProgramId";
+      readonly msg: "Incorrect ProgramId for CPI return value";
     },
     {
-      code: 6012;
-      name: "InvalidCpiReturnValue";
-      msg: "Invalid CPI Return value";
+      readonly code: 6012;
+      readonly name: "InvalidCpiReturnValue";
+      readonly msg: "Invalid CPI Return value";
     },
     {
-      code: 6013;
-      name: "InvalidMint";
-      msg: "Invalid Mint";
+      readonly code: 6013;
+      readonly name: "InvalidMint";
+      readonly msg: "Invalid Mint";
     },
     {
-      code: 6014;
-      name: "InvalidAddAndWormholeTransferMint";
-      msg: "Invalid Mint for AddAndWormholeTransfer";
+      readonly code: 6014;
+      readonly name: "InvalidAddAndWormholeTransferMint";
+      readonly msg: "Invalid Mint for AddAndWormholeTransfer";
     },
     {
-      code: 6015;
-      name: "InvalidSwapExactInputOutputTokenIndex";
-      msg: "Invalid output token index for SwapExactInput params";
+      readonly code: 6015;
+      readonly name: "InvalidSwapExactInputOutputTokenIndex";
+      readonly msg: "Invalid output token index for SwapExactInput params";
     },
     {
-      code: 6016;
-      name: "InvalidSwapExactInputInputAmount";
-      msg: "Invalid input amount for SwapExactInput params";
+      readonly code: 6016;
+      readonly name: "InvalidSwapExactInputInputAmount";
+      readonly msg: "Invalid input amount for SwapExactInput params";
     },
     {
-      code: 6017;
-      name: "InvalidTokenBridgeMint";
-      msg: "Invalid Token Bridge Mint";
+      readonly code: 6017;
+      readonly name: "InvalidTokenBridgeMint";
+      readonly msg: "Invalid Token Bridge Mint";
     },
     {
-      code: 6018;
-      name: "InvalidPayloadTypeInVaa";
-      msg: "Invalid Payload Type in VAA";
+      readonly code: 6018;
+      readonly name: "InvalidPayloadTypeInVaa";
+      readonly msg: "Invalid Payload Type in VAA";
     },
     {
-      code: 6019;
-      name: "SerializeError";
-      msg: "Serializing error";
+      readonly code: 6019;
+      readonly name: "SerializeError";
+      readonly msg: "Serializing error";
     },
     {
-      code: 6020;
-      name: "DeserializeError";
-      msg: "Deserializing error";
+      readonly code: 6020;
+      readonly name: "DeserializeError";
+      readonly msg: "Deserializing error";
     },
     {
-      code: 6021;
-      name: "UserRedeemerSignatureNotDetected";
-      msg: "User redeemer needs to be signer";
+      readonly code: 6021;
+      readonly name: "UserRedeemerSignatureNotDetected";
+      readonly msg: "User redeemer needs to be signer";
     },
     {
-      code: 6022;
-      name: "InvalidSwitchboardAccount";
-      msg: "Not a valid Switchboard account";
+      readonly code: 6022;
+      readonly name: "InvalidSwitchboardAccount";
+      readonly msg: "Not a valid Switchboard account";
     },
     {
-      code: 6023;
-      name: "StaleFeed";
-      msg: "Switchboard feed has not been updated in 5 minutes";
+      readonly code: 6023;
+      readonly name: "StaleFeed";
+      readonly msg: "Switchboard feed has not been updated in 5 minutes";
     },
     {
-      code: 6024;
-      name: "ConfidenceIntervalExceeded";
-      msg: "Switchboard feed exceeded provided confidence interval";
+      readonly code: 6024;
+      readonly name: "ConfidenceIntervalExceeded";
+      readonly msg: "Switchboard feed exceeded provided confidence interval";
     },
     {
-      code: 6025;
-      name: "InsufficientAmount";
-      msg: "Insufficient Amount being transferred";
+      readonly code: 6025;
+      readonly name: "InsufficientAmount";
+      readonly msg: "Insufficient Amount being transferred";
     },
     {
-      code: 6026;
-      name: "InvalidClaimData";
-      msg: "Invalid claim data";
+      readonly code: 6026;
+      readonly name: "InvalidClaimData";
+      readonly msg: "Invalid claim data";
     },
     {
-      code: 6027;
-      name: "ClaimNotClaimed";
-      msg: "Claim Account not claimed";
+      readonly code: 6027;
+      readonly name: "ClaimNotClaimed";
+      readonly msg: "Claim Account not claimed";
     },
   ];
 };

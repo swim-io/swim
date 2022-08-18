@@ -1,8 +1,10 @@
-import { AnchorProvider, Idl, Program } from "@project-serum/anchor";
-import { Wallet } from "@project-serum/anchor/dist/cjs/provider";
-import { TwoPool } from "./artifacts/two_pool";
+import type { Idl } from "@project-serum/anchor";
+import { AnchorProvider, Program } from "@project-serum/anchor";
+import type { Wallet } from "@project-serum/anchor/dist/cjs/provider";
+import type { ConfirmOptions, Connection, PublicKey } from "@solana/web3.js";
+
+import type { TwoPool } from "./artifacts/two_pool";
 import TwoPoolIDL from "./artifacts/two_pool.json";
-import { ConfirmOptions, Connection, PublicKey } from "@solana/web3.js";
 
 export class TwoPoolContext {
   readonly connection: Connection;

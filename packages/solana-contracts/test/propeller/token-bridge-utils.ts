@@ -1,32 +1,35 @@
+import type { ChainId } from "@certusone/wormhole-sdk";
 import {
-  ChainId,
   CHAIN_ID_ETH,
   CHAIN_ID_SOLANA,
-  tryNativeToHexString,
   getSignedVAAHash,
   hexToUint8Array,
-  tryHexToNativeAssetString,
   toChainName,
+  tryHexToNativeAssetString,
+  tryNativeToHexString,
 } from "@certusone/wormhole-sdk";
-import { web3, BN } from "@project-serum/anchor";
+import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
+import { BN, web3 } from "@project-serum/anchor";
 import * as BufferLayout from "@solana/buffer-layout";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import * as byteify from "byteify";
+
 // import { toBigNumberHex } from "./utils";
+
+import type { BigNumberish } from "ethers";
+import { BigNumber } from "ethers";
+// import { PostVaaMethod } from "./types";
+import keccak256 from "keccak256";
+
 import {
+  WORMHOLE_TOKEN_BRIDGE,
   formatParsedVaa,
   formatPostedMessage,
-  ParsedPostedMessage,
-  ParsedVaa,
   parsePostedMessage,
   parseVaa,
   signAndEncodeVaa,
-  WORMHOLE_TOKEN_BRIDGE,
 } from "./wormhole-utils";
-import { BigNumber, BigNumberish } from "ethers";
-// import { PostVaaMethod } from "./types";
-import keccak256 from "keccak256";
-import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
+import type { ParsedPostedMessage, ParsedVaa } from "./wormhole-utils";
 
 export function toBigNumberHex(value: BigNumberish, numBytes: number): string {
   return BigNumber.from(value)
@@ -237,9 +240,9 @@ export function encodeTokenTransferWithPayload(
  * }
  */
 export interface GuardianSignature {
-  r: Buffer;
-  s: Buffer;
-  v: number;
+  readonly r: Buffer;
+  readonly s: Buffer;
+  readonly v: number;
 }
 
 export function hashVaa(signedVaa: Buffer): Buffer {
@@ -321,12 +324,12 @@ export const deriveEndpointPda = async (
 };
 
 export interface ParsedAttestMetaVaa {
-  core: ParsedVaa;
-  address: Buffer;
-  chain: ChainId;
-  decimals: number;
-  symbol: string;
-  name: string;
+  readonly core: ParsedVaa;
+  readonly address: Buffer;
+  readonly chain: ChainId;
+  readonly decimals: number;
+  readonly symbol: string;
+  readonly name: string;
 }
 
 export function parseAttestMetaVaa(signedVaa: Buffer): ParsedAttestMetaVaa {
@@ -344,24 +347,24 @@ export function parseAttestMetaVaa(signedVaa: Buffer): ParsedAttestMetaVaa {
 
 // should have used generics on this instead.smh.
 export interface ParsedTokenTransferSignedVaa {
-  core: ParsedVaa;
-  tokenTransfer: ParsedTokenTransfer;
+  readonly core: ParsedVaa;
+  readonly tokenTransfer: ParsedTokenTransfer;
 }
 export interface ParsedTokenTransferPostedMessage {
-  core: ParsedPostedMessage;
-  tokenTransfer: ParsedTokenTransfer;
+  readonly core: ParsedPostedMessage;
+  readonly tokenTransfer: ParsedTokenTransfer;
 }
 
 export interface ParsedTokenTransfer {
-  messageType: number;
-  amount: string;
-  tokenAddress: Buffer;
-  tokenChain: ChainId;
-  to: Buffer;
-  toChain: ChainId;
-  fromAddress: Buffer;
+  readonly messageType: number;
+  readonly amount: string;
+  readonly tokenAddress: Buffer;
+  readonly tokenChain: ChainId;
+  readonly to: Buffer;
+  readonly toChain: ChainId;
+  readonly fromAddress: Buffer;
   // fee: string;
-  payload: Buffer;
+  readonly payload: Buffer;
 }
 
 export function parseTokenTransferSignedVaa(

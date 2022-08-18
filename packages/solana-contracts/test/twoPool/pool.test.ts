@@ -1,29 +1,32 @@
+import {
+  Metaplex,
+  TokenMetadataProgram,
+  findMetadataPda,
+  toMetadata,
+  toMetadataAccount,
+} from "@metaplex-foundation/js";
+import type { Program } from "@project-serum/anchor";
 import * as anchor from "@project-serum/anchor";
-import { AnchorError, Program, SplToken } from "@project-serum/anchor";
+import { AnchorError, Spl, SplToken, web3 } from "@project-serum/anchor";
+
 // import { TwoPool } from "../target/types/two_pool";
-import { TwoPool } from "../../src/artifacts/two_pool";
-import { web3, Spl } from "@project-serum/anchor";
-import { assert, expect } from "chai";
+import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import {
   Account,
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
   mintTo,
 } from "@solana/spl-token";
-import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+import { assert, expect } from "chai";
+
 import { getApproveAndRevokeIxs, twoPoolToString } from "../../src";
-import {
-  findMetadataPda,
-  Metaplex,
-  TokenMetadataProgram,
-  toMetadata,
-  toMetadataAccount,
-} from "@metaplex-foundation/js";
+import type { TwoPool } from "../../src/artifacts/two_pool";
+import { parsePoolAccount } from "../../src/poolDecoder";
+
 import {
   setupPoolPrereqs,
   setupUserAssociatedTokenAccts,
 } from "./poolTestUtils";
-import { parsePoolAccount } from "../../src/poolDecoder";
 
 describe("TwoPool", () => {
   // Configure the client to use the local cluster.
@@ -151,7 +154,7 @@ describe("TwoPool", () => {
         inputAmounts,
         minimumMintAmount,
       };
-      let userTransferAuthority = web3.Keypair.generate();
+      const userTransferAuthority = web3.Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userUsdcAtaAddr, userUsdtAtaAddr],
@@ -219,7 +222,7 @@ describe("TwoPool", () => {
         outputTokenIndex,
         minimumOutputAmount,
       };
-      let userTransferAuthority = web3.Keypair.generate();
+      const userTransferAuthority = web3.Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userUsdcAtaAddr, userUsdtAtaAddr],
@@ -316,7 +319,7 @@ describe("TwoPool", () => {
         inputTokenIndex,
         exactOutputAmounts,
       };
-      let userTransferAuthority = web3.Keypair.generate();
+      const userTransferAuthority = web3.Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userUsdcAtaAddr, userUsdtAtaAddr],
@@ -414,7 +417,7 @@ describe("TwoPool", () => {
         exactBurnAmount,
         minimumOutputAmounts,
       };
-      let userTransferAuthority = web3.Keypair.generate();
+      const userTransferAuthority = web3.Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userSwimUsdAtaAddr],
@@ -523,7 +526,7 @@ describe("TwoPool", () => {
         outputTokenIndex,
         minimumOutputAmount,
       };
-      let userTransferAuthority = web3.Keypair.generate();
+      const userTransferAuthority = web3.Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userSwimUsdAtaAddr],
@@ -634,7 +637,7 @@ describe("TwoPool", () => {
         maximumBurnAmount,
         exactOutputAmounts,
       };
-      let userTransferAuthority = web3.Keypair.generate();
+      const userTransferAuthority = web3.Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userSwimUsdAtaAddr],
@@ -813,7 +816,7 @@ describe("TwoPool", () => {
         outputTokenIndex,
         minimumOutputAmount,
       };
-      let userTransferAuthority = web3.Keypair.generate();
+      const userTransferAuthority = web3.Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userUsdcAtaAddr, userUsdtAtaAddr],

@@ -1,16 +1,6 @@
-import { AnchorProvider, BN, Spl, web3 } from "@project-serum/anchor";
-import {
-  AccountMeta,
-  Commitment,
-  ConfirmOptions,
-  Connection,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-  TransactionInstruction,
-} from "@solana/web3.js";
-import { getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
-import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+import type { AnchorProvider } from "@project-serum/anchor";
+import { BN, Spl, web3 } from "@project-serum/anchor";
+import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import type { Layout } from "@project-serum/borsh";
 import {
   array,
@@ -23,6 +13,19 @@ import {
   u64,
   u8,
 } from "@project-serum/borsh";
+import { getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
+import {
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction,
+} from "@solana/web3.js";
+import type {
+  AccountMeta,
+  Commitment,
+  ConfirmOptions,
+  Connection,
+} from "@solana/web3.js";
 
 //TODO: update
 export const TWO_POOL_PROGRAM_ID = new PublicKey(
@@ -41,7 +44,6 @@ export interface AmpFactor {
   readonly targetTs: BN;
 }
 export const ampFactor = (property = "ampFactor"): Layout<AmpFactor> =>
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
   struct(
     [
       decimal("initialValue"),
@@ -81,12 +83,10 @@ export interface InitInstruction {
 export const initInstruction = (
   property = "initInstruction",
 ): Layout<InitInstruction> =>
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
   struct(
     [
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       u8("instruction"),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
       u8("nonce"),
       decimal("ampFactor"),
       decimal("lpFee"),
@@ -231,31 +231,29 @@ export const swimPool = (
   numberOfTokens: number,
   property = "swimPool",
 ): Layout<SwimPoolState> =>
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
   struct(
     [
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       u8("nonce"),
       bool("isPaused"),
       ampFactor(),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
       u32("lpFee"),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
       u32("governanceFee"),
       publicKey("lpMintKey"),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
       u8("lpDecimalEqualizer"),
       array(publicKey(), numberOfTokens, "tokenMintKeys"),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-call
+
       array(u8(), numberOfTokens, "tokenDecimalEqualizers"),
       array(publicKey(), numberOfTokens, "tokenKeys"),
       publicKey("governanceKey"),
       publicKey("governanceFeeKey"),
       publicKey("preparedGovernanceKey"),
       i64("governanceTransitionTs"),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
       u32("preparedLpFee"),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
       u32("preparedGovernanceFee"),
       i64("feeTransitionTs"),
       u128("previousDepth"),
@@ -280,10 +278,10 @@ export async function initalizeTwoPool({
   poolMint_1,
   lpMint,
 }: {
-  provider: AnchorProvider;
-  poolMint_0: web3.Keypair;
-  poolMint_1: web3.Keypair;
-  lpMint: web3.Keypair;
+  readonly provider: AnchorProvider;
+  readonly poolMint_0: web3.Keypair;
+  readonly poolMint_1: web3.Keypair;
+  readonly lpMint: web3.Keypair;
 }): Promise<web3.PublicKey> {
   const splToken = Spl.token(provider);
 
@@ -338,7 +336,7 @@ export async function initalizeTwoPool({
       ])
       .signers([poolMint_0])
       .rpc();
-    let blockConfirmStrategy = {
+    const blockConfirmStrategy = {
       signature: initPoolMintTxn,
       ...(await provider.connection.getLatestBlockhash()),
     };
@@ -359,7 +357,7 @@ export async function initalizeTwoPool({
       ])
       .signers([poolMint_1])
       .rpc();
-    let blockConfirmStrategy = {
+    const blockConfirmStrategy = {
       signature: initPoolMintTxn1,
       ...(await provider.connection.getLatestBlockhash()),
     };
@@ -374,7 +372,7 @@ export async function initalizeTwoPool({
     .preInstructions([await splToken.account.mint.createInstruction(lpMint)])
     .signers([lpMint])
     .rpc();
-  let blockConfirmStrategy = {
+  const blockConfirmStrategy = {
     signature: initLpMintTxn,
     ...(await provider.connection.getLatestBlockhash()),
   };
@@ -471,9 +469,9 @@ export async function initalizeTwoPool({
 }
 
 export type MintInfo = {
-  mint: web3.Keypair;
-  decimals: number;
-  mintAuth: web3.PublicKey;
+  readonly mint: web3.Keypair;
+  readonly decimals: number;
+  readonly mintAuth: web3.PublicKey;
 };
 
 export async function initalizeTwoPoolV2({
@@ -482,10 +480,10 @@ export async function initalizeTwoPoolV2({
   poolMintInfo_1,
   lpMint,
 }: {
-  provider: AnchorProvider;
-  poolMintInfo_0: MintInfo;
-  poolMintInfo_1: MintInfo;
-  lpMint: web3.Keypair;
+  readonly provider: AnchorProvider;
+  readonly poolMintInfo_0: MintInfo;
+  readonly poolMintInfo_1: MintInfo;
+  readonly lpMint: web3.Keypair;
 }): Promise<web3.PublicKey> {
   const splToken = Spl.token(provider);
 
@@ -518,7 +516,7 @@ export async function initalizeTwoPoolV2({
       ])
       .signers([poolMintInfo_0.mint])
       .rpc();
-    let blockConfirmStrategy = {
+    const blockConfirmStrategy = {
       signature: initPoolMintTxn,
       ...(await provider.connection.getLatestBlockhash()),
     };
@@ -539,7 +537,7 @@ export async function initalizeTwoPoolV2({
       ])
       .signers([poolMintInfo_1.mint])
       .rpc();
-    let blockConfirmStrategy = {
+    const blockConfirmStrategy = {
       signature: initPoolMintTxn1,
       ...(await provider.connection.getLatestBlockhash()),
     };
@@ -554,7 +552,7 @@ export async function initalizeTwoPoolV2({
     .preInstructions([await splToken.account.mint.createInstruction(lpMint)])
     .signers([lpMint])
     .rpc();
-  let blockConfirmStrategy = {
+  const blockConfirmStrategy = {
     signature: initLpMintTxn,
     ...(await provider.connection.getLatestBlockhash()),
   };
@@ -670,13 +668,13 @@ export function addToPoolIx({
   inputAmounts,
   minimumMintAmount,
 }: {
-  provider: AnchorProvider;
-  pool: web3.PublicKey;
-  poolState: SwimPoolState;
-  userTokenAccounts: web3.PublicKey[];
-  userLpTokenAccount: web3.PublicKey;
-  inputAmounts: BN[];
-  minimumMintAmount: BN;
+  readonly provider: AnchorProvider;
+  readonly pool: web3.PublicKey;
+  readonly poolState: SwimPoolState;
+  readonly userTokenAccounts: readonly web3.PublicKey[];
+  readonly userLpTokenAccount: web3.PublicKey;
+  readonly inputAmounts: readonly BN[];
+  readonly minimumMintAmount: BN;
 }) {
   const layout = defiAddInstruction(2);
   const data = Buffer.alloc(layout.span);

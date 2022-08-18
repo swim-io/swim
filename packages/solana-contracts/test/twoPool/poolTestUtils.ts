@@ -1,12 +1,14 @@
-import { Program, SplToken, web3 } from "@project-serum/anchor";
-import { TwoPool } from "../../src/artifacts/two_pool";
+import type { Program, SplToken } from "@project-serum/anchor";
+import { web3 } from "@project-serum/anchor";
+import * as anchor from "@project-serum/anchor";
 import {
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
   mintTo,
 } from "@solana/spl-token";
-import * as anchor from "@project-serum/anchor";
-import { Commitment, ConfirmOptions } from "@solana/web3.js";
+import type { Commitment, ConfirmOptions } from "@solana/web3.js";
+
+import type { TwoPool } from "../../src/artifacts/two_pool";
 
 /**
  * It initializes the mints for the tokens that will be used in the pool, and then *CALCULATES* the pool token accounts and
@@ -22,18 +24,18 @@ import { Commitment, ConfirmOptions } from "@solana/web3.js";
 export async function setupPoolPrereqs(
   program: Program<TwoPool>,
   splToken: Program<SplToken>,
-  mintKeypairs: Array<web3.Keypair>,
-  mintDecimals: Array<number>,
-  mintAuthorities: Array<web3.PublicKey>,
+  mintKeypairs: ReadonlyArray<web3.Keypair>,
+  mintDecimals: ReadonlyArray<number>,
+  mintAuthorities: ReadonlyArray<web3.PublicKey>,
   lpMint: web3.PublicKey,
   governanceFeeOwner: web3.PublicKey,
 ) {
-  let poolTokenAccounts = [];
+  const poolTokenAccounts = [];
   for (let i = 0; i < mintKeypairs.length; i++) {
-    let mintKeypair = mintKeypairs[i];
-    let mintDecimal = mintDecimals[i];
+    const mintKeypair = mintKeypairs[i];
+    const mintDecimal = mintDecimals[i];
     try {
-      let mint = await splToken.account.mint.fetch(mintKeypair.publicKey);
+      const mint = await splToken.account.mint.fetch(mintKeypair.publicKey);
       console.log(
         `existing mint info found for ${
           mintKeypair.publicKey
@@ -64,8 +66,8 @@ export async function setupPoolPrereqs(
   );
 
   for (let i = 0; i < mintKeypairs.length; i++) {
-    let mintKeypair = mintKeypairs[i];
-    let poolTokenAccount = await getAssociatedTokenAddress(
+    const mintKeypair = mintKeypairs[i];
+    const poolTokenAccount = await getAssociatedTokenAddress(
       mintKeypair.publicKey,
       poolPubkey,
       true,
@@ -96,15 +98,15 @@ export async function setupPoolPrereqs(
 export async function setupUserAssociatedTokenAccts(
   connection: web3.Connection,
   owner: web3.PublicKey,
-  mints: Array<web3.PublicKey>,
-  mintAuthorities: Array<web3.Keypair>,
+  mints: ReadonlyArray<web3.PublicKey>,
+  mintAuthorities: ReadonlyArray<web3.Keypair>,
   lpMint: web3.PublicKey,
   amount: number | bigint,
   payer: web3.Keypair,
   commitment?: Commitment,
   confirmOptions?: ConfirmOptions,
 ) {
-  let userPoolTokenAtas: Array<web3.PublicKey> = [];
+  const userPoolTokenAtas: ReadonlyArray<web3.PublicKey> = [];
   for (let i = 0; i < mints.length; i++) {
     const mint = mints[i];
     const mintAuthority = mintAuthorities[i];

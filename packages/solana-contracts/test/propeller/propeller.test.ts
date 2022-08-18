@@ -1,66 +1,78 @@
+import type { ChainId, ChainName } from "@certusone/wormhole-sdk";
+import {
+  CHAIN_ID_ETH,
+  CHAIN_ID_SOLANA,
+  attestFromSolana,
+  chunks,
+  createNonce,
+  createPostVaaInstructionSolana,
+  createVerifySignaturesInstructionsSolana,
+  getClaimAddressSolana,
+  getEmitterAddressSolana,
+  getForeignAssetEth,
+  getSignedVAAHash,
+  importCoreWasm,
+  importTokenWasm,
+  ixFromRust,
+  parseSequenceFromLogSolana,
+  parseTransferPayload,
+  postVaaSolanaWithRetry,
+  redeemOnSolana,
+  setDefaultWasm,
+  toChainName,
+  tryHexToNativeAssetString,
+  tryHexToNativeString,
+  tryNativeToHexString,
+  tryNativeToUint8Array,
+} from "@certusone/wormhole-sdk";
+import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
 import type { Program } from "@project-serum/anchor";
 import * as anchor from "@project-serum/anchor";
-import { web3, Spl } from "@project-serum/anchor";
-import type { Propeller } from "../../src/artifacts/propeller";
-import type { TwoPool } from "../../src/artifacts/two_pool";
+import { Spl, web3 } from "@project-serum/anchor";
+import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+import type { Account } from "@solana/spl-token";
 import {
-  addToPoolIx,
-  deserializeSwimPool,
-  initalizeTwoPoolV2,
-  MintInfo,
-  SwimPoolState,
-  TWO_POOL_PROGRAM_ID,
-} from "./pool-utils";
-import {
-  Account,
   ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
   getAccount,
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
   mintTo,
-  TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-import { assert, expect } from "chai";
 import {
-  formatParsedVaa,
-  ParsedVaa,
-  parseVaa,
-  signAndEncodeVaa,
-  WORMHOLE_CORE_BRIDGE,
-  WORMHOLE_TOKEN_BRIDGE,
-} from "./wormhole-utils";
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
+  Secp256k1Program,
+  TransactionInstruction,
+} from "@solana/web3.js";
+import type { SwitchboardTestContext } from "@switchboard-xyz/sbv2-utils";
 import * as byteify from "byteify";
-import {
-  ChainId,
-  CHAIN_ID_ETH,
-  createNonce,
-  importCoreWasm,
-  setDefaultWasm,
-  tryHexToNativeAssetString,
-  CHAIN_ID_SOLANA,
-  toChainName,
-  tryNativeToHexString,
-  postVaaSolanaWithRetry,
-  attestFromSolana,
-  parseSequenceFromLogSolana,
-  importTokenWasm,
-  getForeignAssetEth,
-  redeemOnSolana,
-  createPostVaaInstructionSolana,
-  createVerifySignaturesInstructionsSolana,
-  chunks,
-  parseTransferPayload,
-  tryHexToNativeString,
-  ixFromRust,
-  tryNativeToUint8Array,
-  getSignedVAAHash,
-  getClaimAddressSolana,
-  getEmitterAddressSolana,
-  ChainName,
-} from "@certusone/wormhole-sdk";
+import { assert, expect } from "chai";
 import { BigNumber } from "ethers";
+import { parseUnits } from "ethers/lib/utils";
+
+import { getApproveAndRevokeIxs } from "../../src";
+import type { Propeller } from "../../src/artifacts/propeller";
+import type { TwoPool } from "../../src/artifacts/two_pool";
 import {
+  setupPoolPrereqs,
+  setupUserAssociatedTokenAccts,
+} from "../twoPool/poolTestUtils";
+
+import type { MintInfo, SwimPoolState } from "./pool-utils";
+import {
+  TWO_POOL_PROGRAM_ID,
+  addToPoolIx,
+  deserializeSwimPool,
+  initalizeTwoPoolV2,
+} from "./pool-utils";
+import type {
+  ParsedTokenTransferPostedMessage,
+  ParsedTokenTransferSignedVaa,
+} from "./token-bridge-utils";
+import {
+  ParsedTokenTransfer,
   deriveEndpointPda,
   deriveMessagePda,
   encodeAttestMeta,
@@ -69,28 +81,19 @@ import {
   formatParsedTokenTransferPostedMessage,
   formatParsedTokenTransferSignedVaa,
   getMintMetaPdas,
-  ParsedTokenTransfer,
-  ParsedTokenTransferPostedMessage,
-  ParsedTokenTransferSignedVaa,
   parseTokenTransferPostedMessage,
   parseTokenTransferSignedVaa,
   toBigNumberHex,
 } from "./token-bridge-utils";
-import { parseUnits } from "ethers/lib/utils";
-import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
 import {
-  LAMPORTS_PER_SOL,
-  PublicKey,
-  Secp256k1Program,
-  SYSVAR_INSTRUCTIONS_PUBKEY,
-  TransactionInstruction,
-} from "@solana/web3.js";
-import { SwitchboardTestContext } from "@switchboard-xyz/sbv2-utils";
-import {
-  setupPoolPrereqs,
-  setupUserAssociatedTokenAccts,
-} from "../twoPool/poolTestUtils";
-import { getApproveAndRevokeIxs } from "../../src";
+  ParsedVaa,
+  WORMHOLE_CORE_BRIDGE,
+  WORMHOLE_TOKEN_BRIDGE,
+  formatParsedVaa,
+  parseVaa,
+  signAndEncodeVaa,
+} from "./wormhole-utils";
+
 // this just breaks everything for some reason...
 // import { MEMO_PROGRAM_ID } from "@solana/spl-memo";
 const MEMO_PROGRAM_ID: PublicKey = new PublicKey(
@@ -133,7 +136,6 @@ const splAssociatedToken = Spl.associatedToken(provider);
 // Configure the client to use the local cluster.
 anchor.setProvider(provider);
 
-//eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 const propellerProgram = anchor.workspace.Propeller as Program<Propeller>;
 const twoPoolProgram = anchor.workspace.TwoPool as Program<TwoPool>;
 
@@ -591,7 +593,7 @@ describe("propeller", () => {
       marginalPricePoolTokenIndex,
       marginalPricePoolTokenMint,
     };
-    let tx = propellerProgram.methods
+    const tx = propellerProgram.methods
       .initialize(initializeParams)
       .accounts({
         propellerRedeemerEscrow: propellerRedeemerEscrowAddr,
@@ -610,7 +612,7 @@ describe("propeller", () => {
       })
       .signers([propellerAdmin]);
 
-    let pubkeys = await tx.pubkeys();
+    const pubkeys = await tx.pubkeys();
     console.log(`pubkeys: ${JSON.stringify(pubkeys, null, 2)}`);
     if (pubkeys.propeller) {
       propeller = pubkeys.propeller;
@@ -708,7 +710,7 @@ describe("propeller", () => {
         inputAmounts,
         minimumMintAmount,
       };
-      let userTransferAuthority = web3.Keypair.generate();
+      const userTransferAuthority = web3.Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userUsdcAtaAddr, userUsdtAtaAddr],
@@ -788,7 +790,7 @@ describe("propeller", () => {
         outputTokenIndex,
         minimumOutputAmount,
       };
-      let userTransferAuthority = web3.Keypair.generate();
+      const userTransferAuthority = web3.Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userUsdcAtaAddr, userUsdtAtaAddr],
@@ -887,7 +889,7 @@ describe("propeller", () => {
         inputTokenIndex,
         exactOutputAmounts,
       };
-      let userTransferAuthority = web3.Keypair.generate();
+      const userTransferAuthority = web3.Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userUsdcAtaAddr, userUsdtAtaAddr],
@@ -975,7 +977,7 @@ describe("propeller", () => {
         exactBurnAmount,
         minimumOutputAmounts,
       };
-      let userTransferAuthority = web3.Keypair.generate();
+      const userTransferAuthority = web3.Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userSwimUsdAtaAddr],
@@ -1077,7 +1079,7 @@ describe("propeller", () => {
         outputTokenIndex,
         minimumOutputAmount,
       };
-      let userTransferAuthority = web3.Keypair.generate();
+      const userTransferAuthority = web3.Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userSwimUsdAtaAddr],
@@ -1198,7 +1200,7 @@ describe("propeller", () => {
         maximumBurnAmount,
         exactOutputAmounts,
       };
-      let userTransferAuthority = web3.Keypair.generate();
+      const userTransferAuthority = web3.Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userSwimUsdAtaAddr],
@@ -1540,7 +1542,7 @@ describe("propeller", () => {
         propellerMinThreshold: 0n,
         gasKickstart: false,
       };
-      let amount = parseUnits("1", mintDecimal);
+      const amount = parseUnits("1", mintDecimal);
       console.log(`amount: ${amount.toString()}`);
       /**
        * this is encoding a token transfer from eth routing contract
@@ -3356,11 +3358,11 @@ describe("propeller", () => {
 });
 
 type PoolUserBalances = {
-  poolTokenBalances: Array<anchor.BN>;
-  userTokenBalances: Array<anchor.BN>;
-  governanceFeeBalance: anchor.BN;
-  userLpTokenBalance: anchor.BN;
-  previousDepth: anchor.BN;
+  readonly poolTokenBalances: ReadonlyArray<anchor.BN>;
+  readonly userTokenBalances: ReadonlyArray<anchor.BN>;
+  readonly governanceFeeBalance: anchor.BN;
+  readonly userLpTokenBalance: anchor.BN;
+  readonly previousDepth: anchor.BN;
 };
 async function getFlagshipTokenAccountBalances(): Promise<PoolUserBalances> {
   const poolUsdcAtaBalance = (
@@ -3394,7 +3396,7 @@ async function getFlagshipTokenAccountBalances(): Promise<PoolUserBalances> {
 }
 
 function printBeforeAndAfterPoolUserBalances(
-  poolUserBalances: Array<PoolUserBalances>,
+  poolUserBalances: ReadonlyArray<PoolUserBalances>,
 ) {
   const {
     poolTokenBalances: [poolUsdcAtaBalanceBefore, poolUsdtAtaBalanceBefore],
@@ -3579,20 +3581,20 @@ async function getPropellerSenderPda(): Promise<web3.PublicKey> {
 // 16 bytes - memo/interactionId (??) (current memo is 16 bytes - can't use Wormhole sequence due to Solana originating transactions (only receive sequence number in last transaction on Solana, hence no id for earlier transactions))
 // ?? bytes - propeller parameters (propellerEnabled: bool / gasTokenPrefundingAmount: uint256 / propellerFee (?? - similar to wormhole arbiter fee))
 export interface ParsedSwimPayload {
-  version: number;
-  owner: Buffer;
-  targetTokenId: number;
-  minOutputAmount: bigint; //this will always be 0 in v1
-  memo: Buffer;
+  readonly version: number;
+  readonly owner: Buffer;
+  readonly targetTokenId: number;
+  readonly minOutputAmount: bigint; //this will always be 0 in v1
+  readonly memo: Buffer;
   // targetToken: Buffer; //mint of expected final output token
   // gas: string;
   // keeping this as string for now since JSON.stringify poos on bigints
   // minOutputAmount: string; //this will always be 0 in v1
-  propellerEnabled: boolean;
-  propellerMinThreshold: bigint;
+  readonly propellerEnabled: boolean;
+  readonly propellerMinThreshold: bigint;
   // propellerFee: bigint;
   // propellerFee: string;
-  gasKickstart: boolean;
+  readonly gasKickstart: boolean;
 }
 
 export function encodeSwimPayload(swimPayload: ParsedSwimPayload): Buffer {
@@ -3690,8 +3692,8 @@ export function parseU256(arr: Buffer): bigint {
 export interface ParsedTokenTransferWithSwimPayloadVaa {
   // core: ParsedVaa,
   // tokenTransfer: ParsedTokenTransfer;
-  tokenTransferVaa: ParsedTokenTransferSignedVaa;
-  swimPayload: ParsedSwimPayload;
+  readonly tokenTransferVaa: ParsedTokenTransferSignedVaa;
+  readonly swimPayload: ParsedSwimPayload;
 }
 const parseTokenTransferWithSwimPayloadSignedVaa = (
   signedVaa: Buffer,
@@ -3736,8 +3738,8 @@ const formatSwimPayload = (
 };
 
 export interface ParsedTokenTransferWithSwimPayloadPostedMessage {
-  tokenTransferMessage: ParsedTokenTransferPostedMessage;
-  swimPayload: ParsedSwimPayload;
+  readonly tokenTransferMessage: ParsedTokenTransferPostedMessage;
+  readonly swimPayload: ParsedSwimPayload;
 }
 
 const parseTokenTransferWithSwimPayloadPostedMessage = async (

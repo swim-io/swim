@@ -1,5 +1,7 @@
+import type { Idl } from "@project-serum/anchor";
+import { BorshAccountsCoder } from "@project-serum/anchor";
+
 import * as TwoPoolIDL from "./artifacts/two_pool.json";
-import { BorshAccountsCoder, Idl } from "@project-serum/anchor";
 
 const PoolDecoder = new BorshAccountsCoder(TwoPoolIDL as Idl);
 // Note: name is from the two_pool.json file not the two_pool.ts. Camelcase is different but

@@ -38,6 +38,7 @@ import {
   usePool,
   usePoolMath,
   useRemoveFeesEstimationQuery,
+  useRemoveFeesEstimationQueryV2,
   useSplTokenAccountsQuery,
   useUserLpBalances,
   useUserNativeBalances,
@@ -46,12 +47,14 @@ import {
 import {
   useHasActiveInteraction,
   useStartNewInteraction,
+  useStartNewInteractionV2,
 } from "../hooks/interaction";
 import {
   Amount,
   INTERACTION_GROUP_REMOVE,
   InteractionType,
   getLowBalanceWallets,
+  isEvmPoolState,
   isValidSlippageFraction,
 } from "../models";
 
@@ -60,6 +63,7 @@ import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { RecentInteractions } from "./RecentInteractions";
+import { RecentInteractionsV2 } from "./RecentInteractionsV2";
 import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { TokenIcon } from "./TokenIcon";
 
@@ -85,21 +89,31 @@ export const RemoveForm = ({
     lpToken,
     poolLpMint,
     userLpTokenAccount,
+    state: poolState,
   } = usePool(poolSpec.id);
   const poolMath = usePoolMath(poolSpec.id);
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
-  const startNewInteraction = useStartNewInteraction(() => {
+  const startNewInteractionV1 = useStartNewInteraction(() => {
     if (method === RemoveMethod.ExactOutput) {
       setFormOutputAmounts(formOutputAmounts.map(() => "0"));
     }
   });
+  const startNewInteractionV2 = useStartNewInteractionV2(() => {
+    if (method === RemoveMethod.ExactOutput) {
+      setFormOutputAmounts(formOutputAmounts.map(() => "0"));
+    }
+  });
+  const startNewInteraction = poolSpec.isLegacyPool
+    ? startNewInteractionV1
+    : startNewInteractionV2;
   const isInteractionInProgress = useHasActiveInteraction();
   const userLpBalances = useUserLpBalances(lpToken, userLpTokenAccount);
   const wallets = useWallets();
   const userNativeBalances = useUserNativeBalances();
 
-  const [lpTokenSourceEcosystem, setLpTokenSourceEcosystem] =
-    useState<EcosystemId>(SOLANA_ECOSYSTEM_ID);
+  const [lpTokenSourceEcosystem, setLpTokenSourceEcosystem] = useState(
+    poolSpec.ecosystem,
+  );
   const [method, setMethod] = useState(RemoveMethod.ExactBurn);
   const [outputToken, setOutputToken] = useState(poolSpec.tokens[0]);
   const [burnPercentage, setBurnPercentage] = useState(0);
@@ -112,13 +126,15 @@ export const RemoveForm = ({
     EcosystemId,
     readonly TokenSpec[]
   > = poolTokens.reduce(
-    (accumulator, tokenSpec) => ({
-      ...accumulator,
-      [tokenSpec.nativeEcosystemId]: [
-        ...accumulator[tokenSpec.nativeEcosystemId],
-        tokenSpec,
-      ],
-    }),
+    (accumulator, tokenSpec) => {
+      const ecosystem = poolSpec.isLegacyPool
+        ? tokenSpec.nativeEcosystemId
+        : poolSpec.ecosystem;
+      return {
+        ...accumulator,
+        [ecosystem]: [...accumulator[ecosystem], tokenSpec],
+      };
+    },
     {
       [SOLANA_ECOSYSTEM_ID]: [],
       [EvmEcosystemId.Ethereum]: [],
@@ -156,14 +172,16 @@ export const RemoveForm = ({
 
   const poolLpAmount = useMemo(
     () =>
-      poolLpMint
+      poolState !== null && isEvmPoolState(poolState)
+        ? Amount.fromHuman(lpToken, poolState.totalLpSupply)
+        : poolLpMint
         ? Amount.fromAtomicString(
             lpToken,
             poolLpMint.supply.toString(),
-            SOLANA_ECOSYSTEM_ID,
+            poolSpec.ecosystem,
           )
         : null,
-    [poolLpMint, lpToken],
+    [poolLpMint, lpToken, poolSpec.ecosystem, poolState],
   );
 
   const userHasAllLpTokens = useMemo(
@@ -188,7 +206,7 @@ export const RemoveForm = ({
 
       const removeUniformAmounts =
         method === RemoveMethod.Uniform && burnPercentage > 0
-          ? poolMath.removeUniform(exactBurnAmount.toHuman(SOLANA_ECOSYSTEM_ID))
+          ? poolMath.removeUniform(exactBurnAmount.toHuman(poolSpec.ecosystem))
           : null;
 
       // eslint-disable-next-line functional/prefer-readonly-type
@@ -204,7 +222,7 @@ export const RemoveForm = ({
           outputToken === tokenSpec.id
         ) {
           const { stableOutputAmount } = poolMath.removeExactBurn(
-            exactBurnAmount.toHuman(SOLANA_ECOSYSTEM_ID),
+            exactBurnAmount.toHuman(poolSpec.ecosystem),
             tokenIndex,
           );
           estimatedOutputAmountDecimal = stableOutputAmount;
@@ -254,6 +272,10 @@ export const RemoveForm = ({
     lpTokenSourceEcosystem,
   );
 
+  const { data: feesEstimationV2 = null } = useRemoveFeesEstimationQueryV2(
+    lpTokenSourceEcosystem,
+  );
+
   const hasPositiveOutputAmount = outputAmounts.some(
     (amount) => amount && !amount.isZero(),
   );
@@ -277,11 +299,11 @@ export const RemoveForm = ({
         return null;
       }
       const { lpInputAmount } = poolMath.removeExactOutput(
-        outputAmounts.map((amount) => amount.toHuman(SOLANA_ECOSYSTEM_ID)),
+        outputAmounts.map((amount) => amount.toHuman(poolSpec.ecosystem)),
       );
       return Amount.fromHuman(lpToken, lpInputAmount);
     }, null);
-  }, [outputAmounts, poolMath, method, lpToken]);
+  }, [outputAmounts, poolMath, method, lpToken, poolSpec.ecosystem]);
 
   const maximumBurnAmount =
     estimatedLpInput && maxSlippageFraction
@@ -313,7 +335,7 @@ export const RemoveForm = ({
 
   const lpSourceEcosystemOptions: readonly EuiRadioGroupOption[] = [
     lpToken.nativeEcosystemId,
-    ...lpToken.wrappedDetails.keys(),
+    ...(poolSpec.isLegacyPool ? lpToken.wrappedDetails.keys() : []),
   ].map((ecosystemId) => {
     const ecosystem = ECOSYSTEMS[ecosystemId];
     const lpBalance = userLpBalances[ecosystemId];
@@ -390,7 +412,7 @@ export const RemoveForm = ({
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     const lowBalanceWallets = getLowBalanceWallets(
-      feesEstimation,
+      poolSpec.isLegacyPool ? feesEstimation : feesEstimationV2,
       userNativeBalances,
     );
     if (lowBalanceWallets.length > 0) {
@@ -433,16 +455,18 @@ export const RemoveForm = ({
     }
 
     const requiredEcosystems = new Set(
-      [
-        SOLANA_ECOSYSTEM_ID,
-        lpTokenSourceEcosystem,
-        ...poolTokens.map((tokenSpec, i) => {
-          const outputAmount = outputAmounts[i];
-          return outputAmount !== null && !outputAmount.isZero()
-            ? tokenSpec.nativeEcosystemId
-            : null;
-        }),
-      ].filter(isNotNull),
+      poolSpec.isLegacyPool
+        ? [
+            SOLANA_ECOSYSTEM_ID,
+            lpTokenSourceEcosystem,
+            ...poolTokens.map((tokenSpec, i) => {
+              const outputAmount = outputAmounts[i];
+              return outputAmount !== null && !outputAmount.isZero()
+                ? tokenSpec.nativeEcosystemId
+                : null;
+            }),
+          ].filter(isNotNull)
+        : [poolSpec.ecosystem],
     );
 
     // Require connected wallets
@@ -807,7 +831,11 @@ export const RemoveForm = ({
       <SolanaTpsWarning />
 
       {hasPositiveOutputAmount && (
-        <EstimatedTxFeesCallout feesEstimation={feesEstimation} />
+        <EstimatedTxFeesCallout
+          feesEstimation={
+            poolSpec.isLegacyPool ? feesEstimation : feesEstimationV2
+          }
+        />
       )}
 
       <EuiButton
@@ -823,10 +851,17 @@ export const RemoveForm = ({
       </EuiButton>
       <EuiSpacer />
 
-      <RecentInteractions
-        title={t("remove_token_form.recent_removes")}
-        interactionTypes={INTERACTION_GROUP_REMOVE}
-      />
+      {poolSpec.isLegacyPool ? (
+        <RecentInteractions
+          title={t("remove_token_form.recent_removes")}
+          interactionTypes={INTERACTION_GROUP_REMOVE}
+        />
+      ) : (
+        <RecentInteractionsV2
+          title={t("remove_token_form.recent_removes")}
+          interactionTypes={INTERACTION_GROUP_REMOVE}
+        />
+      )}
 
       <ConfirmModal
         isVisible={isConfirmModalVisible}

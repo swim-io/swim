@@ -33,7 +33,11 @@ import { AddForm } from "../components/AddForm";
 import { RemoveForm } from "../components/RemoveForm";
 import { SlippageButton } from "../components/SlippageButton";
 import { StatList } from "../components/StatList";
-import { TokenIcon, TokenSpecIcon } from "../components/TokenIcon";
+import {
+  TokenIcon,
+  TokenOptionIcon,
+  TokenSpecIcon,
+} from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
 import { getSolanaTokenDetails, getTokenDetailsForEcosystem } from "../config";
 import { selectConfig } from "../core/selectors";
@@ -46,6 +50,7 @@ import {
 } from "../hooks";
 import BNB_SVG from "../images/ecosystems/bnb.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+import { isEvmPoolState } from "../models";
 
 const PoolPage = (): ReactElement => {
   const { t } = useTranslation();
@@ -130,8 +135,27 @@ export const PoolPageInner = ({
     [slippagePercent],
   );
 
-  const reserveStats = tokens.map((tokenSpec) => {
+  const reserveStats = tokens.map((tokenSpec, i) => {
     const solanaDetails = getSolanaTokenDetails(tokenSpec);
+
+    if (isEvmPoolState(poolState)) {
+      return {
+        title: (
+          <TokenOptionIcon
+            tokenOption={{
+              tokenId: tokenSpec.id,
+              ecosystemId: poolSpec.ecosystem,
+            }}
+          />
+        ),
+        description: atomicToHumanString(
+          new Decimal(poolState.balances[i].toString()),
+          2,
+        ),
+        key: tokenSpec.id,
+      };
+    }
+
     const poolTokenAccount =
       poolTokenAccounts?.find(
         (account) =>
@@ -157,7 +181,7 @@ export const PoolPageInner = ({
   const userLpBalances = useUserLpBalances(lpToken, userLpTokenAccount);
   const userLpStats = [
     lpToken.nativeEcosystemId,
-    ...lpToken.wrappedDetails.keys(),
+    ...(poolSpec.isLegacyPool ? lpToken.wrappedDetails.keys() : []),
   ].map((ecosystemId) => {
     const userLpBalance = userLpBalances[ecosystemId];
     return {

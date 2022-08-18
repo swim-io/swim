@@ -109,6 +109,7 @@ const getEvmTokenIdAndBalance = (
 
 export const useMultipleUserBalances = (
   tokenSpecs: readonly TokenSpec[],
+  specificEcosystem?: EcosystemId,
 ): ReadonlyMap<string, Amount | null> => {
   const {
     solana,
@@ -152,7 +153,8 @@ export const useMultipleUserBalances = (
 
   return new Map(
     tokenSpecs.map((tokenSpec, i) => {
-      switch (tokenSpec.nativeEcosystemId) {
+      const ecosystem = specificEcosystem ?? tokenSpec.nativeEcosystemId;
+      switch (ecosystem) {
         case SOLANA_ECOSYSTEM_ID: {
           const tokenAccount = solanaTokenAccounts[i];
           return [

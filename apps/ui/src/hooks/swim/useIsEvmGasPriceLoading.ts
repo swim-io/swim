@@ -1,4 +1,4 @@
-import type { EvmEcosystemId } from "../../config";
+import type { EvmEcosystemId } from "@swim-io/evm";
 
 import { useGasPriceQueries } from "./useGasPriceQuery";
 

@@ -1,13 +1,13 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { Transaction } from "@solana/web3.js";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow, isEachNotNull } from "@swim-io/utils";
 import { useMutation } from "react-query";
 
 import type { Config } from "../../config";
 import {
   ECOSYSTEMS,
-  EcosystemId,
   Protocol,
   WormholeChainId,
   getSolanaTokenDetails,
@@ -57,7 +57,7 @@ const getTransferredAmountsByTokenId = async (
       const parsedTx = await solanaConnection.getParsedTx(id);
       return {
         id,
-        ecosystemId: EcosystemId.Solana,
+        ecosystemId: SOLANA_ECOSYSTEM_ID,
         timestamp: parsedTx.blockTime ?? null,
         interactionId: interaction.id,
         parsedTx,
@@ -92,7 +92,7 @@ export const useFromSolanaTransferMutation = () => {
     const { interaction } = interactionState;
     const { fromSolanaTransfers } = interactionState;
 
-    const solanaWallet = wallets[EcosystemId.Solana].wallet;
+    const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
     if (!solanaWallet) {
       throw new Error("No Solana wallet");
     }
@@ -181,7 +181,7 @@ export const useFromSolanaTransferMutation = () => {
           solanaWalletAddress,
           splTokenAccount.address.toBase58(),
           solanaTokenDetails.address,
-          BigInt(amount.toAtomicString(EcosystemId.Solana)),
+          BigInt(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)),
           evmAddressToWormhole(evmWalletAddress),
           evmEcosystem.wormholeChainId,
           token.nativeEcosystemId === evmChain.ecosystem

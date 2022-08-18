@@ -1,16 +1,13 @@
 import { EuiButtonIcon } from "@elastic/eui";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { findOrThrow } from "@swim-io/utils";
 import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { Ecosystem } from "../../config";
-import {
-  ECOSYSTEMS,
-  EcosystemId,
-  Protocol,
-  getEcosystemsForProtocol,
-} from "../../config";
+import type { Ecosystem, EcosystemId } from "../../config";
+import { ECOSYSTEMS, Protocol, getEcosystemsForProtocol } from "../../config";
 import LEDGER_ICON from "../../images/wallets/ledger.svg";
 import MATHWALLET_ICON from "../../images/wallets/mathwallet.svg";
 import METAMASK_ICON from "../../images/wallets/metamask.svg";
@@ -67,37 +64,37 @@ const solletInfo: WalletServiceInfo = {
   name: "Sollet",
   url: "https://www.sollet.io",
   icon: `${OYSTER_ASSETS_URL}sollet.svg`,
-  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
 };
 const solongInfo: WalletServiceInfo = {
   name: "Solong",
   url: "https://solongwallet.com",
   icon: `${OYSTER_ASSETS_URL}solong.png`,
-  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
 };
 const solflareInfo: WalletServiceInfo = {
   name: "Solflare",
   url: "https://solflare.com/access-wallet",
   icon: `${OYSTER_ASSETS_URL}solflare.svg`,
-  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
 };
 const mathWalletInfo: WalletServiceInfo = {
   name: "MathWallet",
   url: "https://www.mathwallet.org",
   icon: MATHWALLET_ICON,
-  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
 };
 const ledgerInfo: WalletServiceInfo = {
   name: "Ledger",
   url: "https://www.ledger.com",
   icon: LEDGER_ICON,
-  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
 };
 const phantomInfo: WalletServiceInfo = {
   name: "Phantom",
   url: "https://phantom.app",
   icon: PHANTOM_ICON,
-  ecosystem: ECOSYSTEMS[EcosystemId.Solana],
+  ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
 };
 
 const metaMaskInfo: Omit<WalletServiceInfo, "ecosystem"> = {
@@ -140,42 +137,42 @@ const addMetaMaskEcosystemInfo = (
 
 const ethereumMetaMaskInfo: WalletServiceInfo = {
   ...metaMaskInfo,
-  ecosystem: ECOSYSTEMS[EcosystemId.Ethereum],
+  ecosystem: ECOSYSTEMS[EvmEcosystemId.Ethereum],
 };
 
 const bnbMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Bnb],
+  ECOSYSTEMS[EvmEcosystemId.Bnb],
   "https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain",
 );
 const avalancheMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Avalanche],
+  ECOSYSTEMS[EvmEcosystemId.Avalanche],
   "https://support.avax.network/en/articles/4626956-how-do-i-set-up-metamask-on-avalanche",
 );
 const polygonMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Polygon],
+  ECOSYSTEMS[EvmEcosystemId.Polygon],
   "https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/",
 );
 const auroraMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Aurora],
+  ECOSYSTEMS[EvmEcosystemId.Aurora],
   "https://doc.aurora.dev/interact/metamask/",
 );
 const fantomMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Fantom],
+  ECOSYSTEMS[EvmEcosystemId.Fantom],
   "https://docs.fantom.foundation/tutorials/set-up-metamask",
 );
 const karuraMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Karura],
+  ECOSYSTEMS[EvmEcosystemId.Karura],
   "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network",
 );
 const acalaMetaMaskInfo = addMetaMaskEcosystemInfo(
   metaMaskInfo,
-  ECOSYSTEMS[EcosystemId.Acala],
+  ECOSYSTEMS[EvmEcosystemId.Acala],
   "https://evmdocs.acala.network/tooling/metamask/connect-to-the-network",
 );
 
@@ -282,15 +279,15 @@ export const SOLANA_WALLET_SERVICES: readonly SolanaWalletService<SolanaWalletAd
   ];
 
 export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {
-  [EcosystemId.Solana]: SOLANA_WALLET_SERVICES,
-  [EcosystemId.Ethereum]: ETHEREUM_WALLET_SERVICES,
-  [EcosystemId.Bnb]: BNB_WALLET_SERVICES,
-  [EcosystemId.Avalanche]: AVALANCHE_WALLET_SERVICES,
-  [EcosystemId.Polygon]: POLYGON_WALLET_SERVICES,
-  [EcosystemId.Aurora]: AURORA_WALLET_SERVICES,
-  [EcosystemId.Fantom]: FANTOM_WALLET_SERVICES,
-  [EcosystemId.Karura]: KARURA_WALLET_SERVICES,
-  [EcosystemId.Acala]: ACALA_WALLET_SERVICES,
+  [SOLANA_ECOSYSTEM_ID]: SOLANA_WALLET_SERVICES,
+  [EvmEcosystemId.Ethereum]: ETHEREUM_WALLET_SERVICES,
+  [EvmEcosystemId.Bnb]: BNB_WALLET_SERVICES,
+  [EvmEcosystemId.Avalanche]: AVALANCHE_WALLET_SERVICES,
+  [EvmEcosystemId.Polygon]: POLYGON_WALLET_SERVICES,
+  [EvmEcosystemId.Aurora]: AURORA_WALLET_SERVICES,
+  [EvmEcosystemId.Fantom]: FANTOM_WALLET_SERVICES,
+  [EvmEcosystemId.Karura]: KARURA_WALLET_SERVICES,
+  [EvmEcosystemId.Acala]: ACALA_WALLET_SERVICES,
 };
 
 const findServiceForProtocol = (

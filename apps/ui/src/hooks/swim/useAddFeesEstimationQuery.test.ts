@@ -1,8 +1,9 @@
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
-import type { EvmEcosystemId } from "../../config";
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import {
   BNB_BUSD,
   BNB_USDT,
@@ -56,7 +57,7 @@ describe("useAddFeesEstimationQuery", () => {
             Amount.fromHuman(BNB_BUSD, new Decimal(0)),
             Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
-          EcosystemId.Solana,
+          SOLANA_ECOSYSTEM_ID,
         ),
       );
       expect(result.current).toEqual(null);
@@ -81,7 +82,7 @@ describe("useAddFeesEstimationQuery", () => {
             Amount.fromHuman(BNB_BUSD, new Decimal(0)),
             Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
-          EcosystemId.Solana,
+          SOLANA_ECOSYSTEM_ID,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
@@ -95,7 +96,7 @@ describe("useAddFeesEstimationQuery", () => {
       useGasPriceQueriesMock.mockImplementation(
         (ecosystemIds: readonly EcosystemId[]): any => {
           return ecosystemIds.map((ecosystemId) => {
-            return ecosystemId === EcosystemId.Ethereum
+            return ecosystemId === EvmEcosystemId.Ethereum
               ? { data: new Decimal(7e-8) }
               : { data: new Decimal(5e-9) };
           });
@@ -114,7 +115,7 @@ describe("useAddFeesEstimationQuery", () => {
             Amount.fromHuman(BNB_BUSD, new Decimal(0)),
             Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
-          EcosystemId.Solana,
+          SOLANA_ECOSYSTEM_ID,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
@@ -133,7 +134,7 @@ describe("useAddFeesEstimationQuery", () => {
             Amount.fromHuman(BNB_BUSD, new Decimal(0)),
             Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
-          EcosystemId.Ethereum,
+          EvmEcosystemId.Ethereum,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
@@ -152,7 +153,7 @@ describe("useAddFeesEstimationQuery", () => {
             Amount.fromHuman(BNB_BUSD, new Decimal(0)),
             Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
-          EcosystemId.Bnb,
+          EvmEcosystemId.Bnb,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
@@ -171,7 +172,7 @@ describe("useAddFeesEstimationQuery", () => {
             Amount.fromHuman(BNB_BUSD, new Decimal(101)),
             Amount.fromHuman(BNB_USDT, new Decimal(101)),
           ],
-          EcosystemId.Bnb,
+          EvmEcosystemId.Bnb,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));

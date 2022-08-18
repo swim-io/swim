@@ -13,6 +13,8 @@ import {
   EuiSelect,
   EuiSpacer,
 } from "@elastic/eui";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import {
@@ -27,8 +29,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import type { PoolSpec, TokenSpec } from "../config";
-import { ECOSYSTEMS, EcosystemId } from "../config";
+import type { EcosystemId, PoolSpec, TokenSpec } from "../config";
+import { ECOSYSTEMS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
@@ -134,15 +136,15 @@ export const RemoveForm = ({
       };
     },
     {
-      [EcosystemId.Solana]: [],
-      [EcosystemId.Ethereum]: [],
-      [EcosystemId.Bnb]: [],
-      [EcosystemId.Avalanche]: [],
-      [EcosystemId.Polygon]: [],
-      [EcosystemId.Aurora]: [],
-      [EcosystemId.Fantom]: [],
-      [EcosystemId.Karura]: [],
-      [EcosystemId.Acala]: [],
+      [SOLANA_ECOSYSTEM_ID]: [],
+      [EvmEcosystemId.Ethereum]: [],
+      [EvmEcosystemId.Bnb]: [],
+      [EvmEcosystemId.Avalanche]: [],
+      [EvmEcosystemId.Polygon]: [],
+      [EvmEcosystemId.Aurora]: [],
+      [EvmEcosystemId.Fantom]: [],
+      [EvmEcosystemId.Karura]: [],
+      [EvmEcosystemId.Acala]: [],
     },
   );
 
@@ -455,7 +457,7 @@ export const RemoveForm = ({
     const requiredEcosystems = new Set(
       poolSpec.isLegacyPool
         ? [
-            EcosystemId.Solana,
+            SOLANA_ECOSYSTEM_ID,
             lpTokenSourceEcosystem,
             ...poolTokens.map((tokenSpec, i) => {
               const outputAmount = outputAmounts[i];
@@ -485,7 +487,7 @@ export const RemoveForm = ({
         errors = [
           ...errors,
           t("general.require_non_empty_balance_in_specific_wallet", {
-            ecosystemName: ECOSYSTEMS[EcosystemId.Solana].displayName,
+            ecosystemName: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID].displayName,
           }),
         ];
       }
@@ -493,8 +495,8 @@ export const RemoveForm = ({
 
     // Need some SOL for network fee
     if (
-      userNativeBalances[EcosystemId.Solana].greaterThan(0) &&
-      userNativeBalances[EcosystemId.Solana].lessThan(0.01)
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].greaterThan(0) &&
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].lessThan(0.01)
     ) {
       errors = [
         ...errors,
@@ -643,7 +645,7 @@ export const RemoveForm = ({
           tokenSymbol: lpTokenProject.symbol,
         })}
         helpText={
-          lpTokenSourceEcosystem === EcosystemId.Solana ||
+          lpTokenSourceEcosystem === SOLANA_ECOSYSTEM_ID ||
           method !== RemoveMethod.ExactOutput
             ? ""
             : t("remove_token_form.lp_tokens_explanation", {

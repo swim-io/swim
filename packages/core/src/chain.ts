@@ -7,6 +7,7 @@ export interface ChainConfig {
   readonly name: string;
   readonly chainId: number;
   readonly wormhole: WormholeChainConfig;
+  readonly publicRpcUrls: readonly string[];
   readonly tokens: readonly TokenConfig[];
   readonly pools: readonly PoolConfig[];
 }

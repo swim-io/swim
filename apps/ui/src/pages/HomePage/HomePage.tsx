@@ -14,6 +14,8 @@ import {
   EuiTextColor,
   EuiTitle,
 } from "@elastic/eui";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import Decimal from "decimal.js";
 import type { ReactElement, VFC } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,7 +27,7 @@ import { GlassPanel } from "../../components/GlassPanel";
 import { InvestorsList } from "../../components/InvestorsList";
 import { Roadmap } from "../../components/Roadmap";
 import type { Ecosystem } from "../../config";
-import { ECOSYSTEMS, EcosystemId } from "../../config";
+import { ECOSYSTEMS } from "../../config";
 import { useTitle } from "../../hooks";
 import ECOSYSTEM_DIAGRAM from "../../images/ecosystem_diagram.svg";
 import DISCORD_SVG from "../../images/social/discord.svg";
@@ -39,14 +41,14 @@ const HomePage = (): ReactElement => {
   useTitle("");
   const navigate = useNavigate();
   const promotedEcosystems = [
-    ECOSYSTEMS[EcosystemId.Solana],
-    ECOSYSTEMS[EcosystemId.Ethereum],
-    ECOSYSTEMS[EcosystemId.Bnb],
-    ECOSYSTEMS[EcosystemId.Avalanche],
-    ECOSYSTEMS[EcosystemId.Polygon],
-    ECOSYSTEMS[EcosystemId.Fantom],
-    ECOSYSTEMS[EcosystemId.Aurora],
-    ECOSYSTEMS[EcosystemId.Karura],
+    ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
+    ECOSYSTEMS[EvmEcosystemId.Ethereum],
+    ECOSYSTEMS[EvmEcosystemId.Bnb],
+    ECOSYSTEMS[EvmEcosystemId.Avalanche],
+    ECOSYSTEMS[EvmEcosystemId.Polygon],
+    ECOSYSTEMS[EvmEcosystemId.Fantom],
+    ECOSYSTEMS[EvmEcosystemId.Aurora],
+    ECOSYSTEMS[EvmEcosystemId.Karura],
   ];
 
   const bountyAmount = atomicToCurrencyString(new Decimal(100_000), {

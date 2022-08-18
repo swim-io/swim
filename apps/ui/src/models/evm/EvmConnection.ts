@@ -1,11 +1,12 @@
 import { BscscanProvider } from "@ethers-ancillary/bsc";
 import { Env } from "@swim-io/core";
+import { EvmEcosystemId } from "@swim-io/evm";
 import { isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
 
-import type { EvmEcosystemId, EvmSpec } from "../../config";
-import { EcosystemId, isEcosystemEnabled } from "../../config";
+import type { EvmSpec } from "../../config";
+import { isEcosystemEnabled } from "../../config";
 
 import { AuroraNetwork, AuroraScanProvider } from "./AuroraScanProvider";
 import { FantomNetwork, FtmScanProvider } from "./FtmScanProvider";
@@ -179,14 +180,14 @@ export class EvmConnection {
       return new LocalProvider(rpcUrls[0]);
     }
     switch (ecosystem) {
-      case EcosystemId.Acala:
+      case EvmEcosystemId.Acala:
         return new LocalProvider(rpcUrls[0]);
-      case EcosystemId.Aurora:
-      case EcosystemId.Fantom:
-      case EcosystemId.Bnb:
-      case EcosystemId.Avalanche:
-      case EcosystemId.Ethereum:
-      case EcosystemId.Polygon:
+      case EvmEcosystemId.Aurora:
+      case EvmEcosystemId.Fantom:
+      case EvmEcosystemId.Bnb:
+      case EvmEcosystemId.Avalanche:
+      case EvmEcosystemId.Ethereum:
+      case EvmEcosystemId.Polygon:
         switch (env) {
           case Env.Mainnet:
           case Env.Devnet:
@@ -195,7 +196,7 @@ export class EvmConnection {
             return new LocalProvider(rpcUrls[0]);
           }
         }
-      case EcosystemId.Karura:
+      case EvmEcosystemId.Karura:
         switch (env) {
           case Env.Mainnet:
             return EvmConnection.getPublicEvmIndexerProvider(env, ecosystem);
@@ -212,12 +213,12 @@ export class EvmConnection {
     ecosystemId: EvmEcosystemId,
   ): Provider {
     switch (ecosystemId) {
-      case EcosystemId.Ethereum:
+      case EvmEcosystemId.Ethereum:
         return new ethers.providers.EtherscanProvider(
           getEtherscanNetwork(env),
           ETHERSCAN_API_KEY,
         );
-      case EcosystemId.Bnb:
+      case EvmEcosystemId.Bnb:
         try {
           return new MoralisProvider(env, getBnbRpcUrl(env), MORALIS_ID);
         } catch (error) {
@@ -228,19 +229,19 @@ export class EvmConnection {
           }
           return new BscscanProvider(getBscscanNetwork(env));
         }
-      case EcosystemId.Avalanche: {
+      case EvmEcosystemId.Avalanche: {
         return new SnowTraceProvider(
           getSnowTraceNetwork(env),
           SNOWTRACE_API_KEY,
         );
       }
-      case EcosystemId.Polygon: {
+      case EvmEcosystemId.Polygon: {
         return new PolygonScanProvider(
           getPolygonScanNetwork(env),
           POLYGONSCAN_API_KEY,
         );
       }
-      case EcosystemId.Karura: {
+      case EvmEcosystemId.Karura: {
         return new PolkadotProvider(
           getKaruraProvider(env),
           getKaruraSubQl(env),
@@ -250,10 +251,10 @@ export class EvmConnection {
       // Provider classes are the same.
       // Differences are in `{X}Network`, `{X}Provider#constructor`, and URLs in `{X}Provider#getBaseUrl`
       // In EvmConnection, code is almost the same in `get{X}Network` functions and in switch-case in `getPublicEvmIndexerProvider`
-      case EcosystemId.Fantom: {
+      case EvmEcosystemId.Fantom: {
         return new FtmScanProvider(getFtmScanNetwork(env), FTMSCAN_API_KEY);
       }
-      case EcosystemId.Aurora: {
+      case EvmEcosystemId.Aurora: {
         return new AuroraScanProvider(
           getAuroraScanNetwork(env),
           AURORASCAN_API_KEY,

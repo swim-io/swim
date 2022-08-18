@@ -1,9 +1,13 @@
 import { PublicKey } from "@solana/web3.js";
 import { Env } from "@swim-io/core";
+import type { EvmTx } from "@swim-io/evm";
+import { EvmEcosystemId } from "@swim-io/evm";
+import type { SolanaTx } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import Decimal from "decimal.js";
 
-import { EcosystemId, findTokenById } from "../../config";
-import type { EvmTx, InteractionState, SolanaTx } from "../../models";
+import { findTokenById } from "../../config";
+import type { InteractionState } from "../../models";
 import { Amount } from "../../models";
 
 export const SOLANA_USDC = findTokenById("devnet-solana-usdc", Env.Devnet);
@@ -35,15 +39,15 @@ export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION: InteractionState = {
     env: Env.Devnet,
     submittedAt: 1656406521938,
     connectedWallets: {
-      [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-      [EcosystemId.Bnb]: null,
-      [EcosystemId.Ethereum]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
-      [EcosystemId.Acala]: null,
-      [EcosystemId.Aurora]: null,
-      [EcosystemId.Avalanche]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
-      [EcosystemId.Fantom]: null,
-      [EcosystemId.Karura]: null,
-      [EcosystemId.Polygon]: null,
+      [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+      [EvmEcosystemId.Bnb]: null,
+      [EvmEcosystemId.Ethereum]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
+      [EvmEcosystemId.Acala]: null,
+      [EvmEcosystemId.Aurora]: null,
+      [EvmEcosystemId.Avalanche]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",
+      [EvmEcosystemId.Fantom]: null,
+      [EvmEcosystemId.Karura]: null,
+      [EvmEcosystemId.Polygon]: null,
     },
   },
   requiredSplTokenAccounts: {},
@@ -1969,7 +1973,7 @@ export const EVM_TXS_FOR_RELOAD_INTERACTION = [
     id: "0xdacf9f474992e86e079b588573eff53542f1722386280c55aa71057e5771732f",
     timestamp: 1656406577,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
-    txResponse: {
+    response: {
       hash: "0xdacf9f474992e86e079b588573eff53542f1722386280c55aa71057e5771732f",
       type: 0,
       accessList: null,
@@ -1998,7 +2002,7 @@ export const EVM_TXS_FOR_RELOAD_INTERACTION = [
       chainId: 0,
       timestamp: 1656406577,
     },
-    txReceipt: {
+    receipt: {
       to: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
       from: "0xb0A05611328d1068c91F58e2c83Ab4048De8CD7f",
       contractAddress: null,
@@ -2082,7 +2086,7 @@ export const EVM_TXS_FOR_RELOAD_INTERACTION = [
     id: "0x5ddfb1925096babf7939393b62970700a4db183a5dd9ae36dfd2fc9c5d7da302",
     timestamp: 1656406883,
     interactionId: "a9747f341d116e592f6eac839b7f222d",
-    txResponse: {
+    response: {
       hash: "0x5ddfb1925096babf7939393b62970700a4db183a5dd9ae36dfd2fc9c5d7da302",
       type: 0,
       accessList: null,
@@ -2111,7 +2115,7 @@ export const EVM_TXS_FOR_RELOAD_INTERACTION = [
       chainId: 0,
       timestamp: 1656406883,
     },
-    txReceipt: {
+    receipt: {
       to: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
       from: "0xb0A05611328d1068c91F58e2c83Ab4048De8CD7f",
       contractAddress: null,

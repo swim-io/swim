@@ -1,16 +1,17 @@
+import { EvmEcosystemId } from "@swim-io/evm";
 import type { FC, ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { Ecosystem } from "../config";
-import { ECOSYSTEMS, EcosystemId } from "../config";
+import type { Ecosystem, EcosystemId } from "../config";
+import { ECOSYSTEMS } from "../config";
 
-const ecosystemIdToDoc = new Map([
+const ecosystemIdToDoc = new Map<EcosystemId, string>([
   [
-    EcosystemId.Acala,
+    EvmEcosystemId.Acala,
     "https://wiki.acala.network/get-started/acala-network/acala-account#existential-deposit",
   ],
   [
-    EcosystemId.Karura,
+    EvmEcosystemId.Karura,
     "https://wiki.acala.network/get-started/get-started/karura-account#existential-deposit",
   ],
 ]);

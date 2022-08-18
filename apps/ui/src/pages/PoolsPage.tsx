@@ -15,6 +15,8 @@ import {
   EuiText,
   EuiTitle,
 } from "@elastic/eui";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TOKEN_PROJECTS_BY_ID, TokenProjectId } from "@swim-io/token-projects";
 import { deduplicate, filterMap, findOrThrow, sortBy } from "@swim-io/utils";
 import type { ReadonlyRecord } from "@swim-io/utils";
@@ -26,13 +28,12 @@ import shallow from "zustand/shallow.js";
 
 import { atomicToTvlString } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
-import type { PoolSpec, TokenSpec } from "../config";
 import {
-  EcosystemId,
   getPoolTokenEcosystems,
   hasTokenEcosystem,
   isEcosystemEnabled,
 } from "../config";
+import type { EcosystemId, PoolSpec, TokenSpec } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { usePoolUsdValues, useTitle } from "../hooks";
@@ -162,7 +163,7 @@ const PoolsPage = (): ReactElement => {
         />
       )}
 
-      {(isUnfiltered || ecosystemId === EcosystemId.Aurora) && (
+      {(isUnfiltered || ecosystemId === EvmEcosystemId.Aurora) && (
         <>
           <EuiSpacer size={listSpacerSize} />
 
@@ -173,7 +174,7 @@ const PoolsPage = (): ReactElement => {
               {
                 id: "placeholder-aurora-native-usn",
                 projectId: TokenProjectId.Usn,
-                nativeEcosystemId: EcosystemId.Aurora,
+                nativeEcosystemId: EvmEcosystemId.Aurora,
                 nativeDetails: {
                   address: "",
                   decimals: 0,
@@ -183,7 +184,7 @@ const PoolsPage = (): ReactElement => {
               {
                 id: "mainnet-solana-lp-hexapool",
                 projectId: TokenProjectId.SwimUsd,
-                nativeEcosystemId: EcosystemId.Solana,
+                nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
                 nativeDetails: {
                   address: "",
                   decimals: 0,
@@ -195,8 +196,8 @@ const PoolsPage = (): ReactElement => {
         </>
       )}
 
-      {!isEcosystemEnabled(EcosystemId.Karura) &&
-        (isUnfiltered || ecosystemId === EcosystemId.Karura) && (
+      {!isEcosystemEnabled(EvmEcosystemId.Karura) &&
+        (isUnfiltered || ecosystemId === EvmEcosystemId.Karura) && (
           <>
             <EuiSpacer size={listSpacerSize} />
 
@@ -207,7 +208,7 @@ const PoolsPage = (): ReactElement => {
                 {
                   id: "placeholder-karura-native-ausd",
                   projectId: TokenProjectId.Ausd,
-                  nativeEcosystemId: EcosystemId.Karura,
+                  nativeEcosystemId: EvmEcosystemId.Karura,
                   nativeDetails: {
                     address: "",
                     decimals: 0,
@@ -217,7 +218,7 @@ const PoolsPage = (): ReactElement => {
                 {
                   id: "mainnet-solana-lp-hexapool",
                   projectId: TokenProjectId.SwimUsd,
-                  nativeEcosystemId: EcosystemId.Solana,
+                  nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
                   nativeDetails: {
                     address: "",
                     decimals: 0,
@@ -236,7 +237,7 @@ const PoolsPage = (): ReactElement => {
                 {
                   id: "placeholder-karura-native-usdt",
                   projectId: TokenProjectId.Usdt,
-                  nativeEcosystemId: EcosystemId.Karura,
+                  nativeEcosystemId: EvmEcosystemId.Karura,
                   nativeDetails: {
                     address: "",
                     decimals: 0,
@@ -246,7 +247,7 @@ const PoolsPage = (): ReactElement => {
                 {
                   id: "mainnet-solana-lp-hexapool",
                   projectId: TokenProjectId.SwimUsd,
-                  nativeEcosystemId: EcosystemId.Solana,
+                  nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
                   nativeDetails: {
                     address: "",
                     decimals: 0,
@@ -258,8 +259,8 @@ const PoolsPage = (): ReactElement => {
           </>
         )}
 
-      {!isEcosystemEnabled(EcosystemId.Acala) &&
-        (isUnfiltered || ecosystemId === EcosystemId.Acala) && (
+      {!isEcosystemEnabled(EvmEcosystemId.Acala) &&
+        (isUnfiltered || ecosystemId === EvmEcosystemId.Acala) && (
           <>
             <EuiSpacer size={listSpacerSize} />
 
@@ -270,7 +271,7 @@ const PoolsPage = (): ReactElement => {
                 {
                   id: "placeholder-acala-native-ausd",
                   projectId: TokenProjectId.Ausd,
-                  nativeEcosystemId: EcosystemId.Acala,
+                  nativeEcosystemId: EvmEcosystemId.Acala,
                   nativeDetails: {
                     address: "",
                     decimals: 0,
@@ -280,7 +281,7 @@ const PoolsPage = (): ReactElement => {
                 {
                   id: "mainnet-solana-lp-hexapool",
                   projectId: TokenProjectId.SwimUsd,
-                  nativeEcosystemId: EcosystemId.Solana,
+                  nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
                   nativeDetails: {
                     address: "",
                     decimals: 0,

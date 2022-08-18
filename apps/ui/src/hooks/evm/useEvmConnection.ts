@@ -1,10 +1,10 @@
+import { EvmEcosystemId } from "@swim-io/evm";
 import { findOrThrow } from "@swim-io/utils";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import type { EvmEcosystemId } from "../../config";
-import { EcosystemId, Protocol } from "../../config";
+import { Protocol } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { EvmConnection } from "../../models";
@@ -38,12 +38,12 @@ export const useEvmConnections = (): ReadonlyRecord<
   EvmEcosystemId,
   EvmConnection
 > => ({
-  [EcosystemId.Ethereum]: useEvmConnection(EcosystemId.Ethereum),
-  [EcosystemId.Bnb]: useEvmConnection(EcosystemId.Bnb),
-  [EcosystemId.Avalanche]: useEvmConnection(EcosystemId.Avalanche),
-  [EcosystemId.Polygon]: useEvmConnection(EcosystemId.Polygon),
-  [EcosystemId.Aurora]: useEvmConnection(EcosystemId.Aurora),
-  [EcosystemId.Fantom]: useEvmConnection(EcosystemId.Fantom),
-  [EcosystemId.Karura]: useEvmConnection(EcosystemId.Karura),
-  [EcosystemId.Acala]: useEvmConnection(EcosystemId.Acala),
+  [EvmEcosystemId.Ethereum]: useEvmConnection(EvmEcosystemId.Ethereum),
+  [EvmEcosystemId.Bnb]: useEvmConnection(EvmEcosystemId.Bnb),
+  [EvmEcosystemId.Avalanche]: useEvmConnection(EvmEcosystemId.Avalanche),
+  [EvmEcosystemId.Polygon]: useEvmConnection(EvmEcosystemId.Polygon),
+  [EvmEcosystemId.Aurora]: useEvmConnection(EvmEcosystemId.Aurora),
+  [EvmEcosystemId.Fantom]: useEvmConnection(EvmEcosystemId.Fantom),
+  [EvmEcosystemId.Karura]: useEvmConnection(EvmEcosystemId.Karura),
+  [EvmEcosystemId.Acala]: useEvmConnection(EvmEcosystemId.Acala),
 });

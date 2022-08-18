@@ -6,5 +6,5 @@
     "outDir": "build/",
     "rootDir": "./"
   },
-  "include": ["./migrations", "./scripts", "./src", "./tests"]
+  "include": ["./migrations", "./scripts", "./src", "./test"]
 }

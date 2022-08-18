@@ -18,8 +18,8 @@ export const usePoolUsdValues = (poolSpecs: readonly PoolSpec[]) => {
     useCoinGeckoPricesQuery();
 
   return poolSpecs.map((poolSpec, index) => {
-    const poolBalance = balancesByPool[index];
-    if (poolBalance === null) {
+    const poolBalances = balancesByPool[index];
+    if (poolBalances === null) {
       return new Decimal(0);
     }
     if (isSolanaPool(poolSpec)) {
@@ -39,9 +39,9 @@ export const usePoolUsdValues = (poolSpecs: readonly PoolSpec[]) => {
         const price = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].isStablecoin
           ? new Decimal(1)
           : prices.get(tokenSpec.id) ?? new Decimal(1);
-        return sum.add(poolBalance[i].mul(price));
+        return sum.add(poolBalances[i].mul(price));
       }, new Decimal(0));
     }
-    return Decimal.sum(...poolBalance);
+    return Decimal.sum(...poolBalances);
   });
 };

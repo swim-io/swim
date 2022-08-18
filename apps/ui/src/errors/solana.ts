@@ -1,3 +1,5 @@
+import { i18next } from "../i18n";
+
 import { extractSwimPoolError } from "./poolError";
 
 export interface SolanaError extends Error {
@@ -14,15 +16,17 @@ export const extractSolanaErrorMessage = (error: SolanaError): string => {
   if (error.logs !== undefined) {
     for (const log of error.logs) {
       if (log.includes("could not be completed within the specified limits")) {
-        return "The instruction could not be completed with the specified slippage settings.";
+        return i18next.t(
+          "solana_error.completed_with_the_specified_slippage_settings",
+        );
       }
 
       if (log.includes("unknown signer:")) {
-        return "Unknown signer. This is likely because you switched accounts in your wallet. Refresh the page and try again.";
+        return i18next.t("solana_error.unknown_signer");
       }
 
       if (log.includes("Error: insufficient funds")) {
-        return "Insufficient funds";
+        return i18next.t("solana_error.insufficient_funds");
       }
 
       const poolError = extractSwimPoolError(log);
@@ -42,10 +46,14 @@ export const extractSolanaErrorMessage = (error: SolanaError): string => {
   const stringsToCheck = [error.message, errorString];
 
   if (stringsToCheck.some((str) => str.includes("Blockhash not found"))) {
-    return `The transaction did not reach the Solana blockchain in time. This might be because you took too long to approve the transaction or because the network is congested. Additional info: ${errorString}`;
+    return i18next.t("solana_error.transaction_cannot_reach_chain", {
+      errorMessage: errorString,
+    });
   }
   if (stringsToCheck.some((str) => str.includes("insufficient funds"))) {
-    return `Insufficient funds. Additional info: ${errorString}`;
+    return i18next.t("solana_error.insufficient_funds_with_additional_info", {
+      errorMessage: errorString,
+    });
   }
 
   return error.message || errorString;

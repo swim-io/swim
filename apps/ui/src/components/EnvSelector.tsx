@@ -5,18 +5,20 @@ import {
   EuiPopover,
   EuiPopoverTitle,
   EuiSelectable,
-  htmlIdGenerator,
+  useGeneratedHtmlId,
 } from "@elastic/eui";
 import * as Sentry from "@sentry/react";
 import { isValidEnv } from "@swim-io/core";
 import { useState } from "react";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import { selectEnvs } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 
 export const EnvSelector = (): ReactElement => {
+  const { t } = useTranslation();
   const { env, setEnv } = useEnvironment();
   const envs = useEnvironment(selectEnvs, shallow);
   const [isOpen, setIsOpen] = useState(false);
@@ -33,13 +35,13 @@ export const EnvSelector = (): ReactElement => {
   };
 
   const handleButtonClick = (): void => {
-    setIsOpen(!isOpen);
+    setIsOpen((prevState) => !prevState);
   };
   const closePopover = (): void => {
     setIsOpen(false);
   };
 
-  const id = htmlIdGenerator()();
+  const id = useGeneratedHtmlId({ prefix: "envSelector" });
 
   const envOptions: readonly EuiSelectableOption[] = envs.map(
     (name: string) => ({
@@ -58,7 +60,7 @@ export const EnvSelector = (): ReactElement => {
       aria-controls={id}
       aria-expanded={isOpen}
       aria-haspopup="true"
-      aria-label="Apps menu"
+      aria-label={t("general.select_network")}
       onClick={handleButtonClick}
     >
       {selectedEnv.prepend}
@@ -70,7 +72,7 @@ export const EnvSelector = (): ReactElement => {
       ? {
           searchable: true as const,
           searchProps: {
-            placeholder: "Find a space",
+            placeholder: t("general.select_network"),
             compressed: true,
           },
         }
@@ -99,7 +101,9 @@ export const EnvSelector = (): ReactElement => {
       >
         {(list, search) => (
           <>
-            <EuiPopoverTitle>{search || "Select network"}</EuiPopoverTitle>
+            <EuiPopoverTitle>
+              {search || t("general.select_network")}
+            </EuiPopoverTitle>
             {list}
           </>
         )}

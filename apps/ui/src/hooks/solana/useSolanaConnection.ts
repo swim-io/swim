@@ -1,5 +1,3 @@
-import { Keypair } from "@solana/web3.js";
-import { useEffect } from "react";
 import { useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
@@ -25,21 +23,6 @@ export const useSolanaConnection = (): SolanaConnection => {
       queryClient.setQueryData(queryKey, solanaConnection);
       return solanaConnection;
     })();
-
-  // The websocket library solana/web3.js uses closes its websocket connection when the subscription list
-  // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.
-  // This is a hack to prevent the list from ever getting empty
-  useEffect(() => {
-    const subscriptionId = connection.onAccountChange(
-      Keypair.generate().publicKey,
-      () => {},
-    );
-    return () => {
-      connection
-        .removeAccountChangeListener(subscriptionId)
-        .catch(console.error);
-    };
-  }, [connection]);
 
   return connection;
 };

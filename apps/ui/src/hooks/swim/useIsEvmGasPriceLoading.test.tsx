@@ -1,7 +1,8 @@
+import { EvmEcosystemId } from "@swim-io/evm";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useGasPriceQueries } from "./useGasPriceQuery";
@@ -40,14 +41,14 @@ describe("useIsEvmGasPriceLoading", () => {
       useGasPriceQueriesMock.mockImplementation(
         (ecosystemIds: readonly EcosystemId[]): any => {
           return ecosystemIds.map((ecosystemId) => {
-            return ecosystemId === EcosystemId.Ethereum
+            return ecosystemId === EvmEcosystemId.Ethereum
               ? { isLoading: true, data: undefined }
               : { isLoading: false, data: new Decimal(5e-9) };
           });
         },
       );
       const { result } = renderHookWithAppContext(() =>
-        useIsEvmGasPriceLoading([EcosystemId.Ethereum]),
+        useIsEvmGasPriceLoading([EvmEcosystemId.Ethereum]),
       );
       expect(result.current).toEqual(true);
     });
@@ -58,14 +59,14 @@ describe("useIsEvmGasPriceLoading", () => {
       useGasPriceQueriesMock.mockImplementation(
         (ecosystemIds: readonly EcosystemId[]): any => {
           return ecosystemIds.map((ecosystemId) => {
-            return ecosystemId === EcosystemId.Ethereum
+            return ecosystemId === EvmEcosystemId.Ethereum
               ? { isLoading: false, data: new Decimal(5e-9) }
               : { isLoading: true, data: undefined };
           });
         },
       );
       const { result } = renderHookWithAppContext(() =>
-        useIsEvmGasPriceLoading([EcosystemId.Ethereum]),
+        useIsEvmGasPriceLoading([EvmEcosystemId.Ethereum]),
       );
       expect(result.current).toEqual(false);
     });
@@ -81,10 +82,10 @@ describe("useIsEvmGasPriceLoading", () => {
       );
       const { result } = renderHookWithAppContext(() =>
         useIsEvmGasPriceLoading([
-          EcosystemId.Ethereum,
-          EcosystemId.Bnb,
-          EcosystemId.Polygon,
-          EcosystemId.Avalanche,
+          EvmEcosystemId.Ethereum,
+          EvmEcosystemId.Bnb,
+          EvmEcosystemId.Polygon,
+          EvmEcosystemId.Avalanche,
         ]),
       );
       expect(result.current).toEqual(false);

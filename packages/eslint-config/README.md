@@ -63,3 +63,8 @@ If you are using this config in a monorepo, and experiencing the error `ESLint c
 ```js
 require("@swim-io/eslint-config/patch/modern-module-resolution.cjs");
 ```
+
+## Known issues
+
+1. ESLint has some issues in monorepo and with its [dependency resolve method](https://eslint.org/blog/2022/08/new-config-system-part-2/#:~:text=Use%20native%20loading,JavaScript%20runtime%20directly), which requires us to install ESLint plugins in both client and eslint-config itself.
+   1. Will be solved by ESLint's [new flat config](https://eslint.org/blog/2022/08/new-config-system-part-1/).

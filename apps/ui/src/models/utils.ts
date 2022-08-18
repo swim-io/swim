@@ -1,5 +1,7 @@
-import type { EcosystemId, EvmEcosystemId } from "../config";
-import { isEvmEcosystemId } from "../config";
+import type { EvmEcosystemId } from "@swim-io/evm";
+import { isEvmEcosystemId } from "@swim-io/evm";
+
+import type { EcosystemId } from "../config";
 
 import type { Amount } from "./amount";
 

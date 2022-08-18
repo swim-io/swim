@@ -1,7 +1,8 @@
 import { EuiFlexGroup, EuiLoadingSpinner, EuiSpacer } from "@elastic/eui";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
-import { EcosystemId } from "../../config";
 import { ConnectButton } from "../ConnectButton";
 
 import "./DefaultNftBox.scss";
@@ -17,13 +18,14 @@ export const enum NftProblem {
 }
 
 const BoxText = ({ nftProblem }: Props): ReactElement => {
+  const { t } = useTranslation();
   switch (nftProblem) {
     case NftProblem.NoWallet:
-      return <p>Connect your wallet to view and redeem your Otter Tots!</p>;
+      return <p>{t("redeem_page.connect_wallet_to_redeem")}</p>;
     case NftProblem.Loading:
       return <EuiLoadingSpinner size="xl" />;
     case NftProblem.Empty:
-      return <p>Get an Otter Tot to view and redeem here!</p>;
+      return <p>{t("redeem_page.redeem_here")}</p>;
   }
 };
 
@@ -37,7 +39,7 @@ export const DefaultNftBox = ({ nftProblem }: Props): ReactElement => {
     >
       <BoxText nftProblem={nftProblem} />
       <EuiSpacer />
-      <ConnectButton size="s" ecosystemId={EcosystemId.Solana} />
+      <ConnectButton size="s" ecosystemId={SOLANA_ECOSYSTEM_ID} />
     </EuiFlexGroup>
   );
 };

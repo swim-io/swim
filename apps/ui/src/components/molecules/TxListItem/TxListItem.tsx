@@ -1,7 +1,9 @@
 import { EuiListGroupItem } from "@elastic/eui";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { FC } from "react";
 
-import { EcosystemId } from "../../../config";
+import type { EcosystemId } from "../../../config";
 
 interface Props {
   readonly ecosystem: EcosystemId;
@@ -11,23 +13,23 @@ interface Props {
 const getHref = (ecosystemId: EcosystemId, txId: string): string => {
   // TODO: Support different environments (devnet).
   switch (ecosystemId) {
-    case EcosystemId.Solana:
+    case SOLANA_ECOSYSTEM_ID:
       return `https://solana.fm/tx/${txId}`;
-    case EcosystemId.Ethereum:
+    case EvmEcosystemId.Ethereum:
       return `https://etherscan.io/tx/${txId}`;
-    case EcosystemId.Bnb:
+    case EvmEcosystemId.Bnb:
       return `https://bscscan.com/tx/${txId}`;
-    case EcosystemId.Avalanche:
+    case EvmEcosystemId.Avalanche:
       return `https://snowtrace.io/tx/${txId}`;
-    case EcosystemId.Polygon:
+    case EvmEcosystemId.Polygon:
       return `https://polygonscan.com/tx/${txId}`;
-    case EcosystemId.Aurora:
+    case EvmEcosystemId.Aurora:
       return `https://aurorascan.dev/tx/${txId}`;
-    case EcosystemId.Fantom:
+    case EvmEcosystemId.Fantom:
       return `https://ftmscan.com/tx/${txId}`;
-    case EcosystemId.Karura:
+    case EvmEcosystemId.Karura:
       return `https://blockscout.karura.network/tx/${txId}`;
-    case EcosystemId.Acala:
+    case EvmEcosystemId.Acala:
       return `https://blockscout.acala.network/tx/${txId}`;
     default:
       throw new Error("Unknown ecosystem");

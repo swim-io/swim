@@ -1,8 +1,9 @@
 import type { EuiStepProps, EuiStepStatus } from "@elastic/eui";
 import { EuiListGroup, EuiText } from "@elastic/eui";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { isNotNull } from "@swim-io/utils";
 
-import { EcosystemId } from "../../../config";
+import { i18next } from "../../../i18n";
 import type { InteractionState } from "../../../models";
 import {
   InteractionStateStep,
@@ -52,11 +53,13 @@ const buildPrepareSplTokenAccountsStep = (
     isRequiredSplTokenAccountsCompleted(requiredSplTokenAccounts),
   );
   return {
-    title: "Prepare Solana accounts",
+    title: i18next.t("recent_interactions.prepare_solana_accounts_title"),
     status,
     children: (
       <EuiText size="m">
-        <span>Create SPL token accounts</span>
+        <span>
+          {i18next.t("recent_interactions.prepare_solana_accounts_create_step")}
+        </span>
         <br />
         <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
           {missingAccounts
@@ -65,7 +68,7 @@ const buildPrepareSplTokenAccountsStep = (
             .map((txId) => (
               <TxListItem
                 key={txId}
-                ecosystem={EcosystemId.Solana}
+                ecosystem={SOLANA_ECOSYSTEM_ID}
                 txId={txId}
               />
             ))}
@@ -94,7 +97,7 @@ const buildToSolanaTransfersStep = (
     nextTxInfo !== null &&
     nextTxInfo.step === InteractionStateStep.ToSolanaTransfers;
   return {
-    title: "Bridge tokens to Solana",
+    title: i18next.t("recent_interactions.bridge_tokens_to_solana"),
     status,
     children: (
       <>
@@ -124,7 +127,7 @@ const buildSolanaPoolOperationStep = (
     isSolanaPoolOperationsCompleted(solanaPoolOperations),
   );
   return {
-    title: "Perform pool operation(s) on Solana",
+    title: i18next.t("recent_interactions.perform_pool_operations_on_solana"),
     status,
     children: (
       <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
@@ -132,7 +135,11 @@ const buildSolanaPoolOperationStep = (
           .map(({ txId }) => txId)
           .filter(isNotNull)
           .map((txId) => (
-            <TxListItem key={txId} ecosystem={EcosystemId.Solana} txId={txId} />
+            <TxListItem
+              key={txId}
+              ecosystem={SOLANA_ECOSYSTEM_ID}
+              txId={txId}
+            />
           ))}
       </EuiListGroup>
     ),
@@ -157,7 +164,7 @@ const buildFromSolanaTransfersStep = (
     nextTxInfo !== null &&
     nextTxInfo.step === InteractionStateStep.FromSolanaTransfers;
   return {
-    title: "Bridge tokens from Solana",
+    title: i18next.t("recent_interactions.bridge_tokens_from_solana"),
     status,
     children: (
       <>

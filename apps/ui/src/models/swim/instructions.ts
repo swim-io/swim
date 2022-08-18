@@ -1,7 +1,7 @@
 import type { Layout } from "@project-serum/borsh";
 import { array, struct, u64, u8 } from "@project-serum/borsh";
-import type { DecimalBN } from "@swim-io/solana-types";
-import { decimal } from "@swim-io/solana-types";
+import type { DecimalBN } from "@swim-io/solana";
+import { decimal } from "@swim-io/solana";
 import type BN from "bn.js";
 
 export enum SwimInstruction {

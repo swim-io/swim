@@ -44,8 +44,7 @@ library SwimPayload {
       checkLength(swimPayload, OWNER_MINLEN);
       uint256 offset = SOLIDITY_ARRAY_LENGTH_SIZE + OWNER_OFFSET;
       uint256 swimOwner;
-      //memory-safe annotation only becomes available with Solidity 0.8.13
-      assembly /*("memory-safe")*/
+      assembly ("memory-safe")
       {
         swimOwner := mload(add(swimPayload, offset))
       }
@@ -61,7 +60,7 @@ library SwimPayload {
 
       uint256 offset = SOLIDITY_ARRAY_LENGTH_SIZE + THRESHOLD_OFFSET;
       uint256 thresholdAmount;
-      assembly /*("memory-safe")*/
+      assembly ("memory-safe")
       {
         thresholdAmount := mload(add(swimPayload, offset))
       }

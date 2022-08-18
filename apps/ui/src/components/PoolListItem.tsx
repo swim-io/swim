@@ -8,6 +8,7 @@ import {
   EuiTitle,
   EuiToolTip,
 } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { chunks } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
@@ -15,10 +16,10 @@ import { createElement } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { atomicToCurrencyString } from "../amounts";
-import type { TokenSpec } from "../config";
+import type { PoolSpec, TokenSpec } from "../config";
 import { i18next } from "../i18n";
 
-import { TokenSpecIcon } from "./TokenIcon";
+import { TokenIcon } from "./TokenIcon";
 
 const titleSize = "xs";
 const titleElement = "h3";
@@ -43,21 +44,24 @@ const appendConstantSwapIcon = (poolName: string): string | ReactElement => {
 export const PoolListItem = ({
   poolName,
   tokenSpecs,
-  poolId = null,
+  poolSpec = null,
   totalUsd = null,
   betaBadgeLabel = "",
-  isStableSwap = true,
 }: {
   readonly poolName: string;
   readonly tokenSpecs: readonly TokenSpec[];
-  readonly poolId?: string | null;
+  readonly poolSpec?: PoolSpec | null;
   readonly totalUsd?: Decimal | null;
   readonly betaBadgeLabel?: string;
-  readonly isStableSwap?: boolean;
 }): ReactElement => {
   const navigate = useNavigate();
   const flexItemMargin = "6px 12px";
   const tokenChunks = chunks(tokenSpecs, 3);
+
+  const poolId = poolSpec?.id ?? null;
+  const isStableSwap = poolSpec?.isStableSwap ?? null;
+  const isLegacyPool = poolSpec?.isLegacyPool ?? true;
+  const poolEcosystem = poolSpec?.ecosystem ?? null;
 
   return (
     <EuiCard
@@ -87,7 +91,14 @@ export const PoolListItem = ({
                   grow={true}
                   style={{ margin: flexItemMargin }}
                 >
-                  <TokenSpecIcon token={tokenSpec} />
+                  <TokenIcon
+                    {...TOKEN_PROJECTS_BY_ID[tokenSpec.projectId]}
+                    ecosystemId={
+                      !isLegacyPool && poolEcosystem !== null
+                        ? poolEcosystem
+                        : tokenSpec.nativeEcosystemId
+                    }
+                  />
                 </EuiFlexItem>
               ))}
             </EuiFlexGroup>

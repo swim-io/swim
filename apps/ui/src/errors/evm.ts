@@ -1,3 +1,5 @@
+import { i18next } from "../i18n";
+
 interface EthErrorInternalData {
   readonly code: number;
   readonly message?: string;
@@ -39,11 +41,11 @@ export const extractEthErrorMessage = (error: EthError): string => {
   if (error.code === -32603 && error.data?.message) {
     // We now handle this, so this should not happen anymore but just in case
     if (error.data.message.includes("transfer amount exceeds allowance")) {
-      return "Transfer amount exceeds allowance. Please try again.";
+      return i18next.t("evm_error.transfer_amount_exceeds_allowance");
     }
 
     if (error.data.message.includes("ExistentialDeposit")) {
-      return "Existential deposit error. Your account does not have the required minimum balance of its native token to complete the swap.";
+      return i18next.t("evm_error.balance_not_enough_to_complete_swap");
     }
 
     return error.data.message;
@@ -52,7 +54,7 @@ export const extractEthErrorMessage = (error: EthError): string => {
   const errorString = error.message;
 
   if (errorString.includes("transfer already completed")) {
-    return "Transfer already completed. Try refreshing the page.";
+    return i18next.t("evm_error.transfer_already_completed");
   }
 
   return errorString;

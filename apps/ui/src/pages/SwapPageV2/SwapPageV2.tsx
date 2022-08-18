@@ -13,6 +13,7 @@ import { defaultIfError } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import { RecentInteractionsV2 } from "../../components/RecentInteractionsV2";
@@ -26,9 +27,10 @@ import { INTERACTION_GROUP_SWAP } from "../../models";
 import "./SwapPageV2.scss";
 
 const SwapPageV2 = (): ReactElement => {
+  const { t } = useTranslation();
   const { pools } = useEnvironment(selectConfig, shallow);
 
-  useTitle("Swap");
+  useTitle(t("nav.swap_v2"));
 
   const nonStakingPools = useMemo(
     () => pools.filter((pool) => !pool.isStakingPool),
@@ -49,7 +51,7 @@ const SwapPageV2 = (): ReactElement => {
             <EuiFlexGroup justifyContent="spaceBetween" responsive={false}>
               <EuiFlexItem>
                 <EuiTitle>
-                  <h2>[WIP] Swap V2</h2>
+                  <h2>{t("nav.swap_v2")}</h2>
                 </EuiTitle>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
@@ -65,15 +67,15 @@ const SwapPageV2 = (): ReactElement => {
             ) : (
               <EuiEmptyPrompt
                 iconType="alert"
-                title={<h2>No pools found</h2>}
+                title={<h2>{t("general.error_cannot_found_pools")}</h2>}
                 titleSize="xs"
-                body="Try changing the network in the upper right corner."
+                body={t("general.action_on_error_cannot_found_pools")}
               />
             )}
 
             <EuiSpacer />
             <RecentInteractionsV2
-              title="Recent swaps"
+              title={t("swap_page.recent_swaps")}
               interactionTypes={INTERACTION_GROUP_SWAP}
             />
           </EuiPageContentBody>

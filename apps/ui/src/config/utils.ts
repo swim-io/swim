@@ -1,8 +1,10 @@
 import type { Env, TokenDetails } from "@swim-io/core";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { TokenProjectId } from "@swim-io/token-projects";
 import { deduplicate } from "@swim-io/utils";
 
-import type { Ecosystem } from "./ecosystem";
-import { ECOSYSTEMS, EcosystemId } from "./ecosystem";
+import type { Ecosystem, EcosystemId } from "./ecosystem";
+import { ECOSYSTEMS } from "./ecosystem";
 import type { PoolSpec } from "./pools";
 import type { TokenSpec } from "./tokens";
 import { TOKENS } from "./tokens";
@@ -18,7 +20,7 @@ export const getTokenDetailsForEcosystem = (
 export const getSolanaTokenDetails = (tokenSpec: TokenSpec): TokenDetails => {
   const solanaTokenDetails = getTokenDetailsForEcosystem(
     tokenSpec,
-    EcosystemId.Solana,
+    SOLANA_ECOSYSTEM_ID,
   );
   if (solanaTokenDetails === null) {
     throw new Error("Solana token details not found");
@@ -50,3 +52,6 @@ export const hasTokenEcosystem = (
   ecosystemId: EcosystemId,
 ): boolean =>
   getPoolTokenEcosystems(pool, env).some(({ id }) => id === ecosystemId);
+
+export const isSwimUsd = (token: TokenSpec) =>
+  token.projectId === TokenProjectId.SwimLpSolanaUsdcUsdt;

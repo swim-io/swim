@@ -1,8 +1,9 @@
-import { StrictMode } from "react";
+import { StrictMode, Suspense } from "react";
 import ReactDOM from "react-dom";
 
 import "./index.css";
 import "./euiIcons";
+import "./i18n";
 import App from "./App";
 import { setupSentry } from "./errors/sentry";
 import reportWebVitals from "./reportWebVitals";
@@ -11,7 +12,10 @@ setupSentry();
 
 ReactDOM.render(
   <StrictMode>
-    <App />
+    {/* Needed for i18next */}
+    <Suspense fallback="loading">
+      <App />
+    </Suspense>
   </StrictMode>,
   document.getElementById("root"),
 );

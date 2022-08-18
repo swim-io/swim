@@ -7,10 +7,11 @@ import type {
   Transaction,
   TransactionResponse,
 } from "@solana/web3.js";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { sleep } from "@swim-io/utils";
 
 import { SwimError } from "../../errors";
+import { i18next } from "../../i18n";
 
 import { deserializeTokenAccount } from "./parsers";
 import { getAssociatedTokenAddress } from "./utils";
@@ -71,6 +72,12 @@ export class SolanaConnection {
   private rpcIndex;
   private readonly endpoints: readonly string[];
 
+  // TODO: Check if this is still necessary.
+  // The websocket library solana/web3.js closes its websocket connection when the subscription list
+  // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.
+  // This is a hack to prevent the list from ever getting empty
+  private dummySubscriptionId!: number;
+
   constructor(endpoints: readonly string[]) {
     this.endpoints = endpoints;
     this.rpcIndex = -1;
@@ -111,7 +118,9 @@ export class SolanaConnection {
         return signatureResult;
       }
       throw new SwimError(
-        `Transaction with ID ${txId} did not confirm: ${signatureResult.value.err.toString()}`,
+        i18next.t("general.transaction_not_confirmed_error", { txId }) +
+          ": " +
+          signatureResult.value.err.toString(),
       );
     }, maxRetries);
   }
@@ -179,7 +188,9 @@ export class SolanaConnection {
         this.txCache.set(txId, txResponse);
         return txResponse;
       }
-      throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+      throw new SwimError(
+        i18next.t("general.transaction_not_confirmed_error", { txId }),
+      );
     }, maxRetries);
   }
 
@@ -212,7 +223,9 @@ export class SolanaConnection {
         this.parsedTxCache.set(txId, txResponse);
         return txResponse;
       }
-      throw new SwimError(`Transaction with ID ${txId} did not confirm`);
+      throw new SwimError(
+        i18next.t("general.transaction_not_confirmed_error", { txId }),
+      );
     }, maxRetries);
   }
 
@@ -248,7 +261,9 @@ export class SolanaConnection {
             this.parsedTxCache.set(missingTxIds[i], txResponse);
           }
         });
-        throw new SwimError(`One or more transactions did not confirm`);
+        throw new SwimError(
+          i18next.t("general.one_or_more_transaction_not_confirmed_error"),
+        );
       },
 
       maxRetries,
@@ -289,7 +304,9 @@ export class SolanaConnection {
         );
       }
       throw new SwimError(
-        "Successfully created SPL token account but failed to fetch it",
+        i18next.t(
+          "general.created_spl_token_account_but_failed_to_fetch_error",
+        ),
       );
     }, maxRetries);
   }
@@ -325,12 +342,22 @@ export class SolanaConnection {
       // and it is not being called in the constructor (when this.rawConnection is still undefined)
       return;
     }
+    if ((this.dummySubscriptionId as number | undefined) !== undefined) {
+      // Remove old dummy subscription if it has been initialized.
+      this.rawConnection
+        .removeAccountChangeListener(this.dummySubscriptionId)
+        .catch(console.error);
+    }
     this.rpcIndex = (this.rpcIndex + 1) % this.endpoints.length;
     this.rawConnection = new CustomConnection(this.endpoints[this.rpcIndex], {
       commitment: DEFAULT_COMMITMENT_LEVEL,
       confirmTransactionInitialTimeout: 60 * 1000,
       disableRetryOnRateLimit: true,
     });
+    this.dummySubscriptionId = this.rawConnection.onAccountChange(
+      Keypair.generate().publicKey,
+      () => {},
+    );
 
     this.getAccountInfo = this.rawConnection.getAccountInfo.bind(
       this.rawConnection,

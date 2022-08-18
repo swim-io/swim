@@ -5,12 +5,15 @@ import {
   EuiSpacer,
 } from "@elastic/eui";
 import type { ReactElement, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
+import { Language } from "../../config";
 import { MultiConnectButton } from "../ConnectButton";
 import { CustomHeaderLink } from "../CustomHeaderLink";
 import { CustomHeaderLogo } from "../CustomHeaderLogo";
 import { EnvSelector } from "../EnvSelector";
 import { Footer } from "../Footer";
+import { LanguageSelectorButton } from "../LanguageSelector";
 import { Waves } from "../Waves";
 
 import "./Layout.scss";
@@ -20,6 +23,7 @@ export const Layout = ({
 }: {
   readonly children?: ReactNode;
 }): ReactElement => {
+  const { t } = useTranslation();
   return (
     <Waves footer={<Footer />}>
       <EuiSpacer />
@@ -31,16 +35,22 @@ export const Layout = ({
             items: [
               <CustomHeaderLogo key="custom-header-logo" />,
               <EuiHeaderLinks key="eui-header-links">
-                <CustomHeaderLink to={"/swap"}>Swap</CustomHeaderLink>
+                <CustomHeaderLink to={"/swap"}>
+                  {t("nav.swap")}
+                </CustomHeaderLink>
                 {process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE && (
                   <CustomHeaderLink to={"/swapV2"}>
-                    [WIP] SwapV2
+                    {t("nav.swap_v2")}
                   </CustomHeaderLink>
                 )}
-                <CustomHeaderLink to={"/pools"}>Pools</CustomHeaderLink>
+                <CustomHeaderLink to={"/pools"}>
+                  {t("nav.pools")}
+                </CustomHeaderLink>
                 {/* TODO: Enable when token is launched */}
                 {/* <CustomHeaderLink to={"/stake"}>Stake</CustomHeaderLink> */}
-                <CustomHeaderLink to={"/help"}>Help</CustomHeaderLink>
+                <CustomHeaderLink to={"/help"}>
+                  {t("nav.help")}
+                </CustomHeaderLink>
               </EuiHeaderLinks>,
             ],
             borders: "right",
@@ -51,6 +61,9 @@ export const Layout = ({
                 <MultiConnectButton size="s" fullWidth />
               </EuiHeaderSectionItem>,
               <EnvSelector key="env-selector" />,
+              ...(Object.keys(Language).length > 1
+                ? [<LanguageSelectorButton key="language-selector" />]
+                : []),
             ],
             borders: "none",
           },

@@ -1,7 +1,7 @@
 import { EuiListGroup } from "@elastic/eui";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
-import { EcosystemId } from "../../../config";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 
 import { TxListItem } from "./TxListItem";
 
@@ -18,12 +18,12 @@ const Template: ComponentStory<typeof TxListItem> = (args) => (
 
 export const Ethereum = Template.bind({});
 Ethereum.args = {
-  ecosystem: EcosystemId.Ethereum,
+  ecosystem: EvmEcosystemId.Ethereum,
   txId: "0x3b0458fab01fea217bc0b1b64550cec1b347e30ecf5b965c359da707d50dad7f",
 };
 
 export const Solana = Template.bind({});
 Solana.args = {
-  ecosystem: EcosystemId.Solana,
+  ecosystem: SOLANA_ECOSYSTEM_ID,
   txId: "5Q8KyhSGJtHJvWuLuA4SomQZ2W9kgjWRqwskzZMmj5JMm4vRA2H8i7gWVML1Ksr3zvRzkJ8Rp2ESc21gYfzDmZKu",
 };

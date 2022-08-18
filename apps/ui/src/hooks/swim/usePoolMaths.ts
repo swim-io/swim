@@ -1,12 +1,13 @@
 import PoolMath from "@swim-io/pool-math";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { isEachNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
-import { BNtoDecimal, atomicToHuman } from "../../amounts";
-import { EcosystemId, getSolanaTokenDetails } from "../../config";
+import { atomicToHuman, bnOrBigNumberToDecimal } from "../../amounts";
+import { getTokenDetailsForEcosystem } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import { Amount } from "../../models";
+import { Amount, isEvmPoolState } from "../../models";
 
 import type { PoolData } from "./usePools";
 import { usePools } from "./usePools";
@@ -19,8 +20,34 @@ const getPoolMath = ({
   poolLpMint,
   poolTokenAccounts,
 }: PoolData): PoolMath | null => {
+  if (!poolState) {
+    return null;
+  }
+
+  const poolTokenDecimals = poolTokens.map((tokenSpec) => {
+    const tokenDetails = getTokenDetailsForEcosystem(
+      tokenSpec,
+      poolSpec.ecosystem,
+    );
+    if (tokenDetails === null) {
+      throw new Error("Token details not found");
+    }
+    return tokenDetails.decimals;
+  });
+  const maxDecimals = Math.max(...poolTokenDecimals);
+  const tolerance = new Decimal(10).pow(-maxDecimals);
+  if (isEvmPoolState(poolState)) {
+    return new PoolMath(
+      poolState.balances,
+      poolState.ampFactor,
+      poolState.lpFee,
+      poolState.governanceFee,
+      poolState.totalLpSupply,
+      tolerance,
+    );
+  }
+
   if (
-    !poolState ||
     poolLpMint === null ||
     poolTokenAccounts === null ||
     !isEachNotNull(poolTokenAccounts)
@@ -28,16 +55,18 @@ const getPoolMath = ({
     return null;
   }
 
-  const poolTokenDecimals = poolTokens.map(
-    (tokenSpec) => getSolanaTokenDetails(tokenSpec).decimals,
-  );
-
   const tokenBalances = poolTokenAccounts.map((tokenAccount, i) =>
-    Amount.fromAtomicBn(poolTokens[i], tokenAccount.amount, EcosystemId.Solana),
+    Amount.fromAtomicBn(
+      poolTokens[i],
+      tokenAccount.amount,
+      SOLANA_ECOSYSTEM_ID,
+    ),
   );
 
   // calculate amp factor
-  const ampFactor = BNtoDecimal(poolState.ampFactor.targetValue.value);
+  const ampFactor = bnOrBigNumberToDecimal(
+    poolState.ampFactor.targetValue.value,
+  );
   // TODO: do correct interpolation with Solana block time
 
   // lpFee
@@ -55,17 +84,14 @@ const getPoolMath = ({
   const lpSupply = Amount.fromAtomicBn(
     lpToken,
     poolLpMint.supply,
-    EcosystemId.Solana,
+    SOLANA_ECOSYSTEM_ID,
   );
-  const maxDecimals = Math.max(...poolTokenDecimals);
-  const tolerance = new Decimal(10).pow(-maxDecimals);
-
   return new PoolMath(
-    tokenBalances.map((amount) => amount.toHuman(EcosystemId.Solana)),
+    tokenBalances.map((amount) => amount.toHuman(SOLANA_ECOSYSTEM_ID)),
     ampFactor,
     humanLpFee,
     humanGovernanceFee,
-    lpSupply.toHuman(EcosystemId.Solana),
+    lpSupply.toHuman(SOLANA_ECOSYSTEM_ID),
     tolerance,
   );
 };

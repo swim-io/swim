@@ -13,6 +13,7 @@ import {
   EuiTitle,
 } from "@elastic/eui";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   AlternatingFeaturettes,
@@ -24,6 +25,7 @@ import { useTitle } from "../hooks";
 import OTTER_SLIDESHOW from "../images/otter_slideshow.gif";
 
 const OtterTotsPage = (): ReactElement => {
+  const { t } = useTranslation();
   const collectionName = "Otter Tots";
   useTitle(collectionName);
 
@@ -48,16 +50,11 @@ const OtterTotsPage = (): ReactElement => {
               </EuiFlexItem>
               <EuiFlexItem>
                 <EuiText grow={false}>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia
-                    deserunt mollit anim id est laborum.
-                  </p>
+                  <p
+                    // bypass i18next/no-literal-string
+                    // eslint-disable-next-line react/no-children-prop
+                    children="Lorem ipsum dolor sit amet, consectetur adipiscing elit, seddo eiusmod tempor incididunt ut labore et dolore magnaaliqua. Ut enim ad minim veniam, quis nostrud exercitationullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velitesse cillum dolore eu fugiat nulla pariatur. Excepteur sintoccaecat cupidatat non proident, sunt in culpa qui officiadeserunt mollit anim id est laborum."
+                  />
                 </EuiText>
                 <EuiSpacer />
                 <EuiSpacer />
@@ -68,7 +65,9 @@ const OtterTotsPage = (): ReactElement => {
             <EuiFlexGrid columns={2}>
               <EuiFlexItem>
                 {/* TODO: Link to medium article about our NFTs */}
-                <EuiButton fill={true}>Learn More</EuiButton>
+                <EuiButton fill={true}>
+                  {t("otter_tots_page.learn_more")}
+                </EuiButton>
               </EuiFlexItem>
               <EuiFlexItem>
                 <IsWhitelistedButton />
@@ -79,7 +78,7 @@ const OtterTotsPage = (): ReactElement => {
             <EuiFlexGroup direction="column">
               <EuiFlexItem>
                 <EuiTitle>
-                  <h1>Roadmap</h1>
+                  <h1>{t("otter_tots_page.roadmap")}</h1>
                 </EuiTitle>
                 <EuiSpacer />
                 <NftRoadmap />
@@ -87,7 +86,7 @@ const OtterTotsPage = (): ReactElement => {
               <EuiSpacer />
               <EuiFlexItem>
                 <EuiTitle>
-                  <h1>Frequently Asked Questions</h1>
+                  <h1>{t("otter_tots_page.frequently_asked_questions")}</h1>
                 </EuiTitle>
               </EuiFlexItem>
               <EuiFlexItem>{NftFaqAccordians()}</EuiFlexItem>

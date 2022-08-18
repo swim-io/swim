@@ -1,8 +1,8 @@
+import { EvmEcosystemId } from "@swim-io/evm";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
-import type { EvmEcosystemId } from "../../config";
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import {
   BNB_BUSD,
   ETHEREUM_USDT,
@@ -70,7 +70,7 @@ describe("useSwapFeesEstimationQuery", () => {
       useGasPriceQueriesMock.mockImplementation(
         (ecosystemIds: readonly EcosystemId[]): any => {
           return ecosystemIds.map((ecosystemId) => {
-            return ecosystemId === EcosystemId.Ethereum
+            return ecosystemId === EvmEcosystemId.Ethereum
               ? { data: new Decimal(7e-8) }
               : { data: new Decimal(5e-9) };
           });

@@ -1,4 +1,5 @@
 .anchor/
+artifacts/
 build/
 dist/
 target/

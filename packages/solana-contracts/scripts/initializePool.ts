@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-
+// yarn run ts-node scripts/initializePool.ts
 import * as fs from "fs";
 import * as path from "path";
 

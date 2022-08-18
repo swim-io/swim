@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@swim-io/tsconfig/tsconfig-library.json",
+  "compilerOptions": {
+    "declarationDir": "types/",
+    "outDir": "build/",
+    "rootDir": "./"
+  },
+  "include": ["./migrations", "./scripts", "./src", "./tests"]
+}

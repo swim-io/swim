@@ -65,6 +65,7 @@ export class Amount {
     );
   }
 
+  /** Always parse from standard number which uses `,` as group separators and `.` as decimal separators */
   static fromHumanString(tokenSpec: TokenSpec, value: string): Amount {
     const strippedValue = value.replace(/,/g, "");
     return Amount.fromHuman(tokenSpec, new Decimal(strippedValue));

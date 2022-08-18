@@ -105,7 +105,7 @@ const TokenAddPanel = ({
       <EuiFieldIntlNumber
         placeholder={t("general.enter_amount_of_tokens")}
         name={tokenSpec.id}
-        defaultValue={inputAmount}
+        value={inputAmount}
         step={10 ** -tokenSpec.nativeDetails.decimals}
         fullWidth
         disabled={disabled}

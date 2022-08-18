@@ -6,6 +6,8 @@ import {
   EuiFormRow,
   EuiSpacer,
 } from "@elastic/eui";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { defaultIfError, isEachNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
@@ -14,7 +16,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useNotification } from "../../core/store";
 import { captureAndWrapException } from "../../errors";
@@ -110,9 +111,9 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const isSmallEthSwap =
     TOKEN_PROJECTS_BY_ID[fromToken.projectId].isStablecoin &&
     [fromToken.nativeEcosystemId, toToken.nativeEcosystemId].includes(
-      EcosystemId.Ethereum,
+      EvmEcosystemId.Ethereum,
     ) &&
-    inputAmount.toHuman(EcosystemId.Solana).lt(200);
+    inputAmount.toHuman(SOLANA_ECOSYSTEM_ID).lt(200);
 
   const getSwapFormErrors = useGetSwapFormErrors(
     fromToken,

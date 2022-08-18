@@ -1,11 +1,11 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { filterMap } from "@swim-io/utils";
 import shallow from "zustand/shallow.js";
 
 import type { PoolSpec, TokenSpec } from "../../config";
 import {
   DEVNET_SWIMUSD,
-  EcosystemId,
   findTokenById,
   getSolanaTokenDetails,
 } from "../../config";
@@ -60,7 +60,7 @@ const calculateRequiredSplTokenAccounts = (
     ? [fromToken, toToken, swimUSD]
     : [fromToken, toToken];
   const mints = filterMap(
-    (token: TokenSpec) => token.nativeEcosystemId === EcosystemId.Solana,
+    (token: TokenSpec) => token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID,
     (token) => getSolanaTokenDetails(token).address,
     requiredTokens,
   );
@@ -94,13 +94,13 @@ const calculateRequiredSplTokenAccountsForAddRemove = (
 ): RequiredSplTokenAccounts | null => {
   if (
     interaction.type === InteractionType.Add &&
-    interaction.lpTokenTargetEcosystem !== EcosystemId.Solana
+    interaction.lpTokenTargetEcosystem !== SOLANA_ECOSYSTEM_ID
   )
     return null;
 
   if (
     interaction.type !== InteractionType.Add &&
-    interaction.lpTokenSourceEcosystem !== EcosystemId.Solana
+    interaction.lpTokenSourceEcosystem !== SOLANA_ECOSYSTEM_ID
   )
     return null;
 
@@ -130,7 +130,7 @@ const calculateRequiredSplTokenAccountsForAddRemove = (
     }
   })();
   const mints = filterMap(
-    (token: TokenSpec) => token.nativeEcosystemId === EcosystemId.Solana,
+    (token: TokenSpec) => token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID,
     (token) => getSolanaTokenDetails(token).address,
     requiredTokens,
   );
@@ -221,7 +221,7 @@ export const useCreateInteractionStateV2 = () => {
   const wallets = useWallets();
   const { env } = useEnvironment();
   const { data: tokenAccounts = [] } = useSplTokenAccountsQuery();
-  const solanaWalletAddress = wallets[EcosystemId.Solana].address;
+  const solanaWalletAddress = wallets[SOLANA_ECOSYSTEM_ID].address;
 
   return (interactionSpec: InteractionSpecV2): InteractionStateV2 => {
     const requiredPools = getRequiredPools(config.pools, interactionSpec);

@@ -1,10 +1,11 @@
 import type { MintInfo, AccountInfo as TokenAccount } from "@solana/spl-token";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow, isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
-import type { PoolSpec, TokenSpec } from "../../config";
-import { EcosystemId, getSolanaTokenDetails } from "../../config";
+import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
+import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { PoolState } from "../../models";
@@ -130,7 +131,7 @@ export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
   const lpMints = usePoolLpMints(poolSpecs);
   const liquidityQueries = useSolanaLiquidityQueries(
     poolSpecs.map((poolSpec) =>
-      poolSpec.ecosystem === EcosystemId.Solana
+      poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID
         ? [...poolSpec.tokenAccounts.values()]
         : [],
     ),

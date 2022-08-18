@@ -1,5 +1,7 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { Env } from "@swim-io/core";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Decimal from "decimal.js";
@@ -7,7 +9,6 @@ import type { FC } from "react";
 import type { UseQueryResult } from "react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
 
-import { EcosystemId } from "../../config";
 import { useEnvironment as environmentStore } from "../../core/store";
 import {
   useErc20BalanceQuery,
@@ -89,15 +90,15 @@ describe("SwapForm", () => {
 
     const zero = new Decimal(0);
     const balances = {
-      [EcosystemId.Solana]: zero,
-      [EcosystemId.Ethereum]: zero,
-      [EcosystemId.Bnb]: zero,
-      [EcosystemId.Avalanche]: zero,
-      [EcosystemId.Polygon]: zero,
-      [EcosystemId.Aurora]: zero,
-      [EcosystemId.Fantom]: zero,
-      [EcosystemId.Karura]: zero,
-      [EcosystemId.Acala]: zero,
+      [SOLANA_ECOSYSTEM_ID]: zero,
+      [EvmEcosystemId.Ethereum]: zero,
+      [EvmEcosystemId.Bnb]: zero,
+      [EvmEcosystemId.Avalanche]: zero,
+      [EvmEcosystemId.Polygon]: zero,
+      [EvmEcosystemId.Aurora]: zero,
+      [EvmEcosystemId.Fantom]: zero,
+      [EvmEcosystemId.Karura]: zero,
+      [EvmEcosystemId.Acala]: zero,
     };
     useUserNativeBalancesMock.mockReturnValue(balances);
     useStartNewInteractionMock.mockReturnValue(jest.fn());

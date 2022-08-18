@@ -1,7 +1,8 @@
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type React from "react";
 import { Trans } from "react-i18next";
 
-import { EcosystemId, findTokenById } from "../../../config";
+import { findTokenById } from "../../../config";
 import { useEnvironment } from "../../../core/store";
 import type { InteractionV2 } from "../../../models";
 import { Amount, InteractionType } from "../../../models";
@@ -54,7 +55,7 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
               tokenAmounts: (
                 <AmountWithTokenIcon
                   amount={exactInputAmount}
-                  ecosystem={EcosystemId.Solana}
+                  ecosystem={SOLANA_ECOSYSTEM_ID}
                 />
               ),
               tokenName: <TokenSpecIcon token={toTokenSpec} />,

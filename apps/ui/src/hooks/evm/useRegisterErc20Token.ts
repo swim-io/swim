@@ -1,6 +1,7 @@
+import type { EvmEcosystemId } from "@swim-io/evm";
 import { useTranslation } from "react-i18next";
 
-import type { EvmEcosystemId, TokenSpec } from "../../config";
+import type { TokenSpec } from "../../config";
 import { ECOSYSTEMS } from "../../config";
 import { useNotification } from "../../core/store";
 import { captureException } from "../../errors";

@@ -1,8 +1,9 @@
 import { EuiCallOut, EuiSpacer } from "@elastic/eui";
+import { EvmEcosystemId } from "@swim-io/evm";
 import type React from "react";
 import { useTranslation } from "react-i18next";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 
 interface Props {
   readonly ecosystemId: EcosystemId;
@@ -10,7 +11,7 @@ interface Props {
 
 export const WaitForEcosystemCallout: React.FC<Props> = ({ ecosystemId }) => {
   const { t } = useTranslation();
-  if (ecosystemId === EcosystemId.Ethereum) {
+  if (ecosystemId === EvmEcosystemId.Ethereum) {
     return (
       <>
         <EuiCallOut
@@ -22,7 +23,7 @@ export const WaitForEcosystemCallout: React.FC<Props> = ({ ecosystemId }) => {
       </>
     );
   }
-  if (ecosystemId === EcosystemId.Polygon) {
+  if (ecosystemId === EvmEcosystemId.Polygon) {
     return (
       <>
         <EuiCallOut

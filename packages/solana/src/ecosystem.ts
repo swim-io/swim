@@ -2,9 +2,7 @@ import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 
 import type { SolanaChainConfig, SolanaEcosystemConfig } from "./protocol";
-import { SOLANA_PROTOCOL } from "./protocol";
-
-const SOLANA_ECOSYSTEM_ID = "solana";
+import { SOLANA_ECOSYSTEM_ID, SOLANA_PROTOCOL } from "./protocol";
 
 /** Adapted from @solana/spl-token-registry ENV */
 export enum SolanaChainId {

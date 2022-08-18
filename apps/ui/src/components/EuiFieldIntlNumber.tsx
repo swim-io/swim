@@ -2,12 +2,13 @@
 /* eslint-disable react/prop-types */
 
 import { EuiFieldNumber } from "@elastic/eui";
+import escapeStringRegexp from "escape-string-regexp";
 import type { ComponentProps } from "react";
-import { forwardRef, useCallback, useState } from "react";
+import { forwardRef, useCallback } from "react";
 import CurrencyInput from "react-currency-input-field";
 import { useDeepCompareMemo } from "use-deep-compare";
 
-import { useI18nLanguage } from "../hooks";
+import { useI18nLanguage, useIntlNumberSeparators } from "../hooks";
 
 /** Use `inputRef` as `ref` in order to get input element reference for `react-currency-input-field` to `setSelectionRange`. Without it, when adding/removing numbers with group separators (e.g. `,` for English), the cursor will always move to the end */
 const MappedEuiFieldNumber = forwardRef<
@@ -19,16 +20,13 @@ const MappedEuiFieldNumber = forwardRef<
 
 type Override<T, U> = Omit<T, keyof U> & U;
 type Props = Override<
-  Omit<
-    ComponentProps<typeof CurrencyInput>,
-    "customInput" | "onChange" | "value"
-  >,
+  Omit<ComponentProps<typeof CurrencyInput>, "customInput" | "onChange">,
   {
-    /** value must be a standard number which does not have group separators and use `.` as decimal separators */
-    readonly defaultValue?: string;
-
     /** value will be an empty string or a standard number which does not have group separators and use `.` as decimal separators */
     readonly onValueChange: (value: string) => void;
+
+    /** value must be a standard number which does not have group separators and use `.` as decimal separators */
+    readonly value: string;
   }
 > &
   Pick<
@@ -54,18 +52,28 @@ export const EuiFieldIntlNumber: React.FC<Props> = ({
     };
   }, [language, props.intlConfig]);
 
-  // there is bug in the library where uncontrolled component will break the `step`, so pretend to be a controlled component by using `value` to replace `defaultValue`
-  const [inputValue, setInputValue] = useState(props.defaultValue ?? "");
+  const { decimal: decimalSeparator } = useIntlNumberSeparators();
+
   const onValueChange = useCallback<
     NonNullable<ComponentProps<typeof CurrencyInput>["onValueChange"]>
   >(
     (value, name, values) => {
-      setInputValue(value ?? "");
+      /*
+      Always response standard number which uses `.` as decimal separators
+      The reason is we will save the number in string form with decimal separators in current language, if we do not normalize it, it may have bug when user changes language, example:
+      1. user selects French
+      2. type 1,234 and this value is saved in outter component state
+      3. user selects English
+      4. react-currency-input-field will treat 1,234 in English format, and convert it to 1234, which is 1000x more!
+      */
       originalOnValueChange(
-        values?.float !== undefined ? String(values.float) : "",
+        (value ?? "").replace(
+          new RegExp(escapeStringRegexp(decimalSeparator), "g"),
+          ".",
+        ),
       );
     },
-    [originalOnValueChange],
+    [decimalSeparator, originalOnValueChange],
   );
 
   return (
@@ -75,7 +83,8 @@ export const EuiFieldIntlNumber: React.FC<Props> = ({
       decimalsLimit={props.decimalsLimit ?? 20} // default max value allowed by Intl.NumberFormat
       intlConfig={intlConfig}
       onValueChange={onValueChange}
-      value={inputValue}
+      // always convert back to the current i18n format
+      value={props.value.replace(/\./g, decimalSeparator)}
     />
   );
 };

@@ -4121,17 +4121,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts-upgradeable@npm:^4.7.2":
-  version: 4.7.2
-  resolution: "@openzeppelin/contracts-upgradeable@npm:4.7.2"
-  checksum: da4b27323516ef4d2de1262c87532cbd403b4a8a36b96bf40159cb2bfbc8f386b918415de4cd204fba36626a7236e07295ce38312e714f4cea274467d88f949b
+"@openzeppelin/contracts-upgradeable@npm:^4.7.3":
+  version: 4.7.3
+  resolution: "@openzeppelin/contracts-upgradeable@npm:4.7.3"
+  checksum: c9ffb40cb847a975d440204fc6a811f43af960050242f707332b984d29bd16dc242ffa0935de61867aeb9e0357fadedb16b09b276deda5e9775582face831021
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts@npm:^4.7.2":
-  version: 4.7.2
-  resolution: "@openzeppelin/contracts@npm:4.7.2"
-  checksum: f02f2b44cdec46bafe1b608b495b6e2dc161ae4a3f308ba9921787cb77b8b877232839047b12f03b4d0fee9ca9208887fd5b9e7bdbf9a8c4f01021b1f1181233
+"@openzeppelin/contracts@npm:^4.7.3":
+  version: 4.7.3
+  resolution: "@openzeppelin/contracts@npm:4.7.3"
+  checksum: 18382fcacf7cfd652f5dd0e70c08f08ea74eaa8ff11e9f9850639ada70198ae01a3f9493d89a52d724f2db394e9616bf6258017804612ba273167cf657fbb073
   languageName: node
   linkType: hard
 
@@ -6339,8 +6339,8 @@ __metadata:
     "@nomicfoundation/hardhat-network-helpers": ^1.0.3
     "@nomiclabs/hardhat-ethers": ^2.1.0
     "@nomiclabs/hardhat-etherscan": ^3.1.0
-    "@openzeppelin/contracts": ^4.7.2
-    "@openzeppelin/contracts-upgradeable": ^4.7.2
+    "@openzeppelin/contracts": ^4.7.3
+    "@openzeppelin/contracts-upgradeable": ^4.7.3
     "@openzeppelin/hardhat-upgrades": ^1.19.1
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"

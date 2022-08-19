@@ -1,7 +1,6 @@
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
-  Token,
 } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 
@@ -57,9 +56,7 @@ describe("Solana utils", () => {
   describe("getAssociatedTokenAddress", () => {
     it("matches Solana web3's asynchronous functionality", async () => {
       const result = getAssociatedTokenAddress(defaultMint, defaultUser);
-      const expected = await Token.getAssociatedTokenAddress(
-        ASSOCIATED_TOKEN_PROGRAM_ID,
-        TOKEN_PROGRAM_ID,
+      const expected = await getAssociatedTokenAddress(
         defaultMint,
         defaultUser,
       );

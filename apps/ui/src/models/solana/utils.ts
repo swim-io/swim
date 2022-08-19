@@ -1,8 +1,10 @@
-import type { Account as TokenAccount } from "@solana/spl-token";
+import {
+  Account as TokenAccount,
+  createAssociatedTokenAccountInstruction,
+} from "@solana/spl-token";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
-  Token,
 } from "@solana/spl-token";
 import type {
   AccountInfo,
@@ -350,7 +352,7 @@ export const createSplTokenAccount = async (
     mint.toBase58(),
     wallet.publicKey.toBase58(),
   );
-  const ix = Token.createAssociatedTokenAccountInstruction(
+  const ix = createAssociatedTokenAccountInstruction(
     ASSOCIATED_TOKEN_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
     mint,

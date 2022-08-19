@@ -1,5 +1,8 @@
-import type { Account as TokenAccount } from "@solana/spl-token";
-import { TOKEN_PROGRAM_ID, Token, u64 } from "@solana/spl-token";
+import {
+  Account as TokenAccount,
+  createApproveInstruction,
+} from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, u64 } from "@solana/spl-token";
 import type { AccountMeta, Transaction } from "@solana/web3.js";
 import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
@@ -548,12 +551,10 @@ export class SwimDefiInstructor {
     if (!this.signer.publicKey) {
       throw new Error("Missing Solana public key");
     }
-    return Token.createApproveInstruction(
-      TOKEN_PROGRAM_ID,
+    return createApproveInstruction(
       tokenAccount,
       userTransferAuthority,
       this.signer.publicKey,
-      [],
       // See https://github.com/solana-labs/solana-program-library/issues/2563
       new u64(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)),
     );

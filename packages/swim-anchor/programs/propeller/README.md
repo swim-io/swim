@@ -4,8 +4,8 @@
 addresses should be used (since they're different between mainnet, devnet and localnet), you must build for
 environment and deployment separately
 ```
-# building for localnet(default) testing
-anchor build
+# building for localnet testing
+anchor build -- --features localnet
 anchor deploy
 
 # building for devnet
@@ -16,7 +16,8 @@ anchor deploy
 anchor build -- --features mainnet
 anchor deploy
 ```
-  1. actually this might not even be needed. can initialize the propeller state with what the addresses should be.
+  1. switchboard default is mainnet address
+  2.
 
 # To Do:
 1. mappings

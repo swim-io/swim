@@ -18,7 +18,7 @@ import {
   parseVaa,
   signAndEncodeVaa,
   WORMHOLE_TOKEN_BRIDGE,
-} from "./wormhole-utils";
+} from "./wormholeUtils";
 import { BigNumber, BigNumberish } from "ethers";
 // import { PostVaaMethod } from "./types";
 import keccak256 from "keccak256";

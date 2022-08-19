@@ -25,6 +25,8 @@ mod core_bridge {
     #[cfg(feature = "devnet")]
     declare_id!("3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5");
 
+    // #[cfg(all(not(feature = "devnet"), not(feature = "mainnet")))]
+    #[cfg(feature = "localnet")]
     declare_id!("Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o");
 }
 
@@ -37,14 +39,20 @@ mod token_bridge {
     #[cfg(feature = "devnet")]
     declare_id!("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
 
+    // #[cfg(all(not(feature = "devnet"), not(feature = "mainnet")))]
+    #[cfg(feature = "localnet")]
     declare_id!("B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE");
 }
 
 #[cfg(all(test, not(feature = "test-bpf")))]
 mod tests {
-    use super::*;
+    use {super::*, switchboard_v2::SWITCHBOARD_PROGRAM_ID};
     #[test]
     pub fn ids() {
-        println!("{:?}, {:?}", CORE_BRIDGE, TOKEN_BRIDGE);
+        println!(
+            "core_bridge: {:?}, token_bridge: {:?}",
+            CORE_BRIDGE, TOKEN_BRIDGE
+        );
+        println!("switchboard: {:?}", SWITCHBOARD_PROGRAM_ID);
     }
 }

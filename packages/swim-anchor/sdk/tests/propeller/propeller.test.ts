@@ -1,6 +1,6 @@
 import type {Program} from "@project-serum/anchor";
 import * as anchor from "@project-serum/anchor";
-import {web3, Spl} from "@project-serum/anchor";
+import { web3, Spl, AnchorError } from "@project-serum/anchor";
 import type {Propeller} from "../../src/artifacts/propeller";
 import type {TwoPool} from "../../src/artifacts/two_pool";
 import {
@@ -23,7 +23,7 @@ import {
   parseVaa,
   signAndEncodeVaa,
   WORMHOLE_CORE_BRIDGE, WORMHOLE_TOKEN_BRIDGE,
-} from "./wormhole-utils";
+} from "./wormholeUtils";
 import * as byteify from "byteify";
 import {
   ChainId,
@@ -63,9 +63,9 @@ import {
   ParsedTokenTransferSignedVaa, parseTokenTransferPostedMessage,
   parseTokenTransferSignedVaa,
   toBigNumberHex,
-} from "./token-bridge-utils";
+} from "./tokenBridgeUtils";
 import { parseUnits } from "ethers/lib/utils";
-import {tryUint8ArrayToNative} from "@certusone/wormhole-sdk/lib/cjs/utils/array";
+import { tryUint8ArrayToNative, uint8ArrayToHex } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
 import {
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -76,6 +76,12 @@ import {
 import {SwitchboardTestContext} from "@switchboard-xyz/sbv2-utils";
 import { setupPoolPrereqs, setupUserAssociatedTokenAccts } from "../twoPool/poolTestUtils";
 import { getApproveAndRevokeIxs } from "../../src";
+import { encodeSwimPayload,
+  formatParsedTokenTransferWithSwimPayloadPostedMessage, formatParsedTokenTransferWithSwimPayloadVaa,
+  getPropellerPda,
+  getPropellerRedeemerPda,
+  getPropellerSenderPda,
+  parseTokenTransferWithSwimPayloadPostedMessage, parseTokenTransferWithSwimPayloadSignedVaa } from "./propellerUtils";
 // this just breaks everything for some reason...
 // import { MEMO_PROGRAM_ID } from "@solana/spl-memo";
 const MEMO_PROGRAM_ID: PublicKey = new PublicKey(
@@ -141,6 +147,11 @@ const ethTokenBridge = Buffer.from(
 
 
 const ethRoutingContractStr = "0x0290FB167208Af455bB137780163b7B7a9a10C17";
+const ethRoutingContractEthUint8Arr = tryNativeToUint8Array(ethRoutingContractStr, CHAIN_ID_ETH);
+console.log(`
+ethRoutingContractEthUint8Arr: ${ethRoutingContractEthUint8Arr}
+Buffer.from(ethRoutingContractEthUint8Arr): ${Buffer.from(ethRoutingContractEthUint8Arr)}
+`)
 const ethRoutingContractEthHexStr = tryNativeToHexString(ethRoutingContractStr, CHAIN_ID_ETH);
 const ethRoutingContract = Buffer.from(
 	ethRoutingContractEthHexStr,
@@ -222,14 +233,38 @@ let metapoolGovernanceFeeAta: web3.PublicKey;
 
 const gasKickstartAmount: anchor.BN = new anchor.BN(0.75 * LAMPORTS_PER_SOL);
 const propellerFee: anchor.BN = new anchor.BN(0.25 * LAMPORTS_PER_SOL);
-const propellerMinThreshold = new anchor.BN(5_000_000);
+const propellerMinTransferAmount = new anchor.BN(5_000_000);
+const propellerEthMinTransferAmount = new anchor.BN(10_000_000);
 let marginalPricePool: web3.PublicKey;
 // USDC token index in flagship pool
 const marginalPricePoolTokenIndex = 0;
 const marginalPricePoolTokenMint = usdcKeypair.publicKey;
 
 
-
+const swimUsdOutputTokenIndex = 0;
+const usdcOutputTokenIndex = 1;
+const usdtOutputTokenIndex = 2;
+// const metapoolMint1OutputTokenIndex = 3;
+// const poolRemoveExactBurnIx = {removeExactBurn: {} };
+// const poolSwapExactInputIx = {swapExactInput: {} };
+// type TokenIdMapPoolIx = poolRemoveExactBurnIx | poolSwapExactInputIx;
+type TokenIdMapPoolIx2 = 'removeExactBurn' | 'swapExactInput';
+type PoolIx = {
+  [key in TokenIdMapPoolIx2]?: {}
+}
+type TokenIdMap = {
+  pool: web3.PublicKey;
+  poolTokenIndex: number;
+  poolTokenMint: web3.PublicKey;
+  poolIx: PoolIx;
+}
+// type TokenIdMapping = {
+//
+// }
+let usdcTokenIdMap: TokenIdMap;
+let usdtTokenIdMap: TokenIdMap;
+// let metapoolMint1TokenIdMap: TokenIdMap;
+let outputTokenIdMappings: Map<number, TokenIdMap>;
 
 
 let swimUSDMintInfo: MintInfo;
@@ -556,7 +591,7 @@ describe("propeller", () => {
 	});
 
 	it("Initializes propeller PDA", async () => {
-		const expectedPropellerRedeemerAddr = await getPropellerRedeemerPda();
+		const expectedPropellerRedeemerAddr = await getPropellerRedeemerPda(propellerProgram.programId);
 		const propellerRedeemerEscrowAddr = await getAssociatedTokenAddress(
 			tokenBridgeMint,
 			expectedPropellerRedeemerAddr,
@@ -565,10 +600,13 @@ describe("propeller", () => {
 		const initializeParams =  {
 			gasKickstartAmount,
 			propellerFee,
-      propellerMinThreshold,
+      propellerMinTransferAmount,
+      propellerEthMinTransferAmount,
       marginalPricePool,
       marginalPricePoolTokenIndex,
       marginalPricePoolTokenMint,
+      evmRoutingContractAddress: ethRoutingContract,
+      // evmRoutingContractAddress: ethRoutingContractEthUint8Arr
 		}
 		let tx = propellerProgram
 			.methods
@@ -635,10 +673,12 @@ describe("propeller", () => {
 		// propellerRedeemerEscrowAccount = await getAccount(connection,propellerRedeemerEscrowAddr);
 		// .then((address) => getAccount(connection, address));
 
-		const expectedPropellerAddr = await getPropellerPda(tokenBridgeMint);
+    // const propellerData = await propellerProgram.account.propeller.fetch(propeller);
+
+		const expectedPropellerAddr = await getPropellerPda(tokenBridgeMint, propellerProgram.programId);
 		expect(expectedPropellerAddr).to.deep.equal(propeller);
 
-		const expectedPropellerSenderAddr = await getPropellerSenderPda();
+		const expectedPropellerSenderAddr = await getPropellerSenderPda(propellerProgram.programId);
 		expect(propellerSender).to.deep.equal(expectedPropellerSenderAddr);
 
 		expect(propellerRedeemer).to.deep.equal(expectedPropellerRedeemerAddr);
@@ -655,10 +695,10 @@ describe("propeller", () => {
 
     console.log(`propellerFee: ${propellerData.propellerFee.toString()}`);
     console.log(`gasKickstartAmount: ${propellerData.gasKickstartAmount.toString()}`);
-    console.log(`propellerMinThreshold: ${propellerData.propellerMinThreshold.toString()}`);
+    console.log(`propellerMinTransferAmount: ${propellerData.propellerMinTransferAmount.toString()}`);
     assert.isTrue(propellerData.propellerFee.eq(propellerFee));
     assert.isTrue(propellerData.gasKickstartAmount.eq(gasKickstartAmount));
-    assert.isTrue(propellerData.propellerMinThreshold.eq(propellerMinThreshold));
+    assert.isTrue(propellerData.propellerMinTransferAmount.eq(propellerMinTransferAmount));
 		console.log(`
 			propeller: ${propeller.toBase58()}
 			propellerSender: ${propellerSender.toBase58()}
@@ -666,6 +706,78 @@ describe("propeller", () => {
 			propellerRedeemerEscrowAccount: ${propellerRedeemerEscrowAccount.address.toBase58()}
 		`);
 	});
+
+  it("Creates Token Id Mappings", async () => {
+    usdcTokenIdMap = {
+      pool: flagshipPool,
+      poolTokenIndex: 0,
+      poolTokenMint: usdcKeypair.publicKey,
+      poolIx: { removeExactBurn: {} },
+    };
+    usdtTokenIdMap = {
+      pool: flagshipPool,
+      poolTokenIndex: 1,
+      poolTokenMint: usdtKeypair.publicKey,
+      poolIx: { removeExactBurn: {} },
+    };
+    // metapoolMint1TokenIdMap = {
+    //   pool: metapool,
+    //   poolTokenIndex: 1,
+    //   poolTokenMint: metapoolMint1Keypair.publicKey,
+    //   poolIx: { swapExactInput: {} }
+    // };
+    outputTokenIdMappings = new Map(
+      [
+        [usdcOutputTokenIndex, usdcTokenIdMap],
+        [usdtOutputTokenIndex, usdtTokenIdMap],
+        // [metapoolMint1OutputTokenIndex, metapoolMint1TokenIdMap],
+      ]
+    );
+    const outputTokenIdMappingAddrs: Map<number, web3.PublicKey> = new Map();
+
+    for (const [outputTokenIndex, tokenIdMap] of outputTokenIdMappings.entries()) {
+      let createTokenIdMappingTxn = propellerProgram
+        .methods
+        .createTokenIdMap(
+          outputTokenIndex,
+          tokenIdMap.pool,
+          tokenIdMap.poolTokenIndex,
+          tokenIdMap.poolTokenMint,
+          tokenIdMap.poolIx
+        )
+        .accounts({
+          propeller,
+          admin: propellerAdmin.publicKey,
+          payer: payer.publicKey,
+          systemProgram: web3.SystemProgram.programId,
+          // rent: web3.SYSVAR_RENT_PUBKEY,
+          pool: flagshipPool,
+          twoPoolProgram: twoPoolProgram.programId,
+        })
+        .signers([propellerAdmin]);
+
+      let pubkeys = await createTokenIdMappingTxn.pubkeys();
+      const tokenIdMapAddr = pubkeys.tokenIdMap;
+      assert(tokenIdMapAddr);
+      outputTokenIdMappingAddrs.set(outputTokenIndex, tokenIdMapAddr);
+
+      await createTokenIdMappingTxn.rpc();
+
+      const fetchedTokenIdMap = await propellerProgram.account.tokenIdMap.fetch(tokenIdMapAddr);
+      expect(fetchedTokenIdMap.outputTokenIndex).to.deep.equal(outputTokenIndex);
+      expect(fetchedTokenIdMap.pool).to.deep.equal(tokenIdMap.pool);
+      expect(fetchedTokenIdMap.poolTokenIndex).to.equal(tokenIdMap.poolTokenIndex);
+      expect(fetchedTokenIdMap.poolTokenMint).to.deep.equal(tokenIdMap.poolTokenMint);
+      expect(fetchedTokenIdMap.poolIx).to.deep.equal(tokenIdMap.poolIx);
+    }
+    for (const [outputTokenIndex, tokenIdMapAddr] of outputTokenIdMappingAddrs.entries()) {
+      console.log(`
+        outputTokenIndex: ${outputTokenIndex}
+        tokenIdMapAddr: ${tokenIdMapAddr.toBase58()}
+        tokenIdMap: ${JSON.stringify(await propellerProgram.account.tokenIdMap.fetch(tokenIdMapAddr))}
+      `)
+    }
+  });
 
   describe ("Propeller Pool Ixs", async() => {
     it("Propeller Add", async() => {
@@ -1250,15 +1362,6 @@ describe("propeller", () => {
       const custodyAmountBefore = new anchor.BN(0);
       const transferAmount = new anchor.BN(100_000_000);
       const nonce = createNonce().readUInt32LE(0);
-      const payload = Buffer.from([
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 215, 145, 170, 252, 154, 11, 183, 3, 162, 42, 235, 192, 197, 210, 169, 96, 27, 190, 63, 68,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 215, 145, 170, 252, 154, 11, 183, 3, 162, 42, 235, 192, 197, 210, 169, 96, 27,
-        // 190,63,68,
-        // 1242
-        // 0,0,0,0,0,0,0,0,0,0,0,0,215,145,170,252,154,11,183,3,162,42,235,192,197,210,169,96,27,190,63,68,
-        // 1275
-        // 0,0,0,0,0,0,0,0,0,0,0,0,215,145,170,252,154,11,183,3,162,42,235,192,197,210,169,96,27,190,63,68,
-      ]);
       const memo = "e45794d6c5a2750a";
       const memoBuffer = Buffer.alloc(16);
       memoBuffer.write(memo);
@@ -1272,7 +1375,7 @@ describe("propeller", () => {
           CHAIN_ID_ETH,
           transferAmount,
           evmTargetTokenId,
-          evmTargetTokenAddr,
+          // evmTargetTokenAddr,
           evmOwner,
           gasKickstart,
           propellerEnabled,
@@ -1363,6 +1466,14 @@ describe("propeller", () => {
         tokenTransferMessage,
         swimPayload
       } = parsedTokenTransferWithSwimPayloadPostedMessage;
+
+      const tokenTransferTo = tokenTransferMessage.tokenTransfer.to;
+      expect(uint8ArrayToHex(tokenTransferTo)).to.deep.equal(ethRoutingContractEthHexStr)
+      const formattedTokenTransferMessage = formatParsedTokenTransferPostedMessage(tokenTransferMessage);
+      console.log(`formattedTokenTransferMessage: ${JSON.stringify(formattedTokenTransferMessage, null, 2)}`);
+       // this fails due to capitalization
+      // expect(formattedTokenTransferMessage.tokenTransfer.to).to.equal(ethRoutingContractStr);
+
       // console.log(`
       //   tokenTransferMessage: ${JSON.stringify(tokenTransferMessage, null ,2)}
       // `)
@@ -1387,12 +1498,101 @@ describe("propeller", () => {
        */
     });
 
+    it("Fails token bridge transfer if transferAmount < minTransferAmount for targetChain", async() => {
+
+      // const inputAmounts = [new anchor.BN(100_000_000_000), new anchor.BN(100_000_000_000)];
+      //
+      // const minimumMintAmount = new anchor.BN(0);
+
+      // const custodyAmountBefore: anchor.BN = (await splToken.account.token.fetch(custodyOrWrappedMeta)).amount;
+      // const poolAddParams = {
+      //   inputAmounts,
+      //   minimumMintAmount
+      // };
+
+      const requestUnitsIx = web3.ComputeBudgetProgram.requestUnits({
+        units: 900000,
+        additionalFee: 0,
+      });
+
+
+      // const userLpTokenBalanceBefore = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
+
+      const transferAmount = propellerEthMinTransferAmount.div(new anchor.BN(2));
+      const nonce = createNonce().readUInt32LE(0);
+      const memo = "e45794d6c5a2751a";
+      const memoBuffer = Buffer.alloc(16);
+      memoBuffer.write(memo);
+      const wormholeMessage = web3.Keypair.generate();
+      const gasKickstart = false;
+      const propellerEnabled = true;
+      try {
+        console.log(`sending expected failed transfer native txn`);
+
+        const expectedFailedTransferNativeTxn = await propellerProgram
+          .methods
+          .transferNativeWithPayload(
+            nonce,
+            CHAIN_ID_ETH,
+            transferAmount,
+            evmTargetTokenId,
+            // evmTargetTokenAddr,
+            evmOwner,
+            gasKickstart,
+            propellerEnabled,
+            memoBuffer
+          )
+          .accounts({
+            propeller,
+            payer: payer.publicKey,
+            tokenBridgeConfig,
+            userTokenBridgeAccount: userSwimUsdAtaAddr,
+            tokenBridgeMint,
+            custody,
+            tokenBridge,
+            custodySigner,
+            authoritySigner,
+            wormholeConfig,
+            wormholeMessage: wormholeMessage.publicKey,
+            wormholeEmitter,
+            wormholeSequence,
+            wormholeFeeCollector,
+            clock: web3.SYSVAR_CLOCK_PUBKEY,
+            // autoderived
+            // sender
+            rent: web3.SYSVAR_RENT_PUBKEY,
+            // autoderived
+            // systemProgram,
+            wormhole,
+            tokenProgram: splToken.programId,
+            memo: MEMO_PROGRAM_ID
+          })
+           .signers([wormholeMessage])
+          .preInstructions([
+            requestUnitsIx,
+          ])
+          .rpc();
+          console.log(`expectedFailedTransferNativeTxn: ${expectedFailedTransferNativeTxn}`);
+          // assert(false, "should not have been able to execute transferNativeWithPayload");
+      } catch (_err) {
+
+        console.log(`successfully threw error: ${JSON.stringify(_err)}`);
+        assert.isTrue(_err instanceof AnchorError);
+        const err: AnchorError = _err;
+        assert.strictEqual(err.error.errorMessage, "Insufficient Amount being transferred");
+      }
+
+
+    });
+
 
     it("mocks token transfer with payload then verifySig & postVaa then complete with payload", async () => {
-      const payload = Buffer.from([1,2,3]);
+
       const memo = "e45794d6c5a2750b";
       const memoBuffer = Buffer.alloc(16);
       memoBuffer.write(memo);
+      // const owner = tryNativeToUint8Array(provider.publicKey.toBase58(), CHAIN_ID_SOLANA);
+      // encoded.write(swimPayload.owner.toString("hex"), offset, "hex");
       const swimPayload = {
         version: 0,
         // owner: tryNativeToUint8Array(provider.publicKey.toBase58(), CHAIN_ID_SOLANA),
@@ -1404,10 +1604,10 @@ describe("propeller", () => {
         // 2 usdt
         // 3 some other solana stablecoin
         targetTokenId: 0,
-        minOutputAmount: 0n,
+        // minOutputAmount: 0n,
         memo: memoBuffer,
         propellerEnabled: true,
-        propellerMinThreshold: 0n,
+        minThreshold: 0n,
         gasKickstart: false,
       };
       let amount = parseUnits("1", mintDecimal);
@@ -1417,6 +1617,7 @@ describe("propeller", () => {
        * with a swimUSD token address that originated on solana
        * the same as initializing a `TransferWrappedWithPayload` from eth
        */
+
       const tokenTransferWithPayloadSignedVaa = signAndEncodeVaa(
         0,
         0,
@@ -3268,23 +3469,23 @@ function printBeforeAndAfterPoolUserBalances(poolUserBalances: Array<PoolUserBal
       after: ${previousDepthAfter.toString()}
   `);
 }
-async function getPropellerPda(mint: web3.PublicKey): Promise<web3.PublicKey> {
-	return (await web3.PublicKey.findProgramAddress(
-		[Buffer.from("propeller"), mint.toBytes()],
-		propellerProgram.programId
-	))[0];
-}
-
-async function getPropellerRedeemerPda(): Promise<web3.PublicKey> {
-	return (await web3.PublicKey.findProgramAddress(
-		[Buffer.from("redeemer")],
-		propellerProgram.programId
-	))[0];
-}
-
-async function getPropellerSenderPda(): Promise<web3.PublicKey> {
-	return (await web3.PublicKey.findProgramAddress([Buffer.from("sender")], propellerProgram.programId))[0];
-}
+// async function getPropellerPda(mint: web3.PublicKey): Promise<web3.PublicKey> {
+// 	return (await web3.PublicKey.findProgramAddress(
+// 		[Buffer.from("propeller"), mint.toBytes()],
+// 		propellerProgram.programId
+// 	))[0];
+// }
+//
+// async function getPropellerRedeemerPda(): Promise<web3.PublicKey> {
+// 	return (await web3.PublicKey.findProgramAddress(
+// 		[Buffer.from("redeemer")],
+// 		propellerProgram.programId
+// 	))[0];
+// }
+//
+// async function getPropellerSenderPda(): Promise<web3.PublicKey> {
+// 	return (await web3.PublicKey.findProgramAddress([Buffer.from("sender")], propellerProgram.programId))[0];
+// }
 //
 // async function addToPool(
 // 	provider: anchor.AnchorProvider,
@@ -3405,174 +3606,174 @@ async function getPropellerSenderPda(): Promise<web3.PublicKey> {
 // 32 bytes - minimum output amount (using 32 bytes like Wormhole)
 // 16 bytes - memo/interactionId (??) (current memo is 16 bytes - can't use Wormhole sequence due to Solana originating transactions (only receive sequence number in last transaction on Solana, hence no id for earlier transactions))
 // ?? bytes - propeller parameters (propellerEnabled: bool / gasTokenPrefundingAmount: uint256 / propellerFee (?? - similar to wormhole arbiter fee))
-export interface ParsedSwimPayload {
-  version: number;
-  owner: Buffer;
-  targetTokenId: number;
-  minOutputAmount: bigint; //this will always be 0 in v1
-  memo: Buffer;
-  // targetToken: Buffer; //mint of expected final output token
-  // gas: string;
-  // keeping this as string for now since JSON.stringify poos on bigints
-  // minOutputAmount: string; //this will always be 0 in v1
-  propellerEnabled: boolean;
-  propellerMinThreshold: bigint;
-  // propellerFee: bigint;
-  // propellerFee: string;
-  gasKickstart: boolean;
-}
-
-export function encodeSwimPayload(
-  swimPayload: ParsedSwimPayload
-): Buffer {
-  const encoded = Buffer.alloc(
-    1 + //version
-    2 + //targetTokenId (u16)
-    // 32 + //targetToken
-    32 + //owner
-    // 32 + //gas
-    32 + //minOutputAmount
-    16 + //memo
-    1 + //propellerEnabled
-    32 + //propellerMinThreshold
-    // 32 + //propellerFee
-    1 //gasKickstart
-  );
-  let offset = 0;
-  encoded.writeUint8(swimPayload.version, offset);
-  offset++;
-  encoded.writeUint16BE(swimPayload.targetTokenId, offset);
-  offset += 2;
-  // encoded.write(swimPayload.targetToken.toString("hex"), 3, "hex");
-  encoded.write(swimPayload.owner.toString("hex"), offset, "hex");
-  offset += 32;
-  // encoded.write(toBigNumberHex(swimPayload.gas, 32), 67, "hex");
-  encoded.write(toBigNumberHex(swimPayload.minOutputAmount, 32), offset, "hex");
-  offset += 32;
-  encoded.write(swimPayload.memo.toString("hex"), offset, "hex");
-  offset += 16;
-  encoded.writeUint8(Number(swimPayload.propellerEnabled), offset);
-  offset++
-  encoded.write(toBigNumberHex(swimPayload.propellerMinThreshold, 32), offset, "hex");
-  offset += 32;
-  // encoded.write(toBigNumberHex(swimPayload.propellerFee, 32), 100, "hex");
-  encoded.writeUint8(Number(swimPayload.gasKickstart), offset);
-  return encoded;
-}
-
-export function parseSwimPayload(arr: Buffer): ParsedSwimPayload {
-  //BigNumber.from(arr.subarray(1, 1 + 32)).toBigInt()
-  let offset = 0;
-  const version = arr.readUint8(offset);
-  offset++;
-  const targetTokenId = arr.readUint16BE(offset);
-  offset += 2;
-  // const targetToken = arr.subarray(offset, offset + 32);
-  // offset += 32;
-  const owner = arr.subarray(offset, offset + 32);
-  offset += 32;
-  const minOutputAmount = parseU256(arr.subarray(offset, offset + 32));
-  offset += 32;
-  const memo = arr.subarray(offset, offset + 16);
-  offset += 16;
-  const propellerEnabled = arr.readUint8(offset) === 1;
-  offset++;
-  const propellerMinThreshold = parseU256(arr.subarray(offset, offset + 32));
-  offset += 32;
-  // const propellerFee = parseU256(arr.subarray(offset, offset + 32));
-  // offset += 32;
-  const gasKickstart = arr.readUint8(offset) === 1;
-  offset++;
-  return {
-    version,
-    targetTokenId,
-    // targetToken,
-    owner,
-    minOutputAmount,
-    memo,
-    propellerEnabled,
-    propellerMinThreshold,
-    gasKickstart,
-  }
-  // return {
-  //   version: arr.readUint8(0),
-  //   targetTokenId: arr.readUint16BE(1),
-  //   targetToken: arr.subarray(3, 3 + 32),
-  //   owner: arr.subarray(35, 35 + 32),
-  //   minOutputAmount: BigNumber.from(arr.subarray(67, 67 + 32)).toBigInt(),
-  //   // minOutputAmount: arr.readBigUInt64BE(67),
-  //   propellerEnabled: arr.readUint8(99) === 1,
-  //   // propellerFee: arr.readBigUInt64BE(100),
-  //   propellerFee: BigNumber.from(arr.subarray(100, 100 + 32)).toBigInt(),
-  //   gasKickstart: arr.readUint8(132) === 1,
-  // }
-}
-
-export function parseU256(arr: Buffer): bigint {
-  return BigNumber.from(arr.subarray(0, 32)).toBigInt();
-}
-
-export interface ParsedTokenTransferWithSwimPayloadVaa {
-  // core: ParsedVaa,
-  // tokenTransfer: ParsedTokenTransfer;
-  tokenTransferVaa: ParsedTokenTransferSignedVaa;
-  swimPayload: ParsedSwimPayload;
-}
-const parseTokenTransferWithSwimPayloadSignedVaa = (signedVaa: Buffer): ParsedTokenTransferWithSwimPayloadVaa => {
-  const parsedTokenTransfer = parseTokenTransferSignedVaa(signedVaa);
-  const payload = parsedTokenTransfer.tokenTransfer.payload;
-  const swimPayload = parseSwimPayload(payload);
-  return {
-    tokenTransferVaa: parsedTokenTransfer,
-    swimPayload,
-  }
-}
-
-const formatParsedTokenTransferWithSwimPayloadVaa = (parsed: ParsedTokenTransferWithSwimPayloadVaa) => {
-  const formattedTokenTransfer = formatParsedTokenTransferSignedVaa(parsed.tokenTransferVaa);
-  const swimPayload = parsed.swimPayload;
-  const formattedSwimPayload = formatSwimPayload(swimPayload, parsed.tokenTransferVaa.tokenTransfer.toChain);
-  return {
-    ...formattedTokenTransfer,
-    ...formattedSwimPayload,
-  };
-}
-
-const formatSwimPayload = (swimPayload: ParsedSwimPayload, chain: ChainId | ChainName) => {
-  return {
-    ...swimPayload,
-    minOutputAmount: swimPayload.minOutputAmount.toString(),
-    memo: swimPayload.memo.toString(),
-    propellerMinThreshold: swimPayload.propellerMinThreshold.toString(),
-    owner: tryUint8ArrayToNative(swimPayload.owner, chain)
-  }
-}
-
-export interface ParsedTokenTransferWithSwimPayloadPostedMessage {
-  tokenTransferMessage: ParsedTokenTransferPostedMessage;
-  swimPayload: ParsedSwimPayload;
-}
-
-const parseTokenTransferWithSwimPayloadPostedMessage = async (message: Buffer): Promise<ParsedTokenTransferWithSwimPayloadPostedMessage> => {
-  const parsedTokenTransferMsg = await parseTokenTransferPostedMessage(message);
-  const payload = parsedTokenTransferMsg.tokenTransfer.payload;
-  const swimPayload = parseSwimPayload(payload);
-  return {
-    tokenTransferMessage: parsedTokenTransferMsg,
-    swimPayload,
-  }
-}
-
-const formatParsedTokenTransferWithSwimPayloadPostedMessage = (parsed: ParsedTokenTransferWithSwimPayloadPostedMessage) => {
-  const formattedTokenTransfer = formatParsedTokenTransferPostedMessage(parsed.tokenTransferMessage);
-  const swimPayload = parsed.swimPayload;
-  const formattedSwimPayload = formatSwimPayload(swimPayload, parsed.tokenTransferMessage.tokenTransfer.toChain);
-  return {
-    ...formattedTokenTransfer,
-    ...formattedSwimPayload,
-  };
-
-}
+// export interface ParsedSwimPayload {
+//   version: number;
+//   owner: Buffer;
+//   targetTokenId: number;
+//   minOutputAmount: bigint; //this will always be 0 in v1
+//   memo: Buffer;
+//   // targetToken: Buffer; //mint of expected final output token
+//   // gas: string;
+//   // keeping this as string for now since JSON.stringify poos on bigints
+//   // minOutputAmount: string; //this will always be 0 in v1
+//   propellerEnabled: boolean;
+//   propellerMinThreshold: bigint;
+//   // propellerFee: bigint;
+//   // propellerFee: string;
+//   gasKickstart: boolean;
+// }
+//
+// export function encodeSwimPayload(
+//   swimPayload: ParsedSwimPayload
+// ): Buffer {
+//   const encoded = Buffer.alloc(
+//     1 + //version
+//     2 + //targetTokenId (u16)
+//     // 32 + //targetToken
+//     32 + //owner
+//     // 32 + //gas
+//     32 + //minOutputAmount
+//     16 + //memo
+//     1 + //propellerEnabled
+//     32 + //propellerMinThreshold
+//     // 32 + //propellerFee
+//     1 //gasKickstart
+//   );
+//   let offset = 0;
+//   encoded.writeUint8(swimPayload.version, offset);
+//   offset++;
+//   encoded.writeUint16BE(swimPayload.targetTokenId, offset);
+//   offset += 2;
+//   // encoded.write(swimPayload.targetToken.toString("hex"), 3, "hex");
+//   encoded.write(swimPayload.owner.toString("hex"), offset, "hex");
+//   offset += 32;
+//   // encoded.write(toBigNumberHex(swimPayload.gas, 32), 67, "hex");
+//   encoded.write(toBigNumberHex(swimPayload.minOutputAmount, 32), offset, "hex");
+//   offset += 32;
+//   encoded.write(swimPayload.memo.toString("hex"), offset, "hex");
+//   offset += 16;
+//   encoded.writeUint8(Number(swimPayload.propellerEnabled), offset);
+//   offset++
+//   encoded.write(toBigNumberHex(swimPayload.propellerMinThreshold, 32), offset, "hex");
+//   offset += 32;
+//   // encoded.write(toBigNumberHex(swimPayload.propellerFee, 32), 100, "hex");
+//   encoded.writeUint8(Number(swimPayload.gasKickstart), offset);
+//   return encoded;
+// }
+//
+// export function parseSwimPayload(arr: Buffer): ParsedSwimPayload {
+//   //BigNumber.from(arr.subarray(1, 1 + 32)).toBigInt()
+//   let offset = 0;
+//   const version = arr.readUint8(offset);
+//   offset++;
+//   const targetTokenId = arr.readUint16BE(offset);
+//   offset += 2;
+//   // const targetToken = arr.subarray(offset, offset + 32);
+//   // offset += 32;
+//   const owner = arr.subarray(offset, offset + 32);
+//   offset += 32;
+//   const minOutputAmount = parseU256(arr.subarray(offset, offset + 32));
+//   offset += 32;
+//   const memo = arr.subarray(offset, offset + 16);
+//   offset += 16;
+//   const propellerEnabled = arr.readUint8(offset) === 1;
+//   offset++;
+//   const propellerMinThreshold = parseU256(arr.subarray(offset, offset + 32));
+//   offset += 32;
+//   // const propellerFee = parseU256(arr.subarray(offset, offset + 32));
+//   // offset += 32;
+//   const gasKickstart = arr.readUint8(offset) === 1;
+//   offset++;
+//   return {
+//     version,
+//     targetTokenId,
+//     // targetToken,
+//     owner,
+//     minOutputAmount,
+//     memo,
+//     propellerEnabled,
+//     propellerMinThreshold,
+//     gasKickstart,
+//   }
+//   // return {
+//   //   version: arr.readUint8(0),
+//   //   targetTokenId: arr.readUint16BE(1),
+//   //   targetToken: arr.subarray(3, 3 + 32),
+//   //   owner: arr.subarray(35, 35 + 32),
+//   //   minOutputAmount: BigNumber.from(arr.subarray(67, 67 + 32)).toBigInt(),
+//   //   // minOutputAmount: arr.readBigUInt64BE(67),
+//   //   propellerEnabled: arr.readUint8(99) === 1,
+//   //   // propellerFee: arr.readBigUInt64BE(100),
+//   //   propellerFee: BigNumber.from(arr.subarray(100, 100 + 32)).toBigInt(),
+//   //   gasKickstart: arr.readUint8(132) === 1,
+//   // }
+// }
+//
+// export function parseU256(arr: Buffer): bigint {
+//   return BigNumber.from(arr.subarray(0, 32)).toBigInt();
+// }
+//
+// export interface ParsedTokenTransferWithSwimPayloadVaa {
+//   // core: ParsedVaa,
+//   // tokenTransfer: ParsedTokenTransfer;
+//   tokenTransferVaa: ParsedTokenTransferSignedVaa;
+//   swimPayload: ParsedSwimPayload;
+// }
+// const parseTokenTransferWithSwimPayloadSignedVaa = (signedVaa: Buffer): ParsedTokenTransferWithSwimPayloadVaa => {
+//   const parsedTokenTransfer = parseTokenTransferSignedVaa(signedVaa);
+//   const payload = parsedTokenTransfer.tokenTransfer.payload;
+//   const swimPayload = parseSwimPayload(payload);
+//   return {
+//     tokenTransferVaa: parsedTokenTransfer,
+//     swimPayload,
+//   }
+// }
+//
+// const formatParsedTokenTransferWithSwimPayloadVaa = (parsed: ParsedTokenTransferWithSwimPayloadVaa) => {
+//   const formattedTokenTransfer = formatParsedTokenTransferSignedVaa(parsed.tokenTransferVaa);
+//   const swimPayload = parsed.swimPayload;
+//   const formattedSwimPayload = formatSwimPayload(swimPayload, parsed.tokenTransferVaa.tokenTransfer.toChain);
+//   return {
+//     ...formattedTokenTransfer,
+//     ...formattedSwimPayload,
+//   };
+// }
+//
+// const formatSwimPayload = (swimPayload: ParsedSwimPayload, chain: ChainId | ChainName) => {
+//   return {
+//     ...swimPayload,
+//     minOutputAmount: swimPayload.minOutputAmount.toString(),
+//     memo: swimPayload.memo.toString(),
+//     propellerMinThreshold: swimPayload.propellerMinThreshold.toString(),
+//     owner: tryUint8ArrayToNative(swimPayload.owner, chain)
+//   }
+// }
+//
+// export interface ParsedTokenTransferWithSwimPayloadPostedMessage {
+//   tokenTransferMessage: ParsedTokenTransferPostedMessage;
+//   swimPayload: ParsedSwimPayload;
+// }
+//
+// const parseTokenTransferWithSwimPayloadPostedMessage = async (message: Buffer): Promise<ParsedTokenTransferWithSwimPayloadPostedMessage> => {
+//   const parsedTokenTransferMsg = await parseTokenTransferPostedMessage(message);
+//   const payload = parsedTokenTransferMsg.tokenTransfer.payload;
+//   const swimPayload = parseSwimPayload(payload);
+//   return {
+//     tokenTransferMessage: parsedTokenTransferMsg,
+//     swimPayload,
+//   }
+// }
+//
+// const formatParsedTokenTransferWithSwimPayloadPostedMessage = (parsed: ParsedTokenTransferWithSwimPayloadPostedMessage) => {
+//   const formattedTokenTransfer = formatParsedTokenTransferPostedMessage(parsed.tokenTransferMessage);
+//   const swimPayload = parsed.swimPayload;
+//   const formattedSwimPayload = formatSwimPayload(swimPayload, parsed.tokenTransferMessage.tokenTransfer.toChain);
+//   return {
+//     ...formattedTokenTransfer,
+//     ...formattedSwimPayload,
+//   };
+//
+// }
 
 
 // const parseTransferWithPayload = (arr: Buffer) => (

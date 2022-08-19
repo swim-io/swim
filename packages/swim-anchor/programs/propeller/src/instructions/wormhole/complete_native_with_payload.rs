@@ -1,8 +1,9 @@
 use {
     crate::{
-        error::*, get_message_data, get_transfer_with_payload_from_message_account, Address,
-        ChainID, ClaimData, PayloadTransferWithPayload, PostedMessageData, PostedVAAData,
-        Propeller, COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION,
+        deserialize_message_payload, error::*, get_message_data,
+        get_transfer_with_payload_from_message_account, hash_vaa, Address, ChainID, ClaimData,
+        PayloadTransferWithPayload, PostVAAData, PostedMessageData, PostedVAAData, Propeller,
+        COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
         prelude::*,
@@ -31,11 +32,11 @@ pub struct CompleteNativeWithPayload<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     #[account(
-		mut,
-		seeds = [ b"config".as_ref() ],
-		bump,
-		seeds::program = propeller.token_bridge().unwrap()
-	)]
+		  mut,
+		  seeds = [ b"config".as_ref() ],
+		  bump,
+		  seeds::program = propeller.token_bridge().unwrap()
+	  )]
     /// CHECK: Token Bridge Config
     pub token_bridge_config: UncheckedAccount<'info>,
     /// contains the VAA
@@ -58,6 +59,7 @@ pub struct CompleteNativeWithPayload<'info> {
     ///   }
     /// }
     // #[account(
+    //   mut,
     //   seeds = [
     //     b"PostedVAA".as_ref(),
     //     hash_vaa(&vaa).as_ref()
@@ -65,16 +67,27 @@ pub struct CompleteNativeWithPayload<'info> {
     //   bump,
     //   seeds::program = propeller.wormhole()?
     // )]
+    #[account(mut)]
     /// CHECK: wormhole message account. seeds = [ "PostedVAA", hash(vaa) ], seeds::program = token_bridge
     pub message: UncheckedAccount<'info>,
     // pub message: Account<'info, PostedMessageData>,
     // pub message: Account<'info, PostedVAAData>,
-    #[account(mut)]
-    /// CHECK: wormhole claim account to prevent double spending
     /// seeds = [
     ///   vaa.emitter_address, vaa.emitter_chain, vaa.sequence
     ///],
     /// seeds::program = token_bridge
+    // #[account(
+    //   mut,
+    //   seeds = [
+    //     vaa.emitter_address.as_ref(),
+    //     vaa.emitter_chain.to_be_bytes().as_ref(),
+    //     vaa.sequence.to_be_bytes().as_ref(),
+    //   ],
+    //   bump,
+    //   seeds::program = propeller.wormhole()?
+    // )]
+    #[account(mut)]
+    /// CHECK: wormhole claim account to prevent double spending
     pub claim: UncheckedAccount<'info>,
     /// CHECK: wormhole endpoint account. seeds = [ vaa.emitter_chain, vaa.emitter_address ]
     pub endpoint: UncheckedAccount<'info>,
@@ -122,6 +135,19 @@ pub struct CompleteNativeWithPayload<'info> {
 	  )]
     ///CHECK: wormhole token bridge program
     pub token_bridge: AccountInfo<'info>,
+
+    #[account(
+      init,
+      payer = payer,
+      seeds = [
+        b"propeller".as_ref(),
+        claim.key().as_ref(),
+        message.key().as_ref(),
+      ],
+      bump,
+      space = 8 + PropellerMessage::LEN,
+    )]
+    pub propeller_message: Account<'info, PropellerMessage>,
 }
 
 impl<'info> CompleteNativeWithPayload<'info> {
@@ -141,29 +167,56 @@ impl<'info> CompleteNativeWithPayload<'info> {
     }
 }
 
+#[account]
+pub struct PropellerMessage {
+    pub bump: u8,
+    pub wh_message: Pubkey,
+    // pub wh_message_bump: u8,
+    pub claim: Pubkey,
+    // pub claim_bump: u8,
+    pub vaa_emitter_address: [u8; 32],
+    pub vaa_emitter_chain: u16,
+    pub vaa_sequence: u64,
+    pub transfer_amount: u64,
+    pub swim_payload: SwimPayload,
+}
+
+impl PropellerMessage {
+    pub const LEN: usize = 1 +  // bump
+      32 + // message
+      // 1 + // message_bump
+      32 + // claim
+      // 1 +  // claim_bump
+      32 + // vaa_emitter_address
+      2 +  // vaa_emitter_chain
+      8 +  // vaa_sequence
+      8 + // transfer_amount
+      SwimPayload::LEN; // swim_payload
+}
+
 #[derive(AnchorSerialize, AnchorDeserialize, Default)]
 pub struct CompleteNativeWithPayloadData {}
 
 pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayload>) -> Result<()> {
-    let wh_complete_native_with_payload_acct_infos = vec![
-        ctx.accounts.payer.to_account_info().clone(),
-        ctx.accounts.token_bridge_config.to_account_info().clone(),
-        // ctx.accounts.token_bridge.to_account_info().clone(),
-        ctx.accounts.message.to_account_info().clone(),
-        ctx.accounts.claim.to_account_info().clone(),
-        ctx.accounts.endpoint.to_account_info().clone(),
-        ctx.accounts.to.to_account_info().clone(),
-        ctx.accounts.redeemer.to_account_info().clone(),
-        ctx.accounts.fee_recipient.to_account_info().clone(),
-        // AccountMeta::new_readonly(ctx.accounts.token_bridge_config.to_account_info().clone(), false),
-        ctx.accounts.custody.to_account_info().clone(),
-        ctx.accounts.mint.to_account_info().clone(),
-        ctx.accounts.custody_signer.to_account_info().clone(),
-        ctx.accounts.rent.to_account_info().clone(),
-        ctx.accounts.system_program.to_account_info().clone(),
-        ctx.accounts.wormhole.to_account_info().clone(),
-        ctx.accounts.token_program.to_account_info().clone(),
-    ];
+    // let wh_complete_native_with_payload_acct_infos = vec![
+    //     ctx.accounts.payer.to_account_info().clone(),
+    //     ctx.accounts.token_bridge_config.to_account_info().clone(),
+    //     // ctx.accounts.token_bridge.to_account_info().clone(),
+    //     ctx.accounts.message.to_account_info().clone(),
+    //     ctx.accounts.claim.to_account_info().clone(),
+    //     ctx.accounts.endpoint.to_account_info().clone(),
+    //     ctx.accounts.to.to_account_info().clone(),
+    //     ctx.accounts.redeemer.to_account_info().clone(),
+    //     ctx.accounts.fee_recipient.to_account_info().clone(),
+    //     // AccountMeta::new_readonly(ctx.accounts.token_bridge_config.to_account_info().clone(), false),
+    //     ctx.accounts.custody.to_account_info().clone(),
+    //     ctx.accounts.mint.to_account_info().clone(),
+    //     ctx.accounts.custody_signer.to_account_info().clone(),
+    //     ctx.accounts.rent.to_account_info().clone(),
+    //     ctx.accounts.system_program.to_account_info().clone(),
+    //     ctx.accounts.wormhole.to_account_info().clone(),
+    //     ctx.accounts.token_program.to_account_info().clone(),
+    // ];
 
     let complete_transfer_with_payload_ix = Instruction {
         program_id: ctx.accounts.token_bridge.key(),
@@ -203,12 +256,12 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
     )?;
     msg!("successfully invoked complete_native_with_payload");
 
-    // let message_data = get_message_data(&ctx.accounts.message.to_account_info())?;
-    // msg!("message_data: {:?}", message_data);
+    let message_data = get_message_data(&ctx.accounts.message.to_account_info())?;
+    msg!("message_data: {:?}", message_data);
+    let payload_transfer_with_payload: PayloadTransferWithPayload =
+        deserialize_message_payload(&mut message_data.payload.as_slice())?;
     // let payload_transfer_with_payload =
-    //     PayloadTransferWithPayload::deserialize(&mut message_data.payload.as_slice())?;
-    let payload_transfer_with_payload =
-        get_transfer_with_payload_from_message_account(&ctx.accounts.message.to_account_info())?;
+    //     get_transfer_with_payload_from_message_account(&ctx.accounts.message.to_account_info())?;
 
     // // TODO: we should probably validate that `message_data_payload.from_address` is the expected
     // //  evm routing contract address unless there's a reason to allow someone else to use this method
@@ -231,23 +284,97 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
         .map_err(|_| error!(PropellerError::InvalidClaimData))?;
     msg!("claim_data: {:?}", claim_data);
 
+    // ugly. re-doing the same calculation that WH does in `complete_transfer_payload` but
+    // should not be a huge issue.
+    let mut transfer_amount = payload_transfer_with_payload.amount.as_u64();
+    if ctx.accounts.mint.decimals > 8 {
+        transfer_amount *= 10u64.pow(ctx.accounts.mint.decimals as u32);
+    }
+
+    let propeller_message = &mut ctx.accounts.propeller_message;
+    propeller_message.bump = *ctx.bumps.get("propeller_message").unwrap();
+    propeller_message.claim = ctx.accounts.claim.key();
+    // propeller_message.claim_bump = *ctx.bumps.get("claim").unwrap();
+    propeller_message.wh_message = ctx.accounts.message.key();
+    // propeller_message.wh_message_bump = *ctx.bumps.get("message").unwrap();
+    propeller_message.vaa_emitter_address = message_data.emitter_address;
+    propeller_message.vaa_emitter_chain = message_data.emitter_chain;
+    propeller_message.vaa_sequence = message_data.sequence;
+    propeller_message.transfer_amount = transfer_amount;
+    propeller_message.swim_payload = swim_payload.clone().into();
     Ok(())
 }
 
 //TODO: look into options for versioning.
 //  ex - metaplex metadata versioning - (probably not. its messy).
 #[derive(PartialEq, Debug, Clone)]
-pub struct SwimPayload {
-    pub swim_payload_version: SwimPayloadVersion,
+pub struct RawSwimPayload {
+    //TOOD: should this come from propeller?
+    pub swim_payload_version: u8,
     pub owner: Address,
     pub target_token_id: u16,
-    pub min_output_amount: U256,
+    // pub min_output_amount: U256,
     pub memo: [u8; 16],
     // pub target_token: Address,
     pub propeller_enabled: bool,
-    pub propeller_min_threshold: U256,
+    pub min_threshold: U256,
     // pub propeller_fee: U256,
     pub gas_kickstart: bool,
+}
+
+impl RawSwimPayload {
+    pub const LEN: usize = 1 + //version
+      32 + //owner
+      2 +    // target_token_id
+      // 32 + // min_output_amount
+      16 + // memo
+      1 + // propeller_enabled
+      32 +   // min_threshold
+      32 +  // propeller_fee
+      1; // gas_kickstart
+}
+
+impl From<RawSwimPayload> for SwimPayload {
+    fn from(raw: RawSwimPayload) -> Self {
+        SwimPayload {
+            swim_payload_version: raw.swim_payload_version,
+            owner: raw.owner,
+            target_token_id: raw.target_token_id,
+            // min_output_amount: raw.min_output_amount.as_u64(),
+            memo: raw.memo,
+            propeller_enabled: raw.propeller_enabled,
+            min_threshold: raw.min_threshold.as_u64(),
+            // propeller_fee: raw.propeller_fee.as_u64(),
+            gas_kickstart: raw.gas_kickstart,
+        }
+    }
+}
+
+#[derive(PartialEq, Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+pub struct SwimPayload {
+    //TOOD: should this come from propeller?
+    pub swim_payload_version: u8,
+    pub owner: [u8; 32],
+    pub target_token_id: u16,
+    // pub min_output_amount: u64,
+    pub memo: [u8; 16],
+    // pub target_token: Address,
+    pub propeller_enabled: bool,
+    pub min_threshold: u64,
+    // pub propeller_fee: U256,
+    pub gas_kickstart: bool,
+}
+
+impl SwimPayload {
+    pub const LEN: usize = 1 + //version
+    32 + //owner
+    2 +    // target_token_id
+    // 8 + // min_output_amount
+    16 + // memo
+    1 + // propeller_enabled
+    8 +   // propeller_min_threshold
+    32 +  // propeller_fee
+    1; // gas_kickstart
 }
 
 #[repr(u8)]
@@ -257,7 +384,7 @@ pub enum SwimPayloadVersion {
     V1 = 1,
 }
 
-impl AnchorDeserialize for SwimPayload {
+impl AnchorDeserialize for RawSwimPayload {
     fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
         let mut v = Cursor::new(buf);
         //TODO: add some error handling/checking here if payload version is incorrect.
@@ -281,17 +408,17 @@ impl AnchorDeserialize for SwimPayload {
         let mut owner: [u8; 32] = Address::default();
         v.read_exact(&mut owner)?;
 
-        let mut min_output_amount_data: [u8; 32] = [0; 32];
-        v.read_exact(&mut min_output_amount_data)?;
-        let min_output_amount = U256::from_big_endian(&min_output_amount_data);
+        // let mut min_output_amount_data: [u8; 32] = [0; 32];
+        // v.read_exact(&mut min_output_amount_data)?;
+        // let min_output_amount = U256::from_big_endian(&min_output_amount_data);
 
         let mut memo: [u8; 16] = [0; 16];
         v.read_exact(&mut memo)?;
 
         let mut propeller_enabled = !(v.read_u8()? == 0);
-        let mut propeller_min_threshold_data: [u8; 32] = [0; 32];
-        v.read_exact(&mut propeller_min_threshold_data)?;
-        let propeller_min_threshold = U256::from_big_endian(&propeller_min_threshold_data);
+        let mut min_threshold_data: [u8; 32] = [0; 32];
+        v.read_exact(&mut min_threshold_data)?;
+        let min_threshold = U256::from_big_endian(&min_threshold_data);
 
         // let mut propeller_fee_data: [u8; 32] = [0; 32];
         // v.read_exact(&mut propeller_fee_data)?;
@@ -301,22 +428,22 @@ impl AnchorDeserialize for SwimPayload {
         let gas_kickstart = !(v.read_u8()? == 0);
         // let amount = U256::from_big_endian(&target_token);
 
-        Ok(SwimPayload {
-            swim_payload_version: SwimPayloadVersion::V0,
+        Ok(RawSwimPayload {
+            swim_payload_version,
             target_token_id,
             // target_token,
             owner,
-            min_output_amount,
+            // min_output_amount,
             memo,
             propeller_enabled,
-            propeller_min_threshold,
+            min_threshold,
             // propeller_fee,
             gas_kickstart,
         })
     }
 }
 //
-impl AnchorSerialize for SwimPayload {
+impl AnchorSerialize for RawSwimPayload {
     fn serialize<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
         // Payload ID
         // writer.write_u8(self.swim_payload_version)?;
@@ -325,18 +452,17 @@ impl AnchorSerialize for SwimPayload {
         writer.write_u16::<BigEndian>(self.target_token_id)?;
         writer.write_all(&self.owner)?;
 
-        let mut min_output_data: [u8; 32] = [0; 32];
-        self.min_output_amount.to_big_endian(&mut min_output_data);
-        writer.write_all(&min_output_data)?;
+        // let mut min_output_data: [u8; 32] = [0; 32];
+        // self.min_output_amount.to_big_endian(&mut min_output_data);
+        // writer.write_all(&min_output_data)?;
 
         writer.write_all(&self.memo)?;
 
         writer.write_u8(if self.propeller_enabled { 1 } else { 0 })?;
 
-        let mut propeller_min_threshold_data: [u8; 32] = [0; 32];
-        self.propeller_min_threshold
-            .to_big_endian(&mut propeller_min_threshold_data);
-        writer.write_all(&propeller_min_threshold_data)?;
+        let mut min_threshold_data: [u8; 32] = [0; 32];
+        self.min_threshold.to_big_endian(&mut min_threshold_data);
+        writer.write_all(&min_threshold_data)?;
 
         // let mut propeller_fee_data: [u8; 32] = [0; 32];
         // self.propeller_fee.to_big_endian(&mut propeller_fee_data);

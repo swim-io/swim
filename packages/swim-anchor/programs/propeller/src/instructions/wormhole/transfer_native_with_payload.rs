@@ -1,6 +1,6 @@
 use {
     crate::{
-        Propeller, PropellerError, PropellerSender, SwimPayload, SwimPayloadVersion,
+        error::*, Propeller, PropellerSender, RawSwimPayload, SwimPayloadVersion,
         TransferWithPayloadData, TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
@@ -215,7 +215,7 @@ pub fn handle_transfer_native_with_payload(
     target_chain: u16,
     amount: u64,
     target_token_id: u16,
-    target_token: Vec<u8>,
+    // target_token: Vec<u8>,
     owner: Vec<u8>,
     gas_kickstart: bool,
     propeller_enabled: bool,
@@ -235,37 +235,47 @@ pub fn handle_transfer_native_with_payload(
         amount,
     )?;
     msg!("finished approve for authority_signer");
-    let mut target_token_addr = [0u8; 32];
-    target_token_addr.copy_from_slice(target_token.as_slice());
+    // let mut target_token_addr = [0u8; 32];
+    // target_token_addr.copy_from_slice(target_token.as_slice());
     let mut owner_addr = [0u8; 32];
     owner_addr.copy_from_slice(owner.as_slice());
     let propeller = &ctx.accounts.propeller;
     //TODO: still need to handle the u256/u64
 
-    let raw_min_threshold = propeller.propeller_min_threshold;
+    let raw_min_threshold = match target_chain {
+        crate::constants::CHAIN_ID_ETH => propeller.propeller_eth_min_transfer_amount,
+        _ => propeller.propeller_min_transfer_amount,
+    };
+    // let raw_min_threshold = propeller.propeller_min_transfer_amount;
     let trunc_divisor = 10u64.pow(8.max(ctx.accounts.token_bridge_mint.decimals as u32) - 8);
     // Truncate to 8 decimals
     let min_threshold: u64 = raw_min_threshold / trunc_divisor;
     // Untruncate the amount to drop the remainder so we don't  "burn" user's funds.
     let min_threshold_trunc: u64 = min_threshold * trunc_divisor;
 
+    msg!(
+        "amount: {}, raw_min_threshold: {}, min_threshold_trunc: {}",
+        amount,
+        raw_min_threshold,
+        min_threshold_trunc
+    );
     // TODO: should i do the token bridge transfer amount calculation here and compare that?
     if propeller_enabled {
         require_gte!(
             amount,
             min_threshold_trunc,
             PropellerError::InsufficientAmount
-        )
+        );
     }
-    let swim_payload = SwimPayload {
-        swim_payload_version: SwimPayloadVersion::V0,
+    let swim_payload = RawSwimPayload {
+        swim_payload_version: 0,
         target_token_id,
         owner: owner_addr,
-        min_output_amount: U256::from(0u64),
+        // min_output_amount: U256::from(0u64),
         memo: memo.clone().try_into().unwrap(),
         propeller_enabled,
         //TODO: not sure if this is needed. applying same math as how token-bridge handles amount.
-        propeller_min_threshold: U256::from(min_threshold_trunc),
+        min_threshold: U256::from(0u64),
         // propeller_min_threshold: U256::from(propeller.propeller_min_threshold),
         // propeller_fee: U256::from(propeller.propeller_fee),
         gas_kickstart,
@@ -298,7 +308,9 @@ pub fn handle_transfer_native_with_payload(
         //TODO: update this.
         //  this should be tryNativeToUint8Array(ethAddress, CHAIN_ID_ETH)
         //  this can either be hardcoded or set in propeller state since we're assuming this is the same for all chains.
-        target_address: Pubkey::default().to_bytes(),
+        // target_address: Pubkey::default().to_bytes(),
+        target_address: ctx.accounts.propeller.evm_routing_contract_address.clone(),
+        // target_address: Pubkey::default().to_bytes(),
         // target_chain: Custodian::conductor_chain()?,
         target_chain,
         payload: swim_payload.try_to_vec()?,

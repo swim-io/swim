@@ -1,14 +1,15 @@
 pub use switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_PROGRAM_ID};
 use {
     crate::{
-        create_token_id_mapping::{PoolInstruction, TokenIdMapping},
+        create_token_id_map::{PoolInstruction, TokenIdMap},
         deserialize_message_payload,
+        env::*,
         error::*,
         get_message_data, get_transfer_with_payload_from_message_account, hash_vaa, ClaimData,
-        PayloadTransferWithPayload, PostVAAData, PostedVAAData, Propeller, SwimPayload,
-        TOKEN_COUNT,
+        PayloadTransferWithPayload, PostVAAData, PostedVAAData, Propeller, PropellerMessage,
+        RawSwimPayload, TOKEN_COUNT,
     },
-    anchor_lang::prelude::*,
+    anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::{
         token,
         token::{Mint, Token, TokenAccount},
@@ -21,7 +22,7 @@ pub const SWIM_USD_TARGET_TOKEN_INDEX: u16 = 0;
 
 //TODO: should i process this using the message account or the vaa data?
 #[derive(Accounts)]
-#[instruction(vaa: PostVAAData, target_token_id: u16)]
+// #[instruction(vaa: PostVAAData, target_token_id: u16)]
 pub struct ProcessSwimPayload<'info> {
     #[account(
       seeds = [
@@ -31,37 +32,55 @@ pub struct ProcessSwimPayload<'info> {
       bump = propeller.bump
     )]
     pub propeller: Account<'info, Propeller>,
+    #[account(mut)]
     pub payer: Signer<'info>,
 
     #[account(
       seeds = [
-        vaa.emitter_address.as_ref(),
-        vaa.emitter_chain.to_be_bytes().as_ref(),
-        vaa.sequence.to_be_bytes().as_ref(),
+        propeller_message.vaa_emitter_address.as_ref(),
+        propeller_message.vaa_emitter_chain.to_be_bytes().as_ref(),
+        propeller_message.vaa_sequence.to_be_bytes().as_ref(),
       ],
       bump,
-      seeds::program = propeller.wormhole()?
+      seeds::program = TOKEN_BRIDGE
     )]
     /// CHECK: WH Claim account
     pub claim: UncheckedAccount<'info>,
+
     // seeds = [ b"PostedVAA".as_ref(), hash_vaa(vaa).as_ref() ],
+    // #[account(
+    //   seeds = [
+    //     b"PostedVAA".as_ref(),
+    //     hash_vaa(&vaa).as_ref()
+    //   ],
+    //   bump = propeller_message.wh_message_bump,
+    //   seeds::program = propeller.wormhole()?
+    // )]
+    /// CHECK: MessageData with Payload
+    pub message: UncheckedAccount<'info>,
     #[account(
+      init,
+      payer = payer,
       seeds = [
-        b"PostedVAA".as_ref(),
-        hash_vaa(&vaa).as_ref()
+        b"propeller".as_ref(),
+        b"claim".as_ref(),
+        claim.key().as_ref(),
       ],
       bump,
-      seeds::program = propeller.wormhole()?
+      space = 8 + PropellerClaim::LEN,
     )]
-    /// CHECK: MessageData with Payload
-    pub message: AccountInfo<'info>,
-    // pub message: Account<'info, PostedVAAData>,
+    pub propeller_claim: Account<'info, PropellerClaim>,
+
     #[account(
-    mut,
-    token::mint = token_bridge_mint.key(),
-    token::authority = redeemer,
+    seeds = [
+      b"propeller".as_ref(),
+      claim.key().as_ref(),
+      message.key().as_ref(),
+    ],
+    bump = propeller_message.bump
     )]
-    pub to: Account<'info, TokenAccount>,
+    pub propeller_message: Account<'info, PropellerMessage>,
+    // pub message: Account<'info, PostedVAAData>,
     #[account(
     seeds = [ b"redeemer".as_ref()],
     bump = propeller.redeemer_bump
@@ -73,15 +92,27 @@ pub struct ProcessSwimPayload<'info> {
     ///     (NOT the `to` account)
     pub redeemer: AccountInfo<'info>,
     #[account(
+    mut,
+    token::mint = propeller.token_bridge_mint,
+    token::authority = redeemer,
+    )]
+    pub redeemer_escrow: Account<'info, TokenAccount>,
+    // #[account(
+    //   mut,
+    //   token::authority = payer,
+    //   token::mint = token_bridge_mint.key()
+    // )]
+    #[account(
       mut,
+      token::mint = propeller.token_bridge_mint,
       token::authority = payer,
-      token::mint = token_bridge_mint.key()
     )]
     /// this is "to_fees"
     /// recipient of fees for executing complete transfer (e.g. relayer)
     pub fee_recipient: Box<Account<'info, TokenAccount>>,
 
-    pub token_bridge_mint: Box<Account<'info, Mint>>,
+    // #[account(mut)]
+    // pub token_bridge_mint: Box<Account<'info, Mint>>,
     /// Assuming that USD:USDC 1:1
     ///CHECK: account for getting gas -> USD price
     #[account(
@@ -93,22 +124,23 @@ pub struct ProcessSwimPayload<'info> {
       seeds = [
         b"propeller".as_ref(),
         b"token_id".as_ref(),
-        target_token_id.to_le_bytes().as_ref()
+        propeller.key().as_ref(),
+        propeller_message.swim_payload.target_token_id.to_le_bytes().as_ref()
       ],
-      bump = token_id_mapping.bump,
+      bump = token_id_map.bump,
     )]
-    pub token_id_mapping: Account<'info, TokenIdMapping>,
+    pub token_id_map: Account<'info, TokenIdMap>,
     /// TODO: the pool address should probably be saved in the propeller state
     #[account(
-    mut,
-    seeds = [
-    b"two_pool".as_ref(),
-    pool_token_account_0.mint.as_ref(),
-    pool_token_account_1.mint.as_ref(),
-    lp_mint.key().as_ref(),
-    ],
-    bump = pool.bump,
-    seeds::program = two_pool_program.key()
+      mut,
+      seeds = [
+        b"two_pool".as_ref(),
+        pool_token_account_0.mint.as_ref(),
+        pool_token_account_1.mint.as_ref(),
+        lp_mint.key().as_ref(),
+      ],
+      bump = pool.bump,
+      seeds::program = two_pool_program.key()
     )]
     pub pool: Box<Account<'info, TwoPool>>,
     #[account(
@@ -126,16 +158,16 @@ pub struct ProcessSwimPayload<'info> {
     #[account(mut)]
     pub lp_mint: Box<Account<'info, Mint>>,
     #[account(
-    mut,
-    token::mint = lp_mint
+      mut,
+      token::mint = lp_mint
     )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
 
-    pub user_transfer_authority: Signer<'info>,
+    pub user_transfer_authority: SystemAccount<'info>,
 
     #[account(
-    mut,
-    token::mint = pool_token_account_0.mint,
+      mut,
+      token::mint = pool_token_account_0.mint,
     )]
     pub user_token_account_0: Box<Account<'info, TokenAccount>>,
 
@@ -157,14 +189,30 @@ pub struct ProcessSwimPayload<'info> {
     // #[account(mut)]
     // pub payer: Signer<'info>,
     pub token_program: Program<'info, Token>,
+    //TODO: memo will be logged from the payload
     #[account(executable, address = spl_memo::id())]
     ///CHECK: memo program
     pub memo: UncheckedAccount<'info>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
+    pub system_program: Program<'info, System>,
 }
 
 impl<'info> ProcessSwimPayload<'info> {
     pub fn accounts(ctx: &Context<ProcessSwimPayload>) -> Result<()> {
+        // verify claim
+        // verify message
+        require_keys_eq!(
+            ctx.accounts.propeller_message.claim.key(),
+            ctx.accounts.claim.key()
+        );
+        require_keys_eq!(
+            ctx.accounts.message.key(),
+            ctx.accounts.propeller_message.wh_message,
+        );
+
+        // verify using correct pool for pool_ix
+        require_keys_eq!(ctx.accounts.pool.key(), ctx.accounts.token_id_map.pool);
+
         Ok(())
     }
 }
@@ -241,8 +289,8 @@ impl<'info> ProcessSwimPayload<'info> {
 pub fn handle_process_swim_payload(
     ctx: Context<ProcessSwimPayload>,
     // vaa: AnchorSwimPayloadVAA,
-    vaa: PostVAAData,
-    target_token_id: u16,
+    // vaa: PostVAAData,
+    // target_token_id: u16,
 ) -> Result<()> {
     // let message_data = get_message_data(&ctx.accounts.message.to_account_info())?;
     // msg!("message_data: {:?}", message_data);
@@ -263,40 +311,43 @@ pub fn handle_process_swim_payload(
         from_address,
         payload,
     } = payload_transfer_with_payload;
-    // TODO: we should probably validate that `message_data_payload.from_address` is the expected
-    //  evm routing contract address unless there's a reason to allow someone else to use this method
-    // let swim_payload =
-    //     SwimPayload::deserialize(&mut payload.as_slice())?;
-    let swim_payload = payload;
-    msg!("swim_payload: {:?}", swim_payload);
-    require_eq!(swim_payload.target_token_id, target_token_id);
+    // // TODO: we should probably validate that `message_data_payload.from_address` is the expected
+    // //  evm routing contract address unless there's a reason to allow someone else to use this method
+    // // let swim_payload =
+    // //     SwimPayload::deserialize(&mut payload.as_slice())?;
+    // let swim_payload = payload;
+    // msg!("swim_payload: {:?}", swim_payload);
+    // let swim_payload = &ctx.accounts.propeller_message.swim_payload;
+    let message_swim_payload = payload;
+    let propeller_message_swim_payload = &ctx.accounts.propeller_message.swim_payload;
+    require_eq!(
+        message_swim_payload.target_token_id,
+        propeller_message_swim_payload.target_token_id
+    );
     let claim_data = ClaimData::try_from_slice(&mut ctx.accounts.claim.data.borrow())
         .map_err(|_| error!(PropellerError::InvalidClaimData))?;
     require!(claim_data.claimed, PropellerError::ClaimNotClaimed);
     msg!("claim_data: {:?}", claim_data);
 
-    let payload_transfer_with_payload_from_vaa: PayloadTransferWithPayload =
-        deserialize_message_payload(&mut vaa.payload.as_slice())?;
-    require_eq!(
-        payload_transfer_with_payload_from_vaa
-            .payload
-            .target_token_id,
-        swim_payload.target_token_id
-    );
-    require_eq!(swim_payload.target_token_id, target_token_id);
+    // let payload_transfer_with_payload_from_vaa: PayloadTransferWithPayload =
+    //     deserialize_message_payload(&mut vaa.payload.as_slice())?;
+    // require_eq!(
+    //     payload_transfer_with_payload_from_vaa
+    //         .payload
+    //         .target_token_id,
+    //     swim_payload.target_token_id
+    // );
+    // require_eq!(swim_payload.target_token_id, target_token_id);
 
-    let mut transfer_amount = amount.as_u64();
-    if ctx.accounts.token_bridge_mint.decimals > 8 {
-        transfer_amount *= 10u64.pow((ctx.accounts.token_bridge_mint.decimals - 8) as u32);
-    }
-    if !swim_payload.gas_kickstart {
+    let mut transfer_amount = ctx.accounts.propeller_message.transfer_amount;
+    if !propeller_message_swim_payload.gas_kickstart {
         // transfer fees
         transfer_amount = transfer_amount - ctx.accounts.propeller.propeller_fee;
         token::transfer(
             CpiContext::new_with_signer(
                 ctx.accounts.token_program.to_account_info(),
                 token::Transfer {
-                    from: ctx.accounts.to.to_account_info(),
+                    from: ctx.accounts.redeemer_escrow.to_account_info(),
                     to: ctx.accounts.fee_recipient.to_account_info(),
                     authority: ctx.accounts.redeemer.to_account_info(),
                 },
@@ -308,6 +359,7 @@ pub fn handle_process_swim_payload(
             ctx.accounts.propeller.propeller_fee,
         )?;
     } else {
+        //TODO: FOR GAS KICKSTART ALSO NEED TO ASSUME/HANDLE THAT ASSOCIATED TOKEN ACCOUNTS MAY NOT BE INITIALIZED
         // transfer fees + gas_kickstart
         msg!("calculate gas_kickstart amounts");
         // transfer tokens
@@ -363,23 +415,66 @@ pub fn handle_process_swim_payload(
         // }
     }
 
+    let owner = Pubkey::new_from_array(propeller_message_swim_payload.owner);
     msg!("transfer_amount - fee: {}", transfer_amount);
-    if swim_payload.target_token_id == SWIM_USD_TARGET_TOKEN_INDEX {
+    // transfer from redeemer_escrow account to logical owner swimUSD token account?
+    // no nvm i can't. if i transfer to logical owner swimUSD account i won't have authority
+    // to transfer/burn from owner swimUSD account into pool token accounts for pool ixs
+    if propeller_message_swim_payload.target_token_id == SWIM_USD_TARGET_TOKEN_INDEX {
         // simply transfer out swimUSD to logical recipient
     } else {
-        let token_id_mapping = &ctx.accounts.token_id_mapping;
+        let token_id_mapping = &ctx.accounts.token_id_map;
         let token_pool = &token_id_mapping.pool;
         let pool_ix = &token_id_mapping.pool_ix;
         let pool_token_mint = &token_id_mapping.pool_token_mint;
-        let output_token_index = token_id_mapping.pool_token_index;
+        let pool_token_index = token_id_mapping.pool_token_index;
+
         //TODO: need to handle decimals?
-        let min_output_amount = swim_payload.min_output_amount.as_u64();
+        // would need output token mint to handle decimals
+        // let min_output_amount = swim_payload.min_output_amount.as_u64();
+        let min_output_amount = propeller_message_swim_payload.min_threshold;
+
+        // if removeExactBurn, then user_token_account's will be end_user's and user_lp_token_account will be
+        // payer of txn
+        // redeemer_escrow still holds all the tokens at this point and will be source of tokens used
+        // in pool ix
+        token::approve(
+            CpiContext::new_with_signer(
+                ctx.accounts.token_program.to_account_info(),
+                token::Approve {
+                    // source
+                    to: ctx.accounts.redeemer_escrow.to_account_info(),
+                    delegate: ctx.accounts.user_transfer_authority.to_account_info(),
+                    authority: ctx.accounts.redeemer.to_account_info(),
+                },
+                &[&[
+                    &b"redeemer".as_ref(),
+                    &[ctx.accounts.propeller.redeemer_bump],
+                ]],
+            ),
+            transfer_amount,
+        )?;
+        // verify destination token account owner is logical owner.
+        require_keys_eq!(
+            ctx.accounts.pool.token_mint_keys[pool_token_index as usize],
+            *pool_token_mint
+        );
+        match pool_token_index {
+            0 => {
+                require_keys_eq!(ctx.accounts.user_token_account_0.owner, owner);
+            }
+            1 => {
+                require_keys_eq!(ctx.accounts.user_token_account_1.owner, owner);
+            }
+            _ => return err!(PropellerError::InvalidPoolTokenIndex),
+        }
         match pool_ix {
             PoolInstruction::RemoveExactBurn => {
-                require_keys_eq!(
-                    ctx.accounts.pool.token_mint_keys[output_token_index as usize],
-                    *pool_token_mint
-                );
+                // require_keys_eq!(
+                //     ctx.accounts.user_lp_token_account.owner,
+                //     ctx.accounts.payer.key(),
+                // );
+
                 // TODO: handle other checks
                 let cpi_ctx = CpiContext::new(
                     ctx.accounts.two_pool_program.to_account_info(),
@@ -395,19 +490,31 @@ pub fn handle_process_swim_payload(
                             .to_account_info(),
                         user_token_account_0: ctx.accounts.user_token_account_0.to_account_info(),
                         user_token_account_1: ctx.accounts.user_token_account_1.to_account_info(),
-                        user_lp_token_account: ctx.accounts.user_lp_token_account.to_account_info(),
+                        user_lp_token_account: ctx.accounts.redeemer_escrow.to_account_info(),
                         token_program: ctx.accounts.token_program.to_account_info(),
                     },
                 );
                 two_pool::cpi::remove_exact_burn(
                     cpi_ctx,
                     transfer_amount,
-                    output_token_index,
+                    pool_token_index,
                     min_output_amount,
                 )?;
             }
             PoolInstruction::SwapExactInput => {
                 // metapool
+                // token::approve(
+                //     CpiContext::new(
+                //         ctx.accounts.token_program.to_account_info(),
+                //         token::Approve {
+                //             // source
+                //             to: ctx.accounts.user_token_account_0.to_account_info(),
+                //             delegate: ctx.accounts.user_transfer_authority.to_account_info(),
+                //             authority: ctx.accounts.payer.to_account_info(),
+                //         },
+                //     ),
+                //     transfer_amount,
+                // )?;
                 let cpi_ctx = CpiContext::new(
                     ctx.accounts.two_pool_program.to_account_info(),
                     two_pool::cpi::accounts::SwapExactInput {
@@ -420,7 +527,7 @@ pub fn handle_process_swim_payload(
                             .accounts
                             .user_transfer_authority
                             .to_account_info(),
-                        user_token_account_0: ctx.accounts.user_token_account_0.to_account_info(),
+                        user_token_account_0: ctx.accounts.redeemer_escrow.to_account_info(),
                         user_token_account_1: ctx.accounts.user_token_account_1.to_account_info(),
                         token_program: ctx.accounts.token_program.to_account_info(),
                     },
@@ -428,16 +535,41 @@ pub fn handle_process_swim_payload(
                 two_pool::cpi::swap_exact_input(
                     cpi_ctx,
                     [transfer_amount, 0u64],
-                    output_token_index,
+                    pool_token_index,
                     min_output_amount,
                 )?;
+                // token::revoke(CpiContext::new(
+                //     ctx.accounts.token_program.to_account_info(),
+                //     token::Revoke {
+                //         // source
+                //         source: ctx.accounts.user_token_account_0.to_account_info(),
+                //         authority: ctx.accounts.payer.to_account_info(),
+                //     },
+                // ))?;
             }
         };
+        token::revoke(CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            token::Revoke {
+                // source
+                source: ctx.accounts.redeemer_escrow.to_account_info(),
+                authority: ctx.accounts.redeemer.to_account_info(),
+            },
+            &[&[
+                &b"redeemer".as_ref(),
+                &[ctx.accounts.propeller.redeemer_bump],
+            ]],
+        ))?;
     }
 
+    let propeller_claim = &mut ctx.accounts.propeller_claim;
+    propeller_claim.bump = *ctx.bumps.get("propeller_claim").unwrap();
+    propeller_claim.claimed = true;
+    let memo = propeller_message_swim_payload.memo;
     // get target_token_id -> (pool, pool_token_index)
     //    need to know when to do remove_exact_burn & when to do swap_exact_input
-
+    let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+    invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     Ok(())
 }
 
@@ -468,6 +600,19 @@ fn get_marginal_prices(ctx: &Context<ProcessSwimPayload>) -> Result<[u64; TOKEN_
 
 fn get_gas_price(ctx: Context<ProcessSwimPayload>) -> Result<u64> {
     Ok(1)
+}
+
+/// Works similarly to WH claim account
+/// prevents "double spend" of `SwimPayload`
+/// can be used to check if `ProcessSwimPayload` has been completed
+#[account]
+pub struct PropellerClaim {
+    pub bump: u8,
+    pub claimed: bool,
+}
+
+impl PropellerClaim {
+    pub const LEN: usize = 1 + 1;
 }
 
 /// This is "raw" VAA directly from guardian network

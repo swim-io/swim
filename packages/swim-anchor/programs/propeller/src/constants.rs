@@ -5,7 +5,8 @@ pub const SEED_PREFIX_CUSTODIAN: &str = "icco-custodian";
 pub const SEED_PREFIX_SALE: &str = "icco-sale";
 pub const SEED_PREFIX_BUYER: &str = "icco-buyer";
 
-pub const CHAIN_ID: u16 = 1;
+pub const CHAIN_ID_SOL: u16 = 1;
+pub const CHAIN_ID_ETH: u16 = 2;
 
 // vaa payload types
 pub const PAYLOAD_SALE_INIT_SOLANA: u8 = 5; // 1 for everyone else

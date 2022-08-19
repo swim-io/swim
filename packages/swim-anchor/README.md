@@ -7,8 +7,27 @@ run the following command from the `swim-anchor` directory and update any releva
 `yarn run idl`
 
 ## Scripts (WIP)
-1. localnet (requires starting a local test validator with `anchor localnet` first)
-`anchor run initialize_pool`
+```sh
+yarn run build-pool
+
+# this command needed only for localnet testing (in a separte shell)
+anchor localnet --skip-build
+
+anchor run initialize_pool
+
+# for devnet
+anchor run --provider.cluster initilaize_pool
+
+```
+1. localnet
+```sh
+yarn run build-pool
+
+# in separate shell
+anchor localnet --skip-build
+
+anchor run initialize_pool
+```
 2. devnet
 `anchor run --provider.cluster devnet initialize_pool`
 

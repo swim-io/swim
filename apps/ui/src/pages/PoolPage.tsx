@@ -52,6 +52,8 @@ import BNB_SVG from "../images/ecosystems/bnb.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
 import { isEvmPoolState } from "../models";
 
+import "./PoolPage.scss";
+
 const PoolPage = (): ReactElement => {
   const { t } = useTranslation();
   const { poolId } = useParams<{ readonly poolId: string }>();
@@ -278,7 +280,7 @@ export const PoolPageInner = ({
             ]}
           />
         </EuiFlexItem>
-        <EuiFlexItem grow={false}>
+        <EuiFlexItem grow={false} className="statList">
           <EuiTitle size="xxs">
             <h4>
               {t("pool_page.pool_balance", { count: reserveStats.length })}

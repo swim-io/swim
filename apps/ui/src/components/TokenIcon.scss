@@ -1,6 +1,8 @@
 .tokenIconItem {
-  white-space: pre-wrap;
-  max-width: 250px;
+  display: inline-flex;
+  align-items: center;
+  white-space: pre;
+  vertical-align: bottom;
 
   .euiIcon {
     vertical-align: text-bottom;

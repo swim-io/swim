@@ -23,7 +23,7 @@ pub const SWIM_USD_TARGET_TOKEN_INDEX: u16 = 0;
 //TODO: should i process this using the message account or the vaa data?
 #[derive(Accounts)]
 // #[instruction(vaa: PostVAAData, target_token_id: u16)]
-pub struct ProcessSwimPayload<'info> {
+pub struct ProcessGasKickstartSwimPayload<'info> {
     #[account(
       seeds = [
         b"propeller".as_ref(),
@@ -193,12 +193,26 @@ pub struct ProcessSwimPayload<'info> {
     #[account(executable, address = spl_memo::id())]
     ///CHECK: memo program
     pub memo: UncheckedAccount<'info>,
+    #[account(
+    mut,
+    seeds = [
+    b"two_pool".as_ref(),
+    marginal_price_pool_token_account_0.mint.as_ref(),
+    marginal_price_pool_token_account_1.mint.as_ref(),
+    marginal_price_pool.lp_mint_key.as_ref(),
+    ],
+    bump = pool.bump,
+    seeds::program = two_pool_program.key()
+    )]
+    pub marginal_price_pool: Box<Account<'info, TwoPool>>,
+    pub marginal_price_pool_token_account_0: Box<Account<'info, TokenAccount>>,
+    pub marginal_price_pool_token_account_1: Box<Account<'info, TokenAccount>>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
     pub system_program: Program<'info, System>,
 }
 
-impl<'info> ProcessSwimPayload<'info> {
-    pub fn accounts(ctx: &Context<ProcessSwimPayload>) -> Result<()> {
+impl<'info> ProcessGasKickstartSwimPayload<'info> {
+    pub fn accounts(ctx: &Context<ProcessGasKickstartSwimPayload>) -> Result<()> {
         // verify claim
         // verify message
         require_keys_eq!(
@@ -286,8 +300,8 @@ impl<'info> ProcessSwimPayload<'info> {
     a. initialize a SwimClaim PDA
 
 */
-pub fn handle_process_swim_payload(
-    ctx: Context<ProcessSwimPayload>,
+pub fn handle_process_gas_kickstart_swim_payload(
+    ctx: Context<ProcessGasKickstartSwimPayload>,
     // vaa: AnchorSwimPayloadVAA,
     // vaa: PostVAAData,
     // target_token_id: u16,
@@ -320,6 +334,10 @@ pub fn handle_process_swim_payload(
     // let swim_payload = &ctx.accounts.propeller_message.swim_payload;
     let message_swim_payload = payload;
     let propeller_message_swim_payload = &ctx.accounts.propeller_message.swim_payload;
+    require!(
+        propeller_message_swim_payload.gas_kickstart,
+        PropellerError::InvalidSwimPayloadGasKickstart
+    );
     require_eq!(
         message_swim_payload.target_token_id,
         propeller_message_swim_payload.target_token_id
@@ -593,12 +611,14 @@ https://github.com/swim-io/swim/blob/025bf65905c15ea9fc1b69c32e6a8ba67862c707/pa
   }
 
  */
-fn get_marginal_prices(ctx: &Context<ProcessSwimPayload>) -> Result<[u64; TOKEN_COUNT]> {
+fn get_marginal_prices(
+    ctx: &Context<ProcessGasKickstartSwimPayload>,
+) -> Result<[u64; TOKEN_COUNT]> {
     //TODO: check return data type
     Ok([1u64; TOKEN_COUNT])
 }
 
-fn get_gas_price(ctx: Context<ProcessSwimPayload>) -> Result<u64> {
+fn get_gas_price(ctx: Context<ProcessGasKickstartSwimPayload>) -> Result<u64> {
     Ok(1)
 }
 

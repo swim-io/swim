@@ -89,4 +89,7 @@ pub enum PropellerError {
 
     #[msg("Invalid Pool Token Index")]
     InvalidPoolTokenIndex,
+
+    #[msg("Invalid Gas Kickstart parameter in Swim Payload")]
+    InvalidSwimPayloadGasKickstart,
 }

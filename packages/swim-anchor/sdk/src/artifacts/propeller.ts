@@ -2464,6 +2464,11 @@ export type Propeller = {
       "code": 6028,
       "name": "InvalidPoolTokenIndex",
       "msg": "Invalid Pool Token Index"
+    },
+    {
+      "code": 6029,
+      "name": "InvalidSwimPayloadGasKickstart",
+      "msg": "Invalid Gas Kickstart parameter in Swim Payload"
     }
   ]
 };
@@ -4934,6 +4939,11 @@ export const IDL: Propeller = {
       "code": 6028,
       "name": "InvalidPoolTokenIndex",
       "msg": "Invalid Pool Token Index"
+    },
+    {
+      "code": 6029,
+      "name": "InvalidSwimPayloadGasKickstart",
+      "msg": "Invalid Gas Kickstart parameter in Swim Payload"
     }
   ]
 };

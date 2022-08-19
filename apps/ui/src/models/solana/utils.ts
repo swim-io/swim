@@ -27,14 +27,6 @@ import type { TokenAccount } from "./parsers";
 const { sha256 } = ethers.utils;
 
 /**
- * Adapted from https://github.com/solana-labs/solana-program-library/blob/0c0168f8a9d098c808d431ab7599a3e284a14e7d/token/js/src/errors.ts#L38-L41
- * Thrown if the owner of a token account is a PDA (Program Derived Address)
- */
-export class TokenOwnerOffCurveError extends Error {
-  override name = "TokenOwnerOffCurveError";
-}
-
-/**
  * Adapted from https://github.com/solana-labs/solana-web3.js/blob/ebcfe5e691cb0d4ae7290c562c7f49af4e6fb43e/src/util/to-buffer.ts
  */
 export const toBuffer = (
@@ -295,14 +287,6 @@ export const getAmountBurnedByMint = (
 
   return new Decimal(0);
 };
-
-export const txHasInstructionForProgramId = (
-  tx: ParsedTransactionWithMeta | null,
-  programId: string,
-): boolean =>
-  tx?.transaction.message.instructions.some(
-    (ix) => ix.programId.toBase58() === programId,
-  ) ?? false;
 
 export const createSplTokenAccount = async (
   solanaConnection: SolanaConnection,

@@ -1,10 +1,10 @@
 import { getAllowanceEth } from "@certusone/wormhole-sdk";
 import { PublicKey } from "@solana/web3.js";
+import type { EvmTx } from "@swim-io/evm";
 import type { ethers } from "ethers";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
 import { WormholeChainId, getTokenDetailsForEcosystem } from "../../config";
-import type { EvmTx } from "../crossEcosystem";
 
 import { approveEth, transferFromEth } from "./overrides";
 import type { WormholeTransfer } from "./transfer";
@@ -19,12 +19,12 @@ export const isLockEvmTx = (
     return false;
   }
   if (
-    tx.txResponse.to?.toLowerCase() !==
+    tx.response.to?.toLowerCase() !==
     wormholeChainSpec.tokenBridge.toLowerCase()
   ) {
     return false;
   }
-  return tx.txReceipt.logs.some(
+  return tx.receipt.logs.some(
     (log) => log.address.toLowerCase() === tokenDetails.address.toLowerCase(),
   );
 };
@@ -39,12 +39,11 @@ export const isUnlockEvmTx = (
     return false;
   }
   if (
-    tx.txReceipt.to.toLowerCase() !==
-    wormholeChainSpec.tokenBridge.toLowerCase()
+    tx.receipt.to.toLowerCase() !== wormholeChainSpec.tokenBridge.toLowerCase()
   ) {
     return false;
   }
-  return tx.txReceipt.logs.some(
+  return tx.receipt.logs.some(
     (log) => log.address.toLowerCase() === tokenDetails.address.toLowerCase(),
   );
 };

@@ -1,12 +1,12 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { SOLANA_ECOSYSTEM_ID, isSolanaTx } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId, getSolanaTokenDetails } from "../../config";
+import { getSolanaTokenDetails } from "../../config";
 import { Amount } from "../amount";
 import type { Tx } from "../crossEcosystem";
-import { isSolanaTx } from "../crossEcosystem";
 import {
   getAmountMintedToAccountByMint,
   getAmountTransferredToAccountByMint,
@@ -56,7 +56,7 @@ export const getTransferredAmounts = (
         [tokenSpec.id]: Amount.fromAtomic(
           tokenSpec,
           amount,
-          EcosystemId.Solana,
+          SOLANA_ECOSYSTEM_ID,
         ),
       };
     },

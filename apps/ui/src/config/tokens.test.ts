@@ -1,9 +1,11 @@
 import { PublicKey } from "@solana/web3.js";
 import { Env } from "@swim-io/core";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { getUniqueSize } from "@swim-io/utils";
 import { utils } from "ethers";
 
-import { EcosystemId } from "./ecosystem";
+import type { EcosystemId } from "./ecosystem";
 import type { TokenSpec } from "./tokens";
 import { TOKENS as tokensByEnv } from "./tokens";
 import { getTokenDetailsForEcosystem } from "./utils";
@@ -50,7 +52,7 @@ const generateSuite = (env: Env): void => {
     it("specifies valid Solana addresses", () => {
       const solanaAddresses = getAddressesForEcosystem(
         tokens,
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
       );
       expect(() =>
         solanaAddresses.forEach((address) => new PublicKey(address)),
@@ -60,7 +62,7 @@ const generateSuite = (env: Env): void => {
     it("specifies valid Ethereum addresses", () => {
       const ethereumAddresses = getAddressesForEcosystem(
         tokens,
-        EcosystemId.Ethereum,
+        EvmEcosystemId.Ethereum,
       );
       expect(
         ethereumAddresses.every((address) => address.startsWith("0x")),
@@ -69,7 +71,7 @@ const generateSuite = (env: Env): void => {
     });
 
     it("specifies valid BNB addresses", () => {
-      const bnbAddresses = getAddressesForEcosystem(tokens, EcosystemId.Bnb);
+      const bnbAddresses = getAddressesForEcosystem(tokens, EvmEcosystemId.Bnb);
       expect(bnbAddresses.every((address) => address.startsWith("0x"))).toBe(
         true,
       );

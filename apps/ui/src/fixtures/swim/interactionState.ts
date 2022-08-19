@@ -1,7 +1,8 @@
 import { Env } from "@swim-io/core";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import Decimal from "decimal.js";
 
-import { EcosystemId } from "../../config";
 import type { PersistedInteractionState } from "../../core/store/idb/helpers";
 import type { InteractionState } from "../../models";
 import { Amount } from "../../models";
@@ -27,15 +28,15 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
     env: Env.Custom,
     submittedAt: 1653624596234,
     connectedWallets: {
-      [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-      [EcosystemId.Bnb]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
-      [EcosystemId.Ethereum]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
-      [EcosystemId.Acala]: null,
-      [EcosystemId.Aurora]: null,
-      [EcosystemId.Avalanche]: null,
-      [EcosystemId.Fantom]: null,
-      [EcosystemId.Karura]: null,
-      [EcosystemId.Polygon]: null,
+      [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+      [EvmEcosystemId.Bnb]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      [EvmEcosystemId.Ethereum]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      [EvmEcosystemId.Acala]: null,
+      [EvmEcosystemId.Aurora]: null,
+      [EvmEcosystemId.Avalanche]: null,
+      [EvmEcosystemId.Fantom]: null,
+      [EvmEcosystemId.Karura]: null,
+      [EvmEcosystemId.Polygon]: null,
     },
   },
   requiredSplTokenAccounts: {
@@ -115,15 +116,15 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
     env: Env.Custom,
     submittedAt: 1653624596234,
     connectedWallets: {
-      [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-      [EcosystemId.Bnb]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
-      [EcosystemId.Ethereum]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
-      [EcosystemId.Acala]: null,
-      [EcosystemId.Aurora]: null,
-      [EcosystemId.Avalanche]: null,
-      [EcosystemId.Fantom]: null,
-      [EcosystemId.Karura]: null,
-      [EcosystemId.Polygon]: null,
+      [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+      [EvmEcosystemId.Bnb]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      [EvmEcosystemId.Ethereum]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
+      [EvmEcosystemId.Acala]: null,
+      [EvmEcosystemId.Aurora]: null,
+      [EvmEcosystemId.Avalanche]: null,
+      [EvmEcosystemId.Fantom]: null,
+      [EvmEcosystemId.Karura]: null,
+      [EvmEcosystemId.Polygon]: null,
     },
   },
   requiredSplTokenAccounts: {

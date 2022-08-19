@@ -13,15 +13,11 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
-import { createMemoIx } from "@swim-io/solana";
+import type { SolanaTx } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, createMemoIx } from "@swim-io/solana";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
-import {
-  EcosystemId,
-  WormholeChainId,
-  getSolanaTokenDetails,
-} from "../../config";
-import type { SolanaTx } from "../crossEcosystem";
+import { WormholeChainId, getSolanaTokenDetails } from "../../config";
 import type { SolanaConnection } from "../solana";
 import {
   createTx,
@@ -68,7 +64,7 @@ export const isLockSplTx = (
     return false;
   }
 
-  return token.nativeEcosystemId === EcosystemId.Solana
+  return token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID
     ? getAmountTransferredFromAccount(
         parsedTx,
         splTokenAccountAddress,
@@ -113,7 +109,7 @@ export const isRedeemOnSolanaTx = (
   ) {
     return false;
   }
-  return token.nativeEcosystemId === EcosystemId.Solana
+  return token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID
     ? getAmountTransferredToAccount(parsedTx, splTokenAccount).greaterThan(0)
     : getAmountMintedToAccount(parsedTx, splTokenAccount).greaterThan(0);
 };

@@ -1,8 +1,10 @@
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { getRecordKeys } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 
 export type FeesEstimation = ReadonlyRecord<EcosystemId, Decimal>;
 
@@ -12,6 +14,19 @@ export const TRANSFER_CEILING = 120000;
 export const REDEEM_CEILING = 300000;
 export const SOLANA_FEE = new Decimal(0.01);
 const POLKADOT_EXISTENTIAL_DEPOSIT_AMOUNT = new Decimal(0.1);
+export const ZERO = new Decimal(0);
+
+export const ZERO_FEE = {
+  [SOLANA_ECOSYSTEM_ID]: ZERO,
+  [EvmEcosystemId.Ethereum]: ZERO,
+  [EvmEcosystemId.Bnb]: ZERO,
+  [EvmEcosystemId.Avalanche]: ZERO,
+  [EvmEcosystemId.Polygon]: ZERO,
+  [EvmEcosystemId.Aurora]: ZERO,
+  [EvmEcosystemId.Fantom]: ZERO,
+  [EvmEcosystemId.Karura]: ZERO,
+  [EvmEcosystemId.Acala]: ZERO,
+};
 
 export const getLowBalanceWallets = (
   feesEstimation: Partial<FeesEstimation> | null,
@@ -31,8 +46,12 @@ export const getLowBalanceWallets = (
       throw new Error(`Cannot find user native balance in ${ecosystemId}`);
     }
 
+    const polkadotEcosystems: readonly EcosystemId[] = [
+      EvmEcosystemId.Acala,
+      EvmEcosystemId.Karura,
+    ];
     if (
-      [EcosystemId.Acala, EcosystemId.Karura].includes(ecosystemId) &&
+      polkadotEcosystems.includes(ecosystemId) &&
       !fee.isZero() &&
       userNativeBalance.lessThan(POLKADOT_EXISTENTIAL_DEPOSIT_AMOUNT.add(fee))
     ) {

@@ -77,9 +77,9 @@ library SwimPayload {
 
       bytes memory memo = new bytes(16);
       for (uint256 i = MEMO_OFFSET; i < MEMO_SIZE; i++) {
-        memo[i] = swimPayload[i];
+        memo[i - MEMO_OFFSET] = swimPayload[i];
       }
-      
+
       return (tokenNumber, thresholdAmount, bytes16(memo));
     }
   }

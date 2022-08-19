@@ -1,6 +1,8 @@
 import { EuiSpacer, EuiText } from "@elastic/eui";
 import type { ReactElement } from "react";
 
+import { i18next } from "../i18n";
+
 import { extractErrorMessage } from "./parse";
 
 export class MutationError extends Error {}
@@ -41,7 +43,7 @@ export class SwimError extends Error {
       msg += ` (${this.eventId})`;
     }
     if (!msg) {
-      msg = "Unknown error";
+      msg = i18next.t("general.unknown_error");
     }
     return msg;
   }
@@ -63,8 +65,7 @@ export class SwimError extends Error {
         {this.eventId && (
           <EuiText size="s" color="subdued">
             <EuiSpacer />
-            <span>Error code:&nbsp;</span>
-            {this.eventId}
+            {i18next.t("general.error_code", { errorCode: this.eventId })}
           </EuiText>
         )}
       </>

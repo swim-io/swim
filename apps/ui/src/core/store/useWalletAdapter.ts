@@ -6,6 +6,7 @@ import { persist } from "zustand/middleware.js";
 
 import { Protocol } from "../../config";
 import { captureException } from "../../errors";
+import { i18next } from "../../i18n";
 import type {
   EvmWalletAdapter,
   SolanaWalletAdapter,
@@ -108,15 +109,21 @@ export const useWalletAdapter = create(
         const handleConnect = (): void => {
           if (adapter.address) {
             notify(
-              "Wallet update",
-              `Connected to wallet ${truncate(adapter.address)}`,
+              i18next.t<string>("notify.connected_to_wallet_title"),
+              i18next.t<string>("notify.connected_to_wallet_description", {
+                walletAddress: truncate(adapter.address),
+              }),
               "info",
               7000,
             );
           }
         };
         const handleDisconnect = (): void => {
-          notify("Wallet update", "Disconnected from wallet", "warning");
+          notify(
+            i18next.t<string>("notify.disconnected_from_wallet_title"),
+            i18next.t<string>("notify.disconnected_from_wallet_description"),
+            "warning",
+          );
           void disconnect();
         };
         const handleError = (title: string, description: string): void => {

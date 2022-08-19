@@ -5,8 +5,16 @@ import type {
 import { AccountLayout, MintLayout } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 
-export type TokenAccount = Pick<SplTokenAccount, "address" | "amount" | "mint">;
-export type Mint = Pick<SplMint, "address" | "supply">;
+/** Account and RawAccount from @solana/spl-token are non-overlapping types so we pick a subset of properties, plus the address */
+export type TokenAccount = Pick<
+  SplTokenAccount,
+  "address" | "amount" | "delegate" | "delegatedAmount" | "mint" | "owner"
+>;
+/** Mint and RawMint from @solana/spl-token are non-overlapping types so we pick a subset of properties, plus the address */
+export type Mint = Pick<
+  SplMint,
+  "address" | "decimals" | "isInitialized" | "mintAuthority" | "supply"
+>;
 
 export const deserializeTokenAccount = (
   pubkey: PublicKey,

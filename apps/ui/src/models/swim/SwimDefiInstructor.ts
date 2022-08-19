@@ -1,5 +1,4 @@
-import { createApproveInstruction } from "@solana/spl-token";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, createApproveInstruction } from "@solana/spl-token";
 import type { AccountMeta, Transaction } from "@solana/web3.js";
 import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";

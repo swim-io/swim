@@ -10,10 +10,10 @@ import {
   MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION,
   SOLANA_TXS_FOR_RELOAD_INTERACTION,
 } from "../../fixtures/tx/useReloadInteractionStateMutationFixture";
+import type { TokenAccount } from "../../models";
 import {
   fetchEvmTxForInteractionId,
   fetchSolanaTxsForInteractionId,
-  TokenAccount,
 } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useEvmWallet } from "../evm";

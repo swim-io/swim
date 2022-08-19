@@ -3,7 +3,7 @@ import type {
   Account as SplTokenAccount,
 } from "@solana/spl-token";
 import { AccountLayout, MintLayout } from "@solana/spl-token";
-import { PublicKey } from "@solana/web3.js";
+import type { PublicKey } from "@solana/web3.js";
 
 /** Account and RawAccount from @solana/spl-token are non-overlapping types so we pick a subset of properties, plus the address */
 export type TokenAccount = Pick<

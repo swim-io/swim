@@ -1,11 +1,11 @@
 import {
   AccountLayout,
+  MintLayout,
+  TOKEN_PROGRAM_ID,
   createInitializeAccountInstruction,
   createInitializeMintInstruction,
   getMinimumBalanceForRentExemptAccount,
   getMinimumBalanceForRentExemptMint,
-  MintLayout,
-  TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import type { AccountMeta, Transaction } from "@solana/web3.js";
 import {
@@ -302,7 +302,7 @@ export class SwimInitializer {
       newAccountPubkey: lpMintKeypair.publicKey,
       lamports: createMintLamports,
       // missing `span` in `Layout` type
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
       space: MintLayout.span,
       programId: TOKEN_PROGRAM_ID,
     });
@@ -342,7 +342,7 @@ export class SwimInitializer {
           newAccountPubkey: tokenKeypair.publicKey,
           lamports: createAccountLamports,
           // missing `span` in `Layout` type
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
           space: AccountLayout.span,
           programId: TOKEN_PROGRAM_ID,
         });

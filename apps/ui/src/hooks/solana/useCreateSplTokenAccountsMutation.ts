@@ -2,7 +2,8 @@ import type { UseMutationResult } from "react-query";
 import { useMutation, useQueryClient } from "react-query";
 
 import { useEnvironment } from "../../core/store";
-import { findOrCreateSplTokenAccount, TokenAccount } from "../../models";
+import type { TokenAccount } from "../../models";
+import { findOrCreateSplTokenAccount } from "../../models";
 
 import { useSolanaConnection } from "./useSolanaConnection";
 import { useSolanaWallet } from "./useSolanaWallet";

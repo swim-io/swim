@@ -1,7 +1,7 @@
-import { createAssociatedTokenAccountInstruction } from "@solana/spl-token";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
 import type {
   AccountInfo,
@@ -18,9 +18,9 @@ import { ethers } from "ethers";
 import type { QueryClient } from "react-query";
 
 import type { SolanaWalletAdapter } from "../wallets";
-import { TokenAccount } from "./parsers";
 
 import type { CustomConnection, SolanaConnection } from "./SolanaConnection";
+import type { TokenAccount } from "./parsers";
 
 const { sha256 } = ethers.utils;
 

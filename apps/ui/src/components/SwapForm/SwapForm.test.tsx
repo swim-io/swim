@@ -20,7 +20,7 @@ import {
   useSwapFeesEstimationQuery,
   useUserNativeBalances,
 } from "../../hooks";
-import { TokenAccount } from "../../models";
+import type { TokenAccount } from "../../models";
 import { mockOf, renderWithAppContext } from "../../testUtils";
 
 import { SwapForm } from "./SwapForm";

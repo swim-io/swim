@@ -6,10 +6,10 @@ import type { TokenSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { Amount } from "../amount";
 import type { Tx } from "../crossEcosystem";
+import type { TokenAccount } from "../solana";
 import {
   getAmountMintedToAccountByMint,
   getAmountTransferredToAccountByMint,
-  TokenAccount,
 } from "../solana";
 
 export const getTransferredAmounts = (

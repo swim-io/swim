@@ -12,7 +12,8 @@ import { sleep } from "@swim-io/utils";
 import { SwimError } from "../../errors";
 import { i18next } from "../../i18n";
 
-import { deserializeTokenAccount, TokenAccount } from "./parsers";
+import type { TokenAccount } from "./parsers";
+import { deserializeTokenAccount } from "./parsers";
 import { getAssociatedTokenAddress } from "./utils";
 
 export const DEFAULT_MAX_RETRIES = 10;

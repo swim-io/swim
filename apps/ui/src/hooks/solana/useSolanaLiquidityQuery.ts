@@ -3,10 +3,10 @@ import type { UseQueryResult } from "react-query";
 import { useQueries, useQuery } from "react-query";
 
 import { useEnvironment } from "../../core/store";
+import type { TokenAccount } from "../../models";
 import {
   deserializeTokenAccount,
   getMultipleSolanaAccounts,
-  TokenAccount,
 } from "../../models";
 
 import { useSolanaConnection } from "./useSolanaConnection";

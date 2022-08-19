@@ -17,8 +17,8 @@ import type {
   InteractionState,
   RequiredSplTokenAccounts,
   SolanaPoolOperationState,
-  TokenAccount,
   ToSolanaTransferState,
+  TokenAccount,
 } from "../../models";
 import {
   InteractionType,

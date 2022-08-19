@@ -5,7 +5,8 @@ import type { UseQueryOptions, UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
 import { useEnvironment } from "../../core/store";
-import { deserializeTokenAccount, TokenAccount } from "../../models";
+import type { TokenAccount } from "../../models";
+import { deserializeTokenAccount } from "../../models";
 
 import { useSolanaConnection } from "./useSolanaConnection";
 import { useSolanaWallet } from "./useSolanaWallet";

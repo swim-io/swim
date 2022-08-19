@@ -8,7 +8,7 @@ import Decimal from "decimal.js";
 import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../amount";
-import { TokenAccount } from "../solana";
+import type { TokenAccount } from "../solana";
 
 import type { InteractionSpec, InteractionSpecV2 } from "./interaction";
 import { InteractionType } from "./interaction";

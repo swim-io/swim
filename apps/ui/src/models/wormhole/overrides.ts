@@ -12,7 +12,7 @@ import {
   importTokenWasm,
   ixFromRust,
 } from "@certusone/wormhole-sdk";
-import { createApproveInstruction, u64 } from "@solana/spl-token";
+import { createApproveInstruction } from "@solana/spl-token";
 import type { Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { createMemoIx } from "@swim-io/solana";
@@ -123,7 +123,7 @@ export const transferFromSolana = async (
     new PublicKey(fromAddress),
     new PublicKey(approval_authority_address(tokenBridgeAddress)),
     new PublicKey(fromOwnerAddress || payerAddress),
-    new u64(amount.toString(16), 16),
+    amount,
   );
   const messageKeypair = Keypair.generate();
   const isSolanaNative =

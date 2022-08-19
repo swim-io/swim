@@ -197,7 +197,7 @@ export const getPoolUsdValue = (
           throw new Error("Token spec not found");
         }
         return acc.add(
-          Amount.fromU64(
+          Amount.fromAtomicBn(
             tokenSpec,
             account.amount,
             SOLANA_ECOSYSTEM_ID,

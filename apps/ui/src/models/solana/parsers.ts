@@ -1,6 +1,6 @@
 /* eslint-disable functional/immutable-data, functional/prefer-readonly-type */
 import type { Mint, Account as TokenAccount } from "@solana/spl-token";
-import { AccountLayout, MintLayout, u64 } from "@solana/spl-token";
+import { AccountLayout, MintLayout } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import type { PublicKeyInitData } from "@solana/web3.js";
 

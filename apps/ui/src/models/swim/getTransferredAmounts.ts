@@ -1,4 +1,3 @@
-import type { Account as TokenAccount } from "@solana/spl-token";
 import { SOLANA_ECOSYSTEM_ID, isSolanaTx } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import Decimal from "decimal.js";
@@ -10,6 +9,7 @@ import type { Tx } from "../crossEcosystem";
 import {
   getAmountMintedToAccountByMint,
   getAmountTransferredToAccountByMint,
+  TokenAccount,
 } from "../solana";
 
 export const getTransferredAmounts = (

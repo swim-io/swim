@@ -1,7 +1,4 @@
-import {
-  Account as TokenAccount,
-  createApproveInstruction,
-} from "@solana/spl-token";
+import { createApproveInstruction } from "@solana/spl-token";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import type { AccountMeta, Transaction } from "@solana/web3.js";
 import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
@@ -10,7 +7,7 @@ import { SOLANA_ECOSYSTEM_ID, createMemoIx } from "@swim-io/solana";
 import { isEachNotNull } from "@swim-io/utils";
 
 import type { Amount } from "../amount";
-import type { SolanaConnection } from "../solana";
+import type { SolanaConnection, TokenAccount } from "../solana";
 import { createTx, findTokenAccountForMint } from "../solana";
 import type { SolanaWalletAdapter } from "../wallets";
 

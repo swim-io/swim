@@ -1,9 +1,8 @@
-import type { Account as TokenAccount } from "@solana/spl-token";
 import type { UseMutationResult } from "react-query";
 import { useMutation, useQueryClient } from "react-query";
 
 import { useEnvironment } from "../../core/store";
-import { findOrCreateSplTokenAccount } from "../../models";
+import { findOrCreateSplTokenAccount, TokenAccount } from "../../models";
 
 import { useSolanaConnection } from "./useSolanaConnection";
 import { useSolanaWallet } from "./useSolanaWallet";

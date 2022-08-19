@@ -1,4 +1,3 @@
-import type { Account as TokenAccount } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import type { UseQueryResult } from "react-query";
 import { useQueries, useQuery } from "react-query";
@@ -7,6 +6,7 @@ import { useEnvironment } from "../../core/store";
 import {
   deserializeTokenAccount,
   getMultipleSolanaAccounts,
+  TokenAccount,
 } from "../../models";
 
 import { useSolanaConnection } from "./useSolanaConnection";

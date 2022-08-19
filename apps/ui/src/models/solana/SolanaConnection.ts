@@ -1,4 +1,3 @@
-import type { Account as TokenAccount } from "@solana/spl-token";
 import type {
   Finality,
   ParsedTransactionWithMeta,
@@ -13,7 +12,7 @@ import { sleep } from "@swim-io/utils";
 import { SwimError } from "../../errors";
 import { i18next } from "../../i18n";
 
-import { deserializeTokenAccount } from "./parsers";
+import { deserializeTokenAccount, TokenAccount } from "./parsers";
 import { getAssociatedTokenAddress } from "./utils";
 
 export const DEFAULT_MAX_RETRIES = 10;

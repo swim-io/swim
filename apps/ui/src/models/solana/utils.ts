@@ -1,7 +1,4 @@
-import {
-  Account as TokenAccount,
-  createAssociatedTokenAccountInstruction,
-} from "@solana/spl-token";
+import { createAssociatedTokenAccountInstruction } from "@solana/spl-token";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -21,14 +18,11 @@ import { ethers } from "ethers";
 import type { QueryClient } from "react-query";
 
 import type { SolanaWalletAdapter } from "../wallets";
+import { TokenAccount } from "./parsers";
 
 import type { CustomConnection, SolanaConnection } from "./SolanaConnection";
 
 const { sha256 } = ethers.utils;
-
-export type WithSplTokenAccounts<T> = T & {
-  readonly splTokenAccounts: readonly TokenAccount[];
-};
 
 /**
  * Adapted from https://github.com/solana-labs/solana-program-library/blob/0c0168f8a9d098c808d431ab7599a3e284a14e7d/token/js/src/errors.ts#L38-L41

@@ -1,5 +1,4 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
-import type { Account as TokenAccount } from "@solana/spl-token";
 import type { Transaction } from "@solana/web3.js";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow, isEachNotNull } from "@swim-io/utils";
@@ -15,7 +14,12 @@ import {
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
-import type { InteractionState, SolanaConnection, Tx } from "../../models";
+import type {
+  InteractionState,
+  SolanaConnection,
+  TokenAccount,
+  Tx,
+} from "../../models";
 import {
   Amount,
   evmAddressToWormhole,

@@ -21,7 +21,7 @@ export const usePoolLpMints = (
   const solanaConnection = useSolanaConnection();
 
   return useQueries(
-    poolSpecs.map((poolSpec, i) => ({
+    poolSpecs.map((poolSpec) => ({
       queryKey: ["poolLpMintAccount", env, poolSpec.id],
       queryFn: async () => {
         if (poolSpec.ecosystem !== SOLANA_ECOSYSTEM_ID) {
@@ -31,11 +31,15 @@ export const usePoolLpMints = (
           tokens,
           (tokenSpec) => tokenSpec.id === poolSpec.lpToken,
         );
-        const lpTokenMintAddress = getSolanaTokenDetails(lpToken).address;
-        const account = await solanaConnection.getAccountInfo(
-          new PublicKey(lpTokenMintAddress),
+        const lpTokenMintPubkey = new PublicKey(
+          getSolanaTokenDetails(lpToken).address,
         );
-        return account ? deserializeMint(account.data) : null;
+        const account = await solanaConnection.getAccountInfo(
+          lpTokenMintPubkey,
+        );
+        return account
+          ? deserializeMint(lpTokenMintPubkey, account.data)
+          : null;
       },
     })),
     // useQueries does not support types without casting

@@ -1,5 +1,5 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import type { Account as TokenAccount } from "@solana/spl-token";
 import type { Transaction } from "@solana/web3.js";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow, isEachNotNull } from "@swim-io/utils";

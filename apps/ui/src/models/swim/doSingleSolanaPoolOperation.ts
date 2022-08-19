@@ -1,4 +1,4 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import type { Account as TokenAccount } from "@solana/spl-token";
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";

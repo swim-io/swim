@@ -1,4 +1,4 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import type { Account as TokenAccount } from "@solana/spl-token";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";

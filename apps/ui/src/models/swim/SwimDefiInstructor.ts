@@ -1,4 +1,4 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import type { Account as TokenAccount } from "@solana/spl-token";
 import { TOKEN_PROGRAM_ID, Token, u64 } from "@solana/spl-token";
 import type { AccountMeta, Transaction } from "@solana/web3.js";
 import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";

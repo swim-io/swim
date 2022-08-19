@@ -1,4 +1,4 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import type { Account as TokenAccount } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";

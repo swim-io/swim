@@ -1,5 +1,5 @@
 /* eslint-disable functional/immutable-data, functional/prefer-readonly-type */
-import type { MintInfo, AccountInfo as TokenAccount } from "@solana/spl-token";
+import type { Mint, Account as TokenAccount } from "@solana/spl-token";
 import { AccountLayout, MintLayout, u64 } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import type { PublicKeyInitData } from "@solana/web3.js";
@@ -79,7 +79,7 @@ type DecodedMintLayout = {
 };
 
 /** Adapted from https://github.com/solana-labs/solana-program-library/blob/756696e/token/js/client/token.js#L722-L755 */
-export const deserializeMint = (data: Buffer): MintInfo => {
+export const deserializeMint = (data: Buffer): Mint => {
   // missing `span` in `Layout` type
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   if (data.length !== MintLayout.span) {
@@ -90,7 +90,7 @@ export const deserializeMint = (data: Buffer): MintInfo => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const decodedMintLayout = MintLayout.decode(data) as DecodedMintLayout;
 
-  const mintInfo: Partial<MintInfo> = {};
+  const mintInfo: Partial<Mint> = {};
 
   if (decodedMintLayout.mintAuthorityOption === 0) {
     mintInfo.mintAuthority = null;
@@ -107,5 +107,5 @@ export const deserializeMint = (data: Buffer): MintInfo => {
     mintInfo.freezeAuthority = new PublicKey(decodedMintLayout.freezeAuthority);
   }
 
-  return mintInfo as MintInfo;
+  return mintInfo as Mint;
 };

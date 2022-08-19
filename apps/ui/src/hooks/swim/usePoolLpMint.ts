@@ -1,4 +1,4 @@
-import type { MintInfo } from "@solana/spl-token";
+import type { Mint } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
@@ -15,7 +15,7 @@ import { useSolanaConnection } from "../solana";
 
 export const usePoolLpMints = (
   poolSpecs: readonly PoolSpec[],
-): readonly UseQueryResult<MintInfo | null, Error>[] => {
+): readonly UseQueryResult<Mint | null, Error>[] => {
   const { env } = useEnvironment();
   const { tokens } = useEnvironment(selectConfig, shallow);
   const solanaConnection = useSolanaConnection();
@@ -40,9 +40,9 @@ export const usePoolLpMints = (
     })),
     // useQueries does not support types without casting
     // See https://github.com/tannerlinsley/react-query/issues/1675
-  ) as readonly UseQueryResult<MintInfo | null, Error>[];
+  ) as readonly UseQueryResult<Mint | null, Error>[];
 };
 
 export const usePoolLpMint = (
   poolSpec: PoolSpec,
-): UseQueryResult<MintInfo | null, Error> => usePoolLpMints([poolSpec])[0];
+): UseQueryResult<Mint | null, Error> => usePoolLpMints([poolSpec])[0];

@@ -8,6 +8,7 @@ use {
     std::{
         ops::{Add, Sub},
         vec::Vec,
+        cmp::min,
     },
     uint::construct_uint,
 };
@@ -51,30 +52,20 @@ impl From<DecT> for Decimal {
     }
 }
 
-// impl From<Decimal> for DecT {
-//     fn from(value: Decimal) -> Self {
-//         Self::new(
-//             (value * Decimal::from(10u32.pow(value.scale())))
-//                 .trunc()
-//                 .to_u64()
-//                 .unwrap(),
-//             value.scale() as u8,
-//         )
-//         .unwrap()
-//     }
-// }
 impl From<Decimal> for DecT {
-    fn from(value: Decimal) -> Self {
-        let decimals = std::cmp::min(value.scale(), (DecT::MAX_DECIMALS - 1) as u32);
-        Self::new(
-            (value * Decimal::from(10u32.pow(decimals)))
-                .trunc()
-                .to_u64()
-                .unwrap(),
-            decimals as u8,
-        )
-        .unwrap()
-    }
+  //will panic for values that can't go into DecT (negative or larger than 64 bytes)
+  fn from(value: Decimal) -> Self {
+      let (v, d): (Decimal, u8) = if value.scale() == 0 {
+          (value, 0)
+      }
+      else {
+          let leading_zeros = value.to_u64().unwrap().leading_zeros() as usize;
+          let unused_decimals_lower_bound = decimal::BIT_TO_DEC_ARRAY[leading_zeros];
+          let d = min(value.scale() as u8, unused_decimals_lower_bound);
+          (value * Decimal::from(decimal::ten_to_the(d)), d)
+      };
+      Self::new(v.to_u64().unwrap(), d.into()).unwrap()
+  }
 }
 
 impl From<U128> for Decimal {
@@ -332,10 +323,6 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
         let denominator =
             dec_amp_factor - Decimal::one() + reciprocal_decay * Decimal::from(TOKEN_COUNT + 1);
         let fixed = denominator / priced_in_lp;
-        // let arr:[Decimal; TOKEN_COUNT] = create_array(
-        //   |i| ((dec_amp_factor + (depth / Decimal::from(pool_balances[i])) * reciprocal_decay) / fixed)
-        // );
-        // println!("{:?}", arr);
         Ok(create_array(|i| {
             ((dec_amp_factor + (depth / Decimal::from(pool_balances[i])) * reciprocal_decay)
                 / fixed)

@@ -6,6 +6,7 @@ import {
   createInitializeMintInstruction,
   getMinimumBalanceForRentExemptAccount,
   getMinimumBalanceForRentExemptMint,
+  getAssociatedTokenAddress,
 } from "@solana/spl-token";
 import type { AccountMeta, Transaction } from "@solana/web3.js";
 import {
@@ -19,12 +20,7 @@ import { swimPool } from "@swim-io/solana";
 import { chunks } from "@swim-io/utils";
 
 import type { SolanaConnection } from "../solana";
-import {
-  createSplTokenAccount,
-  createTx,
-  findAssociatedTokenAccountAddress,
-  findProgramAddress,
-} from "../solana";
+import { createSplTokenAccount, createTx, findProgramAddress } from "../solana";
 import type { SolanaWalletAdapter } from "../wallets";
 
 import { SwimInstruction, initInstruction } from "./instructions";
@@ -119,8 +115,9 @@ export class SwimInitializer {
       this.signer,
       this.lpMint.toBase58(),
     );
-    this.governanceFeeAccount = new PublicKey(
-      findAssociatedTokenAccountAddress(this.lpMint.toBase58(), signerAddress),
+    this.governanceFeeAccount = await getAssociatedTokenAddress(
+      this.lpMint,
+      new PublicKey(signerAddress),
     );
 
     let txIdsPrepareTokenAccounts: readonly string[] = [];

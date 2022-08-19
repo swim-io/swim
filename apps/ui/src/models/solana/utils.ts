@@ -3,6 +3,7 @@ import {
   TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddressSync,
+  getAssociatedTokenAddress,
 } from "@solana/spl-token";
 import type {
   AccountInfo,
@@ -100,31 +101,21 @@ export const findProgramAddress = (
   throw new Error(`Unable to find a viable program address nonce`);
 };
 
-export const findAssociatedTokenAccountAddress = (
-  mintAddress: string,
-  walletAddress: string,
-): string => {
-  const associatedTokenAccountAddress = getAssociatedTokenAddressSync(
-    new PublicKey(mintAddress),
-    new PublicKey(walletAddress),
-  );
-  return associatedTokenAccountAddress.toBase58();
-};
-
 export const findTokenAccountForMint = (
   mintAddress: string,
   walletAddress: string,
   splTokenAccounts: readonly TokenAccount[],
 ): TokenAccount | null => {
-  const associatedTokenAccountAddress = findAssociatedTokenAccountAddress(
-    mintAddress,
-    walletAddress,
+  const associatedTokenAccountAddress = getAssociatedTokenAddressSync(
+    new PublicKey(mintAddress),
+    new PublicKey(walletAddress),
   );
   return (
     splTokenAccounts.find(
       (tokenAccount) =>
         tokenAccount.mint.toBase58() === mintAddress &&
-        tokenAccount.address.toBase58() === associatedTokenAccountAddress,
+        tokenAccount.address.toBase58() ===
+          associatedTokenAccountAddress.toBase58(),
     ) ?? null
   );
 };
@@ -322,15 +313,15 @@ export const createSplTokenAccount = async (
     throw new Error("No Solana wallet connected");
   }
   const mint = new PublicKey(splTokenMintAddress);
-  const associatedAccount = findAssociatedTokenAccountAddress(
-    mint.toBase58(),
-    wallet.publicKey.toBase58(),
+  const associatedAccount = await getAssociatedTokenAddress(
+    mint,
+    wallet.publicKey,
   );
   const ix = createAssociatedTokenAccountInstruction(
     ASSOCIATED_TOKEN_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
     mint,
-    new PublicKey(associatedAccount),
+    associatedAccount,
     wallet.publicKey,
     wallet.publicKey,
   );

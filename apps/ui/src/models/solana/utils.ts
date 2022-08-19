@@ -2,6 +2,7 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
+  getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import type {
   AccountInfo,
@@ -99,32 +100,11 @@ export const findProgramAddress = (
   throw new Error(`Unable to find a viable program address nonce`);
 };
 
-/**
- * Synchronous adaptation of https://github.com/solana-labs/solana-program-library/blob/0c0168f8a9d098c808d431ab7599a3e284a14e7d/token/js/src/state/mint.ts#L135-L161
- */
-export const getAssociatedTokenAddress = (
-  mint: PublicKey,
-  owner: PublicKey,
-  allowOwnerOffCurve = false,
-  programId = TOKEN_PROGRAM_ID,
-  associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID,
-): PublicKey => {
-  if (!allowOwnerOffCurve && !PublicKey.isOnCurve(owner.toBuffer()))
-    throw new TokenOwnerOffCurveError();
-
-  const [address] = findProgramAddress(
-    [owner.toBuffer(), programId.toBuffer(), mint.toBuffer()],
-    associatedTokenProgramId,
-  );
-
-  return address;
-};
-
 export const findAssociatedTokenAccountAddress = (
   mintAddress: string,
   walletAddress: string,
 ): string => {
-  const associatedTokenAccountAddress = getAssociatedTokenAddress(
+  const associatedTokenAccountAddress = getAssociatedTokenAddressSync(
     new PublicKey(mintAddress),
     new PublicKey(walletAddress),
   );

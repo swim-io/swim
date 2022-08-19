@@ -1,7 +1,7 @@
 import { programs } from "@metaplex/js";
 import type { Idl } from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import type { UseMutationResult } from "react-query";
 import { useMutation, useQueryClient } from "react-query";
@@ -10,7 +10,6 @@ import shallow from "zustand/shallow.js";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import redeemerIdl from "../../idl/redeem.json";
-import { getAssociatedTokenAddress } from "../../models";
 import type { NftData } from "../solana";
 import {
   useAnchorProvider,
@@ -58,7 +57,7 @@ export const useRedeemMutation = (
     const collectionMetadata = await Metadata.getPDA(collectionPublicKey);
     const metadataPDA = await Metadata.getPDA(nftPublicKey);
     const editionPDA = await MasterEdition.getPDA(nftPublicKey);
-    const ownerNftAta = getAssociatedTokenAddress(
+    const ownerNftAta = await getAssociatedTokenAddress(
       nftPublicKey,
       anchorProvider.wallet.publicKey,
     );

@@ -1,7 +1,7 @@
 import { programs } from "@metaplex/js";
 import type { Idl } from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
-import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import type { UseMutationResult } from "react-query";
 import { useMutation, useQueryClient } from "react-query";

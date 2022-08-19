@@ -4,9 +4,9 @@ import {
   TOKEN_PROGRAM_ID,
   createInitializeAccountInstruction,
   createInitializeMintInstruction,
+  getAssociatedTokenAddress,
   getMinimumBalanceForRentExemptAccount,
   getMinimumBalanceForRentExemptMint,
-  getAssociatedTokenAddress,
 } from "@solana/spl-token";
 import type { AccountMeta, Transaction } from "@solana/web3.js";
 import {

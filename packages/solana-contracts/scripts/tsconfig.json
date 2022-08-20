@@ -13,7 +13,7 @@
     "resolveJsonModule": true
   },
   "include": [
-    "../tests/twoPool/poolTestUtils.ts"
+    "../test/twoPool/poolTestUtils.ts"
   ],
 
   "references": [

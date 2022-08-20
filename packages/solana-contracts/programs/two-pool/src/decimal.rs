@@ -112,7 +112,7 @@ const fn create_ten_to_the() -> [u128; U128_MAX_DECIMALS] {
 // get_order_of_magnitude(25u8) = 2 however get_unused_decimals(255u8) = 1
 const BIT_TO_DEC_SIZE: usize = 128 + 2;
 //u128::BITS is still an unstable feature
-const BIT_TO_DEC_ARRAY: [u8; BIT_TO_DEC_SIZE] = create_bit_to_dec_array();
+pub const BIT_TO_DEC_ARRAY: [u8; BIT_TO_DEC_SIZE] = create_bit_to_dec_array();
 
 const fn create_bit_to_dec_array() -> [u8; BIT_TO_DEC_SIZE] {
     let mut btd = [0; BIT_TO_DEC_SIZE];

@@ -1,9 +1,10 @@
-import { AnchorProvider, Idl, Program } from "@project-serum/anchor";
-import { Wallet } from "@project-serum/anchor/dist/cjs/provider";
-import { TwoPool } from "./artifacts/two_pool";
-import TwoPoolIDL from "./artifacts/two_pool.json";
-import { ConfirmOptions, Connection, PublicKey } from "@solana/web3.js";
+import type { Idl } from "@project-serum/anchor";
+import { AnchorProvider, Program } from "@project-serum/anchor";
+import type { Wallet } from "@project-serum/anchor/dist/cjs/provider";
+import type { ConfirmOptions, Connection, PublicKey } from "@solana/web3.js";
 
+import type { TwoPool } from "./artifacts/two_pool";
+import TwoPoolIDL from "./artifacts/two_pool.json";
 
 export class TwoPoolContext {
   readonly connection: Connection;
@@ -16,7 +17,7 @@ export class TwoPoolContext {
     connection: Connection,
     wallet: Wallet,
     programId: PublicKey,
-    opts: ConfirmOptions = AnchorProvider.defaultOptions()
+    opts: ConfirmOptions = AnchorProvider.defaultOptions(),
   ): TwoPoolContext {
     const anchorProvider = new AnchorProvider(connection, wallet, opts);
     const program = new Program(TwoPoolIDL as Idl, programId, anchorProvider);
@@ -24,14 +25,14 @@ export class TwoPoolContext {
       anchorProvider,
       anchorProvider.wallet,
       program,
-      opts
+      opts,
     );
   }
 
   public static fromWorkspace(
     provider: AnchorProvider,
     program: Program,
-    opts: ConfirmOptions = AnchorProvider.defaultOptions()
+    opts: ConfirmOptions = AnchorProvider.defaultOptions(),
   ) {
     return new TwoPoolContext(provider, provider.wallet, program, opts);
   }
@@ -39,7 +40,7 @@ export class TwoPoolContext {
   public static withProvider(
     provider: AnchorProvider,
     programId: PublicKey,
-    opts: ConfirmOptions = AnchorProvider.defaultOptions()
+    opts: ConfirmOptions = AnchorProvider.defaultOptions(),
   ): TwoPoolContext {
     const program = new Program(TwoPoolIDL as Idl, programId, provider);
     return new TwoPoolContext(provider, provider.wallet, program, opts);
@@ -49,7 +50,7 @@ export class TwoPoolContext {
     provider: AnchorProvider,
     wallet: Wallet,
     program: Program,
-    opts: ConfirmOptions
+    opts: ConfirmOptions,
   ) {
     this.connection = provider.connection;
     this.wallet = wallet;
@@ -58,8 +59,4 @@ export class TwoPoolContext {
     this.program = program as unknown as Program<TwoPool>;
     this.provider = provider;
   }
-
-
 }
-
-

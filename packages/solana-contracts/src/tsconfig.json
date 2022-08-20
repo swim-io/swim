@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "../sdk/tsconfig-base.json",
+  "extends": "../tsconfig-base.json",
   "compilerOptions": {
     "composite": true
   },

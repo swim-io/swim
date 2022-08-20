@@ -11,6 +11,10 @@ if [ -z "$1" ]; then
   prepare_oracle=true
   test_files="test/**/*.test.ts"
 elif [ "$1" == "propeller" ]; then
+  echo "Running only integration tests"
+  prepare_oracle=true
+  test_files="test/propeller/propellerIntegration.test.ts"
+elif [ "$1" == "propeller" ]; then
   echo "Running only propeller tests"
   test_files="test/propeller/propeller.test.ts"
 elif [ "$1" == "pool" ]; then

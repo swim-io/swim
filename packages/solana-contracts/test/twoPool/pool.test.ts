@@ -763,45 +763,48 @@ describe("TwoPool", () => {
     });
 
     it("Can get marginal prices", async () => {
-      try {
-        const poolTokenAccount0Balance = (
-          await splToken.account.token.fetch(poolUsdcAtaAddr)
-        ).amount;
-        const poolTokenAccount1Balance = (
-          await splToken.account.token.fetch(poolUsdtAtaAddr)
-        ).amount;
-        const lpMintBalance = (
-          await splToken.account.mint.fetch(swimUsdKeypair.publicKey)
-        ).supply;
-        const { ampFactor: ampFactor1, previousDepth } =
-          await twoPoolProgram.account.twoPool.fetch(flagshipPool);
-        console.info(`
+      const poolTokenAccount0Balance = (
+        await splToken.account.token.fetch(poolUsdcAtaAddr)
+      ).amount;
+      const poolTokenAccount1Balance = (
+        await splToken.account.token.fetch(poolUsdtAtaAddr)
+      ).amount;
+      const lpMintBalance = (
+        await splToken.account.mint.fetch(swimUsdKeypair.publicKey)
+      ).supply;
+      const { previousDepth } = await twoPoolProgram.account.twoPool.fetch(
+        flagshipPool,
+      );
+      console.info(`
         poolTokenAccount0Balance: ${poolTokenAccount0Balance.toString()}
         poolTokenAccount1Balance: ${poolTokenAccount1Balance.toString()}
         poolState.previousDepth: ${previousDepth.toString()}
         lpMintBalance: ${lpMintBalance.toString()}
       `);
-        //
-        // console.info(
-        //   `ampFactor: ${ampFactor1.targetValue.value.toString()}`,
-        // );
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const tx = await twoPoolProgram.methods
-          .marginalPrices()
-          .accounts({
-            poolTokenAccount0: poolUsdcAtaAddr,
-            poolTokenAccount1: poolUsdtAtaAddr,
-            lpMint: swimUsdKeypair.publicKey,
-          })
-          .view();
-        // console.info(
-        //   `marginalPrices: ${JSON.stringify(
-        //     tx.map((x) => x.value.toString()),
-        //   )}`,
-        // );
-      } catch (e) {
-        console.info(`error: ${JSON.stringify(e)}`);
-      }
+      //
+      // console.info(
+      //   `ampFactor: ${ampFactor1.targetValue.value.toString()}`,
+      // );
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const marginalPricesView = await twoPoolProgram.methods
+        .marginalPrices()
+        .accounts({
+          poolTokenAccount0: poolUsdcAtaAddr,
+          poolTokenAccount1: poolUsdtAtaAddr,
+          lpMint: swimUsdKeypair.publicKey,
+        })
+        .view();
+      console.info(marginalPricesView);
+      // try {
+      //
+      //   // console.info(
+      //   //   `marginalPrices: ${JSON.stringify(
+      //   //     tx.map((x) => x.value.toString()),
+      //   //   )}`,
+      //   // );
+      // } catch (e) {
+      //   console.info(`error: ${JSON.stringify(e)}`);
+      // }
       expect(true).toBeTruthy();
     });
   });
@@ -812,11 +815,11 @@ describe("TwoPool", () => {
     it("Can adjust amp factor", async () => {
       const targetTs = new BN(Date.now() + 1000);
       const targetValue = { value: new BN(400), decimals: 0 };
-      const params = {
-        targetTs,
-        targetValue,
-      };
-      const tx = await twoPoolProgram.methods
+      // const params = {
+      //   targetTs,
+      //   targetValue,
+      // };
+      await twoPoolProgram.methods
         // .adjustAmpFactor(params)
         .adjustAmpFactor(targetTs, targetValue)
         .accounts({
@@ -1375,6 +1378,4 @@ describe("TwoPool", () => {
       // }
     });
   });
-
-
 });

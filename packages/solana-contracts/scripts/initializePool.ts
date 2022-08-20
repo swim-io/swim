@@ -11,7 +11,7 @@ import {
 } from "../src";
 
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-import { setupPoolPrereqs, setupUserAssociatedTokenAccts } from "../tests/twoPool/poolTestUtils";
+import { setupPoolPrereqs, setupUserAssociatedTokenAccts } from "../test/twoPool/poolTestUtils";
 import { Keypair } from "@solana/web3.js";
 
 const envProvider = anchor.AnchorProvider.env();

@@ -7,13 +7,13 @@ clean_oracle=false
 if [ -z "$1" ]; then
   echo "Running all tests"
   prepare_oracle=true
-  test_files="sdk/tests/**/*.test.ts"
+  test_files="test/**/*.test.ts"
 elif [ "$1" == "propeller" ]; then
     echo "Running only propeller tests"
-    test_files="sdk/tests/propeller/propeller.test.ts"
+    test_files="test/propeller/propeller.test.ts"
 elif [ "$1" == "pool" ]; then
     echo "Running only pool tests"
-    test_files="sdk/tests/twoPool/*.test.ts"
+    test_files="test/twoPool/*.test.ts"
 else
     echo "invalid argument: $1. exiting"
     exit 22
@@ -48,7 +48,7 @@ fi
 #    fi
 #fi
 
-yarn run ts-mocha -p ./sdk/tests/tsconfig.json -t 1000000 "$test_files" &
+yarn run ts-mocha -p ./test/tsconfig.json -t 1000000 "$test_files" &
 yarn_pid=$!
 echo "Yarn PID: ${yarn_pid}"
 wait $yarn_pid
@@ -65,7 +65,7 @@ wait $yarn_pid
 
 
 #
-#yarn run ts-mocha -p ./sdk/tests/tsconfig.json -t 1000000 "$test_files" &
+#yarn run ts-mocha -p ./test/tsconfig.json -t 1000000 "$test_files" &
 #yarn_pid=$!
 #echo "Yarn PID: ${yarn_pid}"
 #wait $yarn_pid

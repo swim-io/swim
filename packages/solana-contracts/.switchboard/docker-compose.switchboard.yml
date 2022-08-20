@@ -15,4 +15,4 @@ services:
     #  - RPC_URL=${RPC_URL}
 secrets:
   PAYER_SECRETS:
-    file: ../sdk/tests/test_wallet.json
+    file: ../test/test_wallet.json

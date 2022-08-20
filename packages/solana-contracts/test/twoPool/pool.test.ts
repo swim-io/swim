@@ -6,18 +6,26 @@ import {
   toMetadataAccount,
 } from "@metaplex-foundation/js";
 import type { Program } from "@project-serum/anchor";
-import * as anchor from "@project-serum/anchor";
-import { AnchorError, Spl, SplToken, web3 } from "@project-serum/anchor";
+// eslint-disable-next-line import/order
+import {
+  AnchorError,
+  AnchorProvider,
+  BN,
+  Spl,
+  setProvider,
+  web3,
+  workspace,
+} from "@project-serum/anchor";
+
+// const {
+//   PublicKey,
+//   Keypair
+// } = web3;
 
 // import { TwoPool } from "../target/types/two_pool";
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-import {
-  Account,
-  getAssociatedTokenAddress,
-  getOrCreateAssociatedTokenAccount,
-  mintTo,
-} from "@solana/spl-token";
-import { assert, expect } from "chai";
+import { getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
+import { assert } from "chai";
 
 import { getApproveAndRevokeIxs, twoPoolToString } from "../../src";
 import type { TwoPool } from "../../src/artifacts/two_pool";
@@ -28,45 +36,48 @@ import {
   setupUserAssociatedTokenAccts,
 } from "./poolTestUtils";
 
+import Keypair = web3.Keypair;
+import PublicKey = web3.PublicKey;
+
 describe("TwoPool", () => {
   // Configure the client to use the local cluster.
-  const provider = anchor.AnchorProvider.env();
+  const provider = AnchorProvider.env();
   const payer = (provider.wallet as NodeWallet).payer;
   const metaplex = Metaplex.make(provider.connection);
 
-  anchor.setProvider(provider);
+  setProvider(provider);
 
-  const twoPoolProgram = anchor.workspace.TwoPool as Program<TwoPool>;
+  const twoPoolProgram = workspace.TwoPool as Program<TwoPool>;
 
-  let flagshipPool: web3.PublicKey;
+  let flagshipPool: PublicKey;
 
   const splToken = Spl.token(provider);
   const splAssociatedToken = Spl.associatedToken(provider);
 
   const mintDecimals = 6;
 
-  const usdcKeypair = web3.Keypair.generate();
-  const usdtKeypair = web3.Keypair.generate();
+  const usdcKeypair = Keypair.generate();
+  const usdtKeypair = Keypair.generate();
   const poolMintKeypairs = [usdcKeypair, usdtKeypair];
   const poolMintDecimals = [mintDecimals, mintDecimals];
   const poolMintAuthorities = [payer, payer];
-  const swimUsdKeypair = web3.Keypair.generate();
-  const governanceKeypair = web3.Keypair.generate();
-  const pauseKeypair = web3.Keypair.generate();
-  const newPauseKeypair = web3.Keypair.generate();
+  const swimUsdKeypair = Keypair.generate();
+  const governanceKeypair = Keypair.generate();
+  const pauseKeypair = Keypair.generate();
+  const newPauseKeypair = Keypair.generate();
   const initialMintAmount = 1_000_000_000_000;
 
-  let poolUsdcAtaAddr: web3.PublicKey;
-  let poolUsdtAtaAddr: web3.PublicKey;
-  let governanceFeeAddr: web3.PublicKey;
+  let poolUsdcAtaAddr: PublicKey;
+  let poolUsdtAtaAddr: PublicKey;
+  let governanceFeeAddr: PublicKey;
 
-  let userUsdcAtaAddr: web3.PublicKey;
-  let userUsdtAtaAddr: web3.PublicKey;
-  let userSwimUsdAtaAddr: web3.PublicKey;
+  let userUsdcAtaAddr: PublicKey;
+  let userUsdtAtaAddr: PublicKey;
+  let userSwimUsdAtaAddr: PublicKey;
 
-  const ampFactor = { value: new anchor.BN(300), decimals: 0 };
-  const lpFee = { value: new anchor.BN(300), decimals: 6 }; //lp fee = .000300 = 0.0300% 3bps
-  const governanceFee = { value: new anchor.BN(100), decimals: 6 }; //gov fee = .000100 = (0.0100%) 1bps
+  const ampFactor = { value: new BN(300), decimals: 0 };
+  const lpFee = { value: new BN(300), decimals: 6 }; //lp fee = .000300 = 0.0300% 3bps
+  const governanceFee = { value: new BN(100), decimals: 6 }; //gov fee = .000100 = (0.0100%) 1bps
 
   before("setup", async () => {
     ({
@@ -85,12 +96,12 @@ describe("TwoPool", () => {
   });
   it("Is initialized!", async () => {
     // Add your test here.
-    const params = {
-      ampFactor,
-      lpFee,
-      governanceFee,
-    };
-    const tx = await twoPoolProgram.methods
+    // const params = {
+    //   ampFactor,
+    //   lpFee,
+    //   governanceFee,
+    // };
+    const tx = twoPoolProgram.methods
       // .initialize(params)
       .initialize(ampFactor, lpFee, governanceFee)
       .accounts({
@@ -111,19 +122,19 @@ describe("TwoPool", () => {
       .signers([swimUsdKeypair]);
 
     const pubkeys = await tx.pubkeys();
-    console.log(`pubkeys: ${JSON.stringify(pubkeys)}`);
+    console.info(`pubkeys: ${JSON.stringify(pubkeys)}`);
     const pool = pubkeys.pool;
-    console.log(
+    console.info(
       `poolKey: ${pool.toBase58()}, expected: ${flagshipPool.toBase58()}`,
     );
 
     expect(pool.toBase58()).to.equal(flagshipPool.toBase58());
     const txSig = await tx.rpc({ skipPreflight: true });
 
-    console.log("Your transaction signature", txSig);
+    console.info("Your transaction signature", txSig);
 
     const poolData = await twoPoolProgram.account.twoPool.fetch(pool);
-    console.log(`poolData: ${JSON.stringify(poolData, null, 2)}`);
+    console.info(`poolData: ${JSON.stringify(poolData, null, 2)}`);
     assert(poolData.ampFactor.targetValue.value.eq(ampFactor.value));
     ({
       userPoolTokenAtas: [userUsdcAtaAddr, userUsdtAtaAddr],
@@ -145,16 +156,13 @@ describe("TwoPool", () => {
         await twoPoolProgram.account.twoPool.fetch(flagshipPool)
       ).previousDepth;
 
-      const inputAmounts = [
-        new anchor.BN(100_000_000),
-        new anchor.BN(100_000_000),
-      ];
-      const minimumMintAmount = new anchor.BN(0);
-      const addParams = {
-        inputAmounts,
-        minimumMintAmount,
-      };
-      const userTransferAuthority = web3.Keypair.generate();
+      const inputAmounts = [new BN(100_000_000), new BN(100_000_000)];
+      const minimumMintAmount = new BN(0);
+      // const addParams = {
+      //   inputAmounts,
+      //   minimumMintAmount,
+      // };
+      const userTransferAuthority = Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userUsdcAtaAddr, userUsdtAtaAddr],
@@ -176,24 +184,24 @@ describe("TwoPool", () => {
           userLpTokenAccount: userSwimUsdAtaAddr,
           tokenProgram: splToken.programId,
         })
-        .preInstructions(approveIxs)
-        .postInstructions(revokeIxs)
+        .preInstructions([...approveIxs])
+        .postInstructions([...revokeIxs])
         .signers([userTransferAuthority])
         .rpc();
 
-      console.log("Your transaction signature", tx);
+      console.info("Your transaction signature", tx);
 
       const userLpTokenAccountBalance = (
         await splToken.account.token.fetch(userSwimUsdAtaAddr)
       ).amount;
-      console.log(
+      console.info(
         `userLpTokenAccountBalance: ${userLpTokenAccountBalance.toString()}`,
       );
-      assert(userLpTokenAccountBalance.gt(new anchor.BN(0)));
+      assert(userLpTokenAccountBalance.gt(new BN(0)));
       const previousDepthAfter = (
         await twoPoolProgram.account.twoPool.fetch(flagshipPool)
       ).previousDepth;
-      console.log(`
+      console.info(`
       previousDepth
         Before: ${previousDepthBefore.toString()}
         After:  ${previousDepthAfter.toString()}
@@ -214,15 +222,15 @@ describe("TwoPool", () => {
       const governanceFeeAcctBalanceBefore = (
         await splToken.account.token.fetch(governanceFeeAddr)
       ).amount;
-      const exactInputAmounts = [new anchor.BN(100_000), new anchor.BN(0)];
+      const exactInputAmounts = [new BN(100_000), new BN(0)];
       const outputTokenIndex = 1;
-      const minimumOutputAmount = new anchor.BN(0);
-      const swapExactInputParams = {
-        exactInputAmounts,
-        outputTokenIndex,
-        minimumOutputAmount,
-      };
-      const userTransferAuthority = web3.Keypair.generate();
+      const minimumOutputAmount = new BN(0);
+      // const swapExactInputParams = {
+      //   exactInputAmounts,
+      //   outputTokenIndex,
+      //   minimumOutputAmount,
+      // };
+      const userTransferAuthority = Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userUsdcAtaAddr, userUsdtAtaAddr],
@@ -248,16 +256,16 @@ describe("TwoPool", () => {
           userTokenAccount1: userUsdtAtaAddr,
           tokenProgram: splToken.programId,
         })
-        .preInstructions(approveIxs)
-        .postInstructions(revokeIxs)
+        .preInstructions([...approveIxs])
+        .postInstructions([...revokeIxs])
         .signers([userTransferAuthority])
         .rpc();
 
-      console.log("Your transaction signature", tx);
+      console.info("Your transaction signature", tx);
       const previousDepthAfter = (
         await twoPoolProgram.account.twoPool.fetch(flagshipPool)
       ).previousDepth;
-      console.log(`
+      console.info(`
       previousDepth
         Before: ${previousDepthBefore.toString()}
         After:  ${previousDepthAfter.toString()}
@@ -273,7 +281,7 @@ describe("TwoPool", () => {
         await splToken.account.token.fetch(governanceFeeAddr)
       ).amount;
 
-      console.log(`
+      console.info(`
       userUsdcTokenAcctBalance
         Before: ${userUsdcTokenAcctBalanceBefore.toString()}
         After:  ${userUsdcTokenAcctBalanceAfter.toString()}
@@ -310,16 +318,15 @@ describe("TwoPool", () => {
       ).amount;
 
       const inputTokenIndex = 0;
-      const maximumInputAmount = new anchor.BN(100_000);
-      const maximumInputAmounts = [maximumInputAmount, new anchor.BN(0)];
-      maximumInputAmounts[inputTokenIndex] = maximumInputAmount;
-      const exactOutputAmounts = [new anchor.BN(0), new anchor.BN(50_000)];
-      const swapExactOutputParams = {
-        maximumInputAmount,
-        inputTokenIndex,
-        exactOutputAmounts,
-      };
-      const userTransferAuthority = web3.Keypair.generate();
+      const maximumInputAmount = new BN(100_000);
+      const maximumInputAmounts = [maximumInputAmount, new BN(0)];
+      const exactOutputAmounts = [new BN(0), new BN(50_000)];
+      // const swapExactOutputParams = {
+      //   maximumInputAmount,
+      //   inputTokenIndex,
+      //   exactOutputAmounts,
+      // };
+      const userTransferAuthority = Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userUsdcAtaAddr, userUsdtAtaAddr],
@@ -345,16 +352,16 @@ describe("TwoPool", () => {
           userTokenAccount1: userUsdtAtaAddr,
           tokenProgram: splToken.programId,
         })
-        .preInstructions(approveIxs)
-        .postInstructions(revokeIxs)
+        .preInstructions([...approveIxs])
+        .postInstructions([...revokeIxs])
         .signers([userTransferAuthority])
         .rpc();
 
-      console.log("Your transaction signature", tx);
+      console.info("Your transaction signature", tx);
       const previousDepthAfter = (
         await twoPoolProgram.account.twoPool.fetch(flagshipPool)
       ).previousDepth;
-      console.log(`
+      console.info(`
       previousDepth
         Before: ${previousDepthBefore.toString()}
         After:  ${previousDepthAfter.toString()}
@@ -370,7 +377,7 @@ describe("TwoPool", () => {
         await splToken.account.token.fetch(governanceFeeAddr)
       ).amount;
 
-      console.log(`
+      console.info(`
       userUsdcTokenAcctBalance
         Before: ${userUsdcTokenAcctBalanceBefore.toString()}
         After:  ${userUsdcTokenAcctBalanceAfter.toString()}
@@ -408,16 +415,13 @@ describe("TwoPool", () => {
       const governanceFeeAcctBalanceBefore = (
         await splToken.account.token.fetch(governanceFeeAddr)
       ).amount;
-      const exactBurnAmount = new anchor.BN(100_000);
-      const minimumOutputAmounts = [
-        new anchor.BN(10_000),
-        new anchor.BN(10_000),
-      ];
-      const removeUniformParams = {
-        exactBurnAmount,
-        minimumOutputAmounts,
-      };
-      const userTransferAuthority = web3.Keypair.generate();
+      const exactBurnAmount = new BN(100_000);
+      const minimumOutputAmounts = [new BN(10_000), new BN(10_000)];
+      // const removeUniformParams = {
+      //   exactBurnAmount,
+      //   minimumOutputAmounts,
+      // };
+      const userTransferAuthority = Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userSwimUsdAtaAddr],
@@ -440,16 +444,16 @@ describe("TwoPool", () => {
           userLpTokenAccount: userSwimUsdAtaAddr,
           tokenProgram: splToken.programId,
         })
-        .preInstructions(approveIxs)
-        .postInstructions(revokeIxs)
+        .preInstructions([...approveIxs])
+        .postInstructions([...revokeIxs])
         .signers([userTransferAuthority])
         .rpc();
 
-      console.log("Your transaction signature", tx);
+      console.info("Your transaction signature", tx);
       const previousDepthAfter = (
         await twoPoolProgram.account.twoPool.fetch(flagshipPool)
       ).previousDepth;
-      console.log(`
+      console.info(`
       previousDepth
         Before: ${previousDepthBefore.toString()}
         After:  ${previousDepthAfter.toString()}
@@ -467,7 +471,7 @@ describe("TwoPool", () => {
       const governanceFeeAcctBalanceAfter = (
         await splToken.account.token.fetch(governanceFeeAddr)
       ).amount;
-      console.log(`
+      console.info(`
       userUsdcTokenAcctBalance
         Before: ${userUsdcTokenAcctBalanceBefore.toString()}
         After:  ${userUsdcTokenAcctBalanceAfter.toString()}
@@ -518,15 +522,15 @@ describe("TwoPool", () => {
       const governanceFeeAcctBalanceBefore = (
         await splToken.account.token.fetch(governanceFeeAddr)
       ).amount;
-      const exactBurnAmount = new anchor.BN(100_000);
+      const exactBurnAmount = new BN(100_000);
       const outputTokenIndex = 0;
-      const minimumOutputAmount = new anchor.BN(10_000);
-      const removeExactBurnParams = {
-        exactBurnAmount,
-        outputTokenIndex,
-        minimumOutputAmount,
-      };
-      const userTransferAuthority = web3.Keypair.generate();
+      const minimumOutputAmount = new BN(10_000);
+      // const removeExactBurnParams = {
+      //   exactBurnAmount,
+      //   outputTokenIndex,
+      //   minimumOutputAmount,
+      // };
+      const userTransferAuthority = Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userSwimUsdAtaAddr],
@@ -549,16 +553,16 @@ describe("TwoPool", () => {
           userLpTokenAccount: userSwimUsdAtaAddr,
           tokenProgram: splToken.programId,
         })
-        .preInstructions(approveIxs)
-        .postInstructions(revokeIxs)
+        .preInstructions([...approveIxs])
+        .postInstructions([...revokeIxs])
         .signers([userTransferAuthority])
         .rpc();
 
-      console.log("Your transaction signature", tx);
+      console.info("Your transaction signature", tx);
       const previousDepthAfter = (
         await twoPoolProgram.account.twoPool.fetch(flagshipPool)
       ).previousDepth;
-      console.log(`
+      console.info(`
       previousDepth
         Before: ${previousDepthBefore.toString()}
         After:  ${previousDepthAfter.toString()}
@@ -576,7 +580,7 @@ describe("TwoPool", () => {
       const governanceFeeAcctBalanceAfter = (
         await splToken.account.token.fetch(governanceFeeAddr)
       ).amount;
-      console.log(`
+      console.info(`
       userUsdcTokenAcctBalance
         Before: ${userUsdcTokenAcctBalanceBefore.toString()}
         After:  ${userUsdcTokenAcctBalanceAfter.toString()}
@@ -623,21 +627,18 @@ describe("TwoPool", () => {
       const governanceFeeAcctBalanceBefore = (
         await splToken.account.token.fetch(governanceFeeAddr)
       ).amount;
-      const maximumBurnAmount = new anchor.BN(3_000_000);
+      const maximumBurnAmount = new BN(3_000_000);
 
       //TODO: investigate this:
       //    if the output amounts were within 20_000 of each other then no goverance fee
       //    would be minted. is this due to approximation/values used?
       //    with decimals of 6 this is < 1 USDC. is the governance fee just too small in those cases?
-      const exactOutputAmounts = [
-        new anchor.BN(1_000_000),
-        new anchor.BN(1_200_000),
-      ];
-      const removeExactOutputParams = {
-        maximumBurnAmount,
-        exactOutputAmounts,
-      };
-      const userTransferAuthority = web3.Keypair.generate();
+      const exactOutputAmounts = [new BN(1_000_000), new BN(1_200_000)];
+      // const removeExactOutputParams = {
+      //   maximumBurnAmount,
+      //   exactOutputAmounts,
+      // };
+      const userTransferAuthority = Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userSwimUsdAtaAddr],
@@ -660,16 +661,16 @@ describe("TwoPool", () => {
           userLpTokenAccount: userSwimUsdAtaAddr,
           tokenProgram: splToken.programId,
         })
-        .preInstructions(approveIxs)
-        .postInstructions(revokeIxs)
+        .preInstructions([...approveIxs])
+        .postInstructions([...revokeIxs])
         .signers([userTransferAuthority])
         .rpc();
 
-      console.log("Your transaction signature", tx);
+      console.info("Your transaction signature", tx);
       const previousDepthAfter = (
         await twoPoolProgram.account.twoPool.fetch(flagshipPool)
       ).previousDepth;
-      console.log(`
+      console.info(`
       previousDepth
         Before: ${previousDepthBefore.toString()}
         After:  ${previousDepthAfter.toString()}
@@ -687,7 +688,7 @@ describe("TwoPool", () => {
       const governanceFeeAcctBalanceAfter = (
         await splToken.account.token.fetch(governanceFeeAddr)
       ).amount;
-      console.log(`
+      console.info(`
       userUsdcTokenAcctBalance
         Before: ${userUsdcTokenAcctBalanceBefore.toString()}
         After:  ${userUsdcTokenAcctBalanceAfter.toString()}
@@ -736,13 +737,14 @@ describe("TwoPool", () => {
         const poolState = await twoPoolProgram.account.twoPool.fetch(
           flagshipPool,
         );
-        console.log(`
+        console.info(`
         poolTokenAccount0Balance: ${poolTokenAccount0Balance.toString()}
         poolTokenAccount1Balance: ${poolTokenAccount1Balance.toString()}
         poolState.previousDepth: ${poolState.previousDepth.toString()}
         lpMintBalance: ${lpMintBalance.toString()}
         ampFactor: ${poolState.ampFactor.targetValue.value.toString()}
       `);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const tx = await twoPoolProgram.methods
           .marginalPrices()
           .accounts({
@@ -751,13 +753,13 @@ describe("TwoPool", () => {
             lpMint: swimUsdKeypair.publicKey,
           })
           .view();
-        console.log(
+        console.info(
           `marginalPrices: ${JSON.stringify(
             tx.map((x) => x.value.toString()),
           )}`,
         );
       } catch (e) {
-        console.log(`error: ${JSON.stringify(e)}`);
+        console.info(`error: ${JSON.stringify(e)}`);
       }
     });
   });
@@ -766,8 +768,8 @@ describe("TwoPool", () => {
   // since solana-program-test crate gives us access to do "timeskips"
   describe("Governance instructions tests (non-enact)", () => {
     it("Can adjust amp factor", async () => {
-      const targetTs = new anchor.BN(Date.now() + 1000);
-      const targetValue = { value: new anchor.BN(400), decimals: 0 };
+      const targetTs = new BN(Date.now() + 1000);
+      const targetValue = { value: new BN(400), decimals: 0 };
       const params = {
         targetTs,
         targetValue,
@@ -788,14 +790,14 @@ describe("TwoPool", () => {
         flagshipPool,
       );
       assert(poolDataAfter.ampFactor.targetTs.eq(targetTs));
-      assert(poolDataAfter.ampFactor.targetValue.value.eq(new anchor.BN(400)));
+      assert(poolDataAfter.ampFactor.targetValue.value.eq(new BN(400)));
     });
 
     it("Can pause and unpause the pool", async () => {
       let poolData = await twoPoolProgram.account.twoPool.fetch(flagshipPool);
       assert.isTrue(!poolData.isPaused);
       let paused = true;
-      console.log(`sending pauseTxn`);
+      console.info(`sending pauseTxn`);
       await twoPoolProgram.methods
         .setPaused(paused)
         .accounts({
@@ -808,15 +810,15 @@ describe("TwoPool", () => {
       poolData = await twoPoolProgram.account.twoPool.fetch(flagshipPool);
       assert.isTrue(poolData.isPaused);
 
-      const exactInputAmounts = [new anchor.BN(1_000), new anchor.BN(0)];
+      const exactInputAmounts = [new BN(1_000), new BN(0)];
       const outputTokenIndex = 1;
-      const minimumOutputAmount = new anchor.BN(0);
-      const swapExactInputParams = {
-        exactInputAmounts,
-        outputTokenIndex,
-        minimumOutputAmount,
-      };
-      const userTransferAuthority = web3.Keypair.generate();
+      const minimumOutputAmount = new BN(0);
+      // const swapExactInputParams = {
+      //   exactInputAmounts,
+      //   outputTokenIndex,
+      //   minimumOutputAmount,
+      // };
+      const userTransferAuthority = Keypair.generate();
       const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
         splToken,
         [userUsdcAtaAddr, userUsdtAtaAddr],
@@ -825,9 +827,9 @@ describe("TwoPool", () => {
         payer,
       );
 
-      console.log(`trying defi ix on paused pool (should fail)`);
+      console.info(`trying defi ix on paused pool (should fail)`);
       try {
-        const swapExactInputTx = await twoPoolProgram.methods
+        await twoPoolProgram.methods
           // .swapExactInput(swapExactInputParams)
           .swapExactInput(
             exactInputAmounts,
@@ -844,17 +846,17 @@ describe("TwoPool", () => {
             userTokenAccount1: userUsdtAtaAddr,
             tokenProgram: splToken.programId,
           })
-          .preInstructions(approveIxs)
-          .postInstructions(revokeIxs)
+          .preInstructions([...approveIxs])
+          .postInstructions([...revokeIxs])
           .signers([userTransferAuthority])
           .rpc();
         //Should not reach here
         assert(false);
       } catch (e) {
-        console.log(`successfully threw error: ${JSON.stringify(e)}`);
+        console.info(`successfully threw error: ${JSON.stringify(e)}`);
       }
 
-      console.log(`un-pausing pool`);
+      console.info(`un-pausing pool`);
       paused = false;
       await twoPoolProgram.methods
         .setPaused(paused)
@@ -868,7 +870,7 @@ describe("TwoPool", () => {
       poolData = await twoPoolProgram.account.twoPool.fetch(flagshipPool);
       assert.isTrue(!poolData.isPaused);
 
-      console.log(`re-trying defi ix on un-paused pool`);
+      console.info(`re-trying defi ix on un-paused pool`);
       try {
         const swapExactInputTx = await twoPoolProgram.methods
           // .swapExactInput(swapExactInputParams)
@@ -887,22 +889,22 @@ describe("TwoPool", () => {
             userTokenAccount1: userUsdtAtaAddr,
             tokenProgram: splToken.programId,
           })
-          .preInstructions(approveIxs)
-          .postInstructions(revokeIxs)
+          .preInstructions([...approveIxs])
+          .postInstructions([...revokeIxs])
           .signers([userTransferAuthority])
           .rpc();
         //Should not reach here
-        console.log(
+        console.info(
           `successfully submitted swapExactInputTx: ${swapExactInputTx}`,
         );
       } catch (e) {
-        console.log(`should not have thrown error: ${JSON.stringify(e)}`);
+        console.info(`should not have thrown error: ${JSON.stringify(e)}`);
         assert(false);
       }
     });
 
     it("Can update pool's pause key", async () => {
-      const tx = await twoPoolProgram.methods
+      const changePauseKeyTxn = await twoPoolProgram.methods
         .changePauseKey(newPauseKeypair.publicKey)
         .accounts({
           commonGovernance: {
@@ -913,12 +915,13 @@ describe("TwoPool", () => {
         .signers([governanceKeypair])
         .rpc();
 
+      console.info(`changePauseKeyTxn: ${changePauseKeyTxn}`);
       let poolData = await twoPoolProgram.account.twoPool.fetch(flagshipPool);
       assert(poolData.pauseKey.equals(newPauseKeypair.publicKey));
       let paused = true;
 
       try {
-        console.log(`sending pauseTxn expected to fail`);
+        console.info(`sending pauseTxn expected to fail`);
         await twoPoolProgram.methods
           .setPaused(paused)
           .accounts({
@@ -928,7 +931,7 @@ describe("TwoPool", () => {
           .signers([pauseKeypair])
           .rpc();
       } catch (_err) {
-        console.log(`successfully threw error: ${JSON.stringify(_err)}`);
+        console.info(`successfully threw error: ${JSON.stringify(_err)}`);
         assert.isTrue(_err instanceof AnchorError);
         const err: AnchorError = _err;
         assert.strictEqual(err.error.errorMessage, "Invalid Pause Key");
@@ -961,13 +964,13 @@ describe("TwoPool", () => {
     });
 
     it("Can prepare fee changes", async () => {
-      const newLpFee = { value: new anchor.BN(400), decimals: 6 }; //lp fee = .000400 = 0.0400% 3bps
-      const newGovernanceFee = { value: new anchor.BN(200), decimals: 6 }; //gov fee = .000200 = (0.0200%) 1bps
-      const params = {
-        lpFee: newLpFee,
-        governanceFee: newGovernanceFee,
-      };
-      const tx = await twoPoolProgram.methods
+      const newLpFee = { value: new BN(400), decimals: 6 }; //lp fee = .000400 = 0.0400% 3bps
+      const newGovernanceFee = { value: new BN(200), decimals: 6 }; //gov fee = .000200 = (0.0200%) 1bps
+      // const params = {
+      //   lpFee: newLpFee,
+      //   governanceFee: newGovernanceFee,
+      // };
+      const prepareFeeChangeTxn = await twoPoolProgram.methods
         // .prepareFeeChange(params)
         .prepareFeeChange(newLpFee, newGovernanceFee)
         .accounts({
@@ -978,6 +981,7 @@ describe("TwoPool", () => {
         })
         .signers([governanceKeypair])
         .rpc();
+      console.info(`send prepareFeeChangeTxn: ${prepareFeeChangeTxn}`);
 
       const poolDataAfter = await twoPoolProgram.account.twoPool.fetch(
         flagshipPool,
@@ -993,11 +997,11 @@ describe("TwoPool", () => {
     });
 
     it("Can prepare governance transitions", async () => {
-      const upcomingGovernanceKey = web3.Keypair.generate().publicKey;
-      const params = {
-        upcomingGovernanceKey,
-      };
-      const tx = await twoPoolProgram.methods
+      const upcomingGovernanceKey = Keypair.generate().publicKey;
+      // const params = {
+      //   upcomingGovernanceKey,
+      // };
+      const prepareGovernanceTransitionTxn = await twoPoolProgram.methods
         .prepareGovernanceTransition(upcomingGovernanceKey)
         .accounts({
           commonGovernance: {
@@ -1007,6 +1011,9 @@ describe("TwoPool", () => {
         })
         .signers([governanceKeypair])
         .rpc();
+      console.info(
+        `send prepareGovernanceTransitionTxn: ${prepareGovernanceTransitionTxn}`,
+      );
 
       const poolDataAfter = await twoPoolProgram.account.twoPool.fetch(
         flagshipPool,
@@ -1015,7 +1022,7 @@ describe("TwoPool", () => {
     });
 
     it("Can change governance fee account", async () => {
-      const newGovernanceFeeOwner = web3.Keypair.generate().publicKey;
+      const newGovernanceFeeOwner = Keypair.generate().publicKey;
       const newGovernanceFeeKey = (
         await getOrCreateAssociatedTokenAccount(
           provider.connection,
@@ -1024,7 +1031,7 @@ describe("TwoPool", () => {
           newGovernanceFeeOwner,
         )
       ).address;
-      const tx = await twoPoolProgram.methods
+      const changeGovFeeTxn = await twoPoolProgram.methods
         .changeGovernanceFeeAccount(newGovernanceFeeKey)
         .accounts({
           commonGovernance: {
@@ -1035,6 +1042,7 @@ describe("TwoPool", () => {
         })
         .signers([governanceKeypair])
         .rpc();
+      console.info(`send changeGovFeeTxn: ${changeGovFeeTxn}`);
 
       const poolDataAfter = await twoPoolProgram.account.twoPool.fetch(
         flagshipPool,
@@ -1045,7 +1053,7 @@ describe("TwoPool", () => {
     it("Throws error when changing governance fee account to invalid token account", async () => {
       try {
         const newGovernanceFeeKey = userUsdcAtaAddr;
-        const tx = await twoPoolProgram.methods
+        await twoPoolProgram.methods
           .changeGovernanceFeeAccount(newGovernanceFeeKey)
           .accounts({
             commonGovernance: {
@@ -1058,8 +1066,8 @@ describe("TwoPool", () => {
           .rpc();
         assert(false);
       } catch (_err) {
-        // console.log(`_err: ${JSON.stringify(_err)}`);
-        // console.log(`anchorErr: ${JSON.stringify(err)}`);
+        // console.info(`_err: ${JSON.stringify(_err)}`);
+        // console.info(`anchorErr: ${JSON.stringify(err)}`);
         //anchorErr: {
         // "errorLogs":[
         //    "Program log: AnchorError occurred. Error Code: ConstraintTokenMint. Error Number: 2014. Error Message: A token mint constraint was violated."
@@ -1106,15 +1114,15 @@ describe("TwoPool", () => {
       };
       const isMutable = true;
       const updateAuthorityIsSigner = true;
-      const params = {
-        data,
-        isMutable,
-        updateAuthorityIsSigner,
-      };
+      // const params = {
+      //   data,
+      //   isMutable,
+      //   updateAuthorityIsSigner,
+      // };
 
       const metadataPda = findMetadataPda(swimUsdKeypair.publicKey);
-      console.log(`metadataPda: ${metadataPda.toBase58()}`);
-      const tx = await twoPoolProgram.methods
+      console.info(`metadataPda: ${metadataPda.toBase58()}`);
+      await twoPoolProgram.methods
         // .createLpMetadata(params)
         .createLpMetadata(data, isMutable, updateAuthorityIsSigner)
         .accounts({
@@ -1141,7 +1149,7 @@ describe("TwoPool", () => {
       );
 
       const metadata = toMetadata(metadataAccount);
-      console.log(`metadata: ${JSON.stringify(metadata)}`);
+      console.info(`metadata: ${JSON.stringify(metadata)}`);
       assert.equal(metadata.name, name);
       assert.equal(metadata.symbol, symbol);
       assert.equal(metadata.uri, uri);
@@ -1173,8 +1181,8 @@ describe("TwoPool", () => {
       };
 
       const metadataPda = findMetadataPda(swimUsdKeypair.publicKey);
-      console.log(`metadataPda: ${metadataPda.toBase58()}`);
-      const tx = await twoPoolProgram.methods
+      console.info(`metadataPda: ${metadataPda.toBase58()}`);
+      await twoPoolProgram.methods
         .updateLpMetadata(
           // params,
           newUpdateAuthority,
@@ -1197,7 +1205,7 @@ describe("TwoPool", () => {
         .signers([governanceKeypair])
         .rpc({ skipPreflight: true });
 
-      // console.log(`txSig: ${tx}`);
+      // console.info(`txSig: ${tx}`);
       // await provider.connection.confirmTransaction({
       //   signature: tx,
       //   ...(await provider.connection.getLatestBlockhash()),
@@ -1208,7 +1216,7 @@ describe("TwoPool", () => {
       );
 
       const metadata = toMetadata(metadataAccount);
-      console.log(`metadata: ${JSON.stringify(metadata)}`);
+      console.info(`metadata: ${JSON.stringify(metadata)}`);
       assert.equal(metadata.name, name);
       assert.equal(metadata.symbol, symbol);
       assert.equal(metadata.uri, uri);
@@ -1232,17 +1240,17 @@ describe("TwoPool", () => {
       };
       const primarySaleHappened = null;
       const isMutable = null;
-      const params = {
-        newUpdateAuthority,
-        data,
-        primarySaleHappened,
-        isMutable,
-      };
+      // const params = {
+      //   newUpdateAuthority,
+      //   data,
+      //   primarySaleHappened,
+      //   isMutable,
+      // };
 
       const metadataPda = findMetadataPda(swimUsdKeypair.publicKey);
-      console.log(`metadataPda: ${metadataPda.toBase58()}`);
+      console.info(`metadataPda: ${metadataPda.toBase58()}`);
       try {
-        const tx = await twoPoolProgram.methods
+        await twoPoolProgram.methods
           // .updateLpMetadata(params)
           .updateLpMetadata(
             newUpdateAuthority,
@@ -1257,7 +1265,7 @@ describe("TwoPool", () => {
             },
             updateMetadataAccounts: {
               metadata: metadataPda,
-              updateAuthority: web3.Keypair.generate().publicKey,
+              updateAuthority: Keypair.generate().publicKey,
             },
             mplTokenMetadata: TokenMetadataProgram.publicKey,
           })
@@ -1283,12 +1291,14 @@ describe("TwoPool", () => {
 
   it("Can print pool state in friendly format", async () => {
     const poolState = await twoPoolToString(twoPoolProgram, flagshipPool);
-    console.log(poolState);
+    console.info(poolState);
   });
 
   it("Can fetch & deserialize pool state", async () => {
     const accountInfo = await provider.connection.getAccountInfo(flagshipPool);
-    const poolAccountData = parsePoolAccount(accountInfo!.data);
-    console.log(`poolAccountData: ${JSON.stringify(poolAccountData)}`);
+    assert(accountInfo);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const poolAccountData = parsePoolAccount(accountInfo.data);
+    console.info(`poolAccountData: ${JSON.stringify(poolAccountData)}`);
   });
 });

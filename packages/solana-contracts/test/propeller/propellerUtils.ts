@@ -1,34 +1,51 @@
-import { web3 } from "@project-serum/anchor";
-import * as anchor from "@project-serum/anchor";
-import { BigNumber } from "ethers";
-import { ChainId, ChainName } from "@certusone/wormhole-sdk";
+import type { ChainId, ChainName } from "@certusone/wormhole-sdk";
 import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
+import { web3 } from "@project-serum/anchor";
+import type * as anchor from "@project-serum/anchor";
+import { BigNumber } from "ethers";
+
+import type {
+  ParsedTokenTransferPostedMessage,
+  ParsedTokenTransferSignedVaa,
+} from "./tokenBridgeUtils";
 import {
   formatParsedTokenTransferPostedMessage,
   formatParsedTokenTransferSignedVaa,
-  ParsedTokenTransferPostedMessage,
-  ParsedTokenTransferSignedVaa,
   parseTokenTransferPostedMessage,
-  parseTokenTransferSignedVaa, toBigNumberHex,
+  parseTokenTransferSignedVaa,
+  toBigNumberHex,
 } from "./tokenBridgeUtils";
 import { parseVaa } from "./wormholeUtils";
 
-export async function getPropellerPda(mint: web3.PublicKey, programId: web3.PublicKey): Promise<web3.PublicKey> {
-  return (await web3.PublicKey.findProgramAddress(
-    [Buffer.from("propeller"), mint.toBytes()],
-    programId
-  ))[0];
+export async function getPropellerPda(
+  mint: web3.PublicKey,
+  programId: web3.PublicKey,
+): Promise<web3.PublicKey> {
+  return (
+    await web3.PublicKey.findProgramAddress(
+      [Buffer.from("propeller"), mint.toBytes()],
+      programId,
+    )
+  )[0];
 }
 
-export async function getPropellerRedeemerPda(programId: web3.PublicKey): Promise<web3.PublicKey> {
-  return (await web3.PublicKey.findProgramAddress(
-    [Buffer.from("redeemer")],
-    programId
-  ))[0];
+export async function getPropellerRedeemerPda(
+  programId: web3.PublicKey,
+): Promise<web3.PublicKey> {
+  return (
+    await web3.PublicKey.findProgramAddress(
+      [Buffer.from("redeemer")],
+      programId,
+    )
+  )[0];
 }
 
-export async function getPropellerSenderPda(programId: web3.PublicKey): Promise<web3.PublicKey> {
-  return (await web3.PublicKey.findProgramAddress([Buffer.from("sender")], programId))[0];
+export async function getPropellerSenderPda(
+  programId: web3.PublicKey,
+): Promise<web3.PublicKey> {
+  return (
+    await web3.PublicKey.findProgramAddress([Buffer.from("sender")], programId)
+  )[0];
 }
 //
 // async function addToPool(
@@ -105,8 +122,6 @@ export async function getPropellerSenderPda(programId: web3.PublicKey): Promise<
 // 	return tokenAccount
 // }
 
-
-
 // const parseTokenTransferWithSwimPayloadPostedMessage = async (arr: Buffer) => {
 // 	const {parse_posted_message} = await importCoreWasm();
 // 	const postedMessage = parse_posted_message(arr);
@@ -151,39 +166,37 @@ export async function getPropellerSenderPda(programId: web3.PublicKey): Promise<
 // 16 bytes - memo/interactionId (??) (current memo is 16 bytes - can't use Wormhole sequence due to Solana originating transactions (only receive sequence number in last transaction on Solana, hence no id for earlier transactions))
 // ?? bytes - propeller parameters (propellerEnabled: bool / gasTokenPrefundingAmount: uint256 / propellerFee (?? - similar to wormhole arbiter fee))
 export interface ParsedSwimPayload {
-  version: number;
-  owner: Buffer;
-  targetTokenId: number;
+  readonly version: number;
+  readonly owner: Buffer;
+  readonly targetTokenId: number;
   // minOutputAmount: bigint;
-  memo: Buffer;
+  readonly memo: Buffer;
   // targetToken: Buffer; //mint of expected final output token
   // gas: string;
   // keeping this as string for now since JSON.stringify poos on bigints
   // minOutputAmount: string; //this will always be 0 in v1
-  propellerEnabled: boolean;
+  readonly propellerEnabled: boolean;
   //this will always be 0 in v1. it represents minimumOutputAmount.
   // v1 will not handle cross-chain slippage
-  minThreshold: bigint;
+  readonly minThreshold: bigint;
   // propellerFee: bigint;
   // propellerFee: string;
-  gasKickstart: boolean;
+  readonly gasKickstart: boolean;
 }
 
-export function encodeSwimPayload(
-  swimPayload: ParsedSwimPayload
-): Buffer {
+export function encodeSwimPayload(swimPayload: ParsedSwimPayload): Buffer {
   const encoded = Buffer.alloc(
     1 + //version
-    2 + //targetTokenId (u16)
-    // 32 + //targetToken
-    32 + //owner
-    // 32 + //gas
-    // 32 + //minOutputAmount
-    16 + //memo
-    1 + //propellerEnabled
-    32 + //minThreshold
-    // 32 + //propellerFee
-    1 //gasKickstart
+      2 + //targetTokenId (u16)
+      // 32 + //targetToken
+      32 + //owner
+      // 32 + //gas
+      // 32 + //minOutputAmount
+      16 + //memo
+      1 + //propellerEnabled
+      32 + //minThreshold
+      // 32 + //propellerFee
+      1, //gasKickstart
   );
   let offset = 0;
   encoded.writeUint8(swimPayload.version, offset);
@@ -199,7 +212,7 @@ export function encodeSwimPayload(
   encoded.write(swimPayload.memo.toString("hex"), offset, "hex");
   offset += 16;
   encoded.writeUint8(Number(swimPayload.propellerEnabled), offset);
-  offset++
+  offset++;
   encoded.write(toBigNumberHex(swimPayload.minThreshold, 32), offset, "hex");
   offset += 32;
   // encoded.write(toBigNumberHex(swimPayload.propellerFee, 32), 100, "hex");
@@ -240,7 +253,7 @@ export function parseSwimPayload(arr: Buffer): ParsedSwimPayload {
     propellerEnabled,
     minThreshold,
     gasKickstart,
-  }
+  };
   // return {
   //   version: arr.readUint8(0),
   //   targetTokenId: arr.readUint16BE(1),
@@ -255,16 +268,16 @@ export function parseSwimPayload(arr: Buffer): ParsedSwimPayload {
   // }
 }
 export type PostVAAData = {
-  version: number;
-  guardianSetIndex: number;
-  timestamp: number;
-  nonce: number;
-  emitterChain: number;
-  emitterAddress: Buffer;
-  sequence: anchor.BN;
-  consistencyLevel: number;
-  payload: Buffer;
-}
+  readonly version: number;
+  readonly guardianSetIndex: number;
+  readonly timestamp: number;
+  readonly nonce: number;
+  readonly emitterChain: number;
+  readonly emitterAddress: Buffer;
+  readonly sequence: anchor.BN;
+  readonly consistencyLevel: number;
+  readonly payload: Buffer;
+};
 
 // export function toPostVAAData(signedVaa: Buffer): PostVAAData {
 //   // const {
@@ -312,61 +325,81 @@ export function parseU256(arr: Buffer): bigint {
 export interface ParsedTokenTransferWithSwimPayloadVaa {
   // core: ParsedVaa,
   // tokenTransfer: ParsedTokenTransfer;
-  tokenTransferVaa: ParsedTokenTransferSignedVaa;
-  swimPayload: ParsedSwimPayload;
+  readonly tokenTransferVaa: ParsedTokenTransferSignedVaa;
+  readonly swimPayload: ParsedSwimPayload;
 }
-export const parseTokenTransferWithSwimPayloadSignedVaa = (signedVaa: Buffer): ParsedTokenTransferWithSwimPayloadVaa => {
+export const parseTokenTransferWithSwimPayloadSignedVaa = (
+  signedVaa: Buffer,
+): ParsedTokenTransferWithSwimPayloadVaa => {
   const parsedTokenTransfer = parseTokenTransferSignedVaa(signedVaa);
   const payload = parsedTokenTransfer.tokenTransfer.payload;
   const swimPayload = parseSwimPayload(payload);
   return {
     tokenTransferVaa: parsedTokenTransfer,
     swimPayload,
-  }
-}
+  };
+};
 
-export const formatParsedTokenTransferWithSwimPayloadVaa = (parsed: ParsedTokenTransferWithSwimPayloadVaa) => {
-  const formattedTokenTransfer = formatParsedTokenTransferSignedVaa(parsed.tokenTransferVaa);
+export const formatParsedTokenTransferWithSwimPayloadVaa = (
+  parsed: ParsedTokenTransferWithSwimPayloadVaa,
+) => {
+  const formattedTokenTransfer = formatParsedTokenTransferSignedVaa(
+    parsed.tokenTransferVaa,
+  );
   const swimPayload = parsed.swimPayload;
-  const formattedSwimPayload = formatSwimPayload(swimPayload, parsed.tokenTransferVaa.tokenTransfer.toChain);
+  const formattedSwimPayload = formatSwimPayload(
+    swimPayload,
+    parsed.tokenTransferVaa.tokenTransfer.toChain,
+  );
   return {
     ...formattedTokenTransfer,
     ...formattedSwimPayload,
   };
-}
+};
 
-export const formatSwimPayload = (swimPayload: ParsedSwimPayload, chain: ChainId | ChainName) => {
+export const formatSwimPayload = (
+  swimPayload: ParsedSwimPayload,
+  chain: ChainId | ChainName,
+) => {
   return {
     ...swimPayload,
     // minOutputAmount: swimPayload.minOutputAmount.toString(),
     memo: swimPayload.memo.toString(),
     minThreshold: swimPayload.minThreshold.toString(),
-    owner: tryUint8ArrayToNative(swimPayload.owner, chain)
-  }
-}
+    owner: tryUint8ArrayToNative(swimPayload.owner, chain),
+  };
+};
 
 export interface ParsedTokenTransferWithSwimPayloadPostedMessage {
-  tokenTransferMessage: ParsedTokenTransferPostedMessage;
-  swimPayload: ParsedSwimPayload;
+  readonly tokenTransferMessage: ParsedTokenTransferPostedMessage;
+  readonly swimPayload: ParsedSwimPayload;
 }
 
-export const parseTokenTransferWithSwimPayloadPostedMessage = async (message: Buffer): Promise<ParsedTokenTransferWithSwimPayloadPostedMessage> => {
+export const parseTokenTransferWithSwimPayloadPostedMessage = async (
+  message: Buffer,
+): Promise<ParsedTokenTransferWithSwimPayloadPostedMessage> => {
   const parsedTokenTransferMsg = await parseTokenTransferPostedMessage(message);
   const payload = parsedTokenTransferMsg.tokenTransfer.payload;
   const swimPayload = parseSwimPayload(payload);
   return {
     tokenTransferMessage: parsedTokenTransferMsg,
     swimPayload,
-  }
-}
+  };
+};
 
-export const formatParsedTokenTransferWithSwimPayloadPostedMessage = (parsed: ParsedTokenTransferWithSwimPayloadPostedMessage) => {
-  const formattedTokenTransfer = formatParsedTokenTransferPostedMessage(parsed.tokenTransferMessage);
+export const formatParsedTokenTransferWithSwimPayloadPostedMessage = (
+  parsed: ParsedTokenTransferWithSwimPayloadPostedMessage,
+) => {
+  const formattedTokenTransfer = formatParsedTokenTransferPostedMessage(
+    parsed.tokenTransferMessage,
+  );
   const swimPayload = parsed.swimPayload;
-  const formattedSwimPayload = formatSwimPayload(swimPayload, parsed.tokenTransferMessage.tokenTransfer.toChain);
+  const formattedSwimPayload = formatSwimPayload(
+    swimPayload,
+    parsed.tokenTransferMessage.tokenTransfer.toChain,
+  );
   return {
     ...formattedTokenTransfer,
     ...formattedSwimPayload,
   };
-
-}
+};

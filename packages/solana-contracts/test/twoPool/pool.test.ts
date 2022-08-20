@@ -8,7 +8,6 @@ import {
 import type { Program } from "@project-serum/anchor";
 // eslint-disable-next-line import/order
 import {
-  AnchorError,
   AnchorProvider,
   BN,
   Spl,
@@ -25,7 +24,6 @@ import {
 // import { TwoPool } from "../target/types/two_pool";
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import { getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
-import { assert } from "chai";
 
 import { getApproveAndRevokeIxs, twoPoolToString } from "../../src";
 import type { TwoPool } from "../../src/artifacts/two_pool";
@@ -79,7 +77,7 @@ describe("TwoPool", () => {
   const lpFee = { value: new BN(300), decimals: 6 }; //lp fee = .000300 = 0.0300% 3bps
   const governanceFee = { value: new BN(100), decimals: 6 }; //gov fee = .000100 = (0.0100%) 1bps
 
-  before("setup", async () => {
+  beforeAll(async () => {
     ({
       poolPubkey: flagshipPool,
       poolTokenAccounts: [poolUsdcAtaAddr, poolUsdtAtaAddr],
@@ -124,18 +122,26 @@ describe("TwoPool", () => {
     const pubkeys = await tx.pubkeys();
     console.info(`pubkeys: ${JSON.stringify(pubkeys)}`);
     const pool = pubkeys.pool;
+
+    if (!pool) {
+      throw new Error("Pool pubkey not found");
+    }
     console.info(
       `poolKey: ${pool.toBase58()}, expected: ${flagshipPool.toBase58()}`,
     );
 
-    expect(pool.toBase58()).to.equal(flagshipPool.toBase58());
+    expect(pool.toBase58()).toEqual(flagshipPool.toBase58());
     const txSig = await tx.rpc({ skipPreflight: true });
 
     console.info("Your transaction signature", txSig);
 
     const poolData = await twoPoolProgram.account.twoPool.fetch(pool);
     console.info(`poolData: ${JSON.stringify(poolData, null, 2)}`);
-    assert(poolData.ampFactor.targetValue.value.eq(ampFactor.value));
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const actualAmpFactorTargetValue = poolData.ampFactor.targetValue.value;
+    expect(actualAmpFactorTargetValue.eq(ampFactor.value)).toBeTruthy();
     ({
       userPoolTokenAtas: [userUsdcAtaAddr, userUsdtAtaAddr],
       userLpTokenAta: userSwimUsdAtaAddr,
@@ -148,6 +154,23 @@ describe("TwoPool", () => {
       initialMintAmount,
       payer,
     ));
+  });
+
+  it("Can print pool state in friendly format", async () => {
+    const poolState = await twoPoolToString(twoPoolProgram, flagshipPool);
+    console.info(poolState);
+    expect(poolState).toBeTruthy();
+  });
+
+  it("Can fetch & deserialize pool state", async () => {
+    const accountInfo = await provider.connection.getAccountInfo(flagshipPool);
+    if (!accountInfo) {
+      throw new Error("Failed to get accountInfo");
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const poolAccountData = parsePoolAccount(accountInfo.data);
+    console.info(`poolAccountData: ${JSON.stringify(poolAccountData)}`);
+    expect(poolAccountData).toBeTruthy();
   });
 
   describe("Defi Instructions", () => {
@@ -197,7 +220,7 @@ describe("TwoPool", () => {
       console.info(
         `userLpTokenAccountBalance: ${userLpTokenAccountBalance.toString()}`,
       );
-      assert(userLpTokenAccountBalance.gt(new BN(0)));
+      expect(userLpTokenAccountBalance.gt(new BN(0))).toBeTruthy();
       const previousDepthAfter = (
         await twoPoolProgram.account.twoPool.fetch(flagshipPool)
       ).previousDepth;
@@ -206,7 +229,7 @@ describe("TwoPool", () => {
         Before: ${previousDepthBefore.toString()}
         After:  ${previousDepthAfter.toString()}
     `);
-      assert(previousDepthAfter.gt(previousDepthBefore));
+      expect(previousDepthAfter.gt(previousDepthBefore)).toBeTruthy();
     });
 
     it("Can swap exact input to pool", async () => {
@@ -270,7 +293,7 @@ describe("TwoPool", () => {
         Before: ${previousDepthBefore.toString()}
         After:  ${previousDepthAfter.toString()}
     `);
-      assert(!previousDepthAfter.eq(previousDepthBefore));
+      expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
       const userUsdcTokenAcctBalanceAfter = (
         await splToken.account.token.fetch(userUsdcAtaAddr)
       ).amount;
@@ -294,13 +317,17 @@ describe("TwoPool", () => {
         Before: ${governanceFeeAcctBalanceBefore.toString()}
         After:  ${governanceFeeAcctBalanceAfter.toString()}
     `);
-      assert(
+      expect(
         userUsdcTokenAcctBalanceAfter.eq(
           userUsdcTokenAcctBalanceBefore.sub(exactInputAmounts[0]),
         ),
-      );
-      assert(userUsdtTokenAcctBalanceAfter.gt(userUsdtTokenAcctBalanceBefore));
-      assert(governanceFeeAcctBalanceAfter.gt(governanceFeeAcctBalanceBefore));
+      ).toBeTruthy();
+      expect(
+        userUsdtTokenAcctBalanceAfter.gt(userUsdtTokenAcctBalanceBefore),
+      ).toBeTruthy();
+      expect(
+        governanceFeeAcctBalanceAfter.gt(governanceFeeAcctBalanceBefore),
+      ).toBeTruthy();
     });
 
     it("Can swap exact output to pool", async () => {
@@ -366,7 +393,7 @@ describe("TwoPool", () => {
         Before: ${previousDepthBefore.toString()}
         After:  ${previousDepthAfter.toString()}
     `);
-      assert(!previousDepthAfter.eq(previousDepthBefore));
+      expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
       const userUsdcTokenAcctBalanceAfter = (
         await splToken.account.token.fetch(userUsdcAtaAddr)
       ).amount;
@@ -390,13 +417,17 @@ describe("TwoPool", () => {
         Before: ${governanceFeeAcctBalanceBefore.toString()}
         After:  ${governanceFeeAcctBalanceAfter.toString()}
     `);
-      assert(userUsdcTokenAcctBalanceAfter.lt(userUsdcTokenAcctBalanceBefore));
-      assert(
+      expect(
+        userUsdcTokenAcctBalanceAfter.lt(userUsdcTokenAcctBalanceBefore),
+      ).toBeTruthy();
+      expect(
         userUsdtTokenAcctBalanceAfter.eq(
           userUsdtTokenAcctBalanceBefore.add(exactOutputAmounts[1]),
         ),
-      );
-      assert(governanceFeeAcctBalanceAfter.gt(governanceFeeAcctBalanceBefore));
+      ).toBeTruthy();
+      expect(
+        governanceFeeAcctBalanceAfter.gt(governanceFeeAcctBalanceBefore),
+      ).toBeTruthy();
     });
 
     it("Can remove uniform", async () => {
@@ -458,7 +489,7 @@ describe("TwoPool", () => {
         Before: ${previousDepthBefore.toString()}
         After:  ${previousDepthAfter.toString()}
     `);
-      assert(!previousDepthAfter.eq(previousDepthBefore));
+      expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
       const userUsdcTokenAcctBalanceAfter = (
         await splToken.account.token.fetch(userUsdcAtaAddr)
       ).amount;
@@ -488,22 +519,24 @@ describe("TwoPool", () => {
         Before: ${governanceFeeAcctBalanceBefore.toString()}
         After:  ${governanceFeeAcctBalanceAfter.toString()}
     `);
-      assert(
+      expect(
         userUsdcTokenAcctBalanceAfter.gte(
           userUsdcTokenAcctBalanceBefore.add(minimumOutputAmounts[0]),
         ),
-      );
-      assert(
+      ).toBeTruthy();
+      expect(
         userUsdtTokenAcctBalanceAfter.gte(
           userUsdtTokenAcctBalanceBefore.add(minimumOutputAmounts[1]),
         ),
-      );
-      assert(
+      ).toBeTruthy();
+      expect(
         userSwimUsdTokenAcctBalanceAfter.eq(
           userSwimUsdTokenAcctBalanceBefore.sub(exactBurnAmount),
         ),
-      );
-      assert(governanceFeeAcctBalanceAfter.eq(governanceFeeAcctBalanceBefore));
+      ).toBeTruthy();
+      expect(
+        governanceFeeAcctBalanceAfter.eq(governanceFeeAcctBalanceBefore),
+      ).toBeTruthy();
     });
 
     it("Can remove exact burn", async () => {
@@ -567,7 +600,7 @@ describe("TwoPool", () => {
         Before: ${previousDepthBefore.toString()}
         After:  ${previousDepthAfter.toString()}
     `);
-      assert(!previousDepthAfter.eq(previousDepthBefore));
+      expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
       const userUsdcTokenAcctBalanceAfter = (
         await splToken.account.token.fetch(userUsdcAtaAddr)
       ).amount;
@@ -597,18 +630,22 @@ describe("TwoPool", () => {
         Before: ${governanceFeeAcctBalanceBefore.toString()}
         After:  ${governanceFeeAcctBalanceAfter.toString()}
     `);
-      assert(
+      expect(
         userUsdcTokenAcctBalanceAfter.gte(
           userUsdcTokenAcctBalanceBefore.add(minimumOutputAmount),
         ),
-      );
-      assert(userUsdtTokenAcctBalanceAfter.eq(userUsdtTokenAcctBalanceBefore));
-      assert(
+      ).toBeTruthy();
+      expect(
+        userUsdtTokenAcctBalanceAfter.eq(userUsdtTokenAcctBalanceBefore),
+      ).toBeTruthy();
+      expect(
         userSwimUsdTokenAcctBalanceAfter.eq(
           userSwimUsdTokenAcctBalanceBefore.sub(exactBurnAmount),
         ),
-      );
-      assert(governanceFeeAcctBalanceAfter.gt(governanceFeeAcctBalanceBefore));
+      ).toBeTruthy();
+      expect(
+        governanceFeeAcctBalanceAfter.gt(governanceFeeAcctBalanceBefore),
+      ).toBeTruthy();
     });
 
     it("Can remove exact output", async () => {
@@ -675,7 +712,7 @@ describe("TwoPool", () => {
         Before: ${previousDepthBefore.toString()}
         After:  ${previousDepthAfter.toString()}
     `);
-      assert(!previousDepthAfter.eq(previousDepthBefore));
+      expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
       const userUsdcTokenAcctBalanceAfter = (
         await splToken.account.token.fetch(userUsdcAtaAddr)
       ).amount;
@@ -705,22 +742,24 @@ describe("TwoPool", () => {
         Before: ${governanceFeeAcctBalanceBefore.toString()}
         After:  ${governanceFeeAcctBalanceAfter.toString()}
     `);
-      assert(
+      expect(
         userUsdcTokenAcctBalanceAfter.eq(
           userUsdcTokenAcctBalanceBefore.add(exactOutputAmounts[0]),
         ),
-      );
-      assert(
+      ).toBeTruthy();
+      expect(
         userUsdtTokenAcctBalanceAfter.eq(
           userUsdtTokenAcctBalanceBefore.add(exactOutputAmounts[1]),
         ),
-      );
-      assert(
+      ).toBeTruthy();
+      expect(
         userSwimUsdTokenAcctBalanceAfter.gte(
           userSwimUsdTokenAcctBalanceBefore.sub(maximumBurnAmount),
         ),
-      );
-      assert(governanceFeeAcctBalanceAfter.gt(governanceFeeAcctBalanceBefore));
+      ).toBeTruthy();
+      expect(
+        governanceFeeAcctBalanceAfter.gt(governanceFeeAcctBalanceBefore),
+      ).toBeTruthy();
     });
 
     it("Can get marginal prices", async () => {
@@ -734,16 +773,18 @@ describe("TwoPool", () => {
         const lpMintBalance = (
           await splToken.account.mint.fetch(swimUsdKeypair.publicKey)
         ).supply;
-        const poolState = await twoPoolProgram.account.twoPool.fetch(
-          flagshipPool,
-        );
+        const { ampFactor: ampFactor1, previousDepth } =
+          await twoPoolProgram.account.twoPool.fetch(flagshipPool);
         console.info(`
         poolTokenAccount0Balance: ${poolTokenAccount0Balance.toString()}
         poolTokenAccount1Balance: ${poolTokenAccount1Balance.toString()}
-        poolState.previousDepth: ${poolState.previousDepth.toString()}
+        poolState.previousDepth: ${previousDepth.toString()}
         lpMintBalance: ${lpMintBalance.toString()}
-        ampFactor: ${poolState.ampFactor.targetValue.value.toString()}
       `);
+        //
+        // console.info(
+        //   `ampFactor: ${ampFactor1.targetValue.value.toString()}`,
+        // );
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const tx = await twoPoolProgram.methods
           .marginalPrices()
@@ -753,14 +794,15 @@ describe("TwoPool", () => {
             lpMint: swimUsdKeypair.publicKey,
           })
           .view();
-        console.info(
-          `marginalPrices: ${JSON.stringify(
-            tx.map((x) => x.value.toString()),
-          )}`,
-        );
+        // console.info(
+        //   `marginalPrices: ${JSON.stringify(
+        //     tx.map((x) => x.value.toString()),
+        //   )}`,
+        // );
       } catch (e) {
         console.info(`error: ${JSON.stringify(e)}`);
       }
+      expect(true).toBeTruthy();
     });
   });
 
@@ -786,16 +828,17 @@ describe("TwoPool", () => {
         .signers([governanceKeypair])
         .rpc();
 
-      const poolDataAfter = await twoPoolProgram.account.twoPool.fetch(
-        flagshipPool,
-      );
-      assert(poolDataAfter.ampFactor.targetTs.eq(targetTs));
-      assert(poolDataAfter.ampFactor.targetValue.value.eq(new BN(400)));
+      const { ampFactor: ampFactor1 } =
+        await twoPoolProgram.account.twoPool.fetch(flagshipPool);
+      expect(ampFactor1.targetTs.eq(targetTs)).toBeTruthy();
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      expect(ampFactor1.targetValue.value.eq(new BN(400))).toBeTruthy();
     });
 
     it("Can pause and unpause the pool", async () => {
       let poolData = await twoPoolProgram.account.twoPool.fetch(flagshipPool);
-      assert.isTrue(!poolData.isPaused);
+      expect(!poolData.isPaused).toBe(true);
       let paused = true;
       console.info(`sending pauseTxn`);
       await twoPoolProgram.methods
@@ -808,7 +851,7 @@ describe("TwoPool", () => {
         .rpc();
 
       poolData = await twoPoolProgram.account.twoPool.fetch(flagshipPool);
-      assert.isTrue(poolData.isPaused);
+      expect(poolData.isPaused).toBe(true);
 
       const exactInputAmounts = [new BN(1_000), new BN(0)];
       const outputTokenIndex = 1;
@@ -828,8 +871,8 @@ describe("TwoPool", () => {
       );
 
       console.info(`trying defi ix on paused pool (should fail)`);
-      try {
-        await twoPoolProgram.methods
+      await expect(() =>
+        twoPoolProgram.methods
           // .swapExactInput(swapExactInputParams)
           .swapExactInput(
             exactInputAmounts,
@@ -849,12 +892,14 @@ describe("TwoPool", () => {
           .preInstructions([...approveIxs])
           .postInstructions([...revokeIxs])
           .signers([userTransferAuthority])
-          .rpc();
-        //Should not reach here
-        assert(false);
-      } catch (e) {
-        console.info(`successfully threw error: ${JSON.stringify(e)}`);
-      }
+          .rpc(),
+      ).rejects.toThrow();
+      // try {
+      //   await //Should not reach here
+      //   expect(false).toBeTruthy();
+      // } catch (e) {
+      //   console.info(`successfully threw error: ${JSON.stringify(e)}`);
+      // }
 
       console.info(`un-pausing pool`);
       paused = false;
@@ -868,39 +913,30 @@ describe("TwoPool", () => {
         .rpc();
 
       poolData = await twoPoolProgram.account.twoPool.fetch(flagshipPool);
-      assert.isTrue(!poolData.isPaused);
+      expect(!poolData.isPaused).toBe(true);
 
       console.info(`re-trying defi ix on un-paused pool`);
-      try {
-        const swapExactInputTx = await twoPoolProgram.methods
-          // .swapExactInput(swapExactInputParams)
-          .swapExactInput(
-            exactInputAmounts,
-            outputTokenIndex,
-            minimumOutputAmount,
-          )
-          .accounts({
-            poolTokenAccount0: poolUsdcAtaAddr,
-            poolTokenAccount1: poolUsdtAtaAddr,
-            lpMint: swimUsdKeypair.publicKey,
-            governanceFee: governanceFeeAddr,
-            userTransferAuthority: userTransferAuthority.publicKey,
-            userTokenAccount0: userUsdcAtaAddr,
-            userTokenAccount1: userUsdtAtaAddr,
-            tokenProgram: splToken.programId,
-          })
-          .preInstructions([...approveIxs])
-          .postInstructions([...revokeIxs])
-          .signers([userTransferAuthority])
-          .rpc();
-        //Should not reach here
-        console.info(
-          `successfully submitted swapExactInputTx: ${swapExactInputTx}`,
-        );
-      } catch (e) {
-        console.info(`should not have thrown error: ${JSON.stringify(e)}`);
-        assert(false);
-      }
+      await twoPoolProgram.methods
+        // .swapExactInput(swapExactInputParams)
+        .swapExactInput(
+          exactInputAmounts,
+          outputTokenIndex,
+          minimumOutputAmount,
+        )
+        .accounts({
+          poolTokenAccount0: poolUsdcAtaAddr,
+          poolTokenAccount1: poolUsdtAtaAddr,
+          lpMint: swimUsdKeypair.publicKey,
+          governanceFee: governanceFeeAddr,
+          userTransferAuthority: userTransferAuthority.publicKey,
+          userTokenAccount0: userUsdcAtaAddr,
+          userTokenAccount1: userUsdtAtaAddr,
+          tokenProgram: splToken.programId,
+        })
+        .preInstructions([...approveIxs])
+        .postInstructions([...revokeIxs])
+        .signers([userTransferAuthority])
+        .rpc();
     });
 
     it("Can update pool's pause key", async () => {
@@ -917,25 +953,35 @@ describe("TwoPool", () => {
 
       console.info(`changePauseKeyTxn: ${changePauseKeyTxn}`);
       let poolData = await twoPoolProgram.account.twoPool.fetch(flagshipPool);
-      assert(poolData.pauseKey.equals(newPauseKeypair.publicKey));
+      expect(poolData.pauseKey.equals(newPauseKeypair.publicKey)).toBeTruthy();
       let paused = true;
 
-      try {
-        console.info(`sending pauseTxn expected to fail`);
-        await twoPoolProgram.methods
+      await expect(() =>
+        twoPoolProgram.methods
           .setPaused(paused)
           .accounts({
             pool: flagshipPool,
             pauseKey: pauseKeypair.publicKey,
           })
           .signers([pauseKeypair])
-          .rpc();
-      } catch (_err) {
-        console.info(`successfully threw error: ${JSON.stringify(_err)}`);
-        assert.isTrue(_err instanceof AnchorError);
-        const err: AnchorError = _err;
-        assert.strictEqual(err.error.errorMessage, "Invalid Pause Key");
-      }
+          .rpc(),
+      ).rejects.toThrow("Invalid Pause Key");
+      // try {
+      //   console.info(`sending pauseTxn expected to fail`);
+      //   await twoPoolProgram.methods
+      //     .setPaused(paused)
+      //     .accounts({
+      //       pool: flagshipPool,
+      //       pauseKey: pauseKeypair.publicKey,
+      //     })
+      //     .signers([pauseKeypair])
+      //     .rpc();
+      // } catch (_err) {
+      //   console.info(`successfully threw error: ${JSON.stringify(_err)}`);
+      //   expect(_err instanceof AnchorError).toBe(true);
+      //   const err: AnchorError = _err as unknown as AnchorError;
+      //   expect(err.error.errorMessage).toBe("Invalid Pause Key");
+      // }
 
       await twoPoolProgram.methods
         .setPaused(paused)
@@ -947,7 +993,7 @@ describe("TwoPool", () => {
         .rpc();
 
       poolData = await twoPoolProgram.account.twoPool.fetch(flagshipPool);
-      assert.isTrue(poolData.isPaused);
+      expect(poolData.isPaused).toEqual(true);
 
       paused = false;
       await twoPoolProgram.methods
@@ -960,7 +1006,7 @@ describe("TwoPool", () => {
         .rpc();
 
       poolData = await twoPoolProgram.account.twoPool.fetch(flagshipPool);
-      assert.isTrue(!poolData.isPaused);
+      expect(!poolData.isPaused).toEqual(true);
     });
 
     it("Can prepare fee changes", async () => {
@@ -986,12 +1032,10 @@ describe("TwoPool", () => {
       const poolDataAfter = await twoPoolProgram.account.twoPool.fetch(
         flagshipPool,
       );
-      assert.equal(
-        poolDataAfter.preparedLpFee.value,
+      expect(poolDataAfter.preparedLpFee.value).toEqual(
         newLpFee.value.toNumber(),
       );
-      assert.equal(
-        poolDataAfter.preparedGovernanceFee.value,
+      expect(poolDataAfter.preparedGovernanceFee.value).toEqual(
         newGovernanceFee.value.toNumber(),
       );
     });
@@ -1018,7 +1062,9 @@ describe("TwoPool", () => {
       const poolDataAfter = await twoPoolProgram.account.twoPool.fetch(
         flagshipPool,
       );
-      assert(poolDataAfter.preparedGovernanceKey.equals(upcomingGovernanceKey));
+      expect(
+        poolDataAfter.preparedGovernanceKey.equals(upcomingGovernanceKey),
+      ).toBeTruthy();
     });
 
     it("Can change governance fee account", async () => {
@@ -1047,13 +1093,15 @@ describe("TwoPool", () => {
       const poolDataAfter = await twoPoolProgram.account.twoPool.fetch(
         flagshipPool,
       );
-      assert(poolDataAfter.governanceFeeKey.equals(newGovernanceFeeKey));
+      expect(
+        poolDataAfter.governanceFeeKey.equals(newGovernanceFeeKey),
+      ).toBeTruthy();
     });
 
     it("Throws error when changing governance fee account to invalid token account", async () => {
-      try {
-        const newGovernanceFeeKey = userUsdcAtaAddr;
-        await twoPoolProgram.methods
+      const newGovernanceFeeKey = userUsdcAtaAddr;
+      await expect(() => {
+        return twoPoolProgram.methods
           .changeGovernanceFeeAccount(newGovernanceFeeKey)
           .accounts({
             commonGovernance: {
@@ -1064,39 +1112,53 @@ describe("TwoPool", () => {
           })
           .signers([governanceKeypair])
           .rpc();
-        assert(false);
-      } catch (_err) {
-        // console.info(`_err: ${JSON.stringify(_err)}`);
-        // console.info(`anchorErr: ${JSON.stringify(err)}`);
-        //anchorErr: {
-        // "errorLogs":[
-        //    "Program log: AnchorError occurred. Error Code: ConstraintTokenMint. Error Number: 2014. Error Message: A token mint constraint was violated."
-        //  ],
-        // "logs":[
-        //    "Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM invoke [1]",
-        //    "Program log: Instruction: ChangeGovernanceFeeAccount",
-        //    "Program log: AnchorError occurred. Error Code: ConstraintTokenMint. Error Number: 2014. Error Message: A token mint constraint was violated.",
-        //    "Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM consumed 7871 of 200000 compute units",
-        //    "Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM failed: custom program error: 0x7de"
-        //  ],
-        // "error":{
-        //    "errorCode":{
-        //      "code":"ConstraintTokenMint",
-        //      "number":2014
-        //    },
-        //    "errorMessage":"A token mint constraint was violated"
-        //    },
-        //    "_programErrorStack":{
-        //      "stack":["8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM"]
-        //    }
-        //  }
-        assert.isTrue(_err instanceof AnchorError);
-        const err: AnchorError = _err;
-        assert.strictEqual(
-          err.error.errorMessage,
-          "A token mint constraint was violated",
-        );
-      }
+      }).rejects.toThrow("A token mint constraint was violated");
+      // try {
+      //
+      //
+      //   await twoPoolProgram.methods
+      //     .changeGovernanceFeeAccount(newGovernanceFeeKey)
+      //     .accounts({
+      //       commonGovernance: {
+      //         pool: flagshipPool,
+      //         governance: governanceKeypair.publicKey,
+      //       },
+      //       newGovernanceFee: newGovernanceFeeKey,
+      //     })
+      //     .signers([governanceKeypair])
+      //     .rpc();
+      //   expect(false).toBeTruthy();
+      // } catch (_err) {
+      //   // console.info(`_err: ${JSON.stringify(_err)}`);
+      //   // console.info(`anchorErr: ${JSON.stringify(err)}`);
+      //   //anchorErr: {
+      //   // "errorLogs":[
+      //   //    "Program log: AnchorError occurred. Error Code: ConstraintTokenMint. Error Number: 2014. Error Message: A token mint constraint was violated."
+      //   //  ],
+      //   // "logs":[
+      //   //    "Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM invoke [1]",
+      //   //    "Program log: Instruction: ChangeGovernanceFeeAccount",
+      //   //    "Program log: AnchorError occurred. Error Code: ConstraintTokenMint. Error Number: 2014. Error Message: A token mint constraint was violated.",
+      //   //    "Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM consumed 7871 of 200000 compute units",
+      //   //    "Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM failed: custom program error: 0x7de"
+      //   //  ],
+      //   // "error":{
+      //   //    "errorCode":{
+      //   //      "code":"ConstraintTokenMint",
+      //   //      "number":2014
+      //   //    },
+      //   //    "errorMessage":"A token mint constraint was violated"
+      //   //    },
+      //   //    "_programErrorStack":{
+      //   //      "stack":["8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM"]
+      //   //    }
+      //   //  }
+      //   expect(_err instanceof AnchorError).toBe(true);
+      //   const err: AnchorError = _err;
+      //   expect(err.error.errorMessage).toBe(
+      //     "A token mint constraint was violated",
+      //   );
+      // }
     });
     it("Can create mpl token metadata for lp token", async () => {
       const name = "swimUSD";
@@ -1150,10 +1212,10 @@ describe("TwoPool", () => {
 
       const metadata = toMetadata(metadataAccount);
       console.info(`metadata: ${JSON.stringify(metadata)}`);
-      assert.equal(metadata.name, name);
-      assert.equal(metadata.symbol, symbol);
-      assert.equal(metadata.uri, uri);
-      assert.equal(metadata.sellerFeeBasisPoints, sellerFeeBasisPoints);
+      expect(metadata.name).toEqual(name);
+      expect(metadata.symbol).toEqual(symbol);
+      expect(metadata.uri).toEqual(uri);
+      expect(metadata.sellerFeeBasisPoints).toEqual(sellerFeeBasisPoints);
     });
 
     it("Can update mpl token metadata for lp token", async () => {
@@ -1173,12 +1235,12 @@ describe("TwoPool", () => {
       };
       const primarySaleHappened = null;
       const isMutable = null;
-      const params = {
-        newUpdateAuthority,
-        data,
-        primarySaleHappened,
-        isMutable,
-      };
+      // const params = {
+      //   newUpdateAuthority,
+      //   data,
+      //   primarySaleHappened,
+      //   isMutable,
+      // };
 
       const metadataPda = findMetadataPda(swimUsdKeypair.publicKey);
       console.info(`metadataPda: ${metadataPda.toBase58()}`);
@@ -1217,10 +1279,10 @@ describe("TwoPool", () => {
 
       const metadata = toMetadata(metadataAccount);
       console.info(`metadata: ${JSON.stringify(metadata)}`);
-      assert.equal(metadata.name, name);
-      assert.equal(metadata.symbol, symbol);
-      assert.equal(metadata.uri, uri);
-      assert.equal(metadata.sellerFeeBasisPoints, sellerFeeBasisPoints);
+      expect(metadata.name).toEqual(name);
+      expect(metadata.symbol).toEqual(symbol);
+      expect(metadata.uri).toEqual(uri);
+      expect(metadata.sellerFeeBasisPoints).toEqual(sellerFeeBasisPoints);
     });
 
     it("should fail when invalid update authority attempts to update lp token metadata", async () => {
@@ -1249,56 +1311,70 @@ describe("TwoPool", () => {
 
       const metadataPda = findMetadataPda(swimUsdKeypair.publicKey);
       console.info(`metadataPda: ${metadataPda.toBase58()}`);
-      try {
-        await twoPoolProgram.methods
-          // .updateLpMetadata(params)
-          .updateLpMetadata(
-            newUpdateAuthority,
-            data,
-            primarySaleHappened,
-            isMutable,
-          )
-          .accounts({
-            commonGovernance: {
-              pool: flagshipPool,
-              governance: governanceKeypair.publicKey,
-            },
-            updateMetadataAccounts: {
-              metadata: metadataPda,
-              updateAuthority: Keypair.generate().publicKey,
-            },
-            mplTokenMetadata: TokenMetadataProgram.publicKey,
-          })
-          .signers([governanceKeypair])
-          .rpc({ skipPreflight: true });
-
-        assert(false);
-      } catch (_err) {
-        // no _err object. its a cpi failure
-        // Transaction executed in slot 29:
-        //   Signature: 4pcSvagKL81esLhvvhh8gbDsHQUGpiooNNjXuhtsUBZnQZN3Y5bs9nhJ3dbTXV5LDcLMZUQkx7jfr4LHKxCZfm6b
-        //   Status: Error processing Instruction 0: Cross-program invocation with unauthorized signer or writable account
-        //   Log Messages:
-        //     Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM invoke [1]
-        //     Program log: Instruction: UpdateLpMetadata
-        //     8xaQHzj1v7R3XbQ2c3tjzpWoYRJgaYU4oFzCvq9Suf3c's signer privilege escalated
-        //     Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM consumed 12361 of 200000 compute units
-        //     Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM failed: Cross-program invocation with unauthorized signer or writable account
-        assert(true);
-      }
+      await expect(() => {
+        return (
+          twoPoolProgram.methods
+            // .updateLpMetadata(params)
+            .updateLpMetadata(
+              newUpdateAuthority,
+              data,
+              primarySaleHappened,
+              isMutable,
+            )
+            .accounts({
+              commonGovernance: {
+                pool: flagshipPool,
+                governance: governanceKeypair.publicKey,
+              },
+              updateMetadataAccounts: {
+                metadata: metadataPda,
+                updateAuthority: Keypair.generate().publicKey,
+              },
+              mplTokenMetadata: TokenMetadataProgram.publicKey,
+            })
+            .signers([governanceKeypair])
+            .rpc({ skipPreflight: true })
+        );
+      }).rejects.toThrow();
+      // try {
+      //   await twoPoolProgram.methods
+      //     // .updateLpMetadata(params)
+      //     .updateLpMetadata(
+      //       newUpdateAuthority,
+      //       data,
+      //       primarySaleHappened,
+      //       isMutable,
+      //     )
+      //     .accounts({
+      //       commonGovernance: {
+      //         pool: flagshipPool,
+      //         governance: governanceKeypair.publicKey,
+      //       },
+      //       updateMetadataAccounts: {
+      //         metadata: metadataPda,
+      //         updateAuthority: Keypair.generate().publicKey,
+      //       },
+      //       mplTokenMetadata: TokenMetadataProgram.publicKey,
+      //     })
+      //     .signers([governanceKeypair])
+      //     .rpc({ skipPreflight: true });
+      //
+      //   expect(false).toBeTruthy();
+      // } catch (_err) {
+      //   // no _err object. its a cpi failure
+      //   // Transaction executed in slot 29:
+      //   //   Signature: 4pcSvagKL81esLhvvhh8gbDsHQUGpiooNNjXuhtsUBZnQZN3Y5bs9nhJ3dbTXV5LDcLMZUQkx7jfr4LHKxCZfm6b
+      //   //   Status: Error processing Instruction 0: Cross-program invocation with unauthorized signer or writable account
+      //   //   Log Messages:
+      //   //     Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM invoke [1]
+      //   //     Program log: Instruction: UpdateLpMetadata
+      //   //     8xaQHzj1v7R3XbQ2c3tjzpWoYRJgaYU4oFzCvq9Suf3c's signer privilege escalated
+      //   //     Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM consumed 12361 of 200000 compute units
+      //   //     Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM failed: Cross-program invocation with unauthorized signer or writable account
+      //   expect(true).toBeTruthy();
+      // }
     });
   });
 
-  it("Can print pool state in friendly format", async () => {
-    const poolState = await twoPoolToString(twoPoolProgram, flagshipPool);
-    console.info(poolState);
-  });
 
-  it("Can fetch & deserialize pool state", async () => {
-    const accountInfo = await provider.connection.getAccountInfo(flagshipPool);
-    assert(accountInfo);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const poolAccountData = parsePoolAccount(accountInfo.data);
-    console.info(`poolAccountData: ${JSON.stringify(poolAccountData)}`);
-  });
 });

@@ -19,7 +19,7 @@ elif [ "$1" == "propeller" ]; then
   test_files="test/propeller/propeller.test.ts"
 elif [ "$1" == "pool" ]; then
   echo "Running only pool tests"
-  test_files="test/twoPool/*.test.ts"
+  test_files="test/twoPool/pool.test.ts"
 else
   echo "invalid argument: $1. exiting"
   exit 22
@@ -53,10 +53,12 @@ fi
 #    fi
 #fi
 
-yarn run ts-mocha -p ./tsconfig-dev.json -t 1000000 "$test_files" &
-yarn_pid=$!
-echo "Yarn PID: ${yarn_pid}"
-wait $yarn_pid
+yarn run jest -c jest.config.js --verbose --detectOpenHandles "$test_files"
+#yarn run jest -i "$test_files" -c jest.config.js &
+##yarn run ts-mocha -p ./tsconfig-dev.json -t 1000000 "$test_files" &
+#yarn_pid=$!
+#echo "Yarn PID: ${yarn_pid}"
+#wait $yarn_pid
 
 #if $prepare_oracle; then
 #    echo "shutting down oracle"

@@ -5,7 +5,7 @@ command -v shellcheck >/dev/null && shellcheck "$0"
 echo "arg is $1"
 test_files=""
 prepare_oracle=false
-clean_oracle=false
+#clean_oracle=false
 if [ -z "$1" ]; then
   echo "Running all tests"
   prepare_oracle=true
@@ -49,7 +49,7 @@ fi
 #    fi
 #fi
 
-yarn run ts-mocha -p ./sdk/tests/tsconfig.json -t 1000000 "$test_files" &
+yarn run ts-mocha -p ./tsconfig-dev.json -t 1000000 "$test_files" &
 yarn_pid=$!
 echo "Yarn PID: ${yarn_pid}"
 wait $yarn_pid

@@ -12,10 +12,10 @@ url = "https://api.apr.dev"
 
 [provider]
 cluster = "localnet"
-wallet = "./sdk/tests/test_wallet.json"
+wallet = "./test/test_wallet.json"
 
 [scripts]
-#test = "yarn run ts-mocha -p ./sdk/tests/tsconfig.json -t 1000000 sdk/tests/**/pool.test.ts"
+#test = "yarn run ts-mocha -p ./test/tsconfig.json -t 1000000 sdk/tests/**/pool.test.ts"
 test = "./scripts/run_anchor_test.sh"
 initialize_pool = "yarn run build:anchor && yarn run ts-node sdk/scripts/initializePool.ts"
 
@@ -32,39 +32,39 @@ address="metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 ## pool & wormhole
 #[[test.genesis]]
 #address = "SWimmSE5hgWsEruwPBLBVAFi3KyVfe8URU2pb4w7GZs"
-#program = "./sdk/tests/propeller/two_pool/two_pool_pool_pda.so"
+#program = "./test/propeller/two_pool/two_pool_pool_pda.so"
 
 # both the icco & wh_v2.7.1 binries pass the tests
 
 ## the addresses are the WH devnet (localnet) addresses
 [[test.genesis]]
 address = "Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o"
-program = "./sdk/tests/propeller/wh_payload3/programs/bridge.so"
+program = "./test/propeller/wh_payload3/programs/bridge.so"
 
 [[test.genesis]]
 address = "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE"
-program = "./sdk/tests/propeller/wh_payload3/programs/token_bridge.so"
+program = "./test/propeller/wh_payload3/programs/token_bridge.so"
 
 [[test.validator.account]]
 address = "FKoMTctsC7vJbEqyRiiPskPnuQx2tX1kurmvWByq5uZP"
-filename = "./sdk/tests/propeller/wh_payload3/accounts/bridge_config.json"
+filename = "./test/propeller/wh_payload3/accounts/bridge_config.json"
 
 [[test.validator.account]]
 address = "6MxkvoEwgB9EqQRLNhvYaPGhfcLtBtpBqdQugr3AZUgD"
-filename = "./sdk/tests/propeller/wh_payload3/accounts/guardian_set.json"
+filename = "./test/propeller/wh_payload3/accounts/guardian_set.json"
 
 [[test.validator.account]]
 address = "GXBsgBD3LDn3vkRZF6TfY5RqgajVZ4W5bMAdiAaaUARs"
-filename = "./sdk/tests/propeller/wh_payload3/accounts/fee_collector.json"
+filename = "./test/propeller/wh_payload3/accounts/fee_collector.json"
 
 
 [[test.validator.account]]
 address = "3GwVs8GSLdo4RUsoXTkGQhojauQ1sXcDNjm7LSDicw19"
-filename = "./sdk/tests/propeller/wh_payload3/accounts/token_config.json"
+filename = "./test/propeller/wh_payload3/accounts/token_config.json"
 
 [[test.validator.account]]
 address = "7UqWgfVW1TrjrqauMfDoNMcw8kEStSsQXWNoT2BbhDS5"
-filename = "./sdk/tests/propeller/wh_payload3/accounts/ethereum_token_bridge.json"
+filename = "./test/propeller/wh_payload3/accounts/ethereum_token_bridge.json"
 
 [[test.validator.clone]]
 address="GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR" # sbv2 SOL/USD Feed
@@ -173,4 +173,4 @@ address="B764Cfh6qRHKRFM17Y1Y9jZWX2wzmZaEZAoDEQUsDgrx"  # oraclePermissions
 
 #[[test.genesis]]
 #address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-#program = "./sdk/tests/propeller/spl_token_metadata.so"
+#program = "./test/propeller/spl_token_metadata.so"

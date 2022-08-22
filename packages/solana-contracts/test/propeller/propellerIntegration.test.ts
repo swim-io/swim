@@ -561,7 +561,7 @@ const metapoolMint1OutputTokenIndex = 3;
 
 const propellerEngine = web3.Keypair.generate();
 console.info(`propellerEngine: ${propellerEngine.publicKey.toBase58()}`);
-// let propellerEngineSwimUsdAta: web3.PublicKey;
+let propellerEngineSwimUsdAta: web3.PublicKey;
 
 let switchboard: SwitchboardTestContext;
 // let aggregatorKey: PublicKey;

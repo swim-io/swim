@@ -92,14 +92,14 @@ export const AmountsWithTokenIcons = ({
     <>
       {amounts.map((amount, i) => (
         <Fragment key={amount.tokenId}>
-          {amounts.length > 1 && i === amounts.length - 1 && (
-            <span>{conjunction}</span>
+          {i > 0 && (
+            <span>{i === amounts.length - 1 ? conjunction : comma}</span>
           )}
           <AmountWithTokenIcon
             amount={amount}
             ecosystem={amount.tokenSpec.nativeEcosystemId}
           />
-          <span>{i === amounts.length - 1 ? "." : comma}</span>
+          {i === amounts.length - 1 && <span>.</span>}
         </Fragment>
       ))}
     </>

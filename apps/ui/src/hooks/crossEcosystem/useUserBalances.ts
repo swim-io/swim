@@ -1,7 +1,9 @@
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type Decimal from "decimal.js";
 
-import type { TokenSpec } from "../../config";
-import { EcosystemId, getTokenDetailsForEcosystem } from "../../config";
+import type { EcosystemId, TokenSpec } from "../../config";
+import { getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../../models";
 import { useErc20BalanceQuery } from "../evm";
 import { useSplUserBalance } from "../solana";
@@ -13,77 +15,80 @@ const useUserBalance = (
   // order of hooks can't change, so we pass in null values if we don't actually need the value
   const splBalance = useSplUserBalance(
     tokenSpec &&
-      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Solana)?.address ??
+      (getTokenDetailsForEcosystem(tokenSpec, SOLANA_ECOSYSTEM_ID)?.address ??
         null),
-    { enabled: ecosystemId === EcosystemId.Solana },
+    { enabled: ecosystemId === SOLANA_ECOSYSTEM_ID },
   );
   const { data: ethereumTokenBalance = null } = useErc20BalanceQuery(
-    EcosystemId.Ethereum,
+    EvmEcosystemId.Ethereum,
     tokenSpec &&
-      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Ethereum)?.address ??
+      (getTokenDetailsForEcosystem(tokenSpec, EvmEcosystemId.Ethereum)
+        ?.address ??
         null),
-    { enabled: ecosystemId === EcosystemId.Ethereum },
+    { enabled: ecosystemId === EvmEcosystemId.Ethereum },
   );
   const { data: bnbTokenBalance = null } = useErc20BalanceQuery(
-    EcosystemId.Bnb,
+    EvmEcosystemId.Bnb,
     tokenSpec &&
-      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Bnb)?.address ??
+      (getTokenDetailsForEcosystem(tokenSpec, EvmEcosystemId.Bnb)?.address ??
         null),
-    { enabled: ecosystemId === EcosystemId.Bnb },
+    { enabled: ecosystemId === EvmEcosystemId.Bnb },
   );
   const { data: avalancheTokenBalance = null } = useErc20BalanceQuery(
-    EcosystemId.Avalanche,
+    EvmEcosystemId.Avalanche,
     tokenSpec &&
-      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Avalanche)?.address ??
+      (getTokenDetailsForEcosystem(tokenSpec, EvmEcosystemId.Avalanche)
+        ?.address ??
         null),
-    { enabled: ecosystemId === EcosystemId.Avalanche },
+    { enabled: ecosystemId === EvmEcosystemId.Avalanche },
   );
   const { data: polygonTokenBalance = null } = useErc20BalanceQuery(
-    EcosystemId.Polygon,
+    EvmEcosystemId.Polygon,
     tokenSpec &&
-      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Polygon)?.address ??
+      (getTokenDetailsForEcosystem(tokenSpec, EvmEcosystemId.Polygon)
+        ?.address ??
         null),
-    { enabled: ecosystemId === EcosystemId.Polygon },
+    { enabled: ecosystemId === EvmEcosystemId.Polygon },
   );
   const { data: auroraTokenBalance = null } = useErc20BalanceQuery(
-    EcosystemId.Aurora,
+    EvmEcosystemId.Aurora,
     tokenSpec &&
-      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Aurora)?.address ??
+      (getTokenDetailsForEcosystem(tokenSpec, EvmEcosystemId.Aurora)?.address ??
         null),
-    { enabled: ecosystemId === EcosystemId.Aurora },
+    { enabled: ecosystemId === EvmEcosystemId.Aurora },
   );
   const { data: fantomTokenBalance = null } = useErc20BalanceQuery(
-    EcosystemId.Fantom,
+    EvmEcosystemId.Fantom,
     tokenSpec &&
-      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Fantom)?.address ??
+      (getTokenDetailsForEcosystem(tokenSpec, EvmEcosystemId.Fantom)?.address ??
         null),
-    { enabled: ecosystemId === EcosystemId.Fantom },
+    { enabled: ecosystemId === EvmEcosystemId.Fantom },
   );
   const { data: karuraTokenBalance = null } = useErc20BalanceQuery(
-    EcosystemId.Karura,
+    EvmEcosystemId.Karura,
     tokenSpec &&
-      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Karura)?.address ??
+      (getTokenDetailsForEcosystem(tokenSpec, EvmEcosystemId.Karura)?.address ??
         null),
-    { enabled: ecosystemId === EcosystemId.Karura },
+    { enabled: ecosystemId === EvmEcosystemId.Karura },
   );
   const { data: acalaTokenBalance = null } = useErc20BalanceQuery(
-    EcosystemId.Acala,
+    EvmEcosystemId.Acala,
     tokenSpec &&
-      (getTokenDetailsForEcosystem(tokenSpec, EcosystemId.Acala)?.address ??
+      (getTokenDetailsForEcosystem(tokenSpec, EvmEcosystemId.Acala)?.address ??
         null),
-    { enabled: ecosystemId === EcosystemId.Acala },
+    { enabled: ecosystemId === EvmEcosystemId.Acala },
   );
 
   return {
-    [EcosystemId.Solana]: splBalance,
-    [EcosystemId.Ethereum]: ethereumTokenBalance,
-    [EcosystemId.Bnb]: bnbTokenBalance,
-    [EcosystemId.Avalanche]: avalancheTokenBalance,
-    [EcosystemId.Polygon]: polygonTokenBalance,
-    [EcosystemId.Aurora]: auroraTokenBalance,
-    [EcosystemId.Fantom]: fantomTokenBalance,
-    [EcosystemId.Karura]: karuraTokenBalance,
-    [EcosystemId.Acala]: acalaTokenBalance,
+    [SOLANA_ECOSYSTEM_ID]: splBalance,
+    [EvmEcosystemId.Ethereum]: ethereumTokenBalance,
+    [EvmEcosystemId.Bnb]: bnbTokenBalance,
+    [EvmEcosystemId.Avalanche]: avalancheTokenBalance,
+    [EvmEcosystemId.Polygon]: polygonTokenBalance,
+    [EvmEcosystemId.Aurora]: auroraTokenBalance,
+    [EvmEcosystemId.Fantom]: fantomTokenBalance,
+    [EvmEcosystemId.Karura]: karuraTokenBalance,
+    [EvmEcosystemId.Acala]: acalaTokenBalance,
   }[ecosystemId];
 };
 

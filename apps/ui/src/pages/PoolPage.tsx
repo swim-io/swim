@@ -14,6 +14,7 @@ import {
   EuiTitle,
   EuiToolTip,
 } from "@elastic/eui";
+import { EvmEcosystemId } from "@swim-io/evm";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { defaultIfError } from "@swim-io/utils";
 import Decimal from "decimal.js";
@@ -32,13 +33,13 @@ import { AddForm } from "../components/AddForm";
 import { RemoveForm } from "../components/RemoveForm";
 import { SlippageButton } from "../components/SlippageButton";
 import { StatList } from "../components/StatList";
-import { TokenIcon, TokenSpecIcon } from "../components/TokenIcon";
-import type { PoolSpec } from "../config";
 import {
-  EcosystemId,
-  getSolanaTokenDetails,
-  getTokenDetailsForEcosystem,
-} from "../config";
+  TokenIcon,
+  TokenOptionIcon,
+  TokenSpecIcon,
+} from "../components/TokenIcon";
+import type { PoolSpec } from "../config";
+import { getSolanaTokenDetails, getTokenDetailsForEcosystem } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import {
@@ -49,6 +50,9 @@ import {
 } from "../hooks";
 import BNB_SVG from "../images/ecosystems/bnb.svg";
 import ETHEREUM_SVG from "../images/ecosystems/ethereum.svg";
+import { isEvmPoolState } from "../models";
+
+import "./PoolPage.scss";
 
 const PoolPage = (): ReactElement => {
   const { t } = useTranslation();
@@ -115,10 +119,10 @@ export const PoolPageInner = ({
   useTitle(poolSpec.displayName);
   const navigate = useNavigate();
   const { showPrompt: showRegisterEthereumTokenPrompt } = useRegisterErc20Token(
-    EcosystemId.Ethereum,
+    EvmEcosystemId.Ethereum,
   );
   const { showPrompt: showRegisterBnbTokenPrompt } = useRegisterErc20Token(
-    EcosystemId.Bnb,
+    EvmEcosystemId.Bnb,
   );
   const {
     tokens,
@@ -133,8 +137,27 @@ export const PoolPageInner = ({
     [slippagePercent],
   );
 
-  const reserveStats = tokens.map((tokenSpec) => {
+  const reserveStats = tokens.map((tokenSpec, i) => {
     const solanaDetails = getSolanaTokenDetails(tokenSpec);
+
+    if (isEvmPoolState(poolState)) {
+      return {
+        title: (
+          <TokenOptionIcon
+            tokenOption={{
+              tokenId: tokenSpec.id,
+              ecosystemId: poolSpec.ecosystem,
+            }}
+          />
+        ),
+        description: atomicToHumanString(
+          new Decimal(poolState.balances[i].toString()),
+          2,
+        ),
+        key: tokenSpec.id,
+      };
+    }
+
     const poolTokenAccount =
       poolTokenAccounts?.find(
         (account) =>
@@ -160,7 +183,7 @@ export const PoolPageInner = ({
   const userLpBalances = useUserLpBalances(lpToken, userLpTokenAccount);
   const userLpStats = [
     lpToken.nativeEcosystemId,
-    ...lpToken.wrappedDetails.keys(),
+    ...(poolSpec.isLegacyPool ? lpToken.wrappedDetails.keys() : []),
   ].map((ecosystemId) => {
     const userLpBalance = userLpBalances[ecosystemId];
     return {
@@ -257,7 +280,7 @@ export const PoolPageInner = ({
             ]}
           />
         </EuiFlexItem>
-        <EuiFlexItem grow={false}>
+        <EuiFlexItem grow={false} className="statList">
           <EuiTitle size="xxs">
             <h4>
               {t("pool_page.pool_balance", { count: reserveStats.length })}
@@ -283,7 +306,7 @@ export const PoolPageInner = ({
               <StatList listItems={poolInfoStats} />
             </>
           )}
-          {getTokenDetailsForEcosystem(lpToken, EcosystemId.Ethereum) !==
+          {getTokenDetailsForEcosystem(lpToken, EvmEcosystemId.Ethereum) !==
             null && (
             <EuiButtonEmpty
               flush="left"
@@ -296,7 +319,8 @@ export const PoolPageInner = ({
               {t("pool_page.add_lp_token_to_metamask")}
             </EuiButtonEmpty>
           )}
-          {getTokenDetailsForEcosystem(lpToken, EcosystemId.Bnb) !== null && (
+          {getTokenDetailsForEcosystem(lpToken, EvmEcosystemId.Bnb) !==
+            null && (
             <EuiButtonEmpty
               flush="left"
               style={{ width: "fit-content" }}

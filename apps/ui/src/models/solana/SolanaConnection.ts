@@ -71,7 +71,6 @@ export class SolanaConnection {
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
   private rpcIndex;
   private readonly endpoints: readonly string[];
-
   // TODO: Check if this is still necessary.
   // The websocket library solana/web3.js closes its websocket connection when the subscription list
   // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.
@@ -354,11 +353,6 @@ export class SolanaConnection {
       confirmTransactionInitialTimeout: 60 * 1000,
       disableRetryOnRateLimit: true,
     });
-    this.dummySubscriptionId = this.rawConnection.onAccountChange(
-      Keypair.generate().publicKey,
-      () => {},
-    );
-
     this.getAccountInfo = this.rawConnection.getAccountInfo.bind(
       this.rawConnection,
     );
@@ -379,6 +373,10 @@ export class SolanaConnection {
     );
     this.removeAccountChangeListener =
       this.rawConnection.removeAccountChangeListener.bind(this.rawConnection);
+    this.dummySubscriptionId = this.rawConnection.onAccountChange(
+      Keypair.generate().publicKey,
+      () => {},
+    );
   }
 
   private async callWithRetry<T>(

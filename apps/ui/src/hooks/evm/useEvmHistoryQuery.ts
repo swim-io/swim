@@ -1,8 +1,8 @@
+import type { EvmEcosystemId } from "@swim-io/evm";
 import type { ethers } from "ethers";
 import type { UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
 
-import type { EvmEcosystemId } from "../../config";
 import { isEcosystemEnabled } from "../../config";
 import { useEnvironment } from "../../core/store";
 

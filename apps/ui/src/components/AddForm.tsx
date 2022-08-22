@@ -12,6 +12,7 @@ import {
   EuiSpacer,
   EuiText,
 } from "@elastic/eui";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { filterMap, isEachNotNull, isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
@@ -20,18 +21,14 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import {
-  ECOSYSTEMS,
-  ECOSYSTEM_IDS,
-  EcosystemId,
-  isEcosystemEnabled,
-} from "../config";
-import type { PoolSpec, TokenSpec } from "../config";
+import { ECOSYSTEMS, ECOSYSTEM_IDS, isEcosystemEnabled } from "../config";
+import type { EcosystemId, PoolSpec, TokenSpec } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
 import {
   useAddFeesEstimationQuery,
+  useAddFeesEstimationQueryV2,
   useMultipleUserBalances,
   usePool,
   usePoolMath,
@@ -43,6 +40,7 @@ import {
 import {
   useHasActiveInteraction,
   useStartNewInteraction,
+  useStartNewInteractionV2,
 } from "../hooks/interaction";
 import {
   Amount,
@@ -59,11 +57,13 @@ import { EuiFieldIntlNumber } from "./EuiFieldIntlNumber";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { PoolPausedAlert } from "./PoolPausedAlert";
 import { RecentInteractions } from "./RecentInteractions";
+import { RecentInteractionsV2 } from "./RecentInteractionsV2";
 import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { TokenIcon } from "./TokenIcon";
 
 interface TokenAddPanelProps {
   readonly tokenSpec: TokenSpec;
+  readonly ecosystemId: EcosystemId;
   readonly inputAmount: string;
   readonly errors: readonly string[];
   readonly disabled: boolean;
@@ -73,6 +73,7 @@ interface TokenAddPanelProps {
 
 const TokenAddPanel = ({
   tokenSpec,
+  ecosystemId,
   inputAmount,
   errors,
   disabled,
@@ -81,8 +82,7 @@ const TokenAddPanel = ({
 }: TokenAddPanelProps): ReactElement => {
   const { t } = useTranslation();
   const tokenProject = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId];
-  const balance = useUserBalanceAmount(tokenSpec, tokenSpec.nativeEcosystemId);
-
+  const balance = useUserBalanceAmount(tokenSpec, ecosystemId);
   return (
     <EuiFormRow
       fullWidth
@@ -109,7 +109,7 @@ const TokenAddPanel = ({
       <EuiFieldIntlNumber
         placeholder={t("general.enter_amount_of_tokens")}
         name={tokenSpec.id}
-        defaultValue={inputAmount}
+        value={inputAmount}
         step={10 ** -tokenSpec.nativeDetails.decimals}
         fullWidth
         disabled={disabled}
@@ -164,6 +164,7 @@ const EcosystemAddPanel = ({
         <TokenAddPanel
           key={tokenSpec.id}
           tokenSpec={tokenSpec}
+          ecosystemId={ecosystemId}
           inputAmount={inputAmounts[i]}
           errors={errors[i]}
           disabled={disabled}
@@ -188,6 +189,7 @@ export const AddForm = ({
   const { notify } = useNotification();
   const config = useEnvironment(selectConfig, shallow);
   const wallets = useWallets();
+  const { isLegacyPool } = poolSpec;
   const {
     tokens: poolTokens,
     lpToken,
@@ -195,16 +197,22 @@ export const AddForm = ({
     isPoolPaused,
   } = usePool(poolSpec.id);
   const poolMath = usePoolMath(poolSpec.id);
-  const userBalances = useMultipleUserBalances(poolTokens);
+  const userBalances = useMultipleUserBalances(
+    poolTokens,
+    poolSpec.isLegacyPool ? undefined : poolSpec.ecosystem,
+  );
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const startNewInteraction = useStartNewInteraction(() => {
+    setFormInputAmounts(poolTokens.map(() => "0"));
+  });
+  const startNewInteractionV2 = useStartNewInteractionV2(() => {
     setFormInputAmounts(poolTokens.map(() => "0"));
   });
   const isInteractionInProgress = useHasActiveInteraction();
   const userNativeBalances = useUserNativeBalances();
 
   const [lpTargetEcosystem, setLpTargetEcosystem] = useState(
-    EcosystemId.Solana,
+    poolSpec.ecosystem,
   );
 
   const [formInputAmounts, setFormInputAmounts] = useState<readonly string[]>(
@@ -241,6 +249,11 @@ export const AddForm = ({
     lpTargetEcosystem,
   );
 
+  const { data: feesEstimationV2 = null } = useAddFeesEstimationQueryV2(
+    inputAmounts,
+    lpTargetEcosystem,
+  );
+
   const hasPositiveInputAmount = inputAmounts.some(
     (amount) => amount && !amount.isZero(),
   );
@@ -251,13 +264,13 @@ export const AddForm = ({
     }
     try {
       const { lpOutputAmount } = poolMath.add(
-        inputAmounts.map((amount) => amount.toHuman(EcosystemId.Solana)),
+        inputAmounts.map((amount) => amount.toHuman(poolSpec.ecosystem)),
       );
       return Amount.fromHuman(lpToken, lpOutputAmount);
     } catch {
       return null;
     }
-  }, [inputAmounts, poolMath, lpToken]);
+  }, [inputAmounts, poolMath, lpToken, poolSpec.ecosystem]);
   const minimumMintAmount =
     estimatedLpOutput && maxSlippageFraction
       ? estimatedLpOutput.sub(estimatedLpOutput.mul(maxSlippageFraction))
@@ -265,7 +278,7 @@ export const AddForm = ({
 
   const lpTargetEcosystemOptions: readonly EuiRadioGroupOption[] = [
     lpToken.nativeEcosystemId,
-    ...lpToken.wrappedDetails.keys(),
+    ...(poolSpec.isLegacyPool ? lpToken.wrappedDetails.keys() : []),
   ].map((ecosystemId) => {
     const ecosystem = ECOSYSTEMS[ecosystemId];
     return {
@@ -324,7 +337,7 @@ export const AddForm = ({
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     const lowBalanceWallets = getLowBalanceWallets(
-      feesEstimation,
+      poolSpec.isLegacyPool ? feesEstimation : feesEstimationV2,
       userNativeBalances,
     );
     if (lowBalanceWallets.length > 0) {
@@ -357,16 +370,18 @@ export const AddForm = ({
     let errors: readonly string[] = [];
 
     const requiredEcosystems = new Set(
-      [
-        EcosystemId.Solana,
-        lpTargetEcosystem,
-        ...poolTokens.map((tokenSpec, i) => {
-          const inputAmount = inputAmounts[i];
-          return inputAmount !== null && !inputAmount.isZero()
-            ? tokenSpec.nativeEcosystemId
-            : null;
-        }),
-      ].filter(isNotNull),
+      isLegacyPool
+        ? [
+            SOLANA_ECOSYSTEM_ID,
+            lpTargetEcosystem,
+            ...poolTokens.map((tokenSpec, i) => {
+              const inputAmount = inputAmounts[i];
+              return inputAmount !== null && !inputAmount.isZero()
+                ? tokenSpec.nativeEcosystemId
+                : null;
+            }),
+          ].filter(isNotNull)
+        : [poolSpec.ecosystem],
     );
 
     // Require connected wallets
@@ -395,8 +410,9 @@ export const AddForm = ({
 
     // Need some SOL for network fee
     if (
-      userNativeBalances[EcosystemId.Solana].greaterThan(0) &&
-      userNativeBalances[EcosystemId.Solana].lessThan(0.01)
+      isLegacyPool &&
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].greaterThan(0) &&
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].lessThan(0.01)
     ) {
       errors = [
         ...errors,
@@ -446,15 +462,27 @@ export const AddForm = ({
       return;
     }
 
-    startNewInteraction({
-      type: InteractionType.Add,
-      poolId: poolSpec.id,
-      params: {
-        inputAmounts,
-        minimumMintAmount,
-      },
-      lpTokenTargetEcosystem: lpTargetEcosystem,
-    });
+    if (isLegacyPool) {
+      startNewInteraction({
+        type: InteractionType.Add,
+        poolId: poolSpec.id,
+        params: {
+          inputAmounts,
+          minimumMintAmount,
+        },
+        lpTokenTargetEcosystem: lpTargetEcosystem,
+      });
+    } else {
+      startNewInteractionV2({
+        type: InteractionType.Add,
+        poolId: poolSpec.id,
+        params: {
+          inputAmounts,
+          minimumMintAmount,
+        },
+        lpTokenTargetEcosystem: lpTargetEcosystem,
+      });
+    }
   };
 
   const lpTokenProject = TOKEN_PROJECTS_BY_ID[lpToken.projectId];
@@ -471,36 +499,53 @@ export const AddForm = ({
       <EuiSpacer size="m" />
 
       {/* TODO: Maybe display those side by side with EuiFlex */}
-      {filterMap(
-        isEcosystemEnabled,
-        (ecosystemId) => {
-          const indices = Array.from({ length: poolTokens.length })
-            .map((_, i) => i)
-            .filter((i) => poolTokens[i].nativeEcosystemId === ecosystemId);
-          const isRelevant = (_: any, i: number): boolean =>
-            indices.includes(i);
-          const tokens = poolTokens.filter(isRelevant);
-          const errors = inputAmountErrors.filter(isRelevant);
-          const filteredInputAmounts = formInputAmounts.filter(isRelevant);
-          const changeHandlers = formInputChangeHandlers.filter(isRelevant);
-          const blurHandlers = formInputBlurHandlers.filter(isRelevant);
-          return (
-            <EcosystemAddPanel
-              key={ecosystemId}
-              ecosystemId={ecosystemId}
-              nEcosystemsInPool={nativeEcosystems.length}
-              tokens={tokens}
-              errors={errors}
-              inputAmounts={filteredInputAmounts}
-              disabled={
-                !wallets[ecosystemId].connected || isInteractionInProgress
-              }
-              changeHandlers={changeHandlers}
-              blurHandlers={blurHandlers}
-            />
-          );
-        },
-        ECOSYSTEM_IDS,
+      {isLegacyPool &&
+        filterMap(
+          isEcosystemEnabled,
+          (ecosystemId) => {
+            const indices = Array.from({ length: poolTokens.length })
+              .map((_, i) => i)
+              .filter((i) => poolTokens[i].nativeEcosystemId === ecosystemId);
+            const isRelevant = (_: any, i: number): boolean =>
+              indices.includes(i);
+            const tokens = poolTokens.filter(isRelevant);
+            const errors = inputAmountErrors.filter(isRelevant);
+            const filteredInputAmounts = formInputAmounts.filter(isRelevant);
+            const changeHandlers = formInputChangeHandlers.filter(isRelevant);
+            const blurHandlers = formInputBlurHandlers.filter(isRelevant);
+            return (
+              <EcosystemAddPanel
+                key={ecosystemId}
+                ecosystemId={ecosystemId}
+                nEcosystemsInPool={nativeEcosystems.length}
+                tokens={tokens}
+                errors={errors}
+                inputAmounts={filteredInputAmounts}
+                disabled={
+                  !wallets[ecosystemId].connected || isInteractionInProgress
+                }
+                changeHandlers={changeHandlers}
+                blurHandlers={blurHandlers}
+              />
+            );
+          },
+          ECOSYSTEM_IDS,
+        )}
+
+      {!isLegacyPool && (
+        <EcosystemAddPanel
+          key={poolSpec.ecosystem}
+          ecosystemId={poolSpec.ecosystem}
+          nEcosystemsInPool={nativeEcosystems.length}
+          tokens={poolTokens}
+          errors={inputAmountErrors}
+          inputAmounts={formInputAmounts}
+          disabled={
+            !wallets[poolSpec.ecosystem].connected || isInteractionInProgress
+          }
+          changeHandlers={formInputChangeHandlers}
+          blurHandlers={formInputBlurHandlers}
+        />
       )}
 
       <EuiFormRow label={receiveLabel}>
@@ -538,7 +583,11 @@ export const AddForm = ({
       <PoolPausedAlert isVisible={!!isPoolPaused} />
 
       {hasPositiveInputAmount && (
-        <EstimatedTxFeesCallout feesEstimation={feesEstimation} />
+        <EstimatedTxFeesCallout
+          feesEstimation={
+            poolSpec.isLegacyPool ? feesEstimation : feesEstimationV2
+          }
+        />
       )}
 
       <EuiButton
@@ -555,11 +604,17 @@ export const AddForm = ({
 
       <EuiSpacer />
 
-      <RecentInteractions
-        title={t("add_token_form.recent_adds")}
-        interactionTypes={INTERACTION_GROUP_ADD}
-      />
-
+      {poolSpec.isLegacyPool ? (
+        <RecentInteractions
+          title={t("add_token_form.recent_adds")}
+          interactionTypes={INTERACTION_GROUP_ADD}
+        />
+      ) : (
+        <RecentInteractionsV2
+          title={t("add_token_form.recent_adds")}
+          interactionTypes={INTERACTION_GROUP_ADD}
+        />
+      )}
       <ConfirmModal
         isVisible={isConfirmModalVisible}
         onCancel={handleConfirmModalCancel}

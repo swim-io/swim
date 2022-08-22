@@ -1,8 +1,10 @@
 import type { ChainId, ChainName } from "@certusone/wormhole-sdk";
 import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk";
+import type { BN, Program, SplToken } from "@project-serum/anchor";
 import { web3 } from "@project-serum/anchor";
-import type * as anchor from "@project-serum/anchor";
 import { BigNumber } from "ethers";
+
+import type { TwoPool } from "../../src/artifacts/two_pool";
 
 import type {
   ParsedTokenTransferPostedMessage,
@@ -402,3 +404,93 @@ export const formatParsedTokenTransferWithSwimPayloadPostedMessage = (
     ...formattedSwimPayload,
   };
 };
+
+type PoolUserBalances = {
+  readonly poolTokenBalances: ReadonlyArray<BN>;
+  readonly userTokenBalances: ReadonlyArray<BN>;
+  readonly governanceFeeBalance: BN;
+  readonly userLpTokenBalance: BN;
+  readonly previousDepth: BN;
+};
+export async function getFlagshipTokenAccountBalances(
+  splToken: Program<SplToken>,
+  twoPoolProgram: Program<TwoPool>,
+  poolUsdcAtaAddr: web3.PublicKey,
+  poolUsdtAtaAddr: web3.PublicKey,
+  governanceFeeAddr: web3.PublicKey,
+  userUsdcAtaAddr: web3.PublicKey,
+  userUsdtAtaAddr: web3.PublicKey,
+  userSwimUsdAtaAddr: web3.PublicKey,
+  flagshipPool: web3.PublicKey,
+): Promise<PoolUserBalances> {
+  const poolUsdcAtaBalance = (
+    await splToken.account.token.fetch(poolUsdcAtaAddr)
+  ).amount;
+  const poolUsdtAtaBalance = (
+    await splToken.account.token.fetch(poolUsdtAtaAddr)
+  ).amount;
+  const governanceFeeBalance = (
+    await splToken.account.token.fetch(governanceFeeAddr)
+  ).amount;
+  const userUsdcAtaBalance = (
+    await splToken.account.token.fetch(userUsdcAtaAddr)
+  ).amount;
+  const userUsdtAtaBalance = (
+    await splToken.account.token.fetch(userUsdtAtaAddr)
+  ).amount;
+  const userLpTokenBalance = (
+    await splToken.account.token.fetch(userSwimUsdAtaAddr)
+  ).amount;
+  const previousDepth = (
+    await twoPoolProgram.account.twoPool.fetch(flagshipPool)
+  ).previousDepth;
+  return {
+    poolTokenBalances: [poolUsdcAtaBalance, poolUsdtAtaBalance],
+    governanceFeeBalance,
+    userTokenBalances: [userUsdcAtaBalance, userUsdtAtaBalance],
+    userLpTokenBalance,
+    previousDepth,
+  };
+}
+
+export function printBeforeAndAfterPoolUserBalances(
+  poolUserBalances: ReadonlyArray<PoolUserBalances>,
+) {
+  const {
+    poolTokenBalances: [poolUsdcAtaBalanceBefore, poolUsdtAtaBalanceBefore],
+    governanceFeeBalance: governanceFeeBalanceBefore,
+    userTokenBalances: [userUsdcAtaBalanceBefore, userUsdtAtaBalanceBefore],
+    userLpTokenBalance: userLpTokenBalanceBefore,
+    previousDepth: previousDepthBefore,
+  } = poolUserBalances[0];
+  const {
+    poolTokenBalances: [poolUsdcAtaBalanceAfter, poolUsdtAtaBalanceAfter],
+    governanceFeeBalance: governanceFeeBalanceAfter,
+    userTokenBalances: [userUsdcAtaBalanceAfter, userUsdtAtaBalanceAfter],
+    userLpTokenBalance: userLpTokenBalanceAfter,
+    previousDepth: previousDepthAfter,
+  } = poolUserBalances[1];
+  console.info(`
+    poolUsdcAtaBalance:
+      before: ${poolUsdcAtaBalanceBefore.toString()},
+      after: ${poolUsdcAtaBalanceAfter.toString()}
+    poolUsdtAtaBalance:
+      before: ${poolUsdtAtaBalanceBefore.toString()},
+      after: ${poolUsdtAtaBalanceAfter.toString()}
+    governanceFeeBalance:
+      before: ${governanceFeeBalanceBefore.toString()},
+      after: ${governanceFeeBalanceAfter.toString()}
+    userUsdcAtaBalance:
+      before: ${userUsdcAtaBalanceBefore.toString()},
+      after: ${userUsdcAtaBalanceAfter.toString()}
+    userUsdtAtaBalance:
+      before: ${userUsdtAtaBalanceBefore.toString()},
+      after: ${userUsdtAtaBalanceAfter.toString()}
+    userLpTokenBalance:
+      before: ${userLpTokenBalanceBefore.toString()},
+      after: ${userLpTokenBalanceAfter.toString()}
+    previousDepth:
+      before: ${previousDepthBefore.toString()},
+      after: ${previousDepthAfter.toString()}
+  `);
+}

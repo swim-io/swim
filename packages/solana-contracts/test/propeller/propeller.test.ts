@@ -87,11 +87,13 @@ import {
   encodeSwimPayload,
   formatParsedTokenTransferWithSwimPayloadPostedMessage,
   formatParsedTokenTransferWithSwimPayloadVaa,
+  getFlagshipTokenAccountBalances,
   getPropellerPda,
   getPropellerRedeemerPda,
   getPropellerSenderPda,
   parseTokenTransferWithSwimPayloadPostedMessage,
   parseTokenTransferWithSwimPayloadSignedVaa,
+  printBeforeAndAfterPoolUserBalances,
 } from "./propellerUtils";
 import {
   deriveEndpointPda,
@@ -859,7 +861,17 @@ describe("propeller", () => {
 
   describe("Propeller Pool Ixs", () => {
     it("Propeller Add", async () => {
-      const poolUserBalancesBefore = await getFlagshipTokenAccountBalances();
+      const poolUserBalancesBefore = await getFlagshipTokenAccountBalances(
+        splToken,
+        twoPoolProgram,
+        poolUsdcAtaAddr,
+        poolUsdtAtaAddr,
+        governanceFeeAddr,
+        userUsdcAtaAddr,
+        userUsdtAtaAddr,
+        userSwimUsdAtaAddr,
+        flagshipPool,
+      );
 
       const inputAmounts = [new BN(100_000_000), new BN(100_000_000)];
       const minimumMintAmount = new BN(0);
@@ -905,7 +917,17 @@ describe("propeller", () => {
 
       console.info(`addTxSig: ${addTxnSig}`);
 
-      const poolUserBalancesAfter = await getFlagshipTokenAccountBalances();
+      const poolUserBalancesAfter = await getFlagshipTokenAccountBalances(
+        splToken,
+        twoPoolProgram,
+        poolUsdcAtaAddr,
+        poolUsdtAtaAddr,
+        governanceFeeAddr,
+        userUsdcAtaAddr,
+        userUsdtAtaAddr,
+        userSwimUsdAtaAddr,
+        flagshipPool,
+      );
       printBeforeAndAfterPoolUserBalances([
         poolUserBalancesBefore,
         poolUserBalancesAfter,
@@ -950,7 +972,17 @@ describe("propeller", () => {
     });
 
     it("Propeller SwapExactInput", async () => {
-      const poolUserBalancesBefore = await getFlagshipTokenAccountBalances();
+      const poolUserBalancesBefore = await getFlagshipTokenAccountBalances(
+        splToken,
+        twoPoolProgram,
+        poolUsdcAtaAddr,
+        poolUsdtAtaAddr,
+        governanceFeeAddr,
+        userUsdcAtaAddr,
+        userUsdtAtaAddr,
+        userSwimUsdAtaAddr,
+        flagshipPool,
+      );
       const exactInputAmounts = [new BN(100_000), new BN(0)];
       const outputTokenIndex = 1;
       const minimumOutputAmount = new BN(0);
@@ -1010,7 +1042,17 @@ describe("propeller", () => {
       console.info(`swapExactInputTxnSig: ${swapExactInputTxnSig}`);
       await checkTxnLogsForMemo(swapExactInputTxnSig, memoString);
 
-      const poolUserBalancesAfter = await getFlagshipTokenAccountBalances();
+      const poolUserBalancesAfter = await getFlagshipTokenAccountBalances(
+        splToken,
+        twoPoolProgram,
+        poolUsdcAtaAddr,
+        poolUsdtAtaAddr,
+        governanceFeeAddr,
+        userUsdcAtaAddr,
+        userUsdtAtaAddr,
+        userSwimUsdAtaAddr,
+        flagshipPool,
+      );
       printBeforeAndAfterPoolUserBalances([
         poolUserBalancesBefore,
         poolUserBalancesAfter,
@@ -1056,7 +1098,17 @@ describe("propeller", () => {
     });
 
     it("Propeller SwapExactOutput", async () => {
-      const poolUserBalancesBefore = await getFlagshipTokenAccountBalances();
+      const poolUserBalancesBefore = await getFlagshipTokenAccountBalances(
+        splToken,
+        twoPoolProgram,
+        poolUsdcAtaAddr,
+        poolUsdtAtaAddr,
+        governanceFeeAddr,
+        userUsdcAtaAddr,
+        userUsdtAtaAddr,
+        userSwimUsdAtaAddr,
+        flagshipPool,
+      );
 
       const inputTokenIndex = 0;
       const maximumInputAmount = new BN(100_000);
@@ -1107,7 +1159,17 @@ describe("propeller", () => {
       console.info(`swapExactOutputTxnSig: ${swapExactOutputTxnSig}`);
       await checkTxnLogsForMemo(swapExactOutputTxnSig, memoString);
 
-      const poolUserBalancesAfter = await getFlagshipTokenAccountBalances();
+      const poolUserBalancesAfter = await getFlagshipTokenAccountBalances(
+        splToken,
+        twoPoolProgram,
+        poolUsdcAtaAddr,
+        poolUsdtAtaAddr,
+        governanceFeeAddr,
+        userUsdcAtaAddr,
+        userUsdtAtaAddr,
+        userSwimUsdAtaAddr,
+        flagshipPool,
+      );
       printBeforeAndAfterPoolUserBalances([
         poolUserBalancesBefore,
         poolUserBalancesAfter,
@@ -1151,7 +1213,17 @@ describe("propeller", () => {
     });
 
     it("Propeller RemoveUniform", async () => {
-      const poolUserBalancesBefore = await getFlagshipTokenAccountBalances();
+      const poolUserBalancesBefore = await getFlagshipTokenAccountBalances(
+        splToken,
+        twoPoolProgram,
+        poolUsdcAtaAddr,
+        poolUsdtAtaAddr,
+        governanceFeeAddr,
+        userUsdcAtaAddr,
+        userUsdtAtaAddr,
+        userSwimUsdAtaAddr,
+        flagshipPool,
+      );
 
       const exactBurnAmount = new BN(100_000);
       const minimumOutputAmounts = [new BN(10_000), new BN(10_000)];
@@ -1194,7 +1266,17 @@ describe("propeller", () => {
       console.info(`removeUniformTxnSig: ${removeUniformTxnSig}`);
       await checkTxnLogsForMemo(removeUniformTxnSig, memoString);
 
-      const poolUserBalancesAfter = await getFlagshipTokenAccountBalances();
+      const poolUserBalancesAfter = await getFlagshipTokenAccountBalances(
+        splToken,
+        twoPoolProgram,
+        poolUsdcAtaAddr,
+        poolUsdtAtaAddr,
+        governanceFeeAddr,
+        userUsdcAtaAddr,
+        userUsdtAtaAddr,
+        userSwimUsdAtaAddr,
+        flagshipPool,
+      );
       printBeforeAndAfterPoolUserBalances([
         poolUserBalancesBefore,
         poolUserBalancesAfter,
@@ -2387,85 +2469,85 @@ describe("propeller", () => {
   }
 });
 
-type PoolUserBalances = {
-  readonly poolTokenBalances: ReadonlyArray<BN>;
-  readonly userTokenBalances: ReadonlyArray<BN>;
-  readonly governanceFeeBalance: BN;
-  readonly userLpTokenBalance: BN;
-  readonly previousDepth: BN;
-};
-async function getFlagshipTokenAccountBalances(): Promise<PoolUserBalances> {
-  const poolUsdcAtaBalance = (
-    await splToken.account.token.fetch(poolUsdcAtaAddr)
-  ).amount;
-  const poolUsdtAtaBalance = (
-    await splToken.account.token.fetch(poolUsdtAtaAddr)
-  ).amount;
-  const governanceFeeBalance = (
-    await splToken.account.token.fetch(governanceFeeAddr)
-  ).amount;
-  const userUsdcAtaBalance = (
-    await splToken.account.token.fetch(userUsdcAtaAddr)
-  ).amount;
-  const userUsdtAtaBalance = (
-    await splToken.account.token.fetch(userUsdtAtaAddr)
-  ).amount;
-  const userLpTokenBalance = (
-    await splToken.account.token.fetch(userSwimUsdAtaAddr)
-  ).amount;
-  const previousDepth = (
-    await twoPoolProgram.account.twoPool.fetch(flagshipPool)
-  ).previousDepth;
-  return {
-    poolTokenBalances: [poolUsdcAtaBalance, poolUsdtAtaBalance],
-    governanceFeeBalance,
-    userTokenBalances: [userUsdcAtaBalance, userUsdtAtaBalance],
-    userLpTokenBalance,
-    previousDepth,
-  };
-}
-
-function printBeforeAndAfterPoolUserBalances(
-  poolUserBalances: ReadonlyArray<PoolUserBalances>,
-) {
-  const {
-    poolTokenBalances: [poolUsdcAtaBalanceBefore, poolUsdtAtaBalanceBefore],
-    governanceFeeBalance: governanceFeeBalanceBefore,
-    userTokenBalances: [userUsdcAtaBalanceBefore, userUsdtAtaBalanceBefore],
-    userLpTokenBalance: userLpTokenBalanceBefore,
-    previousDepth: previousDepthBefore,
-  } = poolUserBalances[0];
-  const {
-    poolTokenBalances: [poolUsdcAtaBalanceAfter, poolUsdtAtaBalanceAfter],
-    governanceFeeBalance: governanceFeeBalanceAfter,
-    userTokenBalances: [userUsdcAtaBalanceAfter, userUsdtAtaBalanceAfter],
-    userLpTokenBalance: userLpTokenBalanceAfter,
-    previousDepth: previousDepthAfter,
-  } = poolUserBalances[1];
-  console.info(`
-    poolUsdcAtaBalance:
-      before: ${poolUsdcAtaBalanceBefore.toString()},
-      after: ${poolUsdcAtaBalanceAfter.toString()}
-    poolUsdtAtaBalance:
-      before: ${poolUsdtAtaBalanceBefore.toString()},
-      after: ${poolUsdtAtaBalanceAfter.toString()}
-    governanceFeeBalance:
-      before: ${governanceFeeBalanceBefore.toString()},
-      after: ${governanceFeeBalanceAfter.toString()}
-    userUsdcAtaBalance:
-      before: ${userUsdcAtaBalanceBefore.toString()},
-      after: ${userUsdcAtaBalanceAfter.toString()}
-    userUsdtAtaBalance:
-      before: ${userUsdtAtaBalanceBefore.toString()},
-      after: ${userUsdtAtaBalanceAfter.toString()}
-    userLpTokenBalance:
-      before: ${userLpTokenBalanceBefore.toString()},
-      after: ${userLpTokenBalanceAfter.toString()}
-    previousDepth:
-      before: ${previousDepthBefore.toString()},
-      after: ${previousDepthAfter.toString()}
-  `);
-}
+// type PoolUserBalances = {
+//   readonly poolTokenBalances: ReadonlyArray<BN>;
+//   readonly userTokenBalances: ReadonlyArray<BN>;
+//   readonly governanceFeeBalance: BN;
+//   readonly userLpTokenBalance: BN;
+//   readonly previousDepth: BN;
+// };
+// async function getFlagshipTokenAccountBalances(): Promise<PoolUserBalances> {
+//   const poolUsdcAtaBalance = (
+//     await splToken.account.token.fetch(poolUsdcAtaAddr)
+//   ).amount;
+//   const poolUsdtAtaBalance = (
+//     await splToken.account.token.fetch(poolUsdtAtaAddr)
+//   ).amount;
+//   const governanceFeeBalance = (
+//     await splToken.account.token.fetch(governanceFeeAddr)
+//   ).amount;
+//   const userUsdcAtaBalance = (
+//     await splToken.account.token.fetch(userUsdcAtaAddr)
+//   ).amount;
+//   const userUsdtAtaBalance = (
+//     await splToken.account.token.fetch(userUsdtAtaAddr)
+//   ).amount;
+//   const userLpTokenBalance = (
+//     await splToken.account.token.fetch(userSwimUsdAtaAddr)
+//   ).amount;
+//   const previousDepth = (
+//     await twoPoolProgram.account.twoPool.fetch(flagshipPool)
+//   ).previousDepth;
+//   return {
+//     poolTokenBalances: [poolUsdcAtaBalance, poolUsdtAtaBalance],
+//     governanceFeeBalance,
+//     userTokenBalances: [userUsdcAtaBalance, userUsdtAtaBalance],
+//     userLpTokenBalance,
+//     previousDepth,
+//   };
+// }
+//
+// function printBeforeAndAfterPoolUserBalances(
+//   poolUserBalances: ReadonlyArray<PoolUserBalances>,
+// ) {
+//   const {
+//     poolTokenBalances: [poolUsdcAtaBalanceBefore, poolUsdtAtaBalanceBefore],
+//     governanceFeeBalance: governanceFeeBalanceBefore,
+//     userTokenBalances: [userUsdcAtaBalanceBefore, userUsdtAtaBalanceBefore],
+//     userLpTokenBalance: userLpTokenBalanceBefore,
+//     previousDepth: previousDepthBefore,
+//   } = poolUserBalances[0];
+//   const {
+//     poolTokenBalances: [poolUsdcAtaBalanceAfter, poolUsdtAtaBalanceAfter],
+//     governanceFeeBalance: governanceFeeBalanceAfter,
+//     userTokenBalances: [userUsdcAtaBalanceAfter, userUsdtAtaBalanceAfter],
+//     userLpTokenBalance: userLpTokenBalanceAfter,
+//     previousDepth: previousDepthAfter,
+//   } = poolUserBalances[1];
+//   console.info(`
+//     poolUsdcAtaBalance:
+//       before: ${poolUsdcAtaBalanceBefore.toString()},
+//       after: ${poolUsdcAtaBalanceAfter.toString()}
+//     poolUsdtAtaBalance:
+//       before: ${poolUsdtAtaBalanceBefore.toString()},
+//       after: ${poolUsdtAtaBalanceAfter.toString()}
+//     governanceFeeBalance:
+//       before: ${governanceFeeBalanceBefore.toString()},
+//       after: ${governanceFeeBalanceAfter.toString()}
+//     userUsdcAtaBalance:
+//       before: ${userUsdcAtaBalanceBefore.toString()},
+//       after: ${userUsdcAtaBalanceAfter.toString()}
+//     userUsdtAtaBalance:
+//       before: ${userUsdtAtaBalanceBefore.toString()},
+//       after: ${userUsdtAtaBalanceAfter.toString()}
+//     userLpTokenBalance:
+//       before: ${userLpTokenBalanceBefore.toString()},
+//       after: ${userLpTokenBalanceAfter.toString()}
+//     previousDepth:
+//       before: ${previousDepthBefore.toString()},
+//       after: ${previousDepthAfter.toString()}
+//   `);
+// }
 // async function getPropellerPda(mint: web3.PublicKey): Promise<web3.PublicKey> {
 // 	return (await web3.PublicKey.findProgramAddress(
 // 		[Buffer.from("propeller"), mint.toBytes()],

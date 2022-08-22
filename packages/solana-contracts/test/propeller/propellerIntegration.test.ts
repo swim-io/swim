@@ -598,6 +598,9 @@ describe("propeller", () => {
         swimUsdKeypair.publicKey,
       )
     ).address;
+    console.info(
+      `propellerEngineSwimUsdAta: ${propellerEngineSwimUsdAta.toBase58()}`,
+    );
 
     // [custodyOrWrappedMeta] = await (async () => {
     //     const mintInfo = await getMint(program.provider.connection, tokenBridgeMint);

@@ -6,9 +6,6 @@ import { initReactI18next } from "react-i18next";
 
 import { Language } from "./config";
 
-// tmp hack to load translation before website is displayed
-import "./locales/en/translation.json";
-
 const fallbackLanguage = "en";
 
 // eslint-disable-next-line import/no-named-as-default-member

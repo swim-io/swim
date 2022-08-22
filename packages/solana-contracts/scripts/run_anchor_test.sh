@@ -55,7 +55,7 @@ fi
 
 yarn run jest -c jest.config.js --verbose --detectOpenHandles "$test_files"
 #yarn run jest -i "$test_files" -c jest.config.js &
-##yarn run ts-mocha -p ./tsconfig-dev.json -t 1000000 "$test_files" &
+#yarn run ts-mocha -p ./tsconfig-dev.json -t 1000000 "$test_files" &
 #yarn_pid=$!
 #echo "Yarn PID: ${yarn_pid}"
 #wait $yarn_pid

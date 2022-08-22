@@ -28,7 +28,11 @@ export async function setupPoolPrereqs(
   mintAuthorities: ReadonlyArray<web3.PublicKey>,
   lpMint: web3.PublicKey,
   governanceFeeOwner: web3.PublicKey,
-) {
+): Promise<{
+  readonly poolPubkey: web3.PublicKey;
+  readonly poolTokenAccounts: ReadonlyArray<web3.PublicKey>;
+  readonly governanceFeeAccount: web3.PublicKey;
+}> {
   for (const mintKeypair of mintKeypairs) {
     const i = mintKeypairs.indexOf(mintKeypair);
     const mintDecimal = mintDecimals[i];
@@ -124,8 +128,8 @@ export async function setupPoolPrereqs(
     program.programId,
   );
 
-  const poolTokenAccounts = await Promise.all(
-    mintKeypairs.map(async (mintKeypair) => {
+  const poolTokenAccounts: readonly web3.PublicKey[] = await Promise.all(
+    mintKeypairs.map(async (mintKeypair): Promise<web3.PublicKey> => {
       return await getAssociatedTokenAddress(
         mintKeypair.publicKey,
         poolPubkey,
@@ -136,7 +140,8 @@ export async function setupPoolPrereqs(
 
   console.info(`initialized pool token accounts`);
 
-  const governanceFeeAccount = await getAssociatedTokenAddress(
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const governanceFeeAccount: web3.PublicKey = await getAssociatedTokenAddress(
     lpMint,
     governanceFeeOwner,
   );
@@ -166,12 +171,16 @@ export async function setupUserAssociatedTokenAccts(
   payer: web3.Keypair,
   commitment?: Commitment,
   confirmOptions?: ConfirmOptions,
-) {
+): Promise<{
+  readonly userPoolTokenAtas: ReadonlyArray<web3.PublicKey>;
+  readonly userLpTokenAta: web3.PublicKey;
+}> {
   // const userPoolTokenAtas: ReadonlyArray<web3.PublicKey> = [];
   const userPoolTokenAtas = await Promise.all(
     mints.map(async (mint, i) => {
       const mintAuthority = mintAuthorities[i];
-      const userAta = (
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+      const userAta: web3.PublicKey = (
         await getOrCreateAssociatedTokenAccount(
           connection,
           payer,
@@ -209,7 +218,8 @@ export async function setupUserAssociatedTokenAccts(
   //   console.info(`minted ${amount} to ${userAta}`);
   //   userPoolTokenAtas.push(userAta);
   // }
-  const userLpTokenAta = (
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+  const userLpTokenAta: web3.PublicKey = (
     await getOrCreateAssociatedTokenAccount(
       connection,
       payer,

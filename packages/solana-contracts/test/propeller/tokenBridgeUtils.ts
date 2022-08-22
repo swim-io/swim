@@ -1,17 +1,12 @@
 import type { ChainId } from "@certusone/wormhole-sdk";
 import {
-  CHAIN_ID_ETH,
   CHAIN_ID_SOLANA,
-  getSignedVAAHash,
-  hexToUint8Array,
   toChainName,
-  tryHexToNativeAssetString,
   tryNativeToHexString,
+  tryUint8ArrayToNative,
 } from "@certusone/wormhole-sdk";
-import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
 import { BN, web3 } from "@project-serum/anchor";
-import * as BufferLayout from "@solana/buffer-layout";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+// eslint-disable-next-line import/order
 import * as byteify from "byteify";
 
 // import { toBigNumberHex } from "./utils";
@@ -27,7 +22,7 @@ import {
   formatPostedMessage,
   parsePostedMessage,
   parseVaa,
-  signAndEncodeVaa,
+  // signAndEncodeVaa,
 } from "./wormholeUtils";
 import type { ParsedPostedMessage, ParsedVaa } from "./wormholeUtils";
 
@@ -38,31 +33,31 @@ export function toBigNumberHex(value: BigNumberish, numBytes: number): string {
     .padStart(numBytes * 2, "0");
 }
 
-export type PostVaaMethod = (
-  connection: web3.Connection,
-  signTransaction: (transaction: web3.Transaction) => Promise<web3.Transaction>,
-  bridge_id: string,
-  payer: string,
-  vaa: Buffer,
-  maxRetries: number,
-) => Promise<void>;
-
-export function encodeTokenBridgeRegistration(
-  chain: ChainId,
-  bridgeAddress: string,
-) {
-  const encoded = Buffer.alloc(69);
-
-  // required label for governance
-  const label = Buffer.from("TokenBridge");
-  encoded.write(label.toString("hex"), 32 - label.length, "hex");
-  encoded.writeUint8(1, 32);
-  // skip 2 bytes
-  encoded.writeUint16BE(chain as number, 35);
-  encoded.write(tryNativeToHexString(bridgeAddress, chain), 37, "hex");
-
-  return encoded;
-}
+// export type PostVaaMethod = (
+//   connection: web3.Connection,
+//   signTransaction: (transaction: web3.Transaction) => Promise<web3.Transaction>,
+//   bridge_id: string,
+//   payer: string,
+//   vaa: Buffer,
+//   maxRetries: number,
+// ) => Promise<void>;
+//
+// export function encodeTokenBridgeRegistration(
+//   chain: ChainId,
+//   bridgeAddress: string,
+// ) {
+//   const encoded = Buffer.alloc(69);
+//
+//   // required label for governance
+//   const label = Buffer.from("TokenBridge");
+//   encoded.write(label.toString("hex"), 32 - label.length, "hex");
+//   encoded.writeUint8(1, 32);
+//   // skip 2 bytes
+//   encoded.writeUint16BE(chain as number, 35);
+//   encoded.write(tryNativeToHexString(bridgeAddress, chain), 37, "hex");
+//
+//   return encoded;
+// }
 
 export function encodeAttestMeta(
   tokenAddress: Buffer,
@@ -174,11 +169,11 @@ export function encodeTokenTransferWithPayload(
       payload.length,
   );
 
-  console.log(
+  console.info(
     `[encodeTokenTransferWithPayload] - encoded.length: ${encoded.length}`,
   );
-  console.log(`
-		amountHexLenght: ${toBigNumberHex(amount, 32).length}
+  console.info(`
+		amountHexLength: ${toBigNumberHex(amount, 32).length}
 		tokenAddrHexLength: ${tokenAddress.toString("hex").length}
 		receiverHexLength: ${
       tryNativeToHexString(to.toString(), CHAIN_ID_SOLANA).length
@@ -247,6 +242,7 @@ export interface GuardianSignature {
 
 export function hashVaa(signedVaa: Buffer): Buffer {
   const sigStart = 6;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const numSigners = signedVaa[5]!;
   const sigLength = 66;
 
@@ -292,7 +288,7 @@ export const deriveMessagePda = async (
   const hash = hashVaa(signedVaa);
   // const hexHash = await getSignedVAAHash(signedVaa);
   // const hash2 = Buffer.from(hexToUint8Array(hexHash));
-  // console.log(`
+  // console.info(`
   //   hash: ${hash.toString("hex")}
   //   hash2: ${hash2.toString("hex")}
   // `);
@@ -301,7 +297,7 @@ export const deriveMessagePda = async (
   // hash2: 0x16d2678d4355b164a74337080f7141f3b8f54ed951156118a3f4af4b9d09450c
   // hash2BufferHex: 307831366432363738643433353562313634613734333337303830663731343166336238663534656439353131353631313861336634616634623964303934353063
   // const hash2 = await getSignedVAAHash(Uint8Array.from(signedVaa));
-  // console.log(`
+  // console.info(`
   // 	hash: ${hash.toString("hex")}
   // 	hash2: ${hash2}
   // 	hash2BufferHex: ${Buffer.from(hash2).toString("hex")}
@@ -339,6 +335,7 @@ export function parseAttestMetaVaa(signedVaa: Buffer): ParsedAttestMetaVaa {
     core: parsed,
     address: data.subarray(1, 33),
     chain: data.readUint16BE(33) as ChainId,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     decimals: data[35]!,
     symbol: data.subarray(36, 68).toString().replace("\0", ""),
     name: data.subarray(68, 100).toString().replace("\0", ""),
@@ -389,6 +386,7 @@ export function parseTokenTransferSignedVaa(
 
 function parseTokenTransfer(data: Buffer): ParsedTokenTransfer {
   return {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     messageType: data[0]!,
     amount: new BN(data.subarray(1, 33)).toString(),
     tokenAddress: data.subarray(33, 65),
@@ -557,9 +555,9 @@ export async function getMintMetaPdas(mintKey: web3.PublicKey) {
 //
 // 	async createWrapped(payer: web3.Keypair, attestMetaSignedVaa: Buffer) {
 // 		// first post signed vaa to wormhole
-// 		console.log("posting");
+// 		console.info("posting");
 // 		await this.postVaa(payer, attestMetaSignedVaa);
-// 		console.log("posted");
+// 		console.info("posted");
 //
 // 		// Deserialize signed vaa
 // 		const attestedMeta = parseAttestMetaVaa(attestMetaSignedVaa);
@@ -569,7 +567,7 @@ export async function getMintMetaPdas(mintKey: web3.PublicKey) {
 // 		const token_config_acc = this.config;
 // 		const endpoint_acc = this.deriveEmitterPda(core.emitterChain, core.emitterAddress);
 // 		const coreVaa = this.deriveMessagePda(core.hash);
-// 		console.log("coreVaa", coreVaa.toString());
+// 		console.info("coreVaa", coreVaa.toString());
 //
 // 		const tokenVaa = this.deriveClaimPda(core.emitterChain, core.emitterAddress, core.sequence);
 // 		const [mintKey, mintMetaKey] = this.deriveMintPdas(attestedMeta.chain, attestedMeta.address);
@@ -597,7 +595,7 @@ export async function getMintMetaPdas(mintKey: web3.PublicKey) {
 // 			{ pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
 // 			{ pubkey: SPL_METADATA_PROGRAM, isSigner: false, isWritable: false },
 // 		];
-// 		console.log(createWrappedKeys);
+// 		console.info(createWrappedKeys);
 // 		const latestBlockhash = await this.connection.getLatestBlockhash("confirmed");
 // 		let transaction = new web3.Transaction({
 // 			feePayer: payer.publicKey,
@@ -612,7 +610,7 @@ export async function getMintMetaPdas(mintKey: web3.PublicKey) {
 // 		let data = Buffer.alloc(createWrappedStruct.layout.span);
 // 		let layoutFields = Object.assign({ instruction: createWrappedStruct.index }, {});
 // 		createWrappedStruct.layout.encode(layoutFields, data);
-// 		console.log("createWrappedStruct", createWrappedStruct);
+// 		console.info("createWrappedStruct", createWrappedStruct);
 // 		*/
 // 		const instructionData = Buffer.alloc(1);
 // 		instructionData.writeUint8(7);
@@ -625,7 +623,7 @@ export async function getMintMetaPdas(mintKey: web3.PublicKey) {
 // 			})
 // 		);
 //
-// 		console.log("transaction", transaction);
+// 		console.info("transaction", transaction);
 // 		transaction.partialSign(payer);
 //
 // 		const response = await this.connection

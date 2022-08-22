@@ -11,7 +11,7 @@ const TwoPoolAccountName = "TwoPool";
 export function parsePoolAccount(data: Buffer) {
   const discriminator =
     BorshAccountsCoder.accountDiscriminator(TwoPoolAccountName);
-  if (discriminator.compare(data.slice(0, 8))) {
+  if (discriminator.compare(data.subarray(0, 8))) {
     console.error("incorrect account name during parsing");
     return null;
   }

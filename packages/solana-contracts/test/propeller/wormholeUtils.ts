@@ -2,10 +2,11 @@ import type { ChainId } from "@certusone/wormhole-sdk";
 import {
   CHAIN_ID_SOLANA,
   importCoreWasm,
-  tryHexToNativeAssetString,
+  tryUint8ArrayToNative,
 } from "@certusone/wormhole-sdk";
-import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk/lib/cjs/utils/array";
 import { PublicKey } from "@solana/web3.js";
+import BN = require("bn.js");
+import elliptic = require("elliptic");
 import keccak256 from "keccak256";
 
 export const WORMHOLE_CORE_BRIDGE = new PublicKey(
@@ -15,7 +16,8 @@ export const WORMHOLE_TOKEN_BRIDGE = new PublicKey(
   "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE",
 );
 
-const elliptic = require("elliptic");
+// const ec = require("elliptic").ec;
+// const signature = require("elliptic").Signature;
 /** from wormhole-icco **/
 export function signAndEncodeVaa(
   timestamp: number,
@@ -63,15 +65,26 @@ export function signAndEncodeVaa(
   const hash = keccak256(keccak256(vm.subarray(bodyStart)));
 
   for (let i = 0; i < numSigners; ++i) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
     const ec = new elliptic.ec("secp256k1");
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
     const key = ec.keyFromPrivate(signers[i]);
-    const signature = key.sign(hash, { canonical: true });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const {
+      r,
+      recoveryParam,
+      s,
+    }: { readonly r: BN; readonly recoveryParam: number; readonly s: BN } =
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      key.sign(hash, {
+        canonical: true,
+      });
 
     const start = sigStart + i * sigLength;
     vm.writeUInt8(i, start);
-    vm.write(signature.r.toString(16).padStart(64, "0"), start + 1, "hex");
-    vm.write(signature.s.toString(16).padStart(64, "0"), start + 33, "hex");
-    vm.writeUInt8(signature.recoveryParam, start + 65);
+    vm.write(r.toString(16).padStart(64, "0"), start + 1, "hex");
+    vm.write(s.toString(16).padStart(64, "0"), start + 33, "hex");
+    vm.writeUInt8(recoveryParam, start + 65);
   }
 
   return vm;
@@ -122,18 +135,39 @@ export interface ParsedPostedMessage {
 export async function parsePostedMessage(
   postedMessageBuffer: Buffer,
 ): Promise<ParsedPostedMessage> {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const { parse_posted_message } = await importCoreWasm();
-  const postedMessage = parse_posted_message(postedMessageBuffer);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const {
+    consistency_level,
+    emitter_address,
+    emitter_chain,
+    nonce,
+    payload,
+    sequence,
+    vaa_signature_account,
+    vaa_time,
+    vaa_version,
+  } = parse_posted_message(postedMessageBuffer);
   return {
-    vaaVersion: postedMessage.vaa_version,
-    vaaSignatureAccount: Buffer.from(postedMessage.vaa_signature_account),
-    timestamp: postedMessage.vaa_time,
-    nonce: postedMessage.nonce,
-    emitterChain: postedMessage.emitter_chain,
-    emitterAddress: Buffer.from(postedMessage.emitter_address),
-    sequence: postedMessage.sequence,
-    consistencyLevel: postedMessage.consistency_level,
-    data: Buffer.from(postedMessage.payload),
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    vaaVersion: vaa_version,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    vaaSignatureAccount: Buffer.from(vaa_signature_account),
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    timestamp: vaa_time,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    nonce: nonce,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    emitterChain: emitter_chain,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    emitterAddress: Buffer.from(emitter_address),
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    sequence: sequence,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    consistencyLevel: consistency_level,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    data: Buffer.from(payload),
   };
 }
 
@@ -155,22 +189,27 @@ export function formatPostedMessage(postedMessage: ParsedPostedMessage) {
 
 export function parseVaa(signedVaa: Buffer): ParsedVaa {
   const sigStart = 6;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const numSigners = signedVaa[5]!;
   const sigLength = 66;
 
-  const guardianSignatures: readonly GuardianSignature[] = [];
-  for (let i = 0; i < numSigners; ++i) {
+  const guardianSignatures: readonly GuardianSignature[] = [
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    ...Array(numSigners),
+  ].map((_, i) => {
     const start = i * sigLength + 1;
-    guardianSignatures.push({
+    return {
       r: signedVaa.subarray(start, start + 32),
       s: signedVaa.subarray(start + 32, start + 64),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       v: signedVaa[start + 64]!,
-    });
-  }
+    };
+  });
 
   const body = signedVaa.subarray(sigStart + sigLength * numSigners);
 
   return {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     version: signedVaa[0]!,
     guardianSignatures,
     timestamp: body.readUint32BE(0),
@@ -178,6 +217,7 @@ export function parseVaa(signedVaa: Buffer): ParsedVaa {
     emitterChain: body.readUint16BE(8) as ChainId,
     emitterAddress: body.subarray(10, 42),
     sequence: body.readBigUint64BE(42),
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     consistencyLevel: body[50]!,
     data: body.subarray(51),
     hash: keccak256(body),

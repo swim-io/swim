@@ -1072,7 +1072,8 @@ describe("TwoPool", () => {
 
     it("Can change governance fee account", async () => {
       const newGovernanceFeeOwner = Keypair.generate().publicKey;
-      const newGovernanceFeeKey = (
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const newGovernanceFeeKey: PublicKey = (
         await getOrCreateAssociatedTokenAccount(
           provider.connection,
           payer,

@@ -18,8 +18,9 @@ wallet = "./test/test_wallet.json"
 #test = "yarn run ts-mocha -p ./test/tsconfig.json -t 1000000 sdk/tests/**/pool.test.ts"
 test = "./scripts/run_anchor_test.sh"
 #initialize_pool = "./sdk/scripts/initialize_pool.sh"
-initialize_pool = "yarn run build-pool && yarn run ts-node sdk/scripts/initializePool.ts"
+#initialize_pool = "yarn run build-pool && yarn run ts-node sdk/scripts/initializePool.ts"
 #initialize_pool_devnet = "yarn run build:anchor-devnet && yarn run ts-node sdk/scripts/initializePool.ts"
+initialize_pool = "yarn run ts-node scripts/initializePool.ts"
 
 [test]
 startup_wait = 100000

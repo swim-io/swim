@@ -1,6 +1,5 @@
 import type { Program, SplToken } from "@project-serum/anchor";
 import { web3 } from "@project-serum/anchor";
-import * as anchor from "@project-serum/anchor";
 import {
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
@@ -30,21 +29,24 @@ export async function setupPoolPrereqs(
   lpMint: web3.PublicKey,
   governanceFeeOwner: web3.PublicKey,
 ) {
-  const poolTokenAccounts = [];
-  for (let i = 0; i < mintKeypairs.length; i++) {
-    const mintKeypair = mintKeypairs[i];
+  for (const mintKeypair of mintKeypairs) {
+    const i = mintKeypairs.indexOf(mintKeypair);
     const mintDecimal = mintDecimals[i];
+    const mintAuthority = mintAuthorities[i];
     try {
       const mint = await splToken.account.mint.fetch(mintKeypair.publicKey);
-      console.log(
-        `existing mint info found for ${
-          mintKeypair.publicKey
-        }: ${JSON.stringify(mint)}`,
+      console.info(
+        `existing mint info found for ${mintKeypair.publicKey.toBase58()}: ${JSON.stringify(
+          mint,
+        )}`,
       );
     } catch (e) {
-      console.log(`mint not found. Initializing now. error: ${e}`);
+      console.info(
+        `mint not found. Initializing now. error: ${JSON.stringify(e)}`,
+      );
       await splToken.methods
-        .initializeMint(mintDecimal, program.provider.publicKey!, null)
+        .initializeMint(mintDecimal, mintAuthority, null)
+        // .initializeMint(mintDecimal, program.provider.publicKey!, null)
         .accounts({
           mint: mintKeypair.publicKey,
         })
@@ -55,6 +57,63 @@ export async function setupPoolPrereqs(
         .rpc();
     }
   }
+  // for await (const mintKeypair of mintKeypairs) {
+  //   const i = mintKeypairs.indexOf(mintKeypair);
+  //   const mintDecimal = mintDecimals[i];
+  //   try {
+  //     const mint = await splToken.account.mint.fetch(mintKeypair.publicKey);
+  //     console.info(
+  //       `existing mint info found for ${mintKeypair.publicKey.toBase58()}: ${JSON.stringify(
+  //         mint,
+  //       )}`,
+  //     );
+  //   } catch (e) {
+  //     console.info(
+  //       `mint not found. Initializing now. error: ${JSON.stringify(e)}`,
+  //     );
+  //     await splToken.methods
+  //       .initializeMint(mintDecimal, program.provider.publicKey!, null)
+  //       .accounts({
+  //         mint: mintKeypair.publicKey,
+  //       })
+  //       .preInstructions([
+  //         await splToken.account.mint.createInstruction(mintKeypair),
+  //       ])
+  //       .signers([mintKeypair])
+  //       .rpc();
+  //   }
+  // }
+  //
+  // await Promise.all(
+  //   mintKeypairs.forEach(async (mintKeypair, i) => {
+  // )
+  // for (let i = 0; i < mintKeypairs.length; i++) {
+  //   const mintKeypair = mintKeypairs[i];
+  //   const mintDecimal = mintDecimals[i];
+  //   try {
+  //     const mint = await splToken.account.mint.fetch(mintKeypair.publicKey);
+  //     console.info(
+  //       `existing mint info found for ${mintKeypair.publicKey.toBase58()}: ${JSON.stringify(
+  //         mint,
+  //       )}`,
+  //     );
+  //   } catch (e) {
+  //     console.info(
+  //       `mint not found. Initializing now. error: ${JSON.stringify(e)}`,
+  //     );
+  //
+  //     await splToken.methods
+  //       .initializeMint(mintDecimal, program.provider.publicKey!, null)
+  //       .accounts({
+  //         mint: mintKeypair.publicKey,
+  //       })
+  //       .preInstructions([
+  //         await splToken.account.mint.createInstruction(mintKeypair),
+  //       ])
+  //       .signers([mintKeypair])
+  //       .rpc();
+  //   }
+  // }
 
   const [poolPubkey] = await web3.PublicKey.findProgramAddress(
     [
@@ -65,28 +124,30 @@ export async function setupPoolPrereqs(
     program.programId,
   );
 
-  for (let i = 0; i < mintKeypairs.length; i++) {
-    const mintKeypair = mintKeypairs[i];
-    const poolTokenAccount = await getAssociatedTokenAddress(
-      mintKeypair.publicKey,
-      poolPubkey,
-      true,
-    );
-    poolTokenAccounts.push(poolTokenAccount);
-  }
+  const poolTokenAccounts = await Promise.all(
+    mintKeypairs.map(async (mintKeypair) => {
+      return await getAssociatedTokenAddress(
+        mintKeypair.publicKey,
+        poolPubkey,
+        true,
+      );
+    }),
+  );
 
-  console.log(`initialized pool token accounts`);
+  console.info(`initialized pool token accounts`);
 
   const governanceFeeAccount = await getAssociatedTokenAddress(
     lpMint,
     governanceFeeOwner,
   );
 
-  console.log(`initialized governance fee account`);
+  console.info(`initialized governance fee account`);
 
-  console.log(`
-      pool token accounts: ${JSON.stringify(poolTokenAccounts)}
-      governance fee account: ${governanceFeeAccount}
+  console.info(`
+      pool token accounts: ${JSON.stringify(
+        poolTokenAccounts.map((a) => a.toBase58()),
+      )}
+      governance fee account: ${governanceFeeAccount.toBase58()}
     `);
   return {
     poolPubkey,
@@ -106,26 +167,48 @@ export async function setupUserAssociatedTokenAccts(
   commitment?: Commitment,
   confirmOptions?: ConfirmOptions,
 ) {
-  const userPoolTokenAtas: ReadonlyArray<web3.PublicKey> = [];
-  for (let i = 0; i < mints.length; i++) {
-    const mint = mints[i];
-    const mintAuthority = mintAuthorities[i];
-    const userAta = (
-      await getOrCreateAssociatedTokenAccount(
-        connection,
-        payer,
-        mint,
-        owner,
-        false,
-        commitment,
-        confirmOptions,
-      )
-    ).address;
-    console.log(`mint[${i}]: ${mint}. created/retrieved userAta: ${userAta}`);
-    await mintTo(connection, payer, mint, userAta, mintAuthority, amount);
-    console.log(`minted ${amount} to ${userAta}`);
-    userPoolTokenAtas.push(userAta);
-  }
+  // const userPoolTokenAtas: ReadonlyArray<web3.PublicKey> = [];
+  const userPoolTokenAtas = await Promise.all(
+    mints.map(async (mint, i) => {
+      const mintAuthority = mintAuthorities[i];
+      const userAta = (
+        await getOrCreateAssociatedTokenAccount(
+          connection,
+          payer,
+          mint,
+          owner,
+          false,
+          commitment,
+          confirmOptions,
+        )
+      ).address;
+      console.info(
+        `mint[${i}]: ${mint.toBase58()}. created/retrieved userAta: ${userAta.toBase58()}`,
+      );
+      await mintTo(connection, payer, mint, userAta, mintAuthority, amount);
+      console.info(`minted ${amount.toString()} to ${userAta.toBase58()}`);
+      return userAta;
+    }),
+  );
+  // for (let i = 0; i < mints.length; i++) {
+  //   const mint = mints[i];
+  //   const mintAuthority = mintAuthorities[i];
+  //   const userAta = (
+  //     await getOrCreateAssociatedTokenAccount(
+  //       connection,
+  //       payer,
+  //       mint,
+  //       owner,
+  //       false,
+  //       commitment,
+  //       confirmOptions,
+  //     )
+  //   ).address;
+  //   console.info(`mint[${i}]: ${mint}. created/retrieved userAta: ${userAta}`);
+  //   await mintTo(connection, payer, mint, userAta, mintAuthority, amount);
+  //   console.info(`minted ${amount} to ${userAta}`);
+  //   userPoolTokenAtas.push(userAta);
+  // }
   const userLpTokenAta = (
     await getOrCreateAssociatedTokenAccount(
       connection,
@@ -137,8 +220,8 @@ export async function setupUserAssociatedTokenAccts(
       confirmOptions,
     )
   ).address;
-  console.log(
-    `lpMint: ${lpMint}. created/retrieved userLpTokenAta: ${userLpTokenAta}`,
+  console.info(
+    `lpMint: ${lpMint.toBase58()}. created/retrieved userLpTokenAta: ${userLpTokenAta.toBase58()}`,
   );
   return {
     userPoolTokenAtas,

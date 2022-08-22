@@ -111,30 +111,29 @@ anchor deploy
 
 ## Notes:
 
-1. number of accounts needed on solana side:
-1. 2-pool (+ 1 to all for pool program id account for CPI)
-1. 11 for add
-1. 10 for swap
-1. 11 for removeUniform
-1. WH (+ 1 to all for WH token bridge account)
-1. Transfer
-1. 17 for `TransferNative` (same for with payload)
-1. 17 for `TransferWrapped` (same for with payload).
-   Probably don't need this since we should only be WH swimUSD from SOL
-1. `Complete`
-1. 14 for `CompleteNative` & `CompleteWrapped`
-1. 15 for `CompleteNativeWithPayload` & `CompleteWrappedWithPayload`
-1. shared_accounts
-1. payer of txn
-1. token_account for swimUSD?
-1. spl_token_program
-1. assumptions
-1. same address for all evm contracts
-1. (eventually) - pool auth will be merged into the pool state
-1. Solana Receiving side steps (assuming evm token_bridge_transfer message is already posted & vaa is signed):
-1. postVAA()
-   1.verify_signatures_ix (secp256k1 + verify_signatures)
-
+1.  number of accounts needed on solana side:
+1.  2-pool (+ 1 to all for pool program id account for CPI)
+1.  11 for add
+1.  10 for swap
+1.  11 for removeUniform
+1.  WH (+ 1 to all for WH token bridge account)
+1.  Transfer
+1.  17 for `TransferNative` (same for with payload)
+1.  17 for `TransferWrapped` (same for with payload).
+    Probably don't need this since we should only be WH swimUSD from SOL
+1.  `Complete`
+1.  14 for `CompleteNative` & `CompleteWrapped`
+1.  15 for `CompleteNativeWithPayload` & `CompleteWrappedWithPayload`
+1.  shared_accounts
+1.  payer of txn
+1.  token_account for swimUSD?
+1.  spl_token_program
+1.  assumptions
+1.  same address for all evm contracts
+1.  (eventually) - pool auth will be merged into the pool state
+1.  Solana Receiving side steps (assuming evm token_bridge_transfer message is already posted & vaa is signed):
+1.  postVAA()
+    1.verify_signatures_ix (secp256k1 + verify_signatures)
 
     ```rust
        // bridge/program/wasm.rs
@@ -242,7 +241,7 @@ anchor deploy
     }
     ```
 
-        2. postVAA
-        3. complete_transfer_with_payload()
+         2. postVAA
+         3. complete_transfer_with_payload()
 
-3.
+1.

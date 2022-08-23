@@ -161,6 +161,139 @@ export type Propeller = {
       ]
     },
     {
+      "name": "createTokenIdMap",
+      "accounts": [
+        {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller.token_bridge_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "pool",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "arg",
+                "type": "publicKey",
+                "path": "pool"
+              },
+              {
+                "kind": "arg",
+                "type": "publicKey",
+                "path": "pool"
+              },
+              {
+                "kind": "arg",
+                "type": "publicKey",
+                "path": "pool.lp_mint_key"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "path": "two_pool_program"
+            }
+          }
+        },
+        {
+          "name": "tokenIdMap",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "token_id"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "arg",
+                "type": "u16",
+                "path": "target_token_index"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "targetTokenIndex",
+          "type": "u16"
+        },
+        {
+          "name": "pool",
+          "type": "publicKey"
+        },
+        {
+          "name": "poolTokenIndex",
+          "type": "u8"
+        },
+        {
+          "name": "poolTokenMint",
+          "type": "publicKey"
+        },
+        {
+          "name": "poolIx",
+          "type": {
+            "defined": "PoolInstruction"
+          }
+        }
+      ]
+    },
+    {
       "name": "add",
       "accounts": [
         {
@@ -1170,10 +1303,6 @@ export type Propeller = {
           "type": "u16"
         },
         {
-          "name": "targetToken",
-          "type": "bytes"
-        },
-        {
           "name": "owner",
           "type": "bytes"
         },
@@ -1241,7 +1370,7 @@ export type Propeller = {
         },
         {
           "name": "message",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "docs": [
             "contains the VAA",
@@ -1345,6 +1474,30 @@ export type Propeller = {
           "name": "tokenBridge",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "propellerMessage",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "claim"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "message"
+              }
+            ]
+          }
         }
       ],
       "args": []
@@ -1352,7 +1505,7 @@ export type Propeller = {
   ],
   "accounts": [
     {
-      "name": "tokenIdMapping",
+      "name": "tokenIdMap",
       "type": {
         "kind": "struct",
         "fields": [
@@ -1381,6 +1534,74 @@ export type Propeller = {
           {
             "name": "bump",
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "propellerClaim",
+      "docs": [
+        "Works similarly to WH claim account",
+        "prevents \"double spend\" of `SwimPayload`",
+        "can be used to check if `ProcessSwimPayload` has been completed"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "claimed",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "propellerMessage",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "whMessage",
+            "type": "publicKey"
+          },
+          {
+            "name": "claim",
+            "type": "publicKey"
+          },
+          {
+            "name": "vaaEmitterAddress",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "vaaEmitterChain",
+            "type": "u16"
+          },
+          {
+            "name": "vaaSequence",
+            "type": "u64"
+          },
+          {
+            "name": "transferAmount",
+            "type": "u64"
+          },
+          {
+            "name": "swimPayload",
+            "type": {
+              "defined": "SwimPayload"
+            }
           }
         ]
       }
@@ -1459,7 +1680,11 @@ export type Propeller = {
             "type": "u64"
           },
           {
-            "name": "propellerMinThreshold",
+            "name": "propellerMinTransferAmount",
+            "type": "u64"
+          },
+          {
+            "name": "propellerEthMinTransferAmount",
             "type": "u64"
           },
           {
@@ -1473,6 +1698,15 @@ export type Propeller = {
           {
             "name": "marginalPricePoolTokenIndex",
             "type": "u8"
+          },
+          {
+            "name": "evmRoutingContractAddress",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
           }
         ]
       }
@@ -1518,7 +1752,11 @@ export type Propeller = {
             "type": "u64"
           },
           {
-            "name": "propellerMinThreshold",
+            "name": "propellerMinTransferAmount",
+            "type": "u64"
+          },
+          {
+            "name": "propellerEthMinTransferAmount",
             "type": "u64"
           },
           {
@@ -1532,6 +1770,15 @@ export type Propeller = {
           {
             "name": "marginalPricePoolTokenMint",
             "type": "publicKey"
+          },
+          {
+            "name": "evmRoutingContractAddress",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
           }
         ]
       }
@@ -1618,6 +1865,52 @@ export type Propeller = {
       "type": {
         "kind": "struct",
         "fields": []
+      }
+    },
+    {
+      "name": "SwimPayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "swimPayloadVersion",
+            "type": "u8"
+          },
+          {
+            "name": "owner",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "targetTokenId",
+            "type": "u16"
+          },
+          {
+            "name": "memo",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          },
+          {
+            "name": "propellerEnabled",
+            "type": "bool"
+          },
+          {
+            "name": "minThreshold",
+            "type": "u64"
+          },
+          {
+            "name": "gasKickstart",
+            "type": "bool"
+          }
+        ]
       }
     },
     {
@@ -2166,6 +2459,16 @@ export type Propeller = {
       "code": 6027,
       "name": "ClaimNotClaimed",
       "msg": "Claim Account not claimed"
+    },
+    {
+      "code": 6028,
+      "name": "InvalidPoolTokenIndex",
+      "msg": "Invalid Pool Token Index"
+    },
+    {
+      "code": 6029,
+      "name": "InvalidSwimPayloadGasKickstart",
+      "msg": "Invalid Gas Kickstart parameter in Swim Payload"
     }
   ]
 };
@@ -2333,6 +2636,139 @@ export const IDL: Propeller = {
       ]
     },
     {
+      "name": "createTokenIdMap",
+      "accounts": [
+        {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller.token_bridge_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "pool",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "arg",
+                "type": "publicKey",
+                "path": "pool"
+              },
+              {
+                "kind": "arg",
+                "type": "publicKey",
+                "path": "pool"
+              },
+              {
+                "kind": "arg",
+                "type": "publicKey",
+                "path": "pool.lp_mint_key"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "path": "two_pool_program"
+            }
+          }
+        },
+        {
+          "name": "tokenIdMap",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "token_id"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "arg",
+                "type": "u16",
+                "path": "target_token_index"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "targetTokenIndex",
+          "type": "u16"
+        },
+        {
+          "name": "pool",
+          "type": "publicKey"
+        },
+        {
+          "name": "poolTokenIndex",
+          "type": "u8"
+        },
+        {
+          "name": "poolTokenMint",
+          "type": "publicKey"
+        },
+        {
+          "name": "poolIx",
+          "type": {
+            "defined": "PoolInstruction"
+          }
+        }
+      ]
+    },
+    {
       "name": "add",
       "accounts": [
         {
@@ -3342,10 +3778,6 @@ export const IDL: Propeller = {
           "type": "u16"
         },
         {
-          "name": "targetToken",
-          "type": "bytes"
-        },
-        {
           "name": "owner",
           "type": "bytes"
         },
@@ -3413,7 +3845,7 @@ export const IDL: Propeller = {
         },
         {
           "name": "message",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "docs": [
             "contains the VAA",
@@ -3517,6 +3949,30 @@ export const IDL: Propeller = {
           "name": "tokenBridge",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "propellerMessage",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "claim"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "message"
+              }
+            ]
+          }
         }
       ],
       "args": []
@@ -3524,7 +3980,7 @@ export const IDL: Propeller = {
   ],
   "accounts": [
     {
-      "name": "tokenIdMapping",
+      "name": "tokenIdMap",
       "type": {
         "kind": "struct",
         "fields": [
@@ -3553,6 +4009,74 @@ export const IDL: Propeller = {
           {
             "name": "bump",
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "propellerClaim",
+      "docs": [
+        "Works similarly to WH claim account",
+        "prevents \"double spend\" of `SwimPayload`",
+        "can be used to check if `ProcessSwimPayload` has been completed"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "claimed",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "propellerMessage",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "whMessage",
+            "type": "publicKey"
+          },
+          {
+            "name": "claim",
+            "type": "publicKey"
+          },
+          {
+            "name": "vaaEmitterAddress",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "vaaEmitterChain",
+            "type": "u16"
+          },
+          {
+            "name": "vaaSequence",
+            "type": "u64"
+          },
+          {
+            "name": "transferAmount",
+            "type": "u64"
+          },
+          {
+            "name": "swimPayload",
+            "type": {
+              "defined": "SwimPayload"
+            }
           }
         ]
       }
@@ -3631,7 +4155,11 @@ export const IDL: Propeller = {
             "type": "u64"
           },
           {
-            "name": "propellerMinThreshold",
+            "name": "propellerMinTransferAmount",
+            "type": "u64"
+          },
+          {
+            "name": "propellerEthMinTransferAmount",
             "type": "u64"
           },
           {
@@ -3645,6 +4173,15 @@ export const IDL: Propeller = {
           {
             "name": "marginalPricePoolTokenIndex",
             "type": "u8"
+          },
+          {
+            "name": "evmRoutingContractAddress",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
           }
         ]
       }
@@ -3690,7 +4227,11 @@ export const IDL: Propeller = {
             "type": "u64"
           },
           {
-            "name": "propellerMinThreshold",
+            "name": "propellerMinTransferAmount",
+            "type": "u64"
+          },
+          {
+            "name": "propellerEthMinTransferAmount",
             "type": "u64"
           },
           {
@@ -3704,6 +4245,15 @@ export const IDL: Propeller = {
           {
             "name": "marginalPricePoolTokenMint",
             "type": "publicKey"
+          },
+          {
+            "name": "evmRoutingContractAddress",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
           }
         ]
       }
@@ -3790,6 +4340,52 @@ export const IDL: Propeller = {
       "type": {
         "kind": "struct",
         "fields": []
+      }
+    },
+    {
+      "name": "SwimPayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "swimPayloadVersion",
+            "type": "u8"
+          },
+          {
+            "name": "owner",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "targetTokenId",
+            "type": "u16"
+          },
+          {
+            "name": "memo",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          },
+          {
+            "name": "propellerEnabled",
+            "type": "bool"
+          },
+          {
+            "name": "minThreshold",
+            "type": "u64"
+          },
+          {
+            "name": "gasKickstart",
+            "type": "bool"
+          }
+        ]
       }
     },
     {
@@ -4338,6 +4934,16 @@ export const IDL: Propeller = {
       "code": 6027,
       "name": "ClaimNotClaimed",
       "msg": "Claim Account not claimed"
+    },
+    {
+      "code": 6028,
+      "name": "InvalidPoolTokenIndex",
+      "msg": "Invalid Pool Token Index"
+    },
+    {
+      "code": 6029,
+      "name": "InvalidSwimPayloadGasKickstart",
+      "msg": "Invalid Gas Kickstart parameter in Swim Payload"
     }
   ]
 };

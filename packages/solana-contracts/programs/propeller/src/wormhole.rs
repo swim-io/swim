@@ -1,5 +1,5 @@
 use {
-    crate::{env::*, Propeller, PropellerError, SwimPayload},
+    crate::{env::*, Propeller, PropellerError, RawSwimPayload},
     anchor_lang::prelude::*,
     borsh::{BorshDeserialize, BorshSerialize},
     byteorder::{BigEndian, ReadBytesExt, WriteBytesExt},
@@ -154,7 +154,7 @@ pub struct PayloadTransferWithPayload {
     pub from_address: Address,
     /// Arbitrary payload
     // pub payload: Vec<u8>,
-    pub payload: SwimPayload,
+    pub payload: RawSwimPayload,
 }
 
 impl AnchorDeserialize for PayloadTransferWithPayload {
@@ -190,7 +190,7 @@ impl AnchorDeserialize for PayloadTransferWithPayload {
 
         let mut payload = vec![];
         v.read_to_end(&mut payload)?;
-        let swim_payload = SwimPayload::deserialize(&mut payload.as_slice())?;
+        let swim_payload = RawSwimPayload::deserialize(&mut payload.as_slice())?;
 
         Ok(PayloadTransferWithPayload {
             message_type,
@@ -263,8 +263,8 @@ pub fn deserialize_message_payload<T: AnchorDeserialize>(buf: &mut &[u8]) -> Res
     Ok(T::deserialize(buf)?)
 }
 
-pub fn deserialize_swim_payload(buf: &mut &[u8]) -> Result<SwimPayload> {
-    Ok(SwimPayload::deserialize(buf)?)
+pub fn deserialize_swim_payload(buf: &mut &[u8]) -> Result<RawSwimPayload> {
+    Ok(RawSwimPayload::deserialize(buf)?)
 }
 /** Adding PostedVAA version here for parity */
 

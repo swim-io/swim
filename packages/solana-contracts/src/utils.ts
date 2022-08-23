@@ -1,10 +1,9 @@
 import fs from "fs";
 
-import type { Program, SplToken, web3 } from "@project-serum/anchor";
-import type * as anchor from "@project-serum/anchor";
+import type { BN, Program, SplToken, web3 } from "@project-serum/anchor";
 
 import type { TwoPool } from "./artifacts/two_pool";
-import TwoPoolIDL from "./artifacts/two_pool.json";
+// import TwoPoolIDL from "./artifacts/two_pool.json";
 
 export const twoPoolToString = async (
   program: Program<TwoPool>,
@@ -24,6 +23,7 @@ export const twoPoolReplacer = (key: string, value: any) => {
   if (key === "ampFactor") {
     return formatAmpFactor(value);
   } else if (key === "previousDepth") {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return value.toString();
   }
   return value;
@@ -32,14 +32,20 @@ export const twoPoolReplacer = (key: string, value: any) => {
 export const formatAmpFactor = (ampFactor: any) => {
   return {
     initialValue: {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
       value: ampFactor.initialValue.value.toString(),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
       decimals: ampFactor.initialValue.decimals,
     },
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
     initialTs: ampFactor.initialTs.toString(),
     targetValue: {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
       value: ampFactor.targetValue.value.toString(),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
       decimals: ampFactor.targetValue.decimals,
     },
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
     targetTs: ampFactor.targetTs.toString(),
   };
 };
@@ -54,7 +60,7 @@ export const writePoolStateToFile = (
 export const getApproveAndRevokeIxs = async (
   splToken: Program<SplToken>,
   tokenAccounts: ReadonlyArray<web3.PublicKey>,
-  amounts: ReadonlyArray<anchor.BN>,
+  amounts: ReadonlyArray<BN>,
   delegate: web3.PublicKey,
   authority: web3.Keypair,
 ): Promise<ReadonlyArray<ReadonlyArray<web3.TransactionInstruction>>> => {
@@ -72,7 +78,7 @@ export const getApproveAndRevokeIxs = async (
     }),
   );
   const revokeIxs = await Promise.all(
-    tokenAccounts.map((tokenAccount, i) => {
+    tokenAccounts.map((tokenAccount) => {
       return splToken.methods
         .revoke()
         .accounts({

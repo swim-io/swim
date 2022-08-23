@@ -17,7 +17,10 @@ wallet = "./test/test_wallet.json"
 [scripts]
 #test = "yarn run ts-mocha -p ./test/tsconfig.json -t 1000000 sdk/tests/**/pool.test.ts"
 test = "./scripts/run_anchor_test.sh"
-initialize_pool = "yarn run build:anchor && yarn run ts-node sdk/scripts/initializePool.ts"
+#initialize_pool = "./sdk/scripts/initialize_pool.sh"
+#initialize_pool = "yarn run build-pool && yarn run ts-node sdk/scripts/initializePool.ts"
+#initialize_pool_devnet = "yarn run build:anchor-devnet && yarn run ts-node sdk/scripts/initializePool.ts"
+initialize_pool = "yarn run ts-node scripts/initializePool.ts"
 
 [test]
 startup_wait = 100000
@@ -100,6 +103,8 @@ address="GPy3FiGpEyMFCTsYgcw9i6rSWsvJpgzA39QDXv8zquW"  # oracleAuthority
 address="3xBf7QZ7tw8qNZ6k4az2dfUnREgmn2fMtRszDnS6yeVN"  # oracleEscrow
 [[test.validator.clone]]
 address="B764Cfh6qRHKRFM17Y1Y9jZWX2wzmZaEZAoDEQUsDgrx"  # oraclePermissions
+[[test.validator.clone]]
+address="4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"  # additionalClonedAccounts
 #
 #[[test.validator.clone]]
 #address="2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG"  # programId`

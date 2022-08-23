@@ -55,14 +55,6 @@ pub struct Initialize<'info> {
     pub system_program: Program<'info, System>,
     pub rent: Sysvar<'info, Rent>,
 
-    // #[account(
-    //   seeds = [
-    //     b"two_pool".as_ref(),
-    //   ],
-    //   bump = pool.bump,
-    //   seeds::program = two_pool_program.key(),
-    // )]
-    // pub pool: Account<'info, TwoPool>,
     #[account(
     mut,
     seeds = [
@@ -78,8 +70,6 @@ pub struct Initialize<'info> {
     pub pool_token_mint_0: Box<Account<'info, Mint>>,
     pub pool_token_mint_1: Box<Account<'info, Mint>>,
     pub lp_mint: Box<Account<'info, Mint>>,
-    // #[account(mut)]
-    // pub lp_mint: Box<Account<'info, Mint>>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
 }
 
@@ -98,10 +88,12 @@ impl<'info> Initialize<'info> {
 pub struct InitializeParams {
     pub gas_kickstart_amount: u64,
     pub propeller_fee: u64,
-    pub propeller_min_threshold: u64,
+    pub propeller_min_transfer_amount: u64,
+    pub propeller_eth_min_transfer_amount: u64,
     pub marginal_price_pool: Pubkey,
     pub marginal_price_pool_token_index: u8,
     pub marginal_price_pool_token_mint: Pubkey,
+    pub evm_routing_contract_address: [u8; 32],
 }
 
 pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> Result<()> {
@@ -111,6 +103,7 @@ pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> 
     propeller.nonce = 0;
     propeller.bump = *ctx.bumps.get("propeller").unwrap();
     propeller.admin = ctx.accounts.admin.key();
+    //TODO: these should be passed in as params or read based on features used when deploying?
     propeller.wormhole = propeller.wormhole()?;
     propeller.token_bridge = propeller.token_bridge()?;
     propeller.token_bridge_mint = ctx.accounts.token_bridge_mint.key();
@@ -120,10 +113,12 @@ pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> 
 
     propeller.gas_kickstart_amount = params.gas_kickstart_amount;
     propeller.propeller_fee = params.propeller_fee;
-    propeller.propeller_min_threshold = params.propeller_min_threshold;
+    propeller.propeller_min_transfer_amount = params.propeller_min_transfer_amount;
+    propeller.propeller_eth_min_transfer_amount = params.propeller_eth_min_transfer_amount;
     propeller.marginal_price_pool = params.marginal_price_pool;
     propeller.marginal_price_pool_token_index = params.marginal_price_pool_token_index;
     propeller.marginal_price_pool_token_mint = params.marginal_price_pool_token_mint;
+    propeller.evm_routing_contract_address = params.evm_routing_contract_address;
     // create(
     // 	CpiContext::new(
     // 		ctx.accounts.associated_token_program.to_account_info(),

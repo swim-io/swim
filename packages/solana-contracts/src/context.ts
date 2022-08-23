@@ -13,6 +13,20 @@ export class TwoPoolContext {
   readonly program: Program<TwoPool>;
   readonly provider: AnchorProvider;
 
+  constructor(
+    provider: AnchorProvider,
+    wallet: Wallet,
+    program: Program,
+    opts: ConfirmOptions,
+  ) {
+    this.connection = provider.connection;
+    this.wallet = wallet;
+    this.opts = opts;
+    // It's a hack but it works on Anchor workspace *shrug*
+    this.program = program as unknown as Program<TwoPool>;
+    this.provider = provider;
+  }
+
   public static from(
     connection: Connection,
     wallet: Wallet,
@@ -44,19 +58,5 @@ export class TwoPoolContext {
   ): TwoPoolContext {
     const program = new Program(TwoPoolIDL as Idl, programId, provider);
     return new TwoPoolContext(provider, provider.wallet, program, opts);
-  }
-
-  public constructor(
-    provider: AnchorProvider,
-    wallet: Wallet,
-    program: Program,
-    opts: ConfirmOptions,
-  ) {
-    this.connection = provider.connection;
-    this.wallet = wallet;
-    this.opts = opts;
-    // It's a hack but it works on Anchor workspace *shrug*
-    this.program = program as unknown as Program<TwoPool>;
-    this.provider = provider;
   }
 }

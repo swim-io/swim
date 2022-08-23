@@ -1,4 +1,4 @@
-use anchor_lang::prelude::error_code;
+use anchor_lang::prelude::*;
 
 #[error_code]
 #[derive(Eq, PartialEq)]
@@ -86,4 +86,10 @@ pub enum PropellerError {
 
     #[msg("Claim Account not claimed")]
     ClaimNotClaimed,
+
+    #[msg("Invalid Pool Token Index")]
+    InvalidPoolTokenIndex,
+
+    #[msg("Invalid Gas Kickstart parameter in Swim Payload")]
+    InvalidSwimPayloadGasKickstart,
 }

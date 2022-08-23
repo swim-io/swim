@@ -7,8 +7,8 @@
    environment and deployment separately
 
 ```
-# building for localnet(default) testing
-anchor build
+# building for localnet testing
+anchor build -- --features localnet
 anchor deploy
 
 # building for devnet
@@ -20,7 +20,8 @@ anchor build -- --features mainnet
 anchor deploy
 ```
 
-1. actually this might not even be needed. can initialize the propeller state with what the addresses should be.
+1. switchboard default is mainnet address
+2.
 
 # To Do:
 

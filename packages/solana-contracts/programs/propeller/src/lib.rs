@@ -36,8 +36,8 @@ use {
 
 mod constants;
 mod env;
-mod error;
-mod instructions;
+pub mod error;
+pub mod instructions;
 mod state;
 mod token_bridge;
 mod wormhole;
@@ -55,6 +55,34 @@ pub mod propeller {
     pub fn initialize(ctx: Context<Initialize>, params: InitializeParams) -> Result<()> {
         handle_initialize(ctx, params)?;
         Ok(())
+    }
+
+    #[inline(never)]
+    #[access_control(
+      CreateTokenIdMap::accounts(
+        &ctx,
+        target_token_index,
+        pool,
+        pool_token_index,
+        pool_token_mint
+    ))]
+    pub fn create_token_id_map(
+        ctx: Context<CreateTokenIdMap>,
+        target_token_index: u16,
+        pool: Pubkey,
+        pool_token_index: u8,
+        pool_token_mint: Pubkey,
+        pool_ix: PoolInstruction,
+    ) -> Result<()> {
+        handle_create_token_id_map(
+            ctx,
+            target_token_index,
+            pool,
+            pool_token_index,
+            pool_token_mint,
+            pool_ix,
+        )
+        // Ok(())
     }
 
     pub fn add(
@@ -142,6 +170,7 @@ pub mod propeller {
         )
     }
 
+    #[inline(never)]
     #[access_control(TransferNativeWithPayload::accounts(&ctx))]
     pub fn transfer_native_with_payload(
         ctx: Context<TransferNativeWithPayload>,
@@ -149,7 +178,7 @@ pub mod propeller {
         target_chain: u16,
         amount: u64,
         target_token_id: u16,
-        target_token: Vec<u8>,
+        // target_token: Vec<u8>,
         owner: Vec<u8>,
         gas_kickstart: bool,
         propeller_enabled: bool,
@@ -161,7 +190,7 @@ pub mod propeller {
             target_chain,
             amount,
             target_token_id,
-            target_token,
+            // target_token,
             owner,
             gas_kickstart,
             propeller_enabled,

@@ -52,6 +52,9 @@ jobs:
       - name: Set Anchor Version
         run: avm use ${{ env.ANCHOR_CLI_VERSION }}
 
+      - name: Setup PATH
+        run: export PATH="$HOME/.local/share/solana/install/active_release/bin:$HOME/.avm/bin`$PATH"
+
       - name: Setup NPM
         uses: actions/setup-node@v2
         with:

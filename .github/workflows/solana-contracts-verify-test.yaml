@@ -1,4 +1,4 @@
-name: "Verify solana-contracts build"
+name: "Verify solana-contracts build & test"
 on:
   pull_request:
     paths:

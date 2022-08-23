@@ -1,0 +1,110 @@
+name: "Verify solana-contracts build"
+on:
+  pull_request:
+    paths:
+      - "packages/solana-contracts/**.ts"
+      - "packages/solana-contracts/**.json"
+  push:
+    branches:
+      - master
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_TOOLCHAIN: "1.60.0"
+  ANCHOR_CLI_VERSION: 0.25.0
+  SOLANA_CLI_VERSION: 1.10.29
+
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./packages/solana-contracts
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Cache
+        uses: actions/cache@v3
+        with:
+          key: cache-${{ runner.os }}-a${{ env.ANCHOR_CLI_VERSION }}-s${{ env.SOLANA_CLI_VERSION }}
+          path: |
+            ~/.cache/solana
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ~/.local/share/solana/
+
+      - name: Install Linux Dependencies
+        run: sudo apt-get update && sudo apt-get -y install pkg-config build-essential libudev-dev
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          override: true
+          profile: minimal
+          toolchain: stable
+          #          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: rustfmt, clippy
+
+      - name: Install Solana
+        run: sh -c "$(curl -sSfL https://release.solana.com/v${{ env.SOLANA_CLI_VERSION }}/install)"
+
+      - name: Install Anchor CLI
+        run: cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
+
+      - name: Set Anchor Version
+        run: avm use ${{ env.ANCHOR_CLI_VERSION }}
+
+  verify:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    defaults:
+      run:
+        working-directory: ./packages/solana-contracts
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Recover Cache
+        uses: actions/cache@v3
+        with:
+          key: cache-${{ runner.os }}-a${{ env.ANCHOR_CLI_VERSION }}-s${{ env.SOLANA_CLI_VERSION }}
+          path: |
+            ~/.cache/solana
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ~/.local/share/solana/
+
+      - name: Setup NPM
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Check types
+        run: yarn typecheck
+
+      - name: Check format
+        run: yarn format:check
+
+      - name: Check lint
+        run: yarn lint --max-warnings=0
+
+      - name: Build and Test Pool Program
+        run: yarn run test:pool
+
+      - name: Build and Test Propeller Program
+        run: yarn run test:propeller
+
+

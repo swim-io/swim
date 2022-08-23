@@ -231,8 +231,8 @@ const DEVNET_CHAINS: ChainsByProtocol = {
 };
 
 export const CHAINS: ReadonlyRecord<Env, ChainsByProtocol> = {
-  [Env.Mainnet]: {[Protocol.Solana]: [], [Protocol.Evm]: []},
+  [Env.Mainnet]: { [Protocol.Solana]: [], [Protocol.Evm]: [] },
   [Env.Devnet]: DEVNET_CHAINS,
-  [Env.Local]: {[Protocol.Solana]: [], [Protocol.Evm]: []},
-  [Env.Custom]: {[Protocol.Solana]: [], [Protocol.Evm]: []},
+  [Env.Local]: { [Protocol.Solana]: [], [Protocol.Evm]: [] },
+  [Env.Custom]: { [Protocol.Solana]: [], [Protocol.Evm]: [] },
 };

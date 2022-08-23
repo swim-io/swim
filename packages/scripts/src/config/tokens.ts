@@ -738,7 +738,6 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   ...DEVNET_TOKENS_FOR_RESTRUCTURE,
 ].filter((spec) => !spec.isDisabled);
 
-
 const defaultStablecoinTokenSpec: TokenSpec = {
   id: "test-stablecoin",
   projectId: TokenProjectId.Usdc,

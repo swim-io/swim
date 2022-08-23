@@ -19,7 +19,6 @@ env:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    needs: [setup]
     defaults:
       run:
         working-directory: ./packages/solana-contracts

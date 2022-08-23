@@ -4,6 +4,7 @@ on:
     paths:
       - "packages/solana-contracts/**.ts"
       - "packages/solana-contracts/**.json"
+      - "packages/solana-contracts/*.rs"
   push:
     branches:
       - master
@@ -56,6 +57,9 @@ jobs:
 
       - name: Install Anchor CLI
         run: cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
+
+      - name: Install Anchor Version
+        run: avm install ${{ env.ANCHOR_CLI_VERSION }}
 
       - name: Set Anchor Version
         run: avm use ${{ env.ANCHOR_CLI_VERSION }}

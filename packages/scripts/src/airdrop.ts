@@ -58,8 +58,8 @@ async function transferOnEvm(args: CliOptions) {
     } (${contractAddress}) from ${senderWallet.address} to ${receiverAddress}`,
   );
 
-  const senderTokenBalance = await tokenContract.balanceOf(
-    senderWallet.address,
+  const senderTokenBalance = ethers.utils.formatUnits(
+    await tokenContract.balanceOf(senderWallet.address),
   );
   const gasTokensBalanceInWei = await evmProvider.getBalance(
     senderWallet.address,
@@ -84,10 +84,10 @@ async function transferOnEvm(args: CliOptions) {
   );
 
   console.log(
-    `Balance after. Sender: ${await tokenContract.balanceOf(
-      senderWallet.address,
-    )} ${tokenSpec.projectId}. Receiver: ${await tokenContract.balanceOf(
-      receiverAddress,
+    `Balance after. Sender: ${ethers.utils.formatUnits(
+      await tokenContract.balanceOf(senderWallet.address),
+    )} ${tokenSpec.projectId}. Receiver: ${ethers.utils.formatUnits(
+      await tokenContract.balanceOf(receiverAddress),
     )} ${tokenSpec.projectId}. Gas tokens: ${ethers.utils.formatUnits(
       await evmProvider.getBalance(senderWallet.address),
     )}`,
@@ -95,19 +95,24 @@ async function transferOnEvm(args: CliOptions) {
 }
 
 async function transferOnSolana(args: CliOptions) {
+  async function getTokenAccountBalance(
+    tokenAddress: PublicKey,
+  ): Promise<Decimal> {
+    const tokenBalance = await solanaConnection.getTokenAccountBalance(
+      tokenAddress,
+    );
+
+    return new Decimal(tokenBalance.value.amount).div(
+      Decimal.pow(10, tokenBalance.value.decimals),
+    );
+  }
+
   const receiverAddress = new PublicKey(args.receiverAddress);
 
   const tokenId = args.token;
   const tokenSpec = findOrThrow(tokens, ({ id }: TokenSpec) => id === tokenId);
 
   const amount = args.amount;
-  // const amount = Amount.fromHumanString(tokenSpec, args.amount);
-
-  // Get a token contract
-  const chainSpec = findOrThrow(
-    chains[Protocol.Solana] as SolanaSpec[],
-    ({ ecosystem }) => ecosystem === tokenSpec.nativeEcosystemId,
-  );
 
   const rpcUrl = clusterApiUrl("devnet");
 
@@ -137,7 +142,9 @@ async function transferOnSolana(args: CliOptions) {
   const tokenContractAddress = new PublicKey(tokenSpec.nativeDetails.address);
 
   console.log(
-    `Attempting to send ${amount} ${tokenSpec.projectId} on ${tokenSpec.nativeEcosystemId} (${tokenContractAddress}) from ${fromWallet.publicKey} to ${receiverAddress}`,
+    `Attempting to send ${amount} ${
+      tokenSpec.projectId
+    } on ${tokenSpec.nativeEcosystemId.toString()} (${tokenContractAddress.toString()}) from ${fromWallet.publicKey.toString()} to ${receiverAddress.toString()}`,
   );
 
   const fromToken = new Token(
@@ -155,19 +162,16 @@ async function transferOnSolana(args: CliOptions) {
   );
 
   // Check account balance
-  const senderTokenBalance = await solanaConnection.getTokenAccountBalance(
-    fromTokenAccount.address,
-  );
-
   const balance = await solanaConnection.getBalance(fromWallet.publicKey);
   // Convert lamports to SOL
   const senderSolBalance = new Decimal(balance).dividedBy(LAMPORTS_PER_SOL);
 
   console.log(
-    `Sender ${fromWallet.publicKey} has ${senderTokenBalance.value.amount} ${tokenSpec.projectId} on ${tokenSpec.nativeEcosystemId}`,
-  );
-  console.log(
-    `Sender (${fromWallet.publicKey}) has ${senderTokenBalance.value.amount} ${tokenSpec.projectId}. Gas tokens balance: ${senderSolBalance}`,
+    `Sender (${fromWallet.publicKey.toString()}) has ${await getTokenAccountBalance(
+      fromTokenAccount.address,
+    )} ${
+      tokenSpec.projectId
+    }. Gas tokens balance: ${senderSolBalance.toString()}`,
   );
 
   const txSignature = await fromToken.transfer(
@@ -175,22 +179,23 @@ async function transferOnSolana(args: CliOptions) {
     toTokenAccount.address,
     fromWallet,
     [fromWallet],
-    Number.parseFloat(amount),
-    // amount.toAtomic(tokenSpec.nativeEcosystemId).toNumber(),
+    new Decimal(args.amount)
+      .mul(Decimal.pow(10, tokenSpec.nativeDetails.decimals))
+      .toNumber(),
   );
 
   console.log(`Transaction signature: ${txSignature}.`);
 
+  const newBalance = new Decimal(
+    await solanaConnection.getBalance(fromWallet.publicKey),
+  ).dividedBy(LAMPORTS_PER_SOL);
+
   console.log(
-    `Balance after. Sender: ${await solanaConnection.getTokenAccountBalance(
-      fromWallet.publicKey,
-    )} ${
-      tokenSpec.projectId
-    }. Receiver: ${await solanaConnection.getTokenAccountBalance(
-      receiverAddress,
-    )} ${tokenSpec.projectId}. Gas tokens: ${await solanaConnection.getBalance(
-      fromWallet.publicKey,
-    )}`,
+    `Balance after. Sender: ${await getTokenAccountBalance(
+      fromTokenAccount.address,
+    )} ${tokenSpec.projectId}. Receiver: ${await getTokenAccountBalance(
+      toTokenAccount.address,
+    )} ${tokenSpec.projectId}. Gas tokens: ${newBalance.toString()}`,
   );
 }
 

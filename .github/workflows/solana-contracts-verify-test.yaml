@@ -55,14 +55,6 @@ jobs:
       - name: Install Solana
         run: sh -c "$(curl -sSfL https://release.solana.com/v${{ env.SOLANA_CLI_VERSION }}/install)"
 
-      - name: Install Anchor CLI
-        run: cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
-
-      - name: Install Anchor Version
-        run: avm install ${{ env.ANCHOR_CLI_VERSION }}
-
-      - name: Set Anchor Version
-        run: avm use ${{ env.ANCHOR_CLI_VERSION }}
 
   verify:
     runs-on: ubuntu-latest
@@ -86,6 +78,15 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             ~/.local/share/solana/
+
+      - name: Install Anchor CLI
+        run: cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
+
+      - name: Install Anchor Version
+        run: avm install ${{ env.ANCHOR_CLI_VERSION }}
+
+      - name: Set Anchor Version
+        run: avm use ${{ env.ANCHOR_CLI_VERSION }}
 
       - name: Setup NPM
         uses: actions/setup-node@v2

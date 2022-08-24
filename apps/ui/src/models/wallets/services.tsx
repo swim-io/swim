@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next";
 import type { Ecosystem, EcosystemId } from "../../config";
 import { ECOSYSTEMS, Protocol, getEcosystemsForProtocol } from "../../config";
 import LEDGER_ICON from "../../images/wallets/ledger.svg";
-import MATHWALLET_ICON from "../../images/wallets/mathwallet.svg";
 import METAMASK_ICON from "../../images/wallets/metamask.svg";
 import PHANTOM_ICON from "../../images/wallets/phantom.svg";
 
@@ -25,7 +24,6 @@ export enum WalletServiceId {
   Phantom = "phantom",
   Sollet = "sollet",
   Solong = "solong",
-  MathWallet = "mathwallet",
   Solflare = "solflare",
   Ledger = "ledger",
 }
@@ -76,12 +74,6 @@ const solflareInfo: WalletServiceInfo = {
   name: "Solflare",
   url: "https://solflare.com/access-wallet",
   icon: `${OYSTER_ASSETS_URL}solflare.svg`,
-  ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
-};
-const mathWalletInfo: WalletServiceInfo = {
-  name: "MathWallet",
-  url: "https://www.mathwallet.org",
-  icon: MATHWALLET_ICON,
   ecosystem: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID],
 };
 const ledgerInfo: WalletServiceInfo = {
@@ -265,11 +257,6 @@ export const SOLANA_WALLET_SERVICES: readonly SolanaWalletService<SolanaWalletAd
       info: solongInfo,
       adapter: solana.SolongAdapter,
     },
-    {
-      id: WalletServiceId.MathWallet,
-      info: mathWalletInfo,
-      adapter: solana.MathWalletAdapter,
-    },
     { id: WalletServiceId.Solflare, info: solflareInfo },
     {
       id: WalletServiceId.Ledger,
@@ -335,7 +322,6 @@ export const walletServiceInfo: ReadonlyRecord<
   Omit<WalletServiceInfo, "ecosystem" | "helpText">
 > = {
   [WalletServiceId.Ledger]: ledgerInfo,
-  [WalletServiceId.MathWallet]: mathWalletInfo,
   [WalletServiceId.MetaMask]: metaMaskInfo,
   [WalletServiceId.Phantom]: phantomInfo,
   [WalletServiceId.Solflare]: solflareInfo,

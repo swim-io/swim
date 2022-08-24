@@ -6,7 +6,7 @@ import { initReactI18next } from "react-i18next";
 
 import { Language } from "./config";
 
-const fallbackLanguage = "en";
+const fallbackLanguage = Language.En;
 
 // eslint-disable-next-line import/no-named-as-default-member
 i18next

@@ -23,17 +23,16 @@ struct PoolState {
 }
 
 interface IPool {
-  event RemoveUniform(uint256 burnAmount, uint256[] outputAmounts, bytes16 indexed memo);
+  event RemoveUniform(uint256 burnAmount, uint256[] outputAmounts);
 
-  event Add(uint256[] inputAmounts, uint256 mintAmount, bytes16 indexed memo);
+  event Add(uint256[] inputAmounts, uint256 mintAmount);
 
-  event RemoveExactOutput(uint256 burnAmount, uint256[] outputAmounts, bytes16 indexed memo);
+  event RemoveExactOutput(uint256 burnAmount, uint256[] outputAmounts);
 
   event RemoveExactBurn(
     uint256 burnAmount,
     uint8 outputTokenIndex,
-    uint256 outputAmount,
-    bytes16 indexed memo
+    uint256 outputAmount
   );
   event Paused(bool paused);
   event TransferGovernance(address indexed from, address indexed to);
@@ -62,26 +61,22 @@ interface IPool {
 
   function removeUniform(
     uint256 burnAmount,
-    uint256[] memory minimumOutputAmounts,
-    bytes16 memo
+    uint256[] memory minimumOutputAmounts
   ) external returns (uint256[] memory outputAmounts);
 
   function add(
     uint256[] memory inputAmounts,
-    uint256 minimumMintAmount,
-    bytes16 memo
+    uint256 minimumMintAmount
   ) external returns (uint256 mintAmount);
 
   function removeExactOutput(
     uint256[] memory outputAmounts,
-    uint256 maximumBurnAmount,
-    bytes16 memo
+    uint256 maximumBurnAmount
   ) external returns (uint256 burnAmount);
 
   function removeExactBurn(
     uint256 burnAmount,
     uint8 outputTokenIndex,
-    uint256 minimumOutputAmount,
-    bytes16 memo
+    uint256 minimumOutputAmount
   ) external returns (uint256 outputAmount);
 }

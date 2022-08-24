@@ -1,15 +1,15 @@
+import { getContractAddress } from "@ethersproject/address";
+import type { BigNumber } from "@ethersproject/bignumber";
+import { formatFixed } from "@ethersproject/bignumber";
 import * as dotenv from "dotenv";
-
-import { task } from "hardhat/config";
-import { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
+import { task } from "hardhat/config.js";
+import type { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
-import { getContractAddress } from "@ethersproject/address";
-import { BigNumber, formatFixed } from "@ethersproject/bignumber";
 
 dotenv.config();
 const { FACTORY_MNEMONIC, MNEMONIC, BSCSCAN_API_KEY, ETHERSCAN_API_KEY } = process.env;
@@ -35,7 +35,18 @@ task("deploy", "run the deployment script", async (_, hre) => {
 task(
   "updates",
   "Updates a given proxy contract to a new implementation via updateTo",
-  async ({ proxy, logic, owner }, hre) => {
+  async (
+    {
+      proxy,
+      logic,
+      owner,
+    }: {
+      readonly proxy: string;
+      readonly logic: string;
+      readonly owner: string;
+    },
+    hre
+  ) => {
     const { ethers } = hre;
     const _owner = owner ? await ethers.getSigner(owner) : (await ethers.getSigners())[0];
     const _proxy = (await ethers.getContractAt("BlankLogic", proxy)).connect(_owner);
@@ -49,27 +60,32 @@ task(
   )
   .addOptionalPositionalParam("owner", "owner who's authorized to execute the upgrade", "");
 
-task("pool-state", "Print state of given pool", async ({ pool }, { ethers }) => {
-  const [isPaused, balances, lpSupply, ampFactorDec, lpFeeDec, govFeeDec] = await (
-    await ethers.getContractAt("Pool", pool)
-  ).getState();
-  const decimaltoFixed = (decimal: [BigNumber, number]) => formatFixed(decimal[0], decimal[1]);
-  const getDecimals = async (address: string) =>
-    (await ethers.getContractAt("ERC20", address)).decimals();
-  const toTokenInfo = async (token: [string, BigNumber]) => ({
-    address: token[0],
-    amount: decimaltoFixed([token[1], await getDecimals(token[0])]),
-  });
-  const state = {
-    isPaused,
-    balances: await Promise.all(balances.map(toTokenInfo)),
-    lpSupply: await toTokenInfo(lpSupply),
-    ampFactor: decimaltoFixed(ampFactorDec),
-    lpFee: decimaltoFixed(lpFeeDec),
-    govFee: decimaltoFixed(govFeeDec),
-  };
-  console.log(JSON.stringify(state, null, 2));
-}).addPositionalParam("pool", "address of the pool");
+task(
+  "pool-state",
+  "Print state of given pool",
+  async ({ pool }: { readonly pool: string }, { ethers }) => {
+    const [isPaused, balances, lpSupply, ampFactorDec, lpFeeDec, govFeeDec] = await (
+      await ethers.getContractAt("Pool", pool)
+    ).getState();
+    const decimaltoFixed = (decimal: readonly [BigNumber, number]) =>
+      formatFixed(decimal[0], decimal[1]);
+    const getDecimals = async (address: string) =>
+      (await ethers.getContractAt("ERC20", address)).decimals();
+    const toTokenInfo = async (token: readonly [string, BigNumber]) => ({
+      address: token[0],
+      amount: decimaltoFixed([token[1], await getDecimals(token[0])]),
+    });
+    const state = {
+      isPaused,
+      balances: await Promise.all(balances.map(toTokenInfo)),
+      lpSupply: await toTokenInfo(lpSupply),
+      ampFactor: decimaltoFixed(ampFactorDec),
+      lpFee: decimaltoFixed(lpFeeDec),
+      govFee: decimaltoFixed(govFeeDec),
+    };
+    console.log(JSON.stringify(state, null, 2));
+  }
+).addPositionalParam("pool", "address of the pool");
 
 // task("logicAddress", "Prints the address a logic contract will be deployed to given a its salt",
 //   async ({logicContract, salt}, hre) => {

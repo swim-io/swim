@@ -32,7 +32,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
-  address constant LP_TOKEN_LOGIC = address(0x3804BE1CeB87D2FD560560CA323FAd77FdB60258);
+  address constant LP_TOKEN_LOGIC = address(0x4b800c386471949EDA879150F245ec0C5fF0FDEf);
   ISwimFactory constant SWIM_FACTORY = ISwimFactory(address(0x77C1f7813D79c8e6E37DE1aA631B6F961fD45648));
   IRouting constant ROUTING_CONTRACT = IRouting(address(0x591bf69E5dAa731e26a87fe0C5b394263A8c3375));
   int8 constant SWIM_USD_EQUALIZER = -2;
@@ -173,7 +173,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   //always available, even when paused!
   //maximally robust and conservative implementation
-  function removeUniform(uint burnAmount, uint[] memory minimumOutputAmounts, bytes16 memo)
+  function removeUniform(uint burnAmount, uint[] memory minimumOutputAmounts)
     external returns(uint[] memory outputAmounts) {
     uint _tokenCount = tokenCount;
     LpToken lpToken = LpToken(lpTokenData.addr);
@@ -195,13 +195,12 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       poolToken.safeTransfer(msg.sender, outputAmount);
       outputAmounts[i] = outputAmount;
     }
-    emit RemoveUniform(burnAmount, outputAmounts, memo);
+    emit RemoveUniform(burnAmount, outputAmounts);
   }
 
   function add(
     uint[] memory inputAmounts,
-    uint minimumMintAmount,
-    bytes16 memo
+    uint minimumMintAmount
   ) external notPaused returns(uint mintAmount) { unchecked {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
@@ -234,14 +233,13 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       safeTransferFrom(inputAmounts[i], i);
     lpToken.mint(msg.sender, mintAmount);
 
-    emit Add(inputAmounts, mintAmount, memo);
+    emit Add(inputAmounts, mintAmount);
   }}
 
 
   function removeExactOutput(
     uint[] memory outputAmounts,
-    uint maximumBurnAmount,
-    bytes16 memo
+    uint maximumBurnAmount
   ) external notPaused returns(uint burnAmount) { unchecked {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
@@ -269,14 +267,13 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       safeTransfer(outputAmounts[i], i);
     mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
 
-    emit RemoveExactOutput(burnAmount, outputAmounts, memo);
+    emit RemoveExactOutput(burnAmount, outputAmounts);
   }}
 
   function removeExactBurn(
     uint burnAmount,
     uint8 outputTokenIndex,
-    uint minimumOutputAmount,
-    bytes16 memo
+    uint minimumOutputAmount
   ) external notPaused returns(uint outputAmount) {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
@@ -305,7 +302,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     safeTransfer(outputAmount, outputTokenIndex);
     mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
 
-    emit RemoveExactBurn(burnAmount, outputTokenIndex, outputAmount, memo);
+    emit RemoveExactBurn(burnAmount, outputTokenIndex, outputAmount);
   }
 
   // ------------------------------- DEFI SWAP --------------------------------
@@ -476,9 +473,8 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       SWIM_FACTORY.createProxy(
         LP_TOKEN_LOGIC,
         lpTokenSalt,
-        //abi.encodeCall(LpToken.initialize, (address(this), lpTokenName, lpTokenSymbol))
         abi.encodeWithSignature(
-          "initialize(address,string,string)",
+          "initialize(address,string,string,uint8)",
           address(this),
           lpTokenName,
           lpTokenSymbol,

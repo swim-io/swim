@@ -6,8 +6,9 @@ import { expect, use } from "chai";
 import type { Contract } from "ethers";
 import { ethers } from "hardhat";
 
-import { FACTORY_PRESIGNED, SALTS } from "../src/config";
-import { deployLogic, deployPoolAndRegister, deployProxy } from "../src/deploy";
+import { DEFAULTS, LOCAL } from "../src/config";
+import { getProxyAddress, getTokenAddress } from "../src/deploy";
+import { deployment } from "../src/deployment";
 
 use(require("chai-bn")(BN));
 
@@ -18,7 +19,8 @@ describe("Pool Defi Operations", function () {
   async function testFixture() {
     const [deployer, governance, govFeeRecip, liquidityProvider, user] = await ethers.getSigners();
 
-    const tokenWrapper = (contract: Contract, decimals: number) => {
+    const tokenWrapper = async (contract: Contract) => {
+      const decimals = (await contract.decimals()) as number;
       const address = contract.address;
 
       const toAtomic = (human: BigNumber | string | number) =>
@@ -26,81 +28,38 @@ describe("Pool Defi Operations", function () {
 
       const toHuman = (atomic: BigNumber) => formatFixed(atomic, decimals);
 
-      const balanceOf = async (account: { readonly address: string }) =>
-        await contract.balanceOf(account.address);
+      const balanceOf = (account: { readonly address: string }): Promise<BigNumber> =>
+        contract.balanceOf(account.address);
 
-      const mint = async (to: { readonly address: string }, amount: BigNumber) =>
+      const totalSupply = (): Promise<BigNumber> => contract.totalSupply();
+
+      const mint = (to: { readonly address: string }, amount: BigNumber) =>
         contract.connect(deployer).mint(to.address, amount);
 
-      const approve = async (
+      const approve = (
         from: SignerWithAddress,
         to: { readonly address: string },
         amount: BigNumber
       ) => contract.connect(from).approve(to.address, amount);
 
-      return { contract, address, toAtomic, toHuman, balanceOf, mint, approve };
+      return { contract, address, toAtomic, toHuman, balanceOf, totalSupply, mint, approve };
     };
 
-    //deploy erc20 tokens
-    const tokenData = [
-      ["swimUSD", "SwimUSD", 8],
-      ["USDC", "USD Coin", 6],
-      ["USDT", "Tether", 6],
-    ];
-    const [swimUSD, usdc, usdt] = await Promise.all(
-      tokenData.map(async ([symbol, name, decimals], tokenNumber) => {
-        const erc20Factory = await ethers.getContractFactory("ERC20Token");
-        const contract = await (await erc20Factory.deploy(name, symbol, decimals)).deployed();
-        return Object.assign(tokenWrapper(contract, decimals as number), { tokenNumber });
+    await deployment();
+
+    const tokenData = [DEFAULTS.swimUsd, ...LOCAL.tokens];
+    const tokens = await Promise.all(
+      tokenData.map(async (token, tokenNumber) => {
+        const contract = await ethers.getContractAt("ERC20Token", await getTokenAddress(token));
+        return Object.assign(await tokenWrapper(contract), { tokenNumber });
       })
     );
-    const tokens = [swimUSD, usdc, usdt];
+    const [swimUSD, usdc, usdt] = tokens;
 
-    //deploy MockTokenBridge
-    const mockTokenBridge = await (
-      await ethers.getContractFactory("MockTokenBridge")
-    ).deploy(swimUSD.address);
+    const pool = await ethers.getContractAt("Pool", await getProxyAddress(LOCAL.pools[0].salt));
 
-    //deploy SwimFactory via presigned tx
-    await deployer.sendTransaction({
-      to: FACTORY_PRESIGNED.from,
-      value: FACTORY_PRESIGNED.maxCost,
-    });
-    await ethers.provider.sendTransaction(FACTORY_PRESIGNED.signedTx);
-
-    //deploy Swim Contracts through factory
-    const routingLogic = await deployLogic("Routing", SALTS.routingLogic);
-    await deployLogic("LpToken", SALTS.lpToken);
-    const poolLogic = await deployLogic("Pool", SALTS.poolLogic);
-    const routing = await deployProxy(routingLogic, SALTS.routingProxy, [
-      deployer.address,
-      mockTokenBridge.address,
-    ]);
-
-    const lpDecimals = 6;
-    const pool = await deployPoolAndRegister(
-      {
-        salt: "0x" + "00".repeat(31) + "01",
-        lpSalt: "0x" + "00".repeat(31) + "11",
-        lpDecimals,
-        ampFactor: 1000,
-        lpFee: 300,
-        govFee: 100,
-        tokens: [
-          //TODO use token.pick(["address", "tokenNumber"]) from utils package
-          { address: usdc.address, tokenNumber: usdc.tokenNumber },
-          { address: usdt.address, tokenNumber: usdt.tokenNumber },
-        ],
-      },
-      poolLogic,
-      routing,
-      governance,
-      govFeeRecip
-    );
-
-    const lpToken = tokenWrapper(
-      await ethers.getContractAt("LpToken", await pool.getLpToken()),
-      lpDecimals
+    const lpToken = await tokenWrapper(
+      await ethers.getContractAt("LpToken", await pool.getLpToken())
     );
 
     for (const token of tokens) {
@@ -139,8 +98,8 @@ describe("Pool Defi Operations", function () {
   it("Check basic pool deployment parameters", async function () {
     const { pool, governance, liquidityProvider, lpToken } = await loadFixture(testFixture);
 
-    expect(await pool.governance()).to.equal(governance);
-    expect(await lpToken.contract.owner()).to.equal(pool);
+    expect(await pool.governance()).to.equal(governance.address);
+    expect(await lpToken.contract.owner()).to.equal(pool.address);
     expect(await lpToken.balanceOf(liquidityProvider)).to.equal(
       lpToken.toAtomic(baseAmount).mul(3)
     );
@@ -168,7 +127,7 @@ describe("Pool Defi Operations", function () {
 
     await pool.connect(liquidityProvider).add(toAtomicAmounts(baseAmount), 0);
     expect(await lpToken.balanceOf(govFeeRecip)).to.equal(0);
-    expect(await lpToken.balanceOf(liquidityProvider)).to.equal(baseAmount.mul(3));
+    expect(await lpToken.balanceOf(liquidityProvider)).to.equal(lpToken.toAtomic(baseAmount).mul(3));
     for (const token of tokens) expect(await token.balanceOf(liquidityProvider)).to.equal(0);
   });
 
@@ -190,7 +149,7 @@ describe("Pool Defi Operations", function () {
         testFixture
       );
 
-      const expectedLp = lpToken.toAtomic("0.97604522");
+      const expectedLp = lpToken.toAtomic("0.976045");
       const expectedUsdc = usdc.toAtomic("0.999495");
       const expectedGovFee = lpToken.toAtomic("0.000063");
 
@@ -278,14 +237,14 @@ describe("Pool Defi Operations", function () {
     })();
 
     const swapExactOutputGovFee = await (async () => {
-      const { pool, govFeeRecip, lpToken, usdc, usdt, user, toAtomicAmounts } = await loadFixture(
+      const { pool, govFeeRecip, lpToken, usdc, usdt, user } = await loadFixture(
         testFixture
       );
 
       const outputAmount = usdt.toAtomic(expectedUsdt).sub(tolerance);
       await pool
         .connect(user)
-        .swapExactOutput(usdc.toAtomic(1), 1, toAtomicAmounts([0, 0, outputAmount]));
+        .swapExactOutput(usdc.toAtomic(1), 1, [0, 0, outputAmount]);
 
       const remainingUsdc = await usdc.balanceOf(user);
       const actualUsdt = await usdt.balanceOf(user);
@@ -305,16 +264,16 @@ describe("Pool Defi Operations", function () {
     const expectedLpSupply = lpToken.toAtomic("16.749421");
     const expectedPrices = ["0.697954", "0.930605", "1.628559"].map((p) => parseFixed(p, 18));
 
-    await lpToken.approve(liquidityProvider, pool, baseAmount.mul(3));
+    await lpToken.approve(liquidityProvider, pool, lpToken.toAtomic(baseAmount).mul(3));
     await pool
       .connect(liquidityProvider)
-      .removeExactOutput(toAtomicAmounts([1, 4, 7]), baseAmount.mul(3));
+      .removeExactOutput(toAtomicAmounts([1, 4, 7]), lpToken.toAtomic(baseAmount).mul(3));
 
-    const actualLpSupply = await lpToken.contract.totalSupply();
+    const actualLpSupply = await lpToken.totalSupply();
     const actualPrices = await pool.getMarginalPrices();
     expect(actualLpSupply).to.be.closeTo(expectedLpSupply, tolerance);
     for (let i = 0; i < expectedPrices.length; ++i)
-      expect(actualPrices[i]).to.be.closeTo(expectedPrices[i], tolerance);
+      expect(actualPrices[i]).to.be.closeTo(expectedPrices[i], parseFixed("0.000001", 18));
   });
 
   // it("Check marginal prices are correct for constant product", async function () {

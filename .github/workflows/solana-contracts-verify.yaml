@@ -37,7 +37,6 @@ jobs:
           override: true
           profile: minimal
           toolchain: stable
-          #          toolchain: ${{ env.RUST_TOOLCHAIN }}
           components: rustfmt, clippy
 
       - name: Install Solana
@@ -56,7 +55,6 @@ jobs:
         run: |
           echo "PATH=$HOME/.local/share/solana/install/active_release/bin:$HOME/.cargo/bin:$PATH" >> $GITHUB_ENV \
           && export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
-#        run: export PATH="$HOME/.local/share/solana/install/active_release/bin:$HOME/.avm/bin:$PATH"
 
       - name: Setup NPM
         uses: actions/setup-node@v2

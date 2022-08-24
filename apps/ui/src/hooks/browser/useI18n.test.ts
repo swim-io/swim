@@ -180,6 +180,17 @@ describe("useI18n", () => {
       expect(result.current.decimal).toBe(".");
       expect(result.current.group).toBe(",");
     });
+
+    it.each(["be", "bg", "ee", "es", "et", "ia", "ka", "lv", "pl", "sq"])(
+      "should handle locales which do not have group separators (%s)",
+      (language) => {
+        i18next.resolvedLanguage = language;
+
+        const { result } = renderHook(() => useIntlNumberSeparators());
+        expect(result.current.decimal).toBeTruthy();
+        expect(result.current.group).toBeNull();
+      },
+    );
   });
 
   describe("useIntlRelativeTimeFromNow", () => {

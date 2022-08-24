@@ -4,31 +4,82 @@ on:
     paths:
       - "packages/solana-contracts/**.ts"
       - "packages/solana-contracts/**.json"
+      - "packages/solana-contracts/*.rs"
   push:
     branches:
       - master
 
+env:
+  CARGO_TERM_COLOR: always
+  RUST_TOOLCHAIN: "1.60.0"
+  ANCHOR_CLI_VERSION: 0.25.0
+  SOLANA_CLI_VERSION: 1.10.29
+
+
 jobs:
   verify:
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: ./packages/solana-contracts
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Checkout
+        uses: actions/checkout@v3
+
+
+      - name: Install Linux Dependencies
+        run: sudo apt-get update && sudo apt-get -y install pkg-config build-essential libudev-dev
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          override: true
+          profile: minimal
+          toolchain: stable
+          #          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: rustfmt, clippy
+
+      - name: Install Solana
+        run: sh -c "$(curl -sSfL https://release.solana.com/v${{ env.SOLANA_CLI_VERSION }}/install)"
+
+      - name: Install Anchor CLI
+        run: cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
+
+      - name: Install Anchor Version
+        run: avm install ${{ env.ANCHOR_CLI_VERSION }}
+
+      - name: Set Anchor Version
+        run: avm use ${{ env.ANCHOR_CLI_VERSION }}
+
+      - name: Setup PATH
+        run: |
+          echo "PATH=$HOME/.local/share/solana/install/active_release/bin:$HOME/.cargo/bin:$PATH" >> $GITHUB_ENV \
+          && export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+#        run: export PATH="$HOME/.local/share/solana/install/active_release/bin:$HOME/.avm/bin:$PATH"
+
+      - name: Setup NPM
+        uses: actions/setup-node@v2
         with:
           node-version: 16
           cache: "yarn"
+
       - name: Install dependencies
         run: yarn install --immutable
+
       - name: Check types
         run: yarn typecheck
+
       - name: Check format
         run: yarn format:check
+
       - name: Check lint
         run: yarn lint --max-warnings=0
-      - name: Test
-        run: yarn test --watchAll=false
+
+      - name: Build and Test Pool Program
+        run: yarn run test:pool
+
+      - name: Build and Test Propeller Program
+        run: yarn run test:propeller
+
+

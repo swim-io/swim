@@ -1,10 +1,7 @@
 import type { ChainId, ChainName } from "@certusone/wormhole-sdk";
 import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk";
-import type { BN, Program, SplToken } from "@project-serum/anchor";
 import { web3 } from "@project-serum/anchor";
 import { BigNumber } from "ethers";
-
-import type { TwoPool } from "../../src/artifacts/two_pool";
 
 import type {
   ParsedTokenTransferPostedMessage,

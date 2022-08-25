@@ -3,7 +3,7 @@ import { ethers } from "hardhat";
 
 import { CHAINS, DEFAULTS, FACTORY_PRESIGNED, SALTS, TOKEN_NUMBERS } from "../src/config";
 import {
-  deployContract,
+  deployRegular,
   deployLogic,
   deployPoolAndRegister,
   deployProxy,
@@ -36,16 +36,13 @@ export async function deployment() {
     if (chainConfig.wormholeTokenBridge !== "MOCK") return chainConfig.wormholeTokenBridge;
 
     const swimUsd = await deployToken(DEFAULTS.swimUsd, deployer);
-    return (await deployContract("MockTokenBridge", [swimUsd.address])).address;
+    return (await deployRegular("MockTokenBridge", [swimUsd.address])).address;
   })();
 
-  const routingLogic = await deployLogic("Routing", SALTS.routingLogic);
-  await deployLogic("LpToken", SALTS.lpToken);
-  const poolLogic = await deployLogic("Pool", SALTS.poolLogic);
-  const routingProxy = await deployProxy(routingLogic, SALTS.routingProxy, [
-    deployer.address,
-    wormholeTokenBridge,
-  ]);
+  await deployLogic("LpToken");
+  await deployLogic("Routing");
+  await deployLogic("Pool");
+  await deployProxy("Routing", [deployer.address, wormholeTokenBridge]);
 
   const dynamicallyDeployedTokens = (
     await Promise.all(
@@ -67,8 +64,6 @@ export async function deployment() {
     const poolFixedTokens = { ...pool, tokens: poolTokens };
     await deployPoolAndRegister(
       poolFixedTokens,
-      poolLogic,
-      routingProxy,
       governance,
       governanceFeeRecipient
     );

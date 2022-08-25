@@ -3,11 +3,11 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BN } from "bn.js";
 import { expect, use } from "chai";
-import type { Contract } from "ethers";
+import { Contract } from "ethers";
 import { ethers } from "hardhat";
 
 import { DEFAULTS, LOCAL } from "../src/config";
-import { getProxyAddress, getTokenAddress } from "../src/deploy";
+import { getProxy, getToken, confirm } from "../src/deploy";
 import { deployment } from "../src/deployment";
 
 use(require("chai-bn")(BN));
@@ -34,13 +34,13 @@ describe("Pool Defi Operations", function () {
       const totalSupply = (): Promise<BigNumber> => contract.totalSupply();
 
       const mint = (to: { readonly address: string }, amount: BigNumber) =>
-        contract.connect(deployer).mint(to.address, amount);
+        confirm(contract.connect(deployer).mint(to.address, amount));
 
       const approve = (
         from: SignerWithAddress,
         to: { readonly address: string },
         amount: BigNumber
-      ) => contract.connect(from).approve(to.address, amount);
+      ) => confirm(contract.connect(from).approve(to.address, amount));
 
       return { contract, address, toAtomic, toHuman, balanceOf, totalSupply, mint, approve };
     };
@@ -49,14 +49,13 @@ describe("Pool Defi Operations", function () {
 
     const tokenData = [DEFAULTS.swimUsd, ...LOCAL.tokens];
     const tokens = await Promise.all(
-      tokenData.map(async (token, tokenNumber) => {
-        const contract = await ethers.getContractAt("ERC20Token", await getTokenAddress(token));
-        return Object.assign(await tokenWrapper(contract), { tokenNumber });
-      })
+      tokenData.map(async (token, tokenNumber) =>
+        Object.assign(await tokenWrapper(await getToken(token)), { tokenNumber })
+      )
     );
     const [swimUSD, usdc, usdt] = tokens;
 
-    const pool = await ethers.getContractAt("Pool", await getProxyAddress(LOCAL.pools[0].salt));
+    const pool = await getProxy("Pool", LOCAL.pools[0].salt);
 
     const lpToken = await tokenWrapper(
       await ethers.getContractAt("LpToken", await pool.getLpToken())
@@ -67,10 +66,10 @@ describe("Pool Defi Operations", function () {
       await token.approve(liquidityProvider, pool, token.toAtomic(baseAmount));
     }
 
-    await pool.connect(liquidityProvider).add(
+    await confirm(pool.connect(liquidityProvider).add(
       tokens.map((t) => t.toAtomic(baseAmount)),
       0
-    );
+    ));
 
     await usdc.mint(user, usdc.toAtomic(1));
     await usdc.approve(user, pool, usdc.toAtomic(1));
@@ -115,7 +114,9 @@ describe("Pool Defi Operations", function () {
 
     const lpAmount = lpToken.toAtomic(baseAmount).mul(3);
     await lpToken.approve(liquidityProvider, pool, lpAmount);
-    await pool.connect(liquidityProvider).removeUniform(lpAmount, toAtomicAmounts(baseAmount));
+    await confirm(
+      pool.connect(liquidityProvider).removeUniform(lpAmount, toAtomicAmounts(baseAmount))
+    );
 
     expect(await lpToken.balanceOf(govFeeRecip)).to.equal(0);
     expect(await lpToken.balanceOf(liquidityProvider)).to.equal(0);
@@ -125,7 +126,7 @@ describe("Pool Defi Operations", function () {
     for (const token of tokens)
       await token.approve(liquidityProvider, pool, token.toAtomic(baseAmount));
 
-    await pool.connect(liquidityProvider).add(toAtomicAmounts(baseAmount), 0);
+    await confirm(pool.connect(liquidityProvider).add(toAtomicAmounts(baseAmount), 0));
     expect(await lpToken.balanceOf(govFeeRecip)).to.equal(0);
     expect(await lpToken.balanceOf(liquidityProvider)).to.equal(lpToken.toAtomic(baseAmount).mul(3));
     for (const token of tokens) expect(await token.balanceOf(liquidityProvider)).to.equal(0);
@@ -134,7 +135,7 @@ describe("Pool Defi Operations", function () {
   it("Add should return correct outputs", async function () {
     const { pool, govFeeRecip, lpToken, user, toAtomicAmounts } = await loadFixture(testFixture);
 
-    await pool.connect(user).add(toAtomicAmounts([0, 1, 0]), 0);
+    await confirm(pool.connect(user).add(toAtomicAmounts([0, 1, 0]), 0));
 
     expect(await lpToken.balanceOf(user)).to.be.closeTo(lpToken.toAtomic("0.976045"), tolerance);
     expect(await lpToken.balanceOf(govFeeRecip)).to.be.closeTo(
@@ -153,7 +154,7 @@ describe("Pool Defi Operations", function () {
       const expectedUsdc = usdc.toAtomic("0.999495");
       const expectedGovFee = lpToken.toAtomic("0.000063");
 
-      await pool.connect(user).add(toAtomicAmounts([0, 1, 0]), 0);
+      await confirm(pool.connect(user).add(toAtomicAmounts([0, 1, 0]), 0));
 
       expect(await lpToken.balanceOf(user)).to.equal(expectedLp);
       await lpToken.approve(user, pool, expectedLp);
@@ -168,7 +169,7 @@ describe("Pool Defi Operations", function () {
       const { expectedLp, expectedUsdc, expectedGovFee, pool, govFeeRecip, lpToken, usdc, user } =
         await setup();
 
-      await pool.connect(user).removeExactBurn(expectedLp, 1, 0);
+      await confirm(pool.connect(user).removeExactBurn(expectedLp, 1, 0));
 
       expect(await usdc.balanceOf(user)).to.be.closeTo(expectedUsdc, tolerance);
       expect(await lpToken.balanceOf(govFeeRecip)).to.be.closeTo(expectedGovFee, tolerance);
@@ -179,7 +180,7 @@ describe("Pool Defi Operations", function () {
         await setup();
 
       const outputAmount = expectedUsdc.sub(tolerance);
-      await pool.connect(user).removeExactOutput([0, outputAmount, 0], expectedLp);
+      await confirm(pool.connect(user).removeExactOutput([0, outputAmount, 0], expectedLp));
 
       expect(await usdc.balanceOf(user)).to.equal(outputAmount);
       expect(await lpToken.balanceOf(user)).to.be.closeTo(0, 2 * tolerance);
@@ -191,7 +192,7 @@ describe("Pool Defi Operations", function () {
     const swap = async () => {
       const { pool, govFeeRecip, lpToken, usdc, usdt, user } = await loadFixture(testFixture);
 
-      await pool.connect(user).swap(usdc.toAtomic(1), 1, 2, 0);
+      await confirm(pool.connect(user).swap(usdc.toAtomic(1), 1, 2, 0));
       return {
         swapUserUsdc: await usdt.balanceOf(user),
         swapGovFee: await lpToken.balanceOf(govFeeRecip),
@@ -204,7 +205,7 @@ describe("Pool Defi Operations", function () {
       const { pool, govFeeRecip, lpToken, usdc, usdt, user, toAtomicAmounts } = await loadFixture(
         testFixture
       );
-      await pool.connect(user).swapExactInput(toAtomicAmounts([0, 1, 0]), 2, 0);
+      await confirm(pool.connect(user).swapExactInput(toAtomicAmounts([0, 1, 0]), 2, 0));
       return {
         swapExactInputUserUsdc: await usdt.balanceOf(user),
         swapExactInputGovFee: await lpToken.balanceOf(govFeeRecip),
@@ -225,7 +226,7 @@ describe("Pool Defi Operations", function () {
         testFixture
       );
 
-      await pool.connect(user).swapExactInput(toAtomicAmounts([0, 1, 0]), 2, 0);
+      await confirm(pool.connect(user).swapExactInput(toAtomicAmounts([0, 1, 0]), 2, 0));
 
       const remainingUsdc = await usdc.balanceOf(user);
       const actualUsdt = await usdt.balanceOf(user);
@@ -242,9 +243,7 @@ describe("Pool Defi Operations", function () {
       );
 
       const outputAmount = usdt.toAtomic(expectedUsdt).sub(tolerance);
-      await pool
-        .connect(user)
-        .swapExactOutput(usdc.toAtomic(1), 1, [0, 0, outputAmount]);
+      await confirm(pool.connect(user).swapExactOutput(usdc.toAtomic(1), 1, [0, 0, outputAmount]));
 
       const remainingUsdc = await usdc.balanceOf(user);
       const actualUsdt = await usdt.balanceOf(user);
@@ -265,9 +264,9 @@ describe("Pool Defi Operations", function () {
     const expectedPrices = ["0.697954", "0.930605", "1.628559"].map((p) => parseFixed(p, 18));
 
     await lpToken.approve(liquidityProvider, pool, lpToken.toAtomic(baseAmount).mul(3));
-    await pool
-      .connect(liquidityProvider)
-      .removeExactOutput(toAtomicAmounts([1, 4, 7]), lpToken.toAtomic(baseAmount).mul(3));
+    await confirm(pool.connect(liquidityProvider)
+      .removeExactOutput(toAtomicAmounts([1, 4, 7]), lpToken.toAtomic(baseAmount).mul(3))
+    );
 
     const actualLpSupply = await lpToken.totalSupply();
     const actualPrices = await pool.getMarginalPrices();

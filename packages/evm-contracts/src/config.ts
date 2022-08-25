@@ -55,10 +55,15 @@ export const DEFAULTS = {
 };
 
 export const SALTS = {
-  routingLogic: DEFAULTS.salt,
-  poolLogic: DEFAULTS.salt,
-  lpToken: DEFAULTS.salt,
-  routingProxy: DEFAULTS.salt,
+  logic: {
+    //same name as Solidity contracts
+    Pool: DEFAULTS.salt,
+    Routing: DEFAULTS.salt,
+    LpToken: DEFAULTS.salt,
+  },
+  proxy: {
+    Routing: DEFAULTS.salt,
+  },
 };
 
 export const LOCAL = {

@@ -57,7 +57,7 @@ yarn run jest -c jest.config.js --verbose --detectOpenHandles "$test_files"
 #yarn_pid=$!
 #echo "Yarn PID: ${yarn_pid}"
 #wait $yarn_pid
-#exit_code=$?
+exit_code=$?
 #echo "exit_code: $exit_code"
 #yarn run jest -i "$test_files" -c jest.config.js &
 #yarn run ts-mocha -p ./tsconfig-dev.json -t 1000000 "$test_files" &
@@ -84,3 +84,5 @@ if $prepare_oracle; then
   echo "shutting down oracle"
   docker-compose -f ./.switchboard/docker-compose.switchboard.yml down
 fi
+
+exit $exit_code

@@ -6,10 +6,18 @@ use {
         gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT,
     },
 };
+use crate::is_transfer_amount_sufficient;
 
 #[derive(Accounts)]
 pub struct Add<'info> {
-    // pub propeller: Account<'info, Propeller>,
+    #[account(
+    seeds = [
+      b"propeller".as_ref(),
+      lp_mint.key().as_ref(),
+    ],
+    bump = propeller.bump
+    )]
+    pub propeller: Account<'info, Propeller>,
     #[account(
     mut,
     seeds = [
@@ -75,6 +83,8 @@ pub fn handle_add(
     input_amounts: [u64; TOKEN_COUNT],
     minimum_mint_amount: u64,
     memo: &[u8],
+    propeller_enabled: bool,
+    target_chain: u16,
 ) -> Result<u64> {
     let cpi_ctx = CpiContext::new(
         ctx.accounts.two_pool_program.to_account_info(),
@@ -97,5 +107,12 @@ pub fn handle_add(
     let memo_ix = spl_memo::build_memo(memo, &[]);
     invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     anchor_lang::prelude::msg!("add return_val: {:?}", return_val);
+    is_transfer_amount_sufficient(
+      &ctx.accounts.propeller,
+      &ctx.accounts.lp_mint,
+      propeller_enabled,
+      target_chain,
+      return_val
+    )?;
     Ok(return_val)
 }

@@ -1,4 +1,4 @@
-import type { Program, SplToken } from "@project-serum/anchor";
+import type { BN, Program, SplToken } from "@project-serum/anchor";
 import { web3 } from "@project-serum/anchor";
 import {
   getAssociatedTokenAddress,
@@ -237,4 +237,130 @@ export async function setupUserAssociatedTokenAccts(
     userPoolTokenAtas,
     userLpTokenAta,
   };
+}
+
+type PoolUserBalances = {
+  readonly poolTokenBalances: ReadonlyArray<BN>;
+  readonly userTokenBalances: ReadonlyArray<BN>;
+  readonly governanceFeeBalance: BN;
+  readonly userLpTokenBalance: BN;
+  readonly lpTokenSupply: BN;
+  readonly previousDepth: BN;
+};
+export async function getPoolUserBalances(
+  splToken: Program<SplToken>,
+  twoPoolProgram: Program<TwoPool>,
+  poolToken0Ata: web3.PublicKey,
+  poolToken1Ata: web3.PublicKey,
+  governanceFeeAddr: web3.PublicKey,
+  userToken0Ata: web3.PublicKey,
+  userToken1Ata: web3.PublicKey,
+  userLpTokenAta: web3.PublicKey,
+  flagshipPool: web3.PublicKey,
+  lpTokenMint: web3.PublicKey,
+): Promise<PoolUserBalances> {
+  const poolToken0AtaBalance = (
+    await splToken.account.token.fetch(poolToken0Ata)
+  ).amount;
+  const poolToken1AtaBalance = (
+    await splToken.account.token.fetch(poolToken1Ata)
+  ).amount;
+  const governanceFeeBalance = (
+    await splToken.account.token.fetch(governanceFeeAddr)
+  ).amount;
+  const userToken0AtaBalance = (
+    await splToken.account.token.fetch(userToken0Ata)
+  ).amount;
+  const userToken1AtaBalance = (
+    await splToken.account.token.fetch(userToken1Ata)
+  ).amount;
+  const userLpTokenAtaBalance = (
+    await splToken.account.token.fetch(userLpTokenAta)
+  ).amount;
+  const lpTokenSupply = (await splToken.account.mint.fetch(lpTokenMint)).supply;
+  const previousDepth = (
+    await twoPoolProgram.account.twoPool.fetch(flagshipPool)
+  ).previousDepth;
+  return {
+    poolTokenBalances: [poolToken0AtaBalance, poolToken1AtaBalance],
+    governanceFeeBalance,
+    userTokenBalances: [userToken0AtaBalance, userToken1AtaBalance],
+    userLpTokenBalance: userLpTokenAtaBalance,
+    lpTokenSupply,
+    previousDepth,
+  };
+}
+
+export function printPoolUserBalances(
+  logPrefix: string,
+  poolUserBalances: PoolUserBalances,
+) {
+  const {
+    poolTokenBalances: [poolToken0AtaBalance, poolToken1AtaBalance],
+    governanceFeeBalance: governanceFeeBalance,
+    userTokenBalances: [userToken0AtaBalance, userToken1AtaBalance],
+    userLpTokenBalance: userLpTokenBalance,
+    lpTokenSupply,
+    previousDepth: previousDepth,
+  } = poolUserBalances;
+  console.info(`
+    ${logPrefix}
+    poolToken0AtaBalance: ${poolToken0AtaBalance.toString()},
+    poolToken1AtaBalance: ${poolToken1AtaBalance.toString()},
+    governanceFeeBalance:${governanceFeeBalance.toString()},
+    userToken0AtaBalance: ${userToken0AtaBalance.toString()},
+    userToken1AtaBalance: ${userToken1AtaBalance.toString()},
+    userLpTokenBalance: ${userLpTokenBalance.toString()},
+    lpTokenSupply: ${lpTokenSupply.toString()},
+    previousDepth: ${previousDepth.toString()},
+  `);
+}
+
+export function printBeforeAndAfterPoolUserBalances(
+  logPrefix: string,
+  poolUserBalances: ReadonlyArray<PoolUserBalances>,
+) {
+  const {
+    poolTokenBalances: [poolToken0AtaBalanceBefore, poolToken1AtaBalanceBefore],
+    governanceFeeBalance: governanceFeeBalanceBefore,
+    userTokenBalances: [userToken0AtaBalanceBefore, userToken1AtaBalanceBefore],
+    userLpTokenBalance: userLpTokenBalanceBefore,
+    lpTokenSupply: lpTokenSupplyBefore,
+    previousDepth: previousDepthBefore,
+  } = poolUserBalances[0];
+  const {
+    poolTokenBalances: [poolToken0AtaBalanceAfter, poolToken1AtaBalanceAfter],
+    governanceFeeBalance: governanceFeeBalanceAfter,
+    userTokenBalances: [userToken0AtaBalanceAfter, userToken1AtaBalanceAfter],
+    userLpTokenBalance: userLpTokenBalanceAfter,
+    lpTokenSupply: lpTokenSupplyAfter,
+    previousDepth: previousDepthAfter,
+  } = poolUserBalances[1];
+  console.info(`
+    ${logPrefix}
+    poolToken0AtaBalance:
+      before: ${poolToken0AtaBalanceBefore.toString()},
+      after: ${poolToken0AtaBalanceAfter.toString()}
+    poolToken1AtaBalance:
+      before: ${poolToken1AtaBalanceBefore.toString()},
+      after: ${poolToken1AtaBalanceAfter.toString()}
+    governanceFeeBalance:
+      before: ${governanceFeeBalanceBefore.toString()},
+      after: ${governanceFeeBalanceAfter.toString()}
+    userToken0AtaBalance:
+      before: ${userToken0AtaBalanceBefore.toString()},
+      after: ${userToken0AtaBalanceAfter.toString()}
+    userToken1AtaBalance:
+      before: ${userToken1AtaBalanceBefore.toString()},
+      after: ${userToken1AtaBalanceAfter.toString()}
+    userLpTokenBalance:
+      before: ${userLpTokenBalanceBefore.toString()},
+      after: ${userLpTokenBalanceAfter.toString()}
+    lpTokenSupply:
+      before: ${lpTokenSupplyBefore.toString()},
+      after: ${lpTokenSupplyAfter.toString()},
+    previousDepth:
+      before: ${previousDepthBefore.toString()},
+      after: ${previousDepthAfter.toString()}
+  `);
 }

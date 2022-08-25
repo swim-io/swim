@@ -297,6 +297,26 @@
       "name": "add",
       "accounts": [
         {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "lp_mint"
+              }
+            ]
+          }
+        },
+        {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
@@ -406,6 +426,14 @@
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": "u64"
@@ -414,6 +442,26 @@
       "name": "swapExactInput",
       "accounts": [
         {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_0.mint"
+              }
+            ]
+          }
+        },
+        {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
@@ -499,21 +547,17 @@
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "tokenBridgeMint",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
         {
-          "name": "exactInputAmounts",
-          "type": {
-            "array": [
-              "u64",
-              2
-            ]
-          }
-        },
-        {
-          "name": "outputTokenIndex",
-          "type": "u8"
+          "name": "exactInputAmount",
+          "type": "u64"
         },
         {
           "name": "minimumOutputAmount",
@@ -522,6 +566,14 @@
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": "u64"
@@ -529,6 +581,26 @@
     {
       "name": "swapExactOutput",
       "accounts": [
+        {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_0.mint"
+              }
+            ]
+          }
+        },
         {
           "name": "pool",
           "isMut": true,
@@ -613,6 +685,11 @@
         },
         {
           "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenBridgeMint",
           "isMut": false,
           "isSigner": false
         }
@@ -623,21 +700,20 @@
           "type": "u64"
         },
         {
-          "name": "inputTokenIndex",
-          "type": "u8"
-        },
-        {
-          "name": "exactOutputAmounts",
-          "type": {
-            "array": [
-              "u64",
-              2
-            ]
-          }
+          "name": "exactOutputAmount",
+          "type": "u64"
         },
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": {
@@ -767,6 +843,26 @@
       "name": "removeExactBurn",
       "accounts": [
         {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_0.mint"
+              }
+            ]
+          }
+        },
+        {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
@@ -855,6 +951,11 @@
         },
         {
           "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenBridgeMint",
           "isMut": false,
           "isSigner": false
         }
@@ -865,16 +966,20 @@
           "type": "u64"
         },
         {
-          "name": "outputTokenIndex",
-          "type": "u8"
-        },
-        {
           "name": "minimumOutputAmount",
           "type": "u64"
         },
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": "u64"
@@ -882,6 +987,26 @@
     {
       "name": "removeExactOutput",
       "accounts": [
+        {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_0.mint"
+              }
+            ]
+          }
+        },
         {
           "name": "pool",
           "isMut": true,
@@ -973,6 +1098,11 @@
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "tokenBridgeMint",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
@@ -981,17 +1111,20 @@
           "type": "u64"
         },
         {
-          "name": "exactOutputAmounts",
-          "type": {
-            "array": [
-              "u64",
-              2
-            ]
-          }
+          "name": "exactOutputAmount",
+          "type": "u64"
         },
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": {

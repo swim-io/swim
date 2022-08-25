@@ -16,7 +16,7 @@ use anchor_spl::*;
 // use solana_program::instruction::Instruction;
 // use solana_program::program::invoke_signed;
 // use solana_program::program_option::COption;
-use constants::{SEED_PREFIX_CUSTODIAN, TOKEN_COUNT};
+use constants::TOKEN_COUNT;
 // use two_pool::TOKEN_COUNT as TOKEN_COUNT;
 use state::{Propeller, PropellerSender};
 use {
@@ -90,39 +90,48 @@ pub mod propeller {
         input_amounts: [u64; TOKEN_COUNT],
         minimum_mint_amount: u64,
         memo: Vec<u8>,
+        propeller_enabled: bool,
+        target_chain: u16,
     ) -> Result<u64> {
-        handle_add(ctx, input_amounts, minimum_mint_amount, memo.as_slice())
+      handle_add(ctx, input_amounts, minimum_mint_amount, memo.as_slice(), propeller_enabled, target_chain)
     }
 
     pub fn swap_exact_input(
         ctx: Context<SwapExactInput>,
-        exact_input_amounts: [u64; TOKEN_COUNT],
-        output_token_index: u8,
+        // exact_input_amounts: [u64; TOKEN_COUNT],
+        exact_input_amount: u64,
         minimum_output_amount: u64,
         memo: Vec<u8>,
+        propeller_enabled: bool,
+        target_chain: u16,
     ) -> Result<u64> {
         handle_swap_exact_input(
             ctx,
-            exact_input_amounts,
-            output_token_index,
+            exact_input_amount,
             minimum_output_amount,
             memo.as_slice(),
+            propeller_enabled,
+            target_chain
         )
     }
 
     pub fn swap_exact_output(
         ctx: Context<SwapExactOutput>,
         maximum_input_amount: u64,
-        input_token_index: u8,
-        exact_output_amounts: [u64; TOKEN_COUNT], // params: SwapExactOutputParams,
+        // input_token_index: u8,
+        exact_output_amount: u64, // params: SwapExactOutputParams,
         memo: Vec<u8>,
+        propeller_enabled: bool,
+        target_chain: u16,
     ) -> Result<Vec<u64>> {
         handle_swap_exact_output(
             ctx,
             maximum_input_amount,
-            input_token_index,
-            exact_output_amounts,
+            // input_token_index,
+            exact_output_amount,
             memo.as_slice(),
+            propeller_enabled,
+            target_chain
         )
     }
 
@@ -143,30 +152,36 @@ pub mod propeller {
     pub fn remove_exact_burn(
         ctx: Context<RemoveExactBurn>,
         exact_burn_amount: u64,
-        output_token_index: u8,
         minimum_output_amount: u64,
         memo: Vec<u8>,
+        propeller_enabled: bool,
+        target_chain: u16,
     ) -> Result<u64> {
         handle_remove_exact_burn(
             ctx,
             exact_burn_amount,
-            output_token_index,
             minimum_output_amount,
             memo.as_slice(),
+            propeller_enabled,
+            target_chain,
         )
     }
 
     pub fn remove_exact_output(
         ctx: Context<RemoveExactOutput>,
         maximum_burn_amount: u64,
-        exact_output_amounts: [u64; TOKEN_COUNT],
+        exact_output_amount: u64,
         memo: Vec<u8>,
+        propeller_enabled: bool,
+        target_chain: u16,
     ) -> Result<Vec<u64>> {
         handle_remove_exact_output(
             ctx,
             maximum_burn_amount,
-            exact_output_amounts,
+            exact_output_amount,
             memo.as_slice(),
+            propeller_enabled,
+            target_chain,
         )
     }
 

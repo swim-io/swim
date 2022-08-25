@@ -20,6 +20,7 @@ use {
     },
     primitive_types::U256,
 };
+use crate::is_transfer_amount_sufficient;
 
 #[derive(Accounts)]
 pub struct TransferNativeWithPayload<'info> {
@@ -221,6 +222,13 @@ pub fn handle_transfer_native_with_payload(
     propeller_enabled: bool,
     memo: Vec<u8>,
 ) -> Result<()> {
+    is_transfer_amount_sufficient(
+      &ctx.accounts.propeller,
+      &ctx.accounts.token_bridge_mint,
+      propeller_enabled,
+      target_chain,
+      amount
+    )?;
     msg!("transfer_native_with_payload");
     token::approve(
         CpiContext::new(
@@ -239,34 +247,7 @@ pub fn handle_transfer_native_with_payload(
     // target_token_addr.copy_from_slice(target_token.as_slice());
     let mut owner_addr = [0u8; 32];
     owner_addr.copy_from_slice(owner.as_slice());
-    let propeller = &ctx.accounts.propeller;
-    //TODO: still need to handle the u256/u64
 
-    let raw_min_threshold = match target_chain {
-        crate::constants::CHAIN_ID_ETH => propeller.propeller_eth_min_transfer_amount,
-        _ => propeller.propeller_min_transfer_amount,
-    };
-    // let raw_min_threshold = propeller.propeller_min_transfer_amount;
-    let trunc_divisor = 10u64.pow(8.max(ctx.accounts.token_bridge_mint.decimals as u32) - 8);
-    // Truncate to 8 decimals
-    let min_threshold: u64 = raw_min_threshold / trunc_divisor;
-    // Untruncate the amount to drop the remainder so we don't  "burn" user's funds.
-    let min_threshold_trunc: u64 = min_threshold * trunc_divisor;
-
-    msg!(
-        "amount: {}, raw_min_threshold: {}, min_threshold_trunc: {}",
-        amount,
-        raw_min_threshold,
-        min_threshold_trunc
-    );
-    // TODO: should i do the token bridge transfer amount calculation here and compare that?
-    if propeller_enabled {
-        require_gte!(
-            amount,
-            min_threshold_trunc,
-            PropellerError::InsufficientAmount
-        );
-    }
     let swim_payload = RawSwimPayload {
         swim_payload_version: 0,
         target_token_id,

@@ -6,9 +6,19 @@ use {
         gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT,
     },
 };
+use crate::constants::SWAP_EXACT_INPUT_OUTPUT_TOKEN_INDEX;
+use crate::{is_transfer_amount_sufficient, PropellerError};
 
 #[derive(Accounts)]
 pub struct SwapExactInput<'info> {
+    #[account(
+    seeds = [
+      b"propeller".as_ref(),
+      pool_token_account_0.mint.as_ref(),
+    ],
+    bump = propeller.bump
+    )]
+    pub propeller: Account<'info, Propeller>,
     #[account(
     mut,
     seeds = [
@@ -65,15 +75,22 @@ pub struct SwapExactInput<'info> {
     ///CHECK: memo program
     pub memo: UncheckedAccount<'info>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
+    #[account(address = propeller.token_bridge_mint)]
+    pub token_bridge_mint: Account<'info, Mint>,
 }
 
 pub fn handle_swap_exact_input(
     ctx: Context<SwapExactInput>,
-    exact_input_amounts: [u64; TOKEN_COUNT],
-    output_token_index: u8,
+    exact_input_amount: u64,
+    // exact_input_amounts: [u64; TOKEN_COUNT],
+    // output_token_index: u8,
     minimum_output_amount: u64,
     memo: &[u8],
+    propeller_enabled: bool,
+    target_chain: u16,
 ) -> Result<u64> {
+    require_gt!(exact_input_amount, 0, PropellerError::InvalidSwapExactInputInputAmount);
+    let exact_input_amounts = [0, exact_input_amount];
     let cpi_ctx = CpiContext::new(
         ctx.accounts.two_pool_program.to_account_info(),
         two_pool::cpi::accounts::SwapExactInput {
@@ -92,12 +109,19 @@ pub fn handle_swap_exact_input(
     let result = two_pool::cpi::swap_exact_input(
         cpi_ctx,
         exact_input_amounts,
-        output_token_index,
+        SWAP_EXACT_INPUT_OUTPUT_TOKEN_INDEX,
         minimum_output_amount,
     )?;
     let return_val = result.get();
     let memo_ix = spl_memo::build_memo(memo, &[]);
     invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     anchor_lang::prelude::msg!("swap_exact_input return_val: {:?}", return_val);
+    is_transfer_amount_sufficient(
+      &ctx.accounts.propeller,
+      &ctx.accounts.token_bridge_mint,
+      propeller_enabled,
+      target_chain,
+      return_val
+    )?;
     Ok(return_val)
 }

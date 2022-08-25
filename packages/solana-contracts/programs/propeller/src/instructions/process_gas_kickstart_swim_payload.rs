@@ -90,7 +90,7 @@ pub struct ProcessGasKickstartSwimPayload<'info> {
     /// will have to be signed when it invokes complete_transfer_with_payload
     /// if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to
     ///     (NOT the `to` account)
-    pub redeemer: AccountInfo<'info>,
+    pub redeemer: SystemAccount<'info>,
     #[account(
     mut,
     token::mint = propeller.token_bridge_mint,

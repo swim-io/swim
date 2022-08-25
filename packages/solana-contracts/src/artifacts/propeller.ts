@@ -297,6 +297,26 @@ export type Propeller = {
       "name": "add",
       "accounts": [
         {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "lp_mint"
+              }
+            ]
+          }
+        },
+        {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
@@ -406,6 +426,14 @@ export type Propeller = {
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": "u64"
@@ -414,6 +442,26 @@ export type Propeller = {
       "name": "swapExactInput",
       "accounts": [
         {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_0.mint"
+              }
+            ]
+          }
+        },
+        {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
@@ -499,21 +547,17 @@ export type Propeller = {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "tokenBridgeMint",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
         {
-          "name": "exactInputAmounts",
-          "type": {
-            "array": [
-              "u64",
-              2
-            ]
-          }
-        },
-        {
-          "name": "outputTokenIndex",
-          "type": "u8"
+          "name": "exactInputAmount",
+          "type": "u64"
         },
         {
           "name": "minimumOutputAmount",
@@ -522,6 +566,14 @@ export type Propeller = {
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": "u64"
@@ -529,6 +581,26 @@ export type Propeller = {
     {
       "name": "swapExactOutput",
       "accounts": [
+        {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_0.mint"
+              }
+            ]
+          }
+        },
         {
           "name": "pool",
           "isMut": true,
@@ -613,6 +685,11 @@ export type Propeller = {
         },
         {
           "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenBridgeMint",
           "isMut": false,
           "isSigner": false
         }
@@ -623,21 +700,20 @@ export type Propeller = {
           "type": "u64"
         },
         {
-          "name": "inputTokenIndex",
-          "type": "u8"
-        },
-        {
-          "name": "exactOutputAmounts",
-          "type": {
-            "array": [
-              "u64",
-              2
-            ]
-          }
+          "name": "exactOutputAmount",
+          "type": "u64"
         },
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": {
@@ -767,6 +843,26 @@ export type Propeller = {
       "name": "removeExactBurn",
       "accounts": [
         {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_0.mint"
+              }
+            ]
+          }
+        },
+        {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
@@ -855,6 +951,11 @@ export type Propeller = {
         },
         {
           "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenBridgeMint",
           "isMut": false,
           "isSigner": false
         }
@@ -865,16 +966,20 @@ export type Propeller = {
           "type": "u64"
         },
         {
-          "name": "outputTokenIndex",
-          "type": "u8"
-        },
-        {
           "name": "minimumOutputAmount",
           "type": "u64"
         },
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": "u64"
@@ -882,6 +987,26 @@ export type Propeller = {
     {
       "name": "removeExactOutput",
       "accounts": [
+        {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_0.mint"
+              }
+            ]
+          }
+        },
         {
           "name": "pool",
           "isMut": true,
@@ -973,6 +1098,11 @@ export type Propeller = {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "tokenBridgeMint",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
@@ -981,17 +1111,20 @@ export type Propeller = {
           "type": "u64"
         },
         {
-          "name": "exactOutputAmounts",
-          "type": {
-            "array": [
-              "u64",
-              2
-            ]
-          }
+          "name": "exactOutputAmount",
+          "type": "u64"
         },
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": {
@@ -2772,6 +2905,26 @@ export const IDL: Propeller = {
       "name": "add",
       "accounts": [
         {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "lp_mint"
+              }
+            ]
+          }
+        },
+        {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
@@ -2881,6 +3034,14 @@ export const IDL: Propeller = {
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": "u64"
@@ -2889,6 +3050,26 @@ export const IDL: Propeller = {
       "name": "swapExactInput",
       "accounts": [
         {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_0.mint"
+              }
+            ]
+          }
+        },
+        {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
@@ -2974,21 +3155,17 @@ export const IDL: Propeller = {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "tokenBridgeMint",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
         {
-          "name": "exactInputAmounts",
-          "type": {
-            "array": [
-              "u64",
-              2
-            ]
-          }
-        },
-        {
-          "name": "outputTokenIndex",
-          "type": "u8"
+          "name": "exactInputAmount",
+          "type": "u64"
         },
         {
           "name": "minimumOutputAmount",
@@ -2997,6 +3174,14 @@ export const IDL: Propeller = {
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": "u64"
@@ -3004,6 +3189,26 @@ export const IDL: Propeller = {
     {
       "name": "swapExactOutput",
       "accounts": [
+        {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_0.mint"
+              }
+            ]
+          }
+        },
         {
           "name": "pool",
           "isMut": true,
@@ -3088,6 +3293,11 @@ export const IDL: Propeller = {
         },
         {
           "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenBridgeMint",
           "isMut": false,
           "isSigner": false
         }
@@ -3098,21 +3308,20 @@ export const IDL: Propeller = {
           "type": "u64"
         },
         {
-          "name": "inputTokenIndex",
-          "type": "u8"
-        },
-        {
-          "name": "exactOutputAmounts",
-          "type": {
-            "array": [
-              "u64",
-              2
-            ]
-          }
+          "name": "exactOutputAmount",
+          "type": "u64"
         },
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": {
@@ -3242,6 +3451,26 @@ export const IDL: Propeller = {
       "name": "removeExactBurn",
       "accounts": [
         {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_0.mint"
+              }
+            ]
+          }
+        },
+        {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
@@ -3330,6 +3559,11 @@ export const IDL: Propeller = {
         },
         {
           "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenBridgeMint",
           "isMut": false,
           "isSigner": false
         }
@@ -3340,16 +3574,20 @@ export const IDL: Propeller = {
           "type": "u64"
         },
         {
-          "name": "outputTokenIndex",
-          "type": "u8"
-        },
-        {
           "name": "minimumOutputAmount",
           "type": "u64"
         },
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": "u64"
@@ -3357,6 +3595,26 @@ export const IDL: Propeller = {
     {
       "name": "removeExactOutput",
       "accounts": [
+        {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_0.mint"
+              }
+            ]
+          }
+        },
         {
           "name": "pool",
           "isMut": true,
@@ -3448,6 +3706,11 @@ export const IDL: Propeller = {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "tokenBridgeMint",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
@@ -3456,17 +3719,20 @@ export const IDL: Propeller = {
           "type": "u64"
         },
         {
-          "name": "exactOutputAmounts",
-          "type": {
-            "array": [
-              "u64",
-              2
-            ]
-          }
+          "name": "exactOutputAmount",
+          "type": "u64"
         },
         {
           "name": "memo",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
         }
       ],
       "returns": {

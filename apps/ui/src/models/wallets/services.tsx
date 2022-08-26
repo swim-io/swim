@@ -1,4 +1,5 @@
 import { EuiButtonIcon } from "@elastic/eui";
+import type { EvmWalletAdapter } from "@swim-io/evm";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
@@ -12,11 +13,7 @@ import LEDGER_ICON from "../../images/wallets/ledger.svg";
 import METAMASK_ICON from "../../images/wallets/metamask.svg";
 import PHANTOM_ICON from "../../images/wallets/phantom.svg";
 
-import type {
-  EvmWalletAdapter,
-  SolanaWalletAdapter,
-  WalletAdapter,
-} from "./adapters";
+import type { SolanaWalletAdapter, WalletAdapter } from "./adapters";
 import { adapters } from "./adapters";
 
 export enum WalletServiceId {

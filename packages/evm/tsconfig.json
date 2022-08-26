@@ -3,8 +3,10 @@
   "extends": "@swim-io/tsconfig/tsconfig-library.json",
   "compilerOptions": {
     "declarationDir": "types/",
+    "lib": ["esnext", "dom"],
     "outDir": "build/",
-    "rootDir": "src/"
+    "rootDir": "src/",
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": ["src/"]
 }

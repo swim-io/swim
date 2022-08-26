@@ -1,7 +1,6 @@
-import type { EvmEcosystemId } from "@swim-io/evm";
+import type { EvmChainId, EvmEcosystemId } from "@swim-io/evm";
 import { findOrThrow } from "@swim-io/utils";
 
-import type { EvmChainId } from "../../config";
 import { CHAINS, Protocol } from "../../config";
 import { useEnvironment } from "../../core/store";
 

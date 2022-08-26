@@ -1,10 +1,10 @@
 import { PublicKey } from "@solana/web3.js";
+import { EvmWeb3WalletAdapter } from "@swim-io/evm";
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { Protocol } from "../../../config";
 import type { WalletAdapter } from "../../../models";
 import { WalletServiceId } from "../../../models";
-import { EvmWeb3WalletAdapter } from "../../../models/wallets/adapters/evm";
 import { PhantomAdapter } from "../../../models/wallets/adapters/solana/PhantomAdapter";
 import { useNotification as notificationStore } from "../useNotification";
 import type { WalletAdapterState } from "../useWalletAdapter";

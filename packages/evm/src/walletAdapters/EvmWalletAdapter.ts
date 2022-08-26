@@ -1,19 +1,14 @@
-import * as Sentry from "@sentry/react";
-import type { SeverityLevel } from "@sentry/types";
+import type { TokenDetails } from "@swim-io/core";
+import type { TokenProjectId } from "@swim-io/token-projects";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { sleep } from "@swim-io/utils";
 import type { Signer } from "ethers";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 
-import type { EcosystemId, EvmChainId, TokenConfig } from "../../../../config";
-import {
-  ALL_UNIQUE_CHAINS,
-  ECOSYSTEMS,
-  Protocol,
-  getTokenDetailsForEcosystem,
-} from "../../../../config";
-import { captureException } from "../../../../errors";
+import { EVM_CHAINS } from "../chains";
+import type { EvmChainId, EvmProtocol } from "../protocol";
+import { EVM_PROTOCOL } from "../protocol";
 
 type Web3Provider = ethers.providers.Web3Provider;
 
@@ -33,25 +28,29 @@ export interface EvmWalletAdapter extends EventEmitter {
   readonly disconnect: () => Promise<void>;
   readonly switchNetwork: (chainId: EvmChainId) => Promise<unknown>;
   readonly registerToken: (
-    tokenConfig: TokenConfig,
-    ecosystemId: EcosystemId,
+    tokenDetails: TokenDetails,
+    projectId: TokenProjectId,
     chainId: EvmChainId,
   ) => Promise<unknown>;
   readonly isUnlocked: () => Promise<boolean>;
   readonly hasConnectedBefore: () => Promise<boolean>;
-  readonly protocol: Protocol.Evm;
+  readonly protocol: EvmProtocol;
+  // for logging
+  readonly serviceName: string;
+  // for logging
+  readonly getNetworkName: () => Promise<string | null>;
 }
 
 export class EvmWeb3WalletAdapter
   extends EventEmitter
   implements EvmWalletAdapter
 {
-  readonly serviceName: string;
-  readonly serviceUrl: string;
-  readonly protocol: Protocol.Evm;
-  address: string | null;
-  readonly isUnlocked: () => Promise<boolean>;
-  private readonly getWalletProvider: () => Web3Provider | null;
+  public readonly serviceName: string;
+  public readonly serviceUrl: string;
+  public readonly getWalletProvider: () => Web3Provider | null;
+  public readonly isUnlocked: () => Promise<boolean>;
+  public readonly protocol: EvmProtocol;
+  public address: string | null;
   private connecting: boolean;
 
   constructor(
@@ -67,7 +66,7 @@ export class EvmWeb3WalletAdapter
     this.isUnlocked = isUnlocked;
     this.address = null;
     this.connecting = false;
-    this.protocol = Protocol.Evm;
+    this.protocol = EVM_PROTOCOL;
   }
 
   public get connected(): boolean {
@@ -82,6 +81,14 @@ export class EvmWeb3WalletAdapter
     return this.getWalletProvider();
   }
 
+  public async getNetworkName(): Promise<string | null> {
+    try {
+      return (await this.getWalletProvider()?.getNetwork())?.name ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   public async hasConnectedBefore(): Promise<boolean> {
     const provider = this.getWalletProvider();
     if (!provider) return false;
@@ -94,7 +101,7 @@ export class EvmWeb3WalletAdapter
     }
   }
 
-  async connect(): Promise<void> {
+  public async connect(): Promise<void> {
     if (this.connecting) {
       return;
     }
@@ -115,42 +122,23 @@ export class EvmWeb3WalletAdapter
       )) as readonly string[];
       this.address = address;
       this.emit("connect", this.address);
-
-      const sentryContextKey = await this.sentryContextKey();
-      Sentry.setContext(sentryContextKey, {
-        walletName: this.serviceName,
-        address: this.address,
-      });
-      const level: SeverityLevel = "info";
-      Sentry.addBreadcrumb({
-        category: "wallet",
-        message: `Connected to ${sentryContextKey} ${String(this.address)}`,
-        level,
-      });
     } catch (error) {
       await this.disconnect();
-      captureException(error);
+      throw error;
+    } finally {
+      this.connecting = false;
     }
-    this.connecting = false;
   }
 
-  async disconnect(): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  public async disconnect(): Promise<void> {
     if (this.address) {
       this.address = null;
       this.emit("disconnect");
-
-      const sentryContextKey = await this.sentryContextKey();
-      Sentry.setContext(sentryContextKey, {});
-      const level: SeverityLevel = "info";
-      Sentry.addBreadcrumb({
-        category: "wallet",
-        message: `Disconnected from ${sentryContextKey}`,
-        level,
-      });
     }
   }
 
-  async switchNetwork(chainId: EvmChainId): Promise<void> {
+  public async switchNetwork(chainId: EvmChainId): Promise<void> {
     if (!this.walletProvider) {
       throw new Error("No wallet provider");
     }
@@ -164,9 +152,7 @@ export class EvmWeb3WalletAdapter
         (switchError as Record<string, unknown>).code ===
         METAMASK_unrecognizedChainId
       ) {
-        const evmSpec = ALL_UNIQUE_CHAINS[Protocol.Evm].find(
-          (spec) => spec.chainId === chainId,
-        );
+        const evmSpec = EVM_CHAINS.find((spec) => spec.chainId === chainId);
         if (!evmSpec) {
           throw new Error("No EVM spec found for chain ID");
         }
@@ -194,20 +180,15 @@ export class EvmWeb3WalletAdapter
     }
   }
 
-  async registerToken(
-    tokenConfig: TokenConfig,
-    ecosystemId: EcosystemId,
+  public async registerToken(
+    tokenDetails: TokenDetails,
+    projectId: TokenProjectId,
     chainId: EvmChainId,
   ): Promise<boolean> {
     if (!this.walletProvider) {
       throw new Error("No wallet provider");
     }
-    const details = getTokenDetailsForEcosystem(tokenConfig, ecosystemId);
-    if (!details) {
-      throw new Error(
-        `No ${ECOSYSTEMS[ecosystemId].displayName} details for token`,
-      );
-    }
+
     await this.switchNetwork(chainId);
 
     await sleep(200); // Sleep briefly, otherwise Metamask ignores the second prompt
@@ -216,21 +197,12 @@ export class EvmWeb3WalletAdapter
       // @ts-expect-error the type is wrong in walletProvider.send, the params should not be an array
       type: "ERC20", // Initially only supports ERC20, but eventually more!
       options: {
-        address: details.address, // The address that the token is at.
-        symbol: TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].symbol, // A ticker symbol or shorthand, up to 5 chars.
-        decimals: details.decimals, // The number of decimals in the token
+        address: tokenDetails.address, // The address that the token is at.
+        symbol: TOKEN_PROJECTS_BY_ID[projectId].symbol, // A ticker symbol or shorthand, up to 5 chars.
+        decimals: tokenDetails.decimals, // The number of decimals in the token
         // TODO: image: tokenConfig.icon, // A string url of the token logo
       },
     })) as boolean;
     return wasAdded;
-  }
-
-  private async sentryContextKey(): Promise<string> {
-    try {
-      const network = await this.getWalletProvider()?.getNetwork();
-      return `${network?.name || "Unknown Network"} Wallet`;
-    } catch {
-      return `Unknown Network Wallet`;
-    }
   }
 }

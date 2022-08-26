@@ -1,4 +1,4 @@
-import type { EvmEcosystemId } from "@swim-io/evm";
+import type { EvmEcosystemId, EvmWalletAdapter } from "@swim-io/evm";
 import type { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { getRecordEntries } from "@swim-io/utils";
 import type { ReadonlyRecord } from "@swim-io/utils";
@@ -6,7 +6,7 @@ import type { ReadonlyRecord } from "@swim-io/utils";
 import type { EcosystemId } from "../../config";
 import { isEcosystemEnabled } from "../../config";
 import type { BaseWallet } from "../swim";
-import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
+import type { SolanaWalletAdapter } from "../wallets";
 
 export interface SolanaWalletInterface {
   readonly wallet: SolanaWalletAdapter | null;

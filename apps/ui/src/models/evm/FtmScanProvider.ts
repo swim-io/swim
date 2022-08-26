@@ -1,7 +1,6 @@
+import { EvmChainId } from "@swim-io/evm";
 import { findOrThrow } from "@swim-io/utils";
 import { ethers } from "ethers";
-
-import { EvmChainId } from "../../config";
 
 export const enum FantomNetwork {
   Mainnet = "fantom-mainnet",

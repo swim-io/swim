@@ -7523,23 +7523,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm@npm:^0.16.2":
-  version: 0.16.2
-  resolution: "@swim-io/evm@npm:0.16.2"
-  dependencies:
-    "@swim-io/core": ^0.16.2
-    ethers: ^5.6.9
-  checksum: 6595d0be28467ca2ef400b4d1c03c13d3d9c9322b8102984f52da33fe8443b4ff87b50f7a3eed7a0ee3fdcc30470e2011869eb79b673c9001423289b5d3bd12f
-  languageName: node
-  linkType: hard
-
-"@swim-io/evm@workspace:packages/evm":
+"@swim-io/evm@workspace:^, @swim-io/evm@workspace:packages/evm":
   version: 0.0.0-use.local
   resolution: "@swim-io/evm@workspace:packages/evm"
   dependencies:
+    "@ethersproject/providers": ^5.6.8
     "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/token-projects": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
+    "@swim-io/utils": "workspace:^"
     "@types/jest": ^28.1.3
     "@typescript-eslint/eslint-plugin": ^5.29.0
     "@typescript-eslint/parser": ^5.29.0
@@ -7552,6 +7545,7 @@ __metadata:
     eslint-plugin-jest: ^25.7.0
     eslint-plugin-prettier: ^4.0.0
     ethers: ^5.6.9
+    eventemitter3: ^4.0.7
     jest: ^28.1.2
     prettier: ^2.7.1
     svgo: ^2.8.0
@@ -7829,21 +7823,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/solana@npm:^0.16.2":
-  version: 0.16.2
-  resolution: "@swim-io/solana@npm:0.16.2"
-  dependencies:
-    "@project-serum/borsh": ^0.2.5
-    "@solana/spl-token": ^0.3.4
-    "@solana/web3.js": ^1.48.0
-    "@swim-io/core": ^0.16.2
-    "@swim-io/token-projects": ^0.16.2
-    "@swim-io/utils": ^0.16.2
-    bn.js: ^5.2.1
-  checksum: d3400bdb2fca639fdc21e6145a11edf28a11a9f36371ba1f865d817a5d5667a244ba1ae1b21dc21457a245d6f5798e725341bc33d3d1a490927467a597cd01c7
-  languageName: node
-  linkType: hard
-
 "@swim-io/solana@workspace:^, @swim-io/solana@workspace:packages/solana":
   version: 0.0.0-use.local
   resolution: "@swim-io/solana@workspace:packages/solana"
@@ -7969,13 +7948,13 @@ __metadata:
     "@storybook/node-logger": ^6.5.10
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.10
-    "@swim-io/core": ^0.16.2
+    "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
-    "@swim-io/evm": ^0.16.2
+    "@swim-io/evm": "workspace:^"
     "@swim-io/evm-contracts": ^0.16.2
     "@swim-io/pool-math": ^0.16.2
     "@swim-io/redeemer": ^0.16.2
-    "@swim-io/solana": ^0.16.2
+    "@swim-io/solana": "workspace:^"
     "@swim-io/token-projects": ^0.16.2
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": ^0.16.2

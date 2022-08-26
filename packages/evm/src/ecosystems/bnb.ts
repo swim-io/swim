@@ -2,12 +2,12 @@ import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 
 import type { EvmChainConfig, EvmEcosystemConfig } from "../protocol";
-import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
+import { EVM_PROTOCOL, EvmChainId, EvmEcosystemId } from "../protocol";
 
 export enum BnbChainId {
-  Mainnet = 56,
-  Testnet = 97,
-  Localnet = 1397,
+  Mainnet = EvmChainId.BnbMainnet,
+  Testnet = EvmChainId.BnbTestnet,
+  Localnet = EvmChainId.BnbLocal,
 }
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Bnb> = {

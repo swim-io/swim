@@ -1,3 +1,6 @@
+import * as Sentry from "@sentry/react";
+import type { EvmWalletAdapter } from "@swim-io/evm";
+import { EVM_PROTOCOL } from "@swim-io/evm";
 import { truncate } from "@swim-io/utils";
 import { produce } from "immer";
 import create from "zustand";
@@ -8,7 +11,6 @@ import { Protocol } from "../../config";
 import { captureException } from "../../errors";
 import { i18next } from "../../i18n";
 import type {
-  EvmWalletAdapter,
   SolanaWalletAdapter,
   WalletAdapter,
   WalletServiceId,
@@ -77,6 +79,38 @@ const isValidSelectedServiceByProtocol = (
   );
 };
 
+const getEvmWalletSentryContextKey = async (
+  adapter: EvmWalletAdapter,
+): Promise<string> => {
+  const networkName = await adapter.getNetworkName();
+  return `${networkName || "Unknown Network"} Wallet`;
+};
+const onEvmWalletConnected = async (
+  adapter: EvmWalletAdapter,
+): Promise<void> => {
+  const sentryContextKey = await getEvmWalletSentryContextKey(adapter);
+  Sentry.setContext(sentryContextKey, {
+    walletName: adapter.serviceName,
+    address: adapter.address,
+  });
+  Sentry.addBreadcrumb({
+    category: "wallet",
+    message: `Connected to ${sentryContextKey} ${String(adapter.address)}`,
+    level: "info",
+  });
+};
+const onEvmWalletDisconnected = async (
+  adapter: EvmWalletAdapter,
+): Promise<void> => {
+  const sentryContextKey = await getEvmWalletSentryContextKey(adapter);
+  Sentry.setContext(sentryContextKey, {});
+  Sentry.addBreadcrumb({
+    category: "wallet",
+    message: `Disconnected from ${sentryContextKey}`,
+    level: "info",
+  });
+};
+
 export const useWalletAdapter = create(
   persist<
     WalletAdapterState,
@@ -117,6 +151,12 @@ export const useWalletAdapter = create(
               7000,
             );
           }
+
+          if (protocol === Protocol.Evm) {
+            onEvmWalletConnected(adapter as EvmWalletAdapter).catch(
+              console.error,
+            );
+          }
         };
         const handleDisconnect = (): void => {
           notify(
@@ -125,6 +165,12 @@ export const useWalletAdapter = create(
             "warning",
           );
           void disconnect();
+
+          if (protocol === Protocol.Evm) {
+            onEvmWalletDisconnected(adapter as EvmWalletAdapter).catch(
+              console.error,
+            );
+          }
         };
         const handleError = (title: string, description: string): void => {
           notify(title, description, "error");
@@ -149,7 +195,7 @@ export const useWalletAdapter = create(
               draft.selectedServiceByProtocol[protocol] = serviceId;
 
               switch (adapter.protocol) {
-                case Protocol.Evm: {
+                case EVM_PROTOCOL: {
                   draft.evm = adapter;
                   break;
                 }

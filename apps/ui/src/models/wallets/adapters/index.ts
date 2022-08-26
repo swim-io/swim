@@ -1,4 +1,4 @@
-import type { EvmWalletAdapter } from "./evm";
+import type { EvmWalletAdapter } from "@swim-io/evm";
 import {
   acalaAdapters,
   auroraAdapters,
@@ -8,11 +8,12 @@ import {
   fantomAdapters,
   karuraAdapters,
   polygonAdapters,
-} from "./evm";
+} from "@swim-io/evm";
+
 import type { SolanaWalletAdapter } from "./solana";
 import { solanaAdapters } from "./solana";
 
-export type { EvmWalletAdapter, SolanaWalletAdapter };
+export type { SolanaWalletAdapter };
 
 export type WalletAdapter = EvmWalletAdapter | SolanaWalletAdapter;
 

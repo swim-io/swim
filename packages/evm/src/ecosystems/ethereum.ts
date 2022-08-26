@@ -2,14 +2,14 @@ import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 
 import type { EvmChainConfig, EvmEcosystemConfig } from "../protocol";
-import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
+import { EVM_PROTOCOL, EvmChainId, EvmEcosystemId } from "../protocol";
 
 export enum EthereumChainId {
-  Mainnet = 1,
-  Ropsten = 3,
-  Rinkeby = 4,
-  Goerli = 5,
-  Localnet = 1337,
+  Mainnet = EvmChainId.EthereumMainnet,
+  Ropsten = 3, // TODO: can we remove it?
+  Rinkeby = 4, // TODO: can we remove it?
+  Goerli = EvmChainId.EthereumGoerli,
+  Localnet = EvmChainId.EthereumLocal,
 }
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {

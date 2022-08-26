@@ -8,29 +8,17 @@ import { isEcosystemEnabled } from "../../config";
 import type { BaseWallet } from "../swim";
 import type { SolanaWalletAdapter } from "../wallets";
 
-export interface SolanaWalletInterface {
+export interface SolanaWalletInterface extends BaseWallet {
   readonly wallet: SolanaWalletAdapter | null;
-  readonly address: string | null;
-  readonly connected: boolean;
 }
 
-export interface EvmWalletInterface {
+export interface EvmWalletInterface extends BaseWallet {
   readonly wallet: EvmWalletAdapter | null;
-  readonly address: string | null;
-  readonly connected: boolean;
 }
 
-export interface Wallets extends ReadonlyRecord<EcosystemId, BaseWallet> {
+export type Wallets = {
   readonly [SOLANA_ECOSYSTEM_ID]: SolanaWalletInterface;
-  readonly [EvmEcosystemId.Ethereum]: EvmWalletInterface;
-  readonly [EvmEcosystemId.Bnb]: EvmWalletInterface;
-  readonly [EvmEcosystemId.Avalanche]: EvmWalletInterface;
-  readonly [EvmEcosystemId.Polygon]: EvmWalletInterface;
-  readonly [EvmEcosystemId.Aurora]: EvmWalletInterface;
-  readonly [EvmEcosystemId.Fantom]: EvmWalletInterface;
-  readonly [EvmEcosystemId.Karura]: EvmWalletInterface;
-  readonly [EvmEcosystemId.Acala]: EvmWalletInterface;
-}
+} & ReadonlyRecord<EvmEcosystemId, EvmWalletInterface>;
 
 export const getAddressesByEcosystem = (
   wallets: Wallets,

@@ -1,9 +1,10 @@
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TokenProjectId } from "@swim-io/token-projects";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
 import type { TokenSpec } from "../config";
-import { EcosystemId } from "../config";
 
 import { Amount } from "./amount";
 
@@ -31,22 +32,22 @@ describe("Amount", () => {
   const defaultNonStablecoinTokenSpec: TokenSpec = {
     id: "test-token",
     projectId: TokenProjectId.Swim,
-    nativeEcosystemId: EcosystemId.Solana,
+    nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: { address: "xxx", decimals: 8 },
     wrappedDetails: new Map([
-      [EcosystemId.Bnb, { address: "xxx", decimals: 18 }],
+      [EvmEcosystemId.Bnb, { address: "xxx", decimals: 18 }],
     ]),
   };
   const defaultStablecoinTokenSpec: TokenSpec = {
     id: "test-stablecoin",
     projectId: TokenProjectId.Usdc,
-    nativeEcosystemId: EcosystemId.Solana,
+    nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: { address: "xxx", decimals: 8 },
     wrappedDetails: new Map([
-      [EcosystemId.Bnb, { address: "xxx", decimals: 18 }],
+      [EvmEcosystemId.Bnb, { address: "xxx", decimals: 18 }],
     ]),
   };
-  const defaultEcosystemId = EcosystemId.Solana;
+  const defaultEcosystemId = SOLANA_ECOSYSTEM_ID;
 
   describe.each<StaticMethodConstructionCase>(staticMethodConstructionCases)(
     "static method construction",
@@ -85,12 +86,12 @@ describe("Amount", () => {
         );
         expect(
           amount
-            .toAtomic(EcosystemId.Solana)
+            .toAtomic(SOLANA_ECOSYSTEM_ID)
             .equals(new Decimal("12345678900000")),
         ).toBe(true);
         expect(
           amount
-            .toAtomic(EcosystemId.Bnb)
+            .toAtomic(EvmEcosystemId.Bnb)
             .equals(new Decimal("123456789000000000000000")),
         ).toBe(true);
       });
@@ -101,7 +102,7 @@ describe("Amount", () => {
           input,
           defaultEcosystemId,
         );
-        expect(() => amount.toAtomic(EcosystemId.Ethereum)).toThrowError(
+        expect(() => amount.toAtomic(EvmEcosystemId.Ethereum)).toThrowError(
           /No token details for ecosystem/,
         );
       });
@@ -119,12 +120,12 @@ describe("Amount", () => {
         );
         expect(
           amount
-            .toHuman(EcosystemId.Solana)
+            .toHuman(SOLANA_ECOSYSTEM_ID)
             .equals(new Decimal("123456.78900000")),
         ).toBe(true);
         expect(
           amount
-            .toHuman(EcosystemId.Bnb)
+            .toHuman(EvmEcosystemId.Bnb)
             .equals(new Decimal("123456.789000000000000000")),
         ).toBe(true);
       });
@@ -135,7 +136,7 @@ describe("Amount", () => {
           input,
           defaultEcosystemId,
         );
-        expect(() => amount.toHuman(EcosystemId.Ethereum)).toThrowError(
+        expect(() => amount.toHuman(EvmEcosystemId.Ethereum)).toThrowError(
           /No token details for ecosystem/,
         );
       });
@@ -152,11 +153,11 @@ describe("Amount", () => {
           defaultEcosystemId,
         );
         expect(
-          amount.toAtomicBn(EcosystemId.Solana).eq(new BN("12345678900000")),
+          amount.toAtomicBn(SOLANA_ECOSYSTEM_ID).eq(new BN("12345678900000")),
         ).toBe(true);
         expect(
           amount
-            .toAtomicBn(EcosystemId.Bnb)
+            .toAtomicBn(EvmEcosystemId.Bnb)
             .eq(new BN("123456789000000000000000")),
         ).toBe(true);
       });
@@ -167,7 +168,7 @@ describe("Amount", () => {
           input,
           defaultEcosystemId,
         );
-        expect(() => amount.toAtomicBn(EcosystemId.Ethereum)).toThrowError(
+        expect(() => amount.toAtomicBn(EvmEcosystemId.Ethereum)).toThrowError(
           /No token details for ecosystem/,
         );
       });
@@ -183,10 +184,10 @@ describe("Amount", () => {
           input,
           defaultEcosystemId,
         );
-        expect(amount.toAtomicString(EcosystemId.Solana)).toBe(
+        expect(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)).toBe(
           "12345678900000",
         );
-        expect(amount.toAtomicString(EcosystemId.Bnb)).toBe(
+        expect(amount.toAtomicString(EvmEcosystemId.Bnb)).toBe(
           "123456789000000000000000",
         );
       });
@@ -197,9 +198,9 @@ describe("Amount", () => {
           input,
           defaultEcosystemId,
         );
-        expect(() => amount.toAtomicString(EcosystemId.Ethereum)).toThrowError(
-          /No token details for ecosystem/,
-        );
+        expect(() =>
+          amount.toAtomicString(EvmEcosystemId.Ethereum),
+        ).toThrowError(/No token details for ecosystem/);
       });
     },
   );
@@ -213,8 +214,8 @@ describe("Amount", () => {
           input,
           defaultEcosystemId,
         );
-        expect(amount.toHumanString(EcosystemId.Solana)).toBe("123456.789");
-        expect(amount.toHumanString(EcosystemId.Bnb)).toBe("123456.789");
+        expect(amount.toHumanString(SOLANA_ECOSYSTEM_ID)).toBe("123456.789");
+        expect(amount.toHumanString(EvmEcosystemId.Bnb)).toBe("123456.789");
       });
 
       it(`throws for unknown ecosystem for Amount constructed via ${method}`, () => {
@@ -223,9 +224,9 @@ describe("Amount", () => {
           input,
           defaultEcosystemId,
         );
-        expect(() => amount.toHumanString(EcosystemId.Ethereum)).toThrowError(
-          /No token details for ecosystem/,
-        );
+        expect(() =>
+          amount.toHumanString(EvmEcosystemId.Ethereum),
+        ).toThrowError(/No token details for ecosystem/);
       });
     },
   );
@@ -239,10 +240,10 @@ describe("Amount", () => {
           input,
           defaultEcosystemId,
         );
-        expect(amount.toFormattedHumanString(EcosystemId.Solana)).toBe(
+        expect(amount.toFormattedHumanString(SOLANA_ECOSYSTEM_ID)).toBe(
           "123,456.789",
         );
-        expect(amount.toFormattedHumanString(EcosystemId.Bnb)).toBe(
+        expect(amount.toFormattedHumanString(EvmEcosystemId.Bnb)).toBe(
           "123,456.789",
         );
       });
@@ -253,10 +254,10 @@ describe("Amount", () => {
           input,
           defaultEcosystemId,
         );
-        expect(amount.toFormattedHumanString(EcosystemId.Solana)).toBe(
+        expect(amount.toFormattedHumanString(SOLANA_ECOSYSTEM_ID)).toBe(
           "123,456.79",
         );
-        expect(amount.toFormattedHumanString(EcosystemId.Bnb)).toBe(
+        expect(amount.toFormattedHumanString(EvmEcosystemId.Bnb)).toBe(
           "123,456.79",
         );
       });
@@ -268,7 +269,7 @@ describe("Amount", () => {
           defaultEcosystemId,
         );
         expect(() =>
-          amount.toFormattedHumanString(EcosystemId.Ethereum),
+          amount.toFormattedHumanString(EvmEcosystemId.Ethereum),
         ).toThrowError(/No token details for ecosystem/);
       });
     },

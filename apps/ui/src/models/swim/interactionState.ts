@@ -1,9 +1,10 @@
+import type { EvmTx } from "@swim-io/evm";
+import type { SolanaTx } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
 import type { TokenSpec } from "../../config";
-import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
 import type { Interaction } from "./interaction";
 import type { OperationSpec } from "./operation";

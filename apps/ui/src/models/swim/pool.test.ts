@@ -1,6 +1,10 @@
 import type solana from "@solana/web3.js";
 import { Env } from "@swim-io/core";
+import type { EvmTx } from "@swim-io/evm";
+import { EvmEcosystemId } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
+import type { SolanaTx } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ethers } from "ethers";
@@ -15,10 +19,8 @@ import {
   DEVNET_SWIMUSD,
   DEVNET_TOKENS,
   DEVNET_TOKENS_FOR_RESTRUCTURE,
-  EcosystemId,
 } from "../../config";
 import { parsedWormholeRedeemEvmUnlockWrappedTx } from "../../fixtures/solana/txs";
-import type { EvmTx, SolanaTx } from "../crossEcosystem";
 
 import { getEvmPoolState, getTokensByPool, isPoolTx } from "./pool";
 
@@ -39,7 +41,7 @@ describe("Pool tests", () => {
   describe("isPoolTx", () => {
     it("returns false for EVM tx", () => {
       const contractAddress = "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC";
-      const ecosystemId = EcosystemId.Ethereum;
+      const ecosystemId = EvmEcosystemId.Ethereum;
       const txResponse: ethers.providers.TransactionResponse =
         mock<ethers.providers.TransactionResponse>();
       const txReceipt: ethers.providers.TransactionReceipt =
@@ -48,8 +50,8 @@ describe("Pool tests", () => {
         id: "string",
         timestamp: 123456789,
         ecosystemId: ecosystemId,
-        txResponse: txResponse,
-        txReceipt: txReceipt,
+        response: txResponse,
+        receipt: txReceipt,
         interactionId: "1",
       };
       expect(isPoolTx(contractAddress, tx)).toBe(false);
@@ -62,7 +64,7 @@ describe("Pool tests", () => {
         transaction: parsedWormholeRedeemEvmUnlockWrappedTx.transaction,
       };
       const txs: SolanaTx = {
-        ecosystemId: EcosystemId.Solana,
+        ecosystemId: SOLANA_ECOSYSTEM_ID,
         parsedTx: ptx,
         id: "string",
         timestamp: 123456789,
@@ -78,7 +80,7 @@ describe("Pool tests", () => {
         transaction: parsedWormholeRedeemEvmUnlockWrappedTx.transaction,
       };
       const txs: SolanaTx = {
-        ecosystemId: EcosystemId.Solana,
+        ecosystemId: SOLANA_ECOSYSTEM_ID,
         parsedTx: ptx,
         id: "string",
         timestamp: 123456789,

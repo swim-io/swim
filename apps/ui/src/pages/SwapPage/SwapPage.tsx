@@ -14,6 +14,7 @@ import { defaultIfError } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import { RecentInteractions } from "../../components/RecentInteractions";
@@ -28,6 +29,7 @@ import { INTERACTION_GROUP_SWAP } from "../../models";
 import "./SwapPage.scss";
 
 const SwapPage = (): ReactElement => {
+  const { t } = useTranslation();
   const { pools } = useEnvironment(selectConfig, shallow);
 
   const { fromToken, toToken } = useSwapTokensContext();
@@ -37,7 +39,12 @@ const SwapPage = (): ReactElement => {
   const toEcosystemName = ECOSYSTEMS[toToken.nativeEcosystemId].displayName;
   const toTokenProjectId = TOKEN_PROJECTS_BY_ID[toToken.projectId].displayName;
   useTitle(
-    `Swap ${fromEcosystemName} ${fromTokenProjectId} to ${toEcosystemName} ${toTokenProjectId}`,
+    t("swap_page.title", {
+      fromEcosystemName,
+      fromTokenProjectId,
+      toEcosystemName,
+      toTokenProjectId,
+    }),
   );
 
   const nonStakingPools = useMemo(
@@ -59,7 +66,7 @@ const SwapPage = (): ReactElement => {
             <EuiFlexGroup justifyContent="spaceBetween" responsive={false}>
               <EuiFlexItem>
                 <EuiTitle>
-                  <h2>Swap</h2>
+                  <h2>{t("nav.swap")}</h2>
                 </EuiTitle>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
@@ -75,15 +82,15 @@ const SwapPage = (): ReactElement => {
             ) : (
               <EuiEmptyPrompt
                 iconType="alert"
-                title={<h2>No pools found</h2>}
+                title={<h2>{t("general.error_cannot_found_pools")}</h2>}
                 titleSize="xs"
-                body="Try changing the network in the upper right corner."
+                body={t("general.action_on_error_cannot_found_pools")}
               />
             )}
 
             <EuiSpacer />
             <RecentInteractions
-              title="Recent swaps"
+              title={t("swap_page.recent_swaps")}
               interactionTypes={INTERACTION_GROUP_SWAP}
             />
           </EuiPageContentBody>

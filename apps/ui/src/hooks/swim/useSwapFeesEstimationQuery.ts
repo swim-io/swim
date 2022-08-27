@@ -1,7 +1,9 @@
+import type { EvmEcosystemId } from "@swim-io/evm";
+import { isEvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import Decimal from "decimal.js";
 
-import type { EvmEcosystemId, TokenSpec } from "../../config";
-import { EcosystemId, isEvmEcosystemId } from "../../config";
+import type { TokenSpec } from "../../config";
 import type { FeesEstimation } from "../../models";
 import {
   APPROVAL_CEILING,
@@ -54,7 +56,7 @@ export const useSwapFeesEstimationQuery = (
   }
 
   return {
-    [EcosystemId.Solana]: SOLANA_FEE,
+    [SOLANA_ECOSYSTEM_ID]: SOLANA_FEE,
     ...Object.fromEntries(
       requiredEvmEcosystemIds.map((ecosystemId, i) => {
         return [

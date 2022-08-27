@@ -6,6 +6,7 @@ import {
 } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { Fragment, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useEnvironment, useInteractionState } from "../core/store";
 import { useSplTokenAccountsQuery, useWallets } from "../hooks";
@@ -25,6 +26,7 @@ export const RecentInteractions = ({
   title,
   interactionTypes,
 }: Props): ReactElement => {
+  const { t } = useTranslation();
   const env = useEnvironment((state) => state.env);
   const loadInteractionStatesFromIDB = useInteractionState(
     (state) => state.loadInteractionStatesFromIDB,
@@ -59,11 +61,11 @@ export const RecentInteractions = ({
         <EuiSpacer />
         <EuiPanel color="subdued">
           {!wallets.solana.connected
-            ? "Connect your wallets to see recent interactions."
+            ? t("recent_interactions.disconnected_with_wallet")
             : !didLoadSplTokenAccounts
-            ? "Loading..."
+            ? t("recent_interactions.loading")
             : interactionStates.length === 0
-            ? "Interactions are stored per browser. If you used incognito mode, they will not show up here."
+            ? t("recent_interactions.interactions_not_found")
             : recentInteractions.map((interactionState, i) => {
                 return (
                   <Fragment key={interactionState.interaction.id}>

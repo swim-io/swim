@@ -4,6 +4,9 @@
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom";
 
+// setup translation early
+import "./i18n";
+
 // mock Solana websocket connection
 jest.mock("rpc-websockets", () => ({
   Client: class MockRpcWebsocketClient {

@@ -2,11 +2,12 @@
 pragma solidity ^0.8.15;
 
 import "./Constants.sol";
-import "./PoolErrors.sol";
 import "./CenterAlignment.sol";
 import "./Equalize.sol";
 
 library Invariant {
+  error UnknownBalanceTooLarge(uint256 unknownBalance);
+
   using CenterAlignment for uint256;
 
   // RESTRICTIONS:
@@ -217,7 +218,7 @@ library Invariant {
 
       //ensure that unknownBalance never blows up above the allowed maximum
       if (unknownBalance > Equalize.MAX_AMOUNT)
-        revert Invariant_UnknownBalanceTooLarge(unknownBalance);
+        revert UnknownBalanceTooLarge(unknownBalance);
       return Equalized.wrap(uint64(unknownBalance));
     }
   }

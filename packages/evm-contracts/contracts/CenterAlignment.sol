@@ -1,9 +1,9 @@
 //SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
-import "./PoolErrors.sol";
-
 library CenterAlignment {
+  error NumericOverflow();
+
   // In the following constants and functions we think of a built-in uint
   //  as an array an array of 4 uint64, i.e. uint64[4] and use this to keep a
   //  block of 64 significant bits "center-aligned" i.e. within the bounds of the
@@ -52,7 +52,7 @@ library CenterAlignment {
         uint256 unshift = uint256(-shift);
         //ensure we aren't overflowing on rightshift
         if (unshift >= BITS_PER_UINT || val >= (1 << (BITS_PER_UINT - unshift)))
-          revert CenterAlignment_NumericOverflow();
+          revert NumericOverflow();
         return val << unshift;
       }
       //potentially underflowing to 0 is ok

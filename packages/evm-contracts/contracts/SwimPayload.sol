@@ -1,114 +1,109 @@
 //SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
-//   1 byte - swim internal payload version number
+//  1 byte  - swim internal payload version number
 // 32 bytes - logical owner/recipient (will use ATA of owner and token on Solana)
+//  1 byte  - propeller enabled bool
+//  1 byte  - gas kickstart requested bool
 //  2 bytes - swimTokenNumber (support up to 65k different tokens, just to be safe)
-// 32 bytes - minimum output amount (using 32 bytes like Wormhole)
-// 16 bytes - memo/interactionId (??) (current memo is 16 bytes - can't use Wormhole sequence due to Solana originating transactions (only receive sequence number in last transaction on Solana, hence no id for earlier transactions))
-// ?? bytes - propeller parameters (propellerEnabled: bool / gasTokenPrefundingAmount: uint256 / propellerFee (?? - similar to wormhole arbiter fee))
+// 16 bytes - memo/interactionId
 
-library SwimPayload {
-  error InvalidVersion();
-  error TooShort();
+struct SwimPayload {
+  address toOwner;
+  bool propellerEnabled;
+  bool gasKickstart;
+  uint16 tokenNumber;
+  bytes16 memo;
+}
+
+library SwimPayloadConversion {
+  error InvalidVersion(uint8 version, uint8 expected);
+  error TooShort(uint256 length, uint256 minimum);
 
   uint8 private constant SWIM_PAYLOAD_VERSION = 1;
 
-  uint256 private constant VERSION_OFFSET = 0;
-  uint256 private constant VERSION_SIZE = 1;
-  uint256 private constant VERSION_MINLEN = VERSION_OFFSET + VERSION_SIZE;
-
-  uint256 private constant OWNER_OFFSET = VERSION_MINLEN;
-  uint256 private constant OWNER_SIZE = 32;
-  uint256 private constant OWNER_MINLEN = OWNER_OFFSET + OWNER_SIZE;
-
-  uint256 private constant TOKEN_NUMBER_OFFSET = OWNER_MINLEN;
-  uint256 private constant TOKEN_NUMBER_SIZE = 2;
-  uint256 private constant TOKEN_NUMBER_MINLEN = TOKEN_NUMBER_OFFSET + TOKEN_NUMBER_SIZE;
-
-  uint256 private constant THRESHOLD_OFFSET = TOKEN_NUMBER_MINLEN;
-  uint256 private constant THRESHOLD_SIZE = 32;
-  uint256 private constant THRESHOLD_MINLEN = THRESHOLD_OFFSET + THRESHOLD_SIZE;
-
-  uint256 private constant MEMO_OFFSET = THRESHOLD_MINLEN;
-  uint256 private constant MEMO_SIZE = 16;
-  uint256 private constant MEMO_MINLEN = MEMO_OFFSET + MEMO_SIZE;
-
   uint256 private constant SOLIDITY_ARRAY_LENGTH_SIZE = 32;
 
-  function checkVersion(bytes memory swimPayload) internal pure {
-    checkLength(swimPayload, VERSION_MINLEN);
-    if (uint8(swimPayload[0]) != SWIM_PAYLOAD_VERSION) {
-      revert InvalidVersion();
-    }
+  uint256 private constant VERSION_SIZE = 1;
+  uint256 private constant OWNER_SIZE = 32;
+  uint256 private constant PROPELLER_ENABLED_SIZE = 1;
+  uint256 private constant GAS_KICKSTART_SIZE = 1;
+  uint256 private constant TOKEN_NUMBER_SIZE = 2;
+  uint256 private constant MEMO_SIZE = 16;
+
+  uint256 private constant OWNER_MINLEN = VERSION_SIZE + OWNER_SIZE;
+  uint256 private constant TOKEN_NUMBER_MINLEN =
+    OWNER_MINLEN + PROPELLER_ENABLED_SIZE + GAS_KICKSTART_SIZE + TOKEN_NUMBER_SIZE;
+  uint256 private constant MEMO_MINLEN = TOKEN_NUMBER_MINLEN + MEMO_SIZE;
+
+  function decode(bytes memory encoded) internal pure returns (SwimPayload memory swimPayload) {
+    checkLength(encoded, OWNER_MINLEN);
+
+    uint256 tmp;
+    uint256 offset = SOLIDITY_ARRAY_LENGTH_SIZE;
+
+    offset += VERSION_SIZE;
+    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
+    if (uint8(tmp) != SWIM_PAYLOAD_VERSION)
+      revert InvalidVersion(uint8(tmp), SWIM_PAYLOAD_VERSION);
+
+    offset += OWNER_SIZE;
+    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
+    swimPayload.toOwner = address(uint160(tmp));
+
+    if (encoded.length == OWNER_MINLEN)
+      return swimPayload;
+
+    checkLength(encoded, TOKEN_NUMBER_MINLEN);
+
+    offset += PROPELLER_ENABLED_SIZE;
+    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
+    swimPayload.propellerEnabled = uint8(tmp) != 0;
+
+    offset += GAS_KICKSTART_SIZE;
+    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
+    swimPayload.gasKickstart = uint8(tmp) != 0;
+
+    offset += TOKEN_NUMBER_SIZE;
+    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
+    swimPayload.tokenNumber = uint16(tmp);
+
+    if (encoded.length == TOKEN_NUMBER_MINLEN)
+      return swimPayload;
+
+    checkLength(encoded, MEMO_MINLEN);
+
+    offset += MEMO_SIZE;
+    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
+    swimPayload.memo = bytes16(uint128(tmp));
   }
 
-  function decodeOwner(bytes memory swimPayload) internal pure returns (address) {
-    unchecked {
-      checkLength(swimPayload, OWNER_MINLEN);
-      uint256 offset = SOLIDITY_ARRAY_LENGTH_SIZE + OWNER_OFFSET;
-      uint256 swimOwner;
-      assembly ("memory-safe") {
-        swimOwner := mload(add(swimPayload, offset))
-      }
-      return address(uint160(swimOwner));
-    }
+  //non propeller interaction
+  function encode(bytes32 toOwner) internal pure returns (bytes memory encoded) {
+    return abi.encodePacked(SWIM_PAYLOAD_VERSION, toOwner);
   }
 
-  function decodeSwapParameters(bytes memory swimPayload)
-    internal
-    pure
-    returns (
-      uint16,
-      uint256,
-      bytes16
-    )
-  {
-    unchecked {
-      checkLength(swimPayload, MEMO_MINLEN);
-      uint16 tokenNumber = (uint16(uint8(swimPayload[TOKEN_NUMBER_OFFSET])) << 8) +
-        uint16(uint8(swimPayload[TOKEN_NUMBER_OFFSET + 1]));
-
-      uint256 offset = SOLIDITY_ARRAY_LENGTH_SIZE + THRESHOLD_OFFSET;
-      uint256 thresholdAmount;
-      assembly ("memory-safe") {
-        thresholdAmount := mload(add(swimPayload, offset))
-      }
-
-      bytes memory memo = new bytes(16);
-      for (uint256 i = MEMO_OFFSET; i < MEMO_SIZE; i++) {
-        memo[i] = swimPayload[i];
-      }
-      
-      return (tokenNumber, thresholdAmount, bytes16(memo));
-    }
-  }
-
+  //third party propeller interaction
   function encode(
     bytes32 toOwner,
     uint16 tokenNumber,
-    uint256 minOutputAmount,
-    bytes16 memo,
-    bool propellerEnabled,
-    uint256 propellerMinThreshold,
     bool gasKickStart
-  ) internal pure returns (bytes memory swimPayload) {
-    return
-      abi.encodePacked(
-        SWIM_PAYLOAD_VERSION,
-        toOwner,
-        tokenNumber,
-        minOutputAmount,
-        memo,
-        propellerEnabled,
-        propellerMinThreshold,
-        gasKickStart
-      );
+  ) internal pure returns (bytes memory encoded) {
+    return abi.encodePacked(SWIM_PAYLOAD_VERSION, toOwner, tokenNumber, uint8(1), gasKickStart);
   }
 
-  function checkLength(bytes memory swimPayload, uint256 minimumLength) private pure {
-    if (swimPayload.length < minimumLength) {
-      revert TooShort();
-    }
+  //swim propeller interaction
+  function encode(
+    bytes32 toOwner,
+    uint16 tokenNumber,
+    bool gasKickStart,
+    bytes16 memo
+  ) internal pure returns (bytes memory encoded) {
+    return abi.encodePacked(SWIM_PAYLOAD_VERSION, toOwner, tokenNumber, uint8(1), gasKickStart, memo);
+  }
+
+  function checkLength(bytes memory encoded, uint256 minimumLength) private pure {
+    if (encoded.length < minimumLength)
+      revert TooShort(encoded.length, minimumLength);
   }
 }

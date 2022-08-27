@@ -1,48 +1,28 @@
 //SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
+import "./ISwimInteractor.sol";
 import "./IPool.sol";
 
-interface IRouting {
-  error Routing__ErrorMessage(string message);
-  error Routing__TokenNotRegistered(bytes20 addressOrTokenNumber);
-  error Routing__NotEnoughGasTokens(uint256 minGasPrice, uint256 gasTokensAmount);
-
+interface IRouting is ISwimInteractor {
   event TokenRegistered(uint16 indexed tokenId, address indexed tokenContract, address pool);
 
-  event OnChainSwap(
-    address to,
+  error TokenMismatch(address passedToken, address poolToken);
+  error SenderIsNotOwner(address sender, address owner);
+  error TokenNotRegistered(bytes20 addressOrTokenNumber);
+  error WormholeInteractionFailed(bytes lowLevelData);
+  error TooSmallForPropeller(uint256 swimUsdAmount, uint256 propellerMinimumThreshold);
+  error MemoContradiction(bytes16 passedMemo, bytes16 payloadMemo);
+  error IncorrectMessageValue(uint256 value, uint256 expected);
+  error GasKickstartFailed(address owner);
+
+  function onChainSwap(
     address fromToken,
-    address toToken,
-    uint256 outputAmount,
-    bytes16 indexed memo
-  );
-
-  event SwapAndTransfer(
-    address from,
-    uint64 wormholeSequence,
-    address token,
     uint256 inputAmount,
-    bytes16 indexed memo
-  );
-
-  event ReceiveAndSwap(
-    address from,
-    uint64 wormholeSequence,
-    address token,
-    uint256 amount,
-    bytes16 indexed memo
-  );
-
-  struct PropellerData {
-    bytes32 toOwner;
-    address toToken;
-    uint256 secondMinimumOutputAmount;
-    uint16 wormholeRecipientChain;
-    bytes16 memo;
-    bool propellerEnabled;
-    bool gasKickStart;
-  }
+    address toOwner,
+    address toToken,
+    uint256 minimumOutputAmount
+  ) external returns (uint256 outputAmount);
 
   function onChainSwap(
     address fromToken,
@@ -51,25 +31,62 @@ interface IRouting {
     address toToken,
     uint256 minimumOutputAmount,
     bytes16 memo
-  ) external payable returns (uint256 outputAmount);
+  ) external returns (uint256 outputAmount);
 
-  function swapAndTransfer(
+  function crossChainOut(
     address fromToken,
     uint256 inputAmount,
     uint256 firstMinimumOutputAmount,
-    PropellerData memory propellerData
-  ) external payable returns (uint64 wormholeSequence);
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner
+  ) external payable returns (uint256 swimUsdAmount, uint64 wormholeSequence);
 
-  function receiveAndSwap(
+  function crossChainOut(
+    address fromToken,
+    uint256 inputAmount,
+    uint256 firstMinimumOutputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner,
+    bytes16 memo
+  ) external payable returns (uint256 swimUsdAmount, uint64 wormholeSequence);
+
+  function propellerOut(
+    address fromToken,
+    uint256 inputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner,
+    bool gasKickStart,
+    address toToken
+  ) external payable returns (uint256 swimUsdAmount, uint64 wormholeSequence);
+
+  function propellerOut(
+    address fromToken,
+    uint256 inputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner,
+    bool gasKickStart,
+    address toToken,
+    bytes16 memo
+  ) external payable returns (uint256 swimUsdAmount, uint64 wormholeSequence);
+
+  function crossChainIn(
+    bytes memory encodedVm,
+    address toToken,
+    uint256 minimumOutputAmount
+  ) external returns (uint256 outputAmount, address outputToken);
+
+  function crossChainIn(
     bytes memory encodedVm,
     address toToken,
     uint256 minimumOutputAmount,
     bytes16 memo
-  ) external returns (uint256 outputAmount, address outpuToken);
+  ) external returns (uint256 outputAmount, address outputToken);
 
-  function receiveAndSwap(bytes memory encodedVm)
-    external
-    returns (uint256 outputAmount, address outputToken);
+  function propellerIn(
+    bytes memory encodedVm
+  ) external payable returns (uint256 outputAmount, address outputToken);
+
+  function claimFees() external;
 
   function registerToken(
     uint16 tokenNumber,

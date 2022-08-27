@@ -1,7 +1,6 @@
 //SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
-import "./PoolErrors.sol";
 import "./Equalize.sol";
 import "./Invariant.sol";
 
@@ -9,6 +8,8 @@ import "./Invariant.sol";
 // avoid solc's "Stack too deep, try removing local variables" error message, because apparently
 // solc demands that variables remain accessible on stack, even if
 library PoolMath {
+  error ImpossibleRemove();
+
   struct Pool {
     uint8 tokenCount;
     Equalized[] balances;
@@ -56,7 +57,7 @@ library PoolMath {
           uint256 feeAmount = isAdd //rounding?
             ? (taxbase * pool.totalFee) / FEE_MULTIPLIER
             : (taxbase * FEE_MULTIPLIER) / (FEE_MULTIPLIER - pool.totalFee) - taxbase;
-          if (updatedBalance <= feeAmount) revert PoolMath_ImpossibleRemove();
+          if (updatedBalance <= feeAmount) revert ImpossibleRemove();
           uint256 feeAdjustedBalance = updatedBalance - feeAmount;
           feeAdjustedBalances[i] = Equalized.wrap(feeAdjustedBalance);
         }

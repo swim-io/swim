@@ -33,13 +33,13 @@ task("deploy", "run the deployment script", async (_, hre) => {
 });
 
 task(
-  "updates",
+  "update",
   "Updates a given proxy contract to a new implementation via updateTo",
   async ({ proxy, logic, owner }, hre) => {
     const { ethers } = hre;
     const _owner = owner ? await ethers.getSigner(owner) : (await ethers.getSigners())[0];
     const _proxy = (await ethers.getContractAt("BlankLogic", proxy)).connect(_owner);
-    await _proxy.upgradeTo(logic);
+    await (await _proxy.upgradeTo(logic)).wait();
   }
 )
   .addPositionalParam("proxy", "address of the proxy that will be upgraded")
@@ -123,7 +123,7 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 1, // Optimize heavily for runtime gas cost rather than deployment gas cost
+        runs: 1000, // Optimize heavily for runtime gas cost rather than deployment gas cost
       },
       outputSelection: {
         "*": {

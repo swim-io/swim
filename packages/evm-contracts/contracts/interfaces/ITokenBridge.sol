@@ -28,4 +28,8 @@ interface ITokenBridge {
   function wrappedAsset(uint16 tokenChainId, bytes32 tokenAddress) external view returns (address);
 
   function wormhole() external view returns (IWormhole);
+
+  function attestToken(address tokenAddress, uint32 nonce) external payable returns (uint64 sequence);
+
+  function createWrapped(bytes memory encodedVm) external returns (address token);
 }

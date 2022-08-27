@@ -58,7 +58,9 @@ contract Routing is
     wormholeNonce = 0;
     tokenBridge = ITokenBridge(tokenBridgeAddress);
     wormhole = tokenBridge.wormhole();
-    swimUsdAddress = tokenBridge.wrappedAsset(WORMHOLE_SOLANA_CHAIN_ID, SWIM_USD_SOLANA_ADDRESS);
+    //swimUsdAddress = tokenBridge.wrappedAsset(WORMHOLE_SOLANA_CHAIN_ID, SWIM_USD_SOLANA_ADDRESS);
+    // temp for local testing while we don't have local solana swimUSD deployment
+    swimUsdAddress = 0x62011B0BA963e3669EC63dB1e0595F9a253c7D83;
   }
 
   function pause() public onlyOwner {

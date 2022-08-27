@@ -3180,6 +3180,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@improbable-eng/grpc-web-node-http-transport@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@improbable-eng/grpc-web-node-http-transport@npm:0.15.0"
+  peerDependencies:
+    "@improbable-eng/grpc-web": ">=0.13.0"
+  checksum: 03040326dc41a613c0439a57786480d186897ef332e615909b64df6586218d0b7f191fbacaa9a4b280d093292f641321c4e89da43ba790c34c0d05a7ce7f405d
+  languageName: node
+  linkType: hard
+
 "@improbable-eng/grpc-web@npm:^0.14.1":
   version: 0.14.1
   resolution: "@improbable-eng/grpc-web@npm:0.14.1"
@@ -6335,6 +6344,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@swim-io/evm-contracts@workspace:packages/evm-contracts"
   dependencies:
+    "@certusone/wormhole-sdk": ^0.6.0
+    "@improbable-eng/grpc-web-node-http-transport": ^0.15.0
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.2
     "@nomicfoundation/hardhat-network-helpers": ^1.0.3
     "@nomiclabs/hardhat-ethers": ^2.1.0

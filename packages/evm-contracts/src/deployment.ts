@@ -31,6 +31,7 @@ export async function deployment() {
       readonly signedTx: string;
     }
   );
+  console.log('deployed swimFactory');
 
   const wormholeTokenBridge = await (async () => {
     if (chainConfig.wormholeTokenBridge !== "MOCK") return chainConfig.wormholeTokenBridge;
@@ -40,9 +41,13 @@ export async function deployment() {
   })();
 
   await deployLogic("LpToken");
+  console.log('deployed lpToken');
   await deployLogic("Routing");
+  console.log('deployed routing');
   await deployLogic("Pool");
+  console.log('deployed pool');
   await deployProxy("Routing", [deployer.address, wormholeTokenBridge]);
+  console.log('deployed routing proxy');
 
   const dynamicallyDeployedTokens = (
     await Promise.all(
@@ -51,6 +56,8 @@ export async function deployment() {
       }))
     )
   ).reduce((acc, token) => ({ ...acc, ...token }), {});
+  console.log('deployed token');
+  console.log(dynamicallyDeployedTokens);
 
   for (const pool of chainConfig.pools ?? []) {
     const poolTokens = pool.tokens.map((token) =>

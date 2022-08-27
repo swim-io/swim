@@ -135,7 +135,9 @@ export async function deployProxy(
   const proxyAddress = await getProxyAddress(salt);
   if (await isDeployed(proxyAddress)) {
     const slot = await ethers.provider.getStorageAt(proxyAddress, ERC1967_IMPLEMENTATION_SLOT);
-    const actualLogic = ethers.utils.getAddress("0x" + slot.substring(2 + 2 * 12));
+    const actualLogic = ethers.utils.getAddress(slot);
+    //console.log("0x" + slot.substring(2 + 2 * 12));
+    //const actualLogic = ethers.utils.getAddress("0x" + slot.substring(2 + 2 * 12));
     if (actualLogic !== logic.address)
       throw Error(
         "Unexpected logic for Proxy " +
@@ -167,7 +169,9 @@ export async function deployProxy(
       );
   }
   else
-    await confirm(swimFactory.createProxy(logic.address, salt, initializeEncoded));
+    await confirm(swimFactory.createProxy(logic.address, salt, initializeEncoded,{
+      gasPrice: '200000000000'
+    }));
 
   return new Contract(proxyAddress, logic.interface, logic.provider);
 }
@@ -215,12 +219,18 @@ export async function deployRegular(
       await confirm(swimFactory["create(bytes,bytes32,bytes)"](
         bytecodeWithConstructorArgs,
         DEFAULTS.salt,
-        contractFactory.interface.encodeFunctionData(call.function, call.arguments)
+        contractFactory.interface.encodeFunctionData(call.function, call.arguments),
+        {
+          gasPrice: '200000000000'
+        }
       ));
     else
       await confirm(swimFactory["create(bytes,bytes32)"](
         bytecodeWithConstructorArgs,
         DEFAULTS.salt,
+        {
+          gasPrice: '200000000000'
+        },
       ));
   }
 
@@ -296,6 +306,7 @@ export async function deploySwimFactory(
 
     const { maxFeePerGas } = await ethers.getDefaultProvider().getFeeData();
     const maxCost = (await gasEstimate).mul(maxFeePerGas!);
+    console.log("maxCost", maxCost);
     await topUpGasOfFactoryDeployer(factoryDeployer.address, maxCost);
 
     const swimFactory = await (await swimFactoryFactory.deploy(owner.address)).deployed();

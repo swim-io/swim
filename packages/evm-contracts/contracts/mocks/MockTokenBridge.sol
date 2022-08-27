@@ -45,4 +45,12 @@ contract MockTokenBridge is ITokenBridge {
   function wormhole() external pure returns (IWormhole) {
     return WOMRHOLE;
   }
+
+  function attestToken(address /*tokenAddress*/, uint32 /*nonce*/) external payable returns (uint64 sequence) {
+    return 1;
+  }
+
+  function createWrapped(bytes memory /*encodedVm*/) external returns (address token) {
+    return swimUSD;
+  }
 }

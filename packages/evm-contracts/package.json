@@ -74,5 +74,9 @@
     "ts-node": "^10.9.1",
     "typechain": "^8.1.0",
     "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@certusone/wormhole-sdk": "^0.6.0",
+    "@improbable-eng/grpc-web-node-http-transport": "^0.15.0"
   }
 }

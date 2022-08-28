@@ -30,6 +30,7 @@ async function ledgerSend(
   if (payload.length > MAX_PAYLOAD) {
     while (payload.length - payloadOffset > MAX_PAYLOAD) {
       // TODO: Replace this use of `.slice` but be careful not to break anything
+      // eslint-disable-next-line deprecation/deprecation
       const chunk = payload.slice(payloadOffset, payloadOffset + MAX_PAYLOAD);
       payloadOffset += MAX_PAYLOAD;
       console.info(
@@ -53,11 +54,13 @@ async function ledgerSend(
   }
 
   // TODO: Replace this use of `.slice` but be careful not to break anything
+  // eslint-disable-next-line deprecation/deprecation
   const chunk = payload.slice(payloadOffset);
   console.info("send", p2.toString(16), chunk.length.toString(16), chunk);
   const reply = await transport.send(LEDGER_CLA, instruction, p1, p2, chunk);
 
   // TODO: Replace this use of `.slice` but be careful not to break anything
+  // eslint-disable-next-line deprecation/deprecation
   return reply.slice(0, reply.length - 2);
 }
 

@@ -1,11 +1,11 @@
 import { PublicKey } from "@solana/web3.js";
 import { EvmWeb3WalletAdapter } from "@swim-io/evm";
+import { solanaAdapters } from "@swim-io/solana";
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { Protocol } from "../../../config";
 import type { WalletAdapter } from "../../../models";
 import { WalletServiceId } from "../../../models";
-import { PhantomAdapter } from "../../../models/wallets/adapters/solana/PhantomAdapter";
 import { useNotification as notificationStore } from "../useNotification";
 import type { WalletAdapterState } from "../useWalletAdapter";
 import { useWalletAdapter } from "../useWalletAdapter";
@@ -16,7 +16,7 @@ const getProtocolAdapter = (state: WalletAdapterState, protocol: Protocol) =>
 const createWalletAdapter = (protocol: Protocol) =>
   protocol === Protocol.Evm
     ? new EvmWeb3WalletAdapter("serviceName", "serviceUrl", () => null)
-    : new PhantomAdapter();
+    : new solanaAdapters.PhantomAdapter();
 
 describe("useWalletAdapter", () => {
   it("initially returns empty adapters for EVM and Solana", () => {

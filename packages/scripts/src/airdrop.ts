@@ -14,13 +14,13 @@ import Decimal from "decimal.js";
 import { derivePath } from "ed25519-hd-key";
 import { ethers } from "ethers";
 import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
+import { hideBin } from "yargs/helpers"; // eslint-disable-line import/extensions
 
-import type { Config, EvmSpec, TokenSpec } from "./config";
+import type { Config, EcosystemId, EvmSpec, TokenSpec } from "./config";
 import { CONFIGS, Protocol } from "./config";
 import { Erc20Factory } from "./models";
 
-import "dotenv/config";
+import "dotenv/config"; // eslint-disable-line import/extensions
 
 type CliOptions = Awaited<ReturnType<typeof parseCliOptions>>;
 
@@ -29,7 +29,10 @@ const ENV = Env.Devnet;
 const { tokens, chains }: Config = CONFIGS[ENV];
 const DEVNET_GAS_TOKENS = Object.values(chains)
   .flat()
-  .map(({ ecosystem }) => `devnet-${ecosystem}-gas`);
+  .map(
+    ({ ecosystem }: { readonly ecosystem: EcosystemId }) =>
+      `devnet-${ecosystem}-gas`,
+  );
 
 const TOKEN_CHOICES = [
   ...tokens.map(({ id }: TokenSpec) => id),

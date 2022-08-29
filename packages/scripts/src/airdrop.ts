@@ -16,7 +16,7 @@ import { ethers } from "ethers";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import type { Config, EvmSpec, SolanaSpec, TokenSpec } from "./config";
+import type { Config, EvmSpec, TokenSpec } from "./config";
 import { CONFIGS, Protocol } from "./config";
 import { Erc20Factory } from "./models";
 
@@ -27,9 +27,9 @@ type CliOptions = Awaited<ReturnType<typeof parseCliOptions>>;
 // Get tokens and chains configs
 const ENV = Env.Devnet;
 const { tokens, chains }: Config = CONFIGS[ENV];
-const DEVNET_GAS_TOKENS = chains[Protocol.Evm].map(
-  ({ ecosystem }) => `devnet-${ecosystem}-gas`,
-);
+const DEVNET_GAS_TOKENS = Object.values(chains)
+  .flat()
+  .map(({ ecosystem }) => `devnet-${ecosystem}-gas`);
 
 const TOKEN_CHOICES = [
   ...tokens.map(({ id }: TokenSpec) => id),
@@ -281,7 +281,44 @@ async function transferGasOnEvm(args: CliOptions) {
   );
 }
 
-async function transferGasOnSolana(args: CliOptions) {}
+async function transferGasOnSolana(args: CliOptions) {
+  const receiverAddress = new PublicKey(args.receiverAddress);
+
+  const amount = args.amount;
+
+  const rpcUrl = clusterApiUrl("devnet");
+
+  const confirmOptions: ConfirmOptions = {
+    commitment: "confirmed",
+    preflightCommitment: "confirmed",
+  };
+
+  // Initialize a Solana Connection
+  const solanaConnection = new Connection(rpcUrl, confirmOptions);
+
+  console.info(
+    `Attempting to send ${amount} SOL on Solana to ${receiverAddress.toString()}`,
+  );
+
+  const txSignature = await solanaConnection.requestAirdrop(
+    receiverAddress,
+    new Decimal(amount).mul(LAMPORTS_PER_SOL).toNumber(),
+  );
+
+  const latestBlockhash = await solanaConnection.getLatestBlockhash();
+  await solanaConnection.confirmTransaction({
+    ...latestBlockhash,
+    signature: txSignature,
+  });
+
+  console.info(`Transaction signature: ${txSignature}.`);
+
+  const newBalance = new Decimal(
+    await solanaConnection.getBalance(receiverAddress),
+  ).dividedBy(LAMPORTS_PER_SOL);
+
+  console.info(`SOL balance: ${newBalance.toString()}`);
+}
 
 async function parseCliOptions() {
   return yargs(hideBin(process.argv))

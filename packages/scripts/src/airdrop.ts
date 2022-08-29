@@ -18,7 +18,7 @@ import { hideBin } from "yargs/helpers";
 
 import type { Config, EvmSpec, SolanaSpec, TokenSpec } from "./config";
 import { CONFIGS, Protocol } from "./config";
-import { Erc20Factory, EvmConnection } from "./models";
+import { Erc20Factory } from "./models";
 
 import "dotenv/config";
 
@@ -49,7 +49,9 @@ async function transferOnEvm(args: CliOptions) {
     ({ ecosystem }: EvmSpec) => ecosystem === tokenSpec.nativeEcosystemId,
   );
 
-  const evmProvider = EvmConnection.getIndexerProvider(ENV, chainSpec);
+  const evmProvider = new ethers.providers.JsonRpcProvider(
+    chainSpec.rpcUrls[0],
+  );
 
   // Hippo wallet (dev bank)
   const mnemonic = process.env.DEVNET_WALLET_EVM_MNEMONIC_PHRASE;

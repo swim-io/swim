@@ -1,9 +1,9 @@
 import { Env } from "@swim-io/core";
 import type { TokenConfig, TokenDetails } from "@swim-io/core";
-import { TokenProjectId } from "@swim-io/token-projects";
-import type { ReadonlyRecord } from "@swim-io/utils";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { TokenProjectId } from "@swim-io/token-projects";
+import type { ReadonlyRecord } from "@swim-io/utils";
 
 import type { EcosystemId } from "./ecosystem";
 import { isEcosystemEnabled } from "./ecosystem";

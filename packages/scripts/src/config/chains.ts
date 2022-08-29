@@ -2,7 +2,6 @@ import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import type { SolanaEcosystemId } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID, SolanaChainId } from "@swim-io/solana";
-
 import type { ReadonlyRecord } from "@swim-io/utils";
 
 import type { EcosystemId } from "./ecosystem";

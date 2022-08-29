@@ -1,22 +1,20 @@
-import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
-
-import { ethers } from "ethers";
+import { TOKEN_PROGRAM_ID, Token } from "@solana/spl-token";
+import type { ConfirmOptions } from "@solana/web3.js";
 import {
   Connection,
-  PublicKey,
-  ConfirmOptions,
-  clusterApiUrl,
   Keypair,
   LAMPORTS_PER_SOL,
+  PublicKey,
+  clusterApiUrl,
 } from "@solana/web3.js";
-import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import Decimal from "decimal.js";
-import * as bip39 from "bip39";
-import { derivePath } from "ed25519-hd-key";
-
 import { Env } from "@swim-io/core";
 import { findOrThrow } from "@swim-io/utils";
+import * as bip39 from "bip39";
+import Decimal from "decimal.js";
+import { derivePath } from "ed25519-hd-key";
+import { ethers } from "ethers";
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 
 import type { Config, EvmSpec, SolanaSpec, TokenSpec } from "./config";
 import { CONFIGS, Protocol } from "./config";
@@ -25,6 +23,18 @@ import { Erc20Factory, EvmConnection } from "./models";
 import "dotenv/config";
 
 type CliOptions = Awaited<ReturnType<typeof parseCliOptions>>;
+
+// Get tokens and chains configs
+const ENV = Env.Devnet;
+const { tokens, chains }: Config = CONFIGS[ENV];
+const DEVNET_GAS_TOKENS = chains[Protocol.Evm].map(
+  ({ ecosystem }) => `devnet-${ecosystem}-gas`,
+);
+
+const TOKEN_CHOICES = [
+  ...tokens.map(({ id }: TokenSpec) => id),
+  ...DEVNET_GAS_TOKENS,
+];
 
 async function transferOnEvm(args: CliOptions) {
   const tokenId = args.token;
@@ -42,8 +52,12 @@ async function transferOnEvm(args: CliOptions) {
   const evmProvider = EvmConnection.getIndexerProvider(ENV, chainSpec);
 
   // Hippo wallet (dev bank)
-  const mnemonic =
-    "track hybrid update chat play mimic warrior ozone liquid empower knee resist";
+  const mnemonic = process.env.DEVNET_WALLET_EVM_MNEMONIC_PHRASE;
+
+  if (mnemonic === undefined) {
+    throw new Error("Mnemonic is required but missing.");
+  }
+
   const senderWallet = ethers.Wallet.fromMnemonic(mnemonic.trim()).connect(
     evmProvider,
   );
@@ -52,7 +66,7 @@ async function transferOnEvm(args: CliOptions) {
   const contractAddress = tokenSpec.nativeDetails.address;
   const tokenContract = Erc20Factory.connect(contractAddress, senderWallet);
 
-  console.log(
+  console.info(
     `Attempting to send ${amount.toString()} ${tokenSpec.projectId} on ${
       tokenSpec.nativeEcosystemId
     } (${contractAddress}) from ${senderWallet.address} to ${receiverAddress}`,
@@ -64,7 +78,7 @@ async function transferOnEvm(args: CliOptions) {
   const gasTokensBalanceInWei = await evmProvider.getBalance(
     senderWallet.address,
   );
-  console.log(
+  console.info(
     `Sender (${senderWallet.address}) has ${senderTokenBalance} ${
       tokenSpec.projectId
     }. Gas tokens balance: ${ethers.utils.formatUnits(gasTokensBalanceInWei)}`,
@@ -79,11 +93,13 @@ async function transferOnEvm(args: CliOptions) {
   const txReceipt = await (
     await tokenContract.transfer(receiverAddress, numberOfTokens)
   ).wait();
-  console.log(
-    `Transaction completed with ${txReceipt.status} status. ID: ${txReceipt.transactionHash}. Gas used: ${txReceipt.gasUsed}`,
+  console.info(
+    `Transaction ID: ${
+      txReceipt.transactionHash
+    }. Gas used: ${txReceipt.gasUsed.toNumber()}`,
   );
 
-  console.log(
+  console.info(
     `Balance after. Sender: ${ethers.utils.formatUnits(
       await tokenContract.balanceOf(senderWallet.address),
     )} ${tokenSpec.projectId}. Receiver: ${ethers.utils.formatUnits(
@@ -97,14 +113,16 @@ async function transferOnEvm(args: CliOptions) {
 async function transferOnSolana(args: CliOptions) {
   async function getTokenAccountBalance(
     tokenAddress: PublicKey,
-  ): Promise<Decimal> {
+  ): Promise<string> {
     const tokenBalance = await solanaConnection.getTokenAccountBalance(
       tokenAddress,
     );
 
-    return new Decimal(tokenBalance.value.amount).div(
+    const decimal = new Decimal(tokenBalance.value.amount).div(
       Decimal.pow(10, tokenBalance.value.decimals),
     );
+
+    return decimal.toString();
   }
 
   const receiverAddress = new PublicKey(args.receiverAddress);
@@ -126,22 +144,26 @@ async function transferOnSolana(args: CliOptions) {
 
   // Gather required keys
   // Hippo dev
-  const mnemonic =
-    "under pond submit fix spoon chef always picture ugly farm helmet stable loud morning drastic swap appear wrong define clump donkey expand buyer ski";
+  const mnemonic = process.env.DEVNET_WALLET_SOLANA_MNEMONIC_PHRASE;
+
+  if (mnemonic === undefined) {
+    throw new Error("Mnemonic is required but missing.");
+  }
+
   const seed = await bip39.mnemonicToSeed(mnemonic, "");
   const path = `m/44'/501'/0'/0'`;
   const fromWallet = Keypair.fromSeed(
     derivePath(path, seed.toString("hex")).key,
   );
 
-  console.log(
+  console.info(
     `User wallet public key: ${path} => ${fromWallet.publicKey.toBase58()}`,
   );
 
   // Get a token contract address
   const tokenContractAddress = new PublicKey(tokenSpec.nativeDetails.address);
 
-  console.log(
+  console.info(
     `Attempting to send ${amount} ${
       tokenSpec.projectId
     } on ${tokenSpec.nativeEcosystemId.toString()} (${tokenContractAddress.toString()}) from ${fromWallet.publicKey.toString()} to ${receiverAddress.toString()}`,
@@ -166,7 +188,7 @@ async function transferOnSolana(args: CliOptions) {
   // Convert lamports to SOL
   const senderSolBalance = new Decimal(balance).dividedBy(LAMPORTS_PER_SOL);
 
-  console.log(
+  console.info(
     `Sender (${fromWallet.publicKey.toString()}) has ${await getTokenAccountBalance(
       fromTokenAccount.address,
     )} ${
@@ -184,13 +206,13 @@ async function transferOnSolana(args: CliOptions) {
       .toNumber(),
   );
 
-  console.log(`Transaction signature: ${txSignature}.`);
+  console.info(`Transaction signature: ${txSignature}.`);
 
   const newBalance = new Decimal(
     await solanaConnection.getBalance(fromWallet.publicKey),
   ).dividedBy(LAMPORTS_PER_SOL);
 
-  console.log(
+  console.info(
     `Balance after. Sender: ${await getTokenAccountBalance(
       fromTokenAccount.address,
     )} ${tokenSpec.projectId}. Receiver: ${await getTokenAccountBalance(
@@ -199,9 +221,65 @@ async function transferOnSolana(args: CliOptions) {
   );
 }
 
-// Get tokens and chains configs
-const ENV = Env.Devnet;
-const { tokens, chains }: Config = CONFIGS[ENV];
+async function transferGasOnEvm(args: CliOptions) {
+  const tokenId = args.token;
+  const receiverAddress = args.receiverAddress;
+  const amount = args.amount;
+
+  // Hippo wallet (dev bank)
+  const mnemonic = process.env.DEVNET_WALLET_EVM_MNEMONIC_PHRASE;
+
+  if (mnemonic === undefined) {
+    throw new Error("Mnemonic is required but missing.");
+  }
+
+  // Get a chain RPC URL
+  const chainSpec = findOrThrow(
+    chains[Protocol.Evm],
+    ({ ecosystem }: EvmSpec) => tokenId.includes(ecosystem),
+  );
+
+  const evmProvider = new ethers.providers.JsonRpcProvider(
+    chainSpec.rpcUrls[0],
+  );
+
+  const senderWallet = ethers.Wallet.fromMnemonic(mnemonic.trim()).connect(
+    evmProvider,
+  );
+
+  const senderTokenBalance = ethers.utils.formatUnits(
+    await senderWallet.getBalance(),
+  );
+
+  console.info(
+    `Sender (${senderWallet.address}) has ${senderTokenBalance} on ${chainSpec.chainName}.`,
+  );
+
+  const txResponse = await senderWallet.sendTransaction({
+    to: receiverAddress,
+    value: ethers.utils.parseEther(amount),
+  });
+
+  const txReceipt = await txResponse.wait();
+
+  console.info(
+    `Transaction ID: ${
+      txReceipt.transactionHash
+    }. Gas used: ${txReceipt.gasUsed.toNumber()}`,
+  );
+
+  console.info(
+    `Balance after. Sender: ${ethers.utils.formatUnits(
+      await senderWallet.getBalance(),
+    )}. Receiver: ${ethers.utils.formatUnits(
+      await evmProvider.getBalance(receiverAddress),
+    )}. Gas tokens: ${ethers.utils.formatUnits(
+      await evmProvider.getBalance(senderWallet.address),
+    )}`,
+  );
+}
+
+async function transferGasOnSolana(args: CliOptions) {}
 
 async function parseCliOptions() {
   return yargs(hideBin(process.argv))
@@ -209,7 +287,7 @@ async function parseCliOptions() {
     .usage("$0 [args]")
     .option("token", {
       type: "string",
-      choices: tokens.map(({ id }: TokenSpec) => id),
+      choices: TOKEN_CHOICES,
       demandOption: true,
     })
     .option("receiverAddress", {
@@ -221,11 +299,11 @@ async function parseCliOptions() {
       type: "string",
       default: "1",
     })
-    .check((argv, options) => {
+    .check((argv) => {
       const { token: tokenId, receiverAddress } = argv;
-      const tokenSpec = tokens.find(({ id }: TokenSpec) => id === tokenId);
+      const foundToken = TOKEN_CHOICES.find((id) => id === tokenId);
 
-      if (!tokenSpec) {
+      if (!foundToken) {
         throw new Error(`Token ${tokenId} not found.`);
       }
 
@@ -244,19 +322,20 @@ async function parseCliOptions() {
 
 async function main() {
   const args = await parseCliOptions();
+  const token = args.token;
 
-  const receiverAddress = args.receiverAddress;
-
-  if (
-    !args.token.startsWith("devnet-solana-") &&
-    ethers.utils.isAddress(receiverAddress)
-  ) {
-    await transferOnEvm(args);
-  } else if (
-    args.token.startsWith("devnet-solana-") &&
-    PublicKey.isOnCurve(new PublicKey(receiverAddress))
-  ) {
-    await transferOnSolana(args);
+  if (!token.startsWith("devnet-solana-")) {
+    if (DEVNET_GAS_TOKENS.includes(token)) {
+      await transferGasOnEvm(args);
+    } else {
+      await transferOnEvm(args);
+    }
+  } else {
+    if (DEVNET_GAS_TOKENS.includes(token)) {
+      await transferGasOnSolana(args);
+    } else {
+      await transferOnSolana(args);
+    }
   }
 }
 

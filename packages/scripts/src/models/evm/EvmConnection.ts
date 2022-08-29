@@ -1,8 +1,10 @@
 import { BscscanProvider } from "@ethers-ancillary/bsc";
-
-import { ethers } from "ethers";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
+import { ethers } from "ethers";
+
+import type { EvmSpec } from "../../config";
+import { isEcosystemEnabled } from "../../config";
 
 import { AuroraNetwork, AuroraScanProvider } from "./AuroraScanProvider";
 import { FantomNetwork, FtmScanProvider } from "./FtmScanProvider";
@@ -11,9 +13,6 @@ import { MoralisProvider } from "./MoralisProvider";
 import { PolkadotProvider } from "./PolkadotProvider";
 import { PolygonNetwork, PolygonScanProvider } from "./PolygonScanProvider";
 import { AvalancheNetwork, SnowTraceProvider } from "./SnowTraceProvider";
-
-import type { EvmSpec } from "../../config";
-import { isEcosystemEnabled } from "../../config";
 
 type EtherscanProvider = ethers.providers.EtherscanProvider;
 type TransactionReceipt = ethers.providers.TransactionReceipt;

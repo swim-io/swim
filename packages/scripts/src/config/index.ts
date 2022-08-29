@@ -1,11 +1,9 @@
 import { Env } from "@swim-io/core";
-
 import type { ReadonlyRecord } from "@swim-io/utils";
 
 import type { ChainsByProtocol } from "./chains";
-import type { TokenSpec } from "./tokens";
-
 import { CHAINS } from "./chains";
+import type { TokenSpec } from "./tokens";
 import { TOKENS } from "./tokens";
 
 export * from "./chains";

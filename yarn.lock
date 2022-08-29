@@ -5436,14 +5436,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@solana/spl-token@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "@solana/spl-token@npm:0.3.1"
+"@solana/spl-token@npm:^0.3.4":
+  version: 0.3.4
+  resolution: "@solana/spl-token@npm:0.3.4"
   dependencies:
     "@solana/buffer-layout": ^4.0.0
     "@solana/buffer-layout-utils": ^0.2.0
-    "@solana/web3.js": ^1.41.0
-  checksum: f8d4b897eeaebfcf7dd73fc9e328c5659125826ba2f3f421f62edc492923e57e59aed58dcefd8ef4c8e8c45fc80f992e3fd7d56d7ac3641f5f516bc99df14027
+    buffer: ^6.0.3
+  peerDependencies:
+    "@solana/web3.js": ^1.47.4
+  checksum: 66f2301425a57008112053a82194a154e5e405f079a4ac35fe8a84014d8b229c509d7eeb4e3f296e3ea3eb8525d1688e6053a578908e773b0ecbb9b0ef82e531
   languageName: node
   linkType: hard
 
@@ -5510,7 +5512,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@solana/web3.js@npm:^1.20.0, @solana/web3.js@npm:^1.22.0, @solana/web3.js@npm:^1.24.1, @solana/web3.js@npm:^1.35.1, @solana/web3.js@npm:^1.41.0, @solana/web3.js@npm:^1.42.0, @solana/web3.js@npm:^1.43.5, @solana/web3.js@npm:^1.44.0, @solana/web3.js@npm:^1.47.3, @solana/web3.js@npm:^1.50.1":
+"@solana/web3.js@npm:^1.20.0, @solana/web3.js@npm:^1.22.0, @solana/web3.js@npm:^1.24.1, @solana/web3.js@npm:^1.35.1, @solana/web3.js@npm:^1.42.0, @solana/web3.js@npm:^1.43.5, @solana/web3.js@npm:^1.44.0, @solana/web3.js@npm:^1.47.3, @solana/web3.js@npm:^1.50.1":
   version: 1.53.0
   resolution: "@solana/web3.js@npm:1.53.0"
   dependencies:
@@ -7403,7 +7405,7 @@ __metadata:
     "@sentry/tracing": ^7.9.0
     "@sentry/types": ^7.9.0
     "@sentry/webpack-plugin": ^1.19.0
-    "@solana/spl-token": ^0.3.1
+    "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.44.3
     "@storybook/addon-actions": ^6.5.10
     "@storybook/addon-docs": ^6.5.10

@@ -13,14 +13,9 @@ import {
 describe("useI18n", () => {
   describe("useIntlDateTimeFormatter", () => {
     const date = new Date(Date.UTC(2012, 11, 20, 13, 0, 0));
-    const dateTimeOptions = {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
+    const dateTimeOptions: Intl.DateTimeFormatOptions = {
+      dateStyle: "full",
+      timeStyle: "long",
       timeZone: "UTC",
     } as const;
 
@@ -37,7 +32,7 @@ describe("useI18n", () => {
         useIntlDateTimeFormatter(dateTimeOptions),
       );
       expect(result.current.format(date)).toBe(
-        "Thursday, December 20, 2012, 1:00:00 PM",
+        "Thursday, December 20, 2012 at 1:00:00 PM UTC",
       );
     });
 
@@ -48,7 +43,7 @@ describe("useI18n", () => {
         useIntlDateTimeFormatter(dateTimeOptions),
       );
       expect(result.current.format(date)).toBe(
-        "jeudi 20 décembre 2012, 13:00:00",
+        "jeudi 20 décembre 2012 à 13:00:00 UTC",
       );
     });
 
@@ -59,7 +54,7 @@ describe("useI18n", () => {
         useIntlDateTimeFormatter(dateTimeOptions),
       );
       expect(result.current.format(date)).toBe(
-        "Thursday, December 20, 2012, 1:00:00 PM",
+        "Thursday, December 20, 2012 at 1:00:00 PM UTC",
       );
     });
   });

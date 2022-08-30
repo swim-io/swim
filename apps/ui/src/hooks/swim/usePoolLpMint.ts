@@ -1,4 +1,4 @@
-import type { MintInfo } from "@solana/spl-token";
+import type { Mint } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
@@ -15,13 +15,13 @@ import { useSolanaConnection } from "../solana";
 
 export const usePoolLpMints = (
   poolSpecs: readonly PoolSpec[],
-): readonly UseQueryResult<MintInfo | null, Error>[] => {
+): readonly UseQueryResult<Mint | null, Error>[] => {
   const { env } = useEnvironment();
   const { tokens } = useEnvironment(selectConfig, shallow);
   const solanaConnection = useSolanaConnection();
 
   return useQueries(
-    poolSpecs.map((poolSpec, i) => ({
+    poolSpecs.map((poolSpec) => ({
       queryKey: ["poolLpMintAccount", env, poolSpec.id],
       queryFn: async () => {
         if (poolSpec.ecosystem !== SOLANA_ECOSYSTEM_ID) {
@@ -31,18 +31,22 @@ export const usePoolLpMints = (
           tokens,
           (tokenSpec) => tokenSpec.id === poolSpec.lpToken,
         );
-        const lpTokenMintAddress = getSolanaTokenDetails(lpToken).address;
-        const account = await solanaConnection.getAccountInfo(
-          new PublicKey(lpTokenMintAddress),
+        const lpTokenMintPubkey = new PublicKey(
+          getSolanaTokenDetails(lpToken).address,
         );
-        return account ? deserializeMint(account.data) : null;
+        const account = await solanaConnection.getAccountInfo(
+          lpTokenMintPubkey,
+        );
+        return account
+          ? deserializeMint(lpTokenMintPubkey, account.data)
+          : null;
       },
     })),
     // useQueries does not support types without casting
     // See https://github.com/tannerlinsley/react-query/issues/1675
-  ) as readonly UseQueryResult<MintInfo | null, Error>[];
+  ) as readonly UseQueryResult<Mint | null, Error>[];
 };
 
 export const usePoolLpMint = (
   poolSpec: PoolSpec,
-): UseQueryResult<MintInfo | null, Error> => usePoolLpMints([poolSpec])[0];
+): UseQueryResult<Mint | null, Error> => usePoolLpMints([poolSpec])[0];

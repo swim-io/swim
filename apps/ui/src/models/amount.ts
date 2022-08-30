@@ -1,10 +1,8 @@
-import type { u64 } from "@solana/spl-token";
 import type { TokenDetails } from "@swim-io/core";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
-import { u64ToDecimal } from "../amounts";
 import type { EcosystemId, TokenSpec } from "../config";
 import { getTokenDetailsForEcosystem } from "../config";
 import { fallbackLanguageIfNotSupported, i18next } from "../i18n";
@@ -30,14 +28,6 @@ export class Amount {
     return new Amount(tokenSpec, value);
   }
 
-  static fromU64(
-    tokenSpec: TokenSpec,
-    value: u64,
-    ecosystemId: EcosystemId,
-  ): Amount {
-    return this.fromAtomic(tokenSpec, u64ToDecimal(value), ecosystemId);
-  }
-
   static fromAtomic(
     tokenSpec: TokenSpec,
     value: Decimal,
@@ -55,7 +45,7 @@ export class Amount {
 
   static fromAtomicBn(
     tokenSpec: TokenSpec,
-    value: BN,
+    value: BN | bigint,
     ecosystemId: EcosystemId,
   ): Amount {
     return Amount.fromAtomic(

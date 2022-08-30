@@ -1,3 +1,5 @@
+const path = require("path");
+
 module.exports = {
   staticDirs: ["../public"],
   stories: ["../src/**/*.stories.@(js|jsx|ts|tsx)"],
@@ -25,6 +27,13 @@ module.exports = {
     config.externals = {
       "@certusone/wormhole-sdk": "{}",
     };
+
+    config.resolve.alias["@solana/spl-token"] = path.resolve(
+      "node_modules/@solana/spl-token/lib/cjs",
+    );
+    config.resolve.alias["@solana/buffer-layout-utils"] = path.resolve(
+      "node_modules/@solana/buffer-layout-utils/lib/cjs",
+    );
     return config;
   },
 };

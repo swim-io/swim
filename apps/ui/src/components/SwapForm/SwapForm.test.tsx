@@ -1,4 +1,3 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
@@ -21,6 +20,7 @@ import {
   useSwapFeesEstimationQuery,
   useUserNativeBalances,
 } from "../../hooks";
+import type { TokenAccount } from "../../models";
 import { mockOf, renderWithAppContext } from "../../testUtils";
 
 import { SwapForm } from "./SwapForm";

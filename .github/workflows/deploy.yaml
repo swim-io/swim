@@ -28,6 +28,8 @@ jobs:
     # needs: [verify]
 
     env:
+      # For a yet unknown reason, actions/cache for the 'apps/ui/build' folder makes that folder permanently missing.
+      # Copy of 'apps/ui/build' to the $BUILD_CACHE_PATH fixes build, cache, and direct upload to Cloudflare.
       BUILD_CACHE_PATH: ~/.ui-build-cache
       ACTIONS_STEP_DEBUG: true
 

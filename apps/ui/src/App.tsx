@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/react";
 import type { ReactElement } from "react";
+import { withTranslation } from "react-i18next";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
 import "./App.scss";
@@ -88,4 +89,6 @@ function App(): ReactElement {
   );
 }
 
-export default App;
+// withTranslation will make sure every component under App is loaded AFTER translation is downloaded
+// it is required because some functions fetch translations directly from the `i18next` instance instead of via a `useTranslation` hook. Fetching from the `i18next` instance does not wait until the translation is downloaded.
+export default withTranslation()(App);

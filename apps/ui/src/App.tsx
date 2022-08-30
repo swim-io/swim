@@ -89,6 +89,6 @@ function App(): ReactElement {
   );
 }
 
-// withTranslation will make sure every components under App are loaded AFTER translation is downloaded
+// withTranslation will make sure every component under App is loaded AFTER translation is downloaded
 // it is required because some functions fetch translation directly from `i18next` instance instead of from useTranslation hook. Fetching from `i18next` instance does not wait until translation is downloaded.
 export default withTranslation()(App);

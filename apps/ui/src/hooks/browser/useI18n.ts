@@ -84,7 +84,11 @@ export const useIntlListSeparators = (
   };
 };
 
-export const useIntlNumberSeparators = () => {
+export const useIntlNumberSeparators = (): {
+  readonly decimal: string;
+  /** some locales do not have group separator such as `es` */
+  readonly group: string | null;
+} => {
   const numberFormatter = useIntlNumberFormatter();
 
   return useMemo(() => {
@@ -97,10 +101,8 @@ export const useIntlNumberSeparators = () => {
       throw new Error("Could not find decimal separator");
     }
 
-    const groupSeparator = parts.find((part) => part.type === "group")?.value;
-    if (!groupSeparator) {
-      throw new Error("Could not find group separator");
-    }
+    const groupSeparator =
+      parts.find((part) => part.type === "group")?.value || null;
 
     return {
       decimal: decimalSeparator,

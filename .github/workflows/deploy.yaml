@@ -28,7 +28,7 @@ jobs:
     # needs: [verify]
 
     env:
-      BUILD_PATH: ./apps/ui/build
+      BUILD_CACHE_PATH: ~/.ui-build-cache
       ACTIONS_STEP_DEBUG: true
 
     steps:
@@ -38,6 +38,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+          # This caches Yarn cache (yarn config get cacheFolder) but not node_modules
+          # https://github.com/actions/setup-node/issues/325#issuecomment-1120962692
           cache: "yarn"
       - name: Install dependencies
         run: yarn install --immutable --network-timeout 180000
@@ -57,14 +59,15 @@ jobs:
             --compressed |
             jq -r '.result.deployment_configs.production.env_vars | to_entries[] | "\(.key)=\(.value.value)"' > .env
 
-      - uses: actions/cache@v3
+      - name: Cache UI build directory
+        uses: actions/cache@v3
         with:
-          path: ${{ env.BUILD_PATH }}
-          key: swim-ui-build-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}-${{ github.head_ref || github.ref_name }}
+          path: ${{ env.BUILD_CACHE_PATH }}
+          key: ui-build-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}-${{ github.head_ref || github.ref_name }}
           restore-keys: |
-            swim-ui-build-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}-
-            swim-ui-build-${{ hashFiles('**/yarn.lock') }}-
-            swim-ui-build-
+            ui-build-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}-
+            ui-build-${{ hashFiles('**/yarn.lock') }}-
+            ui-build-
 
       - name: Build UI and direct upload to Cloudflare Pages
         env:
@@ -75,7 +78,12 @@ jobs:
           # Ignore missing optional dependencies of moralis we don't use ('@walletconnect/web3-provider', '@web3auth/web3auth', 'magic-sdk')
           CI: "false"
         run: |
-          ls -la ./apps/ui/
+          ls -la apps/ui/
+
           yarn release-ui
-          ls -la ${{ env.BUILD_PATH }}
-          npx --yes wrangler@2 pages publish ${{ env.BUILD_PATH }} --project-name=test-direct-upload-swim-ui --branch=${{ github.head_ref || github.ref_name }}
+
+          ls -la apps/ui/
+          cp -r apps/ui/build ${{ env.BUILD_CACHE_PATH }} || : # Continue on error
+          ls -la ${{ env.BUILD_CACHE_PATH }} || : # Continue on error
+
+          npx --yes wrangler@2 pages publish ${{ env.BUILD_CACHE_PATH }} --project-name=test-direct-upload-swim-ui --branch=${{ github.head_ref || github.ref_name }}

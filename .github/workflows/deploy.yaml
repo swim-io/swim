@@ -33,12 +33,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: "yarn"
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable --network-timeout 180000
 
       - name: Get production environment variables from Cloudflare Pages
         env:
@@ -53,24 +55,27 @@ jobs:
             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
             -H "Content-Type: application/json" \
             --compressed |
-            jq -r '.result.deployment_configs.production.env_vars | to_entries[] | "\(.key)=\(.value.value)"' >> "$GITHUB_ENV"
+            jq -r '.result.deployment_configs.production.env_vars | to_entries[] | "\(.key)=\(.value.value)"' > .env
 
       - uses: actions/cache@v3
-        id: cache-build
         with:
           path: ${{ env.BUILD_PATH }}
-          key: swim-ui-build-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/*.[jt]sx?') }}-${{ github.head_ref || github.ref_name }}
+          key: swim-ui-build-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}-${{ github.head_ref || github.ref_name }}
           restore-keys: |
-            swim-ui-build-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/*.[jt]sx?') }}-
+            swim-ui-build-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}-
             swim-ui-build-${{ hashFiles('**/yarn.lock') }}-
             swim-ui-build-
 
       - name: Build UI and direct upload to Cloudflare Pages
         env:
-          NODE_OPTIONS: "--max_old_space_size=8192"
+          NODE_OPTIONS: "--max_old_space_size=4096"
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          SKIP_SENTRY: "true"
+          # Ignore missing optional dependencies of moralis we don't use ('@walletconnect/web3-provider', '@web3auth/web3auth', 'magic-sdk')
+          CI: "false"
         run: |
+          ls -la ./apps/ui/
           yarn release-ui
           ls -la ${{ env.BUILD_PATH }}
           npx --yes wrangler@2 pages publish ${{ env.BUILD_PATH }} --project-name=test-direct-upload-swim-ui --branch=${{ github.head_ref || github.ref_name }}

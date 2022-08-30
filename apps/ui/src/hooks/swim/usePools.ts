@@ -1,4 +1,3 @@
-import type { MintInfo, AccountInfo as TokenAccount } from "@solana/spl-token";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow, isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
@@ -8,7 +7,7 @@ import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import type { PoolState } from "../../models";
+import type { Mint, PoolState, TokenAccount } from "../../models";
 import {
   findTokenAccountForMint,
   getPoolUsdValue,
@@ -29,7 +28,7 @@ export interface PoolData {
   readonly lpToken: TokenSpec;
   readonly tokens: readonly TokenSpec[];
   readonly state: PoolState | null;
-  readonly poolLpMint: MintInfo | null;
+  readonly poolLpMint: Mint | null;
   readonly poolTokenAccounts: readonly (TokenAccount | null)[] | null;
   readonly userLpTokenAccount: TokenAccount | null;
   readonly poolUsdValue: Decimal | null;
@@ -42,7 +41,7 @@ const constructPool = (
   walletAddress: string | null,
   splTokenAccounts: readonly TokenAccount[] | null,
   poolState: PoolState | null = null,
-  poolLpMint: MintInfo | null = null,
+  poolLpMint: Mint | null = null,
   poolTokenAccounts: readonly TokenAccount[] | null = null,
 ): PoolData => {
   const lpToken = findOrThrow(

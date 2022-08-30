@@ -6,6 +6,7 @@ module.exports = {
   babel: {
     plugins: [
       "@babel/plugin-proposal-nullish-coalescing-operator",
+      "@babel/plugin-proposal-optional-chaining",
       ...whenTest(
         () => [
           // Without this EUI breaks. See https://github.com/elastic/eui/issues/3973
@@ -29,6 +30,13 @@ module.exports = {
   },
   webpack: {
     configure: (webpackConfig) => {
+      // Handle ESM
+      webpackConfig.module.rules.push({
+        test: /\.mjs$/,
+        include: /node_modules\/@solana\/(buffer-layout-utils|spl-token)/,
+        type: "javascript/auto",
+      });
+
       const wasmExtensionRegExp = /\.wasm$/;
       webpackConfig.resolve.extensions.push(".wasm");
 

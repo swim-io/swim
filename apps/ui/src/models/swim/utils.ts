@@ -1,4 +1,3 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
@@ -9,6 +8,7 @@ import Decimal from "decimal.js";
 import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../amount";
+import type { TokenAccount } from "../solana";
 
 import type { InteractionSpec, InteractionSpecV2 } from "./interaction";
 import { InteractionType } from "./interaction";
@@ -197,7 +197,7 @@ export const getPoolUsdValue = (
           throw new Error("Token spec not found");
         }
         return acc.add(
-          Amount.fromU64(
+          Amount.fromAtomicBn(
             tokenSpec,
             account.amount,
             SOLANA_ECOSYSTEM_ID,

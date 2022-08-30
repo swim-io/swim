@@ -1,15 +1,15 @@
-import type { AccountInfo as TokenAccountInfo } from "@solana/spl-token";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 
 import type { EcosystemId, TokenSpec } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
+import type { TokenAccount } from "../../models";
 import { Amount } from "../../models";
 import { useErc20BalanceQuery } from "../evm";
 
 export const useUserLpBalances = (
   lpTokenSpec: TokenSpec,
-  userLpTokenAccountSolana: TokenAccountInfo | null,
+  userLpTokenAccountSolana: TokenAccount | null,
 ): Record<EcosystemId, Amount | null> => {
   // solana
   const userLpBalanceSolana = userLpTokenAccountSolana

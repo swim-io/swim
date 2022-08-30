@@ -1,0 +1,5 @@
+!.*
+.storybook/
+storybook-static/
+build/
+node_modules/

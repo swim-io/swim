@@ -1,10 +1,12 @@
 import { EuiButton, EuiSpacer } from "@elastic/eui";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
+import { Env } from "@swim-io/core";
+import { sleep } from "@swim-io/utils";
 import type { FC } from "react";
 import { useEffect } from "react";
 import { useMutation } from "react-query";
 
-import { Env, useEnvironment } from "../../../core/store";
+import { useEnvironment } from "../../../core/store";
 import {
   ADD_INTERACTION_STATE_ETHEREUM_COMPLETED,
   ADD_INTERACTION_STATE_ETHEREUM_COMPLETED_WITH_APPROVALS,
@@ -52,20 +54,19 @@ import {
   SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT,
 } from "../../../fixtures/swim/interactionStateV2";
 import { INTERACTION_MUTATION_KEY_V2 } from "../../../hooks";
-import { sleep } from "../../../utils";
 
 import { InteractionStateComponentV2 } from "./InteractionStateComponentV2";
 
 // TODO eventually remove when tokens are available in mainnet?
 const EnvSwitcher: FC<any> = ({ children }) => {
-  const { env, setEnv, setCustomLocalnetIp } = useEnvironment();
+  const { env, setEnv, setCustomIp } = useEnvironment();
 
   useEffect(() => {
     if (env !== Env.Devnet) {
-      setCustomLocalnetIp("12.12.14.1");
+      setCustomIp("12.12.14.1");
       setEnv(Env.Devnet);
     }
-  }, [env, setEnv, setCustomLocalnetIp]);
+  }, [env, setEnv, setCustomIp]);
 
   if (env !== Env.Devnet) return <p>Please wait while we switch to Devnet</p>;
 

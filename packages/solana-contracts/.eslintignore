@@ -1,0 +1,7 @@
+!.*
+artifacts/
+build/
+dist/
+node_modules/
+target/
+types/

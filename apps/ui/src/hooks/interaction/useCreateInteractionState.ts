@@ -1,10 +1,13 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type PoolMath from "@swim-io/pool-math";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { isEachNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
 import type { Config, TokenSpec } from "../../config";
-import { EcosystemId, getSolanaTokenDetails } from "../../config";
+import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type {
@@ -27,8 +30,6 @@ import {
   getRequiredTokens,
   getTokensByPool,
 } from "../../models";
-import type { ReadonlyRecord } from "../../utils";
-import { isEachNotNull } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 import { usePoolMathByPoolIds } from "../swim";
@@ -66,23 +67,23 @@ const getToSolanaTransferAmounts = (
 ): readonly Amount[] => {
   switch (interaction.type) {
     case InteractionType.Swap:
-      return interaction.params.exactInputAmount.tokenSpec.nativeEcosystem !==
-        EcosystemId.Solana
+      return interaction.params.exactInputAmount.tokenSpec.nativeEcosystemId !==
+        SOLANA_ECOSYSTEM_ID
         ? [interaction.params.exactInputAmount]
         : [];
     case InteractionType.Add:
       return interaction.params.inputAmounts.filter(
         (amount) =>
-          amount.tokenSpec.nativeEcosystem !== EcosystemId.Solana &&
+          amount.tokenSpec.nativeEcosystemId !== SOLANA_ECOSYSTEM_ID &&
           !amount.isZero(),
       );
     case InteractionType.RemoveExactBurn:
     case InteractionType.RemoveUniform:
-      return interaction.lpTokenSourceEcosystem !== EcosystemId.Solana
+      return interaction.lpTokenSourceEcosystem !== SOLANA_ECOSYSTEM_ID
         ? [interaction.params.exactBurnAmount]
         : [];
     case InteractionType.RemoveExactOutput:
-      return interaction.lpTokenSourceEcosystem !== EcosystemId.Solana
+      return interaction.lpTokenSourceEcosystem !== SOLANA_ECOSYSTEM_ID
         ? [interaction.params.maximumBurnAmount]
         : [];
   }
@@ -93,7 +94,7 @@ export const createToSolanaTransfers = (
 ): readonly ToSolanaTransferState[] => {
   return getToSolanaTransferAmounts(interaction).map((amount) => {
     const fromToken = amount.tokenSpec;
-    const fromEcosystem = fromToken.nativeEcosystem;
+    const fromEcosystem = fromToken.nativeEcosystemId;
     return {
       token: fromToken,
       value: amount.toHuman(fromEcosystem),
@@ -142,7 +143,7 @@ const getFromSolanaTransferTokenAndValues = (
     case InteractionType.Swap:
     case InteractionType.RemoveExactBurn:
       return interaction.params.minimumOutputAmount.tokenSpec
-        .nativeEcosystem !== EcosystemId.Solana
+        .nativeEcosystemId !== SOLANA_ECOSYSTEM_ID
         ? [
             {
               token: interaction.params.minimumOutputAmount.tokenSpec,
@@ -151,7 +152,7 @@ const getFromSolanaTransferTokenAndValues = (
           ]
         : [];
     case InteractionType.Add:
-      return interaction.lpTokenTargetEcosystem !== EcosystemId.Solana
+      return interaction.lpTokenTargetEcosystem !== SOLANA_ECOSYSTEM_ID
         ? [
             {
               token: interaction.params.minimumMintAmount.tokenSpec,
@@ -162,7 +163,8 @@ const getFromSolanaTransferTokenAndValues = (
     case InteractionType.RemoveUniform:
       return interaction.params.minimumOutputAmounts
         .filter(
-          (amount) => amount.tokenSpec.nativeEcosystem !== EcosystemId.Solana,
+          (amount) =>
+            amount.tokenSpec.nativeEcosystemId !== SOLANA_ECOSYSTEM_ID,
         )
         .map((amount) => ({
           token: amount.tokenSpec,
@@ -172,12 +174,12 @@ const getFromSolanaTransferTokenAndValues = (
       return interaction.params.exactOutputAmounts
         .filter(
           (amount) =>
-            amount.tokenSpec.nativeEcosystem !== EcosystemId.Solana &&
+            amount.tokenSpec.nativeEcosystemId !== SOLANA_ECOSYSTEM_ID &&
             !amount.isZero(),
         )
         .map((amount) => ({
           token: amount.tokenSpec,
-          value: amount.toHuman(amount.tokenSpec.nativeEcosystem),
+          value: amount.toHuman(amount.tokenSpec.nativeEcosystemId),
         }));
   }
 };

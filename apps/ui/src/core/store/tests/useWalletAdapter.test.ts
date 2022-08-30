@@ -19,7 +19,7 @@ const createWalletAdapter = (protocol: Protocol) =>
     : new PhantomAdapter();
 
 describe("useWalletAdapter", () => {
-  it("initially returns empty adapters for EVM and Solana", async () => {
+  it("initially returns empty adapters for EVM and Solana", () => {
     const { result } = renderHook(() => useWalletAdapter());
     expect(result.current.evm).toBeNull();
     expect(result.current.solana).toBeNull();

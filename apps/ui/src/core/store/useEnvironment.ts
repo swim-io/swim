@@ -1,49 +1,39 @@
+import type { Env } from "@swim-io/core";
+import { isValidEnv } from "@swim-io/core";
 import { produce } from "immer";
 import create from "zustand";
-import type { GetState, SetState, StoreApi } from "zustand";
 import type { StateStorage } from "zustand/middleware";
 import { persist } from "zustand/middleware.js";
 
-import { DEFAULT_ENV, isValidEnv } from "../../config";
+import { DEFAULT_ENV } from "../selectors";
 
-export enum Env {
-  Mainnet = "Mainnet",
-  Devnet = "Devnet",
-  Localnet = "Localnet",
-  CustomLocalnet = "CustomLocalnet",
-}
 export interface EnvironmentState {
   readonly env: Env;
-  readonly customLocalnetIp: string | null;
+  readonly customIp: string | null;
   readonly setEnv: (newEnv: Env) => void;
-  readonly setCustomLocalnetIp: (ip: string | null) => void;
+  readonly setCustomIp: (ip: string | null) => void;
 }
 
 export const useEnvironment = create(
-  persist<EnvironmentState>(
-    (
-      set: SetState<EnvironmentState>,
-      get: GetState<EnvironmentState>,
-      api: StoreApi<EnvironmentState>,
-    ) => ({
+  // eslint-disable-next-line functional/prefer-readonly-type
+  persist<EnvironmentState, [], [], Pick<EnvironmentState, "env" | "customIp">>(
+    (set, get) => ({
       env: DEFAULT_ENV,
-      customLocalnetIp: null,
+      customIp: null,
       setEnv: (newEnv: Env) => {
         set(
           produce<EnvironmentState>((draft) => {
-            if (api.getState().customLocalnetIp !== null) {
+            if (get().customIp !== null) {
               draft.env = newEnv;
             }
           }),
         );
       },
-      setCustomLocalnetIp: (ip: string | null) => {
+      setCustomIp: (ip: string | null) => {
         set(
           produce<EnvironmentState>((draft) => {
-            draft.customLocalnetIp = ip;
-            draft.env = isValidEnv(api.getState().env)
-              ? api.getState().env
-              : DEFAULT_ENV;
+            draft.customIp = ip;
+            draft.env = isValidEnv(get().env) ? get().env : DEFAULT_ENV;
           }),
         );
       },
@@ -53,19 +43,24 @@ export const useEnvironment = create(
       getStorage: (): StateStorage => localStorage,
       partialize: (state: EnvironmentState) => ({
         env: state.env,
-        customLocalnetIp: state.customLocalnetIp,
+        customIp: state.customIp,
       }),
       merge: (
-        persistedState: any, // TODO: Set type to unknown and validate
+        persistedState: unknown,
         currentState: EnvironmentState,
       ): EnvironmentState => {
-        const { env, customLocalnetIp } = persistedState;
-        if (isValidEnv(env)) {
-          if (customLocalnetIp !== null) {
-            return { ...currentState, env, customLocalnetIp };
+        if (typeof persistedState !== "object" || persistedState === null) {
+          return currentState;
+        }
+
+        const { env, customIp } = persistedState as Record<string, unknown>;
+        if (typeof env === "string" && isValidEnv(env)) {
+          if (typeof customIp === "string") {
+            return { ...currentState, env, customIp };
           }
           return { ...currentState, ...persistedState };
         }
+
         return currentState;
       },
     },

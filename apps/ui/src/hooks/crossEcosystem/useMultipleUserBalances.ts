@@ -1,10 +1,12 @@
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 
-import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import type { EcosystemId, TokenSpec } from "../../config";
+import { getTokenDetailsForEcosystem } from "../../config";
 import { Amount, findTokenAccountForMint } from "../../models";
-import type { ReadonlyRecord } from "../../utils";
 import { useErc20BalancesQuery } from "../evm";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 
@@ -12,7 +14,7 @@ const getContractAddressesByEcosystem = (
   tokenSpecs: readonly TokenSpec[],
 ): ReadonlyRecord<EcosystemId, readonly string[]> =>
   tokenSpecs.reduce<ReadonlyRecord<EcosystemId, readonly string[]>>(
-    (accumulator, { detailsByEcosystem }) => {
+    (accumulator, tokenSpec) => {
       const [
         solanaAddress,
         ethereumAddress,
@@ -24,58 +26,59 @@ const getContractAddressesByEcosystem = (
         karuraAddress,
         acalaAddress,
       ] = [
-        EcosystemId.Solana,
-        EcosystemId.Ethereum,
-        EcosystemId.Bnb,
-        EcosystemId.Avalanche,
-        EcosystemId.Polygon,
-        EcosystemId.Aurora,
-        EcosystemId.Fantom,
-        EcosystemId.Karura,
-        EcosystemId.Acala,
+        SOLANA_ECOSYSTEM_ID,
+        EvmEcosystemId.Ethereum,
+        EvmEcosystemId.Bnb,
+        EvmEcosystemId.Avalanche,
+        EvmEcosystemId.Polygon,
+        EvmEcosystemId.Aurora,
+        EvmEcosystemId.Fantom,
+        EvmEcosystemId.Karura,
+        EvmEcosystemId.Acala,
       ].map(
-        (ecosystemId) => detailsByEcosystem.get(ecosystemId)?.address ?? null,
+        (ecosystemId) =>
+          getTokenDetailsForEcosystem(tokenSpec, ecosystemId)?.address ?? null,
       );
       return {
-        [EcosystemId.Solana]: solanaAddress
+        [SOLANA_ECOSYSTEM_ID]: solanaAddress
           ? [...accumulator.solana, solanaAddress]
           : accumulator.solana,
-        [EcosystemId.Ethereum]: ethereumAddress
+        [EvmEcosystemId.Ethereum]: ethereumAddress
           ? [...accumulator.ethereum, ethereumAddress]
           : accumulator.ethereum,
-        [EcosystemId.Bnb]: bnbAddress
+        [EvmEcosystemId.Bnb]: bnbAddress
           ? [...accumulator.bnb, bnbAddress]
           : accumulator.bnb,
-        [EcosystemId.Avalanche]: avalancheAddress
+        [EvmEcosystemId.Avalanche]: avalancheAddress
           ? [...accumulator.avalanche, avalancheAddress]
           : accumulator.avalanche,
-        [EcosystemId.Polygon]: polygonAddress
+        [EvmEcosystemId.Polygon]: polygonAddress
           ? [...accumulator.polygon, polygonAddress]
           : accumulator.polygon,
-        [EcosystemId.Aurora]: auroraAddress
+        [EvmEcosystemId.Aurora]: auroraAddress
           ? [...accumulator.aurora, auroraAddress]
           : accumulator.aurora,
-        [EcosystemId.Fantom]: fantomAddress
+        [EvmEcosystemId.Fantom]: fantomAddress
           ? [...accumulator.fantom, fantomAddress]
           : accumulator.fantom,
-        [EcosystemId.Karura]: karuraAddress
+        [EvmEcosystemId.Karura]: karuraAddress
           ? [...accumulator.karura, karuraAddress]
           : accumulator.karura,
-        [EcosystemId.Acala]: acalaAddress
+        [EvmEcosystemId.Acala]: acalaAddress
           ? [...accumulator.acala, acalaAddress]
           : accumulator.acala,
       };
     },
     {
-      [EcosystemId.Solana]: [],
-      [EcosystemId.Ethereum]: [],
-      [EcosystemId.Bnb]: [],
-      [EcosystemId.Avalanche]: [],
-      [EcosystemId.Polygon]: [],
-      [EcosystemId.Aurora]: [],
-      [EcosystemId.Fantom]: [],
-      [EcosystemId.Karura]: [],
-      [EcosystemId.Acala]: [],
+      [SOLANA_ECOSYSTEM_ID]: [],
+      [EvmEcosystemId.Ethereum]: [],
+      [EvmEcosystemId.Bnb]: [],
+      [EvmEcosystemId.Avalanche]: [],
+      [EvmEcosystemId.Polygon]: [],
+      [EvmEcosystemId.Aurora]: [],
+      [EvmEcosystemId.Fantom]: [],
+      [EvmEcosystemId.Karura]: [],
+      [EvmEcosystemId.Acala]: [],
     },
   );
 
@@ -85,7 +88,7 @@ const getEvmTokenIdAndBalance = (
   balances: readonly UseQueryResult<Decimal | null, Error>[],
   contractAddresses: readonly string[],
 ): readonly [string, Amount | null] => {
-  const address = tokenSpec.detailsByEcosystem.get(ecosystemId)?.address;
+  const address = getTokenDetailsForEcosystem(tokenSpec, ecosystemId)?.address;
   if (!address) {
     return [tokenSpec.id, null];
   }
@@ -106,6 +109,7 @@ const getEvmTokenIdAndBalance = (
 
 export const useMultipleUserBalances = (
   tokenSpecs: readonly TokenSpec[],
+  specificEcosystem?: EcosystemId,
 ): ReadonlyMap<string, Amount | null> => {
   const {
     solana,
@@ -130,24 +134,28 @@ export const useMultipleUserBalances = (
       : null,
   );
   const ethereumBalances = useErc20BalancesQuery(
-    EcosystemId.Ethereum,
+    EvmEcosystemId.Ethereum,
     ethereum,
   );
-  const bnbBalances = useErc20BalancesQuery(EcosystemId.Bnb, bnb);
+  const bnbBalances = useErc20BalancesQuery(EvmEcosystemId.Bnb, bnb);
   const avalancheBalances = useErc20BalancesQuery(
-    EcosystemId.Avalanche,
+    EvmEcosystemId.Avalanche,
     avalanche,
   );
-  const polygonBalances = useErc20BalancesQuery(EcosystemId.Polygon, polygon);
-  const auroraBalances = useErc20BalancesQuery(EcosystemId.Aurora, aurora);
-  const fantomBalances = useErc20BalancesQuery(EcosystemId.Fantom, fantom);
-  const karuraBalances = useErc20BalancesQuery(EcosystemId.Karura, karura);
-  const acalaBalances = useErc20BalancesQuery(EcosystemId.Acala, acala);
+  const polygonBalances = useErc20BalancesQuery(
+    EvmEcosystemId.Polygon,
+    polygon,
+  );
+  const auroraBalances = useErc20BalancesQuery(EvmEcosystemId.Aurora, aurora);
+  const fantomBalances = useErc20BalancesQuery(EvmEcosystemId.Fantom, fantom);
+  const karuraBalances = useErc20BalancesQuery(EvmEcosystemId.Karura, karura);
+  const acalaBalances = useErc20BalancesQuery(EvmEcosystemId.Acala, acala);
 
   return new Map(
     tokenSpecs.map((tokenSpec, i) => {
-      switch (tokenSpec.nativeEcosystem) {
-        case EcosystemId.Solana: {
+      const ecosystem = specificEcosystem ?? tokenSpec.nativeEcosystemId;
+      switch (ecosystem) {
+        case SOLANA_ECOSYSTEM_ID: {
           const tokenAccount = solanaTokenAccounts[i];
           return [
             tokenSpec.id,
@@ -155,71 +163,71 @@ export const useMultipleUserBalances = (
               ? Amount.fromAtomicBn(
                   tokenSpec,
                   tokenAccount.amount,
-                  EcosystemId.Solana,
+                  SOLANA_ECOSYSTEM_ID,
                 )
               : null,
           ];
         }
-        case EcosystemId.Ethereum: {
+        case EvmEcosystemId.Ethereum: {
           return getEvmTokenIdAndBalance(
             tokenSpec,
-            EcosystemId.Ethereum,
+            EvmEcosystemId.Ethereum,
             ethereumBalances,
             ethereum,
           );
         }
-        case EcosystemId.Bnb: {
+        case EvmEcosystemId.Bnb: {
           return getEvmTokenIdAndBalance(
             tokenSpec,
-            EcosystemId.Bnb,
+            EvmEcosystemId.Bnb,
             bnbBalances,
             bnb,
           );
         }
-        case EcosystemId.Avalanche: {
+        case EvmEcosystemId.Avalanche: {
           return getEvmTokenIdAndBalance(
             tokenSpec,
-            EcosystemId.Avalanche,
+            EvmEcosystemId.Avalanche,
             avalancheBalances,
             avalanche,
           );
         }
-        case EcosystemId.Polygon: {
+        case EvmEcosystemId.Polygon: {
           return getEvmTokenIdAndBalance(
             tokenSpec,
-            EcosystemId.Polygon,
+            EvmEcosystemId.Polygon,
             polygonBalances,
             polygon,
           );
         }
-        case EcosystemId.Aurora: {
+        case EvmEcosystemId.Aurora: {
           return getEvmTokenIdAndBalance(
             tokenSpec,
-            EcosystemId.Aurora,
+            EvmEcosystemId.Aurora,
             auroraBalances,
             aurora,
           );
         }
-        case EcosystemId.Fantom: {
+        case EvmEcosystemId.Fantom: {
           return getEvmTokenIdAndBalance(
             tokenSpec,
-            EcosystemId.Fantom,
+            EvmEcosystemId.Fantom,
             fantomBalances,
             fantom,
           );
         }
-        case EcosystemId.Karura: {
+        case EvmEcosystemId.Karura: {
           return getEvmTokenIdAndBalance(
             tokenSpec,
-            EcosystemId.Karura,
+            EvmEcosystemId.Karura,
             karuraBalances,
             karura,
           );
         }
-        case EcosystemId.Acala: {
+        case EvmEcosystemId.Acala: {
           return getEvmTokenIdAndBalance(
             tokenSpec,
-            EcosystemId.Acala,
+            EvmEcosystemId.Acala,
             acalaBalances,
             acala,
           );

@@ -1,7 +1,8 @@
+import type { Env } from "@swim-io/core";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
-import type { EcosystemId, Env } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
+import type { EcosystemId } from "../../config";
 import type { Amount } from "../amount";
 
 /**
@@ -124,9 +125,11 @@ export type Interaction =
   | SwapInteraction;
 
 // V2 for Pool Restructure
-interface TokenTransferDetail {
+export interface TokenOption {
   readonly tokenId: string;
   readonly ecosystemId: EcosystemId;
+}
+export interface TokenTransferDetail extends TokenOption {
   readonly value: Decimal;
 }
 

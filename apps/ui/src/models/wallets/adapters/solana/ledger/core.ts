@@ -29,6 +29,7 @@ async function ledgerSend(
 
   if (payload.length > MAX_PAYLOAD) {
     while (payload.length - payloadOffset > MAX_PAYLOAD) {
+      // TODO: Replace this use of `.slice` but be careful not to break anything
       const chunk = payload.slice(payloadOffset, payloadOffset + MAX_PAYLOAD);
       payloadOffset += MAX_PAYLOAD;
       console.info(
@@ -51,10 +52,12 @@ async function ledgerSend(
     }
   }
 
+  // TODO: Replace this use of `.slice` but be careful not to break anything
   const chunk = payload.slice(payloadOffset);
   console.info("send", p2.toString(16), chunk.length.toString(16), chunk);
   const reply = await transport.send(LEDGER_CLA, instruction, p1, p2, chunk);
 
+  // TODO: Replace this use of `.slice` but be careful not to break anything
   return reply.slice(0, reply.length - 2);
 }
 
@@ -63,10 +66,7 @@ function harden(n = 0): number {
   return (n | BIP32_HARDENED_BIT) >>> 0;
 }
 
-export function getSolanaDerivationPath(
-  account?: number,
-  change?: number,
-): Buffer {
+function getSolanaDerivationPath(account?: number, change?: number): Buffer {
   let length;
   if (account !== undefined) {
     if (change !== undefined) {
@@ -104,7 +104,7 @@ export async function signTransaction(
   return signBytes(transport, messageBytes, derivationPath);
 }
 
-export async function signBytes(
+async function signBytes(
   transport: Transport,
   bytes: Buffer,
   derivationPath: Buffer = getSolanaDerivationPath(),

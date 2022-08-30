@@ -1,35 +1,35 @@
+import type { EvmTx } from "@swim-io/evm";
+import { EvmEcosystemId, isEvmTx } from "@swim-io/evm";
+import type { SolanaTx } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, isSolanaTx } from "@swim-io/solana";
 import type { ethers } from "ethers";
 import { mock } from "jest-mock-extended";
 
-import { EcosystemId } from "../../config";
 import { parsedSwimSwapTx } from "../../fixtures/solana/txs";
-
-import type { BnbTx, EthereumTx, SolanaTx } from "./tx";
-import { isBnbTx, isEthereumTx, isEvmTx, isSolanaTx } from "./tx";
 
 describe("Cross-ecosystem tx", () => {
   const defaultTimestamp = 1642762608;
   const defaultInteractionId = "2dd7602f7db6617697ecf04ac4aac930";
   const solanaTx: SolanaTx = {
-    ecosystem: EcosystemId.Solana,
-    txId: "34PhSGJi3XboZEhZEirTM6FEh1hNiYHSio1va1nNgH7S9LSNJQGSAiizEyVbgbVJzFjtsbyuJ2WijN53FSC83h7h",
+    ecosystemId: SOLANA_ECOSYSTEM_ID,
+    id: "34PhSGJi3XboZEhZEirTM6FEh1hNiYHSio1va1nNgH7S9LSNJQGSAiizEyVbgbVJzFjtsbyuJ2WijN53FSC83h7h",
     timestamp: defaultTimestamp,
     interactionId: defaultInteractionId,
     parsedTx: parsedSwimSwapTx,
   };
 
-  const ethereumTx: EthereumTx = {
-    ecosystem: EcosystemId.Ethereum,
-    txId: "0x743087e871039d66b82fcb2cb719f6a541e650e05735c32c1be871ef9ae9a456",
+  const ethereumTx: EvmTx = {
+    ecosystemId: EvmEcosystemId.Ethereum,
+    id: "0x743087e871039d66b82fcb2cb719f6a541e650e05735c32c1be871ef9ae9a456",
     timestamp: defaultTimestamp,
     interactionId: defaultInteractionId,
-    txResponse: mock<ethers.providers.TransactionResponse>(),
-    txReceipt: mock<ethers.providers.TransactionReceipt>(),
+    response: mock<ethers.providers.TransactionResponse>(),
+    receipt: mock<ethers.providers.TransactionReceipt>(),
   };
 
-  const bnbTx: BnbTx = {
+  const bnbTx: EvmTx = {
     ...ethereumTx,
-    ecosystem: EcosystemId.Bnb,
+    ecosystemId: EvmEcosystemId.Bnb,
   };
 
   describe("isSolanaTx", () => {
@@ -40,28 +40,6 @@ describe("Cross-ecosystem tx", () => {
     it("returns false if the ecosystem is not Solana", () => {
       expect(isSolanaTx(ethereumTx)).toBe(false);
       expect(isSolanaTx(bnbTx)).toBe(false);
-    });
-  });
-
-  describe("isEthereumTx", () => {
-    it("returns true if the ecosystem is Ethereum", () => {
-      expect(isEthereumTx(ethereumTx)).toBe(true);
-    });
-
-    it("returns false if the ecosystem is not Ethereum", () => {
-      expect(isEthereumTx(solanaTx)).toBe(false);
-      expect(isEthereumTx(bnbTx)).toBe(false);
-    });
-  });
-
-  describe("isBnbTx", () => {
-    it("returns true if the ecosystem is BNB", () => {
-      expect(isBnbTx(bnbTx)).toBe(true);
-    });
-
-    it("returns false if the ecosystem is not BNB", () => {
-      expect(isBnbTx(solanaTx)).toBe(false);
-      expect(isBnbTx(ethereumTx)).toBe(false);
     });
   });
 

@@ -35,6 +35,8 @@
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
     "dependency-cruiser": "^11.12.0",
-    "husky": "^8.0.1"
+    "fast-glob": "^3.2.11",
+    "husky": "^8.0.1",
+    "nx": "14.4.3"
   }
 }

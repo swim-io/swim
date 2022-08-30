@@ -1,8 +1,9 @@
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { isEachNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import {
@@ -11,7 +12,6 @@ import {
   getRequiredPoolsForSwap,
   getTokensByPool,
 } from "../../models";
-import { isEachNotNull } from "../../utils";
 
 import { usePoolMaths } from "./usePoolMaths";
 
@@ -142,7 +142,7 @@ export const useSwapOutputAmountEstimate = (
         const { lpOutputAmount } = inputPoolMath.add(
           inputPoolTokens.tokens.map((token) =>
             token.id === exactInputAmount.tokenId
-              ? exactInputAmount.toHuman(EcosystemId.Solana)
+              ? exactInputAmount.toHuman(SOLANA_ECOSYSTEM_ID)
               : ZERO,
           ),
         );
@@ -159,7 +159,7 @@ export const useSwapOutputAmountEstimate = (
         const { stableOutputAmount } = inputPoolMath.swapExactInput(
           inputPoolTokens.tokens.map((token) =>
             token.id === exactInputAmount.tokenId
-              ? exactInputAmount.toHuman(EcosystemId.Solana)
+              ? exactInputAmount.toHuman(SOLANA_ECOSYSTEM_ID)
               : ZERO,
           ),
           inputPoolOutputTokenIndex,
@@ -192,7 +192,7 @@ export const useSwapOutputAmountEstimate = (
     switch (outputPoolInstruction) {
       case SwimDefiInstruction.RemoveExactBurn: {
         const { stableOutputAmount } = outputPoolMath.removeExactBurn(
-          inputPoolOutputAmount.toHuman(EcosystemId.Solana),
+          inputPoolOutputAmount.toHuman(SOLANA_ECOSYSTEM_ID),
           outputPoolOutputTokenIndex,
         );
         return ensureNonNegative(Amount.fromHuman(toToken, stableOutputAmount));
@@ -207,7 +207,7 @@ export const useSwapOutputAmountEstimate = (
               token.id === inputPoolOutputAmount.tokenId
                 ? inputPoolOutputAmount
                 : Amount.zero(token);
-            return amount.toHuman(EcosystemId.Solana);
+            return amount.toHuman(SOLANA_ECOSYSTEM_ID);
           }),
           outputPoolOutputTokenIndex,
         );

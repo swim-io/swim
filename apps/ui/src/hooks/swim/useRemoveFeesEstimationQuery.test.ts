@@ -1,7 +1,9 @@
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import {
   BNB_BUSD,
   BNB_USDT,
@@ -13,15 +15,21 @@ import {
 import { Amount } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
-import { useGasPriceQuery } from "./useGasPriceQuery";
+import { useGasPriceQueries } from "./useGasPriceQuery";
 import { useRemoveFeesEstimationQuery } from "./useRemoveFeesEstimationQuery";
 
-jest.mock("./useGasPriceQuery", () => ({
-  useGasPriceQuery: jest.fn(),
-}));
+jest.mock("./useGasPriceQuery", () => {
+  const mockedUseGasPriceQueries = jest.fn();
+  return {
+    ...jest.requireActual("./useGasPriceQuery"),
+    useGasPriceQuery: (evmEcosystemId: EvmEcosystemId) =>
+      mockedUseGasPriceQueries([evmEcosystemId])[0],
+    useGasPriceQueries: mockedUseGasPriceQueries,
+  };
+});
 
 // Make typescript happy with jest
-const useGasPriceQueryMock = mockOf(useGasPriceQuery);
+const useGasPriceQueriesMock = mockOf(useGasPriceQueries);
 
 describe("useRemoveFeesEstimationQuery", () => {
   beforeEach(() => {
@@ -30,11 +38,15 @@ describe("useRemoveFeesEstimationQuery", () => {
   });
 
   describe("loading", () => {
-    it("should return null when the required gas price is still loading", async () => {
-      useGasPriceQueryMock.mockReturnValue({
-        isLoading: true,
-        data: undefined,
-      });
+    it("should return null when the required gas price is still loading", () => {
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => ({
+            isLoading: true,
+            data: undefined,
+          }));
+        },
+      );
       const { result } = renderHookWithAppContext(() =>
         useRemoveFeesEstimationQuery(
           [
@@ -45,17 +57,21 @@ describe("useRemoveFeesEstimationQuery", () => {
             Amount.fromHuman(BNB_BUSD, new Decimal(0)),
             Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
-          EcosystemId.Solana,
+          SOLANA_ECOSYSTEM_ID,
         ),
       );
       expect(result.current).toEqual(null);
     });
 
-    it("should return valid estimation for Solana only add, even when evm gas price are loading", async () => {
-      useGasPriceQueryMock.mockReturnValue({
-        isLoading: true,
-        data: undefined,
-      });
+    it("should return valid estimation for Solana only add, even when evm gas price are loading", () => {
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => ({
+            isLoading: true,
+            data: undefined,
+          }));
+        },
+      );
       const { result } = renderHookWithAppContext(() =>
         useRemoveFeesEstimationQuery(
           [
@@ -66,7 +82,7 @@ describe("useRemoveFeesEstimationQuery", () => {
             Amount.fromHuman(BNB_BUSD, new Decimal(0)),
             Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
-          EcosystemId.Solana,
+          SOLANA_ECOSYSTEM_ID,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
@@ -77,14 +93,18 @@ describe("useRemoveFeesEstimationQuery", () => {
 
   describe("loaded", () => {
     beforeEach(() => {
-      useGasPriceQueryMock.mockImplementation((ecosystemId: EcosystemId) =>
-        ecosystemId === EcosystemId.Ethereum
-          ? { data: new Decimal(7e-8) }
-          : { data: new Decimal(5e-9) },
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => {
+            return ecosystemId === EvmEcosystemId.Ethereum
+              ? { data: new Decimal(7e-8) }
+              : { data: new Decimal(5e-9) };
+          });
+        },
       );
     });
 
-    it("should return solana estimation for Solana USDC single remove", async () => {
+    it("should return solana estimation for Solana USDC single remove", () => {
       const { result } = renderHookWithAppContext(() =>
         useRemoveFeesEstimationQuery(
           [
@@ -95,7 +115,7 @@ describe("useRemoveFeesEstimationQuery", () => {
             Amount.fromHuman(BNB_BUSD, new Decimal(0)),
             Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
-          EcosystemId.Solana,
+          SOLANA_ECOSYSTEM_ID,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
@@ -103,7 +123,7 @@ describe("useRemoveFeesEstimationQuery", () => {
       expect(result.current?.bnb).toEqual(new Decimal(0));
     });
 
-    it("should return eth estimation for Ethereum USDC single remove", async () => {
+    it("should return eth estimation for Ethereum USDC single remove", () => {
       const { result } = renderHookWithAppContext(() =>
         useRemoveFeesEstimationQuery(
           [
@@ -114,7 +134,7 @@ describe("useRemoveFeesEstimationQuery", () => {
             Amount.fromHuman(BNB_BUSD, new Decimal(0)),
             Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
-          EcosystemId.Ethereum,
+          EvmEcosystemId.Ethereum,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
@@ -122,7 +142,7 @@ describe("useRemoveFeesEstimationQuery", () => {
       expect(result.current?.bnb).toEqual(new Decimal(0));
     });
 
-    it("should return BNB estimation for BNB single remove", async () => {
+    it("should return BNB estimation for BNB single remove", () => {
       const { result } = renderHookWithAppContext(() =>
         useRemoveFeesEstimationQuery(
           [
@@ -133,7 +153,7 @@ describe("useRemoveFeesEstimationQuery", () => {
             Amount.fromHuman(BNB_BUSD, new Decimal(99)),
             Amount.fromHuman(BNB_USDT, new Decimal(0)),
           ],
-          EcosystemId.Bnb,
+          EvmEcosystemId.Bnb,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));
@@ -141,7 +161,7 @@ describe("useRemoveFeesEstimationQuery", () => {
       expect(result.current?.bnb).toEqual(new Decimal(0.00245));
     });
 
-    it("should return valid estimation for mixed input amounts", async () => {
+    it("should return valid estimation for mixed input amounts", () => {
       const { result } = renderHookWithAppContext(() =>
         useRemoveFeesEstimationQuery(
           [
@@ -152,7 +172,7 @@ describe("useRemoveFeesEstimationQuery", () => {
             Amount.fromHuman(BNB_BUSD, new Decimal(100)),
             Amount.fromHuman(BNB_USDT, new Decimal(100)),
           ],
-          EcosystemId.Bnb,
+          EvmEcosystemId.Bnb,
         ),
       );
       expect(result.current?.solana).toEqual(new Decimal(0.01));

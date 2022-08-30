@@ -1,10 +1,12 @@
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import shallow from "zustand/shallow.js";
 
-import type { TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
+import type { EcosystemId, TokenSpec } from "../../config";
+import { getTokenDetailsForEcosystem } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import type { ReadonlyRecord } from "../../utils";
 
 export const useTokensByEcosystem = (): ReadonlyRecord<
   EcosystemId,
@@ -12,19 +14,23 @@ export const useTokensByEcosystem = (): ReadonlyRecord<
 > => {
   const { tokens } = useEnvironment(selectConfig, shallow);
   const filterTokensByEcosystem = (
-    ecosystem: EcosystemId,
+    ecosystemId: EcosystemId,
   ): readonly TokenSpec[] =>
-    tokens.filter((tokenSpec) => tokenSpec.detailsByEcosystem.get(ecosystem));
+    tokens.filter((tokenSpec) =>
+      getTokenDetailsForEcosystem(tokenSpec, ecosystemId),
+    );
 
   return {
-    [EcosystemId.Solana]: filterTokensByEcosystem(EcosystemId.Solana),
-    [EcosystemId.Ethereum]: filterTokensByEcosystem(EcosystemId.Ethereum),
-    [EcosystemId.Bnb]: filterTokensByEcosystem(EcosystemId.Bnb),
-    [EcosystemId.Avalanche]: filterTokensByEcosystem(EcosystemId.Avalanche),
-    [EcosystemId.Polygon]: filterTokensByEcosystem(EcosystemId.Polygon),
-    [EcosystemId.Aurora]: filterTokensByEcosystem(EcosystemId.Aurora),
-    [EcosystemId.Fantom]: filterTokensByEcosystem(EcosystemId.Fantom),
-    [EcosystemId.Karura]: filterTokensByEcosystem(EcosystemId.Karura),
-    [EcosystemId.Acala]: filterTokensByEcosystem(EcosystemId.Acala),
+    [SOLANA_ECOSYSTEM_ID]: filterTokensByEcosystem(SOLANA_ECOSYSTEM_ID),
+    [EvmEcosystemId.Ethereum]: filterTokensByEcosystem(EvmEcosystemId.Ethereum),
+    [EvmEcosystemId.Bnb]: filterTokensByEcosystem(EvmEcosystemId.Bnb),
+    [EvmEcosystemId.Avalanche]: filterTokensByEcosystem(
+      EvmEcosystemId.Avalanche,
+    ),
+    [EvmEcosystemId.Polygon]: filterTokensByEcosystem(EvmEcosystemId.Polygon),
+    [EvmEcosystemId.Aurora]: filterTokensByEcosystem(EvmEcosystemId.Aurora),
+    [EvmEcosystemId.Fantom]: filterTokensByEcosystem(EvmEcosystemId.Fantom),
+    [EvmEcosystemId.Karura]: filterTokensByEcosystem(EvmEcosystemId.Karura),
+    [EvmEcosystemId.Acala]: filterTokensByEcosystem(EvmEcosystemId.Acala),
   };
 };

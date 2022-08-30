@@ -1,7 +1,8 @@
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { findOrThrow, isNotNull } from "@swim-io/utils";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import { EcosystemId } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {
@@ -9,7 +10,6 @@ import {
   getTokensByPool,
   setOutputOperationInputAmount,
 } from "../../models";
-import { findOrThrow, isNotNull } from "../../utils";
 import {
   useSolanaConnection,
   useSolanaWallet,
@@ -55,10 +55,10 @@ export const useSolanaPoolOperationsMutation = () => {
       pools,
       (spec) => spec.id === outputState.operation.poolId,
     );
-    if (inputPoolSpec.ecosystem !== EcosystemId.Solana) {
+    if (inputPoolSpec.ecosystem !== SOLANA_ECOSYSTEM_ID) {
       throw new Error("Expect Solana pool");
     }
-    if (outputPoolSpec.ecosystem !== EcosystemId.Solana) {
+    if (outputPoolSpec.ecosystem !== SOLANA_ECOSYSTEM_ID) {
       throw new Error("Expect Solana pool");
     }
 

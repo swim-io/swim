@@ -8,6 +8,7 @@ import {
 } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { Protocol } from "../config";
 import { useWalletService } from "../hooks/wallets";
@@ -17,9 +18,7 @@ import { isUserOnMobileDevice } from "../utils";
 import { CustomModal } from "./CustomModal";
 import { MobileDeviceDisclaimer } from "./MobileDeviceDisclaimer";
 
-export interface SingleWalletModalProps<
-  W extends WalletService = WalletService,
-> {
+interface Props<W extends WalletService = WalletService> {
   readonly currentService: WalletService["id"] | null;
   readonly protocol: Protocol;
   readonly services: readonly W[];
@@ -31,13 +30,14 @@ export const SingleWalletModal = <W extends WalletService = WalletService>({
   protocol,
   services,
   handleClose,
-}: SingleWalletModalProps<W>): ReactElement => {
+}: Props<W>): ReactElement => {
+  const { t } = useTranslation();
   const { connectService } = useWalletService();
   return (
     <CustomModal onClose={handleClose}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          <h1>Select Wallet</h1>
+          <h1>{t("single_wallet_modal.title")}</h1>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
 

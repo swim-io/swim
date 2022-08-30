@@ -1,11 +1,12 @@
+import type { Env } from "@swim-io/core";
+import type { EvmEcosystemId, EvmTx } from "@swim-io/evm";
+import { isEvmEcosystemId } from "@swim-io/evm";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { isNotNull } from "@swim-io/utils";
 import type { ethers } from "ethers";
 import type { QueryClient } from "react-query";
 
-import type { EcosystemId, Env, EvmEcosystemId } from "../../config";
-import { isEvmEcosystemId } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
-import { isNotNull } from "../../utils";
-import type { EvmTx } from "../crossEcosystem";
+import type { EcosystemId } from "../../config";
 import { INTERACTION_ID_LENGTH_HEX } from "../utils";
 
 import type { EvmConnection } from "./EvmConnection";
@@ -33,10 +34,10 @@ export const fetchEvmTxForInteractionId = async (
   );
 
   const nestedTxs = await Promise.all(
-    requiredEvmEcosystems.map(async (ecosystem) => {
-      const connection = evmConnections[ecosystem];
+    requiredEvmEcosystems.map(async (ecosystemId) => {
+      const connection = evmConnections[ecosystemId];
       const history = await queryClient.fetchQuery(
-        [env, "evmHistory", ecosystem, evmAddress],
+        [env, "evmHistory", ecosystemId, evmAddress],
         async () => (await connection.getHistory(evmAddress)) ?? [],
       );
       const matchedTxResponses = history.filter(
@@ -50,12 +51,12 @@ export const fetchEvmTxForInteractionId = async (
               return null;
             }
             return {
-              ecosystem,
-              txId: txResponse.hash,
+              ecosystemId,
+              id: txResponse.hash,
               timestamp: txResponse.timestamp ?? null,
               interactionId: interactionId,
-              txResponse,
-              txReceipt,
+              response: txResponse,
+              receipt: txReceipt,
             };
           },
         ),

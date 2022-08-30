@@ -1,7 +1,8 @@
+import { Env } from "@swim-io/core";
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { CONFIGS, Protocol } from "../../../config";
-import { Env, useEnvironment, useWalletAdapter } from "../../../core/store";
+import { useEnvironment, useWalletAdapter } from "../../../core/store";
 import {
   WalletServiceId,
   createAdapter,
@@ -27,12 +28,12 @@ const createAdapterMock = mockOf(createAdapter);
 
 describe("useWalletService", () => {
   beforeEach(() => {
-    useEnvironmentMock.mockReturnValue(CONFIGS[Env.Localnet]);
+    useEnvironmentMock.mockReturnValue(CONFIGS[Env.Local]);
   });
 
   it("should call useWalletAdapter connectService with the correct createAdapter", async () => {
-    const config = CONFIGS[Env.Localnet];
-    const [{ endpoint }] = config.chains[Protocol.Solana];
+    const config = CONFIGS[Env.Local];
+    const [{ endpoints }] = config.chains[Protocol.Solana];
 
     const connectServiceMock = jest.fn();
     const disconnectServiceMock = jest.fn();
@@ -61,7 +62,7 @@ describe("useWalletService", () => {
     expect(createAdapterMock).toHaveBeenCalledWith(
       "metamask",
       Protocol.Evm,
-      endpoint,
+      endpoints[0],
     );
   });
 

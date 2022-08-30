@@ -1,31 +1,37 @@
 import { EuiCallOut, EuiSpacer } from "@elastic/eui";
+import { EvmEcosystemId } from "@swim-io/evm";
 import type React from "react";
+import { useTranslation } from "react-i18next";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 
 interface Props {
   readonly ecosystemId: EcosystemId;
 }
 
 export const WaitForEcosystemCallout: React.FC<Props> = ({ ecosystemId }) => {
-  if (ecosystemId === EcosystemId.Ethereum) {
+  const { t } = useTranslation();
+  if (ecosystemId === EvmEcosystemId.Ethereum) {
     return (
       <>
         <EuiCallOut
           size="s"
-          title="Please note that waiting for Ethereum block confirmations may take a few minutes."
+          title={t("recent_interactions.ethereum_waiting_time")}
           iconType="clock"
         />
         <EuiSpacer size="s" />
       </>
     );
   }
-  if (ecosystemId === EcosystemId.Polygon) {
+  if (ecosystemId === EvmEcosystemId.Polygon) {
     return (
       <>
         <EuiCallOut
           size="s"
-          title="Please note that waiting for Polygon block confirmations may take a long time. Finality requires 512 confirmations or about 18 minutes."
+          title={t("recent_interactions.polygon_waiting_time", {
+            confirmations: 512,
+            minutes: 18,
+          })}
           iconType="clock"
         />
         <EuiSpacer size="s" />

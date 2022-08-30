@@ -5,15 +5,17 @@ import {
   EuiSelectable,
 } from "@elastic/eui";
 import type { EuiSelectableOption } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
+import { findOrThrow } from "@swim-io/utils";
 import type { ReactElement } from "react";
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import type { TokenSpec } from "../config";
 import { ECOSYSTEMS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
-import { findOrThrow } from "../utils";
 
 import { CustomModal } from "./CustomModal";
 import { TokenSpecIcon } from "./TokenIcon";
@@ -24,9 +26,9 @@ const renderTokenOption = (option: TokenOption) => {
   return <TokenSpecIcon token={option.data} />;
 };
 
-export interface TokenSearchModalProps {
+interface Props {
   readonly handleClose: () => void;
-  readonly handleSelectToken: (tokenId: string) => void;
+  readonly handleSelectToken: (token: TokenSpec) => void;
   readonly tokenOptionIds: readonly string[];
 }
 
@@ -34,14 +36,16 @@ export const TokenSearchModal = ({
   handleClose,
   handleSelectToken,
   tokenOptionIds,
-}: TokenSearchModalProps): ReactElement => {
+}: Props): ReactElement => {
+  const { t } = useTranslation();
   const { tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptionIds.map((tokenId) => {
     const tokenSpec = findOrThrow(tokens, ({ id }) => id === tokenId);
-    const ecosystem = ECOSYSTEMS[tokenSpec.nativeEcosystem];
+    const ecosystem = ECOSYSTEMS[tokenSpec.nativeEcosystemId];
+    const tokenProject = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId];
     return {
-      label: `${tokenSpec.project.symbol} on ${ecosystem.displayName}`,
-      searchableLabel: `${tokenSpec.project.symbol} ${tokenSpec.project.displayName} ${ecosystem.displayName}`,
+      label: `${tokenProject.symbol} on ${ecosystem.displayName}`,
+      searchableLabel: `${tokenProject.symbol} ${tokenProject.displayName} ${ecosystem.displayName}`,
       showIcons: false,
       data: tokenSpec,
     };
@@ -51,7 +55,7 @@ export const TokenSearchModal = ({
     (opts: readonly TokenOption[]) => {
       const selected = opts.find(({ checked }) => checked);
       if (selected) {
-        handleSelectToken(selected.data.id);
+        handleSelectToken(selected.data);
         handleClose();
       }
     },
@@ -66,7 +70,7 @@ export const TokenSearchModal = ({
     >
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          <h1>Select a token</h1>
+          <h1>{t("token_search_modal.title")}</h1>
         </EuiModalHeaderTitle>
       </EuiModalHeader>
 
@@ -77,7 +81,7 @@ export const TokenSearchModal = ({
           searchable
           searchProps={{
             id: "token-search",
-            placeholder: "Search tokens",
+            placeholder: t("token_search_modal.search_tokens"),
             isClearable: true,
           }}
           onChange={onSelectToken}

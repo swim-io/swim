@@ -1,14 +1,14 @@
+import { Env } from "@swim-io/core";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 
-import { useSplTokenAccountsQuery, useWallets } from "..";
 import {
   CONFIGS,
   DEVNET_POOLS,
   DEVNET_POOLS_FOR_RESTRUCTURE,
   DEVNET_SWIMUSD,
-  EcosystemId,
-  Env,
   findTokenById,
 } from "../../config";
 import { selectConfig } from "../../core/selectors";
@@ -16,6 +16,8 @@ import { useEnvironment } from "../../core/store";
 import { MOCK_TOKEN_ACCOUNTS, MOCK_WALLETS } from "../../fixtures";
 import { Amount, InteractionType, generateId } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
+import { useWallets } from "../crossEcosystem";
+import { useSplTokenAccountsQuery } from "../solana";
 
 import { useCreateInteractionStateV2 } from "./useCreateInteractionStateV2";
 
@@ -38,10 +40,14 @@ jest.mock("../../core/selectors", () => ({
   selectConfig: jest.fn(),
 }));
 
-jest.mock("..", () => ({
-  ...jest.requireActual(".."),
-  useSplTokenAccountsQuery: jest.fn(),
+jest.mock("../crossEcosystem", () => ({
+  ...jest.requireActual("../crossEcosystem"),
   useWallets: jest.fn(),
+}));
+
+jest.mock("../solana", () => ({
+  ...jest.requireActual("../solana"),
+  useSplTokenAccountsQuery: jest.fn(),
 }));
 
 // Make typescript happy with jest
@@ -54,7 +60,7 @@ describe("useCreateInteractionStateV2", () => {
   beforeEach(() => {
     const { result: envStore } = renderHook(() => useEnvironment());
     act(() => {
-      envStore.current.setCustomLocalnetIp("127.0.0.1");
+      envStore.current.setCustomIp("127.0.0.1");
       envStore.current.setEnv(Env.Devnet);
     });
     generateIdMock.mockReturnValue("11111111111111111111111111111111");
@@ -67,7 +73,7 @@ describe("useCreateInteractionStateV2", () => {
     jest.spyOn(Date, "now").mockImplementation(() => 1657544558283);
   });
 
-  it("should create state for Swap from SOLANA USDC to SOLANA USDT", async () => {
+  it("should create state for Swap from SOLANA USDC to SOLANA USDT", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -77,12 +83,12 @@ describe("useCreateInteractionStateV2", () => {
       params: {
         fromTokenDetail: {
           tokenId: "devnet-solana-usdc",
-          ecosystemId: EcosystemId.Solana,
+          ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
         toTokenDetail: {
           tokenId: "devnet-solana-usdt",
-          ecosystemId: EcosystemId.Solana,
+          ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
       },
@@ -90,7 +96,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for Swap from ETHEREUM USDC to ETHEREUM USDT", async () => {
+  it("should create state for Swap from ETHEREUM USDC to ETHEREUM USDT", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -100,12 +106,12 @@ describe("useCreateInteractionStateV2", () => {
       params: {
         fromTokenDetail: {
           tokenId: "devnet-ethereum-usdc",
-          ecosystemId: EcosystemId.Ethereum,
+          ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
         toTokenDetail: {
           tokenId: "devnet-ethereum-usdt",
-          ecosystemId: EcosystemId.Ethereum,
+          ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
       },
@@ -113,7 +119,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for Swap from SOLANA USDC to ETHEREUM USDC", async () => {
+  it("should create state for Swap from SOLANA USDC to ETHEREUM USDC", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -123,12 +129,12 @@ describe("useCreateInteractionStateV2", () => {
       params: {
         fromTokenDetail: {
           tokenId: "devnet-solana-usdc",
-          ecosystemId: EcosystemId.Solana,
+          ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
         toTokenDetail: {
           tokenId: "devnet-ethereum-usdc",
-          ecosystemId: EcosystemId.Ethereum,
+          ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
       },
@@ -136,7 +142,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for Swap from ETHEREUM USDC to SOLANA USDC", async () => {
+  it("should create state for Swap from ETHEREUM USDC to SOLANA USDC", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -146,12 +152,12 @@ describe("useCreateInteractionStateV2", () => {
       params: {
         fromTokenDetail: {
           tokenId: "devnet-ethereum-usdc",
-          ecosystemId: EcosystemId.Ethereum,
+          ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
         toTokenDetail: {
           tokenId: "devnet-solana-usdc",
-          ecosystemId: EcosystemId.Solana,
+          ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
       },
@@ -159,7 +165,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for Swap from ETHEREUM USDC to BNB USDT", async () => {
+  it("should create state for Swap from ETHEREUM USDC to BNB USDT", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -169,12 +175,12 @@ describe("useCreateInteractionStateV2", () => {
       params: {
         fromTokenDetail: {
           tokenId: "devnet-ethereum-usdc",
-          ecosystemId: EcosystemId.Ethereum,
+          ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
         toTokenDetail: {
           tokenId: "devnet-bnb-usdt",
-          ecosystemId: EcosystemId.Bnb,
+          ecosystemId: EvmEcosystemId.Bnb,
           value: new Decimal("1000"),
         },
       },
@@ -182,7 +188,7 @@ describe("useCreateInteractionStateV2", () => {
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for Add", async () => {
+  it("should create state for Add", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -197,12 +203,12 @@ describe("useCreateInteractionStateV2", () => {
         ],
         minimumMintAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
       },
-      lpTokenTargetEcosystem: EcosystemId.Solana,
+      lpTokenTargetEcosystem: SOLANA_ECOSYSTEM_ID,
     });
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for RemoveExactOutput", async () => {
+  it("should create state for RemoveExactOutput", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -217,12 +223,12 @@ describe("useCreateInteractionStateV2", () => {
         ],
         maximumBurnAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
       },
-      lpTokenSourceEcosystem: EcosystemId.Solana,
+      lpTokenSourceEcosystem: SOLANA_ECOSYSTEM_ID,
     });
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for RemoveExactBurn", async () => {
+  it("should create state for RemoveExactBurn", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -234,12 +240,12 @@ describe("useCreateInteractionStateV2", () => {
         minimumOutputAmount: Amount.fromHuman(SOLANA_USDC, new Decimal("110")),
         exactBurnAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
       },
-      lpTokenSourceEcosystem: EcosystemId.Solana,
+      lpTokenSourceEcosystem: SOLANA_ECOSYSTEM_ID,
     });
     expect(interactionState).toMatchSnapshot();
   });
 
-  it("should create state for RemoveUniform", async () => {
+  it("should create state for RemoveUniform", () => {
     const { result } = renderHookWithAppContext(() =>
       useCreateInteractionStateV2(),
     );
@@ -254,7 +260,7 @@ describe("useCreateInteractionStateV2", () => {
         ],
         exactBurnAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
       },
-      lpTokenSourceEcosystem: EcosystemId.Solana,
+      lpTokenSourceEcosystem: SOLANA_ECOSYSTEM_ID,
     });
     expect(interactionState).toMatchSnapshot();
   });

@@ -8,15 +8,16 @@ import type {
   AccountInfo,
   Commitment,
   ParsedTransactionWithMeta,
+  TransactionBlockhashCtor,
 } from "@solana/web3.js";
 import { MAX_SEED_LENGTH, PublicKey, Transaction } from "@solana/web3.js";
+import type { Env } from "@swim-io/core";
+import { chunks, sleep } from "@swim-io/utils";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
 import type { QueryClient } from "react-query";
 
-import type { Env } from "../../config";
-import { chunks, sleep } from "../../utils";
 import type { SolanaWalletAdapter } from "../wallets";
 
 import type { CustomConnection, SolanaConnection } from "./SolanaConnection";
@@ -32,7 +33,7 @@ export type WithSplTokenAccounts<T> = T & {
  * Thrown if the owner of a token account is a PDA (Program Derived Address)
  */
 export class TokenOwnerOffCurveError extends Error {
-  name = "TokenOwnerOffCurveError";
+  override name = "TokenOwnerOffCurveError";
 }
 
 /**
@@ -357,7 +358,8 @@ export const createSplTokenAccount = async (
     wallet.publicKey,
     wallet.publicKey,
   );
-  const tx = new Transaction({
+
+  const tx = createTx({
     feePayer: wallet.publicKey,
   });
   tx.add(ix);
@@ -403,8 +405,8 @@ export const findOrCreateSplTokenAccount = async (
 
 type UnsafeConnection = CustomConnection & {
   // See https://github.com/solana-labs/solana/blob/5e424826ba52e643bbd8e761b7bee11f699eb46c/web3.js/src/connection.ts#L66
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly _rpcRequest: (methodName: string, args: ReadonlyArray<any>) => any;
+
+  readonly _rpcRequest: (methodName: string, args: readonly any[]) => any;
 };
 
 const getMultipleSolanaAccountsCore = async (
@@ -420,23 +422,26 @@ const getMultipleSolanaAccountsCore = async (
 
   // TODO: Replace with a public method once available
   // See https://github.com/solana-labs/solana/issues/12302
-  const unsafeRes = await (rawConnection as UnsafeConnection)._rpcRequest(
+  const unsafeRes = (await (rawConnection as UnsafeConnection)._rpcRequest(
     "getMultipleAccounts",
     args,
-  );
+  )) as {
+    readonly error?: Record<string, unknown>;
+    readonly result?: {
+      readonly value?: readonly AccountInfo<readonly string[]>[];
+    };
+  };
 
   if (unsafeRes.error) {
     throw new Error(
-      "Failed to get info about account " + unsafeRes.error.message,
+      "Failed to get info about account " + String(unsafeRes.error.message),
     );
   }
   if (!unsafeRes.result?.value) {
     throw new Error("Failed to get info about account");
   }
 
-  const array = unsafeRes.result.value as readonly AccountInfo<
-    readonly string[]
-  >[];
+  const array = unsafeRes.result.value;
   return { keys, array };
 };
 
@@ -466,4 +471,13 @@ export const getMultipleSolanaAccounts = async (
     }),
   );
   return { keys, array };
+};
+
+type CreateTxOptions = Omit<
+  TransactionBlockhashCtor,
+  "blockhash" | "lastValidBlockHeight"
+>;
+/** Create transaction with dummy blockhash and lastValidBlockHeight, expected to be overwritten by solanaConnection.sendAndConfirmTx to prevent expired blockhash */
+export const createTx = (opts: CreateTxOptions): Transaction => {
+  return new Transaction({ ...opts, blockhash: "", lastValidBlockHeight: 0 });
 };

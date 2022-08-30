@@ -1,3 +1,4 @@
+import { findOrThrow } from "@swim-io/utils";
 import { useMutation, useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
@@ -19,7 +20,6 @@ import {
   isSolanaPool,
   isUnlockEvmTx,
 } from "../../models";
-import { findOrThrow } from "../../utils";
 import { useEvmConnections, useEvmWallet } from "../evm";
 import {
   useSolanaConnection,
@@ -102,13 +102,13 @@ export const useReloadInteractionStateMutation = () => {
         const sourceWormhole = sourceChainSpec.wormhole;
         const match = evmTxs.find(
           (evmTx) =>
-            evmTx.ecosystem === fromEcosystem &&
+            evmTx.ecosystemId === fromEcosystem &&
             isLockEvmTx(sourceWormhole, token, evmTx),
         );
         if (match) {
           updateInteractionState(interactionId, (draft) => {
             draft.toSolanaTransfers[index].txIds.approveAndTransferEvmToken = [
-              match.txId,
+              match.id,
             ];
           });
         }
@@ -130,7 +130,7 @@ export const useReloadInteractionStateMutation = () => {
         if (match.length > 0) {
           updateInteractionState(interactionId, (draft) => {
             draft.toSolanaTransfers[index].txIds.postVaaOnSolana = match.map(
-              (tx) => tx.txId,
+              (tx) => tx.id,
             );
           });
         }
@@ -147,8 +147,7 @@ export const useReloadInteractionStateMutation = () => {
         );
         if (match) {
           updateInteractionState(interactionId, (draft) => {
-            draft.toSolanaTransfers[index].txIds.claimTokenOnSolana =
-              match.txId;
+            draft.toSolanaTransfers[index].txIds.claimTokenOnSolana = match.id;
           });
         }
       }
@@ -177,7 +176,7 @@ export const useReloadInteractionStateMutation = () => {
 
         if (match) {
           updateInteractionState(interactionId, (draft) => {
-            draft.solanaPoolOperations[index].txId = match.txId;
+            draft.solanaPoolOperations[index].txId = match.id;
           });
         }
       }
@@ -200,8 +199,7 @@ export const useReloadInteractionStateMutation = () => {
         );
         if (match) {
           updateInteractionState(interactionId, (draft) => {
-            draft.fromSolanaTransfers[index].txIds.transferSplToken =
-              match.txId;
+            draft.fromSolanaTransfers[index].txIds.transferSplToken = match.id;
           });
         }
       }
@@ -217,7 +215,7 @@ export const useReloadInteractionStateMutation = () => {
         );
         if (match) {
           updateInteractionState(interactionId, (draft) => {
-            draft.fromSolanaTransfers[index].txIds.claimTokenOnEvm = match.txId;
+            draft.fromSolanaTransfers[index].txIds.claimTokenOnEvm = match.id;
           });
         }
       }

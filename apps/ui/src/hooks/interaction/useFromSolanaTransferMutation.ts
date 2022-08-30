@@ -1,15 +1,17 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { Transaction } from "@solana/web3.js";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { findOrThrow, isEachNotNull } from "@swim-io/utils";
 import { useMutation } from "react-query";
 
 import type { Config } from "../../config";
 import {
   ECOSYSTEMS,
-  EcosystemId,
   Protocol,
   WormholeChainId,
   getSolanaTokenDetails,
+  getTokenDetailsForEcosystem,
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
@@ -27,7 +29,6 @@ import {
 import { getToEcosystemOfFromSolanaTransfer } from "../../models/swim/transfer";
 import { DEFAULT_WORMHOLE_RETRIES } from "../../models/wormhole/constants";
 import { getSignedVaaWithRetry } from "../../models/wormhole/guardiansRpc";
-import { findOrThrow, isEachNotNull } from "../../utils";
 import { useWallets } from "../crossEcosystem";
 import { useEvmConnections } from "../evm";
 import {
@@ -52,11 +53,11 @@ const getTransferredAmountsByTokenId = async (
   } = outputOperation;
   const { tokens, lpToken } = tokensByPoolId[poolId];
   const txs: readonly Tx[] = await Promise.all(
-    txIds.map(async (txId) => {
-      const parsedTx = await solanaConnection.getParsedTx(txId);
+    txIds.map(async (id) => {
+      const parsedTx = await solanaConnection.getParsedTx(id);
       return {
-        ecosystem: EcosystemId.Solana as const,
-        txId,
+        id,
+        ecosystemId: SOLANA_ECOSYSTEM_ID,
         timestamp: parsedTx.blockTime ?? null,
         interactionId: interaction.id,
         parsedTx,
@@ -91,12 +92,15 @@ export const useFromSolanaTransferMutation = () => {
     const { interaction } = interactionState;
     const { fromSolanaTransfers } = interactionState;
 
-    const solanaWallet = wallets[EcosystemId.Solana].wallet;
+    const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
     if (!solanaWallet) {
       throw new Error("No Solana wallet");
     }
     if (!solanaWalletAddress) {
       throw new Error("No Solana wallet address");
+    }
+    if (!wormhole) {
+      throw new Error("No Wormhole RPC configured");
     }
 
     const poolOperationTxIds = interactionState.solanaPoolOperations.map(
@@ -133,7 +137,7 @@ export const useFromSolanaTransferMutation = () => {
       const value =
         transfer.value ??
         transferredAmounts[transfer.token.id]?.toHuman(
-          transfer.token.nativeEcosystem,
+          transfer.token.nativeEcosystemId,
         );
       if (!value) {
         throw new Error("Unknown transfer amount");
@@ -153,9 +157,9 @@ export const useFromSolanaTransferMutation = () => {
         chains[Protocol.Evm],
         ({ ecosystem }) => ecosystem === toEcosystem,
       );
-      const tokenDetail = token.detailsByEcosystem.get(toEcosystem);
-      if (!tokenDetail) {
-        throw new Error("No token detail");
+      const tokenDetails = getTokenDetailsForEcosystem(token, toEcosystem);
+      if (!tokenDetails) {
+        throw new Error("No token details");
       }
       const splTokenAccount = findTokenAccountForMint(
         solanaTokenDetails.address,
@@ -177,15 +181,16 @@ export const useFromSolanaTransferMutation = () => {
           solanaWalletAddress,
           splTokenAccount.address.toBase58(),
           solanaTokenDetails.address,
-          BigInt(amount.toAtomicString(EcosystemId.Solana)),
+          BigInt(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)),
           evmAddressToWormhole(evmWalletAddress),
           evmEcosystem.wormholeChainId,
-          token.nativeEcosystem === evmChain.ecosystem
+          token.nativeEcosystemId === evmChain.ecosystem
             ? evmAddressToWormhole(
-                token.detailsByEcosystem.get(evmChain.ecosystem)?.address ?? "",
+                getTokenDetailsForEcosystem(token, evmChain.ecosystem)
+                  ?.address ?? "",
               )
             : undefined,
-          token.nativeEcosystem === evmChain.ecosystem
+          token.nativeEcosystemId === evmChain.ecosystem
             ? evmEcosystem.wormholeChainId
             : undefined,
         );

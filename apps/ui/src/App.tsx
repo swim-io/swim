@@ -18,9 +18,10 @@ import PoolPage from "./pages/PoolPage";
 import PoolsPage from "./pages/PoolsPage";
 import RedeemPage from "./pages/RedeemPage";
 import SecurityPage from "./pages/SecurityPage";
-import SetCustomLocalnetPage from "./pages/SetCustomLocalnetPage";
+import SetCustomIpPage from "./pages/SetCustomIpPage";
 import StakePage from "./pages/StakePage";
 import SwapPage from "./pages/SwapPage";
+import SwapPageV2 from "./pages/SwapPageV2";
 import TestPage from "./pages/TestPage";
 import TosPage from "./pages/TosPage";
 
@@ -52,15 +53,19 @@ function App(): ReactElement {
         <AppContext>
           <Layout>
             <Routes>
-              <Route
-                path="set-custom-localnet"
-                element={<SetCustomLocalnetPage />}
-              />
+              <Route path="set-custom-ip" element={<SetCustomIpPage />} />
               <Route path="test" element={<TestPage />} />
               <Route path="pools" element={<PoolsPage />} />
               <Route path="pools/:poolId" element={<PoolPage />} />
               <Route path="stake" element={<StakePage poolId="swimlake" />} />
               <Route path="swap" element={<SwapPage />} />
+              <Route
+                path="swap/:fromToken/to/:toToken"
+                element={<SwapPage />}
+              />
+              {process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE && (
+                <Route path="swapV2" element={<SwapPageV2 />} />
+              )}
               {process.env.REACT_APP_ENABLE_NFT && (
                 <Route path="otter-tots" element={<OtterTotsPage />} />
               )}

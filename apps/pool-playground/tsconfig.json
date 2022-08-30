@@ -1,10 +1,9 @@
 {
-  "extends": "../../tsconfig.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@swim-io/tsconfig/tsconfig-base.json",
   "compilerOptions": {
-    "skipLibCheck": true,
-    "baseUrl": ".",
-    "outDir": "build",
-    "rootDir": "src"
+    "outDir": "build/",
+    "rootDir": "src/"
   },
-  "include": ["src"]
+  "include": ["src/"]
 }

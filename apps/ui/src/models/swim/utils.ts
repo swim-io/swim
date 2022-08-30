@@ -1,10 +1,13 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { filterMap, findOrThrow } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
-import type { PoolSpec, TokenSpec } from "../../config";
-import { EcosystemId } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
-import { filterMap, findOrThrow } from "../../utils";
+import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
+import { getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../amount";
 
 import type { InteractionSpec, InteractionSpecV2 } from "./interaction";
@@ -22,7 +25,7 @@ const mapNonZeroAmountsToNativeEcosystems = (
         tokens,
         (token) => token.id === amount.tokenId,
       );
-      return tokenSpec.nativeEcosystem;
+      return tokenSpec.nativeEcosystemId;
     },
     amounts,
   );
@@ -38,7 +41,7 @@ export const getRequiredEcosystems = (
         ...params.inputAmounts.values(),
       ]);
       return new Set([
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
         lpTokenTargetEcosystem,
         ...inputEcosystems,
       ]);
@@ -49,7 +52,7 @@ export const getRequiredEcosystems = (
         ...params.minimumOutputAmounts.values(),
       ]);
       return new Set([
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
         lpTokenSourceEcosystem,
         ...outputEcosystems,
       ]);
@@ -60,9 +63,9 @@ export const getRequiredEcosystems = (
         tokens,
         (token) => token.id === params.minimumOutputAmount.tokenId,
       );
-      const outputEcosystem = outputToken.nativeEcosystem;
+      const outputEcosystem = outputToken.nativeEcosystemId;
       return new Set([
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
         lpTokenSourceEcosystem,
         outputEcosystem,
       ]);
@@ -73,7 +76,7 @@ export const getRequiredEcosystems = (
         ...params.exactOutputAmounts.values(),
       ]);
       return new Set([
-        EcosystemId.Solana,
+        SOLANA_ECOSYSTEM_ID,
         lpTokenSourceEcosystem,
         ...outputEcosystems,
       ]);
@@ -82,9 +85,9 @@ export const getRequiredEcosystems = (
       const {
         params: { exactInputAmount, minimumOutputAmount },
       } = interactionSpec;
-      const inputEcosystem = exactInputAmount.tokenSpec.nativeEcosystem;
-      const outputEcosystem = minimumOutputAmount.tokenSpec.nativeEcosystem;
-      return new Set([EcosystemId.Solana, inputEcosystem, outputEcosystem]);
+      const inputEcosystem = exactInputAmount.tokenSpec.nativeEcosystemId;
+      const outputEcosystem = minimumOutputAmount.tokenSpec.nativeEcosystemId;
+      return new Set([SOLANA_ECOSYSTEM_ID, inputEcosystem, outputEcosystem]);
     }
     default:
       throw new Error("Unknown instruction");
@@ -111,15 +114,15 @@ export const getConnectedWallets = (
           }
         : accumulator,
     {
-      [EcosystemId.Solana]: null,
-      [EcosystemId.Ethereum]: null,
-      [EcosystemId.Bnb]: null,
-      [EcosystemId.Avalanche]: null,
-      [EcosystemId.Polygon]: null,
-      [EcosystemId.Aurora]: null,
-      [EcosystemId.Fantom]: null,
-      [EcosystemId.Karura]: null,
-      [EcosystemId.Acala]: null,
+      [SOLANA_ECOSYSTEM_ID]: null,
+      [EvmEcosystemId.Ethereum]: null,
+      [EvmEcosystemId.Bnb]: null,
+      [EvmEcosystemId.Avalanche]: null,
+      [EvmEcosystemId.Polygon]: null,
+      [EvmEcosystemId.Aurora]: null,
+      [EvmEcosystemId.Fantom]: null,
+      [EvmEcosystemId.Karura]: null,
+      [EvmEcosystemId.Acala]: null,
     },
   );
 };
@@ -164,15 +167,15 @@ export const getConnectedWalletsV2 = (
           }
         : accumulator,
     {
-      [EcosystemId.Solana]: null,
-      [EcosystemId.Ethereum]: null,
-      [EcosystemId.Bnb]: null,
-      [EcosystemId.Avalanche]: null,
-      [EcosystemId.Polygon]: null,
-      [EcosystemId.Aurora]: null,
-      [EcosystemId.Fantom]: null,
-      [EcosystemId.Karura]: null,
-      [EcosystemId.Acala]: null,
+      [SOLANA_ECOSYSTEM_ID]: null,
+      [EvmEcosystemId.Ethereum]: null,
+      [EvmEcosystemId.Bnb]: null,
+      [EvmEcosystemId.Avalanche]: null,
+      [EvmEcosystemId.Polygon]: null,
+      [EvmEcosystemId.Aurora]: null,
+      [EvmEcosystemId.Fantom]: null,
+      [EvmEcosystemId.Karura]: null,
+      [EvmEcosystemId.Acala]: null,
     },
   );
 };
@@ -181,20 +184,24 @@ export const getPoolUsdValue = (
   tokens: readonly TokenSpec[],
   poolTokenAccounts: readonly TokenAccount[],
 ): Decimal | null =>
-  tokens.every((tokenSpec) => tokenSpec.project.isStablecoin)
+  tokens.every(
+    (tokenSpec) => TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].isStablecoin,
+  )
     ? poolTokenAccounts.reduce((acc, account) => {
         const tokenSpec = tokens.find(
           (spec) =>
-            spec.detailsByEcosystem.get(EcosystemId.Solana)?.address ===
+            getTokenDetailsForEcosystem(spec, SOLANA_ECOSYSTEM_ID)?.address ===
             account.mint.toBase58(),
         );
         if (!tokenSpec) {
           throw new Error("Token spec not found");
         }
         return acc.add(
-          Amount.fromU64(tokenSpec, account.amount, EcosystemId.Solana).toHuman(
-            EcosystemId.Solana,
-          ),
+          Amount.fromU64(
+            tokenSpec,
+            account.amount,
+            SOLANA_ECOSYSTEM_ID,
+          ).toHuman(SOLANA_ECOSYSTEM_ID),
         );
       }, new Decimal(0))
     : null;

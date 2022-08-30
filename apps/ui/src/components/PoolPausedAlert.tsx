@@ -1,19 +1,25 @@
 import { EuiButton, EuiCallOut, EuiPanel } from "@elastic/eui";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
 export const PoolPausedAlert = ({
   isVisible,
 }: {
   readonly isVisible: boolean;
 }): ReactElement => {
+  const { t } = useTranslation();
   if (!isVisible) {
     return <></>;
   }
 
   return (
     <EuiPanel hasShadow={false} style={{ paddingLeft: 0, paddingRight: 0 }}>
-      <EuiCallOut title="Pool Paused" color="danger" iconType="alert">
-        <p>The required pool is currently paused. Please try again later.</p>
+      <EuiCallOut
+        title={t("pool_paused_alert.title")}
+        color="danger"
+        iconType="alert"
+      >
+        <p>{t("pool_paused_alert.description")}</p>
         <EuiButton
           href="/help"
           onClick={(e) => {
@@ -25,7 +31,7 @@ export const PoolPausedAlert = ({
           iconSide="right"
           size="s"
         >
-          Get help
+          {t("general.get_help_button")}
         </EuiButton>
       </EuiCallOut>
     </EuiPanel>

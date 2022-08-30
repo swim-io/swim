@@ -1,44 +1,45 @@
 import { getSignedVAAWithRetry as originalGetSignedVAAWithRetry } from "@certusone/wormhole-sdk";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import type { RpcError } from "grpc-web";
 import { StatusCode } from "grpc-web";
 
 import { SwimError } from "../../errors";
-import type { ReadonlyRecord } from "../../utils";
+import { i18next } from "../../i18n";
 
 const isRpcError = (error: unknown): error is RpcError => {
   return (
     error instanceof Error &&
     "code" in error &&
-    Object.values(StatusCode).includes((error as any).code)
+    Object.values(StatusCode).includes(
+      (error as Record<string, unknown>).code as string,
+    )
   );
 };
 
-// Common RPC errors as seen in Swim
-// message: requested VAA not found in store, code: 5 (StatusCode.NOT_FOUND)
-// message: Response closed without headers, code: 2 (StatusCode.UNKNOWN)
+export const getSignedVaaWithRetry: typeof originalGetSignedVAAWithRetry =
+  async (...args) => {
+    const INTERNAL_ERROR_MESSAGE = i18next.t("general.internal_vaa_error");
+    const UNAVAILABLE_MESSAGE = i18next.t("general.unreachable_vaa_error");
 
-const INTERNAL_ERROR_MESSAGE =
-  "Something went wrong, please contact Swim support.";
-const UNAVAILABLE_MESSAGE =
-  "We are unable to reach the Wormhole guardians. Please try again later.";
+    // Common RPC errors as seen in Swim
+    // message: requested VAA not found in store, code: 5 (StatusCode.NOT_FOUND)
+    // message: Response closed without headers, code: 2 (StatusCode.UNKNOWN)
+    const MESSAGES: Partial<ReadonlyRecord<StatusCode, string>> = {
+      [StatusCode.INTERNAL]: INTERNAL_ERROR_MESSAGE,
+      [StatusCode.INVALID_ARGUMENT]: INTERNAL_ERROR_MESSAGE,
+      [StatusCode.NOT_FOUND]: i18next.t(
+        "general.cannot_confirm_transfer_vaa_error",
+      ),
+      [StatusCode.UNAVAILABLE]: UNAVAILABLE_MESSAGE,
+      [StatusCode.UNKNOWN]: UNAVAILABLE_MESSAGE,
+    };
 
-const MESSAGES: ReadonlyRecord<StatusCode, string | undefined> = {
-  [StatusCode.INTERNAL]: INTERNAL_ERROR_MESSAGE,
-  [StatusCode.INVALID_ARGUMENT]: INTERNAL_ERROR_MESSAGE,
-  [StatusCode.NOT_FOUND]:
-    "Could not confirm transfer with Wormhole guardians. This usually happens when the source blockchain is congested. Please try again later.",
-  [StatusCode.UNAVAILABLE]: UNAVAILABLE_MESSAGE,
-  [StatusCode.UNKNOWN]: UNAVAILABLE_MESSAGE,
-};
+    return await originalGetSignedVAAWithRetry(...args).catch((error) => {
+      if (isRpcError(error)) {
+        const message = MESSAGES[error.code];
+        if (message) throw new SwimError(message, error);
+      }
 
-export const getSignedVaaWithRetry: typeof originalGetSignedVAAWithRetry = (
-  ...args
-) =>
-  originalGetSignedVAAWithRetry(...args).catch((error) => {
-    if (isRpcError(error)) {
-      const message = MESSAGES[error.code];
-      if (message) throw new SwimError(message, error);
-    }
-
-    throw error;
-  });
+      throw error;
+    });
+  };

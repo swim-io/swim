@@ -1,8 +1,11 @@
 import type { EuiStepProps, EuiStepStatus } from "@elastic/eui";
 import { EuiListGroup, EuiLoadingSpinner, EuiText } from "@elastic/eui";
+import type { Env } from "@swim-io/core";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { isNotNull } from "@swim-io/utils";
 
-import type { Env } from "../../../config";
-import { DEVNET_SWIMUSD, EcosystemId, findTokenById } from "../../../config";
+import { DEVNET_SWIMUSD, findTokenById } from "../../../config";
+import { i18next } from "../../../i18n";
 import type {
   AddInteractionState,
   CrossChainEvmSwapInteractionState,
@@ -20,11 +23,9 @@ import {
   isAddInteractionCompleted,
   isRemoveInteractionCompleted,
   isRequiredSplTokenAccountsCompletedV2,
-  isSolanaPoolOperationsCompletedV2,
   isSourceChainOperationCompleted,
   isTargetChainOperationCompleted,
 } from "../../../models";
-import { isNotNull } from "../../../utils";
 import { SwapTransfer } from "../SwapTransfer";
 import { Transfer } from "../Transfer";
 import { TxEcosystemList } from "../TxList";
@@ -72,7 +73,7 @@ const buildPrepareSplTokenAccountStep = (
   );
 
   return {
-    title: "Prepare Solana accounts",
+    title: i18next.t("recent_interactions.prepare_solana_accounts_title"),
     status,
     children: (
       <EuiText size="m">
@@ -80,7 +81,11 @@ const buildPrepareSplTokenAccountStep = (
           {status === "loading" && (
             <EuiLoadingSpinner size="m" style={{ marginRight: 8 }} />
           )}
-          <span>Create SPL token accounts</span>
+          <span>
+            {i18next.t(
+              "recent_interactions.prepare_solana_accounts_create_step",
+            )}
+          </span>
         </span>
 
         <br />
@@ -91,7 +96,7 @@ const buildPrepareSplTokenAccountStep = (
             .map((txId) => (
               <TxListItem
                 key={txId}
-                ecosystem={EcosystemId.Solana}
+                ecosystem={SOLANA_ECOSYSTEM_ID}
                 txId={txId}
               />
             ))}
@@ -107,30 +112,28 @@ const buildSolanaPoolOperationStep = (
   env: Env,
 ): EuiStepProps | null => {
   const {
-    solanaPoolOperations,
+    onChainSwapTxId,
     interaction: {
       params: { fromTokenDetail, toTokenDetail },
     },
   } = interactionState;
   const status = getEuiStepStatus(
     interactionStatus,
-    isSolanaPoolOperationsCompletedV2(solanaPoolOperations),
+    isSourceChainOperationCompleted(interactionState),
   );
   const fromToken = findTokenById(fromTokenDetail.tokenId, env);
   const toToken = findTokenById(toTokenDetail.tokenId, env);
 
   return {
-    title: "Perform pool operation(s) on Solana",
+    title: i18next.t("recent_interactions.perform_pool_operation_on_solana"),
     status,
     children: (
       <SwapTransfer
-        ecosystemId={EcosystemId.Solana}
+        ecosystemId={SOLANA_ECOSYSTEM_ID}
         fromToken={fromToken}
         toToken={toToken}
         isLoading={status === "loading"}
-        transactions={solanaPoolOperations
-          .map(({ txId }) => txId)
-          .filter(isNotNull)}
+        transactions={[onChainSwapTxId].filter(isNotNull)}
       />
     ),
   };
@@ -156,14 +159,16 @@ const buildEvmPoolOperationStep = (
   );
 
   return {
-    title: "Swap tokens",
+    title: i18next.t("recent_interactions.swap_tokens"),
     status,
     children: (
       <>
         {approvalTxIds.length > 0 && (
           <>
             <EuiText size="m">
-              <span>Approval transactions</span>
+              <span>
+                {i18next.t("recent_interactions.approval_transactions")}
+              </span>
 
               <TxEcosystemList
                 transactions={approvalTxIds}
@@ -211,7 +216,7 @@ const buildSwapAndTransferStep = (
   );
 
   return {
-    title: "Initiate transfer",
+    title: i18next.t("recent_interactions.initiate_transfer"),
     status,
     children: (
       <>
@@ -220,7 +225,9 @@ const buildSwapAndTransferStep = (
           interactionState.approvalTxIds.length > 0 && (
             <>
               <EuiText size="m">
-                <span>Approval transactions</span>
+                <span>
+                  {i18next.t("recent_interactions.approval_transactions")}
+                </span>
 
                 <TxEcosystemList
                   transactions={interactionState.approvalTxIds}
@@ -280,7 +287,7 @@ const buildReceiveAndSwapStep = (
   );
 
   return {
-    title: "Receive and swap",
+    title: i18next.t("recent_interactions.receive_and_swap"),
     status,
     children: (
       <SwapTransfer
@@ -316,11 +323,13 @@ const buildPostVaaAndClaimToken = (
   );
 
   return {
-    title: "Complete transfer and claim token on Solana",
+    title: i18next.t(
+      "recent_interactions.complete_transfer_and_claim_token_on_solana",
+    ),
     status,
     children: (
       <SwapTransfer
-        ecosystemId={EcosystemId.Solana}
+        ecosystemId={SOLANA_ECOSYSTEM_ID}
         fromToken={swimUSD}
         toToken={toToken}
         isLoading={status === "loading"}
@@ -344,14 +353,16 @@ const buildRemoveStep = (
   );
 
   return {
-    title: "Swap LP tokens",
+    title: i18next.t("recent_interactions.swap_lp_tokens"),
     status,
     children: (
       <>
         {interactionState.approvalTxIds.length > 0 && (
           <>
             <EuiText size="m">
-              <span>Approval transactions</span>
+              <span>
+                {i18next.t("recent_interactions.approval_transactions")}
+              </span>
 
               <TxEcosystemList
                 transactions={interactionState.approvalTxIds}
@@ -433,7 +444,7 @@ const buildRemoveStep = (
   };
 };
 
-export const buildAddStep = (
+const buildAddStep = (
   interactionState: AddInteractionState,
   interactionStatus: InteractionStatusV2,
 ): EuiStepProps => {
@@ -445,14 +456,16 @@ export const buildAddStep = (
   );
 
   return {
-    title: "Swap LP tokens",
+    title: i18next.t("recent_interactions.swap_lp_tokens"),
     status,
     children: (
       <>
         {interactionState.approvalTxIds.length > 0 && (
           <>
             <EuiText size="m">
-              <span>Approval transactions</span>
+              <span>
+                {i18next.t("recent_interactions.approval_transactions")}
+              </span>
 
               <TxEcosystemList
                 transactions={interactionState.approvalTxIds}
@@ -471,7 +484,7 @@ export const buildAddStep = (
               key={inputAmount.tokenId}
               fromToken={inputAmount.tokenSpec}
               toToken={minimumMintAmount.tokenSpec}
-              ecosystemId={minimumMintAmount.tokenSpec.nativeEcosystem}
+              ecosystemId={minimumMintAmount.tokenSpec.nativeEcosystemId}
               isLoading={status === "loading"}
               transactions={[]}
             />

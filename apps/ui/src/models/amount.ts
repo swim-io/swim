@@ -1,9 +1,13 @@
 import type { u64 } from "@solana/spl-token";
+import type { TokenDetails } from "@swim-io/core";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
 import { u64ToDecimal } from "../amounts";
-import type { EcosystemId, TokenDetails, TokenSpec } from "../config";
+import type { EcosystemId, TokenSpec } from "../config";
+import { getTokenDetailsForEcosystem } from "../config";
+import { fallbackLanguageIfNotSupported, i18next } from "../i18n";
 
 export class Amount {
   public readonly tokenSpec: TokenSpec;
@@ -39,7 +43,7 @@ export class Amount {
     value: Decimal,
     ecosystemId: EcosystemId,
   ): Amount {
-    const details = tokenSpec.detailsByEcosystem.get(ecosystemId);
+    const details = getTokenDetailsForEcosystem(tokenSpec, ecosystemId);
     if (!details) {
       throw new Error(
         `No token details for ecosystem ${ecosystemId} and token '${tokenSpec.id}'`,
@@ -61,6 +65,7 @@ export class Amount {
     );
   }
 
+  /** Always parse from standard number which uses `,` as group separators and `.` as decimal separators */
   static fromHumanString(tokenSpec: TokenSpec, value: string): Amount {
     const strippedValue = value.replace(/,/g, "");
     return Amount.fromHuman(tokenSpec, new Decimal(strippedValue));
@@ -111,27 +116,30 @@ export class Amount {
   }
 
   toFormattedHumanString(ecosystemId: EcosystemId): string {
-    const humanString = this.toHuman(ecosystemId).toFixed(
-      this.tokenSpec.project.isStablecoin ? 2 : undefined,
+    const language = fallbackLanguageIfNotSupported(
+      Intl.NumberFormat,
+      i18next.resolvedLanguage,
     );
+    const numberFormatter = new Intl.NumberFormat(language, {
+      ...(TOKEN_PROJECTS_BY_ID[this.tokenSpec.projectId].isStablecoin
+        ? {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }
+        : {
+            maximumFractionDigits: 20, // max value allowed
+          }),
+    });
 
-    // NOTE: Safari doesn't support lookbehind :(
-    const parts = humanString.split(".");
-    const withThousandsSeparators = parts[0].replace(
-      /\B(?=(\d{3})+(?!\d))/g,
-      ",",
-    );
-    return parts.length > 1
-      ? `${withThousandsSeparators}.${parts[1]}`
-      : withThousandsSeparators;
+    return numberFormatter.format(this.toHuman(ecosystemId).toNumber());
   }
 
   toJSON(): string {
-    return this.toHumanString(this.tokenSpec.nativeEcosystem);
+    return this.toHumanString(this.tokenSpec.nativeEcosystemId);
   }
 
   toPrimitive(): string {
-    return this.toHumanString(this.tokenSpec.nativeEcosystem);
+    return this.toHumanString(this.tokenSpec.nativeEcosystemId);
   }
 
   equals(amount: Amount): boolean {
@@ -186,7 +194,7 @@ export class Amount {
   }
 
   private details(ecosystemId: EcosystemId): TokenDetails {
-    const details = this.tokenSpec.detailsByEcosystem.get(ecosystemId);
+    const details = getTokenDetailsForEcosystem(this.tokenSpec, ecosystemId);
     if (!details) {
       throw new Error("No token details for ecosystem");
     }

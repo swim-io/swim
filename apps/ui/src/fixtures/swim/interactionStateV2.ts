@@ -1,6 +1,8 @@
+import { Env } from "@swim-io/core";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import Decimal from "decimal.js";
 
-import { EcosystemId, Env } from "../../config";
 import { Amount, InteractionType, SwapType } from "../../models";
 import type {
   AddInteraction,
@@ -15,20 +17,13 @@ import type {
   RequiredSplTokenAccounts,
   SingleChainEvmSwapInteractionState,
   SingleChainSolanaSwapInteractionState,
-  SolanaPoolOperationState,
   SwapInteractionV2,
 } from "../../models";
 
 import {
-  BNB_BUSD,
-  BNB_USDT,
-  ETHEREUM_USDC,
   ETHEREUM_USDC_DEVNET,
-  ETHEREUM_USDT,
   ETHEREUM_USDT_DEVNET,
-  SOLANA_USDC,
   SOLANA_USDC_DEVNET,
-  SOLANA_USDT,
   SOLANA_USDT_DEVNET,
   SWIMUSD_DEVNET,
 } from "./tokens";
@@ -38,12 +33,12 @@ export const SINGLE_CHAIN_SOLANA_INTERACTION: SwapInteractionV2 = {
   params: {
     fromTokenDetail: {
       tokenId: "devnet-solana-usdc",
-      ecosystemId: EcosystemId.Solana,
+      ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("100"),
     },
     toTokenDetail: {
       tokenId: "devnet-solana-usdt",
-      ecosystemId: EcosystemId.Solana,
+      ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("101"),
     },
   },
@@ -52,15 +47,15 @@ export const SINGLE_CHAIN_SOLANA_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-    [EcosystemId.Bnb]: null,
-    [EcosystemId.Ethereum]: null,
-    [EcosystemId.Acala]: null,
-    [EcosystemId.Aurora]: null,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Fantom]: null,
-    [EcosystemId.Karura]: null,
-    [EcosystemId.Polygon]: null,
+    [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    [EvmEcosystemId.Bnb]: null,
+    [EvmEcosystemId.Ethereum]: null,
+    [EvmEcosystemId.Acala]: null,
+    [EvmEcosystemId.Aurora]: null,
+    [EvmEcosystemId.Avalanche]: null,
+    [EvmEcosystemId.Fantom]: null,
+    [EvmEcosystemId.Karura]: null,
+    [EvmEcosystemId.Polygon]: null,
   },
 };
 
@@ -97,46 +92,13 @@ const SPL_TOKEN_ACCOUNTS_CREATED: RequiredSplTokenAccounts = {
   },
 };
 
-const SOLANA_POOLS_OPERATIONS_INIT: readonly SolanaPoolOperationState[] = [
-  {
-    operation: {
-      interactionId: "2eed9eef597a2aa14314845afe87079f",
-      poolId: "devnet-solana-usdc-usdt",
-      instruction: 1,
-      params: {
-        exactInputAmounts: [
-          Amount.fromHumanString(SOLANA_USDC, "0"),
-          Amount.fromHumanString(SOLANA_USDT, "0"),
-          Amount.fromHumanString(ETHEREUM_USDC, "0"),
-          Amount.fromHumanString(ETHEREUM_USDT, "0"),
-          Amount.fromHumanString(BNB_BUSD, "0"),
-          Amount.fromHumanString(BNB_USDT, "1001"),
-        ],
-        outputTokenIndex: 2,
-        minimumOutputAmount: Amount.fromHumanString(
-          ETHEREUM_USDC,
-          "995.624615",
-        ),
-      },
-    },
-    txId: null,
-  },
-];
-
-const SOLANA_POOLS_OPERATIONS_COMPLETED: readonly SolanaPoolOperationState[] = [
-  {
-    ...SOLANA_POOLS_OPERATIONS_INIT[0],
-    txId: "53r98E5EiffkmJ6WVA2VKmq78LVCT4zcRVxo76EWoUFiNpdxbno7UVeUT6oQgsVM3xeU99mQmnUjFVscz7PC1gK8",
-  },
-];
-
 export const SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT: SingleChainSolanaSwapInteractionState =
   {
     interaction: SINGLE_CHAIN_SOLANA_INTERACTION,
     interactionType: InteractionType.SwapV2,
     swapType: SwapType.SingleChainSolana,
     requiredSplTokenAccounts: SPL_TOKEN_ACCOUNTS_INIT,
-    solanaPoolOperations: SOLANA_POOLS_OPERATIONS_INIT,
+    onChainSwapTxId: null,
   };
 
 export const SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS: SingleChainSolanaSwapInteractionState =
@@ -154,7 +116,8 @@ export const SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUN
 export const SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_COMPLETED: SingleChainSolanaSwapInteractionState =
   {
     ...SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS,
-    solanaPoolOperations: SOLANA_POOLS_OPERATIONS_COMPLETED,
+    onChainSwapTxId:
+      "53r98E5EiffkmJ6WVA2VKmq78LVCT4zcRVxo76EWoUFiNpdxbno7UVeUT6oQgsVM3xeU99mQmnUjFVscz7PC1gK8",
   };
 
 const SINGLE_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
@@ -162,12 +125,12 @@ const SINGLE_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   params: {
     fromTokenDetail: {
       tokenId: "devnet-ethereum-usdc",
-      ecosystemId: EcosystemId.Ethereum,
+      ecosystemId: EvmEcosystemId.Ethereum,
       value: new Decimal("100"),
     },
     toTokenDetail: {
       tokenId: "devnet-ethereum-usdt",
-      ecosystemId: EcosystemId.Ethereum,
+      ecosystemId: EvmEcosystemId.Ethereum,
       value: new Decimal("101"),
     },
   },
@@ -176,15 +139,15 @@ const SINGLE_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [EcosystemId.Solana]: null,
-    [EcosystemId.Bnb]: null,
-    [EcosystemId.Ethereum]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
-    [EcosystemId.Acala]: null,
-    [EcosystemId.Aurora]: null,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Fantom]: null,
-    [EcosystemId.Karura]: null,
-    [EcosystemId.Polygon]: null,
+    [SOLANA_ECOSYSTEM_ID]: null,
+    [EvmEcosystemId.Bnb]: null,
+    [EvmEcosystemId.Ethereum]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
+    [EvmEcosystemId.Acala]: null,
+    [EvmEcosystemId.Aurora]: null,
+    [EvmEcosystemId.Avalanche]: null,
+    [EvmEcosystemId.Fantom]: null,
+    [EvmEcosystemId.Karura]: null,
+    [EvmEcosystemId.Polygon]: null,
   },
 };
 
@@ -218,12 +181,12 @@ const CROSS_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   params: {
     fromTokenDetail: {
       tokenId: "devnet-ethereum-usdc",
-      ecosystemId: EcosystemId.Ethereum,
+      ecosystemId: EvmEcosystemId.Ethereum,
       value: new Decimal("100"),
     },
     toTokenDetail: {
       tokenId: "devnet-bnb-usdt",
-      ecosystemId: EcosystemId.Bnb,
+      ecosystemId: EvmEcosystemId.Bnb,
       value: new Decimal("101"),
     },
   },
@@ -232,15 +195,15 @@ const CROSS_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [EcosystemId.Solana]: null,
-    [EcosystemId.Bnb]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
-    [EcosystemId.Ethereum]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
-    [EcosystemId.Acala]: null,
-    [EcosystemId.Aurora]: null,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Fantom]: null,
-    [EcosystemId.Karura]: null,
-    [EcosystemId.Polygon]: null,
+    [SOLANA_ECOSYSTEM_ID]: null,
+    [EvmEcosystemId.Bnb]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
+    [EvmEcosystemId.Ethereum]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
+    [EvmEcosystemId.Acala]: null,
+    [EvmEcosystemId.Aurora]: null,
+    [EvmEcosystemId.Avalanche]: null,
+    [EvmEcosystemId.Fantom]: null,
+    [EvmEcosystemId.Karura]: null,
+    [EvmEcosystemId.Polygon]: null,
   },
 };
 
@@ -285,12 +248,12 @@ const CROSS_CHAIN_SOLANA_TO_EVM_INTERACTION: SwapInteractionV2 = {
   params: {
     fromTokenDetail: {
       tokenId: "devnet-solana-usdc",
-      ecosystemId: EcosystemId.Solana,
+      ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("100"),
     },
     toTokenDetail: {
       tokenId: "devnet-bnb-usdt",
-      ecosystemId: EcosystemId.Bnb,
+      ecosystemId: EvmEcosystemId.Bnb,
       value: new Decimal("101"),
     },
   },
@@ -299,15 +262,15 @@ const CROSS_CHAIN_SOLANA_TO_EVM_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-    [EcosystemId.Bnb]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
-    [EcosystemId.Ethereum]: null,
-    [EcosystemId.Acala]: null,
-    [EcosystemId.Aurora]: null,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Fantom]: null,
-    [EcosystemId.Karura]: null,
-    [EcosystemId.Polygon]: null,
+    [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    [EvmEcosystemId.Bnb]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
+    [EvmEcosystemId.Ethereum]: null,
+    [EvmEcosystemId.Acala]: null,
+    [EvmEcosystemId.Aurora]: null,
+    [EvmEcosystemId.Avalanche]: null,
+    [EvmEcosystemId.Fantom]: null,
+    [EvmEcosystemId.Karura]: null,
+    [EvmEcosystemId.Polygon]: null,
   },
 };
 
@@ -354,12 +317,12 @@ const CROSS_CHAIN_EVM_TO_SOLANA_INTERACTION: SwapInteractionV2 = {
   params: {
     fromTokenDetail: {
       tokenId: "devnet-bnb-usdt",
-      ecosystemId: EcosystemId.Bnb,
+      ecosystemId: EvmEcosystemId.Bnb,
       value: new Decimal("101"),
     },
     toTokenDetail: {
       tokenId: "devnet-solana-usdc",
-      ecosystemId: EcosystemId.Solana,
+      ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("100"),
     },
   },
@@ -368,15 +331,15 @@ const CROSS_CHAIN_EVM_TO_SOLANA_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-    [EcosystemId.Bnb]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
-    [EcosystemId.Ethereum]: null,
-    [EcosystemId.Acala]: null,
-    [EcosystemId.Aurora]: null,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Fantom]: null,
-    [EcosystemId.Karura]: null,
-    [EcosystemId.Polygon]: null,
+    [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    [EvmEcosystemId.Bnb]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
+    [EvmEcosystemId.Ethereum]: null,
+    [EvmEcosystemId.Acala]: null,
+    [EvmEcosystemId.Aurora]: null,
+    [EvmEcosystemId.Avalanche]: null,
+    [EvmEcosystemId.Fantom]: null,
+    [EvmEcosystemId.Karura]: null,
+    [EvmEcosystemId.Polygon]: null,
   },
 };
 
@@ -439,19 +402,19 @@ const ADD_INTERACTION_SOLANA: AddInteraction = {
   id: "2eed9eef597a2aa14314845afe87079f",
   poolIds: ["devnet-solana-usdc-usdt"], // TODO remove from type?
   poolId: "devnet-solana-usdc-usdt",
-  lpTokenTargetEcosystem: EcosystemId.Solana,
+  lpTokenTargetEcosystem: SOLANA_ECOSYSTEM_ID,
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-    [EcosystemId.Bnb]: null,
-    [EcosystemId.Ethereum]: null,
-    [EcosystemId.Acala]: null,
-    [EcosystemId.Aurora]: null,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Fantom]: null,
-    [EcosystemId.Karura]: null,
-    [EcosystemId.Polygon]: null,
+    [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    [EvmEcosystemId.Bnb]: null,
+    [EvmEcosystemId.Ethereum]: null,
+    [EvmEcosystemId.Acala]: null,
+    [EvmEcosystemId.Aurora]: null,
+    [EvmEcosystemId.Avalanche]: null,
+    [EvmEcosystemId.Fantom]: null,
+    [EvmEcosystemId.Karura]: null,
+    [EvmEcosystemId.Polygon]: null,
   },
 };
 
@@ -501,19 +464,19 @@ const ADD_INTERACTION_EVM: AddInteraction = {
   id: "2eed9eef597a2aa14314845afe87079f",
   poolIds: ["devnet-ethereum-usdc-usdt"], // TODO remove from type?
   poolId: "devnet-ethereum-usdc-usdt",
-  lpTokenTargetEcosystem: EcosystemId.Ethereum,
+  lpTokenTargetEcosystem: EvmEcosystemId.Ethereum,
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [EcosystemId.Solana]: null,
-    [EcosystemId.Bnb]: null,
-    [EcosystemId.Ethereum]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
-    [EcosystemId.Acala]: null,
-    [EcosystemId.Aurora]: null,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Fantom]: null,
-    [EcosystemId.Karura]: null,
-    [EcosystemId.Polygon]: null,
+    [SOLANA_ECOSYSTEM_ID]: null,
+    [EvmEcosystemId.Bnb]: null,
+    [EvmEcosystemId.Ethereum]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
+    [EvmEcosystemId.Acala]: null,
+    [EvmEcosystemId.Aurora]: null,
+    [EvmEcosystemId.Avalanche]: null,
+    [EvmEcosystemId.Fantom]: null,
+    [EvmEcosystemId.Karura]: null,
+    [EvmEcosystemId.Polygon]: null,
   },
 };
 
@@ -551,19 +514,19 @@ const REMOVE_INTERACTION_SOLANA: RemoveUniformInteraction = {
   id: "2eed9eef597a2aa14314845afe87079f",
   poolIds: ["devnet-solana-usdc-usdt"], // TODO remove from type?
   poolId: "devnet-solana-usdc-usdt",
-  lpTokenSourceEcosystem: EcosystemId.Solana,
+  lpTokenSourceEcosystem: SOLANA_ECOSYSTEM_ID,
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [EcosystemId.Solana]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
-    [EcosystemId.Bnb]: null,
-    [EcosystemId.Ethereum]: null,
-    [EcosystemId.Acala]: null,
-    [EcosystemId.Aurora]: null,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Fantom]: null,
-    [EcosystemId.Karura]: null,
-    [EcosystemId.Polygon]: null,
+    [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    [EvmEcosystemId.Bnb]: null,
+    [EvmEcosystemId.Ethereum]: null,
+    [EvmEcosystemId.Acala]: null,
+    [EvmEcosystemId.Aurora]: null,
+    [EvmEcosystemId.Avalanche]: null,
+    [EvmEcosystemId.Fantom]: null,
+    [EvmEcosystemId.Karura]: null,
+    [EvmEcosystemId.Polygon]: null,
   },
 };
 
@@ -616,19 +579,19 @@ const REMOVE_UNIFORM_INTERACTION_ETHEREUM: RemoveUniformInteraction = {
   id: "2eed9eef597a2aa14314845afe87079f",
   poolIds: ["devnet-ethereum-usdc-usdt"], // TODO remove from type?
   poolId: "devnet-ethereum-usdc-usdt",
-  lpTokenSourceEcosystem: EcosystemId.Solana,
+  lpTokenSourceEcosystem: SOLANA_ECOSYSTEM_ID,
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
-    [EcosystemId.Solana]: null,
-    [EcosystemId.Bnb]: null,
-    [EcosystemId.Ethereum]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
-    [EcosystemId.Acala]: null,
-    [EcosystemId.Aurora]: null,
-    [EcosystemId.Avalanche]: null,
-    [EcosystemId.Fantom]: null,
-    [EcosystemId.Karura]: null,
-    [EcosystemId.Polygon]: null,
+    [SOLANA_ECOSYSTEM_ID]: null,
+    [EvmEcosystemId.Bnb]: null,
+    [EvmEcosystemId.Ethereum]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
+    [EvmEcosystemId.Acala]: null,
+    [EvmEcosystemId.Aurora]: null,
+    [EvmEcosystemId.Avalanche]: null,
+    [EvmEcosystemId.Fantom]: null,
+    [EvmEcosystemId.Karura]: null,
+    [EvmEcosystemId.Polygon]: null,
   },
 };
 

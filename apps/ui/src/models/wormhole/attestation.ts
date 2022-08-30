@@ -9,10 +9,12 @@ import {
   parseSequenceFromLogSolana,
   postVaaSolanaWithRetry,
 } from "@certusone/wormhole-sdk";
+import type { WormholeConfig } from "@swim-io/core";
+import { EvmEcosystemId } from "@swim-io/evm";
 import type { ContractReceipt } from "ethers";
 
-import type { EvmSpec, WormholeChainSpec, WormholeConfig } from "../../config";
-import { ECOSYSTEMS, EcosystemId, WormholeChainId } from "../../config";
+import type { EvmSpec, WormholeChainSpec } from "../../config";
+import { ECOSYSTEMS, WormholeChainId } from "../../config";
 import type { SolanaConnection } from "../solana";
 import { DEFAULT_MAX_RETRIES } from "../solana";
 import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
@@ -120,8 +122,9 @@ export const setUpSplTokensOnEvm = async (
   const evmTxIds = evmReceipts.map(({ transactionHash }) => transactionHash);
   return {
     solanaTxIds: attestations.map(({ txId }) => txId),
-    ethereumTxIds: evmChain.ecosystem === EcosystemId.Ethereum ? evmTxIds : [],
-    bnbTxIds: evmChain.ecosystem === EcosystemId.Bnb ? evmTxIds : [],
+    ethereumTxIds:
+      evmChain.ecosystem === EvmEcosystemId.Ethereum ? evmTxIds : [],
+    bnbTxIds: evmChain.ecosystem === EvmEcosystemId.Bnb ? evmTxIds : [],
   };
 };
 
@@ -220,7 +223,8 @@ export const setUpErc20Tokens = async (
 
   return {
     solanaTxIds,
-    ethereumTxIds: evmChain.ecosystem === EcosystemId.Ethereum ? evmTxIds : [],
-    bnbTxIds: evmChain.ecosystem === EcosystemId.Bnb ? evmTxIds : [],
+    ethereumTxIds:
+      evmChain.ecosystem === EvmEcosystemId.Ethereum ? evmTxIds : [],
+    bnbTxIds: evmChain.ecosystem === EvmEcosystemId.Bnb ? evmTxIds : [],
   };
 };

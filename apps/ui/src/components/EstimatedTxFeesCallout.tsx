@@ -1,18 +1,25 @@
 import { EuiCallOut, EuiLoadingSpinner, EuiSpacer } from "@elastic/eui";
+import type Decimal from "decimal.js";
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import { decimalRemoveTrailingZero } from "../amounts";
+import type { EcosystemId } from "../config";
 import { ECOSYSTEM_IDS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
+import { useIntlNumberFormatter } from "../hooks";
 import type { FeesEstimation } from "../models";
 
 interface Props {
-  readonly feesEstimation: FeesEstimation | null;
+  readonly feesEstimation: Partial<FeesEstimation> | null;
 }
 
 export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
+  const { t } = useTranslation();
+  const numberFormatter = useIntlNumberFormatter({
+    maximumSignificantDigits: 4,
+  });
   const config = useEnvironment(selectConfig, shallow);
   if (feesEstimation === null) {
     return (
@@ -20,7 +27,7 @@ export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
         <EuiCallOut iconType="visGauge" size="s" style={{ paddingLeft: 12 }}>
           <EuiLoadingSpinner size="m" />
           <span className="euiCallOutHeader__title" style={{ marginLeft: 8 }}>
-            Estimating Transaction Fees...
+            {t("general.estimating_transaction_fees")}
           </span>
         </EuiCallOut>
         <EuiSpacer />
@@ -32,14 +39,23 @@ export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
       ecosystemId,
       txFee: feesEstimation[ecosystemId],
     };
-  }).filter(({ txFee }) => !txFee.isZero());
+  }).filter(
+    (
+      txFeeObj,
+    ): txFeeObj is {
+      readonly ecosystemId: EcosystemId;
+      readonly txFee: Decimal;
+    } => {
+      return txFeeObj.txFee !== undefined && !txFeeObj.txFee.isZero();
+    },
+  );
 
   return (
     <>
       <EuiCallOut
         size="s"
         iconType="visGauge"
-        title={`Estimated Transaction Fees`}
+        title={t("general.estimated_transaction_fees")}
         style={{ paddingLeft: 12 }}
       >
         <ul>
@@ -50,7 +66,7 @@ export const EstimatedTxFeesCallout: FC<Props> = ({ feesEstimation }) => {
               <li key={ecosystemId}>
                 {displayName}
                 {": ~"}
-                {decimalRemoveTrailingZero(txFee)} {nativeTokenSymbol}
+                {numberFormatter.format(txFee.toNumber())} {nativeTokenSymbol}
               </li>
             );
           })}

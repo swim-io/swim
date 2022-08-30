@@ -1,0 +1,14 @@
+# Hardhat
+.openzeppelin/
+artifacts/
+cache/
+typechain-types/
+gas-report.txt
+
+# Tests
+coverage/
+coverage.json
+
+# Build
+build/
+types/

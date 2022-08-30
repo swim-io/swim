@@ -13,13 +13,24 @@ import {
   EuiSelect,
   EuiSpacer,
 } from "@elastic/eui";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import {
+  defaultIfError,
+  findOrThrow,
+  isEachNotNull,
+  isNotNull,
+} from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import type { PoolSpec, TokenSpec } from "../config";
-import { ECOSYSTEMS, EcosystemId } from "../config";
+import type { EcosystemId, PoolSpec, TokenSpec } from "../config";
+import { ECOSYSTEMS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
@@ -27,6 +38,7 @@ import {
   usePool,
   usePoolMath,
   useRemoveFeesEstimationQuery,
+  useRemoveFeesEstimationQueryV2,
   useSplTokenAccountsQuery,
   useUserLpBalances,
   useUserNativeBalances,
@@ -35,37 +47,33 @@ import {
 import {
   useHasActiveInteraction,
   useStartNewInteraction,
+  useStartNewInteractionV2,
 } from "../hooks/interaction";
 import {
   Amount,
   INTERACTION_GROUP_REMOVE,
   InteractionType,
   getLowBalanceWallets,
+  isEvmPoolState,
   isValidSlippageFraction,
 } from "../models";
-import type { ReadonlyRecord } from "../utils";
-import {
-  defaultIfError,
-  findOrThrow,
-  isEachNotNull,
-  isNotNull,
-} from "../utils";
 
 import { ConfirmModal } from "./ConfirmModal";
 import { ConnectButton } from "./ConnectButton";
 import { EstimatedTxFeesCallout } from "./EstimatedTxFeesCallout";
 import { LowBalanceDescription } from "./LowBalanceDescription";
 import { RecentInteractions } from "./RecentInteractions";
+import { RecentInteractionsV2 } from "./RecentInteractionsV2";
 import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { TokenIcon } from "./TokenIcon";
 
-export const enum RemoveMethod {
+const enum RemoveMethod {
   Uniform = "uniform",
   ExactBurn = "exactBurn",
   ExactOutput = "exactOutput",
 }
 
-export interface RemoveFormProps {
+interface Props {
   readonly poolSpec: PoolSpec;
   readonly maxSlippageFraction: Decimal | null;
 }
@@ -73,28 +81,38 @@ export interface RemoveFormProps {
 export const RemoveForm = ({
   poolSpec,
   maxSlippageFraction,
-}: RemoveFormProps): ReactElement => {
+}: Props): ReactElement => {
+  const { t } = useTranslation();
   const config = useEnvironment(selectConfig, shallow);
   const {
     tokens: poolTokens,
     lpToken,
     poolLpMint,
     userLpTokenAccount,
+    state: poolState,
   } = usePool(poolSpec.id);
   const poolMath = usePoolMath(poolSpec.id);
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
-  const startNewInteraction = useStartNewInteraction(() => {
+  const startNewInteractionV1 = useStartNewInteraction(() => {
     if (method === RemoveMethod.ExactOutput) {
       setFormOutputAmounts(formOutputAmounts.map(() => "0"));
     }
   });
+  const startNewInteractionV2 = useStartNewInteractionV2(() => {
+    if (method === RemoveMethod.ExactOutput) {
+      setFormOutputAmounts(formOutputAmounts.map(() => "0"));
+    }
+  });
+  const startNewInteraction = poolSpec.isLegacyPool
+    ? startNewInteractionV1
+    : startNewInteractionV2;
   const isInteractionInProgress = useHasActiveInteraction();
   const userLpBalances = useUserLpBalances(lpToken, userLpTokenAccount);
   const wallets = useWallets();
   const userNativeBalances = useUserNativeBalances();
 
   const [lpTokenSourceEcosystem, setLpTokenSourceEcosystem] = useState(
-    EcosystemId.Solana,
+    poolSpec.ecosystem,
   );
   const [method, setMethod] = useState(RemoveMethod.ExactBurn);
   const [outputToken, setOutputToken] = useState(poolSpec.tokens[0]);
@@ -108,23 +126,25 @@ export const RemoveForm = ({
     EcosystemId,
     readonly TokenSpec[]
   > = poolTokens.reduce(
-    (accumulator, tokenSpec) => ({
-      ...accumulator,
-      [tokenSpec.nativeEcosystem]: [
-        ...accumulator[tokenSpec.nativeEcosystem],
-        tokenSpec,
-      ],
-    }),
+    (accumulator, tokenSpec) => {
+      const ecosystem = poolSpec.isLegacyPool
+        ? tokenSpec.nativeEcosystemId
+        : poolSpec.ecosystem;
+      return {
+        ...accumulator,
+        [ecosystem]: [...accumulator[ecosystem], tokenSpec],
+      };
+    },
     {
-      [EcosystemId.Solana]: [],
-      [EcosystemId.Ethereum]: [],
-      [EcosystemId.Bnb]: [],
-      [EcosystemId.Avalanche]: [],
-      [EcosystemId.Polygon]: [],
-      [EcosystemId.Aurora]: [],
-      [EcosystemId.Fantom]: [],
-      [EcosystemId.Karura]: [],
-      [EcosystemId.Acala]: [],
+      [SOLANA_ECOSYSTEM_ID]: [],
+      [EvmEcosystemId.Ethereum]: [],
+      [EvmEcosystemId.Bnb]: [],
+      [EvmEcosystemId.Avalanche]: [],
+      [EvmEcosystemId.Polygon]: [],
+      [EvmEcosystemId.Aurora]: [],
+      [EvmEcosystemId.Fantom]: [],
+      [EvmEcosystemId.Karura]: [],
+      [EvmEcosystemId.Acala]: [],
     },
   );
 
@@ -152,14 +172,16 @@ export const RemoveForm = ({
 
   const poolLpAmount = useMemo(
     () =>
-      poolLpMint
+      poolState !== null && isEvmPoolState(poolState)
+        ? Amount.fromHuman(lpToken, poolState.totalLpSupply)
+        : poolLpMint
         ? Amount.fromAtomicString(
             lpToken,
             poolLpMint.supply.toString(),
-            EcosystemId.Solana,
+            poolSpec.ecosystem,
           )
         : null,
-    [poolLpMint, lpToken],
+    [poolLpMint, lpToken, poolSpec.ecosystem, poolState],
   );
 
   const userHasAllLpTokens = useMemo(
@@ -184,7 +206,7 @@ export const RemoveForm = ({
 
       const removeUniformAmounts =
         method === RemoveMethod.Uniform && burnPercentage > 0
-          ? poolMath.removeUniform(exactBurnAmount.toHuman(EcosystemId.Solana))
+          ? poolMath.removeUniform(exactBurnAmount.toHuman(poolSpec.ecosystem))
           : null;
 
       // eslint-disable-next-line functional/prefer-readonly-type
@@ -200,7 +222,7 @@ export const RemoveForm = ({
           outputToken === tokenSpec.id
         ) {
           const { stableOutputAmount } = poolMath.removeExactBurn(
-            exactBurnAmount.toHuman(EcosystemId.Solana),
+            exactBurnAmount.toHuman(poolSpec.ecosystem),
             tokenIndex,
           );
           estimatedOutputAmountDecimal = stableOutputAmount;
@@ -214,7 +236,7 @@ export const RemoveForm = ({
         // eslint-disable-next-line functional/immutable-data
         newFormOutputAmounts.push(
           // toHumanString because thousands separators would mess up the conversion
-          estimatedOutputAmount.toHumanString(tokenSpec.nativeEcosystem),
+          estimatedOutputAmount.toHumanString(tokenSpec.nativeEcosystemId),
         );
       }
 
@@ -250,6 +272,10 @@ export const RemoveForm = ({
     lpTokenSourceEcosystem,
   );
 
+  const { data: feesEstimationV2 = null } = useRemoveFeesEstimationQueryV2(
+    lpTokenSourceEcosystem,
+  );
+
   const hasPositiveOutputAmount = outputAmounts.some(
     (amount) => amount && !amount.isZero(),
   );
@@ -273,11 +299,11 @@ export const RemoveForm = ({
         return null;
       }
       const { lpInputAmount } = poolMath.removeExactOutput(
-        outputAmounts.map((amount) => amount.toHuman(EcosystemId.Solana)),
+        outputAmounts.map((amount) => amount.toHuman(poolSpec.ecosystem)),
       );
       return Amount.fromHuman(lpToken, lpInputAmount);
     }, null);
-  }, [outputAmounts, poolMath, method, lpToken]);
+  }, [outputAmounts, poolMath, method, lpToken, poolSpec.ecosystem]);
 
   const maximumBurnAmount =
     estimatedLpInput && maxSlippageFraction
@@ -297,9 +323,9 @@ export const RemoveForm = ({
       const onChange = createOnChange(tokenSpec);
       onChange("0");
     } else if (outputAmount.isNegative()) {
-      errors = ["Amount must be greater than or equal to zero"];
-    } else if (outputAmount.requiresRounding(tokenSpec.nativeEcosystem)) {
-      errors = ["Too many decimals"];
+      errors = [t("general.amount_of_tokens_less_than_zero")];
+    } else if (outputAmount.requiresRounding(tokenSpec.nativeEcosystemId)) {
+      errors = [t("general.amount_of_tokens_too_many_decimals")];
     }
 
     setOutputAmountErrors(
@@ -308,14 +334,17 @@ export const RemoveForm = ({
   };
 
   const lpSourceEcosystemOptions: readonly EuiRadioGroupOption[] = [
-    ...lpToken.detailsByEcosystem.keys(),
+    lpToken.nativeEcosystemId,
+    ...(poolSpec.isLegacyPool ? lpToken.wrappedDetails.keys() : []),
   ].map((ecosystemId) => {
     const ecosystem = ECOSYSTEMS[ecosystemId];
     const lpBalance = userLpBalances[ecosystemId];
     const lpBalanceSuffix = lpBalance && (
       <>
-        &#8200;(
-        {lpBalance.toFormattedHumanString(lpToken.nativeEcosystem)})
+        &nbsp;
+        {t("general.with_brackets", {
+          content: lpBalance.toFormattedHumanString(lpToken.nativeEcosystemId),
+        })}
       </>
     );
     return {
@@ -333,13 +362,28 @@ export const RemoveForm = ({
   const methodOptions: readonly EuiRadioGroupOption[] =
     poolTokens.length > 1
       ? [
-          { id: RemoveMethod.ExactBurn, label: "To a single token" },
-          { id: RemoveMethod.Uniform, label: "Proportionally to all tokens" },
-          { id: RemoveMethod.ExactOutput, label: "Enter exact output amounts" },
+          {
+            id: RemoveMethod.ExactBurn,
+            label: t("remove_token_form.to_a_single_token"),
+          },
+          {
+            id: RemoveMethod.Uniform,
+            label: t("remove_token_form.proportionally_to_all_tokens"),
+          },
+          {
+            id: RemoveMethod.ExactOutput,
+            label: t("remove_token_form.enter_exact_output_amounts"),
+          },
         ]
       : [
-          { id: RemoveMethod.ExactBurn, label: "Burn exact amount" },
-          { id: RemoveMethod.ExactOutput, label: "Enter exact output amount" },
+          {
+            id: RemoveMethod.ExactBurn,
+            label: t("remove_token_form.burn_exact_amount"),
+          },
+          {
+            id: RemoveMethod.ExactOutput,
+            label: t("remove_token_form.enter_exact_output_amounts"),
+          },
         ];
 
   const outputTokenOptions: readonly EuiSelectOption[] = poolSpec.tokens.map(
@@ -347,8 +391,8 @@ export const RemoveForm = ({
       const tokenSpec = findOrThrow(config.tokens, (token) => token.id === id);
       return {
         value: id,
-        text: `${tokenSpec.project.displayName} (${
-          ECOSYSTEMS[tokenSpec.nativeEcosystem].displayName
+        text: `${TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].displayName} (${
+          ECOSYSTEMS[tokenSpec.nativeEcosystemId].displayName
         })`,
       };
     },
@@ -368,7 +412,7 @@ export const RemoveForm = ({
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     const lowBalanceWallets = getLowBalanceWallets(
-      feesEstimation,
+      poolSpec.isLegacyPool ? feesEstimation : feesEstimationV2,
       userNativeBalances,
     );
     if (lowBalanceWallets.length > 0) {
@@ -386,7 +430,7 @@ export const RemoveForm = ({
       handleSubmitAndCatch();
     } catch (error) {
       const swimError = captureAndWrapException(
-        "An unexpected error occurred",
+        t("general.unexpected_error"),
         error,
       );
       setFormErrors([swimError.toPrettyString()]);
@@ -402,21 +446,27 @@ export const RemoveForm = ({
 
     // pool errors
     if (!poolLpAmount) {
-      notify("Pool error", "Could not fetch pool LP amount", "error");
+      notify(
+        t("notify.could_not_fetch_pool_lp_amount_error_title"),
+        t("notify.could_not_fetch_pool_lp_amount_error_description"),
+        "error",
+      );
       return;
     }
 
     const requiredEcosystems = new Set(
-      [
-        EcosystemId.Solana,
-        lpTokenSourceEcosystem,
-        ...poolTokens.map((tokenSpec, i) => {
-          const outputAmount = outputAmounts[i];
-          return outputAmount !== null && !outputAmount.isZero()
-            ? tokenSpec.nativeEcosystem
-            : null;
-        }),
-      ].filter(isNotNull),
+      poolSpec.isLegacyPool
+        ? [
+            SOLANA_ECOSYSTEM_ID,
+            lpTokenSourceEcosystem,
+            ...poolTokens.map((tokenSpec, i) => {
+              const outputAmount = outputAmounts[i];
+              return outputAmount !== null && !outputAmount.isZero()
+                ? tokenSpec.nativeEcosystemId
+                : null;
+            }),
+          ].filter(isNotNull)
+        : [poolSpec.ecosystem],
     );
 
     // Require connected wallets
@@ -424,7 +474,9 @@ export const RemoveForm = ({
       if (!wallets[ecosystem].connected) {
         errors = [
           ...errors,
-          `Connect ${ECOSYSTEMS[ecosystem].displayName} wallet`,
+          t("general.connect_specific_wallet", {
+            ecosystemName: ECOSYSTEMS[ecosystem].displayName,
+          }),
         ];
       }
     });
@@ -434,27 +486,29 @@ export const RemoveForm = ({
       if (userNativeBalances[ecosystem].isZero()) {
         errors = [
           ...errors,
-          `Empty balance in ${
-            ECOSYSTEMS[EcosystemId.Solana].displayName
-          } wallet. You will need some funds to pay for transaction fees.`,
+          t("general.require_non_empty_balance_in_specific_wallet", {
+            ecosystemName: ECOSYSTEMS[SOLANA_ECOSYSTEM_ID].displayName,
+          }),
         ];
       }
     });
 
     // Need some SOL for network fee
     if (
-      userNativeBalances[EcosystemId.Solana].greaterThan(0) &&
-      userNativeBalances[EcosystemId.Solana].lessThan(0.01)
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].greaterThan(0) &&
+      userNativeBalances[SOLANA_ECOSYSTEM_ID].lessThan(0.01)
     ) {
       errors = [
         ...errors,
-        `Low SOL in Solana wallet. You will need up to ~0.01 SOL to pay for network fees.`,
+        t("general.require_some_balance_in_solana_wallet", {
+          minimumFee: 0.01,
+        }),
       ];
     }
 
     // Require valid slippage setting
     if (!isValidSlippageFraction(maxSlippageFraction)) {
-      errors = [...errors, "Provide a valid max slippage setting"];
+      errors = [...errors, t("general.require_a_valid_max_slippage_setting")];
     }
 
     // Require LP tokens
@@ -464,7 +518,9 @@ export const RemoveForm = ({
     ) {
       errors = [
         ...errors,
-        `You do not have any LP tokens on ${ECOSYSTEMS[lpTokenSourceEcosystem].displayName}`,
+        t("remove_token_form.require_lp_tokens", {
+          ecosystemName: ECOSYSTEMS[lpTokenSourceEcosystem].displayName,
+        }),
       ];
     }
 
@@ -475,18 +531,24 @@ export const RemoveForm = ({
         userLpBalance !== null &&
         estimatedLpInput.gt(userLpBalance)
       ) {
-        errors = [...errors, "You do not have enough LP tokens"];
+        errors = [...errors, t("remove_token_form.require_enough_lp_tokens")];
       }
 
       // Require at least one output amount
       if (outputAmounts.every((amount) => amount === null || amount.isZero())) {
-        errors = [...errors, "Enter at least one output amount"];
+        errors = [
+          ...errors,
+          t("remove_token_form.require_at_least_one_output_amount"),
+        ];
       }
     }
 
     // Require valid burn percentage
     if (method !== RemoveMethod.ExactOutput && burnPercentage === 0) {
-      errors = [...errors, "Set the burn percentage to greater than zero"];
+      errors = [
+        ...errors,
+        t("remove_token_form.require_burn_percentage_more_than_zero"),
+      ];
     }
 
     if (errors.length > 0) {
@@ -507,8 +569,8 @@ export const RemoveForm = ({
       poolMath === null
     ) {
       notify(
-        "Form error",
-        "There was an unexpected error submitting the form. Developers were notified.",
+        t("notify.unexpected_form_error_title"),
+        t("notify.unexpected_form_error_description"),
         "error",
       );
       return;
@@ -566,20 +628,29 @@ export const RemoveForm = ({
     }
   };
 
+  const lpTokenProject = TOKEN_PROJECTS_BY_ID[lpToken.projectId];
   const maximumLpBurnLabel = poolSpec.isStakingPool
-    ? `Maximum required ${lpToken.project.symbol} tokens: `
-    : `Maximum required LP tokens (${lpToken.project.symbol}): `;
+    ? t("remove_token_form.max_required_lp_tokens", {
+        tokenSymbol: lpTokenProject.symbol,
+      })
+    : t("remove_token_form.max_required_tokens", {
+        tokenSymbol: lpTokenProject.symbol,
+      });
 
   return (
     <EuiForm component="form" onSubmit={handleFormSubmit}>
       <EuiSpacer size="m" />
       <EuiFormRow
-        label={`Use LP tokens (${lpToken.project.symbol}) from`}
+        label={t("remove_token_form.use_lp_tokens_from", {
+          tokenSymbol: lpTokenProject.symbol,
+        })}
         helpText={
-          lpTokenSourceEcosystem === EcosystemId.Solana ||
+          lpTokenSourceEcosystem === SOLANA_ECOSYSTEM_ID ||
           method !== RemoveMethod.ExactOutput
             ? ""
-            : `The estimated LP tokens needed (including slippage) will be transferred from ${ECOSYSTEMS[lpTokenSourceEcosystem].displayName} to Solana, and any unused tokens will remain in your LP token account on Solana.`
+            : t("remove_token_form.lp_tokens_explanation", {
+                tokenName: ECOSYSTEMS[lpTokenSourceEcosystem].displayName,
+              })
         }
       >
         <EuiRadioGroup
@@ -594,7 +665,7 @@ export const RemoveForm = ({
 
       <EuiSpacer size="l" />
 
-      <EuiFormRow label="Remove method">
+      <EuiFormRow label={t("remove_token_form.remove_method")}>
         <EuiRadioGroup
           name="method"
           options={[...methodOptions]}
@@ -606,8 +677,8 @@ export const RemoveForm = ({
               userHasAllLpTokens
             ) {
               notify(
-                "Invalid action",
-                "You are the only LP token holder. Please use the proportional remove method or select a lower burn percentage.",
+                t("notify.burn_all_lp_tokens_error_title"),
+                t("notify.burn_all_lp_tokens_error_description"),
                 "error",
               );
               return;
@@ -619,7 +690,7 @@ export const RemoveForm = ({
       <EuiSpacer />
       {method === RemoveMethod.ExactOutput ? (
         <>
-          <span>{maximumLpBurnLabel}</span>
+          <span>{maximumLpBurnLabel}&nbsp;</span>
           <span>
             {maximumBurnAmount !== null
               ? maximumBurnAmount.toFormattedHumanString(lpTokenSourceEcosystem)
@@ -628,12 +699,12 @@ export const RemoveForm = ({
         </>
       ) : (
         <EuiFormRow
-          label="Burn percentage"
+          label={t("remove_token_form.burn_percentage")}
           helpText={
             method === RemoveMethod.ExactBurn &&
             userHasAllLpTokens &&
             burnPercentage === 99
-              ? "You are the last person to remove. Please use the proportional remove method."
+              ? t("remove_token_form.burnt_most_lp_tokens_error")
               : ""
           }
         >
@@ -660,7 +731,7 @@ export const RemoveForm = ({
       <EuiSpacer />
       {method === RemoveMethod.ExactBurn && poolTokens.length > 1 && (
         <>
-          <EuiFormRow label="Output token">
+          <EuiFormRow label={t("remove_token_form.output_token")}>
             <EuiSelect
               name="outputToken"
               fullWidth
@@ -699,7 +770,7 @@ export const RemoveForm = ({
                   error={outputAmountErrors.get(tokenSpec.id)}
                 >
                   <EuiFieldText
-                    placeholder="Enter amount"
+                    placeholder={t("general.enter_amount_of_tokens")}
                     name={tokenSpec.id}
                     value={
                       method === RemoveMethod.ExactOutput
@@ -707,7 +778,7 @@ export const RemoveForm = ({
                         : outputAmountsById
                             .get(tokenSpec.id)
                             ?.toFormattedHumanString(
-                              tokenSpec.nativeEcosystem,
+                              tokenSpec.nativeEcosystemId,
                             ) ?? "0"
                     }
                     fullWidth
@@ -728,7 +799,9 @@ export const RemoveForm = ({
                     }
                     prepend={
                       <EuiButtonEmpty size="xs">
-                        <TokenIcon {...tokenSpec.project} />
+                        <TokenIcon
+                          {...TOKEN_PROJECTS_BY_ID[tokenSpec.projectId]}
+                        />
                       </EuiButtonEmpty>
                     }
                   />
@@ -741,7 +814,10 @@ export const RemoveForm = ({
       <EuiSpacer size="m" />
       {formErrors.length > 0 && (
         <>
-          <EuiCallOut title="Please fix these issues" color="danger">
+          <EuiCallOut
+            title={t("general.please_fix_issues_in_form")}
+            color="danger"
+          >
             <ul>
               {formErrors.map((error) => (
                 <li key={error}>{error}</li>
@@ -755,7 +831,11 @@ export const RemoveForm = ({
       <SolanaTpsWarning />
 
       {hasPositiveOutputAmount && (
-        <EstimatedTxFeesCallout feesEstimation={feesEstimation} />
+        <EstimatedTxFeesCallout
+          feesEstimation={
+            poolSpec.isLegacyPool ? feesEstimation : feesEstimationV2
+          }
+        />
       )}
 
       <EuiButton
@@ -765,22 +845,31 @@ export const RemoveForm = ({
         isLoading={isInteractionInProgress}
         isDisabled={isSubmitted}
       >
-        {poolSpec.isStakingPool ? "Unstake" : "Remove"}
+        {poolSpec.isStakingPool
+          ? t("glossary.unstake_tokens")
+          : t("general.remove_tokens_from_pool")}
       </EuiButton>
       <EuiSpacer />
 
-      <RecentInteractions
-        title={"Recent removes"}
-        interactionTypes={INTERACTION_GROUP_REMOVE}
-      />
+      {poolSpec.isLegacyPool ? (
+        <RecentInteractions
+          title={t("remove_token_form.recent_removes")}
+          interactionTypes={INTERACTION_GROUP_REMOVE}
+        />
+      ) : (
+        <RecentInteractionsV2
+          title={t("remove_token_form.recent_removes")}
+          interactionTypes={INTERACTION_GROUP_REMOVE}
+        />
+      )}
 
       <ConfirmModal
         isVisible={isConfirmModalVisible}
         onCancel={handleConfirmModalCancel}
         onConfirm={handleConfirmModalConfirm}
-        titleText="Execute Remove?"
-        cancelText="Cancel"
-        confirmText="Remove"
+        titleText={t("remove_token_modal.title")}
+        cancelText={t("general.cancel_button")}
+        confirmText={t("general.remove_tokens_from_pool")}
         promptText={confirmModalDescription}
       />
     </EuiForm>

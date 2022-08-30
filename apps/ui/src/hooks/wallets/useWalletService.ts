@@ -23,14 +23,14 @@ export const useWalletService = (): WalletServiceApi => {
     shallow,
   );
   const { chains } = useEnvironment(selectConfig, shallow);
-  const [{ endpoint }] = chains[Protocol.Solana];
+  const [{ endpoints }] = chains[Protocol.Solana];
 
   return {
     connectService: ({ serviceId, protocol }) =>
       connectService({
         protocol,
         serviceId,
-        adapter: createAdapter(serviceId, protocol, endpoint),
+        adapter: createAdapter(serviceId, protocol, endpoints[0]),
       }),
     disconnectService,
   };

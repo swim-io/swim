@@ -1,48 +1,62 @@
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
-import { EcosystemId } from "../../config";
-import type { ReadonlyRecord } from "../../utils";
+import type { EcosystemId } from "../../config";
+import { ECOSYSTEM_IDS } from "../../config";
 import { useEvmUserNativeBalanceQuery } from "../evm";
 import { useSolBalanceQuery } from "../solana";
 
-export const useUserNativeBalances = (): ReadonlyRecord<
-  EcosystemId,
-  Decimal
-> => {
-  const { data: solBalance = new Decimal(0) } = useSolBalanceQuery();
+export const useUserNativeBalances = (
+  /** only fetch the ecosystems specified to reduce network calls */
+  ecosystemIds: readonly EcosystemId[] = ECOSYSTEM_IDS,
+): ReadonlyRecord<EcosystemId, Decimal> => {
+  const { data: solBalance = new Decimal(0) } = useSolBalanceQuery({
+    enabled: ecosystemIds.includes(SOLANA_ECOSYSTEM_ID),
+  });
   const { data: ethBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
-    EcosystemId.Ethereum,
+    EvmEcosystemId.Ethereum,
+    { enabled: ecosystemIds.includes(EvmEcosystemId.Ethereum) },
   );
   const { data: bnbBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
-    EcosystemId.Bnb,
+    EvmEcosystemId.Bnb,
+    { enabled: ecosystemIds.includes(EvmEcosystemId.Bnb) },
   );
   const { data: avaxBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
-    EcosystemId.Avalanche,
+    EvmEcosystemId.Avalanche,
+    { enabled: ecosystemIds.includes(EvmEcosystemId.Avalanche) },
   );
   const { data: maticBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
-    EcosystemId.Polygon,
+    EvmEcosystemId.Polygon,
+    { enabled: ecosystemIds.includes(EvmEcosystemId.Polygon) },
   );
   const { data: auroraEthBalance = new Decimal(0) } =
-    useEvmUserNativeBalanceQuery(EcosystemId.Aurora);
+    useEvmUserNativeBalanceQuery(EvmEcosystemId.Aurora, {
+      enabled: ecosystemIds.includes(EvmEcosystemId.Aurora),
+    });
   const { data: ftmBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
-    EcosystemId.Fantom,
+    EvmEcosystemId.Fantom,
+    { enabled: ecosystemIds.includes(EvmEcosystemId.Fantom) },
   );
   const { data: karBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
-    EcosystemId.Karura,
+    EvmEcosystemId.Karura,
+    { enabled: ecosystemIds.includes(EvmEcosystemId.Karura) },
   );
   const { data: acaBalance = new Decimal(0) } = useEvmUserNativeBalanceQuery(
-    EcosystemId.Acala,
+    EvmEcosystemId.Acala,
+    { enabled: ecosystemIds.includes(EvmEcosystemId.Acala) },
   );
 
   return {
-    [EcosystemId.Solana]: solBalance,
-    [EcosystemId.Ethereum]: ethBalance,
-    [EcosystemId.Bnb]: bnbBalance,
-    [EcosystemId.Avalanche]: avaxBalance,
-    [EcosystemId.Polygon]: maticBalance,
-    [EcosystemId.Aurora]: auroraEthBalance,
-    [EcosystemId.Fantom]: ftmBalance,
-    [EcosystemId.Karura]: karBalance,
-    [EcosystemId.Acala]: acaBalance,
+    [SOLANA_ECOSYSTEM_ID]: solBalance,
+    [EvmEcosystemId.Ethereum]: ethBalance,
+    [EvmEcosystemId.Bnb]: bnbBalance,
+    [EvmEcosystemId.Avalanche]: avaxBalance,
+    [EvmEcosystemId.Polygon]: maticBalance,
+    [EvmEcosystemId.Aurora]: auroraEthBalance,
+    [EvmEcosystemId.Fantom]: ftmBalance,
+    [EvmEcosystemId.Karura]: karBalance,
+    [EvmEcosystemId.Acala]: acaBalance,
   };
 };

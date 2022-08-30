@@ -1,20 +1,20 @@
 import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { filterMap } from "@swim-io/utils";
 import shallow from "zustand/shallow.js";
 
-import { useSplTokenAccountsQuery, useWallets } from "..";
 import type { PoolSpec, TokenSpec } from "../../config";
 import {
   DEVNET_SWIMUSD,
-  EcosystemId,
   findTokenById,
   getSolanaTokenDetails,
-  isEvmEcosystemId,
 } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type {
   AddInteraction,
   InteractionSpecV2,
+  InteractionStateV2,
   InteractionV2,
   RemoveExactBurnInteraction,
   RemoveExactOutputInteraction,
@@ -23,56 +23,31 @@ import type {
   SwapInteractionV2,
 } from "../../models";
 import {
-  Amount,
   InteractionType,
-  SwimDefiInstruction,
+  SwapType,
   findTokenAccountForMint,
   generateId,
   getConnectedWalletsV2,
   getRequiredPools,
+  getSwapType,
 } from "../../models";
-import type { InteractionStateV2 } from "../../models/swim/interactionStateV2";
-import { SwapType } from "../../models/swim/interactionStateV2";
-import { filterMap } from "../../utils";
+import { useWallets } from "../crossEcosystem";
+import { useSplTokenAccountsQuery } from "../solana";
 
-const getSwapType = (interaction: SwapInteractionV2): SwapType => {
-  const { fromTokenDetail, toTokenDetail } = interaction.params;
-  const fromEcosystem = fromTokenDetail.ecosystemId;
-  const toEcosystem = toTokenDetail.ecosystemId;
-  if (
-    fromEcosystem === EcosystemId.Solana &&
-    toEcosystem === EcosystemId.Solana
-  ) {
-    return SwapType.SingleChainSolana;
-  }
-  if (isEvmEcosystemId(fromEcosystem) && isEvmEcosystemId(toEcosystem)) {
-    return fromEcosystem === toEcosystem
-      ? SwapType.SingleChainEvm
-      : SwapType.CrossChainEvmToEvm;
-  }
-  if (fromEcosystem === EcosystemId.Solana && isEvmEcosystemId(toEcosystem)) {
-    return SwapType.CrossChainSolanaToEvm;
-  }
-  if (isEvmEcosystemId(fromEcosystem) && toEcosystem === EcosystemId.Solana) {
-    return SwapType.CrossChainEvmToSolana;
-  }
-
-  throw new Error("Unknown swap type");
-};
-
-export const calculateRequiredSplTokenAccounts = (
+const calculateRequiredSplTokenAccounts = (
   interaction: SwapInteractionV2,
   tokenAccounts: readonly TokenAccount[],
   walletAddress: string | null,
 ): RequiredSplTokenAccounts => {
-  const swapType = getSwapType(interaction);
+  const { fromTokenDetail, toTokenDetail } = interaction.params;
+  const swapType = getSwapType(fromTokenDetail, toTokenDetail);
   if (
     swapType === SwapType.SingleChainEvm ||
     swapType === SwapType.CrossChainEvmToEvm
   ) {
     return {};
   }
-  const { fromTokenDetail, toTokenDetail } = interaction.params;
+
   const fromToken = findTokenById(fromTokenDetail.tokenId, interaction.env);
   const toToken = findTokenById(toTokenDetail.tokenId, interaction.env);
   // TODO: Find a better way to get swimUSD per env
@@ -85,7 +60,7 @@ export const calculateRequiredSplTokenAccounts = (
     ? [fromToken, toToken, swimUSD]
     : [fromToken, toToken];
   const mints = filterMap(
-    (token: TokenSpec) => token.nativeEcosystem === EcosystemId.Solana,
+    (token: TokenSpec) => token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID,
     (token) => getSolanaTokenDetails(token).address,
     requiredTokens,
   );
@@ -108,7 +83,7 @@ export const calculateRequiredSplTokenAccounts = (
   }, {});
 };
 
-export const calculateRequiredSplTokenAccountsForAddRemove = (
+const calculateRequiredSplTokenAccountsForAddRemove = (
   interaction:
     | AddInteraction
     | RemoveUniformInteraction
@@ -119,13 +94,13 @@ export const calculateRequiredSplTokenAccountsForAddRemove = (
 ): RequiredSplTokenAccounts | null => {
   if (
     interaction.type === InteractionType.Add &&
-    interaction.lpTokenTargetEcosystem !== EcosystemId.Solana
+    interaction.lpTokenTargetEcosystem !== SOLANA_ECOSYSTEM_ID
   )
     return null;
 
   if (
     interaction.type !== InteractionType.Add &&
-    interaction.lpTokenSourceEcosystem !== EcosystemId.Solana
+    interaction.lpTokenSourceEcosystem !== SOLANA_ECOSYSTEM_ID
   )
     return null;
 
@@ -155,7 +130,7 @@ export const calculateRequiredSplTokenAccountsForAddRemove = (
     }
   })();
   const mints = filterMap(
-    (token: TokenSpec) => token.nativeEcosystem === EcosystemId.Solana,
+    (token: TokenSpec) => token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID,
     (token) => getSolanaTokenDetails(token).address,
     requiredTokens,
   );
@@ -184,7 +159,8 @@ const createSwapInteractionState = (
   solanaWalletAddress: string | null,
   requiredPools: readonly PoolSpec[],
 ): InteractionStateV2 => {
-  const swapType = getSwapType(interaction);
+  const { fromTokenDetail, toTokenDetail } = interaction.params;
+  const swapType = getSwapType(fromTokenDetail, toTokenDetail);
   const requiredSplTokenAccounts = calculateRequiredSplTokenAccounts(
     interaction,
     tokenAccounts,
@@ -192,40 +168,12 @@ const createSwapInteractionState = (
   );
   switch (swapType) {
     case SwapType.SingleChainSolana: {
-      const { fromTokenDetail, toTokenDetail } = interaction.params;
-      const fromToken = findTokenById(fromTokenDetail.tokenId, interaction.env);
-      const toToken = findTokenById(toTokenDetail.tokenId, interaction.env);
-      if (requiredPools.length !== 1) {
-        throw new Error("Single chain Solana Swap should only require 1 pool");
-      }
-      const poolSpec = requiredPools[0];
       return {
         interaction,
         interactionType: interaction.type,
         swapType,
         requiredSplTokenAccounts,
-        solanaPoolOperations: [
-          {
-            operation: {
-              interactionId: interaction.id,
-              poolId: poolSpec.id,
-              instruction: SwimDefiInstruction.Swap,
-              params: {
-                exactInputAmounts: [
-                  Amount.fromHuman(fromToken, fromTokenDetail.value),
-                ],
-                outputTokenIndex: poolSpec.tokens.findIndex(
-                  (tokenId) => tokenId === toTokenDetail.tokenId,
-                ),
-                minimumOutputAmount: Amount.fromHuman(
-                  toToken,
-                  toTokenDetail.value,
-                ),
-              },
-            },
-            txId: null,
-          },
-        ],
+        onChainSwapTxId: null,
       };
     }
     case SwapType.SingleChainEvm:
@@ -273,7 +221,7 @@ export const useCreateInteractionStateV2 = () => {
   const wallets = useWallets();
   const { env } = useEnvironment();
   const { data: tokenAccounts = [] } = useSplTokenAccountsQuery();
-  const solanaWalletAddress = wallets[EcosystemId.Solana].address;
+  const solanaWalletAddress = wallets[SOLANA_ECOSYSTEM_ID].address;
 
   return (interactionSpec: InteractionSpecV2): InteractionStateV2 => {
     const requiredPools = getRequiredPools(config.pools, interactionSpec);

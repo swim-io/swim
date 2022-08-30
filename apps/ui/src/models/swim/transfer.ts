@@ -1,5 +1,5 @@
-import type { EvmEcosystemId } from "../../config";
-import { isEvmEcosystemId } from "../../config";
+import type { EvmEcosystemId } from "@swim-io/evm";
+import { isEvmEcosystemId } from "@swim-io/evm";
 
 import type { Interaction } from "./interaction";
 import { InteractionType } from "./interaction";
@@ -17,7 +17,7 @@ export const getFromEcosystemOfToSolanaTransfer = (
     interaction.type === InteractionType.RemoveExactOutput ||
     interaction.type === InteractionType.RemoveUniform
       ? interaction.lpTokenSourceEcosystem
-      : transfer.token.nativeEcosystem;
+      : transfer.token.nativeEcosystemId;
   if (!isEvmEcosystemId(ecosystemId)) {
     throw new Error("Invalid token");
   }
@@ -31,7 +31,7 @@ export const getToEcosystemOfFromSolanaTransfer = (
   const ecosystemId =
     interaction.type === InteractionType.Add
       ? interaction.lpTokenTargetEcosystem
-      : transfer.token.nativeEcosystem;
+      : transfer.token.nativeEcosystemId;
   if (!isEvmEcosystemId(ecosystemId)) {
     throw new Error("Invalid token");
   }

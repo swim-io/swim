@@ -9,12 +9,13 @@ import {
   EuiSpacer,
   EuiText,
 } from "@elastic/eui";
+import { defaultIfError } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ChangeEvent, ReactElement } from "react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { isValidSlippageFraction } from "../models";
-import { defaultIfError } from "../utils";
 
 const SLIPPAGE_PRESETS = [
   {
@@ -41,6 +42,7 @@ export const SlippageButton = ({
   readonly slippagePercent: string;
   readonly setSlippagePercent: (value: string) => void;
 }): ReactElement => {
+  const { t } = useTranslation();
   const [isCogOpen, setIsCogOpen] = useState(false);
 
   const selectedSlippagePreset = useMemo(
@@ -64,7 +66,7 @@ export const SlippageButton = ({
     );
 
     if (!isValidSlippageFraction(slippageFraction)) {
-      setFormErrors(["Invalid slippage"]);
+      setFormErrors([t("slippage_button.invalid_value")]);
     } else {
       setFormErrors([]);
     }
@@ -77,7 +79,7 @@ export const SlippageButton = ({
   const cogButton = (
     <EuiButtonIcon
       iconType="gear"
-      aria-label="Settings"
+      aria-label={t("slippage_button.settings")}
       onClick={() => {
         setIsCogOpen(!isCogOpen);
       }}
@@ -87,14 +89,14 @@ export const SlippageButton = ({
   const cogForm = (
     <EuiForm>
       <EuiText>
-        <h5>Slippage tolerance</h5>
+        <h5>{t("slippage_button.title")}</h5>
       </EuiText>
       <EuiSpacer size="s" />
       <EuiFlexGroup responsive={false}>
         <EuiFlexItem grow={true}>
           <EuiButtonGroup
             name="slippagePresets"
-            legend="Presets to set slippage tolerance"
+            legend={t("slippage_button.presets_description")}
             options={SLIPPAGE_PRESETS}
             idSelected={selectedSlippagePreset}
             onChange={onChangeSlippagePreset}

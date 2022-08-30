@@ -5,73 +5,58 @@ import {
   EuiFormRow,
   EuiHideFor,
   EuiIcon,
-  EuiLoadingContent,
   EuiPage,
   EuiPageBody,
   EuiPageContent,
   EuiPageContentBody,
-  EuiPanel,
   EuiShowFor,
   EuiSpacer,
   EuiSuperSelect,
   EuiText,
   EuiTitle,
 } from "@elastic/eui";
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { EvmEcosystemId } from "@swim-io/evm";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { TOKEN_PROJECTS_BY_ID, TokenProjectId } from "@swim-io/token-projects";
+import { deduplicate, filterMap, findOrThrow, sortBy } from "@swim-io/utils";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { ReactElement } from "react";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import { atomicToTvlString, u64ToDecimal } from "../amounts";
+import { atomicToTvlString } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
-import type { PoolSpec, SolanaPoolSpec, TokenSpec } from "../config";
 import {
-  EcosystemId,
-  PROJECTS,
-  TokenProjectId,
   getPoolTokenEcosystems,
-  getSolanaTokenDetails,
   hasTokenEcosystem,
   isEcosystemEnabled,
 } from "../config";
+import type { EcosystemId, PoolSpec, TokenSpec } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
-import { useCoinGeckoPricesQuery, useLiquidityQuery, useTitle } from "../hooks";
-import { isSolanaPool } from "../models";
-import { deduplicate, filterMap, findOrThrow, sortBy } from "../utils";
-import type { ReadonlyRecord } from "../utils";
+import { usePoolUsdValues, useTitle } from "../hooks";
 
 type EcosystemSelectType = EcosystemId | "all";
 type TokenProjectSelectType = TokenProjectId | "all";
 
 const PoolsPage = (): ReactElement => {
-  useTitle("Pools");
+  const { t } = useTranslation();
+  useTitle(t("nav.pools"));
 
-  const [ecosystemId, setEcosystemId] = useState<EcosystemSelectType>("all");
-  const [tokenProjectId, setTokenProjectId] =
-    useState<TokenProjectSelectType>("all");
-
-  const { env } = useEnvironment();
-  const { pools, tokens } = useEnvironment(selectConfig, shallow);
-
-  const solanaPools = pools.filter(isSolanaPool);
-
-  const allPoolTokenAccountAddresses = solanaPools.flatMap((poolSpec) => [
-    ...poolSpec.tokenAccounts.values(),
-  ]);
-  const { data: allPoolTokenAccounts = null } = useLiquidityQuery(
-    allPoolTokenAccountAddresses,
+  const { tokens } = useEnvironment(selectConfig, shallow);
+  const { ecosystems, ecosystemId, setEcosystemId } = useEcosystemFilter();
+  const { tokenProjects, tokenProjectId, setTokenProjectId } =
+    useTokenProjectFilter();
+  const { filteredPools, poolsWithUsdValues } = useFilteredPools(
+    tokenProjectId,
+    ecosystemId,
   );
 
-  const {
-    data: prices = new Map<TokenSpec["id"], Decimal | null>(),
-    isLoading,
-  } = useCoinGeckoPricesQuery();
-
   const poolTokens: ReadonlyRecord<PoolSpec["id"], readonly TokenSpec[]> =
-    solanaPools.reduce(
-      (accumulator, poolSpec) => ({
+    poolsWithUsdValues.reduce(
+      (accumulator, { poolSpec }) => ({
         ...accumulator,
         [poolSpec.id]: poolSpec.tokens.map((id) =>
           findOrThrow(tokens, (tokenSpec) => tokenSpec.id === id),
@@ -80,67 +65,10 @@ const PoolsPage = (): ReactElement => {
       {},
     );
 
-  const getPoolUsdTotal = (poolSpec: SolanaPoolSpec) => {
-    const tokenSpecs = poolTokens[poolSpec.id];
-
-    if (
-      tokenSpecs.every(
-        (tokenSpec) =>
-          tokenSpec.project.isStablecoin || !!prices.get(tokenSpec.id),
-      )
-    ) {
-      if (allPoolTokenAccounts === null) {
-        return new Decimal(-1); // loading
-      }
-      const poolTokenAccountAddresses = [...poolSpec.tokenAccounts.values()];
-      const poolTokenAccounts = allPoolTokenAccounts.filter(
-        (tokenAccount): tokenAccount is TokenAccount =>
-          tokenAccount !== null &&
-          poolTokenAccountAddresses.includes(tokenAccount.address.toBase58()),
-      );
-
-      if (poolTokenAccounts.length === 0) {
-        return new Decimal(-1); // loading
-      }
-
-      return poolTokenAccounts.reduce((prev, current, j) => {
-        const tokenSpec = tokenSpecs[j];
-        const solanaDetails = getSolanaTokenDetails(tokenSpec);
-        const humanAmount = u64ToDecimal(current.amount).div(
-          new Decimal(10).pow(solanaDetails.decimals),
-        );
-        const price = tokenSpec.project.isStablecoin
-          ? new Decimal(1)
-          : prices.get(tokenSpec.id) ?? new Decimal(1);
-        return prev.add(humanAmount.mul(price));
-      }, new Decimal(0));
-    } else {
-      return new Decimal(-1); // loading
-    }
-  };
-
-  const poolUsdTotals: ReadonlyRecord<PoolSpec["id"], Decimal> =
-    solanaPools.reduce(
-      (accumulator, poolSpec) => ({
-        ...accumulator,
-        [poolSpec.id]: getPoolUsdTotal(poolSpec),
-      }),
-      {},
-    );
-
   const selectTokenOptions = useMemo(
     () => [
-      { inputDisplay: "All Tokens", value: "all", icon: null },
-      ...sortBy(
-        deduplicate(
-          (project) => project.id,
-          tokens
-            .map((token) => token.project)
-            .filter((project) => project.symbol !== "SWIM" && !project.isLP),
-        ),
-        "displayName",
-        (value) => (typeof value === "string" ? value.toLowerCase() : value),
-      ).map((project) => ({
+      { inputDisplay: t("pools_page.all_tokens"), value: "all", icon: null },
+      ...tokenProjects.map((project) => ({
         value: project.id,
         inputDisplay: (
           <EuiFlexGroup
@@ -163,20 +91,12 @@ const PoolsPage = (): ReactElement => {
         icon: null,
       })),
     ],
-    [tokens],
+    [t, tokenProjects],
   );
 
   const selectEcosystemOptions = useMemo(() => {
-    const ecosystems = sortBy(
-      deduplicate(
-        ({ id }) => id,
-        pools.flatMap((pool) => getPoolTokenEcosystems(pool, env)),
-      ),
-      "displayName",
-    );
-
     return [
-      { inputDisplay: "All Chains", value: "all", icon: null },
+      { inputDisplay: t("pools_page.all_chains"), value: "all", icon: null },
       ...ecosystems.map((ecosystem) => ({
         value: ecosystem.id,
         inputDisplay: (
@@ -200,79 +120,34 @@ const PoolsPage = (): ReactElement => {
         icon: null,
       })),
     ];
-  }, [env, pools]);
-
-  const projectsPerPool: ReadonlyRecord<
-    PoolSpec["id"],
-    readonly TokenProjectId[]
-  > = useMemo(() => {
-    return pools.reduce(
-      (accumulator, pool) => ({
-        ...accumulator,
-        [pool.id]: deduplicate(
-          (id) => id,
-          pool.tokens
-            .map((tokenId) =>
-              findOrThrow(tokens, (token) => token.id === tokenId),
-            )
-            .flatMap((token) => token.project.id),
-        ),
-      }),
-      {},
-    );
-  }, [pools, tokens]);
-
-  const filteredPools = solanaPools
-    .filter((pool) => {
-      if (tokenProjectId === "all") return true;
-      return projectsPerPool[pool.id].includes(tokenProjectId);
-    })
-    .filter((pool) => {
-      if (ecosystemId === "all") return true;
-      return hasTokenEcosystem(pool, env, ecosystemId);
-    });
+  }, [ecosystems, t]);
 
   const tvl = filteredPools.reduce(
-    (prev, pool) => prev.add(poolUsdTotals[pool.id]),
+    (prev, pool) => prev.add(pool.usdValue),
     new Decimal(0),
   );
 
   const poolsByTvl = [...filteredPools].sort((a, b) => {
-    const aUsd = poolUsdTotals[a.id];
-    const bUsd = poolUsdTotals[b.id];
-
-    if (aUsd.gt(bUsd)) return -1;
-    if (aUsd.lt(bUsd)) return 1;
+    if (a.usdValue.gt(b.usdValue)) return -1;
+    if (a.usdValue.lt(b.usdValue)) return 1;
     return 0;
   });
 
   const isUnfiltered = tokenProjectId === "all" && ecosystemId === "all";
   const listSpacerSize = "l";
-
-  const content = isLoading ? (
-    <>
-      {solanaPools.map((pool) => (
-        <Fragment key={pool.id}>
-          <EuiSpacer size={listSpacerSize} />
-          <EuiPanel>
-            <EuiLoadingContent lines={3} />
-          </EuiPanel>
-        </Fragment>
-      ))}
-    </>
-  ) : (
+  const content = (
     <>
       {poolsByTvl.length > 0 ? (
         filterMap(
-          (pool: PoolSpec) => !pool.isStakingPool,
-          (pool, i) => (
-            <Fragment key={pool.id}>
+          ({ poolSpec }: { readonly poolSpec: PoolSpec }) =>
+            !poolSpec.isStakingPool,
+          ({ poolSpec, usdValue }, i) => (
+            <Fragment key={poolSpec.id}>
               <PoolListItem
-                poolId={pool.id}
-                poolName={pool.displayName}
-                tokenSpecs={poolTokens[pool.id]}
-                totalUsd={poolUsdTotals[pool.id]}
-                isStableSwap={pool.isStableSwap}
+                poolName={poolSpec.displayName}
+                tokenSpecs={poolTokens[poolSpec.id]}
+                totalUsd={usdValue}
+                poolSpec={poolSpec}
               />
               <EuiSpacer size={listSpacerSize} />
             </Fragment>
@@ -282,57 +157,73 @@ const PoolsPage = (): ReactElement => {
       ) : (
         <EuiEmptyPrompt
           iconType="alert"
-          title={<h2>No pools found</h2>}
+          title={<h2>{t("general.error_cannot_found_pools")}</h2>}
           titleSize="xs"
-          body="Try adjusting your filter. (Are you on the right network?)"
+          body={t("general.action_on_error_cannot_found_pools")}
         />
       )}
 
-      {(isUnfiltered || ecosystemId === EcosystemId.Aurora) && (
+      {(isUnfiltered || ecosystemId === EvmEcosystemId.Aurora) && (
         <>
           <EuiSpacer size={listSpacerSize} />
 
           <PoolListItem
             poolName="Aurora USN"
-            betaBadgeLabel="Coming Soon"
+            betaBadgeLabel={t("pools_page.coming_soon")}
             tokenSpecs={[
               {
                 id: "placeholder-aurora-native-usn",
-                project: PROJECTS[TokenProjectId.Usn],
-                nativeEcosystem: EcosystemId.Aurora,
-                detailsByEcosystem: new Map(),
+                projectId: TokenProjectId.Usn,
+                nativeEcosystemId: EvmEcosystemId.Aurora,
+                nativeDetails: {
+                  address: "",
+                  decimals: 0,
+                },
+                wrappedDetails: new Map(),
               },
               {
                 id: "mainnet-solana-lp-hexapool",
-                project: PROJECTS[TokenProjectId.SwimUsd],
-                nativeEcosystem: EcosystemId.Solana,
-                detailsByEcosystem: new Map(),
+                projectId: TokenProjectId.SwimUsd,
+                nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
+                nativeDetails: {
+                  address: "",
+                  decimals: 0,
+                },
+                wrappedDetails: new Map(),
               },
             ]}
           />
         </>
       )}
 
-      {!isEcosystemEnabled(EcosystemId.Karura) &&
-        (isUnfiltered || ecosystemId === EcosystemId.Karura) && (
+      {!isEcosystemEnabled(EvmEcosystemId.Karura) &&
+        (isUnfiltered || ecosystemId === EvmEcosystemId.Karura) && (
           <>
             <EuiSpacer size={listSpacerSize} />
 
             <PoolListItem
               poolName="Karura aUSD"
-              betaBadgeLabel="Coming Soon"
+              betaBadgeLabel={t("pools_page.coming_soon")}
               tokenSpecs={[
                 {
                   id: "placeholder-karura-native-ausd",
-                  project: PROJECTS[TokenProjectId.Ausd],
-                  nativeEcosystem: EcosystemId.Karura,
-                  detailsByEcosystem: new Map(),
+                  projectId: TokenProjectId.Ausd,
+                  nativeEcosystemId: EvmEcosystemId.Karura,
+                  nativeDetails: {
+                    address: "",
+                    decimals: 0,
+                  },
+                  wrappedDetails: new Map(),
                 },
                 {
                   id: "mainnet-solana-lp-hexapool",
-                  project: PROJECTS[TokenProjectId.SwimUsd],
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
+                  projectId: TokenProjectId.SwimUsd,
+                  nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
+                  nativeDetails: {
+                    address: "",
+                    decimals: 0,
+                  },
+                  wrappedDetails: new Map(),
                 },
               ]}
             />
@@ -341,45 +232,61 @@ const PoolsPage = (): ReactElement => {
 
             <PoolListItem
               poolName="Karura USDT"
-              betaBadgeLabel="Coming Soon"
+              betaBadgeLabel={t("pools_page.coming_soon")}
               tokenSpecs={[
                 {
                   id: "placeholder-karura-native-usdt",
-                  project: PROJECTS[TokenProjectId.Usdt],
-                  nativeEcosystem: EcosystemId.Karura,
-                  detailsByEcosystem: new Map(),
+                  projectId: TokenProjectId.Usdt,
+                  nativeEcosystemId: EvmEcosystemId.Karura,
+                  nativeDetails: {
+                    address: "",
+                    decimals: 0,
+                  },
+                  wrappedDetails: new Map(),
                 },
                 {
                   id: "mainnet-solana-lp-hexapool",
-                  project: PROJECTS[TokenProjectId.SwimUsd],
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
+                  projectId: TokenProjectId.SwimUsd,
+                  nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
+                  nativeDetails: {
+                    address: "",
+                    decimals: 0,
+                  },
+                  wrappedDetails: new Map(),
                 },
               ]}
             />
           </>
         )}
 
-      {!isEcosystemEnabled(EcosystemId.Acala) &&
-        (isUnfiltered || ecosystemId === EcosystemId.Acala) && (
+      {!isEcosystemEnabled(EvmEcosystemId.Acala) &&
+        (isUnfiltered || ecosystemId === EvmEcosystemId.Acala) && (
           <>
             <EuiSpacer size={listSpacerSize} />
 
             <PoolListItem
               poolName="Acala aUSD"
-              betaBadgeLabel="Coming Soon"
+              betaBadgeLabel={t("pools_page.coming_soon")}
               tokenSpecs={[
                 {
                   id: "placeholder-acala-native-ausd",
-                  project: PROJECTS[TokenProjectId.Ausd],
-                  nativeEcosystem: EcosystemId.Acala,
-                  detailsByEcosystem: new Map(),
+                  projectId: TokenProjectId.Ausd,
+                  nativeEcosystemId: EvmEcosystemId.Acala,
+                  nativeDetails: {
+                    address: "",
+                    decimals: 0,
+                  },
+                  wrappedDetails: new Map(),
                 },
                 {
                   id: "mainnet-solana-lp-hexapool",
-                  project: PROJECTS[TokenProjectId.SwimUsd],
-                  nativeEcosystem: EcosystemId.Solana,
-                  detailsByEcosystem: new Map(),
+                  projectId: TokenProjectId.SwimUsd,
+                  nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
+                  nativeDetails: {
+                    address: "",
+                    decimals: 0,
+                  },
+                  wrappedDetails: new Map(),
                 },
               ]}
             />
@@ -392,7 +299,7 @@ const PoolsPage = (): ReactElement => {
     <EuiFlexItem grow={false}>
       <EuiFlexGroup alignItems="center">
         <EuiFlexItem grow={false}>
-          <EuiFormRow label="Token">
+          <EuiFormRow label={t("glossary.crypto_token")}>
             <EuiSuperSelect
               options={selectTokenOptions}
               valueOfSelected={tokenProjectId}
@@ -405,7 +312,7 @@ const PoolsPage = (): ReactElement => {
         </EuiFlexItem>
 
         <EuiFlexItem grow={false}>
-          <EuiFormRow label="Chain">
+          <EuiFormRow label={t("glossary.chain_protocol")}>
             <EuiSuperSelect
               options={selectEcosystemOptions}
               valueOfSelected={ecosystemId}
@@ -433,7 +340,7 @@ const PoolsPage = (): ReactElement => {
             >
               <EuiFlexItem grow={false}>
                 <EuiTitle>
-                  <h2>Pools</h2>
+                  <h2>{t("nav.pools")}</h2>
                 </EuiTitle>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
@@ -441,7 +348,7 @@ const PoolsPage = (): ReactElement => {
                   <p>
                     <b>
                       {`TVL: ${
-                        tvl.isPositive() ? "$" + atomicToTvlString(tvl) : "--"
+                        tvl.isPositive() ? atomicToTvlString(tvl) : "--"
                       }`}
                     </b>
                   </p>
@@ -465,3 +372,119 @@ const PoolsPage = (): ReactElement => {
 };
 
 export default PoolsPage;
+
+function useEcosystemFilter() {
+  const { env } = useEnvironment();
+  const { pools } = useEnvironment(selectConfig, shallow);
+  const [ecosystemId, setEcosystemId] = useState<EcosystemSelectType>("all");
+
+  const ecosystems = useMemo(
+    () =>
+      sortBy(
+        deduplicate(
+          ({ id }) => id,
+          pools.flatMap((pool) => getPoolTokenEcosystems(pool, env)),
+        ),
+        "displayName",
+      ),
+    [pools, env],
+  );
+
+  useEffect(() => {
+    if (
+      ecosystemId !== "all" &&
+      !ecosystems.find((ecosystem) => ecosystem.id === ecosystemId)
+    )
+      setEcosystemId("all");
+  }, [ecosystemId, ecosystems]);
+
+  return {
+    ecosystems,
+    ecosystemId,
+    setEcosystemId,
+  };
+}
+
+function useTokenProjectFilter() {
+  const { tokens } = useEnvironment(selectConfig, shallow);
+  const [tokenProjectId, setTokenProjectId] =
+    useState<TokenProjectSelectType>("all");
+
+  const tokenProjects = useMemo(
+    () =>
+      sortBy(
+        deduplicate(
+          (project) => project.id,
+          tokens
+            .map((token) => TOKEN_PROJECTS_BY_ID[token.projectId])
+            .filter((project) => project.symbol !== "SWIM" && !project.isLp),
+        ),
+        "displayName",
+        (value) => (typeof value === "string" ? value.toLowerCase() : value),
+      ),
+    [tokens],
+  );
+
+  useEffect(() => {
+    if (
+      tokenProjectId !== "all" &&
+      !tokenProjects.find((project) => project.id === tokenProjectId)
+    )
+      setTokenProjectId("all");
+  }, [tokens, tokenProjectId, tokenProjects]);
+
+  return {
+    tokenProjects,
+    tokenProjectId,
+    setTokenProjectId,
+  };
+}
+
+function useFilteredPools(
+  tokenProjectId: TokenProjectSelectType,
+  ecosystemId: EcosystemSelectType,
+) {
+  const { env } = useEnvironment();
+  const { pools, tokens } = useEnvironment(selectConfig, shallow);
+
+  const poolUsdValues = usePoolUsdValues(pools);
+  const poolsWithUsdValues = pools.map((poolSpec, i) => ({
+    poolSpec,
+    usdValue: poolUsdValues[i],
+  }));
+
+  const projectsPerPool: ReadonlyRecord<
+    PoolSpec["id"],
+    readonly TokenProjectId[]
+  > = useMemo(() => {
+    return pools.reduce(
+      (accumulator, pool) => ({
+        ...accumulator,
+        [pool.id]: deduplicate(
+          (id) => id,
+          pool.tokens
+            .map((tokenId) =>
+              findOrThrow(tokens, (token) => token.id === tokenId),
+            )
+            .flatMap((token) => token.projectId),
+        ),
+      }),
+      {},
+    );
+  }, [pools, tokens]);
+
+  const filteredPools = poolsWithUsdValues
+    .filter(({ poolSpec }) => {
+      if (tokenProjectId === "all") return true;
+      return projectsPerPool[poolSpec.id].includes(tokenProjectId);
+    })
+    .filter(({ poolSpec }) => {
+      if (ecosystemId === "all") return true;
+      return hasTokenEcosystem(poolSpec, env, ecosystemId);
+    });
+
+  return {
+    poolsWithUsdValues,
+    filteredPools,
+  };
+}

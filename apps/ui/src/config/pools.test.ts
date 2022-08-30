@@ -1,9 +1,9 @@
 import { PublicKey } from "@solana/web3.js";
+import { Env } from "@swim-io/core";
+import { getUniqueSize } from "@swim-io/utils";
 
 import { isSolanaPool } from "../models";
-import { getUniqueSize } from "../utils";
 
-import { Env } from "./env";
 import { POOLS as poolsByEnv } from "./pools";
 import type { SolanaPoolSpec } from "./pools";
 import { TOKENS as tokensByEnv } from "./tokens";
@@ -71,9 +71,9 @@ const generateSuite = (env: Env): void => {
     });
 
     it("does not specify a token account address more than once for Solana pool", () => {
-      const tokenAccountAddresses = solanaPools.flatMap((pool) => [
-        ...pool.tokenAccounts.values(),
-      ]);
+      const tokenAccountAddresses = solanaPools
+        .filter((pool) => !pool.isLegacyPool)
+        .flatMap((pool) => [...pool.tokenAccounts.values()]);
       const nUnique = getUniqueSize(tokenAccountAddresses);
       expect(nUnique).toBe(tokenAccountAddresses.length);
     });
@@ -97,5 +97,5 @@ const generateSuite = (env: Env): void => {
 
 describe("Swim pools config", () => {
   generateSuite(Env.Mainnet);
-  generateSuite(Env.Localnet);
+  generateSuite(Env.Local);
 });

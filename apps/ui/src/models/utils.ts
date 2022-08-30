@@ -1,5 +1,7 @@
-import type { EcosystemId, EvmEcosystemId } from "../config";
-import { isEvmEcosystemId } from "../config";
+import type { EvmEcosystemId } from "@swim-io/evm";
+import { isEvmEcosystemId } from "@swim-io/evm";
+
+import type { EcosystemId } from "../config";
 
 import type { Amount } from "./amount";
 
@@ -18,7 +20,7 @@ export const countNonZeroAmounts = (
   amounts.filter(
     (amount) =>
       amount &&
-      amount.tokenSpec.nativeEcosystem === ecosystemId &&
+      amount.tokenSpec.nativeEcosystemId === ecosystemId &&
       !amount.isZero(),
   ).length;
 
@@ -27,5 +29,5 @@ export const getIncludedEvmEcosystemIds = (
 ): readonly EvmEcosystemId[] =>
   amounts
     .filter((amount): amount is Amount => amount !== null && !amount.isZero())
-    .map((amount) => amount.tokenSpec.nativeEcosystem)
+    .map((amount) => amount.tokenSpec.nativeEcosystemId)
     .filter(isEvmEcosystemId);

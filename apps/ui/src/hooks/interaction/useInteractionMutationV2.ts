@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "react-query";
 
-import { selectGetInteractionStateV2 } from "../../core/selectors/interactionStateV2";
 import { useInteractionStateV2 } from "../../core/store";
 import { InteractionType, SwapType } from "../../models";
 
@@ -15,10 +14,7 @@ import { useSingleChainSolanaSwapInteractionMutation } from "./useSingleChainSol
 export const INTERACTION_MUTATION_KEY_V2 = ["interactionMutationV2"];
 
 export const useInteractionMutationV2 = () => {
-  const getInteractionState = useInteractionStateV2(
-    selectGetInteractionStateV2,
-  );
-  const { setInteractionError } = useInteractionStateV2();
+  const { getInteractionState, setInteractionError } = useInteractionStateV2();
   const queryClient = useQueryClient();
 
   const { mutateAsync: addInteractionMutation } = useAddInteractionMutation();

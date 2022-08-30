@@ -1,76 +1,51 @@
-import type { ReadonlyRecord } from "../utils";
+import { Env } from "@swim-io/core";
+import { EvmEcosystemId } from "@swim-io/evm";
+import type { SolanaEcosystemId } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, SolanaChainId } from "@swim-io/solana";
+import type { ReadonlyRecord } from "@swim-io/utils";
 
-import type { EvmEcosystemId, SolanaEcosystemId } from "./ecosystem";
-import { EcosystemId, Protocol } from "./ecosystem";
-import { Env } from "./env";
+import type { EcosystemId } from "./ecosystem";
+import { Protocol } from "./ecosystem";
 
-const SOLANA_MAINNET_RPC_URL = process.env.REACT_APP_SOLANA_MAINNET_RPC_URL;
-const SOLANA_MAINNET_WS_URL = process.env.REACT_APP_SOLANA_MAINNET_WS_URL;
+const SOLANA_MAINNET_RPC_URLS = process.env.REACT_APP_SOLANA_MAINNET_RPC_URLS;
 
-/** Adapted from @solana/spl-token-registry ENV */
-export const enum SolanaChainId {
-  MainnetBeta = 101,
-  Testnet = 102,
-  Devnet = 103,
-  Localnet = 104,
-}
+const getSolanaMainnetRpcUrls = () => {
+  if (SOLANA_MAINNET_RPC_URLS) {
+    try {
+      return SOLANA_MAINNET_RPC_URLS.split(" ").filter((url) => url);
+    } catch {
+      // Invalid env variable, fallback to default case.
+    }
+  }
+  return ["https://solana-api.projectserum.com"];
+};
 
 export const enum EvmChainId {
   EthereumMainnet = 1,
   EthereumGoerli = 5,
-  EthereumLocalnet = 1337,
+  EthereumLocal = 1337,
   BnbMainnet = 56,
   BnbTestnet = 97,
-  BnbLocalnet = 1397,
+  BnbLocal = 1397,
   PolygonMainnet = 137,
   PolygonTestnet = 80001,
-  PolygonLocalnet = 80002, // TODO: This is a placeholder
+  PolygonLocal = 80002, // TODO: This is a placeholder
   AvalancheMainnet = 43114, // C-Chain
   AvalancheTestnet = 43113,
-  AvalancheLocalnet = 43112, // TODO: This is a placeholder
+  AvalancheLocal = 43112, // TODO: This is a placeholder
   AuroraMainnet = 1313161554,
   AuroraTestnet = 1313161555,
-  AuroraLocalnet = 1313161556, // TODO: This is a placeholder
+  AuroraLocal = 1313161556, // TODO: This is a placeholder
   FantomMainnet = 250,
   FantomTestnet = 4002,
-  FantomLocalnet = 4003, // TODO: This is a placeholder
+  FantomLocal = 4003, // TODO: This is a placeholder
   KaruraMainnet = 686,
   KaruraTestnet = 596,
-  KaruraLocalnet = 606, // TODO: This is a placeholder
+  KaruraLocal = 606, // TODO: This is a placeholder
   AcalaMainnet = 787,
   AcalaTestnet = 597,
-  AcalaLocalnet = 607, // TODO: This is a placeholder
+  AcalaLocal = 607, // TODO: This is a placeholder
 }
-
-export const EVM_CHAIN_ID_TO_ECOSYSTEM: ReadonlyRecord<
-  EvmChainId,
-  EvmEcosystemId
-> = {
-  [EvmChainId.EthereumMainnet]: EcosystemId.Ethereum,
-  [EvmChainId.EthereumGoerli]: EcosystemId.Ethereum,
-  [EvmChainId.EthereumLocalnet]: EcosystemId.Ethereum,
-  [EvmChainId.BnbMainnet]: EcosystemId.Bnb,
-  [EvmChainId.BnbTestnet]: EcosystemId.Bnb,
-  [EvmChainId.BnbLocalnet]: EcosystemId.Bnb,
-  [EvmChainId.PolygonMainnet]: EcosystemId.Polygon,
-  [EvmChainId.PolygonTestnet]: EcosystemId.Polygon,
-  [EvmChainId.PolygonLocalnet]: EcosystemId.Polygon,
-  [EvmChainId.AvalancheMainnet]: EcosystemId.Avalanche,
-  [EvmChainId.AvalancheTestnet]: EcosystemId.Avalanche,
-  [EvmChainId.AvalancheLocalnet]: EcosystemId.Avalanche,
-  [EvmChainId.AuroraMainnet]: EcosystemId.Aurora,
-  [EvmChainId.AuroraTestnet]: EcosystemId.Aurora,
-  [EvmChainId.AuroraLocalnet]: EcosystemId.Aurora,
-  [EvmChainId.FantomMainnet]: EcosystemId.Fantom,
-  [EvmChainId.FantomTestnet]: EcosystemId.Fantom,
-  [EvmChainId.FantomLocalnet]: EcosystemId.Fantom,
-  [EvmChainId.KaruraMainnet]: EcosystemId.Karura,
-  [EvmChainId.KaruraTestnet]: EcosystemId.Karura,
-  [EvmChainId.KaruraLocalnet]: EcosystemId.Karura,
-  [EvmChainId.AcalaMainnet]: EcosystemId.Acala,
-  [EvmChainId.AcalaTestnet]: EcosystemId.Acala,
-  [EvmChainId.AcalaLocalnet]: EcosystemId.Acala,
-};
 
 export interface WormholeChainSpec {
   readonly bridge: string;
@@ -87,8 +62,8 @@ export interface SolanaSpec extends ChainSpec {
   readonly ecosystem: SolanaEcosystemId;
   /** This should be unique for a given Env */
   readonly chainId: SolanaChainId;
-  readonly endpoint: string;
-  readonly wsEndpoint: string;
+  // Note, subsequent endpoints are used as fallbacks for SolanaConnection.
+  readonly endpoints: readonly string[];
   readonly tokenContract: string;
   readonly otterTotCollection: string;
 }
@@ -165,21 +140,20 @@ const ACALA_NATIVE_CURRENCY = {
 const MAINNET_CHAINS: ChainsByProtocol = {
   [Protocol.Solana]: [
     {
-      ecosystem: EcosystemId.Solana,
+      ecosystem: SOLANA_ECOSYSTEM_ID,
       chainId: SolanaChainId.MainnetBeta,
       wormhole: {
         bridge: "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth",
         tokenBridge: "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb",
       },
-      endpoint: SOLANA_MAINNET_RPC_URL ?? "https://solana-api.projectserum.com",
-      wsEndpoint: SOLANA_MAINNET_WS_URL ?? "",
+      endpoints: getSolanaMainnetRpcUrls(),
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
       otterTotCollection: "EpozLY9dQ1jnaU5Wof524K7p9uHYxkuLF2hi32cf8W9s",
     },
   ],
   [Protocol.Evm]: [
     {
-      ecosystem: EcosystemId.Ethereum,
+      ecosystem: EvmEcosystemId.Ethereum,
       chainId: EvmChainId.EthereumMainnet,
       chainName: "Ethereum Mainnet",
       nativeCurrency: ETHEREUM_NATIVE_CURRENCY,
@@ -190,7 +164,7 @@ const MAINNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Bnb,
+      ecosystem: EvmEcosystemId.Bnb,
       chainId: EvmChainId.BnbMainnet,
       chainName: "BNB Chain Mainnet",
       nativeCurrency: BNB_NATIVE_CURRENCY,
@@ -201,7 +175,7 @@ const MAINNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Avalanche,
+      ecosystem: EvmEcosystemId.Avalanche,
       chainId: EvmChainId.AvalancheMainnet,
       chainName: "Avalanche Mainnet",
       nativeCurrency: AVALANCHE_NATIVE_CURRENCY,
@@ -212,7 +186,7 @@ const MAINNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Polygon,
+      ecosystem: EvmEcosystemId.Polygon,
       chainId: EvmChainId.PolygonMainnet,
       chainName: "Polygon Mainnet",
       nativeCurrency: POLYGON_NATIVE_CURRENCY,
@@ -223,7 +197,7 @@ const MAINNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Aurora,
+      ecosystem: EvmEcosystemId.Aurora,
       chainId: EvmChainId.AuroraMainnet,
       chainName: "Aurora Mainnet",
       nativeCurrency: AURORA_NATIVE_CURRENCY,
@@ -234,7 +208,7 @@ const MAINNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Fantom,
+      ecosystem: EvmEcosystemId.Fantom,
       chainId: EvmChainId.FantomMainnet,
       chainName: "Fantom Mainnet",
       nativeCurrency: FANTOM_NATIVE_CURRENCY,
@@ -245,7 +219,7 @@ const MAINNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Karura,
+      ecosystem: EvmEcosystemId.Karura,
       chainId: EvmChainId.KaruraMainnet,
       chainName: "Karura Mainnet",
       nativeCurrency: KARURA_NATIVE_CURRENCY,
@@ -256,7 +230,7 @@ const MAINNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Acala,
+      ecosystem: EvmEcosystemId.Acala,
       chainId: EvmChainId.AcalaMainnet,
       chainName: "Acala Mainnet",
       nativeCurrency: ACALA_NATIVE_CURRENCY,
@@ -272,21 +246,20 @@ const MAINNET_CHAINS: ChainsByProtocol = {
 const DEVNET_CHAINS: ChainsByProtocol = {
   [Protocol.Solana]: [
     {
-      ecosystem: EcosystemId.Solana,
+      ecosystem: SOLANA_ECOSYSTEM_ID,
       chainId: SolanaChainId.Devnet,
       wormhole: {
         bridge: "3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5",
         tokenBridge: "DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe",
       },
-      endpoint: "https://api.devnet.solana.com",
-      wsEndpoint: "",
+      endpoints: ["https://api.devnet.solana.com"],
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
       otterTotCollection: "6rVZuenNaw3uECQjMjTLcfrXYKszpESEGi9HZnffJstn",
     },
   ],
   [Protocol.Evm]: [
     {
-      ecosystem: EcosystemId.Ethereum,
+      ecosystem: EvmEcosystemId.Ethereum,
       chainId: EvmChainId.EthereumGoerli,
       chainName: "Ethereum Goerli Testnet",
       nativeCurrency: ETHEREUM_NATIVE_CURRENCY,
@@ -297,7 +270,7 @@ const DEVNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Bnb,
+      ecosystem: EvmEcosystemId.Bnb,
       chainId: EvmChainId.BnbTestnet,
       chainName: "BNB Chain Testnet",
       nativeCurrency: BNB_NATIVE_CURRENCY,
@@ -308,7 +281,7 @@ const DEVNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Avalanche,
+      ecosystem: EvmEcosystemId.Avalanche,
       chainId: EvmChainId.AvalancheTestnet,
       chainName: "Avalanche Testnet",
       nativeCurrency: AVALANCHE_NATIVE_CURRENCY,
@@ -319,7 +292,7 @@ const DEVNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Polygon,
+      ecosystem: EvmEcosystemId.Polygon,
       chainId: EvmChainId.PolygonTestnet,
       chainName: "Polygon Testnet",
       nativeCurrency: POLYGON_NATIVE_CURRENCY,
@@ -330,7 +303,7 @@ const DEVNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Aurora,
+      ecosystem: EvmEcosystemId.Aurora,
       chainId: EvmChainId.AuroraTestnet,
       chainName: "Aurora Testnet",
       nativeCurrency: AURORA_NATIVE_CURRENCY,
@@ -341,7 +314,7 @@ const DEVNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Fantom,
+      ecosystem: EvmEcosystemId.Fantom,
       chainId: EvmChainId.FantomTestnet,
       chainName: "Fantom Testnet",
       nativeCurrency: FANTOM_NATIVE_CURRENCY,
@@ -352,7 +325,7 @@ const DEVNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Karura,
+      ecosystem: EvmEcosystemId.Karura,
       chainId: EvmChainId.KaruraTestnet,
       chainName: "Karura Testnet",
       nativeCurrency: KARURA_NATIVE_CURRENCY,
@@ -363,7 +336,7 @@ const DEVNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Acala,
+      ecosystem: EvmEcosystemId.Acala,
       chainId: EvmChainId.AcalaTestnet,
       chainName: "Acala Testnet",
       nativeCurrency: ACALA_NATIVE_CURRENCY,
@@ -376,26 +349,25 @@ const DEVNET_CHAINS: ChainsByProtocol = {
   ],
 };
 
-const LOCALNET_CHAINS: ChainsByProtocol = {
+const LOCAL_CHAINS: ChainsByProtocol = {
   [Protocol.Solana]: [
     {
-      ecosystem: EcosystemId.Solana,
+      ecosystem: SOLANA_ECOSYSTEM_ID,
       chainId: SolanaChainId.Localnet,
       wormhole: {
         bridge: "Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o",
         tokenBridge: "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE",
       },
-      endpoint: "http://127.0.0.1:8899",
-      wsEndpoint: "",
+      endpoints: ["http://127.0.0.1:8899"],
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      otterTotCollection: "", // TODO: Deploy on localnet
+      otterTotCollection: "", // TODO: Deploy on teamnet
     },
   ],
   [Protocol.Evm]: [
     {
-      ecosystem: EcosystemId.Ethereum,
-      chainId: EvmChainId.EthereumLocalnet,
-      chainName: "Ethereum Localnet",
+      ecosystem: EvmEcosystemId.Ethereum,
+      chainId: EvmChainId.EthereumLocal,
+      chainName: "Ethereum Local",
       nativeCurrency: ETHEREUM_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8545"],
       wormhole: {
@@ -404,9 +376,9 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Bnb,
-      chainId: EvmChainId.BnbLocalnet,
-      chainName: "BNB Chain Localnet",
+      ecosystem: EvmEcosystemId.Bnb,
+      chainId: EvmChainId.BnbLocal,
+      chainName: "BNB Chain Local",
       nativeCurrency: BNB_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8546"],
       wormhole: {
@@ -415,9 +387,9 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Avalanche,
-      chainId: EvmChainId.AvalancheLocalnet,
-      chainName: "Avalanche Localnet",
+      ecosystem: EvmEcosystemId.Avalanche,
+      chainId: EvmChainId.AvalancheLocal,
+      chainName: "Avalanche Local",
       nativeCurrency: AVALANCHE_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8547"],
       wormhole: {
@@ -426,9 +398,9 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Polygon,
-      chainId: EvmChainId.PolygonLocalnet,
-      chainName: "Polygon Localnet",
+      ecosystem: EvmEcosystemId.Polygon,
+      chainId: EvmChainId.PolygonLocal,
+      chainName: "Polygon Local",
       nativeCurrency: POLYGON_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8548"],
       wormhole: {
@@ -437,9 +409,9 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Aurora,
-      chainId: EvmChainId.AuroraLocalnet,
-      chainName: "Aurora Localnet",
+      ecosystem: EvmEcosystemId.Aurora,
+      chainId: EvmChainId.AuroraLocal,
+      chainName: "Aurora Local",
       nativeCurrency: AURORA_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8549"],
       wormhole: {
@@ -448,9 +420,9 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Fantom,
-      chainId: EvmChainId.FantomLocalnet,
-      chainName: "Fantom Localnet",
+      ecosystem: EvmEcosystemId.Fantom,
+      chainId: EvmChainId.FantomLocal,
+      chainName: "Fantom Local",
       nativeCurrency: FANTOM_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8550"],
       wormhole: {
@@ -459,9 +431,9 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Karura,
-      chainId: EvmChainId.KaruraLocalnet,
-      chainName: "Karura Localnet",
+      ecosystem: EvmEcosystemId.Karura,
+      chainId: EvmChainId.KaruraLocal,
+      chainName: "Karura Local",
       nativeCurrency: KARURA_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8551"],
       wormhole: {
@@ -470,9 +442,9 @@ const LOCALNET_CHAINS: ChainsByProtocol = {
       },
     },
     {
-      ecosystem: EcosystemId.Acala,
-      chainId: EvmChainId.AcalaLocalnet,
-      chainName: "Acala Localnet",
+      ecosystem: EvmEcosystemId.Acala,
+      chainId: EvmChainId.AcalaLocal,
+      chainName: "Acala Local",
       nativeCurrency: ACALA_NATIVE_CURRENCY,
       rpcUrls: ["http://localhost:8552"],
       wormhole: {
@@ -487,18 +459,18 @@ export const ALL_UNIQUE_CHAINS = {
   [Protocol.Solana]: [
     ...MAINNET_CHAINS[Protocol.Solana],
     ...DEVNET_CHAINS[Protocol.Solana],
-    ...LOCALNET_CHAINS[Protocol.Solana],
+    ...LOCAL_CHAINS[Protocol.Solana],
   ],
   [Protocol.Evm]: [
     ...MAINNET_CHAINS[Protocol.Evm],
     ...DEVNET_CHAINS[Protocol.Evm],
-    ...LOCALNET_CHAINS[Protocol.Evm],
+    ...LOCAL_CHAINS[Protocol.Evm],
   ],
 };
 
 export const CHAINS: ReadonlyRecord<Env, ChainsByProtocol> = {
   [Env.Mainnet]: MAINNET_CHAINS,
   [Env.Devnet]: DEVNET_CHAINS,
-  [Env.Localnet]: LOCALNET_CHAINS,
-  [Env.CustomLocalnet]: LOCALNET_CHAINS,
+  [Env.Local]: LOCAL_CHAINS,
+  [Env.Custom]: LOCAL_CHAINS,
 };

@@ -1,15 +1,17 @@
+import { EvmEcosystemId } from "@swim-io/evm";
 import type { FC, ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
-import type { Ecosystem } from "../config";
-import { ECOSYSTEMS, EcosystemId } from "../config";
+import type { Ecosystem, EcosystemId } from "../config";
+import { ECOSYSTEMS } from "../config";
 
-const ecosystemIdToDoc = new Map([
+const ecosystemIdToDoc = new Map<EcosystemId, string>([
   [
-    EcosystemId.Acala,
+    EvmEcosystemId.Acala,
     "https://wiki.acala.network/get-started/acala-network/acala-account#existential-deposit",
   ],
   [
-    EcosystemId.Karura,
+    EvmEcosystemId.Karura,
     "https://wiki.acala.network/get-started/get-started/karura-account#existential-deposit",
   ],
 ]);
@@ -38,18 +40,15 @@ interface LowPolkadotBalanceWarningProps {
 const LowPolkadotBalanceWarning = ({
   isVisible,
 }: LowPolkadotBalanceWarningProps): ReactElement | null => {
+  const { t } = useTranslation();
   if (!isVisible) {
     return null;
   }
-  return (
-    <>
-      *Polkadot chains require a minimum balance in order not to be deactivated
-      according to Existential Deposit requirements.
-    </>
-  );
+  return <>{t("general.low_polkadot_balance_warning")}</>;
 };
 
 export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
+  const { t } = useTranslation();
   const isLowPolkadotBalance = lowBalanceWallets.some((ecosystemId) =>
     ecosystemIdToDoc.has(ecosystemId),
   );
@@ -58,10 +57,7 @@ export const LowBalanceDescription: FC<Props> = ({ lowBalanceWallets }) => {
   });
   return (
     <p>
-      <span>
-        You have a low balance in the following wallets, and may not be able to
-        cover all of the required transaction fees:
-      </span>
+      <span>{t("general.low_balance_in_following_wallets")}</span>
       <ul>
         {lowBalanceEcosystems.map((ecosystem) => createListItem(ecosystem))}
       </ul>

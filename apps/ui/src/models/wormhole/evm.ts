@@ -1,10 +1,10 @@
 import { getAllowanceEth } from "@certusone/wormhole-sdk";
 import { PublicKey } from "@solana/web3.js";
+import type { EvmTx } from "@swim-io/evm";
 import type { ethers } from "ethers";
 
 import type { TokenSpec, WormholeChainSpec } from "../../config";
-import { WormholeChainId } from "../../config";
-import type { EvmTx } from "../crossEcosystem";
+import { WormholeChainId, getTokenDetailsForEcosystem } from "../../config";
 
 import { approveEth, transferFromEth } from "./overrides";
 import type { WormholeTransfer } from "./transfer";
@@ -14,19 +14,18 @@ export const isLockEvmTx = (
   token: TokenSpec,
   tx: EvmTx,
 ): boolean => {
-  const evmTokenDetails = token.detailsByEcosystem.get(tx.ecosystem) ?? null;
-  if (evmTokenDetails === null) {
+  const tokenDetails = getTokenDetailsForEcosystem(token, tx.ecosystemId);
+  if (tokenDetails === null) {
     return false;
   }
   if (
-    tx.txResponse.to?.toLowerCase() !==
+    tx.response.to?.toLowerCase() !==
     wormholeChainSpec.tokenBridge.toLowerCase()
   ) {
     return false;
   }
-  return tx.txReceipt.logs.some(
-    (log) =>
-      log.address.toLowerCase() === evmTokenDetails.address.toLowerCase(),
+  return tx.receipt.logs.some(
+    (log) => log.address.toLowerCase() === tokenDetails.address.toLowerCase(),
   );
 };
 
@@ -35,19 +34,17 @@ export const isUnlockEvmTx = (
   token: TokenSpec,
   tx: EvmTx,
 ): boolean => {
-  const evmTokenDetails = token.detailsByEcosystem.get(tx.ecosystem) ?? null;
-  if (evmTokenDetails === null) {
+  const tokenDetails = getTokenDetailsForEcosystem(token, tx.ecosystemId);
+  if (tokenDetails === null) {
     return false;
   }
   if (
-    tx.txReceipt.to.toLowerCase() !==
-    wormholeChainSpec.tokenBridge.toLowerCase()
+    tx.receipt.to.toLowerCase() !== wormholeChainSpec.tokenBridge.toLowerCase()
   ) {
     return false;
   }
-  return tx.txReceipt.logs.some(
-    (log) =>
-      log.address.toLowerCase() === evmTokenDetails.address.toLowerCase(),
+  return tx.receipt.logs.some(
+    (log) => log.address.toLowerCase() === tokenDetails.address.toLowerCase(),
   );
 };
 

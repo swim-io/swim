@@ -1,8 +1,8 @@
 import type PoolMath from "@swim-io/pool-math";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { findOrThrow } from "@swim-io/utils";
 
-import { EcosystemId } from "../../config";
 import type { PoolSpec, TokenSpec } from "../../config";
-import { findOrThrow } from "../../utils";
 import { Amount } from "../amount";
 
 import { SwimDefiInstruction } from "./instructions";
@@ -10,7 +10,7 @@ import type {
   Interaction,
   InteractionSpec,
   InteractionSpecV2,
-  SwapInteractionSpecV2,
+  TokenOption,
 } from "./interaction";
 import { InteractionType } from "./interaction";
 import type { OperationSpec } from "./operation";
@@ -228,7 +228,7 @@ export const createOperationSpecs = (
         const { stableInputAmount } = outputPoolMath.swapExactOutput(
           inputIndex,
           minimumOutputAmounts.map((amount) =>
-            amount.toHuman(EcosystemId.Solana),
+            amount.toHuman(SOLANA_ECOSYSTEM_ID),
           ),
         );
         const minimumMintAmount = Amount.fromHuman(
@@ -258,7 +258,7 @@ export const createOperationSpecs = (
                 // NOTE: This will be overriden when we know the correct amount
                 // For now we set the amount to 1 to distinguish it from the others
                 token.id === inputPoolTokens.lpToken.id
-                  ? Amount.fromAtomicString(token, "1", EcosystemId.Solana)
+                  ? Amount.fromAtomicString(token, "1", SOLANA_ECOSYSTEM_ID)
                   : Amount.zero(token),
               ),
               outputTokenIndex: outputPoolTokens.tokens.findIndex(
@@ -279,7 +279,7 @@ export const createOperationSpecs = (
         );
         const { lpInputAmount } = outputPoolMath.removeExactOutput(
           minimumOutputAmounts.map((amount) =>
-            amount.toHuman(EcosystemId.Solana),
+            amount.toHuman(SOLANA_ECOSYSTEM_ID),
           ),
         );
         const inputPoolMinimumOutputAmount = Amount.fromHuman(
@@ -339,7 +339,7 @@ export const createOperationSpecs = (
       const { stableInputAmount } = outputPoolMath.swapExactOutput(
         outputPoolInputIndex,
         minimumOutputAmounts.map((amount) =>
-          amount.toHuman(EcosystemId.Solana),
+          amount.toHuman(SOLANA_ECOSYSTEM_ID),
         ),
       );
       const minimumInputPoolOutputAmount = Amount.fromHuman(
@@ -370,7 +370,7 @@ export const createOperationSpecs = (
               // NOTE: This will be overriden when we know the correct amount
               // For now we set the amount to 1 to distinguish it from the others
               token.id === inputPoolOutputToken.id
-                ? Amount.fromAtomicString(token, "1", EcosystemId.Solana)
+                ? Amount.fromAtomicString(token, "1", SOLANA_ECOSYSTEM_ID)
                 : Amount.zero(token),
             ),
             outputTokenIndex: outputPoolTokens.tokens.findIndex(
@@ -414,21 +414,21 @@ export const getRequiredPoolsForSwap = (
 
 export const getRequiredPoolsForSwapV2 = (
   poolSpecs: readonly PoolSpec[],
-  interaction: SwapInteractionSpecV2,
+  fromTokenOption: TokenOption,
+  toTokenOption: TokenOption,
 ): readonly PoolSpec[] => {
-  const { fromTokenDetail, toTokenDetail } = interaction.params;
   const restructuredPools = poolSpecs.filter((pool) => !pool.isLegacyPool);
   const inputPool = findOrThrow(
     restructuredPools,
     (pool) =>
-      pool.ecosystem === fromTokenDetail.ecosystemId &&
-      pool.tokens.includes(fromTokenDetail.tokenId),
+      pool.ecosystem === fromTokenOption.ecosystemId &&
+      pool.tokens.includes(fromTokenOption.tokenId),
   );
   const outputPool = findOrThrow(
     restructuredPools,
     (pool) =>
-      pool.ecosystem === toTokenDetail.ecosystemId &&
-      pool.tokens.includes(toTokenDetail.tokenId),
+      pool.ecosystem === toTokenOption.ecosystemId &&
+      pool.tokens.includes(toTokenOption.tokenId),
   );
   if (inputPool === outputPool) {
     return [inputPool];
@@ -459,7 +459,11 @@ export const getRequiredPools = (
         interactionSpec.params.minimumOutputAmount.tokenId,
       );
     case InteractionType.SwapV2:
-      return getRequiredPoolsForSwapV2(poolSpecs, interactionSpec);
+      return getRequiredPoolsForSwapV2(
+        poolSpecs,
+        interactionSpec.params.fromTokenDetail,
+        interactionSpec.params.toTokenDetail,
+      );
     default:
       throw new Error("Unknown interaction type");
   }

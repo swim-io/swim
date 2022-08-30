@@ -1,74 +1,91 @@
+import { EvmEcosystemId } from "@swim-io/evm";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
-import { EcosystemId } from "../../config";
+import type { EcosystemId } from "../../config";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
-import { useGasPriceQuery } from "./useGasPriceQuery";
+import { useGasPriceQueries } from "./useGasPriceQuery";
 import { useIsEvmGasPriceLoading } from "./useIsEvmGasPriceLoading";
 
 jest.mock("./useGasPriceQuery", () => ({
-  useGasPriceQuery: jest.fn(),
+  useGasPriceQueries: jest.fn(),
 }));
 
 // Make typescript happy with jest
-const useGasPriceQueryMock = mockOf(useGasPriceQuery);
+const useGasPriceQueriesMock = mockOf(useGasPriceQueries);
 
-describe("useAddFeesEstimationQuery", () => {
+describe("useIsEvmGasPriceLoading", () => {
   beforeEach(() => {
     // Reset queryClient cache, otherwise test might return previous value
     renderHookWithAppContext(() => useQueryClient().clear());
   });
 
   describe("loading", () => {
-    it("should return false for empty array", async () => {
-      useGasPriceQueryMock.mockReturnValue({
-        isLoading: true,
-        data: undefined,
-      });
+    it("should return false for empty array", () => {
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => ({
+            isLoading: true,
+            data: undefined,
+          }));
+        },
+      );
       const { result } = renderHookWithAppContext(() =>
         useIsEvmGasPriceLoading([]),
       );
       expect(result.current).toEqual(false);
     });
 
-    it("should return true if required evm gas price is loading", async () => {
-      useGasPriceQueryMock.mockImplementation((ecosystemId: EcosystemId) =>
-        ecosystemId === EcosystemId.Ethereum
-          ? { isLoading: true, data: undefined }
-          : { isLoading: false, data: new Decimal(5e-9) },
+    it("should return true if required evm gas price is loading", () => {
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => {
+            return ecosystemId === EvmEcosystemId.Ethereum
+              ? { isLoading: true, data: undefined }
+              : { isLoading: false, data: new Decimal(5e-9) };
+          });
+        },
       );
       const { result } = renderHookWithAppContext(() =>
-        useIsEvmGasPriceLoading([EcosystemId.Ethereum]),
+        useIsEvmGasPriceLoading([EvmEcosystemId.Ethereum]),
       );
       expect(result.current).toEqual(true);
     });
   });
 
   describe("loaded", () => {
-    it("should return false if required evm gas price is loaded", async () => {
-      useGasPriceQueryMock.mockImplementation((ecosystemId: EcosystemId) =>
-        ecosystemId === EcosystemId.Ethereum
-          ? { isLoading: false, data: new Decimal(5e-9) }
-          : { isLoading: true, data: undefined },
+    it("should return false if required evm gas price is loaded", () => {
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => {
+            return ecosystemId === EvmEcosystemId.Ethereum
+              ? { isLoading: false, data: new Decimal(5e-9) }
+              : { isLoading: true, data: undefined };
+          });
+        },
       );
       const { result } = renderHookWithAppContext(() =>
-        useIsEvmGasPriceLoading([EcosystemId.Ethereum]),
+        useIsEvmGasPriceLoading([EvmEcosystemId.Ethereum]),
       );
       expect(result.current).toEqual(false);
     });
 
-    it("should return false if all evm gas price are loaded", async () => {
-      useGasPriceQueryMock.mockReturnValue({
-        isLoading: false,
-        data: new Decimal(5e-9),
-      });
+    it("should return false if all evm gas price are loaded", () => {
+      useGasPriceQueriesMock.mockImplementation(
+        (ecosystemIds: readonly EcosystemId[]): any => {
+          return ecosystemIds.map((ecosystemId) => ({
+            isLoading: false,
+            data: new Decimal(5e-9),
+          }));
+        },
+      );
       const { result } = renderHookWithAppContext(() =>
         useIsEvmGasPriceLoading([
-          EcosystemId.Ethereum,
-          EcosystemId.Bnb,
-          EcosystemId.Polygon,
-          EcosystemId.Avalanche,
+          EvmEcosystemId.Ethereum,
+          EvmEcosystemId.Bnb,
+          EvmEcosystemId.Polygon,
+          EvmEcosystemId.Avalanche,
         ]),
       );
       expect(result.current).toEqual(false);

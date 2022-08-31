@@ -143,7 +143,11 @@ const DEVNET_CHAINS: ChainsByProtocol = {
       chainId: EvmChainId.EthereumGoerli,
       chainName: "Ethereum Goerli Testnet",
       nativeCurrency: ETHEREUM_NATIVE_CURRENCY,
-      rpcUrls: ["https://goerli.prylabs.net/"],
+      rpcUrls: [
+        "https://rpc.ankr.com/eth_goerli",
+        "https://goerli.prylabs.net/",
+        "https://rpc.goerli.mudit.blog",
+      ],
       wormhole: {
         bridge: "0x706abc4E45D419950511e474C7B9Ed348A4a716c",
         tokenBridge: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",

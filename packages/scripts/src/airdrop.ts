@@ -39,6 +39,9 @@ const TOKEN_CHOICES = [
   ...DEVNET_GAS_TOKENS,
 ];
 
+const sample = <T>(arr: ReadonlyArray<T>) =>
+  arr[(Math.random() * arr.length) >> 0];
+
 async function transferOnEvm(args: CliOptions) {
   const tokenId = args.token;
   const receiverAddress = args.receiverAddress;
@@ -52,9 +55,10 @@ async function transferOnEvm(args: CliOptions) {
     ({ ecosystem }: EvmSpec) => ecosystem === tokenSpec.nativeEcosystemId,
   );
 
-  const evmProvider = new ethers.providers.JsonRpcProvider(
-    chainSpec.rpcUrls[0],
-  );
+  const rpcUrl = sample(chainSpec.rpcUrls);
+  console.info(`Using ${rpcUrl} JSON RPC.`);
+
+  const evmProvider = new ethers.providers.JsonRpcProvider(rpcUrl);
 
   // Hippo wallet (dev bank)
   const mnemonic = process.env.DEVNET_WALLET_EVM_MNEMONIC_PHRASE;
@@ -95,13 +99,13 @@ async function transferOnEvm(args: CliOptions) {
     tokenSpec.nativeDetails.decimals,
   );
 
-  const txReceipt = await (
-    await tokenContract.transfer(receiverAddress, numberOfTokens)
-  ).wait();
+  const tx = await tokenContract.transfer(receiverAddress, numberOfTokens);
+  console.info(`Transaction ID: ${tx.hash}.`);
+
+  const txReceipt = await tx.wait();
+  const txStatus = txReceipt.status?.toString() || "N/A";
   console.info(
-    `Transaction ID: ${
-      txReceipt.transactionHash
-    }. Gas used: ${txReceipt.gasUsed.toNumber()}`,
+    `Transaction status: ${txStatus}. Gas used: ${txReceipt.gasUsed.toNumber()}`,
   );
 
   console.info(
@@ -244,9 +248,10 @@ async function transferGasOnEvm(args: CliOptions) {
     ({ ecosystem }: EvmSpec) => tokenId.includes(ecosystem),
   );
 
-  const evmProvider = new ethers.providers.JsonRpcProvider(
-    chainSpec.rpcUrls[0],
-  );
+  const rpcUrl = sample(chainSpec.rpcUrls);
+  console.info(`Using ${rpcUrl} JSON RPC.`);
+
+  const evmProvider = new ethers.providers.JsonRpcProvider(rpcUrl);
 
   const senderWallet = ethers.Wallet.fromMnemonic(mnemonic.trim()).connect(
     evmProvider,
@@ -265,12 +270,12 @@ async function transferGasOnEvm(args: CliOptions) {
     value: ethers.utils.parseEther(amount),
   });
 
-  const txReceipt = await txResponse.wait();
+  console.info(`Transaction ID: ${txResponse.hash}.`);
 
+  const txReceipt = await txResponse.wait();
+  const txStatus = txReceipt.status?.toString() || "N/A";
   console.info(
-    `Transaction ID: ${
-      txReceipt.transactionHash
-    }. Gas used: ${txReceipt.gasUsed.toNumber()}`,
+    `Transaction status: ${txStatus}. Gas used: ${txReceipt.gasUsed.toNumber()}`,
   );
 
   console.info(

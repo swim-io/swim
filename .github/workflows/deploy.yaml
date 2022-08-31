@@ -1,12 +1,9 @@
 name: "Deploy UI to production"
 
 on:
-  workflow_dispatch:
   push:
     # branches:
     #   - master
-    #  paths:
-    #   - "apps/ui/*"
 
 jobs:
   # verify:
@@ -19,11 +16,6 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
-
-    # Doesn't needed here?
-    # defaults:
-    #   run:
-    #     working-directory: ./apps/ui
 
     # needs: [verify]
 
@@ -71,7 +63,7 @@ jobs:
             ui-build-${{ hashFiles('**/yarn.lock') }}-
             ui-build-
 
-      - name: Build UI and direct upload to Cloudflare Pages
+      - name: Build UI
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
           # TODO: Don't skip source maps deployment to Sentry before merging to master
@@ -81,7 +73,7 @@ jobs:
         run: |
           yarn release-ui
 
-          cp -r apps/ui/build ${{ env.BUILD_CACHE_PATH }}
+          cp -r apps/ui/build/. ${{ env.BUILD_CACHE_PATH }}
           ls -laR ${{ env.BUILD_CACHE_PATH }}
 
       - name: Direct upload built UI to Cloudflare Pages

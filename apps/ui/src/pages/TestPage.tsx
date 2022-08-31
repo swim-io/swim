@@ -295,7 +295,7 @@ const TestPage = (): ReactElement => {
         continue;
       }
       const receipt = await approveEth(
-        ethereumChain.wormhole.tokenBridge,
+        ethereumChain.wormhole.portal,
         ethereumDetails.address,
         ethereumWallet.signer,
         hugeAmount,
@@ -310,7 +310,7 @@ const TestPage = (): ReactElement => {
         continue;
       }
       const receipt = await approveEth(
-        bnbChain.wormhole.tokenBridge,
+        bnbChain.wormhole.portal,
         bnbDetails.address,
         bnbWallet.signer,
         hugeAmount,
@@ -333,7 +333,7 @@ const TestPage = (): ReactElement => {
         continue;
       }
       const receipt = await approveEth(
-        ethereumChain.wormhole.tokenBridge,
+        ethereumChain.wormhole.portal,
         ethereumDetails.address,
         ethereumWallet.signer,
         zero,
@@ -348,7 +348,7 @@ const TestPage = (): ReactElement => {
         continue;
       }
       const receipt = await approveEth(
-        bnbChain.wormhole.tokenBridge,
+        bnbChain.wormhole.portal,
         bnbDetails.address,
         bnbWallet.signer,
         zero,
@@ -366,7 +366,7 @@ const TestPage = (): ReactElement => {
     ]) {
       const wormholeAsset = new PublicKey(token).toBytes();
       const foreignAsset = await getForeignAssetEth(
-        ethereumChain.wormhole.tokenBridge,
+        ethereumChain.wormhole.portal,
         evmConnections[EvmEcosystemId.Ethereum].provider,
         WormholeChainId.Solana,
         wormholeAsset,
@@ -383,7 +383,7 @@ const TestPage = (): ReactElement => {
     ]) {
       const wormholeAsset = new PublicKey(token).toBytes();
       const foreignAsset = await getForeignAssetEth(
-        bnbChain.wormhole.tokenBridge,
+        bnbChain.wormhole.portal,
         evmConnections[EvmEcosystemId.Bnb].provider,
         WormholeChainId.Solana,
         wormholeAsset,

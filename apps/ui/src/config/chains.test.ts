@@ -41,8 +41,8 @@ const generateSuite = (env: Env): void => {
       });
 
       it("specifies a valid Wormhole token bridge", () => {
-        const { tokenBridge } = chains[Protocol.Solana][0].wormhole;
-        expect(() => new PublicKey(tokenBridge)).not.toThrow();
+        const { portal } = chains[Protocol.Solana][0].wormhole;
+        expect(() => new PublicKey(portal)).not.toThrow();
       });
 
       it("specifies a valid token contract", () => {
@@ -61,15 +61,11 @@ const generateSuite = (env: Env): void => {
       });
 
       it("specifies valid Wormhole token bridges", () => {
-        const tokenBridges = chains[Protocol.Evm].map(
-          (chain) => chain.wormhole.tokenBridge,
+        const portals = chains[Protocol.Evm].map(
+          (chain) => chain.wormhole.portal,
         );
-        expect(
-          tokenBridges.every((tokenBridge) => tokenBridge.startsWith("0x")),
-        ).toBe(true);
-        expect(
-          tokenBridges.every((tokenBridge) => utils.isAddress(tokenBridge)),
-        ).toBe(true);
+        expect(portals.every((portal) => portal.startsWith("0x"))).toBe(true);
+        expect(portals.every((portal) => utils.isAddress(portal))).toBe(true);
       });
     });
   });

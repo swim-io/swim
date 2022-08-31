@@ -200,7 +200,7 @@ export const useToSolanaTransferMutation = () => {
         interactionId,
         wormhole.rpcUrls,
         ECOSYSTEMS[fromEcosystem].wormholeChainId,
-        getEmitterAddressEth(evmChain.wormhole.tokenBridge),
+        getEmitterAddressEth(evmChain.wormhole.portal),
         sequence,
         solanaWormhole,
         solanaConnection,

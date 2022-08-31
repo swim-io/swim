@@ -181,7 +181,7 @@ export const useFromSolanaTransferMutation = () => {
           interactionId,
           solanaConnection,
           solanaWormhole.bridge,
-          solanaWormhole.tokenBridge,
+          solanaWormhole.portal,
           solanaWalletAddress,
           splTokenAccount.address.toBase58(),
           solanaTokenDetails.address,
@@ -238,7 +238,7 @@ export const useFromSolanaTransferMutation = () => {
       const parsedTx = await solanaConnection.getParsedTx(transferSplTokenTxId);
       const sequence = parseSequenceFromLogSolana(parsedTx);
       const emitterAddress = await getEmitterAddressSolana(
-        solanaWormhole.tokenBridge,
+        solanaWormhole.portal,
       );
       const vaaBytesResponse = await getSignedVaaWithRetry(
         [...wormhole.rpcUrls],
@@ -256,7 +256,7 @@ export const useFromSolanaTransferMutation = () => {
       await evmWallet.switchNetwork(evmChain.chainId);
       const redeemResponse = await redeemOnEth(
         interactionId,
-        evmChain.wormhole.tokenBridge,
+        evmChain.wormhole.portal,
         evmSigner,
         vaaBytesResponse.vaaBytes,
       );

@@ -13,10 +13,11 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
+import type { WormholeChainConfig } from "@swim-io/core";
 import type { SolanaTx } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID, createMemoIx } from "@swim-io/solana";
 
-import type { TokenSpec, WormholeChainSpec } from "../../config";
+import type { TokenSpec } from "../../config";
 import { WormholeChainId, getSolanaTokenDetails } from "../../config";
 import type { SolanaConnection } from "../solana";
 import {
@@ -51,14 +52,14 @@ export const parseSequenceFromLogSolana = (
 };
 
 export const isLockSplTx = (
-  wormholeChainSpec: WormholeChainSpec,
+  wormholeChainConfig: WormholeChainConfig,
   splTokenAccountAddress: string,
   token: TokenSpec,
   { parsedTx }: SolanaTx,
 ): boolean => {
   if (
     !parsedTx.transaction.message.instructions.some(
-      (ix) => ix.programId.toBase58() === wormholeChainSpec.tokenBridge,
+      (ix) => ix.programId.toBase58() === wormholeChainConfig.portal,
     )
   ) {
     return false;
@@ -81,7 +82,7 @@ export const isPartiallyDecodedInstruction = (
   !!(ix as PartiallyDecodedInstruction).accounts;
 
 export const isPostVaaSolanaTx = (
-  wormholeChainSpec: WormholeChainSpec,
+  wormholeChainConfig: WormholeChainConfig,
   signatureSetAddress: string | null,
   tx: SolanaTx,
 ): boolean => {
@@ -91,20 +92,20 @@ export const isPostVaaSolanaTx = (
   return tx.parsedTx.transaction.message.instructions.some(
     (ix) =>
       isPartiallyDecodedInstruction(ix) &&
-      ix.programId.toBase58() === wormholeChainSpec.bridge &&
+      ix.programId.toBase58() === wormholeChainConfig.bridge &&
       ix.accounts.some((account) => account.toBase58() === signatureSetAddress),
   );
 };
 
 export const isRedeemOnSolanaTx = (
-  wormholeChainSpec: WormholeChainSpec,
+  wormholeChainConfig: WormholeChainConfig,
   token: TokenSpec,
   splTokenAccount: string,
   { parsedTx }: SolanaTx,
 ): boolean => {
   if (
     !parsedTx.transaction.message.instructions.some(
-      (ix) => ix.programId.toBase58() === wormholeChainSpec.tokenBridge,
+      (ix) => ix.programId.toBase58() === wormholeChainConfig.portal,
     )
   ) {
     return false;
@@ -171,7 +172,7 @@ export async function* generateUnlockSplTokenTxIds(
   wormholeChainId: WormholeChainId,
   emitterAddress: string,
   sequence: string,
-  solanaWormhole: WormholeChainSpec,
+  solanaWormhole: WormholeChainConfig,
   solanaConnection: SolanaConnection,
   solanaWallet: SolanaWalletAdapter,
   signatureSetKeypair: Keypair,
@@ -209,7 +210,7 @@ export async function* generateUnlockSplTokenTxIds(
     interactionId,
     solanaConnection,
     solanaWormhole.bridge,
-    solanaWormhole.tokenBridge,
+    solanaWormhole.portal,
     solanaPublicKey.toBase58(),
     vaaBytes,
   );
@@ -225,7 +226,7 @@ export const unlockSplToken = async (
   wormholeChainId: WormholeChainId,
   emitterAddress: string,
   sequence: string,
-  solanaWormhole: WormholeChainSpec,
+  solanaWormhole: WormholeChainConfig,
   solanaConnection: SolanaConnection,
   solanaWallet: SolanaWalletAdapter,
 ): Promise<readonly string[]> => {
@@ -258,7 +259,7 @@ export const unlockSplToken = async (
     interactionId,
     solanaConnection,
     solanaWormhole.bridge,
-    solanaWormhole.tokenBridge,
+    solanaWormhole.portal,
     solanaPublicKey.toBase58(),
     vaaBytes,
   );

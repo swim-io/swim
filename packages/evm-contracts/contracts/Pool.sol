@@ -222,8 +222,8 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       msg.sender,
       memo,
       SwimOperation.RemoveUniform,
-      abi.encodePacked(burnAmount, minimumOutputAmounts),
-      abi.encodePacked(outputAmounts)
+      abi.encode(burnAmount, minimumOutputAmounts),
+      abi.encode(outputAmounts)
     );
   }
 
@@ -273,8 +273,8 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       msg.sender,
       memo,
       SwimOperation.Add,
-      abi.encodePacked(inputAmounts, minimumMintAmount),
-      abi.encodePacked(mintAmount)
+      abi.encode(inputAmounts, minimumMintAmount),
+      abi.encode(mintAmount)
     );
   }
 
@@ -319,8 +319,8 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       msg.sender,
       memo,
       SwimOperation.RemoveExactOutput,
-      abi.encodePacked(outputAmounts, maximumBurnAmount),
-      abi.encodePacked(burnAmount)
+      abi.encode(outputAmounts, maximumBurnAmount),
+      abi.encode(burnAmount)
     );
   }
 
@@ -368,8 +368,8 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       msg.sender,
       memo,
       SwimOperation.RemoveExactBurn,
-      abi.encodePacked(burnAmount, outputTokenIndex, minimumOutputAmount),
-      abi.encodePacked(outputAmount)
+      abi.encode(burnAmount, outputTokenIndex, minimumOutputAmount),
+      abi.encode(outputAmount)
     );
   }
 

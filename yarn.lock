@@ -7362,6 +7362,7 @@ __metadata:
   resolution: "@swim-io/solana@workspace:packages/solana"
   dependencies:
     "@project-serum/borsh": ^0.2.5
+    "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.48.0
     "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"

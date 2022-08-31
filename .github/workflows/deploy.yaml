@@ -58,7 +58,7 @@ jobs:
         with:
           # TODO: Set some TTL for the cache folder
           path: ${{ env.BUILD_CACHE_PATH }}
-          key: ui-build-${{ hashFiles('**/*') }}
+          key: ui-build-${{ hashFiles('**/*.js', '**/*.svg', '**/*.css', '**/*.wasm', '**/*.png', '**/*.zip', '**/*.map') }}
           restore-keys: |
             ui-build-
 

@@ -56,6 +56,7 @@ jobs:
       - name: Cache UI build directory
         uses: actions/cache@v3
         with:
+          # TODO: Set some TTL for the cache folder
           path: ${{ env.BUILD_CACHE_PATH }}
           key: ui-build
 
@@ -69,7 +70,22 @@ jobs:
         run: |
           yarn release-ui
 
-          cp -r apps/ui/build/. ${{ env.BUILD_CACHE_PATH }}
+          echo "Contents of ${{ env.BUILD_CACHE_PATH }}/"
+          ls -laR ${{ env.BUILD_CACHE_PATH }}
+
+          # Copy previous cache to the new temporary cache folder
+          cp -r ${{ env.BUILD_CACHE_PATH }}/. ~/.ui-build-cache-tmp
+
+          # Copy the current build folder to the new temporary cache folder
+          echo "Contents of apps/ui/build/"
+          cp -r apps/ui/build/. ~/.ui-build-cache-tmp
+
+          echo "Contents of ~/.ui-build-cache-tmp/"
+          ls -laR ~/.ui-build-cache-tmp
+
+          # Copy the new temporary cache folder to the actual cache folder used by actions/cache
+          # Two previous steps were needed because actions/cache overrides folder used in `path` option
+          cp -r ~/.ui-build-cache-tmp/. ${{ env.BUILD_CACHE_PATH }}
           ls -laR ${{ env.BUILD_CACHE_PATH }}
 
       - name: Direct upload built UI to Cloudflare Pages

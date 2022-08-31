@@ -13,6 +13,7 @@ import type {
 } from "@solana/web3.js";
 import { MAX_SEED_LENGTH, PublicKey, Transaction } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
+import type { TokenAccount } from "@swim-io/solana";
 import { chunks, sleep } from "@swim-io/utils";
 import BN from "bn.js";
 import Decimal from "decimal.js";
@@ -22,7 +23,6 @@ import type { QueryClient } from "react-query";
 import type { SolanaWalletAdapter } from "../wallets";
 
 import type { CustomConnection, SolanaConnection } from "./SolanaConnection";
-import type { TokenAccount } from "./parsers";
 
 const { sha256 } = ethers.utils;
 

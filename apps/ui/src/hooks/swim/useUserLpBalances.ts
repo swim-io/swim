@@ -1,9 +1,9 @@
 import { EvmEcosystemId } from "@swim-io/evm";
+import type { TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 
 import type { EcosystemId, TokenSpec } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
-import type { TokenAccount } from "../../models";
 import { Amount } from "../../models";
 import { useErc20BalanceQuery } from "../evm";
 

@@ -1,4 +1,5 @@
 import type PoolMath from "@swim-io/pool-math";
+import type { TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { isEachNotNull } from "@swim-io/utils";
@@ -18,7 +19,6 @@ import type {
   RequiredSplTokenAccounts,
   SolanaPoolOperationState,
   ToSolanaTransferState,
-  TokenAccount,
 } from "../../models";
 import {
   InteractionType,

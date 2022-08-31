@@ -1,5 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 import { Env } from "@swim-io/core";
+import type { TokenAccount } from "@swim-io/solana";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
@@ -10,7 +11,6 @@ import {
   MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION,
   SOLANA_TXS_FOR_RELOAD_INTERACTION,
 } from "../../fixtures/tx/useReloadInteractionStateMutationFixture";
-import type { TokenAccount } from "../../models";
 import {
   fetchEvmTxForInteractionId,
   fetchSolanaTxsForInteractionId,

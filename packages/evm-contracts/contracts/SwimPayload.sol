@@ -17,12 +17,27 @@ struct SwimPayload {
 }
 
 library SwimPayloadConversion {
-  error InvalidVersion(uint8 version, uint8 expected);
-  error TooShort(uint256 length, uint256 minimum);
+  error InvalidVersion(uint8 version, uint8 expected, bytes encoded);
+  error InvalidSize(uint256 size, bytes encoded);
+
+  uint256 private constant TOKENBRIDGE_TYPE_SIZE = 1;
+  uint256 private constant TOKENBRIDGE_AMOUNT_SIZE = 32;
+  uint256 private constant TOKENBRIDGE_TOKEN_ORIGIN_ADDRESS_SIZE = 32;
+  uint256 private constant TOKENBRIDGE_TOKEN_ORIGIN_CHAIN_SIZE = 2;
+  uint256 private constant TOKENBRIDGE_TARGET_ADDRESS_SIZE = 32;
+  uint256 private constant TOKENBRIDGE_TARGET_CHAIN_SIZE = 2;
+  uint256 private constant TOKENBRIDGE_SENDER_ADDRESS_SIZE = 32;
+
+  uint256 private constant TOKENBRIDGE_TOTAL_SIZE =
+    TOKENBRIDGE_TYPE_SIZE +
+    TOKENBRIDGE_AMOUNT_SIZE +
+    TOKENBRIDGE_TOKEN_ORIGIN_ADDRESS_SIZE +
+    TOKENBRIDGE_TOKEN_ORIGIN_CHAIN_SIZE +
+    TOKENBRIDGE_TARGET_ADDRESS_SIZE +
+    TOKENBRIDGE_TARGET_CHAIN_SIZE +
+    TOKENBRIDGE_SENDER_ADDRESS_SIZE;
 
   uint8 private constant SWIM_PAYLOAD_VERSION = 1;
-
-  uint256 private constant SOLIDITY_ARRAY_LENGTH_SIZE = 32;
 
   uint256 private constant VERSION_SIZE = 1;
   uint256 private constant OWNER_SIZE = 32;
@@ -31,51 +46,71 @@ library SwimPayloadConversion {
   uint256 private constant TOKEN_NUMBER_SIZE = 2;
   uint256 private constant MEMO_SIZE = 16;
 
-  uint256 private constant OWNER_MINLEN = VERSION_SIZE + OWNER_SIZE;
+  uint256 private constant OWNER_MINLEN = TOKENBRIDGE_TOTAL_SIZE + VERSION_SIZE + OWNER_SIZE;
   uint256 private constant TOKEN_NUMBER_MINLEN =
     OWNER_MINLEN + PROPELLER_ENABLED_SIZE + GAS_KICKSTART_SIZE + TOKEN_NUMBER_SIZE;
   uint256 private constant MEMO_MINLEN = TOKEN_NUMBER_MINLEN + MEMO_SIZE;
 
-  function decode(bytes memory encoded) internal pure returns (SwimPayload memory swimPayload) {
-    checkLength(encoded, OWNER_MINLEN);
+  function decode(
+    bytes memory encoded //encoded token bridge payload
+  ) internal pure returns (
+    uint amount,
+    bytes32 tokenOriginAddress,
+    uint16 tokenOriginChain,
+    SwimPayload memory swimPayload
+  ) {
+    if (
+      encoded.length != OWNER_MINLEN &&
+      encoded.length != TOKEN_NUMBER_MINLEN &&
+      encoded.length != MEMO_MINLEN
+    )
+      revert InvalidSize(encoded.length, encoded);
 
     uint256 tmp;
-    uint256 offset = SOLIDITY_ARRAY_LENGTH_SIZE;
+    uint256 offset;
 
-    offset += VERSION_SIZE;
+    //parse relevant token bridge parts
+    offset = TOKENBRIDGE_TYPE_SIZE + TOKENBRIDGE_AMOUNT_SIZE;
+    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
+    amount = tmp;
+
+    offset += TOKENBRIDGE_TOKEN_ORIGIN_ADDRESS_SIZE;
+    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
+    tokenOriginAddress = bytes32(tmp);
+
+    offset += TOKENBRIDGE_TOKEN_ORIGIN_CHAIN_SIZE;
+    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
+    tokenOriginChain = uint16(tmp);
+
+    //parse actual swim payload
+    offset = TOKENBRIDGE_TOTAL_SIZE + VERSION_SIZE;
     assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
     if (uint8(tmp) != SWIM_PAYLOAD_VERSION)
-      revert InvalidVersion(uint8(tmp), SWIM_PAYLOAD_VERSION);
+      revert InvalidVersion(uint8(tmp), SWIM_PAYLOAD_VERSION, encoded);
 
     offset += OWNER_SIZE;
     assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
     swimPayload.toOwner = address(uint160(tmp));
 
-    if (encoded.length == OWNER_MINLEN)
-      return swimPayload;
+    if (encoded.length > OWNER_MINLEN) {
+      offset += PROPELLER_ENABLED_SIZE;
+      assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
+      swimPayload.propellerEnabled = uint8(tmp) != 0;
 
-    checkLength(encoded, TOKEN_NUMBER_MINLEN);
+      offset += GAS_KICKSTART_SIZE;
+      assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
+      swimPayload.gasKickstart = uint8(tmp) != 0;
 
-    offset += PROPELLER_ENABLED_SIZE;
-    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
-    swimPayload.propellerEnabled = uint8(tmp) != 0;
+      offset += TOKEN_NUMBER_SIZE;
+      assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
+      swimPayload.tokenNumber = uint16(tmp);
+    }
 
-    offset += GAS_KICKSTART_SIZE;
-    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
-    swimPayload.gasKickstart = uint8(tmp) != 0;
-
-    offset += TOKEN_NUMBER_SIZE;
-    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
-    swimPayload.tokenNumber = uint16(tmp);
-
-    if (encoded.length == TOKEN_NUMBER_MINLEN)
-      return swimPayload;
-
-    checkLength(encoded, MEMO_MINLEN);
-
-    offset += MEMO_SIZE;
-    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
-    swimPayload.memo = bytes16(uint128(tmp));
+    if (encoded.length > TOKEN_NUMBER_MINLEN) {
+      offset += MEMO_SIZE;
+      assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
+      swimPayload.memo = bytes16(uint128(tmp));
+    }
   }
 
   //non propeller interaction
@@ -100,10 +135,5 @@ library SwimPayloadConversion {
     bytes16 memo
   ) internal pure returns (bytes memory encoded) {
     return abi.encodePacked(SWIM_PAYLOAD_VERSION, toOwner, tokenNumber, uint8(1), gasKickStart, memo);
-  }
-
-  function checkLength(bytes memory encoded, uint256 minimumLength) private pure {
-    if (encoded.length < minimumLength)
-      revert TooShort(encoded.length, minimumLength);
   }
 }

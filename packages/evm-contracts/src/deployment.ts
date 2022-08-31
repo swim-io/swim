@@ -57,6 +57,8 @@ export async function deployment(print: boolean = false) {
   await checkContractConstant("Pool", "SWIM_FACTORY", SWIM_FACTORY_ADDRESS);
 
   const [deployer, governance, governanceFeeRecipient] = await ethers.getSigners();
+  console.log("deployer:", deployer.address);
+  console.log("deployer balance:", ethers.utils.formatEther(await deployer.getBalance()));
 
   dotenv.config();
   await deploySwimFactory(

@@ -117,8 +117,8 @@ const BNB_TESTNET: ChainConfig = {
   wormholeTokenBridge: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09",
   pools: [
     {
-      salt: "0x" + "00".repeat(31) + "01",
-      lpSalt: "0x" + "00".repeat(31) + "11",
+      salt: "0x" + "00".repeat(31) + "03",
+      lpSalt: "0x" + "00".repeat(31) + "13",
       lpName: "Test Pool LP",
       lpSymbol: "LP",
       tokens: [

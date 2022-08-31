@@ -12,8 +12,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IPool.sol";
 import "./interfaces/IRouting.sol";
 import "./interfaces/ITokenBridge.sol";
-import "./interfaces/IWormhole.sol";
-import "./interfaces/IStructs.sol";
 
 import "./SwimPayload.sol";
 
@@ -47,15 +45,21 @@ contract Routing is
   uint256 public constant GAS_KICKSTART_AMOUNT = 0.05 ether;
 
   uint256 accumulatedFees;
-  uint32 public wormholeNonce;
+  uint32 public wormholeNonce; //TODO should share a slot with tokenbridge (both are accessed together)
+  //TODO move to its own storage slot on next full deploy (currently shares a slot with wormhole nonce which sucks for gas)
   address public swimUsdAddress;
 
   ITokenBridge public tokenBridge;
-  IWormhole public wormhole;
+  address outdatedWormhole; //TODO remove on next full deploy
 
   mapping(uint16 => TokenInfo) public tokenNumberMapping;
   mapping(address => TokenInfo) public tokenAddressMapping;
   mapping(address => uint256) public engineFees;
+
+  // struct GasOracle {
+  //   IPool pool;
+  //   uint8 tokenIndex;
+  // }
 
   function initialize(address owner, address tokenBridgeAddress) public initializer {
     __Pausable_init();
@@ -65,12 +69,12 @@ contract Routing is
     _transferOwnership(owner);
     wormholeNonce = 0;
     tokenBridge = ITokenBridge(tokenBridgeAddress);
-    wormhole = tokenBridge.wormhole();
     swimUsdAddress = tokenBridge.wrappedAsset(WORMHOLE_SOLANA_CHAIN_ID, SWIM_USD_SOLANA_ADDRESS);
+    if (swimUsdAddress == address(0))
+      revert SwimUsdNotAttested();
   }
 
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
-
 
   function getPoolStates(
     address[] memory poolAddresses
@@ -87,20 +91,40 @@ contract Routing is
   // -------------------------------- ONCHAIN ---------------------------------
 
   function onChainSwap(
-    address fromToken,
-    uint256 inputAmount,
+    address fromToken, //mut - i.e. potentially assigned to during execution
+    uint256 inputAmount, //mut
     address toOwner,
     address toToken,
     uint256 minimumOutputAmount
   ) public whenNotPaused returns (uint256 outputAmount) {
-    uint256 swimUsdAmount = acquireAndMaybeSwap(fromToken, inputAmount, 0);
-    (outputAmount,) = maybeSwapAndTransfer(
-      swimUsdAmount,
-      toToken,
-      minimumOutputAmount,
-      toOwner,
-      false //revert on slippage
-    );
+    IERC20(fromToken).safeTransferFrom(msg.sender, address(this), inputAmount);
+
+    uint8 fromIndex;
+    uint8 toIndex;
+    IPool pool;
+
+    if (fromToken == swimUsdAddress) {
+      fromIndex = SWIM_USD_TOKEN_INDEX;
+      (pool, toIndex) = getPoolAndIndex(toToken);
+    }
+    else if (toToken == swimUsdAddress) {
+      toIndex = SWIM_USD_TOKEN_INDEX;
+      (pool, fromIndex) = getPoolAndIndex(fromToken);
+    }
+    else {
+      (pool, fromIndex) = getPoolAndIndex(fromToken);
+      IPool fromPool = pool;
+      (pool, toIndex) = getPoolAndIndex(toToken);
+      if (fromPool != pool) {
+        inputAmount = swap(fromPool, fromToken, inputAmount, fromIndex, SWIM_USD_TOKEN_INDEX, 0);
+        fromToken = swimUsdAddress;
+        fromIndex = SWIM_USD_TOKEN_INDEX;
+      }
+    }
+
+    outputAmount = swap(pool, fromToken, inputAmount, fromIndex, toIndex, minimumOutputAmount);
+
+    IERC20(toToken).safeTransfer(toOwner, outputAmount);
   }
 
   function onChainSwap(
@@ -117,8 +141,8 @@ contract Routing is
       msg.sender,
       memo,
       SwimOperation.OnChainSwap,
-      abi.encodePacked(fromToken, inputAmount, toOwner, toToken, minimumOutputAmount),
-      abi.encodePacked(outputAmount)
+      abi.encode(fromToken, inputAmount, toOwner, toToken, minimumOutputAmount),
+      abi.encode(outputAmount)
     );
   }
 
@@ -180,14 +204,14 @@ contract Routing is
       msg.sender,
       memo,
       SwimOperation.CrossChainOut,
-      abi.encodePacked(
+      abi.encode(
         fromToken,
         inputAmount,
         firstMinimumOutputAmount,
         wormholeRecipientChain,
         toOwner
       ),
-      abi.encodePacked(swimUsdAmount, wormholeSequence)
+      abi.encode(swimUsdAmount, wormholeSequence)
     );
   }
 
@@ -197,16 +221,16 @@ contract Routing is
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
     bool gasKickStart,
-    address toToken
-  ) external payable whenNotPaused returns (uint256 swimUsdAmount, uint64 wormholeSequence) {
-    swimUsdAmount = acquireAndMaybeSwap(fromToken, inputAmount, 0);
-
-    checkPropellerMinimumThreshold(swimUsdAmount, wormholeRecipientChain);
-
-    wormholeSequence = wormholeTransferWithPayload(
-      swimUsdAmount,
+    uint16 toTokenNumber
+  ) external payable returns (uint256 swimUsdAmount, uint64 wormholeSequence) {
+    return propellerOut(
+      fromToken,
+      inputAmount,
       wormholeRecipientChain,
-      SwimPayloadConversion.encode(toOwner, getTokenNumber(toToken), gasKickStart)
+      toOwner,
+      gasKickStart,
+      toTokenNumber,
+      bytes16(0)
     );
   }
 
@@ -216,31 +240,39 @@ contract Routing is
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
     bool gasKickStart,
-    address toToken,
+    uint16 toTokenNumber,
     bytes16 memo
-  ) external payable whenNotPaused returns (uint256 swimUsdAmount, uint64 wormholeSequence) {
+  ) public payable whenNotPaused returns (uint256 swimUsdAmount, uint64 wormholeSequence) {
     swimUsdAmount = acquireAndMaybeSwap(fromToken, inputAmount, 0);
+
+    bool hasMemo = memo != bytes16(0);
+
+    bytes memory encodedPayload =
+      hasMemo
+      ? SwimPayloadConversion.encode(toOwner, toTokenNumber, gasKickStart, memo)
+      : SwimPayloadConversion.encode(toOwner, toTokenNumber, gasKickStart);
 
     wormholeSequence = wormholeTransferWithPayload(
       swimUsdAmount,
       wormholeRecipientChain,
-      SwimPayloadConversion.encode(toOwner, getTokenNumber(toToken), gasKickStart, memo)
+      encodedPayload
     );
 
-    emit SwimInteraction(
-      msg.sender,
-      memo,
-      SwimOperation.PropellerOut,
-      abi.encodePacked(
-        fromToken,
-        inputAmount,
-        wormholeRecipientChain,
-        toOwner,
-        gasKickStart,
-        toToken
-      ),
-      abi.encodePacked(swimUsdAmount, wormholeSequence)
-    );
+    if (hasMemo)
+      emit SwimInteraction(
+        msg.sender,
+        memo,
+        SwimOperation.PropellerOut,
+        abi.encode(
+          fromToken,
+          inputAmount,
+          wormholeRecipientChain,
+          toOwner,
+          gasKickStart,
+          toTokenNumber
+        ),
+        abi.encode(swimUsdAmount, wormholeSequence)
+      );
   }
 
   // ----------------------------------- IN -----------------------------------
@@ -271,21 +303,36 @@ contract Routing is
     else if (swimPayload.memo != bytes16(0) && memo != swimPayload.memo)
       revert MemoContradiction(memo, swimPayload.memo);
 
-    (outputAmount, outputToken) = maybeSwapAndTransfer(
-      swimUsdAmount,
-      toToken,
-      minimumOutputAmount,
-      msg.sender,
-      true //swimUsd fallback on slippage
-    );
+    outputAmount = swimUsdAmount;
+    outputToken = swimUsdAddress;
+    if (toToken != swimUsdAddress) {
+      (IPool pool, uint8 toIndex) = getPoolAndIndex(toToken);
+      IERC20(swimUsdAddress).safeApprove(address(pool), swimUsdAmount);
+      try
+        pool.swap(
+          swimUsdAmount,
+          SWIM_USD_TOKEN_INDEX,
+          toIndex,
+          minimumOutputAmount
+        )
+      returns (uint256 _outputAmount) {
+        outputAmount = _outputAmount;
+        outputToken = toToken;
+      }
+      catch {
+        //in case of slippage send user swimUsd instead
+      }
+    }
+
+    IERC20(outputToken).safeTransfer(msg.sender, outputAmount);
 
     if (memo != bytes16(0))
       emit SwimInteraction(
         msg.sender,
         memo,
         SwimOperation.CrossChainIn,
-        abi.encodePacked(toToken, minimumOutputAmount),
-        abi.encodePacked(outputAmount, outputToken)
+        abi.encode(toToken, minimumOutputAmount),
+        abi.encode(outputAmount, outputToken)
       );
   }
 
@@ -311,22 +358,38 @@ contract Routing is
     accumulatedFees += feeAmount;
     engineFees[msg.sender] += feeAmount;
 
-    outputToken = getTokenAddress(swimPayload.tokenNumber);
-    (outputAmount,) = maybeSwapAndTransfer(
-      swimUsdAmount - feeAmount, //TODO
-      outputToken,
-      0, //no slippage for propeller
-      swimPayload.toOwner,
-      false //irrelevant - can't fail due to slippage
-    );
+    if (swimPayload.tokenNumber != 0) {
+      TokenInfo memory info = tokenNumberMapping[swimPayload.tokenNumber];
+      if (info.tokenNumber != 0) {
+        outputAmount = swap(
+          IPool(info.poolAddress),
+          swimUsdAddress,
+          swimUsdAmount - feeAmount,
+          SWIM_USD_TOKEN_INDEX,
+          info.tokenIndexInPool,
+          0 //no slippage for propeller
+        );
+        outputToken = info.tokenAddress;
+      }
+      else {
+        outputAmount = swimUsdAmount - feeAmount;
+        outputToken = swimUsdAddress;
+      }
+    }
+    else {
+      outputAmount = swimUsdAmount - feeAmount;
+      outputToken = swimUsdAddress;
+    }
+
+    IERC20(outputToken).safeTransfer(swimPayload.toOwner, outputAmount);
 
     if (swimPayload.memo != bytes16(0))
       emit SwimInteraction(
         msg.sender,
         swimPayload.memo,
         SwimOperation.PropellerIn,
-        abi.encodePacked(swimUsdAmount, swimPayload.gasKickstart),
-        abi.encodePacked(outputAmount, outputToken)
+        abi.encode(swimUsdAmount, swimPayload.gasKickstart, swimPayload.toOwner),
+        abi.encode(outputAmount, outputToken)
       );
   }
 
@@ -374,6 +437,18 @@ contract Routing is
 
   // -------------------------------- INTERNAL --------------------------------
 
+  function swap(
+    IPool pool,
+    address fromToken,
+    uint256 inputAmount,
+    uint8 fromIndex,
+    uint8 toIndex,
+    uint256 minimumOutputAmount
+  ) internal returns (uint256 outputAmount) {
+    IERC20(fromToken).safeApprove(address(pool), inputAmount);
+    outputAmount = pool.swap(inputAmount, fromIndex, toIndex, minimumOutputAmount);
+  }
+
   function acquireAndMaybeSwap(
     address fromToken,
     uint256 inputAmount,
@@ -382,56 +457,12 @@ contract Routing is
     IERC20(fromToken).safeTransferFrom(msg.sender, address(this), inputAmount);
 
     if (fromToken != swimUsdAddress) {
-      (IPool fromPool, uint8 fromIndex) = getPoolAndIndex(fromToken);
-      IERC20(fromToken).safeApprove(address(fromPool), inputAmount);
-      swimUsdAmount = fromPool.swap(
-        inputAmount,
-        fromIndex,
-        SWIM_USD_TOKEN_INDEX,
-        minimumOutputAmount
-      );
+      (IPool pool, uint8 fromIndex) = getPoolAndIndex(fromToken);
+      swimUsdAmount =
+        swap(pool, fromToken, inputAmount, fromIndex, SWIM_USD_TOKEN_INDEX, minimumOutputAmount);
     }
     else
       swimUsdAmount = inputAmount;
-  }
-
-  function maybeSwapAndTransfer(
-    uint256 swimUsdAmount,
-    address toToken,
-    uint256 minimumOutputAmount,
-    address toOwner,
-    bool swimUsdOnSlippageFailure
-  ) internal returns (uint256 outputAmount, address outputToken) {
-    if (toToken != swimUsdAddress) {
-      (IPool toPool, uint8 toIndex) = getPoolAndIndex(toToken);
-      IERC20(swimUsdAddress).safeApprove(address(toPool), outputAmount);
-      try
-        IPool(toPool).swap(
-          swimUsdAmount,
-          SWIM_USD_TOKEN_INDEX,
-          toIndex,
-          minimumOutputAmount
-        )
-      returns (uint256 _outputAmount) {
-        outputAmount = _outputAmount;
-        outputToken = toToken;
-      }
-      catch (bytes memory lowLevelData) {
-        if (swimUsdOnSlippageFailure) {
-          outputAmount = swimUsdAmount;
-          outputToken = swimUsdAddress;
-        }
-        else
-          //just forward pool revert data
-          assembly { revert(add(lowLevelData, 32), mload(lowLevelData)) }
-      }
-    }
-    else {
-      outputAmount = swimUsdAmount;
-      outputToken = swimUsdAddress;
-    }
-
-    IERC20(outputToken).safeTransfer(toOwner, outputAmount);
   }
 
   function wormholeTransferWithPayload(
@@ -468,9 +499,21 @@ contract Routing is
   ) internal returns (uint256 swimUsdAmount, SwimPayload memory swimPayload) {
     try
       tokenBridge.completeTransferWithPayload(encodedVm)
-    returns (bytes memory encodedSwimPayload) {
-      swimUsdAmount = IERC20(swimUsdAddress).balanceOf(address(this));
-      swimPayload = SwimPayloadConversion.decode(encodedSwimPayload);
+    returns (bytes memory encodedTokenBridgePayload) {
+      bytes32 tokenOriginAddress;
+      uint16 tokenOriginChain;
+      (swimUsdAmount, tokenOriginAddress, tokenOriginChain, swimPayload) =
+        SwimPayloadConversion.decode(encodedTokenBridgePayload);
+      if (
+        tokenOriginAddress != SWIM_USD_SOLANA_ADDRESS ||
+        tokenOriginChain != WORMHOLE_SOLANA_CHAIN_ID
+      )
+        revert InvalidWormholeToken(
+          tokenOriginAddress,
+          tokenOriginChain,
+          SWIM_USD_SOLANA_ADDRESS,
+          WORMHOLE_SOLANA_CHAIN_ID
+        );
     } catch (bytes memory lowLevelData) {
       revert WormholeInteractionFailed(lowLevelData);
     }
@@ -479,7 +522,7 @@ contract Routing is
   // --------------------------- INTERNAL VIEW/PURE ---------------------------
 
   function getPoolAndIndex(address token) internal view returns (IPool, uint8) {
-    TokenInfo storage info = tokenAddressMapping[token];
+    TokenInfo memory info = tokenAddressMapping[token];
     address pool = info.poolAddress;
     if (pool == address(0))
       revert TokenNotRegistered(bytes20(uint160(token)));
@@ -494,14 +537,6 @@ contract Routing is
 
     return tokenNumber;
   }
-
-  function getTokenAddress(uint16 tokenNumber) internal view returns (address) {
-    address token = tokenNumberMapping[tokenNumber].tokenAddress;
-    if (token == address(0))
-      revert TokenNotRegistered(bytes20(uint160(tokenNumber)));
-
-    return token;
- }
 
  function checkPropellerMinimumThreshold(
     uint256 swimUsdAmount,

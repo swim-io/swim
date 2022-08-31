@@ -18,7 +18,7 @@ interface ISwimInteractor {
     address indexed sender,
     bytes16 indexed memo,
     SwimOperation operation,
-    bytes arguments,
+    bytes args,
     bytes results
   );
 }

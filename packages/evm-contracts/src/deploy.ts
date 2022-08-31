@@ -106,7 +106,7 @@ export async function deployPoolAndRegister(
       tokenReregisteredEvents.length > 0
         ? tokenReregisteredEvents[tokenReregisteredEvents.length - 1]
         : "";
-    if (currentlyRegisteredPool === poolProxy.address)
+    if (currentlyRegisteredPool !== poolProxy.address)
       await confirm(routingProxy.registerToken(
         poolToken.tokenNumber,
         poolToken.address,
@@ -244,10 +244,13 @@ export async function deploySwimFactory(
 
   const topUpGasOfFactoryDeployer = async (factoryDeployer: string, maxCost: BigNumber) => {
     const balance = await ethers.provider.getBalance(factoryDeployer);
+    const ownerBalance = await owner.getBalance();
     if (balance.lt(maxCost)) {
       const topUp = maxCost.sub(balance);
-      if ((await owner.getBalance()).lt(topUp))
+      if (ownerBalance.lt(topUp))
         throw Error("deployer has insufficient funds to send to factory deployer");
+
+      console.log("topping up factory deployer by:", ethers.utils.formatEther(topUp))
       //strictly speaking this could still fail because we have to pay for the
       // gas of the transaction too and then there might not be enough left...
       await confirm(owner.sendTransaction({ to: factoryDeployer, value: topUp }));
@@ -285,12 +288,12 @@ export async function deploySwimFactory(
       factoryDeployer
     );
 
-    const gasEstimate = factoryDeployer.estimateGas(
+    const gasEstimate = await factoryDeployer.estimateGas(
       swimFactoryFactory.getDeployTransaction(owner.address)
     );
 
     const { maxFeePerGas } = await ethers.getDefaultProvider().getFeeData();
-    const maxCost = (await gasEstimate).mul(maxFeePerGas!);
+    const maxCost = gasEstimate.mul(maxFeePerGas!);
     await topUpGasOfFactoryDeployer(factoryDeployer.address, maxCost);
 
     const swimFactory = await (await swimFactoryFactory.deploy(owner.address)).deployed();

@@ -72,19 +72,6 @@ task("pool-state", "Print state of given pool", async ({ pool }, { ethers }) => 
   console.log(JSON.stringify(state, null, 2));
 }).addPositionalParam("pool", "address of the pool");
 
-// task("logicAddress", "Prints the address a logic contract will be deployed to given a its salt",
-//   async ({logicContract, salt}, hre) => {
-//     await hre.run("compile");
-//     //TODO
-//   },
-// ).addParam("logic", "name of the contract").addParam("salt");
-
-// task("proxyAddress", "Prints the address a proxy contract will be deployed to given its salt",
-//   async ({salt}, hre) => {
-//     //TODO
-//   },
-// ).addParam("salt", "salt passed to the create2 call in SwimFactory");
-
 task("presign", "Generates and prints a Deterministic Factory tx", async (_, hre) => {
   await hre.run("compile");
 
@@ -131,8 +118,8 @@ const config: HardhatUserConfig = {
             "metadata",
             "evm.bytecode",
             "evm.bytecode.sourceMap",
-            "ir",
-            // "irOptimized",
+            //"ir",
+            //"irOptimized",
             "evm.assembly",
           ],
           // "": ["ast"],

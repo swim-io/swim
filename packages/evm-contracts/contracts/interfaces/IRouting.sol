@@ -7,6 +7,7 @@ import "./IPool.sol";
 interface IRouting is ISwimInteractor {
   event TokenRegistered(uint16 indexed tokenId, address indexed tokenContract, address pool);
 
+  error SwimUsdNotAttested();
   error TokenMismatch(address passedToken, address poolToken);
   error SenderIsNotOwner(address sender, address owner);
   error TokenNotRegistered(bytes20 addressOrTokenNumber);
@@ -15,6 +16,12 @@ interface IRouting is ISwimInteractor {
   error MemoContradiction(bytes16 passedMemo, bytes16 payloadMemo);
   error IncorrectMessageValue(uint256 value, uint256 expected);
   error GasKickstartFailed(address owner);
+  error InvalidWormholeToken(
+    bytes32 originAddress,
+    uint16 originChain,
+    bytes32 expectedToken,
+    uint16 expectedChain
+  );
 
   function onChainSwap(
     address fromToken,
@@ -56,7 +63,7 @@ interface IRouting is ISwimInteractor {
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
     bool gasKickStart,
-    address toToken
+    uint16 toTokenNumber
   ) external payable returns (uint256 swimUsdAmount, uint64 wormholeSequence);
 
   function propellerOut(
@@ -65,7 +72,7 @@ interface IRouting is ISwimInteractor {
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
     bool gasKickStart,
-    address toToken,
+    uint16 toTokenNumber,
     bytes16 memo
   ) external payable returns (uint256 swimUsdAmount, uint64 wormholeSequence);
 

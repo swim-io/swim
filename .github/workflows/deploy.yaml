@@ -53,13 +53,18 @@ jobs:
             --compressed |
             jq -r '.result.deployment_configs.production.env_vars | to_entries[] | "\(.key)=\(.value.value)"' > .env
 
+      - name: Get current datetime
+        run: echo "CURRENT_DATETIME=$(date +'%s')" >> $GITHUB_ENV
+
       - name: Cache UI build directory
         uses: actions/cache@v3
         with:
           # TODO: Set some TTL for the cache folder
           path: ${{ env.BUILD_CACHE_PATH }}
-          key: ui-build-${{ hashFiles('**/*.js', '**/*.svg', '**/*.css', '**/*.wasm', '**/*.png', '**/*.zip', '**/*.map') }}
+          # Invalidate the UI build cache by changing the cache key
+          key: ui-build-${{ hashFiles('**/yarn.lock') }}-${{ env.CURRENT_DATETIME }}
           restore-keys: |
+            ui-build-${{ hashFiles('**/yarn.lock') }}
             ui-build-
 
       - name: Build UI

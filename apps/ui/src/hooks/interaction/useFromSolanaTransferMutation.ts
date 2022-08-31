@@ -1,5 +1,4 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { Transaction } from "@solana/web3.js";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow, isEachNotNull } from "@swim-io/utils";
@@ -15,7 +14,12 @@ import {
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
-import type { InteractionState, SolanaConnection, Tx } from "../../models";
+import type {
+  InteractionState,
+  SolanaConnection,
+  TokenAccount,
+  Tx,
+} from "../../models";
 import {
   Amount,
   evmAddressToWormhole,
@@ -177,7 +181,7 @@ export const useFromSolanaTransferMutation = () => {
           interactionId,
           solanaConnection,
           solanaWormhole.bridge,
-          solanaWormhole.tokenBridge,
+          solanaWormhole.portal,
           solanaWalletAddress,
           splTokenAccount.address.toBase58(),
           solanaTokenDetails.address,
@@ -234,7 +238,7 @@ export const useFromSolanaTransferMutation = () => {
       const parsedTx = await solanaConnection.getParsedTx(transferSplTokenTxId);
       const sequence = parseSequenceFromLogSolana(parsedTx);
       const emitterAddress = await getEmitterAddressSolana(
-        solanaWormhole.tokenBridge,
+        solanaWormhole.portal,
       );
       const vaaBytesResponse = await getSignedVaaWithRetry(
         [...wormhole.rpcUrls],
@@ -252,7 +256,7 @@ export const useFromSolanaTransferMutation = () => {
       await evmWallet.switchNetwork(evmChain.chainId);
       const redeemResponse = await redeemOnEth(
         interactionId,
-        evmChain.wormhole.tokenBridge,
+        evmChain.wormhole.portal,
         evmSigner,
         vaaBytesResponse.vaaBytes,
       );

@@ -1,4 +1,3 @@
-import type { u64 } from "@solana/spl-token";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 import type { BigNumber } from "ethers";
@@ -90,9 +89,6 @@ export const displayPercentage = (amount: string, decimals = 2): string => {
 export const decimalToBN = (decimal: Decimal): BN => new BN(decimal.toFixed(0));
 export const bnOrBigNumberToDecimal = (bn: BN | BigNumber): Decimal =>
   new Decimal(bn.toString());
-
-export const u64ToDecimal = (number: u64): Decimal =>
-  new Decimal(number.toString());
 
 export const sum = (balances: readonly Decimal[] | null) => {
   if (balances === null) {

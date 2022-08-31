@@ -1,4 +1,3 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { filterMap } from "@swim-io/utils";
 import shallow from "zustand/shallow.js";
@@ -21,6 +20,7 @@ import type {
   RemoveUniformInteraction,
   RequiredSplTokenAccounts,
   SwapInteractionV2,
+  TokenAccount,
 } from "../../models";
 import {
   InteractionType,

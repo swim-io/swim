@@ -4,7 +4,6 @@ import type { PoolSpec } from "config";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
-import { u64ToDecimal } from "../../amounts";
 import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
@@ -39,8 +38,8 @@ export const usePoolBalances = (poolSpecs: readonly PoolSpec[]) => {
       }
       return poolTokens.map((tokenSpec, i) => {
         const solanaDetails = getSolanaTokenDetails(tokenSpec);
-        return u64ToDecimal(allPoolTokenAccounts[i].amount).div(
-          new Decimal(10).pow(solanaDetails.decimals),
+        return new Decimal(allPoolTokenAccounts[i].amount.toString()).div(
+          Decimal.pow(10, solanaDetails.decimals),
         );
       });
     }

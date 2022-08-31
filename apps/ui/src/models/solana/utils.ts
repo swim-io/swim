@@ -1,8 +1,9 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
-  Token,
+  createAssociatedTokenAccountInstruction,
+  getAssociatedTokenAddress,
+  getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import type {
   AccountInfo,
@@ -21,20 +22,9 @@ import type { QueryClient } from "react-query";
 import type { SolanaWalletAdapter } from "../wallets";
 
 import type { CustomConnection, SolanaConnection } from "./SolanaConnection";
+import type { TokenAccount } from "./parsers";
 
 const { sha256 } = ethers.utils;
-
-export type WithSplTokenAccounts<T> = T & {
-  readonly splTokenAccounts: readonly TokenAccount[];
-};
-
-/**
- * Adapted from https://github.com/solana-labs/solana-program-library/blob/0c0168f8a9d098c808d431ab7599a3e284a14e7d/token/js/src/errors.ts#L38-L41
- * Thrown if the owner of a token account is a PDA (Program Derived Address)
- */
-export class TokenOwnerOffCurveError extends Error {
-  override name = "TokenOwnerOffCurveError";
-}
 
 /**
  * Adapted from https://github.com/solana-labs/solana-web3.js/blob/ebcfe5e691cb0d4ae7290c562c7f49af4e6fb43e/src/util/to-buffer.ts
@@ -103,52 +93,21 @@ export const findProgramAddress = (
   throw new Error(`Unable to find a viable program address nonce`);
 };
 
-/**
- * Synchronous adaptation of https://github.com/solana-labs/solana-program-library/blob/0c0168f8a9d098c808d431ab7599a3e284a14e7d/token/js/src/state/mint.ts#L135-L161
- */
-export const getAssociatedTokenAddress = (
-  mint: PublicKey,
-  owner: PublicKey,
-  allowOwnerOffCurve = false,
-  programId = TOKEN_PROGRAM_ID,
-  associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID,
-): PublicKey => {
-  if (!allowOwnerOffCurve && !PublicKey.isOnCurve(owner.toBuffer()))
-    throw new TokenOwnerOffCurveError();
-
-  const [address] = findProgramAddress(
-    [owner.toBuffer(), programId.toBuffer(), mint.toBuffer()],
-    associatedTokenProgramId,
-  );
-
-  return address;
-};
-
-export const findAssociatedTokenAccountAddress = (
-  mintAddress: string,
-  walletAddress: string,
-): string => {
-  const associatedTokenAccountAddress = getAssociatedTokenAddress(
-    new PublicKey(mintAddress),
-    new PublicKey(walletAddress),
-  );
-  return associatedTokenAccountAddress.toBase58();
-};
-
 export const findTokenAccountForMint = (
   mintAddress: string,
   walletAddress: string,
   splTokenAccounts: readonly TokenAccount[],
 ): TokenAccount | null => {
-  const associatedTokenAccountAddress = findAssociatedTokenAccountAddress(
-    mintAddress,
-    walletAddress,
+  const associatedTokenAccountAddress = getAssociatedTokenAddressSync(
+    new PublicKey(mintAddress),
+    new PublicKey(walletAddress),
   );
   return (
     splTokenAccounts.find(
       (tokenAccount) =>
         tokenAccount.mint.toBase58() === mintAddress &&
-        tokenAccount.address.toBase58() === associatedTokenAccountAddress,
+        tokenAccount.address.toBase58() ===
+          associatedTokenAccountAddress.toBase58(),
     ) ?? null
   );
 };
@@ -329,14 +288,6 @@ export const getAmountBurnedByMint = (
   return new Decimal(0);
 };
 
-export const txHasInstructionForProgramId = (
-  tx: ParsedTransactionWithMeta | null,
-  programId: string,
-): boolean =>
-  tx?.transaction.message.instructions.some(
-    (ix) => ix.programId.toBase58() === programId,
-  ) ?? false;
-
 export const createSplTokenAccount = async (
   solanaConnection: SolanaConnection,
   wallet: SolanaWalletAdapter,
@@ -346,15 +297,15 @@ export const createSplTokenAccount = async (
     throw new Error("No Solana wallet connected");
   }
   const mint = new PublicKey(splTokenMintAddress);
-  const associatedAccount = findAssociatedTokenAccountAddress(
-    mint.toBase58(),
-    wallet.publicKey.toBase58(),
+  const associatedAccount = await getAssociatedTokenAddress(
+    mint,
+    wallet.publicKey,
   );
-  const ix = Token.createAssociatedTokenAccountInstruction(
+  const ix = createAssociatedTokenAccountInstruction(
     ASSOCIATED_TOKEN_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
     mint,
-    new PublicKey(associatedAccount),
+    associatedAccount,
     wallet.publicKey,
     wallet.publicKey,
   );

@@ -29,14 +29,8 @@ Object.defineProperty(global.self, "crypto", {
   },
 });
 
-jest.mock("../../contexts", () => ({
-  ...jest.requireActual("../../contexts"),
-  useConfig: jest.fn(),
-}));
-
 jest.mock("../crossEcosystem", () => ({
   ...jest.requireActual("../crossEcosystem"),
-  usePoolMathByPoolIds: jest.fn(),
   useWallets: jest.fn(),
 }));
 
@@ -50,6 +44,8 @@ jest.mock("../swim", () => ({
   ...jest.requireActual("../swim"),
   usePoolMathByPoolIds: jest.fn(),
 }));
+
+jest.mock("../../models/solana/SolanaConnection");
 
 // Make typescript happy with jest
 const useSolanaWalletMock = mockOf(useSolanaWallet);

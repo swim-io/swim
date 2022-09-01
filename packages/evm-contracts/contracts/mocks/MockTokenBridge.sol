@@ -5,7 +5,8 @@ pragma solidity ^0.8.15;
 import "../interfaces/ITokenBridge.sol";
 
 contract MockTokenBridge is ITokenBridge {
-  IWormhole constant WOMRHOLE = IWormhole(address(0xC89Ce4735882C9F0f0FE26686c53074E09B0D550));
+  IWormhole public constant WOMRHOLE =
+    IWormhole(address(0xC89Ce4735882C9F0f0FE26686c53074E09B0D550));
   address public swimUSD;
 
   constructor(address _swimUSD) {

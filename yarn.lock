@@ -7969,11 +7969,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-<<<<<<< HEAD
-"@types/chai@npm:^4.3.3":
-=======
-"@types/chai@npm:^4.3.0":
->>>>>>> master
+"@types/chai@npm:^4.3.0, @types/chai@npm:^4.3.3":
   version: 4.3.3
   resolution: "@types/chai@npm:4.3.3"
   checksum: 20cd094753e137cfc35939cae7f0ed78ecda7861e5c94704efab6979b9121a63807e9b631bdcf3a2792d6c6dba44050b13387262f9e63ebb040741c01c345f0a

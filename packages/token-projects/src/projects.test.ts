@@ -13,7 +13,7 @@ describe("Token Project", () => {
 
   it("should have a consistent list and a table", () => {
     TOKEN_PROJECTS.forEach((project) => {
-      expect(TOKEN_PROJECTS_BY_ID[project.id as TokenProjectId]).toBe(project);
+      expect(TOKEN_PROJECTS_BY_ID[project.id]).toBe(project);
     });
     expect(TOKEN_PROJECTS.length).toEqual(
       Object.keys(TOKEN_PROJECTS_BY_ID).length,

@@ -201,7 +201,7 @@ async function manualTesting() {
   console.log(await (await routingProxy["crossChainIn(bytes,address,uint256,bytes16)"](encodedVm, toToken, minimumOutputAmount, memo)).wait());
 }
 
-function printAssembly(contract: string) {
+async function printAssembly(contract: string) {
   const buildDir = "artifacts/build-info/";
   const [buildInfoFile] = await readdir(buildDir);
   const buildInfo = JSON.parse(await readFile(buildDir + buildInfoFile, { encoding: "utf-8" }));
@@ -213,14 +213,12 @@ async function main() {
 
   //await manualTesting();
 
-  //const [deployer] = await ethers.getSigners();
+  const [deployer] = await ethers.getSigners();
+  console.log(await deployer.getBalance());
   //const tokenBridge = await ethers.getContractAt("ITokenBridge", "0x9dcF9D205C9De35334D646BeE44b2D2859712A09");
   //console.log(await tokenBridge.wrappedAsset(1, "0x296b21c9a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe26719"));
 
   //const uniswap = await ethers.getContractAt("IUniswapV3PoolState", "0x9dcF9D205C9De35334D646BeE44b2D2859712A09");
-
-
-
 
   // const sender = "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f";
   // const memo = "0x32a3624e63482375429f829eaca4db2e" + "00".repeat(16);
@@ -253,7 +251,7 @@ async function main() {
   // const pool = await ethers.getContractAt("Pool", "0x724956bF166471a2cac8b70975Dce27089a39Cb4");
   // console.log("pool state:", JSON.stringify(await pool.getState(),null,2));
 
-  // for (let i = 0; i < 20; ++i)
+  // for (let i = 0; i < 150; ++i)
   //   console.log(i, await ethers.provider.getStorageAt("0x724956bF166471a2cac8b70975Dce27089a39Cb4", i));
 
   // const sender = "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f";

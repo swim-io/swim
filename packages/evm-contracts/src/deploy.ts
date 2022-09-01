@@ -133,12 +133,8 @@ export async function deployProxy(
     const actualLogic = ethers.utils.getAddress("0x" + slot.substring(2 + 2 * 12));
     if (actualLogic !== logic.address)
       throw Error(
-        "Unexpected logic for Proxy " +
-          proxyAddress +
-          " - expected: " +
-          logic.address +
-          " but found: " +
-          actualLogic
+        `Unexpected logic for Proxy ${proxyAddress} - ` +
+        `expected: ${logic.address} but found ${actualLogic}`
       );
 
     const filter = swimFactory.filters.ContractCreated(proxyAddress);
@@ -278,10 +274,8 @@ export async function deploySwimFactory(
     const precalculatedAddress = getContractAddress({ from: factoryDeployer.address, nonce: 0 });
     if (precalculatedAddress !== SWIM_FACTORY_ADDRESS)
       throw Error(
-        "Unexpected precalulated SwimFactory address - expected: " +
-          SWIM_FACTORY_ADDRESS +
-          " but got: " +
-          precalculatedAddress
+        `Unexpected precalulated SwimFactory address - ` +
+        `expected: ${SWIM_FACTORY_ADDRESS} but got: ${precalculatedAddress}`
       );
 
     const swimFactoryFactory = (await ethers.getContractFactory("SwimFactory")).connect(
@@ -300,10 +294,8 @@ export async function deploySwimFactory(
 
     if (swimFactory.address !== SWIM_FACTORY_ADDRESS)
       throw Error(
-        "Unexpected deployed SwimFactory address - expected: " +
-          SWIM_FACTORY_ADDRESS +
-          " but got: " +
-          swimFactory.address
+        `Unexpected deployed SwimFactory address - ` +
+        `expected: ${SWIM_FACTORY_ADDRESS} but got: ${swimFactory.address}`
       );
 
     // const txHash = swimFactory.deployTransaction.hash;

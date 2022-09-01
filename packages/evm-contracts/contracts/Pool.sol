@@ -1,13 +1,10 @@
 //SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
-//We aren't using the contracts-upgradable version of UUPSUpgradable because it doesn't
-// have a proper constructor anyway and we don't want to pointlessly gunk up the storage
-// with empty uint blocks of size 50 (as the upgradable versions of the contracts do).
-// Technically, UUPSUpgradable contains an immutable datamember that is set to the address
-// of the logic contract itself up its deployment (since its constructor will be called)
-// while this address will remain 0 for our proxies (since we never call any constructors)
-// which is all well and good.
+//We aren't using the contracts-upgradable version of UUPSUpgradable and Initialize because they
+// don't have constructors anyway and we don't want to pointlessly gunk up the storage with empty
+// uint blocks of size 50 (as the upgradable versions of the contracts do).
+//
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -43,7 +40,9 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     IRouting(address(0xa33E4d9624608c468FE5466dd6CC39cE1Da4FF78));
   int8 private constant SWIM_USD_EQUALIZER = -2;
 
-  //slot (26/32 bytes used)
+  //slot0 (28/32 bytes used)
+  //uint8 _initialized inherited from Initializable
+  //bool _initializing inerited from Initializable
   uint8  public /*immutable*/ tokenCount;
   bool   public paused;
   uint32 private totalFee;

@@ -1,3 +1,4 @@
+import type { Mint, TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow, isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
@@ -7,7 +8,7 @@ import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import type { Mint, PoolState, TokenAccount } from "../../models";
+import type { PoolState } from "../../models";
 import {
   findTokenAccountForMint,
   getPoolUsdValue,

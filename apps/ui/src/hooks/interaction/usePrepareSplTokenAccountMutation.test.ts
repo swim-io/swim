@@ -1,3 +1,4 @@
+import type { TokenAccount } from "@swim-io/solana";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
@@ -5,7 +6,7 @@ import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { MOCK_SOL_WALLET } from "../../fixtures";
 import { MOCK_INTERACTION_STATE } from "../../fixtures/swim/interactionState";
-import type { SolanaWalletInterface, TokenAccount } from "../../models";
+import type { SolanaWalletInterface } from "../../models";
 import { createSplTokenAccount } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useSolanaConnection, useSolanaWallet } from "../solana";

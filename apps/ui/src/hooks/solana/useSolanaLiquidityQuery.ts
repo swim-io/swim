@@ -1,13 +1,11 @@
 import { PublicKey } from "@solana/web3.js";
+import type { TokenAccount } from "@swim-io/solana";
+import { deserializeTokenAccount } from "@swim-io/solana";
 import type { UseQueryResult } from "react-query";
 import { useQueries, useQuery } from "react-query";
 
 import { useEnvironment } from "../../core/store";
-import type { TokenAccount } from "../../models";
-import {
-  deserializeTokenAccount,
-  getMultipleSolanaAccounts,
-} from "../../models";
+import { getMultipleSolanaAccounts } from "../../models";
 
 import { useSolanaConnection } from "./useSolanaConnection";
 

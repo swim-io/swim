@@ -8,13 +8,12 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import type { TokenAccount } from "@swim-io/solana";
+import { deserializeTokenAccount } from "@swim-io/solana";
 import { sleep } from "@swim-io/utils";
 
 import { SwimError } from "../../errors";
 import { i18next } from "../../i18n";
-
-import type { TokenAccount } from "./parsers";
-import { deserializeTokenAccount } from "./parsers";
 
 export const DEFAULT_MAX_RETRIES = 10;
 export const DEFAULT_COMMITMENT_LEVEL: Finality = "confirmed";

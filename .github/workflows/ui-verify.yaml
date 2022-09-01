@@ -38,6 +38,8 @@ jobs:
           cache: "yarn"
       - name: Install dependencies
         run: yarn install --immutable
+      - name: Build workspace dependencies (tmp, will revert)
+        run: yarn workspaces foreach --topological-dev --parallel --recursive --from @swim-io/core run build
       - name: Check types
         run: yarn typecheck
       - name: Check lint

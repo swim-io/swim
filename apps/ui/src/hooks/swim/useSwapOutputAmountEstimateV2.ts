@@ -4,7 +4,7 @@ import { isEachNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
-import type { PoolSpec, TokenSpec } from "../../config";
+import type { PoolSpec, TokenConfig } from "../../config";
 import { isSwimUsd } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
@@ -16,15 +16,15 @@ import { useSwimUsd } from "./useSwimUsd";
 import { useToken } from "./useToken";
 
 interface PoolTokens {
-  readonly tokens: readonly TokenSpec[];
-  readonly lpToken: TokenSpec;
+  readonly tokens: readonly TokenConfig[];
+  readonly lpToken: TokenConfig;
 }
 
 const ZERO = new Decimal(0);
 
 const getOutputAmount = (
-  fromToken: TokenSpec,
-  toToken: TokenSpec,
+  fromToken: TokenConfig,
+  toToken: TokenConfig,
   inputAmount: Decimal,
   poolSpec: PoolSpec,
   poolMath: PoolMath,

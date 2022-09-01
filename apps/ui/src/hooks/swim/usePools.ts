@@ -4,7 +4,7 @@ import { findOrThrow, isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
-import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
+import type { EcosystemId, PoolSpec, TokenConfig } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
@@ -26,8 +26,8 @@ import { usePoolStateQueries } from "./usePoolStateQueries";
 export interface PoolData {
   readonly spec: PoolSpec;
   readonly nativeEcosystems: readonly EcosystemId[];
-  readonly lpToken: TokenSpec;
-  readonly tokens: readonly TokenSpec[];
+  readonly lpToken: TokenConfig;
+  readonly tokens: readonly TokenConfig[];
   readonly state: PoolState | null;
   readonly poolLpMint: Mint | null;
   readonly poolTokenAccounts: readonly (TokenAccount | null)[] | null;
@@ -37,7 +37,7 @@ export interface PoolData {
 }
 
 const constructPool = (
-  allTokens: readonly TokenSpec[],
+  allTokens: readonly TokenConfig[],
   poolSpec: PoolSpec,
   walletAddress: string | null,
   splTokenAccounts: readonly TokenAccount[] | null,
@@ -47,19 +47,19 @@ const constructPool = (
 ): PoolData => {
   const lpToken = findOrThrow(
     allTokens,
-    (tokenSpec) => tokenSpec.id === poolSpec.lpToken,
+    (tokenConfig) => tokenConfig.id === poolSpec.lpToken,
   );
 
   const tokens = poolSpec.tokens.map(
     (tokenId) =>
-      allTokens.find((tokenSpec) => tokenSpec.id === tokenId) ?? null,
+      allTokens.find((tokenConfig) => tokenConfig.id === tokenId) ?? null,
   );
   if (!tokens.every(isNotNull)) {
     throw new Error("Pool token not found");
   }
 
   const nativeEcosystems = [
-    ...new Set(tokens.map((tokenSpec) => tokenSpec.nativeEcosystemId)),
+    ...new Set(tokens.map((tokenConfig) => tokenConfig.nativeEcosystemId)),
   ];
 
   if (poolState === null) {

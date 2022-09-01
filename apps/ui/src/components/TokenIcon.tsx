@@ -1,11 +1,11 @@
 import { EuiIcon } from "@elastic/eui";
-import type { TokenProject } from "@swim-io/core";
+import type { TokenProject } from "@swim-io/token-projects";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { ComponentProps, ReactElement } from "react";
 import { Fragment } from "react";
 import { Trans } from "react-i18next";
 
-import type { EcosystemId, TokenSpec } from "../config";
+import type { EcosystemId, TokenConfig } from "../config";
 import { ECOSYSTEMS } from "../config";
 import { useIntlListSeparators, useToken } from "../hooks";
 import type { TokenOption } from "../models";
@@ -75,7 +75,7 @@ export const AmountWithTokenIcon = ({
   return (
     <span className="tokenIconItem">
       {amount.toFormattedHumanString(ecosystem)}&nbsp;
-      <TokenSpecIcon token={amount.tokenSpec} />
+      <TokenSpecIcon token={amount.tokenConfig} />
     </span>
   );
 };
@@ -97,7 +97,7 @@ export const AmountsWithTokenIcons = ({
           )}
           <AmountWithTokenIcon
             amount={amount}
-            ecosystem={amount.tokenSpec.nativeEcosystemId}
+            ecosystem={amount.tokenConfig.nativeEcosystemId}
           />
           {i === amounts.length - 1 && <span>.</span>}
         </Fragment>
@@ -106,7 +106,7 @@ export const AmountsWithTokenIcons = ({
   );
 };
 
-type TokenSpecIconProps = { readonly token: TokenSpec };
+type TokenSpecIconProps = { readonly token: TokenConfig };
 
 export const TokenSpecIcon = ({ token }: TokenSpecIconProps): ReactElement => (
   <TokenIcon
@@ -121,10 +121,10 @@ export const TokenOptionIcon = ({
   tokenOption,
 }: TokenOptionIconProps): ReactElement => {
   const { tokenId, ecosystemId } = tokenOption;
-  const tokenSpec = useToken(tokenId);
+  const tokenConfig = useToken(tokenId);
   return (
     <TokenIcon
-      {...TOKEN_PROJECTS_BY_ID[tokenSpec.projectId]}
+      {...TOKEN_PROJECTS_BY_ID[tokenConfig.projectId]}
       ecosystemId={ecosystemId}
     />
   );

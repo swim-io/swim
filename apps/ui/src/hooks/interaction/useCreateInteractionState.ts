@@ -6,7 +6,7 @@ import { isEachNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
-import type { Config, TokenSpec } from "../../config";
+import type { Config, TokenConfig } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
@@ -35,7 +35,7 @@ import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 import { usePoolMathByPoolIds } from "../swim";
 
 export const createRequiredSplTokenAccounts = (
-  requiredTokens: readonly TokenSpec[],
+  requiredTokens: readonly TokenConfig[],
   tokenAccounts: readonly TokenAccount[],
   walletAddress: string | null,
 ): RequiredSplTokenAccounts => {
@@ -67,14 +67,14 @@ const getToSolanaTransferAmounts = (
 ): readonly Amount[] => {
   switch (interaction.type) {
     case InteractionType.Swap:
-      return interaction.params.exactInputAmount.tokenSpec.nativeEcosystemId !==
-        SOLANA_ECOSYSTEM_ID
+      return interaction.params.exactInputAmount.tokenConfig
+        .nativeEcosystemId !== SOLANA_ECOSYSTEM_ID
         ? [interaction.params.exactInputAmount]
         : [];
     case InteractionType.Add:
       return interaction.params.inputAmounts.filter(
         (amount) =>
-          amount.tokenSpec.nativeEcosystemId !== SOLANA_ECOSYSTEM_ID &&
+          amount.tokenConfig.nativeEcosystemId !== SOLANA_ECOSYSTEM_ID &&
           !amount.isZero(),
       );
     case InteractionType.RemoveExactBurn:
@@ -93,7 +93,7 @@ export const createToSolanaTransfers = (
   interaction: Interaction,
 ): readonly ToSolanaTransferState[] => {
   return getToSolanaTransferAmounts(interaction).map((amount) => {
-    const fromToken = amount.tokenSpec;
+    const fromToken = amount.tokenConfig;
     const fromEcosystem = fromToken.nativeEcosystemId;
     return {
       token: fromToken,
@@ -136,17 +136,17 @@ export const createSolanaPoolOperations = (
 const getFromSolanaTransferTokenAndValues = (
   interaction: Interaction,
 ): readonly {
-  readonly token: TokenSpec;
+  readonly token: TokenConfig;
   readonly value: Decimal | null;
 }[] => {
   switch (interaction.type) {
     case InteractionType.Swap:
     case InteractionType.RemoveExactBurn:
-      return interaction.params.minimumOutputAmount.tokenSpec
+      return interaction.params.minimumOutputAmount.tokenConfig
         .nativeEcosystemId !== SOLANA_ECOSYSTEM_ID
         ? [
             {
-              token: interaction.params.minimumOutputAmount.tokenSpec,
+              token: interaction.params.minimumOutputAmount.tokenConfig,
               value: null,
             },
           ]
@@ -155,7 +155,7 @@ const getFromSolanaTransferTokenAndValues = (
       return interaction.lpTokenTargetEcosystem !== SOLANA_ECOSYSTEM_ID
         ? [
             {
-              token: interaction.params.minimumMintAmount.tokenSpec,
+              token: interaction.params.minimumMintAmount.tokenConfig,
               value: null,
             },
           ]
@@ -164,22 +164,22 @@ const getFromSolanaTransferTokenAndValues = (
       return interaction.params.minimumOutputAmounts
         .filter(
           (amount) =>
-            amount.tokenSpec.nativeEcosystemId !== SOLANA_ECOSYSTEM_ID,
+            amount.tokenConfig.nativeEcosystemId !== SOLANA_ECOSYSTEM_ID,
         )
         .map((amount) => ({
-          token: amount.tokenSpec,
+          token: amount.tokenConfig,
           value: null,
         }));
     case InteractionType.RemoveExactOutput:
       return interaction.params.exactOutputAmounts
         .filter(
           (amount) =>
-            amount.tokenSpec.nativeEcosystemId !== SOLANA_ECOSYSTEM_ID &&
+            amount.tokenConfig.nativeEcosystemId !== SOLANA_ECOSYSTEM_ID &&
             !amount.isZero(),
         )
         .map((amount) => ({
-          token: amount.tokenSpec,
-          value: amount.toHuman(amount.tokenSpec.nativeEcosystemId),
+          token: amount.tokenConfig,
+          value: amount.toHuman(amount.tokenConfig.nativeEcosystemId),
         }));
   }
 };

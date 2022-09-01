@@ -6,20 +6,22 @@ import { deduplicate } from "@swim-io/utils";
 import type { Ecosystem, EcosystemId } from "./ecosystem";
 import { ECOSYSTEMS } from "./ecosystem";
 import type { PoolSpec } from "./pools";
-import type { TokenSpec } from "./tokens";
+import type { TokenConfig } from "./tokens";
 import { TOKENS } from "./tokens";
 
 export const getTokenDetailsForEcosystem = (
-  tokenSpec: TokenSpec,
+  tokenConfig: TokenConfig,
   ecosystemId: EcosystemId,
 ): TokenDetails | null =>
-  tokenSpec.nativeEcosystemId === ecosystemId
-    ? tokenSpec.nativeDetails
-    : tokenSpec.wrappedDetails.get(ecosystemId) ?? null;
+  tokenConfig.nativeEcosystemId === ecosystemId
+    ? tokenConfig.nativeDetails
+    : tokenConfig.wrappedDetails.get(ecosystemId) ?? null;
 
-export const getSolanaTokenDetails = (tokenSpec: TokenSpec): TokenDetails => {
+export const getSolanaTokenDetails = (
+  tokenConfig: TokenConfig,
+): TokenDetails => {
   const solanaTokenDetails = getTokenDetailsForEcosystem(
-    tokenSpec,
+    tokenConfig,
     SOLANA_ECOSYSTEM_ID,
   );
   if (solanaTokenDetails === null) {
@@ -28,12 +30,12 @@ export const getSolanaTokenDetails = (tokenSpec: TokenSpec): TokenDetails => {
   return solanaTokenDetails;
 };
 
-export const findTokenById = (tokenId: string, env: Env): TokenSpec => {
-  const tokenSpec = TOKENS[env].find(({ id }) => id === tokenId);
-  if (!tokenSpec) {
+export const findTokenById = (tokenId: string, env: Env): TokenConfig => {
+  const tokenConfig = TOKENS[env].find(({ id }) => id === tokenId);
+  if (!tokenConfig) {
     throw new Error(`Token not found for ${tokenId} ${env}`);
   }
-  return tokenSpec;
+  return tokenConfig;
 };
 
 export const getPoolTokenEcosystems = (
@@ -53,5 +55,5 @@ export const hasTokenEcosystem = (
 ): boolean =>
   getPoolTokenEcosystems(pool, env).some(({ id }) => id === ecosystemId);
 
-export const isSwimUsd = (token: TokenSpec) =>
+export const isSwimUsd = (token: TokenConfig) =>
   token.projectId === TokenProjectId.SwimLpSolanaUsdcUsdt;

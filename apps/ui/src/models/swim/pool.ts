@@ -22,7 +22,7 @@ import type {
   EvmPoolSpec,
   PoolSpec,
   SolanaPoolSpec,
-  TokenSpec,
+  TokenConfig,
 } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
 import type { Tx } from "../crossEcosystem";
@@ -48,8 +48,8 @@ export type PoolState = SolanaPoolState | EvmPoolState;
 export type TokensByPoolId = ReadonlyRecord<
   string, // Pool ID
   {
-    readonly tokens: readonly TokenSpec[];
-    readonly lpToken: TokenSpec;
+    readonly tokens: readonly TokenConfig[];
+    readonly lpToken: TokenConfig;
   }
 >;
 
@@ -104,7 +104,7 @@ export const getSolanaPoolState = async (
 export const getEvmPoolState = async (
   evmConnection: EvmConnection,
   poolSpec: EvmPoolSpec,
-  tokens: readonly TokenSpec[],
+  tokens: readonly TokenConfig[],
   routingContractAddress: string,
 ): Promise<EvmPoolState> => {
   const { ecosystem, address } = poolSpec;

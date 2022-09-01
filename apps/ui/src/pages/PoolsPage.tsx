@@ -33,7 +33,7 @@ import {
   hasTokenEcosystem,
   isEcosystemEnabled,
 } from "../config";
-import type { EcosystemId, PoolSpec, TokenSpec } from "../config";
+import type { EcosystemId, PoolSpec, TokenConfig } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 import { usePoolUsdValues, useTitle } from "../hooks";
@@ -54,12 +54,12 @@ const PoolsPage = (): ReactElement => {
     ecosystemId,
   );
 
-  const poolTokens: ReadonlyRecord<PoolSpec["id"], readonly TokenSpec[]> =
+  const poolTokens: ReadonlyRecord<PoolSpec["id"], readonly TokenConfig[]> =
     poolsWithUsdValues.reduce(
       (accumulator, { poolSpec }) => ({
         ...accumulator,
         [poolSpec.id]: poolSpec.tokens.map((id) =>
-          findOrThrow(tokens, (tokenSpec) => tokenSpec.id === id),
+          findOrThrow(tokens, (tokenConfig) => tokenConfig.id === id),
         ),
       }),
       {},

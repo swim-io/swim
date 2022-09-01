@@ -7,7 +7,7 @@ import type { SolanaTx } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TokenProjectId } from "@swim-io/token-projects";
 
-import type { TokenSpec } from "../../config";
+import type { TokenConfig } from "../../config";
 import { CHAINS, Protocol, TOKENS } from "../../config";
 import {
   parsedSwimSwapTx,
@@ -73,7 +73,7 @@ describe("models - Wormhole utils", () => {
       };
       const splTokenAccountAddress =
         "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
-      const token: TokenSpec = {
+      const token: TokenConfig = {
         id: "test-token",
         projectId: TokenProjectId.Swim,
         nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
@@ -169,7 +169,7 @@ describe("models - Wormhole utils", () => {
         const interactionId = "e45794d6c5a2750a589f875c84089f81";
         const wormholeChainConfig =
           CHAINS[Env.Mainnet][Protocol.Solana][0].wormhole;
-        const tokenSpec = TOKENS[Env.Mainnet].find(
+        const tokenConfig = TOKENS[Env.Mainnet].find(
           (token) => token.id === "mainnet-bnb-busd",
         )!;
         const splTokenAccount = "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
@@ -183,7 +183,7 @@ describe("models - Wormhole utils", () => {
 
         const result = isRedeemOnSolanaTx(
           wormholeChainConfig,
-          tokenSpec,
+          tokenConfig,
           splTokenAccount,
           tx,
         );
@@ -197,7 +197,7 @@ describe("models - Wormhole utils", () => {
       const interactionId = "e45794d6c5a2750a589f875c84089f81";
       const wormholeChainConfig =
         CHAINS[Env.Mainnet][Protocol.Solana][0].wormhole;
-      const tokenSpec = TOKENS[Env.Mainnet].find(
+      const tokenConfig = TOKENS[Env.Mainnet].find(
         (token) => token.id === "mainnet-bnb-busd",
       )!;
       const splTokenAccount = "Ex4QfU1vD5dtFQYHJrs6XwLaRzy2C5yZKhQSNJJXQg5e";
@@ -211,7 +211,7 @@ describe("models - Wormhole utils", () => {
 
       const result = isRedeemOnSolanaTx(
         wormholeChainConfig,
-        tokenSpec,
+        tokenConfig,
         splTokenAccount,
         tx,
       );

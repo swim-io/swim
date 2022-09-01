@@ -41,9 +41,9 @@ export const TokenSearchModalV2 = ({
   const { tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptions.map((option) => {
     const { tokenId, ecosystemId } = option;
-    const tokenSpec = findOrThrow(tokens, ({ id }) => id === tokenId);
+    const tokenConfig = findOrThrow(tokens, ({ id }) => id === tokenId);
     const ecosystem = ECOSYSTEMS[ecosystemId];
-    const tokenProject = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId];
+    const tokenProject = TOKEN_PROJECTS_BY_ID[tokenConfig.projectId];
     return {
       label: `${tokenProject.symbol} on ${ecosystem.displayName}`,
       searchableLabel: `${tokenProject.symbol} ${tokenProject.displayName} ${ecosystem.displayName}`,

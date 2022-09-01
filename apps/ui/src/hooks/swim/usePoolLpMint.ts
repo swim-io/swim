@@ -28,7 +28,7 @@ export const usePoolLpMints = (
         }
         const lpToken = findOrThrow(
           tokens,
-          (tokenSpec) => tokenSpec.id === poolSpec.lpToken,
+          (tokenConfig) => tokenConfig.id === poolSpec.lpToken,
         );
         const lpTokenMintPubkey = new PublicKey(
           getSolanaTokenDetails(lpToken).address,

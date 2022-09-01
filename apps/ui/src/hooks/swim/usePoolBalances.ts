@@ -36,8 +36,8 @@ export const usePoolBalances = (poolSpecs: readonly PoolSpec[]) => {
       if (allPoolTokenAccounts === null) {
         return null;
       }
-      return poolTokens.map((tokenSpec, i) => {
-        const solanaDetails = getSolanaTokenDetails(tokenSpec);
+      return poolTokens.map((tokenConfig, i) => {
+        const solanaDetails = getSolanaTokenDetails(tokenConfig);
         return new Decimal(allPoolTokenAccounts[i].amount.toString()).div(
           Decimal.pow(10, solanaDetails.decimals),
         );

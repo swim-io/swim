@@ -4,7 +4,7 @@ import { TokenProjectId } from "@swim-io/token-projects";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
-import type { TokenSpec } from "../config";
+import type { TokenConfig } from "../config";
 
 import { Amount } from "./amount";
 
@@ -29,7 +29,7 @@ const staticMethodConstructionCases: readonly StaticMethodConstructionCase[] = [
 ];
 
 describe("Amount", () => {
-  const defaultNonStablecoinTokenSpec: TokenSpec = {
+  const defaultNonStablecoinTokenSpec: TokenConfig = {
     id: "test-token",
     projectId: TokenProjectId.Swim,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
@@ -38,7 +38,7 @@ describe("Amount", () => {
       [EvmEcosystemId.Bnb, { address: "xxx", decimals: 18 }],
     ]),
   };
-  const defaultStablecoinTokenSpec: TokenSpec = {
+  const defaultStablecoinTokenSpec: TokenConfig = {
     id: "test-stablecoin",
     projectId: TokenProjectId.Usdc,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,

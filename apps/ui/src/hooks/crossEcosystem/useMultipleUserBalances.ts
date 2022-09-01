@@ -4,17 +4,17 @@ import type { ReadonlyRecord } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 
-import type { EcosystemId, TokenSpec } from "../../config";
+import type { EcosystemId, TokenConfig } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
 import { Amount, findTokenAccountForMint } from "../../models";
 import { useErc20BalancesQuery } from "../evm";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 
 const getContractAddressesByEcosystem = (
-  tokenSpecs: readonly TokenSpec[],
+  tokenSpecs: readonly TokenConfig[],
 ): ReadonlyRecord<EcosystemId, readonly string[]> =>
   tokenSpecs.reduce<ReadonlyRecord<EcosystemId, readonly string[]>>(
-    (accumulator, tokenSpec) => {
+    (accumulator, tokenConfig) => {
       const [
         solanaAddress,
         ethereumAddress,
@@ -37,7 +37,8 @@ const getContractAddressesByEcosystem = (
         EvmEcosystemId.Acala,
       ].map(
         (ecosystemId) =>
-          getTokenDetailsForEcosystem(tokenSpec, ecosystemId)?.address ?? null,
+          getTokenDetailsForEcosystem(tokenConfig, ecosystemId)?.address ??
+          null,
       );
       return {
         [SOLANA_ECOSYSTEM_ID]: solanaAddress
@@ -83,32 +84,35 @@ const getContractAddressesByEcosystem = (
   );
 
 const getEvmTokenIdAndBalance = (
-  tokenSpec: TokenSpec,
+  tokenConfig: TokenConfig,
   ecosystemId: EcosystemId,
   balances: readonly UseQueryResult<Decimal | null, Error>[],
   contractAddresses: readonly string[],
 ): readonly [string, Amount | null] => {
-  const address = getTokenDetailsForEcosystem(tokenSpec, ecosystemId)?.address;
+  const address = getTokenDetailsForEcosystem(
+    tokenConfig,
+    ecosystemId,
+  )?.address;
   if (!address) {
-    return [tokenSpec.id, null];
+    return [tokenConfig.id, null];
   }
   const index = contractAddresses.findIndex(
     (contractAddress) => contractAddress === address,
   );
   if (!balances[index]) {
-    return [tokenSpec.id, null];
+    return [tokenConfig.id, null];
   }
   const { data: balance = null } = balances[index];
   return [
-    tokenSpec.id,
+    tokenConfig.id,
     balance !== null
-      ? Amount.fromAtomic(tokenSpec, balance, ecosystemId)
+      ? Amount.fromAtomic(tokenConfig, balance, ecosystemId)
       : null,
   ];
 };
 
 export const useMultipleUserBalances = (
-  tokenSpecs: readonly TokenSpec[],
+  tokenSpecs: readonly TokenConfig[],
   specificEcosystem?: EcosystemId,
 ): ReadonlyMap<string, Amount | null> => {
   const {
@@ -152,16 +156,16 @@ export const useMultipleUserBalances = (
   const acalaBalances = useErc20BalancesQuery(EvmEcosystemId.Acala, acala);
 
   return new Map(
-    tokenSpecs.map((tokenSpec, i) => {
-      const ecosystem = specificEcosystem ?? tokenSpec.nativeEcosystemId;
+    tokenSpecs.map((tokenConfig, i) => {
+      const ecosystem = specificEcosystem ?? tokenConfig.nativeEcosystemId;
       switch (ecosystem) {
         case SOLANA_ECOSYSTEM_ID: {
           const tokenAccount = solanaTokenAccounts[i];
           return [
-            tokenSpec.id,
+            tokenConfig.id,
             tokenAccount
               ? Amount.fromAtomicBn(
-                  tokenSpec,
+                  tokenConfig,
                   tokenAccount.amount,
                   SOLANA_ECOSYSTEM_ID,
                 )
@@ -170,7 +174,7 @@ export const useMultipleUserBalances = (
         }
         case EvmEcosystemId.Ethereum: {
           return getEvmTokenIdAndBalance(
-            tokenSpec,
+            tokenConfig,
             EvmEcosystemId.Ethereum,
             ethereumBalances,
             ethereum,
@@ -178,7 +182,7 @@ export const useMultipleUserBalances = (
         }
         case EvmEcosystemId.Bnb: {
           return getEvmTokenIdAndBalance(
-            tokenSpec,
+            tokenConfig,
             EvmEcosystemId.Bnb,
             bnbBalances,
             bnb,
@@ -186,7 +190,7 @@ export const useMultipleUserBalances = (
         }
         case EvmEcosystemId.Avalanche: {
           return getEvmTokenIdAndBalance(
-            tokenSpec,
+            tokenConfig,
             EvmEcosystemId.Avalanche,
             avalancheBalances,
             avalanche,
@@ -194,7 +198,7 @@ export const useMultipleUserBalances = (
         }
         case EvmEcosystemId.Polygon: {
           return getEvmTokenIdAndBalance(
-            tokenSpec,
+            tokenConfig,
             EvmEcosystemId.Polygon,
             polygonBalances,
             polygon,
@@ -202,7 +206,7 @@ export const useMultipleUserBalances = (
         }
         case EvmEcosystemId.Aurora: {
           return getEvmTokenIdAndBalance(
-            tokenSpec,
+            tokenConfig,
             EvmEcosystemId.Aurora,
             auroraBalances,
             aurora,
@@ -210,7 +214,7 @@ export const useMultipleUserBalances = (
         }
         case EvmEcosystemId.Fantom: {
           return getEvmTokenIdAndBalance(
-            tokenSpec,
+            tokenConfig,
             EvmEcosystemId.Fantom,
             fantomBalances,
             fantom,
@@ -218,7 +222,7 @@ export const useMultipleUserBalances = (
         }
         case EvmEcosystemId.Karura: {
           return getEvmTokenIdAndBalance(
-            tokenSpec,
+            tokenConfig,
             EvmEcosystemId.Karura,
             karuraBalances,
             karura,
@@ -226,14 +230,14 @@ export const useMultipleUserBalances = (
         }
         case EvmEcosystemId.Acala: {
           return getEvmTokenIdAndBalance(
-            tokenSpec,
+            tokenConfig,
             EvmEcosystemId.Acala,
             acalaBalances,
             acala,
           );
         }
         default:
-          return [tokenSpec.id, null];
+          return [tokenConfig.id, null];
       }
     }),
   );

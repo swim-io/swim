@@ -7383,6 +7383,7 @@ __metadata:
   resolution: "@swim-io/core@workspace:packages/core"
   dependencies:
     "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/token-projects": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@typescript-eslint/eslint-plugin": ^5.29.0
     "@typescript-eslint/parser": ^5.29.0
@@ -7897,7 +7898,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@swim-io/token-projects@workspace:packages/token-projects"
   dependencies:
-    "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": "workspace:^"
@@ -7968,14 +7968,14 @@ __metadata:
     "@storybook/node-logger": ^6.5.10
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.10
-    "@swim-io/core": ^0.14.0
+    "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/evm": ^0.14.0
     "@swim-io/evm-contracts": ^0.14.0
     "@swim-io/pool-math": ^0.14.0
     "@swim-io/redeemer": ^0.14.0
     "@swim-io/solana": ^0.14.0
-    "@swim-io/token-projects": ^0.14.0
+    "@swim-io/token-projects": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": ^0.14.0
     "@testing-library/jest-dom": ^5.16.4

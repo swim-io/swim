@@ -16,7 +16,7 @@ import { createElement } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { atomicToCurrencyString } from "../amounts";
-import type { PoolSpec, TokenSpec } from "../config";
+import type { PoolSpec, TokenConfig } from "../config";
 import { i18next } from "../i18n";
 
 import { TokenIcon } from "./TokenIcon";
@@ -49,7 +49,7 @@ export const PoolListItem = ({
   betaBadgeLabel = "",
 }: {
   readonly poolName: string;
-  readonly tokenSpecs: readonly TokenSpec[];
+  readonly tokenSpecs: readonly TokenConfig[];
   readonly poolSpec?: PoolSpec | null;
   readonly totalUsd?: Decimal | null;
   readonly betaBadgeLabel?: string;
@@ -85,18 +85,18 @@ export const PoolListItem = ({
         {tokenChunks.map((tokens) => (
           <EuiFlexItem key={tokens.map((token) => token.id).join(":")}>
             <EuiFlexGroup direction="column" responsive={false}>
-              {tokens.map((tokenSpec) => (
+              {tokens.map((tokenConfig) => (
                 <EuiFlexItem
-                  key={tokenSpec.id}
+                  key={tokenConfig.id}
                   grow={true}
                   style={{ margin: flexItemMargin }}
                 >
                   <TokenIcon
-                    {...TOKEN_PROJECTS_BY_ID[tokenSpec.projectId]}
+                    {...TOKEN_PROJECTS_BY_ID[tokenConfig.projectId]}
                     ecosystemId={
                       !isLegacyPool && poolEcosystem !== null
                         ? poolEcosystem
-                        : tokenSpec.nativeEcosystemId
+                        : tokenConfig.nativeEcosystemId
                     }
                   />
                 </EuiFlexItem>

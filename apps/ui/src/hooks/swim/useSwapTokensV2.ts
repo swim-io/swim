@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import type { TokenSpec } from "../../config";
+import type { TokenConfig } from "../../config";
 import { selectSwapTokenOptions } from "../../core/selectors/swapTokenOptions";
 import { useEnvironment } from "../../core/store";
 import type { TokenOption } from "../../models";
@@ -10,8 +10,8 @@ import { useToken } from "./useToken";
 interface SwapTokensV2 {
   readonly fromTokenOption: TokenOption;
   readonly toTokenOption: TokenOption;
-  readonly fromTokenSpec: TokenSpec;
-  readonly toTokenSpec: TokenSpec;
+  readonly fromTokenSpec: TokenConfig;
+  readonly toTokenSpec: TokenConfig;
   readonly setFromTokenOption: (fromToken: TokenOption) => void;
   readonly setToTokenOption: (toToken: TokenOption) => void;
   readonly fromTokenOptions: readonly TokenOption[];

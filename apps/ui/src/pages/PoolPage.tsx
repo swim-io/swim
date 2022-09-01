@@ -137,15 +137,15 @@ export const PoolPageInner = ({
     [slippagePercent],
   );
 
-  const reserveStats = tokens.map((tokenSpec, i) => {
-    const solanaDetails = getSolanaTokenDetails(tokenSpec);
+  const reserveStats = tokens.map((tokenConfig, i) => {
+    const solanaDetails = getSolanaTokenDetails(tokenConfig);
 
     if (isEvmPoolState(poolState)) {
       return {
         title: (
           <TokenOptionIcon
             tokenOption={{
-              tokenId: tokenSpec.id,
+              tokenId: tokenConfig.id,
               ecosystemId: poolSpec.ecosystem,
             }}
           />
@@ -154,7 +154,7 @@ export const PoolPageInner = ({
           new Decimal(poolState.balances[i].toString()),
           2,
         ),
-        key: tokenSpec.id,
+        key: tokenConfig.id,
       };
     }
 
@@ -164,7 +164,7 @@ export const PoolPageInner = ({
           account && account.mint.toBase58() === solanaDetails.address,
       ) ?? null;
     return {
-      title: <TokenSpecIcon token={tokenSpec} />,
+      title: <TokenSpecIcon token={tokenConfig} />,
       description: poolTokenAccount
         ? atomicToHumanString(
             new Decimal(
@@ -176,7 +176,7 @@ export const PoolPageInner = ({
             2,
           )
         : "-",
-      key: tokenSpec.id,
+      key: tokenConfig.id,
     };
   });
 

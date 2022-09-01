@@ -9,7 +9,7 @@ import {
 } from "@elastic/eui";
 import type React from "react";
 
-import type { TokenSpec } from "../../config";
+import type { TokenConfig } from "../../config";
 import { i18next } from "../../i18n";
 import { Amount } from "../../models";
 import { ConnectButton } from "../ConnectButton";
@@ -20,10 +20,10 @@ import { UserBalanceDisplay } from "./UserBalanceDisplay";
 
 interface Props {
   readonly value: string;
-  readonly token: TokenSpec;
+  readonly token: TokenConfig;
   readonly tokenOptionIds: readonly string[];
   readonly placeholder: string;
-  readonly onSelectToken: (token: TokenSpec) => void;
+  readonly onSelectToken: (token: TokenConfig) => void;
   readonly onChangeValue?: (value: string) => void;
   readonly onBlur?: () => void;
   readonly disabled: boolean;
@@ -31,7 +31,7 @@ interface Props {
   readonly showConstantSwapTip: boolean;
 }
 
-const getReadonlyDisplayValue = (token: TokenSpec, value: string) => {
+const getReadonlyDisplayValue = (token: TokenConfig, value: string) => {
   if (!value) {
     return "";
   }

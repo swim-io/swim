@@ -7676,9 +7676,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/scripts@workspace:packages/scripts":
+"@swim-io/scripts@workspace:apps/scripts":
   version: 0.0.0-use.local
-  resolution: "@swim-io/scripts@workspace:packages/scripts"
+  resolution: "@swim-io/scripts@workspace:apps/scripts"
   dependencies:
     "@ethers-ancillary/bsc": ^0.0.3
     "@project-serum/borsh": ^0.2.3

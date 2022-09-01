@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 
 import type { TokenConfig } from "../config";
 
-import { TokenSpecIcon } from "./TokenIcon";
+import { TokenConfigIcon } from "./TokenIcon";
 import { TokenSearchModal } from "./TokenSearchModal";
 
 interface Props {
@@ -33,7 +33,7 @@ export const TokenSelect = ({
       >
         <EuiFlexGroup alignItems="center" justifyContent="center">
           <EuiFlexItem>
-            <TokenSpecIcon token={token} />
+            <TokenConfigIcon token={token} />
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiButton>

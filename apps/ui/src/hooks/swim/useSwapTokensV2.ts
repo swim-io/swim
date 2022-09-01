@@ -10,8 +10,8 @@ import { useToken } from "./useToken";
 interface SwapTokensV2 {
   readonly fromTokenOption: TokenOption;
   readonly toTokenOption: TokenOption;
-  readonly fromTokenSpec: TokenConfig;
-  readonly toTokenSpec: TokenConfig;
+  readonly fromTokenConfig: TokenConfig;
+  readonly toTokenConfig: TokenConfig;
   readonly setFromTokenOption: (fromToken: TokenOption) => void;
   readonly setToTokenOption: (toToken: TokenOption) => void;
   readonly fromTokenOptions: readonly TokenOption[];
@@ -26,14 +26,14 @@ export const useSwapTokensV2 = (): SwapTokensV2 => {
   const [fromTokenOption, setFromTokenOption] = useState(defaultFromToken);
   const [toTokenOption, setToTokenOption] = useState(defaultToToken);
 
-  const fromTokenSpec = useToken(fromTokenOption.tokenId);
-  const toTokenSpec = useToken(toTokenOption.tokenId);
+  const fromTokenConfig = useToken(fromTokenOption.tokenId);
+  const toTokenConfig = useToken(toTokenOption.tokenId);
 
   return {
     fromTokenOption,
     toTokenOption,
-    fromTokenSpec,
-    toTokenSpec,
+    fromTokenConfig,
+    toTokenConfig,
     setFromTokenOption,
     setToTokenOption,
     fromTokenOptions: tokenOptions,

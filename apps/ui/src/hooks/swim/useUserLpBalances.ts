@@ -8,13 +8,13 @@ import { Amount } from "../../models";
 import { useErc20BalanceQuery } from "../evm";
 
 export const useUserLpBalances = (
-  lpTokenSpec: TokenConfig,
+  lpTokenConfig: TokenConfig,
   userLpTokenAccountSolana: TokenAccount | null,
 ): Record<EcosystemId, Amount | null> => {
   // solana
   const userLpBalanceSolana = userLpTokenAccountSolana
     ? Amount.fromAtomicBn(
-        lpTokenSpec,
+        lpTokenConfig,
         userLpTokenAccountSolana.amount,
         SOLANA_ECOSYSTEM_ID,
       )
@@ -22,7 +22,7 @@ export const useUserLpBalances = (
 
   // ethereum
   const ethereumTokenContractAddress =
-    getTokenDetailsForEcosystem(lpTokenSpec, EvmEcosystemId.Ethereum)
+    getTokenDetailsForEcosystem(lpTokenConfig, EvmEcosystemId.Ethereum)
       ?.address ?? null;
   const { data: userLpBalanceEthereumAtomic = null } = useErc20BalanceQuery(
     EvmEcosystemId.Ethereum,
@@ -31,7 +31,7 @@ export const useUserLpBalances = (
   const userLpBalanceEthereum =
     ethereumTokenContractAddress && userLpBalanceEthereumAtomic
       ? Amount.fromAtomic(
-          lpTokenSpec,
+          lpTokenConfig,
           userLpBalanceEthereumAtomic,
           EvmEcosystemId.Ethereum,
         )
@@ -39,7 +39,7 @@ export const useUserLpBalances = (
 
   // bnb
   const bnbTokenContractAddress =
-    getTokenDetailsForEcosystem(lpTokenSpec, EvmEcosystemId.Bnb)?.address ??
+    getTokenDetailsForEcosystem(lpTokenConfig, EvmEcosystemId.Bnb)?.address ??
     null;
   const { data: userLpBalanceBnbAtomic = null } = useErc20BalanceQuery(
     EvmEcosystemId.Bnb,
@@ -48,7 +48,7 @@ export const useUserLpBalances = (
   const userLpBalanceBnb =
     bnbTokenContractAddress && userLpBalanceBnbAtomic
       ? Amount.fromAtomic(
-          lpTokenSpec,
+          lpTokenConfig,
           userLpBalanceBnbAtomic,
           EvmEcosystemId.Bnb,
         )

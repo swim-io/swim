@@ -26,7 +26,7 @@ interface SwapTokensContext {
   readonly hasUrlError: boolean;
 }
 
-const convertTokenSpecToUrlParam = (token: TokenConfig): string =>
+const convertTokenConfigToUrlParam = (token: TokenConfig): string =>
   `${token.nativeEcosystemId}-${
     TOKEN_PROJECTS_BY_ID[token.projectId].symbol
   }`.toLowerCase();
@@ -84,9 +84,9 @@ export const useSwapTokensContext = (): SwapTokensContext => {
     newFromToken: TokenConfig,
     newToToken: TokenConfig,
   ) => {
-    const fromTokenUrlParam = convertTokenSpecToUrlParam(newFromToken);
+    const fromTokenUrlParam = convertTokenConfigToUrlParam(newFromToken);
     const newToTokenOptions = getToTokenOptionsIds(newFromToken.id);
-    const toTokenUrlParam = convertTokenSpecToUrlParam(
+    const toTokenUrlParam = convertTokenConfigToUrlParam(
       newToTokenOptions.find((id) => id === newToToken.id)
         ? newToToken
         : findOrThrow(tokens, ({ id }) => id === newToTokenOptions[0]),

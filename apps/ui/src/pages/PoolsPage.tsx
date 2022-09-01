@@ -145,7 +145,7 @@ const PoolsPage = (): ReactElement => {
             <Fragment key={poolSpec.id}>
               <PoolListItem
                 poolName={poolSpec.displayName}
-                tokenSpecs={poolTokens[poolSpec.id]}
+                tokenConfigs={poolTokens[poolSpec.id]}
                 totalUsd={usdValue}
                 poolSpec={poolSpec}
               />
@@ -170,7 +170,7 @@ const PoolsPage = (): ReactElement => {
           <PoolListItem
             poolName="Aurora USN"
             betaBadgeLabel={t("pools_page.coming_soon")}
-            tokenSpecs={[
+            tokenConfigs={[
               {
                 id: "placeholder-aurora-native-usn",
                 projectId: TokenProjectId.Usn,
@@ -204,7 +204,7 @@ const PoolsPage = (): ReactElement => {
             <PoolListItem
               poolName="Karura aUSD"
               betaBadgeLabel={t("pools_page.coming_soon")}
-              tokenSpecs={[
+              tokenConfigs={[
                 {
                   id: "placeholder-karura-native-ausd",
                   projectId: TokenProjectId.Ausd,
@@ -233,7 +233,7 @@ const PoolsPage = (): ReactElement => {
             <PoolListItem
               poolName="Karura USDT"
               betaBadgeLabel={t("pools_page.coming_soon")}
-              tokenSpecs={[
+              tokenConfigs={[
                 {
                   id: "placeholder-karura-native-usdt",
                   projectId: TokenProjectId.Usdt,
@@ -267,7 +267,7 @@ const PoolsPage = (): ReactElement => {
             <PoolListItem
               poolName="Acala aUSD"
               betaBadgeLabel={t("pools_page.coming_soon")}
-              tokenSpecs={[
+              tokenConfigs={[
                 {
                   id: "placeholder-acala-native-ausd",
                   projectId: TokenProjectId.Ausd,

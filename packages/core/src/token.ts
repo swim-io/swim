@@ -14,8 +14,6 @@ export interface TokenConfig {
   readonly id: string;
   /** The ID of the token project to which this token belongs */
   readonly projectId: TokenProjectId;
-  /** Will be removed and get from ChainConfig */
-  readonly nativeEcosystemId: string;
   readonly nativeDetails: TokenDetails;
   readonly isDisabled?: boolean;
 }

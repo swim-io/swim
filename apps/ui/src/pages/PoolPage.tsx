@@ -34,9 +34,9 @@ import { RemoveForm } from "../components/RemoveForm";
 import { SlippageButton } from "../components/SlippageButton";
 import { StatList } from "../components/StatList";
 import {
+  TokenConfigIcon,
   TokenIcon,
   TokenOptionIcon,
-  TokenSpecIcon,
 } from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
 import { getSolanaTokenDetails, getTokenDetailsForEcosystem } from "../config";
@@ -164,7 +164,7 @@ export const PoolPageInner = ({
           account && account.mint.toBase58() === solanaDetails.address,
       ) ?? null;
     return {
-      title: <TokenSpecIcon token={tokenConfig} />,
+      title: <TokenConfigIcon token={tokenConfig} />,
       description: poolTokenAccount
         ? atomicToHumanString(
             new Decimal(

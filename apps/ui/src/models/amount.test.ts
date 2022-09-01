@@ -29,7 +29,7 @@ const staticMethodConstructionCases: readonly StaticMethodConstructionCase[] = [
 ];
 
 describe("Amount", () => {
-  const defaultNonStablecoinTokenSpec: TokenConfig = {
+  const defaultNonStablecoinTokenConfig: TokenConfig = {
     id: "test-token",
     projectId: TokenProjectId.Swim,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
@@ -38,7 +38,7 @@ describe("Amount", () => {
       [EvmEcosystemId.Bnb, { address: "xxx", decimals: 18 }],
     ]),
   };
-  const defaultStablecoinTokenSpec: TokenConfig = {
+  const defaultStablecoinTokenConfig: TokenConfig = {
     id: "test-stablecoin",
     projectId: TokenProjectId.Usdc,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
@@ -54,7 +54,7 @@ describe("Amount", () => {
     (method, input) => {
       it(`works via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -67,7 +67,7 @@ describe("Amount", () => {
     describe("fromHumanString", () => {
       it("works with commas", () => {
         const amount = Amount.fromHumanString(
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           "123,456.789000",
         );
         expect(amount).toBeInstanceOf(Amount);
@@ -80,7 +80,7 @@ describe("Amount", () => {
     (method, input) => {
       it(`works for Amount constructed via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -98,7 +98,7 @@ describe("Amount", () => {
 
       it(`throws for unknown ecosystem for Amount constructed via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -114,7 +114,7 @@ describe("Amount", () => {
     (method, input) => {
       it(`works for Amount constructed via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -132,7 +132,7 @@ describe("Amount", () => {
 
       it(`throws for unknown ecosystem for Amount constructed via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -148,7 +148,7 @@ describe("Amount", () => {
     (method, input) => {
       it(`works for Amount constructed via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -164,7 +164,7 @@ describe("Amount", () => {
 
       it(`throws for unknown ecosystem for Amount constructed via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -180,7 +180,7 @@ describe("Amount", () => {
     (method, input) => {
       it(`works for Amount constructed via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -194,7 +194,7 @@ describe("Amount", () => {
 
       it(`throws for unknown ecosystem for Amount constructed via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -210,7 +210,7 @@ describe("Amount", () => {
     (method, input) => {
       it(`works for Amount constructed via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -220,7 +220,7 @@ describe("Amount", () => {
 
       it(`throws for unknown ecosystem for Amount constructed via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -236,7 +236,7 @@ describe("Amount", () => {
     (method, input) => {
       it(`works for Amount constructed via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -250,7 +250,7 @@ describe("Amount", () => {
 
       it(`rounds stablecoin Amounts constructed via ${method} to 2 decimal places`, () => {
         const amount = Amount[method](
-          defaultStablecoinTokenSpec,
+          defaultStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -264,7 +264,7 @@ describe("Amount", () => {
 
       it(`throws for unknown ecosystem for Amount constructed via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );
@@ -280,7 +280,7 @@ describe("Amount", () => {
     (method, input) => {
       it(`works for Amount constructed via ${method}`, () => {
         const amount = Amount[method](
-          defaultNonStablecoinTokenSpec,
+          defaultNonStablecoinTokenConfig,
           input,
           defaultEcosystemId,
         );

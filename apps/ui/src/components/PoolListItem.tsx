@@ -43,20 +43,20 @@ const appendConstantSwapIcon = (poolName: string): string | ReactElement => {
 
 export const PoolListItem = ({
   poolName,
-  tokenSpecs,
+  tokenConfigs,
   poolSpec = null,
   totalUsd = null,
   betaBadgeLabel = "",
 }: {
   readonly poolName: string;
-  readonly tokenSpecs: readonly TokenConfig[];
+  readonly tokenConfigs: readonly TokenConfig[];
   readonly poolSpec?: PoolSpec | null;
   readonly totalUsd?: Decimal | null;
   readonly betaBadgeLabel?: string;
 }): ReactElement => {
   const navigate = useNavigate();
   const flexItemMargin = "6px 12px";
-  const tokenChunks = chunks(tokenSpecs, 3);
+  const tokenChunks = chunks(tokenConfigs, 3);
 
   const poolId = poolSpec?.id ?? null;
   const isStableSwap = poolSpec?.isStableSwap ?? null;

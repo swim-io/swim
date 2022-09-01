@@ -7,7 +7,7 @@ import { InteractionType } from "../../../models";
 import {
   AmountWithTokenIcon,
   AmountsWithTokenIcons,
-  TokenSpecIcon,
+  TokenConfigIcon,
 } from "../../TokenIcon";
 
 interface Props {
@@ -55,7 +55,7 @@ export const InteractionTitle: React.FC<Props> = ({ interaction }) => {
                 />
               ),
               tokenName: (
-                <TokenSpecIcon
+                <TokenConfigIcon
                   token={interaction.params.minimumOutputAmount.tokenConfig}
                 />
               ),

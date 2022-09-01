@@ -388,7 +388,10 @@ export const RemoveForm = ({
 
   const outputTokenOptions: readonly EuiSelectOption[] = poolSpec.tokens.map(
     (id) => {
-      const tokenConfig = findOrThrow(config.tokens, (token) => token.id === id);
+      const tokenConfig = findOrThrow(
+        config.tokens,
+        (token) => token.id === id,
+      );
       return {
         value: id,
         text: `${TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].displayName} (${

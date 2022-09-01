@@ -18,12 +18,14 @@ import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 
 import { CustomModal } from "./CustomModal";
-import { TokenSpecIcon } from "./TokenIcon";
+import { TokenConfigIcon } from "./TokenIcon";
 
-type TokenOption = EuiSelectableOption<{ readonly data: Readonly<TokenConfig> }>;
+type TokenOption = EuiSelectableOption<{
+  readonly data: Readonly<TokenConfig>;
+}>;
 
 const renderTokenOption = (option: TokenOption) => {
-  return <TokenSpecIcon token={option.data} />;
+  return <TokenConfigIcon token={option.data} />;
 };
 
 interface Props {

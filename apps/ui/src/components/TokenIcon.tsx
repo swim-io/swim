@@ -75,7 +75,7 @@ export const AmountWithTokenIcon = ({
   return (
     <span className="tokenIconItem">
       {amount.toFormattedHumanString(ecosystem)}&nbsp;
-      <TokenSpecIcon token={amount.tokenConfig} />
+      <TokenConfigIcon token={amount.tokenConfig} />
     </span>
   );
 };
@@ -106,9 +106,11 @@ export const AmountsWithTokenIcons = ({
   );
 };
 
-type TokenSpecIconProps = { readonly token: TokenConfig };
+type TokenConfigIconProps = { readonly token: TokenConfig };
 
-export const TokenSpecIcon = ({ token }: TokenSpecIconProps): ReactElement => (
+export const TokenConfigIcon = ({
+  token,
+}: TokenConfigIconProps): ReactElement => (
   <TokenIcon
     {...TOKEN_PROJECTS_BY_ID[token.projectId]}
     ecosystemId={token.nativeEcosystemId}

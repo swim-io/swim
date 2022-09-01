@@ -24,21 +24,6 @@ import USDT_SVG from "./images/usdt";
 import USN_SVG from "./images/usn";
 import XSWIM_TOKEN_SVG from "./images/xswim";
 
-/**
- * A token project incorporates one or more tokens. For example USDT has deployments on several
- * different chains, which are technically independent tokens but share many features. Note that
- * these are not wrapped versions of some single original token.
- */
-export interface TokenProject {
-  readonly id: string;
-  readonly symbol: string;
-  readonly displayName: string;
-  /** URL of an icon for the token */
-  readonly icon: string;
-  readonly isStablecoin: boolean;
-  readonly isLp: boolean;
-}
-
 export enum TokenProjectId {
   Ausd = "ausd",
   Busd = "busd",
@@ -75,6 +60,21 @@ export enum TokenProjectId {
   SwimLpKaruraUsdt = "swim-lp-karura-usdt",
   SwimLpKaruraAusd = "swim-lp-karura-ausd",
   SwimLpAcalaAusd = "swim-lp-acala-ausd",
+}
+
+/**
+ * A token project incorporates one or more tokens. For example USDT has deployments on several
+ * different chains, which are technically independent tokens but share many features. Note that
+ * these are not wrapped versions of some single original token.
+ */
+export interface TokenProject {
+  readonly id: TokenProjectId;
+  readonly symbol: string;
+  readonly displayName: string;
+  /** URL of an icon for the token */
+  readonly icon: string;
+  readonly isStablecoin: boolean;
+  readonly isLp: boolean;
 }
 
 export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<

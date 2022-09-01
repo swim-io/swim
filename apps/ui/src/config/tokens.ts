@@ -13,8 +13,9 @@ import { isEcosystemEnabled } from "./ecosystem";
 import { isPoolRestructureEnabled } from "./pools";
 
 export interface TokenConfig extends CoreTokenConfig {
-  /** Will be removed and get from ChainConfig */
+  // TODO: Remove and derive from ChainConfig
   readonly nativeEcosystemId: EcosystemId;
+  /** Required for v1 pool support */
   readonly wrappedDetails: ReadonlyMap<EcosystemId, TokenDetails>;
 }
 

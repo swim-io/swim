@@ -9,7 +9,7 @@ import { Amount, InteractionType } from "../../../models";
 import {
   AmountWithTokenIcon,
   AmountsWithTokenIcons,
-  TokenSpecIcon,
+  TokenConfigIcon,
 } from "../../TokenIcon";
 
 interface Props {
@@ -40,10 +40,10 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
     }
     case InteractionType.SwapV2: {
       const { fromTokenDetail, toTokenDetail } = interaction.params;
-      const fromTokenSpec = findTokenById(fromTokenDetail.tokenId, env);
-      const toTokenSpec = findTokenById(toTokenDetail.tokenId, env);
+      const fromTokenConfig = findTokenById(fromTokenDetail.tokenId, env);
+      const toTokenConfig = findTokenById(toTokenDetail.tokenId, env);
       const exactInputAmount = Amount.fromHuman(
-        fromTokenSpec,
+        fromTokenConfig,
         fromTokenDetail.value,
       );
 
@@ -58,7 +58,7 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
                   ecosystem={SOLANA_ECOSYSTEM_ID}
                 />
               ),
-              tokenName: <TokenSpecIcon token={toTokenSpec} />,
+              tokenName: <TokenConfigIcon token={toTokenConfig} />,
             }}
           />
         </div>

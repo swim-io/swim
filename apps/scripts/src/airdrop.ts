@@ -16,7 +16,7 @@ import { ethers } from "ethers";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers"; // eslint-disable-line import/extensions
 
-import type { Config, EcosystemId, EvmSpec, TokenSpec } from "./config";
+import type { Config, EcosystemId, EvmSpec, TokenConfig } from "./config";
 import { CONFIGS, Protocol } from "./config";
 import { Erc20Factory } from "./models";
 
@@ -35,7 +35,7 @@ const DEVNET_GAS_TOKENS = Object.values(chains)
   );
 
 const TOKEN_CHOICES = [
-  ...tokens.map(({ id }: TokenSpec) => id),
+  ...tokens.map(({ id }: TokenConfig) => id),
   ...DEVNET_GAS_TOKENS,
 ];
 
@@ -47,12 +47,15 @@ async function transferOnEvm(args: CliOptions) {
   const receiverAddress = args.receiverAddress;
   const amount = args.amount;
 
-  const tokenSpec = findOrThrow(tokens, ({ id }: TokenSpec) => id === tokenId);
+  const tokenConfig = findOrThrow(
+    tokens,
+    ({ id }: TokenConfig) => id === tokenId,
+  );
 
   // Get a token contract
   const chainSpec = findOrThrow(
     chains[Protocol.Evm],
-    ({ ecosystem }: EvmSpec) => ecosystem === tokenSpec.nativeEcosystemId,
+    ({ ecosystem }: EvmSpec) => ecosystem === tokenConfig.nativeEcosystemId,
   );
 
   const rpcUrl = sample(chainSpec.rpcUrls);
@@ -72,12 +75,12 @@ async function transferOnEvm(args: CliOptions) {
   );
 
   // Get a token contract address
-  const contractAddress = tokenSpec.nativeDetails.address;
+  const contractAddress = tokenConfig.nativeDetails.address;
   const tokenContract = Erc20Factory.connect(contractAddress, senderWallet);
 
   console.info(
-    `Attempting to send ${amount.toString()} ${tokenSpec.projectId} on ${
-      tokenSpec.nativeEcosystemId
+    `Attempting to send ${amount.toString()} ${tokenConfig.projectId} on ${
+      tokenConfig.nativeEcosystemId
     } (${contractAddress}) from ${senderWallet.address} to ${receiverAddress}`,
   );
 
@@ -89,14 +92,14 @@ async function transferOnEvm(args: CliOptions) {
   );
   console.info(
     `Sender (${senderWallet.address}) has ${senderTokenBalance} ${
-      tokenSpec.projectId
+      tokenConfig.projectId
     }. Gas tokens balance: ${ethers.utils.formatUnits(gasTokensBalanceInWei)}`,
   );
 
   // Convert to ERC20 decimals
   const numberOfTokens = ethers.utils.parseUnits(
     amount.toString(),
-    tokenSpec.nativeDetails.decimals,
+    tokenConfig.nativeDetails.decimals,
   );
 
   const tx = await tokenContract.transfer(receiverAddress, numberOfTokens);
@@ -111,9 +114,9 @@ async function transferOnEvm(args: CliOptions) {
   console.info(
     `Balance after. Sender: ${ethers.utils.formatUnits(
       await tokenContract.balanceOf(senderWallet.address),
-    )} ${tokenSpec.projectId}. Receiver: ${ethers.utils.formatUnits(
+    )} ${tokenConfig.projectId}. Receiver: ${ethers.utils.formatUnits(
       await tokenContract.balanceOf(receiverAddress),
-    )} ${tokenSpec.projectId}. Gas tokens: ${ethers.utils.formatUnits(
+    )} ${tokenConfig.projectId}. Gas tokens: ${ethers.utils.formatUnits(
       await evmProvider.getBalance(senderWallet.address),
     )}`,
   );
@@ -137,7 +140,10 @@ async function transferOnSolana(args: CliOptions) {
   const receiverAddress = new PublicKey(args.receiverAddress);
 
   const tokenId = args.token;
-  const tokenSpec = findOrThrow(tokens, ({ id }: TokenSpec) => id === tokenId);
+  const tokenConfig = findOrThrow(
+    tokens,
+    ({ id }: TokenConfig) => id === tokenId,
+  );
 
   const amount = args.amount;
 
@@ -170,12 +176,12 @@ async function transferOnSolana(args: CliOptions) {
   );
 
   // Get a token contract address
-  const tokenContractAddress = new PublicKey(tokenSpec.nativeDetails.address);
+  const tokenContractAddress = new PublicKey(tokenConfig.nativeDetails.address);
 
   console.info(
     `Attempting to send ${amount} ${
-      tokenSpec.projectId
-    } on ${tokenSpec.nativeEcosystemId.toString()} (${tokenContractAddress.toString()}) from ${fromWallet.publicKey.toString()} to ${receiverAddress.toString()}`,
+      tokenConfig.projectId
+    } on ${tokenConfig.nativeEcosystemId.toString()} (${tokenContractAddress.toString()}) from ${fromWallet.publicKey.toString()} to ${receiverAddress.toString()}`,
   );
 
   const fromToken = new Token(
@@ -201,7 +207,7 @@ async function transferOnSolana(args: CliOptions) {
     `Sender (${fromWallet.publicKey.toString()}) has ${await getTokenAccountBalance(
       fromTokenAccount.address,
     )} ${
-      tokenSpec.projectId
+      tokenConfig.projectId
     }. Gas tokens balance: ${senderSolBalance.toString()}`,
   );
 
@@ -211,7 +217,7 @@ async function transferOnSolana(args: CliOptions) {
     fromWallet,
     [fromWallet],
     new Decimal(args.amount)
-      .mul(Decimal.pow(10, tokenSpec.nativeDetails.decimals))
+      .mul(Decimal.pow(10, tokenConfig.nativeDetails.decimals))
       .toNumber(),
   );
 
@@ -224,9 +230,9 @@ async function transferOnSolana(args: CliOptions) {
   console.info(
     `Balance after. Sender: ${await getTokenAccountBalance(
       fromTokenAccount.address,
-    )} ${tokenSpec.projectId}. Receiver: ${await getTokenAccountBalance(
+    )} ${tokenConfig.projectId}. Receiver: ${await getTokenAccountBalance(
       toTokenAccount.address,
-    )} ${tokenSpec.projectId}. Gas tokens: ${newBalance.toString()}`,
+    )} ${tokenConfig.projectId}. Gas tokens: ${newBalance.toString()}`,
   );
 }
 

@@ -12,6 +12,7 @@
       }
     ],
     "no-empty-blocks": "off",
-    "no-inline-assembly": "off"
+    "no-inline-assembly": "off",
+    "avoid-low-level-calls": "off"
   }
 }

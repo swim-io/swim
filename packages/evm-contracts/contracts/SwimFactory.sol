@@ -90,7 +90,7 @@ contract SwimFactory is ISwimFactory {
   }
 
   modifier onlyOwnerOrAlreadyDeploying() {
-    require(msg.sender == owner || reentrancyCount > 0);
+    require(msg.sender == owner || reentrancyCount > 0, "Not Authorized");
     ++reentrancyCount;
     _;
     --reentrancyCount;
@@ -213,9 +213,11 @@ contract SwimFactory is ISwimFactory {
     //   bytes32(0x6020870161025d565b601f017fffffffffffffffffffffffffffffffffffffff),
     //   bytes26(0xffffffffffffffffffffffffe016919091016040019291505056)
     // );
+    /* solhint-disable var-name-mixedcase */
     uint256 _PROXY_DEPLOYMENT_CODESIZE = PROXY_DEPLOYMENT_CODESIZE;
     uint256 _PROXY_STRIPPED_DEPLOYEDCODESIZE = PROXY_STRIPPED_DEPLOYEDCODESIZE;
     uint256 _IMPLEMENTATION_SLOT = IMPLEMENTATION_SLOT;
+    /* solhint-enable var-name-mixedcase */
     uint256 _blankLogicAddress = uint256(uint160(blankLogicAddress));
     bytes memory code = new bytes(PROXY_TOTAL_CODESIZE);
     assembly ("memory-safe")

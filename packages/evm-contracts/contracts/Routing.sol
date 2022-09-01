@@ -44,13 +44,13 @@ contract Routing is
   uint256 public constant PROPELLER_SWIM_USD_MINIMUM = 5 * ONE_SWIM_USD;
   uint256 public constant GAS_KICKSTART_AMOUNT = 0.05 ether;
 
-  uint256 accumulatedFees;
+  uint256 public accumulatedFees;
   uint32 public wormholeNonce; //TODO should share a slot with tokenbridge (both are accessed together)
   //TODO move to its own storage slot on next full deploy (currently shares a slot with wormhole nonce which sucks for gas)
   address public swimUsdAddress;
 
   ITokenBridge public tokenBridge;
-  address outdatedWormhole; //TODO remove on next full deploy
+  address private outdatedWormhole; //TODO remove on next full deploy
 
   mapping(uint16 => TokenInfo) public tokenNumberMapping;
   mapping(address => TokenInfo) public tokenAddressMapping;

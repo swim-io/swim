@@ -45,8 +45,6 @@ jest.mock("../swim", () => ({
   usePoolMathByPoolIds: jest.fn(),
 }));
 
-jest.mock("../../models/solana/SolanaConnection");
-
 // Make typescript happy with jest
 const useSolanaWalletMock = mockOf(useSolanaWallet);
 const usePoolMathByPoolIdsMock = mockOf(usePoolMathByPoolIds);

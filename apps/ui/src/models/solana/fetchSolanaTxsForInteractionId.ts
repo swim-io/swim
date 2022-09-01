@@ -1,13 +1,11 @@
 import type { ConfirmedSignatureInfo } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import { Env } from "@swim-io/core";
-import type { SolanaTx } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import type { SolanaConnection, SolanaTx } from "@swim-io/solana";
 import type { QueryClient } from "react-query";
 
 import { INTERACTION_ID_LENGTH_HEX } from "../utils";
-
-import type { SolanaConnection } from "./SolanaConnection";
 
 const MAX_RECENT_SIGNATURES = 1000;
 const INTERACTION_ID_MATCH_GROUP = "interactionId";

@@ -1,16 +1,17 @@
 import { getAllowanceEth } from "@certusone/wormhole-sdk";
 import { PublicKey } from "@solana/web3.js";
+import type { WormholeChainConfig } from "@swim-io/core";
 import type { EvmTx } from "@swim-io/evm";
 import type { ethers } from "ethers";
 
-import type { TokenSpec, WormholeChainSpec } from "../../config";
+import type { TokenSpec } from "../../config";
 import { WormholeChainId, getTokenDetailsForEcosystem } from "../../config";
 
 import { approveEth, transferFromEth } from "./overrides";
 import type { WormholeTransfer } from "./transfer";
 
 export const isLockEvmTx = (
-  wormholeChainSpec: WormholeChainSpec,
+  wormholeChainConfig: WormholeChainConfig,
   token: TokenSpec,
   tx: EvmTx,
 ): boolean => {
@@ -19,8 +20,7 @@ export const isLockEvmTx = (
     return false;
   }
   if (
-    tx.response.to?.toLowerCase() !==
-    wormholeChainSpec.tokenBridge.toLowerCase()
+    tx.response.to?.toLowerCase() !== wormholeChainConfig.portal.toLowerCase()
   ) {
     return false;
   }
@@ -30,7 +30,7 @@ export const isLockEvmTx = (
 };
 
 export const isUnlockEvmTx = (
-  wormholeChainSpec: WormholeChainSpec,
+  wormholeChainConfig: WormholeChainConfig,
   token: TokenSpec,
   tx: EvmTx,
 ): boolean => {
@@ -39,7 +39,7 @@ export const isUnlockEvmTx = (
     return false;
   }
   if (
-    tx.receipt.to.toLowerCase() !== wormholeChainSpec.tokenBridge.toLowerCase()
+    tx.receipt.to.toLowerCase() !== wormholeChainConfig.portal.toLowerCase()
   ) {
     return false;
   }
@@ -69,7 +69,7 @@ export const lockEvmToken = async ({
 
   const transferAmountAtomicString = amount.toAtomicString(evmChain.ecosystem);
   const allowance = await getAllowanceEth(
-    evmChain.wormhole.tokenBridge,
+    evmChain.wormhole.portal,
     evmTokenDetails.address,
     evmSigner,
   );
@@ -82,7 +82,7 @@ export const lockEvmToken = async ({
       // Note this is required by some ERC20 implementations such as USDT
       // See line 205 here: https://etherscan.io/address/0xdac17f958d2ee523a2206206994597c13d831ec7#code
       const resetApprovalResponse = await approveEth(
-        evmChain.wormhole.tokenBridge,
+        evmChain.wormhole.portal,
         evmTokenDetails.address,
         evmSigner,
         "0",
@@ -92,7 +92,7 @@ export const lockEvmToken = async ({
         : approvalResponses;
     }
     const approvalResponse = await approveEth(
-      evmChain.wormhole.tokenBridge,
+      evmChain.wormhole.portal,
       evmTokenDetails.address,
       evmSigner,
       transferAmountAtomicString,
@@ -109,7 +109,7 @@ export const lockEvmToken = async ({
 
   const transferResponse = await transferFromEth(
     interactionId,
-    evmChain.wormhole.tokenBridge,
+    evmChain.wormhole.portal,
     evmSigner,
     evmTokenDetails.address,
     transferAmountAtomicString,

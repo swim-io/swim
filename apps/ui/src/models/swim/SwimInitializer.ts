@@ -2,7 +2,11 @@ import {
   AccountLayout,
   MintLayout,
   TOKEN_PROGRAM_ID,
-  Token,
+  createInitializeAccountInstruction,
+  createInitializeMintInstruction,
+  getAssociatedTokenAddress,
+  getMinimumBalanceForRentExemptAccount,
+  getMinimumBalanceForRentExemptMint,
 } from "@solana/spl-token";
 import type { AccountMeta, Transaction } from "@solana/web3.js";
 import {
@@ -16,12 +20,7 @@ import { swimPool } from "@swim-io/solana";
 import { chunks } from "@swim-io/utils";
 
 import type { SolanaConnection } from "../solana";
-import {
-  createSplTokenAccount,
-  createTx,
-  findAssociatedTokenAccountAddress,
-  findProgramAddress,
-} from "../solana";
+import { createSplTokenAccount, createTx, findProgramAddress } from "../solana";
 import type { SolanaWalletAdapter } from "../wallets";
 
 import { SwimInstruction, initInstruction } from "./instructions";
@@ -116,8 +115,9 @@ export class SwimInitializer {
       this.signer,
       this.lpMint.toBase58(),
     );
-    this.governanceFeeAccount = new PublicKey(
-      findAssociatedTokenAccountAddress(this.lpMint.toBase58(), signerAddress),
+    this.governanceFeeAccount = await getAssociatedTokenAddress(
+      this.lpMint,
+      new PublicKey(signerAddress),
     );
 
     let txIdsPrepareTokenAccounts: readonly string[] = [];
@@ -169,8 +169,7 @@ export class SwimInitializer {
     if (!this.lpMint) {
       throw new Error("No LP mint");
     }
-    return Token.createInitMintInstruction(
-      TOKEN_PROGRAM_ID,
+    return createInitializeMintInstruction(
       this.lpMint,
       decimals,
       this.poolAuthority,
@@ -290,7 +289,7 @@ export class SwimInitializer {
     );
     this.poolAuthority = poolAuthority;
     this.nonce = nonce;
-    const createMintLamports = await Token.getMinBalanceRentForExemptMint(
+    const createMintLamports = await getMinimumBalanceForRentExemptMint(
       this.solanaConnection.rawConnection,
     );
 
@@ -300,7 +299,7 @@ export class SwimInitializer {
       newAccountPubkey: lpMintKeypair.publicKey,
       lamports: createMintLamports,
       // missing `span` in `Layout` type
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
       space: MintLayout.span,
       programId: TOKEN_PROGRAM_ID,
     });
@@ -315,7 +314,7 @@ export class SwimInitializer {
     tokenAccountKeypairs: readonly Keypair[],
     tokenMints: readonly PublicKey[],
   ): Promise<string> {
-    const createAccountLamports = await Token.getMinBalanceRentForExemptAccount(
+    const createAccountLamports = await getMinimumBalanceForRentExemptAccount(
       this.solanaConnection.rawConnection,
     );
 
@@ -340,15 +339,14 @@ export class SwimInitializer {
           newAccountPubkey: tokenKeypair.publicKey,
           lamports: createAccountLamports,
           // missing `span` in `Layout` type
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
           space: AccountLayout.span,
           programId: TOKEN_PROGRAM_ID,
         });
 
-        const initAccountIx = Token.createInitAccountInstruction(
-          TOKEN_PROGRAM_ID,
-          tokenMint,
+        const initAccountIx = createInitializeAccountInstruction(
           tokenKeypair.publicKey,
+          tokenMint,
           this.poolAuthority,
         );
 

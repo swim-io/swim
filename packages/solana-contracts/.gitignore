@@ -1,0 +1,14 @@
+.anchor/
+build/
+dist/
+target/
+types/
+
+*.rs.bk
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*

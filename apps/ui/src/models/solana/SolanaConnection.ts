@@ -1,4 +1,4 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
+import { getAssociatedTokenAddress } from "@solana/spl-token";
 import type {
   Finality,
   ParsedTransactionWithMeta,
@@ -13,8 +13,8 @@ import { sleep } from "@swim-io/utils";
 import { SwimError } from "../../errors";
 import { i18next } from "../../i18n";
 
+import type { TokenAccount } from "./parsers";
 import { deserializeTokenAccount } from "./parsers";
-import { getAssociatedTokenAddress } from "./utils";
 
 export const DEFAULT_MAX_RETRIES = 10;
 export const DEFAULT_COMMITMENT_LEVEL: Finality = "confirmed";
@@ -279,10 +279,10 @@ export class SolanaConnection {
   ): Promise<TokenAccount> {
     const mintPubkey = new PublicKey(mint);
     const ownerPubkey = new PublicKey(owner);
-    const associatedTokenAccountAddress = getAssociatedTokenAddress(
+    const associatedTokenAccountPubkey = await getAssociatedTokenAddress(
       mintPubkey,
       ownerPubkey,
-    ).toBase58();
+    );
     return this.callWithRetry(async () => {
       const { value: accounts } =
         await this.rawConnection.getTokenAccountsByOwner(
@@ -294,7 +294,8 @@ export class SolanaConnection {
         );
       const tokenAccount =
         accounts.find(
-          ({ pubkey }) => pubkey.toBase58() === associatedTokenAccountAddress,
+          ({ pubkey }) =>
+            pubkey.toBase58() === associatedTokenAccountPubkey.toBase58(),
         ) ?? null;
       if (tokenAccount !== null) {
         return deserializeTokenAccount(

@@ -7364,6 +7364,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@swim-io/core@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "@swim-io/core@npm:0.13.0"
+  checksum: a6e99f22e92be1d0467f613fc1d5fcd3528d116486938fac9956241319d93e76751b5decc70dbbe979575b2f997e3d0c8c9adc3a1b5c1ba49bee42e89356ddff
+  languageName: node
+  linkType: hard
+
 "@swim-io/core@npm:^0.14.0":
   version: 0.14.0
   resolution: "@swim-io/core@npm:0.14.0"
@@ -7447,6 +7454,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@swim-io/evm-contracts@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "@swim-io/evm-contracts@npm:0.13.0"
+  checksum: 42997908473bc08149006291d1ecfd60ebfee4f7e044dda6df8194d1a8f1f771b5e3fc823ed7732ccc25e49bac707244881dc53720ff6fda115d429cb04a8e7e
+  languageName: node
+  linkType: hard
+
 "@swim-io/evm-contracts@npm:^0.14.0":
   version: 0.14.0
   resolution: "@swim-io/evm-contracts@npm:0.14.0"
@@ -7497,6 +7511,16 @@ __metadata:
     typescript: ^4.7.4
   languageName: unknown
   linkType: soft
+
+"@swim-io/evm@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "@swim-io/evm@npm:0.13.0"
+  dependencies:
+    "@swim-io/core": ^0.13.0
+    ethers: ^5.6.9
+  checksum: 9473a3be7fafaf585f52a2d8d438b06a050ea7b95f3b52e9ad84005936f90bb44c94ddb8270558fbb5e4335fe9608040b30aa4066be314010758316155ef3ad5
+  languageName: node
+  linkType: hard
 
 "@swim-io/evm@npm:^0.14.0":
   version: 0.14.0
@@ -7791,6 +7815,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@swim-io/solana@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "@swim-io/solana@npm:0.13.0"
+  dependencies:
+    "@project-serum/borsh": ^0.2.5
+    "@solana/web3.js": ^1.48.0
+    "@swim-io/core": ^0.13.0
+    "@swim-io/token-projects": ^0.13.0
+    bn.js: ^5.2.1
+  checksum: b90c66e0732dec331a0ce7f27120feaec9b0567852f1da04ebd411b36d12786e8d6d2dd845ac1d06440777dbd85dc8548c5b543b4db2cbfb5bc9f5da6a11c7fd
+  languageName: node
+  linkType: hard
+
 "@swim-io/solana@npm:^0.14.0":
   version: 0.14.0
   resolution: "@swim-io/solana@npm:0.14.0"
@@ -7835,6 +7872,16 @@ __metadata:
     typescript: ^4.7.4
   languageName: unknown
   linkType: soft
+
+"@swim-io/token-projects@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "@swim-io/token-projects@npm:0.13.0"
+  dependencies:
+    "@swim-io/core": ^0.13.0
+    "@swim-io/utils": ^0.13.0
+  checksum: e80d43cafb13b1d6f679063d3f5e70ea7d9e77f9b08ccbfd8876be8012a69313b9611f0be96e02cd2f88b904a3785f1775cba20cd02e4ec22077e01aad786507
+  languageName: node
+  linkType: hard
 
 "@swim-io/token-projects@npm:^0.14.0":
   version: 0.14.0
@@ -7990,6 +8037,13 @@ __metadata:
     zustand: ^4.0.0
   languageName: unknown
   linkType: soft
+
+"@swim-io/utils@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "@swim-io/utils@npm:0.13.0"
+  checksum: 9a9e39d830fc6ca22251cc51bf11f53341d2780570db990de4d4978f7f66f97ce6ac698ceb395c8cd9bbe4d17fe7493e92ed0af682e2ba59c6ad595780333b48
+  languageName: node
+  linkType: hard
 
 "@swim-io/utils@npm:^0.14.0":
   version: 0.14.0

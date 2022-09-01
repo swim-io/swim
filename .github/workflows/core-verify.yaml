@@ -14,3 +14,4 @@ jobs:
     uses: ./.github/workflows/verify.yaml
     with:
       workingDirectory: ./packages/core
+      buildDependenciesForPackage: "@swim-io/core"

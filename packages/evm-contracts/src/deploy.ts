@@ -302,7 +302,5 @@ export async function deploySwimFactory(
     await topUpGasOfFactoryDeployer(presignedTx.from!, cost);
     await confirm(ethers.provider.sendTransaction(presigned));
     await checkOwner();
-  }
-  else
-    throw Error("SwimFactory Mnemonic or presigned required for SwimFactory deployment");
+  } else throw Error("SwimFactory Mnemonic or presigned required for SwimFactory deployment");
 }

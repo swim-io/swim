@@ -3,6 +3,7 @@ export * from "./SwimInitializer";
 export * from "./fees";
 export * from "./instructions";
 export * from "./interaction";
+export * from "./interactionId";
 export * from "./operation";
 export * from "./pool";
 export * from "./steps";

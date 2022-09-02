@@ -1,11 +1,82 @@
 import type { ConfirmedSignatureInfo } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import { Env } from "@swim-io/core";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import type { EvmEcosystemId, EvmTx } from "@swim-io/evm";
+import { isEvmEcosystemId } from "@swim-io/evm";
 import type { SolanaConnection, SolanaTx } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import type { ReadonlyRecord } from "@swim-io/utils";
+import { isNotNull } from "@swim-io/utils";
+import type { ethers } from "ethers";
 import type { QueryClient } from "react-query";
 
-import { INTERACTION_ID_LENGTH_HEX } from "../utils";
+import type { EcosystemId } from "../../config";
+import type { EvmConnection } from "../evm";
+
+export const INTERACTION_ID_LENGTH = 16;
+export const INTERACTION_ID_LENGTH_HEX = INTERACTION_ID_LENGTH * 2;
+
+export const generateId = (length = INTERACTION_ID_LENGTH): string => {
+  const idBytes = crypto.getRandomValues(new Uint8Array(length));
+  return Buffer.from(idBytes).toString("hex");
+};
+
+const findEvmInteractionId = (
+  txResponse: ethers.providers.TransactionResponse,
+): string | null => {
+  const dataHex = txResponse.data.replace(/^0x/, ""); // Remove 0x prefix
+  if (dataHex.length < INTERACTION_ID_LENGTH_HEX) {
+    return null;
+  }
+  return dataHex.slice(-INTERACTION_ID_LENGTH_HEX);
+};
+
+export const fetchEvmTxForInteractionId = async (
+  interactionId: string,
+  queryClient: QueryClient,
+  env: Env,
+  evmConnections: ReadonlyRecord<EvmEcosystemId, EvmConnection>,
+  evmAddress: string,
+  requiredEcosystems: ReadonlySet<EcosystemId>,
+): Promise<readonly EvmTx[]> => {
+  const requiredEvmEcosystems = [...requiredEcosystems.values()].filter(
+    isEvmEcosystemId,
+  );
+
+  const nestedTxs = await Promise.all(
+    requiredEvmEcosystems.map(async (ecosystemId) => {
+      const connection = evmConnections[ecosystemId];
+      const history = await queryClient.fetchQuery(
+        [env, "evmHistory", ecosystemId, evmAddress],
+        async () => (await connection.getHistory(evmAddress)) ?? [],
+      );
+      const matchedTxResponses = history.filter(
+        (txResponse) => findEvmInteractionId(txResponse) === interactionId,
+      );
+      const evmTxsOrNull = await Promise.all(
+        matchedTxResponses.map(
+          async (txResponse: ethers.providers.TransactionResponse) => {
+            const txReceipt = await connection.getTxReceipt(txResponse);
+            if (txReceipt === null) {
+              return null;
+            }
+            return {
+              ecosystemId,
+              id: txResponse.hash,
+              timestamp: txResponse.timestamp ?? null,
+              interactionId: interactionId,
+              response: txResponse,
+              receipt: txReceipt,
+            };
+          },
+        ),
+      );
+      return evmTxsOrNull.filter(isNotNull);
+    }),
+  );
+
+  return nestedTxs.flat();
+};
 
 const MAX_RECENT_SIGNATURES = 1000;
 const INTERACTION_ID_MATCH_GROUP = "interactionId";

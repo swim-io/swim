@@ -20,7 +20,7 @@ export const countNonZeroAmounts = (
   amounts.filter(
     (amount) =>
       amount &&
-      amount.tokenSpec.nativeEcosystemId === ecosystemId &&
+      amount.tokenConfig.nativeEcosystemId === ecosystemId &&
       !amount.isZero(),
   ).length;
 
@@ -29,5 +29,5 @@ export const getIncludedEvmEcosystemIds = (
 ): readonly EvmEcosystemId[] =>
   amounts
     .filter((amount): amount is Amount => amount !== null && !amount.isZero())
-    .map((amount) => amount.tokenSpec.nativeEcosystemId)
+    .map((amount) => amount.tokenConfig.nativeEcosystemId)
     .filter(isEvmEcosystemId);

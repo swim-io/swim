@@ -4,7 +4,7 @@ import type { WormholeChainConfig } from "@swim-io/core";
 import type { EvmTx } from "@swim-io/evm";
 import type { ethers } from "ethers";
 
-import type { TokenSpec } from "../../config";
+import type { TokenConfig } from "../../config";
 import { WormholeChainId, getTokenDetailsForEcosystem } from "../../config";
 
 import { approveEth, transferFromEth } from "./overrides";
@@ -12,7 +12,7 @@ import type { WormholeTransfer } from "./transfer";
 
 export const isLockEvmTx = (
   wormholeChainConfig: WormholeChainConfig,
-  token: TokenSpec,
+  token: TokenConfig,
   tx: EvmTx,
 ): boolean => {
   const tokenDetails = getTokenDetailsForEcosystem(token, tx.ecosystemId);
@@ -31,7 +31,7 @@ export const isLockEvmTx = (
 
 export const isUnlockEvmTx = (
   wormholeChainConfig: WormholeChainConfig,
-  token: TokenSpec,
+  token: TokenConfig,
   tx: EvmTx,
 ): boolean => {
   const tokenDetails = getTokenDetailsForEcosystem(token, tx.ecosystemId);

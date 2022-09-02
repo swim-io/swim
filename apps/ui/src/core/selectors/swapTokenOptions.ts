@@ -11,7 +11,7 @@ export const selectSwapTokenOptions = (
 ): readonly TokenOption[] => {
   const { pools, tokens } = selectConfig(state);
   const restructuredPools = pools.filter((pool) => !pool.isLegacyPool);
-  const nonLpTokenSpecs = restructuredPools
+  const nonLpTokenConfigs = restructuredPools
     .filter((pool) => !pool.isStakingPool)
     .flatMap((pool) => pool.tokens)
     // Remove duplicated tokenId
@@ -20,7 +20,7 @@ export const selectSwapTokenOptions = (
       restructuredPools.every((pool) => pool.lpToken !== tokenId),
     )
     .map((tokenId) => findOrThrow(tokens, ({ id }) => id === tokenId));
-  const nonLpTokenOptions = nonLpTokenSpecs.map((spec) => ({
+  const nonLpTokenOptions = nonLpTokenConfigs.map((spec) => ({
     tokenId: spec.id,
     ecosystemId: spec.nativeEcosystemId,
   }));

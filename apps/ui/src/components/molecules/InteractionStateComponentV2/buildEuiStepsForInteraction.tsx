@@ -381,8 +381,8 @@ const buildRemoveStep = (
               return (
                 <SwapTransfer
                   key={outputAmount.tokenId}
-                  fromToken={exactBurnAmount.tokenSpec}
-                  toToken={outputAmount.tokenSpec}
+                  fromToken={exactBurnAmount.tokenConfig}
+                  toToken={outputAmount.tokenConfig}
                   ecosystemId={lpTokenSourceEcosystem}
                   isLoading={status === "loading"}
                   transactions={[]}
@@ -404,8 +404,8 @@ const buildRemoveStep = (
           <>
             <SwapTransfer
               key={interaction.params.minimumOutputAmount.tokenId}
-              fromToken={interaction.params.exactBurnAmount.tokenSpec}
-              toToken={interaction.params.minimumOutputAmount.tokenSpec}
+              fromToken={interaction.params.exactBurnAmount.tokenConfig}
+              toToken={interaction.params.minimumOutputAmount.tokenConfig}
               ecosystemId={lpTokenSourceEcosystem}
               isLoading={status === "loading"}
               transactions={[removeTxId].filter(isNotNull)}
@@ -421,8 +421,8 @@ const buildRemoveStep = (
               return (
                 <SwapTransfer
                   key={outputAmount.tokenId}
-                  fromToken={maximumBurnAmount.tokenSpec}
-                  toToken={outputAmount.tokenSpec}
+                  fromToken={maximumBurnAmount.tokenConfig}
+                  toToken={outputAmount.tokenConfig}
                   ecosystemId={lpTokenSourceEcosystem}
                   isLoading={status === "loading"}
                   transactions={[]}
@@ -482,9 +482,9 @@ const buildAddStep = (
           return (
             <SwapTransfer
               key={inputAmount.tokenId}
-              fromToken={inputAmount.tokenSpec}
-              toToken={minimumMintAmount.tokenSpec}
-              ecosystemId={minimumMintAmount.tokenSpec.nativeEcosystemId}
+              fromToken={inputAmount.tokenConfig}
+              toToken={minimumMintAmount.tokenConfig}
+              ecosystemId={minimumMintAmount.tokenConfig.nativeEcosystemId}
               isLoading={status === "loading"}
               transactions={[]}
             />

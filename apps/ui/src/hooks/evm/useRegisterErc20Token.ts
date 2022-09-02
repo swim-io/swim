@@ -1,7 +1,7 @@
 import type { EvmEcosystemId } from "@swim-io/evm";
 import { useTranslation } from "react-i18next";
 
-import type { TokenSpec } from "../../config";
+import type { TokenConfig } from "../../config";
 import { ECOSYSTEMS } from "../../config";
 import { useNotification } from "../../core/store";
 import { captureException } from "../../errors";
@@ -10,7 +10,7 @@ import { useEvmChainId } from "./useEvmChainId";
 import { useEvmWallet } from "./useEvmWallet";
 
 interface RegisterErc20TokenResult {
-  readonly showPrompt: (tokenSpec: TokenSpec) => Promise<void>;
+  readonly showPrompt: (tokenConfig: TokenConfig) => Promise<void>;
 }
 
 export const useRegisterErc20Token = (
@@ -21,7 +21,7 @@ export const useRegisterErc20Token = (
   const { wallet } = useEvmWallet();
   const evmChainId = useEvmChainId(ecosystemId);
 
-  const showPrompt = async (tokenSpec: TokenSpec): Promise<void> => {
+  const showPrompt = async (tokenConfig: TokenConfig): Promise<void> => {
     if (!wallet) {
       notify(
         t("notify.register_token_without_wallet_title"),
@@ -34,7 +34,7 @@ export const useRegisterErc20Token = (
     }
 
     try {
-      await wallet.registerToken(tokenSpec, ecosystemId, evmChainId);
+      await wallet.registerToken(tokenConfig, ecosystemId, evmChainId);
     } catch (error) {
       notify(
         t("notify.register_token_failed_title"),

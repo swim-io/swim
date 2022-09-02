@@ -11,7 +11,7 @@ import { ECOSYSTEMS, Protocol } from "./ecosystem";
 import { EVM_ROUTING_CONTRACT } from "./evmRoutingContract";
 import type { PoolSpec } from "./pools";
 import { POOLS } from "./pools";
-import type { TokenSpec } from "./tokens";
+import type { TokenConfig } from "./tokens";
 import { TOKENS } from "./tokens";
 
 export * from "./chains";
@@ -26,7 +26,7 @@ export interface Config {
   readonly ecosystems: ReadonlyRecord<EcosystemId, Ecosystem>;
   readonly chains: ChainsByProtocol;
   readonly pools: readonly PoolSpec[];
-  readonly tokens: readonly TokenSpec[];
+  readonly tokens: readonly TokenConfig[];
   readonly wormhole: WormholeConfig | null;
   readonly redeemer: RedeemerConfig | null;
   readonly evmRoutingContract: string;

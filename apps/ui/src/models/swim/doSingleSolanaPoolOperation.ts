@@ -123,7 +123,9 @@ export const setOutputOperationInputAmount = (
         outputOperationSpec.params.inputAmounts,
         (amount) => !amount.isZero(),
       );
-      const mintAddress = getSolanaTokenDetails(inputAmount.tokenSpec).address;
+      const mintAddress = getSolanaTokenDetails(
+        inputAmount.tokenConfig,
+      ).address;
       const transferredAmount = getTransferredAmount(
         inputOperationSpec,
         mintAddress,
@@ -132,7 +134,7 @@ export const setOutputOperationInputAmount = (
         tx,
       );
       const newInputAmount = Amount.fromAtomic(
-        inputAmount.tokenSpec,
+        inputAmount.tokenConfig,
         transferredAmount,
         SOLANA_ECOSYSTEM_ID,
       );
@@ -148,7 +150,9 @@ export const setOutputOperationInputAmount = (
     }
     case SwimDefiInstruction.RemoveExactBurn: {
       const inputAmount = outputOperationSpec.params.exactBurnAmount;
-      const mintAddress = getSolanaTokenDetails(inputAmount.tokenSpec).address;
+      const mintAddress = getSolanaTokenDetails(
+        inputAmount.tokenConfig,
+      ).address;
       const transferredAmount = getTransferredAmount(
         inputOperationSpec,
         mintAddress,
@@ -157,7 +161,7 @@ export const setOutputOperationInputAmount = (
         tx,
       );
       const newInputAmount = Amount.fromAtomic(
-        inputAmount.tokenSpec,
+        inputAmount.tokenConfig,
         transferredAmount,
         SOLANA_ECOSYSTEM_ID,
       );
@@ -174,7 +178,9 @@ export const setOutputOperationInputAmount = (
         outputOperationSpec.params.exactInputAmounts,
         (amount) => !amount.isZero(),
       );
-      const mintAddress = getSolanaTokenDetails(inputAmount.tokenSpec).address;
+      const mintAddress = getSolanaTokenDetails(
+        inputAmount.tokenConfig,
+      ).address;
       const transferredAmount = getTransferredAmount(
         inputOperationSpec,
         mintAddress,
@@ -183,7 +189,7 @@ export const setOutputOperationInputAmount = (
         tx,
       );
       const newInputAmount = Amount.fromAtomic(
-        inputAmount.tokenSpec,
+        inputAmount.tokenConfig,
         transferredAmount,
         SOLANA_ECOSYSTEM_ID,
       );

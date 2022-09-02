@@ -3,7 +3,7 @@ import type { ReadonlyRecord } from "@swim-io/utils";
 
 import type { ChainsByProtocol } from "./chains";
 import { CHAINS } from "./chains";
-import type { TokenSpec } from "./tokens";
+import type { TokenConfig } from "./tokens";
 import { TOKENS } from "./tokens";
 
 export * from "./chains";
@@ -12,7 +12,7 @@ export * from "./tokens";
 
 export interface Config {
   readonly chains: ChainsByProtocol;
-  readonly tokens: readonly TokenSpec[];
+  readonly tokens: readonly TokenConfig[];
 }
 
 const buildConfig = (env: Env): Config => ({

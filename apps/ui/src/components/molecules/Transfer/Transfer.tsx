@@ -3,12 +3,12 @@ import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { VFC } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { EcosystemId, TokenSpec } from "../../../config";
+import type { EcosystemId, TokenConfig } from "../../../config";
 import { ECOSYSTEMS } from "../../../config";
 import { TxList } from "../TxList";
 
 interface Props {
-  readonly token: TokenSpec;
+  readonly token: TokenConfig;
   readonly from: EcosystemId;
   readonly to: EcosystemId;
   readonly isLoading: boolean;

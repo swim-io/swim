@@ -2,15 +2,15 @@ import { EuiButton, EuiFlexGroup, EuiFlexItem } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { useCallback, useState } from "react";
 
-import type { TokenSpec } from "../config";
+import type { TokenConfig } from "../config";
 
-import { TokenSpecIcon } from "./TokenIcon";
+import { TokenConfigIcon } from "./TokenIcon";
 import { TokenSearchModal } from "./TokenSearchModal";
 
 interface Props {
-  readonly onSelectToken: (token: TokenSpec) => void;
+  readonly onSelectToken: (token: TokenConfig) => void;
   readonly tokenOptionIds: readonly string[];
-  readonly token: TokenSpec;
+  readonly token: TokenConfig;
 }
 
 export const TokenSelect = ({
@@ -33,7 +33,7 @@ export const TokenSelect = ({
       >
         <EuiFlexGroup alignItems="center" justifyContent="center">
           <EuiFlexItem>
-            <TokenSpecIcon token={token} />
+            <TokenConfigIcon token={token} />
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiButton>

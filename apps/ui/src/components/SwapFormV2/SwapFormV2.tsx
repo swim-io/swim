@@ -65,8 +65,8 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
   const {
     fromTokenOption,
     toTokenOption,
-    fromTokenSpec,
-    toTokenSpec,
+    fromTokenConfig,
+    toTokenConfig,
     setFromTokenOption,
     setToTokenOption,
     fromTokenOptions,
@@ -108,7 +108,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     inputAmount,
   );
   const isSmallEthSwap =
-    TOKEN_PROJECTS_BY_ID[fromTokenSpec.projectId].isStablecoin &&
+    TOKEN_PROJECTS_BY_ID[fromTokenConfig.projectId].isStablecoin &&
     [fromTokenOption.ecosystemId, toTokenOption.ecosystemId].includes(
       EvmEcosystemId.Ethereum,
     ) &&
@@ -127,11 +127,11 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     inputAmount,
   );
   const fromTokenBalance = useUserBalanceAmount(
-    fromTokenSpec,
+    fromTokenConfig,
     fromTokenOption.ecosystemId,
   );
   const outputEcosystemDetail = getTokenDetailsForEcosystem(
-    toTokenSpec,
+    toTokenConfig,
     toTokenOption.ecosystemId,
   );
   const outputAmountString =

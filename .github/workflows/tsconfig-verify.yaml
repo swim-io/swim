@@ -13,3 +13,4 @@ jobs:
     with:
       workingDirectory: ./packages/tsconfig
       skipTest: true
+      skipTypecheck: true

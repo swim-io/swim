@@ -80,9 +80,6 @@ contract SwimFactory is ISwimFactory {
   uint256 private constant IMPLEMENTATION_SLOT =
     0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
-  event ContractCreated(address indexed addr, bool isLogic);
-  event TransferOwnership(address indexed from, address indexed to);
-
   address public owner;
   uint256 private reentrancyCount;
   address private blankLogicAddress;
@@ -93,7 +90,7 @@ contract SwimFactory is ISwimFactory {
   }
 
   modifier onlyOwnerOrAlreadyDeploying() {
-    require(msg.sender == owner || reentrancyCount > 0);
+    require(msg.sender == owner || reentrancyCount > 0, "Not Authorized");
     ++reentrancyCount;
     _;
     --reentrancyCount;
@@ -105,34 +102,51 @@ contract SwimFactory is ISwimFactory {
     emit TransferOwnership(msg.sender, newOwner);
   }
 
-  function createLogic(bytes memory code, bytes32 salt)
-    external
-    onlyOwnerOrAlreadyDeploying
-    returns (address)
-  {
-    address logic = create2(code, salt);
-    emit ContractCreated(logic, true);
-    return logic;
+  function create(
+    bytes memory code,
+    bytes32 salt,
+    bytes memory call
+  ) external onlyOwnerOrAlreadyDeploying returns (address) {
+    address ct = create2(code, salt);
+    (bool success, bytes memory lowLevelData) = ct.call(call);
+    if (!success)
+      revert ContractCallFailed(lowLevelData);
+
+    emit ContractCreated(ct, false);
+    return ct;
+  }
+
+  function create(
+    bytes memory code,
+    bytes32 salt
+  ) external onlyOwnerOrAlreadyDeploying returns (address) {
+    address ct = create2(code, salt);
+    emit ContractCreated(ct, false);
+    return ct;
   }
 
   function createProxy(
-    address implementation,
+    address logic,
     bytes32 salt,
     bytes memory call
   ) external onlyOwnerOrAlreadyDeploying returns (address) {
     bytes memory code = proxyDeploymentCode();
     address proxy = create2(code, salt);
-    try IUUPSUpgradeable(proxy).upgradeToAndCall(implementation, call) {} catch (
-      bytes memory lowLevelData
-    ) {
+    try IUUPSUpgradeable(proxy).upgradeToAndCall(logic, call) {}
+    catch (bytes memory lowLevelData) {
       revert ProxyConstructorFailed(lowLevelData);
     }
-    emit ContractCreated(proxy, false);
+    emit ContractCreated(proxy, true);
     return proxy;
   }
 
-  function determineLogicAddress(bytes memory code, bytes32 salt) external view returns (address) {
-    return determineAddress(code, salt);
+  function determineAddress(bytes memory code, bytes32 salt) public view returns (address) {
+    return
+      address(
+        bytes20(
+          keccak256(abi.encodePacked(bytes1(0xff), address(this), salt, keccak256(code))) << 96
+        )
+      );
   }
 
   function determineProxyAddress(bytes32 salt) external view returns (address) {
@@ -146,22 +160,12 @@ contract SwimFactory is ISwimFactory {
     bytes32 _salt = salt;
     address ct;
     bool failed;
-    assembly ("memory-safe")
-    {
+    assembly ("memory-safe") {
       ct := create2(0, add(_code, 32), mload(_code), _salt)
       failed := iszero(extcodesize(ct))
     }
     if (failed) revert ContractAlreadyExists(ct);
     return ct;
-  }
-
-  function determineAddress(bytes memory code, bytes32 salt) internal view returns (address) {
-    return
-      address(
-        bytes20(
-          keccak256(abi.encodePacked(bytes1(0xff), address(this), salt, keccak256(code))) << 96
-        )
-      );
   }
 
   function proxyDeploymentCode() internal view returns (bytes memory) {
@@ -209,9 +213,11 @@ contract SwimFactory is ISwimFactory {
     //   bytes32(0x6020870161025d565b601f017fffffffffffffffffffffffffffffffffffffff),
     //   bytes26(0xffffffffffffffffffffffffe016919091016040019291505056)
     // );
+    /* solhint-disable var-name-mixedcase */
     uint256 _PROXY_DEPLOYMENT_CODESIZE = PROXY_DEPLOYMENT_CODESIZE;
     uint256 _PROXY_STRIPPED_DEPLOYEDCODESIZE = PROXY_STRIPPED_DEPLOYEDCODESIZE;
     uint256 _IMPLEMENTATION_SLOT = IMPLEMENTATION_SLOT;
+    /* solhint-enable var-name-mixedcase */
     uint256 _blankLogicAddress = uint256(uint160(blankLogicAddress));
     bytes memory code = new bytes(PROXY_TOTAL_CODESIZE);
     assembly ("memory-safe")

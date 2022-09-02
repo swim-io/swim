@@ -1,0 +1,48 @@
+name: "Verify evm-contracts build"
+on:
+  pull_request:
+    paths:
+      - "packages/evm-contracts/**.ts"
+      - "packages/evm-contracts/**.json"
+      - "yarn.lock"
+  push:
+    branches:
+      - master
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./packages/evm-contracts
+
+    env:
+      MNEMONIC: "test test test test test test test test test test test junk"
+      ETHERSCAN_API_KEY: "XRJNAJSHABY3I6GUJYGHIVTSGCQ2S2Y75J"
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Check format
+        run: yarn format:check
+      - name: Check Solidity lint
+        run: yarn lint:sol --max-warnings=0
+      - name: Check TypeScript lint
+        run: yarn lint:ts --max-warnings=0
+      - name: "Create .env file for deployment"
+        run: |
+          touch .env
+          echo MNEMONIC=$MNEMONIC >> .env
+          echo FACTORY_MNEMONIC=$FACTORY_MNEMONIC >> .env
+          echo ETHERSCAN_API_KEY=$ETHERSCAN_API_KEY >> .env
+          cat .env
+      - name: Check build
+        run: yarn build
+      - name: Test
+        run: yarn test

@@ -1,9 +1,9 @@
 //SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
-import "./PoolErrors.sol";
-
 library CenterAlignment {
+  error NumericOverflow();
+
   // In the following constants and functions we think of a built-in uint
   //  as an array an array of 4 uint64, i.e. uint64[4] and use this to keep a
   //  block of 64 significant bits "center-aligned" i.e. within the bounds of the
@@ -18,13 +18,13 @@ library CenterAlignment {
   //  val back to its original/base alignment (after we originally inflating it
   //  by center shifting it.)
 
-  uint256 constant BITS_PER_UINT = 256;
-  uint256 constant ALIGNMENT_SHIFT = BITS_PER_UINT / 4; //=64
-  uint256 constant CENTERING_SHIFT = ALIGNMENT_SHIFT + ALIGNMENT_SHIFT / 2; //=96
+  uint256 private constant BITS_PER_UINT = 256;
+  uint256 private constant ALIGNMENT_SHIFT = BITS_PER_UINT / 4; //=64
+  uint256 private constant CENTERING_SHIFT = ALIGNMENT_SHIFT + ALIGNMENT_SHIFT / 2; //=96
   //shift right when greater than ALIGNMENT_UPPER_THRESHOLD
-  uint256 constant ALIGNMENT_UPPER_THRESHOLD = (1 << (ALIGNMENT_SHIFT * 3)) - 1;
+  uint256 private constant ALIGNMENT_UPPER_THRESHOLD = (1 << (ALIGNMENT_SHIFT * 3)) - 1;
   //shift left less than ALIGNMENT_LOWER_THRESHOLD
-  uint256 constant ALIGNMENT_LOWER_THRESHOLD = 1 << (ALIGNMENT_SHIFT * 2);
+  uint256 private constant ALIGNMENT_LOWER_THRESHOLD = 1 << (ALIGNMENT_SHIFT * 2);
 
   function toAligned(uint256 val) internal pure returns (uint256, int256) {
     return (val << CENTERING_SHIFT, int256(CENTERING_SHIFT));
@@ -52,7 +52,7 @@ library CenterAlignment {
         uint256 unshift = uint256(-shift);
         //ensure we aren't overflowing on rightshift
         if (unshift >= BITS_PER_UINT || val >= (1 << (BITS_PER_UINT - unshift)))
-          revert CenterAlignment_NumericOverflow();
+          revert NumericOverflow();
         return val << unshift;
       }
       //potentially underflowing to 0 is ok

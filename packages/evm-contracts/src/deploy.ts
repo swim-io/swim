@@ -262,17 +262,7 @@ export async function deploySwimFactory(
   if (await isDeployed(SWIM_FACTORY_ADDRESS))
     //console.log("SwimFactory was already deployed at:", SWIM_FACTORY_ADDRESS);
     await checkOwner();
-  else if (typeof factoryMnemonic === "undefined") {
-    if (typeof presigned === "undefined")
-      throw Error("SwimFactory Mnemonic or presigned required for SwimFactory deployment");
-
-    //deploy SwimFactory via presigned tx
-    const presignedTx = ethers.utils.parseTransaction(presigned);
-    const cost = presignedTx.gasLimit.mul(presignedTx.maxFeePerGas!);
-    await topUpGasOfFactoryDeployer(presignedTx.from!, cost);
-    await confirm(ethers.provider.sendTransaction(presigned));
-    await checkOwner();
-  } else {
+  else if (factoryMnemonic) {
     //deploy SwimFactory via factory mnemonic
     const factoryDeployer = ethers.Wallet.fromMnemonic(factoryMnemonic).connect(owner.provider!);
 
@@ -305,8 +295,14 @@ export async function deploySwimFactory(
         `Unexpected deployed SwimFactory address - ` +
           `expected: ${SWIM_FACTORY_ADDRESS} but got: ${swimFactory.address}`
       );
-
-    // const txHash = swimFactory.deployTransaction.hash;
-    // const receipt = await network.provider.send("eth_getTransactionReceipt", [txHash]);
+  } else if (presigned) {
+    //deploy SwimFactory via presigned tx
+    const presignedTx = ethers.utils.parseTransaction(presigned);
+    const cost = presignedTx.gasLimit.mul(presignedTx.maxFeePerGas!);
+    await topUpGasOfFactoryDeployer(presignedTx.from!, cost);
+    await confirm(ethers.provider.sendTransaction(presigned));
+    await checkOwner();
   }
+  else
+    throw Error("SwimFactory Mnemonic or presigned required for SwimFactory deployment");
 }

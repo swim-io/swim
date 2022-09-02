@@ -1,0 +1,49 @@
+name: "Generic verify pipeline"
+
+on:
+  workflow_call:
+    inputs:
+      workingDirectory:
+        required: true
+        type: string
+      buildDependenciesForPackage:
+        required: false
+        type: string
+      skipTest:
+        required: false
+        type: boolean
+        default: false
+      skipTypecheck:
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.workingDirectory }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Build dependencies
+        run: yarn workspaces foreach --topological-dev --parallel --recursive --from ${{ inputs.buildDependenciesForPackage }} run build
+        if: ${{ inputs.buildDependenciesForPackage != '' }}
+      - name: Check types
+        run: yarn typecheck
+        if: ${{ !inputs.skipTypecheck }}
+      - name: Check format
+        run: yarn format:check
+      - name: Check lint
+        run: yarn lint --max-warnings=0
+      - name: Test
+        run: yarn test --ci
+        if: ${{ !inputs.skipTest }}

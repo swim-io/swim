@@ -17,6 +17,7 @@
     "build:propeller-devnet": "anchor build -p propeller -- --features devnet",
     "build:propeller-mainnet": "anchor build -p propeller -- --features mainnet",
     "build:ts": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && tsc",
+    "build": "yarn build:ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",

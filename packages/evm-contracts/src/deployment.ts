@@ -64,11 +64,7 @@ export async function deployment(print: boolean = false) {
   await deploySwimFactory(
     deployer,
     process.env.FACTORY_MNEMONIC,
-    FACTORY_PRESIGNED[chainId as keyof typeof FACTORY_PRESIGNED] as {
-      readonly from: string;
-      readonly maxCost: string;
-      readonly signedTx: string;
-    }
+    FACTORY_PRESIGNED[chainId as keyof typeof FACTORY_PRESIGNED]
   );
 
   log("SwimFactory:".padStart(padding), SWIM_FACTORY_ADDRESS);

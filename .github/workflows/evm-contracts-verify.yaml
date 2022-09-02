@@ -19,7 +19,6 @@ jobs:
 
     env:
       MNEMONIC: "test test test test test test test test test test test junk"
-      FACTORY_MNEMONIC: "test test test test test test test test test test test junk"
       ETHERSCAN_API_KEY: "XRJNAJSHABY3I6GUJYGHIVTSGCQ2S2Y75J"
 
     steps:
@@ -45,5 +44,5 @@ jobs:
           cat .env
       - name: Check build
         run: yarn build
-      # - name: Test
-      #   run: yarn test
+      - name: Test
+        run: yarn test

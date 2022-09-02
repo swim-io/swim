@@ -49,7 +49,7 @@ task(
   )
   .addOptionalPositionalParam("owner", "owner who's authorized to execute the upgrade", "");
 
-task("pool-state", "Print state of given pool", async ({ pool }, { ethers }) => {
+task("poolState", "Print state of given pool", async ({ pool }, { ethers }) => {
   const [isPaused, balances, lpSupply, ampFactorDec, lpFeeDec, govFeeDec] = await (
     await ethers.getContractAt("Pool", pool)
   ).getState();
@@ -72,29 +72,22 @@ task("pool-state", "Print state of given pool", async ({ pool }, { ethers }) => 
   console.log(JSON.stringify(state, null, 2));
 }).addPositionalParam("pool", "address of the pool");
 
-task("presign", "Generates and prints a Deterministic Factory tx", async (_, hre) => {
+task("presign", "Generate a SwimFactory deployment tx for hardhat network", async (_, hre) => {
   await hre.run("compile");
 
   const { ethers } = hre;
   const [deployer] = await ethers.getSigners();
-  const deployData = (await ethers.getContractFactory("SwimFactory")).getDeployTransaction(
-    deployer.address
-  );
-  const deployTx = {
-    ...deployData,
-    to: undefined,
-    nonce: 0,
-    gasLimit: ethers.BigNumber.from("2000000"),
-    chainId: 31337,
-    gasPrice: ethers.BigNumber.from("1875000000"), //TODO
-  };
   if (typeof FACTORY_MNEMONIC === "undefined") {
     console.log("Factory Mnemonic not set in environment");
     return;
   }
-  const wallet = ethers.Wallet.fromMnemonic(FACTORY_MNEMONIC);
+  const wallet = ethers.Wallet.fromMnemonic(FACTORY_MNEMONIC).connect(ethers.provider);
+  const deployData = (await ethers.getContractFactory("SwimFactory"))
+    .connect(wallet)
+    .getDeployTransaction(deployer.address);
+  const deployTx = await wallet.populateTransaction(deployData);
   const signedTx = await wallet.signTransaction(deployTx);
-  console.log(signedTx);
+  console.log("presigned transaction:", signedTx);
 });
 
 const sharedNetworkConfig: HttpNetworkUserConfig = {

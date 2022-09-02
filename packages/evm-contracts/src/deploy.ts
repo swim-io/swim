@@ -233,7 +233,7 @@ export const deployToken = async (token: Token, owner: SignerWithAddress): Promi
 export async function deploySwimFactory(
   owner: SignerWithAddress,
   factoryMnemonic?: string,
-  presigned?: { readonly from: string; readonly maxCost: string; readonly signedTx: string }
+  presigned?: string
 ): Promise<void> {
   const checkOwner = async () => {
     const swimFactory = await getSwimFactory();
@@ -267,8 +267,10 @@ export async function deploySwimFactory(
       throw Error("SwimFactory Mnemonic or presigned required for SwimFactory deployment");
 
     //deploy SwimFactory via presigned tx
-    await topUpGasOfFactoryDeployer(presigned.from, BigNumber.from(presigned.maxCost));
-    await confirm(ethers.provider.sendTransaction(presigned.signedTx));
+    const presignedTx = ethers.utils.parseTransaction(presigned);
+    const cost = presignedTx.gasLimit.mul(presignedTx.maxFeePerGas!);
+    await topUpGasOfFactoryDeployer(presignedTx.from!, cost);
+    await confirm(ethers.provider.sendTransaction(presigned));
     await checkOwner();
   } else {
     //deploy SwimFactory via factory mnemonic

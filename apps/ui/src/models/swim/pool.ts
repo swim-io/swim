@@ -2,15 +2,16 @@ import { PublicKey } from "@solana/web3.js";
 import type { EvmEcosystemId } from "@swim-io/evm";
 import { isEvmEcosystemId } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
-import type {
-  SolanaEcosystemId,
-  SolanaTx,
-  SwimPoolState,
-} from "@swim-io/solana";
 import {
   SOLANA_ECOSYSTEM_ID,
   deserializeSwimPool,
   isSolanaTx,
+} from "@swim-io/solana";
+import type {
+  SolanaConnection,
+  SolanaEcosystemId,
+  SolanaTx,
+  SwimPoolState,
 } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { findOrThrow } from "@swim-io/utils";
@@ -27,7 +28,6 @@ import type {
 import { getTokenDetailsForEcosystem } from "../../config";
 import type { Tx } from "../crossEcosystem";
 import type { EvmConnection } from "../evm";
-import type { SolanaConnection } from "../solana";
 
 export interface SolanaPoolState extends SwimPoolState {
   readonly ecosystem: SolanaEcosystemId;

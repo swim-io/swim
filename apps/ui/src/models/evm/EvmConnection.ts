@@ -1,6 +1,7 @@
 import { BscscanProvider } from "@ethers-ancillary/bsc";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
+import { ERC20__factory } from "@swim-io/evm-contracts";
 import { isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
@@ -15,7 +16,6 @@ import { MoralisProvider } from "./MoralisProvider";
 import { PolkadotProvider } from "./PolkadotProvider";
 import { PolygonNetwork, PolygonScanProvider } from "./PolygonScanProvider";
 import { AvalancheNetwork, SnowTraceProvider } from "./SnowTraceProvider";
-import { Erc20Factory } from "./erc20";
 
 type EtherscanProvider = ethers.providers.EtherscanProvider;
 type TransactionReceipt = ethers.providers.TransactionReceipt;
@@ -337,7 +337,10 @@ export class EvmConnection {
     contractAddress: string,
     walletAddress: string,
   ): Promise<Decimal | null> {
-    const erc20Contract = Erc20Factory.connect(contractAddress, this.provider);
+    const erc20Contract = ERC20__factory.connect(
+      contractAddress,
+      this.provider,
+    );
     try {
       const balance = await erc20Contract.balanceOf(walletAddress);
       return new Decimal(balance.toString());

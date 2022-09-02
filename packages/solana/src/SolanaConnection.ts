@@ -8,12 +8,10 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
-import type { TokenAccount } from "@swim-io/solana";
-import { deserializeTokenAccount } from "@swim-io/solana";
 import { sleep } from "@swim-io/utils";
 
-import { SwimError } from "../../errors";
-import { i18next } from "../../i18n";
+import type { TokenAccount } from "./serialization/tokenAccount";
+import { deserializeTokenAccount } from "./serialization/tokenAccount";
 
 export const DEFAULT_MAX_RETRIES = 10;
 export const DEFAULT_COMMITMENT_LEVEL: Finality = "confirmed";
@@ -115,10 +113,8 @@ export class SolanaConnection {
       if (!signatureResult.value.err) {
         return signatureResult;
       }
-      throw new SwimError(
-        i18next.t("general.transaction_not_confirmed_error", { txId }) +
-          ": " +
-          signatureResult.value.err.toString(),
+      throw new Error(
+        `Transaction with ID ${txId} did not confirm: ${signatureResult.value.err.toString()}`,
       );
     }, maxRetries);
   }
@@ -186,9 +182,7 @@ export class SolanaConnection {
         this.txCache.set(txId, txResponse);
         return txResponse;
       }
-      throw new SwimError(
-        i18next.t("general.transaction_not_confirmed_error", { txId }),
-      );
+      throw new Error(`Transaction with ID ${txId} did not confirm`);
     }, maxRetries);
   }
 
@@ -221,9 +215,7 @@ export class SolanaConnection {
         this.parsedTxCache.set(txId, txResponse);
         return txResponse;
       }
-      throw new SwimError(
-        i18next.t("general.transaction_not_confirmed_error", { txId }),
-      );
+      throw new Error(`Transaction with ID ${txId} did not confirm`);
     }, maxRetries);
   }
 
@@ -259,9 +251,7 @@ export class SolanaConnection {
             this.parsedTxCache.set(missingTxIds[i], txResponse);
           }
         });
-        throw new SwimError(
-          i18next.t("general.one_or_more_transaction_not_confirmed_error"),
-        );
+        throw new Error("One or more transactions did not confirm");
       },
 
       maxRetries,
@@ -302,10 +292,8 @@ export class SolanaConnection {
           tokenAccount.account.data,
         );
       }
-      throw new SwimError(
-        i18next.t(
-          "general.created_spl_token_account_but_failed_to_fetch_error",
-        ),
+      throw new Error(
+        "Successfully created SPL token account but failed to fetch it",
       );
     }, maxRetries);
   }
@@ -398,6 +386,6 @@ export class SolanaConnection {
         }
       }
     }
-    throw new SwimError("callWithRetry bug, this code should be unreachable.");
+    throw new Error("callWithRetry bug, this code should be unreachable.");
   }
 }

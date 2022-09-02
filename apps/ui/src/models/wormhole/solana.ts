@@ -14,12 +14,11 @@ import type {
 } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import type { WormholeChainConfig } from "@swim-io/core";
-import type { SolanaTx } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID, createMemoIx } from "@swim-io/solana";
+import type { SolanaConnection, SolanaTx } from "@swim-io/solana";
 
 import type { TokenConfig } from "../../config";
 import { WormholeChainId, getSolanaTokenDetails } from "../../config";
-import type { SolanaConnection } from "../solana";
 import {
   createTx,
   getAmountBurnedByMint,

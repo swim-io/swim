@@ -1,14 +1,13 @@
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
-import type { TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import type { SolanaConnection, TokenAccount } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
 import type { SolanaPoolSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { Amount } from "../amount";
-import type { SolanaConnection } from "../solana";
 import {
   findTokenAccountForMint,
   getAmountMintedToAccountByMint,

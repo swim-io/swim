@@ -7371,10 +7371,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/core@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@swim-io/core@npm:0.14.0"
-  checksum: 9274a6386575d5a74b7803490c67f94c8d10ba93cff439ea44a2fd7afb4e7ecee9b2d9656d046ebca21271a47e03c1ff55fda58188e26fd3174aee77fd21b2f6
+"@swim-io/core@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@swim-io/core@npm:0.15.0"
+  checksum: fa9f3f2d834cb2a811f6ea5a45a8c916c4a7a812751820d5a254b25e5ba51b84428408556d06049a26105097624250c48b7b896de46628f3c3056b083c1b2e1a
   languageName: node
   linkType: hard
 
@@ -7462,10 +7462,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm-contracts@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@swim-io/evm-contracts@npm:0.14.0"
-  checksum: ddc363574d50d116abd98c31b407ad1956f6a5761a2b83d6502c041bbc7d7ff79156a683a374525ae4a52490c75fa20a47634cf1b7fb9904debc73c60e26af3d
+"@swim-io/evm-contracts@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@swim-io/evm-contracts@npm:0.15.0"
+  checksum: fd850b062eec41ea2f7c76b8247cf0986a7cd4cb738e688ffe4de225760075301f23010cebb9fdd1d2a0d34284931a9301d587d9e65e8b91b052a985415749c1
   languageName: node
   linkType: hard
 
@@ -7523,13 +7523,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@swim-io/evm@npm:0.14.0"
+"@swim-io/evm@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@swim-io/evm@npm:0.15.0"
   dependencies:
-    "@swim-io/core": ^0.14.0
+    "@swim-io/core": ^0.15.0
     ethers: ^5.6.9
-  checksum: 347091694fbb8fadde8eea3f0ea83f1806778282ab304c3c468a78eb9af04b67754cc10b8917e10f32454bdd6b0a348fbaca6130ac7ca452c6a84d7ae8812dba
+  checksum: 887dcc819dff0a631064ba8d1433c9b2030cf557779244fc878dcd91dd438fc452c038a1f9a49c80766cf539d263f3c63e4a89b7180c9c71f417f47201f1747c
   languageName: node
   linkType: hard
 
@@ -7577,12 +7577,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/pool-math@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@swim-io/pool-math@npm:0.14.0"
+"@swim-io/pool-math@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@swim-io/pool-math@npm:0.15.0"
   dependencies:
     decimal.js: ^10.3.1
-  checksum: 51df2e967e7e13b02b8c53861639a16d6adbc93b583180b22346c47bf174342f322c748fb35c301659a17bcba05afebff40f8070946bce0d0e7f68916e4ed656
+  checksum: 186843cf9ad5ed0f00e06cfb583f5a440efb7294987d5767f678e598ea897a14728f2e88e66c79184c4428478bd5612fed9aecfe13d811878b09e17e6eb10321
   languageName: node
   linkType: hard
 
@@ -7669,12 +7669,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/redeemer@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@swim-io/redeemer@npm:0.14.0"
+"@swim-io/redeemer@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@swim-io/redeemer@npm:0.15.0"
   dependencies:
-    "@swim-io/core": ^0.14.0
-  checksum: 7bb7b62d5f2dbe87c9d21a48e4420cdb607a36fddeebf5bc626ae1ab868bc2f079e8ae6736ed496908eaed1ddf4ff846d80debd0dedd52c1d61bfd508e2ad3e1
+    "@swim-io/core": ^0.15.0
+  checksum: 202dddd7b7bc9526798e0c00282e862e1607dde2da132709fe84965707716ffa22915cdeb3ac6c1bf83329806961380a830a21235c513d706d8ec55621d2e8aa
   languageName: node
   linkType: hard
 
@@ -7829,17 +7829,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/solana@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@swim-io/solana@npm:0.14.0"
+"@swim-io/solana@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@swim-io/solana@npm:0.15.0"
   dependencies:
     "@project-serum/borsh": ^0.2.5
     "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.48.0
-    "@swim-io/core": ^0.14.0
-    "@swim-io/token-projects": ^0.14.0
+    "@swim-io/core": ^0.15.0
+    "@swim-io/token-projects": ^0.15.0
     bn.js: ^5.2.1
-  checksum: 95dc6a4b86cb9112a1ef63df5ef5ad1d391d482382eeaf3978620d6b79995b159e6fb77f7548c1906cfee26250dec40acc2b97a3522aaff112c8ca3fdfb9210f
+  checksum: b4ffb7b9e823cf37d96ba88a8b2321dfc6fa7228284e82b7db7192f50c45dca290a903c546e8a107a0964f61c4cc747001a85644b4b037156775d3a81ee02c13
   languageName: node
   linkType: hard
 
@@ -7884,13 +7884,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/token-projects@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@swim-io/token-projects@npm:0.14.0"
+"@swim-io/token-projects@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@swim-io/token-projects@npm:0.15.0"
   dependencies:
-    "@swim-io/core": ^0.14.0
-    "@swim-io/utils": ^0.14.0
-  checksum: d15d4aa076612b1f5736ad4dcc63dac75b82225fe41148a91bf38925e555fd20f82d730f3f145094c41505f58a3432e726307d102cb368ed3a01eecbda00c33f
+    "@swim-io/utils": ^0.15.0
+  checksum: 5ca39f5fd9b02c973bd30a343062977aa3f96ee5f9599896af60515bfe70c815e9aa752a52927ac9b56a554a5c859c9561d5222c962898d46939a322cbccaefa
   languageName: node
   linkType: hard
 
@@ -7968,16 +7967,16 @@ __metadata:
     "@storybook/node-logger": ^6.5.10
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.10
-    "@swim-io/core": "workspace:^"
+    "@swim-io/core": ^0.15.0
     "@swim-io/eslint-config": "workspace:^"
-    "@swim-io/evm": ^0.14.0
-    "@swim-io/evm-contracts": ^0.14.0
-    "@swim-io/pool-math": ^0.14.0
-    "@swim-io/redeemer": ^0.14.0
-    "@swim-io/solana": ^0.14.0
-    "@swim-io/token-projects": "workspace:^"
+    "@swim-io/evm": ^0.15.0
+    "@swim-io/evm-contracts": ^0.15.0
+    "@swim-io/pool-math": ^0.15.0
+    "@swim-io/redeemer": ^0.15.0
+    "@swim-io/solana": ^0.15.0
+    "@swim-io/token-projects": ^0.15.0
     "@swim-io/tsconfig": "workspace:^"
-    "@swim-io/utils": ^0.14.0
+    "@swim-io/utils": ^0.15.0
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^7.0.2
@@ -8045,10 +8044,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/utils@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@swim-io/utils@npm:0.14.0"
-  checksum: a9169e02bad99c1ac166df01635a1085482ef7a0735f2315e154a8e72802d9ffdd20905b3ecf4feb083a1f9b14a28ba3f3250bb56641857e2cca0c564fd29b6e
+"@swim-io/utils@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@swim-io/utils@npm:0.15.0"
+  checksum: ac7af9b4961874cb8d93a2dc3c50c238b2b63c8a4ec1a03447620d8760d9e9b2105735d8c3357cefa0d45c6ab28fde631a184b86243879b3d75ef53b4f74606b
   languageName: node
   linkType: hard
 

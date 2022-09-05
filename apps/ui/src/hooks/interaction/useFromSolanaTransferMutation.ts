@@ -3,7 +3,7 @@ import type { Transaction } from "@solana/web3.js";
 import type { SolanaConnection, TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow, isEachNotNull } from "@swim-io/utils";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation } from "react-query";
 
 import type { Config } from "../../config";
 import {
@@ -21,7 +21,6 @@ import {
   DEFAULT_WORMHOLE_RETRIES,
   evmAddressToWormhole,
   findTokenAccountForMint,
-  getOrCreateEvmConnection,
   getSignedVaaWithRetry,
   getToEcosystemOfFromSolanaTransfer,
   getTokensByPool,
@@ -31,6 +30,7 @@ import {
   transferFromSolana,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
+import { useGetEvmConnection } from "../evm";
 import {
   useSolanaConnection,
   useSolanaWallet,
@@ -75,10 +75,9 @@ const getTransferredAmountsByTokenId = async (
 
 export const useFromSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
-  const { env } = useEnvironment();
   const config = useEnvironment(selectConfig);
   const { chains, wormhole } = config;
-  const queryClient = useQueryClient();
+  const getEvmConnection = useGetEvmConnection();
   const solanaConnection = useSolanaConnection();
   const wallets = useWallets();
   const { address: solanaWalletAddress } = useSolanaWallet();
@@ -262,12 +261,7 @@ export const useFromSolanaTransferMutation = () => {
           `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
         );
       }
-      const evmConnection = getOrCreateEvmConnection(
-        env,
-        toEcosystem,
-        evmChain,
-        queryClient,
-      );
+      const evmConnection = getEvmConnection(toEcosystem);
       const evmReceipt = await evmConnection.getTxReceiptOrThrow(
         redeemResponse,
       );

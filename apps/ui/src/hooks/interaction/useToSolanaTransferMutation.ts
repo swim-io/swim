@@ -7,7 +7,7 @@ import type { EvmEcosystemId, EvmTx } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import type { ethers } from "ethers";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import {
@@ -22,11 +22,11 @@ import type { EvmConnection } from "../../models";
 import {
   Amount,
   generateUnlockSplTokenTxIds,
-  getOrCreateEvmConnection,
   lockEvmToken,
 } from "../../models";
 import { getFromEcosystemOfToSolanaTransfer } from "../../models/swim/transfer";
 import { useWallets } from "../crossEcosystem";
+import { useGetEvmConnection } from "../evm";
 import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
 
 const txResponseToTx = async (
@@ -48,9 +48,8 @@ const txResponseToTx = async (
 
 export const useToSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
-  const { env } = useEnvironment();
   const { chains, wormhole } = useEnvironment(selectConfig, shallow);
-  const queryClient = useQueryClient();
+  const getEvmConnection = useGetEvmConnection();
   const solanaConnection = useSolanaConnection();
   const wallets = useWallets();
   const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
@@ -80,9 +79,7 @@ export const useToSolanaTransferMutation = () => {
         ({ ecosystem }) => ecosystem === ecosystemId,
       ),
     );
-    const evmConnections = fromEcosystems.map((ecosystemId, i) =>
-      getOrCreateEvmConnection(env, ecosystemId, evmChains[i], queryClient),
-    );
+    const evmConnections = fromEcosystems.map(getEvmConnection);
 
     let transferTxIds: readonly string[] = [];
     for (const [index, transfer] of toSolanaTransfers.entries()) {

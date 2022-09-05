@@ -2,10 +2,9 @@ import { BscscanProvider } from "@ethers-ancillary/bsc";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { ERC20__factory } from "@swim-io/evm-contracts";
-import { isNotNull } from "@swim-io/utils";
+import { findOrThrow, isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
-import type { QueryClient } from "react-query";
 
 import type { EvmSpec } from "../../config";
 import { isEcosystemEnabled } from "../../config";
@@ -352,20 +351,20 @@ export class EvmConnection {
 }
 
 export const getOrCreateEvmConnection = (
+  evmConnections: ReadonlyMap<EvmEcosystemId, EvmConnection>,
+  evmChains: readonly EvmSpec[],
   env: Env,
   ecosystemId: EvmEcosystemId,
-  chainSpec: EvmSpec,
-  queryClient: QueryClient,
 ): EvmConnection => {
-  const queryKey = [env, "evmConnection", ecosystemId];
-  const connection =
-    // used as context cache to avoid multiple instances
-    queryClient.getQueryData<EvmConnection>(queryKey) ??
-    (function createEvmConnection(): EvmConnection {
-      const evmConnection = new EvmConnection(env, chainSpec);
-      queryClient.setQueryData(queryKey, evmConnection);
-      return evmConnection;
-    })();
-
-  return connection;
+  const existingConnection = evmConnections.get(ecosystemId);
+  if (existingConnection) {
+    return existingConnection;
+  }
+  const chainSpec = findOrThrow(
+    evmChains,
+    (chain) => chain.ecosystem === ecosystemId,
+  );
+  const newConnection = new EvmConnection(env, chainSpec);
+  evmConnections.set(ecosystemId, newConnection);
+  return newConnection;
 };

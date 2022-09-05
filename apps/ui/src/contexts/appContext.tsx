@@ -1,13 +1,13 @@
 import type React from "react";
 
-import { EvmConnectionsProvider } from "./EvmConnections";
+import { GetEvmConnectionProvider } from "./GetEvmConnection";
 import { SolanaConnectionProvider } from "./SolanaConnection";
 import { QueryClientProvider } from "./queryClient";
 
 export const AppContext: React.FC = ({ children }) => (
-  <EvmConnectionsProvider>
+  <GetEvmConnectionProvider>
     <SolanaConnectionProvider>
       <QueryClientProvider>{children}</QueryClientProvider>
     </SolanaConnectionProvider>
-  </EvmConnectionsProvider>
+  </GetEvmConnectionProvider>
 );

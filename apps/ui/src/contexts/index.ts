@@ -1,4 +1,4 @@
 export * from "./appContext";
-export * from "./EvmConnections";
+export * from "./GetEvmConnection";
 export * from "./queryClient";
 export * from "./SolanaConnection";

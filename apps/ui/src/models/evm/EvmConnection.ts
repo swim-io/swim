@@ -2,7 +2,7 @@ import { BscscanProvider } from "@ethers-ancillary/bsc";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { ERC20__factory } from "@swim-io/evm-contracts";
-import { findOrThrow, isNotNull } from "@swim-io/utils";
+import { isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
 
@@ -349,22 +349,3 @@ export class EvmConnection {
     }
   }
 }
-
-export const getOrCreateEvmConnection = (
-  evmConnections: ReadonlyMap<EvmEcosystemId, EvmConnection>,
-  evmChains: readonly EvmSpec[],
-  env: Env,
-  ecosystemId: EvmEcosystemId,
-): EvmConnection => {
-  const existingConnection = evmConnections.get(ecosystemId);
-  if (existingConnection) {
-    return existingConnection;
-  }
-  const chainSpec = findOrThrow(
-    evmChains,
-    (chain) => chain.ecosystem === ecosystemId,
-  );
-  const newConnection = new EvmConnection(env, chainSpec);
-  evmConnections.set(ecosystemId, newConnection);
-  return newConnection;
-};

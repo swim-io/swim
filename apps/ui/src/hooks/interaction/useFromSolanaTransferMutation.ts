@@ -3,7 +3,7 @@ import type { Transaction } from "@solana/web3.js";
 import type { SolanaConnection, TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow, isEachNotNull } from "@swim-io/utils";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 
 import type { Config } from "../../config";
 import {
@@ -18,19 +18,19 @@ import { useEnvironment, useInteractionState } from "../../core/store";
 import type { InteractionState, Tx } from "../../models";
 import {
   Amount,
+  DEFAULT_WORMHOLE_RETRIES,
   evmAddressToWormhole,
   findTokenAccountForMint,
+  getOrCreateEvmConnection,
+  getSignedVaaWithRetry,
+  getToEcosystemOfFromSolanaTransfer,
   getTokensByPool,
   getTransferredAmounts,
   parseSequenceFromLogSolana,
   redeemOnEth,
   transferFromSolana,
 } from "../../models";
-import { getToEcosystemOfFromSolanaTransfer } from "../../models/swim/transfer";
-import { DEFAULT_WORMHOLE_RETRIES } from "../../models/wormhole/constants";
-import { getSignedVaaWithRetry } from "../../models/wormhole/guardiansRpc";
 import { useWallets } from "../crossEcosystem";
-import { useEvmConnections } from "../evm";
 import {
   useSolanaConnection,
   useSolanaWallet,
@@ -75,9 +75,10 @@ const getTransferredAmountsByTokenId = async (
 
 export const useFromSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { env } = useEnvironment();
   const config = useEnvironment(selectConfig);
   const { chains, wormhole } = config;
-  const evmConnections = useEvmConnections();
+  const queryClient = useQueryClient();
   const solanaConnection = useSolanaConnection();
   const wallets = useWallets();
   const { address: solanaWalletAddress } = useSolanaWallet();
@@ -261,7 +262,13 @@ export const useFromSolanaTransferMutation = () => {
           `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
         );
       }
-      const evmReceipt = await evmConnections[toEcosystem].getTxReceiptOrThrow(
+      const evmConnection = getOrCreateEvmConnection(
+        env,
+        toEcosystem,
+        evmChain,
+        queryClient,
+      );
+      const evmReceipt = await evmConnection.getTxReceiptOrThrow(
         redeemResponse,
       );
       const claimTokenOnEvmTxId = evmReceipt.transactionHash;

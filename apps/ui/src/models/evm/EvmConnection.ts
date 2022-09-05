@@ -5,6 +5,7 @@ import { ERC20__factory } from "@swim-io/evm-contracts";
 import { isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
+import type { QueryClient } from "react-query";
 
 import type { EvmSpec } from "../../config";
 import { isEcosystemEnabled } from "../../config";
@@ -349,3 +350,22 @@ export class EvmConnection {
     }
   }
 }
+
+export const getOrCreateEvmConnection = (
+  env: Env,
+  ecosystemId: EvmEcosystemId,
+  chainSpec: EvmSpec,
+  queryClient: QueryClient,
+): EvmConnection => {
+  const queryKey = [env, "evmConnection", ecosystemId];
+  const connection =
+    // used as context cache to avoid multiple instances
+    queryClient.getQueryData<EvmConnection>(queryKey) ??
+    (function createEvmConnection(): EvmConnection {
+      const evmConnection = new EvmConnection(env, chainSpec);
+      queryClient.setQueryData(queryKey, evmConnection);
+      return evmConnection;
+    })();
+
+  return connection;
+};

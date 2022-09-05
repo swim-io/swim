@@ -7,7 +7,7 @@ import type { EvmEcosystemId, EvmTx } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import type { ethers } from "ethers";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import {
@@ -22,11 +22,11 @@ import type { EvmConnection } from "../../models";
 import {
   Amount,
   generateUnlockSplTokenTxIds,
+  getOrCreateEvmConnection,
   lockEvmToken,
 } from "../../models";
 import { getFromEcosystemOfToSolanaTransfer } from "../../models/swim/transfer";
 import { useWallets } from "../crossEcosystem";
-import { useEvmConnections } from "../evm";
 import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
 
 const txResponseToTx = async (
@@ -48,9 +48,10 @@ const txResponseToTx = async (
 
 export const useToSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
+  const { env } = useEnvironment();
   const { chains, wormhole } = useEnvironment(selectConfig, shallow);
+  const queryClient = useQueryClient();
   const solanaConnection = useSolanaConnection();
-  const evmConnections = useEvmConnections();
   const wallets = useWallets();
   const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
   const solanaWormhole = chains[Protocol.Solana][0].wormhole;
@@ -69,6 +70,19 @@ export const useToSolanaTransferMutation = () => {
 
     const { interaction, toSolanaTransfers } =
       getInteractionState(interactionId);
+
+    const fromEcosystems = toSolanaTransfers.map((transfer) =>
+      getFromEcosystemOfToSolanaTransfer(transfer, interaction),
+    );
+    const evmChains = fromEcosystems.map((ecosystemId) =>
+      findOrThrow(
+        chains[Protocol.Evm],
+        ({ ecosystem }) => ecosystem === ecosystemId,
+      ),
+    );
+    const evmConnections = fromEcosystems.map((ecosystemId, i) =>
+      getOrCreateEvmConnection(env, ecosystemId, evmChains[i], queryClient),
+    );
 
     let transferTxIds: readonly string[] = [];
     for (const [index, transfer] of toSolanaTransfers.entries()) {
@@ -91,11 +105,6 @@ export const useToSolanaTransferMutation = () => {
       if (!evmWallet) {
         throw new Error("No EVM wallet");
       }
-      const evmConnection = evmConnections[fromEcosystem];
-      const evmChain = findOrThrow(
-        chains[Protocol.Evm],
-        ({ ecosystem }) => ecosystem === fromEcosystem,
-      );
       const fromTokenDetails = getTokenDetailsForEcosystem(
         token,
         fromEcosystem,
@@ -113,8 +122,8 @@ export const useToSolanaTransferMutation = () => {
         interactionId,
         token,
         amount: Amount.fromHuman(token, value),
-        evmChain,
-        evmConnection,
+        evmChain: evmChains[index],
+        evmConnection: evmConnections[index],
         fromTokenDetails,
         evmWallet,
         splTokenAccountAddress,
@@ -126,7 +135,7 @@ export const useToSolanaTransferMutation = () => {
           txResponseToTx(
             interactionId,
             fromEcosystem,
-            evmConnection,
+            evmConnections[index],
             txResponse,
           ),
         ),
@@ -154,24 +163,19 @@ export const useToSolanaTransferMutation = () => {
           transfer,
           interaction,
         );
-        const evmChain = findOrThrow(
-          chains[Protocol.Evm],
-          ({ ecosystem }) => ecosystem === fromEcosystem,
-        );
-        const evmConnection = evmConnections[fromEcosystem];
-        const transferResponse = await evmConnection.provider.getTransaction(
-          transferTxId,
-        );
+        const transferResponse = await evmConnections[
+          index
+        ].provider.getTransaction(transferTxId);
         const transferTx = await txResponseToTx(
           interactionId,
           fromEcosystem,
-          evmConnection,
+          evmConnections[index],
           transferResponse,
         );
 
         return parseSequenceFromLogEth(
           transferTx.receipt,
-          evmChain.wormhole.bridge,
+          evmChains[index].wormhole.bridge,
         );
       }),
     );

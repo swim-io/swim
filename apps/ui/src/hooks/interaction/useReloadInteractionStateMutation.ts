@@ -20,7 +20,7 @@ import {
   isSolanaPool,
   isUnlockEvmTx,
 } from "../../models";
-import { useEvmConnections, useEvmWallet } from "../evm";
+import { useEvmWallet } from "../evm";
 import {
   useSolanaConnection,
   useSolanaWallet,
@@ -33,7 +33,6 @@ export const useReloadInteractionStateMutation = () => {
   const solanaConnection = useSolanaConnection();
   const { address: solanaAddress } = useSolanaWallet();
   const { address: evmAddress } = useEvmWallet();
-  const evmConnections = useEvmConnections();
   const updateInteractionState = useInteractionState(
     (state) => state.updateInteractionState,
   );
@@ -83,7 +82,7 @@ export const useReloadInteractionStateMutation = () => {
       interactionId,
       queryClient,
       interaction.env,
-      evmConnections,
+      chains[Protocol.Evm],
       evmAddress,
       requiredEcosystems,
     );

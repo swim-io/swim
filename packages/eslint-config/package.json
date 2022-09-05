@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/eslint-config",
-  "version": "0.16.1",
+  "version": "0.16.2",
   "description": "Shared default ESLint configuration for Swim TS projects.",
   "exports": {
     ".": "./index.cjs",

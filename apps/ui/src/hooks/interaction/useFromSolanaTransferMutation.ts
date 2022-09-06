@@ -18,19 +18,19 @@ import { useEnvironment, useInteractionState } from "../../core/store";
 import type { InteractionState, Tx } from "../../models";
 import {
   Amount,
+  DEFAULT_WORMHOLE_RETRIES,
   evmAddressToWormhole,
   findTokenAccountForMint,
+  getSignedVaaWithRetry,
+  getToEcosystemOfFromSolanaTransfer,
   getTokensByPool,
   getTransferredAmounts,
   parseSequenceFromLogSolana,
   redeemOnEth,
   transferFromSolana,
 } from "../../models";
-import { getToEcosystemOfFromSolanaTransfer } from "../../models/swim/transfer";
-import { DEFAULT_WORMHOLE_RETRIES } from "../../models/wormhole/constants";
-import { getSignedVaaWithRetry } from "../../models/wormhole/guardiansRpc";
 import { useWallets } from "../crossEcosystem";
-import { useEvmConnections } from "../evm";
+import { useGetEvmConnection } from "../evm";
 import {
   useSolanaConnection,
   useSolanaWallet,
@@ -77,7 +77,7 @@ export const useFromSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
   const config = useEnvironment(selectConfig);
   const { chains, wormhole } = config;
-  const evmConnections = useEvmConnections();
+  const getEvmConnection = useGetEvmConnection();
   const solanaConnection = useSolanaConnection();
   const wallets = useWallets();
   const { address: solanaWalletAddress } = useSolanaWallet();
@@ -261,7 +261,8 @@ export const useFromSolanaTransferMutation = () => {
           `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
         );
       }
-      const evmReceipt = await evmConnections[toEcosystem].getTxReceiptOrThrow(
+      const evmConnection = getEvmConnection(toEcosystem);
+      const evmReceipt = await evmConnection.getTxReceiptOrThrow(
         redeemResponse,
       );
       const claimTokenOnEvmTxId = evmReceipt.transactionHash;

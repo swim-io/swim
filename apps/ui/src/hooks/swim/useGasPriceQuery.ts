@@ -12,15 +12,13 @@ export const useGasPriceQueries = (
   evmEcosystemIds: readonly EvmEcosystemId[],
 ): readonly UseQueryResult<Decimal, Error>[] => {
   const { env } = useEnvironment();
-  const connections = useEvmConnections();
+  const connections = useEvmConnections(evmEcosystemIds);
 
   return useQueries(
-    evmEcosystemIds.map((evmEcosystemId) => ({
+    evmEcosystemIds.map((evmEcosystemId, i) => ({
       queryKey: ["gasPrice", env, evmEcosystemId],
       queryFn: async () => {
-        const gasPriceInWei = await connections[
-          evmEcosystemId
-        ].provider.getGasPrice();
+        const gasPriceInWei = await connections[i].provider.getGasPrice();
         const gasPriceInNativeCurrency = new Decimal(
           ethersUtils.formatUnits(gasPriceInWei),
         );

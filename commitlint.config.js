@@ -7,7 +7,11 @@ const dirPaths = fg.sync(packageJson.workspaces, {
   onlyFiles: false,
   markDirectories: true,
 });
-const scopes = dirPaths.map((dirPath) => path.basename(dirPath));
+// manually adding "deps" as scope for dependabot PRs
+const scopes = [
+  ...dirPaths.map((dirPath) => path.basename(dirPath)),
+  "deps",
+];
 
 module.exports = {
   extends: ["@commitlint/config-conventional"],

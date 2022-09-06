@@ -24,7 +24,7 @@ jobs:
       UPLOADS_PATH: /tmp/uploads
       RELEASES_DIRECTORY_NAME: __releases
       TAR_FILENAME: ui-accumulated-build.tar.gz
-      NUMBER_OF_RELEASES_TO_KEEP: 3
+      NUMBER_OF_RELEASES_TO_KEEP: 50
       ACTIONS_STEP_DEBUG: true
 
       # rclone env config: https://rclone.org/docs/#config-file

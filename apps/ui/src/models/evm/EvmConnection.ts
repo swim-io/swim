@@ -3,18 +3,18 @@ import { isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
 
+import type { EtherscanFamilyProvider } from "./EtherscanFamilyProvider";
 import type { LocalProvider } from "./LocalProvider";
 import type { MoralisProvider } from "./MoralisProvider";
 import type { PolkadotProvider } from "./PolkadotProvider";
 
-type EtherscanProvider = ethers.providers.EtherscanProvider;
 type TransactionReceipt = ethers.providers.TransactionReceipt;
 type TransactionResponse = ethers.providers.TransactionResponse;
 
 export type Provider =
-  | MoralisProvider
-  | EtherscanProvider
+  | EtherscanFamilyProvider
   | LocalProvider
+  | MoralisProvider
   | PolkadotProvider;
 
 export class EvmConnection {

@@ -152,30 +152,25 @@ export class EvmWeb3WalletAdapter
         (switchError as Record<string, unknown>).code ===
         METAMASK_unrecognizedChainId
       ) {
-        const evmEcosystemConfig = Object.values(EVM_ECOSYSTEMS).find(
-          (ecosystemConfig) =>
-            [...ecosystemConfig.chains].some(
-              ([, chainConfig]) => chainConfig.chainId === chainId,
-            ),
-        );
-        if (!evmEcosystemConfig) {
+        const configs = Object.values(EVM_ECOSYSTEMS)
+          .flatMap(({ chains, ...ecosystemConfig }) =>
+            [...chains].map(([, chainConfig]) => ({
+              ecosystemConfig,
+              chainConfig,
+            })),
+          )
+          .find(({ chainConfig }) => chainConfig.chainId === chainId);
+        if (!configs) {
           throw new Error("No EVM ecosystem config found for chain ID");
-        }
-
-        const evmChainConfig = [...evmEcosystemConfig.chains]
-          .map(([, chainConfig]) => chainConfig)
-          .find((chainConfig) => chainConfig.chainId === chainId);
-        if (!evmChainConfig) {
-          throw new Error("No EVM chain config found for chain ID");
         }
 
         // this also asks to switch to that chain afterwards
         await this.walletProvider.send("wallet_addEthereumChain", [
           {
             chainId: hexValue(chainId),
-            chainName: evmChainConfig.name,
-            nativeCurrency: evmEcosystemConfig.gasToken,
-            rpcUrls: evmChainConfig.publicRpcUrls,
+            chainName: configs.chainConfig.name,
+            nativeCurrency: configs.ecosystemConfig.gasToken,
+            rpcUrls: configs.chainConfig.publicRpcUrls,
           },
         ]);
       } else if (

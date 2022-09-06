@@ -7,13 +7,13 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 import { createChainId } from "./utils/chains";
 
 export const fantomChainId = createChainId({
-  mainnet: 250,
-  testnet: 4002,
+  [Env.Mainnet]: 250,
+  [Env.Devnet]: 4002,
 });
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
   name: "Fantom Mainnet",
-  chainId: fantomChainId.mainnet,
+  chainId: fantomChainId[Env.Mainnet],
   wormhole: {
     bridge: "0x126783A6Cb203a3E35344528B26ca3a0489a1485",
     portal: "0x7C9Fc5741288cDFdD83CeB07f3ea7e22618D79D2",
@@ -25,7 +25,7 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
 
 const devnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
   name: "Fantom Testnet",
-  chainId: fantomChainId.testnet,
+  chainId: fantomChainId[Env.Devnet],
   wormhole: {
     bridge: "0x1BB3B4119b7BA9dfad76B0545fb3F531383c3bB7",
     portal: "0x599CEa2204B4FaECd584Ab1F2b6aCA137a0afbE8",

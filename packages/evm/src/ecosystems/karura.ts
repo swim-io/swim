@@ -7,13 +7,13 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 import { createChainId } from "./utils/chains";
 
 export const karuraChainId = createChainId({
-  mainnet: 686,
-  testnet: 596,
+  [Env.Mainnet]: 686,
+  [Env.Devnet]: 596,
 });
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Karura> = {
   name: "Karura Mainnet",
-  chainId: karuraChainId.mainnet,
+  chainId: karuraChainId[Env.Mainnet],
   wormhole: {
     bridge: "0xa321448d90d4e5b0A732867c18eA198e75CAC48E",
     portal: "0xae9d7fe007b3327AA64A32824Aaac52C42a6E624",
@@ -25,7 +25,7 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Karura> = {
 
 const devnet: EvmChainConfig<EvmEcosystemId.Karura> = {
   name: "Karura Testnet",
-  chainId: karuraChainId.testnet,
+  chainId: karuraChainId[Env.Devnet],
   wormhole: {
     bridge: "0xE4eacc10990ba3308DdCC72d985f2a27D20c7d03",
     portal: "0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37",

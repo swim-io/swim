@@ -7,13 +7,13 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 import { createChainId } from "./utils/chains";
 
 export const auroraChainId = createChainId({
-  mainnet: 1313161554,
-  testnet: 1313161555,
+  [Env.Mainnet]: 1313161554,
+  [Env.Devnet]: 1313161555,
 });
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
   name: "Aurora Mainnet",
-  chainId: auroraChainId.mainnet,
+  chainId: auroraChainId[Env.Mainnet],
   wormhole: {
     bridge: "0xa321448d90d4e5b0A732867c18eA198e75CAC48E",
     portal: "0x51b5123a7b0F9b2bA265f9c4C8de7D78D52f510F",
@@ -25,7 +25,7 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
 
 const devnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
   name: "Aurora Testnet",
-  chainId: auroraChainId.testnet,
+  chainId: auroraChainId[Env.Devnet],
   wormhole: {
     bridge: "0xBd07292de7b505a4E803CEe286184f7Acf908F5e",
     portal: "0xD05eD3ad637b890D68a854d607eEAF11aF456fba",

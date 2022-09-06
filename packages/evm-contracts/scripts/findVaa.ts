@@ -41,7 +41,7 @@ const isRpcError = (error: unknown): error is RpcError => {
 
 (async () => {
   //const sequence = "1680"; // the first one that read from guardian network
-  const sequence = "1827";
+  const sequence = "1844";
   console.log("starting to fetch vaa sequence " + sequence);
   const vaa = await getSignedVAAWithRetry(
     WORMHOLE_RPC_HOSTS,

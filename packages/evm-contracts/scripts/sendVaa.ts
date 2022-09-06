@@ -12,12 +12,10 @@ import { BigNumber, formatFixed, parseFixed } from "@ethersproject/bignumber";
 import { NodeHttpTransport } from "@improbable-eng/grpc-web-node-http-transport";
 import type { Contract } from "ethers";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { deployToken, deploySwimFactory, getTokenAddress } from "../src/deploy";
+import { deployToken, deploySwimFactory, getTokenAddress, getProxy } from "../src/deploy";
 import { ethers } from "hardhat";
-import { DEFAULTS, LOCAL } from "../src/config";
+import { DEFAULTS, LOCAL, CHAINS } from "../src/config";
 
-//const ROUTING_ADDRESS = "0x591bf69E5dAa731e26a87fe0C5b394263A8c3375";
-//const POOL_ADDRESS = "0x37FFb2ee5A3ab1785bD5179243EDD27dDeADF823";
 const ROUTING_ADDRESS = "0xa33E4d9624608c468FE5466dd6CC39cE1Da4FF78";
 const POOL_ADDRESS = "0xe167b44578EAe235E0CF063099989A2c7aBA06Cb";
 const USDC_ADDRESS_GOERLI = "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6";
@@ -31,10 +29,6 @@ const WORMHOLE_RPC_HOSTS = [
   "https://wormhole-v2-testnet-api.certus.one"
 ];
 
-// async function registerToken() {
-//   const signers = await ethers.getSigners();
-//   const routing = await ethers.getContractAt("Routing", ROUTING_ADDRESS);
-// }
 
 // for testnet guardians
 async function sendVaa() {
@@ -52,32 +46,15 @@ async function sendVaa() {
   const theSigner = signers[0];
   console.log("signer address", await theSigner.getAddress());
   console.log("signer balance", await theSigner.getBalance());
-  const usdcBalance = await usdc.balanceOf(theSigner.address);
-  console.log("usdc balance", usdcBalance);
 
-  //const pool = await ethers.getContractAt("Pool", POOL_ADDRESS);
-  //console.log(pool);
-  //console.log("pool balances");
-  //console.log(JSON.stringify(await pool.getState(), null, 2));
+  console.log("balance before")
+  await printBalances(theSigner.address);
 
-  const inputAmount = 10;
+  const inputAmount = 1e6;
 
   console.log("approve");
   await (await usdc.connect(theSigner).approve(ROUTING_ADDRESS, inputAmount)).wait();
   console.log("approve complete");
-
-  console.log("estimateGas", await routing.estimateGas["propellerOut(address,uint256,uint16,bytes32,bool,uint16)"](
-   usdc.address, // fromToken
-   inputAmount, // inputAmmount
-   4, //wormhole chain id (binance chain id)
-   "0x" + "00".repeat(12) + signers[0].address.substring(2), // toOwner
-   false, // gasKickStart
-   3, // toToken tokenNumber in swim
-//     {
-//       gasLimit: ethers.BigNumber.from("2000000"),
-//       gasPrice: '200000000000'
-//     }
-  ));
 
   console.log("propellerOut");
   const txnResponse = await routing.connect(signers[0])["propellerOut(address,uint256,uint16,bytes32,bool,uint16)"](
@@ -93,18 +70,32 @@ async function sendVaa() {
 //     }
   );
   console.log("propellerOut done");
-  //console.log(txnResponse);
 
   // fetch sequence so that I can look up VAA
   const txnReceipt = await txnResponse.wait(6); //wait(6)
-  console.log("txnReceipt");
-  //console.log(txnReceipt);
 
   const sequence = parseSequenceFromLogEth(txnReceipt, WORMHOLE_CORE_BRIDGE_ADDRESS_TESTNET_GOERLI);
   console.log("sequence");
   console.log(sequence);
 
+  console.log("balance after");
+  await printBalances(theSigner.address);
   console.log("done");
+}
+
+async function printBalances(address: string) {
+  const chainId = (await ethers.provider.detectNetwork()).chainId;
+  const chainConfig = CHAINS[chainId];
+  if (!chainConfig) throw Error(`Network with chainId ${chainId} not implemented yet`);
+
+  const pool = await getProxy("Pool", chainConfig.pools![0].salt);
+  const state = await pool.getState();
+  const tokenAddresses = state.balances.map((struct: any[]) => struct[0]) as string[];
+  console.log("token balances of address:", address);
+  for (const token of tokenAddresses) {
+    const ct = await ethers.getContractAt("ERC20", token);
+    console.log(token, await ct.balanceOf(address));
+  }
 }
 
 sendVaa();

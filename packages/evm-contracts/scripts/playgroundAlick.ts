@@ -148,113 +148,25 @@ async function getWrappedAsset() {
   console.log("Wrapped token created at: ", wrappedTokenAddress);
 }
 
-async function sendVaaLocal() {
+async function propellerInDebug() {
   const signers = await ethers.getSigners();
   const routing = await ethers.getContractAt("Routing", ROUTING_ADDRESS);
 
-  console.log("owner");
-  console.log(await routing.owner());
+  const vaaBytes = "0x" + "01000000000100d8162e30db6285c83738e2569c6c8d260d4fb7e9d7d4e725476e5b32df09ce373e86c89ac16434a6d96794f5e8bcd971e15b4debefa8e7ce46f3c9a871a617ce01631269e40000002c0002000000000000000000000000f890982f9310df57d00f659cf4fd87e65aded8d700000000000007310f030000000000000000000000000000000000000000000000000000000000000064296b21c9a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe267190001000000000000000000000000a33e4d9624608c468fe5466dd6cc39ce1da4ff780004000000000000000000000000a33e4d9624608c468fe5466dd6cc39ce1da4ff7801000000000000000000000000866450d3256310d51ff3aac388608e30d03d784100030100";
 
-  const swimUsdAddress = await routing.swimUsdAddress();
-  console.log("swimUsdAddress", swimUsdAddress);
-  const swimUsd = await ethers.getContractAt("ERC20Token", swimUsdAddress);
-
-  const theSigner = signers[0];
-  const balance = await swimUsd.balanceOf(theSigner.address);
-  console.log(theSigner.address);
-  console.log(balance);
-
-  const pool = await ethers.getContractAt("Pool", POOL_ADDRESS);
-
-  const inputAmount = 10;
-
-  await swimUsd.connect(signers[0]).approve(ROUTING_ADDRESS, inputAmount);
-
-  console.log("swapAndTransfer");
-  const txnResponse = await routing.connect(signers[0]).swapAndTransfer(
-    swimUsdAddress,
-    inputAmount,
-    0, //slippage
-    4, //what chain ID do i put here?
-    "0x" + "00".repeat(12) + signers[0].address.substring(2),
-    "0x" + "00".repeat(16),
-    {
-      gasLimit: ethers.BigNumber.from("2000000"),
-    }
-  );
-  console.log("swapAndTransfer done");
-  //console.log(txnResponse);
-
-  // fetch sequence so that I can look up VAA
-  const txnReceipt = await txnResponse.wait(6); //wait(6)
-  console.log("txnReceipt");
-  //console.log(txnReceipt);
-
-  const sequence = parseSequenceFromLogEth(txnReceipt, WORMHOLE_CORE_BRIDGE_LOCAL);
-  console.log("sequence");
-  console.log(sequence);
-
-  console.log("done");
-
-}
-
-// for testnet guardians
-async function sendVaa() {
-  const signers = await ethers.getSigners();
-  const routing = await ethers.getContractAt("Routing", ROUTING_ADDRESS);
-
-  console.log("owner");
-  console.log(await routing.owner());
-
-  const swimUsdAddress = await routing.swimUsdAddress();
-  const swimUsd = await ethers.getContractAt("ERC20", swimUsdAddress);
-  console.log("swimUsdAddress", swimUsdAddress);
-
-  const usdc = await ethers.getContractAt("ERC20Token", USDC_ADDRESS_GOERLI);
-
-  const theSigner = signers[0];
-  const balance = await usdc.balanceOf(theSigner.address);
-  console.log(theSigner.address);
-  console.log(balance);
-
-  const pool = await ethers.getContractAt("Pool", POOL_ADDRESS);
-  //console.log(pool);
-  //console.log("pool balances");
-  //console.log(JSON.stringify(await pool.getState(), null, 2));
-
-  const inputAmount = 10;
-
-  await usdc.connect(signers[0]).approve(ROUTING_ADDRESS, inputAmount);
-
-  console.log("swapAndTransfer");
-  const txnResponse = await routing.connect(signers[0]).swapAndTransfer(
-    usdc.address,
-    inputAmount,
-    0, //slippage
-    4, //binance chain id
-    "0x" + "00".repeat(12) + signers[0].address.substring(2),
-    "0x" + "00".repeat(16),
+  const txnResponse = await routing.propellerIn(
+    vaaBytes,
     {
       gasLimit: ethers.BigNumber.from("2000000"),
       gasPrice: '200000000000'
     }
   );
-  console.log("swapAndTransfer done");
   //console.log(txnResponse);
-
-  // fetch sequence so that I can look up VAA
   const txnReceipt = await txnResponse.wait(6); //wait(6)
-  console.log("txnReceipt");
-  //console.log(txnReceipt);
-
-  const sequence = parseSequenceFromLogEth(txnReceipt, WORMHOLE_CORE_BRIDGE_ADDRESS_TESTNET_GOERLI);
-  console.log("sequence");
-  console.log(sequence);
-
-  console.log("done");
+  console.log(txnReceipt);
 }
 
 //attestSwimUsd();
 //createWrappedSwimUsd();
 //getWrappedAsset();
-sendVaaLocal();
+propellerInDebug();

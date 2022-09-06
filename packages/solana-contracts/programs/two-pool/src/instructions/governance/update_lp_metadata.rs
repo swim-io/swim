@@ -3,8 +3,8 @@ use {
     anchor_lang::prelude::*,
     anchor_spl::{
         metadata::{
-            create_metadata_accounts_v2, update_metadata_accounts_v2, CreateMetadataAccountsV2,
-            Metadata, UpdateMetadataAccountsV2,
+            create_metadata_accounts_v2, update_metadata_accounts_v2, CreateMetadataAccountsV2, Metadata,
+            UpdateMetadataAccountsV2,
         },
         token::Mint,
     },
@@ -56,16 +56,11 @@ pub struct UpdateLpMetadataParams {
     pub is_mutable: Option<bool>,
 }
 
-pub fn handle_update_lp_metadata(
-    ctx: Context<UpdateLpMetadata>,
-    params: UpdateLpMetadataParams,
-) -> Result<()> {
+pub fn handle_update_lp_metadata(ctx: Context<UpdateLpMetadata>, params: UpdateLpMetadataParams) -> Result<()> {
     update_metadata_accounts_v2(
         CpiContext::new_with_signer(
             ctx.accounts.mpl_token_metadata.to_account_info(),
-            ctx.accounts
-                .update_metadata_accounts
-                .to_update_metadata_accounts_v2(),
+            ctx.accounts.update_metadata_accounts.to_update_metadata_accounts_v2(),
             &[&gen_pool_signer_seeds!(ctx.accounts.common_governance.pool)[..]],
         ),
         params.new_update_authority,

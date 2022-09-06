@@ -1,13 +1,9 @@
 use {
-    crate::Propeller,
+    crate::{constants::SWAP_EXACT_INPUT_OUTPUT_TOKEN_INDEX, is_transfer_amount_sufficient, Propeller, PropellerError},
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::token::{Mint, Token, TokenAccount},
-    two_pool::{
-        gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT,
-    },
+    two_pool::{gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT},
 };
-use crate::constants::SWAP_EXACT_INPUT_OUTPUT_TOKEN_INDEX;
-use crate::{is_transfer_amount_sufficient, PropellerError};
 
 #[derive(Accounts)]
 pub struct SwapExactInput<'info> {
@@ -117,11 +113,11 @@ pub fn handle_swap_exact_input(
     invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     anchor_lang::prelude::msg!("swap_exact_input return_val: {:?}", return_val);
     is_transfer_amount_sufficient(
-      &ctx.accounts.propeller,
-      &ctx.accounts.token_bridge_mint,
-      propeller_enabled,
-      target_chain,
-      return_val
+        &ctx.accounts.propeller,
+        &ctx.accounts.token_bridge_mint,
+        propeller_enabled,
+        target_chain,
+        return_val,
     )?;
     Ok(return_val)
 }

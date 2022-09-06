@@ -1,7 +1,7 @@
 use {
     crate::{
-        array_equalize, error::*, gen_pool_signer_seeds, get_current_ts, invariant::Invariant,
-        result_from_equalized, to_equalized, TwoPool, TOKEN_COUNT,
+        array_equalize, error::*, gen_pool_signer_seeds, get_current_ts, invariant::Invariant, result_from_equalized,
+        to_equalized, TwoPool, TOKEN_COUNT,
     },
     anchor_lang::prelude::*,
     anchor_spl::{
@@ -127,19 +127,12 @@ pub fn handle_remove_exact_output(
         exact_output_amounts.iter().any(|amount| *amount > 0),
         PoolError::InvalidRemoveExactOutputParameters
     );
-    require_gt!(
-        maximum_burn_amount,
-        0u64,
-        PoolError::InvalidRemoveExactOutputParameters
-    );
+    require_gt!(maximum_burn_amount, 0u64, PoolError::InvalidRemoveExactOutputParameters);
     let are_output_amounts_valid = exact_output_amounts
         .iter()
         .zip(pool_balances.iter())
         .all(|(output_amount, pool_balance)| *output_amount < *pool_balance);
-    require!(
-        are_output_amounts_valid,
-        PoolError::InvalidRemoveExactOutputParameters
-    );
+    require!(are_output_amounts_valid, PoolError::InvalidRemoveExactOutputParameters);
 
     let pool = &ctx.accounts.pool;
     let pool_token_account_0 = &ctx.accounts.pool_token_account_0;
@@ -155,16 +148,15 @@ pub fn handle_remove_exact_output(
 
     let current_ts = get_current_ts()?;
 
-    let (burn_amount, governance_mint_amount, latest_depth) =
-        Invariant::<TOKEN_COUNT>::remove_exact_output(
-            &array_equalize(exact_output_amounts, pool.token_decimal_equalizers),
-            &array_equalize(pool_balances, pool.token_decimal_equalizers),
-            pool.amp_factor.get(current_ts),
-            pool.lp_fee.get(),
-            pool.governance_fee.get(),
-            to_equalized(lp_total_supply, pool.lp_decimal_equalizer),
-            pool.previous_depth.into(),
-        )?;
+    let (burn_amount, governance_mint_amount, latest_depth) = Invariant::<TOKEN_COUNT>::remove_exact_output(
+        &array_equalize(exact_output_amounts, pool.token_decimal_equalizers),
+        &array_equalize(pool_balances, pool.token_decimal_equalizers),
+        pool.amp_factor.get(current_ts),
+        pool.lp_fee.get(),
+        pool.governance_fee.get(),
+        to_equalized(lp_total_supply, pool.lp_decimal_equalizer),
+        pool.previous_depth.into(),
+    )?;
     let (burn_amount, governance_mint_amount, latest_depth) = result_from_equalized(
         burn_amount,
         pool.lp_decimal_equalizer,
@@ -174,16 +166,9 @@ pub fn handle_remove_exact_output(
     );
 
     let maximum_burn_amount = remove_exact_output_params.maximum_burn_amount;
-    require_gte!(
-        maximum_burn_amount,
-        burn_amount,
-        PoolError::OutsideSpecifiedLimits
-    );
+    require_gte!(maximum_burn_amount, burn_amount, PoolError::OutsideSpecifiedLimits);
 
-    let mut token_accounts = zip(
-        user_token_accounts.into_iter(),
-        pool_token_accounts.into_iter(),
-    );
+    let mut token_accounts = zip(user_token_accounts.into_iter(), pool_token_accounts.into_iter());
     token::burn(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),

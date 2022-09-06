@@ -1,12 +1,9 @@
 use {
-    crate::Propeller,
+    crate::{is_transfer_amount_sufficient, Propeller},
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::token::{Mint, Token, TokenAccount},
-    two_pool::{
-        gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT,
-    },
+    two_pool::{gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT},
 };
-use crate::is_transfer_amount_sufficient;
 
 #[derive(Accounts)]
 pub struct Add<'info> {
@@ -108,11 +105,11 @@ pub fn handle_add(
     invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     anchor_lang::prelude::msg!("add return_val: {:?}", return_val);
     is_transfer_amount_sufficient(
-      &ctx.accounts.propeller,
-      &ctx.accounts.lp_mint,
-      propeller_enabled,
-      target_chain,
-      return_val
+        &ctx.accounts.propeller,
+        &ctx.accounts.lp_mint,
+        propeller_enabled,
+        target_chain,
+        return_val,
     )?;
     Ok(return_val)
 }

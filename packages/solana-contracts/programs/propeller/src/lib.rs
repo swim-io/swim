@@ -21,8 +21,8 @@ use constants::TOKEN_COUNT;
 use state::{Propeller, PropellerSender};
 use {
     crate::two_pool_cpi::{
-        add::*, remove_exact_burn::*, remove_exact_output::*, remove_uniform::*,
-        swap_exact_input::*, swap_exact_output::*,
+        add::*, remove_exact_burn::*, remove_exact_output::*, remove_uniform::*, swap_exact_input::*,
+        swap_exact_output::*,
     },
     anchor_lang::{prelude::*, solana_program},
     anchor_spl::token::{Mint, Token, TokenAccount},
@@ -93,7 +93,14 @@ pub mod propeller {
         propeller_enabled: bool,
         target_chain: u16,
     ) -> Result<u64> {
-      handle_add(ctx, input_amounts, minimum_mint_amount, memo.as_slice(), propeller_enabled, target_chain)
+        handle_add(
+            ctx,
+            input_amounts,
+            minimum_mint_amount,
+            memo.as_slice(),
+            propeller_enabled,
+            target_chain,
+        )
     }
 
     pub fn swap_exact_input(
@@ -111,7 +118,7 @@ pub mod propeller {
             minimum_output_amount,
             memo.as_slice(),
             propeller_enabled,
-            target_chain
+            target_chain,
         )
     }
 
@@ -131,7 +138,7 @@ pub mod propeller {
             exact_output_amount,
             memo.as_slice(),
             propeller_enabled,
-            target_chain
+            target_chain,
         )
     }
 
@@ -141,12 +148,7 @@ pub mod propeller {
         minimum_output_amounts: [u64; TOKEN_COUNT],
         memo: Vec<u8>,
     ) -> Result<Vec<u64>> {
-        handle_remove_uniform(
-            ctx,
-            exact_burn_amount,
-            minimum_output_amounts,
-            memo.as_slice(),
-        )
+        handle_remove_uniform(ctx, exact_burn_amount, minimum_output_amounts, memo.as_slice())
     }
 
     pub fn remove_exact_burn(

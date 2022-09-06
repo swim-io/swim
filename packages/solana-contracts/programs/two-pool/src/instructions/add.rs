@@ -1,7 +1,5 @@
 use {
-    crate::{
-        decimal::U128, error::*, gen_pool_signer_seeds, invariant::Invariant, TwoPool, TOKEN_COUNT,
-    },
+    crate::{decimal::U128, error::*, gen_pool_signer_seeds, invariant::Invariant, TwoPool, TOKEN_COUNT},
     anchor_lang::{
         prelude::*,
         solana_program::{
@@ -139,23 +137,13 @@ pub fn handle_add(
     //initial add to pool must add all tokens
     if lp_total_supply == 0 {
         for i in 0..TOKEN_COUNT {
-            require_gt!(
-                input_amounts[i],
-                0u64,
-                PoolError::InitialAddRequiresAllTokens
-            );
+            require_gt!(input_amounts[i], 0u64, PoolError::InitialAddRequiresAllTokens);
         }
     }
 
     let pool = &ctx.accounts.pool;
-    let user_token_accounts = [
-        &ctx.accounts.user_token_account_0,
-        &ctx.accounts.user_token_account_1,
-    ];
-    let pool_token_accounts = [
-        &ctx.accounts.pool_token_account_0,
-        &ctx.accounts.pool_token_account_1,
-    ];
+    let user_token_accounts = [&ctx.accounts.user_token_account_0, &ctx.accounts.user_token_account_1];
+    let pool_token_accounts = [&ctx.accounts.pool_token_account_0, &ctx.accounts.pool_token_account_1];
     // let pool_balances = pool_token_accounts
     //   .iter()
     //   .map(|account| account.amount)
@@ -184,15 +172,8 @@ pub fn handle_add(
         pool.lp_decimal_equalizer,
         latest_depth,
     );
-    require_gte!(
-        mint_amount,
-        minimum_mint_amount,
-        PoolError::OutsideSpecifiedLimits
-    );
-    let mut token_accounts = zip(
-        user_token_accounts.into_iter(),
-        pool_token_accounts.into_iter(),
-    );
+    require_gte!(mint_amount, minimum_mint_amount, PoolError::OutsideSpecifiedLimits);
+    let mut token_accounts = zip(user_token_accounts.into_iter(), pool_token_accounts.into_iter());
     for i in 0..TOKEN_COUNT {
         let (user_token_account, pool_token_account) = token_accounts.next().unwrap();
         if input_amounts[i] > 0 {
@@ -271,10 +252,7 @@ pub fn from_equalized(value: U128, equalizer: u8) -> u64 {
     }
 }
 
-pub fn array_equalize(
-    amounts: [u64; TOKEN_COUNT],
-    equalizers: [u8; TOKEN_COUNT],
-) -> [U128; TOKEN_COUNT] {
+pub fn array_equalize(amounts: [u64; TOKEN_COUNT], equalizers: [u8; TOKEN_COUNT]) -> [U128; TOKEN_COUNT] {
     amounts
         .iter()
         .zip(equalizers.iter())

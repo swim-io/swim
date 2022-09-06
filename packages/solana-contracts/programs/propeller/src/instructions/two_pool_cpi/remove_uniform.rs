@@ -2,9 +2,7 @@ use {
     crate::Propeller,
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::token::{Mint, Token, TokenAccount},
-    two_pool::{
-        gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT,
-    },
+    two_pool::{gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT},
 };
 
 #[derive(Accounts)]

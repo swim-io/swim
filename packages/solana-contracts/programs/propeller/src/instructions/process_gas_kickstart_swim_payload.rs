@@ -6,8 +6,8 @@ use {
         env::*,
         error::*,
         get_message_data, get_transfer_with_payload_from_message_account, hash_vaa, ClaimData,
-        PayloadTransferWithPayload, PostVAAData, PostedVAAData, Propeller, PropellerMessage,
-        RawSwimPayload, TOKEN_COUNT,
+        PayloadTransferWithPayload, PostVAAData, PostedVAAData, Propeller, PropellerMessage, RawSwimPayload,
+        TOKEN_COUNT,
     },
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::{
@@ -215,14 +215,8 @@ impl<'info> ProcessGasKickstartSwimPayload<'info> {
     pub fn accounts(ctx: &Context<ProcessGasKickstartSwimPayload>) -> Result<()> {
         // verify claim
         // verify message
-        require_keys_eq!(
-            ctx.accounts.propeller_message.claim.key(),
-            ctx.accounts.claim.key()
-        );
-        require_keys_eq!(
-            ctx.accounts.message.key(),
-            ctx.accounts.propeller_message.wh_message,
-        );
+        require_keys_eq!(ctx.accounts.propeller_message.claim.key(), ctx.accounts.claim.key());
+        require_keys_eq!(ctx.accounts.message.key(), ctx.accounts.propeller_message.wh_message,);
 
         // verify using correct pool for pool_ix
         require_keys_eq!(ctx.accounts.pool.key(), ctx.accounts.token_id_map.pool);
@@ -369,10 +363,7 @@ pub fn handle_process_gas_kickstart_swim_payload(
                     to: ctx.accounts.fee_recipient.to_account_info(),
                     authority: ctx.accounts.redeemer.to_account_info(),
                 },
-                &[&[
-                    &b"redeemer".as_ref(),
-                    &[ctx.accounts.propeller.redeemer_bump],
-                ]],
+                &[&[&b"redeemer".as_ref(), &[ctx.accounts.propeller.redeemer_bump]]],
             ),
             ctx.accounts.propeller.propeller_fee,
         )?;
@@ -465,10 +456,7 @@ pub fn handle_process_gas_kickstart_swim_payload(
                     delegate: ctx.accounts.user_transfer_authority.to_account_info(),
                     authority: ctx.accounts.redeemer.to_account_info(),
                 },
-                &[&[
-                    &b"redeemer".as_ref(),
-                    &[ctx.accounts.propeller.redeemer_bump],
-                ]],
+                &[&[&b"redeemer".as_ref(), &[ctx.accounts.propeller.redeemer_bump]]],
             ),
             transfer_amount,
         )?;
@@ -502,22 +490,14 @@ pub fn handle_process_gas_kickstart_swim_payload(
                         pool_token_account_1: ctx.accounts.pool_token_account_1.to_account_info(),
                         lp_mint: ctx.accounts.lp_mint.to_account_info(),
                         governance_fee: ctx.accounts.governance_fee.to_account_info(),
-                        user_transfer_authority: ctx
-                            .accounts
-                            .user_transfer_authority
-                            .to_account_info(),
+                        user_transfer_authority: ctx.accounts.user_transfer_authority.to_account_info(),
                         user_token_account_0: ctx.accounts.user_token_account_0.to_account_info(),
                         user_token_account_1: ctx.accounts.user_token_account_1.to_account_info(),
                         user_lp_token_account: ctx.accounts.redeemer_escrow.to_account_info(),
                         token_program: ctx.accounts.token_program.to_account_info(),
                     },
                 );
-                two_pool::cpi::remove_exact_burn(
-                    cpi_ctx,
-                    transfer_amount,
-                    pool_token_index,
-                    min_output_amount,
-                )?;
+                two_pool::cpi::remove_exact_burn(cpi_ctx, transfer_amount, pool_token_index, min_output_amount)?;
             }
             PoolInstruction::SwapExactInput => {
                 // metapool
@@ -541,21 +521,13 @@ pub fn handle_process_gas_kickstart_swim_payload(
                         pool_token_account_1: ctx.accounts.pool_token_account_1.to_account_info(),
                         lp_mint: ctx.accounts.lp_mint.to_account_info(),
                         governance_fee: ctx.accounts.governance_fee.to_account_info(),
-                        user_transfer_authority: ctx
-                            .accounts
-                            .user_transfer_authority
-                            .to_account_info(),
+                        user_transfer_authority: ctx.accounts.user_transfer_authority.to_account_info(),
                         user_token_account_0: ctx.accounts.redeemer_escrow.to_account_info(),
                         user_token_account_1: ctx.accounts.user_token_account_1.to_account_info(),
                         token_program: ctx.accounts.token_program.to_account_info(),
                     },
                 );
-                two_pool::cpi::swap_exact_input(
-                    cpi_ctx,
-                    [transfer_amount, 0u64],
-                    pool_token_index,
-                    min_output_amount,
-                )?;
+                two_pool::cpi::swap_exact_input(cpi_ctx, [transfer_amount, 0u64], pool_token_index, min_output_amount)?;
                 // token::revoke(CpiContext::new(
                 //     ctx.accounts.token_program.to_account_info(),
                 //     token::Revoke {
@@ -573,10 +545,7 @@ pub fn handle_process_gas_kickstart_swim_payload(
                 source: ctx.accounts.redeemer_escrow.to_account_info(),
                 authority: ctx.accounts.redeemer.to_account_info(),
             },
-            &[&[
-                &b"redeemer".as_ref(),
-                &[ctx.accounts.propeller.redeemer_bump],
-            ]],
+            &[&[&b"redeemer".as_ref(), &[ctx.accounts.propeller.redeemer_bump]]],
         ))?;
     }
 
@@ -611,9 +580,7 @@ https://github.com/swim-io/swim/blob/025bf65905c15ea9fc1b69c32e6a8ba67862c707/pa
   }
 
  */
-fn get_marginal_prices(
-    ctx: &Context<ProcessGasKickstartSwimPayload>,
-) -> Result<[u64; TOKEN_COUNT]> {
+fn get_marginal_prices(ctx: &Context<ProcessGasKickstartSwimPayload>) -> Result<[u64; TOKEN_COUNT]> {
     //TODO: check return data type
     Ok([1u64; TOKEN_COUNT])
 }

@@ -1,7 +1,7 @@
 use {
     crate::{
-        array_equalize, common::create_array, decimal::U128, error::*, invariant::Invariant,
-        to_equalized, AmpFactor, DecimalU64Anchor, TwoPool, TOKEN_COUNT,
+        array_equalize, common::create_array, decimal::U128, error::*, invariant::Invariant, to_equalized, AmpFactor,
+        DecimalU64Anchor, TwoPool, TOKEN_COUNT,
     },
     anchor_lang::prelude::*,
     anchor_spl::{
@@ -61,14 +61,9 @@ impl<'info> MarginalPrices<'info> {
     }
 }
 
-pub fn handle_marginal_prices(
-    ctx: Context<MarginalPrices>,
-) -> Result<[DecimalU64Anchor; TOKEN_COUNT]> {
+pub fn handle_marginal_prices(ctx: Context<MarginalPrices>) -> Result<[DecimalU64Anchor; TOKEN_COUNT]> {
     let pool = &ctx.accounts.pool;
-    let pool_token_accounts = [
-        &ctx.accounts.pool_token_account_0,
-        &ctx.accounts.pool_token_account_1,
-    ];
+    let pool_token_accounts = [&ctx.accounts.pool_token_account_0, &ctx.accounts.pool_token_account_1];
     let lp_total_supply = ctx.accounts.lp_mint.supply;
     let pool_balances = [
         ctx.accounts.pool_token_account_0.amount,

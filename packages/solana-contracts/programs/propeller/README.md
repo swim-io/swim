@@ -153,18 +153,18 @@ anchor deploy
 ## Notes:
 
 1.  number of accounts needed on solana side:
-1.  2-pool (+ 1 to all for pool program id account for CPI)
-1.  11 for add
-1.  10 for swap
-1.  11 for removeUniform
-1.  WH (+ 1 to all for WH token bridge account)
-1.  Transfer
-1.  17 for `TransferNative` (same for with payload)
-1.  17 for `TransferWrapped` (same for with payload).
-    Probably don't need this since we should only be WH swimUSD from SOL
-1.  `Complete`
-1.  14 for `CompleteNative` & `CompleteWrapped`
-1.  15 for `CompleteNativeWithPayload` & `CompleteWrappedWithPayload`
+    1. 2-pool (+ 1 to all for pool program id account for CPI)
+        1. 11 for add
+        2. 10 for swap
+        3. 11 for removeUniform
+    2. WH (+ 1 to all for WH token bridge account)
+    3. Transfer
+        1. 17 for `TransferNative` (same for with payload)
+        2. 17 for `TransferWrapped` (same for with payload).
+          Probably don't need this since we should only be WH swimUSD from SOL
+        3. `Complete`
+        4. 14 for `CompleteNative` & `CompleteWrapped`
+        5. 15 for `CompleteNativeWithPayload` & `CompleteWrappedWithPayload`
 1.  shared_accounts
 1.  payer of txn
 1.  token_account for swimUSD?

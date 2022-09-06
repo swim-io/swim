@@ -1,24 +1,23 @@
 use {
-    crate::Propeller,
+    crate::{
+        constants::{SWAP_EXACT_OUTPUT_INPUT_TOKEN_INDEX, TOKEN_BRIDGE_MINT_OUTPUT_TOKEN_INDEX},
+        is_transfer_amount_sufficient, Propeller,
+    },
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::token::{Mint, Token, TokenAccount},
-    two_pool::{
-        gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT,
-    },
+    two_pool::{gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT},
 };
-use crate::constants::{SWAP_EXACT_OUTPUT_INPUT_TOKEN_INDEX, TOKEN_BRIDGE_MINT_OUTPUT_TOKEN_INDEX};
-use crate::is_transfer_amount_sufficient;
 
 #[derive(Accounts)]
 pub struct SwapExactOutput<'info> {
-  #[account(
+    #[account(
   seeds = [
     b"propeller".as_ref(),
     pool_token_account_0.mint.as_ref(),
   ],
   bump = propeller.bump
   )]
-  pub propeller: Account<'info, Propeller>,
+    pub propeller: Account<'info, Propeller>,
     #[account(
   mut,
   seeds = [
@@ -89,11 +88,11 @@ pub fn handle_swap_exact_output(
     target_chain: u16,
 ) -> Result<Vec<u64>> {
     is_transfer_amount_sufficient(
-      &ctx.accounts.propeller,
-      &ctx.accounts.token_bridge_mint,
-      propeller_enabled,
-      target_chain,
-      exact_output_amount
+        &ctx.accounts.propeller,
+        &ctx.accounts.token_bridge_mint,
+        propeller_enabled,
+        target_chain,
+        exact_output_amount,
     )?;
     let input_token_index = SWAP_EXACT_OUTPUT_INPUT_TOKEN_INDEX;
     let cpi_ctx = CpiContext::new(
@@ -111,12 +110,8 @@ pub fn handle_swap_exact_output(
         },
     );
     let exact_output_amounts = [exact_output_amount, 0];
-    let result = two_pool::cpi::swap_exact_output(
-        cpi_ctx,
-        maximum_input_amount,
-        input_token_index,
-        exact_output_amounts,
-    )?;
+    let result =
+        two_pool::cpi::swap_exact_output(cpi_ctx, maximum_input_amount, input_token_index, exact_output_amounts)?;
     let return_val: Vec<u64> = result.get();
     let memo_ix = spl_memo::build_memo(memo, &[]);
     invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;

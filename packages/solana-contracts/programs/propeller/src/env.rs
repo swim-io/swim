@@ -49,10 +49,7 @@ mod tests {
     use {super::*, switchboard_v2::SWITCHBOARD_PROGRAM_ID};
     #[test]
     pub fn ids() {
-        println!(
-            "core_bridge: {:?}, token_bridge: {:?}",
-            CORE_BRIDGE, TOKEN_BRIDGE
-        );
+        println!("core_bridge: {:?}, token_bridge: {:?}", CORE_BRIDGE, TOKEN_BRIDGE);
         println!("switchboard: {:?}", SWITCHBOARD_PROGRAM_ID);
     }
 }

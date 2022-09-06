@@ -114,16 +114,11 @@ pub struct CreateLpMetadataParams {
     pub update_authority_is_signer: bool,
 }
 
-pub fn handle_create_lp_metadata(
-    ctx: Context<CreateLpMetadata>,
-    params: CreateLpMetadataParams,
-) -> Result<()> {
+pub fn handle_create_lp_metadata(ctx: Context<CreateLpMetadata>, params: CreateLpMetadataParams) -> Result<()> {
     create_metadata_accounts_v2(
         CpiContext::new_with_signer(
             ctx.accounts.mpl_token_metadata.to_account_info(),
-            ctx.accounts
-                .create_metadata_accounts
-                .to_create_metadata_accounts_v2(),
+            ctx.accounts.create_metadata_accounts.to_create_metadata_accounts_v2(),
             &[&gen_pool_signer_seeds!(ctx.accounts.common_governance.pool)[..]],
         ),
         params.data.into(),

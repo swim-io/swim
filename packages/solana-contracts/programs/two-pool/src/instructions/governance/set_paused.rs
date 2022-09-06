@@ -1,7 +1,7 @@
 use {
     crate::{
-        common_governance::*, error::*, get_current_ts, governance::ENACT_DELAY, DecimalU64,
-        DecimalU64Anchor, PoolFee, TwoPool, UnixTimestamp,
+        common_governance::*, error::*, get_current_ts, governance::ENACT_DELAY, DecimalU64, DecimalU64Anchor, PoolFee,
+        TwoPool, UnixTimestamp,
     },
     anchor_lang::prelude::*,
 };

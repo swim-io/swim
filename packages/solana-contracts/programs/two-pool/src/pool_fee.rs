@@ -39,9 +39,7 @@ impl PoolFee {
 
         // self.0 = (floored_fee.get_raw() * 10u64.pow((DECIMALS - floored_fee.get_decimals()) as u32))
         //     as u32;
-        self.value = (floored_fee.get_raw()
-            * 10u64.pow((DECIMALS - floored_fee.get_decimals()) as u32))
-            as u32;
+        self.value = (floored_fee.get_raw() * 10u64.pow((DECIMALS - floored_fee.get_decimals()) as u32)) as u32;
 
         Ok(())
     }

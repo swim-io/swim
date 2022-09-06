@@ -1,7 +1,7 @@
 use {
     crate::{
-        array_equalize, error::*, gen_pool_signer_seeds, invariant::Invariant,
-        result_from_equalized, to_equalized, DecimalU64, TwoPool, TOKEN_COUNT,
+        array_equalize, error::*, gen_pool_signer_seeds, invariant::Invariant, result_from_equalized, to_equalized,
+        DecimalU64, TwoPool, TOKEN_COUNT,
     },
     anchor_lang::prelude::*,
     anchor_spl::{
@@ -119,11 +119,7 @@ pub fn handle_remove_uniform(
     let exact_burn_amount = remove_uniform_params.exact_burn_amount;
     let minimum_output_amounts = remove_uniform_params.minimum_output_amounts;
     let lp_total_supply = ctx.accounts.lp_mint.supply;
-    require_gt!(
-        exact_burn_amount,
-        0u64,
-        PoolError::InvalidRemoveUniformParameters
-    );
+    require_gt!(exact_burn_amount, 0u64, PoolError::InvalidRemoveUniformParameters);
     require_gte!(
         lp_total_supply,
         exact_burn_amount,
@@ -144,8 +140,7 @@ pub fn handle_remove_uniform(
     //therefore we can only multiply with a number with at most 18 decimals to stay within
     //the 38 max decimals range of u128
     const DECIMAL_UPSHIFT: u32 = 18;
-    let user_depth = (pool.previous_depth
-        * ((user_share * 10u64.pow(DECIMAL_UPSHIFT)).trunc() as u128))
+    let user_depth = (pool.previous_depth * ((user_share * 10u64.pow(DECIMAL_UPSHIFT)).trunc() as u128))
         / 10u128.pow(DECIMAL_UPSHIFT);
     let latest_depth = pool.previous_depth - user_depth;
 
@@ -155,10 +150,7 @@ pub fn handle_remove_uniform(
 
     let pool_token_accounts = [pool_token_account_0, pool_token_account_1];
 
-    let mut token_accounts = zip(
-        user_token_accounts.into_iter(),
-        pool_token_accounts.into_iter(),
-    );
+    let mut token_accounts = zip(user_token_accounts.into_iter(), pool_token_accounts.into_iter());
 
     let mut output_amounts = vec![];
     for i in 0..TOKEN_COUNT {

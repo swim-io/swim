@@ -250,12 +250,9 @@ pub fn get_message_data(vaa_account: &AccountInfo) -> Result<MessageData> {
     Ok(PostedMessageData::try_from_slice(&vaa_account.data.borrow())?.message)
 }
 
-pub fn get_transfer_with_payload_from_message_account(
-    vaa_account: &AccountInfo,
-) -> Result<PayloadTransferWithPayload> {
+pub fn get_transfer_with_payload_from_message_account(vaa_account: &AccountInfo) -> Result<PayloadTransferWithPayload> {
     let message_data = get_message_data(&vaa_account)?;
-    let payload_transfer_with_payload =
-        deserialize_message_payload(&mut message_data.payload.as_slice())?;
+    let payload_transfer_with_payload = deserialize_message_payload(&mut message_data.payload.as_slice())?;
     Ok(payload_transfer_with_payload)
 }
 

@@ -236,11 +236,7 @@ impl AmpFactor {
             let delta = value_diff * (time_since_initial / total_adjustment_time);
 
             // let initial_value_decimal_u64 = DecimalU64::from(self.initial_value);
-            (if is_increase {
-                ValueT::add
-            } else {
-                ValueT::sub
-            })(initial_value, delta)
+            (if is_increase { ValueT::add } else { ValueT::sub })(initial_value, delta)
         }
     }
 
@@ -248,12 +244,7 @@ impl AmpFactor {
     ///
     /// [`AmpFactor`] will be linearly interpolated while in the adjustment window
     /// see [`AmpFactor::get`] for more details
-    pub fn set_target(
-        &mut self,
-        current_ts: TimestampT,
-        target_value: ValueT,
-        target_ts: TimestampT,
-    ) -> Result<()> {
+    pub fn set_target(&mut self, current_ts: TimestampT, target_value: ValueT, target_ts: TimestampT) -> Result<()> {
         if !(MIN_AMP_VALUE..=MAX_AMP_VALUE).contains(&target_value) {
             return err!(PoolError::InvalidAmpFactorValue);
         }
@@ -264,8 +255,7 @@ impl AmpFactor {
 
         let initial_value = self.get(current_ts);
         if (initial_value < target_value && initial_value * MAX_RELATIVE_ADJUSTMENT < target_value)
-            || (initial_value > target_value
-                && initial_value > target_value * MAX_RELATIVE_ADJUSTMENT)
+            || (initial_value > target_value && initial_value > target_value * MAX_RELATIVE_ADJUSTMENT)
         {
             return err!(PoolError::InvalidAmpFactorValue);
         }

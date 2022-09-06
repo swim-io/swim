@@ -1,24 +1,20 @@
 use {
-    crate::Propeller,
+    crate::{constants::REMOVE_EXACT_BURN_OUTPUT_TOKEN_INDEX, is_transfer_amount_sufficient, Propeller},
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::token::{Mint, Token, TokenAccount},
-    two_pool::{
-        gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT,
-    },
+    two_pool::{gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT},
 };
-use crate::constants::REMOVE_EXACT_BURN_OUTPUT_TOKEN_INDEX;
-use crate::is_transfer_amount_sufficient;
 
 #[derive(Accounts)]
 pub struct RemoveExactBurn<'info> {
-  #[account(
+    #[account(
   seeds = [
   b"propeller".as_ref(),
   pool_token_account_0.mint.as_ref(),
   ],
   bump = propeller.bump
   )]
-  pub propeller: Account<'info, Propeller>,
+    pub propeller: Account<'info, Propeller>,
     #[account(
   mut,
   seeds = [
@@ -119,11 +115,11 @@ pub fn handle_remove_exact_burn(
     invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     anchor_lang::prelude::msg!("remove_exact_burn return_val: {:?}", return_val);
     is_transfer_amount_sufficient(
-      &ctx.accounts.propeller,
-      &ctx.accounts.token_bridge_mint,
-      propeller_enabled,
-      target_chain,
-      return_val
+        &ctx.accounts.propeller,
+        &ctx.accounts.token_bridge_mint,
+        propeller_enabled,
+        target_chain,
+        return_val,
     )?;
     Ok(return_val)
 }

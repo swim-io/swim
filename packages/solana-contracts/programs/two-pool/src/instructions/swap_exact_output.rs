@@ -1,7 +1,7 @@
 use {
     crate::{
-        array_equalize, error::*, gen_pool_signer_seeds, invariant::Invariant,
-        result_from_equalized, to_equalized, TwoPool, TOKEN_COUNT,
+        array_equalize, error::*, gen_pool_signer_seeds, invariant::Invariant, result_from_equalized, to_equalized,
+        TwoPool, TOKEN_COUNT,
     },
     anchor_lang::{
         prelude::*,
@@ -135,10 +135,7 @@ pub fn handle_swap_exact_output(
         ctx.accounts.pool_token_account_1.amount,
     ];
     let are_output_amounts_valid = exact_output_amounts.iter().any(|amount| *amount == 0);
-    require!(
-        are_output_amounts_valid,
-        PoolError::InvalidSwapExactOutputParameters
-    );
+    require!(are_output_amounts_valid, PoolError::InvalidSwapExactOutputParameters);
     require!(
         input_token_index < TOKEN_COUNT,
         PoolError::InvalidSwapExactOutputParameters
@@ -182,17 +179,16 @@ pub fn handle_swap_exact_output(
     let lp_total_supply = ctx.accounts.lp_mint.supply;
     let current_ts = Clock::get()?.unix_timestamp;
     require_gt!(current_ts, 0i64, PoolError::InvalidTimestamp);
-    let (user_amount, governance_mint_amount, latest_depth) =
-        Invariant::<TOKEN_COUNT>::swap_exact_output(
-            input_token_index,
-            &array_equalize(exact_output_amounts, pool.token_decimal_equalizers),
-            &array_equalize(pool_balances, pool.token_decimal_equalizers),
-            pool.amp_factor.get(current_ts),
-            pool.lp_fee.get(),
-            pool.governance_fee.get(),
-            to_equalized(lp_total_supply, pool.lp_decimal_equalizer),
-            pool.previous_depth.into(),
-        )?;
+    let (user_amount, governance_mint_amount, latest_depth) = Invariant::<TOKEN_COUNT>::swap_exact_output(
+        input_token_index,
+        &array_equalize(exact_output_amounts, pool.token_decimal_equalizers),
+        &array_equalize(pool_balances, pool.token_decimal_equalizers),
+        pool.amp_factor.get(current_ts),
+        pool.lp_fee.get(),
+        pool.governance_fee.get(),
+        to_equalized(lp_total_supply, pool.lp_decimal_equalizer),
+        pool.previous_depth.into(),
+    )?;
     let (input_amount, governance_mint_amount, latest_depth) = result_from_equalized(
         user_amount,
         pool.token_decimal_equalizers[input_token_index],
@@ -202,11 +198,7 @@ pub fn handle_swap_exact_output(
     );
 
     let maximum_input_amount = swap_exact_output_params.maximum_input_amount;
-    require_gte!(
-        maximum_input_amount,
-        input_amount,
-        PoolError::OutsideSpecifiedLimits
-    );
+    require_gte!(maximum_input_amount, input_amount, PoolError::OutsideSpecifiedLimits);
 
     let user_input_token_account = user_token_accounts[input_token_index];
     let pool_input_token_account = pool_token_accounts[input_token_index];
@@ -223,10 +215,7 @@ pub fn handle_swap_exact_output(
         input_amount,
     )?;
 
-    let mut token_accounts = zip(
-        user_token_accounts.into_iter(),
-        pool_token_accounts.into_iter(),
-    );
+    let mut token_accounts = zip(user_token_accounts.into_iter(), pool_token_accounts.into_iter());
 
     for i in 0..TOKEN_COUNT {
         let (user_token_account, pool_token_account) = token_accounts.next().unwrap();

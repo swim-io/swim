@@ -1,8 +1,5 @@
 use {
-    crate::{
-        decimal::DecimalU64, error::PoolError::*, AmpFactor, DecimalU64Anchor, PoolError, PoolFee,
-        TwoPool,
-    },
+    crate::{decimal::DecimalU64, error::PoolError::*, AmpFactor, DecimalU64Anchor, PoolError, PoolFee, TwoPool},
     anchor_lang::prelude::*,
     anchor_spl::{
         associated_token::AssociatedToken,
@@ -76,10 +73,7 @@ pub struct Initialize<'info> {
 impl<'info> Initialize<'info> {
     //TODO: add errors
     pub fn accounts(ctx: &Context<Initialize>) -> Result<()> {
-        require_keys_eq!(
-            ctx.accounts.governance_fee_account.mint,
-            ctx.accounts.lp_mint.key()
-        );
+        require_keys_eq!(ctx.accounts.governance_fee_account.mint, ctx.accounts.lp_mint.key());
         Initialize::check_token_account(&ctx.accounts.pool_token_account_0)?;
         Initialize::check_token_account(&ctx.accounts.pool_token_account_1)?;
         msg!("Initialize::accounts()");
@@ -88,10 +82,7 @@ impl<'info> Initialize<'info> {
 
     fn check_token_account(token_account: &Account<'info, TokenAccount>) -> Result<()> {
         require_eq!(token_account.amount, 0, PoolError::TokenAccountHasBalance);
-        require!(
-            token_account.delegate.is_none(),
-            PoolError::TokenAccountHasDelegate
-        );
+        require!(token_account.delegate.is_none(), PoolError::TokenAccountHasDelegate);
         require!(
             token_account.close_authority.is_none(),
             PoolError::TokenAccountHasCloseAuthority
@@ -115,11 +106,7 @@ pub fn handle_initialize(
     governance_fee: DecimalU64Anchor,
 ) -> Result<()> {
     let fee_sum = DecimalU64::from(lp_fee) + DecimalU64::from(governance_fee);
-    require_gt!(
-        DecimalU64::const_from(1),
-        fee_sum,
-        PoolError::InvalidFeeInput
-    );
+    require_gt!(DecimalU64::const_from(1), fee_sum, PoolError::InvalidFeeInput);
     let two_pool = &mut ctx.accounts.pool;
     two_pool.bump = *ctx.bumps.get("pool").unwrap();
     two_pool.is_paused = false;
@@ -135,17 +122,11 @@ pub fn handle_initialize(
     let mut decimal_range_max = decimal_range_min;
     decimal_range_min = min(
         decimal_range_min,
-        min(
-            ctx.accounts.pool_mint_0.decimals,
-            ctx.accounts.pool_mint_1.decimals,
-        ),
+        min(ctx.accounts.pool_mint_0.decimals, ctx.accounts.pool_mint_1.decimals),
     );
     decimal_range_max = max(
         decimal_range_max,
-        max(
-            ctx.accounts.pool_mint_0.decimals,
-            ctx.accounts.pool_mint_1.decimals,
-        ),
+        max(ctx.accounts.pool_mint_0.decimals, ctx.accounts.pool_mint_1.decimals),
     );
 
     require_gte!(
@@ -155,10 +136,7 @@ pub fn handle_initialize(
     );
 
     two_pool.lp_decimal_equalizer = decimal_range_max - ctx.accounts.lp_mint.decimals;
-    two_pool.token_mint_keys = [
-        ctx.accounts.pool_mint_0.key(),
-        ctx.accounts.pool_mint_1.key(),
-    ];
+    two_pool.token_mint_keys = [ctx.accounts.pool_mint_0.key(), ctx.accounts.pool_mint_1.key()];
     two_pool.token_decimal_equalizers = [
         decimal_range_max - ctx.accounts.pool_mint_0.decimals,
         decimal_range_max - ctx.accounts.pool_mint_1.decimals,

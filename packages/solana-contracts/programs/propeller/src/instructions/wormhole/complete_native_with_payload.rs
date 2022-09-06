@@ -1,15 +1,12 @@
 use {
     crate::{
-        deserialize_message_payload, error::*, get_message_data,
-        get_transfer_with_payload_from_message_account, hash_vaa, Address, ChainID, ClaimData,
-        PayloadTransferWithPayload, PostVAAData, PostedMessageData, PostedVAAData, Propeller,
-        COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION,
+        deserialize_message_payload, error::*, get_message_data, get_transfer_with_payload_from_message_account,
+        hash_vaa, Address, ChainID, ClaimData, PayloadTransferWithPayload, PostVAAData, PostedMessageData,
+        PostedVAAData, Propeller, COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
         prelude::*,
-        solana_program::{
-            instruction::Instruction, program::invoke_signed, system_program, sysvar::SysvarId,
-        },
+        solana_program::{instruction::Instruction, program::invoke_signed, system_program, sysvar::SysvarId},
     },
     anchor_spl::token::{Mint, Token, TokenAccount},
     byteorder::{BigEndian, ReadBytesExt, WriteBytesExt},
@@ -108,7 +105,6 @@ pub struct CompleteNativeWithPayload<'info> {
     /// if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to
     ///     (NOT the `to` account)
     pub redeemer: SystemAccount<'info>,
-
 
     #[account(
     mut,
@@ -258,10 +254,7 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
     invoke_signed(
         &complete_transfer_with_payload_ix,
         &ctx.accounts.to_account_infos(),
-        &[&[
-            &b"redeemer".as_ref(),
-            &[ctx.accounts.propeller.redeemer_bump],
-        ]],
+        &[&[&b"redeemer".as_ref(), &[ctx.accounts.propeller.redeemer_bump]]],
     )?;
     msg!("successfully invoked complete_native_with_payload");
 
@@ -283,10 +276,7 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
     // let message = &posted_vaa_data.message;
     // msg!("messageData: {:?}", message);
     // let payload_transfer_with_payload = &message.payload;
-    msg!(
-        "payload_transfer_with_payload: {:?}",
-        payload_transfer_with_payload
-    );
+    msg!("payload_transfer_with_payload: {:?}", payload_transfer_with_payload);
     let swim_payload = &payload_transfer_with_payload.payload;
     msg!("swim_payload: {:?}", swim_payload);
 
@@ -295,13 +285,12 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
     msg!("claim_data: {:?}", claim_data);
 
     if swim_payload.propeller_enabled {
-      let rent = Rent::get()?;
-      let propeller_message_rent_exempt_fees = rent.minimum_balance(PropellerMessage::LEN);
-      let wormhole_message_rent_exempt_fees = rent.minimum_balance(message_account_info.data_len());
-      // let complete_native_with_payload_txn_fee = propeller.complete_native_with_payload_fee;
-      let complete_native_with_payload_fee = propeller_message_rent_exempt_fees
-        + wormhole_message_rent_exempt_fees;
-      // + complete_native_with_payload_txn_fee;
+        let rent = Rent::get()?;
+        let propeller_message_rent_exempt_fees = rent.minimum_balance(PropellerMessage::LEN);
+        let wormhole_message_rent_exempt_fees = rent.minimum_balance(message_account_info.data_len());
+        // let complete_native_with_payload_txn_fee = propeller.complete_native_with_payload_fee;
+        let complete_native_with_payload_fee = propeller_message_rent_exempt_fees + wormhole_message_rent_exempt_fees;
+        // + complete_native_with_payload_txn_fee;
     }
     // ugly. re-doing the same calculation that WH does in `complete_transfer_payload` but
     // should not be a huge issue.

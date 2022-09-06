@@ -2,9 +2,7 @@ use {
     crate::{env::*, VERIFY_SIGNATURES_INSTRUCTION},
     anchor_lang::{
         prelude::*,
-        solana_program::{
-            instruction::Instruction, program::invoke, secp256k1_program, sysvar::SysvarId,
-        },
+        solana_program::{instruction::Instruction, program::invoke, secp256k1_program, sysvar::SysvarId},
     },
 };
 

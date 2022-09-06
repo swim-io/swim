@@ -1,7 +1,7 @@
 use {
     crate::{
-        amp_factor::AmpFactor, decimal::DecimalU64, error::PoolError, instructions::*,
-        pool_fee::PoolFee, state::TwoPool,
+        amp_factor::AmpFactor, decimal::DecimalU64, error::PoolError, instructions::*, pool_fee::PoolFee,
+        state::TwoPool,
     },
     anchor_lang::{prelude::*, solana_program::clock::UnixTimestamp},
     anchor_spl::token::*,

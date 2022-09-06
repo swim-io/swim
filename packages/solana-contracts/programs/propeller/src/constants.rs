@@ -13,7 +13,6 @@ pub const SWAP_EXACT_INPUT_OUTPUT_TOKEN_INDEX: u8 = 0;
 pub const REMOVE_EXACT_BURN_OUTPUT_TOKEN_INDEX: u8 = 0;
 pub const SWAP_EXACT_OUTPUT_INPUT_TOKEN_INDEX: u8 = 1;
 
-
 // // vaa payload types
 // pub const PAYLOAD_SALE_INIT_SOLANA: u8 = 5; // 1 for everyone else
 // pub const PAYLOAD_ATTEST_CONTRIBUTIONS: u8 = 2;

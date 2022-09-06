@@ -1,6 +1,6 @@
 use {
     crate::{
-        error::*, Propeller, PropellerSender, RawSwimPayload, SwimPayloadVersion,
+        error::*, is_transfer_amount_sufficient, Propeller, PropellerSender, RawSwimPayload, SwimPayloadVersion,
         TransferWithPayloadData, TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
@@ -20,18 +20,14 @@ use {
     },
     primitive_types::U256,
 };
-use crate::is_transfer_amount_sufficient;
 
 #[derive(Accounts)]
 pub struct TransferNativeWithPayload<'info> {
     #[account(
-	has_one = token_bridge_mint,
-	seeds = [
-		b"propeller".as_ref(),
-		token_bridge_mint.key().as_ref(),
-	],
-	bump = propeller.bump,
-	)]
+    has_one = token_bridge_mint,
+    seeds = [b"propeller".as_ref(), token_bridge_mint.key().as_ref()],
+	  bump = propeller.bump,
+	  )]
     pub propeller: Account<'info, Propeller>,
 
     #[account(mut)]
@@ -223,11 +219,11 @@ pub fn handle_transfer_native_with_payload(
     memo: Vec<u8>,
 ) -> Result<()> {
     is_transfer_amount_sufficient(
-      &ctx.accounts.propeller,
-      &ctx.accounts.token_bridge_mint,
-      propeller_enabled,
-      target_chain,
-      amount
+        &ctx.accounts.propeller,
+        &ctx.accounts.token_bridge_mint,
+        propeller_enabled,
+        target_chain,
+        amount,
     )?;
     msg!("transfer_native_with_payload");
     token::approve(
@@ -280,6 +276,7 @@ pub fn handle_transfer_native_with_payload(
     //             see - wh-sdk/src/utils/array.ts tryNativeToUint8Array(address: string, chain: ChainId | ChainName)
     //     4. targetChain is number/u16
     //     5. payload is Vec<u8>
+    // ok
 
     let transfer_with_payload_data = TransferWithPayloadData {
         // nonce: ctx.accounts.custodian.nonce,
@@ -304,10 +301,7 @@ pub fn handle_transfer_native_with_payload(
         ctx.accounts.payer.to_account_info().clone(),
         ctx.accounts.token_bridge_config.to_account_info().clone(),
         // ctx.accounts.token_bridge.to_account_info().clone(),
-        ctx.accounts
-            .user_token_bridge_account
-            .to_account_info()
-            .clone(),
+        ctx.accounts.user_token_bridge_account.to_account_info().clone(),
         ctx.accounts.token_bridge_mint.to_account_info().clone(),
         token_bridge_custody.to_account_info().clone(),
         ctx.accounts.authority_signer.to_account_info().clone(),
@@ -317,10 +311,7 @@ pub fn handle_transfer_native_with_payload(
         ctx.accounts.wormhole_message.to_account_info().clone(),
         ctx.accounts.wormhole_emitter.to_account_info().clone(),
         ctx.accounts.wormhole_sequence.to_account_info().clone(),
-        ctx.accounts
-            .wormhole_fee_collector
-            .to_account_info()
-            .clone(),
+        ctx.accounts.wormhole_fee_collector.to_account_info().clone(),
         // Clock::get()?.to_account_info().clone(),
         ctx.accounts.clock.to_account_info().clone(),
         //TODO: replaced with sender once that PR is merged
@@ -361,11 +352,7 @@ pub fn handle_transfer_native_with_payload(
                 AccountMeta::new_readonly(ctx.accounts.wormhole.key(), false),
                 AccountMeta::new_readonly(spl_token::id(), false),
             ],
-            data: (
-                TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
-                transfer_with_payload_data,
-            )
-                .try_to_vec()?,
+            data: (TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION, transfer_with_payload_data).try_to_vec()?,
         },
         // &ctx.accounts.to_account_infos(),
         &wh_token_transfer_acct_infos,

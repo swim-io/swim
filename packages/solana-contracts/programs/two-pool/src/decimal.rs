@@ -153,11 +153,7 @@ macro_rules! unsigned_decimal {
     $max_decimals:expr $(,)? //floor(log_10(2^bits-1))
 ) => {
         #[derive(
-            anchor_lang::prelude::AnchorSerialize,
-            anchor_lang::prelude::AnchorDeserialize,
-            Clone,
-            Copy,
-            Debug,
+            anchor_lang::prelude::AnchorSerialize, anchor_lang::prelude::AnchorDeserialize, Clone, Copy, Debug,
         )]
         pub struct $name {
             value: $value_type,
@@ -177,13 +173,11 @@ macro_rules! unsigned_decimal {
                 if exp <= Self::MAX_DECIMALS {
                     $upcast!(Self::ten_to_the_value_type(exp), $larger_type)
                 } else {
-                    $upcast!(
-                        Self::ten_to_the_value_type(Self::MAX_DECIMALS),
-                        $larger_type
-                    ) * $upcast!(
-                        Self::ten_to_the_value_type(exp - Self::MAX_DECIMALS),
-                        $larger_type
-                    )
+                    $upcast!(Self::ten_to_the_value_type(Self::MAX_DECIMALS), $larger_type)
+                        * $upcast!(
+                            Self::ten_to_the_value_type(exp - Self::MAX_DECIMALS),
+                            $larger_type
+                        )
                 }
             }
 
@@ -308,9 +302,7 @@ macro_rules! unsigned_decimal {
                 let mut dec = self.decimals;
                 loop {
                     let next_dec = (dec + 1) / 2;
-                    if self.value % Self::ten_to_the_value_type(shift + dec)
-                        == $convert!(0, $value_type)
-                    {
+                    if self.value % Self::ten_to_the_value_type(shift + dec) == $convert!(0, $value_type) {
                         shift += next_dec;
                         dec -= next_dec;
                     } else {
@@ -388,8 +380,7 @@ macro_rules! unsigned_decimal {
             }
 
             pub fn checked_mul(self, other: Self) -> Option<Self> {
-                let value =
-                    $upcast!(self.value, $larger_type) * $upcast!(other.value, $larger_type);
+                let value = $upcast!(self.value, $larger_type) * $upcast!(other.value, $larger_type);
                 let decimals = self.decimals + other.decimals;
                 Self::shift_to_fit(value, decimals)
             }
@@ -453,14 +444,10 @@ macro_rules! unsigned_decimal {
                     && match self.decimals.cmp(&other.decimals) {
                         Ordering::Equal => self.fract() == other.fract(),
                         Ordering::Less => {
-                            self.fract()
-                                * Self::ten_to_the_value_type(other.decimals - self.decimals)
-                                == other.fract()
+                            self.fract() * Self::ten_to_the_value_type(other.decimals - self.decimals) == other.fract()
                         }
                         Ordering::Greater => {
-                            self.fract()
-                                == other.fract()
-                                    * Self::ten_to_the_value_type(self.decimals - other.decimals)
+                            self.fract() == other.fract() * Self::ten_to_the_value_type(self.decimals - other.decimals)
                         }
                     }
             }
@@ -513,13 +500,11 @@ macro_rules! unsigned_decimal {
                 match cmp {
                     Ordering::Equal => match self.decimals.cmp(&other.decimals) {
                         Ordering::Equal => self.fract().cmp(&other.fract()),
-                        Ordering::Less => (self.fract()
-                            * Self::ten_to_the_value_type(other.decimals - self.decimals))
-                        .cmp(&other.fract()),
-                        Ordering::Greater => self.fract().cmp(
-                            &(other.fract()
-                                * Self::ten_to_the_value_type(self.decimals - other.decimals)),
-                        ),
+                        Ordering::Less => (self.fract() * Self::ten_to_the_value_type(other.decimals - self.decimals))
+                            .cmp(&other.fract()),
+                        Ordering::Greater => self
+                            .fract()
+                            .cmp(&(other.fract() * Self::ten_to_the_value_type(self.decimals - other.decimals))),
                     },
                     _ => cmp,
                 }
@@ -689,9 +674,8 @@ macro_rules! unsigned_decimal {
             type Output = Self;
 
             fn div(self, other: Self) -> Self::Output {
-                self.checked_div(other).unwrap_or_else(|| {
-                    panic!("Division by zero while dividing {:?} {:?}", self, other)
-                })
+                self.checked_div(other)
+                    .unwrap_or_else(|| panic!("Division by zero while dividing {:?} {:?}", self, other))
             }
         }
 
@@ -816,8 +800,7 @@ macro_rules! impl_interop {
             type Error = DecimalError;
 
             fn try_from(v: $larger_name) -> Result<Self, Self::Error> {
-                Self::shift_to_fit(v.get_raw(), v.get_decimals())
-                    .ok_or(DecimalError::ConversionError.into())
+                Self::shift_to_fit(v.get_raw(), v.get_decimals()).ok_or(DecimalError::ConversionError.into())
             }
         }
     };
@@ -874,14 +857,8 @@ mod tests {
     #[test]
     fn u128_mul() {
         let new_u128 = |value, decimals| DecimalU128::new(U128::from(value), decimals).unwrap();
-        assert_eq!(
-            DecimalU128::from(1) * DecimalU128::from(1),
-            DecimalU128::from(1)
-        );
-        assert_eq!(
-            new_u128(u128::MAX, 0) * new_u128(1, 1),
-            new_u128(u128::MAX, 1)
-        );
+        assert_eq!(DecimalU128::from(1) * DecimalU128::from(1), DecimalU128::from(1));
+        assert_eq!(new_u128(u128::MAX, 0) * new_u128(1, 1), new_u128(u128::MAX, 1));
         assert_eq!(new_u128(u128::MAX, 0).checked_mul(new_u128(10, 0)), None);
         assert_eq!(
             new_u128(u128::MAX, 38) * new_u128(10u128.pow(10), 0),
@@ -904,18 +881,9 @@ mod tests {
             new_u128(u128::MAX, 0) / new_u128(u128::MAX, 38),
             new_u128(10u128.pow(38), 0)
         );
-        assert_eq!(
-            new_u128(u128::MAX, 38) / new_u128(u128::MAX, 0),
-            new_u128(1, 38)
-        );
-        assert_eq!(
-            new_u128(u128::MAX, 38) / new_u128(u128::MAX, 38),
-            DecimalU128::from(1)
-        );
-        assert_eq!(
-            new_u128(1, 38) / new_u128(u128::MAX, 0),
-            DecimalU128::from(0)
-        );
+        assert_eq!(new_u128(u128::MAX, 38) / new_u128(u128::MAX, 0), new_u128(1, 38));
+        assert_eq!(new_u128(u128::MAX, 38) / new_u128(u128::MAX, 38), DecimalU128::from(1));
+        assert_eq!(new_u128(1, 38) / new_u128(u128::MAX, 0), DecimalU128::from(0));
         assert!(new_u128(u128::MAX, 0).checked_div(new_u128(1, 1)).is_none());
     }
 

@@ -1,4 +1,3 @@
-import { Env } from "@swim-io/core";
 import { ethers } from "ethers";
 import { gql, request } from "graphql-request";
 
@@ -6,9 +5,6 @@ type TransactionResponse = ethers.providers.TransactionResponse;
 
 const { JsonRpcProvider } = ethers.providers;
 const NUM_TX_TO_FETCH = 100;
-
-const KARURA_MAINNET_RPC_URL = process.env.REACT_APP_KARURA_MAINNET_RPC_URL;
-const KARURA_MAINNET_SUBQL_URL = process.env.REACT_APP_KARURA_MAINNET_SUBQL_URL;
 
 // GraphQL Schema
 interface TransactionReceipt {
@@ -82,31 +78,3 @@ export class PolkadotProvider extends JsonRpcProvider {
     return txResponses;
   }
 }
-
-export const getKaruraProvider = (env: Env): string => {
-  switch (env) {
-    case Env.Mainnet:
-      if (KARURA_MAINNET_RPC_URL === undefined) {
-        throw new Error("KARURA_MAINNET_RPC_URL is undefined");
-      }
-      return KARURA_MAINNET_RPC_URL;
-    case Env.Devnet:
-    default:
-      throw new Error(
-        `Karura provider (AcalaProvider) does not support ${env}`,
-      );
-  }
-};
-
-export const getKaruraSubQl = (env: Env): string => {
-  switch (env) {
-    case Env.Mainnet:
-      if (KARURA_MAINNET_SUBQL_URL === undefined) {
-        throw new Error("KARURA_MAINNET_SUBQL_URL is undefined");
-      }
-      return KARURA_MAINNET_SUBQL_URL;
-    case Env.Devnet:
-    default:
-      throw new Error(`Karura SubQL does not support ${env}`);
-  }
-};

@@ -24,21 +24,15 @@ import {
   SnowTraceProvider,
   getAuroraScanNetwork,
   getFtmScanNetwork,
-  getKaruraProvider,
-  getKaruraSubQl,
   getPolygonScanNetwork,
   getSnowTraceNetwork,
 } from "../models";
 
-export const GetEvmConnectionContext: React.Context<
-  (ecosystemId: EvmEcosystemId) => EvmConnection
-> = createContext((_: EvmEcosystemId): EvmConnection => {
-  throw new Error("Not initialized");
-});
-
 // TODO: Use proper endpoints via env
 const BNB_MAINNET_RPC_URL = process.env.REACT_APP_BNB_MAINNET_RPC_URL;
 const BNB_TESTNET_RPC_URL = process.env.REACT_APP_BNB_TESTNET_RPC_URL;
+const KARURA_MAINNET_RPC_URL = process.env.REACT_APP_KARURA_MAINNET_RPC_URL;
+const KARURA_MAINNET_SUBQL_URL = process.env.REACT_APP_KARURA_MAINNET_SUBQL_URL;
 
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
 const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
@@ -47,6 +41,12 @@ const AURORASCAN_API_KEY = process.env.REACT_APP_AURORASCAN_API_KEY;
 const SNOWTRACE_API_KEY = process.env.REACT_APP_SNOWTRACE_API_KEY;
 
 const MORALIS_ID = "Swim UI";
+
+export const GetEvmConnectionContext: React.Context<
+  (ecosystemId: EvmEcosystemId) => EvmConnection
+> = createContext((_: EvmEcosystemId): EvmConnection => {
+  throw new Error("Not initialized");
+});
 
 /**
  * Network names from:
@@ -92,6 +92,34 @@ const getBnbRpcUrl = (env: Env): string => {
       return BNB_TESTNET_RPC_URL;
     default:
       throw new Error(`${env} not supported by Moralis Provider`);
+  }
+};
+
+const getKaruraProvider = (env: Env): string => {
+  switch (env) {
+    case Env.Mainnet:
+      if (KARURA_MAINNET_RPC_URL === undefined) {
+        throw new Error("KARURA_MAINNET_RPC_URL is undefined");
+      }
+      return KARURA_MAINNET_RPC_URL;
+    case Env.Devnet:
+    default:
+      throw new Error(
+        `Karura provider (AcalaProvider) does not support ${env}`,
+      );
+  }
+};
+
+const getKaruraSubQl = (env: Env): string => {
+  switch (env) {
+    case Env.Mainnet:
+      if (KARURA_MAINNET_SUBQL_URL === undefined) {
+        throw new Error("KARURA_MAINNET_SUBQL_URL is undefined");
+      }
+      return KARURA_MAINNET_SUBQL_URL;
+    case Env.Devnet:
+    default:
+      throw new Error(`Karura SubQL does not support ${env}`);
   }
 };
 

@@ -9,9 +9,6 @@ on:
       - ".github/workflows/deploy.yaml"
 
 jobs:
-  # verify:
-  #   uses: ./.github/workflows/ui-verify.yaml
-
   production-deploy:
     runs-on: ubuntu-latest
 
@@ -19,8 +16,6 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
-
-    # needs: [verify]
 
     env:
       CLOUDFLARE_PROJECT_NAME: swim-ui

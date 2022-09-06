@@ -7,7 +7,9 @@ const dirPaths = fg.sync(packageJson.workspaces, {
   onlyFiles: false,
   markDirectories: true,
 });
-const scopes = dirPaths.map((dirPath) => path.basename(dirPath));
+const scopes = dirPaths
+  .map((dirPath) => path.basename(dirPath))
+  .concat(["deps"]);
 
 module.exports = {
   extends: ["@commitlint/config-conventional"],

@@ -33,6 +33,8 @@ const BNB_MAINNET_RPC_URL = process.env.REACT_APP_BNB_MAINNET_RPC_URL;
 const BNB_TESTNET_RPC_URL = process.env.REACT_APP_BNB_TESTNET_RPC_URL;
 const KARURA_MAINNET_RPC_URL = process.env.REACT_APP_KARURA_MAINNET_RPC_URL;
 const KARURA_MAINNET_SUBQL_URL = process.env.REACT_APP_KARURA_MAINNET_SUBQL_URL;
+const KARURA_TESTNET_RPC_URL = process.env.REACT_APP_KARURA_TESTNET_RPC_URL;
+const KARURA_TESTNET_SUBQL_URL = process.env.REACT_APP_KARURA_TESTNET_SUBQL_URL;
 
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY;
 const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
@@ -95,7 +97,7 @@ const getBnbRpcUrl = (env: Env): string => {
   }
 };
 
-const getKaruraProvider = (env: Env): string => {
+const getKaruraRpcUrl = (env: Env): string => {
   switch (env) {
     case Env.Mainnet:
       if (KARURA_MAINNET_RPC_URL === undefined) {
@@ -103,14 +105,16 @@ const getKaruraProvider = (env: Env): string => {
       }
       return KARURA_MAINNET_RPC_URL;
     case Env.Devnet:
+      if (KARURA_TESTNET_RPC_URL === undefined) {
+        throw new Error("KARURA_TESTNET_RPC_URL is undefined");
+      }
+      return KARURA_TESTNET_RPC_URL;
     default:
-      throw new Error(
-        `Karura provider (AcalaProvider) does not support ${env}`,
-      );
+      throw new Error(`Karura provider does not support ${env}`);
   }
 };
 
-const getKaruraSubQl = (env: Env): string => {
+const getKaruraSubQlUrl = (env: Env): string => {
   switch (env) {
     case Env.Mainnet:
       if (KARURA_MAINNET_SUBQL_URL === undefined) {
@@ -118,6 +122,10 @@ const getKaruraSubQl = (env: Env): string => {
       }
       return KARURA_MAINNET_SUBQL_URL;
     case Env.Devnet:
+      if (KARURA_TESTNET_SUBQL_URL === undefined) {
+        throw new Error("KARURA_TESTNET_SUBQL_URL is undefined");
+      }
+      return KARURA_TESTNET_SUBQL_URL;
     default:
       throw new Error(`Karura SubQL does not support ${env}`);
   }
@@ -154,7 +162,7 @@ export const getPublicProvider = (
       );
     }
     case EvmEcosystemId.Karura: {
-      return new PolkadotProvider(getKaruraProvider(env), getKaruraSubQl(env));
+      return new PolkadotProvider(getKaruraRpcUrl(env), getKaruraSubQlUrl(env));
     }
     // TODO: Refactor repetitive code for PolygonScanProvider, SnowTraceProvider, FtmScanProvider, AuroraScanProvider
     // Provider classes are the same.

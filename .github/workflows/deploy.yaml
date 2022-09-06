@@ -23,6 +23,7 @@ jobs:
     # needs: [verify]
 
     env:
+      CLOUDFLARE_PROJECT_NAME: swim-ui
       ACCUMULATED_BUILD_PATH: /tmp/ui-accumulated-build
       DOWNLOADS_PATH: /tmp/downloads
       UPLOADS_PATH: /tmp/uploads
@@ -101,7 +102,7 @@ jobs:
           # https://api.cloudflare.com/#pages-project-get-project
           # and append it to $GITHUB_ENV
           # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
-          curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/swim-ui" \
+          curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/${{ env.CLOUDFLARE_PROJECT_NAME }}" \
             -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
             -H "Content-Type: application/json" \
             --compressed |
@@ -176,4 +177,4 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
-          npx --yes wrangler@2 pages publish ${{ env.ACCUMULATED_BUILD_PATH }} --project-name=test-direct-upload-swim-ui --branch=${{ github.head_ref || github.ref_name }}
+          npx --yes wrangler@2 pages publish ${{ env.ACCUMULATED_BUILD_PATH }} --project-name=${{ env.CLOUDFLARE_PROJECT_NAME }} --branch=${{ github.head_ref || github.ref_name }}

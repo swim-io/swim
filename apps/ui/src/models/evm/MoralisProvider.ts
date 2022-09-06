@@ -3,9 +3,10 @@ import type {
   TransactionReceipt,
 } from "@ethersproject/abstract-provider";
 import { Env } from "@swim-io/core";
-import { EvmChainId } from "@swim-io/evm";
 import { BigNumber, ethers } from "ethers";
 import { Moralis } from "moralis";
+
+import { EvmChainId } from "../../config";
 
 type TransactionResponse = ethers.providers.TransactionResponse;
 

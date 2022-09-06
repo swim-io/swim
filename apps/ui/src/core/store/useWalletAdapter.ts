@@ -112,7 +112,10 @@ const onEvmWalletDisconnected = async (
 const getSolanaWalletSentryContextKey = (): string => {
   return "Solana Wallet";
 };
-const onSolanaWalletConnected = (adapter: SolanaWalletAdapter): void => {
+const onSolanaWalletConnected = async (
+  adapter: SolanaWalletAdapter,
+  // eslint-disable-next-line @typescript-eslint/require-await
+): Promise<void> => {
   if (adapter.publicKey === null) {
     return;
   }
@@ -130,7 +133,8 @@ const onSolanaWalletConnected = (adapter: SolanaWalletAdapter): void => {
     level: "info",
   });
 };
-const onSolanaWalletDisconnected = (): void => {
+// eslint-disable-next-line @typescript-eslint/require-await
+const onSolanaWalletDisconnected = async (): Promise<void> => {
   const sentryContextKey = getSolanaWalletSentryContextKey();
   Sentry.configureScope((scope) => scope.setUser(null));
   Sentry.setContext(sentryContextKey, {});
@@ -189,7 +193,9 @@ export const useWalletAdapter = create(
               );
               break;
             case Protocol.Solana:
-              onSolanaWalletConnected(adapter as SolanaWalletAdapter);
+              onSolanaWalletConnected(adapter as SolanaWalletAdapter).catch(
+                console.error,
+              );
               break;
             default:
           }
@@ -209,7 +215,7 @@ export const useWalletAdapter = create(
               );
               break;
             case Protocol.Solana:
-              onSolanaWalletDisconnected();
+              onSolanaWalletDisconnected().catch(console.error);
               break;
             default:
           }

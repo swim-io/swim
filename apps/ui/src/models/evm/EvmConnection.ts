@@ -1,12 +1,12 @@
 import { BscscanProvider } from "@ethers-ancillary/bsc";
 import { Env } from "@swim-io/core";
-import type { EvmSpec } from "@swim-io/evm";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { ERC20__factory } from "@swim-io/evm-contracts";
 import { isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
 
+import type { EvmSpec } from "../../config";
 import { isEcosystemEnabled } from "../../config";
 
 import { AuroraNetwork, AuroraScanProvider } from "./AuroraScanProvider";

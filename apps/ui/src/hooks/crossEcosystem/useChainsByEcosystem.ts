@@ -1,10 +1,9 @@
-import type { EvmSpec } from "@swim-io/evm";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import shallow from "zustand/shallow.js";
 
-import type { ChainSpec, EcosystemId, SolanaSpec } from "../../config";
+import type { ChainSpec, EcosystemId, EvmSpec, SolanaSpec } from "../../config";
 import { Protocol } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";

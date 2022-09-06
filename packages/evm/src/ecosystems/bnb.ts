@@ -2,17 +2,19 @@ import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 
 import type { EvmChainConfig, EvmEcosystemConfig } from "../protocol";
-import { EVM_PROTOCOL, EvmChainId, EvmEcosystemId } from "../protocol";
+import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
-export enum BnbChainId {
-  Mainnet = EvmChainId.BnbMainnet,
-  Testnet = EvmChainId.BnbTestnet,
-  Localnet = EvmChainId.BnbLocal,
-}
+import { createChainId } from "./utils/chains";
+
+export const bnbChainId = createChainId({
+  mainnet: 56,
+  testnet: 97,
+  local: 1397,
+});
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
   name: "BNB Chain Mainnet",
-  chainId: BnbChainId.Mainnet,
+  chainId: bnbChainId.mainnet,
   wormhole: {
     bridge: "0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B",
     portal: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7",
@@ -24,7 +26,7 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
 
 const devnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
   name: "BNB Chain Testnet",
-  chainId: BnbChainId.Testnet,
+  chainId: bnbChainId.testnet,
   wormhole: {
     bridge: "0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D",
     portal: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09",
@@ -36,7 +38,7 @@ const devnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
 
 const localnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
   name: "BNB Chain Localnet",
-  chainId: BnbChainId.Localnet,
+  chainId: bnbChainId.local,
   wormhole: {
     bridge: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
     portal: "0x0290FB167208Af455bB137780163b7B7a9a10C16",

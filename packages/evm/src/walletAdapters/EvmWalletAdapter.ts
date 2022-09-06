@@ -6,8 +6,8 @@ import type { Signer } from "ethers";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 
-import { EVM_CHAINS } from "../chains";
-import type { EvmChainId, EvmProtocol } from "../protocol";
+import { EVM_ECOSYSTEMS } from "../ecosystems";
+import type { EvmProtocol } from "../protocol";
 import { EVM_PROTOCOL } from "../protocol";
 
 type Web3Provider = ethers.providers.Web3Provider;
@@ -26,11 +26,11 @@ export interface EvmWalletAdapter extends EventEmitter {
   readonly connected: boolean;
   readonly connect: (args?: any) => Promise<unknown>;
   readonly disconnect: () => Promise<void>;
-  readonly switchNetwork: (chainId: EvmChainId) => Promise<unknown>;
+  readonly switchNetwork: (chainId: number) => Promise<unknown>;
   readonly registerToken: (
     tokenDetails: TokenDetails,
     projectId: TokenProjectId,
-    chainId: EvmChainId,
+    chainId: number,
   ) => Promise<unknown>;
   readonly isUnlocked: () => Promise<boolean>;
   readonly hasConnectedBefore: () => Promise<boolean>;
@@ -138,7 +138,7 @@ export class EvmWeb3WalletAdapter
     }
   }
 
-  public async switchNetwork(chainId: EvmChainId): Promise<void> {
+  public async switchNetwork(chainId: number): Promise<void> {
     if (!this.walletProvider) {
       throw new Error("No wallet provider");
     }
@@ -152,17 +152,30 @@ export class EvmWeb3WalletAdapter
         (switchError as Record<string, unknown>).code ===
         METAMASK_unrecognizedChainId
       ) {
-        const evmSpec = EVM_CHAINS.find((spec) => spec.chainId === chainId);
-        if (!evmSpec) {
-          throw new Error("No EVM spec found for chain ID");
+        const evmEcosystemConfig = Object.values(EVM_ECOSYSTEMS).find(
+          (ecosystemConfig) =>
+            [...ecosystemConfig.chains].some(
+              ([, chainConfig]) => chainConfig.chainId === chainId,
+            ),
+        );
+        if (!evmEcosystemConfig) {
+          throw new Error("No EVM ecosystem config found for chain ID");
         }
+
+        const evmChainConfig = [...evmEcosystemConfig.chains]
+          .map(([, chainConfig]) => chainConfig)
+          .find((chainConfig) => chainConfig.chainId === chainId);
+        if (!evmChainConfig) {
+          throw new Error("No EVM chain config found for chain ID");
+        }
+
         // this also asks to switch to that chain afterwards
         await this.walletProvider.send("wallet_addEthereumChain", [
           {
             chainId: hexValue(chainId),
-            chainName: evmSpec.chainName,
-            nativeCurrency: evmSpec.nativeCurrency,
-            rpcUrls: evmSpec.rpcUrls,
+            chainName: evmChainConfig.name,
+            nativeCurrency: evmEcosystemConfig.gasToken,
+            rpcUrls: evmChainConfig.publicRpcUrls,
           },
         ]);
       } else if (
@@ -183,7 +196,7 @@ export class EvmWeb3WalletAdapter
   public async registerToken(
     tokenDetails: TokenDetails,
     projectId: TokenProjectId,
-    chainId: EvmChainId,
+    chainId: number,
   ): Promise<boolean> {
     if (!this.walletProvider) {
       throw new Error("No wallet provider");

@@ -184,12 +184,17 @@ export const getPublicProvider = (
 
 export const getProvider = (
   env: Env,
-  { ecosystem, rpcUrls }: EvmSpec,
+  chains: readonly EvmSpec[],
+  ecosystemId: EvmEcosystemId,
 ): Provider => {
-  if (!isEcosystemEnabled(ecosystem)) {
+  const { rpcUrls } = findOrThrow(
+    chains,
+    (chain) => chain.ecosystem === ecosystemId,
+  );
+  if (!isEcosystemEnabled(ecosystemId)) {
     return new LocalProvider(rpcUrls[0]);
   }
-  switch (ecosystem) {
+  switch (ecosystemId) {
     case EvmEcosystemId.Acala:
       return new LocalProvider(rpcUrls[0]);
     case EvmEcosystemId.Aurora:
@@ -201,7 +206,7 @@ export const getProvider = (
       switch (env) {
         case Env.Mainnet:
         case Env.Devnet:
-          return getPublicProvider(env, ecosystem);
+          return getPublicProvider(env, ecosystemId);
         default: {
           return new LocalProvider(rpcUrls[0]);
         }
@@ -209,7 +214,7 @@ export const getProvider = (
     case EvmEcosystemId.Karura:
       switch (env) {
         case Env.Mainnet:
-          return getPublicProvider(env, ecosystem);
+          return getPublicProvider(env, ecosystemId);
         case Env.Devnet:
         default: {
           return new LocalProvider(rpcUrls[0]);
@@ -235,11 +240,7 @@ export const GetEvmConnectionProvider = ({
       return existingEvmConnection;
     }
 
-    const chainSpec = findOrThrow(
-      chains[Protocol.Evm],
-      (chain) => chain.ecosystem === ecosystemId,
-    );
-    const provider = getProvider(env, chainSpec);
+    const provider = getProvider(env, chains[Protocol.Evm], ecosystemId);
     const newEvmConnection = new EvmConnection(provider);
     setEvmConnections((prev) => {
       const newState = new Map(prev);

@@ -86,7 +86,7 @@ export class EvmConnection {
     return txReceipt;
   }
 
-  public async getEthBalance(walletAddress: string): Promise<Decimal> {
+  public async getGasBalance(walletAddress: string): Promise<Decimal> {
     try {
       const balanceInWei = await this.provider.getBalance(walletAddress);
       return new Decimal(ethers.utils.formatUnits(balanceInWei));

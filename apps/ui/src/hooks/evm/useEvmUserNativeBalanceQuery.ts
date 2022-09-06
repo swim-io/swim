@@ -23,7 +23,7 @@ export const useEvmUserNativeBalanceQuery = (
       if (!walletAddress) {
         return new Decimal(0);
       }
-      return evmConnection.getEthBalance(walletAddress);
+      return evmConnection.getGasBalance(walletAddress);
     },
     {
       ...options,

@@ -1,6 +1,6 @@
 import type { Mint } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, deserializeMint } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import type { UseQueryResult } from "react-query";
 import { useQueries } from "react-query";
@@ -10,7 +10,6 @@ import type { PoolSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import { deserializeMint } from "../../models";
 import { useSolanaConnection } from "../solana";
 
 export const usePoolLpMints = (
@@ -29,7 +28,7 @@ export const usePoolLpMints = (
         }
         const lpToken = findOrThrow(
           tokens,
-          (tokenSpec) => tokenSpec.id === poolSpec.lpToken,
+          (tokenConfig) => tokenConfig.id === poolSpec.lpToken,
         );
         const lpTokenMintPubkey = new PublicKey(
           getSolanaTokenDetails(lpToken).address,

@@ -18,3 +18,8 @@ jest.mock("rpc-websockets", () => ({
     }
   },
 }));
+
+jest.mock("@swim-io/solana", () => ({
+  ...jest.requireActual("@swim-io/solana"),
+  SolanaConnection: jest.fn(),
+}));

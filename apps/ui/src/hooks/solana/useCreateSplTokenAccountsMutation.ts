@@ -1,8 +1,8 @@
+import type { TokenAccount } from "@swim-io/solana";
 import type { UseMutationResult } from "react-query";
 import { useMutation, useQueryClient } from "react-query";
 
 import { useEnvironment } from "../../core/store";
-import type { TokenAccount } from "../../models";
 import { findOrCreateSplTokenAccount } from "../../models";
 
 import { useSolanaConnection } from "./useSolanaConnection";

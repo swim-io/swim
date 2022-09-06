@@ -24,9 +24,9 @@ const getPoolMath = ({
     return null;
   }
 
-  const poolTokenDecimals = poolTokens.map((tokenSpec) => {
+  const poolTokenDecimals = poolTokens.map((tokenConfig) => {
     const tokenDetails = getTokenDetailsForEcosystem(
-      tokenSpec,
+      tokenConfig,
       poolSpec.ecosystem,
     );
     if (tokenDetails === null) {

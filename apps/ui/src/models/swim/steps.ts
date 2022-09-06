@@ -2,7 +2,7 @@ import type PoolMath from "@swim-io/pool-math";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 
-import type { PoolSpec, TokenSpec } from "../../config";
+import type { PoolSpec, TokenConfig } from "../../config";
 import { Amount } from "../amount";
 
 import { SwimDefiInstruction } from "./instructions";
@@ -20,7 +20,7 @@ export const getRequiredTokens = (
   tokensByPoolId: TokensByPoolId,
   poolSpecs: readonly PoolSpec[],
   interactionSpec: InteractionSpec,
-): readonly TokenSpec[] => {
+): readonly TokenConfig[] => {
   switch (interactionSpec.type) {
     case InteractionType.Add: {
       const { tokens, lpToken } = tokensByPoolId[poolSpecs[0].id];

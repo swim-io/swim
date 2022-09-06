@@ -9,7 +9,7 @@ import {
 } from "@elastic/eui";
 import type React from "react";
 
-import type { TokenSpec } from "../../config";
+import type { TokenConfig } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
 import { useToken } from "../../hooks";
 import { i18next } from "../../i18n";
@@ -34,7 +34,7 @@ interface Props {
   readonly showConstantSwapTip: boolean;
 }
 
-const getReadonlyDisplayValue = (token: TokenSpec, value: string) => {
+const getReadonlyDisplayValue = (token: TokenConfig, value: string) => {
   if (!value) {
     return "";
   }

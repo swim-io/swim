@@ -6,7 +6,7 @@ import type { Signer } from "ethers";
 import { ethers } from "ethers";
 import EventEmitter from "eventemitter3";
 
-import type { EcosystemId, EvmChainId, TokenSpec } from "../../../../config";
+import type { EcosystemId, EvmChainId, TokenConfig } from "../../../../config";
 import {
   ALL_UNIQUE_CHAINS,
   ECOSYSTEMS,
@@ -33,7 +33,7 @@ export interface EvmWalletAdapter extends EventEmitter {
   readonly disconnect: () => Promise<void>;
   readonly switchNetwork: (chainId: EvmChainId) => Promise<unknown>;
   readonly registerToken: (
-    tokenSpec: TokenSpec,
+    tokenConfig: TokenConfig,
     ecosystemId: EcosystemId,
     chainId: EvmChainId,
   ) => Promise<unknown>;
@@ -195,14 +195,14 @@ export class EvmWeb3WalletAdapter
   }
 
   async registerToken(
-    tokenSpec: TokenSpec,
+    tokenConfig: TokenConfig,
     ecosystemId: EcosystemId,
     chainId: EvmChainId,
   ): Promise<boolean> {
     if (!this.walletProvider) {
       throw new Error("No wallet provider");
     }
-    const details = getTokenDetailsForEcosystem(tokenSpec, ecosystemId);
+    const details = getTokenDetailsForEcosystem(tokenConfig, ecosystemId);
     if (!details) {
       throw new Error(
         `No ${ECOSYSTEMS[ecosystemId].displayName} details for token`,
@@ -217,9 +217,9 @@ export class EvmWeb3WalletAdapter
       type: "ERC20", // Initially only supports ERC20, but eventually more!
       options: {
         address: details.address, // The address that the token is at.
-        symbol: TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].symbol, // A ticker symbol or shorthand, up to 5 chars.
+        symbol: TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].symbol, // A ticker symbol or shorthand, up to 5 chars.
         decimals: details.decimals, // The number of decimals in the token
-        // TODO: image: tokenSpec.icon, // A string url of the token logo
+        // TODO: image: tokenConfig.icon, // A string url of the token logo
       },
     })) as boolean;
     return wasAdded;

@@ -3,7 +3,7 @@ import { isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import { useTranslation } from "react-i18next";
 
-import type { TokenSpec } from "../../config";
+import type { TokenConfig } from "../../config";
 import { ECOSYSTEMS } from "../../config";
 import type { Amount } from "../../models";
 import { isValidSlippageFraction } from "../../models";
@@ -16,8 +16,8 @@ import {
 import { useIsLargeSwap } from "./useIsLargeSwap";
 
 export const useGetSwapFormErrors = (
-  fromToken: TokenSpec,
-  toToken: TokenSpec,
+  fromToken: TokenConfig,
+  toToken: TokenConfig,
   inputAmount: Amount,
   maxSlippageFraction: Decimal | null,
 ) => {

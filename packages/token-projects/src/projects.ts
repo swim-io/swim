@@ -1,4 +1,3 @@
-import type { TokenProject } from "@swim-io/core";
 import type { ReadonlyRecord } from "@swim-io/utils";
 
 import AUSD_SVG from "./images/ausd";
@@ -61,6 +60,21 @@ export enum TokenProjectId {
   SwimLpKaruraUsdt = "swim-lp-karura-usdt",
   SwimLpKaruraAusd = "swim-lp-karura-ausd",
   SwimLpAcalaAusd = "swim-lp-acala-ausd",
+}
+
+/**
+ * A token project incorporates one or more tokens. For example USDT has deployments on several
+ * different chains, which are technically independent tokens but share many features. Note that
+ * these are not wrapped versions of some single original token.
+ */
+export interface TokenProject {
+  readonly id: TokenProjectId;
+  readonly symbol: string;
+  readonly displayName: string;
+  /** URL of an icon for the token */
+  readonly icon: string;
+  readonly isStablecoin: boolean;
+  readonly isLp: boolean;
 }
 
 export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<

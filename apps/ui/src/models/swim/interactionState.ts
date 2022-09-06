@@ -4,7 +4,7 @@ import type { ReadonlyRecord } from "@swim-io/utils";
 import { isNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
-import type { TokenSpec } from "../../config";
+import type { TokenConfig } from "../../config";
 
 import type { Interaction } from "./interaction";
 import type { OperationSpec } from "./operation";
@@ -31,7 +31,7 @@ export type RequiredSplTokenAccounts = ReadonlyRecord<
 >;
 
 export interface ToSolanaTransferState {
-  readonly token: TokenSpec;
+  readonly token: TokenConfig;
   readonly value: Decimal;
   readonly signatureSetAddress: string | null;
   readonly txIds: {
@@ -47,7 +47,7 @@ export interface SolanaPoolOperationState {
 }
 
 export interface FromSolanaTransferState {
-  readonly token: TokenSpec;
+  readonly token: TokenConfig;
   readonly value: Decimal | null;
   readonly txIds: {
     readonly transferSplToken: SolanaTx["id"] | null;

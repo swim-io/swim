@@ -2,12 +2,12 @@ import { EuiLink, EuiText } from "@elastic/eui";
 import type React from "react";
 import { useTranslation } from "react-i18next";
 
-import type { EcosystemId, TokenSpec } from "../../config";
+import type { EcosystemId, TokenConfig } from "../../config";
 import { useUserBalanceAmount } from "../../hooks";
 import type { Amount } from "../../models";
 
 interface Props {
-  readonly token: TokenSpec;
+  readonly token: TokenConfig;
   readonly ecosystemId: EcosystemId;
   readonly onClick?: (balance: Amount) => void;
 }

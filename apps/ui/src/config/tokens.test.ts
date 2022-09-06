@@ -6,16 +6,16 @@ import { getUniqueSize } from "@swim-io/utils";
 import { utils } from "ethers";
 
 import type { EcosystemId } from "./ecosystem";
-import type { TokenSpec } from "./tokens";
+import type { TokenConfig } from "./tokens";
 import { TOKENS as tokensByEnv } from "./tokens";
 import { getTokenDetailsForEcosystem } from "./utils";
 
 const getAddressesForEcosystem = (
-  tokens: readonly TokenSpec[],
+  tokens: readonly TokenConfig[],
   ecosystemId: EcosystemId,
 ): readonly string[] =>
-  tokens.reduce<readonly string[]>((addresses, tokenSpec) => {
-    const tokenDetails = getTokenDetailsForEcosystem(tokenSpec, ecosystemId);
+  tokens.reduce<readonly string[]>((addresses, tokenConfig) => {
+    const tokenDetails = getTokenDetailsForEcosystem(tokenConfig, ecosystemId);
     return tokenDetails ? [...addresses, tokenDetails.address] : addresses;
   }, []);
 

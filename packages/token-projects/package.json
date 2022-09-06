@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/token-projects",
-  "version": "0.13.0",
+  "version": "0.16.2",
   "description": "A registry of token projects used by Swim.",
   "main": "build",
   "types": "types",
@@ -33,7 +33,6 @@
     "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
-    "@swim-io/core": "workspace:^",
     "@swim-io/utils": "workspace:^"
   },
   "devDependencies": {

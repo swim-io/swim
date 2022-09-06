@@ -1,5 +1,8 @@
 import { Env } from "@swim-io/core";
-import type { TokenConfig, TokenDetails } from "@swim-io/core";
+import type {
+  TokenConfig as CoreTokenConfig,
+  TokenDetails,
+} from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TokenProjectId } from "@swim-io/token-projects";
@@ -9,16 +12,17 @@ import type { EcosystemId } from "./ecosystem";
 import { isEcosystemEnabled } from "./ecosystem";
 import { isPoolRestructureEnabled } from "./pools";
 
-export interface TokenSpec extends TokenConfig {
-  readonly projectId: TokenProjectId;
+export interface TokenConfig extends CoreTokenConfig {
+  // TODO: Remove and derive from ChainConfig
   readonly nativeEcosystemId: EcosystemId;
+  /** Required for v1 pool support */
   readonly wrappedDetails: ReadonlyMap<EcosystemId, TokenDetails>;
 }
 
 // NOTE: Use a shared empty map to save memory
-const EMPTY_MAP: TokenSpec["wrappedDetails"] = new Map();
+const EMPTY_MAP: TokenConfig["wrappedDetails"] = new Map();
 
-const MAINNET_TOKENS: readonly TokenSpec[] = [
+const MAINNET_TOKENS: readonly TokenConfig[] = [
   {
     id: "mainnet-solana-usdc",
     projectId: TokenProjectId.Usdc,
@@ -582,7 +586,7 @@ const MAINNET_TOKENS: readonly TokenSpec[] = [
   },
 ].filter((spec) => !spec.isDisabled);
 
-export const DEVNET_SWIMUSD: TokenSpec = {
+export const DEVNET_SWIMUSD: TokenConfig = {
   isDisabled: !isPoolRestructureEnabled(),
   id: "devnet-swimusd",
   projectId: TokenProjectId.SwimLpSolanaUsdcUsdt,
@@ -651,7 +655,7 @@ export const DEVNET_SWIMUSD: TokenSpec = {
   ]),
 };
 
-export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
+export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   {
     isDisabled: !isPoolRestructureEnabled(),
     id: "devnet-ethereum-lp-usdc-usdt",
@@ -766,7 +770,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenSpec[] = [
   },
 ];
 
-export const DEVNET_TOKENS: readonly TokenSpec[] = [
+export const DEVNET_TOKENS: readonly TokenConfig[] = [
   {
     id: "devnet-solana-usdc",
     projectId: TokenProjectId.Usdc,
@@ -1302,7 +1306,7 @@ export const DEVNET_TOKENS: readonly TokenSpec[] = [
   ...DEVNET_TOKENS_FOR_RESTRUCTURE,
 ].filter((spec) => !spec.isDisabled);
 
-const LOCAL_TOKENS: readonly TokenSpec[] = [
+const LOCAL_TOKENS: readonly TokenConfig[] = [
   {
     id: "local-solana-usdc",
     projectId: TokenProjectId.Usdc,
@@ -1472,7 +1476,7 @@ const LOCAL_TOKENS: readonly TokenSpec[] = [
   },
 ];
 
-export const TOKENS: ReadonlyRecord<Env, readonly TokenSpec[]> = {
+export const TOKENS: ReadonlyRecord<Env, readonly TokenConfig[]> = {
   [Env.Mainnet]: MAINNET_TOKENS,
   [Env.Devnet]: DEVNET_TOKENS,
   [Env.Local]: LOCAL_TOKENS,

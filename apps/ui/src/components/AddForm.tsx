@@ -22,7 +22,7 @@ import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
 import { ECOSYSTEMS, ECOSYSTEM_IDS, isEcosystemEnabled } from "../config";
-import type { EcosystemId, PoolSpec, TokenSpec } from "../config";
+import type { EcosystemId, PoolSpec, TokenConfig } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import { captureAndWrapException } from "../errors";
@@ -62,7 +62,7 @@ import { SolanaTpsWarning } from "./SolanaTpsWarning";
 import { TokenIcon } from "./TokenIcon";
 
 interface TokenAddPanelProps {
-  readonly tokenSpec: TokenSpec;
+  readonly tokenConfig: TokenConfig;
   readonly ecosystemId: EcosystemId;
   readonly inputAmount: string;
   readonly errors: readonly string[];
@@ -72,7 +72,7 @@ interface TokenAddPanelProps {
 }
 
 const TokenAddPanel = ({
-  tokenSpec,
+  tokenConfig,
   ecosystemId,
   inputAmount,
   errors,
@@ -81,22 +81,22 @@ const TokenAddPanel = ({
   onBlur,
 }: TokenAddPanelProps): ReactElement => {
   const { t } = useTranslation();
-  const tokenProject = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId];
-  const balance = useUserBalanceAmount(tokenSpec, ecosystemId);
+  const tokenProject = TOKEN_PROJECTS_BY_ID[tokenConfig.projectId];
+  const balance = useUserBalanceAmount(tokenConfig, ecosystemId);
   return (
     <EuiFormRow
       fullWidth
-      key={tokenSpec.id}
+      key={tokenConfig.id}
       labelAppend={
         <EuiText size="xs">
           <span>{t("add_token_form.max_amount_of_tokens")}</span>{" "}
           {balance !== null ? (
             <EuiLink
               onClick={() => {
-                onChange(balance.toHumanString(tokenSpec.nativeEcosystemId));
+                onChange(balance.toHumanString(tokenConfig.nativeEcosystemId));
               }}
             >
-              {balance.toFormattedHumanString(tokenSpec.nativeEcosystemId)}
+              {balance.toFormattedHumanString(tokenConfig.nativeEcosystemId)}
             </EuiLink>
           ) : (
             "-"
@@ -108,9 +108,9 @@ const TokenAddPanel = ({
     >
       <EuiFieldIntlNumber
         placeholder={t("general.enter_amount_of_tokens")}
-        name={tokenSpec.id}
+        name={tokenConfig.id}
         value={inputAmount}
-        step={10 ** -tokenSpec.nativeDetails.decimals}
+        step={10 ** -tokenConfig.nativeDetails.decimals}
         fullWidth
         disabled={disabled}
         onValueChange={onChange}
@@ -129,7 +129,7 @@ const TokenAddPanel = ({
 interface EcosystemAddPanelProps {
   readonly ecosystemId: EcosystemId;
   readonly nEcosystemsInPool: number;
-  readonly tokens: readonly TokenSpec[];
+  readonly tokens: readonly TokenConfig[];
   readonly errors: readonly (readonly string[])[];
   readonly inputAmounts: readonly string[];
   readonly disabled: boolean;
@@ -160,10 +160,10 @@ const EcosystemAddPanel = ({
     >
       <ConnectButton ecosystemId={ecosystemId} fullWidth />
       <EuiSpacer size="m" />
-      {tokens.map((tokenSpec, i) => (
+      {tokens.map((tokenConfig, i) => (
         <TokenAddPanel
-          key={tokenSpec.id}
-          tokenSpec={tokenSpec}
+          key={tokenConfig.id}
+          tokenConfig={tokenConfig}
           ecosystemId={ecosystemId}
           inputAmount={inputAmounts[i]}
           errors={errors[i]}
@@ -304,25 +304,25 @@ export const AddForm = ({
   );
 
   const formInputBlurHandlers = poolTokens.map(
-    (tokenSpec, tokenIndex) => (): void => {
+    (tokenConfig, tokenIndex) => (): void => {
       const amount = inputAmounts[tokenIndex] ?? null;
       const userBalance =
-        userBalances.get(tokenSpec.id) ?? Amount.zero(tokenSpec);
+        userBalances.get(tokenConfig.id) ?? Amount.zero(tokenConfig);
 
       let errors: readonly string[] = [];
       if (amount === null) {
         errors = [t("general.amount_of_tokens_invalid")];
       } else if (
         amount
-          .toAtomic(tokenSpec.nativeEcosystemId)
-          .gt(userBalance.toAtomic(tokenSpec.nativeEcosystemId))
+          .toAtomic(tokenConfig.nativeEcosystemId)
+          .gt(userBalance.toAtomic(tokenConfig.nativeEcosystemId))
       ) {
         errors = [t("general.amount_of_tokens_exceed_balance")];
-        // } else if (amount.toHuman(tokenSpec.nativeEcosystemId).gt(5)) {
+        // } else if (amount.toHuman(tokenConfig.nativeEcosystemId).gt(5)) {
         //   errors = ["During testing, all transactions are limited to $5"];
       } else if (amount.isNegative()) {
         errors = [t("general.amount_of_tokens_less_than_zero")];
-      } else if (amount.requiresRounding(tokenSpec.nativeEcosystemId)) {
+      } else if (amount.requiresRounding(tokenConfig.nativeEcosystemId)) {
         errors = [t("general.amount_of_tokens_too_many_decimals")];
       }
 
@@ -374,10 +374,10 @@ export const AddForm = ({
         ? [
             SOLANA_ECOSYSTEM_ID,
             lpTargetEcosystem,
-            ...poolTokens.map((tokenSpec, i) => {
+            ...poolTokens.map((tokenConfig, i) => {
               const inputAmount = inputAmounts[i];
               return inputAmount !== null && !inputAmount.isZero()
-                ? tokenSpec.nativeEcosystemId
+                ? tokenConfig.nativeEcosystemId
                 : null;
             }),
           ].filter(isNotNull)

@@ -1,37 +1,37 @@
 import { EvmEcosystemId } from "@swim-io/evm";
+import type { TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { filterMap, findOrThrow } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
-import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
+import type { EcosystemId, PoolSpec, TokenConfig } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../amount";
-import type { TokenAccount } from "../solana";
 
 import type { InteractionSpec, InteractionSpecV2 } from "./interaction";
 import { InteractionType } from "./interaction";
 import { getRequiredPools } from "./steps";
 
 const mapNonZeroAmountsToNativeEcosystems = (
-  tokens: readonly TokenSpec[],
+  tokens: readonly TokenConfig[],
   amounts: readonly Amount[],
 ): readonly EcosystemId[] =>
   filterMap(
     (amount: Amount) => !amount.isZero(),
     (amount) => {
-      const tokenSpec = findOrThrow(
+      const tokenConfig = findOrThrow(
         tokens,
         (token) => token.id === amount.tokenId,
       );
-      return tokenSpec.nativeEcosystemId;
+      return tokenConfig.nativeEcosystemId;
     },
     amounts,
   );
 
 export const getRequiredEcosystems = (
-  tokens: readonly TokenSpec[],
+  tokens: readonly TokenConfig[],
   interactionSpec: InteractionSpec,
 ): ReadonlySet<EcosystemId> => {
   switch (interactionSpec.type) {
@@ -85,8 +85,8 @@ export const getRequiredEcosystems = (
       const {
         params: { exactInputAmount, minimumOutputAmount },
       } = interactionSpec;
-      const inputEcosystem = exactInputAmount.tokenSpec.nativeEcosystemId;
-      const outputEcosystem = minimumOutputAmount.tokenSpec.nativeEcosystemId;
+      const inputEcosystem = exactInputAmount.tokenConfig.nativeEcosystemId;
+      const outputEcosystem = minimumOutputAmount.tokenConfig.nativeEcosystemId;
       return new Set([SOLANA_ECOSYSTEM_ID, inputEcosystem, outputEcosystem]);
     }
     default:
@@ -100,7 +100,7 @@ export interface BaseWallet {
 }
 
 export const getConnectedWallets = (
-  tokens: readonly TokenSpec[],
+  tokens: readonly TokenConfig[],
   interactionSpec: InteractionSpec,
   wallets: ReadonlyRecord<EcosystemId, BaseWallet>,
 ): ReadonlyRecord<EcosystemId, string | null> => {
@@ -181,24 +181,24 @@ export const getConnectedWalletsV2 = (
 };
 
 export const getPoolUsdValue = (
-  tokens: readonly TokenSpec[],
+  tokens: readonly TokenConfig[],
   poolTokenAccounts: readonly TokenAccount[],
 ): Decimal | null =>
   tokens.every(
-    (tokenSpec) => TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].isStablecoin,
+    (tokenConfig) => TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].isStablecoin,
   )
     ? poolTokenAccounts.reduce((acc, account) => {
-        const tokenSpec = tokens.find(
+        const tokenConfig = tokens.find(
           (spec) =>
             getTokenDetailsForEcosystem(spec, SOLANA_ECOSYSTEM_ID)?.address ===
             account.mint.toBase58(),
         );
-        if (!tokenSpec) {
+        if (!tokenConfig) {
           throw new Error("Token spec not found");
         }
         return acc.add(
           Amount.fromAtomicBn(
-            tokenSpec,
+            tokenConfig,
             account.amount,
             SOLANA_ECOSYSTEM_ID,
           ).toHuman(SOLANA_ECOSYSTEM_ID),

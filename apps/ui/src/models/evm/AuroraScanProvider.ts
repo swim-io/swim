@@ -1,3 +1,4 @@
+import { Env } from "@swim-io/core";
 import { findOrThrow } from "@swim-io/utils";
 import { ethers } from "ethers";
 
@@ -18,6 +19,17 @@ const networks = [
     chainId: EvmChainId.AuroraTestnet,
   },
 ];
+
+export const getAuroraScanNetwork = (env: Env): AuroraNetwork => {
+  switch (env) {
+    case Env.Mainnet:
+      return AuroraNetwork.Mainnet;
+    case Env.Devnet:
+      return AuroraNetwork.Testnet;
+    default:
+      throw new Error(`AuroraScan does not support ${env}`);
+  }
+};
 
 export class AuroraScanProvider extends ethers.providers.EtherscanProvider {
   public constructor(network?: AuroraNetwork, apiKey?: string) {

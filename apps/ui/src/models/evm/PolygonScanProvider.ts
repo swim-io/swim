@@ -1,3 +1,4 @@
+import { Env } from "@swim-io/core/types";
 import { findOrThrow } from "@swim-io/utils";
 import { ethers } from "ethers";
 
@@ -18,6 +19,17 @@ const networks = [
     chainId: EvmChainId.PolygonTestnet,
   },
 ];
+
+export const getPolygonScanNetwork = (env: Env): PolygonNetwork => {
+  switch (env) {
+    case Env.Mainnet:
+      return PolygonNetwork.Mainnet;
+    case Env.Devnet:
+      return PolygonNetwork.Testnet;
+    default:
+      throw new Error(`PolygonScan does not support ${env}`);
+  }
+};
 
 export class PolygonScanProvider extends ethers.providers.EtherscanProvider {
   public constructor(network?: PolygonNetwork, apiKey?: string) {

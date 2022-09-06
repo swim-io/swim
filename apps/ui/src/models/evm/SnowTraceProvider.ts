@@ -1,3 +1,4 @@
+import { Env } from "@swim-io/core";
 import { findOrThrow } from "@swim-io/utils";
 import { ethers } from "ethers";
 
@@ -18,6 +19,17 @@ const networks = [
     chainId: EvmChainId.AvalancheTestnet,
   },
 ];
+
+export const getSnowTraceNetwork = (env: Env): AvalancheNetwork => {
+  switch (env) {
+    case Env.Mainnet:
+      return AvalancheNetwork.Mainnet;
+    case Env.Devnet:
+      return AvalancheNetwork.Testnet;
+    default:
+      throw new Error(`SnowTrace does not support ${env}`);
+  }
+};
 
 export class SnowTraceProvider extends ethers.providers.EtherscanProvider {
   public constructor(network?: AvalancheNetwork, apiKey?: string) {

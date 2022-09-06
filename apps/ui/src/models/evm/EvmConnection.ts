@@ -9,13 +9,20 @@ import { ethers } from "ethers";
 import type { EvmSpec } from "../../config";
 import { isEcosystemEnabled } from "../../config";
 
-import { AuroraNetwork, AuroraScanProvider } from "./AuroraScanProvider";
-import { FantomNetwork, FtmScanProvider } from "./FtmScanProvider";
+import { AuroraScanProvider, getAuroraScanNetwork } from "./AuroraScanProvider";
+import { FtmScanProvider, getFtmScanNetwork } from "./FtmScanProvider";
 import { LocalProvider } from "./LocalProvider";
 import { MoralisProvider } from "./MoralisProvider";
-import { PolkadotProvider } from "./PolkadotProvider";
-import { PolygonNetwork, PolygonScanProvider } from "./PolygonScanProvider";
-import { AvalancheNetwork, SnowTraceProvider } from "./SnowTraceProvider";
+import {
+  getKaruraProvider,
+  getKaruraSubQl,
+  PolkadotProvider,
+} from "./PolkadotProvider";
+import {
+  getPolygonScanNetwork,
+  PolygonScanProvider,
+} from "./PolygonScanProvider";
+import { getSnowTraceNetwork, SnowTraceProvider } from "./SnowTraceProvider";
 
 type EtherscanProvider = ethers.providers.EtherscanProvider;
 type TransactionReceipt = ethers.providers.TransactionReceipt;
@@ -36,9 +43,6 @@ const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY;
 const FTMSCAN_API_KEY = process.env.REACT_APP_FTMSCAN_API_KEY;
 const AURORASCAN_API_KEY = process.env.REACT_APP_AURORASCAN_API_KEY;
 const SNOWTRACE_API_KEY = process.env.REACT_APP_SNOWTRACE_API_KEY;
-
-const KARURA_MAINNET_RPC_URL = process.env.REACT_APP_KARURA_MAINNET_RPC_URL;
-const KARURA_MAINNET_SUBQL_URL = process.env.REACT_APP_KARURA_MAINNET_SUBQL_URL;
 
 const MORALIS_ID = "Swim UI";
 
@@ -72,51 +76,6 @@ const getBscscanNetwork = (env: Env): ethers.providers.Networkish => {
   }
 };
 
-const getPolygonScanNetwork = (env: Env): PolygonNetwork => {
-  switch (env) {
-    case Env.Mainnet:
-      return PolygonNetwork.Mainnet;
-    case Env.Devnet:
-      return PolygonNetwork.Testnet;
-    default:
-      throw new Error(`PolygonScan does not support ${env}`);
-  }
-};
-
-const getSnowTraceNetwork = (env: Env): AvalancheNetwork => {
-  switch (env) {
-    case Env.Mainnet:
-      return AvalancheNetwork.Mainnet;
-    case Env.Devnet:
-      return AvalancheNetwork.Testnet;
-    default:
-      throw new Error(`SnowTrace does not support ${env}`);
-  }
-};
-
-// TODO: Move this function to FtmScanProvider.ts
-const getFtmScanNetwork = (env: Env): FantomNetwork => {
-  switch (env) {
-    case Env.Mainnet:
-      return FantomNetwork.Mainnet;
-    case Env.Devnet:
-      return FantomNetwork.Testnet;
-    default:
-      throw new Error(`FtmScan does not support ${env}`);
-  }
-};
-
-const getAuroraScanNetwork = (env: Env): AuroraNetwork => {
-  switch (env) {
-    case Env.Mainnet:
-      return AuroraNetwork.Mainnet;
-    case Env.Devnet:
-      return AuroraNetwork.Testnet;
-    default:
-      throw new Error(`AuroraScan does not support ${env}`);
-  }
-};
-
 const getBnbRpcUrl = (env: Env): string => {
   switch (env) {
     case Env.Mainnet:
@@ -131,34 +90,6 @@ const getBnbRpcUrl = (env: Env): string => {
       return BNB_TESTNET_RPC_URL;
     default:
       throw new Error(`${env} not supported by Moralis Provider`);
-  }
-};
-
-const getKaruraProvider = (env: Env): string => {
-  switch (env) {
-    case Env.Mainnet:
-      if (KARURA_MAINNET_RPC_URL === undefined) {
-        throw new Error("KARURA_MAINNET_RPC_URL is undefined");
-      }
-      return KARURA_MAINNET_RPC_URL;
-    case Env.Devnet:
-    default:
-      throw new Error(
-        `Karura provider (AcalaProvider) does not support ${env}`,
-      );
-  }
-};
-
-const getKaruraSubQl = (env: Env): string => {
-  switch (env) {
-    case Env.Mainnet:
-      if (KARURA_MAINNET_SUBQL_URL === undefined) {
-        throw new Error("KARURA_MAINNET_SUBQL_URL is undefined");
-      }
-      return KARURA_MAINNET_SUBQL_URL;
-    case Env.Devnet:
-    default:
-      throw new Error(`Karura SubQL does not support ${env}`);
   }
 };
 

@@ -1,3 +1,4 @@
+import { Env } from "@swim-io/core";
 import { findOrThrow } from "@swim-io/utils";
 import { ethers } from "ethers";
 
@@ -18,6 +19,17 @@ const networks = [
     chainId: EvmChainId.FantomTestnet,
   },
 ];
+
+export const getFtmScanNetwork = (env: Env): FantomNetwork => {
+  switch (env) {
+    case Env.Mainnet:
+      return FantomNetwork.Mainnet;
+    case Env.Devnet:
+      return FantomNetwork.Testnet;
+    default:
+      throw new Error(`FtmScan does not support ${env}`);
+  }
+};
 
 export class FtmScanProvider extends ethers.providers.EtherscanProvider {
   public constructor(network?: FantomNetwork, apiKey?: string) {

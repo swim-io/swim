@@ -91,7 +91,7 @@ pub struct CompleteNativeWithPayload<'info> {
     pub claim: UncheckedAccount<'info>,
     /// CHECK: wormhole endpoint account. seeds = [ vaa.emitter_chain, vaa.emitter_address ]
     pub endpoint: UncheckedAccount<'info>,
-    /// owned by redeemer
+    /// owned by redeemer. "redeemerEscrow"
     #[account(
       mut,
       token::mint = mint.key(),
@@ -107,13 +107,22 @@ pub struct CompleteNativeWithPayload<'info> {
     /// will have to be signed when it invokes complete_transfer_with_payload
     /// if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to
     ///     (NOT the `to` account)
-    pub redeemer: AccountInfo<'info>,
-    #[account(mut)]
+    pub redeemer: SystemAccount<'info>,
 
+
+    #[account(
+    mut,
+    token::mint = propeller.token_bridge_mint,
+    token::authority = payer,
+    )]
     /// this is "to_fees"
-    /// TODO: type as TokenAccount?
-    /// CHECK: recipient of fees for executing complete transfer (e.g. relayer)
-    pub fee_recipient: AccountInfo<'info>,
+    /// recipient of fees for executing complete transfer (e.g. relayer)
+    pub fee_recipient: Box<Account<'info, TokenAccount>>,
+    // #[account(mut)]
+    // /// this is "to_fees"
+    // /// TODO: type as TokenAccount?
+    // /// CHECK: recipient of fees for executing complete transfer (e.g. relayer)
+    // pub fee_recipient: AccountInfo<'info>,
     #[account(mut)]
     /// CHECK: wormhole_custody_account: seeds = [mint], seeds::program = token_bridge
     pub custody: AccountInfo<'info>,
@@ -256,7 +265,8 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
     )?;
     msg!("successfully invoked complete_native_with_payload");
 
-    let message_data = get_message_data(&ctx.accounts.message.to_account_info())?;
+    let message_account_info = &ctx.accounts.message.to_account_info();
+    let message_data = get_message_data(message_account_info)?;
     msg!("message_data: {:?}", message_data);
     let payload_transfer_with_payload: PayloadTransferWithPayload =
         deserialize_message_payload(&mut message_data.payload.as_slice())?;
@@ -284,6 +294,15 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
         .map_err(|_| error!(PropellerError::InvalidClaimData))?;
     msg!("claim_data: {:?}", claim_data);
 
+    if swim_payload.propeller_enabled {
+      let rent = Rent::get()?;
+      let propeller_message_rent_exempt_fees = rent.minimum_balance(PropellerMessage::LEN);
+      let wormhole_message_rent_exempt_fees = rent.minimum_balance(message_account_info.data_len());
+      // let complete_native_with_payload_txn_fee = propeller.complete_native_with_payload_fee;
+      let complete_native_with_payload_fee = propeller_message_rent_exempt_fees
+        + wormhole_message_rent_exempt_fees;
+      // + complete_native_with_payload_txn_fee;
+    }
     // ugly. re-doing the same calculation that WH does in `complete_transfer_payload` but
     // should not be a huge issue.
     let mut transfer_amount = payload_transfer_with_payload.amount.as_u64();

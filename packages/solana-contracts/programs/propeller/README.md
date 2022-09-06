@@ -29,6 +29,47 @@ anchor deploy
    1. tokenIdMapping: mapping(tokenId: uint16 => (tokenContract: address, poolOnThisChain: address, tokenIndexInPool: uint8))
    2. tokenAddressMapping: mapping(tokenContract: address => (tokenId: uint16, poolOnThisChain: address, tokenIndexInPool: uint8)
 
+## transactions
+1. Complete on Solana
+  1. [secp256k1 + verifyIx 1](https://explorer.solana.com/tx/5SwHnzJZpmGMzTwsdMMK1xm3f3FzBgfDfsYhCbN1sb5NTqZchGsFCT9eYGD9ajPQQutH4qTo7H3YvytxkhoAJ4cv)
+    1. txn fee(SOL) - 0.000045
+    2. rent(SOL) -  0.00130152
+  2. [secp256k1 + verifyIx 2](https://explorer.solana.com/tx/2KWCRfGuHVkr27yePvWEugwV2n8dcwTjNqgiTPMRNExwPd1QLpuFWLzL4Yhiv23F74DUEqsnusgfVJbgPUaCpj8c)
+    1. txn fee (SOL) - 0.00004
+  3. [postVAA](https://explorer.solana.com/tx/2oifDnA5oFG4CPg8tqqjivJ4CVrEpcx4aMWSK4fxh5fG8DLE2o79xwDTUc8GS9GtVwwjD3C5fA8WZocj9LDXYMrn)
+    1. txn fee (SOL) - 0.000005
+    2. rent (SOL) -  0.00247776
+  4. [completeTransfer]
+    1. txn fee (SOL) - 0.000005
+    2. rent (SOL) -  0.00089784
+
+## Solana Complete Flow
+1. secp + verify (1-3 txns)
+2. postVAA 1 txn
+3. Complete
+    1. PropEnabled
+    2. !PropEnabled
+4. ProcessPayload
+    1. PropEnabled
+        1. GasKickstart:
+            1. !GasKickstart
+                1.tsfer propeller.processPayloadFees(swimUSD) to payer
+            2. GasKickstart
+                1. convert gasKickstart -> USD [oracle]
+                2. convert swimUSD -> marginal price token [marginal price pool + marginal price pool accounts]
+                3. tsfer(propeller.processPayloadFees + gasKickstartInSwimUSD) to payer fee account
+                4. tsfer gasKickstart from payer to swimPayload.logicalOwner
+    2. output_token_index
+        1. == 0 (swimUSD)
+            1. transfer X swimUSD from redeemerEscrow to swimPayload.owner.getAssociatedTokenAccount(swimUSD)
+        2. != 0
+            1. removeExactBurn [flagshipPool]
+            2. swapExactInput [metapool]
+    3. need to handle creating the token account(s) for owner and account for the fees.
+        1. Do we assume that if gas kickstart, then none of the accounts exist?
+
+5.
+
 ## Dev
 
 1. switch to using `#[access_control(...)]` for validation instead?

@@ -1565,7 +1565,7 @@ export type Propeller = {
           "isSigner": false,
           "docs": [
             "this is \"to_fees\"",
-            "TODO: type as TokenAccount?"
+            "recipient of fees for executing complete transfer (e.g. relayer)"
           ]
         },
         {
@@ -4173,7 +4173,7 @@ export const IDL: Propeller = {
           "isSigner": false,
           "docs": [
             "this is \"to_fees\"",
-            "TODO: type as TokenAccount?"
+            "recipient of fees for executing complete transfer (e.g. relayer)"
           ]
         },
         {

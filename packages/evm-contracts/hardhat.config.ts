@@ -27,8 +27,7 @@ task(
   }
 );
 
-task("deploy", "run the deployment script", async (_, hre) => {
-  await hre.run("compile");
+task("deploy", "Run the deployment script", async (_, hre) => {
   await hre.run("run", { script: "scripts/deployment.ts" });
 });
 
@@ -70,7 +69,25 @@ task("poolState", "Print state of given pool", async ({ pool }, { ethers }) => {
     govFee: decimaltoFixed(govFeeDec),
   };
   console.log(JSON.stringify(state, null, 2));
-}).addPositionalParam("pool", "address of the pool");
+}).addPositionalParam("pool", "Address of the pool");
+
+task(
+  "selectors",
+  "Print the selectors of all functions, events, and errors of a given contract",
+  async ({ name }, { ethers }) => {
+    const interfce = (await ethers.getContractFactory(name as string)).interface;
+    const printType = (type: "functions" | "events" | "errors") =>
+      console.log(
+        type + ":\n",
+        ...Object.keys(interfce[type]).map(
+          (e) => interfce.getSighash(interfce[type][e]) + " " + e + "\n"
+        )
+      );
+    ["functions", "events", "errors"].map((type: string) =>
+      printType(type as "functions" | "events" | "errors")
+    );
+  }
+).addPositionalParam("name", "Name of the contract (e.g. 'Pool' or 'Routing')");
 
 task("presign", "Generate a SwimFactory deployment tx for hardhat network", async (_, hre) => {
   await hre.run("compile");

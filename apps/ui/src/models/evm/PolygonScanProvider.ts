@@ -1,4 +1,4 @@
-import { Env } from "@swim-io/core/types";
+import { Env } from "@swim-io/core";
 import { findOrThrow } from "@swim-io/utils";
 import { ethers } from "ethers";
 

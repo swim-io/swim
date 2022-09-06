@@ -1,4 +1,4 @@
-import { Env } from "@swim-io/core/types";
+import { Env } from "@swim-io/core";
 import { ethers } from "ethers";
 import { gql, request } from "graphql-request";
 

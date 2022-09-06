@@ -14,9 +14,9 @@ import type { Provider } from "../models";
 import {
   EtherscanFamilyProvider,
   EvmConnection,
-  LocalProvider,
   MoralisProvider,
   PolkadotProvider,
+  SimpleGetHistoryProvider,
   getEtherscanFamilyNetwork,
 } from "../models";
 
@@ -64,11 +64,11 @@ export const getProvider = (
     (env !== Env.Mainnet && env !== Env.Devnet) ||
     !isEcosystemEnabled(ecosystemId)
   ) {
-    return new LocalProvider(rpcUrls[0]);
+    return new SimpleGetHistoryProvider(rpcUrls[0]);
   }
   switch (ecosystemId) {
     case EvmEcosystemId.Acala:
-      return new LocalProvider(rpcUrls[0]);
+      return new SimpleGetHistoryProvider(rpcUrls[0]);
     case EvmEcosystemId.Karura: {
       const rpcUrl = KARURA_RPC_URLS[env];
       const subqlUrl = KARURA_SUBQL_URLS[env];
@@ -77,7 +77,7 @@ export const getProvider = (
       }
       return rpcUrl && subqlUrl
         ? new PolkadotProvider(rpcUrl, subqlUrl)
-        : new LocalProvider(rpcUrls[0]);
+        : new SimpleGetHistoryProvider(rpcUrls[0]);
     }
     case EvmEcosystemId.Bnb: {
       try {
@@ -94,7 +94,7 @@ export const getProvider = (
         }
         const network = getEtherscanFamilyNetwork(env, ecosystemId);
         if (network === null) {
-          return new LocalProvider(rpcUrls[0]);
+          return new SimpleGetHistoryProvider(rpcUrls[0]);
         }
         return new EtherscanFamilyProvider(network);
       }
@@ -106,7 +106,7 @@ export const getProvider = (
     case EvmEcosystemId.Polygon: {
       const network = getEtherscanFamilyNetwork(env, ecosystemId);
       if (network === null) {
-        return new LocalProvider(rpcUrls[0]);
+        return new SimpleGetHistoryProvider(rpcUrls[0]);
       }
       return new EtherscanFamilyProvider(
         network,

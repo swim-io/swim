@@ -4,16 +4,16 @@ import Decimal from "decimal.js";
 import { ethers } from "ethers";
 
 import type { EtherscanFamilyProvider } from "./EtherscanFamilyProvider";
-import type { LocalProvider } from "./LocalProvider";
 import type { MoralisProvider } from "./MoralisProvider";
 import type { PolkadotProvider } from "./PolkadotProvider";
+import type { SimpleGetHistoryProvider } from "./SimpleGetHistoryProvider";
 
 type TransactionReceipt = ethers.providers.TransactionReceipt;
 type TransactionResponse = ethers.providers.TransactionResponse;
 
 export type Provider =
   | EtherscanFamilyProvider
-  | LocalProvider
+  | SimpleGetHistoryProvider
   | MoralisProvider
   | PolkadotProvider;
 

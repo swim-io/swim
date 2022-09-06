@@ -2,8 +2,8 @@ name: "Deploy UI to production"
 
 on:
   push:
-    # branches:
-    #   - master
+    branches:
+      - master
     paths:
       - "apps/ui/**"
       - ".github/workflows/deploy.yaml"

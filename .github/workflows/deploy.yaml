@@ -106,10 +106,7 @@ jobs:
       - name: Build UI
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
-          # TODO: Don't skip source maps deployment to Sentry before merging to master
-          SKIP_SENTRY: "true"
-          # Ignore missing optional dependencies of moralis we don't use ('@walletconnect/web3-provider', '@web3auth/web3auth', 'magic-sdk')
-          CI: "false"
+
         run: |
           echo "Building UI"
           yarn release-ui

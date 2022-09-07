@@ -5,6 +5,7 @@ on:
       - "packages/solana-contracts/**.ts"
       - "packages/solana-contracts/**.json"
       - "packages/solana-contracts/*.rs"
+      - "yarn.lock"
   push:
     branches:
       - master
@@ -14,7 +15,6 @@ env:
   RUST_TOOLCHAIN: "1.60.0"
   ANCHOR_CLI_VERSION: 0.25.0
   SOLANA_CLI_VERSION: 1.10.29
-
 
 jobs:
   verify:
@@ -26,7 +26,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
 
       - name: Install Linux Dependencies
         run: sudo apt-get update && sudo apt-get -y install pkg-config build-essential libudev-dev
@@ -79,5 +78,3 @@ jobs:
 
       - name: Build and Test Propeller Program
         run: yarn run test:propeller
-
-

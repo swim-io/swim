@@ -1,4 +1,9 @@
-import { getAssociatedTokenAddress } from "@solana/spl-token";
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountInstruction,
+  getAssociatedTokenAddress,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
 import type {
   Finality,
   ParsedTransactionWithMeta,
@@ -12,6 +17,8 @@ import { sleep } from "@swim-io/utils";
 
 import type { TokenAccount } from "./serialization/tokenAccount";
 import { deserializeTokenAccount } from "./serialization/tokenAccount";
+import { createTx } from "./utils";
+import { SolanaWalletAdapter } from "./walletAdapters";
 
 export const DEFAULT_MAX_RETRIES = 10;
 export const DEFAULT_COMMITMENT_LEVEL: Finality = "confirmed";
@@ -318,6 +325,34 @@ export class SolanaConnection {
     } catch {
       return null;
     }
+  }
+
+  async createSplTokenAccount(
+    wallet: SolanaWalletAdapter,
+    splTokenMintAddress: string,
+  ): Promise<string> {
+    if (!wallet.publicKey) {
+      throw new Error("No Solana wallet connected");
+    }
+    const mint = new PublicKey(splTokenMintAddress);
+    const associatedAccount = await getAssociatedTokenAddress(
+      mint,
+      wallet.publicKey,
+    );
+    const ix = createAssociatedTokenAccountInstruction(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      mint,
+      associatedAccount,
+      wallet.publicKey,
+      wallet.publicKey,
+    );
+
+    const tx = createTx({
+      feePayer: wallet.publicKey,
+    });
+    tx.add(ix);
+    return this.sendAndConfirmTx(wallet.signTransaction.bind(wallet), tx);
   }
 
   private incrementRpcProvider() {

@@ -5,6 +5,7 @@ import {
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import type {
+  Commitment,
   Finality,
   ParsedTransactionWithMeta,
   RpcResponseAndContext,
@@ -13,7 +14,7 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
-import { sleep } from "@swim-io/utils";
+import { chunks, sleep } from "@swim-io/utils";
 
 import type { TokenAccount } from "./serialization/tokenAccount";
 import { deserializeTokenAccount } from "./serialization/tokenAccount";
@@ -303,6 +304,27 @@ export class SolanaConnection {
         "Successfully created SPL token account but failed to fetch it",
       );
     }, maxRetries);
+  }
+
+  public async getMultipleTokenAccounts(
+    keys: readonly string[],
+    commitment?: Commitment,
+  ): Promise<readonly (TokenAccount | null)[]> {
+    const results = await Promise.all(
+      chunks(keys, 99).map((chunk) =>
+        this.rawConnection.getMultipleAccountsInfo(
+          chunk.map((key) => new PublicKey(key)),
+          commitment,
+        ),
+      ),
+    );
+    return results.flatMap((accounts, i) =>
+      accounts.map((account) =>
+        account === null
+          ? null
+          : deserializeTokenAccount(new PublicKey(keys[i]), account.data),
+      ),
+    );
   }
 
   // Looks for a signature, only returns a value if there's no error

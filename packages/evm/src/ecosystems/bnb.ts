@@ -1,12 +1,15 @@
 import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
+import { assertType } from "@swim-io/utils";
 
-import type { EvmChainConfig, EvmEcosystemConfig } from "../protocol";
+import type {
+  EvmChainConfig,
+  EvmChainId,
+  EvmEcosystemConfig,
+} from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
-import { createChainId } from "./utils/chains";
-
-export const bnbChainId = createChainId({
+export const bnbChainId = assertType<EvmChainId>()({
   [Env.Mainnet]: 56,
   [Env.Devnet]: 97,
   [Env.Local]: 1397,

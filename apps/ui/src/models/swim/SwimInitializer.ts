@@ -23,7 +23,7 @@ import type {
 } from "@swim-io/solana";
 import { chunks } from "@swim-io/utils";
 
-import { createSplTokenAccount, createTx, findProgramAddress } from "../solana";
+import { createSplTokenAccount, createTx } from "../solana";
 
 import { SwimInstruction, initInstruction } from "./instructions";
 
@@ -285,7 +285,7 @@ export class SwimInitializer {
     if (!this.stateAccount) {
       throw new Error("No state account");
     }
-    const [poolAuthority, nonce] = findProgramAddress(
+    const [poolAuthority, nonce] = PublicKey.findProgramAddressSync(
       [this.stateAccount.toBuffer()],
       this.programId,
     );

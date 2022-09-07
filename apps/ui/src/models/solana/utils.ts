@@ -11,7 +11,7 @@ import type {
   ParsedTransactionWithMeta,
   TransactionBlockhashCtor,
 } from "@solana/web3.js";
-import { MAX_SEED_LENGTH, PublicKey, Transaction } from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
 import type {
   CustomConnection,
@@ -20,79 +20,8 @@ import type {
   TokenAccount,
 } from "@swim-io/solana";
 import { chunks, sleep } from "@swim-io/utils";
-import BN from "bn.js";
 import Decimal from "decimal.js";
-import { ethers } from "ethers";
 import type { QueryClient } from "react-query";
-
-const { sha256 } = ethers.utils;
-
-/**
- * Adapted from https://github.com/solana-labs/solana-web3.js/blob/ebcfe5e691cb0d4ae7290c562c7f49af4e6fb43e/src/util/to-buffer.ts
- */
-export const toBuffer = (
-  arr: Buffer | Uint8Array | readonly number[],
-): Buffer => {
-  if (Buffer.isBuffer(arr)) {
-    return arr;
-  } else if (arr instanceof Uint8Array) {
-    return Buffer.from(arr.buffer, arr.byteOffset, arr.byteLength);
-  } else {
-    return Buffer.from(arr);
-  }
-};
-
-/**
- * Synchronous adaptation of https://github.com/solana-labs/solana-web3.js/blob/ebcfe5e691cb0d4ae7290c562c7f49af4e6fb43e/src/publickey.ts#L142-L168
- */
-export const createProgramAddress = (
-  seeds: readonly (Buffer | Uint8Array)[],
-  programId: PublicKey,
-): PublicKey => {
-  let buffer = Buffer.alloc(0);
-  seeds.forEach(function (seed) {
-    if (seed.length > MAX_SEED_LENGTH) {
-      throw new TypeError(`Max seed length exceeded`);
-    }
-    buffer = Buffer.concat([buffer, toBuffer(seed)]);
-  });
-  buffer = Buffer.concat([
-    buffer,
-    programId.toBuffer(),
-    Buffer.from("ProgramDerivedAddress"),
-  ]);
-  const hash = sha256(new Uint8Array(buffer)).slice(2);
-  const publicKeyBytes = new BN(hash, 16).toArray(undefined, 32);
-  if (PublicKey.isOnCurve(Uint8Array.from(publicKeyBytes))) {
-    throw new Error(`Invalid seeds, address must fall off the curve`);
-  }
-  return new PublicKey(publicKeyBytes);
-};
-
-/**
- * Synchronous adaptation of https://github.com/solana-labs/solana-web3.js/blob/ebcfe5e691cb0d4ae7290c562c7f49af4e6fb43e/src/publickey.ts#L170-L197
- */
-export const findProgramAddress = (
-  seeds: readonly (Buffer | Uint8Array)[],
-  programId: PublicKey,
-): readonly [PublicKey, number] => {
-  let nonce = 255;
-  let address;
-  while (nonce !== 0) {
-    try {
-      const seedsWithNonce = seeds.concat(Buffer.from([nonce]));
-      address = createProgramAddress(seedsWithNonce, programId);
-    } catch (err) {
-      if (err instanceof TypeError) {
-        throw err;
-      }
-      nonce--;
-      continue;
-    }
-    return [address, nonce];
-  }
-  throw new Error(`Unable to find a viable program address nonce`);
-};
 
 export const findTokenAccountForMint = (
   mintAddress: string,

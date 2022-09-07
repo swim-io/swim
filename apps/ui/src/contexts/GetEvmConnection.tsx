@@ -20,7 +20,7 @@ import {
   getEtherscanFamilyNetwork,
 } from "../models";
 
-const MORALIS_ID = "Swim UI";
+const MORALIS_ID = process.env.REACT_APP_MORALIS_ID;
 
 export const GetEvmConnectionContext: React.Context<
   (ecosystemId: EvmEcosystemId) => EvmConnection
@@ -84,6 +84,9 @@ export const getProvider = (
         const rpcUrl = BNB_RPC_URLS[env];
         if (!rpcUrl) {
           throw new Error("Missing BNB RPC URL");
+        }
+        if (!MORALIS_ID) {
+          throw new Error("Missing MORALIS_ID env variable");
         }
         return new MoralisProvider(env, rpcUrl, MORALIS_ID);
       } catch (error) {

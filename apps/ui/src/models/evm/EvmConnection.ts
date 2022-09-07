@@ -3,19 +3,17 @@ import { isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
 
-import type { EtherscanFamilyProvider } from "./EtherscanFamilyProvider";
-import type { MoralisProvider } from "./MoralisProvider";
-import type { PolkadotProvider } from "./PolkadotProvider";
-import type { SimpleGetHistoryProvider } from "./SimpleGetHistoryProvider";
-
+type BaseProvider = ethers.providers.BaseProvider;
 type TransactionReceipt = ethers.providers.TransactionReceipt;
 type TransactionResponse = ethers.providers.TransactionResponse;
 
-export type Provider =
-  | EtherscanFamilyProvider
-  | SimpleGetHistoryProvider
-  | MoralisProvider
-  | PolkadotProvider;
+export type Provider = BaseProvider & {
+  readonly getHistory: (
+    address: string,
+    startBlock?: number,
+    endBlock?: number,
+  ) => Promise<readonly TransactionResponse[]>;
+};
 
 export class EvmConnection {
   public provider: Provider;
@@ -53,7 +51,7 @@ export class EvmConnection {
     // So we prioritize it if available.
     if (typeof txResponse.wait === "function") {
       const maybeTxReceipt = (await txResponse.wait()) as
-        | ethers.providers.TransactionReceipt
+        | TransactionReceipt
         | null
         | undefined;
       if (maybeTxReceipt) {
@@ -67,7 +65,7 @@ export class EvmConnection {
     const maybeTxReceipt = (await this.provider.waitForTransaction(
       txResponse.hash,
       1,
-    )) as ethers.providers.TransactionReceipt | null | undefined;
+    )) as TransactionReceipt | null | undefined;
     if (maybeTxReceipt) {
       this.txReceiptCache.set(txResponse.hash, maybeTxReceipt);
       return maybeTxReceipt;
@@ -78,7 +76,7 @@ export class EvmConnection {
 
   public async getTxReceiptOrThrow(
     txResponse: TransactionResponse,
-  ): Promise<ethers.providers.TransactionReceipt> {
+  ): Promise<TransactionReceipt> {
     const txReceipt = await this.getTxReceipt(txResponse);
     if (txReceipt === null) {
       throw new Error(`Transaction not found: ${txResponse.hash}`);

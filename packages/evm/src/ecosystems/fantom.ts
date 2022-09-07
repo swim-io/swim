@@ -4,12 +4,12 @@ import { assertType } from "@swim-io/utils";
 
 import type {
   EvmChainConfig,
-  EvmChainId,
+  EvmChainIdByEnv,
   EvmEcosystemConfig,
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
-export const fantomChainId = assertType<EvmChainId>()({
+export const fantomChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 250,
   [Env.Devnet]: 4002,
 });

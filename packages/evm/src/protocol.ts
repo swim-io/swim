@@ -8,7 +8,7 @@ import type {
 import type { ReadonlyRecord } from "@swim-io/utils";
 import type { ethers } from "ethers";
 
-export type EvmChainId = Partial<ReadonlyRecord<Env, number>>;
+export type EvmChainIdByEnv = Partial<ReadonlyRecord<Env, number>>;
 
 export type EvmProtocol = "evm";
 export const EVM_PROTOCOL: EvmProtocol = "evm";

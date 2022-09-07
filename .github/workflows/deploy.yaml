@@ -113,6 +113,7 @@ jobs:
       - name: Build UI
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
+          CI: false
 
         run: |
           ls -lah apps/ui

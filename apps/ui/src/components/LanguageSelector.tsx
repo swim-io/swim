@@ -12,7 +12,7 @@ import { useState } from "react";
 import type { ComponentProps, ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Language, languageNameMapping } from "../config";
+import { languageDisplayOrder, languageNameMapping } from "../config";
 import { useI18nLanguage } from "../hooks";
 
 export const LanguageSelectorButton = (): ReactElement => {
@@ -54,15 +54,14 @@ export const LanguageSelectorButton = (): ReactElement => {
     </EuiHeaderSectionItemButton>
   );
 
-  const languageOptions: readonly EuiSelectableOption[] = Object.values(
-    Language,
-  ).map((language) => {
-    return {
-      key: language,
-      label: languageNameMapping[language],
-      checked: currentLanguage === language ? "on" : undefined,
-    };
-  });
+  const languageOptions: readonly EuiSelectableOption[] =
+    languageDisplayOrder.map((language) => {
+      return {
+        key: language,
+        label: languageNameMapping[language],
+        checked: currentLanguage === language ? "on" : undefined,
+      };
+    });
 
   const selectableProps: Partial<ComponentProps<typeof EuiSelectable>> =
     languageOptions.length > 4
@@ -114,7 +113,7 @@ export const LanguageSelectorDropdown = (): ReactElement => {
   const currentLanguage = useI18nLanguage();
 
   // eslint-disable-next-line functional/prefer-readonly-type
-  const languageOptions: EuiSelectOption[] = Object.values(Language).map(
+  const languageOptions: EuiSelectOption[] = languageDisplayOrder.map(
     (language) => {
       return {
         value: language,

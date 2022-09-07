@@ -14,7 +14,7 @@ import type {
 } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import type { WormholeChainConfig } from "@swim-io/core";
-import { SOLANA_ECOSYSTEM_ID, createMemoIx } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, createMemoIx, createTx } from "@swim-io/solana";
 import type {
   SolanaConnection,
   SolanaTx,
@@ -24,7 +24,6 @@ import type {
 import type { TokenConfig } from "../../config";
 import { WormholeChainId, getSolanaTokenDetails } from "../../config";
 import {
-  createTx,
   getAmountBurnedByMint,
   getAmountMintedToAccount,
   getAmountTransferredFromAccount,

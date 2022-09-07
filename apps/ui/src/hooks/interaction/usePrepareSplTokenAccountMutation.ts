@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "react-query";
 
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
-import { createSplTokenAccount, findTokenAccountForMint } from "../../models";
+import { findTokenAccountForMint } from "../../models";
 import {
   getSplTokenAccountsQueryKey,
   useSolanaConnection,
@@ -43,8 +43,7 @@ export const usePrepareSplTokenAccountMutation = () => {
     );
     await Promise.all(
       missingAccountMints.map(async (mint) => {
-        const creationTxId = await createSplTokenAccount(
-          solanaConnection,
+        const creationTxId = await solanaConnection.createSplTokenAccount(
           wallet,
           mint,
         );

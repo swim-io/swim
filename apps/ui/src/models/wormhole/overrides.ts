@@ -16,11 +16,9 @@ import {
 import { createApproveInstruction } from "@solana/spl-token";
 import type { Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { createMemoIx } from "@swim-io/solana";
+import { createMemoIx, createTx } from "@swim-io/solana";
 import type { SolanaConnection } from "@swim-io/solana";
 import type { ethers } from "ethers";
-
-import { createTx } from "../solana";
 
 export const approveEth = async (
   tokenBridgeAddress: string,

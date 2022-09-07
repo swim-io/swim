@@ -1,17 +1,10 @@
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
-  createAssociatedTokenAccountInstruction,
-  getAssociatedTokenAddress,
-  getAssociatedTokenAddressSync,
-} from "@solana/spl-token";
+import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import type {
   AccountInfo,
   Commitment,
   ParsedTransactionWithMeta,
-  TransactionBlockhashCtor,
 } from "@solana/web3.js";
-import { PublicKey, Transaction } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
 import type {
   CustomConnection,
@@ -218,38 +211,6 @@ export const getAmountBurnedByMint = (
   return new Decimal(0);
 };
 
-export const createSplTokenAccount = async (
-  solanaConnection: SolanaConnection,
-  wallet: SolanaWalletAdapter,
-  splTokenMintAddress: string,
-): Promise<string> => {
-  if (!wallet.publicKey) {
-    throw new Error("No Solana wallet connected");
-  }
-  const mint = new PublicKey(splTokenMintAddress);
-  const associatedAccount = await getAssociatedTokenAddress(
-    mint,
-    wallet.publicKey,
-  );
-  const ix = createAssociatedTokenAccountInstruction(
-    ASSOCIATED_TOKEN_PROGRAM_ID,
-    TOKEN_PROGRAM_ID,
-    mint,
-    associatedAccount,
-    wallet.publicKey,
-    wallet.publicKey,
-  );
-
-  const tx = createTx({
-    feePayer: wallet.publicKey,
-  });
-  tx.add(ix);
-  return solanaConnection.sendAndConfirmTx(
-    wallet.signTransaction.bind(wallet),
-    tx,
-  );
-};
-
 export const findOrCreateSplTokenAccount = async (
   env: Env,
   solanaConnection: SolanaConnection,
@@ -270,11 +231,8 @@ export const findOrCreateSplTokenAccount = async (
     return existingAccount;
   }
   const solanaAddress = wallet.publicKey.toBase58();
-  const createSplTokenAccountTxId = await createSplTokenAccount(
-    solanaConnection,
-    wallet,
-    splTokenMintAddress,
-  );
+  const createSplTokenAccountTxId =
+    await solanaConnection.createSplTokenAccount(wallet, splTokenMintAddress);
   await solanaConnection.confirmTx(createSplTokenAccountTxId);
   await sleep(1000); // TODO: Find a better condition
   await queryClient.invalidateQueries(["tokenAccounts", env, solanaAddress]);
@@ -352,13 +310,4 @@ export const getMultipleSolanaAccounts = async (
     }),
   );
   return { keys, array };
-};
-
-type CreateTxOptions = Omit<
-  TransactionBlockhashCtor,
-  "blockhash" | "lastValidBlockHeight"
->;
-/** Create transaction with dummy blockhash and lastValidBlockHeight, expected to be overwritten by solanaConnection.sendAndConfirmTx to prevent expired blockhash */
-export const createTx = (opts: CreateTxOptions): Transaction => {
-  return new Transaction({ ...opts, blockhash: "", lastValidBlockHeight: 0 });
 };

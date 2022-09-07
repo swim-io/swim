@@ -1,6 +1,6 @@
 import type { Mint, TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import { findOrThrow, isNotNull } from "@swim-io/utils";
+import { findOrThrow, isEachNotNull, isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
@@ -137,17 +137,21 @@ export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
     ),
   );
 
-  return poolSpecs.map((poolSpec, i) =>
-    constructPool(
+  return poolSpecs.map((poolSpec, i) => {
+    const { data: poolTokenAccounts = null } = liquidityQueries[i];
+    if (poolTokenAccounts !== null && !isEachNotNull(poolTokenAccounts)) {
+      throw new Error("Missing token account");
+    }
+    return constructPool(
       allTokens,
       poolSpec,
       walletAddress,
       splTokenAccounts,
       poolStates[i].data,
       lpMints[i].data,
-      liquidityQueries[i].data,
-    ),
-  );
+      poolTokenAccounts,
+    );
+  });
 };
 
 export const usePool = (poolId: string): PoolData => usePools([poolId])[0];

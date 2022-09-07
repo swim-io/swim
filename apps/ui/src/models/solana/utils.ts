@@ -1,18 +1,13 @@
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
-import type {
-  AccountInfo,
-  Commitment,
-  ParsedTransactionWithMeta,
-} from "@solana/web3.js";
+import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
 import type {
-  CustomConnection,
   SolanaConnection,
   SolanaWalletAdapter,
   TokenAccount,
 } from "@swim-io/solana";
-import { chunks, sleep } from "@swim-io/utils";
+import { sleep } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import type { QueryClient } from "react-query";
 
@@ -240,74 +235,4 @@ export const findOrCreateSplTokenAccount = async (
     splTokenMintAddress,
     solanaAddress,
   );
-};
-
-type UnsafeConnection = CustomConnection & {
-  // See https://github.com/solana-labs/solana/blob/5e424826ba52e643bbd8e761b7bee11f699eb46c/web3.js/src/connection.ts#L66
-
-  readonly _rpcRequest: (methodName: string, args: readonly any[]) => any;
-};
-
-const getMultipleSolanaAccountsCore = async (
-  solanaConnection: SolanaConnection,
-  keys: readonly string[],
-  commitment?: Commitment,
-): Promise<{
-  readonly keys: readonly string[];
-  readonly array: readonly AccountInfo<readonly string[]>[];
-}> => {
-  const { rawConnection } = solanaConnection;
-  const args = rawConnection._buildArgs([keys], commitment, "base64");
-
-  // TODO: Replace with a public method once available
-  // See https://github.com/solana-labs/solana/issues/12302
-  const unsafeRes = (await (rawConnection as UnsafeConnection)._rpcRequest(
-    "getMultipleAccounts",
-    args,
-  )) as {
-    readonly error?: Record<string, unknown>;
-    readonly result?: {
-      readonly value?: readonly AccountInfo<readonly string[]>[];
-    };
-  };
-
-  if (unsafeRes.error) {
-    throw new Error(
-      "Failed to get info about account " + String(unsafeRes.error.message),
-    );
-  }
-  if (!unsafeRes.result?.value) {
-    throw new Error("Failed to get info about account");
-  }
-
-  const array = unsafeRes.result.value;
-  return { keys, array };
-};
-
-export interface AccountsResponse {
-  readonly keys: readonly string[];
-  readonly array: readonly AccountInfo<Buffer>[];
-}
-
-export const getMultipleSolanaAccounts = async (
-  solanaConnection: SolanaConnection,
-  keys: readonly string[],
-  commitment?: Commitment,
-): Promise<AccountsResponse> => {
-  const result = await Promise.all(
-    chunks(keys, 99).map((chunk) =>
-      getMultipleSolanaAccountsCore(solanaConnection, [...chunk], commitment),
-    ),
-  );
-
-  const array = result.flatMap((a) =>
-    a.array.filter(Boolean).map((acc) => {
-      const { data, ...rest } = acc;
-      return {
-        ...rest,
-        data: Buffer.from(data[0], "base64"),
-      };
-    }),
-  );
-  return { keys, array };
 };

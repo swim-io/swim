@@ -30,7 +30,7 @@ import { Protocol, WormholeChainId, getSolanaTokenDetails } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import {
-  useEvmConnections,
+  useEvmConnection,
   usePool,
   useSolanaConnection,
   useTokensByEcosystem,
@@ -62,7 +62,8 @@ const TestPage = (): ReactElement => {
     ethereum: { address: ethereumAddress, wallet: ethereumWallet },
     bnb: { address: bnbAddress, wallet: bnbWallet },
   } = useWallets();
-  const evmConnections = useEvmConnections();
+  const ethereumConnection = useEvmConnection(EvmEcosystemId.Ethereum);
+  const bnbConnection = useEvmConnection(EvmEcosystemId.Bnb);
   const solanaConnection = useSolanaConnection();
   const {
     spec: poolSpec,
@@ -367,7 +368,7 @@ const TestPage = (): ReactElement => {
       const wormholeAsset = new PublicKey(token).toBytes();
       const foreignAsset = await getForeignAssetEth(
         ethereumChain.wormhole.portal,
-        evmConnections[EvmEcosystemId.Ethereum].provider,
+        ethereumConnection.provider,
         WormholeChainId.Solana,
         wormholeAsset,
       );
@@ -384,7 +385,7 @@ const TestPage = (): ReactElement => {
       const wormholeAsset = new PublicKey(token).toBytes();
       const foreignAsset = await getForeignAssetEth(
         bnbChain.wormhole.portal,
-        evmConnections[EvmEcosystemId.Bnb].provider,
+        bnbConnection.provider,
         WormholeChainId.Solana,
         wormholeAsset,
       );

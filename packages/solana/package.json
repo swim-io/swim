@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/solana",
-  "version": "0.16.2",
+  "version": "0.17.0",
   "description": "Swim code relating to Solana.",
   "main": "build",
   "types": "types",
@@ -31,7 +31,10 @@
     "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
+    "@ledgerhq/hw-transport": "^6.27.1",
+    "@ledgerhq/hw-transport-webusb": "^6.0.2",
     "@project-serum/borsh": "^0.2.5",
+    "@project-serum/sol-wallet-adapter": "^0.2.6",
     "@solana/spl-token": "^0.3.4",
     "@solana/web3.js": "^1.48.0",
     "@swim-io/core": "workspace:^",

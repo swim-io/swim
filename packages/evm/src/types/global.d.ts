@@ -8,13 +8,6 @@ declare global {
         readonly isUnlocked?: () => Promise<boolean>;
       };
     };
-    readonly phantom?: Record<string, unknown>;
-    readonly solana?: {
-      readonly isPhantom?: boolean;
-    };
-    readonly solong?: {
-      readonly selectAccount: () => Promise<string>;
-    };
   }
 }
 

@@ -1,3 +1,8 @@
+import * as Sentry from "@sentry/react";
+import type { EvmWalletAdapter } from "@swim-io/evm";
+import { EVM_PROTOCOL } from "@swim-io/evm";
+import type { SolanaWalletAdapter } from "@swim-io/solana";
+import { SOLANA_PROTOCOL } from "@swim-io/solana";
 import { truncate } from "@swim-io/utils";
 import { produce } from "immer";
 import create from "zustand";
@@ -7,12 +12,7 @@ import { persist } from "zustand/middleware.js";
 import { Protocol } from "../../config";
 import { captureException } from "../../errors";
 import { i18next } from "../../i18n";
-import type {
-  EvmWalletAdapter,
-  SolanaWalletAdapter,
-  WalletAdapter,
-  WalletServiceId,
-} from "../../models";
+import type { WalletAdapter, WalletServiceId } from "../../models";
 import { isWalletServiceId } from "../../models";
 
 import { useNotification as notificationStore } from "./useNotification";
@@ -77,6 +77,74 @@ const isValidSelectedServiceByProtocol = (
   );
 };
 
+const getEvmWalletSentryContextKey = async (
+  adapter: EvmWalletAdapter,
+): Promise<string> => {
+  const networkName = await adapter.getNetworkName();
+  return `${networkName || "Unknown Network"} Wallet`;
+};
+const onEvmWalletConnected = async (
+  adapter: EvmWalletAdapter,
+): Promise<void> => {
+  const sentryContextKey = await getEvmWalletSentryContextKey(adapter);
+  Sentry.setContext(sentryContextKey, {
+    walletName: adapter.serviceName,
+    address: adapter.address,
+  });
+  Sentry.addBreadcrumb({
+    category: "wallet",
+    message: `Connected to ${sentryContextKey} ${String(adapter.address)}`,
+    level: "info",
+  });
+};
+const onEvmWalletDisconnected = async (
+  adapter: EvmWalletAdapter,
+): Promise<void> => {
+  const sentryContextKey = await getEvmWalletSentryContextKey(adapter);
+  Sentry.setContext(sentryContextKey, {});
+  Sentry.addBreadcrumb({
+    category: "wallet",
+    message: `Disconnected from ${sentryContextKey}`,
+    level: "info",
+  });
+};
+
+const getSolanaWalletSentryContextKey = (): string => {
+  return "Solana Wallet";
+};
+const onSolanaWalletConnected = async (
+  adapter: SolanaWalletAdapter,
+  // eslint-disable-next-line @typescript-eslint/require-await
+): Promise<void> => {
+  if (adapter.publicKey === null) {
+    return;
+  }
+
+  const sentryContextKey = getSolanaWalletSentryContextKey();
+  // Identify users by their Solana wallet address
+  Sentry.setUser({ id: adapter.publicKey.toBase58() });
+  Sentry.setContext(sentryContextKey, {
+    walletName: adapter.serviceName,
+    address: adapter.publicKey.toBase58(),
+  });
+  Sentry.addBreadcrumb({
+    category: "wallet",
+    message: `Connected to ${sentryContextKey} ${adapter.publicKey.toBase58()}`,
+    level: "info",
+  });
+};
+// eslint-disable-next-line @typescript-eslint/require-await
+const onSolanaWalletDisconnected = async (): Promise<void> => {
+  const sentryContextKey = getSolanaWalletSentryContextKey();
+  Sentry.configureScope((scope) => scope.setUser(null));
+  Sentry.setContext(sentryContextKey, {});
+  Sentry.addBreadcrumb({
+    category: "wallet",
+    message: `Disconnected from ${sentryContextKey}`,
+    level: "info",
+  });
+};
+
 export const useWalletAdapter = create(
   persist<
     WalletAdapterState,
@@ -117,6 +185,20 @@ export const useWalletAdapter = create(
               7000,
             );
           }
+
+          switch (protocol) {
+            case Protocol.Evm:
+              onEvmWalletConnected(adapter as EvmWalletAdapter).catch(
+                console.error,
+              );
+              break;
+            case Protocol.Solana:
+              onSolanaWalletConnected(adapter as SolanaWalletAdapter).catch(
+                console.error,
+              );
+              break;
+            default:
+          }
         };
         const handleDisconnect = (): void => {
           notify(
@@ -125,6 +207,18 @@ export const useWalletAdapter = create(
             "warning",
           );
           void disconnect();
+
+          switch (protocol) {
+            case Protocol.Evm:
+              onEvmWalletDisconnected(adapter as EvmWalletAdapter).catch(
+                console.error,
+              );
+              break;
+            case Protocol.Solana:
+              onSolanaWalletDisconnected().catch(console.error);
+              break;
+            default:
+          }
         };
         const handleError = (title: string, description: string): void => {
           notify(title, description, "error");
@@ -149,11 +243,11 @@ export const useWalletAdapter = create(
               draft.selectedServiceByProtocol[protocol] = serviceId;
 
               switch (adapter.protocol) {
-                case Protocol.Evm: {
+                case EVM_PROTOCOL: {
                   draft.evm = adapter;
                   break;
                 }
-                case Protocol.Solana: {
+                case SOLANA_PROTOCOL: {
                   draft.solana = adapter;
                   break;
                 }

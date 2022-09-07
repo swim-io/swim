@@ -451,19 +451,6 @@ const LOCAL_CHAINS: ChainsByProtocol = {
   ],
 };
 
-export const ALL_UNIQUE_CHAINS = {
-  [Protocol.Solana]: [
-    ...MAINNET_CHAINS[Protocol.Solana],
-    ...DEVNET_CHAINS[Protocol.Solana],
-    ...LOCAL_CHAINS[Protocol.Solana],
-  ],
-  [Protocol.Evm]: [
-    ...MAINNET_CHAINS[Protocol.Evm],
-    ...DEVNET_CHAINS[Protocol.Evm],
-    ...LOCAL_CHAINS[Protocol.Evm],
-  ],
-};
-
 export const CHAINS: ReadonlyRecord<Env, ChainsByProtocol> = {
   [Env.Mainnet]: MAINNET_CHAINS,
   [Env.Devnet]: DEVNET_CHAINS,

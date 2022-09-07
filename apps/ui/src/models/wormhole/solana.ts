@@ -15,7 +15,11 @@ import type {
 import { PublicKey } from "@solana/web3.js";
 import type { WormholeChainConfig } from "@swim-io/core";
 import { SOLANA_ECOSYSTEM_ID, createMemoIx } from "@swim-io/solana";
-import type { SolanaConnection, SolanaTx } from "@swim-io/solana";
+import type {
+  SolanaConnection,
+  SolanaTx,
+  SolanaWalletAdapter,
+} from "@swim-io/solana";
 
 import type { TokenConfig } from "../../config";
 import { WormholeChainId, getSolanaTokenDetails } from "../../config";
@@ -26,7 +30,6 @@ import {
   getAmountTransferredFromAccount,
   getAmountTransferredToAccount,
 } from "../solana";
-import type { SolanaWalletAdapter } from "../wallets";
 
 import {
   DEFAULT_WORMHOLE_RETRIES,

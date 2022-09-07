@@ -2,7 +2,7 @@ import type { EvmEcosystemId } from "@swim-io/evm";
 import { useTranslation } from "react-i18next";
 
 import type { TokenConfig } from "../../config";
-import { ECOSYSTEMS } from "../../config";
+import { ECOSYSTEMS, getTokenDetailsForEcosystem } from "../../config";
 import { useNotification } from "../../core/store";
 import { captureException } from "../../errors";
 
@@ -34,7 +34,18 @@ export const useRegisterErc20Token = (
     }
 
     try {
-      await wallet.registerToken(tokenConfig, ecosystemId, evmChainId);
+      const tokenDetails = getTokenDetailsForEcosystem(
+        tokenConfig,
+        ecosystemId,
+      );
+      if (!tokenDetails) {
+        throw new Error(`No "${ecosystemId}" details for token`);
+      }
+      await wallet.registerToken(
+        tokenDetails,
+        tokenConfig.projectId,
+        evmChainId,
+      );
     } catch (error) {
       notify(
         t("notify.register_token_failed_title"),

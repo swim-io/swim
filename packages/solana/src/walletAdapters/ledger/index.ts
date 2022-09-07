@@ -4,7 +4,8 @@ import type { PublicKey, Transaction } from "@solana/web3.js";
 import { assertIsError } from "@swim-io/utils";
 import EventEmitter from "eventemitter3";
 
-import { Protocol } from "../../../../../config";
+import type { SolanaProtocol } from "../../protocol";
+import { SOLANA_PROTOCOL } from "../../protocol";
 import type { SolanaWalletAdapter } from "../SolanaWalletAdapter";
 
 import { getPublicKey, signTransaction } from "./core";
@@ -13,17 +14,18 @@ export class LedgerWalletAdapter
   extends EventEmitter
   implements SolanaWalletAdapter
 {
-  _connecting: boolean;
-  _publicKey: PublicKey | null;
-  _transport: Transport | null;
-  readonly protocol: Protocol.Solana;
+  public readonly protocol: SolanaProtocol;
+  public readonly serviceName = "Ledger";
+  private _connecting: boolean;
+  private _publicKey: PublicKey | null;
+  private _transport: Transport | null;
 
   constructor() {
     super();
     this._connecting = false;
     this._publicKey = null;
     this._transport = null;
-    this.protocol = Protocol.Solana;
+    this.protocol = SOLANA_PROTOCOL;
   }
 
   get publicKey(): PublicKey | null {

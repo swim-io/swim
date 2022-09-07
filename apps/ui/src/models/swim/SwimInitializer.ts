@@ -16,11 +16,14 @@ import {
   TransactionInstruction,
 } from "@solana/web3.js";
 import { swimPool } from "@swim-io/solana";
-import type { DecimalBN, SolanaConnection } from "@swim-io/solana";
+import type {
+  DecimalBN,
+  SolanaConnection,
+  SolanaWalletAdapter,
+} from "@swim-io/solana";
 import { chunks } from "@swim-io/utils";
 
 import { createSplTokenAccount, createTx, findProgramAddress } from "../solana";
-import type { SolanaWalletAdapter } from "../wallets";
 
 import { SwimInstruction, initInstruction } from "./instructions";
 

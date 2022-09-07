@@ -1,11 +1,9 @@
-import * as Sentry from "@sentry/react";
-import type { SeverityLevel } from "@sentry/types";
 import type { PublicKeyInitData, Transaction } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import EventEmitter from "eventemitter3";
 
-import { Protocol } from "../../../../config";
-import { SolanaWalletError, captureException } from "../../../../errors";
+import type { SolanaProtocol } from "../protocol";
+import { SOLANA_PROTOCOL } from "../protocol";
 
 // TODO: Migrate to @solana/wallet-adapter.
 export interface SolanaWalletAdapter extends EventEmitter {
@@ -20,7 +18,9 @@ export interface SolanaWalletAdapter extends EventEmitter {
   ) => Promise<Transaction[]>;
   readonly connect: (args?: any) => Promise<unknown>;
   readonly disconnect: () => Promise<void>;
-  readonly protocol: Protocol.Solana;
+  readonly protocol: SolanaProtocol;
+  // for logging
+  readonly serviceName: string;
 }
 
 export interface SolanaWeb3WalletService {
@@ -39,13 +39,12 @@ export class SolanaWeb3WalletAdapter<
   extends EventEmitter
   implements SolanaWalletAdapter
 {
-  serviceName: string;
-  serviceUrl: string;
-  publicKey: PublicKey | null;
-  readonly protocol: Protocol.Solana;
-
-  protected getService: () => any;
+  public publicKey: PublicKey | null;
+  public readonly protocol: SolanaProtocol;
+  public readonly serviceName: string;
   protected connecting: boolean;
+  private readonly getService: () => S | null;
+  private readonly serviceUrl: string;
 
   constructor(
     serviceName: string,
@@ -58,11 +57,7 @@ export class SolanaWeb3WalletAdapter<
     this.getService = getService;
     this.publicKey = null;
     this.connecting = false;
-    this.protocol = Protocol.Solana;
-
-    this.on("connect", () => {
-      this.onPublicKeySet();
-    });
+    this.protocol = SOLANA_PROTOCOL;
   }
 
   public get address(): string | null {
@@ -77,10 +72,6 @@ export class SolanaWeb3WalletAdapter<
     return this.getService();
   }
 
-  private get sentryContextKey(): string {
-    return "Solana Wallet";
-  }
-
   public async signAllTransactions(
     // eslint-disable-next-line functional/prefer-readonly-type
     transactions: Transaction[],
@@ -90,26 +81,18 @@ export class SolanaWeb3WalletAdapter<
       throw new Error("No wallet service connected");
     }
 
-    try {
-      return await this.service.signAllTransactions(transactions);
-    } catch (error) {
-      throw new SolanaWalletError("", error);
-    }
+    return await this.service.signAllTransactions(transactions);
   }
 
-  async signTransaction(transaction: Transaction): Promise<Transaction> {
+  public async signTransaction(transaction: Transaction): Promise<Transaction> {
     if (!this.service) {
       throw new Error("No wallet service connected");
     }
 
-    try {
-      return await this.service.signTransaction(transaction);
-    } catch (error) {
-      throw new SolanaWalletError("", error);
-    }
+    return await this.service.signTransaction(transaction);
   }
 
-  async connect(args?: any): Promise<void> {
+  public async connect(args?: any): Promise<void> {
     if (this.connecting) {
       return;
     }
@@ -134,13 +117,14 @@ export class SolanaWeb3WalletAdapter<
         `Connection to ${this.serviceName} failed.`,
       );
 
-      captureException(error);
-
+      throw error;
+    } finally {
       this.connecting = false;
     }
   }
 
-  async connectService(args?: any): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async connectService(args?: any): Promise<void> {
     if (!this.service) {
       throw new Error("No wallet service available");
     }
@@ -148,45 +132,13 @@ export class SolanaWeb3WalletAdapter<
     const publicKey = await this.service.getAccount();
     this.publicKey = new PublicKey(publicKey);
     this.emit("connect", this.publicKey);
-
-    this.connecting = false;
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
   async disconnect(): Promise<void> {
     if (this.publicKey) {
       this.publicKey = null;
-      Sentry.configureScope((scope) => scope.setUser(null));
-      Sentry.setContext(this.sentryContextKey, {});
-      const level: SeverityLevel = "info";
-      Sentry.addBreadcrumb({
-        category: "wallet",
-        message: `Disconnected from ${this.sentryContextKey}`,
-        level,
-      });
-
       this.emit("disconnect");
     }
-  }
-
-  onPublicKeySet(): void {
-    if (this.publicKey === null) {
-      return;
-    }
-
-    // Identify users by their Solana wallet address
-    Sentry.setUser({ id: this.publicKey.toBase58() });
-    Sentry.setContext(this.sentryContextKey, {
-      walletName: this.serviceName,
-      address: this.publicKey.toBase58(),
-    });
-    const level: SeverityLevel = "info";
-    Sentry.addBreadcrumb({
-      category: "wallet",
-      message: `Connected to ${
-        this.sentryContextKey
-      } ${this.publicKey.toBase58()}`,
-      level,
-    });
   }
 }

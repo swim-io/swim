@@ -208,7 +208,7 @@ export class EvmWeb3WalletAdapter
         address: tokenDetails.address, // The address that the token is at.
         symbol: TOKEN_PROJECTS_BY_ID[projectId].symbol, // A ticker symbol or shorthand, up to 5 chars.
         decimals: tokenDetails.decimals, // The number of decimals in the token
-        // TODO: image: tokenConfig.icon, // A string url of the token logo
+        image: TOKEN_PROJECTS_BY_ID[projectId].icon, // A string url of the token logo
       },
     })) as boolean;
     return wasAdded;

@@ -26,8 +26,6 @@ i18next
   .use(initReactI18next)
   .init({
     fallbackLng: fallbackLanguage,
-    supportedLngs: Object.values(Language),
-    nonExplicitSupportedLngs: true,
     // Helps finding issues with loading not working.
     debug: process.env.NODE_ENV === "development",
     react: {

@@ -115,6 +115,8 @@ jobs:
           NODE_OPTIONS: "--max_old_space_size=4096"
 
         run: |
+          ls -lah apps/ui
+          cat apps/ui/.env
           echo "Building UI"
           yarn release-ui
 

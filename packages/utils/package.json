@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/utils",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "No-dependency general-purpose utils.",
   "main": "build",
   "types": "types",

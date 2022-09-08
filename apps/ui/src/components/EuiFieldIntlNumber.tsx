@@ -4,19 +4,11 @@
 import { EuiFieldNumber } from "@elastic/eui";
 import escapeStringRegexp from "escape-string-regexp";
 import type { ComponentProps } from "react";
-import { forwardRef, useCallback } from "react";
+import { useCallback } from "react";
 import CurrencyInput from "react-currency-input-field";
 import { useDeepCompareMemo } from "use-deep-compare";
 
 import { useI18nLanguage, useIntlNumberSeparators } from "../hooks";
-
-/** Use `inputRef` as `ref` in order to get input element reference for `react-currency-input-field` to `setSelectionRange`. Without it, when adding/removing numbers with group separators (e.g. `,` for English), the cursor will always move to the end */
-const MappedEuiFieldNumber = forwardRef<
-  HTMLInputElement,
-  ComponentProps<typeof EuiFieldNumber>
->(function MappedEuiFieldNumber(props, ref) {
-  return <EuiFieldNumber {...props} inputRef={ref} />;
-});
 
 type Override<T, U> = Omit<T, keyof U> & U;
 type Props = Override<
@@ -79,7 +71,6 @@ export const EuiFieldIntlNumber: React.FC<Props> = ({
   return (
     <CurrencyInput
       {...props}
-      customInput={MappedEuiFieldNumber}
       decimalsLimit={props.decimalsLimit ?? 20} // default max value allowed by Intl.NumberFormat
       intlConfig={intlConfig}
       onValueChange={onValueChange}

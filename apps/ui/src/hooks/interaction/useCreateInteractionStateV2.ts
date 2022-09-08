@@ -1,5 +1,5 @@
 import type { TokenAccount } from "@swim-io/solana";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
 import { filterMap } from "@swim-io/utils";
 import shallow from "zustand/shallow.js";
 
@@ -25,7 +25,6 @@ import type {
 import {
   InteractionType,
   SwapType,
-  findTokenAccountForMint,
   generateId,
   getConnectedWalletsV2,
   getRequiredPools,

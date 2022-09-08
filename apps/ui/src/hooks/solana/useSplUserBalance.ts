@@ -1,6 +1,5 @@
+import { findTokenAccountForMint } from "@swim-io/solana";
 import Decimal from "decimal.js";
-
-import { findTokenAccountForMint } from "../../models";
 
 import { useSolanaWallet } from "./useSolanaWallet";
 import { useSplTokenAccountsQuery } from "./useSplTokenAccountsQuery";

@@ -7,7 +7,7 @@ type TransactionResponse = providers.TransactionResponse;
 
 const DEFAULT_RECENT_BLOCKS = 100;
 
-export class LocalProvider extends JsonRpcProvider {
+export class SimpleGetHistoryProvider extends JsonRpcProvider {
   async getHistory(
     address: string,
     startBlock?: number,

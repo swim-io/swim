@@ -6,9 +6,8 @@ import escapeStringRegexp from "escape-string-regexp";
 import type { ComponentProps } from "react";
 import { forwardRef, useCallback } from "react";
 import CurrencyInput from "react-currency-input-field";
-import { useDeepCompareMemo } from "use-deep-compare";
 
-import { useI18nLanguage, useIntlNumberSeparators } from "../hooks";
+import { useIntlNumberSeparators } from "../hooks";
 
 /** Use `inputRef` as `ref` in order to get input element reference for `react-currency-input-field` to `setSelectionRange`. Without it, when adding/removing numbers with group separators (e.g. `,` for English), the cursor will always move to the end */
 const MappedEuiFieldNumber = forwardRef<
@@ -44,13 +43,15 @@ export const EuiFieldIntlNumber: React.FC<Props> = ({
   onValueChange: originalOnValueChange,
   ...props
 }) => {
-  const language = useI18nLanguage();
+  // const language = useI18nLanguage();
+  /*
   const intlConfig = useDeepCompareMemo(() => {
     return {
       ...props.intlConfig,
       locale: language,
     };
   }, [language, props.intlConfig]);
+  */
 
   const { decimal: decimalSeparator } = useIntlNumberSeparators();
 
@@ -81,7 +82,7 @@ export const EuiFieldIntlNumber: React.FC<Props> = ({
       {...props}
       customInput={MappedEuiFieldNumber}
       decimalsLimit={props.decimalsLimit ?? 20} // default max value allowed by Intl.NumberFormat
-      intlConfig={intlConfig}
+      // intlConfig={intlConfig} // tmp disabled as it may causes the value changing unexpectedly when mouse blur
       onValueChange={onValueChange}
       // always convert back to the current i18n format
       value={props.value.replace(/\./g, decimalSeparator)}

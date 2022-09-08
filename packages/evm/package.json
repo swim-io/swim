@@ -35,6 +35,7 @@
     "@swim-io/evm-contracts": "workspace:^",
     "@swim-io/token-projects": "workspace:^",
     "@swim-io/utils": "workspace:^",
+    "decimal.js": "^10.3.1",
     "ethers": "^5.6.9",
     "eventemitter3": "^4.0.7"
   },

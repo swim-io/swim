@@ -7,6 +7,13 @@ export enum Language {
   ZhCn = "zh-CN",
 }
 
+export const languageDisplayOrder: readonly Language[] = [
+  Language.En,
+  Language.ZhCn,
+  Language.Ru,
+  Language.Ja,
+];
+
 export const languageNameMapping: ReadonlyRecord<Language, string> = {
   [Language.En]: "English",
   [Language.Ja]: "日本語",

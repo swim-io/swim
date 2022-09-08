@@ -17,6 +17,6 @@ export const languageDisplayOrder: readonly Language[] = [
 export const languageNameMapping: ReadonlyRecord<Language, string> = {
   [Language.En]: "English",
   [Language.Ja]: "日本語",
-  [Language.Ru]: "Русский язык",
+  [Language.Ru]: "Русский",
   [Language.ZhCn]: "简体中文",
 };

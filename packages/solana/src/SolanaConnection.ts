@@ -1,8 +1,8 @@
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddress,
-  TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import type {
   Commitment,
@@ -19,7 +19,7 @@ import { chunks, sleep } from "@swim-io/utils";
 import type { TokenAccount } from "./serialization/tokenAccount";
 import { deserializeTokenAccount } from "./serialization/tokenAccount";
 import { createTx } from "./utils";
-import { SolanaWalletAdapter } from "./walletAdapters";
+import type { SolanaWalletAdapter } from "./walletAdapters";
 
 export const DEFAULT_MAX_RETRIES = 10;
 export const DEFAULT_COMMITMENT_LEVEL: Finality = "confirmed";

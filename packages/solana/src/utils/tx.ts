@@ -1,4 +1,5 @@
-import { Transaction, TransactionBlockhashCtor } from "@solana/web3.js";
+import type { TransactionBlockhashCtor } from "@solana/web3.js";
+import { Transaction } from "@solana/web3.js";
 
 export type CreateTxOptions = Omit<
   TransactionBlockhashCtor,

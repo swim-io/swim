@@ -1,5 +1,11 @@
-import { getAssociatedTokenAddress } from "@solana/spl-token";
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountInstruction,
+  getAssociatedTokenAddress,
+} from "@solana/spl-token";
 import type {
+  Commitment,
   Finality,
   ParsedTransactionWithMeta,
   RpcResponseAndContext,
@@ -8,10 +14,12 @@ import type {
   TransactionResponse,
 } from "@solana/web3.js";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
-import { sleep } from "@swim-io/utils";
+import { chunks, sleep } from "@swim-io/utils";
 
 import type { TokenAccount } from "./serialization/tokenAccount";
 import { deserializeTokenAccount } from "./serialization/tokenAccount";
+import { createTx } from "./utils";
+import type { SolanaWalletAdapter } from "./walletAdapters";
 
 export const DEFAULT_MAX_RETRIES = 10;
 export const DEFAULT_COMMITMENT_LEVEL: Finality = "confirmed";
@@ -298,6 +306,29 @@ export class SolanaConnection {
     }, maxRetries);
   }
 
+  public async getMultipleTokenAccounts(
+    keys: readonly string[],
+    commitment?: Commitment,
+  ): Promise<readonly (TokenAccount | null)[]> {
+    // See https://docs.solana.com/developing/clients/jsonrpc-api#getmultipleaccounts
+    const MAX_ACCOUNTS_PER_REQUEST = 99;
+    const results = await Promise.all(
+      chunks(keys, MAX_ACCOUNTS_PER_REQUEST).map((chunk) =>
+        this.rawConnection.getMultipleAccountsInfo(
+          chunk.map((key) => new PublicKey(key)),
+          commitment,
+        ),
+      ),
+    );
+    return results.flatMap((accounts, i) =>
+      accounts.map((account) =>
+        account === null
+          ? null
+          : deserializeTokenAccount(new PublicKey(keys[i]), account.data),
+      ),
+    );
+  }
+
   // Looks for a signature, only returns a value if there's no error
   // or value
   async getSigStatusToSigResult(
@@ -318,6 +349,34 @@ export class SolanaConnection {
     } catch {
       return null;
     }
+  }
+
+  async createSplTokenAccount(
+    wallet: SolanaWalletAdapter,
+    splTokenMintAddress: string,
+  ): Promise<string> {
+    if (!wallet.publicKey) {
+      throw new Error("No Solana wallet connected");
+    }
+    const mint = new PublicKey(splTokenMintAddress);
+    const associatedAccount = await getAssociatedTokenAddress(
+      mint,
+      wallet.publicKey,
+    );
+    const ix = createAssociatedTokenAccountInstruction(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      mint,
+      associatedAccount,
+      wallet.publicKey,
+      wallet.publicKey,
+    );
+
+    const tx = createTx({
+      feePayer: wallet.publicKey,
+    });
+    tx.add(ix);
+    return this.sendAndConfirmTx(wallet.signTransaction.bind(wallet), tx);
   }
 
   private incrementRpcProvider() {

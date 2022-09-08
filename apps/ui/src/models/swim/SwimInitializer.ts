@@ -15,15 +15,13 @@ import {
   SystemProgram,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { swimPool } from "@swim-io/solana";
+import { createTx, swimPool } from "@swim-io/solana";
 import type {
   DecimalBN,
   SolanaConnection,
   SolanaWalletAdapter,
 } from "@swim-io/solana";
 import { chunks } from "@swim-io/utils";
-
-import { createSplTokenAccount, createTx, findProgramAddress } from "../solana";
 
 import { SwimInstruction, initInstruction } from "./instructions";
 
@@ -112,11 +110,11 @@ export class SwimInitializer {
       stateKeypair,
       lpMintKeypair,
     );
-    const txIdPrepareLpTokenAccount = await createSplTokenAccount(
-      this.solanaConnection,
-      this.signer,
-      this.lpMint.toBase58(),
-    );
+    const txIdPrepareLpTokenAccount =
+      await this.solanaConnection.createSplTokenAccount(
+        this.signer,
+        this.lpMint.toBase58(),
+      );
     this.governanceFeeAccount = await getAssociatedTokenAddress(
       this.lpMint,
       new PublicKey(signerAddress),
@@ -285,7 +283,7 @@ export class SwimInitializer {
     if (!this.stateAccount) {
       throw new Error("No state account");
     }
-    const [poolAuthority, nonce] = findProgramAddress(
+    const [poolAuthority, nonce] = PublicKey.findProgramAddressSync(
       [this.stateAccount.toBuffer()],
       this.programId,
     );

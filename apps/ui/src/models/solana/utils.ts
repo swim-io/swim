@@ -1,98 +1,15 @@
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
-  createAssociatedTokenAccountInstruction,
-  getAssociatedTokenAddress,
-  getAssociatedTokenAddressSync,
-} from "@solana/spl-token";
-import type {
-  AccountInfo,
-  Commitment,
-  ParsedTransactionWithMeta,
-  TransactionBlockhashCtor,
-} from "@solana/web3.js";
-import { MAX_SEED_LENGTH, PublicKey, Transaction } from "@solana/web3.js";
+import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+import type { ParsedTransactionWithMeta } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
 import type {
-  CustomConnection,
   SolanaConnection,
   SolanaWalletAdapter,
   TokenAccount,
 } from "@swim-io/solana";
-import { chunks, sleep } from "@swim-io/utils";
-import BN from "bn.js";
+import { sleep } from "@swim-io/utils";
 import Decimal from "decimal.js";
-import { ethers } from "ethers";
 import type { QueryClient } from "react-query";
-
-const { sha256 } = ethers.utils;
-
-/**
- * Adapted from https://github.com/solana-labs/solana-web3.js/blob/ebcfe5e691cb0d4ae7290c562c7f49af4e6fb43e/src/util/to-buffer.ts
- */
-export const toBuffer = (
-  arr: Buffer | Uint8Array | readonly number[],
-): Buffer => {
-  if (Buffer.isBuffer(arr)) {
-    return arr;
-  } else if (arr instanceof Uint8Array) {
-    return Buffer.from(arr.buffer, arr.byteOffset, arr.byteLength);
-  } else {
-    return Buffer.from(arr);
-  }
-};
-
-/**
- * Synchronous adaptation of https://github.com/solana-labs/solana-web3.js/blob/ebcfe5e691cb0d4ae7290c562c7f49af4e6fb43e/src/publickey.ts#L142-L168
- */
-export const createProgramAddress = (
-  seeds: readonly (Buffer | Uint8Array)[],
-  programId: PublicKey,
-): PublicKey => {
-  let buffer = Buffer.alloc(0);
-  seeds.forEach(function (seed) {
-    if (seed.length > MAX_SEED_LENGTH) {
-      throw new TypeError(`Max seed length exceeded`);
-    }
-    buffer = Buffer.concat([buffer, toBuffer(seed)]);
-  });
-  buffer = Buffer.concat([
-    buffer,
-    programId.toBuffer(),
-    Buffer.from("ProgramDerivedAddress"),
-  ]);
-  const hash = sha256(new Uint8Array(buffer)).slice(2);
-  const publicKeyBytes = new BN(hash, 16).toArray(undefined, 32);
-  if (PublicKey.isOnCurve(Uint8Array.from(publicKeyBytes))) {
-    throw new Error(`Invalid seeds, address must fall off the curve`);
-  }
-  return new PublicKey(publicKeyBytes);
-};
-
-/**
- * Synchronous adaptation of https://github.com/solana-labs/solana-web3.js/blob/ebcfe5e691cb0d4ae7290c562c7f49af4e6fb43e/src/publickey.ts#L170-L197
- */
-export const findProgramAddress = (
-  seeds: readonly (Buffer | Uint8Array)[],
-  programId: PublicKey,
-): readonly [PublicKey, number] => {
-  let nonce = 255;
-  let address;
-  while (nonce !== 0) {
-    try {
-      const seedsWithNonce = seeds.concat(Buffer.from([nonce]));
-      address = createProgramAddress(seedsWithNonce, programId);
-    } catch (err) {
-      if (err instanceof TypeError) {
-        throw err;
-      }
-      nonce--;
-      continue;
-    }
-    return [address, nonce];
-  }
-  throw new Error(`Unable to find a viable program address nonce`);
-};
 
 export const findTokenAccountForMint = (
   mintAddress: string,
@@ -289,38 +206,6 @@ export const getAmountBurnedByMint = (
   return new Decimal(0);
 };
 
-export const createSplTokenAccount = async (
-  solanaConnection: SolanaConnection,
-  wallet: SolanaWalletAdapter,
-  splTokenMintAddress: string,
-): Promise<string> => {
-  if (!wallet.publicKey) {
-    throw new Error("No Solana wallet connected");
-  }
-  const mint = new PublicKey(splTokenMintAddress);
-  const associatedAccount = await getAssociatedTokenAddress(
-    mint,
-    wallet.publicKey,
-  );
-  const ix = createAssociatedTokenAccountInstruction(
-    ASSOCIATED_TOKEN_PROGRAM_ID,
-    TOKEN_PROGRAM_ID,
-    mint,
-    associatedAccount,
-    wallet.publicKey,
-    wallet.publicKey,
-  );
-
-  const tx = createTx({
-    feePayer: wallet.publicKey,
-  });
-  tx.add(ix);
-  return solanaConnection.sendAndConfirmTx(
-    wallet.signTransaction.bind(wallet),
-    tx,
-  );
-};
-
 export const findOrCreateSplTokenAccount = async (
   env: Env,
   solanaConnection: SolanaConnection,
@@ -341,11 +226,8 @@ export const findOrCreateSplTokenAccount = async (
     return existingAccount;
   }
   const solanaAddress = wallet.publicKey.toBase58();
-  const createSplTokenAccountTxId = await createSplTokenAccount(
-    solanaConnection,
-    wallet,
-    splTokenMintAddress,
-  );
+  const createSplTokenAccountTxId =
+    await solanaConnection.createSplTokenAccount(wallet, splTokenMintAddress);
   await solanaConnection.confirmTx(createSplTokenAccountTxId);
   await sleep(1000); // TODO: Find a better condition
   await queryClient.invalidateQueries(["tokenAccounts", env, solanaAddress]);
@@ -353,83 +235,4 @@ export const findOrCreateSplTokenAccount = async (
     splTokenMintAddress,
     solanaAddress,
   );
-};
-
-type UnsafeConnection = CustomConnection & {
-  // See https://github.com/solana-labs/solana/blob/5e424826ba52e643bbd8e761b7bee11f699eb46c/web3.js/src/connection.ts#L66
-
-  readonly _rpcRequest: (methodName: string, args: readonly any[]) => any;
-};
-
-const getMultipleSolanaAccountsCore = async (
-  solanaConnection: SolanaConnection,
-  keys: readonly string[],
-  commitment?: Commitment,
-): Promise<{
-  readonly keys: readonly string[];
-  readonly array: readonly AccountInfo<readonly string[]>[];
-}> => {
-  const { rawConnection } = solanaConnection;
-  const args = rawConnection._buildArgs([keys], commitment, "base64");
-
-  // TODO: Replace with a public method once available
-  // See https://github.com/solana-labs/solana/issues/12302
-  const unsafeRes = (await (rawConnection as UnsafeConnection)._rpcRequest(
-    "getMultipleAccounts",
-    args,
-  )) as {
-    readonly error?: Record<string, unknown>;
-    readonly result?: {
-      readonly value?: readonly AccountInfo<readonly string[]>[];
-    };
-  };
-
-  if (unsafeRes.error) {
-    throw new Error(
-      "Failed to get info about account " + String(unsafeRes.error.message),
-    );
-  }
-  if (!unsafeRes.result?.value) {
-    throw new Error("Failed to get info about account");
-  }
-
-  const array = unsafeRes.result.value;
-  return { keys, array };
-};
-
-export interface AccountsResponse {
-  readonly keys: readonly string[];
-  readonly array: readonly AccountInfo<Buffer>[];
-}
-
-export const getMultipleSolanaAccounts = async (
-  solanaConnection: SolanaConnection,
-  keys: readonly string[],
-  commitment?: Commitment,
-): Promise<AccountsResponse> => {
-  const result = await Promise.all(
-    chunks(keys, 99).map((chunk) =>
-      getMultipleSolanaAccountsCore(solanaConnection, [...chunk], commitment),
-    ),
-  );
-
-  const array = result.flatMap((a) =>
-    a.array.filter(Boolean).map((acc) => {
-      const { data, ...rest } = acc;
-      return {
-        ...rest,
-        data: Buffer.from(data[0], "base64"),
-      };
-    }),
-  );
-  return { keys, array };
-};
-
-type CreateTxOptions = Omit<
-  TransactionBlockhashCtor,
-  "blockhash" | "lastValidBlockHeight"
->;
-/** Create transaction with dummy blockhash and lastValidBlockHeight, expected to be overwritten by solanaConnection.sendAndConfirmTx to prevent expired blockhash */
-export const createTx = (opts: CreateTxOptions): Transaction => {
-  return new Transaction({ ...opts, blockhash: "", lastValidBlockHeight: 0 });
 };

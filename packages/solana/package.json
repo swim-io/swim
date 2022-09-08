@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/solana",
-  "version": "0.18.1",
+  "version": "0.19.0",
   "description": "Swim code relating to Solana.",
   "main": "build",
   "types": "types",
@@ -40,7 +40,8 @@
     "@swim-io/core": "workspace:^",
     "@swim-io/token-projects": "workspace:^",
     "@swim-io/utils": "workspace:^",
-    "bn.js": "^5.2.1"
+    "bn.js": "^5.2.1",
+    "decimal.js": "^10.3.1"
   },
   "devDependencies": {
     "@swim-io/eslint-config": "workspace:^",

@@ -1,7 +1,7 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
 import type { Transaction } from "@solana/web3.js";
 import type { SolanaConnection, TokenAccount } from "@swim-io/solana";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
 import { findOrThrow, isEachNotNull } from "@swim-io/utils";
 import { useMutation } from "react-query";
 
@@ -20,7 +20,6 @@ import {
   Amount,
   DEFAULT_WORMHOLE_RETRIES,
   evmAddressToWormhole,
-  findTokenAccountForMint,
   getSignedVaaWithRetry,
   getToEcosystemOfFromSolanaTransfer,
   getTokensByPool,

@@ -1,12 +1,12 @@
 import { EvmEcosystemId } from "@swim-io/evm";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 import type { UseQueryResult } from "react-query";
 
 import type { EcosystemId, TokenConfig } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
-import { Amount, findTokenAccountForMint } from "../../models";
+import { Amount } from "../../models";
 import { useErc20BalancesQuery } from "../evm";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 

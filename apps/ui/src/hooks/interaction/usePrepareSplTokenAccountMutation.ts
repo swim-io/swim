@@ -1,8 +1,8 @@
+import { findTokenAccountForMint } from "@swim-io/solana";
 import { useMutation, useQueryClient } from "react-query";
 
 import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
-import { findTokenAccountForMint } from "../../models";
 import {
   getSplTokenAccountsQueryKey,
   useSolanaConnection,

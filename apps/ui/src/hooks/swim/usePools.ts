@@ -1,5 +1,5 @@
 import type { Mint, TokenAccount } from "@swim-io/solana";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
 import { findOrThrow, isEachNotNull, isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
@@ -9,11 +9,7 @@ import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { PoolState } from "../../models";
-import {
-  findTokenAccountForMint,
-  getPoolUsdValue,
-  isEvmPoolState,
-} from "../../models";
+import { getPoolUsdValue, isEvmPoolState } from "../../models";
 import {
   useSolanaLiquidityQueries,
   useSolanaWallet,

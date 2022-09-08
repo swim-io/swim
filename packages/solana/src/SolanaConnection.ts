@@ -1,6 +1,4 @@
 import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
@@ -364,12 +362,10 @@ export class SolanaConnection {
       wallet.publicKey,
     );
     const ix = createAssociatedTokenAccountInstruction(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      mint,
+      wallet.publicKey,
       associatedAccount,
       wallet.publicKey,
-      wallet.publicKey,
+      mint,
     );
 
     const tx = createTx({

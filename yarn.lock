@@ -7471,7 +7471,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm-contracts@workspace:packages/evm-contracts":
+"@swim-io/evm-contracts@workspace:^, @swim-io/evm-contracts@workspace:packages/evm-contracts":
   version: 0.0.0-use.local
   resolution: "@swim-io/evm-contracts@workspace:packages/evm-contracts"
   dependencies:
@@ -7545,6 +7545,7 @@ __metadata:
     "@ethersproject/providers": ^5.6.8
     "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/evm-contracts": "workspace:^"
     "@swim-io/token-projects": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": "workspace:^"

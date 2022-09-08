@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@swim-io/core": "workspace:^",
+    "@swim-io/evm-contracts": "workspace:^",
     "@swim-io/token-projects": "workspace:^",
     "@swim-io/utils": "workspace:^",
     "ethers": "^5.6.9",

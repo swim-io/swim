@@ -81,6 +81,7 @@ export const EuiFieldIntlNumber: React.FC<Props> = ({
       {...props}
       customInput={MappedEuiFieldNumber}
       decimalsLimit={props.decimalsLimit ?? 20} // default max value allowed by Intl.NumberFormat
+      disableAbbreviations
       intlConfig={intlConfig}
       onValueChange={onValueChange}
       // always convert back to the current i18n format

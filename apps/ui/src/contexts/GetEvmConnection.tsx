@@ -1,6 +1,14 @@
 import { Env } from "@swim-io/core";
 import type { GetHistoryProvider } from "@swim-io/evm";
-import { EvmConnection, EvmEcosystemId } from "@swim-io/evm";
+import {
+  EtherscanFamilyProvider,
+  EvmConnection,
+  EvmEcosystemId,
+  MoralisProvider,
+  PolkadotProvider,
+  SimpleGetHistoryProvider,
+  getEtherscanFamilyNetwork,
+} from "@swim-io/evm";
 import { findOrThrow } from "@swim-io/utils";
 import { createContext, useEffect, useState } from "react";
 import type { ReactElement, ReactNode } from "react";
@@ -11,13 +19,6 @@ import type { EvmSpec } from "../config";
 import { Protocol, isEcosystemEnabled } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
-import {
-  EtherscanFamilyProvider,
-  MoralisProvider,
-  PolkadotProvider,
-  SimpleGetHistoryProvider,
-  getEtherscanFamilyNetwork,
-} from "../models";
 
 const MORALIS_ID = process.env.REACT_APP_MORALIS_ID;
 

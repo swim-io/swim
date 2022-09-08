@@ -310,8 +310,10 @@ export class SolanaConnection {
     keys: readonly string[],
     commitment?: Commitment,
   ): Promise<readonly (TokenAccount | null)[]> {
+    // See https://docs.solana.com/developing/clients/jsonrpc-api#getmultipleaccounts
+    const MAX_ACCOUNTS_PER_REQUEST = 99;
     const results = await Promise.all(
-      chunks(keys, 99).map((chunk) =>
+      chunks(keys, MAX_ACCOUNTS_PER_REQUEST).map((chunk) =>
         this.rawConnection.getMultipleAccountsInfo(
           chunk.map((key) => new PublicKey(key)),
           commitment,

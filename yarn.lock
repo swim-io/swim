@@ -7564,6 +7564,7 @@ __metadata:
     ethers: ^5.6.9
     eventemitter3: ^4.0.7
     jest: ^28.1.2
+    moralis: ^1.8.0
     prettier: ^2.7.1
     svgo: ^2.8.0
     ts-jest: ^28.0.5

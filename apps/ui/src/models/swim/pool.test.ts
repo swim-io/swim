@@ -1,6 +1,6 @@
 import type solana from "@solana/web3.js";
 import { Env } from "@swim-io/core";
-import type { EvmTx } from "@swim-io/evm";
+import type { EvmConnection, EvmTx } from "@swim-io/evm";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
 import type { SolanaTx } from "@swim-io/solana";
@@ -10,7 +10,6 @@ import Decimal from "decimal.js";
 import type { ethers } from "ethers";
 import { BigNumber } from "ethers";
 import { mock, mockDeep } from "jest-mock-extended";
-import type { EvmConnection } from "models/evm";
 
 import type { Config, EvmPoolSpec } from "../../config";
 import {

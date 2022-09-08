@@ -1,8 +1,7 @@
-import type { EvmEcosystemId } from "@swim-io/evm";
+import type { EvmConnection, EvmEcosystemId } from "@swim-io/evm";
 import { useContext } from "react";
 
 import { GetEvmConnectionContext } from "../../contexts";
-import type { EvmConnection } from "../../models";
 
 export const useEvmConnections = (
   ecosystemIds: readonly EvmEcosystemId[],

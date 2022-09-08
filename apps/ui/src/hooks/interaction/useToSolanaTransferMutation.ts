@@ -3,7 +3,7 @@ import {
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
-import type { EvmEcosystemId, EvmTx } from "@swim-io/evm";
+import type { EvmConnection, EvmEcosystemId, EvmTx } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import type { ethers } from "ethers";
@@ -18,7 +18,6 @@ import {
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
-import type { EvmConnection } from "../../models";
 import {
   Amount,
   generateUnlockSplTokenTxIds,

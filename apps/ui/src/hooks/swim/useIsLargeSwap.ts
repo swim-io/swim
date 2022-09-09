@@ -2,7 +2,7 @@ import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import shallow from "zustand/shallow.js";
 
-import type { TokenSpec } from "../../config";
+import type { TokenConfig } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { Amount } from "../../models";
@@ -12,8 +12,8 @@ import { usePools } from "./usePools";
 import { useSwapOutputAmountEstimate } from "./useSwapOutputAmountEstimate";
 
 export const useIsLargeSwap = (
-  fromToken: TokenSpec,
-  toToken: TokenSpec,
+  fromToken: TokenConfig,
+  toToken: TokenConfig,
   inputAmount: Amount,
 ) => {
   const config = useEnvironment(selectConfig, shallow);

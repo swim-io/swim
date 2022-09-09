@@ -1,19 +1,15 @@
-import type { MintInfo, AccountInfo as TokenAccount } from "@solana/spl-token";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import { findOrThrow, isNotNull } from "@swim-io/utils";
+import type { Mint, TokenAccount } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
+import { findOrThrow, isEachNotNull, isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
-import type { EcosystemId, PoolSpec, TokenSpec } from "../../config";
+import type { EcosystemId, PoolSpec, TokenConfig } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { PoolState } from "../../models";
-import {
-  findTokenAccountForMint,
-  getPoolUsdValue,
-  isEvmPoolState,
-} from "../../models";
+import { getPoolUsdValue, isEvmPoolState } from "../../models";
 import {
   useSolanaLiquidityQueries,
   useSolanaWallet,
@@ -26,10 +22,10 @@ import { usePoolStateQueries } from "./usePoolStateQueries";
 export interface PoolData {
   readonly spec: PoolSpec;
   readonly nativeEcosystems: readonly EcosystemId[];
-  readonly lpToken: TokenSpec;
-  readonly tokens: readonly TokenSpec[];
+  readonly lpToken: TokenConfig;
+  readonly tokens: readonly TokenConfig[];
   readonly state: PoolState | null;
-  readonly poolLpMint: MintInfo | null;
+  readonly poolLpMint: Mint | null;
   readonly poolTokenAccounts: readonly (TokenAccount | null)[] | null;
   readonly userLpTokenAccount: TokenAccount | null;
   readonly poolUsdValue: Decimal | null;
@@ -37,29 +33,29 @@ export interface PoolData {
 }
 
 const constructPool = (
-  allTokens: readonly TokenSpec[],
+  allTokens: readonly TokenConfig[],
   poolSpec: PoolSpec,
   walletAddress: string | null,
   splTokenAccounts: readonly TokenAccount[] | null,
   poolState: PoolState | null = null,
-  poolLpMint: MintInfo | null = null,
+  poolLpMint: Mint | null = null,
   poolTokenAccounts: readonly TokenAccount[] | null = null,
 ): PoolData => {
   const lpToken = findOrThrow(
     allTokens,
-    (tokenSpec) => tokenSpec.id === poolSpec.lpToken,
+    (tokenConfig) => tokenConfig.id === poolSpec.lpToken,
   );
 
   const tokens = poolSpec.tokens.map(
     (tokenId) =>
-      allTokens.find((tokenSpec) => tokenSpec.id === tokenId) ?? null,
+      allTokens.find((tokenConfig) => tokenConfig.id === tokenId) ?? null,
   );
   if (!tokens.every(isNotNull)) {
     throw new Error("Pool token not found");
   }
 
   const nativeEcosystems = [
-    ...new Set(tokens.map((tokenSpec) => tokenSpec.nativeEcosystemId)),
+    ...new Set(tokens.map((tokenConfig) => tokenConfig.nativeEcosystemId)),
   ];
 
   if (poolState === null) {
@@ -137,17 +133,21 @@ export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
     ),
   );
 
-  return poolSpecs.map((poolSpec, i) =>
-    constructPool(
+  return poolSpecs.map((poolSpec, i) => {
+    const { data: poolTokenAccounts = null } = liquidityQueries[i];
+    if (poolTokenAccounts !== null && !isEachNotNull(poolTokenAccounts)) {
+      throw new Error("Missing token account");
+    }
+    return constructPool(
       allTokens,
       poolSpec,
       walletAddress,
       splTokenAccounts,
       poolStates[i].data,
       lpMints[i].data,
-      liquidityQueries[i].data,
-    ),
-  );
+      poolTokenAccounts,
+    );
+  });
 };
 
 export const usePool = (poolId: string): PoolData => usePools([poolId])[0];

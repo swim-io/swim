@@ -1,3 +1,4 @@
+import { SolanaConnection } from "@swim-io/solana";
 import type { ReactElement, ReactNode } from "react";
 import { createContext, useMemo } from "react";
 import shallow from "zustand/shallow.js";
@@ -5,10 +6,9 @@ import shallow from "zustand/shallow.js";
 import { Protocol } from "../config/ecosystem";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
-import { SolanaConnection } from "../models";
 
 export const SolanaConnectionContext: React.Context<null | SolanaConnection> =
-  createContext<null | SolanaConnection>(null);
+  createContext<SolanaConnection | null>(null);
 
 export const SolanaConnectionProvider = ({
   children,

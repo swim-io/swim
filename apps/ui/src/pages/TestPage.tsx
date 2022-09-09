@@ -30,7 +30,7 @@ import { Protocol, WormholeChainId, getSolanaTokenDetails } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import {
-  useEvmConnections,
+  useEvmConnection,
   usePool,
   useSolanaConnection,
   useTokensByEcosystem,
@@ -62,7 +62,8 @@ const TestPage = (): ReactElement => {
     ethereum: { address: ethereumAddress, wallet: ethereumWallet },
     bnb: { address: bnbAddress, wallet: bnbWallet },
   } = useWallets();
-  const evmConnections = useEvmConnections();
+  const ethereumConnection = useEvmConnection(EvmEcosystemId.Ethereum);
+  const bnbConnection = useEvmConnection(EvmEcosystemId.Bnb);
   const solanaConnection = useSolanaConnection();
   const {
     spec: poolSpec,
@@ -295,7 +296,7 @@ const TestPage = (): ReactElement => {
         continue;
       }
       const receipt = await approveEth(
-        ethereumChain.wormhole.tokenBridge,
+        ethereumChain.wormhole.portal,
         ethereumDetails.address,
         ethereumWallet.signer,
         hugeAmount,
@@ -310,7 +311,7 @@ const TestPage = (): ReactElement => {
         continue;
       }
       const receipt = await approveEth(
-        bnbChain.wormhole.tokenBridge,
+        bnbChain.wormhole.portal,
         bnbDetails.address,
         bnbWallet.signer,
         hugeAmount,
@@ -333,7 +334,7 @@ const TestPage = (): ReactElement => {
         continue;
       }
       const receipt = await approveEth(
-        ethereumChain.wormhole.tokenBridge,
+        ethereumChain.wormhole.portal,
         ethereumDetails.address,
         ethereumWallet.signer,
         zero,
@@ -348,7 +349,7 @@ const TestPage = (): ReactElement => {
         continue;
       }
       const receipt = await approveEth(
-        bnbChain.wormhole.tokenBridge,
+        bnbChain.wormhole.portal,
         bnbDetails.address,
         bnbWallet.signer,
         zero,
@@ -366,8 +367,8 @@ const TestPage = (): ReactElement => {
     ]) {
       const wormholeAsset = new PublicKey(token).toBytes();
       const foreignAsset = await getForeignAssetEth(
-        ethereumChain.wormhole.tokenBridge,
-        evmConnections[EvmEcosystemId.Ethereum].provider,
+        ethereumChain.wormhole.portal,
+        ethereumConnection.provider,
         WormholeChainId.Solana,
         wormholeAsset,
       );
@@ -383,8 +384,8 @@ const TestPage = (): ReactElement => {
     ]) {
       const wormholeAsset = new PublicKey(token).toBytes();
       const foreignAsset = await getForeignAssetEth(
-        bnbChain.wormhole.tokenBridge,
-        evmConnections[EvmEcosystemId.Bnb].provider,
+        bnbChain.wormhole.portal,
+        bnbConnection.provider,
         WormholeChainId.Solana,
         wormholeAsset,
       );

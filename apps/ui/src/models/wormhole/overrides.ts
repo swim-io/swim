@@ -3,6 +3,7 @@ import type { ChainId } from "@certusone/wormhole-sdk";
 import {
   Bridge__factory,
   CHAIN_ID_SOLANA,
+  ERC20__factory,
   chunks,
   createNonce,
   createPostVaaInstructionSolana,
@@ -12,15 +13,12 @@ import {
   importTokenWasm,
   ixFromRust,
 } from "@certusone/wormhole-sdk";
-import { TOKEN_PROGRAM_ID, Token, u64 } from "@solana/spl-token";
+import { createApproveInstruction } from "@solana/spl-token";
 import type { Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { createMemoIx } from "@swim-io/solana";
+import { createMemoIx, createTx } from "@swim-io/solana";
+import type { SolanaConnection } from "@swim-io/solana";
 import type { ethers } from "ethers";
-
-import { Erc20Factory } from "../evm";
-import type { SolanaConnection } from "../solana";
-import { createTx } from "../solana";
 
 export const approveEth = async (
   tokenBridgeAddress: string,
@@ -28,7 +26,7 @@ export const approveEth = async (
   signer: ethers.Signer,
   amount: ethers.BigNumberish,
 ): Promise<ethers.providers.TransactionResponse | null> => {
-  const token = Erc20Factory.connect(tokenAddress, signer);
+  const token = ERC20__factory.connect(tokenAddress, signer);
   return token.approve(tokenBridgeAddress, amount);
 };
 
@@ -119,13 +117,11 @@ export const transferFromSolana = async (
     transfer_wrapped_ix,
     approval_authority_address,
   } = await importTokenWasm();
-  const approvalIx = Token.createApproveInstruction(
-    TOKEN_PROGRAM_ID,
+  const approvalIx = createApproveInstruction(
     new PublicKey(fromAddress),
     new PublicKey(approval_authority_address(tokenBridgeAddress)),
     new PublicKey(fromOwnerAddress || payerAddress),
-    [],
-    new u64(amount.toString(16), 16),
+    amount,
   );
   const messageKeypair = Keypair.generate();
   const isSolanaNative =

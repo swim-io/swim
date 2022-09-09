@@ -9,15 +9,15 @@ import {
   parseSequenceFromLogSolana,
   postVaaSolanaWithRetry,
 } from "@certusone/wormhole-sdk";
-import type { WormholeConfig } from "@swim-io/core";
+import type { WormholeChainConfig, WormholeConfig } from "@swim-io/core";
+import type { EvmWalletAdapter } from "@swim-io/evm";
 import { EvmEcosystemId } from "@swim-io/evm";
+import type { SolanaConnection, SolanaWalletAdapter } from "@swim-io/solana";
+import { DEFAULT_MAX_RETRIES } from "@swim-io/solana";
 import type { ContractReceipt } from "ethers";
 
-import type { EvmSpec, WormholeChainSpec } from "../../config";
+import type { EvmSpec } from "../../config";
 import { ECOSYSTEMS, WormholeChainId } from "../../config";
-import type { SolanaConnection } from "../solana";
-import { DEFAULT_MAX_RETRIES } from "../solana";
-import type { EvmWalletAdapter, SolanaWalletAdapter } from "../wallets";
 
 import { getSignedVaaWithRetry } from "./guardiansRpc";
 
@@ -35,7 +35,7 @@ export interface AttestationResult {
 }
 
 export const attestSplToken = async (
-  solanaWormhole: WormholeChainSpec,
+  solanaWormhole: WormholeChainConfig,
   solanaConnection: SolanaConnection,
   solanaWallet: SolanaWalletAdapter,
   mintAddress: string,
@@ -47,7 +47,7 @@ export const attestSplToken = async (
   const tx = await attestFromSolana(
     solanaConnection.rawConnection,
     solanaWormhole.bridge,
-    solanaWormhole.tokenBridge,
+    solanaWormhole.portal,
     solanaWallet.publicKey.toBase58(),
     mintAddress,
   );
@@ -59,9 +59,7 @@ export const attestSplToken = async (
   const info = await solanaConnection.getTx(txId);
 
   const sequence = parseSequenceFromLogSolana(info);
-  const emitterAddress = await getEmitterAddressSolana(
-    solanaWormhole.tokenBridge,
-  );
+  const emitterAddress = await getEmitterAddressSolana(solanaWormhole.portal);
 
   return {
     txId,
@@ -72,7 +70,7 @@ export const attestSplToken = async (
 
 export const setUpSplTokensOnEvm = async (
   { rpcUrls }: WormholeConfig,
-  solanaWormhole: WormholeChainSpec,
+  solanaWormhole: WormholeChainConfig,
   evmChain: EvmSpec,
   solanaConnection: SolanaConnection,
   solanaWallet: SolanaWalletAdapter,
@@ -113,7 +111,7 @@ export const setUpSplTokensOnEvm = async (
     evmReceipts = [
       ...evmReceipts,
       await createWrappedOnEth(
-        evmChain.wormhole.tokenBridge,
+        evmChain.wormhole.portal,
         evmWallet.signer,
         vaaBytes,
       ),
@@ -140,12 +138,12 @@ export const attestErc20Token = async (
   await evmWallet.switchNetwork(evmChain.chainId);
 
   const receipt = await attestFromEth(
-    evmChain.wormhole.tokenBridge,
+    evmChain.wormhole.portal,
     evmWallet.signer,
     tokenContractAddress,
   );
   const sequence = parseSequenceFromLogEth(receipt, evmChain.wormhole.bridge);
-  const emitterAddress = getEmitterAddressEth(evmChain.wormhole.tokenBridge);
+  const emitterAddress = getEmitterAddressEth(evmChain.wormhole.portal);
 
   return {
     txId: receipt.transactionHash,
@@ -157,7 +155,7 @@ export const attestErc20Token = async (
 export const setUpErc20Tokens = async (
   { rpcUrls }: WormholeConfig,
   evmChain: EvmSpec,
-  solanaWormhole: WormholeChainSpec,
+  solanaWormhole: WormholeChainConfig,
   solanaConnection: SolanaConnection,
   solanaWallet: SolanaWalletAdapter,
   evmWallet: EvmWalletAdapter,
@@ -208,7 +206,7 @@ export const setUpErc20Tokens = async (
       const tx = await createWrappedOnSolana(
         solanaConnection.rawConnection,
         solanaWormhole.bridge,
-        solanaWormhole.tokenBridge,
+        solanaWormhole.portal,
         solanaWallet.publicKey.toBase58(),
         vaaBytes,
       );

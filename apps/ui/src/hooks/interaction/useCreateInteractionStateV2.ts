@@ -1,9 +1,9 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import type { TokenAccount } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
 import { filterMap } from "@swim-io/utils";
 import shallow from "zustand/shallow.js";
 
-import type { PoolSpec, TokenSpec } from "../../config";
+import type { PoolSpec, TokenConfig } from "../../config";
 import {
   DEVNET_SWIMUSD,
   findTokenById,
@@ -25,7 +25,6 @@ import type {
 import {
   InteractionType,
   SwapType,
-  findTokenAccountForMint,
   generateId,
   getConnectedWalletsV2,
   getRequiredPools,
@@ -60,7 +59,7 @@ const calculateRequiredSplTokenAccounts = (
     ? [fromToken, toToken, swimUSD]
     : [fromToken, toToken];
   const mints = filterMap(
-    (token: TokenSpec) => token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID,
+    (token: TokenConfig) => token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID,
     (token) => getSolanaTokenDetails(token).address,
     requiredTokens,
   );
@@ -104,33 +103,33 @@ const calculateRequiredSplTokenAccountsForAddRemove = (
   )
     return null;
 
-  const requiredTokens: readonly TokenSpec[] = (() => {
+  const requiredTokens: readonly TokenConfig[] = (() => {
     switch (interaction.type) {
       case InteractionType.Add: {
         return [
           ...interaction.params.inputAmounts,
           interaction.params.minimumMintAmount,
-        ].map((amount) => amount.tokenSpec);
+        ].map((amount) => amount.tokenConfig);
       }
       case InteractionType.RemoveExactBurn:
         return [
           interaction.params.exactBurnAmount,
           interaction.params.minimumOutputAmount,
-        ].map((amount) => amount.tokenSpec);
+        ].map((amount) => amount.tokenConfig);
       case InteractionType.RemoveExactOutput:
         return [
           ...interaction.params.exactOutputAmounts,
           interaction.params.maximumBurnAmount,
-        ].map((amount) => amount.tokenSpec);
+        ].map((amount) => amount.tokenConfig);
       case InteractionType.RemoveUniform:
         return [
           ...interaction.params.minimumOutputAmounts,
           interaction.params.exactBurnAmount,
-        ].map((amount) => amount.tokenSpec);
+        ].map((amount) => amount.tokenConfig);
     }
   })();
   const mints = filterMap(
-    (token: TokenSpec) => token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID,
+    (token: TokenConfig) => token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID,
     (token) => getSolanaTokenDetails(token).address,
     requiredTokens,
   );

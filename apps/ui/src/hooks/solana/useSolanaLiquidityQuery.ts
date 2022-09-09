@@ -1,13 +1,8 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
-import { PublicKey } from "@solana/web3.js";
+import type { TokenAccount } from "@swim-io/solana";
 import type { UseQueryResult } from "react-query";
 import { useQueries, useQuery } from "react-query";
 
 import { useEnvironment } from "../../core/store";
-import {
-  deserializeTokenAccount,
-  getMultipleSolanaAccounts,
-} from "../../models";
 
 import { useSolanaConnection } from "./useSolanaConnection";
 
@@ -24,52 +19,31 @@ export const useSolanaLiquidityQuery = (
         return [];
       }
 
-      const { keys: foundAddresses, array: tokenAccounts } =
-        await getMultipleSolanaAccounts(
-          solanaConnection,
-          tokenAccountAddresses,
-        );
-
-      return tokenAccounts.map((account, i) => {
-        try {
-          return deserializeTokenAccount(
-            new PublicKey(foundAddresses[i]),
-            account.data,
-          );
-        } catch (error) {
-          return null;
-        }
-      });
+      return await solanaConnection.getMultipleTokenAccounts(
+        tokenAccountAddresses,
+      );
     },
   );
 };
 
 export const useSolanaLiquidityQueries = (
   tokenAccountAddresses: readonly (readonly string[])[],
-): readonly UseQueryResult<readonly TokenAccount[], Error>[] => {
+): readonly UseQueryResult<readonly (TokenAccount | null)[], Error>[] => {
   const { env } = useEnvironment();
   const solanaConnection = useSolanaConnection();
 
   return useQueries(
     tokenAccountAddresses.map((addresses) => ({
       queryKey: ["liquidity", env, addresses.join("")],
-      queryFn: async (): Promise<readonly TokenAccount[]> => {
+      queryFn: async (): Promise<readonly (TokenAccount | null)[]> => {
         if (addresses.length === 0) {
           return [];
         }
 
-        const { keys: foundAddresses, array: tokenAccounts } =
-          await getMultipleSolanaAccounts(solanaConnection, addresses);
-
-        return tokenAccounts.map((account, i) =>
-          deserializeTokenAccount(
-            new PublicKey(foundAddresses[i]),
-            account.data,
-          ),
-        );
+        return await solanaConnection.getMultipleTokenAccounts(addresses);
       },
     })),
     // useQueries does not support types without casting
     // See https://github.com/tannerlinsley/react-query/issues/1675
-  ) as readonly UseQueryResult<readonly TokenAccount[], Error>[];
+  ) as readonly UseQueryResult<readonly (TokenAccount | null)[], Error>[];
 };

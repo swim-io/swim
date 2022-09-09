@@ -12,23 +12,25 @@ import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import type { TokenSpec } from "../config";
+import type { TokenConfig } from "../config";
 import { ECOSYSTEMS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 
 import { CustomModal } from "./CustomModal";
-import { TokenSpecIcon } from "./TokenIcon";
+import { TokenConfigIcon } from "./TokenIcon";
 
-type TokenOption = EuiSelectableOption<{ readonly data: Readonly<TokenSpec> }>;
+type TokenOption = EuiSelectableOption<{
+  readonly data: Readonly<TokenConfig>;
+}>;
 
 const renderTokenOption = (option: TokenOption) => {
-  return <TokenSpecIcon token={option.data} />;
+  return <TokenConfigIcon token={option.data} />;
 };
 
 interface Props {
   readonly handleClose: () => void;
-  readonly handleSelectToken: (token: TokenSpec) => void;
+  readonly handleSelectToken: (token: TokenConfig) => void;
   readonly tokenOptionIds: readonly string[];
 }
 
@@ -40,14 +42,14 @@ export const TokenSearchModal = ({
   const { t } = useTranslation();
   const { tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptionIds.map((tokenId) => {
-    const tokenSpec = findOrThrow(tokens, ({ id }) => id === tokenId);
-    const ecosystem = ECOSYSTEMS[tokenSpec.nativeEcosystemId];
-    const tokenProject = TOKEN_PROJECTS_BY_ID[tokenSpec.projectId];
+    const tokenConfig = findOrThrow(tokens, ({ id }) => id === tokenId);
+    const ecosystem = ECOSYSTEMS[tokenConfig.nativeEcosystemId];
+    const tokenProject = TOKEN_PROJECTS_BY_ID[tokenConfig.projectId];
     return {
       label: `${tokenProject.symbol} on ${ecosystem.displayName}`,
       searchableLabel: `${tokenProject.symbol} ${tokenProject.displayName} ${ecosystem.displayName}`,
       showIcons: false,
-      data: tokenSpec,
+      data: tokenConfig,
     };
   });
 

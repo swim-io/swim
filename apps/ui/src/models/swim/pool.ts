@@ -2,15 +2,16 @@ import { PublicKey } from "@solana/web3.js";
 import type { EvmEcosystemId } from "@swim-io/evm";
 import { isEvmEcosystemId } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
-import type {
-  SolanaEcosystemId,
-  SolanaTx,
-  SwimPoolState,
-} from "@swim-io/solana";
 import {
   SOLANA_ECOSYSTEM_ID,
   deserializeSwimPool,
   isSolanaTx,
+} from "@swim-io/solana";
+import type {
+  SolanaConnection,
+  SolanaEcosystemId,
+  SolanaTx,
+  SwimPoolState,
 } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { findOrThrow } from "@swim-io/utils";
@@ -22,12 +23,11 @@ import type {
   EvmPoolSpec,
   PoolSpec,
   SolanaPoolSpec,
-  TokenSpec,
+  TokenConfig,
 } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
 import type { Tx } from "../crossEcosystem";
 import type { EvmConnection } from "../evm";
-import type { SolanaConnection } from "../solana";
 
 export interface SolanaPoolState extends SwimPoolState {
   readonly ecosystem: SolanaEcosystemId;
@@ -48,8 +48,8 @@ export type PoolState = SolanaPoolState | EvmPoolState;
 export type TokensByPoolId = ReadonlyRecord<
   string, // Pool ID
   {
-    readonly tokens: readonly TokenSpec[];
-    readonly lpToken: TokenSpec;
+    readonly tokens: readonly TokenConfig[];
+    readonly lpToken: TokenConfig;
   }
 >;
 
@@ -104,7 +104,7 @@ export const getSolanaPoolState = async (
 export const getEvmPoolState = async (
   evmConnection: EvmConnection,
   poolSpec: EvmPoolSpec,
-  tokens: readonly TokenSpec[],
+  tokens: readonly TokenConfig[],
   routingContractAddress: string,
 ): Promise<EvmPoolState> => {
   const { ecosystem, address } = poolSpec;

@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/evm",
-  "version": "0.13.0",
+  "version": "0.19.0",
   "description": "Swim code relating to EVM.",
   "main": "build",
   "types": "types",
@@ -32,9 +32,13 @@
   },
   "dependencies": {
     "@swim-io/core": "workspace:^",
-    "ethers": "^5.6.9"
+    "@swim-io/token-projects": "workspace:^",
+    "@swim-io/utils": "workspace:^",
+    "ethers": "^5.6.9",
+    "eventemitter3": "^4.0.7"
   },
   "devDependencies": {
+    "@ethersproject/providers": "^5.6.8",
     "@swim-io/eslint-config": "workspace:^",
     "@swim-io/tsconfig": "workspace:^",
     "@types/jest": "^28.1.3",

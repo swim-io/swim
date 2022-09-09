@@ -1,82 +1,72 @@
-import type { u64 } from "@solana/spl-token";
 import type { TokenDetails } from "@swim-io/core";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
-import { u64ToDecimal } from "../amounts";
-import type { EcosystemId, TokenSpec } from "../config";
+import type { EcosystemId, TokenConfig } from "../config";
 import { getTokenDetailsForEcosystem } from "../config";
 import { fallbackLanguageIfNotSupported, i18next } from "../i18n";
 
 export class Amount {
-  public readonly tokenSpec: TokenSpec;
+  public readonly tokenConfig: TokenConfig;
   private readonly value: Decimal;
 
-  private constructor(tokenSpec: TokenSpec, value: Decimal) {
-    this.tokenSpec = tokenSpec;
+  private constructor(tokenConfig: TokenConfig, value: Decimal) {
+    this.tokenConfig = tokenConfig;
     this.value = value;
   }
 
   get tokenId(): string {
-    return this.tokenSpec.id;
+    return this.tokenConfig.id;
   }
 
-  static zero(tokenSpec: TokenSpec): Amount {
-    return new Amount(tokenSpec, new Decimal(0));
+  static zero(tokenConfig: TokenConfig): Amount {
+    return new Amount(tokenConfig, new Decimal(0));
   }
 
-  static fromHuman(tokenSpec: TokenSpec, value: Decimal): Amount {
-    return new Amount(tokenSpec, value);
-  }
-
-  static fromU64(
-    tokenSpec: TokenSpec,
-    value: u64,
-    ecosystemId: EcosystemId,
-  ): Amount {
-    return this.fromAtomic(tokenSpec, u64ToDecimal(value), ecosystemId);
+  static fromHuman(tokenConfig: TokenConfig, value: Decimal): Amount {
+    return new Amount(tokenConfig, value);
   }
 
   static fromAtomic(
-    tokenSpec: TokenSpec,
+    tokenConfig: TokenConfig,
     value: Decimal,
     ecosystemId: EcosystemId,
   ): Amount {
-    const details = getTokenDetailsForEcosystem(tokenSpec, ecosystemId);
+    const details = getTokenDetailsForEcosystem(tokenConfig, ecosystemId);
     if (!details) {
       throw new Error(
-        `No token details for ecosystem ${ecosystemId} and token '${tokenSpec.id}'`,
+        `No token details for ecosystem ${ecosystemId} and token '${tokenConfig.id}'`,
       );
     }
     const convertedValue = value.div(10 ** details.decimals);
-    return new Amount(tokenSpec, convertedValue);
+    return new Amount(tokenConfig, convertedValue);
   }
 
   static fromAtomicBn(
-    tokenSpec: TokenSpec,
-    value: BN,
+    tokenConfig: TokenConfig,
+    value: BN | bigint,
     ecosystemId: EcosystemId,
   ): Amount {
     return Amount.fromAtomic(
-      tokenSpec,
+      tokenConfig,
       new Decimal(value.toString()),
       ecosystemId,
     );
   }
 
   /** Always parse from standard number which uses `,` as group separators and `.` as decimal separators */
-  static fromHumanString(tokenSpec: TokenSpec, value: string): Amount {
+  static fromHumanString(tokenConfig: TokenConfig, value: string): Amount {
     const strippedValue = value.replace(/,/g, "");
-    return Amount.fromHuman(tokenSpec, new Decimal(strippedValue));
+    return Amount.fromHuman(tokenConfig, new Decimal(strippedValue));
   }
 
   static fromAtomicString(
-    tokenSpec: TokenSpec,
+    tokenConfig: TokenConfig,
     value: string,
     ecosystemId: EcosystemId,
   ): Amount {
-    return Amount.fromAtomic(tokenSpec, new Decimal(value), ecosystemId);
+    return Amount.fromAtomic(tokenConfig, new Decimal(value), ecosystemId);
   }
 
   isNegative(): boolean {
@@ -121,7 +111,7 @@ export class Amount {
       i18next.resolvedLanguage,
     );
     const numberFormatter = new Intl.NumberFormat(language, {
-      ...(TOKEN_PROJECTS_BY_ID[this.tokenSpec.projectId].isStablecoin
+      ...(TOKEN_PROJECTS_BY_ID[this.tokenConfig.projectId].isStablecoin
         ? {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
@@ -135,11 +125,11 @@ export class Amount {
   }
 
   toJSON(): string {
-    return this.toHumanString(this.tokenSpec.nativeEcosystemId);
+    return this.toHumanString(this.tokenConfig.nativeEcosystemId);
   }
 
   toPrimitive(): string {
-    return this.toHumanString(this.tokenSpec.nativeEcosystemId);
+    return this.toHumanString(this.tokenConfig.nativeEcosystemId);
   }
 
   equals(amount: Amount): boolean {
@@ -170,23 +160,23 @@ export class Amount {
   add(amount: Amount): Amount {
     this.ensureSameToken(amount);
     const result = this.value.plus(amount.value);
-    return new Amount(this.tokenSpec, result);
+    return new Amount(this.tokenConfig, result);
   }
 
   sub(amount: Amount): Amount {
     this.ensureSameToken(amount);
     const result = this.value.sub(amount.value);
-    return new Amount(this.tokenSpec, result);
+    return new Amount(this.tokenConfig, result);
   }
 
   mul(scalar: Decimal | number): Amount {
     const result = this.value.mul(scalar);
-    return new Amount(this.tokenSpec, result);
+    return new Amount(this.tokenConfig, result);
   }
 
   div(scalar: Decimal | number): Amount {
     const result = this.value.div(scalar);
-    return new Amount(this.tokenSpec, result);
+    return new Amount(this.tokenConfig, result);
   }
 
   requiresRounding(ecosystemId: EcosystemId): boolean {
@@ -194,7 +184,7 @@ export class Amount {
   }
 
   private details(ecosystemId: EcosystemId): TokenDetails {
-    const details = getTokenDetailsForEcosystem(this.tokenSpec, ecosystemId);
+    const details = getTokenDetailsForEcosystem(this.tokenConfig, ecosystemId);
     if (!details) {
       throw new Error("No token details for ecosystem");
     }

@@ -1,6 +1,6 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
+import type { TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";

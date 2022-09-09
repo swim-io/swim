@@ -3,7 +3,7 @@ import { isEvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import Decimal from "decimal.js";
 
-import type { TokenSpec } from "../../config";
+import type { TokenConfig } from "../../config";
 import type { FeesEstimation } from "../../models";
 import {
   APPROVAL_CEILING,
@@ -19,8 +19,8 @@ const ZERO = new Decimal(0);
 
 const calculateGas = (
   ecosystemId: EvmEcosystemId,
-  fromToken: TokenSpec | null,
-  toToken: TokenSpec | null,
+  fromToken: TokenConfig | null,
+  toToken: TokenConfig | null,
 ): Decimal => {
   const fromRequirements =
     fromToken?.nativeEcosystemId === ecosystemId
@@ -35,8 +35,8 @@ const calculateGas = (
 };
 
 export const useSwapFeesEstimationQuery = (
-  fromToken: TokenSpec | null,
-  toToken: TokenSpec | null,
+  fromToken: TokenConfig | null,
+  toToken: TokenConfig | null,
 ): Partial<FeesEstimation> | null => {
   const requiredEvmEcosystemIds = Array.from(
     new Set([fromToken?.nativeEcosystemId, toToken?.nativeEcosystemId]),

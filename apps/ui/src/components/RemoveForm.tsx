@@ -29,7 +29,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import type { EcosystemId, PoolSpec, TokenSpec } from "../config";
+import type { EcosystemId, PoolSpec, TokenConfig } from "../config";
 import { ECOSYSTEMS } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
@@ -124,15 +124,15 @@ export const RemoveForm = ({
     : Amount.zero(lpToken);
   const poolTokensByEcosystem: ReadonlyRecord<
     EcosystemId,
-    readonly TokenSpec[]
+    readonly TokenConfig[]
   > = poolTokens.reduce(
-    (accumulator, tokenSpec) => {
+    (accumulator, tokenConfig) => {
       const ecosystem = poolSpec.isLegacyPool
-        ? tokenSpec.nativeEcosystemId
+        ? tokenConfig.nativeEcosystemId
         : poolSpec.ecosystem;
       return {
         ...accumulator,
-        [ecosystem]: [...accumulator[ecosystem], tokenSpec],
+        [ecosystem]: [...accumulator[ecosystem], tokenConfig],
       };
     },
     {
@@ -211,7 +211,7 @@ export const RemoveForm = ({
 
       // eslint-disable-next-line functional/prefer-readonly-type
       const newFormOutputAmounts: string[] = [];
-      for (const [tokenIndex, tokenSpec] of poolTokens.entries()) {
+      for (const [tokenIndex, tokenConfig] of poolTokens.entries()) {
         let estimatedOutputAmountDecimal = new Decimal(0);
 
         if (method === RemoveMethod.Uniform && removeUniformAmounts !== null) {
@@ -219,7 +219,7 @@ export const RemoveForm = ({
         } else if (
           method === RemoveMethod.ExactBurn &&
           burnPercentage > 0 &&
-          outputToken === tokenSpec.id
+          outputToken === tokenConfig.id
         ) {
           const { stableOutputAmount } = poolMath.removeExactBurn(
             exactBurnAmount.toHuman(poolSpec.ecosystem),
@@ -229,14 +229,14 @@ export const RemoveForm = ({
         }
 
         const estimatedOutputAmount = Amount.fromHuman(
-          tokenSpec,
+          tokenConfig,
           estimatedOutputAmountDecimal,
         );
 
         // eslint-disable-next-line functional/immutable-data
         newFormOutputAmounts.push(
           // toHumanString because thousands separators would mess up the conversion
-          estimatedOutputAmount.toHumanString(tokenSpec.nativeEcosystemId),
+          estimatedOutputAmount.toHumanString(tokenConfig.nativeEcosystemId),
         );
       }
 
@@ -312,24 +312,24 @@ export const RemoveForm = ({
 
   const onOutputAmountBlur = (
     rawAmount: string,
-    tokenSpec: TokenSpec,
+    tokenConfig: TokenConfig,
   ): void => {
-    const outputAmount = outputAmountsById.get(tokenSpec.id) ?? null;
+    const outputAmount = outputAmountsById.get(tokenConfig.id) ?? null;
     let errors: readonly string[] = [];
 
     // TODO: add maximum amount check
 
     if (outputAmount === null) {
-      const onChange = createOnChange(tokenSpec);
+      const onChange = createOnChange(tokenConfig);
       onChange("0");
     } else if (outputAmount.isNegative()) {
       errors = [t("general.amount_of_tokens_less_than_zero")];
-    } else if (outputAmount.requiresRounding(tokenSpec.nativeEcosystemId)) {
+    } else if (outputAmount.requiresRounding(tokenConfig.nativeEcosystemId)) {
       errors = [t("general.amount_of_tokens_too_many_decimals")];
     }
 
     setOutputAmountErrors(
-      new Map([...outputAmountErrors, [tokenSpec.id, errors]]),
+      new Map([...outputAmountErrors, [tokenConfig.id, errors]]),
     );
   };
 
@@ -388,18 +388,21 @@ export const RemoveForm = ({
 
   const outputTokenOptions: readonly EuiSelectOption[] = poolSpec.tokens.map(
     (id) => {
-      const tokenSpec = findOrThrow(config.tokens, (token) => token.id === id);
+      const tokenConfig = findOrThrow(
+        config.tokens,
+        (token) => token.id === id,
+      );
       return {
         value: id,
-        text: `${TOKEN_PROJECTS_BY_ID[tokenSpec.projectId].displayName} (${
-          ECOSYSTEMS[tokenSpec.nativeEcosystemId].displayName
+        text: `${TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].displayName} (${
+          ECOSYSTEMS[tokenConfig.nativeEcosystemId].displayName
         })`,
       };
     },
   );
 
-  const createOnChange = (tokenSpec: TokenSpec) => (value: string) => {
-    const i = poolTokens.findIndex(({ id }) => id === tokenSpec.id);
+  const createOnChange = (tokenConfig: TokenConfig) => (value: string) => {
+    const i = poolTokens.findIndex(({ id }) => id === tokenConfig.id);
     if (i !== -1) {
       setFormOutputAmounts([
         ...formOutputAmounts.slice(0, i),
@@ -459,10 +462,10 @@ export const RemoveForm = ({
         ? [
             SOLANA_ECOSYSTEM_ID,
             lpTokenSourceEcosystem,
-            ...poolTokens.map((tokenSpec, i) => {
+            ...poolTokens.map((tokenConfig, i) => {
               const outputAmount = outputAmounts[i];
               return outputAmount !== null && !outputAmount.isZero()
-                ? tokenSpec.nativeEcosystemId
+                ? tokenConfig.nativeEcosystemId
                 : null;
             }),
           ].filter(isNotNull)
@@ -758,27 +761,27 @@ export const RemoveForm = ({
           >
             <ConnectButton ecosystemId={ecosystemId as EcosystemId} fullWidth />
             <EuiSpacer size="m" />
-            {ecosystemTokens.map((tokenSpec) => {
-              const onChange = createOnChange(tokenSpec);
+            {ecosystemTokens.map((tokenConfig) => {
+              const onChange = createOnChange(tokenConfig);
               return (
                 <EuiFormRow
                   fullWidth
-                  key={tokenSpec.id}
+                  key={tokenConfig.id}
                   isInvalid={
-                    (outputAmountErrors.get(tokenSpec.id) ?? []).length > 0
+                    (outputAmountErrors.get(tokenConfig.id) ?? []).length > 0
                   }
-                  error={outputAmountErrors.get(tokenSpec.id)}
+                  error={outputAmountErrors.get(tokenConfig.id)}
                 >
                   <EuiFieldText
                     placeholder={t("general.enter_amount_of_tokens")}
-                    name={tokenSpec.id}
+                    name={tokenConfig.id}
                     value={
                       method === RemoveMethod.ExactOutput
-                        ? formOutputAmountsById.get(tokenSpec.id) ?? "0"
+                        ? formOutputAmountsById.get(tokenConfig.id) ?? "0"
                         : outputAmountsById
-                            .get(tokenSpec.id)
+                            .get(tokenConfig.id)
                             ?.toFormattedHumanString(
-                              tokenSpec.nativeEcosystemId,
+                              tokenConfig.nativeEcosystemId,
                             ) ?? "0"
                     }
                     fullWidth
@@ -792,15 +795,15 @@ export const RemoveForm = ({
                     ].includes(method)}
                     onChange={(e) => onChange(e.target.value)}
                     onBlur={(e) => {
-                      onOutputAmountBlur(e.target.value, tokenSpec);
+                      onOutputAmountBlur(e.target.value, tokenConfig);
                     }}
                     isInvalid={
-                      (outputAmountErrors.get(tokenSpec.id) ?? []).length > 0
+                      (outputAmountErrors.get(tokenConfig.id) ?? []).length > 0
                     }
                     prepend={
                       <EuiButtonEmpty size="xs">
                         <TokenIcon
-                          {...TOKEN_PROJECTS_BY_ID[tokenSpec.projectId]}
+                          {...TOKEN_PROJECTS_BY_ID[tokenConfig.projectId]}
                         />
                       </EuiButtonEmpty>
                     }

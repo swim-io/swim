@@ -29,14 +29,8 @@ Object.defineProperty(global.self, "crypto", {
   },
 });
 
-jest.mock("../../contexts", () => ({
-  ...jest.requireActual("../../contexts"),
-  useConfig: jest.fn(),
-}));
-
 jest.mock("../crossEcosystem", () => ({
   ...jest.requireActual("../crossEcosystem"),
-  usePoolMathByPoolIds: jest.fn(),
   useWallets: jest.fn(),
 }));
 

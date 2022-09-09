@@ -3,7 +3,7 @@ import { isEachNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
-import type { TokenSpec } from "../../config";
+import type { TokenConfig } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import {
@@ -16,21 +16,21 @@ import {
 import { usePoolMaths } from "./usePoolMaths";
 
 interface PoolTokens {
-  readonly tokens: readonly TokenSpec[];
-  readonly lpToken: TokenSpec;
+  readonly tokens: readonly TokenConfig[];
+  readonly lpToken: TokenConfig;
 }
 
 const ZERO = new Decimal(0);
 
 const ensureNonNegative = (amount: Amount): Amount => {
-  const zero = Amount.zero(amount.tokenSpec);
+  const zero = Amount.zero(amount.tokenConfig);
   return amount.gt(zero) ? amount : zero;
 };
 
 const routeSwap = (
   inputPoolTokens: PoolTokens,
   outputPoolTokens: PoolTokens,
-  toToken: TokenSpec,
+  toToken: TokenConfig,
 ): {
   readonly inputPoolInstruction:
     | SwimDefiInstruction.Add
@@ -40,7 +40,7 @@ const routeSwap = (
     | SwimDefiInstruction.Swap
     | SwimDefiInstruction.RemoveExactBurn
     | null;
-  readonly outputPoolInputToken: TokenSpec | null;
+  readonly outputPoolInputToken: TokenConfig | null;
 } => {
   if (inputPoolTokens.lpToken.id === outputPoolTokens.lpToken.id) {
     const inputPoolIndexOfToToken = inputPoolTokens.tokens.findIndex(
@@ -98,10 +98,10 @@ const routeSwap = (
 
 export const useSwapOutputAmountEstimate = (
   exactInputAmount: Amount,
-  toToken: TokenSpec,
+  toToken: TokenConfig,
 ): Amount | null => {
   const config = useEnvironment(selectConfig, shallow);
-  const fromToken = exactInputAmount.tokenSpec;
+  const fromToken = exactInputAmount.tokenConfig;
   const tokensByPool = getTokensByPool(config);
   const requiredPools = getRequiredPoolsForSwap(
     config.pools,

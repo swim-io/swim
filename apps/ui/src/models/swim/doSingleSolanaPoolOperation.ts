@@ -1,20 +1,22 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
 import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  findTokenAccountForMint,
+  getAmountMintedToAccountByMint,
+  getAmountTransferredToAccountByMint,
+} from "@swim-io/solana";
+import type {
+  SolanaConnection,
+  SolanaWalletAdapter,
+  TokenAccount,
+} from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
 import type { SolanaPoolSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { Amount } from "../amount";
-import type { SolanaConnection } from "../solana";
-import {
-  findTokenAccountForMint,
-  getAmountMintedToAccountByMint,
-  getAmountTransferredToAccountByMint,
-} from "../solana";
-import type { SolanaWalletAdapter } from "../wallets";
 
 import { SwimDefiInstructor } from "./SwimDefiInstructor";
 import { SwimDefiInstruction } from "./instructions";
@@ -123,7 +125,9 @@ export const setOutputOperationInputAmount = (
         outputOperationSpec.params.inputAmounts,
         (amount) => !amount.isZero(),
       );
-      const mintAddress = getSolanaTokenDetails(inputAmount.tokenSpec).address;
+      const mintAddress = getSolanaTokenDetails(
+        inputAmount.tokenConfig,
+      ).address;
       const transferredAmount = getTransferredAmount(
         inputOperationSpec,
         mintAddress,
@@ -132,7 +136,7 @@ export const setOutputOperationInputAmount = (
         tx,
       );
       const newInputAmount = Amount.fromAtomic(
-        inputAmount.tokenSpec,
+        inputAmount.tokenConfig,
         transferredAmount,
         SOLANA_ECOSYSTEM_ID,
       );
@@ -148,7 +152,9 @@ export const setOutputOperationInputAmount = (
     }
     case SwimDefiInstruction.RemoveExactBurn: {
       const inputAmount = outputOperationSpec.params.exactBurnAmount;
-      const mintAddress = getSolanaTokenDetails(inputAmount.tokenSpec).address;
+      const mintAddress = getSolanaTokenDetails(
+        inputAmount.tokenConfig,
+      ).address;
       const transferredAmount = getTransferredAmount(
         inputOperationSpec,
         mintAddress,
@@ -157,7 +163,7 @@ export const setOutputOperationInputAmount = (
         tx,
       );
       const newInputAmount = Amount.fromAtomic(
-        inputAmount.tokenSpec,
+        inputAmount.tokenConfig,
         transferredAmount,
         SOLANA_ECOSYSTEM_ID,
       );
@@ -174,7 +180,9 @@ export const setOutputOperationInputAmount = (
         outputOperationSpec.params.exactInputAmounts,
         (amount) => !amount.isZero(),
       );
-      const mintAddress = getSolanaTokenDetails(inputAmount.tokenSpec).address;
+      const mintAddress = getSolanaTokenDetails(
+        inputAmount.tokenConfig,
+      ).address;
       const transferredAmount = getTransferredAmount(
         inputOperationSpec,
         mintAddress,
@@ -183,7 +191,7 @@ export const setOutputOperationInputAmount = (
         tx,
       );
       const newInputAmount = Amount.fromAtomic(
-        inputAmount.tokenSpec,
+        inputAmount.tokenConfig,
         transferredAmount,
         SOLANA_ECOSYSTEM_ID,
       );

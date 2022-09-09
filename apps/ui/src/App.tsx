@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/react";
 import type { ReactElement } from "react";
+import { withTranslation } from "react-i18next";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
 import "./App.scss";
@@ -13,10 +14,8 @@ import CollectiblesPage from "./pages/CollectiblesPage";
 import HelpPage from "./pages/HelpPage";
 import HomePage from "./pages/HomePage";
 import MediaPage from "./pages/MediaPage";
-import OtterTotsPage from "./pages/OtterTotsPage";
 import PoolPage from "./pages/PoolPage";
 import PoolsPage from "./pages/PoolsPage";
-import RedeemPage from "./pages/RedeemPage";
 import SecurityPage from "./pages/SecurityPage";
 import SetCustomIpPage from "./pages/SetCustomIpPage";
 import StakePage from "./pages/StakePage";
@@ -66,12 +65,6 @@ function App(): ReactElement {
               {process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE && (
                 <Route path="swapV2" element={<SwapPageV2 />} />
               )}
-              {process.env.REACT_APP_ENABLE_NFT && (
-                <Route path="otter-tots" element={<OtterTotsPage />} />
-              )}
-              {process.env.REACT_APP_ENABLE_NFT && (
-                <Route path="redeem" element={<RedeemPage />} />
-              )}
               <Route path="collectibles" element={<CollectiblesPage />} />
               <Route path="tos" element={<TosPage />} />
               <Route path="media" element={<MediaPage />} />
@@ -88,4 +81,6 @@ function App(): ReactElement {
   );
 }
 
-export default App;
+// withTranslation will make sure every component under App is loaded AFTER translation is downloaded
+// it is required because some functions fetch translations directly from the `i18next` instance instead of via a `useTranslation` hook. Fetching from the `i18next` instance does not wait until the translation is downloaded.
+export default withTranslation()(App);

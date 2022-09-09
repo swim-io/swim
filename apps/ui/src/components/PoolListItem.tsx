@@ -16,7 +16,7 @@ import { createElement } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { atomicToCurrencyString } from "../amounts";
-import type { PoolSpec, TokenSpec } from "../config";
+import type { PoolSpec, TokenConfig } from "../config";
 import { i18next } from "../i18n";
 
 import { TokenIcon } from "./TokenIcon";
@@ -43,20 +43,20 @@ const appendConstantSwapIcon = (poolName: string): string | ReactElement => {
 
 export const PoolListItem = ({
   poolName,
-  tokenSpecs,
+  tokenConfigs,
   poolSpec = null,
   totalUsd = null,
   betaBadgeLabel = "",
 }: {
   readonly poolName: string;
-  readonly tokenSpecs: readonly TokenSpec[];
+  readonly tokenConfigs: readonly TokenConfig[];
   readonly poolSpec?: PoolSpec | null;
   readonly totalUsd?: Decimal | null;
   readonly betaBadgeLabel?: string;
 }): ReactElement => {
   const navigate = useNavigate();
   const flexItemMargin = "6px 12px";
-  const tokenChunks = chunks(tokenSpecs, 3);
+  const tokenChunks = chunks(tokenConfigs, 3);
 
   const poolId = poolSpec?.id ?? null;
   const isStableSwap = poolSpec?.isStableSwap ?? null;
@@ -85,18 +85,18 @@ export const PoolListItem = ({
         {tokenChunks.map((tokens) => (
           <EuiFlexItem key={tokens.map((token) => token.id).join(":")}>
             <EuiFlexGroup direction="column" responsive={false}>
-              {tokens.map((tokenSpec) => (
+              {tokens.map((tokenConfig) => (
                 <EuiFlexItem
-                  key={tokenSpec.id}
+                  key={tokenConfig.id}
                   grow={true}
                   style={{ margin: flexItemMargin }}
                 >
                   <TokenIcon
-                    {...TOKEN_PROJECTS_BY_ID[tokenSpec.projectId]}
+                    {...TOKEN_PROJECTS_BY_ID[tokenConfig.projectId]}
                     ecosystemId={
                       !isLegacyPool && poolEcosystem !== null
                         ? poolEcosystem
-                        : tokenSpec.nativeEcosystemId
+                        : tokenConfig.nativeEcosystemId
                     }
                   />
                 </EuiFlexItem>

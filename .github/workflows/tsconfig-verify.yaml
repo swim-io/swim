@@ -9,21 +9,8 @@ on:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ./packages/tsconfig
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          cache: "yarn"
-      - name: Install dependencies
-        run: yarn install --immutable
-      - name: Check format
-        run: yarn format:check
-      - name: Check lint
-        run: yarn lint --max-warnings=0
+    uses: ./.github/workflows/verify.yaml
+    with:
+      workingDirectory: ./packages/tsconfig
+      skipTest: true
+      skipTypecheck: true

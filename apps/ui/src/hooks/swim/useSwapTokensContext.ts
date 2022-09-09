@@ -3,7 +3,7 @@ import { findOrThrow } from "@swim-io/utils";
 import { useNavigate, useParams } from "react-router-dom";
 import shallow from "zustand/shallow.js";
 
-import type { TokenSpec } from "../../config";
+import type { TokenConfig } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 
@@ -13,20 +13,20 @@ import {
 } from "./useSwapTokenOptions";
 
 interface SwapTokensContext {
-  readonly fromToken: TokenSpec;
-  readonly toToken: TokenSpec;
+  readonly fromToken: TokenConfig;
+  readonly toToken: TokenConfig;
   readonly fromTokenOptionsIds: readonly string[];
   readonly toTokenOptionsIds: readonly string[];
-  readonly setFromToken: (newFromToken: TokenSpec) => void;
-  readonly setToToken: (newToToken: TokenSpec) => void;
+  readonly setFromToken: (newFromToken: TokenConfig) => void;
+  readonly setToToken: (newToToken: TokenConfig) => void;
   readonly setFromAndToTokens: (
-    newFromToken: TokenSpec,
-    newToToken: TokenSpec,
+    newFromToken: TokenConfig,
+    newToToken: TokenConfig,
   ) => void;
   readonly hasUrlError: boolean;
 }
 
-const convertTokenSpecToUrlParam = (token: TokenSpec): string =>
+const convertTokenConfigToUrlParam = (token: TokenConfig): string =>
   `${token.nativeEcosystemId}-${
     TOKEN_PROJECTS_BY_ID[token.projectId].symbol
   }`.toLowerCase();
@@ -39,7 +39,7 @@ export const useSwapTokensContext = (): SwapTokensContext => {
     readonly toToken?: string;
   }>();
 
-  const findTokenForParam = (param?: string): TokenSpec | null => {
+  const findTokenForParam = (param?: string): TokenConfig | null => {
     if (!param) {
       return null;
     }
@@ -81,12 +81,12 @@ export const useSwapTokensContext = (): SwapTokensContext => {
       : findOrThrow(tokens, ({ id }) => id === toTokenOptionsIds[0]);
 
   const setFromAndToTokens = (
-    newFromToken: TokenSpec,
-    newToToken: TokenSpec,
+    newFromToken: TokenConfig,
+    newToToken: TokenConfig,
   ) => {
-    const fromTokenUrlParam = convertTokenSpecToUrlParam(newFromToken);
+    const fromTokenUrlParam = convertTokenConfigToUrlParam(newFromToken);
     const newToTokenOptions = getToTokenOptionsIds(newFromToken.id);
-    const toTokenUrlParam = convertTokenSpecToUrlParam(
+    const toTokenUrlParam = convertTokenConfigToUrlParam(
       newToTokenOptions.find((id) => id === newToToken.id)
         ? newToToken
         : findOrThrow(tokens, ({ id }) => id === newToTokenOptions[0]),
@@ -94,11 +94,11 @@ export const useSwapTokensContext = (): SwapTokensContext => {
     navigate(`/swap/${fromTokenUrlParam}/to/${toTokenUrlParam}`);
   };
 
-  const setFromToken = (newFromToken: TokenSpec) => {
+  const setFromToken = (newFromToken: TokenConfig) => {
     setFromAndToTokens(newFromToken, toToken);
   };
 
-  const setToToken = (newToToken: TokenSpec) => {
+  const setToToken = (newToToken: TokenConfig) => {
     setFromAndToTokens(fromToken, newToToken);
   };
 

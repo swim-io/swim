@@ -4,7 +4,6 @@ import type { PoolSpec } from "config";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
 
-import { u64ToDecimal } from "../../amounts";
 import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
@@ -37,10 +36,14 @@ export const usePoolBalances = (poolSpecs: readonly PoolSpec[]) => {
       if (allPoolTokenAccounts === null) {
         return null;
       }
-      return poolTokens.map((tokenSpec, i) => {
-        const solanaDetails = getSolanaTokenDetails(tokenSpec);
-        return u64ToDecimal(allPoolTokenAccounts[i].amount).div(
-          new Decimal(10).pow(solanaDetails.decimals),
+      return poolTokens.map((tokenConfig, i) => {
+        const solanaDetails = getSolanaTokenDetails(tokenConfig);
+        const tokenAccount = allPoolTokenAccounts[i];
+        if (tokenAccount === null) {
+          throw new Error("Missing pool token account");
+        }
+        return new Decimal(tokenAccount.amount.toString()).div(
+          Decimal.pow(10, solanaDetails.decimals),
         );
       });
     }

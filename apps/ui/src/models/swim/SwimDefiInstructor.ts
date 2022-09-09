@@ -1,15 +1,21 @@
-import type { AccountInfo as TokenAccount } from "@solana/spl-token";
-import { TOKEN_PROGRAM_ID, Token, u64 } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, createApproveInstruction } from "@solana/spl-token";
 import type { AccountMeta, Transaction } from "@solana/web3.js";
 import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
 import type { Env } from "@swim-io/core";
-import { SOLANA_ECOSYSTEM_ID, createMemoIx } from "@swim-io/solana";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  createMemoIx,
+  createTx,
+  findTokenAccountForMint,
+} from "@swim-io/solana";
+import type {
+  SolanaConnection,
+  SolanaWalletAdapter,
+  TokenAccount,
+} from "@swim-io/solana";
 import { isEachNotNull } from "@swim-io/utils";
 
 import type { Amount } from "../amount";
-import type { SolanaConnection } from "../solana";
-import { createTx, findTokenAccountForMint } from "../solana";
-import type { SolanaWalletAdapter } from "../wallets";
 
 import {
   SwimDefiInstruction,
@@ -548,14 +554,11 @@ export class SwimDefiInstructor {
     if (!this.signer.publicKey) {
       throw new Error("Missing Solana public key");
     }
-    return Token.createApproveInstruction(
-      TOKEN_PROGRAM_ID,
+    return createApproveInstruction(
       tokenAccount,
       userTransferAuthority,
       this.signer.publicKey,
-      [],
-      // See https://github.com/solana-labs/solana-program-library/issues/2563
-      new u64(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)),
+      BigInt(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)),
     );
   }
 

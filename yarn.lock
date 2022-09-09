@@ -7667,15 +7667,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/redeemer@npm:^0.19.0":
-  version: 0.19.0
-  resolution: "@swim-io/redeemer@npm:0.19.0"
-  dependencies:
-    "@swim-io/core": ^0.19.0
-  checksum: 2249b7138a0e3a25cb2add90b09d1f4367581282dcf04a2c06b252657bd643265f8e4e9788a3958f0bffd5513b9a8274c01cf6fce63ba2ed6a9564ba12d7f415
-  languageName: node
-  linkType: hard
-
 "@swim-io/redeemer@workspace:packages/redeemer":
   version: 0.0.0-use.local
   resolution: "@swim-io/redeemer@workspace:packages/redeemer"
@@ -7977,7 +7968,6 @@ __metadata:
     "@swim-io/evm": ^0.19.0
     "@swim-io/evm-contracts": ^0.19.0
     "@swim-io/pool-math": ^0.19.0
-    "@swim-io/redeemer": ^0.19.0
     "@swim-io/solana": ^0.19.0
     "@swim-io/token-projects": ^0.19.0
     "@swim-io/tsconfig": "workspace:^"

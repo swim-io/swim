@@ -54,7 +54,6 @@
     "@swim-io/evm": "^0.19.0",
     "@swim-io/evm-contracts": "^0.19.0",
     "@swim-io/pool-math": "^0.19.0",
-    "@swim-io/redeemer": "^0.19.0",
     "@swim-io/solana": "^0.19.0",
     "@swim-io/token-projects": "^0.19.0",
     "@swim-io/utils": "^0.19.0",

@@ -60,7 +60,9 @@ fi
 
 #yarn run jest -c jest.config.js --verbose --detectOpenHandles "$test_files"
 #yarn run jest -c jest.config.js --verbose --detectOpenHandles --forceExit "$test_files"
-yarn run jest -c jest.config.js --verbose --detectOpenHandles --forceExit --testPathPattern "$1.test.ts"
+#yarn run jest -c jest.config.js --verbose --detectOpenHandles --forceExit --testPathPattern "$1.test.ts"
+yarn run jest --verbose --detectOpenHandles --forceExit --testPathPattern "$1.test.ts"
+
 #yarn_pid=$!
 #echo "Yarn PID: ${yarn_pid}"
 #wait $yarn_pid

@@ -32,20 +32,22 @@ anchor deploy
 3. add routing contract pause
 
 ## transactions
+
 1. Complete on Solana
-  1. [secp256k1 + verifyIx 1](https://explorer.solana.com/tx/5SwHnzJZpmGMzTwsdMMK1xm3f3FzBgfDfsYhCbN1sb5NTqZchGsFCT9eYGD9ajPQQutH4qTo7H3YvytxkhoAJ4cv)
-    1. txn fee(SOL) - 0.000045
-    2. rent(SOL) -  0.00130152
-  2. [secp256k1 + verifyIx 2](https://explorer.solana.com/tx/2KWCRfGuHVkr27yePvWEugwV2n8dcwTjNqgiTPMRNExwPd1QLpuFWLzL4Yhiv23F74DUEqsnusgfVJbgPUaCpj8c)
-    1. txn fee (SOL) - 0.00004
-  3. [postVAA](https://explorer.solana.com/tx/2oifDnA5oFG4CPg8tqqjivJ4CVrEpcx4aMWSK4fxh5fG8DLE2o79xwDTUc8GS9GtVwwjD3C5fA8WZocj9LDXYMrn)
-    1. txn fee (SOL) - 0.000005
-    2. rent (SOL) -  0.00247776
-  4. [completeTransfer]
-    1. txn fee (SOL) - 0.000005
-    2. rent (SOL) -  0.00089784
+    1. [secp256k1 + verifyIx 1](https://explorer.solana.com/tx/5SwHnzJZpmGMzTwsdMMK1xm3f3FzBgfDfsYhCbN1sb5NTqZchGsFCT9eYGD9ajPQQutH4qTo7H3YvytxkhoAJ4cv)
+        1. txn fee(SOL) - 0.000045
+        2. rent(SOL) - 0.00130152
+    2. [secp256k1 + verifyIx 2](https://explorer.solana.com/tx/2KWCRfGuHVkr27yePvWEugwV2n8dcwTjNqgiTPMRNExwPd1QLpuFWLzL4Yhiv23F74DUEqsnusgfVJbgPUaCpj8c)
+        1. txn fee (SOL) - 0.00004
+    3. [postVAA](https://explorer.solana.com/tx/2oifDnA5oFG4CPg8tqqjivJ4CVrEpcx4aMWSK4fxh5fG8DLE2o79xwDTUc8GS9GtVwwjD3C5fA8WZocj9LDXYMrn)
+        1. txn fee (SOL) - 0.000005
+        2. rent (SOL) - 0.00247776
+    4. [completeTransfer]
+        1. txn fee (SOL) - 0.000005
+        2. rent (SOL) - 0.00089784
 
 ## Solana Complete Flow
+
 1. secp + verify (1-3 txns)
 2. postVAA 1 txn
 3. Complete
@@ -55,7 +57,7 @@ anchor deploy
     1. PropEnabled
         1. GasKickstart:
             1. !GasKickstart
-                1.tsfer propeller.processPayloadFees(swimUSD) to payer
+               1.tsfer propeller.processPayloadFees(swimUSD) to payer
             2. GasKickstart
                 1. convert gasKickstart -> USD [oracle]
                 2. convert swimUSD -> marginal price token [marginal price pool + marginal price pool accounts]
@@ -74,67 +76,54 @@ anchor deploy
 ## Dev
 
 1. switch to using `#[access_control(...)]` for validation instead?
-1. leave seeds & bump in `#[account]` for IDL generation
-1. leave field accessor checks (e.g. `token::authority = payer`).
-1. these accessors are optmized to save compute and account validation assumed to be done outside of those methods.
-1. is this actually optimal? if the `Account<'info, T>` is specified, then it's going to be
-   deserialized into that type anyways so would there be any significant difference?
-1. you would save compute budge if the accessor check failed but that's kind of useless anyways.
-1. wormhole sender & redeemer are both "global" PDAs for the propeller programId
-1. could potentially have an exploit where someone else could initialize a different propeller state and then would have access to
-   those same PDAs?
-1. if propeller state initialize() also initializes these PDAs then would this issue be avoided?
-1. creates issue that we would never be allowed to initialize another propeller state.
-1. remove the `token_bridge_mint` from the propeller
-1. if there's ever a reason to need to change the token_bridge_mint, would need to reinitialize the propeller account
-1. remove as seed & remove storing it in the state?
-1. handling fee reimbursment
-1. need to wrap wormhole secp256k1 ix + verify_signature + keep track of payer for each of these txns
-1. need to do the same for postVAA
-1. when completeTransferWithPayload is finally called,
-   transfer the correct fees back to the payers of each step.
-1. how to implement the "fallback" if slippage is exceeded on the final end
-1. not needed for v1 - all swaps will be market orders.
-1. gas kickstart implementation
-1. current proposal - once bridged token has been redeemed on the receiving side, check how much of constituent token
-   could be swapped for against "flagship pool". e.g. how much spl-usdc || spl-usdt could swimUSD be swapped for.
-   then with check gas token <-> stablecoin exchange rate and see which will be most profitable then do swap.
-1. issues:
-1. for solana, would need to pass in all the necessary accounts to do the gas exchange
-1. might need to force that it will only be based on whatever token is exchanged for at the end
-1. actually think about this more from perspective of both the propeller vs user-handled. if user-handled then
-   they have to have gas already. gas kickstart should inherently be a propeller-only txn.
-1. using oracle examples:
-1. pyth & anchor example - https://github.com/jet-lab/jet-v2/blob/master/programs/margin-pool/src/instructions/margin_refresh_position.rs
-1. switchboard
-1. https://github.com/switchboard-xyz/switchboard-v2-example
-1.
-1.
-1. how should relayer determine if it should be the one to handle a vaa since fee is no longer in the payload.
-1. current spy-relayer checks:
-1. `payloadType === 1` -> `payloadType === 3`
-1. isApprovedToken() - loaded from config/env - just needs to be updated to swimUSD mint address.
-1. payload.fee && payload.fee > 0
-1. this one may no longer be applicable or be able to be done in the same way.
-1. for non-relayer intended txns, do we still want to go through propeller contract?
-1. make separate ixs? one for relayer, one for non-relayer?
-1. propeller contract will inject relayerFee from propeller state PDA.
-1. checks if already queued in redis
-1. (not yet implemented) - checks if already redeemed.
-1. `if message.payload.from_address == propeller_contract && message.payload.swimpayload.relayerFee`
-1. Nitpick - change `AccountInfo` types to `UncheckedAccount` to follow anchor doc recommendations
+    1. leave seeds & bump in `#[account]` for IDL generation
+    2. leave field accessor checks (e.g. `token::authority = payer`).
+    3. these accessors are optmized to save compute and account validation assumed to be done outside of those methods.
+    4. is this actually optimal? if the `Account<'info, T>` is specified, then it's going to be
+       deserialized into that type anyways so would there be any significant difference?
+    5. you would save compute budge if the accessor check failed but that's kind of useless anyways.
+2. wormhole sender & redeemer are both "global" PDAs for the propeller programId
+    1. could potentially have an exploit where someone else could initialize a different propeller state and then would have access to
+       those same PDAs?
+    2. if propeller state initialize() also initializes these PDAs then would this issue be avoided?
+        1. creates issue that we would never be allowed to initialize another propeller state.
+    3. remove the `token_bridge_mint` from the propeller
+        1. if there's ever a reason to need to change the token_bridge_mint, would need to reinitialize the propeller account
+            1. nvm - initailize a new propellerAccount.
+3. handling fee reimbursment
+    1. need to wrap wormhole secp256k1 ix + verify_signature + keep track of payer for each of these txns
+    2. need to do the same for postVAA
+    3. how to implement the "fallback" if slippage is exceeded on the final end for propellerEnabled payload
+        1. not needed for v1 - all swaps will be market orders.
+4. gas kickstart implementation
+    1. current proposal - once bridged token has been redeemed on the receiving side, check how much of constituent token
+       could be swapped for against "flagship pool". e.g. how much spl-usdc || spl-usdt could swimUSD be swapped for.
+       then with check gas token <-> stablecoin exchange rate and see which will be most profitable then do swap. 1. issues: 1. for solana, would need to pass in all the necessary accounts to do the gas exchange 1. might need to force that it will only be based on whatever token is exchanged for at the end 2. actually think about this more from perspective of both the propeller vs user-handled. if user-handled then
+       they have to have gas already. gas kickstart should inherently be a propeller-only txn. 2. using oracle examples: 1. pyth & anchor example - https://github.com/jet-lab/jet-v2/blob/master/programs/margin-pool/src/instructions/margin_refresh_position.rs 2. switchboard - https://github.com/switchboard-xyz/switchboard-v2-example
+5. how should relayer determine if it should be the one to handle a vaa since fee is no longer in the payload.
+    1. current spy-relayer checks:
+        1. `payloadType === 1` -> `payloadType === 3`
+        2. isApprovedToken() - loaded from config/env - just needs to be updated to swimUSD mint address.
+        3. payload.fee && payload.fee > 0 12. this one may no longer be applicable or be able to be done in the same way.
+    2. for non-relayer intended txns, do we still want to go through propeller contract?
+        1. yes.
+        2. make separate ixs? one for relayer, one for non-relayer
+    3. checks if already queued in redis
+        1. (not yet implemented) - checks if already redeemed.
+    4. `if message.payload.from_address == propeller_contract && message.payload.swimpayload.relayerFee`
+6. Nitpick - change `AccountInfo` types to `UncheckedAccount` to follow anchor doc recommendations
 
 ### Solana Redeem
 
 1. CompleteWithPayload
-1. need to keep track of relayer fees and do transfers out of redeemer escrow account
-1. RelayerFee
-1. GasKickstart
-1. Oracle
-1. how to get price of swimUSD -> USDC
-1. oracle
-1. "get" function in pool
-1. "worst" case is Receive is meant for metapool
+    1. need to keep track of relayer fees and do transfers out of redeemer escrow account
+        1. RelayerFee
+        2. GasKickstart
+    2. Oracle
+        1. how to get price of swimUSD -> USDC
+            1. oracle
+            2. "get" function in pool
+    3. "worst" case is Receive is meant for metapool
 
 ## Misc
 
@@ -147,9 +136,9 @@ anchor deploy
 ## Integration(EVM + Solana) Testing Notes:
 
 1. attesting from solana only needs to be done once not once per source chain?
-1. attest ix has no "destination chain" info
-1. createWrapped needs to be done per recipient chain?
-1. based off of wormhole integration.ts test example.
+2. attest ix has no "destination chain" info
+3. createWrapped needs to be done per recipient chain?
+4. based off of wormhole integration.ts test example.
 
 ## Notes:
 
@@ -162,19 +151,19 @@ anchor deploy
     3. Transfer
         1. 17 for `TransferNative` (same for with payload)
         2. 17 for `TransferWrapped` (same for with payload).
-          Probably don't need this since we should only be WH swimUSD from SOL
+           Probably don't need this since we should only be WH swimUSD from SOL
         3. `Complete`
         4. 14 for `CompleteNative` & `CompleteWrapped`
         5. 15 for `CompleteNativeWithPayload` & `CompleteWrappedWithPayload`
-1.  shared_accounts
-1.  payer of txn
-1.  token_account for swimUSD?
-1.  spl_token_program
-1.  assumptions
-1.  same address for all evm contracts
-1.  (eventually) - pool auth will be merged into the pool state
-1.  Solana Receiving side steps (assuming evm token_bridge_transfer message is already posted & vaa is signed):
-1.  postVAA()
+2.  shared_accounts
+3.  payer of txn
+4.  token_account for swimUSD?
+5.  spl_token_program
+6.  assumptions
+7.  same address for all evm contracts
+8.  (eventually) - pool auth will be merged into the pool state
+9.  Solana Receiving side steps (assuming evm token_bridge_transfer message is already posted & vaa is signed):
+10. postVAA()
     1.verify_signatures_ix (secp256k1 + verify_signatures)
 
     ```rust
@@ -283,7 +272,7 @@ anchor deploy
     }
     ```
 
-         2. postVAA
-         3. complete_transfer_with_payload()
+          2. postVAA
+          3. complete_transfer_with_payload()
 
-1.
+11.

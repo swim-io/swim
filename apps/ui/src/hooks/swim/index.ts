@@ -9,7 +9,6 @@ export * from "./usePoolLpMint";
 export * from "./usePoolMaths";
 export * from "./usePools";
 export * from "./usePoolStateQueries";
-export * from "./useRedeemMutation";
 export * from "./useRemoveFeesEstimationQuery";
 export * from "./useRemoveFeesEstimationQueryV2";
 export * from "./useSwapFeesEstimationQuery";

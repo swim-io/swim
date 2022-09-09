@@ -1,3 +1,0 @@
-# Redeemer
-
-Swim Redeemer code.

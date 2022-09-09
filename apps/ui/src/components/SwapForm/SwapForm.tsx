@@ -259,7 +259,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         disabled={isInteractionInProgress}
         errors={inputAmountErrors}
         onSelectToken={setFromToken}
-        onChangeValue={(value) => setFormInputAmount(value)}
+        onChangeValue={setFormInputAmount}
         onBlur={() => handleInputAmountChange(inputAmount)}
         showConstantSwapTip={!isStableSwap}
       />

@@ -26,8 +26,10 @@ anchor deploy
 # To Do:
 
 1. mappings
-   1. tokenIdMapping: mapping(tokenId: uint16 => (tokenContract: address, poolOnThisChain: address, tokenIndexInPool: uint8))
-   2. tokenAddressMapping: mapping(tokenContract: address => (tokenId: uint16, poolOnThisChain: address, tokenIndexInPool: uint8)
+    1. tokenIdMapping: mapping(tokenId: uint16 => (tokenContract: address, poolOnThisChain: address, tokenIndexInPool: uint8))
+    2. tokenAddressMapping: mapping(tokenContract: address => (tokenId: uint16, poolOnThisChain: address, tokenIndexInPool: uint8)
+2. add bypass if user calls propellerEnabled complete/process swim payload to skip fee conversions
+3. add routing contract pause
 
 ## transactions
 1. Complete on Solana
@@ -67,7 +69,6 @@ anchor deploy
             2. swapExactInput [metapool]
     3. need to handle creating the token account(s) for owner and account for the fees.
         1. Do we assume that if gas kickstart, then none of the accounts exist?
-
 5.
 
 ## Dev

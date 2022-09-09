@@ -92,4 +92,19 @@ pub enum PropellerError {
 
     #[msg("Invalid Gas Kickstart parameter in Swim Payload")]
     InvalidSwimPayloadGasKickstart,
+
+    #[msg("Invalid Marginal Price Pool Accounts")]
+    InvalidMarginalPricePoolAccounts,
+
+    #[msg("Propeller Not Enabled in payload")]
+    NotPropellerEnabled,
+
+    #[msg("Invalid Routing Contract Address")]
+    InvalidRoutingContractAddress,
+
+    #[msg("Integer Overflow")]
+    IntegerOverflow,
+
+    #[msg("Conversion Error")]
+    ConversionError,
 }

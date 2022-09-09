@@ -8,10 +8,7 @@ use {
 #[derive(Accounts)]
 pub struct Add<'info> {
     #[account(
-    seeds = [
-      b"propeller".as_ref(),
-      lp_mint.key().as_ref(),
-    ],
+    seeds = [ b"propeller".as_ref(), lp_mint.key().as_ref()],
     bump = propeller.bump
     )]
     pub propeller: Account<'info, Propeller>,
@@ -73,6 +70,13 @@ pub struct Add<'info> {
     ///CHECK: memo program
     pub memo: UncheckedAccount<'info>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
+}
+
+impl<'info> Add<'info> {
+    pub fn accounts(ctx: &Context<Add>) -> Result<()> {
+        require_keys_eq!(ctx.accounts.lp_mint.key(), ctx.accounts.propeller.token_bridge_mint);
+        Ok(())
+    }
 }
 
 pub fn handle_add(

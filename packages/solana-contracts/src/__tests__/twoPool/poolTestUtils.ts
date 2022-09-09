@@ -7,7 +7,7 @@ import {
 } from "@solana/spl-token";
 import type { Commitment, ConfirmOptions } from "@solana/web3.js";
 
-import type { TwoPool } from "../../src/artifacts/two_pool";
+import type { TwoPool } from "src/artifacts/two_pool";
 
 /**
  * It initializes the mints for the tokens that will be used in the pool, and then *CALCULATES* the pool token accounts and

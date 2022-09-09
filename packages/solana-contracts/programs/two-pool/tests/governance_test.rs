@@ -116,10 +116,7 @@ async fn test_governance_transition() {
         recent_blockhash,
     );
 
-    pt_ctxt
-        .process_transaction(enact_gov_transition_txn)
-        .await
-        .expect_err("enact governance transition should fail");
+    pt_ctxt.process_transaction(enact_gov_transition_txn).await.expect_err("enact governance transition should fail");
 
     //verify that nothing changed
 
@@ -169,14 +166,8 @@ async fn test_fee_change() {
     let fee_transition_ts = pool_state.fee_transition_ts;
     assert_eq!(fee_transition_ts, 0i64);
 
-    let lp_fee = DecimalU64Anchor {
-        value: 400u64,
-        decimals: 6u8,
-    };
-    let governance_fee = DecimalU64Anchor {
-        value: 200u64,
-        decimals: 6u8,
-    };
+    let lp_fee = DecimalU64Anchor { value: 400u64, decimals: 6u8 };
+    let governance_fee = DecimalU64Anchor { value: 200u64, decimals: 6u8 };
 
     let prepare_gov_transition_ix = program
         .request()
@@ -215,10 +206,7 @@ async fn test_fee_change() {
 
     let fee_transition_ts_after = pool_state.fee_transition_ts;
     assert_eq!(pool_state.prepared_lp_fee, PoolFee::new(lp_fee.into()).unwrap());
-    assert_eq!(
-        pool_state.prepared_governance_fee,
-        PoolFee::new(governance_fee.into()).unwrap()
-    );
+    assert_eq!(pool_state.prepared_governance_fee, PoolFee::new(governance_fee.into()).unwrap());
     assert!(fee_transition_ts_after >= ENACT_DELAY);
 
     let enact_fee_change_ix = program
@@ -244,10 +232,7 @@ async fn test_fee_change() {
         recent_blockhash,
     );
 
-    pt_ctxt
-        .process_transaction(enact_fee_change_txn)
-        .await
-        .expect_err("enact governance transition should fail");
+    pt_ctxt.process_transaction(enact_fee_change_txn).await.expect_err("enact governance transition should fail");
 
     //verify that nothing changed
 
@@ -255,10 +240,7 @@ async fn test_fee_change() {
     let pool_state: TwoPool = TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
 
     assert_eq!(pool_state.prepared_lp_fee, PoolFee::new(lp_fee.into()).unwrap());
-    assert_eq!(
-        pool_state.prepared_governance_fee,
-        PoolFee::new(governance_fee.into()).unwrap()
-    );
+    assert_eq!(pool_state.prepared_governance_fee, PoolFee::new(governance_fee.into()).unwrap());
 
     pt_ctxt.time_travel(ENACT_DELAY * 3).await;
 
@@ -318,11 +300,7 @@ async fn create_mint(context: &mut ProgramTestContext, decimals: u8) -> Keypair 
 
 async fn create_associated_token_account(context: &mut ProgramTestContext, owner: &Pubkey, mint: &Pubkey) -> Pubkey {
     let transaction = Transaction::new_signed_with_payer(
-        &[associated_token_instruction::create_associated_token_account(
-            &context.payer.pubkey(),
-            owner,
-            mint,
-        )],
+        &[associated_token_instruction::create_associated_token_account(&context.payer.pubkey(), owner, mint)],
         Some(&context.payer.pubkey()),
         &[&context.payer],
         context.last_blockhash,
@@ -393,18 +371,9 @@ impl DeployedPoolProgramTestContext {
         let governance_fee_addr =
             get_associated_token_address(&self.get_governance().pubkey(), &lp_mint_keypair.pubkey());
 
-        let amp_factor = DecimalU64Anchor {
-            value: 300u64,
-            decimals: 0u8,
-        };
-        let lp_fee = DecimalU64Anchor {
-            value: 300u64,
-            decimals: 6u8,
-        };
-        let governance_fee = DecimalU64Anchor {
-            value: 100u64,
-            decimals: 6u8,
-        };
+        let amp_factor = DecimalU64Anchor { value: 300u64, decimals: 0u8 };
+        let lp_fee = DecimalU64Anchor { value: 300u64, decimals: 6u8 };
+        let governance_fee = DecimalU64Anchor { value: 100u64, decimals: 6u8 };
 
         let init_ix = program
             .request()

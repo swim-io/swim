@@ -11,8 +11,8 @@ use {
 pub struct ChangeGovernanceFeeAccount<'info> {
     pub common_governance: CommonGovernance<'info>,
     #[account(
-  token::mint = common_governance.pool.lp_mint_key
-  )]
+    token::mint = common_governance.pool.lp_mint_key
+    )]
     pub new_governance_fee: Account<'info, TokenAccount>,
 }
 

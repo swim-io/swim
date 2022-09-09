@@ -12,6 +12,7 @@
 // use anchor_lang::prelude::*;
 
 use {
+    crate::PoolError,
     borsh::{BorshDeserialize, BorshSchema, BorshSerialize},
     std::{
         cmp,
@@ -46,13 +47,13 @@ construct_uint! {
     pub struct U256(4);
 }
 
-#[anchor_lang::prelude::error_code]
-pub enum DecimalError {
-    #[msg("Maximum decimals exceeded")]
-    MaxDecimalsExceeded,
-    #[msg("Conversion error")]
-    ConversionError,
-}
+// #[anchor_lang::prelude::error_code]
+// pub enum DecimalError {
+//     #[msg("Maximum decimals exceeded")]
+//     MaxDecimalsExceeded,
+//     #[msg("Conversion error")]
+//     ConversionError,
+// }
 
 pub const fn ten_to_the(exp: u8) -> u128 {
     TEN_TO_THE[exp as usize]
@@ -174,10 +175,7 @@ macro_rules! unsigned_decimal {
                     $upcast!(Self::ten_to_the_value_type(exp), $larger_type)
                 } else {
                     $upcast!(Self::ten_to_the_value_type(Self::MAX_DECIMALS), $larger_type)
-                        * $upcast!(
-                            Self::ten_to_the_value_type(exp - Self::MAX_DECIMALS),
-                            $larger_type
-                        )
+                        * $upcast!(Self::ten_to_the_value_type(exp - Self::MAX_DECIMALS), $larger_type)
                 }
             }
 
@@ -185,11 +183,7 @@ macro_rules! unsigned_decimal {
                 let leading_zeros = value.leading_zeros() as usize;
                 let lower_bound = BIT_TO_DEC_ARRAY[leading_zeros];
                 let upper_bound = BIT_TO_DEC_ARRAY[leading_zeros + 1];
-                if lower_bound == upper_bound
-                    || value
-                        .checked_mul(Self::ten_to_the_value_type(upper_bound))
-                        .is_none()
-                {
+                if lower_bound == upper_bound || value.checked_mul(Self::ten_to_the_value_type(upper_bound)).is_none() {
                     lower_bound
                 } else {
                     upper_bound
@@ -217,9 +211,16 @@ macro_rules! unsigned_decimal {
             //     Ok(Self { value, decimals })
             // }
 
-            pub const fn new(value: $value_type, decimals: u8) -> Result<Self, DecimalError> {
+            // pub const fn new(value: $value_type, decimals: u8) -> Result<Self, DecimalError> {
+            //     if decimals > Self::MAX_DECIMALS {
+            //         return Err(DecimalError::MaxDecimalsExceeded);
+            //     }
+            //     Ok(Self { value, decimals })
+            // }
+
+            pub const fn new(value: $value_type, decimals: u8) -> Result<Self, PoolError> {
                 if decimals > Self::MAX_DECIMALS {
-                    return Err(DecimalError::MaxDecimalsExceeded);
+                    return Err(PoolError::MaxDecimalsExceeded);
                 }
                 Ok(Self { value, decimals })
             }
@@ -249,14 +250,7 @@ macro_rules! unsigned_decimal {
                 let mut ret = self.clone();
                 if decimals < ret.decimals {
                     let pot = Self::ten_to_the_value_type(ret.decimals - decimals);
-                    let up = $convert!(
-                        if (ret.value % pot > $convert!(0, $value_type)) {
-                            1
-                        } else {
-                            0
-                        },
-                        $value_type
-                    );
+                    let up = $convert!(if (ret.value % pot > $convert!(0, $value_type)) { 1 } else { 0 }, $value_type);
                     ret.value /= pot;
                     ret.value += up;
                     ret.decimals = decimals;
@@ -269,11 +263,7 @@ macro_rules! unsigned_decimal {
                 if decimals < ret.decimals {
                     let pot = Self::ten_to_the_value_type(ret.decimals - decimals);
                     let up = $convert!(
-                        if (ret.value % pot) / (pot / 10) >= $convert!(5, $value_type) {
-                            1
-                        } else {
-                            0
-                        },
+                        if (ret.value % pot) / (pot / 10) >= $convert!(5, $value_type) { 1 } else { 0 },
                         $value_type
                     );
                     ret.value /= pot;
@@ -312,10 +302,7 @@ macro_rules! unsigned_decimal {
                         break;
                     }
                 }
-                Self {
-                    value: self.value / Self::ten_to_the_value_type(shift),
-                    decimals: self.decimals - shift,
-                }
+                Self { value: self.value / Self::ten_to_the_value_type(shift), decimals: self.decimals - shift }
             }
 
             fn equalize_decimals(v1: Self, v2: Self) -> ($larger_type, $larger_type, u8) {
@@ -323,16 +310,12 @@ macro_rules! unsigned_decimal {
                 let v2_val = $upcast!(v2.value, $larger_type);
                 match v1.decimals.cmp(&v2.decimals) {
                     Ordering::Equal => (v1_val, v2_val, v1.decimals),
-                    Ordering::Less => (
-                        v1_val * Self::ten_to_the_larger_type(v2.decimals - v1.decimals),
-                        v2_val,
-                        v2.decimals,
-                    ),
-                    Ordering::Greater => (
-                        v1_val,
-                        v2_val * Self::ten_to_the_larger_type(v1.decimals - v2.decimals),
-                        v1.decimals,
-                    ),
+                    Ordering::Less => {
+                        (v1_val * Self::ten_to_the_larger_type(v2.decimals - v1.decimals), v2_val, v2.decimals)
+                    }
+                    Ordering::Greater => {
+                        (v1_val, v2_val * Self::ten_to_the_larger_type(v1.decimals - v2.decimals), v1.decimals)
+                    }
                 }
             }
 
@@ -359,10 +342,7 @@ macro_rules! unsigned_decimal {
                         decimals = 0;
                     }
                 }
-                Some(Self {
-                    value: $downcast!(value, $value_type),
-                    decimals,
-                })
+                Some(Self { value: $downcast!(value, $value_type), decimals })
             }
 
             pub fn checked_add(self, other: Self) -> Option<Self> {
@@ -412,13 +392,7 @@ macro_rules! unsigned_decimal {
                 if fract == $convert!(0, $value_type) {
                     write!(f, "{}", self.trunc())
                 } else {
-                    write!(
-                        f,
-                        "{}.{:0decimals$}",
-                        self.trunc(),
-                        fract,
-                        decimals = normalized.decimals as usize
-                    )
+                    write!(f, "{}.{:0decimals$}", self.trunc(), fract, decimals = normalized.decimals as usize)
                 }
             }
         }
@@ -475,22 +449,13 @@ macro_rules! unsigned_decimal {
 
         impl PartialOrd<$value_type> for $name {
             fn partial_cmp(&self, other: &$value_type) -> Option<Ordering> {
-                Some(self.cmp(&Self {
-                    value: *other,
-                    decimals: 0,
-                }))
+                Some(self.cmp(&Self { value: *other, decimals: 0 }))
             }
         }
 
         impl PartialOrd<$name> for $value_type {
             fn partial_cmp(&self, other: &$name) -> Option<Ordering> {
-                Some(
-                    $name {
-                        value: *self,
-                        decimals: 0,
-                    }
-                    .cmp(other),
-                )
+                Some($name { value: *self, decimals: 0 }.cmp(other))
             }
         }
 
@@ -521,8 +486,7 @@ macro_rules! unsigned_decimal {
             type Output = Self;
 
             fn add(self, other: Self) -> Self::Output {
-                self.checked_add(other)
-                    .unwrap_or_else(|| panic!("Overflow while adding {:?} {:?}", self, other))
+                self.checked_add(other).unwrap_or_else(|| panic!("Overflow while adding {:?} {:?}", self, other))
             }
         }
 
@@ -530,10 +494,7 @@ macro_rules! unsigned_decimal {
             type Output = Self;
 
             fn add(self, other: $value_type) -> Self::Output {
-                self + Self {
-                    value: other,
-                    decimals: 0,
-                }
+                self + Self { value: other, decimals: 0 }
             }
         }
 
@@ -562,13 +523,7 @@ macro_rules! unsigned_decimal {
             where
                 I: Iterator<Item = Self>,
             {
-                iter.fold(
-                    Self {
-                        value: $convert!(0, $value_type),
-                        decimals: 0,
-                    },
-                    |accumulator, it| accumulator + it,
-                )
+                iter.fold(Self { value: $convert!(0, $value_type), decimals: 0 }, |accumulator, it| accumulator + it)
             }
         }
 
@@ -576,8 +531,7 @@ macro_rules! unsigned_decimal {
             type Output = Self;
 
             fn sub(self, other: Self) -> Self::Output {
-                self.checked_sub(other)
-                    .unwrap_or_else(|| panic!("Underflow while subtracting {:?} {:?}", self, other))
+                self.checked_sub(other).unwrap_or_else(|| panic!("Underflow while subtracting {:?} {:?}", self, other))
             }
         }
 
@@ -585,10 +539,7 @@ macro_rules! unsigned_decimal {
             type Output = Self;
 
             fn sub(self, other: $value_type) -> Self::Output {
-                self - Self {
-                    value: other,
-                    decimals: 0,
-                }
+                self - Self { value: other, decimals: 0 }
             }
         }
 
@@ -596,10 +547,7 @@ macro_rules! unsigned_decimal {
             type Output = $name;
 
             fn sub(self, other: $name) -> Self::Output {
-                $name {
-                    value: self,
-                    decimals: 0,
-                } - other
+                $name { value: self, decimals: 0 } - other
             }
         }
 
@@ -619,8 +567,7 @@ macro_rules! unsigned_decimal {
             type Output = Self;
 
             fn mul(self, other: Self) -> Self::Output {
-                self.checked_mul(other)
-                    .unwrap_or_else(|| panic!("Overflow while multiplying {:?} {:?}", self, other))
+                self.checked_mul(other).unwrap_or_else(|| panic!("Overflow while multiplying {:?} {:?}", self, other))
             }
         }
 
@@ -628,10 +575,7 @@ macro_rules! unsigned_decimal {
             type Output = Self;
 
             fn mul(self, other: $value_type) -> Self::Output {
-                self * Self {
-                    value: other,
-                    decimals: 0,
-                }
+                self * Self { value: other, decimals: 0 }
             }
         }
 
@@ -660,13 +604,7 @@ macro_rules! unsigned_decimal {
             where
                 I: Iterator<Item = Self>,
             {
-                iter.fold(
-                    Self {
-                        value: $convert!(1, $value_type),
-                        decimals: 0,
-                    },
-                    |accumulator, it| accumulator * it,
-                )
+                iter.fold(Self { value: $convert!(1, $value_type), decimals: 0 }, |accumulator, it| accumulator * it)
             }
         }
 
@@ -683,10 +621,7 @@ macro_rules! unsigned_decimal {
             type Output = Self;
 
             fn div(self, other: $value_type) -> Self::Output {
-                self / Self {
-                    value: other,
-                    decimals: 0,
-                }
+                self / Self { value: other, decimals: 0 }
             }
         }
 
@@ -694,10 +629,7 @@ macro_rules! unsigned_decimal {
             type Output = $name;
 
             fn div(self, other: $name) -> Self::Output {
-                $name {
-                    value: self,
-                    decimals: 0,
-                } / other
+                $name { value: self, decimals: 0 } / other
             }
         }
 
@@ -717,10 +649,7 @@ macro_rules! unsigned_decimal {
 
 impl From<u128> for DecimalU128 {
     fn from(value: u128) -> Self {
-        Self {
-            value: U128::from(value),
-            decimals: 0,
-        }
+        Self { value: U128::from(value), decimals: 0 }
     }
 }
 
@@ -789,18 +718,23 @@ macro_rules! impl_interop {
 
         impl From<$name> for $larger_name {
             fn from(v: $name) -> Self {
-                Self {
-                    value: $upcast!(v.get_raw(), $larger_type),
-                    decimals: v.get_decimals(),
-                }
+                Self { value: $upcast!(v.get_raw(), $larger_type), decimals: v.get_decimals() }
             }
         }
 
+        // impl TryFrom<$larger_name> for $name {
+        //     type Error = DecimalError;
+        //
+        //     fn try_from(v: $larger_name) -> Result<Self, Self::Error> {
+        //         Self::shift_to_fit(v.get_raw(), v.get_decimals()).ok_or(DecimalError::ConversionError.into())
+        //     }
+        // }
+
         impl TryFrom<$larger_name> for $name {
-            type Error = DecimalError;
+            type Error = PoolError;
 
             fn try_from(v: $larger_name) -> Result<Self, Self::Error> {
-                Self::shift_to_fit(v.get_raw(), v.get_decimals()).ok_or(DecimalError::ConversionError.into())
+                Self::shift_to_fit(v.get_raw(), v.get_decimals()).ok_or(PoolError::ConversionError.into())
             }
         }
     };
@@ -808,7 +742,7 @@ macro_rules! impl_interop {
 
 impl_interop! {DecimalU64, DecimalU128, to_uint128, U128}
 
-#[cfg(all(test, not(feature = "test-bpf")))]
+#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -860,27 +794,15 @@ mod tests {
         assert_eq!(DecimalU128::from(1) * DecimalU128::from(1), DecimalU128::from(1));
         assert_eq!(new_u128(u128::MAX, 0) * new_u128(1, 1), new_u128(u128::MAX, 1));
         assert_eq!(new_u128(u128::MAX, 0).checked_mul(new_u128(10, 0)), None);
-        assert_eq!(
-            new_u128(u128::MAX, 38) * new_u128(10u128.pow(10), 0),
-            new_u128(u128::MAX, 28)
-        );
-        assert_eq!(
-            new_u128(10u128.pow(10), 0) * new_u128(10u128.pow(10), 0),
-            new_u128(10u128.pow(20), 0)
-        );
+        assert_eq!(new_u128(u128::MAX, 38) * new_u128(10u128.pow(10), 0), new_u128(u128::MAX, 28));
+        assert_eq!(new_u128(10u128.pow(10), 0) * new_u128(10u128.pow(10), 0), new_u128(10u128.pow(20), 0));
     }
 
     #[test]
     fn u128_div() {
         let new_u128 = |value, decimals| DecimalU128::new(U128::from(value), decimals).unwrap();
-        assert_eq!(
-            DecimalU128::from(u128::MAX) / DecimalU128::from(u128::MAX),
-            DecimalU128::from(1)
-        );
-        assert_eq!(
-            new_u128(u128::MAX, 0) / new_u128(u128::MAX, 38),
-            new_u128(10u128.pow(38), 0)
-        );
+        assert_eq!(DecimalU128::from(u128::MAX) / DecimalU128::from(u128::MAX), DecimalU128::from(1));
+        assert_eq!(new_u128(u128::MAX, 0) / new_u128(u128::MAX, 38), new_u128(10u128.pow(38), 0));
         assert_eq!(new_u128(u128::MAX, 38) / new_u128(u128::MAX, 0), new_u128(1, 38));
         assert_eq!(new_u128(u128::MAX, 38) / new_u128(u128::MAX, 38), DecimalU128::from(1));
         assert_eq!(new_u128(1, 38) / new_u128(u128::MAX, 0), DecimalU128::from(0));
@@ -897,11 +819,7 @@ mod tests {
                 pot *= 10;
             }
             let calc_oom = DecimalU128::get_order_of_magnitude(U128::from(i));
-            assert_eq!(
-                calc_oom, test_oom,
-                "for {} got order of magnitude of {} instead of {}",
-                i, calc_oom, test_oom
-            );
+            assert_eq!(calc_oom, test_oom, "for {} got order of magnitude of {} instead of {}", i, calc_oom, test_oom);
         }
     }
 

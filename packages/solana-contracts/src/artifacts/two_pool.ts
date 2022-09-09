@@ -770,7 +770,7 @@ export type TwoPool = {
       "returns": {
         "array": [
           {
-            "defined": "DecimalU64Anchor"
+            "defined": "BorshDecimal"
           },
           2
         ]
@@ -1962,114 +1962,17 @@ export type TwoPool = {
       }
     },
     {
-      "name": "PoolError",
+      "name": "BorshDecimal",
       "type": {
-        "kind": "enum",
-        "variants": [
+        "kind": "struct",
+        "fields": [
           {
-            "name": "InvalidAmpFactorValue"
+            "name": "mantissa",
+            "type": "i128"
           },
           {
-            "name": "InvalidAmpFactorTimestamp"
-          },
-          {
-            "name": "InvalidFeeInput"
-          },
-          {
-            "name": "DuplicateAccount"
-          },
-          {
-            "name": "MintHasBalance"
-          },
-          {
-            "name": "InvalidMintAuthority"
-          },
-          {
-            "name": "MintHasFreezeAuthority"
-          },
-          {
-            "name": "TokenAccountHasBalance"
-          },
-          {
-            "name": "TokenAccountHasDelegate"
-          },
-          {
-            "name": "TokenAccountHasCloseAuthority"
-          },
-          {
-            "name": "InvalidGovernanceAccount"
-          },
-          {
-            "name": "InvalidGovernanceFeeAccount"
-          },
-          {
-            "name": "InvalidPoolAuthorityAccount"
-          },
-          {
-            "name": "InvalidMintAccount"
-          },
-          {
-            "name": "InsufficientDelay"
-          },
-          {
-            "name": "InvalidEnact"
-          },
-          {
-            "name": "PoolIsPaused"
-          },
-          {
-            "name": "PoolTokenAccountExpected"
-          },
-          {
-            "name": "OutsideSpecifiedLimits"
-          },
-          {
-            "name": "InitialAddRequiresAllTokens"
-          },
-          {
-            "name": "ImpossibleRemove"
-          },
-          {
-            "name": "MaxDecimalDifferenceExceeded"
-          },
-          {
-            "name": "InvalidTimestamp"
-          },
-          {
-            "name": "AddRequiresAtLeastOneToken"
-          },
-          {
-            "name": "InvalidSwapExactInputParameters"
-          },
-          {
-            "name": "InvalidSwapExactOutputParameters"
-          },
-          {
-            "name": "InvalidRemoveUniformParameters"
-          },
-          {
-            "name": "InvalidRemoveExactBurnParameters"
-          },
-          {
-            "name": "InvalidRemoveExactOutputParameters"
-          },
-          {
-            "name": "InsufficientPoolTokenAccountBalance"
-          },
-          {
-            "name": "InvalidTokenIndex"
-          },
-          {
-            "name": "InvalidPauseKey"
-          },
-          {
-            "name": "InvalidSwitchboardAccount"
-          },
-          {
-            "name": "StaleFeed"
-          },
-          {
-            "name": "ConfidenceIntervalExceeded"
+            "name": "scale",
+            "type": "u32"
           }
         ]
       }
@@ -2095,11 +1998,186 @@ export type TwoPool = {
   "errors": [
     {
       "code": 6000,
+      "name": "InvalidAmpFactorValue",
+      "msg": "Specified amp factor is out of bounds"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidAmpFactorTimestamp",
+      "msg": "Amp factor adjustment window is too short"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidFeeInput",
+      "msg": "Given fee is invalid"
+    },
+    {
+      "code": 6003,
+      "name": "DuplicateAccount",
+      "msg": "Can't pass the same account twice here"
+    },
+    {
+      "code": 6004,
+      "name": "MintHasBalance",
+      "msg": "LP token mint has a positive balance"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidMintAuthority",
+      "msg": "Pool does not have mint authority of LP token mint"
+    },
+    {
+      "code": 6006,
+      "name": "MintHasFreezeAuthority",
+      "msg": "LP token mint's freeze authority is set"
+    },
+    {
+      "code": 6007,
+      "name": "TokenAccountHasBalance",
+      "msg": "Token account has a positive balance"
+    },
+    {
+      "code": 6008,
+      "name": "TokenAccountHasDelegate",
+      "msg": "Token account's delegate is set"
+    },
+    {
+      "code": 6009,
+      "name": "TokenAccountHasCloseAuthority",
+      "msg": "Token account's close authority is set"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidGovernanceAccount",
+      "msg": "Invalid governance account"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidGovernanceFeeAccount",
+      "msg": "Invalid governance fee account"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidPoolAuthorityAccount",
+      "msg": "Invalid pool authority account"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidMintAccount",
+      "msg": "Invalid mint account"
+    },
+    {
+      "code": 6014,
+      "name": "InsufficientDelay",
+      "msg": "Not enough time has passed since prepare instruction"
+    },
+    {
+      "code": 6015,
+      "name": "InvalidEnact",
+      "msg": "Nothing to enact"
+    },
+    {
+      "code": 6016,
+      "name": "PoolIsPaused",
+      "msg": "Pool is paused"
+    },
+    {
+      "code": 6017,
+      "name": "PoolTokenAccountExpected",
+      "msg": "Expected a token account that belongs to the pool"
+    },
+    {
+      "code": 6018,
+      "name": "OutsideSpecifiedLimits",
+      "msg": "The instruction could not be completed within the specified limits"
+    },
+    {
+      "code": 6019,
+      "name": "InitialAddRequiresAllTokens",
+      "msg": "Initial add to pool must include all tokens"
+    },
+    {
+      "code": 6020,
+      "name": "ImpossibleRemove",
+      "msg": "Remove can't be completed due to the approximative nature of fee math implementation"
+    },
+    {
+      "code": 6021,
+      "name": "MaxDecimalDifferenceExceeded",
+      "msg": "The maximum difference in decimals between tokens in the pool has been exceeded"
+    },
+    {
+      "code": 6022,
+      "name": "InvalidTimestamp",
+      "msg": "Invalid timestamp from Clock sysvar"
+    },
+    {
+      "code": 6023,
+      "name": "AddRequiresAtLeastOneToken",
+      "msg": "Add Requires at least one token"
+    },
+    {
+      "code": 6024,
+      "name": "InvalidSwapExactInputParameters",
+      "msg": "Invalid parameters for Swap Exact Input"
+    },
+    {
+      "code": 6025,
+      "name": "InvalidSwapExactOutputParameters",
+      "msg": "Invalid parameters for Swap Exact Output"
+    },
+    {
+      "code": 6026,
+      "name": "InvalidRemoveUniformParameters",
+      "msg": "Invalid parameters for Remove Uniform"
+    },
+    {
+      "code": 6027,
+      "name": "InvalidRemoveExactBurnParameters",
+      "msg": "Invalid parameters for Remove Exact Burn"
+    },
+    {
+      "code": 6028,
+      "name": "InvalidRemoveExactOutputParameters",
+      "msg": "Invalid parameters for Remove Exact Output"
+    },
+    {
+      "code": 6029,
+      "name": "InsufficientPoolTokenAccountBalance",
+      "msg": "Invalid parameters for Remove Exact Output"
+    },
+    {
+      "code": 6030,
+      "name": "InvalidTokenIndex",
+      "msg": "Invalid Token Index"
+    },
+    {
+      "code": 6031,
+      "name": "InvalidPauseKey",
+      "msg": "Invalid Pause Key"
+    },
+    {
+      "code": 6032,
+      "name": "InvalidSwitchboardAccount",
+      "msg": "Not a valid Switchboard account"
+    },
+    {
+      "code": 6033,
+      "name": "StaleFeed",
+      "msg": "Switchboard feed has not been updated in 5 minutes"
+    },
+    {
+      "code": 6034,
+      "name": "ConfidenceIntervalExceeded",
+      "msg": "Switchboard feed exceeded provided confidence interval"
+    },
+    {
+      "code": 6035,
       "name": "MaxDecimalsExceeded",
       "msg": "Maximum decimals exceeded"
     },
     {
-      "code": 6001,
+      "code": 6036,
       "name": "ConversionError",
       "msg": "Conversion error"
     }
@@ -2878,7 +2956,7 @@ export const IDL: TwoPool = {
       "returns": {
         "array": [
           {
-            "defined": "DecimalU64Anchor"
+            "defined": "BorshDecimal"
           },
           2
         ]
@@ -4070,114 +4148,17 @@ export const IDL: TwoPool = {
       }
     },
     {
-      "name": "PoolError",
+      "name": "BorshDecimal",
       "type": {
-        "kind": "enum",
-        "variants": [
+        "kind": "struct",
+        "fields": [
           {
-            "name": "InvalidAmpFactorValue"
+            "name": "mantissa",
+            "type": "i128"
           },
           {
-            "name": "InvalidAmpFactorTimestamp"
-          },
-          {
-            "name": "InvalidFeeInput"
-          },
-          {
-            "name": "DuplicateAccount"
-          },
-          {
-            "name": "MintHasBalance"
-          },
-          {
-            "name": "InvalidMintAuthority"
-          },
-          {
-            "name": "MintHasFreezeAuthority"
-          },
-          {
-            "name": "TokenAccountHasBalance"
-          },
-          {
-            "name": "TokenAccountHasDelegate"
-          },
-          {
-            "name": "TokenAccountHasCloseAuthority"
-          },
-          {
-            "name": "InvalidGovernanceAccount"
-          },
-          {
-            "name": "InvalidGovernanceFeeAccount"
-          },
-          {
-            "name": "InvalidPoolAuthorityAccount"
-          },
-          {
-            "name": "InvalidMintAccount"
-          },
-          {
-            "name": "InsufficientDelay"
-          },
-          {
-            "name": "InvalidEnact"
-          },
-          {
-            "name": "PoolIsPaused"
-          },
-          {
-            "name": "PoolTokenAccountExpected"
-          },
-          {
-            "name": "OutsideSpecifiedLimits"
-          },
-          {
-            "name": "InitialAddRequiresAllTokens"
-          },
-          {
-            "name": "ImpossibleRemove"
-          },
-          {
-            "name": "MaxDecimalDifferenceExceeded"
-          },
-          {
-            "name": "InvalidTimestamp"
-          },
-          {
-            "name": "AddRequiresAtLeastOneToken"
-          },
-          {
-            "name": "InvalidSwapExactInputParameters"
-          },
-          {
-            "name": "InvalidSwapExactOutputParameters"
-          },
-          {
-            "name": "InvalidRemoveUniformParameters"
-          },
-          {
-            "name": "InvalidRemoveExactBurnParameters"
-          },
-          {
-            "name": "InvalidRemoveExactOutputParameters"
-          },
-          {
-            "name": "InsufficientPoolTokenAccountBalance"
-          },
-          {
-            "name": "InvalidTokenIndex"
-          },
-          {
-            "name": "InvalidPauseKey"
-          },
-          {
-            "name": "InvalidSwitchboardAccount"
-          },
-          {
-            "name": "StaleFeed"
-          },
-          {
-            "name": "ConfidenceIntervalExceeded"
+            "name": "scale",
+            "type": "u32"
           }
         ]
       }
@@ -4203,11 +4184,186 @@ export const IDL: TwoPool = {
   "errors": [
     {
       "code": 6000,
+      "name": "InvalidAmpFactorValue",
+      "msg": "Specified amp factor is out of bounds"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidAmpFactorTimestamp",
+      "msg": "Amp factor adjustment window is too short"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidFeeInput",
+      "msg": "Given fee is invalid"
+    },
+    {
+      "code": 6003,
+      "name": "DuplicateAccount",
+      "msg": "Can't pass the same account twice here"
+    },
+    {
+      "code": 6004,
+      "name": "MintHasBalance",
+      "msg": "LP token mint has a positive balance"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidMintAuthority",
+      "msg": "Pool does not have mint authority of LP token mint"
+    },
+    {
+      "code": 6006,
+      "name": "MintHasFreezeAuthority",
+      "msg": "LP token mint's freeze authority is set"
+    },
+    {
+      "code": 6007,
+      "name": "TokenAccountHasBalance",
+      "msg": "Token account has a positive balance"
+    },
+    {
+      "code": 6008,
+      "name": "TokenAccountHasDelegate",
+      "msg": "Token account's delegate is set"
+    },
+    {
+      "code": 6009,
+      "name": "TokenAccountHasCloseAuthority",
+      "msg": "Token account's close authority is set"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidGovernanceAccount",
+      "msg": "Invalid governance account"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidGovernanceFeeAccount",
+      "msg": "Invalid governance fee account"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidPoolAuthorityAccount",
+      "msg": "Invalid pool authority account"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidMintAccount",
+      "msg": "Invalid mint account"
+    },
+    {
+      "code": 6014,
+      "name": "InsufficientDelay",
+      "msg": "Not enough time has passed since prepare instruction"
+    },
+    {
+      "code": 6015,
+      "name": "InvalidEnact",
+      "msg": "Nothing to enact"
+    },
+    {
+      "code": 6016,
+      "name": "PoolIsPaused",
+      "msg": "Pool is paused"
+    },
+    {
+      "code": 6017,
+      "name": "PoolTokenAccountExpected",
+      "msg": "Expected a token account that belongs to the pool"
+    },
+    {
+      "code": 6018,
+      "name": "OutsideSpecifiedLimits",
+      "msg": "The instruction could not be completed within the specified limits"
+    },
+    {
+      "code": 6019,
+      "name": "InitialAddRequiresAllTokens",
+      "msg": "Initial add to pool must include all tokens"
+    },
+    {
+      "code": 6020,
+      "name": "ImpossibleRemove",
+      "msg": "Remove can't be completed due to the approximative nature of fee math implementation"
+    },
+    {
+      "code": 6021,
+      "name": "MaxDecimalDifferenceExceeded",
+      "msg": "The maximum difference in decimals between tokens in the pool has been exceeded"
+    },
+    {
+      "code": 6022,
+      "name": "InvalidTimestamp",
+      "msg": "Invalid timestamp from Clock sysvar"
+    },
+    {
+      "code": 6023,
+      "name": "AddRequiresAtLeastOneToken",
+      "msg": "Add Requires at least one token"
+    },
+    {
+      "code": 6024,
+      "name": "InvalidSwapExactInputParameters",
+      "msg": "Invalid parameters for Swap Exact Input"
+    },
+    {
+      "code": 6025,
+      "name": "InvalidSwapExactOutputParameters",
+      "msg": "Invalid parameters for Swap Exact Output"
+    },
+    {
+      "code": 6026,
+      "name": "InvalidRemoveUniformParameters",
+      "msg": "Invalid parameters for Remove Uniform"
+    },
+    {
+      "code": 6027,
+      "name": "InvalidRemoveExactBurnParameters",
+      "msg": "Invalid parameters for Remove Exact Burn"
+    },
+    {
+      "code": 6028,
+      "name": "InvalidRemoveExactOutputParameters",
+      "msg": "Invalid parameters for Remove Exact Output"
+    },
+    {
+      "code": 6029,
+      "name": "InsufficientPoolTokenAccountBalance",
+      "msg": "Invalid parameters for Remove Exact Output"
+    },
+    {
+      "code": 6030,
+      "name": "InvalidTokenIndex",
+      "msg": "Invalid Token Index"
+    },
+    {
+      "code": 6031,
+      "name": "InvalidPauseKey",
+      "msg": "Invalid Pause Key"
+    },
+    {
+      "code": 6032,
+      "name": "InvalidSwitchboardAccount",
+      "msg": "Not a valid Switchboard account"
+    },
+    {
+      "code": 6033,
+      "name": "StaleFeed",
+      "msg": "Switchboard feed has not been updated in 5 minutes"
+    },
+    {
+      "code": 6034,
+      "name": "ConfidenceIntervalExceeded",
+      "msg": "Switchboard feed exceeded provided confidence interval"
+    },
+    {
+      "code": 6035,
       "name": "MaxDecimalsExceeded",
       "msg": "Maximum decimals exceeded"
     },
     {
-      "code": 6001,
+      "code": 6036,
       "name": "ConversionError",
       "msg": "Conversion error"
     }

@@ -20,54 +20,54 @@ pub struct RemoveExactOutputParams {
 #[derive(Accounts)]
 pub struct RemoveExactOutput<'info> {
     #[account(
-  mut,
-  seeds = [
-  b"two_pool".as_ref(),
-  pool_token_account_0.mint.as_ref(),
-  pool_token_account_1.mint.as_ref(),
-  lp_mint.key().as_ref(),
-  ],
-  bump = pool.bump
-  )]
+    mut,
+    seeds = [
+    b"two_pool".as_ref(),
+    pool_token_account_0.mint.as_ref(),
+    pool_token_account_1.mint.as_ref(),
+    lp_mint.key().as_ref(),
+    ],
+    bump = pool.bump
+    )]
     pub pool: Account<'info, TwoPool>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[0],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[0],
+    token::authority = pool,
+    )]
     pub pool_token_account_0: Box<Account<'info, TokenAccount>>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[1],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[1],
+    token::authority = pool,
+    )]
     pub pool_token_account_1: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub lp_mint: Box<Account<'info, Mint>>,
     #[account(
-  mut,
-  token::mint = lp_mint
-  )]
+    mut,
+    token::mint = lp_mint
+    )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
 
     pub user_transfer_authority: Signer<'info>,
 
     #[account(
-  mut,
-  token::mint = pool_token_account_0.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_0.mint,
+    )]
     pub user_token_account_0: Box<Account<'info, TokenAccount>>,
 
     #[account(
-  mut,
-  token::mint = pool_token_account_1.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_1.mint,
+    )]
     pub user_token_account_1: Box<Account<'info, TokenAccount>>,
 
     #[account(
-  mut,
-  token::mint = lp_mint,
-  )]
+    mut,
+    token::mint = lp_mint,
+    )]
     pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
     // //TODO: probably need a user_transfer_auth account since either the user or propeller could be payer for txn.
     // //  payer could be the same as user_auth if user manually completing the txn but still need
@@ -91,11 +91,7 @@ impl<'info> RemoveExactOutput<'info> {
             pool_state.token_keys[1],
             PoolError::PoolTokenAccountExpected
         );
-        require_keys_eq!(
-            ctx.accounts.lp_mint.key(),
-            pool_state.lp_mint_key,
-            PoolError::InvalidMintAccount
-        );
+        require_keys_eq!(ctx.accounts.lp_mint.key(), pool_state.lp_mint_key, PoolError::InvalidMintAccount);
         require_keys_eq!(
             ctx.accounts.governance_fee.key(),
             pool_state.governance_fee_key,
@@ -118,15 +114,9 @@ pub fn handle_remove_exact_output(
     let maximum_burn_amount = remove_exact_output_params.maximum_burn_amount;
     let exact_output_amounts = remove_exact_output_params.exact_output_amounts;
     let lp_total_supply = ctx.accounts.lp_mint.supply;
-    let pool_balances = [
-        ctx.accounts.pool_token_account_0.amount,
-        ctx.accounts.pool_token_account_1.amount,
-    ];
+    let pool_balances = [ctx.accounts.pool_token_account_0.amount, ctx.accounts.pool_token_account_1.amount];
 
-    require!(
-        exact_output_amounts.iter().any(|amount| *amount > 0),
-        PoolError::InvalidRemoveExactOutputParameters
-    );
+    require!(exact_output_amounts.iter().any(|amount| *amount > 0), PoolError::InvalidRemoveExactOutputParameters);
     require_gt!(maximum_burn_amount, 0u64, PoolError::InvalidRemoveExactOutputParameters);
     let are_output_amounts_valid = exact_output_amounts
         .iter()

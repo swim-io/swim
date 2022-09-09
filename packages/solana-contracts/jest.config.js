@@ -3,9 +3,11 @@
 module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
+  testTimeout: 200000,
   globals: {
     "ts-jest": {
       isolatedModules: true,
+      tsconfig: "./tsconfig-dev.json",
     },
   },
 };

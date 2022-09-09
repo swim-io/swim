@@ -56,3 +56,6 @@ primitive-types = { version="0.11.1", default-features=false }
 # wh version
 #primitive-types = { version = "0.9.0", default-features = false}
 byteorder = "1.4.3"
+
+rust_decimal = { version = "1.25", features = ["maths", "borsh"] }
+rust_decimal_macros = "1.25"

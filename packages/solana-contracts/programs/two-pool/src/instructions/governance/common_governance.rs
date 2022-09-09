@@ -6,15 +6,15 @@ use {
 #[derive(Accounts)]
 pub struct CommonGovernance<'info> {
     #[account(
-  mut,
-  seeds = [
-  b"two_pool".as_ref(),
-  pool.get_token_mint_0().unwrap().as_ref(),
-  pool.get_token_mint_1().unwrap().as_ref(),
-  pool.lp_mint_key.as_ref(),
-  ],
-  bump = pool.bump
-  )]
+    mut,
+    seeds = [
+    b"two_pool".as_ref(),
+    pool.get_token_mint_0().unwrap().as_ref(),
+    pool.get_token_mint_1().unwrap().as_ref(),
+    pool.lp_mint_key.as_ref(),
+    ],
+    bump = pool.bump
+    )]
     pub pool: Account<'info, TwoPool>,
 
     pub governance: Signer<'info>,

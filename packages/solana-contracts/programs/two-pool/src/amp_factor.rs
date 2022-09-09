@@ -226,11 +226,7 @@ impl AmpFactor {
             assert!(current_ts >= self.initial_ts);
 
             let is_increase = target_value > initial_value;
-            let value_diff = if is_increase {
-                target_value - initial_value
-            } else {
-                initial_value - target_value
-            };
+            let value_diff = if is_increase { target_value - initial_value } else { initial_value - target_value };
             let time_since_initial: ValueT = ((current_ts - self.initial_ts) as u64).into();
             let total_adjustment_time: ValueT = ((self.target_ts - self.initial_ts) as u64).into();
             let delta = value_diff * (time_since_initial / total_adjustment_time);
@@ -269,7 +265,7 @@ impl AmpFactor {
     }
 }
 
-#[cfg(all(test, not(feature = "test-bpf")))]
+#[cfg(test)]
 mod tests {
     use super::*;
 

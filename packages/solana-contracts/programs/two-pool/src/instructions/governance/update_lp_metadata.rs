@@ -16,9 +16,9 @@ pub struct UpdateLpMetadata<'info> {
     pub common_governance: CommonGovernance<'info>,
     pub update_metadata_accounts: UpdateMetadataAccounts<'info>,
     #[account(
-  executable,
-  address = Metadata::id()
-  )]
+    executable,
+    address = Metadata::id()
+    )]
     ///CHECK: mpl_token_metadata program
     pub mpl_token_metadata: Program<'info, Metadata>,
 }

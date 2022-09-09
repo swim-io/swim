@@ -72,11 +72,8 @@ pub fn handle_secp256k1_and_verify(
     verify_signatures_data: VerifySignaturesData,
 ) -> Result<()> {
     let test = secp256k1_program::id();
-    let secp_ix = Instruction {
-        program_id: ctx.accounts.secp256k1_program.key(),
-        accounts: vec![],
-        data: secp_payload,
-    };
+    let secp_ix =
+        Instruction { program_id: ctx.accounts.secp256k1_program.key(), accounts: vec![], data: secp_payload };
     invoke(&secp_ix, &[])?;
     let verify_ix = Instruction {
         program_id: ctx.accounts.wormhole.key(),

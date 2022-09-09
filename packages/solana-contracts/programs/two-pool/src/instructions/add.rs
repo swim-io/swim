@@ -29,47 +29,47 @@ pub struct Add<'info> {
     lp_mint.key().as_ref(),
     ],
     bump = pool.bump
-  )]
+    )]
     pub pool: Account<'info, TwoPool>,
     // /// TODO: could be removed if initialized with pool_v2
     // /// CHECK: checked in CPI
     // pub pool_auth: UncheckedAccount<'info>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[0],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[0],
+    token::authority = pool,
+    )]
     pub pool_token_account_0: Box<Account<'info, TokenAccount>>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[1],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[1],
+    token::authority = pool,
+    )]
     pub pool_token_account_1: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub lp_mint: Box<Account<'info, Mint>>,
     #[account(
-  mut,
-  token::mint = lp_mint
-  )]
+    mut,
+    token::mint = lp_mint
+    )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
     ///CHECK: checked in CPI
     pub user_transfer_authority: Signer<'info>,
     #[account(
-  mut,
-  token::mint = pool_token_account_0.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_0.mint,
+    )]
     pub user_token_account_0: Box<Account<'info, TokenAccount>>,
     #[account(
-  mut,
-  token::mint = pool_token_account_1.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_1.mint,
+    )]
     pub user_token_account_1: Box<Account<'info, TokenAccount>>,
 
     #[account(
-  mut,
-  token::mint = lp_mint,
-  )]
+    mut,
+    token::mint = lp_mint,
+    )]
     pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
 
     //TODO: vanilla solana we didn't pass/ask for this account
@@ -100,11 +100,7 @@ impl<'info> Add<'info> {
             pool_state.token_keys[1],
             PoolError::PoolTokenAccountExpected
         );
-        require_keys_eq!(
-            ctx.accounts.lp_mint.key(),
-            pool_state.lp_mint_key,
-            PoolError::InvalidMintAccount
-        );
+        require_keys_eq!(ctx.accounts.lp_mint.key(), pool_state.lp_mint_key, PoolError::InvalidMintAccount);
         require_keys_eq!(
             ctx.accounts.governance_fee.key(),
             pool_state.governance_fee_key,
@@ -129,10 +125,7 @@ pub fn handle_add(
 ) -> Result<u64> {
     let input_amounts = params.input_amounts;
     let minimum_mint_amount = params.minimum_mint_amount;
-    require!(
-        input_amounts.iter().any(|&x| x > 0),
-        PoolError::AddRequiresAtLeastOneToken
-    );
+    require!(input_amounts.iter().any(|&x| x > 0), PoolError::AddRequiresAtLeastOneToken);
     let lp_total_supply = ctx.accounts.lp_mint.supply;
     //initial add to pool must add all tokens
     if lp_total_supply == 0 {
@@ -150,10 +143,7 @@ pub fn handle_add(
     //   .collect::<Vec<_>>()
     //   .as_slice()
     //   .try_into().unwrap();
-    let pool_balances = [
-        ctx.accounts.pool_token_account_0.amount,
-        ctx.accounts.pool_token_account_1.amount,
-    ];
+    let pool_balances = [ctx.accounts.pool_token_account_0.amount, ctx.accounts.pool_token_account_1.amount];
     let current_ts = Clock::get()?.unix_timestamp;
     require_gt!(current_ts, 0i64, PoolError::InvalidTimestamp);
     let (user_amount, governance_mint_amount, latest_depth) = Invariant::<TOKEN_COUNT>::add(

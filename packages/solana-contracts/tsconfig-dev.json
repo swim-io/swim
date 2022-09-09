@@ -4,7 +4,10 @@
   "compilerOptions": {
     "declarationDir": "types/",
     "outDir": "build/",
-    "rootDir": "./"
+    "rootDir": "./",
+    "types": ["jest"],
   },
-  "include": ["./migrations", "./scripts", "./src", "./test"]
+  "include": ["./migrations", "./scripts", "./src",
+    "./src/__tests__"
+  ]
 }

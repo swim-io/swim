@@ -23,12 +23,7 @@ pub fn is_transfer_amount_sufficient(
     // Untruncate the amount to drop the remainder so we don't  "burn" user's funds.
     let min_threshold_trunc: u64 = min_threshold * trunc_divisor;
 
-    msg!(
-        "amount: {}, raw_min_threshold: {}, min_threshold_trunc: {}",
-        amount,
-        raw_min_threshold,
-        min_threshold_trunc
-    );
+    msg!("amount: {}, raw_min_threshold: {}, min_threshold_trunc: {}", amount, raw_min_threshold, min_threshold_trunc);
     // TODO: should i do the token bridge transfer amount calculation here and compare that?
     if propeller_enabled {
         require_gte!(amount, min_threshold_trunc, PropellerError::InsufficientAmount);

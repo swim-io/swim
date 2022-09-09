@@ -47,11 +47,7 @@ pub struct AnchorCreator {
 
 impl From<AnchorCreator> for Creator {
     fn from(item: AnchorCreator) -> Self {
-        Creator {
-            address: item.address,
-            verified: item.verified,
-            share: item.share,
-        }
+        Creator { address: item.address, verified: item.verified, share: item.share }
     }
 }
 
@@ -71,11 +67,7 @@ pub struct AnchorUses {
 
 impl From<AnchorUses> for Uses {
     fn from(item: AnchorUses) -> Self {
-        Uses {
-            use_method: item.use_method.into(),
-            remaining: item.remaining,
-            total: item.total,
-        }
+        Uses { use_method: item.use_method.into(), remaining: item.remaining, total: item.total }
     }
 }
 
@@ -97,9 +89,6 @@ pub struct AnchorCollection {
 
 impl From<AnchorCollection> for Collection {
     fn from(item: AnchorCollection) -> Self {
-        Collection {
-            verified: item.verified,
-            key: item.key,
-        }
+        Collection { verified: item.verified, key: item.key }
     }
 }

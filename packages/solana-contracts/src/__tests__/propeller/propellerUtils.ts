@@ -1,6 +1,6 @@
 import type { ChainId, ChainName } from "@certusone/wormhole-sdk";
 import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk";
-import { web3 } from "@project-serum/anchor";
+import { BN, web3 } from "@project-serum/anchor";
 import { BigNumber } from "ethers";
 
 import type {
@@ -165,8 +165,8 @@ export async function getPropellerSenderPda(
 // ?? bytes - propeller parameters (propellerEnabled: bool / gasTokenPrefundingAmount: uint256 / propellerFee (?? - similar to wormhole arbiter fee))
 export interface ParsedSwimPayload {
   readonly version: number;
-  readonly owner: Buffer;
   readonly targetTokenId: number;
+  readonly owner: Buffer;
   // minOutputAmount: bigint;
   readonly memo: Buffer;
   // targetToken: Buffer; //mint of expected final output token
@@ -176,7 +176,7 @@ export interface ParsedSwimPayload {
   readonly propellerEnabled: boolean;
   //this will always be 0 in v1. it represents minimumOutputAmount.
   // v1 will not handle cross-chain slippage
-  readonly minThreshold: bigint;
+  // readonly minThreshold: bigint;
   // propellerFee: bigint;
   // propellerFee: string;
   readonly gasKickstart: boolean;
@@ -192,7 +192,7 @@ export function encodeSwimPayload(swimPayload: ParsedSwimPayload): Buffer {
       // 32 + //minOutputAmount
       16 + //memo
       1 + //propellerEnabled
-      32 + //minThreshold
+      // 32 + //minThreshold
       // 32 + //propellerFee
       1, //gasKickstart
   );
@@ -211,8 +211,8 @@ export function encodeSwimPayload(swimPayload: ParsedSwimPayload): Buffer {
   offset += 16;
   encoded.writeUint8(Number(swimPayload.propellerEnabled), offset);
   offset++;
-  encoded.write(toBigNumberHex(swimPayload.minThreshold, 32), offset, "hex");
-  offset += 32;
+  // encoded.write(toBigNumberHex(swimPayload.minThreshold, 32), offset, "hex");
+  // offset += 32;
   // encoded.write(toBigNumberHex(swimPayload.propellerFee, 32), 100, "hex");
   encoded.writeUint8(Number(swimPayload.gasKickstart), offset);
   return encoded;
@@ -235,8 +235,8 @@ export function parseSwimPayload(arr: Buffer): ParsedSwimPayload {
   offset += 16;
   const propellerEnabled = arr.readUint8(offset) === 1;
   offset++;
-  const minThreshold = parseU256(arr.subarray(offset, offset + 32));
-  offset += 32;
+  // const minThreshold = parseU256(arr.subarray(offset, offset + 32));
+  // offset += 32;
   // const propellerFee = parseU256(arr.subarray(offset, offset + 32));
   // offset += 32;
   const gasKickstart = arr.readUint8(offset) === 1;
@@ -249,7 +249,7 @@ export function parseSwimPayload(arr: Buffer): ParsedSwimPayload {
     // minOutputAmount,
     memo,
     propellerEnabled,
-    minThreshold,
+    // minThreshold,
     gasKickstart,
   };
   // return {
@@ -272,7 +272,7 @@ export type PostVAAData = {
   readonly nonce: number;
   readonly emitterChain: number;
   readonly emitterAddress: Buffer;
-  readonly sequence: anchor.BN;
+  readonly sequence: BN;
   readonly consistencyLevel: number;
   readonly payload: Buffer;
 };
@@ -363,7 +363,7 @@ export const formatSwimPayload = (
     ...swimPayload,
     // minOutputAmount: swimPayload.minOutputAmount.toString(),
     memo: swimPayload.memo.toString(),
-    minThreshold: swimPayload.minThreshold.toString(),
+    // minThreshold: swimPayload.minThreshold.toString(),
     owner: tryUint8ArrayToNative(swimPayload.owner, chain),
   };
 };

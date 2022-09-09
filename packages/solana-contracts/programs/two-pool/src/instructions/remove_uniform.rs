@@ -20,54 +20,54 @@ pub struct RemoveUniformParams {
 #[derive(Accounts)]
 pub struct RemoveUniform<'info> {
     #[account(
-  mut,
-  seeds = [
-  b"two_pool".as_ref(),
-  pool_token_account_0.mint.as_ref(),
-  pool_token_account_1.mint.as_ref(),
-  lp_mint.key().as_ref(),
-  ],
-  bump = pool.bump
-  )]
+    mut,
+    seeds = [
+    b"two_pool".as_ref(),
+    pool_token_account_0.mint.as_ref(),
+    pool_token_account_1.mint.as_ref(),
+    lp_mint.key().as_ref(),
+    ],
+    bump = pool.bump
+    )]
     pub pool: Account<'info, TwoPool>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[0],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[0],
+    token::authority = pool,
+    )]
     pub pool_token_account_0: Box<Account<'info, TokenAccount>>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[1],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[1],
+    token::authority = pool,
+    )]
     pub pool_token_account_1: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub lp_mint: Box<Account<'info, Mint>>,
     #[account(
-  mut,
-  token::mint = lp_mint
-  )]
+    mut,
+    token::mint = lp_mint
+    )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
 
     pub user_transfer_authority: Signer<'info>,
 
     #[account(
-  mut,
-  token::mint = pool_token_account_0.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_0.mint,
+    )]
     pub user_token_account_0: Box<Account<'info, TokenAccount>>,
 
     #[account(
-  mut,
-  token::mint = pool_token_account_1.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_1.mint,
+    )]
     pub user_token_account_1: Box<Account<'info, TokenAccount>>,
 
     #[account(
-  mut,
-  token::mint = lp_mint,
-  )]
+    mut,
+    token::mint = lp_mint,
+    )]
     pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
 
     // //TODO: probably need a user_transfer_auth account since either the user or propeller could be payer for txn.
@@ -92,11 +92,7 @@ impl<'info> RemoveUniform<'info> {
             pool_state.token_keys[1],
             PoolError::PoolTokenAccountExpected
         );
-        require_keys_eq!(
-            ctx.accounts.lp_mint.key(),
-            pool_state.lp_mint_key,
-            PoolError::InvalidMintAccount
-        );
+        require_keys_eq!(ctx.accounts.lp_mint.key(), pool_state.lp_mint_key, PoolError::InvalidMintAccount);
         require_keys_eq!(
             ctx.accounts.governance_fee.key(),
             pool_state.governance_fee_key,
@@ -120,19 +116,12 @@ pub fn handle_remove_uniform(
     let minimum_output_amounts = remove_uniform_params.minimum_output_amounts;
     let lp_total_supply = ctx.accounts.lp_mint.supply;
     require_gt!(exact_burn_amount, 0u64, PoolError::InvalidRemoveUniformParameters);
-    require_gte!(
-        lp_total_supply,
-        exact_burn_amount,
-        PoolError::InvalidRemoveUniformParameters
-    );
+    require_gte!(lp_total_supply, exact_burn_amount, PoolError::InvalidRemoveUniformParameters);
 
     let pool = &ctx.accounts.pool;
     let pool_token_account_0 = &ctx.accounts.pool_token_account_0;
     let pool_token_account_1 = &ctx.accounts.pool_token_account_1;
-    let pool_balances = [
-        ctx.accounts.pool_token_account_0.amount,
-        ctx.accounts.pool_token_account_1.amount,
-    ];
+    let pool_balances = [ctx.accounts.pool_token_account_0.amount, ctx.accounts.pool_token_account_1.amount];
 
     let user_share = DecimalU64::from(exact_burn_amount) / lp_total_supply;
     //u64 can store 19 decimals, previous_depth can theoretically go up to TOKEN_COUNT * u64::MAX
@@ -157,11 +146,7 @@ pub fn handle_remove_uniform(
         let (user_token_account, pool_token_account) = token_accounts.next().unwrap();
         let output_amount = (pool_balances[i] * user_share).trunc();
         output_amounts.push(output_amount);
-        require_gte!(
-            output_amount,
-            minimum_output_amounts[i],
-            PoolError::OutsideSpecifiedLimits
-        );
+        require_gte!(output_amount, minimum_output_amounts[i], PoolError::OutsideSpecifiedLimits);
         token::transfer(
             CpiContext::new_with_signer(
                 ctx.accounts.token_program.to_account_info(),

@@ -24,9 +24,9 @@ pub struct CreateLpMetadata<'info> {
     // pub system_program: Program<'info, System>,
     // pub rent: Sysvar<'info, Rent>,
     #[account(
-  executable,
-  address = Metadata::id()
-  )]
+    executable,
+    address = Metadata::id()
+    )]
     ///CHECK: mpl_token_metadata program
     pub mpl_token_metadata: Program<'info, Metadata>,
 }

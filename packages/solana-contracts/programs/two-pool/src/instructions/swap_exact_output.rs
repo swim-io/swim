@@ -36,48 +36,48 @@ use {
 #[derive(Accounts)]
 pub struct SwapExactOutput<'info> {
     #[account(
-  mut,
-  seeds = [
-  b"two_pool".as_ref(),
-  pool_token_account_0.mint.as_ref(),
-  pool_token_account_1.mint.as_ref(),
-  lp_mint.key().as_ref(),
-  ],
-  bump = pool.bump
-  )]
+    mut,
+    seeds = [
+    b"two_pool".as_ref(),
+    pool_token_account_0.mint.as_ref(),
+    pool_token_account_1.mint.as_ref(),
+    lp_mint.key().as_ref(),
+    ],
+    bump = pool.bump
+    )]
     pub pool: Account<'info, TwoPool>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[0],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[0],
+    token::authority = pool,
+    )]
     pub pool_token_account_0: Box<Account<'info, TokenAccount>>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[1],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[1],
+    token::authority = pool,
+    )]
     pub pool_token_account_1: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub lp_mint: Box<Account<'info, Mint>>,
     #[account(
-  mut,
-  token::mint = lp_mint
-  )]
+    mut,
+    token::mint = lp_mint
+    )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
 
     pub user_transfer_authority: Signer<'info>,
 
     #[account(
-  mut,
-  token::mint = pool_token_account_0.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_0.mint,
+    )]
     pub user_token_account_0: Box<Account<'info, TokenAccount>>,
 
     #[account(
-  mut,
-  token::mint = pool_token_account_1.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_1.mint,
+    )]
     pub user_token_account_1: Box<Account<'info, TokenAccount>>,
 
     // //TODO: probably need a user_transfer_auth account since either the user or propeller could be payer for txn.
@@ -102,11 +102,7 @@ impl<'info> SwapExactOutput<'info> {
             pool_state.token_keys[1],
             PoolError::PoolTokenAccountExpected
         );
-        require_keys_eq!(
-            ctx.accounts.lp_mint.key(),
-            pool_state.lp_mint_key,
-            PoolError::InvalidMintAccount
-        );
+        require_keys_eq!(ctx.accounts.lp_mint.key(), pool_state.lp_mint_key, PoolError::InvalidMintAccount);
         require_keys_eq!(
             ctx.accounts.governance_fee.key(),
             pool_state.governance_fee_key,
@@ -130,20 +126,11 @@ pub fn handle_swap_exact_output(
 ) -> Result<Vec<u64>> {
     let input_token_index = swap_exact_output_params.input_token_index as usize;
     let exact_output_amounts = swap_exact_output_params.exact_output_amounts;
-    let pool_balances = [
-        ctx.accounts.pool_token_account_0.amount,
-        ctx.accounts.pool_token_account_1.amount,
-    ];
+    let pool_balances = [ctx.accounts.pool_token_account_0.amount, ctx.accounts.pool_token_account_1.amount];
     let are_output_amounts_valid = exact_output_amounts.iter().any(|amount| *amount == 0);
     require!(are_output_amounts_valid, PoolError::InvalidSwapExactOutputParameters);
-    require!(
-        input_token_index < TOKEN_COUNT,
-        PoolError::InvalidSwapExactOutputParameters
-    );
-    require!(
-        exact_output_amounts[input_token_index] == 0,
-        PoolError::InvalidSwapExactOutputParameters
-    );
+    require!(input_token_index < TOKEN_COUNT, PoolError::InvalidSwapExactOutputParameters);
+    require!(exact_output_amounts[input_token_index] == 0, PoolError::InvalidSwapExactOutputParameters);
     // || exact_output_amounts[input_token_index] != 0
     // if exact_output_amounts.iter().all(|amount| *amount == 0)
     //   || input_token_index >= TOKEN_COUNT
@@ -155,18 +142,12 @@ pub fn handle_swap_exact_output(
         .iter()
         .zip(pool_balances.iter())
         .all(|(output_amount, pool_balance)| *output_amount < *pool_balance);
-    require!(
-        are_pool_balances_sufficient,
-        PoolError::InsufficientPoolTokenAccountBalance
-    );
+    require!(are_pool_balances_sufficient, PoolError::InsufficientPoolTokenAccountBalance);
 
     let pool = &ctx.accounts.pool;
     let pool_token_account_0 = &ctx.accounts.pool_token_account_0;
     let pool_token_account_1 = &ctx.accounts.pool_token_account_1;
-    let pool_balances = [
-        ctx.accounts.pool_token_account_0.amount,
-        ctx.accounts.pool_token_account_1.amount,
-    ];
+    let pool_balances = [ctx.accounts.pool_token_account_0.amount, ctx.accounts.pool_token_account_1.amount];
     let lp_mint = &ctx.accounts.lp_mint;
     let governance_fee = &ctx.accounts.governance_fee;
     // let user_transfer_auth = &ctx.accounts.user_transfer_authority;

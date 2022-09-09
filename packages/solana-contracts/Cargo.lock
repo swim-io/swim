@@ -2537,6 +2537,8 @@ dependencies = [
  "num-derive",
  "num-traits",
  "primitive-types",
+ "rust_decimal",
+ "rust_decimal_macros",
  "sha3 0.9.1",
  "spl-memo",
  "spl-token",

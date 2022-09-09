@@ -26,9 +26,9 @@ pub struct TransferNativeWithPayload<'info> {
     #[account(
     has_one = token_bridge_mint,
     seeds = [b"propeller".as_ref(), token_bridge_mint.key().as_ref()],
-	  bump = propeller.bump,
-	  )]
-    pub propeller: Account<'info, Propeller>,
+    bump = propeller.bump,
+    )]
+    pub propeller: Box<Account<'info, Propeller>>,
 
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -252,7 +252,7 @@ pub fn handle_transfer_native_with_payload(
         memo: memo.clone().try_into().unwrap(),
         propeller_enabled,
         //TODO: not sure if this is needed. applying same math as how token-bridge handles amount.
-        min_threshold: U256::from(0u64),
+        // min_threshold: U256::from(0u64),
         // propeller_min_threshold: U256::from(propeller.propeller_min_threshold),
         // propeller_fee: U256::from(propeller.propeller_fee),
         gas_kickstart,

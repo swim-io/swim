@@ -1,0 +1,17 @@
+name: "Verify wormhole build"
+on:
+  pull_request:
+    paths:
+      - "packages/wormhole/**.ts"
+      - "packages/wormhole/**.json"
+      - "yarn.lock"
+  push:
+    branches:
+      - master
+
+jobs:
+  verify:
+    uses: ./.github/workflows/verify.yaml
+    with:
+      workingDirectory: ./packages/wormhole
+      buildDependenciesForPackage: "@swim-io/wormhole"

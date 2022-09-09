@@ -164,10 +164,7 @@ impl AnchorDeserialize for PayloadTransferWithPayload {
         if message_type != 3 {
             // return Err(error!(PropellerError::InvalidPayloadTypeInVaa)).into()
             // return Err(ProgramError::BorshIoError("Wrong Payload Type".to_string()).into());
-            return Err(std::io::Error::new(
-                ErrorKind::InvalidInput,
-                "Wrong Payload Type".to_string(),
-            ));
+            return Err(std::io::Error::new(ErrorKind::InvalidInput, "Wrong Payload Type".to_string()));
             // return Err(PropellerError::InvalidPayloadTypeInVaa);
         };
 
@@ -240,9 +237,7 @@ impl AnchorSerialize for PostedMessageData {
 impl AnchorDeserialize for PostedMessageData {
     fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
         *buf = &buf[3..];
-        Ok(PostedMessageData {
-            message: <MessageData as BorshDeserialize>::deserialize(buf)?,
-        })
+        Ok(PostedMessageData { message: <MessageData as BorshDeserialize>::deserialize(buf)? })
     }
 }
 
@@ -250,12 +245,9 @@ pub fn get_message_data(vaa_account: &AccountInfo) -> Result<MessageData> {
     Ok(PostedMessageData::try_from_slice(&vaa_account.data.borrow())?.message)
 }
 
-pub fn get_transfer_with_payload_from_message_account(
-    vaa_account: &AccountInfo,
-) -> Result<PayloadTransferWithPayload> {
+pub fn get_transfer_with_payload_from_message_account(vaa_account: &AccountInfo) -> Result<PayloadTransferWithPayload> {
     let message_data = get_message_data(&vaa_account)?;
-    let payload_transfer_with_payload =
-        deserialize_message_payload(&mut message_data.payload.as_slice())?;
+    let payload_transfer_with_payload = deserialize_message_payload(&mut message_data.payload.as_slice())?;
     Ok(payload_transfer_with_payload)
 }
 
@@ -321,9 +313,7 @@ impl AnchorSerialize for PostedVAAData {
 impl AnchorDeserialize for PostedVAAData {
     fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
         // *buf = &buf[3..];
-        Ok(PostedVAAData {
-            message: <MessageData as BorshDeserialize>::deserialize(buf)?,
-        })
+        Ok(PostedVAAData { message: <MessageData as BorshDeserialize>::deserialize(buf)? })
     }
 }
 

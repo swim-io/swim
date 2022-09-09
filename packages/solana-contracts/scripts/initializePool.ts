@@ -22,7 +22,7 @@ import {
 import {
   setupPoolPrereqs,
   setupUserAssociatedTokenAccts,
-} from "../test/twoPool/poolTestUtils";
+} from "../src/__tests__/twoPool/poolTestUtils";
 
 const envProvider = AnchorProvider.env();
 const commitment = "confirmed" as web3.Commitment;
@@ -232,7 +232,7 @@ const writeKeypairToFile = (keypairPath: string, keypair: Keypair) => {
 
 async function main() {
   await initialize();
-  console.info(`intitialized pool`);
+  console.info(`initialized pool`);
   await add();
   console.info(`seeded pool and user accounts`);
 }

@@ -1,10 +1,8 @@
 import type { ChainId, ChainName } from "@certusone/wormhole-sdk";
 import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk";
-import type { BN, Program, SplToken } from "@project-serum/anchor";
+import type { BN } from "@project-serum/anchor";
 import { web3 } from "@project-serum/anchor";
 import { BigNumber } from "ethers";
-
-import type { TwoPool } from "../../src/artifacts/two_pool";
 
 import type {
   ParsedTokenTransferPostedMessage,
@@ -15,7 +13,6 @@ import {
   formatParsedTokenTransferSignedVaa,
   parseTokenTransferPostedMessage,
   parseTokenTransferSignedVaa,
-  toBigNumberHex,
 } from "./tokenBridgeUtils";
 
 export async function getPropellerPda(
@@ -168,8 +165,8 @@ export async function getPropellerSenderPda(
 // ?? bytes - propeller parameters (propellerEnabled: bool / gasTokenPrefundingAmount: uint256 / propellerFee (?? - similar to wormhole arbiter fee))
 export interface ParsedSwimPayload {
   readonly version: number;
-  readonly owner: Buffer;
   readonly targetTokenId: number;
+  readonly owner: Buffer;
   // minOutputAmount: bigint;
   readonly memo: Buffer;
   // targetToken: Buffer; //mint of expected final output token
@@ -179,7 +176,7 @@ export interface ParsedSwimPayload {
   readonly propellerEnabled: boolean;
   //this will always be 0 in v1. it represents minimumOutputAmount.
   // v1 will not handle cross-chain slippage
-  readonly minThreshold: bigint;
+  // readonly minThreshold: bigint;
   // propellerFee: bigint;
   // propellerFee: string;
   readonly gasKickstart: boolean;
@@ -195,7 +192,7 @@ export function encodeSwimPayload(swimPayload: ParsedSwimPayload): Buffer {
       // 32 + //minOutputAmount
       16 + //memo
       1 + //propellerEnabled
-      32 + //minThreshold
+      // 32 + //minThreshold
       // 32 + //propellerFee
       1, //gasKickstart
   );
@@ -214,8 +211,8 @@ export function encodeSwimPayload(swimPayload: ParsedSwimPayload): Buffer {
   offset += 16;
   encoded.writeUint8(Number(swimPayload.propellerEnabled), offset);
   offset++;
-  encoded.write(toBigNumberHex(swimPayload.minThreshold, 32), offset, "hex");
-  offset += 32;
+  // encoded.write(toBigNumberHex(swimPayload.minThreshold, 32), offset, "hex");
+  // offset += 32;
   // encoded.write(toBigNumberHex(swimPayload.propellerFee, 32), 100, "hex");
   encoded.writeUint8(Number(swimPayload.gasKickstart), offset);
   return encoded;
@@ -238,8 +235,8 @@ export function parseSwimPayload(arr: Buffer): ParsedSwimPayload {
   offset += 16;
   const propellerEnabled = arr.readUint8(offset) === 1;
   offset++;
-  const minThreshold = parseU256(arr.subarray(offset, offset + 32));
-  offset += 32;
+  // const minThreshold = parseU256(arr.subarray(offset, offset + 32));
+  // offset += 32;
   // const propellerFee = parseU256(arr.subarray(offset, offset + 32));
   // offset += 32;
   const gasKickstart = arr.readUint8(offset) === 1;
@@ -252,7 +249,7 @@ export function parseSwimPayload(arr: Buffer): ParsedSwimPayload {
     // minOutputAmount,
     memo,
     propellerEnabled,
-    minThreshold,
+    // minThreshold,
     gasKickstart,
   };
   // return {
@@ -275,7 +272,7 @@ export type PostVAAData = {
   readonly nonce: number;
   readonly emitterChain: number;
   readonly emitterAddress: Buffer;
-  readonly sequence: anchor.BN;
+  readonly sequence: BN;
   readonly consistencyLevel: number;
   readonly payload: Buffer;
 };
@@ -366,7 +363,7 @@ export const formatSwimPayload = (
     ...swimPayload,
     // minOutputAmount: swimPayload.minOutputAmount.toString(),
     memo: swimPayload.memo.toString(),
-    minThreshold: swimPayload.minThreshold.toString(),
+    // minThreshold: swimPayload.minThreshold.toString(),
     owner: tryUint8ArrayToNative(swimPayload.owner, chain),
   };
 };
@@ -404,93 +401,3 @@ export const formatParsedTokenTransferWithSwimPayloadPostedMessage = (
     ...formattedSwimPayload,
   };
 };
-
-type PoolUserBalances = {
-  readonly poolTokenBalances: ReadonlyArray<BN>;
-  readonly userTokenBalances: ReadonlyArray<BN>;
-  readonly governanceFeeBalance: BN;
-  readonly userLpTokenBalance: BN;
-  readonly previousDepth: BN;
-};
-export async function getFlagshipTokenAccountBalances(
-  splToken: Program<SplToken>,
-  twoPoolProgram: Program<TwoPool>,
-  poolUsdcAtaAddr: web3.PublicKey,
-  poolUsdtAtaAddr: web3.PublicKey,
-  governanceFeeAddr: web3.PublicKey,
-  userUsdcAtaAddr: web3.PublicKey,
-  userUsdtAtaAddr: web3.PublicKey,
-  userSwimUsdAtaAddr: web3.PublicKey,
-  flagshipPool: web3.PublicKey,
-): Promise<PoolUserBalances> {
-  const poolUsdcAtaBalance = (
-    await splToken.account.token.fetch(poolUsdcAtaAddr)
-  ).amount;
-  const poolUsdtAtaBalance = (
-    await splToken.account.token.fetch(poolUsdtAtaAddr)
-  ).amount;
-  const governanceFeeBalance = (
-    await splToken.account.token.fetch(governanceFeeAddr)
-  ).amount;
-  const userUsdcAtaBalance = (
-    await splToken.account.token.fetch(userUsdcAtaAddr)
-  ).amount;
-  const userUsdtAtaBalance = (
-    await splToken.account.token.fetch(userUsdtAtaAddr)
-  ).amount;
-  const userLpTokenBalance = (
-    await splToken.account.token.fetch(userSwimUsdAtaAddr)
-  ).amount;
-  const previousDepth = (
-    await twoPoolProgram.account.twoPool.fetch(flagshipPool)
-  ).previousDepth;
-  return {
-    poolTokenBalances: [poolUsdcAtaBalance, poolUsdtAtaBalance],
-    governanceFeeBalance,
-    userTokenBalances: [userUsdcAtaBalance, userUsdtAtaBalance],
-    userLpTokenBalance,
-    previousDepth,
-  };
-}
-
-export function printBeforeAndAfterPoolUserBalances(
-  poolUserBalances: ReadonlyArray<PoolUserBalances>,
-) {
-  const {
-    poolTokenBalances: [poolUsdcAtaBalanceBefore, poolUsdtAtaBalanceBefore],
-    governanceFeeBalance: governanceFeeBalanceBefore,
-    userTokenBalances: [userUsdcAtaBalanceBefore, userUsdtAtaBalanceBefore],
-    userLpTokenBalance: userLpTokenBalanceBefore,
-    previousDepth: previousDepthBefore,
-  } = poolUserBalances[0];
-  const {
-    poolTokenBalances: [poolUsdcAtaBalanceAfter, poolUsdtAtaBalanceAfter],
-    governanceFeeBalance: governanceFeeBalanceAfter,
-    userTokenBalances: [userUsdcAtaBalanceAfter, userUsdtAtaBalanceAfter],
-    userLpTokenBalance: userLpTokenBalanceAfter,
-    previousDepth: previousDepthAfter,
-  } = poolUserBalances[1];
-  console.info(`
-    poolUsdcAtaBalance:
-      before: ${poolUsdcAtaBalanceBefore.toString()},
-      after: ${poolUsdcAtaBalanceAfter.toString()}
-    poolUsdtAtaBalance:
-      before: ${poolUsdtAtaBalanceBefore.toString()},
-      after: ${poolUsdtAtaBalanceAfter.toString()}
-    governanceFeeBalance:
-      before: ${governanceFeeBalanceBefore.toString()},
-      after: ${governanceFeeBalanceAfter.toString()}
-    userUsdcAtaBalance:
-      before: ${userUsdcAtaBalanceBefore.toString()},
-      after: ${userUsdcAtaBalanceAfter.toString()}
-    userUsdtAtaBalance:
-      before: ${userUsdtAtaBalanceBefore.toString()},
-      after: ${userUsdtAtaBalanceAfter.toString()}
-    userLpTokenBalance:
-      before: ${userLpTokenBalanceBefore.toString()},
-      after: ${userLpTokenBalanceAfter.toString()}
-    previousDepth:
-      before: ${previousDepthBefore.toString()},
-      after: ${previousDepthAfter.toString()}
-  `);
-}

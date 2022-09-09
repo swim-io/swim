@@ -1,14 +1,20 @@
 use {
-    crate::Propeller,
+    crate::{constants::REMOVE_EXACT_BURN_OUTPUT_TOKEN_INDEX, is_transfer_amount_sufficient, Propeller},
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::token::{Mint, Token, TokenAccount},
-    two_pool::{
-        gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT,
-    },
+    two_pool::{gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT},
 };
 
 #[derive(Accounts)]
 pub struct RemoveExactBurn<'info> {
+    #[account(
+  seeds = [
+  b"propeller".as_ref(),
+  pool_token_account_0.mint.as_ref(),
+  ],
+  bump = propeller.bump
+  )]
+    pub propeller: Account<'info, Propeller>,
     #[account(
   mut,
   seeds = [
@@ -70,14 +76,18 @@ pub struct RemoveExactBurn<'info> {
     ///CHECK: memo program
     pub memo: UncheckedAccount<'info>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
+    #[account(address = propeller.token_bridge_mint)]
+    pub token_bridge_mint: Account<'info, Mint>,
 }
 
 pub fn handle_remove_exact_burn(
     ctx: Context<RemoveExactBurn>,
     exact_burn_amount: u64,
-    output_token_index: u8,
+    // output_token_index: u8,
     minimum_output_amount: u64,
     memo: &[u8],
+    propeller_enabled: bool,
+    target_chain: u16,
 ) -> Result<u64> {
     let cpi_ctx = CpiContext::new(
         ctx.accounts.two_pool_program.to_account_info(),
@@ -97,12 +107,19 @@ pub fn handle_remove_exact_burn(
     let result = two_pool::cpi::remove_exact_burn(
         cpi_ctx,
         exact_burn_amount,
-        output_token_index,
+        REMOVE_EXACT_BURN_OUTPUT_TOKEN_INDEX,
         minimum_output_amount,
     )?;
     let return_val = result.get();
     let memo_ix = spl_memo::build_memo(memo, &[]);
     invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     anchor_lang::prelude::msg!("remove_exact_burn return_val: {:?}", return_val);
+    is_transfer_amount_sufficient(
+        &ctx.accounts.propeller,
+        &ctx.accounts.token_bridge_mint,
+        propeller_enabled,
+        target_chain,
+        return_val,
+    )?;
     Ok(return_val)
 }

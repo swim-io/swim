@@ -1,7 +1,7 @@
 use {
     crate::{
-        common_governance::*, error::*, get_current_ts, state::TwoPool, DecimalU64,
-        DecimalU64Anchor, PoolFee, UnixTimestamp,
+        common_governance::*, error::*, get_current_ts, state::TwoPool, DecimalU64, DecimalU64Anchor, PoolFee,
+        UnixTimestamp,
     },
     anchor_lang::prelude::*,
     anchor_spl::token::TokenAccount,
@@ -11,8 +11,8 @@ use {
 pub struct ChangeGovernanceFeeAccount<'info> {
     pub common_governance: CommonGovernance<'info>,
     #[account(
-  token::mint = common_governance.pool.lp_mint_key
-  )]
+    token::mint = common_governance.pool.lp_mint_key
+    )]
     pub new_governance_fee: Account<'info, TokenAccount>,
 }
 

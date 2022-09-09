@@ -52,8 +52,7 @@ async fn test_governance_transition() {
     pt_ctxt.initialize_pool(&program).await.unwrap();
 
     let pool_state_account = pt_ctxt.get_pool_state_data(pt_ctxt.pool_key).await;
-    let pool_state: TwoPool =
-        TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
+    let pool_state: TwoPool = TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
     assert_eq!(pool_state.prepared_governance_key, Pubkey::default());
     let governance_transition_ts = pool_state.governance_transition_ts;
     assert_eq!(governance_transition_ts, 0i64);
@@ -85,20 +84,13 @@ async fn test_governance_transition() {
         recent_blockhash,
     );
 
-    pt_ctxt
-        .process_transaction(prepare_gov_transition_txn)
-        .await
-        .unwrap();
+    pt_ctxt.process_transaction(prepare_gov_transition_txn).await.unwrap();
 
     let pool_state_account = pt_ctxt.get_pool_state_data(pt_ctxt.pool_key).await;
-    let pool_state: TwoPool =
-        TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
+    let pool_state: TwoPool = TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
 
     let governance_transition_ts_after = pool_state.governance_transition_ts;
-    assert_eq!(
-        pool_state.prepared_governance_key,
-        new_governance_key.pubkey()
-    );
+    assert_eq!(pool_state.prepared_governance_key, new_governance_key.pubkey());
     assert!(governance_transition_ts_after >= ENACT_DELAY);
 
     let enact_gov_transition_ix = program
@@ -124,25 +116,15 @@ async fn test_governance_transition() {
         recent_blockhash,
     );
 
-    pt_ctxt
-        .process_transaction(enact_gov_transition_txn)
-        .await
-        .expect_err("enact governance transition should fail");
+    pt_ctxt.process_transaction(enact_gov_transition_txn).await.expect_err("enact governance transition should fail");
 
     //verify that nothing changed
 
     let pool_state_account = pt_ctxt.get_pool_state_data(pt_ctxt.pool_key).await;
-    let pool_state: TwoPool =
-        TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
+    let pool_state: TwoPool = TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
 
-    assert_eq!(
-        pool_state.prepared_governance_key,
-        new_governance_key.pubkey()
-    );
-    assert_eq!(
-        pool_state.governance_transition_ts,
-        governance_transition_ts_after
-    );
+    assert_eq!(pool_state.prepared_governance_key, new_governance_key.pubkey());
+    assert_eq!(pool_state.governance_transition_ts, governance_transition_ts_after);
 
     pt_ctxt.time_travel(ENACT_DELAY * 3).await;
 
@@ -155,14 +137,10 @@ async fn test_governance_transition() {
         recent_blockhash,
     );
 
-    pt_ctxt
-        .process_transaction(enact_gov_transition_txn)
-        .await
-        .unwrap();
+    pt_ctxt.process_transaction(enact_gov_transition_txn).await.unwrap();
 
     let pool_state_account = pt_ctxt.get_pool_state_data(pt_ctxt.pool_key).await;
-    let pool_state: TwoPool =
-        TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
+    let pool_state: TwoPool = TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
     assert_eq!(pool_state.governance_key, new_governance_key.pubkey());
     assert_eq!(pool_state.prepared_governance_key, Pubkey::default());
     assert_eq!(pool_state.governance_transition_ts, 0i64);
@@ -183,20 +161,13 @@ async fn test_fee_change() {
     pt_ctxt.initialize_pool(&program).await.unwrap();
 
     let pool_state_account = pt_ctxt.get_pool_state_data(pt_ctxt.pool_key).await;
-    let pool_state: TwoPool =
-        TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
+    let pool_state: TwoPool = TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
     assert_eq!(pool_state.prepared_governance_key, Pubkey::default());
     let fee_transition_ts = pool_state.fee_transition_ts;
     assert_eq!(fee_transition_ts, 0i64);
 
-    let lp_fee = DecimalU64Anchor {
-        value: 400u64,
-        decimals: 6u8,
-    };
-    let governance_fee = DecimalU64Anchor {
-        value: 200u64,
-        decimals: 6u8,
-    };
+    let lp_fee = DecimalU64Anchor { value: 400u64, decimals: 6u8 };
+    let governance_fee = DecimalU64Anchor { value: 200u64, decimals: 6u8 };
 
     let prepare_gov_transition_ix = program
         .request()
@@ -228,24 +199,14 @@ async fn test_fee_change() {
         recent_blockhash,
     );
 
-    pt_ctxt
-        .process_transaction(prepare_gov_transition_txn)
-        .await
-        .unwrap();
+    pt_ctxt.process_transaction(prepare_gov_transition_txn).await.unwrap();
 
     let pool_state_account = pt_ctxt.get_pool_state_data(pt_ctxt.pool_key).await;
-    let pool_state: TwoPool =
-        TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
+    let pool_state: TwoPool = TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
 
     let fee_transition_ts_after = pool_state.fee_transition_ts;
-    assert_eq!(
-        pool_state.prepared_lp_fee,
-        PoolFee::new(lp_fee.into()).unwrap()
-    );
-    assert_eq!(
-        pool_state.prepared_governance_fee,
-        PoolFee::new(governance_fee.into()).unwrap()
-    );
+    assert_eq!(pool_state.prepared_lp_fee, PoolFee::new(lp_fee.into()).unwrap());
+    assert_eq!(pool_state.prepared_governance_fee, PoolFee::new(governance_fee.into()).unwrap());
     assert!(fee_transition_ts_after >= ENACT_DELAY);
 
     let enact_fee_change_ix = program
@@ -271,25 +232,15 @@ async fn test_fee_change() {
         recent_blockhash,
     );
 
-    pt_ctxt
-        .process_transaction(enact_fee_change_txn)
-        .await
-        .expect_err("enact governance transition should fail");
+    pt_ctxt.process_transaction(enact_fee_change_txn).await.expect_err("enact governance transition should fail");
 
     //verify that nothing changed
 
     let pool_state_account = pt_ctxt.get_pool_state_data(pt_ctxt.pool_key).await;
-    let pool_state: TwoPool =
-        TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
+    let pool_state: TwoPool = TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
 
-    assert_eq!(
-        pool_state.prepared_lp_fee,
-        PoolFee::new(lp_fee.into()).unwrap()
-    );
-    assert_eq!(
-        pool_state.prepared_governance_fee,
-        PoolFee::new(governance_fee.into()).unwrap()
-    );
+    assert_eq!(pool_state.prepared_lp_fee, PoolFee::new(lp_fee.into()).unwrap());
+    assert_eq!(pool_state.prepared_governance_fee, PoolFee::new(governance_fee.into()).unwrap());
 
     pt_ctxt.time_travel(ENACT_DELAY * 3).await;
 
@@ -302,19 +253,12 @@ async fn test_fee_change() {
         recent_blockhash,
     );
 
-    pt_ctxt
-        .process_transaction(enact_gov_transition_txn)
-        .await
-        .unwrap();
+    pt_ctxt.process_transaction(enact_gov_transition_txn).await.unwrap();
 
     let pool_state_account = pt_ctxt.get_pool_state_data(pt_ctxt.pool_key).await;
-    let pool_state: TwoPool =
-        TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
+    let pool_state: TwoPool = TwoPool::try_deserialize(&mut pool_state_account.data.as_slice()).unwrap();
     assert_eq!(pool_state.lp_fee, PoolFee::new(lp_fee.into()).unwrap());
-    assert_eq!(
-        pool_state.governance_fee,
-        PoolFee::new(governance_fee.into()).unwrap()
-    );
+    assert_eq!(pool_state.governance_fee, PoolFee::new(governance_fee.into()).unwrap());
     assert_eq!(pool_state.prepared_lp_fee, PoolFee::default());
     assert_eq!(pool_state.prepared_governance_fee, PoolFee::default());
     assert_eq!(pool_state.fee_transition_ts, 0i64);
@@ -349,37 +293,19 @@ async fn create_mint(context: &mut ProgramTestContext, decimals: u8) -> Keypair 
         &[&context.payer, &mint_account],
         context.last_blockhash,
     );
-    context
-        .banks_client
-        .process_transaction(transaction)
-        .await
-        .unwrap();
+    context.banks_client.process_transaction(transaction).await.unwrap();
 
     mint_account
 }
 
-async fn create_associated_token_account(
-    context: &mut ProgramTestContext,
-    owner: &Pubkey,
-    mint: &Pubkey,
-) -> Pubkey {
+async fn create_associated_token_account(context: &mut ProgramTestContext, owner: &Pubkey, mint: &Pubkey) -> Pubkey {
     let transaction = Transaction::new_signed_with_payer(
-        &[
-            associated_token_instruction::create_associated_token_account(
-                &context.payer.pubkey(),
-                owner,
-                mint,
-            ),
-        ],
+        &[associated_token_instruction::create_associated_token_account(&context.payer.pubkey(), owner, mint)],
         Some(&context.payer.pubkey()),
         &[&context.payer],
         context.last_blockhash,
     );
-    context
-        .banks_client
-        .process_transaction(transaction)
-        .await
-        .unwrap();
+    context.banks_client.process_transaction(transaction).await.unwrap();
 
     get_associated_token_address(owner, mint)
 }
@@ -440,27 +366,14 @@ impl DeployedPoolProgramTestContext {
             ],
             &two_pool::id(),
         );
-        let pool_usdc_ata_addr =
-            get_associated_token_address(&pool_key, &usdc_mint_keypair.pubkey());
-        let pool_usdt_ata_addr =
-            get_associated_token_address(&pool_key, &usdt_mint_keypair.pubkey());
-        let governance_fee_addr = get_associated_token_address(
-            &self.get_governance().pubkey(),
-            &lp_mint_keypair.pubkey(),
-        );
+        let pool_usdc_ata_addr = get_associated_token_address(&pool_key, &usdc_mint_keypair.pubkey());
+        let pool_usdt_ata_addr = get_associated_token_address(&pool_key, &usdt_mint_keypair.pubkey());
+        let governance_fee_addr =
+            get_associated_token_address(&self.get_governance().pubkey(), &lp_mint_keypair.pubkey());
 
-        let amp_factor = DecimalU64Anchor {
-            value: 300u64,
-            decimals: 0u8,
-        };
-        let lp_fee = DecimalU64Anchor {
-            value: 300u64,
-            decimals: 6u8,
-        };
-        let governance_fee = DecimalU64Anchor {
-            value: 100u64,
-            decimals: 6u8,
-        };
+        let amp_factor = DecimalU64Anchor { value: 300u64, decimals: 0u8 };
+        let lp_fee = DecimalU64Anchor { value: 300u64, decimals: 6u8 };
+        let governance_fee = DecimalU64Anchor { value: 100u64, decimals: 6u8 };
 
         let init_ix = program
             .request()
@@ -520,42 +433,22 @@ impl DeployedPoolProgramTestContext {
     }
 
     pub async fn get_pool_state_data(&mut self, pool_key: Pubkey) -> Account {
-        self.pt_ctxt
-            .banks_client
-            .get_account(pool_key)
-            .await
-            .unwrap()
-            .unwrap()
+        self.pt_ctxt.banks_client.get_account(pool_key).await.unwrap().unwrap()
     }
 
     async fn get_latest_blockhash(&mut self) -> Hash {
-        self.pt_ctxt
-            .banks_client
-            .get_latest_blockhash()
-            .await
-            .unwrap()
+        self.pt_ctxt.banks_client.get_latest_blockhash().await.unwrap()
     }
 
-    pub async fn process_transaction(
-        &mut self,
-        transaction: Transaction,
-    ) -> Result<(), BanksClientError> {
-        self.pt_ctxt
-            .banks_client
-            .process_transaction(transaction)
-            .await
+    pub async fn process_transaction(&mut self, transaction: Transaction) -> Result<(), BanksClientError> {
+        self.pt_ctxt.banks_client.process_transaction(transaction).await
     }
 
     // Time-travel
     // Note: in order to "time-travel", must also warp to future slot.
     //  not 100% sure why might be something to do with the blockhash being the same.
     pub async fn time_travel(&mut self, time_skip_amount: i64) {
-        let mut clock_sysvar = self
-            .pt_ctxt
-            .banks_client
-            .get_sysvar::<Clock>()
-            .await
-            .unwrap();
+        let mut clock_sysvar = self.pt_ctxt.banks_client.get_sysvar::<Clock>().await.unwrap();
         let current_ts = clock_sysvar.unix_timestamp;
         let timeskip_ts = current_ts + time_skip_amount;
         clock_sysvar.unix_timestamp = timeskip_ts;

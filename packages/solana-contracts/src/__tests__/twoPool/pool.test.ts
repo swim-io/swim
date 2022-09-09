@@ -25,9 +25,9 @@ import {
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import { getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
 
-import { getApproveAndRevokeIxs, twoPoolToString } from "../../src";
-import type { TwoPool } from "../../src/artifacts/two_pool";
-import { parsePoolAccount } from "../../src/poolDecoder";
+import type { TwoPool } from "../../artifacts/two_pool";
+import { getApproveAndRevokeIxs, twoPoolToString } from "../../index";
+import { parsePoolAccount } from "../../poolDecoder";
 
 import {
   setupPoolPrereqs,
@@ -786,7 +786,7 @@ describe("TwoPool", () => {
       //   `ampFactor: ${ampFactor1.targetValue.value.toString()}`,
       // );
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const marginalPricesView = await twoPoolProgram.methods
+      const marginalPrices = await twoPoolProgram.methods
         .marginalPrices()
         .accounts({
           poolTokenAccount0: poolUsdcAtaAddr,
@@ -794,7 +794,29 @@ describe("TwoPool", () => {
           lpMint: swimUsdKeypair.publicKey,
         })
         .view();
-      console.info(marginalPricesView);
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const formattedMarginalPrices = marginalPrices.map((borshDecimal) => {
+        return {
+          ...borshDecimal,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          mantissa: borshDecimal.mantissa.toString(),
+        };
+      });
+      //            poolTokenAccount0Balance: 98999963
+      //             poolTokenAccount1Balance: 98600116
+      //             poolState.previousDepth: 197600076
+      //             lpMintBalance: 197599985
+      // mariginalPrices: [
+      //  0.9999870731992544708
+      //  {"value":"9999870731992544708","decimals":19},
+      //  1.000013874970468595
+      //  {"value":"1000013874970468595","decimals":18}
+      //  ]
+      console.info(
+        `marginalPrices: ${JSON.stringify(formattedMarginalPrices)}`,
+      );
+
       // try {
       //
       //   // console.info(
@@ -1306,12 +1328,6 @@ describe("TwoPool", () => {
       };
       const primarySaleHappened = null;
       const isMutable = null;
-      // const params = {
-      //   newUpdateAuthority,
-      //   data,
-      //   primarySaleHappened,
-      //   isMutable,
-      // };
 
       const metadataPda = findMetadataPda(swimUsdKeypair.publicKey);
       console.info(`metadataPda: ${metadataPda.toBase58()}`);
@@ -1340,43 +1356,8 @@ describe("TwoPool", () => {
             .rpc({ skipPreflight: true })
         );
       }).rejects.toThrow();
-      // try {
-      //   await twoPoolProgram.methods
-      //     // .updateLpMetadata(params)
-      //     .updateLpMetadata(
-      //       newUpdateAuthority,
-      //       data,
-      //       primarySaleHappened,
-      //       isMutable,
-      //     )
-      //     .accounts({
-      //       commonGovernance: {
-      //         pool: flagshipPool,
-      //         governance: governanceKeypair.publicKey,
-      //       },
-      //       updateMetadataAccounts: {
-      //         metadata: metadataPda,
-      //         updateAuthority: Keypair.generate().publicKey,
-      //       },
-      //       mplTokenMetadata: TokenMetadataProgram.publicKey,
-      //     })
-      //     .signers([governanceKeypair])
-      //     .rpc({ skipPreflight: true });
-      //
-      //   expect(false).toBeTruthy();
-      // } catch (_err) {
-      //   // no _err object. its a cpi failure
-      //   // Transaction executed in slot 29:
-      //   //   Signature: 4pcSvagKL81esLhvvhh8gbDsHQUGpiooNNjXuhtsUBZnQZN3Y5bs9nhJ3dbTXV5LDcLMZUQkx7jfr4LHKxCZfm6b
-      //   //   Status: Error processing Instruction 0: Cross-program invocation with unauthorized signer or writable account
-      //   //   Log Messages:
-      //   //     Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM invoke [1]
-      //   //     Program log: Instruction: UpdateLpMetadata
-      //   //     8xaQHzj1v7R3XbQ2c3tjzpWoYRJgaYU4oFzCvq9Suf3c's signer privilege escalated
-      //   //     Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM consumed 12361 of 200000 compute units
-      //   //     Program 8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM failed: Cross-program invocation with unauthorized signer or writable account
-      //   expect(true).toBeTruthy();
-      // }
     });
+    // eslint-disable-next-line jest/no-commented-out-tests
+    // it("fails", () => expect(false).toBeTruthy() );
   });
 });

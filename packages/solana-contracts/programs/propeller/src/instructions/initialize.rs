@@ -8,17 +8,15 @@ use {
     two_pool::state::TwoPool,
 };
 
+//TODO: add fee vault.
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(
     init,
     payer = payer,
-    seeds = [
-      b"propeller".as_ref(),
-      token_bridge_mint.key().as_ref(),
-    ],
+    seeds = [ b"propeller".as_ref(), token_bridge_mint.key().as_ref() ],
     bump,
-    space = 8 + Propeller::MAXIMUM_SIZE,
+    space = 8 + Propeller::LEN,
     )]
     pub propeller: Box<Account<'info, Propeller>>,
     // TODO: does this account need to be initialized?
@@ -40,16 +38,27 @@ pub struct Initialize<'info> {
     // CHECK: propeller wormhole redeemer account
     //   pub propeller_redeemer: AccountInfo<'info>,
     #[account(
-		init,
-		payer = payer,
-		associated_token::mint = token_bridge_mint,
-		associated_token::authority = propeller_redeemer,
-	  )]
+    init,
+    payer = payer,
+    associated_token::mint = token_bridge_mint,
+    associated_token::authority = propeller_redeemer,
+    )]
     pub propeller_redeemer_escrow: Box<Account<'info, TokenAccount>>,
+
+    #[account(
+    init,
+    payer = payer,
+    associated_token::mint = token_bridge_mint,
+    associated_token::authority = propeller,
+    )]
+    pub propeller_fee_vault: Box<Account<'info, TokenAccount>>,
+
     pub admin: Signer<'info>,
     pub token_bridge_mint: Box<Account<'info, Mint>>,
+
     #[account(mut)]
     pub payer: Signer<'info>,
+
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
@@ -58,10 +67,10 @@ pub struct Initialize<'info> {
     #[account(
     mut,
     seeds = [
-      b"two_pool".as_ref(),
-      pool_token_mint_0.key().as_ref(),
-      pool_token_mint_1.key().as_ref(),
-      lp_mint.key().as_ref(),
+    b"two_pool".as_ref(),
+    pool_token_mint_0.key().as_ref(),
+    pool_token_mint_1.key().as_ref(),
+    lp_mint.key().as_ref(),
     ],
     bump = pool.bump,
     seeds::program = two_pool_program.key()
@@ -88,6 +97,11 @@ impl<'info> Initialize<'info> {
 pub struct InitializeParams {
     pub gas_kickstart_amount: u64,
     pub propeller_fee: u64,
+    pub secp_verify_init_fee: u64,
+    pub secp_verify_fee: u64,
+    pub post_vaa_fee: u64,
+    pub complete_with_payload_fee: u64,
+    pub process_swim_payload_fee: u64,
     pub propeller_min_transfer_amount: u64,
     pub propeller_eth_min_transfer_amount: u64,
     pub marginal_price_pool: Pubkey,
@@ -113,12 +127,19 @@ pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> 
 
     propeller.gas_kickstart_amount = params.gas_kickstart_amount;
     propeller.propeller_fee = params.propeller_fee;
+    propeller.secp_verify_init_fee = params.secp_verify_init_fee;
+    propeller.secp_verify_fee = params.secp_verify_fee;
+    propeller.post_vaa_fee = params.post_vaa_fee;
+    propeller.complete_with_payload_fee = params.complete_with_payload_fee;
+    propeller.process_swim_payload_fee = params.process_swim_payload_fee;
     propeller.propeller_min_transfer_amount = params.propeller_min_transfer_amount;
     propeller.propeller_eth_min_transfer_amount = params.propeller_eth_min_transfer_amount;
     propeller.marginal_price_pool = params.marginal_price_pool;
     propeller.marginal_price_pool_token_index = params.marginal_price_pool_token_index;
     propeller.marginal_price_pool_token_mint = params.marginal_price_pool_token_mint;
     propeller.evm_routing_contract_address = params.evm_routing_contract_address;
+    propeller.fee_vault = ctx.accounts.propeller_fee_vault.key();
+
     // create(
     // 	CpiContext::new(
     // 		ctx.accounts.associated_token_program.to_account_info(),

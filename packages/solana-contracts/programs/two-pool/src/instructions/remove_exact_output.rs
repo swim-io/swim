@@ -1,7 +1,7 @@
 use {
     crate::{
-        array_equalize, error::*, gen_pool_signer_seeds, get_current_ts, invariant::Invariant,
-        result_from_equalized, to_equalized, TwoPool, TOKEN_COUNT,
+        array_equalize, error::*, gen_pool_signer_seeds, get_current_ts, invariant::Invariant, result_from_equalized,
+        to_equalized, TwoPool, TOKEN_COUNT,
     },
     anchor_lang::prelude::*,
     anchor_spl::{
@@ -20,54 +20,54 @@ pub struct RemoveExactOutputParams {
 #[derive(Accounts)]
 pub struct RemoveExactOutput<'info> {
     #[account(
-  mut,
-  seeds = [
-  b"two_pool".as_ref(),
-  pool_token_account_0.mint.as_ref(),
-  pool_token_account_1.mint.as_ref(),
-  lp_mint.key().as_ref(),
-  ],
-  bump = pool.bump
-  )]
+    mut,
+    seeds = [
+    b"two_pool".as_ref(),
+    pool_token_account_0.mint.as_ref(),
+    pool_token_account_1.mint.as_ref(),
+    lp_mint.key().as_ref(),
+    ],
+    bump = pool.bump
+    )]
     pub pool: Account<'info, TwoPool>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[0],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[0],
+    token::authority = pool,
+    )]
     pub pool_token_account_0: Box<Account<'info, TokenAccount>>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[1],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[1],
+    token::authority = pool,
+    )]
     pub pool_token_account_1: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub lp_mint: Box<Account<'info, Mint>>,
     #[account(
-  mut,
-  token::mint = lp_mint
-  )]
+    mut,
+    token::mint = lp_mint
+    )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
 
     pub user_transfer_authority: Signer<'info>,
 
     #[account(
-  mut,
-  token::mint = pool_token_account_0.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_0.mint,
+    )]
     pub user_token_account_0: Box<Account<'info, TokenAccount>>,
 
     #[account(
-  mut,
-  token::mint = pool_token_account_1.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_1.mint,
+    )]
     pub user_token_account_1: Box<Account<'info, TokenAccount>>,
 
     #[account(
-  mut,
-  token::mint = lp_mint,
-  )]
+    mut,
+    token::mint = lp_mint,
+    )]
     pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
     // //TODO: probably need a user_transfer_auth account since either the user or propeller could be payer for txn.
     // //  payer could be the same as user_auth if user manually completing the txn but still need
@@ -91,11 +91,7 @@ impl<'info> RemoveExactOutput<'info> {
             pool_state.token_keys[1],
             PoolError::PoolTokenAccountExpected
         );
-        require_keys_eq!(
-            ctx.accounts.lp_mint.key(),
-            pool_state.lp_mint_key,
-            PoolError::InvalidMintAccount
-        );
+        require_keys_eq!(ctx.accounts.lp_mint.key(), pool_state.lp_mint_key, PoolError::InvalidMintAccount);
         require_keys_eq!(
             ctx.accounts.governance_fee.key(),
             pool_state.governance_fee_key,
@@ -118,28 +114,15 @@ pub fn handle_remove_exact_output(
     let maximum_burn_amount = remove_exact_output_params.maximum_burn_amount;
     let exact_output_amounts = remove_exact_output_params.exact_output_amounts;
     let lp_total_supply = ctx.accounts.lp_mint.supply;
-    let pool_balances = [
-        ctx.accounts.pool_token_account_0.amount,
-        ctx.accounts.pool_token_account_1.amount,
-    ];
+    let pool_balances = [ctx.accounts.pool_token_account_0.amount, ctx.accounts.pool_token_account_1.amount];
 
-    require!(
-        exact_output_amounts.iter().any(|amount| *amount > 0),
-        PoolError::InvalidRemoveExactOutputParameters
-    );
-    require_gt!(
-        maximum_burn_amount,
-        0u64,
-        PoolError::InvalidRemoveExactOutputParameters
-    );
+    require!(exact_output_amounts.iter().any(|amount| *amount > 0), PoolError::InvalidRemoveExactOutputParameters);
+    require_gt!(maximum_burn_amount, 0u64, PoolError::InvalidRemoveExactOutputParameters);
     let are_output_amounts_valid = exact_output_amounts
         .iter()
         .zip(pool_balances.iter())
         .all(|(output_amount, pool_balance)| *output_amount < *pool_balance);
-    require!(
-        are_output_amounts_valid,
-        PoolError::InvalidRemoveExactOutputParameters
-    );
+    require!(are_output_amounts_valid, PoolError::InvalidRemoveExactOutputParameters);
 
     let pool = &ctx.accounts.pool;
     let pool_token_account_0 = &ctx.accounts.pool_token_account_0;
@@ -155,16 +138,15 @@ pub fn handle_remove_exact_output(
 
     let current_ts = get_current_ts()?;
 
-    let (burn_amount, governance_mint_amount, latest_depth) =
-        Invariant::<TOKEN_COUNT>::remove_exact_output(
-            &array_equalize(exact_output_amounts, pool.token_decimal_equalizers),
-            &array_equalize(pool_balances, pool.token_decimal_equalizers),
-            pool.amp_factor.get(current_ts),
-            pool.lp_fee.get(),
-            pool.governance_fee.get(),
-            to_equalized(lp_total_supply, pool.lp_decimal_equalizer),
-            pool.previous_depth.into(),
-        )?;
+    let (burn_amount, governance_mint_amount, latest_depth) = Invariant::<TOKEN_COUNT>::remove_exact_output(
+        &array_equalize(exact_output_amounts, pool.token_decimal_equalizers),
+        &array_equalize(pool_balances, pool.token_decimal_equalizers),
+        pool.amp_factor.get(current_ts),
+        pool.lp_fee.get(),
+        pool.governance_fee.get(),
+        to_equalized(lp_total_supply, pool.lp_decimal_equalizer),
+        pool.previous_depth.into(),
+    )?;
     let (burn_amount, governance_mint_amount, latest_depth) = result_from_equalized(
         burn_amount,
         pool.lp_decimal_equalizer,
@@ -174,16 +156,9 @@ pub fn handle_remove_exact_output(
     );
 
     let maximum_burn_amount = remove_exact_output_params.maximum_burn_amount;
-    require_gte!(
-        maximum_burn_amount,
-        burn_amount,
-        PoolError::OutsideSpecifiedLimits
-    );
+    require_gte!(maximum_burn_amount, burn_amount, PoolError::OutsideSpecifiedLimits);
 
-    let mut token_accounts = zip(
-        user_token_accounts.into_iter(),
-        pool_token_accounts.into_iter(),
-    );
+    let mut token_accounts = zip(user_token_accounts.into_iter(), pool_token_accounts.into_iter());
     token::burn(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),

@@ -17,6 +17,9 @@ elif [ "$1" == "integration" ]; then
 elif [ "$1" == "propeller" ]; then
   echo "Running only propeller tests"
   test_files="test/propeller/propeller.test.ts"
+elif [ "$1" == "utils" ]; then
+  echo "Running only utils tests"
+  test_files="__tests__/utils.test.ts"
 elif [ "$1" == "pool" ]; then
   echo "Running only pool tests"
   test_files="test/twoPool/pool.test.ts"
@@ -24,6 +27,8 @@ else
   echo "invalid argument: $1. exiting"
   exit 22
 fi
+
+echo "test_files: $test_files"
 
 echo "prepare_oracle: $prepare_oracle"
 
@@ -53,7 +58,16 @@ fi
 #    fi
 #fi
 
-yarn run jest -c jest.config.js --verbose --detectOpenHandles "$test_files"
+#yarn run jest -c jest.config.js --verbose --detectOpenHandles "$test_files"
+#yarn run jest -c jest.config.js --verbose --detectOpenHandles --forceExit "$test_files"
+#yarn run jest -c jest.config.js --verbose --detectOpenHandles --forceExit --testPathPattern "$1.test.ts"
+yarn run jest --verbose --detectOpenHandles --forceExit --testPathPattern "$1.test.ts"
+
+#yarn_pid=$!
+#echo "Yarn PID: ${yarn_pid}"
+#wait $yarn_pid
+exit_code=$?
+echo "exit_code: $exit_code"
 #yarn run jest -i "$test_files" -c jest.config.js &
 #yarn run ts-mocha -p ./tsconfig-dev.json -t 1000000 "$test_files" &
 #yarn_pid=$!
@@ -79,3 +93,6 @@ if $prepare_oracle; then
   echo "shutting down oracle"
   docker-compose -f ./.switchboard/docker-compose.switchboard.yml down
 fi
+
+echo "exit_code again: $exit_code"
+exit $exit_code

@@ -1,5 +1,5 @@
 use {
-    crate::{Propeller, PropellerSender},
+    crate::Propeller,
     anchor_lang::prelude::*,
     anchor_spl::{
         associated_token::{create, AssociatedToken, Create},
@@ -20,23 +20,10 @@ pub struct Initialize<'info> {
     )]
     pub propeller: Box<Account<'info, Propeller>>,
     // TODO: does this account need to be initialized?
-    // #[account(
-    // init,
-    // payer = payer,
-    // seeds = [b"sender".as_ref()],
-    // bump,
-    // space = 8 + Propeller::MAXIMUM_SIZE
-    // )]
-    // /// CHECK: propeller wormhole sender account
-    // pub propeller_sender: Account<'info, PropellerSender>,
     #[account(seeds = [b"sender".as_ref()], bump)]
     pub propeller_sender: SystemAccount<'info>,
-    // CHECK: propeller wormhole seeder account
-    // pub propeller_sender: AccountInfo<'info>,
     #[account(seeds = [b"redeemer".as_ref()], bump)]
     pub propeller_redeemer: SystemAccount<'info>,
-    // CHECK: propeller wormhole redeemer account
-    //   pub propeller_redeemer: AccountInfo<'info>,
     #[account(
     init,
     payer = payer,
@@ -139,23 +126,6 @@ pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> 
     propeller.marginal_price_pool_token_mint = params.marginal_price_pool_token_mint;
     propeller.evm_routing_contract_address = params.evm_routing_contract_address;
     propeller.fee_vault = ctx.accounts.propeller_fee_vault.key();
-
-    // create(
-    // 	CpiContext::new(
-    // 		ctx.accounts.associated_token_program.to_account_info(),
-    // 		Create {
-    // 			payer: ctx.accounts.payer.to_account_info(),
-    // 			associated_token: ctx.accounts.associated_token_program.to_account_info(),
-    // 			authority: ctx.accounts.propeller_redeemer.to_account_info(),
-    // 			mint: ctx.accounts.token_bridge_mint.to_account_info(),
-    // 			system_program: ctx.accounts.system_program.to_account_info(),
-    // 			token_program: ctx.accounts.token_program.to_account_info(),
-    // 			rent: ctx.accounts.rent.to_account_info(),
-    // 		},
-    // 	)
-    // )?;
-    // let propeller_sender = &mut ctx.accounts.propeller_sender;
-    // propeller_sender.bump = *ctx.bumps.get("propeller_sender").unwrap();
     Ok(())
 }
 

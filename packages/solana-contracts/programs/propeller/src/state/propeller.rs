@@ -1,5 +1,5 @@
 use {
-    crate::{env::*, error::PropellerError},
+    crate::{error::PropellerError, CORE_BRIDGE, TOKEN_BRIDGE},
     anchor_lang::prelude::*,
     std::str::FromStr,
 };

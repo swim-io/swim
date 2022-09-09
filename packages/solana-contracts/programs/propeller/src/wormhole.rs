@@ -15,6 +15,29 @@ use {
 pub type Address = [u8; 32];
 pub type ChainID = u16;
 
+#[derive(Debug, Clone)]
+pub struct Wormhole;
+
+impl anchor_lang::Id for Wormhole {
+    fn id() -> Pubkey {
+        CORE_BRIDGE
+    }
+}
+
+pub use core_bridge::ID as CORE_BRIDGE;
+mod core_bridge {
+    use super::*;
+    #[cfg(feature = "mainnet")]
+    declare_id!("worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth");
+
+    #[cfg(feature = "devnet")]
+    declare_id!("3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5");
+
+    // #[cfg(all(not(feature = "devnet"), not(feature = "mainnet")))]
+    #[cfg(feature = "localnet")]
+    declare_id!("Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o");
+}
+
 /// Data that goes into a [`wormhole::Instruction::PostMessage`]
 #[derive(AnchorDeserialize, AnchorSerialize)]
 pub struct PostMessageData {
@@ -333,7 +356,7 @@ impl DerefMut for PostedVAAData {
 
 impl anchor_lang::Owner for PostedVAAData {
     fn owner() -> Pubkey {
-        crate::env::CORE_BRIDGE
+        CORE_BRIDGE
     }
 }
 

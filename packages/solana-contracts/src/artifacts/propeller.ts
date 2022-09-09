@@ -2221,30 +2221,6 @@ export type Propeller = {
       }
     },
     {
-      "name": "propellerSender",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "propellerRedeemer",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          }
-        ]
-      }
-    },
-    {
       "name": "propeller",
       "type": {
         "kind": "struct",
@@ -5370,30 +5346,6 @@ export const IDL: Propeller = {
           {
             "name": "gasKickstart",
             "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "propellerSender",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "propellerRedeemer",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
           }
         ]
       }

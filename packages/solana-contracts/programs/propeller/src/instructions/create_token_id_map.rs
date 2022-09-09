@@ -1,5 +1,5 @@
 use {
-    crate::{Propeller, PropellerSender},
+    crate::Propeller,
     anchor_lang::prelude::*,
     anchor_spl::{
         associated_token::{create, AssociatedToken, Create},

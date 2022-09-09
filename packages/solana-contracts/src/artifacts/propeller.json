@@ -2221,30 +2221,6 @@
       }
     },
     {
-      "name": "PropellerSender",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "PropellerRedeemer",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          }
-        ]
-      }
-    },
-    {
       "name": "Propeller",
       "type": {
         "kind": "struct",

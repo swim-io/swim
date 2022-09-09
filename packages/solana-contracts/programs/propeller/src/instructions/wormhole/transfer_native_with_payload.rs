@@ -1,7 +1,7 @@
 use {
     crate::{
-        error::*, is_transfer_amount_sufficient, Propeller, PropellerSender, RawSwimPayload, SwimPayloadVersion,
-        TransferWithPayloadData, TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
+        error::*, is_transfer_amount_sufficient, Propeller, RawSwimPayload, SwimPayloadVersion,
+        TransferWithPayloadData, Wormhole, TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
         prelude::*,
@@ -173,14 +173,14 @@ pub struct TransferNativeWithPayload<'info> {
 		bump = propeller.sender_bump,
 	)]
     /// CHECK: Sender Account
-    pub sender: AccountInfo<'info>,
-    // pub sender: Account<'info, PropellerSender>,
+    pub sender: SystemAccount<'info>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
 
-    #[account(executable, address = propeller.wormhole()?)]
-    /// CHECK: Wormhole Program
-    pub wormhole: AccountInfo<'info>,
+    // #[account(executable, address = propeller.wormhole()?)]
+    // /// CHECK: Wormhole Program
+    // pub wormhole: AccountInfo<'info>,
+    pub wormhole: Program<'info, Wormhole>,
 
     pub token_program: Program<'info, Token>,
 

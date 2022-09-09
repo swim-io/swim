@@ -16,33 +16,33 @@
 // declare_id!("DLANS7Qh31fFWLujEMtn5kyd87H8ZUbhwtfMurrSHYn9");
 
 use anchor_lang::prelude::*;
-pub use core_bridge::ID as CORE_BRIDGE;
-mod core_bridge {
-    use super::*;
-    #[cfg(feature = "mainnet")]
-    declare_id!("worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth");
-
-    #[cfg(feature = "devnet")]
-    declare_id!("3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5");
-
-    // #[cfg(all(not(feature = "devnet"), not(feature = "mainnet")))]
-    #[cfg(feature = "localnet")]
-    declare_id!("Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o");
-}
-
-pub use token_bridge::ID as TOKEN_BRIDGE;
-mod token_bridge {
-    use super::*;
-    #[cfg(feature = "mainnet")]
-    declare_id!("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
-
-    #[cfg(feature = "devnet")]
-    declare_id!("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
-
-    // #[cfg(all(not(feature = "devnet"), not(feature = "mainnet")))]
-    #[cfg(feature = "localnet")]
-    declare_id!("B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE");
-}
+// pub use core_bridge::ID as CORE_BRIDGE;
+// mod core_bridge {
+//     use super::*;
+//     #[cfg(feature = "mainnet")]
+//     declare_id!("worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth");
+//
+//     #[cfg(feature = "devnet")]
+//     declare_id!("3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5");
+//
+//     // #[cfg(all(not(feature = "devnet"), not(feature = "mainnet")))]
+//     #[cfg(feature = "localnet")]
+//     declare_id!("Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o");
+// }
+//
+// pub use token_bridge::ID as TOKEN_BRIDGE;
+// mod token_bridge {
+//     use super::*;
+//     #[cfg(feature = "mainnet")]
+//     declare_id!("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
+//
+//     #[cfg(feature = "devnet")]
+//     declare_id!("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
+//
+//     // #[cfg(all(not(feature = "devnet"), not(feature = "mainnet")))]
+//     #[cfg(feature = "localnet")]
+//     declare_id!("B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE");
+// }
 
 #[cfg(all(test, not(feature = "test-bpf")))]
 mod tests {

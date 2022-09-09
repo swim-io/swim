@@ -1,7 +1,20 @@
+pub use token_bridge::ID as TOKEN_BRIDGE;
 use {
     anchor_lang::prelude::*,
     borsh::{BorshDeserialize, BorshSerialize},
 };
+mod token_bridge {
+    use super::*;
+    #[cfg(feature = "mainnet")]
+    declare_id!("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
+
+    #[cfg(feature = "devnet")]
+    declare_id!("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
+
+    // #[cfg(all(not(feature = "devnet"), not(feature = "mainnet")))]
+    #[cfg(feature = "localnet")]
+    declare_id!("B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE");
+}
 
 /** TESTNET refers to WH Testnet which uses solana devnet */
 pub const MAINNET_WH_BRIDGE_STR: &str = "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth";

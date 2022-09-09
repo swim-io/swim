@@ -18,7 +18,7 @@ use anchor_spl::*;
 // use solana_program::program_option::COption;
 use constants::TOKEN_COUNT;
 // use two_pool::TOKEN_COUNT as TOKEN_COUNT;
-use state::{Propeller, PropellerSender};
+use state::Propeller;
 use {
     crate::two_pool_cpi::{
         add::*, remove_exact_burn::*, remove_exact_output::*, remove_uniform::*, swap_exact_input::*,

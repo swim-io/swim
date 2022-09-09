@@ -1,4 +1,3 @@
-import type { Keypair } from "@solana/web3.js";
 import type { TokenDetails } from "@swim-io/core";
 import type { EvmWalletAdapter } from "@swim-io/evm";
 
@@ -17,8 +16,4 @@ export interface WormholeTransfer {
   readonly evmConnection: EvmConnection;
   readonly fromTokenDetails: TokenDetails;
   readonly existingTxs: readonly Tx[];
-}
-
-export interface WormholeTransferWithSignatureSet extends WormholeTransfer {
-  readonly signatureSetKeypair: Keypair;
 }

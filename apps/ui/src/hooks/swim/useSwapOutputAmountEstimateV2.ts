@@ -13,7 +13,6 @@ import { getRequiredPoolsForSwapV2, getTokensByPool } from "../../models";
 
 import { usePoolMaths } from "./usePoolMaths";
 import { useSwimUsd } from "./useSwimUsd";
-import { useToken } from "./useToken";
 
 interface PoolTokens {
   readonly tokens: readonly TokenConfig[];
@@ -30,6 +29,9 @@ const getOutputAmount = (
   poolMath: PoolMath,
   poolToken: PoolTokens,
 ) => {
+  if (inputAmount.isZero()) {
+    return inputAmount;
+  }
   if (isSwimUsd(fromToken) && isSwimUsd(toToken)) {
     // Transfer
     return inputAmount;
@@ -84,12 +86,16 @@ export const useSwapOutputAmountEstimateV2 = (
   );
   const poolIds = requiredPools.map((pool) => pool.id);
   const poolMaths = usePoolMaths(poolIds);
-  const fromToken = useToken(fromTokenOption.tokenId);
-  const toToken = useToken(toTokenOption.tokenId);
+  const fromToken = fromTokenOption.tokenConfig;
+  const toToken = toTokenOption.tokenConfig;
   const swimUsdSpec = useSwimUsd();
 
   if (!isEachNotNull(poolMaths)) {
     return null;
+  }
+
+  if (requiredPools.length === 0) {
+    return inputAmount;
   }
 
   if (requiredPools.length === 1) {

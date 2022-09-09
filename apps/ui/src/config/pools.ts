@@ -373,16 +373,16 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    contract: "11111111111111111111111111111111", // TODO: Update
-    address: "11111111111111111111111111111111", // TODO: Update
-    authority: "11111111111111111111111111111111", // TODO: Update
+    contract: "8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM", // TODO: Update
+    address: "EGm6UfAJ6LFy8WRxE2YjjJzwUbZ1ZFiuG2rP6YudKKBB", // TODO: Update
+    authority: "EGm6UfAJ6LFy8WRxE2YjjJzwUbZ1ZFiuG2rP6YudKKBB", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-swimusd",
     tokenAccounts: new Map([
-      ["devnet-solana-usdc", "11111111111111111111111111111111"], // TODO: Update
-      ["devnet-solana-usdt", "11111111111111111111111111111111"], // TODO: Update
+      ["devnet-solana-usdc-v2", "49fm8MaATyD4BwaqxXmjASGuR3WLg8PL1SvMiYpyTdrx"], // TODO: Update
+      ["devnet-solana-usdt-v2", "849M4dvrdoUqsn7t6eVWWNos8Q8RfLJxRTzQC46KGoYE"], // TODO: Update
     ]),
-    tokens: ["devnet-solana-usdc", "devnet-solana-usdt"],
+    tokens: ["devnet-solana-usdc-v2", "devnet-solana-usdt-v2"],
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
@@ -392,7 +392,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "0x37FFb2ee5A3ab1785bD5179243EDD27dDeADF823", // TODO: Update
+    address: "0xe167b44578EAe235E0CF063099989A2c7aBA06Cb", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-ethereum-lp-usdc-usdt",
     tokens: ["devnet-swimusd", "devnet-ethereum-usdc", "devnet-ethereum-usdt"],
@@ -405,13 +405,13 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "0xCCDAa7C3046F7032c39d9172cdb0a6a2A683af03", // TODO: Update
+    address: "0x944fD8212c855e82e654ce70Cd54566EDf90F532", // TODO: Update
     feeDecimals: 6,
     lpToken: "devnet-bnb-lp-busd-usdt",
     tokens: ["devnet-swimusd", "devnet-bnb-busd", "devnet-bnb-usdt"],
   },
   {
-    isDisabled: !isPoolRestructureEnabled(),
+    isDisabled: true, // TODO: Update !isPoolRestructureEnabled(),
     id: "devnet-avalanche-usdc-usdt",
     ecosystem: EvmEcosystemId.Avalanche,
     displayName: "Avalanche USDC USDT",
@@ -428,7 +428,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     ],
   },
   {
-    isDisabled: !isPoolRestructureEnabled(),
+    isDisabled: true, // TODO: Update !isPoolRestructureEnabled(),
     id: "devnet-polygon-usdc-usdt",
     ecosystem: EvmEcosystemId.Polygon,
     displayName: "Polygon USDC USDT",
@@ -441,7 +441,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     tokens: ["devnet-swimusd", "devnet-polygon-usdc", "devnet-polygon-usdt"],
   },
   {
-    isDisabled: !isPoolRestructureEnabled(),
+    isDisabled: true, // TODO: Update !isPoolRestructureEnabled(),
     id: "devnet-aurora-usdc-usdt",
     ecosystem: EvmEcosystemId.Aurora,
     displayName: "Aurora USDC USDT",
@@ -454,8 +454,8 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     tokens: ["devnet-swimusd", "devnet-aurora-usdc", "devnet-aurora-usdt"],
   },
   {
-    isDisabled:
-      !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_AURORA_USN,
+    isDisabled: true,
+    // TODO: Update !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_AURORA_USN,
     id: "devnet-aurora-usn",
     ecosystem: EvmEcosystemId.Aurora,
     displayName: "Aurora USN",
@@ -468,7 +468,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     tokens: ["devnet-swimusd", "devnet-aurora-usn"],
   },
   {
-    isDisabled: !isPoolRestructureEnabled(),
+    isDisabled: true, // TODO: Update !isPoolRestructureEnabled(),
     id: "devnet-fantom-usdc",
     ecosystem: EvmEcosystemId.Fantom,
     displayName: "Fantom USDC",
@@ -481,7 +481,7 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     tokens: ["devnet-swimusd", "devnet-fantom-usdc"],
   },
   {
-    isDisabled: !isPoolRestructureEnabled(),
+    isDisabled: true, // TODO: Update !isPoolRestructureEnabled(),
     id: "devnet-karura-usdt",
     ecosystem: EvmEcosystemId.Karura,
     displayName: "Karura USDT",
@@ -494,8 +494,8 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     tokens: ["devnet-swimusd", "devnet-karura-usdt"],
   },
   {
-    isDisabled:
-      !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_KARURA_AUSD,
+    isDisabled: true,
+    // TODO: Update !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_KARURA_AUSD,
     id: "devnet-karura-ausd",
     ecosystem: EvmEcosystemId.Karura,
     displayName: "Karura aUSD",
@@ -508,8 +508,8 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     tokens: ["devnet-swimusd", "devnet-karura-ausd"],
   },
   {
-    isDisabled:
-      !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_ACALA,
+    isDisabled: true,
+    // TODO: Update !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_ACALA,
     id: "devnet-acala-ausd",
     ecosystem: EvmEcosystemId.Acala,
     displayName: "Aurora aUSD",

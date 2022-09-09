@@ -23,3 +23,4 @@ export * from "./useUserLpBalances";
 export * from "./useToken";
 export * from "./usePoolUsdValues";
 export * from "./usePoolBalances";
+export * from "./useSwimUsd";

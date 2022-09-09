@@ -2,7 +2,7 @@ import type { Env } from "@swim-io/core";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import type Decimal from "decimal.js";
 
-import type { EcosystemId } from "../../config";
+import type { EcosystemId, TokenConfig } from "../../config";
 import type { Amount } from "../amount";
 
 /**
@@ -18,7 +18,10 @@ export enum InteractionType {
   SwapV2,
 }
 
-export const INTERACTION_GROUP_SWAP = new Set([InteractionType.Swap]);
+export const INTERACTION_GROUP_SWAP = new Set([
+  InteractionType.Swap,
+  InteractionType.SwapV2,
+]);
 export const INTERACTION_GROUP_ADD = new Set([InteractionType.Add]);
 export const INTERACTION_GROUP_REMOVE = new Set([
   InteractionType.RemoveUniform,
@@ -126,18 +129,18 @@ export type Interaction =
 
 // V2 for Pool Restructure
 export interface TokenOption {
-  readonly tokenId: string;
+  readonly tokenConfig: TokenConfig;
   readonly ecosystemId: EcosystemId;
 }
-export interface TokenTransferDetail extends TokenOption {
+export interface TokenTransferData extends TokenOption {
   readonly value: Decimal;
 }
 
 export interface SwapInteractionSpecV2 extends BaseInteractionSpec {
   readonly type: InteractionType.SwapV2;
   readonly params: {
-    readonly fromTokenDetail: TokenTransferDetail;
-    readonly toTokenDetail: TokenTransferDetail;
+    readonly fromTokenData: TokenTransferData;
+    readonly toTokenData: TokenTransferData;
   };
 }
 

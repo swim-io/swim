@@ -6,24 +6,25 @@ import {
 } from "@elastic/eui";
 import type { EuiSelectableOption } from "@elastic/eui";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
-import { findOrThrow } from "@swim-io/utils";
 import type { ReactElement } from "react";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import shallow from "zustand/shallow.js";
 
 import { ECOSYSTEMS } from "../config";
-import { selectConfig } from "../core/selectors";
-import { useEnvironment } from "../core/store";
 import type { TokenOption } from "../models";
 
 import { CustomModal } from "./CustomModal";
-import { TokenOptionIcon } from "./TokenIcon";
+import { TokenConfigIcon } from "./TokenIcon";
 
 type Option = EuiSelectableOption<{ readonly data: Readonly<TokenOption> }>;
 
 const renderOption = (option: Option) => {
-  return <TokenOptionIcon tokenOption={option.data} />;
+  return (
+    <TokenConfigIcon
+      token={option.data.tokenConfig}
+      ecosystem={option.data.ecosystemId}
+    />
+  );
 };
 
 interface Props {
@@ -38,10 +39,8 @@ export const TokenSearchModalV2 = ({
   tokenOptions,
 }: Props): ReactElement => {
   const { t } = useTranslation();
-  const { tokens } = useEnvironment(selectConfig, shallow);
   const options = tokenOptions.map((option) => {
-    const { tokenId, ecosystemId } = option;
-    const tokenConfig = findOrThrow(tokens, ({ id }) => id === tokenId);
+    const { tokenConfig, ecosystemId } = option;
     const ecosystem = ECOSYSTEMS[ecosystemId];
     const tokenProject = TOKEN_PROJECTS_BY_ID[tokenConfig.projectId];
     return {

@@ -592,64 +592,64 @@ export const DEVNET_SWIMUSD: TokenConfig = {
   projectId: TokenProjectId.SwimLpSolanaUsdcUsdt,
   nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
   nativeDetails: {
-    address: "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr", // TODO: Update
-    decimals: 8,
+    address: "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C", // TODO: Update
+    decimals: 6,
   },
   wrappedDetails: new Map([
     [
       EvmEcosystemId.Acala,
       {
         address: "0x1111111111111111111111111111111111111111", // TODO: Update
-        decimals: 8,
+        decimals: 6,
       },
     ],
     [
       EvmEcosystemId.Aurora,
       {
         address: "0x1111111111111111111111111111111111111111", // TODO: Update
-        decimals: 8,
+        decimals: 6,
       },
     ],
     [
       EvmEcosystemId.Avalanche,
       {
         address: "0x1111111111111111111111111111111111111111", // TODO: Update
-        decimals: 8,
+        decimals: 6,
       },
     ],
     [
       EvmEcosystemId.Bnb,
       {
-        address: "0x84252522366DB2eA1dAaDe5E2C55CD90a50aC46e", // TODO: Update
-        decimals: 8,
+        address: "0x4c15919a4354b4416e7afcb9a27a118bc45818c0", // TODO: Update
+        decimals: 6,
       },
     ],
     [
       EvmEcosystemId.Ethereum,
       {
-        address: "0x4DF39C514Eb1747bb4D89cA9Ee35718611590935", // TODO: Update
-        decimals: 8,
+        address: "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5", // TODO: Update
+        decimals: 6,
       },
     ],
     [
       EvmEcosystemId.Fantom,
       {
         address: "0x1111111111111111111111111111111111111111", // TODO: Update
-        decimals: 8,
+        decimals: 6,
       },
     ],
     [
       EvmEcosystemId.Karura,
       {
         address: "0x1111111111111111111111111111111111111111", // TODO: Update
-        decimals: 8,
+        decimals: 6,
       },
     ],
     [
       EvmEcosystemId.Polygon,
       {
         address: "0x1111111111111111111111111111111111111111", // TODO: Update
-        decimals: 8,
+        decimals: 6,
       },
     ],
   ]),
@@ -662,8 +662,8 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
     projectId: TokenProjectId.SwimLpEthereumUsdcUsdt,
     nativeEcosystemId: EvmEcosystemId.Ethereum,
     nativeDetails: {
-      address: "0x3251239Dc476CED28EC2BCE7493D049bb7Ce18Dc", // TODO: Update
-      decimals: 8,
+      address: "0xf3eb1180A64827A602A7e02883b7299191527073", // TODO: Update
+      decimals: 6,
     },
     wrappedDetails: EMPTY_MAP,
   },
@@ -673,8 +673,8 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
     projectId: TokenProjectId.SwimLpBnbBusdUsdt,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
-      address: "0xaadEE3D65519d1674a9DAeD7CC7e1f878323E455", // TODO: Update
-      decimals: 8,
+      address: "0x57FCF9B276d3E7D698112D9b87e6f410B1B5d78d", // TODO: Update
+      decimals: 6,
     },
     wrappedDetails: EMPTY_MAP,
   },
@@ -787,6 +787,26 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
       address: "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY",
+      decimals: 6,
+    },
+    wrappedDetails: EMPTY_MAP,
+  },
+  {
+    id: "devnet-solana-usdc-v2",
+    projectId: TokenProjectId.Usdc,
+    nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
+    nativeDetails: {
+      address: "6iSRgpK4oiqJZuhpLsTecW3n9xBKUq9N3VPQN7RinYwq",
+      decimals: 6,
+    },
+    wrappedDetails: EMPTY_MAP,
+  },
+  {
+    id: "devnet-solana-usdt-v2",
+    projectId: TokenProjectId.Usdt,
+    nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
+    nativeDetails: {
+      address: "8VbikoRxEoyYzTDzDcPTSsGk2E5mM7fK1WrVpKrVd75M",
       decimals: 6,
     },
     wrappedDetails: EMPTY_MAP,

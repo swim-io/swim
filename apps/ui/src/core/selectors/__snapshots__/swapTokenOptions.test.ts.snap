@@ -4,95 +4,623 @@ exports[`swapTokenOptions selectSwapTokenOptions should return swap options 1`] 
 Array [
   Object {
     "ecosystemId": "solana",
-    "tokenId": "devnet-solana-usdc",
+    "tokenConfig": Object {
+      "id": "devnet-solana-usdc-v2",
+      "nativeDetails": Object {
+        "address": "6iSRgpK4oiqJZuhpLsTecW3n9xBKUq9N3VPQN7RinYwq",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "solana",
+      "projectId": "usdc",
+      "wrappedDetails": Map {},
+    },
   },
   Object {
     "ecosystemId": "solana",
-    "tokenId": "devnet-solana-usdt",
+    "tokenConfig": Object {
+      "id": "devnet-solana-usdt-v2",
+      "nativeDetails": Object {
+        "address": "8VbikoRxEoyYzTDzDcPTSsGk2E5mM7fK1WrVpKrVd75M",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "solana",
+      "projectId": "usdt",
+      "wrappedDetails": Map {},
+    },
   },
   Object {
     "ecosystemId": "ethereum",
-    "tokenId": "devnet-ethereum-usdc",
+    "tokenConfig": Object {
+      "id": "devnet-ethereum-usdc",
+      "nativeDetails": Object {
+        "address": "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "ethereum",
+      "projectId": "usdc",
+      "wrappedDetails": Map {
+        "solana" => Object {
+          "address": "7Lf95y8NuCU5RRC95oUtbBtckPAtbr9ubTgrCiyZ1kEf",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "ethereum",
-    "tokenId": "devnet-ethereum-usdt",
+    "tokenConfig": Object {
+      "id": "devnet-ethereum-usdt",
+      "nativeDetails": Object {
+        "address": "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "ethereum",
+      "projectId": "usdt",
+      "wrappedDetails": Map {
+        "solana" => Object {
+          "address": "8Cfyi1mYXqKATUkMPvb9BMXikdbppJst6E7eQJkKjAtf",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "bnb",
-    "tokenId": "devnet-bnb-busd",
+    "tokenConfig": Object {
+      "id": "devnet-bnb-busd",
+      "nativeDetails": Object {
+        "address": "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+        "decimals": 18,
+      },
+      "nativeEcosystemId": "bnb",
+      "projectId": "busd",
+      "wrappedDetails": Map {
+        "solana" => Object {
+          "address": "6KTvgrkLoPJdB3Grv4ZBUGt6JiLdVnKzJNo4HvLEgm6d",
+          "decimals": 8,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "bnb",
-    "tokenId": "devnet-bnb-usdt",
+    "tokenConfig": Object {
+      "id": "devnet-bnb-usdt",
+      "nativeDetails": Object {
+        "address": "0x98529E942FD121d9C470c3d4431A008257E0E714",
+        "decimals": 18,
+      },
+      "nativeEcosystemId": "bnb",
+      "projectId": "usdt",
+      "wrappedDetails": Map {
+        "solana" => Object {
+          "address": "4dr6ogcLsaFf2RDF4LJU1CvNtNKxonVqQvM6vuGdVR1e",
+          "decimals": 8,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "avalanche",
-    "tokenId": "devnet-avalanche-usdc",
+    "tokenConfig": Object {
+      "id": "devnet-avalanche-usdc",
+      "nativeDetails": Object {
+        "address": "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "avalanche",
+      "projectId": "usdc",
+      "wrappedDetails": Map {
+        "solana" => Object {
+          "address": "2t6pVTufn9A4b37oLmex3YMjm3smp1G9tPd9HpAFSeka",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "avalanche",
-    "tokenId": "devnet-avalanche-usdt",
+    "tokenConfig": Object {
+      "id": "devnet-avalanche-usdt",
+      "nativeDetails": Object {
+        "address": "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "avalanche",
+      "projectId": "usdt",
+      "wrappedDetails": Map {
+        "solana" => Object {
+          "address": "9ibet2CuBX1a4HpbzH9auxxtyUvkSKVy39jWtZY5Bfor",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "polygon",
-    "tokenId": "devnet-polygon-usdc",
+    "tokenConfig": Object {
+      "id": "devnet-polygon-usdc",
+      "nativeDetails": Object {
+        "address": "0x0a0d7cEA57faCBf5DBD0D3b5169Ab00AC8Cf7dd1",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "polygon",
+      "projectId": "usdc",
+      "wrappedDetails": Map {
+        "solana" => Object {
+          "address": "D5YvMW5U3HUpD1EstYbKmmZsLdmCPgUj44JqBmNY7fUM",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "polygon",
-    "tokenId": "devnet-polygon-usdt",
+    "tokenConfig": Object {
+      "id": "devnet-polygon-usdt",
+      "nativeDetails": Object {
+        "address": "0x2Ac9183EC64F71AfB73909c7C028Db14d35FAD2F",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "polygon",
+      "projectId": "usdt",
+      "wrappedDetails": Map {
+        "solana" => Object {
+          "address": "2otzQWyoydNp4Ws1kV8J8WVYiun6wmuFMMbicgdoEULn",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "aurora",
-    "tokenId": "devnet-aurora-usdc",
+    "tokenConfig": Object {
+      "id": "devnet-aurora-usdc",
+      "nativeDetails": Object {
+        "address": "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "aurora",
+      "projectId": "usdc",
+      "wrappedDetails": Map {
+        "solana" => Object {
+          "address": "B3qmqCvzbni27z5TRrt1uBYMczUCjCjui7piGAZifSTU",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "aurora",
-    "tokenId": "devnet-aurora-usdt",
+    "tokenConfig": Object {
+      "id": "devnet-aurora-usdt",
+      "nativeDetails": Object {
+        "address": "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "aurora",
+      "projectId": "usdt",
+      "wrappedDetails": Map {
+        "solana" => Object {
+          "address": "BaTEf2Mnrf9wePKb9g9BtSPkrZmmBnR6K9Q1ZxDKmWoh",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "fantom",
-    "tokenId": "devnet-fantom-usdc",
+    "tokenConfig": Object {
+      "id": "devnet-fantom-usdc",
+      "isDisabled": false,
+      "nativeDetails": Object {
+        "address": "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "fantom",
+      "projectId": "usdc",
+      "wrappedDetails": Map {
+        "solana" => Object {
+          "address": "9uJH6SjzmoqdiZXjcwYKuRevbYh5tR449FU5pg4rpden",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "karura",
-    "tokenId": "devnet-karura-usdt",
+    "tokenConfig": Object {
+      "id": "devnet-karura-usdt",
+      "isDisabled": false,
+      "nativeDetails": Object {
+        "address": "0x535d5e3b1ff7de526fe180e654a41350903c328d",
+        "decimals": 18,
+      },
+      "nativeEcosystemId": "karura",
+      "projectId": "usdt",
+      "wrappedDetails": Map {
+        "solana" => Object {
+          "address": "AnYj8Rbkfd8FYmoiyv6iDS3Tje7PzhPWyE5VZVDh9pzD",
+          "decimals": 8,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "solana",
-    "tokenId": "devnet-swimusd",
-  },
-  Object {
-    "ecosystemId": "acala",
-    "tokenId": "devnet-swimusd",
+    "tokenConfig": Object {
+      "id": "devnet-swimusd",
+      "isDisabled": false,
+      "nativeDetails": Object {
+        "address": "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "solana",
+      "projectId": "swim-lp-solana-usdc-usdt",
+      "wrappedDetails": Map {
+        "acala" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "aurora" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "avalanche" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "bnb" => Object {
+          "address": "0x4c15919a4354b4416e7afcb9a27a118bc45818c0",
+          "decimals": 6,
+        },
+        "ethereum" => Object {
+          "address": "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5",
+          "decimals": 6,
+        },
+        "fantom" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "karura" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "polygon" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "aurora",
-    "tokenId": "devnet-swimusd",
+    "tokenConfig": Object {
+      "id": "devnet-swimusd",
+      "isDisabled": false,
+      "nativeDetails": Object {
+        "address": "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "solana",
+      "projectId": "swim-lp-solana-usdc-usdt",
+      "wrappedDetails": Map {
+        "acala" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "aurora" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "avalanche" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "bnb" => Object {
+          "address": "0x4c15919a4354b4416e7afcb9a27a118bc45818c0",
+          "decimals": 6,
+        },
+        "ethereum" => Object {
+          "address": "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5",
+          "decimals": 6,
+        },
+        "fantom" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "karura" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "polygon" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "avalanche",
-    "tokenId": "devnet-swimusd",
+    "tokenConfig": Object {
+      "id": "devnet-swimusd",
+      "isDisabled": false,
+      "nativeDetails": Object {
+        "address": "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "solana",
+      "projectId": "swim-lp-solana-usdc-usdt",
+      "wrappedDetails": Map {
+        "acala" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "aurora" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "avalanche" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "bnb" => Object {
+          "address": "0x4c15919a4354b4416e7afcb9a27a118bc45818c0",
+          "decimals": 6,
+        },
+        "ethereum" => Object {
+          "address": "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5",
+          "decimals": 6,
+        },
+        "fantom" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "karura" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "polygon" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "bnb",
-    "tokenId": "devnet-swimusd",
+    "tokenConfig": Object {
+      "id": "devnet-swimusd",
+      "isDisabled": false,
+      "nativeDetails": Object {
+        "address": "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "solana",
+      "projectId": "swim-lp-solana-usdc-usdt",
+      "wrappedDetails": Map {
+        "acala" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "aurora" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "avalanche" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "bnb" => Object {
+          "address": "0x4c15919a4354b4416e7afcb9a27a118bc45818c0",
+          "decimals": 6,
+        },
+        "ethereum" => Object {
+          "address": "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5",
+          "decimals": 6,
+        },
+        "fantom" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "karura" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "polygon" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "ethereum",
-    "tokenId": "devnet-swimusd",
+    "tokenConfig": Object {
+      "id": "devnet-swimusd",
+      "isDisabled": false,
+      "nativeDetails": Object {
+        "address": "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "solana",
+      "projectId": "swim-lp-solana-usdc-usdt",
+      "wrappedDetails": Map {
+        "acala" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "aurora" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "avalanche" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "bnb" => Object {
+          "address": "0x4c15919a4354b4416e7afcb9a27a118bc45818c0",
+          "decimals": 6,
+        },
+        "ethereum" => Object {
+          "address": "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5",
+          "decimals": 6,
+        },
+        "fantom" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "karura" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "polygon" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "fantom",
-    "tokenId": "devnet-swimusd",
+    "tokenConfig": Object {
+      "id": "devnet-swimusd",
+      "isDisabled": false,
+      "nativeDetails": Object {
+        "address": "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "solana",
+      "projectId": "swim-lp-solana-usdc-usdt",
+      "wrappedDetails": Map {
+        "acala" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "aurora" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "avalanche" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "bnb" => Object {
+          "address": "0x4c15919a4354b4416e7afcb9a27a118bc45818c0",
+          "decimals": 6,
+        },
+        "ethereum" => Object {
+          "address": "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5",
+          "decimals": 6,
+        },
+        "fantom" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "karura" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "polygon" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "karura",
-    "tokenId": "devnet-swimusd",
+    "tokenConfig": Object {
+      "id": "devnet-swimusd",
+      "isDisabled": false,
+      "nativeDetails": Object {
+        "address": "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "solana",
+      "projectId": "swim-lp-solana-usdc-usdt",
+      "wrappedDetails": Map {
+        "acala" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "aurora" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "avalanche" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "bnb" => Object {
+          "address": "0x4c15919a4354b4416e7afcb9a27a118bc45818c0",
+          "decimals": 6,
+        },
+        "ethereum" => Object {
+          "address": "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5",
+          "decimals": 6,
+        },
+        "fantom" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "karura" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "polygon" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+      },
+    },
   },
   Object {
     "ecosystemId": "polygon",
-    "tokenId": "devnet-swimusd",
+    "tokenConfig": Object {
+      "id": "devnet-swimusd",
+      "isDisabled": false,
+      "nativeDetails": Object {
+        "address": "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C",
+        "decimals": 6,
+      },
+      "nativeEcosystemId": "solana",
+      "projectId": "swim-lp-solana-usdc-usdt",
+      "wrappedDetails": Map {
+        "acala" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "aurora" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "avalanche" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "bnb" => Object {
+          "address": "0x4c15919a4354b4416e7afcb9a27a118bc45818c0",
+          "decimals": 6,
+        },
+        "ethereum" => Object {
+          "address": "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5",
+          "decimals": 6,
+        },
+        "fantom" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "karura" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+        "polygon" => Object {
+          "address": "0x1111111111111111111111111111111111111111",
+          "decimals": 6,
+        },
+      },
+    },
   },
 ]
 `;

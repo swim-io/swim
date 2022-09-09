@@ -1,8 +1,9 @@
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { findOrThrow } from "@swim-io/utils";
 import type React from "react";
 import { Trans } from "react-i18next";
+import shallow from "zustand/shallow.js";
 
-import { findTokenById } from "../../../config";
+import { selectConfig } from "../../../core/selectors";
 import { useEnvironment } from "../../../core/store";
 import type { InteractionV2 } from "../../../models";
 import { Amount, InteractionType } from "../../../models";
@@ -17,10 +18,14 @@ interface Props {
 }
 
 export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
-  const { env } = useEnvironment();
+  const { pools } = useEnvironment(selectConfig, shallow);
 
   switch (interaction.type) {
     case InteractionType.Add: {
+      const pool = findOrThrow(
+        pools,
+        (poolSpec) => poolSpec.id === interaction.poolId,
+      );
       const { inputAmounts } = interaction.params;
       const nonZeroInputAmounts = [...inputAmounts.values()].filter(
         (amount) => !amount.isZero(),
@@ -31,7 +36,10 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
             i18nKey="recent_interactions.add_tokens"
             components={{
               tokenAmounts: (
-                <AmountsWithTokenIcons amounts={nonZeroInputAmounts} />
+                <AmountsWithTokenIcons
+                  amounts={nonZeroInputAmounts}
+                  ecosystem={pool.ecosystem}
+                />
               ),
             }}
           />
@@ -39,14 +47,11 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
       );
     }
     case InteractionType.SwapV2: {
-      const { fromTokenDetail, toTokenDetail } = interaction.params;
-      const fromTokenConfig = findTokenById(fromTokenDetail.tokenId, env);
-      const toTokenConfig = findTokenById(toTokenDetail.tokenId, env);
+      const { fromTokenData, toTokenData } = interaction.params;
       const exactInputAmount = Amount.fromHuman(
-        fromTokenConfig,
-        fromTokenDetail.value,
+        fromTokenData.tokenConfig,
+        fromTokenData.value,
       );
-
       return (
         <div title={interaction.id}>
           <Trans
@@ -55,16 +60,25 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
               tokenAmounts: (
                 <AmountWithTokenIcon
                   amount={exactInputAmount}
-                  ecosystem={SOLANA_ECOSYSTEM_ID}
+                  ecosystem={fromTokenData.ecosystemId}
                 />
               ),
-              tokenName: <TokenConfigIcon token={toTokenConfig} />,
+              tokenName: (
+                <TokenConfigIcon
+                  token={toTokenData.tokenConfig}
+                  ecosystem={toTokenData.ecosystemId}
+                />
+              ),
             }}
           />
         </div>
       );
     }
     case InteractionType.RemoveUniform: {
+      const pool = findOrThrow(
+        pools,
+        (poolSpec) => poolSpec.id === interaction.poolId,
+      );
       const { minimumOutputAmounts } = interaction.params;
       const nonZeroOutputAmounts = [...minimumOutputAmounts.values()].filter(
         (amount) => !amount.isZero(),
@@ -75,7 +89,10 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
             i18nKey="recent_interactions.remove_tokens"
             components={{
               tokenAmounts: (
-                <AmountsWithTokenIcons amounts={nonZeroOutputAmounts} />
+                <AmountsWithTokenIcons
+                  amounts={nonZeroOutputAmounts}
+                  ecosystem={pool.ecosystem}
+                />
               ),
             }}
           />
@@ -83,6 +100,10 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
       );
     }
     case InteractionType.RemoveExactBurn: {
+      const pool = findOrThrow(
+        pools,
+        (poolSpec) => poolSpec.id === interaction.poolId,
+      );
       const { minimumOutputAmount } = interaction.params;
       return (
         <div title={interaction.id}>
@@ -92,7 +113,7 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
               tokenAmounts: (
                 <AmountWithTokenIcon
                   amount={minimumOutputAmount}
-                  ecosystem={minimumOutputAmount.tokenConfig.nativeEcosystemId}
+                  ecosystem={pool.ecosystem}
                 />
               ),
             }}
@@ -101,6 +122,10 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
       );
     }
     case InteractionType.RemoveExactOutput: {
+      const pool = findOrThrow(
+        pools,
+        (poolSpec) => poolSpec.id === interaction.poolId,
+      );
       const { exactOutputAmounts } = interaction.params;
       const nonZeroOutputAmounts = [...exactOutputAmounts.values()].filter(
         (amount) => !amount.isZero(),
@@ -111,7 +136,10 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
             i18nKey="recent_interactions.remove_tokens"
             components={{
               tokenAmounts: (
-                <AmountsWithTokenIcons amounts={nonZeroOutputAmounts} />
+                <AmountsWithTokenIcons
+                  amounts={nonZeroOutputAmounts}
+                  ecosystem={pool.ecosystem}
+                />
               ),
             }}
           />

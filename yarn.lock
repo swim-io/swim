@@ -5843,6 +5843,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@solana/spl-memo@npm:^0.2.2":
+  version: 0.2.2
+  resolution: "@solana/spl-memo@npm:0.2.2"
+  dependencies:
+    buffer: ^6.0.3
+  peerDependencies:
+    "@solana/web3.js": ^1.20.0
+  checksum: 008a15e87dc08037121cc457201ac52e488f255e12ecd49c6349a4e45301a1391f8afbd4b00f45b51c4c20f70f2a1319a57a20eb5f65d8128021354d0628dd0c
+  languageName: node
+  linkType: hard
+
 "@solana/spl-token-swap@npm:^0.1.2":
   version: 0.1.4
   resolution: "@solana/spl-token-swap@npm:0.1.4"
@@ -7712,6 +7723,7 @@ __metadata:
     "@metaplex-foundation/js": ^0.14.0
     "@project-serum/anchor": ^0.25.0
     "@project-serum/borsh": ^0.2.5
+    "@solana/spl-memo": ^0.2.2
     "@solana/spl-token": ^0.2.0
     "@solana/web3.js": ^1.50.1
     "@swim-io/eslint-config": "workspace:^"

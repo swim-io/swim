@@ -5,7 +5,6 @@ import {
   getClaimAddressSolana,
   postVaaSolanaWithRetry,
   setDefaultWasm,
-  tryHexToNativeAssetString,
   tryNativeToHexString,
   uint8ArrayToHex,
 } from "@certusone/wormhole-sdk";
@@ -22,6 +21,7 @@ import {
 } from "@project-serum/anchor";
 
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+import { MEMO_PROGRAM_ID } from "@solana/spl-memo";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -45,12 +45,10 @@ import {
 import {
   encodeSwimPayload,
   formatParsedTokenTransferWithSwimPayloadPostedMessage,
-  formatParsedTokenTransferWithSwimPayloadVaa,
   getPropellerPda,
   getPropellerRedeemerPda,
   getPropellerSenderPda,
   parseTokenTransferWithSwimPayloadPostedMessage,
-  parseTokenTransferWithSwimPayloadSignedVaa,
 } from "./propellerUtils";
 import {
   deriveEndpointPda,
@@ -65,12 +63,11 @@ import {
 } from "./wormholeUtils";
 
 // this just breaks everything for some reason...
-// import { MEMO_PROGRAM_ID } from "@solana/spl-memo";
-const MEMO_PROGRAM_ID: PublicKey = new PublicKey(
-  "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
-);
-export let test = 1;
-test++;
+//  think it was something related to the cjs/esm stuff for spl-memo
+//
+// const MEMO_PROGRAM_ID: PublicKey = new PublicKey(
+//   "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+// );
 setDefaultWasm("node");
 // const pr2 = new AnchorProvider(
 // 	connection,
@@ -228,10 +225,10 @@ const marginalPricePoolTokenMint = usdcKeypair.publicKey;
 
 const swimPayloadVersion = 0;
 
-const swimUsdOutputTokenIndex = 0;
+// const swimUsdOutputTokenIndex = 0;
 const usdcOutputTokenIndex = 1;
 const usdtOutputTokenIndex = 2;
-const metapoolMint1OutputTokenIndex = 3;
+// const metapoolMint1OutputTokenIndex = 3;
 let outputTokenIdMappingAddrs: ReadonlyMap<number, PublicKey>;
 // const poolRemoveExactBurnIx = {removeExactBurn: {} };
 // const poolSwapExactInputIx = {swapExactInput: {} };
@@ -279,11 +276,6 @@ const evmOwnerEthHexStr = tryNativeToHexString(
 const evmOwner = Buffer.from(evmOwnerEthHexStr, "hex");
 
 const propellerEngineKeypair: web3.Keypair = web3.Keypair.generate();
-let propellerEngineFeeTracker: web3.PublicKey;
-let propellerEngineFeeAccount: web3.PublicKey;
-
-// let switchboard: SwitchboardTestContext;
-// let aggregatorKey: PublicKey;
 
 describe("propeller", () => {
   beforeAll(async () => {
@@ -3313,7 +3305,7 @@ describe("propeller", () => {
           expect(processSwimPayloadPubkeys.propellerClaim).toEqual(
             expectedPropellerClaim,
           );
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
           const processSwimPayloadTxn: string = await procesSwimPayload.rpc();
           console.info(`processSwimPayloadTxn: ${processSwimPayloadTxn}`);
           const propellerClaimAccount =

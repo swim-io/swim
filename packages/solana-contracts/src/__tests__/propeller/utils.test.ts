@@ -2,7 +2,6 @@ import {
   CHAIN_ID_ETH,
   CHAIN_ID_SOLANA,
   createNonce,
-  getClaimAddressSolana,
   postVaaSolanaWithRetry,
   setDefaultWasm,
   tryHexToNativeAssetString,
@@ -12,12 +11,12 @@ import { parseUnits } from "@ethersproject/units";
 import type { Program } from "@project-serum/anchor";
 import {
   AnchorProvider,
-  Spl,
   setProvider,
   web3,
   workspace,
 } from "@project-serum/anchor";
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+
 import type { Propeller } from "../../artifacts/propeller";
 
 import {
@@ -28,22 +27,17 @@ import {
   parseTokenTransferWithSwimPayloadSignedVaa,
 } from "./propellerUtils";
 import {
-  deriveEndpointPda,
   deriveMessagePda,
   encodeTokenTransferWithPayload,
 } from "./tokenBridgeUtils";
-import {
-  WORMHOLE_CORE_BRIDGE,
-  WORMHOLE_TOKEN_BRIDGE,
-  signAndEncodeVaa,
-} from "./wormholeUtils";
+import { WORMHOLE_CORE_BRIDGE, signAndEncodeVaa } from "./wormholeUtils";
 
 const swimPayloadVersion = 0;
 
-const swimUsdOutputTokenIndex = 0;
+// const swimUsdOutputTokenIndex = 0;
 const usdcOutputTokenIndex = 1;
-const usdtOutputTokenIndex = 2;
-const metapoolMint1OutputTokenIndex = 3;
+// const usdtOutputTokenIndex = 2;
+// const metapoolMint1OutputTokenIndex = 3;
 
 setDefaultWasm("node");
 // const pr2 = new AnchorProvider(
@@ -72,8 +66,8 @@ const provider = new AnchorProvider(
 );
 const connection = provider.connection;
 const payer = (provider.wallet as NodeWallet).payer;
-const splToken = Spl.token(provider);
-const splAssociatedToken = Spl.associatedToken(provider);
+// const splToken = Spl.token(provider);
+// const splAssociatedToken = Spl.associatedToken(provider);
 // Configure the client to use the local cluster.
 setProvider(provider);
 const mintDecimal = 6;

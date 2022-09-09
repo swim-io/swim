@@ -25,8 +25,8 @@ import {
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import { getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
 
-import { getApproveAndRevokeIxs, twoPoolToString } from "../../index";
 import type { TwoPool } from "../../artifacts/two_pool";
+import { getApproveAndRevokeIxs, twoPoolToString } from "../../index";
 import { parsePoolAccount } from "../../poolDecoder";
 
 import {

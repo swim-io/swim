@@ -6,7 +6,6 @@ import {
   mintTo,
 } from "@solana/spl-token";
 import type { Commitment, ConfirmOptions } from "@solana/web3.js";
-
 import type { TwoPool } from "src/artifacts/two_pool";
 
 /**
@@ -278,6 +277,7 @@ export async function getPoolUserBalances(
     await splToken.account.token.fetch(userLpTokenAta)
   ).amount;
   const lpTokenSupply = (await splToken.account.mint.fetch(lpTokenMint)).supply;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const previousDepth = (
     await twoPoolProgram.account.twoPool.fetch(flagshipPool)
   ).previousDepth;
@@ -287,6 +287,7 @@ export async function getPoolUserBalances(
     userTokenBalances: [userToken0AtaBalance, userToken1AtaBalance],
     userLpTokenBalance: userLpTokenAtaBalance,
     lpTokenSupply,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     previousDepth,
   };
 }

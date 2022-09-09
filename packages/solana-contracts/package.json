@@ -49,6 +49,7 @@
     "@certusone/wormhole-sdk-wasm": "^0.0.1",
     "@ethersproject/bytes": "^5.6.1",
     "@metaplex-foundation/js": "^0.14.0",
+    "@solana/spl-memo": "^0.2.2",
     "@swim-io/eslint-config": "workspace:^",
     "@swim-io/tsconfig": "workspace:^",
     "@switchboard-xyz/sbv2-utils": "^0.1.43",

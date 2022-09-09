@@ -1,6 +1,7 @@
 import type { ChainId, ChainName } from "@certusone/wormhole-sdk";
 import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk";
-import { BN, web3 } from "@project-serum/anchor";
+import type { BN } from "@project-serum/anchor";
+import { web3 } from "@project-serum/anchor";
 import { BigNumber } from "ethers";
 
 import type {
@@ -12,7 +13,6 @@ import {
   formatParsedTokenTransferSignedVaa,
   parseTokenTransferPostedMessage,
   parseTokenTransferSignedVaa,
-  toBigNumberHex,
 } from "./tokenBridgeUtils";
 
 export async function getPropellerPda(

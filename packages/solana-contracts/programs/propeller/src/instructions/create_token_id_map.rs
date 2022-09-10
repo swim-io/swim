@@ -1,5 +1,5 @@
 use {
-    crate::Propeller,
+    crate::{error::PropellerError, Propeller, TOKEN_COUNT},
     anchor_lang::prelude::*,
     anchor_spl::{
         associated_token::{create, AssociatedToken, Create},
@@ -68,8 +68,9 @@ impl TokenIdMap {
     pub const LEN: usize = 2 + 32 + 32 + 1 + 1 + 1;
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug)]
+#[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, Debug)]
 pub enum PoolInstruction {
+    Transfer,
     RemoveExactBurn,
     SwapExactInput,
 }
@@ -81,15 +82,26 @@ impl<'info> CreateTokenIdMap<'info> {
         pool: Pubkey,
         pool_token_index: u8,
         pool_token_mint: Pubkey,
+        pool_ix: PoolInstruction,
     ) -> Result<()> {
         //TODO: add error codes
-        require_keys_eq!(ctx.accounts.propeller.admin, ctx.accounts.admin.key());
-        require_keys_eq!(ctx.accounts.pool.key(), pool);
+        require_keys_eq!(ctx.accounts.propeller.admin, ctx.accounts.admin.key(), PropellerError::InvalidPropellerAdmin);
+        require_keys_eq!(ctx.accounts.pool.key(), pool, PropellerError::InvalidTokenIdMapPool);
+        if let PoolInstruction::Transfer = pool_ix {
+            require_keys_eq!(
+                ctx.accounts.propeller.token_bridge_mint,
+                pool_token_mint,
+                PropellerError::InvalidTokenIdMapPoolTokenMint
+            );
+            return Ok(());
+        }
+
         let pool_token_index = pool_token_index as usize;
-        require_gt!(2, pool_token_index);
+        require_gt!(TOKEN_COUNT, pool_token_index, PropellerError::InvalidTokenIdMapPoolTokenIndex);
         require_keys_eq!(
             ctx.accounts.pool.token_mint_keys[pool_token_index],
-            pool_token_mint //PropellerError::InvalidPoolTokenMint
+            pool_token_mint,
+            PropellerError::InvalidTokenIdMapPoolTokenMint
         );
         Ok(())
     }

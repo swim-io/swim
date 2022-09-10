@@ -2032,6 +2032,11 @@ export type Propeller = {
           "isSigner": false
         },
         {
+          "name": "userLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
@@ -2746,6 +2751,9 @@ export type Propeller = {
         "kind": "enum",
         "variants": [
           {
+            "name": "Transfer"
+          },
+          {
             "name": "RemoveExactBurn"
           },
           {
@@ -2958,43 +2966,63 @@ export type Propeller = {
     },
     {
       "code": 6028,
-      "name": "InvalidPoolTokenIndex",
-      "msg": "Invalid Pool Token Index"
+      "name": "InvalidPropellerAdmin",
+      "msg": "Invalid Propeller Admin"
     },
     {
       "code": 6029,
+      "name": "InvalidTokenIdMapPool",
+      "msg": "Invalid Pool for Token Id Map"
+    },
+    {
+      "code": 6030,
+      "name": "InvalidOutputTokenIndex",
+      "msg": "Invalid Output Token Index"
+    },
+    {
+      "code": 6031,
+      "name": "InvalidTokenIdMapPoolTokenIndex",
+      "msg": "Invalid Pool Token Index for Token Id Map"
+    },
+    {
+      "code": 6032,
+      "name": "InvalidTokenIdMapPoolTokenMint",
+      "msg": "Invalid Pool Token Mint for Token Id Map"
+    },
+    {
+      "code": 6033,
+      "name": "InvalidTokenIdMapPoolIx",
+      "msg": "Invalid Pool Ix for Token Id Map"
+    },
+    {
+      "code": 6034,
       "name": "InvalidSwimPayloadGasKickstart",
       "msg": "Invalid Gas Kickstart parameter in Swim Payload"
     },
     {
-      "code": 6030,
+      "code": 6035,
       "name": "InvalidMarginalPricePoolAccounts",
       "msg": "Invalid Marginal Price Pool Accounts"
     },
     {
-      "code": 6031,
+      "code": 6036,
       "name": "NotPropellerEnabled",
       "msg": "Propeller Not Enabled in payload"
     },
     {
-      "code": 6032,
+      "code": 6037,
       "name": "InvalidRoutingContractAddress",
       "msg": "Invalid Routing Contract Address"
     },
     {
-      "code": 6033,
+      "code": 6038,
       "name": "IntegerOverflow",
       "msg": "Integer Overflow"
     },
     {
-      "code": 6034,
+      "code": 6039,
       "name": "ConversionError",
       "msg": "Conversion Error"
-    },
-    {
-      "code": 6035,
-      "name": "InvalidTokenIdMapPool",
-      "msg": "Invalid Pool for TokenIdMap"
     }
   ]
 };
@@ -5033,6 +5061,11 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
+          "name": "userLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
@@ -5747,6 +5780,9 @@ export const IDL: Propeller = {
         "kind": "enum",
         "variants": [
           {
+            "name": "Transfer"
+          },
+          {
             "name": "RemoveExactBurn"
           },
           {
@@ -5959,43 +5995,63 @@ export const IDL: Propeller = {
     },
     {
       "code": 6028,
-      "name": "InvalidPoolTokenIndex",
-      "msg": "Invalid Pool Token Index"
+      "name": "InvalidPropellerAdmin",
+      "msg": "Invalid Propeller Admin"
     },
     {
       "code": 6029,
+      "name": "InvalidTokenIdMapPool",
+      "msg": "Invalid Pool for Token Id Map"
+    },
+    {
+      "code": 6030,
+      "name": "InvalidOutputTokenIndex",
+      "msg": "Invalid Output Token Index"
+    },
+    {
+      "code": 6031,
+      "name": "InvalidTokenIdMapPoolTokenIndex",
+      "msg": "Invalid Pool Token Index for Token Id Map"
+    },
+    {
+      "code": 6032,
+      "name": "InvalidTokenIdMapPoolTokenMint",
+      "msg": "Invalid Pool Token Mint for Token Id Map"
+    },
+    {
+      "code": 6033,
+      "name": "InvalidTokenIdMapPoolIx",
+      "msg": "Invalid Pool Ix for Token Id Map"
+    },
+    {
+      "code": 6034,
       "name": "InvalidSwimPayloadGasKickstart",
       "msg": "Invalid Gas Kickstart parameter in Swim Payload"
     },
     {
-      "code": 6030,
+      "code": 6035,
       "name": "InvalidMarginalPricePoolAccounts",
       "msg": "Invalid Marginal Price Pool Accounts"
     },
     {
-      "code": 6031,
+      "code": 6036,
       "name": "NotPropellerEnabled",
       "msg": "Propeller Not Enabled in payload"
     },
     {
-      "code": 6032,
+      "code": 6037,
       "name": "InvalidRoutingContractAddress",
       "msg": "Invalid Routing Contract Address"
     },
     {
-      "code": 6033,
+      "code": 6038,
       "name": "IntegerOverflow",
       "msg": "Integer Overflow"
     },
     {
-      "code": 6034,
+      "code": 6039,
       "name": "ConversionError",
       "msg": "Conversion Error"
-    },
-    {
-      "code": 6035,
-      "name": "InvalidTokenIdMapPool",
-      "msg": "Invalid Pool for TokenIdMap"
     }
   ]
 };

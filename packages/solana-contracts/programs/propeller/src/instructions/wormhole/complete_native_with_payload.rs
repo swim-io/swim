@@ -216,6 +216,7 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
         payload_transfer_with_payload.from_address,
         propeller.evm_routing_contract_address
     );
+    //TODO: do we want this check?
     require!(
         propeller.evm_routing_contract_address == payload_transfer_with_payload.from_address,
         PropellerError::InvalidRoutingContractAddress,

@@ -33,7 +33,7 @@ use {
     two_pool::state::TwoPool,
 };
 
-pub const SWIM_USD_TARGET_TOKEN_INDEX: u16 = 0;
+pub const TOKEN_BRIDGE_OUTPUT_TOKEN_INDEX: u16 = 0;
 
 #[derive(Accounts)]
 pub struct ProcessSwimPayload<'info> {
@@ -164,6 +164,9 @@ pub struct ProcessSwimPayload<'info> {
     #[account(mut, token::mint = pool_token_account_1.mint)]
     pub user_token_account_1: Box<Account<'info, TokenAccount>>,
 
+    #[account(mut, token::mint = pool.lp_mint_key)]
+    pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
+
     pub token_program: Program<'info, Token>,
     #[account(executable, address = spl_memo::id())]
     ///CHECK: memo program
@@ -195,6 +198,373 @@ impl<'info> ProcessSwimPayload<'info> {
         require_keys_eq!(self.pool.key(), self.token_id_map.pool, PropellerError::InvalidTokenIdMapPool);
         Ok(())
     }
+
+    pub fn transfer_tokens(
+        &self,
+        output_token_index: u16,
+        transfer_amount: u64,
+        min_output_amount: u64,
+    ) -> Result<u64> {
+        let token_id_mapping = &self.token_id_map;
+        let token_pool = &token_id_mapping.pool;
+        let pool_ix = &token_id_mapping.pool_ix;
+        if let PoolInstruction::Transfer = pool_ix {
+            require_eq!(output_token_index, TOKEN_BRIDGE_OUTPUT_TOKEN_INDEX, PropellerError::InvalidOutputTokenIndex);
+            return self.transfer_token_bridge_mint_tokens(transfer_amount);
+        }
+        let token_program = &self.token_program;
+        let pool_token_mint = &token_id_mapping.pool_token_mint;
+        let pool_token_index = token_id_mapping.pool_token_index;
+        let swim_payload_owner = self.propeller_message.owner;
+
+        //TODO: test if i can just use "redeemer" as the "user_transfer_authority" and
+        // skip approve/revoke and just call the pool ix with CpiContext::new_with_signer()
+        //
+        // if removeExactBurn, then user_token_account's will be end_user's and user_lp_token_account will be
+        // payer of txn
+        // redeemer_escrow still holds all the tokens at this point and will be source of tokens used
+        // in pool ix
+        token::approve(
+            CpiContext::new_with_signer(
+                token_program.to_account_info(),
+                token::Approve {
+                    // source
+                    to: self.redeemer_escrow.to_account_info(),
+                    delegate: self.user_transfer_authority.to_account_info(),
+                    authority: self.redeemer.to_account_info(),
+                },
+                &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+            ),
+            transfer_amount,
+        )?;
+        require_gt!(TOKEN_COUNT, pool_token_index as usize);
+        require_keys_eq!(self.pool.token_mint_keys[pool_token_index as usize], *pool_token_mint);
+        let user_token_accounts = [&self.user_token_account_0, &self.user_token_account_1];
+        require_keys_eq!(user_token_accounts[pool_token_index as usize].owner, swim_payload_owner);
+
+        match pool_ix {
+            PoolInstruction::RemoveExactBurn => {
+                msg!("Executing RemoveExactBurn");
+                // require_keys_eq!(
+                //     self.user_lp_token_account.owner,
+                //     self.payer.key(),
+                // );
+
+                // TODO: handle other checks
+                let cpi_ctx = CpiContext::new(
+                    self.two_pool_program.to_account_info(),
+                    two_pool::cpi::accounts::RemoveExactBurn {
+                        pool: self.pool.to_account_info(),
+                        pool_token_account_0: self.pool_token_account_0.to_account_info(),
+                        pool_token_account_1: self.pool_token_account_1.to_account_info(),
+                        lp_mint: self.lp_mint.to_account_info(),
+                        governance_fee: self.governance_fee.to_account_info(),
+                        user_transfer_authority: self.user_transfer_authority.to_account_info(),
+                        user_token_account_0: self.user_token_account_0.to_account_info(),
+                        user_token_account_1: self.user_token_account_1.to_account_info(),
+                        user_lp_token_account: self.redeemer_escrow.to_account_info(),
+                        token_program: self.token_program.to_account_info(),
+                    },
+                );
+                //TODO: test if this works
+                // let cpi_ctx = CpiContext::new_with_signer(
+                //     self.two_pool_program.to_account_info(),
+                //     two_pool::cpi::accounts::RemoveExactBurn {
+                //         pool: self.pool.to_account_info(),
+                //         pool_token_account_0: self.pool_token_account_0.to_account_info(),
+                //         pool_token_account_1: self.pool_token_account_1.to_account_info(),
+                //         lp_mint: self.lp_mint.to_account_info(),
+                //         governance_fee: self.governance_fee.to_account_info(),
+                //         user_transfer_authority: self.user_transfer_authority.to_account_info(),
+                //         user_token_account_0: self.user_token_account_0.to_account_info(),
+                //         user_token_account_1: self.user_token_account_1.to_account_info(),
+                //         user_lp_token_account: self.redeemer_escrow.to_account_info(),
+                //         token_program: self.token_program.to_account_info(),
+                //     },
+                //     &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+                // );
+                Ok(two_pool::cpi::remove_exact_burn(cpi_ctx, transfer_amount, pool_token_index, min_output_amount)?
+                    .get())
+            }
+            PoolInstruction::SwapExactInput => {
+                msg!("Executing SwapExactInput");
+
+                let cpi_ctx = CpiContext::new(
+                    self.two_pool_program.to_account_info(),
+                    two_pool::cpi::accounts::SwapExactInput {
+                        pool: self.pool.to_account_info(),
+                        pool_token_account_0: self.pool_token_account_0.to_account_info(),
+                        pool_token_account_1: self.pool_token_account_1.to_account_info(),
+                        lp_mint: self.lp_mint.to_account_info(),
+                        governance_fee: self.governance_fee.to_account_info(),
+                        user_transfer_authority: self.user_transfer_authority.to_account_info(),
+                        user_token_account_0: self.redeemer_escrow.to_account_info(),
+                        user_token_account_1: self.user_token_account_1.to_account_info(),
+                        token_program: self.token_program.to_account_info(),
+                    },
+                );
+
+                //TODO: test if this works.
+                // let cpi_ctx = CpiContext::new_with_signer(
+                //     self.two_pool_program.to_account_info(),
+                //     two_pool::cpi::accounts::SwapExactInput {
+                //         pool: self.pool.to_account_info(),
+                //         pool_token_account_0: self.pool_token_account_0.to_account_info(),
+                //         pool_token_account_1: self.pool_token_account_1.to_account_info(),
+                //         lp_mint: self.lp_mint.to_account_info(),
+                //         governance_fee: self.governance_fee.to_account_info(),
+                //         user_transfer_authority: self.user_transfer_authority.to_account_info(),
+                //         user_token_account_0: self.redeemer_escrow.to_account_info(),
+                //         user_token_account_1: self.user_token_account_1.to_account_info(),
+                //         token_program: self.token_program.to_account_info(),
+                //     },
+                //     &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+                // );
+                Ok(two_pool::cpi::swap_exact_input(
+                    cpi_ctx,
+                    [transfer_amount, 0u64],
+                    pool_token_index,
+                    min_output_amount,
+                )?
+                .get())
+            }
+            // This should be unreachable
+            _ => err!(PropellerError::InvalidTokenIdMapPoolIx),
+        }
+    }
+
+    fn transfer_token_bridge_mint_tokens(&self, transfer_amount: u64) -> Result<u64> {
+        let cpi_accounts = Transfer {
+            from: self.redeemer_escrow.to_account_info(),
+            to: self.user_lp_token_account.to_account_info(),
+            authority: self.redeemer.to_account_info(),
+        };
+        token::transfer(
+            CpiContext::new_with_signer(
+                self.token_program.to_account_info(),
+                cpi_accounts,
+                &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+            ),
+            transfer_amount,
+        )?;
+        Ok(transfer_amount)
+    }
+
+    // fn execute_pool_ix_and_transfer(&self, transfer_amount: u64, min_output_amount: u64) -> Result<u64> {
+    //     msg!("execute_pool_ix_and_transfer");
+    //
+    //     let token_program = &self.token_program;
+    //     let token_id_mapping = &self.token_id_map;
+    //     let token_pool = &token_id_mapping.pool;
+    //     let pool_ix = &token_id_mapping.pool_ix;
+    //     let pool_token_mint = &token_id_mapping.pool_token_mint;
+    //     let pool_token_index = token_id_mapping.pool_token_index;
+    //     let swim_payload_owner = self.propeller_message.owner;
+    //     if let PoolInstruction::Transfer = pool_ix {
+    //         Ok(self.transfer_token_bridge_mint_tokens(transfer_amount))
+    //     }
+    //
+    //     //TODO: test if i can just use "redeemer" as the "user_transfer_authority" and
+    //     // skip approve/revoke and just call the pool ix with CpiContext::new_with_signer()
+    //     //
+    //     // if removeExactBurn, then user_token_account's will be end_user's and user_lp_token_account will be
+    //     // payer of txn
+    //     // redeemer_escrow still holds all the tokens at this point and will be source of tokens used
+    //     // in pool ix
+    //     token::approve(
+    //         CpiContext::new_with_signer(
+    //             token_program.to_account_info(),
+    //             token::Approve {
+    //                 // source
+    //                 to: self.redeemer_escrow.to_account_info(),
+    //                 delegate: self.user_transfer_authority.to_account_info(),
+    //                 authority: self.redeemer.to_account_info(),
+    //             },
+    //             &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+    //         ),
+    //         transfer_amount,
+    //     )?;
+    //     require_gt!(TOKEN_COUNT, pool_token_index as usize);
+    //     require_keys_eq!(self.pool.token_mint_keys[pool_token_index as usize], *pool_token_mint);
+    //     let user_token_accounts = [&self.user_token_account_0, &self.user_token_account_1];
+    //     require_keys_eq!(user_token_accounts[pool_token_index as usize].owner, swim_payload_owner);
+    //
+    //     let cpi_res = match pool_ix {
+    //         PoolInstruction::RemoveExactBurn => {
+    //             msg!("Executing RemoveExactBurn");
+    //             // require_keys_eq!(
+    //             //     self.user_lp_token_account.owner,
+    //             //     self.payer.key(),
+    //             // );
+    //
+    //             // TODO: handle other checks
+    //             let cpi_ctx = CpiContext::new(
+    //                 self.two_pool_program.to_account_info(),
+    //                 two_pool::cpi::accounts::RemoveExactBurn {
+    //                     pool: self.pool.to_account_info(),
+    //                     pool_token_account_0: self.pool_token_account_0.to_account_info(),
+    //                     pool_token_account_1: self.pool_token_account_1.to_account_info(),
+    //                     lp_mint: self.lp_mint.to_account_info(),
+    //                     governance_fee: self.governance_fee.to_account_info(),
+    //                     user_transfer_authority: self.user_transfer_authority.to_account_info(),
+    //                     user_token_account_0: self.user_token_account_0.to_account_info(),
+    //                     user_token_account_1: self.user_token_account_1.to_account_info(),
+    //                     user_lp_token_account: self.redeemer_escrow.to_account_info(),
+    //                     token_program: self.token_program.to_account_info(),
+    //                 },
+    //             );
+    //             //TODO: test if this works
+    //             // let cpi_ctx = CpiContext::new_with_signer(
+    //             //     self.two_pool_program.to_account_info(),
+    //             //     two_pool::cpi::accounts::RemoveExactBurn {
+    //             //         pool: self.pool.to_account_info(),
+    //             //         pool_token_account_0: self.pool_token_account_0.to_account_info(),
+    //             //         pool_token_account_1: self.pool_token_account_1.to_account_info(),
+    //             //         lp_mint: self.lp_mint.to_account_info(),
+    //             //         governance_fee: self.governance_fee.to_account_info(),
+    //             //         user_transfer_authority: self.user_transfer_authority.to_account_info(),
+    //             //         user_token_account_0: self.user_token_account_0.to_account_info(),
+    //             //         user_token_account_1: self.user_token_account_1.to_account_info(),
+    //             //         user_lp_token_account: self.redeemer_escrow.to_account_info(),
+    //             //         token_program: self.token_program.to_account_info(),
+    //             //     },
+    //             //     &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+    //             // );
+    //             two_pool::cpi::remove_exact_burn(cpi_ctx, transfer_amount, pool_token_index, min_output_amount)?.get()
+    //         }
+    //         PoolInstruction::SwapExactInput => {
+    //             msg!("Executing SwapExactInput");
+    //
+    //             let cpi_ctx = CpiContext::new(
+    //                 self.two_pool_program.to_account_info(),
+    //                 two_pool::cpi::accounts::SwapExactInput {
+    //                     pool: self.pool.to_account_info(),
+    //                     pool_token_account_0: self.pool_token_account_0.to_account_info(),
+    //                     pool_token_account_1: self.pool_token_account_1.to_account_info(),
+    //                     lp_mint: self.lp_mint.to_account_info(),
+    //                     governance_fee: self.governance_fee.to_account_info(),
+    //                     user_transfer_authority: self.user_transfer_authority.to_account_info(),
+    //                     user_token_account_0: self.redeemer_escrow.to_account_info(),
+    //                     user_token_account_1: self.user_token_account_1.to_account_info(),
+    //                     token_program: self.token_program.to_account_info(),
+    //                 },
+    //             );
+    //
+    //             //TODO: test if this works.
+    //             // let cpi_ctx = CpiContext::new_with_signer(
+    //             //     self.two_pool_program.to_account_info(),
+    //             //     two_pool::cpi::accounts::SwapExactInput {
+    //             //         pool: self.pool.to_account_info(),
+    //             //         pool_token_account_0: self.pool_token_account_0.to_account_info(),
+    //             //         pool_token_account_1: self.pool_token_account_1.to_account_info(),
+    //             //         lp_mint: self.lp_mint.to_account_info(),
+    //             //         governance_fee: self.governance_fee.to_account_info(),
+    //             //         user_transfer_authority: self.user_transfer_authority.to_account_info(),
+    //             //         user_token_account_0: self.redeemer_escrow.to_account_info(),
+    //             //         user_token_account_1: self.user_token_account_1.to_account_info(),
+    //             //         token_program: self.token_program.to_account_info(),
+    //             //     },
+    //             //     &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+    //             // );
+    //             two_pool::cpi::swap_exact_input(cpi_ctx, [transfer_amount, 0u64], pool_token_index, min_output_amount)?
+    //                 .get()
+    //         }
+    //         _ => return err!(PropellerError::InvalidInstruction),
+    //     };
+    //     Ok(cpi_res)
+    //     // let cpi_res = match pool_ix {
+    //     //     PoolInstruction::Transfer => {}
+    //     //     PoolInstruction::RemoveExactBurn => {
+    //     //         msg!("Executing RemoveExactBurn");
+    //     //         // require_keys_eq!(
+    //     //         //     self.user_lp_token_account.owner,
+    //     //         //     self.payer.key(),
+    //     //         // );
+    //     //
+    //     //         // TODO: handle other checks
+    //     //         let cpi_ctx = CpiContext::new(
+    //     //             self.two_pool_program.to_account_info(),
+    //     //             two_pool::cpi::accounts::RemoveExactBurn {
+    //     //                 pool: self.pool.to_account_info(),
+    //     //                 pool_token_account_0: self.pool_token_account_0.to_account_info(),
+    //     //                 pool_token_account_1: self.pool_token_account_1.to_account_info(),
+    //     //                 lp_mint: self.lp_mint.to_account_info(),
+    //     //                 governance_fee: self.governance_fee.to_account_info(),
+    //     //                 user_transfer_authority: self.user_transfer_authority.to_account_info(),
+    //     //                 user_token_account_0: self.user_token_account_0.to_account_info(),
+    //     //                 user_token_account_1: self.user_token_account_1.to_account_info(),
+    //     //                 user_lp_token_account: self.redeemer_escrow.to_account_info(),
+    //     //                 token_program: self.token_program.to_account_info(),
+    //     //             },
+    //     //         );
+    //     //         //TODO: test if this works
+    //     //         // let cpi_ctx = CpiContext::new_with_signer(
+    //     //         //     self.two_pool_program.to_account_info(),
+    //     //         //     two_pool::cpi::accounts::RemoveExactBurn {
+    //     //         //         pool: self.pool.to_account_info(),
+    //     //         //         pool_token_account_0: self.pool_token_account_0.to_account_info(),
+    //     //         //         pool_token_account_1: self.pool_token_account_1.to_account_info(),
+    //     //         //         lp_mint: self.lp_mint.to_account_info(),
+    //     //         //         governance_fee: self.governance_fee.to_account_info(),
+    //     //         //         user_transfer_authority: self.user_transfer_authority.to_account_info(),
+    //     //         //         user_token_account_0: self.user_token_account_0.to_account_info(),
+    //     //         //         user_token_account_1: self.user_token_account_1.to_account_info(),
+    //     //         //         user_lp_token_account: self.redeemer_escrow.to_account_info(),
+    //     //         //         token_program: self.token_program.to_account_info(),
+    //     //         //     },
+    //     //         //     &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+    //     //         // );
+    //     //         two_pool::cpi::remove_exact_burn(cpi_ctx, transfer_amount, pool_token_index, min_output_amount)?.get()
+    //     //     }
+    //     //     PoolInstruction::SwapExactInput => {
+    //     //         msg!("Executing SwapExactInput");
+    //     //
+    //     //         let cpi_ctx = CpiContext::new(
+    //     //             self.two_pool_program.to_account_info(),
+    //     //             two_pool::cpi::accounts::SwapExactInput {
+    //     //                 pool: self.pool.to_account_info(),
+    //     //                 pool_token_account_0: self.pool_token_account_0.to_account_info(),
+    //     //                 pool_token_account_1: self.pool_token_account_1.to_account_info(),
+    //     //                 lp_mint: self.lp_mint.to_account_info(),
+    //     //                 governance_fee: self.governance_fee.to_account_info(),
+    //     //                 user_transfer_authority: self.user_transfer_authority.to_account_info(),
+    //     //                 user_token_account_0: self.redeemer_escrow.to_account_info(),
+    //     //                 user_token_account_1: self.user_token_account_1.to_account_info(),
+    //     //                 token_program: self.token_program.to_account_info(),
+    //     //             },
+    //     //         );
+    //     //
+    //     //         //TODO: test if this works.
+    //     //         // let cpi_ctx = CpiContext::new_with_signer(
+    //     //         //     self.two_pool_program.to_account_info(),
+    //     //         //     two_pool::cpi::accounts::SwapExactInput {
+    //     //         //         pool: self.pool.to_account_info(),
+    //     //         //         pool_token_account_0: self.pool_token_account_0.to_account_info(),
+    //     //         //         pool_token_account_1: self.pool_token_account_1.to_account_info(),
+    //     //         //         lp_mint: self.lp_mint.to_account_info(),
+    //     //         //         governance_fee: self.governance_fee.to_account_info(),
+    //     //         //         user_transfer_authority: self.user_transfer_authority.to_account_info(),
+    //     //         //         user_token_account_0: self.redeemer_escrow.to_account_info(),
+    //     //         //         user_token_account_1: self.user_token_account_1.to_account_info(),
+    //     //         //         token_program: self.token_program.to_account_info(),
+    //     //         //     },
+    //     //         //     &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+    //     //         // );
+    //     //         two_pool::cpi::swap_exact_input(cpi_ctx, [transfer_amount, 0u64], pool_token_index, min_output_amount)?
+    //     //             .get()
+    //     //     }
+    //     // };
+    //     // token::revoke(CpiContext::new_with_signer(
+    //     //     token_program.to_account_info(),
+    //     //     token::Revoke {
+    //     //         // source
+    //     //         source: self.redeemer_escrow.to_account_info(),
+    //     //         authority: self.redeemer.to_account_info(),
+    //     //     },
+    //     //     &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+    //     // ))?;
+    //     // Ok(cpi_res)
+    // }
 }
 
 pub fn handle_process_swim_payload(ctx: Context<ProcessSwimPayload>, min_output_amount: u64) -> Result<u64> {
@@ -227,142 +597,14 @@ pub fn handle_process_swim_payload(ctx: Context<ProcessSwimPayload>, min_output_
     require!(claim_data.claimed, PropellerError::ClaimNotClaimed);
     msg!("claim_data: {:?}", claim_data);
 
-    let mut transfer_amount = ctx.accounts.propeller_message.transfer_amount;
+    let transfer_amount = ctx.accounts.propeller_message.transfer_amount;
 
     let owner = propeller_message.owner;
-    msg!("transfer_amount - fee: {}", transfer_amount);
+    let token_program = &ctx.accounts.token_program;
+    msg!("transfer_amount: {}", transfer_amount);
 
-    let res = if propeller_message.target_token_id == SWIM_USD_TARGET_TOKEN_INDEX {
-        // simply transfer out swimUSD to logical recipient
-        // ignore min_output_amount?
-        0u64
-    } else {
-        let token_id_mapping = &ctx.accounts.token_id_map;
-        let token_pool = &token_id_mapping.pool;
-        let pool_ix = &token_id_mapping.pool_ix;
-        let pool_token_mint = &token_id_mapping.pool_token_mint;
-        let pool_token_index = token_id_mapping.pool_token_index;
-
-        //TODO: test if i can just use "redeemer" as the "user_transfer_authority" and
-        // skip approve/revoke and just call the pool ix with CpiContext::new_with_signer()
-        //
-        // if removeExactBurn, then user_token_account's will be end_user's and user_lp_token_account will be
-        // payer of txn
-        // redeemer_escrow still holds all the tokens at this point and will be source of tokens used
-        // in pool ix
-        token::approve(
-            CpiContext::new_with_signer(
-                ctx.accounts.token_program.to_account_info(),
-                token::Approve {
-                    // source
-                    to: ctx.accounts.redeemer_escrow.to_account_info(),
-                    delegate: ctx.accounts.user_transfer_authority.to_account_info(),
-                    authority: ctx.accounts.redeemer.to_account_info(),
-                },
-                &[&[&b"redeemer".as_ref(), &[ctx.accounts.propeller.redeemer_bump]]],
-            ),
-            transfer_amount,
-        )?;
-        // verify destination token account owner is logical owner.
-        require_keys_eq!(ctx.accounts.pool.token_mint_keys[pool_token_index as usize], *pool_token_mint);
-        match pool_token_index {
-            0 => {
-                require_keys_eq!(ctx.accounts.user_token_account_0.owner, owner);
-            }
-            1 => {
-                require_keys_eq!(ctx.accounts.user_token_account_1.owner, owner);
-            }
-            _ => return err!(PropellerError::InvalidPoolTokenIndex),
-        }
-        let cpi_res = match pool_ix {
-            PoolInstruction::RemoveExactBurn => {
-                // require_keys_eq!(
-                //     ctx.accounts.user_lp_token_account.owner,
-                //     ctx.accounts.payer.key(),
-                // );
-
-                // TODO: handle other checks
-                let cpi_ctx = CpiContext::new(
-                    ctx.accounts.two_pool_program.to_account_info(),
-                    two_pool::cpi::accounts::RemoveExactBurn {
-                        pool: ctx.accounts.pool.to_account_info(),
-                        pool_token_account_0: ctx.accounts.pool_token_account_0.to_account_info(),
-                        pool_token_account_1: ctx.accounts.pool_token_account_1.to_account_info(),
-                        lp_mint: ctx.accounts.lp_mint.to_account_info(),
-                        governance_fee: ctx.accounts.governance_fee.to_account_info(),
-                        user_transfer_authority: ctx.accounts.user_transfer_authority.to_account_info(),
-                        user_token_account_0: ctx.accounts.user_token_account_0.to_account_info(),
-                        user_token_account_1: ctx.accounts.user_token_account_1.to_account_info(),
-                        user_lp_token_account: ctx.accounts.redeemer_escrow.to_account_info(),
-                        token_program: ctx.accounts.token_program.to_account_info(),
-                    },
-                );
-                //TODO: test if this works
-                // let cpi_ctx = CpiContext::new_with_signer(
-                //     ctx.accounts.two_pool_program.to_account_info(),
-                //     two_pool::cpi::accounts::RemoveExactBurn {
-                //         pool: ctx.accounts.pool.to_account_info(),
-                //         pool_token_account_0: ctx.accounts.pool_token_account_0.to_account_info(),
-                //         pool_token_account_1: ctx.accounts.pool_token_account_1.to_account_info(),
-                //         lp_mint: ctx.accounts.lp_mint.to_account_info(),
-                //         governance_fee: ctx.accounts.governance_fee.to_account_info(),
-                //         user_transfer_authority: ctx.accounts.user_transfer_authority.to_account_info(),
-                //         user_token_account_0: ctx.accounts.user_token_account_0.to_account_info(),
-                //         user_token_account_1: ctx.accounts.user_token_account_1.to_account_info(),
-                //         user_lp_token_account: ctx.accounts.redeemer_escrow.to_account_info(),
-                //         token_program: ctx.accounts.token_program.to_account_info(),
-                //     },
-                //     &[&[&b"redeemer".as_ref(), &[ctx.accounts.propeller.redeemer_bump]]],
-                // );
-                two_pool::cpi::remove_exact_burn(cpi_ctx, transfer_amount, pool_token_index, min_output_amount)?.get()
-            }
-            PoolInstruction::SwapExactInput => {
-                let cpi_ctx = CpiContext::new(
-                    ctx.accounts.two_pool_program.to_account_info(),
-                    two_pool::cpi::accounts::SwapExactInput {
-                        pool: ctx.accounts.pool.to_account_info(),
-                        pool_token_account_0: ctx.accounts.pool_token_account_0.to_account_info(),
-                        pool_token_account_1: ctx.accounts.pool_token_account_1.to_account_info(),
-                        lp_mint: ctx.accounts.lp_mint.to_account_info(),
-                        governance_fee: ctx.accounts.governance_fee.to_account_info(),
-                        user_transfer_authority: ctx.accounts.user_transfer_authority.to_account_info(),
-                        user_token_account_0: ctx.accounts.redeemer_escrow.to_account_info(),
-                        user_token_account_1: ctx.accounts.user_token_account_1.to_account_info(),
-                        token_program: ctx.accounts.token_program.to_account_info(),
-                    },
-                );
-
-                //TODO: test if this works.
-                // let cpi_ctx = CpiContext::new_with_signer(
-                //     ctx.accounts.two_pool_program.to_account_info(),
-                //     two_pool::cpi::accounts::SwapExactInput {
-                //         pool: ctx.accounts.pool.to_account_info(),
-                //         pool_token_account_0: ctx.accounts.pool_token_account_0.to_account_info(),
-                //         pool_token_account_1: ctx.accounts.pool_token_account_1.to_account_info(),
-                //         lp_mint: ctx.accounts.lp_mint.to_account_info(),
-                //         governance_fee: ctx.accounts.governance_fee.to_account_info(),
-                //         user_transfer_authority: ctx.accounts.user_transfer_authority.to_account_info(),
-                //         user_token_account_0: ctx.accounts.redeemer_escrow.to_account_info(),
-                //         user_token_account_1: ctx.accounts.user_token_account_1.to_account_info(),
-                //         token_program: ctx.accounts.token_program.to_account_info(),
-                //     },
-                //     &[&[&b"redeemer".as_ref(), &[ctx.accounts.propeller.redeemer_bump]]],
-                // );
-                two_pool::cpi::swap_exact_input(cpi_ctx, [transfer_amount, 0u64], pool_token_index, min_output_amount)?
-                    .get()
-            }
-        };
-        token::revoke(CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
-            token::Revoke {
-                // source
-                source: ctx.accounts.redeemer_escrow.to_account_info(),
-                authority: ctx.accounts.redeemer.to_account_info(),
-            },
-            &[&[&b"redeemer".as_ref(), &[ctx.accounts.propeller.redeemer_bump]]],
-        ))?;
-        cpi_res
-    };
+    let output_amount =
+        ctx.accounts.transfer_tokens(propeller_message.target_token_id, transfer_amount, min_output_amount)?;
 
     let propeller_claim = &mut ctx.accounts.propeller_claim;
     propeller_claim.bump = *ctx.bumps.get("propeller_claim").unwrap();
@@ -370,8 +612,8 @@ pub fn handle_process_swim_payload(ctx: Context<ProcessSwimPayload>, min_output_
     let memo = propeller_message.memo;
     let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
     invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
-    msg!("res: {:?}", res);
-    Ok(res)
+    msg!("output_amount: {:?}", output_amount);
+    Ok(output_amount)
 }
 
 // //TODO: should i process this using the message account or the vaa data?
@@ -542,7 +784,7 @@ pub fn handle_propeller_process_swim_payload(
     msg!("transfer_amount - fee: {}", transfer_amount);
 
     //TODO: refactor
-    if propeller_message.target_token_id == SWIM_USD_TARGET_TOKEN_INDEX {
+    if propeller_message.target_token_id == TOKEN_BRIDGE_OUTPUT_TOKEN_INDEX {
         // simply transfer out swimUSD to logical recipient
     } else {
         let token_id_mapping = &ctx.accounts.process_swim_payload.token_id_map;
@@ -632,6 +874,7 @@ pub fn handle_propeller_process_swim_payload(
                 );
                 two_pool::cpi::swap_exact_input(cpi_ctx, [transfer_amount, 0u64], pool_token_index, min_output_amount)?;
             }
+            _ => panic!("Unsupported pool instruction. Ricky go refactor this."),
         };
         token::revoke(CpiContext::new_with_signer(
             token_program.to_account_info(),
@@ -656,6 +899,7 @@ pub fn handle_propeller_process_swim_payload(
 }
 
 //TODO: FOR GAS KICKSTART ALSO NEED TO ASSUME/HANDLE THAT USER TOKEN ACCOUNTS MAY NOT BE INITIALIZED
+// AND MUST BE INITIALIZED AND RENT ACCOUNTED FOR
 fn calculate_fees(ctx: &Context<PropellerProcessSwimPayload>) -> Result<u64> {
     //TODO: this is in lamports/SOL. need in swimUSD.
     // ideal implementation

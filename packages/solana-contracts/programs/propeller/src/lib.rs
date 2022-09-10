@@ -18,8 +18,8 @@ use {
         *,
     },
     constants::TOKEN_COUNT,
-    error::PropellerError,
-    instructions::*,
+    // error::PropellerError,
+    // instructions::*,
     solana_program::clock::Epoch,
     state::*,
     token_bridge::*,
@@ -28,11 +28,13 @@ use {
 };
 
 mod constants;
-pub mod error;
-pub mod instructions;
+mod error;
+mod instructions;
 mod state;
 mod token_bridge;
 mod wormhole;
+
+pub use {error::*, instructions::*};
 
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
@@ -55,7 +57,8 @@ pub mod propeller {
         target_token_index,
         pool,
         pool_token_index,
-        pool_token_mint
+        pool_token_mint,
+        pool_ix,
     ))]
     pub fn create_token_id_map(
         ctx: Context<CreateTokenIdMap>,

@@ -87,8 +87,23 @@ pub enum PropellerError {
     #[msg("Claim Account not claimed")]
     ClaimNotClaimed,
 
-    #[msg("Invalid Pool Token Index")]
-    InvalidPoolTokenIndex,
+    #[msg("Invalid Propeller Admin")]
+    InvalidPropellerAdmin,
+
+    #[msg("Invalid Pool for Token Id Map")]
+    InvalidTokenIdMapPool,
+
+    #[msg("Invalid Output Token Index")]
+    InvalidOutputTokenIndex,
+
+    #[msg("Invalid Pool Token Index for Token Id Map")]
+    InvalidTokenIdMapPoolTokenIndex,
+
+    #[msg("Invalid Pool Token Mint for Token Id Map")]
+    InvalidTokenIdMapPoolTokenMint,
+
+    #[msg("Invalid Pool Ix for Token Id Map")]
+    InvalidTokenIdMapPoolIx,
 
     #[msg("Invalid Gas Kickstart parameter in Swim Payload")]
     InvalidSwimPayloadGasKickstart,
@@ -107,7 +122,4 @@ pub enum PropellerError {
 
     #[msg("Conversion Error")]
     ConversionError,
-
-    #[msg("Invalid Pool for TokenIdMap")]
-    InvalidTokenIdMapPool,
 }

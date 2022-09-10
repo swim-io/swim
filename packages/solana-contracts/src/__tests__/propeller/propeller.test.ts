@@ -234,6 +234,7 @@ const usdtPoolTokenIndex = 1;
 const metapoolMint1OutputTokenIndex = 3;
 const metapoolMint1PoolTokenIndex = 1;
 let outputTokenIdMappingAddrs: ReadonlyMap<number, PublicKey>;
+let memoId = 0;
 // const poolRemoveExactBurnIx = {removeExactBurn: {} };
 // const poolSwapExactInputIx = {swapExactInput: {} };
 // type TokenIdMapPoolIx = poolRemoveExactBurnIx | poolSwapExactInputIx;
@@ -901,8 +902,9 @@ describe("propeller", () => {
           userTransferAuthority.publicKey,
           payer,
         );
-        const memoString = "propeller add";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
+
         const addTxn = propellerProgram.methods
           .add(
             inputAmounts,
@@ -995,7 +997,7 @@ describe("propeller", () => {
           true,
         );
         expect(previousDepthAfter.gt(previousDepthBefore)).toEqual(true);
-        await checkTxnLogsForMemo(addTxnSig, memoString);
+        await checkTxnLogsForMemo(addTxnSig, memoStr);
       });
 
       it("Propeller add fails when propeller enabled & output amount is insufficient for target chain", async () => {
@@ -1014,8 +1016,8 @@ describe("propeller", () => {
           userTransferAuthority.publicKey,
           payer,
         );
-        const memoString = "propeller add";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
 
         await expect(() => {
           return propellerProgram.methods
@@ -1137,25 +1139,6 @@ describe("propeller", () => {
       });
 
       it("Propeller SwapExactInput (non propeller-enabled)", async () => {
-        // const initMetapoolTxn = twoPoolProgram.methods
-        //   .initialize(ampFactor, lpFee, governanceFee)
-        //   .accounts({
-        //     payer: provider.publicKey,
-        //     poolMint0: metapoolMint0Keypair.publicKey,
-        //     poolMint1: metapoolMint1Keypair.publicKey,
-        //     lpMint: metapoolLpMintKeypair.publicKey,
-        //     poolTokenAccount0: metapoolPoolToken0Ata,
-        //     poolTokenAccount1: metapoolPoolToken1Ata,
-        //     pauseKey: pauseKeypair.publicKey,
-        //     governanceAccount: governanceKeypair.publicKey,
-        //     governanceFeeAccount: metapoolGovernanceFeeAta,
-        //     tokenProgram: splToken.programId,
-        //     associatedTokenProgram: splAssociatedToken.programId,
-        //     systemProgram: web3.SystemProgram.programId,
-        //     rent: web3.SYSVAR_RENT_PUBKEY,
-        //   })
-        //   .signers([metapoolLpMintKeypair]);
-
         const poolUserBalancesBefore = await getPoolUserBalances(
           splToken,
           twoPoolProgram,
@@ -1169,7 +1152,6 @@ describe("propeller", () => {
           metapoolLpMintKeypair.publicKey,
         );
         printPoolUserBalances("poolUserBalancesBefore", poolUserBalancesBefore);
-        // const exactInputAmounts = [new BN(0), new BN(100_000)];
         const exactInputAmount = new BN(100_000);
         const minimumOutputAmount = new BN(0);
         const propellerEnabled = false;
@@ -1186,11 +1168,10 @@ describe("propeller", () => {
           userTransferAuthority.publicKey,
           payer,
         );
-        const memoString = "propeller SwapExactInput";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
 
         const swapExactInputTxn = propellerProgram.methods
-          // .swapExactInput(swapExactInputParams)
           .swapExactInput(
             exactInputAmount,
             minimumOutputAmount,
@@ -1229,7 +1210,7 @@ describe("propeller", () => {
           rpcCommitmentConfig,
         );
         console.info(`swapExactInputTxnSig: ${swapExactInputTxnSig}`);
-        await checkTxnLogsForMemo(swapExactInputTxnSig, memoString);
+        await checkTxnLogsForMemo(swapExactInputTxnSig, memoStr);
 
         const poolUserBalancesAfter = await getPoolUserBalances(
           splToken,
@@ -1330,8 +1311,8 @@ describe("propeller", () => {
           userTransferAuthority.publicKey,
           payer,
         );
-        const memoString = "propeller SwapExactInput";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
 
         const swapExactInputTxn = propellerProgram.methods
           // .swapExactInput(swapExactInputParams)
@@ -1373,7 +1354,7 @@ describe("propeller", () => {
           rpcCommitmentConfig,
         );
         console.info(`swapExactInputTxnSig: ${swapExactInputTxnSig}`);
-        await checkTxnLogsForMemo(swapExactInputTxnSig, memoString);
+        await checkTxnLogsForMemo(swapExactInputTxnSig, memoStr);
 
         const poolUserBalancesAfter = await getPoolUserBalances(
           splToken,
@@ -1446,7 +1427,6 @@ describe("propeller", () => {
       });
 
       it("Propeller swapExactInput fails when propeller enabled & output amount is insufficient for target chain", async () => {
-        // const exactInputAmounts = [new BN(100), new BN(0)];
         const exactInputAmount = new BN(100);
         const minimumOutputAmount = new BN(0);
         const propellerEnabled = true;
@@ -1463,8 +1443,8 @@ describe("propeller", () => {
           userTransferAuthority.publicKey,
           payer,
         );
-        const memoString = "SwapExactInputF";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
 
         await expect(() => {
           return (
@@ -1528,8 +1508,8 @@ describe("propeller", () => {
           userTransferAuthority.publicKey,
           payer,
         );
-        const memoString = "propeller RemoveExactBurn";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
         const propellerEnabled = false;
 
         const removeExactBurnTxnSig = await propellerProgram.methods
@@ -1561,7 +1541,7 @@ describe("propeller", () => {
           .rpc(rpcCommitmentConfig);
 
         console.info(`removeExactBurnTxnSig: ${removeExactBurnTxnSig}`);
-        await checkTxnLogsForMemo(removeExactBurnTxnSig, memoString);
+        await checkTxnLogsForMemo(removeExactBurnTxnSig, memoStr);
 
         const poolUserBalancesAfter = await getPoolUserBalances(
           splToken,
@@ -1663,8 +1643,8 @@ describe("propeller", () => {
           userTransferAuthority.publicKey,
           payer,
         );
-        const memoString = "propeller RemoveExactBurn";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
         const propellerEnabled = true;
 
         const removeExactBurnPropellerEnabledTxnSig =
@@ -1701,7 +1681,7 @@ describe("propeller", () => {
         );
         await checkTxnLogsForMemo(
           removeExactBurnPropellerEnabledTxnSig,
-          memoString,
+          memoStr,
         );
 
         const poolUserBalancesAfter = await getPoolUserBalances(
@@ -1786,8 +1766,8 @@ describe("propeller", () => {
           userTransferAuthority.publicKey,
           payer,
         );
-        const memoString = "propeller RemoveExactBurn";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
         const propellerEnabled = true;
         await expect(() => {
           return propellerProgram.methods
@@ -1834,11 +1814,7 @@ describe("propeller", () => {
           metapoolLpMintKeypair.publicKey,
         );
 
-        // const inputTokenIndex = 0;
         const maximumInputAmount = new BN(100_000_000);
-        // const maximumInputAmounts = [maximumInputAmount, new BN(0)];
-        // maximumInputAmounts[inputTokenIndex] = maximumInputAmount;
-        // const exactOutputAmounts = [new BN(0), new BN(50_000)];
         const exactOutputAmount = new BN(50_000);
         // const swapExactOutputParams = {
         //   maximumInputAmount,
@@ -1854,8 +1830,8 @@ describe("propeller", () => {
           payer,
         );
 
-        const memoString = "propeller SwapExactOutput";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
         const propellerEnabled = false;
 
         const swapExactOutputTxnSig = await propellerProgram.methods
@@ -1886,7 +1862,7 @@ describe("propeller", () => {
           .rpc(rpcCommitmentConfig);
 
         console.info(`swapExactOutputTxnSig: ${swapExactOutputTxnSig}`);
-        await checkTxnLogsForMemo(swapExactOutputTxnSig, memoString);
+        await checkTxnLogsForMemo(swapExactOutputTxnSig, memoStr);
 
         const poolUserBalancesAfter = await getPoolUserBalances(
           splToken,
@@ -1972,9 +1948,6 @@ describe("propeller", () => {
         );
         // const inputTokenIndex = 0;
         const maximumInputAmount = new BN(10_000_000_000);
-        // const maximumInputAmounts = [maximumInputAmount, new BN(0)];
-        // maximumInputAmounts[inputTokenIndex] = maximumInputAmount;
-        // const exactOutputAmounts = [new BN(0), new BN(50_000)];
         const exactOutputAmount = propellerEthMinTransferAmount;
         // const swapExactOutputParams = {
         //   maximumInputAmount,
@@ -1990,8 +1963,8 @@ describe("propeller", () => {
           payer,
         );
 
-        const memoString = "propeller SwapExactOutput";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
         const propellerEnabled = true;
 
         const swapExactOutputTxnSig = await propellerProgram.methods
@@ -2022,7 +1995,7 @@ describe("propeller", () => {
           .rpc(rpcCommitmentConfig);
 
         console.info(`swapExactOutputTxnSig: ${swapExactOutputTxnSig}`);
-        await checkTxnLogsForMemo(swapExactOutputTxnSig, memoString);
+        await checkTxnLogsForMemo(swapExactOutputTxnSig, memoStr);
 
         const poolUserBalancesAfter = await getPoolUserBalances(
           splToken,
@@ -2114,8 +2087,8 @@ describe("propeller", () => {
           payer,
         );
 
-        const memoString = "propeller SwapExactOutput";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
         const propellerEnabled = true;
         await expect(() => {
           return propellerProgram.methods
@@ -2160,13 +2133,13 @@ describe("propeller", () => {
           metapool,
           metapoolLpMintKeypair.publicKey,
         );
-        const metapoolLpMint = await splToken.account.mint.fetch(
+        const metapoolLpMintData = await splToken.account.mint.fetch(
           metapoolLpMintKeypair.publicKey,
         );
         console.info(
-          `metapoolLpMint: ${JSON.stringify({
-            ...metapoolLpMint,
-            supply: metapoolLpMint.supply.toString(),
+          `metapoolLpMintData: ${JSON.stringify({
+            ...metapoolLpMintData,
+            supply: metapoolLpMintData.supply.toString(),
           })}`,
         );
         printPoolUserBalances(
@@ -2174,7 +2147,7 @@ describe("propeller", () => {
           poolUserBalancesBefore,
         );
         /*
-        metapoolLpMint: {"supply":"178066751666224","decimals":8}
+        metapoolLpMintData: {"supply":"178066751666224","decimals":8}
 
         RemoveExactOutput (non propeller-enabled)
         poolToken0AtaBalance: 1_999_758_297_370, //6 decimals
@@ -2217,8 +2190,8 @@ describe("propeller", () => {
           payer,
         );
 
-        const memoString = "propeller RemoveExactOutput";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
         const propellerEnabled = false;
 
         const removeExactOutputTxnSig = await propellerProgram.methods
@@ -2249,7 +2222,7 @@ describe("propeller", () => {
           .rpc(rpcCommitmentConfig);
 
         console.info(`removeExactOutputTxnSig: ${removeExactOutputTxnSig}`);
-        await checkTxnLogsForMemo(removeExactOutputTxnSig, memoString);
+        await checkTxnLogsForMemo(removeExactOutputTxnSig, memoStr);
 
         const poolUserBalancesAfter = await getPoolUserBalances(
           splToken,
@@ -2349,8 +2322,8 @@ describe("propeller", () => {
           payer,
         );
 
-        const memoString = "propeller RemoveExactOutput";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
         const propellerEnabled = true;
 
         const removeExactOutputTxnSig = await propellerProgram.methods
@@ -2381,7 +2354,7 @@ describe("propeller", () => {
           .rpc(rpcCommitmentConfig);
 
         console.info(`removeExactOutputTxnSig: ${removeExactOutputTxnSig}`);
-        await checkTxnLogsForMemo(removeExactOutputTxnSig, memoString);
+        await checkTxnLogsForMemo(removeExactOutputTxnSig, memoStr);
 
         const poolUserBalancesAfter = await getPoolUserBalances(
           splToken,
@@ -2466,8 +2439,8 @@ describe("propeller", () => {
           payer,
         );
 
-        const memoString = "propeller RemoveExactOutput";
-        const memo = Buffer.from(memoString, "utf-8");
+        const memoStr = incMemoIdAndGet();
+        const memo = Buffer.from(memoStr);
         const propellerEnabled = true;
         await expect(() => {
           return propellerProgram.methods
@@ -2529,8 +2502,8 @@ describe("propeller", () => {
         payer,
       );
 
-      const memoString = "propeller RemoveUniform";
-      const memo = Buffer.from(memoString, "utf-8");
+      const memoStr = incMemoIdAndGet();
+      const memo = Buffer.from(memoStr);
 
       const removeUniformTxnSig = await propellerProgram.methods
         .removeUniform(exactBurnAmount, minimumOutputAmounts, memo)
@@ -2553,7 +2526,7 @@ describe("propeller", () => {
         .rpc(rpcCommitmentConfig);
 
       console.info(`removeUniformTxnSig: ${removeUniformTxnSig}`);
-      await checkTxnLogsForMemo(removeUniformTxnSig, memoString);
+      await checkTxnLogsForMemo(removeUniformTxnSig, memoStr);
 
       const poolUserBalancesAfter = await getPoolUserBalances(
         splToken,
@@ -2618,67 +2591,9 @@ describe("propeller", () => {
 
   describe("propeller wormhole ixs", () => {
     it("Does token bridge transfer", async () => {
-      // const inputAmounts = [new BN(100_000_000_000), new BN(100_000_000_000)];
-      //
-      // const minimumMintAmount = new BN(0);
-
-      // const custodyAmountBefore: BN = (await splToken.account.token.fetch(custodyOrWrappedMeta)).amount;
-      // const poolAddParams = {
-      //   inputAmounts,
-      //   minimumMintAmount
-      // };
-
-      // const requestUnitsIx = web3.ComputeBudgetProgram.requestUnits({
-      //   units: 900000,
-      //   additionalFee: 0,
-      // });
-
       const userLpTokenBalanceBefore = (
         await splToken.account.token.fetch(userSwimUsdAtaAddr)
       ).amount;
-      // console.info(`userLpTokenBalanceBefore: ${userLpTokenBalanceBefore.toString()}`);
-      //
-      // const propellerPoolAddTxn = await propellerProgram
-      //   .methods
-      //   .addV2(
-      //     poolAddParams
-      //   )
-      //   .accounts({
-      //     // propeller,
-      //     poolState: flagshipPool,
-      //     poolAuth,
-      //     poolTokenAccount0: flagshipPoolData.tokenKeys[0]!,
-      //     poolTokenAccount1: flagshipPoolData.tokenKeys[1]!,
-      //     lpMint: flagshipPoolData.lpMintKey,
-      //     governanceFee: flagshipPoolData.governanceFeeKey,
-      //     userTokenAccount0: userUsdcAtaAddr,
-      //     userTokenAccount1: userUsdtAtaAddr,
-      //     poolProgram: TWO_POOL_PROGRAM_ID,
-      //     tokenProgram: splToken.programId,
-      //     userLpTokenAccount: userSwimUsdAtaAddr,
-      //     payer: payer.publicKey,
-      //   })
-      //   // .signers([wormholeMessage])
-      //   // .preInstructions([
-      //   // 	requestUnitsIx,
-      //   // ])
-      //   .transaction();
-      // const addLiqTxnSig = await provider.sendAndConfirm(
-      //   propellerPoolAddTxn,
-      //   [payer],
-      //   {
-      //     skipPreflight: true,
-      //   }
-      // );
-      // const txnSize = propellerPoolAddTxn.serialize().length;
-      // console.info(`addAndWormholeTransfer txnSize: ${txnSize}`)
-      // await connection.confirmTransaction({
-      //   signature: addLiqTxnSig,
-      //   ...(await connection.getLatestBlockhash())
-      // });
-      // const userLpTokenBalanceAfter = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
-      // console.info(`userLpTokenBalanceAfter: ${userLpTokenBalanceAfter.toString()}`);
-      // const transferAmount = userLpTokenBalanceAfter.sub(userLpTokenBalanceBefore);
 
       try {
         await splToken.account.token.fetch(custody);
@@ -2778,25 +2693,7 @@ describe("propeller", () => {
       console.info(
         `messageAccountInfo: ${JSON.stringify(messageAccountInfo.data)}`,
       );
-      /*
-        vaa: 118,97,97
-        msg: 109,115,103
-        msu: 109,115,117
-        let discriminators = ["vaa", "msg", "msu"];
-        let txtEncoder = new TextEncoder();
-        discriminators.forEach(discriminator => { console.info(`${discriminator}: ${txtEncoder.encode(discriminator)}`) });
-       */
-      // program.methods.Message.deserialize(messageAccountInfo.data);
 
-      // const parsed2 = await parseTokenTransferWithPayloadPostedMessage(messageAccountInfo.data);
-      // const {
-      // 	payload: postedMessagePayload2,
-      // } = parsed2;
-      // console.info(`parsed2: ${JSON.stringify(parsed2, null ,2)}`);
-      // const {
-      //   payload: postedMessagePayload,
-      //   ...postedMessage
-      // }  = await parseTokenTransferWithSwimPayloadPostedMessage(messageAccountInfo.data);
       const parsedTokenTransferWithSwimPayloadPostedMessage =
         await parseTokenTransferWithSwimPayloadPostedMessage(
           messageAccountInfo.data,
@@ -2847,31 +2744,9 @@ describe("propeller", () => {
       // console.info(`swimPayload:\n${JSON.stringify(swimPayload)}`);
       // const transferAmountBuffer = transferAmount.toBuffer('be');
       // console.info(`transferAmountBufferHexStr: ${transferAmountBuffer.toString('hex')}`);
-
-      /**
-       * {"version":0,"targetTokenId":2,"targetToken":{"type":"Buffer","data":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3]},"owner":{"type":"Buffer","data":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4]},"minOutputAmount":"0","propellerEnabled":true,"propellerFee":"0","gasKickstart":false,"targetTokenStr":"\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0003","targetTokenHexStr":"0000000000000000000000000000000000000000000000000000000000000003","ownerStr":"\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0004","ownerHexStr":"0000000000000000000000000000000000000000000000000000000000000004"}
-       * transferAmountBufferHexStr: 0186a0
-       */
     });
 
     it("Fails token bridge transfer if transferAmount < minTransferAmount for targetChain", async () => {
-      // const inputAmounts = [new BN(100_000_000_000), new BN(100_000_000_000)];
-      //
-      // const minimumMintAmount = new BN(0);
-
-      // const custodyAmountBefore: BN = (await splToken.account.token.fetch(custodyOrWrappedMeta)).amount;
-      // const poolAddParams = {
-      //   inputAmounts,
-      //   minimumMintAmount
-      // };
-
-      // const requestUnitsIx = web3.ComputeBudgetProgram.requestUnits({
-      //   units: 900000,
-      //   additionalFee: 0,
-      // });
-
-      // const userLpTokenBalanceBefore = (await splToken.account.token.fetch(userSwimUsdAtaAddr)).amount;
-
       const transferAmount = propellerEthMinTransferAmount.div(new BN(2));
       const nonce = createNonce().readUInt32LE(0);
       const memo = "e45794d6c5a2751a";
@@ -2922,61 +2797,6 @@ describe("propeller", () => {
           .preInstructions([requestUnitsIx])
           .rpc();
       }).rejects.toThrow("Insufficient Amount being transferred");
-      // try {
-      //   console.info(`sending expected failed transfer native txn`);
-      //
-      //   const expectedFailedTransferNativeTxn = await propellerProgram.methods
-      //     .transferNativeWithPayload(
-      //       nonce,
-      //       CHAIN_ID_ETH,
-      //       transferAmount,
-      //       evmTargetTokenId,
-      //       // evmTargetTokenAddr,
-      //       evmOwner,
-      //       gasKickstart,
-      //       propellerEnabled,
-      //       memoBuffer,
-      //     )
-      //     .accounts({
-      //       propeller,
-      //       payer: payer.publicKey,
-      //       tokenBridgeConfig,
-      //       userTokenBridgeAccount: userSwimUsdAtaAddr,
-      //       tokenBridgeMint,
-      //       custody,
-      //       tokenBridge,
-      //       custodySigner,
-      //       authoritySigner,
-      //       wormholeConfig,
-      //       wormholeMessage: wormholeMessage.publicKey,
-      //       wormholeEmitter,
-      //       wormholeSequence,
-      //       wormholeFeeCollector,
-      //       clock: web3.SYSVAR_CLOCK_PUBKEY,
-      //       // autoderived
-      //       // sender
-      //       rent: web3.SYSVAR_RENT_PUBKEY,
-      //       // autoderived
-      //       // systemProgram,
-      //       wormhole,
-      //       tokenProgram: splToken.programId,
-      //       memo: MEMO_PROGRAM_ID,
-      //     })
-      //     .signers([wormholeMessage])
-      //     .preInstructions([requestUnitsIx])
-      //     .rpc();
-      //   console.info(
-      //     `expectedFailedTransferNativeTxn: ${expectedFailedTransferNativeTxn}`,
-      //   );
-      //   // assert(false, "should not have been able to execute transferNativeWithPayload");
-      // } catch (_err) {
-      //   console.info(`successfully threw error: ${JSON.stringify(_err)}`);
-      //   expect(_err instanceof AnchorError).toEqual(true);
-      //   const err: AnchorError = _err;
-      //   expect(err.error.errorMessage).toEqual(
-      //     "Insufficient Amount being transferred",
-      //   );
-      // }
     });
 
     describe("User submitted CompleteWithPayload and ProcessSwimPayload", () => {
@@ -2989,22 +2809,18 @@ describe("propeller", () => {
         let propellerMessage: web3.PublicKey;
 
         const targetTokenId = usdcOutputTokenIndex;
+        const memoStr = incMemoIdAndGet();
 
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
-          const memo = "e45794d6c5a2750b";
           const memoBuffer = Buffer.alloc(16);
-          memoBuffer.write(memo);
+          memoBuffer.write(memoStr);
 
           const swimPayload = {
             version: swimPayloadVersion,
             targetTokenId,
-            // owner: tryNativeToUint8Array(provider.publicKey.toBase58(), CHAIN_ID_SOLANA),
-            // owner: Buffer.from(tryNativeToHexString(provider.publicKey.toBase58(), CHAIN_ID_SOLANA), 'hex'),
             owner: provider.publicKey.toBuffer(),
-            // minOutputAmount: 0n,
             memo: memoBuffer,
             propellerEnabled,
-            // minThreshold: BigInt(0),
             gasKickstart,
           };
           const amount = parseUnits("1", mintDecimal);
@@ -3209,6 +3025,7 @@ describe("propeller", () => {
               propellerRedeemerEscrowAccountBefore,
             ),
           ).toEqual(true);
+          await checkTxnLogsForMemo(transferNativeTxnSig, memoStr);
         });
 
         it("processes swim payload", async () => {
@@ -3364,6 +3181,7 @@ describe("propeller", () => {
           expect(
             userTokenAccount1BalanceAfter.eq(userTokenAccount1BalanceBefore),
           ).toBeTruthy();
+          await checkTxnLogsForMemo(processSwimPayloadTxn, memoStr);
         });
 
         //TODO: add min_output_amount test cases
@@ -3376,10 +3194,10 @@ describe("propeller", () => {
 
         const targetTokenId = swimUsdOutputTokenIndex;
 
+        const memoStr = incMemoIdAndGet();
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
-          const memo = "e45794d6c5a2750b";
           const memoBuffer = Buffer.alloc(16);
-          memoBuffer.write(memo);
+          memoBuffer.write(memoStr);
 
           const swimPayload = {
             version: swimPayloadVersion,
@@ -3595,6 +3413,7 @@ describe("propeller", () => {
               propellerRedeemerEscrowAccountBefore,
             ),
           ).toEqual(true);
+          await checkTxnLogsForMemo(transferNativeTxnSig, memoStr);
         });
 
         it("processes swim payload", async () => {
@@ -3764,6 +3583,7 @@ describe("propeller", () => {
               ),
             ),
           ).toBeTruthy();
+          await checkTxnLogsForMemo(processSwimPayloadTxn, memoStr);
         });
       });
 
@@ -3772,11 +3592,12 @@ describe("propeller", () => {
         let wormholeMessage: web3.PublicKey;
         let propellerMessage: web3.PublicKey;
         const targetTokenId = metapoolMint1OutputTokenIndex;
+        const memoStr = incMemoIdAndGet();
+        // const memo = "e45794d6c5a2750b";
 
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
-          const memo = "e45794d6c5a2750b";
           const memoBuffer = Buffer.alloc(16);
-          memoBuffer.write(memo);
+          memoBuffer.write(memoStr);
 
           const swimPayload = {
             version: swimPayloadVersion,
@@ -3992,6 +3813,7 @@ describe("propeller", () => {
               propellerRedeemerEscrowAccountBefore,
             ),
           ).toEqual(true);
+          await checkTxnLogsForMemo(transferNativeTxnSig, memoStr);
         });
 
         it("processes swim payload", async () => {
@@ -4163,12 +3985,13 @@ describe("propeller", () => {
             userLpTokenAccountBalanceAfter.eq(userLpTokenAccountBalanceBefore),
           ).toBeTruthy();
           console.info(`outputAmount: ${outputAmount.toString()}`);
+          await checkTxnLogsForMemo(processSwimPayloadTxn, memoStr);
         });
       });
     });
   });
 
-  async function checkTxnLogsForMemo(txSig: string, memoString: string) {
+  async function checkTxnLogsForMemo(txSig: string, memoStr: string) {
     console.info(`txSig: ${txSig}`);
     const txnInfo = await connection.getTransaction(txSig, {
       commitment: "confirmed",
@@ -4186,471 +4009,12 @@ describe("propeller", () => {
     }
     const txnLogs = txnInfo.meta.logMessages;
     const memoLogFound = txnLogs.some(
-      (log) => log.startsWith("Program log: Memo") && log.includes(memoString),
+      (log) => log.startsWith("Program log: Memo") && log.includes(memoStr),
     );
     expect(memoLogFound).toEqual(true);
   }
+
+  function incMemoIdAndGet() {
+    return (++memoId).toString().padStart(16, "0");
+  }
 });
-
-// type PoolUserBalances = {
-//   readonly poolTokenBalances: ReadonlyArray<BN>;
-//   readonly userTokenBalances: ReadonlyArray<BN>;
-//   readonly governanceFeeBalance: BN;
-//   readonly userLpTokenBalance: BN;
-//   readonly previousDepth: BN;
-// };
-// async function getFlagshipTokenAccountBalances(): Promise<PoolUserBalances> {
-//   const poolUsdcAtaBalance = (
-//     await splToken.account.token.fetch(poolUsdcAtaAddr)
-//   ).amount;
-//   const poolUsdtAtaBalance = (
-//     await splToken.account.token.fetch(poolUsdtAtaAddr)
-//   ).amount;
-//   const governanceFeeBalance = (
-//     await splToken.account.token.fetch(flagshipPoolGovernanceFeeAcct)
-//   ).amount;
-//   const userUsdcAtaBalance = (
-//     await splToken.account.token.fetch(userUsdcAtaAddr)
-//   ).amount;
-//   const userUsdtAtaBalance = (
-//     await splToken.account.token.fetch(userUsdtAtaAddr)
-//   ).amount;
-//   const userLpTokenBalance = (
-//     await splToken.account.token.fetch(userSwimUsdAtaAddr)
-//   ).amount;
-//   const previousDepth = (
-//     await twoPoolProgram.account.twoPool.fetch(flagshipPool)
-//   ).previousDepth;
-//   return {
-//     poolTokenBalances: [poolUsdcAtaBalance, poolUsdtAtaBalance],
-//     governanceFeeBalance,
-//     userTokenBalances: [userUsdcAtaBalance, userUsdtAtaBalance],
-//     userLpTokenBalance,
-//     previousDepth,
-//   };
-// }
-//
-// function printBeforeAndAfterPoolUserBalances(
-//   poolUserBalances: ReadonlyArray<PoolUserBalances>,
-// ) {
-//   const {
-//     poolTokenBalances: [poolUsdcAtaBalanceBefore, poolUsdtAtaBalanceBefore],
-//     governanceFeeBalance: governanceFeeBalanceBefore,
-//     userTokenBalances: [userUsdcAtaBalanceBefore, userUsdtAtaBalanceBefore],
-//     userLpTokenBalance: userLpTokenBalanceBefore,
-//     previousDepth: previousDepthBefore,
-//   } = poolUserBalances[0];
-//   const {
-//     poolTokenBalances: [poolUsdcAtaBalanceAfter, poolUsdtAtaBalanceAfter],
-//     governanceFeeBalance: governanceFeeBalanceAfter,
-//     userTokenBalances: [userUsdcAtaBalanceAfter, userUsdtAtaBalanceAfter],
-//     userLpTokenBalance: userLpTokenBalanceAfter,
-//     previousDepth: previousDepthAfter,
-//   } = poolUserBalances[1];
-//   console.info(`
-//     poolUsdcAtaBalance:
-//       before: ${poolUsdcAtaBalanceBefore.toString()},
-//       after: ${poolUsdcAtaBalanceAfter.toString()}
-//     poolUsdtAtaBalance:
-//       before: ${poolUsdtAtaBalanceBefore.toString()},
-//       after: ${poolUsdtAtaBalanceAfter.toString()}
-//     governanceFeeBalance:
-//       before: ${governanceFeeBalanceBefore.toString()},
-//       after: ${governanceFeeBalanceAfter.toString()}
-//     userUsdcAtaBalance:
-//       before: ${userUsdcAtaBalanceBefore.toString()},
-//       after: ${userUsdcAtaBalanceAfter.toString()}
-//     userUsdtAtaBalance:
-//       before: ${userUsdtAtaBalanceBefore.toString()},
-//       after: ${userUsdtAtaBalanceAfter.toString()}
-//     userLpTokenBalance:
-//       before: ${userLpTokenBalanceBefore.toString()},
-//       after: ${userLpTokenBalanceAfter.toString()}
-//     previousDepth:
-//       before: ${previousDepthBefore.toString()},
-//       after: ${previousDepthAfter.toString()}
-//   `);
-// }
-// async function getPropellerPda(mint: web3.PublicKey): Promise<web3.PublicKey> {
-// 	return (await web3.PublicKey.findProgramAddress(
-// 		[Buffer.from("propeller"), mint.toBytes()],
-// 		propellerProgram.programId,
-// 	))[0];
-// }
-//
-// async function getPropellerRedeemerPda(): Promise<web3.PublicKey> {
-// 	return (await web3.PublicKey.findProgramAddress(
-// 		[Buffer.from("redeemer")],
-// 		propellerProgram.programId,
-// 	))[0];
-// }
-//
-// async function getPropellerSenderPda(): Promise<web3.PublicKey> {
-// 	return (await web3.PublicKey.findProgramAddress([Buffer.from("sender")], propellerProgram.programId,
-//     )
-//   )[0];
-// }
-//
-// async function addToPool(
-// 	provider: AnchorProvider,
-// 	pool: web3.PublicKey,
-// 	poolState: SwimPoolState,
-// 	userTokenAccounts: web3.PublicKey[],
-// 	userLpTokenAccount: web3.PublicKey,
-// 	inputAmounts: BN[],
-// 	minimumMintAmount: BN,
-// 	tokenAccountOwner: web3.Keypair,
-// 	delegate: web3.PublicKey,
-// ): Promise<string> {
-// 	// let userMetapoolTokenAccountAmounts = await Promise.all(
-// 	//     userMetapoolTokenAccounts.map(async (account) => {
-// 	//     return (await splToken.account.token.fetch(account)).amount;
-// 	// }));
-// 	// console.info(`userMetapoolTokenAccountAmounts: ${userMetapoolTokenAccountAmounts}`)
-// 	// let userMetapoolTokenAccounts0Amount = await splToken.account.token.fetch(userMetapoolTokenAccounts[0]);
-// 	// let inputAmounts = [new BN(100), new BN(100)];
-//
-// 	const addMetapoolIx = addToPoolIx(
-// 		{
-// 			provider,
-// 			pool,
-// 			poolState,
-// 			userTokenAccounts,
-// 			userLpTokenAccount,
-// 			inputAmounts,
-// 			minimumMintAmount,
-// 		});
-// 	const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-// 		BN.max(inputAmounts[0]!, inputAmounts[1]!),
-// 		tokenAccountOwner.publicKey,
-// 		delegate,
-// 		userTokenAccounts
-// 	);
-// 	const seedMetapoolTxn = new web3.Transaction()
-// 		.add(...approveIxs!)
-// 		.add(addMetapoolIx)
-// 		.add(...revokeIxs!);
-// 	seedMetapoolTxn.recentBlockhash = (await connection.getLatestBlockhash()).blockhash
-// 	return await provider.sendAndConfirm(
-// 		seedMetapoolTxn,
-// 		[dummyUser],
-// 		{
-// 			skipPreflight: true,
-// 		}
-// 	);
-// }
-//
-// async function createAtaAndMint(mint: web3.PublicKey) {
-// 	const tokenAccount = await getOrCreateAssociatedTokenAccount(
-// 		connection,
-// 		payer,
-// 		mint,
-// 		dummyUser.publicKey,
-// 		false
-// 	);
-// 	const mintTxn = await mintTo(
-// 		connection,
-// 		payer,
-// 		mint,
-// 		tokenAccount.address,
-// 		payer,
-// 		initialMintAmount,
-// 	);
-//
-// 	await connection.confirmTransaction({
-// 		signature: mintTxn,
-// 		...(await connection.getLatestBlockhash())
-// 	})
-// 	console.info(`minted to user_token_account: ${tokenAccount.address.toBase58()}`);
-// 	return tokenAccount
-// }
-
-// const parseTokenTransferWithSwimPayloadPostedMessage = async (arr: Buffer) => {
-// 	const {parse_posted_message} = await importCoreWasm();
-// 	const postedMessage = parse_posted_message(arr);
-// 	const tokenTransfer = parseTransferWithPayload(Buffer.from(postedMessage.payload));
-//   // console.info(`swimPayloadRawBufferStr: ${tokenTransfer.payload.toString()}`);
-//   const swimPayload = parseSwimPayload(tokenTransfer.payload);
-// 	return {
-// 		...postedMessage,
-// 		vaa_signature_account: new web3.PublicKey(postedMessage.vaa_signature_account).toBase58(),
-// 		// emitter_address: tryHexToNativeAssetString(postedMessage.emitter_address, postedMessage.emitter_chain),
-// 		// emitter_address: new web3.PublicKey(postedMessage.emitter_address).toBase58(),
-// 		emitter_address: tryUint8ArrayToNative(postedMessage.emitter_address, postedMessage.emitter_chain),
-//
-// 		payload: {
-// 			...tokenTransfer,
-// 			amount: tokenTransfer.amount.toString(),
-// 			originAddress: tryHexToNativeAssetString(tokenTransfer.originAddress, tokenTransfer.originChain),
-// 			originChain: toChainName(tokenTransfer.originChain),
-// 			targetAddress: tryHexToNativeAssetString(tokenTransfer.targetAddress, tokenTransfer.targetChain),
-// 			targetChain: toChainName(tokenTransfer.targetChain),
-// 			fromAddress: tryHexToNativeAssetString(tokenTransfer.fromAddress, postedMessage.emitter_chain),
-//       payload: {
-//         ...swimPayload,
-//         minOutputAmount: swimPayload.minOutputAmount.toString(),
-//         memo: swimPayload.memo.toString(),
-//         propellerMinThreshold: swimPayload.propellerMinThreshold.toString(),
-//         // propellerFee: swimPayload.propellerFee.toString(),
-//         // targetTokenStr: swimPayload.targetToken.toString(),
-//         // targetTokenHexStr: swimPayload.targetToken.toString("hex"),
-//         // ownerStr: swimPayload.owner.toString(),
-//         ownerNativeStr: tryHexToNativeAssetString(swimPayload.owner.toString("hex"), tokenTransfer.targetChain),
-//         // ownerHexStr: swimPayload.owner.toString("hex"),
-//       }
-// 		}
-// 	}
-// }
-
-//   1 byte - swim internal payload version number
-// 32 bytes - logical owner/recipient (will use ATA of owner and token on Solana)
-//  2 bytes - swimTokenNumber (support up to 65k different tokens, just to be safe)
-// 32 bytes - minimum output amount (using 32 bytes like Wormhole)
-// 16 bytes - memo/interactionId (??) (current memo is 16 bytes - can't use Wormhole sequence due to Solana originating transactions (only receive sequence number in last transaction on Solana, hence no id for earlier transactions))
-// ?? bytes - propeller parameters (propellerEnabled: bool / gasTokenPrefundingAmount: uint256 / propellerFee (?? - similar to wormhole arbiter fee))
-// export interface ParsedSwimPayload {
-//   version: number;
-//   owner: Buffer;
-//   targetTokenId: number;
-//   minOutputAmount: bigint; //this will always be 0 in v1
-//   memo: Buffer;
-//   // targetToken: Buffer; //mint of expected final output token
-//   // gas: string;
-//   // keeping this as string for now since JSON.stringify poos on bigints
-//   // minOutputAmount: string; //this will always be 0 in v1
-//   propellerEnabled: boolean;
-//   propellerMinThreshold: bigint;
-//   // propellerFee: bigint;
-//   // propellerFee: string;
-//   gasKickstart: boolean;
-// }
-//
-// export function encodeSwimPayload(
-//   swimPayload: ParsedSwimPayload
-// ): Buffer {
-//   const encoded = Buffer.alloc(
-//     1 + //version
-//     2 + //targetTokenId (u16)
-//     // 32 + //targetToken
-//     32 + //owner
-//     // 32 + //gas
-//     32 + //minOutputAmount
-//     16 + //memo
-//     1 + //propellerEnabled
-//     32 + //propellerMinThreshold
-//     // 32 + //propellerFee
-//     1 //gasKickstart
-//   );
-//   let offset = 0;
-//   encoded.writeUint8(swimPayload.version, offset);
-//   offset++;
-//   encoded.writeUint16BE(swimPayload.targetTokenId, offset);
-//   offset += 2;
-//   // encoded.write(swimPayload.targetToken.toString("hex"), 3, "hex");
-//   encoded.write(swimPayload.owner.toString("hex"), offset, "hex");
-//   offset += 32;
-//   // encoded.write(toBigNumberHex(swimPayload.gas, 32), 67, "hex");
-//   encoded.write(toBigNumberHex(swimPayload.minOutputAmount, 32), offset, "hex");
-//   offset += 32;
-//   encoded.write(swimPayload.memo.toString("hex"), offset, "hex");
-//   offset += 16;
-//   encoded.writeUint8(Number(swimPayload.propellerEnabled), offset);
-//   offset++
-//   encoded.write(toBigNumberHex(swimPayload.propellerMinThreshold, 32), offset, "hex");
-//   offset += 32;
-//   // encoded.write(toBigNumberHex(swimPayload.propellerFee, 32), 100, "hex");
-//   encoded.writeUint8(Number(swimPayload.gasKickstart), offset);
-//   return encoded;
-// }
-//
-// export function parseSwimPayload(arr: Buffer): ParsedSwimPayload {
-//   //BigNumber.from(arr.subarray(1, 1 + 32)).toBigInt()
-//   let offset = 0;
-//   const version = arr.readUint8(offset);
-//   offset++;
-//   const targetTokenId = arr.readUint16BE(offset);
-//   offset += 2;
-//   // const targetToken = arr.subarray(offset, offset + 32);
-//   // offset += 32;
-//   const owner = arr.subarray(offset, offset + 32);
-//   offset += 32;
-//   const minOutputAmount = parseU256(arr.subarray(offset, offset + 32));
-//   offset += 32;
-//   const memo = arr.subarray(offset, offset + 16);
-//   offset += 16;
-//   const propellerEnabled = arr.readUint8(offset) === 1;
-//   offset++;
-//   const propellerMinThreshold = parseU256(arr.subarray(offset, offset + 32));
-//   offset += 32;
-//   // const propellerFee = parseU256(arr.subarray(offset, offset + 32));
-//   // offset += 32;
-//   const gasKickstart = arr.readUint8(offset) === 1;
-//   offset++;
-//   return {
-//     version,
-//     targetTokenId,
-//     // targetToken,
-//     owner,
-//     minOutputAmount,
-//     memo,
-//     propellerEnabled,
-//     propellerMinThreshold,
-//     gasKickstart,
-//   }
-//   // return {
-//   //   version: arr.readUint8(0),
-//   //   targetTokenId: arr.readUint16BE(1),
-//   //   targetToken: arr.subarray(3, 3 + 32),
-//   //   owner: arr.subarray(35, 35 + 32),
-//   //   minOutputAmount: BigNumber.from(arr.subarray(67, 67 + 32)).toBigInt(),
-//   //   // minOutputAmount: arr.readBigUInt64BE(67),
-//   //   propellerEnabled: arr.readUint8(99) === 1,
-//   //   // propellerFee: arr.readBigUInt64BE(100),
-//   //   propellerFee: BigNumber.from(arr.subarray(100, 100 + 32)).toBigInt(),
-//   //   gasKickstart: arr.readUint8(132) === 1,
-//   // }
-// }
-//
-// export function parseU256(arr: Buffer): bigint {
-//   return BigNumber.from(arr.subarray(0, 32)).toBigInt();
-// }
-//
-// export interface ParsedTokenTransferWithSwimPayloadVaa {
-//   // core: ParsedVaa,
-//   // tokenTransfer: ParsedTokenTransfer;
-//   tokenTransferVaa: ParsedTokenTransferSignedVaa;
-//   swimPayload: ParsedSwimPayload;
-// }
-// const parseTokenTransferWithSwimPayloadSignedVaa = (signedVaa: Buffer): ParsedTokenTransferWithSwimPayloadVaa => {
-//   const parsedTokenTransfer = parseTokenTransferSignedVaa(signedVaa);
-//   const payload = parsedTokenTransfer.tokenTransfer.payload;
-//   const swimPayload = parseSwimPayload(payload);
-//   return {
-//     tokenTransferVaa: parsedTokenTransfer,
-//     swimPayload,
-//   }
-// }
-//
-// const formatParsedTokenTransferWithSwimPayloadVaa = (parsed: ParsedTokenTransferWithSwimPayloadVaa) => {
-//   const formattedTokenTransfer = formatParsedTokenTransferSignedVaa(parsed.tokenTransferVaa);
-//   const swimPayload = parsed.swimPayload;
-//   const formattedSwimPayload = formatSwimPayload(swimPayload, parsed.tokenTransferVaa.tokenTransfer.toChain);
-//   return {
-//     ...formattedTokenTransfer,
-//     ...formattedSwimPayload,
-//   };
-// }
-//
-// const formatSwimPayload = (swimPayload: ParsedSwimPayload, chain: ChainId | ChainName) => {
-//   return {
-//     ...swimPayload,
-//     minOutputAmount: swimPayload.minOutputAmount.toString(),
-//     memo: swimPayload.memo.toString(),
-//     propellerMinThreshold: swimPayload.propellerMinThreshold.toString(),
-//     owner: tryUint8ArrayToNative(swimPayload.owner, chain)
-//   }
-// }
-//
-// export interface ParsedTokenTransferWithSwimPayloadPostedMessage {
-//   tokenTransferMessage: ParsedTokenTransferPostedMessage;
-//   swimPayload: ParsedSwimPayload;
-// }
-//
-// const parseTokenTransferWithSwimPayloadPostedMessage = async (message: Buffer): Promise<ParsedTokenTransferWithSwimPayloadPostedMessage> => {
-//   const parsedTokenTransferMsg = await parseTokenTransferPostedMessage(message);
-//   const payload = parsedTokenTransferMsg.tokenTransfer.payload;
-//   const swimPayload = parseSwimPayload(payload);
-//   return {
-//     tokenTransferMessage: parsedTokenTransferMsg,
-//     swimPayload,
-//   }
-// }
-//
-// const formatParsedTokenTransferWithSwimPayloadPostedMessage = (parsed: ParsedTokenTransferWithSwimPayloadPostedMessage) => {
-//   const formattedTokenTransfer = formatParsedTokenTransferPostedMessage(parsed.tokenTransferMessage);
-//   const swimPayload = parsed.swimPayload;
-//   const formattedSwimPayload = formatSwimPayload(swimPayload, parsed.tokenTransferMessage.tokenTransfer.toChain);
-//   return {
-//     ...formattedTokenTransfer,
-//     ...formattedSwimPayload,
-//   };
-//
-// }
-
-// const parseTransferWithPayload = (arr: Buffer) => (
-//   {
-//     amount: BigNumber.from(arr.subarray(1, 1 + 32)).toBigInt(),
-//     originAddress: arr.subarray(33, 33 + 32).toString("hex"),
-//     originChain: arr.readUInt16BE(65) as ChainId,
-//     targetAddress: arr.subarray(67, 67 + 32).toString("hex"),
-//     targetChain: arr.readUInt16BE(99) as ChainId,
-//     fromAddress: arr.subarray(101, 101 + 32).toString("hex"),
-//     payload: arr.subarray(133),
-//   }
-// );
-//
-// const parseTokenTransferVaa = async (arr: Buffer) => {
-// 	const {parse_vaa} = await importCoreWasm();
-// 	const parsedVaa = parse_vaa(arr);
-// 	const tokenTransfer = parseTransferWithPayload(Buffer.from(parsedVaa.payload));
-// 	return {
-// 		...parsedVaa,
-// 		// signatures: parsedVaa.signatures.map(sig => sig.toString("hex")),
-// 		// vaa_signature_account: new web3.PublicKey(parsedVaa.vaa_signature_account).toBase58(),
-// 		// emitter_address: new web3.PublicKey(parsedVaa.emitter_address).toBase58(),
-// 		// emitter_address_str: tryHexToNativeAssetString(parsedVaa.emitter_address, CHAIN_ID_ETH),
-// 		emitter_address_str: tryHexToNativeAssetString(parsedVaa.emitter_address, parsedVaa.emitter_chain),
-// 		// signatures: parsedVaa.signatures.map(sig => {
-// 		// 	return {
-// 		// 		sig.signature.toString("hex")
-// 		// 	}
-// 		// }),
-// 		payload: {
-// 			...tokenTransfer,
-// 			amount: tokenTransfer.amount.toString(),
-// 			originAddress: tryHexToNativeAssetString(tokenTransfer.originAddress, tokenTransfer.originChain),
-// 			originChain: toChainName(tokenTransfer.originChain),
-// 			targetAddress: tryHexToNativeAssetString(tokenTransfer.targetAddress, tokenTransfer.targetChain),
-// 			targetChain: toChainName(tokenTransfer.targetChain),
-// 			// fromAddress: tryHexToNativeAssetString(tokenTransfer.fromAddress, CHAIN_ID_ETH),
-// 		}
-// 	}
-// }
-
-/*
-
-   when calling TokenBridge::TransferWithPayload, amount is in u64. TokenBridge handles
-   decimal conversion /truncation
-
-      const amount = parseUnits("1", 9).toBigInt();
-       const transaction = await transferFromSolana(
-		connection,
-         SOLANA_CORE_BRIDGE_ADDRESS,
-         SOLANA_TOKEN_BRIDGE_ADDRESS,
-         payerAddress,
-         fromAddress,
-        TEST_SOLANA_TOKEN,
-         amount,
-         tryNativeToUint8Array(targetAddress, CHAIN_ID_ETH),
-         CHAIN_ID_ETH
-       );
-*/
-// Notes
-
-// function uint8arrayEqualityCheck(a: Uint8Array, b: Uint8Array): boolean {
-//   if (a.constructor.name !== 'Uint8Array' || b.constructor.name !== 'Uint8Array') {
-//     return false;
-//   }
-//
-//   if (a.length !== b.length) {
-//     return false;
-//   }
-//
-//   for (let i = 0; i < a.length; i++) {
-//     if (a[i] !== b[i]) {
-//       return false;
-//     }
-//   }
-//
-//   return true;
-// };

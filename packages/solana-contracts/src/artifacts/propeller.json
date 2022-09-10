@@ -2427,6 +2427,45 @@
       }
     },
     {
+      "name": "TransferWithPayloadData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nonce",
+            "type": "u32"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "targetAddress",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "targetChain",
+            "type": "u16"
+          },
+          {
+            "name": "payload",
+            "type": "bytes"
+          },
+          {
+            "name": "cpiProgramId",
+            "type": {
+              "option": "publicKey"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "SwimPayload",
       "type": {
         "kind": "struct",
@@ -2464,84 +2503,6 @@
           {
             "name": "gasKickstart",
             "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "TransferData",
-      "docs": [
-        "* Same as TransferNative & TransferWrapped Data."
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "nonce",
-            "type": "u32"
-          },
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "fee",
-            "type": "u64"
-          },
-          {
-            "name": "targetAddress",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "targetChain",
-            "type": "u16"
-          }
-        ]
-      }
-    },
-    {
-      "name": "TransferWithPayloadData",
-      "docs": [
-        "* Same as TransferNativeWithPayloadData & TransferWrappedWithPayloadData.\n* this is the data that goes into the Instruction."
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "nonce",
-            "type": "u32"
-          },
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "targetAddress",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "targetChain",
-            "type": "u16"
-          },
-          {
-            "name": "payload",
-            "type": "bytes"
-          },
-          {
-            "name": "cpiProgramId",
-            "type": {
-              "option": "publicKey"
-            }
           }
         ]
       }

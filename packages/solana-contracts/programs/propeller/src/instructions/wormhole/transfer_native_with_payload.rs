@@ -1,7 +1,7 @@
 use {
     crate::{
-        error::*, is_transfer_amount_sufficient, Propeller, RawSwimPayload, SwimPayloadVersion, TokenBridge,
-        TransferWithPayloadData, Wormhole, TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
+        error::*, is_transfer_amount_sufficient, Propeller, RawSwimPayload, SwimPayloadVersion, TokenBridge, Wormhole,
+        TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
         prelude::*,
@@ -202,6 +202,17 @@ impl<'info> TransferNativeWithPayload<'info> {
         msg!("finished accounts context check");
         Ok(())
     }
+}
+
+#[derive(AnchorDeserialize, AnchorSerialize, Default)]
+pub struct TransferWithPayloadData {
+    pub nonce: u32,
+    pub amount: u64,
+    // pub fee: u64,
+    pub target_address: [u8; 32],
+    pub target_chain: u16,
+    pub payload: Vec<u8>,
+    pub cpi_program_id: Option<Pubkey>,
 }
 
 pub fn handle_transfer_native_with_payload(

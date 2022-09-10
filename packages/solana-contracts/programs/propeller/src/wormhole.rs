@@ -33,33 +33,6 @@ impl anchor_lang::Id for Wormhole {
     fn id() -> Pubkey {
         pubkey!("worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth")
     }
-    // CORE_BRIDGE_ID
-}
-
-// pub const CORE_BRIDGE_LOCALNET: Pubkey = pubkey!("Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o");
-// pub const CORE_BRIDGE_DEVNET: Pubkey = pubkey!("3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5");
-// pub const CORE_BRIDGE_MAINNET: Pubkey = pubkey!("worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth");
-//
-// #[cfg(feature = "localnet")]
-// pub const CORE_BRIDGE_ID: Pubkey = CORE_BRIDGE_LOCALNET;
-// #[cfg(feature = "devnet")]
-// pub const CORE_BRIDGE_ID: Pubkey = CORE_BRIDGE_DEVNET;
-// #[cfg(feature = "mainnet")]
-// pub const CORE_BRIDGE_ID: Pubkey = CORE_BRIDGE_MAINNET;
-
-pub use core_bridge::ID as CORE_BRIDGE_ID;
-mod core_bridge {
-    // use super::*;
-    use anchor_lang::prelude::*;
-    #[cfg(feature = "mainnet")]
-    declare_id!("worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth");
-
-    #[cfg(feature = "devnet")]
-    declare_id!("3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5");
-
-    // #[cfg(all(not(feature = "devnet"), not(feature = "mainnet")))]
-    #[cfg(feature = "localnet")]
-    declare_id!("Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o");
 }
 
 /// Data that goes into a [`wormhole::Instruction::PostMessage`]
@@ -173,7 +146,7 @@ impl anchor_lang::Owner for MessageData {
     fn owner() -> Pubkey {
         // pub use spl_token::ID is used at the top of the file
         // Pubkey::from_str(env::CORE_BRIDGE_ADDRESS).unwrap()
-        CORE_BRIDGE_ID
+        Wormhole::id()
     }
 }
 
@@ -380,7 +353,7 @@ impl DerefMut for PostedVAAData {
 
 impl anchor_lang::Owner for PostedVAAData {
     fn owner() -> Pubkey {
-        CORE_BRIDGE_ID
+        Wormhole::id()
     }
 }
 

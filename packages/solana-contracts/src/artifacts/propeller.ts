@@ -1413,19 +1413,7 @@ export type Propeller = {
         {
           "name": "wormholeMessage",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Note:",
-            "switched to using a `Signer`",
-            "instead of a PDA since a normal token bridge transfer",
-            "uses a Keypair.generate()",
-            "",
-            "A new one needs to be used for every transfer",
-            "",
-            "WH expects this to be an uninitialized account so might",
-            "be able to use a PDA still in the future.",
-            "maybe [b\"propeller\".as_ref(), payer, sequence_value]"
-          ]
+          "isSigner": true
         },
         {
           "name": "wormholeEmitter",
@@ -1786,6 +1774,11 @@ export type Propeller = {
               }
             ]
           }
+        },
+        {
+          "name": "memo",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": []
@@ -1914,6 +1907,7 @@ export type Propeller = {
           "isMut": false,
           "isSigner": false,
           "docs": [
+            "this used to be \"to_owner\".",
             "redeemer will be PDA derived from [\"redeemer\"], seeds::program = propeller::id()",
             "will have to be signed when it invokes complete_transfer_with_payload",
             "if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to",
@@ -1969,9 +1963,6 @@ export type Propeller = {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "TODO: the pool address should probably be saved in the propeller state"
-          ],
           "pda": {
             "seeds": [
               {
@@ -2061,7 +2052,12 @@ export type Propeller = {
           "isSigner": false
         }
       ],
-      "args": [],
+      "args": [
+        {
+          "name": "minOutputAmount",
+          "type": "u64"
+        }
+      ],
       "returns": "u64"
     }
   ],
@@ -2125,102 +2121,6 @@ export type Propeller = {
       }
     },
     {
-      "name": "propellerClaim",
-      "docs": [
-        "Works similarly to WH claim account",
-        "prevents \"double spend\" of `SwimPayload`",
-        "can be used to check if `ProcessSwimPayload` has been completed"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          },
-          {
-            "name": "claimed",
-            "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "propellerMessage",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          },
-          {
-            "name": "whMessage",
-            "type": "publicKey"
-          },
-          {
-            "name": "claim",
-            "type": "publicKey"
-          },
-          {
-            "name": "vaaEmitterAddress",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "vaaEmitterChain",
-            "type": "u16"
-          },
-          {
-            "name": "vaaSequence",
-            "type": "u64"
-          },
-          {
-            "name": "transferAmount",
-            "type": "u64"
-          },
-          {
-            "name": "swimPayloadVersion",
-            "type": "u8"
-          },
-          {
-            "name": "targetTokenId",
-            "type": "u16"
-          },
-          {
-            "name": "owner",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "memo",
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
-          },
-          {
-            "name": "propellerEnabled",
-            "type": "bool"
-          },
-          {
-            "name": "gasKickstart",
-            "type": "bool"
-          }
-        ]
-      }
-    },
-    {
       "name": "propeller",
       "type": {
         "kind": "struct",
@@ -2228,10 +2128,6 @@ export type Propeller = {
           {
             "name": "bump",
             "type": "u8"
-          },
-          {
-            "name": "nonce",
-            "type": "u32"
           },
           {
             "name": "admin",
@@ -2321,6 +2217,92 @@ export type Propeller = {
           {
             "name": "feeVault",
             "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "propellerClaim",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "claimed",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "propellerMessage",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "whMessage",
+            "type": "publicKey"
+          },
+          {
+            "name": "claim",
+            "type": "publicKey"
+          },
+          {
+            "name": "vaaEmitterAddress",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "vaaEmitterChain",
+            "type": "u16"
+          },
+          {
+            "name": "vaaSequence",
+            "type": "u64"
+          },
+          {
+            "name": "transferAmount",
+            "type": "u64"
+          },
+          {
+            "name": "swimPayloadVersion",
+            "type": "u8"
+          },
+          {
+            "name": "targetTokenId",
+            "type": "u16"
+          },
+          {
+            "name": "owner",
+            "type": "publicKey"
+          },
+          {
+            "name": "memo",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          },
+          {
+            "name": "propellerEnabled",
+            "type": "bool"
+          },
+          {
+            "name": "gasKickstart",
+            "type": "bool"
           }
         ]
       }
@@ -2418,87 +2400,30 @@ export type Propeller = {
       }
     },
     {
-      "name": "AnchorSwimPayloadVAA",
-      "docs": [
-        "This is \"raw\" VAA directly from guardian network",
-        "probably not needed."
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "version",
-            "type": "u8"
-          },
-          {
-            "name": "guardianSetIndex",
-            "type": "u32"
-          },
-          {
-            "name": "signatures",
-            "type": {
-              "vec": {
-                "defined": "AnchorVAASignature"
-              }
-            }
-          },
-          {
-            "name": "timestamp",
-            "type": "u32"
-          },
-          {
-            "name": "nonce",
-            "type": "u32"
-          },
-          {
-            "name": "emitterChain",
-            "type": "u16"
-          },
-          {
-            "name": "emitterAddress",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "sequence",
-            "type": "u64"
-          },
-          {
-            "name": "consistencyLevel",
-            "type": "u8"
-          },
-          {
-            "name": "payload",
-            "type": "bytes"
-          }
-        ]
-      }
-    },
-    {
-      "name": "AnchorVAASignature",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "signature",
-            "type": "bytes"
-          },
-          {
-            "name": "guardianIndex",
-            "type": "u8"
-          }
-        ]
-      }
-    },
-    {
       "name": "CompleteNativeWithPayloadData",
       "type": {
         "kind": "struct",
         "fields": []
+      }
+    },
+    {
+      "name": "VerifySignaturesData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "signers",
+            "docs": [
+              "instruction indices of signers (-1 for missing)"
+            ],
+            "type": {
+              "array": [
+                "i8",
+                19
+              ]
+            }
+          }
+        ]
       }
     },
     {
@@ -2539,26 +2464,6 @@ export type Propeller = {
           {
             "name": "gasKickstart",
             "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "VerifySignaturesData",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "signers",
-            "docs": [
-              "instruction indices of signers (-1 for missing)"
-            ],
-            "type": {
-              "array": [
-                "i8",
-                19
-              ]
-            }
           }
         ]
       }
@@ -3124,6 +3029,11 @@ export type Propeller = {
       "code": 6034,
       "name": "ConversionError",
       "msg": "Conversion Error"
+    },
+    {
+      "code": 6035,
+      "name": "InvalidTokenIdMapPool",
+      "msg": "Invalid Pool for TokenIdMap"
     }
   ]
 };
@@ -4543,19 +4453,7 @@ export const IDL: Propeller = {
         {
           "name": "wormholeMessage",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Note:",
-            "switched to using a `Signer`",
-            "instead of a PDA since a normal token bridge transfer",
-            "uses a Keypair.generate()",
-            "",
-            "A new one needs to be used for every transfer",
-            "",
-            "WH expects this to be an uninitialized account so might",
-            "be able to use a PDA still in the future.",
-            "maybe [b\"propeller\".as_ref(), payer, sequence_value]"
-          ]
+          "isSigner": true
         },
         {
           "name": "wormholeEmitter",
@@ -4916,6 +4814,11 @@ export const IDL: Propeller = {
               }
             ]
           }
+        },
+        {
+          "name": "memo",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": []
@@ -5044,6 +4947,7 @@ export const IDL: Propeller = {
           "isMut": false,
           "isSigner": false,
           "docs": [
+            "this used to be \"to_owner\".",
             "redeemer will be PDA derived from [\"redeemer\"], seeds::program = propeller::id()",
             "will have to be signed when it invokes complete_transfer_with_payload",
             "if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to",
@@ -5099,9 +5003,6 @@ export const IDL: Propeller = {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "TODO: the pool address should probably be saved in the propeller state"
-          ],
           "pda": {
             "seeds": [
               {
@@ -5191,7 +5092,12 @@ export const IDL: Propeller = {
           "isSigner": false
         }
       ],
-      "args": [],
+      "args": [
+        {
+          "name": "minOutputAmount",
+          "type": "u64"
+        }
+      ],
       "returns": "u64"
     }
   ],
@@ -5255,102 +5161,6 @@ export const IDL: Propeller = {
       }
     },
     {
-      "name": "propellerClaim",
-      "docs": [
-        "Works similarly to WH claim account",
-        "prevents \"double spend\" of `SwimPayload`",
-        "can be used to check if `ProcessSwimPayload` has been completed"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          },
-          {
-            "name": "claimed",
-            "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "propellerMessage",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          },
-          {
-            "name": "whMessage",
-            "type": "publicKey"
-          },
-          {
-            "name": "claim",
-            "type": "publicKey"
-          },
-          {
-            "name": "vaaEmitterAddress",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "vaaEmitterChain",
-            "type": "u16"
-          },
-          {
-            "name": "vaaSequence",
-            "type": "u64"
-          },
-          {
-            "name": "transferAmount",
-            "type": "u64"
-          },
-          {
-            "name": "swimPayloadVersion",
-            "type": "u8"
-          },
-          {
-            "name": "targetTokenId",
-            "type": "u16"
-          },
-          {
-            "name": "owner",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "memo",
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
-          },
-          {
-            "name": "propellerEnabled",
-            "type": "bool"
-          },
-          {
-            "name": "gasKickstart",
-            "type": "bool"
-          }
-        ]
-      }
-    },
-    {
       "name": "propeller",
       "type": {
         "kind": "struct",
@@ -5358,10 +5168,6 @@ export const IDL: Propeller = {
           {
             "name": "bump",
             "type": "u8"
-          },
-          {
-            "name": "nonce",
-            "type": "u32"
           },
           {
             "name": "admin",
@@ -5451,6 +5257,92 @@ export const IDL: Propeller = {
           {
             "name": "feeVault",
             "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "propellerClaim",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "claimed",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "propellerMessage",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "whMessage",
+            "type": "publicKey"
+          },
+          {
+            "name": "claim",
+            "type": "publicKey"
+          },
+          {
+            "name": "vaaEmitterAddress",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "vaaEmitterChain",
+            "type": "u16"
+          },
+          {
+            "name": "vaaSequence",
+            "type": "u64"
+          },
+          {
+            "name": "transferAmount",
+            "type": "u64"
+          },
+          {
+            "name": "swimPayloadVersion",
+            "type": "u8"
+          },
+          {
+            "name": "targetTokenId",
+            "type": "u16"
+          },
+          {
+            "name": "owner",
+            "type": "publicKey"
+          },
+          {
+            "name": "memo",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          },
+          {
+            "name": "propellerEnabled",
+            "type": "bool"
+          },
+          {
+            "name": "gasKickstart",
+            "type": "bool"
           }
         ]
       }
@@ -5548,87 +5440,30 @@ export const IDL: Propeller = {
       }
     },
     {
-      "name": "AnchorSwimPayloadVAA",
-      "docs": [
-        "This is \"raw\" VAA directly from guardian network",
-        "probably not needed."
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "version",
-            "type": "u8"
-          },
-          {
-            "name": "guardianSetIndex",
-            "type": "u32"
-          },
-          {
-            "name": "signatures",
-            "type": {
-              "vec": {
-                "defined": "AnchorVAASignature"
-              }
-            }
-          },
-          {
-            "name": "timestamp",
-            "type": "u32"
-          },
-          {
-            "name": "nonce",
-            "type": "u32"
-          },
-          {
-            "name": "emitterChain",
-            "type": "u16"
-          },
-          {
-            "name": "emitterAddress",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "sequence",
-            "type": "u64"
-          },
-          {
-            "name": "consistencyLevel",
-            "type": "u8"
-          },
-          {
-            "name": "payload",
-            "type": "bytes"
-          }
-        ]
-      }
-    },
-    {
-      "name": "AnchorVAASignature",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "signature",
-            "type": "bytes"
-          },
-          {
-            "name": "guardianIndex",
-            "type": "u8"
-          }
-        ]
-      }
-    },
-    {
       "name": "CompleteNativeWithPayloadData",
       "type": {
         "kind": "struct",
         "fields": []
+      }
+    },
+    {
+      "name": "VerifySignaturesData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "signers",
+            "docs": [
+              "instruction indices of signers (-1 for missing)"
+            ],
+            "type": {
+              "array": [
+                "i8",
+                19
+              ]
+            }
+          }
+        ]
       }
     },
     {
@@ -5669,26 +5504,6 @@ export const IDL: Propeller = {
           {
             "name": "gasKickstart",
             "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "VerifySignaturesData",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "signers",
-            "docs": [
-              "instruction indices of signers (-1 for missing)"
-            ],
-            "type": {
-              "array": [
-                "i8",
-                19
-              ]
-            }
           }
         ]
       }
@@ -6254,6 +6069,11 @@ export const IDL: Propeller = {
       "code": 6034,
       "name": "ConversionError",
       "msg": "Conversion Error"
+    },
+    {
+      "code": 6035,
+      "name": "InvalidTokenIdMapPool",
+      "msg": "Invalid Pool for TokenIdMap"
     }
   ]
 };

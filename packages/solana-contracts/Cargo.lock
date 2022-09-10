@@ -2540,6 +2540,7 @@ dependencies = [
  "rust_decimal",
  "rust_decimal_macros",
  "sha3 0.9.1",
+ "solana-program",
  "spl-memo",
  "spl-token",
  "static-pubkey",

@@ -101,7 +101,6 @@ pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> 
     // let pool = &ctx.accounts.pool;
     // let mint0 = pool.get_token_mint_0().unwrap();
     let propeller = &mut ctx.accounts.propeller;
-    propeller.nonce = 0;
     propeller.bump = *ctx.bumps.get("propeller").unwrap();
     propeller.admin = ctx.accounts.admin.key();
     //TODO: these should be passed in as params or read based on features used when deploying?

@@ -3069,6 +3069,7 @@ describe("propeller", () => {
               custodySigner,
               rent: web3.SYSVAR_RENT_PUBKEY,
               systemProgram: web3.SystemProgram.programId,
+              memo: MEMO_PROGRAM_ID,
               wormhole,
               tokenProgram: splToken.programId,
               tokenBridge,
@@ -3212,8 +3213,9 @@ describe("propeller", () => {
           const userTokenAccount1BalanceBefore = (
             await splToken.account.token.fetch(userUsdtAtaAddr)
           ).amount;
-          const procesSwimPayload = propellerProgram.methods
-            .processSwimPayload()
+          const min_output_amount = new BN(0);
+          const processSwimPayload = propellerProgram.methods
+            .processSwimPayload(min_output_amount)
             .accounts({
               propeller,
               payer: payer.publicKey,
@@ -3240,7 +3242,7 @@ describe("propeller", () => {
             .preInstructions([requestUnitsIx])
             .signers([userTransferAuthority]);
 
-          const processSwimPayloadPubkeys = await procesSwimPayload.pubkeys();
+          const processSwimPayloadPubkeys = await processSwimPayload.pubkeys();
           console.info(`${JSON.stringify(processSwimPayloadPubkeys, null, 2)}`);
           if (!processSwimPayloadPubkeys.tokenIdMap) {
             throw new Error("tokenIdMap not derived");
@@ -3306,7 +3308,7 @@ describe("propeller", () => {
             expectedPropellerClaim,
           );
 
-          const processSwimPayloadTxn: string = await procesSwimPayload.rpc();
+          const processSwimPayloadTxn: string = await processSwimPayload.rpc();
           console.info(`processSwimPayloadTxn: ${processSwimPayloadTxn}`);
           const propellerClaimAccount =
             await propellerProgram.account.propellerClaim.fetch(

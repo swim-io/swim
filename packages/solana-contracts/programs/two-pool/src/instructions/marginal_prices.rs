@@ -60,33 +60,8 @@ impl<'info> MarginalPrices<'info> {
     }
 }
 
-// #[derive(AnchorSerialize, AnchorDeserialize, Debug)]
-// pub struct MarginalPricesResult {
-//     // pub marginal_prices: [DecimalU64Anchor; TOKEN_COUNT],
-//     pub marginal_prices: [BorshDecimal; TOKEN_COUNT],
-// }
-
-// pub fn handle_marginal_prices(ctx: Context<MarginalPrices>) -> Result<MarginalPricesResult> {
-//     let pool = &ctx.accounts.pool;
-//     let pool_token_accounts = [&ctx.accounts.pool_token_account_0, &ctx.accounts.pool_token_account_1];
-//     let lp_total_supply = ctx.accounts.lp_mint.supply;
-//     let pool_balances = [ctx.accounts.pool_token_account_0.amount, ctx.accounts.pool_token_account_1.amount];
-//     let current_ts = Clock::get()?.unix_timestamp;
-//     require_gt!(current_ts, 0i64, PoolError::InvalidTimestamp);
-//
-//     let marginal_prices = Invariant::<TOKEN_COUNT>::marginal_prices(
-//         &array_equalize(pool_balances, pool.token_decimal_equalizers),
-//         pool.amp_factor.get(current_ts),
-//         to_equalized(lp_total_supply, pool.lp_decimal_equalizer),
-//         pool.previous_depth.into(),
-//     )?;
-//
-//     Ok(MarginalPricesResult { marginal_prices: create_array(|i| marginal_prices[i].try_into().unwrap()) })
-// }
-
 pub fn handle_marginal_prices(ctx: Context<MarginalPrices>) -> Result<[BorshDecimal; TOKEN_COUNT]> {
     let pool = &ctx.accounts.pool;
-    // let pool_token_accounts = [&ctx.accounts.pool_token_account_0, &ctx.accounts.pool_token_account_1];
     let lp_total_supply = ctx.accounts.lp_mint.supply;
     let pool_balances = [ctx.accounts.pool_token_account_0.amount, ctx.accounts.pool_token_account_1.amount];
     let current_ts = Clock::get()?.unix_timestamp;

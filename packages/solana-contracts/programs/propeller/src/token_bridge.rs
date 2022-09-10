@@ -1,10 +1,43 @@
-pub use token_bridge::ID as TOKEN_BRIDGE;
 use {
-    anchor_lang::prelude::*,
+    anchor_lang::{prelude::*, solana_program::pubkey},
     borsh::{BorshDeserialize, BorshSerialize},
 };
-mod token_bridge {
-    use super::*;
+
+#[derive(Debug, Clone)]
+pub struct TokenBridge;
+
+impl anchor_lang::Id for TokenBridge {
+    fn id() -> Pubkey {
+        // #[cfg(feature = "localnet")]
+        // return pubkey!("B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE");
+        // #[cfg(feature = "devnet")]
+        // return pubkey!("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
+        // #[cfg(feature = "mainnet")]
+        // return pubkey!("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
+        // TOKEN_BRIDGE_ID
+        ID
+    }
+}
+
+// pub const TOKEN_BRIDGE_LOCALNET: Pubkey = pubkey!("B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE");
+// pub const TOKEN_BRIDGE_DEVNET: Pubkey = pubkey!("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe");
+// pub const TOKEN_BRIDGE_MAINNET: Pubkey = pubkey!("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
+//
+// #[cfg(feature = "localnet")]
+// pub const TOKEN_BRIDGE_ID: Pubkey = TOKEN_BRIDGE_LOCALNET;
+// #[cfg(feature = "devnet")]
+// pub const TOKEN_BRIDGE_ID: Pubkey = TOKEN_BRIDGE_DEVNET;
+// #[cfg(feature = "mainnet")]
+// pub const TOKEN_BRIDGE_ID: Pubkey = TOKEN_BRIDGE_MAINNET;
+
+// pub use TOKEN_BRIDGE_ID as TOKEN_BRIDGE_ID_2;
+
+// pub use wh_token_bridge::ID as TOKEN_BRIDGE_ID;
+// // pub const TOKEN_BRIDGE_ID: Pubkey = TOKEN_BRIDGE;
+pub use wh_token_bridge::ID;
+pub mod wh_token_bridge {
+    use anchor_lang::solana_program::declare_id;
+
     #[cfg(feature = "mainnet")]
     declare_id!("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb");
 
@@ -89,8 +122,24 @@ pub const COMPLETE_WRAPPED_WITH_PAYLOAD_INSTRUCTION: u8 = 10;
 pub const TRANSFER_WRAPPED_WITH_PAYLOAD_INSTRUCTION: u8 = 11;
 pub const TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION: u8 = 12;
 
+#[cfg(test)]
 mod test {
-    use {super::*, std::str::FromStr};
+    use {
+        super::*,
+        // crate::TOKEN_BRIDGE_ID,
+        std::str::FromStr,
+    };
+
+    #[test]
+    fn testId() {
+        println!("token_bridge_id: {}", TokenBridge::id());
+        println!("token_bridge_id2: {}", ID);
+    }
+
+    // #[test]
+    // fn test2() {
+    //     println!("{}", type_name_of_val(&TOKEN_BRIDGE_ID));
+    // }
 
     #[test]
     fn test() {

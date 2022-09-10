@@ -1,6 +1,6 @@
 use {
     crate::{
-        error::*, is_transfer_amount_sufficient, Propeller, RawSwimPayload, SwimPayloadVersion,
+        error::*, is_transfer_amount_sufficient, Propeller, RawSwimPayload, SwimPayloadVersion, TokenBridge,
         TransferWithPayloadData, Wormhole, TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
@@ -59,11 +59,10 @@ pub struct TransferNativeWithPayload<'info> {
     //  technical edge-case - on first token_bridge_transfer with the token, this custody account won't be
     //  initialized yet. if we can assume that this account is initialized, we can do explicit type check here.
     /// CHECK: Will either be token bridge custody account or wrapped meta account
-    pub custody: AccountInfo<'info>,
+    pub custody: UncheckedAccount<'info>,
 
     #[account(executable, address = propeller.token_bridge()?)]
-    /// CHECK: Token Bridge Program
-    pub token_bridge: AccountInfo<'info>,
+    pub token_bridge: Program<'info, TokenBridge>,
 
     #[account(
 	seeds=[b"custody_signer".as_ref()],
@@ -71,7 +70,7 @@ pub struct TransferNativeWithPayload<'info> {
 	seeds::program = token_bridge.key()
 	)]
     /// CHECK: Only used for bridging assets native to Solana.
-    pub custody_signer: AccountInfo<'info>,
+    pub custody_signer: UncheckedAccount<'info>,
 
     #[account(
 	seeds=[b"authority_signer".as_ref()],
@@ -91,17 +90,16 @@ pub struct TransferNativeWithPayload<'info> {
     pub wormhole_config: AccountInfo<'info>,
 
     #[account(mut)]
-    /// Note:
-    ///     switched to using a `Signer`
-    ///     instead of a PDA since a normal token bridge transfer
-    ///     uses a Keypair.generate()
-    ///
-    ///     A new one needs to be used for every transfer
-    ///
-    ///     WH expects this to be an uninitialized account so might
-    ///     be able to use a PDA still in the future.
-    ///     maybe [b"propeller".as_ref(), payer, sequence_value]
-    /// CHECK: Wormhole Message Storage
+    // Note:
+    //     switched to using a `Signer`
+    //     instead of a PDA since a normal token bridge transfer
+    //     uses a Keypair.generate()
+    //
+    //     A new one needs to be used for every transfer
+    //
+    //     WH expects this to be an uninitialized account so might
+    //     be able to use a PDA still in the future.
+    //     maybe [b"propeller".as_ref(), payer, sequence_value]
     pub wormhole_message: Signer<'info>,
 
     #[account(

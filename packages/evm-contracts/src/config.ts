@@ -33,8 +33,9 @@ export type ChainConfig = {
 export const SWIM_FACTORY_ADDRESS = "0x36E284788aaA29C16cc227E09477C8e73D96ffD3";
 export const SWIM_USD_SOLANA_ADDRESS =
   "0x296b21c9a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe26719";
+export const ROUTING_CONTRACT_SOLANA_ADDRESS = "0x0"; //TODO
 export const POOL_PRECISION = 6;
-export const SWIM_USD_DECIMALS = 8;
+export const SWIM_USD_DECIMALS = 6;
 
 export const TOKEN_NUMBERS = {
   //swimUsd token number is hardcoded to be 0
@@ -129,7 +130,7 @@ const BNB_TESTNET: ChainConfig = {
   ],
 };
 
-export const CHAINS: { readonly [chainId: number]: ChainConfig } = {
+export const CHAINS: { readonly [chainId: number]: ChainConfig | undefined } = {
   5: GOERLI,
   97: BNB_TESTNET,
   31337: LOCAL,

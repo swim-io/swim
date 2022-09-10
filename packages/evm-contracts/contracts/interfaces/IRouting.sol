@@ -1,21 +1,27 @@
 //SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
-import "./ISwimInteractor.sol";
+import "./IMemoInteractor.sol";
 import "./IPool.sol";
 
-interface IRouting is ISwimInteractor {
+interface IRouting is IMemoInteractor {
   event TokenRegistered(uint16 indexed tokenId, address indexed tokenContract, address pool);
 
+  enum CodeLocation {
+    DetermineGasCostViaUniswap1,
+    DetermineGasCostViaUniswap2
+  }
+
   error SwimUsdNotAttested();
-  error TokenMismatch(address passedToken, address poolToken);
+  error TokenMismatch(address passedToken, address expectedToken);
   error SenderIsNotOwner(address sender, address owner);
   error TokenNotRegistered(bytes20 addressOrTokenNumber);
   error WormholeInteractionFailed(bytes lowLevelData);
-  error TooSmallForPropeller(uint256 swimUsdAmount, uint256 propellerMinimumThreshold);
-  error MemoContradiction(bytes16 passedMemo, bytes16 payloadMemo);
-  error IncorrectMessageValue(uint256 value, uint256 expected);
+  error TooSmallForPropeller(uint swimUsdAmount, uint propellerMinimumThreshold);
+  error IncorrectMessageValue(uint value, uint expected);
+  error NumericError(CodeLocation location, bytes data);
   error GasKickstartFailed(address owner);
+  error ExcessivePropellerFee(uint propellerFee);
   error InvalidWormholeToken(
     bytes32 originAddress,
     uint16 originChain,
@@ -25,73 +31,74 @@ interface IRouting is ISwimInteractor {
 
   function onChainSwap(
     address fromToken,
-    uint256 inputAmount,
+    uint inputAmount,
     address toOwner,
     address toToken,
-    uint256 minimumOutputAmount
-  ) external returns (uint256 outputAmount);
+    uint minimumOutputAmount
+  ) external returns (uint outputAmount);
 
   function onChainSwap(
     address fromToken,
-    uint256 inputAmount,
+    uint inputAmount,
     address toOwner,
     address toToken,
-    uint256 minimumOutputAmount,
+    uint minimumOutputAmount,
     bytes16 memo
-  ) external returns (uint256 outputAmount);
+  ) external returns (uint outputAmount);
 
-  function crossChainOut(
+  function crossChainInitiate(
     address fromToken,
-    uint256 inputAmount,
-    uint256 firstMinimumOutputAmount,
+    uint inputAmount,
+    uint firstMinimumOutputAmount,
     uint16 wormholeRecipientChain,
     bytes32 toOwner
-  ) external payable returns (uint256 swimUsdAmount, uint64 wormholeSequence);
+  ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence);
 
-  function crossChainOut(
+  function crossChainInitiate(
     address fromToken,
-    uint256 inputAmount,
-    uint256 firstMinimumOutputAmount,
+    uint inputAmount,
+    uint firstMinimumOutputAmount,
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
     bytes16 memo
-  ) external payable returns (uint256 swimUsdAmount, uint64 wormholeSequence);
+  ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence);
 
-  function propellerOut(
+  function propellerInitiate(
     address fromToken,
-    uint256 inputAmount,
+    uint inputAmount,
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
-    bool gasKickStart,
+    bool gasKickstart,
     uint16 toTokenNumber
-  ) external payable returns (uint256 swimUsdAmount, uint64 wormholeSequence);
+  ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence);
 
-  function propellerOut(
+  function propellerInitiate(
     address fromToken,
-    uint256 inputAmount,
+    uint inputAmount,
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
-    bool gasKickStart,
+    bool gasKickstart,
     uint16 toTokenNumber,
     bytes16 memo
-  ) external payable returns (uint256 swimUsdAmount, uint64 wormholeSequence);
+  ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence);
 
-  function crossChainIn(
+  function crossChainComplete(
     bytes memory encodedVm,
     address toToken,
-    uint256 minimumOutputAmount
-  ) external returns (uint256 outputAmount, address outputToken);
+    uint minimumOutputAmount
+  ) external returns (uint outputAmount, address outputToken);
 
-  function crossChainIn(
+  function crossChainComplete(
     bytes memory encodedVm,
     address toToken,
-    uint256 minimumOutputAmount,
+    uint minimumOutputAmount,
     bytes16 memo
-  ) external returns (uint256 outputAmount, address outputToken);
+  ) external returns (uint outputAmount, address outputToken);
 
-  function propellerIn(
-    bytes memory encodedVm
-  ) external payable returns (uint256 outputAmount, address outputToken);
+  function propellerComplete(bytes memory encodedVm)
+    external
+    payable
+    returns (uint outputAmount, address outputToken);
 
   function claimFees() external;
 

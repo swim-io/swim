@@ -1,12 +1,7 @@
 //SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
-//  1 byte  - swim internal payload version number
-// 32 bytes - logical owner/recipient (will use ATA of owner and token on Solana)
-//  1 byte  - propeller enabled bool
-//  1 byte  - gas kickstart requested bool
-//  2 bytes - swimTokenNumber (support up to 65k different tokens, just to be safe)
-// 16 bytes - memo/interactionId
+import "./BytesParsing.sol";
 
 struct SwimPayload {
   address toOwner;
@@ -17,18 +12,20 @@ struct SwimPayload {
 }
 
 library SwimPayloadConversion {
+  using BytesParsing for bytes;
+
   error InvalidVersion(uint8 version, uint8 expected, bytes encoded);
-  error InvalidSize(uint256 size, bytes encoded);
+  error InvalidSize(uint size, bytes encoded);
 
-  uint256 private constant TOKENBRIDGE_TYPE_SIZE = 1;
-  uint256 private constant TOKENBRIDGE_AMOUNT_SIZE = 32;
-  uint256 private constant TOKENBRIDGE_TOKEN_ORIGIN_ADDRESS_SIZE = 32;
-  uint256 private constant TOKENBRIDGE_TOKEN_ORIGIN_CHAIN_SIZE = 2;
-  uint256 private constant TOKENBRIDGE_TARGET_ADDRESS_SIZE = 32;
-  uint256 private constant TOKENBRIDGE_TARGET_CHAIN_SIZE = 2;
-  uint256 private constant TOKENBRIDGE_SENDER_ADDRESS_SIZE = 32;
+  uint private constant TOKENBRIDGE_TYPE_SIZE = 1;
+  uint private constant TOKENBRIDGE_AMOUNT_SIZE = 32;
+  uint private constant TOKENBRIDGE_TOKEN_ORIGIN_ADDRESS_SIZE = 32;
+  uint private constant TOKENBRIDGE_TOKEN_ORIGIN_CHAIN_SIZE = 2;
+  uint private constant TOKENBRIDGE_TARGET_ADDRESS_SIZE = 32;
+  uint private constant TOKENBRIDGE_TARGET_CHAIN_SIZE = 2;
+  uint private constant TOKENBRIDGE_SENDER_ADDRESS_SIZE = 32;
 
-  uint256 private constant TOKENBRIDGE_TOTAL_SIZE =
+  uint private constant TOKENBRIDGE_TOTAL_SIZE =
     TOKENBRIDGE_TYPE_SIZE +
     TOKENBRIDGE_AMOUNT_SIZE +
     TOKENBRIDGE_TOKEN_ORIGIN_ADDRESS_SIZE +
@@ -39,17 +36,17 @@ library SwimPayloadConversion {
 
   uint8 private constant SWIM_PAYLOAD_VERSION = 1;
 
-  uint256 private constant VERSION_SIZE = 1;
-  uint256 private constant OWNER_SIZE = 32;
-  uint256 private constant PROPELLER_ENABLED_SIZE = 1;
-  uint256 private constant GAS_KICKSTART_SIZE = 1;
-  uint256 private constant TOKEN_NUMBER_SIZE = 2;
-  uint256 private constant MEMO_SIZE = 16;
+  uint private constant VERSION_SIZE = 1;
+  uint private constant OWNER_SIZE = 32;
+  uint private constant PROPELLER_ENABLED_SIZE = 1;
+  uint private constant GAS_KICKSTART_SIZE = 1;
+  uint private constant TOKEN_NUMBER_SIZE = 2;
+  uint private constant MEMO_SIZE = 16;
 
-  uint256 private constant OWNER_MINLEN = TOKENBRIDGE_TOTAL_SIZE + VERSION_SIZE + OWNER_SIZE;
-  uint256 private constant TOKEN_NUMBER_MINLEN =
+  uint private constant OWNER_MINLEN = TOKENBRIDGE_TOTAL_SIZE + VERSION_SIZE + OWNER_SIZE;
+  uint private constant TOKEN_NUMBER_MINLEN =
     OWNER_MINLEN + PROPELLER_ENABLED_SIZE + GAS_KICKSTART_SIZE + TOKEN_NUMBER_SIZE;
-  uint256 private constant MEMO_MINLEN = TOKEN_NUMBER_MINLEN + MEMO_SIZE;
+  uint private constant MEMO_MINLEN = TOKEN_NUMBER_MINLEN + MEMO_SIZE;
 
   function decode(
     bytes memory encoded //encoded token bridge payload
@@ -66,50 +63,27 @@ library SwimPayloadConversion {
     )
       revert InvalidSize(encoded.length, encoded);
 
-    uint256 tmp;
-    uint256 offset;
-
-    //parse relevant token bridge parts
-    offset = TOKENBRIDGE_TYPE_SIZE + TOKENBRIDGE_AMOUNT_SIZE;
-    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
-    amount = tmp;
-
-    offset += TOKENBRIDGE_TOKEN_ORIGIN_ADDRESS_SIZE;
-    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
-    tokenOriginAddress = bytes32(tmp);
-
-    offset += TOKENBRIDGE_TOKEN_ORIGIN_CHAIN_SIZE;
-    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
-    tokenOriginChain = uint16(tmp);
+    uint offset = TOKENBRIDGE_TYPE_SIZE;
+    (amount, offset) = encoded.asUint256(offset);
+    (tokenOriginAddress, offset) = encoded.asBytes32(offset);
+    (tokenOriginChain, offset) = encoded.asUint16(offset);
 
     //parse actual swim payload
-    offset = TOKENBRIDGE_TOTAL_SIZE + VERSION_SIZE;
-    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
-    if (uint8(tmp) != SWIM_PAYLOAD_VERSION)
-      revert InvalidVersion(uint8(tmp), SWIM_PAYLOAD_VERSION, encoded);
+    offset = TOKENBRIDGE_TOTAL_SIZE;
+    uint8 version;
+    (version, offset) = encoded.asUint8(offset);
+    if (version != SWIM_PAYLOAD_VERSION)
+      revert InvalidVersion(version, SWIM_PAYLOAD_VERSION, encoded);
 
-    offset += OWNER_SIZE;
-    assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
-    swimPayload.toOwner = address(uint160(tmp));
+    (swimPayload.toOwner, offset) = encoded.asAddress(offset);
 
     if (encoded.length > OWNER_MINLEN) {
-      offset += PROPELLER_ENABLED_SIZE;
-      assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
-      swimPayload.propellerEnabled = uint8(tmp) != 0;
+      (swimPayload.propellerEnabled, offset) = encoded.asBool(offset);
+      (swimPayload.gasKickstart, offset) = encoded.asBool(offset);
+      (swimPayload.tokenNumber, offset) = encoded.asUint16(offset);
 
-      offset += GAS_KICKSTART_SIZE;
-      assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
-      swimPayload.gasKickstart = uint8(tmp) != 0;
-
-      offset += TOKEN_NUMBER_SIZE;
-      assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
-      swimPayload.tokenNumber = uint16(tmp);
-    }
-
-    if (encoded.length > TOKEN_NUMBER_MINLEN) {
-      offset += MEMO_SIZE;
-      assembly ("memory-safe") { tmp := mload(add(encoded, offset)) }
-      swimPayload.memo = bytes16(uint128(tmp));
+      if (encoded.length > TOKEN_NUMBER_MINLEN)
+        (swimPayload.memo,) = encoded.asBytes16(offset);
     }
   }
 
@@ -122,18 +96,18 @@ library SwimPayloadConversion {
   function encode(
     bytes32 toOwner,
     uint16 tokenNumber,
-    bool gasKickStart
+    bool gasKickstart
   ) internal pure returns (bytes memory encoded) {
-    return abi.encodePacked(SWIM_PAYLOAD_VERSION, toOwner, tokenNumber, uint8(1), gasKickStart);
+    return abi.encodePacked(SWIM_PAYLOAD_VERSION, toOwner, uint8(1), gasKickstart, tokenNumber);
   }
 
   //swim propeller interaction
   function encode(
     bytes32 toOwner,
     uint16 tokenNumber,
-    bool gasKickStart,
+    bool gasKickstart,
     bytes16 memo
   ) internal pure returns (bytes memory encoded) {
-    return abi.encodePacked(SWIM_PAYLOAD_VERSION, toOwner, tokenNumber, uint8(1), gasKickStart, memo);
+    return abi.encodePacked(SWIM_PAYLOAD_VERSION, toOwner, uint8(1), gasKickstart, tokenNumber, memo);
   }
 }

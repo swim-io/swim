@@ -30,15 +30,25 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   using SafeERC20 for IERC20;
 
-  address private constant LP_TOKEN_LOGIC =
-    address(0x90a45213b7371EB6d5fd3cfdA092252B2aDB3D65);
+  uint private constant MAX_TOKEN_COUNT = 6;
+  int8 private constant POOL_PRECISION = 6;
+  int8 private constant SWIM_USD_EQUALIZER = POOL_PRECISION - int8(SWIM_USD_DECIMALS); //TODO kill
+  //Min and max equalizers are somewhat arbitrary, though shifting down by more than 18 decimals
+  // will almost certainly be unintentional and shifting up by more than 4 digits will almost
+  // certainly result in too small of a usable value range (only 18 digits in total!).
+  //In general, a positive equalizer should be quite unlikely on an EVM chain.
+  // (The main scenario where this seems somewhat likely at all are tokens that were Wormhole
+  //  bridged from Solana that use a very low native number of decimals to begin with.)
+  int8 private constant MIN_EQUALIZER = -18;
+  int8 private constant MAX_EQUALIZER = 4;
 
-  ISwimFactory private constant SWIM_FACTORY =
-    ISwimFactory(address(0x36E284788aaA29C16cc227E09477C8e73D96ffD3));
-
-  IRouting private constant ROUTING_CONTRACT =
-    IRouting(address(0xa33E4d9624608c468FE5466dd6CC39cE1Da4FF78));
-  int8 private constant SWIM_USD_EQUALIZER = -2;
+  //amp factor for external representation
+  uint private constant AMP_DECIMALS = 3;
+  uint private constant AMP_MULTIPLIER = 10**AMP_DECIMALS;
+  //we choose MAX_AMP_FACTOR so that MAX_AMP_FACTOR<<AMP_SHIFT requires 30 bits or less
+  uint32 private constant MAX_AMP_FACTOR = 10**6 * uint32(AMP_MULTIPLIER);
+  uint private constant MIN_AMP_ADJUSTMENT_WINDOW = 1 days;
+  uint private constant MAX_AMP_RELATIVE_ADJUSTMENT = 10;
 
   //slot0 (28/32 bytes used)
   //uint8 _initialized inherited from Initializable
@@ -64,14 +74,26 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   //slot
   address public governanceFeeRecipient;
 
+  modifier notPaused {
+    if(paused)
+      revert IsPaused();
+    _;
+  }
+
+  modifier onlyGovernance {
+    if (msg.sender != governance)
+      revert GovernanceOnly();
+    _;
+  }
+
   function initialize(
     string memory lpTokenName,
     string memory lpTokenSymbol,
     bytes32 lpTokenSalt,
     uint8 lpTokenDecimals,
-    int8 lpTokenEqualizer,
+    int8 lpTokenEqualizer, //TODO think about equalizers, precision, constant product, stableswap
     address[] memory poolTokenAddresses,
-    int8[] memory poolTokenEqualizers,
+    int8[] memory poolTokenEqualizers, //TODO think about equalizers, precision, constant product, stableswap
     uint32 ampFactor,
     uint32 lpFee,
     uint32 _governanceFee,
@@ -86,14 +108,14 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     if (_tokenCount > MAX_TOKEN_COUNT)
       revert MaxTokenCountExceeded(uint8(_tokenCount), uint8(MAX_TOKEN_COUNT));
     if (poolTokenEqualizers.length != poolTokenAddresses.length)
-      revert TokenEqualizerCountMismatch(
-        uint8(poolTokenEqualizers.length),
-        uint8(_tokenCount)
-      );
+      revert TokenEqualizerCountMismatch(uint8(poolTokenEqualizers.length), uint8(_tokenCount));
     tokenCount = uint8(_tokenCount);
 
+    //TODO kill passing of equalizers and enforce them programmatically
+    // is this viable for constant product?! (what if we ever want to implement a swimUSD to ETH pool?)
+
     //swimUSD is always the first token
-    poolTokensData[0].addr = ROUTING_CONTRACT.swimUsdAddress();
+    poolTokensData[0].addr = IRouting(ROUTING_CONTRACT).swimUsdAddress();
     poolTokensData[0].equalizer = SWIM_USD_EQUALIZER;
 
     for (uint i = 0; i < poolTokenAddresses.length; ++i) {
@@ -132,17 +154,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     paused = false;
   }
 
-  modifier notPaused {
-    if(paused)
-      revert IsPaused();
-    _;
-  }
-
-  modifier onlyGovernance {
-    if (msg.sender != governance)
-      revert GovernanceOnly();
-    _;
-  }
+  // ----------------------------- EXTERNAL VIEW ---------------------------------------------------
 
   function getLpToken() external view returns(address) {
     return lpTokenData.addr;
@@ -174,21 +186,37 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   //returned in fixed point representation using 18 decimals (see MARGINAL_PRICES_DECIMALS)
   // so 1 = 1e18, 0.5 = 5e17, and so on
   function getMarginalPrices() external view returns (uint[] memory) {
-    return Invariant.marginalPrices(
+    return Invariant.calculateMarginalPrices(
       getEqualizedPoolBalances(tokenCount),
       getAmpFactor(),
       Equalize.to(LpToken(lpTokenData.addr).totalSupply(), lpTokenData.equalizer)
     );
   }
 
-  // ----------------------------- DEFI LIQUIDITY -----------------------------
+  // ----------------------------- DEFI LIQUIDITY --------------------------------------------------
 
   //always available, even when paused!
-  //maximally robust and conservative implementation
   function removeUniform(
     uint burnAmount,
     uint[] memory minimumOutputAmounts
-  ) public returns(uint[] memory outputAmounts) {
+  ) external returns(uint[] memory outputAmounts) {
+    outputAmounts = _removeUniform(burnAmount, minimumOutputAmounts);
+  }
+
+  function removeUniform(
+    uint burnAmount,
+    uint[] memory minimumOutputAmounts,
+    bytes16 memo
+  ) external returns(uint[] memory outputAmounts) {
+    outputAmounts = _removeUniform(burnAmount, minimumOutputAmounts);
+    emit MemoInteraction(memo);
+  }
+
+  //maximally robust and conservative implementation - does not use PoolMath/Invariant
+  function _removeUniform(
+    uint burnAmount,
+    uint[] memory minimumOutputAmounts
+  ) internal returns(uint[] memory outputAmounts) {
     uint _tokenCount = tokenCount;
     LpToken lpToken = LpToken(lpTokenData.addr);
     uint totalLpSupply = lpToken.totalSupply();
@@ -211,25 +239,26 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     }
   }
 
-  function removeUniform(
-    uint burnAmount,
-    uint[] memory minimumOutputAmounts,
-    bytes16 memo
-  ) external returns(uint[] memory outputAmounts) {
-    outputAmounts = removeUniform(burnAmount, minimumOutputAmounts);
-    emit SwimInteraction(
-      msg.sender,
-      memo,
-      SwimOperation.RemoveUniform,
-      abi.encode(burnAmount, minimumOutputAmounts),
-      abi.encode(outputAmounts)
-    );
+  function add(
+    uint[] memory inputAmounts,
+    uint minimumMintAmount
+  ) external notPaused returns(uint mintAmount) {
+    mintAmount = _add(inputAmounts, minimumMintAmount);
   }
 
   function add(
     uint[] memory inputAmounts,
+    uint minimumMintAmount,
+    bytes16 memo
+  ) external notPaused returns(uint mintAmount) {
+    mintAmount = _add(inputAmounts, minimumMintAmount);
+    emit MemoInteraction(memo);
+  }
+
+  function _add(
+    uint[] memory inputAmounts,
     uint minimumMintAmount
-  ) public notPaused returns(uint mintAmount) { unchecked {
+  ) internal returns(uint mintAmount) { unchecked {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     Equalized[] memory eInputAmounts = equalizeAmounts(inputAmounts, _tokenCount);
@@ -262,25 +291,26 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     lpToken.mint(msg.sender, mintAmount);
   }}
 
-  function add(
-    uint[] memory inputAmounts,
-    uint minimumMintAmount,
-    bytes16 memo
-  ) external returns(uint mintAmount) {
-    mintAmount = add(inputAmounts, minimumMintAmount);
-    emit SwimInteraction(
-      msg.sender,
-      memo,
-      SwimOperation.Add,
-      abi.encode(inputAmounts, minimumMintAmount),
-      abi.encode(mintAmount)
-    );
+  function removeExactOutput(
+    uint[] memory outputAmounts,
+    uint maximumBurnAmount
+  ) external notPaused returns(uint burnAmount) {
+    burnAmount = _removeExactOutput(outputAmounts, maximumBurnAmount);
   }
 
   function removeExactOutput(
     uint[] memory outputAmounts,
+    uint maximumBurnAmount,
+    bytes16 memo
+  ) external notPaused returns(uint burnAmount) {
+    burnAmount = _removeExactOutput(outputAmounts, maximumBurnAmount);
+    emit MemoInteraction(memo);
+  }
+
+  function _removeExactOutput(
+    uint[] memory outputAmounts,
     uint maximumBurnAmount
-  ) public notPaused returns(uint burnAmount) { unchecked {
+  ) internal returns(uint burnAmount) { unchecked {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     Equalized[] memory eOutputAmounts = equalizeAmounts(outputAmounts, _tokenCount);
@@ -308,26 +338,29 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
   }}
 
-  function removeExactOutput(
-    uint[] memory outputAmounts,
-    uint maximumBurnAmount,
-    bytes16 memo
-  ) external returns(uint burnAmount) {
-    burnAmount = add(outputAmounts, maximumBurnAmount);
-    emit SwimInteraction(
-      msg.sender,
-      memo,
-      SwimOperation.RemoveExactOutput,
-      abi.encode(outputAmounts, maximumBurnAmount),
-      abi.encode(burnAmount)
-    );
+  function removeExactBurn(
+    uint burnAmount,
+    uint8 outputTokenIndex,
+    uint minimumOutputAmount
+  ) external notPaused returns(uint outputAmount) {
+    outputAmount = _removeExactBurn(burnAmount, outputTokenIndex, minimumOutputAmount);
   }
 
   function removeExactBurn(
     uint burnAmount,
     uint8 outputTokenIndex,
+    uint minimumOutputAmount,
+    bytes16 memo
+  ) external notPaused returns(uint outputAmount) {
+    outputAmount = _removeExactBurn(burnAmount, outputTokenIndex, minimumOutputAmount);
+    emit MemoInteraction(memo);
+  }
+
+  function _removeExactBurn(
+    uint burnAmount,
+    uint8 outputTokenIndex,
     uint minimumOutputAmount
-  ) public notPaused returns(uint outputAmount) {
+  ) internal returns(uint outputAmount) {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     checkIndex(outputTokenIndex, _tokenCount);
@@ -356,30 +389,21 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     mintGovernanceFee(eGovernanceMintAmount, lpToken, lpEqualizer);
   }
 
-  function removeExactBurn(
-    uint burnAmount,
-    uint8 outputTokenIndex,
-    uint minimumOutputAmount,
-    bytes16 memo
-  ) external returns(uint outputAmount) {
-    outputAmount = removeExactBurn(burnAmount, outputTokenIndex, minimumOutputAmount);
-    emit SwimInteraction(
-      msg.sender,
-      memo,
-      SwimOperation.RemoveExactBurn,
-      abi.encode(burnAmount, outputTokenIndex, minimumOutputAmount),
-      abi.encode(outputAmount)
-    );
-  }
+  // ----------------------------- DEFI SWAP -------------------------------------------------------
 
-  // ------------------------------- DEFI SWAP --------------------------------
-
-  //called by swap(), hence public and not restricted to external
   function swapExactInput(
     uint[] memory inputAmounts,
     uint8 outputTokenIndex,
     uint minimumOutputAmount
-  ) public notPaused returns(uint outputAmount) { unchecked {
+  ) external notPaused returns(uint outputAmount) {
+    outputAmount = _swapExactInput(inputAmounts, outputTokenIndex, minimumOutputAmount);
+  }
+
+  function _swapExactInput(
+    uint[] memory inputAmounts,
+    uint8 outputTokenIndex,
+    uint minimumOutputAmount
+  ) internal returns(uint outputAmount) { unchecked {
     (uint _tokenCount, LpToken lpToken, int8 lpEqualizer, PoolMath.Pool memory pool) = defiParas();
 
     checkIndex(outputTokenIndex, _tokenCount);
@@ -455,13 +479,27 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     uint[] memory inputAmounts = new uint[](_tokenCount);
     inputAmounts[inputTokenIndex] = inputAmount;
 
-    return swapExactInput(inputAmounts, outputTokenIndex, minimumOutputAmount);
+    outputAmount = _swapExactInput(inputAmounts, outputTokenIndex, minimumOutputAmount);
   }
 
-  // ------------------------------- GOVERNANCE -------------------------------
+  // ----------------------------- GOVERNANCE ------------------------------------------------------
 
   function setFees(uint32 lpFee, uint32 _governanceFee) external onlyGovernance {
     _setFees(lpFee, _governanceFee);
+  }
+
+  function _setFees(uint32 lpFee, uint32 _governanceFee) internal {
+    uint32 _totalFee = lpFee + _governanceFee; //SafeMath!
+    //We're limiting total fees to less than 50 % because:
+    // 1) Anything even close to approaching this is already entirely insane.
+    // 2) To avoid theoretical overflow/underflow issues when calculating the inverse fee,
+    //    of 1/(1-fee)-1 would exceed 100 % if fee were to exceeds 50 %.
+    if (_totalFee >= FEE_MULTIPLIER/2)
+      revert TotalFeeTooLarge(_totalFee, uint32(FEE_MULTIPLIER/2 - 1));
+    if (_governanceFee != 0 && governanceFeeRecipient == address(0))
+      revert NonZeroGovernanceFeeButNoRecipient();
+    totalFee = _totalFee;
+    governanceFee = _governanceFee;
   }
 
   function adjustAmpFactor(uint32 targetValue, uint32 targetTimestamp) external onlyGovernance {
@@ -518,9 +556,6 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     emit ChangeGovernanceFeeRecipient(governanceFeeRecipient);
   }
 
-  //intentionally empty (we only want the onlyGovernance modifier "side-effect")
-  function _authorizeUpgrade(address) internal override onlyGovernance {}
-
   function upgradeLpToken(address newImplementation) external onlyGovernance {
     LpToken(lpTokenData.addr).upgradeTo(newImplementation);
   }
@@ -529,7 +564,10 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     LpToken(lpTokenData.addr).upgradeToAndCall(newImplementation, data);
   }
 
-  // -------------------------------- INTERNAL --------------------------------
+  //intentionally empty (we only want the onlyGovernance modifier "side-effect")
+  function _authorizeUpgrade(address) internal override onlyGovernance {}
+
+  // ----------------------------- INTERNAL --------------------------------------------------------
 
   function deployLpToken(
     string memory lpTokenName,
@@ -538,7 +576,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     bytes32 lpTokenSalt
   ) internal returns (address) {
     try
-      SWIM_FACTORY.createProxy(
+      ISwimFactory(SWIM_FACTORY).createProxy(
         LP_TOKEN_LOGIC,
         lpTokenSalt,
         abi.encodeWithSignature(
@@ -551,23 +589,10 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       )
     returns (address lpTokenAddress) {
       return lpTokenAddress;
-    } catch (bytes memory lowLevelData) {
+    }
+    catch (bytes memory lowLevelData) {
       revert LpTokenInitializationFailed(lowLevelData);
     }
-  }
-
-  function _setFees(uint32 lpFee, uint32 _governanceFee) internal {
-    uint32 _totalFee = lpFee + _governanceFee; //SafeMath!
-    //We're limiting total fees to less than 50 % because:
-    // 1) Anything even close to approaching this is already entirely insane.
-    // 2) To avoid theoretical overflow/underflow issues when calculating the inverse fee,
-    //    of 1/(1-fee)-1 would exceed 100 % if fee were to exceeds 50 %.
-    if (_totalFee >= FEE_MULTIPLIER/2)
-      revert TotalFeeTooLarge(_totalFee, uint32(FEE_MULTIPLIER/2 - 1));
-    if (_governanceFee != 0 && governanceFeeRecipient == address(0))
-      revert NonZeroGovernanceFeeButNoRecipient();
-    totalFee = _totalFee;
-    governanceFee = _governanceFee;
   }
 
   function safeTransferFrom(uint inputAmount, uint tokenIndex) internal {
@@ -595,7 +620,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     }
   }
 
-  // ------------------------------ INTERNAL VIEW -----------------------------
+  // ----------------------------- INTERNAL VIEW ---------------------------------------------------
 
   function equalizeAmounts(uint[] memory amounts, uint _tokenCount)
     internal view returns(Equalized[] memory equalized) {
@@ -654,7 +679,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       ampFactor = ampTargetValue;
   }}
 
-  // ------------------------------ INTERNAL PURE -----------------------------
+  // ----------------------------- INTERNAL PURE ---------------------------------------------------
 
   function checkIndex(uint8 index, uint _tokenCount) internal pure {
     if (index >= _tokenCount)

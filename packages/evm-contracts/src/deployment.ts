@@ -1,4 +1,5 @@
 import { readFile } from "fs/promises";
+
 import * as dotenv from "dotenv";
 import { ethers } from "hardhat";
 
@@ -6,59 +7,61 @@ import {
   CHAINS,
   DEFAULTS,
   FACTORY_PRESIGNED,
+  ROUTING_CONTRACT_SOLANA_ADDRESS,
   SWIM_FACTORY_ADDRESS,
+  SWIM_USD_DECIMALS,
   SWIM_USD_SOLANA_ADDRESS,
   TOKEN_NUMBERS,
-} from "../src/config";
-
+} from "./config";
 import {
-  deployRegular,
   deployLogic,
   deployPoolAndRegister,
   deployProxy,
+  deployRegular,
   deploySwimFactory,
   deployToken,
+  getLogicAddress,
+  getProxyAddress,
 } from "./deploy";
 
-async function checkContractConstant(contractName: string, constantName: string, hexValue: string) {
+async function checkConstant(constantName: string, value: string) {
   //suboptimal, fragile way to check that hardcoded constants in config match those in contracts
-
+  const contractName = "Constants";
   const filePath = "contracts/" + contractName + ".sol";
   const re = new RegExp(
-    "constant\\s+" +
-      constantName +
-      "\\s*=[\\s\\w\\(]*(0x[a-fA-F0-9]{" +
-      (hexValue.length - 2) +
-      "})\\)*;"
+    `constant\\s+${constantName}\\s*=[\\s\\w\\(]*([xa-fA-F0-9]{${value.length}})\\)*;`
   );
   const contractSource = await readFile(filePath, { encoding: "utf8" });
   const matches = contractSource.match(re);
   if (!matches)
     throw Error(`Failed to find constant ${constantName} in Solidity contract ${contractName}`);
 
-  if (matches[1] !== hexValue)
+  if (matches[1] !== value)
     throw Error(
-      `Expected value ${hexValue} for constant ${constantName} in Solidity contract ` +
+      `Expected value ${value} for constant ${constantName} in Solidity contract ` +
         `${contractName} but found ${matches[1]} instead`
     );
 }
 
-export async function deployment(print: boolean = false) {
+export async function deployment(print = false) {
   const padding = 15;
+  // eslint-disable-next-line no-console
   const log = print ? console.log : () => {};
   const chainId = (await ethers.provider.detectNetwork()).chainId;
 
-  const chainConfig = CHAINS[chainId as keyof typeof CHAINS];
+  const chainConfig = CHAINS[chainId];
   if (!chainConfig) throw Error(`Network with chainId ${chainId} not implemented yet`);
 
-  console.log("executing deployment script for", chainConfig.name);
+  log("executing deployment script for", chainConfig.name);
 
-  await checkContractConstant("Routing", "SWIM_USD_SOLANA_ADDRESS", SWIM_USD_SOLANA_ADDRESS);
-  await checkContractConstant("Pool", "SWIM_FACTORY", SWIM_FACTORY_ADDRESS);
+  await checkConstant("SWIM_USD_SOLANA_ADDRESS", SWIM_USD_SOLANA_ADDRESS);
+  await checkConstant("SWIM_USD_DECIMALS", SWIM_USD_DECIMALS.toString());
+  await checkConstant("ROUTING_CONTRACT_SOLANA_ADDRESS", ROUTING_CONTRACT_SOLANA_ADDRESS);
+  await checkConstant("SWIM_FACTORY", SWIM_FACTORY_ADDRESS);
 
-  const [deployer, governance, governanceFeeRecipient] = await ethers.getSigners();
-  console.log("deployer:", deployer.address);
-  console.log("deployer balance:", ethers.utils.formatEther(await deployer.getBalance()));
+  const [deployer, governanceFeeRecipient] = await ethers.getSigners();
+  log("deployer:", deployer.address);
+  log("deployer balance:", ethers.utils.formatEther(await deployer.getBalance()));
 
   dotenv.config();
   await deploySwimFactory(
@@ -69,6 +72,9 @@ export async function deployment(print: boolean = false) {
 
   log("SwimFactory:".padStart(padding), SWIM_FACTORY_ADDRESS);
 
+  await checkConstant("ROUTING_CONTRACT", await getProxyAddress("Routing"));
+  await checkConstant("LP_TOKEN_LOGIC", await getLogicAddress("LpToken"));
+
   const wormholeTokenBridge = await (async () => {
     if (chainConfig.wormholeTokenBridge !== "MOCK") return chainConfig.wormholeTokenBridge;
 
@@ -77,12 +83,11 @@ export async function deployment(print: boolean = false) {
   })();
 
   const lpLogic = await deployLogic("LpToken");
-  await checkContractConstant("Pool", "LP_TOKEN_LOGIC", lpLogic.address);
   log("LpLogic:".padStart(padding), lpLogic.address);
   log("RoutingLogic:".padStart(padding), (await deployLogic("Routing")).address);
   log("PoolLogic:".padStart(padding), (await deployLogic("Pool")).address);
   const routingProxy = await deployProxy("Routing", [deployer.address, wormholeTokenBridge]);
-  await checkContractConstant("Pool", "ROUTING_CONTRACT", routingProxy.address);
+
   log("RoutingProxy:".padStart(padding), routingProxy.address);
 
   const dynamicallyDeployedTokens = (
@@ -105,11 +110,11 @@ export async function deployment(print: boolean = false) {
         : token
     );
     const poolFixedTokens = { ...pool, tokens: poolTokens };
-    const poolCt = await deployPoolAndRegister(poolFixedTokens, governance, governanceFeeRecipient);
+    const poolCt = await deployPoolAndRegister(poolFixedTokens, deployer, governanceFeeRecipient);
     log(
       ("Pool" + JSON.stringify(poolTokens.map((t) => t.tokenNumber)) + ":").padStart(padding),
       poolCt.address
     );
   }
-  console.log("deployment complete");
+  log("deployment complete");
 }

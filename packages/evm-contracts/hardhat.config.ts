@@ -17,6 +17,7 @@ const { FACTORY_MNEMONIC, MNEMONIC, ETHERSCAN_API_KEY } = process.env;
 task(
   "factoryAddress",
   "Prints the address the SwimFactory will be deployed to given the FACTORY_MNEMONIC",
+  // eslint-disable-next-line @typescript-eslint/require-await
   async (_, { ethers }) => {
     if (typeof FACTORY_MNEMONIC === "undefined") {
       console.log("Factory Mnemonic not set in environment");
@@ -36,9 +37,9 @@ task(
   "Updates a given proxy contract to a new implementation via updateTo",
   async ({ proxy, logic, owner }, hre) => {
     const { ethers } = hre;
-    const _owner = owner ? await ethers.getSigner(owner) : (await ethers.getSigners())[0];
-    const _proxy = (await ethers.getContractAt("BlankLogic", proxy)).connect(_owner);
-    await (await _proxy.upgradeTo(logic)).wait();
+    const _owner = owner ? await ethers.getSigner(owner as string) : (await ethers.getSigners())[0];
+    const _proxy = (await ethers.getContractAt("BlankLogic", proxy as string)).connect(_owner);
+    await (await _proxy.upgradeTo(logic as string)).wait();
   }
 )
   .addPositionalParam("proxy", "address of the proxy that will be upgraded")
@@ -50,7 +51,7 @@ task(
 
 task("poolState", "Print state of given pool", async ({ pool }, { ethers }) => {
   const [isPaused, balances, lpSupply, ampFactorDec, lpFeeDec, govFeeDec] = await (
-    await ethers.getContractAt("Pool", pool)
+    await ethers.getContractAt("Pool", pool as string)
   ).getState();
   const decimaltoFixed = (decimal: readonly [BigNumber, number]) =>
     formatFixed(decimal[0], decimal[1]);
@@ -83,9 +84,7 @@ task(
           (e) => interfce.getSighash(interfce[type][e]) + " " + e + "\n"
         )
       );
-    ["functions", "events", "errors"].map((type: string) =>
-      printType(type as "functions" | "events" | "errors")
-    );
+    (["functions", "events", "errors"] as const).map(printType);
   }
 ).addPositionalParam("name", "Name of the contract (e.g. 'Pool' or 'Routing')");
 

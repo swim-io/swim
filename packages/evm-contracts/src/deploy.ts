@@ -1,11 +1,15 @@
-import { getContractAddress } from "@ethersproject/address";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import type { TransactionResponse } from "@ethersproject/abstract-provider";
+import { getContractAddress } from "@ethersproject/address";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { BigNumber, Contract } from "ethers";
+import type { BigNumber } from "ethers";
+import { Contract } from "ethers";
 import { ethers } from "hardhat";
 
-import { PoolConfig, SALTS, Token } from "./config";
-import { DEFAULTS, SWIM_FACTORY_ADDRESS, POOL_PRECISION } from "./config";
+import type { Routing } from "../typechain-types/contracts/Routing";
+
+import type { PoolConfig, Token } from "./config";
+import { DEFAULTS, POOL_PRECISION, SALTS, SWIM_FACTORY_ADDRESS } from "./config";
 
 const ERC1967_IMPLEMENTATION_SLOT =
   "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc";
@@ -18,8 +22,10 @@ export const isDeployed = async (address: string) =>
 
 export const getSwimFactory = () => ethers.getContractAt("SwimFactory", SWIM_FACTORY_ADDRESS);
 
-export const getProxyAddress = async (salt: string) =>
-  (await getSwimFactory()).determineProxyAddress(salt);
+export const getProxyAddress = async (saltOrName: string) =>
+  (await getSwimFactory()).determineProxyAddress(
+    saltOrName.startsWith("0x") ? saltOrName : getProxySalt(saltOrName)
+  );
 
 export const getLogicAddress = async (name: string) =>
   (await getSwimFactory()).determineAddress(
@@ -38,7 +44,8 @@ export const getTokenAddress = async (token: Token) =>
   );
 
 const getDeployedContract = async (name: string, address: string) => {
-  if (!isDeployed(address)) throw Error(`contract of type ${name} not yet deployed at ${address}`);
+  if (!(await isDeployed(address)))
+    throw Error(`contract of type ${name} not yet deployed at ${address}`);
   return ethers.getContractAt(name, address);
 };
 
@@ -95,7 +102,7 @@ export async function deployPoolAndRegister(
   ];
   const poolProxy = await deployProxy("Pool", initializeArguments, pool.salt);
 
-  const routingProxy = await getProxy("Routing");
+  const routingProxy = (await getProxy("Routing")) as Routing;
   for (let i = 0; i < poolTokens.length; ++i) {
     const poolToken = poolTokens[i];
     const filter = routingProxy.filters.TokenRegistered(poolToken.tokenNumber);
@@ -126,6 +133,7 @@ export async function deployProxy(
   const swimFactory = await getSwimFactory();
   const logic = await getLogic(logicName);
   const initializeEncoded = logic.interface.encodeFunctionData("initialize", initializeArguments);
+  // eslint-disable-next-line no-param-reassign
   salt = getProxySalt(logicName, salt);
   const proxyAddress = await getProxyAddress(salt);
   if (await isDeployed(proxyAddress)) {
@@ -198,6 +206,7 @@ export async function deployRegular(
   call?: { readonly function: string; readonly arguments: readonly any[] }
 ): Promise<Contract> {
   const contractFactory = await ethers.getContractFactory(name);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const bytecodeWithConstructorArgs = contractFactory.getDeployTransaction(...constructorArgs)
     .data!;
   const swimFactory = await getSwimFactory();
@@ -237,7 +246,7 @@ export async function deploySwimFactory(
 ): Promise<void> {
   const checkOwner = async () => {
     const swimFactory = await getSwimFactory();
-    const actualOwner = (await swimFactory.owner()) as string;
+    const actualOwner = await swimFactory.owner();
     if (actualOwner !== owner.address)
       throw Error(
         `Unexpected SwimFactory owner - expected: ${owner.address} but found: ${actualOwner}`
@@ -252,7 +261,7 @@ export async function deploySwimFactory(
       if (ownerBalance.lt(topUp))
         throw Error("deployer has insufficient funds to send to factory deployer");
 
-      console.log("topping up factory deployer by:", ethers.utils.formatEther(topUp));
+      //console.log("topping up factory deployer by:", ethers.utils.formatEther(topUp));
       //strictly speaking this could still fail because we have to pay for the
       // gas of the transaction too and then there might not be enough left...
       await confirm(owner.sendTransaction({ to: factoryDeployer, value: topUp }));

@@ -1,5 +1,5 @@
 use {
-    crate::{env::*, VERIFY_SIGNATURES_INSTRUCTION},
+    crate::{Wormhole, VERIFY_SIGNATURES_INSTRUCTION},
     anchor_lang::{
         prelude::*,
         solana_program::{instruction::Instruction, program::invoke, secp256k1_program, sysvar::SysvarId},
@@ -34,9 +34,7 @@ pub struct Secp256k1AndVerify<'info> {
     //explicitly needed for initializing associated token accounts
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
-    #[account(executable, address = CORE_BRIDGE)]
-    /// CHECK: Wormhole Core Program
-    pub wormhole: UncheckedAccount<'info>,
+    pub wormhole: Program<'info, Wormhole>,
 }
 
 impl<'info> Secp256k1AndVerify<'info> {
@@ -53,18 +51,6 @@ pub struct VerifySignaturesData {
     pub signers: [i8; MAX_LEN_GUARDIAN_KEYS],
 }
 
-/**
-accounts: vec![
-           AccountMeta::new(payer, true),
-           AccountMeta::new_readonly(guardian_set, false),
-           AccountMeta::new(signature_set, true),
-           AccountMeta::new_readonly(sysvar::instructions::id(), false),
-           AccountMeta::new_readonly(sysvar::rent::id(), false),
-           AccountMeta::new_readonly(solana_program::system_program::id(), false),
-       ],
-
-       data: (crate::instruction::Instruction::VerifySignatures, data).try_to_vec()?,
-*/
 pub fn handle_secp256k1_and_verify(
     ctx: Context<Secp256k1AndVerify>,
     secp_payload: Vec<u8>,

@@ -107,4 +107,7 @@ pub enum PropellerError {
 
     #[msg("Conversion Error")]
     ConversionError,
+
+    #[msg("Invalid Pool for TokenIdMap")]
+    InvalidTokenIdMapPool,
 }

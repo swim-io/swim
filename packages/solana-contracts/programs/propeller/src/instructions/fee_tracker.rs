@@ -1,5 +1,5 @@
 use {
-    crate::{error::*, Propeller, PropellerSender},
+    crate::{error::*, Propeller},
     anchor_lang::prelude::*,
     anchor_spl::{
         associated_token::{create, AssociatedToken, Create},

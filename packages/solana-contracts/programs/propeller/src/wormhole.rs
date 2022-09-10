@@ -1,6 +1,6 @@
 use {
-    crate::{env::*, Propeller, PropellerError, RawSwimPayload},
-    anchor_lang::prelude::*,
+    crate::{Propeller, PropellerError, RawSwimPayload},
+    anchor_lang::{prelude::*, solana_program::pubkey},
     borsh::{BorshDeserialize, BorshSerialize},
     byteorder::{BigEndian, ReadBytesExt, WriteBytesExt},
     primitive_types::U256,
@@ -14,6 +14,26 @@ use {
 
 pub type Address = [u8; 32];
 pub type ChainID = u16;
+
+#[derive(Debug, Clone)]
+pub struct Wormhole;
+
+impl anchor_lang::Id for Wormhole {
+    #[cfg(feature = "localnet")]
+    fn id() -> Pubkey {
+        pubkey!("Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o")
+    }
+
+    #[cfg(feature = "devnet")]
+    fn id() -> Pubkey {
+        pubkey!("3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5")
+    }
+
+    #[cfg(feature = "mainnet")]
+    fn id() -> Pubkey {
+        pubkey!("worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth")
+    }
+}
 
 /// Data that goes into a [`wormhole::Instruction::PostMessage`]
 #[derive(AnchorDeserialize, AnchorSerialize)]
@@ -126,7 +146,7 @@ impl anchor_lang::Owner for MessageData {
     fn owner() -> Pubkey {
         // pub use spl_token::ID is used at the top of the file
         // Pubkey::from_str(env::CORE_BRIDGE_ADDRESS).unwrap()
-        CORE_BRIDGE
+        Wormhole::id()
     }
 }
 
@@ -333,7 +353,7 @@ impl DerefMut for PostedVAAData {
 
 impl anchor_lang::Owner for PostedVAAData {
     fn owner() -> Pubkey {
-        crate::env::CORE_BRIDGE
+        Wormhole::id()
     }
 }
 

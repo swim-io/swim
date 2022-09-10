@@ -1413,19 +1413,7 @@
         {
           "name": "wormholeMessage",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "Note:",
-            "switched to using a `Signer`",
-            "instead of a PDA since a normal token bridge transfer",
-            "uses a Keypair.generate()",
-            "",
-            "A new one needs to be used for every transfer",
-            "",
-            "WH expects this to be an uninitialized account so might",
-            "be able to use a PDA still in the future.",
-            "maybe [b\"propeller\".as_ref(), payer, sequence_value]"
-          ]
+          "isSigner": true
         },
         {
           "name": "wormholeEmitter",
@@ -1786,6 +1774,11 @@
               }
             ]
           }
+        },
+        {
+          "name": "memo",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": []
@@ -1914,6 +1907,7 @@
           "isMut": false,
           "isSigner": false,
           "docs": [
+            "this used to be \"to_owner\".",
             "redeemer will be PDA derived from [\"redeemer\"], seeds::program = propeller::id()",
             "will have to be signed when it invokes complete_transfer_with_payload",
             "if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to",
@@ -1969,9 +1963,6 @@
           "name": "pool",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "TODO: the pool address should probably be saved in the propeller state"
-          ],
           "pda": {
             "seeds": [
               {
@@ -2061,7 +2052,12 @@
           "isSigner": false
         }
       ],
-      "args": [],
+      "args": [
+        {
+          "name": "minOutputAmount",
+          "type": "u64"
+        }
+      ],
       "returns": "u64"
     }
   ],
@@ -2125,126 +2121,6 @@
       }
     },
     {
-      "name": "PropellerClaim",
-      "docs": [
-        "Works similarly to WH claim account",
-        "prevents \"double spend\" of `SwimPayload`",
-        "can be used to check if `ProcessSwimPayload` has been completed"
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          },
-          {
-            "name": "claimed",
-            "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "PropellerMessage",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          },
-          {
-            "name": "whMessage",
-            "type": "publicKey"
-          },
-          {
-            "name": "claim",
-            "type": "publicKey"
-          },
-          {
-            "name": "vaaEmitterAddress",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "vaaEmitterChain",
-            "type": "u16"
-          },
-          {
-            "name": "vaaSequence",
-            "type": "u64"
-          },
-          {
-            "name": "transferAmount",
-            "type": "u64"
-          },
-          {
-            "name": "swimPayloadVersion",
-            "type": "u8"
-          },
-          {
-            "name": "targetTokenId",
-            "type": "u16"
-          },
-          {
-            "name": "owner",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "memo",
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
-            }
-          },
-          {
-            "name": "propellerEnabled",
-            "type": "bool"
-          },
-          {
-            "name": "gasKickstart",
-            "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "PropellerSender",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "PropellerRedeemer",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          }
-        ]
-      }
-    },
-    {
       "name": "Propeller",
       "type": {
         "kind": "struct",
@@ -2252,10 +2128,6 @@
           {
             "name": "bump",
             "type": "u8"
-          },
-          {
-            "name": "nonce",
-            "type": "u32"
           },
           {
             "name": "admin",
@@ -2345,6 +2217,92 @@
           {
             "name": "feeVault",
             "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PropellerClaim",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "claimed",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PropellerMessage",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "whMessage",
+            "type": "publicKey"
+          },
+          {
+            "name": "claim",
+            "type": "publicKey"
+          },
+          {
+            "name": "vaaEmitterAddress",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "vaaEmitterChain",
+            "type": "u16"
+          },
+          {
+            "name": "vaaSequence",
+            "type": "u64"
+          },
+          {
+            "name": "transferAmount",
+            "type": "u64"
+          },
+          {
+            "name": "swimPayloadVersion",
+            "type": "u8"
+          },
+          {
+            "name": "targetTokenId",
+            "type": "u16"
+          },
+          {
+            "name": "owner",
+            "type": "publicKey"
+          },
+          {
+            "name": "memo",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          },
+          {
+            "name": "propellerEnabled",
+            "type": "bool"
+          },
+          {
+            "name": "gasKickstart",
+            "type": "bool"
           }
         ]
       }
@@ -2442,44 +2400,47 @@
       }
     },
     {
-      "name": "AnchorSwimPayloadVAA",
-      "docs": [
-        "This is \"raw\" VAA directly from guardian network",
-        "probably not needed."
-      ],
+      "name": "CompleteNativeWithPayloadData",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "VerifySignaturesData",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "version",
-            "type": "u8"
-          },
-          {
-            "name": "guardianSetIndex",
-            "type": "u32"
-          },
-          {
-            "name": "signatures",
+            "name": "signers",
+            "docs": [
+              "instruction indices of signers (-1 for missing)"
+            ],
             "type": {
-              "vec": {
-                "defined": "AnchorVAASignature"
-              }
+              "array": [
+                "i8",
+                19
+              ]
             }
-          },
-          {
-            "name": "timestamp",
-            "type": "u32"
-          },
+          }
+        ]
+      }
+    },
+    {
+      "name": "TransferWithPayloadData",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
             "name": "nonce",
             "type": "u32"
           },
           {
-            "name": "emitterChain",
-            "type": "u16"
+            "name": "amount",
+            "type": "u64"
           },
           {
-            "name": "emitterAddress",
+            "name": "targetAddress",
             "type": {
               "array": [
                 "u8",
@@ -2488,41 +2449,20 @@
             }
           },
           {
-            "name": "sequence",
-            "type": "u64"
-          },
-          {
-            "name": "consistencyLevel",
-            "type": "u8"
+            "name": "targetChain",
+            "type": "u16"
           },
           {
             "name": "payload",
             "type": "bytes"
-          }
-        ]
-      }
-    },
-    {
-      "name": "AnchorVAASignature",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "signature",
-            "type": "bytes"
           },
           {
-            "name": "guardianIndex",
-            "type": "u8"
+            "name": "cpiProgramId",
+            "type": {
+              "option": "publicKey"
+            }
           }
         ]
-      }
-    },
-    {
-      "name": "CompleteNativeWithPayloadData",
-      "type": {
-        "kind": "struct",
-        "fields": []
       }
     },
     {
@@ -2563,104 +2503,6 @@
           {
             "name": "gasKickstart",
             "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "VerifySignaturesData",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "signers",
-            "docs": [
-              "instruction indices of signers (-1 for missing)"
-            ],
-            "type": {
-              "array": [
-                "i8",
-                19
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "TransferData",
-      "docs": [
-        "* Same as TransferNative & TransferWrapped Data."
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "nonce",
-            "type": "u32"
-          },
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "fee",
-            "type": "u64"
-          },
-          {
-            "name": "targetAddress",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "targetChain",
-            "type": "u16"
-          }
-        ]
-      }
-    },
-    {
-      "name": "TransferWithPayloadData",
-      "docs": [
-        "* Same as TransferNativeWithPayloadData & TransferWrappedWithPayloadData.\n* this is the data that goes into the Instruction."
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "nonce",
-            "type": "u32"
-          },
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "targetAddress",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "targetChain",
-            "type": "u16"
-          },
-          {
-            "name": "payload",
-            "type": "bytes"
-          },
-          {
-            "name": "cpiProgramId",
-            "type": {
-              "option": "publicKey"
-            }
           }
         ]
       }
@@ -3148,6 +2990,11 @@
       "code": 6034,
       "name": "ConversionError",
       "msg": "Conversion Error"
+    },
+    {
+      "code": 6035,
+      "name": "InvalidTokenIdMapPool",
+      "msg": "Invalid Pool for TokenIdMap"
     }
   ]
 }

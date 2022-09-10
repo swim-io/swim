@@ -2882,7 +2882,7 @@ describe("propeller", () => {
             tokenTransferWithPayloadSignedVaa,
           );
 
-          const propellerCompleteNativeWithPayload = propellerProgram.methods
+          const completeNativeWithPayloadIxs = propellerProgram.methods
             .completeNativeWithPayload()
             .accounts({
               propeller,
@@ -2909,15 +2909,15 @@ describe("propeller", () => {
             })
             .preInstructions([requestUnitsIx]);
 
-          const propellerCompleteNativeWithPayloadPubkeys =
-            await propellerCompleteNativeWithPayload.pubkeys();
+          const completeNativeWithPayloadPubkeys =
+            await completeNativeWithPayloadIxs.pubkeys();
 
-          if (!propellerCompleteNativeWithPayloadPubkeys.propellerMessage) {
+          if (!completeNativeWithPayloadPubkeys.propellerMessage) {
             throw new Error("propellerMessage key not derived");
           }
           console.info(
-            `propellerCompleteNativeWithPayloadPubkeys: ${JSON.stringify(
-              propellerCompleteNativeWithPayloadPubkeys,
+            `completeNativeWithPayloadPubkeys: ${JSON.stringify(
+              completeNativeWithPayloadPubkeys,
               null,
               2,
             )}`,
@@ -2933,16 +2933,15 @@ describe("propeller", () => {
               propellerProgram.programId,
             );
           expect(expectedPropellerMessage.toBase58()).toEqual(
-            propellerCompleteNativeWithPayloadPubkeys.propellerMessage.toBase58(),
+            completeNativeWithPayloadPubkeys.propellerMessage.toBase58(),
           );
 
-          propellerMessage =
-            propellerCompleteNativeWithPayloadPubkeys.propellerMessage;
+          propellerMessage = completeNativeWithPayloadPubkeys.propellerMessage;
 
-          const propellerCompleteNativeWithPayloadTxn =
-            await propellerCompleteNativeWithPayload.transaction();
-          const transferNativeTxnSig = await provider.sendAndConfirm(
-            propellerCompleteNativeWithPayloadTxn,
+          const completeNativeWithPayloadTxn =
+            await completeNativeWithPayloadIxs.transaction();
+          const completeNativeWithPayloadTxnSig = await provider.sendAndConfirm(
+            completeNativeWithPayloadTxn,
             [payer],
             {
               skipPreflight: true,
@@ -2951,7 +2950,7 @@ describe("propeller", () => {
 
           const propellerMessageAccount =
             await propellerProgram.account.propellerMessage.fetch(
-              propellerCompleteNativeWithPayloadPubkeys.propellerMessage,
+              completeNativeWithPayloadPubkeys.propellerMessage,
             );
           console.info(
             `propellerMessageAccount: ${JSON.stringify(
@@ -3002,13 +3001,13 @@ describe("propeller", () => {
           );
           expect(propellerMessageAccount.gasKickstart).toEqual(gasKickstart);
 
-          const transferNativeTxnSize =
-            propellerCompleteNativeWithPayloadTxn.serialize().length;
+          const completeNativeWithPayloadTxnSize =
+            completeNativeWithPayloadTxn.serialize().length;
           console.info(
-            `transferNativeTxnSize txnSize: ${transferNativeTxnSize}`,
+            `completeNativeWithPayloadTxnSize: ${completeNativeWithPayloadTxnSize}`,
           );
           await connection.confirmTransaction({
-            signature: transferNativeTxnSig,
+            signature: completeNativeWithPayloadTxnSig,
             ...(await connection.getLatestBlockhash()),
           });
 
@@ -3025,7 +3024,7 @@ describe("propeller", () => {
               propellerRedeemerEscrowAccountBefore,
             ),
           ).toEqual(true);
-          await checkTxnLogsForMemo(transferNativeTxnSig, memoStr);
+          await checkTxnLogsForMemo(completeNativeWithPayloadTxnSig, memoStr);
         });
 
         it("processes swim payload", async () => {
@@ -3055,7 +3054,7 @@ describe("propeller", () => {
             await splToken.account.token.fetch(userTokenAccount1)
           ).amount;
           const min_output_amount = new BN(0);
-          const processSwimPayload = propellerProgram.methods
+          const processSwimPayloadIxs = propellerProgram.methods
             .processSwimPayload(min_output_amount)
             .accounts({
               propeller,
@@ -3084,7 +3083,8 @@ describe("propeller", () => {
             .preInstructions([requestUnitsIx])
             .signers([userTransferAuthority]);
 
-          const processSwimPayloadPubkeys = await processSwimPayload.pubkeys();
+          const processSwimPayloadPubkeys =
+            await processSwimPayloadIxs.pubkeys();
           console.info(`${JSON.stringify(processSwimPayloadPubkeys, null, 2)}`);
           if (!processSwimPayloadPubkeys.tokenIdMap) {
             throw new Error("tokenIdMap not derived");
@@ -3135,8 +3135,9 @@ describe("propeller", () => {
             expectedPropellerClaim,
           );
 
-          const processSwimPayloadTxn: string = await processSwimPayload.rpc();
-          console.info(`processSwimPayloadTxn: ${processSwimPayloadTxn}`);
+          const processSwimPayloadTxnSig: string =
+            await processSwimPayloadIxs.rpc();
+          console.info(`processSwimPayloadTxnSig: ${processSwimPayloadTxnSig}`);
           const propellerClaimAccount =
             await propellerProgram.account.propellerClaim.fetch(
               processSwimPayloadPubkeys.propellerClaim,
@@ -3181,7 +3182,7 @@ describe("propeller", () => {
           expect(
             userTokenAccount1BalanceAfter.eq(userTokenAccount1BalanceBefore),
           ).toBeTruthy();
-          await checkTxnLogsForMemo(processSwimPayloadTxn, memoStr);
+          await checkTxnLogsForMemo(processSwimPayloadTxnSig, memoStr);
         });
 
         //TODO: add min_output_amount test cases
@@ -3270,7 +3271,7 @@ describe("propeller", () => {
             tokenTransferWithPayloadSignedVaa,
           );
 
-          const propellerCompleteNativeWithPayload = propellerProgram.methods
+          const completeNativeWithPayloadSwimUsdIxs = propellerProgram.methods
             .completeNativeWithPayload()
             .accounts({
               propeller,
@@ -3297,15 +3298,15 @@ describe("propeller", () => {
             })
             .preInstructions([requestUnitsIx]);
 
-          const propellerCompleteNativeWithPayloadPubkeys =
-            await propellerCompleteNativeWithPayload.pubkeys();
+          const completeNativeWithPayloadSwimUsdPubkeys =
+            await completeNativeWithPayloadSwimUsdIxs.pubkeys();
 
-          if (!propellerCompleteNativeWithPayloadPubkeys.propellerMessage) {
+          if (!completeNativeWithPayloadSwimUsdPubkeys.propellerMessage) {
             throw new Error("propellerMessage key not derived");
           }
           console.info(
-            `propellerCompleteNativeWithPayloadPubkeys: ${JSON.stringify(
-              propellerCompleteNativeWithPayloadPubkeys,
+            `completeNativeWithPayloadSwimUsdPubkeys: ${JSON.stringify(
+              completeNativeWithPayloadSwimUsdPubkeys,
               null,
               2,
             )}`,
@@ -3321,25 +3322,26 @@ describe("propeller", () => {
               propellerProgram.programId,
             );
           expect(expectedPropellerMessage.toBase58()).toEqual(
-            propellerCompleteNativeWithPayloadPubkeys.propellerMessage.toBase58(),
+            completeNativeWithPayloadSwimUsdPubkeys.propellerMessage.toBase58(),
           );
 
           propellerMessage =
-            propellerCompleteNativeWithPayloadPubkeys.propellerMessage;
+            completeNativeWithPayloadSwimUsdPubkeys.propellerMessage;
 
-          const propellerCompleteNativeWithPayloadTxn =
-            await propellerCompleteNativeWithPayload.transaction();
-          const transferNativeTxnSig = await provider.sendAndConfirm(
-            propellerCompleteNativeWithPayloadTxn,
-            [payer],
-            {
-              skipPreflight: true,
-            },
-          );
+          const completeNativeWithPayloadSwimUsdTxn =
+            await completeNativeWithPayloadSwimUsdIxs.transaction();
+          const completeNativeWithPayloadSwimUsdTxnSig =
+            await provider.sendAndConfirm(
+              completeNativeWithPayloadSwimUsdTxn,
+              [payer],
+              {
+                skipPreflight: true,
+              },
+            );
 
           const propellerMessageAccount =
             await propellerProgram.account.propellerMessage.fetch(
-              propellerCompleteNativeWithPayloadPubkeys.propellerMessage,
+              completeNativeWithPayloadSwimUsdPubkeys.propellerMessage,
             );
           console.info(
             `propellerMessageAccount: ${JSON.stringify(
@@ -3390,13 +3392,13 @@ describe("propeller", () => {
           );
           expect(propellerMessageAccount.gasKickstart).toEqual(gasKickstart);
 
-          const transferNativeTxnSize =
-            propellerCompleteNativeWithPayloadTxn.serialize().length;
+          const completeNativeWithPayloadSwimUsdTxnSize =
+            completeNativeWithPayloadSwimUsdTxn.serialize().length;
           console.info(
-            `transferNativeTxnSize txnSize: ${transferNativeTxnSize}`,
+            `completeNativeWithPayloadSwimUsdTxnSize: ${completeNativeWithPayloadSwimUsdTxnSize}`,
           );
           await connection.confirmTransaction({
-            signature: transferNativeTxnSig,
+            signature: completeNativeWithPayloadSwimUsdTxnSig,
             ...(await connection.getLatestBlockhash()),
           });
 
@@ -3413,7 +3415,10 @@ describe("propeller", () => {
               propellerRedeemerEscrowAccountBefore,
             ),
           ).toEqual(true);
-          await checkTxnLogsForMemo(transferNativeTxnSig, memoStr);
+          await checkTxnLogsForMemo(
+            completeNativeWithPayloadSwimUsdTxnSig,
+            memoStr,
+          );
         });
 
         it("processes swim payload", async () => {
@@ -3670,7 +3675,7 @@ describe("propeller", () => {
             tokenTransferWithPayloadSignedVaa,
           );
 
-          const propellerCompleteNativeWithPayload = propellerProgram.methods
+          const completeNativeWithPayloadMetapoolIxs = propellerProgram.methods
             .completeNativeWithPayload()
             .accounts({
               propeller,
@@ -3697,15 +3702,15 @@ describe("propeller", () => {
             })
             .preInstructions([requestUnitsIx]);
 
-          const propellerCompleteNativeWithPayloadPubkeys =
-            await propellerCompleteNativeWithPayload.pubkeys();
+          const completeNativeWithPayloadMetapoolPubkeys =
+            await completeNativeWithPayloadMetapoolIxs.pubkeys();
 
-          if (!propellerCompleteNativeWithPayloadPubkeys.propellerMessage) {
+          if (!completeNativeWithPayloadMetapoolPubkeys.propellerMessage) {
             throw new Error("propellerMessage key not derived");
           }
           console.info(
-            `propellerCompleteNativeWithPayloadPubkeys: ${JSON.stringify(
-              propellerCompleteNativeWithPayloadPubkeys,
+            `completeNativeWithPayloadMetapoolPubkeys: ${JSON.stringify(
+              completeNativeWithPayloadMetapoolPubkeys,
               null,
               2,
             )}`,
@@ -3721,16 +3726,16 @@ describe("propeller", () => {
               propellerProgram.programId,
             );
           expect(expectedPropellerMessage.toBase58()).toEqual(
-            propellerCompleteNativeWithPayloadPubkeys.propellerMessage.toBase58(),
+            completeNativeWithPayloadMetapoolPubkeys.propellerMessage.toBase58(),
           );
 
           propellerMessage =
-            propellerCompleteNativeWithPayloadPubkeys.propellerMessage;
+            completeNativeWithPayloadMetapoolPubkeys.propellerMessage;
 
-          const propellerCompleteNativeWithPayloadTxn =
-            await propellerCompleteNativeWithPayload.transaction();
+          const completeNativeWithPayloadMetapoolTxn =
+            await completeNativeWithPayloadMetapoolIxs.transaction();
           const transferNativeTxnSig = await provider.sendAndConfirm(
-            propellerCompleteNativeWithPayloadTxn,
+            completeNativeWithPayloadMetapoolTxn,
             [payer],
             {
               skipPreflight: true,
@@ -3739,7 +3744,7 @@ describe("propeller", () => {
 
           const propellerMessageAccount =
             await propellerProgram.account.propellerMessage.fetch(
-              propellerCompleteNativeWithPayloadPubkeys.propellerMessage,
+              completeNativeWithPayloadMetapoolPubkeys.propellerMessage,
             );
           console.info(
             `propellerMessageAccount: ${JSON.stringify(
@@ -3790,10 +3795,10 @@ describe("propeller", () => {
           );
           expect(propellerMessageAccount.gasKickstart).toEqual(gasKickstart);
 
-          const transferNativeTxnSize =
-            propellerCompleteNativeWithPayloadTxn.serialize().length;
+          const completeNativeWithPayloadMetapoolTxnSize =
+            completeNativeWithPayloadMetapoolTxn.serialize().length;
           console.info(
-            `transferNativeTxnSize txnSize: ${transferNativeTxnSize}`,
+            `completeNativeWithPayloadMetapoolTxnSize: ${completeNativeWithPayloadMetapoolTxnSize}`,
           );
           await connection.confirmTransaction({
             signature: transferNativeTxnSig,

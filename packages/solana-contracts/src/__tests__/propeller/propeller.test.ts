@@ -280,8 +280,6 @@ const evmOwnerEthHexStr = tryNativeToHexString(
 );
 const evmOwner = Buffer.from(evmOwnerEthHexStr, "hex");
 
-const propellerEngineKeypair: web3.Keypair = web3.Keypair.generate();
-
 describe("propeller", () => {
   beforeAll(async () => {
     console.info(`initializing two pool v2`);
@@ -588,24 +586,6 @@ describe("propeller", () => {
             tokenBridgeConfig: ${tokenBridgeConfig.toString()}
             custodySigner: ${custodySigner.toString()}
         `);
-
-    await connection.requestAirdrop(
-      propellerEngineKeypair.publicKey,
-      10 * LAMPORTS_PER_SOL,
-    );
-
-    // console.info(`setting up switchboard`);
-    // // If fails, fallback to looking for a local env file
-    // try {
-    // 	switchboard = await SwitchboardTestContext.loadFromEnv(provider);
-    // 	const aggregatorAccount = await switchboard.createStaticFeed(100);
-    // 	aggregatorKey = aggregatorAccount.publicKey ?? PublicKey.default;
-    // 	console.info("local env detected");
-    // 	return;
-    // } catch (error: any) {
-    // 	console.info(`Error: SBV2 Localnet - ${error.message}`);
-    // 	throw new Error(`Failed to load localenv SwitchboardTestContext: ${error.message}`);
-    // }
   }, 30000);
 
   it("Initializes propeller", async () => {
@@ -2894,9 +2874,12 @@ describe("propeller", () => {
               endpoint: endpointAccount,
               to: propellerRedeemerEscrowAccount,
               redeemer: propellerRedeemer,
+              // this is only used in propellerCompleteNativeWithPayload
+              // but must still be passed.
+              // tokenBridge.completeNativeWithPayload just checks mint is
+              // correct.
               feeRecipient: userSwimUsdAtaAddr,
-              // feeRecipient: propellerRedeemerEscrowAccount,
-              // tokenBridgeMint,
+              // feeRecipient: propellerFeeVault,
               custody: custody,
               mint: tokenBridgeMint,
               custodySigner,
@@ -3065,7 +3048,6 @@ describe("propeller", () => {
               redeemer: propellerRedeemer,
               redeemerEscrow: propellerRedeemerEscrowAccount,
               // tokenIdMap: ?
-              // feeRecipient: propellerRedeemerEscrowAccount,
               pool,
               poolTokenAccount0,
               poolTokenAccount1,
@@ -3283,9 +3265,12 @@ describe("propeller", () => {
               endpoint: endpointAccount,
               to: propellerRedeemerEscrowAccount,
               redeemer: propellerRedeemer,
+              // this is only used in propellerCompleteNativeWithPayload
+              // but must still be passed.
+              // tokenBridge.completeNativeWithPayload just checks mint is
+              // correct.
               feeRecipient: userSwimUsdAtaAddr,
-              // feeRecipient: propellerRedeemerEscrowAccount,
-              // tokenBridgeMint,
+              // feeRecipient: propellerFeeVault,
               custody: custody,
               mint: tokenBridgeMint,
               custodySigner,
@@ -3462,7 +3447,6 @@ describe("propeller", () => {
               redeemer: propellerRedeemer,
               redeemerEscrow: propellerRedeemerEscrowAccount,
               // tokenIdMap: ?
-              // feeRecipient: propellerRedeemerEscrowAccount,
               pool,
               poolTokenAccount0,
               poolTokenAccount1,
@@ -3687,9 +3671,12 @@ describe("propeller", () => {
               endpoint: endpointAccount,
               to: propellerRedeemerEscrowAccount,
               redeemer: propellerRedeemer,
+              // this is only used in propellerCompleteNativeWithPayload
+              // but must still be passed.
+              // tokenBridge.completeNativeWithPayload just checks mint is
+              // correct.
               feeRecipient: userSwimUsdAtaAddr,
-              // feeRecipient: propellerRedeemerEscrowAccount,
-              // tokenBridgeMint,
+              // feeRecipient: propellerFeeVault,
               custody: custody,
               mint: tokenBridgeMint,
               custodySigner,
@@ -3865,7 +3852,6 @@ describe("propeller", () => {
               redeemer: propellerRedeemer,
               redeemerEscrow: propellerRedeemerEscrowAccount,
               // tokenIdMap: ?
-              // feeRecipient: propellerRedeemerEscrowAccount,
               pool,
               poolTokenAccount0,
               poolTokenAccount1,

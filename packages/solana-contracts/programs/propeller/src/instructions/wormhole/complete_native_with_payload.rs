@@ -117,7 +117,16 @@ pub struct CompleteNativeWithPayload<'info> {
     ///    and that the `redeemer` account will be the PDA derived from ["redeemer"], seeds::program = propeller::id()
     pub redeemer: SystemAccount<'info>,
 
-    #[account(mut, token::mint = propeller.token_bridge_mint, token::authority = payer)]
+    //TODO: should this just always be fee_vault?
+    // not actually being used unless this is a propellerEnabled ix.
+    // wormhole complete_native_with_payload doesn't do anything with this
+    // the only thing it does is check that the mint is correct.
+    // note: we only care that this is actually the fee_vault if it's called from propellerCompleteNativeWithPayload
+    //  so the checks are done there.
+    #[account(
+        mut,
+        token::mint = propeller.token_bridge_mint,
+    )]
     /// this is "to_fees"
     /// recipient of fees for executing complete transfer (e.g. relayer)
     pub fee_recipient: Box<Account<'info, TokenAccount>>,
@@ -292,14 +301,13 @@ pub struct PropellerCompleteNativeWithPayload<'info> {
     )]
     pub fee_tracker: Account<'info, FeeTracker>,
 
-    #[account(
-    mut,
-    token::mint = complete_native_with_payload.mint,
-    token::authority = complete_native_with_payload.propeller,
-    address = complete_native_with_payload.propeller.fee_vault,
-    )]
-    pub fee_vault: Box<Account<'info, TokenAccount>>,
-
+    // #[account(
+    // mut,
+    // token::mint = complete_native_with_payload.mint,
+    // token::authority = complete_native_with_payload.propeller,
+    // address = complete_native_with_payload.propeller.fee_vault,
+    // )]
+    // pub fee_vault: Box<Account<'info, TokenAccount>>,
     #[account(
     constraint =
     *aggregator.to_account_info().owner == SWITCHBOARD_PROGRAM_ID @ PropellerError::InvalidSwitchboardAccount
@@ -310,16 +318,16 @@ pub struct PropellerCompleteNativeWithPayload<'info> {
     mut,
     seeds = [
     b"two_pool".as_ref(),
-    marginal_price_pool_token_account_0.mint.as_ref(),
-    marginal_price_pool_token_account_1.mint.as_ref(),
+    marginal_price_pool_token_0_account.mint.as_ref(),
+    marginal_price_pool_token_1_account.mint.as_ref(),
     marginal_price_pool_lp_mint.key().as_ref(),
     ],
     bump = marginal_price_pool.bump,
     seeds::program = two_pool_program.key()
     )]
     pub marginal_price_pool: Box<Account<'info, TwoPool>>,
-    pub marginal_price_pool_token_account_0: Box<Account<'info, TokenAccount>>,
-    pub marginal_price_pool_token_account_1: Box<Account<'info, TokenAccount>>,
+    pub marginal_price_pool_token_0_account: Box<Account<'info, TokenAccount>>,
+    pub marginal_price_pool_token_1_account: Box<Account<'info, TokenAccount>>,
     pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
 }
@@ -330,10 +338,18 @@ impl<'info> PropellerCompleteNativeWithPayload<'info> {
             &ctx.accounts.complete_native_with_payload.propeller,
             &ctx.accounts.marginal_price_pool.key(),
             &[
-                ctx.accounts.marginal_price_pool_token_account_0.mint,
-                ctx.accounts.marginal_price_pool_token_account_1.mint,
+                ctx.accounts.marginal_price_pool_token_0_account.mint,
+                ctx.accounts.marginal_price_pool_token_1_account.mint,
             ],
         )?;
+        require_keys_eq!(
+            ctx.accounts.complete_native_with_payload.fee_recipient.key(),
+            ctx.accounts.complete_native_with_payload.propeller.fee_vault
+        );
+        require_keys_eq!(
+            ctx.accounts.complete_native_with_payload.fee_recipient.owner,
+            ctx.accounts.complete_native_with_payload.propeller.key()
+        );
         Ok(())
     }
 }
@@ -429,7 +445,7 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
             fee_tracker.fees_owed.checked_add(fees_in_token_bridge).ok_or(PropellerError::IntegerOverflow)?;
         let cpi_accounts = Transfer {
             from: ctx.accounts.complete_native_with_payload.to.to_account_info(),
-            to: ctx.accounts.fee_vault.to_account_info(),
+            to: ctx.accounts.complete_native_with_payload.fee_recipient.to_account_info(),
             authority: propeller.to_account_info(),
         };
         token::transfer(
@@ -460,11 +476,8 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
     propeller_message.propeller_enabled = swim_payload.propeller_enabled;
     propeller_message.gas_kickstart = swim_payload.gas_kickstart;
     let memo = propeller_message.memo;
-    // get target_token_id -> (pool, pool_token_index)
-    //    need to know when to do remove_exact_burn & when to do swap_exact_input
     let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
     invoke(&memo_ix, &[ctx.accounts.complete_native_with_payload.memo.to_account_info()])?;
-    // propeller_message.swim_payload = swim_payload.clone().into();
     Ok(())
 }
 
@@ -507,8 +520,8 @@ fn calculate_fees(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<u
         ctx.accounts.two_pool_program.to_account_info(),
         two_pool::cpi::accounts::MarginalPrices {
             pool: ctx.accounts.marginal_price_pool.to_account_info(),
-            pool_token_account_0: ctx.accounts.marginal_price_pool_token_account_0.to_account_info(),
-            pool_token_account_1: ctx.accounts.marginal_price_pool_token_account_1.to_account_info(),
+            pool_token_account_0: ctx.accounts.marginal_price_pool_token_0_account.to_account_info(),
+            pool_token_account_1: ctx.accounts.marginal_price_pool_token_1_account.to_account_info(),
             lp_mint: ctx.accounts.marginal_price_pool_lp_mint.to_account_info(),
         },
     );

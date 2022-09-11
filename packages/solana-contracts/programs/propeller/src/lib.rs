@@ -213,6 +213,18 @@ pub mod propeller {
         handle_process_swim_payload(ctx, min_output_amount)
     }
 
+    #[inline(never)]
+    #[access_control(PropellerCompleteNativeWithPayload::accounts(&ctx))]
+    pub fn propeller_complete_native_with_payload(ctx: Context<PropellerCompleteNativeWithPayload>) -> Result<()> {
+        handle_propeller_complete_native_with_payload(ctx)
+    }
+    //
+    // #[inline(never)]
+    // #[access_control(PropellerProcessSwimPayload::accounts(&ctx))]
+    // pub fn propeller_process_swim_payload(ctx: Context<PropellerProcessSwimPayload>) -> Result<u64> {
+    //     handle_propeller_process_swim_payload(ctx)
+    // }
+
     // #[inline(never)]
     // #[access_control(Secp256k1AndVerify::accounts(&ctx))]
     // pub fn secp256k1_and_verify(

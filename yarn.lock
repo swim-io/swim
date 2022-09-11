@@ -7036,8 +7036,8 @@ __metadata:
     "@solana/web3.js": ^1.50.1
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
-    "@switchboard-xyz/sbv2-utils": ^0.1.43
-    "@switchboard-xyz/switchboard-v2": ^0.0.129
+    "@switchboard-xyz/sbv2-utils": ^0.1.45
+    "@switchboard-xyz/switchboard-v2": ^0.0.132
     "@types/bn.js": ^5.1.0
     "@types/chai": ^4.3.0
     "@types/jest": ^28.1.7
@@ -7439,35 +7439,48 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@switchboard-xyz/sbv2-utils@npm:^0.1.43":
-  version: 0.1.43
-  resolution: "@switchboard-xyz/sbv2-utils@npm:0.1.43"
+"@switchboard-xyz/common@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@switchboard-xyz/common@npm:2.0.0"
+  dependencies:
+    big.js: ^6.2.1
+    bn.js: ^5.2.1
+    protobufjs: ^6.11.3
+  checksum: 89fb6ef0e0c716103c4555acef5968fc2e865219b6c96e6ec8aaab0c23b734032689579d368b646f91b178071ab00fbc72d84ae5462c7603c2c0d6d1337a46ac
+  languageName: node
+  linkType: hard
+
+"@switchboard-xyz/sbv2-utils@npm:^0.1.45":
+  version: 0.1.45
+  resolution: "@switchboard-xyz/sbv2-utils@npm:0.1.45"
   dependencies:
     "@orca-so/sdk": ^1.2.24
     "@project-serum/anchor": ^0.24.2
     "@saberhq/token-utils": ^1.13.32
     "@solana/spl-token-v2": "npm:@solana/spl-token@^0.2.0"
     "@solana/web3.js": ^1.43.5
-    "@switchboard-xyz/switchboard-v2": ^0.0.129
-    big.js: ^6.1.1
+    "@switchboard-xyz/common": ^2.0.0
+    "@switchboard-xyz/switchboard-v2": ^0.0.132
+    big.js: ^6.2.1
     bn.js: ^5.2.1
     chalk: 4
     decimal.js: ^10.3.1
     dotenv: ^16.0.1
     mocha: ^9.1.1
     toml: ^3.0.0
-  checksum: 7de39f930ec2c689bf48455ece4ddbcb3d226eeb35ce33fa2334b457ba9236b63a5fd2e66bf59d2e3fc4baff58910e801074dc5f7d960393a69ac68acef44ad0
+  checksum: 631681f1032f281a5e049109292a4ce237c1006ad2bc42aa7668c820606634e4fe5933c7d53e65d0e9ea6ac30a60b42edef38d376f61dafec6293706fb731632
   languageName: node
   linkType: hard
 
-"@switchboard-xyz/switchboard-v2@npm:^0.0.129":
-  version: 0.0.129
-  resolution: "@switchboard-xyz/switchboard-v2@npm:0.0.129"
+"@switchboard-xyz/switchboard-v2@npm:^0.0.132":
+  version: 0.0.132
+  resolution: "@switchboard-xyz/switchboard-v2@npm:0.0.132"
   dependencies:
     "@project-serum/anchor": ^0.24.2
     "@solana/spl-governance": ^0.0.34
     "@solana/spl-token-v2": "npm:@solana/spl-token@^0.2.0"
     "@solana/web3.js": ^1.44.3
+    "@switchboard-xyz/common": ^2.0.0
     assert: ^2.0.0
     big.js: ^6.2.0
     bs58: ^5.0.0
@@ -7477,11 +7490,10 @@ __metadata:
     long: ^4.0.0
     mocha: ^9.1.1
     node-fetch: ^3.2.6
-    protobufjs: ^6.11.3
   peerDependencies:
     "@solana/spl-governance": ^0.0.34
     "@solana/web3.js": ^1.44.3
-  checksum: 5824b15c8334748c7a90c09f98e9c9bd67b77da5f53654ab699b927a9e84e86f047e079cef6874fe577b6df9483ad598873f7dc84221db5b968a449831acc70f
+  checksum: 950802fb5937da4cbbc394b3ff79de1f9bec2f251def592d6538fc1da6607c99842cc48eb28aafeb2d6fcda0e74a2d628c306b7d80bf91b9186901ac53d3ce53
   languageName: node
   linkType: hard
 

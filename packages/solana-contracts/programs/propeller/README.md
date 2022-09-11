@@ -23,6 +23,11 @@ anchor deploy
 1. switchboard default is mainnet address
 2.
 
+# Running engine tests (requires docker , oracle etc)
+1. yarn run prep && anchor localnet --skip-build
+2. docker-compose ./.switchboard/docker-cpompose.switchboard.yml up
+3. anchor test --skip-build --skip-local-validator engine
+
 # To Do:
 
 1. mappings

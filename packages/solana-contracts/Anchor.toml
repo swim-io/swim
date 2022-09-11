@@ -73,39 +73,39 @@ filename = "src/__tests__/propeller/wh_payload3/accounts/ethereum_token_bridge.j
 [[test.validator.clone]]
 address="GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR" # sbv2 SOL/USD Feed
 [[test.validator.clone]]
-address="2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG"  # programId
+address="2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG" # programId` \
 [[test.validator.clone]]
-address="J4CArpsbrZqu1axqQ4AnrqREs3jwoyA1M5LMiQQmAzB9"  # programDataAddress
+address="J4CArpsbrZqu1axqQ4AnrqREs3jwoyA1M5LMiQQmAzB9" # programDataAddress` \
 [[test.validator.clone]]
-address="CKwZcshn4XDvhaWVH9EXnk3iu19t6t5xP2Sy2pD6TRDp"  # idlAddress
+address="CKwZcshn4XDvhaWVH9EXnk3iu19t6t5xP2Sy2pD6TRDp" # idlAddress` \
 [[test.validator.clone]]
-address="BYM81n8HvTJuqZU1PmTVcwZ9G8uoji7FKM6EaPkwphPt"  # programState
+address="BYM81n8HvTJuqZU1PmTVcwZ9G8uoji7FKM6EaPkwphPt" # programState` \
 [[test.validator.clone]]
-address="FVLfR6C2ckZhbSwBzZY4CX7YBcddUSge5BNeGQv5eKhy"  # switchboardVault
+address="FVLfR6C2ckZhbSwBzZY4CX7YBcddUSge5BNeGQv5eKhy" # switchboardVault` \
 [[test.validator.clone]]
-address="So11111111111111111111111111111111111111112"  # switchboardMint
+address="So11111111111111111111111111111111111111112" # switchboardMint` \
 [[test.validator.clone]]
-address="CB4VzLxTwECHuqs4eqXywLXGwpQw3mVqe3NhPMSerNMJ"  # tokenWallet
+address="CB4VzLxTwECHuqs4eqXywLXGwpQw3mVqe3NhPMSerNMJ" # tokenWallet` \
 [[test.validator.clone]]
-address="EsMStifp1grA4Tuv9oqiHdTV33VvCBmbbkZVrSNBVfiG"  # queue
+address="AcSXYonfyHTDJeAcWPNMyyZusKJCZXdGrMN33NBXoAaV" # queue` \
 [[test.validator.clone]]
-address="GPy3FiGpEyMFCTsYgcw9i6rSWsvJpgzA39QDXv8zquW"  # queueAuthority
+address="GPy3FiGpEyMFCTsYgcw9i6rSWsvJpgzA39QDXv8zquW" # queueAuthority` \
 [[test.validator.clone]]
-address="4cYYiWyfsrMsa1H6Ypq9LuMv9PTRd3YLFDxhyDJa4qG1"  # queueBuffer
+address="4ptM4oxd9tE7ajPqKPZoJuqK7yhTSod5sZNptQBmP1Fh" # queueBuffer` \
 [[test.validator.clone]]
-address="DtD8wtWMtGszGEUNxiRpxSUinBNvTwjbwp9RKsLDZpBc"  # crank
+address="Bp2Z3RufYVxncybo4bBnrJgjT8nNtLQ4gCMmEPaQMt9e" # crank` \
 [[test.validator.clone]]
-address="4m8WiDn49Ygy3uK5nDKoJPaq8tNhtwgjddGJSvPhQwfg"  # crankBuffer
+address="HNHxWYVF8Qg6pLX4rmi4GH2yJzo9s2jpAnMzAErUWKek" # crankBuffer` \
 [[test.validator.clone]]
-address="5shyzhuvdw2SF2g4mGUKRaStvrXT5k6TK2v13FMGLrLa"  # oracle
+address="7pqX6qEABdf9rUeLW7YXZn3hqBMqAxZMgTKY8xaXrkaF" # oracle` \
 [[test.validator.clone]]
-address="GPy3FiGpEyMFCTsYgcw9i6rSWsvJpgzA39QDXv8zquW"  # oracleAuthority
+address="GPy3FiGpEyMFCTsYgcw9i6rSWsvJpgzA39QDXv8zquW" # oracleAuthority` \
 [[test.validator.clone]]
-address="3xBf7QZ7tw8qNZ6k4az2dfUnREgmn2fMtRszDnS6yeVN"  # oracleEscrow
+address="J4ujfcYoiLsNRGbjAJPzD9mwGYS1ZPFyBmDRRWzLsB52" # oracleEscrow` \
 [[test.validator.clone]]
-address="B764Cfh6qRHKRFM17Y1Y9jZWX2wzmZaEZAoDEQUsDgrx"  # oraclePermissions
+address="39hSPM6mK7DCDwWdkTs2gmGLBsRYmNpLfLD89aPQfB56" # oraclePermissions` \
 [[test.validator.clone]]
-address="4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"  # additionalClonedAccounts
+address="4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU" # additionalClonedAccounts`
 #
 #[[test.validator.clone]]
 #address="2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG"  # programId`

@@ -9,13 +9,13 @@ solana-test-validator -r --ledger .anchor/test-ledger --mint GPy3FiGpEyMFCTsYgcw
 --clone FVLfR6C2ckZhbSwBzZY4CX7YBcddUSge5BNeGQv5eKhy `# switchboardVault` \
 --clone So11111111111111111111111111111111111111112 `# switchboardMint` \
 --clone CB4VzLxTwECHuqs4eqXywLXGwpQw3mVqe3NhPMSerNMJ `# tokenWallet` \
---clone EsMStifp1grA4Tuv9oqiHdTV33VvCBmbbkZVrSNBVfiG `# queue` \
+--clone AcSXYonfyHTDJeAcWPNMyyZusKJCZXdGrMN33NBXoAaV `# queue` \
 --clone GPy3FiGpEyMFCTsYgcw9i6rSWsvJpgzA39QDXv8zquW `# queueAuthority` \
---clone 4cYYiWyfsrMsa1H6Ypq9LuMv9PTRd3YLFDxhyDJa4qG1 `# queueBuffer` \
---clone DtD8wtWMtGszGEUNxiRpxSUinBNvTwjbwp9RKsLDZpBc `# crank` \
---clone 4m8WiDn49Ygy3uK5nDKoJPaq8tNhtwgjddGJSvPhQwfg `# crankBuffer` \
---clone 5shyzhuvdw2SF2g4mGUKRaStvrXT5k6TK2v13FMGLrLa `# oracle` \
+--clone 4ptM4oxd9tE7ajPqKPZoJuqK7yhTSod5sZNptQBmP1Fh `# queueBuffer` \
+--clone Bp2Z3RufYVxncybo4bBnrJgjT8nNtLQ4gCMmEPaQMt9e `# crank` \
+--clone HNHxWYVF8Qg6pLX4rmi4GH2yJzo9s2jpAnMzAErUWKek `# crankBuffer` \
+--clone 7pqX6qEABdf9rUeLW7YXZn3hqBMqAxZMgTKY8xaXrkaF `# oracle` \
 --clone GPy3FiGpEyMFCTsYgcw9i6rSWsvJpgzA39QDXv8zquW `# oracleAuthority` \
---clone 3xBf7QZ7tw8qNZ6k4az2dfUnREgmn2fMtRszDnS6yeVN `# oracleEscrow` \
---clone B764Cfh6qRHKRFM17Y1Y9jZWX2wzmZaEZAoDEQUsDgrx `# oraclePermissions` \
+--clone J4ujfcYoiLsNRGbjAJPzD9mwGYS1ZPFyBmDRRWzLsB52 `# oracleEscrow` \
+--clone 39hSPM6mK7DCDwWdkTs2gmGLBsRYmNpLfLD89aPQfB56 `# oraclePermissions` \
 --clone 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU `# additionalClonedAccounts`

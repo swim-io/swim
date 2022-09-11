@@ -11,8 +11,8 @@ services:
       - LIVE=1
       - CLUSTER=${CLUSTER:-localnet}
       - HEARTBEAT_INTERVAL=30 # Seconds
-      - ORACLE_KEY=5shyzhuvdw2SF2g4mGUKRaStvrXT5k6TK2v13FMGLrLa
+      - ORACLE_KEY=7pqX6qEABdf9rUeLW7YXZn3hqBMqAxZMgTKY8xaXrkaF
     #  - RPC_URL=${RPC_URL}
 secrets:
   PAYER_SECRETS:
-    file: ../src/__tests__/test_wallet.json
+    file: /Users/rchen/work/swim/swim-monorepo/packages/solana-contracts/src/__tests__/test_wallet.json

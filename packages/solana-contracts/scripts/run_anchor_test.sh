@@ -9,20 +9,20 @@ prepare_oracle=false
 if [ -z "$1" ]; then
   echo "Running all tests"
   prepare_oracle=true
-  test_files="test/**/*.test.ts"
-elif [ "$1" == "integration" ]; then
-  echo "Running only integration tests"
+  test_files="*"
+elif [ "$1" == "engine" ]; then
+  echo "Running only engine tests"
   prepare_oracle=true
-  test_files="test/propeller/propellerIntegration.test.ts"
+  test_files=$1
 elif [ "$1" == "propeller" ]; then
   echo "Running only propeller tests"
-  test_files="test/propeller/propeller.test.ts"
+  test_files=$1
 elif [ "$1" == "utils" ]; then
   echo "Running only utils tests"
-  test_files="__tests__/utils.test.ts"
+  test_files=$1
 elif [ "$1" == "pool" ]; then
   echo "Running only pool tests"
-  test_files="test/twoPool/pool.test.ts"
+  test_files=$1
 else
   echo "invalid argument: $1. exiting"
   exit 22
@@ -33,12 +33,12 @@ echo "test_files: $test_files"
 echo "prepare_oracle: $prepare_oracle"
 
 # original
-if $prepare_oracle; then
-  echo "starting oracle"
-  ./.switchboard/start-oracle.sh >/tmp/oracle.log 2>&1 &
-  echo "waiting for oracle to finish"
-  sleep 75
-fi
+#if $prepare_oracle; then
+#  echo "starting oracle"
+#  ./.switchboard/start-oracle.sh >/tmp/oracle.log 2>&1 &
+#  echo "waiting for oracle to finish"
+#  sleep 75
+#fi
 
 #if $prepare_oracle; then
 #    echo "Checking for existing oracle images"
@@ -61,11 +61,11 @@ fi
 #yarn run jest -c jest.config.js --verbose --detectOpenHandles "$test_files"
 #yarn run jest -c jest.config.js --verbose --detectOpenHandles --forceExit "$test_files"
 #yarn run jest -c jest.config.js --verbose --detectOpenHandles --forceExit --testPathPattern "$1.test.ts"
-yarn run jest --verbose --detectOpenHandles --forceExit --testPathPattern "$1.test.ts"
+yarn run jest --verbose --detectOpenHandles --testPathPattern "$1.test.ts" &
 
-#yarn_pid=$!
-#echo "Yarn PID: ${yarn_pid}"
-#wait $yarn_pid
+yarn_pid=$!
+echo "Yarn PID: ${yarn_pid}"
+wait $yarn_pid
 exit_code=$?
 echo "exit_code: $exit_code"
 #yarn run jest -i "$test_files" -c jest.config.js &

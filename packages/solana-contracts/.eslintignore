@@ -5,3 +5,4 @@ dist/
 node_modules/
 target/
 types/
+src/__tests__/*.json

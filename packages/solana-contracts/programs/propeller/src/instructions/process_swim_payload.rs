@@ -707,7 +707,7 @@ pub fn handle_propeller_process_swim_payload(
     // vaa: AnchorSwimPayloadVAA,
     // vaa: PostVAAData,
     // target_token_id: u16,
-) -> Result<()> {
+) -> Result<u64> {
     // let message_data = get_message_data(&ctx.accounts.message.to_account_info())?;
     // msg!("message_data: {:?}", message_data);
     // let payload_transfer_with_payload =
@@ -761,6 +761,7 @@ pub fn handle_propeller_process_swim_payload(
 
     if swim_payload_owner != ctx.accounts.process_swim_payload.payer.key() {
         let fees_in_token_bridge = calculate_fees(&ctx)?;
+        msg!("fees_in_token_bridge: {:?}", fees_in_token_bridge);
         let fee_tracker = &mut ctx.accounts.fee_tracker;
         fee_tracker.fees_owed =
             fee_tracker.fees_owed.checked_add(fees_in_token_bridge).ok_or(PropellerError::IntegerOverflow)?;
@@ -782,110 +783,12 @@ pub fn handle_propeller_process_swim_payload(
     }
 
     msg!("transfer_amount - fee: {}", transfer_amount);
-
-    //TODO: refactor
-    if propeller_message.target_token_id == TOKEN_BRIDGE_OUTPUT_TOKEN_INDEX {
-        // simply transfer out swimUSD to logical recipient
-    } else {
-        let token_id_mapping = &ctx.accounts.process_swim_payload.token_id_map;
-        let token_pool = &token_id_mapping.pool;
-        let pool_ix = &token_id_mapping.pool_ix;
-        let pool_token_mint = &token_id_mapping.pool_token_mint;
-        let pool_token_index = token_id_mapping.pool_token_index;
-
-        //TODO: need to handle decimals?
-        // would need output token mint to handle decimals
-        // let min_output_amount = swim_payload.min_output_amount.as_u64();
-        // let min_output_amount = propeller_message.min_threshold;
-        let min_output_amount = 0u64;
-
-        // if removeExactBurn, then user_token_account's will be end_user's and user_lp_token_account will be
-        // payer of txn
-        // redeemer_escrow still holds all the tokens at this point and will be source of tokens used
-        // in pool ix
-        token::approve(
-            CpiContext::new_with_signer(
-                token_program.to_account_info(),
-                token::Approve {
-                    // source
-                    to: ctx.accounts.process_swim_payload.redeemer_escrow.to_account_info(),
-                    delegate: ctx.accounts.process_swim_payload.user_transfer_authority.to_account_info(),
-                    authority: ctx.accounts.process_swim_payload.redeemer.to_account_info(),
-                },
-                &[&[&b"redeemer".as_ref(), &[propeller.redeemer_bump]]],
-            ),
-            transfer_amount,
-        )?;
-        // verify destination token account owner is logical owner.
-        require_gt!(TOKEN_COUNT, pool_token_index as usize);
-        require_keys_eq!(
-            ctx.accounts.process_swim_payload.pool.token_mint_keys[pool_token_index as usize],
-            *pool_token_mint
-        );
-        let user_token_accounts = [
-            &ctx.accounts.process_swim_payload.user_token_account_0,
-            &ctx.accounts.process_swim_payload.user_token_account_1,
-        ];
-        require_keys_eq!(user_token_accounts[pool_token_index as usize].owner, swim_payload_owner);
-
-        match pool_ix {
-            PoolInstruction::RemoveExactBurn => {
-                // TODO: handle other checks
-                let cpi_ctx = CpiContext::new(
-                    two_pool_program.to_account_info(),
-                    two_pool::cpi::accounts::RemoveExactBurn {
-                        pool: ctx.accounts.process_swim_payload.pool.to_account_info(),
-                        pool_token_account_0: ctx.accounts.process_swim_payload.pool_token_account_0.to_account_info(),
-                        pool_token_account_1: ctx.accounts.process_swim_payload.pool_token_account_1.to_account_info(),
-                        lp_mint: ctx.accounts.process_swim_payload.lp_mint.to_account_info(),
-                        governance_fee: ctx.accounts.process_swim_payload.governance_fee.to_account_info(),
-                        user_transfer_authority: ctx
-                            .accounts
-                            .process_swim_payload
-                            .user_transfer_authority
-                            .to_account_info(),
-                        user_token_account_0: ctx.accounts.process_swim_payload.user_token_account_0.to_account_info(),
-                        user_token_account_1: ctx.accounts.process_swim_payload.user_token_account_1.to_account_info(),
-                        user_lp_token_account: ctx.accounts.process_swim_payload.redeemer_escrow.to_account_info(),
-                        token_program: ctx.accounts.process_swim_payload.token_program.to_account_info(),
-                    },
-                );
-                two_pool::cpi::remove_exact_burn(cpi_ctx, transfer_amount, pool_token_index, min_output_amount)?;
-            }
-            PoolInstruction::SwapExactInput => {
-                // metapool
-                let cpi_ctx = CpiContext::new(
-                    two_pool_program.to_account_info(),
-                    two_pool::cpi::accounts::SwapExactInput {
-                        pool: ctx.accounts.process_swim_payload.pool.to_account_info(),
-                        pool_token_account_0: ctx.accounts.process_swim_payload.pool_token_account_0.to_account_info(),
-                        pool_token_account_1: ctx.accounts.process_swim_payload.pool_token_account_1.to_account_info(),
-                        lp_mint: ctx.accounts.process_swim_payload.lp_mint.to_account_info(),
-                        governance_fee: ctx.accounts.process_swim_payload.governance_fee.to_account_info(),
-                        user_transfer_authority: ctx
-                            .accounts
-                            .process_swim_payload
-                            .user_transfer_authority
-                            .to_account_info(),
-                        user_token_account_0: ctx.accounts.process_swim_payload.redeemer_escrow.to_account_info(),
-                        user_token_account_1: ctx.accounts.process_swim_payload.user_token_account_1.to_account_info(),
-                        token_program: ctx.accounts.process_swim_payload.token_program.to_account_info(),
-                    },
-                );
-                two_pool::cpi::swap_exact_input(cpi_ctx, [transfer_amount, 0u64], pool_token_index, min_output_amount)?;
-            }
-            _ => panic!("Unsupported pool instruction. Ricky go refactor this."),
-        };
-        token::revoke(CpiContext::new_with_signer(
-            token_program.to_account_info(),
-            token::Revoke {
-                // source
-                source: ctx.accounts.process_swim_payload.redeemer_escrow.to_account_info(),
-                authority: ctx.accounts.process_swim_payload.redeemer.to_account_info(),
-            },
-            &[&[&b"redeemer".as_ref(), &[propeller.redeemer_bump]]],
-        ))?;
-    }
+    let min_output_amount = 0u64;
+    let output_amount = ctx.accounts.process_swim_payload.transfer_tokens(
+        propeller_message.target_token_id,
+        transfer_amount,
+        min_output_amount,
+    )?;
 
     let propeller_claim = &mut ctx.accounts.process_swim_payload.propeller_claim;
     propeller_claim.bump = *ctx.bumps.get("propeller_claim").unwrap();
@@ -895,7 +798,8 @@ pub fn handle_propeller_process_swim_payload(
     //    need to know when to do remove_exact_burn & when to do swap_exact_input
     let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
     invoke(&memo_ix, &[ctx.accounts.process_swim_payload.memo.to_account_info()])?;
-    Ok(())
+    msg!("output_amount: {}", output_amount);
+    Ok(output_amount)
 }
 
 //TODO: FOR GAS KICKSTART ALSO NEED TO ASSUME/HANDLE THAT USER TOKEN ACCOUNTS MAY NOT BE INITIALIZED

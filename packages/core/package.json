@@ -32,7 +32,8 @@
   },
   "dependencies": {
     "@swim-io/token-projects": "workspace:^",
-    "@swim-io/utils": "workspace:^"
+    "@swim-io/utils": "workspace:^",
+    "decimal.js": "^10.3.1"
   },
   "devDependencies": {
     "@certusone/wormhole-sdk": "^0.6.2",

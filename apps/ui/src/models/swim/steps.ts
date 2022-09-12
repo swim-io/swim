@@ -417,14 +417,14 @@ const findPoolForTokenOption = (
   poolSpecs: readonly PoolSpec[],
   tokenOption: TokenOption,
 ): PoolSpec => {
-  const solanaPool = findOrThrow(
-    poolSpecs,
-    (pool) => pool.ecosystem === SOLANA_ECOSYSTEM_ID,
-  );
   if (
     tokenOption.ecosystemId === SOLANA_ECOSYSTEM_ID &&
     isSwimUsd(tokenOption.tokenConfig)
   ) {
+    const solanaPool = findOrThrow(
+      poolSpecs,
+      (pool) => pool.ecosystem === SOLANA_ECOSYSTEM_ID,
+    );
     return solanaPool;
   }
   return findOrThrow(

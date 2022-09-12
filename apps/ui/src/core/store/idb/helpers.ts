@@ -616,7 +616,7 @@ export const prepareInteractionState = (
   })),
 });
 
-export type PreparedInteractionV2 =
+type PreparedInteractionV2 =
   | PreparedAddInteraction
   | PreparedRemoveUniformInteraction
   | PreparedRemoveExactBurnInteraction

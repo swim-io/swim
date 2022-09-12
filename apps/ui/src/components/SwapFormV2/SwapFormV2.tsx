@@ -196,7 +196,11 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     }
     if (isLargeSwap && !allowLargeSwap) {
       // If not allowed, limit swap size to 10% of pool supply
-      setFormErrors(["Swap size must be less than 10% of pool supply"]);
+      setFormErrors([
+        t("swap_form.require_swap_size_must_be_less_than_x_of_pool_supply", {
+          percentage: 10,
+        }),
+      ]);
       return;
     }
     try {

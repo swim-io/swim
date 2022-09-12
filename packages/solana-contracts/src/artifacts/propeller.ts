@@ -1951,10 +1951,9 @@ export type Propeller = {
                 "path": "propeller"
               },
               {
-                "kind": "account",
+                "kind": "arg",
                 "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.target_token_id"
+                "path": "target_token_id"
               }
             ]
           }
@@ -2058,6 +2057,10 @@ export type Propeller = {
         }
       ],
       "args": [
+        {
+          "name": "targetTokenId",
+          "type": "u16"
+        },
         {
           "name": "minOutputAmount",
           "type": "u64"
@@ -5271,10 +5274,9 @@ export const IDL: Propeller = {
                 "path": "propeller"
               },
               {
-                "kind": "account",
+                "kind": "arg",
                 "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.target_token_id"
+                "path": "target_token_id"
               }
             ]
           }
@@ -5378,6 +5380,10 @@ export const IDL: Propeller = {
         }
       ],
       "args": [
+        {
+          "name": "targetTokenId",
+          "type": "u16"
+        },
         {
           "name": "minOutputAmount",
           "type": "u64"

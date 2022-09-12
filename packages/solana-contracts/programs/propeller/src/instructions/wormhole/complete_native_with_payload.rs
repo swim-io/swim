@@ -226,10 +226,10 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
         propeller.evm_routing_contract_address
     );
     //TODO: do we want this check?
-    require!(
-        propeller.evm_routing_contract_address == payload_transfer_with_payload.from_address,
-        PropellerError::InvalidRoutingContractAddress,
-    );
+    // require!(
+    //     propeller.evm_routing_contract_address == payload_transfer_with_payload.from_address,
+    //     PropellerError::InvalidRoutingContractAddress,
+    // );
     // let payload_transfer_with_payload =
     //     get_transfer_with_payload_from_message_account(&ctx.accounts.message.to_account_info())?;
 
@@ -397,10 +397,10 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
         payload_transfer_with_payload.from_address,
         propeller.evm_routing_contract_address
     );
-    require!(
-        propeller.evm_routing_contract_address == payload_transfer_with_payload.from_address,
-        PropellerError::InvalidRoutingContractAddress,
-    );
+    // require!(
+    //     propeller.evm_routing_contract_address == payload_transfer_with_payload.from_address,
+    //     PropellerError::InvalidRoutingContractAddress,
+    // );
 
     // let payload_transfer_with_payload =
     //     get_transfer_with_payload_from_message_account(&ctx.accounts.message.to_account_info())?;

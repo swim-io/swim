@@ -209,8 +209,12 @@ pub mod propeller {
 
     #[inline(never)]
     #[access_control(ProcessSwimPayload::accounts(&ctx))]
-    pub fn process_swim_payload(ctx: Context<ProcessSwimPayload>, min_output_amount: u64) -> Result<u64> {
-        handle_process_swim_payload(ctx, min_output_amount)
+    pub fn process_swim_payload(
+        ctx: Context<ProcessSwimPayload>,
+        target_token_id: u16,
+        min_output_amount: u64,
+    ) -> Result<u64> {
+        handle_process_swim_payload(ctx, target_token_id, min_output_amount)
     }
 
     #[inline(never)]

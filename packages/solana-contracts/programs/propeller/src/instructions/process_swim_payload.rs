@@ -36,6 +36,7 @@ use {
 pub const TOKEN_BRIDGE_OUTPUT_TOKEN_INDEX: u16 = 0;
 
 #[derive(Accounts)]
+#[instruction(target_token_id: u16)]
 pub struct ProcessSwimPayload<'info> {
     #[account(
     seeds = [ b"propeller".as_ref(), propeller.token_bridge_mint.as_ref()],
@@ -114,7 +115,7 @@ pub struct ProcessSwimPayload<'info> {
     b"propeller".as_ref(),
     b"token_id".as_ref(),
     propeller.key().as_ref(),
-    &propeller_message.target_token_id.to_le_bytes()
+    &target_token_id.to_le_bytes()
     ],
     bump = token_id_map.bump,
     )]
@@ -567,21 +568,25 @@ impl<'info> ProcessSwimPayload<'info> {
     // }
 }
 
-pub fn handle_process_swim_payload(ctx: Context<ProcessSwimPayload>, min_output_amount: u64) -> Result<u64> {
-    let payload_transfer_with_payload =
-        get_transfer_with_payload_from_message_account(&ctx.accounts.message.to_account_info())?;
-    msg!("message_data_payload: {:?}", payload_transfer_with_payload);
-
-    let PayloadTransferWithPayload {
-        message_type,
-        amount,
-        token_address,
-        token_chain,
-        to,
-        to_chain,
-        from_address,
-        payload,
-    } = payload_transfer_with_payload;
+pub fn handle_process_swim_payload(
+    ctx: Context<ProcessSwimPayload>,
+    target_token_id: u16,
+    min_output_amount: u64,
+) -> Result<u64> {
+    // let payload_transfer_with_payload =
+    //     get_transfer_with_payload_from_message_account(&ctx.accounts.message.to_account_info())?;
+    // msg!("message_data_payload: {:?}", payload_transfer_with_payload);
+    //
+    // let PayloadTransferWithPayload {
+    //     message_type,
+    //     amount,
+    //     token_address,
+    //     token_chain,
+    //     to,
+    //     to_chain,
+    //     from_address,
+    //     payload,
+    // } = payload_transfer_with_payload;
     // // TODO: we should probably validate that `message_data_payload.from_address` is the expected
     // //  evm routing contract address unless there's a reason to allow someone else to use this method
     // // let swim_payload =
@@ -590,8 +595,8 @@ pub fn handle_process_swim_payload(ctx: Context<ProcessSwimPayload>, min_output_
     // msg!("swim_payload: {:?}", swim_payload);
     // let swim_payload = &ctx.accounts.propeller_message.swim_payload;
     let propeller_message = &ctx.accounts.propeller_message;
-    let message_swim_payload = payload;
-    require_eq!(message_swim_payload.target_token_id, propeller_message.target_token_id);
+    // let message_swim_payload = payload;
+    // require_eq!(message_swim_payload.target_token_id, propeller_message.target_token_id);
     let claim_data = ClaimData::try_from_slice(&mut ctx.accounts.claim.data.borrow())
         .map_err(|_| error!(PropellerError::InvalidClaimData))?;
     require!(claim_data.claimed, PropellerError::ClaimNotClaimed);
@@ -603,8 +608,7 @@ pub fn handle_process_swim_payload(ctx: Context<ProcessSwimPayload>, min_output_
     let token_program = &ctx.accounts.token_program;
     msg!("transfer_amount: {}", transfer_amount);
 
-    let output_amount =
-        ctx.accounts.transfer_tokens(propeller_message.target_token_id, transfer_amount, min_output_amount)?;
+    let output_amount = ctx.accounts.transfer_tokens(target_token_id, transfer_amount, min_output_amount)?;
 
     let propeller_claim = &mut ctx.accounts.propeller_claim;
     propeller_claim.bump = *ctx.bumps.get("propeller_claim").unwrap();

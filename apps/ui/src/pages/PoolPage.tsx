@@ -33,11 +33,7 @@ import { AddForm } from "../components/AddForm";
 import { RemoveForm } from "../components/RemoveForm";
 import { SlippageButton } from "../components/SlippageButton";
 import { StatList } from "../components/StatList";
-import {
-  TokenConfigIcon,
-  TokenIcon,
-  TokenOptionIcon,
-} from "../components/TokenIcon";
+import { TokenConfigIcon, TokenIcon } from "../components/TokenIcon";
 import type { PoolSpec } from "../config";
 import { getSolanaTokenDetails, getTokenDetailsForEcosystem } from "../config";
 import { selectConfig } from "../core/selectors";
@@ -143,12 +139,7 @@ export const PoolPageInner = ({
     if (isEvmPoolState(poolState)) {
       return {
         title: (
-          <TokenOptionIcon
-            tokenOption={{
-              tokenId: tokenConfig.id,
-              ecosystemId: poolSpec.ecosystem,
-            }}
-          />
+          <TokenConfigIcon token={tokenConfig} ecosystem={poolSpec.ecosystem} />
         ),
         description: atomicToHumanString(
           new Decimal(poolState.balances[i].toString()),

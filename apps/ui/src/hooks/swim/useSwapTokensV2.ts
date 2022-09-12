@@ -5,8 +5,6 @@ import { selectSwapTokenOptions } from "../../core/selectors/swapTokenOptions";
 import { useEnvironment } from "../../core/store";
 import type { TokenOption } from "../../models";
 
-import { useToken } from "./useToken";
-
 interface SwapTokensV2 {
   readonly fromTokenOption: TokenOption;
   readonly toTokenOption: TokenOption;
@@ -26,20 +24,17 @@ export const useSwapTokensV2 = (): SwapTokensV2 => {
   const [fromTokenOption, setFromTokenOption] = useState(defaultFromToken);
   const [toTokenOption, setToTokenOption] = useState(defaultToToken);
 
-  const fromTokenConfig = useToken(fromTokenOption.tokenId);
-  const toTokenConfig = useToken(toTokenOption.tokenId);
-
   return {
     fromTokenOption,
     toTokenOption,
-    fromTokenConfig,
-    toTokenConfig,
+    fromTokenConfig: fromTokenOption.tokenConfig,
+    toTokenConfig: toTokenOption.tokenConfig,
     setFromTokenOption,
     setToTokenOption,
     fromTokenOptions: tokenOptions,
     toTokenOptions: tokenOptions.filter(
-      ({ tokenId, ecosystemId }) =>
-        tokenId !== fromTokenOption.tokenId ||
+      ({ tokenConfig, ecosystemId }) =>
+        tokenConfig !== fromTokenOption.tokenConfig ||
         ecosystemId !== fromTokenOption.ecosystemId,
     ),
   };

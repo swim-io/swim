@@ -35,7 +35,7 @@ export const useSingleChainSolanaSwapInteractionMutation = () => {
     async (interactionState: SingleChainSolanaSwapInteractionState) => {
       const { interaction } = interactionState;
       const {
-        params: { fromTokenDetail, toTokenDetail },
+        params: { fromTokenData, toTokenData },
       } = interaction;
       if (interaction.poolIds.length !== 1) {
         throw new Error("Single chain solana swap should only have 1 pool ID");
@@ -51,10 +51,6 @@ export const useSingleChainSolanaSwapInteractionMutation = () => {
       if (solanaWallet === null) {
         throw new Error("Missing Solana wallet");
       }
-      const toToken = findOrThrow(
-        config.tokens,
-        (token) => token.id === toTokenDetail.tokenId,
-      );
       const operation: OperationSpec = {
         interactionId: interaction.id,
         poolId: poolSpec.id,
@@ -63,15 +59,18 @@ export const useSingleChainSolanaSwapInteractionMutation = () => {
           exactInputAmounts: tokensByPoolId[poolSpec.id].tokens.map((token) =>
             Amount.fromHuman(
               token,
-              token.id === fromTokenDetail.tokenId
-                ? fromTokenDetail.value
+              token.id === fromTokenData.tokenConfig.id
+                ? fromTokenData.value
                 : new Decimal(0),
             ),
           ),
           outputTokenIndex: poolSpec.tokens.findIndex(
-            (tokenId) => tokenId === toTokenDetail.tokenId,
+            (tokenId) => tokenId === toTokenData.tokenConfig.id,
           ),
-          minimumOutputAmount: Amount.fromHuman(toToken, toTokenDetail.value),
+          minimumOutputAmount: Amount.fromHuman(
+            toTokenData.tokenConfig,
+            toTokenData.value,
+          ),
         },
       };
       const txId = await doSingleSolanaPoolOperation(

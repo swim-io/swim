@@ -81,13 +81,13 @@ describe("useCreateInteractionStateV2", () => {
     const interactionState = createInteractionState({
       type: InteractionType.SwapV2,
       params: {
-        fromTokenDetail: {
-          tokenId: "devnet-solana-usdc",
+        fromTokenData: {
+          tokenConfig: findTokenById("devnet-solana-usdc-v2", Env.Devnet),
           ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
-        toTokenDetail: {
-          tokenId: "devnet-solana-usdt",
+        toTokenData: {
+          tokenConfig: findTokenById("devnet-solana-usdt-v2", Env.Devnet),
           ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
@@ -104,13 +104,13 @@ describe("useCreateInteractionStateV2", () => {
     const interactionState = createInteractionState({
       type: InteractionType.SwapV2,
       params: {
-        fromTokenDetail: {
-          tokenId: "devnet-ethereum-usdc",
+        fromTokenData: {
+          tokenConfig: findTokenById("devnet-ethereum-usdc", Env.Devnet),
           ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
-        toTokenDetail: {
-          tokenId: "devnet-ethereum-usdt",
+        toTokenData: {
+          tokenConfig: findTokenById("devnet-ethereum-usdt", Env.Devnet),
           ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
@@ -127,13 +127,13 @@ describe("useCreateInteractionStateV2", () => {
     const interactionState = createInteractionState({
       type: InteractionType.SwapV2,
       params: {
-        fromTokenDetail: {
-          tokenId: "devnet-solana-usdc",
+        fromTokenData: {
+          tokenConfig: findTokenById("devnet-solana-usdc-v2", Env.Devnet),
           ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
-        toTokenDetail: {
-          tokenId: "devnet-ethereum-usdc",
+        toTokenData: {
+          tokenConfig: findTokenById("devnet-ethereum-usdc", Env.Devnet),
           ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
@@ -150,13 +150,13 @@ describe("useCreateInteractionStateV2", () => {
     const interactionState = createInteractionState({
       type: InteractionType.SwapV2,
       params: {
-        fromTokenDetail: {
-          tokenId: "devnet-ethereum-usdc",
+        fromTokenData: {
+          tokenConfig: findTokenById("devnet-ethereum-usdc", Env.Devnet),
           ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
-        toTokenDetail: {
-          tokenId: "devnet-solana-usdc",
+        toTokenData: {
+          tokenConfig: findTokenById("devnet-solana-usdc-v2", Env.Devnet),
           ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
@@ -173,13 +173,13 @@ describe("useCreateInteractionStateV2", () => {
     const interactionState = createInteractionState({
       type: InteractionType.SwapV2,
       params: {
-        fromTokenDetail: {
-          tokenId: "devnet-ethereum-usdc",
+        fromTokenData: {
+          tokenConfig: findTokenById("devnet-ethereum-usdc", Env.Devnet),
           ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
-        toTokenDetail: {
-          tokenId: "devnet-bnb-usdt",
+        toTokenData: {
+          tokenConfig: findTokenById("devnet-bnb-usdt", Env.Devnet),
           ecosystemId: EvmEcosystemId.Bnb,
           value: new Decimal("1000"),
         },

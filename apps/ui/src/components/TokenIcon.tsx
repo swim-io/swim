@@ -7,8 +7,7 @@ import { Trans } from "react-i18next";
 
 import type { EcosystemId, TokenConfig } from "../config";
 import { ECOSYSTEMS } from "../config";
-import { useIntlListSeparators, useToken } from "../hooks";
-import type { TokenOption } from "../models";
+import { useIntlListSeparators } from "../hooks";
 import type { Amount } from "../models/amount";
 
 import "./TokenIcon.scss";
@@ -75,17 +74,19 @@ export const AmountWithTokenIcon = ({
   return (
     <span className="tokenIconItem">
       {amount.toFormattedHumanString(ecosystem)}&nbsp;
-      <TokenConfigIcon token={amount.tokenConfig} />
+      <TokenConfigIcon token={amount.tokenConfig} ecosystem={ecosystem} />
     </span>
   );
 };
 
 interface AmountsWithTokenIconsProps {
   readonly amounts: readonly Amount[];
+  readonly ecosystem?: EcosystemId;
 }
 
 export const AmountsWithTokenIcons = ({
   amounts,
+  ecosystem,
 }: AmountsWithTokenIconsProps): ReactElement => {
   const { comma, conjunction } = useIntlListSeparators({ type: "conjunction" });
   return (
@@ -97,7 +98,7 @@ export const AmountsWithTokenIcons = ({
           )}
           <AmountWithTokenIcon
             amount={amount}
-            ecosystem={amount.tokenConfig.nativeEcosystemId}
+            ecosystem={ecosystem ?? amount.tokenConfig.nativeEcosystemId}
           />
           {i === amounts.length - 1 && <span>.</span>}
         </Fragment>
@@ -106,28 +107,17 @@ export const AmountsWithTokenIcons = ({
   );
 };
 
-type TokenConfigIconProps = { readonly token: TokenConfig };
+type TokenConfigIconProps = {
+  readonly token: TokenConfig;
+  readonly ecosystem?: EcosystemId;
+};
 
 export const TokenConfigIcon = ({
   token,
+  ecosystem,
 }: TokenConfigIconProps): ReactElement => (
   <TokenIcon
     {...TOKEN_PROJECTS_BY_ID[token.projectId]}
-    ecosystemId={token.nativeEcosystemId}
+    ecosystemId={ecosystem ?? token.nativeEcosystemId}
   />
 );
-
-type TokenOptionIconProps = { readonly tokenOption: TokenOption };
-
-export const TokenOptionIcon = ({
-  tokenOption,
-}: TokenOptionIconProps): ReactElement => {
-  const { tokenId, ecosystemId } = tokenOption;
-  const tokenConfig = useToken(tokenId);
-  return (
-    <TokenIcon
-      {...TOKEN_PROJECTS_BY_ID[tokenConfig.projectId]}
-      ecosystemId={ecosystemId}
-    />
-  );
-};

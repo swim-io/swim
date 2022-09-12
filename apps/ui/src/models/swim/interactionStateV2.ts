@@ -4,6 +4,8 @@ import type { SolanaTx } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { isNotNull } from "@swim-io/utils";
 
+import { isSwimUsd } from "../../config";
+
 import type {
   AddInteraction,
   RemoveExactBurnInteraction,
@@ -24,6 +26,7 @@ export enum SwapType {
 }
 
 export interface SingleChainSolanaSwapInteractionState {
+  readonly version: 2;
   readonly interaction: SwapInteractionV2;
   readonly interactionType: InteractionType.SwapV2;
   readonly swapType: SwapType.SingleChainSolana;
@@ -32,6 +35,7 @@ export interface SingleChainSolanaSwapInteractionState {
 }
 
 export interface SingleChainEvmSwapInteractionState {
+  readonly version: 2;
   readonly interaction: SwapInteractionV2;
   readonly interactionType: InteractionType.SwapV2;
   readonly swapType: SwapType.SingleChainEvm;
@@ -39,7 +43,8 @@ export interface SingleChainEvmSwapInteractionState {
   readonly onChainSwapTxId: EvmTx["id"] | null;
 }
 
-export interface CrossChainEvmSwapInteractionState {
+export interface CrossChainEvmToEvmSwapInteractionState {
+  readonly version: 2;
   readonly interaction: SwapInteractionV2;
   readonly interactionType: InteractionType.SwapV2;
   readonly swapType: SwapType.CrossChainEvmToEvm;
@@ -49,26 +54,32 @@ export interface CrossChainEvmSwapInteractionState {
 }
 
 export interface CrossChainSolanaToEvmSwapInteractionState {
+  readonly version: 2;
   readonly interaction: SwapInteractionV2;
   readonly interactionType: InteractionType.SwapV2;
   readonly swapType: SwapType.CrossChainSolanaToEvm;
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
-  readonly swapAndTransferTxId: SolanaTx["id"] | null; // TODO: Confirm it can be done in 1 tx
+  readonly swapToSwimUsdTxId: SolanaTx["id"] | null;
+  readonly transferSwimUsdToEvmTxId: SolanaTx["id"] | null;
   readonly receiveAndSwapTxId: EvmTx["id"] | null;
 }
 
 export interface CrossChainEvmToSolanaSwapInteractionState {
+  readonly version: 2;
   readonly interaction: SwapInteractionV2;
   readonly interactionType: InteractionType.SwapV2;
   readonly swapType: SwapType.CrossChainEvmToSolana;
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
   readonly approvalTxIds: readonly EvmTx["id"][];
   readonly swapAndTransferTxId: EvmTx["id"] | null;
+  readonly signatureSetAddress: string | null;
   readonly postVaaOnSolanaTxIds: readonly SolanaTx["id"][];
   readonly claimTokenOnSolanaTxId: SolanaTx["id"] | null;
+  readonly swapFromSwimUsdTxId: SolanaTx["id"] | null;
 }
 
 export interface AddInteractionState {
+  readonly version: 2;
   readonly interaction: AddInteraction;
   readonly interactionType: InteractionType.Add;
   /** Needed only for solana based pools */
@@ -78,6 +89,7 @@ export interface AddInteractionState {
 }
 
 export interface RemoveInteractionState {
+  readonly version: 2;
   readonly interaction:
     | RemoveUniformInteraction
     | RemoveExactBurnInteraction
@@ -95,7 +107,7 @@ export interface RemoveInteractionState {
 export type SwapInteractionState =
   | SingleChainSolanaSwapInteractionState
   | SingleChainEvmSwapInteractionState
-  | CrossChainEvmSwapInteractionState
+  | CrossChainEvmToEvmSwapInteractionState
   | CrossChainEvmToSolanaSwapInteractionState
   | CrossChainSolanaToEvmSwapInteractionState;
 
@@ -138,78 +150,18 @@ export const isRequiredSplTokenAccountsCompletedV2 = (
     (state) => state.isExistingAccount || isNotNull(state.txId),
   );
 
-const isSingleChainSolanaSwapCompleted = (
-  state: SingleChainSolanaSwapInteractionState,
-): boolean => {
-  return state.onChainSwapTxId !== null;
-};
-
-const isSingleChainEvmSwapCompleted = (
-  state: SingleChainEvmSwapInteractionState,
-): boolean => {
-  return state.onChainSwapTxId !== null;
-};
-
-const isCrossChainEvmToEvmSwapCompleted = (
-  state: CrossChainEvmSwapInteractionState,
-): boolean => {
-  return isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId);
-};
-
-const isCrossChainEvmToSolanaSwapCompleted = (
-  state: CrossChainEvmToSolanaSwapInteractionState,
-): boolean => {
-  return isClaimTokenOnSolanaTransferCompleted(state.claimTokenOnSolanaTxId);
-};
-
-const isCrossChainSolanaToEvmSwapCompleted = (
-  state: CrossChainSolanaToEvmSwapInteractionState,
-): boolean => {
-  return isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId);
-};
-
-const isSwapAndTransferCompleted = (
-  swapAndTransferTxId: EvmTx["id"] | null,
-): boolean => swapAndTransferTxId !== null;
-
-const isReceiveAndSwapTransferCompleted = (
-  receiveAndSwapTxId: EvmTx["id"] | null,
-): boolean => receiveAndSwapTxId !== null;
-
-const isClaimTokenOnSolanaTransferCompleted = (
-  claimTokenOnSolanaTxId: SolanaTx["id"] | null,
-): boolean => claimTokenOnSolanaTxId !== null;
-
-export const isRemoveInteractionCompleted = (
-  interactionState: RemoveInteractionState,
-) => interactionState.removeTxId !== null;
-
-export const isAddInteractionCompleted = (
-  interactionState: AddInteractionState,
-) => interactionState.addTxId !== null;
-
 export const isSourceChainOperationCompleted = (
   state: SwapInteractionState,
 ): boolean => {
   switch (state.swapType) {
-    case SwapType.SingleChainSolana: {
-      return isSingleChainSolanaSwapCompleted(state);
-    }
-    case SwapType.SingleChainEvm: {
-      return isSingleChainEvmSwapCompleted(state);
-    }
-    case SwapType.CrossChainEvmToEvm: {
-      return isSwapAndTransferCompleted(state.swapAndTransferTxId);
-    }
-    case SwapType.CrossChainEvmToSolana: {
-      return isSwapAndTransferCompleted(state.swapAndTransferTxId);
-    }
-    case SwapType.CrossChainSolanaToEvm: {
-      return isSwapAndTransferCompleted(state.swapAndTransferTxId);
-    }
-    default: {
-      throw new Error("Found new unhandled swapType");
-    }
+    case SwapType.SingleChainSolana:
+    case SwapType.SingleChainEvm:
+      return state.onChainSwapTxId !== null;
+    case SwapType.CrossChainEvmToEvm:
+    case SwapType.CrossChainEvmToSolana:
+      return state.swapAndTransferTxId !== null;
+    case SwapType.CrossChainSolanaToEvm:
+      return state.transferSwimUsdToEvmTxId !== null;
   }
 };
 
@@ -217,25 +169,18 @@ export const isTargetChainOperationCompleted = (
   state: SwapInteractionState,
 ): boolean => {
   switch (state.swapType) {
-    case SwapType.SingleChainSolana: {
-      return true; // no such step
-    }
-    case SwapType.SingleChainEvm: {
-      return true; // no such step
-    }
-    case SwapType.CrossChainEvmToEvm: {
-      return isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId);
-    }
+    case SwapType.SingleChainSolana:
+    case SwapType.SingleChainEvm:
+      return state.onChainSwapTxId !== null;
+    case SwapType.CrossChainEvmToEvm:
+    case SwapType.CrossChainSolanaToEvm:
+      return state.receiveAndSwapTxId !== null;
     case SwapType.CrossChainEvmToSolana: {
-      return isClaimTokenOnSolanaTransferCompleted(
-        state.claimTokenOnSolanaTxId,
-      );
-    }
-    case SwapType.CrossChainSolanaToEvm: {
-      return isReceiveAndSwapTransferCompleted(state.receiveAndSwapTxId);
-    }
-    default: {
-      throw new Error("Found new unhandled swapType");
+      if (isSwimUsd(state.interaction.params.toTokenData.tokenConfig)) {
+        return state.claimTokenOnSolanaTxId !== null;
+      } else {
+        return state.swapFromSwimUsdTxId !== null;
+      }
     }
   }
 };
@@ -244,35 +189,13 @@ export const isInteractionCompletedV2 = (
   interactionState: InteractionStateV2,
 ): boolean => {
   switch (interactionState.interactionType) {
-    case InteractionType.SwapV2: {
-      switch (interactionState.swapType) {
-        case SwapType.SingleChainSolana: {
-          return isSingleChainSolanaSwapCompleted(interactionState);
-        }
-        case SwapType.SingleChainEvm: {
-          return isSingleChainEvmSwapCompleted(interactionState);
-        }
-        case SwapType.CrossChainEvmToEvm: {
-          return isCrossChainEvmToEvmSwapCompleted(interactionState);
-        }
-        case SwapType.CrossChainEvmToSolana: {
-          return isCrossChainEvmToSolanaSwapCompleted(interactionState);
-        }
-        case SwapType.CrossChainSolanaToEvm: {
-          return isCrossChainSolanaToEvmSwapCompleted(interactionState);
-        }
-        default: {
-          throw new Error("Found new unhandled swapType");
-        }
-      }
-    }
+    case InteractionType.SwapV2:
+      return isTargetChainOperationCompleted(interactionState);
     case InteractionType.Add:
-      return isAddInteractionCompleted(interactionState);
+      return interactionState.addTxId !== null;
     case InteractionType.RemoveUniform:
-      return isRemoveInteractionCompleted(interactionState);
     case InteractionType.RemoveExactBurn:
-      return isRemoveInteractionCompleted(interactionState);
     case InteractionType.RemoveExactOutput:
-      return isRemoveInteractionCompleted(interactionState);
+      return interactionState.removeTxId !== null;
   }
 };

@@ -90,7 +90,7 @@ export const useSwapOutputAmountEstimateV2 = (
   const toToken = toTokenOption.tokenConfig;
   const swimUsdSpec = useSwimUsd();
 
-  if (!isEachNotNull(poolMaths)) {
+  if (!isEachNotNull(poolMaths) || swimUsdSpec === null) {
     return null;
   }
 

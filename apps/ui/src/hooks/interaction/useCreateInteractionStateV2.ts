@@ -272,6 +272,9 @@ export const useCreateInteractionStateV2 = () => {
           addTxId: null,
         };
       case InteractionType.SwapV2:
+        if (swimUsd === null) {
+          throw new Error("Unsupported interaction type");
+        }
         return createSwapInteractionState(
           interaction,
           tokenAccounts,

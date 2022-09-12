@@ -20,6 +20,9 @@ export const SwapToSwimUsd: VFC<Props> = ({
   txId,
 }) => {
   const swimUsd = useSwimUsd();
+  if (swimUsd === null) {
+    return null;
+  }
   return (
     <SwapTransfer
       ecosystemId={ecosystemId}

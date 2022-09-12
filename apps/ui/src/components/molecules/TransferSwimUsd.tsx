@@ -14,6 +14,9 @@ interface Props {
 
 export const TransferSwimUsd: VFC<Props> = ({ from, to, isLoading, txId }) => {
   const swimUsd = useSwimUsd();
+  if (swimUsd === null) {
+    return null;
+  }
   return (
     <Transfer
       from={from}

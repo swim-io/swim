@@ -1,14 +1,13 @@
 import type { EuiStepProps, EuiStepStatus } from "@elastic/eui";
 import { EuiListGroup, EuiLoadingSpinner, EuiText } from "@elastic/eui";
-import type { Env } from "@swim-io/core";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { isNotNull } from "@swim-io/utils";
 
-import { DEVNET_SWIMUSD, findTokenById } from "../../../config";
+import { isSwimUsd } from "../../../config";
 import { i18next } from "../../../i18n";
 import type {
   AddInteractionState,
-  CrossChainEvmSwapInteractionState,
+  CrossChainEvmToEvmSwapInteractionState,
   CrossChainEvmToSolanaSwapInteractionState,
   CrossChainSolanaToEvmSwapInteractionState,
   InteractionStateV2,
@@ -20,14 +19,16 @@ import {
   InteractionStatusV2,
   InteractionType,
   SwapType,
-  isAddInteractionCompleted,
-  isRemoveInteractionCompleted,
+  isInteractionCompletedV2,
   isRequiredSplTokenAccountsCompletedV2,
   isSourceChainOperationCompleted,
   isTargetChainOperationCompleted,
 } from "../../../models";
+import { ClaimSwimUsdOnSolana } from "../ClaimSwimUsdOnSolana";
+import { SwapFromSwimUsd } from "../SwapFromSwimUsd";
+import { SwapToSwimUsd } from "../SwapToSwimUsd";
 import { SwapTransfer } from "../SwapTransfer";
-import { Transfer } from "../Transfer";
+import { TransferSwimUsd } from "../TransferSwimUsd";
 import { TxEcosystemList } from "../TxList";
 import { TxListItem } from "../TxListItem";
 
@@ -87,7 +88,6 @@ const buildPrepareSplTokenAccountStep = (
             )}
           </span>
         </span>
-
         <br />
         <EuiListGroup gutterSize="none" flush maxWidth={200} showToolTips>
           {missingAccounts
@@ -109,29 +109,25 @@ const buildPrepareSplTokenAccountStep = (
 const buildSolanaPoolOperationStep = (
   interactionState: SingleChainSolanaSwapInteractionState,
   interactionStatus: InteractionStatusV2,
-  env: Env,
 ): EuiStepProps | null => {
   const {
     onChainSwapTxId,
     interaction: {
-      params: { fromTokenDetail, toTokenDetail },
+      params: { fromTokenData, toTokenData },
     },
   } = interactionState;
   const status = getEuiStepStatus(
     interactionStatus,
     isSourceChainOperationCompleted(interactionState),
   );
-  const fromToken = findTokenById(fromTokenDetail.tokenId, env);
-  const toToken = findTokenById(toTokenDetail.tokenId, env);
-
   return {
     title: i18next.t("recent_interactions.perform_pool_operation_on_solana"),
     status,
     children: (
       <SwapTransfer
         ecosystemId={SOLANA_ECOSYSTEM_ID}
-        fromToken={fromToken}
-        toToken={toToken}
+        fromToken={fromTokenData.tokenConfig}
+        toToken={toTokenData.tokenConfig}
         isLoading={status === "loading"}
         transactions={[onChainSwapTxId].filter(isNotNull)}
       />
@@ -142,22 +138,18 @@ const buildSolanaPoolOperationStep = (
 const buildEvmPoolOperationStep = (
   interactionState: SingleChainEvmSwapInteractionState,
   interactionStatus: InteractionStatusV2,
-  env: Env,
 ): EuiStepProps => {
   const {
     approvalTxIds,
     interaction: {
-      params: { fromTokenDetail, toTokenDetail },
+      params: { fromTokenData, toTokenData },
     },
   } = interactionState;
-  const fromEcosystemId = fromTokenDetail.ecosystemId;
-  const fromToken = findTokenById(fromTokenDetail.tokenId, env);
-  const toToken = findTokenById(toTokenDetail.tokenId, env);
+  const fromEcosystemId = fromTokenData.ecosystemId;
   const status = getEuiStepStatus(
     interactionStatus,
     isSourceChainOperationCompleted(interactionState),
   );
-
   return {
     title: i18next.t("recent_interactions.swap_tokens"),
     status,
@@ -169,7 +161,6 @@ const buildEvmPoolOperationStep = (
               <span>
                 {i18next.t("recent_interactions.approval_transactions")}
               </span>
-
               <TxEcosystemList
                 transactions={approvalTxIds}
                 ecosystemId={fromEcosystemId}
@@ -178,11 +169,10 @@ const buildEvmPoolOperationStep = (
             <br />
           </>
         )}
-
         <SwapTransfer
           ecosystemId={fromEcosystemId}
-          fromToken={fromToken}
-          toToken={toToken}
+          fromToken={fromTokenData.tokenConfig}
+          toToken={toTokenData.tokenConfig}
           isLoading={status === "loading"}
           transactions={[interactionState.onChainSwapTxId].filter(isNotNull)}
         />
@@ -191,74 +181,94 @@ const buildEvmPoolOperationStep = (
   };
 };
 
-const buildSwapAndTransferStep = (
-  interactionState:
-    | CrossChainEvmSwapInteractionState
-    | CrossChainEvmToSolanaSwapInteractionState
-    | CrossChainSolanaToEvmSwapInteractionState,
+const buildTransferSwimUsdToEvmStep = (
+  interactionState: CrossChainSolanaToEvmSwapInteractionState,
   interactionStatus: InteractionStatusV2,
-  env: Env,
 ): EuiStepProps => {
   const {
     interaction: {
-      params: { fromTokenDetail, toTokenDetail },
+      params: { fromTokenData, toTokenData },
     },
-    swapAndTransferTxId,
+    swapToSwimUsdTxId,
+    transferSwimUsdToEvmTxId,
   } = interactionState;
-
-  const fromEcosystemId = fromTokenDetail.ecosystemId;
-  const fromToken = findTokenById(fromTokenDetail.tokenId, env);
-  const toEcosystemId = toTokenDetail.ecosystemId;
-  const swimUSD = DEVNET_SWIMUSD; // TODO find swimUSD for each env
   const status = getEuiStepStatus(
     interactionStatus,
     isSourceChainOperationCompleted(interactionState),
   );
-
   return {
     title: i18next.t("recent_interactions.initiate_transfer"),
     status,
     children: (
       <>
-        {(interactionState.swapType === SwapType.CrossChainEvmToEvm ||
-          interactionState.swapType === SwapType.CrossChainEvmToSolana) &&
-          interactionState.approvalTxIds.length > 0 && (
-            <>
-              <EuiText size="m">
-                <span>
-                  {i18next.t("recent_interactions.approval_transactions")}
-                </span>
-
-                <TxEcosystemList
-                  transactions={interactionState.approvalTxIds}
-                  ecosystemId={fromEcosystemId}
-                />
-              </EuiText>
-              <br />
-            </>
-          )}
-        <SwapTransfer
-          ecosystemId={fromEcosystemId}
-          fromToken={fromToken}
-          toToken={swimUSD}
+        {!isSwimUsd(fromTokenData.tokenConfig) && (
+          <SwapToSwimUsd
+            ecosystemId={fromTokenData.ecosystemId}
+            fromToken={fromTokenData.tokenConfig}
+            isLoading={status === "loading"}
+            txId={swapToSwimUsdTxId}
+          />
+        )}
+        <TransferSwimUsd
+          from={fromTokenData.ecosystemId}
+          to={toTokenData.ecosystemId}
           isLoading={status === "loading"}
-          transactions={[]}
+          txId={transferSwimUsdToEvmTxId}
         />
-        <Transfer
+      </>
+    ),
+  };
+};
+
+const buildSwapAndTransferStep = (
+  interactionState:
+    | CrossChainEvmToEvmSwapInteractionState
+    | CrossChainEvmToSolanaSwapInteractionState,
+  interactionStatus: InteractionStatusV2,
+): EuiStepProps => {
+  const {
+    interaction: {
+      params: { fromTokenData, toTokenData },
+    },
+    swapAndTransferTxId,
+  } = interactionState;
+
+  const fromEcosystemId = fromTokenData.ecosystemId;
+  const toEcosystemId = toTokenData.ecosystemId;
+  const status = getEuiStepStatus(
+    interactionStatus,
+    isSourceChainOperationCompleted(interactionState),
+  );
+  return {
+    title: i18next.t("recent_interactions.initiate_transfer"),
+    status,
+    children: (
+      <>
+        {interactionState.approvalTxIds.length > 0 && (
+          <>
+            <EuiText size="m">
+              <span>
+                {i18next.t("recent_interactions.approval_transactions")}
+              </span>
+              <TxEcosystemList
+                transactions={interactionState.approvalTxIds}
+                ecosystemId={fromEcosystemId}
+              />
+            </EuiText>
+            <br />
+          </>
+        )}
+        <SwapToSwimUsd
+          ecosystemId={fromEcosystemId}
+          fromToken={fromTokenData.tokenConfig}
+          isLoading={status === "loading"}
+          txId={null}
+        />
+        <TransferSwimUsd
           from={fromEcosystemId}
           to={toEcosystemId}
-          token={swimUSD}
           isLoading={status === "loading"}
-          transactions={
-            swapAndTransferTxId === null
-              ? []
-              : [
-                  {
-                    txId: swapAndTransferTxId,
-                    ecosystem: fromEcosystemId,
-                  },
-                ]
-          }
+          txId={swapAndTransferTxId}
         />
       </>
     ),
@@ -267,20 +277,17 @@ const buildSwapAndTransferStep = (
 
 const buildReceiveAndSwapStep = (
   interactionState:
-    | CrossChainEvmSwapInteractionState
+    | CrossChainEvmToEvmSwapInteractionState
     | CrossChainSolanaToEvmSwapInteractionState,
   interactionStatus: InteractionStatusV2,
-  env: Env,
 ): EuiStepProps => {
   const {
     interaction: {
-      params: { toTokenDetail },
+      params: { toTokenData },
     },
     receiveAndSwapTxId,
   } = interactionState;
-  const toEcosystemId = toTokenDetail.ecosystemId;
-  const toToken = findTokenById(toTokenDetail.tokenId, env);
-  const swimUSD = DEVNET_SWIMUSD; // TODO find swimUSD for each env
+  const toEcosystemId = toTokenData.ecosystemId;
   const status = getEuiStepStatus(
     interactionStatus,
     isTargetChainOperationCompleted(interactionState),
@@ -290,33 +297,28 @@ const buildReceiveAndSwapStep = (
     title: i18next.t("recent_interactions.receive_and_swap"),
     status,
     children: (
-      <SwapTransfer
+      <SwapFromSwimUsd
         ecosystemId={toEcosystemId}
-        fromToken={swimUSD}
-        toToken={toToken}
+        toToken={toTokenData.tokenConfig}
         isLoading={status === "loading"}
-        transactions={[receiveAndSwapTxId].filter(isNotNull)}
+        txId={receiveAndSwapTxId}
       />
     ),
   };
 };
 
-const buildPostVaaAndClaimToken = (
+const buildClaimTokenOnSolanaStep = (
   interactionState: CrossChainEvmToSolanaSwapInteractionState,
   interactionStatus: InteractionStatusV2,
-  env: Env,
 ): EuiStepProps => {
   const {
     claimTokenOnSolanaTxId,
     postVaaOnSolanaTxIds,
+    swapFromSwimUsdTxId,
     interaction: {
-      params: { toTokenDetail },
+      params: { toTokenData },
     },
   } = interactionState;
-  const toToken = findTokenById(toTokenDetail.tokenId, env);
-
-  const swimUSD = DEVNET_SWIMUSD; // TODO find swimUSD for each env
-
   const status = getEuiStepStatus(
     interactionStatus,
     isTargetChainOperationCompleted(interactionState),
@@ -328,15 +330,23 @@ const buildPostVaaAndClaimToken = (
     ),
     status,
     children: (
-      <SwapTransfer
-        ecosystemId={SOLANA_ECOSYSTEM_ID}
-        fromToken={swimUSD}
-        toToken={toToken}
-        isLoading={status === "loading"}
-        transactions={[...postVaaOnSolanaTxIds, claimTokenOnSolanaTxId].filter(
-          isNotNull,
+      <>
+        <ClaimSwimUsdOnSolana
+          isLoading={claimTokenOnSolanaTxId === null}
+          transactions={[
+            ...postVaaOnSolanaTxIds,
+            claimTokenOnSolanaTxId,
+          ].filter(isNotNull)}
+        />
+        {!isSwimUsd(toTokenData.tokenConfig) && (
+          <SwapFromSwimUsd
+            ecosystemId={toTokenData.ecosystemId}
+            toToken={toTokenData.tokenConfig}
+            isLoading={status === "loading"}
+            txId={swapFromSwimUsdTxId}
+          />
         )}
-      />
+      </>
     ),
   };
 };
@@ -349,7 +359,7 @@ const buildRemoveStep = (
   const { lpTokenSourceEcosystem } = interaction;
   const status = getEuiStepStatus(
     interactionStatus,
-    isRemoveInteractionCompleted(interactionState),
+    isInteractionCompletedV2(interactionState),
   );
 
   return {
@@ -452,7 +462,7 @@ const buildAddStep = (
   const { lpTokenTargetEcosystem } = interaction;
   const status = getEuiStepStatus(
     interactionStatus,
-    isAddInteractionCompleted(interactionState),
+    isInteractionCompletedV2(interactionState),
   );
 
   return {
@@ -506,7 +516,6 @@ const buildAddStep = (
 export const buildEuiStepsForInteraction = (
   state: InteractionStateV2,
   status: InteractionStatusV2,
-  env: Env,
 ): readonly EuiStepProps[] => {
   switch (state.interactionType) {
     case InteractionType.SwapV2: {
@@ -514,30 +523,30 @@ export const buildEuiStepsForInteraction = (
         case SwapType.SingleChainSolana: {
           return [
             buildPrepareSplTokenAccountStep(state, status),
-            buildSolanaPoolOperationStep(state, status, env),
+            buildSolanaPoolOperationStep(state, status),
           ].filter(isNotNull);
         }
         case SwapType.SingleChainEvm: {
-          return [buildEvmPoolOperationStep(state, status, env)];
+          return [buildEvmPoolOperationStep(state, status)];
         }
         case SwapType.CrossChainEvmToEvm: {
           return [
-            buildSwapAndTransferStep(state, status, env),
-            buildReceiveAndSwapStep(state, status, env),
+            buildSwapAndTransferStep(state, status),
+            buildReceiveAndSwapStep(state, status),
           ];
         }
         case SwapType.CrossChainEvmToSolana: {
           return [
             buildPrepareSplTokenAccountStep(state, status),
-            buildSwapAndTransferStep(state, status, env),
-            buildPostVaaAndClaimToken(state, status, env),
+            buildSwapAndTransferStep(state, status),
+            buildClaimTokenOnSolanaStep(state, status),
           ].filter(isNotNull);
         }
         case SwapType.CrossChainSolanaToEvm: {
           return [
             buildPrepareSplTokenAccountStep(state, status),
-            buildSwapAndTransferStep(state, status, env),
-            buildReceiveAndSwapStep(state, status, env),
+            buildTransferSwimUsdToEvmStep(state, status),
+            buildReceiveAndSwapStep(state, status),
           ].filter(isNotNull);
         }
         default: {
@@ -551,15 +560,7 @@ export const buildEuiStepsForInteraction = (
         buildAddStep(state, status),
       ].filter(isNotNull);
     case InteractionType.RemoveExactBurn:
-      return [
-        buildPrepareSplTokenAccountStep(state, status),
-        buildRemoveStep(state, status),
-      ].filter(isNotNull);
     case InteractionType.RemoveExactOutput:
-      return [
-        buildPrepareSplTokenAccountStep(state, status),
-        buildRemoveStep(state, status),
-      ].filter(isNotNull);
     case InteractionType.RemoveUniform:
       return [
         buildPrepareSplTokenAccountStep(state, status),

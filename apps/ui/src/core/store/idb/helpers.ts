@@ -616,15 +616,13 @@ export const prepareInteractionState = (
   })),
 });
 
-// eslint-disable-next-line import/no-unused-modules
-export type PreparedInteractionV2 =
+type PreparedInteractionV2 =
   | PreparedAddInteraction
   | PreparedRemoveUniformInteraction
   | PreparedRemoveExactBurnInteraction
   | PreparedRemoveExactOutputInteraction
   | SwapInteractionSpecV2;
 
-// eslint-disable-next-line import/no-unused-modules
 export interface PersistedInteractionStateV2
   extends Omit<InteractionStateV2, "interaction"> {
   readonly interaction: PreparedInteractionV2;

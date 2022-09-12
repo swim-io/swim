@@ -95,21 +95,21 @@ describe("Pool tests", () => {
       paused: false,
       balances: [
         [
-          "0x4DF39C514Eb1747bb4D89cA9Ee35718611590935",
-          BigNumber.from("999999994500"),
+          "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5",
+          BigNumber.from("2087941202"),
         ],
         [
           "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6",
-          BigNumber.from("9999998847"),
+          BigNumber.from("2052006916"),
         ],
         [
           "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B",
-          BigNumber.from("9999997717"),
+          BigNumber.from("2117774978"),
         ],
       ],
       totalLpSupply: [
-        "0x3251239Dc476CED28EC2BCE7493D049bb7Ce18Dc",
-        BigNumber.from("2999710540900"),
+        "0xf3eb1180A64827A602A7e02883b7299191527073",
+        BigNumber.from("1968249268"),
       ],
       ampFactor: [BigNumber.from("1000"), 3],
       lpFee: [BigNumber.from("300"), 6],
@@ -141,15 +141,15 @@ describe("Pool tests", () => {
       expect(state).toEqual({
         ampFactor: new Decimal("1"),
         balances: [
-          new Decimal("9999.999945"),
-          new Decimal("9999.998847"),
-          new Decimal("9999.997717"),
+          new Decimal("2087.941202"),
+          new Decimal("2052.006916"),
+          new Decimal("2117.774978"),
         ],
         ecosystem: "ethereum",
         governanceFee: new Decimal("0.0001"),
         isPaused: false,
         lpFee: new Decimal("0.0003"),
-        totalLpSupply: new Decimal("29997.105409"),
+        totalLpSupply: new Decimal("1968.249268"),
       });
     });
   });

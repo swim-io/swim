@@ -11,7 +11,6 @@ import type React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useEnvironment } from "../../../core/store";
 import {
   useInteractionStatusV2,
   useIntlDateTimeFormatter,
@@ -39,12 +38,10 @@ export const InteractionStateComponentV2: React.FC<Props> = ({
   const relativeTimeFromNow = useIntlRelativeTimeFromNow();
 
   const { interaction } = interactionState;
-  const { env } = useEnvironment();
   const interactionStatus = useInteractionStatusV2(interactionState);
   const steps = buildEuiStepsForInteraction(
     interactionState,
     interactionStatus,
-    env,
   );
 
   // TODO: make a V2 of reload state
@@ -54,7 +51,7 @@ export const InteractionStateComponentV2: React.FC<Props> = ({
       option: {
         readonly onSettled: () => void;
       },
-    ) => {},
+    ) => option.onSettled(),
     [],
   );
 

@@ -3,6 +3,7 @@ import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 
 import type { PoolSpec, TokenConfig } from "../../config";
+import { isSwimUsd } from "../../config";
 import { Amount } from "../amount";
 
 import { SwimDefiInstruction } from "./instructions";
@@ -412,24 +413,36 @@ export const getRequiredPoolsForSwap = (
   return [inputPool, outputPool];
 };
 
+const findPoolForTokenOption = (
+  poolSpecs: readonly PoolSpec[],
+  tokenOption: TokenOption,
+): PoolSpec => {
+  if (
+    tokenOption.ecosystemId === SOLANA_ECOSYSTEM_ID &&
+    isSwimUsd(tokenOption.tokenConfig)
+  ) {
+    const solanaPool = findOrThrow(
+      poolSpecs,
+      (pool) => pool.ecosystem === SOLANA_ECOSYSTEM_ID,
+    );
+    return solanaPool;
+  }
+  return findOrThrow(
+    poolSpecs,
+    (pool) =>
+      pool.ecosystem === tokenOption.ecosystemId &&
+      pool.tokens.includes(tokenOption.tokenConfig.id),
+  );
+};
+
 export const getRequiredPoolsForSwapV2 = (
   poolSpecs: readonly PoolSpec[],
   fromTokenOption: TokenOption,
   toTokenOption: TokenOption,
 ): readonly PoolSpec[] => {
   const restructuredPools = poolSpecs.filter((pool) => !pool.isLegacyPool);
-  const inputPool = findOrThrow(
-    restructuredPools,
-    (pool) =>
-      pool.ecosystem === fromTokenOption.ecosystemId &&
-      pool.tokens.includes(fromTokenOption.tokenId),
-  );
-  const outputPool = findOrThrow(
-    restructuredPools,
-    (pool) =>
-      pool.ecosystem === toTokenOption.ecosystemId &&
-      pool.tokens.includes(toTokenOption.tokenId),
-  );
+  const inputPool = findPoolForTokenOption(restructuredPools, fromTokenOption);
+  const outputPool = findPoolForTokenOption(restructuredPools, toTokenOption);
   if (inputPool === outputPool) {
     return [inputPool];
   }
@@ -461,8 +474,8 @@ export const getRequiredPools = (
     case InteractionType.SwapV2:
       return getRequiredPoolsForSwapV2(
         poolSpecs,
-        interactionSpec.params.fromTokenDetail,
-        interactionSpec.params.toTokenDetail,
+        interactionSpec.params.fromTokenData,
+        interactionSpec.params.toTokenData,
       );
     default:
       throw new Error("Unknown interaction type");

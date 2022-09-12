@@ -6616,17 +6616,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/aptos@npm:^0.38.0":
-  version: 0.38.0
-  resolution: "@swim-io/aptos@npm:0.38.0"
+"@swim-io/aptos@npm:^0.39.0":
+  version: 0.39.0
+  resolution: "@swim-io/aptos@npm:0.39.0"
   dependencies:
-    "@swim-io/core": ^0.38.0
-    "@swim-io/utils": ^0.38.0
+    "@swim-io/core": ^0.39.0
+    "@swim-io/utils": ^0.39.0
     aptos: ^1.3.13
   peerDependencies:
     decimal.js: ^10.3.1
     eventemitter3: ^4.0.7
-  checksum: 1b28582da7ea57a26e6024817517daac2097786ca748785dc3c4d8541109890f0b26eb6e1c2791c213e4e6aea25d749a70403fc2444977861b5b86bcb8be9659
+  checksum: 49261a88047a56e627a85383b7c0fa3042ae852f056a24f92fae1795dd12e32212540e375c683c9bb0d87826f57028ab71b2964c7a2498b3bfe7d834e2575672
   languageName: node
   linkType: hard
 
@@ -6669,15 +6669,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/core@npm:^0.38.0":
-  version: 0.38.0
-  resolution: "@swim-io/core@npm:0.38.0"
+"@swim-io/core@npm:^0.39.0":
+  version: 0.39.0
+  resolution: "@swim-io/core@npm:0.39.0"
   dependencies:
-    "@swim-io/token-projects": ^0.38.0
-    "@swim-io/utils": ^0.38.0
+    "@swim-io/token-projects": ^0.39.0
+    "@swim-io/utils": ^0.39.0
+    decimal.js: ^10.3.1
   peerDependencies:
     "@certusone/wormhole-sdk": ^0.6.2
-  checksum: 1ba301eb66fedde78a64bc26461c928605c5b5a668032fd64e9ad50d522a0b2ef73f430241c1c87bcba1debf24c2da1288eff619c67982a82b84ee08b095703a
+  checksum: 60125a13cdd5ecf1268f882b53bcf0bd2e06c3612bc18d14ae219a63111e34645f090acd1498616ac8f80f5d8321ee7aeb1ae0cb38006d414bcc573e020c7bc0
   languageName: node
   linkType: hard
 
@@ -6772,10 +6773,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm-contracts@npm:^0.38.0":
-  version: 0.38.0
-  resolution: "@swim-io/evm-contracts@npm:0.38.0"
-  checksum: 66b75016a1b287ac3ebcf6758feb545531c7734551b8e8a17da3593b03b9d6acb09536ebc318080bc74aea217d01586aa300e78e790aa7b32e9721c21ea215d5
+"@swim-io/evm-contracts@npm:^0.39.0":
+  version: 0.39.0
+  resolution: "@swim-io/evm-contracts@npm:0.39.0"
+  checksum: 9c375aed437790788e6ac53ebf13829f34da2fe3d00859aed4d563b3e173d8ec2faac0b217c0ee11069978b755fa47c1db94b2a8cf3596157605716798a432ea
   languageName: node
   linkType: hard
 
@@ -6833,14 +6834,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm@npm:^0.38.0":
-  version: 0.38.0
-  resolution: "@swim-io/evm@npm:0.38.0"
+"@swim-io/evm@npm:^0.39.0":
+  version: 0.39.0
+  resolution: "@swim-io/evm@npm:0.39.0"
   dependencies:
-    "@swim-io/core": ^0.38.0
-    "@swim-io/evm-contracts": ^0.38.0
-    "@swim-io/token-projects": ^0.38.0
-    "@swim-io/utils": ^0.38.0
+    "@swim-io/core": ^0.39.0
+    "@swim-io/evm-contracts": ^0.39.0
+    "@swim-io/token-projects": ^0.39.0
+    "@swim-io/utils": ^0.39.0
     graphql: ^16.6.0
     graphql-request: ^4.3.0
     moralis: ^1.8.0
@@ -6849,7 +6850,7 @@ __metadata:
     decimal.js: ^10.3.1
     ethers: ^5.6.9
     eventemitter3: ^4.0.7
-  checksum: 793efffbebc3321888462dde9c5f72ca8d839eb925d2e71536f6a735c65837065a2e7d3802612ca221bf858eb68f9b96bdc84b842c1ae97909612e126573ba57
+  checksum: d45ae02e098b910f357ad4f584c74405d5882f223ba8f1469532e20739ad189e46729ee258421170fe5d5b4dab06486b74406beab0a4a3bc4896794dac6d6a2d
   languageName: node
   linkType: hard
 
@@ -6912,12 +6913,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/pool-math@npm:^0.38.0":
-  version: 0.38.0
-  resolution: "@swim-io/pool-math@npm:0.38.0"
+"@swim-io/pool-math@npm:^0.39.0":
+  version: 0.39.0
+  resolution: "@swim-io/pool-math@npm:0.39.0"
   peerDependencies:
     decimal.js: ^10.3.1
-  checksum: 424988bcfafd4c732e46eea68b784817ea03e7b3b5cc107255b9fca2fe52835907f7adf17a1ab18842e2356a02f65b8aea3b54ac93f6b2409c8502510c30d481
+  checksum: 68f86c9a614630192dd54a04a7f96765823e2fb2444a8807de172714570695f0ee0f8c82a676b682973dc64f54eca422b95828b7df9eacfa9b71d5cc5a819a63
   languageName: node
   linkType: hard
 
@@ -7047,15 +7048,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/solana-contracts@npm:^0.38.0":
-  version: 0.38.0
-  resolution: "@swim-io/solana-contracts@npm:0.38.0"
+"@swim-io/solana-contracts@npm:^0.39.0":
+  version: 0.39.0
+  resolution: "@swim-io/solana-contracts@npm:0.39.0"
   peerDependencies:
     "@project-serum/anchor": ^0.25.0
     "@project-serum/borsh": ^0.2.5
     "@solana/spl-token": ^0.2.0
     "@solana/web3.js": ^1.50.1
-  checksum: 4ff84363a57b50a103b23edd8e9d35e5700d640cd7cb50b1399791c25e8cddec0556de318eb3fe774059c562701579c690e64d6c1b6bcac3bd9cd42c2b341e5c
+  checksum: 891cea2e53838d8e6048054174c5685782cd5ef86c0d8e062e123fd26839bf03d0e15b9245f037de27fcca87352b695735e0fbde6a3abfa8dba156c5d8cb7575
   languageName: node
   linkType: hard
 
@@ -7164,16 +7165,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/solana@npm:^0.38.0":
-  version: 0.38.0
-  resolution: "@swim-io/solana@npm:0.38.0"
+"@swim-io/solana@npm:^0.39.0":
+  version: 0.39.0
+  resolution: "@swim-io/solana@npm:0.39.0"
   dependencies:
     "@ledgerhq/hw-transport": ^6.27.1
     "@ledgerhq/hw-transport-webusb": ^6.0.2
     "@project-serum/sol-wallet-adapter": 0.2.2
-    "@swim-io/core": ^0.38.0
-    "@swim-io/token-projects": ^0.38.0
-    "@swim-io/utils": ^0.38.0
+    "@swim-io/core": ^0.39.0
+    "@swim-io/token-projects": ^0.39.0
+    "@swim-io/utils": ^0.39.0
   peerDependencies:
     "@certusone/wormhole-sdk": ^0.6.2
     "@project-serum/borsh": ^0.2.5
@@ -7182,7 +7183,7 @@ __metadata:
     bn.js: ^5.2.1
     decimal.js: ^10.3.1
     ethers: ^5.7.0
-  checksum: 97d9095a66ea60ebab5c7580a06cc1166e018337ee20b276c2a8bf33046c41f77c2ec706f88d0252310813339ce4ebbea737e8e92b31b51a91d055d7b184f008
+  checksum: f634613102ae42bb2643652d6a7bd7806579f87deab6f22c6d8cb01495425306b32728b71bc38bfad550000e2862e703d113387fa1fd187d795df78fdaba34ca
   languageName: node
   linkType: hard
 
@@ -7267,12 +7268,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/token-projects@npm:^0.38.0":
-  version: 0.38.0
-  resolution: "@swim-io/token-projects@npm:0.38.0"
+"@swim-io/token-projects@npm:^0.39.0":
+  version: 0.39.0
+  resolution: "@swim-io/token-projects@npm:0.39.0"
   dependencies:
-    "@swim-io/utils": ^0.38.0
-  checksum: f57d400f1e2c057d0f9343546c7d160c497ec30d5beaf6f25240c51efd2680c49b10c68eebea5ad82c027f23328f93f113e3a3a7948b50cd9af5a10c7385e172
+    "@swim-io/utils": ^0.39.0
+  checksum: 3196959f235f8b085ffa578e726db82a5db05d6958a1072c35ba596f6cfb78ed7b949753e5bd1c915cd298097df5ba286447d7ea3718a5f8cef1bd17387811b0
   languageName: node
   linkType: hard
 
@@ -7342,18 +7343,18 @@ __metadata:
     "@storybook/manager-webpack4": ^6.5.10
     "@storybook/node-logger": ^6.5.10
     "@storybook/react": ^6.5.10
-    "@swim-io/aptos": ^0.38.0
-    "@swim-io/core": ^0.38.0
+    "@swim-io/aptos": ^0.39.0
+    "@swim-io/core": ^0.39.0
     "@swim-io/eslint-config": "workspace:^"
-    "@swim-io/evm": ^0.38.0
-    "@swim-io/evm-contracts": ^0.38.0
-    "@swim-io/pool-math": ^0.38.0
-    "@swim-io/solana": ^0.38.0
-    "@swim-io/solana-contracts": ^0.38.0
-    "@swim-io/token-projects": ^0.38.0
+    "@swim-io/evm": ^0.39.0
+    "@swim-io/evm-contracts": ^0.39.0
+    "@swim-io/pool-math": ^0.39.0
+    "@swim-io/solana": ^0.39.0
+    "@swim-io/solana-contracts": ^0.39.0
+    "@swim-io/token-projects": ^0.39.0
     "@swim-io/tsconfig": "workspace:^"
-    "@swim-io/utils": ^0.38.0
-    "@swim-io/wormhole": ^0.38.0
+    "@swim-io/utils": ^0.39.0
+    "@swim-io/wormhole": ^0.39.0
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^7.0.2
@@ -7417,12 +7418,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/utils@npm:^0.38.0":
-  version: 0.38.0
-  resolution: "@swim-io/utils@npm:0.38.0"
+"@swim-io/utils@npm:^0.39.0":
+  version: 0.39.0
+  resolution: "@swim-io/utils@npm:0.39.0"
   peerDependencies:
     decimal.js: ^10.3.1
-  checksum: d2bc110ef9e89999ef9beeb12302a9d114d2a0e4b640effa5764fda88ab961c7d67c41a637f6b0ddc0f01d626268861a94481180ad856af2571c57efbd645eb6
+  checksum: 76a1e248f56df3a6e717694d70684023cb27a1fd4b64b00a27b1939cea2401f86e97908b439db63154f24e51371323db12986a1d2866502079159580d3704a97
   languageName: node
   linkType: hard
 
@@ -7453,20 +7454,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/wormhole@npm:^0.38.0":
-  version: 0.38.0
-  resolution: "@swim-io/wormhole@npm:0.38.0"
+"@swim-io/wormhole@npm:^0.39.0":
+  version: 0.39.0
+  resolution: "@swim-io/wormhole@npm:0.39.0"
   dependencies:
-    "@swim-io/core": ^0.38.0
-    "@swim-io/solana": ^0.38.0
-    "@swim-io/utils": ^0.38.0
+    "@swim-io/core": ^0.39.0
+    "@swim-io/solana": ^0.39.0
+    "@swim-io/utils": ^0.39.0
     grpc-web: ^1.3.1
   peerDependencies:
     "@certusone/wormhole-sdk": ^0.6.2
     "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.62.0
     ethers: ^5.6.9
-  checksum: 4682342c609f023cc54bc549104480e82f01b85b067910faabe5e62b3601532c5d5a97d08a10f6e31ec6ab3c3dcbe4eabeb51ac12f7a3059e7d5fcb05348f185
+  checksum: 953ed6377f6614fffa9b7a335543e804598380092bbdf71dee4ab52a90eef4738f3249133f729e4e89888592e76bf5205195931444f73b3aeaad25519cb85055
   languageName: node
   linkType: hard
 

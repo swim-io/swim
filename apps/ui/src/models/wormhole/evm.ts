@@ -2,12 +2,12 @@ import { getAllowanceEth } from "@certusone/wormhole-sdk";
 import { PublicKey } from "@solana/web3.js";
 import type { WormholeChainConfig } from "@swim-io/core";
 import type { EvmTx } from "@swim-io/evm";
+import { approveEth, transferFromEth } from "@swim-io/wormhole";
 import type { ethers } from "ethers";
 
 import type { TokenConfig } from "../../config";
 import { WormholeChainId, getTokenDetailsForEcosystem } from "../../config";
 
-import { approveEth, transferFromEth } from "./overrides";
 import type { WormholeTransfer } from "./transfer";
 
 export const isLockEvmTx = (

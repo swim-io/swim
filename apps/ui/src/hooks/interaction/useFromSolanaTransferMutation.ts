@@ -3,6 +3,7 @@ import type { Transaction } from "@solana/web3.js";
 import type { SolanaConnection, TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
 import { findOrThrow, isEachNotNull } from "@swim-io/utils";
+import { redeemOnEth, transferFromSolana } from "@swim-io/wormhole";
 import { useMutation } from "react-query";
 
 import type { Config } from "../../config";
@@ -25,8 +26,6 @@ import {
   getTokensByPool,
   getTransferredAmounts,
   parseSequenceFromLogSolana,
-  redeemOnEth,
-  transferFromSolana,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmConnection } from "../evm";

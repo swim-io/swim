@@ -4,17 +4,14 @@ import {
   Bridge__factory,
   CHAIN_ID_SOLANA,
   ERC20__factory,
-  chunks,
   createNonce,
-  createPostVaaInstructionSolana,
-  createVerifySignaturesInstructionsSolana,
   getBridgeFeeIx,
   importCoreWasm,
   importTokenWasm,
   ixFromRust,
 } from "@certusone/wormhole-sdk";
 import { createApproveInstruction } from "@solana/spl-token";
-import type { Transaction, TransactionInstruction } from "@solana/web3.js";
+import type { Transaction } from "@solana/web3.js";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { createMemoIx, createTx } from "@swim-io/solana";
 import type { SolanaConnection } from "@swim-io/solana";
@@ -166,72 +163,6 @@ export const transferFromSolana = async (
     feePayer: new PublicKey(payerAddress),
   }).add(transferIx, approvalIx, ix, memoIx);
   return { tx, messageKeypair };
-};
-
-/**
- * Adapted from https://github.com/certusone/wormhole/blob/2998031b164051a466bb98c71d89301ed482b4c5/sdk/js/src/solana/postVaa.ts#L13-L80
- */
-export const postVaaSolanaWithRetry = async (
-  interactionId: string,
-  solanaConnection: SolanaConnection,
-  signTransaction: (tx: Transaction) => Promise<Transaction>,
-  bridge_id: string,
-  payer: string,
-  vaa: Buffer,
-): Promise<readonly string[]> => {
-  const memoIx = createMemoIx(interactionId, []);
-
-  const unsignedTxs: Transaction[] = [];
-  const signatureSet = Keypair.generate();
-  // const { createPostVaaInstruction, createVerifySignaturesInstructions } =
-  //   await importInstructionCreators();
-  const ixs: readonly TransactionInstruction[] =
-    await createVerifySignaturesInstructionsSolana(
-      solanaConnection.rawConnection,
-      bridge_id,
-      payer,
-      vaa,
-      signatureSet,
-    );
-  const finalIx: TransactionInstruction = await createPostVaaInstructionSolana(
-    bridge_id,
-    payer,
-    vaa,
-    signatureSet,
-  );
-
-  // The verify signatures instructions can be batched into groups of 2 safely,
-  // reducing the total number of transactions.
-  const batchableChunks = chunks([...ixs], 2);
-  batchableChunks.forEach((chunk) => {
-    const tx = createTx({
-      feePayer: new PublicKey(payer),
-    }).add(...chunk, memoIx);
-    unsignedTxs.push(tx);
-  });
-
-  // The postVaa instruction can only execute after the verifySignature transactions have
-  // successfully completed.
-  const finalTx = createTx({
-    feePayer: new PublicKey(payer),
-  }).add(finalIx, memoIx);
-
-  // The signatureSet keypair also needs to sign the verifySignature transactions, thus a wrapper is needed.
-  const partialSignWrapper = async (tx: Transaction): Promise<Transaction> => {
-    tx.partialSign(signatureSet);
-    return signTransaction(tx);
-  };
-
-  const txIds = await solanaConnection.sendAndConfirmTxs(
-    partialSignWrapper,
-    unsignedTxs,
-  );
-  // While the signatureSet is used to create the final instruction, it doesn't need to sign it.
-  const finalTxIds = await solanaConnection.sendAndConfirmTxs(signTransaction, [
-    finalTx,
-  ]);
-
-  return Promise.resolve([...txIds, ...finalTxIds]);
 };
 
 /**

@@ -28,6 +28,7 @@ import type {
   SolanaTx,
   SolanaWalletAdapter,
 } from "@swim-io/solana";
+import { redeemOnSolana } from "@swim-io/wormhole";
 
 import type { TokenConfig } from "../../config";
 import { WormholeChainId, getSolanaTokenDetails } from "../../config";
@@ -37,7 +38,6 @@ import {
   POLYGON_WORMHOLE_RETRIES,
 } from "./constants";
 import { getSignedVaaWithRetry } from "./guardiansRpc";
-import { redeemOnSolana } from "./overrides";
 
 // Adapted from https://github.com/certusone/wormhole/blob/83b97bedb8c54618b191c20e4e18ba438a716cfa/sdk/js/src/bridge/parseSequenceFromLog.ts#L71-L81
 const SOLANA_SEQ_LOG = "Program log: Sequence: ";

@@ -28,5 +28,5 @@ export const humanDecimalToAtomicString = (
       `No token details for ecosystem ${ecosystemId} and token ${tokenConfig.id}`,
     );
   }
-  return decimal.mul(10 ** details.decimals).toFixed(0);
+  return decimal.mul(10 ** details.decimals).toFixed(0, Decimal.ROUND_DOWN);
 };

@@ -9,7 +9,6 @@ import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useInteractionStateV2 } from "../../core/store";
 import type { SingleChainEvmSwapInteractionState } from "../../models";
 import {
-  Amount,
   InteractionType,
   SwapType,
   approveAmount,
@@ -65,8 +64,13 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
       if (tokenDetails === null) {
         throw new Error("Missing token details");
       }
+      const inputAmountAtomicString = humanDecimalToAtomicString(
+        fromTokenData.value,
+        fromTokenSpec,
+        fromTokenData.ecosystemId,
+      );
       const approvalResponses = await approveAmount(
-        Amount.fromHuman(fromTokenSpec, fromTokenData.value),
+        inputAmountAtomicString,
         evmChainSpec,
         connection,
         tokenDetails,
@@ -96,11 +100,7 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
         "onChainSwap(address,uint256,address,address,uint256,bytes16)"
       ](
         fromTokenAddress,
-        humanDecimalToAtomicString(
-          fromTokenData.value,
-          fromTokenSpec,
-          fromTokenData.ecosystemId,
-        ),
+        inputAmountAtomicString,
         address,
         toTokenAddress,
         humanDecimalToAtomicString(

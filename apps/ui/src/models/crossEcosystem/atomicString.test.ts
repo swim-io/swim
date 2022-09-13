@@ -10,7 +10,7 @@ import {
   humanDecimalToAtomicString,
 } from "./atomicString";
 
-const defaultStablecoinTokenSpec: TokenConfig = {
+const defaultStablecoinTokenConfig: TokenConfig = {
   id: "test-stablecoin",
   projectId: TokenProjectId.Usdc,
   nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
@@ -25,7 +25,7 @@ describe("atomicString", () => {
     it("should convert atomic string to decimal for native ecosystem", () => {
       const decimal = atomicStringToHumanDecimal(
         "12345678900000",
-        defaultStablecoinTokenSpec,
+        defaultStablecoinTokenConfig,
         SOLANA_ECOSYSTEM_ID,
       );
       expect(decimal).toEqual(new Decimal(123456.789));
@@ -34,7 +34,7 @@ describe("atomicString", () => {
     it("should convert atomic string to decimal for wrapped ecosystem", () => {
       const decimal = atomicStringToHumanDecimal(
         "12345678900000",
-        defaultStablecoinTokenSpec,
+        defaultStablecoinTokenConfig,
         EvmEcosystemId.Bnb,
       );
       expect(decimal).toEqual(new Decimal(0.0000123456789));
@@ -45,7 +45,7 @@ describe("atomicString", () => {
     it("should convert decimal to atomic string for native ecosystem", () => {
       const atomicString = humanDecimalToAtomicString(
         new Decimal(123456.789),
-        defaultStablecoinTokenSpec,
+        defaultStablecoinTokenConfig,
         SOLANA_ECOSYSTEM_ID,
       );
       expect(atomicString).toEqual("12345678900000");
@@ -54,7 +54,7 @@ describe("atomicString", () => {
     it("should convert decimal to atomic string for wrapped ecosystem", () => {
       const atomicString = humanDecimalToAtomicString(
         new Decimal(123456.789),
-        defaultStablecoinTokenSpec,
+        defaultStablecoinTokenConfig,
         EvmEcosystemId.Bnb,
       );
       expect(atomicString).toEqual("123456789000000000000000");

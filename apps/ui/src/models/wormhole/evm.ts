@@ -7,7 +7,6 @@ import type { ethers } from "ethers";
 
 import type { EvmSpec, TokenConfig } from "../../config";
 import { WormholeChainId, getTokenDetailsForEcosystem } from "../../config";
-import type { Amount } from "../amount";
 import type { EvmConnection } from "../evm";
 
 import type { WormholeTransfer } from "./transfer";
@@ -51,7 +50,7 @@ export const isUnlockEvmTx = (
 };
 
 export const approveAmount = async (
-  amount: Amount,
+  amountAtomicString: string,
   evmChain: EvmSpec,
   evmConnection: EvmConnection,
   fromTokenDetails: TokenDetails,
@@ -65,7 +64,6 @@ export const approveAmount = async (
 
   await evmWallet.switchNetwork(evmChain.chainId);
 
-  const transferAmountAtomicString = amount.toAtomicString(evmChain.ecosystem);
   const allowance = await getAllowanceEth(
     spenderAddress,
     fromTokenDetails.address,
@@ -73,7 +71,7 @@ export const approveAmount = async (
   );
 
   let approvalResponses: readonly ethers.providers.TransactionResponse[] = [];
-  if (allowance.lt(transferAmountAtomicString)) {
+  if (allowance.lt(amountAtomicString)) {
     if (!allowance.isZero()) {
       // Reset to 0 to avoid a race condition allowing Wormhole to steal funds
       // See https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
@@ -93,7 +91,7 @@ export const approveAmount = async (
       spenderAddress,
       fromTokenDetails.address,
       evmSigner,
-      transferAmountAtomicString,
+      amountAtomicString,
     );
     approvalResponses = approvalResponse
       ? [...approvalResponses, approvalResponse]
@@ -129,7 +127,7 @@ export const lockEvmToken = async ({
 
   const transferAmountAtomicString = amount.toAtomicString(evmChain.ecosystem);
   const approvalResponses = await approveAmount(
-    amount,
+    transferAmountAtomicString,
     evmChain,
     evmConnection,
     fromTokenDetails,

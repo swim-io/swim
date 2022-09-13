@@ -16,7 +16,7 @@ export const useSolBalanceQuery = (
   const solanaConnection = useSolanaConnection();
   const { address: walletAddress } = useSolanaWallet();
   return useQuery<Decimal, Error>(
-    ["solBalance", env, walletAddress],
+    [env, "solBalance", walletAddress],
     async () => {
       if (!walletAddress) {
         return new Decimal(0);

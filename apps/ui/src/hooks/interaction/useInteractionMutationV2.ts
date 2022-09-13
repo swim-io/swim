@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "react-query";
 
-import { useInteractionStateV2 } from "../../core/store";
+import { useEnvironment, useInteractionStateV2 } from "../../core/store";
 import { InteractionType, SwapType } from "../../models";
 
 import { useAddInteractionMutation } from "./useAddInteractionMutation";
@@ -14,6 +14,7 @@ import { useSingleChainSolanaSwapInteractionMutation } from "./useSingleChainSol
 export const INTERACTION_MUTATION_KEY_V2 = ["interactionMutationV2"];
 
 export const useInteractionMutationV2 = () => {
+  const { env } = useEnvironment();
   const { getInteractionState, setInteractionError } = useInteractionStateV2();
   const queryClient = useQueryClient();
 
@@ -81,8 +82,8 @@ export const useInteractionMutationV2 = () => {
         setInteractionError(interactionId, error);
       },
       onSettled: async () => {
-        await queryClient.invalidateQueries(["erc20Balance"]);
-        await queryClient.invalidateQueries(["tokenAccounts"]);
+        await queryClient.invalidateQueries([env, "erc20Balance"]);
+        await queryClient.invalidateQueries([env, "tokenAccounts"]);
       },
     },
   );

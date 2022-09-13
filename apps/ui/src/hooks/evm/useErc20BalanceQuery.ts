@@ -19,7 +19,7 @@ export const useErc20BalanceQuery = (
   const { address: walletAddress } = useEvmWallet();
 
   return useQuery<Decimal | null, Error>(
-    ["erc20Balance", env, ecosystemId, contractAddress, walletAddress],
+    [env, "erc20Balance", ecosystemId, contractAddress, walletAddress],
     async (): Promise<Decimal | null> => {
       if (walletAddress === null || contractAddress === null) {
         return null;

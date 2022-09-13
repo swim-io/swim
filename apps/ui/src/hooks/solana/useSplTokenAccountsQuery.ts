@@ -14,7 +14,7 @@ import { useSolanaWallet } from "./useSolanaWallet";
 export const getSplTokenAccountsQueryKey = (
   env: Env,
   address: string | null,
-) => ["tokenAccounts", env, address];
+) => [env, "tokenAccounts", address];
 
 export const useSplTokenAccountsQuery = (
   owner?: string,
@@ -26,7 +26,7 @@ export const useSplTokenAccountsQuery = (
   const address = owner ?? userAddress;
 
   const queryKey = getSplTokenAccountsQueryKey(env, address);
-  const query = useQuery<readonly TokenAccount[], Error>(
+  return useQuery<readonly TokenAccount[], Error>(
     queryKey,
     async () => {
       if (address === null) {
@@ -42,6 +42,4 @@ export const useSplTokenAccountsQuery = (
     },
     options,
   );
-
-  return query;
 };

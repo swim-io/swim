@@ -37,7 +37,7 @@ const findOrCreateSplTokenAccount = async (
   const solanaAddress = wallet.publicKey.toBase58();
   await solanaConnection.createSplTokenAccount(wallet, splTokenMintAddress);
   await sleep(1000); // TODO: Find a better condition
-  await queryClient.invalidateQueries(["tokenAccounts", env, solanaAddress]);
+  await queryClient.invalidateQueries([env, "tokenAccounts", solanaAddress]);
   return solanaConnection.getTokenAccountWithRetry(
     splTokenMintAddress,
     solanaAddress,
@@ -77,7 +77,7 @@ export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
           ),
         ),
       );
-      await queryClient.invalidateQueries(["tokenAccounts", env, address]);
+      await queryClient.invalidateQueries([env, "tokenAccounts", address]);
       return tokenAccounts;
     },
   );

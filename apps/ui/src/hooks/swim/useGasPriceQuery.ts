@@ -16,7 +16,7 @@ export const useGasPriceQueries = (
 
   return useQueries(
     evmEcosystemIds.map((evmEcosystemId, i) => ({
-      queryKey: ["gasPrice", env, evmEcosystemId],
+      queryKey: [env, "gasPrice", evmEcosystemId],
       queryFn: async () => {
         const gasPriceInWei = await connections[i].provider.getGasPrice();
         const gasPriceInNativeCurrency = new Decimal(

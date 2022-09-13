@@ -13,7 +13,7 @@ export const useSolanaLiquidityQuery = (
   const solanaConnection = useSolanaConnection();
 
   return useQuery<readonly (TokenAccount | null)[], Error>(
-    ["liquidity", env, tokenAccountAddresses.join("")],
+    [env, "liquidity", tokenAccountAddresses.join("")],
     async () => {
       if (tokenAccountAddresses.length === 0) {
         return [];
@@ -34,7 +34,7 @@ export const useSolanaLiquidityQueries = (
 
   return useQueries(
     tokenAccountAddresses.map((addresses) => ({
-      queryKey: ["liquidity", env, addresses.join("")],
+      queryKey: [env, "liquidity", addresses.join("")],
       queryFn: async (): Promise<readonly (TokenAccount | null)[]> => {
         if (addresses.length === 0) {
           return [];

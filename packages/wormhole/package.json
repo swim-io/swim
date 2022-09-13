@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/wormhole",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "description": "Swim code relating to Wormhole.",
   "main": "build",
   "types": "types",
@@ -35,7 +35,9 @@
     "@solana/spl-token": "^0.3.4",
     "@solana/web3.js": "^1.48.0",
     "@swim-io/solana": "workspace:^",
-    "ethers": "^5.6.9"
+    "@swim-io/utils": "workspace:^",
+    "ethers": "^5.6.9",
+    "grpc-web": "^1.3.1"
   },
   "devDependencies": {
     "@swim-io/eslint-config": "workspace:^",

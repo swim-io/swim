@@ -1,20 +1,16 @@
-import type { Network } from "@ethersproject/providers";
 import { Env } from "@swim-io/core";
-import {
-  EvmEcosystemId,
-  aurora,
-  bnb,
-  ethereum,
-  fantom,
-  polygon,
-} from "@swim-io/evm";
 import type { ReadonlyRecord } from "@swim-io/utils";
-import { ethers, logger } from "ethers";
+import { logger, providers } from "ethers";
 
+import { aurora, bnb, ethereum, fantom, polygon } from "../ecosystems";
+import { EvmEcosystemId } from "../protocol";
+
+type Network = providers.Network;
 type EtherscanFamilyNetworks = ReadonlyRecord<
   Env.Mainnet | Env.Devnet,
   Network
 >;
+const EtherscanProvider = providers.EtherscanProvider;
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 const ETHEREUM_NETWORKS: EtherscanFamilyNetworks = {
@@ -115,8 +111,7 @@ const BASE_URLS: ReadonlyRecord<string, string | undefined> = {
 };
 
 /** Extends EtherscanProvider with base URLs for other Etherscan-family services */
-export class EtherscanFamilyProvider extends ethers.providers
-  .EtherscanProvider {
+export class EtherscanFamilyProvider extends EtherscanProvider {
   public override getBaseUrl(): string {
     // Etherscan does not use strict mode so this check is probably necessary
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

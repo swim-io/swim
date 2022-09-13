@@ -1,9 +1,8 @@
 import { filterMap, isNotNull } from "@swim-io/utils";
 import { providers } from "ethers";
 
-const { JsonRpcProvider } = providers;
-
 type TransactionResponse = providers.TransactionResponse;
+const JsonRpcProvider = providers.JsonRpcProvider;
 
 const DEFAULT_RECENT_BLOCKS = 100;
 

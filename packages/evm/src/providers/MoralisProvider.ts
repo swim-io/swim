@@ -1,16 +1,13 @@
-import type {
-  BlockTag,
-  TransactionReceipt,
-} from "@ethersproject/abstract-provider";
 import { Env } from "@swim-io/core";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber, providers } from "ethers";
 import { Moralis } from "moralis";
 
-import { EvmChainId } from "../../config";
+import { bnbChainId } from "../ecosystems";
 
-type TransactionResponse = ethers.providers.TransactionResponse;
-
-const { JsonRpcProvider } = ethers.providers;
+type BlockTag = providers.BlockTag;
+type TransactionReceipt = providers.TransactionReceipt;
+type TransactionResponse = providers.TransactionResponse;
+const JsonRpcProvider = providers.JsonRpcProvider;
 
 const MORALIS_MAINNET_URL = process.env.REACT_APP_MORALIS_MAINNET_URL;
 const MORALIS_TESTNET_URL = process.env.REACT_APP_MORALIS_TESTNET_URL;
@@ -57,7 +54,7 @@ export class MoralisProvider extends JsonRpcProvider {
     txTimeoutMs = DEFAULT_TIMEOUT_MS,
   ) {
     const jsonRpcChainId =
-      env === Env.Mainnet ? EvmChainId.BnbMainnet : EvmChainId.BnbTestnet;
+      env === Env.Mainnet ? bnbChainId[Env.Mainnet] : bnbChainId[Env.Devnet];
     super(jsonRpcUrl, jsonRpcChainId);
     this.moralisChain = env === Env.Mainnet ? "bsc" : "bsc testnet";
     this.moralisUrl = getMoralisUrl(env);

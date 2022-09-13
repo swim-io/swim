@@ -1,5 +1,14 @@
 import { Env } from "@swim-io/core";
-import { EvmEcosystemId } from "@swim-io/evm";
+import type { GetHistoryProvider } from "@swim-io/evm";
+import {
+  EtherscanFamilyProvider,
+  EvmConnection,
+  EvmEcosystemId,
+  MoralisProvider,
+  PolkadotProvider,
+  SimpleGetHistoryProvider,
+  getEtherscanFamilyNetwork,
+} from "@swim-io/evm";
 import { findOrThrow } from "@swim-io/utils";
 import { createContext, useEffect, useState } from "react";
 import type { ReactElement, ReactNode } from "react";
@@ -10,15 +19,6 @@ import type { EvmSpec } from "../config";
 import { Protocol, isEcosystemEnabled } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
-import type { Provider } from "../models";
-import {
-  EtherscanFamilyProvider,
-  EvmConnection,
-  MoralisProvider,
-  PolkadotProvider,
-  SimpleGetHistoryProvider,
-  getEtherscanFamilyNetwork,
-} from "../models";
 
 const MORALIS_ID = process.env.REACT_APP_MORALIS_ID;
 
@@ -55,7 +55,7 @@ export const getProvider = (
   env: Env,
   chains: readonly EvmSpec[],
   ecosystemId: EvmEcosystemId,
-): Provider => {
+): GetHistoryProvider => {
   const { rpcUrls } = findOrThrow(
     chains,
     (chain) => chain.ecosystem === ecosystemId,

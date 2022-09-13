@@ -1,13 +1,14 @@
 import { ERC20__factory } from "@swim-io/evm-contracts";
 import { isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
-import { ethers } from "ethers";
+import type { providers } from "ethers";
+import { utils } from "ethers";
 
-type BaseProvider = ethers.providers.BaseProvider;
-type TransactionReceipt = ethers.providers.TransactionReceipt;
-type TransactionResponse = ethers.providers.TransactionResponse;
+type BaseProvider = providers.BaseProvider;
+type TransactionReceipt = providers.TransactionReceipt;
+type TransactionResponse = providers.TransactionResponse;
 
-export type Provider = BaseProvider & {
+export type GetHistoryProvider = BaseProvider & {
   readonly getHistory: (
     address: string,
     startBlock?: number,
@@ -16,11 +17,11 @@ export type Provider = BaseProvider & {
 };
 
 export class EvmConnection {
-  public provider: Provider;
+  public provider: GetHistoryProvider;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly txReceiptCache: Map<string, TransactionReceipt>;
 
-  constructor(provider: Provider) {
+  constructor(provider: GetHistoryProvider) {
     this.provider = provider;
     this.txReceiptCache = new Map();
   }
@@ -87,7 +88,7 @@ export class EvmConnection {
   public async getGasBalance(walletAddress: string): Promise<Decimal> {
     try {
       const balanceInWei = await this.provider.getBalance(walletAddress);
-      return new Decimal(ethers.utils.formatUnits(balanceInWei));
+      return new Decimal(utils.formatUnits(balanceInWei));
     } catch {
       return new Decimal(0);
     }

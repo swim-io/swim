@@ -1,9 +1,9 @@
-import { ethers } from "ethers";
+import { providers } from "ethers";
 import { gql, request } from "graphql-request";
 
-type TransactionResponse = ethers.providers.TransactionResponse;
+type TransactionResponse = providers.TransactionResponse;
+const JsonRpcProvider = providers.JsonRpcProvider;
 
-const { JsonRpcProvider } = ethers.providers;
 const NUM_TX_TO_FETCH = 100;
 
 // GraphQL Schema

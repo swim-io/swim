@@ -108,7 +108,7 @@ export const approveAmount = async (
 
 export const lockEvmToken = async ({
   interactionId,
-  amount,
+  amountAtomicString,
   evmChain,
   evmConnection,
   fromTokenDetails,
@@ -125,9 +125,8 @@ export const lockEvmToken = async ({
 
   await evmWallet.switchNetwork(evmChain.chainId);
 
-  const transferAmountAtomicString = amount.toAtomicString(evmChain.ecosystem);
   const approvalResponses = await approveAmount(
-    transferAmountAtomicString,
+    amountAtomicString,
     evmChain,
     evmConnection,
     fromTokenDetails,
@@ -140,7 +139,7 @@ export const lockEvmToken = async ({
     evmChain.wormhole.portal,
     evmSigner,
     fromTokenDetails.address,
-    transferAmountAtomicString,
+    amountAtomicString,
     WormholeChainId.Solana,
     new PublicKey(splTokenAccountAddress).toBytes(),
   );

@@ -249,7 +249,7 @@ const TestPage = (): ReactElement => {
       )) ?? null;
     setInitTxIds(newInitTxIds);
     await sleep(1000);
-    await queryClient.invalidateQueries(["poolState", env, poolSpec.address]);
+    await queryClient.invalidateQueries([env, "poolState", poolSpec.id]);
   };
 
   const attestLpToken = async (): Promise<void> => {

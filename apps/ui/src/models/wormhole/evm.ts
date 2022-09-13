@@ -8,8 +8,6 @@ import type { ethers } from "ethers";
 import type { EvmSpec, TokenConfig } from "../../config";
 import { WormholeChainId, getTokenDetailsForEcosystem } from "../../config";
 
-import type { WormholeTransfer } from "./transfer";
-
 export const isLockEvmTx = (
   wormholeChainConfig: WormholeChainConfig,
   token: TokenConfig,
@@ -105,15 +103,15 @@ export const approveAmount = async (
   return approvalResponses;
 };
 
-export const lockEvmToken = async ({
-  interactionId,
-  amountAtomicString,
-  evmChain,
-  evmConnection,
-  fromTokenDetails,
-  evmWallet,
-  splTokenAccountAddress,
-}: WormholeTransfer): Promise<{
+export const lockEvmToken = async (
+  evmConnection: EvmConnection,
+  evmWallet: EvmWalletAdapter,
+  evmChain: EvmSpec,
+  fromTokenDetails: TokenDetails,
+  splTokenAccountAddress: string,
+  amountAtomicString: string,
+  interactionId: string,
+): Promise<{
   readonly approvalResponses: readonly ethers.providers.TransactionResponse[];
   readonly transferResponse: ethers.providers.TransactionResponse;
 }> => {

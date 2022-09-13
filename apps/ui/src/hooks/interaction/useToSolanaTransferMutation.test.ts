@@ -1,7 +1,10 @@
 import { PublicKey } from "@solana/web3.js";
 import { EvmEcosystemId } from "@swim-io/evm";
 import type { TokenAccount } from "@swim-io/solana";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  generateUnlockSplTokenTxIds,
+} from "@swim-io/solana";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
@@ -9,7 +12,7 @@ import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { MOCK_SOL_WALLET } from "../../fixtures";
 import { MOCK_INTERACTION_STATE } from "../../fixtures/swim/interactionState";
-import { generateUnlockSplTokenTxIds, lockEvmToken } from "../../models";
+import { getSignedVaaWithRetry, lockEvmToken } from "../../models";
 import type { Wallets } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useWallets } from "../crossEcosystem";
@@ -18,13 +21,15 @@ import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
 
 import { useToSolanaTransferMutation } from "./useToSolanaTransferMutation";
 
-jest.mock("../../core/store/idb");
+const generateUnlockSplTokenTxIdsMock = mockOf(generateUnlockSplTokenTxIds);
+
 jest.mock("@certusone/wormhole-sdk");
+jest.mock("../../core/store/idb");
+
 jest.mock("../evm", () => ({
   ...jest.requireActual("../evm"),
   useGetEvmConnection: jest.fn(),
 }));
-const useSolanaConnectionMock = mockOf(useSolanaConnection);
 const useGetEvmConnectionMock = mockOf(useGetEvmConnection);
 
 jest.mock("../crossEcosystem", () => ({
@@ -35,17 +40,18 @@ const useWalletsMock = mockOf(useWallets);
 
 jest.mock("../../models", () => ({
   ...jest.requireActual("../../models"),
+  getSignedVaaWithRetry: jest.fn(),
   lockEvmToken: jest.fn(),
-  generateUnlockSplTokenTxIds: jest.fn(),
 }));
+const getSignedVaaWithRetryMock = mockOf(getSignedVaaWithRetry);
 const lockEvmTokenMock = mockOf(lockEvmToken);
-const generateUnlockSplTokenTxIdsMock = mockOf(generateUnlockSplTokenTxIds);
 
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
   useSolanaConnection: jest.fn(),
   useSplTokenAccountsQuery: jest.fn(),
 }));
+const useSolanaConnectionMock = mockOf(useSolanaConnection);
 const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
 
 describe("useToSolanaTransferMutation", () => {
@@ -86,6 +92,9 @@ describe("useToSolanaTransferMutation", () => {
       },
     } as Wallets);
 
+    getSignedVaaWithRetryMock.mockReturnValue({
+      vaaBytes: new Uint8Array(),
+    } as any);
     lockEvmTokenMock.mockReturnValue({
       approvalResponses: [],
       transferResponse: {

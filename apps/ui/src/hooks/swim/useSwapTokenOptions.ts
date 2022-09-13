@@ -6,12 +6,12 @@ import type { PoolSpec } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 
-export const useFromTokenOptionsIds = () => {
+export const useFromTokenOptionsIds = (networkId: string) => {
   const { pools } = useEnvironment(selectConfig, shallow);
   return useMemo(
     () =>
       pools
-        .filter((pool) => !pool.isStakingPool && !pool.isDisabled)
+        .filter((pool) => !pool.isStakingPool && !pool.isDisabled && networkId === pool.ecosystem)
         .flatMap((pool) => pool.tokens)
         // Remove duplicated tokenId
         .filter(

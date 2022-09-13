@@ -297,5 +297,6 @@
   "swap_page.title": "Swap {{fromEcosystemName}} {{fromTokenProjectId}} to {{toEcosystemName}} {{toTokenProjectId}}",
   "token_search_modal.search_tokens": "Search tokens",
   "token_search_modal.title": "Select a token",
+  "network_select_modal.title": "Select a network",
   "vaa_error.transfer_not_detected": "Transfer not detected by Wormhole guardians. This usually happens when the network is congested. Please retry later."
 }

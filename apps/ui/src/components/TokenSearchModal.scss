@@ -1,0 +1,48 @@
+.modal {
+  min-height: 50vh;
+}
+.modalBody {
+  height: 30vh;
+  .euiModalBody__overflow {
+    overflow-y: inherit;
+  }
+}
+.networkModalBody {
+  padding: 20px;
+  max-height: max-content;
+  .euiModalBody__overflow {
+    padding: 0px;
+    display: flex;
+    justify-content: space-around;
+    align-items: baseline;
+    overflow-y: inherit;
+  }
+}
+
+.chainGroup {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: wrap;
+  max-width: fit-content;
+  .euiFlexItem {
+    flex-basis: 100%;
+    width: 100%;
+    .euiButton .euiButton__text {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+  }
+}
+.ecosystemIcon {
+  width: fit-content;
+  flex-basis: 0;
+  .euiButton__text {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+  }
+}

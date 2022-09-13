@@ -48,6 +48,7 @@ import { PoolPausedAlert } from "../PoolPausedAlert";
 import { SolanaTpsWarning } from "../SolanaTpsWarning";
 import { SwapFormSolanaConnectButton } from "../molecules/SwapFormSolanaConnectButton";
 import { TokenAmountInput } from "../molecules/TokenAmountInput";
+import { Ecosystem, ECOSYSTEMS } from "config/ecosystem";
 
 import "./SwapForm.scss";
 
@@ -69,11 +70,16 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
     toToken,
     fromTokenOptionsIds,
     toTokenOptionsIds,
+    fromNetwork,
+    toNetwork,
+    setFromNetwork,
+    setToNetwork,
     setFromToken,
     setToToken,
     setFromAndToTokens,
     hasUrlError,
   } = useSwapTokensContext();
+  console.log("SWAP context", toNetwork, fromNetwork);
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const requiredPools = getRequiredPoolsForSwap(
@@ -250,20 +256,20 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         <EuiCallOut title={t("swap_page.invalid_swap_url")} color="danger" />
       )}
       <EuiSpacer />
-
       <TokenAmountInput
         value={formInputAmount}
         token={fromToken}
+        network={fromNetwork}
         tokenOptionIds={fromTokenOptionsIds}
         placeholder={t("general.enter_amount_of_tokens")}
         disabled={isInteractionInProgress}
         errors={inputAmountErrors}
+        onSelectNetwork={setFromNetwork}
         onSelectToken={setFromToken}
         onChangeValue={(value) => setFormInputAmount(value)}
         onBlur={() => handleInputAmountChange(inputAmount)}
         showConstantSwapTip={!isStableSwap}
       />
-
       <EuiSpacer size="m" />
       <div style={{ textAlign: "center" }}>
         <EuiButtonIcon
@@ -282,30 +288,27 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         size="m"
         className="eui-hideFor--m eui-hideFor--l eui-hideFor--xl"
       />
-
       <TokenAmountInput
         value={outputAmount?.toHumanString(toToken.nativeEcosystemId) ?? ""}
         token={toToken}
+        network={toNetwork}
         tokenOptionIds={toTokenOptionsIds}
         placeholder={t("swap_form.output_amount")}
         disabled={isInteractionInProgress}
         errors={[]}
+        onSelectNetwork={setToNetwork}
         onSelectToken={setToToken}
         // Never show constant swap on "To Form".
         showConstantSwapTip={false}
       />
-
       <EuiSpacer />
-
       <SwapFormSolanaConnectButton
         fromEcosystem={fromToken.nativeEcosystemId}
         toEcosystem={toToken.nativeEcosystemId}
       />
-
       {isInputAmountPositive && (
         <EstimatedTxFeesCallout feesEstimation={feesEstimation} />
       )}
-
       {formErrors.length > 0 && (
         <>
           <EuiCallOut
@@ -322,9 +325,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         </>
       )}
       <SolanaTpsWarning />
-
       <PoolPausedAlert isVisible={isRequiredPoolPaused} />
-
       <EuiFormRow fullWidth>
         <EuiButton
           type="submit"
@@ -336,7 +337,6 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
           {t("swap_form.swap_button")}
         </EuiButton>
       </EuiFormRow>
-
       <ConfirmModal
         isVisible={isConfirmModalVisible}
         onCancel={handleConfirmModalCancel}

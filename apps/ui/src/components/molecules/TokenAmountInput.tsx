@@ -7,9 +7,10 @@ import {
   EuiText,
   EuiToolTip,
 } from "@elastic/eui";
+import { NetworkSelect } from "components/NetworkSelect";
 import type React from "react";
 
-import type { TokenConfig } from "../../config";
+import type { Ecosystem, TokenConfig } from "../../config";
 import { i18next } from "../../i18n";
 import { Amount } from "../../models";
 import { ConnectButton } from "../ConnectButton";
@@ -21,8 +22,10 @@ import { UserBalanceDisplay } from "./UserBalanceDisplay";
 interface Props {
   readonly value: string;
   readonly token: TokenConfig;
+  readonly network: Ecosystem;
   readonly tokenOptionIds: readonly string[];
   readonly placeholder: string;
+  readonly onSelectNetwork: (networkId: string) => void;
   readonly onSelectToken: (token: TokenConfig) => void;
   readonly onChangeValue?: (value: string) => void;
   readonly onBlur?: () => void;
@@ -60,10 +63,12 @@ const getTokenLabel = (): React.ReactElement => {
 export const TokenAmountInput: React.FC<Props> = ({
   value,
   token,
+  network,
   tokenOptionIds,
   placeholder,
   disabled,
   errors,
+  onSelectNetwork,
   onSelectToken,
   onChangeValue,
   onBlur,
@@ -72,7 +77,7 @@ export const TokenAmountInput: React.FC<Props> = ({
   const readOnly = !onChangeValue;
   return (
     <EuiFlexGroup>
-      <EuiFlexItem grow={2}>
+      <EuiFlexItem grow={1}>
         <EuiFormRow
           hasEmptyLabelSpace={!showConstantSwapTip}
           // TODO: Preferably leave pool logic out a token-related component.
@@ -82,6 +87,17 @@ export const TokenAmountInput: React.FC<Props> = ({
             onSelectToken={onSelectToken}
             tokenOptionIds={tokenOptionIds}
             token={token}
+          />
+        </EuiFormRow>
+      </EuiFlexItem>
+      <EuiFlexItem grow={1}>
+        <EuiFormRow
+          hasEmptyLabelSpace={!showConstantSwapTip}
+          label={showConstantSwapTip ? getTokenLabel() : null}
+        >
+          <NetworkSelect
+            onSelectNetwork={onSelectNetwork}
+            network={network}
           />
         </EuiFormRow>
       </EuiFlexItem>

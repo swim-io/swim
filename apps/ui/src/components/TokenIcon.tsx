@@ -5,7 +5,7 @@ import type { ComponentProps, ReactElement } from "react";
 import { Fragment } from "react";
 import { Trans } from "react-i18next";
 
-import type { EcosystemId, TokenConfig } from "../config";
+import type { Ecosystem, EcosystemId, TokenConfig } from "../config";
 import { ECOSYSTEMS } from "../config";
 import { useIntlListSeparators, useToken } from "../hooks";
 import type { TokenOption } from "../models";
@@ -17,6 +17,12 @@ interface TokenIconProps
   extends Pick<TokenProject, "icon" | "symbol" | "displayName"> {
   readonly ecosystemId?: EcosystemId;
   readonly showFullName?: boolean;
+}
+
+interface NetworkIconProps {
+  readonly displayName: string;
+  readonly logo: string;
+  readonly nativeTokenSymbol: string;
 }
 
 type WithIconProps = ComponentProps<typeof EuiIcon>;
@@ -59,6 +65,20 @@ export const TokenIcon = ({
           }}
         />
       )}
+    </span>
+  );
+};
+
+export const NetworkIcon = ({
+  displayName,
+  logo,
+  nativeTokenSymbol,
+}: NetworkIconProps): ReactElement => {
+  return (
+    <span className="tokenIconItem">
+      <WithIcon type={logo} size="m" title={nativeTokenSymbol}>
+        {displayName}
+      </WithIcon>
     </span>
   );
 };
@@ -107,6 +127,7 @@ export const AmountsWithTokenIcons = ({
 };
 
 type TokenConfigIconProps = { readonly token: TokenConfig };
+type NetworkConfigIconProps = { readonly network: Ecosystem };
 
 export const TokenConfigIcon = ({
   token,
@@ -116,6 +137,16 @@ export const TokenConfigIcon = ({
     ecosystemId={token.nativeEcosystemId}
   />
 );
+
+export const TokenSearchConfigIcon = ({
+  token,
+}: TokenConfigIconProps): ReactElement => (
+  <TokenIcon {...TOKEN_PROJECTS_BY_ID[token.projectId]} />
+);
+
+export const NetworkConfigIcon = ({
+  network,
+}: NetworkConfigIconProps): ReactElement => <NetworkIcon {...network} />;
 
 type TokenOptionIconProps = { readonly tokenOption: TokenOption };
 

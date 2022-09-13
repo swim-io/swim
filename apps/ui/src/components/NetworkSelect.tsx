@@ -2,23 +2,24 @@ import { EuiButton, EuiFlexGroup, EuiFlexItem } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { useCallback, useState } from "react";
 
-import type { TokenConfig } from "../config";
+import { Ecosystem, ECOSYSTEMS } from "../config";
+import { NetworkModal } from "./NetworkModal";
 
-import { TokenSearchConfigIcon } from "./TokenIcon";
-import { TokenSearchModal } from "./TokenSearchModal";
+import { NetworkConfigIcon } from "./TokenIcon";
 
 interface Props {
-  readonly onSelectToken: (token: TokenConfig) => void;
-  readonly tokenOptionIds: readonly string[];
-  readonly token: TokenConfig;
+  readonly onSelectNetwork: (networkId: string) => void;
+  readonly network: Ecosystem;
 }
 
-export const TokenSelect = ({
-  onSelectToken,
-  tokenOptionIds,
-  token,
+export const NetworkSelect = ({
+  onSelectNetwork,
+  network,
 }: Props): ReactElement => {
   const [showModal, setShowModal] = useState(false);
+  const [selectedNetworkId, setSelectedNetworkId] = useState(
+    ECOSYSTEMS.solana.id,
+  );
 
   const openModal = useCallback(() => setShowModal(true), [setShowModal]);
   const closeModal = useCallback(() => setShowModal(false), [setShowModal]);
@@ -33,15 +34,15 @@ export const TokenSelect = ({
       >
         <EuiFlexGroup alignItems="center" justifyContent="center">
           <EuiFlexItem>
-            <TokenSearchConfigIcon token={token} />
+            <NetworkConfigIcon network={network} />
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiButton>
       {showModal && (
-        <TokenSearchModal
+        <NetworkModal
           handleClose={closeModal}
-          handleSelectToken={onSelectToken}
-          tokenOptionIds={tokenOptionIds}
+          handleSelectNetwork={onSelectNetwork}
+          selectedNetworkId={selectedNetworkId}
         />
       )}
     </>

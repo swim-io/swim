@@ -10,7 +10,7 @@ import {
   getEtherscanFamilyNetwork,
 } from "@swim-io/evm";
 import { findOrThrow } from "@swim-io/utils";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useRef } from "react";
 import type { ReactElement, ReactNode } from "react";
 import type React from "react";
 import shallow from "zustand/shallow.js";
@@ -126,28 +126,29 @@ export const GetEvmConnectionProvider = ({
 }): ReactElement => {
   const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
-  const [evmConnections, setEvmConnections] = useState<
-    ReadonlyMap<EvmEcosystemId, EvmConnection>
-  >(new Map());
+  const evmConnections = useRef<ReadonlyMap<EvmEcosystemId, EvmConnection>>(
+    new Map(),
+  );
 
   const getEvmConnection = (ecosystemId: EvmEcosystemId) => {
-    const existingEvmConnection = evmConnections.get(ecosystemId);
+    const existingEvmConnection = evmConnections.current.get(ecosystemId);
     if (existingEvmConnection) {
       return existingEvmConnection;
     }
 
     const provider = getProvider(env, chains[Protocol.Evm], ecosystemId);
     const newEvmConnection = new EvmConnection(provider);
-    setEvmConnections((prev) => {
-      const newState = new Map(prev);
-      newState.set(ecosystemId, newEvmConnection);
-      return newState;
-    });
+
+    const newState = new Map(evmConnections.current);
+    newState.set(ecosystemId, newEvmConnection);
+    // eslint-disable-next-line functional/immutable-data
+    evmConnections.current = newState;
     return newEvmConnection;
   };
 
   useEffect(() => {
-    setEvmConnections(new Map());
+    // eslint-disable-next-line functional/immutable-data
+    evmConnections.current = new Map();
   }, [env]);
 
   return (

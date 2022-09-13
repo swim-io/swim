@@ -10,6 +10,7 @@ import type { Interaction } from "./interaction";
 import type { OperationSpec } from "./operation";
 
 export interface InteractionState {
+  readonly version: undefined;
   readonly interaction: Interaction;
   readonly requiredSplTokenAccounts: RequiredSplTokenAccounts;
   readonly toSolanaTransfers: readonly ToSolanaTransferState[];

@@ -17,6 +17,7 @@ import {
 } from "./tokens";
 
 export const MOCK_INTERACTION_STATE: InteractionState = {
+  version: undefined,
   interaction: {
     type: 0,
     params: {
@@ -99,6 +100,7 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
 };
 
 export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
+  version: undefined,
   interaction: {
     type: 0,
     params: {

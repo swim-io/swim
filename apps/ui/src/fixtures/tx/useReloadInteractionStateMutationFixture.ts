@@ -28,6 +28,7 @@ const AVALANCHE_USDC = findTokenById("devnet-avalanche-usdc", Env.Devnet);
  * - then copy the state from IndexedDB
  */
 export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION: InteractionState = {
+  version: undefined,
   interaction: {
     type: 0,
     params: {

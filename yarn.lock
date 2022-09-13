@@ -7043,6 +7043,7 @@ __metadata:
     "@types/jest": ^28.1.7
     "@types/mocha": ^9.0.0
     "@types/node": ^18.7.16
+    big.js: ^6.2.1
     byteify: ^2.0.10
     chai: ^4.3.4
     elliptic: ^6.5.4

@@ -17,11 +17,13 @@ wallet = "src/__tests__/test_wallet.json"
 [scripts]
 #test = "yarn run ts-mocha -p src/__tests__/tsconfig.json -t 1000000 sdk/tests/**/pool.test.ts"
 test = "./scripts/run_anchor_test.sh"
+#test = "yarn run jest --verbose --detectOpenHandles --testPathPattern engine.test.ts"
 #test = "yarn run jest -c jest.config.js --verbose --detectOpenHandles --forceExit test/twoPool/pool.test.ts"
 #initialize_pool = "./sdk/scripts/initialize_pool.sh"
 #initialize_pool = "yarn run build-pool && yarn run ts-node sdk/scripts/initializePool.ts"
 #initialize_pool_devnet = "yarn run build:anchor-devnet && yarn run ts-node sdk/scripts/initializePool.ts"
 initialize_pool = "yarn run ts-node scripts/initializePool.ts"
+scratch = "yarn run ts-node src/__tests__/scratch.ts"
 
 [test]
 startup_wait = 100000
@@ -78,34 +80,34 @@ address="2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG" # programId` \
 address="J4CArpsbrZqu1axqQ4AnrqREs3jwoyA1M5LMiQQmAzB9" # programDataAddress` \
 [[test.validator.clone]]
 address="CKwZcshn4XDvhaWVH9EXnk3iu19t6t5xP2Sy2pD6TRDp" # idlAddress` \
-[[test.validator.clone]]
-address="BYM81n8HvTJuqZU1PmTVcwZ9G8uoji7FKM6EaPkwphPt" # programState` \
-[[test.validator.clone]]
-address="FVLfR6C2ckZhbSwBzZY4CX7YBcddUSge5BNeGQv5eKhy" # switchboardVault` \
-[[test.validator.clone]]
-address="So11111111111111111111111111111111111111112" # switchboardMint` \
-[[test.validator.clone]]
-address="CB4VzLxTwECHuqs4eqXywLXGwpQw3mVqe3NhPMSerNMJ" # tokenWallet` \
-[[test.validator.clone]]
-address="AcSXYonfyHTDJeAcWPNMyyZusKJCZXdGrMN33NBXoAaV" # queue` \
-[[test.validator.clone]]
-address="GPy3FiGpEyMFCTsYgcw9i6rSWsvJpgzA39QDXv8zquW" # queueAuthority` \
-[[test.validator.clone]]
-address="4ptM4oxd9tE7ajPqKPZoJuqK7yhTSod5sZNptQBmP1Fh" # queueBuffer` \
-[[test.validator.clone]]
-address="Bp2Z3RufYVxncybo4bBnrJgjT8nNtLQ4gCMmEPaQMt9e" # crank` \
-[[test.validator.clone]]
-address="HNHxWYVF8Qg6pLX4rmi4GH2yJzo9s2jpAnMzAErUWKek" # crankBuffer` \
-[[test.validator.clone]]
-address="7pqX6qEABdf9rUeLW7YXZn3hqBMqAxZMgTKY8xaXrkaF" # oracle` \
-[[test.validator.clone]]
-address="GPy3FiGpEyMFCTsYgcw9i6rSWsvJpgzA39QDXv8zquW" # oracleAuthority` \
-[[test.validator.clone]]
-address="J4ujfcYoiLsNRGbjAJPzD9mwGYS1ZPFyBmDRRWzLsB52" # oracleEscrow` \
-[[test.validator.clone]]
-address="39hSPM6mK7DCDwWdkTs2gmGLBsRYmNpLfLD89aPQfB56" # oraclePermissions` \
-[[test.validator.clone]]
-address="4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU" # additionalClonedAccounts`
+#[[test.validator.clone]]
+#address="BYM81n8HvTJuqZU1PmTVcwZ9G8uoji7FKM6EaPkwphPt" # programState` \
+#[[test.validator.clone]]
+#address="FVLfR6C2ckZhbSwBzZY4CX7YBcddUSge5BNeGQv5eKhy" # switchboardVault` \
+#[[test.validator.clone]]
+#address="So11111111111111111111111111111111111111112" # switchboardMint` \
+#[[test.validator.clone]]
+#address="CB4VzLxTwECHuqs4eqXywLXGwpQw3mVqe3NhPMSerNMJ" # tokenWallet` \
+#[[test.validator.clone]]
+#address="AcSXYonfyHTDJeAcWPNMyyZusKJCZXdGrMN33NBXoAaV" # queue` \
+#[[test.validator.clone]]
+#address="GPy3FiGpEyMFCTsYgcw9i6rSWsvJpgzA39QDXv8zquW" # queueAuthority` \
+#[[test.validator.clone]]
+#address="4ptM4oxd9tE7ajPqKPZoJuqK7yhTSod5sZNptQBmP1Fh" # queueBuffer` \
+#[[test.validator.clone]]
+#address="Bp2Z3RufYVxncybo4bBnrJgjT8nNtLQ4gCMmEPaQMt9e" # crank` \
+#[[test.validator.clone]]
+#address="HNHxWYVF8Qg6pLX4rmi4GH2yJzo9s2jpAnMzAErUWKek" # crankBuffer` \
+#[[test.validator.clone]]
+#address="7pqX6qEABdf9rUeLW7YXZn3hqBMqAxZMgTKY8xaXrkaF" # oracle` \
+#[[test.validator.clone]]
+#address="GPy3FiGpEyMFCTsYgcw9i6rSWsvJpgzA39QDXv8zquW" # oracleAuthority` \
+#[[test.validator.clone]]
+#address="J4ujfcYoiLsNRGbjAJPzD9mwGYS1ZPFyBmDRRWzLsB52" # oracleEscrow` \
+#[[test.validator.clone]]
+#address="39hSPM6mK7DCDwWdkTs2gmGLBsRYmNpLfLD89aPQfB56" # oraclePermissions` \
+#[[test.validator.clone]]
+#address="4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU" # additionalClonedAccounts`
 #
 #[[test.validator.clone]]
 #address="2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG"  # programId`

@@ -223,11 +223,11 @@ pub mod propeller {
         handle_propeller_complete_native_with_payload(ctx)
     }
     //
-    // #[inline(never)]
-    // #[access_control(PropellerProcessSwimPayload::accounts(&ctx))]
-    // pub fn propeller_process_swim_payload(ctx: Context<PropellerProcessSwimPayload>) -> Result<u64> {
-    //     handle_propeller_process_swim_payload(ctx)
-    // }
+    #[inline(never)]
+    #[access_control(PropellerProcessSwimPayload::accounts(&ctx))]
+    pub fn propeller_process_swim_payload(ctx: Context<PropellerProcessSwimPayload>) -> Result<u64> {
+        handle_propeller_process_swim_payload(ctx)
+    }
 
     // #[inline(never)]
     // #[access_control(Secp256k1AndVerify::accounts(&ctx))]

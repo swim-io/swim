@@ -291,6 +291,7 @@ pub struct PropellerCompleteNativeWithPayload<'info> {
     pub complete_native_with_payload: CompleteNativeWithPayload<'info>,
 
     #[account(
+    mut,
     seeds = [
     b"propeller".as_ref(),
     b"fee".as_ref(),
@@ -432,6 +433,10 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
     if ctx.accounts.complete_native_with_payload.mint.decimals > 8 {
         transfer_amount *= 10u64.pow(ctx.accounts.complete_native_with_payload.mint.decimals as u32);
     }
+    msg!("transfer_amount(swimUSD): {:?}", transfer_amount);
+    msg!("redeemer escrow balance before reload: {:?}", ctx.accounts.complete_native_with_payload.to.amount);
+    ctx.accounts.complete_native_with_payload.to.reload()?;
+    msg!("redeemer escrow balance after reload: {:?}", ctx.accounts.complete_native_with_payload.to.amount);
     // Only tracking & converting fee from SOL -> swimUSD if the payer isn't the actual logical owner.
     // This is for if the propeller engine is unavailable and the user is manually calling
     // this ix. They should use the `CompleteNativeWithPayload` ix instead but adding this just in case.\
@@ -441,18 +446,20 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
     if swim_payload_owner != ctx.accounts.complete_native_with_payload.payer.key() {
         let fees_in_token_bridge = calculate_fees(&ctx)?;
         let fee_tracker = &mut ctx.accounts.fee_tracker;
-        fee_tracker.fees_owed =
+        let updated_fees_owed =
             fee_tracker.fees_owed.checked_add(fees_in_token_bridge).ok_or(PropellerError::IntegerOverflow)?;
+        fee_tracker.fees_owed = updated_fees_owed;
+
         let cpi_accounts = Transfer {
             from: ctx.accounts.complete_native_with_payload.to.to_account_info(),
             to: ctx.accounts.complete_native_with_payload.fee_recipient.to_account_info(),
-            authority: propeller.to_account_info(),
+            authority: ctx.accounts.complete_native_with_payload.redeemer.to_account_info(),
         };
         token::transfer(
             CpiContext::new_with_signer(
                 token_program.to_account_info(),
                 cpi_accounts,
-                &[&[&b"propeller".as_ref(), propeller.token_bridge_mint.as_ref(), &[propeller.bump]]],
+                &[&[&b"redeemer".as_ref(), &[ctx.accounts.complete_native_with_payload.propeller.redeemer_bump]]],
             ),
             fees_in_token_bridge,
         )?;
@@ -495,23 +502,33 @@ fn calculate_fees(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<u
         rent.minimum_balance(ctx.accounts.complete_native_with_payload.claim.to_account_info().data_len());
     let propeller = &ctx.accounts.complete_native_with_payload.propeller;
     let complete_with_payload_fee = propeller.complete_with_payload_fee;
-    let fee_in_lamports = propeller_message_rent_exempt_fees
+    let total_rent_exemption_in_lamports = propeller_message_rent_exempt_fees
         .checked_add(wormhole_message_rent_exempt_fees)
         .and_then(|x| x.checked_add(claim_rent_exempt_fees))
-        .and_then(|x| x.checked_add(complete_with_payload_fee))
         .ok_or(PropellerError::IntegerOverflow)?;
-
     msg!(
         "
     {}(propeller_message_rent_exempt_fees) +
     {}(wormhole_message_rent_exempt_fees) +
     {}(claim_rent_exempt_fees) +
-    {}(complete_with_payload_fee)
-    = {}(fee_in_lamports)
+    = {}(total_rent_exemption_in_lamports)
     ",
         propeller_message_rent_exempt_fees,
         wormhole_message_rent_exempt_fees,
         claim_rent_exempt_fees,
+        total_rent_exemption_in_lamports
+    );
+    let fee_in_lamports = total_rent_exemption_in_lamports
+        .checked_add(complete_with_payload_fee)
+        .ok_or(PropellerError::IntegerOverflow)?;
+
+    msg!(
+        "
+    {}(total_rent_exemption_in_lamports)
+    {}(complete_with_payload_fee)
+    = {}(fee_in_lamports)
+    ",
+        total_rent_exemption_in_lamports,
         complete_with_payload_fee,
         fee_in_lamports
     );
@@ -539,11 +556,19 @@ fn calculate_fees(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<u
     // this val is SOL/USD price
     // 100 => 1 SOL/100 USD (usdc)
     // let v2 = feed.get_result()?.try_into()?;
-    let val: Decimal = feed.get_result()?.try_into()?;
+    let sol_usd_price: Decimal = feed.get_result()?.try_into()?;
     let name = feed.name;
-    msg!("val:{}, name: {:?}", val, name);
+
+    let lamports_decimal = Decimal::from_u64(1_000_000_000).unwrap();
+    let lamports_usd_price = sol_usd_price.checked_div(lamports_decimal).ok_or(PropellerError::IntegerOverflow)?;
+    msg!("sol_usd_price:{},lamports_usd_price: {}", sol_usd_price, lamports_usd_price);
     // check whether the feed has been updated in the last 300 seconds
-    feed.check_staleness(Clock::get().unwrap().unix_timestamp, 300).map_err(|_| error!(PropellerError::StaleFeed))?;
+    feed.check_staleness(
+        Clock::get().unwrap().unix_timestamp,
+        // 300
+        i64::MAX,
+    )
+    .map_err(|_| error!(PropellerError::StaleFeed))?;
     // check feed does not exceed max_confidence_interval
     // if let Some(max_confidence_interval) = params.max_confidence_interval {
     // 	feed.check_confidence_interval(SwitchboardDecimal::from_f64(max_confidence_interval))
@@ -564,15 +589,21 @@ fn calculate_fees(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<u
         panic!("marginal_price_pool_lp_mint != mint not implemented yet");
         // return err!(PropellerError::Missing);
     };
-
+    msg!("marginal_price: {}", marginal_price);
     let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
+    msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
     let fee_in_token_bridge_mint_decimal = marginal_price
-        .checked_mul(val)
+        .checked_mul(lamports_usd_price)
         .and_then(|v| v.checked_mul(fee_in_lamports_decimal))
         .ok_or(PropellerError::IntegerOverflow)?;
     // .checked_mul(Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::IntegerOverflow)?)
     // .ok_or(PropellerError::IntegerOverflow)?;
-    let fee_in_token_bridge_mint = fee_in_token_bridge_mint_decimal.to_u64().ok_or(PropellerError::ConversionError)?;
+    let lp_mint_decimals_decimal =
+        Decimal::from_u64(10u64.pow(ctx.accounts.complete_native_with_payload.mint.decimals as u32)).unwrap();
+    let fee_in_token_bridge_mint = fee_in_token_bridge_mint_decimal
+        .checked_mul(lp_mint_decimals_decimal)
+        .and_then(|v| v.to_u64())
+        .ok_or(PropellerError::ConversionError)?;
     msg!(
         "fee_in_token_bridge_mint_decimal: {:?} fee_in_token_bridge_mint: {:?}",
         fee_in_token_bridge_mint_decimal,

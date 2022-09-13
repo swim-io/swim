@@ -12,7 +12,7 @@ if [ -z "$1" ]; then
   test_files="*"
 elif [ "$1" == "engine" ]; then
   echo "Running only engine tests"
-  prepare_oracle=true
+#  prepare_oracle=true
   test_files=$1
 elif [ "$1" == "propeller" ]; then
   echo "Running only propeller tests"

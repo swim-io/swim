@@ -122,4 +122,7 @@ pub enum PropellerError {
 
     #[msg("Conversion Error")]
     ConversionError,
+
+    #[msg("Unable to retrieve token bridge mint decimals from marginal price pool information")]
+    UnableToRetrieveTokenBridgeMintDecimals,
 }

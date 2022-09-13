@@ -7886,6 +7886,7 @@ __metadata:
     eslint-plugin-import: ^2.26.0
     eslint-plugin-jest: ^25.7.0
     eslint-plugin-prettier: ^4.0.0
+    ethers: ^5.7.0
     jest: ^28.1.1
     prettier: ^2.7.1
     ts-jest: ^28.0.5
@@ -16983,7 +16984,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.5.1":
+"ethers@npm:^5.5.1, ethers@npm:^5.7.0":
   version: 5.7.0
   resolution: "ethers@npm:5.7.0"
   dependencies:

@@ -42,7 +42,8 @@
     "@swim-io/token-projects": "workspace:^",
     "@swim-io/utils": "workspace:^",
     "bn.js": "^5.2.1",
-    "decimal.js": "^10.3.1"
+    "decimal.js": "^10.3.1",
+    "ethers": "^5.7.0"
   },
   "devDependencies": {
     "@swim-io/eslint-config": "workspace:^",

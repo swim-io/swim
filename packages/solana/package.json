@@ -31,6 +31,7 @@
     "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
+    "@certusone/wormhole-sdk": "^0.6.2",
     "@ledgerhq/hw-transport": "^6.27.1",
     "@ledgerhq/hw-transport-webusb": "^6.0.2",
     "@project-serum/borsh": "^0.2.5",

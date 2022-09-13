@@ -707,7 +707,7 @@ export const REMOVE_EXACT_OUTPUT_INTERACTION_STATE_ETHEREUM_COMPLETED_WITH_APPRO
     ],
   };
 
-export const MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT = {
+export const MOCK_SERIALIZED_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT = {
   version: 2,
   interaction: {
     connectedWallets: {
@@ -726,13 +726,13 @@ export const MOCK_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT = {
     params: {
       fromTokenData: {
         ecosystemId: SOLANA_ECOSYSTEM_ID,
-        tokenConfig: findTokenById("devnet-solana-usdc", Env.Devnet),
-        value: new Decimal("100"),
+        tokenId: "devnet-solana-usdc",
+        value: "100",
       },
       toTokenData: {
         ecosystemId: SOLANA_ECOSYSTEM_ID,
-        tokenConfig: findTokenById("devnet-solana-usdt", Env.Devnet),
-        value: new Decimal("101"),
+        tokenId: "devnet-solana-usdt",
+        value: "101",
       },
     },
     poolIds: ["devnet-solana-usdc-usdt"],

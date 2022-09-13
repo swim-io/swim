@@ -114,21 +114,15 @@ export const useToSolanaTransferMutation = () => {
       ).address.toBase58();
 
       // Process transfer if transfer txId does not exist
-      const { approvalResponses, transferResponse } = await lockEvmToken({
-        interactionId,
-        token,
-        amountAtomicString: humanDecimalToAtomicString(
-          value,
-          token,
-          fromEcosystem,
-        ),
-        evmChain: evmChains[index],
-        evmConnection: evmConnections[index],
-        fromTokenDetails,
+      const { approvalResponses, transferResponse } = await lockEvmToken(
+        evmConnections[index],
         evmWallet,
+        evmChains[index],
+        fromTokenDetails,
         splTokenAccountAddress,
-        existingTxs: [],
-      });
+        humanDecimalToAtomicString(value, token, fromEcosystem),
+        interactionId,
+      );
 
       const [transferTx, ...approvalTxs] = await Promise.all(
         [transferResponse, ...approvalResponses].map((txResponse) =>

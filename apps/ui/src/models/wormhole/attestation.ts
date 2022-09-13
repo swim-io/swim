@@ -11,21 +11,18 @@ import {
 } from "@certusone/wormhole-sdk";
 import type { WormholeChainConfig, WormholeConfig } from "@swim-io/core";
 import type { EvmWalletAdapter } from "@swim-io/evm";
-import { EvmEcosystemId } from "@swim-io/evm";
 import type { SolanaConnection, SolanaWalletAdapter } from "@swim-io/solana";
-import { DEFAULT_MAX_RETRIES } from "@swim-io/solana";
+import { DEFAULT_MAX_RETRIES, SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { ContractReceipt } from "ethers";
 
-import type { EvmSpec } from "../../config";
+import type { EcosystemId, EvmSpec } from "../../config";
 import { ECOSYSTEMS, WormholeChainId } from "../../config";
 
 import { getSignedVaaWithRetry } from "./guardiansRpc";
 
-// TODO: Refactor to use Tx instead of CrossChainResult
-interface CrossChainResult {
-  readonly solanaTxIds: readonly string[];
-  readonly ethereumTxIds: readonly string[];
-  readonly bnbTxIds: readonly string[];
+export interface CrossEcosystemResult {
+  readonly txId: string;
+  readonly ecosystemId: EcosystemId;
 }
 
 export interface AttestationResult {
@@ -56,9 +53,8 @@ export const attestSplToken = async (
   const txId = await solanaConnection.rawConnection.sendRawTransaction(
     signed.serialize(),
   );
-  const info = await solanaConnection.getTx(txId);
-
-  const sequence = parseSequenceFromLogSolana(info);
+  const txResponse = await solanaConnection.getTx(txId);
+  const sequence = parseSequenceFromLogSolana(txResponse);
   const emitterAddress = await getEmitterAddressSolana(solanaWormhole.portal);
 
   return {
@@ -76,7 +72,7 @@ export const setUpSplTokensOnEvm = async (
   solanaWallet: SolanaWalletAdapter,
   evmWallet: EvmWalletAdapter,
   mintAddresses: readonly string[],
-): Promise<CrossChainResult> => {
+): Promise<readonly CrossEcosystemResult[]> => {
   if (!evmWallet.signer) {
     throw new Error("No EVM chain wallet signer");
   }
@@ -117,13 +113,16 @@ export const setUpSplTokensOnEvm = async (
       ),
     ];
   }
-  const evmTxIds = evmReceipts.map(({ transactionHash }) => transactionHash);
-  return {
-    solanaTxIds: attestations.map(({ txId }) => txId),
-    ethereumTxIds:
-      evmChain.ecosystem === EvmEcosystemId.Ethereum ? evmTxIds : [],
-    bnbTxIds: evmChain.ecosystem === EvmEcosystemId.Bnb ? evmTxIds : [],
-  };
+  return [
+    ...attestations.map(({ txId }) => ({
+      txId,
+      ecosystemId: SOLANA_ECOSYSTEM_ID,
+    })),
+    ...evmReceipts.map(({ transactionHash }) => ({
+      txId: transactionHash,
+      ecosystemId: evmChain.ecosystem,
+    })),
+  ];
 };
 
 export const attestErc20Token = async (
@@ -160,7 +159,7 @@ export const setUpErc20Tokens = async (
   solanaWallet: SolanaWalletAdapter,
   evmWallet: EvmWalletAdapter,
   tokenContractAddresses: readonly string[],
-): Promise<CrossChainResult> => {
+): Promise<readonly CrossEcosystemResult[]> => {
   let attestations: readonly AttestationResult[] = [];
   // Use a for loop to ensure the sequence does not get out of order
   for (const tokenContractAddress of tokenContractAddresses) {
@@ -217,12 +216,14 @@ export const setUpErc20Tokens = async (
     }),
   );
 
-  const evmTxIds = attestations.map(({ txId }) => txId);
-
-  return {
-    solanaTxIds,
-    ethereumTxIds:
-      evmChain.ecosystem === EvmEcosystemId.Ethereum ? evmTxIds : [],
-    bnbTxIds: evmChain.ecosystem === EvmEcosystemId.Bnb ? evmTxIds : [],
-  };
+  return [
+    ...attestations.map(({ txId }) => ({
+      txId,
+      ecosystemId: evmChain.ecosystem,
+    })),
+    ...solanaTxIds.map((txId) => ({
+      txId,
+      ecosystemId: SOLANA_ECOSYSTEM_ID,
+    })),
+  ];
 };

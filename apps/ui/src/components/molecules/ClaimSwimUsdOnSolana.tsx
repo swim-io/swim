@@ -19,6 +19,11 @@ export const ClaimSwimUsdOnSolana: VFC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const swimUsd = useSwimUsd();
+
+  if (swimUsd === null) {
+    return null;
+  }
+
   return (
     <EuiText size="m">
       <span style={{ display: "flex", alignItems: "center" }}>

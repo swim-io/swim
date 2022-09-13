@@ -28,6 +28,8 @@ import type {
 import { getTokenDetailsForEcosystem } from "../../config";
 import type { Tx } from "../crossEcosystem";
 
+import { deserializeSwimPoolV2 } from "./deserializeSwimPoolV2";
+
 export interface SolanaPoolState extends SwimPoolState {
   readonly ecosystem: SolanaEcosystemId;
 }
@@ -93,7 +95,10 @@ export const getSolanaPoolState = async (
   if (accountInfo === null) {
     return null;
   }
-  const swimPool = deserializeSwimPool(numberOfTokens, accountInfo.data);
+  const swimPool = poolSpec.isLegacyPool
+    ? deserializeSwimPool(numberOfTokens, accountInfo.data)
+    : deserializeSwimPoolV2(numberOfTokens, accountInfo.data);
+
   return {
     ...swimPool,
     ecosystem: SOLANA_ECOSYSTEM_ID,

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { Env } from "@swim-io/core";
 import type {
   SolanaClient,
@@ -7,14 +8,20 @@ import type {
 import { findTokenAccountForMint } from "@swim-io/solana";
 import { sleep } from "@swim-io/utils";
 import type { QueryClient, UseMutationResult } from "react-query";
+=======
+import type { TokenAccount } from "@swim-io/solana";
+import type { UseMutationResult } from "react-query";
+>>>>>>> 1c2f52a6 (chore(ui): Single chain solana swap)
 import { useMutation, useQueryClient } from "react-query";
 
 import { useEnvironment } from "../../core/store";
+import { findOrCreateSplTokenAccount } from "../../models";
 
 import { useSolanaClient } from "./useSolanaClient";
 import { useSolanaWallet } from "./useSolanaWallet";
 import { useSplTokenAccountsQuery } from "./useSplTokenAccountsQuery";
 
+<<<<<<< HEAD
 const findOrCreateSplTokenAccount = async (
   env: Env,
   solanaClient: SolanaClient,
@@ -44,6 +51,8 @@ const findOrCreateSplTokenAccount = async (
   );
 };
 
+=======
+>>>>>>> 1c2f52a6 (chore(ui): Single chain solana swap)
 export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
   readonly TokenAccount[],
   Error,
@@ -65,7 +74,7 @@ export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
           "SPL token accounts not loaded, please try again later",
         );
       }
-      const tokenAccounts = await Promise.all(
+      const tokenAccountData = await Promise.all(
         mints.map(async (mint) =>
           findOrCreateSplTokenAccount(
             env,
@@ -78,7 +87,7 @@ export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
         ),
       );
       await queryClient.invalidateQueries([env, "tokenAccounts", address]);
-      return tokenAccounts;
+      return tokenAccountData.map((data) => data.tokenAccount);
     },
   );
 };

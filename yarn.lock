@@ -7023,6 +7023,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@swim-io/solana-contracts@npm:^0.32.0":
+  version: 0.32.1
+  resolution: "@swim-io/solana-contracts@npm:0.32.1"
+  dependencies:
+    "@project-serum/anchor": ^0.25.0
+    "@project-serum/borsh": ^0.2.5
+    "@solana/spl-token": ^0.2.0
+    "@solana/web3.js": ^1.50.1
+  checksum: ad6b0b5dc0131d8ec6059d2e60c45967ce19dd807e4fdd730ae92dcf77d278807156ca43c3c29c8eee9c6ef92c326bb2cbabe3fb25e27d9cbdc9bf91d06b8b29
+  languageName: node
+  linkType: hard
+
 "@swim-io/solana-contracts@workspace:packages/solana-contracts":
   version: 0.0.0-use.local
   resolution: "@swim-io/solana-contracts@workspace:packages/solana-contracts"
@@ -7296,6 +7308,7 @@ __metadata:
     "@swim-io/evm-contracts": ^0.34.0
     "@swim-io/pool-math": ^0.34.0
     "@swim-io/solana": ^0.34.0
+    "@swim-io/solana-contracts": ^0.34.0
     "@swim-io/token-projects": ^0.34.0
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": ^0.34.0

@@ -17,6 +17,7 @@ import type {
   RemoveUniformInteraction,
   RequiredSplTokenAccounts,
   SwapInteractionV2,
+  TokensByPoolId,
 } from "../../models";
 import {
   InteractionType,
@@ -25,16 +26,16 @@ import {
   getConnectedWalletsV2,
   getRequiredPools,
   getSwapType,
+  getTokensByPool,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
 import { useSplTokenAccountsQuery } from "../solana";
-import { useSwimUsd } from "../swim";
 
 const calculateRequiredSplTokenAccounts = (
   interaction: SwapInteractionV2,
   tokenAccounts: readonly TokenAccount[],
   walletAddress: string | null,
-  swimUsd: TokenConfig,
+  solanaPoolTokens: TokensByPoolId[string],
 ): RequiredSplTokenAccounts => {
   const { fromTokenData, toTokenData } = interaction.params;
   const swapType = getSwapType(fromTokenData, toTokenData);
@@ -44,12 +45,7 @@ const calculateRequiredSplTokenAccounts = (
   ) {
     return {};
   }
-  const isCrossChain =
-    swapType === SwapType.CrossChainSolanaToEvm ||
-    swapType === SwapType.CrossChainEvmToSolana;
-  const requiredTokens = isCrossChain
-    ? [fromTokenData.tokenConfig, toTokenData.tokenConfig, swimUsd]
-    : [fromTokenData.tokenConfig, toTokenData.tokenConfig];
+  const requiredTokens = [...solanaPoolTokens.tokens, solanaPoolTokens.lpToken];
   const mints = filterMap(
     (token: TokenConfig) => token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID,
     (token) => getSolanaTokenDetails(token).address,
@@ -148,7 +144,7 @@ const createSwapInteractionState = (
   interaction: SwapInteractionV2,
   tokenAccounts: readonly TokenAccount[],
   solanaWalletAddress: string | null,
-  swimUsd: TokenConfig,
+  solanaPoolTokens: TokensByPoolId[string],
 ): InteractionStateV2 => {
   const { fromTokenData, toTokenData } = interaction.params;
   const swapType = getSwapType(fromTokenData, toTokenData);
@@ -156,7 +152,7 @@ const createSwapInteractionState = (
     interaction,
     tokenAccounts,
     solanaWalletAddress,
-    swimUsd,
+    solanaPoolTokens,
   );
   switch (swapType) {
     case SwapType.SingleChainSolana: {
@@ -222,7 +218,7 @@ export const useCreateInteractionStateV2 = () => {
   const { env } = useEnvironment();
   const { data: tokenAccounts = [] } = useSplTokenAccountsQuery();
   const solanaWalletAddress = wallets[SOLANA_ECOSYSTEM_ID].address;
-  const swimUsd = useSwimUsd();
+  const tokensByPoolId = getTokensByPool(config);
 
   return (interactionSpec: InteractionSpecV2): InteractionStateV2 => {
     const requiredPools = getRequiredPools(config.pools, interactionSpec);
@@ -271,16 +267,21 @@ export const useCreateInteractionStateV2 = () => {
           approvalTxIds: [],
           addTxId: null,
         };
-      case InteractionType.SwapV2:
-        if (swimUsd === null) {
-          throw new Error("Unsupported interaction type");
+      case InteractionType.SwapV2: {
+        const solanaTwoPool = config.pools.find(
+          (pool) =>
+            pool.ecosystem === SOLANA_ECOSYSTEM_ID && !pool.isLegacyPool,
+        );
+        if (!solanaTwoPool) {
+          throw new Error("Solana two pool not found");
         }
         return createSwapInteractionState(
           interaction,
           tokenAccounts,
           solanaWalletAddress,
-          swimUsd,
+          tokensByPoolId[solanaTwoPool.id],
         );
+      }
       default:
         throw new Error("Unsupported interaction type");
     }

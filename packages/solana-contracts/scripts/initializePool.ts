@@ -169,6 +169,7 @@ async function add() {
     swimUsdKeypair.publicKey,
     initialMintAmount,
     payer,
+    splToken,
   ));
 
   const inputAmounts = [new BN(500_000_000_000), new BN(400_000_000_000)];

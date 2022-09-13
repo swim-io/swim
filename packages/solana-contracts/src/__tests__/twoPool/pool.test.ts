@@ -153,6 +153,7 @@ describe("TwoPool", () => {
       swimUsdKeypair.publicKey,
       initialMintAmount,
       payer,
+      splToken,
     ));
   });
 

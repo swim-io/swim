@@ -1,7 +1,7 @@
 pub use switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_PROGRAM_ID};
 use {
-    crate::FeeTracker,
-    anchor_spl::token::Transfer,
+    crate::{constants::LAMPORTS_PER_SOL_DECIMAL, get_token_bridge_mint_decimals, FeeTracker},
+    anchor_spl::{associated_token::AssociatedToken, token::Transfer},
     num_traits::{FromPrimitive, ToPrimitive},
     rust_decimal::Decimal,
 };
@@ -624,9 +624,8 @@ pub fn handle_process_swim_payload(
 #[derive(Accounts)]
 // #[instruction(vaa: PostVAAData, target_token_id: u16)]
 pub struct PropellerProcessSwimPayload<'info> {
-    // //TODO: need to refactor this again.
-    // //  we can't use the same user token accounts for the pool swap since
-    // // it's possible they might not be initialized yet for a propellerEnabled payload with gas kickstart
+    //TODO: re-add using composite pattern since propeller engine should call propellr create owner token Accounts
+    // prior to calling this instruction.
     // pub process_swim_payload: ProcessSwimPayload<'info>,
     #[account(
     seeds = [ b"propeller".as_ref(), propeller.token_bridge_mint.as_ref()],
@@ -681,7 +680,7 @@ pub struct PropellerProcessSwimPayload<'info> {
     ],
     bump = propeller_message.bump
     )]
-    pub propeller_message: Account<'info, PropellerMessage>,
+    pub propeller_message: Box<Account<'info, PropellerMessage>>,
 
     #[account(
     seeds = [ b"redeemer".as_ref()],
@@ -698,7 +697,7 @@ pub struct PropellerProcessSwimPayload<'info> {
     token::mint = propeller.token_bridge_mint,
     token::authority = redeemer,
     )]
-    pub redeemer_escrow: Account<'info, TokenAccount>,
+    pub redeemer_escrow: Box<Account<'info, TokenAccount>>,
 
     #[account(
     seeds = [
@@ -709,7 +708,7 @@ pub struct PropellerProcessSwimPayload<'info> {
     ],
     bump = token_id_map.bump,
     )]
-    pub token_id_map: Account<'info, TokenIdMap>,
+    pub token_id_map: Box<Account<'info, TokenIdMap>>,
 
     /*  Pool Used for final swap to get token_id_map.pool_token_mint */
     #[account(
@@ -749,23 +748,26 @@ pub struct PropellerProcessSwimPayload<'info> {
     // needs to be a signer since its a "keypair" account
     pub user_transfer_authority: Signer<'info>,
 
-    #[account(mut, token::mint = pool_token_account_0.mint)]
-    pub user_token_account_0: Box<Account<'info, TokenAccount>>,
-
-    #[account(mut, token::mint = pool_token_account_1.mint)]
-    pub user_token_account_1: Box<Account<'info, TokenAccount>>,
-
-    #[account(mut, token::mint = pool.lp_mint_key)]
-    pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
-
-    // #[account(mut)]
-    // pub user_token_account_0: UncheckedAccount<'info>,
+    // #[account(mut, token::mint = pool_token_account_0.mint)]
+    // pub user_token_account_0: Box<Account<'info, TokenAccount>>,
     //
-    // #[account(mut)]
-    // pub user_token_account_1: UncheckedAccount<'info>,
+    // #[account(mut, token::mint = pool_token_account_1.mint)]
+    // pub user_token_account_1: Box<Account<'info, TokenAccount>>,
     //
-    // #[account(mut)]
-    // pub user_lp_token_account: UncheckedAccount<'info>,
+    // #[account(mut, token::mint = pool.lp_mint_key)]
+    // pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
+    #[account(mut)]
+    /// CHECK: may or may not be uninitialized. need to account for fees if initialized
+    pub user_token_account_0: UncheckedAccount<'info>,
+
+    #[account(mut)]
+    /// CHECK: may or may not be uninitialized. need to account for fees if initialized
+    pub user_token_account_1: UncheckedAccount<'info>,
+
+    #[account(mut)]
+    /// CHECK: may or may not be uninitialized. need to account for fees if initialized
+    pub user_lp_token_account: UncheckedAccount<'info>,
+
     pub token_program: Program<'info, Token>,
     #[account(executable, address = spl_memo::id())]
     ///CHECK: memo program
@@ -819,6 +821,9 @@ pub struct PropellerProcessSwimPayload<'info> {
     pub marginal_price_pool_token_0_account: Box<Account<'info, TokenAccount>>,
     pub marginal_price_pool_token_1_account: Box<Account<'info, TokenAccount>>,
     pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
+    /// This is for transferring lamports for kickstart
+    #[account(mut)]
+    pub owner: SystemAccount<'info>,
 }
 
 impl<'info> PropellerProcessSwimPayload<'info> {
@@ -885,7 +890,7 @@ impl<'info> PropellerProcessSwimPayload<'info> {
         require_gt!(TOKEN_COUNT, pool_token_index as usize);
         require_keys_eq!(self.pool.token_mint_keys[pool_token_index as usize], *pool_token_mint);
         let user_token_accounts = [&self.user_token_account_0, &self.user_token_account_1];
-        require_keys_eq!(user_token_accounts[pool_token_index as usize].owner, swim_payload_owner);
+        // require_keys_eq!(user_token_accounts[pool_token_index as usize].owner, swim_payload_owner);
 
         match pool_ix {
             PoolInstruction::RemoveExactBurn => {
@@ -1171,8 +1176,8 @@ fn calculate_fees(ctx: &Context<PropellerProcessSwimPayload>) -> Result<u64> {
     let sol_usd_price: Decimal = feed.get_result()?.try_into()?;
     let name = feed.name;
 
-    let lamports_decimal = Decimal::from_u64(1_000_000_000).unwrap();
-    let lamports_usd_price = sol_usd_price.checked_div(lamports_decimal).ok_or(PropellerError::IntegerOverflow)?;
+    let lamports_usd_price =
+        sol_usd_price.checked_div(LAMPORTS_PER_SOL_DECIMAL).ok_or(PropellerError::IntegerOverflow)?;
     msg!("sol_usd_price:{},lamports_usd_price: {}", sol_usd_price, lamports_usd_price);
     // check whether the feed has been updated in the last 300 seconds
     feed.check_staleness(
@@ -1226,14 +1231,8 @@ fn calculate_fees(ctx: &Context<PropellerProcessSwimPayload>) -> Result<u64> {
         &ctx.accounts.marginal_price_pool,
         &ctx.accounts.marginal_price_pool_lp_mint,
     )?;
-    //TODO: good lord forgive me for this terrible naming. i will fix later.
-    let token_bridge_mint_decimals_decimal: Decimal =
-        Decimal::from_u8(token_bridge_mint_decimals).ok_or(PropellerError::ConversionError)?;
-    msg!(
-        "token_bridge_mint_decimals: {:?} token_bridge_mint_decimals_decimal: {:?}",
-        token_bridge_mint_decimals,
-        token_bridge_mint_decimals_decimal
-    );
+
+    msg!("token_bridge_mint_decimals: {:?} ", token_bridge_mint_decimals,);
 
     let ten_pow_decimals =
         Decimal::from_u64(10u64.pow(token_bridge_mint_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
@@ -1290,21 +1289,4 @@ fn calculate_fees(ctx: &Context<PropellerProcessSwimPayload>) -> Result<u64> {
     );
     res = fee_in_token_bridge_mint;
     Ok(res)
-}
-
-fn get_token_bridge_mint_decimals(
-    token_bridge_mint: &Pubkey,
-    marginal_price_pool: &TwoPool,
-    marginal_price_pool_lp_mint: &Mint,
-) -> Result<u8> {
-    let marginal_price_pool_lp_mint_decimals = marginal_price_pool_lp_mint.decimals;
-    if *token_bridge_mint == marginal_price_pool.lp_mint_key {
-        Ok(marginal_price_pool_lp_mint_decimals)
-    } else if *token_bridge_mint == marginal_price_pool.token_mint_keys[0] {
-        Ok(marginal_price_pool_lp_mint_decimals + marginal_price_pool.token_decimal_equalizers[0])
-    } else if *token_bridge_mint == marginal_price_pool.token_mint_keys[1] {
-        Ok(marginal_price_pool_lp_mint_decimals + marginal_price_pool.token_decimal_equalizers[1])
-    } else {
-        return err!(PropellerError::UnableToRetrieveTokenBridgeMintDecimals);
-    }
 }

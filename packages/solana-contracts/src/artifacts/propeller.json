@@ -394,7 +394,7 @@
         },
         {
           "name": "feeTracker",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "pda": {
             "seeds": [
@@ -429,12 +429,12 @@
           "isSigner": true
         },
         {
-          "name": "payerFeeAccount",
+          "name": "feeAccount",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "propellerFeeVault",
+          "name": "feeVault",
           "isMut": true,
           "isSigner": false
         },
@@ -2731,10 +2731,326 @@
           "name": "marginalPricePoolLpMint",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "This is for transferring lamports for kickstart"
+          ]
         }
       ],
       "args": [],
       "returns": "u64"
+    },
+    {
+      "name": "propellerCreateOwnerTokenAccounts",
+      "accounts": [
+        {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller.token_bridge_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "redeemer",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "this used to be \"to_owner\".",
+            "redeemer will be PDA derived from [\"redeemer\"], seeds::program = propeller::id()",
+            "will have to be signed when it invokes complete_transfer_with_payload",
+            "if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to",
+            "(NOT the `to` account)"
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "redeemer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "redeemerEscrow",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "feeVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "feeTracker",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "fee"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller.token_bridge_mint"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "claim",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "type": {
+                  "array": [
+                    "u8",
+                    32
+                  ]
+                },
+                "account": "PropellerMessage",
+                "path": "propeller_message.vaa_emitter_address"
+              },
+              {
+                "kind": "account",
+                "type": "u16",
+                "account": "PropellerMessage",
+                "path": "propeller_message.vaa_emitter_chain"
+              },
+              {
+                "kind": "account",
+                "type": "u64",
+                "account": "PropellerMessage",
+                "path": "propeller_message.vaa_sequence"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "account": "Propeller",
+              "path": "propeller"
+            }
+          }
+        },
+        {
+          "name": "message",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "propellerMessage",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "claim"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "message"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "pool_token_0_mint"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "pool_token_1_mint"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "pool_lp_mint"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "path": "two_pool_program"
+            }
+          }
+        },
+        {
+          "name": "poolToken0Mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "poolToken1Mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "poolLpMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "userPoolToken0Account",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userPoolToken1Account",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "aggregator",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marginalPricePool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "marginal_price_pool_token_0_account.mint"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "marginal_price_pool_token_1_account.mint"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "marginal_price_pool_lp_mint"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "path": "two_pool_program"
+            }
+          }
+        },
+        {
+          "name": "marginalPricePoolToken0Account",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marginalPricePoolToken1Account",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marginalPricePoolLpMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     }
   ],
   "accounts": [
@@ -3699,6 +4015,21 @@
       "code": 6040,
       "name": "UnableToRetrieveTokenBridgeMintDecimals",
       "msg": "Unable to retrieve token bridge mint decimals from marginal price pool information"
+    },
+    {
+      "code": 6041,
+      "name": "InvalidMetapoolTokenMint",
+      "msg": "Invalid Metapool Token Mint. token_mint[0] should == token_bridge_mint"
+    },
+    {
+      "code": 6042,
+      "name": "UnableToDeserializeTokenAccount",
+      "msg": "Unable to deserialize account info as token account"
+    },
+    {
+      "code": 6043,
+      "name": "InvalidTokenAccountDataLen",
+      "msg": "Invalid token account data length. != 0 && != TokenAccount::LEN"
     }
   ]
 }

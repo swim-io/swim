@@ -76,6 +76,7 @@ pub struct ClaimFees<'info> {
     pub propeller: Box<Account<'info, Propeller>>,
 
     #[account(
+    mut,
     seeds = [b"propeller".as_ref(), b"fee".as_ref(), fee_tracker.fees_mint.as_ref(), fee_tracker.payer.as_ref()],
     bump = fee_tracker.bump
     )]
@@ -87,27 +88,39 @@ pub struct ClaimFees<'info> {
     #[account(
     mut,
     token::mint = fee_tracker.fees_mint,
-    token::authority = payer,
+    token::authority = fee_tracker.payer,
     )]
-    pub payer_fee_account: Account<'info, TokenAccount>,
+    pub fee_account: Account<'info, TokenAccount>,
 
     #[account(
     mut,
     token::mint = fee_tracker.fees_mint,
     token::authority = propeller,
     )]
-    pub propeller_fee_vault: Account<'info, TokenAccount>,
+    pub fee_vault: Account<'info, TokenAccount>,
 
     pub token_program: Program<'info, Token>,
 }
 
+impl<'info> ClaimFees<'info> {
+    pub fn accounts(ctx: &Context<ClaimFees>) -> Result<()> {
+        require_keys_eq!(
+            ctx.accounts.propeller.token_bridge_mint,
+            ctx.accounts.fee_tracker.fees_mint,
+            PropellerError::InvalidTokenBridgeMint
+        );
+        Ok(())
+    }
+}
+
+/// Tehcnically anyone can pay the claim fees for anyone else.
 pub fn handle_claim_fees(ctx: Context<ClaimFees>) -> Result<()> {
     let fee_tracker = &mut ctx.accounts.fee_tracker;
     let fees_owed = fee_tracker.fees_owed;
 
     let cpi_accounts = Transfer {
-        from: ctx.accounts.propeller_fee_vault.to_account_info(),
-        to: ctx.accounts.payer_fee_account.to_account_info(),
+        from: ctx.accounts.fee_vault.to_account_info(),
+        to: ctx.accounts.fee_account.to_account_info(),
         authority: ctx.accounts.propeller.to_account_info(),
     };
 

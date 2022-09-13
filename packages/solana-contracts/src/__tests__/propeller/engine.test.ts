@@ -10,7 +10,8 @@ import {
   // uint8ArrayToHex,
 } from "@certusone/wormhole-sdk";
 import { parseUnits } from "@ethersproject/units";
-import type { Program } from "@project-serum/anchor";
+import type { Idl } from "@project-serum/anchor";
+import { Program } from "@project-serum/anchor";
 // eslint-disable-next-line import/order
 import {
   AnchorProvider,
@@ -21,7 +22,7 @@ import {
   workspace,
 } from "@project-serum/anchor";
 
-import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import { MEMO_PROGRAM_ID } from "@solana/spl-memo";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -43,6 +44,7 @@ import {
 import Big from "big.js";
 
 import type { Propeller } from "../../artifacts/propeller";
+import PropellerIDL from "../../artifacts/propeller.json";
 import type { TwoPool } from "../../artifacts/two_pool";
 import { getApproveAndRevokeIxs } from "../../index";
 import {
@@ -92,6 +94,7 @@ const provider = new AnchorProvider(
   envProvider.wallet,
   rpcCommitmentConfig,
 );
+
 const connection = provider.connection;
 // const userKeypair = web3.Keypair.generate();
 // const user = userKeypair.publicKey;
@@ -265,12 +268,22 @@ const evmOwnerEthHexStr = tryNativeToHexString(
 const evmOwner = Buffer.from(evmOwnerEthHexStr, "hex");
 
 const propellerEngineKeypair = web3.Keypair.generate();
+const propellerEngineWallet = new NodeWallet(propellerEngineKeypair);
+const propellerEngineAnchorProvider = new AnchorProvider(
+  envProvider.connection,
+  propellerEngineWallet,
+  rpcCommitmentConfig,
+);
+const propellerEnginePropellerProgram = new Program(
+  PropellerIDL as Idl,
+  propellerProgram.programId,
+  propellerEngineAnchorProvider,
+);
 console.info(`propellerEngine: ${propellerEngineKeypair.publicKey.toBase58()}`);
-let propellerEngineSwimUsdAta: web3.PublicKey;
 
 let propellerEngineFeeTracker: web3.PublicKey;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-let propellerEngineFeeAccount: web3.PublicKey;
+
+let propellerEngineSwimUsdFeeAccount: web3.PublicKey;
 
 let switchboard: SwitchboardTestContext;
 let aggregatorAccount: AggregatorAccount;
@@ -281,7 +294,7 @@ describe("propeller", () => {
     await connection.requestAirdrop(user, 100 * LAMPORTS_PER_SOL);
     await connection.requestAirdrop(
       propellerEngineKeypair.publicKey,
-      10 * LAMPORTS_PER_SOL,
+      100 * LAMPORTS_PER_SOL,
     );
     // console.info(`Setting up flagship pool`);
     // await setupFlagshipPool();
@@ -378,6 +391,7 @@ describe("propeller", () => {
       swimUsdKeypair.publicKey,
       initialMintAmount,
       payer,
+      splToken,
       commitment,
       rpcCommitmentConfig,
     ));
@@ -558,6 +572,7 @@ describe("propeller", () => {
       metapoolLpMintKeypair.publicKey,
       initialMintAmount,
       payer,
+      splToken,
       commitment,
       rpcCommitmentConfig,
     ));
@@ -637,7 +652,7 @@ describe("propeller", () => {
     console.info(`created token id maps`);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    propellerEngineSwimUsdAta = (
+    propellerEngineSwimUsdFeeAccount = (
       await getOrCreateAssociatedTokenAccount(
         provider.connection,
         userKeypair,
@@ -646,7 +661,7 @@ describe("propeller", () => {
       )
     ).address;
     console.info(
-      `propellerEngineSwimUsdAta: ${propellerEngineSwimUsdAta.toBase58()}`,
+      `propellerEngineSwimUsdFeeAccount: ${propellerEngineSwimUsdFeeAccount.toBase58()}`,
     );
 
     // [custodyOrWrappedMeta] = await (async () => {
@@ -843,312 +858,341 @@ describe("propeller", () => {
     describe("without gas kickstart", () => {
       const gasKickstart = false;
       // still have to handle possibly creating token accounts
-      describe("for token from flagship pool as output token", () => {
-        let wormholeClaim: web3.PublicKey;
-        let wormholeMessage: web3.PublicKey;
-        let propellerMessage: web3.PublicKey;
+      describe("for existing user with all token accounts", () => {
+        describe("for token from flagship pool as output token", () => {
+          let wormholeClaim: web3.PublicKey;
+          let wormholeMessage: web3.PublicKey;
+          let propellerMessage: web3.PublicKey;
+          let owner: web3.PublicKey;
 
-        const targetTokenId = usdcOutputTokenIndex;
-        const memoStr = incMemoIdAndGet();
+          const targetTokenId = usdcOutputTokenIndex;
+          const memoStr = incMemoIdAndGet();
 
-        it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
+          it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
+            const propellerFeeVaultBalanceBefore = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
 
-          const propellerFeeVaultBalanceBefore = (
-            await splToken.account.token.fetch(propellerFeeVault)
-          ).amount;
+            const propellerEngineFeeTrackerFeesOwedBefore = (
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              )
+            ).feesOwed;
 
-          const propellerEngineFeeTrackerFeesOwedBefore = (
-            await propellerProgram.account.feeTracker.fetch(
-              propellerEngineFeeTracker,
-            )
-          ).feesOwed;
+            const memoBuffer = Buffer.alloc(16);
+            memoBuffer.write(memoStr);
 
-          const memoBuffer = Buffer.alloc(16);
-          memoBuffer.write(memoStr);
+            const swimPayload = {
+              version: swimPayloadVersion,
+              targetTokenId,
+              owner: provider.publicKey.toBuffer(),
+              memo: memoBuffer,
+              propellerEnabled,
+              gasKickstart,
+            };
+            const amount = parseUnits("100000", mintDecimal);
+            console.info(`amount: ${amount.toString()}`);
+            /**
+             * this is encoding a token transfer from eth routing contract
+             * with a swimUSD token address that originated on solana
+             * the same as initializing a `TransferWrappedWithPayload` from eth
+             */
 
-          const swimPayload = {
-            version: swimPayloadVersion,
-            targetTokenId,
-            owner: provider.publicKey.toBuffer(),
-            memo: memoBuffer,
-            propellerEnabled,
-            gasKickstart,
-          };
-          const amount = parseUnits("100000", mintDecimal);
-          console.info(`amount: ${amount.toString()}`);
-          /**
-           * this is encoding a token transfer from eth routing contract
-           * with a swimUSD token address that originated on solana
-           * the same as initializing a `TransferWrappedWithPayload` from eth
-           */
-
-          const nonce = createNonce().readUInt32LE(0);
-          const tokenTransferWithPayloadSignedVaa = signAndEncodeVaa(
-            0,
-            nonce,
-            CHAIN_ID_ETH as number,
-            ethTokenBridge,
-            BigInt(++ethTokenBridgeSequence),
-            encodeTokenTransferWithPayload(
-              amount.toString(),
-              swimUsdKeypair.publicKey.toBuffer(),
-              CHAIN_ID_SOLANA,
-              propellerProgram.programId,
-              ethRoutingContract,
-              encodeSwimPayload(swimPayload),
-            ),
-          );
-          const propellerRedeemerEscrowAccountBefore = (
-            await splToken.account.token.fetch(propellerRedeemerEscrowAccount)
-          ).amount;
-
-          console.info(
-            `propellerRedeemerEscrowAccountBefore: ${propellerRedeemerEscrowAccountBefore.toString()}`,
-          );
-          await postVaaSolanaWithRetry(
-            connection,
-            // eslint-disable-next-line @typescript-eslint/require-await
-            async (tx) => {
-              tx.partialSign(userKeypair);
-              return tx;
-            },
-            WORMHOLE_CORE_BRIDGE.toBase58(),
-            userKeypair.publicKey.toBase58(),
-            tokenTransferWithPayloadSignedVaa,
-            10,
-          );
-
-          [wormholeMessage] = await deriveMessagePda(
-            tokenTransferWithPayloadSignedVaa,
-            WORMHOLE_CORE_BRIDGE,
-          );
-
-          const [endpointAccount] = await deriveEndpointPda(
-            CHAIN_ID_ETH,
-            ethTokenBridge,
-            // parsedVaa.emitterChain,
-            // parsedVaa.emitterAddress,
-            WORMHOLE_TOKEN_BRIDGE,
-          );
-          console.info(`endpointAccount: ${endpointAccount.toBase58()}`);
-          wormholeClaim = await getClaimAddressSolana(
-            WORMHOLE_TOKEN_BRIDGE.toBase58(),
-            tokenTransferWithPayloadSignedVaa,
-          );
-
-          const [expectedPropellerMessage, expectedPropellerMessageBump] =
-            await web3.PublicKey.findProgramAddress(
-              [
-                Buffer.from("propeller"),
-                wormholeClaim.toBuffer(),
-                wormholeMessage.toBuffer(),
-              ],
-              propellerProgram.programId,
+            const nonce = createNonce().readUInt32LE(0);
+            const tokenTransferWithPayloadSignedVaa = signAndEncodeVaa(
+              0,
+              nonce,
+              CHAIN_ID_ETH as number,
+              ethTokenBridge,
+              BigInt(++ethTokenBridgeSequence),
+              encodeTokenTransferWithPayload(
+                amount.toString(),
+                swimUsdKeypair.publicKey.toBuffer(),
+                CHAIN_ID_SOLANA,
+                propellerProgram.programId,
+                ethRoutingContract,
+                encodeSwimPayload(swimPayload),
+              ),
             );
-          // expect(expectedPropellerMessage.toBase58()).toEqual(
-          //   completeNativeWithPayloadPubkeys.propellerMessage.toBase58(),
-          // );
-          console.info(`
+            const propellerRedeemerEscrowAccountBefore = (
+              await splToken.account.token.fetch(propellerRedeemerEscrowAccount)
+            ).amount;
+
+            console.info(
+              `propellerRedeemerEscrowAccountBefore: ${propellerRedeemerEscrowAccountBefore.toString()}`,
+            );
+            await postVaaSolanaWithRetry(
+              connection,
+              // eslint-disable-next-line @typescript-eslint/require-await
+              async (tx) => {
+                tx.partialSign(userKeypair);
+                return tx;
+              },
+              WORMHOLE_CORE_BRIDGE.toBase58(),
+              userKeypair.publicKey.toBase58(),
+              tokenTransferWithPayloadSignedVaa,
+              10,
+            );
+
+            [wormholeMessage] = await deriveMessagePda(
+              tokenTransferWithPayloadSignedVaa,
+              WORMHOLE_CORE_BRIDGE,
+            );
+
+            const [endpointAccount] = await deriveEndpointPda(
+              CHAIN_ID_ETH,
+              ethTokenBridge,
+              // parsedVaa.emitterChain,
+              // parsedVaa.emitterAddress,
+              WORMHOLE_TOKEN_BRIDGE,
+            );
+            console.info(`endpointAccount: ${endpointAccount.toBase58()}`);
+            wormholeClaim = await getClaimAddressSolana(
+              WORMHOLE_TOKEN_BRIDGE.toBase58(),
+              tokenTransferWithPayloadSignedVaa,
+            );
+
+            const [expectedPropellerMessage, expectedPropellerMessageBump] =
+              await web3.PublicKey.findProgramAddress(
+                [
+                  Buffer.from("propeller"),
+                  wormholeClaim.toBuffer(),
+                  wormholeMessage.toBuffer(),
+                ],
+                propellerProgram.programId,
+              );
+            // expect(expectedPropellerMessage.toBase58()).toEqual(
+            //   completeNativeWithPayloadPubkeys.propellerMessage.toBase58(),
+            // );
+            console.info(`
             marginalPricePoolToken0Account: ${marginalPricePoolToken0Account.toBase58()}
             marginalPricePoolToken1Account: ${marginalPricePoolToken1Account.toBase58()}
           `);
 
-          const completeNativeWithPayloadIxs = propellerProgram.methods
-            .propellerCompleteNativeWithPayload()
-            .accounts({
-              completeNativeWithPayload: {
-                propeller,
-                payer: propellerEngineKeypair.publicKey,
-                tokenBridgeConfig,
-                // userTokenBridgeAccount: userLpTokenAccount.address,
-                message: wormholeMessage,
-                claim: wormholeClaim,
-                propellerMessage: expectedPropellerMessage,
-                endpoint: endpointAccount,
-                to: propellerRedeemerEscrowAccount,
-                redeemer: propellerRedeemer,
-                feeRecipient: propellerFeeVault,
-                // feeRecipient: propellerRedeemerEscrowAccount,
-                // tokenBridgeMint,
-                custody: custody,
-                mint: tokenBridgeMint,
-                custodySigner,
-                rent: web3.SYSVAR_RENT_PUBKEY,
-                systemProgram: web3.SystemProgram.programId,
-                memo: MEMO_PROGRAM_ID,
-                wormhole,
-                tokenProgram: splToken.programId,
-                tokenBridge,
-              },
-              feeTracker: propellerEngineFeeTracker,
-              aggregator,
-              marginalPricePool: marginalPricePool,
-              marginalPricePoolToken0Account: marginalPricePoolToken0Account,
-              marginalPricePoolToken1Account: marginalPricePoolToken1Account,
-              marginalPricePoolLpMint: marginalPricePoolLpMint,
-              twoPoolProgram: twoPoolProgram.programId,
-            })
-            .preInstructions([requestUnitsIx])
-            .signers([propellerEngineKeypair]);
-
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          const completeNativeWithPayloadPubkeys =
-            await completeNativeWithPayloadIxs.pubkeys();
-
-          console.info(
-            `completeNativeWithPayloadPubkeys: ${JSON.stringify(
-              completeNativeWithPayloadPubkeys,
-              null,
-              2,
-            )}`,
-          );
-
-          const completeNativeWithPayloadTxn =
-            await completeNativeWithPayloadIxs.transaction();
-          const completeNativeWithPayloadTxnSig = await provider.sendAndConfirm(
-            completeNativeWithPayloadTxn,
-            [propellerEngineKeypair],
-            {
-              skipPreflight: true,
-            },
-          );
-          //
-          const propellerMessageAccount =
-            await propellerProgram.account.propellerMessage.fetch(
-              expectedPropellerMessage,
+            const providerBalanceBefore = await provider.connection.getBalance(
+              provider.wallet.publicKey,
             );
-          console.info(
-            `propellerMessageAccount: ${JSON.stringify(
-              propellerMessageAccount,
-              null,
-              2,
-            )}`,
-          );
-          expect(propellerMessageAccount.bump).toEqual(
-            expectedPropellerMessageBump,
-          );
-          expect(propellerMessageAccount.whMessage).toEqual(wormholeMessage);
-          expect(propellerMessageAccount.claim).toEqual(wormholeClaim);
-          expect(
-            Buffer.from(propellerMessageAccount.vaaEmitterAddress),
-          ).toEqual(ethTokenBridge);
-          expect(propellerMessageAccount.vaaEmitterChain).toEqual(CHAIN_ID_ETH);
-          expect(
-            propellerMessageAccount.vaaSequence.eq(
-              new BN(ethTokenBridgeSequence),
-            ),
-          ).toBeTruthy();
+            const propellerEngineWalletPubkey =
+              propellerEngineAnchorProvider.wallet.publicKey;
+            const propellerEngineProviderBalanceBefore =
+              await provider.connection.getBalance(propellerEngineWalletPubkey);
 
-          // const {
-          //   swimPayloadVersion,
-          //   targetTokenId,
-          //   owner,
-          //   memo,
-          //   propellerEnabled,
-          //   gasKickstart
-          // } = propellerMessageAccount.swimPayload;
-          expect(propellerMessageAccount.swimPayloadVersion).toEqual(
-            swimPayloadVersion,
-          );
-          expect(propellerMessageAccount.targetTokenId).toEqual(targetTokenId);
-          const propellerMessageOwnerPubKey = new PublicKey(
-            propellerMessageAccount.owner,
-          );
-          expect(propellerMessageOwnerPubKey).toEqual(
-            provider.wallet.publicKey,
-          );
-          expect(propellerMessageAccount.propellerEnabled).toEqual(
-            propellerEnabled,
-          );
-          expect(propellerMessageAccount.gasKickstart).toEqual(gasKickstart);
+            const completeNativeWithPayloadIxs =
+              propellerEnginePropellerProgram.methods
+                .propellerCompleteNativeWithPayload()
+                .accounts({
+                  completeNativeWithPayload: {
+                    propeller,
+                    payer: propellerEngineKeypair.publicKey,
+                    tokenBridgeConfig,
+                    // userTokenBridgeAccount: userLpTokenAccount.address,
+                    message: wormholeMessage,
+                    claim: wormholeClaim,
+                    propellerMessage: expectedPropellerMessage,
+                    endpoint: endpointAccount,
+                    to: propellerRedeemerEscrowAccount,
+                    redeemer: propellerRedeemer,
+                    feeRecipient: propellerFeeVault,
+                    // feeRecipient: propellerRedeemerEscrowAccount,
+                    // tokenBridgeMint,
+                    custody: custody,
+                    mint: tokenBridgeMint,
+                    custodySigner,
+                    rent: web3.SYSVAR_RENT_PUBKEY,
+                    systemProgram: web3.SystemProgram.programId,
+                    memo: MEMO_PROGRAM_ID,
+                    wormhole,
+                    tokenProgram: splToken.programId,
+                    tokenBridge,
+                  },
+                  feeTracker: propellerEngineFeeTracker,
+                  aggregator,
+                  marginalPricePool: marginalPricePool,
+                  marginalPricePoolToken0Account:
+                    marginalPricePoolToken0Account,
+                  marginalPricePoolToken1Account:
+                    marginalPricePoolToken1Account,
+                  marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  twoPoolProgram: twoPoolProgram.programId,
+                })
+                .preInstructions([requestUnitsIx])
+                .signers([propellerEngineKeypair]);
 
-          const completeNativeWithPayloadTxnSize =
-            completeNativeWithPayloadTxn.serialize().length;
-          console.info(
-            `completeNativeWithPayloadTxnSize: ${completeNativeWithPayloadTxnSize}`,
-          );
-          await connection.confirmTransaction({
-            signature: completeNativeWithPayloadTxnSig,
-            ...(await connection.getLatestBlockhash()),
-          });
+            const completeNativeWithPayloadPubkeys =
+              await completeNativeWithPayloadIxs.pubkeys();
 
-          const propellerRedeemerEscrowAccountAfter = (
-            await splToken.account.token.fetch(propellerRedeemerEscrowAccount)
-          ).amount;
-          console.info(`
+            console.info(
+              `completeNativeWithPayloadPubkeys: ${JSON.stringify(
+                completeNativeWithPayloadPubkeys,
+                null,
+                2,
+              )}`,
+            );
+
+            // const completeNativeWithPayloadTxn =
+            //   await completeNativeWithPayloadIxs.transaction();
+            //
+            // console.info(
+            //   `completeNativeWithPayloadTxn: ${JSON.stringify(
+            //     completeNativeWithPayloadTxn,
+            //     null,
+            //     2,
+            //   )}`,
+            // );
+            const completeNativeWithPayloadTxnSig =
+              await completeNativeWithPayloadIxs.rpc();
+            const providerBalanceAfter = await provider.connection.getBalance(
+              provider.wallet.publicKey,
+            );
+            const providerBalanceDiff =
+              providerBalanceBefore - providerBalanceAfter;
+            const propellerEngineProviderBalanceAfter =
+              await provider.connection.getBalance(
+                propellerEngineAnchorProvider.wallet.publicKey,
+              );
+            const propellerEngineProviderBalanceDiff =
+              propellerEngineProviderBalanceBefore -
+              propellerEngineProviderBalanceAfter;
+            console.info(`
+              provider: ${provider.wallet.publicKey.toBase58()}
+                balanceDiff: ${providerBalanceDiff}
+            `);
+            console.info(`
+              propellerEngineWalletPubkey: ${propellerEngineWalletPubkey.toBase58()}
+                balanceDiff: ${propellerEngineProviderBalanceDiff}
+            `);
+
+            const propellerMessageAccount =
+              await propellerProgram.account.propellerMessage.fetch(
+                expectedPropellerMessage,
+              );
+            console.info(
+              `propellerMessageAccount: ${JSON.stringify(
+                propellerMessageAccount,
+                null,
+                2,
+              )}`,
+            );
+            expect(propellerMessageAccount.bump).toEqual(
+              expectedPropellerMessageBump,
+            );
+            expect(propellerMessageAccount.whMessage).toEqual(wormholeMessage);
+            expect(propellerMessageAccount.claim).toEqual(wormholeClaim);
+            expect(
+              Buffer.from(propellerMessageAccount.vaaEmitterAddress),
+            ).toEqual(ethTokenBridge);
+            expect(propellerMessageAccount.vaaEmitterChain).toEqual(
+              CHAIN_ID_ETH,
+            );
+            expect(
+              propellerMessageAccount.vaaSequence.eq(
+                new BN(ethTokenBridgeSequence),
+              ),
+            ).toBeTruthy();
+
+            // const {
+            //   swimPayloadVersion,
+            //   targetTokenId,
+            //   owner,
+            //   memo,
+            //   propellerEnabled,
+            //   gasKickstart
+            // } = propellerMessageAccount.swimPayload;
+            expect(propellerMessageAccount.swimPayloadVersion).toEqual(
+              swimPayloadVersion,
+            );
+            expect(propellerMessageAccount.targetTokenId).toEqual(
+              targetTokenId,
+            );
+            const propellerMessageOwnerPubkey = new PublicKey(
+              propellerMessageAccount.owner,
+            );
+            expect(propellerMessageOwnerPubkey).toEqual(
+              provider.wallet.publicKey,
+            );
+            owner = propellerMessageOwnerPubkey;
+            expect(propellerMessageAccount.propellerEnabled).toEqual(
+              propellerEnabled,
+            );
+            expect(propellerMessageAccount.gasKickstart).toEqual(gasKickstart);
+
+            const propellerRedeemerEscrowAccountAfter = (
+              await splToken.account.token.fetch(propellerRedeemerEscrowAccount)
+            ).amount;
+            console.info(`
               propellerRedeemerEscrowAccount
                 Before: ${propellerRedeemerEscrowAccountBefore.toString()}
                 After: ${propellerRedeemerEscrowAccountAfter.toString()}
             `);
-          expect(
-            propellerRedeemerEscrowAccountAfter.gt(
-              propellerRedeemerEscrowAccountBefore,
-            ),
-          ).toEqual(true);
+            expect(
+              propellerRedeemerEscrowAccountAfter.gt(
+                propellerRedeemerEscrowAccountBefore,
+              ),
+            ).toEqual(true);
 
-          const propellerEngineFeeTrackerAfter =
-            await propellerProgram.account.feeTracker.fetch(
-              propellerEngineFeeTracker,
+            const propellerEngineFeeTrackerAfter =
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              );
+            console.info(
+              `propellerEngineFeeTrackerAfter: ${JSON.stringify(
+                propellerEngineFeeTrackerAfter,
+                null,
+                2,
+              )}`,
             );
-          console.info(
-            `propellerEngineFeeTrackerAfter: ${JSON.stringify(
-              propellerEngineFeeTrackerAfter,
-              null,
-              2,
-            )}`,
-          );
-          const propellerEngineFeeTrackerFeesOwedAfter =
-            propellerEngineFeeTrackerAfter.feesOwed;
-          console.info(`
+            const propellerEngineFeeTrackerFeesOwedAfter =
+              propellerEngineFeeTrackerAfter.feesOwed;
+            console.info(`
               propellerEngineFeeTrackerBalance
                 Before: ${propellerEngineFeeTrackerFeesOwedBefore.toString()}
                 After: ${propellerEngineFeeTrackerFeesOwedAfter.toString()}
           `);
-          expect(
-            propellerEngineFeeTrackerFeesOwedAfter.gt(
-              propellerEngineFeeTrackerFeesOwedBefore,
-            ),
-          ).toEqual(true);
-
-          const propellerFeeVaultBalanceAfter = (
-            await splToken.account.token.fetch(propellerFeeVault)
-          ).amount;
-          expect(
-            propellerFeeVaultBalanceAfter.eq(
-              propellerFeeVaultBalanceBefore.add(
-                propellerEngineFeeTrackerFeesOwedAfter,
+            expect(
+              propellerEngineFeeTrackerFeesOwedAfter.gt(
+                propellerEngineFeeTrackerFeesOwedBefore,
               ),
-            ),
-          ).toEqual(true);
+            ).toEqual(true);
 
-          const propellerMessageLength = (
-            await connection.getAccountInfo(expectedPropellerMessage)
-          ).data.length;
-          const wormholeMessageLength = (
-            await connection.getAccountInfo(wormholeMessage)
-          ).data.length;
-          const wormholeClaimLength = (
-            await connection.getAccountInfo(wormholeClaim)
-          ).data.length;
-          const propellerMessageRentExemption =
-            await connection.getMinimumBalanceForRentExemption(
-              propellerMessageLength,
-            );
-          const wormholeMessageRentExemption =
-            await connection.getMinimumBalanceForRentExemption(
-              wormholeMessageLength,
-            );
-          const wormholeClaimRentExemption =
-            await connection.getMinimumBalanceForRentExemption(
-              wormholeClaimLength,
-            );
+            const propellerFeeVaultBalanceAfter = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
+            expect(
+              propellerFeeVaultBalanceAfter.eq(
+                propellerFeeVaultBalanceBefore.add(
+                  propellerEngineFeeTrackerFeesOwedAfter,
+                ),
+              ),
+            ).toEqual(true);
 
-          const totalRentExemptionInLamports =
-            propellerMessageRentExemption +
-            wormholeMessageRentExemption +
-            wormholeClaimRentExemption;
+            const propellerMessageLength = (
+              await connection.getAccountInfo(expectedPropellerMessage)
+            ).data.length;
+            const wormholeMessageLength = (
+              await connection.getAccountInfo(wormholeMessage)
+            ).data.length;
+            const wormholeClaimLength = (
+              await connection.getAccountInfo(wormholeClaim)
+            ).data.length;
+            const propellerMessageRentExemption =
+              await connection.getMinimumBalanceForRentExemption(
+                propellerMessageLength,
+              );
+            const wormholeMessageRentExemption =
+              await connection.getMinimumBalanceForRentExemption(
+                wormholeMessageLength,
+              );
+            const wormholeClaimRentExemption =
+              await connection.getMinimumBalanceForRentExemption(
+                wormholeClaimLength,
+              );
 
-          console.info(`
+            const totalRentExemptionInLamports =
+              propellerMessageRentExemption +
+              wormholeMessageRentExemption +
+              wormholeClaimRentExemption;
+
+            console.info(`
             propellerMessageLength: ${propellerMessageLength}
             propellerMessageRentExemption: ${propellerMessageRentExemption}
             wormholeMessageLength: ${wormholeMessageLength}
@@ -1157,33 +1201,35 @@ describe("propeller", () => {
             wormholeClaimRentExemption: ${wormholeClaimRentExemption}
             totalRentExemption: ${totalRentExemptionInLamports}
           `);
-          const marginalPrices = await twoPoolProgram.methods
-            .marginalPrices()
-            .accounts({
-              pool: marginalPricePool,
-              poolTokenAccount0: marginalPricePoolToken0Account,
-              poolTokenAccount1: marginalPricePoolToken1Account,
-              lpMint: swimUsdKeypair.publicKey,
-            })
-            .view();
+            const marginalPrices = await twoPoolProgram.methods
+              .marginalPrices()
+              .accounts({
+                pool: marginalPricePool,
+                poolTokenAccount0: marginalPricePoolToken0Account,
+                poolTokenAccount1: marginalPricePoolToken1Account,
+                lpMint: swimUsdKeypair.publicKey,
+              })
+              .view();
 
-          const { mantissa: marginalPriceMantissa, scale: marginalPriceScale } =
-            marginalPrices[marginalPricePoolTokenIndex];
-          console.info(`
+            const {
+              mantissa: marginalPriceMantissa,
+              scale: marginalPriceScale,
+            } = marginalPrices[marginalPricePoolTokenIndex];
+            console.info(`
             marginalPrice: {
               mantissa: ${marginalPriceMantissa.toString()}
               scale: ${marginalPriceScale.toString()}
             }
           `);
-          const marginalPriceDecimal = new Big(
-            marginalPriceMantissa.toString(),
-          ).div(new Big(10).pow(marginalPriceScale));
-          const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
-          const lamportUsdVal = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
-          const expectedFeesInLamports = completeWithPayloadFee.add(
-            new BN(totalRentExemptionInLamports),
-          );
-          console.info(`
+            const marginalPriceDecimal = new Big(
+              marginalPriceMantissa.toString(),
+            ).div(new Big(10).pow(marginalPriceScale));
+            const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
+            const lamportUsdVal = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
+            const expectedFeesInLamports = completeWithPayloadFee.add(
+              new BN(totalRentExemptionInLamports),
+            );
+            console.info(`
             marginalPriceDecimal: ${marginalPriceDecimal.toString()}
             solUsdFeedVal: ${solUsdFeedVal.toString()}
             lamportUsdVal: ${lamportUsdVal.toString()}
@@ -1191,225 +1237,311 @@ describe("propeller", () => {
             expectedFeesInLamports: ${expectedFeesInLamports.toString()}
           `);
 
-          const feeSwimUsdDecimal = marginalPriceDecimal
-            .mul(lamportUsdVal)
-            .mul(new Big(expectedFeesInLamports));
+            const feeSwimUsdDecimal = marginalPriceDecimal
+              .mul(lamportUsdVal)
+              .mul(new Big(expectedFeesInLamports));
 
-          console.info(`feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}`);
-          const feeSwimUsdRaw = new Big(feeSwimUsdDecimal).mul(
-            new Big(10).pow(6),
-          );
+            console.info(`feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}`);
+            const feeSwimUsdRaw = new Big(feeSwimUsdDecimal).mul(
+              new Big(10).pow(6),
+            );
 
-          console.info(`feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}`);
-          //trunc
-          const feeSwimUsdBn = new BN(feeSwimUsdRaw.toNumber());
-          console.info(`
+            console.info(`feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}`);
+            //trunc
+            const feeSwimUsdBn = new BN(feeSwimUsdRaw.toNumber());
+            console.info(`
             feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}
             feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}
             feeSwimUsdBn: ${feeSwimUsdBn.toString()}
           `);
-          expect(
-            propellerEngineFeeTrackerFeesOwedAfter.eq(feeSwimUsdBn),
-          ).toBeTruthy();
+            expect(
+              propellerEngineFeeTrackerFeesOwedAfter.eq(feeSwimUsdBn),
+            ).toBeTruthy();
 
-          const expectedPropellerMessageTransferAmount = new BN(
-            amount.toString(),
-          ).sub(propellerEngineFeeTrackerFeesOwedAfter);
-          expect(
-            propellerMessageAccount.transferAmount.eq(
-              expectedPropellerMessageTransferAmount,
-            ),
-          ).toBeTruthy();
-          await checkTxnLogsForMemo(completeNativeWithPayloadTxnSig, memoStr);
-          propellerMessage = expectedPropellerMessage;
-        });
+            const expectedPropellerMessageTransferAmount = new BN(
+              amount.toString(),
+            ).sub(propellerEngineFeeTrackerFeesOwedAfter);
+            expect(
+              propellerMessageAccount.transferAmount.eq(
+                expectedPropellerMessageTransferAmount,
+              ),
+            ).toBeTruthy();
+            await checkTxnLogsForMemo(completeNativeWithPayloadTxnSig, memoStr);
+            propellerMessage = expectedPropellerMessage;
+          });
 
-        it("processes swim payload", async () => {
-          const pool = flagshipPool;
-          const poolTokenAccount0 = poolUsdcAtaAddr;
-          const poolTokenAccount1 = poolUsdtAtaAddr;
-          const lpMint = tokenBridgeMint;
-          const governanceFeeAcct = flagshipPoolGovernanceFeeAcct;
-          const userTokenAccount0 = userUsdcAtaAddr;
-          const userTokenAccount1 = userUsdtAtaAddr;
-          const userLpTokenAccount = userSwimUsdAtaAddr;
+          it("creates owner token accounts(no-op)", async () => {
+            const pool = flagshipPool;
+            const poolToken0Mint = usdcKeypair.publicKey;
+            const poolToken1Mint = usdtKeypair.publicKey;
+            const lpMint = tokenBridgeMint;
 
-          const propellerFeeVaultBalanceBefore = (
-            await splToken.account.token.fetch(propellerFeeVault)
-          ).amount;
+            const userTokenAccount0 = userUsdcAtaAddr;
+            const userTokenAccount1 = userUsdtAtaAddr;
+            const userLpTokenAccount = userSwimUsdAtaAddr;
+            const propellerFeeVaultBalanceBefore = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
 
-          const propellerEngineFeeTrackerFeesOwedBefore = (
-            await propellerProgram.account.feeTracker.fetch(
-              propellerEngineFeeTracker,
-            )
-          ).feesOwed;
+            const propellerEngineFeeTrackerFeesOwedBefore = (
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              )
+            ).feesOwed;
 
-          const userTransferAuthority = web3.Keypair.generate();
-          const propellerMessageAccount =
-            await propellerProgram.account.propellerMessage.fetch(
-              propellerMessage,
+            const createOwnerAtaTxn =
+              await propellerEnginePropellerProgram.methods
+                .propellerCreateOwnerTokenAccounts()
+                .accounts({
+                  propeller,
+                  payer: propellerEngineKeypair.publicKey,
+                  redeemer: propellerRedeemer,
+                  redeemerEscrow: propellerRedeemerEscrowAccount,
+                  feeVault: propellerFeeVault,
+                  feeTracker: propellerEngineFeeTracker,
+                  claim: wormholeClaim,
+                  message: wormholeMessage,
+                  propellerMessage,
+                  // tokenIdMap: ?
+                  pool,
+                  poolToken0Mint,
+                  poolToken1Mint,
+                  poolLpMint: lpMint,
+                  user: owner,
+                  userPoolToken0Account: userTokenAccount0,
+                  userPoolToken1Account: userTokenAccount1,
+                  userLpTokenAccount,
+                  associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+                  systemProgram: web3.SystemProgram.programId,
+                  tokenProgram: splToken.programId,
+                  memo: MEMO_PROGRAM_ID,
+                  aggregator,
+                  marginalPricePool: marginalPricePool,
+                  marginalPricePoolToken0Account:
+                    marginalPricePoolToken0Account,
+                  marginalPricePoolToken1Account:
+                    marginalPricePoolToken1Account,
+                  marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  twoPoolProgram: twoPoolProgram.programId,
+                })
+                .preInstructions([requestUnitsIx])
+                .rpc();
+
+            const propellerFeeVaultBalanceAfter = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
+
+            const propellerEngineFeeTrackerFeesOwedAfter = (
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              )
+            ).feesOwed;
+            expect(
+              propellerFeeVaultBalanceAfter.eq(propellerFeeVaultBalanceBefore),
+            ).toBeTruthy();
+            expect(
+              propellerEngineFeeTrackerFeesOwedAfter.eq(
+                propellerEngineFeeTrackerFeesOwedBefore,
+              ),
+            ).toBeTruthy();
+          });
+
+          it("processes swim payload", async () => {
+            const pool = flagshipPool;
+            const poolTokenAccount0 = poolUsdcAtaAddr;
+            const poolTokenAccount1 = poolUsdtAtaAddr;
+            const lpMint = tokenBridgeMint;
+            const governanceFeeAcct = flagshipPoolGovernanceFeeAcct;
+            const userTokenAccount0 = userUsdcAtaAddr;
+            const userTokenAccount1 = userUsdtAtaAddr;
+            const userLpTokenAccount = userSwimUsdAtaAddr;
+
+            const propellerFeeVaultBalanceBefore = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
+
+            const propellerEngineFeeTrackerFeesOwedBefore = (
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              )
+            ).feesOwed;
+
+            const userTransferAuthority = web3.Keypair.generate();
+            const propellerMessageAccount =
+              await propellerProgram.account.propellerMessage.fetch(
+                propellerMessage,
+              );
+            const propellerMessageAccountTargetTokenId =
+              propellerMessageAccount.targetTokenId;
+            const propellerRedeemerEscrowBalanceBefore = (
+              await splToken.account.token.fetch(propellerRedeemerEscrowAccount)
+            ).amount;
+            const userTokenAccount0BalanceBefore = (
+              await splToken.account.token.fetch(userTokenAccount0)
+            ).amount;
+            const userTokenAccount1BalanceBefore = (
+              await splToken.account.token.fetch(userTokenAccount1)
+            ).amount;
+            const min_output_amount = new BN(0);
+            const processSwimPayloadIxs =
+              propellerEnginePropellerProgram.methods
+                .propellerProcessSwimPayload()
+                .accounts({
+                  propeller,
+                  payer: propellerEngineKeypair.publicKey,
+                  message: wormholeMessage,
+                  claim: wormholeClaim,
+                  propellerMessage,
+                  redeemer: propellerRedeemer,
+                  redeemerEscrow: propellerRedeemerEscrowAccount,
+                  // tokenIdMap: ?
+                  pool,
+                  poolTokenAccount0,
+                  poolTokenAccount1,
+                  lpMint,
+                  governanceFee: governanceFeeAcct,
+                  userTransferAuthority: userTransferAuthority.publicKey,
+                  userTokenAccount0,
+                  userTokenAccount1,
+                  userLpTokenAccount,
+                  tokenProgram: splToken.programId,
+                  memo: MEMO_PROGRAM_ID,
+                  twoPoolProgram: twoPoolProgram.programId,
+                  systemProgram: web3.SystemProgram.programId,
+                  feeVault: propellerFeeVault,
+                  feeTracker: propellerEngineFeeTracker,
+                  aggregator,
+                  marginalPricePool: marginalPricePool,
+                  marginalPricePoolToken0Account:
+                    marginalPricePoolToken0Account,
+                  marginalPricePoolToken1Account:
+                    marginalPricePoolToken1Account,
+                  marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  owner,
+                })
+                .preInstructions([requestUnitsIx])
+                .signers([userTransferAuthority, propellerEngineKeypair]);
+
+            const processSwimPayloadPubkeys =
+              await processSwimPayloadIxs.pubkeys();
+            console.info(
+              `${JSON.stringify(processSwimPayloadPubkeys, null, 2)}`,
             );
-          const propellerMessageAccountTargetTokenId =
-            propellerMessageAccount.targetTokenId;
-          const propellerRedeemerEscrowBalanceBefore = (
-            await splToken.account.token.fetch(propellerRedeemerEscrowAccount)
-          ).amount;
-          const userTokenAccount0BalanceBefore = (
-            await splToken.account.token.fetch(userTokenAccount0)
-          ).amount;
-          const userTokenAccount1BalanceBefore = (
-            await splToken.account.token.fetch(userTokenAccount1)
-          ).amount;
-          const min_output_amount = new BN(0);
-          const processSwimPayloadIxs = propellerProgram.methods
-            .propellerProcessSwimPayload()
-            .accounts({
-              propeller,
-              payer: propellerEngineKeypair.publicKey,
-              message: wormholeMessage,
-              claim: wormholeClaim,
-              propellerMessage,
-              redeemer: propellerRedeemer,
-              redeemerEscrow: propellerRedeemerEscrowAccount,
-              // tokenIdMap: ?
-              pool,
-              poolTokenAccount0,
-              poolTokenAccount1,
-              lpMint,
-              governanceFee: governanceFeeAcct,
-              userTransferAuthority: userTransferAuthority.publicKey,
-              userTokenAccount0,
-              userTokenAccount1,
-              userLpTokenAccount,
-              tokenProgram: splToken.programId,
-              memo: MEMO_PROGRAM_ID,
-              twoPoolProgram: twoPoolProgram.programId,
-              systemProgram: web3.SystemProgram.programId,
-              feeVault: propellerFeeVault,
-              feeTracker: propellerEngineFeeTracker,
-              aggregator,
-              marginalPricePool: marginalPricePool,
-              marginalPricePoolToken0Account: marginalPricePoolToken0Account,
-              marginalPricePoolToken1Account: marginalPricePoolToken1Account,
-              marginalPricePoolLpMint: marginalPricePoolLpMint,
-            })
-            .preInstructions([requestUnitsIx])
-            .signers([userTransferAuthority, propellerEngineKeypair]);
+            if (!processSwimPayloadPubkeys.tokenIdMap) {
+              throw new Error("tokenIdMap not derived");
+            }
+            const [calculatedTokenIdMap, calculatedTokenIdMapBump] =
+              await web3.PublicKey.findProgramAddress(
+                [
+                  Buffer.from("propeller"),
+                  Buffer.from("token_id"),
+                  propeller.toBuffer(),
+                  new BN(propellerMessageAccountTargetTokenId).toArrayLike(
+                    Buffer,
+                    "le",
+                    2,
+                  ),
+                ],
+                propellerProgram.programId,
+              );
 
-          const processSwimPayloadPubkeys =
-            await processSwimPayloadIxs.pubkeys();
-          console.info(`${JSON.stringify(processSwimPayloadPubkeys, null, 2)}`);
-          if (!processSwimPayloadPubkeys.tokenIdMap) {
-            throw new Error("tokenIdMap not derived");
-          }
-          const [calculatedTokenIdMap, calculatedTokenIdMapBump] =
-            await web3.PublicKey.findProgramAddress(
-              [
-                Buffer.from("propeller"),
-                Buffer.from("token_id"),
-                propeller.toBuffer(),
-                new BN(propellerMessageAccountTargetTokenId).toArrayLike(
-                  Buffer,
-                  "le",
-                  2,
-                ),
-              ],
-              propellerProgram.programId,
-            );
-
-          const expectedTokenIdMap =
-            outputTokenIdMappingAddrs.get(targetTokenId);
-          if (!expectedTokenIdMap) {
-            throw new Error("expectedTokenIdMap not found");
-          }
-          const expectedTokenIdMapAcct =
-            await propellerProgram.account.tokenIdMap.fetch(expectedTokenIdMap);
-          console.info(`
+            const expectedTokenIdMap =
+              outputTokenIdMappingAddrs.get(targetTokenId);
+            if (!expectedTokenIdMap) {
+              throw new Error("expectedTokenIdMap not found");
+            }
+            const expectedTokenIdMapAcct =
+              await propellerProgram.account.tokenIdMap.fetch(
+                expectedTokenIdMap,
+              );
+            console.info(`
             calculatedTokenIdMap: ${calculatedTokenIdMap.toBase58()}
             calculatedTokenIdMapBump: ${calculatedTokenIdMapBump}
             expectedTokenIdMapAcct: ${expectedTokenIdMap.toBase58()} :
             ${JSON.stringify(expectedTokenIdMapAcct, null, 2)}
           `);
-          const derivedTokenIdMap = processSwimPayloadPubkeys.tokenIdMap;
-          expect(derivedTokenIdMap).toEqual(expectedTokenIdMap);
-          if (!processSwimPayloadPubkeys.propellerClaim) {
-            throw new Error("propellerClaim key not derived");
-          }
-          const [expectedPropellerClaim, expectedPropellerClaimBump] =
-            await web3.PublicKey.findProgramAddress(
-              [
-                Buffer.from("propeller"),
-                Buffer.from("claim"),
-                wormholeClaim.toBuffer(),
-              ],
-              propellerProgram.programId,
+            const derivedTokenIdMap = processSwimPayloadPubkeys.tokenIdMap;
+            expect(derivedTokenIdMap).toEqual(expectedTokenIdMap);
+            if (!processSwimPayloadPubkeys.propellerClaim) {
+              throw new Error("propellerClaim key not derived");
+            }
+            const [expectedPropellerClaim, expectedPropellerClaimBump] =
+              await web3.PublicKey.findProgramAddress(
+                [
+                  Buffer.from("propeller"),
+                  Buffer.from("claim"),
+                  wormholeClaim.toBuffer(),
+                ],
+                propellerProgram.programId,
+              );
+            expect(processSwimPayloadPubkeys.propellerClaim).toEqual(
+              expectedPropellerClaim,
             );
-          expect(processSwimPayloadPubkeys.propellerClaim).toEqual(
-            expectedPropellerClaim,
-          );
 
-          const processSwimPayloadTxnSig: string =
-            await processSwimPayloadIxs.rpc();
-          console.info(`processSwimPayloadTxnSig: ${processSwimPayloadTxnSig}`);
-
-          const propellerEngineFeeTrackerAfter =
-            await propellerProgram.account.feeTracker.fetch(
-              propellerEngineFeeTracker,
+            const processSwimPayloadTxnSig: string =
+              await processSwimPayloadIxs.rpc();
+            console.info(
+              `processSwimPayloadTxnSig: ${processSwimPayloadTxnSig}`,
             );
-          console.info(
-            `propellerEngineFeeTrackerAfter: ${JSON.stringify(
-              propellerEngineFeeTrackerAfter,
-              null,
-              2,
-            )}`,
-          );
-          const propellerEngineFeeTrackerFeesOwedAfter =
-            propellerEngineFeeTrackerAfter.feesOwed;
-          console.info(`
+
+            const propellerEngineFeeTrackerAfter =
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              );
+            console.info(
+              `propellerEngineFeeTrackerAfter: ${JSON.stringify(
+                propellerEngineFeeTrackerAfter,
+                null,
+                2,
+              )}`,
+            );
+            const propellerEngineFeeTrackerFeesOwedAfter =
+              propellerEngineFeeTrackerAfter.feesOwed;
+            console.info(`
               propellerEngineFeeTrackerBalance
                 Before: ${propellerEngineFeeTrackerFeesOwedBefore.toString()}
                 After: ${propellerEngineFeeTrackerFeesOwedAfter.toString()}
           `);
-          const feeTrackerFeesOwedDiff = propellerEngineFeeTrackerFeesOwedAfter.sub(propellerEngineFeeTrackerFeesOwedBefore);
+            const feeTrackerFeesOwedDiff =
+              propellerEngineFeeTrackerFeesOwedAfter.sub(
+                propellerEngineFeeTrackerFeesOwedBefore,
+              );
 
-          expect(
-            propellerEngineFeeTrackerFeesOwedAfter.gt(
-              propellerEngineFeeTrackerFeesOwedBefore,
-            ),
-          ).toEqual(true);
-
-
-          const propellerFeeVaultBalanceAfter = (
-            await splToken.account.token.fetch(propellerFeeVault)
-          ).amount;
-          expect(
-            propellerFeeVaultBalanceAfter.eq(
-              propellerFeeVaultBalanceBefore.add(
-                feeTrackerFeesOwedDiff,
+            expect(
+              propellerEngineFeeTrackerFeesOwedAfter.gt(
+                propellerEngineFeeTrackerFeesOwedBefore,
               ),
-            ),
-          ).toEqual(true);
+            ).toEqual(true);
 
-          const propellerClaimAccount =
-            await propellerProgram.account.propellerClaim.fetch(
-              processSwimPayloadPubkeys.propellerClaim,
+            const propellerFeeVaultBalanceAfter = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
+            expect(
+              propellerFeeVaultBalanceAfter.eq(
+                propellerFeeVaultBalanceBefore.add(feeTrackerFeesOwedDiff),
+              ),
+            ).toEqual(true);
+
+            const propellerClaimAccount =
+              await propellerProgram.account.propellerClaim.fetch(
+                processSwimPayloadPubkeys.propellerClaim,
+              );
+            expect(propellerClaimAccount.bump).toEqual(
+              expectedPropellerClaimBump,
             );
-          expect(propellerClaimAccount.bump).toEqual(
-            expectedPropellerClaimBump,
-          );
-          expect(propellerClaimAccount.claimed).toBeTruthy();
+            expect(propellerClaimAccount.claimed).toBeTruthy();
 
-          const propellerRedeemerEscrowBalanceAfter = (
-            await splToken.account.token.fetch(propellerRedeemerEscrowAccount)
-          ).amount;
-          const userTokenAccount0BalanceAfter = (
-            await splToken.account.token.fetch(userTokenAccount0)
-          ).amount;
-          const userTokenAccount1BalanceAfter = (
-            await splToken.account.token.fetch(userTokenAccount1)
-          ).amount;
+            const propellerRedeemerEscrowBalanceAfter = (
+              await splToken.account.token.fetch(propellerRedeemerEscrowAccount)
+            ).amount;
+            const userTokenAccount0BalanceAfter = (
+              await splToken.account.token.fetch(userTokenAccount0)
+            ).amount;
+            const userTokenAccount1BalanceAfter = (
+              await splToken.account.token.fetch(userTokenAccount1)
+            ).amount;
 
-          console.info(`
+            console.info(`
             propellerRedeemerEscrowBalance
               Before: ${propellerRedeemerEscrowBalanceBefore.toString()}
               After: ${propellerRedeemerEscrowBalanceAfter.toString()}
@@ -1420,26 +1552,853 @@ describe("propeller", () => {
               Before: ${userTokenAccount1BalanceBefore.toString()}
               After: ${userTokenAccount1BalanceAfter.toString()}
           `);
-          expect(
-            propellerRedeemerEscrowBalanceAfter.eq(
-              propellerRedeemerEscrowBalanceBefore.sub(
-                propellerMessageAccount.transferAmount,
+            expect(
+              propellerRedeemerEscrowBalanceAfter.eq(
+                propellerRedeemerEscrowBalanceBefore.sub(
+                  propellerMessageAccount.transferAmount,
+                ),
               ),
-            ),
-          ).toBeTruthy();
+            ).toBeTruthy();
 
-          expect(
-            userTokenAccount0BalanceAfter.gt(userTokenAccount0BalanceBefore),
-          ).toBeTruthy();
-          expect(
-            userTokenAccount1BalanceAfter.eq(userTokenAccount1BalanceBefore),
-          ).toBeTruthy();
-          await checkTxnLogsForMemo(processSwimPayloadTxnSig, memoStr);
+            expect(
+              userTokenAccount0BalanceAfter.gt(userTokenAccount0BalanceBefore),
+            ).toBeTruthy();
+            expect(
+              userTokenAccount1BalanceAfter.eq(userTokenAccount1BalanceBefore),
+            ).toBeTruthy();
+            await checkTxnLogsForMemo(processSwimPayloadTxnSig, memoStr);
+          });
+
+          //TODO: add min_output_amount test cases
         });
-
-        //TODO: add min_output_amount test cases
       });
+      describe("for new user with no token accounts", () => {
+        describe("for token from flagship pool as output token", () => {
+          let wormholeClaim: web3.PublicKey;
+          let wormholeMessage: web3.PublicKey;
+          let propellerMessage: web3.PublicKey;
+          const owner = web3.Keypair.generate().publicKey;
+          console.info(`new user: ${owner.toBase58()}`);
+          // let owner: web3.PublicKey;
 
+          const targetTokenId = usdcOutputTokenIndex;
+          const memoStr = incMemoIdAndGet();
+
+          it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
+            const propellerFeeVaultBalanceBefore = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
+
+            const propellerEngineFeeTrackerFeesOwedBefore = (
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              )
+            ).feesOwed;
+
+            const memoBuffer = Buffer.alloc(16);
+            memoBuffer.write(memoStr);
+
+            const swimPayload = {
+              version: swimPayloadVersion,
+              targetTokenId,
+              owner: owner.toBuffer(),
+              memo: memoBuffer,
+              propellerEnabled,
+              gasKickstart,
+            };
+            const amount = parseUnits("100000", mintDecimal);
+            console.info(`amount: ${amount.toString()}`);
+            /**
+             * this is encoding a token transfer from eth routing contract
+             * with a swimUSD token address that originated on solana
+             * the same as initializing a `TransferWrappedWithPayload` from eth
+             */
+
+            const nonce = createNonce().readUInt32LE(0);
+            const tokenTransferWithPayloadSignedVaa = signAndEncodeVaa(
+              0,
+              nonce,
+              CHAIN_ID_ETH as number,
+              ethTokenBridge,
+              BigInt(++ethTokenBridgeSequence),
+              encodeTokenTransferWithPayload(
+                amount.toString(),
+                swimUsdKeypair.publicKey.toBuffer(),
+                CHAIN_ID_SOLANA,
+                propellerProgram.programId,
+                ethRoutingContract,
+                encodeSwimPayload(swimPayload),
+              ),
+            );
+            const propellerRedeemerEscrowAccountBefore = (
+              await splToken.account.token.fetch(propellerRedeemerEscrowAccount)
+            ).amount;
+
+            console.info(
+              `propellerRedeemerEscrowAccountBefore: ${propellerRedeemerEscrowAccountBefore.toString()}`,
+            );
+            await postVaaSolanaWithRetry(
+              connection,
+              // eslint-disable-next-line @typescript-eslint/require-await
+              async (tx) => {
+                tx.partialSign(userKeypair);
+                return tx;
+              },
+              WORMHOLE_CORE_BRIDGE.toBase58(),
+              userKeypair.publicKey.toBase58(),
+              tokenTransferWithPayloadSignedVaa,
+              10,
+            );
+
+            [wormholeMessage] = await deriveMessagePda(
+              tokenTransferWithPayloadSignedVaa,
+              WORMHOLE_CORE_BRIDGE,
+            );
+
+            const [endpointAccount] = await deriveEndpointPda(
+              CHAIN_ID_ETH,
+              ethTokenBridge,
+              // parsedVaa.emitterChain,
+              // parsedVaa.emitterAddress,
+              WORMHOLE_TOKEN_BRIDGE,
+            );
+            console.info(`endpointAccount: ${endpointAccount.toBase58()}`);
+            wormholeClaim = await getClaimAddressSolana(
+              WORMHOLE_TOKEN_BRIDGE.toBase58(),
+              tokenTransferWithPayloadSignedVaa,
+            );
+
+            const [expectedPropellerMessage, expectedPropellerMessageBump] =
+              await web3.PublicKey.findProgramAddress(
+                [
+                  Buffer.from("propeller"),
+                  wormholeClaim.toBuffer(),
+                  wormholeMessage.toBuffer(),
+                ],
+                propellerProgram.programId,
+              );
+            // expect(expectedPropellerMessage.toBase58()).toEqual(
+            //   completeNativeWithPayloadPubkeys.propellerMessage.toBase58(),
+            // );
+            console.info(`
+            marginalPricePoolToken0Account: ${marginalPricePoolToken0Account.toBase58()}
+            marginalPricePoolToken1Account: ${marginalPricePoolToken1Account.toBase58()}
+          `);
+
+            const providerBalanceBefore = await provider.connection.getBalance(
+              provider.wallet.publicKey,
+            );
+            const propellerEngineWalletPubkey =
+              propellerEngineAnchorProvider.wallet.publicKey;
+            const propellerEngineProviderBalanceBefore =
+              await provider.connection.getBalance(propellerEngineWalletPubkey);
+
+            const completeNativeWithPayloadIxs =
+              propellerEnginePropellerProgram.methods
+                .propellerCompleteNativeWithPayload()
+                .accounts({
+                  completeNativeWithPayload: {
+                    propeller,
+                    payer: propellerEngineKeypair.publicKey,
+                    tokenBridgeConfig,
+                    // userTokenBridgeAccount: userLpTokenAccount.address,
+                    message: wormholeMessage,
+                    claim: wormholeClaim,
+                    propellerMessage: expectedPropellerMessage,
+                    endpoint: endpointAccount,
+                    to: propellerRedeemerEscrowAccount,
+                    redeemer: propellerRedeemer,
+                    feeRecipient: propellerFeeVault,
+                    // feeRecipient: propellerRedeemerEscrowAccount,
+                    // tokenBridgeMint,
+                    custody: custody,
+                    mint: tokenBridgeMint,
+                    custodySigner,
+                    rent: web3.SYSVAR_RENT_PUBKEY,
+                    systemProgram: web3.SystemProgram.programId,
+                    memo: MEMO_PROGRAM_ID,
+                    wormhole,
+                    tokenProgram: splToken.programId,
+                    tokenBridge,
+                  },
+                  feeTracker: propellerEngineFeeTracker,
+                  aggregator,
+                  marginalPricePool: marginalPricePool,
+                  marginalPricePoolToken0Account:
+                    marginalPricePoolToken0Account,
+                  marginalPricePoolToken1Account:
+                    marginalPricePoolToken1Account,
+                  marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  twoPoolProgram: twoPoolProgram.programId,
+                })
+                .preInstructions([requestUnitsIx])
+                .signers([propellerEngineKeypair]);
+
+            const completeNativeWithPayloadPubkeys =
+              await completeNativeWithPayloadIxs.pubkeys();
+
+            console.info(
+              `completeNativeWithPayloadPubkeys: ${JSON.stringify(
+                completeNativeWithPayloadPubkeys,
+                null,
+                2,
+              )}`,
+            );
+
+            // const completeNativeWithPayloadTxn =
+            //   await completeNativeWithPayloadIxs.transaction();
+            //
+            // console.info(
+            //   `completeNativeWithPayloadTxn: ${JSON.stringify(
+            //     completeNativeWithPayloadTxn,
+            //     null,
+            //     2,
+            //   )}`,
+            // );
+            const completeNativeWithPayloadTxnSig =
+              await completeNativeWithPayloadIxs.rpc();
+            const providerBalanceAfter = await provider.connection.getBalance(
+              provider.wallet.publicKey,
+            );
+            const providerBalanceDiff =
+              providerBalanceBefore - providerBalanceAfter;
+            const propellerEngineProviderBalanceAfter =
+              await provider.connection.getBalance(
+                propellerEngineAnchorProvider.wallet.publicKey,
+              );
+            const propellerEngineProviderBalanceDiff =
+              propellerEngineProviderBalanceBefore -
+              propellerEngineProviderBalanceAfter;
+            console.info(`
+              provider: ${provider.wallet.publicKey.toBase58()}
+                balanceDiff: ${providerBalanceDiff}
+            `);
+            console.info(`
+              propellerEngineWalletPubkey: ${propellerEngineWalletPubkey.toBase58()}
+                balanceDiff: ${propellerEngineProviderBalanceDiff}
+            `);
+
+            const propellerMessageAccount =
+              await propellerProgram.account.propellerMessage.fetch(
+                expectedPropellerMessage,
+              );
+            console.info(
+              `propellerMessageAccount: ${JSON.stringify(
+                propellerMessageAccount,
+                null,
+                2,
+              )}`,
+            );
+            expect(propellerMessageAccount.bump).toEqual(
+              expectedPropellerMessageBump,
+            );
+            expect(propellerMessageAccount.whMessage).toEqual(wormholeMessage);
+            expect(propellerMessageAccount.claim).toEqual(wormholeClaim);
+            expect(
+              Buffer.from(propellerMessageAccount.vaaEmitterAddress),
+            ).toEqual(ethTokenBridge);
+            expect(propellerMessageAccount.vaaEmitterChain).toEqual(
+              CHAIN_ID_ETH,
+            );
+            expect(
+              propellerMessageAccount.vaaSequence.eq(
+                new BN(ethTokenBridgeSequence),
+              ),
+            ).toBeTruthy();
+
+            // const {
+            //   swimPayloadVersion,
+            //   targetTokenId,
+            //   owner,
+            //   memo,
+            //   propellerEnabled,
+            //   gasKickstart
+            // } = propellerMessageAccount.swimPayload;
+            expect(propellerMessageAccount.swimPayloadVersion).toEqual(
+              swimPayloadVersion,
+            );
+            expect(propellerMessageAccount.targetTokenId).toEqual(
+              targetTokenId,
+            );
+            const propellerMessageOwnerPubkey = new PublicKey(
+              propellerMessageAccount.owner,
+            );
+            expect(propellerMessageOwnerPubkey).toEqual(owner);
+
+            expect(propellerMessageAccount.propellerEnabled).toEqual(
+              propellerEnabled,
+            );
+            expect(propellerMessageAccount.gasKickstart).toEqual(gasKickstart);
+
+            const propellerRedeemerEscrowAccountAfter = (
+              await splToken.account.token.fetch(propellerRedeemerEscrowAccount)
+            ).amount;
+            console.info(`
+              propellerRedeemerEscrowAccount
+                Before: ${propellerRedeemerEscrowAccountBefore.toString()}
+                After: ${propellerRedeemerEscrowAccountAfter.toString()}
+            `);
+            expect(
+              propellerRedeemerEscrowAccountAfter.gt(
+                propellerRedeemerEscrowAccountBefore,
+              ),
+            ).toEqual(true);
+
+            const propellerEngineFeeTrackerAfter =
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              );
+            console.info(
+              `propellerEngineFeeTrackerAfter: ${JSON.stringify(
+                propellerEngineFeeTrackerAfter,
+                null,
+                2,
+              )}`,
+            );
+            const propellerEngineFeeTrackerFeesOwedAfter =
+              propellerEngineFeeTrackerAfter.feesOwed;
+            const propellerEngineFeeTrackerFeesOwedDiff =
+              propellerEngineFeeTrackerFeesOwedAfter.sub(
+                propellerEngineFeeTrackerFeesOwedBefore,
+              );
+            console.info(`
+              propellerEngineFeeTrackerBalance
+                Before: ${propellerEngineFeeTrackerFeesOwedBefore.toString()}
+                After: ${propellerEngineFeeTrackerFeesOwedAfter.toString()}
+                diff: ${propellerEngineFeeTrackerFeesOwedDiff.toString()}
+          `);
+            expect(
+              propellerEngineFeeTrackerFeesOwedAfter.gt(
+                propellerEngineFeeTrackerFeesOwedBefore,
+              ),
+            ).toEqual(true);
+
+            const propellerFeeVaultBalanceAfter = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
+            expect(
+              propellerFeeVaultBalanceAfter.eq(
+                propellerFeeVaultBalanceBefore.add(
+                  propellerEngineFeeTrackerFeesOwedDiff,
+                ),
+              ),
+            ).toEqual(true);
+
+            const propellerMessageLength = (
+              await connection.getAccountInfo(expectedPropellerMessage)
+            ).data.length;
+            const wormholeMessageLength = (
+              await connection.getAccountInfo(wormholeMessage)
+            ).data.length;
+            const wormholeClaimLength = (
+              await connection.getAccountInfo(wormholeClaim)
+            ).data.length;
+            const propellerMessageRentExemption =
+              await connection.getMinimumBalanceForRentExemption(
+                propellerMessageLength,
+              );
+            const wormholeMessageRentExemption =
+              await connection.getMinimumBalanceForRentExemption(
+                wormholeMessageLength,
+              );
+            const wormholeClaimRentExemption =
+              await connection.getMinimumBalanceForRentExemption(
+                wormholeClaimLength,
+              );
+
+            const totalRentExemptionInLamports =
+              propellerMessageRentExemption +
+              wormholeMessageRentExemption +
+              wormholeClaimRentExemption;
+
+            console.info(`
+            propellerMessageLength: ${propellerMessageLength}
+            propellerMessageRentExemption: ${propellerMessageRentExemption}
+            wormholeMessageLength: ${wormholeMessageLength}
+            wormholeMessageRentExemption: ${wormholeMessageRentExemption}
+            wormholeClaimLength: ${wormholeClaimLength}
+            wormholeClaimRentExemption: ${wormholeClaimRentExemption}
+            totalRentExemption: ${totalRentExemptionInLamports}
+          `);
+            const marginalPrices = await twoPoolProgram.methods
+              .marginalPrices()
+              .accounts({
+                pool: marginalPricePool,
+                poolTokenAccount0: marginalPricePoolToken0Account,
+                poolTokenAccount1: marginalPricePoolToken1Account,
+                lpMint: swimUsdKeypair.publicKey,
+              })
+              .view();
+
+            const {
+              mantissa: marginalPriceMantissa,
+              scale: marginalPriceScale,
+            } = marginalPrices[marginalPricePoolTokenIndex];
+            console.info(`
+            marginalPrice: {
+              mantissa: ${marginalPriceMantissa.toString()}
+              scale: ${marginalPriceScale.toString()}
+            }
+          `);
+            const marginalPriceDecimal = new Big(
+              marginalPriceMantissa.toString(),
+            ).div(new Big(10).pow(marginalPriceScale));
+            const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
+            const lamportUsdVal = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
+            const expectedFeesInLamports = completeWithPayloadFee.add(
+              new BN(totalRentExemptionInLamports),
+            );
+            console.info(`
+            marginalPriceDecimal: ${marginalPriceDecimal.toString()}
+            solUsdFeedVal: ${solUsdFeedVal.toString()}
+            lamportUsdVal: ${lamportUsdVal.toString()}
+            totalRentExemption: ${totalRentExemptionInLamports}
+            expectedFeesInLamports: ${expectedFeesInLamports.toString()}
+          `);
+
+            const feeSwimUsdDecimal = marginalPriceDecimal
+              .mul(lamportUsdVal)
+              .mul(new Big(expectedFeesInLamports));
+
+            console.info(`feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}`);
+            const feeSwimUsdRaw = new Big(feeSwimUsdDecimal).mul(
+              new Big(10).pow(6),
+            );
+
+            console.info(`feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}`);
+            //trunc
+            const feeSwimUsdBn = new BN(feeSwimUsdRaw.toNumber());
+            console.info(`
+            feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}
+            feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}
+            feeSwimUsdBn: ${feeSwimUsdBn.toString()}
+          `);
+            expect(
+              propellerEngineFeeTrackerFeesOwedDiff.eq(feeSwimUsdBn),
+            ).toBeTruthy();
+
+            const expectedPropellerMessageTransferAmount = new BN(
+              amount.toString(),
+            ).sub(propellerEngineFeeTrackerFeesOwedDiff);
+            expect(
+              propellerMessageAccount.transferAmount.eq(
+                expectedPropellerMessageTransferAmount,
+              ),
+            ).toBeTruthy();
+            await checkTxnLogsForMemo(completeNativeWithPayloadTxnSig, memoStr);
+            propellerMessage = expectedPropellerMessage;
+          });
+
+          it("creates owner token accounts", async () => {
+            const pool = flagshipPool;
+            const poolToken0Mint = usdcKeypair.publicKey;
+            const poolToken1Mint = usdtKeypair.publicKey;
+            const lpMint = tokenBridgeMint;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const [userTokenAccount0, userTokenAccount1, userLpTokenAccount] =
+              await Promise.all([
+                getAssociatedTokenAddress(usdcKeypair.publicKey, owner),
+                getAssociatedTokenAddress(usdtKeypair.publicKey, owner),
+                getAssociatedTokenAddress(swimUsdKeypair.publicKey, owner),
+              ]);
+            const propellerFeeVaultBalanceBefore = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
+
+            const propellerEngineFeeTrackerFeesOwedBefore = (
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              )
+            ).feesOwed;
+
+            const createOwnerAtaTxn =
+              await propellerEnginePropellerProgram.methods
+                .propellerCreateOwnerTokenAccounts()
+                .accounts({
+                  propeller,
+                  payer: propellerEngineKeypair.publicKey,
+                  redeemer: propellerRedeemer,
+                  redeemerEscrow: propellerRedeemerEscrowAccount,
+                  feeVault: propellerFeeVault,
+                  feeTracker: propellerEngineFeeTracker,
+                  claim: wormholeClaim,
+                  message: wormholeMessage,
+                  propellerMessage,
+                  // tokenIdMap: ?
+                  pool,
+                  poolToken0Mint,
+                  poolToken1Mint,
+                  poolLpMint: lpMint,
+                  user: owner,
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  userPoolToken0Account: userTokenAccount0,
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  userPoolToken1Account: userTokenAccount1,
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  userLpTokenAccount,
+                  associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+                  systemProgram: web3.SystemProgram.programId,
+                  tokenProgram: splToken.programId,
+                  memo: MEMO_PROGRAM_ID,
+                  aggregator,
+                  marginalPricePool: marginalPricePool,
+                  marginalPricePoolToken0Account:
+                    marginalPricePoolToken0Account,
+                  marginalPricePoolToken1Account:
+                    marginalPricePoolToken1Account,
+                  marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  twoPoolProgram: twoPoolProgram.programId,
+                })
+                .preInstructions([requestUnitsIx])
+                .rpc();
+
+            const propellerFeeVaultBalanceAfter = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
+
+            const propellerEngineFeeTrackerFeesOwedAfter = (
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              )
+            ).feesOwed;
+            expect(
+              propellerFeeVaultBalanceAfter.gt(propellerFeeVaultBalanceBefore),
+            ).toBeTruthy();
+            expect(
+              propellerEngineFeeTrackerFeesOwedAfter.gt(
+                propellerEngineFeeTrackerFeesOwedBefore,
+              ),
+            ).toBeTruthy();
+            const userTokenAccount0Data = await splToken.account.token.fetch(
+              userTokenAccount0,
+            );
+            const userTokenAccount1Data = await splToken.account.token.fetch(
+              userTokenAccount1,
+            );
+            const userLpTokenAccountData = await splToken.account.token.fetch(
+              userLpTokenAccount,
+            );
+            expect(userTokenAccount0Data.amount.toNumber()).toEqual(0);
+            expect(userTokenAccount0Data.authority.toBase58()).toEqual(
+              owner.toBase58(),
+            );
+            expect(userTokenAccount1Data.amount.toNumber()).toEqual(0);
+            expect(userTokenAccount1Data.authority.toBase58()).toEqual(
+              owner.toBase58(),
+            );
+            expect(userLpTokenAccountData.amount.toNumber()).toEqual(0);
+            expect(userLpTokenAccountData.authority.toBase58()).toEqual(
+              owner.toBase58(),
+            );
+          });
+
+          it("processes swim payload", async () => {
+            const pool = flagshipPool;
+            const poolTokenAccount0 = poolUsdcAtaAddr;
+            const poolTokenAccount1 = poolUsdtAtaAddr;
+            const lpMint = tokenBridgeMint;
+            const governanceFeeAcct = flagshipPoolGovernanceFeeAcct;
+            const [userTokenAccount0, userTokenAccount1, userLpTokenAccount] =
+              await Promise.all([
+                getAssociatedTokenAddress(usdcKeypair.publicKey, owner),
+                getAssociatedTokenAddress(usdtKeypair.publicKey, owner),
+                getAssociatedTokenAddress(swimUsdKeypair.publicKey, owner),
+              ]);
+
+            const propellerFeeVaultBalanceBefore = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
+
+            const propellerEngineFeeTrackerFeesOwedBefore = (
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              )
+            ).feesOwed;
+
+            const userTransferAuthority = web3.Keypair.generate();
+            const propellerMessageAccount =
+              await propellerProgram.account.propellerMessage.fetch(
+                propellerMessage,
+              );
+            const propellerMessageAccountTargetTokenId =
+              propellerMessageAccount.targetTokenId;
+            const propellerRedeemerEscrowBalanceBefore = (
+              await splToken.account.token.fetch(propellerRedeemerEscrowAccount)
+            ).amount;
+            const userTokenAccount0BalanceBefore = (
+              await splToken.account.token.fetch(userTokenAccount0)
+            ).amount;
+            const userTokenAccount1BalanceBefore = (
+              await splToken.account.token.fetch(userTokenAccount1)
+            ).amount;
+            const processSwimPayloadIxs =
+              propellerEnginePropellerProgram.methods
+                .propellerProcessSwimPayload()
+                .accounts({
+                  propeller,
+                  payer: propellerEngineKeypair.publicKey,
+                  message: wormholeMessage,
+                  claim: wormholeClaim,
+                  propellerMessage,
+                  redeemer: propellerRedeemer,
+                  redeemerEscrow: propellerRedeemerEscrowAccount,
+                  // tokenIdMap: ?
+                  pool,
+                  poolTokenAccount0,
+                  poolTokenAccount1,
+                  lpMint,
+                  governanceFee: governanceFeeAcct,
+                  userTransferAuthority: userTransferAuthority.publicKey,
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  userTokenAccount0,
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  userTokenAccount1,
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  userLpTokenAccount,
+                  tokenProgram: splToken.programId,
+                  memo: MEMO_PROGRAM_ID,
+                  twoPoolProgram: twoPoolProgram.programId,
+                  systemProgram: web3.SystemProgram.programId,
+                  feeVault: propellerFeeVault,
+                  feeTracker: propellerEngineFeeTracker,
+                  aggregator,
+                  marginalPricePool: marginalPricePool,
+                  marginalPricePoolToken0Account:
+                    marginalPricePoolToken0Account,
+                  marginalPricePoolToken1Account:
+                    marginalPricePoolToken1Account,
+                  marginalPricePoolLpMint: marginalPricePoolLpMint,
+                  owner,
+                })
+                .preInstructions([requestUnitsIx])
+                .signers([userTransferAuthority, propellerEngineKeypair]);
+
+            const processSwimPayloadPubkeys =
+              await processSwimPayloadIxs.pubkeys();
+            console.info(
+              `${JSON.stringify(processSwimPayloadPubkeys, null, 2)}`,
+            );
+            if (!processSwimPayloadPubkeys.tokenIdMap) {
+              throw new Error("tokenIdMap not derived");
+            }
+            const [calculatedTokenIdMap, calculatedTokenIdMapBump] =
+              await web3.PublicKey.findProgramAddress(
+                [
+                  Buffer.from("propeller"),
+                  Buffer.from("token_id"),
+                  propeller.toBuffer(),
+                  new BN(propellerMessageAccountTargetTokenId).toArrayLike(
+                    Buffer,
+                    "le",
+                    2,
+                  ),
+                ],
+                propellerProgram.programId,
+              );
+
+            const expectedTokenIdMap =
+              outputTokenIdMappingAddrs.get(targetTokenId);
+            if (!expectedTokenIdMap) {
+              throw new Error("expectedTokenIdMap not found");
+            }
+            const expectedTokenIdMapAcct =
+              await propellerProgram.account.tokenIdMap.fetch(
+                expectedTokenIdMap,
+              );
+            console.info(`
+            calculatedTokenIdMap: ${calculatedTokenIdMap.toBase58()}
+            calculatedTokenIdMapBump: ${calculatedTokenIdMapBump}
+            expectedTokenIdMapAcct: ${expectedTokenIdMap.toBase58()} :
+            ${JSON.stringify(expectedTokenIdMapAcct, null, 2)}
+          `);
+            const derivedTokenIdMap = processSwimPayloadPubkeys.tokenIdMap;
+            expect(derivedTokenIdMap).toEqual(expectedTokenIdMap);
+            if (!processSwimPayloadPubkeys.propellerClaim) {
+              throw new Error("propellerClaim key not derived");
+            }
+            const [expectedPropellerClaim, expectedPropellerClaimBump] =
+              await web3.PublicKey.findProgramAddress(
+                [
+                  Buffer.from("propeller"),
+                  Buffer.from("claim"),
+                  wormholeClaim.toBuffer(),
+                ],
+                propellerProgram.programId,
+              );
+            expect(processSwimPayloadPubkeys.propellerClaim).toEqual(
+              expectedPropellerClaim,
+            );
+
+            const processSwimPayloadTxnSig: string =
+              await processSwimPayloadIxs.rpc();
+            console.info(
+              `processSwimPayloadTxnSig: ${processSwimPayloadTxnSig}`,
+            );
+
+            const propellerEngineFeeTrackerAfter =
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              );
+            console.info(
+              `propellerEngineFeeTrackerAfter: ${JSON.stringify(
+                propellerEngineFeeTrackerAfter,
+                null,
+                2,
+              )}`,
+            );
+            const propellerEngineFeeTrackerFeesOwedAfter =
+              propellerEngineFeeTrackerAfter.feesOwed;
+            console.info(`
+              propellerEngineFeeTrackerBalance
+                Before: ${propellerEngineFeeTrackerFeesOwedBefore.toString()}
+                After: ${propellerEngineFeeTrackerFeesOwedAfter.toString()}
+          `);
+            const feeTrackerFeesOwedDiff =
+              propellerEngineFeeTrackerFeesOwedAfter.sub(
+                propellerEngineFeeTrackerFeesOwedBefore,
+              );
+
+            expect(
+              propellerEngineFeeTrackerFeesOwedAfter.gt(
+                propellerEngineFeeTrackerFeesOwedBefore,
+              ),
+            ).toEqual(true);
+
+            const propellerFeeVaultBalanceAfter = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
+            expect(
+              propellerFeeVaultBalanceAfter.eq(
+                propellerFeeVaultBalanceBefore.add(feeTrackerFeesOwedDiff),
+              ),
+            ).toEqual(true);
+
+            const propellerClaimAccount =
+              await propellerProgram.account.propellerClaim.fetch(
+                processSwimPayloadPubkeys.propellerClaim,
+              );
+            expect(propellerClaimAccount.bump).toEqual(
+              expectedPropellerClaimBump,
+            );
+            expect(propellerClaimAccount.claimed).toBeTruthy();
+
+            const propellerRedeemerEscrowBalanceAfter = (
+              await splToken.account.token.fetch(propellerRedeemerEscrowAccount)
+            ).amount;
+            const userTokenAccount0BalanceAfter = (
+              await splToken.account.token.fetch(userTokenAccount0)
+            ).amount;
+            const userTokenAccount1BalanceAfter = (
+              await splToken.account.token.fetch(userTokenAccount1)
+            ).amount;
+
+            console.info(`
+            propellerRedeemerEscrowBalance
+              Before: ${propellerRedeemerEscrowBalanceBefore.toString()}
+              After: ${propellerRedeemerEscrowBalanceAfter.toString()}
+            userTokenAccount0Balance
+              Before: ${userTokenAccount0BalanceBefore.toString()}
+              After: ${userTokenAccount0BalanceAfter.toString()}
+            userTokenAccount1Balance
+              Before: ${userTokenAccount1BalanceBefore.toString()}
+              After: ${userTokenAccount1BalanceAfter.toString()}
+          `);
+            expect(
+              propellerRedeemerEscrowBalanceAfter.eq(
+                propellerRedeemerEscrowBalanceBefore.sub(
+                  propellerMessageAccount.transferAmount,
+                ),
+              ),
+            ).toBeTruthy();
+
+            expect(
+              userTokenAccount0BalanceAfter.gt(userTokenAccount0BalanceBefore),
+            ).toBeTruthy();
+            expect(
+              userTokenAccount1BalanceAfter.eq(userTokenAccount1BalanceBefore),
+            ).toBeTruthy();
+            await checkTxnLogsForMemo(processSwimPayloadTxnSig, memoStr);
+          });
+
+          //TODO: create multiple fee trackers and test that correct amount is withdrawn
+          it("claims its fees", async () => {
+            const propellerEngineFeeTrackerBefore =
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              );
+            const propellerEngineFeeTrackerFeesOwedBefore =
+              propellerEngineFeeTrackerBefore.feesOwed;
+            const propellerFeeVaultBalanceBefore = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
+            const propellerEngineSwimUsdFeeAccountBalanceBefore = (
+              await splToken.account.token.fetch(
+                propellerEngineSwimUsdFeeAccount,
+              )
+            ).amount;
+            const claimFeesTxn = await propellerEnginePropellerProgram.methods
+              .claimFees()
+              .accounts({
+                propeller,
+                feeTracker: propellerEngineFeeTracker,
+                payer: propellerEngineKeypair.publicKey,
+                feeAccount: propellerEngineSwimUsdFeeAccount,
+                feeVault: propellerFeeVault,
+                tokenProgram: splToken.programId,
+              })
+              .rpc();
+            console.info(`claimFeesTxn: ${claimFeesTxn}`);
+
+            const propellerEngineFeeTrackerAfter =
+              await propellerProgram.account.feeTracker.fetch(
+                propellerEngineFeeTracker,
+              );
+
+            const propellerEngineFeeTrackerFeesOwedAfter =
+              propellerEngineFeeTrackerAfter.feesOwed;
+            expect(
+              propellerEngineFeeTrackerFeesOwedAfter.eq(new BN(0)),
+            ).toBeTruthy();
+            const propellerEngineFeeTrackerFeesClaimed =
+              propellerEngineFeeTrackerFeesOwedBefore.sub(
+                propellerEngineFeeTrackerFeesOwedAfter,
+              );
+
+            const propellerFeeVaultBalanceAfter = (
+              await splToken.account.token.fetch(propellerFeeVault)
+            ).amount;
+            console.info(`
+            propellerEngineFeeTrackerFeesOwed
+              Before: ${propellerEngineFeeTrackerFeesOwedBefore.toString()}
+              After: ${propellerEngineFeeTrackerFeesOwedAfter.toString()}
+            propellerFeeVaultBalance
+              Before: ${propellerFeeVaultBalanceBefore.toString()}
+              After: ${propellerFeeVaultBalanceAfter.toString()}
+          `);
+            expect(
+              propellerFeeVaultBalanceAfter.eq(
+                propellerFeeVaultBalanceBefore.sub(
+                  propellerEngineFeeTrackerFeesClaimed,
+                ),
+              ),
+            ).toEqual(true);
+            const propellerEngineSwimUsdFeeAccountBalanceAfter = (
+              await splToken.account.token.fetch(
+                propellerEngineSwimUsdFeeAccount,
+              )
+            ).amount;
+            expect(
+              propellerEngineSwimUsdFeeAccountBalanceAfter.eq(
+                propellerEngineSwimUsdFeeAccountBalanceBefore.add(
+                  propellerEngineFeeTrackerFeesClaimed,
+                ),
+              ),
+            ).toEqual(true);
+          });
+
+          //TODO: add min_output_amount test cases
+        });
+      });
       describe.skip("for swimUSD as output token", () => {
         let wormholeClaim: web3.PublicKey;
         let wormholeMessage: web3.PublicKey;
@@ -1633,12 +2592,13 @@ describe("propeller", () => {
             swimPayloadVersion,
           );
           expect(propellerMessageAccount.targetTokenId).toEqual(targetTokenId);
-          const propellerMessageOwnerPubKey = new PublicKey(
+          const propellerMessageOwnerPubkey = new PublicKey(
             propellerMessageAccount.owner,
           );
-          expect(propellerMessageOwnerPubKey).toEqual(
+          expect(propellerMessageOwnerPubkey).toEqual(
             provider.wallet.publicKey,
           );
+
           expect(propellerMessageAccount.propellerEnabled).toEqual(
             propellerEnabled,
           );
@@ -2249,7 +3209,6 @@ describe("propeller", () => {
 
     describe.skip("with gas kickstart", () => {
       const gasKickstart = true;
-      describe("for new user", () => {});
 
       describe("for existing user", () => {});
     });
@@ -2435,6 +3394,7 @@ const setupFlagshipPool = async () => {
     swimUsdKeypair.publicKey,
     initialMintAmount,
     userKeypair,
+    splToken,
     commitment,
     rpcCommitmentConfig,
   ));
@@ -2602,6 +3562,7 @@ const setupMetaPool = async () => {
     metapoolLpMintKeypair.publicKey,
     initialMintAmount,
     userKeypair,
+    splToken,
     commitment,
     rpcCommitmentConfig,
   ));

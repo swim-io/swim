@@ -363,6 +363,7 @@ describe("propeller", () => {
       swimUsdKeypair.publicKey,
       initialMintAmount,
       payer,
+      splToken,
       commitment,
       rpcCommitmentConfig,
     ));
@@ -491,6 +492,7 @@ describe("propeller", () => {
       metapoolLpMintKeypair.publicKey,
       initialMintAmount,
       payer,
+      splToken,
       commitment,
       rpcCommitmentConfig,
     ));

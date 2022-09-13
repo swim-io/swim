@@ -1,6 +1,15 @@
-import { AnchorProvider, BN, setProvider, web3 } from "@project-serum/anchor";
+import type { Idl } from "@project-serum/anchor";
+import {
+  AnchorProvider,
+  BN,
+  Program,
+  Spl,
+  setProvider,
+  web3,
+  workspace,
+} from "@project-serum/anchor";
 import * as anchor from "@project-serum/anchor";
-import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import * as spl from "@solana/spl-token-v2";
 import type { PublicKey } from "@solana/web3.js";
 import { Connection, clusterApiUrl } from "@solana/web3.js";
@@ -20,6 +29,62 @@ import {
   programWallet,
 } from "@switchboard-xyz/switchboard-v2";
 import * as byteify from "byteify";
+import { TwoPoolContext } from "../context";
+
+import type { Propeller } from "../artifacts/propeller";
+import PropellerIDL from "../artifacts/propeller.json";
+import type { TwoPool } from "../artifacts/two_pool";
+import TwoPoolIDL from "../artifacts/two_pool.json";
+import { setupPoolPrereqs } from "./twoPool/poolTestUtils";
+
+const provider = AnchorProvider.env();
+setProvider(provider);
+const payer = (provider.wallet as NodeWallet).payer;
+const commitment = "confirmed" as web3.Commitment;
+const rpcCommitmentConfig = {
+  commitment,
+  preflightCommitment: commitment,
+  skipPreflight: true,
+};
+
+const splToken = Spl.token(provider);
+const splAssociatedToken = Spl.associatedToken(provider);
+const mintDecimals = 6;
+const usdcKeypair = web3.Keypair.generate();
+const usdtKeypair = web3.Keypair.generate();
+const poolMintKeypairs = [usdcKeypair, usdtKeypair];
+const poolMintDecimals = [mintDecimals, mintDecimals];
+const poolMintAuthorities = [payer, payer];
+const swimUsdKeypair = web3.Keypair.generate();
+const governanceKeypair = web3.Keypair.generate();
+const pauseKeypair = web3.Keypair.generate();
+let poolUsdcAtaAddr: web3.PublicKey = web3.PublicKey.default;
+let poolUsdtAtaAddr: web3.PublicKey = web3.PublicKey.default;
+let governanceFeeAddr: web3.PublicKey = web3.PublicKey.default;
+
+
+
+const usdcKeypair2 = web3.Keypair.generate();
+const usdtKeypair2 = web3.Keypair.generate();
+const poolMintKeypairs2 = [usdcKeypair, usdtKeypair];
+const poolMintDecimals2 = [mintDecimals, mintDecimals];
+const poolMintAuthorities2 = [payer, payer];
+const swimUsdKeypair2 = web3.Keypair.generate();
+const governanceKeypair2 = web3.Keypair.generate();
+const pauseKeypair2 = web3.Keypair.generate();
+const initialMintAmount = 1_000_000_000_000;
+let poolUsdcAtaAddr2: web3.PublicKey = web3.PublicKey.default;
+let poolUsdtAtaAddr2: web3.PublicKey = web3.PublicKey.default;
+let governanceFeeAddr2: web3.PublicKey = web3.PublicKey.default;
+
+
+
+
+const ampFactor = { value: new BN(300), decimals: 0 };
+const lpFee = { value: new BN(300), decimals: 6 }; //lp fee = .000300 = 0.0300% 3bps
+const governanceFee = { value: new BN(100), decimals: 6 }; //gov fee = .000100 = (0.0100%) 1bps
+
+let flagshipPool: web3.PublicKey = web3.PublicKey.default;
 
 // function main() {
 //   const usdcOutputTokenIndex = 1;
@@ -357,11 +422,131 @@ async function startSwitchboardWithDevnetQueue() {
   console.log(`
     Switchboard Result: ${result}
     currentTimestamp: ${new Date().toUTCString()} (${new Date().getTime()})
-    latestTimestamp: ${new Date(latestTimestamp.toNumber() * 1000).toUTCString()} (${latestTimestamp.toNumber()})
+    latestTimestamp: ${new Date(
+      latestTimestamp.toNumber() * 1000,
+    ).toUTCString()} (${latestTimestamp.toNumber()})
   `);
 }
 
-void (async () => await startSwitchboardWithDevnetQueue())();
+async function multipleProviders() {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+  const twoPoolContext = TwoPoolContext.fromWorkspace(
+    provider,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    workspace.TwoPool,
+  );
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const twoPoolProgram = twoPoolContext.program;
+  const authority = (provider.wallet as NodeWallet).payer;
+  const propellerEngineKeypair = web3.Keypair.generate();
+  const propellerEngineWallet = new NodeWallet(propellerEngineKeypair);
+  const propellerEngineAnchorProvider = new AnchorProvider(
+    provider.connection,
+    propellerEngineWallet,
+    rpcCommitmentConfig,
+  );
+  ({
+    poolPubkey: flagshipPool,
+    poolTokenAccounts: [poolUsdcAtaAddr, poolUsdtAtaAddr],
+    governanceFeeAccount: governanceFeeAddr,
+  } = await setupPoolPrereqs(
+    twoPoolProgram,
+    splToken,
+    poolMintKeypairs,
+    poolMintDecimals,
+    poolMintAuthorities.map((keypair) => keypair.publicKey),
+    swimUsdKeypair.publicKey,
+    governanceKeypair.publicKey,
+  ));
+  const providerBalanceBefore = await provider.connection.getBalance(provider.wallet.publicKey);
+
+
+  const providerTxn = await twoPoolProgram.methods
+    // .initialize(params)
+    .initialize(ampFactor, lpFee, governanceFee)
+    .accounts({
+      payer: provider.publicKey,
+      poolMint0: usdcKeypair.publicKey,
+      poolMint1: usdtKeypair.publicKey,
+      lpMint: swimUsdKeypair.publicKey,
+      poolTokenAccount0: poolUsdcAtaAddr,
+      poolTokenAccount1: poolUsdtAtaAddr,
+      pauseKey: pauseKeypair.publicKey,
+      governanceAccount: governanceKeypair.publicKey,
+      governanceFeeAccount: governanceFeeAddr,
+      tokenProgram: splToken.programId,
+      associatedTokenProgram: splAssociatedToken.programId,
+      systemProgram: web3.SystemProgram.programId,
+      rent: web3.SYSVAR_RENT_PUBKEY,
+    })
+    .signers([swimUsdKeypair])
+    .rpc();
+  const providerBalanceAfter = await provider.connection.getBalance(provider.wallet.publicKey);
+
+  const providerBalanceDiff = providerBalanceAfter - providerBalanceBefore;
+  console.log(`
+    provider: ${provider.wallet.publicKey.toString()}:
+    balanceDiff: ${providerBalanceDiff}
+  `);
+
+  const propellerEngineTwoPoolProgramContext = TwoPoolContext.withProvider(
+    propellerEngineAnchorProvider,
+    twoPoolProgram.programId,
+  );
+  const propellerEngineTwoPoolProgram = propellerEngineTwoPoolProgramContext.program;
+
+  const propellerEngineProviderBalanceBefore = await provider.connection.getBalance(propellerEngineAnchorProvider.wallet.publicKey);
+
+  ({
+    poolPubkey: flagshipPool,
+    poolTokenAccounts: [poolUsdcAtaAddr2, poolUsdtAtaAddr2],
+    governanceFeeAccount: governanceFeeAddr2,
+  } = await setupPoolPrereqs(
+    propellerEngineTwoPoolProgram,
+    splToken,
+    poolMintKeypairs2,
+    poolMintDecimals2,
+    poolMintAuthorities2.map((keypair) => keypair.publicKey),
+    swimUsdKeypair2.publicKey,
+    governanceKeypair2.publicKey,
+  ));
+
+  const propellerEngineTxn = await propellerEngineTwoPoolProgram.methods
+    .initialize(ampFactor, lpFee, governanceFee)
+    .accounts({
+      payer: provider.publicKey,
+      poolMint0: usdcKeypair2.publicKey,
+      poolMint1: usdtKeypair2.publicKey,
+      lpMint: swimUsdKeypair2.publicKey,
+      poolTokenAccount0: poolUsdcAtaAddr2,
+      poolTokenAccount1: poolUsdtAtaAddr2,
+      pauseKey: pauseKeypair.publicKey,
+      governanceAccount: governanceKeypair2.publicKey,
+      governanceFeeAccount: governanceFeeAddr2,
+      tokenProgram: splToken.programId,
+      associatedTokenProgram: splAssociatedToken.programId,
+      systemProgram: web3.SystemProgram.programId,
+      rent: web3.SYSVAR_RENT_PUBKEY,
+    })
+    .signers([swimUsdKeypair2])
+    .rpc();
+
+  const propellerEngineProviderBalanceAfter = await provider.connection.getBalance(propellerEngineAnchorProvider.wallet.publicKey);
+  const propellerEngineBalanceDiff = propellerEngineProviderBalanceAfter - propellerEngineProviderBalanceBefore;
+  console.log(`
+    propellerEngine: ${propellerEngineAnchorProvider.wallet.publicKey.toString()}:
+    balanceDiff: ${propellerEngineBalanceDiff}
+  `);
+
+
+  console.info(`providerTxn: ${JSON.stringify(providerTxn)}`);
+  console.info(`propellerEngineTxn: ${JSON.stringify(propellerEngineTxn)}`);
+
+}
+
+void (async () => await multipleProviders())();
+
+// void (async () => await startSwitchboardWithDevnetQueue())();
 // void (async () => await startSwitchboard2())();
 
 // void (async () => await startSwitchboard())();

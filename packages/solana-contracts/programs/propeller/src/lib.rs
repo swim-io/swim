@@ -78,6 +78,7 @@ pub mod propeller {
     }
 
     #[inline(never)]
+    #[access_control(ClaimFees::accounts(&ctx))]
     pub fn claim_fees(ctx: Context<ClaimFees>) -> Result<()> {
         handle_claim_fees(ctx)
     }
@@ -227,6 +228,12 @@ pub mod propeller {
     #[access_control(PropellerProcessSwimPayload::accounts(&ctx))]
     pub fn propeller_process_swim_payload(ctx: Context<PropellerProcessSwimPayload>) -> Result<u64> {
         handle_propeller_process_swim_payload(ctx)
+    }
+
+    #[inline(never)]
+    #[access_control(PropellerCreateOwnerTokenAccounts::accounts(&ctx))]
+    pub fn propeller_create_owner_token_accounts(ctx: Context<PropellerCreateOwnerTokenAccounts>) -> Result<()> {
+        handle_propeller_create_owner_token_accounts(ctx)
     }
 
     // #[inline(never)]

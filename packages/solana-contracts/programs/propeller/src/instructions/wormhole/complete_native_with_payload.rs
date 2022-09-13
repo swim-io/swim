@@ -1,9 +1,10 @@
 use {
     crate::{
-        deserialize_message_payload, error::*, get_message_data, get_transfer_with_payload_from_message_account,
-        hash_vaa, instructions::fee_tracker::FeeTracker, state::PropellerMessage,
-        validate_marginal_prices_pool_accounts, Address, ChainID, ClaimData, PayloadTransferWithPayload, PostVAAData,
-        PostedMessageData, PostedVAAData, Propeller, TokenBridge, Wormhole, COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION,
+        constants::LAMPORTS_PER_SOL_DECIMAL, deserialize_message_payload, error::*, get_marginal_price_decimal,
+        get_message_data, get_token_bridge_mint_decimals, get_transfer_with_payload_from_message_account, hash_vaa,
+        instructions::fee_tracker::FeeTracker, state::PropellerMessage, validate_marginal_prices_pool_accounts,
+        Address, ChainID, ClaimData, PayloadTransferWithPayload, PostVAAData, PostedMessageData, PostedVAAData,
+        Propeller, TokenBridge, Wormhole, COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
         prelude::*,
@@ -547,10 +548,22 @@ fn calculate_fees(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<u
     let marginal_prices = result.get();
 
     msg!("marginal_prices: {:?}", marginal_prices);
+    let lp_mint_key = ctx.accounts.marginal_price_pool_lp_mint.key();
+
+    let token_bridge_mint_key = propeller.token_bridge_mint;
+    let marginal_price: Decimal = get_marginal_price_decimal(
+        &ctx.accounts.marginal_price_pool,
+        &marginal_prices,
+        propeller.marginal_price_pool_token_index as usize,
+        &ctx.accounts.marginal_price_pool_lp_mint.key(),
+        &token_bridge_mint_key,
+    )?;
+
+    msg!("marginal_price: {:?}", marginal_price);
+
     //swimUSD is lp token of marginal price pool
     let mut res = 0u64;
     let feed = &ctx.accounts.aggregator.load()?;
-
     // get result
     // note - for tests this is currently hardcoded to 100
     // this val is SOL/USD price
@@ -559,8 +572,8 @@ fn calculate_fees(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<u
     let sol_usd_price: Decimal = feed.get_result()?.try_into()?;
     let name = feed.name;
 
-    let lamports_decimal = Decimal::from_u64(1_000_000_000).unwrap();
-    let lamports_usd_price = sol_usd_price.checked_div(lamports_decimal).ok_or(PropellerError::IntegerOverflow)?;
+    let lamports_usd_price =
+        sol_usd_price.checked_div(LAMPORTS_PER_SOL_DECIMAL).ok_or(PropellerError::IntegerOverflow)?;
     msg!("sol_usd_price:{},lamports_usd_price: {}", sol_usd_price, lamports_usd_price);
     // check whether the feed has been updated in the last 300 seconds
     feed.check_staleness(
@@ -574,22 +587,7 @@ fn calculate_fees(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<u
     // 	feed.check_confidence_interval(SwitchboardDecimal::from_f64(max_confidence_interval))
     // 	.map_err(|_| error!(PropellerError::ConfidenceIntervalExceeded))?;
     // }
-    // marginal_price = 0.75 USDC/swimUSD,
-    // feed.val = 25.05 USDC/SOL
-    // kickstart = 2 SOL
-    // =>  50.1 USDC * 0.75 USDC/swimUSD = 37.575 swimUSD
-    let lp_mint_key = ctx.accounts.marginal_price_pool_lp_mint.key();
 
-    let marginal_price: Decimal = if lp_mint_key == ctx.accounts.complete_native_with_payload.mint.key() {
-        marginal_prices[propeller.marginal_price_pool_token_index as usize]
-            .try_into()
-            .map_err(|_| error!(PropellerError::ConversionError))?
-    } else {
-        msg!("marginal_price_pool_lp_mint != mint");
-        panic!("marginal_price_pool_lp_mint != mint not implemented yet");
-        // return err!(PropellerError::Missing);
-    };
-    msg!("marginal_price: {}", marginal_price);
     let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
     msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
     let fee_in_token_bridge_mint_decimal = marginal_price
@@ -598,10 +596,17 @@ fn calculate_fees(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<u
         .ok_or(PropellerError::IntegerOverflow)?;
     // .checked_mul(Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::IntegerOverflow)?)
     // .ok_or(PropellerError::IntegerOverflow)?;
-    let lp_mint_decimals_decimal =
-        Decimal::from_u64(10u64.pow(ctx.accounts.complete_native_with_payload.mint.decimals as u32)).unwrap();
+    let token_bridge_mint_key = ctx.accounts.complete_native_with_payload.propeller.token_bridge_mint;
+    let token_bridge_mint_decimals = get_token_bridge_mint_decimals(
+        &token_bridge_mint_key,
+        &ctx.accounts.marginal_price_pool,
+        &ctx.accounts.marginal_price_pool_lp_mint,
+    )?;
+    //TODO: good lord forgive me for this terrible naming. i will fix later.
+    let ten_pow_decimals =
+        Decimal::from_u64(10u64.pow(token_bridge_mint_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
     let fee_in_token_bridge_mint = fee_in_token_bridge_mint_decimal
-        .checked_mul(lp_mint_decimals_decimal)
+        .checked_mul(ten_pow_decimals)
         .and_then(|v| v.to_u64())
         .ok_or(PropellerError::ConversionError)?;
     msg!(

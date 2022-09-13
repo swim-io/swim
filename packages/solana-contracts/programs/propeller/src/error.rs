@@ -125,4 +125,13 @@ pub enum PropellerError {
 
     #[msg("Unable to retrieve token bridge mint decimals from marginal price pool information")]
     UnableToRetrieveTokenBridgeMintDecimals,
+
+    #[msg("Invalid Metapool Token Mint. token_mint[0] should == token_bridge_mint")]
+    InvalidMetapoolTokenMint,
+
+    #[msg("Unable to deserialize account info as token account")]
+    UnableToDeserializeTokenAccount,
+
+    #[msg("Invalid token account data length. != 0 && != TokenAccount::LEN")]
+    InvalidTokenAccountDataLen,
 }

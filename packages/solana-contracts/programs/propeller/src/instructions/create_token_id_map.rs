@@ -65,7 +65,7 @@ pub struct TokenIdMap {
 }
 
 impl TokenIdMap {
-    pub const LEN: usize = 2 + 32 + 32 + 1 + 1 + 1;
+    pub const LEN: usize = 2 + 32 + 1 + 32 + 1 + 1 + 1;
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, Debug)]

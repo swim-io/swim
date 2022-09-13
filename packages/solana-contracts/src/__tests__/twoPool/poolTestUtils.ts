@@ -1,13 +1,16 @@
-import type { BN, Program, SplToken } from "@project-serum/anchor";
+import { BN, Program, Spl, SplToken } from "@project-serum/anchor";
 import { web3 } from "@project-serum/anchor";
 import {
+  // getAccount,
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
-  mintTo,
+  // mintTo,
 } from "@solana/spl-token";
 import type { Commitment, ConfirmOptions } from "@solana/web3.js";
 
 import type { TwoPool } from "../../artifacts/two_pool";
+import { Account, Connection, PublicKey, sendAndConfirmTransaction, Signer, Transaction } from "@solana/web3.js";
+import { SplAssociatedToken } from "@project-serum/anchor/dist/cjs/spl/associated-token";
 
 /**
  * It initializes the mints for the tokens that will be used in the pool, and then *CALCULATES* the pool token accounts and
@@ -161,6 +164,7 @@ export async function setupPoolPrereqs(
   };
 }
 
+
 export async function setupUserAssociatedTokenAccts(
   connection: web3.Connection,
   owner: web3.PublicKey,
@@ -169,8 +173,11 @@ export async function setupUserAssociatedTokenAccts(
   lpMint: web3.PublicKey,
   amount: number | bigint,
   payer: web3.Keypair,
+  splToken: Program<SplToken>,
+  // splAssociatedToken: Program<SplAssociatedToken>,
   commitment?: Commitment,
   confirmOptions?: ConfirmOptions,
+
 ): Promise<{
   readonly userPoolTokenAtas: ReadonlyArray<web3.PublicKey>;
   readonly userLpTokenAta: web3.PublicKey;
@@ -194,7 +201,17 @@ export async function setupUserAssociatedTokenAccts(
       console.info(
         `mint[${i}]: ${mint.toBase58()}. created/retrieved userAta: ${userAta.toBase58()}`,
       );
-      await mintTo(connection, payer, mint, userAta, mintAuthority, amount);
+      await splToken
+        .methods
+        .mintTo(new BN(amount))
+        .accounts({
+          mint,
+          to: userAta,
+          authority: mintAuthority.publicKey,
+        })
+        .signers([mintAuthority])
+        .rpc();
+      // await mintTo(connection, payer, mint, userAta, mintAuthority, amount);
       console.info(`minted ${amount.toString()} to ${userAta.toBase58()}`);
       return userAta;
     }),
@@ -366,3 +383,81 @@ export function printBeforeAndAfterPoolUserBalances(
       after: ${previousDepthAfter.toString()}
   `);
 }
+
+// async function getOrCreateAssociatedTokenAccount(
+//   connection: Connection,
+//   payer: Signer,
+//   mint: PublicKey,
+//   owner: PublicKey,
+//   allowOwnerOffCurve = false,
+//   commitment?: Commitment,
+//   confirmOptions?: ConfirmOptions,
+//   programId = TOKEN_PROGRAM_ID,
+//   associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID
+// ): Promise<Account> {
+//   const associatedToken = await getAssociatedTokenAddress(
+//     mint,
+//     owner,
+//     allowOwnerOffCurve,
+//     programId,
+//     associatedTokenProgramId
+//   );
+//
+//   // This is the optimal logic, considering TX fee, client-side computation, RPC roundtrips and guaranteed idempotent.
+//   // Sadly we can't do this atomically.
+//   let account: Account;
+//   try {
+//     account = await getAccount(connection, associatedToken, commitment, programId);
+//   } catch (error: unknown) {
+//     // TokenAccountNotFoundError can be possible if the associated address has already received some lamports,
+//     // becoming a system account. Assuming program derived addressing is safe, this is the only case for the
+//     // TokenInvalidAccountOwnerError in this code path.
+//     if (error instanceof TokenAccountNotFoundError || error instanceof TokenInvalidAccountOwnerError) {
+//       // As this isn't atomic, it's possible others can create associated accounts meanwhile.
+//       try {
+//         const transaction = new Transaction().add(
+//           createAssociatedTokenAccountInstruction(
+//             payer.publicKey,
+//             associatedToken,
+//             owner,
+//             mint,
+//             programId,
+//             associatedTokenProgramId
+//           )
+//         );
+//
+//         await sendAndConfirmTransaction(connection, transaction, [payer], confirmOptions);
+//       } catch (error: unknown) {
+//         // Ignore all errors; for now there is no API-compatible way to selectively ignore the expected
+//         // instruction error if the associated account exists already.
+//       }
+//
+//       // Now this should always succeed
+//       account = await getAccount(connection, associatedToken, commitment, programId);
+//     } else {
+//       throw error;
+//     }
+//   }
+//
+//   if (!account.mint.equals(mint)) throw new TokenInvalidMintError();
+//   if (!account.owner.equals(owner)) throw new TokenInvalidOwnerError();
+//
+//   return account;
+// }
+//
+// async function getAssociatedTokenAddress(
+//   mint: PublicKey,
+//   owner: PublicKey,
+//   allowOwnerOffCurve = false,
+//   programId = TOKEN_PROGRAM_ID,
+//   associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID
+// ): Promise<PublicKey> {
+//   if (!allowOwnerOffCurve && !PublicKey.isOnCurve(owner.toBuffer())) throw new TokenOwnerOffCurveError();
+//
+//   const [address] = await PublicKey.findProgramAddress(
+//     [owner.toBuffer(), programId.toBuffer(), mint.toBuffer()],
+//     associatedTokenProgramId
+//   );
+//
+//   return address;
+// }

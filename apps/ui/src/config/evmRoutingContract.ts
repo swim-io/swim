@@ -3,7 +3,7 @@ import type { ReadonlyRecord } from "@swim-io/utils";
 
 export const EVM_ROUTING_CONTRACT: ReadonlyRecord<Env, string> = {
   [Env.Mainnet]: "",
-  [Env.Devnet]: "0x591bf69E5dAa731e26a87fe0C5b394263A8c3375",
+  [Env.Devnet]: "0xa33E4d9624608c468FE5466dd6CC39cE1Da4FF78",
   [Env.Local]: "",
   [Env.Custom]: "",
 };

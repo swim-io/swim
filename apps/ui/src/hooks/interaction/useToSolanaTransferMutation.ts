@@ -19,8 +19,8 @@ import {
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {
-  Amount,
   generateUnlockSplTokenTxIds,
+  humanDecimalToAtomicString,
   lockEvmToken,
 } from "../../models";
 import { getFromEcosystemOfToSolanaTransfer } from "../../models/swim/transfer";
@@ -117,7 +117,11 @@ export const useToSolanaTransferMutation = () => {
       const { approvalResponses, transferResponse } = await lockEvmToken({
         interactionId,
         token,
-        amount: Amount.fromHuman(token, value),
+        amountAtomicString: humanDecimalToAtomicString(
+          value,
+          token,
+          fromEcosystem,
+        ),
         evmChain: evmChains[index],
         evmConnection: evmConnections[index],
         fromTokenDetails,

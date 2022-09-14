@@ -1,0 +1,16 @@
+name: "Verify swim build"
+on:
+  pull_request:
+    paths:
+      - "packages/swim/**.ts"
+      - "packages/swim/**.json"
+  push:
+    branches:
+      - master
+
+jobs:
+  verify:
+    uses: ./.github/workflows/verify.yaml
+    with:
+      workingDirectory: ./packages/swim
+      buildDependenciesForPackage: "@swim-io/swim"

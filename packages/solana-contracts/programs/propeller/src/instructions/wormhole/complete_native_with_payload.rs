@@ -72,7 +72,10 @@ pub struct CompleteNativeWithPayload<'info> {
     //   bump,
     //   seeds::program = propeller.wormhole()?
     // )]
-    #[account(mut)]
+    #[account(
+    mut,
+    owner = propeller.wormhole()?,
+    )]
     /// CHECK: wormhole message account. seeds = [ "PostedVAA", hash(vaa) ], seeds::program = token_bridge
     pub message: UncheckedAccount<'info>,
     // pub message: Account<'info, PostedMessageData>,
@@ -170,7 +173,8 @@ impl<'info> CompleteNativeWithPayload<'info> {
         Ok(())
     }
 
-    //TODO: don't need this?
+    //TODO: allow for "user" to call CompleteNativeWithPayload through this program?
+    // dependent on if `vaa.to` is this programId for user initiated transfers
     fn redeemer_check(ctx: &Context<CompleteNativeWithPayload>) -> bool {
         // if ctx.accounts.redeemer.address == ctx.accounts.message.payload.to_address() {
         // 	return ctx.accounts.redeemer.to_account_info().is_signer;
@@ -303,13 +307,6 @@ pub struct PropellerCompleteNativeWithPayload<'info> {
     )]
     pub fee_tracker: Account<'info, FeeTracker>,
 
-    // #[account(
-    // mut,
-    // token::mint = complete_native_with_payload.mint,
-    // token::authority = complete_native_with_payload.propeller,
-    // address = complete_native_with_payload.propeller.fee_vault,
-    // )]
-    // pub fee_vault: Box<Account<'info, TokenAccount>>,
     #[account(
     constraint =
     *aggregator.to_account_info().owner == SWITCHBOARD_PROGRAM_ID @ PropellerError::InvalidSwitchboardAccount
@@ -394,11 +391,11 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
     let payload_transfer_with_payload: PayloadTransferWithPayload =
         deserialize_message_payload(&mut message_data.payload.as_slice())?;
     let propeller = &ctx.accounts.complete_native_with_payload.propeller;
-    msg!(
-        "payload.from_address {:?} propeller.evm_routing_address {:?}",
-        payload_transfer_with_payload.from_address,
-        propeller.evm_routing_contract_address
-    );
+    // msg!(
+    //     "payload.from_address {:?} propeller.evm_routing_address {:?}",
+    //     payload_transfer_with_payload.from_address,
+    //     propeller.evm_routing_contract_address
+    // );
     // require!(
     //     propeller.evm_routing_contract_address == payload_transfer_with_payload.from_address,
     //     PropellerError::InvalidRoutingContractAddress,

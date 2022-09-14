@@ -1573,20 +1573,24 @@ export type Propeller = {
           "type": "u64"
         },
         {
-          "name": "targetTokenId",
-          "type": "u16"
-        },
-        {
           "name": "owner",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
         },
         {
           "name": "gasKickstart",
           "type": "bool"
         },
         {
-          "name": "propellerEnabled",
-          "type": "bool"
+          "name": "maxFee",
+          "type": "u64"
+        },
+        {
+          "name": "targetTokenId",
+          "type": "u16"
         },
         {
           "name": "memo",
@@ -3272,12 +3276,24 @@ export type Propeller = {
             "type": "u8"
           },
           {
-            "name": "targetTokenId",
-            "type": "u16"
-          },
-          {
             "name": "owner",
             "type": "publicKey"
+          },
+          {
+            "name": "propellerEnabled",
+            "type": "bool"
+          },
+          {
+            "name": "gasKickstart",
+            "type": "bool"
+          },
+          {
+            "name": "maxFee",
+            "type": "u64"
+          },
+          {
+            "name": "targetTokenId",
+            "type": "u16"
           },
           {
             "name": "memo",
@@ -3287,14 +3303,6 @@ export type Propeller = {
                 16
               ]
             }
-          },
-          {
-            "name": "propellerEnabled",
-            "type": "bool"
-          },
-          {
-            "name": "gasKickstart",
-            "type": "bool"
           }
         ]
       }
@@ -3467,24 +3475,11 @@ export type Propeller = {
             "type": "u8"
           },
           {
-            "name": "targetTokenId",
-            "type": "u16"
-          },
-          {
             "name": "owner",
             "type": {
               "array": [
                 "u8",
                 32
-              ]
-            }
-          },
-          {
-            "name": "memo",
-            "type": {
-              "array": [
-                "u8",
-                16
               ]
             }
           },
@@ -3495,6 +3490,23 @@ export type Propeller = {
           {
             "name": "gasKickstart",
             "type": "bool"
+          },
+          {
+            "name": "maxFee",
+            "type": "u64"
+          },
+          {
+            "name": "targetTokenId",
+            "type": "u16"
+          },
+          {
+            "name": "memo",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
           }
         ]
       }
@@ -4030,6 +4042,11 @@ export type Propeller = {
       "code": 6043,
       "name": "InvalidTokenAccountDataLen",
       "msg": "Invalid token account data length. != 0 && != TokenAccount::LEN"
+    },
+    {
+      "code": 6044,
+      "name": "PayerInsufficientFundsForGasKickstart",
+      "msg": "Payer has insufficent funds for gas kickstart"
     }
   ]
 };
@@ -5609,20 +5626,24 @@ export const IDL: Propeller = {
           "type": "u64"
         },
         {
-          "name": "targetTokenId",
-          "type": "u16"
-        },
-        {
           "name": "owner",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
         },
         {
           "name": "gasKickstart",
           "type": "bool"
         },
         {
-          "name": "propellerEnabled",
-          "type": "bool"
+          "name": "maxFee",
+          "type": "u64"
+        },
+        {
+          "name": "targetTokenId",
+          "type": "u16"
         },
         {
           "name": "memo",
@@ -7308,12 +7329,24 @@ export const IDL: Propeller = {
             "type": "u8"
           },
           {
-            "name": "targetTokenId",
-            "type": "u16"
-          },
-          {
             "name": "owner",
             "type": "publicKey"
+          },
+          {
+            "name": "propellerEnabled",
+            "type": "bool"
+          },
+          {
+            "name": "gasKickstart",
+            "type": "bool"
+          },
+          {
+            "name": "maxFee",
+            "type": "u64"
+          },
+          {
+            "name": "targetTokenId",
+            "type": "u16"
           },
           {
             "name": "memo",
@@ -7323,14 +7356,6 @@ export const IDL: Propeller = {
                 16
               ]
             }
-          },
-          {
-            "name": "propellerEnabled",
-            "type": "bool"
-          },
-          {
-            "name": "gasKickstart",
-            "type": "bool"
           }
         ]
       }
@@ -7503,24 +7528,11 @@ export const IDL: Propeller = {
             "type": "u8"
           },
           {
-            "name": "targetTokenId",
-            "type": "u16"
-          },
-          {
             "name": "owner",
             "type": {
               "array": [
                 "u8",
                 32
-              ]
-            }
-          },
-          {
-            "name": "memo",
-            "type": {
-              "array": [
-                "u8",
-                16
               ]
             }
           },
@@ -7531,6 +7543,23 @@ export const IDL: Propeller = {
           {
             "name": "gasKickstart",
             "type": "bool"
+          },
+          {
+            "name": "maxFee",
+            "type": "u64"
+          },
+          {
+            "name": "targetTokenId",
+            "type": "u16"
+          },
+          {
+            "name": "memo",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
           }
         ]
       }
@@ -8066,6 +8095,11 @@ export const IDL: Propeller = {
       "code": 6043,
       "name": "InvalidTokenAccountDataLen",
       "msg": "Invalid token account data length. != 0 && != TokenAccount::LEN"
+    },
+    {
+      "code": 6044,
+      "name": "PayerInsufficientFundsForGasKickstart",
+      "msg": "Payer has insufficent funds for gas kickstart"
     }
   ]
 };

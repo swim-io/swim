@@ -1573,20 +1573,24 @@
           "type": "u64"
         },
         {
-          "name": "targetTokenId",
-          "type": "u16"
-        },
-        {
           "name": "owner",
           "type": "bytes"
+        },
+        {
+          "name": "propellerEnabled",
+          "type": "bool"
         },
         {
           "name": "gasKickstart",
           "type": "bool"
         },
         {
-          "name": "propellerEnabled",
-          "type": "bool"
+          "name": "maxFee",
+          "type": "u64"
+        },
+        {
+          "name": "targetTokenId",
+          "type": "u16"
         },
         {
           "name": "memo",
@@ -3272,12 +3276,24 @@
             "type": "u8"
           },
           {
-            "name": "targetTokenId",
-            "type": "u16"
-          },
-          {
             "name": "owner",
             "type": "publicKey"
+          },
+          {
+            "name": "propellerEnabled",
+            "type": "bool"
+          },
+          {
+            "name": "gasKickstart",
+            "type": "bool"
+          },
+          {
+            "name": "maxFee",
+            "type": "u64"
+          },
+          {
+            "name": "targetTokenId",
+            "type": "u16"
           },
           {
             "name": "memo",
@@ -3287,14 +3303,6 @@
                 16
               ]
             }
-          },
-          {
-            "name": "propellerEnabled",
-            "type": "bool"
-          },
-          {
-            "name": "gasKickstart",
-            "type": "bool"
           }
         ]
       }
@@ -3467,24 +3475,11 @@
             "type": "u8"
           },
           {
-            "name": "targetTokenId",
-            "type": "u16"
-          },
-          {
             "name": "owner",
             "type": {
               "array": [
                 "u8",
                 32
-              ]
-            }
-          },
-          {
-            "name": "memo",
-            "type": {
-              "array": [
-                "u8",
-                16
               ]
             }
           },
@@ -3495,6 +3490,23 @@
           {
             "name": "gasKickstart",
             "type": "bool"
+          },
+          {
+            "name": "maxFee",
+            "type": "u64"
+          },
+          {
+            "name": "targetTokenId",
+            "type": "u16"
+          },
+          {
+            "name": "memo",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
           }
         ]
       }
@@ -4030,6 +4042,11 @@
       "code": 6043,
       "name": "InvalidTokenAccountDataLen",
       "msg": "Invalid token account data length. != 0 && != TokenAccount::LEN"
+    },
+    {
+      "code": 6044,
+      "name": "PayerInsufficientFundsForGasKickstart",
+      "msg": "Payer has insufficent funds for gas kickstart"
     }
   ]
 }

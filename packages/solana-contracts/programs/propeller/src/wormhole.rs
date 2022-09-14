@@ -19,17 +19,20 @@ pub type ChainID = u16;
 pub struct Wormhole;
 
 impl anchor_lang::Id for Wormhole {
-    #[cfg(feature = "localnet")]
+    // #[cfg(feature = "localnet")]
+    #[cfg(all(feature = "localnet", not(feature = "devnet"), not(feature = "mainnet")))]
     fn id() -> Pubkey {
         pubkey!("Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o")
     }
 
-    #[cfg(feature = "devnet")]
+    // #[cfg(feature = "devnet")]
+    #[cfg(all(feature = "devnet", not(feature = "localnet"), not(feature = "mainnet")))]
     fn id() -> Pubkey {
         pubkey!("3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5")
     }
 
-    #[cfg(feature = "mainnet")]
+    // #[cfg(feature = "mainnet")]
+    #[cfg(all(feature = "mainnet", not(feature = "localnet"), not(feature = "devnet")))]
     fn id() -> Pubkey {
         pubkey!("worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth")
     }

@@ -134,4 +134,7 @@ pub enum PropellerError {
 
     #[msg("Invalid token account data length. != 0 && != TokenAccount::LEN")]
     InvalidTokenAccountDataLen,
+
+    #[msg("Payer has insufficent funds for gas kickstart")]
+    PayerInsufficientFundsForGasKickstart,
 }

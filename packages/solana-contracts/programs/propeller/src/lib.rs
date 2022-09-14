@@ -183,10 +183,11 @@ pub mod propeller {
         nonce: u32,
         target_chain: u16,
         amount: u64,
-        target_token_id: u16,
         owner: Vec<u8>,
-        gas_kickstart: bool,
         propeller_enabled: bool,
+        gas_kickstart: bool,
+        max_fee: u64,
+        target_token_id: u16,
         memo: Vec<u8>,
     ) -> Result<()> {
         handle_transfer_native_with_payload(
@@ -194,10 +195,11 @@ pub mod propeller {
             nonce,
             target_chain,
             amount,
-            target_token_id,
             owner,
-            gas_kickstart,
             propeller_enabled,
+            gas_kickstart,
+            max_fee,
+            target_token_id,
             memo,
         )
     }

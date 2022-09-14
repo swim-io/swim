@@ -1,7 +1,6 @@
 import type { ChainId, ChainName } from "@certusone/wormhole-sdk";
 import { tryUint8ArrayToNative } from "@certusone/wormhole-sdk";
-import type { BN } from "@project-serum/anchor";
-import { web3 } from "@project-serum/anchor";
+import { BN, web3 } from "@project-serum/anchor";
 import { BigNumber } from "ethers";
 
 import type {
@@ -165,56 +164,40 @@ export async function getPropellerSenderPda(
 // ?? bytes - propeller parameters (propellerEnabled: bool / gasTokenPrefundingAmount: uint256 / propellerFee (?? - similar to wormhole arbiter fee))
 export interface ParsedSwimPayload {
   readonly version: number;
-  readonly targetTokenId: number;
   readonly owner: Buffer;
-  // minOutputAmount: bigint;
-  readonly memo: Buffer;
-  // targetToken: Buffer; //mint of expected final output token
-  // gas: string;
-  // keeping this as string for now since JSON.stringify poos on bigints
-  // minOutputAmount: string; //this will always be 0 in v1
   readonly propellerEnabled: boolean;
-  //this will always be 0 in v1. it represents minimumOutputAmount.
-  // v1 will not handle cross-chain slippage
-  // readonly minThreshold: bigint;
-  // propellerFee: bigint;
-  // propellerFee: string;
+  readonly targetTokenId: number;
   readonly gasKickstart: boolean;
+  readonly maxFee: BN;
+  readonly memo: Buffer;
 }
 
 export function encodeSwimPayload(swimPayload: ParsedSwimPayload): Buffer {
   const encoded = Buffer.alloc(
     1 + //version
-      2 + //targetTokenId (u16)
-      // 32 + //targetToken
       32 + //owner
-      // 32 + //gas
-      // 32 + //minOutputAmount
-      16 + //memo
       1 + //propellerEnabled
-      // 32 + //minThreshold
-      // 32 + //propellerFee
-      1, //gasKickstart
+      1 + //gasKickstart
+      8 + //maxFee
+      2 + //targetTokenId (u16)
+      16, //memo
   );
   let offset = 0;
   encoded.writeUint8(swimPayload.version, offset);
   offset++;
-  encoded.writeUint16BE(swimPayload.targetTokenId, offset);
-  offset += 2;
-  // encoded.write(swimPayload.targetToken.toString("hex"), 3, "hex");
   encoded.write(swimPayload.owner.toString("hex"), offset, "hex");
-  // offset += 32;
-  // // encoded.write(toBigNumberHex(swimPayload.gas, 32), 67, "hex");
-  // encoded.write(toBigNumberHex(swimPayload.minOutputAmount, 32), offset, "hex");
   offset += 32;
-  encoded.write(swimPayload.memo.toString("hex"), offset, "hex");
-  offset += 16;
   encoded.writeUint8(Number(swimPayload.propellerEnabled), offset);
   offset++;
-  // encoded.write(toBigNumberHex(swimPayload.minThreshold, 32), offset, "hex");
-  // offset += 32;
-  // encoded.write(toBigNumberHex(swimPayload.propellerFee, 32), 100, "hex");
   encoded.writeUint8(Number(swimPayload.gasKickstart), offset);
+  offset++;
+  encoded.writeBigUint64BE(BigInt(swimPayload.maxFee.toNumber()), offset);
+  offset += 8;
+
+  encoded.writeUint16BE(swimPayload.targetTokenId, offset);
+  offset += 2;
+  encoded.write(swimPayload.memo.toString("hex"), offset, "hex");
+  // offset += 16;
   return encoded;
 }
 
@@ -223,34 +206,27 @@ export function parseSwimPayload(arr: Buffer): ParsedSwimPayload {
   let offset = 0;
   const version = arr.readUint8(offset);
   offset++;
-  const targetTokenId = arr.readUint16BE(offset);
-  offset += 2;
-  // const targetToken = arr.subarray(offset, offset + 32);
-  // offset += 32;
   const owner = arr.subarray(offset, offset + 32);
-  // offset += 32;
-  // const minOutputAmount = parseU256(arr.subarray(offset, offset + 32));
   offset += 32;
-  const memo = arr.subarray(offset, offset + 16);
-  offset += 16;
   const propellerEnabled = arr.readUint8(offset) === 1;
   offset++;
-  // const minThreshold = parseU256(arr.subarray(offset, offset + 32));
-  // offset += 32;
-  // const propellerFee = parseU256(arr.subarray(offset, offset + 32));
-  // offset += 32;
   const gasKickstart = arr.readUint8(offset) === 1;
   offset++;
+  const maxFee = new BN(Number(arr.readBigUint64BE(offset)));
+  offset += 8;
+  const targetTokenId = arr.readUint16BE(offset);
+  offset += 2;
+  const memo = arr.subarray(offset, offset + 16);
+  // offset += 16;
+
   return {
     version,
-    targetTokenId,
-    // targetToken,
     owner,
-    // minOutputAmount,
-    memo,
     propellerEnabled,
-    // minThreshold,
     gasKickstart,
+    maxFee,
+    targetTokenId,
+    memo,
   };
   // return {
   //   version: arr.readUint8(0),
@@ -365,6 +341,7 @@ export const formatSwimPayload = (
     memo: swimPayload.memo.toString(),
     // minThreshold: swimPayload.minThreshold.toString(),
     owner: tryUint8ArrayToNative(swimPayload.owner, chain),
+    maxFee: swimPayload.maxFee.toString(),
   };
 };
 

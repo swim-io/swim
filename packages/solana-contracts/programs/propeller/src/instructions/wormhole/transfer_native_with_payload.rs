@@ -19,6 +19,7 @@ use {
         token::{Mint, Token, TokenAccount},
     },
     primitive_types::U256,
+    std::str,
 };
 
 #[derive(Accounts)]
@@ -220,11 +221,11 @@ pub fn handle_transfer_native_with_payload(
     nonce: u32,
     target_chain: u16,
     amount: u64,
-    target_token_id: u16,
-    // target_token: Vec<u8>,
     owner: Vec<u8>,
-    gas_kickstart: bool,
     propeller_enabled: bool,
+    gas_kickstart: bool,
+    max_fee: u64,
+    target_token_id: u16,
     memo: Vec<u8>,
 ) -> Result<()> {
     is_transfer_amount_sufficient(
@@ -254,21 +255,20 @@ pub fn handle_transfer_native_with_payload(
     owner_addr.copy_from_slice(owner.as_slice());
 
     let swim_payload = RawSwimPayload {
+        //TODO: this should come from the propeller or global constant?
         swim_payload_version: 0,
-        target_token_id,
         owner: owner_addr,
+        propeller_enabled,
+        gas_kickstart,
+        max_fee,
+        target_token_id,
         // min_output_amount: U256::from(0u64),
         memo: memo.clone().try_into().unwrap(),
-        propeller_enabled,
-        //TODO: not sure if this is needed. applying same math as how token-bridge handles amount.
-        // min_threshold: U256::from(0u64),
-        // propeller_min_threshold: U256::from(propeller.propeller_min_threshold),
-        // propeller_fee: U256::from(propeller.propeller_fee),
-        gas_kickstart,
     };
+    msg!("transfer_native_with_payload swim_payload: {:?}", swim_payload);
     // let mut swim_payload_bytes = [0u8; 32];
-    let swim_payload_bytes = swim_payload.try_to_vec()?;
-    anchor_lang::prelude::msg!("swim_payload_bytes {:?}", swim_payload_bytes);
+    // let swim_payload_bytes = swim_payload.try_to_vec()?;
+    // anchor_lang::prelude::msg!("swim_payload_bytes {:?}", swim_payload_bytes);
     //
     // Note:
     //     1. nonce is created randomly client side using this

@@ -2594,16 +2594,19 @@ describe("propeller", () => {
       const wormholeMessage = web3.Keypair.generate();
       const gasKickstart = false;
       const propellerEnabled = true;
+
+      const maxFee = new BN(100000000000);
       const transferNativeTxn = await propellerProgram.methods
         .transferNativeWithPayload(
           nonce,
           CHAIN_ID_ETH,
           transferAmount,
-          evmTargetTokenId,
           // evmTargetTokenAddr,
           evmOwner,
-          gasKickstart,
           propellerEnabled,
+          gasKickstart,
+          maxFee,
+          evmTargetTokenId,
           memoBuffer,
         )
         .accounts({
@@ -2691,9 +2694,10 @@ describe("propeller", () => {
         )}
       `);
 
-      const { tokenTransferMessage } =
+      const { tokenTransferMessage, swimPayload } =
         parsedTokenTransferWithSwimPayloadPostedMessage;
 
+      expect(swimPayload.maxFee.eq(maxFee)).toBeTruthy();
       const tokenTransferTo = tokenTransferMessage.tokenTransfer.to;
       expect(uint8ArrayToHex(tokenTransferTo)).toEqual(
         ethRoutingContractEthHexStr,
@@ -2737,17 +2741,19 @@ describe("propeller", () => {
       const wormholeMessage = web3.Keypair.generate();
       const gasKickstart = false;
       const propellerEnabled = true;
+      const maxFee = new BN(100000000000);
       await expect(() => {
         return propellerProgram.methods
           .transferNativeWithPayload(
             nonce,
             CHAIN_ID_ETH,
             transferAmount,
-            evmTargetTokenId,
             // evmTargetTokenAddr,
             evmOwner,
-            gasKickstart,
             propellerEnabled,
+            gasKickstart,
+            maxFee,
+            evmTargetTokenId,
             memoBuffer,
           )
           .accounts({
@@ -2797,14 +2803,26 @@ describe("propeller", () => {
           const memoBuffer = Buffer.alloc(16);
           memoBuffer.write(memoStr);
 
+          const maxFee = new BN(1_000_000_000);
           const swimPayload = {
             version: swimPayloadVersion,
-            targetTokenId,
             owner: provider.publicKey.toBuffer(),
-            memo: memoBuffer,
+            // owner: owner.toBuffer(),
             propellerEnabled,
             gasKickstart,
+            maxFee,
+            targetTokenId,
+            memo: memoBuffer,
           };
+          //
+          // const swimPayload = {
+          //   version: swimPayloadVersion,
+          //   targetTokenId,
+          //   owner: provider.publicKey.toBuffer(),
+          //   memo: memoBuffer,
+          //   propellerEnabled,
+          //   gasKickstart,
+          // };
           const amount = parseUnits("1", mintDecimal);
           console.info(`amount: ${amount.toString()}`);
           /**
@@ -3184,18 +3202,30 @@ describe("propeller", () => {
           const memoBuffer = Buffer.alloc(16);
           memoBuffer.write(memoStr);
 
+          const maxFee = new BN(1000000000);
           const swimPayload = {
             version: swimPayloadVersion,
-            targetTokenId,
-            // owner: tryNativeToUint8Array(provider.publicKey.toBase58(), CHAIN_ID_SOLANA),
-            // owner: Buffer.from(tryNativeToHexString(provider.publicKey.toBase58(), CHAIN_ID_SOLANA), 'hex'),
             owner: provider.publicKey.toBuffer(),
-            // minOutputAmount: 0n,
-            memo: memoBuffer,
+            // owner: owner.toBuffer(),
             propellerEnabled,
-            // minThreshold: BigInt(0),
             gasKickstart,
+            maxFee,
+            targetTokenId,
+            memo: memoBuffer,
           };
+
+          // const swimPayload = {
+          //   version: swimPayloadVersion,
+          //   targetTokenId,
+          //   // owner: tryNativeToUint8Array(provider.publicKey.toBase58(), CHAIN_ID_SOLANA),
+          //   // owner: Buffer.from(tryNativeToHexString(provider.publicKey.toBase58(), CHAIN_ID_SOLANA), 'hex'),
+          //   owner: provider.publicKey.toBuffer(),
+          //   // minOutputAmount: 0n,
+          //   memo: memoBuffer,
+          //   propellerEnabled,
+          //   // minThreshold: BigInt(0),
+          //   gasKickstart,
+          // };
           const amount = parseUnits("1", mintDecimal);
           console.info(`amount: ${amount.toString()}`);
           /**
@@ -3590,18 +3620,30 @@ describe("propeller", () => {
           const memoBuffer = Buffer.alloc(16);
           memoBuffer.write(memoStr);
 
+          const maxFee = new BN(1000000000);
           const swimPayload = {
             version: swimPayloadVersion,
-            targetTokenId,
-            // owner: tryNativeToUint8Array(provider.publicKey.toBase58(), CHAIN_ID_SOLANA),
-            // owner: Buffer.from(tryNativeToHexString(provider.publicKey.toBase58(), CHAIN_ID_SOLANA), 'hex'),
             owner: provider.publicKey.toBuffer(),
-            // minOutputAmount: 0n,
-            memo: memoBuffer,
+            // owner: owner.toBuffer(),
             propellerEnabled,
-            // minThreshold: BigInt(0),
             gasKickstart,
+            maxFee,
+            targetTokenId,
+            memo: memoBuffer,
           };
+
+          // const swimPayload = {
+          //   version: swimPayloadVersion,
+          //   targetTokenId,
+          //   // owner: tryNativeToUint8Array(provider.publicKey.toBase58(), CHAIN_ID_SOLANA),
+          //   // owner: Buffer.from(tryNativeToHexString(provider.publicKey.toBase58(), CHAIN_ID_SOLANA), 'hex'),
+          //   owner: provider.publicKey.toBuffer(),
+          //   // minOutputAmount: 0n,
+          //   memo: memoBuffer,
+          //   propellerEnabled,
+          //   // minThreshold: BigInt(0),
+          //   gasKickstart,
+          // };
           const amount = parseUnits("1", mintDecimal);
           console.info(`amount: ${amount.toString()}`);
           /**
@@ -3993,19 +4035,29 @@ describe("propeller", () => {
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
           const memoBuffer = Buffer.alloc(16);
           memoBuffer.write(memoStr);
-
+          const maxFee = new BN(1000000000);
           const swimPayload = {
             version: swimPayloadVersion,
-            targetTokenId,
-            // owner: tryNativeToUint8Array(provider.publicKey.toBase58(), CHAIN_ID_SOLANA),
-            // owner: Buffer.from(tryNativeToHexString(provider.publicKey.toBase58(), CHAIN_ID_SOLANA), 'hex'),
             owner: provider.publicKey.toBuffer(),
-            // minOutputAmount: 0n,
-            memo: memoBuffer,
+            // owner: owner.toBuffer(),
             propellerEnabled,
-            // minThreshold: BigInt(0),
             gasKickstart,
+            maxFee,
+            targetTokenId,
+            memo: memoBuffer,
           };
+          // const swimPayload = {
+          //   version: swimPayloadVersion,
+          //   targetTokenId,
+          //   // owner: tryNativeToUint8Array(provider.publicKey.toBase58(), CHAIN_ID_SOLANA),
+          //   // owner: Buffer.from(tryNativeToHexString(provider.publicKey.toBase58(), CHAIN_ID_SOLANA), 'hex'),
+          //   owner: provider.publicKey.toBuffer(),
+          //   // minOutputAmount: 0n,
+          //   memo: memoBuffer,
+          //   propellerEnabled,
+          //   // minThreshold: BigInt(0),
+          //   gasKickstart,
+          // };
           const amount = parseUnits("1", mintDecimal);
           console.info(`amount: ${amount.toString()}`);
           /**

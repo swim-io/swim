@@ -12,7 +12,7 @@ import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import { MOCK_SOL_WALLET } from "../../fixtures";
 import { MOCK_INTERACTION_STATE } from "../../fixtures/swim/interactionState";
-import { getSignedVaaWithRetry, lockEvmToken } from "../../models";
+import { getSignedVaaWithRetry } from "../../models";
 import type { Wallets } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useWallets } from "../crossEcosystem";
@@ -41,10 +41,8 @@ const useWalletsMock = mockOf(useWallets);
 jest.mock("../../models", () => ({
   ...jest.requireActual("../../models"),
   getSignedVaaWithRetry: jest.fn(),
-  lockEvmToken: jest.fn(),
 }));
 const getSignedVaaWithRetryMock = mockOf(getSignedVaaWithRetry);
-const lockEvmTokenMock = mockOf(lockEvmToken);
 
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
@@ -95,12 +93,6 @@ describe("useToSolanaTransferMutation", () => {
     getSignedVaaWithRetryMock.mockReturnValue({
       vaaBytes: new Uint8Array(),
     } as any);
-    lockEvmTokenMock.mockReturnValue({
-      approvalResponses: [],
-      transferResponse: {
-        hash: "0xd528c49eedda9d5a5a7f04a00355b7b124a30502b46532503cc83891844715b9",
-      },
-    } as any);
     useGetEvmConnectionMock.mockReturnValue(() => {
       return {
         txReceiptCache: {},
@@ -109,6 +101,14 @@ describe("useToSolanaTransferMutation", () => {
             transactionHash: hash,
           }),
         ),
+        lockEvmToken: jest.fn(() => {
+          return Promise.resolve({
+            approvalResponses: [],
+            transferResponse: {
+              hash: "0xd528c49eedda9d5a5a7f04a00355b7b124a30502b46532503cc83891844715b9",
+            },
+          });
+        }),
         provider: {
           getTransaction: jest.fn(() =>
             Promise.resolve({

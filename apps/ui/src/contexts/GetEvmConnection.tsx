@@ -53,13 +53,10 @@ const KARURA_SUBQL_URLS = {
 
 export const getProvider = (
   env: Env,
-  chains: readonly EvmSpec[],
+  chainSpec: EvmSpec,
   ecosystemId: EvmEcosystemId,
 ): GetHistoryProvider => {
-  const { rpcUrls } = findOrThrow(
-    chains,
-    (chain) => chain.ecosystem === ecosystemId,
-  );
+  const { rpcUrls } = chainSpec;
   if (
     (env !== Env.Mainnet && env !== Env.Devnet) ||
     !isEcosystemEnabled(ecosystemId)
@@ -136,8 +133,15 @@ export const GetEvmConnectionProvider = ({
       return existingEvmConnection;
     }
 
-    const provider = getProvider(env, chains[Protocol.Evm], ecosystemId);
-    const newEvmConnection = new EvmConnection(provider);
+    const chainSpec = findOrThrow(
+      chains[Protocol.Evm],
+      (chain) => chain.ecosystem === ecosystemId,
+    );
+    const provider = getProvider(env, chainSpec, ecosystemId);
+    const newEvmConnection = new EvmConnection(provider, {
+      ...chainSpec,
+      name: chainSpec.chainName,
+    });
 
     const newState = new Map(evmConnections.current);
     newState.set(ecosystemId, newEvmConnection);

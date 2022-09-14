@@ -2,13 +2,14 @@ import {
   getEmitterAddressEth,
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
-import { Keypair } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import type { EvmConnection, EvmEcosystemId, EvmTx } from "@swim-io/evm";
 import {
   SOLANA_ECOSYSTEM_ID,
   generateUnlockSplTokenTxIds,
 } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
+import { WormholeChainId } from "@swim-io/wormhole";
 import type { ethers } from "ethers";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
@@ -25,7 +26,6 @@ import { useEnvironment, useInteractionState } from "../../core/store";
 import {
   getSignedVaaWithRetry,
   humanDecimalToAtomicString,
-  lockEvmToken,
 } from "../../models";
 import { getFromEcosystemOfToSolanaTransfer } from "../../models/swim/transfer";
 import { useWallets } from "../crossEcosystem";
@@ -118,15 +118,16 @@ export const useToSolanaTransferMutation = () => {
       ).address.toBase58();
 
       // Process transfer if transfer txId does not exist
-      const { approvalResponses, transferResponse } = await lockEvmToken(
-        evmConnections[index],
+      const { approvalResponses, transferResponse } = await evmConnections[
+        index
+      ].lockEvmToken({
+        atomicAmount: humanDecimalToAtomicString(value, token, fromEcosystem),
         evmWallet,
-        evmChains[index],
         fromTokenDetails,
-        splTokenAccountAddress,
-        humanDecimalToAtomicString(value, token, fromEcosystem),
         interactionId,
-      );
+        recipientChain: WormholeChainId.Solana,
+        splTokenAccountAddress: new PublicKey(splTokenAccountAddress).toBytes(),
+      });
 
       const [transferTx, ...approvalTxs] = await Promise.all(
         [transferResponse, ...approvalResponses].map((txResponse) =>

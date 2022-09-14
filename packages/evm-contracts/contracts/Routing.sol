@@ -26,10 +26,10 @@ contract Routing is
   ReentrancyGuardUpgradeable //TODO
 {
   struct TokenInfo {
-    uint16 tokenNumber;
+    uint16  tokenNumber;
     address tokenAddress;
     address poolAddress;
-    uint8 tokenIndexInPool;
+    uint8   tokenIndexInPool;
   }
 
   enum GasRemunerationMethod {
@@ -37,60 +37,55 @@ contract Routing is
     UniswapOracle
   }
 
+  //uses one slot
   struct FlatFeeParams { //all specified in swimUSD
-    uint80 baseFee;
-    uint80 gasKickstartFee;
-    uint80 swapFee;
+    uint64 baseFee;
+    uint64 gasKickstartFee;
+    uint64 swapFee;
   }
 
+  //uses two slots
   struct UniswapOracleParams {
     //swimUSD -> intermediate token (via swim pool) -> gas token (via uniswap)
-    IPool swimPool;
-    uint8 swimIntermediateIndex;
+    IPool          swimPool;
+    uint8          swimIntermediateIndex;
     IUniswapV3Pool uniswapPool;
-    bool uniswapIntermediateIsFirst;
+    bool           uniswapIntermediateIsFirst;
   }
 
   struct PropellerFeeConfig {
-    uint serviceFee; //specified in swimUSD
+    uint64                serviceFee; //specified in swimUSD
     GasRemunerationMethod method;
-    FlatFeeParams flat;
-    UniswapOracleParams uniswap;
+    FlatFeeParams         flat;
+    UniswapOracleParams   uniswap;
   }
 
   using SafeERC20 for IERC20;
 
-  uint private constant SWIM_USD_MULTIPLIER = 10**uint(SWIM_USD_DECIMALS);
   uint private constant GAS_COST_BASE = 100000; //TODO determine decent estimate
   uint private constant GAS_COST_POOL_SWAP = 125000; //defensive but realistic estimate
-  uint private constant PROPELLER_ETHEREUM_SWIM_USD_MINIMUM = 1000 * SWIM_USD_MULTIPLIER;
-  uint private constant PROPELLER_SWIM_USD_MINIMUM = 5 * SWIM_USD_MULTIPLIER;
   uint private constant GAS_KICKSTART_AMOUNT = 0.05 ether;
 
   uint private constant BIT224 = 1 << 224;
   uint private constant BIT128 = 1 << 128;
   uint private constant BIT96  = 1 << 96;
 
-  uint public accumulatedFees;
-  uint32 public wormholeNonce; //TODO should share a slot with tokenbridge (both are accessed together)
-  //TODO move to its own storage slot on next full deploy (currently shares a slot with wormhole nonce which sucks for gas)
-  //to optimze gas, we use _swimUsdAddress = swimUsdAddress internally to access storage only once
-  address public swimUsdAddress;
-
-  ITokenBridge public tokenBridge;
-  address private outdatedWormhole; //TODO remove on next full deploy
-
-  mapping(uint16 => TokenInfo) public tokenNumberMapping;
-  mapping(address => TokenInfo) public tokenAddressMapping;
-  mapping(address => uint) public engineFees;
-
+  address            public /*immutable*/ swimUsdAddress;
+  ITokenBridge       public /*immutable*/ tokenBridge;
+  uint32             private wormholeNonce;
+  uint               private accumulatedFees;
   PropellerFeeConfig private propellerFeeConfig;
-  uint256[20] private reservedSlotsForAdditionalPropellerFeeRemunerationMethodConfigs;
+  uint256[50]        private reservedSlotsForAdditionalPropellerFeeRemunerationMethodConfigs;
+
+  mapping(uint16 => TokenInfo)  public tokenNumberMapping;
+  mapping(address => TokenInfo) public tokenAddressMapping;
+  mapping(address => uint)      public engineFees;
 
   function initialize(
     address owner,
     address tokenBridgeAddress,
-    PropellerFeeConfig memory _propellerFeeConfig
+    uint64 propellerServiceFee,
+    FlatFeeParams memory flatFeeParams
   ) public initializer {
     __Pausable_init();
     __Ownable_init();
@@ -102,7 +97,9 @@ contract Routing is
     swimUsdAddress = tokenBridge.wrappedAsset(WORMHOLE_SOLANA_CHAIN_ID, SWIM_USD_SOLANA_ADDRESS);
     if (swimUsdAddress == address(0))
       revert SwimUsdNotAttested();
-    propellerFeeConfig = _propellerFeeConfig; //TODO checks? should this be unified with the governance functions?
+    propellerFeeConfig.serviceFee = propellerServiceFee;
+    propellerFeeConfig.method = GasRemunerationMethod.FlatFee;
+    propellerFeeConfig.flat = flatFeeParams;
   }
 
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
@@ -122,8 +119,8 @@ contract Routing is
   // ----------------------------- ONCHAIN ---------------------------------------------------------
 
   function onChainSwap(
-    address fromToken, //mut - i.e. potentially assigned to during execution
-    uint inputAmount, //mut
+    address fromToken,
+    uint inputAmount,
     address toOwner,
     address toToken,
     uint minimumOutputAmount
@@ -266,6 +263,7 @@ contract Routing is
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
     bool gasKickstart,
+    uint64 maxPropellerFee,
     uint16 toTokenNumber
   ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence) {
     (swimUsdAmount, wormholeSequence) = _propellerInitiate(
@@ -274,6 +272,7 @@ contract Routing is
       wormholeRecipientChain,
       toOwner,
       gasKickstart,
+      maxPropellerFee,
       toTokenNumber,
       bytes16(0)
     );
@@ -285,6 +284,7 @@ contract Routing is
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
     bool gasKickstart,
+    uint64 maxPropellerFee,
     uint16 toTokenNumber,
     bytes16 memo
   ) external payable whenNotPaused returns (uint swimUsdAmount, uint64 wormholeSequence) {
@@ -294,6 +294,7 @@ contract Routing is
       wormholeRecipientChain,
       toOwner,
       gasKickstart,
+      maxPropellerFee,
       toTokenNumber,
       memo
     );
@@ -306,21 +307,16 @@ contract Routing is
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
     bool gasKickstart,
+    uint64 maxPropellerFee,
     uint16 toTokenNumber,
     bytes16 memo
   ) internal returns (uint swimUsdAmount, uint64 wormholeSequence) {
     address _swimUsdAddress = swimUsdAddress;
     swimUsdAmount = acquireAndMaybeSwap(fromToken, inputAmount, 0, _swimUsdAddress);
 
-    uint minThreshold = (wormholeRecipientChain == WORMHOLE_ETHEREUM_CHAIN_ID)
-      ? PROPELLER_ETHEREUM_SWIM_USD_MINIMUM
-      : PROPELLER_SWIM_USD_MINIMUM;
-    if (swimUsdAmount < minThreshold)
-      revert TooSmallForPropeller(swimUsdAmount, minThreshold);
-
     bytes memory encodedPayload = memo != bytes16(0)
-      ? SwimPayloadConversion.encode(toOwner, toTokenNumber, gasKickstart, memo)
-      : SwimPayloadConversion.encode(toOwner, toTokenNumber, gasKickstart);
+      ? SwimPayloadConversion.encode(toOwner, gasKickstart, maxPropellerFee, toTokenNumber, memo)
+      : SwimPayloadConversion.encode(toOwner, gasKickstart, maxPropellerFee, toTokenNumber);
 
     wormholeSequence = wormholeTransferWithPayload(
       swimUsdAmount,
@@ -386,8 +382,6 @@ contract Routing is
     bytes memory encodedVm
   ) external payable whenNotPaused returns (uint outputAmount, address outputToken) { unchecked {
     uint startGas = gasleft();
-    //TODO check swimUSD amount and use unsafe math
-    //TODO lots of checks missing - WIP
     (uint swimUsdAmount, SwimPayload memory swimPayload) = wormholeCompleteTransfer(encodedVm);
     address _swimUsdAddress = swimUsdAddress;
 
@@ -403,12 +397,14 @@ contract Routing is
 
     uint16 toTokenNumber = SWIM_USD_TOKEN_NUMBER;
     TokenInfo memory toTokenInfo;
-    if (swimPayload.tokenNumber != SWIM_USD_TOKEN_NUMBER) {
-      toTokenInfo = tokenNumberMapping[swimPayload.tokenNumber];
+    outputToken = _swimUsdAddress;
+    if (swimPayload.toTokenNumber != SWIM_USD_TOKEN_NUMBER) {
+      toTokenInfo = tokenNumberMapping[swimPayload.toTokenNumber];
       if (toTokenInfo.tokenNumber != 0) {
         //if toTokenNumber in swimPayload was invalid for whatever reason then just return
         //swimUsd to prevent propeller transaction from getting stuck
-        toTokenNumber = toTokenInfo.tokenNumber; //same as swimPayload.tokenNumber
+        toTokenNumber = toTokenInfo.tokenNumber; //same as swimPayload.toTokenNumber
+        outputToken = toTokenInfo.tokenAddress;
       }
     }
 
@@ -416,36 +412,47 @@ contract Routing is
     if (propellerFeeConfig.method == GasRemunerationMethod.UniswapOracle)
       feeAmount += calcSwimUsdGasFee(startGas, swimUsdPerGasTokenUniswap(), swimPayload);
     else {
-      feeAmount += propellerFeeConfig.flat.baseFee;
+      feeAmount += uint(propellerFeeConfig.flat.baseFee);
       if (swimPayload.gasKickstart)
-        feeAmount += propellerFeeConfig.flat.gasKickstartFee;
-      if (swimPayload.tokenNumber != SWIM_USD_TOKEN_NUMBER)
-        feeAmount += propellerFeeConfig.flat.swapFee;
+        feeAmount += uint(propellerFeeConfig.flat.gasKickstartFee);
+      if (swimPayload.toTokenNumber != SWIM_USD_TOKEN_NUMBER)
+        feeAmount += uint(propellerFeeConfig.flat.swapFee);
     }
 
+    if (feeAmount > swimPayload.maxPropellerFee)
+      feeAmount = swimPayload.maxPropellerFee;
+
     if (feeAmount > swimUsdAmount)
-      revert ExcessivePropellerFee(feeAmount);
+      //we don't rely on SwimPayload to be composed sensibly (i.e. maxPropellerFee should be less
+      // than or equal the bridged SwimUSD amount if the SwimPayload was composed sensibly, but we
+      // don't actually (have to) enforce it)
+      feeAmount = swimUsdAmount;
 
     accumulatedFees += feeAmount;
     engineFees[msg.sender] += feeAmount;
 
-    if (toTokenNumber != SWIM_USD_TOKEN_NUMBER) {
-      outputAmount = swap(
-        IPool(toTokenInfo.poolAddress),
-        _swimUsdAddress,
-        swimUsdAmount - feeAmount,
-        SWIM_USD_TOKEN_INDEX,
-        toTokenInfo.tokenIndexInPool,
-        0 //no slippage for propeller
-      );
-      outputToken = toTokenInfo.tokenAddress;
-    }
-    else {
-      outputAmount = swimUsdAmount - feeAmount;
-      outputToken = _swimUsdAddress;
-    }
+    //There is this slightly awkward and exceedingly rare edge case where feeAmount without the
+    // swap fee is smaller than swimUsdAmount but feeAmount including the swap fee is larger than
+    // swimUsdAmount and so we charge the user for a swap (of what would be an utterly marginal
+    // amount of SwimUSD) that then doesn't actually happen..
+    //But it's so insignificant (both in terms of probability as well as impact) that it really
+    // does not make sense to worry about it beyond the scope of this comment.
+    if (feeAmount < swimUsdAmount) {
+      outputAmount = (toTokenNumber != SWIM_USD_TOKEN_NUMBER)
+        ? swap(
+            IPool(toTokenInfo.poolAddress),
+            _swimUsdAddress,
+            swimUsdAmount - feeAmount,
+            SWIM_USD_TOKEN_INDEX,
+            toTokenInfo.tokenIndexInPool,
+            0 //no slippage for propeller
+          )
+        : swimUsdAmount - feeAmount;
 
-    IERC20(outputToken).safeTransfer(swimPayload.toOwner, outputAmount);
+      IERC20(outputToken).safeTransfer(swimPayload.toOwner, outputAmount);
+    }
+    else
+      outputAmount = 0;
 
     if (swimPayload.memo != bytes16(0))
       emit MemoInteraction(swimPayload.memo);
@@ -485,20 +492,16 @@ contract Routing is
     emit TokenRegistered(tokenNumber, tokenAddress, poolAddress);
   }
 
-  function adjustPropellerServiceFee(uint serviceFee) external onlyOwner {
-    require(serviceFee < PROPELLER_SWIM_USD_MINIMUM, "TODO"); //TODO
+  function adjustPropellerServiceFee(uint64 serviceFee) external onlyOwner {
     propellerFeeConfig.serviceFee = serviceFee;
   }
 
   function usePropellerFlatFee(
-    uint80 baseFee,
-    uint80 gasKickstartFee,
-    uint80 swapFee
+    uint64 baseFee,
+    uint64 gasKickstartFee,
+    uint64 swapFee
   ) external onlyOwner {
     //TODO checks?
-    uint totalFee =
-      propellerFeeConfig.serviceFee + uint(baseFee) + uint(gasKickstartFee) + uint(swapFee);
-    require(totalFee < PROPELLER_SWIM_USD_MINIMUM, "TODO"); //TODO
     propellerFeeConfig.method = GasRemunerationMethod.FlatFee;
     propellerFeeConfig.flat.baseFee = baseFee;
     propellerFeeConfig.flat.gasKickstartFee = gasKickstartFee;
@@ -716,7 +719,7 @@ contract Routing is
       uint remuneratedGasPrice = (block.basefee * 9)/8 + 1 gwei;
 
       consumedGas += GAS_COST_BASE;
-      if (swimPayload.tokenNumber != SWIM_USD_TOKEN_NUMBER)
+      if (swimPayload.toTokenNumber != SWIM_USD_TOKEN_NUMBER)
         consumedGas += GAS_COST_POOL_SWAP;
 
       if (swimPayload.gasKickstart)

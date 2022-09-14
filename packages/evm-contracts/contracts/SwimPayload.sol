@@ -7,7 +7,8 @@ struct SwimPayload {
   address toOwner;
   bool propellerEnabled;
   bool gasKickstart;
-  uint16 tokenNumber;
+  uint64 maxPropellerFee;
+  uint16 toTokenNumber;
   bytes16 memo;
 }
 
@@ -40,12 +41,13 @@ library SwimPayloadConversion {
   uint private constant OWNER_SIZE = 32;
   uint private constant PROPELLER_ENABLED_SIZE = 1;
   uint private constant GAS_KICKSTART_SIZE = 1;
+  uint private constant MAX_PROPELLER_FEE = 8;
   uint private constant TOKEN_NUMBER_SIZE = 2;
   uint private constant MEMO_SIZE = 16;
 
   uint private constant OWNER_MINLEN = TOKENBRIDGE_TOTAL_SIZE + VERSION_SIZE + OWNER_SIZE;
-  uint private constant TOKEN_NUMBER_MINLEN =
-    OWNER_MINLEN + PROPELLER_ENABLED_SIZE + GAS_KICKSTART_SIZE + TOKEN_NUMBER_SIZE;
+  uint private constant TOKEN_NUMBER_MINLEN = OWNER_MINLEN + PROPELLER_ENABLED_SIZE +
+    GAS_KICKSTART_SIZE + MAX_PROPELLER_FEE + TOKEN_NUMBER_SIZE;
   uint private constant MEMO_MINLEN = TOKEN_NUMBER_MINLEN + MEMO_SIZE;
 
   function decode(
@@ -80,7 +82,8 @@ library SwimPayloadConversion {
     if (encoded.length > OWNER_MINLEN) {
       (swimPayload.propellerEnabled, offset) = encoded.asBool(offset);
       (swimPayload.gasKickstart, offset) = encoded.asBool(offset);
-      (swimPayload.tokenNumber, offset) = encoded.asUint16(offset);
+      (swimPayload.toTokenNumber, offset) = encoded.asUint16(offset);
+      (swimPayload.maxPropellerFee, offset) = encoded.asUint64(offset);
 
       if (encoded.length > TOKEN_NUMBER_MINLEN)
         (swimPayload.memo,) = encoded.asBytes16(offset);
@@ -95,19 +98,36 @@ library SwimPayloadConversion {
   //third party propeller interaction
   function encode(
     bytes32 toOwner,
-    uint16 tokenNumber,
-    bool gasKickstart
+    bool gasKickstart,
+    uint64 maxPropellerFee,
+    uint16 toTokenNumber
   ) internal pure returns (bytes memory encoded) {
-    return abi.encodePacked(SWIM_PAYLOAD_VERSION, toOwner, uint8(1), gasKickstart, tokenNumber);
+    return abi.encodePacked(
+      SWIM_PAYLOAD_VERSION,
+      toOwner,
+      uint8(1),
+      gasKickstart,
+      maxPropellerFee,
+      toTokenNumber
+    );
   }
 
   //swim propeller interaction
   function encode(
     bytes32 toOwner,
-    uint16 tokenNumber,
     bool gasKickstart,
+    uint64 maxPropellerFee,
+    uint16 toTokenNumber,
     bytes16 memo
   ) internal pure returns (bytes memory encoded) {
-    return abi.encodePacked(SWIM_PAYLOAD_VERSION, toOwner, uint8(1), gasKickstart, tokenNumber, memo);
+    return abi.encodePacked(
+      SWIM_PAYLOAD_VERSION,
+      toOwner,
+      uint8(1),
+      gasKickstart,
+      maxPropellerFee,
+      toTokenNumber,
+      memo
+    );
   }
 }

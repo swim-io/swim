@@ -25,7 +25,7 @@ interface IUUPSUpgradeable {
 // 33 + 21 + 1 + 3 + 1 + 2 + 2 + 1 + 2 + 1 + 1 = 68 = 0x44
 //Deploy opcode:
 // 73XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7F360894a13ba1a3210667
-// c828492db98dca3e2076cc3735a920a3ca505d382bbc5561####8060ZZ600039
+// c828492db98dca3e2076cc3735a920a3ca505d382bbc5561YYYY8060ZZ600039
 // 6000F300
 //
 //Where:
@@ -73,16 +73,18 @@ interface IUUPSUpgradeable {
 //762 (stripped length) + 1 (invalid opcode) + 96 (fingerprint) = 855 (original code length)
 
 contract SwimFactory is ISwimFactory {
-  uint256 private constant PROXY_DEPLOYMENT_CODESIZE = 68;
-  uint256 private constant PROXY_STRIPPED_DEPLOYEDCODESIZE = 762;
-  uint256 private constant PROXY_TOTAL_CODESIZE =
+  uint private constant PROXY_DEPLOYMENT_CODESIZE = 68;
+  uint private constant PROXY_STRIPPED_DEPLOYEDCODESIZE = 762;
+  uint private constant PROXY_TOTAL_CODESIZE =
     PROXY_DEPLOYMENT_CODESIZE + PROXY_STRIPPED_DEPLOYEDCODESIZE;
-  uint256 private constant IMPLEMENTATION_SLOT =
+  uint private constant IMPLEMENTATION_SLOT =
     0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
   address public owner;
-  uint256 private reentrancyCount;
-  address private blankLogicAddress;
+  uint private reentrancyCount;
+  //given the deployer address we could derive and hence hardcode the address where BlankLogic
+  // will be deployed to as to further save on gas, but the hassle is probably not worth it
+  address private immutable blankLogicAddress;
 
   constructor(address _owner) {
     owner = _owner;
@@ -90,14 +92,16 @@ contract SwimFactory is ISwimFactory {
   }
 
   modifier onlyOwnerOrAlreadyDeploying() {
-    require(msg.sender == owner || reentrancyCount > 0, "Not Authorized");
+    if (msg.sender != owner && reentrancyCount == 0)
+      revert SenderNotAuthorized();
     ++reentrancyCount;
     _;
     --reentrancyCount;
   }
 
   function transferOwnership(address newOwner) external {
-    require(msg.sender == owner, "Not Authorized");
+    if (msg.sender != owner)
+      revert SenderNotAuthorized();
     owner = newOwner;
     emit TransferOwnership(msg.sender, newOwner);
   }
@@ -214,11 +218,11 @@ contract SwimFactory is ISwimFactory {
     //   bytes26(0xffffffffffffffffffffffffe016919091016040019291505056)
     // );
     /* solhint-disable var-name-mixedcase */
-    uint256 _PROXY_DEPLOYMENT_CODESIZE = PROXY_DEPLOYMENT_CODESIZE;
-    uint256 _PROXY_STRIPPED_DEPLOYEDCODESIZE = PROXY_STRIPPED_DEPLOYEDCODESIZE;
-    uint256 _IMPLEMENTATION_SLOT = IMPLEMENTATION_SLOT;
+    uint _PROXY_DEPLOYMENT_CODESIZE = PROXY_DEPLOYMENT_CODESIZE;
+    uint _PROXY_STRIPPED_DEPLOYEDCODESIZE = PROXY_STRIPPED_DEPLOYEDCODESIZE;
+    uint _IMPLEMENTATION_SLOT = IMPLEMENTATION_SLOT;
     /* solhint-enable var-name-mixedcase */
-    uint256 _blankLogicAddress = uint256(uint160(blankLogicAddress));
+    uint _blankLogicAddress = uint(uint160(blankLogicAddress));
     bytes memory code = new bytes(PROXY_TOTAL_CODESIZE);
     assembly ("memory-safe")
     {

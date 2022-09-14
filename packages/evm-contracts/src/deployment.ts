@@ -1,17 +1,16 @@
 import { readFile } from "fs/promises";
 
-import * as dotenv from "dotenv";
+import type { Contract } from "ethers";
 import { ethers } from "hardhat";
 
+import type { ChainConfig } from "./config";
 import {
-  CHAINS,
   DEFAULTS,
-  FACTORY_PRESIGNED,
   ROUTING_CONTRACT_SOLANA_ADDRESS,
   SWIM_FACTORY_ADDRESS,
   SWIM_USD_DECIMALS,
   SWIM_USD_SOLANA_ADDRESS,
-  TOKEN_NUMBERS,
+  isDeployedToken,
 } from "./config";
 import {
   deployLogic,
@@ -43,78 +42,86 @@ async function checkConstant(constantName: string, value: string) {
     );
 }
 
-export async function deployment(print = false) {
-  const padding = 15;
+export type DeployOptions = {
+  readonly print?: boolean;
+  readonly factoryMnemonic?: string;
+};
+
+export async function deployment(chainConfig: ChainConfig, options: DeployOptions = {}) {
   // eslint-disable-next-line no-console
-  const log = print ? console.log : () => {};
-  const chainId = (await ethers.provider.detectNetwork()).chainId;
-
-  const chainConfig = CHAINS[chainId];
-  if (!chainConfig) throw Error(`Network with chainId ${chainId} not implemented yet`);
-
+  const log = options.print ? console.log : () => {};
+  const logAddress = (name: string, contract: Contract) =>
+    log(name.padStart(16) + ":", contract.address);
   log("executing deployment script for", chainConfig.name);
+
+  const [deployer, governanceFeeRecipient] = await ethers.getSigners();
+  log("deployer:", deployer.address);
+  log("deployer balance:", ethers.utils.formatEther(await deployer.getBalance()));
 
   await checkConstant("SWIM_USD_SOLANA_ADDRESS", SWIM_USD_SOLANA_ADDRESS);
   await checkConstant("SWIM_USD_DECIMALS", SWIM_USD_DECIMALS.toString());
   await checkConstant("ROUTING_CONTRACT_SOLANA_ADDRESS", ROUTING_CONTRACT_SOLANA_ADDRESS);
   await checkConstant("SWIM_FACTORY", SWIM_FACTORY_ADDRESS);
 
-  const [deployer, governanceFeeRecipient] = await ethers.getSigners();
-  log("deployer:", deployer.address);
-  log("deployer balance:", ethers.utils.formatEther(await deployer.getBalance()));
-
-  dotenv.config();
-  await deploySwimFactory(
-    deployer,
-    process.env.FACTORY_MNEMONIC,
-    FACTORY_PRESIGNED[chainId as keyof typeof FACTORY_PRESIGNED]
+  logAddress(
+    "SwimFactory",
+    await deploySwimFactory(deployer, options.factoryMnemonic, chainConfig.factoryPresigned)
   );
-
-  log("SwimFactory:".padStart(padding), SWIM_FACTORY_ADDRESS);
 
   await checkConstant("ROUTING_CONTRACT", await getProxyAddress("Routing"));
   await checkConstant("LP_TOKEN_LOGIC", await getLogicAddress("LpToken"));
 
-  const wormholeTokenBridge = await (async () => {
-    if (chainConfig.wormholeTokenBridge !== "MOCK") return chainConfig.wormholeTokenBridge;
+  logAddress("LpLogic", await deployLogic("LpToken"));
+  logAddress("PoolLogic", await deployLogic("Pool"));
 
+  const routingConfig = chainConfig.routing;
+  if (routingConfig === "MOCK") {
     const swimUsd = await deployToken(DEFAULTS.swimUsd, deployer);
-    return (await deployRegular("MockTokenBridge", [swimUsd.address])).address;
-  })();
+    logAddress("RoutingLogic", await deployLogic("MockRoutingForPoolTests"));
+    logAddress("RoutingProxy", await deployProxy("MockRoutingForPoolTests", [swimUsd.address]));
+  } else {
+    const wormholeTokenBridgeAddress = await (async () => {
+      if (routingConfig.wormholeTokenBridge !== "MOCK") return routingConfig.wormholeTokenBridge;
 
-  const lpLogic = await deployLogic("LpToken");
-  log("LpLogic:".padStart(padding), lpLogic.address);
-  log("RoutingLogic:".padStart(padding), (await deployLogic("Routing")).address);
-  log("PoolLogic:".padStart(padding), (await deployLogic("Pool")).address);
-  const routingProxy = await deployProxy("Routing", [deployer.address, wormholeTokenBridge]);
-
-  log("RoutingProxy:".padStart(padding), routingProxy.address);
-
-  const dynamicallyDeployedTokens = (
-    await Promise.all(
-      (chainConfig.tokens ?? []).map(async (token) => {
-        const tokenAddress = (await deployToken(token, deployer)).address;
-        log((token.symbol + ":").padStart(padding), tokenAddress);
-        return { [token.symbol]: tokenAddress };
-      })
-    )
-  ).reduce((acc, token) => ({ ...acc, ...token }), {});
-
-  for (const pool of chainConfig.pools ?? []) {
-    const poolTokens = pool.tokens.map((token) =>
-      typeof token === "string"
-        ? {
-            address: dynamicallyDeployedTokens[token],
-            tokenNumber: TOKEN_NUMBERS[token as keyof typeof TOKEN_NUMBERS],
-          }
-        : token
+      const coreBridge = await deployRegular("MockWormhole", []);
+      logAddress("CoreBridge", coreBridge);
+      const tokenBridge = await deployRegular("MockTokenBridge", [coreBridge.address]);
+      logAddress("TokenBridge", tokenBridge);
+      return tokenBridge.address;
+    })();
+    logAddress("RoutingLogic", await deployLogic("Routing"));
+    logAddress(
+      "RoutingProxy",
+      await deployProxy("Routing", [
+        deployer.address,
+        wormholeTokenBridgeAddress,
+        routingConfig.serviceFee ?? DEFAULTS.serviceFee,
+        routingConfig.gasRemunerationMethod ?? DEFAULTS.gasRemunerationMethod,
+      ])
     );
-    const poolFixedTokens = { ...pool, tokens: poolTokens };
-    const poolCt = await deployPoolAndRegister(poolFixedTokens, deployer, governanceFeeRecipient);
-    log(
-      ("Pool" + JSON.stringify(poolTokens.map((t) => t.tokenNumber)) + ":").padStart(padding),
-      poolCt.address
+  }
+
+  for (const poolConfig of chainConfig.pools ?? []) {
+    const poolTokens = await Promise.all(
+      poolConfig.tokens.map(async (token) =>
+        isDeployedToken(token)
+          ? token
+          : {
+              symbol: token.symbol,
+              address: await (async () => {
+                const tokenContract = await deployToken(token, deployer);
+                logAddress(token.symbol, tokenContract);
+                return tokenContract.address;
+              })(),
+            }
+      )
     );
+    const pool = await deployPoolAndRegister(
+      { ...poolConfig, tokens: poolTokens },
+      deployer,
+      governanceFeeRecipient
+    );
+    logAddress("Pool" + JSON.stringify(poolTokens.map((t) => t.symbol)), pool);
   }
   log("deployment complete");
 }

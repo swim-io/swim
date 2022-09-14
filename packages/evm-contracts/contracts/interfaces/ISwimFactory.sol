@@ -4,6 +4,7 @@ pragma solidity ^0.8.15;
 error ContractAlreadyExists(address contrct);
 error ContractCallFailed(bytes lowLevelData);
 error ProxyConstructorFailed(bytes lowLevelData);
+error SenderNotAuthorized();
 
 interface ISwimFactory {
   event ContractCreated(address indexed addr, bool isProxy);

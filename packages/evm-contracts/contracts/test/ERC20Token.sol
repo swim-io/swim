@@ -20,7 +20,8 @@ contract ERC20Token is ERC20, Ownable {
     return _decimals;
   }
 
-  function mint(address recipient, uint256 amount) external onlyOwner {
+  //to simplify testing minting is unrestricted
+  function mint(address recipient, uint256 amount) external {
     _mint(recipient, amount);
   }
 

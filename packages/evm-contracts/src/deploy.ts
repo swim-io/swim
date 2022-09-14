@@ -6,10 +6,13 @@ import type { BigNumber } from "ethers";
 import { Contract } from "ethers";
 import { ethers } from "hardhat";
 
+import type { Pool } from "../typechain-types/contracts/Pool";
 import type { Routing } from "../typechain-types/contracts/Routing";
+import type { SwimFactory } from "../typechain-types/contracts/SwimFactory.sol/SwimFactory";
+import type { ERC20Token } from "../typechain-types/contracts/test/ERC20Token";
 
-import type { PoolConfig, Token } from "./config";
-import { DEFAULTS, POOL_PRECISION, SALTS, SWIM_FACTORY_ADDRESS } from "./config";
+import type { DeployedToken, PoolConfig, TestToken } from "./config";
+import { DEFAULTS, POOL_PRECISION, SALTS, SWIM_FACTORY_ADDRESS, TOKEN_NUMBERS } from "./config";
 
 const ERC1967_IMPLEMENTATION_SLOT =
   "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc";
@@ -20,7 +23,9 @@ export const isDeployed = async (address: string) =>
   // > 2 in case empty code gives a return of "0x"
   (await ethers.provider.getCode(address)).length > 2;
 
-export const getSwimFactory = () => ethers.getContractAt("SwimFactory", SWIM_FACTORY_ADDRESS);
+export const getSwimFactory = () =>
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  ethers.getContractAt("SwimFactory", SWIM_FACTORY_ADDRESS) as Promise<SwimFactory>;
 
 export const getProxyAddress = async (saltOrName: string) =>
   (await getSwimFactory()).determineProxyAddress(
@@ -33,15 +38,17 @@ export const getLogicAddress = async (name: string) =>
     SALTS.logic[name as keyof typeof SALTS.logic]
   );
 
-export const getTokenAddress = async (token: Token) =>
-  (await getSwimFactory()).determineAddress(
-    (await ethers.getContractFactory("ERC20Token")).getDeployTransaction(
-      token.name,
-      token.symbol,
-      token.decimals
-    ).data!,
-    DEFAULTS.salt
-  );
+export const getRegularAddress = async (name: string, constructorArgs: readonly any[]) => {
+  const contractFactory = await ethers.getContractFactory(name);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  const bytecodeWithConstructorArgs = contractFactory.getDeployTransaction(...constructorArgs)
+    .data!;
+  const swimFactory = await getSwimFactory();
+  return await swimFactory.determineAddress(bytecodeWithConstructorArgs, DEFAULTS.salt);
+};
+
+export const getTokenAddress = (token: TestToken) =>
+  getRegularAddress("ERC20Token", [token.name, token.symbol, token.decimals]);
 
 const getDeployedContract = async (name: string, address: string) => {
   if (!(await isDeployed(address)))
@@ -50,7 +57,7 @@ const getDeployedContract = async (name: string, address: string) => {
 };
 
 const getProxySalt = (name: string, salt?: string) => {
-  if (name === "Routing") {
+  if (name === "Routing" || name === "MockRoutingForPoolTests") {
     if (salt) throw Error("Can't specify salt for this type of Proxy");
     return SALTS.proxy.Routing;
   } else if (!salt) throw Error("Must specify salt for this type of proxy");
@@ -63,20 +70,24 @@ export const getProxy = async (name: string, salt?: string) =>
 export const getLogic = async (name: string) =>
   getDeployedContract(name, await getLogicAddress(name));
 
-export const getToken = async (token: Token) =>
-  getDeployedContract("ERC20Token", await getTokenAddress(token));
+export const getToken = async (token: TestToken) =>
+  getDeployedContract("ERC20Token", await getTokenAddress(token)) as Promise<ERC20Token>;
+
+export const getRoutingProxy = () => getProxy("Routing") as Promise<Routing>;
+
+export const getPoolProxy = (salt: string) => getProxy("Pool", salt) as Promise<Pool>;
+
+export interface PoolConfigDeployedTokens extends PoolConfig {
+  readonly tokens: readonly DeployedToken[];
+}
 
 export async function deployPoolAndRegister(
-  pool: PoolConfig,
+  pool: PoolConfigDeployedTokens,
   governance: SignerWithAddress,
   governanceFeeRecipient: SignerWithAddress
-): Promise<Contract> {
-  const poolTokens = pool.tokens as readonly unknown[] as readonly {
-    readonly address: string;
-    readonly tokenNumber: number;
-  }[];
+): Promise<Pool> {
   const tokenInfo = await Promise.all(
-    poolTokens.map(async ({ address }) => {
+    pool.tokens.map(async ({ address }) => {
       const token = await ethers.getContractAt("ERC20", address);
       return {
         symbol: await token.symbol(),
@@ -92,7 +103,7 @@ export async function deployPoolAndRegister(
     pool.lpSalt,
     lpDecimals,
     POOL_PRECISION - lpDecimals,
-    poolTokens.map((token) => token.address),
+    pool.tokens.map((token) => token.address),
     tokenInfo.map(({ decimals }) => POOL_PRECISION - decimals),
     pool.ampFactor ?? DEFAULTS.amp,
     pool.lpFee ?? DEFAULTS.lpFee,
@@ -100,12 +111,13 @@ export async function deployPoolAndRegister(
     governance.address,
     governanceFeeRecipient.address,
   ];
-  const poolProxy = await deployProxy("Pool", initializeArguments, pool.salt);
+  const poolProxy = (await deployProxy("Pool", initializeArguments, pool.salt)) as Pool;
 
-  const routingProxy = (await getProxy("Routing")) as Routing;
-  for (let i = 0; i < poolTokens.length; ++i) {
-    const poolToken = poolTokens[i];
-    const filter = routingProxy.filters.TokenRegistered(poolToken.tokenNumber);
+  const routingProxy = await getRoutingProxy();
+  for (let i = 0; i < pool.tokens.length; ++i) {
+    const poolToken = pool.tokens[i];
+    const tokenNumber = TOKEN_NUMBERS[poolToken.symbol];
+    const filter = routingProxy.filters.TokenRegistered(tokenNumber);
     const tokenReregisteredEvents = await routingProxy.queryFilter(filter);
     const currentlyRegisteredPool =
       tokenReregisteredEvents.length > 0
@@ -113,12 +125,7 @@ export async function deployPoolAndRegister(
         : "";
     if (currentlyRegisteredPool !== poolProxy.address)
       await confirm(
-        routingProxy.registerToken(
-          poolToken.tokenNumber,
-          poolToken.address,
-          poolProxy.address,
-          i + 1
-        )
+        routingProxy.registerToken(tokenNumber, poolToken.address, poolProxy.address, i + 1)
       );
   }
 
@@ -171,32 +178,19 @@ export async function deployProxy(
 
 export async function deployLogic(name: string): Promise<Contract> {
   const logicAddress = await getLogicAddress(name);
-  if (!(await isDeployed(logicAddress))) {
-    //hacky workaround for a bug in hardhat that leads to incorrect gas estimation
-    if ((await ethers.provider.detectNetwork()).chainId == 31337)
-      await confirm(
+  if (!(await isDeployed(logicAddress)))
+    await confirm(
+      (
+        await getSwimFactory()
+      )["create(bytes,bytes32)"](
         (
-          await getSwimFactory()
-        )["create(bytes,bytes32)"](
-          (
-            await ethers.getContractFactory(name)
-          ).bytecode,
-          SALTS.logic[name as keyof typeof SALTS.logic],
-          { gasLimit: 10000000 }
-        )
-      );
-    else
-      await confirm(
-        (
-          await getSwimFactory()
-        )["create(bytes,bytes32)"](
-          (
-            await ethers.getContractFactory(name)
-          ).bytecode,
-          SALTS.logic[name as keyof typeof SALTS.logic]
-        )
-      );
-  }
+          await ethers.getContractFactory(name)
+        ).bytecode,
+        SALTS.logic[name as keyof typeof SALTS.logic],
+        //hacky workaround for a bug in hardhat that leads to incorrect gas estimation
+        (await ethers.provider.detectNetwork()).chainId == 31337 ? { gasLimit: 10000000 } : {}
+      )
+    );
   return getLogic(name);
 }
 
@@ -214,7 +208,6 @@ export async function deployRegular(
     bytecodeWithConstructorArgs,
     DEFAULTS.salt
   );
-
   if (!(await isDeployed(contractAddress))) {
     if (call)
       await confirm(
@@ -233,17 +226,20 @@ export async function deployRegular(
   return ethers.getContractAt(name, contractAddress);
 }
 
-export const deployToken = async (token: Token, owner: SignerWithAddress): Promise<Contract> =>
+export const deployToken = async (
+  token: TestToken,
+  owner: SignerWithAddress
+): Promise<ERC20Token> =>
   deployRegular("ERC20Token", [token.name, token.symbol, token.decimals], {
     function: "transferOwnership",
     arguments: [owner.address],
-  });
+  }) as Promise<ERC20Token>;
 
 export async function deploySwimFactory(
   owner: SignerWithAddress,
   factoryMnemonic?: string,
   presigned?: string
-): Promise<void> {
+): Promise<SwimFactory> {
   const checkOwner = async () => {
     const swimFactory = await getSwimFactory();
     const actualOwner = await swimFactory.owner();
@@ -312,4 +308,5 @@ export async function deploySwimFactory(
     await confirm(ethers.provider.sendTransaction(presigned));
     await checkOwner();
   } else throw Error("SwimFactory Mnemonic or presigned required for SwimFactory deployment");
+  return getSwimFactory();
 }

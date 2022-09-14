@@ -32,7 +32,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   uint private constant MAX_TOKEN_COUNT = 6;
   int8 private constant POOL_PRECISION = 6;
-  int8 private constant SWIM_USD_EQUALIZER = POOL_PRECISION - int8(SWIM_USD_DECIMALS); //TODO kill
+  int8 private constant SWIM_USD_EQUALIZER = POOL_PRECISION - int8(SWIM_USD_DECIMALS);
   //Min and max equalizers are somewhat arbitrary, though shifting down by more than 18 decimals
   // will almost certainly be unintentional and shifting up by more than 4 digits will almost
   // certainly result in too small of a usable value range (only 18 digits in total!).
@@ -110,9 +110,6 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     if (poolTokenEqualizers.length != poolTokenAddresses.length)
       revert TokenEqualizerCountMismatch(uint8(poolTokenEqualizers.length), uint8(_tokenCount));
     tokenCount = uint8(_tokenCount);
-
-    //TODO kill passing of equalizers and enforce them programmatically
-    // is this viable for constant product?! (what if we ever want to implement a swimUSD to ETH pool?)
 
     //swimUSD is always the first token
     poolTokensData[0].addr = IRouting(ROUTING_CONTRACT).swimUsdAddress();

@@ -69,6 +69,7 @@ interface IRouting is IMemoInteractor {
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
     bool gasKickstart,
+    uint64 maxPropellerFee,
     uint16 toTokenNumber
   ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence);
 
@@ -78,6 +79,7 @@ interface IRouting is IMemoInteractor {
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
     bool gasKickstart,
+    uint64 maxPropellerFee,
     uint16 toTokenNumber,
     bytes16 memo
   ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence);

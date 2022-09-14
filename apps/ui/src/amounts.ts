@@ -1,4 +1,4 @@
-import BN from "bn.js";
+import type BN from "bn.js";
 import Decimal from "decimal.js";
 import type { BigNumber } from "ethers";
 
@@ -35,10 +35,6 @@ export const atomicToHumanString = (amount: Decimal, decimals = 0): string => {
   return numberFormatter.format(amount.toNumber());
 };
 
-export const atomicToHuman = (amount: Decimal, decimals = 0): Decimal => {
-  return decimals === 0 ? amount : amount.div(Decimal.pow(10, decimals));
-};
-
 export const atomicToTvlString = (amount: Decimal): string => {
   const language = fallbackLanguageIfNotSupported(
     Intl.NumberFormat,
@@ -58,11 +54,6 @@ export const atomicToTvlString = (amount: Decimal): string => {
         }),
   });
   return numberFormatter.format(amount.toNumber());
-};
-
-// eslint-disable-next-line import/no-unused-modules
-export const humanToAtomic = (amount: Decimal, decimals = 0): Decimal => {
-  return amount.mul(Decimal.pow(10, decimals));
 };
 
 export const displayAmount = (amount: string, decimals = 0): string => {
@@ -85,8 +76,6 @@ export const displayPercentage = (amount: string, decimals = 2): string => {
   );
 };
 
-// eslint-disable-next-line import/no-unused-modules
-export const decimalToBN = (decimal: Decimal): BN => new BN(decimal.toFixed(0));
 export const bnOrBigNumberToDecimal = (bn: BN | BigNumber): Decimal =>
   new Decimal(bn.toString());
 

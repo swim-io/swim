@@ -16,6 +16,11 @@ jobs:
   verify:
     runs-on: ubuntu-latest
 
+    # Allow only one concurrent deployment
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+
     defaults:
       run:
         working-directory: ./apps/ui
@@ -56,6 +61,11 @@ jobs:
 
   storybook:
     runs-on: ubuntu-latest
+
+    # Allow only one concurrent deployment
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
 
     defaults:
       run:

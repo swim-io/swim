@@ -2853,10 +2853,8 @@ describe("propeller", () => {
 
           await postVaaSolanaWithRetry(
             connection,
-            // eslint-disable-next-line @typescript-eslint/require-await
             async (tx) => {
-              tx.partialSign(payer);
-              return tx;
+              return provider.wallet.signTransaction(tx);
             },
             WORMHOLE_CORE_BRIDGE.toBase58(),
             payer.publicKey.toBase58(),
@@ -2867,6 +2865,28 @@ describe("propeller", () => {
           [wormholeMessage] = await deriveMessagePda(
             tokenTransferWithPayloadSignedVaa,
             WORMHOLE_CORE_BRIDGE,
+          );
+          const wormholeMessageAccount = await connection.getAccountInfo(
+            wormholeMessage,
+          );
+          if (!wormholeMessageAccount) {
+            throw new Error("Wormhole message account not found");
+          }
+          const {
+            swimPayload: swimPayloadFromPostVaa,
+            tokenTransferMessage: tokenTransferMessageFromPostVaa,
+          } = await parseTokenTransferWithSwimPayloadPostedMessage(
+            wormholeMessageAccount.data,
+          );
+          expect(tokenTransferMessageFromPostVaa.tokenTransfer.amount).toEqual(
+            amount.toString(),
+          );
+          expect(swimPayloadFromPostVaa.gasKickstart).toEqual(gasKickstart);
+          expect(swimPayloadFromPostVaa.propellerEnabled).toEqual(
+            propellerEnabled,
+          );
+          expect(swimPayloadFromPostVaa.owner).toEqual(
+            provider.publicKey.toBuffer(),
           );
 
           const [endpointAccount] = await deriveEndpointPda(

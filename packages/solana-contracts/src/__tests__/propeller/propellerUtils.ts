@@ -302,6 +302,13 @@ export interface ParsedTokenTransferWithSwimPayloadVaa {
   readonly tokenTransferVaa: ParsedTokenTransferSignedVaa;
   readonly swimPayload: ParsedSwimPayload;
 }
+
+/**
+ * It parses a "raw signed VAA" (the one directly from guardian network)
+ * into a token transfer VAA and a SWIM payload
+ * @param {Buffer} signedVaa - The signed VAA that you want to parse.
+ * @returns A function that takes a signed VAA and returns a parsed token transfer with swim payload VAA.
+ */
 export const parseTokenTransferWithSwimPayloadSignedVaa = (
   signedVaa: Buffer,
 ): ParsedTokenTransferWithSwimPayloadVaa => {

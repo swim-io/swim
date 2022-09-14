@@ -7590,6 +7590,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@swim-io/evm@workspace:packages/evm"
   dependencies:
+    "@certusone/wormhole-sdk": ^0.6.0
     "@ethersproject/providers": ^5.6.8
     "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"

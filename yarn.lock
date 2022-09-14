@@ -8057,6 +8057,7 @@ __metadata:
   dependencies:
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
+    "@types/jest": ^28.1.7
     "@typescript-eslint/eslint-plugin": ^5.29.0
     "@typescript-eslint/parser": ^5.29.0
     decimal.js: ^10.3.1

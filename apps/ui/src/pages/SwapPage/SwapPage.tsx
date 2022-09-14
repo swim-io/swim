@@ -20,6 +20,7 @@ import shallow from "zustand/shallow.js";
 import { RecentInteractions } from "../../components/RecentInteractions";
 import { SlippageButton } from "../../components/SlippageButton";
 import { SwapForm } from "../../components/SwapForm";
+import { EthereumMergeWarning } from "../../components/molecules/EthereumMergeWarning";
 import { ECOSYSTEMS } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
@@ -77,7 +78,9 @@ const SwapPage = (): ReactElement => {
               </EuiFlexItem>
             </EuiFlexGroup>
             <EuiSpacer />
-            {nonStakingPools.length > 0 ? (
+            {process.env.REACT_APP_ETHEREUM_MERGE === "true" ? (
+              <EthereumMergeWarning />
+            ) : nonStakingPools.length > 0 ? (
               <SwapForm maxSlippageFraction={slippageFraction} />
             ) : (
               <EuiEmptyPrompt

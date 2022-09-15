@@ -18,7 +18,7 @@ jobs:
 
     # Allow only one concurrent deployment
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}-verify
       cancel-in-progress: true
 
     defaults:
@@ -64,7 +64,7 @@ jobs:
 
     # Allow only one concurrent deployment
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}-storybook
       cancel-in-progress: true
 
     defaults:

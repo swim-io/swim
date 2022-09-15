@@ -261,5 +261,6 @@
   "swap_page.title": "Своп {{fromEcosystemName}} {{fromTokenProjectId}} на {{toEcosystemName}} {{toTokenProjectId}}",
   "token_search_modal.search_tokens": "Поиск токенов",
   "token_search_modal.title": "Выбрать токен",
+  "network_select_modal.title": "Выберите сеть",
   "vaa_error.transfer_not_detected": "Перевод не обнаружен хранителями Wormhole. Обычно это происходит, когда сеть перегружена. Повторите попытку позже."
 }

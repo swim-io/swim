@@ -18,12 +18,6 @@ interface TokenIconProps
   readonly showFullName?: boolean;
 }
 
-interface NetworkIconProps {
-  readonly displayName: string;
-  readonly logo: string;
-  readonly nativeTokenSymbol: string;
-}
-
 type WithIconProps = ComponentProps<typeof EuiIcon>;
 const WithIcon = ({ children, ...rest }: WithIconProps) => {
   return (

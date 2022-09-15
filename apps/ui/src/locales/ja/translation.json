@@ -261,5 +261,6 @@
   "swap_page.title": "{{fromEcosystemName}}{{fromTokenProjectId}}を{{toEcosystemName}} {{toTokenProjectId}}にスワップ",
   "token_search_modal.search_tokens": "トークンを検索",
   "token_search_modal.title": "トークンを選択",
+  "network_select_modal.title": "ネットワークを選択",
   "vaa_error.transfer_not_detected": "Wormholeガーディアンによって送金が検出されませんでした。これは通常、ネットワークが混雑している場合に発生します。あとでもう一度やり直してください。"
 }

@@ -261,5 +261,6 @@
   "swap_page.title": "将 {{fromEcosystemName}} {{fromTokenProjectId}} 换成 {{toEcosystemName}} {{toTokenProjectId}}",
   "token_search_modal.search_tokens": "搜索代币",
   "token_search_modal.title": "选择代币",
+  "network_select_modal.title": "選擇一個網絡",
   "vaa_error.transfer_not_detected": "Wormhole 守护者未检测到转账。网络拥堵时，通常会发生此情况。请稍后重试。"
 }

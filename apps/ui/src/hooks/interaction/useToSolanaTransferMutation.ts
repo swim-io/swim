@@ -4,7 +4,10 @@ import {
 } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
 import type { EvmConnection, EvmEcosystemId, EvmTx } from "@swim-io/evm";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  generateUnlockSplTokenTxIds,
+} from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import type { ethers } from "ethers";
 import { useMutation } from "react-query";
@@ -15,11 +18,12 @@ import {
   Protocol,
   getSolanaTokenDetails,
   getTokenDetailsForEcosystem,
+  getWormholeRetries,
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {
-  generateUnlockSplTokenTxIds,
+  getSignedVaaWithRetry,
   humanDecimalToAtomicString,
   lockEvmToken,
 } from "../../models";
@@ -194,16 +198,24 @@ export const useToSolanaTransferMutation = () => {
         draft.toSolanaTransfers[index].signatureSetAddress =
           signatureKeyPair.publicKey.toBase58();
       });
-      const unlockSplTokenTxIdsGenerator = generateUnlockSplTokenTxIds(
-        interactionId,
-        wormhole.rpcUrls,
-        ECOSYSTEMS[fromEcosystem].wormholeChainId,
+      const { wormholeChainId: emitterChainId } = ECOSYSTEMS[fromEcosystem];
+      const retries = getWormholeRetries(emitterChainId);
+      const { vaaBytes } = await getSignedVaaWithRetry(
+        [...wormhole.rpcUrls],
+        emitterChainId,
         getEmitterAddressEth(evmChain.wormhole.portal),
         sequence,
+        undefined,
+        undefined,
+        retries,
+      );
+      const unlockSplTokenTxIdsGenerator = generateUnlockSplTokenTxIds(
+        interactionId,
         solanaWormhole,
         solanaConnection,
         solanaWallet,
         signatureKeyPair,
+        vaaBytes,
       );
       let unlockSplTokenTxIds: readonly string[] = [];
       for await (const txId of unlockSplTokenTxIdsGenerator) {

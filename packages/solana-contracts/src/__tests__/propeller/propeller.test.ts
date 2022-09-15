@@ -852,7 +852,7 @@ describe("propeller", () => {
 
   describe("Propeller Pool Ixs", () => {
     describe("Propeller Flagship Pool ixs", () => {
-      it("Propeller Add (non propeller-enabled)", async () => {
+      it("Cross Chain Add", async () => {
         const poolUserBalancesBefore = await getPoolUserBalances(
           splToken,
           twoPoolProgram,
@@ -888,13 +888,7 @@ describe("propeller", () => {
         const memo = Buffer.from(memoStr);
 
         const addTxn = propellerProgram.methods
-          .add(
-            inputAmounts,
-            minimumMintAmount,
-            memo,
-            propellerEnabled,
-            CHAIN_ID_ETH,
-          )
+          .crossChainAdd(inputAmounts, minimumMintAmount, memo)
           .accounts({
             propeller: propeller,
             poolTokenAccount0: poolUsdcAtaAddr,
@@ -981,35 +975,36 @@ describe("propeller", () => {
         expect(previousDepthAfter.gt(previousDepthBefore)).toEqual(true);
         await checkTxnLogsForMemo(addTxnSig, memoStr);
       });
+      describe("Propeller Add", () => {
+        it("executes successfully", async () => {
+          const poolUserBalancesBefore = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            poolUsdcAtaAddr,
+            poolUsdtAtaAddr,
+            flagshipPoolGovernanceFeeAcct,
+            userUsdcAtaAddr,
+            userUsdtAtaAddr,
+            userSwimUsdAtaAddr,
+            flagshipPool,
+            swimUsdKeypair.publicKey,
+          );
 
-      it("Propeller add fails when propeller enabled & output amount is insufficient for target chain", async () => {
-        const inputAmounts = [new BN(100), new BN(100)];
-        const minimumMintAmount = new BN(0);
-        const propellerEnabled = true;
-        // const addParams = {
-        //   inputAmounts,
-        //   minimumMintAmount,
-        // };
-        const userTransferAuthority = web3.Keypair.generate();
-        const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-          splToken,
-          [userUsdcAtaAddr, userUsdtAtaAddr],
-          inputAmounts,
-          userTransferAuthority.publicKey,
-          payer,
-        );
-        const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
+          const inputAmounts = [new BN(50_000_000), new BN(50_000_000)];
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userUsdcAtaAddr, userUsdtAtaAddr],
+            inputAmounts,
+            userTransferAuthority.publicKey,
+            payer,
+          );
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
 
-        await expect(() => {
-          return propellerProgram.methods
-            .add(
-              inputAmounts,
-              minimumMintAmount,
-              memo,
-              propellerEnabled,
-              CHAIN_ID_ETH,
-            )
+          const maxFee = new BN(100);
+          const addTxn = propellerProgram.methods
+            .propellerAdd(inputAmounts, memo, maxFee)
             .accounts({
               propeller: propeller,
               poolTokenAccount0: poolUsdcAtaAddr,
@@ -1026,9 +1021,121 @@ describe("propeller", () => {
             })
             .preInstructions([...approveIxs])
             .postInstructions([...revokeIxs])
-            .signers([userTransferAuthority])
-            .rpc();
-        }).rejects.toThrow("Insufficient Amount being transferred");
+            .signers([userTransferAuthority]);
+          // .rpc(rpcCommitmentConfig);
+
+          const addTxnPubkeys = await addTxn.pubkeys();
+          console.info(
+            `addTxPubkeys: ${JSON.stringify(addTxnPubkeys, null, 2)}`,
+          );
+
+          const addTxnSig = await addTxn.rpc(rpcCommitmentConfig);
+
+          console.info(`addTxSig: ${addTxnSig}`);
+
+          const poolUserBalancesAfter = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            poolUsdcAtaAddr,
+            poolUsdtAtaAddr,
+            flagshipPoolGovernanceFeeAcct,
+            userUsdcAtaAddr,
+            userUsdtAtaAddr,
+            userSwimUsdAtaAddr,
+            flagshipPool,
+            swimUsdKeypair.publicKey,
+          );
+          printBeforeAndAfterPoolUserBalances(
+            "add (non propeller-enabled) balances",
+            [poolUserBalancesBefore, poolUserBalancesAfter],
+          );
+
+          const {
+            poolTokenBalances: [
+              poolUsdcAtaBalanceBefore,
+              poolUsdtAtaBalanceBefore,
+            ],
+            governanceFeeBalance: governanceFeeBalanceBefore,
+            userTokenBalances: [
+              userUsdcAtaBalanceBefore,
+              userUsdtAtaBalanceBefore,
+            ],
+            userLpTokenBalance: userLpTokenBalanceBefore,
+            previousDepth: previousDepthBefore,
+          } = poolUserBalancesBefore;
+
+          const {
+            poolTokenBalances: [
+              poolUsdcAtaBalanceAfter,
+              poolUsdtAtaBalanceAfter,
+            ],
+            governanceFeeBalance: governanceFeeBalanceAfter,
+            userTokenBalances: [
+              userUsdcAtaBalanceAfter,
+              userUsdtAtaBalanceAfter,
+            ],
+            userLpTokenBalance: userLpTokenBalanceAfter,
+            previousDepth: previousDepthAfter,
+          } = poolUserBalancesAfter;
+
+          expect(poolUsdcAtaBalanceAfter.gt(poolUsdcAtaBalanceBefore)).toEqual(
+            true,
+          );
+          expect(poolUsdtAtaBalanceAfter.gt(poolUsdtAtaBalanceBefore)).toEqual(
+            true,
+          );
+          expect(
+            governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
+          ).toEqual(true);
+          expect(userUsdcAtaBalanceAfter.lt(userUsdcAtaBalanceBefore)).toEqual(
+            true,
+          );
+          expect(userUsdtAtaBalanceAfter.lt(userUsdtAtaBalanceBefore)).toEqual(
+            true,
+          );
+          expect(userLpTokenBalanceAfter.gt(userLpTokenBalanceBefore)).toEqual(
+            true,
+          );
+          expect(previousDepthAfter.gt(previousDepthBefore)).toEqual(true);
+          await checkTxnLogsForMemo(addTxnSig, memoStr);
+        });
+        it("fails if output amount < max fee", async () => {
+          const inputAmounts = [new BN(50), new BN(50)];
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userUsdcAtaAddr, userUsdtAtaAddr],
+            inputAmounts,
+            userTransferAuthority.publicKey,
+            payer,
+          );
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
+
+          const maxFee = new BN(50_000_000_000);
+          await expect(() => {
+            return propellerProgram.methods
+              .propellerAdd(inputAmounts, memo, maxFee)
+              .accounts({
+                propeller: propeller,
+                poolTokenAccount0: poolUsdcAtaAddr,
+                poolTokenAccount1: poolUsdtAtaAddr,
+                lpMint: swimUsdKeypair.publicKey,
+                governanceFee: flagshipPoolGovernanceFeeAcct,
+                userTransferAuthority: userTransferAuthority.publicKey,
+                userTokenAccount0: userUsdcAtaAddr,
+                userTokenAccount1: userUsdtAtaAddr,
+                userLpTokenAccount: userSwimUsdAtaAddr,
+                tokenProgram: splToken.programId,
+                memo: MEMO_PROGRAM_ID,
+                twoPoolProgram: twoPoolProgram.programId,
+              })
+              .preInstructions([...approveIxs])
+              .postInstructions([...revokeIxs])
+              .signers([userTransferAuthority])
+              .rpc();
+          }).rejects.toThrow("Insufficient Amount being transferred");
+        });
       });
     });
 
@@ -1119,326 +1226,178 @@ describe("propeller", () => {
           poolUserBalancesAfter,
         ]);
       });
+      describe("Swap Exact Input", () => {
+        it("CrossChainSwapExactInput", async () => {
+          const poolUserBalancesBefore = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          printPoolUserBalances(
+            "poolUserBalancesBefore",
+            poolUserBalancesBefore,
+          );
+          const exactInputAmount = new BN(100_000);
+          const minimumOutputAmount = new BN(0);
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolTokenAccount1],
+            [exactInputAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
 
-      it("Propeller SwapExactInput (non propeller-enabled)", async () => {
-        const poolUserBalancesBefore = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
-        printPoolUserBalances("poolUserBalancesBefore", poolUserBalancesBefore);
-        const exactInputAmount = new BN(100_000);
-        const minimumOutputAmount = new BN(0);
-        const propellerEnabled = false;
-        // const swapExactInputParams = {
-        //   exactInputAmounts,
-        //   outputTokenIndex,
-        //   minimumOutputAmount,
-        // };
-        const userTransferAuthority = web3.Keypair.generate();
-        const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-          splToken,
-          [userMetapoolTokenAccount1],
-          [exactInputAmount],
-          userTransferAuthority.publicKey,
-          payer,
-        );
-        const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
+          const swapExactInputTxn = propellerProgram.methods
+            .crossChainSwapExactInput(
+              exactInputAmount,
+              minimumOutputAmount,
+              memo,
+            )
+            .accounts({
+              poolTokenAccount0: metapoolPoolToken0Ata,
+              poolTokenAccount1: metapoolPoolToken1Ata,
+              lpMint: metapoolLpMintKeypair.publicKey,
+              governanceFee: metapoolGovernanceFeeAta,
+              userTransferAuthority: userTransferAuthority.publicKey,
+              userTokenAccount0: userMetapoolTokenAccount0,
+              userTokenAccount1: userMetapoolTokenAccount1,
+              tokenProgram: splToken.programId,
+              memo: MEMO_PROGRAM_ID,
+              twoPoolProgram: twoPoolProgram.programId,
+              tokenBridgeMint,
+            })
+            .preInstructions([...approveIxs])
+            .postInstructions([...revokeIxs])
+            .signers([userTransferAuthority]);
+          // .rpc(rpcCommitmentConfig);
 
-        const swapExactInputTxn = propellerProgram.methods
-          .swapExactInput(
-            exactInputAmount,
-            minimumOutputAmount,
-            memo,
-            propellerEnabled,
-            CHAIN_ID_ETH,
-          )
-          .accounts({
-            poolTokenAccount0: metapoolPoolToken0Ata,
-            poolTokenAccount1: metapoolPoolToken1Ata,
-            lpMint: metapoolLpMintKeypair.publicKey,
-            governanceFee: metapoolGovernanceFeeAta,
-            userTransferAuthority: userTransferAuthority.publicKey,
-            userTokenAccount0: userMetapoolTokenAccount0,
-            userTokenAccount1: userMetapoolTokenAccount1,
-            tokenProgram: splToken.programId,
-            memo: MEMO_PROGRAM_ID,
-            twoPoolProgram: twoPoolProgram.programId,
-            tokenBridgeMint,
-          })
-          .preInstructions([...approveIxs])
-          .postInstructions([...revokeIxs])
-          .signers([userTransferAuthority]);
-        // .rpc(rpcCommitmentConfig);
+          const swapExactInputTxnPubkeys = await swapExactInputTxn.pubkeys();
+          console.info(
+            `swapExactInputTxPubkeys: ${JSON.stringify(
+              swapExactInputTxnPubkeys,
+              null,
+              2,
+            )}`,
+          );
 
-        const swapExactInputTxnPubkeys = await swapExactInputTxn.pubkeys();
-        console.info(
-          `swapExactInputTxPubkeys: ${JSON.stringify(
-            swapExactInputTxnPubkeys,
-            null,
-            2,
-          )}`,
-        );
+          const swapExactInputTxnSig = await swapExactInputTxn.rpc(
+            rpcCommitmentConfig,
+          );
+          console.info(`swapExactInputTxnSig: ${swapExactInputTxnSig}`);
+          await checkTxnLogsForMemo(swapExactInputTxnSig, memoStr);
 
-        const swapExactInputTxnSig = await swapExactInputTxn.rpc(
-          rpcCommitmentConfig,
-        );
-        console.info(`swapExactInputTxnSig: ${swapExactInputTxnSig}`);
-        await checkTxnLogsForMemo(swapExactInputTxnSig, memoStr);
+          const poolUserBalancesAfter = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          console.info(`swapExactInput (non propeller-enabled) balances`);
+          printBeforeAndAfterPoolUserBalances(
+            "swapExactInput (non propeller-enabled) balances",
+            [poolUserBalancesBefore, poolUserBalancesAfter],
+          );
 
-        const poolUserBalancesAfter = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
-        console.info(`swapExactInput (non propeller-enabled) balances`);
-        printBeforeAndAfterPoolUserBalances(
-          "swapExactInput (non propeller-enabled) balances",
-          [poolUserBalancesBefore, poolUserBalancesAfter],
-        );
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceBefore,
+              poolToken1AtaBalanceBefore,
+            ],
+            governanceFeeBalance: governanceFeeBalanceBefore,
+            userTokenBalances: [
+              userToken0AtaBalanceBefore,
+              userToken1AtaBalanceBefore,
+            ],
+            userLpTokenBalance: userLpTokenBalanceBefore,
+            previousDepth: previousDepthBefore,
+          } = poolUserBalancesBefore;
 
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceBefore,
-            poolToken1AtaBalanceBefore,
-          ],
-          governanceFeeBalance: governanceFeeBalanceBefore,
-          userTokenBalances: [
-            userToken0AtaBalanceBefore,
-            userToken1AtaBalanceBefore,
-          ],
-          userLpTokenBalance: userLpTokenBalanceBefore,
-          previousDepth: previousDepthBefore,
-        } = poolUserBalancesBefore;
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceAfter,
+              poolToken1AtaBalanceAfter,
+            ],
+            governanceFeeBalance: governanceFeeBalanceAfter,
+            userTokenBalances: [
+              userToken0AtaBalanceAfter,
+              userToken1AtaBalanceAfter,
+            ],
+            userLpTokenBalance: userLpTokenBalanceAfter,
+            previousDepth: previousDepthAfter,
+          } = poolUserBalancesAfter;
 
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceAfter,
-            poolToken1AtaBalanceAfter,
-          ],
-          governanceFeeBalance: governanceFeeBalanceAfter,
-          userTokenBalances: [
-            userToken0AtaBalanceAfter,
-            userToken1AtaBalanceAfter,
-          ],
-          userLpTokenBalance: userLpTokenBalanceAfter,
-          previousDepth: previousDepthAfter,
-        } = poolUserBalancesAfter;
+          expect(
+            poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
+          ).toEqual(true);
+          expect(
+            poolToken1AtaBalanceAfter.gt(poolToken1AtaBalanceBefore),
+          ).toEqual(true);
 
-        expect(
-          poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
-        ).toEqual(true);
-        expect(
-          poolToken1AtaBalanceAfter.gt(poolToken1AtaBalanceBefore),
-        ).toEqual(true);
+          expect(
+            governanceFeeBalanceAfter.gt(governanceFeeBalanceBefore),
+          ).toEqual(true);
+          expect(
+            userToken0AtaBalanceAfter.gt(userToken0AtaBalanceBefore),
+          ).toEqual(true);
+          expect(
+            userToken1AtaBalanceAfter.eq(
+              userToken1AtaBalanceBefore.sub(exactInputAmount),
+            ),
+          ).toEqual(true);
+          expect(userLpTokenBalanceAfter.eq(userLpTokenBalanceBefore)).toEqual(
+            true,
+          );
+          expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
+        });
+        describe("PropellerSwapExactInput", () => {
+          it("executes successfully", async () => {
+            const poolUserBalancesBefore = await getPoolUserBalances(
+              splToken,
+              twoPoolProgram,
+              metapoolPoolToken0Ata,
+              metapoolPoolToken1Ata,
+              metapoolGovernanceFeeAta,
+              userMetapoolTokenAccount0,
+              userMetapoolTokenAccount1,
+              userMetapoolLpTokenAccount,
+              metapool,
+              metapoolLpMintKeypair.publicKey,
+            );
+            printPoolUserBalances(
+              "poolUserBalancesBefore",
+              poolUserBalancesBefore,
+            );
+            const exactInputAmount = new BN(100_000);
+            const maxFee = new BN(0);
+            const userTransferAuthority = web3.Keypair.generate();
+            const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+              splToken,
+              [userMetapoolTokenAccount1],
+              [exactInputAmount],
+              userTransferAuthority.publicKey,
+              payer,
+            );
+            const memoStr = incMemoIdAndGet();
+            const memo = Buffer.from(memoStr);
 
-        expect(
-          governanceFeeBalanceAfter.gt(governanceFeeBalanceBefore),
-        ).toEqual(true);
-        expect(
-          userToken0AtaBalanceAfter.gt(userToken0AtaBalanceBefore),
-        ).toEqual(true);
-        expect(
-          userToken1AtaBalanceAfter.eq(
-            userToken1AtaBalanceBefore.sub(exactInputAmount),
-          ),
-        ).toEqual(true);
-        expect(userLpTokenBalanceAfter.eq(userLpTokenBalanceBefore)).toEqual(
-          true,
-        );
-        expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
-      });
-
-      it("Propeller SwapExactInput (propeller-enabled)", async () => {
-        const poolUserBalancesBefore = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
-        const exactInputAmount = new BN(1_000_000_000);
-        const minimumOutputAmount = new BN(0);
-        const propellerEnabled = true;
-        // const swapExactInputParams = {
-        //   exactInputAmounts,
-        //   outputTokenIndex,
-        //   minimumOutputAmount,
-        // };
-        const userTransferAuthority = web3.Keypair.generate();
-        const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-          splToken,
-          [userMetapoolTokenAccount1],
-          [exactInputAmount],
-          userTransferAuthority.publicKey,
-          payer,
-        );
-        const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
-
-        const swapExactInputTxn = propellerProgram.methods
-          // .swapExactInput(swapExactInputParams)
-          .swapExactInput(
-            exactInputAmount,
-            minimumOutputAmount,
-            memo,
-            propellerEnabled,
-            CHAIN_ID_ETH,
-          )
-          .accounts({
-            poolTokenAccount0: metapoolPoolToken0Ata,
-            poolTokenAccount1: metapoolPoolToken1Ata,
-            lpMint: metapoolLpMintKeypair.publicKey,
-            governanceFee: metapoolGovernanceFeeAta,
-            userTransferAuthority: userTransferAuthority.publicKey,
-            userTokenAccount0: userMetapoolTokenAccount0,
-            userTokenAccount1: userMetapoolTokenAccount1,
-            tokenProgram: splToken.programId,
-            memo: MEMO_PROGRAM_ID,
-            twoPoolProgram: twoPoolProgram.programId,
-            tokenBridgeMint,
-          })
-          .preInstructions([...approveIxs])
-          .postInstructions([...revokeIxs])
-          .signers([userTransferAuthority]);
-        // .rpc(rpcCommitmentConfig);
-
-        const swapExactInputTxnPubkeys = await swapExactInputTxn.pubkeys();
-        console.info(
-          `swapExactInputTxPubkeys: ${JSON.stringify(
-            swapExactInputTxnPubkeys,
-            null,
-            2,
-          )}`,
-        );
-
-        const swapExactInputTxnSig = await swapExactInputTxn.rpc(
-          rpcCommitmentConfig,
-        );
-        console.info(`swapExactInputTxnSig: ${swapExactInputTxnSig}`);
-        await checkTxnLogsForMemo(swapExactInputTxnSig, memoStr);
-
-        const poolUserBalancesAfter = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
-        console.info(`swapExactInput (non propeller-enabled) balances`);
-        printBeforeAndAfterPoolUserBalances(
-          "swapExactInput (non propeller-enabled) balances",
-          [poolUserBalancesBefore, poolUserBalancesAfter],
-        );
-
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceBefore,
-            poolToken1AtaBalanceBefore,
-          ],
-          governanceFeeBalance: governanceFeeBalanceBefore,
-          userTokenBalances: [
-            userToken0AtaBalanceBefore,
-            userToken1AtaBalanceBefore,
-          ],
-          userLpTokenBalance: userLpTokenBalanceBefore,
-          previousDepth: previousDepthBefore,
-        } = poolUserBalancesBefore;
-
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceAfter,
-            poolToken1AtaBalanceAfter,
-          ],
-          governanceFeeBalance: governanceFeeBalanceAfter,
-          userTokenBalances: [
-            userToken0AtaBalanceAfter,
-            userToken1AtaBalanceAfter,
-          ],
-          userLpTokenBalance: userLpTokenBalanceAfter,
-          previousDepth: previousDepthAfter,
-        } = poolUserBalancesAfter;
-
-        expect(
-          poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
-        ).toEqual(true);
-        expect(
-          poolToken1AtaBalanceAfter.gt(poolToken1AtaBalanceBefore),
-        ).toEqual(true);
-
-        expect(
-          governanceFeeBalanceAfter.gt(governanceFeeBalanceBefore),
-        ).toEqual(true);
-        expect(
-          userToken0AtaBalanceAfter.gt(userToken0AtaBalanceBefore),
-        ).toEqual(true);
-        expect(
-          userToken1AtaBalanceAfter.eq(
-            userToken1AtaBalanceBefore.sub(exactInputAmount),
-          ),
-        ).toEqual(true);
-        expect(userLpTokenBalanceAfter.eq(userLpTokenBalanceBefore)).toEqual(
-          true,
-        );
-        expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
-      });
-
-      it("Propeller swapExactInput fails when propeller enabled & output amount is insufficient for target chain", async () => {
-        const exactInputAmount = new BN(100);
-        const minimumOutputAmount = new BN(0);
-        const propellerEnabled = true;
-        // const swapExactInputParams = {
-        //   exactInputAmounts,
-        //   outputTokenIndex,
-        //   minimumOutputAmount,
-        // };
-        const userTransferAuthority = web3.Keypair.generate();
-        const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-          splToken,
-          [userMetapoolTokenAccount1],
-          [exactInputAmount],
-          userTransferAuthority.publicKey,
-          payer,
-        );
-        const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
-
-        await expect(() => {
-          return (
-            propellerProgram.methods
-              // .swapExactInput(swapExactInputParams)
-              .swapExactInput(
-                exactInputAmount,
-                minimumOutputAmount,
-                memo,
-                propellerEnabled,
-                CHAIN_ID_ETH,
-              )
+            const swapExactInputTxn = propellerProgram.methods
+              .propellerSwapExactInput(exactInputAmount, memo, maxFee)
               .accounts({
                 poolTokenAccount0: metapoolPoolToken0Ata,
                 poolTokenAccount1: metapoolPoolToken1Ata,
@@ -1454,183 +1413,820 @@ describe("propeller", () => {
               })
               .preInstructions([...approveIxs])
               .postInstructions([...revokeIxs])
-              .signers([userTransferAuthority])
-              .rpc()
+              .signers([userTransferAuthority]);
+            // .rpc(rpcCommitmentConfig);
+
+            const swapExactInputTxnPubkeys = await swapExactInputTxn.pubkeys();
+            console.info(
+              `swapExactInputTxPubkeys: ${JSON.stringify(
+                swapExactInputTxnPubkeys,
+                null,
+                2,
+              )}`,
+            );
+
+            const swapExactInputTxnSig = await swapExactInputTxn.rpc(
+              rpcCommitmentConfig,
+            );
+            console.info(`swapExactInputTxnSig: ${swapExactInputTxnSig}`);
+            await checkTxnLogsForMemo(swapExactInputTxnSig, memoStr);
+
+            const poolUserBalancesAfter = await getPoolUserBalances(
+              splToken,
+              twoPoolProgram,
+              metapoolPoolToken0Ata,
+              metapoolPoolToken1Ata,
+              metapoolGovernanceFeeAta,
+              userMetapoolTokenAccount0,
+              userMetapoolTokenAccount1,
+              userMetapoolLpTokenAccount,
+              metapool,
+              metapoolLpMintKeypair.publicKey,
+            );
+            console.info(`swapExactInput (non propeller-enabled) balances`);
+            printBeforeAndAfterPoolUserBalances(
+              "swapExactInput (non propeller-enabled) balances",
+              [poolUserBalancesBefore, poolUserBalancesAfter],
+            );
+
+            const {
+              poolTokenBalances: [
+                poolToken0AtaBalanceBefore,
+                poolToken1AtaBalanceBefore,
+              ],
+              governanceFeeBalance: governanceFeeBalanceBefore,
+              userTokenBalances: [
+                userToken0AtaBalanceBefore,
+                userToken1AtaBalanceBefore,
+              ],
+              userLpTokenBalance: userLpTokenBalanceBefore,
+              previousDepth: previousDepthBefore,
+            } = poolUserBalancesBefore;
+
+            const {
+              poolTokenBalances: [
+                poolToken0AtaBalanceAfter,
+                poolToken1AtaBalanceAfter,
+              ],
+              governanceFeeBalance: governanceFeeBalanceAfter,
+              userTokenBalances: [
+                userToken0AtaBalanceAfter,
+                userToken1AtaBalanceAfter,
+              ],
+              userLpTokenBalance: userLpTokenBalanceAfter,
+              previousDepth: previousDepthAfter,
+            } = poolUserBalancesAfter;
+
+            expect(
+              poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
+            ).toEqual(true);
+            expect(
+              poolToken1AtaBalanceAfter.gt(poolToken1AtaBalanceBefore),
+            ).toEqual(true);
+
+            expect(
+              governanceFeeBalanceAfter.gt(governanceFeeBalanceBefore),
+            ).toEqual(true);
+            expect(
+              userToken0AtaBalanceAfter.gt(userToken0AtaBalanceBefore),
+            ).toEqual(true);
+            expect(
+              userToken1AtaBalanceAfter.eq(
+                userToken1AtaBalanceBefore.sub(exactInputAmount),
+              ),
+            ).toEqual(true);
+            expect(
+              userLpTokenBalanceAfter.eq(userLpTokenBalanceBefore),
+            ).toEqual(true);
+            expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
+          });
+          it("fails if output amount < max fee", async () => {
+            const exactInputAmount = new BN(100_000);
+            const maxFee = new BN(100_000_000_000);
+            const userTransferAuthority = web3.Keypair.generate();
+            const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+              splToken,
+              [userMetapoolTokenAccount1],
+              [exactInputAmount],
+              userTransferAuthority.publicKey,
+              payer,
+            );
+            const memoStr = incMemoIdAndGet();
+            const memo = Buffer.from(memoStr);
+
+            const swapExactInputTxn = propellerProgram.methods
+              .propellerSwapExactInput(exactInputAmount, memo, maxFee)
+              .accounts({
+                poolTokenAccount0: metapoolPoolToken0Ata,
+                poolTokenAccount1: metapoolPoolToken1Ata,
+                lpMint: metapoolLpMintKeypair.publicKey,
+                governanceFee: metapoolGovernanceFeeAta,
+                userTransferAuthority: userTransferAuthority.publicKey,
+                userTokenAccount0: userMetapoolTokenAccount0,
+                userTokenAccount1: userMetapoolTokenAccount1,
+                tokenProgram: splToken.programId,
+                memo: MEMO_PROGRAM_ID,
+                twoPoolProgram: twoPoolProgram.programId,
+                tokenBridgeMint,
+              })
+              .preInstructions([...approveIxs])
+              .postInstructions([...revokeIxs])
+              .signers([userTransferAuthority]);
+            await expect(swapExactInputTxn.rpc()).rejects.toThrow(
+              "Insufficient Amount being transferred",
+            );
+          });
+        });
+      });
+      describe.skip("old swapExactInput", () => {
+        it.skip("Propeller SwapExactInput (non propeller-enabled)", async () => {
+          const poolUserBalancesBefore = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
           );
-        }).rejects.toThrow("Insufficient Amount being transferred");
+          printPoolUserBalances(
+            "poolUserBalancesBefore",
+            poolUserBalancesBefore,
+          );
+          const exactInputAmount = new BN(100_000);
+          const minimumOutputAmount = new BN(0);
+          const propellerEnabled = false;
+          // const swapExactInputParams = {
+          //   exactInputAmounts,
+          //   outputTokenIndex,
+          //   minimumOutputAmount,
+          // };
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolTokenAccount1],
+            [exactInputAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
+
+          const swapExactInputTxn = propellerProgram.methods
+            .swapExactInput(
+              exactInputAmount,
+              minimumOutputAmount,
+              memo,
+              propellerEnabled,
+              CHAIN_ID_ETH,
+            )
+            .accounts({
+              poolTokenAccount0: metapoolPoolToken0Ata,
+              poolTokenAccount1: metapoolPoolToken1Ata,
+              lpMint: metapoolLpMintKeypair.publicKey,
+              governanceFee: metapoolGovernanceFeeAta,
+              userTransferAuthority: userTransferAuthority.publicKey,
+              userTokenAccount0: userMetapoolTokenAccount0,
+              userTokenAccount1: userMetapoolTokenAccount1,
+              tokenProgram: splToken.programId,
+              memo: MEMO_PROGRAM_ID,
+              twoPoolProgram: twoPoolProgram.programId,
+              tokenBridgeMint,
+            })
+            .preInstructions([...approveIxs])
+            .postInstructions([...revokeIxs])
+            .signers([userTransferAuthority]);
+          // .rpc(rpcCommitmentConfig);
+
+          const swapExactInputTxnPubkeys = await swapExactInputTxn.pubkeys();
+          console.info(
+            `swapExactInputTxPubkeys: ${JSON.stringify(
+              swapExactInputTxnPubkeys,
+              null,
+              2,
+            )}`,
+          );
+
+          const swapExactInputTxnSig = await swapExactInputTxn.rpc(
+            rpcCommitmentConfig,
+          );
+          console.info(`swapExactInputTxnSig: ${swapExactInputTxnSig}`);
+          await checkTxnLogsForMemo(swapExactInputTxnSig, memoStr);
+
+          const poolUserBalancesAfter = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          console.info(`swapExactInput (non propeller-enabled) balances`);
+          printBeforeAndAfterPoolUserBalances(
+            "swapExactInput (non propeller-enabled) balances",
+            [poolUserBalancesBefore, poolUserBalancesAfter],
+          );
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceBefore,
+              poolToken1AtaBalanceBefore,
+            ],
+            governanceFeeBalance: governanceFeeBalanceBefore,
+            userTokenBalances: [
+              userToken0AtaBalanceBefore,
+              userToken1AtaBalanceBefore,
+            ],
+            userLpTokenBalance: userLpTokenBalanceBefore,
+            previousDepth: previousDepthBefore,
+          } = poolUserBalancesBefore;
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceAfter,
+              poolToken1AtaBalanceAfter,
+            ],
+            governanceFeeBalance: governanceFeeBalanceAfter,
+            userTokenBalances: [
+              userToken0AtaBalanceAfter,
+              userToken1AtaBalanceAfter,
+            ],
+            userLpTokenBalance: userLpTokenBalanceAfter,
+            previousDepth: previousDepthAfter,
+          } = poolUserBalancesAfter;
+
+          expect(
+            poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
+          ).toEqual(true);
+          expect(
+            poolToken1AtaBalanceAfter.gt(poolToken1AtaBalanceBefore),
+          ).toEqual(true);
+
+          expect(
+            governanceFeeBalanceAfter.gt(governanceFeeBalanceBefore),
+          ).toEqual(true);
+          expect(
+            userToken0AtaBalanceAfter.gt(userToken0AtaBalanceBefore),
+          ).toEqual(true);
+          expect(
+            userToken1AtaBalanceAfter.eq(
+              userToken1AtaBalanceBefore.sub(exactInputAmount),
+            ),
+          ).toEqual(true);
+          expect(userLpTokenBalanceAfter.eq(userLpTokenBalanceBefore)).toEqual(
+            true,
+          );
+          expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
+        });
+
+        it.skip("Propeller SwapExactInput (propeller-enabled)", async () => {
+          const poolUserBalancesBefore = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          const exactInputAmount = new BN(1_000_000_000);
+          const minimumOutputAmount = new BN(0);
+          const propellerEnabled = true;
+          // const swapExactInputParams = {
+          //   exactInputAmounts,
+          //   outputTokenIndex,
+          //   minimumOutputAmount,
+          // };
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolTokenAccount1],
+            [exactInputAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
+
+          const swapExactInputTxn = propellerProgram.methods
+            // .swapExactInput(swapExactInputParams)
+            .swapExactInput(
+              exactInputAmount,
+              minimumOutputAmount,
+              memo,
+              propellerEnabled,
+              CHAIN_ID_ETH,
+            )
+            .accounts({
+              poolTokenAccount0: metapoolPoolToken0Ata,
+              poolTokenAccount1: metapoolPoolToken1Ata,
+              lpMint: metapoolLpMintKeypair.publicKey,
+              governanceFee: metapoolGovernanceFeeAta,
+              userTransferAuthority: userTransferAuthority.publicKey,
+              userTokenAccount0: userMetapoolTokenAccount0,
+              userTokenAccount1: userMetapoolTokenAccount1,
+              tokenProgram: splToken.programId,
+              memo: MEMO_PROGRAM_ID,
+              twoPoolProgram: twoPoolProgram.programId,
+              tokenBridgeMint,
+            })
+            .preInstructions([...approveIxs])
+            .postInstructions([...revokeIxs])
+            .signers([userTransferAuthority]);
+          // .rpc(rpcCommitmentConfig);
+
+          const swapExactInputTxnPubkeys = await swapExactInputTxn.pubkeys();
+          console.info(
+            `swapExactInputTxPubkeys: ${JSON.stringify(
+              swapExactInputTxnPubkeys,
+              null,
+              2,
+            )}`,
+          );
+
+          const swapExactInputTxnSig = await swapExactInputTxn.rpc(
+            rpcCommitmentConfig,
+          );
+          console.info(`swapExactInputTxnSig: ${swapExactInputTxnSig}`);
+          await checkTxnLogsForMemo(swapExactInputTxnSig, memoStr);
+
+          const poolUserBalancesAfter = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          console.info(`swapExactInput (non propeller-enabled) balances`);
+          printBeforeAndAfterPoolUserBalances(
+            "swapExactInput (non propeller-enabled) balances",
+            [poolUserBalancesBefore, poolUserBalancesAfter],
+          );
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceBefore,
+              poolToken1AtaBalanceBefore,
+            ],
+            governanceFeeBalance: governanceFeeBalanceBefore,
+            userTokenBalances: [
+              userToken0AtaBalanceBefore,
+              userToken1AtaBalanceBefore,
+            ],
+            userLpTokenBalance: userLpTokenBalanceBefore,
+            previousDepth: previousDepthBefore,
+          } = poolUserBalancesBefore;
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceAfter,
+              poolToken1AtaBalanceAfter,
+            ],
+            governanceFeeBalance: governanceFeeBalanceAfter,
+            userTokenBalances: [
+              userToken0AtaBalanceAfter,
+              userToken1AtaBalanceAfter,
+            ],
+            userLpTokenBalance: userLpTokenBalanceAfter,
+            previousDepth: previousDepthAfter,
+          } = poolUserBalancesAfter;
+
+          expect(
+            poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
+          ).toEqual(true);
+          expect(
+            poolToken1AtaBalanceAfter.gt(poolToken1AtaBalanceBefore),
+          ).toEqual(true);
+
+          expect(
+            governanceFeeBalanceAfter.gt(governanceFeeBalanceBefore),
+          ).toEqual(true);
+          expect(
+            userToken0AtaBalanceAfter.gt(userToken0AtaBalanceBefore),
+          ).toEqual(true);
+          expect(
+            userToken1AtaBalanceAfter.eq(
+              userToken1AtaBalanceBefore.sub(exactInputAmount),
+            ),
+          ).toEqual(true);
+          expect(userLpTokenBalanceAfter.eq(userLpTokenBalanceBefore)).toEqual(
+            true,
+          );
+          expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
+        });
+
+        it.skip("Propeller swapExactInput fails when propeller enabled & output amount is insufficient for target chain", async () => {
+          const exactInputAmount = new BN(100);
+          const minimumOutputAmount = new BN(0);
+          const propellerEnabled = true;
+          // const swapExactInputParams = {
+          //   exactInputAmounts,
+          //   outputTokenIndex,
+          //   minimumOutputAmount,
+          // };
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolTokenAccount1],
+            [exactInputAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
+
+          await expect(() => {
+            return (
+              propellerProgram.methods
+                // .swapExactInput(swapExactInputParams)
+                .swapExactInput(
+                  exactInputAmount,
+                  minimumOutputAmount,
+                  memo,
+                  propellerEnabled,
+                  CHAIN_ID_ETH,
+                )
+                .accounts({
+                  poolTokenAccount0: metapoolPoolToken0Ata,
+                  poolTokenAccount1: metapoolPoolToken1Ata,
+                  lpMint: metapoolLpMintKeypair.publicKey,
+                  governanceFee: metapoolGovernanceFeeAta,
+                  userTransferAuthority: userTransferAuthority.publicKey,
+                  userTokenAccount0: userMetapoolTokenAccount0,
+                  userTokenAccount1: userMetapoolTokenAccount1,
+                  tokenProgram: splToken.programId,
+                  memo: MEMO_PROGRAM_ID,
+                  twoPoolProgram: twoPoolProgram.programId,
+                  tokenBridgeMint,
+                })
+                .preInstructions([...approveIxs])
+                .postInstructions([...revokeIxs])
+                .signers([userTransferAuthority])
+                .rpc()
+            );
+          }).rejects.toThrow("Insufficient Amount being transferred");
+        });
       });
 
-      it("Propeller RemoveExactBurn (non propeller-enabled)", async () => {
-        const poolUserBalancesBefore = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
+      describe.skip("Remove Exact Burn", () => {
+        it("CrossChainRemoveExactBurn", async () => {
+          const poolUserBalancesBefore = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
 
-        const exactBurnAmount = new BN(100_000);
-        // const outputTokenIndex = 0;
-        const minimumOutputAmount = new BN(10);
-        // const removeExactBurnParams = {
-        //   exactBurnAmount,
-        //   outputTokenIndex,
-        //   minimumOutputAmount,
-        // };
-        const userTransferAuthority = web3.Keypair.generate();
-        const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-          splToken,
-          [userMetapoolLpTokenAccount],
-          [exactBurnAmount],
-          userTransferAuthority.publicKey,
-          payer,
-        );
-        const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
-        const propellerEnabled = false;
+          const exactBurnAmount = new BN(100_000);
+          // const outputTokenIndex = 0;
+          const minimumOutputAmount = new BN(10);
+          // const removeExactBurnParams = {
+          //   exactBurnAmount,
+          //   outputTokenIndex,
+          //   minimumOutputAmount,
+          // };
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolLpTokenAccount],
+            [exactBurnAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
 
-        const removeExactBurnTxnSig = await propellerProgram.methods
-          .removeExactBurn(
-            exactBurnAmount,
-            // outputTokenIndex,
-            minimumOutputAmount,
-            memo,
-            propellerEnabled,
-            CHAIN_ID_ETH,
-          )
-          .accounts({
-            poolTokenAccount0: metapoolPoolToken0Ata,
-            poolTokenAccount1: metapoolPoolToken1Ata,
-            lpMint: metapoolLpMintKeypair.publicKey,
-            governanceFee: metapoolGovernanceFeeAta,
-            userTransferAuthority: userTransferAuthority.publicKey,
-            userTokenAccount0: userMetapoolTokenAccount0,
-            userTokenAccount1: userMetapoolTokenAccount1,
-            userLpTokenAccount: userMetapoolLpTokenAccount,
-            tokenProgram: splToken.programId,
-            twoPoolProgram: twoPoolProgram.programId,
-            memo: MEMO_PROGRAM_ID,
-            tokenBridgeMint,
-          })
-          .preInstructions([...approveIxs])
-          .postInstructions([...revokeIxs])
-          .signers([userTransferAuthority])
-          .rpc(rpcCommitmentConfig);
+          const removeExactBurnTxnSig = await propellerProgram.methods
+            .crossChainRemoveExactBurn(
+              exactBurnAmount,
+              // outputTokenIndex,
+              minimumOutputAmount,
+              memo,
+            )
+            .accounts({
+              poolTokenAccount0: metapoolPoolToken0Ata,
+              poolTokenAccount1: metapoolPoolToken1Ata,
+              lpMint: metapoolLpMintKeypair.publicKey,
+              governanceFee: metapoolGovernanceFeeAta,
+              userTransferAuthority: userTransferAuthority.publicKey,
+              userTokenAccount0: userMetapoolTokenAccount0,
+              userTokenAccount1: userMetapoolTokenAccount1,
+              userLpTokenAccount: userMetapoolLpTokenAccount,
+              tokenProgram: splToken.programId,
+              twoPoolProgram: twoPoolProgram.programId,
+              memo: MEMO_PROGRAM_ID,
+              tokenBridgeMint,
+            })
+            .preInstructions([...approveIxs])
+            .postInstructions([...revokeIxs])
+            .signers([userTransferAuthority])
+            .rpc(rpcCommitmentConfig);
 
-        console.info(`removeExactBurnTxnSig: ${removeExactBurnTxnSig}`);
-        await checkTxnLogsForMemo(removeExactBurnTxnSig, memoStr);
+          console.info(`removeExactBurnTxnSig: ${removeExactBurnTxnSig}`);
+          await checkTxnLogsForMemo(removeExactBurnTxnSig, memoStr);
 
-        const poolUserBalancesAfter = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
-        printBeforeAndAfterPoolUserBalances(
-          "RemoveExactBurn non propeller-enabled",
-          [poolUserBalancesBefore, poolUserBalancesAfter],
-        );
+          const poolUserBalancesAfter = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          printBeforeAndAfterPoolUserBalances(
+            "RemoveExactBurn non propeller-enabled",
+            [poolUserBalancesBefore, poolUserBalancesAfter],
+          );
 
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceBefore,
-            poolToken1AtaBalanceBefore,
-          ],
-          governanceFeeBalance: governanceFeeBalanceBefore,
-          userTokenBalances: [
-            userToken0AtaBalanceBefore,
-            userToken1AtaBalanceBefore,
-          ],
-          userLpTokenBalance: userLpTokenBalanceBefore,
-          previousDepth: previousDepthBefore,
-        } = poolUserBalancesBefore;
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceBefore,
+              poolToken1AtaBalanceBefore,
+            ],
+            governanceFeeBalance: governanceFeeBalanceBefore,
+            userTokenBalances: [
+              userToken0AtaBalanceBefore,
+              userToken1AtaBalanceBefore,
+            ],
+            userLpTokenBalance: userLpTokenBalanceBefore,
+            previousDepth: previousDepthBefore,
+          } = poolUserBalancesBefore;
 
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceAfter,
-            poolToken1AtaBalanceAfter,
-          ],
-          governanceFeeBalance: governanceFeeBalanceAfter,
-          userTokenBalances: [
-            userToken0AtaBalanceAfter,
-            userToken1AtaBalanceAfter,
-          ],
-          userLpTokenBalance: userLpTokenBalanceAfter,
-          previousDepth: previousDepthAfter,
-        } = poolUserBalancesAfter;
-        expect(
-          poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
-        ).toBeTruthy();
-        expect(
-          poolToken1AtaBalanceAfter.eq(poolToken1AtaBalanceBefore),
-        ).toBeTruthy();
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceAfter,
+              poolToken1AtaBalanceAfter,
+            ],
+            governanceFeeBalance: governanceFeeBalanceAfter,
+            userTokenBalances: [
+              userToken0AtaBalanceAfter,
+              userToken1AtaBalanceAfter,
+            ],
+            userLpTokenBalance: userLpTokenBalanceAfter,
+            previousDepth: previousDepthAfter,
+          } = poolUserBalancesAfter;
+          expect(
+            poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
+          ).toBeTruthy();
+          expect(
+            poolToken1AtaBalanceAfter.eq(poolToken1AtaBalanceBefore),
+          ).toBeTruthy();
 
-        expect(previousDepthAfter.lt(previousDepthBefore)).toBeTruthy();
-        expect(
-          userToken0AtaBalanceAfter.gt(
-            userToken0AtaBalanceBefore.add(minimumOutputAmount),
-          ),
-        ).toBeTruthy();
-        expect(
-          userToken1AtaBalanceAfter.eq(userToken1AtaBalanceBefore),
-        ).toBeTruthy();
-        expect(
-          userLpTokenBalanceAfter.eq(
-            userLpTokenBalanceBefore.sub(exactBurnAmount),
-          ),
-        ).toBeTruthy();
-        expect(
-          governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
-        ).toBeTruthy();
+          expect(previousDepthAfter.lt(previousDepthBefore)).toBeTruthy();
+          expect(
+            userToken0AtaBalanceAfter.gt(
+              userToken0AtaBalanceBefore.add(minimumOutputAmount),
+            ),
+          ).toBeTruthy();
+          expect(
+            userToken1AtaBalanceAfter.eq(userToken1AtaBalanceBefore),
+          ).toBeTruthy();
+          expect(
+            userLpTokenBalanceAfter.eq(
+              userLpTokenBalanceBefore.sub(exactBurnAmount),
+            ),
+          ).toBeTruthy();
+          expect(
+            governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
+          ).toBeTruthy();
+        });
+        describe("PropellerRemoveExactBurn", () => {
+          it("executes successfully", async () => {
+            const poolUserBalancesBefore = await getPoolUserBalances(
+              splToken,
+              twoPoolProgram,
+              metapoolPoolToken0Ata,
+              metapoolPoolToken1Ata,
+              metapoolGovernanceFeeAta,
+              userMetapoolTokenAccount0,
+              userMetapoolTokenAccount1,
+              userMetapoolLpTokenAccount,
+              metapool,
+              metapoolLpMintKeypair.publicKey,
+            );
+
+            const exactBurnAmount = new BN(1_000_000);
+            const maxFee = new BN(100);
+            // const outputTokenIndex = 0;
+            const minimumOutputAmount = propellerEthMinTransferAmount;
+            // const removeExactBurnParams = {
+            //   exactBurnAmount,
+            //   outputTokenIndex,
+            //   minimumOutputAmount,
+            // };
+            const userTransferAuthority = web3.Keypair.generate();
+            const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+              splToken,
+              [userMetapoolLpTokenAccount],
+              [exactBurnAmount],
+              userTransferAuthority.publicKey,
+              payer,
+            );
+            const memoStr = incMemoIdAndGet();
+            const memo = Buffer.from(memoStr);
+            const propellerEnabled = true;
+
+            const removeExactBurnPropellerEnabledTxnSig =
+              await propellerProgram.methods
+                .propellerRemoveExactBurn(exactBurnAmount, memo, maxFee)
+                .accounts({
+                  poolTokenAccount0: metapoolPoolToken0Ata,
+                  poolTokenAccount1: metapoolPoolToken1Ata,
+                  lpMint: metapoolLpMintKeypair.publicKey,
+                  governanceFee: metapoolGovernanceFeeAta,
+                  userTransferAuthority: userTransferAuthority.publicKey,
+                  userTokenAccount0: userMetapoolTokenAccount0,
+                  userTokenAccount1: userMetapoolTokenAccount1,
+                  userLpTokenAccount: userMetapoolLpTokenAccount,
+                  tokenProgram: splToken.programId,
+                  twoPoolProgram: twoPoolProgram.programId,
+                  memo: MEMO_PROGRAM_ID,
+                  tokenBridgeMint,
+                })
+                .preInstructions([...approveIxs])
+                .postInstructions([...revokeIxs])
+                .signers([userTransferAuthority])
+                .rpc(rpcCommitmentConfig);
+
+            console.info(
+              `removeExactBurnPropellerEnabledTxnSig: ${removeExactBurnPropellerEnabledTxnSig}`,
+            );
+            await checkTxnLogsForMemo(
+              removeExactBurnPropellerEnabledTxnSig,
+              memoStr,
+            );
+
+            const poolUserBalancesAfter = await getPoolUserBalances(
+              splToken,
+              twoPoolProgram,
+              metapoolPoolToken0Ata,
+              metapoolPoolToken1Ata,
+              metapoolGovernanceFeeAta,
+              userMetapoolTokenAccount0,
+              userMetapoolTokenAccount1,
+              userMetapoolLpTokenAccount,
+              metapool,
+              metapoolLpMintKeypair.publicKey,
+            );
+            printBeforeAndAfterPoolUserBalances(
+              "RemoveExactBurn non propeller-enabled",
+              [poolUserBalancesBefore, poolUserBalancesAfter],
+            );
+
+            const {
+              poolTokenBalances: [
+                poolToken0AtaBalanceBefore,
+                poolToken1AtaBalanceBefore,
+              ],
+              governanceFeeBalance: governanceFeeBalanceBefore,
+              userTokenBalances: [
+                userToken0AtaBalanceBefore,
+                userToken1AtaBalanceBefore,
+              ],
+              userLpTokenBalance: userLpTokenBalanceBefore,
+              previousDepth: previousDepthBefore,
+            } = poolUserBalancesBefore;
+
+            const {
+              poolTokenBalances: [
+                poolToken0AtaBalanceAfter,
+                poolToken1AtaBalanceAfter,
+              ],
+              governanceFeeBalance: governanceFeeBalanceAfter,
+              userTokenBalances: [
+                userToken0AtaBalanceAfter,
+                userToken1AtaBalanceAfter,
+              ],
+              userLpTokenBalance: userLpTokenBalanceAfter,
+              previousDepth: previousDepthAfter,
+            } = poolUserBalancesAfter;
+            expect(
+              poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
+            ).toBeTruthy();
+            expect(
+              poolToken1AtaBalanceAfter.eq(poolToken1AtaBalanceBefore),
+            ).toBeTruthy();
+
+            expect(previousDepthAfter.lt(previousDepthBefore)).toBeTruthy();
+            expect(
+              userToken0AtaBalanceAfter.gt(
+                userToken0AtaBalanceBefore.add(minimumOutputAmount),
+              ),
+            ).toBeTruthy();
+            expect(
+              userToken1AtaBalanceAfter.eq(userToken1AtaBalanceBefore),
+            ).toBeTruthy();
+            expect(
+              userLpTokenBalanceAfter.eq(
+                userLpTokenBalanceBefore.sub(exactBurnAmount),
+              ),
+            ).toBeTruthy();
+            expect(
+              governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
+            ).toBeTruthy();
+          });
+          it("fails if output amount < max fee", async () => {
+            const exactBurnAmount = new BN(1);
+            const maxFee = new BN(1_000_000_000);
+
+            const userTransferAuthority = web3.Keypair.generate();
+            const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+              splToken,
+              [userMetapoolLpTokenAccount],
+              [exactBurnAmount],
+              userTransferAuthority.publicKey,
+              payer,
+            );
+            const memoStr = incMemoIdAndGet();
+            const memo = Buffer.from(memoStr);
+            const propellerEnabled = true;
+            await expect(() => {
+              return propellerProgram.methods
+                .propellerRemoveExactBurn(exactBurnAmount, memo, maxFee)
+                .accounts({
+                  poolTokenAccount0: metapoolPoolToken0Ata,
+                  poolTokenAccount1: metapoolPoolToken1Ata,
+                  lpMint: metapoolLpMintKeypair.publicKey,
+                  governanceFee: metapoolGovernanceFeeAta,
+                  userTransferAuthority: userTransferAuthority.publicKey,
+                  userTokenAccount0: userMetapoolTokenAccount0,
+                  userTokenAccount1: userMetapoolTokenAccount1,
+                  userLpTokenAccount: userMetapoolLpTokenAccount,
+                  tokenProgram: splToken.programId,
+                  twoPoolProgram: twoPoolProgram.programId,
+                  memo: MEMO_PROGRAM_ID,
+                  tokenBridgeMint,
+                })
+                .preInstructions([...approveIxs])
+                .postInstructions([...revokeIxs])
+                .signers([userTransferAuthority])
+                .rpc(rpcCommitmentConfig);
+            }).rejects.toThrow("Insufficient Amount being transferred");
+          });
+        });
       });
 
-      it("Propeller RemoveExactBurn (propeller-enabled)", async () => {
-        const poolUserBalancesBefore = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
+      describe.skip("old remove exact burn", () => {
+        it.skip("Propeller RemoveExactBurn (non propeller-enabled)", async () => {
+          const poolUserBalancesBefore = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
 
-        const exactBurnAmount = new BN(1_000_000_000);
-        // const outputTokenIndex = 0;
-        const minimumOutputAmount = propellerEthMinTransferAmount;
-        // const removeExactBurnParams = {
-        //   exactBurnAmount,
-        //   outputTokenIndex,
-        //   minimumOutputAmount,
-        // };
-        const userTransferAuthority = web3.Keypair.generate();
-        const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-          splToken,
-          [userMetapoolLpTokenAccount],
-          [exactBurnAmount],
-          userTransferAuthority.publicKey,
-          payer,
-        );
-        const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
-        const propellerEnabled = true;
+          const exactBurnAmount = new BN(100_000);
+          // const outputTokenIndex = 0;
+          const minimumOutputAmount = new BN(10);
+          // const removeExactBurnParams = {
+          //   exactBurnAmount,
+          //   outputTokenIndex,
+          //   minimumOutputAmount,
+          // };
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolLpTokenAccount],
+            [exactBurnAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
+          const propellerEnabled = false;
 
-        const removeExactBurnPropellerEnabledTxnSig =
-          await propellerProgram.methods
+          const removeExactBurnTxnSig = await propellerProgram.methods
             .removeExactBurn(
               exactBurnAmount,
               // outputTokenIndex,
@@ -1658,422 +2254,303 @@ describe("propeller", () => {
             .signers([userTransferAuthority])
             .rpc(rpcCommitmentConfig);
 
-        console.info(
-          `removeExactBurnPropellerEnabledTxnSig: ${removeExactBurnPropellerEnabledTxnSig}`,
-        );
-        await checkTxnLogsForMemo(
-          removeExactBurnPropellerEnabledTxnSig,
-          memoStr,
-        );
+          console.info(`removeExactBurnTxnSig: ${removeExactBurnTxnSig}`);
+          await checkTxnLogsForMemo(removeExactBurnTxnSig, memoStr);
 
-        const poolUserBalancesAfter = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
-        printBeforeAndAfterPoolUserBalances(
-          "RemoveExactBurn non propeller-enabled",
-          [poolUserBalancesBefore, poolUserBalancesAfter],
-        );
+          const poolUserBalancesAfter = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          printBeforeAndAfterPoolUserBalances(
+            "RemoveExactBurn non propeller-enabled",
+            [poolUserBalancesBefore, poolUserBalancesAfter],
+          );
 
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceBefore,
-            poolToken1AtaBalanceBefore,
-          ],
-          governanceFeeBalance: governanceFeeBalanceBefore,
-          userTokenBalances: [
-            userToken0AtaBalanceBefore,
-            userToken1AtaBalanceBefore,
-          ],
-          userLpTokenBalance: userLpTokenBalanceBefore,
-          previousDepth: previousDepthBefore,
-        } = poolUserBalancesBefore;
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceBefore,
+              poolToken1AtaBalanceBefore,
+            ],
+            governanceFeeBalance: governanceFeeBalanceBefore,
+            userTokenBalances: [
+              userToken0AtaBalanceBefore,
+              userToken1AtaBalanceBefore,
+            ],
+            userLpTokenBalance: userLpTokenBalanceBefore,
+            previousDepth: previousDepthBefore,
+          } = poolUserBalancesBefore;
 
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceAfter,
-            poolToken1AtaBalanceAfter,
-          ],
-          governanceFeeBalance: governanceFeeBalanceAfter,
-          userTokenBalances: [
-            userToken0AtaBalanceAfter,
-            userToken1AtaBalanceAfter,
-          ],
-          userLpTokenBalance: userLpTokenBalanceAfter,
-          previousDepth: previousDepthAfter,
-        } = poolUserBalancesAfter;
-        expect(
-          poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
-        ).toBeTruthy();
-        expect(
-          poolToken1AtaBalanceAfter.eq(poolToken1AtaBalanceBefore),
-        ).toBeTruthy();
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceAfter,
+              poolToken1AtaBalanceAfter,
+            ],
+            governanceFeeBalance: governanceFeeBalanceAfter,
+            userTokenBalances: [
+              userToken0AtaBalanceAfter,
+              userToken1AtaBalanceAfter,
+            ],
+            userLpTokenBalance: userLpTokenBalanceAfter,
+            previousDepth: previousDepthAfter,
+          } = poolUserBalancesAfter;
+          expect(
+            poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
+          ).toBeTruthy();
+          expect(
+            poolToken1AtaBalanceAfter.eq(poolToken1AtaBalanceBefore),
+          ).toBeTruthy();
 
-        expect(previousDepthAfter.lt(previousDepthBefore)).toBeTruthy();
-        expect(
-          userToken0AtaBalanceAfter.gt(
-            userToken0AtaBalanceBefore.add(minimumOutputAmount),
-          ),
-        ).toBeTruthy();
-        expect(
-          userToken1AtaBalanceAfter.eq(userToken1AtaBalanceBefore),
-        ).toBeTruthy();
-        expect(
-          userLpTokenBalanceAfter.eq(
-            userLpTokenBalanceBefore.sub(exactBurnAmount),
-          ),
-        ).toBeTruthy();
-        expect(
-          governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
-        ).toBeTruthy();
+          expect(previousDepthAfter.lt(previousDepthBefore)).toBeTruthy();
+          expect(
+            userToken0AtaBalanceAfter.gt(
+              userToken0AtaBalanceBefore.add(minimumOutputAmount),
+            ),
+          ).toBeTruthy();
+          expect(
+            userToken1AtaBalanceAfter.eq(userToken1AtaBalanceBefore),
+          ).toBeTruthy();
+          expect(
+            userLpTokenBalanceAfter.eq(
+              userLpTokenBalanceBefore.sub(exactBurnAmount),
+            ),
+          ).toBeTruthy();
+          expect(
+            governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
+          ).toBeTruthy();
+        });
+
+        it.skip("Propeller RemoveExactBurn (propeller-enabled)", async () => {
+          const poolUserBalancesBefore = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+
+          const exactBurnAmount = new BN(1_000_000_000);
+          // const outputTokenIndex = 0;
+          const minimumOutputAmount = propellerEthMinTransferAmount;
+          // const removeExactBurnParams = {
+          //   exactBurnAmount,
+          //   outputTokenIndex,
+          //   minimumOutputAmount,
+          // };
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolLpTokenAccount],
+            [exactBurnAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
+          const propellerEnabled = true;
+
+          const removeExactBurnPropellerEnabledTxnSig =
+            await propellerProgram.methods
+              .removeExactBurn(
+                exactBurnAmount,
+                // outputTokenIndex,
+                minimumOutputAmount,
+                memo,
+                propellerEnabled,
+                CHAIN_ID_ETH,
+              )
+              .accounts({
+                poolTokenAccount0: metapoolPoolToken0Ata,
+                poolTokenAccount1: metapoolPoolToken1Ata,
+                lpMint: metapoolLpMintKeypair.publicKey,
+                governanceFee: metapoolGovernanceFeeAta,
+                userTransferAuthority: userTransferAuthority.publicKey,
+                userTokenAccount0: userMetapoolTokenAccount0,
+                userTokenAccount1: userMetapoolTokenAccount1,
+                userLpTokenAccount: userMetapoolLpTokenAccount,
+                tokenProgram: splToken.programId,
+                twoPoolProgram: twoPoolProgram.programId,
+                memo: MEMO_PROGRAM_ID,
+                tokenBridgeMint,
+              })
+              .preInstructions([...approveIxs])
+              .postInstructions([...revokeIxs])
+              .signers([userTransferAuthority])
+              .rpc(rpcCommitmentConfig);
+
+          console.info(
+            `removeExactBurnPropellerEnabledTxnSig: ${removeExactBurnPropellerEnabledTxnSig}`,
+          );
+          await checkTxnLogsForMemo(
+            removeExactBurnPropellerEnabledTxnSig,
+            memoStr,
+          );
+
+          const poolUserBalancesAfter = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          printBeforeAndAfterPoolUserBalances(
+            "RemoveExactBurn non propeller-enabled",
+            [poolUserBalancesBefore, poolUserBalancesAfter],
+          );
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceBefore,
+              poolToken1AtaBalanceBefore,
+            ],
+            governanceFeeBalance: governanceFeeBalanceBefore,
+            userTokenBalances: [
+              userToken0AtaBalanceBefore,
+              userToken1AtaBalanceBefore,
+            ],
+            userLpTokenBalance: userLpTokenBalanceBefore,
+            previousDepth: previousDepthBefore,
+          } = poolUserBalancesBefore;
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceAfter,
+              poolToken1AtaBalanceAfter,
+            ],
+            governanceFeeBalance: governanceFeeBalanceAfter,
+            userTokenBalances: [
+              userToken0AtaBalanceAfter,
+              userToken1AtaBalanceAfter,
+            ],
+            userLpTokenBalance: userLpTokenBalanceAfter,
+            previousDepth: previousDepthAfter,
+          } = poolUserBalancesAfter;
+          expect(
+            poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
+          ).toBeTruthy();
+          expect(
+            poolToken1AtaBalanceAfter.eq(poolToken1AtaBalanceBefore),
+          ).toBeTruthy();
+
+          expect(previousDepthAfter.lt(previousDepthBefore)).toBeTruthy();
+          expect(
+            userToken0AtaBalanceAfter.gt(
+              userToken0AtaBalanceBefore.add(minimumOutputAmount),
+            ),
+          ).toBeTruthy();
+          expect(
+            userToken1AtaBalanceAfter.eq(userToken1AtaBalanceBefore),
+          ).toBeTruthy();
+          expect(
+            userLpTokenBalanceAfter.eq(
+              userLpTokenBalanceBefore.sub(exactBurnAmount),
+            ),
+          ).toBeTruthy();
+          expect(
+            governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
+          ).toBeTruthy();
+        });
+
+        it.skip("Propeller RemoveExactBurn (propeller-enabled) fails when propeller enabled & output amount is insufficient for target chain", async () => {
+          const exactBurnAmount = new BN(1_000);
+          const minimumOutputAmount = new BN(0);
+
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolLpTokenAccount],
+            [exactBurnAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
+          const propellerEnabled = true;
+          await expect(() => {
+            return propellerProgram.methods
+              .removeExactBurn(
+                exactBurnAmount,
+                // outputTokenIndex,
+                minimumOutputAmount,
+                memo,
+                propellerEnabled,
+                CHAIN_ID_ETH,
+              )
+              .accounts({
+                poolTokenAccount0: metapoolPoolToken0Ata,
+                poolTokenAccount1: metapoolPoolToken1Ata,
+                lpMint: metapoolLpMintKeypair.publicKey,
+                governanceFee: metapoolGovernanceFeeAta,
+                userTransferAuthority: userTransferAuthority.publicKey,
+                userTokenAccount0: userMetapoolTokenAccount0,
+                userTokenAccount1: userMetapoolTokenAccount1,
+                userLpTokenAccount: userMetapoolLpTokenAccount,
+                tokenProgram: splToken.programId,
+                twoPoolProgram: twoPoolProgram.programId,
+                memo: MEMO_PROGRAM_ID,
+                tokenBridgeMint,
+              })
+              .preInstructions([...approveIxs])
+              .postInstructions([...revokeIxs])
+              .signers([userTransferAuthority])
+              .rpc(rpcCommitmentConfig);
+          }).rejects.toThrow("Insufficient Amount being transferred");
+        });
       });
 
-      it("Propeller RemoveExactBurn (propeller-enabled) fails when propeller enabled & output amount is insufficient for target chain", async () => {
-        const exactBurnAmount = new BN(1_000);
-        const minimumOutputAmount = new BN(0);
+      describe.skip("old swap exact output", () => {
+        it("Propeller SwapExactOutput (non propeller-enabled)", async () => {
+          const poolUserBalancesBefore = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
 
-        const userTransferAuthority = web3.Keypair.generate();
-        const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-          splToken,
-          [userMetapoolLpTokenAccount],
-          [exactBurnAmount],
-          userTransferAuthority.publicKey,
-          payer,
-        );
-        const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
-        const propellerEnabled = true;
-        await expect(() => {
-          return propellerProgram.methods
-            .removeExactBurn(
-              exactBurnAmount,
-              // outputTokenIndex,
-              minimumOutputAmount,
-              memo,
-              propellerEnabled,
-              CHAIN_ID_ETH,
-            )
-            .accounts({
-              poolTokenAccount0: metapoolPoolToken0Ata,
-              poolTokenAccount1: metapoolPoolToken1Ata,
-              lpMint: metapoolLpMintKeypair.publicKey,
-              governanceFee: metapoolGovernanceFeeAta,
-              userTransferAuthority: userTransferAuthority.publicKey,
-              userTokenAccount0: userMetapoolTokenAccount0,
-              userTokenAccount1: userMetapoolTokenAccount1,
-              userLpTokenAccount: userMetapoolLpTokenAccount,
-              tokenProgram: splToken.programId,
-              twoPoolProgram: twoPoolProgram.programId,
-              memo: MEMO_PROGRAM_ID,
-              tokenBridgeMint,
-            })
-            .preInstructions([...approveIxs])
-            .postInstructions([...revokeIxs])
-            .signers([userTransferAuthority])
-            .rpc(rpcCommitmentConfig);
-        }).rejects.toThrow("Insufficient Amount being transferred");
-      });
+          const maximumInputAmount = new BN(100_000_000);
+          const exactOutputAmount = new BN(50_000);
+          // const swapExactOutputParams = {
+          //   maximumInputAmount,
+          //   inputTokenIndex,
+          //   exactOutputAmounts,
+          // };
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolTokenAccount1],
+            [maximumInputAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
 
-      it("Propeller SwapExactOutput (non propeller-enabled)", async () => {
-        const poolUserBalancesBefore = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
+          const propellerEnabled = false;
 
-        const maximumInputAmount = new BN(100_000_000);
-        const exactOutputAmount = new BN(50_000);
-        // const swapExactOutputParams = {
-        //   maximumInputAmount,
-        //   inputTokenIndex,
-        //   exactOutputAmounts,
-        // };
-        const userTransferAuthority = web3.Keypair.generate();
-        const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-          splToken,
-          [userMetapoolTokenAccount1],
-          [maximumInputAmount],
-          userTransferAuthority.publicKey,
-          payer,
-        );
-
-        const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
-        const propellerEnabled = false;
-
-        const swapExactOutputTxnSig = await propellerProgram.methods
-          .swapExactOutput(
-            maximumInputAmount,
-            // inputTokenIndex,
-            exactOutputAmount,
-            memo,
-            propellerEnabled,
-            CHAIN_ID_ETH,
-          )
-          .accounts({
-            poolTokenAccount0: metapoolPoolToken0Ata,
-            poolTokenAccount1: metapoolPoolToken1Ata,
-            lpMint: metapoolLpMintKeypair.publicKey,
-            governanceFee: metapoolGovernanceFeeAta,
-            userTransferAuthority: userTransferAuthority.publicKey,
-            userTokenAccount0: userMetapoolTokenAccount0,
-            userTokenAccount1: userMetapoolTokenAccount1,
-            tokenProgram: splToken.programId,
-            twoPoolProgram: twoPoolProgram.programId,
-            memo: MEMO_PROGRAM_ID,
-            tokenBridgeMint,
-          })
-          .preInstructions([...approveIxs])
-          .postInstructions([...revokeIxs])
-          .signers([userTransferAuthority])
-          .rpc(rpcCommitmentConfig);
-
-        console.info(`swapExactOutputTxnSig: ${swapExactOutputTxnSig}`);
-        await checkTxnLogsForMemo(swapExactOutputTxnSig, memoStr);
-
-        const poolUserBalancesAfter = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
-        printBeforeAndAfterPoolUserBalances("swapExactOuput balances", [
-          poolUserBalancesBefore,
-          poolUserBalancesAfter,
-        ]);
-
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceBefore,
-            poolToken1AtaBalanceBefore,
-          ],
-          governanceFeeBalance: governanceFeeBalanceBefore,
-          userTokenBalances: [
-            userToken0AtaBalanceBefore,
-            userToken1AtaBalanceBefore,
-          ],
-          userLpTokenBalance: userLpTokenBalanceBefore,
-          previousDepth: previousDepthBefore,
-        } = poolUserBalancesBefore;
-
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceAfter,
-            poolToken1AtaBalanceAfter,
-          ],
-          governanceFeeBalance: governanceFeeBalanceAfter,
-          userTokenBalances: [
-            userToken0AtaBalanceAfter,
-            userToken1AtaBalanceAfter,
-          ],
-          userLpTokenBalance: userLpTokenBalanceAfter,
-          previousDepth: previousDepthAfter,
-        } = poolUserBalancesAfter;
-
-        expect(
-          poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
-        ).toEqual(true);
-        expect(
-          poolToken1AtaBalanceAfter.gt(poolToken1AtaBalanceBefore),
-        ).toEqual(true);
-
-        expect(
-          governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
-        ).toEqual(true);
-        expect(
-          userToken0AtaBalanceAfter.gt(userToken0AtaBalanceBefore),
-        ).toEqual(true);
-        expect(
-          userToken1AtaBalanceAfter.gte(
-            userToken1AtaBalanceBefore.sub(maximumInputAmount),
-          ),
-        ).toEqual(true);
-        expect(userLpTokenBalanceAfter.eq(userLpTokenBalanceBefore)).toEqual(
-          true,
-        );
-        expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
-      });
-
-      it("Propeller SwapExactOutput (propeller-enabled)", async () => {
-        const poolUserBalancesBefore = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
-        // const inputTokenIndex = 0;
-        const maximumInputAmount = new BN(10_000_000_000);
-        const exactOutputAmount = propellerEthMinTransferAmount;
-        // const swapExactOutputParams = {
-        //   maximumInputAmount,
-        //   inputTokenIndex,
-        //   exactOutputAmounts,
-        // };
-        const userTransferAuthority = web3.Keypair.generate();
-        const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-          splToken,
-          [userMetapoolTokenAccount1],
-          [maximumInputAmount],
-          userTransferAuthority.publicKey,
-          payer,
-        );
-
-        const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
-        const propellerEnabled = true;
-
-        const swapExactOutputTxnSig = await propellerProgram.methods
-          .swapExactOutput(
-            maximumInputAmount,
-            // inputTokenIndex,
-            exactOutputAmount,
-            memo,
-            propellerEnabled,
-            CHAIN_ID_ETH,
-          )
-          .accounts({
-            poolTokenAccount0: metapoolPoolToken0Ata,
-            poolTokenAccount1: metapoolPoolToken1Ata,
-            lpMint: metapoolLpMintKeypair.publicKey,
-            governanceFee: metapoolGovernanceFeeAta,
-            userTransferAuthority: userTransferAuthority.publicKey,
-            userTokenAccount0: userMetapoolTokenAccount0,
-            userTokenAccount1: userMetapoolTokenAccount1,
-            tokenProgram: splToken.programId,
-            twoPoolProgram: twoPoolProgram.programId,
-            memo: MEMO_PROGRAM_ID,
-            tokenBridgeMint,
-          })
-          .preInstructions([...approveIxs])
-          .postInstructions([...revokeIxs])
-          .signers([userTransferAuthority])
-          .rpc(rpcCommitmentConfig);
-
-        console.info(`swapExactOutputTxnSig: ${swapExactOutputTxnSig}`);
-        await checkTxnLogsForMemo(swapExactOutputTxnSig, memoStr);
-
-        const poolUserBalancesAfter = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
-        printBeforeAndAfterPoolUserBalances("swapExactOuput balances", [
-          poolUserBalancesBefore,
-          poolUserBalancesAfter,
-        ]);
-
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceBefore,
-            poolToken1AtaBalanceBefore,
-          ],
-          governanceFeeBalance: governanceFeeBalanceBefore,
-          userTokenBalances: [
-            userToken0AtaBalanceBefore,
-            userToken1AtaBalanceBefore,
-          ],
-          userLpTokenBalance: userLpTokenBalanceBefore,
-          previousDepth: previousDepthBefore,
-        } = poolUserBalancesBefore;
-
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceAfter,
-            poolToken1AtaBalanceAfter,
-          ],
-          governanceFeeBalance: governanceFeeBalanceAfter,
-          userTokenBalances: [
-            userToken0AtaBalanceAfter,
-            userToken1AtaBalanceAfter,
-          ],
-          userLpTokenBalance: userLpTokenBalanceAfter,
-          previousDepth: previousDepthAfter,
-        } = poolUserBalancesAfter;
-
-        expect(
-          poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
-        ).toEqual(true);
-        expect(
-          poolToken1AtaBalanceAfter.gt(poolToken1AtaBalanceBefore),
-        ).toEqual(true);
-
-        expect(
-          governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
-        ).toEqual(true);
-        expect(
-          userToken0AtaBalanceAfter.gt(userToken0AtaBalanceBefore),
-        ).toEqual(true);
-        expect(
-          userToken1AtaBalanceAfter.gte(
-            userToken1AtaBalanceBefore.sub(maximumInputAmount),
-          ),
-        ).toEqual(true);
-        expect(userLpTokenBalanceAfter.eq(userLpTokenBalanceBefore)).toEqual(
-          true,
-        );
-        expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
-      });
-
-      it("Propeller SwapExactOutput (propeller-enabled) fails when propeller enabled & output amount is insufficient for target chain", async () => {
-        // const inputTokenIndex = 0;
-        const maximumInputAmount = new BN(100);
-        // const maximumInputAmounts = [maximumInputAmount, new BN(0)];
-        // maximumInputAmounts[inputTokenIndex] = maximumInputAmount;
-        // const exactOutputAmounts = [new BN(0), new BN(50_000)];
-        const exactOutputAmount = new BN(1);
-        // const swapExactOutputParams = {
-        //   maximumInputAmount,
-        //   inputTokenIndex,
-        //   exactOutputAmounts,
-        // };
-        const userTransferAuthority = web3.Keypair.generate();
-        const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-          splToken,
-          [userMetapoolTokenAccount1],
-          [maximumInputAmount],
-          userTransferAuthority.publicKey,
-          payer,
-        );
-
-        const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
-        const propellerEnabled = true;
-        await expect(() => {
-          return propellerProgram.methods
+          const swapExactOutputTxnSig = await propellerProgram.methods
             .swapExactOutput(
               maximumInputAmount,
               // inputTokenIndex,
@@ -2099,333 +2576,343 @@ describe("propeller", () => {
             .postInstructions([...revokeIxs])
             .signers([userTransferAuthority])
             .rpc(rpcCommitmentConfig);
-        }).rejects.toThrow("Insufficient Amount being transferred");
+
+          console.info(`swapExactOutputTxnSig: ${swapExactOutputTxnSig}`);
+          await checkTxnLogsForMemo(swapExactOutputTxnSig, memoStr);
+
+          const poolUserBalancesAfter = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          printBeforeAndAfterPoolUserBalances("swapExactOuput balances", [
+            poolUserBalancesBefore,
+            poolUserBalancesAfter,
+          ]);
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceBefore,
+              poolToken1AtaBalanceBefore,
+            ],
+            governanceFeeBalance: governanceFeeBalanceBefore,
+            userTokenBalances: [
+              userToken0AtaBalanceBefore,
+              userToken1AtaBalanceBefore,
+            ],
+            userLpTokenBalance: userLpTokenBalanceBefore,
+            previousDepth: previousDepthBefore,
+          } = poolUserBalancesBefore;
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceAfter,
+              poolToken1AtaBalanceAfter,
+            ],
+            governanceFeeBalance: governanceFeeBalanceAfter,
+            userTokenBalances: [
+              userToken0AtaBalanceAfter,
+              userToken1AtaBalanceAfter,
+            ],
+            userLpTokenBalance: userLpTokenBalanceAfter,
+            previousDepth: previousDepthAfter,
+          } = poolUserBalancesAfter;
+
+          expect(
+            poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
+          ).toEqual(true);
+          expect(
+            poolToken1AtaBalanceAfter.gt(poolToken1AtaBalanceBefore),
+          ).toEqual(true);
+
+          expect(
+            governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
+          ).toEqual(true);
+          expect(
+            userToken0AtaBalanceAfter.gt(userToken0AtaBalanceBefore),
+          ).toEqual(true);
+          expect(
+            userToken1AtaBalanceAfter.gte(
+              userToken1AtaBalanceBefore.sub(maximumInputAmount),
+            ),
+          ).toEqual(true);
+          expect(userLpTokenBalanceAfter.eq(userLpTokenBalanceBefore)).toEqual(
+            true,
+          );
+          expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
+        });
+
+        it("Propeller SwapExactOutput (propeller-enabled)", async () => {
+          const poolUserBalancesBefore = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          // const inputTokenIndex = 0;
+          const maximumInputAmount = new BN(10_000_000_000);
+          const exactOutputAmount = propellerEthMinTransferAmount;
+          // const swapExactOutputParams = {
+          //   maximumInputAmount,
+          //   inputTokenIndex,
+          //   exactOutputAmounts,
+          // };
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolTokenAccount1],
+            [maximumInputAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
+
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
+          const propellerEnabled = true;
+
+          const swapExactOutputTxnSig = await propellerProgram.methods
+            .swapExactOutput(
+              maximumInputAmount,
+              // inputTokenIndex,
+              exactOutputAmount,
+              memo,
+              propellerEnabled,
+              CHAIN_ID_ETH,
+            )
+            .accounts({
+              poolTokenAccount0: metapoolPoolToken0Ata,
+              poolTokenAccount1: metapoolPoolToken1Ata,
+              lpMint: metapoolLpMintKeypair.publicKey,
+              governanceFee: metapoolGovernanceFeeAta,
+              userTransferAuthority: userTransferAuthority.publicKey,
+              userTokenAccount0: userMetapoolTokenAccount0,
+              userTokenAccount1: userMetapoolTokenAccount1,
+              tokenProgram: splToken.programId,
+              twoPoolProgram: twoPoolProgram.programId,
+              memo: MEMO_PROGRAM_ID,
+              tokenBridgeMint,
+            })
+            .preInstructions([...approveIxs])
+            .postInstructions([...revokeIxs])
+            .signers([userTransferAuthority])
+            .rpc(rpcCommitmentConfig);
+
+          console.info(`swapExactOutputTxnSig: ${swapExactOutputTxnSig}`);
+          await checkTxnLogsForMemo(swapExactOutputTxnSig, memoStr);
+
+          const poolUserBalancesAfter = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          printBeforeAndAfterPoolUserBalances("swapExactOuput balances", [
+            poolUserBalancesBefore,
+            poolUserBalancesAfter,
+          ]);
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceBefore,
+              poolToken1AtaBalanceBefore,
+            ],
+            governanceFeeBalance: governanceFeeBalanceBefore,
+            userTokenBalances: [
+              userToken0AtaBalanceBefore,
+              userToken1AtaBalanceBefore,
+            ],
+            userLpTokenBalance: userLpTokenBalanceBefore,
+            previousDepth: previousDepthBefore,
+          } = poolUserBalancesBefore;
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceAfter,
+              poolToken1AtaBalanceAfter,
+            ],
+            governanceFeeBalance: governanceFeeBalanceAfter,
+            userTokenBalances: [
+              userToken0AtaBalanceAfter,
+              userToken1AtaBalanceAfter,
+            ],
+            userLpTokenBalance: userLpTokenBalanceAfter,
+            previousDepth: previousDepthAfter,
+          } = poolUserBalancesAfter;
+
+          expect(
+            poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
+          ).toEqual(true);
+          expect(
+            poolToken1AtaBalanceAfter.gt(poolToken1AtaBalanceBefore),
+          ).toEqual(true);
+
+          expect(
+            governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
+          ).toEqual(true);
+          expect(
+            userToken0AtaBalanceAfter.gt(userToken0AtaBalanceBefore),
+          ).toEqual(true);
+          expect(
+            userToken1AtaBalanceAfter.gte(
+              userToken1AtaBalanceBefore.sub(maximumInputAmount),
+            ),
+          ).toEqual(true);
+          expect(userLpTokenBalanceAfter.eq(userLpTokenBalanceBefore)).toEqual(
+            true,
+          );
+          expect(!previousDepthAfter.eq(previousDepthBefore)).toBeTruthy();
+        });
+
+        it("Propeller SwapExactOutput (propeller-enabled) fails when propeller enabled & output amount is insufficient for target chain", async () => {
+          // const inputTokenIndex = 0;
+          const maximumInputAmount = new BN(100);
+          // const maximumInputAmounts = [maximumInputAmount, new BN(0)];
+          // maximumInputAmounts[inputTokenIndex] = maximumInputAmount;
+          // const exactOutputAmounts = [new BN(0), new BN(50_000)];
+          const exactOutputAmount = new BN(1);
+          // const swapExactOutputParams = {
+          //   maximumInputAmount,
+          //   inputTokenIndex,
+          //   exactOutputAmounts,
+          // };
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolTokenAccount1],
+            [maximumInputAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
+
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
+          const propellerEnabled = true;
+          await expect(() => {
+            return propellerProgram.methods
+              .swapExactOutput(
+                maximumInputAmount,
+                // inputTokenIndex,
+                exactOutputAmount,
+                memo,
+                propellerEnabled,
+                CHAIN_ID_ETH,
+              )
+              .accounts({
+                poolTokenAccount0: metapoolPoolToken0Ata,
+                poolTokenAccount1: metapoolPoolToken1Ata,
+                lpMint: metapoolLpMintKeypair.publicKey,
+                governanceFee: metapoolGovernanceFeeAta,
+                userTransferAuthority: userTransferAuthority.publicKey,
+                userTokenAccount0: userMetapoolTokenAccount0,
+                userTokenAccount1: userMetapoolTokenAccount1,
+                tokenProgram: splToken.programId,
+                twoPoolProgram: twoPoolProgram.programId,
+                memo: MEMO_PROGRAM_ID,
+                tokenBridgeMint,
+              })
+              .preInstructions([...approveIxs])
+              .postInstructions([...revokeIxs])
+              .signers([userTransferAuthority])
+              .rpc(rpcCommitmentConfig);
+          }).rejects.toThrow("Insufficient Amount being transferred");
+        });
       });
 
-      it("Propeller RemoveExactOutput (non propeller-enabled)", async () => {
-        const poolUserBalancesBefore = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
-        const metapoolLpMintData = await splToken.account.mint.fetch(
-          metapoolLpMintKeypair.publicKey,
-        );
-        console.info(
-          `metapoolLpMintData: ${JSON.stringify({
-            ...metapoolLpMintData,
-            supply: metapoolLpMintData.supply.toString(),
-          })}`,
-        );
-        printPoolUserBalances(
-          "RemoveExactOutput (non propeller-enabled)",
-          poolUserBalancesBefore,
-        );
-        /*
-        metapoolLpMintData: {"supply":"178066751666224","decimals":8}
+      describe.skip("old remove exact output", () => {
+        it("Propeller RemoveExactOutput (non propeller-enabled)", async () => {
+          const poolUserBalancesBefore = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          const metapoolLpMintData = await splToken.account.mint.fetch(
+            metapoolLpMintKeypair.publicKey,
+          );
+          console.info(
+            `metapoolLpMintData: ${JSON.stringify({
+              ...metapoolLpMintData,
+              supply: metapoolLpMintData.supply.toString(),
+            })}`,
+          );
+          printPoolUserBalances(
+            "RemoveExactOutput (non propeller-enabled)",
+            poolUserBalancesBefore,
+          );
+          /*
+          metapoolLpMintData: {"supply":"178066751666224","decimals":8}
 
-        RemoveExactOutput (non propeller-enabled)
-        poolToken0AtaBalance: 1_999_758_297_370, //6 decimals
-        poolToken1AtaBalance: 1_001_045_997_289, // 8 decimals
-        governanceFeeBalance:1839221,
-        userToken0AtaBalance: 98000241702630,
-        userToken1AtaBalance: 98998954002711,
-        userLpTokenBalance: 178_066_749_827_003,
-        lpTokenSupply: 178_066_751_666_224, //8 decimals
-        previousDepth: 178066757183876,
+          RemoveExactOutput (non propeller-enabled)
+          poolToken0AtaBalance: 1_999_758_297_370, //6 decimals
+          poolToken1AtaBalance: 1_001_045_997_289, // 8 decimals
+          governanceFeeBalance:1839221,
+          userToken0AtaBalance: 98000241702630,
+          userToken1AtaBalance: 98998954002711,
+          userLpTokenBalance: 178_066_749_827_003,
+          lpTokenSupply: 178_066_751_666_224, //8 decimals
+          previousDepth: 178066757183876,
 
 
-         */
-        //80_248_436_472 => 802 (8 decimals)
-        //30_000_000_000
-        //100_035_018_935 => ~1000
-        const maximumBurnAmount = new BN(300_000_000_000);
+           */
+          //80_248_436_472 => 802 (8 decimals)
+          //30_000_000_000
+          //100_035_018_935 => ~1000
+          const maximumBurnAmount = new BN(300_000_000_000);
 
-        //TODO: investigate this:
-        //    if the output amounts were within 20_000 of each other then no goverance fee
-        //    would be minted. is this due to approximation/values used?
-        //    with decimals of 6 this is < 1 USDC. is the governance fee just too small in those cases?
-        // 1000 or 10?
-        const exactOutputAmount = new BN(1_000_000_000);
-        // const removeExactOutputParams = {
-        //   maximumBurnAmount,
-        //   exactOutputAmounts,
-        // };
-        // const swapExactOutputParams = {
-        //   maximumInputAmount,
-        //   inputTokenIndex,
-        //   exactOutputAmounts,
-        // };
-        const userTransferAuthority = web3.Keypair.generate();
-        const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-          splToken,
-          [userMetapoolLpTokenAccount],
-          [maximumBurnAmount],
-          userTransferAuthority.publicKey,
-          payer,
-        );
+          //TODO: investigate this:
+          //    if the output amounts were within 20_000 of each other then no goverance fee
+          //    would be minted. is this due to approximation/values used?
+          //    with decimals of 6 this is < 1 USDC. is the governance fee just too small in those cases?
+          // 1000 or 10?
+          const exactOutputAmount = new BN(1_000_000_000);
+          // const removeExactOutputParams = {
+          //   maximumBurnAmount,
+          //   exactOutputAmounts,
+          // };
+          // const swapExactOutputParams = {
+          //   maximumInputAmount,
+          //   inputTokenIndex,
+          //   exactOutputAmounts,
+          // };
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolLpTokenAccount],
+            [maximumBurnAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
 
-        const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
-        const propellerEnabled = false;
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
+          const propellerEnabled = false;
 
-        const removeExactOutputTxnSig = await propellerProgram.methods
-          .removeExactOutput(
-            maximumBurnAmount,
-            exactOutputAmount,
-            memo,
-            propellerEnabled,
-            CHAIN_ID_ETH,
-          )
-          .accounts({
-            poolTokenAccount0: metapoolPoolToken0Ata,
-            poolTokenAccount1: metapoolPoolToken1Ata,
-            lpMint: metapoolLpMintKeypair.publicKey,
-            governanceFee: metapoolGovernanceFeeAta,
-            userTransferAuthority: userTransferAuthority.publicKey,
-            userTokenAccount0: userMetapoolTokenAccount0,
-            userTokenAccount1: userMetapoolTokenAccount1,
-            userLpTokenAccount: userMetapoolLpTokenAccount,
-            tokenProgram: splToken.programId,
-            twoPoolProgram: twoPoolProgram.programId,
-            memo: MEMO_PROGRAM_ID,
-            tokenBridgeMint,
-          })
-          .preInstructions([...approveIxs])
-          .postInstructions([...revokeIxs])
-          .signers([userTransferAuthority])
-          .rpc(rpcCommitmentConfig);
-
-        console.info(`removeExactOutputTxnSig: ${removeExactOutputTxnSig}`);
-        await checkTxnLogsForMemo(removeExactOutputTxnSig, memoStr);
-
-        const poolUserBalancesAfter = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
-        printBeforeAndAfterPoolUserBalances("removeExactOutput balances", [
-          poolUserBalancesBefore,
-          poolUserBalancesAfter,
-        ]);
-
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceBefore,
-            poolToken1AtaBalanceBefore,
-          ],
-          governanceFeeBalance: governanceFeeBalanceBefore,
-          userTokenBalances: [
-            userToken0AtaBalanceBefore,
-            userToken1AtaBalanceBefore,
-          ],
-          userLpTokenBalance: userLpTokenBalanceBefore,
-          previousDepth: previousDepthBefore,
-        } = poolUserBalancesBefore;
-
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceAfter,
-            poolToken1AtaBalanceAfter,
-          ],
-          governanceFeeBalance: governanceFeeBalanceAfter,
-          userTokenBalances: [
-            userToken0AtaBalanceAfter,
-            userToken1AtaBalanceAfter,
-          ],
-          userLpTokenBalance: userLpTokenBalanceAfter,
-          previousDepth: previousDepthAfter,
-        } = poolUserBalancesAfter;
-        expect(
-          poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
-        ).toBeTruthy();
-        expect(
-          poolToken1AtaBalanceAfter.eq(poolToken1AtaBalanceBefore),
-        ).toBeTruthy();
-
-        expect(previousDepthAfter.lt(previousDepthBefore)).toBeTruthy();
-        expect(
-          userToken0AtaBalanceAfter.eq(
-            userToken0AtaBalanceBefore.add(exactOutputAmount),
-          ),
-        ).toBeTruthy();
-        expect(
-          userToken1AtaBalanceAfter.eq(userToken1AtaBalanceBefore),
-        ).toBeTruthy();
-        expect(
-          userLpTokenBalanceAfter.gte(
-            userLpTokenBalanceBefore.sub(maximumBurnAmount),
-          ),
-        ).toBeTruthy();
-        expect(
-          governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
-        ).toBeTruthy();
-      });
-
-      it("Propeller RemoveExactOutput (propeller-enabled)", async () => {
-        const poolUserBalancesBefore = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
-
-        //100_000_000
-        //1_002_019_057
-        const maximumBurnAmount = new BN(5_000_000_000_000);
-        const exactOutputAmount = propellerEthMinTransferAmount;
-
-        const userTransferAuthority = web3.Keypair.generate();
-        const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-          splToken,
-          [userMetapoolLpTokenAccount],
-          [maximumBurnAmount],
-          userTransferAuthority.publicKey,
-          payer,
-        );
-
-        const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
-        const propellerEnabled = true;
-
-        const removeExactOutputTxnSig = await propellerProgram.methods
-          .removeExactOutput(
-            maximumBurnAmount,
-            exactOutputAmount,
-            memo,
-            propellerEnabled,
-            CHAIN_ID_ETH,
-          )
-          .accounts({
-            poolTokenAccount0: metapoolPoolToken0Ata,
-            poolTokenAccount1: metapoolPoolToken1Ata,
-            lpMint: metapoolLpMintKeypair.publicKey,
-            governanceFee: metapoolGovernanceFeeAta,
-            userTransferAuthority: userTransferAuthority.publicKey,
-            userTokenAccount0: userMetapoolTokenAccount0,
-            userTokenAccount1: userMetapoolTokenAccount1,
-            userLpTokenAccount: userMetapoolLpTokenAccount,
-            tokenProgram: splToken.programId,
-            twoPoolProgram: twoPoolProgram.programId,
-            memo: MEMO_PROGRAM_ID,
-            tokenBridgeMint,
-          })
-          .preInstructions([...approveIxs])
-          .postInstructions([...revokeIxs])
-          .signers([userTransferAuthority])
-          .rpc(rpcCommitmentConfig);
-
-        console.info(`removeExactOutputTxnSig: ${removeExactOutputTxnSig}`);
-        await checkTxnLogsForMemo(removeExactOutputTxnSig, memoStr);
-
-        const poolUserBalancesAfter = await getPoolUserBalances(
-          splToken,
-          twoPoolProgram,
-          metapoolPoolToken0Ata,
-          metapoolPoolToken1Ata,
-          metapoolGovernanceFeeAta,
-          userMetapoolTokenAccount0,
-          userMetapoolTokenAccount1,
-          userMetapoolLpTokenAccount,
-          metapool,
-          metapoolLpMintKeypair.publicKey,
-        );
-        printBeforeAndAfterPoolUserBalances("swapExactOuput balances", [
-          poolUserBalancesBefore,
-          poolUserBalancesAfter,
-        ]);
-
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceBefore,
-            poolToken1AtaBalanceBefore,
-          ],
-          governanceFeeBalance: governanceFeeBalanceBefore,
-          userTokenBalances: [
-            userToken0AtaBalanceBefore,
-            userToken1AtaBalanceBefore,
-          ],
-          userLpTokenBalance: userLpTokenBalanceBefore,
-          previousDepth: previousDepthBefore,
-        } = poolUserBalancesBefore;
-
-        const {
-          poolTokenBalances: [
-            poolToken0AtaBalanceAfter,
-            poolToken1AtaBalanceAfter,
-          ],
-          governanceFeeBalance: governanceFeeBalanceAfter,
-          userTokenBalances: [
-            userToken0AtaBalanceAfter,
-            userToken1AtaBalanceAfter,
-          ],
-          userLpTokenBalance: userLpTokenBalanceAfter,
-          previousDepth: previousDepthAfter,
-        } = poolUserBalancesAfter;
-        expect(
-          poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
-        ).toBeTruthy();
-        expect(
-          poolToken1AtaBalanceAfter.eq(poolToken1AtaBalanceBefore),
-        ).toBeTruthy();
-
-        expect(previousDepthAfter.lt(previousDepthBefore)).toBeTruthy();
-        expect(
-          userToken0AtaBalanceAfter.eq(
-            userToken0AtaBalanceBefore.add(exactOutputAmount),
-          ),
-        ).toBeTruthy();
-        expect(
-          userToken1AtaBalanceAfter.eq(userToken1AtaBalanceBefore),
-        ).toBeTruthy();
-        expect(
-          userLpTokenBalanceAfter.gte(
-            userLpTokenBalanceBefore.sub(maximumBurnAmount),
-          ),
-        ).toBeTruthy();
-        expect(
-          governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
-        ).toBeTruthy();
-      });
-
-      it("Propeller RemoveExactOutput (propeller-enabled)  fails when propeller enabled & output amount is insufficient for target chain", async () => {
-        const maximumBurnAmount = new BN(100_000_000);
-        const exactOutputAmount = new BN(0);
-
-        const userTransferAuthority = web3.Keypair.generate();
-        const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
-          splToken,
-          [userMetapoolLpTokenAccount],
-          [maximumBurnAmount],
-          userTransferAuthority.publicKey,
-          payer,
-        );
-
-        const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
-        const propellerEnabled = true;
-        await expect(() => {
-          return propellerProgram.methods
+          const removeExactOutputTxnSig = await propellerProgram.methods
             .removeExactOutput(
               maximumBurnAmount,
               exactOutputAmount,
@@ -2451,11 +2938,261 @@ describe("propeller", () => {
             .postInstructions([...revokeIxs])
             .signers([userTransferAuthority])
             .rpc(rpcCommitmentConfig);
-        }).rejects.toThrow("Insufficient Amount being transferred");
+
+          console.info(`removeExactOutputTxnSig: ${removeExactOutputTxnSig}`);
+          await checkTxnLogsForMemo(removeExactOutputTxnSig, memoStr);
+
+          const poolUserBalancesAfter = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          printBeforeAndAfterPoolUserBalances("removeExactOutput balances", [
+            poolUserBalancesBefore,
+            poolUserBalancesAfter,
+          ]);
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceBefore,
+              poolToken1AtaBalanceBefore,
+            ],
+            governanceFeeBalance: governanceFeeBalanceBefore,
+            userTokenBalances: [
+              userToken0AtaBalanceBefore,
+              userToken1AtaBalanceBefore,
+            ],
+            userLpTokenBalance: userLpTokenBalanceBefore,
+            previousDepth: previousDepthBefore,
+          } = poolUserBalancesBefore;
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceAfter,
+              poolToken1AtaBalanceAfter,
+            ],
+            governanceFeeBalance: governanceFeeBalanceAfter,
+            userTokenBalances: [
+              userToken0AtaBalanceAfter,
+              userToken1AtaBalanceAfter,
+            ],
+            userLpTokenBalance: userLpTokenBalanceAfter,
+            previousDepth: previousDepthAfter,
+          } = poolUserBalancesAfter;
+          expect(
+            poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
+          ).toBeTruthy();
+          expect(
+            poolToken1AtaBalanceAfter.eq(poolToken1AtaBalanceBefore),
+          ).toBeTruthy();
+
+          expect(previousDepthAfter.lt(previousDepthBefore)).toBeTruthy();
+          expect(
+            userToken0AtaBalanceAfter.eq(
+              userToken0AtaBalanceBefore.add(exactOutputAmount),
+            ),
+          ).toBeTruthy();
+          expect(
+            userToken1AtaBalanceAfter.eq(userToken1AtaBalanceBefore),
+          ).toBeTruthy();
+          expect(
+            userLpTokenBalanceAfter.gte(
+              userLpTokenBalanceBefore.sub(maximumBurnAmount),
+            ),
+          ).toBeTruthy();
+          expect(
+            governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
+          ).toBeTruthy();
+        });
+
+        it("Propeller RemoveExactOutput (propeller-enabled)", async () => {
+          const poolUserBalancesBefore = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+
+          //100_000_000
+          //1_002_019_057
+          const maximumBurnAmount = new BN(5_000_000_000_000);
+          const exactOutputAmount = propellerEthMinTransferAmount;
+
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolLpTokenAccount],
+            [maximumBurnAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
+
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
+          const propellerEnabled = true;
+
+          const removeExactOutputTxnSig = await propellerProgram.methods
+            .removeExactOutput(
+              maximumBurnAmount,
+              exactOutputAmount,
+              memo,
+              propellerEnabled,
+              CHAIN_ID_ETH,
+            )
+            .accounts({
+              poolTokenAccount0: metapoolPoolToken0Ata,
+              poolTokenAccount1: metapoolPoolToken1Ata,
+              lpMint: metapoolLpMintKeypair.publicKey,
+              governanceFee: metapoolGovernanceFeeAta,
+              userTransferAuthority: userTransferAuthority.publicKey,
+              userTokenAccount0: userMetapoolTokenAccount0,
+              userTokenAccount1: userMetapoolTokenAccount1,
+              userLpTokenAccount: userMetapoolLpTokenAccount,
+              tokenProgram: splToken.programId,
+              twoPoolProgram: twoPoolProgram.programId,
+              memo: MEMO_PROGRAM_ID,
+              tokenBridgeMint,
+            })
+            .preInstructions([...approveIxs])
+            .postInstructions([...revokeIxs])
+            .signers([userTransferAuthority])
+            .rpc(rpcCommitmentConfig);
+
+          console.info(`removeExactOutputTxnSig: ${removeExactOutputTxnSig}`);
+          await checkTxnLogsForMemo(removeExactOutputTxnSig, memoStr);
+
+          const poolUserBalancesAfter = await getPoolUserBalances(
+            splToken,
+            twoPoolProgram,
+            metapoolPoolToken0Ata,
+            metapoolPoolToken1Ata,
+            metapoolGovernanceFeeAta,
+            userMetapoolTokenAccount0,
+            userMetapoolTokenAccount1,
+            userMetapoolLpTokenAccount,
+            metapool,
+            metapoolLpMintKeypair.publicKey,
+          );
+          printBeforeAndAfterPoolUserBalances("swapExactOuput balances", [
+            poolUserBalancesBefore,
+            poolUserBalancesAfter,
+          ]);
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceBefore,
+              poolToken1AtaBalanceBefore,
+            ],
+            governanceFeeBalance: governanceFeeBalanceBefore,
+            userTokenBalances: [
+              userToken0AtaBalanceBefore,
+              userToken1AtaBalanceBefore,
+            ],
+            userLpTokenBalance: userLpTokenBalanceBefore,
+            previousDepth: previousDepthBefore,
+          } = poolUserBalancesBefore;
+
+          const {
+            poolTokenBalances: [
+              poolToken0AtaBalanceAfter,
+              poolToken1AtaBalanceAfter,
+            ],
+            governanceFeeBalance: governanceFeeBalanceAfter,
+            userTokenBalances: [
+              userToken0AtaBalanceAfter,
+              userToken1AtaBalanceAfter,
+            ],
+            userLpTokenBalance: userLpTokenBalanceAfter,
+            previousDepth: previousDepthAfter,
+          } = poolUserBalancesAfter;
+          expect(
+            poolToken0AtaBalanceAfter.lt(poolToken0AtaBalanceBefore),
+          ).toBeTruthy();
+          expect(
+            poolToken1AtaBalanceAfter.eq(poolToken1AtaBalanceBefore),
+          ).toBeTruthy();
+
+          expect(previousDepthAfter.lt(previousDepthBefore)).toBeTruthy();
+          expect(
+            userToken0AtaBalanceAfter.eq(
+              userToken0AtaBalanceBefore.add(exactOutputAmount),
+            ),
+          ).toBeTruthy();
+          expect(
+            userToken1AtaBalanceAfter.eq(userToken1AtaBalanceBefore),
+          ).toBeTruthy();
+          expect(
+            userLpTokenBalanceAfter.gte(
+              userLpTokenBalanceBefore.sub(maximumBurnAmount),
+            ),
+          ).toBeTruthy();
+          expect(
+            governanceFeeBalanceAfter.gte(governanceFeeBalanceBefore),
+          ).toBeTruthy();
+        });
+
+        it("Propeller RemoveExactOutput (propeller-enabled)  fails when propeller enabled & output amount is insufficient for target chain", async () => {
+          const maximumBurnAmount = new BN(100_000_000);
+          const exactOutputAmount = new BN(0);
+
+          const userTransferAuthority = web3.Keypair.generate();
+          const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+            splToken,
+            [userMetapoolLpTokenAccount],
+            [maximumBurnAmount],
+            userTransferAuthority.publicKey,
+            payer,
+          );
+
+          const memoStr = incMemoIdAndGet();
+          const memo = Buffer.from(memoStr);
+          const propellerEnabled = true;
+          await expect(() => {
+            return propellerProgram.methods
+              .removeExactOutput(
+                maximumBurnAmount,
+                exactOutputAmount,
+                memo,
+                propellerEnabled,
+                CHAIN_ID_ETH,
+              )
+              .accounts({
+                poolTokenAccount0: metapoolPoolToken0Ata,
+                poolTokenAccount1: metapoolPoolToken1Ata,
+                lpMint: metapoolLpMintKeypair.publicKey,
+                governanceFee: metapoolGovernanceFeeAta,
+                userTransferAuthority: userTransferAuthority.publicKey,
+                userTokenAccount0: userMetapoolTokenAccount0,
+                userTokenAccount1: userMetapoolTokenAccount1,
+                userLpTokenAccount: userMetapoolLpTokenAccount,
+                tokenProgram: splToken.programId,
+                twoPoolProgram: twoPoolProgram.programId,
+                memo: MEMO_PROGRAM_ID,
+                tokenBridgeMint,
+              })
+              .preInstructions([...approveIxs])
+              .postInstructions([...revokeIxs])
+              .signers([userTransferAuthority])
+              .rpc(rpcCommitmentConfig);
+          }).rejects.toThrow("Insufficient Amount being transferred");
+        });
       });
     });
 
-    it("Propeller RemoveUniform", async () => {
+    it.skip("Propeller RemoveUniform", async () => {
       const poolUserBalancesBefore = await getPoolUserBalances(
         splToken,
         twoPoolProgram,

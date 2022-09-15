@@ -447,7 +447,7 @@
       "args": []
     },
     {
-      "name": "add",
+      "name": "crossChainAdd",
       "accounts": [
         {
           "name": "propeller",
@@ -579,20 +579,149 @@
         {
           "name": "memo",
           "type": "bytes"
-        },
-        {
-          "name": "propellerEnabled",
-          "type": "bool"
-        },
-        {
-          "name": "targetChain",
-          "type": "u16"
         }
       ],
       "returns": "u64"
     },
     {
-      "name": "swapExactInput",
+      "name": "propellerAdd",
+      "accounts": [
+        {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "lp_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_0.mint"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "pool_token_account_1.mint"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "lp_mint"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "path": "two_pool_program"
+            }
+          }
+        },
+        {
+          "name": "poolTokenAccount0",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "poolTokenAccount1",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "lpMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "governanceFee",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userTransferAuthority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "userTokenAccount0",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userTokenAccount1",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "memo",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inputAmounts",
+          "type": {
+            "array": [
+              "u64",
+              2
+            ]
+          }
+        },
+        {
+          "name": "memo",
+          "type": "bytes"
+        },
+        {
+          "name": "maxFee",
+          "type": "u64"
+        }
+      ],
+      "returns": "u64"
+    },
+    {
+      "name": "crossChainSwapExactInput",
       "accounts": [
         {
           "name": "propeller",
@@ -719,20 +848,12 @@
         {
           "name": "memo",
           "type": "bytes"
-        },
-        {
-          "name": "propellerEnabled",
-          "type": "bool"
-        },
-        {
-          "name": "targetChain",
-          "type": "u16"
         }
       ],
       "returns": "u64"
     },
     {
-      "name": "swapExactOutput",
+      "name": "propellerSwapExactInput",
       "accounts": [
         {
           "name": "propeller",
@@ -849,11 +970,7 @@
       ],
       "args": [
         {
-          "name": "maximumInputAmount",
-          "type": "u64"
-        },
-        {
-          "name": "exactOutputAmount",
+          "name": "exactInputAmount",
           "type": "u64"
         },
         {
@@ -861,428 +978,11 @@
           "type": "bytes"
         },
         {
-          "name": "propellerEnabled",
-          "type": "bool"
-        },
-        {
-          "name": "targetChain",
-          "type": "u16"
-        }
-      ],
-      "returns": {
-        "vec": "u64"
-      }
-    },
-    {
-      "name": "removeUniform",
-      "accounts": [
-        {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
-              }
-            ],
-            "programId": {
-              "kind": "account",
-              "type": "publicKey",
-              "path": "two_pool_program"
-            }
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userLpTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "twoPoolProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "exactBurnAmount",
+          "name": "maxFee",
           "type": "u64"
-        },
-        {
-          "name": "minimumOutputAmounts",
-          "type": {
-            "array": [
-              "u64",
-              2
-            ]
-          }
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
-        }
-      ],
-      "returns": {
-        "vec": "u64"
-      }
-    },
-    {
-      "name": "removeExactBurn",
-      "accounts": [
-        {
-          "name": "propeller",
-          "isMut": false,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              }
-            ]
-          }
-        },
-        {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
-              }
-            ],
-            "programId": {
-              "kind": "account",
-              "type": "publicKey",
-              "path": "two_pool_program"
-            }
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userLpTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "twoPoolProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenBridgeMint",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "exactBurnAmount",
-          "type": "u64"
-        },
-        {
-          "name": "minimumOutputAmount",
-          "type": "u64"
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
-        },
-        {
-          "name": "propellerEnabled",
-          "type": "bool"
-        },
-        {
-          "name": "targetChain",
-          "type": "u16"
         }
       ],
       "returns": "u64"
-    },
-    {
-      "name": "removeExactOutput",
-      "accounts": [
-        {
-          "name": "propeller",
-          "isMut": false,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              }
-            ]
-          }
-        },
-        {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
-              }
-            ],
-            "programId": {
-              "kind": "account",
-              "type": "publicKey",
-              "path": "two_pool_program"
-            }
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userLpTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "twoPoolProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenBridgeMint",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "maximumBurnAmount",
-          "type": "u64"
-        },
-        {
-          "name": "exactOutputAmount",
-          "type": "u64"
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
-        },
-        {
-          "name": "propellerEnabled",
-          "type": "bool"
-        },
-        {
-          "name": "targetChain",
-          "type": "u16"
-        }
-      ],
-      "returns": {
-        "vec": "u64"
-      }
     },
     {
       "name": "transferNativeWithPayload",
@@ -4065,6 +3765,11 @@
       "code": 6044,
       "name": "PayerInsufficientFundsForGasKickstart",
       "msg": "Payer has insufficent funds for gas kickstart"
+    },
+    {
+      "code": 6045,
+      "name": "IncorrectOwnerForCreateTokenAccount",
+      "msg": "Owner of token account != swimPayload.owner"
     }
   ]
 }

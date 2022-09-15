@@ -137,4 +137,7 @@ pub enum PropellerError {
 
     #[msg("Payer has insufficent funds for gas kickstart")]
     PayerInsufficientFundsForGasKickstart,
+
+    #[msg("Owner of token account != swimPayload.owner")]
+    IncorrectOwnerForCreateTokenAccount,
 }

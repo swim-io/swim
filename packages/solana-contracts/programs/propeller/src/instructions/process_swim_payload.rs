@@ -10,7 +10,6 @@ use {
 };
 use {
     crate::{
-        create_token_id_map::{PoolInstruction, TokenIdMap},
         deserialize_message_payload,
         // env::*,
         error::*,
@@ -19,6 +18,7 @@ use {
         hash_vaa,
         state::{PropellerClaim, PropellerMessage, *},
         token_bridge::TokenBridge,
+        token_id_map::{PoolInstruction, TokenIdMap},
         ClaimData,
         PayloadTransferWithPayload,
         PostVAAData,

@@ -1423,7 +1423,9 @@ describe("propeller", () => {
                 .pubkeys();
             const propellerProcessSwimPayloadIxs =
               propellerEnginePropellerProgram.methods
-                .propellerProcessSwimPayload(propellerMessageAccountTargetTokenId)
+                .propellerProcessSwimPayload(
+                  propellerMessageAccountTargetTokenId,
+                )
                 .accounts({
                   processSwimPayload: processSwimPayloadPubkeys,
                   feeVault: propellerFeeVault,
@@ -1478,8 +1480,7 @@ describe("propeller", () => {
             expectedTokenIdMapAcct: ${expectedTokenIdMap.toBase58()} :
             ${JSON.stringify(expectedTokenIdMapAcct, null, 2)}
           `);
-            const derivedTokenIdMap =
-              processSwimPayloadPubkeys.tokenIdMap;
+            const derivedTokenIdMap = processSwimPayloadPubkeys.tokenIdMap;
             expect(derivedTokenIdMap).toEqual(expectedTokenIdMap);
             if (!processSwimPayloadPubkeys.propellerClaim) {
               throw new Error("propellerClaim key not derived");

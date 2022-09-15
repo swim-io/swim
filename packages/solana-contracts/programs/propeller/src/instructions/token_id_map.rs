@@ -124,3 +124,7 @@ pub fn handle_create_token_id_map(
     token_id_map.pool_ix = pool_ix;
     Ok(())
 }
+
+pub fn handle_update_token_id_map() -> Result<()> {
+    todo!()
+}

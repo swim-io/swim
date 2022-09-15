@@ -13,7 +13,6 @@ use {
 };
 use {
     crate::{
-        create_token_id_map::{PoolInstruction, TokenIdMap},
         deserialize_message_payload,
         // env::*,
         error::*,
@@ -22,6 +21,7 @@ use {
         hash_vaa,
         state::{PropellerClaim, PropellerMessage, *},
         token_bridge::TokenBridge,
+        token_id_map::{PoolInstruction, TokenIdMap},
         ClaimData,
         PayloadTransferWithPayload,
         PostVAAData,
@@ -308,9 +308,12 @@ fn initialize_user_ata_and_get_fees<'info>(
     let create_ata_fee = 10000u64;
     let ata_data_len = user_unchecked_token_account.data_len();
     if ata_data_len == TokenAccount::LEN {
-        TokenAccount::try_deserialize(&mut &**user_unchecked_token_account.data.try_borrow_mut().unwrap())?;
+        let token_account =
+            TokenAccount::try_deserialize(&mut &**user_unchecked_token_account.data.try_borrow_mut().unwrap())?;
+        require_keys_eq!(token_account.owner, user.key(), PropellerError::IncorrectOwnerForCreateTokenAccount);
         return Ok(0u64);
     } else if ata_data_len != 0 {
+        //TODO: spl_token_2022?
         // panic!("data_len != 0 && != TokenAcount::LEN");
         return err!(PropellerError::InvalidTokenAccountDataLen);
     } else {

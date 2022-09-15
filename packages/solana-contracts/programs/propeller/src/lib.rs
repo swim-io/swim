@@ -83,98 +83,193 @@ pub mod propeller {
         handle_claim_fees(ctx)
     }
 
+    // #[access_control(Add::accounts(&ctx))]
+    // pub fn add(
+    //     ctx: Context<Add>,
+    //     input_amounts: [u64; TOKEN_COUNT],
+    //     minimum_mint_amount: u64,
+    //     memo: Vec<u8>,
+    //     propeller_enabled: bool,
+    //     target_chain: u16,
+    // ) -> Result<u64> {
+    //     handle_add(ctx, input_amounts, minimum_mint_amount, memo.as_slice(), propeller_enabled, target_chain)
+    // }
+
     #[access_control(Add::accounts(&ctx))]
-    pub fn add(
+    pub fn cross_chain_add(
         ctx: Context<Add>,
         input_amounts: [u64; TOKEN_COUNT],
         minimum_mint_amount: u64,
         memo: Vec<u8>,
-        propeller_enabled: bool,
-        target_chain: u16,
     ) -> Result<u64> {
-        handle_add(ctx, input_amounts, minimum_mint_amount, memo.as_slice(), propeller_enabled, target_chain)
+        handle_cross_chain_add(ctx, input_amounts, minimum_mint_amount, memo.as_slice())
     }
 
-    pub fn swap_exact_input(
+    #[access_control(Add::accounts(&ctx))]
+    pub fn propeller_add(
+        ctx: Context<Add>,
+        input_amounts: [u64; TOKEN_COUNT],
+        memo: Vec<u8>,
+        max_fee: u64,
+    ) -> Result<u64> {
+        handle_propeller_add(ctx, input_amounts, memo.as_slice(), max_fee)
+    }
+
+    // pub fn swap_exact_input(
+    //     ctx: Context<SwapExactInput>,
+    //     exact_input_amount: u64,
+    //     minimum_output_amount: u64,
+    //     memo: Vec<u8>,
+    //     propeller_enabled: bool,
+    //     target_chain: u16,
+    // ) -> Result<u64> {
+    //     handle_swap_exact_input(
+    //         ctx,
+    //         exact_input_amount,
+    //         minimum_output_amount,
+    //         memo.as_slice(),
+    //         propeller_enabled,
+    //         target_chain,
+    //     )
+    // }
+
+    /* For metapools */
+
+    pub fn cross_chain_swap_exact_input(
         ctx: Context<SwapExactInput>,
         exact_input_amount: u64,
         minimum_output_amount: u64,
         memo: Vec<u8>,
-        propeller_enabled: bool,
-        target_chain: u16,
     ) -> Result<u64> {
-        handle_swap_exact_input(
-            ctx,
-            exact_input_amount,
-            minimum_output_amount,
-            memo.as_slice(),
-            propeller_enabled,
-            target_chain,
-        )
+        handle_cross_chain_swap_exact_input(ctx, exact_input_amount, minimum_output_amount, memo.as_slice())
     }
 
-    pub fn swap_exact_output(
-        ctx: Context<SwapExactOutput>,
-        maximum_input_amount: u64,
-        exact_output_amount: u64, // params: SwapExactOutputParams,
+    pub fn propeller_swap_exact_input(
+        ctx: Context<SwapExactInput>,
+        exact_input_amount: u64,
         memo: Vec<u8>,
-        propeller_enabled: bool,
-        target_chain: u16,
-    ) -> Result<Vec<u64>> {
-        handle_swap_exact_output(
-            ctx,
-            maximum_input_amount,
-            exact_output_amount,
-            memo.as_slice(),
-            propeller_enabled,
-            target_chain,
-        )
-    }
-
-    pub fn remove_uniform(
-        ctx: Context<RemoveUniform>,
-        exact_burn_amount: u64,
-        minimum_output_amounts: [u64; TOKEN_COUNT],
-        memo: Vec<u8>,
-    ) -> Result<Vec<u64>> {
-        handle_remove_uniform(ctx, exact_burn_amount, minimum_output_amounts, memo.as_slice())
-    }
-
-    pub fn remove_exact_burn(
-        ctx: Context<RemoveExactBurn>,
-        exact_burn_amount: u64,
-        minimum_output_amount: u64,
-        memo: Vec<u8>,
-        propeller_enabled: bool,
-        target_chain: u16,
+        max_fee: u64,
     ) -> Result<u64> {
-        handle_remove_exact_burn(
-            ctx,
-            exact_burn_amount,
-            minimum_output_amount,
-            memo.as_slice(),
-            propeller_enabled,
-            target_chain,
-        )
+        handle_propeller_swap_exact_input(ctx, exact_input_amount, memo.as_slice(), max_fee)
     }
 
-    pub fn remove_exact_output(
-        ctx: Context<RemoveExactOutput>,
-        maximum_burn_amount: u64,
-        exact_output_amount: u64,
-        memo: Vec<u8>,
-        propeller_enabled: bool,
-        target_chain: u16,
-    ) -> Result<Vec<u64>> {
-        handle_remove_exact_output(
-            ctx,
-            maximum_burn_amount,
-            exact_output_amount,
-            memo.as_slice(),
-            propeller_enabled,
-            target_chain,
-        )
-    }
+    /*
+    // pub fn swap_exact_output(
+    //     ctx: Context<SwapExactOutput>,
+    //     maximum_input_amount: u64,
+    //     exact_output_amount: u64, // params: SwapExactOutputParams,
+    //     memo: Vec<u8>,
+    //     propeller_enabled: bool,
+    //     target_chain: u16,
+    // ) -> Result<Vec<u64>> {
+    //     handle_swap_exact_output(
+    //         ctx,
+    //         maximum_input_amount,
+    //         exact_output_amount,
+    //         memo.as_slice(),
+    //         propeller_enabled,
+    //         target_chain,
+    //     )
+    // }
+
+    // pub fn cross_chain_swap_exact_output(
+    //     ctx: Context<SwapExactOutput>,
+    //     maximum_input_amount: u64,
+    //     exact_output_amount: u64, // params: SwapExactOutputParams,
+    //     memo: Vec<u8>,
+    // ) -> Result<Vec<u64>> {
+    //     handle_cross_chain_swap_exact_output(
+    //         ctx,
+    //         maximum_input_amount,
+    //         exact_output_amount,
+    //         memo.as_slice(),
+    //         propeller_enabled,
+    //         target_chain,
+    //     )
+    // }
+    //
+    // pub fn propeller_swap_exact_output(
+    //     ctx: Context<SwapExactOutput>,
+    //     maximum_input_amount: u64,
+    //     memo: Vec<u8>,
+    //     max_fee: u64,
+    // ) -> Result<Vec<u64>> {
+    //     handle_propeller_swap_exact_output(
+    //         ctx,
+    //         maximum_input_amount,
+    //         exact_output_amount,
+    //         memo.as_slice(),
+    //         propeller_enabled,
+    //         target_chain,
+    //     )
+    // }
+
+    // pub fn remove_uniform(
+    //     ctx: Context<RemoveUniform>,
+    //     exact_burn_amount: u64,
+    //     minimum_output_amounts: [u64; TOKEN_COUNT],
+    //     memo: Vec<u8>,
+    // ) -> Result<Vec<u64>> {
+    //     handle_remove_uniform(ctx, exact_burn_amount, minimum_output_amounts, memo.as_slice())
+    // }
+
+    // pub fn remove_exact_burn(
+    //     ctx: Context<RemoveExactBurn>,
+    //     exact_burn_amount: u64,
+    //     minimum_output_amount: u64,
+    //     memo: Vec<u8>,
+    //     propeller_enabled: bool,
+    //     target_chain: u16,
+    // ) -> Result<u64> {
+    //     handle_remove_exact_burn(
+    //         ctx,
+    //         exact_burn_amount,
+    //         minimum_output_amount,
+    //         memo.as_slice(),
+    //         propeller_enabled,
+    //         target_chain,
+    //     )
+    // }
+     */
+
+    //TODO: does remove_exact_burn make sense for metapools?
+    // burn metapool lp token to get token_bridge_mint
+
+    // pub fn cross_chain_remove_exact_burn(
+    //     ctx: Context<RemoveExactBurn>,
+    //     exact_burn_amount: u64,
+    //     minimum_output_amount: u64,
+    //     memo: Vec<u8>,
+    // ) -> Result<u64> {
+    //     handle_cross_chain_remove_exact_burn(ctx, exact_burn_amount, minimum_output_amount, memo.as_slice())
+    // }
+    //
+    // pub fn propeller_remove_exact_burn(
+    //     ctx: Context<RemoveExactBurn>,
+    //     exact_burn_amount: u64,
+    //     memo: Vec<u8>,
+    //     max_fee: u64,
+    // ) -> Result<u64> {
+    //     handle_propeller_remove_exact_burn(ctx, exact_burn_amount, memo.as_slice(), max_fee)
+    // }
+
+    // pub fn remove_exact_output(
+    //     ctx: Context<RemoveExactOutput>,
+    //     maximum_burn_amount: u64,
+    //     exact_output_amount: u64,
+    //     memo: Vec<u8>,
+    //     propeller_enabled: bool,
+    //     target_chain: u16,
+    // ) -> Result<Vec<u64>> {
+    //     handle_remove_exact_output(
+    //         ctx,
+    //         maximum_burn_amount,
+    //         exact_output_amount,
+    //         memo.as_slice(),
+    //         propeller_enabled,
+    //         target_chain,
+    //     )
+    // }
 
     #[inline(never)]
     #[access_control(TransferNativeWithPayload::accounts(&ctx))]

@@ -14,10 +14,10 @@ import type {
   SwimPoolState,
 } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
-import { findOrThrow } from "@swim-io/utils";
+import { atomicToHuman, findOrThrow } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
-import { atomicToHuman, bnOrBigNumberToDecimal } from "../../amounts";
+import { bnOrBigNumberToDecimal } from "../../amounts";
 import type {
   Config,
   EvmPoolSpec,

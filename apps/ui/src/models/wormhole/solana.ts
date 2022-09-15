@@ -30,13 +30,9 @@ import type {
 } from "@swim-io/solana";
 import { redeemOnSolana } from "@swim-io/wormhole";
 
-import type { TokenConfig } from "../../config";
-import { WormholeChainId, getSolanaTokenDetails } from "../../config";
+import type { TokenConfig, WormholeChainId } from "../../config";
+import { getSolanaTokenDetails, getWormholeRetries } from "../../config";
 
-import {
-  DEFAULT_WORMHOLE_RETRIES,
-  POLYGON_WORMHOLE_RETRIES,
-} from "./constants";
 import { getSignedVaaWithRetry } from "./guardiansRpc";
 
 // Adapted from https://github.com/certusone/wormhole/blob/83b97bedb8c54618b191c20e4e18ba438a716cfa/sdk/js/src/bridge/parseSequenceFromLog.ts#L71-L81
@@ -184,10 +180,7 @@ export async function* generateUnlockSplTokenTxIds(
   if (!solanaPublicKey) {
     throw new Error("No Solana public key");
   }
-  const retries =
-    wormholeChainId === WormholeChainId.Polygon
-      ? POLYGON_WORMHOLE_RETRIES
-      : DEFAULT_WORMHOLE_RETRIES;
+  const retries = getWormholeRetries(wormholeChainId);
   const { vaaBytes } = await getSignedVaaWithRetry(
     [...wormholeRpcUrls],
     wormholeChainId,

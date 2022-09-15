@@ -7357,6 +7357,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@swim-io/aptos@workspace:packages/aptos":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/aptos@workspace:packages/aptos"
+  dependencies:
+    "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/tsconfig": "workspace:^"
+    "@types/jest": ^28.1.3
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-eslint-comments: ^3.2.0
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^25.7.0
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.1
+    prettier: ^2.7.1
+    ts-jest: ^28.0.5
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
 "@swim-io/core@npm:^0.13.0":
   version: 0.13.0
   resolution: "@swim-io/core@npm:0.13.0"
@@ -7364,10 +7388,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/core@npm:^0.22.0":
-  version: 0.22.0
-  resolution: "@swim-io/core@npm:0.22.0"
-  checksum: 3c5ebb1b830261bd90bf7ae298b6eb59d9a00ce41c9c1290f850e10b874dc946097ee732da2cb3f204b6d213ac9e56e9bbd4604476a6d13d92d132287e6574c0
+"@swim-io/core@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "@swim-io/core@npm:0.23.0"
+  checksum: fd542f384236efd8cf80dfea2f7de2052583fed78db6756d40bf487ed48f92d4ae397e9f9e3c63ceac74151f884f481f9fed25769d262c4e6d5a4132866e520e
   languageName: node
   linkType: hard
 
@@ -7455,10 +7479,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm-contracts@npm:^0.22.0":
-  version: 0.22.0
-  resolution: "@swim-io/evm-contracts@npm:0.22.0"
-  checksum: ed707a23eb81063b277e70fc031d6595dd970e8685af999d1cc765f942e27e33ca83cb62cdae4a4ea6d7387f648b866d900bc7f90ebae0e6d773a616adcf487f
+"@swim-io/evm-contracts@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "@swim-io/evm-contracts@npm:0.23.0"
+  checksum: 0ef9371f9936fec5c6a88514c2fb635a6f503936ad8f4090060adcd0703cbbccbdc2d4dcf5bde789d079fb3bcb77823ee3aa4fe16cd9ae9b60bdbffd4e6de09a
   languageName: node
   linkType: hard
 
@@ -7516,21 +7540,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm@npm:^0.22.0":
-  version: 0.22.0
-  resolution: "@swim-io/evm@npm:0.22.0"
+"@swim-io/evm@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "@swim-io/evm@npm:0.23.0"
   dependencies:
-    "@swim-io/core": ^0.22.0
-    "@swim-io/evm-contracts": ^0.22.0
-    "@swim-io/token-projects": ^0.22.0
-    "@swim-io/utils": ^0.22.0
+    "@swim-io/core": ^0.23.0
+    "@swim-io/evm-contracts": ^0.23.0
+    "@swim-io/token-projects": ^0.23.0
+    "@swim-io/utils": ^0.23.0
     decimal.js: ^10.3.1
     ethers: ^5.6.9
     eventemitter3: ^4.0.7
     graphql: ^16.6.0
     graphql-request: ^4.3.0
     moralis: ^1.8.0
-  checksum: cf2b7466049f0a3d43208fd9e3a65089f2ed2057d2ae9080458256eae982ab31ac03b6876a6fad4e251052332e05a88b4a5a33958701d8f2f1c81dd71fb3681f
+  checksum: eeabac8a8b130c3e987d094cb032b9030d54dc3cd1e125e00c60ccb62dcadf52b5252e93de47fa6e4ef13570e6401ad2cddfbae2fe534b801e9f934535e2b881
   languageName: node
   linkType: hard
 
@@ -7587,12 +7611,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/pool-math@npm:^0.22.0":
-  version: 0.22.0
-  resolution: "@swim-io/pool-math@npm:0.22.0"
+"@swim-io/pool-math@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "@swim-io/pool-math@npm:0.23.0"
   dependencies:
     decimal.js: ^10.3.1
-  checksum: d543516325a8258d0a77602e53ea09e4b28b10a62136be9c4f111115f6a99a57f106f04b52aefa98524d9545d14d4f8e24d61dd7f3087bb522ec6b60ef3afbf0
+  checksum: 4c96af87500b4e5d21fb6dffbdf844441b300b96cd924179cbdb480f484ffee8d5efaf5d850acfef8461bab4505c802ba079517a628b2ba981777c8551425843
   languageName: node
   linkType: hard
 
@@ -7809,9 +7833,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/solana@npm:^0.22.0":
-  version: 0.22.0
-  resolution: "@swim-io/solana@npm:0.22.0"
+"@swim-io/solana@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "@swim-io/solana@npm:0.23.0"
   dependencies:
     "@ledgerhq/hw-transport": ^6.27.1
     "@ledgerhq/hw-transport-webusb": ^6.0.2
@@ -7819,12 +7843,12 @@ __metadata:
     "@project-serum/sol-wallet-adapter": ^0.2.6
     "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.48.0
-    "@swim-io/core": ^0.22.0
-    "@swim-io/token-projects": ^0.22.0
-    "@swim-io/utils": ^0.22.0
+    "@swim-io/core": ^0.23.0
+    "@swim-io/token-projects": ^0.23.0
+    "@swim-io/utils": ^0.23.0
     bn.js: ^5.2.1
     decimal.js: ^10.3.1
-  checksum: ec311a34406b75a224b472ab96a54dfd1fbea1493d199f27af4059451dae307c1d7e6a971d9ea03cce7239d6d47dcefe21e44a3f573203408e1e5521488dd871
+  checksum: d4e763e791f486aee88464fecbf50cebd09e810c08088b666673cd056bf887416baedcc39d2549e0bda3e73eac3101a8c1af0d0a79484ac06ed64315ef69adac
   languageName: node
   linkType: hard
 
@@ -7864,6 +7888,30 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@swim-io/swim@workspace:packages/swim":
+  version: 0.0.0-use.local
+  resolution: "@swim-io/swim@workspace:packages/swim"
+  dependencies:
+    "@swim-io/eslint-config": "workspace:^"
+    "@swim-io/tsconfig": "workspace:^"
+    "@types/jest": ^28.1.3
+    "@typescript-eslint/eslint-plugin": ^5.29.0
+    "@typescript-eslint/parser": ^5.29.0
+    eslint: ^8.18.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-deprecation: ^1.3.2
+    eslint-plugin-eslint-comments: ^3.2.0
+    eslint-plugin-functional: ^4.2.1
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-jest: ^25.7.0
+    eslint-plugin-prettier: ^4.0.0
+    jest: ^28.1.1
+    prettier: ^2.7.1
+    ts-jest: ^28.0.5
+    typescript: ^4.7.4
+  languageName: unknown
+  linkType: soft
+
 "@swim-io/token-projects@npm:^0.13.0":
   version: 0.13.0
   resolution: "@swim-io/token-projects@npm:0.13.0"
@@ -7874,12 +7922,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/token-projects@npm:^0.22.0":
-  version: 0.22.0
-  resolution: "@swim-io/token-projects@npm:0.22.0"
+"@swim-io/token-projects@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "@swim-io/token-projects@npm:0.23.0"
   dependencies:
-    "@swim-io/utils": ^0.22.0
-  checksum: 9ddedcd717d000dc7c241aeb5c5283e5d219cc46cab85643a5921fa8f201cdac479e689084f164005139744c8cdc4be316a1308df93fbaa03ec562dc116e19af
+    "@swim-io/utils": ^0.23.0
+  checksum: bbac12b868e7d057cbc35ef9c17fdf5590310eb2df3027e1002098e7c58170e66ae889d312e7d1f041b5b8bc44efbb91388477cd9191c2e7a4f204726fcaf205
   languageName: node
   linkType: hard
 
@@ -7949,16 +7997,16 @@ __metadata:
     "@storybook/node-logger": ^6.5.10
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.10
-    "@swim-io/core": ^0.22.0
+    "@swim-io/core": ^0.23.0
     "@swim-io/eslint-config": "workspace:^"
-    "@swim-io/evm": ^0.22.0
-    "@swim-io/evm-contracts": ^0.22.0
-    "@swim-io/pool-math": ^0.22.0
-    "@swim-io/solana": ^0.22.0
-    "@swim-io/token-projects": ^0.22.0
+    "@swim-io/evm": ^0.23.0
+    "@swim-io/evm-contracts": ^0.23.0
+    "@swim-io/pool-math": ^0.23.0
+    "@swim-io/solana": ^0.23.0
+    "@swim-io/token-projects": ^0.23.0
     "@swim-io/tsconfig": "workspace:^"
-    "@swim-io/utils": ^0.22.0
-    "@swim-io/wormhole": ^0.22.0
+    "@swim-io/utils": ^0.23.0
+    "@swim-io/wormhole": ^0.23.0
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^7.0.2
@@ -8020,10 +8068,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/utils@npm:^0.22.0":
-  version: 0.22.0
-  resolution: "@swim-io/utils@npm:0.22.0"
-  checksum: 618686c7434786224fd6a48de0d85a8d3dd2a0d3d604661c3da84bb54e7e3f8f563defe55596f2755c26ef9dd26d006d2e27170fb33333a893a86de4ae570d29
+"@swim-io/utils@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "@swim-io/utils@npm:0.23.0"
+  dependencies:
+    decimal.js: ^10.3.1
+  checksum: 5960c86297483ec738ff2b13e02053fa9a0dfaf629fb5e518777ff0ac9c05d7e8ac7ddb4db4cb4b5e81b688fbe45d44d45bd8b63b42e2fed1eae46a942f42afc
   languageName: node
   linkType: hard
 
@@ -8033,8 +8083,10 @@ __metadata:
   dependencies:
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
+    "@types/jest": ^28.1.7
     "@typescript-eslint/eslint-plugin": ^5.29.0
     "@typescript-eslint/parser": ^5.29.0
+    decimal.js: ^10.3.1
     eslint: ^8.18.0
     eslint-config-prettier: ^8.5.0
     eslint-plugin-deprecation: ^1.3.2
@@ -8045,22 +8097,23 @@ __metadata:
     eslint-plugin-prettier: ^4.0.0
     jest: ^28.1.2
     prettier: ^2.7.1
+    ts-jest: ^28.0.8
     typescript: ^4.7.4
   languageName: unknown
   linkType: soft
 
-"@swim-io/wormhole@npm:^0.22.0":
-  version: 0.22.0
-  resolution: "@swim-io/wormhole@npm:0.22.0"
+"@swim-io/wormhole@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "@swim-io/wormhole@npm:0.23.0"
   dependencies:
     "@certusone/wormhole-sdk": ^0.6.0
     "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.48.0
-    "@swim-io/solana": ^0.22.0
-    "@swim-io/utils": ^0.22.0
+    "@swim-io/solana": ^0.23.0
+    "@swim-io/utils": ^0.23.0
     ethers: ^5.6.9
     grpc-web: ^1.3.1
-  checksum: f198b6a75628f66d0c328d3a3e88115006d097184990ea65c3dff8785d1c8d239d5a6ea14beeea4c8ea14865bf21e60390fb2c6c75b7368b6434dd232ed9d163
+  checksum: 5da8ddcdfd1d9c35083cb93456d5a73a0008393422f87e9ff17683669c8224f782dd2a91275809eaa4741a25ddf142e8ac47402fe61533ea56291f1db67e52bc
   languageName: node
   linkType: hard
 

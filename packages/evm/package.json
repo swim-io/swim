@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/evm",
-  "version": "0.19.0",
+  "version": "0.22.0",
   "description": "Swim code relating to EVM.",
   "main": "build",
   "types": "types",
@@ -32,10 +32,15 @@
   },
   "dependencies": {
     "@swim-io/core": "workspace:^",
+    "@swim-io/evm-contracts": "workspace:^",
     "@swim-io/token-projects": "workspace:^",
     "@swim-io/utils": "workspace:^",
+    "decimal.js": "^10.3.1",
     "ethers": "^5.6.9",
-    "eventemitter3": "^4.0.7"
+    "eventemitter3": "^4.0.7",
+    "graphql": "^16.6.0",
+    "graphql-request": "^4.3.0",
+    "moralis": "^1.8.0"
   },
   "devDependencies": {
     "@ethersproject/providers": "^5.6.8",

@@ -1,15 +1,17 @@
 use {
-    crate::Propeller,
+    crate::{is_transfer_amount_sufficient, Propeller},
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::token::{Mint, Token, TokenAccount},
-    two_pool::{
-        gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT,
-    },
+    two_pool::{gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT},
 };
 
 #[derive(Accounts)]
 pub struct Add<'info> {
-    // pub propeller: Account<'info, Propeller>,
+    #[account(
+    seeds = [ b"propeller".as_ref(), lp_mint.key().as_ref()],
+    bump = propeller.bump
+    )]
+    pub propeller: Account<'info, Propeller>,
     #[account(
     mut,
     seeds = [
@@ -70,11 +72,20 @@ pub struct Add<'info> {
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
 }
 
+impl<'info> Add<'info> {
+    pub fn accounts(ctx: &Context<Add>) -> Result<()> {
+        require_keys_eq!(ctx.accounts.lp_mint.key(), ctx.accounts.propeller.token_bridge_mint);
+        Ok(())
+    }
+}
+
 pub fn handle_add(
     ctx: Context<Add>,
     input_amounts: [u64; TOKEN_COUNT],
     minimum_mint_amount: u64,
     memo: &[u8],
+    propeller_enabled: bool,
+    target_chain: u16,
 ) -> Result<u64> {
     let cpi_ctx = CpiContext::new(
         ctx.accounts.two_pool_program.to_account_info(),
@@ -97,5 +108,12 @@ pub fn handle_add(
     let memo_ix = spl_memo::build_memo(memo, &[]);
     invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     anchor_lang::prelude::msg!("add return_val: {:?}", return_val);
+    is_transfer_amount_sufficient(
+        &ctx.accounts.propeller,
+        &ctx.accounts.lp_mint,
+        propeller_enabled,
+        target_chain,
+        return_val,
+    )?;
     Ok(return_val)
 }

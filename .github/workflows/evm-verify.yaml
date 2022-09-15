@@ -16,3 +16,4 @@ jobs:
       workingDirectory: ./packages/evm
       buildDependenciesForPackage: "@swim-io/evm"
       skipTest: true
+      buildPreCommand: "MNEMONIC='test test test test test test test test test test test junk' ETHERSCAN_API_KEY=XRJNAJSHABY3I6GUJYGHIVTSGCQ2S2Y75J"

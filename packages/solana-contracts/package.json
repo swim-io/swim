@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/solana-contracts",
-  "version": "0.19.0",
+  "version": "0.22.0",
   "description": "TS bindings for Swim Solana pool contracts.",
   "main": "build",
   "types": "types",
@@ -33,6 +33,7 @@
     "test:integration": "yarn run prep && anchor test --skip-build integration",
     "test:propeller": "yarn run prep && anchor test --skip-build propeller",
     "test:pool": "yarn run prep && anchor test --skip-build pool",
+    "test:utils": "yarn run prep && anchor test --skip-build utils",
     "typecheck": "tsc",
     "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test",
     "prepare": "yarn verify && yarn build"
@@ -48,6 +49,7 @@
     "@certusone/wormhole-sdk-wasm": "^0.0.1",
     "@ethersproject/bytes": "^5.6.1",
     "@metaplex-foundation/js": "^0.14.0",
+    "@solana/spl-memo": "^0.2.2",
     "@swim-io/eslint-config": "workspace:^",
     "@swim-io/tsconfig": "workspace:^",
     "@switchboard-xyz/sbv2-utils": "^0.1.43",
@@ -56,6 +58,7 @@
     "@types/chai": "^4.3.0",
     "@types/jest": "^28.1.7",
     "@types/mocha": "^9.0.0",
+    "@types/node": "^18.7.16",
     "byteify": "^2.0.10",
     "chai": "^4.3.4",
     "elliptic": "^6.5.4",

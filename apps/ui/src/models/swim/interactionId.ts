@@ -1,7 +1,7 @@
 import type { ConfirmedSignatureInfo } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import { Env } from "@swim-io/core";
-import type { EvmEcosystemId, EvmTx } from "@swim-io/evm";
+import type { EvmConnection, EvmEcosystemId, EvmTx } from "@swim-io/evm";
 import { isEvmEcosystemId } from "@swim-io/evm";
 import type { SolanaConnection, SolanaTx } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
@@ -10,7 +10,6 @@ import type { ethers } from "ethers";
 import type { QueryClient } from "react-query";
 
 import type { EcosystemId } from "../../config";
-import type { EvmConnection } from "../evm";
 
 export const INTERACTION_ID_LENGTH = 16;
 export const INTERACTION_ID_LENGTH_HEX = INTERACTION_ID_LENGTH * 2;

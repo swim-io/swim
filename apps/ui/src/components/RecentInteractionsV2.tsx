@@ -26,12 +26,12 @@ export const RecentInteractionsV2 = ({
   interactionTypes,
 }: Props): ReactElement => {
   const env = useEnvironment((state) => state.env);
-  const loadInteractionStatesFromIDB = useInteractionStateV2(
-    (state) => state.loadInteractionStatesFromIDB,
+  const loadInteractionStatesFromIdb = useInteractionStateV2(
+    (state) => state.loadInteractionStatesFromIdb,
   );
   useEffect(() => {
-    loadInteractionStatesFromIDB(env).catch(console.error);
-  }, [env, loadInteractionStatesFromIDB]);
+    loadInteractionStatesFromIdb(env).catch(console.error);
+  }, [env, loadInteractionStatesFromIdb]);
 
   const wallets = useWallets();
   // Don’t display current interaction

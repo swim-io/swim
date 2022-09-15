@@ -2,7 +2,7 @@ import { EuiButton, EuiFlexGroup, EuiFlexItem } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { useCallback, useState } from "react";
 
-import { Ecosystem, ECOSYSTEMS } from "../config";
+import { Ecosystem } from "../config";
 import { NetworkModal } from "./NetworkModal";
 
 import { NetworkConfigIcon } from "./TokenIcon";
@@ -17,9 +17,6 @@ export const NetworkSelect = ({
   network,
 }: Props): ReactElement => {
   const [showModal, setShowModal] = useState(false);
-  const [selectedNetworkId, setSelectedNetworkId] = useState(
-    ECOSYSTEMS.solana.id,
-  );
 
   const openModal = useCallback(() => setShowModal(true), [setShowModal]);
   const closeModal = useCallback(() => setShowModal(false), [setShowModal]);
@@ -42,7 +39,7 @@ export const NetworkSelect = ({
         <NetworkModal
           handleClose={closeModal}
           handleSelectNetwork={onSelectNetwork}
-          selectedNetworkId={selectedNetworkId}
+          selectedNetworkId={network.id}
         />
       )}
     </>

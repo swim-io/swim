@@ -90,15 +90,20 @@ export const useSwapTokensContext = (): SwapTokensContext => {
 
   const [fromTokenOptionsIds, setFromTokensOptionIds] = useState<
     readonly string[]
-  >(useFromTokenOptionsIds(ECOSYSTEMS.solana.id));
-  const [fromToken, setFromToken] = useState<TokenConfig>(fromData?.token || )
+  >(
+    useFromTokenOptionsIds(networks[0].id).filter((tokenId) =>
+      tokenId.includes(networks[0].id),
+    ),
+  );
   const hasFromUrlError = !!fromUrlParam && !fromData?.token;
   const fromToken =
     fromData?.token ??
     findOrThrow(tokens, ({ id }) => id === fromTokenOptionsIds[0]);
 
   const [toTokenOptionsIds, setToTokensOptionIds] = useState<readonly string[]>(
-    getToTokenOptionsIds(fromToken.id),
+    getToTokenOptionsIds(fromToken.id).filter((toeknId) =>
+      toeknId.includes(networks[1].id),
+    ),
   );
   const hasToUrlError =
     !!toUrlParam && (!toData || !toTokenOptionsIds.includes(toData.token.id));
@@ -107,6 +112,10 @@ export const useSwapTokensContext = (): SwapTokensContext => {
     toData?.token && !hasToUrlError
       ? toData.token
       : findOrThrow(tokens, ({ id }) => id === toTokenOptionsIds[0]);
+
+  const [fromTokenConfig, setFromTokenConfig] =
+    useState<TokenConfig>(fromToken);
+  const [toTokenConfig, setToTokenConfig] = useState<TokenConfig>(toToken);
 
   const setFromAndToTokens = (
     newFromToken: TokenConfig,
@@ -119,6 +128,8 @@ export const useSwapTokensContext = (): SwapTokensContext => {
         ? newToToken
         : findOrThrow(tokens, ({ id }) => id === newToTokenOptions[0]),
     );
+    setFromTokenConfig(newFromToken);
+    setToTokenConfig(newToToken);
     navigate(`/swap/${fromTokenUrlParam}/to/${toTokenUrlParam}`);
   };
 
@@ -134,27 +145,36 @@ export const useSwapTokensContext = (): SwapTokensContext => {
     const updatedNetworks: Ecosystem[] = [...networks];
     updatedNetworks[0] =
       ECOSYSTEM_LIST.find(({ id }) => id === networkId) ?? ECOSYSTEMS.solana;
-    const tokenIds = tokens
-      .filter((token) => token.nativeEcosystemId === updatedNetworks[0].id)
-      .map((token) => token.id);
+    const fromTokens = tokens.filter(
+      (token) =>
+        token.nativeEcosystemId === updatedNetworks[0].id && !token.isDisabled,
+    );
+    const tokenIds = fromTokens.map((token) => token.id);
+
+    setFromTokenConfig(fromTokens[0]);
     setFromTokensOptionIds(tokenIds);
     setNetworks(updatedNetworks);
   };
+
   const setToNetwork = (networkId: string) => {
     const updatedNetworks: Ecosystem[] = [...networks];
     updatedNetworks[1] =
       ECOSYSTEM_LIST.find(({ id }) => id === networkId) ?? ECOSYSTEMS.solana;
-    const tokenIds = tokens
-      .filter((token) => token.nativeEcosystemId === updatedNetworks[1].id)
-      .map((token) => token.id);
+    const toTokens = tokens.filter(
+      (token) =>
+        token.nativeEcosystemId === updatedNetworks[1].id && !token.isDisabled,
+    );
+    const tokenIds = toTokens.map((token) => token.id);
+
+    setToTokenConfig(toTokens[0]);
     setToTokensOptionIds(tokenIds);
     setNetworks(updatedNetworks);
   };
 
   const hasUrlError = hasToUrlError || hasFromUrlError;
   return {
-    fromToken,
-    toToken,
+    fromToken: fromTokenConfig,
+    toToken: toTokenConfig,
     fromTokenOptionsIds,
     toTokenOptionsIds,
     fromNetwork: networks[0],

@@ -28,6 +28,7 @@ import type {
   SolanaTx,
   SolanaWalletAdapter,
 } from "@swim-io/solana";
+import { redeemOnSolana } from "@swim-io/wormhole";
 
 import type { TokenConfig } from "../../config";
 import { WormholeChainId, getSolanaTokenDetails } from "../../config";
@@ -37,7 +38,6 @@ import {
   POLYGON_WORMHOLE_RETRIES,
 } from "./constants";
 import { getSignedVaaWithRetry } from "./guardiansRpc";
-import { postVaaSolanaWithRetry, redeemOnSolana } from "./overrides";
 
 // Adapted from https://github.com/certusone/wormhole/blob/83b97bedb8c54618b191c20e4e18ba438a716cfa/sdk/js/src/bridge/parseSequenceFromLog.ts#L71-L81
 const SOLANA_SEQ_LOG = "Program log: Sequence: ";
@@ -222,53 +222,3 @@ export async function* generateUnlockSplTokenTxIds(
     redeemTx,
   );
 }
-
-export const unlockSplToken = async (
-  interactionId: string,
-  wormholeRpcUrls: readonly string[],
-  wormholeChainId: WormholeChainId,
-  emitterAddress: string,
-  sequence: string,
-  solanaWormhole: WormholeChainConfig,
-  solanaConnection: SolanaConnection,
-  solanaWallet: SolanaWalletAdapter,
-): Promise<readonly string[]> => {
-  const { publicKey: solanaPublicKey } = solanaWallet;
-  if (!solanaPublicKey) {
-    throw new Error("No Solana public key");
-  }
-  const retries =
-    wormholeChainId === WormholeChainId.Polygon
-      ? POLYGON_WORMHOLE_RETRIES
-      : DEFAULT_WORMHOLE_RETRIES;
-  const { vaaBytes } = await getSignedVaaWithRetry(
-    [...wormholeRpcUrls],
-    wormholeChainId,
-    emitterAddress,
-    sequence,
-    undefined,
-    undefined,
-    retries,
-  );
-  const postVaaTxIds = await postVaaSolanaWithRetry(
-    interactionId,
-    solanaConnection,
-    solanaWallet.signTransaction.bind(solanaWallet),
-    solanaWormhole.bridge,
-    solanaPublicKey.toBase58(),
-    Buffer.from(vaaBytes),
-  );
-  const tx = await redeemOnSolana(
-    interactionId,
-    solanaConnection,
-    solanaWormhole.bridge,
-    solanaWormhole.portal,
-    solanaPublicKey.toBase58(),
-    vaaBytes,
-  );
-  const redeemTxId = await solanaConnection.sendAndConfirmTx(
-    solanaWallet.signTransaction.bind(solanaWallet),
-    tx,
-  );
-  return [...postVaaTxIds, redeemTxId];
-};

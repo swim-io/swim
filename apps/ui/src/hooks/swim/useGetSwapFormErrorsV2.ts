@@ -11,9 +11,6 @@ import {
   useWallets,
 } from "../crossEcosystem";
 
-import { useIsLargeSwapV2 } from "./useIsLargeSwapV2";
-import { useToken } from "./useToken";
-
 export const useGetSwapFormErrorsV2 = (
   fromTokenOption: TokenOption,
   toTokenOption: TokenOption,
@@ -22,18 +19,13 @@ export const useGetSwapFormErrorsV2 = (
 ) => {
   const wallets = useWallets();
   const userNativeBalances = useUserNativeBalances();
-  const fromToken = useToken(fromTokenOption.tokenId);
+  const fromToken = fromTokenOption.tokenConfig;
   const fromTokenBalance = useUserBalanceAmount(
     fromToken,
     fromTokenOption.ecosystemId,
   );
-  const isLargeSwap = useIsLargeSwapV2(
-    fromTokenOption,
-    toTokenOption,
-    inputAmount,
-  );
 
-  return (allowLargeSwap: boolean) => {
+  return () => {
     let errors: readonly string[] = [];
 
     const requiredEcosystems = new Set(
@@ -76,11 +68,6 @@ export const useGetSwapFormErrorsV2 = (
 
     if (inputAmount.isZero()) {
       errors = [...errors, "Provide a valid amount"];
-    }
-
-    if (isLargeSwap && !allowLargeSwap) {
-      // If not allowed, limit swap size to 10% of pool supply
-      errors = [...errors, "Swap size must be less than 10% of pool supply"];
     }
 
     if (!isValidSlippageFraction(maxSlippageFraction)) {

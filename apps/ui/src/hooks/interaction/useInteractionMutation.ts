@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "react-query";
 
-import { useInteractionState } from "../../core/store";
+import { useEnvironment, useInteractionState } from "../../core/store";
 
 import { useFromSolanaTransferMutation } from "./useFromSolanaTransferMutation";
 import { usePrepareSplTokenAccountMutation } from "./usePrepareSplTokenAccountMutation";
@@ -10,6 +10,7 @@ import { useToSolanaTransferMutation } from "./useToSolanaTransferMutation";
 export const INTERACTION_MUTATION_KEY = ["interactionMutation"];
 
 export const useInteractionMutation = () => {
+  const { env } = useEnvironment();
   const { setInteractionError } = useInteractionState();
 
   const { mutateAsync: prepareSplTokenAccountMutateAsync } =
@@ -39,8 +40,8 @@ export const useInteractionMutation = () => {
         setInteractionError(interactionId, error);
       },
       onSettled: async () => {
-        await queryClient.invalidateQueries(["erc20Balance"]);
-        await queryClient.invalidateQueries(["tokenAccounts"]);
+        await queryClient.invalidateQueries([env, "erc20Balance"]);
+        await queryClient.invalidateQueries([env, "tokenAccounts"]);
       },
     },
   );

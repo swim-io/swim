@@ -228,6 +228,7 @@ export const useCreateInteractionState = () => {
       connectedWallets,
     };
     return {
+      version: undefined,
       interaction,
       requiredSplTokenAccounts: createRequiredSplTokenAccounts(
         requiredTokens,

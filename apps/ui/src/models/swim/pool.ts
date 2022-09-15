@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import type { EvmEcosystemId } from "@swim-io/evm";
+import type { EvmConnection, EvmEcosystemId } from "@swim-io/evm";
 import { isEvmEcosystemId } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
 import {
@@ -27,7 +27,6 @@ import type {
 } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
 import type { Tx } from "../crossEcosystem";
-import type { EvmConnection } from "../evm";
 
 export interface SolanaPoolState extends SwimPoolState {
   readonly ecosystem: SolanaEcosystemId;

@@ -20,8 +20,8 @@ export const useErc20BalancesQuery = (
   return useQueries(
     contractAddresses.map((contractAddress) => ({
       queryKey: [
-        "erc20Balance",
         env,
+        "erc20Balance",
         ecosystemId,
         contractAddress,
         walletAddress,

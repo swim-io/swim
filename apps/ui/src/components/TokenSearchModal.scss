@@ -29,6 +29,7 @@
   .euiFlexItem {
     flex-basis: 100%;
     width: 100%;
+    min-width: 140px;
     .euiButton .euiButton__text {
       display: flex;
       justify-content: space-around;

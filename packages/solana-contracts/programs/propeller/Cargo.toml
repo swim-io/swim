@@ -26,6 +26,7 @@ spl-memo = { version = "3.0.1", features = ["no-entrypoint"] }
 spl-token = "3.3.0"
 switchboard-v2 = "^0.1.11"
 two-pool = { path = "../two-pool", features = ["cpi"] }
+solana-program = "~1.10.29"
 
 #solana-program = "~1.9.13"
 #two-pool = { git = "https://github.com/swim-io/pool-internal", features = ["no-entrypoint"] }
@@ -49,7 +50,6 @@ sha3 = "0.9.1"
 # from wormhole
 # needed to deserialize vaa & vaa payload
 # both versions give stack offset exceeded error.
-# this version gives stack offset exceeded error when compiling
 # Error: Function _ZN15primitive_types4U51215overflowing_pow17h8e849d6842d88e13E
 # Stack offset of 4440 exceeded max offset of 4096 by 344 bytes,
 # please minimize large stack variables
@@ -57,3 +57,6 @@ primitive-types = { version="0.11.1", default-features=false }
 # wh version
 #primitive-types = { version = "0.9.0", default-features = false}
 byteorder = "1.4.3"
+
+rust_decimal = { version = "1.25", features = ["maths", "borsh"] }
+rust_decimal_macros = "1.25"

@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 
 import type { TokenOption } from "../models";
 
-import { TokenOptionIcon } from "./TokenIcon";
+import { TokenConfigIcon } from "./TokenIcon";
 import { TokenSearchModalV2 } from "./TokenSearchModalV2";
 
 interface Props {
@@ -26,7 +26,10 @@ export const TokenSelectV2 = ({
   return (
     <>
       <EuiButton onClick={openModal} fullWidth>
-        <TokenOptionIcon tokenOption={selectedTokenOption} />
+        <TokenConfigIcon
+          token={selectedTokenOption.tokenConfig}
+          ecosystem={selectedTokenOption.ecosystemId}
+        />
       </EuiButton>
       {showModal && (
         <TokenSearchModalV2

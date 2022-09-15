@@ -79,7 +79,15 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
     setFromAndToTokens,
     hasUrlError,
   } = useSwapTokensContext();
-  console.log("SWAP context", toNetwork, fromNetwork);
+  console.log(
+    "SWAP context",
+    fromToken,
+    toToken,
+    fromTokenOptionsIds,
+    toTokenOptionsIds,
+    fromNetwork,
+    toNetwork,
+  );
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const requiredPools = getRequiredPoolsForSwap(
@@ -266,7 +274,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         errors={inputAmountErrors}
         onSelectNetwork={setFromNetwork}
         onSelectToken={setFromToken}
-        onChangeValue={(value) => setFormInputAmount(value)}
+        onChangeValue={setFormInputAmount}
         onBlur={() => handleInputAmountChange(inputAmount)}
         showConstantSwapTip={!isStableSwap}
       />

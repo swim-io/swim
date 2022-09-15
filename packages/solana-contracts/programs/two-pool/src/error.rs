@@ -80,6 +80,10 @@ pub enum PoolError {
     StaleFeed,
     #[msg("Switchboard feed exceeded provided confidence interval")]
     ConfidenceIntervalExceeded,
+    #[msg("Maximum decimals exceeded")]
+    MaxDecimalsExceeded,
+    #[msg("Conversion error")]
+    ConversionError,
 }
 
 // impl From<PoolError> for ProgramError {

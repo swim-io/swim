@@ -1,7 +1,7 @@
 use {
     crate::{
-        error::*, Propeller, PropellerSender, RawSwimPayload, SwimPayloadVersion,
-        TransferWithPayloadData, TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
+        error::*, is_transfer_amount_sufficient, Propeller, RawSwimPayload, SwimPayloadVersion, TokenBridge, Wormhole,
+        TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
         prelude::*,
@@ -24,14 +24,11 @@ use {
 #[derive(Accounts)]
 pub struct TransferNativeWithPayload<'info> {
     #[account(
-	has_one = token_bridge_mint,
-	seeds = [
-		b"propeller".as_ref(),
-		token_bridge_mint.key().as_ref(),
-	],
-	bump = propeller.bump,
-	)]
-    pub propeller: Account<'info, Propeller>,
+    has_one = token_bridge_mint,
+    seeds = [b"propeller".as_ref(), token_bridge_mint.key().as_ref()],
+    bump = propeller.bump,
+    )]
+    pub propeller: Box<Account<'info, Propeller>>,
 
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -62,11 +59,10 @@ pub struct TransferNativeWithPayload<'info> {
     //  technical edge-case - on first token_bridge_transfer with the token, this custody account won't be
     //  initialized yet. if we can assume that this account is initialized, we can do explicit type check here.
     /// CHECK: Will either be token bridge custody account or wrapped meta account
-    pub custody: AccountInfo<'info>,
+    pub custody: UncheckedAccount<'info>,
 
     #[account(executable, address = propeller.token_bridge()?)]
-    /// CHECK: Token Bridge Program
-    pub token_bridge: AccountInfo<'info>,
+    pub token_bridge: Program<'info, TokenBridge>,
 
     #[account(
 	seeds=[b"custody_signer".as_ref()],
@@ -74,7 +70,7 @@ pub struct TransferNativeWithPayload<'info> {
 	seeds::program = token_bridge.key()
 	)]
     /// CHECK: Only used for bridging assets native to Solana.
-    pub custody_signer: AccountInfo<'info>,
+    pub custody_signer: UncheckedAccount<'info>,
 
     #[account(
 	seeds=[b"authority_signer".as_ref()],
@@ -94,17 +90,16 @@ pub struct TransferNativeWithPayload<'info> {
     pub wormhole_config: AccountInfo<'info>,
 
     #[account(mut)]
-    /// Note:
-    ///     switched to using a `Signer`
-    ///     instead of a PDA since a normal token bridge transfer
-    ///     uses a Keypair.generate()
-    ///
-    ///     A new one needs to be used for every transfer
-    ///
-    ///     WH expects this to be an uninitialized account so might
-    ///     be able to use a PDA still in the future.
-    ///     maybe [b"propeller".as_ref(), payer, sequence_value]
-    /// CHECK: Wormhole Message Storage
+    // Note:
+    //     switched to using a `Signer`
+    //     instead of a PDA since a normal token bridge transfer
+    //     uses a Keypair.generate()
+    //
+    //     A new one needs to be used for every transfer
+    //
+    //     WH expects this to be an uninitialized account so might
+    //     be able to use a PDA still in the future.
+    //     maybe [b"propeller".as_ref(), payer, sequence_value]
     pub wormhole_message: Signer<'info>,
 
     #[account(
@@ -176,14 +171,14 @@ pub struct TransferNativeWithPayload<'info> {
 		bump = propeller.sender_bump,
 	)]
     /// CHECK: Sender Account
-    pub sender: AccountInfo<'info>,
-    // pub sender: Account<'info, PropellerSender>,
+    pub sender: SystemAccount<'info>,
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
 
-    #[account(executable, address = propeller.wormhole()?)]
-    /// CHECK: Wormhole Program
-    pub wormhole: AccountInfo<'info>,
+    // #[account(executable, address = propeller.wormhole()?)]
+    // /// CHECK: Wormhole Program
+    // pub wormhole: AccountInfo<'info>,
+    pub wormhole: Program<'info, Wormhole>,
 
     pub token_program: Program<'info, Token>,
 
@@ -209,6 +204,17 @@ impl<'info> TransferNativeWithPayload<'info> {
     }
 }
 
+#[derive(AnchorDeserialize, AnchorSerialize, Default)]
+pub struct TransferWithPayloadData {
+    pub nonce: u32,
+    pub amount: u64,
+    // pub fee: u64,
+    pub target_address: [u8; 32],
+    pub target_chain: u16,
+    pub payload: Vec<u8>,
+    pub cpi_program_id: Option<Pubkey>,
+}
+
 pub fn handle_transfer_native_with_payload(
     ctx: Context<TransferNativeWithPayload>,
     nonce: u32,
@@ -221,6 +227,13 @@ pub fn handle_transfer_native_with_payload(
     propeller_enabled: bool,
     memo: Vec<u8>,
 ) -> Result<()> {
+    is_transfer_amount_sufficient(
+        &ctx.accounts.propeller,
+        &ctx.accounts.token_bridge_mint,
+        propeller_enabled,
+        target_chain,
+        amount,
+    )?;
     msg!("transfer_native_with_payload");
     token::approve(
         CpiContext::new(
@@ -239,34 +252,7 @@ pub fn handle_transfer_native_with_payload(
     // target_token_addr.copy_from_slice(target_token.as_slice());
     let mut owner_addr = [0u8; 32];
     owner_addr.copy_from_slice(owner.as_slice());
-    let propeller = &ctx.accounts.propeller;
-    //TODO: still need to handle the u256/u64
 
-    let raw_min_threshold = match target_chain {
-        crate::constants::CHAIN_ID_ETH => propeller.propeller_eth_min_transfer_amount,
-        _ => propeller.propeller_min_transfer_amount,
-    };
-    // let raw_min_threshold = propeller.propeller_min_transfer_amount;
-    let trunc_divisor = 10u64.pow(8.max(ctx.accounts.token_bridge_mint.decimals as u32) - 8);
-    // Truncate to 8 decimals
-    let min_threshold: u64 = raw_min_threshold / trunc_divisor;
-    // Untruncate the amount to drop the remainder so we don't  "burn" user's funds.
-    let min_threshold_trunc: u64 = min_threshold * trunc_divisor;
-
-    msg!(
-        "amount: {}, raw_min_threshold: {}, min_threshold_trunc: {}",
-        amount,
-        raw_min_threshold,
-        min_threshold_trunc
-    );
-    // TODO: should i do the token bridge transfer amount calculation here and compare that?
-    if propeller_enabled {
-        require_gte!(
-            amount,
-            min_threshold_trunc,
-            PropellerError::InsufficientAmount
-        );
-    }
     let swim_payload = RawSwimPayload {
         swim_payload_version: 0,
         target_token_id,
@@ -275,7 +261,7 @@ pub fn handle_transfer_native_with_payload(
         memo: memo.clone().try_into().unwrap(),
         propeller_enabled,
         //TODO: not sure if this is needed. applying same math as how token-bridge handles amount.
-        min_threshold: U256::from(0u64),
+        // min_threshold: U256::from(0u64),
         // propeller_min_threshold: U256::from(propeller.propeller_min_threshold),
         // propeller_fee: U256::from(propeller.propeller_fee),
         gas_kickstart,
@@ -299,6 +285,7 @@ pub fn handle_transfer_native_with_payload(
     //             see - wh-sdk/src/utils/array.ts tryNativeToUint8Array(address: string, chain: ChainId | ChainName)
     //     4. targetChain is number/u16
     //     5. payload is Vec<u8>
+    // ok
 
     let transfer_with_payload_data = TransferWithPayloadData {
         // nonce: ctx.accounts.custodian.nonce,
@@ -323,10 +310,7 @@ pub fn handle_transfer_native_with_payload(
         ctx.accounts.payer.to_account_info().clone(),
         ctx.accounts.token_bridge_config.to_account_info().clone(),
         // ctx.accounts.token_bridge.to_account_info().clone(),
-        ctx.accounts
-            .user_token_bridge_account
-            .to_account_info()
-            .clone(),
+        ctx.accounts.user_token_bridge_account.to_account_info().clone(),
         ctx.accounts.token_bridge_mint.to_account_info().clone(),
         token_bridge_custody.to_account_info().clone(),
         ctx.accounts.authority_signer.to_account_info().clone(),
@@ -336,10 +320,7 @@ pub fn handle_transfer_native_with_payload(
         ctx.accounts.wormhole_message.to_account_info().clone(),
         ctx.accounts.wormhole_emitter.to_account_info().clone(),
         ctx.accounts.wormhole_sequence.to_account_info().clone(),
-        ctx.accounts
-            .wormhole_fee_collector
-            .to_account_info()
-            .clone(),
+        ctx.accounts.wormhole_fee_collector.to_account_info().clone(),
         // Clock::get()?.to_account_info().clone(),
         ctx.accounts.clock.to_account_info().clone(),
         //TODO: replaced with sender once that PR is merged
@@ -380,11 +361,7 @@ pub fn handle_transfer_native_with_payload(
                 AccountMeta::new_readonly(ctx.accounts.wormhole.key(), false),
                 AccountMeta::new_readonly(spl_token::id(), false),
             ],
-            data: (
-                TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
-                transfer_with_payload_data,
-            )
-                .try_to_vec()?,
+            data: (TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION, transfer_with_payload_data).try_to_vec()?,
         },
         // &ctx.accounts.to_account_infos(),
         &wh_token_transfer_acct_infos,

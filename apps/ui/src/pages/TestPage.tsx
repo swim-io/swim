@@ -18,7 +18,7 @@ import {
 import { PublicKey } from "@solana/web3.js";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import { sleep } from "@swim-io/utils";
+import { filterMap, sleep } from "@swim-io/utils";
 import BN from "bn.js";
 import type { ReactElement } from "react";
 import { Fragment, useMemo, useState } from "react";
@@ -26,6 +26,7 @@ import { useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
 import { ConnectButton } from "../components/ConnectButton";
+import type { EcosystemId } from "../config";
 import { Protocol, WormholeChainId, getSolanaTokenDetails } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
@@ -37,6 +38,7 @@ import {
   useWallets,
 } from "../hooks";
 import { keysHexaPool, keysSwimLake } from "../keys";
+import type { CrossEcosystemResult } from "../models";
 import {
   SwimInitializer,
   isSolanaPoolState,
@@ -45,6 +47,16 @@ import {
 } from "../models";
 
 const SWIM_POOL_FEE_DECIMALS = 6;
+
+const filterCrossEcosystemTxIds = (
+  ecosystemId: EcosystemId,
+  crossEcosystemResults: readonly CrossEcosystemResult[],
+): readonly string[] =>
+  filterMap(
+    (result: CrossEcosystemResult) => result.ecosystemId === ecosystemId,
+    (result) => result.txId,
+    crossEcosystemResults,
+  );
 
 const TestPage = (): ReactElement => {
   const { env } = useEnvironment();
@@ -175,7 +187,7 @@ const TestPage = (): ReactElement => {
 
     await evmWallet.switchNetwork(evmChain.chainId);
 
-    const splTokenSetupResult = await setUpSplTokensOnEvm(
+    const splTokenSetupResults = await setUpSplTokensOnEvm(
       wormholeConfig,
       solanaChain.wormhole,
       evmChain,
@@ -185,18 +197,22 @@ const TestPage = (): ReactElement => {
       nativeSolanaTokenAddresses,
     );
     console.info(`WRAPPED SOLANA TOKEN (${ecosystem}) SETUP`);
-    console.info("SOLANA TX IDS", splTokenSetupResult.solanaTxIds);
-    const splTokenSetupEvmTxIds =
-      ecosystem === EvmEcosystemId.Ethereum
-        ? splTokenSetupResult.ethereumTxIds
-        : splTokenSetupResult.bnbTxIds;
+    const splTokenSetupSolanaTxIds = filterCrossEcosystemTxIds(
+      SOLANA_ECOSYSTEM_ID,
+      splTokenSetupResults,
+    );
+    console.info("SOLANA TX IDS", splTokenSetupSolanaTxIds);
+    const splTokenSetupEvmTxIds = filterCrossEcosystemTxIds(
+      ecosystem,
+      splTokenSetupResults,
+    );
     console.info(`${ecosystem} TX IDS`, splTokenSetupEvmTxIds);
 
     const nativeErc20TokenAddresses =
       ecosystem === EvmEcosystemId.Ethereum
         ? nativeEthereumTokenAddresses
         : nativeBnbTokenAddresses;
-    const erc20TokenSetupResult = await setUpErc20Tokens(
+    const erc20TokenSetupResults = await setUpErc20Tokens(
       wormholeConfig,
       evmChain,
       solanaChain.wormhole,
@@ -206,11 +222,15 @@ const TestPage = (): ReactElement => {
       nativeErc20TokenAddresses,
     );
     console.info(`WRAPPED ${ecosystem} TOKEN (SOLANA) SETUP`);
-    console.info("SOLANA TX IDS", erc20TokenSetupResult.solanaTxIds);
-    const erc20TokenSetupEvmTxIds =
-      ecosystem === EvmEcosystemId.Ethereum
-        ? erc20TokenSetupResult.ethereumTxIds
-        : erc20TokenSetupResult.bnbTxIds;
+    const erc20TokenSetupSolanaTxIds = filterCrossEcosystemTxIds(
+      SOLANA_ECOSYSTEM_ID,
+      erc20TokenSetupResults,
+    );
+    console.info("SOLANA TX IDS", erc20TokenSetupSolanaTxIds);
+    const erc20TokenSetupEvmTxIds = filterCrossEcosystemTxIds(
+      ecosystem,
+      erc20TokenSetupResults,
+    );
     console.info(`${ecosystem} TX IDS`, erc20TokenSetupEvmTxIds);
   };
 
@@ -229,7 +249,7 @@ const TestPage = (): ReactElement => {
       )) ?? null;
     setInitTxIds(newInitTxIds);
     await sleep(1000);
-    await queryClient.invalidateQueries(["poolState", env, poolSpec.address]);
+    await queryClient.invalidateQueries([env, "poolState", poolSpec.id]);
   };
 
   const attestLpToken = async (): Promise<void> => {
@@ -246,7 +266,7 @@ const TestPage = (): ReactElement => {
       throw new Error("No Wormhole RPC configured");
     }
 
-    const splTokenEthereumSetupResult = await setUpSplTokensOnEvm(
+    const splTokenEthereumSetupResults = await setUpSplTokensOnEvm(
       wormholeConfig,
       solanaChain.wormhole,
       ethereumChain,
@@ -256,10 +276,18 @@ const TestPage = (): ReactElement => {
       [lpTokenSolanaDetails.address],
     );
     console.info("ATTEST LP TOKEN ON ETHEREUM");
-    console.info("SOLANA TX IDS", splTokenEthereumSetupResult.solanaTxIds);
-    console.info("ETHEREUM TX IDS", splTokenEthereumSetupResult.ethereumTxIds);
+    const splTokenEthereumSetupSolanaTxIds = filterCrossEcosystemTxIds(
+      SOLANA_ECOSYSTEM_ID,
+      splTokenEthereumSetupResults,
+    );
+    console.info("SOLANA TX IDS", splTokenEthereumSetupSolanaTxIds);
+    const splTokenEthereumSetupEthereumTxIds = filterCrossEcosystemTxIds(
+      EvmEcosystemId.Ethereum,
+      splTokenEthereumSetupResults,
+    );
+    console.info("ETHEREUM TX IDS", splTokenEthereumSetupEthereumTxIds);
 
-    const splTokenBnbSetupResult = await setUpSplTokensOnEvm(
+    const splTokenBnbSetupResults = await setUpSplTokensOnEvm(
       wormholeConfig,
       solanaChain.wormhole,
       bnbChain,
@@ -269,8 +297,16 @@ const TestPage = (): ReactElement => {
       [lpTokenSolanaDetails.address],
     );
     console.info("ATTEST LP TOKEN ON BNB");
-    console.info("SOLANA TX IDS", splTokenBnbSetupResult.solanaTxIds);
-    console.info("BNB TX IDS", splTokenBnbSetupResult.bnbTxIds);
+    const splTokenBnbSetupSolanaTxIds = filterCrossEcosystemTxIds(
+      SOLANA_ECOSYSTEM_ID,
+      splTokenBnbSetupResults,
+    );
+    console.info("SOLANA TX IDS", splTokenBnbSetupSolanaTxIds);
+    const splTokenBnbSetupBnbTxIds = filterCrossEcosystemTxIds(
+      EvmEcosystemId.Bnb,
+      splTokenBnbSetupResults,
+    );
+    console.info("BNB TX IDS", splTokenBnbSetupBnbTxIds);
   };
 
   const { notify } = useNotification();

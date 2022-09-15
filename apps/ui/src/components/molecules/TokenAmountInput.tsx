@@ -80,6 +80,14 @@ export const TokenAmountInput: React.FC<Props> = ({
       <EuiFlexItem grow={1}>
         <EuiFormRow
           hasEmptyLabelSpace={!showConstantSwapTip}
+          label={showConstantSwapTip ? getTokenLabel() : null}
+        >
+          <NetworkSelect onSelectNetwork={onSelectNetwork} network={network} />
+        </EuiFormRow>
+      </EuiFlexItem>
+      <EuiFlexItem grow={1}>
+        <EuiFormRow
+          hasEmptyLabelSpace={!showConstantSwapTip}
           // TODO: Preferably leave pool logic out a token-related component.
           label={showConstantSwapTip ? getTokenLabel() : null}
         >
@@ -87,17 +95,6 @@ export const TokenAmountInput: React.FC<Props> = ({
             onSelectToken={onSelectToken}
             tokenOptionIds={tokenOptionIds}
             token={token}
-          />
-        </EuiFormRow>
-      </EuiFlexItem>
-      <EuiFlexItem grow={1}>
-        <EuiFormRow
-          hasEmptyLabelSpace={!showConstantSwapTip}
-          label={showConstantSwapTip ? getTokenLabel() : null}
-        >
-          <NetworkSelect
-            onSelectNetwork={onSelectNetwork}
-            network={network}
           />
         </EuiFormRow>
       </EuiFlexItem>

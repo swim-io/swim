@@ -1,13 +1,7 @@
-import { useState } from "react";
 import {
-  EuiButton,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiIcon,
   EuiModalBody,
   EuiModalHeader,
   EuiModalHeaderTitle,
-  EuiPanel,
   EuiSelectable,
 } from "@elastic/eui";
 import type { EuiSelectableOption } from "@elastic/eui";
@@ -17,8 +11,7 @@ import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import { Ecosystem, EcosystemId, ECOSYSTEM_LIST, TokenConfig } from "../config";
-import { ECOSYSTEMS } from "../config";
+import { TokenConfig } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 
@@ -26,6 +19,7 @@ import { CustomModal } from "./CustomModal";
 import { TokenSearchConfigIcon } from "./TokenIcon";
 
 import "./TokenSearchModal.scss";
+import { useUserBalanceAmount } from "hooks/crossEcosystem/useUserBalances";
 
 type TokenOption = EuiSelectableOption<{
   readonly data: Readonly<TokenConfig>;
@@ -59,6 +53,14 @@ export const TokenSearchModal = ({
       searchableLabel: `${tokenProject.symbol} ${tokenProject.displayName}`,
       showIcons: false,
       data: token,
+      append: (
+        <span>
+          {useUserBalanceAmount(
+            token,
+            token.nativeEcosystemId,
+          )?.toFormattedHumanString(token.nativeEcosystemId)}
+        </span>
+      ),
     };
   });
 

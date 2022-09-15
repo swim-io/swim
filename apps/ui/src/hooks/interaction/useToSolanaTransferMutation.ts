@@ -3,7 +3,7 @@ import {
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
 import { Keypair } from "@solana/web3.js";
-import type { EvmEcosystemId, EvmTx } from "@swim-io/evm";
+import type { EvmConnection, EvmEcosystemId, EvmTx } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
 import type { ethers } from "ethers";
@@ -18,10 +18,9 @@ import {
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
-import type { EvmConnection } from "../../models";
 import {
-  Amount,
   generateUnlockSplTokenTxIds,
+  humanDecimalToAtomicString,
   lockEvmToken,
 } from "../../models";
 import { getFromEcosystemOfToSolanaTransfer } from "../../models/swim/transfer";
@@ -115,17 +114,15 @@ export const useToSolanaTransferMutation = () => {
       ).address.toBase58();
 
       // Process transfer if transfer txId does not exist
-      const { approvalResponses, transferResponse } = await lockEvmToken({
-        interactionId,
-        token,
-        amount: Amount.fromHuman(token, value),
-        evmChain: evmChains[index],
-        evmConnection: evmConnections[index],
-        fromTokenDetails,
+      const { approvalResponses, transferResponse } = await lockEvmToken(
+        evmConnections[index],
         evmWallet,
+        evmChains[index],
+        fromTokenDetails,
         splTokenAccountAddress,
-        existingTxs: [],
-      });
+        humanDecimalToAtomicString(value, token, fromEcosystem),
+        interactionId,
+      );
 
       const [transferTx, ...approvalTxs] = await Promise.all(
         [transferResponse, ...approvalResponses].map((txResponse) =>

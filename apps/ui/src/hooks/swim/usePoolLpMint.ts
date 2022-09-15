@@ -21,7 +21,7 @@ export const usePoolLpMints = (
 
   return useQueries(
     poolSpecs.map((poolSpec) => ({
-      queryKey: ["poolLpMintAccount", env, poolSpec.id],
+      queryKey: [env, "poolLpMintAccount", poolSpec.id],
       queryFn: async () => {
         if (poolSpec.ecosystem !== SOLANA_ECOSYSTEM_ID) {
           return null;

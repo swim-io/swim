@@ -55,19 +55,19 @@ There is a Digital Ocean machine running an instance of each blockchain in addit
 1. Add `src/keys/wallet-accounts/0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1.txt` to your Ethereum web wallet (e.g. MetaMask)
 1. Add Ethereum Localnet to your Metamask
 
-   RPC URL: http://159.223.16.33:8545
+    RPC URL: http://159.223.16.33:8545
 
-   Chain ID: 1337
+    Chain ID: 1337
 
-   Currency Symbol: ETH
+    Currency Symbol: ETH
 
 1. Add BNB Chain Localnet to your MetaMask
 
-   RPC URL: http://159.223.16.33:8546
+    RPC URL: http://159.223.16.33:8546
 
-   Chain ID: 1397
+    Chain ID: 1397
 
-   Currency Symbol: BNB
+    Currency Symbol: BNB
 
 1. `yarn start` and visit http://localhost:3000/set-custom-localnet?ip=159.223.16.33 to set your custom localnet IP
 1. On http://localhost:3000/swap, choose `CustomLocalnet` as your network
@@ -79,53 +79,53 @@ If the environment stops working, follow the steps below
 
 1. Add the config below to your `~/.ssh/config` file (with your own key file)
 
-   ```ssh-config
-   Host wormhole-v2-proxy
-     Hostname 159.223.16.33
-     User wormhole
-     PreferredAuthentications publickey
-     AddKeysToAgent yes
-     IdentityFile ~/.ssh/your_ssh_key # 👈 Use your own key file here
-     LogLevel quiet
-     LocalForward 7070 127.0.0.1:7070
-     LocalForward 7071 127.0.0.1:7071
-     LocalForward 8545 127.0.0.1:8545
-     LocalForward 8546 127.0.0.1:8546
-     LocalForward 8899 127.0.0.1:8899
-     LocalForward 8900 127.0.0.1:8900
+    ```ssh-config
+    Host wormhole-v2-proxy
+      Hostname 159.223.16.33
+      User wormhole
+      PreferredAuthentications publickey
+      AddKeysToAgent yes
+      IdentityFile ~/.ssh/your_ssh_key # 👈 Use your own key file here
+      LogLevel quiet
+      LocalForward 7070 127.0.0.1:7070
+      LocalForward 7071 127.0.0.1:7071
+      LocalForward 8545 127.0.0.1:8545
+      LocalForward 8546 127.0.0.1:8546
+      LocalForward 8899 127.0.0.1:8899
+      LocalForward 8900 127.0.0.1:8900
 
-   Host wormhole-v2
-     Hostname 165.227.133.217
-     User wormhole
-     PreferredAuthentications publickey
-     AddKeysToAgent yes
-     IdentityFile ~/.ssh/your_ssh_key # 👈 Use your own key file here
-     LogLevel quiet
-     LocalForward 1317 127.0.0.1:1317
-     LocalForward 2345 127.0.0.1:2345
-     LocalForward 3060 127.0.0.1:3060
-     LocalForward 4001 127.0.0.1:4001
-     LocalForward 4002 127.0.0.1:4002
-     LocalForward 6060 127.0.0.1:6060
-     LocalForward 6061 127.0.0.1:6061
-     LocalForward 7070 127.0.0.1:7070
-     LocalForward 7071 127.0.0.1:7071
-     LocalForward 7072 127.0.0.1:7072
-     LocalForward 8080 127.0.0.1:8080
-     LocalForward 8545 127.0.0.1:8545
-     LocalForward 8546 127.0.0.1:8546
-     LocalForward 8899 127.0.0.1:8899
-     LocalForward 8900 127.0.0.1:8900
-     LocalForward 9000 127.0.0.1:9000
-     LocalForward 9901 127.0.0.1:9901
-     LocalForward 10350 127.0.0.1:10350
-     LocalForward 26657 127.0.0.1:26657
-     LocalForward 41841 127.0.0.1:41841
-   ```
+    Host wormhole-v2
+      Hostname 165.227.133.217
+      User wormhole
+      PreferredAuthentications publickey
+      AddKeysToAgent yes
+      IdentityFile ~/.ssh/your_ssh_key # 👈 Use your own key file here
+      LogLevel quiet
+      LocalForward 1317 127.0.0.1:1317
+      LocalForward 2345 127.0.0.1:2345
+      LocalForward 3060 127.0.0.1:3060
+      LocalForward 4001 127.0.0.1:4001
+      LocalForward 4002 127.0.0.1:4002
+      LocalForward 6060 127.0.0.1:6060
+      LocalForward 6061 127.0.0.1:6061
+      LocalForward 7070 127.0.0.1:7070
+      LocalForward 7071 127.0.0.1:7071
+      LocalForward 7072 127.0.0.1:7072
+      LocalForward 8080 127.0.0.1:8080
+      LocalForward 8545 127.0.0.1:8545
+      LocalForward 8546 127.0.0.1:8546
+      LocalForward 8899 127.0.0.1:8899
+      LocalForward 8900 127.0.0.1:8900
+      LocalForward 9000 127.0.0.1:9000
+      LocalForward 9901 127.0.0.1:9901
+      LocalForward 10350 127.0.0.1:10350
+      LocalForward 26657 127.0.0.1:26657
+      LocalForward 41841 127.0.0.1:41841
+    ```
 
 1. Run `ssh wormhole-v2`
 
-   This will give you a shell and all the relevant ports will be forwarded to the development server. If you don’t need a shell you can just run `ssh -N wormhole-v2`.
+    This will give you a shell and all the relevant ports will be forwarded to the development server. If you don’t need a shell you can just run `ssh -N wormhole-v2`.
 
 1. [Restarting the chains](http://localhost:10350/overview) and following the steps in [DEV_SETUP](/docs/DEV_SETUP.md#setting-up-tokens-and-pools).
 

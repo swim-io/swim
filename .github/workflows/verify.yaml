@@ -9,6 +9,9 @@ on:
       buildDependenciesForPackage:
         required: false
         type: string
+      buildPreCommand:
+        required: false
+        type: string
       skipTest:
         required: false
         type: boolean
@@ -35,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
       - name: Build dependencies
-        run: yarn workspaces foreach --topological-dev --parallel --recursive --from ${{ inputs.buildDependenciesForPackage }} run build
+        run: ${{ inputs.buildPreCommand }} yarn workspaces foreach --topological-dev --parallel --recursive --from ${{ inputs.buildDependenciesForPackage }} run build
         if: ${{ inputs.buildDependenciesForPackage != '' }}
       - name: Check types
         run: yarn typecheck

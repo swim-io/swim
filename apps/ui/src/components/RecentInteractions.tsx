@@ -28,12 +28,12 @@ export const RecentInteractions = ({
 }: Props): ReactElement => {
   const { t } = useTranslation();
   const env = useEnvironment((state) => state.env);
-  const loadInteractionStatesFromIDB = useInteractionState(
-    (state) => state.loadInteractionStatesFromIDB,
+  const loadInteractionStatesFromIdb = useInteractionState(
+    (state) => state.loadInteractionStatesFromIdb,
   );
   useEffect(() => {
-    loadInteractionStatesFromIDB(env).catch(console.error);
-  }, [env, loadInteractionStatesFromIDB]);
+    loadInteractionStatesFromIdb(env).catch(console.error);
+  }, [env, loadInteractionStatesFromIdb]);
 
   const { isSuccess: didLoadSplTokenAccounts } = useSplTokenAccountsQuery();
   const wallets = useWallets();

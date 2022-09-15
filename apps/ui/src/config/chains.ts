@@ -61,7 +61,6 @@ export interface SolanaSpec extends ChainSpec {
   // Note, subsequent endpoints are used as fallbacks for SolanaConnection.
   readonly endpoints: readonly string[];
   readonly tokenContract: string;
-  readonly otterTotCollection: string;
 }
 
 interface EvmNativeCurrencySpec {
@@ -144,7 +143,6 @@ const MAINNET_CHAINS: ChainsByProtocol = {
       },
       endpoints: getSolanaMainnetRpcUrls(),
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      otterTotCollection: "EpozLY9dQ1jnaU5Wof524K7p9uHYxkuLF2hi32cf8W9s",
     },
   ],
   [Protocol.Evm]: [
@@ -250,7 +248,6 @@ const DEVNET_CHAINS: ChainsByProtocol = {
       },
       endpoints: ["https://api.devnet.solana.com"],
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      otterTotCollection: "6rVZuenNaw3uECQjMjTLcfrXYKszpESEGi9HZnffJstn",
     },
   ],
   [Protocol.Evm]: [
@@ -356,7 +353,6 @@ const LOCAL_CHAINS: ChainsByProtocol = {
       },
       endpoints: ["http://127.0.0.1:8899"],
       tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      otterTotCollection: "", // TODO: Deploy on teamnet
     },
   ],
   [Protocol.Evm]: [

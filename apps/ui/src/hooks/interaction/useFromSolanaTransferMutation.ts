@@ -13,13 +13,13 @@ import {
   WormholeChainId,
   getSolanaTokenDetails,
   getTokenDetailsForEcosystem,
+  getWormholeRetries,
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { InteractionState, Tx } from "../../models";
 import {
   Amount,
-  DEFAULT_WORMHOLE_RETRIES,
   evmAddressToWormhole,
   getSignedVaaWithRetry,
   getToEcosystemOfFromSolanaTransfer,
@@ -234,14 +234,16 @@ export const useFromSolanaTransferMutation = () => {
       const emitterAddress = await getEmitterAddressSolana(
         solanaWormhole.portal,
       );
+      const sourceChainId = WormholeChainId.Solana;
+      const retries = getWormholeRetries(sourceChainId);
       const vaaBytesResponse = await getSignedVaaWithRetry(
         [...wormhole.rpcUrls],
-        WormholeChainId.Solana,
+        sourceChainId,
         emitterAddress,
         sequence,
         undefined,
         undefined,
-        DEFAULT_WORMHOLE_RETRIES,
+        retries,
       );
       const evmSigner = evmWallet.signer;
       if (evmSigner === null) {

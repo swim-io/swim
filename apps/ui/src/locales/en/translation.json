@@ -182,7 +182,7 @@
   "recent_interactions.connected_wallet_is_not_connected": "{{walletAddress}} (not connected)",
   "recent_interactions.disconnected_with_wallet": "Connect your wallets to see recent interactions.",
   "recent_interactions.error_title": "Sorry, there was an error",
-  "recent_interactions.ethereum_waiting_time": "Please note that waiting for Ethereum block confirmations may take a few minutes.",
+  "recent_interactions.ethereum_waiting_time": "Please note that waiting for Ethereum block confirmations may take a long time. Finality requires up to around {{confirmations}} confirmations or about {{minutes}} minutes.",
   "recent_interactions.initiate_transfer": "Initiate transfer",
   "recent_interactions.interactions_not_found": "Interactions are stored per browser. If you used incognito mode, they will not show up here.",
   "recent_interactions.loading": "Loading...",

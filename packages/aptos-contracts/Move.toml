@@ -1,0 +1,19 @@
+[package]
+name = 'Swim testing'
+version = '1.0.0'
+
+[dependencies]
+# No need to import AptosFramework since Liquidswap does that
+# AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework/", rev = "main" }
+
+# this was built with rev 47d50b1c085cd38c78a252ed4524052e75371582 but then this refactoring happened https://github.com/pontem-network/liquidswap/pull/82
+Liquidswap = { local = "../../../aptos/liquidswap" }
+# TODO Use github version when open sourced
+# Liquidswap = { git = "https://github.com/pontem-network/liquidswap.hit", rev = "main" }
+
+# we can also define addresses here
+# [addresses]
+# account = "0xd53d76a19f03caa8d5ab95c78a22e0d36908f1a43d1d1131321474fa79b8f616"
+
+
+

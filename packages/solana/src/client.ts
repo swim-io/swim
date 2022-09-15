@@ -30,6 +30,7 @@ import type {
   CompletePortalTransferParams,
   InitiatePortalTransferParams,
   InitiatePropellerParams,
+  PoolState,
   TokenDetails,
   TxGeneratorResult,
 } from "@swim-io/core";
@@ -38,7 +39,13 @@ import type { Propeller } from "@swim-io/solana-contracts";
 import { idl } from "@swim-io/solana-contracts";
 import { TokenProjectId } from "@swim-io/token-projects";
 import type { ReadonlyRecord } from "@swim-io/utils";
-import { atomicToHuman, chunks, humanToAtomic, sleep } from "@swim-io/utils";
+import {
+  atomicToHuman,
+  chunks,
+  findOrThrow,
+  humanToAtomic,
+  sleep,
+} from "@swim-io/utils";
 import BN from "bn.js";
 import Decimal from "decimal.js";
 
@@ -49,12 +56,16 @@ import type {
 } from "./protocol";
 import { SOLANA_ECOSYSTEM_ID, SolanaTxType } from "./protocol";
 import type { TokenAccount } from "./serialization";
-import { deserializeTokenAccount } from "./serialization";
+import {
+  deserializeSolanaPoolState,
+  deserializeTokenAccount,
+} from "./serialization";
 import {
   createApproveAndRevokeIxs,
   createTx,
   parsedTxToSolanaTx,
 } from "./utils";
+import { atomicNumberToHuman, decimalBnToHuman } from "./utils/amount";
 import { extractOutputAmountFromAddTx } from "./utils/propeller";
 import type { SolanaWalletAdapter } from "./walletAdapters";
 import {
@@ -66,6 +77,10 @@ import {
 export const DEFAULT_MAX_RETRIES = 10;
 export const DEFAULT_COMMITMENT_LEVEL: Finality = "confirmed";
 const DEFAULT_SLEEP_MS = 1000;
+
+interface SolanaPoolState extends PoolState {
+  readonly governanceFeeKey: PublicKey;
+}
 
 type WithOptionalAuxiliarySigner<T> = T & {
   readonly auxiliarySigner?: Keypair;
@@ -218,6 +233,61 @@ export class SolanaClient extends Client<
         tokenDetails[i].decimals,
       ),
     );
+  }
+
+  public async getPoolState(poolId: string): Promise<SolanaPoolState> {
+    const {
+      address: poolAddress,
+      feeDecimals,
+      lpTokenId,
+      tokenIds,
+    } = findOrThrow(this.chainConfig.pools, (pool) => pool.id === poolId);
+    const accountInfo = await this.connection.getAccountInfo(
+      new PublicKey(poolAddress),
+    );
+    if (accountInfo === null) {
+      throw new Error("Failed to load pool state");
+    }
+    const solanaPoolState = deserializeSolanaPoolState(accountInfo.data);
+
+    const poolTokenDetails = tokenIds.map((tokenId) => {
+      const tokenConfig = findOrThrow(
+        this.chainConfig.tokens,
+        (token) => token.id === tokenId,
+      );
+      return getTokenDetails(this.chainConfig, tokenConfig.projectId);
+    });
+    const balances = await this.getTokenBalances(poolAddress, poolTokenDetails);
+
+    const lpTokenConfig = findOrThrow(
+      this.chainConfig.tokens,
+      (token) => token.id === lpTokenId,
+    );
+    const lpTokenDetails = getTokenDetails(
+      this.chainConfig,
+      lpTokenConfig.projectId,
+    );
+    const { value: lpTokenSupply } = await this.connection.getTokenSupply(
+      new PublicKey(lpTokenDetails.address),
+    );
+    const totalLpSupply = atomicToHuman(
+      new Decimal(lpTokenSupply.amount),
+      lpTokenSupply.decimals,
+    );
+
+    return {
+      isPaused: solanaPoolState.isPaused,
+      // TODO: do proper interpolation
+      ampFactor: decimalBnToHuman(solanaPoolState.ampFactor.initialValue),
+      lpFee: atomicNumberToHuman(solanaPoolState.lpFee.value, feeDecimals),
+      governanceFee: atomicNumberToHuman(
+        solanaPoolState.governanceFee.value,
+        feeDecimals,
+      ),
+      balances,
+      totalLpSupply,
+      governanceFeeKey: solanaPoolState.governanceFeeKey,
+    };
   }
 
   public async *generateInitiatePortalTransferTxs({

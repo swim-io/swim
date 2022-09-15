@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/evm",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "description": "Swim code relating to EVM.",
   "main": "build",
   "types": "types",

@@ -5,6 +5,8 @@ on:
       - "packages/aptos/**.ts"
       - "packages/aptos/**.json"
       - "yarn.lock"
+      - ".github/workflows/aptos-verify.yaml"
+      - ".github/workflows/verify.yaml"
   push:
     branches:
       - master

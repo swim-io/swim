@@ -2,9 +2,9 @@ import { EuiButton, EuiFlexGroup, EuiFlexItem } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { useCallback, useState } from "react";
 
-import type { TokenConfig } from "../config";
+import { ECOSYSTEMS, TokenConfig } from "../config";
 
-import { TokenSearchConfigIcon } from "./TokenIcon";
+import { TokenConfigIcon } from "./TokenIcon";
 import { TokenSearchModal } from "./TokenSearchModal";
 
 interface Props {
@@ -19,6 +19,7 @@ export const TokenSelect = ({
   token,
 }: Props): ReactElement => {
   const [showModal, setShowModal] = useState(false);
+  const [selectedEcosystem, setSelectedEcosystem] = useState(ECOSYSTEMS.solana);
 
   const openModal = useCallback(() => setShowModal(true), [setShowModal]);
   const closeModal = useCallback(() => setShowModal(false), [setShowModal]);
@@ -33,7 +34,7 @@ export const TokenSelect = ({
       >
         <EuiFlexGroup alignItems="center" justifyContent="center">
           <EuiFlexItem>
-            <TokenSearchConfigIcon token={token} />
+            <TokenConfigIcon token={token} />
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiButton>
@@ -41,6 +42,8 @@ export const TokenSelect = ({
         <TokenSearchModal
           handleClose={closeModal}
           handleSelectToken={onSelectToken}
+          handleSelectEcosystem={setSelectedEcosystem}
+          selectedEcosystem={selectedEcosystem}
           tokenOptionIds={tokenOptionIds}
         />
       )}

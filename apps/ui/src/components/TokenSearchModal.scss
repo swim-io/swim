@@ -1,5 +1,6 @@
 .modal {
   min-height: 50vh;
+  max-width: 430px;
 }
 .modalBody {
   height: 30vh;
@@ -7,35 +8,12 @@
     overflow-y: inherit;
   }
 }
-.networkModalBody {
-  padding: 20px;
-  max-height: max-content;
-  .euiModalBody__overflow {
-    padding: 0px;
-    display: flex;
-    justify-content: space-around;
-    align-items: baseline;
-    overflow-y: inherit;
-  }
-}
 
-.chainGroup {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 3px;
-  flex-wrap: wrap;
-  max-width: fit-content;
-  .euiFlexItem {
-    flex-basis: 100%;
-    width: 100%;
-    min-width: 140px;
-    .euiButton .euiButton__text {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-    }
-  }
+.networkPanel {
+  max-height: 33vh;
+  // .euiFlexGroup {
+  //   justify-content: space-around;
+  // }
 }
 .ecosystemIcon {
   width: fit-content;
@@ -45,5 +23,13 @@
     justify-content: space-evenly;
     align-items: center;
     width: 100%;
+  }
+}
+
+@media only screen and (max-width: 520px) {
+  .networkPanel {
+    .euiFlexGroup {
+      justify-content: space-around;
+    }
   }
 }

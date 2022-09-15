@@ -68,20 +68,6 @@ export const TokenIcon = ({
   );
 };
 
-export const NetworkIcon = ({
-  displayName,
-  logo,
-  nativeTokenSymbol,
-}: NetworkIconProps): ReactElement => {
-  return (
-    <span className="tokenIconItem">
-      <WithIcon type={logo} size="m" title={nativeTokenSymbol}>
-        {displayName}
-      </WithIcon>
-    </span>
-  );
-};
-
 interface AmountWithTokenIconProps {
   readonly amount: Amount;
   readonly ecosystem: EcosystemId;
@@ -127,7 +113,6 @@ export const AmountsWithTokenIcons = ({
   );
 };
 
-type NetworkConfigIconProps = { readonly network: Ecosystem };
 type TokenConfigIconProps = {
   readonly token: TokenConfig;
   readonly ecosystem?: EcosystemId;
@@ -148,7 +133,3 @@ export const TokenSearchConfigIcon = ({
 }: TokenConfigIconProps): ReactElement => (
   <TokenIcon {...TOKEN_PROJECTS_BY_ID[token.projectId]} />
 );
-
-export const NetworkConfigIcon = ({
-  network,
-}: NetworkConfigIconProps): ReactElement => <NetworkIcon {...network} />;

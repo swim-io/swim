@@ -48,7 +48,6 @@ import { PoolPausedAlert } from "../PoolPausedAlert";
 import { SolanaTpsWarning } from "../SolanaTpsWarning";
 import { SwapFormSolanaConnectButton } from "../molecules/SwapFormSolanaConnectButton";
 import { TokenAmountInput } from "../molecules/TokenAmountInput";
-import { Ecosystem, ECOSYSTEMS } from "config/ecosystem";
 
 import "./SwapForm.scss";
 
@@ -70,24 +69,12 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
     toToken,
     fromTokenOptionsIds,
     toTokenOptionsIds,
-    fromNetwork,
-    toNetwork,
-    setFromNetwork,
-    setToNetwork,
     setFromToken,
     setToToken,
     setFromAndToTokens,
     hasUrlError,
   } = useSwapTokensContext();
-  console.log(
-    "SWAP context",
-    fromToken,
-    toToken,
-    fromTokenOptionsIds,
-    toTokenOptionsIds,
-    fromNetwork,
-    toNetwork,
-  );
+
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const requiredPools = getRequiredPoolsForSwap(
@@ -267,12 +254,10 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       <TokenAmountInput
         value={formInputAmount}
         token={fromToken}
-        network={fromNetwork}
         tokenOptionIds={fromTokenOptionsIds}
         placeholder={t("general.enter_amount_of_tokens")}
         disabled={isInteractionInProgress}
         errors={inputAmountErrors}
-        onSelectNetwork={setFromNetwork}
         onSelectToken={setFromToken}
         onChangeValue={setFormInputAmount}
         onBlur={() => handleInputAmountChange(inputAmount)}
@@ -299,12 +284,10 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       <TokenAmountInput
         value={outputAmount?.toHumanString(toToken.nativeEcosystemId) ?? ""}
         token={toToken}
-        network={toNetwork}
         tokenOptionIds={toTokenOptionsIds}
         placeholder={t("swap_form.output_amount")}
         disabled={isInteractionInProgress}
         errors={[]}
-        onSelectNetwork={setToNetwork}
         onSelectToken={setToToken}
         // Never show constant swap on "To Form".
         showConstantSwapTip={false}

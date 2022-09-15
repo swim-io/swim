@@ -29,7 +29,8 @@ export const isEvmEcosystemId = (
 ): ecosystemId is EvmEcosystemId =>
   Object.values<string>(EvmEcosystemId).includes(ecosystemId);
 
-export interface EvmPoolConfig<E extends EvmEcosystemId> extends PoolConfig {
+export interface EvmPoolConfig<E extends EvmEcosystemId = EvmEcosystemId>
+  extends PoolConfig {
   readonly ecosystemId: E;
 }
 
@@ -38,7 +39,7 @@ export interface EvmChainConfig<E extends EvmEcosystemId = EvmEcosystemId>
   readonly pools: readonly EvmPoolConfig<E>[];
 }
 
-export interface EvmEcosystemConfig<E extends EvmEcosystemId>
+export interface EvmEcosystemConfig<E extends EvmEcosystemId = EvmEcosystemId>
   extends EcosystemConfig {
   readonly id: E;
   readonly protocol: EvmProtocol;

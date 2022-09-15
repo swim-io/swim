@@ -22,6 +22,11 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
     portal: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052",
   },
   publicRpcUrls: ["https://api.avax.network/ext/bc/C/rpc"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
@@ -34,6 +39,11 @@ const testnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
     portal: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
   },
   publicRpcUrls: ["https://api.avax-test.network/ext/bc/C/rpc"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };

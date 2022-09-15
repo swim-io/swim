@@ -2364,391 +2364,6 @@ export type Propeller = {
       "args": []
     },
     {
-      "name": "propellerProcessSwimPayload",
-      "accounts": [
-        {
-          "name": "propeller",
-          "isMut": false,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
-              }
-            ]
-          }
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "claim",
-          "isMut": false,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "type": {
-                  "array": [
-                    "u8",
-                    32
-                  ]
-                },
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_address"
-              },
-              {
-                "kind": "account",
-                "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_chain"
-              },
-              {
-                "kind": "account",
-                "type": "u64",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_sequence"
-              }
-            ],
-            "programId": {
-              "kind": "account",
-              "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
-            }
-          }
-        },
-        {
-          "name": "message",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "propellerClaim",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "claim"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
-              }
-            ]
-          }
-        },
-        {
-          "name": "propellerMessage",
-          "isMut": false,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "message"
-              }
-            ]
-          }
-        },
-        {
-          "name": "redeemer",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "this used to be \"to_owner\".",
-            "redeemer will be PDA derived from [\"redeemer\"], seeds::program = propeller::id()",
-            "will have to be signed when it invokes complete_transfer_with_payload",
-            "if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to",
-            "(NOT the `to` account)"
-          ],
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "redeemer"
-              }
-            ]
-          }
-        },
-        {
-          "name": "redeemerEscrow",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenIdMap",
-          "isMut": false,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "token_id"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Propeller",
-                "path": "propeller"
-              },
-              {
-                "kind": "account",
-                "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.target_token_id"
-              }
-            ]
-          }
-        },
-        {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
-              }
-            ],
-            "programId": {
-              "kind": "account",
-              "type": "publicKey",
-              "path": "two_pool_program"
-            }
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userLpTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "twoPoolProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "aggregator",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Assuming that USD:USDC 1:1"
-          ]
-        },
-        {
-          "name": "feeVault",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "this is \"to_fees\"",
-            "recipient of fees for executing complete transfer (e.g. relayer)",
-            "TODO: this should be fee_vault - not used/needed in non propeller ix"
-          ]
-        },
-        {
-          "name": "feeTracker",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "fee"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "payer"
-              }
-            ]
-          }
-        },
-        {
-          "name": "marginalPricePool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "marginal_price_pool_token_0_account.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "marginal_price_pool_token_1_account.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "marginal_price_pool_lp_mint"
-              }
-            ],
-            "programId": {
-              "kind": "account",
-              "type": "publicKey",
-              "path": "two_pool_program"
-            }
-          }
-        },
-        {
-          "name": "marginalPricePoolToken0Account",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "marginalPricePoolToken1Account",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "marginalPricePoolLpMint",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "owner",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "This is for transferring lamports for kickstart"
-          ]
-        }
-      ],
-      "args": [],
-      "returns": "u64"
-    },
-    {
       "name": "propellerCreateOwnerTokenAccounts",
       "accounts": [
         {
@@ -3055,6 +2670,409 @@ export type Propeller = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "propellerProcessSwimPayload",
+      "docs": [
+        "Note: passing in target_token_id here due to PDA seed derivation.",
+        "for propeller_process_swim_payload, require_eq!(target_token_id, propeller_message.target_token_id);"
+      ],
+      "accounts": [
+        {
+          "name": "processSwimPayload",
+          "accounts": [
+            {
+              "name": "propeller",
+              "isMut": false,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "propeller"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Propeller",
+                    "path": "propeller.token_bridge_mint"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "payer",
+              "isMut": true,
+              "isSigner": true
+            },
+            {
+              "name": "claim",
+              "isMut": false,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "account",
+                    "type": {
+                      "array": [
+                        "u8",
+                        32
+                      ]
+                    },
+                    "account": "PropellerMessage",
+                    "path": "propeller_message.vaa_emitter_address"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "u16",
+                    "account": "PropellerMessage",
+                    "path": "propeller_message.vaa_emitter_chain"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "u64",
+                    "account": "PropellerMessage",
+                    "path": "propeller_message.vaa_sequence"
+                  }
+                ],
+                "programId": {
+                  "kind": "account",
+                  "type": "publicKey",
+                  "account": "Propeller",
+                  "path": "propeller"
+                }
+              }
+            },
+            {
+              "name": "message",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "propellerClaim",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "propeller"
+                  },
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "claim"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "path": "claim"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "propellerMessage",
+              "isMut": false,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "propeller"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "path": "claim"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "path": "message"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "redeemer",
+              "isMut": false,
+              "isSigner": false,
+              "docs": [
+                "this used to be \"to_owner\".",
+                "redeemer will be PDA derived from [\"redeemer\"], seeds::program = propeller::id()",
+                "will have to be signed when it invokes complete_transfer_with_payload",
+                "if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to",
+                "(NOT the `to` account)"
+              ],
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "redeemer"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "redeemerEscrow",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenIdMap",
+              "isMut": false,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "propeller"
+                  },
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "token_id"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Propeller",
+                    "path": "propeller"
+                  },
+                  {
+                    "kind": "arg",
+                    "type": "u16",
+                    "path": "target_token_id"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_0.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_1.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Mint",
+                    "path": "lp_mint"
+                  }
+                ],
+                "programId": {
+                  "kind": "account",
+                  "type": "publicKey",
+                  "path": "two_pool_program"
+                }
+              }
+            },
+            {
+              "name": "poolTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "lpMint",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "governanceFee",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTransferAuthority",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "userTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userLpTokenAccount",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenProgram",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "memo",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "twoPoolProgram",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "systemProgram",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "aggregator",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Assuming that USD:USDC 1:1"
+          ]
+        },
+        {
+          "name": "feeVault",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "this is \"to_fees\"",
+            "recipient of fees for executing complete transfer (e.g. relayer)"
+          ]
+        },
+        {
+          "name": "feeTracker",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "fee"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "ProcessSwimPayload",
+                "path": "process_swim_payload"
+              },
+              {
+                "kind": "account",
+                "type": {
+                  "defined": "Signer<'info>"
+                },
+                "account": "ProcessSwimPayload",
+                "path": "process_swim_payload.payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "marginalPricePool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "marginal_price_pool_token_0_account.mint"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "marginal_price_pool_token_1_account.mint"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "marginal_price_pool_lp_mint"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": {
+                "defined": "Program<'info,two_pool::program::TwoPool>"
+              },
+              "account": "ProcessSwimPayload",
+              "path": "process_swim_payload.two_pool_program"
+            }
+          }
+        },
+        {
+          "name": "marginalPricePoolToken0Account",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marginalPricePoolToken1Account",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marginalPricePoolLpMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "This is for transferring lamports for kickstart"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "targetTokenId",
+          "type": "u16"
+        }
+      ],
+      "returns": "u64"
     }
   ],
   "accounts": [
@@ -6417,391 +6435,6 @@ export const IDL: Propeller = {
       "args": []
     },
     {
-      "name": "propellerProcessSwimPayload",
-      "accounts": [
-        {
-          "name": "propeller",
-          "isMut": false,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
-              }
-            ]
-          }
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "claim",
-          "isMut": false,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "type": {
-                  "array": [
-                    "u8",
-                    32
-                  ]
-                },
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_address"
-              },
-              {
-                "kind": "account",
-                "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_chain"
-              },
-              {
-                "kind": "account",
-                "type": "u64",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_sequence"
-              }
-            ],
-            "programId": {
-              "kind": "account",
-              "type": "publicKey",
-              "account": "Propeller",
-              "path": "propeller"
-            }
-          }
-        },
-        {
-          "name": "message",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "propellerClaim",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "claim"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
-              }
-            ]
-          }
-        },
-        {
-          "name": "propellerMessage",
-          "isMut": false,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "message"
-              }
-            ]
-          }
-        },
-        {
-          "name": "redeemer",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "this used to be \"to_owner\".",
-            "redeemer will be PDA derived from [\"redeemer\"], seeds::program = propeller::id()",
-            "will have to be signed when it invokes complete_transfer_with_payload",
-            "if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to",
-            "(NOT the `to` account)"
-          ],
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "redeemer"
-              }
-            ]
-          }
-        },
-        {
-          "name": "redeemerEscrow",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenIdMap",
-          "isMut": false,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "token_id"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Propeller",
-                "path": "propeller"
-              },
-              {
-                "kind": "account",
-                "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.target_token_id"
-              }
-            ]
-          }
-        },
-        {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_0.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "pool_token_account_1.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "lp_mint"
-              }
-            ],
-            "programId": {
-              "kind": "account",
-              "type": "publicKey",
-              "path": "two_pool_program"
-            }
-          }
-        },
-        {
-          "name": "poolTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lpMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceFee",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "userTokenAccount0",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userTokenAccount1",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userLpTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "twoPoolProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "aggregator",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "Assuming that USD:USDC 1:1"
-          ]
-        },
-        {
-          "name": "feeVault",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "this is \"to_fees\"",
-            "recipient of fees for executing complete transfer (e.g. relayer)",
-            "TODO: this should be fee_vault - not used/needed in non propeller ix"
-          ]
-        },
-        {
-          "name": "feeTracker",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "propeller"
-              },
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "fee"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "payer"
-              }
-            ]
-          }
-        },
-        {
-          "name": "marginalPricePool",
-          "isMut": true,
-          "isSigner": false,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "type": "string",
-                "value": "two_pool"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "marginal_price_pool_token_0_account.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "TokenAccount",
-                "path": "marginal_price_pool_token_1_account.mint"
-              },
-              {
-                "kind": "account",
-                "type": "publicKey",
-                "account": "Mint",
-                "path": "marginal_price_pool_lp_mint"
-              }
-            ],
-            "programId": {
-              "kind": "account",
-              "type": "publicKey",
-              "path": "two_pool_program"
-            }
-          }
-        },
-        {
-          "name": "marginalPricePoolToken0Account",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "marginalPricePoolToken1Account",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "marginalPricePoolLpMint",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "owner",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "This is for transferring lamports for kickstart"
-          ]
-        }
-      ],
-      "args": [],
-      "returns": "u64"
-    },
-    {
       "name": "propellerCreateOwnerTokenAccounts",
       "accounts": [
         {
@@ -7108,6 +6741,409 @@ export const IDL: Propeller = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "propellerProcessSwimPayload",
+      "docs": [
+        "Note: passing in target_token_id here due to PDA seed derivation.",
+        "for propeller_process_swim_payload, require_eq!(target_token_id, propeller_message.target_token_id);"
+      ],
+      "accounts": [
+        {
+          "name": "processSwimPayload",
+          "accounts": [
+            {
+              "name": "propeller",
+              "isMut": false,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "propeller"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Propeller",
+                    "path": "propeller.token_bridge_mint"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "payer",
+              "isMut": true,
+              "isSigner": true
+            },
+            {
+              "name": "claim",
+              "isMut": false,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "account",
+                    "type": {
+                      "array": [
+                        "u8",
+                        32
+                      ]
+                    },
+                    "account": "PropellerMessage",
+                    "path": "propeller_message.vaa_emitter_address"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "u16",
+                    "account": "PropellerMessage",
+                    "path": "propeller_message.vaa_emitter_chain"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "u64",
+                    "account": "PropellerMessage",
+                    "path": "propeller_message.vaa_sequence"
+                  }
+                ],
+                "programId": {
+                  "kind": "account",
+                  "type": "publicKey",
+                  "account": "Propeller",
+                  "path": "propeller"
+                }
+              }
+            },
+            {
+              "name": "message",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "propellerClaim",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "propeller"
+                  },
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "claim"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "path": "claim"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "propellerMessage",
+              "isMut": false,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "propeller"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "path": "claim"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "path": "message"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "redeemer",
+              "isMut": false,
+              "isSigner": false,
+              "docs": [
+                "this used to be \"to_owner\".",
+                "redeemer will be PDA derived from [\"redeemer\"], seeds::program = propeller::id()",
+                "will have to be signed when it invokes complete_transfer_with_payload",
+                "if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to",
+                "(NOT the `to` account)"
+              ],
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "redeemer"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "redeemerEscrow",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenIdMap",
+              "isMut": false,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "propeller"
+                  },
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "token_id"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Propeller",
+                    "path": "propeller"
+                  },
+                  {
+                    "kind": "arg",
+                    "type": "u16",
+                    "path": "target_token_id"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "pool",
+              "isMut": true,
+              "isSigner": false,
+              "pda": {
+                "seeds": [
+                  {
+                    "kind": "const",
+                    "type": "string",
+                    "value": "two_pool"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_0.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "TokenAccount",
+                    "path": "pool_token_account_1.mint"
+                  },
+                  {
+                    "kind": "account",
+                    "type": "publicKey",
+                    "account": "Mint",
+                    "path": "lp_mint"
+                  }
+                ],
+                "programId": {
+                  "kind": "account",
+                  "type": "publicKey",
+                  "path": "two_pool_program"
+                }
+              }
+            },
+            {
+              "name": "poolTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "poolTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "lpMint",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "governanceFee",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTransferAuthority",
+              "isMut": false,
+              "isSigner": true
+            },
+            {
+              "name": "userTokenAccount0",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userTokenAccount1",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "userLpTokenAccount",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tokenProgram",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "memo",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "twoPoolProgram",
+              "isMut": false,
+              "isSigner": false
+            },
+            {
+              "name": "systemProgram",
+              "isMut": false,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "aggregator",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Assuming that USD:USDC 1:1"
+          ]
+        },
+        {
+          "name": "feeVault",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "this is \"to_fees\"",
+            "recipient of fees for executing complete transfer (e.g. relayer)"
+          ]
+        },
+        {
+          "name": "feeTracker",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "fee"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "ProcessSwimPayload",
+                "path": "process_swim_payload"
+              },
+              {
+                "kind": "account",
+                "type": {
+                  "defined": "Signer<'info>"
+                },
+                "account": "ProcessSwimPayload",
+                "path": "process_swim_payload.payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "marginalPricePool",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "two_pool"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "marginal_price_pool_token_0_account.mint"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "marginal_price_pool_token_1_account.mint"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "marginal_price_pool_lp_mint"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": {
+                "defined": "Program<'info,two_pool::program::TwoPool>"
+              },
+              "account": "ProcessSwimPayload",
+              "path": "process_swim_payload.two_pool_program"
+            }
+          }
+        },
+        {
+          "name": "marginalPricePoolToken0Account",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marginalPricePoolToken1Account",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marginalPricePoolLpMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "This is for transferring lamports for kickstart"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "targetTokenId",
+          "type": "u16"
+        }
+      ],
+      "returns": "u64"
     }
   ],
   "accounts": [

@@ -225,17 +225,29 @@ pub mod propeller {
     pub fn propeller_complete_native_with_payload(ctx: Context<PropellerCompleteNativeWithPayload>) -> Result<()> {
         handle_propeller_complete_native_with_payload(ctx)
     }
-    //
-    #[inline(never)]
-    #[access_control(PropellerProcessSwimPayload::accounts(&ctx))]
-    pub fn propeller_process_swim_payload(ctx: Context<PropellerProcessSwimPayload>) -> Result<u64> {
-        handle_propeller_process_swim_payload(ctx)
-    }
 
     #[inline(never)]
     #[access_control(PropellerCreateOwnerTokenAccounts::accounts(&ctx))]
     pub fn propeller_create_owner_token_accounts(ctx: Context<PropellerCreateOwnerTokenAccounts>) -> Result<()> {
         handle_propeller_create_owner_token_accounts(ctx)
+    }
+
+    //
+    // #[inline(never)]
+    // #[access_control(PropellerProcessSwimPayload::accounts(&ctx))]
+    // pub fn propeller_process_swim_payload(ctx: Context<PropellerProcessSwimPayload>) -> Result<u64> {
+    //     handle_propeller_process_swim_payload(ctx)
+    // }
+
+    /// Note: passing in target_token_id here due to PDA seed derivation.
+    /// for propeller_process_swim_payload, require_eq!(target_token_id, propeller_message.target_token_id);
+    #[inline(never)]
+    #[access_control(PropellerProcessSwimPayload::accounts(&ctx, target_token_id))]
+    pub fn propeller_process_swim_payload(
+        ctx: Context<PropellerProcessSwimPayload>,
+        target_token_id: u16,
+    ) -> Result<u64> {
+        handle_propeller_process_swim_payload(ctx, target_token_id)
     }
 
     // #[inline(never)]

@@ -2,7 +2,8 @@ import { EuiButton, EuiFlexGroup, EuiFlexItem } from "@elastic/eui";
 import type { ReactElement } from "react";
 import { useCallback, useState } from "react";
 
-import { ECOSYSTEMS, TokenConfig } from "../config";
+import type { TokenConfig } from "../config";
+import { ECOSYSTEMS } from "../config";
 
 import { TokenConfigIcon } from "./TokenIcon";
 import { TokenSearchModal } from "./TokenSearchModal";

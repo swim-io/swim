@@ -5,7 +5,7 @@ import type { ComponentProps, ReactElement } from "react";
 import { Fragment } from "react";
 import { Trans } from "react-i18next";
 
-import type { Ecosystem, EcosystemId, TokenConfig } from "../config";
+import type { EcosystemId, TokenConfig } from "../config";
 import { ECOSYSTEMS } from "../config";
 import { useIntlListSeparators } from "../hooks";
 import type { Amount } from "../models/amount";

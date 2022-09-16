@@ -135,6 +135,7 @@
   "nav.telegram": "Telegram",
   "nav.terms_of_service": "Условия обслуживания",
   "nav.twitter": "Twitter",
+  "network_select_modal.title": "Выберите сеть",
   "new_version_alert.description": "Доступна новая версия приложения. Перезагрузите страницу, чтобы продолжить использование приложения.",
   "new_version_alert.title": "Доступна новая версия",
   "notify.burn_all_lp_tokens_error_description": "Вы являетесь единственным держателем токена LP. Используйте пропорциональный метод удаления или выберите меньший процент сжигания.",
@@ -261,6 +262,5 @@
   "swap_page.title": "Своп {{fromEcosystemName}} {{fromTokenProjectId}} на {{toEcosystemName}} {{toTokenProjectId}}",
   "token_search_modal.search_tokens": "Поиск токенов",
   "token_search_modal.title": "Выбрать токен",
-  "network_select_modal.title": "Выберите сеть",
   "vaa_error.transfer_not_detected": "Перевод не обнаружен хранителями Wormhole. Обычно это происходит, когда сеть перегружена. Повторите попытку позже."
 }

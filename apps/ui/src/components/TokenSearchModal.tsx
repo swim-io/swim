@@ -1,36 +1,31 @@
 import {
+  EuiButton,
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiModalBody,
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiPanel,
   EuiSelectable,
   EuiSpacer,
-  EuiButton,
-  EuiFlexGroup,
-  EuiFlexItem,
 } from "@elastic/eui";
 import type { EuiSelectableOption } from "@elastic/eui";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
-import { ReactElement } from "react";
 import { useCallback } from "react";
+import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import {
-  Ecosystem,
-  ECOSYSTEM_LIST,
-  isEcosystemEnabled,
-  TokenConfig,
-} from "../config";
+import type { Ecosystem, TokenConfig } from "../config";
+import { ECOSYSTEM_LIST, isEcosystemEnabled } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
+import { useUserBalanceAmount } from "../hooks";
 
 import { CustomModal } from "./CustomModal";
 import { TokenSearchConfigIcon } from "./TokenIcon";
-import { useUserBalanceAmount } from "hooks/crossEcosystem/useUserBalances";
 
 import "./TokenSearchModal.scss";
-import { Amount } from "models";
 
 type TokenOption = EuiSelectableOption<{
   readonly data: Readonly<TokenConfig>;
@@ -48,6 +43,17 @@ interface Props {
   readonly selectedEcosystem: Ecosystem;
 }
 
+interface TokenProps {
+  readonly token: TokenConfig;
+}
+
+const TokenBalance = ({ token }: TokenProps): ReactElement => {
+  const balance = useUserBalanceAmount(token, token.nativeEcosystemId);
+  return (
+    <span>{balance?.toFormattedHumanString(token.nativeEcosystemId)}</span>
+  );
+};
+
 const enabledEcosystems = ECOSYSTEM_LIST.filter((ecosystem) =>
   isEcosystemEnabled(ecosystem.id),
 );
@@ -61,20 +67,17 @@ export const TokenSearchModal = ({
 }: Props): ReactElement => {
   const { t } = useTranslation();
   const { tokens } = useEnvironment(selectConfig, shallow);
-  const tokenBalances: Map<string, Amount | null> = new Map(
-    tokens.map((token) => [
-      token.id,
-      useUserBalanceAmount(token, token.nativeEcosystemId),
-    ]),
-  );
 
-  const onSelectToken = useCallback((opts: readonly TokenOption[]) => {
-    const selected = opts.find(({ checked }) => checked);
-    if (selected) {
-      handleSelectToken(selected.data);
-      handleClose();
-    }
-  }, []);
+  const onSelectToken = useCallback(
+    (opts: readonly TokenOption[]) => {
+      const selected = opts.find(({ checked }) => checked);
+      if (selected) {
+        handleSelectToken(selected.data);
+        handleClose();
+      }
+    },
+    [handleClose, handleSelectToken],
+  );
 
   const filteredTokens = tokens.filter(
     (token) =>
@@ -82,21 +85,14 @@ export const TokenSearchModal = ({
       token.nativeEcosystemId === selectedEcosystem.id,
   );
 
-  const getBalance = (token: TokenConfig): ReactElement => {
-    const balance = tokenBalances.get(token.id);
-    return (
-      <span>{balance?.toFormattedHumanString(token.nativeEcosystemId)}</span>
-    );
-  };
-
-  const options = filteredTokens.map((token) => {
+  const Options = filteredTokens.map((token) => {
     const tokenProject = TOKEN_PROJECTS_BY_ID[token.projectId];
     return {
       label: `${tokenProject.symbol}`,
       searchableLabel: `${tokenProject.symbol} ${tokenProject.displayName}`,
       showIcons: false,
       data: token,
-      append: getBalance(token),
+      append: <TokenBalance token={token} />,
     };
   });
 
@@ -137,7 +133,7 @@ export const TokenSearchModal = ({
       </EuiModalHeader>
       <EuiModalBody className="modalBody">
         <EuiSelectable
-          options={options}
+          options={Options}
           renderOption={renderTokenOption}
           onChange={onSelectToken}
           singleSelection

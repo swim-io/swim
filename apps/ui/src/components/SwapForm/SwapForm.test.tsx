@@ -75,7 +75,7 @@ const useSplUserBalanceMock = mockOf(useSplUserBalance);
 const useSolanaLiquidityQueriesMock = mockOf(useSolanaLiquidityQueries);
 
 const findFromTokenButton = () => screen.queryAllByRole("button")[0];
-const findToTokenButton = () => screen.queryAllByRole("button")[4];
+const findToTokenButton = () => screen.queryAllByRole("button")[3];
 
 describe("SwapForm", () => {
   beforeEach(() => {
@@ -150,12 +150,12 @@ describe("SwapForm", () => {
     userEvent.click(findFromTokenButton());
 
     await waitFor(() => {
-      return screen.findByPlaceholderText("Search tokens");
+      return screen.findAllByText("Select a token");
     });
 
-    userEvent.click(screen.getByTitle("GST Green Satoshi Token BNB Chain"));
+    userEvent.click(screen.getByTitle("GST Green Satoshi Token"));
 
-    expect(findToTokenButton()).toHaveTextContent("GST on Solana");
+    expect(findToTokenButton()).toHaveTextContent("GST on BNB Chain");
   });
 
   it("should update toToken options when fromToken is updated with toToken value", async () => {
@@ -164,10 +164,10 @@ describe("SwapForm", () => {
     userEvent.click(findFromTokenButton());
 
     await waitFor(() => {
-      return screen.findByPlaceholderText("Search tokens");
+      return screen.findAllByText("Select a network");
     });
 
-    userEvent.click(screen.getByTitle("USDT Tether USD Solana"));
+    userEvent.click(screen.getByTitle("USDT Tether USD"));
 
     expect(findToTokenButton()).toHaveTextContent("USDC on Solana");
   });

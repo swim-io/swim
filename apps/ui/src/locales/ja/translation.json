@@ -135,6 +135,7 @@
   "nav.telegram": "Telegram",
   "nav.terms_of_service": "利用規約",
   "nav.twitter": "Twitter",
+  "network_select_modal.title": "ネットワークを選択",
   "new_version_alert.description": "利用可能なアプリの新しいバージョンがあります。引き続きアプリを使用するには、ページを再読み込みしてください。",
   "new_version_alert.title": "新しいバージョンが利用可能",
   "notify.burn_all_lp_tokens_error_description": "あなたは唯一のLPトークン所有者です。比例削除法を使用するか、より低いバーン率を選択してください。",
@@ -261,6 +262,5 @@
   "swap_page.title": "{{fromEcosystemName}}{{fromTokenProjectId}}を{{toEcosystemName}} {{toTokenProjectId}}にスワップ",
   "token_search_modal.search_tokens": "トークンを検索",
   "token_search_modal.title": "トークンを選択",
-  "network_select_modal.title": "ネットワークを選択",
   "vaa_error.transfer_not_detected": "Wormholeガーディアンによって送金が検出されませんでした。これは通常、ネットワークが混雑している場合に発生します。あとでもう一度やり直してください。"
 }

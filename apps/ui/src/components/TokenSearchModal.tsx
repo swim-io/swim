@@ -104,7 +104,7 @@ export const TokenSearchModal = ({
     >
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          {t("network_select_modal.title")}
+          {t("token_search_modal.title")}
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiPanel paddingSize="m" className="networkPanel">
@@ -126,11 +126,7 @@ export const TokenSearchModal = ({
       </EuiPanel>
 
       <EuiSpacer size="s" />
-      <EuiModalHeader>
-        <EuiModalHeaderTitle>
-          {t("token_search_modal.title")}
-        </EuiModalHeaderTitle>
-      </EuiModalHeader>
+
       <EuiModalBody className="modalBody">
         <EuiSelectable
           options={Options}

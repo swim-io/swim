@@ -135,7 +135,6 @@
   "nav.telegram": "Telegram",
   "nav.terms_of_service": "Terms of Service",
   "nav.twitter": "Twitter",
-  "network_select_modal.title": "Select a network",
   "new_version_alert.description": "There is a new version of the app available. Please reload the page to continue using the app.",
   "new_version_alert.title": "New version available",
   "notify.burn_all_lp_tokens_error_description": "You are the only LP token holder. Please use the proportional remove method or select a lower burn percentage.",

@@ -135,7 +135,6 @@
   "nav.telegram": "Telegram",
   "nav.terms_of_service": "Условия обслуживания",
   "nav.twitter": "Twitter",
-  "network_select_modal.title": "Выберите сеть",
   "new_version_alert.description": "Доступна новая версия приложения. Перезагрузите страницу, чтобы продолжить использование приложения.",
   "new_version_alert.title": "Доступна новая версия",
   "notify.burn_all_lp_tokens_error_description": "Вы являетесь единственным держателем токена LP. Используйте пропорциональный метод удаления или выберите меньший процент сжигания.",

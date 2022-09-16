@@ -164,7 +164,7 @@ describe("SwapForm", () => {
     userEvent.click(findFromTokenButton());
 
     await waitFor(() => {
-      return screen.findAllByText("Select a network");
+      return screen.findAllByText("Select a token");
     });
 
     userEvent.click(screen.getByTitle("USDT Tether USD"));

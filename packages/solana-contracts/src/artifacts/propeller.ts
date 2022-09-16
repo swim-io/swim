@@ -299,6 +299,86 @@ export type Propeller = {
       ]
     },
     {
+      "name": "createTargetChainMap",
+      "accounts": [
+        {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller.token_bridge_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "targetChainMap",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "arg",
+                "type": "u16",
+                "path": "target_chain"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "targetChain",
+          "type": "u16"
+        },
+        {
+          "name": "targetAddress",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "initializeFeeTracker",
       "accounts": [
         {
@@ -1257,6 +1337,31 @@ export type Propeller = {
           "name": "memo",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "targetChainMap",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "arg",
+                "type": "u16",
+                "path": "target_chain"
+              }
+            ]
+          }
         }
       ],
       "args": [
@@ -2777,6 +2882,55 @@ export type Propeller = {
   ],
   "accounts": [
     {
+      "name": "feeTracker",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "payer",
+            "type": "publicKey"
+          },
+          {
+            "name": "feesOwed",
+            "type": "u64"
+          },
+          {
+            "name": "feesMint",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "targetChainMap",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "targetChain",
+            "type": "u16"
+          },
+          {
+            "name": "targetAddress",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "tokenIdMap",
       "type": {
         "kind": "struct",
@@ -2806,30 +2960,6 @@ export type Propeller = {
           {
             "name": "bump",
             "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "feeTracker",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          },
-          {
-            "name": "payer",
-            "type": "publicKey"
-          },
-          {
-            "name": "feesOwed",
-            "type": "u64"
-          },
-          {
-            "name": "feesMint",
-            "type": "publicKey"
           }
         ]
       }
@@ -2900,14 +3030,6 @@ export type Propeller = {
             "type": "u64"
           },
           {
-            "name": "propellerMinTransferAmount",
-            "type": "u64"
-          },
-          {
-            "name": "propellerEthMinTransferAmount",
-            "type": "u64"
-          },
-          {
             "name": "marginalPricePool",
             "type": "publicKey"
           },
@@ -2918,15 +3040,6 @@ export type Propeller = {
           {
             "name": "marginalPricePoolTokenIndex",
             "type": "u8"
-          },
-          {
-            "name": "evmRoutingContractAddress",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
           },
           {
             "name": "feeVault",
@@ -3086,14 +3199,6 @@ export type Propeller = {
             "type": "u64"
           },
           {
-            "name": "propellerMinTransferAmount",
-            "type": "u64"
-          },
-          {
-            "name": "propellerEthMinTransferAmount",
-            "type": "u64"
-          },
-          {
             "name": "marginalPricePool",
             "type": "publicKey"
           },
@@ -3104,15 +3209,6 @@ export type Propeller = {
           {
             "name": "marginalPricePoolTokenMint",
             "type": "publicKey"
-          },
-          {
-            "name": "evmRoutingContractAddress",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
           }
         ]
       }
@@ -4075,6 +4171,86 @@ export const IDL: Propeller = {
       ]
     },
     {
+      "name": "createTargetChainMap",
+      "accounts": [
+        {
+          "name": "propeller",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller.token_bridge_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "targetChainMap",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "arg",
+                "type": "u16",
+                "path": "target_chain"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "targetChain",
+          "type": "u16"
+        },
+        {
+          "name": "targetAddress",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "initializeFeeTracker",
       "accounts": [
         {
@@ -5033,6 +5209,31 @@ export const IDL: Propeller = {
           "name": "memo",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "targetChainMap",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "arg",
+                "type": "u16",
+                "path": "target_chain"
+              }
+            ]
+          }
         }
       ],
       "args": [
@@ -6553,6 +6754,55 @@ export const IDL: Propeller = {
   ],
   "accounts": [
     {
+      "name": "feeTracker",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "payer",
+            "type": "publicKey"
+          },
+          {
+            "name": "feesOwed",
+            "type": "u64"
+          },
+          {
+            "name": "feesMint",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "targetChainMap",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "targetChain",
+            "type": "u16"
+          },
+          {
+            "name": "targetAddress",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "tokenIdMap",
       "type": {
         "kind": "struct",
@@ -6582,30 +6832,6 @@ export const IDL: Propeller = {
           {
             "name": "bump",
             "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "feeTracker",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          },
-          {
-            "name": "payer",
-            "type": "publicKey"
-          },
-          {
-            "name": "feesOwed",
-            "type": "u64"
-          },
-          {
-            "name": "feesMint",
-            "type": "publicKey"
           }
         ]
       }
@@ -6676,14 +6902,6 @@ export const IDL: Propeller = {
             "type": "u64"
           },
           {
-            "name": "propellerMinTransferAmount",
-            "type": "u64"
-          },
-          {
-            "name": "propellerEthMinTransferAmount",
-            "type": "u64"
-          },
-          {
             "name": "marginalPricePool",
             "type": "publicKey"
           },
@@ -6694,15 +6912,6 @@ export const IDL: Propeller = {
           {
             "name": "marginalPricePoolTokenIndex",
             "type": "u8"
-          },
-          {
-            "name": "evmRoutingContractAddress",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
           },
           {
             "name": "feeVault",
@@ -6862,14 +7071,6 @@ export const IDL: Propeller = {
             "type": "u64"
           },
           {
-            "name": "propellerMinTransferAmount",
-            "type": "u64"
-          },
-          {
-            "name": "propellerEthMinTransferAmount",
-            "type": "u64"
-          },
-          {
             "name": "marginalPricePool",
             "type": "publicKey"
           },
@@ -6880,15 +7081,6 @@ export const IDL: Propeller = {
           {
             "name": "marginalPricePoolTokenMint",
             "type": "publicKey"
-          },
-          {
-            "name": "evmRoutingContractAddress",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
           }
         ]
       }

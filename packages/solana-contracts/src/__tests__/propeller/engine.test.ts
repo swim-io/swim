@@ -1,4 +1,5 @@
 import {
+  CHAIN_ID_BSC,
   CHAIN_ID_ETH,
   CHAIN_ID_SOLANA,
   createNonce,
@@ -143,6 +144,10 @@ const ethRoutingContractEthHexStr = tryNativeToHexString(
   CHAIN_ID_ETH,
 );
 const ethRoutingContract = Buffer.from(ethRoutingContractEthHexStr, "hex");
+const routingContracts = [
+  { targetChainId: CHAIN_ID_ETH, address: ethRoutingContract },
+  { targetChainId: CHAIN_ID_BSC, address: ethRoutingContract },
+];
 
 const requestUnitsIx = web3.ComputeBudgetProgram.requestUnits({
   // units: 420690,
@@ -224,8 +229,8 @@ const secpVerifyFee: BN = new BN(0.00004 * LAMPORTS_PER_SOL);
 const postVaaFee: BN = new BN(0.00005 * LAMPORTS_PER_SOL);
 const completeWithPayloadFee: BN = new BN(0.0000055 * LAMPORTS_PER_SOL);
 const processSwimPayloadFee: BN = new BN(0.00001 * LAMPORTS_PER_SOL);
-const propellerMinTransferAmount = new BN(5_000_000);
-const propellerEthMinTransferAmount = new BN(10_000_000);
+// const propellerMinTransferAmount = new BN(5_000_000);
+// const propellerEthMinTransferAmount = new BN(10_000_000);
 let marginalPricePool: web3.PublicKey;
 let marginalPricePoolToken0Account: web3.PublicKey;
 let marginalPricePoolToken1Account: web3.PublicKey;
@@ -656,6 +661,10 @@ describe("propeller", () => {
     await createTokenIdMaps();
     console.info(`created token id maps`);
 
+    console.info(`creating target chain maps`);
+    await createTargetChainMaps();
+    console.info(`created target chain maps`);
+
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     propellerEngineSwimUsdFeeAccount = (
       await getOrCreateAssociatedTokenAccount(
@@ -780,6 +789,7 @@ describe("propeller", () => {
           latestTimestamp.toNumber(),
         ).toUTCString()}
     `);
+
     // // If fails, fallback to looking for a local env file
     // try {
     //   switchboard = await SwitchboardTestContext.loadFromEnv(provider);
@@ -4600,12 +4610,12 @@ const initializePropeller = async () => {
     postVaaFee,
     completeWithPayloadFee,
     processSwimPayloadFee,
-    propellerMinTransferAmount,
-    propellerEthMinTransferAmount,
+    // propellerMinTransferAmount,
+    // propellerEthMinTransferAmount,
     marginalPricePool,
     marginalPricePoolTokenIndex,
     marginalPricePoolTokenMint,
-    evmRoutingContractAddress: ethRoutingContract,
+    // evmRoutingContractAddress: ethRoutingContract,
     // evmRoutingContractAddress: ethRoutingContractEthUint8Arr
   };
   const tx = propellerProgram.methods
@@ -4672,9 +4682,9 @@ const initializePropeller = async () => {
   console.info(
     `gasKickstartAmount: ${propellerData.gasKickstartAmount.toString()}`,
   );
-  console.info(
-    `propellerMinTransferAmount: ${propellerData.propellerMinTransferAmount.toString()}`,
-  );
+  // console.info(
+  //   `propellerMinTransferAmount: ${propellerData.propellerMinTransferAmount.toString()}`,
+  // );
 
   console.info(`
 			propeller: ${propeller.toBase58()}
@@ -4782,6 +4792,44 @@ const createTokenIdMaps = async () => {
     outputTokenIdMapAddrEntries.map(({ outputTokenIndex, tokenIdMapAddr }) => {
       return [outputTokenIndex, tokenIdMapAddr];
     }),
+  );
+};
+
+const createTargetChainMaps = async () => {
+  const targetChainMaps = await Promise.all(
+    routingContracts.map(async ({ targetChainId, address }) => {
+      const createTargetChainMap = propellerEnginePropellerProgram.methods
+        .createTargetChainMap(targetChainId, address)
+        .accounts({
+          propeller,
+          admin: propellerAdmin.publicKey,
+          payer: propellerEngineKeypair.publicKey,
+          systemProgram: web3.SystemProgram.programId,
+          // rent: web3.SYSVAR_RENT_PUBKEY,
+        })
+        .signers([propellerAdmin]);
+
+      const createTargetChainMapPubkeys = await createTargetChainMap.pubkeys();
+      await createTargetChainMap.rpc();
+      const targetChainMapData =
+        await propellerProgram.account.targetChainMap.fetch(
+          createTargetChainMapPubkeys.targetChainMap,
+        );
+      return {
+        targetChainId,
+        targetAddress: address,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        targetChainMapData,
+      };
+    }),
+  );
+  targetChainMaps.forEach(
+    ({ targetChainId, targetAddress, targetChainMapData }) => {
+      expect(targetChainMapData.targetChain).toEqual(targetChainId);
+      expect(Buffer.from(targetChainMapData.targetAddress)).toEqual(
+        targetAddress,
+      );
+    },
   );
 };
 

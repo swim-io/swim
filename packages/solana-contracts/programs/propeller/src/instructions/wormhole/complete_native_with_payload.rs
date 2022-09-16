@@ -225,19 +225,26 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
     let payload_transfer_with_payload: PayloadTransferWithPayload =
         deserialize_message_payload(&mut message_data.payload.as_slice())?;
     let propeller = &ctx.accounts.propeller;
-    msg!(
-        "payload.from_address {:?} propeller.evm_routing_address {:?}",
-        payload_transfer_with_payload.from_address,
-        propeller.evm_routing_contract_address
-    );
+
+    //TODO: do i need to check this or is it already checked in complete_native_with_payload cpi call?
+    // should be done as part of the redeemer check?
+    //
+    // msg!("payload_transfer_with_payload.to: {:?}", payload_transfer_with_payload.to);
+    // let to_pubkey = Pubkey::new_from_array(payload_transfer_with_payload.to);
+    // require_keys_eq!(to_pubkey, crate::ID);
+
     //TODO: do we want this check?
+    // msg!(
+    //     "payload.from_address {:?} propeller.evm_routing_address {:?}",
+    //     payload_transfer_with_payload.from_address,
+    //     propeller.evm_routing_contract_address
+    // );
     // require!(
     //     propeller.evm_routing_contract_address == payload_transfer_with_payload.from_address,
     //     PropellerError::InvalidRoutingContractAddress,
     // );
     // let payload_transfer_with_payload =
     //     get_transfer_with_payload_from_message_account(&ctx.accounts.message.to_account_info())?;
-
     // // TODO: we should probably validate that `message_data_payload.from_address` is the expected
     // //  evm routing contract address unless there's a reason to allow someone else to use this method
     // msg!("message_data_payload: {:?}", message_data_payload);

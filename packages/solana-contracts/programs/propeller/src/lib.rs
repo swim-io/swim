@@ -40,14 +40,12 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 #[program]
 pub mod propeller {
-
     use super::*;
 
     #[inline(never)]
     #[access_control(Initialize::accounts(&ctx, &params))]
     pub fn initialize(ctx: Context<Initialize>, params: InitializeParams) -> Result<()> {
-        handle_initialize(ctx, params)?;
-        Ok(())
+        handle_initialize(ctx, params)
     }
 
     #[inline(never)]
@@ -69,7 +67,14 @@ pub mod propeller {
         pool_ix: PoolInstruction,
     ) -> Result<()> {
         handle_create_token_id_map(ctx, target_token_index, pool, pool_token_index, pool_token_mint, pool_ix)
-        // Ok(())
+    }
+
+    pub fn create_target_chain_map(
+        ctx: Context<CreateTargetChainMap>,
+        target_chain: u16,
+        target_address: [u8; 32],
+    ) -> Result<()> {
+        handle_create_target_chain_map(ctx, target_chain, target_address)
     }
 
     #[inline(never)]

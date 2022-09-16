@@ -31,7 +31,8 @@ pub struct CreateTargetChainMap<'info> {
             b"propeller".as_ref(),
             propeller.key().as_ref(),
             &target_chain.to_le_bytes()
-        ]
+        ],
+        bump,
         space = 8 + TargetChainMap::LEN
     )]
     pub target_chain_map: Account<'info, TargetChainMap>,
@@ -40,25 +41,58 @@ pub struct CreateTargetChainMap<'info> {
 
 #[account]
 pub struct TargetChainMap {
+    pub bump: u8,
     pub target_chain: u16,
-    pub routing_contract: [u8; 32],
+    pub target_address: [u8; 32],
 }
 
 impl TargetChainMap {
-    pub const LEN: usize = 2 + 32;
+    pub const LEN: usize = 1 + 2 + 32;
 }
 
 pub fn handle_create_target_chain_map(
     ctx: Context<CreateTargetChainMap>,
     target_chain: u16,
-    routing_contract: [u8; 32],
+    target_address: [u8; 32],
 ) -> Result<()> {
     let target_chain_map = &mut ctx.accounts.target_chain_map;
+    let bump = ctx.bumps.get("target_chain_map").unwrap();
+    target_chain_map.bump = *bump;
     target_chain_map.target_chain = target_chain;
-    target_chain_map.routing_contract = routing_contract;
+    target_chain_map.target_address = target_address;
     Ok(())
 }
 
-pub fn handle_update_target_chain_map() -> Result<()> {
-    todo!()
+#[derive(Accounts)]
+pub struct UpdateTargetChainMap<'info> {
+    #[account(
+    seeds = [b"propeller".as_ref(), propeller.token_bridge_mint.key().as_ref()],
+    bump = propeller.bump,
+    )]
+    pub propeller: Account<'info, Propeller>,
+
+    #[account(
+    constraint = admin.key() == propeller.admin
+    )]
+    pub admin: Signer<'info>,
+
+    #[account(mut)]
+    pub payer: Signer<'info>,
+    #[account(
+    mut,
+    seeds = [
+    b"propeller".as_ref(),
+    propeller.key().as_ref(),
+    &target_chain_map.target_chain.to_le_bytes()
+    ],
+    bump = target_chain_map.bump,
+    )]
+    pub target_chain_map: Account<'info, TargetChainMap>,
+    pub system_program: Program<'info, System>,
+}
+
+pub fn handle_update_target_chain_map(ctx: Context<UpdateTargetChainMap>, routing_contract: [u8; 32]) -> Result<()> {
+    let target_chain_map = &mut ctx.accounts.target_chain_map;
+    target_chain_map.target_address = routing_contract;
+    Ok(())
 }

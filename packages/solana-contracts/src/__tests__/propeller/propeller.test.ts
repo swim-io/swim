@@ -1,4 +1,5 @@
 import {
+  CHAIN_ID_BSC,
   CHAIN_ID_ETH,
   CHAIN_ID_SOLANA,
   createNonce,
@@ -136,6 +137,11 @@ const ethRoutingContractEthHexStr = tryNativeToHexString(
 );
 const ethRoutingContract = Buffer.from(ethRoutingContractEthHexStr, "hex");
 
+const routingContracts = [
+  { targetChainId: CHAIN_ID_ETH, address: ethRoutingContract },
+  { targetChainId: CHAIN_ID_BSC, address: ethRoutingContract },
+];
+
 const requestUnitsIx = web3.ComputeBudgetProgram.requestUnits({
   // units: 420690,
   units: 900000,
@@ -217,8 +223,8 @@ const secpVerifyFee: BN = new BN(0.00004 * LAMPORTS_PER_SOL);
 const postVaaFee: BN = new BN(0.00005 * LAMPORTS_PER_SOL);
 const completeWithPayloadFee: BN = new BN(0.0000055 * LAMPORTS_PER_SOL);
 const processSwimPayloadFee: BN = new BN(0.00001 * LAMPORTS_PER_SOL);
-const propellerMinTransferAmount = new BN(5_000_000);
-const propellerEthMinTransferAmount = new BN(10_000_000);
+// const propellerMinTransferAmount = new BN(5_000_000);
+// const propellerEthMinTransferAmount = new BN(10_000_000);
 let marginalPricePool: web3.PublicKey;
 // USDC token index in flagship pool
 const marginalPricePoolTokenIndex = 0;
@@ -621,8 +627,8 @@ describe("propeller", () => {
       postVaaFee,
       completeWithPayloadFee,
       processSwimPayloadFee,
-      propellerMinTransferAmount,
-      propellerEthMinTransferAmount,
+      // propellerMinTransferAmount,
+      // propellerEthMinTransferAmount,
       marginalPricePool,
       marginalPricePoolTokenIndex,
       marginalPricePoolTokenMint,
@@ -716,16 +722,16 @@ describe("propeller", () => {
     console.info(
       `gasKickstartAmount: ${propellerData.gasKickstartAmount.toString()}`,
     );
-    console.info(
-      `propellerMinTransferAmount: ${propellerData.propellerMinTransferAmount.toString()}`,
-    );
+    // console.info(
+    //   `propellerMinTransferAmount: ${propellerData.propellerMinTransferAmount.toString()}`,
+    // );
     expect(propellerData.propellerFee.eq(propellerFee)).toEqual(true);
     expect(propellerData.gasKickstartAmount.eq(gasKickstartAmount)).toEqual(
       true,
     );
-    expect(
-      propellerData.propellerMinTransferAmount.eq(propellerMinTransferAmount),
-    ).toEqual(true);
+    // expect(
+    //   propellerData.propellerMinTransferAmount.eq(propellerMinTransferAmount),
+    // ).toEqual(true);
     console.info(`
 			propeller: ${propeller.toBase58()}
 			propellerSender: ${propellerSender.toBase58()}
@@ -848,6 +854,55 @@ describe("propeller", () => {
         )}
       `);
     }
+  });
+
+  it("Creates target chain maps", async () => {
+    const targetChainMaps = await Promise.all(
+      routingContracts.map(async ({ targetChainId, address }) => {
+        const createTargetChainMap = propellerProgram.methods
+          .createTargetChainMap(targetChainId, address)
+          .accounts({
+            propeller,
+            admin: propellerAdmin.publicKey,
+            payer: payer.publicKey,
+            systemProgram: web3.SystemProgram.programId,
+            // rent: web3.SYSVAR_RENT_PUBKEY,
+          })
+          .signers([propellerAdmin]);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const createTargetChainMapPubkeys =
+          await createTargetChainMap.pubkeys();
+        await createTargetChainMap.rpc();
+        const targetChainMapData =
+          await propellerProgram.account.targetChainMap.fetch(
+            createTargetChainMapPubkeys.targetChainMap,
+          );
+        return {
+          targetChainId,
+          targetAddress: address,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          targetChainMapData,
+        };
+      }),
+    );
+    targetChainMaps.forEach(
+      ({ targetChainId, targetAddress, targetChainMapData }) => {
+        expect(targetChainMapData.targetChain).toEqual(targetChainId);
+        expect(Buffer.from(targetChainMapData.targetAddress)).toEqual(
+          targetAddress,
+        );
+      },
+    );
+    await Promise.all(
+      targetChainMaps.map(
+        async ({ targetChainId, targetAddress, targetChainMapData }) => {
+          expect(targetChainMapData.targetChain).toEqual(targetChainId);
+          expect(Buffer.from(targetChainMapData.targetAddress)).toEqual(
+            targetAddress,
+          );
+        },
+      ),
+    );
   });
 
   describe("Propeller Pool Ixs", () => {
@@ -3332,7 +3387,7 @@ describe("propeller", () => {
       const gasKickstart = false;
       const propellerEnabled = true;
 
-      const maxFee = new BN(100000000000);
+      const maxFee = new BN(100_000);
       const transferNativeTxn = await propellerProgram.methods
         .transferNativeWithPayload(
           nonce,
@@ -3469,8 +3524,8 @@ describe("propeller", () => {
       // console.info(`transferAmountBufferHexStr: ${transferAmountBuffer.toString('hex')}`);
     });
 
-    it("Fails token bridge transfer if transferAmount < minTransferAmount for targetChain", async () => {
-      const transferAmount = propellerEthMinTransferAmount.div(new BN(2));
+    it("Fails token bridge transfer if transferAmount < maxFee for targetChain", async () => {
+      const transferAmount = new BN(100_000_000);
       const nonce = createNonce().readUInt32LE(0);
       const memo = "e45794d6c5a2751a";
       const memoBuffer = Buffer.alloc(16);
@@ -3478,7 +3533,7 @@ describe("propeller", () => {
       const wormholeMessage = web3.Keypair.generate();
       const gasKickstart = false;
       const propellerEnabled = true;
-      const maxFee = new BN(100000000000);
+      const maxFee = transferAmount.add(new BN(1));
       await expect(() => {
         return propellerProgram.methods
           .transferNativeWithPayload(

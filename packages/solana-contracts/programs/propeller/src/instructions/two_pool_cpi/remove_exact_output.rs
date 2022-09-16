@@ -1,5 +1,5 @@
 use {
-    crate::{is_transfer_amount_sufficient, Propeller},
+    crate::Propeller,
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::token::{Mint, Token, TokenAccount},
     two_pool::{gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT},
@@ -88,13 +88,13 @@ pub fn handle_remove_exact_output(
     propeller_enabled: bool,
     target_chain: u16,
 ) -> Result<Vec<u64>> {
-    is_transfer_amount_sufficient(
-        &ctx.accounts.propeller,
-        &ctx.accounts.token_bridge_mint,
-        propeller_enabled,
-        target_chain,
-        exact_output_amount,
-    )?;
+    // is_transfer_amount_sufficient(
+    //     &ctx.accounts.propeller,
+    //     &ctx.accounts.token_bridge_mint,
+    //     propeller_enabled,
+    //     target_chain,
+    //     exact_output_amount,
+    // )?;
     let cpi_ctx = CpiContext::new(
         ctx.accounts.two_pool_program.to_account_info(),
         two_pool::cpi::accounts::RemoveExactOutput {

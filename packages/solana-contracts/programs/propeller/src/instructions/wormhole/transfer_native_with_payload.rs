@@ -1,7 +1,7 @@
 use {
     crate::{
-        error::*, is_transfer_amount_sufficient, Propeller, RawSwimPayload, SwimPayloadVersion, TokenBridge, Wormhole,
-        TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
+        error::*, target_chain_map::TargetChainMap, Propeller, RawSwimPayload, SwimPayloadVersion, TokenBridge,
+        Wormhole, TOKEN_COUNT, TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION,
     },
     anchor_lang::{
         prelude::*,
@@ -23,6 +23,7 @@ use {
 };
 
 #[derive(Accounts)]
+#[instruction(nonce: u32, target_chain: u16)]
 pub struct TransferNativeWithPayload<'info> {
     #[account(
     has_one = token_bridge_mint,
@@ -92,7 +93,7 @@ pub struct TransferNativeWithPayload<'info> {
 
     #[account(mut)]
     // Note:
-    //     switched to using a `Signer`
+    //     using a `Signer`
     //     instead of a PDA since a normal token bridge transfer
     //     uses a Keypair.generate()
     //
@@ -100,7 +101,8 @@ pub struct TransferNativeWithPayload<'info> {
     //
     //     WH expects this to be an uninitialized account so might
     //     be able to use a PDA still in the future.
-    //     maybe [b"propeller".as_ref(), payer, sequence_value]
+    //     maybe [b"propeller".as_ref(), payer, sequence_value]?
+    //
     pub wormhole_message: Signer<'info>,
 
     #[account(
@@ -130,7 +132,7 @@ pub struct TransferNativeWithPayload<'info> {
 	bump,
 	seeds::program = propeller.wormhole().unwrap()
 	)]
-    /// CHECK: Wormhole Fee Collector
+    /// CHECK: Wormhole Fee Collector. leaving as UncheckedAccount since it could be uninitialized for the first transfer.
     pub wormhole_fee_collector: AccountInfo<'info>,
 
     pub clock: Sysvar<'info, Clock>,
@@ -186,6 +188,16 @@ pub struct TransferNativeWithPayload<'info> {
     #[account(executable, address = spl_memo::id())]
     ///CHECK: memo program
     pub memo: UncheckedAccount<'info>,
+
+    #[account(
+    seeds = [
+    b"propeller".as_ref(),
+    propeller.key().as_ref(),
+    &target_chain.to_le_bytes()
+    ],
+    bump = target_chain_map.bump
+    )]
+    pub target_chain_map: Account<'info, TargetChainMap>,
 }
 
 impl<'info> TransferNativeWithPayload<'info> {
@@ -228,13 +240,9 @@ pub fn handle_transfer_native_with_payload(
     target_token_id: u16,
     memo: Vec<u8>,
 ) -> Result<()> {
-    is_transfer_amount_sufficient(
-        &ctx.accounts.propeller,
-        &ctx.accounts.token_bridge_mint,
-        propeller_enabled,
-        target_chain,
-        amount,
-    )?;
+    if propeller_enabled {
+        require_gt!(amount, max_fee, PropellerError::InsufficientAmount);
+    }
     msg!("transfer_native_with_payload");
     token::approve(
         CpiContext::new(
@@ -287,6 +295,7 @@ pub fn handle_transfer_native_with_payload(
     //     5. payload is Vec<u8>
     // ok
 
+    let target_address = ctx.accounts.target_chain_map.target_address.clone();
     let transfer_with_payload_data = TransferWithPayloadData {
         // nonce: ctx.accounts.custodian.nonce,
         //TODO: update this.
@@ -296,7 +305,8 @@ pub fn handle_transfer_native_with_payload(
         //  this should be tryNativeToUint8Array(ethAddress, CHAIN_ID_ETH)
         //  this can either be hardcoded or set in propeller state since we're assuming this is the same for all chains.
         // target_address: Pubkey::default().to_bytes(),
-        target_address: ctx.accounts.propeller.evm_routing_contract_address.clone(),
+        // target_address: ctx.accounts.propeller.evm_routing_contract_address.clone(),
+        target_address,
         // target_address: Pubkey::default().to_bytes(),
         // target_chain: Custodian::conductor_chain()?,
         target_chain,

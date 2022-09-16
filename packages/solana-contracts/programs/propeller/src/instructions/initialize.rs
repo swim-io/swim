@@ -89,12 +89,12 @@ pub struct InitializeParams {
     pub post_vaa_fee: u64,
     pub complete_with_payload_fee: u64,
     pub process_swim_payload_fee: u64,
-    pub propeller_min_transfer_amount: u64,
-    pub propeller_eth_min_transfer_amount: u64,
+    // pub propeller_min_transfer_amount: u64,
+    // pub propeller_eth_min_transfer_amount: u64,
     pub marginal_price_pool: Pubkey,
     pub marginal_price_pool_token_index: u8,
     pub marginal_price_pool_token_mint: Pubkey,
-    pub evm_routing_contract_address: [u8; 32],
+    // pub evm_routing_contract_address: [u8; 32],
 }
 
 pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> Result<()> {
@@ -118,12 +118,12 @@ pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> 
     propeller.post_vaa_fee = params.post_vaa_fee;
     propeller.complete_with_payload_fee = params.complete_with_payload_fee;
     propeller.process_swim_payload_fee = params.process_swim_payload_fee;
-    propeller.propeller_min_transfer_amount = params.propeller_min_transfer_amount;
-    propeller.propeller_eth_min_transfer_amount = params.propeller_eth_min_transfer_amount;
+    // propeller.propeller_min_transfer_amount = params.propeller_min_transfer_amount;
+    // propeller.propeller_eth_min_transfer_amount = params.propeller_eth_min_transfer_amount;
     propeller.marginal_price_pool = params.marginal_price_pool;
     propeller.marginal_price_pool_token_index = params.marginal_price_pool_token_index;
     propeller.marginal_price_pool_token_mint = params.marginal_price_pool_token_mint;
-    propeller.evm_routing_contract_address = params.evm_routing_contract_address;
+    // propeller.evm_routing_contract_address = params.evm_routing_contract_address;
     propeller.fee_vault = ctx.accounts.propeller_fee_vault.key();
     Ok(())
 }

@@ -2,7 +2,7 @@ use {
     crate::{
         constants::{SWAP_EXACT_OUTPUT_INPUT_TOKEN_INDEX, TOKEN_BRIDGE_MINT_OUTPUT_TOKEN_INDEX},
         error::*,
-        is_transfer_amount_sufficient, Propeller,
+        Propeller,
     },
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::token::{Mint, Token, TokenAccount},
@@ -88,13 +88,13 @@ pub fn handle_swap_exact_output(
     propeller_enabled: bool,
     target_chain: u16,
 ) -> Result<Vec<u64>> {
-    is_transfer_amount_sufficient(
-        &ctx.accounts.propeller,
-        &ctx.accounts.token_bridge_mint,
-        propeller_enabled,
-        target_chain,
-        exact_output_amount,
-    )?;
+    // is_transfer_amount_sufficient(
+    //     &ctx.accounts.propeller,
+    //     &ctx.accounts.token_bridge_mint,
+    //     propeller_enabled,
+    //     target_chain,
+    //     exact_output_amount,
+    // )?;
     let input_token_index = SWAP_EXACT_OUTPUT_INPUT_TOKEN_INDEX;
     let cpi_ctx = CpiContext::new(
         ctx.accounts.two_pool_program.to_account_info(),

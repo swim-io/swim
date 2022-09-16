@@ -1,6 +1,6 @@
 pub use {
-    create_owner_token_accounts::*, fee_tracker::*, initialize::*, process_swim_payload::*, token_id_map::*, utils::*,
-    wormhole::*,
+    create_owner_token_accounts::*, fee_tracker::*, initialize::*, process_swim_payload::*, target_chain_map::*,
+    token_id_map::*, utils::*, wormhole::*,
 };
 
 pub mod process_swim_payload;

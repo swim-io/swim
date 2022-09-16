@@ -1,7 +1,7 @@
 use {
     crate::{
         constants::{PROPELLER_MINIMUM_OUTPUT_AMOUNT, SWAP_EXACT_INPUT_OUTPUT_TOKEN_INDEX},
-        is_transfer_amount_sufficient, Propeller, PropellerError,
+        Propeller, PropellerError,
     },
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::token::{Mint, Token, TokenAccount},

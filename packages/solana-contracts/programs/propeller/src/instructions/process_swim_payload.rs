@@ -732,7 +732,6 @@ pub fn handle_propeller_process_swim_payload(
     let payload_transfer_with_payload =
         get_transfer_with_payload_from_message_account(&ctx.accounts.process_swim_payload.message.to_account_info())?;
     msg!("message_data_payload: {:?}", payload_transfer_with_payload);
-
     let PayloadTransferWithPayload {
         message_type,
         amount,
@@ -743,10 +742,18 @@ pub fn handle_propeller_process_swim_payload(
         from_address,
         payload,
     } = payload_transfer_with_payload;
+    //TODO: do i need to re-check this?
+    // any issue in doing so?
+    msg!("payload_transfer_with_payload.to: {:?}", to);
+    let to_pubkey = Pubkey::new_from_array(to);
+    require_keys_eq!(to_pubkey, crate::ID);
+
     let message_swim_payload = payload;
+
     let propeller_message = &ctx.accounts.process_swim_payload.propeller_message;
     let is_gas_kickstart = propeller_message.gas_kickstart;
     let target_token_id = propeller_message.target_token_id;
+
     // require!(propeller_message.gas_kickstart, PropellerError::InvalidSwimPayloadGasKickstart);
     require_eq!(message_swim_payload.target_token_id, propeller_message.target_token_id);
     let claim_data = ClaimData::try_from_slice(&mut ctx.accounts.process_swim_payload.claim.data.borrow())

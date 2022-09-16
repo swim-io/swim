@@ -209,6 +209,31 @@ impl<'info> PropellerCreateOwnerTokenAccounts<'info> {
 /// check if any of the require token accounts don't exist.
 pub fn handle_propeller_create_owner_token_accounts(ctx: Context<PropellerCreateOwnerTokenAccounts>) -> Result<()> {
     let mut create_owner_token_account_total_fees_in_lamports = 0u64;
+    //TODO: enforce that this step can only be done after CompleteNativeWithPayload is done?
+    //
+    // let claim_data = ClaimData::try_from_slice(&mut ctx.accounts.claim.data.borrow())
+    //     .map_err(|_| error!(PropellerError::InvalidClaimData))?;
+    // require!(claim_data.claimed, PropellerError::ClaimNotClaimed);
+
+    //TODO: check `vaa.to` is this program's address?
+    // let payload_transfer_with_payload =
+    //     get_transfer_with_payload_from_message_account(&ctx.accounts.message.to_account_info())?;
+    // msg!("message_data_payload: {:?}", payload_transfer_with_payload);
+    // let PayloadTransferWithPayload {
+    //     message_type,
+    //     amount,
+    //     token_address,
+    //     token_chain,
+    //     to,
+    //     to_chain,
+    //     from_address,
+    //     payload,
+    // } = payload_transfer_with_payload;
+    // //TODO: do i need to re-check this?
+    // // any issue in doing so?
+    // msg!("payload_transfer_with_payload.to: {:?}", to);
+    // let to_pubkey = Pubkey::new_from_array(to);
+    // require_keys_eq!(to_pubkey, crate::ID);
 
     let token_program = ctx.accounts.token_program.to_account_info();
     let payer = ctx.accounts.payer.to_account_info();

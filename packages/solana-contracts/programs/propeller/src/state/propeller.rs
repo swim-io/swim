@@ -34,8 +34,11 @@ pub struct Propeller {
     pub process_swim_payload_fee: u64,
     // minimum amount of tokens that must be transferred in token bridge transfer
     // if propeller enabled transfer.
-    pub propeller_min_transfer_amount: u64,
-    pub propeller_eth_min_transfer_amount: u64,
+    // Note: No longer using min transfer amounts
+    // client will set `max_fee` for propellerEnabled transfers and engine will
+    // be responsible for checking if the fee is sufficient for it to relay the transfer
+    // pub propeller_min_transfer_amount: u64,
+    // pub propeller_eth_min_transfer_amount: u64,
 
     // gas kickstart parameters
     // 1. marginal_price_pool will be pool used to calculate token_bridge_mint -> stablecoin
@@ -48,7 +51,7 @@ pub struct Propeller {
     // index of token used for calculating gas price
     pub marginal_price_pool_token_index: u8,
 
-    pub evm_routing_contract_address: [u8; 32],
+    // pub evm_routing_contract_address: [u8; 32],
     pub fee_vault: Pubkey, //32
 
                            // pub custody_signer_key: Pubkey,     // 32
@@ -99,10 +102,10 @@ impl Propeller {
         8 + //process_swim_payload_fee
         8 + // complete_with_payload_cost
         8 + // process_swim_payload_cost
-        8 + //propeller_min_transfer_amount
-        8 +  //propeller_eth_min_transfer_amount
-        32 + //fee_vault
-        32; // evm_routing_contract_address
+        // 8 + //propeller_min_transfer_amount
+        // 8 +  //propeller_eth_min_transfer_amount
+        32; //fee_vault
+            // 32; // evm_routing_contract_address
 
     pub fn wormhole(&self) -> Result<Pubkey> {
         // let pubkey = Pubkey::from_str(CORE_BRIDGE_ADDRESS)

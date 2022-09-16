@@ -120,6 +120,17 @@ pub struct PropellerCreateOwnerTokenAccounts<'info> {
     pub propeller_message: Box<Account<'info, PropellerMessage>>,
 
     #[account(
+    seeds = [
+    b"propeller".as_ref(),
+    b"token_id".as_ref(),
+    propeller.key().as_ref(),
+    &propeller_message.target_token_id.to_le_bytes()
+    ],
+    bump = token_id_map.bump,
+    )]
+    pub token_id_map: Box<Account<'info, TokenIdMap>>,
+
+    #[account(
     mut,
     seeds = [
     b"two_pool".as_ref(),
@@ -178,6 +189,7 @@ pub struct PropellerCreateOwnerTokenAccounts<'info> {
 impl<'info> PropellerCreateOwnerTokenAccounts<'info> {
     pub fn accounts(ctx: &Context<PropellerCreateOwnerTokenAccounts>) -> Result<()> {
         require_keys_eq!(ctx.accounts.user.key(), ctx.accounts.propeller_message.owner);
+        require_keys_eq!(ctx.accounts.pool.key(), ctx.accounts.token_id_map.pool);
         let expected_user_token_0_ata =
             get_associated_token_address(&ctx.accounts.user.key(), &ctx.accounts.pool_token_0_mint.key());
         require_keys_eq!(expected_user_token_0_ata, ctx.accounts.user_pool_token_0_account.key());

@@ -2325,6 +2325,37 @@ export type Propeller = {
           }
         },
         {
+          "name": "tokenIdMap",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "token_id"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "u16",
+                "account": "PropellerMessage",
+                "path": "propeller_message.target_token_id"
+              }
+            ]
+          }
+        },
+        {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
@@ -6192,6 +6223,37 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "path": "message"
+              }
+            ]
+          }
+        },
+        {
+          "name": "tokenIdMap",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "token_id"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "u16",
+                "account": "PropellerMessage",
+                "path": "propeller_message.target_token_id"
               }
             ]
           }

@@ -122,6 +122,7 @@ jobs:
 
           echo "Creating release file with all files"
           cd apps/ui/build
+          rm static/{css,js}/*.map
           mkdir ${{ env.RELEASES_DIRECTORY_NAME }}
           find . > "${{ env.RELEASES_DIRECTORY_NAME }}/$(date +'%s')"
           ls -laR ${{ env.RELEASES_DIRECTORY_NAME }}

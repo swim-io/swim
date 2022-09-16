@@ -2,10 +2,14 @@ import {
   getEmitterAddressEth,
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
-import { Keypair } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import type { EvmConnection, EvmEcosystemId, EvmTx } from "@swim-io/evm";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  generateUnlockSplTokenTxIds,
+} from "@swim-io/solana";
 import { findOrThrow } from "@swim-io/utils";
+import { WormholeChainId } from "@swim-io/wormhole";
 import type { ethers } from "ethers";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
@@ -15,13 +19,13 @@ import {
   Protocol,
   getSolanaTokenDetails,
   getTokenDetailsForEcosystem,
+  getWormholeRetries,
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import {
-  generateUnlockSplTokenTxIds,
+  getSignedVaaWithRetry,
   humanDecimalToAtomicString,
-  lockEvmToken,
 } from "../../models";
 import { getFromEcosystemOfToSolanaTransfer } from "../../models/swim/transfer";
 import { useWallets } from "../crossEcosystem";
@@ -114,15 +118,16 @@ export const useToSolanaTransferMutation = () => {
       ).address.toBase58();
 
       // Process transfer if transfer txId does not exist
-      const { approvalResponses, transferResponse } = await lockEvmToken(
-        evmConnections[index],
+      const { approvalResponses, transferResponse } = await evmConnections[
+        index
+      ].lockEvmToken({
+        atomicAmount: humanDecimalToAtomicString(value, token, fromEcosystem),
         evmWallet,
-        evmChains[index],
         fromTokenDetails,
-        splTokenAccountAddress,
-        humanDecimalToAtomicString(value, token, fromEcosystem),
         interactionId,
-      );
+        recipientChain: WormholeChainId.Solana,
+        splTokenAccountAddress: new PublicKey(splTokenAccountAddress).toBytes(),
+      });
 
       const [transferTx, ...approvalTxs] = await Promise.all(
         [transferResponse, ...approvalResponses].map((txResponse) =>
@@ -194,16 +199,24 @@ export const useToSolanaTransferMutation = () => {
         draft.toSolanaTransfers[index].signatureSetAddress =
           signatureKeyPair.publicKey.toBase58();
       });
-      const unlockSplTokenTxIdsGenerator = generateUnlockSplTokenTxIds(
-        interactionId,
-        wormhole.rpcUrls,
-        ECOSYSTEMS[fromEcosystem].wormholeChainId,
+      const { wormholeChainId: emitterChainId } = ECOSYSTEMS[fromEcosystem];
+      const retries = getWormholeRetries(emitterChainId);
+      const { vaaBytes } = await getSignedVaaWithRetry(
+        [...wormhole.rpcUrls],
+        emitterChainId,
         getEmitterAddressEth(evmChain.wormhole.portal),
         sequence,
+        undefined,
+        undefined,
+        retries,
+      );
+      const unlockSplTokenTxIdsGenerator = generateUnlockSplTokenTxIds(
+        interactionId,
         solanaWormhole,
         solanaConnection,
         solanaWallet,
         signatureKeyPair,
+        vaaBytes,
       );
       let unlockSplTokenTxIds: readonly string[] = [];
       for await (const txId of unlockSplTokenTxIdsGenerator) {

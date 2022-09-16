@@ -12,7 +12,7 @@ const getSolongService = (): any => {
 };
 
 export class SolongAdapter extends SolanaWeb3WalletAdapter {
-  constructor() {
+  public constructor() {
     super("Solong", "https://solongwallet.com", getSolongService);
   }
 }

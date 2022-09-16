@@ -8,9 +8,9 @@ import { extractErrorMessage } from "./parse";
 export class MutationError extends Error {}
 
 export class SwimError extends Error {
-  userFriendlyMessage: string;
-  originalError?: unknown;
-  eventId?: string;
+  public userFriendlyMessage: string;
+  public readonly originalError?: unknown;
+  public eventId?: string;
 
   /** Create a SwimError object able to store the original error and the eventId
    *
@@ -18,7 +18,7 @@ export class SwimError extends Error {
    * @param originalError Root error object
    * @param eventId Sentry event ID
    */
-  constructor(
+  public constructor(
     userFriendlyMessage: string,
     originalError?: unknown,
     eventId?: string,
@@ -30,7 +30,7 @@ export class SwimError extends Error {
     this.eventId = eventId;
   }
 
-  toPrettyString(): string {
+  public toPrettyString(): string {
     let msg = "";
 
     if (this.userFriendlyMessage) {
@@ -48,7 +48,7 @@ export class SwimError extends Error {
     return msg;
   }
 
-  toPrettyJsx(): ReactElement {
+  public toPrettyJsx(): ReactElement {
     return (
       <>
         {this.userFriendlyMessage && (
@@ -80,7 +80,7 @@ interface SolanaWalletErrorData {
 }
 
 export class SolanaWalletError extends SwimError {
-  constructor(
+  public constructor(
     userFriendlyMessage: string,
     originalError?: unknown,
     eventId?: string,
@@ -95,7 +95,9 @@ export class SolanaWalletError extends SwimError {
     }
   }
 
-  isSolanaWalletErrorData(error: unknown): error is SolanaWalletErrorData {
+  private isSolanaWalletErrorData(
+    error: unknown,
+  ): error is SolanaWalletErrorData {
     return (
       error instanceof Object &&
       typeof (error as SolanaWalletErrorData).code === "number" &&
@@ -103,7 +105,7 @@ export class SolanaWalletError extends SwimError {
     );
   }
 
-  parseUserFriendlyMessage(error: SolanaWalletErrorData): string {
+  private parseUserFriendlyMessage(error: SolanaWalletErrorData): string {
     switch (error.code) {
       case 4001:
         return "User rejected the request. Please retry.";

@@ -30,9 +30,11 @@ interface GetSolanaTransactionOptions {
 
 export class CustomConnection extends Connection {
   // re-declare so we can use it here
-  _rpcWebSocketHeartbeat: ReturnType<typeof setInterval> | null = null;
+  private readonly _rpcWebSocketHeartbeat: ReturnType<
+    typeof setInterval
+  > | null = null;
 
-  _wsOnOpen(): void {
+  private _wsOnOpen(): void {
     // @ts-expect-error Solana marked most of their methods as internal
     super._wsOnOpen();
 
@@ -80,7 +82,7 @@ export class SolanaConnection {
   // This is a hack to prevent the list from ever getting empty
   private dummySubscriptionId!: number;
 
-  constructor(endpoints: readonly string[]) {
+  public constructor(endpoints: readonly string[]) {
     this.endpoints = endpoints;
     this.rpcIndex = -1;
     this.incrementRpcProvider();
@@ -90,7 +92,7 @@ export class SolanaConnection {
     this.parsedTxCache = new Map<string, ParsedTransactionWithMeta>();
   }
 
-  async confirmTx(
+  public async confirmTx(
     txId: string,
     {
       maxRetries = DEFAULT_MAX_RETRIES,
@@ -125,7 +127,7 @@ export class SolanaConnection {
     }, maxRetries);
   }
 
-  async sendAndConfirmTx(
+  public async sendAndConfirmTx(
     signTransaction: (tx: Transaction) => Promise<Transaction>,
     unsignedTx: Transaction,
     options: GetSolanaTransactionOptions = {},
@@ -148,7 +150,7 @@ export class SolanaConnection {
    * The transactions provided to this function should be ready to be sent.
    * This function will only add the feePayer and blockhash, and then sign, send, and confirm the transaction.
    */
-  async sendAndConfirmTxs(
+  public async sendAndConfirmTxs(
     signTransaction: (tx: Transaction) => Promise<Transaction>,
     unsignedTxs: readonly Transaction[],
     options: GetSolanaTransactionOptions = {},
@@ -161,7 +163,7 @@ export class SolanaConnection {
     return txIds;
   }
 
-  async getTx(
+  public async getTx(
     txId: string,
     {
       maxRetries = DEFAULT_MAX_RETRIES,
@@ -192,7 +194,7 @@ export class SolanaConnection {
     }, maxRetries);
   }
 
-  async getParsedTx(
+  public async getParsedTx(
     txId: string,
     {
       maxRetries = DEFAULT_MAX_RETRIES,
@@ -225,7 +227,7 @@ export class SolanaConnection {
     }, maxRetries);
   }
 
-  async getParsedTxs(
+  public async getParsedTxs(
     txIds: readonly string[],
     {
       maxRetries = DEFAULT_MAX_RETRIES,
@@ -264,7 +266,7 @@ export class SolanaConnection {
     );
   }
 
-  async getTokenAccountWithRetry(
+  public async getTokenAccountWithRetry(
     mint: string,
     owner: string,
     {
@@ -327,29 +329,7 @@ export class SolanaConnection {
     );
   }
 
-  // Looks for a signature, only returns a value if there's no error
-  // or value
-  async getSigStatusToSigResult(
-    txId: string,
-  ): Promise<RpcResponseAndContext<SignatureResult> | null> {
-    try {
-      const { context, value } = await this.rawConnection.getSignatureStatus(
-        txId,
-        { searchTransactionHistory: true },
-      );
-      if (!value) {
-        return null;
-      }
-      return {
-        context,
-        value,
-      };
-    } catch {
-      return null;
-    }
-  }
-
-  async createSplTokenAccount(
+  public async createSplTokenAccount(
     wallet: SolanaWalletAdapter,
     splTokenMintAddress: string,
   ): Promise<string> {
@@ -373,6 +353,28 @@ export class SolanaConnection {
     });
     tx.add(ix);
     return this.sendAndConfirmTx(wallet.signTransaction.bind(wallet), tx);
+  }
+
+  // Looks for a signature, only returns a value if there's no error
+  // or value
+  private async getSigStatusToSigResult(
+    txId: string,
+  ): Promise<RpcResponseAndContext<SignatureResult> | null> {
+    try {
+      const { context, value } = await this.rawConnection.getSignatureStatus(
+        txId,
+        { searchTransactionHistory: true },
+      );
+      if (!value) {
+        return null;
+      }
+      return {
+        context,
+        value,
+      };
+    } catch {
+      return null;
+    }
   }
 
   private incrementRpcProvider() {

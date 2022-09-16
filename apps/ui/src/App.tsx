@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import WormholePage from "pages/WormholePage";
 import type { ReactElement } from "react";
 import { withTranslation } from "react-i18next";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
@@ -65,6 +66,7 @@ function App(): ReactElement {
               {process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE && (
                 <Route path="swapV2" element={<SwapPageV2 />} />
               )}
+              <Route path="wormhole" element={<WormholePage />} />
               <Route path="collectibles" element={<CollectiblesPage />} />
               <Route path="tos" element={<TosPage />} />
               <Route path="media" element={<MediaPage />} />

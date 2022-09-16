@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/evm",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "description": "Swim code relating to EVM.",
   "main": "build",
   "types": "types",
@@ -31,6 +31,7 @@
     "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
+    "@certusone/wormhole-sdk": "^0.6.0",
     "@swim-io/core": "workspace:^",
     "@swim-io/evm-contracts": "workspace:^",
     "@swim-io/token-projects": "workspace:^",

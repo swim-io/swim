@@ -19,6 +19,7 @@ import { PublicKey } from "@solana/web3.js";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { filterMap, sleep } from "@swim-io/utils";
+import { WormholeChainId } from "@swim-io/wormhole";
 import BN from "bn.js";
 import type { ReactElement } from "react";
 import { Fragment, useMemo, useState } from "react";
@@ -27,7 +28,7 @@ import shallow from "zustand/shallow.js";
 
 import { ConnectButton } from "../components/ConnectButton";
 import type { EcosystemId } from "../config";
-import { Protocol, WormholeChainId, getSolanaTokenDetails } from "../config";
+import { Protocol, getSolanaTokenDetails } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment, useNotification } from "../core/store";
 import {

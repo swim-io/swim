@@ -13,10 +13,11 @@ import type { WormholeChainConfig, WormholeConfig } from "@swim-io/core";
 import type { EvmWalletAdapter } from "@swim-io/evm";
 import type { SolanaConnection, SolanaWalletAdapter } from "@swim-io/solana";
 import { DEFAULT_MAX_RETRIES, SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { WormholeChainId } from "@swim-io/wormhole";
 import type { ContractReceipt } from "ethers";
 
 import type { EcosystemId, EvmSpec } from "../../config";
-import { ECOSYSTEMS, WormholeChainId } from "../../config";
+import { ECOSYSTEMS } from "../../config";
 
 import { getSignedVaaWithRetry } from "./guardiansRpc";
 

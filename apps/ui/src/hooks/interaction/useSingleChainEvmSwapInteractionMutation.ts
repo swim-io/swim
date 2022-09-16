@@ -1,17 +1,15 @@
 import { isEvmEcosystemId } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
-import { findOrThrow } from "@swim-io/utils";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import { Protocol, getTokenDetailsForEcosystem } from "../../config";
+import { getTokenDetailsForEcosystem } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useInteractionStateV2 } from "../../core/store";
 import type { SingleChainEvmSwapInteractionState } from "../../models";
 import {
   InteractionType,
   SwapType,
-  approveAmount,
   humanDecimalToAtomicString,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
@@ -21,7 +19,7 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
   const wallets = useWallets();
   const { updateInteractionState } = useInteractionStateV2();
   const getEvmConnection = useGetEvmConnection();
-  const { chains, evmRoutingContract } = useEnvironment(selectConfig, shallow);
+  const { evmRoutingContract } = useEnvironment(selectConfig, shallow);
   return useMutation(
     async (interactionState: SingleChainEvmSwapInteractionState) => {
       const { interaction } = interactionState;
@@ -53,10 +51,6 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
         throw new Error("Missing token address");
       }
       const connection = getEvmConnection(ecosystemId);
-      const evmChainSpec = findOrThrow(
-        chains[Protocol.Evm],
-        (chain) => chain.ecosystem === ecosystemId,
-      );
       const tokenDetails = getTokenDetailsForEcosystem(
         fromTokenSpec,
         ecosystemId,
@@ -69,14 +63,12 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
         fromTokenSpec,
         fromTokenData.ecosystemId,
       );
-      const approvalResponses = await approveAmount(
-        inputAmountAtomicString,
-        evmChainSpec,
-        connection,
-        tokenDetails,
-        wallet,
-        evmRoutingContract,
-      );
+      const approvalResponses = await connection.approveAmount({
+        atomicAmount: inputAmountAtomicString,
+        evmWallet: wallet,
+        fromTokenDetails: tokenDetails,
+        spenderAddress: evmRoutingContract,
+      });
       const approvalTxs = await Promise.all(
         approvalResponses.map((response) =>
           connection.getTxReceiptOrThrow(response),

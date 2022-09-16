@@ -33,7 +33,8 @@ export interface EvmPoolConfig<E extends EvmEcosystemId> extends PoolConfig {
   readonly ecosystemId: E;
 }
 
-export interface EvmChainConfig<E extends EvmEcosystemId> extends ChainConfig {
+export interface EvmChainConfig<E extends EvmEcosystemId = EvmEcosystemId>
+  extends ChainConfig {
   readonly pools: readonly EvmPoolConfig<E>[];
 }
 

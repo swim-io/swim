@@ -1,6 +1,6 @@
-import { evmAddressToWormhole } from "./utils";
+import { evmAddressToWormhole } from "./wormhole";
 
-describe("models - Wormhole utils", () => {
+describe("Wormhole utils", () => {
   describe("evmAddressToWormhole", () => {
     it("handles a 0x-prefixed EVM address", () => {
       const address = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1";

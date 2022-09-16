@@ -2,6 +2,7 @@ import {
   EuiButton,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiHorizontalRule,
   EuiModalBody,
   EuiModalHeader,
   EuiModalHeaderTitle,
@@ -107,25 +108,28 @@ export const TokenSearchModal = ({
           {t("token_search_modal.title")}
         </EuiModalHeaderTitle>
       </EuiModalHeader>
-      <EuiPanel paddingSize="m" className="networkPanel">
-        <EuiFlexGroup responsive={false} wrap gutterSize="s">
-          {enabledEcosystems.map((ecosystem) => (
-            <EuiFlexItem grow={false} key={ecosystem.id}>
-              <EuiButton
-                fill={ecosystem.id === selectedEcosystem.id}
-                onClick={() => handleSelectEcosystem(ecosystem)}
-                iconType={ecosystem.logo}
-                size="s"
-                minWidth={120}
-              >
-                {ecosystem.displayName}
-              </EuiButton>
-            </EuiFlexItem>
-          ))}
-        </EuiFlexGroup>
-      </EuiPanel>
+      <EuiFlexGroup
+        responsive={false}
+        wrap
+        gutterSize="xs"
+        className="networkPanel"
+      >
+        {enabledEcosystems.map((ecosystem) => (
+          <EuiFlexItem grow={false} key={ecosystem.id}>
+            <EuiButton
+              fill={ecosystem.id === selectedEcosystem.id}
+              onClick={() => handleSelectEcosystem(ecosystem)}
+              iconType={ecosystem.logo}
+              size="s"
+              minWidth={125}
+            >
+              {ecosystem.displayName}
+            </EuiButton>
+          </EuiFlexItem>
+        ))}
+      </EuiFlexGroup>
 
-      <EuiSpacer size="s" />
+      <EuiHorizontalRule margin="s" />
 
       <EuiModalBody className="modalBody">
         <EuiSelectable

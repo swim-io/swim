@@ -10,7 +10,11 @@
 }
 
 .networkPanel {
-  max-height: 33vh;
+  max-height: 30vh;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 20px;
 }
 .ecosystemIcon {
   width: fit-content;
@@ -23,10 +27,9 @@
   }
 }
 
-@media only screen and (max-width: 520px) {
+@media only screen and (max-width: 540px) {
   .networkPanel {
-    .euiFlexGroup {
-      justify-content: space-around;
-    }
+    justify-content: space-around;
+    overflow-y: auto;
   }
 }

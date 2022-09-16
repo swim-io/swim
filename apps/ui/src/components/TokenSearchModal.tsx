@@ -103,7 +103,7 @@ export const TokenSearchModal = ({
     >
       <EuiModalHeader>
         <EuiModalHeaderTitle>
-          {t("token_search_modal.title")}
+          {t("token_select_modal.title")}
         </EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiFlexGroup

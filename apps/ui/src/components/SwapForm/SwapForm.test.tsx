@@ -150,7 +150,7 @@ describe("SwapForm", () => {
     userEvent.click(findFromTokenButton());
 
     await waitFor(() => {
-      return screen.findAllByText("Select a token");
+      return screen.findAllByText("Select chain and token");
     });
 
     userEvent.click(screen.getByTitle("GST Green Satoshi Token"));
@@ -164,7 +164,7 @@ describe("SwapForm", () => {
     userEvent.click(findFromTokenButton());
 
     await waitFor(() => {
-      return screen.findAllByText("Select a token");
+      return screen.findAllByText("Select chain and token");
     });
 
     userEvent.click(screen.getByTitle("USDT Tether USD"));

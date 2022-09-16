@@ -84,7 +84,7 @@ export const TokenSearchModal = ({
       token.nativeEcosystemId === selectedEcosystem.id,
   );
 
-  const Options = filteredTokens.map((token) => {
+  const options = filteredTokens.map((token) => {
     const tokenProject = TOKEN_PROJECTS_BY_ID[token.projectId];
     return {
       label: `${tokenProject.symbol}`,
@@ -131,7 +131,7 @@ export const TokenSearchModal = ({
 
       <EuiModalBody className="modalBody">
         <EuiSelectable
-          options={Options}
+          options={options}
           renderOption={renderTokenOption}
           onChange={onSelectToken}
           singleSelection

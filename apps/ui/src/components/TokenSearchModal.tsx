@@ -6,9 +6,7 @@ import {
   EuiModalBody,
   EuiModalHeader,
   EuiModalHeaderTitle,
-  EuiPanel,
   EuiSelectable,
-  EuiSpacer,
 } from "@elastic/eui";
 import type { EuiSelectableOption } from "@elastic/eui";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";

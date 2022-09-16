@@ -5,8 +5,7 @@ import "./Equalize.sol";
 import "./Invariant.sol";
 
 //The code in here is less readable than I'd like because I had to inline a couple of variables to
-// avoid solc's "Stack too deep, try removing local variables" error message, because apparently
-// solc demands that variables remain accessible on stack, even if
+// avoid solc's "Stack too deep, try removing local variables" error message
 library PoolMath {
   error ImpossibleRemove();
 
@@ -156,58 +155,56 @@ library PoolMath {
     Equalized burnAmount,
     uint8 outputIndex,
     Pool memory pool
-  ) internal pure returns (Equalized outputAmount, Equalized governanceMintAmount) {
-    unchecked {
-      //RemoveExactBurnCache memory cache = RemoveExactBurnCache(0, 0, 0);
-      uint256 updatedLpSupply = Equalized.unwrap(pool.totalLpSupply) - Equalized.unwrap(burnAmount);
-      uint256 updatedDepth = (Invariant.calculateDepth(pool.balances, pool.ampFactor, 0) * //rounding?
-        updatedLpSupply) / Equalized.unwrap(pool.totalLpSupply); //initialDepth
-      Equalized[] memory knownBalances = new Equalized[](pool.tokenCount - 1);
-      for (uint256 i = 0; i < knownBalances.length; ++i) {
-        uint256 j = i < outputIndex ? i : i + 1;
-        knownBalances[i] = pool.balances[j];
-      }
-      uint256 baseAmount = Equalized.unwrap(pool.balances[outputIndex]) -
-        Equalized.unwrap(
-          Invariant.calculateUnknownBalance(
-            knownBalances,
-            updatedDepth,
-            pool.ampFactor,
-            Equalized.unwrap(pool.balances[outputIndex])
-          )
-        );
-      if (pool.totalFee != 0) {
-        uint256 sumPoolBalances = Invariant.sum(pool.balances);
-        //64 bits or less:
-        uint256 taxableFraction = (//rounding?
-        (sumPoolBalances - Equalized.unwrap(pool.balances[outputIndex])) << 64) / sumPoolBalances;
-        //totalFee is less than FEE_MULTIPLIER/2, hence 1<<64 is an upper bound for the quotient,
-        // and therefore overall fee is < 1<<64, i.e. fits in 64 bits or less:
-        uint256 fee = (FEE_MULTIPLIER << 64) / (FEE_MULTIPLIER - pool.totalFee) - (1 << 64); //rounding?
-        outputAmount = Equalized.wrap(
-          baseAmount -
-            ((//(64 bits * 64 bits) / (64 bits + (64 bits * 64 bits)>>64) = 128 / 64 = 64 bits or less:
-            ((baseAmount * taxableFraction) / ((1 << 64) + ((taxableFraction * fee) >> 64))) *
-              fee) >> 64)
-        );
-        //In the next line we're assigning to a function parameter (bad) that's a reference too
-        // (way worse still). Otoh, we're not using pool.balances for anything else, neither inside
-        // this function, nor within the larger context of the entire contract invocation. Hence,
-        // copying the entire array and wasting a bunch of gas in the process, just to neurotically
-        // and autistically avoid a code smell is even less palatable. So here goes...
-        pool.balances[outputIndex] = Equalized.wrap(
-          Equalized.unwrap(pool.balances[outputIndex]) - Equalized.unwrap(outputAmount)
-        );
-        uint256 totalFeeDepth = Invariant.calculateDepth(
-          pool.balances,
-          pool.ampFactor,
-          updatedDepth
-        ) - updatedDepth; //finalDepth
-        uint256 governanceDepth = (totalFeeDepth * pool.governanceFee) / pool.totalFee;
-        governanceMintAmount = Equalized.wrap(
-          (governanceDepth * updatedLpSupply) / (updatedDepth + totalFeeDepth - governanceDepth) //lpDepth
-        );
-      } else outputAmount = Equalized.wrap(baseAmount);
+  ) internal pure returns (Equalized outputAmount, Equalized governanceMintAmount) { unchecked {
+    //RemoveExactBurnCache memory cache = RemoveExactBurnCache(0, 0, 0);
+    uint256 updatedLpSupply = Equalized.unwrap(pool.totalLpSupply) - Equalized.unwrap(burnAmount);
+    uint256 updatedDepth = (Invariant.calculateDepth(pool.balances, pool.ampFactor, 0) * //rounding?
+      updatedLpSupply) / Equalized.unwrap(pool.totalLpSupply); //initialDepth
+    Equalized[] memory knownBalances = new Equalized[](pool.tokenCount - 1);
+    for (uint256 i = 0; i < knownBalances.length; ++i) {
+      uint256 j = i < outputIndex ? i : i + 1;
+      knownBalances[i] = pool.balances[j];
     }
-  }
+    uint256 baseAmount = Equalized.unwrap(pool.balances[outputIndex]) -
+      Equalized.unwrap(
+        Invariant.calculateUnknownBalance(
+          knownBalances,
+          updatedDepth,
+          pool.ampFactor,
+          Equalized.unwrap(pool.balances[outputIndex])
+        )
+      );
+    if (pool.totalFee != 0) {
+      uint256 sumPoolBalances = Invariant.sum(pool.balances);
+      //64 bits or less:
+      uint256 taxableFraction = (//rounding?
+      (sumPoolBalances - Equalized.unwrap(pool.balances[outputIndex])) << 64) / sumPoolBalances;
+      //totalFee is less than FEE_MULTIPLIER/2, hence 1<<64 is an upper bound for the quotient,
+      // and therefore overall fee is < 1<<64, i.e. fits in 64 bits or less:
+      uint256 fee = (FEE_MULTIPLIER << 64) / (FEE_MULTIPLIER - pool.totalFee) - (1 << 64); //rounding?
+      outputAmount = Equalized.wrap(
+        baseAmount -
+          ((//(64 bits * 64 bits) / (64 bits + (64 bits * 64 bits)>>64) = 128 / 64 = 64 bits or less:
+          ((baseAmount * taxableFraction) / ((1 << 64) + ((taxableFraction * fee) >> 64))) *
+            fee) >> 64)
+      );
+      //In the next line we're assigning to a function parameter (bad) that's a reference too
+      // (way worse still). Otoh, we're not using pool.balances for anything else, neither inside
+      // this function, nor within the larger context of the entire contract invocation. Hence,
+      // copying the entire array and wasting a bunch of gas in the process, just to neurotically
+      // and autistically avoid a code smell is even less palatable. So here goes...
+      pool.balances[outputIndex] = Equalized.wrap(
+        Equalized.unwrap(pool.balances[outputIndex]) - Equalized.unwrap(outputAmount)
+      );
+      uint256 totalFeeDepth = Invariant.calculateDepth(
+        pool.balances,
+        pool.ampFactor,
+        updatedDepth
+      ) - updatedDepth; //finalDepth
+      uint256 governanceDepth = (totalFeeDepth * pool.governanceFee) / pool.totalFee;
+      governanceMintAmount = Equalized.wrap(
+        (governanceDepth * updatedLpSupply) / (updatedDepth + totalFeeDepth - governanceDepth)
+      );
+    } else outputAmount = Equalized.wrap(baseAmount);
+  }}
 }

@@ -64,8 +64,7 @@ interface IUUPSUpgradeable {
 // 206661696c6564a26469706673582212201e3c9348ed6dd2f363e89451207bd8
 // df182bc878dc80d47166301a510c8801e964736f6c634300080a0033
 //
-//Original Hardhat-deploy opcode =
-// stripped opcode + fe + auxdata
+//Original Hardhat-deploy opcode = stripped opcode + fe + auxdata
 // fe is the invalid opcode which (unnecessarily) separates the deployed code
 // from the auxdata/fingerprint (unnecessarily, because the last opcode
 // is 56 which is a jump, so we can never hit fe anyway)

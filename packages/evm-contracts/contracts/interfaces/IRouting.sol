@@ -5,7 +5,7 @@ import "./IMemoInteractor.sol";
 import "./IPool.sol";
 
 interface IRouting is IMemoInteractor {
-  event TokenRegistered(uint16 indexed tokenId, address indexed tokenContract, address pool);
+  event TokenRegistered(uint16 indexed tokenNumber, address indexed token, address pool);
 
   enum CodeLocation {
     DetermineGasCostViaUniswap1,

@@ -10,6 +10,7 @@ import {
   SWIM_FACTORY_ADDRESS,
   SWIM_USD_DECIMALS,
   SWIM_USD_SOLANA_ADDRESS,
+  WORMHOLE_SOLANA_CHAIN_ID,
   isDeployedToken,
 } from "./config";
 import {
@@ -51,7 +52,7 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
   // eslint-disable-next-line no-console
   const log = options.print ? console.log : () => {};
   const logAddress = (name: string, contract: Contract) =>
-    log(name.padStart(16) + ":", contract.address);
+    log(name.padStart(18) + ":", contract.address);
   log("executing deployment script for", chainConfig.name);
 
   const [deployer, governanceFeeRecipient] = await ethers.getSigners();
@@ -59,8 +60,9 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
   log("deployer balance:", ethers.utils.formatEther(await deployer.getBalance()));
 
   await checkConstant("SWIM_USD_SOLANA_ADDRESS", SWIM_USD_SOLANA_ADDRESS);
-  await checkConstant("SWIM_USD_DECIMALS", SWIM_USD_DECIMALS.toString());
   await checkConstant("ROUTING_CONTRACT_SOLANA_ADDRESS", ROUTING_CONTRACT_SOLANA_ADDRESS);
+  await checkConstant("WORMHOLE_SOLANA_CHAIN_ID", WORMHOLE_SOLANA_CHAIN_ID.toString());
+  await checkConstant("SWIM_USD_DECIMALS", SWIM_USD_DECIMALS.toString());
   await checkConstant("SWIM_FACTORY", SWIM_FACTORY_ADDRESS);
 
   logAddress(
@@ -76,7 +78,8 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
 
   const routingConfig = chainConfig.routing;
   if (routingConfig === "MOCK") {
-    const swimUsd = await deployToken(DEFAULTS.swimUsd, deployer);
+    const swimUsd = await deployToken(DEFAULTS.swimUsd);
+    logAddress("SwimUSD", swimUsd);
     logAddress("RoutingLogic", await deployLogic("MockRoutingForPoolTests"));
     logAddress("RoutingProxy", await deployProxy("MockRoutingForPoolTests", [swimUsd.address]));
   } else {
@@ -109,7 +112,7 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
           : {
               symbol: token.symbol,
               address: await (async () => {
-                const tokenContract = await deployToken(token, deployer);
+                const tokenContract = await deployToken(token);
                 logAddress(token.symbol, tokenContract);
                 return tokenContract.address;
               })(),

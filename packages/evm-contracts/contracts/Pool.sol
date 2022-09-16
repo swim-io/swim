@@ -62,17 +62,17 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   uint32 private ampTargetValue; //in internal, i.e. AMP_SHIFTED representation
   uint32 private ampTargetTimestamp;
 
-  //slot
-  TokenWithEqualizer private /*immutable*/ lpTokenData;
-
-  //MAX_TOKEN_COUNT slots (save gas by not having to keccak)
-  TokenWithEqualizer[MAX_TOKEN_COUNT] private /*immutable*/ poolTokensData;
-
-  //slot
+  //slot1
   address public governance;
 
-  //slot
+  //slot2
   address public governanceFeeRecipient;
+
+  //slot3
+  TokenWithEqualizer private /*immutable*/ lpTokenData;
+
+  //slots4-4+MAX_TOKEN_COUNT (use fixed size array to save gas by not having to keccak on access)
+  TokenWithEqualizer[MAX_TOKEN_COUNT] private /*immutable*/ poolTokensData;
 
   modifier notPaused {
     if(paused)
@@ -91,9 +91,8 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     string memory lpTokenSymbol,
     bytes32 lpTokenSalt,
     uint8 lpTokenDecimals,
-    int8 lpTokenEqualizer, //TODO think about equalizers, precision, constant product, stableswap
     address[] memory poolTokenAddresses,
-    int8[] memory poolTokenEqualizers, //TODO think about equalizers, precision, constant product, stableswap
+    int8[] memory poolTokenEqualizers,
     uint32 ampFactor,
     uint32 lpFee,
     uint32 _governanceFee,
@@ -102,7 +101,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   ) public initializer {
     //moved to a separate function to avoid stack too deep
     lpTokenData.addr = deployLpToken(lpTokenName, lpTokenSymbol, lpTokenDecimals, lpTokenSalt);
-    lpTokenData.equalizer = lpTokenEqualizer;
+    lpTokenData.equalizer = POOL_PRECISION - int8(lpTokenDecimals);
 
     uint _tokenCount = poolTokenAddresses.length + 1;
     if (_tokenCount > MAX_TOKEN_COUNT)

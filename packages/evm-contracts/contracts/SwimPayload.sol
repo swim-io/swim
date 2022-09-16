@@ -77,7 +77,9 @@ library SwimPayloadConversion {
     if (version != SWIM_PAYLOAD_VERSION)
       revert InvalidVersion(version, SWIM_PAYLOAD_VERSION, encoded);
 
-    (swimPayload.toOwner, offset) = encoded.asAddress(offset);
+    bytes32 toOwner;
+    (toOwner, offset) = encoded.asBytes32(offset);
+    swimPayload.toOwner = address(uint160(uint256(toOwner)));
 
     if (encoded.length > OWNER_MINLEN) {
       (swimPayload.propellerEnabled, offset) = encoded.asBool(offset);

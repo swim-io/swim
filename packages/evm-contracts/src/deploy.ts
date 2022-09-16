@@ -35,7 +35,8 @@ export const getProxyAddress = async (saltOrName: string) =>
 export const getLogicAddress = async (name: string) =>
   (await getSwimFactory()).determineAddress(
     (await ethers.getContractFactory(name)).bytecode,
-    SALTS.logic[name as keyof typeof SALTS.logic]
+    //I know just enough TypeScript to be dangerous...
+    (SALTS.logic as { readonly [key: string]: string | undefined })[name] ?? DEFAULTS.salt
   );
 
 export const getRegularAddress = async (name: string, constructorArgs: readonly any[]) => {
@@ -44,7 +45,7 @@ export const getRegularAddress = async (name: string, constructorArgs: readonly 
   const bytecodeWithConstructorArgs = contractFactory.getDeployTransaction(...constructorArgs)
     .data!;
   const swimFactory = await getSwimFactory();
-  return await swimFactory.determineAddress(bytecodeWithConstructorArgs, DEFAULTS.salt);
+  return swimFactory.determineAddress(bytecodeWithConstructorArgs, DEFAULTS.salt);
 };
 
 export const getTokenAddress = (token: TestToken) =>
@@ -69,6 +70,9 @@ export const getProxy = async (name: string, salt?: string) =>
 
 export const getLogic = async (name: string) =>
   getDeployedContract(name, await getLogicAddress(name));
+
+export const getRegular = async (name: string, constructorArgs: readonly any[]) =>
+  getDeployedContract(name, await getRegularAddress(name, constructorArgs));
 
 export const getToken = async (token: TestToken) =>
   getDeployedContract("ERC20Token", await getTokenAddress(token)) as Promise<ERC20Token>;
@@ -102,7 +106,6 @@ export async function deployPoolAndRegister(
     pool.lpSymbol ?? tokenInfo.map(({ symbol }) => symbol).join("-") + "-LP",
     pool.lpSalt,
     lpDecimals,
-    POOL_PRECISION - lpDecimals,
     pool.tokens.map((token) => token.address),
     tokenInfo.map(({ decimals }) => POOL_PRECISION - decimals),
     pool.ampFactor ?? DEFAULTS.amp,
@@ -145,7 +148,7 @@ export async function deployProxy(
   const proxyAddress = await getProxyAddress(salt);
   if (await isDeployed(proxyAddress)) {
     const slot = await ethers.provider.getStorageAt(proxyAddress, ERC1967_IMPLEMENTATION_SLOT);
-    const actualLogic = ethers.utils.getAddress("0x" + slot.substring(2 + 2 * 12));
+    const actualLogic = ethers.utils.getAddress("0x" + slot.slice(2 + 2 * 12));
     if (actualLogic !== logic.address)
       throw Error(
         `Unexpected logic for Proxy ${proxyAddress} - ` +
@@ -155,11 +158,11 @@ export async function deployProxy(
     const filter = swimFactory.filters.ContractCreated(proxyAddress);
     const [deployEvent] = await swimFactory.queryFilter(filter);
     const deployData = (await deployEvent.getTransaction()).data;
-    const index = deployData.lastIndexOf(initializeEncoded.substring(2));
+    const index = deployData.lastIndexOf(initializeEncoded.slice(2));
     const suffixIndex = index === -1 ? -1 : index + initializeEncoded.length - 2;
     if (
       index === -1 ||
-      deployData.substring(suffixIndex) !== "0".repeat(deployData.length - suffixIndex)
+      deployData.slice(suffixIndex) !== "0".repeat(deployData.length - suffixIndex)
     )
       console.warn(
         "Deployment transaction of proxy",
@@ -186,7 +189,7 @@ export async function deployLogic(name: string): Promise<Contract> {
         (
           await ethers.getContractFactory(name)
         ).bytecode,
-        SALTS.logic[name as keyof typeof SALTS.logic],
+        (SALTS.logic as { readonly [key: string]: string | undefined })[name] ?? DEFAULTS.salt,
         //hacky workaround for a bug in hardhat that leads to incorrect gas estimation
         (await ethers.provider.detectNetwork()).chainId == 31337 ? { gasLimit: 10000000 } : {}
       )
@@ -226,14 +229,8 @@ export async function deployRegular(
   return ethers.getContractAt(name, contractAddress);
 }
 
-export const deployToken = async (
-  token: TestToken,
-  owner: SignerWithAddress
-): Promise<ERC20Token> =>
-  deployRegular("ERC20Token", [token.name, token.symbol, token.decimals], {
-    function: "transferOwnership",
-    arguments: [owner.address],
-  }) as Promise<ERC20Token>;
+export const deployToken = async (token: TestToken): Promise<ERC20Token> =>
+  deployRegular("ERC20Token", [token.name, token.symbol, token.decimals]) as Promise<ERC20Token>;
 
 export async function deploySwimFactory(
   owner: SignerWithAddress,

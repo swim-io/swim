@@ -5,7 +5,6 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -22,8 +21,7 @@ contract Routing is
   Initializable,
   PausableUpgradeable,
   OwnableUpgradeable,
-  UUPSUpgradeable,
-  ReentrancyGuardUpgradeable //TODO
+  UUPSUpgradeable
 {
   struct TokenInfo {
     uint16  tokenNumber;
@@ -65,19 +63,22 @@ contract Routing is
   uint private constant GAS_COST_BASE = 100000; //TODO determine decent estimate
   uint private constant GAS_COST_POOL_SWAP = 125000; //defensive but realistic estimate
   uint private constant GAS_KICKSTART_AMOUNT = 0.05 ether;
+  uint private constant PROPELLER_GAS_TIP = 1 gwei;
 
   uint private constant BIT224 = 1 << 224;
   uint private constant BIT128 = 1 << 128;
   uint private constant BIT96  = 1 << 96;
 
-  address            public /*immutable*/ swimUsdAddress;
-  ITokenBridge       public /*immutable*/ tokenBridge;
-  uint32             private wormholeNonce;
-  uint               private accumulatedFees;
+  //slot0
+  address public /*immutable*/ swimUsdAddress;
+  //slot1
+  ITokenBridge public /*immutable*/ tokenBridge;
+  uint32       private wormholeNonce;
+  //remaining slots
   PropellerFeeConfig private propellerFeeConfig;
   uint256[50]        private reservedSlotsForAdditionalPropellerFeeRemunerationMethodConfigs;
 
-  mapping(uint16 => TokenInfo)  public tokenNumberMapping;
+  mapping(uint16  => TokenInfo) public tokenNumberMapping;
   mapping(address => TokenInfo) public tokenAddressMapping;
   mapping(address => uint)      public engineFees;
 
@@ -89,8 +90,6 @@ contract Routing is
   ) public initializer {
     __Pausable_init();
     __Ownable_init();
-    __UUPSUpgradeable_init();
-    __ReentrancyGuard_init();
     _transferOwnership(owner);
     wormholeNonce = 0;
     tokenBridge = ITokenBridge(tokenBridgeAddress);
@@ -428,7 +427,6 @@ contract Routing is
       // don't actually (have to) enforce it)
       feeAmount = swimUsdAmount;
 
-    accumulatedFees += feeAmount;
     engineFees[msg.sender] += feeAmount;
 
     //There is this slightly awkward and exceedingly rare edge case where feeAmount without the
@@ -463,7 +461,6 @@ contract Routing is
   function claimFees() external whenNotPaused { unchecked {
     uint feeAmount = engineFees[msg.sender];
     engineFees[msg.sender] = 0;
-    accumulatedFees -= feeAmount;
     IERC20(swimUsdAddress).safeTransfer(msg.sender, feeAmount);
   }}
 
@@ -714,9 +711,7 @@ contract Routing is
     uint consumedGas = startGas;
 
     unchecked {
-      //baseFee goes up by a factor of 1.125 when a block is full, so we want to incentivize
-      // the engine to send a transaction even if the next block is expected to fill up
-      uint remuneratedGasPrice = (block.basefee * 9)/8 + 1 gwei;
+      uint remuneratedGasPrice = block.basefee + PROPELLER_GAS_TIP;
 
       consumedGas += GAS_COST_BASE;
       if (swimPayload.toTokenNumber != SWIM_USD_TOKEN_NUMBER)

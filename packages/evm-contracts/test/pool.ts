@@ -4,12 +4,13 @@ import { BigNumber, parseFixed } from "@ethersproject/bignumber";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { BN } from "bn.js";
 import { expect, use } from "chai";
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 
 import { LOCAL } from "../src/config";
 import { getRoutingProxy, getToken } from "../src/deploy";
 import { deployment } from "../src/deployment";
 import { PoolWrapper, TokenWrapper } from "../src/testUtils";
+import type { LpToken } from "../typechain-types/contracts/LpToken";
 
 use(require("chai-bn")(BN));
 
@@ -19,10 +20,11 @@ describe("Pool Defi Operations", function () {
   const tolerance = 2;
 
   async function testFixture() {
+    await network.provider.send("hardhat_reset");
     const [deployer, govFeeRecip, liquidityProvider, user] = await ethers.getSigners();
     const governance = deployer;
 
-    await deployment(LOCAL, { print: false });
+    await deployment({ ...LOCAL, routing: "MOCK" }, { print: false });
 
     const swimUsd = await TokenWrapper.create(
       await ethers.getContractAt("ERC20Token", await (await getRoutingProxy()).swimUsdAddress())
@@ -57,13 +59,13 @@ describe("Pool Defi Operations", function () {
     const { pool, governance, liquidityProvider } = await loadFixture(testFixture);
 
     expect(await pool.contract.governance()).to.equal(governance.address);
-    expect(await pool.lpToken.contract.owner()).to.equal(pool.address);
+    expect(await (pool.lpToken.contract as LpToken).owner()).to.equal(pool.address);
     expect(await pool.lpToken.balanceOf(liquidityProvider)).to.equal(
       pool.lpToken.toAtomic(baseAmount).mul(3)
     );
   });
 
-  it("RemoveUniform should empty the pool and allow refilling after", async function () {
+  it("removeUniform should empty the pool and allow refilling after", async function () {
     const { pool, govFeeRecip, liquidityProvider, swimUsd, usdc, usdt } = await loadFixture(
       testFixture
     );
@@ -91,22 +93,19 @@ describe("Pool Defi Operations", function () {
       );
   });
 
-  it("Add should return correct outputs", async function () {
+  it("add should return correct outputs", async function () {
     const { pool, govFeeRecip, user } = await loadFixture(testFixture);
+
+    const expectedUserLp = pool.lpToken.toAtomic("0.976045");
+    const expectedGovFee = pool.lpToken.toAtomic("0.000063");
 
     await pool.add(user, pool.toAtomicAmounts([0, 1, 0]), 0);
 
-    expect(await pool.lpToken.balanceOf(user)).to.be.closeTo(
-      pool.lpToken.toAtomic("0.976045"),
-      tolerance
-    );
-    expect(await pool.lpToken.balanceOf(govFeeRecip)).to.be.closeTo(
-      pool.lpToken.toAtomic("0.000063"),
-      tolerance
-    );
+    expect(await pool.lpToken.balanceOf(user)).to.be.closeTo(expectedUserLp, tolerance);
+    expect(await pool.lpToken.balanceOf(govFeeRecip)).to.be.closeTo(expectedGovFee, tolerance);
   });
 
-  it("RemoveExactBurn and RemoveExactOutput should return correct and consistent outputs", async function () {
+  it("removeExactBurn and removeExactOutput should return correct and consistent outputs", async function () {
     const setup = async () => {
       const { pool, govFeeRecip, usdc, user } = await loadFixture(testFixture);
 
@@ -155,7 +154,7 @@ describe("Pool Defi Operations", function () {
     }
   });
 
-  it("Swap equals SwapExactInput exactly", async function () {
+  it("swap equals swapExactInput exactly", async function () {
     const swap = async () => {
       const { pool, govFeeRecip, usdc, usdt, user } = await loadFixture(testFixture);
 
@@ -184,7 +183,7 @@ describe("Pool Defi Operations", function () {
     expect(swapGovFee).to.equal(swapExactInputGovFee);
   });
 
-  it("swapExactInput and SwapExactOutput should return correct and consistent outputs", async function () {
+  it("swapExactInput and swapExactOutput should return correct and consistent outputs", async function () {
     const expectedUsdt = "0.929849";
 
     const swapExactInputGovFee = await (async () => {

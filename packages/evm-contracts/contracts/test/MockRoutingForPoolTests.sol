@@ -2,10 +2,27 @@
 
 pragma solidity ^0.8.15;
 
-contract MockRoutingForPoolTests  {
-  address public swimUsdAddress;
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-  constructor(address addr) {
-    swimUsdAddress = addr;
+contract MockRoutingForPoolTests is Initializable, UUPSUpgradeable {
+  event TokenRegistered(uint16 indexed tokenNumber, address indexed token, address pool);
+
+  address public /*immutable*/ swimUsdAddress;
+
+  function initialize(address _swimUsdAddress) public initializer {
+    swimUsdAddress = _swimUsdAddress;
   }
+
+  function _authorizeUpgrade(address newImplementation) internal override {}
+
+  function registerToken(
+    uint16 tokenNumber,
+    address tokenAddress,
+    address poolAddress,
+    uint8 //tokenIndexInPool
+  ) external {
+    emit TokenRegistered(tokenNumber, tokenAddress, poolAddress);
+  }
+
 }

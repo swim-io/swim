@@ -15,7 +15,7 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 //
 //Of all those, only ERC20Upgradeable and OwnableUpgradeable have a non-empty initialize.
 contract LpToken is UUPSUpgradeable, ERC20BurnableUpgradeable, OwnableUpgradeable {
-  uint8 public _decimals;
+  uint8 private /*immutable*/ _decimals;
 
   function initialize(
     address owner,

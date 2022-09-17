@@ -26,7 +26,7 @@ library SwimPayloadConversion {
   uint private constant TOKENBRIDGE_TARGET_CHAIN_SIZE = 2;
   uint private constant TOKENBRIDGE_SENDER_ADDRESS_SIZE = 32;
 
-  uint private constant TOKENBRIDGE_TOTAL_SIZE =
+  uint private constant TOKENBRIDGE_TOTAL_SIZE = //133
     TOKENBRIDGE_TYPE_SIZE +
     TOKENBRIDGE_AMOUNT_SIZE +
     TOKENBRIDGE_TOKEN_ORIGIN_ADDRESS_SIZE +
@@ -45,10 +45,10 @@ library SwimPayloadConversion {
   uint private constant TOKEN_NUMBER_SIZE = 2;
   uint private constant MEMO_SIZE = 16;
 
-  uint private constant OWNER_MINLEN = TOKENBRIDGE_TOTAL_SIZE + VERSION_SIZE + OWNER_SIZE;
+  uint private constant OWNER_MINLEN = TOKENBRIDGE_TOTAL_SIZE + VERSION_SIZE + OWNER_SIZE; //166
   uint private constant TOKEN_NUMBER_MINLEN = OWNER_MINLEN + PROPELLER_ENABLED_SIZE +
-    GAS_KICKSTART_SIZE + MAX_PROPELLER_FEE + TOKEN_NUMBER_SIZE;
-  uint private constant MEMO_MINLEN = TOKEN_NUMBER_MINLEN + MEMO_SIZE;
+    GAS_KICKSTART_SIZE + MAX_PROPELLER_FEE + TOKEN_NUMBER_SIZE; //178
+  uint private constant MEMO_MINLEN = TOKEN_NUMBER_MINLEN + MEMO_SIZE; //194
 
   function decode(
     bytes memory encoded //encoded token bridge payload

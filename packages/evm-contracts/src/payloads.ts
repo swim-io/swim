@@ -1,37 +1,54 @@
 import { BigNumber } from "ethers";
 
-export class CoreBridgeMessage {
-  private static readonly signatureSize = 66;
+const offsetTracker = () => {
+  let offset = 0;
+  return (size: number) => (offset += size) - size; //postInc
+};
 
+const readBytes = (buf: Buffer, offset: (size: number) => number, size: number) => {
+  const curOffset = offset(size);
+  return buf.subarray(curOffset, curOffset + size);
+};
+
+export type Signature = {
+  readonly guardianIndex: number;
+  readonly r: Buffer;
+  readonly s: Buffer;
+  readonly v: number;
+};
+
+export class CoreBridgeMessage {
   constructor(
     readonly version: number,
     readonly guardianSetIndex: number,
-    readonly signatures: readonly string[],
+    readonly signatures: readonly Signature[],
     readonly timestamp: number,
     readonly nonce: number,
     readonly emitterChain: number,
-    readonly emitterAddress: string,
-    readonly sequence: bigint,
+    readonly emitterAddress: Buffer,
+    readonly sequence: BigNumber,
     readonly consistencyLevel: number,
     readonly payload: Buffer
   ) {}
 
   static decode(encodedVm: Buffer) {
-    const version = encodedVm.readUInt8(0);
-    const guardianSetIndex = encodedVm.readUInt32BE(1);
-    const sigCount = encodedVm.readUInt8(5);
-    let offset = 6;
-    const signatures = Array.from(Array(sigCount).keys()).map(() => {
-      offset += this.signatureSize;
-      return encodedVm.subarray(offset, offset - this.signatureSize).toString("hex");
-    });
-    const timestamp = encodedVm.readUInt32BE(offset);
-    const nonce = encodedVm.readUInt32BE(offset + 4);
-    const emitterChain = encodedVm.readUInt16BE(offset + 8);
-    const emitterAddress = encodedVm.subarray(offset + 10, offset + 42).toString("hex");
-    const sequence = encodedVm.readBigUint64BE(offset + 42);
-    const consistencyLevel = encodedVm.readUInt8(offset + 50);
-    const payload = encodedVm.subarray(offset + 51);
+    const offset = offsetTracker();
+    const version = encodedVm.readUInt8(offset(1));
+    const guardianSetIndex = encodedVm.readUInt32BE(offset(4));
+    const sigCount = encodedVm.readUInt8(offset(1));
+    const signatures = Array.from(Array(sigCount).keys()).map(() => ({
+      guardianIndex: encodedVm.readUint8(offset(1)),
+      r: readBytes(encodedVm, offset, 32),
+      s: readBytes(encodedVm, offset, 32),
+      v: encodedVm.readUint8(offset(1)),
+    }));
+    const timestamp = encodedVm.readUInt32BE(offset(4));
+    const nonce = encodedVm.readUInt32BE(offset(4));
+    const emitterChain = encodedVm.readUInt16BE(offset(2));
+    const emitterAddress = readBytes(encodedVm, offset, 32);
+    const sequence = BigNumber.from(encodedVm.readBigUint64BE(offset(8)));
+    const consistencyLevel = encodedVm.readUInt8(offset(1));
+    const payload = encodedVm.subarray(offset(0));
     return new CoreBridgeMessage(
       version,
       guardianSetIndex,
@@ -47,21 +64,25 @@ export class CoreBridgeMessage {
   }
 
   encode() {
-    const encoded = Buffer.alloc(57 + this.signatures.length * CoreBridgeMessage.signatureSize);
-    encoded.writeUInt8(this.version, 0);
-    encoded.writeUInt32BE(this.guardianSetIndex, 1);
-    encoded.writeUInt8(this.signatures.length, 5);
-    let offset = 0;
+    const fixedSize = 57;
+    const perSignatureSize = 66;
+    const encoded = Buffer.alloc(fixedSize + this.signatures.length * perSignatureSize);
+    const offset = offsetTracker();
+    encoded.writeUInt8(this.version, offset(1));
+    encoded.writeUInt32BE(this.guardianSetIndex, offset(4));
+    encoded.writeUInt8(this.signatures.length, offset(1));
     for (const signature of this.signatures) {
-      encoded.write(signature, offset + 6, "hex");
-      offset += CoreBridgeMessage.signatureSize;
+      encoded.writeUInt8(signature.guardianIndex, offset(1));
+      signature.r.copy(encoded, offset(32));
+      signature.s.copy(encoded, offset(32));
+      encoded.writeUInt8(signature.v, offset(1));
     }
-    encoded.writeUInt32BE(this.timestamp, offset + 6);
-    encoded.writeUInt32BE(this.nonce, offset + 10);
-    encoded.writeUInt16BE(this.emitterChain, offset + 14);
-    encoded.write(this.emitterAddress, offset + 16, "hex");
-    encoded.writeBigUInt64BE(this.sequence, offset + 48);
-    encoded.writeUInt8(this.consistencyLevel, offset + 56);
+    encoded.writeUInt32BE(this.timestamp, offset(4));
+    encoded.writeUInt32BE(this.nonce, offset(4));
+    encoded.writeUInt16BE(this.emitterChain, offset(2));
+    this.emitterAddress.copy(encoded, offset(16));
+    encoded.writeBigUInt64BE(this.sequence.toBigInt(), offset(8));
+    encoded.writeUInt8(this.consistencyLevel, offset(1));
     return Buffer.concat([encoded, this.payload]);
   }
 }
@@ -69,24 +90,25 @@ export class CoreBridgeMessage {
 export class TokenBridgePayload {
   constructor(
     readonly payloadId: number,
-    readonly amount: bigint,
-    readonly originAddress: string,
+    readonly amount: BigNumber,
+    readonly originAddress: Buffer,
     readonly originChain: number,
-    readonly targetAddress: string,
+    readonly targetAddress: Buffer,
     readonly targetChain: number,
-    readonly senderAddress: string,
+    readonly senderAddress: Buffer,
     readonly extraPayload: Buffer
   ) {}
 
   static decode(coreBridgePayload: Buffer) {
-    const payloadId = coreBridgePayload.readUInt8(0);
-    const amount = BigNumber.from(coreBridgePayload.subarray(1, 1 + 32)).toBigInt();
-    const originAddress = coreBridgePayload.subarray(33, 33 + 32).toString("hex");
-    const originChain = coreBridgePayload.readUInt16BE(65);
-    const targetAddress = coreBridgePayload.subarray(67, 67 + 32).toString("hex");
-    const targetChain = coreBridgePayload.readUInt16BE(99);
-    const senderAddress = coreBridgePayload.subarray(101, 101 + 32).toString("hex");
-    const extraPayload = coreBridgePayload.subarray(133);
+    const offset = offsetTracker();
+    const payloadId = coreBridgePayload.readUInt8(offset(1));
+    const amount = BigNumber.from(readBytes(coreBridgePayload, offset, 32));
+    const originAddress = readBytes(coreBridgePayload, offset, 32);
+    const originChain = coreBridgePayload.readUInt16BE(offset(2));
+    const targetAddress = readBytes(coreBridgePayload, offset, 32);
+    const targetChain = coreBridgePayload.readUInt16BE(offset(2));
+    const senderAddress = readBytes(coreBridgePayload, offset, 32);
+    const extraPayload = coreBridgePayload.subarray(offset(0));
     return new TokenBridgePayload(
       payloadId,
       amount,
@@ -101,52 +123,58 @@ export class TokenBridgePayload {
 
   encode() {
     const encoded = Buffer.alloc(133);
-    encoded.writeUInt8(this.payloadId, 0);
-    encoded.write(this.amount.toString(16).padStart(64, "0"), 1, "hex");
-    encoded.write(this.originAddress, 33, "hex");
-    encoded.writeUInt16BE(this.originChain, 65);
-    encoded.write(this.targetAddress, 67, "hex");
-    encoded.writeUInt16BE(this.targetChain, 99);
-    encoded.write(this.senderAddress, 101, "hex");
+    const offset = offsetTracker();
+    encoded.writeUInt8(this.payloadId, offset(1));
+    encoded.write(this.amount.toHexString().slice(2).padStart(64, "0"), offset(32), "hex");
+    this.originAddress.copy(encoded, offset(32));
+    encoded.writeUInt16BE(this.originChain, offset(2));
+    this.targetAddress.copy(encoded, offset(32));
+    encoded.writeUInt16BE(this.targetChain, offset(2));
+    this.senderAddress.copy(encoded, offset(32));
     return Buffer.concat([encoded, this.extraPayload]);
   }
 }
 
 export class SwimPayload {
-  private static readonly defaultMemo = "00".repeat(16);
+  private static readonly defaultMemo = Buffer.alloc(16).fill(0);
 
   constructor(
     readonly version: number,
-    readonly toOwner: string,
+    readonly toOwner: Buffer,
     readonly propellerEnabled = false,
-    readonly gasKickstartEnabled = false,
+    readonly gasKickstart = false,
+    readonly maxPropellerFee = BigNumber.from(0),
     readonly toTokenNumber = 0,
     readonly memo = SwimPayload.defaultMemo
   ) {}
 
   static decode(tokenBridgePayload3: Buffer) {
-    const version = tokenBridgePayload3.readUInt8(0);
-    const toOwner = tokenBridgePayload3.subarray(1, 1 + 32).toString("hex");
-    if (tokenBridgePayload3.length == 33) return new SwimPayload(version, toOwner);
+    const offset = offsetTracker();
+    const version = tokenBridgePayload3.readUInt8(offset(1));
+    const toOwner = readBytes(tokenBridgePayload3, offset, 32);
+    if (tokenBridgePayload3.length == offset(0)) return new SwimPayload(version, toOwner);
 
-    const propellerEnabled = tokenBridgePayload3.readUInt8(33) == 1 ? true : false;
-    const gasKickstartEnabled = tokenBridgePayload3.readUInt8(34) == 1 ? true : false;
-    const toTokenNumber = tokenBridgePayload3.readUInt16BE(35);
-    if (tokenBridgePayload3.length == 37)
+    const propellerEnabled = tokenBridgePayload3.readUInt8(offset(1)) == 1 ? true : false;
+    const gasKickstart = tokenBridgePayload3.readUInt8(offset(1)) == 1 ? true : false;
+    const maxPropellerFee = BigNumber.from(tokenBridgePayload3.readBigUint64BE(offset(8)));
+    const toTokenNumber = tokenBridgePayload3.readUInt16BE(offset(2));
+    if (tokenBridgePayload3.length == offset(0))
       return new SwimPayload(
         version,
         toOwner,
         propellerEnabled,
-        gasKickstartEnabled,
+        gasKickstart,
+        maxPropellerFee,
         toTokenNumber
       );
 
-    const memo = tokenBridgePayload3.subarray(37, 37 + 16).toString("hex");
+    const memo = readBytes(tokenBridgePayload3, offset, 16);
     return new SwimPayload(
       version,
       toOwner,
       propellerEnabled,
-      gasKickstartEnabled,
+      gasKickstart,
+      maxPropellerFee,
       toTokenNumber,
       memo
     );
@@ -154,16 +182,18 @@ export class SwimPayload {
 
   encode() {
     const encoded = Buffer.alloc(
-      this.memo != SwimPayload.defaultMemo ? 53 : this.propellerEnabled ? 37 : 33
+      this.memo != SwimPayload.defaultMemo ? 61 : this.propellerEnabled ? 45 : 33
     );
-    encoded.writeUInt8(this.version, 0);
-    encoded.write(this.toOwner, 1, "hex");
+    const offset = offsetTracker();
+    encoded.writeUInt8(this.version, offset(1));
+    this.toOwner.copy(encoded, offset(32));
     if (!this.propellerEnabled) return encoded;
-    encoded.writeUInt8(1, 33);
-    encoded.writeUInt8(this.gasKickstartEnabled ? 1 : 0, 34);
-    encoded.writeUInt16BE(this.toTokenNumber, 35);
+    encoded.writeUInt8(1, offset(1));
+    encoded.writeUInt8(this.gasKickstart ? 1 : 0, offset(1));
+    encoded.writeBigUInt64BE(this.maxPropellerFee.toBigInt(), offset(8));
+    encoded.writeUInt16BE(this.toTokenNumber, offset(2));
     if (this.memo == SwimPayload.defaultMemo) return encoded;
-    encoded.write(this.memo, 37, "hex");
+    this.memo.copy(encoded, offset(16));
     return encoded;
   }
 }

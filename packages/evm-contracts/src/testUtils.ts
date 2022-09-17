@@ -13,8 +13,8 @@ import type { ERC20Token } from "../typechain-types/contracts/test/ERC20Token";
 import { TOKEN_NUMBERS } from "./config";
 import { confirm, getProxy } from "./deploy";
 
-type HasAddress = { readonly address: string };
-const isHasAddress = (object: any): object is HasAddress => !!(object as HasAddress).address;
+export type HasAddress = { readonly address: string };
+export const isHasAddress = (object: any): object is HasAddress => !!(object as HasAddress).address;
 
 const call = (contract: Contract, from: SignerWithAddress, method: string, args: readonly any[]) =>
   confirm(contract.connect(from)[method](...args));
@@ -184,6 +184,8 @@ export class RoutingWrapper {
   }
 
   async getMemoInteractionEvents(memo?: BytesLike) {
+    //we have to manually right-pad with zeros because either hardhat or ethers
+    // are screwing up the look-up otherwise.... solid software
     const filter = memo
       ? this.contract.filters.MemoInteraction(hexlify(memo) + "00".repeat(16))
       : this.contract.filters.MemoInteraction();

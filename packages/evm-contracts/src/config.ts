@@ -58,7 +58,7 @@ export type ChainConfig = {
 export const SWIM_FACTORY_ADDRESS = "0x36E284788aaA29C16cc227E09477C8e73D96ffD3";
 export const SWIM_USD_SOLANA_ADDRESS =
   "0x296b21c9a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe26719";
-export const ROUTING_CONTRACT_SOLANA_ADDRESS = "0x0"; //TODO
+export const ROUTING_CONTRACT_SOLANA_ADDRESS = "0x" + "00".repeat(32); //TODO
 export const WORMHOLE_SOLANA_CHAIN_ID = 1;
 export const POOL_PRECISION = 6;
 export const SWIM_USD_DECIMALS = 6;
@@ -81,11 +81,11 @@ export const DEFAULTS = {
     name: "SwimUSD",
     decimals: SWIM_USD_DECIMALS,
   },
-  serviceFee: 0.1 * 10 ** SWIM_USD_DECIMALS,
+  serviceFee: 1 * 10 ** (SWIM_USD_DECIMALS - 2),
   gasRemunerationMethod: {
-    baseFee: 0.1 * 10 ** SWIM_USD_DECIMALS,
-    gasKickstartFee: 1 * 10 ** SWIM_USD_DECIMALS,
-    swapFee: 0.1 * 10 ** SWIM_USD_DECIMALS,
+    baseFee: 2 * 10 ** (SWIM_USD_DECIMALS - 2),
+    gasKickstartFee: 5 * 10 ** (SWIM_USD_DECIMALS - 2),
+    swapFee: 2 * 10 ** (SWIM_USD_DECIMALS - 2),
   },
 };
 

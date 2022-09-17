@@ -15,7 +15,7 @@ import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import type { Ecosystem, TokenConfig } from "../config";
+import type { EcosystemId, TokenConfig } from "../config";
 import { ECOSYSTEM_LIST, isEcosystemEnabled } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
@@ -37,9 +37,9 @@ const renderTokenOption = (option: TokenOption) => {
 interface Props {
   readonly handleClose: () => void;
   readonly handleSelectToken: (token: TokenConfig) => void;
-  readonly handleSelectEcosystem: (ecosystem: Ecosystem) => void;
+  readonly handleSelectEcosystem: (ecosystemId: EcosystemId) => void;
   readonly tokenOptionIds: readonly string[];
-  readonly selectedEcosystem: Ecosystem;
+  readonly selectedEcosystemId: EcosystemId;
 }
 
 interface TokenProps {
@@ -61,7 +61,7 @@ export const TokenSearchModal = ({
   handleClose,
   handleSelectToken,
   handleSelectEcosystem,
-  selectedEcosystem,
+  selectedEcosystemId,
   tokenOptionIds,
 }: Props): ReactElement => {
   const { t } = useTranslation();
@@ -81,7 +81,7 @@ export const TokenSearchModal = ({
   const filteredTokens = tokens.filter(
     (token) =>
       tokenOptionIds.includes(token.id) &&
-      token.nativeEcosystemId === selectedEcosystem.id,
+      token.nativeEcosystemId === selectedEcosystemId,
   );
 
   const options = filteredTokens.map((token) => {
@@ -99,7 +99,7 @@ export const TokenSearchModal = ({
     <CustomModal
       initialFocus="#token-search"
       onClose={handleClose}
-      className="modal"
+      className="tokenSearchModal"
     >
       <EuiModalHeader>
         <EuiModalHeaderTitle>
@@ -115,8 +115,8 @@ export const TokenSearchModal = ({
         {enabledEcosystems.map((ecosystem) => (
           <EuiFlexItem grow={false} key={ecosystem.id}>
             <EuiButton
-              fill={ecosystem.id === selectedEcosystem.id}
-              onClick={() => handleSelectEcosystem(ecosystem)}
+              fill={ecosystem.id === selectedEcosystemId}
+              onClick={() => handleSelectEcosystem(ecosystem.id)}
               iconType={ecosystem.logo}
               size="s"
               minWidth={125}

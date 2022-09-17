@@ -124,6 +124,6 @@ export const TokenConfigIcon = ({
 
 export const TokenSearchConfigIcon = ({
   token,
-}: TokenConfigIconProps): ReactElement => (
+}: Pick<TokenConfigIconProps, "token">): ReactElement => (
   <TokenIcon {...TOKEN_PROJECTS_BY_ID[token.projectId]} />
 );

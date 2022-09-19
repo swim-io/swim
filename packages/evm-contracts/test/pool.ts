@@ -12,6 +12,7 @@ import { deployment } from "../src/deployment";
 import { PoolWrapper, TokenWrapper } from "../src/testUtils";
 import type { LpToken } from "../typechain-types/contracts/LpToken";
 
+// eslint-disable-next-line import/no-commonjs, @typescript-eslint/no-var-requires
 use(require("chai-bn")(BN));
 
 describe("Pool Defi Operations", function () {

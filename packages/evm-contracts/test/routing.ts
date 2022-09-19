@@ -19,6 +19,7 @@ import { PoolWrapper, RoutingWrapper, TokenWrapper } from "../src/testUtils";
 import type { HasAddress } from "../src/testUtils";
 import type { IWormhole } from "../typechain-types/contracts/interfaces/IWormhole";
 
+// eslint-disable-next-line import/no-commonjs, @typescript-eslint/no-var-requires
 use(require("chai-bn")(BN));
 
 const asBytes = (hexVal: string, size: number) => {

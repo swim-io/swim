@@ -47,7 +47,7 @@ export class MoralisProvider extends JsonRpcProvider {
   private readonly moralisId: string;
   private readonly txTimeoutMs: number;
 
-  constructor(
+  public constructor(
     env: Env,
     jsonRpcUrl: string,
     moralisId: string,
@@ -63,15 +63,7 @@ export class MoralisProvider extends JsonRpcProvider {
     this.initialized = false;
   }
 
-  async initialize(): Promise<void> {
-    await Moralis.start({
-      serverUrl: this.moralisUrl,
-      appId: this.moralisId,
-    });
-    this.initialized = true;
-  }
-
-  async getHistory(
+  public async getHistory(
     addressOrName: string | Promise<string>,
     startBlock?: BlockTag,
     endBlock?: BlockTag,
@@ -93,6 +85,14 @@ export class MoralisProvider extends JsonRpcProvider {
     return moralisTxs.map((moralisTx) => {
       return this.toTxResponse(moralisTx);
     });
+  }
+
+  private async initialize(): Promise<void> {
+    await Moralis.start({
+      serverUrl: this.moralisUrl,
+      appId: this.moralisId,
+    });
+    this.initialized = true;
   }
 
   private toTxResponse(

@@ -12,6 +12,11 @@ const tsConfig = {
   rules: {
     // @typescript-eslint
     "@typescript-eslint/consistent-type-imports": "error",
+    // encourage to use private accessibility modifier
+    "@typescript-eslint/explicit-member-accessibility": [
+      "error",
+      { accessibility: "explicit" },
+    ],
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/member-ordering": "error",
     "@typescript-eslint/no-empty-function": "off",

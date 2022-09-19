@@ -12,7 +12,7 @@ export class SolanaDefaultWalletAdapter
   public readonly protocol: SolanaProtocol;
   public readonly serviceName = "SolanaDefault";
 
-  constructor(provider: unknown, network: string) {
+  public constructor(provider: unknown, network: string) {
     super(provider, network);
     this.protocol = SOLANA_PROTOCOL;
   }

@@ -35,20 +35,20 @@ import type {
 } from "./operation";
 
 export class SwimDefiInstructor {
-  readonly env: Env;
-  readonly solanaConnection: SolanaConnection;
-  readonly signer: SolanaWalletAdapter;
-  readonly programId: PublicKey;
-  readonly stateAccount: PublicKey;
-  readonly poolAuthority: PublicKey;
-  readonly lpMint: PublicKey;
-  readonly governanceFeeAccount: PublicKey;
-  readonly tokenMints: readonly PublicKey[];
-  readonly poolTokenAccounts: readonly PublicKey[];
-  userLpAccount: PublicKey | null;
-  userTokenAccounts: readonly PublicKey[];
+  private readonly env: Env;
+  private readonly solanaConnection: SolanaConnection;
+  private readonly signer: SolanaWalletAdapter;
+  private readonly programId: PublicKey;
+  private readonly stateAccount: PublicKey;
+  private readonly poolAuthority: PublicKey;
+  private readonly lpMint: PublicKey;
+  private readonly governanceFeeAccount: PublicKey;
+  private readonly tokenMints: readonly PublicKey[];
+  private readonly poolTokenAccounts: readonly PublicKey[];
+  private userLpAccount: PublicKey | null;
+  private userTokenAccounts: readonly PublicKey[];
 
-  constructor(
+  public constructor(
     env: Env,
     solanaConnection: SolanaConnection,
     signer: SolanaWalletAdapter,
@@ -92,11 +92,118 @@ export class SwimDefiInstructor {
       : new Array(tokenMints.length).fill(PublicKey.default);
   }
 
-  get numberOfTokens(): number {
+  private get numberOfTokens(): number {
     return this.tokenMints.length;
   }
 
-  swapKeys(
+  public async add(
+    operation: AddOperationSpec,
+    splTokenAccounts: readonly TokenAccount[],
+  ): Promise<string> {
+    const { params } = operation;
+    const tokenMintIndices = params.inputAmounts.reduce<readonly number[]>(
+      (indices, amount, i) => (amount.isZero() ? indices : [...indices, i]),
+      [],
+    );
+    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts, true);
+
+    const userTransferAuthority = Keypair.generate();
+    const ixs = this.createAllAddIxs(operation, userTransferAuthority);
+
+    return this.signAndSendTransactionForInstructions(
+      ixs,
+      userTransferAuthority,
+    );
+  }
+
+  public async removeUniform(
+    operation: RemoveUniformOperationSpec,
+    splTokenAccounts: readonly TokenAccount[],
+  ): Promise<string> {
+    const tokenMintIndices = this.userTokenAccounts.map((_, i) => i);
+    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
+
+    const userTransferAuthority = Keypair.generate();
+    const ixs = this.createAllRemoveUniformIxs(
+      operation,
+      userTransferAuthority,
+    );
+
+    return this.signAndSendTransactionForInstructions(
+      ixs,
+      userTransferAuthority,
+    );
+  }
+
+  public async removeExactBurn(
+    operation: RemoveExactBurnOperationSpec,
+    splTokenAccounts: readonly TokenAccount[],
+  ): Promise<string> {
+    const { params } = operation;
+    const tokenMintIndices = [params.outputTokenIndex];
+    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
+
+    const userTransferAuthority = Keypair.generate();
+    const ixs = this.createAllRemoveExactBurnIxs(
+      operation,
+      userTransferAuthority,
+    );
+
+    return this.signAndSendTransactionForInstructions(
+      ixs,
+      userTransferAuthority,
+    );
+  }
+
+  public async removeExactOutput(
+    operation: RemoveExactOutputOperationSpec,
+    splTokenAccounts: readonly TokenAccount[],
+  ): Promise<string> {
+    const { params } = operation;
+    const tokenMintIndices = params.exactOutputAmounts.reduce<
+      readonly number[]
+    >(
+      (indices, amount, i) => (amount.isZero() ? indices : [...indices, i]),
+      [],
+    );
+    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
+
+    const userTransferAuthority = Keypair.generate();
+    const ixs = this.createAllRemoveExactOutputIxs(
+      operation,
+      userTransferAuthority,
+    );
+
+    return this.signAndSendTransactionForInstructions(
+      ixs,
+      userTransferAuthority,
+    );
+  }
+
+  public async swap(
+    operation: SwapOperationSpec,
+    splTokenAccounts: readonly TokenAccount[],
+  ): Promise<string> {
+    const { params } = operation;
+    const tokenMintIndices = params.exactInputAmounts.reduce<readonly number[]>(
+      (indices, amount, i) =>
+        amount.isZero() && i !== params.outputTokenIndex
+          ? indices
+          : [...indices, i],
+      [],
+    );
+    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
+
+    const userTransferAuthority = Keypair.generate();
+    const ixs = this.createAllSwapIxs(operation, userTransferAuthority);
+
+    return this.signAndSendTransactionForInstructions(
+      ixs,
+      userTransferAuthority,
+    );
+  }
+
+  private swapKeys(
     userTransferAuthority: PublicKey,
     ignorableUserTokenAccountIndices: readonly number[] = [],
   ): readonly AccountMeta[] {
@@ -128,7 +235,7 @@ export class SwimDefiInstructor {
     ];
   }
 
-  liquidityKeys(
+  private liquidityKeys(
     userTransferAuthority: PublicKey,
     ignorableUserTokenAccountIndices: readonly number[] = [],
   ): readonly AccountMeta[] {
@@ -141,31 +248,11 @@ export class SwimDefiInstructor {
     ];
   }
 
-  isValidTokenIndex(index: number): boolean {
+  private isValidTokenIndex(index: number): boolean {
     return [...new Array(this.numberOfTokens).keys()].includes(index);
   }
 
-  async add(
-    operation: AddOperationSpec,
-    splTokenAccounts: readonly TokenAccount[],
-  ): Promise<string> {
-    const { params } = operation;
-    const tokenMintIndices = params.inputAmounts.reduce<readonly number[]>(
-      (indices, amount, i) => (amount.isZero() ? indices : [...indices, i]),
-      [],
-    );
-    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts, true);
-
-    const userTransferAuthority = Keypair.generate();
-    const ixs = this.createAllAddIxs(operation, userTransferAuthority);
-
-    return this.signAndSendTransactionForInstructions(
-      ixs,
-      userTransferAuthority,
-    );
-  }
-
-  createAllAddIxs(
+  private createAllAddIxs(
     { interactionId, params }: AddOperationSpec,
     userTransferAuthority: Keypair,
     includeMemo = true,
@@ -180,26 +267,7 @@ export class SwimDefiInstructor {
       : [...approveIxs, addIx];
   }
 
-  async removeUniform(
-    operation: RemoveUniformOperationSpec,
-    splTokenAccounts: readonly TokenAccount[],
-  ): Promise<string> {
-    const tokenMintIndices = this.userTokenAccounts.map((_, i) => i);
-    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
-
-    const userTransferAuthority = Keypair.generate();
-    const ixs = this.createAllRemoveUniformIxs(
-      operation,
-      userTransferAuthority,
-    );
-
-    return this.signAndSendTransactionForInstructions(
-      ixs,
-      userTransferAuthority,
-    );
-  }
-
-  createAllRemoveUniformIxs(
+  private createAllRemoveUniformIxs(
     { interactionId, params }: RemoveUniformOperationSpec,
     userTransferAuthority: Keypair,
     includeMemo = true,
@@ -223,27 +291,7 @@ export class SwimDefiInstructor {
       : [approveIx, removeUniformIx];
   }
 
-  async removeExactBurn(
-    operation: RemoveExactBurnOperationSpec,
-    splTokenAccounts: readonly TokenAccount[],
-  ): Promise<string> {
-    const { params } = operation;
-    const tokenMintIndices = [params.outputTokenIndex];
-    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
-
-    const userTransferAuthority = Keypair.generate();
-    const ixs = this.createAllRemoveExactBurnIxs(
-      operation,
-      userTransferAuthority,
-    );
-
-    return this.signAndSendTransactionForInstructions(
-      ixs,
-      userTransferAuthority,
-    );
-  }
-
-  createAllRemoveExactBurnIxs(
+  private createAllRemoveExactBurnIxs(
     { interactionId, params }: RemoveExactBurnOperationSpec,
     userTransferAuthority: Keypair,
     includeMemo = true,
@@ -266,32 +314,7 @@ export class SwimDefiInstructor {
       : [approveIx, removeExactBurnIx];
   }
 
-  async removeExactOutput(
-    operation: RemoveExactOutputOperationSpec,
-    splTokenAccounts: readonly TokenAccount[],
-  ): Promise<string> {
-    const { params } = operation;
-    const tokenMintIndices = params.exactOutputAmounts.reduce<
-      readonly number[]
-    >(
-      (indices, amount, i) => (amount.isZero() ? indices : [...indices, i]),
-      [],
-    );
-    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
-
-    const userTransferAuthority = Keypair.generate();
-    const ixs = this.createAllRemoveExactOutputIxs(
-      operation,
-      userTransferAuthority,
-    );
-
-    return this.signAndSendTransactionForInstructions(
-      ixs,
-      userTransferAuthority,
-    );
-  }
-
-  createAllRemoveExactOutputIxs(
+  private createAllRemoveExactOutputIxs(
     { interactionId, params }: RemoveExactOutputOperationSpec,
     userTransferAuthority: Keypair,
     includeMemo = true,
@@ -314,30 +337,7 @@ export class SwimDefiInstructor {
       : [approveIx, removeExactOutputIx];
   }
 
-  async swap(
-    operation: SwapOperationSpec,
-    splTokenAccounts: readonly TokenAccount[],
-  ): Promise<string> {
-    const { params } = operation;
-    const tokenMintIndices = params.exactInputAmounts.reduce<readonly number[]>(
-      (indices, amount, i) =>
-        amount.isZero() && i !== params.outputTokenIndex
-          ? indices
-          : [...indices, i],
-      [],
-    );
-    this.ensureUserTokenAccounts(tokenMintIndices, splTokenAccounts);
-
-    const userTransferAuthority = Keypair.generate();
-    const ixs = this.createAllSwapIxs(operation, userTransferAuthority);
-
-    return this.signAndSendTransactionForInstructions(
-      ixs,
-      userTransferAuthority,
-    );
-  }
-
-  createAllSwapIxs(
+  private createAllSwapIxs(
     { interactionId, params }: SwapOperationSpec,
     userTransferAuthority: Keypair,
     includeMemo = true,

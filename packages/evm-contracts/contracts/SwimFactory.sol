@@ -80,22 +80,22 @@ contract SwimFactory is ISwimFactory {
     0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
   address public owner;
-  uint private reentrancyCount;
+  uint private _reentrancyCount;
   //given the deployer address we could derive and hence hardcode the address where BlankLogic
   // will be deployed to as to further save on gas, but the hassle is probably not worth it
-  address private immutable blankLogicAddress;
+  address private immutable _blankLogicAddress;
 
-  constructor(address _owner) {
-    owner = _owner;
-    blankLogicAddress = address(new BlankLogic());
+  constructor(address owner_) {
+    owner = owner_;
+    _blankLogicAddress = address(new BlankLogic());
   }
 
   modifier onlyOwnerOrAlreadyDeploying() {
-    if (msg.sender != owner && reentrancyCount == 0)
+    if (msg.sender != owner && _reentrancyCount == 0)
       revert SenderNotAuthorized();
-    ++reentrancyCount;
+    ++_reentrancyCount;
     _;
-    --reentrancyCount;
+    --_reentrancyCount;
   }
 
   function transferOwnership(address newOwner) external {
@@ -106,9 +106,9 @@ contract SwimFactory is ISwimFactory {
   }
 
   function create(
-    bytes memory code,
+    bytes calldata code,
     bytes32 salt,
-    bytes memory call
+    bytes calldata call
   ) external onlyOwnerOrAlreadyDeploying returns (address) {
     address ct = create2(code, salt);
     (bool success, bytes memory lowLevelData) = ct.call(call);
@@ -120,7 +120,7 @@ contract SwimFactory is ISwimFactory {
   }
 
   function create(
-    bytes memory code,
+    bytes calldata code,
     bytes32 salt
   ) external onlyOwnerOrAlreadyDeploying returns (address) {
     address ct = create2(code, salt);
@@ -131,7 +131,7 @@ contract SwimFactory is ISwimFactory {
   function createProxy(
     address logic,
     bytes32 salt,
-    bytes memory call
+    bytes calldata call
   ) external onlyOwnerOrAlreadyDeploying returns (address) {
     bytes memory code = proxyDeploymentCode();
     address proxy = create2(code, salt);
@@ -159,12 +159,12 @@ contract SwimFactory is ISwimFactory {
   // -------------------------------- INTERNAL --------------------------------
 
   function create2(bytes memory code, bytes32 salt) internal returns (address) {
-    bytes memory _code = code;
-    bytes32 _salt = salt;
+    bytes memory code_ = code;
+    bytes32 salt_ = salt;
     address ct;
     bool failed;
     assembly ("memory-safe") {
-      ct := create2(0, add(_code, 32), mload(_code), _salt)
+      ct := create2(0, add(code_, 32), mload(code_), salt_)
       failed := iszero(extcodesize(ct))
     }
     if (failed) revert ContractAlreadyExists(ct);
@@ -217,25 +217,25 @@ contract SwimFactory is ISwimFactory {
     //   bytes26(0xffffffffffffffffffffffffe016919091016040019291505056)
     // );
     /* solhint-disable var-name-mixedcase */
-    uint _PROXY_DEPLOYMENT_CODESIZE = PROXY_DEPLOYMENT_CODESIZE;
-    uint _PROXY_STRIPPED_DEPLOYEDCODESIZE = PROXY_STRIPPED_DEPLOYEDCODESIZE;
-    uint _IMPLEMENTATION_SLOT = IMPLEMENTATION_SLOT;
+    uint PROXY_DEPLOYMENT_CODESIZE_ = PROXY_DEPLOYMENT_CODESIZE;
+    uint PROXY_STRIPPED_DEPLOYEDCODESIZE_ = PROXY_STRIPPED_DEPLOYEDCODESIZE;
+    uint IMPLEMENTATION_SLOT_ = IMPLEMENTATION_SLOT;
     /* solhint-enable var-name-mixedcase */
-    uint _blankLogicAddress = uint(uint160(blankLogicAddress));
+    uint blankLogicAddress = uint(uint160(_blankLogicAddress));
     bytes memory code = new bytes(PROXY_TOTAL_CODESIZE);
     assembly ("memory-safe")
     {
-      mstore(add(code, 32), add(add(shl(248, 0x73), shl(88, _blankLogicAddress)), shl(80, 0x7f)))
-      mstore(add(code, 54), _IMPLEMENTATION_SLOT)
+      mstore(add(code, 32), add(add(shl(248, 0x73), shl(88, blankLogicAddress)), shl(80, 0x7f)))
+      mstore(add(code, 54), IMPLEMENTATION_SLOT_)
       mstore(
         add(code, 86),
         add(
           add(
             add(
-              add(shl(240, 0x5561), shl(224, _PROXY_STRIPPED_DEPLOYEDCODESIZE)),
+              add(shl(240, 0x5561), shl(224, PROXY_STRIPPED_DEPLOYEDCODESIZE_)),
               shl(208, 0x8060)
             ),
-            shl(200, _PROXY_DEPLOYMENT_CODESIZE)
+            shl(200, PROXY_DEPLOYMENT_CODESIZE_)
           ),
           shl(144, 0x6000396000f300)
         )

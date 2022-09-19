@@ -23,6 +23,7 @@ contract LpToken is UUPSUpgradeable, ERC20BurnableUpgradeable, OwnableUpgradeabl
     string memory symbol,
     uint8 __decimals
   ) external initializer returns (bool) {
+    require(__decimals <= 18, "unsupported decimals");
     _decimals = __decimals;
     __ERC20_init_unchained(name, symbol);
     __Ownable_init_unchained();

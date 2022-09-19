@@ -57,7 +57,9 @@ interface IPool is IMemoInteractor {
 
   function getState() external view returns (PoolState memory state);
 
-  function getMarginalPrices() external view returns (uint[] memory marginalPrices);
+  function getMarginalPrices() external view returns (Decimal[] memory marginalPrices);
+
+  // ----------------------------- BASIC VERSIONS --------------------------------------------------
 
   function swap(
     uint inputAmount,
@@ -69,43 +71,28 @@ interface IPool is IMemoInteractor {
   function swapExactOutput(
     uint maximumInputAmount,
     uint8 inputTokenIndex,
-    uint[] memory outputAmounts
+    uint[] calldata outputAmounts
   ) external returns (uint inputAmount);
 
   function swapExactInput(
-    uint[] memory inputAmounts,
+    uint[] calldata inputAmounts,
     uint8 outputTokenIndex,
     uint minimumOutputAmount
   ) external returns (uint outputAmount);
 
-  function removeUniform(uint burnAmount, uint[] memory minimumOutputAmounts)
-    external
-    returns (uint[] memory outputAmounts);
-
   function removeUniform(
     uint burnAmount,
-    uint[] memory minimumOutputAmounts,
-    bytes16 memo
+    uint[] calldata minimumOutputAmounts
   ) external returns (uint[] memory outputAmounts);
 
-  function add(uint[] memory inputAmounts, uint minimumMintAmount)
-    external
-    returns (uint mintAmount);
-
   function add(
-    uint[] memory inputAmounts,
-    uint minimumMintAmount,
-    bytes16 memo
+    uint[] calldata inputAmounts,
+    uint minimumMintAmount
   ) external returns (uint mintAmount);
 
-  function removeExactOutput(uint[] memory outputAmounts, uint maximumBurnAmount)
-    external
-    returns (uint burnAmount);
-
   function removeExactOutput(
-    uint[] memory outputAmounts,
-    uint maximumBurnAmount,
-    bytes16 memo
+    uint[] calldata outputAmounts,
+    uint maximumBurnAmount
   ) external returns (uint burnAmount);
 
   function removeExactBurn(
@@ -113,6 +100,26 @@ interface IPool is IMemoInteractor {
     uint8 outputTokenIndex,
     uint minimumOutputAmount
   ) external returns (uint outputAmount);
+
+  // ----------------------------- MEMO VARIANTS ---------------------------------------------------
+
+  function removeUniform(
+    uint burnAmount,
+    uint[] calldata minimumOutputAmounts,
+    bytes16 memo
+  ) external returns (uint[] memory outputAmounts);
+
+  function add(
+    uint[] calldata inputAmounts,
+    uint minimumMintAmount,
+    bytes16 memo
+  ) external returns (uint mintAmount);
+
+  function removeExactOutput(
+    uint[] calldata outputAmounts,
+    uint maximumBurnAmount,
+    bytes16 memo
+  ) external returns (uint burnAmount);
 
   function removeExactBurn(
     uint burnAmount,

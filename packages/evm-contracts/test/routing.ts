@@ -268,7 +268,7 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
     await checkEmittedPayload(expectedAmount, evmChainId, recipient, propellerParams);
   });
 
-  it("propellerComplete", async function () {
+  it("propellerComplete - flatFee", async function () {
     const { routingProxy, createFakeVaa, liquidityProvider, user, swimUsd } = await loadFixture(
       testFixture
     );
@@ -287,5 +287,56 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
     await routingProxy.propellerComplete(liquidityProvider, fakeVaa);
 
     expect(await swimUsd.balanceOf(user)).to.equal(expectedAmount);
+  });
+
+  it("propellerComplete - uniswapOracle", async function () {
+    const { pool, routingProxy, createFakeVaa, deployer, liquidityProvider, user, swimUsd, usdc } =
+      await loadFixture(testFixture);
+
+    //from https://etherscan.io/address/0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8#readContract
+    // corresponds to a tick of 203711 or ~1423 USDC/ETH (where token0 = usdc, token1 = WETH)
+    //we can verify this:
+    // usdc has 6 decimals, WETH has 18 so:
+    // sqrtPrice is token1 priced in token0 - so in our case the unintuitive ratio of WETH/USDC
+    // sqrtPrice is also priced in atomic units and specified in a 64.96 bits format (i.e. 96 bits
+    //  for the fractional part, 64 for the integer part)
+    // so to get to the actual USDC/WETH price (in human units) we calculate:
+    // decimalDifference = 18 - 6 = 12 and so
+    // BigNumber.from(10).pow(12).div(sqrtPrice.pow(2).div(BigNumber.from(2).pow(2 * 96))
+    const sqrtPrice = BigNumber.from("2099927254595430908151663701042111");
+
+    const mockUniswap = await (
+      await ethers.getContractFactory("MockUniswapV3Pool")
+    ).deploy(
+      usdc.address,
+      "0x" + "00".repeat(20), //realistically this would be WETH but for testing we don't care
+      sqrtPrice
+    );
+    await mockUniswap.deployed();
+
+    await routingProxy.usePropellerUniswapOracle(deployer, usdc, mockUniswap);
+
+    const bridgedSwimUsd = swimUsd.toAtomic(1);
+    const expectedAmount = swimUsd.toAtomic("0.97");
+    const maxPropellerFee = swimUsd.toAtomic("0.2");
+    const fakeVaa = createFakeVaa(
+      bridgedSwimUsd,
+      evmChainId,
+      toSwimPayload(user, true, false, maxPropellerFee, swimUsd.tokenNumber, memo)
+    );
+
+    expect(await swimUsd.balanceOf(user)).to.equal(0);
+
+    const receipt = await routingProxy.propellerComplete(liquidityProvider, fakeVaa);
+    console.log("actual gas used:", receipt.gasUsed);
+    console.log(
+      "actual gas cost:",
+      ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice))
+    );
+
+    //console.log(await pool.contract.getMarginalPrices());
+    //console.log(await swimUsd.balanceOf(user));
+
+    //expect(await swimUsd.balanceOf(user)).to.equal(expectedAmount);
   });
 });

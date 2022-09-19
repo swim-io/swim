@@ -281,6 +281,18 @@ export class RoutingWrapper {
     return confirm(this.contract.connect(from).propellerComplete(encodedVm));
   }
 
+  async usePropellerUniswapOracle(
+    owner: SignerWithAddress,
+    intermediateToken: TokenWrapper,
+    uniswapPool: Contract
+  ) {
+    return confirm(
+      this.contract
+        .connect(owner)
+        .usePropellerUniswapOracle(intermediateToken.address, uniswapPool.address)
+    );
+  }
+
   private readonly memoCall = (
     from: SignerWithAddress,
     method: string,

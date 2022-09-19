@@ -17,6 +17,8 @@ use(require("chai-bn")(BN));
 describe("Pool Defi Operations", function () {
   const liquidityProviderFunds = BigNumber.from(1e5);
   const baseAmount = BigNumber.from("10");
+  //TODO comparing atomic values isn't a workable approach when decimals (and hence equalizers)
+  //     aren't the same
   const tolerance = 2;
 
   async function testFixture() {
@@ -234,13 +236,17 @@ describe("Pool Defi Operations", function () {
     const actualLpSupply = await pool.lpToken.totalSupply();
     const actualPrices = await pool.contract.getMarginalPrices();
     expect(actualLpSupply).to.be.closeTo(expectedLpSupply, tolerance);
-    for (let i = 0; i < expectedPrices.length; ++i)
-      expect(actualPrices[i]).to.be.closeTo(expectedPrices[i], priceTolerance);
+    for (let i = 0; i < expectedPrices.length; ++i) {
+      expect(actualPrices[i].value).to.be.closeTo(expectedPrices[i], priceTolerance);
+      //TODO check decimals
+    }
 
     await pool.lpToken.burn(liquidityProvider, actualLpSupply.div(2));
     const doubledPrices = await pool.contract.getMarginalPrices();
-    for (let i = 0; i < doubledPrices.length; ++i)
-      expect(doubledPrices[i]).to.be.closeTo(expectedPrices[i].mul(2), priceTolerance.mul(2));
+    for (let i = 0; i < doubledPrices.length; ++i) {
+      expect(doubledPrices[i].value).to.be.closeTo(expectedPrices[i].mul(2), priceTolerance.mul(2));
+      //TODO check decimals
+    }
   });
 
   it("Works for skewed swimUsd and LP", async function () {

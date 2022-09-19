@@ -127,9 +127,7 @@ export async function deployPoolAndRegister(
         ? tokenReregisteredEvents[tokenReregisteredEvents.length - 1]
         : "";
     if (currentlyRegisteredPool !== poolProxy.address)
-      await confirm(
-        routingProxy.registerToken(tokenNumber, poolToken.address, poolProxy.address, i + 1)
-      );
+      await confirm(routingProxy.registerToken(tokenNumber, poolToken.address, poolProxy.address));
   }
 
   return poolProxy;

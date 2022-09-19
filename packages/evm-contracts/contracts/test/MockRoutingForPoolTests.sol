@@ -16,12 +16,7 @@ contract MockRoutingForPoolTests is Initializable, UUPSUpgradeable {
 
   function _authorizeUpgrade(address newImplementation) internal override {}
 
-  function registerToken(
-    uint16 tokenNumber,
-    address tokenAddress,
-    address poolAddress,
-    uint8 //tokenIndexInPool
-  ) external {
+  function registerToken(uint16 tokenNumber, address tokenAddress, address poolAddress) external {
     emit TokenRegistered(tokenNumber, tokenAddress, poolAddress);
   }
 

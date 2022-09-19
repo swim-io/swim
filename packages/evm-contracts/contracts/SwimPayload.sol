@@ -84,8 +84,8 @@ library SwimPayloadConversion {
     if (encoded.length > OWNER_MINLEN) {
       (swimPayload.propellerEnabled, offset) = encoded.asBool(offset);
       (swimPayload.gasKickstart, offset) = encoded.asBool(offset);
-      (swimPayload.toTokenNumber, offset) = encoded.asUint16(offset);
       (swimPayload.maxPropellerFee, offset) = encoded.asUint64(offset);
+      (swimPayload.toTokenNumber, offset) = encoded.asUint16(offset);
 
       if (encoded.length > TOKEN_NUMBER_MINLEN)
         (swimPayload.memo,) = encoded.asBytes16(offset);

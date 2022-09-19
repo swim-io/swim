@@ -13,7 +13,7 @@ interface IRouting is IMemoInteractor {
   }
 
   error SwimUsdNotAttested();
-  error TokenMismatch(address passedToken, address expectedToken);
+  error TokenNotInPool(address passedToken, address pool);
   error SenderIsNotOwner(address sender, address owner);
   error TokenNotRegistered(bytes20 addressOrTokenNumber);
   error WormholeInteractionFailed(bytes lowLevelData);
@@ -28,6 +28,10 @@ interface IRouting is IMemoInteractor {
     bytes32 expectedToken,
     uint16 expectedChain
   );
+
+  function swimUsdAddress() external view returns (address);
+
+  function getPoolStates(address[] memory poolAddresses) external view returns (PoolState[] memory);
 
   function onChainSwap(
     address fromToken,
@@ -107,11 +111,15 @@ interface IRouting is IMemoInteractor {
   function registerToken(
     uint16 tokenNumber,
     address tokenAddress,
-    address poolAddress,
-    uint8 tokenIndexInPool
+    address poolAddress
   ) external;
 
-  function getPoolStates(address[] memory poolAddresses) external view returns (PoolState[] memory);
+  function adjustPropellerServiceFee(uint64 serviceFee) external;
 
-  function swimUsdAddress() external view returns (address);
+  function usePropellerFlatFee(uint64 baseFee, uint64 gasKickstartFee, uint64 swapFee) external;
+
+  function usePropellerUniswapOracle(
+    address intermediateToken,
+    address uniswapPoolAddress
+  ) external;
 }

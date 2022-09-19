@@ -11,7 +11,7 @@ import type { Routing } from "../typechain-types/contracts/Routing";
 import type { SwimFactory } from "../typechain-types/contracts/SwimFactory.sol/SwimFactory";
 import type { ERC20Token } from "../typechain-types/contracts/test/ERC20Token";
 
-import type { DeployedToken, PoolConfig, TestToken } from "./config";
+import type { DeployedToken, PoolConfig, RoutingConfig, TestToken } from "./config";
 import { DEFAULTS, POOL_PRECISION, SALTS, SWIM_FACTORY_ADDRESS, TOKEN_NUMBERS } from "./config";
 
 const ERC1967_IMPLEMENTATION_SLOT =
@@ -83,6 +83,25 @@ export const getPoolProxy = (salt: string) => getProxy("Pool", salt) as Promise<
 
 export interface PoolConfigDeployedTokens extends PoolConfig {
   readonly tokens: readonly DeployedToken[];
+}
+
+export async function setupPropellerFees(routingConfig: RoutingConfig) {
+  const routingProxy = await getRoutingProxy();
+  const serviceFee = routingConfig.serviceFee ?? DEFAULTS.serviceFee;
+  const gasPriceMethod = routingConfig.gasPriceMethod ?? DEFAULTS.gasPriceMethod;
+  if (serviceFee !== 0) await confirm(routingProxy.adjustPropellerServiceFee(serviceFee));
+  if ("uniswapPoolAddress" in gasPriceMethod)
+    await confirm(
+      routingProxy.usePropellerUniswapOracle(
+        gasPriceMethod.intermediateToken,
+        gasPriceMethod.uniswapPoolAddress
+      )
+    );
+  else {
+    const fixedSwimUsdPerGasToken = gasPriceMethod.fixedSwimUsdPerGasToken;
+    if (fixedSwimUsdPerGasToken !== 0)
+      await confirm(routingProxy.usePropellerFixedGasTokenPrice(fixedSwimUsdPerGasToken));
+  }
 }
 
 export async function deployPoolAndRegister(

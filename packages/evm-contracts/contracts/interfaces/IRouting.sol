@@ -116,7 +116,8 @@ interface IRouting is IMemoInteractor {
 
   function adjustPropellerServiceFee(uint64 serviceFee) external;
 
-  function usePropellerFlatFee(uint64 baseFee, uint64 gasKickstartFee, uint64 swapFee) external;
+  //swimUsdPerGasToken in 18 decimals
+  function usePropellerFixedGasTokenPrice(uint fixedSwimUsdPerGasToken) external;
 
   function usePropellerUniswapOracle(
     address intermediateToken,

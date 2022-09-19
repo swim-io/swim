@@ -315,7 +315,7 @@ class SwimPool:
       numerator = missing_balance_approx ** 2 + numerator_fixed
       denominator = 2 * missing_balance_approx + denominator_fixed - depth
       missing_balance_next = numerator / denominator
-      # print(f"*         numerator: {toBitsValueString(reciprocal_decay)}")
+      # print(f"*         numerator: {toBitsValueString(numerator)}")
       # print(f"*       denominator: {toBitsValueString(denominator)}")
       # print(f"*   missing_balance: {toBitsValueString(missing_balance_next)}")
       if abs(missing_balance_next - missing_balance_approx) <= self.tolerance:

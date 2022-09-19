@@ -9,7 +9,7 @@ bytes32 constant ROUTING_CONTRACT_SOLANA_ADDRESS =
 uint16 constant WORMHOLE_SOLANA_CHAIN_ID = 1;
 address constant SWIM_FACTORY = address(0x36E284788aaA29C16cc227E09477C8e73D96ffD3);
 address constant ROUTING_CONTRACT = address(0xa33E4d9624608c468FE5466dd6CC39cE1Da4FF78);
-address constant LP_TOKEN_LOGIC = address(0x79b670B0F4e9E964c1cB47Eb02BcBa91C968E8F1);
+address constant LP_TOKEN_LOGIC = address(0x00EefC2004D881D7C6975a0f03c7aBb59EF43c5C);
 uint8 constant SWIM_USD_DECIMALS = 6;
 //--------------------------------------------------------------------------------------------------
 

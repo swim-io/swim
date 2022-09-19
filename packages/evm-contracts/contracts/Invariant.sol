@@ -26,8 +26,8 @@ library Invariant {
   // uint128 => 2^128 ~= 3.4 * 10^38
   // uint64  => 2^64  ~= 1.8 * 10^19
   //
-  // We use a precision of 61 bits (18 digits, max value: 2^61 ~= 2.3 * 10^18)
-  //  for all amounts (fixed point!). This is enough to accurately represent:
+  // We use a precision of 61 bits (18 digits, max value: 2^61 ~= 2.3 * 10^18) for all amounts.
+  //  This is enough to accurately represent:
   //  * sensible USD amounts: Using 6 decimals for (sub)cents, this leaves us
   //                          with 12 digits, i.e. enough to represent $1T-1
   //                          999_999_999_999.000_000 USD => 18 digits
@@ -38,10 +38,10 @@ library Invariant {
   //                           hence can be at most 2.1 * 10^15 Satoshis
   //                           21_000_000.000_000_00 BTC => 16 digits
   //
-  // By default, we're not using Solidity's built-in SafeMath (overflow and
-  //  underflow protection) because it's expensive and we've done the numerics
-  //  to ensure that all results (including intermediate results) will always
-  //  stay within sensible bounds. Hence the pervasive use of unchecked blocks.
+  // By default, we're not using Solidity's built-in SafeMath (overflow and underflow protection)
+  //  because it's expensive and we've done the numerics to ensure that all results (including
+  //  intermediate results) will always stay within sensible bounds. Hence the pervasive use of
+  //  unchecked blocks.
 
   // Some worst case analysis for calculateDepth and calculateUnknownBalance:
   //  (based on swim_invariant.py code)
@@ -49,23 +49,20 @@ library Invariant {
   //  Scenario 1: tokenCount = 6, ampFactor = 1, balances = [10^19] + [1]*5
   //   The most out of whack the pool can possibly be given our prerequisites.
   //   * calculateDepth
-  //      calculateDepth requires 198 iterations to converge (so given that
-  //       Python Decimals are slightly more accurate than uint, we would
-  //       expect about ~200 iterations for EVM code).
+  //      calculateDepth requires 198 iterations to converge (so given that Python Decimals are
+  //        slightly more accurate than uint, we would expect about ~200 iterations for EVM code).
   //      At their largest, variable's bit consumption is:
   //       * reciprocalDecay: 301 bits
   //       * numerator:       366 bits (+10 bits for AMP_SHIFT)
   //       * denominator:     303 bits (+10 bits for AMP_SHIFT)
   //       * depth:            63 bits
-  //      And this does not include AMP_SHIFT (which would another 10 bits to
-  //       numerator and denominator).
-  //      Therefore, fromAlign() will fail to undo the alignment and hence revert
+  //      And this does not include AMP_SHIFT (which would add another 10 bits to numerator and
+  //       denominator). Therefore, fromAlign() will fail to undo the alignment and hence revert
   //       to prevent overflow.
   //      For completeness sake: The actual/final depth value would be 1246115.3
   //   * calculateUnknownBalance
-  //      calculateUnknownBalance for the first balance (numerically the worst
-  //       case) requires 49 iterations to converge and would even stay within
-  //       the required bit limits:
+  //      calculateUnknownBalance for the first balance (numerically the worst case) requires
+  //        49 iterations to converge and would even stay within the required bit limits:
   //       * reciprocalDecay:  89 bits
   //       * numeratorFixed:  127 bits
   //       * denominatorFixed: 21 bits
@@ -76,8 +73,8 @@ library Invariant {
   //  Hence our our main concern is calculateDepth.
   //
   //  Scenario 2: tokenCount = 6, ampFactor = 1, balances = [10^19] + [10^8]*5
-  //   In this scenario, the pool is still comically out of whack with a
-  //   difference of 11 orders of magnitudes between the balances.
+  //   In this scenario, the pool is still comically out of whack with a difference of
+  //    11 orders of magnitudes between the balances.
   //   * calculateDepth
   //      calculateDepth now requires 113 iterations to converge.
   //      Largest bit consumption
@@ -85,15 +82,14 @@ library Invariant {
   //       * numerator:       233 bits (+10 bits for AMP_SHIFT)
   //       * denominator:     171 bits (+10 bits for AMP_SHIFT)
   //       * depth:            63 bits
-  //      So even after taking AMP_SHIFT into account, we can now conveniently
-  //       accommodate all intermediate results.
+  //      So even after taking AMP_SHIFT into account, we can now conveniently accommodate all
+  //       intermediate results.
   //      depth value: 645422243910.3
   //
-  //  So in conclusion, our math implementation in here will work just fine
-  //   in all realistic and even some very unrealistic scenarios and is more
-  //   robust than any of the other AMM stablecurve implementations out there
-  //   which overflow a lot earlier, while also maintaining accuracy and keeping
-  //   gas costs low.
+  //  So in conclusion, our math implementation in here will work just fine in all realistic and
+  //   even some very unrealistic scenarios and is more robust than any of the other AMM stablecurve
+  //   implementations out there which overflow a lot earlier, while also maintaining accuracy and
+  //   keeping gas costs low.
 
   function sum(Equalized[] memory arr) internal pure returns (uint ret) { unchecked {
     for (uint i = 0; i < arr.length; ++i)
@@ -195,20 +191,11 @@ library Invariant {
       uint previousUnknownBalance;
       do {
         previousUnknownBalance = unknownBalance;
-        //Even in the most extreme case, i.e. tokenCount = 6, ampFactor = 1,
-        // and balances perfectly extreme, the numerator will never exceed
-        // 210 bits, and the denominator will
-        //TODO
-        // and unknown balance will never exceed 105 bits, hence this can never overflow.
         uint numerator = numeratorFixed + unknownBalance * unknownBalance;
         uint denominator = (denominatorFixed + unknownBalance * 2) - depth;
-        //TODO should we use rounded div here? (via (num + denom/2)/denom)
-        unknownBalance = numerator / denominator;
+        unknownBalance = (numerator + denominator/2) / denominator; //rounded division
       } while (absDiff(previousUnknownBalance, unknownBalance) > 1);
     }
-
-    //TODO test to ensure that this can never happen due to rounding
-    require(unknownBalance > 0, "unknownBalance not higher then 0");
 
     //ensure that unknownBalance never blows up above the allowed maximum
     if (unknownBalance > Equalize.MAX_AMOUNT) revert UnknownBalanceTooLarge(unknownBalance);
@@ -273,11 +260,8 @@ library Invariant {
           denominator = denominatorFixedAmpUnits + denomRD.fromAligned(shift);
         }
 
-        depth = numerator / denominator; //TODO rounded div?
+        depth = (numerator + denominator/2) / denominator; //rounded division
       } while (absDiff(previousDepth, depth) > 1);
-
-      //TODO test to ensure that this can never happen, then remove
-      require(depth > 0);
     }
   }}
 

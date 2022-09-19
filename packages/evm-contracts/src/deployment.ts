@@ -11,7 +11,6 @@ import {
   SWIM_USD_DECIMALS,
   SWIM_USD_SOLANA_ADDRESS,
   WORMHOLE_SOLANA_CHAIN_ID,
-  isDeployedToken,
 } from "./config";
 import {
   deployLogic,
@@ -22,6 +21,7 @@ import {
   deployToken,
   getLogicAddress,
   getProxyAddress,
+  setupPropellerFees,
 } from "./deploy";
 
 async function checkConstant(constantName: string, value: string) {
@@ -95,19 +95,14 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
     logAddress("RoutingLogic", await deployLogic("Routing"));
     logAddress(
       "RoutingProxy",
-      await deployProxy("Routing", [
-        deployer.address,
-        wormholeTokenBridgeAddress,
-        routingConfig.serviceFee ?? DEFAULTS.serviceFee,
-        routingConfig.gasRemunerationMethod ?? DEFAULTS.gasRemunerationMethod,
-      ])
+      await deployProxy("Routing", [deployer.address, wormholeTokenBridgeAddress])
     );
   }
 
   for (const poolConfig of chainConfig.pools ?? []) {
     const poolTokens = await Promise.all(
       poolConfig.tokens.map(async (token) =>
-        isDeployedToken(token)
+        "address" in token
           ? token
           : {
               symbol: token.symbol,
@@ -126,5 +121,8 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
     );
     logAddress("Pool" + JSON.stringify(poolTokens.map((t) => t.symbol)), pool);
   }
+
+  if (routingConfig !== "MOCK") await setupPropellerFees(routingConfig);
+
   log("deployment complete");
 }

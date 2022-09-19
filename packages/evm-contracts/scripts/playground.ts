@@ -2,6 +2,7 @@ import { readFile, readdir } from "fs/promises";
 import { BigNumber, utils } from "ethers";
 import { ethers } from "hardhat";
 import { confirm, getProxy, getLogic, getSwimFactory } from "../src/deploy";
+import { decodeVaa } from "../src/payloads";
 import { CHAINS } from "../src/config";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
@@ -96,83 +97,18 @@ function decodePacked(args: readonly string[], encoded: string): any {
 }
 
 function printEncodedVM() {
-  const parseCoreBridge = (arr: Buffer) => {
-    const version = arr.readUInt8(0);
-    const guardianSetIndex = arr.readUInt32BE(1);
-    const sigCount = arr.readUInt8(5);
-    let signatures = [] as string[];
-    const signatureSize = 66;
-    let offset = 6;
-    for (let i = 0; i < sigCount; ++i) {
-      signatures.push(arr.slice(offset, offset + signatureSize).toString("hex"));
-      offset += signatureSize;
-    }
-    const timestamp = arr.readUInt32BE(offset);
-    const nonce = arr.readUInt32BE(offset + 4);
-    const emitterChain = arr.readUInt16BE(offset + 8);
-    const emitterAddress = arr.slice(offset + 10, offset + 42).toString("hex");
-    const sequence = arr.readBigUint64BE(offset + 42);
-    const consistencyLevel = arr.readUInt8(offset + 50);
-    const payload = arr.slice(offset + 51);
-
-    return {
-      version,
-      guardianSetIndex,
-      signatures,
-      timestamp,
-      nonce,
-      emitterChain,
-      emitterAddress,
-      sequence,
-      consistencyLevel,
-      payload,
-    };
-  };
-
-  const parseTokenBridge = (arr: Buffer) => ({
-    amount: BigNumber.from(arr.slice(1, 1 + 32)).toBigInt(),
-    // For whatever reason parseTransferWithPayload names these originAddress/Chain,
-    originAddress: arr.slice(33, 33 + 32).toString("hex"),
-    originChain: arr.readUInt16BE(65),
-    targetAddress: arr.slice(67, 67 + 32).toString("hex"),
-    targetChain: arr.readUInt16BE(99),
-    senderAddress: arr.slice(101, 101 + 32).toString("hex"),
-    extraPayload: arr.slice(133),
-  });
-
-  const parseSwimPayload = (arr: Buffer) => {
-    const version = arr.readUInt8(0);
-    const toOwner = arr.slice(1, 1 + 32).toString("hex");
-    if (arr.length == 33) return { version, toOwner };
-
-    const propellerEnabled = arr.readUInt8(33) == 1 ? true : false;
-    const gasKickstartEnabled = arr.readUInt8(34) == 1 ? true : false;
-    const tokenNumber = arr.readUInt16BE(35);
-    if (arr.length == 37)
-      return { version, toOwner, propellerEnabled, gasKickstartEnabled, tokenNumber };
-
-    const memo = arr.slice(37, 37 + 16).toString("hex");
-    return { version, toOwner, propellerEnabled, gasKickstartEnabled, tokenNumber, memo };
-  };
-
   const encodedVm =
-    // "01000000000100be0dcdfa049489c81b8fe3f4452335df013aa64ae7fb949c19" +
-    // "bc8d1262a013723235018850b15a33033a330fa96f441162c8a3383cec447b7e" +
-    // "7524eb68ca6f1900630e1d68000000120002000000000000000000000000f890" +
-    // "982f9310df57d00f659cf4fd87e65aded8d7000000000000070c0f0300000000" +
-    // "000000000000000000000000000000000000000000000000000a07f8296b21c9" +
-    // "a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe2671900010000" +
-    // "00000000000000000000a33e4d9624608c468fe5466dd6cc39ce1da4ff780004" +
-    // "000000000000000000000000a33e4d9624608c468fe5466dd6cc39ce1da4ff78" +
-    // "01000000000000000000000000b0a05611328d1068c91f58e2c83ab4048de8cd" +
-    // "7f";
-    "01000000000100865601321e185e0320b2d97d4ae2086b3bcb659171aa97028402bbb8cf32c18c72627186b5577507777a0b49bb95369a80c9ab7fa7b34000f82df0b28052be3a016312708c0000002e0002000000000000000000000000f890982f9310df57d00f659cf4fd87e65aded8d700000000000007330f030000000000000000000000000000000000000000000000000000000000000064296b21c9a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe267190001000000000000000000000000a33e4d9624608c468fe5466dd6cc39ce1da4ff780004000000000000000000000000a33e4d9624608c468fe5466dd6cc39ce1da4ff7801000000000000000000000000866450d3256310d51ff3aac388608e30d03d784101000003";
-
-  const core = parseCoreBridge(Buffer.from(encodedVm, "hex"));
-  console.log("core:", core);
-  const token = parseTokenBridge(core.payload);
-  console.log("token:", token);
-  console.log("swim:", parseSwimPayload(token.extraPayload));
+    "01000000000100be0dcdfa049489c81b8fe3f4452335df013aa64ae7fb949c19" +
+    "bc8d1262a013723235018850b15a33033a330fa96f441162c8a3383cec447b7e" +
+    "7524eb68ca6f1900630e1d68000000120002000000000000000000000000f890" +
+    "982f9310df57d00f659cf4fd87e65aded8d7000000000000070c0f0300000000" +
+    "000000000000000000000000000000000000000000000000000a07f8296b21c9" +
+    "a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe2671900010000" +
+    "00000000000000000000a33e4d9624608c468fe5466dd6cc39ce1da4ff780004" +
+    "000000000000000000000000a33e4d9624608c468fe5466dd6cc39ce1da4ff78" +
+    "01000000000000000000000000b0a05611328d1068c91f58e2c83ab4048de8cd" +
+    "7f";
+  console.log(decodeVaa(encodedVm));
 }
 
 async function manualTesting() {
@@ -251,14 +187,14 @@ const transferEth = (from: SignerWithAddress, to: string, etherAmount: string) =
 
 async function main() {
   //const [deployer, governance] = await ethers.getSigners();
-  // const walletSeed = "";
+  // const walletSeed = "fetch office dry buyer funny often cheese hurt buffalo carpet pole lady";
   // const wallet = ethers.Wallet.fromMnemonic(walletSeed).connect(ethers.provider!);
   //await printTokenBalances(deployer.address);
-  const pool = await getDefaultPool();
-  console.log(pool.address, await pool.getState());
+  // const pool = await getDefaultPool();
+  // console.log(pool.address, await pool.getState());
   // console.log((await pool.getMarginalPrices()).map((p: BigNumber) => p.toString()));
   //console.log(await pool.estimateGas["add(uint256[],uint256)"]([2000000000, 0, 0], 1146708034));
-  //printEncodedVM();
+  printEncodedVM();
   //await manualTesting();
   // console.log(await deployer.getBalance());
   //console.log(await tokenBridge.wrappedAsset(1, "0x296b21c9a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe26719"));

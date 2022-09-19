@@ -14,7 +14,6 @@ import { TOKEN_NUMBERS } from "./config";
 import { confirm, getProxy } from "./deploy";
 
 export type HasAddress = { readonly address: string };
-export const isHasAddress = (object: any): object is HasAddress => !!(object as HasAddress).address;
 
 const call = (contract: Contract, from: SignerWithAddress, method: string, args: readonly any[]) =>
   confirm(contract.connect(from)[method](...args));
@@ -41,6 +40,7 @@ export class TokenWrapper {
   balanceOf = (account: HasAddress) => this.contract.balanceOf(account.address);
 
   totalSupply = () => this.contract.totalSupply();
+
   approve = (from: SignerWithAddress, to: HasAddress, amount: BigNumberish) =>
     confirm(this.contract.connect(from).approve(to.address, amount));
 
@@ -74,6 +74,12 @@ export class PoolWrapper {
 
   toAtomicAmounts = (human: BigNumberish | readonly BigNumberish[]) =>
     this.tokens.map((t, i) => t.toAtomic(Array.isArray(human) ? human[i] : human));
+
+  async getMarginalPrices() {
+    return (await this.contract.getMarginalPrices()).map((decimalStruct) =>
+      ethers.utils.formatUnits(decimalStruct.value, decimalStruct.decimals)
+    );
+  }
 
   async add(
     from: SignerWithAddress,
@@ -281,6 +287,19 @@ export class RoutingWrapper {
     return confirm(this.contract.connect(from).propellerComplete(encodedVm));
   }
 
+  async propellerFeeConfig() {
+    return await this.contract.propellerFeeConfig();
+  }
+
+  async usePropellerFixedGasTokenPrice(
+    owner: SignerWithAddress,
+    fixedSwimUsdPerGasToken: BigNumberish
+  ) {
+    return confirm(
+      this.contract.connect(owner).usePropellerFixedGasTokenPrice(fixedSwimUsdPerGasToken)
+    );
+  }
+
   async usePropellerUniswapOracle(
     owner: SignerWithAddress,
     intermediateToken: TokenWrapper,
@@ -308,5 +327,7 @@ export class RoutingWrapper {
     );
 
   private readonly asBytes32 = (val: HasAddress | BytesLike) =>
-    isHasAddress(val) ? Buffer.from("00".repeat(12) + val.address.slice(2), "hex") : val;
+    typeof val === "object" && "address" in val
+      ? Buffer.from("00".repeat(12) + val.address.slice(2), "hex")
+      : val;
 }

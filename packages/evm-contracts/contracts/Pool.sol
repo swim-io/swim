@@ -191,8 +191,8 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     return state;
   }
 
-  //calculate marginal prices measured in LP-tokens
-  // so marginally, removing 1 LP-token will give you marginalPrice[i] i-tokens
+  //calculate marginal prices measured in LP-tokens / i-token
+  // i.e. marginally, adding or removing 1 i-token will net you marginalPrice[i] LP-tokens
   function getMarginalPrices() external view returns (Decimal[] memory marginalPrices) { unchecked {
     ( //we read fees from storage here which is unnecessary but oh well
       uint tokenCount,
@@ -214,7 +214,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     for (uint i = 0; i < tokenCount; ++i)
       marginalPrices[i] = Decimal(
         unadjustedMarginalPrices[i],
-        uint8(uint(int(MARGINAL_PRICE_DECIMALS) + lpEqualizer - poolTokenEqualizers[i])) //TODO CHECK
+        uint8(uint(int(MARGINAL_PRICE_DECIMALS) - lpEqualizer + poolTokenEqualizers[i]))
       );
   }}
 

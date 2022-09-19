@@ -16,8 +16,6 @@ export type DeployedToken = {
 };
 
 export type TokenConfig = TestToken | DeployedToken;
-export const isDeployedToken = (tokenConfig: TokenConfig): tokenConfig is DeployedToken =>
-  !!(tokenConfig as DeployedToken).address;
 
 export type PoolConfig = {
   readonly salt: string;
@@ -31,10 +29,8 @@ export type PoolConfig = {
   readonly tokens: readonly TokenConfig[];
 };
 
-export type RoutingFlatFee = {
-  readonly baseFee: number;
-  readonly gasKickstartFee: number;
-  readonly swapFee: number;
+export type RoutingFixedGasPrice = {
+  readonly fixedSwimUsdPerGasToken: number;
 };
 
 export type RoutingUniswapOracle = {
@@ -45,7 +41,7 @@ export type RoutingUniswapOracle = {
 export type RoutingConfig = {
   readonly wormholeTokenBridge: string | "MOCK";
   readonly serviceFee?: number;
-  readonly gasRemunerationMethod?: RoutingFlatFee | RoutingUniswapOracle;
+  readonly gasPriceMethod?: RoutingFixedGasPrice | RoutingUniswapOracle;
 };
 
 export type ChainConfig = {
@@ -72,7 +68,7 @@ export const TOKEN_NUMBERS: Record<TokenSymbol, number> = {
 
 export const DEFAULTS = {
   salt: "0x" + "00".repeat(32),
-  lpDecimals: 6,
+  lpDecimals: SWIM_USD_DECIMALS,
   amp: 1_000, //3 decimals
   lpFee: 300, //fee as 100th of a bip (6 decimals, 1000000 = 100 % fee)
   governanceFee: 100,
@@ -81,11 +77,11 @@ export const DEFAULTS = {
     name: "SwimUSD",
     decimals: SWIM_USD_DECIMALS,
   },
-  serviceFee: 1 * 10 ** (SWIM_USD_DECIMALS - 2),
-  gasRemunerationMethod: {
-    baseFee: 2 * 10 ** (SWIM_USD_DECIMALS - 2),
-    gasKickstartFee: 5 * 10 ** (SWIM_USD_DECIMALS - 2),
-    swapFee: 2 * 10 ** (SWIM_USD_DECIMALS - 2),
+  serviceFee: 10 ** (SWIM_USD_DECIMALS - 2),
+  gasPriceMethod: {
+    //set price of 1 human gas token (18 decimals) = of 1 human swimUSD (6 decimals)
+    //so if 10^18 wei = 10^6 swimUSD and we specify price with 18 decimals the 10^18 cancel out:
+    fixedSwimUsdPerGasToken: 10 ** SWIM_USD_DECIMALS,
   },
 };
 

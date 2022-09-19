@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 
-import { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber, parseFixed } from "@ethersproject/bignumber";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { BN } from "bn.js";
 import { expect, use } from "chai";
@@ -15,7 +15,7 @@ import {
 import { getRegular, getRoutingProxy, getToken } from "../src/deploy";
 import { deployment } from "../src/deployment";
 import { CoreBridgeMessage, SwimPayload, TokenBridgePayload } from "../src/payloads";
-import { PoolWrapper, RoutingWrapper, TokenWrapper, isHasAddress } from "../src/testUtils";
+import { PoolWrapper, RoutingWrapper, TokenWrapper } from "../src/testUtils";
 import type { HasAddress } from "../src/testUtils";
 import type { IWormhole } from "../typechain-types/contracts/interfaces/IWormhole";
 
@@ -41,13 +41,37 @@ const asEvmAddress = (buf: Buffer) => {
   return ethers.utils.getAddress("0x" + hexEnc.slice(-40));
 };
 
+const asBigNumber = (fixedValue: string, decimals: number) => {
+  const index = fixedValue.indexOf(".");
+  const truncated = index === -1 ? fixedValue : fixedValue.slice(0, index + decimals + 1);
+  return parseFixed(truncated, decimals);
+};
+
+const tenToThe = (exp: number) => BigNumber.from(10).pow(exp);
+
 const toSwimPayload = (toOwner: HasAddress, ...args: readonly any[]) =>
   new SwimPayload(1, asBytes(toOwner.address, 32), ...args);
 
 describe("Routing CrossChain and Propeller Defi Operations", function () {
   const liquidityProviderFunds = BigNumber.from(1e5);
   const baseAmount = BigNumber.from("10");
-  const tolerance = 2;
+  const tolerance = (token: TokenWrapper) => token.toAtomic("0.000001");
+
+  const asAtomic = (token: TokenWrapper, val: string | BigNumber | number) =>
+    typeof val === "string" ? token.toAtomic(val) : val;
+
+  function expectCloseTo(
+    token: TokenWrapper,
+    actual: string | BigNumber | number,
+    expected: string | BigNumber | number,
+    toleranceMultiplier = 1
+  ) {
+    expect(asAtomic(token, actual)).to.be.closeTo(
+      asAtomic(token, expected),
+      tolerance(token).mul(toleranceMultiplier)
+    );
+  }
+
   const memo = Buffer.from("00".repeat(15) + "01", "hex");
   const evmChainId = 37; //some random number that's not 1 (== WORMHOLE_SOLANA_CHAIN_ID)
 
@@ -127,7 +151,7 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
       const tokenBridgePayload = TokenBridgePayload.decode(
         Buffer.from(wormholeEvents[0].args[3].slice(2), "hex")
       );
-      expect(tokenBridgePayload.amount).to.be.closeTo(expectedAmount, tolerance);
+      expect(tokenBridgePayload.amount).to.be.closeTo(expectedAmount, 2);
       expect(asHex(tokenBridgePayload.originAddress)).to.equal(SWIM_USD_SOLANA_ADDRESS);
       expect(tokenBridgePayload.originChain).to.equal(WORMHOLE_SOLANA_CHAIN_ID);
       if (targetChain !== WORMHOLE_SOLANA_CHAIN_ID)
@@ -141,7 +165,7 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
       const swimPayload = SwimPayload.decode(tokenBridgePayload.extraPayload);
       expect(swimPayload.version).to.equal(1);
 
-      if (isHasAddress(recipient))
+      if ("address" in recipient)
         expect(asEvmAddress(swimPayload.toOwner)).to.equal(recipient.address);
       else expect(asHex(swimPayload.toOwner)).to.equal(asHex(recipient));
       if (propellerParams) {
@@ -179,11 +203,8 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
 
     await routingProxy.onChainSwap(user, usdc, usdc.toAtomic(1), user, usdt, 0);
 
-    const remainingUsdc = await usdc.balanceOf(user);
-    const actualUsdt = await usdt.balanceOf(user);
-
-    expect(remainingUsdc).to.equal(0);
-    expect(actualUsdt).to.be.closeTo(expectedAmount, tolerance);
+    expect(await usdc.balanceOf(user)).to.equal(0);
+    expectCloseTo(usdt, await usdt.balanceOf(user), expectedAmount);
   });
 
   it("crossChainInitiate - correct defi outputs", async function () {
@@ -233,7 +254,7 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
 
     await routingProxy.crossChainComplete(user, fakeVaa, usdt, 0, memo);
 
-    expect(await usdt.balanceOf(user)).to.be.closeTo(expectedAmount, tolerance);
+    expectCloseTo(usdt, await usdt.balanceOf(user), expectedAmount);
   });
 
   it("propellerInitiate", async function () {
@@ -268,13 +289,15 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
     await checkEmittedPayload(expectedAmount, evmChainId, recipient, propellerParams);
   });
 
-  it("propellerComplete - flatFee", async function () {
+  it("propellerComplete - fixedGasPrice", async function () {
     const { routingProxy, createFakeVaa, liquidityProvider, user, swimUsd } = await loadFixture(
       testFixture
     );
 
+    const feeConfig = await routingProxy.propellerFeeConfig();
+    expect(feeConfig.method).to.equal(0);
+
     const bridgedSwimUsd = swimUsd.toAtomic(1);
-    const expectedAmount = swimUsd.toAtomic("0.97");
     const maxPropellerFee = swimUsd.toAtomic("0.2");
     const fakeVaa = createFakeVaa(
       bridgedSwimUsd,
@@ -284,40 +307,85 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
 
     expect(await swimUsd.balanceOf(user)).to.equal(0);
 
-    await routingProxy.propellerComplete(liquidityProvider, fakeVaa);
+    const { gasUsed, effectiveGasPrice } = await routingProxy.propellerComplete(
+      liquidityProvider,
+      fakeVaa
+    );
 
-    expect(await swimUsd.balanceOf(user)).to.equal(expectedAmount);
+    const expectedAmount = bridgedSwimUsd.sub(feeConfig.serviceFee).sub(
+      gasUsed
+        .mul(effectiveGasPrice.add(10 ** 9))
+        .mul(feeConfig.fixedSwimUsdPerGasToken)
+        .div(BigNumber.from(10).pow(18))
+    );
+
+    expectCloseTo(swimUsd, await swimUsd.balanceOf(user), expectedAmount, 10 ** 4);
   });
+
+  //A word on uniswap sqrt prices - we can get a realistic price from:
+  //  https://etherscan.io/address/0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8#readContract
+  // taken from there, we get a sqrtPriceX96 of "2099927254595430908151663701042111" which
+  // corresponds to a Uniswap tick of 203711 and should be about ~1425 USDC/ETH (with token0 = usdc,
+  // token1 = WETH)
+  //We can verify this:
+  // usdc has 6 decimals, WETH has 18 so:
+  // sqrtPrice is token1 priced in token0 - so in our case the unintuitive ratio of WETH/USDC
+  // sqrtPrice is also priced in atomic units and specified in a 64.96 bits format (i.e. 96 bits
+  //  for the fractional part, 64 for the integer part)
+  //So to get to the actual USDC/WETH price (in human units) we calculate:
+  // decimalDifference = 18 - 6 = 12 and thus
+  // BigNumber.from(10).pow(12).div(sqrtPrice.pow(2).div(BigNumber.from(2).pow(2 * 96))
 
   it("propellerComplete - uniswapOracle", async function () {
     const { pool, routingProxy, createFakeVaa, deployer, liquidityProvider, user, swimUsd, usdc } =
       await loadFixture(testFixture);
 
-    //from https://etherscan.io/address/0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8#readContract
-    // corresponds to a tick of 203711 or ~1423 USDC/ETH (where token0 = usdc, token1 = WETH)
-    //we can verify this:
-    // usdc has 6 decimals, WETH has 18 so:
-    // sqrtPrice is token1 priced in token0 - so in our case the unintuitive ratio of WETH/USDC
-    // sqrtPrice is also priced in atomic units and specified in a 64.96 bits format (i.e. 96 bits
-    //  for the fractional part, 64 for the integer part)
-    // so to get to the actual USDC/WETH price (in human units) we calculate:
-    // decimalDifference = 18 - 6 = 12 and so
-    // BigNumber.from(10).pow(12).div(sqrtPrice.pow(2).div(BigNumber.from(2).pow(2 * 96))
-    const sqrtPrice = BigNumber.from("2099927254595430908151663701042111");
-
-    const mockUniswap = await (
-      await ethers.getContractFactory("MockUniswapV3Pool")
-    ).deploy(
-      usdc.address,
-      "0x" + "00".repeat(20), //realistically this would be WETH but for testing we don't care
-      sqrtPrice
+    //cheapen swimUSD as compared to the other tokens
+    await pool.removeExactOutput(
+      liquidityProvider,
+      pool.toAtomicAmounts([0, 9, 9]),
+      pool.lpToken.toAtomic(baseAmount).mul(3)
     );
-    await mockUniswap.deployed();
+
+    const ethDecimals = 18;
+
+    const deployMockUniswap = async (intuitiveUsdcPerEth: number, usdcIsFirst: boolean) => {
+      //usdcIsFirst -> WETH/USDC (unintuitive) rather than USDC/WETH (intuitive)
+      //realistically this would be WETH but for testing we don't care
+      const wethAddr = "0x" + "00".repeat(20);
+      const addrs = usdcIsFirst
+        ? ([usdc.address, wethAddr] as const)
+        : ([wethAddr, usdc.address] as const);
+
+      const sqrtPrice = Math.pow(intuitiveUsdcPerEth, 0.5 - (usdcIsFirst ? 1 : 0));
+      const sqrtPriceBN = asBigNumber(sqrtPrice.toString(), 18)
+        .mul(BigNumber.from(2).pow(96))
+        .div(tenToThe(18));
+      const factor = tenToThe(ethDecimals / 2 - Math.floor(usdc.decimals / 2)).mul(
+        usdc.decimals % 2 == 1 ? asBigNumber(Math.sqrt(10).toString(), 18) : tenToThe(18)
+      );
+
+      const uniswapPrice = usdcIsFirst
+        ? sqrtPriceBN.mul(factor).div(tenToThe(18))
+        : sqrtPriceBN.mul(tenToThe(18)).div(factor);
+
+      const mockUniswap = await (
+        await ethers.getContractFactory("MockUniswapV3Pool")
+      ).deploy(...addrs, uniswapPrice);
+      await mockUniswap.deployed();
+      return mockUniswap;
+    };
+
+    const intuitiveUsdcPerEth = 100;
+    const mockUniswap = await deployMockUniswap(intuitiveUsdcPerEth, false);
+    const usdcPerEth = ethers.utils.formatUnits(intuitiveUsdcPerEth, ethDecimals - usdc.decimals);
 
     await routingProxy.usePropellerUniswapOracle(deployer, usdc, mockUniswap);
 
+    const feeConfig = await routingProxy.propellerFeeConfig();
+    expect(feeConfig.method).to.equal(1);
+
     const bridgedSwimUsd = swimUsd.toAtomic(1);
-    const expectedAmount = swimUsd.toAtomic("0.97");
     const maxPropellerFee = swimUsd.toAtomic("0.2");
     const fakeVaa = createFakeVaa(
       bridgedSwimUsd,
@@ -327,16 +395,45 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
 
     expect(await swimUsd.balanceOf(user)).to.equal(0);
 
-    const receipt = await routingProxy.propellerComplete(liquidityProvider, fakeVaa);
-    console.log("actual gas used:", receipt.gasUsed);
-    console.log(
-      "actual gas cost:",
-      ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice))
+    const poolMarginalPrices = await pool.getMarginalPrices();
+
+    const { gasUsed, effectiveGasPrice } = await routingProxy.propellerComplete(
+      liquidityProvider,
+      fakeVaa
     );
 
-    //console.log(await pool.contract.getMarginalPrices());
-    //console.log(await swimUsd.balanceOf(user));
+    const swimUsdPerUsdc = ethers.utils.formatUnits(
+      asBigNumber(poolMarginalPrices[1], 36).div(asBigNumber(poolMarginalPrices[0], 18)),
+      18
+    );
+    const swimUsdPerGasToken = ethers.utils.formatUnits(
+      asBigNumber(swimUsdPerUsdc, 18).mul(asBigNumber(usdcPerEth, 18)),
+      36
+    );
+    const remuneratedGasPrice = effectiveGasPrice; //already contains ~1 gwei tip apparently
+    const gasTokenCost = gasUsed.mul(remuneratedGasPrice);
+    const expectedSwimUsdGasFee = gasTokenCost
+      .mul(asBigNumber(swimUsdPerGasToken, 18))
+      .div(tenToThe(18));
 
-    //expect(await swimUsd.balanceOf(user)).to.equal(expectedAmount);
+    const expectedBalance = bridgedSwimUsd.sub(feeConfig.serviceFee).sub(expectedSwimUsdGasFee);
+    // console.log("------------------------------------");
+    // console.log("  actual gas used:", gasUsed);
+    // console.log("effectiveGasPrice:", effectiveGasPrice);
+    // console.log("  actual gas cost:", ethers.utils.formatEther(gasUsed.mul(effectiveGasPrice)));
+    // console.log("------------------------------------");
+    // console.log("remuneratedGasP:", remuneratedGasPrice);
+    // console.log("   gasTokenCost:", gasTokenCost);
+    // console.log("marginal Prices:", poolMarginalPrices);
+    // console.log("   swimUSD/USDC:", swimUsdPerUsdc);
+    // console.log("       USDC/ETH:", usdcPerEth);
+    // console.log("    SwimUSD/ETH:", swimUsdPerGasToken);
+    // console.log("swimUSD gas fee:", expectedSwimUsdGasFee);
+    // console.log("------------------------------------");
+    // console.log("balance SwimUSD:", await swimUsd.balanceOf(user));
+    // console.log("balance    usdc:", await usdc.balanceOf(user));
+    // console.log("expected:", expectedBalance);
+
+    expectCloseTo(swimUsd, await swimUsd.balanceOf(user), expectedBalance, 10 ** 4);
   });
 });

@@ -16,8 +16,6 @@ import "./interfaces/IUniswapV3Pool.sol";
 import "./SwimPayload.sol";
 import "./Constants.sol";
 
-import "hardhat/console.sol"; //TODO
-
 contract Routing is
   IRouting,
   Initializable,
@@ -32,16 +30,9 @@ contract Routing is
     uint8   tokenIndexInPool;
   }
 
-  enum GasRemunerationMethod {
-    FlatFee,
+  enum GasTokenPriceMethod {
+    FixedPrice,
     UniswapOracle
-  }
-
-  //uses one slot
-  struct FlatFeeParams { //all specified in swimUSD
-    uint64 baseFee;
-    uint64 gasKickstartFee;
-    uint64 swapFee;
   }
 
   //uses two slots
@@ -54,17 +45,17 @@ contract Routing is
   }
 
   struct PropellerFeeConfig {
+    GasTokenPriceMethod   method;
     uint64                serviceFee; //specified in swimUSD
-    GasRemunerationMethod method;
-    FlatFeeParams         flat;
+    uint                  fixedSwimUsdPerGasToken;
     UniswapOracleParams   uniswap;
   }
 
   using SafeERC20 for IERC20;
 
   uint private constant PRECISION = 18;
-  uint private constant GAS_COST_BASE = 100000; //TODO determine decent estimate
-  uint private constant GAS_COST_POOL_SWAP = 125000; //defensive but realistic estimate
+  uint private constant GAS_COST_BASE = 85000;
+  uint private constant GAS_COST_POOL_SWAP = 125000;
   uint private constant GAS_KICKSTART_AMOUNT = 0.05 ether;
   uint private constant PROPELLER_GAS_TIP = 1 gwei;
 
@@ -76,10 +67,10 @@ contract Routing is
   address public /*immutable*/ swimUsdAddress;
   //slot1
   ITokenBridge public /*immutable*/ tokenBridge;
-  uint32       private _wormholeNonce;
+  uint32       public wormholeNonce;
   //remaining slots
-  PropellerFeeConfig private _propellerFeeConfig;
-  uint256[50]        private _reservedSlotsForAdditionalPropellerFeeRemunerationMethodConfigs;
+  PropellerFeeConfig public propellerFeeConfig;
+  uint256[20]        private reservedSlotsForAdditionalPropellerFeeRemunerationMethodConfigs;
 
   mapping(uint16  => TokenInfo) public tokenNumberMapping;
   mapping(address => TokenInfo) public tokenAddressMapping;
@@ -87,21 +78,17 @@ contract Routing is
 
   function initialize(
     address owner,
-    address tokenBridgeAddress,
-    uint64 propellerServiceFee,
-    FlatFeeParams memory flatFeeParams
+    address tokenBridgeAddress
   ) public initializer {
     __Pausable_init();
     __Ownable_init();
     _transferOwnership(owner);
-    _wormholeNonce = 0;
+    wormholeNonce = 0;
     tokenBridge = ITokenBridge(tokenBridgeAddress);
     swimUsdAddress = tokenBridge.wrappedAsset(WORMHOLE_SOLANA_CHAIN_ID, SWIM_USD_SOLANA_ADDRESS);
     if (swimUsdAddress == address(0))
       revert SwimUsdNotAttested();
-    _propellerFeeConfig.serviceFee = propellerServiceFee;
-    _propellerFeeConfig.method = GasRemunerationMethod.FlatFee;
-    _propellerFeeConfig.flat = flatFeeParams;
+    propellerFeeConfig.method = GasTokenPriceMethod.FixedPrice;
   }
 
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
@@ -241,14 +228,14 @@ contract Routing is
           WORMHOLE_SOLANA_CHAIN_ID,
           toOwner,
           0, //arbiterFee
-          _wormholeNonce
+          wormholeNonce
         )
       returns (uint64 _wormholeSequence) {
         wormholeSequence = _wormholeSequence;
       } catch (bytes memory lowLevelData) {
         revert WormholeInteractionFailed(lowLevelData);
       }
-      ++_wormholeNonce;
+      ++wormholeNonce;
     } else {
       wormholeSequence = wormholeTransferWithPayload(
         swimUsdAmount,
@@ -410,31 +397,20 @@ contract Routing is
       }
     }
 
-    uint feeAmount = _propellerFeeConfig.serviceFee;
-    if (_propellerFeeConfig.method == GasRemunerationMethod.UniswapOracle)
-      feeAmount += calcSwimUsdGasFee(startGas, swimUsdPerGasTokenUniswap(), swimPayload);
-    else {
-      feeAmount += uint(_propellerFeeConfig.flat.baseFee);
-      if (swimPayload.gasKickstart)
-        feeAmount += uint(_propellerFeeConfig.flat.gasKickstartFee);
-      if (swimPayload.toTokenNumber != SWIM_USD_TOKEN_NUMBER)
-        feeAmount += uint(_propellerFeeConfig.flat.swapFee);
-    }
-
-    console.log("feeAmount1", feeAmount);
+    uint swimUsdPerGasToken = propellerFeeConfig.method == GasTokenPriceMethod.UniswapOracle
+      ? swimUsdPerGasTokenUniswap()
+      : propellerFeeConfig.fixedSwimUsdPerGasToken;
+    uint feeAmount =
+      propellerFeeConfig.serviceFee + calcSwimUsdGasFee(startGas, swimUsdPerGasToken, swimPayload);
 
     if (feeAmount > swimPayload.maxPropellerFee)
       feeAmount = swimPayload.maxPropellerFee;
-
-    console.log("feeAmount2", feeAmount);
 
     if (feeAmount > swimUsdAmount)
       //we don't rely on SwimPayload to be composed sensibly (i.e. maxPropellerFee should be less
       // than or equal the bridged SwimUSD amount if the SwimPayload was composed sensibly, but we
       // don't actually (have to) enforce it)
       feeAmount = swimUsdAmount;
-
-    console.log("feeAmount3", feeAmount);
 
     engineFees[msg.sender] += feeAmount;
 
@@ -505,19 +481,14 @@ contract Routing is
   }
 
   function adjustPropellerServiceFee(uint64 serviceFee) external onlyOwner {
-    _propellerFeeConfig.serviceFee = serviceFee;
+    propellerFeeConfig.serviceFee = serviceFee;
   }
 
-  function usePropellerFlatFee(
-    uint64 baseFee,
-    uint64 gasKickstartFee,
-    uint64 swapFee
+  function usePropellerFixedGasTokenPrice(
+    uint fixedSwimUsdPerGasToken
   ) external onlyOwner {
-    //TODO checks?
-    _propellerFeeConfig.method = GasRemunerationMethod.FlatFee;
-    _propellerFeeConfig.flat.baseFee = baseFee;
-    _propellerFeeConfig.flat.gasKickstartFee = gasKickstartFee;
-    _propellerFeeConfig.flat.swapFee = swapFee;
+    propellerFeeConfig.method = GasTokenPriceMethod.FixedPrice;
+    propellerFeeConfig.fixedSwimUsdPerGasToken = fixedSwimUsdPerGasToken;
   }
 
   function usePropellerUniswapOracle(
@@ -536,11 +507,11 @@ contract Routing is
     else
       revert TokenNotInPool(intermediateToken, uniswapPoolAddress);
 
-    _propellerFeeConfig.method = GasRemunerationMethod.UniswapOracle;
-    _propellerFeeConfig.uniswap.swimPool = swimPool;
-    _propellerFeeConfig.uniswap.swimIntermediateIndex = swimIntermediateIndex;
-    _propellerFeeConfig.uniswap.uniswapPool = uniswapPool;
-    _propellerFeeConfig.uniswap.uniswapIntermediateIsFirst = uniswapIntermediateIsFirst;
+    propellerFeeConfig.method = GasTokenPriceMethod.UniswapOracle;
+    propellerFeeConfig.uniswap.swimPool = swimPool;
+    propellerFeeConfig.uniswap.swimIntermediateIndex = swimIntermediateIndex;
+    propellerFeeConfig.uniswap.uniswapPool = uniswapPool;
+    propellerFeeConfig.uniswap.uniswapIntermediateIsFirst = uniswapIntermediateIsFirst;
   }
 
   function pause() public onlyOwner {
@@ -606,7 +577,7 @@ contract Routing is
         swimUsdAmount,
         wormholeRecipientChain,
         routingContract,
-        _wormholeNonce,
+        wormholeNonce,
         swimPayload
       )
     returns (uint64 wormholeSequence_) {
@@ -615,7 +586,7 @@ contract Routing is
     catch (bytes memory lowLevelData) {
       revert WormholeInteractionFailed(lowLevelData);
     }
-    ++_wormholeNonce;
+    ++wormholeNonce;
   }
 
   function wormholeCompleteTransfer(
@@ -652,15 +623,16 @@ contract Routing is
     // _theoretically_ be returned by our oracles (swimPool and Uniswap) and because uniswap pools
     // use binary fixed point (64.96 bits) while swim pools use decimal values (dynamic)
 
-    UniswapOracleParams memory uniswap = _propellerFeeConfig.uniswap;
+    UniswapOracleParams memory uniswap = propellerFeeConfig.uniswap;
 
+    //price are given in LP/i-token
     Decimal[] memory marginalPrices = uniswap.swimPool.getMarginalPrices();
     Decimal memory swimUsdPrice = marginalPrices[SWIM_USD_TOKEN_INDEX];
     Decimal memory intermediatePrice = marginalPrices[uniswap.swimIntermediateIndex];
     //marginalPrice[SWIM_USD_TOKEN_INDEX] is guaranteed to use at most 176 bits
     uint swimUsdPerIntermediate = (
-        swimUsdPrice.value * 10 ** (PRECISION - swimUsdPrice.decimals + intermediatePrice.decimals)
-      ) / intermediatePrice.value;
+      intermediatePrice.value * 10**(PRECISION - intermediatePrice.decimals + swimUsdPrice.decimals)
+    ) / swimUsdPrice.value;
     if (swimUsdPerIntermediate >= BIT128)
       //This is strictly speaking not necessarily an error, however if the values are so incredibly
       // lopsided then something is definitely amiss and so we might as well bail.
@@ -731,16 +703,10 @@ contract Routing is
       if (swimPayload.gasKickstart)
         gasTokenCost += GAS_KICKSTART_AMOUNT;
       consumedGas -= gasleft();
-      console.log("block.basefee     ", block.basefee);
-      console.log("PROPELLER_GAS_TIP ", PROPELLER_GAS_TIP);
-      console.log("consumedGas       ", consumedGas);
       gasTokenCost += remuneratedGasPrice * consumedGas;
-      console.log("gasTokenCost      ", gasTokenCost);
-      console.log("swimUsdPerGasToken", swimUsdPerGasToken);
     }
 
     swimUsdGasFee = (gasTokenCost * swimUsdPerGasToken) / MARGINAL_PRICE_MULTIPLIER; //SafeMath!
-    console.log("swimUsdGasFee     ", swimUsdGasFee);
   }
 
   function getPoolAndIndex(address token) internal view returns (IPool, uint8) {

@@ -46,7 +46,7 @@ export class SolanaWeb3WalletAdapter<
   private readonly getService: () => S | null;
   private readonly serviceUrl: string;
 
-  constructor(
+  public constructor(
     serviceName: string,
     serviceUrl: string,
     getService: () => S | null,
@@ -135,7 +135,7 @@ export class SolanaWeb3WalletAdapter<
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
-  async disconnect(): Promise<void> {
+  public async disconnect(): Promise<void> {
     if (this.publicKey) {
       this.publicKey = null;
       this.emit("disconnect");

@@ -53,7 +53,7 @@ export class EvmWeb3WalletAdapter
   public address: string | null;
   private connecting: boolean;
 
-  constructor(
+  public constructor(
     serviceName: string,
     serviceUrl: string,
     getWalletProvider: () => Web3Provider | null,

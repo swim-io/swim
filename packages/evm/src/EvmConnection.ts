@@ -36,7 +36,10 @@ export class EvmConnection {
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly txReceiptCache: Map<string, TransactionReceipt>;
 
-  constructor(provider: GetHistoryProvider, chainConfig: MinimalChainConfig) {
+  public constructor(
+    provider: GetHistoryProvider,
+    chainConfig: MinimalChainConfig,
+  ) {
     this.provider = provider;
     this.chainConfig = chainConfig;
     this.txReceiptCache = new Map();

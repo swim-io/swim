@@ -20,7 +20,7 @@ export class LedgerWalletAdapter
   private _publicKey: PublicKey | null;
   private _transport: Transport | null;
 
-  constructor() {
+  public constructor() {
     super();
     this._connecting = false;
     this._publicKey = null;
@@ -28,7 +28,7 @@ export class LedgerWalletAdapter
     this.protocol = SOLANA_PROTOCOL;
   }
 
-  get publicKey(): PublicKey | null {
+  public get publicKey(): PublicKey | null {
     return this._publicKey;
   }
 
@@ -40,7 +40,7 @@ export class LedgerWalletAdapter
     return !!this.address;
   }
 
-  async signTransaction(transaction: Transaction): Promise<Transaction> {
+  public async signTransaction(transaction: Transaction): Promise<Transaction> {
     if (!this._transport || !this._publicKey) {
       throw new Error("Not connected to Ledger");
     }
@@ -53,7 +53,7 @@ export class LedgerWalletAdapter
     return transaction;
   }
 
-  async signAllTransactions(
+  public async signAllTransactions(
     // eslint-disable-next-line functional/prefer-readonly-type
     transactions: Transaction[],
     // eslint-disable-next-line functional/prefer-readonly-type
@@ -63,7 +63,7 @@ export class LedgerWalletAdapter
     );
   }
 
-  async connect(): Promise<void> {
+  public async connect(): Promise<void> {
     if (this._connecting) {
       return;
     }
@@ -85,7 +85,7 @@ export class LedgerWalletAdapter
     }
   }
 
-  async disconnect(): Promise<void> {
+  public async disconnect(): Promise<void> {
     let emit = false;
     if (this._transport) {
       await this._transport.close();

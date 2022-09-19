@@ -26,19 +26,19 @@ import { chunks } from "@swim-io/utils";
 import { SwimInstruction, initInstruction } from "./instructions";
 
 export class SwimInitializer {
-  solanaConnection: SolanaConnection;
-  signer: SolanaWalletAdapter;
-  programId: PublicKey;
-  tokenMints: readonly PublicKey[];
-  governanceAccount: PublicKey;
-  governanceFeeAccount: PublicKey | null;
-  stateAccount: PublicKey | null;
-  poolAuthority: PublicKey | null;
-  nonce: number | null;
-  lpMint: PublicKey | null;
-  tokenAccounts: readonly PublicKey[] | null;
+  public lpMint: PublicKey | null;
+  public nonce: number | null;
+  public poolAuthority: PublicKey | null;
+  public readonly programId: PublicKey;
+  public stateAccount: PublicKey | null;
+  private governanceFeeAccount: PublicKey | null;
+  private readonly governanceAccount: PublicKey;
+  private readonly signer: SolanaWalletAdapter;
+  private readonly solanaConnection: SolanaConnection;
+  private tokenAccounts: readonly PublicKey[] | null;
+  private readonly tokenMints: readonly PublicKey[];
 
-  constructor(
+  public constructor(
     solanaConnection: SolanaConnection,
     signer: SolanaWalletAdapter,
     swimProgramAddress: string,
@@ -58,11 +58,11 @@ export class SwimInitializer {
     this.tokenAccounts = null;
   }
 
-  get numberOfTokens(): number {
+  private get numberOfTokens(): number {
     return this.tokenMints.length;
   }
 
-  async initialize(
+  public async initialize(
     lpTokenDecimals: number,
     ampFactor: DecimalBN,
     lpFee: DecimalBN,

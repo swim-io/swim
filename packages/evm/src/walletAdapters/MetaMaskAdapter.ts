@@ -19,7 +19,7 @@ const isUnlocked = async (): Promise<boolean> => {
 };
 
 export class MetaMaskAdapter extends EvmWeb3WalletAdapter {
-  constructor() {
+  public constructor() {
     super("MetaMask", "https://metamask.io", getMetaMaskService, isUnlocked);
   }
 

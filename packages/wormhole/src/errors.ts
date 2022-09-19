@@ -18,7 +18,7 @@ export class WormholeError extends Error {
   public readonly code: WormholeErrorCode;
   public readonly originalError?: unknown;
 
-  constructor(code: WormholeErrorCode, originalError?: unknown) {
+  public constructor(code: WormholeErrorCode, originalError?: unknown) {
     super(wormholeErrorMessageMapping[code]);
     this.code = code;
     this.originalError = originalError;

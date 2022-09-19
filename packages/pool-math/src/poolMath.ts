@@ -93,7 +93,7 @@ export class PoolMath {
   private readonly maxIterations!: number;
   private readonly _depth: Decimal;
 
-  constructor(
+  public constructor(
     /** Balances can have arbitrary units (though atomic units should most likely go with a
      * tolerance of 1 while human units should probably use the maximum decimals of all involved
      * tokens)
@@ -220,7 +220,7 @@ export class PoolMath {
 
   // DEFI INSTRUCTIONS -------------------------------------------
 
-  swapExactInput(
+  public swapExactInput(
     inputAmounts: readonly Decimal[],
     outputIndex: number,
   ): {
@@ -235,7 +235,7 @@ export class PoolMath {
     return { stableOutputAmount, governanceMintAmount };
   }
 
-  swapExactOutput(
+  public swapExactOutput(
     inputIndex: number,
     outputAmounts: readonly Decimal[],
   ): {
@@ -250,7 +250,7 @@ export class PoolMath {
     return { stableInputAmount, governanceMintAmount };
   }
 
-  add(inputAmounts: readonly Decimal[]): {
+  public add(inputAmounts: readonly Decimal[]): {
     readonly lpOutputAmount: Decimal;
     readonly governanceMintAmount: Decimal;
   } {
@@ -274,7 +274,7 @@ export class PoolMath {
     }
   }
 
-  removeExactOutput(outputAmounts: readonly Decimal[]): {
+  public removeExactOutput(outputAmounts: readonly Decimal[]): {
     readonly lpInputAmount: Decimal;
     readonly governanceMintAmount: Decimal;
   } {
@@ -285,7 +285,7 @@ export class PoolMath {
     return { lpInputAmount, governanceMintAmount };
   }
 
-  removeExactBurn(
+  public removeExactBurn(
     burnAmount: Decimal,
     outputIndex: number,
   ): {
@@ -342,7 +342,7 @@ export class PoolMath {
     return { stableOutputAmount, governanceMintAmount };
   }
 
-  removeUniform(burnAmount: Decimal): readonly Decimal[] {
+  public removeUniform(burnAmount: Decimal): readonly Decimal[] {
     this.isValidBurnAmountOrThrow(burnAmount);
     return arrayScale(
       sanitizeSign(burnAmount).div(this.lpSupply),
@@ -352,11 +352,11 @@ export class PoolMath {
 
   // OTHER INFO -------------------------------------------
 
-  depth(): Decimal {
+  public depth(): Decimal {
     return this._depth;
   }
 
-  marginalPrices(): readonly Decimal[] {
+  public marginalPrices(): readonly Decimal[] {
     if (this.ampFactor.isZero()) {
       //constant product invariant: \prod balances[i] = (depth/tokenCount)^tokenCount
       //  hence: depth = tokenCount * (\prod balances[i])^(1/tokenCount)
@@ -388,7 +388,7 @@ export class PoolMath {
     );
   }
 
-  priceImpact(
+  public priceImpact(
     inputAmount: Decimal,
     inputIndex: number,
     outputIndex: number,

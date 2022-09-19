@@ -38,9 +38,9 @@ type IDBState = {
 } & (PersistedInteractionState | PersistedInteractionStateV2);
 
 class SwimIDB extends Dexie {
-  interactionStates!: Table<IDBState, string>;
+  public readonly interactionStates!: Table<IDBState, string>;
 
-  constructor() {
+  public constructor() {
     super("SwimIDB");
     this.version(1).stores({ interactionStates: "&id" });
   }

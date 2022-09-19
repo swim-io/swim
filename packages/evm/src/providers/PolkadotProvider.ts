@@ -50,12 +50,12 @@ const createQuery = (
 export class PolkadotProvider extends JsonRpcProvider {
   private readonly subqueryUrl: string;
 
-  constructor(ethRpcUrl: string, subqueryUrl: string) {
+  public constructor(ethRpcUrl: string, subqueryUrl: string) {
     super(ethRpcUrl);
     this.subqueryUrl = subqueryUrl;
   }
 
-  async getHistory(
+  public async getHistory(
     addressOrName: string,
     startBlock?: number,
     endBlock?: number,

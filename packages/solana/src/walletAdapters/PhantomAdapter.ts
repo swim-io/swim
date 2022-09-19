@@ -25,11 +25,11 @@ const getPhantomService = (): PhantomProvider | null =>
   window.solana?.isPhantom ? (window.solana as PhantomProvider) : null;
 
 export class PhantomAdapter extends SolanaWeb3WalletAdapter<PhantomProvider> {
-  constructor() {
+  public constructor() {
     super("Phantom", "https://phantom.app", getPhantomService);
   }
 
-  override async connectService(args?: any): Promise<void> {
+  public override async connectService(args?: any): Promise<void> {
     if (!this.service) {
       throw new Error("No wallet service available");
     }
@@ -51,7 +51,7 @@ export class PhantomAdapter extends SolanaWeb3WalletAdapter<PhantomProvider> {
     }
   }
 
-  override async disconnect(): Promise<void> {
+  public override async disconnect(): Promise<void> {
     if (this.service) {
       await this.service.disconnect();
     }

@@ -16,19 +16,19 @@ export class Amount {
     this.value = value;
   }
 
-  get tokenId(): string {
+  public get tokenId(): string {
     return this.tokenConfig.id;
   }
 
-  static zero(tokenConfig: TokenConfig): Amount {
+  public static zero(tokenConfig: TokenConfig): Amount {
     return new Amount(tokenConfig, new Decimal(0));
   }
 
-  static fromHuman(tokenConfig: TokenConfig, value: Decimal): Amount {
+  public static fromHuman(tokenConfig: TokenConfig, value: Decimal): Amount {
     return new Amount(tokenConfig, value);
   }
 
-  static fromAtomic(
+  public static fromAtomic(
     tokenConfig: TokenConfig,
     value: Decimal,
     ecosystemId: EcosystemId,
@@ -43,7 +43,7 @@ export class Amount {
     return new Amount(tokenConfig, convertedValue);
   }
 
-  static fromAtomicBn(
+  public static fromAtomicBn(
     tokenConfig: TokenConfig,
     value: BN | bigint,
     ecosystemId: EcosystemId,
@@ -56,12 +56,15 @@ export class Amount {
   }
 
   /** Always parse from standard number which uses `,` as group separators and `.` as decimal separators */
-  static fromHumanString(tokenConfig: TokenConfig, value: string): Amount {
+  public static fromHumanString(
+    tokenConfig: TokenConfig,
+    value: string,
+  ): Amount {
     const strippedValue = value.replace(/,/g, "");
     return Amount.fromHuman(tokenConfig, new Decimal(strippedValue));
   }
 
-  static fromAtomicString(
+  public static fromAtomicString(
     tokenConfig: TokenConfig,
     value: string,
     ecosystemId: EcosystemId,
@@ -69,43 +72,43 @@ export class Amount {
     return Amount.fromAtomic(tokenConfig, new Decimal(value), ecosystemId);
   }
 
-  isNegative(): boolean {
+  public isNegative(): boolean {
     return this.value.isNegative();
   }
 
-  isPositive(): boolean {
+  public isPositive(): boolean {
     return this.value.isPositive();
   }
 
-  isZero(): boolean {
+  public isZero(): boolean {
     return this.value.isZero();
   }
 
-  toAtomic(ecosystemId: EcosystemId): Decimal {
+  public toAtomic(ecosystemId: EcosystemId): Decimal {
     const { decimals } = this.details(ecosystemId);
     return this.value.mul(10 ** decimals).floor();
   }
 
-  toHuman(ecosystemId: EcosystemId): Decimal {
+  public toHuman(ecosystemId: EcosystemId): Decimal {
     const { decimals } = this.details(ecosystemId);
     return this.toAtomic(ecosystemId).div(10 ** decimals);
   }
 
-  toAtomicBn(ecosystemId: EcosystemId): BN {
+  public toAtomicBn(ecosystemId: EcosystemId): BN {
     return new BN(this.toAtomic(ecosystemId).toFixed(0));
   }
 
-  toAtomicString(ecosystemId: EcosystemId): string {
+  public toAtomicString(ecosystemId: EcosystemId): string {
     const atomic = this.toAtomic(ecosystemId);
     return atomic.toFixed(0);
   }
 
-  toHumanString(ecosystemId: EcosystemId): string {
+  public toHumanString(ecosystemId: EcosystemId): string {
     const human = this.toHuman(ecosystemId);
     return human.toFixed();
   }
 
-  toFormattedHumanString(ecosystemId: EcosystemId): string {
+  public toFormattedHumanString(ecosystemId: EcosystemId): string {
     const language = fallbackLanguageIfNotSupported(
       Intl.NumberFormat,
       i18next.resolvedLanguage,
@@ -124,62 +127,62 @@ export class Amount {
     return numberFormatter.format(this.toHuman(ecosystemId).toNumber());
   }
 
-  toJSON(): string {
+  public toJSON(): string {
     return this.toHumanString(this.tokenConfig.nativeEcosystemId);
   }
 
-  toPrimitive(): string {
+  public toPrimitive(): string {
     return this.toHumanString(this.tokenConfig.nativeEcosystemId);
   }
 
-  equals(amount: Amount): boolean {
+  public equals(amount: Amount): boolean {
     this.ensureSameToken(amount);
     return this.value.equals(amount.value);
   }
 
-  gt(amount: Amount): boolean {
+  public gt(amount: Amount): boolean {
     this.ensureSameToken(amount);
     return this.value.gt(amount.value);
   }
 
-  gte(amount: Amount): boolean {
+  public gte(amount: Amount): boolean {
     this.ensureSameToken(amount);
     return this.value.gte(amount.value);
   }
 
-  lt(amount: Amount): boolean {
+  public lt(amount: Amount): boolean {
     this.ensureSameToken(amount);
     return this.value.lt(amount.value);
   }
 
-  lte(amount: Amount): boolean {
+  public lte(amount: Amount): boolean {
     this.ensureSameToken(amount);
     return this.value.lte(amount.value);
   }
 
-  add(amount: Amount): Amount {
+  public add(amount: Amount): Amount {
     this.ensureSameToken(amount);
     const result = this.value.plus(amount.value);
     return new Amount(this.tokenConfig, result);
   }
 
-  sub(amount: Amount): Amount {
+  public sub(amount: Amount): Amount {
     this.ensureSameToken(amount);
     const result = this.value.sub(amount.value);
     return new Amount(this.tokenConfig, result);
   }
 
-  mul(scalar: Decimal | number): Amount {
+  public mul(scalar: Decimal | number): Amount {
     const result = this.value.mul(scalar);
     return new Amount(this.tokenConfig, result);
   }
 
-  div(scalar: Decimal | number): Amount {
+  public div(scalar: Decimal | number): Amount {
     const result = this.value.div(scalar);
     return new Amount(this.tokenConfig, result);
   }
 
-  requiresRounding(ecosystemId: EcosystemId): boolean {
+  public requiresRounding(ecosystemId: EcosystemId): boolean {
     return this.value.decimalPlaces() > this.details(ecosystemId).decimals;
   }
 

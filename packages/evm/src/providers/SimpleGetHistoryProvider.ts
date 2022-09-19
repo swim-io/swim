@@ -7,7 +7,7 @@ const JsonRpcProvider = providers.JsonRpcProvider;
 const DEFAULT_RECENT_BLOCKS = 100;
 
 export class SimpleGetHistoryProvider extends JsonRpcProvider {
-  async getHistory(
+  public async getHistory(
     address: string,
     startBlock?: number,
     endBlock?: number,

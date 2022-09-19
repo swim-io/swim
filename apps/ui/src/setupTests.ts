@@ -10,10 +10,10 @@ import "./i18n";
 // mock Solana websocket connection
 jest.mock("rpc-websockets", () => ({
   Client: class MockRpcWebsocketClient {
-    on(): null {
+    public on(): null {
       return null;
     }
-    connect(): null {
+    public connect(): null {
       return null;
     }
   },

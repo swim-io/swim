@@ -2,10 +2,10 @@ import type { SolanaError } from "./solana";
 import { extractSolanaErrorMessage } from "./solana";
 
 class FakeSolanaError implements SolanaError {
-  constructor(
-    readonly name: string,
-    readonly message: string,
-    readonly logs?: readonly string[],
+  public constructor(
+    public readonly name: string,
+    public readonly message: string,
+    public readonly logs?: readonly string[],
   ) {}
 }
 

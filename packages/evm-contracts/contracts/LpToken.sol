@@ -18,16 +18,16 @@ contract LpToken is UUPSUpgradeable, ERC20BurnableUpgradeable, OwnableUpgradeabl
   uint8 private /*immutable*/ _decimals;
 
   function initialize(
-    address owner,
+    address owner_,
     string memory name,
     string memory symbol,
-    uint8 __decimals
+    uint8 decimals_
   ) external initializer returns (bool) {
-    require(__decimals <= 18, "unsupported decimals");
-    _decimals = __decimals;
+    require(decimals_ <= 18, "unsupported decimals");
+    _decimals = decimals_;
     __ERC20_init_unchained(name, symbol);
     __Ownable_init_unchained();
-    _transferOwnership(owner);
+    _transferOwnership(owner_);
     return true;
   }
 
@@ -38,6 +38,23 @@ contract LpToken is UUPSUpgradeable, ERC20BurnableUpgradeable, OwnableUpgradeabl
 
   function mint(address recipient, uint256 amount) external onlyOwner {
     _mint(recipient, amount);
+  }
+
+  function _approve(
+    address owner_,
+    address spender,
+    uint256 amount
+  ) internal virtual override {
+    if (spender != owner()) //ignore attempts to change allowance of pool
+      super._approve(owner_, spender, amount);
+  }
+
+  //the pool contract is trusted and hence does not require approvals/always has infinite allowance
+  function allowance(
+    address owner_,
+    address spender
+  ) public view virtual override returns (uint256) {
+    return (_msgSender() == owner()) ? type(uint256).max : super.allowance(owner_, spender);
   }
 
   //intentionally empty (we only want the onlyOwner modifier "side-effect")

@@ -95,7 +95,7 @@ export class PoolWrapper {
     burnAmount: BigNumberish,
     minimumOutputAmounts: readonly BigNumberish[]
   ) {
-    await this.lpToken.approve(from, this.contract, burnAmount);
+    //no lp approval required
     return call(this.contract, from, "removeUniform(uint256,uint256[])", [
       burnAmount,
       minimumOutputAmounts,
@@ -108,7 +108,7 @@ export class PoolWrapper {
     outputTokenIndex: number,
     minimumOutputAmount: BigNumberish
   ) {
-    await this.lpToken.approve(from, this.contract, burnAmount);
+    //no lp approval required
     return call(this.contract, from, "removeExactBurn(uint256,uint8,uint256)", [
       burnAmount,
       outputTokenIndex,
@@ -121,7 +121,7 @@ export class PoolWrapper {
     outputAmounts: readonly BigNumberish[],
     maximumBurnAmount: BigNumberish
   ) {
-    await this.lpToken.approve(from, this.contract, maximumBurnAmount);
+    //no lp approval required
     return call(this.contract, from, "removeExactOutput(uint256[],uint256)", [
       outputAmounts,
       maximumBurnAmount,

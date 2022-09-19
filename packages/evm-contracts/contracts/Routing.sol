@@ -77,12 +77,12 @@ contract Routing is
   mapping(address => uint)      public engineFees;
 
   function initialize(
-    address owner,
+    address owner_,
     address tokenBridgeAddress
   ) public initializer {
     __Pausable_init();
     __Ownable_init();
-    _transferOwnership(owner);
+    _transferOwnership(owner_);
     wormholeNonce = 0;
     tokenBridge = ITokenBridge(tokenBridgeAddress);
     swimUsdAddress = tokenBridge.wrappedAsset(WORMHOLE_SOLANA_CHAIN_ID, SWIM_USD_SOLANA_ADDRESS);
@@ -218,32 +218,34 @@ contract Routing is
       swimUsdAddress_
     );
 
-    if (wormholeRecipientChain == WORMHOLE_SOLANA_CHAIN_ID) {
-      IERC20(swimUsdAddress_).safeApprove(address(tokenBridge), swimUsdAmount);
+    //old way of not going through the Solana Routing contract but doing a direct transfer
+    // leaving in for testing purposes / as a workaround for now.
+    // if (wormholeRecipientChain == WORMHOLE_SOLANA_CHAIN_ID) {
+    //   IERC20(swimUsdAddress_).safeApprove(address(tokenBridge), swimUsdAmount);
 
-      try
-        tokenBridge.transferTokens{value: msg.value}(
-          swimUsdAddress_,
-          swimUsdAmount,
-          WORMHOLE_SOLANA_CHAIN_ID,
-          toOwner,
-          0, //arbiterFee
-          wormholeNonce
-        )
-      returns (uint64 _wormholeSequence) {
-        wormholeSequence = _wormholeSequence;
-      } catch (bytes memory lowLevelData) {
-        revert WormholeInteractionFailed(lowLevelData);
-      }
-      ++wormholeNonce;
-    } else {
-      wormholeSequence = wormholeTransferWithPayload(
-        swimUsdAmount,
-        wormholeRecipientChain,
-        SwimPayloadConversion.encode(toOwner),
-        swimUsdAddress_
-      );
-    }
+    //   try
+    //     tokenBridge.transferTokens{value: msg.value}(
+    //       swimUsdAddress_,
+    //       swimUsdAmount,
+    //       WORMHOLE_SOLANA_CHAIN_ID,
+    //       toOwner,
+    //       0, //arbiterFee
+    //       wormholeNonce
+    //     )
+    //   returns (uint64 _wormholeSequence) {
+    //     wormholeSequence = _wormholeSequence;
+    //   } catch (bytes memory lowLevelData) {
+    //     revert WormholeInteractionFailed(lowLevelData);
+    //   }
+    //   ++wormholeNonce;
+    // } else {
+    wormholeSequence = wormholeTransferWithPayload(
+      swimUsdAmount,
+      wormholeRecipientChain,
+      SwimPayloadConversion.encode(toOwner),
+      swimUsdAddress_
+    );
+    // }
   }
 
   function propellerInitiate(

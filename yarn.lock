@@ -7385,15 +7385,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/aptos@workspace:packages/aptos":
+"@swim-io/aptos@workspace:^, @swim-io/aptos@workspace:packages/aptos":
   version: 0.0.0-use.local
   resolution: "@swim-io/aptos@workspace:packages/aptos"
   dependencies:
+    "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@types/jest": ^28.1.3
     "@typescript-eslint/eslint-plugin": ^5.29.0
     "@typescript-eslint/parser": ^5.29.0
+    aptos: ^1.3.13
     eslint: ^8.18.0
     eslint-config-prettier: ^8.5.0
     eslint-plugin-deprecation: ^1.3.2
@@ -7402,6 +7404,7 @@ __metadata:
     eslint-plugin-import: ^2.26.0
     eslint-plugin-jest: ^25.7.0
     eslint-plugin-prettier: ^4.0.0
+    eventemitter3: ^4.0.7
     jest: ^28.1.1
     prettier: ^2.7.1
     ts-jest: ^28.0.5
@@ -10780,6 +10783,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"aptos@npm:^1.3.13":
+  version: 1.3.13
+  resolution: "aptos@npm:1.3.13"
+  dependencies:
+    "@noble/hashes": 1.1.2
+    "@scure/bip39": 1.1.0
+    axios: 0.27.2
+    form-data: 4.0.0
+    js-sha3: 0.8.0
+    tweetnacl: 1.0.3
+  checksum: 128e63b57c4e49230472d47cd3f23fc8a0789b182c312c1188bb3fb75cedd09adf1c175ecfe442b2ba4a0ea48964434121311ef2fcbf4469587c794e15027f70
+  languageName: node
+  linkType: hard
+
 "arbundles@npm:^0.6.20":
   version: 0.6.21
   resolution: "arbundles@npm:0.6.21"
@@ -11349,6 +11366,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:0.27.2, axios@npm:^0.27.2":
+  version: 0.27.2
+  resolution: "axios@npm:0.27.2"
+  dependencies:
+    follow-redirects: ^1.14.9
+    form-data: ^4.0.0
+  checksum: 38cb7540465fe8c4102850c4368053c21683af85c5fdf0ea619f9628abbcb59415d1e22ebc8a6390d2bbc9b58a9806c874f139767389c862ec9b772235f06854
+  languageName: node
+  linkType: hard
+
 "axios@npm:^0.21.1, axios@npm:^0.21.3":
   version: 0.21.4
   resolution: "axios@npm:0.21.4"
@@ -11373,16 +11400,6 @@ __metadata:
   dependencies:
     follow-redirects: ^1.14.7
   checksum: 2a8a3787c05f2a0c9c3878f49782357e2a9f38945b93018fb0c4fd788171c43dceefbb577988628e09fea53952744d1ecebde234b561f1e703aa43e0a598a3ad
-  languageName: node
-  linkType: hard
-
-"axios@npm:^0.27.2":
-  version: 0.27.2
-  resolution: "axios@npm:0.27.2"
-  dependencies:
-    follow-redirects: ^1.14.9
-    form-data: ^4.0.0
-  checksum: 38cb7540465fe8c4102850c4368053c21683af85c5fdf0ea619f9628abbcb59415d1e22ebc8a6390d2bbc9b58a9806c874f139767389c862ec9b772235f06854
   languageName: node
   linkType: hard
 
@@ -17971,6 +17988,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"form-data@npm:4.0.0, form-data@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "form-data@npm:4.0.0"
+  dependencies:
+    asynckit: ^0.4.0
+    combined-stream: ^1.0.8
+    mime-types: ^2.1.12
+  checksum: 01135bf8675f9d5c61ff18e2e2932f719ca4de964e3be90ef4c36aacfc7b9cb2fceb5eca0b7e0190e3383fe51c5b37f4cb80b62ca06a99aaabfcfd6ac7c9328c
+  languageName: node
+  linkType: hard
+
 "form-data@npm:^2.2.0":
   version: 2.5.1
   resolution: "form-data@npm:2.5.1"
@@ -17990,17 +18018,6 @@ __metadata:
     combined-stream: ^1.0.8
     mime-types: ^2.1.12
   checksum: b019e8d35c8afc14a2bd8a7a92fa4f525a4726b6d5a9740e8d2623c30e308fbb58dc8469f90415a856698933c8479b01646a9dff33c87cc4e76d72aedbbf860d
-  languageName: node
-  linkType: hard
-
-"form-data@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "form-data@npm:4.0.0"
-  dependencies:
-    asynckit: ^0.4.0
-    combined-stream: ^1.0.8
-    mime-types: ^2.1.12
-  checksum: 01135bf8675f9d5c61ff18e2e2932f719ca4de964e3be90ef4c36aacfc7b9cb2fceb5eca0b7e0190e3383fe51c5b37f4cb80b62ca06a99aaabfcfd6ac7c9328c
   languageName: node
   linkType: hard
 

@@ -10,7 +10,7 @@ import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { defaultIfError, isEachNotNull } from "@swim-io/utils";
-import type Decimal from "decimal.js";
+import Decimal from "decimal.js";
 import type { FormEvent, ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -61,7 +61,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const { notify } = useNotification();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const startNewInteraction = useStartNewInteraction(() => {
-    setFormInputAmount("0");
+    setFormInputAmount("0.00");
   });
   const isInteractionInProgress = useHasActiveInteraction();
   const {
@@ -92,7 +92,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
     useState<ReactNode | null>(null);
   const isConfirmModalVisible = confirmModalDescription !== null;
 
-  const [formInputAmount, setFormInputAmount] = useState("0");
+  const [formInputAmount, setFormInputAmount] = useState("0.00");
   const [inputAmountErrors, setInputAmountErrors] = useState<readonly string[]>(
     [],
   );
@@ -252,7 +252,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       )}
       <EuiSpacer />
       <TokenAmountInput
-        value={formInputAmount}
+        value={new Decimal(formInputAmount).toFixed(2)}
         token={fromToken}
         tokenOptionIds={fromTokenOptionsIds}
         placeholder={t("general.enter_amount_of_tokens")}

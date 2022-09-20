@@ -5,109 +5,149 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "./interfaces/IPool.sol";
 import "./interfaces/IRouting.sol";
+import "./interfaces/IPool.sol";
 import "./interfaces/ITokenBridge.sol";
+import "./interfaces/IUniswapV3Pool.sol";
 
 import "./SwimPayload.sol";
+import "./Constants.sol";
 
 contract Routing is
   IRouting,
   Initializable,
   PausableUpgradeable,
   OwnableUpgradeable,
-  UUPSUpgradeable,
-  ReentrancyGuardUpgradeable
+  UUPSUpgradeable
 {
   struct TokenInfo {
-    uint16 tokenNumber;
+    uint16  tokenNumber;
     address tokenAddress;
     address poolAddress;
-    uint8 tokenIndexInPool;
+    uint8   tokenIndexInPool;
+  }
+
+  enum GasTokenPriceMethod {
+    FixedPrice,
+    UniswapOracle
+  }
+
+  //uses two slots
+  struct UniswapOracleParams {
+    //swimUSD -> intermediate token (via swim pool) -> gas token (via uniswap)
+    IPool          swimPool;
+    uint8          swimIntermediateIndex;
+    IUniswapV3Pool uniswapPool;
+    bool           uniswapIntermediateIsFirst;
+  }
+
+  struct PropellerFeeConfig {
+    GasTokenPriceMethod   method;
+    uint64                serviceFee; //specified in swimUSD
+    uint                  fixedSwimUsdPerGasToken;
+    UniswapOracleParams   uniswap;
   }
 
   using SafeERC20 for IERC20;
 
-  bytes32 public constant SWIM_USD_SOLANA_ADDRESS =
-    0x296b21c9a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe26719;
-  bytes32 public constant SOLANA_ROUTING_CONTRACT_ADDRESS = 0x0;
-  uint8 private constant SWIM_USD_TOKEN_INDEX = 0;
-  uint16 private constant WORMHOLE_SOLANA_CHAIN_ID = 1;
-  uint16 private constant WORMHOLE_ETHEREUM_CHAIN_ID = 2;
+  uint private constant PRECISION = 18;
+  uint private constant GAS_COST_BASE = 85000;
+  uint private constant GAS_COST_POOL_SWAP = 125000;
+  uint private constant GAS_KICKSTART_AMOUNT = 0.05 ether;
+  uint private constant PROPELLER_GAS_TIP = 1 gwei;
 
-  uint256 private constant ONE_SWIM_USD = 1e8;
-  uint256 public constant PROPELLER_ETHEREUM_SWIM_USD_MINIMUM = 1000 * ONE_SWIM_USD;
-  uint256 public constant PROPELLER_SWIM_USD_MINIMUM = 5 * ONE_SWIM_USD;
-  uint256 public constant GAS_KICKSTART_AMOUNT = 0.05 ether;
+  uint private constant BIT224 = 1 << 224;
+  uint private constant BIT128 = 1 << 128;
+  uint private constant BIT96  = 1 << 96;
 
-  uint256 public accumulatedFees;
-  uint32 public wormholeNonce; //TODO should share a slot with tokenbridge (both are accessed together)
-  //TODO move to its own storage slot on next full deploy (currently shares a slot with wormhole nonce which sucks for gas)
-  address public swimUsdAddress;
+  //slot0
+  address public /*immutable*/ swimUsdAddress;
+  //slot1
+  ITokenBridge public /*immutable*/ tokenBridge;
+  uint32       public wormholeNonce;
+  //remaining slots
+  PropellerFeeConfig public propellerFeeConfig;
+  uint256[20]        private reservedSlotsForAdditionalPropellerFeeRemunerationMethodConfigs;
 
-  ITokenBridge public tokenBridge;
-  address private outdatedWormhole; //TODO remove on next full deploy
-
-  mapping(uint16 => TokenInfo) public tokenNumberMapping;
+  mapping(uint16  => TokenInfo) public tokenNumberMapping;
   mapping(address => TokenInfo) public tokenAddressMapping;
-  mapping(address => uint256) public engineFees;
+  mapping(address => uint)      public engineFees;
 
-  // struct GasOracle {
-  //   IPool pool;
-  //   uint8 tokenIndex;
-  // }
-
-  function initialize(address owner, address tokenBridgeAddress) public initializer {
+  function initialize(
+    address owner_,
+    address tokenBridgeAddress
+  ) public initializer {
     __Pausable_init();
     __Ownable_init();
-    __UUPSUpgradeable_init();
-    __ReentrancyGuard_init();
-    _transferOwnership(owner);
+    _transferOwnership(owner_);
     wormholeNonce = 0;
     tokenBridge = ITokenBridge(tokenBridgeAddress);
     swimUsdAddress = tokenBridge.wrappedAsset(WORMHOLE_SOLANA_CHAIN_ID, SWIM_USD_SOLANA_ADDRESS);
     if (swimUsdAddress == address(0))
       revert SwimUsdNotAttested();
+    propellerFeeConfig.method = GasTokenPriceMethod.FixedPrice;
   }
 
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
   function getPoolStates(
-    address[] memory poolAddresses
+    address[] calldata poolAddresses
   ) external view returns (PoolState[] memory) {
-    uint256 poolCount = poolAddresses.length;
+    uint poolCount = poolAddresses.length;
     PoolState[] memory pools = new PoolState[](poolCount);
 
-    for (uint256 i = 0; i < poolCount; i++)
+    for (uint i = 0; i < poolCount; i++)
       pools[i] = IPool(poolAddresses[i]).getState();
 
     return pools;
   }
 
-  // -------------------------------- ONCHAIN ---------------------------------
+  // ----------------------------- ONCHAIN ---------------------------------------------------------
 
   function onChainSwap(
-    address fromToken, //mut - i.e. potentially assigned to during execution
-    uint256 inputAmount, //mut
+    address fromToken,
+    uint inputAmount,
     address toOwner,
     address toToken,
-    uint256 minimumOutputAmount
-  ) public whenNotPaused returns (uint256 outputAmount) {
+    uint minimumOutputAmount
+  ) external whenNotPaused returns (uint outputAmount) {
+    outputAmount = _onChainSwap(fromToken, inputAmount, toOwner, toToken, minimumOutputAmount);
+  }
+
+  function onChainSwap(
+    address fromToken,
+    uint inputAmount,
+    address toOwner,
+    address toToken,
+    uint minimumOutputAmount,
+    bytes16 memo
+  ) external whenNotPaused returns (uint outputAmount) {
+    outputAmount = _onChainSwap(fromToken, inputAmount, toOwner, toToken, minimumOutputAmount);
+    emit MemoInteraction(memo);
+  }
+
+  function _onChainSwap(
+    address fromToken, //mut - i.e. potentially assigned to during execution
+    uint inputAmount, //mut
+    address toOwner,
+    address toToken,
+    uint minimumOutputAmount
+  ) internal returns (uint outputAmount) {
     IERC20(fromToken).safeTransferFrom(msg.sender, address(this), inputAmount);
+    address swimUsdAddress_ = swimUsdAddress;
 
     uint8 fromIndex;
     uint8 toIndex;
     IPool pool;
 
-    if (fromToken == swimUsdAddress) {
+    if (fromToken == swimUsdAddress_) {
       fromIndex = SWIM_USD_TOKEN_INDEX;
       (pool, toIndex) = getPoolAndIndex(toToken);
     }
-    else if (toToken == swimUsdAddress) {
+    else if (toToken == swimUsdAddress_) {
       toIndex = SWIM_USD_TOKEN_INDEX;
       (pool, fromIndex) = getPoolAndIndex(fromToken);
     }
@@ -117,7 +157,7 @@ contract Routing is
       (pool, toIndex) = getPoolAndIndex(toToken);
       if (fromPool != pool) {
         inputAmount = swap(fromPool, fromToken, inputAmount, fromIndex, SWIM_USD_TOKEN_INDEX, 0);
-        fromToken = swimUsdAddress;
+        fromToken = swimUsdAddress_;
         fromIndex = SWIM_USD_TOKEN_INDEX;
       }
     }
@@ -127,196 +167,198 @@ contract Routing is
     IERC20(toToken).safeTransfer(toOwner, outputAmount);
   }
 
-  function onChainSwap(
+  // ----------------------------- INITIATE --------------------------------------------------------
+
+  function crossChainInitiate(
     address fromToken,
-    uint256 inputAmount,
-    address toOwner,
-    address toToken,
-    uint256 minimumOutputAmount,
-    bytes16 memo
-  ) external returns (uint256 outputAmount) {
-    outputAmount = onChainSwap(fromToken, inputAmount, toOwner, toToken, minimumOutputAmount);
-
-    emit SwimInteraction(
-      msg.sender,
-      memo,
-      SwimOperation.OnChainSwap,
-      abi.encode(fromToken, inputAmount, toOwner, toToken, minimumOutputAmount),
-      abi.encode(outputAmount)
-    );
-  }
-
-  // ---------------------------------- OUT -----------------------------------
-
-  function crossChainOut(
-    address fromToken,
-    uint256 inputAmount,
-    uint256 firstMinimumOutputAmount,
+    uint inputAmount,
+    uint firstMinimumOutputAmount,
     uint16 wormholeRecipientChain,
     bytes32 toOwner
-  ) public payable whenNotPaused returns (uint256 swimUsdAmount, uint64 wormholeSequence) {
-    swimUsdAmount = acquireAndMaybeSwap(fromToken, inputAmount, firstMinimumOutputAmount);
-
-    if (wormholeRecipientChain == WORMHOLE_SOLANA_CHAIN_ID) {
-      IERC20(swimUsdAddress).safeApprove(address(tokenBridge), swimUsdAmount);
-
-      try tokenBridge.transferTokens{value: msg.value}(
-        swimUsdAddress,
-        swimUsdAmount,
-        WORMHOLE_SOLANA_CHAIN_ID,
-        toOwner,
-        0, //arbiterFee
-        wormholeNonce
-      ) returns (uint64 _wormholeSequence) {
-        wormholeSequence = _wormholeSequence;
-      }
-      catch (bytes memory lowLevelData) {
-        revert WormholeInteractionFailed(lowLevelData);
-      }
-      ++wormholeNonce;
-    }
-    else {
-      wormholeSequence = wormholeTransferWithPayload(
-        swimUsdAmount,
-        wormholeRecipientChain,
-        SwimPayloadConversion.encode(toOwner)
-      );
-    }
-  }
-
-  function crossChainOut(
-    address fromToken,
-    uint256 inputAmount,
-    uint256 firstMinimumOutputAmount,
-    uint16 wormholeRecipientChain,
-    bytes32 toOwner,
-    bytes16 memo
-  ) external payable returns (uint256 swimUsdAmount, uint64 wormholeSequence) {
-    (swimUsdAmount, wormholeSequence) = crossChainOut(
+  ) external payable whenNotPaused returns (uint swimUsdAmount, uint64 wormholeSequence) {
+    (swimUsdAmount, wormholeSequence) = _crossChainInitiate(
       fromToken,
       inputAmount,
       firstMinimumOutputAmount,
       wormholeRecipientChain,
       toOwner
     );
-
-    emit SwimInteraction(
-      msg.sender,
-      memo,
-      SwimOperation.CrossChainOut,
-      abi.encode(
-        fromToken,
-        inputAmount,
-        firstMinimumOutputAmount,
-        wormholeRecipientChain,
-        toOwner
-      ),
-      abi.encode(swimUsdAmount, wormholeSequence)
-    );
   }
 
-  function propellerOut(
+  function crossChainInitiate(
     address fromToken,
-    uint256 inputAmount,
+    uint inputAmount,
+    uint firstMinimumOutputAmount,
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
-    bool gasKickStart,
+    bytes16 memo
+  ) external payable whenNotPaused returns (uint swimUsdAmount, uint64 wormholeSequence) {
+    (swimUsdAmount, wormholeSequence) = _crossChainInitiate(
+      fromToken,
+      inputAmount,
+      firstMinimumOutputAmount,
+      wormholeRecipientChain,
+      toOwner
+    );
+    emit MemoInteraction(memo);
+  }
+
+  function _crossChainInitiate(
+    address fromToken,
+    uint inputAmount,
+    uint firstMinimumOutputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner
+  ) internal returns (uint swimUsdAmount, uint64 wormholeSequence) {
+    address swimUsdAddress_ = swimUsdAddress;
+    swimUsdAmount = acquireAndMaybeSwap(
+      fromToken,
+      inputAmount,
+      firstMinimumOutputAmount,
+      swimUsdAddress_
+    );
+
+    //old way of not going through the Solana Routing contract but doing a direct transfer
+    // leaving in for testing purposes / as a workaround for now.
+    // if (wormholeRecipientChain == WORMHOLE_SOLANA_CHAIN_ID) {
+    //   IERC20(swimUsdAddress_).safeApprove(address(tokenBridge), swimUsdAmount);
+
+    //   try
+    //     tokenBridge.transferTokens{value: msg.value}(
+    //       swimUsdAddress_,
+    //       swimUsdAmount,
+    //       WORMHOLE_SOLANA_CHAIN_ID,
+    //       toOwner,
+    //       0, //arbiterFee
+    //       wormholeNonce
+    //     )
+    //   returns (uint64 _wormholeSequence) {
+    //     wormholeSequence = _wormholeSequence;
+    //   } catch (bytes memory lowLevelData) {
+    //     revert WormholeInteractionFailed(lowLevelData);
+    //   }
+    //   ++wormholeNonce;
+    // } else {
+    wormholeSequence = wormholeTransferWithPayload(
+      swimUsdAmount,
+      wormholeRecipientChain,
+      SwimPayloadConversion.encode(toOwner),
+      swimUsdAddress_
+    );
+    // }
+  }
+
+  function propellerInitiate(
+    address fromToken,
+    uint inputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner,
+    bool gasKickstart,
+    uint64 maxPropellerFee,
     uint16 toTokenNumber
-  ) external payable returns (uint256 swimUsdAmount, uint64 wormholeSequence) {
-    return propellerOut(
+  ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence) {
+    (swimUsdAmount, wormholeSequence) = _propellerInitiate(
       fromToken,
       inputAmount,
       wormholeRecipientChain,
       toOwner,
-      gasKickStart,
+      gasKickstart,
+      maxPropellerFee,
       toTokenNumber,
       bytes16(0)
     );
   }
 
-  function propellerOut(
+  function propellerInitiate(
     address fromToken,
-    uint256 inputAmount,
+    uint inputAmount,
     uint16 wormholeRecipientChain,
     bytes32 toOwner,
-    bool gasKickStart,
+    bool gasKickstart,
+    uint64 maxPropellerFee,
     uint16 toTokenNumber,
     bytes16 memo
-  ) public payable whenNotPaused returns (uint256 swimUsdAmount, uint64 wormholeSequence) {
-    swimUsdAmount = acquireAndMaybeSwap(fromToken, inputAmount, 0);
+  ) external payable whenNotPaused returns (uint swimUsdAmount, uint64 wormholeSequence) {
+    (swimUsdAmount, wormholeSequence) = _propellerInitiate(
+      fromToken,
+      inputAmount,
+      wormholeRecipientChain,
+      toOwner,
+      gasKickstart,
+      maxPropellerFee,
+      toTokenNumber,
+      memo
+    );
+    emit MemoInteraction(memo);
+  }
 
-    bool hasMemo = memo != bytes16(0);
+  function _propellerInitiate(
+    address fromToken,
+    uint inputAmount,
+    uint16 wormholeRecipientChain,
+    bytes32 toOwner,
+    bool gasKickstart,
+    uint64 maxPropellerFee,
+    uint16 toTokenNumber,
+    bytes16 memo
+  ) internal returns (uint swimUsdAmount, uint64 wormholeSequence) {
+    address swimUsdAddress_ = swimUsdAddress;
+    swimUsdAmount = acquireAndMaybeSwap(fromToken, inputAmount, 0, swimUsdAddress_);
 
-    bytes memory encodedPayload =
-      hasMemo
-      ? SwimPayloadConversion.encode(toOwner, toTokenNumber, gasKickStart, memo)
-      : SwimPayloadConversion.encode(toOwner, toTokenNumber, gasKickStart);
+    bytes memory encodedPayload = memo != bytes16(0)
+      ? SwimPayloadConversion.encode(toOwner, gasKickstart, maxPropellerFee, toTokenNumber, memo)
+      : SwimPayloadConversion.encode(toOwner, gasKickstart, maxPropellerFee, toTokenNumber);
 
     wormholeSequence = wormholeTransferWithPayload(
       swimUsdAmount,
       wormholeRecipientChain,
-      encodedPayload
+      encodedPayload,
+      swimUsdAddress_
     );
-
-    if (hasMemo)
-      emit SwimInteraction(
-        msg.sender,
-        memo,
-        SwimOperation.PropellerOut,
-        abi.encode(
-          fromToken,
-          inputAmount,
-          wormholeRecipientChain,
-          toOwner,
-          gasKickStart,
-          toTokenNumber
-        ),
-        abi.encode(swimUsdAmount, wormholeSequence)
-      );
   }
 
-  // ----------------------------------- IN -----------------------------------
+  // ----------------------------- COMPLETE --------------------------------------------------------
 
-  function crossChainIn(
-    bytes memory encodedVm,
+  function crossChainComplete(
+    bytes calldata encodedVm,
     address toToken,
-    uint256 minimumOutputAmount
-  ) external returns (uint256 outputAmount, address outputToken) {
-    return crossChainIn(encodedVm, toToken, minimumOutputAmount, bytes16(0));
+    uint minimumOutputAmount
+  ) external whenNotPaused returns (uint outputAmount, address outputToken) {
+    (outputAmount, outputToken) = _crossChainComplete(encodedVm, toToken, minimumOutputAmount);
+  }
+
+  function crossChainComplete(
+    bytes calldata encodedVm,
+    address toToken,
+    uint minimumOutputAmount,
+    bytes16 memo
+  ) external whenNotPaused returns (uint outputAmount, address outputToken) {
+    (outputAmount, outputToken) = _crossChainComplete(encodedVm, toToken, minimumOutputAmount);
+    emit MemoInteraction(memo);
   }
 
   //If swap fails, user receives swimUsd token
   //overrides propeller payload information if included
-  function crossChainIn(
-    bytes memory encodedVm,
+  function _crossChainComplete(
+    bytes calldata encodedVm,
     address toToken,
-    uint256 minimumOutputAmount,
-    bytes16 memo
-  ) public whenNotPaused returns (uint256 outputAmount, address outputToken) {
-    (uint256 swimUsdAmount, SwimPayload memory swimPayload) = completeWormholeTransfer(encodedVm);
+    uint minimumOutputAmount
+  ) internal returns (uint outputAmount, address outputToken) {
+    (uint swimUsdAmount, SwimPayload memory swimPayload) = wormholeCompleteTransfer(encodedVm);
+    address swimUsdAddress_ = swimUsdAddress;
 
     if (msg.sender != swimPayload.toOwner)
       revert SenderIsNotOwner(msg.sender, swimPayload.toOwner);
 
-    if (memo == bytes16(0))
-      memo = swimPayload.memo;
-    else if (swimPayload.memo != bytes16(0) && memo != swimPayload.memo)
-      revert MemoContradiction(memo, swimPayload.memo);
-
     outputAmount = swimUsdAmount;
-    outputToken = swimUsdAddress;
-    if (toToken != swimUsdAddress) {
+    outputToken = swimUsdAddress_;
+    if (toToken != swimUsdAddress_) {
       (IPool pool, uint8 toIndex) = getPoolAndIndex(toToken);
-      IERC20(swimUsdAddress).safeApprove(address(pool), swimUsdAmount);
-      try
-        pool.swap(
-          swimUsdAmount,
-          SWIM_USD_TOKEN_INDEX,
-          toIndex,
-          minimumOutputAmount
-        )
-      returns (uint256 _outputAmount) {
-        outputAmount = _outputAmount;
+      IERC20(swimUsdAddress_).safeApprove(address(pool), swimUsdAmount);
+      try pool.swap(swimUsdAmount, SWIM_USD_TOKEN_INDEX, toIndex, minimumOutputAmount) returns (
+        uint outputAmount_
+      ) {
+        outputAmount = outputAmount_;
         outputToken = toToken;
       }
       catch {
@@ -325,95 +367,108 @@ contract Routing is
     }
 
     IERC20(outputToken).safeTransfer(msg.sender, outputAmount);
-
-    if (memo != bytes16(0))
-      emit SwimInteraction(
-        msg.sender,
-        memo,
-        SwimOperation.CrossChainIn,
-        abi.encode(toToken, minimumOutputAmount),
-        abi.encode(outputAmount, outputToken)
-      );
   }
 
-  function propellerIn(
-    bytes memory encodedVm
-  ) external payable whenNotPaused returns (uint256 outputAmount, address outputToken) {
-    //TODO lots of checks missing - WIP
-    //uint256 startGas = gasleft(); //TODO add gas cost of checking whenNotPaused
-    (uint256 swimUsdAmount, SwimPayload memory swimPayload) = completeWormholeTransfer(encodedVm);
+  function propellerComplete(
+    bytes calldata encodedVm
+  ) external payable whenNotPaused returns (uint outputAmount, address outputToken) { unchecked {
+    uint startGas = gasleft();
+    (uint swimUsdAmount, SwimPayload memory swimPayload) = wormholeCompleteTransfer(encodedVm);
+    address swimUsdAddress_ = swimUsdAddress;
 
     if (swimPayload.gasKickstart) {
       if (msg.value != GAS_KICKSTART_AMOUNT)
         revert IncorrectMessageValue(msg.value, GAS_KICKSTART_AMOUNT);
-      (bool success,) = swimPayload.toOwner.call{value: GAS_KICKSTART_AMOUNT}("");
+      (bool success, ) = swimPayload.toOwner.call{value: GAS_KICKSTART_AMOUNT}("");
       if (!success)
         revert GasKickstartFailed(swimPayload.toOwner);
     }
     else if (msg.value != 0)
       revert IncorrectMessageValue(msg.value, 0);
 
-    //TODO proper engine fee handling (gas counting and gas price oracle)
-    uint256 feeAmount = swimPayload.gasKickstart ? 3 * ONE_SWIM_USD : ONE_SWIM_USD;
-    accumulatedFees += feeAmount;
+    uint16 toTokenNumber = SWIM_USD_TOKEN_NUMBER;
+    TokenInfo memory toTokenInfo;
+    outputToken = swimUsdAddress_;
+    if (swimPayload.toTokenNumber != SWIM_USD_TOKEN_NUMBER) {
+      toTokenInfo = tokenNumberMapping[swimPayload.toTokenNumber];
+      if (toTokenInfo.tokenNumber != 0) {
+        //if toTokenNumber in swimPayload was invalid for whatever reason then just return
+        //swimUsd to prevent propeller transaction from getting stuck
+        toTokenNumber = toTokenInfo.tokenNumber; //same as swimPayload.toTokenNumber
+        outputToken = toTokenInfo.tokenAddress;
+      }
+    }
+
+    uint swimUsdPerGasToken = propellerFeeConfig.method == GasTokenPriceMethod.UniswapOracle
+      ? swimUsdPerGasTokenUniswap()
+      : propellerFeeConfig.fixedSwimUsdPerGasToken;
+    uint feeAmount =
+      propellerFeeConfig.serviceFee + calcSwimUsdGasFee(startGas, swimUsdPerGasToken, swimPayload);
+
+    if (feeAmount > swimPayload.maxPropellerFee)
+      feeAmount = swimPayload.maxPropellerFee;
+
+    if (feeAmount > swimUsdAmount)
+      //we don't rely on SwimPayload to be composed sensibly (i.e. maxPropellerFee should be less
+      // than or equal the bridged SwimUSD amount if the SwimPayload was composed sensibly, but we
+      // don't actually (have to) enforce it)
+      feeAmount = swimUsdAmount;
+
     engineFees[msg.sender] += feeAmount;
 
-    if (swimPayload.tokenNumber != 0) {
-      TokenInfo memory info = tokenNumberMapping[swimPayload.tokenNumber];
-      if (info.tokenNumber != 0) {
-        outputAmount = swap(
-          IPool(info.poolAddress),
-          swimUsdAddress,
-          swimUsdAmount - feeAmount,
-          SWIM_USD_TOKEN_INDEX,
-          info.tokenIndexInPool,
-          0 //no slippage for propeller
-        );
-        outputToken = info.tokenAddress;
-      }
-      else {
-        outputAmount = swimUsdAmount - feeAmount;
-        outputToken = swimUsdAddress;
-      }
-    }
-    else {
-      outputAmount = swimUsdAmount - feeAmount;
-      outputToken = swimUsdAddress;
-    }
+    //There is this slightly awkward and exceedingly rare edge case where feeAmount without the
+    // swap fee is smaller than swimUsdAmount but feeAmount including the swap fee is larger than
+    // swimUsdAmount and so we charge the user for a swap (of what would be an utterly marginal
+    // amount of SwimUSD) that then doesn't actually happen..
+    //But it's so insignificant (both in terms of probability as well as impact) that it really
+    // does not make sense to worry about it beyond the scope of this comment.
+    if (feeAmount < swimUsdAmount) {
+      outputAmount = (toTokenNumber != SWIM_USD_TOKEN_NUMBER)
+        ? swap(
+            IPool(toTokenInfo.poolAddress),
+            swimUsdAddress_,
+            swimUsdAmount - feeAmount,
+            SWIM_USD_TOKEN_INDEX,
+            toTokenInfo.tokenIndexInPool,
+            0 //no slippage for propeller
+          )
+        : swimUsdAmount - feeAmount;
 
-    IERC20(outputToken).safeTransfer(swimPayload.toOwner, outputAmount);
+      IERC20(outputToken).safeTransfer(swimPayload.toOwner, outputAmount);
+    }
+    else
+      outputAmount = 0;
 
     if (swimPayload.memo != bytes16(0))
-      emit SwimInteraction(
-        msg.sender,
-        swimPayload.memo,
-        SwimOperation.PropellerIn,
-        abi.encode(swimUsdAmount, swimPayload.gasKickstart, swimPayload.toOwner),
-        abi.encode(outputAmount, outputToken)
-      );
-  }
+      emit MemoInteraction(swimPayload.memo);
+  }}
 
-  // --------------------------------- ENGINE ---------------------------------
+  // ----------------------------- ENGINE ----------------------------------------------------------
 
   function claimFees() external whenNotPaused { unchecked {
-    uint256 feeAmount = engineFees[msg.sender];
+    uint feeAmount = engineFees[msg.sender];
     engineFees[msg.sender] = 0;
-    accumulatedFees -= feeAmount;
     IERC20(swimUsdAddress).safeTransfer(msg.sender, feeAmount);
   }}
 
-  // ------------------------------- GOVERNANCE -------------------------------
+  // ----------------------------- GOVERNANCE ------------------------------------------------------
 
   function registerToken(
     uint16 tokenNumber,
     address tokenAddress,
-    address poolAddress,
-    uint8 tokenIndexInPool
+    address poolAddress
   ) external onlyOwner {
+    uint8 tokenIndexInPool = 0;
     PoolState memory state = IPool(poolAddress).getState();
-    address poolToken = state.balances[tokenIndexInPool].tokenAddress;
-    if (tokenAddress != poolToken)
-      revert TokenMismatch(tokenAddress, poolToken);
+    //skip first token because it's always swimUSD
+    for (uint i = 1; i < state.balances.length; ++i)
+      if (state.balances[i].tokenAddress == tokenAddress) {
+        tokenIndexInPool = uint8(i);
+        break;
+      }
+
+    if (tokenIndexInPool == 0)
+      revert TokenNotInPool(tokenAddress, poolAddress);
 
     TokenInfo memory token = tokenNumberMapping[tokenNumber];
     token.tokenNumber = tokenNumber;
@@ -427,6 +482,40 @@ contract Routing is
     emit TokenRegistered(tokenNumber, tokenAddress, poolAddress);
   }
 
+  function adjustPropellerServiceFee(uint64 serviceFee) external onlyOwner {
+    propellerFeeConfig.serviceFee = serviceFee;
+  }
+
+  function usePropellerFixedGasTokenPrice(
+    uint fixedSwimUsdPerGasToken
+  ) external onlyOwner {
+    propellerFeeConfig.method = GasTokenPriceMethod.FixedPrice;
+    propellerFeeConfig.fixedSwimUsdPerGasToken = fixedSwimUsdPerGasToken;
+  }
+
+  function usePropellerUniswapOracle(
+    address intermediateToken,
+    address uniswapPoolAddress
+  ) external onlyOwner {
+    (IPool swimPool, uint8 swimIntermediateIndex) = getPoolAndIndex(intermediateToken);
+
+    IUniswapV3Pool uniswapPool = IUniswapV3Pool(uniswapPoolAddress);
+
+    bool uniswapIntermediateIsFirst;
+    if (intermediateToken == uniswapPool.token0())
+      uniswapIntermediateIsFirst = true;
+    else if (intermediateToken == uniswapPool.token1())
+      uniswapIntermediateIsFirst = false;
+    else
+      revert TokenNotInPool(intermediateToken, uniswapPoolAddress);
+
+    propellerFeeConfig.method = GasTokenPriceMethod.UniswapOracle;
+    propellerFeeConfig.uniswap.swimPool = swimPool;
+    propellerFeeConfig.uniswap.swimIntermediateIndex = swimIntermediateIndex;
+    propellerFeeConfig.uniswap.uniswapPool = uniswapPool;
+    propellerFeeConfig.uniswap.uniswapIntermediateIsFirst = uniswapIntermediateIsFirst;
+  }
+
   function pause() public onlyOwner {
     _pause();
   }
@@ -435,75 +524,83 @@ contract Routing is
     _unpause();
   }
 
-  // -------------------------------- INTERNAL --------------------------------
+  // ----------------------------- INTERNAL --------------------------------------------------------
 
   function swap(
     IPool pool,
     address fromToken,
-    uint256 inputAmount,
+    uint inputAmount,
     uint8 fromIndex,
     uint8 toIndex,
-    uint256 minimumOutputAmount
-  ) internal returns (uint256 outputAmount) {
+    uint minimumOutputAmount
+  ) internal returns (uint outputAmount) {
     IERC20(fromToken).safeApprove(address(pool), inputAmount);
     outputAmount = pool.swap(inputAmount, fromIndex, toIndex, minimumOutputAmount);
   }
 
   function acquireAndMaybeSwap(
     address fromToken,
-    uint256 inputAmount,
-    uint256 minimumOutputAmount
-  ) internal returns (uint256 swimUsdAmount) {
+    uint inputAmount,
+    uint minimumOutputAmount,
+    address swimUsdAddress_
+  ) internal returns (uint swimUsdAmount) {
     IERC20(fromToken).safeTransferFrom(msg.sender, address(this), inputAmount);
 
-    if (fromToken != swimUsdAddress) {
+    if (fromToken != swimUsdAddress_) {
       (IPool pool, uint8 fromIndex) = getPoolAndIndex(fromToken);
-      swimUsdAmount =
-        swap(pool, fromToken, inputAmount, fromIndex, SWIM_USD_TOKEN_INDEX, minimumOutputAmount);
+      swimUsdAmount = swap(
+        pool,
+        fromToken,
+        inputAmount,
+        fromIndex,
+        SWIM_USD_TOKEN_INDEX,
+        minimumOutputAmount
+      );
     }
     else
       swimUsdAmount = inputAmount;
   }
 
   function wormholeTransferWithPayload(
-    uint256 swimUsdAmount,
+    uint swimUsdAmount,
     uint16 wormholeRecipientChain,
-    bytes memory swimPayload
+    bytes memory swimPayload,
+    address swimUsdAddress_
   ) internal returns (uint64 wormholeSequence) {
-    IERC20(swimUsdAddress).safeApprove(address(tokenBridge), swimUsdAmount);
+    IERC20(swimUsdAddress_).safeApprove(address(tokenBridge), swimUsdAmount);
 
-    bytes32 routingContract =
-      (wormholeRecipientChain == WORMHOLE_SOLANA_CHAIN_ID)
-      ? SOLANA_ROUTING_CONTRACT_ADDRESS
-      : bytes32(uint256(uint160(address(this))));
+    bytes32 routingContract = (wormholeRecipientChain == WORMHOLE_SOLANA_CHAIN_ID)
+      ? ROUTING_CONTRACT_SOLANA_ADDRESS
+      : bytes32(uint(uint160(address(this))));
 
     try
       tokenBridge.transferTokensWithPayload{value: msg.value}(
-        swimUsdAddress,
+        swimUsdAddress_,
         swimUsdAmount,
         wormholeRecipientChain,
         routingContract,
         wormholeNonce,
         swimPayload
       )
-    returns (uint64 _wormholeSequence) {
-      wormholeSequence = _wormholeSequence;
-    } catch (bytes memory lowLevelData) {
+    returns (uint64 wormholeSequence_) {
+      wormholeSequence = wormholeSequence_;
+    }
+    catch (bytes memory lowLevelData) {
       revert WormholeInteractionFailed(lowLevelData);
     }
     ++wormholeNonce;
   }
 
-  function completeWormholeTransfer(
+  function wormholeCompleteTransfer(
     bytes memory encodedVm
-  ) internal returns (uint256 swimUsdAmount, SwimPayload memory swimPayload) {
+  ) internal returns (uint swimUsdAmount, SwimPayload memory swimPayload) {
     try
       tokenBridge.completeTransferWithPayload(encodedVm)
     returns (bytes memory encodedTokenBridgePayload) {
       bytes32 tokenOriginAddress;
       uint16 tokenOriginChain;
-      (swimUsdAmount, tokenOriginAddress, tokenOriginChain, swimPayload) =
-        SwimPayloadConversion.decode(encodedTokenBridgePayload);
+      (swimUsdAmount, tokenOriginAddress, tokenOriginChain, swimPayload) = SwimPayloadConversion
+        .decode(encodedTokenBridgePayload);
       if (
         tokenOriginAddress != SWIM_USD_SOLANA_ADDRESS ||
         tokenOriginChain != WORMHOLE_SOLANA_CHAIN_ID
@@ -514,12 +611,105 @@ contract Routing is
           SWIM_USD_SOLANA_ADDRESS,
           WORMHOLE_SOLANA_CHAIN_ID
         );
-    } catch (bytes memory lowLevelData) {
+    }
+    catch (bytes memory lowLevelData) {
       revert WormholeInteractionFailed(lowLevelData);
     }
   }
 
-  // --------------------------- INTERNAL VIEW/PURE ---------------------------
+  // ----------------------------- INTERNAL VIEW/PURE ----------------------------------------------
+
+  // @return swimUsdPerGasToken with 18 decimals
+  function swimUsdPerGasTokenUniswap() internal view returns (uint swimUsdPerGasToken) { unchecked {
+    //this function is a bit of a clusterfuck due to the wide range of prices that can
+    // _theoretically_ be returned by our oracles (swimPool and Uniswap) and because uniswap pools
+    // use binary fixed point (64.96 bits) while swim pools use decimal values (dynamic)
+
+    UniswapOracleParams memory uniswap = propellerFeeConfig.uniswap;
+
+    //price are given in LP/i-token
+    Decimal[] memory marginalPrices = uniswap.swimPool.getMarginalPrices();
+    Decimal memory swimUsdPrice = marginalPrices[SWIM_USD_TOKEN_INDEX];
+    Decimal memory intermediatePrice = marginalPrices[uniswap.swimIntermediateIndex];
+    //marginalPrice[SWIM_USD_TOKEN_INDEX] is guaranteed to use at most 176 bits
+    uint swimUsdPerIntermediate = (
+      intermediatePrice.value * 10**(PRECISION - intermediatePrice.decimals + swimUsdPrice.decimals)
+    ) / swimUsdPrice.value;
+    if (swimUsdPerIntermediate >= BIT128)
+      //This is strictly speaking not necessarily an error, however if the values are so incredibly
+      // lopsided then something is definitely amiss and so we might as well bail.
+      revert NumericError(
+        CodeLocation.DetermineGasCostViaUniswap1,
+        abi.encode(swimUsdPrice, intermediatePrice)
+      );
+    //swimUsdPerIntermediate now guaranteed to use at most 128 bits
+
+    //uniswap sqrtPrice is sqrt(token1/token0) using atomic units!
+    (uint160 sqrtPriceX96,,,,,,) = uniswap.uniswapPool.slot0();
+
+    uint uniswapPrice;
+    uint fractionalBits;
+    if (sqrtPriceX96 < BIT128) {
+      //if sqrtPriceX96 takes less than 16 bytes we can safely square it
+      uniswapPrice = uint(sqrtPriceX96) * uint(sqrtPriceX96);
+      fractionalBits = 192;
+    }
+    else {
+      //if sqrtPriceX96 takes between 16 and 20 bytes, we rightshift by 32 before squaring
+      uniswapPrice = (sqrtPriceX96 >> 32);
+      uniswapPrice = uniswapPrice * uniswapPrice;
+      fractionalBits = 128;
+    }
+
+    if (uniswap.uniswapIntermediateIsFirst) {
+      //uniswap price = gas token per intermediate token
+      while (swimUsdPerIntermediate < BIT224 && fractionalBits > 0) {
+        swimUsdPerIntermediate <<= 32;
+        fractionalBits -= 32;
+      }
+      uniswapPrice >>= fractionalBits;
+      if (uniswapPrice == 0)
+        revert NumericError(
+          CodeLocation.DetermineGasCostViaUniswap2,
+          abi.encode(swimUsdPrice, intermediatePrice, sqrtPriceX96)
+        );
+
+      swimUsdPerGasToken = swimUsdPerIntermediate / uniswapPrice;
+    }
+    else {
+      //uniswap price = intermediate token per gas token
+      while (uniswapPrice >= BIT96 && fractionalBits > 0) {
+        uniswapPrice >>= 32;
+        fractionalBits -= 32;
+      }
+      //uniswapPrice now uses at most 128 bits
+      swimUsdPerGasToken = (swimUsdPerIntermediate * uniswapPrice) >> fractionalBits;
+    }
+  }}
+
+  function calcSwimUsdGasFee(
+    uint startGas,
+    uint swimUsdPerGasToken,
+    SwimPayload memory swimPayload
+  ) internal view returns (uint swimUsdGasFee) {
+    uint gasTokenCost = 0;
+    uint consumedGas = startGas;
+
+    unchecked {
+      uint remuneratedGasPrice = block.basefee + PROPELLER_GAS_TIP;
+
+      consumedGas += GAS_COST_BASE;
+      if (swimPayload.toTokenNumber != SWIM_USD_TOKEN_NUMBER)
+        consumedGas += GAS_COST_POOL_SWAP;
+
+      if (swimPayload.gasKickstart)
+        gasTokenCost += GAS_KICKSTART_AMOUNT;
+      consumedGas -= gasleft();
+      gasTokenCost += remuneratedGasPrice * consumedGas;
+    }
+
+    swimUsdGasFee = (gasTokenCost * swimUsdPerGasToken) / MARGINAL_PRICE_MULTIPLIER; //SafeMath!
+  }
 
   function getPoolAndIndex(address token) internal view returns (IPool, uint8) {
     TokenInfo memory info = tokenAddressMapping[token];
@@ -536,17 +726,5 @@ contract Routing is
       revert TokenNotRegistered(bytes20(token));
 
     return tokenNumber;
-  }
-
- function checkPropellerMinimumThreshold(
-    uint256 swimUsdAmount,
-    uint64 wormholeRecipientChain
-  ) internal pure {
-    uint256 minThreshold = (wormholeRecipientChain == WORMHOLE_ETHEREUM_CHAIN_ID)
-      ? PROPELLER_ETHEREUM_SWIM_USD_MINIMUM
-      : PROPELLER_SWIM_USD_MINIMUM;
-
-    if (swimUsdAmount < minThreshold)
-      revert TooSmallForPropeller(swimUsdAmount, minThreshold);
   }
 }

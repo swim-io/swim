@@ -3,3 +3,7 @@ artifacts
 cache
 coverage*
 gasReporterOutput.json
+#run prettier on Solidity contracts to choose between 1 of 2 outcomes:
+# 1. swimivan eats you alive/first.
+# 2. congratulations, you are now responsible for all contracts, PoolMath and all.
+contracts/**/*.sol

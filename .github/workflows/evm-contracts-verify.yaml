@@ -33,6 +33,8 @@ jobs:
         run: yarn format:check
       - name: Check Solidity lint
         run: yarn lint:sol --max-warnings=0
+      - name: Check build
+        run: yarn build
       - name: Check TypeScript lint
         run: yarn lint:ts --max-warnings=0
       - name: "Create .env file for deployment"
@@ -42,7 +44,5 @@ jobs:
           echo FACTORY_MNEMONIC=$FACTORY_MNEMONIC >> .env
           echo ETHERSCAN_API_KEY=$ETHERSCAN_API_KEY >> .env
           cat .env
-      - name: Check build
-        run: yarn build
       - name: Test
         run: yarn test

@@ -6,13 +6,16 @@ import {
   getEmitterAddressEth,
   getEmitterAddressSolana,
   parseSequenceFromLogEth,
-  parseSequenceFromLogSolana,
   postVaaSolanaWithRetry,
 } from "@certusone/wormhole-sdk";
 import type { WormholeChainConfig, WormholeConfig } from "@swim-io/core";
 import type { EvmWalletAdapter } from "@swim-io/evm";
 import type { SolanaConnection, SolanaWalletAdapter } from "@swim-io/solana";
-import { DEFAULT_MAX_RETRIES, SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import {
+  DEFAULT_MAX_RETRIES,
+  SOLANA_ECOSYSTEM_ID,
+  parseSequenceFromLogSolana,
+} from "@swim-io/solana";
 import { WormholeChainId } from "@swim-io/wormhole";
 import type { ContractReceipt } from "ethers";
 

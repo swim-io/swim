@@ -3174,7 +3174,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/sha2@npm:5.6.1, @ethersproject/sha2@npm:^5.5.0, @ethersproject/sha2@npm:^5.6.0, @ethersproject/sha2@npm:^5.6.1":
+"@ethersproject/sha2@npm:5.6.1, @ethersproject/sha2@npm:^5.6.0, @ethersproject/sha2@npm:^5.6.1":
   version: 5.6.1
   resolution: "@ethersproject/sha2@npm:5.6.1"
   dependencies:
@@ -5102,6 +5102,39 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@peculiar/asn1-schema@npm:^2.1.6":
+  version: 2.3.0
+  resolution: "@peculiar/asn1-schema@npm:2.3.0"
+  dependencies:
+    asn1js: ^3.0.5
+    pvtsutils: ^1.3.2
+    tslib: ^2.4.0
+  checksum: aa510c68de83be94a8d0e96ca1f7c92d2bd790867eed887c0db32d6b2fc49c5dd9d8269648e9665686ba9b2fd8469324c61e04fed50f7aad3f68a0ca0e1cde4b
+  languageName: node
+  linkType: hard
+
+"@peculiar/json-schema@npm:^1.1.12":
+  version: 1.1.12
+  resolution: "@peculiar/json-schema@npm:1.1.12"
+  dependencies:
+    tslib: ^2.0.0
+  checksum: b26ececdc23c5ef25837f8be8d1eb5e1c8bb6e9ae7227ac59ffea57fff56bd05137734e7685e9100595d3d88d906dff638ef8d1df54264c388d3eac1b05aa060
+  languageName: node
+  linkType: hard
+
+"@peculiar/webcrypto@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "@peculiar/webcrypto@npm:1.4.0"
+  dependencies:
+    "@peculiar/asn1-schema": ^2.1.6
+    "@peculiar/json-schema": ^1.1.12
+    pvtsutils: ^1.3.2
+    tslib: ^2.4.0
+    webcrypto-core: ^1.7.4
+  checksum: 3a7a3c8f253170436f353a61b807d2e2e7a686e6a9607487fde6459ddfff34c8000414287a6cd904bd81e002ce4564811b3c7789a0fd932cf015df6c4002fd02
+  languageName: node
+  linkType: hard
+
 "@pmmmwh/react-refresh-webpack-plugin@npm:0.4.3, @pmmmwh/react-refresh-webpack-plugin@npm:^0.4.3":
   version: 0.4.3
   resolution: "@pmmmwh/react-refresh-webpack-plugin@npm:0.4.3"
@@ -5976,33 +6009,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@solana/web3.js@npm:^1.17.0, @solana/web3.js@npm:^1.21.0, @solana/web3.js@npm:^1.24.0, @solana/web3.js@npm:^1.30.2, @solana/web3.js@npm:^1.31.0, @solana/web3.js@npm:^1.32.0, @solana/web3.js@npm:^1.36.0, @solana/web3.js@npm:^1.44.3":
-  version: 1.44.3
-  resolution: "@solana/web3.js@npm:1.44.3"
-  dependencies:
-    "@babel/runtime": ^7.12.5
-    "@ethersproject/sha2": ^5.5.0
-    "@solana/buffer-layout": ^4.0.0
-    bigint-buffer: ^1.1.5
-    bn.js: ^5.0.0
-    borsh: ^0.7.0
-    bs58: ^4.0.1
-    buffer: 6.0.1
-    fast-stable-stringify: ^1.0.0
-    jayson: ^3.4.4
-    js-sha3: ^0.8.0
-    node-fetch: 2
-    rpc-websockets: ^7.4.2
-    secp256k1: ^4.0.2
-    superstruct: ^0.14.2
-    tweetnacl: ^1.0.0
-  checksum: ef35951ad947d5f830fcc8d5b444424ce65752f4f935d5a4eccae85f4867eeb2e8e3e89005a2ee217771253d1c5428e7537de339c557f22c8cb5e2f5204ec5df
-  languageName: node
-  linkType: hard
-
-"@solana/web3.js@npm:^1.20.0, @solana/web3.js@npm:^1.22.0, @solana/web3.js@npm:^1.24.1, @solana/web3.js@npm:^1.35.1, @solana/web3.js@npm:^1.42.0, @solana/web3.js@npm:^1.43.5, @solana/web3.js@npm:^1.44.0, @solana/web3.js@npm:^1.47.3, @solana/web3.js@npm:^1.50.1":
-  version: 1.55.0
-  resolution: "@solana/web3.js@npm:1.55.0"
+"@solana/web3.js@npm:^1.17.0, @solana/web3.js@npm:^1.20.0, @solana/web3.js@npm:^1.21.0, @solana/web3.js@npm:^1.22.0, @solana/web3.js@npm:^1.24.0, @solana/web3.js@npm:^1.24.1, @solana/web3.js@npm:^1.30.2, @solana/web3.js@npm:^1.31.0, @solana/web3.js@npm:^1.32.0, @solana/web3.js@npm:^1.35.1, @solana/web3.js@npm:^1.36.0, @solana/web3.js@npm:^1.42.0, @solana/web3.js@npm:^1.43.5, @solana/web3.js@npm:^1.44.0, @solana/web3.js@npm:^1.44.3, @solana/web3.js@npm:^1.47.3, @solana/web3.js@npm:^1.48.0, @solana/web3.js@npm:^1.50.1, @solana/web3.js@npm:^1.62.0":
+  version: 1.62.0
+  resolution: "@solana/web3.js@npm:1.62.0"
   dependencies:
     "@babel/runtime": ^7.12.5
     "@noble/ed25519": ^1.7.0
@@ -6016,36 +6025,10 @@ __metadata:
     buffer: 6.0.1
     fast-stable-stringify: ^1.0.0
     jayson: ^3.4.4
-    js-sha3: ^0.8.0
     node-fetch: 2
     rpc-websockets: ^7.5.0
     superstruct: ^0.14.2
-  checksum: 775bfb797c70625434cbb92a1919add1d422eaa696ce91d7b0f80dbb0ff2d6c7839dc0a9d1f6c58680c187e1d7176c54b76480c65bc70eafa905fa753e80d765
-  languageName: node
-  linkType: hard
-
-"@solana/web3.js@npm:^1.48.0":
-  version: 1.50.1
-  resolution: "@solana/web3.js@npm:1.50.1"
-  dependencies:
-    "@babel/runtime": ^7.12.5
-    "@ethersproject/sha2": ^5.5.0
-    "@solana/buffer-layout": ^4.0.0
-    bigint-buffer: ^1.1.5
-    bn.js: ^5.0.0
-    borsh: ^0.7.0
-    bs58: ^4.0.1
-    buffer: 6.0.1
-    fast-stable-stringify: ^1.0.0
-    jayson: ^3.4.4
-    js-sha3: ^0.8.0
-    node-fetch: 2
-    react-native-url-polyfill: ^1.3.0
-    rpc-websockets: ^7.5.0
-    secp256k1: ^4.0.2
-    superstruct: ^0.14.2
-    tweetnacl: ^1.0.0
-  checksum: 49dca7b9caa776a6184b6008af74907d55b4dde3652babd066d316b585e00f7e2d63d1fb450b7a32591c371dfcee3d4bbfff98409ed80a07216a90dc58c7fb86
+  checksum: 64272ef29963e7bfa479aa7ca287a015c82617ae48e64135513e10b9d3c9c50c5ff72c120c4b85eb1a1a5975780818f5db023a3246d0960150558d34da483bab
   languageName: node
   linkType: hard
 
@@ -7894,7 +7877,7 @@ __metadata:
     "@project-serum/borsh": ^0.2.5
     "@project-serum/sol-wallet-adapter": ^0.2.6
     "@solana/spl-token": ^0.3.4
-    "@solana/web3.js": ^1.48.0
+    "@solana/web3.js": ^1.62.0
     "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/token-projects": "workspace:^"
@@ -8012,6 +7995,7 @@ __metadata:
     "@elastic/datemath": ^5.0.3
     "@elastic/eui": ^38.2.0
     "@metaplex/js": ^4.12.0
+    "@peculiar/webcrypto": ^1.4.0
     "@project-serum/anchor": ^0.24.2
     "@project-serum/borsh": ^0.2.5
     "@sayari/eslint-plugin": ^0.0.1-rc.4
@@ -8020,7 +8004,7 @@ __metadata:
     "@sentry/types": ^7.9.0
     "@sentry/webpack-plugin": ^1.19.0
     "@solana/spl-token": ^0.3.5
-    "@solana/web3.js": ^1.44.3
+    "@solana/web3.js": ^1.62.0
     "@storybook/addon-actions": ^6.5.10
     "@storybook/addon-docs": ^6.5.10
     "@storybook/addon-essentials": ^6.5.10
@@ -8157,7 +8141,7 @@ __metadata:
   dependencies:
     "@certusone/wormhole-sdk": ^0.6.0
     "@solana/spl-token": ^0.3.4
-    "@solana/web3.js": ^1.48.0
+    "@solana/web3.js": ^1.62.0
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/solana": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
@@ -11120,6 +11104,17 @@ __metadata:
   dependencies:
     safer-buffer: ~2.1.0
   checksum: 39f2ae343b03c15ad4f238ba561e626602a3de8d94ae536c46a4a93e69578826305366dc09fbb9b56aec39b4982a463682f259c38e59f6fa380cd72cd61e493d
+  languageName: node
+  linkType: hard
+
+"asn1js@npm:^3.0.1, asn1js@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "asn1js@npm:3.0.5"
+  dependencies:
+    pvtsutils: ^1.3.2
+    pvutils: ^1.1.3
+    tslib: ^2.4.0
+  checksum: 3b6af1bbadd5762ef8ead5daf2f6bda1bc9e23bc825c4dcc996aa1f9521ad7390a64028565d95d98090d69c8431f004c71cccb866004759169d7c203cf9075eb
   languageName: node
   linkType: hard
 
@@ -27772,6 +27767,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pvtsutils@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "pvtsutils@npm:1.3.2"
+  dependencies:
+    tslib: ^2.4.0
+  checksum: 9b8155611363e2f40276879f2454e60204b45be0cd0482f9373f369308a2e9c76d5d74cdf661a3f5aae8022d75ea159eb0ba38ee78fc782ee3051e4722db98d0
+  languageName: node
+  linkType: hard
+
+"pvutils@npm:^1.1.3":
+  version: 1.1.3
+  resolution: "pvutils@npm:1.1.3"
+  checksum: 2ee26a9e5176c348977d6ec00d8ee80bff62f51743b1c5fe8abeeb4c5d29d9959cdfe0ce146707a9e6801bce88190fed3002d720b072dc87d031c692820b44c9
+  languageName: node
+  linkType: hard
+
 "q@npm:^1.1.2, q@npm:^1.5.1":
   version: 1.5.1
   resolution: "q@npm:1.5.1"
@@ -28286,17 +28297,6 @@ __metadata:
   version: 1.0.0
   resolution: "react-native-crypto-js@npm:1.0.0"
   checksum: 74aa3f16820b8d76fbb21a0bff720f0152e21ecc5e46edb4d1d01dcb86af4da934f4d8a1d5059bf8680bbc5090852b302b29bb742980c45137bfed6cef5991d3
-  languageName: node
-  linkType: hard
-
-"react-native-url-polyfill@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "react-native-url-polyfill@npm:1.3.0"
-  dependencies:
-    whatwg-url-without-unicode: 8.0.0-3
-  peerDependencies:
-    react-native: "*"
-  checksum: 24ef81493a642b9359c1e8048de4da84fb554ffcf35677f9d8b11956d700faa4b9ac9d74f56aee67dd8d8b4ef6d9879e7431848785880ada657f8bec0211b00a
   languageName: node
   linkType: hard
 
@@ -33896,6 +33896,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"webcrypto-core@npm:^1.7.4":
+  version: 1.7.5
+  resolution: "webcrypto-core@npm:1.7.5"
+  dependencies:
+    "@peculiar/asn1-schema": ^2.1.6
+    "@peculiar/json-schema": ^1.1.12
+    asn1js: ^3.0.1
+    pvtsutils: ^1.3.2
+    tslib: ^2.4.0
+  checksum: f6e529ca5c1175b8ccead3547f60efa7a1f8e247aaeab3bd4f096eb9fda11cfc8e6b6fb574bbc5696f608958c491a27e9682c89204412f73fb430e5fcbe9ebac
+  languageName: node
+  linkType: hard
+
 "webidl-conversions@npm:^3.0.0":
   version: 3.0.1
   resolution: "webidl-conversions@npm:3.0.1"
@@ -34242,17 +34255,6 @@ __metadata:
   version: 2.3.0
   resolution: "whatwg-mimetype@npm:2.3.0"
   checksum: 23eb885940bcbcca4ff841c40a78e9cbb893ec42743993a42bf7aed16085b048b44b06f3402018931687153550f9a32d259dfa524e4f03577ab898b6965e5383
-  languageName: node
-  linkType: hard
-
-"whatwg-url-without-unicode@npm:8.0.0-3":
-  version: 8.0.0-3
-  resolution: "whatwg-url-without-unicode@npm:8.0.0-3"
-  dependencies:
-    buffer: ^5.4.3
-    punycode: ^2.1.1
-    webidl-conversions: ^5.0.0
-  checksum: 1fe266f7161e0bd961087c1254a5a59d1138c3d402064495eed65e7590d9caed5a1d9acfd6e7a1b0bf0431253b0e637ee3e4ffc08387cd60e0b2ddb9d4687a4b
   languageName: node
   linkType: hard
 

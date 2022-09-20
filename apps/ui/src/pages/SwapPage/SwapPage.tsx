@@ -17,6 +17,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
+import { MultiConnectButton } from "../../components/ConnectButton";
 import { RecentInteractions } from "../../components/RecentInteractions";
 import { SlippageButton } from "../../components/SlippageButton";
 import { SwapForm } from "../../components/SwapForm";
@@ -70,6 +71,10 @@ const SwapPage = (): ReactElement => {
                   <h2>{t("nav.swap")}</h2>
                 </EuiTitle>
               </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <MultiConnectButton size="s" fullWidth />
+              </EuiFlexItem>
+
               <EuiFlexItem grow={false}>
                 <SlippageButton
                   slippagePercent={slippagePercent}

@@ -119,6 +119,7 @@ describe("useWalletAutoConnect", () => {
   });
 
   describe("Martian support", () => {
+    const ogininalAptosEnvValue = process.env.REACT_APP_ENABLE_APTOS;
     beforeAll(() => {
       process.env.REACT_APP_ENABLE_APTOS = "true";
       (window as any).martian = {};
@@ -133,7 +134,7 @@ describe("useWalletAutoConnect", () => {
       }),
     );
     afterAll(() => {
-      delete process.env.REACT_APP_ENABLE_APTOS;
+      process.env.REACT_APP_ENABLE_APTOS = ogininalAptosEnvValue;
       delete (window as any).martian;
     });
 

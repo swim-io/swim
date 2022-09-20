@@ -3,6 +3,3 @@ node_modules/
 artifacts/
 cache/
 coverage/
-src/deploy.ts
-src/deployment.ts
-test/pool.ts

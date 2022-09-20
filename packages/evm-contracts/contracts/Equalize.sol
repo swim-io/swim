@@ -1,26 +1,26 @@
 //SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.15;
 
-type Equalized is uint256;
+type Equalized is uint;
 
 library Equalize {
-  error MaxAmountExceeded(uint256 amount, int8 equalizer);
-  error LosingAllPrecision(uint256 value, int8 equalizer);
+  error MaxAmountExceeded(uint amount, int equalizer);
+  error LosingAllPrecision(uint value, int equalizer);
 
-  uint256 public constant MAX_AMOUNT = (1 << 61) - 1;
+  uint public constant MAX_AMOUNT = (1 << 61) - 1;
 
-  function to(uint256 amount, int8 equalizer) internal pure returns (Equalized) {
+  function to(uint amount, int equalizer) internal pure returns (Equalized) {
     if (amount == 0) return Equalized.wrap(0);
 
-    uint256 equalized;
+    uint equalized;
     if (equalizer < 0) {
       unchecked {
-        equalized = amount / uint256(10)**(uint256(int256(-equalizer)));
+        equalized = amount / uint(10)**(uint(-equalizer));
       }
       if (equalized == 0) revert LosingAllPrecision(amount, equalizer);
     } else {
       unchecked {
-        equalized = uint256(10)**(uint256(int256(equalizer)));
+        equalized = uint(10)**(uint(equalizer));
       }
       equalized *= amount; //SafeMath!
     }
@@ -28,19 +28,19 @@ library Equalize {
     return Equalized.wrap(equalized);
   }
 
-  function from(Equalized equalized, int8 equalizer) internal pure returns (uint256) {
-    uint256 amount = Equalized.unwrap(equalized);
+  function from(Equalized equalized, int equalizer) internal pure returns (uint) {
+    uint amount = Equalized.unwrap(equalized);
     if (amount == 0) return 0;
 
     if (equalizer < 0) {
-      uint256 tmp;
+      uint tmp;
       unchecked {
-        tmp = uint256(10)**(uint256(int256(-equalizer)));
+        tmp = uint(10)**(uint(-equalizer));
       }
       amount *= tmp; //SafeMath!
     } else {
       unchecked {
-        amount /= uint256(10)**(uint256(int256(equalizer)));
+        amount /= uint(10)**(uint(equalizer));
       }
       if (amount == 0) revert LosingAllPrecision(Equalized.unwrap(equalized), equalizer);
     }

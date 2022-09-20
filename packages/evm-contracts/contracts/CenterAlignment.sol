@@ -16,47 +16,43 @@ library CenterAlignment {
   //
   // The shift parameter tracks how far val needs to be RIGHT shifted to deflate
   //  val back to its original/base alignment (after we originally inflating it
-  //  by center shifting it.)
+  //  by center shifting it).
 
-  uint256 private constant BITS_PER_UINT = 256;
-  uint256 private constant ALIGNMENT_SHIFT = BITS_PER_UINT / 4; //=64
-  uint256 private constant CENTERING_SHIFT = ALIGNMENT_SHIFT + ALIGNMENT_SHIFT / 2; //=96
+  uint private constant BITS_PER_UINT = 256;
+  uint private constant ALIGNMENT_SHIFT = BITS_PER_UINT / 4; //=64
+  uint private constant CENTERING_SHIFT = ALIGNMENT_SHIFT + ALIGNMENT_SHIFT / 2; //=96
   //shift right when greater than ALIGNMENT_UPPER_THRESHOLD
-  uint256 private constant ALIGNMENT_UPPER_THRESHOLD = (1 << (ALIGNMENT_SHIFT * 3)) - 1;
+  uint private constant ALIGNMENT_UPPER_THRESHOLD = (1 << (ALIGNMENT_SHIFT * 3)) - 1;
   //shift left less than ALIGNMENT_LOWER_THRESHOLD
-  uint256 private constant ALIGNMENT_LOWER_THRESHOLD = 1 << (ALIGNMENT_SHIFT * 2);
+  uint private constant ALIGNMENT_LOWER_THRESHOLD = 1 << (ALIGNMENT_SHIFT * 2);
 
-  function toAligned(uint256 val) internal pure returns (uint256, int256) {
-    return (val << CENTERING_SHIFT, int256(CENTERING_SHIFT));
+  function toAligned(uint val) internal pure returns (uint, int) {
+    return (val << CENTERING_SHIFT, int(CENTERING_SHIFT));
   }
 
-  function keepAligned(uint256 val, int256 shift) internal pure returns (uint256, int256) {
-    unchecked {
-      if (val > ALIGNMENT_UPPER_THRESHOLD) {
-        //val has grown large enough to occupy space in the upper uint64
-        // => shift down and decrease required right shift
-        return (val >> ALIGNMENT_SHIFT, shift - int256(ALIGNMENT_SHIFT));
-      }
-      if (val < ALIGNMENT_LOWER_THRESHOLD) {
-        //val has shrunk so much that it doesn't occupy the upper half anymore
-        // => shift up and increase required right shift
-        return (val << ALIGNMENT_SHIFT, shift + int256(ALIGNMENT_SHIFT));
-      }
-      return (val, shift);
+  function keepAligned(uint val, int shift) internal pure returns (uint, int) { unchecked {
+    if (val > ALIGNMENT_UPPER_THRESHOLD) {
+      //val has grown large enough to occupy space in the upper uint64
+      // => shift down and decrease required right shift
+      return (val >> ALIGNMENT_SHIFT, shift - int(ALIGNMENT_SHIFT));
     }
-  }
-
-  function fromAligned(uint256 val, int256 shift) internal pure returns (uint256) {
-    unchecked {
-      if (shift < 0) {
-        uint256 unshift = uint256(-shift);
-        //ensure we aren't overflowing on rightshift
-        if (unshift >= BITS_PER_UINT || val >= (1 << (BITS_PER_UINT - unshift)))
-          revert NumericOverflow();
-        return val << unshift;
-      }
-      //potentially underflowing to 0 is ok
-      return val >> uint256(shift);
+    if (val < ALIGNMENT_LOWER_THRESHOLD) {
+      //val has shrunk so much that it doesn't occupy the upper half anymore
+      // => shift up and increase required right shift
+      return (val << ALIGNMENT_SHIFT, shift + int(ALIGNMENT_SHIFT));
     }
-  }
+    return (val, shift);
+  }}
+
+  function fromAligned(uint val, int shift) internal pure returns (uint) { unchecked {
+    if (shift < 0) {
+      uint unshift = uint(-shift);
+      //ensure we aren't overflowing on rightshift
+      if (unshift >= BITS_PER_UINT || val >= (1 << (BITS_PER_UINT - unshift)))
+        revert NumericOverflow();
+      return val << unshift;
+    }
+    //potentially underflowing to 0 is ok
+    return val >> uint(shift);
+  }}
 }

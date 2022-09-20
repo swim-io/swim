@@ -119,7 +119,10 @@ describe("useWalletAutoConnect", () => {
   });
 
   describe("Martian support", () => {
-    beforeAll(() => ((window as any).martian = {}));
+    beforeAll(() => {
+      process.env.REACT_APP_ENABLE_APTOS = "true";
+      (window as any).martian = {};
+    });
     beforeEach(() =>
       walletAdapterStore.setState({
         selectedServiceByProtocol: {
@@ -129,7 +132,10 @@ describe("useWalletAutoConnect", () => {
         },
       }),
     );
-    afterAll(() => delete (window as any).martian);
+    afterAll(() => {
+      delete process.env.REACT_APP_ENABLE_APTOS;
+      delete (window as any).martian;
+    });
 
     it("should call connect when Martian is selected and present", async () => {
       const connect = jest.fn().mockImplementation(() => Promise.resolve());

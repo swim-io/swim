@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/explicit-member-accessibility */
 
 import { BigNumber, formatFixed, parseFixed } from "@ethersproject/bignumber";
 import { hexlify } from "@ethersproject/bytes";

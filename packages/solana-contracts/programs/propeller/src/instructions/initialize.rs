@@ -83,11 +83,11 @@ impl<'info> Initialize<'info> {
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default, Debug)]
 pub struct InitializeParams {
     pub gas_kickstart_amount: u64,
-    pub propeller_fee: u64,
     pub secp_verify_init_fee: u64,
     pub secp_verify_fee: u64,
     pub post_vaa_fee: u64,
     pub complete_with_payload_fee: u64,
+    pub init_ata_fee: u64,
     pub process_swim_payload_fee: u64,
     // pub propeller_min_transfer_amount: u64,
     // pub propeller_eth_min_transfer_amount: u64,
@@ -112,7 +112,7 @@ pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> 
     propeller.redeemer_bump = *ctx.bumps.get("propeller_redeemer").unwrap();
 
     propeller.gas_kickstart_amount = params.gas_kickstart_amount;
-    propeller.propeller_fee = params.propeller_fee;
+    propeller.init_ata_fee = params.init_ata_fee;
     propeller.secp_verify_init_fee = params.secp_verify_init_fee;
     propeller.secp_verify_fee = params.secp_verify_fee;
     propeller.post_vaa_fee = params.post_vaa_fee;

@@ -506,7 +506,9 @@ fn calculate_fees(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<u
     let claim_rent_exempt_fees =
         rent.minimum_balance(ctx.accounts.complete_native_with_payload.claim.to_account_info().data_len());
     let propeller = &ctx.accounts.complete_native_with_payload.propeller;
-    let complete_with_payload_fee = propeller.complete_with_payload_fee;
+    // let complete_with_payload_fee = propeller.complete_with_payload_fee;
+    let complete_with_payload_fee = propeller.get_complete_native_with_payload_fee();
+
     let total_rent_exemption_in_lamports = propeller_message_rent_exempt_fees
         .checked_add(wormhole_message_rent_exempt_fees)
         .and_then(|x| x.checked_add(claim_rent_exempt_fees))

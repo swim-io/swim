@@ -7,6 +7,10 @@ skip-lint = false
 two_pool = "8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM"
 propeller = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
 
+[programs.devnet]
+two_pool = "8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM"
+propeller = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+
 [registry]
 url = "https://api.apr.dev"
 
@@ -24,6 +28,7 @@ test = "./scripts/run_anchor_test.sh"
 #initialize_pool_devnet = "yarn run build:anchor-devnet && yarn run ts-node sdk/scripts/initializePool.ts"
 initialize_pool = "yarn run ts-node scripts/initializePool.ts"
 scratch = "yarn run ts-node src/__tests__/scratch.ts"
+initialize_propeller = "yarn run ts-node scripts/initializePropeller.ts"
 
 [test]
 startup_wait = 100000
@@ -68,9 +73,18 @@ filename = "src/__tests__/propeller/wh_payload3/accounts/fee_collector.json"
 address = "3GwVs8GSLdo4RUsoXTkGQhojauQ1sXcDNjm7LSDicw19"
 filename = "src/__tests__/propeller/wh_payload3/accounts/token_config.json"
 
+
+## copied from xdapp-book repo `projects/wormhole-local-validator/solana-accounts`
+
+# localnet eth endpoint pda
 [[test.validator.account]]
 address = "7UqWgfVW1TrjrqauMfDoNMcw8kEStSsQXWNoT2BbhDS5"
-filename = "src/__tests__/propeller/wh_payload3/accounts/ethereum_token_bridge.json"
+filename = "src/__tests__/propeller/wh_payload3/accounts/eth_endpoint.json"
+
+# localnet bsc endpoint pda
+[[test.validator.account]]
+address = "BmRvjCA2cQ1qUNAMVAnPgmjATSBPa2pxE3Q7bRoSGFED"
+filename = "src/__tests__/propeller/wh_payload3/accounts/bsc_endpoint.json"
 
 [[test.validator.clone]]
 address="GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR" # sbv2 SOL/USD Feed
@@ -80,105 +94,3 @@ address="2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG" # programId` \
 address="J4CArpsbrZqu1axqQ4AnrqREs3jwoyA1M5LMiQQmAzB9" # programDataAddress` \
 [[test.validator.clone]]
 address="CKwZcshn4XDvhaWVH9EXnk3iu19t6t5xP2Sy2pD6TRDp" # idlAddress` \
-#[[test.validator.clone]]
-#address="BYM81n8HvTJuqZU1PmTVcwZ9G8uoji7FKM6EaPkwphPt" # programState` \
-#[[test.validator.clone]]
-#address="FVLfR6C2ckZhbSwBzZY4CX7YBcddUSge5BNeGQv5eKhy" # switchboardVault` \
-#[[test.validator.clone]]
-#address="So11111111111111111111111111111111111111112" # switchboardMint` \
-#[[test.validator.clone]]
-#address="CB4VzLxTwECHuqs4eqXywLXGwpQw3mVqe3NhPMSerNMJ" # tokenWallet` \
-#[[test.validator.clone]]
-#address="AcSXYonfyHTDJeAcWPNMyyZusKJCZXdGrMN33NBXoAaV" # queue` \
-#[[test.validator.clone]]
-#address="GPy3FiGpEyMFCTsYgcw9i6rSWsvJpgzA39QDXv8zquW" # queueAuthority` \
-#[[test.validator.clone]]
-#address="4ptM4oxd9tE7ajPqKPZoJuqK7yhTSod5sZNptQBmP1Fh" # queueBuffer` \
-#[[test.validator.clone]]
-#address="Bp2Z3RufYVxncybo4bBnrJgjT8nNtLQ4gCMmEPaQMt9e" # crank` \
-#[[test.validator.clone]]
-#address="HNHxWYVF8Qg6pLX4rmi4GH2yJzo9s2jpAnMzAErUWKek" # crankBuffer` \
-#[[test.validator.clone]]
-#address="7pqX6qEABdf9rUeLW7YXZn3hqBMqAxZMgTKY8xaXrkaF" # oracle` \
-#[[test.validator.clone]]
-#address="GPy3FiGpEyMFCTsYgcw9i6rSWsvJpgzA39QDXv8zquW" # oracleAuthority` \
-#[[test.validator.clone]]
-#address="J4ujfcYoiLsNRGbjAJPzD9mwGYS1ZPFyBmDRRWzLsB52" # oracleEscrow` \
-#[[test.validator.clone]]
-#address="39hSPM6mK7DCDwWdkTs2gmGLBsRYmNpLfLD89aPQfB56" # oraclePermissions` \
-#[[test.validator.clone]]
-#address="4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU" # additionalClonedAccounts`
-#
-#[[test.validator.clone]]
-#address="2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG"  # programId`
-#[[test.validator.clone]]
-#address="J4CArpsbrZqu1axqQ4AnrqREs3jwoyA1M5LMiQQmAzB9"  # programDataAddress`
-#[[test.validator.clone]]
-#address="CKwZcshn4XDvhaWVH9EXnk3iu19t6t5xP2Sy2pD6TRDp"  # idlAddress`
-#[[test.validator.clone]]
-#address="BYM81n8HvTJuqZU1PmTVcwZ9G8uoji7FKM6EaPkwphPt"  # programState`
-#[[test.validator.clone]]
-#address="FVLfR6C2ckZhbSwBzZY4CX7YBcddUSge5BNeGQv5eKhy"  # switchboardVault`
-#[[test.validator.clone]]
-#address="So11111111111111111111111111111111111111112"  # switchboardMint`
-#[[test.validator.clone]]
-#address="HCiY6pvtMKd3aUBsyQ6xUc23xa35E25qa9JbQuje2jYf"  # tokenWallet`
-#[[test.validator.clone]]
-#address="FZNg9Wpo3ecD9JUA3aFo6fuqqrQj3xbHGTzX1M2VqAUV"  # queue`
-#[[test.validator.clone]]
-#address="9jA3kunCsQZwNc68G9LiYgzUToi5Cxghaa2uuSc6wSCV"  # queueAuthority`
-#[[test.validator.clone]]
-#address="6Dmz75Si8yymVZ1fC4NNFCVkyRkn1vLmy3TrFQC1EGmV"  # queueBuffer`
-#[[test.validator.clone]]
-#address="7CkxSte38oknseNRpmG6UPAs3qwoxac6uJbbMvXudgpd"  # crank`
-#[[test.validator.clone]]
-#address="6HUteGfQZ41kUAm7oS4NrGCeTm8franNq1FjhDYQucQv"  # crankBuffer`
-#[[test.validator.clone]]
-#address="4dou1XgucJNA9ZhdrcTcJd77n38qB64Tfm6ucqDtwnxe"  # oracle`
-#[[test.validator.clone]]
-#address="9jA3kunCsQZwNc68G9LiYgzUToi5Cxghaa2uuSc6wSCV"  # oracleAuthority`
-#[[test.validator.clone]]
-#address="DzrFXtf8n9SpsPYDKuxVg8yRmPztfwD2fp3p5v8GFneE"  # oracleEscrow`
-#[[test.validator.clone]]
-#address="CYTePprT7N9C3bZ7ypjck2nyksZesULS9nvjKXa3F9N8"  # oraclePermissions`
-#
-#[[test.validator.clone]]
-#address="2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG" # programId` \
-#[[test.validator.clone]]
-#address="J4CArpsbrZqu1axqQ4AnrqREs3jwoyA1M5LMiQQmAzB9" # programDataAddress` \
-#[[test.validator.clone]]
-#address="CKwZcshn4XDvhaWVH9EXnk3iu19t6t5xP2Sy2pD6TRDp" # idlAddress` \
-#[[test.validator.clone]]
-#address="BYM81n8HvTJuqZU1PmTVcwZ9G8uoji7FKM6EaPkwphPt" # programState` \
-#[[test.validator.clone]]
-#address="FVLfR6C2ckZhbSwBzZY4CX7YBcddUSge5BNeGQv5eKhy" # switchboardVault` \
-#[[test.validator.clone]]
-#address="So11111111111111111111111111111111111111112" # switchboardMint` \
-#[[test.validator.clone]]
-#address="HCiY6pvtMKd3aUBsyQ6xUc23xa35E25qa9JbQuje2jYf" # tokenWallet` \
-#[[test.validator.clone]]
-#address="DjjfYQkBhTGz1EKfWCmw2UJt1c4e7yGWSAJYAi3V2Vne" # queue` \
-#[[test.validator.clone]]
-#address="9jA3kunCsQZwNc68G9LiYgzUToi5Cxghaa2uuSc6wSCV" # queueAuthority` \
-#[[test.validator.clone]]
-#address="FkDLohUxFTGpiHaE7mUNAgqbKfUJmz7C4uj2Q5XYtwTC" # queueBuffer` \
-#[[test.validator.clone]]
-#address="8vx348m2UUjYXZoVbzpLXv9Qy3mkWTjLs2FHWFmKyzFA" # crank` \
-#[[test.validator.clone]]
-#address="dwQWGsX3YGFzomZUXhYq4zdJ5bLHpC24p12x6KXms8c" # crankBuffer` \
-#[[test.validator.clone]]
-#address="3rNPdbhEnrXvPGeLoHr7bnrYykXJE8R1YY7BAozGoffd" # oracle` \
-#[[test.validator.clone]]
-#address="9jA3kunCsQZwNc68G9LiYgzUToi5Cxghaa2uuSc6wSCV" # oracleAuthority` \
-#[[test.validator.clone]]
-#address="91Mpa1qCgAwtbyEMc9vmxyUuZ3fQQpbqGQ6gPDv1s8is" # oracleEscrow` \
-#[[test.validator.clone]]
-#address="FD6z6EbSr2dV1tqUqMR9yxPy2gysEPepnmLLVntt7N13" # oraclePermissions` \
-#[[test.validator.clone]]
-#address="4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU" # additionalClonedAccounts`
-#
-
-
-#[[test.genesis]]
-#address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-#program = "src/__tests__/propeller/spl_token_metadata.so"

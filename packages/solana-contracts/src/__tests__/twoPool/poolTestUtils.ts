@@ -1,5 +1,6 @@
-import { BN, Program, Spl, SplToken } from "@project-serum/anchor";
-import { web3 } from "@project-serum/anchor";
+import type { Program, SplToken } from "@project-serum/anchor";
+import { BN, Spl, web3 } from "@project-serum/anchor";
+import { SplAssociatedToken } from "@project-serum/anchor/dist/cjs/spl/associated-token";
 import {
   // getAccount,
   getAssociatedTokenAddress,
@@ -7,10 +8,16 @@ import {
   // mintTo,
 } from "@solana/spl-token";
 import type { Commitment, ConfirmOptions } from "@solana/web3.js";
+import {
+  Account,
+  Connection,
+  PublicKey,
+  Signer,
+  Transaction,
+  sendAndConfirmTransaction,
+} from "@solana/web3.js";
 
 import type { TwoPool } from "../../artifacts/two_pool";
-import { Account, Connection, PublicKey, sendAndConfirmTransaction, Signer, Transaction } from "@solana/web3.js";
-import { SplAssociatedToken } from "@project-serum/anchor/dist/cjs/spl/associated-token";
 
 /**
  * It initializes the mints for the tokens that will be used in the pool, and then *CALCULATES* the pool token accounts and
@@ -164,20 +171,18 @@ export async function setupPoolPrereqs(
   };
 }
 
-
 export async function setupUserAssociatedTokenAccts(
   connection: web3.Connection,
   owner: web3.PublicKey,
   mints: ReadonlyArray<web3.PublicKey>,
   mintAuthorities: ReadonlyArray<web3.Keypair>,
   lpMint: web3.PublicKey,
-  amount: number | bigint,
+  amount: BN,
   payer: web3.Keypair,
   splToken: Program<SplToken>,
   // splAssociatedToken: Program<SplAssociatedToken>,
   commitment?: Commitment,
   confirmOptions?: ConfirmOptions,
-
 ): Promise<{
   readonly userPoolTokenAtas: ReadonlyArray<web3.PublicKey>;
   readonly userLpTokenAta: web3.PublicKey;
@@ -201,9 +206,8 @@ export async function setupUserAssociatedTokenAccts(
       console.info(
         `mint[${i}]: ${mint.toBase58()}. created/retrieved userAta: ${userAta.toBase58()}`,
       );
-      await splToken
-        .methods
-        .mintTo(new BN(amount))
+      await splToken.methods
+        .mintTo(amount)
         .accounts({
           mint,
           to: userAta,

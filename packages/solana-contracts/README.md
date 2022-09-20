@@ -6,17 +6,26 @@ If any changes are made to the smart contract that would require regenerating th
 run the following command from the `swim-anchor` directory and update any relevant sdk related code
 `yarn run idl`
 
-## Scripts (WIP)
 
+
+## Scripts (WIP)
+### Testing scripts on localnet
 ```sh
 # for localnet testing
 yarn run prep && anchor localnet --skip-build
 
 anchor run initialize_pool
-
-# for devnet
-yarn run prep:devnet && anchor run --provider.cluster initilaize_pool
+# copy address of pool into localnet_config.json
 ```
+
+### Run scripts on devnet
+
+```sh
+# for devnet
+yarn run prep:devnet && anchor run --provider.cluster initialize_pool
+```
+
+
 
 ## Tests
 

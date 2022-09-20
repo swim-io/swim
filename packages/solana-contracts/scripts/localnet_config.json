@@ -1,0 +1,17 @@
+{
+  "swimUsdPool": "29ih2FpXzsShRKVS4ymxgLW5RVvxQyWB9XTMRXP1wKsH",
+  "wormholeCore": "Bridge1p5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o",
+  "wormholeTokenBridge": "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE",
+  "targetChains": [
+    {
+      "targetChainId": 2,
+      "targetAddress": "0xa33E4d9624608c468FE5466dd6CC39cE1Da4FF78",
+      "tokenBridge": "0x0290FB167208Af455bB137780163b7B7a9a10C16"
+    },
+    {
+      "targetChainId": 4,
+      "targetAddress": "0xa33E4d9624608c468FE5466dd6CC39cE1Da4FF78",
+      "tokenBridge": "0x0290FB167208Af455bB137780163b7B7a9a10C16"
+    }
+  ]
+}

@@ -12,3 +12,5 @@ types/
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+
+src/__tests__/scratch.ts

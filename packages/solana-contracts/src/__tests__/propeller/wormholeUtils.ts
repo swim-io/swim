@@ -74,7 +74,7 @@ export function signAndEncodeVaa(
       r,
       recoveryParam,
       s,
-    }: { readonly r: BN; readonly recoveryParam: number; readonly s: BN } =
+    }: { readonly r: BN; readonly recoveryParam: number | null; readonly s: BN } =
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       key.sign(hash, {
         canonical: true,
@@ -84,7 +84,8 @@ export function signAndEncodeVaa(
     vm.writeUInt8(i, start);
     vm.write(r.toString(16).padStart(64, "0"), start + 1, "hex");
     vm.write(s.toString(16).padStart(64, "0"), start + 33, "hex");
-    vm.writeUInt8(recoveryParam, start + 65);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    vm.writeUInt8(recoveryParam!, start + 65);
   }
 
   return vm;

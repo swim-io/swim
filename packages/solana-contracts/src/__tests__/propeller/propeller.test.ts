@@ -163,7 +163,7 @@ const propellerAdmin: web3.Keypair = web3.Keypair.generate();
 let propellerFeeVault: web3.PublicKey;
 
 const dummyUser = payer;
-const initialMintAmount = 100_000_000_000_000;
+const initialMintAmount = new BN(100_000_000_000_000);
 // const usdcMintInfo: MintInfo = {
 //     mint: web3.Keypair.generate(),
 //     decimals: 6,
@@ -217,11 +217,11 @@ let metapoolPoolToken1Ata: web3.PublicKey;
 let metapoolGovernanceFeeAta: web3.PublicKey;
 
 const gasKickstartAmount: BN = new BN(0.75 * LAMPORTS_PER_SOL);
-const propellerFee: BN = new BN(0.25 * LAMPORTS_PER_SOL);
 const secpVerifyInitFee: BN = new BN(0.000045 * LAMPORTS_PER_SOL);
 const secpVerifyFee: BN = new BN(0.00004 * LAMPORTS_PER_SOL);
 const postVaaFee: BN = new BN(0.00005 * LAMPORTS_PER_SOL);
 const completeWithPayloadFee: BN = new BN(0.0000055 * LAMPORTS_PER_SOL);
+const initAtaFee: BN = new BN(0.25 * LAMPORTS_PER_SOL);
 const processSwimPayloadFee: BN = new BN(0.00001 * LAMPORTS_PER_SOL);
 // const propellerMinTransferAmount = new BN(5_000_000);
 // const propellerEthMinTransferAmount = new BN(10_000_000);
@@ -621,7 +621,7 @@ describe("propeller", () => {
       );
     const initializeParams = {
       gasKickstartAmount,
-      propellerFee,
+      initAtaFee,
       secpVerifyInitFee,
       secpVerifyFee,
       postVaaFee,
@@ -632,7 +632,7 @@ describe("propeller", () => {
       marginalPricePool,
       marginalPricePoolTokenIndex,
       marginalPricePoolTokenMint,
-      evmRoutingContractAddress: ethRoutingContract,
+      // evmRoutingContractAddress: ethRoutingContract,
       // evmRoutingContractAddress: ethRoutingContractEthUint8Arr
     };
     const tx = propellerProgram.methods
@@ -718,14 +718,12 @@ describe("propeller", () => {
     expect(propellerData.admin).toEqual(propellerAdmin.publicKey);
     expect(propellerData.tokenBridgeMint).toEqual(tokenBridgeMint);
 
-    console.info(`propellerFee: ${propellerData.propellerFee.toString()}`);
     console.info(
       `gasKickstartAmount: ${propellerData.gasKickstartAmount.toString()}`,
     );
     // console.info(
     //   `propellerMinTransferAmount: ${propellerData.propellerMinTransferAmount.toString()}`,
     // );
-    expect(propellerData.propellerFee.eq(propellerFee)).toEqual(true);
     expect(propellerData.gasKickstartAmount.eq(gasKickstartAmount)).toEqual(
       true,
     );
@@ -3681,14 +3679,14 @@ describe("propeller", () => {
             provider.publicKey.toBuffer(),
           );
 
-          const [endpointAccount] = await deriveEndpointPda(
+          const [ethEndpointAccount] = await deriveEndpointPda(
             CHAIN_ID_ETH,
             ethTokenBridge,
             // parsedVaa.emitterChain,
             // parsedVaa.emitterAddress,
             WORMHOLE_TOKEN_BRIDGE,
           );
-          console.info(`endpointAccount: ${endpointAccount.toBase58()}`);
+          console.info(`endpointAccount: ${ethEndpointAccount.toBase58()}`);
           wormholeClaim = await getClaimAddressSolana(
             WORMHOLE_TOKEN_BRIDGE.toBase58(),
             tokenTransferWithPayloadSignedVaa,
@@ -3703,7 +3701,7 @@ describe("propeller", () => {
               // userTokenBridgeAccount: userLpTokenAccount.address,
               message: wormholeMessage,
               claim: wormholeClaim,
-              endpoint: endpointAccount,
+              endpoint: ethEndpointAccount,
               to: propellerRedeemerEscrowAccount,
               redeemer: propellerRedeemer,
               // this is only used in propellerCompleteNativeWithPayload

@@ -24,12 +24,12 @@ pub struct Propeller {
     pub redeemer_bump: u8,
 
     pub gas_kickstart_amount: u64,
-    /// TODO: should these be in swimUSD or native gas?
-    /// fee that payer of complete txn will take from transferred amount
-    pub propeller_fee: u64,
+
+    // all fees are in LAMPORTS and NOT including rent
     pub secp_verify_init_fee: u64,
     pub secp_verify_fee: u64,
     pub post_vaa_fee: u64,
+    pub init_ata_fee: u64,
     pub complete_with_payload_fee: u64,
     pub process_swim_payload_fee: u64,
     // minimum amount of tokens that must be transferred in token bridge transfer
@@ -120,6 +120,10 @@ impl Propeller {
         // .map_err(|_| PropellerError::InvalidWormholeAddress)?;
         let pubkey = crate::TokenBridge::id();
         Ok(pubkey)
+    }
+
+    pub fn get_complete_native_with_payload_fee(&self) -> u64 {
+        self.secp_verify_init_fee + self.secp_verify_fee + self.complete_with_payload_fee
     }
 }
 

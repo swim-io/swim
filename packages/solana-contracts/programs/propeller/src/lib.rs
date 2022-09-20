@@ -326,18 +326,12 @@ pub mod propeller {
         handle_propeller_complete_native_with_payload(ctx)
     }
 
+    /** Valid target_token_id **/
     #[inline(never)]
     #[access_control(PropellerCreateOwnerTokenAccounts::accounts(&ctx))]
     pub fn propeller_create_owner_token_accounts(ctx: Context<PropellerCreateOwnerTokenAccounts>) -> Result<()> {
         handle_propeller_create_owner_token_accounts(ctx)
     }
-
-    //
-    // #[inline(never)]
-    // #[access_control(PropellerProcessSwimPayload::accounts(&ctx))]
-    // pub fn propeller_process_swim_payload(ctx: Context<PropellerProcessSwimPayload>) -> Result<u64> {
-    //     handle_propeller_process_swim_payload(ctx)
-    // }
 
     /// Note: passing in target_token_id here due to PDA seed derivation.
     /// for propeller_process_swim_payload, require_eq!(target_token_id, propeller_message.target_token_id);
@@ -348,6 +342,23 @@ pub mod propeller {
         target_token_id: u16,
     ) -> Result<u64> {
         handle_propeller_process_swim_payload(ctx, target_token_id)
+    }
+
+    /// This ix is used if a propeller engine detects (off-chain) that the target_token_id is not valid
+    /// "Fallback" behavior is to check/create just the token bridge mint (swimUSD) token account for the owner
+    /// then call propeller_process_swim_payload_fallback to finish transferring the swimUSD to the owner.
+    #[inline(never)]
+    #[access_control(PropellerCreateOwnerTokenBridgeAta::accounts(&ctx))]
+    pub fn propeller_create_owner_token_bridge_ata(ctx: Context<PropellerCreateOwnerTokenBridgeAta>) -> Result<()> {
+        handle_propeller_create_owner_token_bridge_ata(ctx)
+    }
+
+    #[inline(never)]
+    #[access_control(PropellerProcessSwimPayloadFallback::accounts(&ctx))]
+    /// This ix is used if a propeller engine detects (off-chain) that the payload.target_token_id is not valid
+    /// this will transfer the swimUSD to the owner (will still kickstart if requested)
+    pub fn propeller_process_swim_payload_fallback(ctx: Context<PropellerProcessSwimPayloadFallback>) -> Result<u64> {
+        handle_propeller_process_swim_payload_fallback(ctx)
     }
 
     // #[inline(never)]
@@ -368,45 +379,44 @@ pub mod propeller {
     // }
 }
 
-#[derive(Accounts)]
-#[instruction(chain_id:u16, target_address: [u8; 32])]
-pub struct CreateChainIdMapping<'info> {
-    #[account(
-        seeds = [b"propeller".as_ref()],
-        bump = propeller.bump,
-    )]
-    pub propeller: Account<'info, Propeller>,
-
-    #[account(
-        constraint = admin.key() == propeller.admin
-    )]
-    pub admin: Signer<'info>,
-
-    #[account(mut)]
-    pub payer: Signer<'info>,
-
-    #[account(
-        init,
-        payer = payer,
-        seeds = [
-            b"propeller".as_ref(),
-            b"chain_map".as_ref(),
-            &chain_id.to_le_bytes()
-        ],
-        bump,
-        space = 8 + ChainMap::MAXIMUM_SIZE,
-    )]
-    pub chain_map: Account<'info, ChainMap>,
-    pub system_program: Program<'info, System>,
-}
-
-//TODO: not needed anymore since assuming target_address is same across all chains
-#[account]
-pub struct ChainMap {
-    pub chain_id: u16,            // 2
-    pub target_address: [u8; 32], // 32
-    pub bump: u8,
-}
-impl ChainMap {
-    pub const MAXIMUM_SIZE: usize = 2 + 32;
-}
+// #[derive(Accounts)]
+// #[instruction(chain_id:u16, target_address: [u8; 32])]
+// pub struct CreateChainIdMapping<'info> {
+//     #[account(
+//         seeds = [b"propeller".as_ref()],
+//         bump = propeller.bump,
+//     )]
+//     pub propeller: Account<'info, Propeller>,
+//
+//     #[account(
+//         constraint = admin.key() == propeller.admin
+//     )]
+//     pub admin: Signer<'info>,
+//
+//     #[account(mut)]
+//     pub payer: Signer<'info>,
+//
+//     #[account(
+//         init,
+//         payer = payer,
+//         seeds = [
+//             b"propeller".as_ref(),
+//             b"chain_map".as_ref(),
+//             &chain_id.to_le_bytes()
+//         ],
+//         bump,
+//         space = 8 + ChainMap::MAXIMUM_SIZE,
+//     )]
+//     pub chain_map: Account<'info, ChainMap>,
+//     pub system_program: Program<'info, System>,
+// }
+//
+// #[account]
+// pub struct ChainMap {
+//     pub chain_id: u16,            // 2
+//     pub target_address: [u8; 32], // 32
+//     pub bump: u8,
+// }
+// impl ChainMap {
+//     pub const MAXIMUM_SIZE: usize = 2 + 32;
+// }

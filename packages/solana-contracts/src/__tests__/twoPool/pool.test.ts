@@ -63,7 +63,7 @@ describe("TwoPool", () => {
   const governanceKeypair = Keypair.generate();
   const pauseKeypair = Keypair.generate();
   const newPauseKeypair = Keypair.generate();
-  const initialMintAmount = 1_000_000_000_000;
+  const initialMintAmount = new BN(1_000_000_000_000);
 
   let poolUsdcAtaAddr: PublicKey;
   let poolUsdtAtaAddr: PublicKey;

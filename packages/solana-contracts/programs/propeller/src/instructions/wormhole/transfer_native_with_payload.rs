@@ -135,8 +135,6 @@ pub struct TransferNativeWithPayload<'info> {
     /// CHECK: Wormhole Fee Collector. leaving as UncheckedAccount since it could be uninitialized for the first transfer.
     pub wormhole_fee_collector: AccountInfo<'info>,
 
-    pub clock: Sysvar<'info, Clock>,
-
     /// Transfers with payload also include the address of the account or contract
     /// that sent the transfer. Semantically this is identical to "msg.sender" on
     /// EVM chains, i.e. it is the address of the immediate caller of the token
@@ -175,8 +173,6 @@ pub struct TransferNativeWithPayload<'info> {
 	)]
     /// CHECK: Sender Account
     pub sender: SystemAccount<'info>,
-    pub rent: Sysvar<'info, Rent>,
-    pub system_program: Program<'info, System>,
 
     // #[account(executable, address = propeller.wormhole()?)]
     // /// CHECK: Wormhole Program
@@ -198,6 +194,10 @@ pub struct TransferNativeWithPayload<'info> {
     bump = target_chain_map.bump
     )]
     pub target_chain_map: Account<'info, TargetChainMap>,
+    pub system_program: Program<'info, System>,
+
+    pub clock: Sysvar<'info, Clock>,
+    pub rent: Sysvar<'info, Rent>,
 }
 
 impl<'info> TransferNativeWithPayload<'info> {

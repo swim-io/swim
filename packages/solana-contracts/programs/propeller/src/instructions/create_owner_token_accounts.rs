@@ -184,6 +184,9 @@ pub struct PropellerCreateOwnerTokenAccounts<'info> {
     pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
 
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
+    #[account(executable, address = spl_memo::id())]
+    ///CHECK: memo program
+    pub memo: UncheckedAccount<'info>,
 }
 
 impl<'info> PropellerCreateOwnerTokenAccounts<'info> {
@@ -247,6 +250,7 @@ pub fn handle_propeller_create_owner_token_accounts(ctx: Context<PropellerCreate
     // let to_pubkey = Pubkey::new_from_array(to);
     // require_keys_eq!(to_pubkey, crate::ID);
 
+    let init_ata_fee = ctx.accounts.propeller.init_ata_fee;
     let token_program = ctx.accounts.token_program.to_account_info();
     let payer = ctx.accounts.payer.to_account_info();
     let user = ctx.accounts.user.to_account_info();
@@ -258,6 +262,7 @@ pub fn handle_propeller_create_owner_token_accounts(ctx: Context<PropellerCreate
         ctx.accounts.pool_token_0_mint.to_account_info().clone(),
         system_program.clone(),
         token_program.clone(),
+        init_ata_fee,
     )?;
     msg!("init_token_account_0_fees: {}", init_token_account_0_fees);
     let init_token_account_1_fees = initialize_user_ata_and_get_fees(
@@ -267,6 +272,7 @@ pub fn handle_propeller_create_owner_token_accounts(ctx: Context<PropellerCreate
         ctx.accounts.pool_token_1_mint.to_account_info().clone(),
         system_program.clone(),
         token_program.clone(),
+        init_ata_fee,
     )?;
     let init_lp_token_account_fees = initialize_user_ata_and_get_fees(
         ctx.accounts.user_lp_token_account.to_account_info().clone(),
@@ -275,6 +281,7 @@ pub fn handle_propeller_create_owner_token_accounts(ctx: Context<PropellerCreate
         ctx.accounts.pool_lp_mint.to_account_info().clone(),
         system_program.clone(),
         token_program.clone(),
+        init_ata_fee,
     )?;
     create_owner_token_account_total_fees_in_lamports = init_token_account_0_fees
         .checked_add(init_token_account_1_fees)
@@ -294,6 +301,7 @@ pub fn handle_propeller_create_owner_token_accounts(ctx: Context<PropellerCreate
         create_owner_token_account_total_fees_in_lamports
     );
     if create_owner_token_account_total_fees_in_lamports == 0 {
+        //TODO: log memo still?
         msg!("No accounts need to be initialized. Returning early");
         return Ok(());
     }
@@ -330,6 +338,9 @@ pub fn handle_propeller_create_owner_token_accounts(ctx: Context<PropellerCreate
     );
     ctx.accounts.propeller_message.transfer_amount = new_transfer_amount;
 
+    let memo = ctx.accounts.propeller_message.memo;
+    let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+    invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     Ok(())
 }
 
@@ -340,6 +351,7 @@ fn initialize_user_ata_and_get_fees<'info>(
     mint: AccountInfo<'info>,
     system_program: AccountInfo<'info>,
     token_program: AccountInfo<'info>,
+    create_ata_fee: u64,
 ) -> Result<u64> {
     //TODO: figure out actual cost of create ata txn.
     let create_ata_fee = 10000u64;
@@ -368,6 +380,364 @@ fn initialize_user_ata_and_get_fees<'info>(
 fn get_fees_in_token_bridge_mint(
     fee_in_lamports: u64,
     ctx: &Context<PropellerCreateOwnerTokenAccounts>,
+) -> Result<u64> {
+    msg!("fee_in_lamports: {:?}", fee_in_lamports);
+
+    let propeller = &ctx.accounts.propeller;
+    let lp_mint_key = ctx.accounts.marginal_price_pool_lp_mint.key();
+
+    let token_bridge_mint_key = propeller.token_bridge_mint;
+    let cpi_ctx = CpiContext::new(
+        ctx.accounts.two_pool_program.to_account_info(),
+        two_pool::cpi::accounts::MarginalPrices {
+            pool: ctx.accounts.marginal_price_pool.to_account_info(),
+            pool_token_account_0: ctx.accounts.marginal_price_pool_token_0_account.to_account_info(),
+            pool_token_account_1: ctx.accounts.marginal_price_pool_token_1_account.to_account_info(),
+            lp_mint: ctx.accounts.marginal_price_pool_lp_mint.to_account_info(),
+        },
+    );
+    let result = two_pool::cpi::marginal_prices(cpi_ctx)?;
+    // let marginal_prices = result.get().marginal_prices;
+    let marginal_prices = result.get();
+
+    msg!("marginal_prices: {:?}", marginal_prices);
+
+    let marginal_price: Decimal = get_marginal_price_decimal(
+        &ctx.accounts.marginal_price_pool,
+        &marginal_prices,
+        propeller.marginal_price_pool_token_index as usize,
+        &ctx.accounts.marginal_price_pool_lp_mint.key(),
+        &token_bridge_mint_key,
+    )?;
+    msg!("marginal_price: {}", marginal_price);
+
+    //swimUSD is lp token of marginal price pool
+    let mut res = 0u64;
+    let feed = &ctx.accounts.aggregator.load()?;
+
+    // get result
+    // note - for tests this is currently hardcoded to 100
+    // this val is SOL/USD price
+    // 100 => 1 SOL/100 USD (usdc)
+    // let v2 = feed.get_result()?.try_into()?;
+    let sol_usd_price: Decimal = feed.get_result()?.try_into()?;
+    let name = feed.name;
+
+    let lamports_usd_price =
+        sol_usd_price.checked_div(LAMPORTS_PER_SOL_DECIMAL).ok_or(PropellerError::IntegerOverflow)?;
+    msg!("sol_usd_price:{},lamports_usd_price: {}", sol_usd_price, lamports_usd_price);
+    // check whether the feed has been updated in the last 300 seconds
+    feed.check_staleness(
+        Clock::get().unwrap().unix_timestamp,
+        // 300
+        i64::MAX,
+    )
+    .map_err(|_| error!(PropellerError::StaleFeed))?;
+    // check feed does not exceed max_confidence_interval
+    // if let Some(max_confidence_interval) = params.max_confidence_interval {
+    // 	feed.check_confidence_interval(SwitchboardDecimal::from_f64(max_confidence_interval))
+    // 	.map_err(|_| error!(PropellerError::ConfidenceIntervalExceeded))?;
+    // }
+
+    let marginal_price: Decimal = get_marginal_price_decimal(
+        &ctx.accounts.marginal_price_pool,
+        &marginal_prices,
+        propeller.marginal_price_pool_token_index as usize,
+        &ctx.accounts.marginal_price_pool_lp_mint.key(),
+        &token_bridge_mint_key,
+    )?;
+    let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
+    msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
+    let fee_in_token_bridge_mint_decimal = marginal_price
+        .checked_mul(lamports_usd_price)
+        .and_then(|v| v.checked_mul(fee_in_lamports_decimal))
+        .ok_or(PropellerError::IntegerOverflow)?;
+    // .checked_mul(Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::IntegerOverflow)?)
+    // .ok_or(PropellerError::IntegerOverflow)?;
+    let token_bridge_mint_decimals = get_token_bridge_mint_decimals(
+        &token_bridge_mint_key,
+        &ctx.accounts.marginal_price_pool,
+        &ctx.accounts.marginal_price_pool_lp_mint,
+    )?;
+    msg!("token_bridge_mint_decimals: {:?}", token_bridge_mint_decimals);
+
+    let ten_pow_decimals =
+        Decimal::from_u64(10u64.pow(token_bridge_mint_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
+    let fee_in_token_bridge_mint = fee_in_token_bridge_mint_decimal
+        .checked_mul(ten_pow_decimals)
+        .and_then(|v| v.to_u64())
+        .ok_or(PropellerError::ConversionError)?;
+
+    msg!(
+        "fee_in_token_bridge_mint_decimal: {:?} fee_in_token_bridge_mint: {:?}",
+        fee_in_token_bridge_mint_decimal,
+        fee_in_token_bridge_mint
+    );
+    res = fee_in_token_bridge_mint;
+    Ok(res)
+}
+
+#[derive(Accounts)]
+pub struct PropellerCreateOwnerTokenBridgeAta<'info> {
+    #[account(
+    seeds = [ b"propeller".as_ref(), propeller.token_bridge_mint.as_ref()],
+    bump = propeller.bump
+    )]
+    pub propeller: Box<Account<'info, Propeller>>,
+    #[account(mut)]
+    pub payer: Signer<'info>,
+    #[account(
+    seeds = [ b"redeemer".as_ref()],
+    bump = propeller.redeemer_bump
+    )]
+    /// this used to be "to_owner".
+    /// redeemer will be PDA derived from ["redeemer"], seeds::program = propeller::id()
+    /// will have to be signed when it invokes complete_transfer_with_payload
+    /// if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to
+    ///     (NOT the `to` account)
+    pub redeemer: SystemAccount<'info>,
+    #[account(
+    mut,
+    token::mint = propeller.token_bridge_mint,
+    token::authority = redeemer,
+    )]
+    pub redeemer_escrow: Box<Account<'info, TokenAccount>>,
+    #[account(
+    mut,
+    token::mint = propeller.token_bridge_mint,
+    token::authority = propeller,
+    )]
+    pub fee_vault: Box<Account<'info, TokenAccount>>,
+
+    #[account(
+    mut,
+    seeds = [
+    b"propeller".as_ref(),
+    b"fee".as_ref(),
+    propeller.token_bridge_mint.as_ref(),
+    payer.key().as_ref()
+    ],
+    bump = fee_tracker.bump
+    )]
+    pub fee_tracker: Account<'info, FeeTracker>,
+
+    #[account(
+    seeds = [
+    propeller_message.vaa_emitter_address.as_ref(),
+    propeller_message.vaa_emitter_chain.to_be_bytes().as_ref(),
+    propeller_message.vaa_sequence.to_be_bytes().as_ref(),
+    ],
+    bump,
+    seeds::program = propeller.token_bridge().unwrap()
+    )]
+    /// CHECK: WH Claim account
+    pub claim: UncheckedAccount<'info>,
+
+    //TODO: do i really need to pass in the original message account?
+    // seeds = [ b"PostedVAA".as_ref(), hash_vaa(vaa).as_ref() ],
+    // #[account(
+    //   seeds = [
+    //     b"PostedVAA".as_ref(),
+    //     hash_vaa(&vaa).as_ref()
+    //   ],
+    //   bump = propeller_message.wh_message_bump,
+    //   seeds::program = propeller.wormhole()?
+    // )]
+    /// CHECK: MessageData with Payload
+    pub message: UncheckedAccount<'info>,
+
+    #[account(
+    mut,
+    seeds = [
+    b"propeller".as_ref(),
+    claim.key().as_ref(),
+    message.key().as_ref(),
+    ],
+    bump = propeller_message.bump
+    )]
+    pub propeller_message: Box<Account<'info, PropellerMessage>>,
+
+    // #[account(
+    // seeds = [
+    // b"propeller".as_ref(),
+    // b"token_id".as_ref(),
+    // propeller.key().as_ref(),
+    // &propeller_message.target_token_id.to_le_bytes()
+    // ],
+    // bump,
+    // )]
+    /// CHECK: Unchecked b/c if target_token_id is invalid then this account should not exist/be able to be
+    /// deseraizlied as a `TokenIdMap`. if it does exist, then engine should have called
+    /// propeller_create_owner_token_accounts instead
+    pub token_id_map: UncheckedAccount<'info>,
+    #[account(address = propeller.token_bridge_mint)]
+    pub token_bridge_mint: Box<Account<'info, Mint>>,
+    #[account(address = propeller_message.owner)]
+    pub owner: SystemAccount<'info>,
+    #[account(
+    init,
+    payer = payer,
+    associated_token::mint = token_bridge_mint,
+    associated_token::authority = owner
+    )]
+    /// Note: specifying TokenAccount type here since only one token account to initialize so no need to
+    /// "guess and check" which token accounts need to be initialized
+    pub owner_token_bridge_mint_ata: Box<Account<'info, TokenAccount>>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
+    pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
+
+    /* for sol -> token_bridge_mint conversion */
+    #[account(
+    constraint =
+    *aggregator.to_account_info().owner == SWITCHBOARD_PROGRAM_ID @ PropellerError::InvalidSwitchboardAccount
+    )]
+    pub aggregator: AccountLoader<'info, AggregatorAccountData>,
+
+    #[account(
+    mut,
+    seeds = [
+    b"two_pool".as_ref(),
+    marginal_price_pool_token_0_account.mint.as_ref(),
+    marginal_price_pool_token_1_account.mint.as_ref(),
+    marginal_price_pool_lp_mint.key().as_ref(),
+    ],
+    bump = marginal_price_pool.bump,
+    seeds::program = two_pool_program.key()
+    )]
+    pub marginal_price_pool: Box<Account<'info, TwoPool>>,
+    pub marginal_price_pool_token_0_account: Box<Account<'info, TokenAccount>>,
+    pub marginal_price_pool_token_1_account: Box<Account<'info, TokenAccount>>,
+    pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
+
+    pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
+    #[account(executable, address = spl_memo::id())]
+    ///CHECK: memo program
+    pub memo: UncheckedAccount<'info>,
+    // this can be removed once version of anchor released with this PR
+    // https://github.com/coral-xyz/anchor/pull/2153
+    pub rent: Sysvar<'info, Rent>,
+}
+
+impl<'info> PropellerCreateOwnerTokenBridgeAta<'info> {
+    pub fn accounts(ctx: &Context<PropellerCreateOwnerTokenBridgeAta>) -> Result<()> {
+        require_keys_eq!(ctx.accounts.owner.key(), ctx.accounts.propeller_message.owner);
+        let (expected_token_id_map_address, _bump) = Pubkey::find_program_address(
+            &[
+                b"propeller".as_ref(),
+                b"token_id".as_ref(),
+                ctx.accounts.propeller.key().as_ref(),
+                ctx.accounts.propeller_message.target_token_id.to_le_bytes().as_ref(),
+            ],
+            ctx.program_id,
+        );
+        //Note: the address should at least be valid even though it doesn't exist.
+        require_keys_eq!(expected_token_id_map_address, ctx.accounts.token_id_map.key());
+        //Note: the address should at least be valid even though it doesn't exist.
+        require_keys_eq!(expected_token_id_map_address, ctx.accounts.token_id_map.key());
+        msg!("Passed PropellerCreateOwnerTokenAccounts::accounts() check");
+        Ok(())
+    }
+    // pub fn validate(&self) -> Result<()> {
+    //     require_keys_eq!(self.user.key(), self.propeller_message.owner);
+    //     let expected_user_token_0_ata = get_associated_token_address(&self.user.key(), &self.pool_token_0_mint.key());
+    //     require_keys_eq!(expected_user_token_0_ata, self.user_pool_token_0_account.key());
+    //     let expected_user_token_1_ata = get_associated_token_address(&self.user.key(), &self.pool_token_1_mint.key());
+    //     require_keys_eq!(expected_user_token_1_ata, self.user_pool_token_1_account.key());
+    //     let expected_user_lp_ata = get_associated_token_address(&self.user.key(), &self.pool_lp_mint.key());
+    //     require_keys_eq!(expected_user_lp_ata, self.user_lp_token_account.key());
+    //     Ok(())
+    // }
+}
+
+pub fn handle_propeller_create_owner_token_bridge_ata(ctx: Context<PropellerCreateOwnerTokenBridgeAta>) -> Result<()> {
+    let token_id_map = &ctx.accounts.token_id_map;
+    if let Ok(_) = TokenIdMap::try_deserialize(&mut &**token_id_map.try_borrow_mut_data()?) {
+        return err!(PropellerError::TokenIdMapExists);
+    }
+
+    //TODO: enforce that this step can only be done after CompleteNativeWithPayload is done?
+    //
+    // let claim_data = ClaimData::try_from_slice(&mut ctx.accounts.claim.data.borrow())
+    //     .map_err(|_| error!(PropellerError::InvalidClaimData))?;
+    // require!(claim_data.claimed, PropellerError::ClaimNotClaimed);
+
+    //TODO: check `vaa.to` is this program's address?
+    // let payload_transfer_with_payload =
+    //     get_transfer_with_payload_from_message_account(&ctx.accounts.message.to_account_info())?;
+    // msg!("message_data_payload: {:?}", payload_transfer_with_payload);
+    // let PayloadTransferWithPayload {
+    //     message_type,
+    //     amount,
+    //     token_address,
+    //     token_chain,
+    //     to,
+    //     to_chain,
+    //     from_address,
+    //     payload,
+    // } = payload_transfer_with_payload;
+    // //TODO: do i need to re-check this?
+    // // any issue in doing so?
+    // msg!("payload_transfer_with_payload.to: {:?}", to);
+    // let to_pubkey = Pubkey::new_from_array(to);
+    // require_keys_eq!(to_pubkey, crate::ID);
+
+    let token_program = ctx.accounts.token_program.to_account_info();
+    let payer = ctx.accounts.payer.to_account_info();
+    let user = ctx.accounts.owner.to_account_info();
+    let system_program = ctx.accounts.system_program.to_account_info();
+
+    let init_token_bridge_ata_fee = ctx.accounts.propeller.init_ata_fee;
+    let init_token_bridge_ata_total_fee_in_lamports = Rent::get()?
+        .minimum_balance(TokenAccount::LEN)
+        .checked_add(init_token_bridge_ata_fee)
+        .ok_or(PropellerError::IntegerOverflow)?;
+    msg!("{}(init_token_bridge_ata_total_fee)", init_token_bridge_ata_total_fee_in_lamports);
+
+    let marginal_price_pool = &ctx.accounts.marginal_price_pool;
+    let init_token_bridge_ata_total_fee_in_token_bridge_mint =
+        get_fees_in_token_bridge_mint_2(init_token_bridge_ata_total_fee_in_lamports, &ctx)?;
+    let fee_tracker = &mut ctx.accounts.fee_tracker;
+    fee_tracker.fees_owed = fee_tracker
+        .fees_owed
+        .checked_add(init_token_bridge_ata_total_fee_in_token_bridge_mint)
+        .ok_or(PropellerError::IntegerOverflow)?;
+    let cpi_accounts = Transfer {
+        from: ctx.accounts.redeemer_escrow.to_account_info(),
+        to: ctx.accounts.fee_vault.to_account_info(),
+        authority: ctx.accounts.redeemer.to_account_info(),
+    };
+    token::transfer(
+        CpiContext::new_with_signer(
+            token_program.clone(),
+            cpi_accounts,
+            &[&[&b"redeemer".as_ref(), &[ctx.accounts.propeller.redeemer_bump]]],
+        ),
+        init_token_bridge_ata_total_fee_in_token_bridge_mint,
+    )?;
+    let transfer_amount = ctx.accounts.propeller_message.transfer_amount;
+    let new_transfer_amount = transfer_amount
+        .checked_sub(init_token_bridge_ata_total_fee_in_token_bridge_mint)
+        .ok_or(error!(PropellerError::InsufficientFunds))?;
+
+    msg!(
+        "transfer_amount: {} - fees_in_token_bridge: {} = {}",
+        transfer_amount,
+        init_token_bridge_ata_total_fee_in_token_bridge_mint,
+        new_transfer_amount
+    );
+    ctx.accounts.propeller_message.transfer_amount = new_transfer_amount;
+
+    let memo = ctx.accounts.propeller_message.memo;
+    let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+    invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
+    Ok(())
+}
+
+//TODO: just do lazy copy-paste for now and refactor later
+fn get_fees_in_token_bridge_mint_2(
+    fee_in_lamports: u64,
+    ctx: &Context<PropellerCreateOwnerTokenBridgeAta>,
 ) -> Result<u64> {
     msg!("fee_in_lamports: {:?}", fee_in_lamports);
 

@@ -135,9 +135,15 @@ pub enum PropellerError {
     #[msg("Invalid token account data length. != 0 && != TokenAccount::LEN")]
     InvalidTokenAccountDataLen,
 
-    #[msg("Payer has insufficent funds for gas kickstart")]
+    #[msg("Payer has insufficient funds for gas kickstart")]
     PayerInsufficientFundsForGasKickstart,
 
     #[msg("Owner of token account != swimPayload.owner")]
     IncorrectOwnerForCreateTokenAccount,
+
+    #[msg("TokenIdMap exists. Please use the correct instruction")]
+    TokenIdMapExists,
+
+    #[msg("Invalid address for TokenIdMap account")]
+    InvalidTokenIdMapAccountAddress,
 }

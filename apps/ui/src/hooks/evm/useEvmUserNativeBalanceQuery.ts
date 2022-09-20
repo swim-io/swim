@@ -18,12 +18,12 @@ export const useEvmUserNativeBalanceQuery = (
   const { address: walletAddress } = useEvmWallet();
 
   return useQuery<Decimal, Error>(
-    ["evmNativeBalance", env, ecosystemId, walletAddress],
+    [env, "evmNativeBalance", ecosystemId, walletAddress],
     async () => {
       if (!walletAddress) {
         return new Decimal(0);
       }
-      return evmConnection.getEthBalance(walletAddress);
+      return evmConnection.getGasBalance(walletAddress);
     },
     {
       ...options,

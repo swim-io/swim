@@ -11,7 +11,6 @@ import type React from "react";
 
 import type { TokenConfig } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
-import { useToken } from "../../hooks";
 import { i18next } from "../../i18n";
 import type { TokenOption } from "../../models";
 import { Amount } from "../../models";
@@ -71,10 +70,8 @@ export const TokenAmountInputV2: React.FC<Props> = ({
   onBlur,
   showConstantSwapTip,
 }) => {
-  const { tokenId, ecosystemId } = selectedTokenOption;
-  const token = useToken(tokenId);
-
-  const tokenDetails = getTokenDetailsForEcosystem(token, ecosystemId);
+  const { tokenConfig, ecosystemId } = selectedTokenOption;
+  const tokenDetails = getTokenDetailsForEcosystem(tokenConfig, ecosystemId);
   if (tokenDetails === null) {
     throw new Error("Native token details not found");
   }
@@ -101,7 +98,7 @@ export const TokenAmountInputV2: React.FC<Props> = ({
           labelType="legend"
           labelAppend={
             <UserBalanceDisplay
-              token={token}
+              token={tokenConfig}
               ecosystemId={ecosystemId}
               onClick={
                 onChangeValue
@@ -116,7 +113,7 @@ export const TokenAmountInputV2: React.FC<Props> = ({
         >
           {readOnly ? (
             <EuiFieldText
-              value={getReadonlyDisplayValue(token, value)}
+              value={getReadonlyDisplayValue(tokenConfig, value)}
               controlOnly
               placeholder={placeholder}
               readOnly

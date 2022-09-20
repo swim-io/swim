@@ -1,36 +1,37 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
 import type { Transaction } from "@solana/web3.js";
+import { evmAddressToWormhole } from "@swim-io/evm";
 import type { SolanaConnection, TokenAccount } from "@swim-io/solana";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  findTokenAccountForMint,
+  parseSequenceFromLogSolana,
+  transferFromSolana,
+} from "@swim-io/solana";
 import { findOrThrow, isEachNotNull } from "@swim-io/utils";
+import { WormholeChainId } from "@swim-io/wormhole";
 import { useMutation } from "react-query";
 
 import type { Config } from "../../config";
 import {
   ECOSYSTEMS,
   Protocol,
-  WormholeChainId,
   getSolanaTokenDetails,
   getTokenDetailsForEcosystem,
+  getWormholeRetries,
 } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { InteractionState, Tx } from "../../models";
 import {
   Amount,
-  evmAddressToWormhole,
-  findTokenAccountForMint,
+  getSignedVaaWithRetry,
+  getToEcosystemOfFromSolanaTransfer,
   getTokensByPool,
   getTransferredAmounts,
-  parseSequenceFromLogSolana,
-  redeemOnEth,
-  transferFromSolana,
 } from "../../models";
-import { getToEcosystemOfFromSolanaTransfer } from "../../models/swim/transfer";
-import { DEFAULT_WORMHOLE_RETRIES } from "../../models/wormhole/constants";
-import { getSignedVaaWithRetry } from "../../models/wormhole/guardiansRpc";
 import { useWallets } from "../crossEcosystem";
-import { useEvmConnections } from "../evm";
+import { useGetEvmConnection } from "../evm";
 import {
   useSolanaConnection,
   useSolanaWallet,
@@ -77,7 +78,7 @@ export const useFromSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
   const config = useEnvironment(selectConfig);
   const { chains, wormhole } = config;
-  const evmConnections = useEvmConnections();
+  const getEvmConnection = useGetEvmConnection();
   const solanaConnection = useSolanaConnection();
   const wallets = useWallets();
   const { address: solanaWalletAddress } = useSolanaWallet();
@@ -236,32 +237,34 @@ export const useFromSolanaTransferMutation = () => {
       const emitterAddress = await getEmitterAddressSolana(
         solanaWormhole.portal,
       );
+      const sourceChainId = WormholeChainId.Solana;
+      const retries = getWormholeRetries(sourceChainId);
       const vaaBytesResponse = await getSignedVaaWithRetry(
         [...wormhole.rpcUrls],
-        WormholeChainId.Solana,
+        sourceChainId,
         emitterAddress,
         sequence,
         undefined,
         undefined,
-        DEFAULT_WORMHOLE_RETRIES,
+        retries,
       );
       const evmSigner = evmWallet.signer;
       if (evmSigner === null) {
         throw new Error("Missing EVM signer");
       }
       await evmWallet.switchNetwork(evmChain.chainId);
-      const redeemResponse = await redeemOnEth(
+      const evmConnection = getEvmConnection(toEcosystem);
+      const redeemResponse = await evmConnection.redeemOnEth({
         interactionId,
-        evmChain.wormhole.portal,
-        evmSigner,
-        vaaBytesResponse.vaaBytes,
-      );
+        signer: evmSigner,
+        signedVaa: vaaBytesResponse.vaaBytes,
+      });
       if (redeemResponse === null) {
         throw new Error(
           `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
         );
       }
-      const evmReceipt = await evmConnections[toEcosystem].getTxReceiptOrThrow(
+      const evmReceipt = await evmConnection.getTxReceiptOrThrow(
         redeemResponse,
       );
       const claimTokenOnEvmTxId = evmReceipt.transactionHash;

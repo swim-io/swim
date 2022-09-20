@@ -1,6 +1,5 @@
 //! Macros for [crate::two_pool]
 
-
 #[macro_export]
 macro_rules! gen_pool_signer_seeds {
     ($pool:expr) => {

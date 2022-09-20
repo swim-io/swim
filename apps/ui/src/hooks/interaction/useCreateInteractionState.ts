@@ -1,6 +1,6 @@
 import type PoolMath from "@swim-io/pool-math";
 import type { TokenAccount } from "@swim-io/solana";
-import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
 import { isEachNotNull } from "@swim-io/utils";
 import type Decimal from "decimal.js";
@@ -23,7 +23,6 @@ import type {
 import {
   InteractionType,
   createOperationSpecs,
-  findTokenAccountForMint,
   generateId,
   getConnectedWallets,
   getRequiredPools,
@@ -229,6 +228,7 @@ export const useCreateInteractionState = () => {
       connectedWallets,
     };
     return {
+      version: undefined,
       interaction,
       requiredSplTokenAccounts: createRequiredSplTokenAccounts(
         requiredTokens,

@@ -5,7 +5,10 @@ import type {
   PoolConfig,
   Tx,
 } from "@swim-io/core";
+import type { ReadonlyRecord } from "@swim-io/utils";
 import type { ethers } from "ethers";
+
+export type EvmChainIdByEnv = Partial<ReadonlyRecord<Env, number>>;
 
 export type EvmProtocol = "evm";
 export const EVM_PROTOCOL: EvmProtocol = "evm";
@@ -30,7 +33,8 @@ export interface EvmPoolConfig<E extends EvmEcosystemId> extends PoolConfig {
   readonly ecosystemId: E;
 }
 
-export interface EvmChainConfig<E extends EvmEcosystemId> extends ChainConfig {
+export interface EvmChainConfig<E extends EvmEcosystemId = EvmEcosystemId>
+  extends ChainConfig {
   readonly pools: readonly EvmPoolConfig<E>[];
 }
 

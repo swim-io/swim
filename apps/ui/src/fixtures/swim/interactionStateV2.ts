@@ -3,11 +3,13 @@ import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import Decimal from "decimal.js";
 
+import { findTokenById } from "../../config";
+import type { PersistedInteractionStateV2 } from "../../core/store/idb/helpers";
 import { Amount, InteractionType, SwapType } from "../../models";
 import type {
   AddInteraction,
   AddInteractionState,
-  CrossChainEvmSwapInteractionState,
+  CrossChainEvmToEvmSwapInteractionState,
   CrossChainEvmToSolanaSwapInteractionState,
   CrossChainSolanaToEvmSwapInteractionState,
   RemoveExactBurnInteraction,
@@ -31,13 +33,13 @@ import {
 export const SINGLE_CHAIN_SOLANA_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
-    fromTokenDetail: {
-      tokenId: "devnet-solana-usdc",
+    fromTokenData: {
+      tokenConfig: findTokenById("devnet-solana-usdc", Env.Devnet),
       ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("100"),
     },
-    toTokenDetail: {
-      tokenId: "devnet-solana-usdt",
+    toTokenData: {
+      tokenConfig: findTokenById("devnet-solana-usdt", Env.Devnet),
       ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("101"),
     },
@@ -94,6 +96,7 @@ const SPL_TOKEN_ACCOUNTS_CREATED: RequiredSplTokenAccounts = {
 
 export const SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT: SingleChainSolanaSwapInteractionState =
   {
+    version: 2,
     interaction: SINGLE_CHAIN_SOLANA_INTERACTION,
     interactionType: InteractionType.SwapV2,
     swapType: SwapType.SingleChainSolana,
@@ -123,13 +126,13 @@ export const SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_COMPLETED: SingleChainSo
 const SINGLE_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
-    fromTokenDetail: {
-      tokenId: "devnet-ethereum-usdc",
+    fromTokenData: {
+      tokenConfig: findTokenById("devnet-ethereum-usdc", Env.Devnet),
       ecosystemId: EvmEcosystemId.Ethereum,
       value: new Decimal("100"),
     },
-    toTokenDetail: {
-      tokenId: "devnet-ethereum-usdt",
+    toTokenData: {
+      tokenConfig: findTokenById("devnet-ethereum-usdt", Env.Devnet),
       ecosystemId: EvmEcosystemId.Ethereum,
       value: new Decimal("101"),
     },
@@ -153,6 +156,7 @@ const SINGLE_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
 
 export const SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT: SingleChainEvmSwapInteractionState =
   {
+    version: 2,
     interaction: SINGLE_CHAIN_EVM_INTERACTION,
     interactionType: InteractionType.SwapV2,
     swapType: SwapType.SingleChainEvm,
@@ -179,13 +183,13 @@ export const SINGLE_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPETED_WITH_APPROVALS: Si
 const CROSS_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
-    fromTokenDetail: {
-      tokenId: "devnet-ethereum-usdc",
+    fromTokenData: {
+      tokenConfig: findTokenById("devnet-ethereum-usdc", Env.Devnet),
       ecosystemId: EvmEcosystemId.Ethereum,
       value: new Decimal("100"),
     },
-    toTokenDetail: {
-      tokenId: "devnet-bnb-usdt",
+    toTokenData: {
+      tokenConfig: findTokenById("devnet-bnb-usdt", Env.Devnet),
       ecosystemId: EvmEcosystemId.Bnb,
       value: new Decimal("101"),
     },
@@ -207,8 +211,9 @@ const CROSS_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   },
 };
 
-export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT: CrossChainEvmSwapInteractionState =
+export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT: CrossChainEvmToEvmSwapInteractionState =
   {
+    version: 2,
     interaction: CROSS_CHAIN_EVM_INTERACTION,
     interactionType: InteractionType.SwapV2,
     swapType: SwapType.CrossChainEvmToEvm,
@@ -217,7 +222,7 @@ export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT: CrossChainEvmSwapInter
     receiveAndSwapTxId: null,
   };
 
-export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER: CrossChainEvmSwapInteractionState =
+export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER: CrossChainEvmToEvmSwapInteractionState =
   {
     ...CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
     swapAndTransferTxId:
@@ -225,7 +230,7 @@ export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER: CrossChai
     receiveAndSwapTxId: null,
   };
 
-export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED: CrossChainEvmSwapInteractionState =
+export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED: CrossChainEvmToEvmSwapInteractionState =
   {
     ...CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_INIT,
     swapAndTransferTxId:
@@ -234,7 +239,7 @@ export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED: CrossChainEvmSwap
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7ca2",
   };
 
-export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED_WITH_APPROVALS: CrossChainEvmSwapInteractionState =
+export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED_WITH_APPROVALS: CrossChainEvmToEvmSwapInteractionState =
   {
     ...CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED,
     approvalTxIds: [
@@ -246,13 +251,13 @@ export const CROSS_CHAIN_EVM_SWAP_INTERACTION_STATE_COMPLETED_WITH_APPROVALS: Cr
 const CROSS_CHAIN_SOLANA_TO_EVM_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
-    fromTokenDetail: {
-      tokenId: "devnet-solana-usdc",
+    fromTokenData: {
+      tokenConfig: findTokenById("devnet-solana-usdc", Env.Devnet),
       ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("100"),
     },
-    toTokenDetail: {
-      tokenId: "devnet-bnb-usdt",
+    toTokenData: {
+      tokenConfig: findTokenById("devnet-bnb-usdt", Env.Devnet),
       ecosystemId: EvmEcosystemId.Bnb,
       value: new Decimal("101"),
     },
@@ -276,11 +281,13 @@ const CROSS_CHAIN_SOLANA_TO_EVM_INTERACTION: SwapInteractionV2 = {
 
 export const CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_INIT: CrossChainSolanaToEvmSwapInteractionState =
   {
+    version: 2,
     interaction: CROSS_CHAIN_SOLANA_TO_EVM_INTERACTION,
     interactionType: InteractionType.SwapV2,
     swapType: SwapType.CrossChainSolanaToEvm,
     requiredSplTokenAccounts: SPL_TOKEN_ACCOUNTS_INIT,
-    swapAndTransferTxId: null,
+    swapToSwimUsdTxId: null,
+    transferSwimUsdToEvmTxId: null,
     receiveAndSwapTxId: null,
   };
 
@@ -299,14 +306,14 @@ export const CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_
 export const CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER_COMPLETED: CrossChainSolanaToEvmSwapInteractionState =
   {
     ...CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_CREATED_SPL_TOKEN_ACCOUNTS,
-    swapAndTransferTxId:
+    swapToSwimUsdTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
   };
 
 export const CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_COMPLETED: CrossChainSolanaToEvmSwapInteractionState =
   {
     ...CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_SWAP_AND_TRANSFER_COMPLETED,
-    swapAndTransferTxId:
+    swapToSwimUsdTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7caa",
     receiveAndSwapTxId:
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7cab",
@@ -315,13 +322,13 @@ export const CROSS_CHAIN_SOLANA_TO_EVM_SWAP_INTERACTION_STATE_COMPLETED: CrossCh
 const CROSS_CHAIN_EVM_TO_SOLANA_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
-    fromTokenDetail: {
-      tokenId: "devnet-bnb-usdt",
+    fromTokenData: {
+      tokenConfig: findTokenById("devnet-bnb-usdt", Env.Devnet),
       ecosystemId: EvmEcosystemId.Bnb,
       value: new Decimal("101"),
     },
-    toTokenDetail: {
-      tokenId: "devnet-solana-usdc",
+    toTokenData: {
+      tokenConfig: findTokenById("devnet-solana-usdc", Env.Devnet),
       ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("100"),
     },
@@ -345,14 +352,17 @@ const CROSS_CHAIN_EVM_TO_SOLANA_INTERACTION: SwapInteractionV2 = {
 
 export const CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_INIT: CrossChainEvmToSolanaSwapInteractionState =
   {
+    version: 2,
     interaction: CROSS_CHAIN_EVM_TO_SOLANA_INTERACTION,
     interactionType: InteractionType.SwapV2,
     swapType: SwapType.CrossChainEvmToSolana,
     requiredSplTokenAccounts: SPL_TOKEN_ACCOUNTS_INIT,
     approvalTxIds: [],
     swapAndTransferTxId: null,
+    signatureSetAddress: null,
     postVaaOnSolanaTxIds: [],
     claimTokenOnSolanaTxId: null,
+    swapFromSwimUsdTxId: null,
   };
 
 export const CROSS_CHAIN_EVM_TO_SOLANA_SWAP_INTERACTION_STATE_EXISTING_SPL_TOKEN_ACCOUNTS: CrossChainEvmToSolanaSwapInteractionState =
@@ -419,6 +429,7 @@ const ADD_INTERACTION_SOLANA: AddInteraction = {
 };
 
 export const ADD_INTERACTION_STATE_SOLANA_INIT: AddInteractionState = {
+  version: 2,
   interaction: ADD_INTERACTION_SOLANA,
   interactionType: InteractionType.Add,
   requiredSplTokenAccounts: SPL_TOKEN_ACCOUNTS_INIT,
@@ -481,6 +492,7 @@ const ADD_INTERACTION_EVM: AddInteraction = {
 };
 
 export const ADD_INTERACTION_STATE_ETHEREUM_INIT: AddInteractionState = {
+  version: 2,
   interaction: ADD_INTERACTION_EVM,
   interactionType: InteractionType.Add,
   requiredSplTokenAccounts: null,
@@ -532,6 +544,7 @@ const REMOVE_INTERACTION_SOLANA: RemoveUniformInteraction = {
 
 export const REMOVE_UNIFORM_INTERACTION_STATE_SOLANA_INIT: RemoveInteractionState =
   {
+    version: 2,
     interaction: REMOVE_INTERACTION_SOLANA,
     interactionType: InteractionType.RemoveUniform,
     requiredSplTokenAccounts: SPL_TOKEN_ACCOUNTS_INIT,
@@ -597,6 +610,7 @@ const REMOVE_UNIFORM_INTERACTION_ETHEREUM: RemoveUniformInteraction = {
 
 export const REMOVE_UNIFORM_INTERACTION_STATE_ETHEREUM_INIT: RemoveInteractionState =
   {
+    version: 2,
     interaction: REMOVE_UNIFORM_INTERACTION_ETHEREUM,
     interactionType: InteractionType.RemoveUniform,
     requiredSplTokenAccounts: null,
@@ -631,6 +645,7 @@ const REMOVE_EXACT_BURN_INTERACTION_ETHEREUM: RemoveExactBurnInteraction = {
 
 export const REMOVE_EXACT_BURN_INTERACTION_STATE_ETHEREUM_INIT: RemoveInteractionState =
   {
+    version: 2,
     interaction: REMOVE_EXACT_BURN_INTERACTION_ETHEREUM,
     interactionType: InteractionType.RemoveExactBurn,
     requiredSplTokenAccounts: null,
@@ -668,6 +683,7 @@ const REMOVE_EXACT_OUTPUT_INTERACTION_ETHEREUM: RemoveExactOutputInteraction = {
 
 export const REMOVE_EXACT_OUTPUT_INTERACTION_STATE_ETHEREUM_INIT: RemoveInteractionState =
   {
+    version: 2,
     interaction: REMOVE_EXACT_OUTPUT_INTERACTION_ETHEREUM,
     interactionType: InteractionType.RemoveExactOutput,
     requiredSplTokenAccounts: null,
@@ -690,3 +706,50 @@ export const REMOVE_EXACT_OUTPUT_INTERACTION_STATE_ETHEREUM_COMPLETED_WITH_APPRO
       "0x658875e6a68f242339bdf3db0f3a2f52274f6384ccdcf4a834b11f73996b7cab",
     ],
   };
+
+export const MOCK_SERIALIZED_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT = {
+  version: 2,
+  interaction: {
+    connectedWallets: {
+      acala: null,
+      aurora: null,
+      avalanche: null,
+      bnb: null,
+      ethereum: null,
+      fantom: null,
+      karura: null,
+      polygon: null,
+      solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
+    },
+    env: Env.Devnet,
+    id: "2eed9eef597a2aa14314845afe87079f",
+    params: {
+      fromTokenData: {
+        ecosystemId: SOLANA_ECOSYSTEM_ID,
+        tokenId: "devnet-solana-usdc",
+        value: "100",
+      },
+      toTokenData: {
+        ecosystemId: SOLANA_ECOSYSTEM_ID,
+        tokenId: "devnet-solana-usdt",
+        value: "101",
+      },
+    },
+    poolIds: ["devnet-solana-usdc-usdt"],
+    submittedAt: 1653624596234,
+    type: 5,
+  },
+  interactionType: InteractionType.SwapV2,
+  swapType: SwapType.SingleChainSolana,
+  onChainSwapTxId: null,
+  requiredSplTokenAccounts: {
+    "9idXDPGb5jfwaf5fxjiMacgUcwpy3ZHfdgqSjAV5XLDr": {
+      isExistingAccount: false,
+      txId: null,
+    },
+    Ep9cMbgyG46b6PVvJNypopc6i8TFzvUVmGiT4MA1PhSb: {
+      isExistingAccount: false,
+      txId: null,
+    },
+  },
+} as PersistedInteractionStateV2;

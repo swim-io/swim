@@ -1,7 +1,7 @@
 use {
     crate::{
-        common_governance::*, error::*, get_current_ts, governance::ENACT_DELAY, DecimalU64,
-        DecimalU64Anchor, PoolFee, TwoPool, UnixTimestamp,
+        common_governance::*, error::*, get_current_ts, governance::ENACT_DELAY, DecimalU64, DecimalU64Anchor, PoolFee,
+        TwoPool, UnixTimestamp,
     },
     anchor_lang::prelude::*,
 };
@@ -24,11 +24,7 @@ pub struct SetPaused<'info> {
 
 impl<'info> SetPaused<'info> {
     pub fn accounts(ctx: &Context<SetPaused>) -> Result<()> {
-        require_keys_eq!(
-            ctx.accounts.pause_key.key(),
-            ctx.accounts.pool.pause_key,
-            PoolError::InvalidPauseKey
-        );
+        require_keys_eq!(ctx.accounts.pause_key.key(), ctx.accounts.pool.pause_key, PoolError::InvalidPauseKey);
         Ok(())
     }
 }

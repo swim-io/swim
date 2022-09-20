@@ -148,7 +148,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     } else if (currentInputAmount.isNegative() || currentInputAmount.isZero()) {
       errors = [...errors, t("general.amount_of_tokens_less_than_one")];
     } else if (
-      fromTokenBalance &&
+      fromTokenBalance === null ||
       currentInputAmount.gt(
         fromTokenBalance.toHuman(fromTokenOption.ecosystemId),
       )
@@ -162,6 +162,11 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
+    const errors = getSwapFormErrors();
+    setFormErrors(errors);
+    if (errors.length > 0) {
+      return;
+    }
     const lowBalanceWallets = getLowBalanceWallets(
       feesEstimation,
       userNativeBalances,
@@ -189,9 +194,18 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     if (isSubmitted) {
       return;
     }
+    if (isLargeSwap && !allowLargeSwap) {
+      // If not allowed, limit swap size to 10% of pool supply
+      setFormErrors([
+        t("swap_form.require_swap_size_must_be_less_than_x_of_pool_supply", {
+          percentage: 10,
+        }),
+      ]);
+      return;
+    }
     try {
       setIsSubmitted(true);
-      handleSwap(allowLargeSwap);
+      handleSwap();
     } catch (error) {
       const swimError = captureAndWrapException(
         t("general.unexpected_error"),
@@ -203,14 +217,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     }
   };
 
-  const handleSwap = (allowLargeSwap: boolean): void => {
-    const errors = getSwapFormErrors(allowLargeSwap);
-    setFormErrors(errors);
-
-    if (errors.length > 0) {
-      return;
-    }
-
+  const handleSwap = (): void => {
     // These are just for type safety and should in theory not happen
     if (outputAmount === null || maxSlippageFraction === null) {
       notify(
@@ -227,11 +234,11 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     startNewInteraction({
       type: InteractionType.SwapV2,
       params: {
-        fromTokenDetail: {
+        fromTokenData: {
           ...fromTokenOption,
           value: inputAmount,
         },
-        toTokenDetail: {
+        toTokenData: {
           ...toTokenOption,
           value: minimumOutputAmount,
         },

@@ -1,7 +1,7 @@
 use {
     crate::{
-        common_governance::*, error::*, get_current_ts, governance::ENACT_DELAY, DecimalU64,
-        DecimalU64Anchor, PoolFee, UnixTimestamp,
+        common_governance::*, error::*, get_current_ts, governance::ENACT_DELAY, DecimalU64, DecimalU64Anchor, PoolFee,
+        UnixTimestamp,
     },
     anchor_lang::prelude::*,
 };
@@ -24,11 +24,7 @@ pub fn handle_enact_governance_transition(ctx: Context<EnactGovernanceTransition
 
     let current_ts = get_current_ts()?;
 
-    require_gte!(
-        current_ts,
-        pool.governance_transition_ts,
-        PoolError::InsufficientDelay
-    );
+    require_gte!(current_ts, pool.governance_transition_ts, PoolError::InsufficientDelay);
 
     pool.governance_key = pool.prepared_governance_key;
     pool.prepared_governance_key = Pubkey::default();

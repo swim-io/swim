@@ -1,9 +1,9 @@
 import PoolMath from "@swim-io/pool-math";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import { isEachNotNull } from "@swim-io/utils";
+import { atomicToHuman, isEachNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
-import { atomicToHuman, bnOrBigNumberToDecimal } from "../../amounts";
+import { bnOrBigNumberToDecimal } from "../../amounts";
 import { getTokenDetailsForEcosystem } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";

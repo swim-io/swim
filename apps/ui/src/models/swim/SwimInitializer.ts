@@ -15,29 +15,30 @@ import {
   SystemProgram,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { swimPool } from "@swim-io/solana";
-import type { DecimalBN, SolanaConnection } from "@swim-io/solana";
+import { createTx, swimPool } from "@swim-io/solana";
+import type {
+  DecimalBN,
+  SolanaConnection,
+  SolanaWalletAdapter,
+} from "@swim-io/solana";
 import { chunks } from "@swim-io/utils";
-
-import { createSplTokenAccount, createTx, findProgramAddress } from "../solana";
-import type { SolanaWalletAdapter } from "../wallets";
 
 import { SwimInstruction, initInstruction } from "./instructions";
 
 export class SwimInitializer {
-  solanaConnection: SolanaConnection;
-  signer: SolanaWalletAdapter;
-  programId: PublicKey;
-  tokenMints: readonly PublicKey[];
-  governanceAccount: PublicKey;
-  governanceFeeAccount: PublicKey | null;
-  stateAccount: PublicKey | null;
-  poolAuthority: PublicKey | null;
-  nonce: number | null;
-  lpMint: PublicKey | null;
-  tokenAccounts: readonly PublicKey[] | null;
+  public lpMint: PublicKey | null;
+  public nonce: number | null;
+  public poolAuthority: PublicKey | null;
+  public readonly programId: PublicKey;
+  public stateAccount: PublicKey | null;
+  private governanceFeeAccount: PublicKey | null;
+  private readonly governanceAccount: PublicKey;
+  private readonly signer: SolanaWalletAdapter;
+  private readonly solanaConnection: SolanaConnection;
+  private tokenAccounts: readonly PublicKey[] | null;
+  private readonly tokenMints: readonly PublicKey[];
 
-  constructor(
+  public constructor(
     solanaConnection: SolanaConnection,
     signer: SolanaWalletAdapter,
     swimProgramAddress: string,
@@ -57,11 +58,11 @@ export class SwimInitializer {
     this.tokenAccounts = null;
   }
 
-  get numberOfTokens(): number {
+  private get numberOfTokens(): number {
     return this.tokenMints.length;
   }
 
-  async initialize(
+  public async initialize(
     lpTokenDecimals: number,
     ampFactor: DecimalBN,
     lpFee: DecimalBN,
@@ -109,11 +110,11 @@ export class SwimInitializer {
       stateKeypair,
       lpMintKeypair,
     );
-    const txIdPrepareLpTokenAccount = await createSplTokenAccount(
-      this.solanaConnection,
-      this.signer,
-      this.lpMint.toBase58(),
-    );
+    const txIdPrepareLpTokenAccount =
+      await this.solanaConnection.createSplTokenAccount(
+        this.signer,
+        this.lpMint.toBase58(),
+      );
     this.governanceFeeAccount = await getAssociatedTokenAddress(
       this.lpMint,
       new PublicKey(signerAddress),
@@ -282,7 +283,7 @@ export class SwimInitializer {
     if (!this.stateAccount) {
       throw new Error("No state account");
     }
-    const [poolAuthority, nonce] = findProgramAddress(
+    const [poolAuthority, nonce] = PublicKey.findProgramAddressSync(
       [this.stateAccount.toBuffer()],
       this.programId,
     );

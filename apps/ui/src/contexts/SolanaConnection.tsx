@@ -8,7 +8,7 @@ import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
 
 export const SolanaConnectionContext: React.Context<null | SolanaConnection> =
-  createContext<null | SolanaConnection>(null);
+  createContext<SolanaConnection | null>(null);
 
 export const SolanaConnectionProvider = ({
   children,

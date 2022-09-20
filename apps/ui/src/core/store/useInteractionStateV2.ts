@@ -8,6 +8,12 @@ import create from "zustand";
 
 import type { InteractionStateV2, InteractionV2 } from "../../models";
 
+import {
+  addInteractionStateToDb,
+  getInteractionStatesFromDbV2,
+  putInteractionStateToDb,
+} from "./idb";
+
 export interface InteractionStoreV2 {
   readonly errorMap: ReadonlyRecord<InteractionV2["id"], Error | undefined>;
   readonly interactionStates: readonly InteractionStateV2[];
@@ -15,7 +21,7 @@ export interface InteractionStoreV2 {
   readonly setInteractionError: (id: string, error: Error | undefined) => void;
   readonly addInteractionState: (interactionState: InteractionStateV2) => void;
   readonly getInteractionState: (id: string) => InteractionStateV2;
-  readonly loadInteractionStatesFromIDB: (env: Env) => Promise<void>;
+  readonly loadInteractionStatesFromIdb: (env: Env) => Promise<void>;
   readonly updateInteractionState: (
     interactionId: string,
     updateCallback: (interactionState: Draft<InteractionStateV2>) => void,
@@ -38,8 +44,15 @@ export const useInteractionStateV2 = create<InteractionStoreV2>((set, get) => ({
       get().interactionStates,
       ({ interaction }) => interaction.id === id,
     ),
-  loadInteractionStatesFromIDB: async () => {
-    // TODO: load interaction state from db
+  loadInteractionStatesFromIdb: async (env) => {
+    const data = await getInteractionStatesFromDbV2(env);
+    if (data) {
+      set(
+        produce<InteractionStoreV2>((draft) => {
+          draft.interactionStates = castDraft(data);
+        }),
+      );
+    }
   },
   addInteractionState: (interactionState) => {
     set(
@@ -48,7 +61,7 @@ export const useInteractionStateV2 = create<InteractionStoreV2>((set, get) => ({
         draft.recentInteractionId = interactionState.interaction.id;
       }),
     );
-    // TODO: add interaction state to db
+    addInteractionStateToDb(interactionState);
   },
   updateInteractionState: (interactionId, updateCallback) => {
     set(
@@ -71,6 +84,6 @@ export const useInteractionStateV2 = create<InteractionStoreV2>((set, get) => ({
     if (!updatedInteractionState) {
       throw new Error("Updated interaction state not found");
     }
-    // TODO: update interaction state in db
+    putInteractionStateToDb(updatedInteractionState);
   },
 }));

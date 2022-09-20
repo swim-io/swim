@@ -1,3 +1,3 @@
 # Utils
 
-No-dependency general-purpose utils.
+Minimal-dependency general-purpose utils.

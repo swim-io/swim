@@ -1,0 +1,19 @@
+name: "Verify aptos build"
+on:
+  pull_request:
+    paths:
+      - "packages/aptos/**.ts"
+      - "packages/aptos/**.json"
+      - "yarn.lock"
+      - ".github/workflows/aptos-verify.yaml"
+      - ".github/workflows/verify.yaml"
+  push:
+    branches:
+      - master
+
+jobs:
+  verify:
+    uses: ./.github/workflows/verify.yaml
+    with:
+      workingDirectory: ./packages/aptos
+      buildDependenciesForPackage: "@swim-io/aptos"

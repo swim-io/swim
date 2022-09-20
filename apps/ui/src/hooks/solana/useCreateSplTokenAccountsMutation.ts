@@ -1,13 +1,48 @@
-import type { TokenAccount } from "@swim-io/solana";
-import type { UseMutationResult } from "react-query";
+import type { Env } from "@swim-io/core";
+import type {
+  SolanaConnection,
+  SolanaWalletAdapter,
+  TokenAccount,
+} from "@swim-io/solana";
+import { findTokenAccountForMint } from "@swim-io/solana";
+import { sleep } from "@swim-io/utils";
+import type { QueryClient, UseMutationResult } from "react-query";
 import { useMutation, useQueryClient } from "react-query";
 
 import { useEnvironment } from "../../core/store";
-import { findOrCreateSplTokenAccount } from "../../models";
 
 import { useSolanaConnection } from "./useSolanaConnection";
 import { useSolanaWallet } from "./useSolanaWallet";
 import { useSplTokenAccountsQuery } from "./useSplTokenAccountsQuery";
+
+const findOrCreateSplTokenAccount = async (
+  env: Env,
+  solanaConnection: SolanaConnection,
+  wallet: SolanaWalletAdapter,
+  queryClient: QueryClient,
+  splTokenMintAddress: string,
+  splTokenAccounts: readonly TokenAccount[],
+): Promise<TokenAccount> => {
+  if (!wallet.publicKey) {
+    throw new Error("Solana wallet not connected");
+  }
+  const existingAccount = findTokenAccountForMint(
+    splTokenMintAddress,
+    wallet.publicKey.toBase58(),
+    splTokenAccounts,
+  );
+  if (existingAccount) {
+    return existingAccount;
+  }
+  const solanaAddress = wallet.publicKey.toBase58();
+  await solanaConnection.createSplTokenAccount(wallet, splTokenMintAddress);
+  await sleep(1000); // TODO: Find a better condition
+  await queryClient.invalidateQueries([env, "tokenAccounts", solanaAddress]);
+  return solanaConnection.getTokenAccountWithRetry(
+    splTokenMintAddress,
+    solanaAddress,
+  );
+};
 
 export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
   readonly TokenAccount[],
@@ -42,7 +77,7 @@ export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
           ),
         ),
       );
-      await queryClient.invalidateQueries(["tokenAccounts", env, address]);
+      await queryClient.invalidateQueries([env, "tokenAccounts", address]);
       return tokenAccounts;
     },
   );

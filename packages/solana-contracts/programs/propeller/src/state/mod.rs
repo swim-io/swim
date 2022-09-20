@@ -1,4 +1,3 @@
-pub use {self::propeller::*, propeller_sender::*};
+pub use self::propeller::*;
 
 pub mod propeller;
-pub mod propeller_sender;

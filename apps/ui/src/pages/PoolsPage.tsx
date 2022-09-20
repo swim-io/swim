@@ -28,6 +28,7 @@ import shallow from "zustand/shallow.js";
 
 import { atomicToTvlString } from "../amounts";
 import { PoolListItem } from "../components/PoolListItem";
+import { EthereumMergeWarning } from "../components/molecules/EthereumMergeWarning";
 import {
   getPoolTokenEcosystems,
   hasTokenEcosystem,
@@ -363,7 +364,11 @@ const PoolsPage = (): ReactElement => {
             </EuiShowFor>
 
             <EuiSpacer />
-            {content}
+            {process.env.REACT_APP_ETHEREUM_MERGE === "true" ? (
+              <EthereumMergeWarning />
+            ) : (
+              content
+            )}
           </EuiPageContentBody>
         </EuiPageContent>
       </EuiPageBody>

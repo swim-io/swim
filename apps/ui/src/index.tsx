@@ -1,4 +1,4 @@
-import { StrictMode, Suspense } from "react";
+import { StrictMode } from "react";
 import ReactDOM from "react-dom";
 
 import "./index.css";
@@ -12,10 +12,7 @@ setupSentry();
 
 ReactDOM.render(
   <StrictMode>
-    {/* Needed for i18next */}
-    <Suspense fallback="loading">
-      <App />
-    </Suspense>
+    <App />
   </StrictMode>,
   document.getElementById("root"),
 );

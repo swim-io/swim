@@ -1,7 +1,6 @@
 use {
     crate::{
-        common_governance::*, error::*, get_current_ts, governance::ENACT_DELAY, DecimalU64,
-        DecimalU64Anchor, PoolFee,
+        common_governance::*, error::*, get_current_ts, governance::ENACT_DELAY, DecimalU64, DecimalU64Anchor, PoolFee,
     },
     anchor_lang::prelude::*,
 };
@@ -32,11 +31,7 @@ pub fn handle_prepare_fee_change(
 ) -> Result<()> {
     let lp_fee: DecimalU64 = lp_fee.into();
     let governance_fee: DecimalU64 = governance_fee.into();
-    require_gt!(
-        DecimalU64::from(1),
-        lp_fee + governance_fee,
-        PoolError::InvalidFeeInput
-    );
+    require_gt!(DecimalU64::from(1), lp_fee + governance_fee, PoolError::InvalidFeeInput);
     let pool = &mut ctx.accounts.common_governance.pool;
     pool.prepared_lp_fee = PoolFee::new(lp_fee)?;
     pool.prepared_governance_fee = PoolFee::new(governance_fee)?;

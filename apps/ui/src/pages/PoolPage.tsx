@@ -33,11 +33,8 @@ import { AddForm } from "../components/AddForm";
 import { RemoveForm } from "../components/RemoveForm";
 import { SlippageButton } from "../components/SlippageButton";
 import { StatList } from "../components/StatList";
-import {
-  TokenConfigIcon,
-  TokenIcon,
-  TokenOptionIcon,
-} from "../components/TokenIcon";
+import { TokenConfigIcon, TokenIcon } from "../components/TokenIcon";
+import { EthereumMergeWarning } from "../components/molecules/EthereumMergeWarning";
 import type { PoolSpec } from "../config";
 import { getSolanaTokenDetails, getTokenDetailsForEcosystem } from "../config";
 import { selectConfig } from "../core/selectors";
@@ -143,12 +140,7 @@ export const PoolPageInner = ({
     if (isEvmPoolState(poolState)) {
       return {
         title: (
-          <TokenOptionIcon
-            tokenOption={{
-              tokenId: tokenConfig.id,
-              ecosystemId: poolSpec.ecosystem,
-            }}
-          />
+          <TokenConfigIcon token={tokenConfig} ecosystem={poolSpec.ecosystem} />
         ),
         description: atomicToHumanString(
           new Decimal(poolState.balances[i].toString()),
@@ -247,93 +239,97 @@ export const PoolPageInner = ({
 
       <EuiSpacer size="m" />
 
-      <EuiFlexGroup justifyContent="spaceAround" gutterSize="xl">
-        <EuiFlexItem style={{ minWidth: "50%" }}>
-          <EuiTabbedContent
-            expand={true}
-            size="m"
-            tabs={[
-              {
-                id: "add",
-                name: poolSpec.isStakingPool
-                  ? t("glossary.stake_tokens")
-                  : t("general.add_tokens_to_pool"),
-                content: (
-                  <AddForm
-                    poolSpec={poolSpec}
-                    maxSlippageFraction={slippageFraction}
-                  />
-                ),
-              },
-              {
-                id: "remove",
-                name: poolSpec.isStakingPool
-                  ? t("glossary.unstake_tokens")
-                  : t("general.remove_tokens_from_pool"),
-                content: (
-                  <RemoveForm
-                    poolSpec={poolSpec}
-                    maxSlippageFraction={slippageFraction}
-                  />
-                ),
-              },
-            ]}
-          />
-        </EuiFlexItem>
-        <EuiFlexItem grow={false} className="statList">
-          <EuiTitle size="xxs">
-            <h4>
-              {t("pool_page.pool_balance", { count: reserveStats.length })}
-            </h4>
-          </EuiTitle>
-          <EuiSpacer size="s" />
-          <StatList listItems={reserveStats} />
-          <EuiSpacer />
-          <EuiTitle size="xxs">
-            <h4>
-              {t("pool_page.user_balance", { count: userLpStats.length })}
-            </h4>
-          </EuiTitle>
-          <EuiSpacer size="s" />
-          <StatList listItems={userLpStats} />
-          <EuiSpacer />
-          {!poolSpec.isStakingPool && (
-            <>
-              <EuiTitle size="xxs">
-                <h4>{t("pool_page.pool_info")}</h4>
-              </EuiTitle>
-              <EuiSpacer size="s" />
-              <StatList listItems={poolInfoStats} />
-            </>
-          )}
-          {getTokenDetailsForEcosystem(lpToken, EvmEcosystemId.Ethereum) !==
-            null && (
-            <EuiButtonEmpty
-              flush="left"
-              style={{ width: "fit-content" }}
-              onClick={() => {
-                showRegisterEthereumTokenPrompt(lpToken).catch(console.error);
-              }}
-              iconType={ETHEREUM_SVG}
-            >
-              {t("pool_page.add_lp_token_to_metamask")}
-            </EuiButtonEmpty>
-          )}
-          {getTokenDetailsForEcosystem(lpToken, EvmEcosystemId.Bnb) !==
-            null && (
-            <EuiButtonEmpty
-              flush="left"
-              style={{ width: "fit-content" }}
-              onClick={() => {
-                showRegisterBnbTokenPrompt(lpToken).catch(console.error);
-              }}
-              iconType={BNB_SVG}
-            >
-              {t("pool_page.add_lp_token_to_metamask")}
-            </EuiButtonEmpty>
-          )}
-        </EuiFlexItem>
-      </EuiFlexGroup>
+      {process.env.REACT_APP_ETHEREUM_MERGE === "true" ? (
+        <EthereumMergeWarning />
+      ) : (
+        <EuiFlexGroup justifyContent="spaceAround" gutterSize="xl">
+          <EuiFlexItem style={{ minWidth: "50%" }}>
+            <EuiTabbedContent
+              expand={true}
+              size="m"
+              tabs={[
+                {
+                  id: "add",
+                  name: poolSpec.isStakingPool
+                    ? t("glossary.stake_tokens")
+                    : t("general.add_tokens_to_pool"),
+                  content: (
+                    <AddForm
+                      poolSpec={poolSpec}
+                      maxSlippageFraction={slippageFraction}
+                    />
+                  ),
+                },
+                {
+                  id: "remove",
+                  name: poolSpec.isStakingPool
+                    ? t("glossary.unstake_tokens")
+                    : t("general.remove_tokens_from_pool"),
+                  content: (
+                    <RemoveForm
+                      poolSpec={poolSpec}
+                      maxSlippageFraction={slippageFraction}
+                    />
+                  ),
+                },
+              ]}
+            />
+          </EuiFlexItem>
+          <EuiFlexItem grow={false} className="statList">
+            <EuiTitle size="xxs">
+              <h4>
+                {t("pool_page.pool_balance", { count: reserveStats.length })}
+              </h4>
+            </EuiTitle>
+            <EuiSpacer size="s" />
+            <StatList listItems={reserveStats} />
+            <EuiSpacer />
+            <EuiTitle size="xxs">
+              <h4>
+                {t("pool_page.user_balance", { count: userLpStats.length })}
+              </h4>
+            </EuiTitle>
+            <EuiSpacer size="s" />
+            <StatList listItems={userLpStats} />
+            <EuiSpacer />
+            {!poolSpec.isStakingPool && (
+              <>
+                <EuiTitle size="xxs">
+                  <h4>{t("pool_page.pool_info")}</h4>
+                </EuiTitle>
+                <EuiSpacer size="s" />
+                <StatList listItems={poolInfoStats} />
+              </>
+            )}
+            {getTokenDetailsForEcosystem(lpToken, EvmEcosystemId.Ethereum) !==
+              null && (
+              <EuiButtonEmpty
+                flush="left"
+                style={{ width: "fit-content" }}
+                onClick={() => {
+                  showRegisterEthereumTokenPrompt(lpToken).catch(console.error);
+                }}
+                iconType={ETHEREUM_SVG}
+              >
+                {t("pool_page.add_lp_token_to_metamask")}
+              </EuiButtonEmpty>
+            )}
+            {getTokenDetailsForEcosystem(lpToken, EvmEcosystemId.Bnb) !==
+              null && (
+              <EuiButtonEmpty
+                flush="left"
+                style={{ width: "fit-content" }}
+                onClick={() => {
+                  showRegisterBnbTokenPrompt(lpToken).catch(console.error);
+                }}
+                iconType={BNB_SVG}
+              >
+                {t("pool_page.add_lp_token_to_metamask")}
+              </EuiButtonEmpty>
+            )}
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      )}
       <EuiSpacer />
     </>
   );

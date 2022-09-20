@@ -1,5 +1,5 @@
 use {
-    crate::{Propeller, PropellerSender},
+    crate::Propeller,
     anchor_lang::prelude::*,
     anchor_spl::{
         associated_token::{create, AssociatedToken, Create},
@@ -44,7 +44,7 @@ pub struct CreateTokenIdMap<'info> {
     b"propeller".as_ref(),
     b"token_id".as_ref(),
     propeller.key().as_ref(),
-    &target_token_index.to_le_bytes().as_ref()
+    &target_token_index.to_le_bytes()
     ],
     bump,
     space = 8 + TokenIdMap::LEN,

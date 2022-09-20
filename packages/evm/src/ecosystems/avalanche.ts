@@ -1,17 +1,22 @@
 import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
+import { assertType } from "@swim-io/utils";
 
-import type { EvmChainConfig, EvmEcosystemConfig } from "../protocol";
+import type {
+  EvmChainConfig,
+  EvmChainIdByEnv,
+  EvmEcosystemConfig,
+} from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
-export enum AvalancheChainId {
-  Mainnet = 43114, // C-Chain
-  Testnet = 43113,
-}
+export const avalancheChainId = assertType<EvmChainIdByEnv>()({
+  [Env.Mainnet]: 43114, // C-Chain
+  [Env.Devnet]: 43113,
+});
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
   name: "Avalanche Mainnet",
-  chainId: AvalancheChainId.Mainnet,
+  chainId: avalancheChainId[Env.Mainnet],
   wormhole: {
     bridge: "0x54a8e5f9c4CbA08F9943965859F6c34eAF03E26c",
     portal: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052",
@@ -23,7 +28,7 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
 
 const devnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
   name: "Avalanche Testnet",
-  chainId: AvalancheChainId.Testnet,
+  chainId: avalancheChainId[Env.Devnet],
   wormhole: {
     bridge: "0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C",
     portal: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",

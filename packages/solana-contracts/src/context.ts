@@ -7,13 +7,13 @@ import type { TwoPool } from "./artifacts/two_pool";
 import TwoPoolIDL from "./artifacts/two_pool.json";
 
 export class TwoPoolContext {
-  readonly connection: Connection;
-  readonly wallet: Wallet;
-  readonly opts: ConfirmOptions;
-  readonly program: Program<TwoPool>;
-  readonly provider: AnchorProvider;
+  public readonly connection: Connection;
+  public readonly wallet: Wallet;
+  public readonly opts: ConfirmOptions;
+  public readonly program: Program<TwoPool>;
+  public readonly provider: AnchorProvider;
 
-  constructor(
+  public constructor(
     provider: AnchorProvider,
     wallet: Wallet,
     program: Program,

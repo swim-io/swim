@@ -1,3 +1,4 @@
+import type { AptosChainId, AptosEcosystemId } from "@swim-io/aptos";
 import type { WormholeChainConfig } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
@@ -78,8 +79,17 @@ export interface EvmSpec extends ChainSpec {
   readonly rpcUrls: readonly string[];
 }
 
+export interface AptosSpec extends ChainSpec {
+  readonly ecosystem: AptosEcosystemId;
+  /** This should be unique for a given Env */
+  readonly chainId: AptosChainId;
+  readonly chainName: string;
+  readonly rpcUrls: readonly string[];
+}
+
 /** Every Protocol must specify a corresponding ChainSpec array */
 export interface ChainsByProtocol {
+  readonly [Protocol.Aptos]: readonly AptosSpec[];
   readonly [Protocol.Solana]: readonly SolanaSpec[];
   readonly [Protocol.Evm]: readonly EvmSpec[];
 }
@@ -133,6 +143,7 @@ const ACALA_NATIVE_CURRENCY = {
 };
 
 const MAINNET_CHAINS: ChainsByProtocol = {
+  [Protocol.Aptos]: [],
   [Protocol.Solana]: [
     {
       ecosystem: SOLANA_ECOSYSTEM_ID,
@@ -238,6 +249,7 @@ const MAINNET_CHAINS: ChainsByProtocol = {
 };
 
 const DEVNET_CHAINS: ChainsByProtocol = {
+  [Protocol.Aptos]: [],
   [Protocol.Solana]: [
     {
       ecosystem: SOLANA_ECOSYSTEM_ID,
@@ -343,6 +355,7 @@ const DEVNET_CHAINS: ChainsByProtocol = {
 };
 
 const LOCAL_CHAINS: ChainsByProtocol = {
+  [Protocol.Aptos]: [],
   [Protocol.Solana]: [
     {
       ecosystem: SOLANA_ECOSYSTEM_ID,

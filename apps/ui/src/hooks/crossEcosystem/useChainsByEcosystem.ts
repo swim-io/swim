@@ -1,3 +1,4 @@
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
@@ -23,6 +24,7 @@ export interface ChainsByEcosystem
 
 export const useChainsByEcosystem = (): ChainsByEcosystem => {
   const { chains } = useEnvironment(selectConfig, shallow);
+  const [aptos] = chains[Protocol.Aptos];
   const [solana] = chains[Protocol.Solana];
   const [ethereum, bnb, avalanche, polygon, aurora, fantom, karura, acala] = [
     EvmEcosystemId.Ethereum,
@@ -40,6 +42,7 @@ export const useChainsByEcosystem = (): ChainsByEcosystem => {
   );
 
   return {
+    [APTOS_ECOSYSTEM_ID]: aptos,
     [SOLANA_ECOSYSTEM_ID]: solana,
     [EvmEcosystemId.Ethereum]: ethereum,
     [EvmEcosystemId.Bnb]: bnb,

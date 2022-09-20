@@ -1,3 +1,5 @@
+import type { IMartianWallet } from "@swim-io/aptos";
+
 declare global {
   interface Window {
     readonly phantom?: Record<string, unknown>;
@@ -7,6 +9,7 @@ declare global {
     readonly solong?: {
       readonly selectAccount: () => Promise<string>;
     };
+    readonly martian?: IMartianWallet;
   }
 }
 

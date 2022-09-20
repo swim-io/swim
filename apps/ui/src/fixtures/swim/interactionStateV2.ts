@@ -1,3 +1,4 @@
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
@@ -49,6 +50,7 @@ export const SINGLE_CHAIN_SOLANA_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
+    [APTOS_ECOSYSTEM_ID]: null,
     [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     [EvmEcosystemId.Bnb]: null,
     [EvmEcosystemId.Ethereum]: null,
@@ -142,6 +144,7 @@ const SINGLE_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
+    [APTOS_ECOSYSTEM_ID]: null,
     [SOLANA_ECOSYSTEM_ID]: null,
     [EvmEcosystemId.Bnb]: null,
     [EvmEcosystemId.Ethereum]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
@@ -199,6 +202,7 @@ const CROSS_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
+    [APTOS_ECOSYSTEM_ID]: null,
     [SOLANA_ECOSYSTEM_ID]: null,
     [EvmEcosystemId.Bnb]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
     [EvmEcosystemId.Ethereum]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
@@ -267,6 +271,7 @@ const CROSS_CHAIN_SOLANA_TO_EVM_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
+    [APTOS_ECOSYSTEM_ID]: null,
     [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     [EvmEcosystemId.Bnb]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
     [EvmEcosystemId.Ethereum]: null,
@@ -338,6 +343,7 @@ const CROSS_CHAIN_EVM_TO_SOLANA_INTERACTION: SwapInteractionV2 = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
+    [APTOS_ECOSYSTEM_ID]: null,
     [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     [EvmEcosystemId.Bnb]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f1",
     [EvmEcosystemId.Ethereum]: null,
@@ -416,6 +422,7 @@ const ADD_INTERACTION_SOLANA: AddInteraction = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
+    [APTOS_ECOSYSTEM_ID]: null,
     [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     [EvmEcosystemId.Bnb]: null,
     [EvmEcosystemId.Ethereum]: null,
@@ -479,6 +486,7 @@ const ADD_INTERACTION_EVM: AddInteraction = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
+    [APTOS_ECOSYSTEM_ID]: null,
     [SOLANA_ECOSYSTEM_ID]: null,
     [EvmEcosystemId.Bnb]: null,
     [EvmEcosystemId.Ethereum]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
@@ -530,6 +538,7 @@ const REMOVE_INTERACTION_SOLANA: RemoveUniformInteraction = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
+    [APTOS_ECOSYSTEM_ID]: null,
     [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     [EvmEcosystemId.Bnb]: null,
     [EvmEcosystemId.Ethereum]: null,
@@ -596,6 +605,7 @@ const REMOVE_UNIFORM_INTERACTION_ETHEREUM: RemoveUniformInteraction = {
   env: Env.Devnet,
   submittedAt: 1653624596234,
   connectedWallets: {
+    [APTOS_ECOSYSTEM_ID]: null,
     [SOLANA_ECOSYSTEM_ID]: null,
     [EvmEcosystemId.Bnb]: null,
     [EvmEcosystemId.Ethereum]: "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
@@ -711,6 +721,7 @@ export const MOCK_SERIALIZED_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT = {
   version: 2,
   interaction: {
     connectedWallets: {
+      [APTOS_ECOSYSTEM_ID]: null,
       acala: null,
       aurora: null,
       avalanche: null,

@@ -1,3 +1,4 @@
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
@@ -16,6 +17,7 @@ const getContractAddressesByEcosystem = (
   tokenConfigs.reduce<ReadonlyRecord<EcosystemId, readonly string[]>>(
     (accumulator, tokenConfig) => {
       const [
+        aptosAddress,
         solanaAddress,
         ethereumAddress,
         bnbAddress,
@@ -26,6 +28,7 @@ const getContractAddressesByEcosystem = (
         karuraAddress,
         acalaAddress,
       ] = [
+        APTOS_ECOSYSTEM_ID,
         SOLANA_ECOSYSTEM_ID,
         EvmEcosystemId.Ethereum,
         EvmEcosystemId.Bnb,
@@ -41,6 +44,9 @@ const getContractAddressesByEcosystem = (
           null,
       );
       return {
+        [APTOS_ECOSYSTEM_ID]: aptosAddress
+          ? [...accumulator.aptos, aptosAddress]
+          : accumulator.aptos,
         [SOLANA_ECOSYSTEM_ID]: solanaAddress
           ? [...accumulator.solana, solanaAddress]
           : accumulator.solana,
@@ -71,6 +77,7 @@ const getContractAddressesByEcosystem = (
       };
     },
     {
+      [APTOS_ECOSYSTEM_ID]: [],
       [SOLANA_ECOSYSTEM_ID]: [],
       [EvmEcosystemId.Ethereum]: [],
       [EvmEcosystemId.Bnb]: [],
@@ -159,6 +166,9 @@ export const useMultipleUserBalances = (
     tokenConfigs.map((tokenConfig, i) => {
       const ecosystem = specificEcosystem ?? tokenConfig.nativeEcosystemId;
       switch (ecosystem) {
+        case APTOS_ECOSYSTEM_ID: {
+          return [tokenConfig.id, null]; // TODO aptos
+        }
         case SOLANA_ECOSYSTEM_ID: {
           const tokenAccount = solanaTokenAccounts[i];
           return [

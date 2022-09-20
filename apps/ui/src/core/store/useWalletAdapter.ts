@@ -1,4 +1,6 @@
 import * as Sentry from "@sentry/react";
+import type { AptosWalletAdapter } from "@swim-io/aptos";
+import { APTOS_PROTOCOL } from "@swim-io/aptos";
 import type { EvmWalletAdapter } from "@swim-io/evm";
 import { EVM_PROTOCOL } from "@swim-io/evm";
 import type { SolanaWalletAdapter } from "@swim-io/solana";
@@ -18,6 +20,7 @@ import { isWalletServiceId } from "../../models";
 import { useNotification as notificationStore } from "./useNotification";
 
 export interface WalletAdapterState {
+  readonly aptos: AptosWalletAdapter | null;
   readonly evm: EvmWalletAdapter | null;
   readonly solana: SolanaWalletAdapter | null;
   readonly connectService: ({
@@ -67,14 +70,44 @@ const isValidSelectedServiceByProtocol = (
     return false;
   }
 
+  const protocols = [
+    Protocol.Aptos.toString(),
+    Protocol.Evm.toString(),
+    Protocol.Solana.toString(),
+  ];
+
   return (
     Object.keys(selectedServiceByProtocol).every((key) =>
-      [Protocol.Evm.toString(), Protocol.Solana.toString()].includes(key),
+      protocols.includes(key),
     ) &&
     Object.values(selectedServiceByProtocol).every(
       (value) => value === null || isWalletServiceId(value),
     )
   );
+};
+
+const getAptosWalletSentryContextKey = () => "Aptos wallet";
+
+const onAptosWalletConnected = (adapter: AptosWalletAdapter) => {
+  const sentryContextKey = getAptosWalletSentryContextKey();
+  Sentry.setContext(sentryContextKey, {
+    walletName: adapter.serviceName,
+    address: adapter.address,
+  });
+  Sentry.addBreadcrumb({
+    category: "wallet",
+    message: `Connected to ${sentryContextKey} ${String(adapter.address)}`,
+    level: "info",
+  });
+};
+const onAptosWalletDisconnected = () => {
+  const sentryContextKey = getAptosWalletSentryContextKey();
+  Sentry.setContext(sentryContextKey, {});
+  Sentry.addBreadcrumb({
+    category: "wallet",
+    message: `Disconnected from ${sentryContextKey}`,
+    level: "info",
+  });
 };
 
 const getEvmWalletSentryContextKey = async (
@@ -153,9 +186,11 @@ export const useWalletAdapter = create(
     Pick<WalletAdapterState, "selectedServiceByProtocol">
   >(
     (set, get) => ({
+      aptos: null,
       evm: null,
       solana: null,
       selectedServiceByProtocol: {
+        [Protocol.Aptos]: null,
         [Protocol.Evm]: null,
         [Protocol.Solana]: null,
       },
@@ -166,7 +201,19 @@ export const useWalletAdapter = create(
         options = {},
       }) => {
         const state = get();
-        const previous = protocol === Protocol.Evm ? state.evm : state.solana;
+        let previous = null;
+
+        switch (protocol) {
+          case Protocol.Aptos:
+            previous = state.aptos;
+            break;
+          case Protocol.Evm:
+            previous = state.evm;
+            break;
+          case Protocol.Solana:
+            previous = state.solana;
+            break;
+        }
 
         if (previous) await state.disconnectService({ protocol });
 
@@ -187,6 +234,9 @@ export const useWalletAdapter = create(
           }
 
           switch (protocol) {
+            case Protocol.Aptos:
+              onAptosWalletConnected(adapter as AptosWalletAdapter);
+              break;
             case Protocol.Evm:
               onEvmWalletConnected(adapter as EvmWalletAdapter).catch(
                 console.error,
@@ -209,6 +259,9 @@ export const useWalletAdapter = create(
           void disconnect();
 
           switch (protocol) {
+            case Protocol.Aptos:
+              onAptosWalletDisconnected();
+              break;
             case Protocol.Evm:
               onEvmWalletDisconnected(adapter as EvmWalletAdapter).catch(
                 console.error,
@@ -243,6 +296,10 @@ export const useWalletAdapter = create(
               draft.selectedServiceByProtocol[protocol] = serviceId;
 
               switch (adapter.protocol) {
+                case APTOS_PROTOCOL: {
+                  draft.aptos = adapter;
+                  break;
+                }
                 case EVM_PROTOCOL: {
                   draft.evm = adapter;
                   break;
@@ -263,7 +320,19 @@ export const useWalletAdapter = create(
         options = { silently: false },
       }) => {
         const state = get();
-        const adapter = protocol === Protocol.Evm ? state.evm : state.solana;
+        let adapter = null;
+
+        switch (protocol) {
+          case Protocol.Aptos:
+            adapter = state.aptos;
+            break;
+          case Protocol.Evm:
+            adapter = state.evm;
+            break;
+          case Protocol.Solana:
+            adapter = state.solana;
+            break;
+        }
 
         if (adapter) {
           if (adapter.connected && !options.silently)
@@ -280,6 +349,10 @@ export const useWalletAdapter = create(
             draft.selectedServiceByProtocol[protocol] = null;
 
             switch (protocol) {
+              case Protocol.Aptos: {
+                draft.aptos = null;
+                break;
+              }
               case Protocol.Evm: {
                 draft.evm = null;
                 break;
@@ -309,7 +382,6 @@ export const useWalletAdapter = create(
             selectedServiceByProtocol: persistedState.selectedServiceByProtocol,
           };
         }
-
         return currentState;
       },
     },

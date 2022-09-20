@@ -1,3 +1,5 @@
+import type { AptosEcosystemId } from "@swim-io/aptos";
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId } from "@swim-io/evm";
 import type { SolanaEcosystemId } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
@@ -6,6 +8,7 @@ import { filterMap } from "@swim-io/utils";
 import { WormholeChainId } from "@swim-io/wormhole";
 
 import ACALA_SVG from "../images/ecosystems/acala.svg";
+import APTOS_SVG from "../images/ecosystems/aptos.svg";
 import AURORA_SVG from "../images/ecosystems/aurora.svg";
 import AVALANCHE_SVG from "../images/ecosystems/avalanche.svg";
 import BNB_SVG from "../images/ecosystems/bnb.svg";
@@ -16,16 +19,18 @@ import POLYGON_SVG from "../images/ecosystems/polygon.svg";
 import SOLANA_SVG from "../images/ecosystems/solana.svg";
 
 export const enum Protocol {
+  Aptos = "aptos-protocol",
   Solana = "solana-protocol",
   Evm = "evm",
 }
 
 export const PROTOCOL_NAMES: Record<Protocol, string> = {
+  [Protocol.Aptos]: "Aptos",
   [Protocol.Solana]: "Solana",
   [Protocol.Evm]: "EVM",
 };
 
-export type EcosystemId = SolanaEcosystemId | EvmEcosystemId;
+export type EcosystemId = SolanaEcosystemId | EvmEcosystemId | AptosEcosystemId;
 
 export const ECOSYSTEM_IDS: readonly EcosystemId[] = [
   SOLANA_ECOSYSTEM_ID,
@@ -60,6 +65,14 @@ export interface Ecosystem {
 }
 
 export const ECOSYSTEM_LIST: readonly Ecosystem[] = [
+  {
+    id: APTOS_ECOSYSTEM_ID,
+    protocol: Protocol.Aptos,
+    wormholeChainId: WormholeChainId.Solana, // TODO update wormholeChainId when it becomes available
+    displayName: "Aptos",
+    logo: APTOS_SVG,
+    nativeTokenSymbol: "APT",
+  },
   {
     id: SOLANA_ECOSYSTEM_ID,
     protocol: Protocol.Solana,

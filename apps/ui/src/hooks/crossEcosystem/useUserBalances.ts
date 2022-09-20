@@ -1,3 +1,4 @@
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type Decimal from "decimal.js";
@@ -84,6 +85,7 @@ const useUserBalance = (
   );
 
   return {
+    [APTOS_ECOSYSTEM_ID]: null, // TODO aptos
     [SOLANA_ECOSYSTEM_ID]: splBalance,
     [EvmEcosystemId.Ethereum]: ethereumTokenBalance,
     [EvmEcosystemId.Bnb]: bnbTokenBalance,

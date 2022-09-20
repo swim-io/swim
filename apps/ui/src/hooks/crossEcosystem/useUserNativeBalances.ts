@@ -1,3 +1,4 @@
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
@@ -49,6 +50,7 @@ export const useUserNativeBalances = (
   );
 
   return {
+    [APTOS_ECOSYSTEM_ID]: new Decimal(0), // TODO aptos
     [SOLANA_ECOSYSTEM_ID]: solBalance,
     [EvmEcosystemId.Ethereum]: ethBalance,
     [EvmEcosystemId.Bnb]: bnbBalance,

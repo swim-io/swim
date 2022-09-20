@@ -1,3 +1,4 @@
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
@@ -17,6 +18,7 @@ const POLKADOT_EXISTENTIAL_DEPOSIT_AMOUNT = new Decimal(0.1);
 export const ZERO = new Decimal(0);
 
 export const ZERO_FEE = {
+  [APTOS_ECOSYSTEM_ID]: ZERO,
   [SOLANA_ECOSYSTEM_ID]: ZERO,
   [EvmEcosystemId.Ethereum]: ZERO,
   [EvmEcosystemId.Bnb]: ZERO,

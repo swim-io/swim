@@ -8034,6 +8034,7 @@ __metadata:
     "@storybook/node-logger": ^6.5.10
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.10
+    "@swim-io/aptos": "workspace:^"
     "@swim-io/core": ^0.25.0
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/evm": ^0.25.0

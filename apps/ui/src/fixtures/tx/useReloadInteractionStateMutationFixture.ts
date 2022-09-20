@@ -1,4 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { Env } from "@swim-io/core";
 import type { EvmTx } from "@swim-io/evm";
 import { EvmEcosystemId } from "@swim-io/evm";
@@ -40,6 +41,7 @@ export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION: InteractionState = {
     env: Env.Devnet,
     submittedAt: 1656406521938,
     connectedWallets: {
+      [APTOS_ECOSYSTEM_ID]: null,
       [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
       [EvmEcosystemId.Bnb]: null,
       [EvmEcosystemId.Ethereum]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",

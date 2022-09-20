@@ -26,6 +26,7 @@ export const ETH_USDC_TO_SOL_USDC_SWAP: SwapInteraction = {
   env: Env.Custom,
   submittedAt: 1652947628411,
   connectedWallets: {
+    aptos: null,
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
     bnb: null,
@@ -52,6 +53,7 @@ export const SOL_USDC_TO_ETH_USDC_SWAP: SwapInteraction = {
   env: Env.Custom,
   submittedAt: 1652947575631,
   connectedWallets: {
+    aptos: null,
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
     bnb: null,
@@ -78,6 +80,7 @@ export const SOL_USDC_TO_SOL_USDT_SWAP: SwapInteraction = {
   env: Env.Custom,
   submittedAt: 1652947560467,
   connectedWallets: {
+    aptos: null,
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: null,
     bnb: null,
@@ -104,6 +107,7 @@ export const BNB_USDT_TO_ETH_USDC_SWAP: SwapInteraction = {
   env: Env.Custom,
   submittedAt: 1652947575631,
   connectedWallets: {
+    aptos: null,
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
     bnb: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
@@ -139,6 +143,7 @@ export const ADD: AddInteraction = {
   env: Env.Custom,
   submittedAt: 1653063505510,
   connectedWallets: {
+    aptos: null,
     solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     ethereum: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
     bnb: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",

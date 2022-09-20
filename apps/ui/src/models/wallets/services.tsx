@@ -1,4 +1,6 @@
 import { EuiButtonIcon } from "@elastic/eui";
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
+import type { AptosWalletAdapter } from "@swim-io/aptos";
 import type { EvmWalletAdapter } from "@swim-io/evm";
 import { EvmEcosystemId } from "@swim-io/evm";
 import type { SolanaWalletAdapter } from "@swim-io/solana";
@@ -11,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import type { Ecosystem, EcosystemId } from "../../config";
 import { ECOSYSTEMS, Protocol, getEcosystemsForProtocol } from "../../config";
 import LEDGER_ICON from "../../images/wallets/ledger.svg";
+import MARTIAN_ICON from "../../images/wallets/martian.svg";
 import METAMASK_ICON from "../../images/wallets/metamask.svg";
 import PHANTOM_ICON from "../../images/wallets/phantom.svg";
 
@@ -24,6 +27,7 @@ export enum WalletServiceId {
   Solong = "solong",
   Solflare = "solflare",
   Ledger = "ledger",
+  Martian = "martian",
 }
 
 export const isWalletServiceId = (value: unknown): value is WalletServiceId => {
@@ -91,6 +95,13 @@ const metaMaskInfo: Omit<WalletServiceInfo, "ecosystem"> = {
   name: "Metamask",
   url: "https://metamask.io",
   icon: METAMASK_ICON,
+};
+
+const martianInfo: WalletServiceInfo = {
+  name: "Martian",
+  url: "https://martianwallet.xyz/",
+  icon: MARTIAN_ICON,
+  ecosystem: ECOSYSTEMS[APTOS_ECOSYSTEM_ID],
 };
 
 interface MetaMaskHelpTextProps {
@@ -167,6 +178,7 @@ const acalaMetaMaskInfo = addMetaMaskEcosystemInfo(
 );
 
 const {
+  aptos,
   acala,
   aurora,
   avalanche,
@@ -263,7 +275,17 @@ export const SOLANA_WALLET_SERVICES: readonly SolanaWalletService<SolanaWalletAd
     },
   ];
 
+export const APTOS_WALLET_SERVICES: readonly WalletService<AptosWalletAdapter>[] =
+  [
+    {
+      id: WalletServiceId.Martian,
+      info: martianInfo,
+      adapter: aptos.MartianWalletAdapter,
+    },
+  ];
+
 export const WALLET_SERVICES: Record<EcosystemId, readonly WalletService[]> = {
+  [APTOS_ECOSYSTEM_ID]: APTOS_WALLET_SERVICES,
   [SOLANA_ECOSYSTEM_ID]: SOLANA_WALLET_SERVICES,
   [EvmEcosystemId.Ethereum]: ETHEREUM_WALLET_SERVICES,
   [EvmEcosystemId.Bnb]: BNB_WALLET_SERVICES,
@@ -297,6 +319,7 @@ export const createAdapter = (
   const service = findServiceForProtocol(serviceId, protocol);
 
   switch (protocol) {
+    case Protocol.Aptos:
     case Protocol.Evm: {
       if (!service.adapter)
         throw new Error(`Adapter is required for protocol ${protocol}`);
@@ -319,6 +342,7 @@ export const walletServiceInfo: ReadonlyRecord<
   WalletServiceId,
   Omit<WalletServiceInfo, "ecosystem" | "helpText">
 > = {
+  [WalletServiceId.Martian]: martianInfo,
   [WalletServiceId.Ledger]: ledgerInfo,
   [WalletServiceId.MetaMask]: metaMaskInfo,
   [WalletServiceId.Phantom]: phantomInfo,

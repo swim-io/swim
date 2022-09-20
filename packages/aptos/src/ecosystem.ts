@@ -30,7 +30,7 @@ const gasToken: GasToken = {
   decimals: 8,
 };
 
-export const solana: AptosEcosystemConfig = {
+export const aptos: AptosEcosystemConfig = {
   id: APTOS_ECOSYSTEM_ID,
   protocol: APTOS_PROTOCOL,
   wormholeChainId: 0, // TODO

@@ -71,11 +71,8 @@ const SwapPage = (): ReactElement => {
                   <h2>{t("nav.swap")}</h2>
                 </EuiTitle>
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
+              <EuiFlexItem grow={false} className="buttons">
                 <MultiConnectButton size="s" fullWidth />
-              </EuiFlexItem>
-
-              <EuiFlexItem grow={false}>
                 <SlippageButton
                   slippagePercent={slippagePercent}
                   setSlippagePercent={setSlippagePercent}

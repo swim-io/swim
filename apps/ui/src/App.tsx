@@ -71,6 +71,7 @@ function App(): ReactElement {
               <Route path="help" element={<HelpPage />} />
               <Route path="security" element={<SecurityPage />} />
               <Route path="/" element={<HomePage />} />
+              <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </Layout>
         </AppContext>

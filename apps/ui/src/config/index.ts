@@ -5,7 +5,7 @@ import type { ReadonlyRecord } from "@swim-io/utils";
 import type { ChainsByProtocol } from "./chains";
 import { CHAINS } from "./chains";
 import type { Ecosystem, EcosystemId } from "./ecosystem";
-import { ECOSYSTEMS, Protocol } from "./ecosystem";
+import { ECOSYSTEMS } from "./ecosystem";
 import { EVM_ROUTING_CONTRACT } from "./evmRoutingContract";
 import type { PoolSpec } from "./pools";
 import { POOLS } from "./pools";
@@ -44,35 +44,3 @@ export const CONFIGS: ReadonlyRecord<Env, Config> = {
   [Env.Local]: buildConfig(Env.Local),
   [Env.Custom]: buildConfig(Env.Custom),
 };
-
-const LOCALHOST_REGEXP = /localhost|127\.0\.0\.1/;
-
-export const overrideLocalIp = (config: Config, ip: string): Config => ({
-  ...config,
-  wormhole: config.wormhole && {
-    ...config.wormhole,
-    rpcUrls: config.wormhole.rpcUrls.map((rpcUrl) =>
-      rpcUrl.replace(LOCALHOST_REGEXP, ip),
-    ),
-  },
-  chains: {
-    ...config.chains,
-    [Protocol.Solana]: [
-      {
-        ...config.chains[Protocol.Solana][0],
-        endpoints: config.chains[Protocol.Solana][0].endpoints.map(
-          (endpoint) => {
-            return endpoint.replace(LOCALHOST_REGEXP, ip);
-          },
-        ),
-      },
-      ...config.chains[Protocol.Solana].slice(1),
-    ],
-    [Protocol.Evm]: config.chains[Protocol.Evm].map((chainSpec) => ({
-      ...chainSpec,
-      rpcUrls: chainSpec.rpcUrls.map((rpcUrl) =>
-        rpcUrl.replace(LOCALHOST_REGEXP, ip),
-      ),
-    })),
-  },
-});

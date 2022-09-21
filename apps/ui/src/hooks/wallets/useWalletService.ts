@@ -1,6 +1,7 @@
 import shallow from "zustand/shallow.js";
 
 import { Protocol } from "../../config";
+import { getSolanaEndpoints } from "../../contexts";
 import { selectConfig, selectWalletAdapterApi } from "../../core/selectors";
 import type { WalletAdapterState } from "../../core/store";
 import { useEnvironment, useWalletAdapter } from "../../core/store";
@@ -22,15 +23,19 @@ export const useWalletService = (): WalletServiceApi => {
     selectWalletAdapterApi,
     shallow,
   );
+  const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
-  const [{ endpoints }] = chains[Protocol.Solana];
+  const [solanaEndpoint] = getSolanaEndpoints(
+    env,
+    chains[Protocol.Solana][0].publicRpcUrls,
+  );
 
   return {
     connectService: ({ serviceId, protocol }) =>
       connectService({
         protocol,
         serviceId,
-        adapter: createAdapter(serviceId, protocol, endpoints[0]),
+        adapter: createAdapter(serviceId, protocol, solanaEndpoint),
       }),
     disconnectService,
   };

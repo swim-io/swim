@@ -1,5 +1,5 @@
 import { Env } from "@swim-io/core";
-import type { GetHistoryProvider } from "@swim-io/evm";
+import type { EvmChainConfig, GetHistoryProvider } from "@swim-io/evm";
 import {
   EtherscanFamilyProvider,
   EvmConnection,
@@ -15,7 +15,6 @@ import type { ReactElement, ReactNode } from "react";
 import type React from "react";
 import shallow from "zustand/shallow.js";
 
-import type { EvmSpec } from "../config";
 import { Protocol, isEcosystemEnabled } from "../config";
 import { selectConfig } from "../core/selectors";
 import { useEnvironment } from "../core/store";
@@ -53,19 +52,19 @@ const KARURA_SUBQL_URLS = {
 
 export const getProvider = (
   env: Env,
-  chainSpec: EvmSpec,
+  chainConfig: EvmChainConfig,
   ecosystemId: EvmEcosystemId,
 ): GetHistoryProvider => {
-  const { rpcUrls } = chainSpec;
+  const { publicRpcUrls } = chainConfig;
   if (
     (env !== Env.Mainnet && env !== Env.Testnet) ||
     !isEcosystemEnabled(ecosystemId)
   ) {
-    return new SimpleGetHistoryProvider(rpcUrls[0]);
+    return new SimpleGetHistoryProvider(publicRpcUrls[0]);
   }
   switch (ecosystemId) {
     case EvmEcosystemId.Acala:
-      return new SimpleGetHistoryProvider(rpcUrls[0]);
+      return new SimpleGetHistoryProvider(publicRpcUrls[0]);
     case EvmEcosystemId.Karura: {
       const rpcUrl = KARURA_RPC_URLS[env];
       const subqlUrl = KARURA_SUBQL_URLS[env];
@@ -74,7 +73,7 @@ export const getProvider = (
       }
       return rpcUrl && subqlUrl
         ? new PolkadotProvider(rpcUrl, subqlUrl)
-        : new SimpleGetHistoryProvider(rpcUrls[0]);
+        : new SimpleGetHistoryProvider(publicRpcUrls[0]);
     }
     case EvmEcosystemId.Bnb: {
       try {
@@ -94,7 +93,7 @@ export const getProvider = (
         }
         const network = getEtherscanFamilyNetwork(env, ecosystemId);
         if (network === null) {
-          return new SimpleGetHistoryProvider(rpcUrls[0]);
+          return new SimpleGetHistoryProvider(publicRpcUrls[0]);
         }
         return new EtherscanFamilyProvider(network);
       }
@@ -106,7 +105,7 @@ export const getProvider = (
     case EvmEcosystemId.Polygon: {
       const network = getEtherscanFamilyNetwork(env, ecosystemId);
       if (network === null) {
-        return new SimpleGetHistoryProvider(rpcUrls[0]);
+        return new SimpleGetHistoryProvider(publicRpcUrls[0]);
       }
       return new EtherscanFamilyProvider(
         network,
@@ -133,15 +132,12 @@ export const GetEvmConnectionProvider = ({
       return existingEvmConnection;
     }
 
-    const chainSpec = findOrThrow(
+    const chainConfig = findOrThrow(
       chains[Protocol.Evm],
       (chain) => chain.ecosystem === ecosystemId,
     );
-    const provider = getProvider(env, chainSpec, ecosystemId);
-    const newEvmConnection = new EvmConnection(provider, {
-      ...chainSpec,
-      name: chainSpec.chainName,
-    });
+    const provider = getProvider(env, chainConfig, ecosystemId);
+    const newEvmConnection = new EvmConnection(provider, chainConfig);
 
     const newState = new Map(evmConnections.current);
     newState.set(ecosystemId, newEvmConnection);

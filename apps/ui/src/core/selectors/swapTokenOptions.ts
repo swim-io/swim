@@ -1,5 +1,6 @@
 import { findOrThrow } from "@swim-io/utils";
 
+import type { EcosystemId } from "../../config";
 import { isSwimUsd } from "../../config";
 import type { TokenOption } from "../../models";
 import type { EnvironmentState } from "../store";
@@ -24,7 +25,7 @@ export const selectSwapTokenOptions = (
     tokenConfig,
     ecosystemId: tokenConfig.nativeEcosystemId,
   }));
-  const poolEcosystems = new Set(
+  const poolEcosystems = new Set<EcosystemId>(
     restructuredPools.map((pool) => pool.ecosystem),
   );
   const swimUsdSpec = findOrThrow(tokens, isSwimUsd);

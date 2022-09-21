@@ -6,6 +6,7 @@ import Decimal from "decimal.js";
 
 import type { EcosystemId } from "../../config";
 import { ECOSYSTEM_IDS } from "../../config";
+import { useAptBalanceQuery } from "../aptos";
 import { useEvmUserNativeBalanceQuery } from "../evm";
 import { useSolBalanceQuery } from "../solana";
 
@@ -13,6 +14,9 @@ export const useUserNativeBalances = (
   /** only fetch the ecosystems specified to reduce network calls */
   ecosystemIds: readonly EcosystemId[] = ECOSYSTEM_IDS,
 ): ReadonlyRecord<EcosystemId, Decimal> => {
+  const { data: aptBalance = new Decimal(0) } = useAptBalanceQuery({
+    enabled: ecosystemIds.includes(APTOS_ECOSYSTEM_ID),
+  });
   const { data: solBalance = new Decimal(0) } = useSolBalanceQuery({
     enabled: ecosystemIds.includes(SOLANA_ECOSYSTEM_ID),
   });
@@ -50,7 +54,7 @@ export const useUserNativeBalances = (
   );
 
   return {
-    [APTOS_ECOSYSTEM_ID]: new Decimal(0), // TODO aptos
+    [APTOS_ECOSYSTEM_ID]: aptBalance,
     [SOLANA_ECOSYSTEM_ID]: solBalance,
     [EvmEcosystemId.Ethereum]: ethBalance,
     [EvmEcosystemId.Bnb]: bnbBalance,

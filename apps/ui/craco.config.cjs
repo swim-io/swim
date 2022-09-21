@@ -32,7 +32,8 @@ module.exports = {
       // Handle ESM
       webpackConfig.module.rules.push({
         test: /\.mjs$/,
-        include: /node_modules\/@solana\/(buffer-layout-utils|spl-token)/,
+        include:
+          /node_modules\/(@solana\/(buffer-layout-utils|spl-token)|aptos)/,
         type: "javascript/auto",
       });
 

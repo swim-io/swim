@@ -86,10 +86,13 @@ const isValidSelectedServiceByProtocol = (
   );
 };
 
-const getAptosWalletSentryContextKey = () => "Aptos wallet";
+const getAptosWalletSentryContextKey = async (adapter: AptosWalletAdapter) => {
+  const network = await adapter.network();
+  return `Aptos ${network} wallet`;
+};
 
-const onAptosWalletConnected = (adapter: AptosWalletAdapter) => {
-  const sentryContextKey = getAptosWalletSentryContextKey();
+const onAptosWalletConnected = async (adapter: AptosWalletAdapter) => {
+  const sentryContextKey = await getAptosWalletSentryContextKey(adapter);
   Sentry.setContext(sentryContextKey, {
     walletName: adapter.serviceName,
     address: adapter.address,
@@ -100,8 +103,8 @@ const onAptosWalletConnected = (adapter: AptosWalletAdapter) => {
     level: "info",
   });
 };
-const onAptosWalletDisconnected = () => {
-  const sentryContextKey = getAptosWalletSentryContextKey();
+const onAptosWalletDisconnected = async (adapter: AptosWalletAdapter) => {
+  const sentryContextKey = await getAptosWalletSentryContextKey(adapter);
   Sentry.setContext(sentryContextKey, {});
   Sentry.addBreadcrumb({
     category: "wallet",
@@ -235,7 +238,9 @@ export const useWalletAdapter = create(
 
           switch (protocol) {
             case Protocol.Aptos:
-              onAptosWalletConnected(adapter as AptosWalletAdapter);
+              onAptosWalletConnected(adapter as AptosWalletAdapter).catch(
+                console.error,
+              );
               break;
             case Protocol.Evm:
               onEvmWalletConnected(adapter as EvmWalletAdapter).catch(
@@ -260,7 +265,9 @@ export const useWalletAdapter = create(
 
           switch (protocol) {
             case Protocol.Aptos:
-              onAptosWalletDisconnected();
+              onAptosWalletDisconnected(adapter as AptosWalletAdapter).catch(
+                console.error,
+              );
               break;
             case Protocol.Evm:
               onEvmWalletDisconnected(adapter as EvmWalletAdapter).catch(

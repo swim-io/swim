@@ -6,16 +6,18 @@ import {
 } from "@elastic/eui";
 import type { ReactElement } from "react";
 
-import { WormholeForm } from "components/WormholeForm";
+import { WormholeForm } from "../components/WormholeForm/WormholeForm";
 import { useTitle } from "../hooks";
 
 import "./WormholePage.scss";
+import { useTranslation } from "react-i18next";
 
 const WormholePage = (): ReactElement => {
-  useTitle("Wormhole");
+  const { t } = useTranslation();
+  useTitle(t("nav.womrhole"));
 
   return (
-    <EuiPage restrictWidth={800}>
+    <EuiPage restrictWidth={580}>
       <EuiPageBody>
         <EuiPageContent horizontalPosition="center" verticalPosition="center">
           <EuiPageContentBody>

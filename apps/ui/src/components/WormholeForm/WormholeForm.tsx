@@ -1,4 +1,4 @@
-import type { EuiSuperSelectOption } from "@elastic/eui";
+import { EuiIcon, EuiSuperSelectOption } from "@elastic/eui";
 import {
   EuiButton,
   EuiButtonIcon,
@@ -18,15 +18,17 @@ import {
 } from "@elastic/eui";
 import { ReadonlyRecord } from "@swim-io/utils";
 import Decimal from "decimal.js";
-import type { ChangeEvent, FormEvent, ReactElement } from "react";
+import { useFromTokenOptionsIds } from "hooks/swim/useSwapTokenOptions";
+import { ChangeEvent, FormEvent, ReactElement, useMemo } from "react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import { displayAmount } from "../amounts";
-import { TokenConfig } from "../config";
-import { EcosystemId, ECOSYSTEMS } from "../config";
-import { selectConfig } from "../core/selectors";
-import { useEnvironment, useNotification } from "../core/store";
+import { displayAmount } from "../../amounts";
+import { ECOSYSTEM_LIST, TokenConfig } from "../../config";
+import { EcosystemId, ECOSYSTEMS } from "../../config";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment, useNotification } from "../../core/store";
 // import {
 //   useChainsByEcosystem,
 //   useUserBalances,
@@ -34,9 +36,10 @@ import { useEnvironment, useNotification } from "../core/store";
 //   useWormhole,
 // } from "../hooks";
 
-import { ConfirmModal } from "./ConfirmModal";
-import { ConnectButton } from "./ConnectButton";
-import { TokenConfigIcon } from "./TokenIcon";
+import { ConfirmModal } from "../ConfirmModal";
+import { ConnectButton, MultiConnectButton } from "../ConnectButton";
+import { TokenConfigIcon } from "../TokenIcon";
+import { WormholeTokenInput } from "./WormholeTokenInput";
 
 const generateTokenOptions = (
   tokens: readonly TokenConfig[],
@@ -98,8 +101,17 @@ const generateTokenOptions = (
 // };
 
 export const WormholeForm = (): ReactElement => {
-  const { tokens } = useEnvironment(selectConfig, shallow);
+  const { tokens, ecosystems } = useEnvironment(selectConfig, shallow);
   const { notify } = useNotification();
+  const { t } = useTranslation();
+
+  const fromTokenOptionsIds = useFromTokenOptionsIds();
+  const [formInputAmount, setFormInputAmount] = useState("");
+
+  const [fromToken, setFromToken] = useState(tokens[0]);
+  const [fromEcosystemId, setFromEcosystemId] = useState(ecosystems.solana.id);
+  const [toEcosystemId, setToEcosystemId] = useState(ecosystems.solana.id);
+  const [tokenAddress, setTokenAddress] = useState("");
   // const {
   //   solana: { address: solanaAddress },
   //   ethereum: { address: ethereumAddress },
@@ -127,6 +139,34 @@ export const WormholeForm = (): ReactElement => {
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [txInProgress, setTxInProgress] = useState(false);
   const [amountErrors, setAmountErrors] = useState<readonly string[]>([]);
+
+  const selectEcosystemOptions = useMemo(() => {
+    return [
+      { inputDisplay: t("pools_page.all_chains"), value: "all", icon: null },
+      ...ECOSYSTEM_LIST.map((ecosystem) => ({
+        value: ecosystem.id,
+        inputDisplay: (
+          <EuiFlexGroup
+            gutterSize="none"
+            alignItems="center"
+            responsive={false}
+          >
+            <EuiFlexItem grow={false} style={{ marginRight: 20 }}>
+              <EuiIcon
+                type={ecosystem.logo}
+                size="m"
+                title={ecosystem.displayName}
+              />
+            </EuiFlexItem>
+            <EuiFlexItem>
+              <EuiText>{ecosystem.displayName}</EuiText>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        ),
+        icon: null,
+      })),
+    ];
+  }, [ECOSYSTEM_LIST, t]);
 
   // const userAddresses: ReadonlyRecord<EcosystemId, string | null> = {
   //   [ECOSYSTEMS.solana.id]: solanaAddress,
@@ -239,115 +279,47 @@ export const WormholeForm = (): ReactElement => {
   };
 
   return (
-    <EuiForm
-      className="wormholeForm"
-      component="form"
-      style={{ maxWidth: 400 }}
-      onSubmit={handleSubmit}
-    >
+    <EuiForm className="wormholeForm" component="form" onSubmit={handleSubmit}>
       <EuiFlexGroup justifyContent="spaceBetween" responsive={false}>
         <EuiFlexItem grow={false}>
           <EuiTitle>
             <h2>Wormhole</h2>
           </EuiTitle>
         </EuiFlexItem>
-      </EuiFlexGroup>
-      <EuiSpacer />
-      <EuiFlexGroup justifyContent="spaceBetween" responsive={false}>
-        <EuiFlexItem>Non-Solana blockchain:</EuiFlexItem>
-        <EuiFlexItem grow={4}>
-          <EuiSelect
-            id="ethereum-bsc"
-            // options={nonSolanaEcosystemOptions}
-            // value={nonSolanaEcosystem}
-            onChange={handleNonSolanaEcosystemChange}
-          />
+        <EuiFlexItem grow={false} className="buttons">
+          <MultiConnectButton size="s" fullWidth />
         </EuiFlexItem>
       </EuiFlexGroup>
       <EuiSpacer />
-      <EuiFlexGroup gutterSize="xs">
-        <EuiFlexItem grow={4}>
-          {/* <ConnectButton ecosystemId={fromEcosystem}>
-            {fromAddress && (fromAddress)}
-          </ConnectButton> */}
-          {/* {fromAddress} */}
-        </EuiFlexItem>
-        <EuiFlexItem grow={2}>
-          <div style={{ textAlign: "center", margin: "auto" }}>
-            <EuiButtonIcon
-              iconType="sortRight"
-              size="m"
-              // onClick={toggleDirection}
-              className="eui-hideFor--xs eui-hideFor--s"
-              aria-label="Toggle direction"
-            />
-            <EuiButtonIcon
-              iconType="sortDown"
-              size="m"
-              // onClick={toggleDirection}
-              className="eui-showFor--xs eui-showFor--s"
-              aria-label="Toggle direction"
-            />
-          </div>
-        </EuiFlexItem>
-        <EuiFlexItem grow={4}>
-          {/* <ConnectButton ecosystemId={toEcosystem}>
-            {toAddress && (toAddress)}
-          </ConnectButton> */}
-          {/* {toAddress} */}
-        </EuiFlexItem>
-      </EuiFlexGroup>
+      <WormholeTokenInput
+        value={formInputAmount}
+        token={fromToken}
+        tokenOptionIds={fromTokenOptionsIds}
+        tokenAddress={tokenAddress}
+        ecosystemId={fromEcosystemId}
+        placeholder={"0.00"}
+        errors={[]}
+        onSelectToken={setFromToken}
+        onChangeValue={setFormInputAmount}
+        onChangeTokenAddress={setTokenAddress}
+        onSelectEcosystem={setFromEcosystemId}
+      />
       <EuiSpacer />
-      <EuiFlexGroup>
-        <EuiFlexItem>
-          {/* <EuiFormRow hasEmptyLabelSpace>
-            <EuiSuperSelect
-              name="tokenId"
-              options={[...tokenOptions]}
-              valueOfSelected={tokenId}
-              onChange={setTokenId}
-              itemLayoutAlign="top"
-              hasDividers
-              disabled={!fromAddress}
-            />
-          </EuiFormRow> */}
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiFormRow
-            labelAppend={
-              <EuiText size="xs">
-                <span>Max:</span>{" "}
-                {/* <span>
-                  {fromTokenBalance
-                    ? displayAmount(
-                        fromTokenBalance.toFixed(0),
-                        fromTokenDetails.decimals,
-                      )
-                    : "-"}
-                </span> */}
-              </EuiText>
-            }
-            isInvalid={amountErrors.length > 0}
-            error={amountErrors}
-          >
-            <EuiFieldNumber
-              name="amount"
-              placeholder="Amount"
-              min={0}
-              // step={10 ** -fromTokenDetails.decimals}
-              // value={transferAmount}
-              // onChange={handleChangeTransferAmount}
-              onBlur={handleBlurTransferAmount}
-              isInvalid={amountErrors.length > 0}
-            />
-          </EuiFormRow>
-        </EuiFlexItem>
-      </EuiFlexGroup>
-      <EuiSpacer size="m" />
+      <EuiFormRow labelType="legend" label={<span>Target</span>} fullWidth>
+        <EuiSuperSelect
+          options={selectEcosystemOptions}
+          valueOfSelected={toEcosystemId}
+          onChange={(value) => setToEcosystemId(value as EcosystemId)}
+          hasDividers
+          fullWidth
+          style={{ textAlign: "center" }}
+        />
+      </EuiFormRow>
+      <EuiSpacer size="xl" />
       <EuiTextColor color="default">
         <span>You will receive&nbsp;</span>
         {/* {tokenSpec.symbol} */}
-        <span>. (Balance:</span>{" "}
+        <span>. (Balance: )</span>{" "}
         {/* <span>
           {toTokenBalance
             ? displayAmount(toTokenBalance.toFixed(0), toTokenDetails.decimals)
@@ -378,7 +350,7 @@ export const WormholeForm = (): ReactElement => {
         fullWidth
         isDisabled={txInProgress || amountErrors.length > 0}
       >
-        {txInProgress ? "Loading..." : "Transfer"}
+        {txInProgress ? "Loading..." : "Wormhole"}
       </EuiButton>
       <ConfirmModal
         isVisible={isConfirmModalVisible}

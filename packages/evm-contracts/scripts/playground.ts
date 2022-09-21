@@ -194,7 +194,7 @@ async function main() {
   // console.log(pool.address, await pool.getState());
   // console.log((await pool.getMarginalPrices()).map((p: BigNumber) => p.toString()));
   //console.log(await pool.estimateGas["add(uint256[],uint256)"]([2000000000, 0, 0], 1146708034));
-  printEncodedVM();
+  //printEncodedVM();
   //await manualTesting();
   // console.log(await deployer.getBalance());
   //console.log(await tokenBridge.wrappedAsset(1, "0x296b21c9a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe26719"));
@@ -245,7 +245,7 @@ async function main() {
   //   ]
   // );
   // console.log(initializeEncoded)
-  // console.log(ethers.Wallet.createRandom().mnemonic);
+  console.log(ethers.Wallet.createRandom().mnemonic);
   // console.log(ethers.utils.hexlify(20490));
   // console.log(JSON.stringify(await ethers.provider.getTransactionReceipt("0x26c407c4bb570adb57026d60d3235377eecebb94c1b5732e1c0c592391ec3ada"), null, 2));
 }

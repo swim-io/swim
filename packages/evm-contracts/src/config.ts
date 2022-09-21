@@ -51,7 +51,7 @@ export type ChainConfig = {
   readonly pools?: readonly PoolConfig[];
 };
 
-export const SWIM_FACTORY_ADDRESS = "0x36E284788aaA29C16cc227E09477C8e73D96ffD3";
+export const SWIM_FACTORY_ADDRESS = "0xDef312467D48bdDED813de11C3ee4c257e6eD7aD";
 export const SWIM_USD_SOLANA_ADDRESS =
   "0x296b21c9a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe26719";
 export const ROUTING_CONTRACT_SOLANA_ADDRESS = "0x" + "00".repeat(32); //TBD

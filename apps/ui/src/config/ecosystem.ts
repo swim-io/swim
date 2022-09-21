@@ -50,6 +50,8 @@ export const isEcosystemEnabled = (ecosystemId: EcosystemId): boolean => {
       return true;
     case EvmEcosystemId.Acala:
       return !!process.env.REACT_APP_ENABLE_ACALA;
+    case APTOS_ECOSYSTEM_ID:
+      return !!process.env.REACT_APP_ENABLE_APTOS;
     default:
       return false;
   }

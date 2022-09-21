@@ -42,15 +42,15 @@ declare const window: MartianWindow;
 export const MartianWalletName = "Martian";
 
 export class MartianWalletAdapter extends BaseWalletAdapter {
-  public serviceName = MartianWalletName;
-
-  public protocol = APTOS_PROTOCOL;
-
   protected provider: IMartianWallet | undefined;
 
   protected wallet: AccountKeys | null = null;
 
   private connecting = false;
+
+  public constructor() {
+    super(MartianWalletName, APTOS_PROTOCOL);
+  }
 
   public get publicAccount() {
     return this.wallet;

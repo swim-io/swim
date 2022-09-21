@@ -37,8 +37,14 @@ export abstract class BaseWalletAdapter
   extends EventEmitter
   implements WalletAdapter
 {
-  public abstract serviceName: string;
-  public abstract protocol: AptosProtocol;
+  public serviceName: string;
+  public protocol: AptosProtocol;
+
+  public constructor(serviceName: string, protocol: AptosProtocol) {
+    super();
+    this.serviceName = serviceName;
+    this.protocol = protocol;
+  }
 
   public get connected(): boolean {
     return !!this.publicAccount?.publicKey;

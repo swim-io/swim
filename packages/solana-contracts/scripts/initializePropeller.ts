@@ -3,6 +3,8 @@ import * as path from "path";
 
 import type { ChainId } from "@certusone/wormhole-sdk";
 import {
+  CHAIN_ID_ETH,
+  createNonce,
   tryNativeToHexString,
   tryNativeToUint8Array,
 } from "@certusone/wormhole-sdk";
@@ -10,11 +12,13 @@ import type { Program } from "@project-serum/anchor";
 import {
   AnchorProvider,
   BN,
+  Spl,
   setProvider,
   web3,
   workspace,
 } from "@project-serum/anchor";
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+import { MEMO_PROGRAM_ID } from "@solana/spl-memo";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -36,6 +40,7 @@ setProvider(provider);
 const twoPoolProgram = workspace.TwoPool as Program<TwoPool>;
 const TWO_POOL_PID = twoPoolProgram.programId;
 const propellerProgram = workspace.Propeller as Program<Propeller>;
+const splToken = Spl.token(provider);
 const PROPELLER_PID = propellerProgram.programId;
 
 const payer = (provider.wallet as NodeWallet).payer;
@@ -155,6 +160,9 @@ async function setupPropeller() {
     // propellerProgram.account.targetChainMap.fetch,
     "targetChainId",
   );
+
+  console.info(`transferring tokens`);
+  await transferTokens();
 }
 
 async function getPoolInfo(): Promise<PoolInfo> {
@@ -393,21 +401,26 @@ async function createTargetChainMaps() {
         targetChainId,
         propellerProgram.programId,
       );
-
-      await propellerProgram.methods
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        .createTargetChainMap(targetChainId, targetAddrWormholeFormat)
-        .accounts({
-          propeller: propellerInfo.address,
-          admin: propellerAdmin.publicKey,
-          payer: payer.publicKey,
-          targetChainMap: targetChainMapAddr,
-          systemProgram: web3.SystemProgram.programId,
-          // rent: web3.SYSVAR_RENT_PUBKEY,
-        })
-        .signers([propellerAdmin])
-        .rpc();
+      const targetChainMap =
+        await propellerProgram.account.targetChainMap.fetchNullable(
+          targetChainMapAddr,
+        );
+      if (!targetChainMap) {
+        await propellerProgram.methods
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          .createTargetChainMap(targetChainId, targetAddrWormholeFormat)
+          .accounts({
+            propeller: propellerInfo.address,
+            admin: propellerAdmin.publicKey,
+            payer: payer.publicKey,
+            targetChainMap: targetChainMapAddr,
+            systemProgram: web3.SystemProgram.programId,
+            // rent: web3.SYSVAR_RENT_PUBKEY,
+          })
+          .signers([propellerAdmin])
+          .rpc();
+      }
 
       return {
         targetChainId,
@@ -423,6 +436,121 @@ async function createTargetChainMaps() {
       return [targetChainId, targetChainMapAddr];
     }),
   );
+}
+
+async function transferTokens() {
+  const transferAmount = new BN(100_000_000);
+  const nonce = createNonce().readUInt32LE(0);
+  const memo = "e45794d6c5a2750a";
+  const memoBuffer = Buffer.alloc(16);
+  const wormholeMessage = web3.Keypair.generate();
+  const gasKickstart = false;
+  const propellerEnabled = true;
+
+  const evmTargetTokenId = 2;
+  // const evmTargetTokenAddrEthHexStr = tryNativeToHexString(
+  //   "0x0000000000000000000000000000000000000003",
+  //   CHAIN_ID_ETH,
+  // );
+  // const evmTargetTokenAddr = Buffer.from(evmTargetTokenAddrEthHexStr, "hex");
+
+  const evmOwnerEthHexStr = tryNativeToHexString(
+    "0x0000000000000000000000000000000000000004",
+    CHAIN_ID_ETH,
+  );
+  const evmOwner = Buffer.from(evmOwnerEthHexStr, "hex");
+  const wormhole = config.wormholeCore;
+  const tokenBridge = config.wormholeTokenBridge;
+  const [custody] = await web3.PublicKey.findProgramAddress(
+    [tokenBridgeMint.toBytes()],
+    tokenBridge,
+  );
+  const [wormholeConfig] = await web3.PublicKey.findProgramAddress(
+    [Buffer.from("Bridge")],
+    wormhole,
+  );
+  const [wormholeFeeCollector] = await web3.PublicKey.findProgramAddress(
+    [Buffer.from("fee_collector")],
+    wormhole,
+  );
+  // wh functions return in a hex string format
+  // wormholeEmitter = new web3.PublicKey(
+  //   tryHexToNativeString(await getEmitterAddressSolana(tokenBridge.toBase58()), CHAIN_ID_SOLANA)
+  //   );
+  const [wormholeEmitter] = await web3.PublicKey.findProgramAddress(
+    [Buffer.from("emitter")],
+    tokenBridge,
+  );
+  const [wormholeSequence] = await web3.PublicKey.findProgramAddress(
+    [Buffer.from("Sequence"), wormholeEmitter.toBytes()],
+    wormhole,
+  );
+
+  const [authoritySigner] = await web3.PublicKey.findProgramAddress(
+    [Buffer.from("authority_signer")],
+    tokenBridge,
+  );
+  const [tokenBridgeConfig] = await web3.PublicKey.findProgramAddress(
+    [Buffer.from("config")],
+    tokenBridge,
+  );
+  const [custodySigner] = await web3.PublicKey.findProgramAddress(
+    [Buffer.from("custody_signer")],
+    tokenBridge,
+  );
+  const maxFee = new BN(100_000);
+  const userTokenBridgeAccount = await getAssociatedTokenAddress(
+    tokenBridgeMint,
+    payer.publicKey,
+  );
+  const requestUnitsIx = web3.ComputeBudgetProgram.requestUnits({
+    // units: 420690,
+    units: 900000,
+    additionalFee: 0,
+  });
+
+  const transferNativeTxn = await propellerProgram.methods
+    .transferNativeWithPayload(
+      nonce,
+      CHAIN_ID_ETH,
+      transferAmount,
+      // evmTargetTokenAddr,
+      evmOwner,
+      propellerEnabled,
+      gasKickstart,
+      maxFee,
+      evmTargetTokenId,
+      memoBuffer,
+    )
+    .accounts({
+      propeller: propellerInfo.address,
+      payer: payer.publicKey,
+      tokenBridgeConfig,
+      userTokenBridgeAccount,
+      tokenBridgeMint,
+      custody,
+      tokenBridge: config.wormholeTokenBridge,
+      custodySigner,
+      authoritySigner,
+      wormholeConfig,
+      wormholeMessage: wormholeMessage.publicKey,
+      wormholeEmitter,
+      wormholeSequence,
+      wormholeFeeCollector,
+      clock: web3.SYSVAR_CLOCK_PUBKEY,
+      // autoderived
+      // sender
+      rent: web3.SYSVAR_RENT_PUBKEY,
+      // autoderived
+      // systemProgram,
+      wormhole,
+      tokenProgram: splToken.programId,
+      memo: MEMO_PROGRAM_ID,
+    })
+    .preInstructions([requestUnitsIx])
+    .signers([payer, wormholeMessage])
+    .rpc();
+  console.info(`send transferNativeTxn: ${transferNativeTxn}`);
 }
 
 void setupPropeller();

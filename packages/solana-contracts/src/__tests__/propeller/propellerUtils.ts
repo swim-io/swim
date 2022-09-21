@@ -518,7 +518,7 @@ export const getPropellerEngineTxns = async (
     wormhole,
   );
   const wormholeClaim = await getClaimAddressSolana(
-    WORMHOLE_TOKEN_BRIDGE.toBase58(),
+    tokenBridge.toBase58(),
     tokenTransferWithPayloadSignedVaa,
   );
 
@@ -643,6 +643,8 @@ export const getPropellerEngineTxns = async (
   console.info(`
     completePubkeys: ${JSON.stringify(completePubkeys, null, 2)}
   `);
+  // @ts-ignore
+  // @ts-ignore
   /**
    *         completePubkeys: {
    *       "propeller": "CTirsRjB4aApyAKjEVwH3QRc6E3EQ4ZvjpLukP1HoCEs",
@@ -694,6 +696,7 @@ export const getPropellerEngineTxns = async (
       //   tokenProgram: splToken.programId,
       //   tokenBridge: wormholeAddresses.tokenBridge,
       // },
+      // @ts-ignore
       completeNativeWithPayload: completePubkeys,
       feeTracker: propellerEngineFeeTracker,
       aggregator,
@@ -934,6 +937,7 @@ export const getPropellerEngineTxns = async (
         //   twoPoolProgram: twoPoolProgram.programId,
         //   systemProgram: web3.SystemProgram.programId,
         // },
+        // @ts-ignore
         processSwimPayload: processSwimPayloadPubkeys,
         feeVault: propellerFeeVault,
         feeTracker: propellerEngineFeeTracker,

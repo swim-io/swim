@@ -68,7 +68,7 @@ export const ECOSYSTEM_LIST: readonly Ecosystem[] = [
   {
     id: APTOS_ECOSYSTEM_ID,
     protocol: Protocol.Aptos,
-    wormholeChainId: WormholeChainId.Solana, // TODO update wormholeChainId when it becomes available
+    wormholeChainId: WormholeChainId.Aptos,
     displayName: "Aptos",
     logo: APTOS_SVG,
     nativeTokenSymbol: "APT",

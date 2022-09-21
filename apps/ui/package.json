@@ -53,7 +53,7 @@
     "@swim-io/solana": "^0.25.0",
     "@swim-io/token-projects": "^0.25.0",
     "@swim-io/utils": "^0.25.0",
-    "@swim-io/wormhole": "^0.25.0",
+    "@swim-io/wormhole": "workspace:^",
     "bn.js": "^5.2.1",
     "classnames": "^2.3.1",
     "decimal.js": "^10.3.1",

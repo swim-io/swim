@@ -8044,7 +8044,7 @@ __metadata:
     "@swim-io/token-projects": ^0.25.0
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": ^0.25.0
-    "@swim-io/wormhole": ^0.25.0
+    "@swim-io/wormhole": "workspace:^"
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^7.0.2
@@ -8140,22 +8140,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/wormhole@npm:^0.25.0":
-  version: 0.25.0
-  resolution: "@swim-io/wormhole@npm:0.25.0"
-  dependencies:
-    "@certusone/wormhole-sdk": ^0.6.0
-    "@solana/spl-token": ^0.3.4
-    "@solana/web3.js": ^1.48.0
-    "@swim-io/solana": ^0.25.0
-    "@swim-io/utils": ^0.25.0
-    ethers: ^5.6.9
-    grpc-web: ^1.3.1
-  checksum: 361ee256ea26ee4dbdd0c5dabcf3a3c5bd29471ab8a7135dd2be3cf488a8b8d0cc7f0a4f4b67d5b03630dd6356720f7d380e08cb87769288c0670110d6807d86
-  languageName: node
-  linkType: hard
-
-"@swim-io/wormhole@workspace:packages/wormhole":
+"@swim-io/wormhole@workspace:^, @swim-io/wormhole@workspace:packages/wormhole":
   version: 0.0.0-use.local
   resolution: "@swim-io/wormhole@workspace:packages/wormhole"
   dependencies:

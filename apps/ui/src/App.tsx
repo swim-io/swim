@@ -23,6 +23,7 @@ import SwapPage from "./pages/SwapPage";
 import SwapPageV2 from "./pages/SwapPageV2";
 import TestPage from "./pages/TestPage";
 import TosPage from "./pages/TosPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App(): ReactElement {
   return (
@@ -71,6 +72,7 @@ function App(): ReactElement {
               <Route path="help" element={<HelpPage />} />
               <Route path="security" element={<SecurityPage />} />
               <Route path="/" element={<HomePage />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Layout>
         </AppContext>

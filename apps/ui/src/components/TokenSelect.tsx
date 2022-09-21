@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { useCallback, useState } from "react";
 
 import type { TokenConfig } from "../config";
+import { ECOSYSTEMS } from "../config";
 
 import { TokenConfigIcon } from "./TokenIcon";
 import { TokenSearchModal } from "./TokenSearchModal";
@@ -19,6 +20,9 @@ export const TokenSelect = ({
   token,
 }: Props): ReactElement => {
   const [showModal, setShowModal] = useState(false);
+  const [selectedEcosystemId, setSelectedEcosystemId] = useState(
+    ECOSYSTEMS.solana.id,
+  );
 
   const openModal = useCallback(() => setShowModal(true), [setShowModal]);
   const closeModal = useCallback(() => setShowModal(false), [setShowModal]);
@@ -41,6 +45,8 @@ export const TokenSelect = ({
         <TokenSearchModal
           handleClose={closeModal}
           handleSelectToken={onSelectToken}
+          handleSelectEcosystem={setSelectedEcosystemId}
+          selectedEcosystemId={selectedEcosystemId}
           tokenOptionIds={tokenOptionIds}
         />
       )}

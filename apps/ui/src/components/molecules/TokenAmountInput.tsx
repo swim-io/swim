@@ -12,7 +12,6 @@ import type React from "react";
 import type { TokenConfig } from "../../config";
 import { i18next } from "../../i18n";
 import { Amount } from "../../models";
-import { ConnectButton } from "../ConnectButton";
 import { EuiFieldIntlNumber } from "../EuiFieldIntlNumber";
 import { TokenSelect } from "../TokenSelect";
 
@@ -72,7 +71,7 @@ export const TokenAmountInput: React.FC<Props> = ({
   const readOnly = !onChangeValue;
   return (
     <EuiFlexGroup>
-      <EuiFlexItem grow={2}>
+      <EuiFlexItem>
         <EuiFormRow
           hasEmptyLabelSpace={!showConstantSwapTip}
           // TODO: Preferably leave pool logic out a token-related component.
@@ -124,11 +123,6 @@ export const TokenAmountInput: React.FC<Props> = ({
               isInvalid={errors.length > 0}
             />
           )}
-        </EuiFormRow>
-      </EuiFlexItem>
-      <EuiFlexItem style={{ minWidth: "180px" }}>
-        <EuiFormRow hasEmptyLabelSpace>
-          <ConnectButton ecosystemId={token.nativeEcosystemId} fullWidth />
         </EuiFormRow>
       </EuiFlexItem>
     </EuiFlexGroup>

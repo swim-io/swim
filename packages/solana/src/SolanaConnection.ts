@@ -9,7 +9,7 @@ import type {
   RpcResponseAndContext,
   SignatureResult,
   Transaction,
-  TransactionResponse,
+  VersionedTransactionResponse,
 } from "@solana/web3.js";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { chunks, sleep } from "@swim-io/utils";
@@ -71,7 +71,7 @@ export class SolanaConnection {
 
   public rawConnection!: CustomConnection;
   // eslint-disable-next-line functional/prefer-readonly-type
-  private readonly txCache: Map<string, TransactionResponse>;
+  private readonly txCache: Map<string, VersionedTransactionResponse>;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
   private rpcIndex;
@@ -88,7 +88,7 @@ export class SolanaConnection {
     this.incrementRpcProvider();
 
     // NOTE: This design assumes no tx ID collisions between different environments eg Mainnet-beta and devnet.
-    this.txCache = new Map<string, TransactionResponse>();
+    this.txCache = new Map<string, VersionedTransactionResponse>();
     this.parsedTxCache = new Map<string, ParsedTransactionWithMeta>();
   }
 
@@ -169,7 +169,7 @@ export class SolanaConnection {
       maxRetries = DEFAULT_MAX_RETRIES,
       commitmentLevel = undefined,
     }: GetSolanaTransactionOptions = {},
-  ): Promise<TransactionResponse> {
+  ): Promise<VersionedTransactionResponse> {
     const knownTx = this.txCache.get(txId);
     if (knownTx !== undefined) {
       return knownTx;
@@ -185,6 +185,7 @@ export class SolanaConnection {
     return this.callWithRetry(async () => {
       const txResponse = await this.rawConnection.getTransaction(txId, {
         commitment: commitmentLevel,
+        maxSupportedTransactionVersion: 0,
       });
       if (txResponse !== null) {
         this.txCache.set(txId, txResponse);

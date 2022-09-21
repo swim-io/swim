@@ -16,7 +16,7 @@ import type {
   ParsedTransactionWithMeta,
   Transaction,
   TransactionInstruction,
-  TransactionResponse,
+  VersionedTransactionResponse,
 } from "@solana/web3.js";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import type { WormholeChainConfig } from "@swim-io/core";
@@ -28,7 +28,7 @@ import type { SolanaWalletAdapter } from "./walletAdapters";
 // Adapted from https://github.com/certusone/wormhole/blob/83b97bedb8c54618b191c20e4e18ba438a716cfa/sdk/js/src/bridge/parseSequenceFromLog.ts#L71-L81
 const SOLANA_SEQ_LOG = "Program log: Sequence: ";
 export const parseSequenceFromLogSolana = (
-  tx: ParsedTransactionWithMeta | TransactionResponse,
+  tx: ParsedTransactionWithMeta | VersionedTransactionResponse,
 ): string => {
   // TODO: better parsing, safer
   const sequenceLog = tx.meta?.logMessages?.find((msg) =>

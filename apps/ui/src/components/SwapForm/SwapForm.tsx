@@ -252,10 +252,10 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       )}
       <EuiSpacer />
       <TokenAmountInput
-        value={fromInputAmount ? new Decimal(fromInputAmount).toFixed(2) : ""}
+        value={fromInputAmount}
         token={fromToken}
         tokenOptionIds={fromTokenOptionsIds}
-        placeholder={t("general.enter_amount_of_tokens")}
+        placeholder={"0.00"}
         disabled={isInteractionInProgress}
         errors={inputAmountErrors}
         onSelectToken={setFromToken}

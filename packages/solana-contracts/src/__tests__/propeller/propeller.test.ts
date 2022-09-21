@@ -3366,6 +3366,7 @@ describe("propeller", () => {
     console.info(`txSig: ${txSig}`);
     const txnInfo = await connection.getTransaction(txSig, {
       commitment: "confirmed",
+      maxSupportedTransactionVersion: 0,
     });
 
     if (!txnInfo) {

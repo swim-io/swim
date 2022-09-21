@@ -61,7 +61,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const { notify } = useNotification();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const startNewInteraction = useStartNewInteraction(() => {
-    setFromInputAmount("0.00");
+    setFormInputAmount("");
   });
   const isInteractionInProgress = useHasActiveInteraction();
   const {
@@ -92,7 +92,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
     useState<ReactNode | null>(null);
   const isConfirmModalVisible = confirmModalDescription !== null;
 
-  const [fromInputAmount, setFromInputAmount] = useState("");
+  const [formInputAmount, setFormInputAmount] = useState("");
   const [inputAmountErrors, setInputAmountErrors] = useState<readonly string[]>(
     [],
   );
@@ -104,7 +104,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   ]);
 
   const inputAmount = defaultIfError(
-    () => Amount.fromHumanString(fromToken, fromInputAmount),
+    () => Amount.fromHumanString(fromToken, formInputAmount),
     Amount.zero(fromToken),
   );
 
@@ -252,14 +252,14 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       )}
       <EuiSpacer />
       <TokenAmountInput
-        value={fromInputAmount}
+        value={formInputAmount}
         token={fromToken}
         tokenOptionIds={fromTokenOptionsIds}
         placeholder={"0.00"}
         disabled={isInteractionInProgress}
         errors={inputAmountErrors}
         onSelectToken={setFromToken}
-        onChangeValue={setFromInputAmount}
+        onChangeValue={setFormInputAmount}
         onBlur={() => handleInputAmountChange(inputAmount)}
         showConstantSwapTip={!isStableSwap}
       />

@@ -379,7 +379,19 @@ const DEVNET_CHAINS: ChainsByProtocol = {
 };
 
 const LOCAL_CHAINS: ChainsByProtocol = {
-  [Protocol.Aptos]: [],
+  [Protocol.Aptos]: [
+    {
+      // adding an entry so that AptosClient context doesn't throw an error
+      ecosystem: APTOS_ECOSYSTEM_ID,
+      chainId: AptosChainId.Devnet, // TODO aptos
+      chainName: "Aptos Devnet", // TODO aptos
+      wormhole: {
+        bridge: "TODO aptos",
+        portal: "TODO aptos",
+      },
+      publicRpcUrls: ["https://fullnode.devnet.aptoslabs.com/v1"], // TODO aptos
+    },
+  ],
   [Protocol.Solana]: [
     {
       ecosystem: SOLANA_ECOSYSTEM_ID,

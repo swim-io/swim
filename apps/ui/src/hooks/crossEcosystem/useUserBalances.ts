@@ -6,6 +6,7 @@ import type Decimal from "decimal.js";
 import type { EcosystemId, TokenConfig } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../../models";
+import { useAptosBalanceQuery } from "../aptos";
 import { useErc20BalanceQuery } from "../evm";
 import { useSplUserBalance } from "../solana";
 
@@ -14,6 +15,12 @@ const useUserBalance = (
   ecosystemId: EcosystemId,
 ): Decimal | null => {
   // order of hooks can't change, so we pass in null values if we don't actually need the value
+  const { data: aptosTokenBalance = null } = useAptosBalanceQuery(
+    tokenConfig &&
+      (getTokenDetailsForEcosystem(tokenConfig, APTOS_ECOSYSTEM_ID)?.address ??
+        null),
+    { enabled: ecosystemId === APTOS_ECOSYSTEM_ID },
+  );
   const splBalance = useSplUserBalance(
     tokenConfig &&
       (getTokenDetailsForEcosystem(tokenConfig, SOLANA_ECOSYSTEM_ID)?.address ??
@@ -85,7 +92,7 @@ const useUserBalance = (
   );
 
   return {
-    [APTOS_ECOSYSTEM_ID]: null, // TODO aptos
+    [APTOS_ECOSYSTEM_ID]: aptosTokenBalance,
     [SOLANA_ECOSYSTEM_ID]: splBalance,
     [EvmEcosystemId.Ethereum]: ethereumTokenBalance,
     [EvmEcosystemId.Bnb]: bnbTokenBalance,

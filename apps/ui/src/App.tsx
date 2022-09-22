@@ -21,7 +21,6 @@ import SetCustomIpPage from "./pages/SetCustomIpPage";
 import StakePage from "./pages/StakePage";
 import SwapPage from "./pages/SwapPage";
 import SwapPageV2 from "./pages/SwapPageV2";
-import TestPage from "./pages/TestPage";
 import TosPage from "./pages/TosPage";
 
 function App(): ReactElement {
@@ -53,7 +52,6 @@ function App(): ReactElement {
           <Layout>
             <Routes>
               <Route path="set-custom-ip" element={<SetCustomIpPage />} />
-              <Route path="test" element={<TestPage />} />
               <Route path="pools" element={<PoolsPage />} />
               <Route path="pools/:poolId" element={<PoolPage />} />
               <Route path="stake" element={<StakePage poolId="swimlake" />} />

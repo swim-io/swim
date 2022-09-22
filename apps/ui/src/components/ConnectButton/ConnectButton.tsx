@@ -14,6 +14,7 @@ import {
 } from "../../core/selectors";
 import { useEnvironment, useWalletAdapter } from "../../core/store";
 import {
+  useAptosWallet,
   useEvmWallet,
   useSolanaWallet,
   useWalletService,
@@ -107,6 +108,7 @@ export const MultiConnectButton = ({
   const selectedServiceByProtocol = useWalletAdapter(
     selectSelectedServiceByProtocol,
   );
+  const aptos = useAptosWallet();
   const evm = useEvmWallet();
   const solana = useSolanaWallet();
   const hasActiveInteraction = useHasActiveInteraction();
@@ -119,6 +121,7 @@ export const MultiConnectButton = ({
     [
       evm.connected ? selectedServiceByProtocol[Protocol.Evm] : null,
       solana.connected ? selectedServiceByProtocol[Protocol.Solana] : null,
+      aptos.connected ? selectedServiceByProtocol[Protocol.Aptos] : null,
     ].filter(isNotNull),
   );
 

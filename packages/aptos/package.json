@@ -1,7 +1,6 @@
 {
   "name": "@swim-io/aptos",
-  "version": "0.24.0",
-  "private": true,
+  "version": "0.27.0",
   "description": "Swim Aptos SDK.",
   "main": "build",
   "types": "types",
@@ -30,6 +29,11 @@
     "verify": "yarn typecheck && yarn format:check && yarn lint && yarn test --watchAll=false",
     "build": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && tsc",
     "prepare": "yarn verify && yarn build"
+  },
+  "dependencies": {
+    "@swim-io/core": "workspace:^",
+    "aptos": "^1.3.13",
+    "eventemitter3": "^4.0.7"
   },
   "devDependencies": {
     "@swim-io/eslint-config": "workspace:^",

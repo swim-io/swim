@@ -1,3 +1,4 @@
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { UseQueryResult } from "react-query";
 import { useQueries } from "react-query";
@@ -26,6 +27,9 @@ export const usePoolStateQueries = (
         const { ecosystem } = poolSpec;
         if (ecosystem === SOLANA_ECOSYSTEM_ID) {
           return await getSolanaPoolState(solanaConnection, poolSpec);
+        }
+        if (ecosystem === APTOS_ECOSYSTEM_ID) {
+          return null; // TODO aptos
         }
         const evmConnection = getEvmConnection(ecosystem);
         return await getEvmPoolState(

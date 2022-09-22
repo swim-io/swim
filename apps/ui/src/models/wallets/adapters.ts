@@ -1,3 +1,5 @@
+import type { AptosWalletAdapter } from "@swim-io/aptos";
+import { aptosAdapters } from "@swim-io/aptos";
 import type { EvmWalletAdapter } from "@swim-io/evm";
 import {
   acalaAdapters,
@@ -12,10 +14,14 @@ import {
 import type { SolanaWalletAdapter } from "@swim-io/solana";
 import { solanaAdapters } from "@swim-io/solana";
 
-export type WalletAdapter = EvmWalletAdapter | SolanaWalletAdapter;
+export type WalletAdapter =
+  | EvmWalletAdapter
+  | SolanaWalletAdapter
+  | AptosWalletAdapter;
 
 export const adapters = {
   acala: acalaAdapters,
+  aptos: aptosAdapters,
   aurora: auroraAdapters,
   avalanche: avalancheAdapters,
   bnb: bnbAdapters,

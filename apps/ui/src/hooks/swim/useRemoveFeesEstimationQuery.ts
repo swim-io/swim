@@ -1,3 +1,4 @@
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId, isEvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { filterMap } from "@swim-io/utils";
@@ -86,6 +87,7 @@ export const useRemoveFeesEstimationQuery = (
     ECOSYSTEM_IDS,
   );
   return {
+    [APTOS_ECOSYSTEM_ID]: ZERO, // TODO aptos
     [SOLANA_ECOSYSTEM_ID]: SOLANA_FEE,
     [EvmEcosystemId.Ethereum]: ethGas.mul(ethGasPrice.toString()),
     [EvmEcosystemId.Bnb]: bnbGas.mul(bnbGasPrice.toString()),

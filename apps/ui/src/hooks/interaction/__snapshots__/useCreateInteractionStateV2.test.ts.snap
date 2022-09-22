@@ -7,6 +7,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -58,6 +59,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -103,6 +105,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -155,6 +158,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -207,6 +211,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
@@ -279,6 +284,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -350,6 +356,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -428,6 +435,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -505,6 +513,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,

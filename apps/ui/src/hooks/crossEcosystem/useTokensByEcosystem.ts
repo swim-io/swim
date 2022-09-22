@@ -1,3 +1,4 @@
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
@@ -21,6 +22,7 @@ export const useTokensByEcosystem = (): ReadonlyRecord<
     );
 
   return {
+    [APTOS_ECOSYSTEM_ID]: filterTokensByEcosystem(APTOS_ECOSYSTEM_ID),
     [SOLANA_ECOSYSTEM_ID]: filterTokensByEcosystem(SOLANA_ECOSYSTEM_ID),
     [EvmEcosystemId.Ethereum]: filterTokensByEcosystem(EvmEcosystemId.Ethereum),
     [EvmEcosystemId.Bnb]: filterTokensByEcosystem(EvmEcosystemId.Bnb),

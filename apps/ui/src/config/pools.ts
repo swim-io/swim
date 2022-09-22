@@ -1,3 +1,4 @@
+import type { AptosEcosystemId } from "@swim-io/aptos";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import type { SolanaEcosystemId } from "@swim-io/solana";
@@ -35,7 +36,11 @@ export interface EvmPoolSpec extends BasePoolSpec {
   readonly ecosystem: EvmEcosystemId;
 }
 
-export type PoolSpec = SolanaPoolSpec | EvmPoolSpec;
+export interface AptosPoolSpec extends BasePoolSpec {
+  readonly ecosystem: AptosEcosystemId;
+}
+
+export type PoolSpec = SolanaPoolSpec | EvmPoolSpec | AptosPoolSpec;
 
 export const isPoolRestructureEnabled = (): boolean =>
   !!process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE;

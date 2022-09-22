@@ -30,6 +30,7 @@ describe("useWalletAutoConnect", () => {
     beforeEach(() =>
       walletAdapterStore.setState({
         selectedServiceByProtocol: {
+          [Protocol.Aptos]: null,
           [Protocol.Evm]: WalletServiceId.MetaMask,
           [Protocol.Solana]: null,
         },
@@ -94,6 +95,7 @@ describe("useWalletAutoConnect", () => {
     beforeEach(() =>
       walletAdapterStore.setState({
         selectedServiceByProtocol: {
+          [Protocol.Aptos]: null,
           [Protocol.Evm]: null,
           [Protocol.Solana]: WalletServiceId.Phantom,
         },
@@ -116,6 +118,41 @@ describe("useWalletAutoConnect", () => {
     });
   });
 
+  describe("Martian support", () => {
+    const originalAptosEnvValue = process.env.REACT_APP_ENABLE_APTOS;
+    beforeAll(() => {
+      process.env.REACT_APP_ENABLE_APTOS = "true";
+      (window as any).martian = {};
+    });
+    beforeEach(() =>
+      walletAdapterStore.setState({
+        selectedServiceByProtocol: {
+          [Protocol.Aptos]: WalletServiceId.Martian,
+          [Protocol.Evm]: null,
+          [Protocol.Solana]: null,
+        },
+      }),
+    );
+    afterAll(() => {
+      process.env.REACT_APP_ENABLE_APTOS = originalAptosEnvValue;
+      delete (window as any).martian;
+    });
+
+    it("should call connect when Martian is selected and present", async () => {
+      const connect = jest.fn().mockImplementation(() => Promise.resolve());
+      createAdapterMock.mockReturnValue({
+        on: jest.fn(),
+        connect,
+        protocol: Protocol.Aptos,
+      });
+
+      const { waitForNextUpdate } = renderHook(() => useWalletAutoConnect());
+      await waitForNextUpdate(WAIT_FOR_NEXT_UPDATE_OPTIONS);
+
+      expect(connect).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe("Solong support", () => {
     beforeAll(
       () =>
@@ -127,6 +164,7 @@ describe("useWalletAutoConnect", () => {
     beforeEach(() =>
       walletAdapterStore.setState({
         selectedServiceByProtocol: {
+          [Protocol.Aptos]: null,
           [Protocol.Evm]: null,
           [Protocol.Solana]: WalletServiceId.Solong,
         },

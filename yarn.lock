@@ -6616,18 +6616,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/aptos@npm:^0.28.0":
-  version: 0.28.0
-  resolution: "@swim-io/aptos@npm:0.28.0"
-  dependencies:
-    "@swim-io/core": ^0.28.0
-    aptos: ^1.3.13
-    eventemitter3: ^4.0.7
-  checksum: 5b24661e5918d995446810a47b55d56a26c59ab647db3879a65048fc8849b8226c98298933a00e8aa021f8e3a256f9935c0f679c4e64e8ed270caf64f585cda9
-  languageName: node
-  linkType: hard
-
-"@swim-io/aptos@workspace:packages/aptos":
+"@swim-io/aptos@workspace:^, @swim-io/aptos@workspace:packages/aptos":
   version: 0.0.0-use.local
   resolution: "@swim-io/aptos@workspace:packages/aptos"
   dependencies:
@@ -7278,7 +7267,7 @@ __metadata:
     "@storybook/node-logger": ^6.5.10
     "@storybook/preset-create-react-app": ^3.2.0
     "@storybook/react": ^6.5.10
-    "@swim-io/aptos": ^0.28.0
+    "@swim-io/aptos": "workspace:^"
     "@swim-io/core": ^0.28.0
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/evm": ^0.28.0

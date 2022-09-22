@@ -6,6 +6,7 @@ import type {
 import EventEmitter from "eventemitter3";
 
 import type { AptosProtocol } from "../protocol";
+import { APTOS_PROTOCOL } from "../protocol";
 
 export interface AccountKeys {
   readonly publicKey: string;
@@ -40,10 +41,10 @@ export abstract class BaseWalletAdapter
   public serviceName: string;
   public protocol: AptosProtocol;
 
-  public constructor(serviceName: string, protocol: AptosProtocol) {
+  public constructor(serviceName: string) {
     super();
     this.serviceName = serviceName;
-    this.protocol = protocol;
+    this.protocol = APTOS_PROTOCOL;
   }
 
   public get connected(): boolean {

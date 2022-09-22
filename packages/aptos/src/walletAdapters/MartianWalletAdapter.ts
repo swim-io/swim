@@ -4,8 +4,6 @@ import type {
   TransactionPayload,
 } from "aptos/src/generated";
 
-import { APTOS_PROTOCOL } from "../protocol";
-
 import { BaseWalletAdapter } from "./BaseAdapter";
 import type { AccountKeys } from "./BaseAdapter";
 
@@ -49,7 +47,7 @@ export class MartianWalletAdapter extends BaseWalletAdapter {
   private connecting = false;
 
   public constructor() {
-    super(MartianWalletName, APTOS_PROTOCOL);
+    super(MartianWalletName);
   }
 
   public get publicAccount() {

@@ -13,7 +13,6 @@ import { useSplTokenAccountsQuery, useWallets } from "../hooks";
 import { isEveryAddressConnected } from "../models";
 import type { InteractionType } from "../models";
 
-import { MultiConnectButton } from "./ConnectButton";
 import { ConnectedWallets } from "./ConnectedWallets";
 import { InteractionStateComponent } from "./molecules/InteractionStateComponent";
 
@@ -56,7 +55,6 @@ export const RecentInteractions = ({
       <EuiAccordion
         id="recent-interactions"
         buttonContent={`${title} (${recentInteractions.length})`}
-        extraAction={<MultiConnectButton size="s" fullWidth />}
       >
         <EuiSpacer />
         <EuiPanel color="subdued">

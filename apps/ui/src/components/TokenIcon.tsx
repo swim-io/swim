@@ -121,3 +121,9 @@ export const TokenConfigIcon = ({
     ecosystemId={ecosystem ?? token.nativeEcosystemId}
   />
 );
+
+export const TokenSearchConfigIcon = ({
+  token,
+}: Pick<TokenConfigIconProps, "token">): ReactElement => (
+  <TokenIcon {...TOKEN_PROJECTS_BY_ID[token.projectId]} />
+);

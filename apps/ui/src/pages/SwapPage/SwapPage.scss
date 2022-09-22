@@ -6,3 +6,12 @@
     max-width: 400px;
   }
 }
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  .euiPopover {
+    margin-left: 5px;
+  }
+}

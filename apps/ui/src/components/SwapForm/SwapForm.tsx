@@ -61,7 +61,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
   const { notify } = useNotification();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
   const startNewInteraction = useStartNewInteraction(() => {
-    setFormInputAmount("0");
+    setFormInputAmount("");
   });
   const isInteractionInProgress = useHasActiveInteraction();
   const {
@@ -74,6 +74,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
     setFromAndToTokens,
     hasUrlError,
   } = useSwapTokensContext();
+
   const [formErrors, setFormErrors] = useState<readonly string[]>([]);
 
   const requiredPools = getRequiredPoolsForSwap(
@@ -91,7 +92,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
     useState<ReactNode | null>(null);
   const isConfirmModalVisible = confirmModalDescription !== null;
 
-  const [formInputAmount, setFormInputAmount] = useState("0");
+  const [formInputAmount, setFormInputAmount] = useState("");
   const [inputAmountErrors, setInputAmountErrors] = useState<readonly string[]>(
     [],
   );
@@ -250,12 +251,11 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         <EuiCallOut title={t("swap_page.invalid_swap_url")} color="danger" />
       )}
       <EuiSpacer />
-
       <TokenAmountInput
         value={formInputAmount}
         token={fromToken}
         tokenOptionIds={fromTokenOptionsIds}
-        placeholder={t("general.enter_amount_of_tokens")}
+        placeholder={"0.00"}
         disabled={isInteractionInProgress}
         errors={inputAmountErrors}
         onSelectToken={setFromToken}
@@ -263,7 +263,6 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         onBlur={() => handleInputAmountChange(inputAmount)}
         showConstantSwapTip={!isStableSwap}
       />
-
       <EuiSpacer size="m" />
       <div style={{ textAlign: "center" }}>
         <EuiButtonIcon
@@ -282,7 +281,6 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         size="m"
         className="eui-hideFor--m eui-hideFor--l eui-hideFor--xl"
       />
-
       <TokenAmountInput
         value={outputAmount?.toHumanString(toToken.nativeEcosystemId) ?? ""}
         token={toToken}
@@ -294,18 +292,14 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         // Never show constant swap on "To Form".
         showConstantSwapTip={false}
       />
-
       <EuiSpacer />
-
       <SwapFormSolanaConnectButton
         fromEcosystem={fromToken.nativeEcosystemId}
         toEcosystem={toToken.nativeEcosystemId}
       />
-
       {isInputAmountPositive && (
         <EstimatedTxFeesCallout feesEstimation={feesEstimation} />
       )}
-
       {formErrors.length > 0 && (
         <>
           <EuiCallOut
@@ -322,9 +316,7 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
         </>
       )}
       <SolanaTpsWarning />
-
       <PoolPausedAlert isVisible={isRequiredPoolPaused} />
-
       <EuiFormRow fullWidth>
         <EuiButton
           type="submit"
@@ -336,7 +328,6 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
           {t("swap_form.swap_button")}
         </EuiButton>
       </EuiFormRow>
-
       <ConfirmModal
         isVisible={isConfirmModalVisible}
         onCancel={handleConfirmModalCancel}

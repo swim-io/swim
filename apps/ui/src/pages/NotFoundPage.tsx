@@ -1,3 +1,5 @@
+// TODO: Sync with lokalize to support multiple languages.
+
 import {
   EuiPage,
   EuiPageBody,
@@ -12,7 +14,6 @@ import type { ReactElement } from "react";
 import { useTitle } from "../hooks";
 
 const NotFoundPage = (): ReactElement => {
-  // const { t } = useTranslation();
   useTitle("Not Found");
   return (
     <EuiPage className="notFoundPage" restrictWidth={800}>

@@ -14,6 +14,7 @@ import CollectiblesPage from "./pages/CollectiblesPage";
 import HelpPage from "./pages/HelpPage";
 import HomePage from "./pages/HomePage";
 import MediaPage from "./pages/MediaPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import PoolPage from "./pages/PoolPage";
 import PoolsPage from "./pages/PoolsPage";
 import SecurityPage from "./pages/SecurityPage";
@@ -69,6 +70,7 @@ function App(): ReactElement {
               <Route path="help" element={<HelpPage />} />
               <Route path="security" element={<SecurityPage />} />
               <Route path="/" element={<HomePage />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Layout>
         </AppContext>

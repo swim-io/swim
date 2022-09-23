@@ -7,14 +7,14 @@ import { useEnvironment } from "../../core/store";
 import { useAptosClient } from "./useAptosClient";
 import { useAptosWallet } from "./useAptosWallet";
 
-export const useAptBalanceQuery = (
+export const useAptosGasBalanceQuery = (
   options?: UseQueryOptions<Decimal, Error>,
 ): UseQueryResult<Decimal, Error> => {
   const { env } = useEnvironment();
   const aptosClient = useAptosClient();
   const { address: walletAddress } = useAptosWallet();
   return useQuery<Decimal, Error>(
-    [env, "aptBalance", walletAddress],
+    [env, "aptosGasBalance", walletAddress],
     async () => {
       if (!walletAddress) {
         return new Decimal(0);

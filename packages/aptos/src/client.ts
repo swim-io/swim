@@ -14,10 +14,10 @@ interface GasScheduleV2 {
 }
 
 export class AptosClient {
-  private readonly client: SDKAptosClient;
+  private readonly sdkClient: SDKAptosClient;
 
   public constructor(nodeUrl: string) {
-    this.client = new SDKAptosClient(nodeUrl);
+    this.sdkClient = new SDKAptosClient(nodeUrl);
   }
 
   public async getGasBalance(address: string): Promise<Decimal> {
@@ -34,7 +34,7 @@ export class AptosClient {
     mintAddress: string,
   ): Promise<Decimal> {
     const account = new AptosAccount(undefined, address);
-    const coinClient = new CoinClient(this.client);
+    const coinClient = new CoinClient(this.sdkClient);
     const balance = await coinClient.checkBalance(account, {
       coinType: mintAddress,
     });
@@ -43,7 +43,7 @@ export class AptosClient {
 
   public async getGasPrice(): Promise<Decimal> {
     // from https://discord.com/channels/945856774056083548/946123778793029683/1022056705485459486
-    const resource = await this.client.getAccountResource(
+    const resource = await this.sdkClient.getAccountResource(
       "0x1",
       "0x1::gas_schedule::GasScheduleV2",
     );

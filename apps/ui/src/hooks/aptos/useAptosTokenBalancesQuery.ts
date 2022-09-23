@@ -9,7 +9,7 @@ import { useEnvironment } from "../../core/store";
 import { useAptosClient } from "./useAptosClient";
 import { useAptosWallet } from "./useAptosWallet";
 
-export const useAptosBalancesQuery = (
+export const useAptosTokenBalancesQuery = (
   contractAddresses: readonly string[],
 ): readonly UseQueryResult<Decimal | null, Error>[] => {
   const { env } = useEnvironment();

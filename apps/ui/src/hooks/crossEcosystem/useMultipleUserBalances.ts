@@ -8,7 +8,7 @@ import type { UseQueryResult } from "react-query";
 import type { EcosystemId, TokenConfig } from "../../config";
 import { getTokenDetailsForEcosystem } from "../../config";
 import { Amount } from "../../models";
-import { useAptosBalancesQuery } from "../aptos";
+import { useAptosTokenBalancesQuery } from "../aptos";
 import { useErc20BalancesQuery } from "../evm";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 
@@ -146,7 +146,7 @@ export const useMultipleUserBalances = (
         )
       : null,
   );
-  const aptosBalances = useAptosBalancesQuery(aptos);
+  const aptosBalances = useAptosTokenBalancesQuery(aptos);
   const ethereumBalances = useErc20BalancesQuery(
     EvmEcosystemId.Ethereum,
     ethereum,

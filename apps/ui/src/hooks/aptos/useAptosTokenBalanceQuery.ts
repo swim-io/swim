@@ -7,7 +7,7 @@ import { useEnvironment } from "../../core/store";
 import { useAptosClient } from "./useAptosClient";
 import { useAptosWallet } from "./useAptosWallet";
 
-export const useAptosBalanceQuery = (
+export const useAptosTokenBalanceQuery = (
   contractAddress: string | null,
   options?: UseQueryOptions<Decimal | null, Error>,
 ): UseQueryResult<Decimal | null, Error> => {
@@ -16,7 +16,7 @@ export const useAptosBalanceQuery = (
   const { address: walletAddress } = useAptosWallet();
 
   return useQuery<Decimal | null, Error>(
-    [env, "aptosBalance", contractAddress, walletAddress],
+    [env, "aptosTokenBalance", contractAddress, walletAddress],
     async (): Promise<Decimal | null> => {
       if (walletAddress === null || contractAddress === null) {
         return null;

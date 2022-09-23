@@ -22,7 +22,7 @@ export const useAptosGasBalanceQuery = (
       }
       try {
         return (await aptosClient.getGasBalance(walletAddress)).dividedBy(
-          10 ** aptos.gasToken.decimals,
+          new Decimal("10").pow(aptos.gasToken.decimals),
         );
       } catch {
         return new Decimal(0);

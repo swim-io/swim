@@ -1,4 +1,8 @@
 import {
+  createPostVaaInstructionSolana,
+  createVerifySignaturesInstructionsSolana,
+} from "@certusone/wormhole-sdk";
+import {
   createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
@@ -9,21 +13,32 @@ import type {
   RpcResponseAndContext,
   SignatureResult,
   Transaction,
+  TransactionInstruction,
   VersionedTransactionResponse,
 } from "@solana/web3.js";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import type { WormholeChainConfig } from "@swim-io/core";
 import { chunks, sleep } from "@swim-io/utils";
 
 import type { TokenAccount } from "./serialization/tokenAccount";
 import { deserializeTokenAccount } from "./serialization/tokenAccount";
-import { createTx } from "./utils";
+import { createMemoIx, createTx } from "./utils";
 import type { SolanaWalletAdapter } from "./walletAdapters";
+import { createRedeemOnSolanaTx } from "./wormhole";
 
 export const DEFAULT_MAX_RETRIES = 10;
 export const DEFAULT_COMMITMENT_LEVEL: Finality = "confirmed";
 const DEFAULT_SLEEP_MS = 1000;
 
-interface GetSolanaTransactionOptions {
+export interface GenerateUnlockSplTokenTxIdsParams {
+  readonly interactionId: string;
+  readonly solanaWormhole: WormholeChainConfig;
+  readonly solanaWallet: SolanaWalletAdapter;
+  readonly vaaKeypair: Keypair;
+  readonly vaaBytes: Uint8Array;
+}
+
+export interface GetSolanaTransactionOptions {
   readonly maxRetries?: number;
   readonly commitmentLevel?: Finality;
 }
@@ -90,6 +105,41 @@ export class SolanaConnection {
     // NOTE: This design assumes no tx ID collisions between different environments eg Mainnet-beta and devnet.
     this.txCache = new Map<string, VersionedTransactionResponse>();
     this.parsedTxCache = new Map<string, ParsedTransactionWithMeta>();
+  }
+
+  public async *generateUnlockSplTokenTxIds({
+    interactionId,
+    solanaWormhole,
+    solanaWallet,
+    vaaKeypair,
+    vaaBytes,
+  }: GenerateUnlockSplTokenTxIdsParams): AsyncGenerator<string> {
+    const { publicKey: solanaPublicKey } = solanaWallet;
+    if (!solanaPublicKey) {
+      throw new Error("No Solana public key");
+    }
+
+    const signTransaction = solanaWallet.signTransaction.bind(solanaWallet);
+
+    const postVaaSolanaTxIdsGenerator = this.generatePostVaaSolanaTxIds({
+      interactionId,
+      signTransaction,
+      bridgeAddress: solanaWormhole.bridge,
+      payer: solanaPublicKey.toBase58(),
+      vaa: Buffer.from(vaaBytes),
+      vaaKeypair,
+    });
+    for await (const txId of postVaaSolanaTxIdsGenerator) {
+      yield txId;
+    }
+    const redeemTx = await createRedeemOnSolanaTx({
+      interactionId,
+      bridgeAddress: solanaWormhole.bridge,
+      portalAddress: solanaWormhole.portal,
+      payerAddress: solanaPublicKey.toBase58(),
+      signedVaa: vaaBytes,
+    });
+    yield await this.sendAndConfirmTx(signTransaction, redeemTx);
   }
 
   public async confirmTx(
@@ -445,5 +495,65 @@ export class SolanaConnection {
       }
     }
     throw new Error("callWithRetry bug, this code should be unreachable.");
+  }
+
+  private async *generatePostVaaSolanaTxIds({
+    interactionId,
+    signTransaction,
+    bridgeAddress,
+    payer,
+    vaa,
+    vaaKeypair,
+  }: {
+    readonly interactionId: string;
+    readonly signTransaction: (tx: Transaction) => Promise<Transaction>;
+    readonly bridgeAddress: string;
+    readonly payer: string;
+    readonly vaa: Buffer;
+    readonly vaaKeypair: Keypair;
+  }): AsyncGenerator<string> {
+    const memoIx = createMemoIx(interactionId, []);
+    const verifyIxs: readonly TransactionInstruction[] =
+      await createVerifySignaturesInstructionsSolana(
+        this.rawConnection,
+        bridgeAddress,
+        payer,
+        vaa,
+        vaaKeypair,
+      );
+    const finalIx: TransactionInstruction =
+      await createPostVaaInstructionSolana(
+        bridgeAddress,
+        payer,
+        vaa,
+        vaaKeypair,
+      );
+
+    // The verify signatures instructions can be batched into groups of 2 safely,
+    // reducing the total number of transactions
+    const batchableChunks = chunks(verifyIxs, 2);
+    const unsignedTxs = batchableChunks.map((chunk) =>
+      createTx({
+        feePayer: new PublicKey(payer),
+      }).add(...chunk, memoIx),
+    );
+    // The postVaa instruction can only execute after the verifySignature transactions have
+    // successfully completed
+    const finalTx = createTx({
+      feePayer: new PublicKey(payer),
+    }).add(finalIx, memoIx);
+
+    // The signatureSet keypair also needs to sign the verifySignature transactions, thus a wrapper is needed
+    const partialSignWrapper = async (
+      tx: Transaction,
+    ): Promise<Transaction> => {
+      tx.partialSign(vaaKeypair);
+      return signTransaction(tx);
+    };
+
+    for (const tx of unsignedTxs) {
+      yield await this.sendAndConfirmTx(partialSignWrapper, tx);
+    }
+    yield await this.sendAndConfirmTx(signTransaction, finalTx);
   }
 }

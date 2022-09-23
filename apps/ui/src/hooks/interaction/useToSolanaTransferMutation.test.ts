@@ -1,10 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import { EvmEcosystemId } from "@swim-io/evm";
 import type { TokenAccount } from "@swim-io/solana";
-import {
-  SOLANA_ECOSYSTEM_ID,
-  generateUnlockSplTokenTxIds,
-} from "@swim-io/solana";
+import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useQueryClient } from "react-query";
 
@@ -20,8 +17,6 @@ import { useGetEvmConnection } from "../evm";
 import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
 
 import { useToSolanaTransferMutation } from "./useToSolanaTransferMutation";
-
-const generateUnlockSplTokenTxIdsMock = mockOf(generateUnlockSplTokenTxIds);
 
 jest.mock("@certusone/wormhole-sdk");
 jest.mock("../../core/store/idb");
@@ -80,6 +75,19 @@ describe("useToSolanaTransferMutation", () => {
           mint,
         } as unknown as TokenAccount),
       ),
+      generateUnlockSplTokenTxIds: jest
+        .fn()
+        .mockReturnValue([
+          Promise.resolve(
+            "3o1NH8sMDs5m9DMoVcqD5eZRny2JrrFBohn9TwEKHXhX4Xxg6uQV7JrupVuDJcwaHBuP8fCZhv1HWBYicMixsSPg",
+          ),
+          Promise.resolve(
+            "3ok2VJpHqZ2EqoDGVMyugENdKawTjNbmM4sm4tHpsoF6T8BHx78fk5vZBXH7KRpgX7P43vhnMnN5zb5NSogUfCsj",
+          ),
+          Promise.resolve(
+            "5rYoqeehFL7j5MbMqzE8NruiUeBaRVhwFpCKsdXUnuAr6NNcPiX3XUxq72SA2MtPhtEhEDU2ZPVP9m4rmkHgy2cC",
+          ),
+        ] as Partial<AsyncGenerator<string>>),
     });
     useWalletsMock.mockReturnValue({
       [EvmEcosystemId.Bnb]: {
@@ -118,17 +126,6 @@ describe("useToSolanaTransferMutation", () => {
         },
       };
     });
-    generateUnlockSplTokenTxIdsMock.mockReturnValue([
-      Promise.resolve(
-        "3o1NH8sMDs5m9DMoVcqD5eZRny2JrrFBohn9TwEKHXhX4Xxg6uQV7JrupVuDJcwaHBuP8fCZhv1HWBYicMixsSPg",
-      ),
-      Promise.resolve(
-        "3ok2VJpHqZ2EqoDGVMyugENdKawTjNbmM4sm4tHpsoF6T8BHx78fk5vZBXH7KRpgX7P43vhnMnN5zb5NSogUfCsj",
-      ),
-      Promise.resolve(
-        "5rYoqeehFL7j5MbMqzE8NruiUeBaRVhwFpCKsdXUnuAr6NNcPiX3XUxq72SA2MtPhtEhEDU2ZPVP9m4rmkHgy2cC",
-      ),
-    ] as Partial<AsyncGenerator<string>>);
 
     const { result } = renderHookWithAppContext(() => {
       const { mutateAsync } = useToSolanaTransferMutation();

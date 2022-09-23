@@ -1,12 +1,13 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
 import type { Transaction } from "@solana/web3.js";
+import { Keypair } from "@solana/web3.js";
 import { evmAddressToWormhole } from "@swim-io/evm";
 import type { SolanaConnection, TokenAccount } from "@swim-io/solana";
 import {
   SOLANA_ECOSYSTEM_ID,
+  createTransferFromSolanaTx,
   findTokenAccountForMint,
   parseSequenceFromLogSolana,
-  transferFromSolana,
 } from "@swim-io/solana";
 import { findOrThrow, isEachNotNull } from "@swim-io/utils";
 import { WormholeChainId } from "@swim-io/wormhole";
@@ -174,27 +175,31 @@ export const useFromSolanaTransferMutation = () => {
       let transferSplTokenTxId = transfer.txIds.transferSplToken;
       if (transferSplTokenTxId === null) {
         // No existing tx
-        const { tx, messageKeypair } = await transferFromSolana(
+        const messageKeypair = Keypair.generate();
+        const tx = await createTransferFromSolanaTx({
           interactionId,
           solanaConnection,
-          solanaWormhole.bridge,
-          solanaWormhole.portal,
-          solanaWalletAddress,
-          splTokenAccount.address.toBase58(),
-          solanaTokenDetails.address,
-          BigInt(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)),
-          evmAddressToWormhole(evmWalletAddress),
-          evmEcosystem.wormholeChainId,
-          token.nativeEcosystemId === evmChain.ecosystem
-            ? evmAddressToWormhole(
-                getTokenDetailsForEcosystem(token, evmChain.ecosystem)
-                  ?.address ?? "",
-              )
-            : undefined,
-          token.nativeEcosystemId === evmChain.ecosystem
-            ? evmEcosystem.wormholeChainId
-            : undefined,
-        );
+          bridgeAddress: solanaWormhole.bridge,
+          portalAddress: solanaWormhole.portal,
+          payerAddress: solanaWalletAddress,
+          auxiliarySignerAddress: messageKeypair.publicKey.toString(),
+          fromAddress: splTokenAccount.address.toBase58(),
+          mintAddress: solanaTokenDetails.address,
+          amount: BigInt(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)),
+          targetAddress: evmAddressToWormhole(evmWalletAddress),
+          targetChain: evmEcosystem.wormholeChainId,
+          originAddress:
+            token.nativeEcosystemId === evmChain.ecosystem
+              ? evmAddressToWormhole(
+                  getTokenDetailsForEcosystem(token, evmChain.ecosystem)
+                    ?.address ?? "",
+                )
+              : undefined,
+          originChain:
+            token.nativeEcosystemId === evmChain.ecosystem
+              ? evmEcosystem.wormholeChainId
+              : undefined,
+        });
         transferSplTokenTxId = await solanaConnection.sendAndConfirmTx(
           async (txToSign: Transaction) => {
             txToSign.partialSign(messageKeypair);

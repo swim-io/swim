@@ -1,3 +1,4 @@
+import { aptos } from "@swim-io/aptos";
 import Decimal from "decimal.js";
 import type { UseQueryOptions, UseQueryResult } from "react-query";
 import { useQuery } from "react-query";
@@ -21,7 +22,7 @@ export const useAptosGasBalanceQuery = (
       }
       try {
         return (await aptosClient.getGasBalance(walletAddress)).dividedBy(
-          100_000_000,
+          10 ** aptos.gasToken.decimals,
         );
       } catch {
         return new Decimal(0);

@@ -18,13 +18,20 @@ export class AptosClient extends SDKAptosClient {
     return this.getTokenBalance(address, APTOS_COIN);
   }
 
+  /**
+   * @param {string} address - account address
+   * @param {string} mintAddress - token address (or coinType in aptos SDK). e.g. "0x1::aptos_coin::AptosCoin"
+   * @returns {Promise<Decimal>} token balance for this account
+   */
   public async getTokenBalance(
     address: string,
-    coinType: string,
+    mintAddress: string,
   ): Promise<Decimal> {
     const account = new AptosAccount(undefined, address);
     const coinClient = new CoinClient(this);
-    const balance = await coinClient.checkBalance(account, { coinType });
+    const balance = await coinClient.checkBalance(account, {
+      coinType: mintAddress,
+    });
     return new Decimal(balance.toString());
   }
 

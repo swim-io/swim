@@ -364,6 +364,7 @@ pub struct MessageAccount {}
 
 pub const VERIFY_SIGNATURES_INSTRUCTION: u8 = 7;
 
+/// Wormhole Claim Account data
 #[derive(AnchorSerialize, AnchorDeserialize, Debug)]
 pub struct ClaimData {
     pub claimed: bool,

@@ -4084,6 +4084,9 @@ export type Propeller = {
     },
     {
       "name": "ClaimData",
+      "docs": [
+        "Wormhole Claim Account data"
+      ],
       "type": {
         "kind": "struct",
         "fields": [
@@ -8551,6 +8554,9 @@ export const IDL: Propeller = {
     },
     {
       "name": "ClaimData",
+      "docs": [
+        "Wormhole Claim Account data"
+      ],
       "type": {
         "kind": "struct",
         "fields": [

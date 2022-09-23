@@ -1,10 +1,11 @@
 use {
     crate::{
-        constants::LAMPORTS_PER_SOL_DECIMAL, deserialize_message_payload, error::*, get_marginal_price_decimal,
-        get_message_data, get_token_bridge_mint_decimals, get_transfer_with_payload_from_message_account, hash_vaa,
+        constants::LAMPORTS_PER_SOL_DECIMAL, deserialize_message_payload, error::*,
+        get_lamports_intermediate_token_price, get_marginal_price_decimal, get_marginal_prices, get_message_data,
+        get_token_bridge_mint_decimals, get_transfer_with_payload_from_message_account, hash_vaa,
         instructions::fee_tracker::FeeTracker, state::PropellerMessage, validate_marginal_prices_pool_accounts,
-        Address, ChainID, ClaimData, PayloadTransferWithPayload, PostVAAData, PostedMessageData, PostedVAAData,
-        Propeller, TokenBridge, Wormhole, COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION,
+        Address, ChainID, ClaimData, MessageData, PayloadTransferWithPayload, PostVAAData, PostedMessageData,
+        PostedVAAData, Propeller, TokenBridge, Wormhole, COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION, TOKEN_COUNT,
     },
     anchor_lang::{
         prelude::*,
@@ -20,7 +21,7 @@ use {
     rust_decimal::Decimal,
     solana_program::program::invoke,
     switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_PROGRAM_ID},
-    two_pool::state::TwoPool,
+    two_pool::{state::TwoPool, BorshDecimal},
 };
 
 #[derive(Accounts)]
@@ -112,7 +113,7 @@ pub struct CompleteNativeWithPayload<'info> {
     seeds = [ b"redeemer".as_ref()],
     bump = propeller.redeemer_bump
     )]
-    /// CHECK: this used to be "to_owner".
+    /// CHECK: this used to be "to_owner".\
     /// redeemer will be PDA derived from ["redeemer"], seeds::program = propeller::id()
     /// will have to be signed when it invokes complete_transfer_with_payload
     /// if complete transfer with payload not meant to be handled by a contract redeemer will be the same as vaa.to
@@ -142,6 +143,7 @@ pub struct CompleteNativeWithPayload<'info> {
     #[account(mut)]
     /// CHECK: wormhole_custody_account: seeds = [mint], seeds::program = token_bridge
     pub custody: AccountInfo<'info>,
+    #[account(address = propeller.token_bridge_mint)]
     pub mint: Box<Account<'info, Mint>>,
     /// CHECK: custody_signer_account: seeds = [b"custody_signer"], seeds::program = token_bridge
     pub custody_signer: AccountInfo<'info>,
@@ -181,6 +183,74 @@ impl<'info> CompleteNativeWithPayload<'info> {
         // }
         true
     }
+
+    pub fn invoke_complete_native_with_payload(&self) -> Result<()> {
+        let wh_complete_native_with_payload_acct_infos = vec![
+            self.payer.to_account_info().clone(),
+            self.token_bridge_config.to_account_info().clone(),
+            self.message.to_account_info().clone(),
+            self.claim.to_account_info().clone(),
+            self.endpoint.to_account_info().clone(),
+            self.to.to_account_info().clone(),
+            self.redeemer.to_account_info().clone(),
+            self.fee_recipient.to_account_info().clone(),
+            self.custody.to_account_info().clone(),
+            self.mint.to_account_info().clone(),
+            self.custody_signer.to_account_info().clone(),
+            self.rent.to_account_info().clone(),
+            self.system_program.to_account_info().clone(),
+            self.wormhole.to_account_info().clone(),
+            self.token_program.to_account_info().clone(),
+        ];
+        let complete_transfer_with_payload_ix = Instruction {
+            program_id: self.token_bridge.key(),
+            // accounts: ctx.accounts.to_account_metas(None),
+            accounts: vec![
+                AccountMeta::new(self.payer.key(), true),
+                AccountMeta::new_readonly(self.token_bridge_config.key(), false),
+                AccountMeta::new_readonly(self.message.key(), false),
+                AccountMeta::new(self.claim.key(), false),
+                AccountMeta::new_readonly(self.endpoint.key(), false),
+                AccountMeta::new(self.to.key(), false),
+                AccountMeta::new_readonly(self.redeemer.key(), true),
+                AccountMeta::new(self.fee_recipient.key(), false),
+                AccountMeta::new(self.custody.key(), false),
+                AccountMeta::new_readonly(self.mint.key(), false),
+                AccountMeta::new_readonly(self.custody_signer.key(), false),
+                // Dependencies
+                AccountMeta::new_readonly(Rent::id(), false),
+                AccountMeta::new_readonly(system_program::id(), false),
+                // Program
+                AccountMeta::new_readonly(self.wormhole.key(), false),
+                AccountMeta::new_readonly(spl_token::id(), false),
+            ],
+            data: (COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION, CompleteNativeWithPayloadData {}).try_to_vec()?,
+        };
+        invoke_signed(
+            &complete_transfer_with_payload_ix,
+            &wh_complete_native_with_payload_acct_infos,
+            // &self.to_account_infos(),
+            &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
+        )?;
+        msg!("successfully invoked self.complete_native_with_payload()");
+        Ok(())
+    }
+
+    pub fn get_message(&self) -> Result<MessageData> {
+        let message_account_info = &self.message.to_account_info();
+        let message_data = get_message_data(message_account_info)?;
+        msg!("message_data: {:?}", message_data);
+        get_message_data(message_account_info)
+    }
+
+    pub fn get_transfer_with_payload(&self, message_data: &MessageData) -> Result<PayloadTransferWithPayload> {
+        // let message_account_info = &self.message.to_account_info();
+        // let message_data = get_message_data(message_account_info)?;
+        // msg!("message_data: {:?}", message_data);
+        let transfer_with_payload = deserialize_message_payload(&mut message_data.payload.as_slice())?;
+        msg!("transfer_with_payload: {:?}", transfer_with_payload);
+        Ok(transfer_with_payload)
+    }
 }
 
 /// There's nothing stopping a propellerEngine from calling this but
@@ -188,50 +258,10 @@ impl<'info> CompleteNativeWithPayload<'info> {
 /// A user should be allowed to call this even if swim_payload.propellerEnabled for manual takeover
 /// in the event that the propellerEngine was unavailable.
 pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayload>) -> Result<()> {
-    let complete_transfer_with_payload_ix = Instruction {
-        program_id: ctx.accounts.token_bridge.key(),
-        // accounts: ctx.accounts.to_account_metas(None),
-        accounts: vec![
-            AccountMeta::new(ctx.accounts.payer.key(), true),
-            AccountMeta::new_readonly(ctx.accounts.token_bridge_config.key(), false),
-            AccountMeta::new_readonly(ctx.accounts.message.key(), false),
-            AccountMeta::new(ctx.accounts.claim.key(), false),
-            AccountMeta::new_readonly(ctx.accounts.endpoint.key(), false),
-            AccountMeta::new(ctx.accounts.to.key(), false),
-            AccountMeta::new_readonly(ctx.accounts.redeemer.key(), true),
-            AccountMeta::new(ctx.accounts.fee_recipient.key(), false),
-            AccountMeta::new(ctx.accounts.custody.key(), false),
-            AccountMeta::new_readonly(ctx.accounts.mint.key(), false),
-            AccountMeta::new_readonly(ctx.accounts.custody_signer.key(), false),
-            // Dependencies
-            AccountMeta::new_readonly(Rent::id(), false),
-            AccountMeta::new_readonly(system_program::id(), false),
-            // Program
-            AccountMeta::new_readonly(ctx.accounts.wormhole.key(), false),
-            AccountMeta::new_readonly(spl_token::id(), false),
-        ],
-        data: (COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION, CompleteNativeWithPayloadData {}).try_to_vec()?,
-    };
-    invoke_signed(
-        &complete_transfer_with_payload_ix,
-        &ctx.accounts.to_account_infos(),
-        &[&[&b"redeemer".as_ref(), &[ctx.accounts.propeller.redeemer_bump]]],
-    )?;
-    msg!("successfully invoked complete_native_with_payload");
-
-    let message_account_info = &ctx.accounts.message.to_account_info();
-    let message_data = get_message_data(message_account_info)?;
-    msg!("message_data: {:?}", message_data);
-    let payload_transfer_with_payload: PayloadTransferWithPayload =
-        deserialize_message_payload(&mut message_data.payload.as_slice())?;
-    let propeller = &ctx.accounts.propeller;
-
-    //TODO: do i need to check this or is it already checked in complete_native_with_payload cpi call?
-    // should be done as part of the redeemer check?
-    //
-    // msg!("payload_transfer_with_payload.to: {:?}", payload_transfer_with_payload.to);
-    // let to_pubkey = Pubkey::new_from_array(payload_transfer_with_payload.to);
-    // require_keys_eq!(to_pubkey, crate::ID);
+    ctx.accounts.invoke_complete_native_with_payload()?;
+    let message_data = ctx.accounts.get_message()?;
+    let transfer_with_payload = &ctx.accounts.get_transfer_with_payload(&message_data)?;
+    // let propeller = &ctx.accounts.propeller;
 
     //TODO: do we want this check?
     // msg!(
@@ -243,29 +273,13 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
     //     propeller.evm_routing_contract_address == payload_transfer_with_payload.from_address,
     //     PropellerError::InvalidRoutingContractAddress,
     // );
-    // let payload_transfer_with_payload =
-    //     get_transfer_with_payload_from_message_account(&ctx.accounts.message.to_account_info())?;
-    // // TODO: we should probably validate that `message_data_payload.from_address` is the expected
-    // //  evm routing contract address unless there's a reason to allow someone else to use this method
-    // msg!("message_data_payload: {:?}", message_data_payload);
-    // let swim_payload = SwimPayload::deserialize(&mut message_data_payload.payload.as_slice())?;
-    // msg!("swim_payload: {:?}", swim_payload);
-    // let posted_message =
-    // let posted_vaa_data = PostedVAAData::try_deserialize(&mut *ctx.accounts.message.data.borrow())?;
-    // let message = &posted_vaa_data.message;
-    // msg!("messageData: {:?}", message);
-    // let payload_transfer_with_payload = &message.payload;
-    msg!("payload_transfer_with_payload: {:?}", payload_transfer_with_payload);
-    let swim_payload = &payload_transfer_with_payload.payload;
-    msg!("swim_payload: {:?}", swim_payload);
 
-    let claim_data = ClaimData::try_from_slice(&mut ctx.accounts.claim.data.borrow())
-        .map_err(|_| error!(PropellerError::InvalidClaimData))?;
-    msg!("claim_data: {:?}", claim_data);
+    let swim_payload = &transfer_with_payload.payload;
+    msg!("swim_payload: {:?}", swim_payload);
 
     // ugly. re-doing the same calculation that WH does in `complete_transfer_payload` but
     // should not be a huge issue.
-    let mut transfer_amount = payload_transfer_with_payload.amount.as_u64();
+    let mut transfer_amount = transfer_with_payload.amount.as_u64();
     if ctx.accounts.mint.decimals > 8 {
         transfer_amount *= 10u64.pow(ctx.accounts.mint.decimals as u32);
     }
@@ -301,7 +315,7 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
 // #[instruction(vaa: PostVAAData)]
 pub struct PropellerCompleteNativeWithPayload<'info> {
     pub complete_native_with_payload: CompleteNativeWithPayload<'info>,
-
+    // pub marginal_price_pool: MarginalPricePool<'info>,
     #[account(
     mut,
     seeds = [
@@ -319,7 +333,7 @@ pub struct PropellerCompleteNativeWithPayload<'info> {
     *aggregator.to_account_info().owner == SWITCHBOARD_PROGRAM_ID @ PropellerError::InvalidSwitchboardAccount
     )]
     pub aggregator: AccountLoader<'info, AggregatorAccountData>,
-
+    // pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
     #[account(
     mut,
     seeds = [
@@ -337,66 +351,366 @@ pub struct PropellerCompleteNativeWithPayload<'info> {
     pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
 }
+//
+// #[derive(Accounts)]
+// pub struct MarginalPricePool<'info> {
+//     // not auto-deriving the address since seeds::program doesn't work for two_pool::ID
+//     // and CPI call will verify the address seeds & program are correct anyways
+//     pub pool: Box<Account<'info, TwoPool>>,
+//     #[account(
+//     address = pool.token_keys[0],
+//     token::mint = pool.token_mint_keys[0]
+//     )]
+//     pub pool_token_0_account: Box<Account<'info, TokenAccount>>,
+//     #[account(
+//     address = pool.token_keys[1],
+//     token::mint = pool.token_mint_keys[1]
+//     )]
+//     pub pool_token_1_account: Box<Account<'info, TokenAccount>>,
+//     #[account(address = pool.lp_mint_key)]
+//     pub lp_mint: Box<Account<'info, Mint>>,
+// }
+//
+// // #[derive(Clone)]
+// // pub struct TwoPoolProgram;
+// // impl anchor_lang::Id for TwoPoolProgram {
+// //     fn id() -> Pubkey {
+// //         two_pool::two_pool::id()
+// //     }
+// // }
+//
+// impl<'info> MarginalPricePool<'info> {
+//     pub fn get_intermediate_token_price_decimal(
+//         &self,
+//         propeller: &Propeller,
+//         two_pool_program: &AccountInfo<'info>,
+//     ) -> Result<Decimal> {
+//         let cpi_ctx = CpiContext::new(
+//             two_pool_program.clone(),
+//             two_pool::cpi::accounts::MarginalPrices {
+//                 pool: self.pool.to_account_info(),
+//                 pool_token_account_0: self.pool_token_0_account.to_account_info(),
+//                 pool_token_account_1: self.pool_token_1_account.to_account_info(),
+//                 lp_mint: self.lp_mint.to_account_info(),
+//             },
+//         );
+//         let result = two_pool::cpi::marginal_prices(cpi_ctx)?;
+//         // let marginal_prices = result.get().marginal_prices;
+//         let marginal_prices = result.get();
+//
+//         msg!("marginal_prices: {:?}", marginal_prices);
+//         let lp_mint_key = self.lp_mint.key();
+//
+//         let token_bridge_mint_key = propeller.token_bridge_mint;
+//         self.get_marginal_price_decimal(&propeller, &marginal_prices, &token_bridge_mint_key)
+//     }
+//
+//     pub fn validate_marginal_prices_pool_accounts(&self, propeller: &Propeller) -> Result<()> {
+//         let marginal_price_pool_pda = Pubkey::create_program_address(
+//             &[
+//                 b"two_pool".as_ref(),
+//                 self.pool_token_0_account.mint.as_ref(),
+//                 self.pool_token_1_account.mint.as_ref(),
+//                 self.lp_mint.key().as_ref(),
+//                 &[self.pool.bump],
+//             ],
+//             &two_pool::id(),
+//         )
+//         .map_err(|_| PropellerError::InvalidMarginalPricePoolAccounts)?;
+//         require_keys_eq!(marginal_price_pool_pda, self.pool.key());
+//         require_keys_eq!(self.pool.key(), propeller.marginal_price_pool);
+//         let pool_token_index = propeller.marginal_price_pool_token_index as usize;
+//         require_gt!(TOKEN_COUNT, pool_token_index, PropellerError::InvalidMarginalPricePoolAccounts);
+//         require_keys_eq!(
+//             self.pool.token_mint_keys[pool_token_index],
+//             // marginal_price_pool_token_account_mints[pool_token_index],
+//             propeller.marginal_price_pool_token_mint,
+//         );
+//         Ok(())
+//     }
+//
+//     pub fn get_token_bridge_mint_decimals(&self, token_bridge_mint: &Pubkey) -> Result<u8> {
+//         let marginal_price_pool = &self.pool;
+//         let marginal_price_pool_lp_mint = &self.lp_mint;
+//         let marginal_price_pool_lp_mint_decimals = marginal_price_pool_lp_mint.decimals;
+//         if *token_bridge_mint == marginal_price_pool.lp_mint_key {
+//             Ok(marginal_price_pool_lp_mint_decimals)
+//         } else if *token_bridge_mint == marginal_price_pool.token_mint_keys[0] {
+//             Ok(marginal_price_pool_lp_mint_decimals + marginal_price_pool.token_decimal_equalizers[0])
+//         } else if *token_bridge_mint == marginal_price_pool.token_mint_keys[1] {
+//             Ok(marginal_price_pool_lp_mint_decimals + marginal_price_pool.token_decimal_equalizers[1])
+//         } else {
+//             return err!(PropellerError::UnableToRetrieveTokenBridgeMintDecimals);
+//         }
+//     }
+//     pub fn get_marginal_price_decimal(
+//         &self,
+//         propeller: &Propeller,
+//         marginal_prices: &[BorshDecimal; TOKEN_COUNT],
+//         token_bridge_mint_key: &Pubkey,
+//     ) -> Result<Decimal> {
+//         let marginal_price_pool_token_index = propeller.marginal_price_pool_token_index;
+//         let marginal_price_pool_lp_mint = &self.lp_mint.key();
+//         let mut marginal_price: Decimal = marginal_prices[marginal_price_pool_token_index as usize]
+//             .try_into()
+//             .map_err(|_| error!(PropellerError::ConversionError))?;
+//         if *marginal_price_pool_lp_mint != *token_bridge_mint_key {
+//             require_keys_eq!(
+//                 self.pool.token_mint_keys[0],
+//                 *token_bridge_mint_key,
+//                 PropellerError::InvalidMetapoolTokenMint,
+//             );
+//             let token_bridge_mint_marginal_price: Decimal =
+//                 marginal_prices[0].try_into().map_err(|_| error!(PropellerError::ConversionError))?;
+//             marginal_price = marginal_price
+//                 .checked_div(token_bridge_mint_marginal_price)
+//                 .ok_or(error!(PropellerError::IntegerOverflow))?;
+//         }
+//         Ok(marginal_price)
+//     }
+// }
 
 impl<'info> PropellerCompleteNativeWithPayload<'info> {
     pub fn accounts(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<()> {
+        let propeller = &ctx.accounts.complete_native_with_payload.propeller;
         validate_marginal_prices_pool_accounts(
-            &ctx.accounts.complete_native_with_payload.propeller,
+            &propeller,
             &ctx.accounts.marginal_price_pool.key(),
             &[
                 ctx.accounts.marginal_price_pool_token_0_account.mint,
                 ctx.accounts.marginal_price_pool_token_1_account.mint,
             ],
         )?;
-        require_keys_eq!(
-            ctx.accounts.complete_native_with_payload.fee_recipient.key(),
-            ctx.accounts.complete_native_with_payload.propeller.fee_vault
-        );
-        require_keys_eq!(
-            ctx.accounts.complete_native_with_payload.fee_recipient.owner,
-            ctx.accounts.complete_native_with_payload.propeller.key()
-        );
+        require_keys_eq!(ctx.accounts.complete_native_with_payload.fee_recipient.key(), propeller.fee_vault);
+        require_keys_eq!(ctx.accounts.complete_native_with_payload.fee_recipient.owner, propeller.key());
         Ok(())
+    }
+
+    fn calculate_fees(&self) -> Result<u64> {
+        //TODO: this is in lamports/SOL. need in swimUSD.
+        // ideal implementation
+        //   do oracle price lookup and transfer right away
+        //   for (secp + verify) & postVAA, need to implement a fee tracking mechanism since there's no way to
+        //      credit the payer during that step.
+        let rent = Rent::get()?;
+        let propeller_message_rent_exempt_fees = rent.minimum_balance(8 + PropellerMessage::LEN);
+        let wormhole_message_rent_exempt_fees =
+            rent.minimum_balance(self.complete_native_with_payload.message.to_account_info().data_len());
+        let claim_rent_exempt_fees =
+            rent.minimum_balance(self.complete_native_with_payload.claim.to_account_info().data_len());
+        let propeller = &self.complete_native_with_payload.propeller;
+        // let complete_with_payload_fee = propeller.complete_with_payload_fee;
+        let complete_with_payload_fee = propeller.get_complete_native_with_payload_fee();
+
+        let total_rent_exemption_in_lamports = propeller_message_rent_exempt_fees
+            .checked_add(wormhole_message_rent_exempt_fees)
+            .and_then(|x| x.checked_add(claim_rent_exempt_fees))
+            .ok_or(PropellerError::IntegerOverflow)?;
+        msg!(
+            "
+    {}(propeller_message_rent_exempt_fees) +
+    {}(wormhole_message_rent_exempt_fees) +
+    {}(claim_rent_exempt_fees) +
+    = {}(total_rent_exemption_in_lamports)
+    ",
+            propeller_message_rent_exempt_fees,
+            wormhole_message_rent_exempt_fees,
+            claim_rent_exempt_fees,
+            total_rent_exemption_in_lamports
+        );
+        let fee_in_lamports = total_rent_exemption_in_lamports
+            .checked_add(complete_with_payload_fee)
+            .ok_or(PropellerError::IntegerOverflow)?;
+
+        msg!(
+            "
+    {}(total_rent_exemption_in_lamports)
+    {}(complete_with_payload_fee)
+    = {}(fee_in_lamports)
+    ",
+            total_rent_exemption_in_lamports,
+            complete_with_payload_fee,
+            fee_in_lamports
+        );
+
+        // let cpi_ctx = CpiContext::new(
+        //     self.two_pool_program.to_account_info(),
+        //     two_pool::cpi::accounts::MarginalPrices {
+        //         pool: self.marginal_price_pool.to_account_info(),
+        //         pool_token_account_0: self.marginal_price_pool_token_0_account.to_account_info(),
+        //         pool_token_account_1: self.marginal_price_pool_token_1_account.to_account_info(),
+        //         lp_mint: self.marginal_price_pool_lp_mint.to_account_info(),
+        //     },
+        // );
+        // let result = two_pool::cpi::marginal_prices(cpi_ctx)?;
+        // // let marginal_prices = result.get().marginal_prices;
+        // let marginal_prices = result.get();
+        //
+        // msg!("marginal_prices: {:?}", marginal_prices);
+        // let lp_mint_key = self.marginal_price_pool_lp_mint.key();
+        //
+        // let token_bridge_mint_key = propeller.token_bridge_mint;
+        // let intermediate_token_price_decimal: Decimal = get_marginal_price_decimal(
+        //     &self.marginal_price_pool,
+        //     &marginal_prices,
+        //     propeller.marginal_price_pool_token_index as usize,
+        //     &self.marginal_price_pool_lp_mint.key(),
+        //     &token_bridge_mint_key,
+        // )?;
+        // let marginal_pool_state = TwoPool::try_deserialize(&mut &**self.marginal_price_pool.try_borrow_mut_data()?)?;
+        // let intermediate_token_price_decimal = self.marginal_price_pool.get_intermediate_token_price_decimal(
+        //     &marginal_pool_state,
+        //     &propeller,
+        //     &self.two_pool_program,
+        // )?;
+        // let marginal_prices = get_marginal_prices(
+        //       &self.marginal_price_pool.to_account_info(),
+        //         &self.marginal_price_pool_token_0_account.to_account_info(),
+        //         &self.marginal_price_pool_token_1_account.to_account_info(),
+        //         &self.marginal_price_pool_lp_mint.to_account_info(),
+        //         &self.two_pool_program,
+        // )?;
+
+        let marginal_prices = get_marginal_prices(self.into_marginal_prices())?;
+
+        let intermediate_token_price_decimal: Decimal = get_marginal_price_decimal(
+            &self.marginal_price_pool,
+            &marginal_prices,
+            &propeller,
+            // propeller.marginal_price_pool_token_index as usize,
+            &self.marginal_price_pool_lp_mint.key(),
+            // &token_bridge_mint_key,
+        )?;
+
+        msg!("intermediate_token_price_decimal: {:?}", intermediate_token_price_decimal);
+
+        //swimUSD is lp token of marginal price pool
+        let mut res = 0u64;
+        // let feed = &self.aggregator.load()?;
+        // // get result
+        // // note - for tests this is currently hardcoded to 100
+        // // this val is SOL/USD price
+        // // 100 => 1 SOL/100 USD (usdc)
+        // // let v2 = feed.get_result()?.try_into()?;
+        // let sol_usd_price: Decimal = feed.get_result()?.try_into()?;
+        // let name = feed.name;
+        //
+        // // lamports_usd_price = 2.0
+        // // => 1 lamport = 2.0 USDC
+        // let lamports_usd_price =
+        //     sol_usd_price.checked_div(LAMPORTS_PER_SOL_DECIMAL).ok_or(PropellerError::IntegerOverflow)?;
+        // msg!("sol_usd_price:{},lamports_usd_price: {}", sol_usd_price, lamports_usd_price);
+        // // check whether the feed has been updated in the last 300 seconds
+        // //TODO: handle error case where it is stale
+        // feed.check_staleness(
+        //     Clock::get().unwrap().unix_timestamp,
+        //     // 300
+        //     i64::MAX,
+        // )
+        // .map_err(|_| error!(PropellerError::StaleFeed))?;
+        // check feed does not exceed max_confidence_interval
+        // if let Some(max_confidence_interval) = params.max_confidence_interval {
+        // 	feed.check_confidence_interval(SwitchboardDecimal::from_f64(max_confidence_interval))
+        // 	.map_err(|_| error!(PropellerError::ConfidenceIntervalExceeded))?;
+        // }
+
+        let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
+        msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
+        // lamports_usd_price = 2.0
+        // => 1 lamport = 2 usdc
+        //intermediate_token_price_decimal = 0.5
+        //  => .5 swimUSD = 1 USDC
+        // fee_in_lamports_decimal = 20 lamports
+
+        /**
+            marginal_prices: [
+                BorshDecimal { mantissa: 1000013582848110046, scale: 18 },
+                BorshDecimal { mantissa: 9999870450599734542, scale: 19 }
+            ]
+            marginal_price: 1.000013582848110046
+            sol_usd_price: 31.963319456250,
+            lamports_usd_price: 0.00000003196331945625
+            fee_in_lamports(u64): 6062180 fee_in_lamports_decimal: 6062180
+            fee_in_token_bridge_mint_decimal: 0.1937700278543973746810397420 fee_in_token_bridge_mint: 193770
+        */
+        let lamports_intermediate_token_price = get_lamports_intermediate_token_price(&self.aggregator, i64::MAX)?;
+        let fee_in_token_bridge_mint_decimal = lamports_intermediate_token_price
+            .checked_mul(fee_in_lamports_decimal)
+            .and_then(|x| x.checked_div(intermediate_token_price_decimal))
+            .ok_or(PropellerError::IntegerOverflow)?;
+        // let fee_in_token_bridge_mint_decimal = intermediate_token_price_decimal
+        //     .checked_mul(lamports_usd_price)
+        //     .and_then(|v| v.checked_mul(fee_in_lamports_decimal))
+        //     .ok_or(PropellerError::IntegerOverflow)?;
+        // .checked_mul(Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::IntegerOverflow)?)
+        // .ok_or(PropellerError::IntegerOverflow)?;
+        let token_bridge_mint_key = self.complete_native_with_payload.propeller.token_bridge_mint;
+        // let token_bridge_mint_decimals =
+        //     self.marginal_price_pool.get_token_bridge_mint_decimals(&marginal_pool_state, &token_bridge_mint_key)?;
+        let token_bridge_mint_decimals = get_token_bridge_mint_decimals(
+            &token_bridge_mint_key,
+            &self.marginal_price_pool,
+            &self.marginal_price_pool_lp_mint,
+        )?;
+        //TODO: good lord forgive me for this terrible naming. i will fix later.
+        let ten_pow_decimals =
+            Decimal::from_u64(10u64.pow(token_bridge_mint_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
+        let fee_in_token_bridge_mint = fee_in_token_bridge_mint_decimal
+            .checked_mul(ten_pow_decimals)
+            .and_then(|v| v.to_u64())
+            .ok_or(PropellerError::ConversionError)?;
+        msg!(
+            "fee_in_token_bridge_mint_decimal: {:?} fee_in_token_bridge_mint: {:?}",
+            fee_in_token_bridge_mint_decimal,
+            fee_in_token_bridge_mint
+        );
+        res = fee_in_token_bridge_mint;
+        Ok(res)
+    }
+
+    fn handle_fees(&mut self, fees_in_token_bridge_mint: u64) -> Result<()> {
+        let fee_tracker = &mut self.fee_tracker;
+        let updated_fees_owed =
+            fee_tracker.fees_owed.checked_add(fees_in_token_bridge_mint).ok_or(PropellerError::IntegerOverflow)?;
+        fee_tracker.fees_owed = updated_fees_owed;
+
+        let cpi_accounts = Transfer {
+            from: self.complete_native_with_payload.to.to_account_info(),
+            to: self.complete_native_with_payload.fee_recipient.to_account_info(),
+            authority: self.complete_native_with_payload.redeemer.to_account_info(),
+        };
+        token::transfer(
+            CpiContext::new_with_signer(
+                self.complete_native_with_payload.token_program.to_account_info(),
+                cpi_accounts,
+                &[&[&b"redeemer".as_ref(), &[self.complete_native_with_payload.propeller.redeemer_bump]]],
+            ),
+            fees_in_token_bridge_mint,
+        )
+    }
+
+    fn into_marginal_prices(&self) -> CpiContext<'_, '_, '_, 'info, two_pool::cpi::accounts::MarginalPrices<'info>> {
+        let program = self.two_pool_program.to_account_info();
+        let accounts = two_pool::cpi::accounts::MarginalPrices {
+            pool: self.marginal_price_pool.to_account_info(),
+            pool_token_account_0: self.marginal_price_pool_token_0_account.to_account_info(),
+            pool_token_account_1: self.marginal_price_pool_token_1_account.to_account_info(),
+            lp_mint: self.marginal_price_pool_lp_mint.to_account_info(),
+        };
+        CpiContext::new(program, accounts)
     }
 }
 
 pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompleteNativeWithPayload>) -> Result<()> {
-    let complete_transfer_with_payload_ix = Instruction {
-        program_id: ctx.accounts.complete_native_with_payload.token_bridge.key(),
-        // accounts: ctx.accounts.to_account_metas(None),
-        accounts: vec![
-            AccountMeta::new(ctx.accounts.complete_native_with_payload.payer.key(), true),
-            AccountMeta::new_readonly(ctx.accounts.complete_native_with_payload.token_bridge_config.key(), false),
-            AccountMeta::new_readonly(ctx.accounts.complete_native_with_payload.message.key(), false),
-            AccountMeta::new(ctx.accounts.complete_native_with_payload.claim.key(), false),
-            AccountMeta::new_readonly(ctx.accounts.complete_native_with_payload.endpoint.key(), false),
-            AccountMeta::new(ctx.accounts.complete_native_with_payload.to.key(), false),
-            AccountMeta::new_readonly(ctx.accounts.complete_native_with_payload.redeemer.key(), true),
-            AccountMeta::new(ctx.accounts.complete_native_with_payload.fee_recipient.key(), false),
-            AccountMeta::new(ctx.accounts.complete_native_with_payload.custody.key(), false),
-            AccountMeta::new_readonly(ctx.accounts.complete_native_with_payload.mint.key(), false),
-            AccountMeta::new_readonly(ctx.accounts.complete_native_with_payload.custody_signer.key(), false),
-            // Dependencies
-            AccountMeta::new_readonly(Rent::id(), false),
-            AccountMeta::new_readonly(system_program::id(), false),
-            // Program
-            AccountMeta::new_readonly(ctx.accounts.complete_native_with_payload.wormhole.key(), false),
-            AccountMeta::new_readonly(spl_token::id(), false),
-        ],
-        data: (COMPLETE_NATIVE_WITH_PAYLOAD_INSTRUCTION, CompleteNativeWithPayloadData {}).try_to_vec()?,
-    };
-    invoke_signed(
-        &complete_transfer_with_payload_ix,
-        &ctx.accounts.to_account_infos(),
-        &[&[&b"redeemer".as_ref(), &[ctx.accounts.complete_native_with_payload.propeller.redeemer_bump]]],
-    )?;
-    msg!("successfully invoked complete_native_with_payload");
-
-    let message_account_info = &ctx.accounts.complete_native_with_payload.message.to_account_info();
-    let message_data = get_message_data(message_account_info)?;
-    msg!("message_data: {:?}", message_data);
-    let payload_transfer_with_payload: PayloadTransferWithPayload =
-        deserialize_message_payload(&mut message_data.payload.as_slice())?;
+    ctx.accounts.complete_native_with_payload.invoke_complete_native_with_payload()?;
+    // let message_account_info = &ctx.accounts.complete_native_with_payload.message.to_account_info();
+    // let message_data = get_message_data(message_account_info)?;
+    // msg!("message_data: {:?}", message_data);
+    // let payload_transfer_with_payload: PayloadTransferWithPayload =
+    //     deserialize_message_payload(&mut message_data.payload.as_slice())?;
+    let message_data = ctx.accounts.complete_native_with_payload.get_message()?;
+    let transfer_with_payload = &ctx.accounts.complete_native_with_payload.get_transfer_with_payload(&message_data)?;
+    // let transfer_with_payload = &ctx.accounts.complete_native_with_payload.extract_transfer_with_payload()?;
     let propeller = &ctx.accounts.complete_native_with_payload.propeller;
     // msg!(
     //     "payload.from_address {:?} propeller.evm_routing_address {:?}",
@@ -421,8 +735,8 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
     // let message = &posted_vaa_data.message;
     // msg!("messageData: {:?}", message);
     // let payload_transfer_with_payload = &message.payload;
-    msg!("payload_transfer_with_payload: {:?}", payload_transfer_with_payload);
-    let swim_payload = &payload_transfer_with_payload.payload;
+    msg!("transfer_with_payload: {:?}", transfer_with_payload);
+    let swim_payload = &transfer_with_payload.payload;
     msg!("swim_payload: {:?}", swim_payload);
     require!(swim_payload.propeller_enabled, PropellerError::NotPropellerEnabled);
     let claim_data = ClaimData::try_from_slice(&mut ctx.accounts.complete_native_with_payload.claim.data.borrow())
@@ -434,7 +748,7 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
 
     // ugly. re-doing the same calculation that WH does in `complete_transfer_payload` but
     // should not be a huge issue.
-    let mut transfer_amount = payload_transfer_with_payload.amount.as_u64();
+    let mut transfer_amount = transfer_with_payload.amount.as_u64();
     if ctx.accounts.complete_native_with_payload.mint.decimals > 8 {
         transfer_amount *= 10u64.pow(ctx.accounts.complete_native_with_payload.mint.decimals as u32);
     }
@@ -449,27 +763,14 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
     let swim_payload_owner = Pubkey::new_from_array(swim_payload.owner);
     let token_program = &ctx.accounts.complete_native_with_payload.token_program;
     if swim_payload_owner != ctx.accounts.complete_native_with_payload.payer.key() {
-        let fees_in_token_bridge = calculate_fees(&ctx)?;
-        let fee_tracker = &mut ctx.accounts.fee_tracker;
-        let updated_fees_owed =
-            fee_tracker.fees_owed.checked_add(fees_in_token_bridge).ok_or(PropellerError::IntegerOverflow)?;
-        fee_tracker.fees_owed = updated_fees_owed;
+        let fees_in_token_bridge_mint = ctx.accounts.calculate_fees()?;
+        ctx.accounts.handle_fees(fees_in_token_bridge_mint)?;
 
-        let cpi_accounts = Transfer {
-            from: ctx.accounts.complete_native_with_payload.to.to_account_info(),
-            to: ctx.accounts.complete_native_with_payload.fee_recipient.to_account_info(),
-            authority: ctx.accounts.complete_native_with_payload.redeemer.to_account_info(),
-        };
-        token::transfer(
-            CpiContext::new_with_signer(
-                token_program.to_account_info(),
-                cpi_accounts,
-                &[&[&b"redeemer".as_ref(), &[ctx.accounts.complete_native_with_payload.propeller.redeemer_bump]]],
-            ),
-            fees_in_token_bridge,
-        )?;
-        transfer_amount = transfer_amount.checked_sub(fees_in_token_bridge).ok_or(PropellerError::IntegerOverflow)?;
+        msg!("propeller_complete_native_with_payload fees(swimUSD): {:?}", fees_in_token_bridge_mint);
+        transfer_amount =
+            transfer_amount.checked_sub(fees_in_token_bridge_mint).ok_or(PropellerError::IntegerOverflow)?;
     }
+    msg!("transfer_amount(swimUSD) after fees: {:?}", transfer_amount);
 
     let propeller_message = &mut ctx.accounts.complete_native_with_payload.propeller_message;
     propeller_message.bump = *ctx.bumps.get("propeller_message").unwrap();
@@ -493,136 +794,136 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
     Ok(())
 }
 
-fn calculate_fees(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<u64> {
-    //TODO: this is in lamports/SOL. need in swimUSD.
-    // ideal implementation
-    //   do oracle price lookup and transfer right away
-    //   for (secp + verify) & postVAA, need to implement a fee tracking mechanism since there's no way to
-    //      credit the payer during that step.
-    let rent = Rent::get()?;
-    let propeller_message_rent_exempt_fees = rent.minimum_balance(8 + PropellerMessage::LEN);
-    let wormhole_message_rent_exempt_fees =
-        rent.minimum_balance(ctx.accounts.complete_native_with_payload.message.to_account_info().data_len());
-    let claim_rent_exempt_fees =
-        rent.minimum_balance(ctx.accounts.complete_native_with_payload.claim.to_account_info().data_len());
-    let propeller = &ctx.accounts.complete_native_with_payload.propeller;
-    // let complete_with_payload_fee = propeller.complete_with_payload_fee;
-    let complete_with_payload_fee = propeller.get_complete_native_with_payload_fee();
-
-    let total_rent_exemption_in_lamports = propeller_message_rent_exempt_fees
-        .checked_add(wormhole_message_rent_exempt_fees)
-        .and_then(|x| x.checked_add(claim_rent_exempt_fees))
-        .ok_or(PropellerError::IntegerOverflow)?;
-    msg!(
-        "
-    {}(propeller_message_rent_exempt_fees) +
-    {}(wormhole_message_rent_exempt_fees) +
-    {}(claim_rent_exempt_fees) +
-    = {}(total_rent_exemption_in_lamports)
-    ",
-        propeller_message_rent_exempt_fees,
-        wormhole_message_rent_exempt_fees,
-        claim_rent_exempt_fees,
-        total_rent_exemption_in_lamports
-    );
-    let fee_in_lamports = total_rent_exemption_in_lamports
-        .checked_add(complete_with_payload_fee)
-        .ok_or(PropellerError::IntegerOverflow)?;
-
-    msg!(
-        "
-    {}(total_rent_exemption_in_lamports)
-    {}(complete_with_payload_fee)
-    = {}(fee_in_lamports)
-    ",
-        total_rent_exemption_in_lamports,
-        complete_with_payload_fee,
-        fee_in_lamports
-    );
-
-    let cpi_ctx = CpiContext::new(
-        ctx.accounts.two_pool_program.to_account_info(),
-        two_pool::cpi::accounts::MarginalPrices {
-            pool: ctx.accounts.marginal_price_pool.to_account_info(),
-            pool_token_account_0: ctx.accounts.marginal_price_pool_token_0_account.to_account_info(),
-            pool_token_account_1: ctx.accounts.marginal_price_pool_token_1_account.to_account_info(),
-            lp_mint: ctx.accounts.marginal_price_pool_lp_mint.to_account_info(),
-        },
-    );
-    let result = two_pool::cpi::marginal_prices(cpi_ctx)?;
-    // let marginal_prices = result.get().marginal_prices;
-    let marginal_prices = result.get();
-
-    msg!("marginal_prices: {:?}", marginal_prices);
-    let lp_mint_key = ctx.accounts.marginal_price_pool_lp_mint.key();
-
-    let token_bridge_mint_key = propeller.token_bridge_mint;
-    let marginal_price: Decimal = get_marginal_price_decimal(
-        &ctx.accounts.marginal_price_pool,
-        &marginal_prices,
-        propeller.marginal_price_pool_token_index as usize,
-        &ctx.accounts.marginal_price_pool_lp_mint.key(),
-        &token_bridge_mint_key,
-    )?;
-
-    msg!("marginal_price: {:?}", marginal_price);
-
-    //swimUSD is lp token of marginal price pool
-    let mut res = 0u64;
-    let feed = &ctx.accounts.aggregator.load()?;
-    // get result
-    // note - for tests this is currently hardcoded to 100
-    // this val is SOL/USD price
-    // 100 => 1 SOL/100 USD (usdc)
-    // let v2 = feed.get_result()?.try_into()?;
-    let sol_usd_price: Decimal = feed.get_result()?.try_into()?;
-    let name = feed.name;
-
-    let lamports_usd_price =
-        sol_usd_price.checked_div(LAMPORTS_PER_SOL_DECIMAL).ok_or(PropellerError::IntegerOverflow)?;
-    msg!("sol_usd_price:{},lamports_usd_price: {}", sol_usd_price, lamports_usd_price);
-    // check whether the feed has been updated in the last 300 seconds
-    feed.check_staleness(
-        Clock::get().unwrap().unix_timestamp,
-        // 300
-        i64::MAX,
-    )
-    .map_err(|_| error!(PropellerError::StaleFeed))?;
-    // check feed does not exceed max_confidence_interval
-    // if let Some(max_confidence_interval) = params.max_confidence_interval {
-    // 	feed.check_confidence_interval(SwitchboardDecimal::from_f64(max_confidence_interval))
-    // 	.map_err(|_| error!(PropellerError::ConfidenceIntervalExceeded))?;
-    // }
-
-    let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
-    msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
-    let fee_in_token_bridge_mint_decimal = marginal_price
-        .checked_mul(lamports_usd_price)
-        .and_then(|v| v.checked_mul(fee_in_lamports_decimal))
-        .ok_or(PropellerError::IntegerOverflow)?;
-    // .checked_mul(Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::IntegerOverflow)?)
-    // .ok_or(PropellerError::IntegerOverflow)?;
-    let token_bridge_mint_key = ctx.accounts.complete_native_with_payload.propeller.token_bridge_mint;
-    let token_bridge_mint_decimals = get_token_bridge_mint_decimals(
-        &token_bridge_mint_key,
-        &ctx.accounts.marginal_price_pool,
-        &ctx.accounts.marginal_price_pool_lp_mint,
-    )?;
-    //TODO: good lord forgive me for this terrible naming. i will fix later.
-    let ten_pow_decimals =
-        Decimal::from_u64(10u64.pow(token_bridge_mint_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
-    let fee_in_token_bridge_mint = fee_in_token_bridge_mint_decimal
-        .checked_mul(ten_pow_decimals)
-        .and_then(|v| v.to_u64())
-        .ok_or(PropellerError::ConversionError)?;
-    msg!(
-        "fee_in_token_bridge_mint_decimal: {:?} fee_in_token_bridge_mint: {:?}",
-        fee_in_token_bridge_mint_decimal,
-        fee_in_token_bridge_mint
-    );
-    res = fee_in_token_bridge_mint;
-    Ok(res)
-}
+// fn calculate_fees(ctx: &Context<PropellerCompleteNativeWithPayload>) -> Result<u64> {
+//     //TODO: this is in lamports/SOL. need in swimUSD.
+//     // ideal implementation
+//     //   do oracle price lookup and transfer right away
+//     //   for (secp + verify) & postVAA, need to implement a fee tracking mechanism since there's no way to
+//     //      credit the payer during that step.
+//     let rent = Rent::get()?;
+//     let propeller_message_rent_exempt_fees = rent.minimum_balance(8 + PropellerMessage::LEN);
+//     let wormhole_message_rent_exempt_fees =
+//         rent.minimum_balance(ctx.accounts.complete_native_with_payload.message.to_account_info().data_len());
+//     let claim_rent_exempt_fees =
+//         rent.minimum_balance(ctx.accounts.complete_native_with_payload.claim.to_account_info().data_len());
+//     let propeller = &ctx.accounts.complete_native_with_payload.propeller;
+//     // let complete_with_payload_fee = propeller.complete_with_payload_fee;
+//     let complete_with_payload_fee = propeller.get_complete_native_with_payload_fee();
+//
+//     let total_rent_exemption_in_lamports = propeller_message_rent_exempt_fees
+//         .checked_add(wormhole_message_rent_exempt_fees)
+//         .and_then(|x| x.checked_add(claim_rent_exempt_fees))
+//         .ok_or(PropellerError::IntegerOverflow)?;
+//     msg!(
+//         "
+//     {}(propeller_message_rent_exempt_fees) +
+//     {}(wormhole_message_rent_exempt_fees) +
+//     {}(claim_rent_exempt_fees) +
+//     = {}(total_rent_exemption_in_lamports)
+//     ",
+//         propeller_message_rent_exempt_fees,
+//         wormhole_message_rent_exempt_fees,
+//         claim_rent_exempt_fees,
+//         total_rent_exemption_in_lamports
+//     );
+//     let fee_in_lamports = total_rent_exemption_in_lamports
+//         .checked_add(complete_with_payload_fee)
+//         .ok_or(PropellerError::IntegerOverflow)?;
+//
+//     msg!(
+//         "
+//     {}(total_rent_exemption_in_lamports)
+//     {}(complete_with_payload_fee)
+//     = {}(fee_in_lamports)
+//     ",
+//         total_rent_exemption_in_lamports,
+//         complete_with_payload_fee,
+//         fee_in_lamports
+//     );
+//
+//     let cpi_ctx = CpiContext::new(
+//         ctx.accounts.two_pool_program.to_account_info(),
+//         two_pool::cpi::accounts::MarginalPrices {
+//             pool: ctx.accounts.marginal_price_pool.to_account_info(),
+//             pool_token_account_0: ctx.accounts.marginal_price_pool_token_0_account.to_account_info(),
+//             pool_token_account_1: ctx.accounts.marginal_price_pool_token_1_account.to_account_info(),
+//             lp_mint: ctx.accounts.marginal_price_pool_lp_mint.to_account_info(),
+//         },
+//     );
+//     let result = two_pool::cpi::marginal_prices(cpi_ctx)?;
+//     // let marginal_prices = result.get().marginal_prices;
+//     let marginal_prices = result.get();
+//
+//     msg!("marginal_prices: {:?}", marginal_prices);
+//     let lp_mint_key = ctx.accounts.marginal_price_pool_lp_mint.key();
+//
+//     let token_bridge_mint_key = propeller.token_bridge_mint;
+//     let marginal_price: Decimal = get_marginal_price_decimal(
+//         &ctx.accounts.marginal_price_pool,
+//         &marginal_prices,
+//         propeller.marginal_price_pool_token_index as usize,
+//         &ctx.accounts.marginal_price_pool_lp_mint.key(),
+//         &token_bridge_mint_key,
+//     )?;
+//
+//     msg!("marginal_price: {:?}", marginal_price);
+//
+//     //swimUSD is lp token of marginal price pool
+//     let mut res = 0u64;
+//     let feed = &ctx.accounts.aggregator.load()?;
+//     // get result
+//     // note - for tests this is currently hardcoded to 100
+//     // this val is SOL/USD price
+//     // 100 => 1 SOL/100 USD (usdc)
+//     // let v2 = feed.get_result()?.try_into()?;
+//     let sol_usd_price: Decimal = feed.get_result()?.try_into()?;
+//     let name = feed.name;
+//
+//     let lamports_usd_price =
+//         sol_usd_price.checked_div(LAMPORTS_PER_SOL_DECIMAL).ok_or(PropellerError::IntegerOverflow)?;
+//     msg!("sol_usd_price:{},lamports_usd_price: {}", sol_usd_price, lamports_usd_price);
+//     // check whether the feed has been updated in the last 300 seconds
+//     feed.check_staleness(
+//         Clock::get().unwrap().unix_timestamp,
+//         // 300
+//         i64::MAX,
+//     )
+//     .map_err(|_| error!(PropellerError::StaleFeed))?;
+//     // check feed does not exceed max_confidence_interval
+//     // if let Some(max_confidence_interval) = params.max_confidence_interval {
+//     // 	feed.check_confidence_interval(SwitchboardDecimal::from_f64(max_confidence_interval))
+//     // 	.map_err(|_| error!(PropellerError::ConfidenceIntervalExceeded))?;
+//     // }
+//
+//     let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
+//     msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
+//     let fee_in_token_bridge_mint_decimal = marginal_price
+//         .checked_mul(lamports_usd_price)
+//         .and_then(|v| v.checked_mul(fee_in_lamports_decimal))
+//         .ok_or(PropellerError::IntegerOverflow)?;
+//     // .checked_mul(Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::IntegerOverflow)?)
+//     // .ok_or(PropellerError::IntegerOverflow)?;
+//     let token_bridge_mint_key = ctx.accounts.complete_native_with_payload.propeller.token_bridge_mint;
+//     let token_bridge_mint_decimals = get_token_bridge_mint_decimals(
+//         &token_bridge_mint_key,
+//         &ctx.accounts.marginal_price_pool,
+//         &ctx.accounts.marginal_price_pool_lp_mint,
+//     )?;
+//     //TODO: good lord forgive me for this terrible naming. i will fix later.
+//     let ten_pow_decimals =
+//         Decimal::from_u64(10u64.pow(token_bridge_mint_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
+//     let fee_in_token_bridge_mint = fee_in_token_bridge_mint_decimal
+//         .checked_mul(ten_pow_decimals)
+//         .and_then(|v| v.to_u64())
+//         .ok_or(PropellerError::ConversionError)?;
+//     msg!(
+//         "fee_in_token_bridge_mint_decimal: {:?} fee_in_token_bridge_mint: {:?}",
+//         fee_in_token_bridge_mint_decimal,
+//         fee_in_token_bridge_mint
+//     );
+//     res = fee_in_token_bridge_mint;
+//     Ok(res)
+// }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Default)]
 pub struct CompleteNativeWithPayloadData {}

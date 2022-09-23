@@ -9,6 +9,7 @@ use {
     },
 };
 
+pub const SWIM_PAYLOAD_VERSION: u8 = 1;
 // Do i need this to hold configs & state?
 //  what state do i need to hold/record on-chain
 //  what configs do i need to verify on-chain
@@ -123,7 +124,7 @@ impl Propeller {
     }
 
     pub fn get_complete_native_with_payload_fee(&self) -> u64 {
-        self.secp_verify_init_fee + self.secp_verify_fee + self.complete_with_payload_fee
+        self.secp_verify_init_fee + self.secp_verify_fee + self.post_vaa_fee + self.complete_with_payload_fee
     }
 }
 
@@ -262,6 +263,9 @@ impl AnchorDeserialize for RawSwimPayload {
         //TODO: add some error handling/checking here if payload version is incorrect.
         //  https://stackoverflow.com/questions/28028854/how-do-i-match-enum-values-with-an-integer
         let swim_payload_version = v.read_u8()?;
+        // if swim_payload_version == 1 {
+        //     deseraialize_swim_payload_v1()
+        // }
 
         let mut owner: [u8; 32] = Address::default();
         v.read_exact(&mut owner)?;

@@ -326,16 +326,12 @@ pub fn handle_transfer_native_with_payload(
         ctx.accounts.authority_signer.to_account_info().clone(),
         ctx.accounts.custody_signer.to_account_info().clone(),
         ctx.accounts.wormhole_config.to_account_info().clone(),
-        // AccountMeta::new_readonly(ctx.accounts.token_bridge_config.to_account_info().clone(), false),
         ctx.accounts.wormhole_message.to_account_info().clone(),
         ctx.accounts.wormhole_emitter.to_account_info().clone(),
         ctx.accounts.wormhole_sequence.to_account_info().clone(),
         ctx.accounts.wormhole_fee_collector.to_account_info().clone(),
-        // Clock::get()?.to_account_info().clone(),
         ctx.accounts.clock.to_account_info().clone(),
-        //TODO: replaced with sender once that PR is merged
         ctx.accounts.sender.to_account_info().clone(),
-        // Rent::get()?.to_account_info().clone(),
         ctx.accounts.rent.to_account_info().clone(),
         ctx.accounts.system_program.to_account_info().clone(),
         ctx.accounts.wormhole.to_account_info().clone(),
@@ -345,9 +341,6 @@ pub fn handle_transfer_native_with_payload(
     invoke_signed(
         &Instruction {
             program_id: ctx.accounts.token_bridge.key(),
-            // this doesn't work since it includes the propeller account which we will *probably* need
-            //  for validation checks.
-            // accounts: ctx.accounts.to_account_metas(None),
             accounts: vec![
                 AccountMeta::new(ctx.accounts.payer.key(), true),
                 AccountMeta::new_readonly(ctx.accounts.token_bridge_config.key(), false),
@@ -364,7 +357,6 @@ pub fn handle_transfer_native_with_payload(
                 AccountMeta::new(ctx.accounts.wormhole_sequence.key(), false),
                 AccountMeta::new(ctx.accounts.wormhole_fee_collector.key(), false),
                 AccountMeta::new_readonly(Clock::id(), false),
-                //TODO: add.rs sender once that PR is merged
                 AccountMeta::new_readonly(ctx.accounts.sender.key(), true),
                 AccountMeta::new_readonly(Rent::id(), false),
                 AccountMeta::new_readonly(ctx.accounts.system_program.key(), false),
@@ -391,142 +383,3 @@ pub fn handle_transfer_native_with_payload(
     invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     Ok(())
 }
-
-// pub fn handle_transfer_native_with_payload(
-// 	ctx: Context<TransferNativeWithPayload>,
-// 	nonce: u32,
-// 	target_chain: u16,
-// 	amount: u64,
-// 	payload: Vec<u8>,
-// ) -> Result<()> {
-// 	msg!("transfer_native_with_payload");
-// 	token::approve(
-// 		CpiContext::new(
-// 			ctx.accounts.token_program.to_account_info(),
-// 			token::Approve {
-// 				// source
-// 				to: ctx.accounts.user_token_bridge_account.to_account_info(),
-// 				delegate: ctx.accounts.authority_signer.to_account_info(),
-// 				authority: ctx.accounts.payer.to_account_info(),
-// 			},
-// 		),
-// 		amount,
-// 	)?;
-// 	msg!("finished approve for authority_signer");
-//
-//
-// 	//
-// 	// Note:
-// 	//     1. nonce is created randomly client side using this
-// 	//         export function createNonce() {
-// 	//              const nonceConst = Math.random() * 100000;
-// 	//              const nonceBuffer = Buffer.alloc(4);
-// 	//              nonceBuffer.writeUInt32LE(nonceConst, 0);
-// 	//              return nonceBuffer;
-// 	//          }
-// 	//     2. fee is relayerFee
-// 	//         a. removed in payload3
-// 	//     3. targetAddress is Uint8Array (on wasm.rs its Vec<u8>
-// 	//         a. WH client has special handling/formatting for this
-// 	//             see - wh-sdk/src/utils/array.ts tryNativeToUint8Array(address: string, chain: ChainId | ChainName)
-// 	//     4. targetChain is number/u16
-// 	//     5. payload is Vec<u8>
-// 	let transfer_with_payload_data = TransferWithPayloadData {
-// 		// nonce: ctx.accounts.custodian.nonce,
-// 		//TODO: update this.
-// 		nonce,
-// 		amount,
-// 		//TODO: update this.
-// 		//  this should be tryNativeToUint8Array(ethAddress, CHAIN_ID_ETH)
-// 		//  this can either be hardcoded or set in propeller state since we're assuming this is the same for all chains.
-// 		target_address: Pubkey::default().to_bytes(),
-// 		// target_chain: Custodian::conductor_chain()?,
-// 		target_chain,
-// 		payload,
-// 		//note - if this field is missing then ctx.accounts.sender is used as the vaa.from
-// 		cpi_program_id: Some(crate::ID),
-// 	};
-//
-// 	let token_bridge_custody = &ctx.accounts.custody;
-// 	let wh_token_transfer_acct_infos = vec![
-// 		ctx.accounts.payer.to_account_info().clone(),
-// 		ctx.accounts.token_bridge_config.to_account_info().clone(),
-// 		// ctx.accounts.token_bridge.to_account_info().clone(),
-// 		ctx.accounts.user_token_bridge_account.to_account_info().clone(),
-// 		ctx.accounts.token_bridge_mint.to_account_info().clone(),
-// 		token_bridge_custody.to_account_info().clone(),
-// 		ctx.accounts.authority_signer.to_account_info().clone(),
-// 		ctx.accounts.custody_signer.to_account_info().clone(),
-// 		ctx.accounts.wormhole_config.to_account_info().clone(),
-// 		// AccountMeta::new_readonly(ctx.accounts.token_bridge_config.to_account_info().clone(), false),
-// 		ctx.accounts.wormhole_message.to_account_info().clone(),
-// 		ctx.accounts.wormhole_emitter.to_account_info().clone(),
-// 		ctx.accounts.wormhole_sequence.to_account_info().clone(),
-// 		ctx.accounts.wormhole_fee_collector.to_account_info().clone(),
-// 		// Clock::get()?.to_account_info().clone(),
-// 		ctx.accounts.clock.to_account_info().clone(),
-// 		//TODO: replaced with sender once that PR is merged
-// 		ctx.accounts.sender.to_account_info().clone(),
-//
-// 		// Rent::get()?.to_account_info().clone(),
-// 		ctx.accounts.rent.to_account_info().clone(),
-// 		ctx.accounts.system_program.to_account_info().clone(),
-// 		ctx.accounts.wormhole.to_account_info().clone(),
-// 		ctx.accounts.token_program.to_account_info().clone()
-// 	];
-//
-// 	invoke_signed(
-// 		&Instruction {
-// 			program_id: ctx.accounts.token_bridge.key(),
-// 			// this doesn't work since it includes the propeller account which we will *probably* need
-// 			//  for validation checks.
-// 			// accounts: ctx.accounts.to_account_metas(None),
-// 			accounts: vec![
-// 				AccountMeta::new(ctx.accounts.payer.key(), true),
-// 				AccountMeta::new_readonly(ctx.accounts.token_bridge_config.key(), false),
-// 				// AccountMeta::new(ctx.accounts.wormhole_config.key(), false),
-// 				AccountMeta::new(ctx.accounts.user_token_bridge_account.key(), false),
-// 				AccountMeta::new(ctx.accounts.token_bridge_mint.key(), false),
-// 				AccountMeta::new(token_bridge_custody.key(), false),
-// 				AccountMeta::new_readonly(ctx.accounts.authority_signer.key(), false),
-// 				AccountMeta::new_readonly(ctx.accounts.custody_signer.key(), false),
-// 				AccountMeta::new(ctx.accounts.wormhole_config.key(), false),
-// 				// AccountMeta::new_readonly(ctx.accounts.token_bridge_config.key(), false),
-//
-// 				AccountMeta::new(ctx.accounts.wormhole_message.key(), true),
-// 				AccountMeta::new_readonly(ctx.accounts.wormhole_emitter.key(), false),
-// 				AccountMeta::new(ctx.accounts.wormhole_sequence.key(), false),
-// 				AccountMeta::new(ctx.accounts.wormhole_fee_collector.key(), false),
-// 				AccountMeta::new_readonly(Clock::id(), false),
-// 				//TODO: add.rs sender once that PR is merged
-// 				AccountMeta::new_readonly(ctx.accounts.sender.key(), true),
-//
-// 				AccountMeta::new_readonly(Rent::id(), false),
-// 				AccountMeta::new_readonly(ctx.accounts.system_program.key(), false),
-//
-// 				AccountMeta::new_readonly(ctx.accounts.wormhole.key(), false),
-// 				AccountMeta::new_readonly(spl_token::id(), false),
-// 			],
-// 			data: (TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION, transfer_with_payload_data).try_to_vec()?,
-// 		},
-// 		// &ctx.accounts.to_account_infos(),
-// 		&wh_token_transfer_acct_infos,
-// 		&[&[
-// 			&b"sender".as_ref(),
-// 			&[ctx.accounts.propeller.sender_bump],
-// 		]],
-// 	)?;
-//
-// 	token::revoke(
-// 		CpiContext::new(
-// 			ctx.accounts.token_program.to_account_info(),
-// 			token::Revoke {
-// 				// source
-// 				source: ctx.accounts.user_token_bridge_account.to_account_info(),
-// 				authority: ctx.accounts.payer.to_account_info(),
-// 			},
-// 		)
-// 	)?;
-// 	msg!("Revoked authority_signer approval");
-// 	Ok(())
-// }

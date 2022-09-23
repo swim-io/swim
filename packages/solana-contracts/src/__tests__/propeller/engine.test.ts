@@ -62,7 +62,7 @@ import {
   encodeSwimPayload,
   formatParsedTokenTransferWithSwimPayloadPostedMessage,
   formatParsedTokenTransferWithSwimPayloadVaa,
-  getPropellerEngineTxns,
+  generatePropellerEngineTxns,
   getPropellerPda,
   // getFlagshipTokenAccountBalances,
   // getPropellerPda,
@@ -1072,6 +1072,13 @@ describe("propeller", () => {
                   },
                   feeTracker: propellerEngineFeeTracker,
                   aggregator,
+                  // marginalPricePool: {
+                  //   pool: marginalPricePool,
+                  //   poolToken0Account: marginalPricePoolToken0Account,
+                  //   poolToken1Account: marginalPricePoolToken1Account,
+                  //   lpMint: marginalPricePoolLpMint,
+                  // },
+                  // twoPoolProgram: twoPoolProgram.programId,
                   marginalPricePool: marginalPricePool,
                   marginalPricePoolToken0Account:
                     marginalPricePoolToken0Account,
@@ -1281,42 +1288,51 @@ describe("propeller", () => {
               scale: marginalPriceScale,
             } = marginalPrices[marginalPricePoolTokenIndex];
             console.info(`
-            marginalPrice: {
-              mantissa: ${marginalPriceMantissa.toString()}
-              scale: ${marginalPriceScale.toString()}
-            }
-          `);
+              marginalPrice: {
+                mantissa: ${marginalPriceMantissa.toString()}
+                scale: ${marginalPriceScale.toString()}
+              }
+            `);
             const marginalPriceDecimal = new Big(
               marginalPriceMantissa.toString(),
             ).div(new Big(10).pow(marginalPriceScale));
             const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
             const lamportUsdVal = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
             const expectedFeesInLamports = completeWithPayloadFee
-              .add(secpVerifyInitFee.add(secpVerifyFee))
+              .add(secpVerifyInitFee)
+              .add(secpVerifyFee)
+              .add(postVaaFee)
               .add(new BN(totalRentExemptionInLamports));
             console.info(`
-            marginalPriceDecimal: ${marginalPriceDecimal.toString()}
-            solUsdFeedVal: ${solUsdFeedVal.toString()}
-            lamportUsdVal: ${lamportUsdVal.toString()}
-            totalRentExemption: ${totalRentExemptionInLamports}
-            expectedFeesInLamports: ${expectedFeesInLamports.toString()}
-          `);
+              marginalPriceDecimal: ${marginalPriceDecimal.toString()}
+              solUsdFeedVal: ${solUsdFeedVal.toString()}
+              lamportUsdVal: ${lamportUsdVal.toString()}
+              totalRentExemption: ${totalRentExemptionInLamports}
+              expectedFeesInLamports: ${expectedFeesInLamports.toString()}
+            `);
 
-            const feeSwimUsdDecimal = marginalPriceDecimal
-              .mul(lamportUsdVal)
-              .mul(new Big(expectedFeesInLamports));
+            // const swimUsdPerLamport = await getSwimUsdPerLamport();
+            // const feeSwimUsdDecimal = swimUsdPerLamport.mul(
+            //   new Big(expectedFeesInLamports),
+            // );
+            // const feeSwimUsdDecimal = marginalPriceDecimal
+            //   .mul(lamportUsdVal)
+            //   .mul(new Big(expectedFeesInLamports));
+            const feeSwimUsdDecimal = lamportUsdVal
+              .mul(new Big(expectedFeesInLamports))
+              .div(marginalPriceDecimal);
 
             console.info(`feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}`);
-            const feeSwimUsdRaw = new Big(feeSwimUsdDecimal).mul(
+            const feeSwimUsdAtomic = new Big(feeSwimUsdDecimal).mul(
               new Big(10).pow(6),
             );
 
-            console.info(`feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}`);
+            console.info(`feeSwimUsdAtomic: ${feeSwimUsdAtomic.toString()}`);
             //trunc
-            const feeSwimUsdBn = new BN(feeSwimUsdRaw.toNumber());
+            const feeSwimUsdBn = new BN(feeSwimUsdAtomic.toNumber());
             console.info(`
             feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}
-            feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}
+            feeSwimUsdRaw: ${feeSwimUsdAtomic.toString()}
             feeSwimUsdBn: ${feeSwimUsdBn.toString()}
           `);
             expect(
@@ -1811,6 +1827,13 @@ describe("propeller", () => {
                   },
                   feeTracker: propellerEngineFeeTracker,
                   aggregator,
+                  // marginalPricePool: {
+                  //   pool: marginalPricePool,
+                  //   poolToken0Account: marginalPricePoolToken0Account,
+                  //   poolToken1Account: marginalPricePoolToken1Account,
+                  //   lpMint: marginalPricePoolLpMint,
+                  // },
+                  // twoPoolProgram: twoPoolProgram.programId,
                   marginalPricePool: marginalPricePool,
                   marginalPricePoolToken0Account:
                     marginalPricePoolToken0Account,
@@ -2008,6 +2031,55 @@ describe("propeller", () => {
             wormholeClaimRentExemption: ${wormholeClaimRentExemption}
             totalRentExemption: ${totalRentExemptionInLamports}
           `);
+            //   const marginalPrices = await twoPoolProgram.methods
+            //     .marginalPrices()
+            //     .accounts({
+            //       pool: marginalPricePool,
+            //       poolTokenAccount0: marginalPricePoolToken0Account,
+            //       poolTokenAccount1: marginalPricePoolToken1Account,
+            //       lpMint: swimUsdKeypair.publicKey,
+            //     })
+            //     .view();
+            //
+            //   const {
+            //     mantissa: marginalPriceMantissa,
+            //     scale: marginalPriceScale,
+            //   } = marginalPrices[marginalPricePoolTokenIndex];
+            //   console.info(`
+            //   marginalPrice: {
+            //     mantissa: ${marginalPriceMantissa.toString()}
+            //     scale: ${marginalPriceScale.toString()}
+            //   }
+            // `);
+            //   const marginalPriceDecimal = new Big(
+            //     marginalPriceMantissa.toString(),
+            //   ).div(new Big(10).pow(marginalPriceScale));
+            //   const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
+            //   const lamportUsdVal = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
+            //   // const expectedFeesInLamports = completeWithPayloadFee.add(
+            //   //   new BN(totalRentExemptionInLamports),
+            //   // );
+            //   const expectedFeesInLamports = completeWithPayloadFee
+            //     .add(secpVerifyInitFee.add(secpVerifyFee))
+            //     .add(new BN(totalRentExemptionInLamports));
+            //   console.info(`
+            //   marginalPriceDecimal: ${marginalPriceDecimal.toString()}
+            //   solUsdFeedVal: ${solUsdFeedVal.toString()}
+            //   lamportUsdVal: ${lamportUsdVal.toString()}
+            //   totalRentExemption: ${totalRentExemptionInLamports}
+            //   expectedFeesInLamports: ${expectedFeesInLamports.toString()}
+            // `);
+            //
+            //   const feeSwimUsdDecimal = marginalPriceDecimal
+            //     .mul(lamportUsdVal)
+            //     .mul(new Big(expectedFeesInLamports));
+            //
+            //   console.info(`feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}`);
+            //   const feeSwimUsdRaw = new Big(feeSwimUsdDecimal).mul(
+            //     new Big(10).pow(6),
+            //   );
+            //
+            //   console.info(`feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}`);
             const marginalPrices = await twoPoolProgram.methods
               .marginalPrices()
               .accounts({
@@ -2023,45 +2095,51 @@ describe("propeller", () => {
               scale: marginalPriceScale,
             } = marginalPrices[marginalPricePoolTokenIndex];
             console.info(`
-            marginalPrice: {
-              mantissa: ${marginalPriceMantissa.toString()}
-              scale: ${marginalPriceScale.toString()}
-            }
-          `);
+              marginalPrice: {
+                mantissa: ${marginalPriceMantissa.toString()}
+                scale: ${marginalPriceScale.toString()}
+              }
+            `);
             const marginalPriceDecimal = new Big(
               marginalPriceMantissa.toString(),
             ).div(new Big(10).pow(marginalPriceScale));
             const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
             const lamportUsdVal = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
-            // const expectedFeesInLamports = completeWithPayloadFee.add(
-            //   new BN(totalRentExemptionInLamports),
-            // );
             const expectedFeesInLamports = completeWithPayloadFee
-              .add(secpVerifyInitFee.add(secpVerifyFee))
+              .add(secpVerifyInitFee)
+              .add(secpVerifyFee)
+              .add(postVaaFee)
               .add(new BN(totalRentExemptionInLamports));
             console.info(`
-            marginalPriceDecimal: ${marginalPriceDecimal.toString()}
-            solUsdFeedVal: ${solUsdFeedVal.toString()}
-            lamportUsdVal: ${lamportUsdVal.toString()}
-            totalRentExemption: ${totalRentExemptionInLamports}
-            expectedFeesInLamports: ${expectedFeesInLamports.toString()}
-          `);
+              marginalPriceDecimal: ${marginalPriceDecimal.toString()}
+              solUsdFeedVal: ${solUsdFeedVal.toString()}
+              lamportUsdVal: ${lamportUsdVal.toString()}
+              totalRentExemption: ${totalRentExemptionInLamports}
+              expectedFeesInLamports: ${expectedFeesInLamports.toString()}
+            `);
 
-            const feeSwimUsdDecimal = marginalPriceDecimal
-              .mul(lamportUsdVal)
-              .mul(new Big(expectedFeesInLamports));
+            // const swimUsdPerLamport = await getSwimUsdPerLamport();
+            // const feeSwimUsdDecimal = swimUsdPerLamport.mul(
+            //   new Big(expectedFeesInLamports),
+            // );
+            // const feeSwimUsdDecimal = marginalPriceDecimal
+            //   .mul(lamportUsdVal)
+            //   .mul(new Big(expectedFeesInLamports));
+            const feeSwimUsdDecimal = lamportUsdVal
+              .mul(new Big(expectedFeesInLamports))
+              .div(marginalPriceDecimal);
 
             console.info(`feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}`);
-            const feeSwimUsdRaw = new Big(feeSwimUsdDecimal).mul(
+            const feeSwimUsdAtomic = new Big(feeSwimUsdDecimal).mul(
               new Big(10).pow(6),
             );
 
-            console.info(`feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}`);
+            console.info(`feeSwimUsdAtomic: ${feeSwimUsdAtomic.toString()}`);
             //trunc
-            const feeSwimUsdBn = new BN(feeSwimUsdRaw.toNumber());
+            const feeSwimUsdBn = new BN(feeSwimUsdAtomic.toNumber());
             console.info(`
             feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}
-            feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}
+            feeSwimUsdRaw: ${feeSwimUsdAtomic.toString()}
             feeSwimUsdBn: ${feeSwimUsdBn.toString()}
           `);
             expect(
@@ -2216,6 +2294,7 @@ describe("propeller", () => {
             const propellerRedeemerEscrowBalanceBefore = (
               await splToken.account.token.fetch(propellerRedeemerEscrowAccount)
             ).amount;
+            console.info(`propellerRedeemerEscrowBalanceBefore: ${propellerRedeemerEscrowBalanceBefore.toNumber()}`);
             const userTokenAccount0BalanceBefore = (
               await splToken.account.token.fetch(userTokenAccount0)
             ).amount;
@@ -2691,6 +2770,13 @@ describe("propeller", () => {
                 },
                 feeTracker: propellerEngineFeeTracker,
                 aggregator,
+                // marginalPricePool: {
+                //   pool: marginalPricePool,
+                //   poolToken0Account: marginalPricePoolToken0Account,
+                //   poolToken1Account: marginalPricePoolToken1Account,
+                //   lpMint: marginalPricePoolLpMint,
+                // },
+                // twoPoolProgram: twoPoolProgram.programId,
                 marginalPricePool: marginalPricePool,
                 marginalPricePoolToken0Account: marginalPricePoolToken0Account,
                 marginalPricePoolToken1Account: marginalPricePoolToken1Account,
@@ -2882,6 +2968,60 @@ describe("propeller", () => {
             wormholeClaimRentExemption: ${wormholeClaimRentExemption}
             totalRentExemption: ${totalRentExemptionInLamports}
           `);
+          // const marginalPrices = await twoPoolProgram.methods
+          //   .marginalPrices()
+          //   .accounts({
+          //     pool: marginalPricePool,
+          //     poolTokenAccount0: marginalPricePoolToken0Account,
+          //     poolTokenAccount1: marginalPricePoolToken1Account,
+          //     lpMint: swimUsdKeypair.publicKey,
+          //   })
+          //   .view();
+          //
+          // const { mantissa: marginalPriceMantissa, scale: marginalPriceScale } =
+          //   marginalPrices[marginalPricePoolTokenIndex];
+          // console.info(`
+          //   marginalPrice: {
+          //     mantissa: ${marginalPriceMantissa.toString()}
+          //     scale: ${marginalPriceScale.toString()}
+          //   }
+          // `);
+          // const marginalPriceDecimal = new Big(
+          //   marginalPriceMantissa.toString(),
+          // ).div(new Big(10).pow(marginalPriceScale));
+          // const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
+          // const lamportUsdVal = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
+          // // const expectedFeesInLamports = completeWithPayloadFee.add(
+          // //   new BN(totalRentExemptionInLamports),
+          // // );
+          // const expectedFeesInLamports = completeWithPayloadFee
+          //   .add(secpVerifyInitFee.add(secpVerifyFee))
+          //   .add(new BN(totalRentExemptionInLamports));
+          // console.info(`
+          //   marginalPriceDecimal: ${marginalPriceDecimal.toString()}
+          //   solUsdFeedVal: ${solUsdFeedVal.toString()}
+          //   lamportUsdVal: ${lamportUsdVal.toString()}
+          //   totalRentExemption: ${totalRentExemptionInLamports}
+          //   expectedFeesInLamports: ${expectedFeesInLamports.toString()}
+          // `);
+          //
+          // const feeSwimUsdDecimal = marginalPriceDecimal
+          //   .mul(lamportUsdVal)
+          //   .mul(new Big(expectedFeesInLamports));
+          //
+          // console.info(`feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}`);
+          // const feeSwimUsdRaw = new Big(feeSwimUsdDecimal).mul(
+          //   new Big(10).pow(6),
+          // );
+          //
+          // console.info(`feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}`);
+          // //trunc
+          // const feeSwimUsdBn = new BN(feeSwimUsdRaw.toNumber());
+          // console.info(`
+          //   feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}
+          //   feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}
+          //   feeSwimUsdBn: ${feeSwimUsdBn.toString()}
+          // `);
           const marginalPrices = await twoPoolProgram.methods
             .marginalPrices()
             .accounts({
@@ -2895,45 +3035,51 @@ describe("propeller", () => {
           const { mantissa: marginalPriceMantissa, scale: marginalPriceScale } =
             marginalPrices[marginalPricePoolTokenIndex];
           console.info(`
-            marginalPrice: {
-              mantissa: ${marginalPriceMantissa.toString()}
-              scale: ${marginalPriceScale.toString()}
-            }
-          `);
+              marginalPrice: {
+                mantissa: ${marginalPriceMantissa.toString()}
+                scale: ${marginalPriceScale.toString()}
+              }
+            `);
           const marginalPriceDecimal = new Big(
             marginalPriceMantissa.toString(),
           ).div(new Big(10).pow(marginalPriceScale));
           const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
           const lamportUsdVal = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
-          // const expectedFeesInLamports = completeWithPayloadFee.add(
-          //   new BN(totalRentExemptionInLamports),
-          // );
           const expectedFeesInLamports = completeWithPayloadFee
-            .add(secpVerifyInitFee.add(secpVerifyFee))
+            .add(secpVerifyInitFee)
+            .add(secpVerifyFee)
+            .add(postVaaFee)
             .add(new BN(totalRentExemptionInLamports));
           console.info(`
-            marginalPriceDecimal: ${marginalPriceDecimal.toString()}
-            solUsdFeedVal: ${solUsdFeedVal.toString()}
-            lamportUsdVal: ${lamportUsdVal.toString()}
-            totalRentExemption: ${totalRentExemptionInLamports}
-            expectedFeesInLamports: ${expectedFeesInLamports.toString()}
-          `);
+              marginalPriceDecimal: ${marginalPriceDecimal.toString()}
+              solUsdFeedVal: ${solUsdFeedVal.toString()}
+              lamportUsdVal: ${lamportUsdVal.toString()}
+              totalRentExemption: ${totalRentExemptionInLamports}
+              expectedFeesInLamports: ${expectedFeesInLamports.toString()}
+            `);
 
-          const feeSwimUsdDecimal = marginalPriceDecimal
-            .mul(lamportUsdVal)
-            .mul(new Big(expectedFeesInLamports));
+          // const swimUsdPerLamport = await getSwimUsdPerLamport();
+          // const feeSwimUsdDecimal = swimUsdPerLamport.mul(
+          //   new Big(expectedFeesInLamports),
+          // );
+          // const feeSwimUsdDecimal = marginalPriceDecimal
+          //   .mul(lamportUsdVal)
+          //   .mul(new Big(expectedFeesInLamports));
+          const feeSwimUsdDecimal = lamportUsdVal
+            .mul(new Big(expectedFeesInLamports))
+            .div(marginalPriceDecimal);
 
           console.info(`feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}`);
-          const feeSwimUsdRaw = new Big(feeSwimUsdDecimal).mul(
+          const feeSwimUsdAtomic = new Big(feeSwimUsdDecimal).mul(
             new Big(10).pow(6),
           );
 
-          console.info(`feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}`);
+          console.info(`feeSwimUsdAtomic: ${feeSwimUsdAtomic.toString()}`);
           //trunc
-          const feeSwimUsdBn = new BN(feeSwimUsdRaw.toNumber());
+          const feeSwimUsdBn = new BN(feeSwimUsdAtomic.toNumber());
           console.info(`
             feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}
-            feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}
+            feeSwimUsdRaw: ${feeSwimUsdAtomic.toString()}
             feeSwimUsdBn: ${feeSwimUsdBn.toString()}
           `);
           expect(
@@ -4324,11 +4470,16 @@ describe("propeller", () => {
                   },
                   feeTracker: propellerEngineFeeTracker,
                   aggregator,
+                  // marginalPricePool: {
+                  //   pool: marginalPricePool,
+                  //   poolToken0Account: marginalPricePoolToken0Account,
+                  //   poolToken1Account: marginalPricePoolToken1Account,
+                  //   lpMint: marginalPricePoolLpMint,
+                  // },
+                  // twoPoolProgram: twoPoolProgram.programId,
                   marginalPricePool: marginalPricePool,
-                  marginalPricePoolToken0Account:
-                    marginalPricePoolToken0Account,
-                  marginalPricePoolToken1Account:
-                    marginalPricePoolToken1Account,
+                  marginalPricePoolToken0Account: marginalPricePoolToken0Account,
+                  marginalPricePoolToken1Account: marginalPricePoolToken1Account,
                   marginalPricePoolLpMint: marginalPricePoolLpMint,
                   twoPoolProgram: twoPoolProgram.programId,
                 })
@@ -4346,7 +4497,7 @@ describe("propeller", () => {
               )}`,
             );
 
-            const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
+            // const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
             // const completeNativeWithPayloadTxn =
             //   await completeNativeWithPayloadIxs.transaction();
             //
@@ -4523,6 +4674,62 @@ describe("propeller", () => {
             wormholeClaimRentExemption: ${wormholeClaimRentExemption}
             totalRentExemption: ${totalRentExemptionInLamports}
           `);
+            //   const marginalPrices = await twoPoolProgram.methods
+            //     .marginalPrices()
+            //     .accounts({
+            //       pool: marginalPricePool,
+            //       poolTokenAccount0: marginalPricePoolToken0Account,
+            //       poolTokenAccount1: marginalPricePoolToken1Account,
+            //       lpMint: swimUsdKeypair.publicKey,
+            //     })
+            //     .view();
+            //
+            //   const {
+            //     mantissa: marginalPriceMantissa,
+            //     scale: marginalPriceScale,
+            //   } = marginalPrices[marginalPricePoolTokenIndex];
+            //   console.info(`
+            //   marginalPrice: {
+            //     mantissa: ${marginalPriceMantissa.toString()}
+            //     scale: ${marginalPriceScale.toString()}
+            //   }
+            // `);
+            //   const marginalPriceDecimal = new Big(
+            //     marginalPriceMantissa.toString(),
+            //   ).div(new Big(10).pow(marginalPriceScale));
+            //
+            //   const lamportUsdVal = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
+            //   // const expectedFeesInLamports = completeWithPayloadFee.add(
+            //   //   new BN(totalRentExemptionInLamports),
+            //   // );
+            //   const expectedFeesInLamports = completeWithPayloadFee
+            //     .add(secpVerifyInitFee.add(secpVerifyFee))
+            //     .add(new BN(totalRentExemptionInLamports));
+            //   console.info(`
+            //   marginalPriceDecimal: ${marginalPriceDecimal.toString()}
+            //   solUsdFeedVal: ${solUsdFeedVal.toString()}
+            //   lamportUsdVal: ${lamportUsdVal.toString()}
+            //   totalRentExemption: ${totalRentExemptionInLamports}
+            //   expectedFeesInLamports: ${expectedFeesInLamports.toString()}
+            // `);
+            //
+            //   const feeSwimUsdDecimal = marginalPriceDecimal
+            //     .mul(lamportUsdVal)
+            //     .mul(new Big(expectedFeesInLamports));
+            //
+            //   console.info(`feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}`);
+            //   const feeSwimUsdRaw = new Big(feeSwimUsdDecimal).mul(
+            //     new Big(10).pow(6),
+            //   );
+            //
+            //   console.info(`feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}`);
+            //   //trunc
+            //   const feeSwimUsdBn = new BN(feeSwimUsdRaw.toNumber());
+            //   console.info(`
+            //   feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}
+            //   feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}
+            //   feeSwimUsdBn: ${feeSwimUsdBn.toString()}
+            // `);
             const marginalPrices = await twoPoolProgram.methods
               .marginalPrices()
               .accounts({
@@ -4538,45 +4745,51 @@ describe("propeller", () => {
               scale: marginalPriceScale,
             } = marginalPrices[marginalPricePoolTokenIndex];
             console.info(`
-            marginalPrice: {
-              mantissa: ${marginalPriceMantissa.toString()}
-              scale: ${marginalPriceScale.toString()}
-            }
-          `);
+              marginalPrice: {
+                mantissa: ${marginalPriceMantissa.toString()}
+                scale: ${marginalPriceScale.toString()}
+              }
+            `);
             const marginalPriceDecimal = new Big(
               marginalPriceMantissa.toString(),
             ).div(new Big(10).pow(marginalPriceScale));
-
+            const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
             const lamportUsdVal = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
-            // const expectedFeesInLamports = completeWithPayloadFee.add(
-            //   new BN(totalRentExemptionInLamports),
-            // );
             const expectedFeesInLamports = completeWithPayloadFee
-              .add(secpVerifyInitFee.add(secpVerifyFee))
+              .add(secpVerifyInitFee)
+              .add(secpVerifyFee)
+              .add(postVaaFee)
               .add(new BN(totalRentExemptionInLamports));
             console.info(`
-            marginalPriceDecimal: ${marginalPriceDecimal.toString()}
-            solUsdFeedVal: ${solUsdFeedVal.toString()}
-            lamportUsdVal: ${lamportUsdVal.toString()}
-            totalRentExemption: ${totalRentExemptionInLamports}
-            expectedFeesInLamports: ${expectedFeesInLamports.toString()}
-          `);
+              marginalPriceDecimal: ${marginalPriceDecimal.toString()}
+              solUsdFeedVal: ${solUsdFeedVal.toString()}
+              lamportUsdVal: ${lamportUsdVal.toString()}
+              totalRentExemption: ${totalRentExemptionInLamports}
+              expectedFeesInLamports: ${expectedFeesInLamports.toString()}
+            `);
 
-            const feeSwimUsdDecimal = marginalPriceDecimal
-              .mul(lamportUsdVal)
-              .mul(new Big(expectedFeesInLamports));
+            // const swimUsdPerLamport = await getSwimUsdPerLamport();
+            // const feeSwimUsdDecimal = swimUsdPerLamport.mul(
+            //   new Big(expectedFeesInLamports),
+            // );
+            // const feeSwimUsdDecimal = marginalPriceDecimal
+            //   .mul(lamportUsdVal)
+            //   .mul(new Big(expectedFeesInLamports));
+            const feeSwimUsdDecimal = lamportUsdVal
+              .mul(new Big(expectedFeesInLamports))
+              .div(marginalPriceDecimal);
 
             console.info(`feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}`);
-            const feeSwimUsdRaw = new Big(feeSwimUsdDecimal).mul(
+            const feeSwimUsdAtomic = new Big(feeSwimUsdDecimal).mul(
               new Big(10).pow(6),
             );
 
-            console.info(`feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}`);
+            console.info(`feeSwimUsdAtomic: ${feeSwimUsdAtomic.toString()}`);
             //trunc
-            const feeSwimUsdBn = new BN(feeSwimUsdRaw.toNumber());
+            const feeSwimUsdBn = new BN(feeSwimUsdAtomic.toNumber());
             console.info(`
             feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}
-            feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}
+            feeSwimUsdRaw: ${feeSwimUsdAtomic.toString()}
             feeSwimUsdBn: ${feeSwimUsdBn.toString()}
           `);
             expect(
@@ -5121,7 +5334,7 @@ describe("propeller", () => {
                 propellerEngineFeeTrackerData,
               )}
           `);
-          txns = await getPropellerEngineTxns(
+          txns = await generatePropellerEngineTxns(
             propellerEnginePropellerProgram,
             tokenTransferWithPayloadSignedVaa,
             propeller,
@@ -5246,7 +5459,7 @@ describe("propeller", () => {
           //   )}`,
           // );
           //
-          const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
+          // const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
           // // const completeNativeWithPayloadTxn =
           // //   await completeNativeWithPayloadIxs.transaction();
           // //
@@ -5423,6 +5636,60 @@ describe("propeller", () => {
             wormholeClaimRentExemption: ${wormholeClaimRentExemption}
             totalRentExemption: ${totalRentExemptionInLamports}
           `);
+          // const marginalPrices = await twoPoolProgram.methods
+          //   .marginalPrices()
+          //   .accounts({
+          //     pool: marginalPricePool,
+          //     poolTokenAccount0: marginalPricePoolToken0Account,
+          //     poolTokenAccount1: marginalPricePoolToken1Account,
+          //     lpMint: swimUsdKeypair.publicKey,
+          //   })
+          //   .view();
+          //
+          // const { mantissa: marginalPriceMantissa, scale: marginalPriceScale } =
+          //   marginalPrices[marginalPricePoolTokenIndex];
+          // console.info(`
+          //   marginalPrice: {
+          //     mantissa: ${marginalPriceMantissa.toString()}
+          //     scale: ${marginalPriceScale.toString()}
+          //   }
+          // `);
+          // const marginalPriceDecimal = new Big(
+          //   marginalPriceMantissa.toString(),
+          // ).div(new Big(10).pow(marginalPriceScale));
+          //
+          // const lamportUsdVal = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
+          // // const expectedFeesInLamports = completeWithPayloadFee.add(
+          // //   new BN(totalRentExemptionInLamports),
+          // // );
+          // const expectedFeesInLamports = completeWithPayloadFee
+          //   .add(secpVerifyInitFee.add(secpVerifyFee))
+          //   .add(new BN(totalRentExemptionInLamports));
+          // console.info(`
+          //   marginalPriceDecimal: ${marginalPriceDecimal.toString()}
+          //   solUsdFeedVal: ${solUsdFeedVal.toString()}
+          //   lamportUsdVal: ${lamportUsdVal.toString()}
+          //   totalRentExemption: ${totalRentExemptionInLamports}
+          //   expectedFeesInLamports: ${expectedFeesInLamports.toString()}
+          // `);
+          //
+          // const feeSwimUsdDecimal = marginalPriceDecimal
+          //   .mul(lamportUsdVal)
+          //   .mul(new Big(expectedFeesInLamports));
+          //
+          // console.info(`feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}`);
+          // const feeSwimUsdRaw = new Big(feeSwimUsdDecimal).mul(
+          //   new Big(10).pow(6),
+          // );
+          //
+          // console.info(`feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}`);
+          // //trunc
+          // const feeSwimUsdBn = new BN(feeSwimUsdRaw.toNumber());
+          // console.info(`
+          //   feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}
+          //   feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}
+          //   feeSwimUsdBn: ${feeSwimUsdBn.toString()}
+          // `);
           const marginalPrices = await twoPoolProgram.methods
             .marginalPrices()
             .accounts({
@@ -5436,45 +5703,51 @@ describe("propeller", () => {
           const { mantissa: marginalPriceMantissa, scale: marginalPriceScale } =
             marginalPrices[marginalPricePoolTokenIndex];
           console.info(`
-            marginalPrice: {
-              mantissa: ${marginalPriceMantissa.toString()}
-              scale: ${marginalPriceScale.toString()}
-            }
-          `);
+              marginalPrice: {
+                mantissa: ${marginalPriceMantissa.toString()}
+                scale: ${marginalPriceScale.toString()}
+              }
+            `);
           const marginalPriceDecimal = new Big(
             marginalPriceMantissa.toString(),
           ).div(new Big(10).pow(marginalPriceScale));
-
+          const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
           const lamportUsdVal = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
-          // const expectedFeesInLamports = completeWithPayloadFee.add(
-          //   new BN(totalRentExemptionInLamports),
-          // );
           const expectedFeesInLamports = completeWithPayloadFee
-            .add(secpVerifyInitFee.add(secpVerifyFee))
+            .add(secpVerifyInitFee)
+            .add(secpVerifyFee)
+            .add(postVaaFee)
             .add(new BN(totalRentExemptionInLamports));
           console.info(`
-            marginalPriceDecimal: ${marginalPriceDecimal.toString()}
-            solUsdFeedVal: ${solUsdFeedVal.toString()}
-            lamportUsdVal: ${lamportUsdVal.toString()}
-            totalRentExemption: ${totalRentExemptionInLamports}
-            expectedFeesInLamports: ${expectedFeesInLamports.toString()}
-          `);
+              marginalPriceDecimal: ${marginalPriceDecimal.toString()}
+              solUsdFeedVal: ${solUsdFeedVal.toString()}
+              lamportUsdVal: ${lamportUsdVal.toString()}
+              totalRentExemption: ${totalRentExemptionInLamports}
+              expectedFeesInLamports: ${expectedFeesInLamports.toString()}
+            `);
 
-          const feeSwimUsdDecimal = marginalPriceDecimal
-            .mul(lamportUsdVal)
-            .mul(new Big(expectedFeesInLamports));
+          // const swimUsdPerLamport = await getSwimUsdPerLamport();
+          // const feeSwimUsdDecimal = swimUsdPerLamport.mul(
+          //   new Big(expectedFeesInLamports),
+          // );
+          // const feeSwimUsdDecimal = marginalPriceDecimal
+          //   .mul(lamportUsdVal)
+          //   .mul(new Big(expectedFeesInLamports));
+          const feeSwimUsdDecimal = lamportUsdVal
+            .mul(new Big(expectedFeesInLamports))
+            .div(marginalPriceDecimal);
 
           console.info(`feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}`);
-          const feeSwimUsdRaw = new Big(feeSwimUsdDecimal).mul(
+          const feeSwimUsdAtomic = new Big(feeSwimUsdDecimal).mul(
             new Big(10).pow(6),
           );
 
-          console.info(`feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}`);
+          console.info(`feeSwimUsdAtomic: ${feeSwimUsdAtomic.toString()}`);
           //trunc
-          const feeSwimUsdBn = new BN(feeSwimUsdRaw.toNumber());
+          const feeSwimUsdBn = new BN(feeSwimUsdAtomic.toNumber());
           console.info(`
             feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}
-            feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}
+            feeSwimUsdRaw: ${feeSwimUsdAtomic.toString()}
             feeSwimUsdBn: ${feeSwimUsdBn.toString()}
           `);
           expect(
@@ -5923,7 +6196,7 @@ describe("propeller", () => {
                 propellerEngineFeeTrackerData,
               )}
           `);
-          txns = await getPropellerEngineTxns(
+          txns = await generatePropellerEngineTxns(
             propellerEnginePropellerProgram,
             tokenTransferWithPayloadSignedVaa,
             propeller,
@@ -6048,7 +6321,7 @@ describe("propeller", () => {
           //   )}`,
           // );
           //
-          const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
+          // const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
           // // const completeNativeWithPayloadTxn =
           // //   await completeNativeWithPayloadIxs.transaction();
           // //
@@ -6238,45 +6511,51 @@ describe("propeller", () => {
           const { mantissa: marginalPriceMantissa, scale: marginalPriceScale } =
             marginalPrices[marginalPricePoolTokenIndex];
           console.info(`
-            marginalPrice: {
-              mantissa: ${marginalPriceMantissa.toString()}
-              scale: ${marginalPriceScale.toString()}
-            }
-          `);
+              marginalPrice: {
+                mantissa: ${marginalPriceMantissa.toString()}
+                scale: ${marginalPriceScale.toString()}
+              }
+            `);
           const marginalPriceDecimal = new Big(
             marginalPriceMantissa.toString(),
           ).div(new Big(10).pow(marginalPriceScale));
-
+          const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
           const lamportUsdVal = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
-          // const expectedFeesInLamports = completeWithPayloadFee.add(
-          //   new BN(totalRentExemptionInLamports),
-          // );
           const expectedFeesInLamports = completeWithPayloadFee
-            .add(secpVerifyInitFee.add(secpVerifyFee))
+            .add(secpVerifyInitFee)
+            .add(secpVerifyFee)
+            .add(postVaaFee)
             .add(new BN(totalRentExemptionInLamports));
           console.info(`
-            marginalPriceDecimal: ${marginalPriceDecimal.toString()}
-            solUsdFeedVal: ${solUsdFeedVal.toString()}
-            lamportUsdVal: ${lamportUsdVal.toString()}
-            totalRentExemption: ${totalRentExemptionInLamports}
-            expectedFeesInLamports: ${expectedFeesInLamports.toString()}
-          `);
+              marginalPriceDecimal: ${marginalPriceDecimal.toString()}
+              solUsdFeedVal: ${solUsdFeedVal.toString()}
+              lamportUsdVal: ${lamportUsdVal.toString()}
+              totalRentExemption: ${totalRentExemptionInLamports}
+              expectedFeesInLamports: ${expectedFeesInLamports.toString()}
+            `);
 
-          const feeSwimUsdDecimal = marginalPriceDecimal
-            .mul(lamportUsdVal)
-            .mul(new Big(expectedFeesInLamports));
+          // const swimUsdPerLamport = await getSwimUsdPerLamport();
+          // const feeSwimUsdDecimal = swimUsdPerLamport.mul(
+          //   new Big(expectedFeesInLamports),
+          // );
+          // const feeSwimUsdDecimal = marginalPriceDecimal
+          //   .mul(lamportUsdVal)
+          //   .mul(new Big(expectedFeesInLamports));
+          const feeSwimUsdDecimal = lamportUsdVal
+            .mul(new Big(expectedFeesInLamports))
+            .div(marginalPriceDecimal);
 
           console.info(`feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}`);
-          const feeSwimUsdRaw = new Big(feeSwimUsdDecimal).mul(
+          const feeSwimUsdAtomic = new Big(feeSwimUsdDecimal).mul(
             new Big(10).pow(6),
           );
 
-          console.info(`feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}`);
+          console.info(`feeSwimUsdAtomic: ${feeSwimUsdAtomic.toString()}`);
           //trunc
-          const feeSwimUsdBn = new BN(feeSwimUsdRaw.toNumber());
+          const feeSwimUsdBn = new BN(feeSwimUsdAtomic.toNumber());
           console.info(`
             feeSwimUsdDecimal: ${feeSwimUsdDecimal.toString()}
-            feeSwimUsdRaw: ${feeSwimUsdRaw.toString()}
+            feeSwimUsdRaw: ${feeSwimUsdAtomic.toString()}
             feeSwimUsdBn: ${feeSwimUsdBn.toString()}
           `);
           expect(
@@ -6528,6 +6807,38 @@ describe("propeller", () => {
     });
   });
 
+  // async function getSwimUsdPerLamport(): Promise<Big> {
+  //   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  //   const marginalPrices = await twoPoolProgram.methods
+  //     .marginalPrices()
+  //     .accounts({
+  //       pool: marginalPricePool,
+  //       poolTokenAccount0: marginalPricePoolToken0Account,
+  //       poolTokenAccount1: marginalPricePoolToken1Account,
+  //       lpMint: swimUsdKeypair.publicKey,
+  //     })
+  //     .view();
+  //
+  //   const { mantissa: marginalPriceMantissa, scale: marginalPriceScale } =
+  //     marginalPrices[marginalPricePoolTokenIndex];
+  //   console.info(`
+  //           marginalPrice: {
+  //             mantissa: ${marginalPriceMantissa.toString()}
+  //             scale: ${marginalPriceScale.toString()}
+  //           }
+  //         `);
+  //   const marginalPriceDecimal = new Big(marginalPriceMantissa.toString()).div(
+  //     new Big(10).pow(marginalPriceScale),
+  //   );
+  //   const solUsdFeedVal = (await aggregatorAccount.getLatestValue())!;
+  //   const swimUsdPerLamport = solUsdFeedVal.div(new Big(LAMPORTS_PER_SOL));
+  //   console.info(`
+  //     marginalPriceDecimal: ${marginalPriceDecimal.toString()}
+  //     solUsdFeedVal: ${solUsdFeedVal.toString()}
+  //     swimUsdPerLamport: ${swimUsdPerLamport.toString()}
+  //   `);
+  //   return swimUsdPerLamport;
+  // }
   async function checkTxnLogsForMemo(txSig: string, memoStr: string) {
     console.info(`txSig: ${txSig}`);
     const txnInfo = await connection.getTransaction(txSig, {

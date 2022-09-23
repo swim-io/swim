@@ -482,7 +482,7 @@ export type MarginalPricePoolInfo = {
   readonly lpMint: web3.PublicKey;
 };
 
-export const getPropellerEngineTxns = async (
+export const generatePropellerEngineTxns = async (
   propellerProgram: Program<Propeller>,
   tokenTransferWithPayloadSignedVaa: Buffer,
   propeller: web3.PublicKey,
@@ -700,6 +700,12 @@ export const getPropellerEngineTxns = async (
       completeNativeWithPayload: completePubkeys,
       feeTracker: propellerEngineFeeTracker,
       aggregator,
+      // marginalPricePool: {
+      //   pool: marginalPricePoolInfo.pool,
+      //   poolToken0Account: marginalPricePoolInfo.token0Account,
+      //   poolToken1Account: marginalPricePoolInfo.token1Account,
+      //   lpMint: marginalPricePoolInfo.lpMint,
+      // },
       marginalPricePool: marginalPricePoolInfo.pool,
       marginalPricePoolToken0Account: marginalPricePoolInfo.token0Account,
       marginalPricePoolToken1Account: marginalPricePoolInfo.token1Account,

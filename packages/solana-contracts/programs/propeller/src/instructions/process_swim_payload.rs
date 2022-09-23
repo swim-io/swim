@@ -1,7 +1,8 @@
 pub use switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_PROGRAM_ID};
 use {
     crate::{
-        constants::LAMPORTS_PER_SOL_DECIMAL, get_marginal_price_decimal, get_token_bridge_mint_decimals, FeeTracker,
+        constants::LAMPORTS_PER_SOL_DECIMAL, convert_fees_to_swim_usd_atomic, get_marginal_price_decimal,
+        get_token_bridge_mint_decimals, FeeTracker,
     },
     anchor_lang::system_program,
     anchor_spl::{associated_token::AssociatedToken, token::Transfer},
@@ -298,7 +299,7 @@ impl<'info> ProcessSwimPayload<'info> {
     ) -> Result<u64> {
         let swim_payload_owner = self.propeller_message.owner;
         require_gt!(TOKEN_COUNT, pool_token_index as usize);
-
+        //TODO: add output token account.owner === swim_payload_owner
         match pool_ix {
             PoolInstruction::RemoveExactBurn => {
                 msg!("Executing RemoveExactBurn");
@@ -616,70 +617,17 @@ impl<'info> PropellerProcessSwimPayload<'info> {
                 lp_mint: marginal_price_pool_lp_mint.to_account_info(),
             },
         );
-        let result = two_pool::cpi::marginal_prices(cpi_ctx)?;
-        // let marginal_prices = result.get().marginal_prices;
-        let marginal_prices = result.get();
-
-        msg!("marginal_prices: {:?}", marginal_prices);
-        let mut res = 0u64;
-        let feed = &self.aggregator.load()?;
-
-        let sol_usd_price: Decimal = feed.get_result()?.try_into()?;
-        let name = feed.name;
-
-        let lamports_usd_price =
-            sol_usd_price.checked_div(LAMPORTS_PER_SOL_DECIMAL).ok_or(PropellerError::IntegerOverflow)?;
-        msg!("sol_usd_price:{},lamports_usd_price: {}", sol_usd_price, lamports_usd_price);
-        // check whether the feed has been updated in the last 300 seconds
-        feed.check_staleness(
-            Clock::get().unwrap().unix_timestamp,
-            // 300
-            i64::MAX,
-        )
-        .map_err(|_| error!(PropellerError::StaleFeed))?;
-        // check feed does not exceed max_confidence_interval
-        // if let Some(max_confidence_interval) = params.max_confidence_interval {
-        // 	feed.check_confidence_interval(SwitchboardDecimal::from_f64(max_confidence_interval))
-        // 	.map_err(|_| error!(PropellerError::ConfidenceIntervalExceeded))?;
-        // }
-        let lp_mint_key = marginal_price_pool_lp_mint.key();
-
-        let token_bridge_mint_key = self.process_swim_payload.propeller.token_bridge_mint;
-        let marginal_price: Decimal = get_marginal_price_decimal(
+        let fees_in_swim_usd_atomic = convert_fees_to_swim_usd_atomic(
+            fee_in_lamports,
+            &propeller,
+            &marginal_price_pool_lp_mint,
+            // ctx.accounts.into_marginal_prices(),
+            cpi_ctx,
             &marginal_price_pool,
-            &marginal_prices,
-            propeller.marginal_price_pool_token_index as usize,
-            &marginal_price_pool_lp_mint.key(),
-            &token_bridge_mint_key,
+            &self.aggregator,
+            i64::MAX,
         )?;
-
-        msg!("marginal_price: {}", marginal_price);
-        let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
-        msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
-        let fee_in_token_bridge_mint_decimal = marginal_price
-            .checked_mul(lamports_usd_price)
-            .and_then(|v| v.checked_mul(fee_in_lamports_decimal))
-            .ok_or(PropellerError::IntegerOverflow)?;
-
-        let token_bridge_mint_decimals =
-            get_token_bridge_mint_decimals(&token_bridge_mint_key, &marginal_price_pool, &marginal_price_pool_lp_mint)?;
-
-        msg!("token_bridge_mint_decimals: {:?} ", token_bridge_mint_decimals);
-
-        let ten_pow_decimals =
-            Decimal::from_u64(10u64.pow(token_bridge_mint_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
-        let fee_in_token_bridge_mint = fee_in_token_bridge_mint_decimal
-            .checked_mul(ten_pow_decimals)
-            .and_then(|v| v.to_u64())
-            .ok_or(PropellerError::ConversionError)?;
-
-        msg!(
-            "fee_in_token_bridge_mint_decimal: {:?} fee_in_token_bridge_mint: {:?}",
-            fee_in_token_bridge_mint_decimal,
-            fee_in_token_bridge_mint
-        );
-        res = fee_in_token_bridge_mint;
-        Ok(res)
+        Ok(fees_in_swim_usd_atomic)
     }
 
     fn transfer_gas_kickstart(&self) -> Result<()> {
@@ -1055,9 +1003,10 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
         let marginal_price: Decimal = get_marginal_price_decimal(
             &marginal_price_pool,
             &marginal_prices,
-            propeller.marginal_price_pool_token_index as usize,
+            &propeller,
+            // propeller.marginal_price_pool_token_index as usize,
             &marginal_price_pool_lp_mint.key(),
-            &token_bridge_mint_key,
+            // &token_bridge_mint_key,
         )?;
 
         msg!("marginal_price: {}", marginal_price);

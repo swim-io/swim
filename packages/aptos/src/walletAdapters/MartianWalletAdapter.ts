@@ -1,8 +1,4 @@
-import type {
-  SubmitTransactionRequest,
-  Transaction,
-  TransactionPayload,
-} from "aptos/src/generated";
+import type { Types } from "aptos";
 
 import { BaseWalletAdapter } from "./BaseAdapter";
 import type { AccountKeys } from "./BaseAdapter";
@@ -20,12 +16,12 @@ export interface IMartianWallet {
   readonly isConnected: () => Promise<boolean>;
   readonly generateTransaction: (
     sender: string,
-    payload: TransactionPayload,
-    options?: Partial<SubmitTransactionRequest>,
+    payload: Types.TransactionPayload,
+    options?: Partial<Types.SubmitTransactionRequest>,
   ) => Promise<string>;
   readonly signAndSubmitTransaction: (
     transaction: string,
-  ) => Promise<Transaction["hash"]>;
+  ) => Promise<Types.Transaction["hash"]>;
   readonly signTransaction: (transaction: string) => Promise<string>;
   readonly disconnect: () => Promise<void>;
   readonly network: () => Promise<string>;
@@ -109,8 +105,8 @@ export class MartianWalletAdapter extends BaseWalletAdapter {
   }
 
   public async signTransaction(
-    transactionPayload: TransactionPayload,
-    options?: Partial<SubmitTransactionRequest>,
+    transactionPayload: Types.TransactionPayload,
+    options?: Partial<Types.SubmitTransactionRequest>,
   ): Promise<Uint8Array> {
     try {
       const { provider, wallet } = this.getConnectedProviderOrError();
@@ -133,9 +129,9 @@ export class MartianWalletAdapter extends BaseWalletAdapter {
   }
 
   public async signAndSubmitTransaction(
-    transactionPayload: TransactionPayload,
-    options?: Partial<SubmitTransactionRequest>,
-  ): Promise<Transaction["hash"]> {
+    transactionPayload: Types.TransactionPayload,
+    options?: Partial<Types.SubmitTransactionRequest>,
+  ): Promise<Types.Transaction["hash"]> {
     try {
       const { provider, wallet } = this.getConnectedProviderOrError();
       const tx = await provider.generateTransaction(

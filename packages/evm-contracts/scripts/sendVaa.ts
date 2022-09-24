@@ -56,20 +56,21 @@ async function sendVaa() {
   await (await usdc.connect(theSigner).approve(ROUTING_ADDRESS, inputAmount)).wait();
   console.log("approve complete");
 
-  console.log("propellerOut");
-  const txnResponse = await routing.connect(signers[0])["propellerOut(address,uint256,uint16,bytes32,bool,uint16)"](
+  console.log("propellerInitiate");
+  const txnResponse = await routing.connect(signers[0])["propellerInitiate(address,uint256,uint16,bytes32,bool,uint64,uint16)"](
     usdc.address, // fromToken
     inputAmount, // inputAmmount
     4, //wormhole chain id (binance chain id)
     "0x" + "00".repeat(12) + signers[0].address.substring(2), // toOwner
     false, // gasKickStart
+    10, // maxPropellerFee
     3, // toToken tokenNumber in swim
-//     {
-//       gasLimit: ethers.BigNumber.from("2000000"),
-//       gasPrice: '200000000000'
-//     }
+    {
+      gasLimit: ethers.BigNumber.from("2000000"),
+      gasPrice: '200000000000'
+    }
   );
-  console.log("propellerOut done");
+  console.log("propellerInitiate done");
 
   // fetch sequence so that I can look up VAA
   const txnReceipt = await txnResponse.wait(6); //wait(6)

@@ -23,6 +23,7 @@ jest.mock("rpc-websockets", () => ({
 jest.mock("@swim-io/solana", () => ({
   ...jest.requireActual("@swim-io/solana"),
   SolanaConnection: jest.fn(),
+  SolanaConnectionWithRetry: jest.fn(),
   generateUnlockSplTokenTxIds: jest.fn(),
 }));
 

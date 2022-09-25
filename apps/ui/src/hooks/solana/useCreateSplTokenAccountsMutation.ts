@@ -38,10 +38,7 @@ const findOrCreateSplTokenAccount = async (
   await solanaConnection.createSplTokenAccount(wallet, splTokenMintAddress);
   await sleep(1000); // TODO: Find a better condition
   await queryClient.invalidateQueries([env, "tokenAccounts", solanaAddress]);
-  return solanaConnection.getTokenAccountWithRetry(
-    splTokenMintAddress,
-    solanaAddress,
-  );
+  return solanaConnection.getTokenAccount(splTokenMintAddress, solanaAddress);
 };
 
 export const useCreateSplTokenAccountsMutation = (): UseMutationResult<

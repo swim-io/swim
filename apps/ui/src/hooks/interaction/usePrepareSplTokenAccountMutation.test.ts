@@ -51,7 +51,7 @@ describe("usePrepareSplTokenAccountMutation", () => {
       createSplTokenAccount: jest.fn((wallet, mint) =>
         Promise.resolve(`TX_ID_FOR_${mint}`),
       ),
-      getTokenAccountWithRetry: jest.fn((mint) =>
+      getTokenAccount: jest.fn((mint) =>
         Promise.resolve({
           mint,
         } as unknown as TokenAccount),

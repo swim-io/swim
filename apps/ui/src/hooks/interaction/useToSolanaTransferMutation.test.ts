@@ -70,7 +70,7 @@ describe("useToSolanaTransferMutation", () => {
     });
     useSolanaConnectionMock.mockReturnValue({
       confirmTx: jest.fn(),
-      getTokenAccountWithRetry: jest.fn((mint) =>
+      getTokenAccount: jest.fn((mint) =>
         Promise.resolve({
           mint,
         } as unknown as TokenAccount),

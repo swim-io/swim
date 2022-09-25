@@ -85,6 +85,7 @@ export class SolanaConnection {
   >["removeAccountChangeListener"];
 
   public rawConnection!: CustomConnection;
+  protected readonly isWithRetry: boolean = false;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly txCache: Map<string, VersionedTransactionResponse>;
   // eslint-disable-next-line functional/prefer-readonly-type
@@ -157,7 +158,8 @@ export class SolanaConnection {
     if (signatureStatus) {
       return signatureStatus;
     }
-    return this.callWithRetry(async () => {
+
+    const confirmTx = async () => {
       const latestBlock = await this.rawConnection.getLatestBlockhash();
       // If the Solana network is busy this can time out
       const signatureResult = await this.rawConnection.confirmTransaction(
@@ -174,7 +176,12 @@ export class SolanaConnection {
       throw new Error(
         `Transaction with ID ${txId} did not confirm: ${signatureResult.value.err.toString()}`,
       );
-    }, maxRetries);
+    };
+    if (this.isWithRetry) {
+      return this.callWithRetry(confirmTx, maxRetries);
+    } else {
+      return confirmTx();
+    }
   }
 
   public async sendAndConfirmTx(
@@ -230,9 +237,7 @@ export class SolanaConnection {
       commitmentLevel,
     });
 
-    // NOTE: Sometimes txs aren’t found straightaway even after confirming.
-    // So we retry getting the tx too if necessary.
-    return this.callWithRetry(async () => {
+    const getTx = async () => {
       const txResponse = await this.rawConnection.getTransaction(txId, {
         commitment: commitmentLevel,
         maxSupportedTransactionVersion: 0,
@@ -242,7 +247,14 @@ export class SolanaConnection {
         return txResponse;
       }
       throw new Error(`Transaction with ID ${txId} did not confirm`);
-    }, maxRetries);
+    };
+    if (this.isWithRetry) {
+      // NOTE: Sometimes txs aren’t found straightaway even after confirming.
+      // So we retry getting the tx too if necessary.
+      return this.callWithRetry(getTx, maxRetries);
+    } else {
+      return getTx();
+    }
   }
 
   public async getParsedTx(
@@ -263,9 +275,7 @@ export class SolanaConnection {
       commitmentLevel,
     });
 
-    // NOTE: Sometimes txs aren’t found straightaway even after confirming.
-    // So we retry getting the tx too if necessary.
-    return this.callWithRetry(async () => {
+    const getParsedTx = async () => {
       const txResponse = await this.rawConnection.getParsedTransaction(
         txId,
         commitmentLevel,
@@ -275,7 +285,14 @@ export class SolanaConnection {
         return txResponse;
       }
       throw new Error(`Transaction with ID ${txId} did not confirm`);
-    }, maxRetries);
+    };
+    if (this.isWithRetry) {
+      // NOTE: Sometimes txs aren’t found straightaway even after confirming.
+      // So we retry getting the tx too if necessary.
+      return this.callWithRetry(getParsedTx, maxRetries);
+    } else {
+      return getParsedTx();
+    }
   }
 
   public async getParsedTxs(
@@ -285,39 +302,40 @@ export class SolanaConnection {
       commitmentLevel = undefined,
     }: GetSolanaTransactionOptions = {},
   ): Promise<readonly ParsedTransactionWithMeta[]> {
-    return this.callWithRetry(
-      async () => {
-        const missingTxIds = txIds.filter(
-          (txId) => !this.parsedTxCache.get(txId),
-        );
-        if (missingTxIds.length === 0) {
-          return txIds.map((txId) => {
-            const tx = this.parsedTxCache.get(txId);
-            if (!tx) {
-              // NOTE: This check is only here for type safety and should never happen
-              throw new Error("Missing transaction");
-            }
-            return tx;
-          });
-        }
-        // NOTE: Sometimes this won’t find all the txs immediately so we retry if necessary
-        const txResponses = await this.rawConnection.getParsedTransactions(
-          missingTxIds,
-          commitmentLevel,
-        );
-        txResponses.forEach((txResponse, i) => {
-          if (txResponse !== null) {
-            this.parsedTxCache.set(missingTxIds[i], txResponse);
+    const getParsedTxs = async () => {
+      const missingTxIds = txIds.filter(
+        (txId) => !this.parsedTxCache.get(txId),
+      );
+      if (missingTxIds.length === 0) {
+        return txIds.map((txId) => {
+          const tx = this.parsedTxCache.get(txId);
+          if (!tx) {
+            // NOTE: This check is only here for type safety and should never happen
+            throw new Error("Missing transaction");
           }
+          return tx;
         });
-        throw new Error("One or more transactions did not confirm");
-      },
-
-      maxRetries,
-    );
+      }
+      // NOTE: Sometimes this won’t find all the txs immediately so we retry if necessary
+      const txResponses = await this.rawConnection.getParsedTransactions(
+        missingTxIds,
+        commitmentLevel,
+      );
+      txResponses.forEach((txResponse, i) => {
+        if (txResponse !== null) {
+          this.parsedTxCache.set(missingTxIds[i], txResponse);
+        }
+      });
+      throw new Error("One or more transactions did not confirm");
+    };
+    if (this.isWithRetry) {
+      return this.callWithRetry(getParsedTxs, maxRetries);
+    } else {
+      return getParsedTxs();
+    }
   }
 
-  public async getTokenAccountWithRetry(
+  public async getTokenAccount(
     mint: string,
     owner: string,
     {
@@ -331,7 +349,8 @@ export class SolanaConnection {
       mintPubkey,
       ownerPubkey,
     );
-    return this.callWithRetry(async () => {
+
+    const getTokenAccount = async () => {
       const { value: accounts } =
         await this.rawConnection.getTokenAccountsByOwner(
           ownerPubkey,
@@ -354,7 +373,12 @@ export class SolanaConnection {
       throw new Error(
         "Successfully created SPL token account but failed to fetch it",
       );
-    }, maxRetries);
+    };
+    if (this.isWithRetry) {
+      return this.callWithRetry(getTokenAccount, maxRetries);
+    } else {
+      return getTokenAccount();
+    }
   }
 
   public async getMultipleTokenAccounts(
@@ -406,29 +430,7 @@ export class SolanaConnection {
     return this.sendAndConfirmTx(wallet.signTransaction.bind(wallet), tx);
   }
 
-  // Looks for a signature, only returns a value if there's no error
-  // or value
-  private async getSigStatusToSigResult(
-    txId: string,
-  ): Promise<RpcResponseAndContext<SignatureResult> | null> {
-    try {
-      const { context, value } = await this.rawConnection.getSignatureStatus(
-        txId,
-        { searchTransactionHistory: true },
-      );
-      if (!value) {
-        return null;
-      }
-      return {
-        context,
-        value,
-      };
-    } catch {
-      return null;
-    }
-  }
-
-  private incrementRpcProvider() {
+  protected incrementRpcProvider() {
     if (
       this.endpoints.length === 1 &&
       (this.rawConnection as CustomConnection | undefined) !== undefined
@@ -497,6 +499,28 @@ export class SolanaConnection {
     throw new Error("callWithRetry bug, this code should be unreachable.");
   }
 
+  // Looks for a signature, only returns a value if there's no error
+  // or value
+  private async getSigStatusToSigResult(
+    txId: string,
+  ): Promise<RpcResponseAndContext<SignatureResult> | null> {
+    try {
+      const { context, value } = await this.rawConnection.getSignatureStatus(
+        txId,
+        { searchTransactionHistory: true },
+      );
+      if (!value) {
+        return null;
+      }
+      return {
+        context,
+        value,
+      };
+    } catch {
+      return null;
+    }
+  }
+
   private async *generatePostVaaSolanaTxIds({
     interactionId,
     signTransaction,
@@ -556,4 +580,8 @@ export class SolanaConnection {
     }
     yield await this.sendAndConfirmTx(signTransaction, finalTx);
   }
+}
+
+export class SolanaConnectionWithRetry extends SolanaConnection {
+  protected override readonly isWithRetry: boolean = true;
 }

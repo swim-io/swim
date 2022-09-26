@@ -38,25 +38,22 @@ const devnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
   pools: [],
 };
 
-const chains: ReadonlyMap<
-  Env,
-  EvmChainConfig<EvmEcosystemId.Avalanche>
-> = new Map([
-  [Env.Mainnet, mainnet],
-  [Env.Devnet, devnet],
-]);
-
 const gasToken: GasToken = {
   name: "Avalanche",
   symbol: "AVAX",
   decimals: 18,
 };
 
-export const avalanche: EvmEcosystemConfig<EvmEcosystemId.Avalanche> = {
+export const avalanche = assertType<
+  EvmEcosystemConfig<EvmEcosystemId.Avalanche>
+>()({
   id: EvmEcosystemId.Avalanche,
   protocol: EVM_PROTOCOL,
   wormholeChainId: 6,
   displayName: "Avalanche",
   gasToken,
-  chains,
-};
+  chains: {
+    [Env.Mainnet]: mainnet,
+    [Env.Devnet]: devnet,
+  },
+} as const);

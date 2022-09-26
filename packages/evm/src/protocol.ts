@@ -42,7 +42,7 @@ export interface EvmEcosystemConfig<E extends EvmEcosystemId>
   extends EcosystemConfig {
   readonly id: E;
   readonly protocol: EvmProtocol;
-  readonly chains: ReadonlyMap<Env, EvmChainConfig<E>>;
+  readonly chains: Partial<ReadonlyRecord<Env, EvmChainConfig<E>>>;
 }
 
 export interface EvmTx extends Tx {

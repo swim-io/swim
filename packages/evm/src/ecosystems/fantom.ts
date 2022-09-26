@@ -38,24 +38,20 @@ const devnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
   pools: [],
 };
 
-const chains: ReadonlyMap<Env, EvmChainConfig<EvmEcosystemId.Fantom>> = new Map(
-  [
-    [Env.Mainnet, mainnet],
-    [Env.Devnet, devnet],
-  ],
-);
-
 const gasToken: GasToken = {
   name: "FTM",
   symbol: "FTM",
   decimals: 18,
 };
 
-export const fantom: EvmEcosystemConfig<EvmEcosystemId.Fantom> = {
+export const fantom = assertType<EvmEcosystemConfig<EvmEcosystemId.Fantom>>()({
   id: EvmEcosystemId.Fantom,
   protocol: EVM_PROTOCOL,
   wormholeChainId: 10,
   displayName: "Fantom",
   gasToken,
-  chains,
-};
+  chains: {
+    [Env.Mainnet]: mainnet,
+    [Env.Devnet]: devnet,
+  },
+} as const);

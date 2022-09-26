@@ -6,6 +6,7 @@ import type {
   PoolConfig,
   Tx,
 } from "@swim-io/core";
+import type { ReadonlyRecord } from "@swim-io/utils";
 
 export type SolanaProtocol = "solana-protocol";
 export const SOLANA_PROTOCOL: SolanaProtocol = "solana-protocol";
@@ -33,7 +34,7 @@ export interface SolanaChainConfig extends ChainConfig {
 export interface SolanaEcosystemConfig extends EcosystemConfig {
   readonly id: SolanaEcosystemId;
   readonly protocol: SolanaProtocol;
-  readonly chains: ReadonlyMap<Env, SolanaChainConfig>;
+  readonly chains: Partial<ReadonlyRecord<Env, SolanaChainConfig>>;
 }
 
 export interface SolanaTx extends Tx {

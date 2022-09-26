@@ -30,6 +30,9 @@
     "build": "rm -rf ./build/ ./types/ ./tsconfig.tsbuildinfo && tsc",
     "prepare": "yarn verify && yarn build"
   },
+  "dependencies": {
+    "@swim-io/utils": "workspace:^"
+  },
   "devDependencies": {
     "@swim-io/eslint-config": "workspace:^",
     "@swim-io/token-projects": "workspace:^",

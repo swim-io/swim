@@ -38,24 +38,20 @@ const devnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
   pools: [],
 };
 
-const chains: ReadonlyMap<Env, EvmChainConfig<EvmEcosystemId.Aurora>> = new Map(
-  [
-    [Env.Mainnet, mainnet],
-    [Env.Devnet, devnet],
-  ],
-);
-
 const gasToken: GasToken = {
   name: "Ethereum",
   symbol: "ETH",
   decimals: 18,
 };
 
-export const aurora: EvmEcosystemConfig<EvmEcosystemId.Aurora> = {
+export const aurora = assertType<EvmEcosystemConfig<EvmEcosystemId.Aurora>>()({
   id: EvmEcosystemId.Aurora,
   protocol: EVM_PROTOCOL,
   wormholeChainId: 9,
   displayName: "Aurora",
   gasToken,
-  chains,
-};
+  chains: {
+    [Env.Mainnet]: mainnet,
+    [Env.Devnet]: devnet,
+  },
+} as const);

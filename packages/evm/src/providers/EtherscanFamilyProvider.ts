@@ -12,62 +12,60 @@ type EtherscanFamilyNetworks = ReadonlyRecord<
 >;
 const EtherscanProvider = providers.EtherscanProvider;
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 const ETHEREUM_NETWORKS: EtherscanFamilyNetworks = {
   [Env.Mainnet]: {
     name: "homestead",
-    chainId: ethereum.chains.get(Env.Mainnet)!.chainId,
+    chainId: ethereum.chains[Env.Mainnet].chainId,
   },
   [Env.Devnet]: {
     name: "goerli",
-    chainId: ethereum.chains.get(Env.Devnet)!.chainId,
+    chainId: ethereum.chains[Env.Devnet].chainId,
   },
 };
 
 const BNB_NETWORKS: EtherscanFamilyNetworks = {
   [Env.Mainnet]: {
     name: "bsc-mainnet",
-    chainId: bnb.chains.get(Env.Mainnet)!.chainId,
+    chainId: bnb.chains[Env.Mainnet].chainId,
   },
   [Env.Devnet]: {
     name: "bsc-testnet",
-    chainId: bnb.chains.get(Env.Devnet)!.chainId,
+    chainId: bnb.chains[Env.Devnet].chainId,
   },
 };
 
 const AURORA_NETWORKS: EtherscanFamilyNetworks = {
   [Env.Mainnet]: {
     name: "aurora-mainnet",
-    chainId: aurora.chains.get(Env.Mainnet)!.chainId,
+    chainId: aurora.chains[Env.Mainnet].chainId,
   },
   [Env.Devnet]: {
     name: "aurora-testnet",
-    chainId: aurora.chains.get(Env.Devnet)!.chainId,
+    chainId: aurora.chains[Env.Devnet].chainId,
   },
 };
 
 const FANTOM_NETWORKS: EtherscanFamilyNetworks = {
   [Env.Mainnet]: {
     name: "fantom-mainnet",
-    chainId: fantom.chains.get(Env.Mainnet)!.chainId,
+    chainId: fantom.chains[Env.Mainnet].chainId,
   },
   [Env.Devnet]: {
     name: "fantom-testnet",
-    chainId: fantom.chains.get(Env.Devnet)!.chainId,
+    chainId: fantom.chains[Env.Devnet].chainId,
   },
 };
 
 const POLYGON_NETWORKS: EtherscanFamilyNetworks = {
   [Env.Mainnet]: {
     name: "polygon-mainnet",
-    chainId: polygon.chains.get(Env.Mainnet)!.chainId,
+    chainId: polygon.chains[Env.Mainnet].chainId,
   },
   [Env.Devnet]: {
     name: "polygon-testnet",
-    chainId: polygon.chains.get(Env.Devnet)!.chainId,
+    chainId: polygon.chains[Env.Devnet].chainId,
   },
 };
-/* eslint-enable @typescript-eslint/no-non-null-assertion */
 
 const NETWORKS: ReadonlyMap<EvmEcosystemId, EtherscanFamilyNetworks> = new Map([
   [EvmEcosystemId.Ethereum, ETHEREUM_NETWORKS],

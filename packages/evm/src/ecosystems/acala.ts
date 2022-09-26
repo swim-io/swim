@@ -38,22 +38,20 @@ const devnet: EvmChainConfig<EvmEcosystemId.Acala> = {
   pools: [],
 };
 
-const chains: ReadonlyMap<Env, EvmChainConfig<EvmEcosystemId.Acala>> = new Map([
-  [Env.Mainnet, mainnet],
-  [Env.Devnet, devnet],
-]);
-
 const gasToken: GasToken = {
   name: "Acala",
   symbol: "ACA",
   decimals: 18,
 };
 
-export const acala: EvmEcosystemConfig<EvmEcosystemId.Acala> = {
+export const acala = assertType<EvmEcosystemConfig<EvmEcosystemId.Acala>>()({
   id: EvmEcosystemId.Acala,
   protocol: EVM_PROTOCOL,
   wormholeChainId: 12,
   displayName: "Acala",
   gasToken,
-  chains,
-};
+  chains: {
+    [Env.Mainnet]: mainnet,
+    [Env.Devnet]: devnet,
+  },
+} as const);

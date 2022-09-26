@@ -1,4 +1,5 @@
-import type { AptosChainId, AptosEcosystemId } from "@swim-io/aptos";
+import type { AptosEcosystemId } from "@swim-io/aptos";
+import { APTOS_ECOSYSTEM_ID, AptosChainId } from "@swim-io/aptos";
 import type { WormholeChainConfig } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
@@ -84,7 +85,7 @@ export interface AptosSpec extends ChainSpec {
   /** This should be unique for a given Env */
   readonly chainId: AptosChainId;
   readonly chainName: string;
-  readonly rpcUrls: readonly string[];
+  readonly publicRpcUrls: readonly string[];
 }
 
 /** Every Protocol must specify a corresponding ChainSpec array */
@@ -143,7 +144,19 @@ const ACALA_NATIVE_CURRENCY = {
 };
 
 const MAINNET_CHAINS: ChainsByProtocol = {
-  [Protocol.Aptos]: [],
+  [Protocol.Aptos]: [
+    {
+      // adding an entry so that AptosClient context doesn't throw an error
+      ecosystem: APTOS_ECOSYSTEM_ID,
+      chainId: AptosChainId.Devnet, // TODO aptos mainnet
+      chainName: "Aptos Devnet", // TODO aptos mainnet
+      wormhole: {
+        bridge: "TODO aptos",
+        portal: "TODO aptos",
+      },
+      publicRpcUrls: ["https://fullnode.devnet.aptoslabs.com/v1"], // TODO aptos mainnet
+    },
+  ],
   [Protocol.Solana]: [
     {
       ecosystem: SOLANA_ECOSYSTEM_ID,
@@ -249,7 +262,18 @@ const MAINNET_CHAINS: ChainsByProtocol = {
 };
 
 const DEVNET_CHAINS: ChainsByProtocol = {
-  [Protocol.Aptos]: [],
+  [Protocol.Aptos]: [
+    {
+      ecosystem: APTOS_ECOSYSTEM_ID,
+      chainId: AptosChainId.Devnet,
+      chainName: "Aptos Devnet",
+      wormhole: {
+        bridge: "TODO aptos",
+        portal: "TODO aptos",
+      },
+      publicRpcUrls: ["https://fullnode.devnet.aptoslabs.com/v1"],
+    },
+  ],
   [Protocol.Solana]: [
     {
       ecosystem: SOLANA_ECOSYSTEM_ID,
@@ -355,7 +379,19 @@ const DEVNET_CHAINS: ChainsByProtocol = {
 };
 
 const LOCAL_CHAINS: ChainsByProtocol = {
-  [Protocol.Aptos]: [],
+  [Protocol.Aptos]: [
+    {
+      // adding an entry so that AptosClient context doesn't throw an error
+      ecosystem: APTOS_ECOSYSTEM_ID,
+      chainId: AptosChainId.Devnet, // TODO aptos
+      chainName: "Aptos Devnet", // TODO aptos
+      wormhole: {
+        bridge: "TODO aptos",
+        portal: "TODO aptos",
+      },
+      publicRpcUrls: ["https://fullnode.devnet.aptoslabs.com/v1"], // TODO aptos
+    },
+  ],
   [Protocol.Solana]: [
     {
       ecosystem: SOLANA_ECOSYSTEM_ID,

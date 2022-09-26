@@ -32,7 +32,8 @@ module.exports = {
       // Handle ESM
       webpackConfig.module.rules.push({
         test: /\.mjs$/,
-        include: /node_modules\/@solana\/(buffer-layout-utils|spl-token)/,
+        include:
+          /node_modules\/(@solana\/(buffer-layout-utils|spl-token)|aptos)/,
         type: "javascript/auto",
       });
 
@@ -76,14 +77,11 @@ module.exports = {
       if (process.env.NODE_ENV !== "development") {
         webpackConfig.devtool = "source-map";
 
-        if (process.env.SKIP_SENTRY !== "true") {
+        if (process.env.SENTRY_RELEASE) {
           if (!process.env.SENTRY_AUTH_TOKEN) {
             throw new Error("SENTRY_AUTH_TOKEN is not set");
           }
           // Upload source maps to Sentry
-          if (!process.env.SENTRY_RELEASE) {
-            throw new Error("SENTRY_RELEASE is not set");
-          }
           webpackConfig.plugins = [
             ...webpackConfig.plugins,
             new SentryWebpackPlugin({

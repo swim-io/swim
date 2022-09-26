@@ -51,26 +51,23 @@ const localnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
   pools: [],
 };
 
-const chains: ReadonlyMap<
-  Env,
-  EvmChainConfig<EvmEcosystemId.Ethereum>
-> = new Map([
-  [Env.Mainnet, mainnet],
-  [Env.Devnet, devnet],
-  [Env.Local, localnet],
-]);
-
 const gasToken: GasToken = {
   name: "Ethereum",
   symbol: "ETH",
   decimals: 18,
 };
 
-export const ethereum: EvmEcosystemConfig<EvmEcosystemId.Ethereum> = {
+export const ethereum = assertType<
+  EvmEcosystemConfig<EvmEcosystemId.Ethereum>
+>()({
   id: EvmEcosystemId.Ethereum,
   protocol: EVM_PROTOCOL,
   wormholeChainId: 2,
   displayName: "Ethereum",
   gasToken,
-  chains,
-};
+  chains: {
+    [Env.Mainnet]: mainnet,
+    [Env.Devnet]: devnet,
+    [Env.Local]: localnet,
+  },
+} as const);

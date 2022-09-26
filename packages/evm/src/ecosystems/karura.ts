@@ -38,24 +38,20 @@ const devnet: EvmChainConfig<EvmEcosystemId.Karura> = {
   pools: [],
 };
 
-const chains: ReadonlyMap<Env, EvmChainConfig<EvmEcosystemId.Karura>> = new Map(
-  [
-    [Env.Mainnet, mainnet],
-    [Env.Devnet, devnet],
-  ],
-);
-
 const gasToken: GasToken = {
   name: "Karura",
   symbol: "KAR",
   decimals: 18,
 };
 
-export const karura: EvmEcosystemConfig<EvmEcosystemId.Karura> = {
+export const karura = assertType<EvmEcosystemConfig<EvmEcosystemId.Karura>>()({
   id: EvmEcosystemId.Karura,
   protocol: EVM_PROTOCOL,
   wormholeChainId: 11,
   displayName: "Karura",
   gasToken,
-  chains,
-};
+  chains: {
+    [Env.Mainnet]: mainnet,
+    [Env.Devnet]: devnet,
+  },
+} as const);

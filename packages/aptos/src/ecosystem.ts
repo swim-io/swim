@@ -1,5 +1,6 @@
 import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
+import { assertType } from "@swim-io/utils";
 
 import type { AptosChainConfig, AptosEcosystemConfig } from "./protocol";
 import { APTOS_ECOSYSTEM_ID, APTOS_PROTOCOL } from "./protocol";
@@ -20,21 +21,19 @@ const devnet: AptosChainConfig = {
   pools: [],
 };
 
-const chains: ReadonlyMap<Env, AptosChainConfig> = new Map([
-  [Env.Devnet, devnet],
-]);
-
 const gasToken: GasToken = {
   name: "Aptos Coin",
   symbol: "APT",
   decimals: 8,
 };
 
-export const aptos: AptosEcosystemConfig = {
+export const aptos = assertType<AptosEcosystemConfig>()({
   id: APTOS_ECOSYSTEM_ID,
   protocol: APTOS_PROTOCOL,
   wormholeChainId: 22,
   displayName: "Aptos",
   gasToken,
-  chains,
-};
+  chains: {
+    [Env.Devnet]: devnet,
+  },
+} as const);

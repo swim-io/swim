@@ -154,7 +154,7 @@ export class EvmWeb3WalletAdapter
       ) {
         const configs = Object.values(EVM_ECOSYSTEMS)
           .flatMap(({ chains, ...ecosystemConfig }) =>
-            [...chains].map(([, chainConfig]) => ({
+            Object.entries(chains).map(([, chainConfig]) => ({
               ecosystemConfig,
               chainConfig,
             })),

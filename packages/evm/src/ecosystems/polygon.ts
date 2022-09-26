@@ -38,25 +38,22 @@ const devnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
   pools: [],
 };
 
-const chains: ReadonlyMap<
-  Env,
-  EvmChainConfig<EvmEcosystemId.Polygon>
-> = new Map([
-  [Env.Mainnet, mainnet],
-  [Env.Devnet, devnet],
-]);
-
 const gasToken: GasToken = {
   name: "Matic",
   symbol: "MATIC",
   decimals: 18,
 };
 
-export const polygon: EvmEcosystemConfig<EvmEcosystemId.Polygon> = {
-  id: EvmEcosystemId.Polygon,
-  protocol: EVM_PROTOCOL,
-  wormholeChainId: 5,
-  displayName: "Polygon",
-  gasToken,
-  chains,
-};
+export const polygon = assertType<EvmEcosystemConfig<EvmEcosystemId.Polygon>>()(
+  {
+    id: EvmEcosystemId.Polygon,
+    protocol: EVM_PROTOCOL,
+    wormholeChainId: 5,
+    displayName: "Polygon",
+    gasToken,
+    chains: {
+      [Env.Mainnet]: mainnet,
+      [Env.Devnet]: devnet,
+    },
+  } as const,
+);

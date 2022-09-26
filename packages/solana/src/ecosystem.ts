@@ -1,5 +1,6 @@
 import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
+import { assertType } from "@swim-io/utils";
 
 import type { SolanaChainConfig, SolanaEcosystemConfig } from "./protocol";
 import { SOLANA_ECOSYSTEM_ID, SOLANA_PROTOCOL } from "./protocol";
@@ -54,23 +55,21 @@ const localnet: SolanaChainConfig = {
   pools: [],
 };
 
-const chains: ReadonlyMap<Env, SolanaChainConfig> = new Map([
-  [Env.Mainnet, mainnet],
-  [Env.Devnet, devnet],
-  [Env.Local, localnet],
-]);
-
 const gasToken: GasToken = {
   name: "sol",
   symbol: "SOL",
   decimals: 9,
 };
 
-export const solana: SolanaEcosystemConfig = {
+export const solana = assertType<SolanaEcosystemConfig>()({
   id: SOLANA_ECOSYSTEM_ID,
   protocol: SOLANA_PROTOCOL,
   wormholeChainId: 1,
   displayName: "Solana",
   gasToken,
-  chains,
-};
+  chains: {
+    [Env.Mainnet]: mainnet,
+    [Env.Devnet]: devnet,
+    [Env.Local]: localnet,
+  },
+} as const);

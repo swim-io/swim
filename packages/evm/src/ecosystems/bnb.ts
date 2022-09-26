@@ -51,23 +51,21 @@ const localnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
   pools: [],
 };
 
-const chains: ReadonlyMap<Env, EvmChainConfig<EvmEcosystemId.Bnb>> = new Map([
-  [Env.Mainnet, mainnet],
-  [Env.Devnet, devnet],
-  [Env.Local, localnet],
-]);
-
 const gasToken: GasToken = {
   name: "Binance Coin",
   symbol: "BNB",
   decimals: 18,
 };
 
-export const bnb: EvmEcosystemConfig<EvmEcosystemId.Bnb> = {
+export const bnb = assertType<EvmEcosystemConfig<EvmEcosystemId.Bnb>>()({
   id: EvmEcosystemId.Bnb,
   protocol: EVM_PROTOCOL,
   wormholeChainId: 4,
   displayName: "BNB Chain",
   gasToken,
-  chains,
-};
+  chains: {
+    [Env.Mainnet]: mainnet,
+    [Env.Devnet]: devnet,
+    [Env.Local]: localnet,
+  },
+} as const);

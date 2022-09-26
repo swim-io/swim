@@ -421,6 +421,10 @@ Object {
       "isExistingAccount": false,
       "txId": null,
     },
+    "8VbikoRxEoyYzTDzDcPTSsGk2E5mM7fK1WrVpKrVd75M": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
   },
   "signatureSetAddress": null,
   "swapAndTransferTxId": null,
@@ -500,6 +504,10 @@ Object {
       "isExistingAccount": false,
       "txId": null,
     },
+    "8VbikoRxEoyYzTDzDcPTSsGk2E5mM7fK1WrVpKrVd75M": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
   },
   "swapToSwimUsdTxId": null,
   "swapType": "CrossChainSolanaToEvm",
@@ -564,6 +572,10 @@ Object {
   "interactionType": 5,
   "onChainSwapTxId": null,
   "requiredSplTokenAccounts": Object {
+    "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C": Object {
+      "isExistingAccount": false,
+      "txId": null,
+    },
     "6iSRgpK4oiqJZuhpLsTecW3n9xBKUq9N3VPQN7RinYwq": Object {
       "isExistingAccount": false,
       "txId": null,

@@ -1,4 +1,3 @@
-export * from "./useChainsByEcosystem";
 export * from "./useCoinGeckoPriceQuery";
 export * from "./useMultipleUserBalances";
 export * from "./useTokensByEcosystem";

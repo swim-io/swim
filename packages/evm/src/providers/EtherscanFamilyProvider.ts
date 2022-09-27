@@ -7,7 +7,7 @@ import { EvmEcosystemId } from "../protocol";
 
 type Network = providers.Network;
 type EtherscanFamilyNetworks = ReadonlyRecord<
-  Env.Mainnet | Env.Devnet,
+  Env.Mainnet | Env.Testnet,
   Network
 >;
 const EtherscanProvider = providers.EtherscanProvider;
@@ -17,9 +17,9 @@ const ETHEREUM_NETWORKS: EtherscanFamilyNetworks = {
     name: "homestead",
     chainId: ethereum.chains[Env.Mainnet].chainId,
   },
-  [Env.Devnet]: {
+  [Env.Testnet]: {
     name: "goerli",
-    chainId: ethereum.chains[Env.Devnet].chainId,
+    chainId: ethereum.chains[Env.Testnet].chainId,
   },
 };
 
@@ -28,9 +28,9 @@ const BNB_NETWORKS: EtherscanFamilyNetworks = {
     name: "bsc-mainnet",
     chainId: bnb.chains[Env.Mainnet].chainId,
   },
-  [Env.Devnet]: {
+  [Env.Testnet]: {
     name: "bsc-testnet",
-    chainId: bnb.chains[Env.Devnet].chainId,
+    chainId: bnb.chains[Env.Testnet].chainId,
   },
 };
 
@@ -39,9 +39,9 @@ const AURORA_NETWORKS: EtherscanFamilyNetworks = {
     name: "aurora-mainnet",
     chainId: aurora.chains[Env.Mainnet].chainId,
   },
-  [Env.Devnet]: {
+  [Env.Testnet]: {
     name: "aurora-testnet",
-    chainId: aurora.chains[Env.Devnet].chainId,
+    chainId: aurora.chains[Env.Testnet].chainId,
   },
 };
 
@@ -50,9 +50,9 @@ const FANTOM_NETWORKS: EtherscanFamilyNetworks = {
     name: "fantom-mainnet",
     chainId: fantom.chains[Env.Mainnet].chainId,
   },
-  [Env.Devnet]: {
+  [Env.Testnet]: {
     name: "fantom-testnet",
-    chainId: fantom.chains[Env.Devnet].chainId,
+    chainId: fantom.chains[Env.Testnet].chainId,
   },
 };
 
@@ -61,9 +61,9 @@ const POLYGON_NETWORKS: EtherscanFamilyNetworks = {
     name: "polygon-mainnet",
     chainId: polygon.chains[Env.Mainnet].chainId,
   },
-  [Env.Devnet]: {
+  [Env.Testnet]: {
     name: "polygon-testnet",
-    chainId: polygon.chains[Env.Devnet].chainId,
+    chainId: polygon.chains[Env.Testnet].chainId,
   },
 };
 
@@ -129,6 +129,6 @@ export class EtherscanFamilyProvider extends EtherscanProvider {
 }
 
 export const getEtherscanFamilyNetwork = (
-  env: Env.Mainnet | Env.Devnet,
+  env: Env.Mainnet | Env.Testnet,
   ecosystemId: EvmEcosystemId,
 ): Network | null => NETWORKS.get(ecosystemId)?.[env] ?? null;

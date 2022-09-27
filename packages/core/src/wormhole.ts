@@ -25,16 +25,16 @@ const mainnet: WormholeConfig = {
 };
 
 /** Taken from https://docs.wormholenetwork.com/wormhole/contracts#public-guardian-rpcs-1 */
-const devnet: WormholeConfig = {
+const testnet: WormholeConfig = {
   rpcUrls: ["https://wormhole-v2-testnet-api.certus.one"],
 };
 
-const localnet: WormholeConfig = {
+const local: WormholeConfig = {
   rpcUrls: ["http://127.0.0.1:7071"],
 };
 
 export const wormholeConfigs: ReadonlyMap<Env, WormholeConfig> = new Map([
   [Env.Mainnet, mainnet],
-  [Env.Devnet, devnet],
-  [Env.Local, localnet],
+  [Env.Testnet, testnet],
+  [Env.Local, local],
 ]);

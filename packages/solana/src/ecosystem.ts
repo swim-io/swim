@@ -27,7 +27,7 @@ const mainnet: SolanaChainConfig = {
   pools: [],
 };
 
-const devnet: SolanaChainConfig = {
+const testnet: SolanaChainConfig = {
   name: "Solana Devnet",
   chainId: SolanaChainId.Devnet,
   wormhole: {
@@ -69,7 +69,7 @@ export const solana = assertType<SolanaEcosystemConfig>()({
   gasToken,
   chains: {
     [Env.Mainnet]: mainnet,
-    [Env.Devnet]: devnet,
+    [Env.Testnet]: testnet,
     [Env.Local]: localnet,
   },
 } as const);

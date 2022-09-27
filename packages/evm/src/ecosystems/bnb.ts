@@ -11,7 +11,7 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
 export const bnbChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 56,
-  [Env.Devnet]: 97,
+  [Env.Testnet]: 97,
   [Env.Local]: 1397,
 });
 
@@ -27,9 +27,9 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
   pools: [],
 };
 
-const devnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
+const testnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
   name: "BNB Chain Testnet",
-  chainId: bnbChainId[Env.Devnet],
+  chainId: bnbChainId[Env.Testnet],
   wormhole: {
     bridge: "0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D",
     portal: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09",
@@ -65,7 +65,7 @@ export const bnb = assertType<EvmEcosystemConfig<EvmEcosystemId.Bnb>>()({
   gasToken,
   chains: {
     [Env.Mainnet]: mainnet,
-    [Env.Devnet]: devnet,
+    [Env.Testnet]: testnet,
     [Env.Local]: localnet,
   },
 } as const);

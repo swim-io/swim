@@ -1,9 +1,9 @@
 import {
-  DEVNET_POOLS,
-  DEVNET_POOLS_FOR_RESTRUCTURE,
-  DEVNET_SWIMUSD,
-  DEVNET_TOKENS,
-  DEVNET_TOKENS_FOR_RESTRUCTURE,
+  TESTNET_POOLS,
+  TESTNET_POOLS_FOR_RESTRUCTURE,
+  TESTNET_SWIMUSD,
+  TESTNET_TOKENS,
+  TESTNET_TOKENS_FOR_RESTRUCTURE,
 } from "../../config";
 import { mockOf } from "../../testUtils";
 import { useEnvironment } from "../store";
@@ -19,11 +19,11 @@ jest.mock("./environment", () => ({
 const selectConfigMock = mockOf(selectConfig);
 
 const DISABLED_POOLS = new Set([
-  "devnet-acala-ausd",
-  "devnet-karura-ausd",
-  "devnet-aurora-usn",
+  "testnet-acala-ausd",
+  "testnet-karura-ausd",
+  "testnet-aurora-usn",
 ]);
-const MOCK_POOLS = [...DEVNET_POOLS, ...DEVNET_POOLS_FOR_RESTRUCTURE].filter(
+const MOCK_POOLS = [...TESTNET_POOLS, ...TESTNET_POOLS_FOR_RESTRUCTURE].filter(
   (pool) => !DISABLED_POOLS.has(pool.id),
 );
 
@@ -33,9 +33,9 @@ describe("swapTokenOptions", () => {
       selectConfigMock.mockReturnValue({
         pools: MOCK_POOLS,
         tokens: [
-          ...DEVNET_TOKENS,
-          DEVNET_SWIMUSD,
-          ...DEVNET_TOKENS_FOR_RESTRUCTURE,
+          ...TESTNET_TOKENS,
+          TESTNET_SWIMUSD,
+          ...TESTNET_TOKENS_FOR_RESTRUCTURE,
         ],
       });
     });

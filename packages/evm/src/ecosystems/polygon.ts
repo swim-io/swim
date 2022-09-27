@@ -11,7 +11,7 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
 export const polygonChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 137,
-  [Env.Devnet]: 80001,
+  [Env.Testnet]: 80001,
 });
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
@@ -26,9 +26,9 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
   pools: [],
 };
 
-const devnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
+const testnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
   name: "Polygon Testnet",
-  chainId: polygonChainId[Env.Devnet],
+  chainId: polygonChainId[Env.Testnet],
   wormhole: {
     bridge: "0x0CBE91CF822c73C2315FB05100C2F714765d5c20",
     portal: "0x377D55a7928c046E18eEbb61977e714d2a76472a",
@@ -53,7 +53,7 @@ export const polygon = assertType<EvmEcosystemConfig<EvmEcosystemId.Polygon>>()(
     gasToken,
     chains: {
       [Env.Mainnet]: mainnet,
-      [Env.Devnet]: devnet,
+      [Env.Testnet]: testnet,
     },
   } as const,
 );

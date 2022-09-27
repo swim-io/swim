@@ -11,7 +11,7 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
 export const fantomChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 250,
-  [Env.Devnet]: 4002,
+  [Env.Testnet]: 4002,
 });
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
@@ -26,9 +26,9 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
   pools: [],
 };
 
-const devnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
+const testnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
   name: "Fantom Testnet",
-  chainId: fantomChainId[Env.Devnet],
+  chainId: fantomChainId[Env.Testnet],
   wormhole: {
     bridge: "0x1BB3B4119b7BA9dfad76B0545fb3F531383c3bB7",
     portal: "0x599CEa2204B4FaECd584Ab1F2b6aCA137a0afbE8",
@@ -52,6 +52,6 @@ export const fantom = assertType<EvmEcosystemConfig<EvmEcosystemId.Fantom>>()({
   gasToken,
   chains: {
     [Env.Mainnet]: mainnet,
-    [Env.Devnet]: devnet,
+    [Env.Testnet]: testnet,
   },
 } as const);

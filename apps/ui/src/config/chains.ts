@@ -261,7 +261,7 @@ const MAINNET_CHAINS: ChainsByProtocol = {
   ],
 };
 
-const DEVNET_CHAINS: ChainsByProtocol = {
+const TESTNET_CHAINS: ChainsByProtocol = {
   [Protocol.Aptos]: [
     {
       ecosystem: APTOS_ECOSYSTEM_ID,
@@ -498,7 +498,7 @@ const LOCAL_CHAINS: ChainsByProtocol = {
 
 export const CHAINS: ReadonlyRecord<Env, ChainsByProtocol> = {
   [Env.Mainnet]: MAINNET_CHAINS,
-  [Env.Devnet]: DEVNET_CHAINS,
+  [Env.Testnet]: TESTNET_CHAINS,
   [Env.Local]: LOCAL_CHAINS,
   [Env.Custom]: LOCAL_CHAINS,
 };

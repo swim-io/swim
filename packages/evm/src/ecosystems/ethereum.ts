@@ -11,7 +11,7 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
 export const ethereumChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 1,
-  [Env.Devnet]: 5,
+  [Env.Testnet]: 5,
   [Env.Local]: 1337,
 });
 
@@ -27,9 +27,9 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
   pools: [],
 };
 
-const devnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
+const testnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
   name: "Ethereum Görli Testnet",
-  chainId: ethereumChainId[Env.Devnet],
+  chainId: ethereumChainId[Env.Testnet],
   wormhole: {
     bridge: "0x706abc4E45D419950511e474C7B9Ed348A4a716c",
     portal: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
@@ -67,7 +67,7 @@ export const ethereum = assertType<
   gasToken,
   chains: {
     [Env.Mainnet]: mainnet,
-    [Env.Devnet]: devnet,
+    [Env.Testnet]: testnet,
     [Env.Local]: localnet,
   },
 } as const);

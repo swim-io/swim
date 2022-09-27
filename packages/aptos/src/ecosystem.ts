@@ -9,7 +9,7 @@ export enum AptosChainId {
   Devnet = 31, // announced in https://discord.com/channels/945856774056083548/956692649430093904
 }
 
-const devnet: AptosChainConfig = {
+const testnet: AptosChainConfig = {
   name: "Aptos Devnet",
   chainId: AptosChainId.Devnet,
   wormhole: {
@@ -34,6 +34,6 @@ export const aptos = assertType<AptosEcosystemConfig>()({
   displayName: "Aptos",
   gasToken,
   chains: {
-    [Env.Devnet]: devnet,
+    [Env.Testnet]: testnet,
   },
 } as const);

@@ -6,9 +6,9 @@ import Decimal from "decimal.js";
 
 import {
   CONFIGS,
-  DEVNET_POOLS,
-  DEVNET_POOLS_FOR_RESTRUCTURE,
-  DEVNET_SWIMUSD,
+  TESTNET_POOLS,
+  TESTNET_POOLS_FOR_RESTRUCTURE,
+  TESTNET_SWIMUSD,
   findTokenById,
 } from "../../config";
 import { selectConfig } from "../../core/selectors";
@@ -21,8 +21,8 @@ import { useSplTokenAccountsQuery } from "../solana";
 
 import { useCreateInteractionStateV2 } from "./useCreateInteractionStateV2";
 
-const SOLANA_USDC = findTokenById("devnet-solana-usdc", Env.Devnet);
-const SOLANA_USDT = findTokenById("devnet-solana-usdt", Env.Devnet);
+const SOLANA_USDC = findTokenById("testnet-solana-usdc", Env.Testnet);
+const SOLANA_USDT = findTokenById("testnet-solana-usdt", Env.Testnet);
 
 Object.defineProperty(global.self, "crypto", {
   value: {
@@ -61,14 +61,14 @@ describe("useCreateInteractionStateV2", () => {
     const { result: envStore } = renderHook(() => useEnvironment());
     act(() => {
       envStore.current.setCustomIp("127.0.0.1");
-      envStore.current.setEnv(Env.Devnet);
+      envStore.current.setEnv(Env.Testnet);
     });
     generateIdMock.mockReturnValue("11111111111111111111111111111111");
     useSplTokenAccountsQueryMock.mockReturnValue({ data: MOCK_TOKEN_ACCOUNTS });
     useWalletsMock.mockReturnValue(MOCK_WALLETS);
     selectConfigMock.mockReturnValue({
-      ...CONFIGS[Env.Devnet],
-      pools: [...DEVNET_POOLS, ...DEVNET_POOLS_FOR_RESTRUCTURE],
+      ...CONFIGS[Env.Testnet],
+      pools: [...TESTNET_POOLS, ...TESTNET_POOLS_FOR_RESTRUCTURE],
     });
     jest.spyOn(Date, "now").mockImplementation(() => 1657544558283);
   });
@@ -82,12 +82,12 @@ describe("useCreateInteractionStateV2", () => {
       type: InteractionType.SwapV2,
       params: {
         fromTokenData: {
-          tokenConfig: findTokenById("devnet-solana-usdc-v2", Env.Devnet),
+          tokenConfig: findTokenById("testnet-solana-usdc-v2", Env.Testnet),
           ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
         toTokenData: {
-          tokenConfig: findTokenById("devnet-solana-usdt-v2", Env.Devnet),
+          tokenConfig: findTokenById("testnet-solana-usdt-v2", Env.Testnet),
           ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
@@ -105,12 +105,12 @@ describe("useCreateInteractionStateV2", () => {
       type: InteractionType.SwapV2,
       params: {
         fromTokenData: {
-          tokenConfig: findTokenById("devnet-ethereum-usdc", Env.Devnet),
+          tokenConfig: findTokenById("testnet-ethereum-usdc", Env.Testnet),
           ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
         toTokenData: {
-          tokenConfig: findTokenById("devnet-ethereum-usdt", Env.Devnet),
+          tokenConfig: findTokenById("testnet-ethereum-usdt", Env.Testnet),
           ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
@@ -128,12 +128,12 @@ describe("useCreateInteractionStateV2", () => {
       type: InteractionType.SwapV2,
       params: {
         fromTokenData: {
-          tokenConfig: findTokenById("devnet-solana-usdc-v2", Env.Devnet),
+          tokenConfig: findTokenById("testnet-solana-usdc-v2", Env.Testnet),
           ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
         toTokenData: {
-          tokenConfig: findTokenById("devnet-ethereum-usdc", Env.Devnet),
+          tokenConfig: findTokenById("testnet-ethereum-usdc", Env.Testnet),
           ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
@@ -151,12 +151,12 @@ describe("useCreateInteractionStateV2", () => {
       type: InteractionType.SwapV2,
       params: {
         fromTokenData: {
-          tokenConfig: findTokenById("devnet-ethereum-usdc", Env.Devnet),
+          tokenConfig: findTokenById("testnet-ethereum-usdc", Env.Testnet),
           ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
         toTokenData: {
-          tokenConfig: findTokenById("devnet-solana-usdc-v2", Env.Devnet),
+          tokenConfig: findTokenById("testnet-solana-usdc-v2", Env.Testnet),
           ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
@@ -174,12 +174,12 @@ describe("useCreateInteractionStateV2", () => {
       type: InteractionType.SwapV2,
       params: {
         fromTokenData: {
-          tokenConfig: findTokenById("devnet-ethereum-usdc", Env.Devnet),
+          tokenConfig: findTokenById("testnet-ethereum-usdc", Env.Testnet),
           ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
         toTokenData: {
-          tokenConfig: findTokenById("devnet-bnb-usdt", Env.Devnet),
+          tokenConfig: findTokenById("testnet-bnb-usdt", Env.Testnet),
           ecosystemId: EvmEcosystemId.Bnb,
           value: new Decimal("1000"),
         },
@@ -195,13 +195,16 @@ describe("useCreateInteractionStateV2", () => {
     const createInteractionState = result.current;
     const interactionState = createInteractionState({
       type: InteractionType.Add,
-      poolId: "devnet-solana-usdc-usdt",
+      poolId: "testnet-solana-usdc-usdt",
       params: {
         inputAmounts: [
           Amount.fromHuman(SOLANA_USDC, new Decimal("100")),
           Amount.fromHuman(SOLANA_USDT, new Decimal("10")),
         ],
-        minimumMintAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
+        minimumMintAmount: Amount.fromHuman(
+          TESTNET_SWIMUSD,
+          new Decimal("110"),
+        ),
       },
       lpTokenTargetEcosystem: SOLANA_ECOSYSTEM_ID,
     });
@@ -215,13 +218,16 @@ describe("useCreateInteractionStateV2", () => {
     const createInteractionState = result.current;
     const interactionState = createInteractionState({
       type: InteractionType.RemoveExactOutput,
-      poolId: "devnet-solana-usdc-usdt",
+      poolId: "testnet-solana-usdc-usdt",
       params: {
         exactOutputAmounts: [
           Amount.fromHuman(SOLANA_USDC, new Decimal("100")),
           Amount.fromHuman(SOLANA_USDT, new Decimal("10")),
         ],
-        maximumBurnAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
+        maximumBurnAmount: Amount.fromHuman(
+          TESTNET_SWIMUSD,
+          new Decimal("110"),
+        ),
       },
       lpTokenSourceEcosystem: SOLANA_ECOSYSTEM_ID,
     });
@@ -235,10 +241,10 @@ describe("useCreateInteractionStateV2", () => {
     const createInteractionState = result.current;
     const interactionState = createInteractionState({
       type: InteractionType.RemoveExactBurn,
-      poolId: "devnet-solana-usdc-usdt",
+      poolId: "testnet-solana-usdc-usdt",
       params: {
         minimumOutputAmount: Amount.fromHuman(SOLANA_USDC, new Decimal("110")),
-        exactBurnAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
+        exactBurnAmount: Amount.fromHuman(TESTNET_SWIMUSD, new Decimal("110")),
       },
       lpTokenSourceEcosystem: SOLANA_ECOSYSTEM_ID,
     });
@@ -252,13 +258,13 @@ describe("useCreateInteractionStateV2", () => {
     const createInteractionState = result.current;
     const interactionState = createInteractionState({
       type: InteractionType.RemoveUniform,
-      poolId: "devnet-solana-usdc-usdt",
+      poolId: "testnet-solana-usdc-usdt",
       params: {
         minimumOutputAmounts: [
           Amount.fromHuman(SOLANA_USDC, new Decimal("100")),
           Amount.fromHuman(SOLANA_USDT, new Decimal("10")),
         ],
-        exactBurnAmount: Amount.fromHuman(DEVNET_SWIMUSD, new Decimal("110")),
+        exactBurnAmount: Amount.fromHuman(TESTNET_SWIMUSD, new Decimal("110")),
       },
       lpTokenSourceEcosystem: SOLANA_ECOSYSTEM_ID,
     });

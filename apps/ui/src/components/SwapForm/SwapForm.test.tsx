@@ -138,9 +138,9 @@ describe("SwapForm", () => {
     expect(env).toBe(Env.Mainnet);
     expect(findFromTokenButton()).toHaveTextContent("USDC on Solana");
 
-    act(() => setEnv(Env.Devnet));
+    act(() => setEnv(Env.Testnet));
 
-    expect(environmentStore.getState().env).toBe(Env.Devnet);
+    expect(environmentStore.getState().env).toBe(Env.Testnet);
     expect(findFromTokenButton()).toHaveTextContent("USDC on Ethereum");
   });
 

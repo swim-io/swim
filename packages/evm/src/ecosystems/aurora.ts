@@ -11,7 +11,7 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
 export const auroraChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 1313161554,
-  [Env.Devnet]: 1313161555,
+  [Env.Testnet]: 1313161555,
 });
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
@@ -26,9 +26,9 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
   pools: [],
 };
 
-const devnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
+const testnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
   name: "Aurora Testnet",
-  chainId: auroraChainId[Env.Devnet],
+  chainId: auroraChainId[Env.Testnet],
   wormhole: {
     bridge: "0xBd07292de7b505a4E803CEe286184f7Acf908F5e",
     portal: "0xD05eD3ad637b890D68a854d607eEAF11aF456fba",
@@ -52,6 +52,6 @@ export const aurora = assertType<EvmEcosystemConfig<EvmEcosystemId.Aurora>>()({
   gasToken,
   chains: {
     [Env.Mainnet]: mainnet,
-    [Env.Devnet]: devnet,
+    [Env.Testnet]: testnet,
   },
 } as const);

@@ -13,23 +13,23 @@ export const SOLANA_LP_HEXAPOOL = findTokenById(
   Env.Local,
 );
 
-// Devnet
-export const SOLANA_USDC_DEVNET = findTokenById(
-  "devnet-solana-usdc",
-  Env.Devnet,
+// Testnet
+export const SOLANA_USDC_TESTNET = findTokenById(
+  "testnet-solana-usdc",
+  Env.Testnet,
 );
-export const SOLANA_USDT_DEVNET = findTokenById(
-  "devnet-solana-usdt",
-  Env.Devnet,
-);
-
-export const ETHEREUM_USDC_DEVNET = findTokenById(
-  "devnet-ethereum-usdc",
-  Env.Devnet,
-);
-export const ETHEREUM_USDT_DEVNET = findTokenById(
-  "devnet-ethereum-usdt",
-  Env.Devnet,
+export const SOLANA_USDT_TESTNET = findTokenById(
+  "testnet-solana-usdt",
+  Env.Testnet,
 );
 
-export const SWIMUSD_DEVNET = findTokenById("devnet-swimusd", Env.Devnet);
+export const ETHEREUM_USDC_TESTNET = findTokenById(
+  "testnet-ethereum-usdc",
+  Env.Testnet,
+);
+export const ETHEREUM_USDT_TESTNET = findTokenById(
+  "testnet-ethereum-usdt",
+  Env.Testnet,
+);
+
+export const SWIMUSD_TESTNET = findTokenById("testnet-swimusd", Env.Testnet);

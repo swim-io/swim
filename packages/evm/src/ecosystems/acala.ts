@@ -11,7 +11,7 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
 export const acalaChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 787,
-  [Env.Devnet]: 597,
+  [Env.Testnet]: 597,
 });
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Acala> = {
@@ -26,9 +26,9 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Acala> = {
   pools: [],
 };
 
-const devnet: EvmChainConfig<EvmEcosystemId.Acala> = {
+const testnet: EvmChainConfig<EvmEcosystemId.Acala> = {
   name: "Acala Testnet",
-  chainId: acalaChainId[Env.Devnet],
+  chainId: acalaChainId[Env.Testnet],
   wormhole: {
     bridge: "0x4377B49d559c0a9466477195C6AdC3D433e265c0",
     portal: "0xebA00cbe08992EdD08ed7793E07ad6063c807004",
@@ -52,6 +52,6 @@ export const acala = assertType<EvmEcosystemConfig<EvmEcosystemId.Acala>>()({
   gasToken,
   chains: {
     [Env.Mainnet]: mainnet,
-    [Env.Devnet]: devnet,
+    [Env.Testnet]: testnet,
   },
 } as const);

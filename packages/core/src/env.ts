@@ -1,7 +1,7 @@
 /** The various environments in which Swim might be used */
 export enum Env {
   Mainnet = "Mainnet",
-  Devnet = "Devnet",
+  Testnet = "Testnet",
   Local = "Local",
   Custom = "Custom",
 }

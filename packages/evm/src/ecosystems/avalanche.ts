@@ -11,7 +11,7 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
 export const avalancheChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 43114, // C-Chain
-  [Env.Devnet]: 43113,
+  [Env.Testnet]: 43113,
 });
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
@@ -26,9 +26,9 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
   pools: [],
 };
 
-const devnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
+const testnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
   name: "Avalanche Testnet",
-  chainId: avalancheChainId[Env.Devnet],
+  chainId: avalancheChainId[Env.Testnet],
   wormhole: {
     bridge: "0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C",
     portal: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
@@ -54,6 +54,6 @@ export const avalanche = assertType<
   gasToken,
   chains: {
     [Env.Mainnet]: mainnet,
-    [Env.Devnet]: devnet,
+    [Env.Testnet]: testnet,
   },
 } as const);

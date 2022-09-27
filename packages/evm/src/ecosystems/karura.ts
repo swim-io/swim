@@ -11,7 +11,7 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
 export const karuraChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 686,
-  [Env.Devnet]: 596,
+  [Env.Testnet]: 596,
 });
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Karura> = {
@@ -26,9 +26,9 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Karura> = {
   pools: [],
 };
 
-const devnet: EvmChainConfig<EvmEcosystemId.Karura> = {
+const testnet: EvmChainConfig<EvmEcosystemId.Karura> = {
   name: "Karura Testnet",
-  chainId: karuraChainId[Env.Devnet],
+  chainId: karuraChainId[Env.Testnet],
   wormhole: {
     bridge: "0xE4eacc10990ba3308DdCC72d985f2a27D20c7d03",
     portal: "0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37",
@@ -52,6 +52,6 @@ export const karura = assertType<EvmEcosystemConfig<EvmEcosystemId.Karura>>()({
   gasToken,
   chains: {
     [Env.Mainnet]: mainnet,
-    [Env.Devnet]: devnet,
+    [Env.Testnet]: testnet,
   },
 } as const);

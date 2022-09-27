@@ -22,6 +22,11 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
     portal: "0x5a58505a96D1dbf8dF91cB21B54419FC36e93fdE",
   },
   publicRpcUrls: ["https://polygon-rpc.com/"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
@@ -34,6 +39,11 @@ const testnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
     portal: "0x377D55a7928c046E18eEbb61977e714d2a76472a",
   },
   publicRpcUrls: ["https://rpc-mumbai.maticvigil.com"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };

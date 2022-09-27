@@ -27,8 +27,6 @@ export interface SolanaPoolConfig extends PoolConfig {
 
 export interface SolanaChainConfig extends ChainConfig {
   readonly pools: readonly SolanaPoolConfig[];
-  readonly tokenContract: string;
-  readonly otterTotCollection: string;
 }
 
 export interface SolanaEcosystemConfig extends EcosystemConfig {

@@ -22,6 +22,11 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
     portal: "0x51b5123a7b0F9b2bA265f9c4C8de7D78D52f510F",
   },
   publicRpcUrls: ["https://mainnet.aurora.dev/"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
@@ -34,6 +39,11 @@ const testnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
     portal: "0xD05eD3ad637b890D68a854d607eEAF11aF456fba",
   },
   publicRpcUrls: ["https://testnet.aurora.dev/"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };

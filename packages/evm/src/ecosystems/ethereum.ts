@@ -23,6 +23,11 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
     portal: "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
   },
   publicRpcUrls: ["https://main-light.eth.linkpool.io/"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "0x01F369bF2d5a62CE60B0a2E92143CD623BeCb0fB", // TODO: Update when deployed
+    decimals: 8, // TODO: Confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
@@ -35,6 +40,11 @@ const testnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
     portal: "0xF890982f9310df57d00f659cf4fd87e65adEd8d7",
   },
   publicRpcUrls: ["https://goerli.prylabs.net/"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "0x4DF39C514Eb1747bb4D89cA9Ee35718611590935", // TODO: Update when deployed
+    decimals: 8, // TODO: Confirm when deployed
+  },
+  routingContractAddress: "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4", // TODO: Update if necessary
   tokens: [],
   pools: [],
 };
@@ -47,6 +57,11 @@ const localnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
     portal: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
   },
   publicRpcUrls: ["http://localhost:8545"],
+  swimUsdDetails: {
+    address: "0x56cd8686e818c0C29983eA32fa6938618b35923f", // TODO: Update when deployed
+    decimals: 8, // TODO: Confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };

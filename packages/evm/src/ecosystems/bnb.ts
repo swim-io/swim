@@ -23,6 +23,11 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
     portal: "0xB6F6D86a8f9879A9c87f643768d9efc38c1Da6E7",
   },
   publicRpcUrls: ["https://bsc-dataseed1.ninicoin.io/"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "0xF78479d516A12b9cFb000951D19f67B4fE0B065d", // TODO: Update when deployed
+    decimals: 8, // TODO: Confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
@@ -35,6 +40,11 @@ const testnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
     portal: "0x9dcF9D205C9De35334D646BeE44b2D2859712A09",
   },
   publicRpcUrls: ["https://data-seed-prebsc-2-s2.binance.org:8545/"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "0x84252522366DB2eA1dAaDe5E2C55CD90a50aC46e", // TODO: Update when deployed
+    decimals: 8, // TODO: Confirm when deployed
+  },
+  routingContractAddress: "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4", // TODO: Update if necessary
   tokens: [],
   pools: [],
 };
@@ -47,6 +57,11 @@ const localnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
     portal: "0x0290FB167208Af455bB137780163b7B7a9a10C16",
   },
   publicRpcUrls: ["http://localhost:8546"],
+  swimUsdDetails: {
+    address: "0x7231BBdaB2F3814664f6E1f072A5ae0525709431", // TODO: Update when deployed
+    decimals: 8, // TODO: Confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };

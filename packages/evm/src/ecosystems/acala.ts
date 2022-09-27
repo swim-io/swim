@@ -22,6 +22,11 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Acala> = {
     portal: "0xae9d7fe007b3327AA64A32824Aaac52C42a6E624",
   },
   publicRpcUrls: ["https://acala-polkadot.api.onfinality.io/public-rpc"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
@@ -34,6 +39,11 @@ const testnet: EvmChainConfig<EvmEcosystemId.Acala> = {
     portal: "0xebA00cbe08992EdD08ed7793E07ad6063c807004",
   },
   publicRpcUrls: ["https://acala-dev.aca-dev.network/eth/http"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };

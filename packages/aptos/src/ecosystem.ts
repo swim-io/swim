@@ -17,6 +17,11 @@ const testnet: AptosChainConfig = {
     portal: "TODO",
   },
   publicRpcUrls: ["https://fullnode.devnet.aptoslabs.com/v1"],
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed,
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };

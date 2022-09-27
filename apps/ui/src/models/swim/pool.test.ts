@@ -14,10 +14,10 @@ import { mock, mockDeep } from "jest-mock-extended";
 import type { Config, EvmPoolSpec } from "../../config";
 import {
   CONFIGS,
-  DEVNET_POOLS_FOR_RESTRUCTURE,
-  DEVNET_SWIMUSD,
-  DEVNET_TOKENS,
-  DEVNET_TOKENS_FOR_RESTRUCTURE,
+  TESTNET_POOLS_FOR_RESTRUCTURE,
+  TESTNET_SWIMUSD,
+  TESTNET_TOKENS,
+  TESTNET_TOKENS_FOR_RESTRUCTURE,
 } from "../../config";
 import { parsedWormholeRedeemEvmUnlockWrappedTx } from "../../fixtures/solana/txs";
 
@@ -123,13 +123,13 @@ describe("Pool tests", () => {
 
     it("should return EVM pool state in human decimal", async () => {
       const ethereumPool = findOrThrow(
-        DEVNET_POOLS_FOR_RESTRUCTURE,
-        (poolSpec) => poolSpec.id === "devnet-ethereum-usdc-usdt",
+        TESTNET_POOLS_FOR_RESTRUCTURE,
+        (poolSpec) => poolSpec.id === "testnet-ethereum-usdc-usdt",
       );
       const tokens = [
-        ...DEVNET_TOKENS,
-        DEVNET_SWIMUSD,
-        ...DEVNET_TOKENS_FOR_RESTRUCTURE,
+        ...TESTNET_TOKENS,
+        TESTNET_SWIMUSD,
+        ...TESTNET_TOKENS_FOR_RESTRUCTURE,
       ];
       const state = await getEvmPoolState(
         {} as EvmConnection,

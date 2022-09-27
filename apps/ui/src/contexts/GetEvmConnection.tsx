@@ -38,17 +38,17 @@ const ETHERSCAN_FAMILY_API_KEYS = new Map([
 
 const BNB_RPC_URLS = {
   [Env.Mainnet]: process.env.REACT_APP_BNB_MAINNET_RPC_URL,
-  [Env.Devnet]: process.env.REACT_APP_BNB_TESTNET_RPC_URL,
+  [Env.Testnet]: process.env.REACT_APP_BNB_TESTNET_RPC_URL,
 };
 
 const KARURA_RPC_URLS = {
   [Env.Mainnet]: process.env.REACT_APP_KARURA_MAINNET_RPC_URL,
-  [Env.Devnet]: process.env.REACT_APP_KARURA_TESTNET_RPC_URL,
+  [Env.Testnet]: process.env.REACT_APP_KARURA_TESTNET_RPC_URL,
 };
 
 const KARURA_SUBQL_URLS = {
   [Env.Mainnet]: process.env.REACT_APP_KARURA_MAINNET_SUBQL_URL,
-  [Env.Devnet]: process.env.REACT_APP_KARURA_TESTNET_SUBQL_URL,
+  [Env.Testnet]: process.env.REACT_APP_KARURA_TESTNET_SUBQL_URL,
 };
 
 export const getProvider = (
@@ -58,7 +58,7 @@ export const getProvider = (
 ): GetHistoryProvider => {
   const { rpcUrls } = chainSpec;
   if (
-    (env !== Env.Mainnet && env !== Env.Devnet) ||
+    (env !== Env.Mainnet && env !== Env.Testnet) ||
     !isEcosystemEnabled(ecosystemId)
   ) {
     return new SimpleGetHistoryProvider(rpcUrls[0]);

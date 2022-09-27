@@ -11,7 +11,7 @@ interface Props {
 }
 
 const getHref = (ecosystemId: EcosystemId, txId: string): string => {
-  // TODO: Support different environments (devnet).
+  // TODO: Support different environments (ie testnets).
   switch (ecosystemId) {
     case SOLANA_ECOSYSTEM_ID:
       return `https://solana.fm/tx/${txId}`;

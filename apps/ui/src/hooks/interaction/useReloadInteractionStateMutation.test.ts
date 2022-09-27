@@ -60,7 +60,7 @@ describe("useReloadInteractionStateMutation", () => {
 
     act(() => {
       result.current.envStore.setCustomIp("127.0.0.1");
-      result.current.envStore.setEnv(Env.Devnet);
+      result.current.envStore.setEnv(Env.Testnet);
       result.current.interactionStore.addInteractionState(
         MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION,
       );

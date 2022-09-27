@@ -40,7 +40,7 @@ const buildConfig = (env: Env): Config => ({
 
 export const CONFIGS: ReadonlyRecord<Env, Config> = {
   [Env.Mainnet]: buildConfig(Env.Mainnet),
-  [Env.Devnet]: buildConfig(Env.Devnet),
+  [Env.Testnet]: buildConfig(Env.Testnet),
   [Env.Local]: buildConfig(Env.Local),
   [Env.Custom]: buildConfig(Env.Custom),
 };

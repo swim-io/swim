@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/solana-contracts",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "description": "TS bindings for Swim Solana pool contracts.",
   "main": "build",
   "types": "types",

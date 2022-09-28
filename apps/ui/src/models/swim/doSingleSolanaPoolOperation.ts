@@ -7,7 +7,7 @@ import {
   getAmountTransferredToAccountByMint,
 } from "@swim-io/solana";
 import type {
-  SolanaConnection,
+  SolanaClient,
   SolanaWalletAdapter,
   TokenAccount,
 } from "@swim-io/solana";
@@ -27,7 +27,7 @@ import { getSolanaPoolState } from "./pool";
 
 export const doSingleSolanaPoolOperation = async (
   env: Env,
-  solanaConnection: SolanaConnection,
+  solanaClient: SolanaClient,
   wallet: SolanaWalletAdapter,
   splTokenAccounts: readonly TokenAccount[],
   tokensByPoolId: TokensByPoolId,
@@ -38,7 +38,7 @@ export const doSingleSolanaPoolOperation = async (
   if (walletAddress === null) {
     throw new Error("Missing Solana wallet");
   }
-  const poolState = await getSolanaPoolState(solanaConnection, poolSpec);
+  const poolState = await getSolanaPoolState(solanaClient, poolSpec);
   if (poolState === null) {
     throw new Error("Missing pool state");
   }
@@ -57,7 +57,7 @@ export const doSingleSolanaPoolOperation = async (
   );
   const instructor = new SwimDefiInstructor(
     env,
-    solanaConnection,
+    solanaClient,
     wallet,
     poolSpec.contract,
     poolSpec.address,

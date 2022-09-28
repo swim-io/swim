@@ -14,7 +14,7 @@ import type { Wallets } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmConnection } from "../evm";
-import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
 
 import { useToSolanaTransferMutation } from "./useToSolanaTransferMutation";
 
@@ -41,10 +41,10 @@ const getSignedVaaWithRetryMock = mockOf(getSignedVaaWithRetry);
 
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
-  useSolanaConnection: jest.fn(),
+  useSolanaClient: jest.fn(),
   useSplTokenAccountsQuery: jest.fn(),
 }));
-const useSolanaConnectionMock = mockOf(useSolanaConnection);
+const useSolanaClientMock = mockOf(useSolanaClient);
 const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
 
 describe("useToSolanaTransferMutation", () => {
@@ -68,7 +68,7 @@ describe("useToSolanaTransferMutation", () => {
         } as TokenAccount,
       ],
     });
-    useSolanaConnectionMock.mockReturnValue({
+    useSolanaClientMock.mockReturnValue({
       confirmTx: jest.fn(),
       getTokenAccountWithRetry: jest.fn((mint) =>
         Promise.resolve({

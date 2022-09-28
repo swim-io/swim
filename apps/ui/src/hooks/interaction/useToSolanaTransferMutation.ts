@@ -27,7 +27,7 @@ import {
 import { getFromEcosystemOfToSolanaTransfer } from "../../models/swim/transfer";
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmConnection } from "../evm";
-import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
 
 const txResponseToTx = async (
   interactionId: string,
@@ -50,7 +50,7 @@ export const useToSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
   const { chains, wormhole } = useEnvironment(selectConfig, shallow);
   const getEvmConnection = useGetEvmConnection();
-  const solanaConnection = useSolanaConnection();
+  const solanaClient = useSolanaClient();
   const wallets = useWallets();
   const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
   const solanaWormhole = chains[Protocol.Solana][0].wormhole;
@@ -208,7 +208,7 @@ export const useToSolanaTransferMutation = () => {
         retries,
       );
       const unlockSplTokenTxIdsGenerator =
-        solanaConnection.generateUnlockSplTokenTxIds({
+        solanaClient.generateUnlockSplTokenTxIds({
           interactionId,
           solanaWormhole,
           solanaWallet,

@@ -8,7 +8,7 @@ import {
   isSolanaTx,
 } from "@swim-io/solana";
 import type {
-  SolanaConnection,
+  SolanaClient,
   SolanaEcosystemId,
   SolanaTx,
   SwimPoolState,
@@ -83,11 +83,11 @@ export const isSolanaPool = (pool: PoolSpec): pool is SolanaPoolSpec =>
   pool.ecosystem === SOLANA_ECOSYSTEM_ID;
 
 export const getSolanaPoolState = async (
-  solanaConnection: SolanaConnection,
+  solanaClient: SolanaClient,
   poolSpec: SolanaPoolSpec,
 ): Promise<SolanaPoolState | null> => {
   const numberOfTokens = poolSpec.tokens.length;
-  const accountInfo = await solanaConnection.getAccountInfo(
+  const accountInfo = await solanaClient.rawConnection.getAccountInfo(
     new PublicKey(poolSpec.address),
   );
   if (accountInfo === null) {

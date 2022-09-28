@@ -19,13 +19,13 @@ import {
   getTokensByPool,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
-import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
+import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
 
 export const useSingleChainSolanaSwapInteractionMutation = () => {
   const { env } = useEnvironment();
   const config = useEnvironment(selectConfig, shallow);
   const wallets = useWallets();
-  const solanaConnection = useSolanaConnection();
+  const solanaClient = useSolanaClient();
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
   const { updateInteractionState } = useInteractionStateV2();
 
@@ -75,7 +75,7 @@ export const useSingleChainSolanaSwapInteractionMutation = () => {
       };
       const txId = await doSingleSolanaPoolOperation(
         env,
-        solanaConnection,
+        solanaClient,
         solanaWallet,
         splTokenAccounts,
         tokensByPoolId,

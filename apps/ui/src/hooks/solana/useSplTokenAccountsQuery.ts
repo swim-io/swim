@@ -8,7 +8,7 @@ import { useQuery } from "react-query";
 
 import { useEnvironment } from "../../core/store";
 
-import { useSolanaConnection } from "./useSolanaConnection";
+import { useSolanaClient } from "./useSolanaClient";
 import { useSolanaWallet } from "./useSolanaWallet";
 
 export const getSplTokenAccountsQueryKey = (
@@ -21,7 +21,7 @@ export const useSplTokenAccountsQuery = (
   options?: UseQueryOptions<readonly TokenAccount[], Error>,
 ): UseQueryResult<readonly TokenAccount[], Error> => {
   const { env } = useEnvironment();
-  const solanaConnection = useSolanaConnection();
+  const solanaClient = useSolanaClient();
   const { address: userAddress } = useSolanaWallet();
   const address = owner ?? userAddress;
 
@@ -33,9 +33,12 @@ export const useSplTokenAccountsQuery = (
         return [];
       }
       const { value: accounts } =
-        await solanaConnection.getTokenAccountsByOwner(new PublicKey(address), {
-          programId: TOKEN_PROGRAM_ID,
-        });
+        await solanaClient.rawConnection.getTokenAccountsByOwner(
+          new PublicKey(address),
+          {
+            programId: TOKEN_PROGRAM_ID,
+          },
+        );
       return accounts.map((account) =>
         deserializeTokenAccount(account.pubkey, account.account.data),
       );

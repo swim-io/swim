@@ -1,5 +1,5 @@
 import { Env } from "@swim-io/core";
-import { SolanaConnection } from "@swim-io/solana";
+import { SolanaClient } from "@swim-io/solana";
 import type { ReactElement, ReactNode } from "react";
 import { createContext, useMemo } from "react";
 import shallow from "zustand/shallow.js";
@@ -24,10 +24,10 @@ export const getSolanaEndpoints = (
   return publicRpcUrls;
 };
 
-export const SolanaConnectionContext: React.Context<null | SolanaConnection> =
-  createContext<SolanaConnection | null>(null);
+export const SolanaClientContext: React.Context<null | SolanaClient> =
+  createContext<SolanaClient | null>(null);
 
-export const SolanaConnectionProvider = ({
+export const SolanaClientProvider = ({
   children,
 }: {
   readonly children?: ReactNode;
@@ -36,14 +36,11 @@ export const SolanaConnectionProvider = ({
   const { chains } = useEnvironment(selectConfig, shallow);
   const [chainConfig] = chains[Protocol.Solana];
   const endpoints = getSolanaEndpoints(env, chainConfig.publicRpcUrls);
-  const connection = useMemo(
-    () => new SolanaConnection(endpoints),
-    [endpoints],
-  );
+  const client = useMemo(() => new SolanaClient(endpoints), [endpoints]);
 
   return (
-    <SolanaConnectionContext.Provider value={connection}>
+    <SolanaClientContext.Provider value={client}>
       {children}
-    </SolanaConnectionContext.Provider>
+    </SolanaClientContext.Provider>
   );
 };

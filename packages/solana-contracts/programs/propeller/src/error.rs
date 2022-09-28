@@ -54,8 +54,8 @@ pub enum PropellerError {
     #[msg("Invalid input amount for SwapExactInput params")]
     InvalidSwapExactInputInputAmount,
 
-    #[msg("Invalid Token Bridge Mint")]
-    InvalidTokenBridgeMint,
+    #[msg("Invalid SwimUSD Mint")]
+    InvalidSwimUsdMint,
 
     #[msg("Invalid Payload Type in VAA")]
     InvalidPayloadTypeInVaa,
@@ -123,10 +123,10 @@ pub enum PropellerError {
     #[msg("Conversion Error")]
     ConversionError,
 
-    #[msg("Unable to retrieve token bridge mint decimals from marginal price pool information")]
-    UnableToRetrieveTokenBridgeMintDecimals,
+    #[msg("Unable to retrieve SwimUSD mint decimals from marginal price pool information")]
+    UnableToRetrieveSwimUsdMintDecimals,
 
-    #[msg("Invalid Metapool Token Mint. token_mint[0] should == token_bridge_mint")]
+    #[msg("Invalid Metapool Token Mint. token_mint[0] should == swim_usd_mint")]
     InvalidMetapoolTokenMint,
 
     #[msg("Unable to deserialize account info as token account")]

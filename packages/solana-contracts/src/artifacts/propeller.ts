@@ -20,7 +20,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Mint",
-                "path": "token_bridge_mint"
+                "path": "swim_usd_mint"
               }
             ]
           }
@@ -69,7 +69,7 @@ export type Propeller = {
           "isSigner": true
         },
         {
-          "name": "tokenBridgeMint",
+          "name": "swimUsdMint",
           "isMut": false,
           "isSigner": false
         },
@@ -183,7 +183,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -316,7 +316,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -396,7 +396,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Mint",
-                "path": "token_bridge_mint"
+                "path": "swim_usd_mint"
               }
             ]
           }
@@ -421,7 +421,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Mint",
-                "path": "token_bridge_mint"
+                "path": "swim_usd_mint"
               },
               {
                 "kind": "account",
@@ -437,7 +437,7 @@ export type Propeller = {
           "isSigner": true
         },
         {
-          "name": "tokenBridgeMint",
+          "name": "swimUsdMint",
           "isMut": false,
           "isSigner": false
         },
@@ -467,7 +467,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -911,7 +911,7 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "tokenBridgeMint",
+          "name": "swimUsdMint",
           "isMut": false,
           "isSigner": false
         }
@@ -1043,7 +1043,7 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "tokenBridgeMint",
+          "name": "swimUsdMint",
           "isMut": false,
           "isSigner": false
         }
@@ -1082,7 +1082,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Mint",
-                "path": "token_bridge_mint"
+                "path": "swim_usd_mint"
               }
             ]
           }
@@ -1118,7 +1118,7 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "tokenBridgeMint",
+          "name": "swimUsdMint",
           "isMut": true,
           "isSigner": false
         },
@@ -1421,7 +1421,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -1526,7 +1526,7 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "mint",
+          "name": "swimUsdMint",
           "isMut": false,
           "isSigner": false
         },
@@ -1561,7 +1561,7 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "propellerMessage",
+          "name": "swimPayloadMessage",
           "isMut": true,
           "isSigner": false,
           "pda": {
@@ -1572,14 +1572,14 @@ export type Propeller = {
                 "value": "propeller"
               },
               {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
+                "kind": "const",
+                "type": "string",
+                "value": "swim_payload"
               },
               {
                 "kind": "account",
                 "type": "publicKey",
-                "path": "message"
+                "path": "claim"
               }
             ]
           }
@@ -1610,7 +1610,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -1634,20 +1634,20 @@ export type Propeller = {
                     32
                   ]
                 },
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_address"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_address"
               },
               {
                 "kind": "account",
                 "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_chain"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_chain"
               },
               {
                 "kind": "account",
                 "type": "u64",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_sequence"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_sequence"
               }
             ],
             "programId": {
@@ -1659,12 +1659,7 @@ export type Propeller = {
           }
         },
         {
-          "name": "message",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "propellerClaim",
+          "name": "swimClaim",
           "isMut": true,
           "isSigner": false,
           "pda": {
@@ -1688,8 +1683,8 @@ export type Propeller = {
           }
         },
         {
-          "name": "propellerMessage",
-          "isMut": false,
+          "name": "swimPayloadMessage",
+          "isMut": true,
           "isSigner": false,
           "pda": {
             "seeds": [
@@ -1699,17 +1694,22 @@ export type Propeller = {
                 "value": "propeller"
               },
               {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
+                "kind": "const",
+                "type": "string",
+                "value": "swim_payload"
               },
               {
                 "kind": "account",
                 "type": "publicKey",
-                "path": "message"
+                "path": "claim"
               }
             ]
           }
+        },
+        {
+          "name": "swimPayloadMessagePayer",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "redeemer",
@@ -1898,7 +1898,7 @@ export type Propeller = {
                     "kind": "account",
                     "type": "publicKey",
                     "account": "Propeller",
-                    "path": "propeller.token_bridge_mint"
+                    "path": "propeller.swim_usd_mint"
                   }
                 ]
               }
@@ -2003,7 +2003,7 @@ export type Propeller = {
               "isSigner": false
             },
             {
-              "name": "mint",
+              "name": "swimUsdMint",
               "isMut": false,
               "isSigner": false
             },
@@ -2038,7 +2038,7 @@ export type Propeller = {
               "isSigner": false
             },
             {
-              "name": "propellerMessage",
+              "name": "swimPayloadMessage",
               "isMut": true,
               "isSigner": false,
               "pda": {
@@ -2049,14 +2049,14 @@ export type Propeller = {
                     "value": "propeller"
                   },
                   {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "path": "claim"
+                    "kind": "const",
+                    "type": "string",
+                    "value": "swim_payload"
                   },
                   {
                     "kind": "account",
                     "type": "publicKey",
-                    "path": "message"
+                    "path": "claim"
                   }
                 ]
               }
@@ -2090,7 +2090,7 @@ export type Propeller = {
                   "defined": "Box<Account<'info,Mint>>"
                 },
                 "account": "CompleteNativeWithPayload",
-                "path": "complete_native_with_payload.mint"
+                "path": "complete_native_with_payload.swim_usd_mint"
               },
               {
                 "kind": "account",
@@ -2189,7 +2189,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -2250,7 +2250,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               },
               {
                 "kind": "account",
@@ -2274,20 +2274,20 @@ export type Propeller = {
                     32
                   ]
                 },
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_address"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_address"
               },
               {
                 "kind": "account",
                 "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_chain"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_chain"
               },
               {
                 "kind": "account",
                 "type": "u64",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_sequence"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_sequence"
               }
             ],
             "programId": {
@@ -2299,12 +2299,7 @@ export type Propeller = {
           }
         },
         {
-          "name": "message",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "propellerMessage",
+          "name": "swimPayloadMessage",
           "isMut": true,
           "isSigner": false,
           "pda": {
@@ -2315,14 +2310,14 @@ export type Propeller = {
                 "value": "propeller"
               },
               {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
+                "kind": "const",
+                "type": "string",
+                "value": "swim_payload"
               },
               {
                 "kind": "account",
                 "type": "publicKey",
-                "path": "message"
+                "path": "claim"
               }
             ]
           }
@@ -2352,8 +2347,8 @@ export type Propeller = {
               {
                 "kind": "account",
                 "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.target_token_id"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.target_token_id"
               }
             ]
           }
@@ -2540,7 +2535,7 @@ export type Propeller = {
                     "kind": "account",
                     "type": "publicKey",
                     "account": "Propeller",
-                    "path": "propeller.token_bridge_mint"
+                    "path": "propeller.swim_usd_mint"
                   }
                 ]
               }
@@ -2564,20 +2559,20 @@ export type Propeller = {
                         32
                       ]
                     },
-                    "account": "PropellerMessage",
-                    "path": "propeller_message.vaa_emitter_address"
+                    "account": "SwimPayloadMessage",
+                    "path": "swim_payload_message.vaa_emitter_address"
                   },
                   {
                     "kind": "account",
                     "type": "u16",
-                    "account": "PropellerMessage",
-                    "path": "propeller_message.vaa_emitter_chain"
+                    "account": "SwimPayloadMessage",
+                    "path": "swim_payload_message.vaa_emitter_chain"
                   },
                   {
                     "kind": "account",
                     "type": "u64",
-                    "account": "PropellerMessage",
-                    "path": "propeller_message.vaa_sequence"
+                    "account": "SwimPayloadMessage",
+                    "path": "swim_payload_message.vaa_sequence"
                   }
                 ],
                 "programId": {
@@ -2589,12 +2584,7 @@ export type Propeller = {
               }
             },
             {
-              "name": "message",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "propellerClaim",
+              "name": "swimClaim",
               "isMut": true,
               "isSigner": false,
               "pda": {
@@ -2618,8 +2608,8 @@ export type Propeller = {
               }
             },
             {
-              "name": "propellerMessage",
-              "isMut": false,
+              "name": "swimPayloadMessage",
+              "isMut": true,
               "isSigner": false,
               "pda": {
                 "seeds": [
@@ -2629,17 +2619,22 @@ export type Propeller = {
                     "value": "propeller"
                   },
                   {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "path": "claim"
+                    "kind": "const",
+                    "type": "string",
+                    "value": "swim_payload"
                   },
                   {
                     "kind": "account",
                     "type": "publicKey",
-                    "path": "message"
+                    "path": "claim"
                   }
                 ]
               }
+            },
+            {
+              "name": "swimPayloadMessagePayer",
+              "isMut": true,
+              "isSigner": false
             },
             {
               "name": "redeemer",
@@ -2919,7 +2914,7 @@ export type Propeller = {
       "returns": "u64"
     },
     {
-      "name": "propellerCreateOwnerTokenBridgeAta",
+      "name": "propellerCreateOwnerSwimUsdAta",
       "docs": [
         "This ix is used if a propeller engine detects (off-chain) that the target_token_id is not valid",
         "\"Fallback\" behavior is to check/create just the token bridge mint (swimUSD) token account for the owner",
@@ -2941,7 +2936,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -3002,7 +2997,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               },
               {
                 "kind": "account",
@@ -3026,20 +3021,20 @@ export type Propeller = {
                     32
                   ]
                 },
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_address"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_address"
               },
               {
                 "kind": "account",
                 "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_chain"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_chain"
               },
               {
                 "kind": "account",
                 "type": "u64",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_sequence"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_sequence"
               }
             ],
             "programId": {
@@ -3051,12 +3046,7 @@ export type Propeller = {
           }
         },
         {
-          "name": "message",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "propellerMessage",
+          "name": "swimPayloadMessage",
           "isMut": true,
           "isSigner": false,
           "pda": {
@@ -3067,14 +3057,14 @@ export type Propeller = {
                 "value": "propeller"
               },
               {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
+                "kind": "const",
+                "type": "string",
+                "value": "swim_payload"
               },
               {
                 "kind": "account",
                 "type": "publicKey",
-                "path": "message"
+                "path": "claim"
               }
             ]
           }
@@ -3089,7 +3079,7 @@ export type Propeller = {
           ]
         },
         {
-          "name": "tokenBridgeMint",
+          "name": "swimUsdMint",
           "isMut": false,
           "isSigner": false
         },
@@ -3099,7 +3089,7 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "ownerTokenBridgeMintAta",
+          "name": "ownerSwimUsdAta",
           "isMut": true,
           "isSigner": false,
           "docs": [
@@ -3219,7 +3209,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -3243,20 +3233,20 @@ export type Propeller = {
                     32
                   ]
                 },
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_address"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_address"
               },
               {
                 "kind": "account",
                 "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_chain"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_chain"
               },
               {
                 "kind": "account",
                 "type": "u64",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_sequence"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_sequence"
               }
             ],
             "programId": {
@@ -3268,12 +3258,7 @@ export type Propeller = {
           }
         },
         {
-          "name": "message",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "propellerClaim",
+          "name": "swimClaim",
           "isMut": true,
           "isSigner": false,
           "pda": {
@@ -3297,8 +3282,8 @@ export type Propeller = {
           }
         },
         {
-          "name": "propellerMessage",
-          "isMut": false,
+          "name": "swimPayloadMessage",
+          "isMut": true,
           "isSigner": false,
           "pda": {
             "seeds": [
@@ -3308,17 +3293,22 @@ export type Propeller = {
                 "value": "propeller"
               },
               {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
+                "kind": "const",
+                "type": "string",
+                "value": "swim_payload"
               },
               {
                 "kind": "account",
                 "type": "publicKey",
-                "path": "message"
+                "path": "claim"
               }
             ]
           }
+        },
+        {
+          "name": "swimPayloadMessagePayer",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "redeemer",
@@ -3361,7 +3351,7 @@ export type Propeller = {
           "isSigner": true
         },
         {
-          "name": "userTokenBridgeMintAta",
+          "name": "userSwimUsdAta",
           "isMut": true,
           "isSigner": false
         },
@@ -3419,7 +3409,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               },
               {
                 "kind": "account",
@@ -3600,7 +3590,7 @@ export type Propeller = {
             "type": "publicKey"
           },
           {
-            "name": "tokenBridgeMint",
+            "name": "swimUsdMint",
             "type": "publicKey"
           },
           {
@@ -3659,7 +3649,7 @@ export type Propeller = {
       }
     },
     {
-      "name": "propellerClaim",
+      "name": "swimClaim",
       "type": {
         "kind": "struct",
         "fields": [
@@ -3675,7 +3665,7 @@ export type Propeller = {
       }
     },
     {
-      "name": "propellerMessage",
+      "name": "swimPayloadMessage",
       "type": {
         "kind": "struct",
         "fields": [
@@ -3684,7 +3674,11 @@ export type Propeller = {
             "type": "u8"
           },
           {
-            "name": "whMessage",
+            "name": "swimPayloadMessagePayer",
+            "docs": [
+              "payer of `CompleteWithPayload` that will get the lamports",
+              "when `SwimPayloadMessage` is closed after `ProcessSwimPayload`"
+            ],
             "type": "publicKey"
           },
           {
@@ -4312,8 +4306,8 @@ export type Propeller = {
     },
     {
       "code": 6017,
-      "name": "InvalidTokenBridgeMint",
-      "msg": "Invalid Token Bridge Mint"
+      "name": "InvalidSwimUsdMint",
+      "msg": "Invalid SwimUSD Mint"
     },
     {
       "code": 6018,
@@ -4427,13 +4421,13 @@ export type Propeller = {
     },
     {
       "code": 6040,
-      "name": "UnableToRetrieveTokenBridgeMintDecimals",
-      "msg": "Unable to retrieve token bridge mint decimals from marginal price pool information"
+      "name": "UnableToRetrieveSwimUsdMintDecimals",
+      "msg": "Unable to retrieve SwimUSD mint decimals from marginal price pool information"
     },
     {
       "code": 6041,
       "name": "InvalidMetapoolTokenMint",
-      "msg": "Invalid Metapool Token Mint. token_mint[0] should == token_bridge_mint"
+      "msg": "Invalid Metapool Token Mint. token_mint[0] should == swim_usd_mint"
     },
     {
       "code": 6042,
@@ -4490,7 +4484,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Mint",
-                "path": "token_bridge_mint"
+                "path": "swim_usd_mint"
               }
             ]
           }
@@ -4539,7 +4533,7 @@ export const IDL: Propeller = {
           "isSigner": true
         },
         {
-          "name": "tokenBridgeMint",
+          "name": "swimUsdMint",
           "isMut": false,
           "isSigner": false
         },
@@ -4653,7 +4647,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -4786,7 +4780,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -4866,7 +4860,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Mint",
-                "path": "token_bridge_mint"
+                "path": "swim_usd_mint"
               }
             ]
           }
@@ -4891,7 +4885,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Mint",
-                "path": "token_bridge_mint"
+                "path": "swim_usd_mint"
               },
               {
                 "kind": "account",
@@ -4907,7 +4901,7 @@ export const IDL: Propeller = {
           "isSigner": true
         },
         {
-          "name": "tokenBridgeMint",
+          "name": "swimUsdMint",
           "isMut": false,
           "isSigner": false
         },
@@ -4937,7 +4931,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -5381,7 +5375,7 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "tokenBridgeMint",
+          "name": "swimUsdMint",
           "isMut": false,
           "isSigner": false
         }
@@ -5513,7 +5507,7 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "tokenBridgeMint",
+          "name": "swimUsdMint",
           "isMut": false,
           "isSigner": false
         }
@@ -5552,7 +5546,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Mint",
-                "path": "token_bridge_mint"
+                "path": "swim_usd_mint"
               }
             ]
           }
@@ -5588,7 +5582,7 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "tokenBridgeMint",
+          "name": "swimUsdMint",
           "isMut": true,
           "isSigner": false
         },
@@ -5891,7 +5885,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -5996,7 +5990,7 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "mint",
+          "name": "swimUsdMint",
           "isMut": false,
           "isSigner": false
         },
@@ -6031,7 +6025,7 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "propellerMessage",
+          "name": "swimPayloadMessage",
           "isMut": true,
           "isSigner": false,
           "pda": {
@@ -6042,14 +6036,14 @@ export const IDL: Propeller = {
                 "value": "propeller"
               },
               {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
+                "kind": "const",
+                "type": "string",
+                "value": "swim_payload"
               },
               {
                 "kind": "account",
                 "type": "publicKey",
-                "path": "message"
+                "path": "claim"
               }
             ]
           }
@@ -6080,7 +6074,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -6104,20 +6098,20 @@ export const IDL: Propeller = {
                     32
                   ]
                 },
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_address"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_address"
               },
               {
                 "kind": "account",
                 "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_chain"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_chain"
               },
               {
                 "kind": "account",
                 "type": "u64",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_sequence"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_sequence"
               }
             ],
             "programId": {
@@ -6129,12 +6123,7 @@ export const IDL: Propeller = {
           }
         },
         {
-          "name": "message",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "propellerClaim",
+          "name": "swimClaim",
           "isMut": true,
           "isSigner": false,
           "pda": {
@@ -6158,8 +6147,8 @@ export const IDL: Propeller = {
           }
         },
         {
-          "name": "propellerMessage",
-          "isMut": false,
+          "name": "swimPayloadMessage",
+          "isMut": true,
           "isSigner": false,
           "pda": {
             "seeds": [
@@ -6169,17 +6158,22 @@ export const IDL: Propeller = {
                 "value": "propeller"
               },
               {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
+                "kind": "const",
+                "type": "string",
+                "value": "swim_payload"
               },
               {
                 "kind": "account",
                 "type": "publicKey",
-                "path": "message"
+                "path": "claim"
               }
             ]
           }
+        },
+        {
+          "name": "swimPayloadMessagePayer",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "redeemer",
@@ -6368,7 +6362,7 @@ export const IDL: Propeller = {
                     "kind": "account",
                     "type": "publicKey",
                     "account": "Propeller",
-                    "path": "propeller.token_bridge_mint"
+                    "path": "propeller.swim_usd_mint"
                   }
                 ]
               }
@@ -6473,7 +6467,7 @@ export const IDL: Propeller = {
               "isSigner": false
             },
             {
-              "name": "mint",
+              "name": "swimUsdMint",
               "isMut": false,
               "isSigner": false
             },
@@ -6508,7 +6502,7 @@ export const IDL: Propeller = {
               "isSigner": false
             },
             {
-              "name": "propellerMessage",
+              "name": "swimPayloadMessage",
               "isMut": true,
               "isSigner": false,
               "pda": {
@@ -6519,14 +6513,14 @@ export const IDL: Propeller = {
                     "value": "propeller"
                   },
                   {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "path": "claim"
+                    "kind": "const",
+                    "type": "string",
+                    "value": "swim_payload"
                   },
                   {
                     "kind": "account",
                     "type": "publicKey",
-                    "path": "message"
+                    "path": "claim"
                   }
                 ]
               }
@@ -6560,7 +6554,7 @@ export const IDL: Propeller = {
                   "defined": "Box<Account<'info,Mint>>"
                 },
                 "account": "CompleteNativeWithPayload",
-                "path": "complete_native_with_payload.mint"
+                "path": "complete_native_with_payload.swim_usd_mint"
               },
               {
                 "kind": "account",
@@ -6659,7 +6653,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -6720,7 +6714,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               },
               {
                 "kind": "account",
@@ -6744,20 +6738,20 @@ export const IDL: Propeller = {
                     32
                   ]
                 },
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_address"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_address"
               },
               {
                 "kind": "account",
                 "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_chain"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_chain"
               },
               {
                 "kind": "account",
                 "type": "u64",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_sequence"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_sequence"
               }
             ],
             "programId": {
@@ -6769,12 +6763,7 @@ export const IDL: Propeller = {
           }
         },
         {
-          "name": "message",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "propellerMessage",
+          "name": "swimPayloadMessage",
           "isMut": true,
           "isSigner": false,
           "pda": {
@@ -6785,14 +6774,14 @@ export const IDL: Propeller = {
                 "value": "propeller"
               },
               {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
+                "kind": "const",
+                "type": "string",
+                "value": "swim_payload"
               },
               {
                 "kind": "account",
                 "type": "publicKey",
-                "path": "message"
+                "path": "claim"
               }
             ]
           }
@@ -6822,8 +6811,8 @@ export const IDL: Propeller = {
               {
                 "kind": "account",
                 "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.target_token_id"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.target_token_id"
               }
             ]
           }
@@ -7010,7 +6999,7 @@ export const IDL: Propeller = {
                     "kind": "account",
                     "type": "publicKey",
                     "account": "Propeller",
-                    "path": "propeller.token_bridge_mint"
+                    "path": "propeller.swim_usd_mint"
                   }
                 ]
               }
@@ -7034,20 +7023,20 @@ export const IDL: Propeller = {
                         32
                       ]
                     },
-                    "account": "PropellerMessage",
-                    "path": "propeller_message.vaa_emitter_address"
+                    "account": "SwimPayloadMessage",
+                    "path": "swim_payload_message.vaa_emitter_address"
                   },
                   {
                     "kind": "account",
                     "type": "u16",
-                    "account": "PropellerMessage",
-                    "path": "propeller_message.vaa_emitter_chain"
+                    "account": "SwimPayloadMessage",
+                    "path": "swim_payload_message.vaa_emitter_chain"
                   },
                   {
                     "kind": "account",
                     "type": "u64",
-                    "account": "PropellerMessage",
-                    "path": "propeller_message.vaa_sequence"
+                    "account": "SwimPayloadMessage",
+                    "path": "swim_payload_message.vaa_sequence"
                   }
                 ],
                 "programId": {
@@ -7059,12 +7048,7 @@ export const IDL: Propeller = {
               }
             },
             {
-              "name": "message",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
-              "name": "propellerClaim",
+              "name": "swimClaim",
               "isMut": true,
               "isSigner": false,
               "pda": {
@@ -7088,8 +7072,8 @@ export const IDL: Propeller = {
               }
             },
             {
-              "name": "propellerMessage",
-              "isMut": false,
+              "name": "swimPayloadMessage",
+              "isMut": true,
               "isSigner": false,
               "pda": {
                 "seeds": [
@@ -7099,17 +7083,22 @@ export const IDL: Propeller = {
                     "value": "propeller"
                   },
                   {
-                    "kind": "account",
-                    "type": "publicKey",
-                    "path": "claim"
+                    "kind": "const",
+                    "type": "string",
+                    "value": "swim_payload"
                   },
                   {
                     "kind": "account",
                     "type": "publicKey",
-                    "path": "message"
+                    "path": "claim"
                   }
                 ]
               }
+            },
+            {
+              "name": "swimPayloadMessagePayer",
+              "isMut": true,
+              "isSigner": false
             },
             {
               "name": "redeemer",
@@ -7389,7 +7378,7 @@ export const IDL: Propeller = {
       "returns": "u64"
     },
     {
-      "name": "propellerCreateOwnerTokenBridgeAta",
+      "name": "propellerCreateOwnerSwimUsdAta",
       "docs": [
         "This ix is used if a propeller engine detects (off-chain) that the target_token_id is not valid",
         "\"Fallback\" behavior is to check/create just the token bridge mint (swimUSD) token account for the owner",
@@ -7411,7 +7400,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -7472,7 +7461,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               },
               {
                 "kind": "account",
@@ -7496,20 +7485,20 @@ export const IDL: Propeller = {
                     32
                   ]
                 },
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_address"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_address"
               },
               {
                 "kind": "account",
                 "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_chain"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_chain"
               },
               {
                 "kind": "account",
                 "type": "u64",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_sequence"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_sequence"
               }
             ],
             "programId": {
@@ -7521,12 +7510,7 @@ export const IDL: Propeller = {
           }
         },
         {
-          "name": "message",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "propellerMessage",
+          "name": "swimPayloadMessage",
           "isMut": true,
           "isSigner": false,
           "pda": {
@@ -7537,14 +7521,14 @@ export const IDL: Propeller = {
                 "value": "propeller"
               },
               {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
+                "kind": "const",
+                "type": "string",
+                "value": "swim_payload"
               },
               {
                 "kind": "account",
                 "type": "publicKey",
-                "path": "message"
+                "path": "claim"
               }
             ]
           }
@@ -7559,7 +7543,7 @@ export const IDL: Propeller = {
           ]
         },
         {
-          "name": "tokenBridgeMint",
+          "name": "swimUsdMint",
           "isMut": false,
           "isSigner": false
         },
@@ -7569,7 +7553,7 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "ownerTokenBridgeMintAta",
+          "name": "ownerSwimUsdAta",
           "isMut": true,
           "isSigner": false,
           "docs": [
@@ -7689,7 +7673,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               }
             ]
           }
@@ -7713,20 +7697,20 @@ export const IDL: Propeller = {
                     32
                   ]
                 },
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_address"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_address"
               },
               {
                 "kind": "account",
                 "type": "u16",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_emitter_chain"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_emitter_chain"
               },
               {
                 "kind": "account",
                 "type": "u64",
-                "account": "PropellerMessage",
-                "path": "propeller_message.vaa_sequence"
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.vaa_sequence"
               }
             ],
             "programId": {
@@ -7738,12 +7722,7 @@ export const IDL: Propeller = {
           }
         },
         {
-          "name": "message",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "propellerClaim",
+          "name": "swimClaim",
           "isMut": true,
           "isSigner": false,
           "pda": {
@@ -7767,8 +7746,8 @@ export const IDL: Propeller = {
           }
         },
         {
-          "name": "propellerMessage",
-          "isMut": false,
+          "name": "swimPayloadMessage",
+          "isMut": true,
           "isSigner": false,
           "pda": {
             "seeds": [
@@ -7778,17 +7757,22 @@ export const IDL: Propeller = {
                 "value": "propeller"
               },
               {
-                "kind": "account",
-                "type": "publicKey",
-                "path": "claim"
+                "kind": "const",
+                "type": "string",
+                "value": "swim_payload"
               },
               {
                 "kind": "account",
                 "type": "publicKey",
-                "path": "message"
+                "path": "claim"
               }
             ]
           }
+        },
+        {
+          "name": "swimPayloadMessagePayer",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "redeemer",
@@ -7831,7 +7815,7 @@ export const IDL: Propeller = {
           "isSigner": true
         },
         {
-          "name": "userTokenBridgeMintAta",
+          "name": "userSwimUsdAta",
           "isMut": true,
           "isSigner": false
         },
@@ -7889,7 +7873,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Propeller",
-                "path": "propeller.token_bridge_mint"
+                "path": "propeller.swim_usd_mint"
               },
               {
                 "kind": "account",
@@ -8070,7 +8054,7 @@ export const IDL: Propeller = {
             "type": "publicKey"
           },
           {
-            "name": "tokenBridgeMint",
+            "name": "swimUsdMint",
             "type": "publicKey"
           },
           {
@@ -8129,7 +8113,7 @@ export const IDL: Propeller = {
       }
     },
     {
-      "name": "propellerClaim",
+      "name": "swimClaim",
       "type": {
         "kind": "struct",
         "fields": [
@@ -8145,7 +8129,7 @@ export const IDL: Propeller = {
       }
     },
     {
-      "name": "propellerMessage",
+      "name": "swimPayloadMessage",
       "type": {
         "kind": "struct",
         "fields": [
@@ -8154,7 +8138,11 @@ export const IDL: Propeller = {
             "type": "u8"
           },
           {
-            "name": "whMessage",
+            "name": "swimPayloadMessagePayer",
+            "docs": [
+              "payer of `CompleteWithPayload` that will get the lamports",
+              "when `SwimPayloadMessage` is closed after `ProcessSwimPayload`"
+            ],
             "type": "publicKey"
           },
           {
@@ -8782,8 +8770,8 @@ export const IDL: Propeller = {
     },
     {
       "code": 6017,
-      "name": "InvalidTokenBridgeMint",
-      "msg": "Invalid Token Bridge Mint"
+      "name": "InvalidSwimUsdMint",
+      "msg": "Invalid SwimUSD Mint"
     },
     {
       "code": 6018,
@@ -8897,13 +8885,13 @@ export const IDL: Propeller = {
     },
     {
       "code": 6040,
-      "name": "UnableToRetrieveTokenBridgeMintDecimals",
-      "msg": "Unable to retrieve token bridge mint decimals from marginal price pool information"
+      "name": "UnableToRetrieveSwimUsdMintDecimals",
+      "msg": "Unable to retrieve SwimUSD mint decimals from marginal price pool information"
     },
     {
       "code": 6041,
       "name": "InvalidMetapoolTokenMint",
-      "msg": "Invalid Metapool Token Mint. token_mint[0] should == token_bridge_mint"
+      "msg": "Invalid Metapool Token Mint. token_mint[0] should == swim_usd_mint"
     },
     {
       "code": 6042,

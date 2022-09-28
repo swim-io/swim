@@ -16,14 +16,15 @@ pub const SWIM_PAYLOAD_VERSION: u8 = 1;
 #[account]
 pub struct Propeller {
     pub bump: u8,
-    pub admin: Pubkey,             //32
-    pub wormhole: Pubkey,          //32
-    pub token_bridge: Pubkey,      //32
-    pub token_bridge_mint: Pubkey, //32
+    pub admin: Pubkey,         //32
+    pub wormhole: Pubkey,      //32
+    pub token_bridge: Pubkey,  //32
+    pub swim_usd_mint: Pubkey, //32
 
     pub sender_bump: u8,
     pub redeemer_bump: u8,
 
+    // in lamports
     pub gas_kickstart_amount: u64,
 
     // all fees are in LAMPORTS and NOT including rent
@@ -88,7 +89,7 @@ impl Propeller {
         32 + //admin
         32 + //wormhole
         32 + //token_bridge
-        32 + //token_bridge_mint
+        32 + //swim_usd_mint
         32 + //marginal_price_pool
         32 + //marginal_price_token_mint
         1 + //marginal_price_pool_token_index
@@ -129,19 +130,21 @@ impl Propeller {
 }
 
 #[account]
-pub struct PropellerClaim {
+pub struct SwimClaim {
     pub bump: u8,
     pub claimed: bool,
 }
 
-impl PropellerClaim {
+impl SwimClaim {
     pub const LEN: usize = 1 + 1;
 }
 
 #[account]
-pub struct PropellerMessage {
+pub struct SwimPayloadMessage {
     pub bump: u8,
-    pub wh_message: Pubkey,
+    /// payer of `CompleteWithPayload` that will get the lamports
+    /// when `SwimPayloadMessage` is closed after `ProcessSwimPayload`
+    pub swim_payload_message_payer: Pubkey,
     // pub wh_message_bump: u8,
     pub claim: Pubkey,
     // pub claim_bump: u8,
@@ -161,9 +164,9 @@ pub struct PropellerMessage {
     pub memo: [u8; 16],
 }
 
-impl PropellerMessage {
+impl SwimPayloadMessage {
     pub const LEN: usize = 1 +  // bump
-        32 + // message
+        32 + // payer
         // 1 + // message bump
         32 + // claim
         // 1 +  // claim_bump
@@ -187,13 +190,15 @@ impl PropellerMessage {
 //  ex - metaplex metadata versioning - (probably not. its messy).
 #[derive(PartialEq, Debug, Clone)]
 pub struct RawSwimPayload {
-    //TOOD: should this come from propeller?
+    /* always required fields */
     pub swim_payload_version: u8,
     pub owner: Address,
+    /* required for all propellerEnabled */
     pub propeller_enabled: bool,
     pub gas_kickstart: bool,
     pub max_fee: u64,
     pub target_token_id: u16,
+    /* required for swim propeller */
     pub memo: [u8; 16],
 }
 
@@ -336,4 +341,18 @@ pub fn validate_marginal_prices_pool_accounts(
         propeller.marginal_price_pool_token_mint,
     );
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_non_propeller_swim_payload() {}
+
+    #[test]
+    fn test_propeller_swim_payload() {}
+
+    #[test]
+    fn test_third_party_swim_payload() {}
 }

@@ -74,7 +74,7 @@ pub struct Add<'info> {
 
 impl<'info> Add<'info> {
     pub fn accounts(ctx: &Context<Add>) -> Result<()> {
-        require_keys_eq!(ctx.accounts.lp_mint.key(), ctx.accounts.propeller.token_bridge_mint);
+        require_keys_eq!(ctx.accounts.lp_mint.key(), ctx.accounts.propeller.swim_usd_mint);
         Ok(())
     }
 }

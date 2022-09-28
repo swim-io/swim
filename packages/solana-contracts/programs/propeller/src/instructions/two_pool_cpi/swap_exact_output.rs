@@ -12,57 +12,58 @@ use {
 #[derive(Accounts)]
 pub struct SwapExactOutput<'info> {
     #[account(
-  seeds = [
+    seeds = [
     b"propeller".as_ref(),
     pool_token_account_0.mint.as_ref(),
-  ],
-  bump = propeller.bump
-  )]
+    ],
+    bump = propeller.bump,
+    has_one = swim_usd_mint @ PropellerError::InvalidSwimUsdMint,
+    )]
     pub propeller: Account<'info, Propeller>,
     #[account(
-  mut,
-  seeds = [
-  b"two_pool".as_ref(),
-  pool_token_account_0.mint.as_ref(),
-  pool_token_account_1.mint.as_ref(),
-  lp_mint.key().as_ref(),
-  ],
-  bump = pool.bump,
-  seeds::program = two_pool_program.key()
-  )]
+    mut,
+    seeds = [
+    b"two_pool".as_ref(),
+    pool_token_account_0.mint.as_ref(),
+    pool_token_account_1.mint.as_ref(),
+    lp_mint.key().as_ref(),
+    ],
+    bump = pool.bump,
+    seeds::program = two_pool_program.key()
+    )]
     pub pool: Account<'info, TwoPool>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[0],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[0],
+    token::authority = pool,
+    )]
     pub pool_token_account_0: Box<Account<'info, TokenAccount>>,
     #[account(
-  mut,
-  token::mint = pool.token_mint_keys[1],
-  token::authority = pool,
-  )]
+    mut,
+    token::mint = pool.token_mint_keys[1],
+    token::authority = pool,
+    )]
     pub pool_token_account_1: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub lp_mint: Box<Account<'info, Mint>>,
     #[account(
-  mut,
-  token::mint = lp_mint
-  )]
+    mut,
+    token::mint = lp_mint
+    )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
 
     pub user_transfer_authority: Signer<'info>,
 
     #[account(
-  mut,
-  token::mint = pool_token_account_0.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_0.mint,
+    )]
     pub user_token_account_0: Box<Account<'info, TokenAccount>>,
 
     #[account(
-  mut,
-  token::mint = pool_token_account_1.mint,
-  )]
+    mut,
+    token::mint = pool_token_account_1.mint,
+    )]
     pub user_token_account_1: Box<Account<'info, TokenAccount>>,
 
     // //TODO: probably need a user_transfer_auth account since either the user or propeller could be payer for txn.
@@ -75,8 +76,7 @@ pub struct SwapExactOutput<'info> {
     ///CHECK: memo program
     pub memo: UncheckedAccount<'info>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
-    #[account(address = propeller.token_bridge_mint)]
-    pub token_bridge_mint: Account<'info, Mint>,
+    pub swim_usd_mint: Account<'info, Mint>,
 }
 
 pub fn handle_swap_exact_output(

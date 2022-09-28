@@ -38,17 +38,7 @@ use {
 pub fn get_marginal_prices<'info>(
     cpi_ctx: CpiContext<'_, '_, '_, 'info, two_pool::cpi::accounts::MarginalPrices<'info>>,
 ) -> Result<[BorshDecimal; TOKEN_COUNT]> {
-    // let cpi_ctx = CpiContext::new(
-    //     two_pool_program.to_account_info(),
-    //     two_pool::cpi::accounts::MarginalPrices {
-    //         pool: pool.to_account_info(),
-    //         pool_token_account_0: pool_token_0_account.to_account_info(),
-    //         pool_token_account_1: pool_token_1_account.to_account_info(),
-    //         lp_mint: pool_lp_mint.to_account_info(),
-    //     },
-    // );
     let result = two_pool::cpi::marginal_prices(cpi_ctx)?;
-    // let marginal_prices = result.get().marginal_prices;
     Ok(result.get())
 }
 
@@ -66,7 +56,7 @@ pub fn convert_fees_to_swim_usd_atomic<'info>(
     msg!("fee_in_lamports: {:?}", fee_in_lamports);
     let marginal_price_pool_lp_mint = &marginal_price_pool_lp_mint;
 
-    let token_bridge_mint_key = propeller.token_bridge_mint;
+    let swim_usd_mint_key = propeller.swim_usd_mint;
     let marginal_prices = get_marginal_prices(cpi_ctx)?;
 
     let intermediate_token_price_decimal: Decimal = get_marginal_price_decimal(
@@ -90,7 +80,7 @@ pub fn convert_fees_to_swim_usd_atomic<'info>(
         .ok_or(PropellerError::IntegerOverflow)?;
 
     let swim_usd_decimals =
-        get_token_bridge_mint_decimals(&token_bridge_mint_key, &marginal_price_pool, &marginal_price_pool_lp_mint)?;
+        get_swim_usd_mint_decimals(&swim_usd_mint_key, &marginal_price_pool, &marginal_price_pool_lp_mint)?;
     msg!("swim_usd_decimals: {:?}", swim_usd_decimals);
 
     let ten_pow_decimals =
@@ -137,20 +127,20 @@ pub fn convert_fees_to_swim_usd_atomic<'info>(
 //     )
 // }
 
-pub fn get_token_bridge_mint_decimals(
-    token_bridge_mint: &Pubkey,
+pub fn get_swim_usd_mint_decimals(
+    swim_usd_mint: &Pubkey,
     marginal_price_pool: &TwoPool,
     marginal_price_pool_lp_mint: &Mint,
 ) -> Result<u8> {
     let marginal_price_pool_lp_mint_decimals = marginal_price_pool_lp_mint.decimals;
-    if *token_bridge_mint == marginal_price_pool.lp_mint_key {
+    if *swim_usd_mint == marginal_price_pool.lp_mint_key {
         Ok(marginal_price_pool_lp_mint_decimals)
-    } else if *token_bridge_mint == marginal_price_pool.token_mint_keys[0] {
+    } else if *swim_usd_mint == marginal_price_pool.token_mint_keys[0] {
         Ok(marginal_price_pool_lp_mint_decimals + marginal_price_pool.token_decimal_equalizers[0])
-    } else if *token_bridge_mint == marginal_price_pool.token_mint_keys[1] {
+    } else if *swim_usd_mint == marginal_price_pool.token_mint_keys[1] {
         Ok(marginal_price_pool_lp_mint_decimals + marginal_price_pool.token_decimal_equalizers[1])
     } else {
-        return err!(PropellerError::UnableToRetrieveTokenBridgeMintDecimals);
+        return err!(PropellerError::UnableToRetrieveSwimUsdMintDecimals);
     }
 }
 
@@ -161,21 +151,20 @@ pub fn get_marginal_price_decimal(
     marginal_price_pool_lp_mint: &Pubkey,
 ) -> Result<Decimal> {
     let marginal_price_pool_token_index = propeller.marginal_price_pool_token_index;
-    let token_bridge_mint = &propeller.token_bridge_mint;
+    let swim_usd_mint = &propeller.swim_usd_mint;
     let mut marginal_price: Decimal = marginal_prices[marginal_price_pool_token_index as usize]
         .try_into()
         .map_err(|_| error!(PropellerError::ConversionError))?;
-    if *marginal_price_pool_lp_mint != *token_bridge_mint {
+    if *marginal_price_pool_lp_mint != *swim_usd_mint {
         require_keys_eq!(
             marginal_price_pool.token_mint_keys[0],
-            *token_bridge_mint,
+            *swim_usd_mint,
             PropellerError::InvalidMetapoolTokenMint,
         );
-        let token_bridge_mint_marginal_price: Decimal =
+        let swim_usd_marginal_price: Decimal =
             marginal_prices[0].try_into().map_err(|_| error!(PropellerError::ConversionError))?;
-        marginal_price = marginal_price
-            .checked_div(token_bridge_mint_marginal_price)
-            .ok_or(error!(PropellerError::IntegerOverflow))?;
+        marginal_price =
+            marginal_price.checked_div(swim_usd_marginal_price).ok_or(error!(PropellerError::IntegerOverflow))?;
     }
     Ok(marginal_price)
 }

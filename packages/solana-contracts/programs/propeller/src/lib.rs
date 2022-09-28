@@ -350,9 +350,9 @@ pub mod propeller {
     /// "Fallback" behavior is to check/create just the token bridge mint (swimUSD) token account for the owner
     /// then call propeller_process_swim_payload_fallback to finish transferring the swimUSD to the owner.
     #[inline(never)]
-    #[access_control(PropellerCreateOwnerTokenBridgeAta::accounts(&ctx))]
-    pub fn propeller_create_owner_token_bridge_ata(ctx: Context<PropellerCreateOwnerTokenBridgeAta>) -> Result<()> {
-        handle_propeller_create_owner_token_bridge_ata(ctx)
+    #[access_control(PropellerCreateOwnerSwimUsdAta::accounts(&ctx))]
+    pub fn propeller_create_owner_swim_usd_ata(ctx: Context<PropellerCreateOwnerSwimUsdAta>) -> Result<()> {
+        handle_propeller_create_owner_swim_usd_ata(ctx)
     }
 
     #[inline(never)]

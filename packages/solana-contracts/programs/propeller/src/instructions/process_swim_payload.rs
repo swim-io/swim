@@ -2,7 +2,7 @@ pub use switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_
 use {
     crate::{
         constants::LAMPORTS_PER_SOL_DECIMAL, convert_fees_to_swim_usd_atomic, get_marginal_price_decimal,
-        get_token_bridge_mint_decimals, FeeTracker,
+        get_swim_usd_mint_decimals, FeeTracker,
     },
     anchor_lang::system_program,
     anchor_spl::{associated_token::AssociatedToken, token::Transfer},
@@ -17,7 +17,7 @@ use {
         get_message_data,
         get_transfer_with_payload_from_message_account,
         hash_vaa,
-        state::{PropellerClaim, PropellerMessage, *},
+        state::{SwimClaim, SwimPayloadMessage, *},
         token_bridge::TokenBridge,
         token_id_map::{PoolInstruction, TokenIdMap},
         ClaimData,
@@ -37,13 +37,13 @@ use {
     two_pool::state::TwoPool,
 };
 
-pub const TOKEN_BRIDGE_OUTPUT_TOKEN_INDEX: u16 = 0;
+pub const SWIM_USD_TO_TOKEN_NUMBER: u16 = 0;
 
 #[derive(Accounts)]
 #[instruction(target_token_id: u16)]
 pub struct ProcessSwimPayload<'info> {
     #[account(
-    seeds = [ b"propeller".as_ref(), propeller.token_bridge_mint.as_ref()],
+    seeds = [ b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
     bump = propeller.bump
     )]
     pub propeller: Box<Account<'info, Propeller>>,
@@ -52,28 +52,15 @@ pub struct ProcessSwimPayload<'info> {
 
     #[account(
     seeds = [
-    propeller_message.vaa_emitter_address.as_ref(),
-    propeller_message.vaa_emitter_chain.to_be_bytes().as_ref(),
-    propeller_message.vaa_sequence.to_be_bytes().as_ref(),
+    swim_payload_message.vaa_emitter_address.as_ref(),
+    swim_payload_message.vaa_emitter_chain.to_be_bytes().as_ref(),
+    swim_payload_message.vaa_sequence.to_be_bytes().as_ref(),
     ],
     bump,
     seeds::program = propeller.token_bridge().unwrap()
     )]
     /// CHECK: WH Claim account
     pub claim: UncheckedAccount<'info>,
-
-    //TODO: do i really need to pass in the original message account?
-    // seeds = [ b"PostedVAA".as_ref(), hash_vaa(vaa).as_ref() ],
-    // #[account(
-    //   seeds = [
-    //     b"PostedVAA".as_ref(),
-    //     hash_vaa(&vaa).as_ref()
-    //   ],
-    //   bump = propeller_message.wh_message_bump,
-    //   seeds::program = propeller.wormhole()?
-    // )]
-    /// CHECK: MessageData with Payload
-    pub message: UncheckedAccount<'info>,
 
     #[account(
     init,
@@ -83,19 +70,26 @@ pub struct ProcessSwimPayload<'info> {
     claim.key().as_ref(),
     ],
     bump,
-    space = 8 + PropellerClaim::LEN,
+    space = 8 + SwimClaim::LEN,
     )]
-    pub propeller_claim: Account<'info, PropellerClaim>,
+    pub swim_claim: Account<'info, SwimClaim>,
 
     #[account(
+    mut,
+    close = swim_payload_message_payer,
     seeds = [
     b"propeller".as_ref(),
+    b"swim_payload".as_ref(),
     claim.key().as_ref(),
-    message.key().as_ref(),
     ],
-    bump = propeller_message.bump
+    bump = swim_payload_message.bump,
+    has_one = swim_payload_message_payer,
+    has_one = claim,
     )]
-    pub propeller_message: Box<Account<'info, PropellerMessage>>,
+    pub swim_payload_message: Box<Account<'info, SwimPayloadMessage>>,
+
+    #[account(mut)]
+    pub swim_payload_message_payer: SystemAccount<'info>,
 
     #[account(
     seeds = [ b"redeemer".as_ref()],
@@ -109,7 +103,7 @@ pub struct ProcessSwimPayload<'info> {
     pub redeemer: SystemAccount<'info>,
     #[account(
     mut,
-    token::mint = propeller.token_bridge_mint,
+    token::mint = propeller.swim_usd_mint,
     token::authority = redeemer,
     )]
     pub redeemer_escrow: Box<Account<'info, TokenAccount>>,
@@ -163,13 +157,13 @@ pub struct ProcessSwimPayload<'info> {
     // needs to be a signer since its a "keypair" account
     pub user_transfer_authority: Signer<'info>,
 
-    #[account(mut, token::mint = pool_token_account_0.mint)]
+    #[account(mut, token::mint = pool_token_account_0.mint, token::authority = swim_payload_message.owner)]
     pub user_token_account_0: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut, token::mint = pool_token_account_1.mint)]
+    #[account(mut, token::mint = pool_token_account_1.mint, token::authority = swim_payload_message.owner)]
     pub user_token_account_1: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut, token::mint = pool.lp_mint_key)]
+    #[account(mut, token::mint = pool.lp_mint_key, token::authority = swim_payload_message.owner)]
     pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
 
     pub token_program: Program<'info, Token>,
@@ -184,8 +178,7 @@ impl<'info> ProcessSwimPayload<'info> {
     pub fn accounts(ctx: &Context<ProcessSwimPayload>) -> Result<()> {
         // verify claim
         // verify message
-        require_keys_eq!(ctx.accounts.propeller_message.claim.key(), ctx.accounts.claim.key());
-        require_keys_eq!(ctx.accounts.message.key(), ctx.accounts.propeller_message.wh_message);
+        require_keys_eq!(ctx.accounts.swim_payload_message.claim.key(), ctx.accounts.claim.key());
         require_keys_eq!(
             ctx.accounts.pool.key(),
             ctx.accounts.token_id_map.pool,
@@ -198,8 +191,7 @@ impl<'info> ProcessSwimPayload<'info> {
     pub fn validate(&self) -> Result<()> {
         // verify claim
         // verify message
-        require_keys_eq!(self.propeller_message.claim.key(), self.claim.key());
-        require_keys_eq!(self.message.key(), self.propeller_message.wh_message);
+        require_keys_eq!(self.swim_payload_message.claim.key(), self.claim.key());
         require_keys_eq!(self.pool.key(), self.token_id_map.pool, PropellerError::InvalidTokenIdMapPool);
         Ok(())
     }
@@ -297,9 +289,8 @@ impl<'info> ProcessSwimPayload<'info> {
         user_transfer_authority: &AccountInfo<'info>,
         signer_seeds: &[&[&[u8]]],
     ) -> Result<u64> {
-        let swim_payload_owner = self.propeller_message.owner;
+        let swim_payload_owner = self.swim_payload_message.owner;
         require_gt!(TOKEN_COUNT, pool_token_index as usize);
-        //TODO: add output token account.owner === swim_payload_owner
         match pool_ix {
             PoolInstruction::RemoveExactBurn => {
                 msg!("Executing RemoveExactBurn");
@@ -356,17 +347,13 @@ impl<'info> ProcessSwimPayload<'info> {
                 .get())
             }
             PoolInstruction::Transfer => {
-                require_eq!(
-                    output_token_index,
-                    TOKEN_BRIDGE_OUTPUT_TOKEN_INDEX,
-                    PropellerError::InvalidOutputTokenIndex
-                );
-                self.transfer_token_bridge_mint_tokens(transfer_amount, user_transfer_authority, signer_seeds)
+                require_eq!(output_token_index, SWIM_USD_TO_TOKEN_NUMBER, PropellerError::InvalidOutputTokenIndex);
+                self.transfer_swim_usd_tokens(transfer_amount, user_transfer_authority, signer_seeds)
             }
         }
     }
 
-    fn transfer_token_bridge_mint_tokens(
+    fn transfer_swim_usd_tokens(
         &self,
         transfer_amount: u64,
         user_transfer_authority: &AccountInfo<'info>,
@@ -384,18 +371,18 @@ impl<'info> ProcessSwimPayload<'info> {
         Ok(transfer_amount)
     }
 
-    fn init_propeller_claim_and_log_memo(&mut self, propeller_claim_bump: u8) -> Result<()> {
-        let propeller_claim = &mut self.propeller_claim;
-        propeller_claim.bump = propeller_claim_bump;
-        propeller_claim.claimed = true;
-        let memo = self.propeller_message.memo;
+    fn init_swim_claim_and_log_memo(&mut self, swim_claim_bump: u8) -> Result<()> {
+        let swim_claim = &mut self.swim_claim;
+        swim_claim.bump = swim_claim_bump;
+        swim_claim.claimed = true;
+        let memo = self.swim_payload_message.memo;
         let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
         invoke(&memo_ix, &[self.memo.to_account_info()])?;
         Ok(())
     }
 
-    fn get_token_bridge_mint(&self) -> Pubkey {
-        self.propeller.token_bridge_mint
+    fn get_swim_usd_mint(&self) -> Pubkey {
+        self.propeller.swim_usd_mint
     }
 }
 
@@ -404,38 +391,14 @@ pub fn handle_process_swim_payload(
     target_token_id: u16,
     min_output_amount: u64,
 ) -> Result<u64> {
-    /*
-    // let payload_transfer_with_payload =
-    //     get_transfer_with_payload_from_message_account(&ctx.accounts.message.to_account_info())?;
-    // msg!("message_data_payload: {:?}", payload_transfer_with_payload);
-    //
-    // let PayloadTransferWithPayload {
-    //     message_type,
-    //     amount,
-    //     token_address,
-    //     token_chain,
-    //     to,
-    //     to_chain,
-    //     from_address,
-    //     payload,
-    // } = payload_transfer_with_payload;
-    // // TODO: we should probably validate that `message_data_payload.from_address` is the expected
-    // //  evm routing contract address unless there's a reason to allow someone else to use this method
-    // // let swim_payload =
-    // //     SwimPayload::deserialize(&mut payload.as_slice())?;
-    // let swim_payload = payload;
-    // msg!("swim_payload: {:?}", swim_payload);
-    // let swim_payload = &ctx.accounts.propeller_message.swim_payload;
-
-     */
-    let propeller_message = &ctx.accounts.propeller_message;
+    let propeller_message = &ctx.accounts.swim_payload_message;
 
     let claim_data = ClaimData::try_from_slice(&mut ctx.accounts.claim.data.borrow())
         .map_err(|_| error!(PropellerError::InvalidClaimData))?;
     require!(claim_data.claimed, PropellerError::ClaimNotClaimed);
     msg!("claim_data: {:?}", claim_data);
 
-    let transfer_amount = ctx.accounts.propeller_message.transfer_amount;
+    let transfer_amount = ctx.accounts.swim_payload_message.transfer_amount;
 
     let owner = propeller_message.owner;
     let token_program = &ctx.accounts.token_program;
@@ -443,14 +406,13 @@ pub fn handle_process_swim_payload(
 
     let output_amount = ctx.accounts.transfer_tokens(target_token_id, transfer_amount, min_output_amount)?;
 
-    let propeller_claim_bump = *ctx.bumps.get("propeller_claim").unwrap();
-    ctx.accounts.init_propeller_claim_and_log_memo(propeller_claim_bump)?;
+    let swim_claim_bump = *ctx.bumps.get("swim_claim").unwrap();
+    ctx.accounts.init_swim_claim_and_log_memo(swim_claim_bump)?;
 
     Ok(output_amount)
 }
 
 #[derive(Accounts)]
-// #[instruction(vaa: PostVAAData, target_token_id: u16)]
 pub struct PropellerProcessSwimPayload<'info> {
     pub process_swim_payload: ProcessSwimPayload<'info>,
 
@@ -466,18 +428,31 @@ pub struct PropellerProcessSwimPayload<'info> {
 
     #[account(
     mut,
-    token::mint = process_swim_payload.get_token_bridge_mint(),
+    token::mint = process_swim_payload.propeller.swim_usd_mint,
     token::authority = process_swim_payload.propeller,
     )]
     /// this is "to_fees"
     /// recipient of fees for executing complete transfer (e.g. relayer)
     pub fee_vault: Box<Account<'info, TokenAccount>>,
+
+    // Note: anchor 0.25.0 still has some issues auto deriving recursive
+    // seeds. Seems to be mostly fixed in new version.
+    // #[account(
+    // mut,
+    // seeds = [
+    // b"propeller".as_ref(),
+    // b"fee".as_ref(),
+    // process_swim_payload.propeller.token_bridge_mint,
+    // process_swim_payload.payer.key().as_ref()
+    // ],
+    // bump = fee_tracker.bump
+    // )]
     #[account(
     mut,
     seeds = [
     b"propeller".as_ref(),
     b"fee".as_ref(),
-    process_swim_payload.get_token_bridge_mint().as_ref(),
+    process_swim_payload.get_swim_usd_mint().as_ref(),
     process_swim_payload.payer.key().as_ref()
     ],
     bump = fee_tracker.bump
@@ -503,7 +478,7 @@ pub struct PropellerProcessSwimPayload<'info> {
     #[account(address = marginal_price_pool.lp_mint_key)]
     pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
     /// This is for transferring lamports for kickstart
-    #[account(mut, address = process_swim_payload.propeller_message.owner)]
+    #[account(mut, address = process_swim_payload.swim_payload_message.owner)]
     pub owner: SystemAccount<'info>,
 }
 
@@ -511,7 +486,7 @@ impl<'info> PropellerProcessSwimPayload<'info> {
     pub fn accounts(ctx: &Context<PropellerProcessSwimPayload>, target_token_id: u16) -> Result<()> {
         ctx.accounts.validate()?;
         require_eq!(
-            ctx.accounts.process_swim_payload.propeller_message.target_token_id,
+            ctx.accounts.process_swim_payload.swim_payload_message.target_token_id,
             target_token_id,
             // PropellerError::InvalidTargetTokenId
         );
@@ -531,12 +506,8 @@ impl<'info> PropellerProcessSwimPayload<'info> {
         // verify claim
         // verify message
         require_keys_eq!(
-            self.process_swim_payload.propeller_message.claim.key(),
+            self.process_swim_payload.swim_payload_message.claim.key(),
             self.process_swim_payload.claim.key()
-        );
-        require_keys_eq!(
-            self.process_swim_payload.message.key(),
-            self.process_swim_payload.propeller_message.wh_message
         );
         require_keys_eq!(
             self.process_swim_payload.pool.key(),
@@ -549,13 +520,13 @@ impl<'info> PropellerProcessSwimPayload<'info> {
     /// Calculates, transfer and tracks fees
     /// returns fees_in_token_bridge_mint
     fn handle_fees(&mut self) -> Result<u64> {
-        let fees_in_token_bridge = self.calculate_fees()?;
+        let fees_in_swim_usd_atomic = self.calculate_fees()?;
         let propeller = &self.process_swim_payload.propeller;
         let token_program = &self.process_swim_payload.token_program;
-        msg!("fees_in_token_bridge: {:?}", fees_in_token_bridge);
+        msg!("fees_in_swim_usd_atomic: {:?}", fees_in_swim_usd_atomic);
         let fee_tracker = &mut self.fee_tracker;
         fee_tracker.fees_owed =
-            fee_tracker.fees_owed.checked_add(fees_in_token_bridge).ok_or(PropellerError::IntegerOverflow)?;
+            fee_tracker.fees_owed.checked_add(fees_in_swim_usd_atomic).ok_or(PropellerError::IntegerOverflow)?;
         let cpi_accounts = Transfer {
             from: self.process_swim_payload.redeemer_escrow.to_account_info(),
             to: self.fee_vault.to_account_info(),
@@ -567,9 +538,9 @@ impl<'info> PropellerProcessSwimPayload<'info> {
                 cpi_accounts,
                 &[&[&b"redeemer".as_ref(), &[propeller.redeemer_bump]]],
             ),
-            fees_in_token_bridge,
+            fees_in_swim_usd_atomic,
         )?;
-        Ok(fees_in_token_bridge)
+        Ok(fees_in_swim_usd_atomic)
     }
 
     fn calculate_fees(&self) -> Result<u64> {
@@ -579,7 +550,7 @@ impl<'info> PropellerProcessSwimPayload<'info> {
         let rent = Rent::get()?;
 
         let propeller = &self.process_swim_payload.propeller;
-        let propeller_message = &self.process_swim_payload.propeller_message;
+        let swim_payload_message = &self.process_swim_payload.swim_payload_message;
         let propeller_process_swim_payload_fees = propeller.process_swim_payload_fee;
 
         let two_pool_program = &self.process_swim_payload.two_pool_program;
@@ -588,21 +559,21 @@ impl<'info> PropellerProcessSwimPayload<'info> {
         let marginal_price_pool_token_1_account = &self.marginal_price_pool_token_1_account;
         let marginal_price_pool_lp_mint = &self.marginal_price_pool_lp_mint;
 
-        let propeller_claim_rent_exempt_fees = rent.minimum_balance(8 + PropellerClaim::LEN);
-        let gas_kickstart_amount = if propeller_message.gas_kickstart { propeller.gas_kickstart_amount } else { 0 };
-        let fee_in_lamports = propeller_claim_rent_exempt_fees
+        let swim_claim_rent_exempt_fees = rent.minimum_balance(8 + SwimClaim::LEN);
+        let gas_kickstart_amount = if swim_payload_message.gas_kickstart { propeller.gas_kickstart_amount } else { 0 };
+        let fee_in_lamports = swim_claim_rent_exempt_fees
             .checked_add(propeller_process_swim_payload_fees)
             .and_then(|x| x.checked_add(gas_kickstart_amount))
             .ok_or(PropellerError::IntegerOverflow)?;
 
         msg!(
             "
-        {}(propeller_claim_rent_exempt_fees) +
+        {}(swim_claim_rent_exempt_fees) +
         {}(propeller_process_swim_payload_fees) +
         {}(gas_kickstart_amount)
         = {}(fee_in_lamports)
         ",
-            propeller_claim_rent_exempt_fees,
+            swim_claim_rent_exempt_fees,
             propeller_process_swim_payload_fees,
             gas_kickstart_amount,
             fee_in_lamports
@@ -677,42 +648,19 @@ pub fn handle_propeller_process_swim_payload(
     ctx: Context<PropellerProcessSwimPayload>,
     target_token_id: u16,
 ) -> Result<u64> {
-    let payload_transfer_with_payload =
-        get_transfer_with_payload_from_message_account(&ctx.accounts.process_swim_payload.message.to_account_info())?;
-    msg!("message_data_payload: {:?}", payload_transfer_with_payload);
-    let PayloadTransferWithPayload {
-        message_type,
-        amount,
-        token_address,
-        token_chain,
-        to,
-        to_chain,
-        from_address,
-        payload,
-    } = payload_transfer_with_payload;
-    //TODO: do i need to re-check this?
-    // any issue in doing so?
-    msg!("payload_transfer_with_payload.to: {:?}", to);
-    let to_pubkey = Pubkey::new_from_array(to);
-    require_keys_eq!(to_pubkey, crate::ID);
+    let swim_payload_message = &ctx.accounts.process_swim_payload.swim_payload_message;
+    let is_gas_kickstart = swim_payload_message.gas_kickstart;
+    let target_token_id = swim_payload_message.target_token_id;
 
-    let message_swim_payload = payload;
-
-    let propeller_message = &ctx.accounts.process_swim_payload.propeller_message;
-    let is_gas_kickstart = propeller_message.gas_kickstart;
-    let target_token_id = propeller_message.target_token_id;
-
-    // require!(propeller_message.gas_kickstart, PropellerError::InvalidSwimPayloadGasKickstart);
-    require_eq!(message_swim_payload.target_token_id, propeller_message.target_token_id);
     let claim_data = ClaimData::try_from_slice(&mut ctx.accounts.process_swim_payload.claim.data.borrow())
         .map_err(|_| error!(PropellerError::InvalidClaimData))?;
     require!(claim_data.claimed, PropellerError::ClaimNotClaimed);
     msg!("claim_data: {:?}", claim_data);
 
-    let mut transfer_amount = propeller_message.transfer_amount;
+    let mut transfer_amount = swim_payload_message.transfer_amount;
     let propeller = &ctx.accounts.process_swim_payload.propeller;
     let redeemer = &ctx.accounts.process_swim_payload.redeemer;
-    let swim_payload_owner = propeller_message.owner;
+    let swim_payload_owner = swim_payload_message.owner;
     let token_program = &ctx.accounts.process_swim_payload.token_program;
     msg!("original transfer_amount: {:?}", transfer_amount);
     if swim_payload_owner != ctx.accounts.process_swim_payload.payer.key() {
@@ -734,8 +682,8 @@ pub fn handle_propeller_process_swim_payload(
     let output_amount =
         ctx.accounts.process_swim_payload.transfer_tokens(target_token_id, transfer_amount, min_output_amount)?;
 
-    let propeller_claim_bump = *ctx.bumps.get("propeller_claim").unwrap();
-    ctx.accounts.process_swim_payload.init_propeller_claim_and_log_memo(propeller_claim_bump)?;
+    let swim_claim_bump = *ctx.bumps.get("swim_claim").unwrap();
+    ctx.accounts.process_swim_payload.init_swim_claim_and_log_memo(swim_claim_bump)?;
 
     msg!("output_amount: {}", output_amount);
     Ok(output_amount)
@@ -744,8 +692,9 @@ pub fn handle_propeller_process_swim_payload(
 #[derive(Accounts)]
 pub struct PropellerProcessSwimPayloadFallback<'info> {
     #[account(
-    seeds = [ b"propeller".as_ref(), propeller.token_bridge_mint.as_ref()],
-    bump = propeller.bump
+    seeds = [ b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
+    bump = propeller.bump,
+    has_one = marginal_price_pool
     )]
     pub propeller: Box<Account<'info, Propeller>>,
     #[account(mut)]
@@ -753,28 +702,15 @@ pub struct PropellerProcessSwimPayloadFallback<'info> {
 
     #[account(
     seeds = [
-    propeller_message.vaa_emitter_address.as_ref(),
-    propeller_message.vaa_emitter_chain.to_be_bytes().as_ref(),
-    propeller_message.vaa_sequence.to_be_bytes().as_ref(),
+    swim_payload_message.vaa_emitter_address.as_ref(),
+    swim_payload_message.vaa_emitter_chain.to_be_bytes().as_ref(),
+    swim_payload_message.vaa_sequence.to_be_bytes().as_ref(),
     ],
     bump,
     seeds::program = propeller.token_bridge().unwrap()
     )]
     /// CHECK: WH Claim account
     pub claim: UncheckedAccount<'info>,
-
-    //TODO: do i really need to pass in the original message account?
-    // seeds = [ b"PostedVAA".as_ref(), hash_vaa(vaa).as_ref() ],
-    // #[account(
-    //   seeds = [
-    //     b"PostedVAA".as_ref(),
-    //     hash_vaa(&vaa).as_ref()
-    //   ],
-    //   bump = propeller_message.wh_message_bump,
-    //   seeds::program = propeller.wormhole()?
-    // )]
-    /// CHECK: MessageData with Payload
-    pub message: UncheckedAccount<'info>,
 
     #[account(
     init,
@@ -784,19 +720,26 @@ pub struct PropellerProcessSwimPayloadFallback<'info> {
     claim.key().as_ref(),
     ],
     bump,
-    space = 8 + PropellerClaim::LEN,
+    space = 8 + SwimClaim::LEN,
     )]
-    pub propeller_claim: Account<'info, PropellerClaim>,
+    pub swim_claim: Account<'info, SwimClaim>,
 
     #[account(
+    mut,
+    close = swim_payload_message_payer,
     seeds = [
     b"propeller".as_ref(),
+    b"swim_payload".as_ref(),
     claim.key().as_ref(),
-    message.key().as_ref(),
     ],
-    bump = propeller_message.bump
+    bump = swim_payload_message.bump,
+    has_one = swim_payload_message_payer,
+    has_one = owner,
+    has_one = claim,
     )]
-    pub propeller_message: Box<Account<'info, PropellerMessage>>,
+    pub swim_payload_message: Box<Account<'info, SwimPayloadMessage>>,
+    #[account(mut)]
+    pub swim_payload_message_payer: SystemAccount<'info>,
 
     #[account(
     seeds = [ b"redeemer".as_ref()],
@@ -810,7 +753,7 @@ pub struct PropellerProcessSwimPayloadFallback<'info> {
     pub redeemer: SystemAccount<'info>,
     #[account(
     mut,
-    token::mint = propeller.token_bridge_mint,
+    token::mint = propeller.swim_usd_mint,
     token::authority = redeemer,
     )]
     pub redeemer_escrow: Box<Account<'info, TokenAccount>>,
@@ -823,8 +766,8 @@ pub struct PropellerProcessSwimPayloadFallback<'info> {
     // needs to be a signer since its a "keypair" account
     pub user_transfer_authority: Signer<'info>,
 
-    #[account(mut, associated_token::mint = propeller.token_bridge_mint, associated_token::authority = owner)]
-    pub user_token_bridge_mint_ata: Box<Account<'info, TokenAccount>>,
+    #[account(mut, associated_token::mint = propeller.swim_usd_mint, associated_token::authority = owner)]
+    pub user_swim_usd_ata: Box<Account<'info, TokenAccount>>,
 
     pub token_program: Program<'info, Token>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
@@ -841,7 +784,7 @@ pub struct PropellerProcessSwimPayloadFallback<'info> {
 
     #[account(
     mut,
-    associated_token::mint = propeller.token_bridge_mint,
+    associated_token::mint = propeller.swim_usd_mint,
     associated_token::authority = propeller,
     )]
     /// this is "to_fees"
@@ -852,7 +795,7 @@ pub struct PropellerProcessSwimPayloadFallback<'info> {
     seeds = [
     b"propeller".as_ref(),
     b"fee".as_ref(),
-    propeller.token_bridge_mint.as_ref(),
+    propeller.swim_usd_mint.as_ref(),
     payer.key().as_ref()
     ],
     bump = fee_tracker.bump
@@ -878,19 +821,19 @@ pub struct PropellerProcessSwimPayloadFallback<'info> {
     #[account(address = marginal_price_pool.lp_mint_key)]
     pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
     /// This is for transferring lamports for kickstart
-    #[account(mut, address = propeller_message.owner)]
+    #[account(mut)]
     pub owner: SystemAccount<'info>,
 }
 
 impl<'info> PropellerProcessSwimPayloadFallback<'info> {
     pub fn accounts(ctx: &Context<PropellerProcessSwimPayloadFallback>) -> Result<()> {
-        require_keys_eq!(ctx.accounts.owner.key(), ctx.accounts.propeller_message.owner);
+        require_keys_eq!(ctx.accounts.owner.key(), ctx.accounts.swim_payload_message.owner);
         let (expected_token_id_map_address, _bump) = Pubkey::find_program_address(
             &[
                 b"propeller".as_ref(),
                 b"token_id".as_ref(),
                 ctx.accounts.propeller.key().as_ref(),
-                ctx.accounts.propeller_message.target_token_id.to_le_bytes().as_ref(),
+                ctx.accounts.swim_payload_message.target_token_id.to_le_bytes().as_ref(),
             ],
             ctx.program_id,
         );
@@ -901,7 +844,7 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
     }
 
     /// Calculates, transfer and tracks fees
-    /// returns fees_in_token_bridge_mint
+    /// returns fees_in_swim_usd_mint
     fn handle_fees(&mut self) -> Result<u64> {
         let fees_in_token_bridge = self.calculate_fees()?;
         let propeller = &self.propeller;
@@ -933,7 +876,7 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
         let rent = Rent::get()?;
 
         let propeller = &self.propeller;
-        let propeller_message = &self.propeller_message;
+        let swim_payload_message = &self.swim_payload_message;
         let propeller_process_swim_payload_fees = propeller.process_swim_payload_fee;
 
         let two_pool_program = &self.two_pool_program;
@@ -942,21 +885,21 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
         let marginal_price_pool_token_1_account = &self.marginal_price_pool_token_1_account;
         let marginal_price_pool_lp_mint = &self.marginal_price_pool_lp_mint;
 
-        let propeller_claim_rent_exempt_fees = rent.minimum_balance(8 + PropellerClaim::LEN);
-        let gas_kickstart_amount = if propeller_message.gas_kickstart { propeller.gas_kickstart_amount } else { 0 };
-        let fee_in_lamports = propeller_claim_rent_exempt_fees
+        let swim_claim_rent_exempt_fees = rent.minimum_balance(8 + SwimClaim::LEN);
+        let gas_kickstart_amount = if swim_payload_message.gas_kickstart { propeller.gas_kickstart_amount } else { 0 };
+        let fee_in_lamports = swim_claim_rent_exempt_fees
             .checked_add(propeller_process_swim_payload_fees)
             .and_then(|x| x.checked_add(gas_kickstart_amount))
             .ok_or(PropellerError::IntegerOverflow)?;
 
         msg!(
             "
-        {}(propeller_claim_rent_exempt_fees) +
+        {}(swim_claim_rent_exempt_fees) +
         {}(propeller_process_swim_payload_fees) +
         {}(gas_kickstart_amount)
         = {}(fee_in_lamports)
         ",
-            propeller_claim_rent_exempt_fees,
+            swim_claim_rent_exempt_fees,
             propeller_process_swim_payload_fees,
             gas_kickstart_amount,
             fee_in_lamports
@@ -999,7 +942,7 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
         // }
         let lp_mint_key = marginal_price_pool_lp_mint.key();
 
-        let token_bridge_mint_key = self.propeller.token_bridge_mint;
+        let swim_usd_mint_key = self.propeller.swim_usd_mint;
         let marginal_price: Decimal = get_marginal_price_decimal(
             &marginal_price_pool,
             &marginal_prices,
@@ -1012,29 +955,29 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
         msg!("marginal_price: {}", marginal_price);
         let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
         msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
-        let fee_in_token_bridge_mint_decimal = marginal_price
+        let fee_in_swim_usd_mint_decimal = marginal_price
             .checked_mul(lamports_usd_price)
             .and_then(|v| v.checked_mul(fee_in_lamports_decimal))
             .ok_or(PropellerError::IntegerOverflow)?;
 
-        let token_bridge_mint_decimals =
-            get_token_bridge_mint_decimals(&token_bridge_mint_key, &marginal_price_pool, &marginal_price_pool_lp_mint)?;
+        let swim_usd_mint_decimals =
+            get_swim_usd_mint_decimals(&swim_usd_mint_key, &marginal_price_pool, &marginal_price_pool_lp_mint)?;
 
-        msg!("token_bridge_mint_decimals: {:?} ", token_bridge_mint_decimals);
+        msg!("swim_usd_mint_mint_decimals: {:?} ", swim_usd_mint_decimals);
 
         let ten_pow_decimals =
-            Decimal::from_u64(10u64.pow(token_bridge_mint_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
-        let fee_in_token_bridge_mint = fee_in_token_bridge_mint_decimal
+            Decimal::from_u64(10u64.pow(swim_usd_mint_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
+        let fee_in_swim_usd_atomic = fee_in_swim_usd_mint_decimal
             .checked_mul(ten_pow_decimals)
             .and_then(|v| v.to_u64())
             .ok_or(PropellerError::ConversionError)?;
 
         msg!(
-            "fee_in_token_bridge_mint_decimal: {:?} fee_in_token_bridge_mint: {:?}",
-            fee_in_token_bridge_mint_decimal,
-            fee_in_token_bridge_mint
+            "fee_in_swim_usd_decimal: {:?} fee_in_swim_usd_atomic: {:?}",
+            fee_in_swim_usd_mint_decimal,
+            fee_in_swim_usd_atomic
         );
-        res = fee_in_token_bridge_mint;
+        res = fee_in_swim_usd_atomic;
         Ok(res)
     }
 
@@ -1065,7 +1008,7 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
     pub fn transfer_tokens(&self, transfer_amount: u64) -> Result<u64> {
         //TODO: decide if using user_transfer_auth
         // remove user_transfer_authority account if not.
-        self.transfer_token_bridge_mint_tokens(
+        self.transfer_swim_usd_tokens(
             transfer_amount,
             &self.redeemer.to_account_info(),
             &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
@@ -1138,7 +1081,7 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
     //     output_amount_res
     // }
 
-    fn transfer_token_bridge_mint_tokens(
+    fn transfer_swim_usd_tokens(
         &self,
         transfer_amount: u64,
         user_transfer_authority: &AccountInfo<'info>,
@@ -1146,7 +1089,7 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
     ) -> Result<u64> {
         let cpi_accounts = Transfer {
             from: self.redeemer_escrow.to_account_info(),
-            to: self.user_token_bridge_mint_ata.to_account_info(),
+            to: self.user_swim_usd_ata.to_account_info(),
             authority: user_transfer_authority.to_account_info(),
         };
         token::transfer(
@@ -1156,11 +1099,11 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
         Ok(transfer_amount)
     }
 
-    fn init_propeller_claim_and_log_memo(&mut self, propeller_claim_bump: u8) -> Result<()> {
-        let propeller_claim = &mut self.propeller_claim;
-        propeller_claim.bump = propeller_claim_bump;
-        propeller_claim.claimed = true;
-        let memo = self.propeller_message.memo;
+    fn init_swim_claim_and_log_memo(&mut self, swim_claim_bump: u8) -> Result<()> {
+        let swim_claim = &mut self.swim_claim;
+        swim_claim.bump = swim_claim_bump;
+        swim_claim.claimed = true;
+        let memo = self.swim_payload_message.memo;
         let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
         invoke(&memo_ix, &[self.memo.to_account_info()])?;
         Ok(())
@@ -1170,43 +1113,20 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
 pub fn handle_propeller_process_swim_payload_fallback(
     ctx: Context<PropellerProcessSwimPayloadFallback>,
 ) -> Result<u64> {
-    let payload_transfer_with_payload =
-        get_transfer_with_payload_from_message_account(&ctx.accounts.message.to_account_info())?;
-    msg!("message_data_payload: {:?}", payload_transfer_with_payload);
-    let PayloadTransferWithPayload {
-        message_type,
-        amount,
-        token_address,
-        token_chain,
-        to,
-        to_chain,
-        from_address,
-        payload,
-    } = payload_transfer_with_payload;
-    //TODO: do i need to re-check this?
-    // any issue in doing so?
-    msg!("payload_transfer_with_payload.to: {:?}", to);
-    let to_pubkey = Pubkey::new_from_array(to);
-    require_keys_eq!(to_pubkey, crate::ID);
+    let swim_payload_message = &ctx.accounts.swim_payload_message;
+    let is_gas_kickstart = swim_payload_message.gas_kickstart;
+    let target_token_id = swim_payload_message.target_token_id;
 
-    let message_swim_payload = payload;
-
-    let propeller_message = &ctx.accounts.propeller_message;
-    let is_gas_kickstart = propeller_message.gas_kickstart;
-    let target_token_id = propeller_message.target_token_id;
-
-    // require!(propeller_message.gas_kickstart, PropellerError::InvalidSwimPayloadGasKickstart);
-    require_eq!(message_swim_payload.target_token_id, propeller_message.target_token_id);
     let claim_data = ClaimData::try_from_slice(&mut ctx.accounts.claim.data.borrow())
         .map_err(|_| error!(PropellerError::InvalidClaimData))?;
     require!(claim_data.claimed, PropellerError::ClaimNotClaimed);
     msg!("claim_data: {:?}", claim_data);
 
-    let mut transfer_amount = propeller_message.transfer_amount;
+    let mut transfer_amount = swim_payload_message.transfer_amount;
     let propeller = &ctx.accounts.propeller;
     let propeller_redeemer_bump = ctx.accounts.propeller.redeemer_bump;
     let redeemer = &ctx.accounts.redeemer;
-    let swim_payload_owner = propeller_message.owner;
+    let swim_payload_owner = swim_payload_message.owner;
     let token_program = &ctx.accounts.token_program;
     msg!("original transfer_amount: {:?}", transfer_amount);
     if swim_payload_owner != ctx.accounts.payer.key() {
@@ -1224,14 +1144,14 @@ pub fn handle_propeller_process_swim_payload_fallback(
     }
 
     msg!("transfer_amount - fee = {}", transfer_amount);
-    let output_amount = ctx.accounts.transfer_token_bridge_mint_tokens(
+    let output_amount = ctx.accounts.transfer_swim_usd_tokens(
         transfer_amount,
         &ctx.accounts.redeemer.to_account_info(),
         &[&[&b"redeemer".as_ref(), &[propeller_redeemer_bump]]],
     )?;
 
-    let propeller_claim_bump = *ctx.bumps.get("propeller_claim").unwrap();
-    ctx.accounts.init_propeller_claim_and_log_memo(propeller_claim_bump)?;
+    let swim_claim_bump = *ctx.bumps.get("swim_claim").unwrap();
+    ctx.accounts.init_swim_claim_and_log_memo(swim_claim_bump)?;
 
     msg!("output_amount: {}", output_amount);
     Ok(output_amount)

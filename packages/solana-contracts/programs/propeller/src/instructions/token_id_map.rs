@@ -12,14 +12,12 @@ use {
 #[instruction(target_token_index: u16, pool: Pubkey, pool_token_index: u8, pool_token_mint: Pubkey)]
 pub struct CreateTokenIdMap<'info> {
     #[account(
-    seeds = [b"propeller".as_ref(), propeller.token_bridge_mint.key().as_ref()],
+    seeds = [b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
     bump = propeller.bump,
+    has_one = admin @ PropellerError::InvalidPropellerAdmin,
     )]
     pub propeller: Account<'info, Propeller>,
 
-    #[account(
-  constraint = admin.key() == propeller.admin
-  )]
     pub admin: Signer<'info>,
 
     #[account(mut)]
@@ -28,9 +26,9 @@ pub struct CreateTokenIdMap<'info> {
     #[account(
     seeds = [
     b"two_pool".as_ref(),
-      pool.get_token_mint_0().unwrap().as_ref(),
-      pool.get_token_mint_1().unwrap().as_ref(),
-      pool.lp_mint_key.as_ref(),
+    pool.get_token_mint_0().unwrap().as_ref(),
+    pool.get_token_mint_1().unwrap().as_ref(),
+    pool.lp_mint_key.as_ref(),
     ],
     bump = pool.bump,
     seeds::program = two_pool_program.key(),
@@ -89,7 +87,7 @@ impl<'info> CreateTokenIdMap<'info> {
         require_keys_eq!(ctx.accounts.pool.key(), pool, PropellerError::InvalidTokenIdMapPool);
         if let PoolInstruction::Transfer = pool_ix {
             require_keys_eq!(
-                ctx.accounts.propeller.token_bridge_mint,
+                ctx.accounts.propeller.swim_usd_mint,
                 pool_token_mint,
                 PropellerError::InvalidTokenIdMapPoolTokenMint
             );

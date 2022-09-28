@@ -26,9 +26,9 @@ use {
 #[instruction(nonce: u32, target_chain: u16)]
 pub struct TransferNativeWithPayload<'info> {
     #[account(
-    has_one = token_bridge_mint,
-    seeds = [b"propeller".as_ref(), token_bridge_mint.key().as_ref()],
+    seeds = [b"propeller".as_ref(), swim_usd_mint.key().as_ref()],
     bump = propeller.bump,
+    has_one = swim_usd_mint @ PropellerError::InvalidSwimUsdMint,
     )]
     pub propeller: Box<Account<'info, Propeller>>,
 
@@ -45,13 +45,13 @@ pub struct TransferNativeWithPayload<'info> {
 
     #[account(
 	mut,
-	associated_token::mint = token_bridge_mint,
+	associated_token::mint = swim_usd_mint,
 	associated_token::authority = payer
 	)]
     pub user_token_bridge_account: Box<Account<'info, TokenAccount>>,
 
     #[account(mut)]
-    pub token_bridge_mint: Box<Account<'info, Mint>>,
+    pub swim_usd_mint: Box<Account<'info, Mint>>,
 
     //TODO: change this associated_token account?
     //      is it necessary to do check since CPI will do check?
@@ -205,9 +205,9 @@ impl<'info> TransferNativeWithPayload<'info> {
     //  up to 1.4M compute budget per transaction, better safe than sorry to perform them.
     pub fn accounts(ctx: &Context<TransferNativeWithPayload>) -> Result<()> {
         require_keys_eq!(
-            ctx.accounts.token_bridge_mint.key(),
-            ctx.accounts.propeller.token_bridge_mint,
-            PropellerError::InvalidTokenBridgeMint
+            ctx.accounts.swim_usd_mint.key(),
+            ctx.accounts.propeller.swim_usd_mint,
+            PropellerError::InvalidSwimUsdMint
         );
         // let pool_state_acct = &ctx.accounts.pool_state;
         // let pool: two_pool::state::PoolState<{two_pool::TOKEN_COUNT}> = two_pool::state::PoolState::try_from_slice(&pool_state_acct.data.borrow())?;
@@ -321,7 +321,7 @@ pub fn handle_transfer_native_with_payload(
         ctx.accounts.token_bridge_config.to_account_info().clone(),
         // ctx.accounts.token_bridge.to_account_info().clone(),
         ctx.accounts.user_token_bridge_account.to_account_info().clone(),
-        ctx.accounts.token_bridge_mint.to_account_info().clone(),
+        ctx.accounts.swim_usd_mint.to_account_info().clone(),
         token_bridge_custody.to_account_info().clone(),
         ctx.accounts.authority_signer.to_account_info().clone(),
         ctx.accounts.custody_signer.to_account_info().clone(),
@@ -346,7 +346,7 @@ pub fn handle_transfer_native_with_payload(
                 AccountMeta::new_readonly(ctx.accounts.token_bridge_config.key(), false),
                 // AccountMeta::new(ctx.accounts.wormhole_config.key(), false),
                 AccountMeta::new(ctx.accounts.user_token_bridge_account.key(), false),
-                AccountMeta::new(ctx.accounts.token_bridge_mint.key(), false),
+                AccountMeta::new(ctx.accounts.swim_usd_mint.key(), false),
                 AccountMeta::new(token_bridge_custody.key(), false),
                 AccountMeta::new_readonly(ctx.accounts.authority_signer.key(), false),
                 AccountMeta::new_readonly(ctx.accounts.custody_signer.key(), false),

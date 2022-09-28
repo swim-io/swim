@@ -12,10 +12,11 @@ use {
 pub struct SwapExactInput<'info> {
     #[account(
     seeds = [
-      b"propeller".as_ref(),
-      pool_token_account_0.mint.as_ref(),
+    b"propeller".as_ref(),
+    pool_token_account_0.mint.as_ref(),
     ],
-    bump = propeller.bump
+    bump = propeller.bump,
+    has_one = swim_usd_mint @ PropellerError::InvalidSwimUsdMint,
     )]
     pub propeller: Account<'info, Propeller>,
     #[account(
@@ -74,8 +75,7 @@ pub struct SwapExactInput<'info> {
     ///CHECK: memo program
     pub memo: UncheckedAccount<'info>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
-    #[account(address = propeller.token_bridge_mint)]
-    pub token_bridge_mint: Account<'info, Mint>,
+    pub swim_usd_mint: Account<'info, Mint>,
 }
 
 // pub fn handle_swap_exact_input(

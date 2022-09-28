@@ -14,7 +14,7 @@ pub struct Initialize<'info> {
     #[account(
     init,
     payer = payer,
-    seeds = [ b"propeller".as_ref(), token_bridge_mint.key().as_ref() ],
+    seeds = [ b"propeller".as_ref(), swim_usd_mint.key().as_ref() ],
     bump,
     space = 8 + Propeller::LEN,
     )]
@@ -27,7 +27,7 @@ pub struct Initialize<'info> {
     #[account(
     init,
     payer = payer,
-    associated_token::mint = token_bridge_mint,
+    associated_token::mint = swim_usd_mint,
     associated_token::authority = propeller_redeemer,
     )]
     pub propeller_redeemer_escrow: Box<Account<'info, TokenAccount>>,
@@ -35,13 +35,13 @@ pub struct Initialize<'info> {
     #[account(
     init,
     payer = payer,
-    associated_token::mint = token_bridge_mint,
+    associated_token::mint = swim_usd_mint,
     associated_token::authority = propeller,
     )]
     pub propeller_fee_vault: Box<Account<'info, TokenAccount>>,
 
     pub admin: Signer<'info>,
-    pub token_bridge_mint: Box<Account<'info, Mint>>,
+    pub swim_usd_mint: Box<Account<'info, Mint>>,
 
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -106,7 +106,7 @@ pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> 
     //TODO: these should be passed in as params or read based on features used when deploying?
     propeller.wormhole = propeller.wormhole()?;
     propeller.token_bridge = propeller.token_bridge()?;
-    propeller.token_bridge_mint = ctx.accounts.token_bridge_mint.key();
+    propeller.swim_usd_mint = ctx.accounts.swim_usd_mint.key();
 
     propeller.sender_bump = *ctx.bumps.get("propeller_sender").unwrap();
     propeller.redeemer_bump = *ctx.bumps.get("propeller_redeemer").unwrap();

@@ -134,10 +134,9 @@ export const usePools = (poolIds: readonly string[]): readonly PoolData[] => {
   );
 
   return poolSpecs.map((poolSpec, i) => {
-    const { data: poolTokenAccounts = null } = liquidityQueries[i];
-    if (poolTokenAccounts !== null && !isEachNotNull(poolTokenAccounts)) {
-      throw new Error("Missing token account");
-    }
+    const { data = null } = liquidityQueries[i];
+    const poolTokenAccounts =
+      data !== null && isEachNotNull(data) ? data : null;
     return constructPool(
       allTokens,
       poolSpec,

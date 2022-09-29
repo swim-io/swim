@@ -33,7 +33,7 @@ describe("useWalletService", () => {
 
   it("should call useWalletAdapter connectService with the correct createAdapter", async () => {
     const config = CONFIGS[Env.Local];
-    const [{ endpoints }] = config.chains[Protocol.Solana];
+    const [{ publicRpcUrls }] = config.chains[Protocol.Solana];
 
     const connectServiceMock = jest.fn();
     const disconnectServiceMock = jest.fn();
@@ -62,7 +62,7 @@ describe("useWalletService", () => {
     expect(createAdapterMock).toHaveBeenCalledWith(
       "metamask",
       Protocol.Evm,
-      endpoints[0],
+      publicRpcUrls[0],
     );
   });
 

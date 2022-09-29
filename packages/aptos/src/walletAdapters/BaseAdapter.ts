@@ -1,8 +1,4 @@
-import type {
-  SubmitTransactionRequest,
-  Transaction,
-  TransactionPayload,
-} from "aptos/src/generated";
+import type { Types } from "aptos";
 import EventEmitter from "eventemitter3";
 
 import type { AptosProtocol } from "../protocol";
@@ -22,12 +18,12 @@ export interface WalletAdapterProps {
   readonly connect: () => Promise<void>;
   readonly disconnect: () => Promise<void>;
   readonly signAndSubmitTransaction: (
-    transaction: TransactionPayload,
-    options?: Partial<SubmitTransactionRequest>,
-  ) => Promise<Transaction["hash"]>;
+    transaction: Types.TransactionPayload,
+    options?: Partial<Types.SubmitTransactionRequest>,
+  ) => Promise<Types.Transaction["hash"]>;
   readonly signTransaction: (
-    transaction: TransactionPayload,
-    options?: Partial<SubmitTransactionRequest>,
+    transaction: Types.TransactionPayload,
+    options?: Partial<Types.SubmitTransactionRequest>,
   ) => Promise<Uint8Array>;
   readonly network: () => Promise<string>;
 }
@@ -59,12 +55,12 @@ export abstract class BaseWalletAdapter
   public abstract connect(): Promise<void>;
   public abstract disconnect(): Promise<void>;
   public abstract signAndSubmitTransaction(
-    transaction: TransactionPayload,
-    options?: Partial<SubmitTransactionRequest>,
-  ): Promise<Transaction["hash"]>;
+    transaction: Types.TransactionPayload,
+    options?: Partial<Types.SubmitTransactionRequest>,
+  ): Promise<Types.Transaction["hash"]>;
 
   public abstract signTransaction(
-    transaction: TransactionPayload,
+    transaction: Types.TransactionPayload,
   ): Promise<Uint8Array>;
 
   public abstract network(): Promise<string>;

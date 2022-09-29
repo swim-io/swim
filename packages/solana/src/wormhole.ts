@@ -1,11 +1,7 @@
-/* eslint-disable @typescript-eslint/unbound-method, functional/immutable-data, functional/prefer-readonly-type */
 import type { ChainId } from "@certusone/wormhole-sdk";
 import {
   CHAIN_ID_SOLANA,
-  chunks,
   createNonce,
-  createPostVaaInstructionSolana,
-  createVerifySignaturesInstructionsSolana,
   getBridgeFeeIx,
   importCoreWasm,
   importTokenWasm,
@@ -15,15 +11,12 @@ import { createApproveInstruction } from "@solana/spl-token";
 import type {
   ParsedTransactionWithMeta,
   Transaction,
-  TransactionInstruction,
   VersionedTransactionResponse,
 } from "@solana/web3.js";
-import { Keypair, PublicKey } from "@solana/web3.js";
-import type { WormholeChainConfig } from "@swim-io/core";
+import { PublicKey } from "@solana/web3.js";
 
 import type { SolanaConnection } from "./SolanaConnection";
 import { createMemoIx, createTx } from "./utils";
-import type { SolanaWalletAdapter } from "./walletAdapters";
 
 // Adapted from https://github.com/certusone/wormhole/blob/83b97bedb8c54618b191c20e4e18ba438a716cfa/sdk/js/src/bridge/parseSequenceFromLog.ts#L71-L81
 const SOLANA_SEQ_LOG = "Program log: Sequence: ";
@@ -43,28 +36,46 @@ export const parseSequenceFromLogSolana = (
 /**
  * Adapted from https://github.com/certusone/wormhole/blob/2998031b164051a466bb98c71d89301ed482b4c5/sdk/js/src/token_bridge/transfer.ts#L264-L341
  */
-export const transferFromSolana = async (
-  interactionId: string,
-  solanaConnection: SolanaConnection,
-  bridgeAddress: string,
-  tokenBridgeAddress: string,
-  payerAddress: string,
-  fromAddress: string,
-  mintAddress: string,
-  amount: bigint,
-  targetAddress: Uint8Array,
-  targetChain: ChainId,
-  originAddress?: Uint8Array,
-  originChain?: ChainId,
-  fromOwnerAddress?: string,
-): Promise<{ readonly tx: Transaction; readonly messageKeypair: Keypair }> => {
+export interface CreateTransferFromSolanaTxParams {
+  readonly interactionId: string;
+  readonly solanaConnection: SolanaConnection;
+  readonly bridgeAddress: string;
+  readonly portalAddress: string;
+  readonly payerAddress: string;
+  readonly auxiliarySignerAddress: string;
+  readonly fromAddress: string;
+  readonly mintAddress: string;
+  readonly amount: bigint;
+  readonly targetAddress: Uint8Array;
+  readonly targetChain: ChainId;
+  readonly originAddress?: Uint8Array;
+  readonly originChain?: ChainId;
+  readonly fromOwnerAddress?: string;
+}
+export const createTransferFromSolanaTx = async ({
+  interactionId,
+  solanaConnection,
+  bridgeAddress,
+  portalAddress,
+  payerAddress,
+  auxiliarySignerAddress,
+  fromAddress,
+  mintAddress,
+  amount,
+  targetAddress,
+  targetChain,
+  originAddress,
+  originChain,
+  fromOwnerAddress,
+}: CreateTransferFromSolanaTxParams): Promise<Transaction> => {
   const nonce = createNonce().readUInt32LE(0);
   const fee = BigInt(0); // for now, this won't do anything, we may add later
-  const transferIx = await getBridgeFeeIx(
+  const bridgeFeeIx = await getBridgeFeeIx(
     solanaConnection.rawConnection,
     bridgeAddress,
     payerAddress,
   );
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     transfer_native_ix,
     transfer_wrapped_ix,
@@ -72,23 +83,22 @@ export const transferFromSolana = async (
   } = await importTokenWasm();
   const approvalIx = createApproveInstruction(
     new PublicKey(fromAddress),
-    new PublicKey(approval_authority_address(tokenBridgeAddress)),
+    new PublicKey(approval_authority_address(portalAddress)),
     new PublicKey(fromOwnerAddress || payerAddress),
     amount,
   );
-  const messageKeypair = Keypair.generate();
   const isSolanaNative =
     originChain === undefined || originChain === CHAIN_ID_SOLANA;
   if (!isSolanaNative && !originAddress) {
     throw new Error("originAddress is required when specifying originChain");
   }
-  const ix = ixFromRust(
+  const transferIx = ixFromRust(
     isSolanaNative
       ? transfer_native_ix(
-          tokenBridgeAddress,
+          portalAddress,
           bridgeAddress,
           payerAddress,
-          messageKeypair.publicKey.toString(),
+          auxiliarySignerAddress,
           fromAddress,
           mintAddress,
           nonce,
@@ -98,10 +108,10 @@ export const transferFromSolana = async (
           targetChain,
         )
       : transfer_wrapped_ix(
-          tokenBridgeAddress,
+          portalAddress,
           bridgeAddress,
           payerAddress,
-          messageKeypair.publicKey.toString(),
+          auxiliarySignerAddress,
           fromAddress,
           fromOwnerAddress || payerAddress,
           originChain as number, // checked by isSolanaNative
@@ -114,147 +124,60 @@ export const transferFromSolana = async (
         ),
   );
   const memoIx = createMemoIx(interactionId, []);
-
   const tx = createTx({
     feePayer: new PublicKey(payerAddress),
-  }).add(transferIx, approvalIx, ix, memoIx);
-  return { tx, messageKeypair };
+  }).add(bridgeFeeIx, approvalIx, transferIx, memoIx);
+  return tx;
 };
 
 /**
  * Adapted from https://github.com/certusone/wormhole/blob/2998031b164051a466bb98c71d89301ed482b4c5/sdk/js/src/token_bridge/redeem.ts#L146-L189
  * */
-export const redeemOnSolana = async (
-  interactionId: string,
-  bridgeAddress: string,
-  tokenBridgeAddress: string,
-  payerAddress: string,
-  signedVAA: Uint8Array,
-): Promise<Transaction> => {
+export interface CreateRedeemOnSolanaTxParams {
+  readonly interactionId: string;
+  readonly bridgeAddress: string;
+  readonly portalAddress: string;
+  readonly payerAddress: string;
+  readonly signedVaa: Uint8Array;
+}
+export const createRedeemOnSolanaTx = async ({
+  interactionId,
+  bridgeAddress,
+  portalAddress,
+  payerAddress,
+  signedVaa,
+}: CreateRedeemOnSolanaTxParams): Promise<Transaction> => {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const { parse_vaa } = await importCoreWasm();
-  const parsedVAA = parse_vaa(signedVAA) as {
-    payload: Iterable<number>;
+  const parsedVAA = parse_vaa(signedVaa) as {
+    readonly payload: Iterable<number>;
   };
   const isSolanaNative =
     Buffer.from(new Uint8Array(parsedVAA.payload)).readUInt16BE(65) ===
     CHAIN_ID_SOLANA;
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const { complete_transfer_wrapped_ix, complete_transfer_native_ix } =
     await importTokenWasm();
-  const ixs = [];
-  if (isSolanaNative) {
-    ixs.push(
-      ixFromRust(
+  const completeTransferIx = isSolanaNative
+    ? ixFromRust(
         complete_transfer_native_ix(
-          tokenBridgeAddress,
+          portalAddress,
           bridgeAddress,
           payerAddress,
-          signedVAA,
+          signedVaa,
         ),
-      ),
-    );
-  } else {
-    ixs.push(
-      ixFromRust(
+      )
+    : ixFromRust(
         complete_transfer_wrapped_ix(
-          tokenBridgeAddress,
+          portalAddress,
           bridgeAddress,
           payerAddress,
-          signedVAA,
+          signedVaa,
         ),
-      ),
-    );
-  }
+      );
   const memoIx = createMemoIx(interactionId, []);
   const tx = createTx({
     feePayer: new PublicKey(payerAddress),
-  }).add(...ixs, memoIx);
+  }).add(completeTransferIx, memoIx);
   return tx;
 };
-
-export async function* generatePostVaaSolanaTxIds(
-  interactionId: string,
-  solanaConnection: SolanaConnection,
-  signTransaction: (tx: Transaction) => Promise<Transaction>,
-  bridgeId: string,
-  payer: string,
-  vaa: Buffer,
-  signatureSetKeypair: Keypair,
-): AsyncGenerator<string> {
-  const memoIx = createMemoIx(interactionId, []);
-  const ixs: readonly TransactionInstruction[] =
-    await createVerifySignaturesInstructionsSolana(
-      solanaConnection.rawConnection,
-      bridgeId,
-      payer,
-      vaa,
-      signatureSetKeypair,
-    );
-  const finalIx: TransactionInstruction = await createPostVaaInstructionSolana(
-    bridgeId,
-    payer,
-    vaa,
-    signatureSetKeypair,
-  );
-
-  // The verify signatures instructions can be batched into groups of 2 safely,
-  // reducing the total number of transactions
-  const batchableChunks = chunks([...ixs], 2);
-  const unsignedTxs = batchableChunks.map((chunk) =>
-    createTx({
-      feePayer: new PublicKey(payer),
-    }).add(...chunk, memoIx),
-  );
-  // The postVaa instruction can only execute after the verifySignature transactions have
-  // successfully completed
-  const finalTx = createTx({
-    feePayer: new PublicKey(payer),
-  }).add(finalIx, memoIx);
-
-  // The signatureSet keypair also needs to sign the verifySignature transactions, thus a wrapper is needed
-  const partialSignWrapper = async (tx: Transaction): Promise<Transaction> => {
-    tx.partialSign(signatureSetKeypair);
-    return signTransaction(tx);
-  };
-
-  for (const tx of unsignedTxs) {
-    yield await solanaConnection.sendAndConfirmTx(partialSignWrapper, tx);
-  }
-  yield await solanaConnection.sendAndConfirmTx(signTransaction, finalTx);
-}
-
-export async function* generateUnlockSplTokenTxIds(
-  interactionId: string,
-  solanaWormhole: WormholeChainConfig,
-  solanaConnection: SolanaConnection,
-  solanaWallet: SolanaWalletAdapter,
-  signatureSetKeypair: Keypair,
-  vaaBytes: Uint8Array,
-): AsyncGenerator<string> {
-  const { publicKey: solanaPublicKey } = solanaWallet;
-  if (!solanaPublicKey) {
-    throw new Error("No Solana public key");
-  }
-  const postVaaSolanaTxIdsGenerator = generatePostVaaSolanaTxIds(
-    interactionId,
-    solanaConnection,
-    solanaWallet.signTransaction.bind(solanaWallet),
-    solanaWormhole.bridge,
-    solanaPublicKey.toBase58(),
-    Buffer.from(vaaBytes),
-    signatureSetKeypair,
-  );
-  for await (const txId of postVaaSolanaTxIdsGenerator) {
-    yield txId;
-  }
-  const redeemTx = await redeemOnSolana(
-    interactionId,
-    solanaWormhole.bridge,
-    solanaWormhole.portal,
-    solanaPublicKey.toBase58(),
-    vaaBytes,
-  );
-  yield await solanaConnection.sendAndConfirmTx(
-    solanaWallet.signTransaction.bind(solanaWallet),
-    redeemTx,
-  );
-}

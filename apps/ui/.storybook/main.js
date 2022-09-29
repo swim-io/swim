@@ -7,7 +7,13 @@ module.exports = {
     "@storybook/addon-links",
     "@storybook/addon-essentials",
     "@storybook/addon-interactions",
-    "@storybook/preset-create-react-app",
+    // storybook-preset-craco picks up our webpack/babel config from craco.config.cjs
+    {
+      name: "storybook-preset-craco",
+      options: {
+        cracoConfigFile: path.resolve("craco.config.cjs"),
+      },
+    },
   ],
   framework: "@storybook/react",
   typescript: {
@@ -24,16 +30,26 @@ module.exports = {
     disableTelemetry: true,
   },
   webpackFinal: async (config) => {
+    // "manually" tell webpack these modules need transpiling.
+    config.module.rules.forEach((rule) => {
+      (rule.oneOf || []).forEach((oneOf) => {
+        if (
+          oneOf.loader &&
+          oneOf.loader.indexOf("babel-loader") >= 0 &&
+          oneOf.include.includes(path.resolve(".storybook"))
+        ) {
+          oneOf.include.push(
+            path.resolve("node_modules/aptos"),
+            path.resolve("node_modules/@solana"),
+          );
+        }
+      });
+    });
+
     config.externals = {
       "@certusone/wormhole-sdk": "{}",
     };
 
-    config.resolve.alias["@solana/spl-token"] = path.resolve(
-      "node_modules/@solana/spl-token/lib/cjs",
-    );
-    config.resolve.alias["@solana/buffer-layout-utils"] = path.resolve(
-      "node_modules/@solana/buffer-layout-utils/lib/cjs",
-    );
     return config;
   },
 };

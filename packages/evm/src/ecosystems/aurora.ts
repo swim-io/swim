@@ -11,7 +11,7 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
 export const auroraChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 1313161554,
-  [Env.Devnet]: 1313161555,
+  [Env.Testnet]: 1313161555,
 });
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
@@ -22,28 +22,31 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
     portal: "0x51b5123a7b0F9b2bA265f9c4C8de7D78D52f510F",
   },
   publicRpcUrls: ["https://mainnet.aurora.dev/"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
 
-const devnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
+const testnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
   name: "Aurora Testnet",
-  chainId: auroraChainId[Env.Devnet],
+  chainId: auroraChainId[Env.Testnet],
   wormhole: {
     bridge: "0xBd07292de7b505a4E803CEe286184f7Acf908F5e",
     portal: "0xD05eD3ad637b890D68a854d607eEAF11aF456fba",
   },
   publicRpcUrls: ["https://testnet.aurora.dev/"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
-
-const chains: ReadonlyMap<Env, EvmChainConfig<EvmEcosystemId.Aurora>> = new Map(
-  [
-    [Env.Mainnet, mainnet],
-    [Env.Devnet, devnet],
-  ],
-);
 
 const gasToken: GasToken = {
   name: "Ethereum",
@@ -51,11 +54,14 @@ const gasToken: GasToken = {
   decimals: 18,
 };
 
-export const aurora: EvmEcosystemConfig<EvmEcosystemId.Aurora> = {
+export const aurora = assertType<EvmEcosystemConfig<EvmEcosystemId.Aurora>>()({
   id: EvmEcosystemId.Aurora,
   protocol: EVM_PROTOCOL,
   wormholeChainId: 9,
   displayName: "Aurora",
   gasToken,
-  chains,
-};
+  chains: {
+    [Env.Mainnet]: mainnet,
+    [Env.Testnet]: testnet,
+  },
+} as const);

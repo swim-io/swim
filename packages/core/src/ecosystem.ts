@@ -1,3 +1,5 @@
+import type { ReadonlyRecord } from "@swim-io/utils";
+
 import type { ChainConfig } from "./chain";
 import type { Env } from "./env";
 
@@ -15,5 +17,5 @@ export interface EcosystemConfig {
   readonly wormholeChainId: number;
   readonly displayName: string;
   readonly gasToken: GasToken;
-  readonly chains: ReadonlyMap<Env, ChainConfig>;
+  readonly chains: Partial<ReadonlyRecord<Env, ChainConfig>>;
 }

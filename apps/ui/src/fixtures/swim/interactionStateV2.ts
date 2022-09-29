@@ -24,30 +24,30 @@ import type {
 } from "../../models";
 
 import {
-  ETHEREUM_USDC_DEVNET,
-  ETHEREUM_USDT_DEVNET,
-  SOLANA_USDC_DEVNET,
-  SOLANA_USDT_DEVNET,
-  SWIMUSD_DEVNET,
+  ETHEREUM_USDC_TESTNET,
+  ETHEREUM_USDT_TESTNET,
+  SOLANA_USDC_TESTNET,
+  SOLANA_USDT_TESTNET,
+  SWIMUSD_TESTNET,
 } from "./tokens";
 
 export const SINGLE_CHAIN_SOLANA_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
     fromTokenData: {
-      tokenConfig: findTokenById("devnet-solana-usdc", Env.Devnet),
+      tokenConfig: findTokenById("testnet-solana-usdc", Env.Testnet),
       ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("100"),
     },
     toTokenData: {
-      tokenConfig: findTokenById("devnet-solana-usdt", Env.Devnet),
+      tokenConfig: findTokenById("testnet-solana-usdt", Env.Testnet),
       ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("101"),
     },
   },
   id: "2eed9eef597a2aa14314845afe87079f",
-  poolIds: ["devnet-solana-usdc-usdt"],
-  env: Env.Devnet,
+  poolIds: ["testnet-solana-usdc-usdt"],
+  env: Env.Testnet,
   submittedAt: 1653624596234,
   connectedWallets: {
     [APTOS_ECOSYSTEM_ID]: null,
@@ -129,19 +129,19 @@ const SINGLE_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
     fromTokenData: {
-      tokenConfig: findTokenById("devnet-ethereum-usdc", Env.Devnet),
+      tokenConfig: findTokenById("testnet-ethereum-usdc", Env.Testnet),
       ecosystemId: EvmEcosystemId.Ethereum,
       value: new Decimal("100"),
     },
     toTokenData: {
-      tokenConfig: findTokenById("devnet-ethereum-usdt", Env.Devnet),
+      tokenConfig: findTokenById("testnet-ethereum-usdt", Env.Testnet),
       ecosystemId: EvmEcosystemId.Ethereum,
       value: new Decimal("101"),
     },
   },
   id: "2eed9eef597a2aa14314845afe87079f",
-  poolIds: ["devnet-ethereum-usdc-usdt"],
-  env: Env.Devnet,
+  poolIds: ["testnet-ethereum-usdc-usdt"],
+  env: Env.Testnet,
   submittedAt: 1653624596234,
   connectedWallets: {
     [APTOS_ECOSYSTEM_ID]: null,
@@ -187,19 +187,19 @@ const CROSS_CHAIN_EVM_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
     fromTokenData: {
-      tokenConfig: findTokenById("devnet-ethereum-usdc", Env.Devnet),
+      tokenConfig: findTokenById("testnet-ethereum-usdc", Env.Testnet),
       ecosystemId: EvmEcosystemId.Ethereum,
       value: new Decimal("100"),
     },
     toTokenData: {
-      tokenConfig: findTokenById("devnet-bnb-usdt", Env.Devnet),
+      tokenConfig: findTokenById("testnet-bnb-usdt", Env.Testnet),
       ecosystemId: EvmEcosystemId.Bnb,
       value: new Decimal("101"),
     },
   },
   id: "2eed9eef597a2aa14314845afe87079f",
-  poolIds: ["devnet-ethereum-usdc-usdt", "devnet-bnb-busd-usdt"],
-  env: Env.Devnet,
+  poolIds: ["testnet-ethereum-usdc-usdt", "testnet-bnb-busd-usdt"],
+  env: Env.Testnet,
   submittedAt: 1653624596234,
   connectedWallets: {
     [APTOS_ECOSYSTEM_ID]: null,
@@ -256,19 +256,19 @@ const CROSS_CHAIN_SOLANA_TO_EVM_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
     fromTokenData: {
-      tokenConfig: findTokenById("devnet-solana-usdc", Env.Devnet),
+      tokenConfig: findTokenById("testnet-solana-usdc", Env.Testnet),
       ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("100"),
     },
     toTokenData: {
-      tokenConfig: findTokenById("devnet-bnb-usdt", Env.Devnet),
+      tokenConfig: findTokenById("testnet-bnb-usdt", Env.Testnet),
       ecosystemId: EvmEcosystemId.Bnb,
       value: new Decimal("101"),
     },
   },
   id: "2eed9eef597a2aa14314845afe87079f",
-  poolIds: ["devnet-solana-usdc-usdt", "devnet-bnb-busd-usdt"],
-  env: Env.Devnet,
+  poolIds: ["testnet-solana-usdc-usdt", "testnet-bnb-busd-usdt"],
+  env: Env.Testnet,
   submittedAt: 1653624596234,
   connectedWallets: {
     [APTOS_ECOSYSTEM_ID]: null,
@@ -328,19 +328,19 @@ const CROSS_CHAIN_EVM_TO_SOLANA_INTERACTION: SwapInteractionV2 = {
   type: InteractionType.SwapV2,
   params: {
     fromTokenData: {
-      tokenConfig: findTokenById("devnet-bnb-usdt", Env.Devnet),
+      tokenConfig: findTokenById("testnet-bnb-usdt", Env.Testnet),
       ecosystemId: EvmEcosystemId.Bnb,
       value: new Decimal("101"),
     },
     toTokenData: {
-      tokenConfig: findTokenById("devnet-solana-usdc", Env.Devnet),
+      tokenConfig: findTokenById("testnet-solana-usdc", Env.Testnet),
       ecosystemId: SOLANA_ECOSYSTEM_ID,
       value: new Decimal("100"),
     },
   },
   id: "2eed9eef597a2aa14314845afe87079f",
-  poolIds: ["devnet-solana-usdc-usdt", "devnet-bnb-busd-usdt"],
-  env: Env.Devnet,
+  poolIds: ["testnet-solana-usdc-usdt", "testnet-bnb-busd-usdt"],
+  env: Env.Testnet,
   submittedAt: 1653624596234,
   connectedWallets: {
     [APTOS_ECOSYSTEM_ID]: null,
@@ -410,16 +410,16 @@ const ADD_INTERACTION_SOLANA: AddInteraction = {
   type: InteractionType.Add,
   params: {
     inputAmounts: [
-      Amount.fromHumanString(SOLANA_USDC_DEVNET, "5"),
-      Amount.fromHumanString(SOLANA_USDT_DEVNET, "5"),
+      Amount.fromHumanString(SOLANA_USDC_TESTNET, "5"),
+      Amount.fromHumanString(SOLANA_USDT_TESTNET, "5"),
     ],
-    minimumMintAmount: Amount.fromHumanString(SWIMUSD_DEVNET, "10"),
+    minimumMintAmount: Amount.fromHumanString(SWIMUSD_TESTNET, "10"),
   },
   id: "2eed9eef597a2aa14314845afe87079f",
-  poolIds: ["devnet-solana-usdc-usdt"], // TODO remove from type?
-  poolId: "devnet-solana-usdc-usdt",
+  poolIds: ["testnet-solana-usdc-usdt"], // TODO remove from type?
+  poolId: "testnet-solana-usdc-usdt",
   lpTokenTargetEcosystem: SOLANA_ECOSYSTEM_ID,
-  env: Env.Devnet,
+  env: Env.Testnet,
   submittedAt: 1653624596234,
   connectedWallets: {
     [APTOS_ECOSYSTEM_ID]: null,
@@ -474,16 +474,16 @@ const ADD_INTERACTION_EVM: AddInteraction = {
   type: InteractionType.Add,
   params: {
     inputAmounts: [
-      Amount.fromHumanString(ETHEREUM_USDC_DEVNET, "5"),
-      Amount.fromHumanString(ETHEREUM_USDT_DEVNET, "5"),
+      Amount.fromHumanString(ETHEREUM_USDC_TESTNET, "5"),
+      Amount.fromHumanString(ETHEREUM_USDT_TESTNET, "5"),
     ],
-    minimumMintAmount: Amount.fromHumanString(SWIMUSD_DEVNET, "10"),
+    minimumMintAmount: Amount.fromHumanString(SWIMUSD_TESTNET, "10"),
   },
   id: "2eed9eef597a2aa14314845afe87079f",
-  poolIds: ["devnet-ethereum-usdc-usdt"], // TODO remove from type?
-  poolId: "devnet-ethereum-usdc-usdt",
+  poolIds: ["testnet-ethereum-usdc-usdt"], // TODO remove from type?
+  poolId: "testnet-ethereum-usdc-usdt",
   lpTokenTargetEcosystem: EvmEcosystemId.Ethereum,
-  env: Env.Devnet,
+  env: Env.Testnet,
   submittedAt: 1653624596234,
   connectedWallets: {
     [APTOS_ECOSYSTEM_ID]: null,
@@ -526,16 +526,16 @@ const REMOVE_INTERACTION_SOLANA: RemoveUniformInteraction = {
   type: InteractionType.RemoveUniform,
   params: {
     minimumOutputAmounts: [
-      Amount.fromHumanString(SOLANA_USDC_DEVNET, "5"),
-      Amount.fromHumanString(SOLANA_USDT_DEVNET, "5"),
+      Amount.fromHumanString(SOLANA_USDC_TESTNET, "5"),
+      Amount.fromHumanString(SOLANA_USDT_TESTNET, "5"),
     ],
-    exactBurnAmount: Amount.fromHumanString(SWIMUSD_DEVNET, "10"),
+    exactBurnAmount: Amount.fromHumanString(SWIMUSD_TESTNET, "10"),
   },
   id: "2eed9eef597a2aa14314845afe87079f",
-  poolIds: ["devnet-solana-usdc-usdt"], // TODO remove from type?
-  poolId: "devnet-solana-usdc-usdt",
+  poolIds: ["testnet-solana-usdc-usdt"], // TODO remove from type?
+  poolId: "testnet-solana-usdc-usdt",
   lpTokenSourceEcosystem: SOLANA_ECOSYSTEM_ID,
-  env: Env.Devnet,
+  env: Env.Testnet,
   submittedAt: 1653624596234,
   connectedWallets: {
     [APTOS_ECOSYSTEM_ID]: null,
@@ -593,16 +593,16 @@ const REMOVE_UNIFORM_INTERACTION_ETHEREUM: RemoveUniformInteraction = {
   type: InteractionType.RemoveUniform,
   params: {
     minimumOutputAmounts: [
-      Amount.fromHumanString(ETHEREUM_USDC_DEVNET, "5"),
-      Amount.fromHumanString(ETHEREUM_USDT_DEVNET, "5"),
+      Amount.fromHumanString(ETHEREUM_USDC_TESTNET, "5"),
+      Amount.fromHumanString(ETHEREUM_USDT_TESTNET, "5"),
     ],
-    exactBurnAmount: Amount.fromHumanString(SWIMUSD_DEVNET, "10"),
+    exactBurnAmount: Amount.fromHumanString(SWIMUSD_TESTNET, "10"),
   },
   id: "2eed9eef597a2aa14314845afe87079f",
-  poolIds: ["devnet-ethereum-usdc-usdt"], // TODO remove from type?
-  poolId: "devnet-ethereum-usdc-usdt",
+  poolIds: ["testnet-ethereum-usdc-usdt"], // TODO remove from type?
+  poolId: "testnet-ethereum-usdc-usdt",
   lpTokenSourceEcosystem: SOLANA_ECOSYSTEM_ID,
-  env: Env.Devnet,
+  env: Env.Testnet,
   submittedAt: 1653624596234,
   connectedWallets: {
     [APTOS_ECOSYSTEM_ID]: null,
@@ -648,8 +648,8 @@ const REMOVE_EXACT_BURN_INTERACTION_ETHEREUM: RemoveExactBurnInteraction = {
   ...REMOVE_UNIFORM_INTERACTION_ETHEREUM,
   type: InteractionType.RemoveExactBurn,
   params: {
-    exactBurnAmount: Amount.fromHumanString(SWIMUSD_DEVNET, "10"),
-    minimumOutputAmount: Amount.fromHumanString(ETHEREUM_USDC_DEVNET, "10"),
+    exactBurnAmount: Amount.fromHumanString(SWIMUSD_TESTNET, "10"),
+    minimumOutputAmount: Amount.fromHumanString(ETHEREUM_USDC_TESTNET, "10"),
   },
 };
 
@@ -683,10 +683,10 @@ const REMOVE_EXACT_OUTPUT_INTERACTION_ETHEREUM: RemoveExactOutputInteraction = {
   ...REMOVE_UNIFORM_INTERACTION_ETHEREUM,
   type: InteractionType.RemoveExactOutput,
   params: {
-    maximumBurnAmount: Amount.fromHumanString(SWIMUSD_DEVNET, "10"),
+    maximumBurnAmount: Amount.fromHumanString(SWIMUSD_TESTNET, "10"),
     exactOutputAmounts: [
-      Amount.fromHumanString(ETHEREUM_USDC_DEVNET, "5"),
-      Amount.fromHumanString(ETHEREUM_USDT_DEVNET, "5"),
+      Amount.fromHumanString(ETHEREUM_USDC_TESTNET, "5"),
+      Amount.fromHumanString(ETHEREUM_USDT_TESTNET, "5"),
     ],
   },
 };
@@ -732,21 +732,21 @@ export const MOCK_SERIALIZED_SINGLE_CHAIN_SOLANA_SWAP_INTERACTION_STATE_INIT = {
       polygon: null,
       solana: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     },
-    env: Env.Devnet,
+    env: Env.Testnet,
     id: "2eed9eef597a2aa14314845afe87079f",
     params: {
       fromTokenData: {
         ecosystemId: SOLANA_ECOSYSTEM_ID,
-        tokenId: "devnet-solana-usdc",
+        tokenId: "testnet-solana-usdc",
         value: "100",
       },
       toTokenData: {
         ecosystemId: SOLANA_ECOSYSTEM_ID,
-        tokenId: "devnet-solana-usdt",
+        tokenId: "testnet-solana-usdt",
         value: "101",
       },
     },
-    poolIds: ["devnet-solana-usdc-usdt"],
+    poolIds: ["testnet-solana-usdc-usdt"],
     submittedAt: 1653624596234,
     type: 5,
   },

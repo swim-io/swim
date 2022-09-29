@@ -2,7 +2,7 @@ import type { ParsedTransactionWithMeta } from "@solana/web3.js";
 
 import { parseSequenceFromLogSolana } from "./wormhole";
 
-describe("models - Wormhole utils", () => {
+describe("Wormhole utils", () => {
   describe("parseSequenceFromLogSolana 94176", () => {
     const SOLANA_SEQ_LOG = "Program log: Sequence: 94176";
     it("finds the sequence from a Wormhole tx", () => {

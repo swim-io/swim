@@ -24,11 +24,11 @@ describe("useEnvironment", () => {
 
     expect(result.current).toEqual(expect.objectContaining(initState));
   });
-  it("calls setEnv func with Devnet argument, but returns Mainnet env as customIp is null", () => {
+  it("calls setEnv func with Testnet argument, but returns Mainnet env as customIp is null", () => {
     const { result: state } = renderHook(() => useEnvironment());
 
     act(() => {
-      state.current.setEnv(Env.Devnet);
+      state.current.setEnv(Env.Testnet);
     });
 
     expect(state.current.customIp).toEqual(null);
@@ -57,16 +57,16 @@ describe("useEnvironment", () => {
     expect(state.current.customIp).toEqual(null);
     expect(state.current.env).toEqual(Env.Mainnet);
   });
-  it("calls setEnv func with Devnet argument and returns Devnet env as customIp is not null", () => {
+  it("calls setEnv func with Testnet argument and returns Testnet env as customIp is not null", () => {
     const { result } = renderHook(() => useEnvironment());
 
     act(() => {
       result.current.setCustomIp(CUSTOM_IP);
     });
     act(() => {
-      result.current.setEnv(Env.Devnet);
+      result.current.setEnv(Env.Testnet);
     });
     expect(result.current.customIp).toEqual(CUSTOM_IP);
-    expect(result.current.env).toEqual(Env.Devnet);
+    expect(result.current.env).toEqual(Env.Testnet);
   });
 });

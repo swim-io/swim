@@ -3,14 +3,19 @@ import { useEffect } from "react";
 import shallow from "zustand/shallow.js";
 
 import { Protocol } from "../../config";
+import { getSolanaEndpoints } from "../../contexts";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useWalletAdapter } from "../../core/store";
 import { captureException } from "../../errors";
 import { WalletServiceId, createAdapter } from "../../models";
 
 export const useWalletAutoConnect = (): null => {
+  const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
-  const [{ endpoints }] = chains[Protocol.Solana];
+  const [solanaEndpoint] = getSolanaEndpoints(
+    env,
+    chains[Protocol.Solana][0].publicRpcUrls,
+  );
   const { connectService, selectedServiceByProtocol } = useWalletAdapter();
 
   useEffect(() => {
@@ -24,7 +29,11 @@ export const useWalletAutoConnect = (): null => {
 
           if (serviceId) {
             try {
-              const adapter = createAdapter(serviceId, protocol, endpoints[0]);
+              const adapter = createAdapter(
+                serviceId,
+                protocol,
+                solanaEndpoint,
+              );
               const options = { silentError: true };
               const timeoutForWalletToBeFound = 2000;
 

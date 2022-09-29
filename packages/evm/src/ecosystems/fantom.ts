@@ -11,7 +11,7 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
 export const fantomChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 250,
-  [Env.Devnet]: 4002,
+  [Env.Testnet]: 4002,
 });
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
@@ -22,28 +22,31 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
     portal: "0x7C9Fc5741288cDFdD83CeB07f3ea7e22618D79D2",
   },
   publicRpcUrls: ["https://rpc.ftm.tools/"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
 
-const devnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
+const testnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
   name: "Fantom Testnet",
-  chainId: fantomChainId[Env.Devnet],
+  chainId: fantomChainId[Env.Testnet],
   wormhole: {
     bridge: "0x1BB3B4119b7BA9dfad76B0545fb3F531383c3bB7",
     portal: "0x599CEa2204B4FaECd584Ab1F2b6aCA137a0afbE8",
   },
   publicRpcUrls: ["https://rpc.testnet.fantom.network/"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
-
-const chains: ReadonlyMap<Env, EvmChainConfig<EvmEcosystemId.Fantom>> = new Map(
-  [
-    [Env.Mainnet, mainnet],
-    [Env.Devnet, devnet],
-  ],
-);
 
 const gasToken: GasToken = {
   name: "FTM",
@@ -51,11 +54,14 @@ const gasToken: GasToken = {
   decimals: 18,
 };
 
-export const fantom: EvmEcosystemConfig<EvmEcosystemId.Fantom> = {
+export const fantom = assertType<EvmEcosystemConfig<EvmEcosystemId.Fantom>>()({
   id: EvmEcosystemId.Fantom,
   protocol: EVM_PROTOCOL,
   wormholeChainId: 10,
   displayName: "Fantom",
   gasToken,
-  chains,
-};
+  chains: {
+    [Env.Mainnet]: mainnet,
+    [Env.Testnet]: testnet,
+  },
+} as const);

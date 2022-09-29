@@ -19,3 +19,5 @@ export interface TokenConfig {
   /** A map from ecosystem ID to token details for a Wormhole-wrapped version of the token */
   readonly wrappedDetails: ReadonlyMap<string, TokenDetails>;
 }
+
+export const SWIM_USD_TOKEN_ID = "swimUSD";

@@ -62,13 +62,13 @@ const EnvSwitcher: FC<any> = ({ children }) => {
   const { env, setEnv, setCustomIp } = useEnvironment();
 
   useEffect(() => {
-    if (env !== Env.Devnet) {
+    if (env !== Env.Testnet) {
       setCustomIp("12.12.14.1");
-      setEnv(Env.Devnet);
+      setEnv(Env.Testnet);
     }
   }, [env, setEnv, setCustomIp]);
 
-  if (env !== Env.Devnet) return <p>Please wait while we switch to Devnet</p>;
+  if (env !== Env.Testnet) return <p>Please wait while we switch to Testnet</p>;
 
   return children;
 };

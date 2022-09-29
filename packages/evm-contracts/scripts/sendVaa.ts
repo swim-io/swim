@@ -16,7 +16,7 @@ import { deployToken, deploySwimFactory, getTokenAddress, getProxy } from "../sr
 import { ethers } from "hardhat";
 import { DEFAULTS, LOCAL, CHAINS } from "../src/config";
 
-const ROUTING_ADDRESS = "0xa33E4d9624608c468FE5466dd6CC39cE1Da4FF78";
+const ROUTING_ADDRESS = "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4";
 const POOL_ADDRESS = "0xe167b44578EAe235E0CF063099989A2c7aBA06Cb";
 const USDC_ADDRESS_GOERLI = "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6";
 const USDT_ADDRESS_GOERLI = "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B";

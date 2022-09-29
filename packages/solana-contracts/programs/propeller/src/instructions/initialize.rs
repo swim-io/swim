@@ -102,6 +102,7 @@ pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> 
     // let mint0 = pool.get_token_mint_0().unwrap();
     let propeller = &mut ctx.accounts.propeller;
     propeller.bump = *ctx.bumps.get("propeller").unwrap();
+    propeller.nonce = 0;
     propeller.admin = ctx.accounts.admin.key();
     //TODO: these should be passed in as params or read based on features used when deploying?
     propeller.wormhole = propeller.wormhole()?;

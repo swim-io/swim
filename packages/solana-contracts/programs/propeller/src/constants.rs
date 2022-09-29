@@ -1,5 +1,6 @@
 use {num_traits::FromPrimitive, rust_decimal::Decimal};
 
+pub const CURRENT_SWIM_PAYLOAD_VERSION: u8 = 1;
 pub const TOKEN_COUNT: usize = 2;
 
 // seed prefixes

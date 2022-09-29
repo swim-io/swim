@@ -206,49 +206,66 @@ export const getSwimPayloadMessagePda = async (
 export interface ParsedSwimPayload {
   readonly version: number;
   readonly owner: Buffer;
-  readonly propellerEnabled: boolean;
-  readonly targetTokenId: number;
-  readonly gasKickstart: boolean;
-  readonly maxFee: BN;
-  readonly memo: Buffer;
+  readonly propellerEnabled?: boolean;
+  readonly gasKickstart?: boolean;
+  readonly maxFee?: BN;
+  readonly targetTokenId?: number;
+  readonly memo?: Buffer;
 }
 
 export function encodeSwimPayload(swimPayload: ParsedSwimPayload): Buffer {
-  const encoded = Buffer.alloc(
-    1 + //version
-      32 + //owner
-      1 + //propellerEnabled
-      1 + //gasKickstart
-      8 + //maxFee
-      2 + //targetTokenId (u16)
-      16, //memo
-  );
+  let bufferSize = 1 + 32;
+  if (swimPayload.propellerEnabled !== undefined) {
+    bufferSize += 1 + 1 + 8 + 2;
+    if (swimPayload.memo !== undefined) {
+      bufferSize += 16;
+    }
+  }
+  console.info(`bufferSize: ${bufferSize}`);
+  const encoded = Buffer.alloc(bufferSize);
+  // const encoded = Buffer.alloc(
+  //   1 + //version
+  //     32 + //owner
+  //     1 + //propellerEnabled
+  //     1 + //gasKickstart
+  //     8 + //maxFee
+  //     2 + //targetTokenId (u16)
+  //     16, //memo
+  // );
   let offset = 0;
   encoded.writeUint8(swimPayload.version, offset);
   offset++;
   encoded.write(swimPayload.owner.toString("hex"), offset, "hex");
   offset += 32;
-  encoded.writeUint8(Number(swimPayload.propellerEnabled), offset);
-  offset++;
-  encoded.writeUint8(Number(swimPayload.gasKickstart), offset);
-  offset++;
-  encoded.writeBigUint64BE(BigInt(swimPayload.maxFee.toNumber()), offset);
-  offset += 8;
+  if (swimPayload.propellerEnabled !== undefined) {
+    encoded.writeUint8(Number(swimPayload.propellerEnabled), offset);
+    offset++;
+    encoded.writeUint8(Number(swimPayload.gasKickstart), offset);
+    offset++;
+    encoded.writeBigUint64BE(BigInt(swimPayload.maxFee!.toNumber()), offset);
+    offset += 8;
 
-  encoded.writeUint16BE(swimPayload.targetTokenId, offset);
-  offset += 2;
-  encoded.write(swimPayload.memo.toString("hex"), offset, "hex");
+    encoded.writeUint16BE(swimPayload.targetTokenId!, offset);
+    offset += 2;
+    if (swimPayload.memo !== undefined) {
+      encoded.write(swimPayload.memo.toString("hex"), offset, "hex");
+    }
+  }
   // offset += 16;
   return encoded;
 }
 
 export function parseSwimPayload(arr: Buffer): ParsedSwimPayload {
+  console.info(`parseSwimPayload: arr.length =  ${arr.length}`);
   //BigNumber.from(arr.subarray(1, 1 + 32)).toBigInt()
   let offset = 0;
   const version = arr.readUint8(offset);
   offset++;
   const owner = arr.subarray(offset, offset + 32);
   offset += 32;
+  if (offset == arr.length) {
+    return { version, owner };
+  }
   const propellerEnabled = arr.readUint8(offset) === 1;
   offset++;
   const gasKickstart = arr.readUint8(offset) === 1;
@@ -257,9 +274,18 @@ export function parseSwimPayload(arr: Buffer): ParsedSwimPayload {
   offset += 8;
   const targetTokenId = arr.readUint16BE(offset);
   offset += 2;
-  const memo = arr.subarray(offset, offset + 16);
-  // offset += 16;
+  if (offset == arr.length) {
+    return {
+      version,
+      owner,
+      propellerEnabled,
+      gasKickstart,
+      maxFee,
+      targetTokenId,
+    };
+  }
 
+  const memo = arr.subarray(offset, offset + 16);
   return {
     version,
     owner,
@@ -386,10 +412,11 @@ export const formatSwimPayload = (
   return {
     ...swimPayload,
     // minOutputAmount: swimPayload.minOutputAmount.toString(),
-    memo: swimPayload.memo.toString(),
+    memo: swimPayload.memo !== undefined ? swimPayload.memo.toString() : "",
     // minThreshold: swimPayload.minThreshold.toString(),
     owner: tryUint8ArrayToNative(swimPayload.owner, chain),
-    maxFee: swimPayload.maxFee.toString(),
+    maxFee:
+      swimPayload.maxFee !== undefined ? swimPayload.maxFee.toString() : "",
   };
 };
 
@@ -634,7 +661,6 @@ export const generatePropellerEngineTxns = async (
       custodySigner,
       rent: web3.SYSVAR_RENT_PUBKEY,
       systemProgram: web3.SystemProgram.programId,
-      memo: MEMO_PROGRAM_ID,
       wormhole: wormholeAddresses.wormhole,
       tokenProgram: splToken.programId,
       tokenBridge: wormholeAddresses.tokenBridge,
@@ -662,6 +688,7 @@ export const generatePropellerEngineTxns = async (
       marginalPricePoolToken1Account: marginalPricePoolInfo.token1Account,
       marginalPricePoolLpMint: marginalPricePoolInfo.lpMint,
       twoPoolProgram: twoPoolProgram.programId,
+      memo: MEMO_PROGRAM_ID,
     })
     .preInstructions([requestUnitsIx])
     .signers([payer]);
@@ -679,7 +706,7 @@ export const generatePropellerEngineTxns = async (
   const completeNativeWithPayloadTxn =
     await completeNativeWithPayloadIxs.transaction();
   txns = [completeNativeWithPayloadTxn];
-  const targetTokenId = swimPayload.targetTokenId;
+  const targetTokenId = swimPayload.targetTokenId!;
   const [tokenIdMapAddr] = await getTargetTokenIdMapAddr(
     propeller,
     targetTokenId,
@@ -696,7 +723,7 @@ export const generatePropellerEngineTxns = async (
 
   if (!tokenIdMapData) {
     console.info(
-      `invalid tokenIdMap. targetTokenId: ${targetTokenId}. Generating fallback transactions`,
+      `invalid tokenIdMap. targetTokenId: ${targetTokenId.toString()}. Generating fallback transactions`,
     );
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const userSwimUsdAta: web3.PublicKey = await getAssociatedTokenAddress(
@@ -865,7 +892,6 @@ export const generatePropellerEngineTxns = async (
         userTokenAccount1: ownerAtaAddrs[1],
         userLpTokenAccount: ownerAtaAddrs[2],
         tokenProgram: splToken.programId,
-        memo: MEMO_PROGRAM_ID,
         twoPoolProgram: twoPoolProgram.programId,
         systemProgram: web3.SystemProgram.programId,
       })
@@ -910,6 +936,7 @@ export const generatePropellerEngineTxns = async (
         marginalPricePoolToken1Account: marginalPricePoolInfo.token1Account,
         marginalPricePoolLpMint: marginalPricePoolInfo.lpMint,
         owner,
+        memo: MEMO_PROGRAM_ID,
       })
       .preInstructions([requestUnitsIx])
       .signers([userTransferAuthority, payer])

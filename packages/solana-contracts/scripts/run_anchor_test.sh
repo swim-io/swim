@@ -2,11 +2,11 @@
 set -o errexit -o nounset -o pipefail
 command -v shellcheck >/dev/null && shellcheck "$0"
 
-echo "arg is $1"
+echo "arg is ${1-}"
 test_files=""
 prepare_oracle=false
 #clean_oracle=false
-if [ -z "$1" ]; then
+if [ -z "${1-}" ]; then
   echo "Running all tests"
   prepare_oracle=true
   test_files="*"
@@ -61,7 +61,7 @@ echo "prepare_oracle: $prepare_oracle"
 #yarn run jest -c jest.config.js --verbose --detectOpenHandles "$test_files"
 #yarn run jest -c jest.config.js --verbose --detectOpenHandles --forceExit "$test_files"
 #yarn run jest -c jest.config.js --verbose --detectOpenHandles --forceExit --testPathPattern "$1.test.ts"
-yarn run jest --verbose --detectOpenHandles --testPathPattern "$1.test.ts" &
+yarn run jest --verbose --detectOpenHandles --testPathPattern "$test_files.test.ts" &
 
 yarn_pid=$!
 echo "Yarn PID: ${yarn_pid}"

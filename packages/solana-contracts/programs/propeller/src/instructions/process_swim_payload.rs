@@ -167,9 +167,7 @@ pub struct ProcessSwimPayload<'info> {
     pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
 
     pub token_program: Program<'info, Token>,
-    #[account(executable, address = spl_memo::id())]
-    ///CHECK: memo program
-    pub memo: UncheckedAccount<'info>,
+
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
     pub system_program: Program<'info, System>,
 }
@@ -371,13 +369,10 @@ impl<'info> ProcessSwimPayload<'info> {
         Ok(transfer_amount)
     }
 
-    fn init_swim_claim_and_log_memo(&mut self, swim_claim_bump: u8) -> Result<()> {
+    fn init_swim_claim(&mut self, swim_claim_bump: u8) -> Result<()> {
         let swim_claim = &mut self.swim_claim;
         swim_claim.bump = swim_claim_bump;
         swim_claim.claimed = true;
-        let memo = self.swim_payload_message.memo;
-        let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
-        invoke(&memo_ix, &[self.memo.to_account_info()])?;
         Ok(())
     }
 
@@ -407,7 +402,7 @@ pub fn handle_process_swim_payload(
     let output_amount = ctx.accounts.transfer_tokens(target_token_id, transfer_amount, min_output_amount)?;
 
     let swim_claim_bump = *ctx.bumps.get("swim_claim").unwrap();
-    ctx.accounts.init_swim_claim_and_log_memo(swim_claim_bump)?;
+    ctx.accounts.init_swim_claim(swim_claim_bump)?;
 
     Ok(output_amount)
 }
@@ -480,6 +475,9 @@ pub struct PropellerProcessSwimPayload<'info> {
     /// This is for transferring lamports for kickstart
     #[account(mut, address = process_swim_payload.swim_payload_message.owner)]
     pub owner: SystemAccount<'info>,
+    #[account(executable, address = spl_memo::id())]
+    ///CHECK: memo program
+    pub memo: UncheckedAccount<'info>,
 }
 
 impl<'info> PropellerProcessSwimPayload<'info> {
@@ -624,6 +622,17 @@ impl<'info> PropellerProcessSwimPayload<'info> {
             owner_starting_lamports, owner_account.lamports(), payer_starting_lamports, payer.lamports());
         Ok(())
     }
+
+    fn log_memo(&self) -> Result<()> {
+        let memo = self.process_swim_payload.swim_payload_message.memo;
+        if memo != [0u8; 16] {
+            let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+            invoke(&memo_ix, &[self.memo.to_account_info()])?;
+        } else {
+            msg!("memo is empty");
+        }
+        Ok(())
+    }
 }
 
 /**
@@ -683,7 +692,8 @@ pub fn handle_propeller_process_swim_payload(
         ctx.accounts.process_swim_payload.transfer_tokens(target_token_id, transfer_amount, min_output_amount)?;
 
     let swim_claim_bump = *ctx.bumps.get("swim_claim").unwrap();
-    ctx.accounts.process_swim_payload.init_swim_claim_and_log_memo(swim_claim_bump)?;
+    ctx.accounts.process_swim_payload.init_swim_claim(swim_claim_bump)?;
+    ctx.accounts.log_memo()?;
 
     msg!("output_amount: {}", output_amount);
     Ok(output_amount)
@@ -1099,13 +1109,19 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
         Ok(transfer_amount)
     }
 
-    fn init_swim_claim_and_log_memo(&mut self, swim_claim_bump: u8) -> Result<()> {
+    fn init_swim_claim(&mut self, swim_claim_bump: u8) -> Result<()> {
         let swim_claim = &mut self.swim_claim;
         swim_claim.bump = swim_claim_bump;
         swim_claim.claimed = true;
+        Ok(())
+    }
+
+    fn log_memo(&self) -> Result<()> {
         let memo = self.swim_payload_message.memo;
-        let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
-        invoke(&memo_ix, &[self.memo.to_account_info()])?;
+        if memo != [0u8; 16] {
+            let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+            invoke(&memo_ix, &[self.memo.to_account_info()])?;
+        }
         Ok(())
     }
 }
@@ -1151,7 +1167,8 @@ pub fn handle_propeller_process_swim_payload_fallback(
     )?;
 
     let swim_claim_bump = *ctx.bumps.get("swim_claim").unwrap();
-    ctx.accounts.init_swim_claim_and_log_memo(swim_claim_bump)?;
+    ctx.accounts.init_swim_claim(swim_claim_bump)?;
+    ctx.accounts.log_memo()?;
 
     msg!("output_amount: {}", output_amount);
     Ok(output_amount)

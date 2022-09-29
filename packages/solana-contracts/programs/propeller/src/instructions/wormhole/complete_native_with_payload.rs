@@ -168,9 +168,6 @@ pub struct CompleteNativeWithPayload<'info> {
     space = 8 + SwimPayloadMessage::LEN,
     )]
     pub swim_payload_message: Account<'info, SwimPayloadMessage>,
-    #[account(executable, address = spl_memo::id())]
-    ///CHECK: memo program
-    pub memo: UncheckedAccount<'info>,
 }
 
 impl<'info> CompleteNativeWithPayload<'info> {
@@ -317,11 +314,11 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
     let bump = *ctx.bumps.get("swim_payload_message").unwrap();
     ctx.accounts.write_swim_payload_message(bump, &message_data, transfer_amount, swim_payload)?;
 
-    let memo = swim_payload.memo;
-    // get target_token_id -> (pool, pool_token_index)
-    //    need to know when to do remove_exact_burn & when to do swap_exact_input
-    let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
-    invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
+    // let memo = swim_payload.memo;
+    // // get target_token_id -> (pool, pool_token_index)
+    // //    need to know when to do remove_exact_burn & when to do swap_exact_input
+    // let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+    // invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
 
     Ok(())
 }
@@ -365,6 +362,9 @@ pub struct PropellerCompleteNativeWithPayload<'info> {
     pub marginal_price_pool_token_1_account: Box<Account<'info, TokenAccount>>,
     pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
+    #[account(executable, address = spl_memo::id())]
+    ///CHECK: memo program
+    pub memo: UncheckedAccount<'info>,
 }
 
 impl<'info> PropellerCompleteNativeWithPayload<'info> {
@@ -553,8 +553,11 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
         &swim_payload,
     )?;
     let memo = swim_payload.memo;
-    let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
-    invoke(&memo_ix, &[ctx.accounts.complete_native_with_payload.memo.to_account_info()])?;
+    if memo != [0u8; 16] {
+        let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+        invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
+    }
+
     Ok(())
 }
 

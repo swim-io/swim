@@ -297,6 +297,15 @@ impl<'info> PropellerCreateOwnerTokenAccounts<'info> {
             fees_in_swim_usd,
         )
     }
+
+    fn log_memo(&self) -> Result<()> {
+        let memo = self.swim_payload_message.memo;
+        if memo != [0u8; 16] {
+            let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+            invoke(&memo_ix, &[self.memo.to_account_info()])?;
+        }
+        Ok(())
+    }
 }
 
 //TODO: allow this regardless of gasKickstart or only if gasKickstart?
@@ -385,9 +394,7 @@ pub fn handle_propeller_create_owner_token_accounts(ctx: Context<PropellerCreate
     if create_owner_token_account_total_fees_in_lamports == 0 {
         //TODO: log memo still?
         msg!("No accounts need to be initialized. Returning early");
-        let memo = ctx.accounts.swim_payload_message.memo;
-        let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
-        invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
+        ctx.accounts.log_memo()?;
         return Ok(());
     }
     //let fees_in_swim_usd = convert_fees_to_swim_usd_atomic()
@@ -438,10 +445,7 @@ pub fn handle_propeller_create_owner_token_accounts(ctx: Context<PropellerCreate
         new_transfer_amount
     );
     ctx.accounts.swim_payload_message.transfer_amount = new_transfer_amount;
-
-    let memo = ctx.accounts.swim_payload_message.memo;
-    let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
-    invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
+    ctx.accounts.log_memo()?;
     Ok(())
 }
 
@@ -849,7 +853,9 @@ pub fn handle_propeller_create_owner_swim_usd_ata(ctx: Context<PropellerCreateOw
     ctx.accounts.swim_payload_message.transfer_amount = new_transfer_amount;
 
     let memo = ctx.accounts.swim_payload_message.memo;
-    let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
-    invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
+    if memo != [0u8; 16] {
+        let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+        invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
+    }
     Ok(())
 }

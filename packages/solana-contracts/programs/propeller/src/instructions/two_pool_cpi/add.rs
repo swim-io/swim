@@ -1,7 +1,10 @@
 use {
     crate::{constants::PROPELLER_MINIMUM_OUTPUT_AMOUNT, error::*, Propeller},
     anchor_lang::{prelude::*, solana_program::program::invoke},
-    anchor_spl::token::{Mint, Token, TokenAccount},
+    anchor_spl::{
+        associated_token::get_associated_token_address,
+        token::{Mint, Token, TokenAccount},
+    },
     two_pool::{gen_pool_signer_seeds, program::TwoPool as TwoPoolProgram, state::TwoPool, TOKEN_COUNT},
 };
 
@@ -9,9 +12,10 @@ use {
 pub struct Add<'info> {
     #[account(
     seeds = [ b"propeller".as_ref(), lp_mint.key().as_ref()],
-    bump = propeller.bump
+    bump = propeller.bump,
+
     )]
-    pub propeller: Account<'info, Propeller>,
+    pub propeller: Box<Account<'info, Propeller>>,
     #[account(
     mut,
     seeds = [
@@ -29,21 +33,26 @@ pub struct Add<'info> {
     // pub pool_auth: UncheckedAccount<'info>,
     #[account(
     mut,
-    token::mint = pool.token_mint_keys[0],
-    token::authority = pool,
+    address = get_associated_token_address(&pool.key(), &pool.token_mint_keys[0]),
+    constraint = pool_token_account_0.key() == pool.token_keys[0],
     )]
     pub pool_token_account_0: Box<Account<'info, TokenAccount>>,
     #[account(
     mut,
-    token::mint = pool.token_mint_keys[1],
-    token::authority = pool,
+    address = get_associated_token_address(&pool.key(), &pool.token_mint_keys[1]),
+    constraint = pool_token_account_1.key() == pool.token_keys[1],
     )]
     pub pool_token_account_1: Box<Account<'info, TokenAccount>>,
-    #[account(mut)]
+    #[account(
+    mut,
+    address = pool.lp_mint_key,
+    constraint = propeller.swim_usd_mint == lp_mint.key(),
+    )]
     pub lp_mint: Box<Account<'info, Mint>>,
     #[account(
     mut,
-    token::mint = lp_mint
+    token::mint = lp_mint,
+    address = pool.governance_fee_key,
     )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
     ///CHECK: checked in CPI

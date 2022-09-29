@@ -5,7 +5,7 @@ import {
   tryNativeToUint8Array,
 } from "@certusone/wormhole-sdk";
 import { BN, web3 } from "@project-serum/anchor";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, TransactionInstruction } from "@solana/web3.js";
 
 export const commitment = "confirmed" as web3.Commitment;
 export const rpcCommitmentConfig = {
@@ -52,7 +52,7 @@ export const routingContracts = [
   { targetChainId: CHAIN_ID_ETH, address: ethRoutingContract },
   { targetChainId: CHAIN_ID_BSC, address: ethRoutingContract },
 ];
-export const setComputeUnitLimitIx =
+export const setComputeUnitLimitIx: web3.TransactionInstruction =
   web3.ComputeBudgetProgram.setComputeUnitLimit({
     // units: 420690,
     units: 900000,
@@ -71,7 +71,7 @@ export const governanceFee = { value: new BN(100), decimals: 6 }; //gov fee = .0
 
 // USDC token index in flagship pool
 export const marginalPricePoolTokenIndex = 0;
-export const swimPayloadVersion = 0;
+export const swimPayloadVersion = 1;
 export const swimUsdOutputTokenIndex = 0;
 export const usdcOutputTokenIndex = 1;
 export const usdcPoolTokenIndex = 0;

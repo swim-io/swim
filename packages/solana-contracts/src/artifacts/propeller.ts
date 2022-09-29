@@ -1065,11 +1065,11 @@ export type Propeller = {
       "returns": "u64"
     },
     {
-      "name": "transferNativeWithPayload",
+      "name": "crossChainTransferNativeWithPayload",
       "accounts": [
         {
           "name": "propeller",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "pda": {
             "seeds": [
@@ -1113,7 +1113,7 @@ export type Propeller = {
           }
         },
         {
-          "name": "userTokenBridgeAccount",
+          "name": "userSwimUsdAta",
           "isMut": true,
           "isSigner": false
         },
@@ -1319,7 +1319,312 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "memo",
+          "name": "targetChainMap",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "arg",
+                "type": "u16",
+                "path": "target_chain"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
+        },
+        {
+          "name": "owner",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "propellerTransferNativeWithPayload",
+      "accounts": [
+        {
+          "name": "propeller",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "swim_usd_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "tokenBridgeConfig",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "config"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "account": "Propeller",
+              "path": "propeller"
+            }
+          }
+        },
+        {
+          "name": "userSwimUsdAta",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "swimUsdMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "custody",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenBridge",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "custodySigner",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "custody_signer"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "path": "token_bridge"
+            }
+          }
+        },
+        {
+          "name": "authoritySigner",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "authority_signer"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "path": "token_bridge"
+            }
+          }
+        },
+        {
+          "name": "wormholeConfig",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "Bridge"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "account": "Propeller",
+              "path": "propeller"
+            }
+          }
+        },
+        {
+          "name": "wormholeMessage",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "wormholeEmitter",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "emitter"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "account": "Propeller",
+              "path": "propeller"
+            }
+          }
+        },
+        {
+          "name": "wormholeSequence",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "Sequence"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "wormhole_emitter"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "account": "Propeller",
+              "path": "propeller"
+            }
+          }
+        },
+        {
+          "name": "wormholeFeeCollector",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "fee_collector"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "account": "Propeller",
+              "path": "propeller"
+            }
+          }
+        },
+        {
+          "name": "sender",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Transfers with payload also include the address of the account or contract",
+            "that sent the transfer. Semantically this is identical to \"msg.sender\" on",
+            "EVM chains, i.e. it is the address of the immediate caller of the token",
+            "bridge transaction.",
+            "Since on Solana, a transaction can have multiple different signers, getting",
+            "this information is not so straightforward.",
+            "The strategy we use to figure out the sender of the transaction is to",
+            "require an additional signer ([`SenderAccount`]) for the transaction.",
+            "If the transaction was sent by a user wallet directly, then this may just be",
+            "the wallet's pubkey. If, however, the transaction was initiated by a",
+            "program, then we require this to be a PDA derived from the sender program's",
+            "id and the string \"sender\". In this case, the sender program must also",
+            "attach its program id to the instruction data. If the PDA verification",
+            "succeeds (thereby proving that [[`cpi_program_id`]] indeed signed the",
+            "transaction), then the program's id is attached to the VAA as the sender,",
+            "otherwise the transaction is rejected.",
+            "",
+            "Note that a program may opt to forego the PDA derivation and instead just",
+            "pass on the original wallet as the wallet account (or any other signer, as",
+            "long as they don't provide their program_id in the instruction data). The",
+            "sender address is provided as a means for protocols to verify on the",
+            "receiving end that the message was emitted by a contract they trust, so",
+            "foregoing this check is not advised. If the receiving contract needs to know",
+            "the sender wallet's address too, then that information can be included in",
+            "the additional payload, along with any other data that the protocol needs to",
+            "send across. The legitimacy of the attached data can be verified by checking",
+            "that the sender contract is a trusted one.",
+            "",
+            "Also note that attaching the correct PDA as [[`SenderAccount`]] but missing the",
+            "[[`cpi_program_id`]] field will result in a successful transaction, but in",
+            "that case the PDA's address will directly be encoded into the payload",
+            "instead of the sender program's id."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "sender"
+              }
+            ]
+          }
+        },
+        {
+          "name": "wormhole",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -1366,24 +1671,16 @@ export type Propeller = {
       ],
       "args": [
         {
-          "name": "nonce",
-          "type": "u32"
+          "name": "amount",
+          "type": "u64"
         },
         {
           "name": "targetChain",
           "type": "u16"
         },
         {
-          "name": "amount",
-          "type": "u64"
-        },
-        {
           "name": "owner",
           "type": "bytes"
-        },
-        {
-          "name": "propellerEnabled",
-          "type": "bool"
         },
         {
           "name": "gasKickstart",
@@ -1399,7 +1696,14 @@ export type Propeller = {
         },
         {
           "name": "memo",
-          "type": "bytes"
+          "type": {
+            "option": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          }
         }
       ]
     },
@@ -1583,11 +1887,6 @@ export type Propeller = {
               }
             ]
           }
-        },
-        {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": []
@@ -1850,11 +2149,6 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -2060,11 +2354,6 @@ export type Propeller = {
                   }
                 ]
               }
-            },
-            {
-              "name": "memo",
-              "isMut": false,
-              "isSigner": false
             }
           ]
         },
@@ -2162,6 +2451,11 @@ export type Propeller = {
         },
         {
           "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "memo",
           "isMut": false,
           "isSigner": false
         }
@@ -2775,11 +3069,6 @@ export type Propeller = {
               "isSigner": false
             },
             {
-              "name": "memo",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
               "name": "twoPoolProgram",
               "isMut": false,
               "isSigner": false
@@ -2903,6 +3192,11 @@ export type Propeller = {
           "docs": [
             "This is for transferring lamports for kickstart"
           ]
+        },
+        {
+          "name": "memo",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
@@ -3578,6 +3872,10 @@ export type Propeller = {
             "type": "u8"
           },
           {
+            "name": "nonce",
+            "type": "u32"
+          },
+          {
             "name": "admin",
             "type": "publicKey"
           },
@@ -3853,52 +4151,6 @@ export type Propeller = {
             "name": "cpiProgramId",
             "type": {
               "option": "publicKey"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "SwimPayload",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "swimPayloadVersion",
-            "type": "u8"
-          },
-          {
-            "name": "owner",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "propellerEnabled",
-            "type": "bool"
-          },
-          {
-            "name": "gasKickstart",
-            "type": "bool"
-          },
-          {
-            "name": "maxFee",
-            "type": "u64"
-          },
-          {
-            "name": "targetTokenId",
-            "type": "u16"
-          },
-          {
-            "name": "memo",
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
             }
           }
         ]
@@ -4458,6 +4710,11 @@ export type Propeller = {
       "code": 6047,
       "name": "InvalidTokenIdMapAccountAddress",
       "msg": "Invalid address for TokenIdMap account"
+    },
+    {
+      "code": 6048,
+      "name": "InvalidSwimPayloadVersion",
+      "msg": "Invalid Swim Payload version"
     }
   ]
 };
@@ -5529,11 +5786,11 @@ export const IDL: Propeller = {
       "returns": "u64"
     },
     {
-      "name": "transferNativeWithPayload",
+      "name": "crossChainTransferNativeWithPayload",
       "accounts": [
         {
           "name": "propeller",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "pda": {
             "seeds": [
@@ -5577,7 +5834,7 @@ export const IDL: Propeller = {
           }
         },
         {
-          "name": "userTokenBridgeAccount",
+          "name": "userSwimUsdAta",
           "isMut": true,
           "isSigner": false
         },
@@ -5783,7 +6040,312 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "memo",
+          "name": "targetChainMap",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "arg",
+                "type": "u16",
+                "path": "target_chain"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "targetChain",
+          "type": "u16"
+        },
+        {
+          "name": "owner",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "propellerTransferNativeWithPayload",
+      "accounts": [
+        {
+          "name": "propeller",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "swim_usd_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "tokenBridgeConfig",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "config"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "account": "Propeller",
+              "path": "propeller"
+            }
+          }
+        },
+        {
+          "name": "userSwimUsdAta",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "swimUsdMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "custody",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenBridge",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "custodySigner",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "custody_signer"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "path": "token_bridge"
+            }
+          }
+        },
+        {
+          "name": "authoritySigner",
+          "isMut": false,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "authority_signer"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "path": "token_bridge"
+            }
+          }
+        },
+        {
+          "name": "wormholeConfig",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "Bridge"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "account": "Propeller",
+              "path": "propeller"
+            }
+          }
+        },
+        {
+          "name": "wormholeMessage",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "wormholeEmitter",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "emitter"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "account": "Propeller",
+              "path": "propeller"
+            }
+          }
+        },
+        {
+          "name": "wormholeSequence",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "Sequence"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "wormhole_emitter"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "account": "Propeller",
+              "path": "propeller"
+            }
+          }
+        },
+        {
+          "name": "wormholeFeeCollector",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "fee_collector"
+              }
+            ],
+            "programId": {
+              "kind": "account",
+              "type": "publicKey",
+              "account": "Propeller",
+              "path": "propeller"
+            }
+          }
+        },
+        {
+          "name": "sender",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Transfers with payload also include the address of the account or contract",
+            "that sent the transfer. Semantically this is identical to \"msg.sender\" on",
+            "EVM chains, i.e. it is the address of the immediate caller of the token",
+            "bridge transaction.",
+            "Since on Solana, a transaction can have multiple different signers, getting",
+            "this information is not so straightforward.",
+            "The strategy we use to figure out the sender of the transaction is to",
+            "require an additional signer ([`SenderAccount`]) for the transaction.",
+            "If the transaction was sent by a user wallet directly, then this may just be",
+            "the wallet's pubkey. If, however, the transaction was initiated by a",
+            "program, then we require this to be a PDA derived from the sender program's",
+            "id and the string \"sender\". In this case, the sender program must also",
+            "attach its program id to the instruction data. If the PDA verification",
+            "succeeds (thereby proving that [[`cpi_program_id`]] indeed signed the",
+            "transaction), then the program's id is attached to the VAA as the sender,",
+            "otherwise the transaction is rejected.",
+            "",
+            "Note that a program may opt to forego the PDA derivation and instead just",
+            "pass on the original wallet as the wallet account (or any other signer, as",
+            "long as they don't provide their program_id in the instruction data). The",
+            "sender address is provided as a means for protocols to verify on the",
+            "receiving end that the message was emitted by a contract they trust, so",
+            "foregoing this check is not advised. If the receiving contract needs to know",
+            "the sender wallet's address too, then that information can be included in",
+            "the additional payload, along with any other data that the protocol needs to",
+            "send across. The legitimacy of the attached data can be verified by checking",
+            "that the sender contract is a trusted one.",
+            "",
+            "Also note that attaching the correct PDA as [[`SenderAccount`]] but missing the",
+            "[[`cpi_program_id`]] field will result in a successful transaction, but in",
+            "that case the PDA's address will directly be encoded into the payload",
+            "instead of the sender program's id."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "sender"
+              }
+            ]
+          }
+        },
+        {
+          "name": "wormhole",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -5830,24 +6392,16 @@ export const IDL: Propeller = {
       ],
       "args": [
         {
-          "name": "nonce",
-          "type": "u32"
+          "name": "amount",
+          "type": "u64"
         },
         {
           "name": "targetChain",
           "type": "u16"
         },
         {
-          "name": "amount",
-          "type": "u64"
-        },
-        {
           "name": "owner",
           "type": "bytes"
-        },
-        {
-          "name": "propellerEnabled",
-          "type": "bool"
         },
         {
           "name": "gasKickstart",
@@ -5863,7 +6417,14 @@ export const IDL: Propeller = {
         },
         {
           "name": "memo",
-          "type": "bytes"
+          "type": {
+            "option": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          }
         }
       ]
     },
@@ -6047,11 +6608,6 @@ export const IDL: Propeller = {
               }
             ]
           }
-        },
-        {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": []
@@ -6314,11 +6870,6 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -6524,11 +7075,6 @@ export const IDL: Propeller = {
                   }
                 ]
               }
-            },
-            {
-              "name": "memo",
-              "isMut": false,
-              "isSigner": false
             }
           ]
         },
@@ -6626,6 +7172,11 @@ export const IDL: Propeller = {
         },
         {
           "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "memo",
           "isMut": false,
           "isSigner": false
         }
@@ -7239,11 +7790,6 @@ export const IDL: Propeller = {
               "isSigner": false
             },
             {
-              "name": "memo",
-              "isMut": false,
-              "isSigner": false
-            },
-            {
               "name": "twoPoolProgram",
               "isMut": false,
               "isSigner": false
@@ -7367,6 +7913,11 @@ export const IDL: Propeller = {
           "docs": [
             "This is for transferring lamports for kickstart"
           ]
+        },
+        {
+          "name": "memo",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
@@ -8042,6 +8593,10 @@ export const IDL: Propeller = {
             "type": "u8"
           },
           {
+            "name": "nonce",
+            "type": "u32"
+          },
+          {
             "name": "admin",
             "type": "publicKey"
           },
@@ -8317,52 +8872,6 @@ export const IDL: Propeller = {
             "name": "cpiProgramId",
             "type": {
               "option": "publicKey"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "SwimPayload",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "swimPayloadVersion",
-            "type": "u8"
-          },
-          {
-            "name": "owner",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "propellerEnabled",
-            "type": "bool"
-          },
-          {
-            "name": "gasKickstart",
-            "type": "bool"
-          },
-          {
-            "name": "maxFee",
-            "type": "u64"
-          },
-          {
-            "name": "targetTokenId",
-            "type": "u16"
-          },
-          {
-            "name": "memo",
-            "type": {
-              "array": [
-                "u8",
-                16
-              ]
             }
           }
         ]
@@ -8922,6 +9431,11 @@ export const IDL: Propeller = {
       "code": 6047,
       "name": "InvalidTokenIdMapAccountAddress",
       "msg": "Invalid address for TokenIdMap account"
+    },
+    {
+      "code": 6048,
+      "name": "InvalidSwimPayloadVersion",
+      "msg": "Invalid Swim Payload version"
     }
   ]
 };

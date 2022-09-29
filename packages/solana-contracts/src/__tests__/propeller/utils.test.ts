@@ -12,6 +12,7 @@ import { parseUnits } from "@ethersproject/units";
 import type { Program } from "@project-serum/anchor";
 import {
   AnchorProvider,
+  BN,
   setProvider,
   web3,
   workspace,
@@ -24,6 +25,7 @@ import {
   encodeSwimPayload,
   formatParsedTokenTransferWithSwimPayloadPostedMessage,
   formatParsedTokenTransferWithSwimPayloadVaa,
+  parseSwimPayload,
   parseTokenTransferWithSwimPayloadPostedMessage,
   parseTokenTransferWithSwimPayloadSignedVaa,
 } from "./propellerUtils";
@@ -32,7 +34,11 @@ import {
   deriveMessagePda,
   encodeTokenTransferWithPayload,
 } from "./tokenBridgeUtils";
-import { WORMHOLE_CORE_BRIDGE, signAndEncodeVaa, WORMHOLE_TOKEN_BRIDGE } from "./wormholeUtils";
+import {
+  WORMHOLE_CORE_BRIDGE,
+  WORMHOLE_TOKEN_BRIDGE,
+  signAndEncodeVaa,
+} from "./wormholeUtils";
 
 const swimPayloadVersion = 0;
 
@@ -422,6 +428,61 @@ describe("utils tests", () => {
       WORMHOLE_TOKEN_BRIDGE,
     );
     console.info(`bscEndpointAddr: ${bscEndpointAddr.toBase58()}`);
+  });
+  describe("encode & parse variable lengths of SwimPayload", () => {
+    let memoId = 0;
+    it("parses SwimPayload with all fields", () => {
+      const memoBuffer = Buffer.alloc(16);
+      memoBuffer.write((++memoId).toString().padStart(16, "0"));
+      const swimPayload = {
+        version: swimPayloadVersion,
+        owner: provider.publicKey.toBuffer(),
+        propellerEnabled: false,
+        gasKickstart: false,
+        maxFee: new BN(100),
+        targetTokenId: 1,
+        memo: memoBuffer,
+      };
+      const encodedSwimPayload = encodeSwimPayload(swimPayload);
+      const parsedSwimPayload = parseSwimPayload(encodedSwimPayload);
+      console.info(`
+        encodedSwimPayload: ${encodedSwimPayload.toString()}
+        parsedSwimPayload: ${JSON.stringify(parsedSwimPayload, null, 2)}
+      `);
 
+      expect(parsedSwimPayload.version).toEqual(swimPayload.version);
+      expect(parsedSwimPayload.owner).toEqual(swimPayload.owner);
+      expect(parsedSwimPayload.propellerEnabled).toEqual(false);
+      expect(parsedSwimPayload.gasKickstart).toEqual(false);
+      console.info(`
+      swimPayload.maxFee: ${swimPayload.maxFee.toString()}
+      parsedSwimPayload.maxFee: ${parsedSwimPayload.maxFee.toString()}
+      `);
+      expect(parsedSwimPayload.maxFee.eq(swimPayload.maxFee)).toBeTruthy();
+      expect(parsedSwimPayload.targetTokenId).toEqual(
+        swimPayload.targetTokenId,
+      );
+      expect(parsedSwimPayload.memo).toEqual(swimPayload.memo);
+    });
+    it("encodes & parses SwimPayload with only version & owner", () => {
+      const swimPayload = {
+        version: swimPayloadVersion,
+        owner: provider.publicKey.toBuffer(),
+      };
+      const encodedSwimPayload = encodeSwimPayload(swimPayload);
+      const parsedSwimPayload = parseSwimPayload(encodedSwimPayload);
+      console.info(`
+        encodedSwimPayload: ${encodedSwimPayload.toString()}
+        parsedSwimPayload: ${JSON.stringify(parsedSwimPayload, null, 2)}
+      `);
+
+      expect(parsedSwimPayload.version).toEqual(swimPayload.version);
+      expect(parsedSwimPayload.owner).toEqual(swimPayload.owner);
+      expect(parsedSwimPayload.propellerEnabled).toBeUndefined();
+      expect(parsedSwimPayload.gasKickstart).toBeUndefined();
+      expect(parsedSwimPayload.maxFee).toBeUndefined();
+      expect(parsedSwimPayload.targetTokenId).toBeUndefined();
+      expect(parsedSwimPayload.memo).toBeUndefined();
+    });
   });
 });

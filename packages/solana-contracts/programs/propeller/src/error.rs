@@ -146,4 +146,7 @@ pub enum PropellerError {
 
     #[msg("Invalid address for TokenIdMap account")]
     InvalidTokenIdMapAccountAddress,
+
+    #[msg("Invalid Swim Payload version")]
+    InvalidSwimPayloadVersion,
 }

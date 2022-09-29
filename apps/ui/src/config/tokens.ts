@@ -586,9 +586,9 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
   },
 ].filter((spec) => !spec.isDisabled);
 
-export const DEVNET_SWIMUSD: TokenConfig = {
+export const TESTNET_SWIMUSD: TokenConfig = {
   isDisabled: !isPoolRestructureEnabled(),
-  id: "devnet-swimusd",
+  id: "testnet-swimusd",
   projectId: TokenProjectId.SwimLpSolanaUsdcUsdt,
   nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
   nativeDetails: {
@@ -655,10 +655,10 @@ export const DEVNET_SWIMUSD: TokenConfig = {
   ]),
 };
 
-export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
+export const TESTNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-ethereum-lp-usdc-usdt",
+    id: "testnet-ethereum-lp-usdc-usdt",
     projectId: TokenProjectId.SwimLpEthereumUsdcUsdt,
     nativeEcosystemId: EvmEcosystemId.Ethereum,
     nativeDetails: {
@@ -669,7 +669,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-bnb-lp-busd-usdt",
+    id: "testnet-bnb-lp-busd-usdt",
     projectId: TokenProjectId.SwimLpBnbBusdUsdt,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
@@ -680,7 +680,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-avalanche-lp-usdc-usdt",
+    id: "testnet-avalanche-lp-usdc-usdt",
     projectId: TokenProjectId.SwimLpAvalancheUsdcUsdt,
     nativeEcosystemId: EvmEcosystemId.Avalanche,
     nativeDetails: {
@@ -691,7 +691,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-polygon-lp-usdc-usdt",
+    id: "testnet-polygon-lp-usdc-usdt",
     projectId: TokenProjectId.SwimLpPolygonUsdcUsdt,
     nativeEcosystemId: EvmEcosystemId.Polygon,
     nativeDetails: {
@@ -702,7 +702,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-aurora-lp-usdc-usdt",
+    id: "testnet-aurora-lp-usdc-usdt",
     projectId: TokenProjectId.SwimLpAuroraUsdcUsdt,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
@@ -714,7 +714,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   {
     isDisabled:
       !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "devnet-aurora-lp-usn",
+    id: "testnet-aurora-lp-usn",
     projectId: TokenProjectId.SwimLpAuroraUsn,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
@@ -725,7 +725,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-fantom-lp-usdc",
+    id: "testnet-fantom-lp-usdc",
     projectId: TokenProjectId.SwimLpFantomUsdc,
     nativeEcosystemId: EvmEcosystemId.Fantom,
     nativeDetails: {
@@ -736,7 +736,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-karura-lp-usdt",
+    id: "testnet-karura-lp-usdt",
     projectId: TokenProjectId.SwimLpKaruraUsdt,
     nativeEcosystemId: EvmEcosystemId.Karura,
     nativeDetails: {
@@ -748,7 +748,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   {
     isDisabled:
       !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_KARURA_AUSD,
-    id: "devnet-karura-lp-ausd",
+    id: "testnet-karura-lp-ausd",
     projectId: TokenProjectId.SwimLpKaruraAusd,
     nativeEcosystemId: EvmEcosystemId.Karura,
     nativeDetails: {
@@ -759,7 +759,7 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-acala-lp-ausd",
+    id: "testnet-acala-lp-ausd",
     projectId: TokenProjectId.SwimLpAcalaAusd,
     nativeEcosystemId: EvmEcosystemId.Acala,
     nativeDetails: {
@@ -770,9 +770,9 @@ export const DEVNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
   },
 ];
 
-export const DEVNET_TOKENS: readonly TokenConfig[] = [
+export const TESTNET_TOKENS: readonly TokenConfig[] = [
   {
-    id: "devnet-solana-usdc",
+    id: "testnet-solana-usdc",
     projectId: TokenProjectId.Usdc,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -782,7 +782,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-usdt",
+    id: "testnet-solana-usdt",
     projectId: TokenProjectId.Usdt,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -792,7 +792,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-usdc-v2",
+    id: "testnet-solana-usdc-v2",
     projectId: TokenProjectId.Usdc,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -802,7 +802,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-usdt-v2",
+    id: "testnet-solana-usdt-v2",
     projectId: TokenProjectId.Usdt,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -812,7 +812,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-gst",
+    id: "testnet-solana-gst",
     projectId: TokenProjectId.Gst,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -822,7 +822,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-gmt",
+    id: "testnet-solana-gmt",
     projectId: TokenProjectId.Gmt,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -832,7 +832,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-lp-hexapool",
+    id: "testnet-solana-lp-hexapool",
     projectId: TokenProjectId.SwimUsd,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -857,7 +857,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "devnet-solana-swim",
+    id: "testnet-solana-swim",
     projectId: TokenProjectId.Swim,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -867,7 +867,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-lp-swimlake",
+    id: "testnet-solana-lp-swimlake",
     projectId: TokenProjectId.XSwim,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -877,7 +877,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-lp-meta-avalanche-usdc",
+    id: "testnet-solana-lp-meta-avalanche-usdc",
     projectId: TokenProjectId.SwimAvalancheUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -887,7 +887,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-lp-meta-avalanche-usdt",
+    id: "testnet-solana-lp-meta-avalanche-usdt",
     projectId: TokenProjectId.SwimAvalancheUsdtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -897,7 +897,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-lp-meta-polygon-usdc",
+    id: "testnet-solana-lp-meta-polygon-usdc",
     projectId: TokenProjectId.SwimPolygonUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -907,7 +907,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-lp-meta-polygon-usdt",
+    id: "testnet-solana-lp-meta-polygon-usdt",
     projectId: TokenProjectId.SwimPolygonUsdtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -917,7 +917,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-lp-gst",
+    id: "testnet-solana-lp-gst",
     projectId: TokenProjectId.SwimSolanaGstBinanceGstLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -927,7 +927,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-lp-gmt",
+    id: "testnet-solana-lp-gmt",
     projectId: TokenProjectId.SwimSolanaGmtBinanceGmtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -937,7 +937,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-lp-meta-aurora-usdc",
+    id: "testnet-solana-lp-meta-aurora-usdc",
     projectId: TokenProjectId.SwimAuroraUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -947,7 +947,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-solana-lp-meta-aurora-usdt",
+    id: "testnet-solana-lp-meta-aurora-usdt",
     projectId: TokenProjectId.SwimAuroraUsdtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -958,7 +958,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "devnet-solana-lp-meta-aurora-usn",
+    id: "testnet-solana-lp-meta-aurora-usn",
     projectId: TokenProjectId.SwimAuroraUsnLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -969,7 +969,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Fantom),
-    id: "devnet-solana-lp-meta-fantom-usdc",
+    id: "testnet-solana-lp-meta-fantom-usdc",
     projectId: TokenProjectId.SwimFantomUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -980,7 +980,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Karura),
-    id: "devnet-solana-lp-meta-karura-ausd",
+    id: "testnet-solana-lp-meta-karura-ausd",
     projectId: TokenProjectId.SwimKaruraAusdLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -991,7 +991,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Karura),
-    id: "devnet-solana-lp-meta-karura-usdt",
+    id: "testnet-solana-lp-meta-karura-usdt",
     projectId: TokenProjectId.SwimKaruraUsdtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -1002,7 +1002,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Acala),
-    id: "devnet-solana-lp-meta-acala-ausd",
+    id: "testnet-solana-lp-meta-acala-ausd",
     projectId: TokenProjectId.SwimAcalaAusdLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
     nativeDetails: {
@@ -1012,7 +1012,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    id: "devnet-ethereum-usdc",
+    id: "testnet-ethereum-usdc",
     projectId: TokenProjectId.Usdc,
     nativeEcosystemId: EvmEcosystemId.Ethereum,
     nativeDetails: {
@@ -1030,7 +1030,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "devnet-ethereum-usdt",
+    id: "testnet-ethereum-usdt",
     projectId: TokenProjectId.Usdt,
     nativeEcosystemId: EvmEcosystemId.Ethereum,
     nativeDetails: {
@@ -1048,7 +1048,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "devnet-bnb-busd",
+    id: "testnet-bnb-busd",
     projectId: TokenProjectId.Busd,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
@@ -1066,7 +1066,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "devnet-bnb-usdt",
+    id: "testnet-bnb-usdt",
     projectId: TokenProjectId.Usdt,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
@@ -1084,7 +1084,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "devnet-bnb-gst",
+    id: "testnet-bnb-gst",
     projectId: TokenProjectId.Gst,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
@@ -1102,7 +1102,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "devnet-bnb-gmt",
+    id: "testnet-bnb-gmt",
     projectId: TokenProjectId.Gmt,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
@@ -1120,7 +1120,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "devnet-avalanche-usdc",
+    id: "testnet-avalanche-usdc",
     projectId: TokenProjectId.Usdc,
     nativeEcosystemId: EvmEcosystemId.Avalanche,
     nativeDetails: {
@@ -1138,7 +1138,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "devnet-avalanche-usdt",
+    id: "testnet-avalanche-usdt",
     projectId: TokenProjectId.Usdt,
     nativeEcosystemId: EvmEcosystemId.Avalanche,
     nativeDetails: {
@@ -1156,7 +1156,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "devnet-polygon-usdc",
+    id: "testnet-polygon-usdc",
     projectId: TokenProjectId.Usdc,
     nativeEcosystemId: EvmEcosystemId.Polygon,
     nativeDetails: {
@@ -1174,7 +1174,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "devnet-polygon-usdt",
+    id: "testnet-polygon-usdt",
     projectId: TokenProjectId.Usdt,
     nativeEcosystemId: EvmEcosystemId.Polygon,
     nativeDetails: {
@@ -1192,7 +1192,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "devnet-aurora-usdc",
+    id: "testnet-aurora-usdc",
     projectId: TokenProjectId.Usdc,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
@@ -1210,7 +1210,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    id: "devnet-aurora-usdt",
+    id: "testnet-aurora-usdt",
     projectId: TokenProjectId.Usdt,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
@@ -1229,7 +1229,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "devnet-aurora-usn",
+    id: "testnet-aurora-usn",
     projectId: TokenProjectId.Usn,
     nativeEcosystemId: EvmEcosystemId.Aurora,
     nativeDetails: {
@@ -1248,7 +1248,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Fantom),
-    id: "devnet-fantom-usdc",
+    id: "testnet-fantom-usdc",
     projectId: TokenProjectId.Usdc,
     nativeEcosystemId: EvmEcosystemId.Fantom,
     nativeDetails: {
@@ -1267,7 +1267,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Karura),
-    id: "devnet-karura-ausd",
+    id: "testnet-karura-ausd",
     projectId: TokenProjectId.Ausd,
     nativeEcosystemId: EvmEcosystemId.Karura,
     nativeDetails: {
@@ -1286,7 +1286,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Karura),
-    id: "devnet-karura-usdt",
+    id: "testnet-karura-usdt",
     projectId: TokenProjectId.Usdt,
     nativeEcosystemId: EvmEcosystemId.Karura,
     nativeDetails: {
@@ -1305,7 +1305,7 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
   },
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Acala),
-    id: "devnet-acala-ausd",
+    id: "testnet-acala-ausd",
     projectId: TokenProjectId.Ausd,
     nativeEcosystemId: EvmEcosystemId.Acala,
     nativeDetails: {
@@ -1322,8 +1322,8 @@ export const DEVNET_TOKENS: readonly TokenConfig[] = [
       ],
     ]),
   },
-  DEVNET_SWIMUSD,
-  ...DEVNET_TOKENS_FOR_RESTRUCTURE,
+  TESTNET_SWIMUSD,
+  ...TESTNET_TOKENS_FOR_RESTRUCTURE,
 ].filter((spec) => !spec.isDisabled);
 
 const LOCAL_TOKENS: readonly TokenConfig[] = [
@@ -1498,7 +1498,7 @@ const LOCAL_TOKENS: readonly TokenConfig[] = [
 
 export const TOKENS: ReadonlyRecord<Env, readonly TokenConfig[]> = {
   [Env.Mainnet]: MAINNET_TOKENS,
-  [Env.Devnet]: DEVNET_TOKENS,
+  [Env.Testnet]: TESTNET_TOKENS,
   [Env.Local]: LOCAL_TOKENS,
   [Env.Custom]: LOCAL_TOKENS,
 };

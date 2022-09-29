@@ -5,6 +5,8 @@ export const selectWalletAdapterApi = (state: WalletAdapterState) => ({
   disconnectService: state.disconnectService,
 });
 
+export const selectAptosAdapter = (state: WalletAdapterState) => state.aptos;
+
 export const selectEvmAdapter = (state: WalletAdapterState) => state.evm;
 
 export const selectSolanaAdapter = (state: WalletAdapterState) => state.solana;

@@ -1,3 +1,4 @@
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId } from "@swim-io/evm";
 import type { TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
@@ -55,6 +56,7 @@ export const useUserLpBalances = (
       : null;
 
   return {
+    [APTOS_ECOSYSTEM_ID]: null,
     [SOLANA_ECOSYSTEM_ID]: userLpBalanceSolana,
     [EvmEcosystemId.Ethereum]: userLpBalanceEthereum,
     [EvmEcosystemId.Bnb]: userLpBalanceBnb,

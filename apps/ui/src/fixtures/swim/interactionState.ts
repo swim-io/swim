@@ -1,3 +1,4 @@
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
@@ -29,6 +30,7 @@ export const MOCK_INTERACTION_STATE: InteractionState = {
     env: Env.Custom,
     submittedAt: 1653624596234,
     connectedWallets: {
+      [APTOS_ECOSYSTEM_ID]: null,
       [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
       [EvmEcosystemId.Bnb]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
       [EvmEcosystemId.Ethereum]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
@@ -118,6 +120,7 @@ export const MOCK_PREPARED_INTERACTION_STATE: PersistedInteractionState = {
     env: Env.Custom,
     submittedAt: 1653624596234,
     connectedWallets: {
+      [APTOS_ECOSYSTEM_ID]: null,
       [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
       [EvmEcosystemId.Bnb]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
       [EvmEcosystemId.Ethereum]: "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",

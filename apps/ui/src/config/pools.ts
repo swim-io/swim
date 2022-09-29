@@ -1,3 +1,4 @@
+import type { AptosEcosystemId } from "@swim-io/aptos";
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import type { SolanaEcosystemId } from "@swim-io/solana";
@@ -35,7 +36,11 @@ export interface EvmPoolSpec extends BasePoolSpec {
   readonly ecosystem: EvmEcosystemId;
 }
 
-export type PoolSpec = SolanaPoolSpec | EvmPoolSpec;
+export interface AptosPoolSpec extends BasePoolSpec {
+  readonly ecosystem: AptosEcosystemId;
+}
+
+export type PoolSpec = SolanaPoolSpec | EvmPoolSpec | AptosPoolSpec;
 
 export const isPoolRestructureEnabled = (): boolean =>
   !!process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE;
@@ -364,10 +369,10 @@ const MAINNET_POOLS: readonly PoolSpec[] = [
   },
 ].filter((spec) => !spec.isDisabled);
 
-export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
+export const TESTNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-solana-usdc-usdt",
+    id: "testnet-solana-usdc-usdt",
     ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Solana USDC USDT",
     isStakingPool: false,
@@ -377,16 +382,22 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     address: "EGm6UfAJ6LFy8WRxE2YjjJzwUbZ1ZFiuG2rP6YudKKBB", // TODO: Update
     authority: "EGm6UfAJ6LFy8WRxE2YjjJzwUbZ1ZFiuG2rP6YudKKBB", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-swimusd",
+    lpToken: "testnet-swimusd",
     tokenAccounts: new Map([
-      ["devnet-solana-usdc-v2", "49fm8MaATyD4BwaqxXmjASGuR3WLg8PL1SvMiYpyTdrx"], // TODO: Update
-      ["devnet-solana-usdt-v2", "849M4dvrdoUqsn7t6eVWWNos8Q8RfLJxRTzQC46KGoYE"], // TODO: Update
+      [
+        "testnet-solana-usdc-v2",
+        "49fm8MaATyD4BwaqxXmjASGuR3WLg8PL1SvMiYpyTdrx",
+      ], // TODO: Update
+      [
+        "testnet-solana-usdt-v2",
+        "849M4dvrdoUqsn7t6eVWWNos8Q8RfLJxRTzQC46KGoYE",
+      ], // TODO: Update
     ]),
-    tokens: ["devnet-solana-usdc-v2", "devnet-solana-usdt-v2"],
+    tokens: ["testnet-solana-usdc-v2", "testnet-solana-usdt-v2"],
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-ethereum-usdc-usdt",
+    id: "testnet-ethereum-usdc-usdt",
     ecosystem: EvmEcosystemId.Ethereum,
     displayName: "Ethereum USDC USDT",
     isStakingPool: false,
@@ -394,12 +405,16 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "0xe167b44578EAe235E0CF063099989A2c7aBA06Cb", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-ethereum-lp-usdc-usdt",
-    tokens: ["devnet-swimusd", "devnet-ethereum-usdc", "devnet-ethereum-usdt"],
+    lpToken: "testnet-ethereum-lp-usdc-usdt",
+    tokens: [
+      "testnet-swimusd",
+      "testnet-ethereum-usdc",
+      "testnet-ethereum-usdt",
+    ],
   },
   {
     isDisabled: !isPoolRestructureEnabled(),
-    id: "devnet-bnb-busd-usdt",
+    id: "testnet-bnb-busd-usdt",
     ecosystem: EvmEcosystemId.Bnb,
     displayName: "BNB BUSD USDT",
     isStakingPool: false,
@@ -407,12 +422,12 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "0x944fD8212c855e82e654ce70Cd54566EDf90F532", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-bnb-lp-busd-usdt",
-    tokens: ["devnet-swimusd", "devnet-bnb-busd", "devnet-bnb-usdt"],
+    lpToken: "testnet-bnb-lp-busd-usdt",
+    tokens: ["testnet-swimusd", "testnet-bnb-busd", "testnet-bnb-usdt"],
   },
   {
     isDisabled: true, // TODO: Update !isPoolRestructureEnabled(),
-    id: "devnet-avalanche-usdc-usdt",
+    id: "testnet-avalanche-usdc-usdt",
     ecosystem: EvmEcosystemId.Avalanche,
     displayName: "Avalanche USDC USDT",
     isStakingPool: false,
@@ -420,16 +435,16 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-avalanche-lp-usdc-usdt",
+    lpToken: "testnet-avalanche-lp-usdc-usdt",
     tokens: [
-      "devnet-swimusd",
-      "devnet-avalanche-usdc",
-      "devnet-avalanche-usdt",
+      "testnet-swimusd",
+      "testnet-avalanche-usdc",
+      "testnet-avalanche-usdt",
     ],
   },
   {
     isDisabled: true, // TODO: Update !isPoolRestructureEnabled(),
-    id: "devnet-polygon-usdc-usdt",
+    id: "testnet-polygon-usdc-usdt",
     ecosystem: EvmEcosystemId.Polygon,
     displayName: "Polygon USDC USDT",
     isStakingPool: false,
@@ -437,12 +452,12 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-polygon-lp-usdc-usdt",
-    tokens: ["devnet-swimusd", "devnet-polygon-usdc", "devnet-polygon-usdt"],
+    lpToken: "testnet-polygon-lp-usdc-usdt",
+    tokens: ["testnet-swimusd", "testnet-polygon-usdc", "testnet-polygon-usdt"],
   },
   {
     isDisabled: true, // TODO: Update !isPoolRestructureEnabled(),
-    id: "devnet-aurora-usdc-usdt",
+    id: "testnet-aurora-usdc-usdt",
     ecosystem: EvmEcosystemId.Aurora,
     displayName: "Aurora USDC USDT",
     isStakingPool: false,
@@ -450,13 +465,13 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-aurora-lp-usdc-usdt",
-    tokens: ["devnet-swimusd", "devnet-aurora-usdc", "devnet-aurora-usdt"],
+    lpToken: "testnet-aurora-lp-usdc-usdt",
+    tokens: ["testnet-swimusd", "testnet-aurora-usdc", "testnet-aurora-usdt"],
   },
   {
     isDisabled: true,
     // TODO: Update !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_AURORA_USN,
-    id: "devnet-aurora-usn",
+    id: "testnet-aurora-usn",
     ecosystem: EvmEcosystemId.Aurora,
     displayName: "Aurora USN",
     isStakingPool: false,
@@ -464,12 +479,12 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-aurora-lp-usn",
-    tokens: ["devnet-swimusd", "devnet-aurora-usn"],
+    lpToken: "testnet-aurora-lp-usn",
+    tokens: ["testnet-swimusd", "testnet-aurora-usn"],
   },
   {
     isDisabled: true, // TODO: Update !isPoolRestructureEnabled(),
-    id: "devnet-fantom-usdc",
+    id: "testnet-fantom-usdc",
     ecosystem: EvmEcosystemId.Fantom,
     displayName: "Fantom USDC",
     isStakingPool: false,
@@ -477,12 +492,12 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-fantom-lp-usdc",
-    tokens: ["devnet-swimusd", "devnet-fantom-usdc"],
+    lpToken: "testnet-fantom-lp-usdc",
+    tokens: ["testnet-swimusd", "testnet-fantom-usdc"],
   },
   {
     isDisabled: true, // TODO: Update !isPoolRestructureEnabled(),
-    id: "devnet-karura-usdt",
+    id: "testnet-karura-usdt",
     ecosystem: EvmEcosystemId.Karura,
     displayName: "Karura USDT",
     isStakingPool: false,
@@ -490,13 +505,13 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-karura-lp-usdt",
-    tokens: ["devnet-swimusd", "devnet-karura-usdt"],
+    lpToken: "testnet-karura-lp-usdt",
+    tokens: ["testnet-swimusd", "testnet-karura-usdt"],
   },
   {
     isDisabled: true,
     // TODO: Update !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_KARURA_AUSD,
-    id: "devnet-karura-ausd",
+    id: "testnet-karura-ausd",
     ecosystem: EvmEcosystemId.Karura,
     displayName: "Karura aUSD",
     isStakingPool: false,
@@ -504,13 +519,13 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-karura-lp-ausd",
-    tokens: ["devnet-swimusd", "devnet-karura-ausd"],
+    lpToken: "testnet-karura-lp-ausd",
+    tokens: ["testnet-swimusd", "testnet-karura-ausd"],
   },
   {
     isDisabled: true,
     // TODO: Update !isPoolRestructureEnabled() || !process.env.REACT_APP_ENABLE_ACALA,
-    id: "devnet-acala-ausd",
+    id: "testnet-acala-ausd",
     ecosystem: EvmEcosystemId.Acala,
     displayName: "Aurora aUSD",
     isStakingPool: false,
@@ -518,12 +533,12 @@ export const DEVNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isLegacyPool: false,
     address: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-acala-lp-ausd",
-    tokens: ["devnet-swimusd", "devnet-acala-ausd"],
+    lpToken: "testnet-acala-lp-ausd",
+    tokens: ["testnet-swimusd", "testnet-acala-ausd"],
   },
 ];
 
-export const DEVNET_POOLS: readonly PoolSpec[] = [
+export const TESTNET_POOLS: readonly PoolSpec[] = [
   {
     id: "hexapool",
     ecosystem: SOLANA_ECOSYSTEM_ID,
@@ -535,22 +550,22 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "G4dYhqGrGwmx78ad8LXbGHRUfacRkmxycw3XJDWPW7Ec",
     authority: "B3rnh8XJq3F7sJDLu7Kr9z24KXxkHsvLmZB29FcVqe5A",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-hexapool",
+    lpToken: "testnet-solana-lp-hexapool",
     tokenAccounts: new Map([
-      ["devnet-ethereum-usdc", "EqhKYj5VQ8C3c4RWrfnm1UdoFPQoKYTWJdRWnSpN73sz"],
-      ["devnet-ethereum-usdt", "DR2pkTqM3bYHtcN6YDW4k9tnCDYbtrbwE61yzRMQn7h"],
-      ["devnet-bnb-busd", "24kq1sAEyYgoT2H6SZEMQ8eqanyt7mDDhEQ1pLEhXCch"],
-      ["devnet-bnb-usdt", "63voUkHQrDfULcCKXwU6i9MoENhjVyMWXgxCxnnaKx37"],
-      ["devnet-solana-usdc", "66MCny16VUbuecNtvqXsLjdBSqVigeb31P14dtayH2jq"],
-      ["devnet-solana-usdt", "4ZtpwjuxYC9VZBGAphBVpUVQzdy4anxF2ctJDp9xkpYA"],
+      ["testnet-ethereum-usdc", "EqhKYj5VQ8C3c4RWrfnm1UdoFPQoKYTWJdRWnSpN73sz"],
+      ["testnet-ethereum-usdt", "DR2pkTqM3bYHtcN6YDW4k9tnCDYbtrbwE61yzRMQn7h"],
+      ["testnet-bnb-busd", "24kq1sAEyYgoT2H6SZEMQ8eqanyt7mDDhEQ1pLEhXCch"],
+      ["testnet-bnb-usdt", "63voUkHQrDfULcCKXwU6i9MoENhjVyMWXgxCxnnaKx37"],
+      ["testnet-solana-usdc", "66MCny16VUbuecNtvqXsLjdBSqVigeb31P14dtayH2jq"],
+      ["testnet-solana-usdt", "4ZtpwjuxYC9VZBGAphBVpUVQzdy4anxF2ctJDp9xkpYA"],
     ]),
     tokens: [
-      "devnet-ethereum-usdc",
-      "devnet-ethereum-usdt",
-      "devnet-bnb-busd",
-      "devnet-bnb-usdt",
-      "devnet-solana-usdc",
-      "devnet-solana-usdt",
+      "testnet-ethereum-usdc",
+      "testnet-ethereum-usdt",
+      "testnet-bnb-busd",
+      "testnet-bnb-usdt",
+      "testnet-solana-usdc",
+      "testnet-solana-usdt",
     ],
   },
   {
@@ -564,15 +579,18 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "212ehpMyQZPfD5cNtZMxzwTmQHkDoFhZjT4UyBCzAxFU",
     authority: "3cvyGruDFQ3uyxGPNHXLEQyZe3rLPiLsjvNkvSFTTURg",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-meta-avalanche-usdc",
+    lpToken: "testnet-solana-lp-meta-avalanche-usdc",
     tokenAccounts: new Map([
-      ["devnet-avalanche-usdc", "4wVFKRTNK5RriQaRfMBm6BjRdnb5yqUFKmthQXmkCgho"],
       [
-        "devnet-solana-lp-hexapool",
+        "testnet-avalanche-usdc",
+        "4wVFKRTNK5RriQaRfMBm6BjRdnb5yqUFKmthQXmkCgho",
+      ],
+      [
+        "testnet-solana-lp-hexapool",
         "14j3ek3AD7UHgQYpvvRM8265Vh4SdXsvxNLyhgYuRTtb",
       ],
     ]),
-    tokens: ["devnet-avalanche-usdc", "devnet-solana-lp-hexapool"],
+    tokens: ["testnet-avalanche-usdc", "testnet-solana-lp-hexapool"],
   },
   {
     id: "meta-avalanche-usdt",
@@ -585,15 +603,18 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "De2SEaTh5cAx6h6zSySdqbbHjVVhouoUyFscLp1vaUcp",
     authority: "DAP8h8zeYURm6FFvhnQ9pcNdwCSS2gsF3GmdcDeSeBx5",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-meta-avalanche-usdt",
+    lpToken: "testnet-solana-lp-meta-avalanche-usdt",
     tokenAccounts: new Map([
-      ["devnet-avalanche-usdt", "Eda3mSE2nX2ynoFZxCorGgDfp24i5zPfCvcEhks9yN5d"],
       [
-        "devnet-solana-lp-hexapool",
+        "testnet-avalanche-usdt",
+        "Eda3mSE2nX2ynoFZxCorGgDfp24i5zPfCvcEhks9yN5d",
+      ],
+      [
+        "testnet-solana-lp-hexapool",
         "HHUt836dTXR8kxUGZUiK7sin6cxkf3U98YW2FYivKBcJ",
       ],
     ]),
-    tokens: ["devnet-avalanche-usdt", "devnet-solana-lp-hexapool"],
+    tokens: ["testnet-avalanche-usdt", "testnet-solana-lp-hexapool"],
   },
   {
     id: "meta-polygon-usdc",
@@ -606,15 +627,15 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "FgurBCdyw9XhwXGUYR6qaT8eTXCMWDt3b58WW1FtVppa",
     authority: "69coJLCxruUbth3iNtzbwXcgyojKjKAVAFiTic49Fbgj",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-meta-polygon-usdc",
+    lpToken: "testnet-solana-lp-meta-polygon-usdc",
     tokenAccounts: new Map([
-      ["devnet-polygon-usdc", "7nLzo7TFJf41WBab5AuLCuAF7A9TRcvEQCPrzTjrnhG8"],
+      ["testnet-polygon-usdc", "7nLzo7TFJf41WBab5AuLCuAF7A9TRcvEQCPrzTjrnhG8"],
       [
-        "devnet-solana-lp-hexapool",
+        "testnet-solana-lp-hexapool",
         "8Bob5k8JvcuwhDkSeUT91BMM8JU2z36bdXeZR17aNaRo",
       ],
     ]),
-    tokens: ["devnet-polygon-usdc", "devnet-solana-lp-hexapool"],
+    tokens: ["testnet-polygon-usdc", "testnet-solana-lp-hexapool"],
   },
   {
     id: "meta-polygon-usdt",
@@ -627,15 +648,15 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "7Epgp6xrmSsLFWXxwYwsmxYXz2mLxRT6bLvK4rYvrbTc",
     authority: "8cMYB4rFYMu5vm4Q9GM7ZskDkJ7anzdA4ETxcyua94K3",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-meta-polygon-usdt",
+    lpToken: "testnet-solana-lp-meta-polygon-usdt",
     tokenAccounts: new Map([
-      ["devnet-polygon-usdt", "G9fLWPVm5hNJ8yWhUd3uBPB1FYmK2MNqVPBT2qY4iqK7"],
+      ["testnet-polygon-usdt", "G9fLWPVm5hNJ8yWhUd3uBPB1FYmK2MNqVPBT2qY4iqK7"],
       [
-        "devnet-solana-lp-hexapool",
+        "testnet-solana-lp-hexapool",
         "9McdiBTpZV7nYYa4Tv7411wetRxTakVb8XjzAFNohN9Y",
       ],
     ]),
-    tokens: ["devnet-polygon-usdt", "devnet-solana-lp-hexapool"],
+    tokens: ["testnet-polygon-usdt", "testnet-solana-lp-hexapool"],
   },
   {
     id: "gst-solana-bnb",
@@ -648,12 +669,12 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "DLg2DinrAnCjC5zxaoRzJHModVpEDNdnNVLE7VxPhfxe",
     authority: "AyQbRcdNn6khTJDqg1vEwb6jWQAVKcEbm4XmbFLW3k8",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-gst",
+    lpToken: "testnet-solana-lp-gst",
     tokenAccounts: new Map([
-      ["devnet-bnb-gst", "D7YxhU2Q1qUJEVGfnvaU45mfkQJ5E5eurrMHGShYKciX"],
-      ["devnet-solana-gst", "BpbTS7jLsiTiDjdNwAVxju8NmYgMwCacJKCLRnioLGxV"],
+      ["testnet-bnb-gst", "D7YxhU2Q1qUJEVGfnvaU45mfkQJ5E5eurrMHGShYKciX"],
+      ["testnet-solana-gst", "BpbTS7jLsiTiDjdNwAVxju8NmYgMwCacJKCLRnioLGxV"],
     ]),
-    tokens: ["devnet-bnb-gst", "devnet-solana-gst"],
+    tokens: ["testnet-bnb-gst", "testnet-solana-gst"],
   },
   {
     id: "gmt-solana-bnb",
@@ -666,12 +687,12 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "GZCwq7KwkoQjrUkVhpTkpLR3Epv4Vtn4j4FcuJUnhmhG",
     authority: "DvSxr48zvgGtCPEePzBz6R1eKo7xz1gkaE3YhqJm1JHV",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-gmt",
+    lpToken: "testnet-solana-lp-gmt",
     tokenAccounts: new Map([
-      ["devnet-bnb-gmt", "7WbJaS6tEXCxMqtiWJ7P7GkHLadskUJ2UzJJVv2qC3aP"],
-      ["devnet-solana-gmt", "6gG1cPnypyNVN16cCHfbZoJ4GMXREvbxPTEQXakcZQiJ"],
+      ["testnet-bnb-gmt", "7WbJaS6tEXCxMqtiWJ7P7GkHLadskUJ2UzJJVv2qC3aP"],
+      ["testnet-solana-gmt", "6gG1cPnypyNVN16cCHfbZoJ4GMXREvbxPTEQXakcZQiJ"],
     ]),
-    tokens: ["devnet-bnb-gmt", "devnet-solana-gmt"],
+    tokens: ["testnet-bnb-gmt", "testnet-solana-gmt"],
   },
   {
     id: "meta-aurora-usdc",
@@ -684,15 +705,15 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "EzpaZeECVuVKh4dEZsdxqi2qtLiRN7Jm25Km4Cvqu2XE",
     authority: "BcQ67jPVrPTbZZ4xbgbDYkZynGcg1jUU198f1SzpuPcw",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-meta-aurora-usdc",
+    lpToken: "testnet-solana-lp-meta-aurora-usdc",
     tokenAccounts: new Map([
-      ["devnet-aurora-usdc", "yZABYQoCEgNCfktMaxgt3VfyKVK1WRi4A9BjkgnetPt"],
+      ["testnet-aurora-usdc", "yZABYQoCEgNCfktMaxgt3VfyKVK1WRi4A9BjkgnetPt"],
       [
-        "devnet-solana-lp-hexapool",
+        "testnet-solana-lp-hexapool",
         "EWs9XLKHEq4rDaWcfmA2W51jqTjLjR3PBXNJpcTGt64v",
       ],
     ]),
-    tokens: ["devnet-aurora-usdc", "devnet-solana-lp-hexapool"],
+    tokens: ["testnet-aurora-usdc", "testnet-solana-lp-hexapool"],
   },
   {
     id: "meta-aurora-usdt",
@@ -705,18 +726,18 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "t6JAmJWDi4y6pp32p268ru3GrHEBXdoHERVqSjek3XY",
     authority: "ETywNpF1gsXmmPLSavw563Mr4FaCLmVxcupdWxPZ8nxw",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-meta-aurora-usdt",
+    lpToken: "testnet-solana-lp-meta-aurora-usdt",
     tokenAccounts: new Map([
-      ["devnet-aurora-usdt", "DpBhN9UoHh4RGGHcoGBfqeqKndstiTXup6pwhcBxXFFA"],
+      ["testnet-aurora-usdt", "DpBhN9UoHh4RGGHcoGBfqeqKndstiTXup6pwhcBxXFFA"],
       [
-        "devnet-solana-lp-hexapool",
+        "testnet-solana-lp-hexapool",
         "Gmd1KvrLonD6pzeMz2U1nTJVgG4yv9LySpYQZVLV8eBm",
       ],
     ]),
-    tokens: ["devnet-aurora-usdt", "devnet-solana-lp-hexapool"],
+    tokens: ["testnet-aurora-usdt", "testnet-solana-lp-hexapool"],
   },
   {
-    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN, // TODO: Enable when deployed on devnet
+    isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN, // TODO: Enable when deployed on testnet
     id: "meta-aurora-usn",
     ecosystem: SOLANA_ECOSYSTEM_ID,
     displayName: "Aurora USN",
@@ -727,12 +748,12 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "11111111111111111111111111111111", // TODO: Update
     authority: "11111111111111111111111111111111", // TODO: Update
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-meta-aurora-usn",
+    lpToken: "testnet-solana-lp-meta-aurora-usn",
     tokenAccounts: new Map([
-      ["devnet-aurora-usn", "11111111111111111111111111111111"], // TODO: Update
-      ["devnet-solana-lp-hexapool", "11111111111111111111111111111111"], // TODO: Update
+      ["testnet-aurora-usn", "11111111111111111111111111111111"], // TODO: Update
+      ["testnet-solana-lp-hexapool", "11111111111111111111111111111111"], // TODO: Update
     ]),
-    tokens: ["devnet-aurora-usn", "devnet-solana-lp-hexapool"],
+    tokens: ["testnet-aurora-usn", "testnet-solana-lp-hexapool"],
   },
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Fantom),
@@ -746,15 +767,15 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "8EqXgUstAwEihJLcmeW8ojrSgbRbc2sWshnKpvDPKLiC",
     authority: "9RUzzifoTRPuJKSRzhNR92kDT7F3vT8Di57hDFdtU3Pu",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-meta-fantom-usdc",
+    lpToken: "testnet-solana-lp-meta-fantom-usdc",
     tokenAccounts: new Map([
-      ["devnet-fantom-usdc", "3DExDt8nzBWdHZTy9eNp6RPfSPD9MKpUnpPLcMGRbKPX"],
+      ["testnet-fantom-usdc", "3DExDt8nzBWdHZTy9eNp6RPfSPD9MKpUnpPLcMGRbKPX"],
       [
-        "devnet-solana-lp-hexapool",
+        "testnet-solana-lp-hexapool",
         "EHbgKe7U33hh8CQpLUkNiZv6aGdvXosein74XN66h4Dt",
       ],
     ]),
-    tokens: ["devnet-fantom-usdc", "devnet-solana-lp-hexapool"],
+    tokens: ["testnet-fantom-usdc", "testnet-solana-lp-hexapool"],
   },
   {
     isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
@@ -768,15 +789,15 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "6ukUmzs2ZPokRXi8y3zbs3YvifcYZ6aZTmm3bpresupa",
     authority: "Gzgrhx5Z4DRL1daGcEXNzXw7LpMHUiVqEQG1jzoJ8GYE",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-meta-karura-ausd",
+    lpToken: "testnet-solana-lp-meta-karura-ausd",
     tokenAccounts: new Map([
-      ["devnet-karura-ausd", "GMtr1h6yK3nFXUma2gW1tcf6wRoTg6dD4cRMWQRNiBcr"],
+      ["testnet-karura-ausd", "GMtr1h6yK3nFXUma2gW1tcf6wRoTg6dD4cRMWQRNiBcr"],
       [
-        "devnet-solana-lp-hexapool",
+        "testnet-solana-lp-hexapool",
         "t5Ze1g8r62wb3rhWxBuyw5t4ZFCE9815TW2kqbLBdGE",
       ],
     ]),
-    tokens: ["devnet-karura-ausd", "devnet-solana-lp-hexapool"],
+    tokens: ["testnet-karura-ausd", "testnet-solana-lp-hexapool"],
   },
   {
     id: "meta-karura-usdt",
@@ -789,15 +810,15 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "ELfBAsjAJbXoL6jmHNAK48ibrc85Z1DkzSg3WXEhgvxD",
     authority: "7NJJJt51JDXcKztQm24cvTHjBARz4PcmsFjdwXzy72nu",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-meta-karura-usdt",
+    lpToken: "testnet-solana-lp-meta-karura-usdt",
     tokenAccounts: new Map([
-      ["devnet-karura-usdt", "83qeqo4SrVHGCzWny8m2bdHaMsGnv7te3mCSvueGzXJY"],
+      ["testnet-karura-usdt", "83qeqo4SrVHGCzWny8m2bdHaMsGnv7te3mCSvueGzXJY"],
       [
-        "devnet-solana-lp-hexapool",
+        "testnet-solana-lp-hexapool",
         "Er4xHMADfjrjfDk798BoQNRBn4UrSTe93QK4Mx5mRHW4",
       ],
     ]),
-    tokens: ["devnet-karura-usdt", "devnet-solana-lp-hexapool"],
+    tokens: ["testnet-karura-usdt", "testnet-solana-lp-hexapool"],
   },
   {
     isDisabled: !isEcosystemEnabled(EvmEcosystemId.Acala),
@@ -811,15 +832,15 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "EU5P8s2UtDoAf32n5RLJTh7GXmdENy1WaeMbpxvPd4AH",
     authority: "3oKJcatorM1V9KeTKwasMC3NaAAzwbTfGaizpDKgeYGn",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-meta-acala-ausd",
+    lpToken: "testnet-solana-lp-meta-acala-ausd",
     tokenAccounts: new Map([
-      ["devnet-acala-ausd", "Cki7zNJ8jLbwN7UeCwZTsuHVxRd8m3Y5fz4f5ioBNGFW"],
+      ["testnet-acala-ausd", "Cki7zNJ8jLbwN7UeCwZTsuHVxRd8m3Y5fz4f5ioBNGFW"],
       [
-        "devnet-solana-lp-hexapool",
+        "testnet-solana-lp-hexapool",
         "CmbqCiQSJw2mN6pTMG5vUsX3MHiBVMj2bGo59JRsoojH",
       ],
     ]),
-    tokens: ["devnet-acala-ausd", "devnet-solana-lp-hexapool"],
+    tokens: ["testnet-acala-ausd", "testnet-solana-lp-hexapool"],
   },
   {
     id: "swimlake",
@@ -832,13 +853,13 @@ export const DEVNET_POOLS: readonly PoolSpec[] = [
     address: "7BZQBVZrneaEKkBTExncHm7p6NuF5MMiDmBNTot2CQc5",
     authority: "69PatS67furtMJVwUBqHoFdrn5nDTtxCGSSqEu2anSYX",
     feeDecimals: 6,
-    lpToken: "devnet-solana-lp-swimlake",
+    lpToken: "testnet-solana-lp-swimlake",
     tokenAccounts: new Map([
-      ["devnet-solana-swim", "GBjDaDLHQHDZ25gTygyLCaobgSXbTZ3WR9TVNoDqaicm"],
+      ["testnet-solana-swim", "GBjDaDLHQHDZ25gTygyLCaobgSXbTZ3WR9TVNoDqaicm"],
     ]),
-    tokens: ["devnet-solana-swim"],
+    tokens: ["testnet-solana-swim"],
   },
-  ...DEVNET_POOLS_FOR_RESTRUCTURE,
+  ...TESTNET_POOLS_FOR_RESTRUCTURE,
 ].filter((spec) => !spec.isDisabled);
 
 const LOCAL_POOLS: readonly PoolSpec[] = [
@@ -892,7 +913,7 @@ const LOCAL_POOLS: readonly PoolSpec[] = [
 
 export const POOLS: ReadonlyRecord<Env, readonly PoolSpec[]> = {
   [Env.Mainnet]: MAINNET_POOLS,
-  [Env.Devnet]: DEVNET_POOLS,
+  [Env.Testnet]: TESTNET_POOLS,
   [Env.Local]: LOCAL_POOLS,
   [Env.Custom]: LOCAL_POOLS,
 };

@@ -13,6 +13,7 @@ import {
   EuiSelect,
   EuiSpacer,
 } from "@elastic/eui";
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
@@ -136,6 +137,7 @@ export const RemoveForm = ({
       };
     },
     {
+      [APTOS_ECOSYSTEM_ID]: [],
       [SOLANA_ECOSYSTEM_ID]: [],
       [EvmEcosystemId.Ethereum]: [],
       [EvmEcosystemId.Bnb]: [],

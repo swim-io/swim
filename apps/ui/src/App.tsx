@@ -15,6 +15,7 @@ import CollectiblesPage from "./pages/CollectiblesPage";
 import HelpPage from "./pages/HelpPage";
 import HomePage from "./pages/HomePage";
 import MediaPage from "./pages/MediaPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import PoolPage from "./pages/PoolPage";
 import PoolsPage from "./pages/PoolsPage";
 import SecurityPage from "./pages/SecurityPage";
@@ -22,7 +23,6 @@ import SetCustomIpPage from "./pages/SetCustomIpPage";
 import StakePage from "./pages/StakePage";
 import SwapPage from "./pages/SwapPage";
 import SwapPageV2 from "./pages/SwapPageV2";
-import TestPage from "./pages/TestPage";
 import TosPage from "./pages/TosPage";
 
 function App(): ReactElement {
@@ -54,7 +54,6 @@ function App(): ReactElement {
           <Layout>
             <Routes>
               <Route path="set-custom-ip" element={<SetCustomIpPage />} />
-              <Route path="test" element={<TestPage />} />
               <Route path="pools" element={<PoolsPage />} />
               <Route path="pools/:poolId" element={<PoolPage />} />
               <Route path="stake" element={<StakePage poolId="swimlake" />} />
@@ -73,6 +72,7 @@ function App(): ReactElement {
               <Route path="help" element={<HelpPage />} />
               <Route path="security" element={<SecurityPage />} />
               <Route path="/" element={<HomePage />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Layout>
         </AppContext>

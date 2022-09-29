@@ -1,3 +1,4 @@
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { EvmEcosystemId } from "@swim-io/evm";
 import type { TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
@@ -114,6 +115,7 @@ export const getConnectedWallets = (
           }
         : accumulator,
     {
+      [APTOS_ECOSYSTEM_ID]: null,
       [SOLANA_ECOSYSTEM_ID]: null,
       [EvmEcosystemId.Ethereum]: null,
       [EvmEcosystemId.Bnb]: null,
@@ -167,6 +169,7 @@ export const getConnectedWalletsV2 = (
           }
         : accumulator,
     {
+      [APTOS_ECOSYSTEM_ID]: null,
       [SOLANA_ECOSYSTEM_ID]: null,
       [EvmEcosystemId.Ethereum]: null,
       [EvmEcosystemId.Bnb]: null,

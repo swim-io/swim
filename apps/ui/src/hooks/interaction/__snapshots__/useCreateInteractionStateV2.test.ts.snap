@@ -7,6 +7,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -16,7 +17,7 @@ Object {
       "polygon": null,
       "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     },
-    "env": "Devnet",
+    "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "lpTokenTargetEcosystem": "solana",
     "params": Object {
@@ -26,9 +27,9 @@ Object {
       ],
       "minimumMintAmount": "110",
     },
-    "poolId": "devnet-solana-usdc-usdt",
+    "poolId": "testnet-solana-usdc-usdt",
     "poolIds": Array [
-      "devnet-solana-usdc-usdt",
+      "testnet-solana-usdc-usdt",
     ],
     "submittedAt": 1657544558283,
     "type": 1,
@@ -58,6 +59,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -67,16 +69,16 @@ Object {
       "polygon": null,
       "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     },
-    "env": "Devnet",
+    "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "lpTokenSourceEcosystem": "solana",
     "params": Object {
       "exactBurnAmount": "110",
       "minimumOutputAmount": "110",
     },
-    "poolId": "devnet-solana-usdc-usdt",
+    "poolId": "testnet-solana-usdc-usdt",
     "poolIds": Array [
-      "devnet-solana-usdc-usdt",
+      "testnet-solana-usdc-usdt",
     ],
     "submittedAt": 1657544558283,
     "type": 3,
@@ -103,6 +105,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -112,7 +115,7 @@ Object {
       "polygon": null,
       "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     },
-    "env": "Devnet",
+    "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "lpTokenSourceEcosystem": "solana",
     "params": Object {
@@ -122,9 +125,9 @@ Object {
       ],
       "maximumBurnAmount": "110",
     },
-    "poolId": "devnet-solana-usdc-usdt",
+    "poolId": "testnet-solana-usdc-usdt",
     "poolIds": Array [
-      "devnet-solana-usdc-usdt",
+      "testnet-solana-usdc-usdt",
     ],
     "submittedAt": 1657544558283,
     "type": 4,
@@ -155,6 +158,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -164,7 +168,7 @@ Object {
       "polygon": null,
       "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     },
-    "env": "Devnet",
+    "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "lpTokenSourceEcosystem": "solana",
     "params": Object {
@@ -174,9 +178,9 @@ Object {
         "10",
       ],
     },
-    "poolId": "devnet-solana-usdc-usdt",
+    "poolId": "testnet-solana-usdc-usdt",
     "poolIds": Array [
-      "devnet-solana-usdc-usdt",
+      "testnet-solana-usdc-usdt",
     ],
     "submittedAt": 1657544558283,
     "type": 2,
@@ -207,6 +211,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1",
@@ -216,13 +221,13 @@ Object {
       "polygon": null,
       "solana": null,
     },
-    "env": "Devnet",
+    "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "params": Object {
       "fromTokenData": Object {
         "ecosystemId": "ethereum",
         "tokenConfig": Object {
-          "id": "devnet-ethereum-usdc",
+          "id": "testnet-ethereum-usdc",
           "nativeDetails": Object {
             "address": "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6",
             "decimals": 6,
@@ -241,7 +246,7 @@ Object {
       "toTokenData": Object {
         "ecosystemId": "bnb",
         "tokenConfig": Object {
-          "id": "devnet-bnb-usdt",
+          "id": "testnet-bnb-usdt",
           "nativeDetails": Object {
             "address": "0x98529E942FD121d9C470c3d4431A008257E0E714",
             "decimals": 18,
@@ -259,8 +264,8 @@ Object {
       },
     },
     "poolIds": Array [
-      "devnet-ethereum-usdc-usdt",
-      "devnet-bnb-busd-usdt",
+      "testnet-ethereum-usdc-usdt",
+      "testnet-bnb-busd-usdt",
     ],
     "submittedAt": 1657544558283,
     "type": 5,
@@ -279,6 +284,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -288,13 +294,13 @@ Object {
       "polygon": null,
       "solana": null,
     },
-    "env": "Devnet",
+    "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "params": Object {
       "fromTokenData": Object {
         "ecosystemId": "ethereum",
         "tokenConfig": Object {
-          "id": "devnet-ethereum-usdc",
+          "id": "testnet-ethereum-usdc",
           "nativeDetails": Object {
             "address": "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6",
             "decimals": 6,
@@ -313,7 +319,7 @@ Object {
       "toTokenData": Object {
         "ecosystemId": "ethereum",
         "tokenConfig": Object {
-          "id": "devnet-ethereum-usdt",
+          "id": "testnet-ethereum-usdt",
           "nativeDetails": Object {
             "address": "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B",
             "decimals": 6,
@@ -331,7 +337,7 @@ Object {
       },
     },
     "poolIds": Array [
-      "devnet-ethereum-usdc-usdt",
+      "testnet-ethereum-usdc-usdt",
     ],
     "submittedAt": 1657544558283,
     "type": 5,
@@ -350,6 +356,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -359,13 +366,13 @@ Object {
       "polygon": null,
       "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     },
-    "env": "Devnet",
+    "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "params": Object {
       "fromTokenData": Object {
         "ecosystemId": "ethereum",
         "tokenConfig": Object {
-          "id": "devnet-ethereum-usdc",
+          "id": "testnet-ethereum-usdc",
           "nativeDetails": Object {
             "address": "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6",
             "decimals": 6,
@@ -384,7 +391,7 @@ Object {
       "toTokenData": Object {
         "ecosystemId": "solana",
         "tokenConfig": Object {
-          "id": "devnet-solana-usdc-v2",
+          "id": "testnet-solana-usdc-v2",
           "nativeDetails": Object {
             "address": "6iSRgpK4oiqJZuhpLsTecW3n9xBKUq9N3VPQN7RinYwq",
             "decimals": 6,
@@ -397,8 +404,8 @@ Object {
       },
     },
     "poolIds": Array [
-      "devnet-ethereum-usdc-usdt",
-      "devnet-solana-usdc-usdt",
+      "testnet-ethereum-usdc-usdt",
+      "testnet-solana-usdc-usdt",
     ],
     "submittedAt": 1657544558283,
     "type": 5,
@@ -428,6 +435,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -437,13 +445,13 @@ Object {
       "polygon": null,
       "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     },
-    "env": "Devnet",
+    "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "params": Object {
       "fromTokenData": Object {
         "ecosystemId": "solana",
         "tokenConfig": Object {
-          "id": "devnet-solana-usdc-v2",
+          "id": "testnet-solana-usdc-v2",
           "nativeDetails": Object {
             "address": "6iSRgpK4oiqJZuhpLsTecW3n9xBKUq9N3VPQN7RinYwq",
             "decimals": 6,
@@ -457,7 +465,7 @@ Object {
       "toTokenData": Object {
         "ecosystemId": "ethereum",
         "tokenConfig": Object {
-          "id": "devnet-ethereum-usdc",
+          "id": "testnet-ethereum-usdc",
           "nativeDetails": Object {
             "address": "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6",
             "decimals": 6,
@@ -475,8 +483,8 @@ Object {
       },
     },
     "poolIds": Array [
-      "devnet-solana-usdc-usdt",
-      "devnet-ethereum-usdc-usdt",
+      "testnet-solana-usdc-usdt",
+      "testnet-ethereum-usdc-usdt",
     ],
     "submittedAt": 1657544558283,
     "type": 5,
@@ -505,6 +513,7 @@ Object {
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
+      "aptos": null,
       "aurora": null,
       "avalanche": null,
       "bnb": null,
@@ -514,13 +523,13 @@ Object {
       "polygon": null,
       "solana": "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
     },
-    "env": "Devnet",
+    "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "params": Object {
       "fromTokenData": Object {
         "ecosystemId": "solana",
         "tokenConfig": Object {
-          "id": "devnet-solana-usdc-v2",
+          "id": "testnet-solana-usdc-v2",
           "nativeDetails": Object {
             "address": "6iSRgpK4oiqJZuhpLsTecW3n9xBKUq9N3VPQN7RinYwq",
             "decimals": 6,
@@ -534,7 +543,7 @@ Object {
       "toTokenData": Object {
         "ecosystemId": "solana",
         "tokenConfig": Object {
-          "id": "devnet-solana-usdt-v2",
+          "id": "testnet-solana-usdt-v2",
           "nativeDetails": Object {
             "address": "8VbikoRxEoyYzTDzDcPTSsGk2E5mM7fK1WrVpKrVd75M",
             "decimals": 6,
@@ -547,7 +556,7 @@ Object {
       },
     },
     "poolIds": Array [
-      "devnet-solana-usdc-usdt",
+      "testnet-solana-usdc-usdt",
     ],
     "submittedAt": 1657544558283,
     "type": 5,

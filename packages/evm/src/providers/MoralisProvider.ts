@@ -27,7 +27,7 @@ const getMoralisUrl = (env: Env): string => {
         throw new Error("MORALIS_MAINNET_URL is not set");
       }
       return MORALIS_MAINNET_URL;
-    case Env.Devnet:
+    case Env.Testnet:
       if (MORALIS_TESTNET_URL === undefined) {
         throw new Error("MORALIS_TESTNET_URL is not set");
       }
@@ -54,7 +54,7 @@ export class MoralisProvider extends JsonRpcProvider {
     txTimeoutMs = DEFAULT_TIMEOUT_MS,
   ) {
     const jsonRpcChainId =
-      env === Env.Mainnet ? bnbChainId[Env.Mainnet] : bnbChainId[Env.Devnet];
+      env === Env.Mainnet ? bnbChainId[Env.Mainnet] : bnbChainId[Env.Testnet];
     super(jsonRpcUrl, jsonRpcChainId);
     this.moralisChain = env === Env.Mainnet ? "bsc" : "bsc testnet";
     this.moralisUrl = getMoralisUrl(env);

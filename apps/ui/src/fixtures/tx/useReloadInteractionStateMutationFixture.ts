@@ -1,4 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
+import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
 import { Env } from "@swim-io/core";
 import type { EvmTx } from "@swim-io/evm";
 import { EvmEcosystemId } from "@swim-io/evm";
@@ -10,17 +11,23 @@ import { findTokenById } from "../../config";
 import type { InteractionState } from "../../models";
 import { Amount } from "../../models";
 
-export const SOLANA_USDC = findTokenById("devnet-solana-usdc", Env.Devnet);
-export const SOLANA_USDT = findTokenById("devnet-solana-usdt", Env.Devnet);
-export const ETHEREUM_USDC = findTokenById("devnet-ethereum-usdc", Env.Devnet);
-export const ETHEREUM_USDT = findTokenById("devnet-ethereum-usdt", Env.Devnet);
-export const BNB_USDT = findTokenById("devnet-bnb-usdt", Env.Devnet);
-export const BNB_BUSD = findTokenById("devnet-bnb-busd", Env.Devnet);
-export const SOLANA_LP_HEXAPOOL = findTokenById(
-  "devnet-solana-lp-hexapool",
-  Env.Devnet,
+export const SOLANA_USDC = findTokenById("testnet-solana-usdc", Env.Testnet);
+export const SOLANA_USDT = findTokenById("testnet-solana-usdt", Env.Testnet);
+export const ETHEREUM_USDC = findTokenById(
+  "testnet-ethereum-usdc",
+  Env.Testnet,
 );
-const AVALANCHE_USDC = findTokenById("devnet-avalanche-usdc", Env.Devnet);
+export const ETHEREUM_USDT = findTokenById(
+  "testnet-ethereum-usdt",
+  Env.Testnet,
+);
+export const BNB_USDT = findTokenById("testnet-bnb-usdt", Env.Testnet);
+export const BNB_BUSD = findTokenById("testnet-bnb-busd", Env.Testnet);
+export const SOLANA_LP_HEXAPOOL = findTokenById(
+  "testnet-solana-lp-hexapool",
+  Env.Testnet,
+);
+const AVALANCHE_USDC = findTokenById("testnet-avalanche-usdc", Env.Testnet);
 
 /**
  * This mock data are created by
@@ -37,9 +44,10 @@ export const MOCK_INTERACTION_STATE_FOR_RELOAD_INTERACTION: InteractionState = {
     },
     id: "a9747f341d116e592f6eac839b7f222d",
     poolIds: ["hexapool", "meta-avalanche-usdc"],
-    env: Env.Devnet,
+    env: Env.Testnet,
     submittedAt: 1656406521938,
     connectedWallets: {
+      [APTOS_ECOSYSTEM_ID]: null,
       [SOLANA_ECOSYSTEM_ID]: "6sbzC1eH4FTujJXWj51eQe25cYvr4xfXbJ1vAj7j2k5J",
       [EvmEcosystemId.Bnb]: null,
       [EvmEcosystemId.Ethereum]: "0xb0a05611328d1068c91f58e2c83ab4048de8cd7f",

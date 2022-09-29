@@ -15,4 +15,5 @@ export enum WormholeChainId {
   Karura = 11,
   Acala = 12,
   Klaytn = 13,
+  Aptos = 22,
 }

@@ -1,5 +1,6 @@
 import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
+import { assertType } from "@swim-io/utils";
 
 import type { SolanaChainConfig, SolanaEcosystemConfig } from "./protocol";
 import { SOLANA_ECOSYSTEM_ID, SOLANA_PROTOCOL } from "./protocol";
@@ -20,13 +21,16 @@ const mainnet: SolanaChainConfig = {
     portal: "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb",
   },
   publicRpcUrls: ["https://solana-api.projectserum.com"],
-  tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-  otterTotCollection: "EpozLY9dQ1jnaU5Wof524K7p9uHYxkuLF2hi32cf8W9s",
+  swimUsdDetails: {
+    address: "BJUH9GJLaMSLV1E7B3SQLCy9eCfyr6zsrwGcpS2MkqR1",
+    decimals: 8,
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
 
-const devnet: SolanaChainConfig = {
+const testnet: SolanaChainConfig = {
   name: "Solana Devnet",
   chainId: SolanaChainId.Devnet,
   wormhole: {
@@ -34,8 +38,11 @@ const devnet: SolanaChainConfig = {
     portal: "DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe",
   },
   publicRpcUrls: ["https://api.devnet.solana.com"],
-  tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-  otterTotCollection: "6rVZuenNaw3uECQjMjTLcfrXYKszpESEGi9HZnffJstn",
+  swimUsdDetails: {
+    address: "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr",
+    decimals: 8,
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
@@ -48,17 +55,14 @@ const localnet: SolanaChainConfig = {
     portal: "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE",
   },
   publicRpcUrls: ["http://127.0.0.1:8899"],
-  tokenContract: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-  otterTotCollection: "", // TODO: Deploy on localnet
+  swimUsdDetails: {
+    address: "LPTufpWWSucDqq1hib8vxj1uJxTh2bkE7ZTo65LH4J2",
+    decimals: 8,
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
-
-const chains: ReadonlyMap<Env, SolanaChainConfig> = new Map([
-  [Env.Mainnet, mainnet],
-  [Env.Devnet, devnet],
-  [Env.Local, localnet],
-]);
 
 const gasToken: GasToken = {
   name: "sol",
@@ -66,11 +70,15 @@ const gasToken: GasToken = {
   decimals: 9,
 };
 
-export const solana: SolanaEcosystemConfig = {
+export const solana = assertType<SolanaEcosystemConfig>()({
   id: SOLANA_ECOSYSTEM_ID,
   protocol: SOLANA_PROTOCOL,
   wormholeChainId: 1,
   displayName: "Solana",
   gasToken,
-  chains,
-};
+  chains: {
+    [Env.Mainnet]: mainnet,
+    [Env.Testnet]: testnet,
+    [Env.Local]: localnet,
+  },
+} as const);

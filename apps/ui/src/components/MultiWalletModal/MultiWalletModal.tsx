@@ -25,7 +25,13 @@ import {
 } from "../../config";
 import { selectSelectedServiceByProtocol } from "../../core/selectors";
 import { useWalletAdapter } from "../../core/store";
-import { useEvmWallet, useSolanaWallet, useWalletService } from "../../hooks";
+import {
+  useAptosWallet,
+  useEvmWallet,
+  useSolanaWallet,
+  useWalletService,
+} from "../../hooks";
+import APTOS_SVG from "../../images/ecosystems/aptos.svg";
 import EVM_SVG from "../../images/ecosystems/ethereum-color.svg";
 import SOLANA_SVG from "../../images/ecosystems/solana.svg";
 import type { WalletServiceId } from "../../models";
@@ -52,10 +58,12 @@ const ProtocolWalletOptionsList = ({
     selectSelectedServiceByProtocol,
   );
   const { connectService, disconnectService } = useWalletService();
+  const aptos = useAptosWallet();
   const evm = useEvmWallet();
   const solana = useSolanaWallet();
   const selectedServiceId = selectedServiceByProtocol[protocol];
   const wallets = {
+    [Protocol.Aptos]: aptos,
     [Protocol.Evm]: evm,
     [Protocol.Solana]: solana,
   };
@@ -164,6 +172,16 @@ interface Props {
 
 export const MultiWalletModal = ({ handleClose }: Props): ReactElement => {
   const { t } = useTranslation();
+  const protocols = [
+    { protocol: Protocol.Solana, icon: SOLANA_SVG, isEnabled: true },
+    { protocol: Protocol.Evm, icon: EVM_SVG, isEnabled: true },
+    {
+      protocol: Protocol.Aptos,
+      icon: APTOS_SVG,
+      isEnabled: !!process.env.REACT_APP_ENABLE_APTOS,
+    },
+  ].filter(({ isEnabled }) => isEnabled);
+
   return (
     <CustomModal onClose={handleClose}>
       <EuiModalHeader>
@@ -175,12 +193,14 @@ export const MultiWalletModal = ({ handleClose }: Props): ReactElement => {
       <EuiModalBody>
         {isUserOnMobileDevice() ? <MobileDeviceDisclaimer /> : ""}
         <EuiSpacer />
-        <EuiFlexGrid columns={2} gutterSize="xl">
-          <ProtocolWalletOptionsList
-            icon={SOLANA_SVG}
-            protocol={Protocol.Solana}
-          />
-          <ProtocolWalletOptionsList icon={EVM_SVG} protocol={Protocol.Evm} />
+        <EuiFlexGrid columns={protocols.length === 2 ? 2 : 3} gutterSize="xl">
+          {protocols.map(({ protocol, icon }) => (
+            <ProtocolWalletOptionsList
+              key={protocol}
+              icon={icon}
+              protocol={protocol}
+            />
+          ))}
         </EuiFlexGrid>
       </EuiModalBody>
     </CustomModal>

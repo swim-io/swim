@@ -229,6 +229,12 @@ const createMockConnectImplementation = (
     let address: string | null = null;
 
     switch (protocol) {
+      case Protocol.Aptos: {
+        address =
+          "0x430f992687f2926761d50fec3e06a1bf974b8e2e8659329ee2081012b4211c84";
+        Object.assign(adapter, { address });
+        break;
+      }
       case Protocol.Evm: {
         address = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1";
         Object.assign(adapter, { address });
@@ -252,6 +258,10 @@ const createMockDisconnectImplementation = (
 ) => {
   return async () => {
     switch (protocol) {
+      case Protocol.Aptos: {
+        Object.assign(adapter, { address: null });
+        break;
+      }
       case Protocol.Evm: {
         Object.assign(adapter, { address: null });
         break;

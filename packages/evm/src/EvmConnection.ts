@@ -27,18 +27,15 @@ export type GetHistoryProvider = BaseProvider & {
   ) => Promise<readonly TransactionResponse[]>;
 };
 
-// @TODO remove this minimal type after ui mirgate to TokenConfig
-type MinimalChainConfig = Pick<EvmChainConfig, "name" | "chainId" | "wormhole">;
-
 export class EvmConnection {
   public provider: GetHistoryProvider;
-  private readonly chainConfig: MinimalChainConfig;
+  private readonly chainConfig: EvmChainConfig;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly txReceiptCache: Map<string, TransactionReceipt>;
 
   public constructor(
     provider: GetHistoryProvider,
-    chainConfig: MinimalChainConfig,
+    chainConfig: EvmChainConfig,
   ) {
     this.provider = provider;
     this.chainConfig = chainConfig;

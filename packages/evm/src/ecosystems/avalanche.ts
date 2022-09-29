@@ -11,7 +11,7 @@ import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
 export const avalancheChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 43114, // C-Chain
-  [Env.Devnet]: 43113,
+  [Env.Testnet]: 43113,
 });
 
 const mainnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
@@ -22,29 +22,31 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
     portal: "0x0e082F06FF657D94310cB8cE8B0D9a04541d8052",
   },
   publicRpcUrls: ["https://api.avax.network/ext/bc/C/rpc"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
 
-const devnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
+const testnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
   name: "Avalanche Testnet",
-  chainId: avalancheChainId[Env.Devnet],
+  chainId: avalancheChainId[Env.Testnet],
   wormhole: {
     bridge: "0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C",
     portal: "0x61E44E506Ca5659E6c0bba9b678586fA2d729756",
   },
   publicRpcUrls: ["https://api.avax-test.network/ext/bc/C/rpc"], // TODO: Think about what is best to recommend to MetaMask
+  swimUsdDetails: {
+    address: "", // TODO: add when deployed
+    decimals: 8, // TODO: confirm when deployed
+  },
+  routingContractAddress: "", // TODO: add when deployed
   tokens: [],
   pools: [],
 };
-
-const chains: ReadonlyMap<
-  Env,
-  EvmChainConfig<EvmEcosystemId.Avalanche>
-> = new Map([
-  [Env.Mainnet, mainnet],
-  [Env.Devnet, devnet],
-]);
 
 const gasToken: GasToken = {
   name: "Avalanche",
@@ -52,11 +54,16 @@ const gasToken: GasToken = {
   decimals: 18,
 };
 
-export const avalanche: EvmEcosystemConfig<EvmEcosystemId.Avalanche> = {
+export const avalanche = assertType<
+  EvmEcosystemConfig<EvmEcosystemId.Avalanche>
+>()({
   id: EvmEcosystemId.Avalanche,
   protocol: EVM_PROTOCOL,
   wormholeChainId: 6,
   displayName: "Avalanche",
   gasToken,
-  chains,
-};
+  chains: {
+    [Env.Mainnet]: mainnet,
+    [Env.Testnet]: testnet,
+  },
+} as const);

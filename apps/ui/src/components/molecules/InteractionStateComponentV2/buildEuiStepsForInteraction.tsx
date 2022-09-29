@@ -24,7 +24,9 @@ import {
   isSourceChainOperationCompleted,
   isTargetChainOperationCompleted,
 } from "../../../models";
+import { AddTransfer } from "../AddTransfer";
 import { ClaimSwimUsdOnSolana } from "../ClaimSwimUsdOnSolana";
+import { RemoveTransfer } from "../RemoveTransfer";
 import { SwapFromSwimUsd } from "../SwapFromSwimUsd";
 import { SwapToSwimUsd } from "../SwapToSwimUsd";
 import { SwapTransfer } from "../SwapTransfer";
@@ -362,8 +364,28 @@ const buildRemoveStep = (
     isInteractionCompletedV2(interactionState),
   );
 
+  const fromToken = (() => {
+    switch (interaction.type) {
+      case InteractionType.RemoveUniform:
+      case InteractionType.RemoveExactBurn:
+        return interaction.params.exactBurnAmount.tokenConfig;
+      case InteractionType.RemoveExactOutput:
+        return interaction.params.maximumBurnAmount.tokenConfig;
+    }
+  })();
+  const outputAmounts = (() => {
+    switch (interaction.type) {
+      case InteractionType.RemoveUniform:
+        return interaction.params.minimumOutputAmounts;
+      case InteractionType.RemoveExactBurn:
+        return [interaction.params.minimumOutputAmount];
+      case InteractionType.RemoveExactOutput:
+        return interaction.params.exactOutputAmounts;
+    }
+  })();
+
   return {
-    title: i18next.t("recent_interactions.swap_lp_tokens"),
+    title: i18next.t("recent_interactions.remove_liquidity"),
     status,
     children: (
       <>
@@ -382,73 +404,13 @@ const buildRemoveStep = (
             <br />
           </>
         )}
-
-        {interaction.type === InteractionType.RemoveUniform && (
-          <>
-            {interaction.params.minimumOutputAmounts.map((outputAmount) => {
-              const { exactBurnAmount } = interaction.params;
-
-              return (
-                <SwapTransfer
-                  key={outputAmount.tokenId}
-                  fromToken={exactBurnAmount.tokenConfig}
-                  toToken={outputAmount.tokenConfig}
-                  ecosystemId={lpTokenSourceEcosystem}
-                  isLoading={status === "loading"}
-                  transactions={[]}
-                />
-              );
-            })}
-            {removeTxId && (
-              <EuiText size="m">
-                <TxEcosystemList
-                  transactions={[removeTxId]}
-                  ecosystemId={lpTokenSourceEcosystem}
-                />
-              </EuiText>
-            )}
-          </>
-        )}
-
-        {interaction.type === InteractionType.RemoveExactBurn && (
-          <>
-            <SwapTransfer
-              key={interaction.params.minimumOutputAmount.tokenId}
-              fromToken={interaction.params.exactBurnAmount.tokenConfig}
-              toToken={interaction.params.minimumOutputAmount.tokenConfig}
-              ecosystemId={lpTokenSourceEcosystem}
-              isLoading={status === "loading"}
-              transactions={[removeTxId].filter(isNotNull)}
-            />
-          </>
-        )}
-
-        {interaction.type === InteractionType.RemoveExactOutput && (
-          <>
-            {interaction.params.exactOutputAmounts.map((outputAmount) => {
-              const { maximumBurnAmount } = interaction.params;
-
-              return (
-                <SwapTransfer
-                  key={outputAmount.tokenId}
-                  fromToken={maximumBurnAmount.tokenConfig}
-                  toToken={outputAmount.tokenConfig}
-                  ecosystemId={lpTokenSourceEcosystem}
-                  isLoading={status === "loading"}
-                  transactions={[]}
-                />
-              );
-            })}
-            {removeTxId && (
-              <EuiText size="m">
-                <TxEcosystemList
-                  transactions={[removeTxId]}
-                  ecosystemId={lpTokenSourceEcosystem}
-                />
-              </EuiText>
-            )}
-          </>
-        )}
+        <RemoveTransfer
+          fromToken={fromToken}
+          toAmounts={outputAmounts}
+          ecosystemId={fromToken.nativeEcosystemId}
+          isLoading={status === "loading"}
+          transaction={removeTxId}
+        />
       </>
     ),
   };
@@ -464,9 +426,9 @@ const buildAddStep = (
     interactionStatus,
     isInteractionCompletedV2(interactionState),
   );
-
+  const { inputAmounts, minimumMintAmount } = interaction.params;
   return {
-    title: i18next.t("recent_interactions.swap_lp_tokens"),
+    title: i18next.t("recent_interactions.add_liquidity"),
     status,
     children: (
       <>
@@ -485,29 +447,13 @@ const buildAddStep = (
             <br />
           </>
         )}
-
-        {interaction.params.inputAmounts.map((inputAmount) => {
-          const { minimumMintAmount } = interaction.params;
-
-          return (
-            <SwapTransfer
-              key={inputAmount.tokenId}
-              fromToken={inputAmount.tokenConfig}
-              toToken={minimumMintAmount.tokenConfig}
-              ecosystemId={minimumMintAmount.tokenConfig.nativeEcosystemId}
-              isLoading={status === "loading"}
-              transactions={[]}
-            />
-          );
-        })}
-        {addTxId && (
-          <EuiText size="m">
-            <TxEcosystemList
-              transactions={[addTxId]}
-              ecosystemId={lpTokenTargetEcosystem}
-            />
-          </EuiText>
-        )}
+        <AddTransfer
+          fromAmounts={inputAmounts}
+          toToken={minimumMintAmount.tokenConfig}
+          ecosystemId={minimumMintAmount.tokenConfig.nativeEcosystemId}
+          isLoading={status === "loading"}
+          transaction={addTxId}
+        />
       </>
     ),
   };

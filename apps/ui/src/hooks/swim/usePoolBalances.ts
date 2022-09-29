@@ -1,5 +1,5 @@
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
-import { findOrThrow } from "@swim-io/utils";
+import { findOrThrow, isEachNotNull } from "@swim-io/utils";
 import type { PoolSpec } from "config";
 import Decimal from "decimal.js";
 import shallow from "zustand/shallow.js";
@@ -32,16 +32,13 @@ export const usePoolBalances = (poolSpecs: readonly PoolSpec[]) => {
       const poolTokens = poolSpec.tokens.map((tokenId) =>
         findOrThrow(tokens, ({ id }) => id === tokenId),
       );
-      const { data: allPoolTokenAccounts = null } = liquidityQueries[index];
-      if (allPoolTokenAccounts === null) {
+      const { data: poolTokenAccounts = null } = liquidityQueries[index];
+      if (poolTokenAccounts === null || !isEachNotNull(poolTokenAccounts)) {
         return null;
       }
       return poolTokens.map((tokenConfig, i) => {
         const solanaDetails = getSolanaTokenDetails(tokenConfig);
-        const tokenAccount = allPoolTokenAccounts[i];
-        if (tokenAccount === null) {
-          throw new Error("Missing pool token account");
-        }
+        const tokenAccount = poolTokenAccounts[i];
         return new Decimal(tokenAccount.amount.toString()).div(
           Decimal.pow(10, solanaDetails.decimals),
         );

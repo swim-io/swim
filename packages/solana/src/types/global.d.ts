@@ -1,5 +1,3 @@
-import type { ExternalProvider } from "@ethersproject/providers";
-
 declare global {
   interface Window {
     readonly phantom?: Record<string, unknown>;

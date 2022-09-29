@@ -1,0 +1,19 @@
+name: "Verify attestation build"
+on:
+  pull_request:
+    paths:
+      - "apps/attestation/**.ts"
+      - "apps/attestation/**.json"
+      - "yarn.lock"
+      - ".github/workflows/attestation-verify.yaml"
+      - ".github/workflows/verify.yaml"
+  push:
+    branches:
+      - master
+
+jobs:
+  verify:
+    uses: ./.github/workflows/verify.yaml
+    with:
+      workingDirectory: ./apps/attestation
+      buildDependenciesForPackage: "@swim-io/attestation" # TODO remove this once @swim-io/aptos updates are published

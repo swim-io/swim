@@ -31,8 +31,8 @@ setDefaultWasm("node");
 async function main() {
   const args = await parseCliOptions();
   const mintAddress = args.mintAddress;
-  const env = Env.Devnet;
-  const aptosNetwork = "TESTNET";
+  const env = Env.Testnet;
+  const oldEnvForSolanaPackage = "Devnet"; // TODO remove this
   const solanaNetwork = "devnet";
   const solanaRpcUrl = clusterApiUrl(solanaNetwork); // TODO we probably need to pass our own provider here
   const aptosRpcUrl = "https://fullnode.devnet.aptoslabs.com/v1";
@@ -40,22 +40,22 @@ async function main() {
   console.table({
     mintAddress,
     env,
+    oldEnvForSolanaPackage,
     solanaNetwork,
     solanaRpcUrl,
-    aptosNetwork,
     aptosRpcUrl,
   });
 
   const solanaMnemonic = process.env.WALLET_SOLANA_MNEMONIC_PHRASE;
   const aptosPrivateKey = process.env.APTOS_ACCOUNT_PRIVATE_KEY;
-  const solanaChainConfig = solana.chains.get(env);
-  const aptosChainConfig = aptos.chains.get(env);
+  // @ts-ignore TODO FIXME
+  const solanaChainConfig = solana.chains.get(oldEnvForSolanaPackage);
+  const aptosChainConfig = aptos.chains[env];
   const wormholeConfig = wormholeConfigs.get(env);
 
   if (!solanaChainConfig)
     throw new Error(`No SolanaChainConfig found for env: ${env}`);
-  if (!aptosChainConfig)
-    throw new Error(`No AptosChainConfig found for env: ${env}`);
+
   if (!wormholeConfig)
     throw new Error(`No WormholeConfig found for env: ${env}`);
   if (!solanaMnemonic)

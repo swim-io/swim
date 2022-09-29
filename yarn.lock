@@ -7069,7 +7069,7 @@ __metadata:
     "@certusone/wormhole-sdk": ^0.6.5
     "@solana/web3.js": ^1.63.1
     "@swim-io/aptos": "workspace:^"
-    "@swim-io/core": ^0.29.0
+    "@swim-io/core": ^0.31.0
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/solana": ^0.13.0
     "@swim-io/tsconfig": "workspace:^"

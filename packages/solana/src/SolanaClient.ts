@@ -45,11 +45,10 @@ export interface GetSolanaTransactionOptions {
 
 export class CustomConnection extends Connection {
   // re-declare so we can use it here
-  private readonly _rpcWebSocketHeartbeat: ReturnType<
-    typeof setInterval
-  > | null = null;
+  protected _rpcWebSocketHeartbeat: ReturnType<typeof setInterval> | null =
+    null;
 
-  private _wsOnOpen(): void {
+  protected _wsOnOpen(): void {
     // @ts-expect-error Solana marked most of their methods as internal
     super._wsOnOpen();
 
@@ -64,38 +63,19 @@ export class CustomConnection extends Connection {
  * A wrapper class around Connection from @solana/web3.js
  * We want to use this for eg getting txs
  */
-export class SolanaConnection {
-  public getAccountInfo!: InstanceType<typeof Connection>["getAccountInfo"];
-  public getBalance!: InstanceType<typeof Connection>["getBalance"];
-  public getMinimumBalanceForRentExemption!: InstanceType<
-    typeof Connection
-  >["getMinimumBalanceForRentExemption"];
-  public getLatestBlockhash!: InstanceType<
-    typeof Connection
-  >["getLatestBlockhash"];
-  public getSignaturesForAddress!: InstanceType<
-    typeof Connection
-  >["getSignaturesForAddress"];
-  public getTokenAccountsByOwner!: InstanceType<
-    typeof Connection
-  >["getTokenAccountsByOwner"];
-  public onAccountChange!: InstanceType<typeof Connection>["onAccountChange"];
-  public removeAccountChangeListener!: InstanceType<
-    typeof Connection
-  >["removeAccountChangeListener"];
-
+export class SolanaClient {
   public rawConnection!: CustomConnection;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly txCache: Map<string, VersionedTransactionResponse>;
   // eslint-disable-next-line functional/prefer-readonly-type
   private readonly parsedTxCache: Map<string, ParsedTransactionWithMeta>;
-  private rpcIndex;
+  private rpcIndex: number;
   private readonly endpoints: readonly string[];
   // TODO: Check if this is still necessary.
   // The websocket library solana/web3.js closes its websocket connection when the subscription list
   // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.
   // This is a hack to prevent the list from ever getting empty
-  private dummySubscriptionId!: number;
+  private dummySubscriptionId?: number;
 
   public constructor(endpoints: readonly string[]) {
     this.endpoints = endpoints;
@@ -437,7 +417,7 @@ export class SolanaConnection {
       // and it is not being called in the constructor (when this.rawConnection is still undefined)
       return;
     }
-    if ((this.dummySubscriptionId as number | undefined) !== undefined) {
+    if (this.dummySubscriptionId !== undefined) {
       // Remove old dummy subscription if it has been initialized.
       this.rawConnection
         .removeAccountChangeListener(this.dummySubscriptionId)
@@ -449,26 +429,6 @@ export class SolanaConnection {
       confirmTransactionInitialTimeout: 60 * 1000,
       disableRetryOnRateLimit: true,
     });
-    this.getAccountInfo = this.rawConnection.getAccountInfo.bind(
-      this.rawConnection,
-    );
-    this.getBalance = this.rawConnection.getBalance.bind(this.rawConnection);
-    this.getMinimumBalanceForRentExemption =
-      this.rawConnection.getMinimumBalanceForRentExemption.bind(
-        this.rawConnection,
-      );
-    this.getLatestBlockhash = this.rawConnection.getLatestBlockhash.bind(
-      this.rawConnection,
-    );
-    this.getSignaturesForAddress =
-      this.rawConnection.getSignaturesForAddress.bind(this.rawConnection);
-    this.getTokenAccountsByOwner =
-      this.rawConnection.getTokenAccountsByOwner.bind(this.rawConnection);
-    this.onAccountChange = this.rawConnection.onAccountChange.bind(
-      this.rawConnection,
-    );
-    this.removeAccountChangeListener =
-      this.rawConnection.removeAccountChangeListener.bind(this.rawConnection);
     this.dummySubscriptionId = this.rawConnection.onAccountChange(
       Keypair.generate().publicKey,
       () => {},

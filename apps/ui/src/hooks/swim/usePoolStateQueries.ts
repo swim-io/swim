@@ -10,7 +10,7 @@ import { useEnvironment } from "../../core/store";
 import type { PoolState } from "../../models";
 import { getEvmPoolState, getSolanaPoolState } from "../../models";
 import { useGetEvmConnection } from "../evm";
-import { useSolanaConnection } from "../solana";
+import { useSolanaClient } from "../solana";
 
 export const usePoolStateQueries = (
   poolSpecs: readonly PoolSpec[],
@@ -18,7 +18,7 @@ export const usePoolStateQueries = (
   const { env } = useEnvironment();
   const { tokens, evmRoutingContract } = useEnvironment(selectConfig, shallow);
   const getEvmConnection = useGetEvmConnection();
-  const solanaConnection = useSolanaConnection();
+  const solanaClient = useSolanaClient();
 
   return useQueries(
     poolSpecs.map((poolSpec) => ({
@@ -26,7 +26,7 @@ export const usePoolStateQueries = (
       queryFn: async () => {
         const { ecosystem } = poolSpec;
         if (ecosystem === SOLANA_ECOSYSTEM_ID) {
-          return await getSolanaPoolState(solanaConnection, poolSpec);
+          return await getSolanaPoolState(solanaClient, poolSpec);
         }
         if (ecosystem === APTOS_ECOSYSTEM_ID) {
           return null; // TODO aptos

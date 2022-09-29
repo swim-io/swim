@@ -3,7 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 import { Env } from "@swim-io/core";
 import type { EvmConnection, EvmEcosystemId, EvmTx } from "@swim-io/evm";
 import { isEvmEcosystemId } from "@swim-io/evm";
-import type { SolanaConnection, SolanaTx } from "@swim-io/solana";
+import type { SolanaClient, SolanaTx } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { isNotNull } from "@swim-io/utils";
 import type { ethers } from "ethers";
@@ -83,7 +83,7 @@ const MEMO_LOG_REGEXP = new RegExp(
 );
 
 const addSolanaInteractionId = async (
-  solanaConnection: SolanaConnection,
+  solanaClient: SolanaClient,
   env: Env,
   signatureInfo: ConfirmedSignatureInfo,
 ): Promise<{
@@ -104,7 +104,7 @@ const addSolanaInteractionId = async (
     return { signatureInfo, interactionId: null };
   }
 
-  const tx = await solanaConnection.getTx(signatureInfo.signature);
+  const tx = await solanaClient.getTx(signatureInfo.signature);
   // NOTE: Getting the ID from the log is more brittle but simpler than getting it from the instructions
   const memoLog =
     tx.meta?.logMessages?.find((log) => MEMO_LOG_REGEXP.test(log)) ?? null;
@@ -117,14 +117,14 @@ export const fetchSolanaTxsForInteractionId = async (
   interactionId: string,
   queryClient: QueryClient,
   env: Env,
-  solanaConnection: SolanaConnection,
+  solanaClient: SolanaClient,
   solanaAddress: string,
 ): Promise<readonly SolanaTx[]> => {
   // fetch all transaction signatures first, this can easily be 1000 txs but it counts as one RPC call
   const txInfos = await queryClient.fetchQuery(
     [env, "solanaHistory", solanaAddress],
     () => {
-      return solanaConnection.getSignaturesForAddress(
+      return solanaClient.rawConnection.getSignaturesForAddress(
         new PublicKey(solanaAddress),
         {
           limit: MAX_RECENT_SIGNATURES, // 1-1000, default = 1000
@@ -136,12 +136,12 @@ export const fetchSolanaTxsForInteractionId = async (
   const txInfosAndInteractionIds = (
     await Promise.all(
       txInfos.map((txInfo) =>
-        addSolanaInteractionId(solanaConnection, env, txInfo),
+        addSolanaInteractionId(solanaClient, env, txInfo),
       ),
     )
   ).filter((txInfo) => txInfo.interactionId === interactionId);
 
-  const parsedTxs = await solanaConnection.getParsedTxs(
+  const parsedTxs = await solanaClient.getParsedTxs(
     txInfosAndInteractionIds.map(
       ({ signatureInfo }) => signatureInfo.signature,
     ),

@@ -1,6 +1,6 @@
 import type { Env } from "@swim-io/core";
 import type {
-  SolanaConnection,
+  SolanaClient,
   SolanaWalletAdapter,
   TokenAccount,
 } from "@swim-io/solana";
@@ -11,13 +11,13 @@ import { useMutation, useQueryClient } from "react-query";
 
 import { useEnvironment } from "../../core/store";
 
-import { useSolanaConnection } from "./useSolanaConnection";
+import { useSolanaClient } from "./useSolanaClient";
 import { useSolanaWallet } from "./useSolanaWallet";
 import { useSplTokenAccountsQuery } from "./useSplTokenAccountsQuery";
 
 const findOrCreateSplTokenAccount = async (
   env: Env,
-  solanaConnection: SolanaConnection,
+  solanaClient: SolanaClient,
   wallet: SolanaWalletAdapter,
   queryClient: QueryClient,
   splTokenMintAddress: string,
@@ -35,10 +35,10 @@ const findOrCreateSplTokenAccount = async (
     return existingAccount;
   }
   const solanaAddress = wallet.publicKey.toBase58();
-  await solanaConnection.createSplTokenAccount(wallet, splTokenMintAddress);
+  await solanaClient.createSplTokenAccount(wallet, splTokenMintAddress);
   await sleep(1000); // TODO: Find a better condition
   await queryClient.invalidateQueries([env, "tokenAccounts", solanaAddress]);
-  return solanaConnection.getTokenAccountWithRetry(
+  return solanaClient.getTokenAccountWithRetry(
     splTokenMintAddress,
     solanaAddress,
   );
@@ -51,7 +51,7 @@ export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
 > => {
   const { env } = useEnvironment();
   const queryClient = useQueryClient();
-  const solanaConnection = useSolanaConnection();
+  const solanaClient = useSolanaClient();
   const { wallet, address } = useSolanaWallet();
   const { data: splTokenAccounts = null } = useSplTokenAccountsQuery();
 
@@ -69,7 +69,7 @@ export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
         mints.map(async (mint) =>
           findOrCreateSplTokenAccount(
             env,
-            solanaConnection,
+            solanaClient,
             wallet,
             queryClient,
             mint,

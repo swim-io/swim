@@ -2,7 +2,7 @@ import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
 import type { Transaction } from "@solana/web3.js";
 import { Keypair } from "@solana/web3.js";
 import { evmAddressToWormhole } from "@swim-io/evm";
-import type { SolanaConnection, TokenAccount } from "@swim-io/solana";
+import type { SolanaClient, TokenAccount } from "@swim-io/solana";
 import {
   SOLANA_ECOSYSTEM_ID,
   createTransferFromSolanaTx,
@@ -34,7 +34,7 @@ import {
 import { useWallets } from "../crossEcosystem";
 import { useGetEvmConnection } from "../evm";
 import {
-  useSolanaConnection,
+  useSolanaClient,
   useSolanaWallet,
   useSplTokenAccountsQuery,
 } from "../solana";
@@ -42,7 +42,7 @@ import {
 const getTransferredAmountsByTokenId = async (
   interactionState: InteractionState,
   txIds: readonly string[],
-  solanaConnection: SolanaConnection,
+  solanaClient: SolanaClient,
   solanaWalletAddress: string,
   splTokenAccounts: readonly TokenAccount[],
   config: Config,
@@ -56,7 +56,7 @@ const getTransferredAmountsByTokenId = async (
   const { tokens, lpToken } = tokensByPoolId[poolId];
   const txs: readonly Tx[] = await Promise.all(
     txIds.map(async (id) => {
-      const parsedTx = await solanaConnection.getParsedTx(id);
+      const parsedTx = await solanaClient.getParsedTx(id);
       return {
         id,
         ecosystemId: SOLANA_ECOSYSTEM_ID,
@@ -80,7 +80,7 @@ export const useFromSolanaTransferMutation = () => {
   const config = useEnvironment(selectConfig);
   const { chains, wormhole } = config;
   const getEvmConnection = useGetEvmConnection();
-  const solanaConnection = useSolanaConnection();
+  const solanaClient = useSolanaClient();
   const wallets = useWallets();
   const { address: solanaWalletAddress } = useSolanaWallet();
   const solanaWormhole = chains[Protocol.Solana][0].wormhole;
@@ -114,7 +114,7 @@ export const useFromSolanaTransferMutation = () => {
     const transferredAmounts = await getTransferredAmountsByTokenId(
       interactionState,
       poolOperationTxIds,
-      solanaConnection,
+      solanaClient,
       solanaWalletAddress,
       splTokenAccounts,
       config,
@@ -178,7 +178,7 @@ export const useFromSolanaTransferMutation = () => {
         const messageKeypair = Keypair.generate();
         const tx = await createTransferFromSolanaTx({
           interactionId,
-          solanaConnection,
+          solanaConnection: solanaClient.rawConnection,
           bridgeAddress: solanaWormhole.bridge,
           portalAddress: solanaWormhole.portal,
           payerAddress: solanaWalletAddress,
@@ -200,7 +200,7 @@ export const useFromSolanaTransferMutation = () => {
               ? evmEcosystem.wormholeChainId
               : undefined,
         });
-        transferSplTokenTxId = await solanaConnection.sendAndConfirmTx(
+        transferSplTokenTxId = await solanaClient.sendAndConfirmTx(
           async (txToSign: Transaction) => {
             txToSign.partialSign(messageKeypair);
             return solanaWallet.signTransaction(txToSign);
@@ -237,7 +237,7 @@ export const useFromSolanaTransferMutation = () => {
         chains[Protocol.Evm],
         ({ ecosystem }) => ecosystem === toEcosystem,
       );
-      const parsedTx = await solanaConnection.getParsedTx(transferSplTokenTxId);
+      const parsedTx = await solanaClient.getParsedTx(transferSplTokenTxId);
       const sequence = parseSequenceFromLogSolana(parsedTx);
       const emitterAddress = await getEmitterAddressSolana(
         solanaWormhole.portal,

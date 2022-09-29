@@ -10,14 +10,14 @@ import type { PoolSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
-import { useSolanaConnection } from "../solana";
+import { useSolanaClient } from "../solana";
 
 export const usePoolLpMints = (
   poolSpecs: readonly PoolSpec[],
 ): readonly UseQueryResult<Mint | null, Error>[] => {
   const { env } = useEnvironment();
   const { tokens } = useEnvironment(selectConfig, shallow);
-  const solanaConnection = useSolanaConnection();
+  const solanaClient = useSolanaClient();
 
   return useQueries(
     poolSpecs.map((poolSpec) => ({
@@ -33,7 +33,7 @@ export const usePoolLpMints = (
         const lpTokenMintPubkey = new PublicKey(
           getSolanaTokenDetails(lpToken).address,
         );
-        const account = await solanaConnection.getAccountInfo(
+        const account = await solanaClient.rawConnection.getAccountInfo(
           lpTokenMintPubkey,
         );
         return account

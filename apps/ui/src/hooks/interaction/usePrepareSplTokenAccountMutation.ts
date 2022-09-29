@@ -5,13 +5,13 @@ import { selectGetInteractionState } from "../../core/selectors";
 import { useInteractionState } from "../../core/store";
 import {
   getSplTokenAccountsQueryKey,
-  useSolanaConnection,
+  useSolanaClient,
   useSolanaWallet,
   useSplTokenAccountsQuery,
 } from "../solana";
 
 export const usePrepareSplTokenAccountMutation = () => {
-  const solanaConnection = useSolanaConnection();
+  const solanaClient = useSolanaClient();
   const { wallet } = useSolanaWallet();
   const updateInteractionState = useInteractionState(
     (state) => state.updateInteractionState,
@@ -43,11 +43,11 @@ export const usePrepareSplTokenAccountMutation = () => {
     );
     await Promise.all(
       missingAccountMints.map(async (mint) => {
-        const creationTxId = await solanaConnection.createSplTokenAccount(
+        const creationTxId = await solanaClient.createSplTokenAccount(
           wallet,
           mint,
         );
-        await solanaConnection.confirmTx(creationTxId);
+        await solanaClient.confirmTx(creationTxId);
         // Update interactionState
         updateInteractionState(interaction.id, (draft) => {
           draft.requiredSplTokenAccounts[mint].txId = creationTxId;

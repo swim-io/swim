@@ -9,13 +9,13 @@ import {
 } from "@certusone/wormhole-sdk";
 import { createApproveInstruction } from "@solana/spl-token";
 import type {
+  Connection,
   ParsedTransactionWithMeta,
   Transaction,
   VersionedTransactionResponse,
 } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 
-import type { SolanaConnection } from "./SolanaConnection";
 import { createMemoIx, createTx } from "./utils";
 
 // Adapted from https://github.com/certusone/wormhole/blob/83b97bedb8c54618b191c20e4e18ba438a716cfa/sdk/js/src/bridge/parseSequenceFromLog.ts#L71-L81
@@ -38,7 +38,7 @@ export const parseSequenceFromLogSolana = (
  */
 export interface CreateTransferFromSolanaTxParams {
   readonly interactionId: string;
-  readonly solanaConnection: SolanaConnection;
+  readonly solanaConnection: Connection;
   readonly bridgeAddress: string;
   readonly portalAddress: string;
   readonly payerAddress: string;
@@ -71,7 +71,7 @@ export const createTransferFromSolanaTx = async ({
   const nonce = createNonce().readUInt32LE(0);
   const fee = BigInt(0); // for now, this won't do anything, we may add later
   const bridgeFeeIx = await getBridgeFeeIx(
-    solanaConnection.rawConnection,
+    solanaConnection,
     bridgeAddress,
     payerAddress,
   );

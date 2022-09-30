@@ -47,7 +47,7 @@ import {
   ampFactor,
   bscTokenBridge,
   commitment,
-  completeWithPayloadFee,
+  completeWithPayloadFee, DEFAULT_SOL_USD_FEED,
   ethRoutingContract,
   ethRoutingContractEthHexStr,
   ethTokenBridge,
@@ -237,6 +237,7 @@ let wormholeSequence: web3.PublicKey;
 let authoritySigner: web3.PublicKey;
 let tokenBridgeConfig: web3.PublicKey;
 let custodySigner: web3.PublicKey;
+const aggregator: web3.PublicKey = DEFAULT_SOL_USD_FEED;
 
 describe("propeller", () => {
   beforeAll(async () => {
@@ -604,6 +605,7 @@ describe("propeller", () => {
         poolTokenMint1: usdtKeypair.publicKey,
         lpMint: swimUsdKeypair.publicKey,
         twoPoolProgram: twoPoolProgram.programId,
+        aggregator,
       })
       .signers([propellerAdmin]);
 
@@ -4132,6 +4134,16 @@ describe("propeller", () => {
             ),
           ).toEqual(true);
           await checkTxnLogsForMemo(completeNativeWithPayloadTxnSig, memoStr);
+          const swimPayloadMessageAccountInfo = await connection.getAccountInfo(
+            swimPayloadMessage,
+          );
+          console.info(`
+            swimPayloadMessageAccountInfo: ${JSON.stringify(
+              swimPayloadMessageAccountInfo,
+              null,
+              2,
+            )}
+          `);
         });
 
         it("processes swim payload", async () => {
@@ -6003,7 +6015,11 @@ describe("propeller", () => {
     });
   });
 
-  async function checkTxnLogsForMemo(txSig: string, memoStr: string, exists: boolean = true) {
+  async function checkTxnLogsForMemo(
+    txSig: string,
+    memoStr: string,
+    exists = true,
+  ) {
     console.info(`txSig: ${txSig}`);
     const txnInfo = await connection.getTransaction(txSig, {
       commitment: "confirmed",

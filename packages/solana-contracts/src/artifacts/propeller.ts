@@ -79,26 +79,6 @@ export type Propeller = {
           "isSigner": true
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
@@ -152,6 +132,31 @@ export type Propeller = {
         },
         {
           "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "aggregator",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
           "isMut": false,
           "isSigner": false
         }
@@ -3942,6 +3947,10 @@ export type Propeller = {
           {
             "name": "feeVault",
             "type": "publicKey"
+          },
+          {
+            "name": "aggregator",
+            "type": "publicKey"
           }
         ]
       }
@@ -4715,6 +4724,11 @@ export type Propeller = {
       "code": 6048,
       "name": "InvalidSwimPayloadVersion",
       "msg": "Invalid Swim Payload version"
+    },
+    {
+      "code": 6049,
+      "name": "InvalidAggregator",
+      "msg": "Invalid Aggregator"
     }
   ]
 };
@@ -4800,26 +4814,6 @@ export const IDL: Propeller = {
           "isSigner": true
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
@@ -4873,6 +4867,31 @@ export const IDL: Propeller = {
         },
         {
           "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "aggregator",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
           "isMut": false,
           "isSigner": false
         }
@@ -8663,6 +8682,10 @@ export const IDL: Propeller = {
           {
             "name": "feeVault",
             "type": "publicKey"
+          },
+          {
+            "name": "aggregator",
+            "type": "publicKey"
           }
         ]
       }
@@ -9436,6 +9459,11 @@ export const IDL: Propeller = {
       "code": 6048,
       "name": "InvalidSwimPayloadVersion",
       "msg": "Invalid Swim Payload version"
+    },
+    {
+      "code": 6049,
+      "name": "InvalidAggregator",
+      "msg": "Invalid Aggregator"
     }
   ]
 };

@@ -9,7 +9,6 @@ use {
     },
 };
 
-pub const SWIM_PAYLOAD_VERSION: u8 = 1;
 // Do i need this to hold configs & state?
 //  what state do i need to hold/record on-chain
 //  what configs do i need to verify on-chain
@@ -57,29 +56,33 @@ pub struct Propeller {
     // pub evm_routing_contract_address: [u8; 32],
     pub fee_vault: Pubkey, //32
 
-                           // pub custody_signer_key: Pubkey,     // 32
-                           //    pub custody_signer_bump: u8,        // 1
+    pub aggregator: Pubkey, //32
+                            //TODO: add this?
+                            // pub fallback_oracle: Pubkey, //32
 
-                           // pub mint_signer_key: Pubkey,     // 32
-                           //    pub mint_signer_bump: u8,        // 1
+                            // pub custody_signer_key: Pubkey,     // 32
+                            //    pub custody_signer_bump: u8,        // 1
 
-                           // 	pub authority_signer_key: Pubkey,     // 32
-                           //    pub authority_signer_bump: u8,        // 1
-                           //
-                           // 	pub bridge_config_key: Pubkey,     // 32
-                           //    pub bridge_config_bump: u8,        // 1
-                           //
-                           // 	pub wormhole_config_key: Pubkey,     // 32
-                           //    pub wormhole_config_bump: u8,        // 1
-                           //
-                           // 	pub fee_collector_key: Pubkey,     // 32
-                           //    pub fee_collector_bump: u8,        // 1
-                           //
-                           // 	pub wormhole_emitter_key: Pubkey,     // 32
-                           //    pub wormhole_emitter_bump: u8,        // 1
-                           //
-                           // 	pub wormhole_sequence_key: Pubkey,     // 32
-                           //    pub wormhole_sequence_bump: u8,        // 1
+                            // pub mint_signer_key: Pubkey,     // 32
+                            //    pub mint_signer_bump: u8,        // 1
+
+                            // 	pub authority_signer_key: Pubkey,     // 32
+                            //    pub authority_signer_bump: u8,        // 1
+                            //
+                            // 	pub bridge_config_key: Pubkey,     // 32
+                            //    pub bridge_config_bump: u8,        // 1
+                            //
+                            // 	pub wormhole_config_key: Pubkey,     // 32
+                            //    pub wormhole_config_bump: u8,        // 1
+                            //
+                            // 	pub fee_collector_key: Pubkey,     // 32
+                            //    pub fee_collector_bump: u8,        // 1
+                            //
+                            // 	pub wormhole_emitter_key: Pubkey,     // 32
+                            //    pub wormhole_emitter_bump: u8,        // 1
+                            //
+                            // 	pub wormhole_sequence_key: Pubkey,     // 32
+                            //    pub wormhole_sequence_bump: u8,        // 1
 }
 // better to save pda keys on chain and always calculate/derive client side?
 //  - if save pubkeys and don't use #[account(seeds=[...])] then need to manually call or save
@@ -108,7 +111,8 @@ impl Propeller {
         8 + // process_swim_payload_cost
         // 8 + //propeller_min_transfer_amount
         // 8 +  //propeller_eth_min_transfer_amount
-        32; //fee_vault
+        32 + //fee_vault
+        32; //aggregator
             // 32; // evm_routing_contract_address
 
     pub fn wormhole(&self) -> Result<Pubkey> {
@@ -161,6 +165,7 @@ pub struct SwimPayloadMessage {
     pub max_fee: u64,
     pub target_token_id: u16,
     pub memo: [u8; 16],
+    //TODO: add extra bytes for future use?
 }
 
 impl SwimPayloadMessage {

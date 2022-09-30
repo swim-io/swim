@@ -79,26 +79,6 @@
           "isSigner": true
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
@@ -152,6 +132,31 @@
         },
         {
           "name": "twoPoolProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "aggregator",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
           "isMut": false,
           "isSigner": false
         }
@@ -3942,6 +3947,10 @@
           {
             "name": "feeVault",
             "type": "publicKey"
+          },
+          {
+            "name": "aggregator",
+            "type": "publicKey"
           }
         ]
       }
@@ -4715,6 +4724,11 @@
       "code": 6048,
       "name": "InvalidSwimPayloadVersion",
       "msg": "Invalid Swim Payload version"
+    },
+    {
+      "code": 6049,
+      "name": "InvalidAggregator",
+      "msg": "Invalid Aggregator"
     }
   ]
 }

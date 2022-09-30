@@ -483,6 +483,11 @@ pub struct PropellerProcessSwimPayload<'info> {
 impl<'info> PropellerProcessSwimPayload<'info> {
     pub fn accounts(ctx: &Context<PropellerProcessSwimPayload>, target_token_id: u16) -> Result<()> {
         ctx.accounts.validate()?;
+        require_keys_eq!(
+            ctx.accounts.process_swim_payload.propeller.aggregator,
+            ctx.accounts.aggregator.key(),
+            PropellerError::InvalidAggregator
+        );
         require_eq!(
             ctx.accounts.process_swim_payload.swim_payload_message.target_token_id,
             target_token_id,
@@ -704,7 +709,8 @@ pub struct PropellerProcessSwimPayloadFallback<'info> {
     #[account(
     seeds = [ b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
     bump = propeller.bump,
-    has_one = marginal_price_pool
+    has_one = marginal_price_pool,
+    has_one = aggregator @ PropellerError::InvalidAggregator
     )]
     pub propeller: Box<Account<'info, Propeller>>,
     #[account(mut)]

@@ -1,10 +1,11 @@
 use {
-    crate::Propeller,
+    crate::{error::*, Propeller},
     anchor_lang::prelude::*,
     anchor_spl::{
         associated_token::{create, AssociatedToken, Create},
         token::{Mint, Token, TokenAccount},
     },
+    switchboard_v2::{AggregatorAccountData, SWITCHBOARD_PROGRAM_ID},
     two_pool::state::TwoPool,
 };
 
@@ -46,11 +47,6 @@ pub struct Initialize<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
 
-    pub token_program: Program<'info, Token>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
-    pub system_program: Program<'info, System>,
-    pub rent: Sysvar<'info, Rent>,
-
     #[account(
     mut,
     seeds = [
@@ -67,6 +63,17 @@ pub struct Initialize<'info> {
     pub pool_token_mint_1: Box<Account<'info, Mint>>,
     pub lp_mint: Box<Account<'info, Mint>>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
+
+    #[account(
+    constraint =
+    *aggregator.to_account_info().owner == SWITCHBOARD_PROGRAM_ID @ PropellerError::InvalidSwitchboardAccount
+    )]
+    pub aggregator: AccountLoader<'info, AggregatorAccountData>,
+
+    pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
+    pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>,
 }
 
 impl<'info> Initialize<'info> {
@@ -76,6 +83,7 @@ impl<'info> Initialize<'info> {
             ctx.accounts.pool.token_mint_keys[params.marginal_price_pool_token_index as usize],
             params.marginal_price_pool_token_mint
         );
+        //TODO: verify that propeller.swim_usd_mint is either pool.lpMint or pool.token_mint[0].
         Ok(())
     }
 }
@@ -126,6 +134,7 @@ pub fn handle_initialize(ctx: Context<Initialize>, params: InitializeParams) -> 
     propeller.marginal_price_pool_token_mint = params.marginal_price_pool_token_mint;
     // propeller.evm_routing_contract_address = params.evm_routing_contract_address;
     propeller.fee_vault = ctx.accounts.propeller_fee_vault.key();
+    propeller.aggregator = ctx.accounts.aggregator.key();
     Ok(())
 }
 

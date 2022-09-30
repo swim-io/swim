@@ -23,7 +23,11 @@ import {
 
 // import { TwoPool } from "../target/types/two_pool";
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-import { getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
+import {
+  createAssociatedTokenAccountInstruction,
+  getAssociatedTokenAddress,
+  getOrCreateAssociatedTokenAccount,
+} from "@solana/spl-token";
 
 import type { TwoPool } from "../../artifacts/two_pool";
 import { getApproveAndRevokeIxs, twoPoolToString } from "../../index";
@@ -221,6 +225,7 @@ describe("TwoPool", () => {
       console.info(
         `userLpTokenAccountBalance: ${userLpTokenAccountBalance.toString()}`,
       );
+
       expect(userLpTokenAccountBalance.gt(new BN(0))).toBeTruthy();
       const previousDepthAfter = (
         await twoPoolProgram.account.twoPool.fetch(flagshipPool)
@@ -1123,6 +1128,7 @@ describe("TwoPool", () => {
       expect(
         poolDataAfter.governanceFeeKey.equals(newGovernanceFeeKey),
       ).toBeTruthy();
+      governanceFeeAddr = newGovernanceFeeKey;
     });
 
     it("Throws error when changing governance fee account to invalid token account", async () => {
@@ -1360,5 +1366,122 @@ describe("TwoPool", () => {
     });
     // eslint-disable-next-line jest/no-commented-out-tests
     // it("fails", () => expect(false).toBeTruthy() );
+  });
+
+  it("Can fit create ATA ixs + removeExactBurn in one txn", async () => {
+    const newUser = Keypair.generate();
+    const poolState = await twoPoolProgram.account.twoPool.fetch(flagshipPool);
+    const poolMints = [...poolState.tokenMintKeys, poolState.lpMintKey];
+
+    const newUserAtaAddrs: readonly PublicKey[] = await Promise.all(
+      poolMints.map(async (mint) => {
+        return await getAssociatedTokenAddress(mint, newUser.publicKey);
+      }),
+    );
+    // initialize user lp token ata and transfer to it first.
+    const newUserLpTokenAta: web3.PublicKey = (
+      await getOrCreateAssociatedTokenAccount(
+        provider.connection,
+        payer,
+        poolState.lpMintKey,
+        newUser.publicKey,
+      )
+    ).address;
+    const transferAmount = new BN(500_000);
+    await splToken.methods
+      .transfer(transferAmount)
+      .accounts({
+        source: userSwimUsdAtaAddr,
+        destination: newUserLpTokenAta,
+        authority: payer.publicKey,
+      })
+      .rpc();
+    const newUserLpTokenAtaBalance = (
+      await splToken.account.token.fetch(newUserLpTokenAta)
+    ).amount;
+    expect(newUserLpTokenAtaBalance.eq(transferAmount)).toBeTruthy();
+    const newUserAtaAcctInfos = (
+      await Promise.all(
+        newUserAtaAddrs.map(async (ataAddr, i) => {
+          const data = await splToken.account.token.fetchNullable(ataAddr);
+          return {
+            ataAddr,
+            mint: poolMints[i],
+            data,
+          };
+        }),
+      )
+    ).filter((ataAcctInfo) => ataAcctInfo.data === null);
+
+    expect(newUserAtaAcctInfos.length).toEqual(2);
+    const createUserAtaIxs: readonly web3.TransactionInstruction[] =
+      await Promise.all(
+        newUserAtaAcctInfos.map(({ ataAddr, mint }) => {
+          return createAssociatedTokenAccountInstruction(
+            payer.publicKey,
+            ataAddr,
+            newUser.publicKey,
+            mint,
+          );
+        }),
+      );
+    expect(createUserAtaIxs.length).toEqual(2);
+
+    const exactBurnAmount = new BN(100_000);
+    const outputTokenIndex = 0;
+    const minimumOutputAmount = new BN(10_000);
+    // const removeExactBurnParams = {
+    //   exactBurnAmount,
+    //   outputTokenIndex,
+    //   minimumOutputAmount,
+    // };
+    const userTransferAuthority = Keypair.generate();
+    const [approveIxs, revokeIxs] = await getApproveAndRevokeIxs(
+      splToken,
+      [newUserLpTokenAta],
+      [exactBurnAmount],
+      userTransferAuthority.publicKey,
+      newUser,
+    );
+    const tx = await twoPoolProgram.methods
+      // .removeExactBurn(removeExactBurnParams)
+      .removeExactBurn(exactBurnAmount, outputTokenIndex, minimumOutputAmount)
+      .accounts({
+        poolTokenAccount0: poolUsdcAtaAddr,
+        poolTokenAccount1: poolUsdtAtaAddr,
+        lpMint: swimUsdKeypair.publicKey,
+        governanceFee: governanceFeeAddr,
+        userTransferAuthority: userTransferAuthority.publicKey,
+        userTokenAccount0: newUserAtaAddrs[0],
+        userTokenAccount1: newUserAtaAddrs[1],
+        userLpTokenAccount: newUserAtaAddrs[2],
+        tokenProgram: splToken.programId,
+      })
+      .preInstructions([...createUserAtaIxs, ...approveIxs])
+      .postInstructions([...revokeIxs])
+      .signers([payer, userTransferAuthority, newUser])
+      .rpc();
+    const newUserLpTokenAtaBalanceAfter = (
+      await splToken.account.token.fetch(newUserLpTokenAta)
+    ).amount;
+    expect(
+      newUserLpTokenAtaBalanceAfter.eq(
+        newUserLpTokenAtaBalance.sub(exactBurnAmount),
+      ),
+    ).toBeTruthy();
+    const newUserTokenAccount0BalanceAfter = (
+      await splToken.account.token.fetch(newUserAtaAddrs[0])
+    ).amount;
+    const newUserTokenAccount1BalanceAfter = (
+      await splToken.account.token.fetch(newUserAtaAddrs[1])
+    ).amount;
+    console.info(`
+      newUserTokenAccount0BalanceAfter: ${newUserTokenAccount0BalanceAfter.toString()}
+      newUserTokenAccount1BalanceAfter: ${newUserTokenAccount1BalanceAfter.toString()}
+    `);
+    expect(
+      newUserTokenAccount0BalanceAfter.gt(minimumOutputAmount),
+    ).toBeTruthy();
+    expect(newUserTokenAccount1BalanceAfter.eq(new BN(0))).toBeTruthy();
   });
 });

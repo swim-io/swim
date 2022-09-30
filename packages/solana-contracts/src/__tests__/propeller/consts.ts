@@ -1,11 +1,6 @@
-import {
-  CHAIN_ID_BSC,
-  CHAIN_ID_ETH,
-  tryNativeToHexString,
-  tryNativeToUint8Array,
-} from "@certusone/wormhole-sdk";
+import { CHAIN_ID_BSC, CHAIN_ID_ETH, tryNativeToHexString, tryNativeToUint8Array } from "@certusone/wormhole-sdk";
 import { BN, web3 } from "@project-serum/anchor";
-import { LAMPORTS_PER_SOL, TransactionInstruction } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export const commitment = "confirmed" as web3.Commitment;
 export const rpcCommitmentConfig = {
@@ -89,3 +84,6 @@ const evmOwnerEthHexStr = tryNativeToHexString(
   CHAIN_ID_ETH,
 );
 export const evmOwner = Buffer.from(evmOwnerByteArr);
+export const DEFAULT_SOL_USD_FEED = new web3.PublicKey(
+  "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR",
+);

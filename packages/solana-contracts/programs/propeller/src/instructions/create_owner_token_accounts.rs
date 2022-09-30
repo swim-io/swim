@@ -45,7 +45,8 @@ use {
 pub struct PropellerCreateOwnerTokenAccounts<'info> {
     #[account(
     seeds = [ b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
-    bump = propeller.bump
+    bump = propeller.bump,
+    has_one = aggregator @ PropellerError::InvalidAggregator
     )]
     pub propeller: Box<Account<'info, Propeller>>,
     #[account(mut)]
@@ -135,6 +136,7 @@ pub struct PropellerCreateOwnerTokenAccounts<'info> {
     pub pool_token_1_mint: Box<Account<'info, Mint>>,
     pub pool_lp_mint: Box<Account<'info, Mint>>,
 
+    #[account(address = swim_payload_message.owner)]
     pub user: SystemAccount<'info>,
     #[account(mut)]
     /// CHECK: may possibly need to initialize
@@ -575,6 +577,7 @@ pub struct PropellerCreateOwnerSwimUsdAta<'info> {
     seeds = [ b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
     bump = propeller.bump,
     has_one = swim_usd_mint @ PropellerError::InvalidSwimUsdMint,
+    has_one = aggregator @ PropellerError::InvalidAggregator,
     )]
     pub propeller: Box<Account<'info, Propeller>>,
     #[account(mut)]

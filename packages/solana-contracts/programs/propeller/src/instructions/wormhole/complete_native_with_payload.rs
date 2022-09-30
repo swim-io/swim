@@ -129,6 +129,8 @@ pub struct CompleteNativeWithPayload<'info> {
     // the only thing it does is check that the mint is correct.
     // note: we only care that this is actually the fee_vault if it's called from propellerCompleteNativeWithPayload
     //  so the checks are done there.
+
+    // TODO: rename to `fee_vault` and add has_one in propeller constraints?
     #[account(
         mut,
         token::mint = propeller.swim_usd_mint,
@@ -380,6 +382,7 @@ impl<'info> PropellerCompleteNativeWithPayload<'info> {
         )?;
         require_keys_eq!(ctx.accounts.complete_native_with_payload.fee_recipient.key(), propeller.fee_vault);
         require_keys_eq!(ctx.accounts.complete_native_with_payload.fee_recipient.owner, propeller.key());
+        require_keys_eq!(ctx.accounts.aggregator.key(), propeller.aggregator, PropellerError::InvalidAggregator);
         Ok(())
     }
 

@@ -149,4 +149,7 @@ pub enum PropellerError {
 
     #[msg("Invalid Swim Payload version")]
     InvalidSwimPayloadVersion,
+
+    #[msg("Invalid Aggregator")]
+    InvalidAggregator,
 }

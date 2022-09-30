@@ -159,8 +159,8 @@ export const useFromSolanaTransferMutation = () => {
         chains[Protocol.Evm],
         ({ ecosystem }) => ecosystem === toEcosystem,
       );
-      const tokenDetails = getTokenDetailsForEcosystem(token, toEcosystem);
-      if (!tokenDetails) {
+      const toTokenDetails = getTokenDetailsForEcosystem(token, toEcosystem);
+      if (!toTokenDetails) {
         throw new Error("No token details");
       }
       const splTokenAccount = findTokenAccountForMint(
@@ -190,10 +190,7 @@ export const useFromSolanaTransferMutation = () => {
           targetChain: evmEcosystem.wormholeChainId,
           originAddress:
             token.nativeEcosystemId === evmChain.ecosystem
-              ? evmAddressToWormhole(
-                  getTokenDetailsForEcosystem(token, evmChain.ecosystem)
-                    ?.address ?? "",
-                )
+              ? evmAddressToWormhole(toTokenDetails.address ?? "")
               : undefined,
           originChain:
             token.nativeEcosystemId === evmChain.ecosystem

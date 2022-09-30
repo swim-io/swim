@@ -1,5 +1,5 @@
 export * from "./ecosystems";
-export * from "./EvmConnection";
+export * from "./EvmClient";
 export * from "./protocol";
 export * from "./providers";
 export * from "./utils";

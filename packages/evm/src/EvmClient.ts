@@ -4,7 +4,12 @@ import {
   createNonce,
   getAllowanceEth,
 } from "@certusone/wormhole-sdk";
-import type { TokenDetails } from "@swim-io/core";
+import type {
+  Client,
+  CompleteWormholeTransferParams,
+  InitiateWormholeTransferParams,
+} from "@swim-io/core";
+import { getTokenDetails } from "@swim-io/core";
 import { ERC20__factory } from "@swim-io/evm-contracts";
 import { isNotNull } from "@swim-io/utils";
 import Decimal from "decimal.js";
@@ -27,7 +32,30 @@ export type GetHistoryProvider = BaseProvider & {
   ) => Promise<readonly TransactionResponse[]>;
 };
 
-export class EvmConnection {
+interface ApproveErc20TokenParams {
+  readonly atomicAmount: ethers.BigNumberish;
+  readonly signer: ethers.Signer;
+  readonly mintAddress: string;
+  readonly spenderAddress: string;
+}
+
+export interface ApproveTokenAmountParams {
+  readonly atomicAmount: string;
+  readonly mintAddress: string;
+  readonly spenderAddress: string;
+  readonly wallet: EvmWalletAdapter;
+}
+
+export interface TransferTokenParams {
+  readonly atomicAmount: ethers.BigNumberish;
+  readonly interactionId: string;
+  readonly mintAddress: string;
+  readonly targetAddress: Uint8Array;
+  readonly targetChainId: ChainId;
+  readonly wallet: EvmWalletAdapter;
+}
+
+export class EvmClient implements Client<EvmWalletAdapter> {
   public provider: GetHistoryProvider;
   private readonly chainConfig: EvmChainConfig;
   // eslint-disable-next-line functional/prefer-readonly-type
@@ -110,7 +138,7 @@ export class EvmConnection {
     }
   }
 
-  public async getErc20Balance(
+  public async getTokenBalance(
     contractAddress: string,
     walletAddress: string,
   ): Promise<Decimal | null> {
@@ -126,28 +154,25 @@ export class EvmConnection {
     }
   }
 
-  public async approveAmount({
+  public async approveTokenAmount({
     atomicAmount,
-    evmWallet,
-    fromTokenDetails,
+    mintAddress,
     spenderAddress,
-  }: {
-    readonly atomicAmount: string;
-    readonly evmWallet: EvmWalletAdapter;
-    readonly fromTokenDetails: TokenDetails;
-    readonly spenderAddress: string;
-  }): Promise<readonly ethers.providers.TransactionResponse[]> {
-    const evmSigner = evmWallet.signer;
-    if (!evmSigner) {
+    wallet,
+  }: ApproveTokenAmountParams): Promise<
+    readonly ethers.providers.TransactionResponse[]
+  > {
+    const { signer } = wallet;
+    if (!signer) {
       throw new Error("No EVM signer");
     }
 
-    await evmWallet.switchNetwork(this.chainConfig.chainId);
+    await wallet.switchNetwork(this.chainConfig.chainId);
 
     const allowance = await getAllowanceEth(
       spenderAddress,
-      fromTokenDetails.address,
-      evmSigner,
+      mintAddress,
+      signer,
     );
 
     let approvalResponses: readonly ethers.providers.TransactionResponse[] = [];
@@ -158,20 +183,20 @@ export class EvmConnection {
         // Note this is required by some ERC20 implementations such as USDT
         // See line 205 here: https://etherscan.io/address/0xdac17f958d2ee523a2206206994597c13d831ec7#code
         const resetApprovalResponse = await this.approveErc20Token({
-          tokenBridgeAddress: spenderAddress,
-          tokenAddress: fromTokenDetails.address,
-          signer: evmSigner,
-          amount: "0",
+          atomicAmount: "0",
+          mintAddress,
+          signer,
+          spenderAddress,
         });
         approvalResponses = resetApprovalResponse
           ? [...approvalResponses, resetApprovalResponse]
           : approvalResponses;
       }
       const approvalResponse = await this.approveErc20Token({
-        tokenBridgeAddress: spenderAddress,
-        tokenAddress: fromTokenDetails.address,
-        signer: evmSigner,
-        amount: atomicAmount,
+        atomicAmount,
+        mintAddress,
+        signer,
+        spenderAddress,
       });
       approvalResponses = approvalResponse
         ? [...approvalResponses, approvalResponse]
@@ -186,45 +211,70 @@ export class EvmConnection {
     return approvalResponses;
   }
 
-  public async lockEvmToken({
+  /**
+   * Adapted from https://github.com/certusone/wormhole/blob/07446e2e23e51d98822182a77ad802b5d10f120a/sdk/js/src/token_bridge/transfer.ts#L42-L62
+   */
+  public async transferToken({
     atomicAmount,
-    evmWallet,
-    fromTokenDetails,
     interactionId,
-    recipientChain,
-    splTokenAccountAddress,
-  }: {
-    readonly atomicAmount: string;
-    readonly evmWallet: EvmWalletAdapter;
-    readonly fromTokenDetails: TokenDetails;
-    readonly interactionId: string;
-    readonly recipientChain: ChainId;
-    readonly splTokenAccountAddress: Uint8Array;
-  }): Promise<{
+    targetAddress,
+    targetChainId,
+    mintAddress,
+    wallet,
+  }: TransferTokenParams): Promise<ethers.providers.TransactionResponse | null> {
+    const { signer } = wallet;
+    if (!signer) {
+      throw new Error("No EVM signer");
+    }
+    const fee = 0; // for now, this won't do anything, we may add later
+    const bridge = Bridge__factory.connect(
+      this.chainConfig.wormhole.portal,
+      signer,
+    );
+    const populatedTx = await bridge.populateTransaction.transferTokens(
+      mintAddress,
+      atomicAmount,
+      targetChainId,
+      targetAddress,
+      fee,
+      createNonce(),
+    );
+    const txRequest = appendHexDataToEvmTx(interactionId, populatedTx);
+    return signer.sendTransaction(txRequest);
+  }
+
+  public async initiateWormholeTransfer({
+    atomicAmount,
+    interactionId,
+    targetAddress,
+    targetChainId,
+    tokenId,
+    wallet,
+    wrappedTokenInfo,
+  }: InitiateWormholeTransferParams<EvmWalletAdapter>): Promise<{
     readonly approvalResponses: readonly ethers.providers.TransactionResponse[];
     readonly transferResponse: ethers.providers.TransactionResponse;
   }> {
-    const evmSigner = evmWallet.signer;
-    if (!evmSigner) {
-      throw new Error("No EVM signer");
-    }
+    const mintAddress =
+      wrappedTokenInfo?.wrappedAddress ??
+      getTokenDetails(this.chainConfig, tokenId).address;
 
-    await evmWallet.switchNetwork(this.chainConfig.chainId);
+    await wallet.switchNetwork(this.chainConfig.chainId);
 
-    const approvalResponses = await this.approveAmount({
+    const approvalResponses = await this.approveTokenAmount({
       atomicAmount,
-      evmWallet,
-      fromTokenDetails,
+      mintAddress,
       spenderAddress: this.chainConfig.wormhole.portal,
+      wallet,
     });
 
-    const transferResponse = await this.transferFromEth({
+    const transferResponse = await this.transferToken({
       interactionId,
-      signer: evmSigner,
-      tokenAddress: fromTokenDetails.address,
-      amount: atomicAmount,
-      recipientChain,
-      recipientAddress: splTokenAccountAddress,
+      mintAddress,
+      atomicAmount,
+      targetChainId,
+      targetAddress,
+      wallet,
     });
 
     if (transferResponse === null) {
@@ -240,75 +290,33 @@ export class EvmConnection {
   }
 
   /**
-   * Adapted from https://github.com/certusone/wormhole/blob/07446e2e23e51d98822182a77ad802b5d10f120a/sdk/js/src/token_bridge/transfer.ts#L42-L62
-   */
-  public async transferFromEth({
-    amount,
-    interactionId,
-    recipientAddress,
-    recipientChain,
-    signer,
-    tokenAddress,
-  }: {
-    readonly amount: ethers.BigNumberish;
-    readonly interactionId: string;
-    readonly recipientAddress: Uint8Array;
-    readonly recipientChain: ChainId;
-    readonly signer: ethers.Signer;
-    readonly tokenAddress: string;
-  }): Promise<ethers.providers.TransactionResponse | null> {
-    const fee = 0; // for now, this won't do anything, we may add later
-    const bridge = Bridge__factory.connect(
-      this.chainConfig.wormhole.portal,
-      signer,
-    );
-    const populatedTx = await bridge.populateTransaction.transferTokens(
-      tokenAddress,
-      amount,
-      recipientChain,
-      recipientAddress,
-      fee,
-      createNonce(),
-    );
-    const txRequest = appendHexDataToEvmTx(interactionId, populatedTx);
-    return signer.sendTransaction(txRequest);
-  }
-
-  /**
    * Adapted from https://github.com/certusone/wormhole/blob/2998031b164051a466bb98c71d89301ed482b4c5/sdk/js/src/token_bridge/redeem.ts#L24-L33
    */
-  public async redeemOnEth({
+  public async completeWormholeTransfer({
     interactionId,
-    signer,
-    signedVaa,
-  }: {
-    readonly interactionId: string;
-    readonly signer: ethers.Signer;
-    readonly signedVaa: Uint8Array;
-  }): Promise<ethers.providers.TransactionResponse | null> {
+    vaa,
+    wallet,
+  }: CompleteWormholeTransferParams<EvmWalletAdapter>): Promise<ethers.providers.TransactionResponse | null> {
+    const { signer } = wallet;
+    if (!signer) {
+      throw new Error("No EVM signer");
+    }
     const bridge = Bridge__factory.connect(
       this.chainConfig.wormhole.portal,
       signer,
     );
-    const populatedTx = await bridge.populateTransaction.completeTransfer(
-      signedVaa,
-    );
+    const populatedTx = await bridge.populateTransaction.completeTransfer(vaa);
     const txRequest = appendHexDataToEvmTx(interactionId, populatedTx);
     return signer.sendTransaction(txRequest);
   }
 
   private async approveErc20Token({
-    amount,
+    atomicAmount,
     signer,
-    tokenAddress,
-    tokenBridgeAddress,
-  }: {
-    readonly amount: ethers.BigNumberish;
-    readonly signer: ethers.Signer;
-    readonly tokenAddress: string;
-    readonly tokenBridgeAddress: string;
-  }): Promise<ethers.providers.TransactionResponse | null> {
-    const token = ERC20__factory.connect(tokenAddress, signer);
-    return token.approve(tokenBridgeAddress, amount);
+    spenderAddress,
+    mintAddress,
+  }: ApproveErc20TokenParams): Promise<ethers.providers.TransactionResponse | null> {
+    const token = ERC20__factory.connect(mintAddress, signer);
+    return token.approve(spenderAddress, atomicAmount);
   }
 }

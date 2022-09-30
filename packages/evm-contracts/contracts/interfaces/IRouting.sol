@@ -28,6 +28,7 @@ interface IRouting is IMemoInteractor {
     bytes32 expectedToken,
     uint16 expectedChain
   );
+  error InvalidZeroValue();
 
   function swimUsdAddress() external view returns (address);
 

@@ -150,7 +150,7 @@ export class SwimInitializer {
     }
     const layout = swimPool(this.numberOfTokens);
     const lamports =
-      await this.solanaClient.rawConnection.getMinimumBalanceForRentExemption(
+      await this.solanaClient.connection.getMinimumBalanceForRentExemption(
         layout.span,
       );
     return SystemProgram.createAccount({
@@ -290,7 +290,7 @@ export class SwimInitializer {
     this.poolAuthority = poolAuthority;
     this.nonce = nonce;
     const createMintLamports = await getMinimumBalanceForRentExemptMint(
-      this.solanaClient.rawConnection,
+      this.solanaClient.connection,
     );
 
     const createStateAccountIx = await this.createCreateStateAccountIx();
@@ -315,7 +315,7 @@ export class SwimInitializer {
     tokenMints: readonly PublicKey[],
   ): Promise<string> {
     const createAccountLamports = await getMinimumBalanceForRentExemptAccount(
-      this.solanaClient.rawConnection,
+      this.solanaClient.connection,
     );
 
     const { instructions, keypairs } = tokenMints.reduce<{

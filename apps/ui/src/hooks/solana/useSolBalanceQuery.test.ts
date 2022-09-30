@@ -32,7 +32,7 @@ describe("useSolBalanceQuery", () => {
   it("should return 0 when no address", async () => {
     useSolanaWalletMock.mockReturnValue({ address: null });
     useSolanaClientMock.mockReturnValue({
-      rawConnection: {
+      connection: {
         // eslint-disable-next-line @typescript-eslint/require-await
         getBalance: async () => 999,
       } as Partial<CustomConnection> as unknown as CustomConnection,
@@ -49,7 +49,7 @@ describe("useSolBalanceQuery", () => {
       address: "9ZNTfG4NyQgxy2SWjSiQoUyBPEvXT2xo7fKc5hPYYJ7b",
     });
     useSolanaClientMock.mockReturnValue({
-      rawConnection: {
+      connection: {
         // eslint-disable-next-line @typescript-eslint/require-await
         getBalance: async () => 123 * LAMPORTS_PER_SOL,
       } as Partial<CustomConnection> as unknown as CustomConnection,
@@ -66,7 +66,7 @@ describe("useSolBalanceQuery", () => {
       address: "9ZNTfG4NyQgxy2SWjSiQoUyBPEvXT2xo7fKc5hPYYJ7b",
     });
     useSolanaClientMock.mockReturnValue({
-      rawConnection: {
+      connection: {
         // eslint-disable-next-line @typescript-eslint/require-await
         getBalance: async () => {
           throw new Error("Something went wrong");

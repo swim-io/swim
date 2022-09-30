@@ -80,7 +80,7 @@ const findToTokenButton = () => screen.queryAllByRole("button")[3];
 describe("SwapForm", () => {
   beforeEach(() => {
     useSolanaClientMock.mockReturnValue({
-      rawConnection: {
+      connection: {
         getAccountInfo(publicKey, commitment?) {
           return Promise.resolve(null);
         },

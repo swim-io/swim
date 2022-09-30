@@ -10,10 +10,7 @@ import { useEnvironment } from "../core/store";
 
 const SOLANA_MAINNET_RPC_URLS = process.env.SOLANA_MAINNET_RPC_URLS;
 
-export const getSolanaEndpoints = (
-  env: Env,
-  publicRpcUrls: readonly string[],
-): readonly string[] => {
+export const getSolanaEndpoints = (env: Env): readonly string[] | undefined => {
   if (env === Env.Mainnet && SOLANA_MAINNET_RPC_URLS) {
     try {
       return SOLANA_MAINNET_RPC_URLS.split(" ").filter((url) => url);
@@ -21,7 +18,7 @@ export const getSolanaEndpoints = (
       // Invalid env variable, fallback to default case.
     }
   }
-  return publicRpcUrls;
+  return undefined;
 };
 
 export const SolanaClientContext: React.Context<null | SolanaClient> =
@@ -35,8 +32,11 @@ export const SolanaClientProvider = ({
   const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
   const [chainConfig] = chains[Protocol.Solana];
-  const endpoints = getSolanaEndpoints(env, chainConfig.publicRpcUrls);
-  const client = useMemo(() => new SolanaClient(endpoints), [endpoints]);
+  const endpoints = useMemo(() => getSolanaEndpoints(env), [env]);
+  const client = useMemo(
+    () => new SolanaClient(chainConfig, endpoints),
+    [chainConfig, endpoints],
+  );
 
   return (
     <SolanaClientContext.Provider value={client}>

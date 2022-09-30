@@ -9,7 +9,7 @@ import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import type { PoolState } from "../../models";
 import { getEvmPoolState, getSolanaPoolState } from "../../models";
-import { useGetEvmConnection } from "../evm";
+import { useGetEvmClient } from "../evm";
 import { useSolanaClient } from "../solana";
 
 export const usePoolStateQueries = (
@@ -17,7 +17,7 @@ export const usePoolStateQueries = (
 ): readonly UseQueryResult<PoolState | null, Error>[] => {
   const { env } = useEnvironment();
   const { tokens, evmRoutingContract } = useEnvironment(selectConfig, shallow);
-  const getEvmConnection = useGetEvmConnection();
+  const getEvmConnection = useGetEvmClient();
   const solanaClient = useSolanaClient();
 
   return useQueries(

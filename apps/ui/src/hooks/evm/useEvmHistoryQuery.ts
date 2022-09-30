@@ -6,7 +6,7 @@ import { useQuery } from "react-query";
 import { isEcosystemEnabled } from "../../config";
 import { useEnvironment } from "../../core/store";
 
-import { useEvmConnection } from "./useEvmConnection";
+import { useEvmClient } from "./useEvmClient";
 import { useEvmWallet } from "./useEvmWallet";
 
 export const useEvmHistoryQuery = (
@@ -14,7 +14,7 @@ export const useEvmHistoryQuery = (
 ): UseQueryResult<readonly ethers.providers.TransactionResponse[], Error> => {
   const { env } = useEnvironment();
   const { address } = useEvmWallet();
-  const connection = useEvmConnection(ecosystemId);
+  const client = useEvmClient(ecosystemId);
 
   return useQuery(
     [env, "evmHistory", ecosystemId, address],
@@ -22,7 +22,7 @@ export const useEvmHistoryQuery = (
       if (address === null) {
         throw new Error(`${ecosystemId} address not found`);
       }
-      return await connection.getHistory(address);
+      return await client.getHistory(address);
     },
     {
       enabled: isEcosystemEnabled(ecosystemId) && !!address,

@@ -33,7 +33,7 @@ export const useSplTokenAccountsQuery = (
         return [];
       }
       const { value: accounts } =
-        await solanaClient.rawConnection.getTokenAccountsByOwner(
+        await solanaClient.connection.getTokenAccountsByOwner(
           new PublicKey(address),
           {
             programId: TOKEN_PROGRAM_ID,

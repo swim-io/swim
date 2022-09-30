@@ -1,16 +1,16 @@
 import type React from "react";
 
 import { AptosClientProvider } from "./AptosClient";
-import { GetEvmConnectionProvider } from "./GetEvmConnection";
+import { GetEvmClientProvider } from "./GetEvmClient";
 import { SolanaClientProvider } from "./SolanaClient";
 import { QueryClientProvider } from "./queryClient";
 
 export const AppContext: React.FC = ({ children }) => (
   <AptosClientProvider>
-    <GetEvmConnectionProvider>
+    <GetEvmClientProvider>
       <SolanaClientProvider>
         <QueryClientProvider>{children}</QueryClientProvider>
       </SolanaClientProvider>
-    </GetEvmConnectionProvider>
+    </GetEvmClientProvider>
   </AptosClientProvider>
 );

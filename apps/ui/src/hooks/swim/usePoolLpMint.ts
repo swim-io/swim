@@ -33,7 +33,7 @@ export const usePoolLpMints = (
         const lpTokenMintPubkey = new PublicKey(
           getSolanaTokenDetails(lpToken).address,
         );
-        const account = await solanaClient.rawConnection.getAccountInfo(
+        const account = await solanaClient.connection.getAccountInfo(
           lpTokenMintPubkey,
         );
         return account

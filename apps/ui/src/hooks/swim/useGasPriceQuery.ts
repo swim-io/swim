@@ -6,19 +6,19 @@ import { useQueries } from "react-query";
 
 import { isEcosystemEnabled } from "../../config";
 import { useEnvironment } from "../../core/store";
-import { useEvmConnections } from "../evm";
+import { useEvmClients } from "../evm";
 
 export const useGasPriceQueries = (
   evmEcosystemIds: readonly EvmEcosystemId[],
 ): readonly UseQueryResult<Decimal, Error>[] => {
   const { env } = useEnvironment();
-  const connections = useEvmConnections(evmEcosystemIds);
+  const clients = useEvmClients(evmEcosystemIds);
 
   return useQueries(
     evmEcosystemIds.map((evmEcosystemId, i) => ({
       queryKey: [env, "gasPrice", evmEcosystemId],
       queryFn: async () => {
-        const gasPriceInWei = await connections[i].provider.getGasPrice();
+        const gasPriceInWei = await clients[i].provider.getGasPrice();
         const gasPriceInNativeCurrency = new Decimal(
           ethersUtils.formatUnits(gasPriceInWei),
         );

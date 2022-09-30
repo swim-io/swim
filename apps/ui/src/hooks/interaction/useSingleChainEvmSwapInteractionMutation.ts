@@ -13,12 +13,12 @@ import {
   humanDecimalToAtomicString,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
-import { useGetEvmConnection } from "../evm";
+import { useGetEvmClient } from "../evm";
 
 export const useSingleChainEvmSwapInteractionMutation = () => {
   const wallets = useWallets();
   const { updateInteractionState } = useInteractionStateV2();
-  const getEvmConnection = useGetEvmConnection();
+  const getEvmClient = useGetEvmClient();
   const { evmRoutingContract } = useEnvironment(selectConfig, shallow);
   return useMutation(
     async (interactionState: SingleChainEvmSwapInteractionState) => {
@@ -50,7 +50,7 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
       if (!fromTokenAddress || !toTokenAddress) {
         throw new Error("Missing token address");
       }
-      const connection = getEvmConnection(ecosystemId);
+      const client = getEvmClient(ecosystemId);
       const tokenDetails = getTokenDetailsForEcosystem(
         fromTokenSpec,
         ecosystemId,
@@ -63,15 +63,15 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
         fromTokenSpec,
         fromTokenData.ecosystemId,
       );
-      const approvalResponses = await connection.approveAmount({
+      const approvalResponses = await client.approveTokenAmount({
         atomicAmount: inputAmountAtomicString,
-        evmWallet: wallet,
-        fromTokenDetails: tokenDetails,
+        wallet,
+        mintAddress: tokenDetails.address,
         spenderAddress: evmRoutingContract,
       });
       const approvalTxs = await Promise.all(
         approvalResponses.map((response) =>
-          connection.getTxReceiptOrThrow(response),
+          client.getTxReceiptOrThrow(response),
         ),
       );
       updateInteractionState(interaction.id, (draft) => {
@@ -86,7 +86,7 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
 
       const routingContract = Routing__factory.connect(
         evmRoutingContract,
-        connection.provider,
+        client.provider,
       );
       const txRequest = await routingContract.populateTransaction[
         "onChainSwap(address,uint256,address,address,uint256,bytes16)"
@@ -103,7 +103,7 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
         `0x${interaction.id}`,
       );
       const txResponse = await signer.sendTransaction(txRequest);
-      const evmReceipt = await connection.getTxReceiptOrThrow(txResponse);
+      const evmReceipt = await client.getTxReceiptOrThrow(txResponse);
       const onChainSwapTxId = evmReceipt.transactionHash;
       updateInteractionState(interaction.id, (draft) => {
         if (

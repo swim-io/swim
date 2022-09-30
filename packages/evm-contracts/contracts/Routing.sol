@@ -59,6 +59,10 @@ contract Routing is
   uint private constant GAS_KICKSTART_AMOUNT = 0.05 ether;
   uint private constant PROPELLER_GAS_TIP = 1 gwei;
 
+  uint private constant BNB_MAINNET_CHAINID = 56;
+  uint private constant BNB_TESTNET_CHAINID = 97;
+  uint private constant BNB_GAS_PRICE = 5 gwei;
+
   uint private constant BIT224 = 1 << 224;
   uint private constant BIT128 = 1 << 128;
   uint private constant BIT96  = 1 << 96;
@@ -458,6 +462,9 @@ contract Routing is
     address tokenAddress,
     address poolAddress
   ) external onlyOwner {
+    if (tokenNumber == 0 || tokenAddress == address(0) || poolAddress == address(0))
+      revert InvalidZeroValue();
+
     uint8 tokenIndexInPool = 0;
     PoolState memory state = IPool(poolAddress).getState();
     //skip first token because it's always swimUSD
@@ -475,6 +482,13 @@ contract Routing is
     token.tokenAddress = tokenAddress;
     token.poolAddress = poolAddress;
     token.tokenIndexInPool = tokenIndexInPool;
+
+    address oldTokenAddress = tokenNumberMapping[tokenNumber].tokenAddress;
+    uint16 oldTokenNumber = tokenAddressMapping[tokenAddress].tokenNumber;
+    if (oldTokenAddress != address(0) && oldTokenAddress != tokenAddress)
+      delete tokenAddressMapping[oldTokenAddress];
+    if (oldTokenNumber != 0 && oldTokenNumber != tokenNumber)
+      delete tokenNumberMapping[oldTokenNumber];
 
     tokenNumberMapping[tokenNumber] = token;
     tokenAddressMapping[tokenAddress] = token;
@@ -696,7 +710,10 @@ contract Routing is
     uint consumedGas = startGas;
 
     unchecked {
-      uint remuneratedGasPrice = block.basefee + PROPELLER_GAS_TIP;
+      uint remuneratedGasPrice =
+        block.chainid == BNB_MAINNET_CHAINID || block.chainid == BNB_TESTNET_CHAINID
+        ? BNB_GAS_PRICE
+        : block.basefee + PROPELLER_GAS_TIP;
 
       consumedGas += GAS_COST_BASE;
       if (swimPayload.toTokenNumber != SWIM_USD_TOKEN_NUMBER)

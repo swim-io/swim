@@ -282,7 +282,8 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
       recipient,
       propellerParams.gasKickstart,
       propellerParams.maxPropellerFee,
-      propellerParams.toToken.tokenNumber,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      propellerParams.toToken.tokenNumber!,
       propellerParams.memo
     );
 

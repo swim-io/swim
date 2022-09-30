@@ -36,7 +36,7 @@ const createOperationSpec = (
     poolIds,
   } = interaction;
   const poolId = poolIds[0];
-  if (fromTokenData.tokenConfig === swimUsd) {
+  if (fromTokenData.tokenConfig.id === swimUsd.id) {
     return {
       interactionId: interaction.id,
       poolId,
@@ -53,7 +53,7 @@ const createOperationSpec = (
       },
     };
   }
-  if (toTokenData.tokenConfig === swimUsd) {
+  if (toTokenData.tokenConfig.id === swimUsd.id) {
     return {
       interactionId: interaction.id,
       poolId,
@@ -119,14 +119,14 @@ export const useSingleChainSolanaSwapInteractionMutation = () => {
       const splTokenAccounts = await Promise.all(
         Object.keys(requiredSplTokenAccounts).map(async (mint) => {
           const { tokenAccount, creationTxId } =
-            await findOrCreateSplTokenAccount(
+            await findOrCreateSplTokenAccount({
               env,
               solanaClient,
               wallet,
               queryClient,
-              mint,
-              existingSplTokenAccounts,
-            );
+              splTokenMintAddress: mint,
+              splTokenAccounts: existingSplTokenAccounts,
+            });
           // Update interactionState
           if (creationTxId !== null) {
             updateInteractionState(interaction.id, (draft) => {
@@ -161,14 +161,14 @@ export const useSingleChainSolanaSwapInteractionMutation = () => {
         tokensByPoolId,
         swimUsd,
       );
-      const txId = await doSingleSolanaPoolOperationV2(
+      const txId = await doSingleSolanaPoolOperationV2({
         solanaClient,
-        solanaWallet,
+        wallet: solanaWallet,
         splTokenAccounts,
-        tokensByPoolId,
+        poolTokens: tokensByPoolId[poolSpec.id],
         poolSpec,
         operation,
-      );
+      });
       updateInteractionState(interaction.id, (draft) => {
         if (
           draft.interactionType !== InteractionType.SwapV2 ||

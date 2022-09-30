@@ -8,14 +8,21 @@ import { findTokenAccountForMint } from "@swim-io/solana";
 import { sleep } from "@swim-io/utils";
 import type { QueryClient } from "react-query";
 
-export const findOrCreateSplTokenAccount = async (
-  env: Env,
-  solanaClient: SolanaClient,
-  wallet: SolanaWalletAdapter,
-  queryClient: QueryClient,
-  splTokenMintAddress: string,
-  splTokenAccounts: readonly TokenAccount[],
-): Promise<{
+export const findOrCreateSplTokenAccount = async ({
+  env,
+  solanaClient,
+  wallet,
+  queryClient,
+  splTokenMintAddress,
+  splTokenAccounts,
+}: {
+  readonly env: Env;
+  readonly solanaClient: SolanaClient;
+  readonly wallet: SolanaWalletAdapter;
+  readonly queryClient: QueryClient;
+  readonly splTokenMintAddress: string;
+  readonly splTokenAccounts: readonly TokenAccount[];
+}): Promise<{
   readonly tokenAccount: TokenAccount;
   readonly creationTxId: string | null;
 }> => {
@@ -40,7 +47,7 @@ export const findOrCreateSplTokenAccount = async (
   );
   await solanaClient.confirmTx(createSplTokenAccountTxId);
   await sleep(1000); // TODO: Find a better condition
-  await queryClient.invalidateQueries(["tokenAccounts", env, solanaAddress]);
+  await queryClient.invalidateQueries([env, "tokenAccounts", solanaAddress]);
   const tokenAccount = await solanaClient.getTokenAccountWithRetry(
     splTokenMintAddress,
     solanaAddress,

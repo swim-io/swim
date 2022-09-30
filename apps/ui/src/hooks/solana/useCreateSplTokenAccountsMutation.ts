@@ -1,17 +1,5 @@
-<<<<<<< HEAD
-import type { Env } from "@swim-io/core";
-import type {
-  SolanaClient,
-  SolanaWalletAdapter,
-  TokenAccount,
-} from "@swim-io/solana";
-import { findTokenAccountForMint } from "@swim-io/solana";
-import { sleep } from "@swim-io/utils";
-import type { QueryClient, UseMutationResult } from "react-query";
-=======
 import type { TokenAccount } from "@swim-io/solana";
 import type { UseMutationResult } from "react-query";
->>>>>>> 1c2f52a6 (chore(ui): Single chain solana swap)
 import { useMutation, useQueryClient } from "react-query";
 
 import { useEnvironment } from "../../core/store";
@@ -21,38 +9,6 @@ import { useSolanaClient } from "./useSolanaClient";
 import { useSolanaWallet } from "./useSolanaWallet";
 import { useSplTokenAccountsQuery } from "./useSplTokenAccountsQuery";
 
-<<<<<<< HEAD
-const findOrCreateSplTokenAccount = async (
-  env: Env,
-  solanaClient: SolanaClient,
-  wallet: SolanaWalletAdapter,
-  queryClient: QueryClient,
-  splTokenMintAddress: string,
-  splTokenAccounts: readonly TokenAccount[],
-): Promise<TokenAccount> => {
-  if (!wallet.publicKey) {
-    throw new Error("Solana wallet not connected");
-  }
-  const existingAccount = findTokenAccountForMint(
-    splTokenMintAddress,
-    wallet.publicKey.toBase58(),
-    splTokenAccounts,
-  );
-  if (existingAccount) {
-    return existingAccount;
-  }
-  const solanaAddress = wallet.publicKey.toBase58();
-  await solanaClient.createSplTokenAccount(wallet, splTokenMintAddress);
-  await sleep(1000); // TODO: Find a better condition
-  await queryClient.invalidateQueries([env, "tokenAccounts", solanaAddress]);
-  return solanaClient.getTokenAccountWithRetry(
-    splTokenMintAddress,
-    solanaAddress,
-  );
-};
-
-=======
->>>>>>> 1c2f52a6 (chore(ui): Single chain solana swap)
 export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
   readonly TokenAccount[],
   Error,
@@ -76,14 +32,14 @@ export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
       }
       const tokenAccountData = await Promise.all(
         mints.map(async (mint) =>
-          findOrCreateSplTokenAccount(
+          findOrCreateSplTokenAccount({
             env,
             solanaClient,
             wallet,
             queryClient,
-            mint,
+            splTokenMintAddress: mint,
             splTokenAccounts,
-          ),
+          }),
         ),
       );
       await queryClient.invalidateQueries([env, "tokenAccounts", address]);

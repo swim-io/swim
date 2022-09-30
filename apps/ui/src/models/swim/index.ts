@@ -15,4 +15,3 @@ export * from "./getNextTxInfo";
 export * from "./transfer";
 export * from "./doSingleSolanaPoolOperation";
 export * from "./doSingleSolanaPoolOperationV2";
-export * from "./findOrCreateSplTokenAccount";

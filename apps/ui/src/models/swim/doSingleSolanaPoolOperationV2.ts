@@ -1,5 +1,6 @@
 import type { BN, Program, SplToken, Wallet } from "@project-serum/anchor";
 import { Spl, web3 } from "@project-serum/anchor";
+import type { TransactionInstruction } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import type {
   SolanaClient,
@@ -23,8 +24,13 @@ const getApproveAndRevokeIxs = async (
   amounts: ReadonlyArray<BN>,
   delegate: web3.PublicKey,
   authority: web3.PublicKey,
-) => {
-  const approveIxs = await Promise.all(
+): Promise<
+  readonly [
+    readonly TransactionInstruction[],
+    readonly TransactionInstruction[],
+  ]
+> => {
+  const approveIxs = Promise.all(
     tokenAccounts.map((tokenAccount, i) => {
       return splToken.methods
         .approve(amounts[i])
@@ -36,7 +42,7 @@ const getApproveAndRevokeIxs = async (
         .instruction();
     }),
   );
-  const revokeIxs = await Promise.all(
+  const revokeIxs = Promise.all(
     tokenAccounts.map((tokenAccount) => {
       return splToken.methods
         .revoke()
@@ -47,17 +53,24 @@ const getApproveAndRevokeIxs = async (
         .instruction();
     }),
   );
-  return [approveIxs, revokeIxs];
+  return Promise.all([approveIxs, revokeIxs]);
 };
 
-export const doSingleSolanaPoolOperationV2 = async (
-  solanaClient: SolanaClient,
-  wallet: SolanaWalletAdapter,
-  splTokenAccounts: readonly TokenAccount[],
-  tokensByPoolId: TokensByPoolId,
-  poolSpec: SolanaPoolSpec,
-  operation: OperationSpec,
-): Promise<string> => {
+export const doSingleSolanaPoolOperationV2 = async ({
+  solanaClient,
+  wallet,
+  splTokenAccounts,
+  poolTokens,
+  poolSpec,
+  operation,
+}: {
+  readonly solanaClient: SolanaClient;
+  readonly wallet: SolanaWalletAdapter;
+  readonly splTokenAccounts: readonly TokenAccount[];
+  readonly poolTokens: TokensByPoolId[string];
+  readonly poolSpec: SolanaPoolSpec;
+  readonly operation: OperationSpec;
+}): Promise<string> => {
   if (poolSpec.isLegacyPool) {
     throw new Error("Invalid pool version");
   }
@@ -70,7 +83,6 @@ export const doSingleSolanaPoolOperationV2 = async (
   if (poolState === null) {
     throw new Error("Missing pool state");
   }
-  const poolTokens = tokensByPoolId[poolSpec.id];
   const lpTokenMintAddress = getSolanaTokenDetails(poolTokens.lpToken).address;
   const userLpAccount = findTokenAccountForMint(
     lpTokenMintAddress,
@@ -96,7 +108,7 @@ export const doSingleSolanaPoolOperationV2 = async (
   if (userTokenAccount0 === null || userTokenAccount1 === null) {
     throw new Error("Invalid user token account");
   }
-  const accountsObject = {
+  const commonAccounts = {
     poolTokenAccount0: poolState.tokenKeys[0],
     poolTokenAccount1: poolState.tokenKeys[1],
     lpMint: poolState.lpMintKey,
@@ -127,7 +139,7 @@ export const doSingleSolanaPoolOperationV2 = async (
       const txToSign = await twoPool.program.methods
         .add(inputAmounts, minimumMintAmount)
         .accounts({
-          ...accountsObject,
+          ...commonAccounts,
           userLpTokenAccount: userLpAccount.address,
         })
         .preInstructions([...approveIxs])
@@ -156,7 +168,7 @@ export const doSingleSolanaPoolOperationV2 = async (
       );
       const txToSign = await twoPool.program.methods
         .swapExactInput(inputAmounts, outputTokenIndex, minimumOutputAmount)
-        .accounts(accountsObject)
+        .accounts(commonAccounts)
         .preInstructions([...approveIxs])
         .postInstructions([...revokeIxs])
         .transaction();
@@ -186,7 +198,7 @@ export const doSingleSolanaPoolOperationV2 = async (
       const txToSign = await twoPool.program.methods
         .removeExactBurn(exactBurnAmount, outputTokenIndex, minimumOutputAmount)
         .accounts({
-          ...accountsObject,
+          ...commonAccounts,
           userLpTokenAccount: userLpAccount.address,
         })
         .preInstructions([...approveIxs])
@@ -218,7 +230,7 @@ export const doSingleSolanaPoolOperationV2 = async (
       const txToSign = await twoPool.program.methods
         .removeExactOutput(maximumBurnAmount, exactOutputAmounts)
         .accounts({
-          ...accountsObject,
+          ...commonAccounts,
           userLpTokenAccount: userLpAccount.address,
         })
         .preInstructions([...approveIxs])
@@ -250,7 +262,7 @@ export const doSingleSolanaPoolOperationV2 = async (
       const txToSign = await twoPool.program.methods
         .removeUniform(exactBurnAmount, minimumOutputAmounts)
         .accounts({
-          ...accountsObject,
+          ...commonAccounts,
           userLpTokenAccount: userLpAccount.address,
         })
         .preInstructions([...approveIxs])

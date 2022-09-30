@@ -31,6 +31,7 @@
     "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
+    "@certusone/wormhole-sdk": "^0.6.2",
     "@swim-io/token-projects": "workspace:^",
     "@swim-io/utils": "workspace:^"
   },

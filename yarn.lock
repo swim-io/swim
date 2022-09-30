@@ -10984,7 +10984,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"big.js@npm:^6.1.1, big.js@npm:^6.2.0, big.js@npm:^6.2.1":
+"big.js@npm:^6.2.0, big.js@npm:^6.2.1":
   version: 6.2.1
   resolution: "big.js@npm:6.2.1"
   checksum: 0b234a2fd56c52bed2798ed2020bcab6fef5e9523b99a05406ad071d1aed6ee97ada9fb8de9576092da74c68825c276e19015743b8d1baea269b60a5c666b0cd

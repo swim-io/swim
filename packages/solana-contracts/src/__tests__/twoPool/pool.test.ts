@@ -1460,7 +1460,20 @@ describe("TwoPool", () => {
       .preInstructions([...createUserAtaIxs, ...approveIxs])
       .postInstructions([...revokeIxs])
       .signers([payer, userTransferAuthority, newUser])
-      .rpc();
+      .transaction();
+
+    const txSig = await provider.sendAndConfirm(tx, [
+      payer,
+      userTransferAuthority,
+      newUser,
+    ]);
+    const initAtaBurnRevokeTxnSize = tx.serialize().length;
+    console.info(`
+      initAtaBurnRevokeTxnSize: ${initAtaBurnRevokeTxnSize}
+      txSig: ${txSig}
+    `);
+
+    // .rpc();
     const newUserLpTokenAtaBalanceAfter = (
       await splToken.account.token.fetch(newUserLpTokenAta)
     ).amount;

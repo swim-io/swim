@@ -2,6 +2,7 @@
 import type { TransactionResponse } from "@ethersproject/abstract-provider";
 import { getContractAddress } from "@ethersproject/address";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import type { BigNumber } from "ethers";
 import { Contract } from "ethers";
 import { ethers } from "hardhat";
@@ -12,10 +13,16 @@ import type { SwimFactory } from "../typechain-types/contracts/SwimFactory.sol/S
 import type { ERC20Token } from "../typechain-types/contracts/test/ERC20Token";
 
 import type { DeployedToken, PoolConfig, RoutingConfig, TestToken } from "./config";
-import { DEFAULTS, POOL_PRECISION, SALTS, SWIM_FACTORY_ADDRESS, TOKEN_NUMBERS } from "./config";
+import { DEFAULTS, POOL_PRECISION, SALTS, SWIM_FACTORY_ADDRESS } from "./config";
 
 const ERC1967_IMPLEMENTATION_SLOT =
   "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc";
+
+//the following should be part of ../typechain-types/contracts/Routing but isn't for whatever reason
+enum RoutingGasTokenPriceMethod {
+  FixedPrice = 0,
+  UniswapOracle = 1,
+}
 
 export const confirm = async (tx: Promise<TransactionResponse>) => (await tx).wait();
 
@@ -48,8 +55,14 @@ export const getRegularAddress = async (name: string, constructorArgs: readonly 
   return swimFactory.determineAddress(bytecodeWithConstructorArgs, DEFAULTS.salt);
 };
 
+const testTokenToConstructorArgs = (token: TestToken) => [
+  TOKEN_PROJECTS_BY_ID[token.id].displayName,
+  TOKEN_PROJECTS_BY_ID[token.id].symbol,
+  token.decimals,
+];
+
 export const getTokenAddress = (token: TestToken) =>
-  getRegularAddress("ERC20Token", [token.name, token.symbol, token.decimals]);
+  getRegularAddress("ERC20Token", testTokenToConstructorArgs(token));
 
 const getDeployedContract = async (name: string, address: string) => {
   if (!(await isDeployed(address)))
@@ -88,18 +101,38 @@ export interface PoolConfigDeployedTokens extends PoolConfig {
 export async function setupPropellerFees(routingConfig: RoutingConfig) {
   const routingProxy = await getRoutingProxy();
   const serviceFee = routingConfig.serviceFee ?? DEFAULTS.serviceFee;
+  const currentFeeConfig = await routingProxy.propellerFeeConfig();
+  if (!currentFeeConfig.serviceFee.eq(serviceFee))
+    await confirm(routingProxy.adjustPropellerServiceFee(serviceFee));
+
   const gasPriceMethod = routingConfig.gasPriceMethod ?? DEFAULTS.gasPriceMethod;
-  if (serviceFee !== 0) await confirm(routingProxy.adjustPropellerServiceFee(serviceFee));
-  if ("uniswapPoolAddress" in gasPriceMethod)
-    await confirm(
-      routingProxy.usePropellerUniswapOracle(
-        gasPriceMethod.intermediateToken,
-        gasPriceMethod.uniswapPoolAddress
-      )
-    );
-  else {
+
+  if ("uniswapPoolAddress" in gasPriceMethod) {
+    const tokenNumber = TOKEN_PROJECTS_BY_ID[gasPriceMethod.intermediateTokenId].tokenNumber;
+    if (tokenNumber === null)
+      throw Error(
+        `Token ${gasPriceMethod.intermediateTokenId} has not been assigned a tokenNumber yet`
+      );
+    const uniswapConfig = currentFeeConfig.uniswap;
+    const tokenInfo = await routingProxy.tokenNumberMapping(tokenNumber);
+    if (
+      currentFeeConfig.method !== RoutingGasTokenPriceMethod.UniswapOracle ||
+      uniswapConfig.swimPool !== tokenInfo.poolAddress ||
+      uniswapConfig.swimIntermediateIndex !== tokenInfo.tokenIndexInPool ||
+      uniswapConfig.uniswapPool !== gasPriceMethod.uniswapPoolAddress
+    )
+      await confirm(
+        routingProxy.usePropellerUniswapOracle(
+          tokenInfo.tokenAddress,
+          gasPriceMethod.uniswapPoolAddress
+        )
+      );
+  } else {
     const fixedSwimUsdPerGasToken = gasPriceMethod.fixedSwimUsdPerGasToken;
-    if (fixedSwimUsdPerGasToken !== 0)
+    if (
+      currentFeeConfig.method !== RoutingGasTokenPriceMethod.FixedPrice ||
+      !currentFeeConfig.fixedSwimUsdPerGasToken.eq(gasPriceMethod.fixedSwimUsdPerGasToken)
+    )
       await confirm(routingProxy.usePropellerFixedGasTokenPrice(fixedSwimUsdPerGasToken));
   }
 }
@@ -138,7 +171,9 @@ export async function deployPoolAndRegister(
   const routingProxy = await getRoutingProxy();
   for (let i = 0; i < pool.tokens.length; ++i) {
     const poolToken = pool.tokens[i];
-    const tokenNumber = TOKEN_NUMBERS[poolToken.symbol];
+    const tokenNumber = TOKEN_PROJECTS_BY_ID[poolToken.id].tokenNumber;
+    if (tokenNumber === null)
+      throw Error(`Token ${poolToken.id} has not been assigned a tokenNumber yet`);
     const filter = routingProxy.filters.TokenRegistered(tokenNumber);
     const tokenReregisteredEvents = await routingProxy.queryFilter(filter);
     const currentlyRegisteredPool =
@@ -247,7 +282,7 @@ export async function deployRegular(
 }
 
 export const deployToken = async (token: TestToken): Promise<ERC20Token> =>
-  deployRegular("ERC20Token", [token.name, token.symbol, token.decimals]) as Promise<ERC20Token>;
+  deployRegular("ERC20Token", testTokenToConstructorArgs(token)) as Promise<ERC20Token>;
 
 export async function deploySwimFactory(
   owner: SignerWithAddress,

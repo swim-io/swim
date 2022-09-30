@@ -159,6 +159,22 @@ const config: HardhatUserConfig = {
       chainId: 97,
       ...sharedNetworkConfig,
     },
+    avalanchetestnet: {
+      url: "https://morning-proud-borough.avalanche-testnet.quiknode.pro/5d786c70bfeb06e9d120aedc93bbe02f7d2fbcd6/ext/bc/C/rpc",
+      chainId: 43113,
+      ...sharedNetworkConfig,
+    },
+    polygontestnet: {
+      //mumbai
+      url: "https://apis.ankr.com/93e2796ab57a416c955d169d2468ddaa/40368bdfe11e91019e93b8797c65a1f3/polygon/full/test",
+      chainId: 80001,
+      ...sharedNetworkConfig,
+    },
+    fantomtestnet: {
+      url: "https://rpc.testnet.fantom.network/",
+      chainId: 4002,
+      ...sharedNetworkConfig,
+    },
   },
   gasReporter: {
     enabled: true,

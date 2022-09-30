@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/explicit-member-accessibility */
 
-import { BigNumber, formatFixed, parseFixed } from "@ethersproject/bignumber";
+import { formatFixed, parseFixed } from "@ethersproject/bignumber";
 import { hexlify } from "@ethersproject/bytes";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import PoolMath from "@swim-io/pool-math";
+import { TOKEN_PROJECTS_BY_ID, TokenProjectId } from "@swim-io/token-projects";
+import Decimal from "decimal.js";
 import type { BigNumberish, BytesLike, Contract } from "ethers";
 import { ethers } from "hardhat";
 
@@ -11,7 +14,6 @@ import type { Pool } from "../typechain-types/contracts/Pool";
 import type { Routing } from "../typechain-types/contracts/Routing";
 import type { ERC20Token } from "../typechain-types/contracts/test/ERC20Token";
 
-import { TOKEN_NUMBERS } from "./config";
 import { confirm, getProxy } from "./deploy";
 
 export type HasAddress = { readonly address: string };
@@ -20,14 +22,19 @@ const call = (contract: Contract, from: SignerWithAddress, method: string, args:
   confirm(contract.connect(from)[method](...args));
 
 export class TokenWrapper {
-  constructor(readonly contract: ERC20Token, readonly decimals: number, readonly symbol: string) {}
+  readonly tokenNumber: number | null;
+
+  constructor(readonly contract: ERC20Token, readonly decimals: number, readonly symbol: string) {
+    this.tokenNumber =
+      symbol === "swimUSD" //TODO workaround for token-projects not knowing new swimUSD yet
+        ? 0
+        : Object.values(TokenProjectId)
+            .map((id) => TOKEN_PROJECTS_BY_ID[id])
+            .filter((project) => project.symbol === symbol)[0]?.tokenNumber;
+  }
 
   get address() {
     return this.contract.address;
-  }
-
-  get tokenNumber() {
-    return TOKEN_NUMBERS[this.symbol as keyof typeof TOKEN_NUMBERS];
   }
 
   static create = async (contract: ERC20Token) =>
@@ -39,6 +46,9 @@ export class TokenWrapper {
   toHuman = (atomic: BigNumberish) => formatFixed(atomic, this.decimals);
 
   balanceOf = (account: HasAddress) => this.contract.balanceOf(account.address);
+
+  allowance = (owner: HasAddress, spender: HasAddress) =>
+    this.contract.allowance(owner.address, spender.address);
 
   totalSupply = () => this.contract.totalSupply();
 
@@ -75,6 +85,17 @@ export class PoolWrapper {
 
   toAtomicAmounts = (human: BigNumberish | readonly BigNumberish[]) =>
     this.tokens.map((t, i) => t.toAtomic(Array.isArray(human) ? human[i] : human));
+
+  async poolmath() {
+    const state = await this.contract.getState();
+    return new PoolMath(
+      state.balances.map((b, i) => new Decimal(formatFixed(b.balance, this.tokens[i].decimals))),
+      new Decimal(formatFixed(state.ampFactor.value, state.ampFactor.decimals)),
+      new Decimal(formatFixed(state.lpFee.value, state.lpFee.decimals)),
+      new Decimal(formatFixed(state.governanceFee.value, state.governanceFee.decimals)),
+      new Decimal(formatFixed(state.totalLpSupply.balance, this.lpToken.decimals))
+    );
+  }
 
   async getMarginalPrices() {
     return (await this.contract.getMarginalPrices()).map((decimalStruct) =>
@@ -173,14 +194,13 @@ export class PoolWrapper {
     ]);
   }
 
-  private readonly approveAll = (from: SignerWithAddress, amounts: readonly BigNumberish[]) =>
-    Promise.all(
-      this.tokens.map((token, i) =>
-        BigNumber.from(amounts[i]).isZero()
-          ? Promise.resolve()
-          : token.approve(from, this.contract, amounts[i])
-      )
-    );
+  private async approveAll(from: SignerWithAddress, amounts: readonly BigNumberish[]) {
+    for (let i = 0; i < this.tokens.length; ++i) {
+      const token = this.tokens[i];
+      if (!(await token.allowance(from, this)).eq(amounts[i]))
+        await token.approve(from, this.contract, amounts[i]);
+    }
+  }
 }
 
 export class RoutingWrapper {

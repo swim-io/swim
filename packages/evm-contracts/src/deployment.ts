@@ -3,9 +3,10 @@ import { readFile } from "fs/promises";
 import type { Contract } from "ethers";
 import { ethers } from "hardhat";
 
+import { TokenProjectId } from "@swim-io/token-projects";
+
 import type { ChainConfig } from "./config";
 import {
-  DEFAULTS,
   ROUTING_CONTRACT_SOLANA_ADDRESS,
   SWIM_FACTORY_ADDRESS,
   SWIM_USD_DECIMALS,
@@ -52,7 +53,7 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
   // eslint-disable-next-line no-console
   const log = options.print ? console.log : () => {};
   const logAddress = (name: string, contract: Contract) =>
-    log(name.padStart(18) + ":", contract.address);
+    log(name.padStart(24) + ":", contract.address);
   log("executing deployment script for", chainConfig.name);
 
   const [deployer, governanceFeeRecipient] = await ethers.getSigners();
@@ -78,7 +79,7 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
 
   const routingConfig = chainConfig.routing;
   if (routingConfig === "MOCK") {
-    const swimUsd = await deployToken(DEFAULTS.swimUsd);
+    const swimUsd = await deployToken({ id: TokenProjectId.SwimUsd, decimals: SWIM_USD_DECIMALS });
     logAddress("SwimUSD", swimUsd);
     logAddress("RoutingLogic", await deployLogic("MockRoutingForPoolTests"));
     logAddress("RoutingProxy", await deployProxy("MockRoutingForPoolTests", [swimUsd.address]));
@@ -105,10 +106,10 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
         "address" in token
           ? token
           : {
-              symbol: token.symbol,
+              id: token.id,
               address: await (async () => {
                 const tokenContract = await deployToken(token);
-                logAddress(token.symbol, tokenContract);
+                logAddress(token.id, tokenContract);
                 return tokenContract.address;
               })(),
             }
@@ -119,7 +120,7 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
       deployer,
       governanceFeeRecipient
     );
-    logAddress("Pool" + JSON.stringify(poolTokens.map((t) => t.symbol)), pool);
+    logAddress("Pool" + JSON.stringify(poolTokens.map((t) => t.id)), pool);
   }
 
   if (routingConfig !== "MOCK") await setupPropellerFees(routingConfig);

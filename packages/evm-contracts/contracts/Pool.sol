@@ -69,10 +69,10 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   uint32 private _ampTargetTimestamp;
 
   //slot1
-  address public _governance;
+  address private _governance;
 
   //slot2
-  address public _governanceFeeRecipient;
+  address private _governanceFeeRecipient;
 
   //slot3
   TokenWithEqualizer private /*immutable*/ _lpTokenData;

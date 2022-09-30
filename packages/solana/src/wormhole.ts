@@ -38,7 +38,7 @@ export const parseSequenceFromLogSolana = (
  */
 export interface CreateTransferFromSolanaTxParams {
   readonly interactionId: string;
-  readonly solanaConnection: Connection;
+  readonly connection: Connection;
   readonly bridgeAddress: string;
   readonly portalAddress: string;
   readonly payerAddress: string;
@@ -47,14 +47,14 @@ export interface CreateTransferFromSolanaTxParams {
   readonly mintAddress: string;
   readonly amount: bigint;
   readonly targetAddress: Uint8Array;
-  readonly targetChain: ChainId;
+  readonly targetChainId: ChainId;
   readonly originAddress?: Uint8Array;
   readonly originChain?: ChainId;
   readonly fromOwnerAddress?: string;
 }
 export const createTransferFromSolanaTx = async ({
   interactionId,
-  solanaConnection,
+  connection,
   bridgeAddress,
   portalAddress,
   payerAddress,
@@ -63,7 +63,7 @@ export const createTransferFromSolanaTx = async ({
   mintAddress,
   amount,
   targetAddress,
-  targetChain,
+  targetChainId,
   originAddress,
   originChain,
   fromOwnerAddress,
@@ -71,7 +71,7 @@ export const createTransferFromSolanaTx = async ({
   const nonce = createNonce().readUInt32LE(0);
   const fee = BigInt(0); // for now, this won't do anything, we may add later
   const bridgeFeeIx = await getBridgeFeeIx(
-    solanaConnection,
+    connection,
     bridgeAddress,
     payerAddress,
   );
@@ -105,7 +105,7 @@ export const createTransferFromSolanaTx = async ({
           amount,
           fee,
           targetAddress,
-          targetChain,
+          targetChainId,
         )
       : transfer_wrapped_ix(
           portalAddress,
@@ -120,7 +120,7 @@ export const createTransferFromSolanaTx = async ({
           amount,
           fee,
           targetAddress,
-          targetChain,
+          targetChainId,
         ),
   );
   const memoIx = createMemoIx(interactionId, []);
@@ -138,22 +138,22 @@ export interface CreateRedeemOnSolanaTxParams {
   readonly bridgeAddress: string;
   readonly portalAddress: string;
   readonly payerAddress: string;
-  readonly signedVaa: Uint8Array;
+  readonly vaa: Uint8Array;
 }
 export const createRedeemOnSolanaTx = async ({
   interactionId,
   bridgeAddress,
   portalAddress,
   payerAddress,
-  signedVaa,
+  vaa,
 }: CreateRedeemOnSolanaTxParams): Promise<Transaction> => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { parse_vaa } = await importCoreWasm();
-  const parsedVAA = parse_vaa(signedVaa) as {
+  const parsedVaa = parse_vaa(vaa) as {
     readonly payload: Iterable<number>;
   };
   const isSolanaNative =
-    Buffer.from(new Uint8Array(parsedVAA.payload)).readUInt16BE(65) ===
+    Buffer.from(new Uint8Array(parsedVaa.payload)).readUInt16BE(65) ===
     CHAIN_ID_SOLANA;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { complete_transfer_wrapped_ix, complete_transfer_native_ix } =
@@ -164,7 +164,7 @@ export const createRedeemOnSolanaTx = async ({
           portalAddress,
           bridgeAddress,
           payerAddress,
-          signedVaa,
+          vaa,
         ),
       )
     : ixFromRust(
@@ -172,7 +172,7 @@ export const createRedeemOnSolanaTx = async ({
           portalAddress,
           bridgeAddress,
           payerAddress,
-          signedVaa,
+          vaa,
         ),
       );
   const memoIx = createMemoIx(interactionId, []);

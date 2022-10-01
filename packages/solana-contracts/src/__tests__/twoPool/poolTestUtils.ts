@@ -1,5 +1,5 @@
-import type { Program, SplToken } from "@project-serum/anchor";
-import { BN, Spl, web3 } from "@project-serum/anchor";
+import type { BN, Program, SplToken } from "@project-serum/anchor";
+import { Spl, web3 } from "@project-serum/anchor";
 import { SplAssociatedToken } from "@project-serum/anchor/dist/cjs/spl/associated-token";
 import {
   // getAccount,

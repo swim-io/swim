@@ -62,8 +62,8 @@ check your npm version. npm lts/gallium (v16.15.1 as of this writing) works but 
 5. Might have to think about seeds used to initialize pool PDA.
     1. not sure if susceptible to [pda sharing exploit](https://github.com/coral-xyz/anchor/pull/2041/files#diff-f48ff5c23fd7492bb7255324f1160735f7b0771fde6e1782a198c81d44363c34)
         1. don't think so since as part of the process to initialize the pool pda, you need to initialize the lp_mint
-           so we should be safe from anyone being able to initialize another pda ("share" it)
-    2. to be safe, could alternatively create pool token accounts prior to the initialize ix,
+           so, we should be safe from anyone being able to initialize another pda ("share" it)
+    2. to be safe, could alternatively create pool token accounts prior to the InitializeInstruction,
        then use those as seeds for the pool state pda. that would be closer to secure solution from exploit docs
 6. maybe add a version field to `TwoPool` state (and seeds to derive pda)
     1. look into if versioning still worth it since accounts can now be re-allocated.

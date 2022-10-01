@@ -21,6 +21,7 @@ import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 
 import type { Propeller } from "../../artifacts/propeller";
 
+import { swimPayloadVersion } from "./consts";
 import {
   encodeSwimPayload,
   formatParsedTokenTransferWithSwimPayloadPostedMessage,
@@ -39,8 +40,6 @@ import {
   WORMHOLE_TOKEN_BRIDGE,
   signAndEncodeVaa,
 } from "./wormholeUtils";
-
-const swimPayloadVersion = 0;
 
 // const swimUsdOutputTokenIndex = 0;
 const usdcOutputTokenIndex = 1;
@@ -113,31 +112,27 @@ const swimUsdKeypair = web3.Keypair.generate();
 const propellerProgram = workspace.Propeller as Program<Propeller>;
 
 describe("utils tests", () => {
-  it.skip("should parse token transfer with payload", async () => {
+  it("should parse token transfer with payload", async () => {
     const memo = "e45794d6c5a2750b";
     const memoBuffer = Buffer.alloc(16);
     // Uint8Array.from()
     memoBuffer.write(memo);
     // const owner = tryNativeToUint8Array(provider.publicKey.toBase58(), CHAIN_ID_SOLANA);
     // encoded.write(swimPayload.owner.toString("hex"), offset, "hex");
-    const propellerEnabled = false;
+    const propellerEnabled = true;
+    const gasKickstart = false;
+    const maxFee = new BN(1_000_000_000);
     const swimPayload = {
       version: swimPayloadVersion,
-      // owner: tryNativeToUint8Array(provider.publicKey.toBase58(), CHAIN_ID_SOLANA),
-      // owner: Buffer.from(tryNativeToHexString(provider.publicKey.toBase58(), CHAIN_ID_SOLANA), 'hex'),
       owner: provider.publicKey.toBuffer(),
-      //for targetTokenId, how do i know which pool to go to for the token?
-      // e.g. 0 probably reserved for swimUSD
-      // 1 usdc
-      // 2 usdt
-      // 3 some other solana stablecoin
-      targetTokenId: usdcOutputTokenIndex,
-      // minOutputAmount: 0n,
-      memo: memoBuffer,
+      // owner: owner.toBuffer(),
       propellerEnabled,
-      minThreshold: BigInt(0),
-      gasKickstart: false,
+      gasKickstart,
+      maxFee,
+      targetTokenId: usdcOutputTokenIndex,
+      memo: memoBuffer,
     };
+
     const amount = parseUnits("1", mintDecimal);
     console.info(`amount: ${amount.toString()}`);
     /**
@@ -411,23 +406,6 @@ describe("utils tests", () => {
       ),
     ).toEqual(swimUsdKeypair.publicKey);
     expect(swimPayloadFromMessage.owner).toEqual(provider.publicKey.toBuffer());
-  });
-  it("should get ethEndpointPda", async () => {
-    const [ethEndpointAddr] = await deriveEndpointPda(
-      CHAIN_ID_ETH,
-      ethTokenBridge,
-      // parsedVaa.emitterChain,
-      // parsedVaa.emitterAddress,
-      WORMHOLE_TOKEN_BRIDGE,
-    );
-    console.info(`ethEndpointAddr: ${ethEndpointAddr.toBase58()}`);
-
-    const [bscEndpointAddr] = await deriveEndpointPda(
-      CHAIN_ID_BSC,
-      ethTokenBridge,
-      WORMHOLE_TOKEN_BRIDGE,
-    );
-    console.info(`bscEndpointAddr: ${bscEndpointAddr.toBase58()}`);
   });
   describe("encode & parse variable lengths of SwimPayload", () => {
     let memoId = 0;

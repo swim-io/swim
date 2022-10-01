@@ -2,6 +2,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import type { Program } from "@project-serum/anchor";
 import {
   AnchorProvider,
   BN,
@@ -9,7 +10,6 @@ import {
   setProvider,
   web3,
   workspace,
-  Program,
 } from "@project-serum/anchor";
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import type { Keypair } from "@solana/web3.js";
@@ -23,7 +23,7 @@ import {
   setupPoolPrereqs,
   setupUserAssociatedTokenAccts,
 } from "../src/__tests__/twoPool/poolTestUtils";
-import { TwoPool } from "../src/artifacts/two_pool";
+import type { TwoPool } from "../src/artifacts/two_pool";
 
 const envProvider = AnchorProvider.env();
 const commitment = "confirmed" as web3.Commitment;

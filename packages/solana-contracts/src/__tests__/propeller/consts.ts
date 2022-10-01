@@ -1,4 +1,9 @@
-import { CHAIN_ID_BSC, CHAIN_ID_ETH, tryNativeToHexString, tryNativeToUint8Array } from "@certusone/wormhole-sdk";
+import {
+  CHAIN_ID_BSC,
+  CHAIN_ID_ETH,
+  tryNativeToHexString,
+  tryNativeToUint8Array,
+} from "@certusone/wormhole-sdk";
 import { BN, web3 } from "@project-serum/anchor";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
@@ -18,7 +23,7 @@ const ethTokenBridgeEthHexStr = tryNativeToHexString(
 //ethTokenBridge.toString() = gibberish
 // ethTokenBridge.toString("hex") = 0000000000000000000000000290fb167208af455bb137780163b7b7a9a10c16
 export const ethTokenBridge = Buffer.from(ethTokenBridgeEthHexStr, "hex");
-const bscTokenBridgeStr = ethTokenBridgeStr;
+const bscTokenBridgeStr = "0x0290FB167208Af455bB137780163b7B7a9a10C16";
 const bscTokenBridgeBscHexStr = tryNativeToHexString(
   bscTokenBridgeStr,
   CHAIN_ID_BSC,
@@ -78,10 +83,6 @@ export const governanceFee = { value: new BN(100), decimals: 6 }; //gov fee = .0
 export const evmTargetTokenId = 2;
 const evmOwnerByteArr = tryNativeToUint8Array(
   "0x507b873dcb4e2b5Ac38b3f24C6394a3D327eb52F",
-  CHAIN_ID_ETH,
-);
-const evmOwnerEthHexStr = tryNativeToHexString(
-  "0x0000000000000000000000000000000000000004",
   CHAIN_ID_ETH,
 );
 export const evmOwner = Buffer.from(evmOwnerByteArr);

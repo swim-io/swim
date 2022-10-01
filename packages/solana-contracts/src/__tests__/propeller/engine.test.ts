@@ -9,21 +9,32 @@ import {
 import { parseUnits } from "@ethersproject/units";
 import type { Idl } from "@project-serum/anchor";
 // eslint-disable-next-line import/order
-import { AnchorProvider, BN, Program, setProvider, Spl, web3, workspace } from "@project-serum/anchor";
+import {
+  AnchorProvider,
+  BN,
+  Program,
+  Spl,
+  setProvider,
+  web3,
+  workspace,
+} from "@project-serum/anchor";
 
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import { MEMO_PROGRAM_ID } from "@solana/spl-memo";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
   getAccount,
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
-  TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 // import type { SwitchboardTestContext } from "@switchboard-xyz/sbv2-utils";
 import type { SwitchboardTestContext } from "@switchboard-xyz/sbv2-utils";
-import { AggregatorAccount, loadSwitchboardProgram } from "@switchboard-xyz/switchboard-v2";
+import {
+  AggregatorAccount,
+  loadSwitchboardProgram,
+} from "@switchboard-xyz/switchboard-v2";
 import Big from "big.js";
 
 import type { Propeller } from "../../artifacts/propeller";
@@ -38,11 +49,14 @@ import {
 } from "../twoPool/poolTestUtils";
 
 import {
+  DEFAULT_SOL_USD_FEED,
+  SWIM_USD_TO_TOKEN_NUMBER,
+  USDC_TO_TOKEN_NUMBER,
+  USDT_TO_TOKEN_NUMBER,
   ampFactor,
   bscTokenBridge,
   commitment,
   completeWithPayloadFee,
-  DEFAULT_SOL_USD_FEED,
   ethRoutingContract,
   ethTokenBridge,
   evmOwner,
@@ -61,10 +75,7 @@ import {
   secpVerifyInitFee,
   setComputeUnitLimitIx,
   swimPayloadVersion,
-  SWIM_USD_TO_TOKEN_NUMBER,
-  USDC_TO_TOKEN_NUMBER,
   usdcPoolTokenIndex,
-  USDT_TO_TOKEN_NUMBER,
   usdtPoolTokenIndex,
 } from "./consts";
 import type { WormholeAddresses } from "./propellerUtils";
@@ -79,8 +90,15 @@ import {
   getTargetTokenIdMapAddr,
   getWormholeAddressesForMint,
 } from "./propellerUtils";
-import { deriveMessagePda, encodeTokenTransferWithPayload } from "./tokenBridgeUtils";
-import { signAndEncodeVaa, WORMHOLE_CORE_BRIDGE, WORMHOLE_TOKEN_BRIDGE } from "./wormholeUtils";
+import {
+  deriveMessagePda,
+  encodeTokenTransferWithPayload,
+} from "./tokenBridgeUtils";
+import {
+  WORMHOLE_CORE_BRIDGE,
+  WORMHOLE_TOKEN_BRIDGE,
+  signAndEncodeVaa,
+} from "./wormholeUtils";
 
 setDefaultWasm("node");
 
@@ -601,10 +619,9 @@ describe("propeller", () => {
       current devnet SOL_USD feed:
         sol/usd feed value: ${result}
         latestFeedTimestamp: ${new Date(
-      latestTimestamp.toNumber(),
-    ).toUTCString()}
+          latestTimestamp.toNumber(),
+        ).toUTCString()}
     `);
-
 
     console.info(`initializing propeller`);
     await initializePropeller();
@@ -693,7 +710,6 @@ describe("propeller", () => {
     console.info(`finished seeing wormhole custody`);
 
     console.info(`setting up switchboard`);
-
 
     // // If fails, fallback to looking for a local env file
     // try {
@@ -1533,9 +1549,8 @@ describe("propeller", () => {
               userTokenAccount1BalanceAfter.eq(userTokenAccount1BalanceBefore),
             ).toBeTruthy();
             await checkTxnLogsForMemo(processSwimPayloadTxnSig, memoStr);
-            const swimPayloadMessageAccountInfoAfterProcess = await connection.getAccountInfo(
-              swimPayloadMessage,
-            );
+            const swimPayloadMessageAccountInfoAfterProcess =
+              await connection.getAccountInfo(swimPayloadMessage);
             console.info(`
             swimPayloadMessageAccountInfoAfterProcess: ${JSON.stringify(
               swimPayloadMessageAccountInfoAfterProcess,
@@ -7432,9 +7447,6 @@ describe("propeller", () => {
         });
       });
     });
-    it("fails", () => {
-      expect(true).toEqual(false);
-    });
   });
 
   // async function getSwimUsdPerLamport(): Promise<Big> {
@@ -8197,7 +8209,9 @@ const seedWormholeCustody = async (whAddrs: WormholeAddresses) => {
     .signers([wormholeMessage])
     .rpc();
 
-  console.info(`crossChainTransferNativeTxnSig(seedWormholeCustody): ${crossChainTransferNativeTxnSig}`);
+  console.info(
+    `crossChainTransferNativeTxnSig(seedWormholeCustody): ${crossChainTransferNativeTxnSig}`,
+  );
 };
 
 function incMemoIdAndGet() {

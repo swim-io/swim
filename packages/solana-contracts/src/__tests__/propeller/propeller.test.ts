@@ -133,7 +133,8 @@ const twoPoolProgram = workspace.TwoPool as Program<TwoPool>;
 const wormhole = WORMHOLE_CORE_BRIDGE;
 const tokenBridge = WORMHOLE_TOKEN_BRIDGE;
 
-let ethTokenBridgeSequence = 0;
+// start these higher to avoid issues when running this suite & engine.test.ts suite in one go
+let ethTokenBridgeSequence = 1000;
 // let ethTokenBridgeSequence = BigInt(0);
 
 let metapool: web3.PublicKey;

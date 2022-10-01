@@ -5,12 +5,12 @@
   "targetChains": [
     {
       "targetChainId": 2,
-      "targetAddress": "0xa33E4d9624608c468FE5466dd6CC39cE1Da4FF78",
+      "targetAddress": "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4",
       "tokenBridge": "0xF890982f9310df57d00f659cf4fd87e65adEd8d7"
     },
     {
       "targetChainId": 4,
-      "targetAddress": "0xa33E4d9624608c468FE5466dd6CC39cE1Da4FF78",
+      "targetAddress": "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4",
       "tokenBridge": "0x9dcF9D205C9De35334D646BeE44b2D2859712A09"
     }
   ]

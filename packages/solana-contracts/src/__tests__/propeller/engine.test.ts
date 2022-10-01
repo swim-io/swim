@@ -7432,6 +7432,9 @@ describe("propeller", () => {
         });
       });
     });
+    it("fails", () => {
+      expect(true).toEqual(false);
+    });
   });
 
   // async function getSwimUsdPerLamport(): Promise<Big> {

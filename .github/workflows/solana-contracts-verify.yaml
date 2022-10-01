@@ -73,8 +73,5 @@ jobs:
       - name: Check lint
         run: yarn lint --max-warnings=0
 
-      - name: Build and Test Pool Program
-        run: yarn run test:pool
-
-      - name: Build and Test Propeller Program
-        run: yarn run test:propeller
+      - name: Build and Test All Programs
+        run: yarn run test

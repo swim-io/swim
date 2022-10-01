@@ -20,7 +20,9 @@ wallet = "src/__tests__/test_wallet.json"
 
 [scripts]
 #test = "yarn run ts-mocha -p src/__tests__/tsconfig.json -t 1000000 sdk/tests/**/pool.test.ts"
-test = "./scripts/run_anchor_test.sh"
+#test = "./scripts/run_anchor_test.sh"
+#test = "yarn run jest --verbose --detectOpenHandles --testPathPattern"
+test = "yarn run jest --bail --testPathPattern"
 #test = "yarn run jest --verbose --detectOpenHandles --testPathPattern engine.test.ts"
 #test = "yarn run jest -c jest.config.js --verbose --detectOpenHandles --forceExit test/twoPool/pool.test.ts"
 #initialize_pool = "./sdk/scripts/initialize_pool.sh"

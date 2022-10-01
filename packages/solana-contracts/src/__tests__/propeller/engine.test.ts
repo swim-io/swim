@@ -61,10 +61,10 @@ import {
   secpVerifyInitFee,
   setComputeUnitLimitIx,
   swimPayloadVersion,
-  swimUsdOutputTokenIndex,
-  usdcOutputTokenIndex,
+  SWIM_USD_TO_TOKEN_NUMBER,
+  USDC_TO_TOKEN_NUMBER,
   usdcPoolTokenIndex,
-  usdtOutputTokenIndex,
+  USDT_TO_TOKEN_NUMBER,
   usdtPoolTokenIndex,
 } from "./consts";
 import type { WormholeAddresses } from "./propellerUtils";
@@ -787,7 +787,7 @@ describe("propeller", () => {
           let swimPayloadMessage: web3.PublicKey;
           let owner: web3.PublicKey;
 
-          const targetTokenId = usdcOutputTokenIndex;
+          const targetTokenId = USDC_TO_TOKEN_NUMBER;
           const memoStr = incMemoIdAndGet();
 
           it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
@@ -1557,7 +1557,7 @@ describe("propeller", () => {
           console.info(`new user: ${owner.toBase58()}`);
           // let owner: web3.PublicKey;
 
-          const targetTokenId = usdcOutputTokenIndex;
+          const targetTokenId = USDC_TO_TOKEN_NUMBER;
           const memoStr = incMemoIdAndGet();
 
           it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
@@ -3354,7 +3354,7 @@ describe("propeller", () => {
         let wormholeMessage: web3.PublicKey;
         let swimPayloadMessage: web3.PublicKey;
 
-        const targetTokenId = swimUsdOutputTokenIndex;
+        const targetTokenId = SWIM_USD_TO_TOKEN_NUMBER;
 
         const memoStr = incMemoIdAndGet();
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
@@ -4178,7 +4178,7 @@ describe("propeller", () => {
           console.info(`new user: ${owner.toBase58()}`);
           // let owner: web3.PublicKey;
 
-          const targetTokenId = usdcOutputTokenIndex;
+          const targetTokenId = USDC_TO_TOKEN_NUMBER;
           const memoStr = incMemoIdAndGet();
 
           it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
@@ -5115,7 +5115,7 @@ describe("propeller", () => {
         console.info(`new user: ${owner.toBase58()}`);
         // let owner: web3.PublicKey;
 
-        const targetTokenId = usdcOutputTokenIndex;
+        const targetTokenId = USDC_TO_TOKEN_NUMBER;
         const memoStr = incMemoIdAndGet();
 
         const memoBuffer = Buffer.alloc(16);
@@ -6589,7 +6589,7 @@ describe("propeller", () => {
           console.info(`new user: ${owner.toBase58()}`);
           // let owner: web3.PublicKey;
 
-          const targetTokenId = usdcOutputTokenIndex;
+          const targetTokenId = USDC_TO_TOKEN_NUMBER;
           const memoStr = incMemoIdAndGet();
 
           it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
@@ -8021,11 +8021,11 @@ const createTokenIdMaps = async () => {
   const outputTokenIdMapAddrEntries = await Promise.all(
     [
       {
-        outputTokenIndex: swimUsdOutputTokenIndex,
+        outputTokenIndex: SWIM_USD_TO_TOKEN_NUMBER,
         tokenIdMap: swimUsdTokenIdMap,
       },
-      { outputTokenIndex: usdcOutputTokenIndex, tokenIdMap: usdcTokenIdMap },
-      { outputTokenIndex: usdtOutputTokenIndex, tokenIdMap: usdtTokenIdMap },
+      { outputTokenIndex: USDC_TO_TOKEN_NUMBER, tokenIdMap: usdcTokenIdMap },
+      { outputTokenIndex: USDT_TO_TOKEN_NUMBER, tokenIdMap: usdtTokenIdMap },
       {
         outputTokenIndex: metapoolMint1OutputTokenIndex,
         tokenIdMap: metapoolMint1TokenIdMap,

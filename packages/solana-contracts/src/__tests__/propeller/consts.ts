@@ -52,6 +52,15 @@ export const setComputeUnitLimitIx: web3.TransactionInstruction =
     // units: 420690,
     units: 900000,
   });
+export const SWIM_USD_TO_TOKEN_NUMBER = 0;
+export const USDC_TO_TOKEN_NUMBER = 128;
+export const USDT_TO_TOKEN_NUMBER = 129;
+export const marginalPricePoolTokenIndex = 0;
+export const swimPayloadVersion = 1;
+export const usdcPoolTokenIndex = 0;
+export const usdtPoolTokenIndex = 1;
+export const metapoolMint1OutputTokenIndex = 3;
+export const metapoolMint1PoolTokenIndex = 1; // const evmOwner = Buffer.from(evmOwnerEthHexStr, "hex");
 
 export const gasKickstartAmount: BN = new BN(0.75 * LAMPORTS_PER_SOL);
 export const initAtaFee: BN = new BN(0.25 * LAMPORTS_PER_SOL);
@@ -65,15 +74,7 @@ export const lpFee = { value: new BN(300), decimals: 6 }; //lp fee = .000300 = 0
 export const governanceFee = { value: new BN(100), decimals: 6 }; //gov fee = .000100 = (0.0100%) 1bps
 
 // USDC token index in flagship pool
-export const marginalPricePoolTokenIndex = 0;
-export const swimPayloadVersion = 1;
-export const swimUsdOutputTokenIndex = 0;
-export const usdcOutputTokenIndex = 1;
-export const usdcPoolTokenIndex = 0;
-export const usdtOutputTokenIndex = 2;
-export const usdtPoolTokenIndex = 1;
-export const metapoolMint1OutputTokenIndex = 3;
-export const metapoolMint1PoolTokenIndex = 1; // const evmOwner = Buffer.from(evmOwnerEthHexStr, "hex");
+
 export const evmTargetTokenId = 2;
 const evmOwnerByteArr = tryNativeToUint8Array(
   "0x507b873dcb4e2b5Ac38b3f24C6394a3D327eb52F",

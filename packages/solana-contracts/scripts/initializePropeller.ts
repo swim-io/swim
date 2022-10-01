@@ -3,6 +3,7 @@ import * as path from "path";
 
 import type { ChainId } from "@certusone/wormhole-sdk";
 import {
+  CHAIN_ID_BSC,
   CHAIN_ID_ETH,
   createNonce,
   tryNativeToHexString,
@@ -18,18 +19,20 @@ import {
   workspace,
 } from "@project-serum/anchor";
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-import { createMemoInstruction, MEMO_PROGRAM_ID } from "@solana/spl-memo";
+import { MEMO_PROGRAM_ID, createMemoInstruction } from "@solana/spl-memo";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
+
 import {
-  evmOwner,
-  evmTargetTokenId,
+  DEFAULT_SOL_USD_FEED,
+  SWIM_USD_TO_TOKEN_NUMBER,
+  USDC_TO_TOKEN_NUMBER,
+  USDT_TO_TOKEN_NUMBER,
   setComputeUnitLimitIx,
 } from "../src/__tests__/propeller/consts";
-
 import {
   getPropellerPda,
   getPropellerRedeemerPda,
@@ -114,7 +117,7 @@ let swimUsdPoolInfo: PoolInfo;
 let propellerInfo: PropellerInfo;
 let targetTokenIdMaps: ReadonlyMap<number, web3.PublicKey>;
 let targetChainIdMaps: ReadonlyMap<number, web3.PublicKey>;
-
+const aggregator = DEFAULT_SOL_USD_FEED;
 let cluster: web3.Cluster;
 
 // class PropellerProgram {
@@ -272,6 +275,7 @@ async function initializePropellerState(): Promise<PropellerInfo> {
         poolTokenMint1: swimUsdPoolInfo.tokenMints[1],
         lpMint: swimUsdPoolInfo.lpMint,
         twoPoolProgram: twoPoolProgram.programId,
+        aggregator,
       })
       .signers([propellerAdmin, payer])
       .rpc();
@@ -310,9 +314,12 @@ async function createTargetTokenIdMaps(): Promise<
 
   const outputTokenIdMapAddrEntries = await Promise.all(
     [
-      { targetTokenId: 0, tokenIdMap: swimUsdTokenIdMap },
-      { targetTokenId: 1, tokenIdMap: usdcTokenIdMap },
-      { targetTokenId: 2, tokenIdMap: usdtTokenIdMap },
+      {
+        targetTokenId: SWIM_USD_TO_TOKEN_NUMBER,
+        tokenIdMap: swimUsdTokenIdMap,
+      },
+      { targetTokenId: USDC_TO_TOKEN_NUMBER, tokenIdMap: usdcTokenIdMap },
+      { targetTokenId: USDT_TO_TOKEN_NUMBER, tokenIdMap: usdtTokenIdMap },
     ].map(async ({ targetTokenId, tokenIdMap }) => {
       const [tokenIdMapAddr] = await getTargetTokenIdMapAddr(
         propellerInfo.address,
@@ -444,23 +451,13 @@ async function createTargetChainMaps() {
 async function transferTokens() {
   const transferAmount = new BN(100_000_000);
   const nonce = createNonce().readUInt32LE(0);
-  const memo = "e45794d6c5a2750a";
-  const memoBuffer = Buffer.alloc(16);
   const wormholeMessage = web3.Keypair.generate();
-  const gasKickstart = false;
+  const gasKickstart = true;
   const propellerEnabled = true;
+  const evmOwnerNative = "0xd791AAfc9a0bb703A22Aebc0c5d2a9601Bbe3F44";
 
-  const evmTargetTokenId = 2;
-  // const evmTargetTokenAddrEthHexStr = tryNativeToHexString(
-  //   "0x0000000000000000000000000000000000000003",
-  //   CHAIN_ID_ETH,
-  // );
-  // const evmTargetTokenAddr = Buffer.from(evmTargetTokenAddrEthHexStr, "hex");
-
-  const evmOwnerEthHexStr = tryNativeToHexString(
-    "0x0000000000000000000000000000000000000004",
-    CHAIN_ID_ETH,
-  );
+  //EVM dev wallet
+  const evmOwnerEthHexStr = tryNativeToHexString(evmOwnerNative, CHAIN_ID_ETH);
   const evmOwner = Buffer.from(evmOwnerEthHexStr, "hex");
   const wormhole = config.wormholeCore;
   const tokenBridge = config.wormholeTokenBridge;
@@ -501,122 +498,135 @@ async function transferTokens() {
     [Buffer.from("custody_signer")],
     tokenBridge,
   );
-  const maxFee = new BN(100_000);
+  const maxFee = new BN(100);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const userSwimUsdAta: web3.PublicKey = await getAssociatedTokenAddress(
     swimUsdMint,
     payer.publicKey,
   );
-  console.info(`
-    calling crossChainTransferNativeWithPayload(
-      amount: ${transferAmount.toString()},
-      targetChainOwner: ${evmOwner.toString()}
-    )
-  `);
 
+  let memo = 0;
+  // const evmTargetTokenIds = [0, 1];
+  const evmTargetTokenIds = [0];
+  const targetChain = CHAIN_ID_ETH;
+  // const targetChain = CHAIN_ID_BSC;
+  await Promise.all(
+    evmTargetTokenIds.map(async (evmTargetTokenId) => {
+      // console.info(
+      //   `sending crossChainTransferNativeWithPayload(
+      //   targetTokenId: ${evmTargetTokenId},
+      //   targetChain: ${targetChain},
+      //   targetOwner(native): ${evmOwnerNative},
+      //   targetOwner(Hex): ${evmOwnerEthHexStr},
+      // )
+      // `,
+      // );
+      //
+      // const crossChainTransferNativeWithPayloadTxnSig: string =
+      //   await propellerProgram.methods
+      //     .crossChainTransferNativeWithPayload(
+      //       transferAmount,
+      //       targetChain,
+      //       evmOwner,
+      //     )
+      //     .accounts({
+      //       propeller: propellerInfo.address,
+      //       payer: payer.publicKey,
+      //       tokenBridgeConfig,
+      //       userSwimUsdAta: userSwimUsdAta,
+      //       swimUsdMint,
+      //       custody,
+      //       tokenBridge: config.wormholeTokenBridge,
+      //       custodySigner,
+      //       authoritySigner,
+      //       wormholeConfig,
+      //       wormholeMessage: wormholeMessage.publicKey,
+      //       wormholeEmitter,
+      //       wormholeSequence,
+      //       wormholeFeeCollector,
+      //       clock: web3.SYSVAR_CLOCK_PUBKEY,
+      //       // autoderived
+      //       // sender
+      //       rent: web3.SYSVAR_RENT_PUBKEY,
+      //       // autoderived
+      //       // systemProgram,
+      //       wormhole,
+      //       tokenProgram: splToken.programId,
+      //     })
+      //     .preInstructions([setComputeUnitLimitIx])
+      //     .signers([payer, wormholeMessage])
+      //     .rpc();
+      // console.info(
+      //   `
+      //   targetTokenId: ${evmTargetTokenId},
+      //   crossChainTransferNativeWithPayloadTxnSig: ${crossChainTransferNativeWithPayloadTxnSig}`,
+      // );
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const crossChainTransferNativeWithPayloadTxnSig: string =
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    await propellerProgram.methods
-      .crossChainTransferNativeWithPayload(
-        transferAmount,
-        CHAIN_ID_ETH,
-        evmOwner,
-      )
-      .accounts({
-        propeller: propellerInfo.address,
-        payer: payer.publicKey,
-        tokenBridgeConfig,
-        userSwimUsdAta: userSwimUsdAta,
-        swimUsdMint,
-        custody,
-        tokenBridge: config.wormholeTokenBridge,
-        custodySigner,
-        authoritySigner,
-        wormholeConfig,
-        wormholeMessage: wormholeMessage.publicKey,
-        wormholeEmitter,
-        wormholeSequence,
-        wormholeFeeCollector,
-        clock: web3.SYSVAR_CLOCK_PUBKEY,
-        // autoderived
-        // sender
-        rent: web3.SYSVAR_RENT_PUBKEY,
-        // autoderived
-        // systemProgram,
-        wormhole,
-        tokenProgram: splToken.programId,
-      })
-      .preInstructions([setComputeUnitLimitIx])
-      .signers([payer, wormholeMessage])
-      .rpc();
-  console.info(
-    `crossChainTransferNativeWithPayloadTxnSig: ${crossChainTransferNativeWithPayloadTxnSig}`,
-  );
+      const memoStr = (++memo).toString().padStart(16, "0");
+      const memoBuffer2 = Buffer.alloc(16);
+      memoBuffer2.write(memoStr);
 
-  const memoStr = (120).toString().padStart(16, "0");
-  const memoBuffer2 = Buffer.alloc(16);
-  memoBuffer2.write(memoStr);
+      const propellerEnabledTransferAmount = transferAmount.div(new BN(2));
+      const propellerEnabledWormholeMessage = web3.Keypair.generate();
 
-  const propellerEnabledTransferAmount = transferAmount.div(new BN(2));
-  const propellerEnabledWormholeMessage = web3.Keypair.generate();
-
-  console.info(`
+      console.info(`
     calling propellerTransferNativeWithPayload(
       amount: ${propellerEnabledTransferAmount.toString()},
-      targetChainOwner: ${evmOwner.toString()}
       gasKickstart: ${gasKickstart.toString()},
       maxFee: ${maxFee.toString()},
-      evmTargetTokenId: ${evmTargetTokenId},
+      targetTokenId: ${evmTargetTokenId},
+      targetChain: ${targetChain},
+      targetOwner(native): ${evmOwnerNative},
+      targetOwner(Hex): ${evmOwnerEthHexStr},
       memo(str): ${memoStr},
       memo(buffer): ${memoBuffer2.toString("hex")},
     )
   `);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const propellerTransferNativeWithPayloadTxnSig: string =
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    await propellerProgram.methods
-      .propellerTransferNativeWithPayload(
-        propellerEnabledTransferAmount,
-        CHAIN_ID_ETH,
-        evmOwner,
-        gasKickstart,
-        maxFee,
-        evmTargetTokenId,
-        memoBuffer2,
-      )
-      .accounts({
-        propeller: propellerInfo.address,
-        payer: payer.publicKey,
-        tokenBridgeConfig,
-        userSwimUsdAta: userSwimUsdAta,
-        swimUsdMint,
-        custody,
-        tokenBridge: config.wormholeTokenBridge,
-        custodySigner,
-        authoritySigner,
-        wormholeConfig,
-        wormholeMessage: propellerEnabledWormholeMessage.publicKey,
-        wormholeEmitter,
-        wormholeSequence,
-        wormholeFeeCollector,
-        clock: web3.SYSVAR_CLOCK_PUBKEY,
-        // autoderived
-        // sender
-        rent: web3.SYSVAR_RENT_PUBKEY,
-        // autoderived
-        // systemProgram,
-        wormhole,
-        tokenProgram: splToken.programId,
-      })
-      .preInstructions([setComputeUnitLimitIx])
-      .postInstructions([createMemoInstruction(memoStr)])
-      .signers([payer, propellerEnabledWormholeMessage])
-      .rpc();
 
-  console.info(
-    `propellerTransferNativeWithPayloadTxnSig: ${propellerTransferNativeWithPayloadTxnSig}`,
+      const propellerTransferNativeWithPayloadTxnSig: string =
+        await propellerProgram.methods
+          .propellerTransferNativeWithPayload(
+            propellerEnabledTransferAmount,
+            targetChain,
+            evmOwner,
+            gasKickstart,
+            maxFee,
+            evmTargetTokenId,
+            memoBuffer2,
+          )
+          .accounts({
+            propeller: propellerInfo.address,
+            payer: payer.publicKey,
+            tokenBridgeConfig,
+            userSwimUsdAta: userSwimUsdAta,
+            swimUsdMint,
+            custody,
+            tokenBridge: config.wormholeTokenBridge,
+            custodySigner,
+            authoritySigner,
+            wormholeConfig,
+            wormholeMessage: propellerEnabledWormholeMessage.publicKey,
+            wormholeEmitter,
+            wormholeSequence,
+            wormholeFeeCollector,
+            clock: web3.SYSVAR_CLOCK_PUBKEY,
+            // autoderived
+            // sender
+            rent: web3.SYSVAR_RENT_PUBKEY,
+            // autoderived
+            // systemProgram,
+            wormhole,
+            tokenProgram: splToken.programId,
+          })
+          .preInstructions([setComputeUnitLimitIx])
+          .postInstructions([createMemoInstruction(memoStr)])
+          .signers([payer, propellerEnabledWormholeMessage])
+          .rpc();
+
+      console.info(
+        `propellerTransferNativeWithPayloadTxnSig: ${propellerTransferNativeWithPayloadTxnSig}`,
+      );
+    }),
   );
 }
 

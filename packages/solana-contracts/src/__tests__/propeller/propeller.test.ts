@@ -68,10 +68,10 @@ import {
   secpVerifyInitFee,
   setComputeUnitLimitIx,
   swimPayloadVersion,
-  swimUsdOutputTokenIndex,
-  usdcOutputTokenIndex,
+  SWIM_USD_TO_TOKEN_NUMBER,
+  USDC_TO_TOKEN_NUMBER,
   usdcPoolTokenIndex,
-  usdtOutputTokenIndex,
+  USDT_TO_TOKEN_NUMBER,
   usdtPoolTokenIndex,
 } from "./consts";
 import {
@@ -721,11 +721,11 @@ describe("propeller", () => {
     const outputTokenIdMapAddrEntries = await Promise.all(
       [
         {
-          outputTokenIndex: swimUsdOutputTokenIndex,
+          outputTokenIndex: SWIM_USD_TO_TOKEN_NUMBER,
           tokenIdMap: swimUsdTokenIdMap,
         },
-        { outputTokenIndex: usdcOutputTokenIndex, tokenIdMap: usdcTokenIdMap },
-        { outputTokenIndex: usdtOutputTokenIndex, tokenIdMap: usdtTokenIdMap },
+        { outputTokenIndex: USDC_TO_TOKEN_NUMBER, tokenIdMap: usdcTokenIdMap },
+        { outputTokenIndex: USDT_TO_TOKEN_NUMBER, tokenIdMap: usdtTokenIdMap },
         {
           outputTokenIndex: metapoolMint1OutputTokenIndex,
           tokenIdMap: metapoolMint1TokenIdMap,
@@ -3880,7 +3880,7 @@ describe("propeller", () => {
         let wormholeMessage: web3.PublicKey;
         let swimPayloadMessage: web3.PublicKey;
 
-        const targetTokenId = usdcOutputTokenIndex;
+        const targetTokenId = USDC_TO_TOKEN_NUMBER;
         const memoStr = incMemoIdAndGet();
 
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
@@ -4302,7 +4302,7 @@ describe("propeller", () => {
         let wormholeMessage: web3.PublicKey;
         let swimPayloadMessage: web3.PublicKey;
 
-        const targetTokenId = swimUsdOutputTokenIndex;
+        const targetTokenId = SWIM_USD_TO_TOKEN_NUMBER;
 
         const memoStr = incMemoIdAndGet();
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
@@ -5119,7 +5119,7 @@ describe("propeller", () => {
         let wormholeMessage: web3.PublicKey;
         let swimPayloadMessage: web3.PublicKey;
 
-        let targetTokenId = swimUsdOutputTokenIndex;
+        let targetTokenId = SWIM_USD_TO_TOKEN_NUMBER;
 
         const memoStr = incMemoIdAndGet();
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
@@ -5388,7 +5388,7 @@ describe("propeller", () => {
             await splToken.account.token.fetch(userTokenAccount1)
           ).amount;
           //specifiying targetTokenId != payload.outputTokenId
-          targetTokenId = usdcOutputTokenIndex;
+          targetTokenId = USDC_TO_TOKEN_NUMBER;
           const minOutputAmount = new BN(0);
           const processSwimPayloadIxs = propellerProgram.methods
             .processSwimPayload(targetTokenId, minOutputAmount)
@@ -5517,7 +5517,7 @@ describe("propeller", () => {
         let wormholeMessage: web3.PublicKey;
         let swimPayloadMessage: web3.PublicKey;
 
-        const targetTokenId = swimUsdOutputTokenIndex;
+        const targetTokenId = SWIM_USD_TO_TOKEN_NUMBER;
 
         const memoStr = incMemoIdAndGet();
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {

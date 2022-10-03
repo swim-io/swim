@@ -29,7 +29,6 @@ import {
   parseTokenTransferPostedMessage,
   parseTokenTransferSignedVaa,
 } from "./tokenBridgeUtils";
-import { WORMHOLE_CORE_BRIDGE, WORMHOLE_TOKEN_BRIDGE } from "./wormholeUtils";
 
 export async function getPropellerPda(
   mint: web3.PublicKey,
@@ -242,10 +241,16 @@ export function encodeSwimPayload(swimPayload: ParsedSwimPayload): Buffer {
     offset++;
     encoded.writeUint8(Number(swimPayload.gasKickstart), offset);
     offset++;
-    encoded.writeBigUint64BE(BigInt(swimPayload.maxFee!.toNumber()), offset);
+    if (!swimPayload.maxFee) {
+      throw new Error("maxFee is required");
+    }
+    encoded.writeBigUint64BE(BigInt(swimPayload.maxFee.toNumber()), offset);
     offset += 8;
 
-    encoded.writeUint16BE(swimPayload.targetTokenId!, offset);
+    if (!swimPayload.targetTokenId) {
+      throw new Error("targetTokenId is required");
+    }
+    encoded.writeUint16BE(swimPayload.targetTokenId, offset);
     offset += 2;
     if (swimPayload.memo !== undefined) {
       encoded.write(swimPayload.memo.toString("hex"), offset, "hex");
@@ -576,7 +581,6 @@ export const generatePropellerEngineTxns = async (
       swimPayloadMessage: ${swimPayloadMessage.toBase58()})
   `);
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const propellerFeeVault: web3.PublicKey = await getAssociatedTokenAddress(
     swimUsdMint,
     propeller,
@@ -585,7 +589,7 @@ export const generatePropellerEngineTxns = async (
   const propellerRedeemer = await getPropellerRedeemerPda(
     propellerProgram.programId,
   );
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
   const propellerRedeemerEscrowAccount: web3.PublicKey =
     await getAssociatedTokenAddress(swimUsdMint, propellerRedeemer, true);
 
@@ -725,7 +729,7 @@ export const generatePropellerEngineTxns = async (
     console.info(
       `invalid tokenIdMap. targetTokenId: ${targetTokenId.toString()}. Generating fallback transactions`,
     );
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
     const userSwimUsdAta: web3.PublicKey = await getAssociatedTokenAddress(
       swimUsdMint,
       owner,

@@ -556,14 +556,12 @@ describe("propeller", () => {
       propellerProgram.programId,
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     propellerFeeVault = await getAssociatedTokenAddress(
       swimUsdMint,
       expectedPropellerAddr,
       true,
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const propellerRedeemerEscrowAddr: web3.PublicKey =
       await getAssociatedTokenAddress(
         swimUsdMint,
@@ -643,7 +641,6 @@ describe("propeller", () => {
       ...(await connection.getLatestBlockhash()),
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     propellerRedeemerEscrowAccount = (
       await getAccount(connection, propellerRedeemerEscrowAddr)
     ).address;
@@ -843,16 +840,6 @@ describe("propeller", () => {
         );
       },
     );
-    await Promise.all(
-      targetChainMaps.map(
-        async ({ targetChainId, targetAddress, targetChainMapData }) => {
-          expect(targetChainMapData.targetChain).toEqual(targetChainId);
-          expect(Buffer.from(targetChainMapData.targetAddress)).toEqual(
-            targetAddress,
-          );
-        },
-      ),
-    );
   });
 
   describe("Propeller Pool Ixs", () => {
@@ -876,7 +863,6 @@ describe("propeller", () => {
           new BN(50_000_000_000_000),
         ];
         const minimumMintAmount = new BN(0);
-        const propellerEnabled = false;
         // const addParams = {
         //   inputAmounts,
         //   minimumMintAmount,
@@ -1568,7 +1554,6 @@ describe("propeller", () => {
       memoBuffer.write(memo);
       const wormholeMessage = web3.Keypair.generate();
 
-      const maxFee = new BN(100_000);
       const nonceBefore = (
         await propellerProgram.account.propeller.fetch(propeller)
       ).nonce;
@@ -3755,7 +3740,6 @@ describe("propeller", () => {
           const memoBuffer = Buffer.alloc(16);
           memoBuffer.write(memoStr);
 
-          const maxFee = new BN(1_000_000_000);
           const swimPayload = {
             version: swimPayloadVersion,
             owner: provider.publicKey.toBuffer(),

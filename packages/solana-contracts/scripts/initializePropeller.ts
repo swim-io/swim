@@ -2,13 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 import type { ChainId } from "@certusone/wormhole-sdk";
-import {
-  CHAIN_ID_BSC,
-  CHAIN_ID_ETH,
-  createNonce,
-  tryNativeToHexString,
-  tryNativeToUint8Array,
-} from "@certusone/wormhole-sdk";
+import { CHAIN_ID_ETH, tryNativeToHexString } from "@certusone/wormhole-sdk";
 import type { Program } from "@project-serum/anchor";
 import {
   AnchorProvider,
@@ -19,7 +13,7 @@ import {
   workspace,
 } from "@project-serum/anchor";
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-import { MEMO_PROGRAM_ID, createMemoInstruction } from "@solana/spl-memo";
+import { createMemoInstruction } from "@solana/spl-memo";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -46,7 +40,7 @@ const provider = AnchorProvider.env();
 setProvider(provider);
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 const twoPoolProgram = workspace.TwoPool as Program<TwoPool>;
-const TWO_POOL_PID = twoPoolProgram.programId;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 const propellerProgram = workspace.Propeller as Program<Propeller>;
 const splToken = Spl.token(provider);
 const PROPELLER_PID = propellerProgram.programId;
@@ -118,7 +112,6 @@ let propellerInfo: PropellerInfo;
 let targetTokenIdMaps: ReadonlyMap<number, web3.PublicKey>;
 let targetChainIdMaps: ReadonlyMap<number, web3.PublicKey>;
 const aggregator = DEFAULT_SOL_USD_FEED;
-let cluster: web3.Cluster;
 
 // class PropellerProgram {
 //   program: Program<Propeller>;
@@ -228,14 +221,14 @@ async function getPoolInfo(): Promise<PoolInfo> {
 
 async function initializePropellerState(): Promise<PropellerInfo> {
   const propellerAddr = await getPropellerPda(swimUsdMint, PROPELLER_PID);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
   const propellerFeeVault: web3.PublicKey = await getAssociatedTokenAddress(
     swimUsdMint,
     propellerAddr,
     true,
   );
   const propellerRedeemer = await getPropellerRedeemerPda(PROPELLER_PID);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
   const propellerRedeemerEscrow: web3.PublicKey =
     await getAssociatedTokenAddress(swimUsdMint, propellerRedeemer, true);
   const initParams = {
@@ -351,7 +344,7 @@ async function createTargetTokenIdMaps(): Promise<
           .signers([propellerAdmin]);
         const pubkeys = await createTokenIdMapTxn.pubkeys();
         await createTokenIdMapTxn.rpc();
-        const derivedTokenIdMapAddr = pubkeys.tokenIdMap!;
+        const derivedTokenIdMapAddr = pubkeys.tokenIdMap;
 
         console.info(`
       derivedTokenIdMapAddr: ${derivedTokenIdMapAddr.toString()}
@@ -450,10 +443,7 @@ async function createTargetChainMaps() {
 
 async function transferTokens() {
   const transferAmount = new BN(100_000_000);
-  const nonce = createNonce().readUInt32LE(0);
-  const wormholeMessage = web3.Keypair.generate();
   const gasKickstart = true;
-  const propellerEnabled = true;
   const evmOwnerNative = "0xd791AAfc9a0bb703A22Aebc0c5d2a9601Bbe3F44";
 
   //EVM dev wallet
@@ -499,7 +489,7 @@ async function transferTokens() {
     tokenBridge,
   );
   const maxFee = new BN(100);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
   const userSwimUsdAta: web3.PublicKey = await getAssociatedTokenAddress(
     swimUsdMint,
     payer.publicKey,

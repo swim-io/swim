@@ -1,21 +1,10 @@
 import type { BN, Program, SplToken } from "@project-serum/anchor";
-import { Spl, web3 } from "@project-serum/anchor";
-import { SplAssociatedToken } from "@project-serum/anchor/dist/cjs/spl/associated-token";
+import { web3 } from "@project-serum/anchor";
 import {
-  // getAccount,
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
-  // mintTo,
 } from "@solana/spl-token";
 import type { Commitment, ConfirmOptions } from "@solana/web3.js";
-import {
-  Account,
-  Connection,
-  PublicKey,
-  Signer,
-  Transaction,
-  sendAndConfirmTransaction,
-} from "@solana/web3.js";
 
 import type { TwoPool } from "../../artifacts/two_pool";
 
@@ -150,7 +139,6 @@ export async function setupPoolPrereqs(
 
   console.info(`initialized pool token accounts`);
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const governanceFeeAccount: web3.PublicKey = await getAssociatedTokenAddress(
     lpMint,
     governanceFeeOwner,
@@ -191,7 +179,7 @@ export async function setupUserAssociatedTokenAccts(
   const userPoolTokenAtas = await Promise.all(
     mints.map(async (mint, i) => {
       const mintAuthority = mintAuthorities[i];
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+
       const userAta: web3.PublicKey = (
         await getOrCreateAssociatedTokenAccount(
           connection,
@@ -239,7 +227,7 @@ export async function setupUserAssociatedTokenAccts(
   //   console.info(`minted ${amount} to ${userAta}`);
   //   userPoolTokenAtas.push(userAta);
   // }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+
   const userLpTokenAta: web3.PublicKey = (
     await getOrCreateAssociatedTokenAccount(
       connection,

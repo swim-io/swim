@@ -1,5 +1,4 @@
 import {
-  CHAIN_ID_BSC,
   CHAIN_ID_ETH,
   CHAIN_ID_SOLANA,
   createNonce,
@@ -31,15 +30,10 @@ import {
   parseTokenTransferWithSwimPayloadSignedVaa,
 } from "./propellerUtils";
 import {
-  deriveEndpointPda,
   deriveMessagePda,
   encodeTokenTransferWithPayload,
 } from "./tokenBridgeUtils";
-import {
-  WORMHOLE_CORE_BRIDGE,
-  WORMHOLE_TOKEN_BRIDGE,
-  signAndEncodeVaa,
-} from "./wormholeUtils";
+import { WORMHOLE_CORE_BRIDGE, signAndEncodeVaa } from "./wormholeUtils";
 
 // const swimUsdOutputTokenIndex = 0;
 const usdcOutputTokenIndex = 1;

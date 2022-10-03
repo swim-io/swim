@@ -1100,7 +1100,7 @@ describe("TwoPool", () => {
 
     it("Can change governance fee account", async () => {
       const newGovernanceFeeOwner = Keypair.generate().publicKey;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
       const newGovernanceFeeKey: PublicKey = (
         await getOrCreateAssociatedTokenAccount(
           provider.connection,
@@ -1379,7 +1379,7 @@ describe("TwoPool", () => {
       }),
     );
     // initialize user lp token ata and transfer to it first.
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
     const newUserLpTokenAta: web3.PublicKey = (
       await getOrCreateAssociatedTokenAccount(
         provider.connection,

@@ -1,4 +1,4 @@
-import type { GasToken } from "@swim-io/core";
+import type { GasToken, TokenDetails } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
@@ -10,6 +10,7 @@ import type {
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
+const EMPTY_MAP: ReadonlyMap<string, TokenDetails> = new Map();
 const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const bnbChainId = assertType<EvmChainIdByEnv>()({
@@ -117,7 +118,86 @@ const testnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
     decimals: 8, // TODO: Confirm when deployed
   },
   routingContractAddress: "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4", // TODO: Update if necessary
-  tokens: [],
+  tokens: [
+    {
+      id: "testnet-bnb-busd",
+      projectId: TokenProjectId.Busd,
+      nativeDetails: {
+        address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+        decimals: 18,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "6KTvgrkLoPJdB3Grv4ZBUGt6JiLdVnKzJNo4HvLEgm6d",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "testnet-bnb-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0x98529E942FD121d9C470c3d4431A008257E0E714",
+        decimals: 18,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "4dr6ogcLsaFf2RDF4LJU1CvNtNKxonVqQvM6vuGdVR1e",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "testnet-bnb-gst",
+      projectId: TokenProjectId.Gst,
+      nativeDetails: {
+        address: "0x73160078948280B8680e5F1eB2964698928E8cd7",
+        decimals: 8,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "6oAiihJq1urtb6P8ARjwA6TFoduSoVGxaMb8gEMm5cR6",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "testnet-bnb-gmt",
+      projectId: TokenProjectId.Gmt,
+      nativeDetails: {
+        address: "0x1F65D61D01E3f10b34B855287b32D7bfbEA088D0",
+        decimals: 8,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "GE2tiQBCoPjCABkoTXa9jTSV8zCVZo8shyiBh8v52hDz",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
+      id: "testnet-bnb-lp-busd-usdt",
+      projectId: TokenProjectId.SwimLpBnbBusdUsdt,
+      nativeDetails: {
+        address: "0x57FCF9B276d3E7D698112D9b87e6f410B1B5d78d", // TODO: Update
+        decimals: 6,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+  ],
   pools: [],
 };
 

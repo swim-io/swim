@@ -1,4 +1,4 @@
-import type { GasToken } from "@swim-io/core";
+import type { GasToken, TokenDetails } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
@@ -10,6 +10,7 @@ import type {
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
+const EMPTY_MAP: ReadonlyMap<string, TokenDetails> = new Map();
 const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const acalaChainId = assertType<EvmChainIdByEnv>()({
@@ -66,7 +67,38 @@ const testnet: EvmChainConfig<EvmEcosystemId.Acala> = {
     decimals: 8, // TODO: confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_ACALA,
+      id: "testnet-acala-ausd",
+      projectId: TokenProjectId.Ausd,
+      nativeDetails: {
+        address: "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B",
+        decimals: 12,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "BbdPh2Nvpp7XftBHWENJu5dpC5gF5FtCSyFLTU4qNr7g",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      isDisabled:
+        !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE ||
+        !process.env.REACT_APP_ENABLE_ACALA,
+      id: "testnet-acala-lp-ausd",
+      projectId: TokenProjectId.SwimLpAcalaAusd,
+      nativeDetails: {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+  ],
   pools: [],
 };
 

@@ -1,4 +1,4 @@
-import type { GasToken } from "@swim-io/core";
+import type { GasToken, TokenDetails } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
@@ -10,6 +10,7 @@ import type {
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
+const EMPTY_MAP: ReadonlyMap<string, TokenDetails> = new Map();
 const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const ethereumChainId = assertType<EvmChainIdByEnv>()({
@@ -83,7 +84,52 @@ const testnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
     decimals: 8, // TODO: Confirm when deployed
   },
   routingContractAddress: "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4", // TODO: Update if necessary
-  tokens: [],
+  tokens: [
+    {
+      id: "testnet-ethereum-usdc",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "7Lf95y8NuCU5RRC95oUtbBtckPAtbr9ubTgrCiyZ1kEf",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "testnet-ethereum-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "8Cfyi1mYXqKATUkMPvb9BMXikdbppJst6E7eQJkKjAtf",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
+      id: "testnet-ethereum-lp-usdc-usdt",
+      projectId: TokenProjectId.SwimLpEthereumUsdcUsdt,
+      nativeDetails: {
+        address: "0xf3eb1180A64827A602A7e02883b7299191527073", // TODO: Update
+        decimals: 6,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+  ],
   pools: [],
 };
 

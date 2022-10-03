@@ -1,4 +1,4 @@
-import type { GasToken } from "@swim-io/core";
+import type { GasToken, TokenDetails } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
@@ -10,6 +10,7 @@ import type {
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
+const EMPTY_MAP: ReadonlyMap<string, TokenDetails> = new Map();
 const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const karuraChainId = assertType<EvmChainIdByEnv>()({
@@ -83,7 +84,64 @@ const testnet: EvmChainConfig<EvmEcosystemId.Karura> = {
     decimals: 8, // TODO: confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      id: "testnet-karura-ausd",
+      projectId: TokenProjectId.Ausd,
+      nativeDetails: {
+        address: "0x074370ca8Fea9e8f1C5eE23f34CBdcD3FB7a66aD",
+        decimals: 12,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "BRpsJtEUyCPQPRP4DAavXU5KmBqfgKQmX7fwnpVvUUMG",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "testnet-karura-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0x535d5e3b1ff7de526fe180e654a41350903c328d",
+        decimals: 18,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "AnYj8Rbkfd8FYmoiyv6iDS3Tje7PzhPWyE5VZVDh9pzD",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
+      id: "testnet-karura-lp-usdt",
+      projectId: TokenProjectId.SwimLpKaruraUsdt,
+      nativeDetails: {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      isDisabled:
+        !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE ||
+        !process.env.REACT_APP_ENABLE_KARURA_AUSD,
+      id: "testnet-karura-lp-ausd",
+      projectId: TokenProjectId.SwimLpKaruraAusd,
+      nativeDetails: {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+  ],
   pools: [],
 };
 

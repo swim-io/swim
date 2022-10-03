@@ -1,4 +1,4 @@
-import type { GasToken } from "@swim-io/core";
+import type { GasToken, TokenDetails } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
@@ -10,6 +10,7 @@ import type {
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
+const EMPTY_MAP: ReadonlyMap<string, TokenDetails> = new Map();
 const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const auroraChainId = assertType<EvmChainIdByEnv>()({
@@ -100,7 +101,82 @@ const testnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
     decimals: 8, // TODO: confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      id: "testnet-aurora-usdc",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "B3qmqCvzbni27z5TRrt1uBYMczUCjCjui7piGAZifSTU",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "testnet-aurora-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "BaTEf2Mnrf9wePKb9g9BtSPkrZmmBnR6K9Q1ZxDKmWoh",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
+      id: "testnet-aurora-usn",
+      projectId: TokenProjectId.Usn,
+      nativeDetails: {
+        address: "0x0000000000000000000000000000000000000000", // TODO: Update
+        decimals: 18,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "11111111111111111111111111111111", // TODO: Update
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
+      id: "testnet-aurora-lp-usdc-usdt",
+      projectId: TokenProjectId.SwimLpAuroraUsdcUsdt,
+      nativeDetails: {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      isDisabled:
+        !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE ||
+        !process.env.REACT_APP_ENABLE_AURORA_USN,
+      id: "testnet-aurora-lp-usn",
+      projectId: TokenProjectId.SwimLpAuroraUsn,
+      nativeDetails: {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+  ],
   pools: [],
 };
 

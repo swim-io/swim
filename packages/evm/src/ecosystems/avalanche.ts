@@ -1,4 +1,4 @@
-import type { GasToken } from "@swim-io/core";
+import type { GasToken, TokenDetails } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
@@ -10,6 +10,7 @@ import type {
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
 
+const EMPTY_MAP: ReadonlyMap<string, TokenDetails> = new Map();
 const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const avalancheChainId = assertType<EvmChainIdByEnv>()({
@@ -82,7 +83,52 @@ const testnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
     decimals: 8, // TODO: confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      id: "testnet-avalanche-usdc",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "2t6pVTufn9A4b37oLmex3YMjm3smp1G9tPd9HpAFSeka",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "testnet-avalanche-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "9ibet2CuBX1a4HpbzH9auxxtyUvkSKVy39jWtZY5Bfor",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
+      id: "testnet-avalanche-lp-usdc-usdt",
+      projectId: TokenProjectId.SwimLpAvalancheUsdcUsdt,
+      nativeDetails: {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+  ],
   pools: [],
 };
 

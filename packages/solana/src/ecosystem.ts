@@ -1,4 +1,4 @@
-import type { GasToken } from "@swim-io/core";
+import type { GasToken, TokenDetails } from "@swim-io/core";
 import { Env } from "@swim-io/core";
 import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
@@ -6,9 +6,15 @@ import { assertType } from "@swim-io/utils";
 import type { SolanaChainConfig, SolanaEcosystemConfig } from "./protocol";
 import { SOLANA_ECOSYSTEM_ID, SOLANA_PROTOCOL } from "./protocol";
 
-const EMPTY_MAP = new Map();
-const ETHEREUM_ECOSYSTEM_ID = "ethereum";
+const EMPTY_MAP: ReadonlyMap<string, TokenDetails> = new Map();
+const ACALA_ECOSYSTEM_ID = "acala";
+const AURORA_ECOSYSTEM_ID = "aurora";
+const AVALANCHE_ECOSYSTEM_ID = "avalanche";
 const BNB_ECOSYSTEM_ID = "bnb";
+const ETHEREUM_ECOSYSTEM_ID = "ethereum";
+const FANTOM_ECOSYSTEM_ID = "fantom";
+const KARURA_ECOSYSTEM_ID = "karura";
+const POLYGON_ECOSYSTEM_ID = "polygon";
 
 /** Adapted from @solana/spl-token-registry ENV */
 export enum SolanaChainId {
@@ -279,7 +285,290 @@ const testnet: SolanaChainConfig = {
     decimals: 8,
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
+      id: "testnet-swimusd",
+      projectId: TokenProjectId.SwimLpSolanaUsdcUsdt,
+      nativeDetails: {
+        address: "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C", // TODO: Update
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          ACALA_ECOSYSTEM_ID,
+          {
+            address: "0x1111111111111111111111111111111111111111", // TODO: Update
+            decimals: 6,
+          },
+        ],
+        [
+          AURORA_ECOSYSTEM_ID,
+          {
+            address: "0x1111111111111111111111111111111111111111", // TODO: Update
+            decimals: 6,
+          },
+        ],
+        [
+          AVALANCHE_ECOSYSTEM_ID,
+          {
+            address: "0x1111111111111111111111111111111111111111", // TODO: Update
+            decimals: 6,
+          },
+        ],
+        [
+          BNB_ECOSYSTEM_ID,
+          {
+            address: "0x4c15919a4354b4416e7afcb9a27a118bc45818c0", // TODO: Update
+            decimals: 6,
+          },
+        ],
+        [
+          ETHEREUM_ECOSYSTEM_ID,
+          {
+            address: "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5", // TODO: Update
+            decimals: 6,
+          },
+        ],
+        [
+          FANTOM_ECOSYSTEM_ID,
+          {
+            address: "0x1111111111111111111111111111111111111111", // TODO: Update
+            decimals: 6,
+          },
+        ],
+        [
+          KARURA_ECOSYSTEM_ID,
+          {
+            address: "0x1111111111111111111111111111111111111111", // TODO: Update
+            decimals: 6,
+          },
+        ],
+        [
+          POLYGON_ECOSYSTEM_ID,
+          {
+            address: "0x1111111111111111111111111111111111111111", // TODO: Update
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "testnet-solana-usdc",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc",
+        decimals: 6,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY",
+        decimals: 6,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-usdc-v2",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "6iSRgpK4oiqJZuhpLsTecW3n9xBKUq9N3VPQN7RinYwq",
+        decimals: 6,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-usdt-v2",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "8VbikoRxEoyYzTDzDcPTSsGk2E5mM7fK1WrVpKrVd75M",
+        decimals: 6,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-gst",
+      projectId: TokenProjectId.Gst,
+      nativeDetails: {
+        address: "FYxTtPiGxNSDouZQftVRHFqraFJyLvNbTXzZj8X2gKQP",
+        decimals: 9,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-gmt",
+      projectId: TokenProjectId.Gmt,
+      nativeDetails: {
+        address: "3xsNPBpf7UAKpJsLTqiPqHT3ZBKPDndj1rJFM7xaSJcV",
+        decimals: 9,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-lp-hexapool",
+      projectId: TokenProjectId.SwimUsd,
+      nativeDetails: {
+        address: "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr",
+        decimals: 8,
+      },
+      wrappedDetails: new Map([
+        [
+          ETHEREUM_ECOSYSTEM_ID,
+          {
+            address: "0x4DF39C514Eb1747bb4D89cA9Ee35718611590935",
+            decimals: 8,
+          },
+        ],
+        [
+          BNB_ECOSYSTEM_ID,
+          {
+            address: "0x84252522366DB2eA1dAaDe5E2C55CD90a50aC46e",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "testnet-solana-swim",
+      projectId: TokenProjectId.Swim,
+      nativeDetails: {
+        address: "swimnKEr963p7EbCjsSnBCoYwytuZHPm3zbq6fKLHXb",
+        decimals: 6,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-lp-swimlake",
+      projectId: TokenProjectId.XSwim,
+      nativeDetails: {
+        address: "A8UVBwvj1XcdP5okoMqkjhCQGLaqQ8iJDYnNxAMbsNNF",
+        decimals: 6,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-lp-meta-avalanche-usdc",
+      projectId: TokenProjectId.SwimAvalancheUsdcLp,
+      nativeDetails: {
+        address: "DU15RXzuPWTLC4tbAcQvtXbDkHFrY8u6CxgTdhz2Mt8c",
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-lp-meta-avalanche-usdt",
+      projectId: TokenProjectId.SwimAvalancheUsdtLp,
+      nativeDetails: {
+        address: "D6PuZckpEcBhVcpfgjgbWnARhFD3ApHhvnxBGWR6MW5Z",
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-lp-meta-polygon-usdc",
+      projectId: TokenProjectId.SwimPolygonUsdcLp,
+      nativeDetails: {
+        address: "6WBFbyA3XJ3T2BeqA9JbyZFfj3KTCRtnC8MJANBsVNrz",
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-lp-meta-polygon-usdt",
+      projectId: TokenProjectId.SwimPolygonUsdtLp,
+      nativeDetails: {
+        address: "HH3RwS94BWhR4bKeNYGvr2CfSLRQ2Kq6EYSDTKgGLgET",
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-lp-gst",
+      projectId: TokenProjectId.SwimSolanaGstBinanceGstLp,
+      nativeDetails: {
+        address: "BM3sXSfRg1yKzf2AbTA5QV76MdnKHi9M8D7VCGzDEYM1",
+        decimals: 9,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-lp-gmt",
+      projectId: TokenProjectId.SwimSolanaGmtBinanceGmtLp,
+      nativeDetails: {
+        address: "5VUZL2JcvbmjuT1DzDyWJ4mwtEH8unKyuQj3k38j8Ngs",
+        decimals: 9,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-lp-meta-aurora-usdc",
+      projectId: TokenProjectId.SwimAuroraUsdcLp,
+      nativeDetails: {
+        address: "AQiHPuuBPsq4MLLjLv2WHRFbrNB1JHZeR4mQGVJTwVHn",
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-lp-meta-aurora-usdt",
+      projectId: TokenProjectId.SwimAuroraUsdtLp,
+      nativeDetails: {
+        address: "utXdXdUMaS5qrBDDUg5btQMGL2CedouzmMPbYMJPEZD",
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
+      id: "testnet-solana-lp-meta-aurora-usn",
+      projectId: TokenProjectId.SwimAuroraUsnLp,
+      nativeDetails: {
+        address: "11111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-lp-meta-fantom-usdc",
+      projectId: TokenProjectId.SwimFantomUsdcLp,
+      nativeDetails: {
+        address: "4hmRgsk3hSdK1gXV7rg1pStwYtntKmbcFQyKqsZ4USis",
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-lp-meta-karura-ausd",
+      projectId: TokenProjectId.SwimKaruraAusdLp,
+      nativeDetails: {
+        address: "4idDPnTYR4J9YhXmayKZYW8QBrASuuiTAxfkWUeaL3ap",
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "testnet-solana-lp-meta-karura-usdt",
+      projectId: TokenProjectId.SwimKaruraUsdtLp,
+      nativeDetails: {
+        address: "882uzB9euTbBQJ6MrGrvxjXSTQi23VBQZcLcTH4E5Xow",
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_ACALA,
+      id: "testnet-solana-lp-meta-acala-ausd",
+      projectId: TokenProjectId.SwimAcalaAusdLp,
+      nativeDetails: {
+        address: "BTbHtbUtDX5WAUSxPgELzy9VsbMbKAVFQ2hykNrD3X7L",
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+  ],
   pools: [],
 };
 

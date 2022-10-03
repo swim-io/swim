@@ -2103,16 +2103,16 @@ describe("propeller", () => {
           const memoBuffer = Buffer.alloc(16);
           memoBuffer.write(memoStr);
 
-          const maxFee = new BN(1_000_000_000);
+          // const maxFee = new BN(1_000_000_000);
           const swimPayload = {
             version: swimPayloadVersion,
             owner: provider.publicKey.toBuffer(),
             // owner: owner.toBuffer(),
-            propellerEnabled,
-            gasKickstart,
-            maxFee,
-            targetTokenId,
-            memo: memoBuffer,
+            // propellerEnabled,
+            // gasKickstart,
+            // maxFee,
+            // targetTokenId,
+            // memo: memoBuffer,
           };
           //
           // const swimPayload = {
@@ -2180,10 +2180,6 @@ describe("propeller", () => {
           );
           expect(tokenTransferMessageFromPostVaa.tokenTransfer.amount).toEqual(
             amount.toString(),
-          );
-          expect(swimPayloadFromPostVaa.gasKickstart).toEqual(gasKickstart);
-          expect(swimPayloadFromPostVaa.propellerEnabled).toEqual(
-            propellerEnabled,
           );
           expect(swimPayloadFromPostVaa.owner).toEqual(
             provider.publicKey.toBuffer(),
@@ -2311,9 +2307,6 @@ describe("propeller", () => {
           // } = swimPayloadMessageAccount.swimPayload;
           expect(swimPayloadMessageAccount.swimPayloadVersion).toEqual(
             swimPayloadVersion,
-          );
-          expect(swimPayloadMessageAccount.targetTokenId).toEqual(
-            targetTokenId,
           );
           const swimPayloadMessageOwnerPubKey = new PublicKey(
             swimPayloadMessageAccount.owner,
@@ -2525,16 +2518,16 @@ describe("propeller", () => {
           const memoBuffer = Buffer.alloc(16);
           memoBuffer.write(memoStr);
 
-          const maxFee = new BN(1000000000);
+          // const maxFee = new BN(1000000000);
           const swimPayload = {
             version: swimPayloadVersion,
             owner: provider.publicKey.toBuffer(),
             // owner: owner.toBuffer(),
-            propellerEnabled,
-            gasKickstart,
-            maxFee,
-            targetTokenId,
-            memo: memoBuffer,
+            // propellerEnabled,
+            // gasKickstart,
+            // maxFee,
+            // targetTokenId,
+            // memo: memoBuffer,
           };
 
           // const swimPayload = {
@@ -2934,16 +2927,16 @@ describe("propeller", () => {
           const memoBuffer = Buffer.alloc(16);
           memoBuffer.write(memoStr);
 
-          const maxFee = new BN(1000000000);
+          // const maxFee = new BN(1000000000);
           const swimPayload = {
             version: swimPayloadVersion,
             owner: provider.publicKey.toBuffer(),
             // owner: owner.toBuffer(),
-            propellerEnabled,
-            gasKickstart,
-            maxFee,
-            targetTokenId,
-            memo: memoBuffer,
+            // propellerEnabled,
+            // gasKickstart,
+            // maxFee,
+            // targetTokenId,
+            // memo: memoBuffer,
           };
 
           // const swimPayload = {
@@ -3126,19 +3119,12 @@ describe("propeller", () => {
           expect(swimPayloadMessageAccount.swimPayloadVersion).toEqual(
             swimPayloadVersion,
           );
-          expect(swimPayloadMessageAccount.targetTokenId).toEqual(
-            targetTokenId,
-          );
           const swimPayloadMessageOwnerPubKey = new PublicKey(
             swimPayloadMessageAccount.owner,
           );
           expect(swimPayloadMessageOwnerPubKey).toEqual(
             provider.wallet.publicKey,
           );
-          expect(swimPayloadMessageAccount.propellerEnabled).toEqual(
-            propellerEnabled,
-          );
-          expect(swimPayloadMessageAccount.gasKickstart).toEqual(gasKickstart);
 
           const completeNativeWithPayloadMetapoolTxnSize =
             completeNativeWithPayloadMetapoolTxn.serialize().length;
@@ -3341,16 +3327,16 @@ describe("propeller", () => {
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
           const memoBuffer = Buffer.alloc(16);
           memoBuffer.write(memoStr);
-          const maxFee = new BN(1000000000);
+          // const maxFee = new BN(1000000000);
           const swimPayload = {
             version: swimPayloadVersion,
             owner: provider.publicKey.toBuffer(),
             // owner: owner.toBuffer(),
-            propellerEnabled,
-            gasKickstart,
-            maxFee,
-            targetTokenId,
-            memo: memoBuffer,
+            // propellerEnabled,
+            // gasKickstart,
+            // maxFee,
+            // targetTokenId,
+            // memo: memoBuffer,
           };
           // const swimPayload = {
           //   version: swimPayloadVersion,

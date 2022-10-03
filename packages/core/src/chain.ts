@@ -1,8 +1,8 @@
+import { TokenProjectId } from "@swim-io/token-projects";
 import { findOrThrow } from "@swim-io/utils";
 
 import type { PoolConfig } from "./pool";
 import type { TokenConfig, TokenDetails } from "./token";
-import { SWIM_USD_TOKEN_ID } from "./token";
 import type { WormholeChainConfig } from "./wormhole";
 
 /** Ecosystem-neutral blockchain configuration interface */
@@ -19,9 +19,11 @@ export interface ChainConfig {
 
 export const getTokenDetails = (
   chainConfig: ChainConfig,
-  tokenId: string,
+  tokenProjectId: TokenProjectId,
 ): TokenDetails =>
-  tokenId === SWIM_USD_TOKEN_ID
+  tokenProjectId === TokenProjectId.SwimUsd
     ? chainConfig.swimUsdDetails
-    : findOrThrow(chainConfig.tokens, (token) => token.id === tokenId)
-        .nativeDetails;
+    : findOrThrow(
+        chainConfig.tokens,
+        (token) => token.projectId === tokenProjectId,
+      ).nativeDetails;

@@ -22,8 +22,6 @@ anchor deploy
 
 1. switchboard default is mainnet address
 
-
-
 # To Do:
 
 1. add routing contract pause
@@ -77,7 +75,7 @@ anchor deploy
     2. leave field accessor checks (e.g. `token::authority = payer`).
     3. these accessors are optimized to save compute and account validation assumed to be done outside those methods.
         1. is this actually optimal? if the `Account<'info, T>` is specified, then it's going to be
-        deserialized into that type later so would there be any significant difference?
+           deserialized into that type later so would there be any significant difference?
         2. you would save compute budge if the accessor check failed but that's kind of useless.
 2. wormhole sender & redeemer are both "global" PDAs for the propeller programId
     1. could potentially have an exploit where someone else could initialize a different propeller state and then would have access to
@@ -99,7 +97,7 @@ anchor deploy
     2. issues:
         1. for solana, would need to pass in all the necessary accounts to do the gas exchange 1. might need to force that it will only be based on whatever token is exchanged for at the end
         2. actually think about this more from perspective of both the propeller vs user-handled. if user-handled then
-       they have to have gas already. gas kickstart should inherently be a propeller-only txn.
+           they have to have gas already. gas kickstart should inherently be a propeller-only txn.
     3. using oracle examples:
         1. pyth & anchor example - https://github.com/jet-lab/jet-v2/blob/master/programs/margin-pool/src/instructions/margin_refresh_position.rs
         2. switchboard - https://github.com/switchboard-xyz/switchboard-v2-example

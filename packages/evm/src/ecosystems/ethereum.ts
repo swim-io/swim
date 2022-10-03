@@ -1,5 +1,6 @@
 import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
+import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
 
 import type {
@@ -8,6 +9,8 @@ import type {
   EvmEcosystemConfig,
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
+
+const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const ethereumChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 1,
@@ -28,7 +31,42 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
     decimals: 8, // TODO: Confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      id: "mainnet-ethereum-usdc",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "A9mUU4qviSctJVPJdBJWkb28deg915LYJKrzQ19ji3FM",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "mainnet-ethereum-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "Dn4noZ5jgGfkntzcQSUZ8czkreiZ1ForXYoV2H8Dm7S1",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+  ],
   pools: [],
 };
 

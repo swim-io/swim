@@ -1,5 +1,6 @@
 import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
+import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
 
 import type {
@@ -8,6 +9,8 @@ import type {
   EvmEcosystemConfig,
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
+
+const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const bnbChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 56,
@@ -28,7 +31,76 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
     decimals: 8, // TODO: Confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      id: "mainnet-bnb-busd",
+      projectId: TokenProjectId.Busd,
+      nativeDetails: {
+        address: "0xe9e7cea3dedca5984780bafc599bd69add087d56",
+        decimals: 18,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "5RpUwQ8wtdPCZHhu6MERp2RGrpobsbZ6MH5dDHkUjs2",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "mainnet-bnb-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0x55d398326f99059ff775485246999027b3197955",
+        decimals: 18,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "8qJSyQprMC57TWKaYEmetUR3UUiTP2M3hXdcvFhkZdmv",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "mainnet-bnb-gst",
+      projectId: TokenProjectId.Gst,
+      nativeDetails: {
+        address: "0x4a2c860cec6471b9f5f5a336eb4f38bb21683c98",
+        decimals: 8,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "GDuUFXEhUm4jG71vPxYRX3VxUMJ5etGvHTR1iKwTdb6p",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "mainnet-bnb-gmt",
+      projectId: TokenProjectId.Gmt,
+      nativeDetails: {
+        address: "0x3019bf2a2ef8040c242c9a4c5c4bd4c81678b2a1",
+        decimals: 8,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "7dzFD8xQ3FDmVLxwn75UA9WhVnBsUdRAexASVvpXX3Bo",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+  ],
   pools: [],
 };
 

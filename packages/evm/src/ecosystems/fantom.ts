@@ -1,5 +1,6 @@
 import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
+import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
 
 import type {
@@ -8,6 +9,8 @@ import type {
   EvmEcosystemConfig,
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
+
+const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const fantomChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 250,
@@ -27,7 +30,25 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
     decimals: 8, // TODO: confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      id: "mainnet-fantom-usdc",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "Dnr8fDaswHtYMSKbtR9e8D5EadyxqyJwE98xp17ZxE2E",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+  ],
   pools: [],
 };
 

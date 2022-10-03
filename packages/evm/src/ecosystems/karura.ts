@@ -1,5 +1,6 @@
 import type { GasToken } from "@swim-io/core";
 import { Env } from "@swim-io/core";
+import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
 
 import type {
@@ -8,6 +9,8 @@ import type {
   EvmEcosystemConfig,
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
+
+const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const karuraChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 686,
@@ -27,7 +30,43 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Karura> = {
     decimals: 8, // TODO: confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_KARURA_AUSD,
+      id: "mainnet-karura-ausd",
+      projectId: TokenProjectId.Ausd,
+      nativeDetails: {
+        address: "0x0000000000000000000100000000000000000081",
+        decimals: 12,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "3sEvyXzC2vAPqF7uprB2vRaL1X1FbqQqmPxhwVi53GYF",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "mainnet-karura-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0x0000000000000000000500000000000000000007",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "E942z7FnS7GpswTvF5Vggvo7cMTbvZojjLbFgsrDVff1",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+  ],
   pools: [],
 };
 

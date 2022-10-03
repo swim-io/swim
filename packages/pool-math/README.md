@@ -21,10 +21,10 @@ import Decimal from "decimal.js";
 // To retrieve an EVM Swim pool, see @swim-io/evm-contracts:
 // https://www.npmjs.com/package/@swim-io/evm-contracts
 import { Pool__factory } from "@swim-io/evm-contracts";
-// Note, the type of the variables from getState() are wrapped and must be converted
+// Note, the variable's types from getState() are wrapped and must be converted
 // to be used with PoolMath.
 const { balances, ampFactor, lpFee, governanceFee } =
-  await Pool__factory.connect(sourceTokenAddress, sourceWallet).getState();
+  await Pool__factory.connect(evmPoolAddress, signer).getState();
 
 // STEP 2: Create an instance
 const poolMath = new PoolMath(balances, ampFactor, lpFee, governanceFee);

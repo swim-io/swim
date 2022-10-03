@@ -677,6 +677,7 @@ export const generatePropellerEngineTxns = async (
   const completeNativeWithPayloadIxs = propellerProgram.methods
     .propellerCompleteNativeWithPayload()
     .accounts({
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       completeNativeWithPayload: completePubkeys,
       feeTracker: propellerEngineFeeTracker,
@@ -710,7 +711,7 @@ export const generatePropellerEngineTxns = async (
   const completeNativeWithPayloadTxn =
     await completeNativeWithPayloadIxs.transaction();
   txns = [completeNativeWithPayloadTxn];
-  const targetTokenId = swimPayload.targetTokenId!;
+  const targetTokenId = swimPayload.targetTokenId;
   const [tokenIdMapAddr] = await getTargetTokenIdMapAddr(
     propeller,
     targetTokenId,
@@ -930,6 +931,7 @@ export const generatePropellerEngineTxns = async (
         //   twoPoolProgram: twoPoolProgram.programId,
         //   systemProgram: web3.SystemProgram.programId,
         // },
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         processSwimPayload: processSwimPayloadPubkeys,
         feeVault: propellerFeeVault,

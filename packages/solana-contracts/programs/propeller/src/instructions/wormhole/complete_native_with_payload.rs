@@ -388,7 +388,6 @@ impl<'info> PropellerCompleteNativeWithPayload<'info> {
 
     fn calculate_fees(&self) -> Result<u64> {
         let rent = Rent::get()?;
-        let swim_payload_message_rent_exempt_fees = rent.minimum_balance(8 + SwimPayloadMessage::LEN);
         let wormhole_message_rent_exempt_fees =
             rent.minimum_balance(self.complete_native_with_payload.message.to_account_info().data_len());
         let claim_rent_exempt_fees =
@@ -397,18 +396,15 @@ impl<'info> PropellerCompleteNativeWithPayload<'info> {
         // let complete_with_payload_fee = propeller.complete_with_payload_fee;
         let complete_with_payload_fee = propeller.get_complete_native_with_payload_fee();
 
-        let total_rent_exemption_in_lamports = swim_payload_message_rent_exempt_fees
-            .checked_add(wormhole_message_rent_exempt_fees)
-            .and_then(|x| x.checked_add(claim_rent_exempt_fees))
+        let total_rent_exemption_in_lamports = wormhole_message_rent_exempt_fees
+            .checked_add(claim_rent_exempt_fees)
             .ok_or(PropellerError::IntegerOverflow)?;
         msg!(
             "
-    {}(swim_payload_message_rent_exempt_fees) +
     {}(wormhole_message_rent_exempt_fees) +
     {}(claim_rent_exempt_fees) +
     = {}(total_rent_exemption_in_lamports)
     ",
-            swim_payload_message_rent_exempt_fees,
             wormhole_message_rent_exempt_fees,
             claim_rent_exempt_fees,
             total_rent_exemption_in_lamports

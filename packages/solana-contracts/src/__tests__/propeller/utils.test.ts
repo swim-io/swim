@@ -20,7 +20,7 @@ import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 
 import type { Propeller } from "../../artifacts/propeller";
 
-import { swimPayloadVersion } from "./consts";
+import { swimPayloadVersion, USDC_TO_TOKEN_NUMBER } from "./consts";
 import {
   encodeSwimPayload,
   formatParsedTokenTransferWithSwimPayloadPostedMessage,
@@ -35,25 +35,11 @@ import {
 } from "./tokenBridgeUtils";
 import { WORMHOLE_CORE_BRIDGE, signAndEncodeVaa } from "./wormholeUtils";
 
-// const swimUsdOutputTokenIndex = 0;
-const usdcOutputTokenIndex = 1;
-// const usdtOutputTokenIndex = 2;
-// const metapoolMint1OutputTokenIndex = 3;
 
 setDefaultWasm("node");
-// const pr2 = new AnchorProvider(
-// 	connection,
-// 	provider.wallet,
-// 	{
-// 		commitment: "confirmed",
-// 	}
-// )
-// const process = require("process");
-// const url = process.env.ANCHOR_PROVIDER_URL;
-// const provider = AnchorProvider.local(url, {commitment: "confirmed"});
+
 const envProvider = AnchorProvider.env();
 
-// const confirmedCommitment = { commitment: "confirmed" as web3.Finality };
 const commitment = "confirmed" as web3.Commitment;
 const rpcCommitmentConfig = {
   commitment,
@@ -123,7 +109,7 @@ describe("utils tests", () => {
       propellerEnabled,
       gasKickstart,
       maxFee,
-      targetTokenId: usdcOutputTokenIndex,
+      targetTokenId: USDC_TO_TOKEN_NUMBER,
       memo: memoBuffer,
     };
 
@@ -192,93 +178,6 @@ describe("utils tests", () => {
     ).toEqual(swimUsdKeypair.publicKey);
     expect(swimPayloadFromVaa.owner).toEqual(provider.publicKey.toBuffer());
 
-    // const guardianSetIndex: number = parsedTokenTransferVaa.guardianSetIndex;
-    // const signatureSet = web3.Keypair.generate();
-    // const verifySigIxs = await createVerifySignaturesInstructionsSolana(
-    // 	provider.connection,
-    // 	WORMHOLE_CORE_BRIDGE.toBase58(),
-    // 	payer.publicKey.toBase58(),
-    // 	tokenTransferWithPayloadSignedVaa,
-    // 	signatureSet
-    // );
-    // // const verifyTxns: web3.Transaction[] = [];
-    // const verifyTxnSigs: string[] = [];
-    // const batchableChunks = chunks(verifySigIxs, 2);
-    //
-    // await Promise.all(batchableChunks.map(async (chunk) => {
-    // 	let txn = new web3.Transaction();
-    //   // const secp256k1Ix: TransactionInstruction = chunk[0];
-    //   // const secp256k1IxData = secp256k1Ix.data;
-    //   // const verifySigIx: TransactionInstruction = chunk[1];
-    //   // const [
-    //   //   _payer,
-    //   //   guardianSet,
-    //   //   signatureSet,
-    //   //   sysvarIxs,
-    //   //   sysvarsRent,
-    //   //   sysProg
-    //   // ] = verifySigIx.keys.map(k => k.pubkey);
-    //   // const verifySigIxData = verifySigIx.data;
-    //   // const verifySigData = verifySigIxData.slice(1); //first byte if verifySig ix enum
-    //   // const secpAndVerifyTxn = propellerProgram
-    //   //   .methods
-    //   //   .secp256k1AndVerify(
-    //   // secp256k1IxData,
-    //   //     guardianSetIndex,
-    //   //     verifySigData,
-    //   //   )
-    //   //   .accounts({
-    //   //     secp256k1Program:  Secp256k1Program.programId,
-    //   //     payer: payer.publicKey,
-    //   //     guardianSet: guardianSet,
-    //   //     signatureSet: signatureSet,
-    //   //     instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
-    //   //     rent: web3.SYSVAR_RENT_PUBKEY,
-    //   //     systemProgram: web3.SystemProgram.programId,
-    //   //     wormhole,
-    //   //   })
-    //
-    //
-    // 	for (const chunkIx of chunk) {
-    // 		txn.add(chunkIx);
-    // 	}
-    // 	// txn.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-    // 	// txn.partialSign(signatureSet);
-    // 	const txnSig = await provider.sendAndConfirm(txn, [signatureSet], confirmedCommitment);
-    // 	console.info(`txnSig: ${txnSig} had ${chunk.length} instructions`);
-    // 	verifyTxnSigs.push(txnSig);
-    // }));
-    // console.info(`verifyTxnSigs: ${JSON.stringify(verifyTxnSigs)}`);
-    // await Promise.all(verifyTxnSigs.map(async (txnSig) => {
-    // 	const info = await connection.getTransaction(txnSig, confirmedCommitment);
-    // 	if (!info) {
-    // 		throw new Error(
-    // 			`An error occurred while fetching the transaction info for ${txnSig}`
-    // 		);
-    // 	}
-    // 	// get the sequence from the logs (needed to fetch the vaa)
-    // 	const logs = info.meta?.logMessages;
-    // 	console.info(`${txnSig} logs: ${JSON.stringify(logs)}`);
-    // }));
-    //
-    //
-    // const postVaaIx = await createPostVaaInstructionSolana(
-    // 	WORMHOLE_CORE_BRIDGE.toBase58(),
-    // 	payer.publicKey.toBase58(),
-    // 	tokenTransferWithPayloadSignedVaa,
-    // 	signatureSet
-    // );
-    // const postVaaTxn = new web3.Transaction().add(postVaaIx);
-    // const postVaaTxnSig = await provider.sendAndConfirm(postVaaTxn, [], confirmedCommitment);
-    // console.info(`postVaaTxnSig: ${postVaaTxnSig}`);
-    // const postVaaTxnSigInfo = await connection.getTransaction(postVaaTxnSig, confirmedCommitment);
-    // if (!postVaaTxnSigInfo) {
-    // 	throw new Error(
-    // 		`An error occurred while fetching the transaction info for ${postVaaTxnSig}`
-    // 	);
-    // }
-    //
-    // const postVaaIxMessageAcct = postVaaIx.keys[3].pubkey;
     await postVaaSolanaWithRetry(
       connection,
       async (tx) => {
@@ -290,84 +189,18 @@ describe("utils tests", () => {
       10,
     );
 
-    // const wormholeMessage = web3.Keypair.generate();
 
-    // TODO: this wasn't working for some reason. kept getting some wasm related error.
-    // const { complete_transfer_native_ix } = await importTokenWasm();
-    /*
-     accounts: vec![
-            AccountMeta::new(payer, true),
-            AccountMeta::new_readonly(config_key, false),
-            message_acc,
-            claim_acc,
-            AccountMeta::new_readonly(endpoint, false),
-            AccountMeta::new(to, false),
-            if let Some(fee_r) = fee_recipient {
-                AccountMeta::new(fee_r, false)
-            } else {
-                AccountMeta::new(to, false)
-            },
-            AccountMeta::new(custody_key, false),
-            AccountMeta::new_readonly(mint, false),
-            AccountMeta::new_readonly(custody_signer_key, false),
-            // Dependencies
-            AccountMeta::new_readonly(solana_program::sysvar::rent::id(), false),
-            AccountMeta::new_readonly(solana_program::system_program::id(), false),
-            // Program
-            AccountMeta::new_readonly(bridge_id, false),
-            AccountMeta::new_readonly(spl_token::id(), false),
-        ],
-     */
-    // const complete_wrapped_accounts = ixFromRust(
-    // 	complete_transfer_native_ix(
-    // 		WORMHOLE_TOKEN_BRIDGE.toBase58(),
-    // 		WORMHOLE_CORE_BRIDGE.toBase58(),
-    // 		payer.publicKey.toBase58(),
-    // 		tokenTransferWithPayloadSignedVaa
-    // 	)
-    // ).keys;
     const [messageAccount] = await deriveMessagePda(
       tokenTransferWithPayloadSignedVaa,
       WORMHOLE_CORE_BRIDGE,
     );
 
-    // console.info(`
-    // 	postVaaIxMessageAcct: ${postVaaIxMessageAcct.toBase58()}
-    // 	messageAccount: ${messageAccount.toBase58()}
-    // `)
 
     const messageAccountInfo = await connection.getAccountInfo(messageAccount);
     if (!messageAccountInfo) {
       throw new Error("MessageAccountInfo is undefined");
     }
 
-    // console.info(`messageAccountInfo: ${JSON.stringify(messageAccountInfo.data)}`);
-    /*
-      vaa: 118,97,97
-      msg: 109,115,103
-      msu: 109,115,117
-      let discriminators = ["vaa", "msg", "msu"];
-      let txtEncoder = new TextEncoder();
-      discriminators.forEach(discriminator => { console.info(`${discriminator}: ${txtEncoder.encode(discriminator)}`) });
-     */
-    // program.methods.Message.deserialize(messageAccountInfo.data);
-
-    // const parsed2 = await parseTokenTransferWithPayloadPostedMessage(messageAccountInfo.data);
-    // const {
-    // 	payload: postedMessagePayload2,
-    // } = parsed2;
-    // console.info(`parsed2: ${JSON.stringify(parsed2, null ,2)}`);
-    // const {
-    //   payload: postedVaaPayload,
-    //   ...postedMessage
-    // }  = await parseTokenTransferWithSwimPayloadPostedMessage(messageAccountInfo.data);
-    // console.info(`postedMessage:\n${JSON.stringify(postedMessage)}`);
-    // console.info(`postedMessagePayload:\n${JSON.stringify(postedVaaPayload)}`);
-    // const {
-    //   payload: postedSwimPayload
-    // } = postedVaaPayload;
-    //
-    // console.info(`postedSwimPayload:\n${JSON.stringify(postedSwimPayload)}`);
     const parsedTokenTransferWithSwimPayloadPostedMessage =
       await parseTokenTransferWithSwimPayloadPostedMessage(
         messageAccountInfo.data,

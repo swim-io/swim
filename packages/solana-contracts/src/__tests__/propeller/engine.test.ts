@@ -2407,13 +2407,7 @@ describe("propeller", () => {
             WORMHOLE_CORE_BRIDGE,
           );
 
-          // const [ethEndpointAccount] = await deriveEndpointPda(
-          //   CHAIN_ID_ETH,
-          //   ethTokenBridge,
-          //   // parsedVaa.emitterChain,
-          //   // parsedVaa.emitterAddress,
-          //   WORMHOLE_TOKEN_BRIDGE,
-          // );
+
           console.info(`endpointAccount: ${ethEndpointAccount.toBase58()}`);
           wormholeClaim = await getClaimAddressSolana(
             WORMHOLE_TOKEN_BRIDGE.toBase58(),
@@ -2425,9 +2419,7 @@ describe("propeller", () => {
               wormholeClaim,
               propellerProgram.programId,
             );
-          // expect(expectedSwimPayloadMessage.toBase58()).toEqual(
-          //   completeNativeWithPayloadPubkeys.swimPayloadMessage.toBase58(),
-          // );
+
           console.info(`
             marginalPricePoolToken0Account: ${marginalPricePoolToken0Account.toBase58()}
             marginalPricePoolToken1Account: ${marginalPricePoolToken1Account.toBase58()}
@@ -2470,13 +2462,7 @@ describe("propeller", () => {
                 },
                 feeTracker: propellerEngineFeeTracker,
                 aggregator,
-                // marginalPricePool: {
-                //   pool: marginalPricePool,
-                //   poolToken0Account: marginalPricePoolToken0Account,
-                //   poolToken1Account: marginalPricePoolToken1Account,
-                //   lpMint: marginalPricePoolLpMint,
-                // },
-                // twoPoolProgram: twoPoolProgram.programId,
+
                 marginalPricePool: marginalPricePool,
                 marginalPricePoolToken0Account: marginalPricePoolToken0Account,
                 marginalPricePoolToken1Account: marginalPricePoolToken1Account,
@@ -2498,16 +2484,6 @@ describe("propeller", () => {
             )}`,
           );
 
-          // const completeNativeWithPayloadTxn =
-          //   await completeNativeWithPayloadIxs.transaction();
-          //
-          // console.info(
-          //   `completeNativeWithPayloadTxn: ${JSON.stringify(
-          //     completeNativeWithPayloadTxn,
-          //     null,
-          //     2,
-          //   )}`,
-          // );
           const completeNativeWithPayloadTxnSig =
             await completeNativeWithPayloadIxs.rpc();
           const providerBalanceAfter = await provider.connection.getBalance(
@@ -2559,14 +2535,6 @@ describe("propeller", () => {
             ),
           ).toBeTruthy();
 
-          // const {
-          //   swimPayloadVersion,
-          //   targetTokenId,
-          //   owner,
-          //   memo,
-          //   propellerEnabled,
-          //   gasKickstart
-          // } = swimPayloadMessageAccount.swimPayload;
           expect(swimPayloadMessageAccount.swimPayloadVersion).toEqual(
             swimPayloadVersion,
           );
@@ -2720,18 +2688,6 @@ describe("propeller", () => {
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
               systemProgram: web3.SystemProgram.programId,
               tokenProgram: splToken.programId,
-              // pool,
-              // poolToken0Mint,
-              // poolToken1Mint,
-              // poolLpMint: lpMint,
-              // user: owner,
-              // // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              // userPoolToken0Account: userTokenAccount0,
-              // // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              // userPoolToken1Account: userTokenAccount1,
-              // // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              // userLpTokenAccount,
-
               memo: MEMO_PROGRAM_ID,
               aggregator,
               marginalPricePool: marginalPricePool,
@@ -2771,12 +2727,6 @@ describe("propeller", () => {
         });
 
         it("processes swim payload fallback", async () => {
-          // const [userTokenAccount0, userTokenAccount1, userLpTokenAccount] =
-          //   await Promise.all([
-          //     getAssociatedTokenAddress(usdcKeypair.publicKey, owner),
-          //     getAssociatedTokenAddress(usdtKeypair.publicKey, owner),
-          //     getAssociatedTokenAddress(swimUsdKeypair.publicKey, owner),
-          //   ]);
 
           const propellerFeeVaultBalanceBefore = (
             await splToken.account.token.fetch(propellerFeeVault)
@@ -2840,24 +2790,7 @@ describe("propeller", () => {
           console.info(
             `${JSON.stringify(propellerProcessSwimPayloadPubkeys, null, 2)}`,
           );
-          // if (!propellerProcessSwimPayloadPubkeys.tokenIdMap) {
-          //   throw new Error("tokenIdMap not derived");
-          // }
 
-          // const expectedTokenIdMap =
-          //   outputTokenIdMappingAddrs.get(targetTokenId);
-          // if (!expectedTokenIdMap) {
-          //   throw new Error("expectedTokenIdMap not found");
-          // }
-          // const expectedTokenIdMapAcct =
-          //   await propellerProgram.account.tokenIdMap.fetch(expectedTokenIdMap);
-          // console.info(`
-          //   calculatedTokenIdMap: ${calculatedTokenIdMap.toBase58()}
-          //   calculatedTokenIdMapBump: ${calculatedTokenIdMapBump}
-          //   expectedTokenIdMapAcct: ${expectedTokenIdMap.toBase58()} :
-          //   ${JSON.stringify(expectedTokenIdMapAcct, null, 2)}
-          // `);
-          // expect(calculatedTokenIdMap).toEqual(expectedTokenIdMap);
 
           const processSwimPayloadTxnSig: string =
             await propellerProcessSwimPayloadIxs.rpc();
@@ -2912,21 +2845,7 @@ describe("propeller", () => {
           const userSwimUsdAtaBalanceAfter = (
             await splToken.account.token.fetch(ownerSwimUsdAta)
           ).amount;
-          // const userTokenAccount1BalanceAfter = (
-          //   await splToken.account.token.fetch(userTokenAccount1)
-          // ).amount;
 
-          // console.info(`
-          //   propellerRedeemerEscrowBalance
-          //     Before: ${propellerRedeemerEscrowBalanceBefore.toString()}
-          //     After: ${propellerRedeemerEscrowBalanceAfter.toString()}
-          //   userTokenAccount0Balance
-          //     Before: ${userSwimUsdAtaBalanceBefore.toString()}
-          //     After: ${userSwimUsdAtaBalanceAfter.toString()}
-          //   userTokenAccount1Balance
-          //     Before: ${userTokenAccount1BalanceBefore.toString()}
-          //     After: ${userTokenAccount1BalanceAfter.toString()}
-          // `);
           expect(
             propellerRedeemerEscrowBalanceAfter.eq(
               propellerRedeemerEscrowBalanceBefore.sub(
@@ -4678,14 +4597,6 @@ describe("propeller", () => {
           targetTokenId,
           memo: memoBuffer,
         };
-        // const swimPayload = {
-        //   version: swimPayloadVersion,
-        //   targetTokenId,
-        //   owner: owner.toBuffer(),
-        //   memo: memoBuffer,
-        //   propellerEnabled,
-        //   gasKickstart,
-        // };
         const amount = parseUnits("100000", mintDecimal);
         console.info(`amount: ${amount.toString()}`);
         /**
@@ -4789,37 +4700,19 @@ describe("propeller", () => {
             tokenTransferWithPayloadSignedVaa,
           );
 
-          // const [expectedSwimPayloadMessage, expectedSwimPayloadMessageBump] =
-          //   await web3.PublicKey.findProgramAddress(
-          //     [
-          //       Buffer.from("propeller"),
-          //       wormholeClaim.toBuffer(),
-          //       wormholeMessage.toBuffer(),
-          //     ],
-          //     propellerProgram.programId,
-          //   );
 
           const [expectedSwimPayloadMessage, expectedSwimPayloadMessageBump] =
             await getSwimPayloadMessagePda(
               wormholeClaim,
               propellerProgram.programId,
             );
-          /*
-                          [Ricky]:
-                  wormholeMessage: 8jE3PGhGY8XVrqSV7fUVrkh5FdDTPqQGrzUdzdAgQJ5D
-                  wormholeClaim: Gs5rVWe85yXGXncphCsGgnLXYuzFEQgyzSUcuYpXR9UL
-                  expectedSwimPayloadMessage: DsBgVKx71iC7JYgT6RhhPahkwBHanqaz6zpDbPejTE9y
 
-           */
           console.info(`
             [Ricky]:
               wormholeMessage: ${wormholeMessage.toBase58()}
               wormholeClaim: ${wormholeClaim.toBase58()}
               expectedSwimPayloadMessage: ${expectedSwimPayloadMessage.toBase58()}
           `);
-          // expect(expectedSwimPayloadMessage.toBase58()).toEqual(
-          //   completeNativeWithPayloadPubkeys.swimPayloadMessage.toBase58(),
-          // );
           console.info(`
             marginalPricePoolToken0Account: ${marginalPricePoolToken0Account.toBase58()}
             marginalPricePoolToken1Account: ${marginalPricePoolToken1Account.toBase58()}
@@ -4894,14 +4787,6 @@ describe("propeller", () => {
             ),
           ).toBeTruthy();
 
-          // const {
-          //   swimPayloadVersion,
-          //   targetTokenId,
-          //   owner,
-          //   memo,
-          //   propellerEnabled,
-          //   gasKickstart
-          // } = swimPayloadMessageAccount.swimPayload;
           expect(swimPayloadMessageAccount.swimPayloadVersion).toEqual(
             swimPayloadVersion,
           );
@@ -5145,119 +5030,7 @@ describe("propeller", () => {
               processSwimPayloadTxn,
               [userTransferAuthority],
             );
-          // const processSwimPayloadPubkeys =
-          //   await propellerEnginePropellerProgram.methods
-          //                                        .processSwimPayload(
-          //                                          swimPayloadMessageAccountTargetTokenId,
-          //                                          new BN(0),
-          //                                        )
-          //                                        .accounts({
-          //                                          propeller,
-          //                                          payer: propellerEngineKeypair.publicKey,
-          //                                          message: wormholeMessage,
-          //                                          claim: wormholeClaim,
-          //                                          swimPayloadMessage,
-          //                                          redeemer: propellerRedeemer,
-          //                                          redeemerEscrow: propellerRedeemerEscrowAccount,
-          //                                          // tokenIdMap: ?
-          //                                          pool,
-          //                                          poolTokenAccount0,
-          //                                          poolTokenAccount1,
-          //                                          lpMint,
-          //                                          governanceFee: governanceFeeAcct,
-          //                                          userTransferAuthority: userTransferAuthority.publicKey,
-          //                                          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          //                                          userTokenAccount0,
-          //                                          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          //                                          userTokenAccount1,
-          //                                          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          //                                          userLpTokenAccount,
-          //                                          tokenProgram: splToken.programId,
-          //                                          memo: MEMO_PROGRAM_ID,
-          //                                          twoPoolProgram: twoPoolProgram.programId,
-          //                                          systemProgram: web3.SystemProgram.programId,
-          //                                        })
-          //                                        .pubkeys();
-          //
-          // const propellerProcessSwimPayloadIxs =
-          //   propellerEnginePropellerProgram.methods
-          //                                  .propellerProcessSwimPayload(
-          //                                    swimPayloadMessageAccountTargetTokenId,
-          //                                  )
-          //                                  .accounts({
-          //                                    processSwimPayload: processSwimPayloadPubkeys,
-          //                                    feeVault: propellerFeeVault,
-          //                                    feeTracker: propellerEngineFeeTracker,
-          //                                    aggregator,
-          //                                    marginalPricePool: marginalPricePool,
-          //                                    marginalPricePoolToken0Account:
-          //                                    marginalPricePoolToken0Account,
-          //                                    marginalPricePoolToken1Account:
-          //                                    marginalPricePoolToken1Account,
-          //                                    marginalPricePoolLpMint: marginalPricePoolLpMint,
-          //                                    owner,
-          //                                  })
-          //                                  .preInstructions([requestUnitsIx])
-          //                                  .signers([userTransferAuthority, propellerEngineKeypair]);
-          //
-          // const propellerProcessSwimPayloadPubkeys =
-          //   await propellerProcessSwimPayloadIxs.pubkeys();
-          // console.info(
-          //   `${JSON.stringify(propellerProcessSwimPayloadPubkeys, null, 2)}`,
-          // );
-          // if (!processSwimPayloadPubkeys.tokenIdMap) {
-          //   throw new Error("tokenIdMap not derived");
-          // }
-          // const [calculatedTokenIdMap, calculatedTokenIdMapBump] =
-          //   await web3.PublicKey.findProgramAddress(
-          //     [
-          //       Buffer.from("propeller"),
-          //       Buffer.from("token_id"),
-          //       propeller.toBuffer(),
-          //       new BN(swimPayloadMessageAccountTargetTokenId).toArrayLike(
-          //         Buffer,
-          //         "le",
-          //         2,
-          //       ),
-          //     ],
-          //     propellerProgram.programId,
-          //   );
-          //
-          // const expectedTokenIdMap =
-          //   outputTokenIdMappingAddrs.get(targetTokenId);
-          // if (!expectedTokenIdMap) {
-          //   throw new Error("expectedTokenIdMap not found");
-          // }
-          // const expectedTokenIdMapAcct =
-          //   await propellerProgram.account.tokenIdMap.fetch(
-          //     expectedTokenIdMap,
-          //   );
-          // console.info(`
-          //   calculatedTokenIdMap: ${calculatedTokenIdMap.toBase58()}
-          //   calculatedTokenIdMapBump: ${calculatedTokenIdMapBump}
-          //   expectedTokenIdMapAcct: ${expectedTokenIdMap.toBase58()} :
-          //   ${JSON.stringify(expectedTokenIdMapAcct, null, 2)}
-          // `);
-          // const derivedTokenIdMap = processSwimPayloadPubkeys.tokenIdMap;
-          // expect(derivedTokenIdMap).toEqual(expectedTokenIdMap);
-          // if (!processSwimPayloadPubkeys.swimClaim) {
-          //   throw new Error("swimClaim key not derived");
-          // }
-          // const [expectedSwimClaim, expectedSwimClaimBump] =
-          //   await web3.PublicKey.findProgramAddress(
-          //     [
-          //       Buffer.from("propeller"),
-          //       Buffer.from("claim"),
-          //       wormholeClaim.toBuffer(),
-          //     ],
-          //     propellerProgram.programId,
-          //   );
-          // expect(processSwimPayloadPubkeys.swimClaim).toEqual(
-          //   expectedSwimClaim,
-          // );
-          //
-          // const processSwimPayloadTxnSig: string =
-          //   await propellerProcessSwimPayloadIxs.rpc();
+
           console.info(`processSwimPayloadTxnSig: ${processSwimPayloadTxnSig}`);
 
           const userBalanceAfter = await connection.getBalance(owner);
@@ -5383,14 +5156,7 @@ describe("propeller", () => {
           targetTokenId,
           memo: memoBuffer,
         };
-        // const swimPayload = {
-        //   version: swimPayloadVersion,
-        //   targetTokenId,
-        //   owner: owner.toBuffer(),
-        //   memo: memoBuffer,
-        //   propellerEnabled,
-        //   gasKickstart,
-        // };
+
         const amount = parseUnits("100000", mintDecimal);
         console.info(`amount: ${amount.toString()}`);
         /**
@@ -5499,18 +5265,7 @@ describe("propeller", () => {
               wormholeClaim,
               propellerProgram.programId,
             );
-          // const [expectedSwimPayloadMessage, expectedSwimPayloadMessageBump] =
-          //   await web3.PublicKey.findProgramAddress(
-          //     [
-          //       Buffer.from("propeller"),
-          //       wormholeClaim.toBuffer(),
-          //       wormholeMessage.toBuffer(),
-          //     ],
-          //     propellerProgram.programId,
-          //   );
-          // expect(expectedSwimPayloadMessage.toBase58()).toEqual(
-          //   completeNativeWithPayloadPubkeys.swimPayloadMessage.toBase58(),
-          // );
+
           console.info(`
             marginalPricePoolToken0Account: ${marginalPricePoolToken0Account.toBase58()}
             marginalPricePoolToken1Account: ${marginalPricePoolToken1Account.toBase58()}
@@ -5583,14 +5338,6 @@ describe("propeller", () => {
             ),
           ).toBeTruthy();
 
-          // const {
-          //   swimPayloadVersion,
-          //   targetTokenId,
-          //   owner,
-          //   memo,
-          //   propellerEnabled,
-          //   gasKickstart
-          // } = swimPayloadMessageAccount.swimPayload;
           expect(swimPayloadMessageAccount.swimPayloadVersion).toEqual(
             swimPayloadVersion,
           );

@@ -362,61 +362,6 @@ pub fn handle_cross_chain_transfer_native_with_payload(
     };
     ctx.accounts.invoke_transfer_native_with_payload(transfer_with_payload_data)?;
 
-    // let token_bridge_custody = &ctx.accounts.custody;
-    // let wh_token_transfer_acct_infos = vec![
-    //     ctx.accounts.payer.to_account_info().clone(),
-    //     ctx.accounts.token_bridge_config.to_account_info().clone(),
-    //     // ctx.accounts.token_bridge.to_account_info().clone(),
-    //     ctx.accounts.user_swim_usd_ata.to_account_info().clone(),
-    //     ctx.accounts.swim_usd_mint.to_account_info().clone(),
-    //     token_bridge_custody.to_account_info().clone(),
-    //     ctx.accounts.authority_signer.to_account_info().clone(),
-    //     ctx.accounts.custody_signer.to_account_info().clone(),
-    //     ctx.accounts.wormhole_config.to_account_info().clone(),
-    //     ctx.accounts.wormhole_message.to_account_info().clone(),
-    //     ctx.accounts.wormhole_emitter.to_account_info().clone(),
-    //     ctx.accounts.wormhole_sequence.to_account_info().clone(),
-    //     ctx.accounts.wormhole_fee_collector.to_account_info().clone(),
-    //     ctx.accounts.clock.to_account_info().clone(),
-    //     ctx.accounts.sender.to_account_info().clone(),
-    //     ctx.accounts.rent.to_account_info().clone(),
-    //     ctx.accounts.system_program.to_account_info().clone(),
-    //     ctx.accounts.wormhole.to_account_info().clone(),
-    //     ctx.accounts.token_program.to_account_info().clone(),
-    // ];
-    //
-    // invoke_signed(
-    //     &Instruction {
-    //         program_id: ctx.accounts.token_bridge.key(),
-    //         accounts: vec![
-    //             AccountMeta::new(ctx.accounts.payer.key(), true),
-    //             AccountMeta::new_readonly(ctx.accounts.token_bridge_config.key(), false),
-    //             // AccountMeta::new(ctx.accounts.wormhole_config.key(), false),
-    //             AccountMeta::new(ctx.accounts.user_swim_usd_ata.key(), false),
-    //             AccountMeta::new(ctx.accounts.swim_usd_mint.key(), false),
-    //             AccountMeta::new(token_bridge_custody.key(), false),
-    //             AccountMeta::new_readonly(ctx.accounts.authority_signer.key(), false),
-    //             AccountMeta::new_readonly(ctx.accounts.custody_signer.key(), false),
-    //             AccountMeta::new(ctx.accounts.wormhole_config.key(), false),
-    //             // AccountMeta::new_readonly(ctx.accounts.token_bridge_config.key(), false),
-    //             AccountMeta::new(ctx.accounts.wormhole_message.key(), true),
-    //             AccountMeta::new_readonly(ctx.accounts.wormhole_emitter.key(), false),
-    //             AccountMeta::new(ctx.accounts.wormhole_sequence.key(), false),
-    //             AccountMeta::new(ctx.accounts.wormhole_fee_collector.key(), false),
-    //             AccountMeta::new_readonly(Clock::id(), false),
-    //             AccountMeta::new_readonly(ctx.accounts.sender.key(), true),
-    //             AccountMeta::new_readonly(Rent::id(), false),
-    //             AccountMeta::new_readonly(ctx.accounts.system_program.key(), false),
-    //             AccountMeta::new_readonly(ctx.accounts.wormhole.key(), false),
-    //             AccountMeta::new_readonly(spl_token::id(), false),
-    //         ],
-    //         data: (TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION, transfer_with_payload_data).try_to_vec()?,
-    //     },
-    //     // &ctx.accounts.to_account_infos(),
-    //     &wh_token_transfer_acct_infos,
-    //     &[&[&b"sender".as_ref(), &[ctx.accounts.propeller.sender_bump]]],
-    // )?;
-
     token::revoke(CpiContext::new(
         ctx.accounts.token_program.to_account_info(),
         token::Revoke {
@@ -460,18 +405,6 @@ pub fn handle_propeller_transfer_native_with_payload(
     let mut owner_addr = [0u8; 32];
     owner_addr.copy_from_slice(owner.as_slice());
 
-    // let swim_payload = RawSwimPayload {
-    //     //TODO: this should come from the propeller or global constant?
-    //     swim_payload_version: CURRENT_SWIM_PAYLOAD_VERSION,
-    //     owner: owner_addr,
-    //     propeller_enabled,
-    //     gas_kickstart,
-    //     max_fee,
-    //     target_token_id,
-    //     // min_output_amount: U256::from(0u64),
-    //     memo: memo.clone().try_into().unwrap(),
-    // };
-
     let swim_payload = SwimPayload {
         swim_payload_version: CURRENT_SWIM_PAYLOAD_VERSION,
         owner: owner_addr,
@@ -482,26 +415,6 @@ pub fn handle_propeller_transfer_native_with_payload(
         memo,
     };
     msg!("transfer_native_with_payload swim_payload: {:?}", swim_payload);
-    // let mut swim_payload_bytes = [0u8; 32];
-    // let swim_payload_bytes = swim_payload.try_to_vec()?;
-    // anchor_lang::prelude::msg!("swim_payload_bytes {:?}", swim_payload_bytes);
-    //
-    // Note:
-    //     1. nonce is created randomly client side using this
-    //         export function createNonce() {
-    //              const nonceConst = Math.random() * 100000;
-    //              const nonceBuffer = Buffer.alloc(4);
-    //              nonceBuffer.writeUInt32LE(nonceConst, 0);
-    //              return nonceBuffer;
-    //          }
-    //     2. fee is relayerFee
-    //         a. removed in payload3
-    //     3. targetAddress is Uint8Array (on wasm.rs its Vec<u8>
-    //         a. WH client has special handling/formatting for this
-    //             see - wh-sdk/src/utils/array.ts tryNativeToUint8Array(address: string, chain: ChainId | ChainName)
-    //     4. targetChain is number/u16
-    //     5. payload is Vec<u8>
-    // ok
 
     let target_address = ctx.accounts.target_chain_map.target_address.clone();
     let transfer_with_payload_data = TransferWithPayloadData {
@@ -517,61 +430,6 @@ pub fn handle_propeller_transfer_native_with_payload(
 
     ctx.accounts.invoke_transfer_native_with_payload(transfer_with_payload_data)?;
 
-    // let token_bridge_custody = &ctx.accounts.custody;
-    // let wh_token_transfer_acct_infos = vec![
-    //     ctx.accounts.payer.to_account_info().clone(),
-    //     ctx.accounts.token_bridge_config.to_account_info().clone(),
-    //     // ctx.accounts.token_bridge.to_account_info().clone(),
-    //     ctx.accounts.user_swim_usd_ata.to_account_info().clone(),
-    //     ctx.accounts.swim_usd_mint.to_account_info().clone(),
-    //     token_bridge_custody.to_account_info().clone(),
-    //     ctx.accounts.authority_signer.to_account_info().clone(),
-    //     ctx.accounts.custody_signer.to_account_info().clone(),
-    //     ctx.accounts.wormhole_config.to_account_info().clone(),
-    //     ctx.accounts.wormhole_message.to_account_info().clone(),
-    //     ctx.accounts.wormhole_emitter.to_account_info().clone(),
-    //     ctx.accounts.wormhole_sequence.to_account_info().clone(),
-    //     ctx.accounts.wormhole_fee_collector.to_account_info().clone(),
-    //     ctx.accounts.clock.to_account_info().clone(),
-    //     ctx.accounts.sender.to_account_info().clone(),
-    //     ctx.accounts.rent.to_account_info().clone(),
-    //     ctx.accounts.system_program.to_account_info().clone(),
-    //     ctx.accounts.wormhole.to_account_info().clone(),
-    //     ctx.accounts.token_program.to_account_info().clone(),
-    // ];
-    //
-    // invoke_signed(
-    //     &Instruction {
-    //         program_id: ctx.accounts.token_bridge.key(),
-    //         accounts: vec![
-    //             AccountMeta::new(ctx.accounts.payer.key(), true),
-    //             AccountMeta::new_readonly(ctx.accounts.token_bridge_config.key(), false),
-    //             // AccountMeta::new(ctx.accounts.wormhole_config.key(), false),
-    //             AccountMeta::new(ctx.accounts.user_swim_usd_ata.key(), false),
-    //             AccountMeta::new(ctx.accounts.swim_usd_mint.key(), false),
-    //             AccountMeta::new(token_bridge_custody.key(), false),
-    //             AccountMeta::new_readonly(ctx.accounts.authority_signer.key(), false),
-    //             AccountMeta::new_readonly(ctx.accounts.custody_signer.key(), false),
-    //             AccountMeta::new(ctx.accounts.wormhole_config.key(), false),
-    //             // AccountMeta::new_readonly(ctx.accounts.token_bridge_config.key(), false),
-    //             AccountMeta::new(ctx.accounts.wormhole_message.key(), true),
-    //             AccountMeta::new_readonly(ctx.accounts.wormhole_emitter.key(), false),
-    //             AccountMeta::new(ctx.accounts.wormhole_sequence.key(), false),
-    //             AccountMeta::new(ctx.accounts.wormhole_fee_collector.key(), false),
-    //             AccountMeta::new_readonly(Clock::id(), false),
-    //             AccountMeta::new_readonly(ctx.accounts.sender.key(), true),
-    //             AccountMeta::new_readonly(Rent::id(), false),
-    //             AccountMeta::new_readonly(ctx.accounts.system_program.key(), false),
-    //             AccountMeta::new_readonly(ctx.accounts.wormhole.key(), false),
-    //             AccountMeta::new_readonly(spl_token::id(), false),
-    //         ],
-    //         data: (TRANSFER_NATIVE_WITH_PAYLOAD_INSTRUCTION, transfer_with_payload_data).try_to_vec()?,
-    //     },
-    //     // &ctx.accounts.to_account_infos(),
-    //     &wh_token_transfer_acct_infos,
-    //     &[&[&b"sender".as_ref(), &[ctx.accounts.propeller.sender_bump]]],
-    // )?;
-
     token::revoke(CpiContext::new(
         ctx.accounts.token_program.to_account_info(),
         token::Revoke {
@@ -584,20 +442,6 @@ pub fn handle_propeller_transfer_native_with_payload(
     ctx.accounts.increment_nonce()?;
     Ok(())
 }
-
-// impl From<RawSwimPayload> for SwimPayload {
-//     fn from(raw: RawSwimPayload) -> Self {
-//         SwimPayload {
-//             swim_payload_version: raw.swim_payload_version,
-//             owner: raw.owner,
-//             propeller_enabled: raw.propeller_enabled,
-//             max_fee: raw.max_fee,
-//             gas_kickstart: raw.gas_kickstart,
-//             target_token_id: raw.target_token_id,
-//             memo: raw.memo,
-//         }
-//     }
-// }
 
 #[derive(PartialEq, Debug, Clone, AnchorDeserialize, Default)]
 pub struct SwimPayload {
@@ -613,16 +457,6 @@ pub struct SwimPayload {
     // required for SWIM propellerEngine
     pub memo: Option<[u8; 16]>,
 }
-
-// impl SwimPayload {
-//     pub const LEN: usize = 1 + //version
-//         32 + //owner
-//         1 + // propeller_enabled
-//         1 + // gas_kickstart
-//         8 + // max_fee
-//         2 +    // target_token_id
-//         16; // memo
-// }
 
 impl AnchorSerialize for SwimPayload {
     fn serialize<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {

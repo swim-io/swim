@@ -281,8 +281,8 @@ const testnet: SolanaChainConfig = {
   },
   publicRpcUrls: ["https://api.devnet.solana.com"],
   swimUsdDetails: {
-    address: "5ctnNpb7h1SyPqZ8t8m2kCykrtDGVZBtZgYWv6UAeDhr",
-    decimals: 8,
+    address: "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C",
+    decimals: 6,
   },
   routingContractAddress: "", // TODO: add when deployed
   tokens: [

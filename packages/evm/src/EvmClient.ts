@@ -248,7 +248,7 @@ export class EvmClient implements Client<EvmWalletAdapter> {
     interactionId,
     targetAddress,
     targetChainId,
-    tokenId,
+    tokenProjectId,
     wallet,
     wrappedTokenInfo,
   }: InitiateWormholeTransferParams<EvmWalletAdapter>): Promise<{
@@ -257,7 +257,7 @@ export class EvmClient implements Client<EvmWalletAdapter> {
   }> {
     const mintAddress =
       wrappedTokenInfo?.wrappedAddress ??
-      getTokenDetails(this.chainConfig, tokenId).address;
+      getTokenDetails(this.chainConfig, tokenProjectId).address;
 
     await wallet.switchNetwork(this.chainConfig.chainId);
 

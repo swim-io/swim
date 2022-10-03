@@ -146,7 +146,42 @@ const localnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
     decimals: 8, // TODO: Confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      id: "local-ethereum-usdc",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "0xFcCeD5E997E7fb1D0594518D3eD57245bB8ed17E",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "Ep9cMbgyG46b6PVvJNypopc6i8TFzvUVmGiT4MA1PhSb",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "local-ethereum-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0xdAA71FBBA28C946258DD3d5FcC9001401f72270F",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "9AGDY4Xa9wDfRZc2LHeSS9iAdH6Bhw6VnMd2t7tkJhYv",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+  ],
   pools: [],
 };
 

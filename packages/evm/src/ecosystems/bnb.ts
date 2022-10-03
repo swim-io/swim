@@ -214,7 +214,42 @@ const localnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
     decimals: 8, // TODO: Confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      id: "local-bnb-busd",
+      projectId: TokenProjectId.Busd,
+      nativeDetails: {
+        address: "0xCeeFD27e0542aFA926B87d23936c79c276A48277",
+        decimals: 18,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "4X3Fu7ZcRSf7dvKEwwQ8b5xb2jQg2NPNkWs1gDGf1WMg",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "local-bnb-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0x988B6CFBf3332FF98FFBdED665b1F53a61f92612",
+        decimals: 18,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "9idXDPGb5jfwaf5fxjiMacgUcwpy3ZHfdgqSjAV5XLDr",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+  ],
   pools: [],
 };
 

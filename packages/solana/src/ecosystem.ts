@@ -585,7 +585,98 @@ const localnet: SolanaChainConfig = {
     decimals: 8,
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      id: "local-solana-usdc",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "USCAD1T3pV246XwC5kBFXpEjuudS1zT1tTNYhxby9vy",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          ETHEREUM_ECOSYSTEM_ID,
+          {
+            address: "0x81681EC304dcfe2Ddad462E7e968C49A848410c3",
+            decimals: 6,
+          },
+        ],
+        [
+          BNB_ECOSYSTEM_ID,
+          {
+            address: "0x04C5Bf0f72FC1a9F50Ff3228C6285491ad00e13E",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "local-solana-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "USTPJc7bSkXxRPP1ZdxihfxtfgWNrcRPrE4KEC6EK23",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          ETHEREUM_ECOSYSTEM_ID,
+          {
+            address: "0xa22915e82eb27fb64988Efa3d2749838174ccCBE",
+            decimals: 6,
+          },
+        ],
+        [
+          BNB_ECOSYSTEM_ID,
+          {
+            address: "0x23F55d75CFBe4334031dc7a19bf030613E966b2B",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "local-solana-lp-hexapool",
+      projectId: TokenProjectId.SwimUsd,
+      nativeDetails: {
+        address: "LPTufpWWSucDqq1hib8vxj1uJxTh2bkE7ZTo65LH4J2",
+        decimals: 8,
+      },
+      wrappedDetails: new Map([
+        [
+          ETHEREUM_ECOSYSTEM_ID,
+          {
+            address: "0x56cd8686e818c0C29983eA32fa6938618b35923f",
+            decimals: 8,
+          },
+        ],
+        [
+          BNB_ECOSYSTEM_ID,
+          {
+            address: "0x7231BBdaB2F3814664f6E1f072A5ae0525709431",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "local-solana-swim",
+      projectId: TokenProjectId.Swim,
+      nativeDetails: {
+        address: "SWMPqjB9AAtpCbatAEEGK67wNBCN1HDW6VypX7E5r9g",
+        decimals: 6,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      id: "local-solana-lp-swimlake",
+      projectId: TokenProjectId.XSwim,
+      nativeDetails: {
+        address: "xSwy12tTsuYwM2Hd7ceNmvDftgxJ2ZSTycjzAfrNwPW",
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+  ],
   pools: [],
 };
 

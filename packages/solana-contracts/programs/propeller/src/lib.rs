@@ -38,7 +38,7 @@ mod wormhole;
 use two_pool::state::TwoPool;
 pub use {error::*, instructions::*};
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("9z6G41AyXk73r1E4nTv81drQPtEqupCSAnsLdGV5WGfK");
 
 #[program]
 pub mod propeller {

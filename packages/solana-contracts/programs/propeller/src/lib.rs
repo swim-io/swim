@@ -79,6 +79,10 @@ pub mod propeller {
         handle_create_target_chain_map(ctx, target_chain, target_address)
     }
 
+    pub fn update_target_chain_map(ctx: Context<UpdateTargetChainMap>, routing_contract: [u8; 32]) -> Result<()> {
+        handle_update_target_chain_map(ctx, routing_contract)
+    }
+
     #[inline(never)]
     pub fn initialize_fee_tracker(ctx: Context<InitializeFeeTracker>) -> Result<()> {
         handle_initialize_fee_tracker(ctx)

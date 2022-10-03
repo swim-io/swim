@@ -82,7 +82,7 @@ const testnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
     address: "", // TODO: add when deployed
     decimals: 8, // TODO: confirm when deployed
   },
-  routingContractAddress: "", // TODO: add when deployed
+  routingContractAddress: "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4", // TODO: Update if necessary
   tokens: [
     {
       id: "testnet-avalanche-usdc",

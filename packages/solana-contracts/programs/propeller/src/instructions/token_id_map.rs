@@ -126,3 +126,7 @@ pub fn handle_create_token_id_map(
 pub fn handle_update_token_id_map() -> Result<()> {
     todo!()
 }
+
+pub fn handle_close_token_id_map() -> Result<()> {
+    todo!()
+}

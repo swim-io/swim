@@ -14,12 +14,10 @@ pub struct CreateTargetChainMap<'info> {
     #[account(
     seeds = [b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
     bump = propeller.bump,
+    has_one = admin,
     )]
     pub propeller: Account<'info, Propeller>,
 
-    #[account(
-    constraint = admin.key() == propeller.admin
-    )]
     pub admin: Signer<'info>,
 
     #[account(mut)]
@@ -68,12 +66,10 @@ pub struct UpdateTargetChainMap<'info> {
     #[account(
     seeds = [b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
     bump = propeller.bump,
+    has_one = admin,
     )]
     pub propeller: Account<'info, Propeller>,
 
-    #[account(
-    constraint = admin.key() == propeller.admin
-    )]
     pub admin: Signer<'info>,
 
     #[account(mut)]
@@ -95,4 +91,8 @@ pub fn handle_update_target_chain_map(ctx: Context<UpdateTargetChainMap>, routin
     let target_chain_map = &mut ctx.accounts.target_chain_map;
     target_chain_map.target_address = routing_contract;
     Ok(())
+}
+
+pub fn handle_close_target_chain_map() -> Result<()> {
+    todo!()
 }

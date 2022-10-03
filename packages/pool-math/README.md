@@ -18,14 +18,13 @@ import Decimal from "decimal.js";
 
 // STEP 1: Gather required constructor arguments
 
-// See eg @swim-io/solana-types package for how to retrieve state for a Swim pool on Solana:
-// https://www.npmjs.com/package/@swim-io/solana-types
-const { ampFactor, lpFee, governanceFee, tokenKeys, tokenMintKeys } =
-  swimPoolState;
-const balances = tokenKeys.map((tokenKey) => {
-  // retrieve pool balances from the blockchain and convert to decimal, remembering to convert from atomic if necessary
-  return new Decimal(poolBalanceForTokenKey);
-});
+// To retrieve an EVM Swim pool, see @swim-io/evm-contracts:
+// https://www.npmjs.com/package/@swim-io/evm-contracts
+import { Pool__factory } from "@swim-io/evm-contracts";
+// Note, the variable's types from getState() are wrapped and must be converted
+// to be used with PoolMath.
+const { balances, ampFactor, lpFee, governanceFee } =
+  await Pool__factory.connect(evmPoolAddress, signer).getState();
 
 // STEP 2: Create an instance
 const poolMath = new PoolMath(balances, ampFactor, lpFee, governanceFee);

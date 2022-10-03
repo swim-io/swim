@@ -62,8 +62,8 @@ const testnet: EvmChainConfig<EvmEcosystemId.Fantom> = {
   },
   publicRpcUrls: ["https://rpc.testnet.fantom.network/"], // TODO: Think about what is best to recommend to MetaMask
   swimUsdDetails: {
-    address: "", // TODO: add when deployed
-    decimals: 8, // TODO: confirm when deployed
+    address: "0x3733E12163A14b7Cbb4E0b5Bf88788975D1DaE9f", // TODO: Update if necessary
+    decimals: 6,
   },
   routingContractAddress: "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4", // TODO: Update if necessary
   tokens: [

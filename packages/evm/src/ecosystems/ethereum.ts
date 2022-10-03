@@ -80,8 +80,8 @@ const testnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
   },
   publicRpcUrls: ["https://goerli.prylabs.net/"], // TODO: Think about what is best to recommend to MetaMask
   swimUsdDetails: {
-    address: "0x4DF39C514Eb1747bb4D89cA9Ee35718611590935", // TODO: Update when deployed
-    decimals: 8, // TODO: Confirm when deployed
+    address: "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5", // TODO: Update if necessary
+    decimals: 6,
   },
   routingContractAddress: "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4", // TODO: Update if necessary
   tokens: [

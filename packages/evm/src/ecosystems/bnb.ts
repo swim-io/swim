@@ -114,8 +114,8 @@ const testnet: EvmChainConfig<EvmEcosystemId.Bnb> = {
   },
   publicRpcUrls: ["https://data-seed-prebsc-2-s2.binance.org:8545/"], // TODO: Think about what is best to recommend to MetaMask
   swimUsdDetails: {
-    address: "0x84252522366DB2eA1dAaDe5E2C55CD90a50aC46e", // TODO: Update when deployed
-    decimals: 8, // TODO: Confirm when deployed
+    address: "0x4C15919A4354b4416e7aFcB9A27a118bc45818C0", // TODO: Update if necessary
+    decimals: 6,
   },
   routingContractAddress: "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4", // TODO: Update if necessary
   tokens: [

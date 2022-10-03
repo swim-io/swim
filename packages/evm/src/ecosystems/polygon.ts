@@ -79,8 +79,8 @@ const testnet: EvmChainConfig<EvmEcosystemId.Polygon> = {
   },
   publicRpcUrls: ["https://rpc-mumbai.maticvigil.com"], // TODO: Think about what is best to recommend to MetaMask
   swimUsdDetails: {
-    address: "", // TODO: add when deployed
-    decimals: 8, // TODO: confirm when deployed
+    address: "0x5558dA18eCFEE96cCC1B0451eEC4e55b5a002cE0", // TODO: Update if necessary
+    decimals: 6,
   },
   routingContractAddress: "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4", // TODO: Update if necessary
   tokens: [

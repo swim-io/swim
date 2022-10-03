@@ -79,8 +79,8 @@ const testnet: EvmChainConfig<EvmEcosystemId.Avalanche> = {
   },
   publicRpcUrls: ["https://api.avax-test.network/ext/bc/C/rpc"], // TODO: Think about what is best to recommend to MetaMask
   swimUsdDetails: {
-    address: "", // TODO: add when deployed
-    decimals: 8, // TODO: confirm when deployed
+    address: "0x5eDEa6B0881425AE4Aa7c65aCa6AeaFecC7E72f5", // TODO: Update if necessary
+    decimals: 6,
   },
   routingContractAddress: "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4", // TODO: Update if necessary
   tokens: [

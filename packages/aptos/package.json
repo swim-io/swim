@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/aptos",
-  "version": "0.32.1",
+  "version": "0.33.0",
   "description": "Swim Aptos SDK.",
   "main": "build",
   "types": "types",

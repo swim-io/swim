@@ -1,7 +1,7 @@
 import type { ConfirmedSignatureInfo } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import { Env } from "@swim-io/core";
-import type { EvmConnection, EvmEcosystemId, EvmTx } from "@swim-io/evm";
+import type { EvmClient, EvmEcosystemId, EvmTx } from "@swim-io/evm";
 import { isEvmEcosystemId } from "@swim-io/evm";
 import type { SolanaClient, SolanaTx } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
@@ -33,7 +33,7 @@ export const fetchEvmTxForInteractionId = async (
   interactionId: string,
   queryClient: QueryClient,
   env: Env,
-  getEvmConnection: (ecosystemId: EvmEcosystemId) => EvmConnection,
+  getEvmClient: (ecosystemId: EvmEcosystemId) => EvmClient,
   evmAddress: string,
   requiredEcosystems: ReadonlySet<EcosystemId>,
 ): Promise<readonly EvmTx[]> => {
@@ -43,10 +43,10 @@ export const fetchEvmTxForInteractionId = async (
 
   const nestedTxs = await Promise.all(
     requiredEvmEcosystems.map(async (ecosystemId) => {
-      const connection = getEvmConnection(ecosystemId);
+      const client = getEvmClient(ecosystemId);
       const history = await queryClient.fetchQuery(
         [env, "evmHistory", ecosystemId, evmAddress],
-        async () => (await connection.getHistory(evmAddress)) ?? [],
+        async () => (await client.getHistory(evmAddress)) ?? [],
       );
       const matchedTxResponses = history.filter(
         (txResponse) => findEvmInteractionId(txResponse) === interactionId,
@@ -54,7 +54,7 @@ export const fetchEvmTxForInteractionId = async (
       const evmTxsOrNull = await Promise.all(
         matchedTxResponses.map(
           async (txResponse: ethers.providers.TransactionResponse) => {
-            const txReceipt = await connection.getTxReceipt(txResponse);
+            const txReceipt = await client.getTxReceipt(txResponse);
             if (txReceipt === null) {
               return null;
             }
@@ -124,7 +124,7 @@ export const fetchSolanaTxsForInteractionId = async (
   const txInfos = await queryClient.fetchQuery(
     [env, "solanaHistory", solanaAddress],
     () => {
-      return solanaClient.rawConnection.getSignaturesForAddress(
+      return solanaClient.connection.getSignaturesForAddress(
         new PublicKey(solanaAddress),
         {
           limit: MAX_RECENT_SIGNATURES, // 1-1000, default = 1000

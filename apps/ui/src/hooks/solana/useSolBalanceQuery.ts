@@ -22,7 +22,7 @@ export const useSolBalanceQuery = (
         return new Decimal(0);
       }
       try {
-        const balance = await solanaClient.rawConnection.getBalance(
+        const balance = await solanaClient.connection.getBalance(
           new PublicKey(walletAddress),
         );
         // Convert lamports to SOL.

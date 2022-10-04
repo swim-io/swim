@@ -1,6 +1,6 @@
 import type solana from "@solana/web3.js";
 import { Env } from "@swim-io/core";
-import type { EvmConnection, EvmTx } from "@swim-io/evm";
+import type { EvmClient, EvmTx } from "@swim-io/evm";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
 import type { SolanaTx } from "@swim-io/solana";
@@ -132,7 +132,7 @@ describe("Pool tests", () => {
         ...TESTNET_TOKENS_FOR_RESTRUCTURE,
       ];
       const state = await getEvmPoolState(
-        {} as EvmConnection,
+        {} as EvmClient,
         ethereumPool as EvmPoolSpec,
         tokens,
         "MOCK_ADDRESS",

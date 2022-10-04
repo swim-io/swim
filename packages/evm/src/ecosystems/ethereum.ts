@@ -1,5 +1,6 @@
-import type { GasToken } from "@swim-io/core";
+import type { GasToken, TokenDetails } from "@swim-io/core";
 import { Env } from "@swim-io/core";
+import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
 
 import type {
@@ -8,6 +9,9 @@ import type {
   EvmEcosystemConfig,
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
+
+const EMPTY_MAP: ReadonlyMap<string, TokenDetails> = new Map();
+const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const ethereumChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 1,
@@ -28,7 +32,42 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
     decimals: 8, // TODO: Confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      id: "mainnet-ethereum-usdc",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "A9mUU4qviSctJVPJdBJWkb28deg915LYJKrzQ19ji3FM",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "mainnet-ethereum-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "Dn4noZ5jgGfkntzcQSUZ8czkreiZ1ForXYoV2H8Dm7S1",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+  ],
   pools: [],
 };
 
@@ -41,11 +80,56 @@ const testnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
   },
   publicRpcUrls: ["https://goerli.prylabs.net/"], // TODO: Think about what is best to recommend to MetaMask
   swimUsdDetails: {
-    address: "0x4DF39C514Eb1747bb4D89cA9Ee35718611590935", // TODO: Update when deployed
-    decimals: 8, // TODO: Confirm when deployed
+    address: "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5", // TODO: Update if necessary
+    decimals: 6,
   },
   routingContractAddress: "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4", // TODO: Update if necessary
-  tokens: [],
+  tokens: [
+    {
+      id: "testnet-ethereum-usdc",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "7Lf95y8NuCU5RRC95oUtbBtckPAtbr9ubTgrCiyZ1kEf",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "testnet-ethereum-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0x996f42BdB0CB71F831C2eFB05Ac6d0d226979e5B",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "8Cfyi1mYXqKATUkMPvb9BMXikdbppJst6E7eQJkKjAtf",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
+      id: "testnet-ethereum-lp-usdc-usdt",
+      projectId: TokenProjectId.SwimLpEthereumUsdcUsdt,
+      nativeDetails: {
+        address: "0xf3eb1180A64827A602A7e02883b7299191527073", // TODO: Update
+        decimals: 6,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+  ],
   pools: [],
 };
 
@@ -62,7 +146,42 @@ const localnet: EvmChainConfig<EvmEcosystemId.Ethereum> = {
     decimals: 8, // TODO: Confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      id: "local-ethereum-usdc",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "0xFcCeD5E997E7fb1D0594518D3eD57245bB8ed17E",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "Ep9cMbgyG46b6PVvJNypopc6i8TFzvUVmGiT4MA1PhSb",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "local-ethereum-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0xdAA71FBBA28C946258DD3d5FcC9001401f72270F",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "9AGDY4Xa9wDfRZc2LHeSS9iAdH6Bhw6VnMd2t7tkJhYv",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+  ],
   pools: [],
 };
 

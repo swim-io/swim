@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/wormhole",
-  "version": "0.32.1",
+  "version": "0.34.0",
   "description": "Swim code relating to Wormhole.",
   "main": "build",
   "types": "types",

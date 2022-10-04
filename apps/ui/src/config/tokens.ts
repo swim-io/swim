@@ -210,7 +210,6 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    isDisabled: !isEcosystemEnabled(EvmEcosystemId.Fantom),
     id: "mainnet-solana-lp-meta-fantom-usdc",
     projectId: TokenProjectId.SwimFantomUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
@@ -488,7 +487,6 @@ const MAINNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EvmEcosystemId.Fantom),
     id: "mainnet-fantom-usdc",
     projectId: TokenProjectId.Usdc,
     nativeEcosystemId: EvmEcosystemId.Fantom,
@@ -968,7 +966,6 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    isDisabled: !isEcosystemEnabled(EvmEcosystemId.Fantom),
     id: "testnet-solana-lp-meta-fantom-usdc",
     projectId: TokenProjectId.SwimFantomUsdcLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
@@ -979,7 +976,6 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    isDisabled: !isEcosystemEnabled(EvmEcosystemId.Karura),
     id: "testnet-solana-lp-meta-karura-ausd",
     projectId: TokenProjectId.SwimKaruraAusdLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
@@ -990,7 +986,6 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
     wrappedDetails: EMPTY_MAP,
   },
   {
-    isDisabled: !isEcosystemEnabled(EvmEcosystemId.Karura),
     id: "testnet-solana-lp-meta-karura-usdt",
     projectId: TokenProjectId.SwimKaruraUsdtLp,
     nativeEcosystemId: SOLANA_ECOSYSTEM_ID,
@@ -1247,7 +1242,6 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EvmEcosystemId.Fantom),
     id: "testnet-fantom-usdc",
     projectId: TokenProjectId.Usdc,
     nativeEcosystemId: EvmEcosystemId.Fantom,
@@ -1266,7 +1260,6 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EvmEcosystemId.Karura),
     id: "testnet-karura-ausd",
     projectId: TokenProjectId.Ausd,
     nativeEcosystemId: EvmEcosystemId.Karura,
@@ -1285,7 +1278,6 @@ export const TESTNET_TOKENS: readonly TokenConfig[] = [
     ]),
   },
   {
-    isDisabled: !isEcosystemEnabled(EvmEcosystemId.Karura),
     id: "testnet-karura-usdt",
     projectId: TokenProjectId.Usdt,
     nativeEcosystemId: EvmEcosystemId.Karura,

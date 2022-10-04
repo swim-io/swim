@@ -1,4 +1,5 @@
 export * from "./chain";
+export * from "./client";
 export * from "./ecosystem";
 export * from "./env";
 export * from "./pool";

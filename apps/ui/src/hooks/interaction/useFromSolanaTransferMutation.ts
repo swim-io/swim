@@ -1,11 +1,8 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
-import type { Transaction } from "@solana/web3.js";
 import { Keypair } from "@solana/web3.js";
-import { evmAddressToWormhole } from "@swim-io/evm";
 import type { SolanaClient, TokenAccount } from "@swim-io/solana";
 import {
   SOLANA_ECOSYSTEM_ID,
-  createTransferFromSolanaTx,
   findTokenAccountForMint,
   parseSequenceFromLogSolana,
 } from "@swim-io/solana";
@@ -13,7 +10,6 @@ import { findOrThrow, isEachNotNull } from "@swim-io/utils";
 import { WormholeChainId } from "@swim-io/wormhole";
 import { useMutation } from "react-query";
 
-import type { Config } from "../../config";
 import {
   ECOSYSTEMS,
   Protocol,
@@ -21,23 +17,22 @@ import {
   getTokenDetailsForEcosystem,
   getWormholeRetries,
 } from "../../config";
+import type { Config } from "../../config";
 import { selectConfig, selectGetInteractionState } from "../../core/selectors";
 import { useEnvironment, useInteractionState } from "../../core/store";
 import type { InteractionState, Tx } from "../../models";
 import {
   Amount,
+  formatWormholeAddress,
   getSignedVaaWithRetry,
   getToEcosystemOfFromSolanaTransfer,
   getTokensByPool,
   getTransferredAmounts,
+  getWrappedTokenInfo,
 } from "../../models";
 import { useWallets } from "../crossEcosystem";
-import { useGetEvmConnection } from "../evm";
-import {
-  useSolanaClient,
-  useSolanaWallet,
-  useSplTokenAccountsQuery,
-} from "../solana";
+import { useGetEvmClient } from "../evm";
+import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
 
 const getTransferredAmountsByTokenId = async (
   interactionState: InteractionState,
@@ -79,10 +74,9 @@ export const useFromSolanaTransferMutation = () => {
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
   const config = useEnvironment(selectConfig);
   const { chains, wormhole } = config;
-  const getEvmConnection = useGetEvmConnection();
+  const getEvmClient = useGetEvmClient();
   const solanaClient = useSolanaClient();
   const wallets = useWallets();
-  const { address: solanaWalletAddress } = useSolanaWallet();
   const solanaWormhole = chains[Protocol.Solana][0].wormhole;
   const updateInteractionState = useInteractionState(
     (state) => state.updateInteractionState,
@@ -98,6 +92,7 @@ export const useFromSolanaTransferMutation = () => {
     if (!solanaWallet) {
       throw new Error("No Solana wallet");
     }
+    const solanaWalletAddress = solanaWallet.address ?? null;
     if (!solanaWalletAddress) {
       throw new Error("No Solana wallet address");
     }
@@ -155,12 +150,8 @@ export const useFromSolanaTransferMutation = () => {
       if (evmWalletAddress === null) {
         throw new Error("No EVM wallet address");
       }
-      const evmChain = findOrThrow(
-        chains[Protocol.Evm],
-        ({ ecosystem }) => ecosystem === toEcosystem,
-      );
-      const tokenDetails = getTokenDetailsForEcosystem(token, toEcosystem);
-      if (!tokenDetails) {
+      const toTokenDetails = getTokenDetailsForEcosystem(token, toEcosystem);
+      if (!toTokenDetails) {
         throw new Error("No token details");
       }
       const splTokenAccount = findTokenAccountForMint(
@@ -175,38 +166,20 @@ export const useFromSolanaTransferMutation = () => {
       let transferSplTokenTxId = transfer.txIds.transferSplToken;
       if (transferSplTokenTxId === null) {
         // No existing tx
-        const messageKeypair = Keypair.generate();
-        const tx = await createTransferFromSolanaTx({
+        const auxiliarySigner = Keypair.generate();
+        transferSplTokenTxId = await solanaClient.initiateWormholeTransfer({
+          atomicAmount: amount.toAtomicString(SOLANA_ECOSYSTEM_ID),
           interactionId,
-          solanaConnection: solanaClient.rawConnection,
-          bridgeAddress: solanaWormhole.bridge,
-          portalAddress: solanaWormhole.portal,
-          payerAddress: solanaWalletAddress,
-          auxiliarySignerAddress: messageKeypair.publicKey.toString(),
-          fromAddress: splTokenAccount.address.toBase58(),
-          mintAddress: solanaTokenDetails.address,
-          amount: BigInt(amount.toAtomicString(SOLANA_ECOSYSTEM_ID)),
-          targetAddress: evmAddressToWormhole(evmWalletAddress),
-          targetChain: evmEcosystem.wormholeChainId,
-          originAddress:
-            token.nativeEcosystemId === evmChain.ecosystem
-              ? evmAddressToWormhole(
-                  getTokenDetailsForEcosystem(token, evmChain.ecosystem)
-                    ?.address ?? "",
-                )
-              : undefined,
-          originChain:
-            token.nativeEcosystemId === evmChain.ecosystem
-              ? evmEcosystem.wormholeChainId
-              : undefined,
+          targetAddress: formatWormholeAddress(
+            evmEcosystem.protocol,
+            evmWalletAddress,
+          ),
+          targetChainId: evmEcosystem.wormholeChainId,
+          tokenProjectId: token.projectId,
+          wallet: solanaWallet,
+          auxiliarySigner,
+          wrappedTokenInfo: getWrappedTokenInfo(token, SOLANA_ECOSYSTEM_ID),
         });
-        transferSplTokenTxId = await solanaClient.sendAndConfirmTx(
-          async (txToSign: Transaction) => {
-            txToSign.partialSign(messageKeypair);
-            return solanaWallet.signTransaction(txToSign);
-          },
-          tx,
-        );
         // Update transfer state with txId
         updateInteractionState(interactionId, (draft) => {
           draft.fromSolanaTransfers[index].txIds.transferSplToken =
@@ -253,25 +226,19 @@ export const useFromSolanaTransferMutation = () => {
         undefined,
         retries,
       );
-      const evmSigner = evmWallet.signer;
-      if (evmSigner === null) {
-        throw new Error("Missing EVM signer");
-      }
       await evmWallet.switchNetwork(evmChain.chainId);
-      const evmConnection = getEvmConnection(toEcosystem);
-      const redeemResponse = await evmConnection.redeemOnEth({
+      const evmClient = getEvmClient(toEcosystem);
+      const redeemResponse = await evmClient.completeWormholeTransfer({
         interactionId,
-        signer: evmSigner,
-        signedVaa: vaaBytesResponse.vaaBytes,
+        vaa: vaaBytesResponse.vaaBytes,
+        wallet: evmWallet,
       });
       if (redeemResponse === null) {
         throw new Error(
           `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
         );
       }
-      const evmReceipt = await evmConnection.getTxReceiptOrThrow(
-        redeemResponse,
-      );
+      const evmReceipt = await evmClient.getTxReceiptOrThrow(redeemResponse);
       const claimTokenOnEvmTxId = evmReceipt.transactionHash;
       // Update transfer state with txId
       updateInteractionState(interactionId, (draft) => {

@@ -20,7 +20,7 @@ import {
 } from "@project-serum/anchor";
 
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-import { MEMO_PROGRAM_ID, createMemoInstruction } from "@solana/spl-memo";
+import { createMemoInstruction } from "@solana/spl-memo";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -876,10 +876,9 @@ describe("propeller", () => {
           payer,
         );
         const memoStr = incMemoIdAndGet();
-        const memo = Buffer.from(memoStr);
 
         const addTxn = propellerProgram.methods
-          .crossChainAdd(inputAmounts, minimumMintAmount, memo)
+          .crossChainAdd(inputAmounts, minimumMintAmount)
           .accounts({
             propeller: propeller,
             poolTokenAccount0: poolUsdcAtaAddr,
@@ -891,11 +890,10 @@ describe("propeller", () => {
             userTokenAccount1: userUsdtAtaAddr,
             userLpTokenAccount: userSwimUsdAtaAddr,
             tokenProgram: splToken.programId,
-            memo: MEMO_PROGRAM_ID,
             twoPoolProgram: twoPoolProgram.programId,
           })
           .preInstructions([...approveIxs])
-          .postInstructions([...revokeIxs])
+          .postInstructions([...revokeIxs, createMemoInstruction(memoStr)])
           .signers([userTransferAuthority]);
         // .rpc(rpcCommitmentConfig);
 
@@ -991,11 +989,10 @@ describe("propeller", () => {
             payer,
           );
           const memoStr = incMemoIdAndGet();
-          const memo = Buffer.from(memoStr);
 
           const maxFee = new BN(100);
           const addTxn = propellerProgram.methods
-            .propellerAdd(inputAmounts, memo, maxFee)
+            .propellerAdd(inputAmounts, maxFee)
             .accounts({
               propeller: propeller,
               poolTokenAccount0: poolUsdcAtaAddr,
@@ -1007,11 +1004,10 @@ describe("propeller", () => {
               userTokenAccount1: userUsdtAtaAddr,
               userLpTokenAccount: userSwimUsdAtaAddr,
               tokenProgram: splToken.programId,
-              memo: MEMO_PROGRAM_ID,
               twoPoolProgram: twoPoolProgram.programId,
             })
             .preInstructions([...approveIxs])
-            .postInstructions([...revokeIxs])
+            .postInstructions([...revokeIxs, createMemoInstruction(memoStr)])
             .signers([userTransferAuthority]);
           // .rpc(rpcCommitmentConfig);
 
@@ -1101,12 +1097,11 @@ describe("propeller", () => {
             payer,
           );
           const memoStr = incMemoIdAndGet();
-          const memo = Buffer.from(memoStr);
 
           const maxFee = new BN(50_000_000_000);
           await expect(() => {
             return propellerProgram.methods
-              .propellerAdd(inputAmounts, memo, maxFee)
+              .propellerAdd(inputAmounts, maxFee)
               .accounts({
                 propeller: propeller,
                 poolTokenAccount0: poolUsdcAtaAddr,
@@ -1118,11 +1113,10 @@ describe("propeller", () => {
                 userTokenAccount1: userUsdtAtaAddr,
                 userLpTokenAccount: userSwimUsdAtaAddr,
                 tokenProgram: splToken.programId,
-                memo: MEMO_PROGRAM_ID,
                 twoPoolProgram: twoPoolProgram.programId,
               })
               .preInstructions([...approveIxs])
-              .postInstructions([...revokeIxs])
+              .postInstructions([...revokeIxs, createMemoInstruction(memoStr)])
               .signers([userTransferAuthority])
               .rpc();
           }).rejects.toThrow("Insufficient Amount being transferred");
@@ -1246,14 +1240,9 @@ describe("propeller", () => {
             payer,
           );
           const memoStr = incMemoIdAndGet();
-          const memo = Buffer.from(memoStr);
 
           const swapExactInputTxn = propellerProgram.methods
-            .crossChainSwapExactInput(
-              exactInputAmount,
-              minimumOutputAmount,
-              memo,
-            )
+            .crossChainSwapExactInput(exactInputAmount, minimumOutputAmount)
             .accounts({
               poolTokenAccount0: metapoolPoolToken0Ata,
               poolTokenAccount1: metapoolPoolToken1Ata,
@@ -1263,12 +1252,11 @@ describe("propeller", () => {
               userTokenAccount0: userMetapoolTokenAccount0,
               userTokenAccount1: userMetapoolTokenAccount1,
               tokenProgram: splToken.programId,
-              memo: MEMO_PROGRAM_ID,
               twoPoolProgram: twoPoolProgram.programId,
               swimUsdMint: swimUsdMint,
             })
             .preInstructions([...approveIxs])
-            .postInstructions([...revokeIxs])
+            .postInstructions([...revokeIxs, createMemoInstruction(memoStr)])
             .signers([userTransferAuthority]);
           // .rpc(rpcCommitmentConfig);
 
@@ -1385,10 +1373,9 @@ describe("propeller", () => {
               payer,
             );
             const memoStr = incMemoIdAndGet();
-            const memo = Buffer.from(memoStr);
 
             const swapExactInputTxn = propellerProgram.methods
-              .propellerSwapExactInput(exactInputAmount, memo, maxFee)
+              .propellerSwapExactInput(exactInputAmount, maxFee)
               .accounts({
                 poolTokenAccount0: metapoolPoolToken0Ata,
                 poolTokenAccount1: metapoolPoolToken1Ata,
@@ -1398,12 +1385,11 @@ describe("propeller", () => {
                 userTokenAccount0: userMetapoolTokenAccount0,
                 userTokenAccount1: userMetapoolTokenAccount1,
                 tokenProgram: splToken.programId,
-                memo: MEMO_PROGRAM_ID,
                 twoPoolProgram: twoPoolProgram.programId,
                 swimUsdMint: swimUsdMint,
               })
               .preInstructions([...approveIxs])
-              .postInstructions([...revokeIxs])
+              .postInstructions([...revokeIxs, createMemoInstruction(memoStr)])
               .signers([userTransferAuthority]);
             // .rpc(rpcCommitmentConfig);
 
@@ -1503,10 +1489,9 @@ describe("propeller", () => {
               payer,
             );
             const memoStr = incMemoIdAndGet();
-            const memo = Buffer.from(memoStr);
 
             const swapExactInputTxn = propellerProgram.methods
-              .propellerSwapExactInput(exactInputAmount, memo, maxFee)
+              .propellerSwapExactInput(exactInputAmount, maxFee)
               .accounts({
                 poolTokenAccount0: metapoolPoolToken0Ata,
                 poolTokenAccount1: metapoolPoolToken1Ata,
@@ -1516,12 +1501,11 @@ describe("propeller", () => {
                 userTokenAccount0: userMetapoolTokenAccount0,
                 userTokenAccount1: userMetapoolTokenAccount1,
                 tokenProgram: splToken.programId,
-                memo: MEMO_PROGRAM_ID,
                 twoPoolProgram: twoPoolProgram.programId,
                 swimUsdMint: swimUsdMint,
               })
               .preInstructions([...approveIxs])
-              .postInstructions([...revokeIxs])
+              .postInstructions([...revokeIxs, createMemoInstruction(memoStr)])
               .signers([userTransferAuthority]);
             await expect(swapExactInputTxn.rpc()).rejects.toThrow(
               "Insufficient Amount being transferred",

@@ -20,7 +20,7 @@ import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 
 import type { Propeller } from "../../artifacts/propeller";
 
-import { swimPayloadVersion, USDC_TO_TOKEN_NUMBER } from "./consts";
+import { USDC_TO_TOKEN_NUMBER, swimPayloadVersion } from "./consts";
 import {
   encodeSwimPayload,
   formatParsedTokenTransferWithSwimPayloadPostedMessage,

@@ -3,7 +3,7 @@ import type { ReadonlyRecord } from "@swim-io/utils";
 import type { RpcError } from "grpc-web";
 import { StatusCode } from "grpc-web";
 
-import { WormholeError, WormholeErrorCode } from "./errors";
+import { SwimWormholeError, SwimWormholeErrorCode } from "./errors";
 
 const isRpcError = (error: unknown): error is RpcError => {
   return (
@@ -21,19 +21,21 @@ export const getSignedVaaWithRetry: typeof originalGetSignedVAAWithRetry =
     // message: requested VAA not found in store, code: 5 (StatusCode.NOT_FOUND)
     // message: Response closed without headers, code: 2 (StatusCode.UNKNOWN)
     const errorCodeMapping: Partial<
-      ReadonlyRecord<StatusCode, WormholeErrorCode>
+      ReadonlyRecord<StatusCode, SwimWormholeErrorCode>
     > = {
-      [StatusCode.INTERNAL]: WormholeErrorCode.InternalError,
-      [StatusCode.INVALID_ARGUMENT]: WormholeErrorCode.InternalError,
-      [StatusCode.NOT_FOUND]: WormholeErrorCode.GuardiansCannotConfirmTransfer,
-      [StatusCode.UNAVAILABLE]: WormholeErrorCode.GuardiansCannotReach,
-      [StatusCode.UNKNOWN]: WormholeErrorCode.GuardiansCannotReach,
+      [StatusCode.INTERNAL]: SwimWormholeErrorCode.InternalError,
+      [StatusCode.INVALID_ARGUMENT]: SwimWormholeErrorCode.InternalError,
+      [StatusCode.NOT_FOUND]:
+        SwimWormholeErrorCode.GuardiansCannotConfirmTransfer,
+      [StatusCode.UNAVAILABLE]: SwimWormholeErrorCode.GuardiansCannotReach,
+      [StatusCode.UNKNOWN]: SwimWormholeErrorCode.GuardiansCannotReach,
     };
 
     return await originalGetSignedVAAWithRetry(...args).catch((error) => {
       if (isRpcError(error)) {
         const mappedErrorCode = errorCodeMapping[error.code];
-        if (mappedErrorCode) throw new WormholeError(mappedErrorCode, error);
+        if (mappedErrorCode)
+          throw new SwimWormholeError({ code: mappedErrorCode, cause: error });
       }
 
       throw error;

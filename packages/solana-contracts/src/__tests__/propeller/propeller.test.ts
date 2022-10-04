@@ -1,5 +1,3 @@
-import crypto from "crypto";
-
 import {
   CHAIN_ID_ETH,
   CHAIN_ID_SOLANA,
@@ -2408,7 +2406,6 @@ describe("propeller", () => {
               poolTokenAccount1,
               lpMint,
               governanceFee: governanceFeeAcct,
-              userTransferAuthority: userTransferAuthority.publicKey,
               userTokenAccount0,
               userTokenAccount1,
               userLpTokenAccount,
@@ -2417,8 +2414,7 @@ describe("propeller", () => {
               systemProgram: web3.SystemProgram.programId,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr.toString("hex"))])
-            .signers([userTransferAuthority]);
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))]);
 
           const processSwimPayloadPubkeys =
             await processSwimPayloadIxs.pubkeys();
@@ -2789,7 +2785,6 @@ describe("propeller", () => {
               poolTokenAccount1,
               lpMint,
               governanceFee: governanceFeeAcct,
-              userTransferAuthority: userTransferAuthority.publicKey,
               userTokenAccount0,
               userTokenAccount1,
               userLpTokenAccount,
@@ -2798,8 +2793,7 @@ describe("propeller", () => {
               systemProgram: web3.SystemProgram.programId,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr.toString("hex"))])
-            .signers([userTransferAuthority]);
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))]);
 
           const processSwimPayloadPubkeys = await processSwimPayload.pubkeys();
           console.info(`${JSON.stringify(processSwimPayloadPubkeys, null, 2)}`);
@@ -3168,7 +3162,6 @@ describe("propeller", () => {
               poolTokenAccount1,
               lpMint,
               governanceFee: governanceFeeAcct,
-              userTransferAuthority: userTransferAuthority.publicKey,
               userTokenAccount0,
               userTokenAccount1,
               userLpTokenAccount,
@@ -3177,9 +3170,7 @@ describe("propeller", () => {
               systemProgram: web3.SystemProgram.programId,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr.toString("hex"))])
-
-            .signers([userTransferAuthority]);
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))]);
 
           const processSwimPayloadPubkeys = await processSwimPayload.pubkeys();
           console.info(`${JSON.stringify(processSwimPayloadPubkeys, null, 2)}`);
@@ -3573,7 +3564,6 @@ describe("propeller", () => {
               poolTokenAccount1,
               lpMint,
               governanceFee: governanceFeeAcct,
-              userTransferAuthority: userTransferAuthority.publicKey,
               userTokenAccount0,
               userTokenAccount1,
               userLpTokenAccount,
@@ -3582,8 +3572,7 @@ describe("propeller", () => {
               systemProgram: web3.SystemProgram.programId,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr.toString("hex"))])
-            .signers([userTransferAuthority]);
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))]);
 
           const processSwimPayloadPubkeys =
             await processSwimPayloadIxs.pubkeys();
@@ -3988,7 +3977,6 @@ describe("propeller", () => {
               poolTokenAccount1,
               lpMint,
               governanceFee: governanceFeeAcct,
-              userTransferAuthority: userTransferAuthority.publicKey,
               userTokenAccount0,
               userTokenAccount1,
               userLpTokenAccount,
@@ -3997,8 +3985,7 @@ describe("propeller", () => {
               systemProgram: web3.SystemProgram.programId,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr.toString("hex"))])
-            .signers([userTransferAuthority]);
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))]);
 
           const processSwimPayloadPubkeys = await processSwimPayload.pubkeys();
           console.info(`${JSON.stringify(processSwimPayloadPubkeys, null, 2)}`);

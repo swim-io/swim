@@ -2170,11 +2170,6 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
           "name": "userTokenAccount0",
           "isMut": true,
           "isSigner": false
@@ -3090,11 +3085,6 @@ export type Propeller = {
               "isSigner": false
             },
             {
-              "name": "userTransferAuthority",
-              "isMut": false,
-              "isSigner": true
-            },
-            {
               "name": "userTokenAccount0",
               "isMut": true,
               "isSigner": false
@@ -3236,7 +3226,8 @@ export type Propeller = {
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "This is for transferring lamports for kickstart"
+            "This is for transferring lamports for kickstart",
+            "TODO: force this to be system account?"
           ]
         },
         {
@@ -3683,12 +3674,33 @@ export type Propeller = {
           "docs": [
             "deserialized as a `TokenIdMap`. if it does exist, then engine should have called",
             "propeller_create_owner_token_accounts instead"
-          ]
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "token_id"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "u16",
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.target_token_id"
+              }
+            ]
+          }
         },
         {
           "name": "userSwimUsdAta",
@@ -6946,11 +6958,6 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
           "name": "userTokenAccount0",
           "isMut": true,
           "isSigner": false
@@ -7866,11 +7873,6 @@ export const IDL: Propeller = {
               "isSigner": false
             },
             {
-              "name": "userTransferAuthority",
-              "isMut": false,
-              "isSigner": true
-            },
-            {
               "name": "userTokenAccount0",
               "isMut": true,
               "isSigner": false
@@ -8012,7 +8014,8 @@ export const IDL: Propeller = {
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "This is for transferring lamports for kickstart"
+            "This is for transferring lamports for kickstart",
+            "TODO: force this to be system account?"
           ]
         },
         {
@@ -8459,12 +8462,33 @@ export const IDL: Propeller = {
           "docs": [
             "deserialized as a `TokenIdMap`. if it does exist, then engine should have called",
             "propeller_create_owner_token_accounts instead"
-          ]
-        },
-        {
-          "name": "userTransferAuthority",
-          "isMut": false,
-          "isSigner": true
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "token_id"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "u16",
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.target_token_id"
+              }
+            ]
+          }
         },
         {
           "name": "userSwimUsdAta",

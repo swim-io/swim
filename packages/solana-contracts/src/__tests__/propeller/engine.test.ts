@@ -1322,7 +1322,6 @@ describe("propeller", () => {
                   poolTokenAccount1,
                   lpMint,
                   governanceFee: governanceFeeAcct,
-                  userTransferAuthority: userTransferAuthority.publicKey,
                   userTokenAccount0,
                   userTokenAccount1,
                   userLpTokenAccount,
@@ -1351,7 +1350,7 @@ describe("propeller", () => {
                   memo: MEMO_PROGRAM_ID,
                 })
                 .preInstructions([setComputeUnitLimitIx])
-                .signers([userTransferAuthority, propellerEngineKeypair]);
+                .signers([propellerEngineKeypair]);
 
             const propellerProcessSwimPayloadPubkeys =
               await propellerProcessSwimPayloadIxs.pubkeys();
@@ -2055,15 +2054,10 @@ describe("propeller", () => {
                   poolTokenAccount1,
                   lpMint,
                   governanceFee: governanceFeeAcct,
-                  userTransferAuthority: userTransferAuthority.publicKey,
-
                   userTokenAccount0,
-
                   userTokenAccount1,
-
                   userLpTokenAccount,
                   tokenProgram: splToken.programId,
-
                   twoPoolProgram: twoPoolProgram.programId,
                   systemProgram: web3.SystemProgram.programId,
                 })
@@ -2120,7 +2114,7 @@ describe("propeller", () => {
                   memo: MEMO_PROGRAM_ID,
                 })
                 .preInstructions([setComputeUnitLimitIx])
-                .signers([userTransferAuthority, propellerEngineKeypair]);
+                .signers([propellerEngineKeypair]);
 
             const propellerProcessSwimPayloadPubkeys =
               await propellerProcessSwimPayloadIxs.pubkeys();
@@ -2739,7 +2733,6 @@ describe("propeller", () => {
             )
           ).feesOwed;
 
-          const userTransferAuthority = web3.Keypair.generate();
           const swimPayloadMessageAccount =
             await propellerProgram.account.swimPayloadMessage.fetch(
               swimPayloadMessage,
@@ -2768,7 +2761,6 @@ describe("propeller", () => {
                 redeemer: propellerRedeemer,
                 redeemerEscrow: propellerRedeemerEscrowAccount,
                 tokenIdMap: invalidTokenIdMapAddr,
-                userTransferAuthority: userTransferAuthority.publicKey,
                 userSwimUsdAta: ownerSwimUsdAta,
                 tokenProgram: splToken.programId,
                 memo: MEMO_PROGRAM_ID,
@@ -2784,7 +2776,7 @@ describe("propeller", () => {
                 owner,
               })
               .preInstructions([setComputeUnitLimitIx])
-              .signers([userTransferAuthority, propellerEngineKeypair]);
+              .signers([propellerEngineKeypair]);
 
           const propellerProcessSwimPayloadPubkeys =
             await propellerProcessSwimPayloadIxs.pubkeys();
@@ -4305,15 +4297,10 @@ describe("propeller", () => {
                   poolTokenAccount1,
                   lpMint,
                   governanceFee: governanceFeeAcct,
-                  userTransferAuthority: userTransferAuthority.publicKey,
-
                   userTokenAccount0,
-
                   userTokenAccount1,
-
                   userLpTokenAccount,
                   tokenProgram: splToken.programId,
-
                   twoPoolProgram: twoPoolProgram.programId,
                   systemProgram: web3.SystemProgram.programId,
                 })
@@ -4339,7 +4326,7 @@ describe("propeller", () => {
                   memo: MEMO_PROGRAM_ID,
                 })
                 .preInstructions([setComputeUnitLimitIx])
-                .signers([userTransferAuthority, propellerEngineKeypair]);
+                .signers([propellerEngineKeypair]);
 
             const propellerProcessSwimPayloadPubkeys =
               await propellerProcessSwimPayloadIxs.pubkeys();
@@ -4608,7 +4595,6 @@ describe("propeller", () => {
         let txns: readonly web3.Transaction[] = [];
         let txnIdx = 0;
         let propellerRedeemerEscrowAccountBefore: BN;
-        const userTransferAuthority = web3.Keypair.generate();
 
         beforeAll(async () => {
           tokenTransferWithPayloadSignedVaa = signAndEncodeVaa(
@@ -4663,7 +4649,6 @@ describe("propeller", () => {
             twoPoolProgram,
             splToken,
             aggregator,
-            userTransferAuthority,
           );
           console.info(`txns: ${JSON.stringify(txns)}`);
         });
@@ -5027,7 +5012,6 @@ describe("propeller", () => {
           const processSwimPayloadTxnSig =
             await propellerEngineAnchorProvider.sendAndConfirm(
               processSwimPayloadTxn,
-              [userTransferAuthority],
             );
 
           console.info(`processSwimPayloadTxnSig: ${processSwimPayloadTxnSig}`);
@@ -5168,7 +5152,6 @@ describe("propeller", () => {
         let txns: readonly web3.Transaction[] = [];
         let txnIdx = 0;
         let propellerRedeemerEscrowAccountBefore: BN;
-        const userTransferAuthority = web3.Keypair.generate();
 
         beforeAll(async () => {
           tokenTransferWithPayloadSignedVaa = signAndEncodeVaa(
@@ -5223,7 +5206,6 @@ describe("propeller", () => {
             twoPoolProgram,
             splToken,
             aggregator,
-            userTransferAuthority,
           );
           console.info(`txns: ${JSON.stringify(txns)}`);
         });
@@ -5574,7 +5556,6 @@ describe("propeller", () => {
           const processSwimPayloadTxnSig =
             await propellerEngineAnchorProvider.sendAndConfirm(
               processSwimPayloadTxn,
-              [userTransferAuthority],
             );
           console.info(`processSwimPayloadTxnSig: ${processSwimPayloadTxnSig}`);
 
@@ -6199,12 +6180,8 @@ describe("propeller", () => {
                   poolTokenAccount1,
                   lpMint,
                   governanceFee: governanceFeeAcct,
-                  userTransferAuthority: userTransferAuthority.publicKey,
-
                   userTokenAccount0,
-
                   userTokenAccount1,
-
                   userLpTokenAccount,
                   tokenProgram: splToken.programId,
                   twoPoolProgram: twoPoolProgram.programId,
@@ -6232,7 +6209,7 @@ describe("propeller", () => {
                   memo: MEMO_PROGRAM_ID,
                 })
                 .preInstructions([setComputeUnitLimitIx])
-                .signers([userTransferAuthority, propellerEngineKeypair]);
+                .signers([propellerEngineKeypair]);
 
             const propellerProcessSwimPayloadPubkeys =
               await propellerProcessSwimPayloadIxs.pubkeys();

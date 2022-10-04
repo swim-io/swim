@@ -542,7 +542,6 @@ export const generatePropellerEngineTxns = async (
   twoPoolProgram: Program<TwoPool>,
   splToken: Program<SplToken>,
   aggregator: web3.PublicKey,
-  userTransferAuthority: web3.Keypair,
 ): Promise<readonly web3.Transaction[]> => {
   let txns: readonly web3.Transaction[] = [];
   const {
@@ -786,7 +785,6 @@ export const generatePropellerEngineTxns = async (
           redeemer: propellerRedeemer,
           redeemerEscrow: propellerRedeemerEscrowAccount,
           tokenIdMap: tokenIdMapAddr,
-          userTransferAuthority: userTransferAuthority.publicKey,
           userSwimUsdAta: userSwimUsdAta,
           tokenProgram: splToken.programId,
           memo: MEMO_PROGRAM_ID,
@@ -802,7 +800,7 @@ export const generatePropellerEngineTxns = async (
           owner,
         })
         .preInstructions([requestUnitsIx])
-        .signers([userTransferAuthority, payer])
+        .signers([payer])
         .transaction();
     txns = [...txns, propellerProcessSwimPayloadFallbackTxn];
   } else {
@@ -895,7 +893,6 @@ export const generatePropellerEngineTxns = async (
         poolTokenAccount1: tokenIdMapPoolInfo.tokenAccounts[1],
         lpMint: tokenIdMapPoolInfo.lpMint,
         governanceFee: tokenIdMapPoolInfo.governanceFeeAcct,
-        userTransferAuthority: userTransferAuthority.publicKey,
         userTokenAccount0: ownerAtaAddrs[0],
         userTokenAccount1: ownerAtaAddrs[1],
         userLpTokenAccount: ownerAtaAddrs[2],
@@ -948,7 +945,7 @@ export const generatePropellerEngineTxns = async (
         memo: MEMO_PROGRAM_ID,
       })
       .preInstructions([requestUnitsIx])
-      .signers([userTransferAuthority, payer])
+      .signers([payer])
       .transaction();
     txns = [...txns, propellerProcessSwimPayloadTxn];
   }

@@ -150,25 +150,32 @@ pub struct ProcessSwimPayload<'info> {
     pub lp_mint: Box<Account<'info, Mint>>,
     #[account(
     mut,
-    token::mint = lp_mint
+    address = pool.governance_fee_key,
     )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
 
-    // needs to be a signer since its a "keypair" account
-    pub user_transfer_authority: Signer<'info>,
-
-    #[account(mut, token::mint = pool_token_account_0.mint, token::authority = swim_payload_message.owner)]
+    #[account(
+    mut,
+    address = get_associated_token_address(&swim_payload_message.owner, &pool_token_account_0.mint)
+    )]
     pub user_token_account_0: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut, token::mint = pool_token_account_1.mint, token::authority = swim_payload_message.owner)]
+    #[account(
+    mut,
+    address = get_associated_token_address(&swim_payload_message.owner, &pool_token_account_1.mint)
+    )]
     pub user_token_account_1: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut, token::mint = pool.lp_mint_key, token::authority = swim_payload_message.owner)]
+    #[account(
+    mut,
+    address = get_associated_token_address(&swim_payload_message.owner, &pool.lp_mint_key)
+    )]
     pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
 
     pub token_program: Program<'info, Token>,
 
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
+
     pub system_program: Program<'info, System>,
 }
 
@@ -182,7 +189,6 @@ impl<'info> ProcessSwimPayload<'info> {
             ctx.accounts.token_id_map.pool,
             PropellerError::InvalidTokenIdMapPool
         );
-
         Ok(())
     }
 
@@ -218,62 +224,6 @@ impl<'info> ProcessSwimPayload<'info> {
             &self.redeemer.to_account_info(),
             &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
         )
-        // self.transfer_with_user_auth(
-        //     transfer_amount,
-        //     min_output_amount,
-        //     output_token_index,
-        //     pool_ix,
-        //     pool_token_index,
-        //     pool_token_mint,
-        //     &self.user_transfer_authority.to_account_info(),
-        // )
-    }
-
-    fn transfer_with_user_auth(
-        &self,
-        transfer_amount: u64,
-        min_output_amount: u64,
-        output_token_index: u16,
-        pool_ix: &PoolInstruction,
-        pool_token_index: u8,
-        pool_token_mint: &Pubkey,
-        user_transfer_authority: &AccountInfo<'info>,
-    ) -> Result<u64> {
-        token::approve(
-            CpiContext::new_with_signer(
-                self.token_program.to_account_info(),
-                token::Approve {
-                    // source
-                    to: self.redeemer_escrow.to_account_info(),
-                    delegate: self.user_transfer_authority.to_account_info(),
-                    authority: self.redeemer.to_account_info(),
-                },
-                &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
-            ),
-            transfer_amount,
-        )?;
-        require_gt!(TOKEN_COUNT, pool_token_index as usize);
-        // let user_transfer_authority = &self.user_transfer_authority.to_account_info();
-        let output_amount_res = self.execute_transfer_or_pool_ix(
-            transfer_amount,
-            min_output_amount,
-            output_token_index,
-            pool_ix,
-            pool_token_index,
-            pool_token_mint,
-            user_transfer_authority,
-            &[],
-        );
-        token::revoke(CpiContext::new_with_signer(
-            self.token_program.to_account_info(),
-            token::Revoke {
-                // source
-                source: self.redeemer_escrow.to_account_info(),
-                authority: self.redeemer.to_account_info(),
-            },
-            &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
-        ))?;
-        output_amount_res
     }
 
     fn execute_transfer_or_pool_ix(
@@ -423,8 +373,7 @@ pub struct PropellerProcessSwimPayload<'info> {
 
     #[account(
     mut,
-    token::mint = process_swim_payload.propeller.swim_usd_mint,
-    token::authority = process_swim_payload.propeller,
+    address = get_associated_token_address(&process_swim_payload.propeller.key(), &process_swim_payload.propeller.swim_usd_mint)
     )]
     /// this is "to_fees"
     /// recipient of fees for executing complete transfer (e.g. relayer)
@@ -473,6 +422,7 @@ pub struct PropellerProcessSwimPayload<'info> {
     #[account(address = marginal_price_pool.lp_mint_key)]
     pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
     /// This is for transferring lamports for kickstart
+    /// TODO: force this to be system account?
     #[account(mut, address = process_swim_payload.swim_payload_message.owner)]
     pub owner: SystemAccount<'info>,
     #[account(executable, address = spl_memo::id())]
@@ -774,13 +724,19 @@ pub struct PropellerProcessSwimPayloadFallback<'info> {
     )]
     pub redeemer_escrow: Box<Account<'info, TokenAccount>>,
 
+    #[account(
+    seeds = [
+        b"propeller".as_ref(),
+        b"token_id".as_ref(),
+        propeller.key().as_ref(),
+        &swim_payload_message.target_token_id.to_le_bytes()
+    ],
+    bump,
+    )]
     /// CHECK: Unchecked b/c if target_token_id is invalid then this account should not exist/be able to be
     /// deserialized as a `TokenIdMap`. if it does exist, then engine should have called
     /// propeller_create_owner_token_accounts instead
     pub token_id_map: UncheckedAccount<'info>,
-
-    // needs to be a signer since its a "keypair" account
-    pub user_transfer_authority: Signer<'info>,
 
     #[account(
     mut,
@@ -1025,80 +981,12 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
     }
 
     pub fn transfer_tokens(&self, transfer_amount: u64) -> Result<u64> {
-        //TODO: decide if using user_transfer_auth
-        // remove user_transfer_authority account if not.
         self.transfer_swim_usd_tokens(
             transfer_amount,
             &self.redeemer.to_account_info(),
             &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
         )
-        // self.execute_transfer_or_pool_ix(
-        //     transfer_amount,
-        //     min_output_amount,
-        //     output_token_index,
-        //     pool_ix,
-        //     pool_token_index,
-        //     pool_token_mint,
-        //     &self.redeemer.to_account_info(),
-        //     &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
-        // )
-        // self.transfer_with_user_auth(
-        //     transfer_amount,
-        //     min_output_amount,
-        //     output_token_index,
-        //     pool_ix,
-        //     pool_token_index,
-        //     pool_token_mint,
-        //     &self.user_transfer_authority.to_account_info(),
-        // )
     }
-
-    // fn transfer_with_user_auth(
-    //     &self,
-    //     transfer_amount: u64,
-    //     min_output_amount: u64,
-    //     output_token_index: u16,
-    //     pool_ix: &PoolInstruction,
-    //     pool_token_index: u8,
-    //     pool_token_mint: &Pubkey,
-    //     user_transfer_authority: &AccountInfo<'info>,
-    // ) -> Result<u64> {
-    //     token::approve(
-    //         CpiContext::new_with_signer(
-    //             self.token_program.to_account_info(),
-    //             token::Approve {
-    //                 // source
-    //                 to: self.redeemer_escrow.to_account_info(),
-    //                 delegate: self.user_transfer_authority.to_account_info(),
-    //                 authority: self.redeemer.to_account_info(),
-    //             },
-    //             &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
-    //         ),
-    //         transfer_amount,
-    //     )?;
-    //     require_gt!(TOKEN_COUNT, pool_token_index as usize);
-    //     // let user_transfer_authority = &self.user_transfer_authority.to_account_info();
-    //     let output_amount_res = self.execute_transfer_or_pool_ix(
-    //         transfer_amount,
-    //         min_output_amount,
-    //         output_token_index,
-    //         pool_ix,
-    //         pool_token_index,
-    //         pool_token_mint,
-    //         user_transfer_authority,
-    //         &[],
-    //     );
-    //     token::revoke(CpiContext::new_with_signer(
-    //         self.token_program.to_account_info(),
-    //         token::Revoke {
-    //             // source
-    //             source: self.redeemer_escrow.to_account_info(),
-    //             authority: self.redeemer.to_account_info(),
-    //         },
-    //         &[&[&b"redeemer".as_ref(), &[self.propeller.redeemer_bump]]],
-    //     ))?;
-    //     output_amount_res
-    // }
 
     fn transfer_swim_usd_tokens(
         &self,

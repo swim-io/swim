@@ -71,9 +71,6 @@ pub struct SwapExactInput<'info> {
     // #[account(mut)]
     // pub payer: Signer<'info>,
     pub token_program: Program<'info, Token>,
-    #[account(executable, address = spl_memo::id())]
-    ///CHECK: memo program
-    pub memo: UncheckedAccount<'info>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
     pub swim_usd_mint: Account<'info, Mint>,
 }
@@ -129,7 +126,6 @@ pub fn handle_cross_chain_swap_exact_input(
     ctx: Context<SwapExactInput>,
     exact_input_amount: u64,
     minimum_output_amount: u64,
-    memo: &[u8],
 ) -> Result<u64> {
     require_gt!(exact_input_amount, 0, PropellerError::InvalidSwapExactInputInputAmount);
     let exact_input_amounts = [0, exact_input_amount];
@@ -155,8 +151,6 @@ pub fn handle_cross_chain_swap_exact_input(
         minimum_output_amount,
     )?;
     let return_val = result.get();
-    let memo_ix = spl_memo::build_memo(memo, &[]);
-    invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     anchor_lang::prelude::msg!("swap_exact_input return_val: {:?}", return_val);
     Ok(return_val)
 }
@@ -164,7 +158,6 @@ pub fn handle_cross_chain_swap_exact_input(
 pub fn handle_propeller_swap_exact_input(
     ctx: Context<SwapExactInput>,
     exact_input_amount: u64,
-    memo: &[u8],
     max_fee: u64,
 ) -> Result<u64> {
     require_gt!(exact_input_amount, 0, PropellerError::InvalidSwapExactInputInputAmount);
@@ -191,8 +184,6 @@ pub fn handle_propeller_swap_exact_input(
         PROPELLER_MINIMUM_OUTPUT_AMOUNT,
     )?;
     let output_amount = result.get();
-    let memo_ix = spl_memo::build_memo(memo, &[]);
-    invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     anchor_lang::prelude::msg!("swap_exact_input return_val: {:?}", output_amount);
     require_gt!(output_amount, max_fee, PropellerError::InsufficientAmount);
     Ok(output_amount)

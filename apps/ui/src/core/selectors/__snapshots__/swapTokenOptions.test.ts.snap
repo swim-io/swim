@@ -212,7 +212,6 @@ Array [
     "ecosystemId": "fantom",
     "tokenConfig": Object {
       "id": "testnet-fantom-usdc",
-      "isDisabled": false,
       "nativeDetails": Object {
         "address": "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
         "decimals": 6,
@@ -231,7 +230,6 @@ Array [
     "ecosystemId": "karura",
     "tokenConfig": Object {
       "id": "testnet-karura-usdt",
-      "isDisabled": false,
       "nativeDetails": Object {
         "address": "0x535d5e3b1ff7de526fe180e654a41350903c328d",
         "decimals": 18,

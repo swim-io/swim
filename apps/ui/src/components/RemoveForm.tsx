@@ -434,11 +434,11 @@ export const RemoveForm = ({
       setIsSubmitted(true);
       handleSubmitAndCatch();
     } catch (error) {
-      const swimError = captureAndWrapException(
+      const swimUiError = captureAndWrapException(
         t("general.unexpected_error"),
         error,
       );
-      setFormErrors([swimError.toPrettyString()]);
+      setFormErrors([swimUiError.toPrettyString()]);
     } finally {
       setIsSubmitted(false);
     }

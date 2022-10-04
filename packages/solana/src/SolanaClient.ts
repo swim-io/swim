@@ -111,7 +111,7 @@ export class SolanaClient implements Client<SolanaWalletAdapter> {
     targetChainId,
     targetAddress,
     interactionId,
-    tokenId,
+    tokenProjectId,
     wallet,
     wrappedTokenInfo,
     auxiliarySigner = Keypair.generate(),
@@ -124,7 +124,7 @@ export class SolanaClient implements Client<SolanaWalletAdapter> {
     }
     const mintAddress =
       wrappedTokenInfo?.wrappedAddress ??
-      getTokenDetails(this.chainConfig, tokenId).address;
+      getTokenDetails(this.chainConfig, tokenProjectId).address;
     const associatedTokenAccountAddress = getAssociatedTokenAddressSync(
       new PublicKey(mintAddress),
       new PublicKey(solanaWalletAddress),

@@ -118,7 +118,7 @@ export const useToSolanaTransferMutation = () => {
           splTokenAccountAddress,
         ),
         targetChainId: WormholeChainId.Solana,
-        tokenId: token.id,
+        tokenProjectId: token.projectId,
         wallet: evmWallet,
         wrappedTokenInfo: getWrappedTokenInfo(token, fromEcosystem),
       });

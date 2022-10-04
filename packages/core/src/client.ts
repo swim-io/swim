@@ -1,4 +1,5 @@
 import type { ChainId } from "@certusone/wormhole-sdk";
+import type { TokenProjectId } from "@swim-io/token-projects";
 
 export interface WrappedTokenInfo {
   readonly originChainId: ChainId;
@@ -14,7 +15,7 @@ export interface InitiateWormholeTransferParams<Wallet> {
   /** Standardized Wormhole format, ie 32 bytes */
   readonly targetAddress: Uint8Array;
   readonly targetChainId: ChainId;
-  readonly tokenId: string;
+  readonly tokenProjectId: TokenProjectId;
   readonly wallet: Wallet;
   readonly wrappedTokenInfo?: WrappedTokenInfo;
 }

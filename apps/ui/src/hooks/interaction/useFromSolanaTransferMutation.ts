@@ -175,7 +175,7 @@ export const useFromSolanaTransferMutation = () => {
             evmWalletAddress,
           ),
           targetChainId: evmEcosystem.wormholeChainId,
-          tokenId: token.id,
+          tokenProjectId: token.projectId,
           wallet: solanaWallet,
           auxiliarySigner,
           wrappedTokenInfo: getWrappedTokenInfo(token, SOLANA_ECOSYSTEM_ID),

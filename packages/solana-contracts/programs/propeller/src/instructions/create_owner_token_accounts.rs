@@ -1,44 +1,27 @@
 pub use switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_PROGRAM_ID};
 use {
     crate::{
-        constants::LAMPORTS_PER_SOL_DECIMAL, convert_fees_to_swim_usd_atomic, get_lamports_intermediate_token_price,
-        get_marginal_price_decimal, get_marginal_prices, get_swim_usd_mint_decimals, FeeTracker,
-    },
-    anchor_spl::{
-        associated_token::{get_associated_token_address, AssociatedToken},
-        token::Transfer,
-    },
-    num_traits::{FromPrimitive, ToPrimitive},
-    rust_decimal::Decimal,
-    solana_program::{instruction::Instruction, program::invoke_signed},
-    two_pool::BorshDecimal,
-};
-use {
-    crate::{
-        deserialize_message_payload,
-        // env::*,
+        constants::LAMPORTS_PER_SOL_DECIMAL,
+        convert_fees_to_swim_usd_atomic, deserialize_message_payload,
         error::*,
-        get_message_data,
-        get_transfer_with_payload_from_message_account,
-        hash_vaa,
+        get_lamports_intermediate_token_price, get_marginal_price_decimal, get_marginal_prices, get_message_data,
+        get_swim_usd_mint_decimals, get_transfer_with_payload_from_message_account, hash_vaa,
         state::{SwimClaim, SwimPayloadMessage, *},
         token_bridge::TokenBridge,
         token_id_map::{PoolInstruction, TokenIdMap},
-        ClaimData,
-        PayloadTransferWithPayload,
-        PostVAAData,
-        PostedVAAData,
-        Propeller,
-        RawSwimPayload,
+        ClaimData, FeeTracker, PayloadTransferWithPayload, PostVAAData, PostedVAAData, Propeller, RawSwimPayload,
         TOKEN_COUNT,
     },
     anchor_lang::{prelude::*, solana_program::program::invoke},
     anchor_spl::{
-        token,
-        token::{Mint, Token, TokenAccount},
+        associated_token::{get_associated_token_address, AssociatedToken},
+        token::{self, Mint, Token, TokenAccount, Transfer},
     },
+    num_traits::{FromPrimitive, ToPrimitive},
+    rust_decimal::Decimal,
+    solana_program::{instruction::Instruction, program::invoke_signed},
     std::convert::TryInto,
-    two_pool::state::TwoPool,
+    two_pool::{state::TwoPool, BorshDecimal},
 };
 
 #[derive(Accounts)]
@@ -63,14 +46,12 @@ pub struct PropellerCreateOwnerTokenAccounts<'info> {
     pub redeemer: SystemAccount<'info>,
     #[account(
     mut,
-    token::mint = propeller.swim_usd_mint,
-    token::authority = redeemer,
+    address = get_associated_token_address(&redeemer.key(), &propeller.swim_usd_mint)
     )]
     pub redeemer_escrow: Box<Account<'info, TokenAccount>>,
     #[account(
     mut,
-    token::mint = propeller.swim_usd_mint,
-    token::authority = propeller,
+    address = get_associated_token_address(&propeller.key(), &propeller.swim_usd_mint)
     )]
     pub fee_vault: Box<Account<'info, TokenAccount>>,
 
@@ -138,13 +119,22 @@ pub struct PropellerCreateOwnerTokenAccounts<'info> {
 
     #[account(address = swim_payload_message.owner)]
     pub user: SystemAccount<'info>,
-    #[account(mut)]
+    #[account(
+    mut,
+    address = get_associated_token_address(&user.key(), &pool_token_0_mint.key()),
+    )]
     /// CHECK: may possibly need to initialize
     pub user_pool_token_0_account: UncheckedAccount<'info>,
-    #[account(mut)]
+    #[account(
+    mut,
+    address = get_associated_token_address(&user.key(), &pool_token_1_mint.key()),
+    )]
     /// CHECK: may possibly need to initialize
     pub user_pool_token_1_account: UncheckedAccount<'info>,
-    #[account(mut)]
+    #[account(
+    mut,
+    address = get_associated_token_address(&user.key(), &pool_lp_mint.key()),
+    )]
     /// CHECK: may possibly need to initialize
     pub user_lp_token_account: UncheckedAccount<'info>,
     pub associated_token_program: Program<'info, AssociatedToken>,
@@ -193,15 +183,6 @@ impl<'info> PropellerCreateOwnerTokenAccounts<'info> {
                 ctx.accounts.marginal_price_pool_token_1_account.mint,
             ],
         )?;
-        let expected_user_token_0_ata =
-            get_associated_token_address(&ctx.accounts.user.key(), &ctx.accounts.pool_token_0_mint.key());
-        require_keys_eq!(expected_user_token_0_ata, ctx.accounts.user_pool_token_0_account.key());
-        let expected_user_token_1_ata =
-            get_associated_token_address(&ctx.accounts.user.key(), &ctx.accounts.pool_token_1_mint.key());
-        require_keys_eq!(expected_user_token_1_ata, ctx.accounts.user_pool_token_1_account.key());
-        let expected_user_lp_ata =
-            get_associated_token_address(&ctx.accounts.user.key(), &ctx.accounts.pool_lp_mint.key());
-        require_keys_eq!(expected_user_lp_ata, ctx.accounts.user_lp_token_account.key());
         msg!("Passed PropellerCreateOwnerTokenAccounts::accounts() check");
         Ok(())
     }
@@ -226,58 +207,6 @@ impl<'info> PropellerCreateOwnerTokenAccounts<'info> {
         };
         CpiContext::new(program, accounts)
     }
-
-    // pub fn convert_fees_to_swim_usd_atomic(&self, fee_in_lamports: u64) -> Result<u64> {
-    //     let propeller = &self.propeller;
-    //
-    //     msg!("fee_in_lamports: {:?}", fee_in_lamports);
-    //     let marginal_price_pool_lp_mint = &self.marginal_price_pool_lp_mint;
-    //
-    //     let token_bridge_mint_key = propeller.token_bridge_mint;
-    //     let marginal_prices = get_marginal_prices(self.into_marginal_prices())?;
-    //
-    //     let intermediate_token_price_decimal: Decimal = get_marginal_price_decimal(
-    //         &self.marginal_price_pool,
-    //         &marginal_prices,
-    //         &propeller,
-    //         &marginal_price_pool_lp_mint.key(),
-    //     )?;
-    //
-    //     msg!("intermediate_token_price_decimal: {:?}", intermediate_token_price_decimal);
-    //
-    //     let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
-    //     msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
-    //
-    //     let mut res = 0u64;
-    //
-    //     let lamports_intermediate_token_price = get_lamports_intermediate_token_price(&self.aggregator, i64::MAX)?;
-    //     let fee_in_swim_usd_decimal = lamports_intermediate_token_price
-    //         .checked_mul(fee_in_lamports_decimal)
-    //         .and_then(|x| x.checked_div(intermediate_token_price_decimal))
-    //         .ok_or(PropellerError::IntegerOverflow)?;
-    //
-    //     let swim_usd_decimals = get_token_bridge_mint_decimals(
-    //         &token_bridge_mint_key,
-    //         &self.marginal_price_pool,
-    //         &marginal_price_pool_lp_mint,
-    //     )?;
-    //     msg!("swim_usd_decimals: {:?}", swim_usd_decimals);
-    //
-    //     let ten_pow_decimals =
-    //         Decimal::from_u64(10u64.pow(swim_usd_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
-    //     let fee_in_swim_usd_atomic = fee_in_swim_usd_decimal
-    //         .checked_mul(ten_pow_decimals)
-    //         .and_then(|v| v.to_u64())
-    //         .ok_or(PropellerError::ConversionError)?;
-    //
-    //     msg!(
-    //         "fee_in_swim_usd_decimal: {:?} fee_in_swim_usd_atomic: {:?}",
-    //         fee_in_swim_usd_decimal,
-    //         fee_in_swim_usd_atomic
-    //     );
-    //     res = fee_in_swim_usd_atomic;
-    //     Ok(res)
-    // }
 
     fn track_and_transfer_fees(&mut self, fees_in_swim_usd: u64) -> Result<()> {
         let fee_tracker = &mut self.fee_tracker;
@@ -595,14 +524,12 @@ pub struct PropellerCreateOwnerSwimUsdAta<'info> {
     pub redeemer: SystemAccount<'info>,
     #[account(
     mut,
-    token::mint = propeller.swim_usd_mint,
-    token::authority = redeemer,
+    address = get_associated_token_address(&redeemer.key(), &propeller.swim_usd_mint)
     )]
     pub redeemer_escrow: Box<Account<'info, TokenAccount>>,
     #[account(
     mut,
-    token::mint = propeller.swim_usd_mint,
-    token::authority = propeller,
+    address = get_associated_token_address(&propeller.key(), &propeller.swim_usd_mint)
     )]
     pub fee_vault: Box<Account<'info, TokenAccount>>,
 
@@ -641,17 +568,8 @@ pub struct PropellerCreateOwnerSwimUsdAta<'info> {
     )]
     pub swim_payload_message: Box<Account<'info, SwimPayloadMessage>>,
 
-    // #[account(
-    // seeds = [
-    // b"propeller".as_ref(),
-    // b"token_id".as_ref(),
-    // propeller.key().as_ref(),
-    // &swim_payload_message.target_token_id.to_le_bytes()
-    // ],
-    // bump,
-    // )]
     /// CHECK: Unchecked b/c if target_token_id is invalid then this account should not exist/be able to be
-    /// deseraizlied as a `TokenIdMap`. if it does exist, then engine should have called
+    /// deserialized as a `TokenIdMap`. if it does exist, then engine should have called
     /// propeller_create_owner_token_accounts instead
     pub token_id_map: UncheckedAccount<'info>,
     pub swim_usd_mint: Box<Account<'info, Mint>>,
@@ -690,8 +608,11 @@ pub struct PropellerCreateOwnerSwimUsdAta<'info> {
     seeds::program = two_pool_program.key()
     )]
     pub marginal_price_pool: Box<Account<'info, TwoPool>>,
+    #[account(address = marginal_price_pool.token_keys[0])]
     pub marginal_price_pool_token_0_account: Box<Account<'info, TokenAccount>>,
+    #[account(address = marginal_price_pool.token_keys[1])]
     pub marginal_price_pool_token_1_account: Box<Account<'info, TokenAccount>>,
+    #[account(address = marginal_price_pool.lp_mint_key)]
     pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
     #[account(executable, address = spl_memo::id())]
@@ -809,16 +730,6 @@ impl<'info> PropellerCreateOwnerSwimUsdAta<'info> {
             fees_in_swim_usd,
         )
     }
-    // pub fn validate(&self) -> Result<()> {
-    //     require_keys_eq!(self.user.key(), self.swim_payload_message.owner);
-    //     let expected_user_token_0_ata = get_associated_token_address(&self.user.key(), &self.pool_token_0_mint.key());
-    //     require_keys_eq!(expected_user_token_0_ata, self.user_pool_token_0_account.key());
-    //     let expected_user_token_1_ata = get_associated_token_address(&self.user.key(), &self.pool_token_1_mint.key());
-    //     require_keys_eq!(expected_user_token_1_ata, self.user_pool_token_1_account.key());
-    //     let expected_user_lp_ata = get_associated_token_address(&self.user.key(), &self.pool_lp_mint.key());
-    //     require_keys_eq!(expected_user_lp_ata, self.user_lp_token_account.key());
-    //     Ok(())
-    // }
 }
 
 pub fn handle_propeller_create_owner_swim_usd_ata(ctx: Context<PropellerCreateOwnerSwimUsdAta>) -> Result<()> {

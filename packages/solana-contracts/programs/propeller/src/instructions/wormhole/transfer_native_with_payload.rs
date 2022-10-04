@@ -418,7 +418,6 @@ pub fn handle_propeller_transfer_native_with_payload(
 
     let target_address = ctx.accounts.target_chain_map.target_address.clone();
     let transfer_with_payload_data = TransferWithPayloadData {
-        //TODO: update this.
         nonce: ctx.accounts.propeller.nonce,
         amount,
         target_address,

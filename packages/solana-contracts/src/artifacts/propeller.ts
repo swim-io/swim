@@ -3414,7 +3414,7 @@ export type Propeller = {
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "deseraizlied as a `TokenIdMap`. if it does exist, then engine should have called",
+            "deserialized as a `TokenIdMap`. if it does exist, then engine should have called",
             "propeller_create_owner_token_accounts instead"
           ]
         },
@@ -8190,7 +8190,7 @@ export const IDL: Propeller = {
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "deseraizlied as a `TokenIdMap`. if it does exist, then engine should have called",
+            "deserialized as a `TokenIdMap`. if it does exist, then engine should have called",
             "propeller_create_owner_token_accounts instead"
           ]
         },

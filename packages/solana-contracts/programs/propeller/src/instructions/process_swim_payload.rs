@@ -4,12 +4,6 @@ use {
         constants::LAMPORTS_PER_SOL_DECIMAL, convert_fees_to_swim_usd_atomic, get_marginal_price_decimal,
         get_swim_usd_mint_decimals, FeeTracker,
     },
-    anchor_lang::system_program,
-    anchor_spl::{associated_token::AssociatedToken, token::Transfer},
-    num_traits::{FromPrimitive, ToPrimitive},
-    rust_decimal::Decimal,
-};
-use {
     crate::{
         deserialize_message_payload,
         // env::*,
@@ -28,11 +22,18 @@ use {
         RawSwimPayload,
         TOKEN_COUNT,
     },
+    anchor_lang::system_program,
     anchor_lang::{prelude::*, solana_program::program::invoke},
+    anchor_spl::{
+        associated_token::{get_associated_token_address, AssociatedToken},
+        token::Transfer,
+    },
     anchor_spl::{
         token,
         token::{Mint, Token, TokenAccount},
     },
+    num_traits::{FromPrimitive, ToPrimitive},
+    rust_decimal::Decimal,
     std::convert::TryInto,
     two_pool::state::TwoPool,
 };
@@ -103,8 +104,7 @@ pub struct ProcessSwimPayload<'info> {
     pub redeemer: SystemAccount<'info>,
     #[account(
     mut,
-    token::mint = propeller.swim_usd_mint,
-    token::authority = redeemer,
+    address = get_associated_token_address(&redeemer.key(), &propeller.swim_usd_mint)
     )]
     pub redeemer_escrow: Box<Account<'info, TokenAccount>>,
 
@@ -770,8 +770,7 @@ pub struct PropellerProcessSwimPayloadFallback<'info> {
     pub redeemer: SystemAccount<'info>,
     #[account(
     mut,
-    token::mint = propeller.swim_usd_mint,
-    token::authority = redeemer,
+    address = get_associated_token_address(&redeemer.key(), &propeller.swim_usd_mint)
     )]
     pub redeemer_escrow: Box<Account<'info, TokenAccount>>,
 
@@ -783,7 +782,10 @@ pub struct PropellerProcessSwimPayloadFallback<'info> {
     // needs to be a signer since its a "keypair" account
     pub user_transfer_authority: Signer<'info>,
 
-    #[account(mut, associated_token::mint = propeller.swim_usd_mint, associated_token::authority = owner)]
+    #[account(
+    mut,
+    address = get_associated_token_address(&owner.key(), &propeller.swim_usd_mint)
+    )]
     pub user_swim_usd_ata: Box<Account<'info, TokenAccount>>,
 
     pub token_program: Program<'info, Token>,

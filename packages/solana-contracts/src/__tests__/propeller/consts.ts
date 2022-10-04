@@ -58,8 +58,8 @@ export const setComputeUnitLimitIx: web3.TransactionInstruction =
     units: 900000,
   });
 export const SWIM_USD_TO_TOKEN_NUMBER = 0;
-export const USDC_TO_TOKEN_NUMBER = 128;
-export const USDT_TO_TOKEN_NUMBER = 129;
+export const USDC_TO_TOKEN_NUMBER = 256;
+export const USDT_TO_TOKEN_NUMBER = 257;
 export const marginalPricePoolTokenIndex = 0;
 export const swimPayloadVersion = 1;
 export const usdcPoolTokenIndex = 0;

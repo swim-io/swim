@@ -35,7 +35,6 @@ import {
 } from "./tokenBridgeUtils";
 import { WORMHOLE_CORE_BRIDGE, signAndEncodeVaa } from "./wormholeUtils";
 
-
 setDefaultWasm("node");
 
 const envProvider = AnchorProvider.env();
@@ -189,12 +188,10 @@ describe("utils tests", () => {
       10,
     );
 
-
     const [messageAccount] = await deriveMessagePda(
       tokenTransferWithPayloadSignedVaa,
       WORMHOLE_CORE_BRIDGE,
     );
-
 
     const messageAccountInfo = await connection.getAccountInfo(messageAccount);
     if (!messageAccountInfo) {

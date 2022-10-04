@@ -2407,7 +2407,6 @@ describe("propeller", () => {
             WORMHOLE_CORE_BRIDGE,
           );
 
-
           console.info(`endpointAccount: ${ethEndpointAccount.toBase58()}`);
           wormholeClaim = await getClaimAddressSolana(
             WORMHOLE_TOKEN_BRIDGE.toBase58(),
@@ -2727,7 +2726,6 @@ describe("propeller", () => {
         });
 
         it("processes swim payload fallback", async () => {
-
           const propellerFeeVaultBalanceBefore = (
             await splToken.account.token.fetch(propellerFeeVault)
           ).amount;
@@ -2790,7 +2788,6 @@ describe("propeller", () => {
           console.info(
             `${JSON.stringify(propellerProcessSwimPayloadPubkeys, null, 2)}`,
           );
-
 
           const processSwimPayloadTxnSig: string =
             await propellerProcessSwimPayloadIxs.rpc();
@@ -4699,7 +4696,6 @@ describe("propeller", () => {
             WORMHOLE_TOKEN_BRIDGE.toBase58(),
             tokenTransferWithPayloadSignedVaa,
           );
-
 
           const [expectedSwimPayloadMessage, expectedSwimPayloadMessageBump] =
             await getSwimPayloadMessagePda(

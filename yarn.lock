@@ -2104,9 +2104,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@elastic/eui@npm:^38.2.0":
-  version: 38.2.0
-  resolution: "@elastic/eui@npm:38.2.0"
+"@elastic/eui@npm:^40.1.1":
+  version: 40.1.1
+  resolution: "@elastic/eui@npm:40.1.1"
   dependencies:
     "@types/chroma-js": ^2.0.0
     "@types/lodash": ^4.14.160
@@ -2132,10 +2132,11 @@ __metadata:
     react-is: ~16.3.0
     react-virtualized-auto-sizer: ^1.0.2
     react-window: ^1.8.5
-    refractor: ^3.4.0
+    refractor: ^3.5.0
     rehype-raw: ^5.0.0
     rehype-react: ^6.0.0
     rehype-stringify: ^8.0.0
+    remark-breaks: ^2.0.2
     remark-emoji: ^2.1.0
     remark-parse: ^8.0.3
     remark-rehype: ^8.0.0
@@ -2155,7 +2156,7 @@ __metadata:
     react: ^16.12
     react-dom: ^16.12
     typescript: ~4.1.3
-  checksum: 9c0842f6b4ca7238e6571d776fe52be1adbda3a5bf794bdacaa17cb9c117488959a395477d07f73c941b0c7474d1ed22a6026afc043bf95bcae8cb76fa9c3bd8
+  checksum: bd03cbbbf20595eaec9eec958e266625f359598eb0de3ed827b196f5f6269c4370cbf9d98042d3d0fe3914cd9351dec8320e1c68640816850b8e6248fdbb9eca
   languageName: node
   linkType: hard
 
@@ -7263,7 +7264,7 @@ __metadata:
     "@certusone/wormhole-sdk": ^0.6.0
     "@craco/craco": ^6.4.3
     "@elastic/datemath": ^5.0.3
-    "@elastic/eui": ^38.2.0
+    "@elastic/eui": ^40.1.1
     "@metaplex/js": ^4.12.0
     "@peculiar/webcrypto": ^1.4.0
     "@project-serum/anchor": ^0.24.2
@@ -27143,7 +27144,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"refractor@npm:^3.4.0":
+"refractor@npm:^3.5.0":
   version: 3.6.0
   resolution: "refractor@npm:3.6.0"
   dependencies:
@@ -27308,6 +27309,15 @@ __metadata:
   version: 0.2.7
   resolution: "relateurl@npm:0.2.7"
   checksum: 5891e792eae1dfc3da91c6fda76d6c3de0333a60aa5ad848982ebb6dccaa06e86385fb1235a1582c680a3d445d31be01c6bfc0804ebbcab5aaf53fa856fde6b6
+  languageName: node
+  linkType: hard
+
+"remark-breaks@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "remark-breaks@npm:2.0.2"
+  dependencies:
+    unist-util-visit: ^2.0.0
+  checksum: 7a37774365219071734fa9e8409b8dda6cb003823a64f7acb96e66967a703ee66ab3b66dc028c675cc745232990205b4a035e8b776216960240b3428ac41e1ca
   languageName: node
   linkType: hard
 

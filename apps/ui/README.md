@@ -69,7 +69,7 @@ There is a Digital Ocean machine running an instance of each blockchain in addit
 
     Currency Symbol: BNB
 
-1. `yarn start` and visit http://localhost:3000/set-custom-localnet?ip=159.223.16.33 to set your custom localnet IP
+1. `yarn start` and visit http://localhost:3000/set-custom-ip?ip=159.223.16.33 to set your custom localnet IP
 1. On http://localhost:3000/swap, choose `CustomLocalnet` as your network
 1. Connect your wallets, should see non-zero balances
 

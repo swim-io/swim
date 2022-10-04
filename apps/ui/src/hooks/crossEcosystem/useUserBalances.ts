@@ -10,7 +10,7 @@ import { useAptosTokenBalanceQuery } from "../aptos";
 import { useErc20BalanceQuery } from "../evm";
 import { useSplUserBalance } from "../solana";
 
-const useUserBalance = (
+export const useUserBalance = (
   tokenConfig: TokenConfig | null,
   ecosystemId: EcosystemId,
 ): Decimal | null => {

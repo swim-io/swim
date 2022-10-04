@@ -7,14 +7,8 @@ import type { SolanaChainConfig, SolanaEcosystemConfig } from "./protocol";
 import { SOLANA_ECOSYSTEM_ID, SOLANA_PROTOCOL } from "./protocol";
 
 const EMPTY_MAP: ReadonlyMap<string, TokenDetails> = new Map();
-const ACALA_ECOSYSTEM_ID = "acala";
-const AURORA_ECOSYSTEM_ID = "aurora";
-const AVALANCHE_ECOSYSTEM_ID = "avalanche";
 const BNB_ECOSYSTEM_ID = "bnb";
 const ETHEREUM_ECOSYSTEM_ID = "ethereum";
-const FANTOM_ECOSYSTEM_ID = "fantom";
-const KARURA_ECOSYSTEM_ID = "karura";
-const POLYGON_ECOSYSTEM_ID = "polygon";
 
 /** Adapted from @solana/spl-token-registry ENV */
 export enum SolanaChainId {
@@ -286,73 +280,6 @@ const testnet: SolanaChainConfig = {
   },
   routingContractAddress: "", // TODO: add when deployed
   tokens: [
-    {
-      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
-      id: "testnet-swimusd",
-      projectId: TokenProjectId.SwimLpSolanaUsdcUsdt,
-      nativeDetails: {
-        address: "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C", // TODO: Update
-        decimals: 6,
-      },
-      wrappedDetails: new Map([
-        [
-          ACALA_ECOSYSTEM_ID,
-          {
-            address: "0x1111111111111111111111111111111111111111", // TODO: Update
-            decimals: 6,
-          },
-        ],
-        [
-          AURORA_ECOSYSTEM_ID,
-          {
-            address: "0x1111111111111111111111111111111111111111", // TODO: Update
-            decimals: 6,
-          },
-        ],
-        [
-          AVALANCHE_ECOSYSTEM_ID,
-          {
-            address: "0x1111111111111111111111111111111111111111", // TODO: Update
-            decimals: 6,
-          },
-        ],
-        [
-          BNB_ECOSYSTEM_ID,
-          {
-            address: "0x4c15919a4354b4416e7afcb9a27a118bc45818c0", // TODO: Update
-            decimals: 6,
-          },
-        ],
-        [
-          ETHEREUM_ECOSYSTEM_ID,
-          {
-            address: "0x4873edbb0B4b5b48A6FBe50CacB85e58D0b62ab5", // TODO: Update
-            decimals: 6,
-          },
-        ],
-        [
-          FANTOM_ECOSYSTEM_ID,
-          {
-            address: "0x1111111111111111111111111111111111111111", // TODO: Update
-            decimals: 6,
-          },
-        ],
-        [
-          KARURA_ECOSYSTEM_ID,
-          {
-            address: "0x1111111111111111111111111111111111111111", // TODO: Update
-            decimals: 6,
-          },
-        ],
-        [
-          POLYGON_ECOSYSTEM_ID,
-          {
-            address: "0x1111111111111111111111111111111111111111", // TODO: Update
-            decimals: 6,
-          },
-        ],
-      ]),
-    },
     {
       id: "testnet-solana-usdc",
       projectId: TokenProjectId.Usdc,

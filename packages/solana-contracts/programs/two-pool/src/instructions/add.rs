@@ -12,8 +12,8 @@ use {
         },
     },
     anchor_spl::{
-        token,
-        token::{Mint, Token, TokenAccount},
+        associated_token::get_associated_token_address,
+        token::{self, Mint, Token, TokenAccount},
     },
     std::iter::zip,
 };
@@ -30,27 +30,31 @@ pub struct Add<'info> {
     ],
     bump = pool.bump
     )]
-    pub pool: Account<'info, TwoPool>,
+    pub pool: Box<Account<'info, TwoPool>>,
     // /// TODO: could be removed if initialized with pool_v2
     // /// CHECK: checked in CPI
     // pub pool_auth: UncheckedAccount<'info>,
     #[account(
     mut,
-    token::mint = pool.token_mint_keys[0],
-    token::authority = pool,
+    address = get_associated_token_address(&pool.key(), &pool.token_mint_keys[0]),
+    constraint = pool_token_account_0.key() == pool.token_keys[0],
     )]
     pub pool_token_account_0: Box<Account<'info, TokenAccount>>,
     #[account(
     mut,
-    token::mint = pool.token_mint_keys[1],
-    token::authority = pool,
+    address = get_associated_token_address(&pool.key(), &pool.token_mint_keys[1]),
+    constraint = pool_token_account_1.key() == pool.token_keys[1],
     )]
     pub pool_token_account_1: Box<Account<'info, TokenAccount>>,
-    #[account(mut)]
+    #[account(
+    mut,
+    address = pool.lp_mint_key,
+    )]
     pub lp_mint: Box<Account<'info, Mint>>,
     #[account(
     mut,
-    token::mint = lp_mint
+    token::mint = lp_mint,
+    address = pool.governance_fee_key,
     )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
     ///CHECK: checked in CPI

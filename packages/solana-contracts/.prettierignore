@@ -4,3 +4,4 @@ dist/
 target/
 test-ledger/
 types/
+src/__test__/**/*.json

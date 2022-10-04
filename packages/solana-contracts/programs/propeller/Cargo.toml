@@ -23,8 +23,9 @@ anchor-lang = "0.25.0"
 anchor-spl = "0.25.0"
 spl-memo = { version = "3.0.1", features = ["no-entrypoint"] }
 # TODO: might need to check this dependency version.
-spl-token = "3.3.0"
-switchboard-v2 = "^0.1.11"
+spl-token = { version = "3.3.0", features = ["no-entrypoint"] }
+spl-associated-token-account = { version = "~1.0.5", features = ["no-entrypoint"] }
+switchboard-v2 = {version = "^0.1.11", features = ["no-entrypoint"] }
 two-pool = { path = "../two-pool", features = ["cpi"] }
 solana-program = "~1.10.29"
 

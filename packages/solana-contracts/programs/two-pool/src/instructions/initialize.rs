@@ -2,7 +2,7 @@ use {
     crate::{decimal::DecimalU64, error::PoolError::*, AmpFactor, DecimalU64Anchor, PoolError, PoolFee, TwoPool},
     anchor_lang::prelude::*,
     anchor_spl::{
-        associated_token::AssociatedToken,
+        associated_token::{get_associated_token_address, AssociatedToken},
         token::{Mint, Token, TokenAccount},
     },
     std::cmp::{max, min},
@@ -45,6 +45,7 @@ pub struct Initialize<'info> {
     payer = payer,
     associated_token::mint = pool_mint_0,
     associated_token::authority = pool,
+    address = get_associated_token_address(&pool.key(), &pool_mint_0.key()),
     )]
     pub pool_token_account_0: Box<Account<'info, TokenAccount>>,
     #[account(
@@ -52,6 +53,7 @@ pub struct Initialize<'info> {
     payer = payer,
     associated_token::mint = pool_mint_1,
     associated_token::authority = pool,
+    address = get_associated_token_address(&pool.key(), &pool_mint_1.key()),
     )]
     pub pool_token_account_1: Box<Account<'info, TokenAccount>>,
     /// CHECK: pause_key

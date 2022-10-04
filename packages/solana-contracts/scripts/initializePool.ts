@@ -2,6 +2,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import type { Program } from "@project-serum/anchor";
 import {
   AnchorProvider,
   BN,
@@ -14,7 +15,6 @@ import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import type { Keypair } from "@solana/web3.js";
 
 import {
-  TwoPoolContext,
   getApproveAndRevokeIxs,
   twoPoolToString,
   writePoolStateToFile,
@@ -23,6 +23,7 @@ import {
   setupPoolPrereqs,
   setupUserAssociatedTokenAccts,
 } from "../src/__tests__/twoPool/poolTestUtils";
+import type { TwoPool } from "../src/artifacts/two_pool";
 
 const envProvider = AnchorProvider.env();
 const commitment = "confirmed" as web3.Commitment;
@@ -50,13 +51,16 @@ console.info(`anchorProvider pubkey: ${provider.publicKey.toBase58()}`);
 //   provider,
 //   programId
 // );
-const twoPoolContext = TwoPoolContext.fromWorkspace(
-  provider,
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
-  workspace.TwoPool,
-);
+// const twoPoolContext = TwoPoolContext.fromWorkspace(
+//   provider,
+//   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
+//   workspace.TwoPool,
+// );
 
-const twoPoolProgram = twoPoolContext.program;
+// const twoPoolProgram = twoPoolContext.program;
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+const twoPoolProgram = workspace.TwoPool as Program<TwoPool>;
 
 const splToken = Spl.token(provider);
 const splAssociatedToken = Spl.associatedToken(provider);
@@ -70,7 +74,7 @@ const swimUsdKeypair = web3.Keypair.generate();
 const governanceKeypair = web3.Keypair.generate();
 const pauseKeypair = web3.Keypair.generate();
 
-const initialMintAmount = 1_000_000_000_000;
+const initialMintAmount = new BN(1_000_000_000_000);
 
 let poolUsdcAtaAddr: web3.PublicKey = web3.PublicKey.default;
 let poolUsdtAtaAddr: web3.PublicKey = web3.PublicKey.default;
@@ -169,6 +173,7 @@ async function add() {
     swimUsdKeypair.publicKey,
     initialMintAmount,
     payer,
+    splToken,
   ));
 
   const inputAmounts = [new BN(500_000_000_000), new BN(400_000_000_000)];

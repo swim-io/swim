@@ -11,5 +11,4 @@ export const idl = {
   twoPool: twoPool as TwoPool,
 };
 
-export * from "./context";
 export * from "./utils";

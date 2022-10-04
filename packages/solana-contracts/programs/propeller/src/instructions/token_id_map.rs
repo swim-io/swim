@@ -1,5 +1,5 @@
 use {
-    crate::Propeller,
+    crate::{error::PropellerError, Propeller, TOKEN_COUNT},
     anchor_lang::prelude::*,
     anchor_spl::{
         associated_token::{create, AssociatedToken, Create},
@@ -12,14 +12,12 @@ use {
 #[instruction(target_token_index: u16, pool: Pubkey, pool_token_index: u8, pool_token_mint: Pubkey)]
 pub struct CreateTokenIdMap<'info> {
     #[account(
-    seeds = [b"propeller".as_ref(), propeller.token_bridge_mint.key().as_ref()],
+    seeds = [b"propeller".as_ref(), propeller.swim_usd_mint.as_ref()],
     bump = propeller.bump,
+    has_one = admin @ PropellerError::InvalidPropellerAdmin,
     )]
     pub propeller: Account<'info, Propeller>,
 
-    #[account(
-  constraint = admin.key() == propeller.admin
-  )]
     pub admin: Signer<'info>,
 
     #[account(mut)]
@@ -28,9 +26,9 @@ pub struct CreateTokenIdMap<'info> {
     #[account(
     seeds = [
     b"two_pool".as_ref(),
-      pool.get_token_mint_0().unwrap().as_ref(),
-      pool.get_token_mint_1().unwrap().as_ref(),
-      pool.lp_mint_key.as_ref(),
+    pool.get_token_mint_0().unwrap().as_ref(),
+    pool.get_token_mint_1().unwrap().as_ref(),
+    pool.lp_mint_key.as_ref(),
     ],
     bump = pool.bump,
     seeds::program = two_pool_program.key(),
@@ -65,11 +63,12 @@ pub struct TokenIdMap {
 }
 
 impl TokenIdMap {
-    pub const LEN: usize = 2 + 32 + 32 + 1 + 1 + 1;
+    pub const LEN: usize = 2 + 32 + 1 + 32 + 1 + 1 + 1;
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug)]
+#[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, Debug)]
 pub enum PoolInstruction {
+    Transfer,
     RemoveExactBurn,
     SwapExactInput,
 }
@@ -81,15 +80,26 @@ impl<'info> CreateTokenIdMap<'info> {
         pool: Pubkey,
         pool_token_index: u8,
         pool_token_mint: Pubkey,
+        pool_ix: PoolInstruction,
     ) -> Result<()> {
         //TODO: add error codes
-        require_keys_eq!(ctx.accounts.propeller.admin, ctx.accounts.admin.key());
-        require_keys_eq!(ctx.accounts.pool.key(), pool);
+        require_keys_eq!(ctx.accounts.propeller.admin, ctx.accounts.admin.key(), PropellerError::InvalidPropellerAdmin);
+        require_keys_eq!(ctx.accounts.pool.key(), pool, PropellerError::InvalidTokenIdMapPool);
+        if let PoolInstruction::Transfer = pool_ix {
+            require_keys_eq!(
+                ctx.accounts.propeller.swim_usd_mint,
+                pool_token_mint,
+                PropellerError::InvalidTokenIdMapPoolTokenMint
+            );
+            return Ok(());
+        }
+
         let pool_token_index = pool_token_index as usize;
-        require_gt!(2, pool_token_index);
+        require_gt!(TOKEN_COUNT, pool_token_index, PropellerError::InvalidTokenIdMapPoolTokenIndex);
         require_keys_eq!(
             ctx.accounts.pool.token_mint_keys[pool_token_index],
-            pool_token_mint //PropellerError::InvalidPoolTokenMint
+            pool_token_mint,
+            PropellerError::InvalidTokenIdMapPoolTokenMint
         );
         Ok(())
     }
@@ -111,4 +121,12 @@ pub fn handle_create_token_id_map(
     token_id_map.bump = *ctx.bumps.get("token_id_map").unwrap();
     token_id_map.pool_ix = pool_ix;
     Ok(())
+}
+
+pub fn handle_update_token_id_map() -> Result<()> {
+    todo!()
+}
+
+pub fn handle_close_token_id_map() -> Result<()> {
+    todo!()
 }

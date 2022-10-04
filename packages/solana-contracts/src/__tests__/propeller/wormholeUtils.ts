@@ -65,26 +65,28 @@ export function signAndEncodeVaa(
   const hash = keccak256(keccak256(vm.subarray(bodyStart)));
 
   for (let i = 0; i < numSigners; ++i) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
     const ec = new elliptic.ec("secp256k1");
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+
     const key = ec.keyFromPrivate(signers[i]);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
     const {
       r,
       recoveryParam,
       s,
-    }: { readonly r: BN; readonly recoveryParam: number; readonly s: BN } =
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      key.sign(hash, {
-        canonical: true,
-      });
+    }: {
+      readonly r: BN;
+      readonly recoveryParam: number | null;
+      readonly s: BN;
+    } = key.sign(hash, {
+      canonical: true,
+    });
 
     const start = sigStart + i * sigLength;
     vm.writeUInt8(i, start);
     vm.write(r.toString(16).padStart(64, "0"), start + 1, "hex");
     vm.write(s.toString(16).padStart(64, "0"), start + 33, "hex");
-    vm.writeUInt8(recoveryParam, start + 65);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    vm.writeUInt8(recoveryParam!, start + 65);
   }
 
   return vm;

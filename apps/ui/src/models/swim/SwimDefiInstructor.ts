@@ -9,7 +9,7 @@ import {
   findTokenAccountForMint,
 } from "@swim-io/solana";
 import type {
-  SolanaConnection,
+  SolanaClient,
   SolanaWalletAdapter,
   TokenAccount,
 } from "@swim-io/solana";
@@ -36,7 +36,7 @@ import type {
 
 export class SwimDefiInstructor {
   private readonly env: Env;
-  private readonly solanaConnection: SolanaConnection;
+  private readonly solanaClient: SolanaClient;
   private readonly signer: SolanaWalletAdapter;
   private readonly programId: PublicKey;
   private readonly stateAccount: PublicKey;
@@ -50,7 +50,7 @@ export class SwimDefiInstructor {
 
   public constructor(
     env: Env,
-    solanaConnection: SolanaConnection,
+    solanaClient: SolanaClient,
     signer: SolanaWalletAdapter,
     swimProgramAddress: string,
     stateAccount: string,
@@ -73,7 +73,7 @@ export class SwimDefiInstructor {
       );
     }
     this.env = env;
-    this.solanaConnection = solanaConnection;
+    this.solanaClient = solanaClient;
     this.signer = signer;
     this.programId = new PublicKey(swimProgramAddress);
     this.stateAccount = new PublicKey(stateAccount);
@@ -596,7 +596,7 @@ export class SwimDefiInstructor {
       txToSign.partialSign(userTransferAuthority);
       return this.signer.signTransaction(txToSign);
     };
-    return this.solanaConnection.sendAndConfirmTx(signTransaction, tx);
+    return this.solanaClient.sendAndConfirmTx(signTransaction, tx);
   }
 
   private async signAndSendTransactionForInstructions(

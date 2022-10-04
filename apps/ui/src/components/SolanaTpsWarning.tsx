@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 
 import { useEnvironment } from "../core/store";
-import { useIntlNumberFormatter, useSolanaConnection } from "../hooks";
+import { useIntlNumberFormatter, useSolanaClient } from "../hooks";
 
 const INTERVAL_FREQUENCY_MS = 60000; // 1 minute.
 const SAMPLES_LIMIT = 5;
@@ -18,13 +18,12 @@ export const SolanaTpsWarning = (): ReactElement => {
   // Assume Solana TPS healthy.
   const [tps, setTps] = useState<number>(2000);
   const { env } = useEnvironment();
-  const connection = useSolanaConnection();
+  const client = useSolanaClient();
   const checkSolanaTps = useCallback(async () => {
     try {
-      const samples =
-        await connection.rawConnection.getRecentPerformanceSamples(
-          SAMPLES_LIMIT,
-        );
+      const samples = await client.connection.getRecentPerformanceSamples(
+        SAMPLES_LIMIT,
+      );
       if (samples.length >= 1) {
         const stats = samples.reduce(
           ({ numTps, numSeconds }, sample) => ({
@@ -40,7 +39,7 @@ export const SolanaTpsWarning = (): ReactElement => {
       // Do nothing with sampling or math errors.
       console.warn(e);
     }
-  }, [connection]);
+  }, [client]);
 
   useEffect(() => {
     const interval = setInterval(() => {

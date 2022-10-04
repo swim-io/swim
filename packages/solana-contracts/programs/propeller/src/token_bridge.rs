@@ -7,17 +7,21 @@ use {
 pub struct TokenBridge;
 
 impl anchor_lang::Id for TokenBridge {
-    #[cfg(feature = "localnet")]
+    // #[cfg(all(test, not(feature = "test-bpf")))]
+    // #[cfg(feature = "localnet")]
+    #[cfg(all(feature = "localnet", not(feature = "devnet"), not(feature = "mainnet")))]
     fn id() -> Pubkey {
         pubkey!("B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE")
     }
 
-    #[cfg(feature = "devnet")]
+    // #[cfg(feature = "devnet")]
+
+    #[cfg(all(feature = "devnet", not(feature = "localnet"), not(feature = "mainnet")))]
     fn id() -> Pubkey {
         pubkey!("DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe")
     }
 
-    #[cfg(feature = "mainnet")]
+    #[cfg(all(feature = "mainnet", not(feature = "localnet"), not(feature = "devnet")))]
     fn id() -> Pubkey {
         pubkey!("wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb")
     }

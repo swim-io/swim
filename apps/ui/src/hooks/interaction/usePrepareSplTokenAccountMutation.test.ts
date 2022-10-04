@@ -8,19 +8,19 @@ import { MOCK_SOL_WALLET } from "../../fixtures";
 import { MOCK_INTERACTION_STATE } from "../../fixtures/swim/interactionState";
 import type { SolanaWalletInterface } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
-import { useSolanaConnection, useSolanaWallet } from "../solana";
+import { useSolanaClient, useSolanaWallet } from "../solana";
 
 import { usePrepareSplTokenAccountMutation } from "./usePrepareSplTokenAccountMutation";
 
 jest.mock("../../core/store/idb");
 jest.mock("../../contexts", () => ({
   ...jest.requireActual("../../contexts"),
-  useSolanaConnection: jest.fn(),
+  useSolanaClient: jest.fn(),
 }));
 
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
-  useSolanaConnection: jest.fn(),
+  useSolanaClient: jest.fn(),
   useSolanaWallet: jest.fn(),
 }));
 
@@ -30,7 +30,7 @@ jest.mock("../../models", () => ({
 }));
 
 // Make typescript happy with jest
-const useSolanaConnectionMock = mockOf(useSolanaConnection);
+const useSolanaClientMock = mockOf(useSolanaClient);
 const useSolanaWalletMock = mockOf(useSolanaWallet);
 
 describe("usePrepareSplTokenAccountMutation", () => {
@@ -46,7 +46,7 @@ describe("usePrepareSplTokenAccountMutation", () => {
   });
 
   it("should create token account for all mints and patch interactionState with txId", async () => {
-    useSolanaConnectionMock.mockReturnValue({
+    useSolanaClientMock.mockReturnValue({
       confirmTx: jest.fn(),
       createSplTokenAccount: jest.fn((wallet, mint) =>
         Promise.resolve(`TX_ID_FOR_${mint}`),

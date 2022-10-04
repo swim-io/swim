@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import type { EvmConnection, EvmEcosystemId } from "@swim-io/evm";
+import type { EvmClient, EvmEcosystemId } from "@swim-io/evm";
 import { isEvmEcosystemId } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
 import {
@@ -8,7 +8,7 @@ import {
   isSolanaTx,
 } from "@swim-io/solana";
 import type {
-  SolanaConnection,
+  SolanaClient,
   SolanaEcosystemId,
   SolanaTx,
   SwimPoolState,
@@ -83,11 +83,11 @@ export const isSolanaPool = (pool: PoolSpec): pool is SolanaPoolSpec =>
   pool.ecosystem === SOLANA_ECOSYSTEM_ID;
 
 export const getSolanaPoolState = async (
-  solanaConnection: SolanaConnection,
+  solanaClient: SolanaClient,
   poolSpec: SolanaPoolSpec,
 ): Promise<SolanaPoolState | null> => {
   const numberOfTokens = poolSpec.tokens.length;
-  const accountInfo = await solanaConnection.getAccountInfo(
+  const accountInfo = await solanaClient.connection.getAccountInfo(
     new PublicKey(poolSpec.address),
   );
   if (accountInfo === null) {
@@ -101,7 +101,7 @@ export const getSolanaPoolState = async (
 };
 
 export const getEvmPoolState = async (
-  evmConnection: EvmConnection,
+  evmClient: EvmClient,
   poolSpec: EvmPoolSpec,
   tokens: readonly TokenConfig[],
   routingContractAddress: string,
@@ -109,7 +109,7 @@ export const getEvmPoolState = async (
   const { ecosystem, address } = poolSpec;
   const contract = Routing__factory.connect(
     routingContractAddress,
-    evmConnection.provider,
+    evmClient.provider,
   );
   const lpToken = findOrThrow(tokens, ({ id }) => id === poolSpec.lpToken);
   const poolTokens = poolSpec.tokens.map((tokenId) =>

@@ -3,7 +3,6 @@ import { web3 } from "@project-serum/anchor";
 import {
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
-  mintTo,
 } from "@solana/spl-token";
 import type { Commitment, ConfirmOptions } from "@solana/web3.js";
 
@@ -140,7 +139,6 @@ export async function setupPoolPrereqs(
 
   console.info(`initialized pool token accounts`);
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const governanceFeeAccount: web3.PublicKey = await getAssociatedTokenAddress(
     lpMint,
     governanceFeeOwner,
@@ -167,8 +165,10 @@ export async function setupUserAssociatedTokenAccts(
   mints: ReadonlyArray<web3.PublicKey>,
   mintAuthorities: ReadonlyArray<web3.Keypair>,
   lpMint: web3.PublicKey,
-  amount: number | bigint,
+  amount: BN,
   payer: web3.Keypair,
+  splToken: Program<SplToken>,
+  // splAssociatedToken: Program<SplAssociatedToken>,
   commitment?: Commitment,
   confirmOptions?: ConfirmOptions,
 ): Promise<{
@@ -179,7 +179,7 @@ export async function setupUserAssociatedTokenAccts(
   const userPoolTokenAtas = await Promise.all(
     mints.map(async (mint, i) => {
       const mintAuthority = mintAuthorities[i];
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+
       const userAta: web3.PublicKey = (
         await getOrCreateAssociatedTokenAccount(
           connection,
@@ -194,7 +194,16 @@ export async function setupUserAssociatedTokenAccts(
       console.info(
         `mint[${i}]: ${mint.toBase58()}. created/retrieved userAta: ${userAta.toBase58()}`,
       );
-      await mintTo(connection, payer, mint, userAta, mintAuthority, amount);
+      await splToken.methods
+        .mintTo(amount)
+        .accounts({
+          mint,
+          to: userAta,
+          authority: mintAuthority.publicKey,
+        })
+        .signers([mintAuthority])
+        .rpc();
+      // await mintTo(connection, payer, mint, userAta, mintAuthority, amount);
       console.info(`minted ${amount.toString()} to ${userAta.toBase58()}`);
       return userAta;
     }),
@@ -218,7 +227,7 @@ export async function setupUserAssociatedTokenAccts(
   //   console.info(`minted ${amount} to ${userAta}`);
   //   userPoolTokenAtas.push(userAta);
   // }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+
   const userLpTokenAta: web3.PublicKey = (
     await getOrCreateAssociatedTokenAccount(
       connection,

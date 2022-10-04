@@ -1,5 +1,6 @@
-import type { GasToken } from "@swim-io/core";
+import type { GasToken, TokenDetails } from "@swim-io/core";
 import { Env } from "@swim-io/core";
+import { TokenProjectId } from "@swim-io/token-projects";
 import { assertType } from "@swim-io/utils";
 
 import type {
@@ -8,6 +9,9 @@ import type {
   EvmEcosystemConfig,
 } from "../protocol";
 import { EVM_PROTOCOL, EvmEcosystemId } from "../protocol";
+
+const EMPTY_MAP: ReadonlyMap<string, TokenDetails> = new Map();
+const SOLANA_ECOSYSTEM_ID = "solana";
 
 export const auroraChainId = assertType<EvmChainIdByEnv>()({
   [Env.Mainnet]: 1313161554,
@@ -27,7 +31,60 @@ const mainnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
     decimals: 8, // TODO: confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      id: "mainnet-aurora-usdc",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "0xB12BFcA5A55806AaF64E99521918A4bf0fC40802",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "9Y8pJhF8AQGBGL5PTd12P4w82n2qAADTmWakkXSatdAu",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "mainnet-aurora-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0x4988a896b1227218e4A686fdE5EabdcAbd91571f",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "GFhej2oJ1NPLbzSX3D3B9jzYaidff6NoBAUNmu6dLXwU",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
+      id: "mainnet-aurora-usn",
+      projectId: TokenProjectId.Usn,
+      nativeDetails: {
+        address: "0x5183e1B1091804BC2602586919E6880ac1cf2896",
+        decimals: 18,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "3NDmtc2xKMpm8wCiaALey2y3EGhBkUNuXJ9m3JcjnHMM",
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+  ],
   pools: [],
 };
 
@@ -44,7 +101,82 @@ const testnet: EvmChainConfig<EvmEcosystemId.Aurora> = {
     decimals: 8, // TODO: confirm when deployed
   },
   routingContractAddress: "", // TODO: add when deployed
-  tokens: [],
+  tokens: [
+    {
+      id: "testnet-aurora-usdc",
+      projectId: TokenProjectId.Usdc,
+      nativeDetails: {
+        address: "0x92934a8b10DDF85e81B65Be1D6810544744700dC",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "B3qmqCvzbni27z5TRrt1uBYMczUCjCjui7piGAZifSTU",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      id: "testnet-aurora-usdt",
+      projectId: TokenProjectId.Usdt,
+      nativeDetails: {
+        address: "0x489dDcd070b6c4e0373FBB5d529Cc06328E048c3",
+        decimals: 6,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "BaTEf2Mnrf9wePKb9g9BtSPkrZmmBnR6K9Q1ZxDKmWoh",
+            decimals: 6,
+          },
+        ],
+      ]),
+    },
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_AURORA_USN,
+      id: "testnet-aurora-usn",
+      projectId: TokenProjectId.Usn,
+      nativeDetails: {
+        address: "0x0000000000000000000000000000000000000000", // TODO: Update
+        decimals: 18,
+      },
+      wrappedDetails: new Map([
+        [
+          SOLANA_ECOSYSTEM_ID,
+          {
+            address: "11111111111111111111111111111111", // TODO: Update
+            decimals: 8,
+          },
+        ],
+      ]),
+    },
+    {
+      isDisabled: !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE,
+      id: "testnet-aurora-lp-usdc-usdt",
+      projectId: TokenProjectId.SwimLpAuroraUsdcUsdt,
+      nativeDetails: {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+    {
+      isDisabled:
+        !process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE ||
+        !process.env.REACT_APP_ENABLE_AURORA_USN,
+      id: "testnet-aurora-lp-usn",
+      projectId: TokenProjectId.SwimLpAuroraUsn,
+      nativeDetails: {
+        address: "0x1111111111111111111111111111111111111111", // TODO: Update
+        decimals: 8,
+      },
+      wrappedDetails: EMPTY_MAP,
+    },
+  ],
   pools: [],
 };
 

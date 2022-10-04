@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="../../nodeModulesTypes/project-serum__sol-wallet-adapter.d.ts" />
+
 import Wallet from "@project-serum/sol-wallet-adapter";
 
 import type { SolanaProtocol } from "../protocol";

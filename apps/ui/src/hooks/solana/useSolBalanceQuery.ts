@@ -5,7 +5,7 @@ import { useQuery } from "react-query";
 
 import { useEnvironment } from "../../core/store";
 
-import { useSolanaConnection } from "./useSolanaConnection";
+import { useSolanaClient } from "./useSolanaClient";
 import { useSolanaWallet } from "./useSolanaWallet";
 
 // Returns user's Solana balance in SOL.
@@ -13,7 +13,7 @@ export const useSolBalanceQuery = (
   options?: UseQueryOptions<Decimal, Error>,
 ): UseQueryResult<Decimal, Error> => {
   const { env } = useEnvironment();
-  const solanaConnection = useSolanaConnection();
+  const solanaClient = useSolanaClient();
   const { address: walletAddress } = useSolanaWallet();
   return useQuery<Decimal, Error>(
     [env, "solBalance", walletAddress],
@@ -22,7 +22,7 @@ export const useSolBalanceQuery = (
         return new Decimal(0);
       }
       try {
-        const balance = await solanaConnection.getBalance(
+        const balance = await solanaClient.connection.getBalance(
           new PublicKey(walletAddress),
         );
         // Convert lamports to SOL.

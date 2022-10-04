@@ -1,17 +1,17 @@
 import { AnchorProvider } from "@project-serum/anchor";
 
-import { useSolanaConnection } from "./useSolanaConnection";
+import { useSolanaClient } from "./useSolanaClient";
 import { useSolanaWallet } from "./useSolanaWallet";
 
 export const useAnchorProvider = (): AnchorProvider | null => {
-  const solanaConnection = useSolanaConnection().rawConnection;
+  const solanaClient = useSolanaClient();
   const { wallet } = useSolanaWallet();
 
   if (!wallet || !wallet.publicKey) {
     return null;
   }
   const anchorProvider = new AnchorProvider(
-    solanaConnection,
+    solanaClient.connection,
     {
       signTransaction: wallet.signTransaction.bind(wallet),
       signAllTransactions: wallet.signAllTransactions.bind(wallet),

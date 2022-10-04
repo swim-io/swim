@@ -27,10 +27,23 @@ const tsConfig = {
     "@typescript-eslint/no-unsafe-call": "off",
     "@typescript-eslint/no-unsafe-return": "off",
     "@typescript-eslint/no-shadow": "error",
+    // use with functional/prefer-readonly-type
+    // mark class variables as readonly if it is not mutated
+    "@typescript-eslint/prefer-readonly": "error",
     "@typescript-eslint/prefer-readonly-parameter-types": "off",
 
     // deprecation
     "deprecation/deprecation": "warn",
+
+    // functional
+    // use with @typescript-eslint/prefer-readonly
+    "functional/prefer-readonly-type": [
+      "error",
+      {
+        // allow mutating class variables
+        ignoreClass: "fieldsOnly",
+      },
+    ],
   },
   overrides: [
     {
@@ -70,7 +83,6 @@ module.exports = {
     // functional
     "functional/immutable-data": ["error", { ignorePattern: "this" }],
     "functional/no-let": "off",
-    "functional/prefer-readonly-type": ["error", { ignoreClass: "fieldsOnly" }],
 
     // import
     "import/extensions": ["error", "always", { ts: "never", tsx: "never" }],

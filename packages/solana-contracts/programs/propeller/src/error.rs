@@ -54,8 +54,8 @@ pub enum PropellerError {
     #[msg("Invalid input amount for SwapExactInput params")]
     InvalidSwapExactInputInputAmount,
 
-    #[msg("Invalid Token Bridge Mint")]
-    InvalidTokenBridgeMint,
+    #[msg("Invalid SwimUSD Mint")]
+    InvalidSwimUsdMint,
 
     #[msg("Invalid Payload Type in VAA")]
     InvalidPayloadTypeInVaa,
@@ -87,8 +87,23 @@ pub enum PropellerError {
     #[msg("Claim Account not claimed")]
     ClaimNotClaimed,
 
-    #[msg("Invalid Pool Token Index")]
-    InvalidPoolTokenIndex,
+    #[msg("Invalid Propeller Admin")]
+    InvalidPropellerAdmin,
+
+    #[msg("Invalid Pool for Token Id Map")]
+    InvalidTokenIdMapPool,
+
+    #[msg("Invalid Output Token Index")]
+    InvalidOutputTokenIndex,
+
+    #[msg("Invalid Pool Token Index for Token Id Map")]
+    InvalidTokenIdMapPoolTokenIndex,
+
+    #[msg("Invalid Pool Token Mint for Token Id Map")]
+    InvalidTokenIdMapPoolTokenMint,
+
+    #[msg("Invalid Pool Ix for Token Id Map")]
+    InvalidTokenIdMapPoolIx,
 
     #[msg("Invalid Gas Kickstart parameter in Swim Payload")]
     InvalidSwimPayloadGasKickstart,
@@ -108,6 +123,33 @@ pub enum PropellerError {
     #[msg("Conversion Error")]
     ConversionError,
 
-    #[msg("Invalid Pool for TokenIdMap")]
-    InvalidTokenIdMapPool,
+    #[msg("Unable to retrieve SwimUSD mint decimals from marginal price pool information")]
+    UnableToRetrieveSwimUsdMintDecimals,
+
+    #[msg("Invalid Metapool Token Mint. token_mint[0] should == swim_usd_mint")]
+    InvalidMetapoolTokenMint,
+
+    #[msg("Unable to deserialize account info as token account")]
+    UnableToDeserializeTokenAccount,
+
+    #[msg("Invalid token account data length. != 0 && != TokenAccount::LEN")]
+    InvalidTokenAccountDataLen,
+
+    #[msg("Payer has insufficient funds for gas kickstart")]
+    PayerInsufficientFundsForGasKickstart,
+
+    #[msg("Owner of token account != swimPayload.owner")]
+    IncorrectOwnerForCreateTokenAccount,
+
+    #[msg("TokenIdMap exists. Please use the correct instruction")]
+    TokenIdMapExists,
+
+    #[msg("Invalid address for TokenIdMap account")]
+    InvalidTokenIdMapAccountAddress,
+
+    #[msg("Invalid Swim Payload version")]
+    InvalidSwimPayloadVersion,
+
+    #[msg("Invalid Aggregator")]
+    InvalidAggregator,
 }

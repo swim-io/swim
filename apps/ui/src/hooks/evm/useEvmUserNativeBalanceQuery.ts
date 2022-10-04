@@ -6,7 +6,7 @@ import { useQuery } from "react-query";
 import { isEcosystemEnabled } from "../../config";
 import { useEnvironment } from "../../core/store";
 
-import { useEvmConnection } from "./useEvmConnection";
+import { useEvmClient } from "./useEvmClient";
 import { useEvmWallet } from "./useEvmWallet";
 
 export const useEvmUserNativeBalanceQuery = (
@@ -14,7 +14,7 @@ export const useEvmUserNativeBalanceQuery = (
   options?: UseQueryOptions<Decimal, Error>,
 ): UseQueryResult<Decimal, Error> => {
   const { env } = useEnvironment();
-  const evmConnection = useEvmConnection(ecosystemId);
+  const client = useEvmClient(ecosystemId);
   const { address: walletAddress } = useEvmWallet();
 
   return useQuery<Decimal, Error>(
@@ -23,7 +23,7 @@ export const useEvmUserNativeBalanceQuery = (
       if (!walletAddress) {
         return new Decimal(0);
       }
-      return evmConnection.getGasBalance(walletAddress);
+      return client.getGasBalance(walletAddress);
     },
     {
       ...options,

@@ -6,6 +6,6 @@ export type CreateTxOptions = Omit<
   "blockhash" | "lastValidBlockHeight"
 >;
 
-/** Create transaction with dummy blockhash and lastValidBlockHeight, expected to be overwritten by solanaConnection.sendAndConfirmTx to prevent expired blockhash */
+/** Create transaction with dummy blockhash and lastValidBlockHeight, expected to be overwritten by solanaClient.sendAndConfirmTx to prevent expired blockhash */
 export const createTx = (opts: CreateTxOptions): Transaction =>
   new Transaction({ ...opts, blockhash: "", lastValidBlockHeight: 0 });

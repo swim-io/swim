@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/eslint-config",
-  "version": "0.31.0",
+  "version": "0.34.0",
   "description": "Shared default ESLint configuration for Swim TS projects.",
   "exports": {
     ".": "./index.cjs",
@@ -30,8 +30,8 @@
   },
   "peerDependencies": {
     "@sayari/eslint-plugin": "^0.0.1-rc.4",
-    "@typescript-eslint/eslint-plugin": "^5.30",
-    "@typescript-eslint/parser": "^5.30",
+    "@typescript-eslint/eslint-plugin": "^5.38.1",
+    "@typescript-eslint/parser": "^5.38.1",
     "eslint": ">= 8.19",
     "eslint-config-prettier": "^8.5",
     "eslint-config-react-app": "^7.0.1",
@@ -46,8 +46,8 @@
   },
   "optionalDependencies": {
     "@sayari/eslint-plugin": "^0.0.1-rc.4",
-    "@typescript-eslint/eslint-plugin": "^5.30",
-    "@typescript-eslint/parser": "^5.30",
+    "@typescript-eslint/eslint-plugin": "^5.38.1",
+    "@typescript-eslint/parser": "^5.38.1",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-deprecation": "^1.3",
     "eslint-plugin-i18next": "^6.0.0-4",

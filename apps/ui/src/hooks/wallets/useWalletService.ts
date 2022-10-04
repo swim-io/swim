@@ -25,10 +25,8 @@ export const useWalletService = (): WalletServiceApi => {
   );
   const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
-  const [solanaEndpoint] = getSolanaEndpoints(
-    env,
-    chains[Protocol.Solana][0].publicRpcUrls,
-  );
+  const [solanaEndpoint] =
+    getSolanaEndpoints(env) ?? chains[Protocol.Solana][0].publicRpcUrls;
 
   return {
     connectService: ({ serviceId, protocol }) =>

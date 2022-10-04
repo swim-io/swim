@@ -18,7 +18,7 @@ import {
 import { createTx, swimPool } from "@swim-io/solana";
 import type {
   DecimalBN,
-  SolanaConnection,
+  SolanaClient,
   SolanaWalletAdapter,
 } from "@swim-io/solana";
 import { chunks } from "@swim-io/utils";
@@ -34,18 +34,18 @@ export class SwimInitializer {
   private governanceFeeAccount: PublicKey | null;
   private readonly governanceAccount: PublicKey;
   private readonly signer: SolanaWalletAdapter;
-  private readonly solanaConnection: SolanaConnection;
+  private readonly solanaClient: SolanaClient;
   private tokenAccounts: readonly PublicKey[] | null;
   private readonly tokenMints: readonly PublicKey[];
 
   public constructor(
-    solanaConnection: SolanaConnection,
+    solanaClient: SolanaClient,
     signer: SolanaWalletAdapter,
     swimProgramAddress: string,
     tokenMintAddresses: readonly string[],
     governanceAddress: string,
   ) {
-    this.solanaConnection = solanaConnection;
+    this.solanaClient = solanaClient;
     this.signer = signer;
     this.programId = new PublicKey(swimProgramAddress);
     this.tokenMints = tokenMintAddresses.map((mint) => new PublicKey(mint));
@@ -111,7 +111,7 @@ export class SwimInitializer {
       lpMintKeypair,
     );
     const txIdPrepareLpTokenAccount =
-      await this.solanaConnection.createSplTokenAccount(
+      await this.solanaClient.createSplTokenAccount(
         this.signer,
         this.lpMint.toBase58(),
       );
@@ -150,7 +150,7 @@ export class SwimInitializer {
     }
     const layout = swimPool(this.numberOfTokens);
     const lamports =
-      await this.solanaConnection.getMinimumBalanceForRentExemption(
+      await this.solanaClient.connection.getMinimumBalanceForRentExemption(
         layout.span,
       );
     return SystemProgram.createAccount({
@@ -268,7 +268,7 @@ export class SwimInitializer {
       }
       return this.signer.signTransaction(txToSign);
     };
-    return this.solanaConnection.sendAndConfirmTx(partialSignWrapper, tx);
+    return this.solanaClient.sendAndConfirmTx(partialSignWrapper, tx);
   }
 
   private async setupStateAndLpToken(
@@ -290,7 +290,7 @@ export class SwimInitializer {
     this.poolAuthority = poolAuthority;
     this.nonce = nonce;
     const createMintLamports = await getMinimumBalanceForRentExemptMint(
-      this.solanaConnection.rawConnection,
+      this.solanaClient.connection,
     );
 
     const createStateAccountIx = await this.createCreateStateAccountIx();
@@ -315,7 +315,7 @@ export class SwimInitializer {
     tokenMints: readonly PublicKey[],
   ): Promise<string> {
     const createAccountLamports = await getMinimumBalanceForRentExemptAccount(
-      this.solanaConnection.rawConnection,
+      this.solanaClient.connection,
     );
 
     const { instructions, keypairs } = tokenMints.reduce<{

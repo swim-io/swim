@@ -75,6 +75,7 @@ export interface TokenProject {
   readonly icon: string;
   readonly isStablecoin: boolean;
   readonly isLp: boolean;
+  readonly tokenNumber: number | null;
 }
 
 export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
@@ -88,6 +89,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: USDC_SVG,
     isStablecoin: true,
     isLp: false,
+    tokenNumber: 0x0100,
   },
   [TokenProjectId.Usdt]: {
     id: TokenProjectId.Usdt,
@@ -96,6 +98,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: USDT_SVG,
     isStablecoin: true,
     isLp: false,
+    tokenNumber: 0x0101,
   },
   [TokenProjectId.Usn]: {
     id: TokenProjectId.Usn,
@@ -104,6 +107,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: USN_SVG,
     isStablecoin: true,
     isLp: false,
+    tokenNumber: 0x0102,
   },
   [TokenProjectId.Busd]: {
     id: TokenProjectId.Busd,
@@ -112,6 +116,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: BUSD_SVG,
     isStablecoin: true,
     isLp: false,
+    tokenNumber: 0x0103,
   },
   [TokenProjectId.Ausd]: {
     id: TokenProjectId.Ausd,
@@ -120,6 +125,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: AUSD_SVG,
     isStablecoin: true,
     isLp: false,
+    tokenNumber: 0x0104,
   },
   [TokenProjectId.Gst]: {
     id: TokenProjectId.Gst,
@@ -128,6 +134,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: GST_SVG,
     isStablecoin: false,
     isLp: false,
+    tokenNumber: 0x8000,
   },
   [TokenProjectId.Gmt]: {
     id: TokenProjectId.Gmt,
@@ -136,6 +143,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: GMT_SVG,
     isStablecoin: false,
     isLp: false,
+    tokenNumber: 0x8001,
   },
   [TokenProjectId.SwimUsd]: {
     id: TokenProjectId.SwimUsd,
@@ -144,6 +152,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: SWIM_USD_SVG,
     isStablecoin: true,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.Swim]: {
     id: TokenProjectId.Swim,
@@ -152,6 +161,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: SWIM_TOKEN_SVG,
     isStablecoin: false,
     isLp: false,
+    tokenNumber: null,
   },
   [TokenProjectId.XSwim]: {
     id: TokenProjectId.XSwim,
@@ -160,6 +170,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: XSWIM_TOKEN_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimAvalancheUsdcLp]: {
     id: TokenProjectId.SwimAvalancheUsdcLp,
@@ -168,6 +179,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: LP_AVALANCHE_USDC_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimAvalancheUsdtLp]: {
     id: TokenProjectId.SwimAvalancheUsdtLp,
@@ -176,6 +188,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: LP_AVALANCHE_USDT_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimPolygonUsdcLp]: {
     id: TokenProjectId.SwimPolygonUsdcLp,
@@ -184,6 +197,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: LP_POLYGON_USDC_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimPolygonUsdtLp]: {
     id: TokenProjectId.SwimPolygonUsdtLp,
@@ -192,6 +206,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: LP_POLYGON_USDT_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimSolanaGstBinanceGstLp]: {
     id: TokenProjectId.SwimSolanaGstBinanceGstLp,
@@ -200,6 +215,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: LP_GST_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimSolanaGmtBinanceGmtLp]: {
     id: TokenProjectId.SwimSolanaGmtBinanceGmtLp,
@@ -208,6 +224,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: LP_GMT_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimAuroraUsdcLp]: {
     id: TokenProjectId.SwimAuroraUsdcLp,
@@ -216,6 +233,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: LP_AURORA_USDC_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimAuroraUsdtLp]: {
     id: TokenProjectId.SwimAuroraUsdtLp,
@@ -224,6 +242,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: LP_AURORA_USDT_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimAuroraUsnLp]: {
     id: TokenProjectId.SwimAuroraUsnLp,
@@ -232,6 +251,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: LP_AURORA_USN_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimFantomUsdcLp]: {
     id: TokenProjectId.SwimFantomUsdcLp,
@@ -240,6 +260,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: LP_FANTOM_USDC_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimKaruraAusdLp]: {
     id: TokenProjectId.SwimKaruraAusdLp,
@@ -248,6 +269,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: LP_KARURA_AUSD_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimKaruraUsdtLp]: {
     id: TokenProjectId.SwimKaruraUsdtLp,
@@ -256,6 +278,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: LP_KARURA_USDT_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimAcalaAusdLp]: {
     id: TokenProjectId.SwimAcalaAusdLp,
@@ -264,6 +287,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: LP_ACALA_AUSD_SVG,
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   // V2
   // TODO: Reassign swimUSD to this token
@@ -274,6 +298,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: true,
     isLp: true,
+    tokenNumber: 0x0000,
   },
   [TokenProjectId.SwimLpEthereumUsdcUsdt]: {
     id: TokenProjectId.SwimLpEthereumUsdcUsdt,
@@ -282,6 +307,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimLpBnbBusdUsdt]: {
     id: TokenProjectId.SwimLpBnbBusdUsdt,
@@ -290,6 +316,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimLpAvalancheUsdcUsdt]: {
     id: TokenProjectId.SwimLpAvalancheUsdcUsdt,
@@ -298,6 +325,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimLpPolygonUsdcUsdt]: {
     id: TokenProjectId.SwimLpPolygonUsdcUsdt,
@@ -306,6 +334,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimLpAuroraUsdcUsdt]: {
     id: TokenProjectId.SwimLpAuroraUsdcUsdt,
@@ -314,6 +343,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimLpAuroraUsn]: {
     id: TokenProjectId.SwimLpAuroraUsn,
@@ -322,6 +352,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimLpFantomUsdc]: {
     id: TokenProjectId.SwimLpFantomUsdc,
@@ -330,6 +361,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimLpKaruraUsdt]: {
     id: TokenProjectId.SwimLpKaruraUsdt,
@@ -338,6 +370,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimLpKaruraAusd]: {
     id: TokenProjectId.SwimLpKaruraAusd,
@@ -346,6 +379,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
   [TokenProjectId.SwimLpAcalaAusd]: {
     id: TokenProjectId.SwimLpAcalaAusd,
@@ -354,6 +388,7 @@ export const TOKEN_PROJECTS_BY_ID: ReadonlyRecord<
     icon: SWIM_USD_SVG, // TODO: update
     isStablecoin: false,
     isLp: true,
+    tokenNumber: null,
   },
 };
 

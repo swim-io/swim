@@ -12,10 +12,8 @@ import { WalletServiceId, createAdapter } from "../../models";
 export const useWalletAutoConnect = (): null => {
   const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
-  const [solanaEndpoint] = getSolanaEndpoints(
-    env,
-    chains[Protocol.Solana][0].publicRpcUrls,
-  );
+  const [solanaEndpoint] =
+    getSolanaEndpoints(env) ?? chains[Protocol.Solana][0].publicRpcUrls;
   const { connectService, selectedServiceByProtocol } = useWalletAdapter();
 
   useEffect(() => {

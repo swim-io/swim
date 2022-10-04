@@ -4591,15 +4591,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@project-serum/sol-wallet-adapter@npm:^0.2.6":
-  version: 0.2.6
-  resolution: "@project-serum/sol-wallet-adapter@npm:0.2.6"
+"@project-serum/sol-wallet-adapter@npm:0.2.2":
+  version: 0.2.2
+  resolution: "@project-serum/sol-wallet-adapter@npm:0.2.2"
   dependencies:
     bs58: ^4.0.1
-    eventemitter3: ^4.0.7
+    eventemitter3: ^4.0.4
   peerDependencies:
     "@solana/web3.js": ^1.5.0
-  checksum: 87237abfdec561530569b903ce436b79f81a07b01f1595ebc32421cbbb7dafd4807818a0e804efd10ee16fbbfab25287e738479eb6a30d9599b3131832314de3
+  checksum: 7975a9e74c60b141cb1e7d437bc0747ab9d83cc48e08daff7e8097e9fbe580049940bde1089164c0d63e4b48059189f77dced2f0e9683903fa4dee6eaa54292c
   languageName: node
   linkType: hard
 
@@ -6616,16 +6616,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/aptos@npm:^0.31.0":
-  version: 0.31.0
-  resolution: "@swim-io/aptos@npm:0.31.0"
+"@swim-io/aptos@npm:^0.34.0":
+  version: 0.34.0
+  resolution: "@swim-io/aptos@npm:0.34.0"
   dependencies:
-    "@swim-io/core": ^0.31.0
-    "@swim-io/utils": ^0.31.0
+    "@swim-io/core": ^0.34.0
+    "@swim-io/utils": ^0.34.0
     aptos: ^1.3.13
     decimal.js: ^10.3.1
     eventemitter3: ^4.0.7
-  checksum: cbf9385dd26eda4b7d2ca89247863d6e85a2b1c7588e6b04fe259174060e6a2e4d8d8f78499e1e9923b98cb1a7050765d5f1a525ca66de916cf058772fd4d3e8
+  checksum: 9f7c847aec7f9f90bb0a3d043f40a7d1b3057f0430faadca24045da4082884fd176feb1b6f5d96fa2fbd4ec05ed97b147f9c98cc1072b9dd8cadbc3ea0d50246
   languageName: node
   linkType: hard
 
@@ -6638,8 +6638,8 @@ __metadata:
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": "workspace:^"
     "@types/jest": ^28.1.3
-    "@typescript-eslint/eslint-plugin": ^5.29.0
-    "@typescript-eslint/parser": ^5.29.0
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     aptos: ^1.3.13
     decimal.js: ^10.3.1
     eslint: ^8.18.0
@@ -6665,13 +6665,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/core@npm:^0.31.0":
-  version: 0.31.0
-  resolution: "@swim-io/core@npm:0.31.0"
+"@swim-io/core@npm:^0.34.0":
+  version: 0.34.0
+  resolution: "@swim-io/core@npm:0.34.0"
   dependencies:
-    "@swim-io/token-projects": ^0.31.0
-    "@swim-io/utils": ^0.31.0
-  checksum: 0437fd797f8f438fe769e9b052205527aa678884c2ec4b73941fa83a0e32351ee5a8a141366c17168e6c132e3d36b8be54bf6dfc61faeb96f130d291400af12a
+    "@certusone/wormhole-sdk": ^0.6.2
+    "@swim-io/token-projects": ^0.34.0
+    "@swim-io/utils": ^0.34.0
+  checksum: c4b28a53eb804433f5bcc3a70375ca53674487d56b92eee2e1f92c989114b2bd72219fba5d794ada52d573d595a9a4e67b335030d76b07a0bc307c52b46f3bdc
   languageName: node
   linkType: hard
 
@@ -6679,12 +6680,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@swim-io/core@workspace:packages/core"
   dependencies:
+    "@certusone/wormhole-sdk": ^0.6.2
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/token-projects": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": "workspace:^"
-    "@typescript-eslint/eslint-plugin": ^5.29.0
-    "@typescript-eslint/parser": ^5.29.0
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     eslint: ^8.18.0
     eslint-config-prettier: ^8.5.0
     eslint-plugin-deprecation: ^1.3.2
@@ -6705,8 +6707,8 @@ __metadata:
   dependencies:
     "@rushstack/eslint-patch": ^1.1.4
     "@sayari/eslint-plugin": ^0.0.1-rc.4
-    "@typescript-eslint/eslint-plugin": ^5.30
-    "@typescript-eslint/parser": ^5.30
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     eslint: ^8.19.0
     eslint-config-prettier: ^8.5
     eslint-config-react-app: ^7.0.1
@@ -6722,8 +6724,8 @@ __metadata:
     prettier: ^2.7.1
   peerDependencies:
     "@sayari/eslint-plugin": ^0.0.1-rc.4
-    "@typescript-eslint/eslint-plugin": ^5.30
-    "@typescript-eslint/parser": ^5.30
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     eslint: ">= 8.19"
     eslint-config-prettier: ^8.5
     eslint-config-react-app: ^7.0.1
@@ -6760,10 +6762,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm-contracts@npm:^0.31.0":
-  version: 0.31.0
-  resolution: "@swim-io/evm-contracts@npm:0.31.0"
-  checksum: 994a56155a4e59eb278c4319b08098deed21f3f8ca4493d369b2204acc45531e13b10564e8d80c47fe2c221624d77983383cd06a82f33879715585a113f78677
+"@swim-io/evm-contracts@npm:^0.34.0":
+  version: 0.34.0
+  resolution: "@swim-io/evm-contracts@npm:0.34.0"
+  checksum: 4becc1b150522f9182629796e35e05b3ecc15a62afe257af53e6509c8ef16ce77cd0c99b7f75086451e22f4d6d47f54f65b822615857eccdf6586e007f4e8948
   languageName: node
   linkType: hard
 
@@ -6785,8 +6787,8 @@ __metadata:
     "@types/chai": ^4.3.3
     "@types/mocha": ^9.1.1
     "@types/node": ^18.7.4
-    "@typescript-eslint/eslint-plugin": ^5.33.0
-    "@typescript-eslint/parser": ^5.33.0
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     chai: ^4.3.6
     chai-bn: ^0.3.1
     dotenv: ^16.0.1
@@ -6821,22 +6823,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm@npm:^0.31.0":
-  version: 0.31.0
-  resolution: "@swim-io/evm@npm:0.31.0"
+"@swim-io/evm@npm:^0.34.0":
+  version: 0.34.0
+  resolution: "@swim-io/evm@npm:0.34.0"
   dependencies:
     "@certusone/wormhole-sdk": ^0.6.0
-    "@swim-io/core": ^0.31.0
-    "@swim-io/evm-contracts": ^0.31.0
-    "@swim-io/token-projects": ^0.31.0
-    "@swim-io/utils": ^0.31.0
+    "@swim-io/core": ^0.34.0
+    "@swim-io/evm-contracts": ^0.34.0
+    "@swim-io/token-projects": ^0.34.0
+    "@swim-io/utils": ^0.34.0
     decimal.js: ^10.3.1
     ethers: ^5.6.9
     eventemitter3: ^4.0.7
     graphql: ^16.6.0
     graphql-request: ^4.3.0
     moralis: ^1.8.0
-  checksum: 477bed07c16641a94eaf8b0a487147fa421df459436ab4283a722155249a0362f56c5fac5ab28a63694c3078e3ab1eede3fc138875d1d383b805fc862e4d47f6
+  checksum: 98fbc0e13607e5c85cba82c581f7c5795833f05247ddc1dbc3926165711bca4008001dac1ba457970b9c1ccc4df53dbf2955c7687b307403ce4efd232ab3ac63
   languageName: node
   linkType: hard
 
@@ -6853,8 +6855,8 @@ __metadata:
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": "workspace:^"
     "@types/jest": ^28.1.3
-    "@typescript-eslint/eslint-plugin": ^5.29.0
-    "@typescript-eslint/parser": ^5.29.0
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     decimal.js: ^10.3.1
     eslint: ^8.18.0
     eslint-config-prettier: ^8.5.0
@@ -6894,12 +6896,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/pool-math@npm:^0.31.0":
-  version: 0.31.0
-  resolution: "@swim-io/pool-math@npm:0.31.0"
+"@swim-io/pool-math@npm:^0.34.0":
+  version: 0.34.0
+  resolution: "@swim-io/pool-math@npm:0.34.0"
   dependencies:
     decimal.js: ^10.3.1
-  checksum: 9de48ea1aac49cfee07e792e58c50fe3259c963e40a272e2bb108508ce9c97719b6d0fff35361ed6a60f6e1ef727d7d71921bae793896e186102e59369c04a6d
+  checksum: 38e8e9484d58ab23e7b03f5261d626a7c4bf07ac1a801bb9a00c49231f4c9f1ad7a8ba570d2deec87b28b8ceac03cfba36e357763eb007e67ab43b6d075e2b89
   languageName: node
   linkType: hard
 
@@ -6910,8 +6912,8 @@ __metadata:
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@types/jest": ^28.1.3
-    "@typescript-eslint/eslint-plugin": ^5.30.5
-    "@typescript-eslint/parser": ^5.30.5
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     decimal.js: ^10.3.1
     eslint: ^8.19.0
     eslint-config-prettier: ^8.5.0
@@ -7036,13 +7038,15 @@ __metadata:
     "@solana/web3.js": ^1.50.1
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
-    "@switchboard-xyz/sbv2-utils": ^0.1.43
-    "@switchboard-xyz/switchboard-v2": ^0.0.129
+    "@switchboard-xyz/sbv2-utils": ^0.1.45
+    "@switchboard-xyz/switchboard-v2": ^0.0.132
     "@types/bn.js": ^5.1.0
     "@types/chai": ^4.3.0
+    "@types/elliptic": ^6.4.14
     "@types/jest": ^28.1.7
     "@types/mocha": ^9.0.0
     "@types/node": ^18.7.16
+    big.js: ^6.2.1
     byteify: ^2.0.10
     chai: ^4.3.4
     elliptic: ^6.5.4
@@ -7081,8 +7085,8 @@ __metadata:
     "@swim-io/tsconfig": "workspace:^"
     "@types/bn.js": ^5.1.0
     "@types/jest": ^28.1.3
-    "@typescript-eslint/eslint-plugin": ^5.29.0
-    "@typescript-eslint/parser": ^5.29.0
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     bn.js: ^5.2.0
     decimal.js: ^10.3.1
     eslint: ^8.18.0
@@ -7116,24 +7120,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/solana@npm:^0.31.0":
-  version: 0.31.0
-  resolution: "@swim-io/solana@npm:0.31.0"
+"@swim-io/solana@npm:^0.34.0":
+  version: 0.34.0
+  resolution: "@swim-io/solana@npm:0.34.0"
   dependencies:
     "@certusone/wormhole-sdk": ^0.6.2
     "@ledgerhq/hw-transport": ^6.27.1
     "@ledgerhq/hw-transport-webusb": ^6.0.2
     "@project-serum/borsh": ^0.2.5
-    "@project-serum/sol-wallet-adapter": ^0.2.6
+    "@project-serum/sol-wallet-adapter": 0.2.2
     "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.62.0
-    "@swim-io/core": ^0.31.0
-    "@swim-io/token-projects": ^0.31.0
-    "@swim-io/utils": ^0.31.0
+    "@swim-io/core": ^0.34.0
+    "@swim-io/token-projects": ^0.34.0
+    "@swim-io/utils": ^0.34.0
     bn.js: ^5.2.1
     decimal.js: ^10.3.1
     ethers: ^5.7.0
-  checksum: 1e0c14a6077b353e859698591eecfd26b72fbbc8fce5c779df4657973efba79f72a3faa48c1d8b1409cb40f10f495acd735c88c999f661361508a15d3f5c2a6e
+  checksum: 0b233a9e76492d0c2506b632136957cb707cfa1090a0380e31c9e5a9d965025100113881e7e225d10fdd676365fb5cd89aa9727e706cd94761ddb77b217dbcf3
   languageName: node
   linkType: hard
 
@@ -7145,7 +7149,7 @@ __metadata:
     "@ledgerhq/hw-transport": ^6.27.1
     "@ledgerhq/hw-transport-webusb": ^6.0.2
     "@project-serum/borsh": ^0.2.5
-    "@project-serum/sol-wallet-adapter": ^0.2.6
+    "@project-serum/sol-wallet-adapter": 0.2.2
     "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.62.0
     "@swim-io/core": "workspace:^"
@@ -7154,9 +7158,10 @@ __metadata:
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": "workspace:^"
     "@types/bn.js": ^5.1.0
+    "@types/eventemitter3": ^2.0.2
     "@types/jest": ^28.1.3
-    "@typescript-eslint/eslint-plugin": ^5.29.0
-    "@typescript-eslint/parser": ^5.29.0
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     bn.js: ^5.2.1
     decimal.js: ^10.3.1
     eslint: ^8.18.0
@@ -7182,8 +7187,8 @@ __metadata:
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@types/jest": ^28.1.3
-    "@typescript-eslint/eslint-plugin": ^5.29.0
-    "@typescript-eslint/parser": ^5.29.0
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     eslint: ^8.18.0
     eslint-config-prettier: ^8.5.0
     eslint-plugin-deprecation: ^1.3.2
@@ -7209,12 +7214,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/token-projects@npm:^0.31.0":
-  version: 0.31.0
-  resolution: "@swim-io/token-projects@npm:0.31.0"
+"@swim-io/token-projects@npm:^0.34.0":
+  version: 0.34.0
+  resolution: "@swim-io/token-projects@npm:0.34.0"
   dependencies:
-    "@swim-io/utils": ^0.31.0
-  checksum: 77351f3b2db43ecaf90c188ec919cf264455bf811bd0fa5ae71d4b8bfe2f3a6561832e4d3c1556bf5f28343a52fc72d214139aa050ea0ec26ff4d0ef1a0a89ea
+    "@swim-io/utils": ^0.34.0
+  checksum: 36d99019076099c0df64bba7901e05a8ad07caf49e011af453be4fbd3dcb4d7b2a76106333aaf73b6b7a021421d21d742f4ad6e6ce1ea9ba153bde8fb0990ed9
   languageName: node
   linkType: hard
 
@@ -7226,8 +7231,8 @@ __metadata:
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": "workspace:^"
     "@types/jest": ^28.1.3
-    "@typescript-eslint/eslint-plugin": ^5.29.0
-    "@typescript-eslint/parser": ^5.29.0
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     eslint: ^8.18.0
     eslint-config-prettier: ^8.5.0
     eslint-plugin-deprecation: ^1.3.2
@@ -7284,17 +7289,17 @@ __metadata:
     "@storybook/manager-webpack4": ^6.5.10
     "@storybook/node-logger": ^6.5.10
     "@storybook/react": ^6.5.10
-    "@swim-io/aptos": ^0.31.0
-    "@swim-io/core": ^0.31.0
+    "@swim-io/aptos": ^0.34.0
+    "@swim-io/core": ^0.34.0
     "@swim-io/eslint-config": "workspace:^"
-    "@swim-io/evm": ^0.31.0
-    "@swim-io/evm-contracts": ^0.31.0
-    "@swim-io/pool-math": ^0.31.0
-    "@swim-io/solana": ^0.31.0
-    "@swim-io/token-projects": ^0.31.0
+    "@swim-io/evm": ^0.34.0
+    "@swim-io/evm-contracts": ^0.34.0
+    "@swim-io/pool-math": ^0.34.0
+    "@swim-io/solana": ^0.34.0
+    "@swim-io/token-projects": ^0.34.0
     "@swim-io/tsconfig": "workspace:^"
-    "@swim-io/utils": ^0.31.0
-    "@swim-io/wormhole": ^0.31.0
+    "@swim-io/utils": ^0.34.0
+    "@swim-io/wormhole": ^0.34.0
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^7.0.2
@@ -7304,7 +7309,8 @@ __metadata:
     "@types/node": ^18.0.0
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
-    "@typescript-eslint/eslint-plugin": ^5.21.0
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     bn.js: ^5.2.1
     classnames: ^2.3.1
     decimal.js: ^10.3.1
@@ -7357,12 +7363,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/utils@npm:^0.31.0":
-  version: 0.31.0
-  resolution: "@swim-io/utils@npm:0.31.0"
+"@swim-io/utils@npm:^0.34.0":
+  version: 0.34.0
+  resolution: "@swim-io/utils@npm:0.34.0"
   dependencies:
     decimal.js: ^10.3.1
-  checksum: 85c4253995c9f0980d508479b00b9d80c4cdea56e70fd80080c2bc9e4161587d4d091e90ee722f773467cc1b53dee595319063f2722ccb2051fd5c986a3a0e99
+  checksum: 69beb467192d6be4a33f77ac475b39b90a5e66b6eb97560826ebfcb0133cd6f951a964bfe4a2e134ca09bc0494c97525e4975177d3408e191735a4ead9f29c8d
   languageName: node
   linkType: hard
 
@@ -7373,8 +7379,8 @@ __metadata:
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/tsconfig": "workspace:^"
     "@types/jest": ^28.1.7
-    "@typescript-eslint/eslint-plugin": ^5.29.0
-    "@typescript-eslint/parser": ^5.29.0
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     decimal.js: ^10.3.1
     eslint: ^8.18.0
     eslint-config-prettier: ^8.5.0
@@ -7391,18 +7397,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/wormhole@npm:^0.31.0":
-  version: 0.31.0
-  resolution: "@swim-io/wormhole@npm:0.31.0"
+"@swim-io/wormhole@npm:^0.34.0":
+  version: 0.34.0
+  resolution: "@swim-io/wormhole@npm:0.34.0"
   dependencies:
     "@certusone/wormhole-sdk": ^0.6.0
     "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.62.0
-    "@swim-io/solana": ^0.31.0
-    "@swim-io/utils": ^0.31.0
+    "@swim-io/solana": ^0.34.0
+    "@swim-io/utils": ^0.34.0
     ethers: ^5.6.9
     grpc-web: ^1.3.1
-  checksum: 8cac3c897b1d27e7275055a0eb6220e054ec339ef49276c80fd7235b54390ca85b62ec5927bfc8db3fdf2c34a3ef0862c0eb2a8eb680c26c9ce52cbfa01d2ebe
+  checksum: cae7cbaaddb35a287f8bab749ffcad1d31a4eadfff4e38133d66462a4289d876518ba80d0c767c3870e515fc7eb70e13d846e3372c331325202d24b8230daaaa
   languageName: node
   linkType: hard
 
@@ -7418,8 +7424,8 @@ __metadata:
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": "workspace:^"
     "@types/jest": ^28.1.3
-    "@typescript-eslint/eslint-plugin": ^5.29.0
-    "@typescript-eslint/parser": ^5.29.0
+    "@typescript-eslint/eslint-plugin": ^5.38.1
+    "@typescript-eslint/parser": ^5.38.1
     eslint: ^8.18.0
     eslint-config-prettier: ^8.5.0
     eslint-plugin-deprecation: ^1.3.2
@@ -7437,35 +7443,48 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@switchboard-xyz/sbv2-utils@npm:^0.1.43":
-  version: 0.1.43
-  resolution: "@switchboard-xyz/sbv2-utils@npm:0.1.43"
+"@switchboard-xyz/common@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@switchboard-xyz/common@npm:2.0.0"
+  dependencies:
+    big.js: ^6.2.1
+    bn.js: ^5.2.1
+    protobufjs: ^6.11.3
+  checksum: 89fb6ef0e0c716103c4555acef5968fc2e865219b6c96e6ec8aaab0c23b734032689579d368b646f91b178071ab00fbc72d84ae5462c7603c2c0d6d1337a46ac
+  languageName: node
+  linkType: hard
+
+"@switchboard-xyz/sbv2-utils@npm:^0.1.45":
+  version: 0.1.45
+  resolution: "@switchboard-xyz/sbv2-utils@npm:0.1.45"
   dependencies:
     "@orca-so/sdk": ^1.2.24
     "@project-serum/anchor": ^0.24.2
     "@saberhq/token-utils": ^1.13.32
     "@solana/spl-token-v2": "npm:@solana/spl-token@^0.2.0"
     "@solana/web3.js": ^1.43.5
-    "@switchboard-xyz/switchboard-v2": ^0.0.129
-    big.js: ^6.1.1
+    "@switchboard-xyz/common": ^2.0.0
+    "@switchboard-xyz/switchboard-v2": ^0.0.132
+    big.js: ^6.2.1
     bn.js: ^5.2.1
     chalk: 4
     decimal.js: ^10.3.1
     dotenv: ^16.0.1
     mocha: ^9.1.1
     toml: ^3.0.0
-  checksum: 7de39f930ec2c689bf48455ece4ddbcb3d226eeb35ce33fa2334b457ba9236b63a5fd2e66bf59d2e3fc4baff58910e801074dc5f7d960393a69ac68acef44ad0
+  checksum: 631681f1032f281a5e049109292a4ce237c1006ad2bc42aa7668c820606634e4fe5933c7d53e65d0e9ea6ac30a60b42edef38d376f61dafec6293706fb731632
   languageName: node
   linkType: hard
 
-"@switchboard-xyz/switchboard-v2@npm:^0.0.129":
-  version: 0.0.129
-  resolution: "@switchboard-xyz/switchboard-v2@npm:0.0.129"
+"@switchboard-xyz/switchboard-v2@npm:^0.0.132":
+  version: 0.0.132
+  resolution: "@switchboard-xyz/switchboard-v2@npm:0.0.132"
   dependencies:
     "@project-serum/anchor": ^0.24.2
     "@solana/spl-governance": ^0.0.34
     "@solana/spl-token-v2": "npm:@solana/spl-token@^0.2.0"
     "@solana/web3.js": ^1.44.3
+    "@switchboard-xyz/common": ^2.0.0
     assert: ^2.0.0
     big.js: ^6.2.0
     bs58: ^5.0.0
@@ -7475,11 +7494,10 @@ __metadata:
     long: ^4.0.0
     mocha: ^9.1.1
     node-fetch: ^3.2.6
-    protobufjs: ^6.11.3
   peerDependencies:
     "@solana/spl-governance": ^0.0.34
     "@solana/web3.js": ^1.44.3
-  checksum: 5824b15c8334748c7a90c09f98e9c9bd67b77da5f53654ab699b927a9e84e86f047e079cef6874fe577b6df9483ad598873f7dc84221db5b968a449831acc70f
+  checksum: 950802fb5937da4cbbc394b3ff79de1f9bec2f251def592d6538fc1da6607c99842cc48eb28aafeb2d6fcda0e74a2d628c306b7d80bf91b9186901ac53d3ce53
   languageName: node
   linkType: hard
 
@@ -7792,6 +7810,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/bn.js@npm:*":
+  version: 5.1.1
+  resolution: "@types/bn.js@npm:5.1.1"
+  dependencies:
+    "@types/node": "*"
+  checksum: e50ed2dd3abe997e047caf90e0352c71e54fc388679735217978b4ceb7e336e51477791b715f49fd77195ac26dd296c7bad08a3be9750e235f9b2e1edb1b51c2
+  languageName: node
+  linkType: hard
+
 "@types/bn.js@npm:^4.11.3, @types/bn.js@npm:^4.11.5":
   version: 4.11.6
   resolution: "@types/bn.js@npm:4.11.6"
@@ -7860,6 +7887,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/elliptic@npm:^6.4.14":
+  version: 6.4.14
+  resolution: "@types/elliptic@npm:6.4.14"
+  dependencies:
+    "@types/bn.js": "*"
+  checksum: d5a64f540e0ed4b74a12dfa5cc88c0aa7b531eab3b7a9fab17948ffbfc6e01814230e63d7417ce1b607dbd8b5d70e1b64f5afac632deabf96e44875aaac0ae1b
+  languageName: node
+  linkType: hard
+
 "@types/eslint-scope@npm:^3.7.3":
   version: 3.7.3
   resolution: "@types/eslint-scope@npm:3.7.3"
@@ -7901,6 +7937,15 @@ __metadata:
   version: 0.0.39
   resolution: "@types/estree@npm:0.0.39"
   checksum: 412fb5b9868f2c418126451821833414189b75cc6bf84361156feed733e3d92ec220b9d74a89e52722e03d5e241b2932732711b7497374a404fad49087adc248
+  languageName: node
+  linkType: hard
+
+"@types/eventemitter3@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@types/eventemitter3@npm:2.0.2"
+  dependencies:
+    eventemitter3: "*"
+  checksum: 8fb5031eab566ac7689092eaebfbd76a043154ed2b7bc806730c6c543de4fa2b25b73a69574b8bdbfdb4e238de1144061ae482d1bda540540ca9479f7efc7bb7
   languageName: node
   linkType: hard
 
@@ -8551,15 +8596,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^5.21.0, @typescript-eslint/eslint-plugin@npm:^5.29.0, @typescript-eslint/eslint-plugin@npm:^5.30, @typescript-eslint/eslint-plugin@npm:^5.30.5, @typescript-eslint/eslint-plugin@npm:^5.33.0, @typescript-eslint/eslint-plugin@npm:^5.5.0":
-  version: 5.33.0
-  resolution: "@typescript-eslint/eslint-plugin@npm:5.33.0"
+"@typescript-eslint/eslint-plugin@npm:^5.29.0, @typescript-eslint/eslint-plugin@npm:^5.38.1, @typescript-eslint/eslint-plugin@npm:^5.5.0":
+  version: 5.38.1
+  resolution: "@typescript-eslint/eslint-plugin@npm:5.38.1"
   dependencies:
-    "@typescript-eslint/scope-manager": 5.33.0
-    "@typescript-eslint/type-utils": 5.33.0
-    "@typescript-eslint/utils": 5.33.0
+    "@typescript-eslint/scope-manager": 5.38.1
+    "@typescript-eslint/type-utils": 5.38.1
+    "@typescript-eslint/utils": 5.38.1
     debug: ^4.3.4
-    functional-red-black-tree: ^1.0.1
     ignore: ^5.2.0
     regexpp: ^3.2.0
     semver: ^7.3.7
@@ -8570,7 +8614,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: d408f3f474b34fefde8ee65d98deb126949fd7d8e211a7f95c5cc2b507dedbf8eb239f3895e0c37aa6338989531e37c5f35c2e0de36a126c52f0846e89605487
+  checksum: a8895588022f75b2bf994ce52f7109d8814e0f5b3bef0d4fac19dc86a926202ca204bfca8c0e5a033d7566bae90815a772b64bcdc61c349f47ddd52d91989de5
   languageName: node
   linkType: hard
 
@@ -8633,20 +8677,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^5.29.0, @typescript-eslint/parser@npm:^5.30, @typescript-eslint/parser@npm:^5.30.5, @typescript-eslint/parser@npm:^5.33.0, @typescript-eslint/parser@npm:^5.5.0":
-  version: 5.33.0
-  resolution: "@typescript-eslint/parser@npm:5.33.0"
+"@typescript-eslint/parser@npm:^5.29.0, @typescript-eslint/parser@npm:^5.38.1, @typescript-eslint/parser@npm:^5.5.0":
+  version: 5.38.1
+  resolution: "@typescript-eslint/parser@npm:5.38.1"
   dependencies:
-    "@typescript-eslint/scope-manager": 5.33.0
-    "@typescript-eslint/types": 5.33.0
-    "@typescript-eslint/typescript-estree": 5.33.0
+    "@typescript-eslint/scope-manager": 5.38.1
+    "@typescript-eslint/types": 5.38.1
+    "@typescript-eslint/typescript-estree": 5.38.1
     debug: ^4.3.4
   peerDependencies:
     eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 2617aba987a70ee6b16ecc6afa6d245422df33a9d056018ff2e316159e667a0ab9d9c15fcea95e0ba65832661e71cc2753a221e77f0b0fab278e52c4497b8278
+  checksum: 3f84b33d598d9acef99f087bdfe319e74f838d3442d6a15f2498f077a1473f124e3ec6698dbb256f56c51ce38abd91c0ffb90f0856989309e28c43e005d99215
   languageName: node
   linkType: hard
 
@@ -8670,21 +8714,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/scope-manager@npm:5.33.0":
-  version: 5.33.0
-  resolution: "@typescript-eslint/scope-manager@npm:5.33.0"
+"@typescript-eslint/scope-manager@npm:5.38.1":
+  version: 5.38.1
+  resolution: "@typescript-eslint/scope-manager@npm:5.38.1"
   dependencies:
-    "@typescript-eslint/types": 5.33.0
-    "@typescript-eslint/visitor-keys": 5.33.0
-  checksum: b2cbea9abd528d01a5acb2d68a2a5be51ec6827760d3869bdd70920cf6c3a4f9f96d87c77177f8313009d9db71253e4a75f8393f38651e2abaf91ef28e60fb9d
+    "@typescript-eslint/types": 5.38.1
+    "@typescript-eslint/visitor-keys": 5.38.1
+  checksum: c3b38ca0074d09e26c30b4385c18933f8a6418c923a24c7f4c2297af60a85d604320f119863676f49ea4254b3c01c112504547436eda4951ade609e8d7f438a7
   languageName: node
   linkType: hard
 
-"@typescript-eslint/type-utils@npm:5.33.0":
-  version: 5.33.0
-  resolution: "@typescript-eslint/type-utils@npm:5.33.0"
+"@typescript-eslint/type-utils@npm:5.38.1":
+  version: 5.38.1
+  resolution: "@typescript-eslint/type-utils@npm:5.38.1"
   dependencies:
-    "@typescript-eslint/utils": 5.33.0
+    "@typescript-eslint/typescript-estree": 5.38.1
+    "@typescript-eslint/utils": 5.38.1
     debug: ^4.3.4
     tsutils: ^3.21.0
   peerDependencies:
@@ -8692,7 +8737,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: a1d1ffb42fe96bfc2339cc2875e218aa82fa9391be04c1a266bb11da1eca6835555687e81cde75477c60e6702049cd4dde7d2638e7e9b9d8cf4b7b2242353a6e
+  checksum: 1e5fbb5cd2cd97d8d6aaf6b0d1262517e74aba006ffc61526528352a8ab99205456d6247da8252388e868ed7ee8f6c2fa8e108dad68b696cbdbcef6473579173
   languageName: node
   linkType: hard
 
@@ -8717,10 +8762,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/types@npm:5.33.0":
-  version: 5.33.0
-  resolution: "@typescript-eslint/types@npm:5.33.0"
-  checksum: 8bbddda84cb3adf5c659b0d42547a2d6ab87f4eea574aca5dd63a3bd85169f32796ecbddad3b27f18a609070f6b1d18a54018d488bad746ae0f6ea5c02206109
+"@typescript-eslint/types@npm:5.38.1":
+  version: 5.38.1
+  resolution: "@typescript-eslint/types@npm:5.38.1"
+  checksum: 384f7fe9a1995d87507049a868aa1a1f9eb28af913e704540e1494c8c630985f9ef4f4e6bdd4df0d83cbe4611c4e6f4f07d5d91bfa57c88242fb227a6d828b7e
   languageName: node
   linkType: hard
 
@@ -8779,12 +8824,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/typescript-estree@npm:5.33.0":
-  version: 5.33.0
-  resolution: "@typescript-eslint/typescript-estree@npm:5.33.0"
+"@typescript-eslint/typescript-estree@npm:5.38.1":
+  version: 5.38.1
+  resolution: "@typescript-eslint/typescript-estree@npm:5.38.1"
   dependencies:
-    "@typescript-eslint/types": 5.33.0
-    "@typescript-eslint/visitor-keys": 5.33.0
+    "@typescript-eslint/types": 5.38.1
+    "@typescript-eslint/visitor-keys": 5.38.1
     debug: ^4.3.4
     globby: ^11.1.0
     is-glob: ^4.0.3
@@ -8793,7 +8838,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 26f9005cdfb14654125a33d90d872b926820e560dff8970c4629fd5f6f47ad2a31e4c63161564d21bb42a8fc3ced0033994854ee37336ae07d90ccf6300d702b
+  checksum: ec73496f73bd7f97d1585d25484874f092141a5f92ade7bd324fb76ef52888f0d77cc4375bdecc92cc3bacf5d61d65197acbb9af4fd9322b51db286c68a320c6
   languageName: node
   linkType: hard
 
@@ -8813,19 +8858,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:5.33.0, @typescript-eslint/utils@npm:^5.10.2, @typescript-eslint/utils@npm:^5.13.0":
-  version: 5.33.0
-  resolution: "@typescript-eslint/utils@npm:5.33.0"
+"@typescript-eslint/utils@npm:5.38.1, @typescript-eslint/utils@npm:^5.10.2, @typescript-eslint/utils@npm:^5.13.0":
+  version: 5.38.1
+  resolution: "@typescript-eslint/utils@npm:5.38.1"
   dependencies:
     "@types/json-schema": ^7.0.9
-    "@typescript-eslint/scope-manager": 5.33.0
-    "@typescript-eslint/types": 5.33.0
-    "@typescript-eslint/typescript-estree": 5.33.0
+    "@typescript-eslint/scope-manager": 5.38.1
+    "@typescript-eslint/types": 5.38.1
+    "@typescript-eslint/typescript-estree": 5.38.1
     eslint-scope: ^5.1.1
     eslint-utils: ^3.0.0
   peerDependencies:
     eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
-  checksum: 6ce5ee5eabeb6d73538b24e6487f811ecb0ef3467bd366cbd15bf30d904bdedb73fc6f48cf2e2e742dda462b42999ea505e8b59255545825ec9db86f3d423ea7
+  checksum: 06646ddeb6c1a5dac01e8336dff458cf37dff0d3d5a2f304048a4d6d8f62d504c5330a8b046ec66f6777f324bc1afe6a3f7ea1c5b015b123ab7062e8e22aff67
   languageName: node
   linkType: hard
 
@@ -8858,13 +8903,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/visitor-keys@npm:5.33.0":
-  version: 5.33.0
-  resolution: "@typescript-eslint/visitor-keys@npm:5.33.0"
+"@typescript-eslint/visitor-keys@npm:5.38.1":
+  version: 5.38.1
+  resolution: "@typescript-eslint/visitor-keys@npm:5.38.1"
   dependencies:
-    "@typescript-eslint/types": 5.33.0
+    "@typescript-eslint/types": 5.38.1
     eslint-visitor-keys: ^3.3.0
-  checksum: d7e3653de6bac6841e6fcc54226b93ad6bdca4aa76ebe7d83459c016c3eebcc50d4f65ee713174bc267d765295b642d1927a778c5de707b8389e3fcc052aa4a1
+  checksum: 01c83a42900f8ab721bd0857abcc000a15183eb26d2d61cceeaef018a83a91325f48c0112d4356383c41dce23174a305bb3352af4705a61d1da46f8ac0e88340
   languageName: node
   linkType: hard
 
@@ -10941,7 +10986,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"big.js@npm:^6.1.1, big.js@npm:^6.2.0, big.js@npm:^6.2.1":
+"big.js@npm:^6.2.0, big.js@npm:^6.2.1":
   version: 6.2.1
   resolution: "big.js@npm:6.2.1"
   checksum: 0b234a2fd56c52bed2798ed2020bcab6fef5e9523b99a05406ad071d1aed6ee97ada9fb8de9576092da74c68825c276e19015743b8d1baea269b60a5c666b0cd
@@ -16025,17 +16070,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eventemitter3@npm:*, eventemitter3@npm:^4.0.0, eventemitter3@npm:^4.0.4, eventemitter3@npm:^4.0.7":
+  version: 4.0.7
+  resolution: "eventemitter3@npm:4.0.7"
+  checksum: 1875311c42fcfe9c707b2712c32664a245629b42bb0a5a84439762dd0fd637fc54d078155ea83c2af9e0323c9ac13687e03cfba79b03af9f40c89b4960099374
+  languageName: node
+  linkType: hard
+
 "eventemitter3@npm:4.0.4":
   version: 4.0.4
   resolution: "eventemitter3@npm:4.0.4"
   checksum: 7afb1cd851d19898bc99cc55ca894fe18cb1f8a07b0758652830a09bd6f36082879a25345be6219b81d74764140688b1a8fa75bcd1073d96b9a6661e444bc2ea
-  languageName: node
-  linkType: hard
-
-"eventemitter3@npm:^4.0.0, eventemitter3@npm:^4.0.7":
-  version: 4.0.7
-  resolution: "eventemitter3@npm:4.0.7"
-  checksum: 1875311c42fcfe9c707b2712c32664a245629b42bb0a5a84439762dd0fd637fc54d078155ea83c2af9e0323c9ac13687e03cfba79b03af9f40c89b4960099374
   languageName: node
   linkType: hard
 

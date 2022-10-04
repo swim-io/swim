@@ -13,8 +13,8 @@ import { getSignedVaaWithRetry } from "../../models";
 import type { Wallets } from "../../models";
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 import { useWallets } from "../crossEcosystem";
-import { useGetEvmConnection } from "../evm";
-import { useSolanaConnection, useSplTokenAccountsQuery } from "../solana";
+import { useGetEvmClient } from "../evm";
+import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
 
 import { useToSolanaTransferMutation } from "./useToSolanaTransferMutation";
 
@@ -23,9 +23,9 @@ jest.mock("../../core/store/idb");
 
 jest.mock("../evm", () => ({
   ...jest.requireActual("../evm"),
-  useGetEvmConnection: jest.fn(),
+  useGetEvmClient: jest.fn(),
 }));
-const useGetEvmConnectionMock = mockOf(useGetEvmConnection);
+const useGetEvmClientMock = mockOf(useGetEvmClient);
 
 jest.mock("../crossEcosystem", () => ({
   ...jest.requireActual("../crossEcosystem"),
@@ -41,10 +41,10 @@ const getSignedVaaWithRetryMock = mockOf(getSignedVaaWithRetry);
 
 jest.mock("../solana", () => ({
   ...jest.requireActual("../solana"),
-  useSolanaConnection: jest.fn(),
+  useSolanaClient: jest.fn(),
   useSplTokenAccountsQuery: jest.fn(),
 }));
-const useSolanaConnectionMock = mockOf(useSolanaConnection);
+const useSolanaClientMock = mockOf(useSolanaClient);
 const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
 
 describe("useToSolanaTransferMutation", () => {
@@ -68,14 +68,14 @@ describe("useToSolanaTransferMutation", () => {
         } as TokenAccount,
       ],
     });
-    useSolanaConnectionMock.mockReturnValue({
+    useSolanaClientMock.mockReturnValue({
       confirmTx: jest.fn(),
       getTokenAccountWithRetry: jest.fn((mint) =>
         Promise.resolve({
           mint,
         } as unknown as TokenAccount),
       ),
-      generateUnlockSplTokenTxIds: jest
+      generateCompleteWormholeTransferTxIds: jest
         .fn()
         .mockReturnValue([
           Promise.resolve(
@@ -101,7 +101,7 @@ describe("useToSolanaTransferMutation", () => {
     getSignedVaaWithRetryMock.mockReturnValue({
       vaaBytes: new Uint8Array(),
     } as any);
-    useGetEvmConnectionMock.mockReturnValue(() => {
+    useGetEvmClientMock.mockReturnValue(() => {
       return {
         txReceiptCache: {},
         getTxReceiptOrThrow: jest.fn(({ hash }) =>
@@ -109,7 +109,7 @@ describe("useToSolanaTransferMutation", () => {
             transactionHash: hash,
           }),
         ),
-        lockEvmToken: jest.fn(() => {
+        initiateWormholeTransfer: jest.fn(() => {
           return Promise.resolve({
             approvalResponses: [],
             transferResponse: {

@@ -4,13 +4,13 @@ import { useQueries, useQuery } from "react-query";
 
 import { useEnvironment } from "../../core/store";
 
-import { useSolanaConnection } from "./useSolanaConnection";
+import { useSolanaClient } from "./useSolanaClient";
 
 export const useSolanaLiquidityQuery = (
   tokenAccountAddresses: readonly string[],
 ): UseQueryResult<readonly (TokenAccount | null)[], Error> => {
   const { env } = useEnvironment();
-  const solanaConnection = useSolanaConnection();
+  const solanaClient = useSolanaClient();
 
   return useQuery<readonly (TokenAccount | null)[], Error>(
     [env, "liquidity", tokenAccountAddresses.join("")],
@@ -19,9 +19,7 @@ export const useSolanaLiquidityQuery = (
         return [];
       }
 
-      return await solanaConnection.getMultipleTokenAccounts(
-        tokenAccountAddresses,
-      );
+      return await solanaClient.getMultipleTokenAccounts(tokenAccountAddresses);
     },
   );
 };
@@ -30,7 +28,7 @@ export const useSolanaLiquidityQueries = (
   tokenAccountAddresses: readonly (readonly string[])[],
 ): readonly UseQueryResult<readonly (TokenAccount | null)[], Error>[] => {
   const { env } = useEnvironment();
-  const solanaConnection = useSolanaConnection();
+  const solanaClient = useSolanaClient();
 
   return useQueries(
     tokenAccountAddresses.map((addresses) => ({
@@ -40,7 +38,7 @@ export const useSolanaLiquidityQueries = (
           return [];
         }
 
-        return await solanaConnection.getMultipleTokenAccounts(addresses);
+        return await solanaClient.getMultipleTokenAccounts(addresses);
       },
     })),
     // useQueries does not support types without casting

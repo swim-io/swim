@@ -6,7 +6,7 @@
     "lib": ["esnext", "dom"],
     "outDir": "build/",
     "rootDir": "src/",
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "typeRoots": ["./node_modules/@types", "./nodeModulesTypes", "./src/types"]
   },
   "include": ["src/"]
 }

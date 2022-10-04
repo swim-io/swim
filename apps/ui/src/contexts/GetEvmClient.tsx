@@ -2,7 +2,7 @@ import { Env } from "@swim-io/core";
 import type { EvmChainConfig, GetHistoryProvider } from "@swim-io/evm";
 import {
   EtherscanFamilyProvider,
-  EvmConnection,
+  EvmClient,
   EvmEcosystemId,
   MoralisProvider,
   PolkadotProvider,
@@ -21,9 +21,9 @@ import { useEnvironment } from "../core/store";
 
 const MORALIS_ID = process.env.REACT_APP_MORALIS_ID;
 
-export const GetEvmConnectionContext: React.Context<
-  (ecosystemId: EvmEcosystemId) => EvmConnection
-> = createContext((_: EvmEcosystemId): EvmConnection => {
+export const GetEvmClientContext: React.Context<
+  (ecosystemId: EvmEcosystemId) => EvmClient
+> = createContext((_: EvmEcosystemId): EvmClient => {
   throw new Error("Not initialized");
 });
 
@@ -115,21 +115,21 @@ export const getProvider = (
   }
 };
 
-export const GetEvmConnectionProvider = ({
+export const GetEvmClientProvider = ({
   children,
 }: {
   readonly children?: ReactNode;
 }): ReactElement => {
   const { env } = useEnvironment();
   const { chains } = useEnvironment(selectConfig, shallow);
-  const evmConnections = useRef<ReadonlyMap<EvmEcosystemId, EvmConnection>>(
+  const evmConnections = useRef<ReadonlyMap<EvmEcosystemId, EvmClient>>(
     new Map(),
   );
 
-  const getEvmConnection = (ecosystemId: EvmEcosystemId) => {
-    const existingEvmConnection = evmConnections.current.get(ecosystemId);
-    if (existingEvmConnection) {
-      return existingEvmConnection;
+  const getEvmClient = (ecosystemId: EvmEcosystemId) => {
+    const existingEvmClient = evmConnections.current.get(ecosystemId);
+    if (existingEvmClient) {
+      return existingEvmClient;
     }
 
     const chainConfig = findOrThrow(
@@ -137,13 +137,13 @@ export const GetEvmConnectionProvider = ({
       (chain) => chain.ecosystem === ecosystemId,
     );
     const provider = getProvider(env, chainConfig, ecosystemId);
-    const newEvmConnection = new EvmConnection(provider, chainConfig);
+    const newEvmClient = new EvmClient(provider, chainConfig);
 
     const newState = new Map(evmConnections.current);
-    newState.set(ecosystemId, newEvmConnection);
+    newState.set(ecosystemId, newEvmClient);
     // eslint-disable-next-line functional/immutable-data
     evmConnections.current = newState;
-    return newEvmConnection;
+    return newEvmClient;
   };
 
   useEffect(() => {
@@ -152,8 +152,8 @@ export const GetEvmConnectionProvider = ({
   }, [env]);
 
   return (
-    <GetEvmConnectionContext.Provider value={getEvmConnection}>
+    <GetEvmClientContext.Provider value={getEvmClient}>
       {children}
-    </GetEvmConnectionContext.Provider>
+    </GetEvmClientContext.Provider>
   );
 };

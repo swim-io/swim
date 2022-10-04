@@ -1,16 +1,17 @@
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import type { CustomConnection } from "@swim-io/solana";
 import Decimal from "decimal.js";
 import { useQueryClient } from "react-query";
 
 import { mockOf, renderHookWithAppContext } from "../../testUtils";
 
 import { useSolBalanceQuery } from "./useSolBalanceQuery";
-import { useSolanaConnection } from "./useSolanaConnection";
+import { useSolanaClient } from "./useSolanaClient";
 import { useSolanaWallet } from "./useSolanaWallet";
 
-jest.mock("./useSolanaConnection", () => ({
-  ...jest.requireActual("./useSolanaConnection"),
-  useSolanaConnection: jest.fn(),
+jest.mock("./useSolanaClient", () => ({
+  ...jest.requireActual("./useSolanaClient"),
+  useSolanaClient: jest.fn(),
 }));
 
 jest.mock("./useSolanaWallet", () => ({
@@ -20,7 +21,7 @@ jest.mock("./useSolanaWallet", () => ({
 
 // Make typescript happy with jest
 const useSolanaWalletMock = mockOf(useSolanaWallet);
-const useSolanaConnectionMock = mockOf(useSolanaConnection);
+const useSolanaClientMock = mockOf(useSolanaClient);
 
 describe("useSolBalanceQuery", () => {
   beforeEach(() => {
@@ -30,9 +31,11 @@ describe("useSolBalanceQuery", () => {
 
   it("should return 0 when no address", async () => {
     useSolanaWalletMock.mockReturnValue({ address: null });
-    useSolanaConnectionMock.mockReturnValue({
-      // eslint-disable-next-line @typescript-eslint/require-await
-      getBalance: async () => 999,
+    useSolanaClientMock.mockReturnValue({
+      connection: {
+        // eslint-disable-next-line @typescript-eslint/require-await
+        getBalance: async () => 999,
+      } as Partial<CustomConnection> as unknown as CustomConnection,
     });
     const { result, waitFor } = renderHookWithAppContext(() =>
       useSolBalanceQuery(),
@@ -45,9 +48,11 @@ describe("useSolBalanceQuery", () => {
     useSolanaWalletMock.mockReturnValue({
       address: "9ZNTfG4NyQgxy2SWjSiQoUyBPEvXT2xo7fKc5hPYYJ7b",
     });
-    useSolanaConnectionMock.mockReturnValue({
-      // eslint-disable-next-line @typescript-eslint/require-await
-      getBalance: async () => 123 * LAMPORTS_PER_SOL,
+    useSolanaClientMock.mockReturnValue({
+      connection: {
+        // eslint-disable-next-line @typescript-eslint/require-await
+        getBalance: async () => 123 * LAMPORTS_PER_SOL,
+      } as Partial<CustomConnection> as unknown as CustomConnection,
     });
     const { result, waitFor } = renderHookWithAppContext(() =>
       useSolBalanceQuery(),
@@ -60,11 +65,13 @@ describe("useSolBalanceQuery", () => {
     useSolanaWalletMock.mockReturnValue({
       address: "9ZNTfG4NyQgxy2SWjSiQoUyBPEvXT2xo7fKc5hPYYJ7b",
     });
-    useSolanaConnectionMock.mockReturnValue({
-      // eslint-disable-next-line @typescript-eslint/require-await
-      getBalance: async () => {
-        throw new Error("Something went wrong");
-      },
+    useSolanaClientMock.mockReturnValue({
+      connection: {
+        // eslint-disable-next-line @typescript-eslint/require-await
+        getBalance: async () => {
+          throw new Error("Something went wrong");
+        },
+      } as Partial<CustomConnection> as unknown as CustomConnection,
     });
     const { result, waitFor } = renderHookWithAppContext(() =>
       useSolBalanceQuery(),

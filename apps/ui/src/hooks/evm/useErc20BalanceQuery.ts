@@ -6,7 +6,7 @@ import { useQuery } from "react-query";
 import { isEcosystemEnabled } from "../../config";
 import { useEnvironment } from "../../core/store";
 
-import { useEvmConnection } from "./useEvmConnection";
+import { useEvmClient } from "./useEvmClient";
 import { useEvmWallet } from "./useEvmWallet";
 
 export const useErc20BalanceQuery = (
@@ -15,7 +15,7 @@ export const useErc20BalanceQuery = (
   options?: UseQueryOptions<Decimal | null, Error>,
 ): UseQueryResult<Decimal | null, Error> => {
   const { env } = useEnvironment();
-  const connection = useEvmConnection(ecosystemId);
+  const client = useEvmClient(ecosystemId);
   const { address: walletAddress } = useEvmWallet();
 
   return useQuery<Decimal | null, Error>(
@@ -24,7 +24,7 @@ export const useErc20BalanceQuery = (
       if (walletAddress === null || contractAddress === null) {
         return null;
       }
-      return connection.getErc20Balance(contractAddress, walletAddress);
+      return client.getTokenBalance(contractAddress, walletAddress);
     },
     {
       ...options,

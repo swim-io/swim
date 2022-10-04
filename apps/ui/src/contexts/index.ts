@@ -1,5 +1,5 @@
 export * from "./appContext";
 export * from "./AptosClient";
-export * from "./GetEvmConnection";
+export * from "./GetEvmClient";
 export * from "./queryClient";
-export * from "./SolanaConnection";
+export * from "./SolanaClient";

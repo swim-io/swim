@@ -1,6 +1,6 @@
 import { Env } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
-import type { TokenAccount } from "@swim-io/solana";
+import type { CustomConnection, TokenAccount } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -13,7 +13,7 @@ import { useEnvironment as environmentStore } from "../../core/store";
 import {
   useErc20BalanceQuery,
   useGetSwapFormErrors,
-  useSolanaConnection,
+  useSolanaClient,
   useSolanaLiquidityQueries,
   useSplTokenAccountsQuery,
   useSplUserBalance,
@@ -42,9 +42,9 @@ jest.mock("../../hooks/solana", () => ({
   useSolanaLiquidityQueries: jest.fn(),
 }));
 
-jest.mock("../../hooks/solana/useSolanaConnection", () => ({
-  ...jest.requireActual("../../hooks/solana/useSolanaConnection"),
-  useSolanaConnection: jest.fn(),
+jest.mock("../../hooks/solana/useSolanaClient", () => ({
+  ...jest.requireActual("../../hooks/solana/useSolanaClient"),
+  useSolanaClient: jest.fn(),
 }));
 
 jest.mock("../../hooks/interaction", () => ({
@@ -65,7 +65,7 @@ jest.mock("../../hooks", () => ({
 }));
 
 const useGetSwapFormErrorsMock = mockOf(useGetSwapFormErrors);
-const useSolanaConnectionMock = mockOf(useSolanaConnection);
+const useSolanaClientMock = mockOf(useSolanaClient);
 const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
 const useStartNewInteractionMock = mockOf(useStartNewInteraction);
 const useSwapFeesEstimationQueryMock = mockOf(useSwapFeesEstimationQuery);
@@ -79,10 +79,12 @@ const findToTokenButton = () => screen.queryAllByRole("button")[3];
 
 describe("SwapForm", () => {
   beforeEach(() => {
-    useSolanaConnectionMock.mockReturnValue({
-      getAccountInfo(publicKey, commitment?) {
-        return Promise.resolve(null);
-      },
+    useSolanaClientMock.mockReturnValue({
+      connection: {
+        getAccountInfo(publicKey, commitment?) {
+          return Promise.resolve(null);
+        },
+      } as Partial<CustomConnection> as unknown as CustomConnection,
     });
     useSplTokenAccountsQueryMock.mockReturnValue({
       data: [],

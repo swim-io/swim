@@ -425,6 +425,10 @@ export type TwoPool = {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
+          "docs": [
+            "Note: RemoveUniform is the only ix that is allowed even if the pool is paused",
+            "which is why we don't check the is_paused value here."
+          ],
           "pda": {
             "seeds": [
               {
@@ -2611,6 +2615,10 @@ export const IDL: TwoPool = {
           "name": "pool",
           "isMut": true,
           "isSigner": false,
+          "docs": [
+            "Note: RemoveUniform is the only ix that is allowed even if the pool is paused",
+            "which is why we don't check the is_paused value here."
+          ],
           "pda": {
             "seeds": [
               {

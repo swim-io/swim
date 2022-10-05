@@ -15,11 +15,10 @@ use {
         },
     },
     anchor_spl::{
-        token,
-        token::{Mint, Token, TokenAccount},
+        associated_token::get_associated_token_address,
+        token::{self, Mint, Token, TokenAccount},
     },
     byteorder::{BigEndian, WriteBytesExt},
-    primitive_types::U256,
     std::{io::Write, str},
 };
 
@@ -47,8 +46,7 @@ pub struct TransferNativeWithPayload<'info> {
 
     #[account(
 	mut,
-	associated_token::mint = swim_usd_mint,
-	associated_token::authority = payer
+    address = get_associated_token_address(&payer.key(), &swim_usd_mint.key()),
 	)]
     pub user_swim_usd_ata: Box<Account<'info, TokenAccount>>,
 

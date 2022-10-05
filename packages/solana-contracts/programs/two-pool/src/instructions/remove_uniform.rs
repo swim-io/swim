@@ -1,8 +1,5 @@
 use {
-    crate::{
-        error::*, gen_pool_signer_seeds,
-        DecimalU64, TwoPool, TOKEN_COUNT,
-    },
+    crate::{error::*, gen_pool_signer_seeds, DecimalU64, TwoPool, TOKEN_COUNT},
     anchor_lang::prelude::*,
     anchor_spl::{
         token,
@@ -19,6 +16,8 @@ pub struct RemoveUniformParams {
 
 #[derive(Accounts)]
 pub struct RemoveUniform<'info> {
+    /// Note: RemoveUniform is the only ix that is allowed even if the pool is paused
+    /// which is why we don't check the is_paused value here.
     #[account(
     mut,
     seeds = [
@@ -29,24 +28,26 @@ pub struct RemoveUniform<'info> {
     ],
     bump = pool.bump
     )]
-    pub pool: Account<'info, TwoPool>,
+    pub pool: Box<Account<'info, TwoPool>>,
     #[account(
     mut,
-    token::mint = pool.token_mint_keys[0],
-    token::authority = pool,
+    address = pool.token_keys[0] @ PoolError::PoolTokenAccountExpected,
     )]
     pub pool_token_account_0: Box<Account<'info, TokenAccount>>,
     #[account(
     mut,
-    token::mint = pool.token_mint_keys[1],
-    token::authority = pool,
+    address = pool.token_keys[1] @ PoolError::PoolTokenAccountExpected,
     )]
     pub pool_token_account_1: Box<Account<'info, TokenAccount>>,
-    #[account(mut)]
+    #[account(
+    mut,
+    address = pool.lp_mint_key @ PoolError::InvalidMintAccount,
+    )]
     pub lp_mint: Box<Account<'info, Mint>>,
     #[account(
     mut,
-    token::mint = lp_mint
+    token::mint = lp_mint,
+    address = pool.governance_fee_key @  PoolError::InvalidGovernanceFeeAccount,
     )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
 
@@ -70,42 +71,7 @@ pub struct RemoveUniform<'info> {
     )]
     pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
 
-    // //TODO: probably need a user_transfer_auth account since either the user or propeller could be payer for txn.
-    // //  payer could be the same as user_auth if user manually completing the txn but still need
-    // //  to have a separate field to account for it
-    // #[account(mut)]
-    // pub payer: Signer<'info>,
     pub token_program: Program<'info, Token>,
-}
-
-impl<'info> RemoveUniform<'info> {
-    pub fn accounts(ctx: &Context<RemoveUniform>) -> Result<()> {
-        let pool_state = &ctx.accounts.pool;
-        require!(!pool_state.is_paused, PoolError::PoolIsPaused);
-        require_keys_eq!(
-            ctx.accounts.pool_token_account_0.key(),
-            pool_state.token_keys[0],
-            PoolError::PoolTokenAccountExpected
-        );
-        require_keys_eq!(
-            ctx.accounts.pool_token_account_1.key(),
-            pool_state.token_keys[1],
-            PoolError::PoolTokenAccountExpected
-        );
-        require_keys_eq!(ctx.accounts.lp_mint.key(), pool_state.lp_mint_key, PoolError::InvalidMintAccount);
-        require_keys_eq!(
-            ctx.accounts.governance_fee.key(),
-            pool_state.governance_fee_key,
-            PoolError::InvalidGovernanceFeeAccount
-        );
-
-        // let pool_state_acct = &ctx.accounts.pool_state;
-        // let pool: two_pool::state::PoolState<{two_pool::TOKEN_COUNT}> = two_pool::state::PoolState::try_from_slice(&pool_state_acct.data.borrow())?;
-        // constraint = lp_mint.key() == propeller.token_bridge_mint @ PropellerError::InvalidMint
-        msg!("finished accounts context check");
-        // let
-        Ok(())
-    }
 }
 
 pub fn handle_remove_uniform(

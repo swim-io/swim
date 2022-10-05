@@ -120,7 +120,6 @@ pub mod two_pool {
         handle_swap_exact_output(ctx, params)
     }
 
-    #[access_control(RemoveUniform::accounts(&ctx))]
     pub fn remove_uniform(
         ctx: Context<RemoveUniform>,
         exact_burn_amount: u64,

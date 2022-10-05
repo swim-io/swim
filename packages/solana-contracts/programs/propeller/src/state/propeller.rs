@@ -7,6 +7,7 @@ use {
         io::{Cursor, ErrorKind, Read, Write},
         str::FromStr,
     },
+    two_pool::state::TwoPool,
 };
 
 // Do i need this to hold configs & state?
@@ -295,18 +296,40 @@ impl AnchorSerialize for RawSwimPayload {
     }
 }
 
-pub fn validate_marginal_prices_pool_accounts(
+pub fn validate_marginal_prices_pool_accounts<'info>(
     propeller: &Propeller,
-    marginal_price_pool: &Pubkey,
+    marginal_price_pool_key: &Pubkey,
     marginal_price_pool_token_account_mints: &[Pubkey; TOKEN_COUNT],
 ) -> Result<()> {
-    require_keys_eq!(*marginal_price_pool, propeller.marginal_price_pool);
+    require_keys_eq!(*marginal_price_pool_key, propeller.marginal_price_pool);
     let pool_token_index = propeller.marginal_price_pool_token_index as usize;
     require_gt!(TOKEN_COUNT, pool_token_index, PropellerError::InvalidMarginalPricePoolAccounts);
     require_keys_eq!(
         marginal_price_pool_token_account_mints[pool_token_index],
         propeller.marginal_price_pool_token_mint,
     );
+    // match pool_token_index {
+    //     0 => require_keys_eq!(marginal_price_pool_token_account_mints[1], propeller.token_mint),
+    // }
+    // require_keys_eq!(marginal_price_pool_key.token_keys[pool_token_index], propeller);
+    Ok(())
+}
+
+pub fn validate_marginal_prices_pool_accounts_2<'info>(
+    propeller: &Propeller,
+    marginal_price_pool: &Account<'info, TwoPool>,
+    marginal_price_pool_token_accounts: &[&Account<'info, TokenAccount>; TOKEN_COUNT],
+) -> Result<()> {
+    let marginal_price_pool_key = &marginal_price_pool.key();
+    require_keys_eq!(*marginal_price_pool_key, propeller.marginal_price_pool);
+    let pool_token_index = propeller.marginal_price_pool_token_index as usize;
+    require_gt!(TOKEN_COUNT, pool_token_index, PropellerError::InvalidMarginalPricePoolAccounts);
+    let pool_token_account = marginal_price_pool_token_accounts[pool_token_index];
+    require_keys_eq!(pool_token_account.mint, propeller.marginal_price_pool_token_mint,);
+    // match pool_token_index {
+    //     0 => require_keys_eq!(marginal_price_pool_token_accounts[1], propeller.token_mint),
+    // }
+    require_keys_eq!(pool_token_account.key(), marginal_price_pool_token_accounts[pool_token_index].key());
     Ok(())
 }
 

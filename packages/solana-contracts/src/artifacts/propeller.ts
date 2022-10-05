@@ -3407,7 +3407,33 @@ export type Propeller = {
           "docs": [
             "deserialized as a `TokenIdMap`. if it does exist, then engine should have called",
             "propeller_create_owner_token_accounts instead"
-          ]
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "token_id"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "u16",
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.target_token_id"
+              }
+            ]
+          }
         },
         {
           "name": "swimUsdMint",
@@ -8195,7 +8221,33 @@ export const IDL: Propeller = {
           "docs": [
             "deserialized as a `TokenIdMap`. if it does exist, then engine should have called",
             "propeller_create_owner_token_accounts instead"
-          ]
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "propeller"
+              },
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "token_id"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Propeller",
+                "path": "propeller"
+              },
+              {
+                "kind": "account",
+                "type": "u16",
+                "account": "SwimPayloadMessage",
+                "path": "swim_payload_message.target_token_id"
+              }
+            ]
+          }
         },
         {
           "name": "swimUsdMint",

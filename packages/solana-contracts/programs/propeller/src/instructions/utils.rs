@@ -19,6 +19,7 @@ pub fn convert_fees_to_swim_usd_atomic<'info>(
     fee_in_lamports: u64,
     propeller: &Propeller,
     marginal_price_pool_lp_mint: &Account<'info, Mint>,
+    //TODO: just take marginal_prices as input here.
     cpi_ctx: CpiContext<'_, '_, '_, 'info, two_pool::cpi::accounts::MarginalPrices<'info>>,
     marginal_price_pool: &TwoPool,
     aggregator: &AccountLoader<AggregatorAccountData>,
@@ -31,6 +32,59 @@ pub fn convert_fees_to_swim_usd_atomic<'info>(
 
     let swim_usd_mint_key = propeller.swim_usd_mint;
     let marginal_prices = get_marginal_prices(cpi_ctx)?;
+
+    let intermediate_token_price_decimal: Decimal = get_marginal_price_decimal(
+        &marginal_price_pool,
+        &marginal_prices,
+        &propeller,
+        &marginal_price_pool_lp_mint.key(),
+    )?;
+
+    msg!("intermediate_token_price_decimal: {:?}", intermediate_token_price_decimal);
+
+    let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
+    msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
+
+    let mut res = 0u64;
+
+    let lamports_intermediate_token_price = get_lamports_intermediate_token_price(&aggregator, max_staleness)?;
+    let fee_in_swim_usd_decimal = lamports_intermediate_token_price
+        .checked_mul(fee_in_lamports_decimal)
+        .and_then(|x| x.checked_div(intermediate_token_price_decimal))
+        .ok_or(PropellerError::IntegerOverflow)?;
+
+    let swim_usd_decimals =
+        get_swim_usd_mint_decimals(&swim_usd_mint_key, &marginal_price_pool, &marginal_price_pool_lp_mint)?;
+    msg!("swim_usd_decimals: {:?}", swim_usd_decimals);
+
+    let ten_pow_decimals =
+        Decimal::from_u64(10u64.pow(swim_usd_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
+    let fee_in_swim_usd_atomic = fee_in_swim_usd_decimal
+        .checked_mul(ten_pow_decimals)
+        .and_then(|v| v.to_u64())
+        .ok_or(PropellerError::ConversionError)?;
+
+    msg!("fee_in_swim_usd_decimal: {:?} fee_in_swim_usd_atomic: {:?}", fee_in_swim_usd_decimal, fee_in_swim_usd_atomic);
+    res = fee_in_swim_usd_atomic;
+    Ok(res)
+}
+
+pub fn convert_fees_to_swim_usd_atomic_2<'info>(
+    fee_in_lamports: u64,
+    propeller: &Propeller,
+    marginal_price_pool_lp_mint: &Account<'info, Mint>,
+    marginal_prices: [BorshDecimal; TOKEN_COUNT],
+    marginal_price_pool: &TwoPool,
+    aggregator: &AccountLoader<AggregatorAccountData>,
+    max_staleness: i64,
+) -> Result<u64> {
+    // let propeller = &self.propeller;
+
+    msg!("fee_in_lamports: {:?}", fee_in_lamports);
+    let marginal_price_pool_lp_mint = &marginal_price_pool_lp_mint;
+
+    let swim_usd_mint_key = propeller.swim_usd_mint;
+    // let marginal_prices = get_marginal_prices(cpi_ctx)?;
 
     let intermediate_token_price_decimal: Decimal = get_marginal_price_decimal(
         &marginal_price_pool,

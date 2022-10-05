@@ -13,7 +13,7 @@
 
 use {
     crate::PoolError,
-    borsh::{BorshSchema},
+    borsh::BorshSchema,
     std::{
         cmp,
         cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd},

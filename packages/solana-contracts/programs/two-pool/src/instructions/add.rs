@@ -18,7 +18,7 @@ pub struct Add<'info> {
     pool_token_account_1.mint.as_ref(),
     lp_mint.key().as_ref(),
     ],
-    bump = pool.bump
+    bump = pool.bump,
     )]
     pub pool: Box<Account<'info, TwoPool>>,
     // /// TODO: could be removed if initialized with pool_v2
@@ -26,25 +26,23 @@ pub struct Add<'info> {
     // pub pool_auth: UncheckedAccount<'info>,
     #[account(
     mut,
-    address = get_associated_token_address(&pool.key(), &pool.token_mint_keys[0]),
-    constraint = pool_token_account_0.key() == pool.token_keys[0],
+    address = pool.token_keys[0] @ PoolError::PoolTokenAccountExpected,
     )]
     pub pool_token_account_0: Box<Account<'info, TokenAccount>>,
     #[account(
     mut,
-    address = get_associated_token_address(&pool.key(), &pool.token_mint_keys[1]),
-    constraint = pool_token_account_1.key() == pool.token_keys[1],
+    address = pool.token_keys[1] @ PoolError::PoolTokenAccountExpected,
     )]
     pub pool_token_account_1: Box<Account<'info, TokenAccount>>,
     #[account(
     mut,
-    address = pool.lp_mint_key,
+    address = pool.lp_mint_key @ PoolError::InvalidMintAccount,
     )]
     pub lp_mint: Box<Account<'info, Mint>>,
     #[account(
     mut,
     token::mint = lp_mint,
-    address = pool.governance_fee_key,
+    address = pool.governance_fee_key @  PoolError::InvalidGovernanceFeeAccount,
     )]
     pub governance_fee: Box<Account<'info, TokenAccount>>,
     ///CHECK: checked in CPI
@@ -66,11 +64,6 @@ pub struct Add<'info> {
     )]
     pub user_lp_token_account: Box<Account<'info, TokenAccount>>,
 
-    //TODO: vanilla solana we didn't pass/ask for this account
-    //  w/ user_transfer_authority it's not explicitly needed.
-    // is there any type of checks that we HAVE to do related to payer?
-    // #[account(mut)]
-    // pub payer: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
 
@@ -84,28 +77,6 @@ impl<'info> Add<'info> {
     pub fn accounts(ctx: &Context<Add>) -> Result<()> {
         let pool_state = &ctx.accounts.pool;
         require!(!pool_state.is_paused, PoolError::PoolIsPaused);
-        require_keys_eq!(
-            ctx.accounts.pool_token_account_0.key(),
-            pool_state.token_keys[0],
-            PoolError::PoolTokenAccountExpected
-        );
-        require_keys_eq!(
-            ctx.accounts.pool_token_account_1.key(),
-            pool_state.token_keys[1],
-            PoolError::PoolTokenAccountExpected
-        );
-        require_keys_eq!(ctx.accounts.lp_mint.key(), pool_state.lp_mint_key, PoolError::InvalidMintAccount);
-        require_keys_eq!(
-            ctx.accounts.governance_fee.key(),
-            pool_state.governance_fee_key,
-            PoolError::InvalidGovernanceFeeAccount
-        );
-
-        // let pool_state_acct = &ctx.accounts.pool_state;
-        // let pool: two_pool::state::PoolState<{two_pool::TOKEN_COUNT}> = two_pool::state::PoolState::try_from_slice(&pool_state_acct.data.borrow())?;
-        // constraint = lp_mint.key() == propeller.token_bridge_mint @ PropellerError::InvalidMint
-        msg!("finished accounts context check");
-        // let
         Ok(())
     }
 }

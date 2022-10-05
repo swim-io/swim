@@ -64,6 +64,13 @@ pub struct TokenIdMap {
 
 impl TokenIdMap {
     pub const LEN: usize = 2 + 32 + 1 + 32 + 1 + 1 + 1;
+
+    pub fn assert_is_invalid(token_id_map: &AccountInfo) -> Result<()> {
+        if let Ok(_) = TokenIdMap::try_deserialize(&mut &**token_id_map.try_borrow_mut_data()?) {
+            return err!(PropellerError::TokenIdMapExists);
+        }
+        Ok(())
+    }
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Copy, Clone, Debug)]

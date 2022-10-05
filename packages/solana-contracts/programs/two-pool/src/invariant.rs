@@ -623,7 +623,7 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
     fn calculate_unknown_balance(
         // this should have type &[AmountT; TOKEN_COUNT-1] but Rust currently does not support const operations
         // on const generics and hence TOKEN_COUNT-1 is illegal and so it has to be a Vec instead...
-        known_balances: &Vec<AmountT>,
+        known_balances: &[AmountT],
         depth: Decimal,
         amp_factor: AmpT,
         initial_guess: AmountT,

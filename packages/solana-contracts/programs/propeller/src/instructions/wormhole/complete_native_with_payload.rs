@@ -18,7 +18,7 @@ use {
     },
     byteorder::{BigEndian, ReadBytesExt, WriteBytesExt},
     num_traits::{FromPrimitive, ToPrimitive},
-    primitive_types::U256,
+    // primitive_types::U256,
     rust_decimal::Decimal,
     solana_program::program::invoke,
     switchboard_v2::{AggregatorAccountData, SwitchboardDecimal, SWITCHBOARD_PROGRAM_ID},
@@ -306,8 +306,6 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
     let swim_payload = &transfer_with_payload.payload;
     msg!("swim_payload: {:?}", swim_payload);
 
-    // ugly. re-doing the same calculation that WH does in `complete_transfer_payload` but
-    // should not be a huge issue.
     let mut transfer_amount = transfer_with_payload.amount.as_u64();
     if ctx.accounts.swim_usd_mint.decimals > 8 {
         transfer_amount *= 10u64.pow(ctx.accounts.swim_usd_mint.decimals as u32);
@@ -315,12 +313,6 @@ pub fn handle_complete_native_with_payload(ctx: Context<CompleteNativeWithPayloa
 
     let bump = *ctx.bumps.get("swim_payload_message").unwrap();
     ctx.accounts.write_swim_payload_message(bump, &message_data, transfer_amount, swim_payload)?;
-
-    // let memo = swim_payload.memo;
-    // // get target_token_id -> (pool, pool_token_index)
-    // //    need to know when to do remove_exact_burn & when to do swap_exact_input
-    // let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
-    // invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
 
     Ok(())
 }
@@ -347,7 +339,7 @@ pub struct PropellerCompleteNativeWithPayload<'info> {
     *aggregator.to_account_info().owner == SWITCHBOARD_PROGRAM_ID @ PropellerError::InvalidSwitchboardAccount
     )]
     pub aggregator: AccountLoader<'info, AggregatorAccountData>,
-    // pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
+
     #[account(
     mut,
     seeds = [
@@ -360,8 +352,17 @@ pub struct PropellerCompleteNativeWithPayload<'info> {
     seeds::program = two_pool_program.key()
     )]
     pub marginal_price_pool: Box<Account<'info, TwoPool>>,
+    #[account(
+    address = marginal_price_pool.token_keys[0],
+    )]
     pub marginal_price_pool_token_0_account: Box<Account<'info, TokenAccount>>,
+    #[account(
+    address = marginal_price_pool.token_keys[1],
+    )]
     pub marginal_price_pool_token_1_account: Box<Account<'info, TokenAccount>>,
+    #[account(
+    address = marginal_price_pool.lp_mint_key,
+    )]
     pub marginal_price_pool_lp_mint: Box<Account<'info, Mint>>,
     pub two_pool_program: Program<'info, two_pool::program::TwoPool>,
     #[account(executable, address = spl_memo::id())]

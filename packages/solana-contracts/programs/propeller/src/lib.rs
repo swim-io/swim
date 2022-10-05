@@ -19,6 +19,7 @@ use {
         *,
     },
     constants::TOKEN_COUNT,
+    fees::*,
     // error::PropellerError,
     // instructions::*,
     solana_program::clock::Epoch,
@@ -30,6 +31,7 @@ use {
 
 mod constants;
 mod error;
+mod fees;
 mod instructions;
 mod state;
 mod token_bridge;

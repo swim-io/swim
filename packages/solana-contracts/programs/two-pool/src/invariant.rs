@@ -972,8 +972,8 @@ mod tests {
             amp_factor,
             lp_fee,
             governance_fee,
-            lp_total_supply.into(),
-            lp_total_supply.into(),
+            lp_total_supply,
+            lp_total_supply,
         )
         .unwrap();
         println!(

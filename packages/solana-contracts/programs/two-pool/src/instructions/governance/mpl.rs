@@ -5,7 +5,7 @@ use {
 
 // copied from https://github.com/CalebEverett/nftfactory/blob/master/programs/nftfactory/src/lib.rs
 
-#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Clone)]
+#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Eq, Debug, Clone)]
 pub struct AnchorDataV2 {
     /// The name of the asset
     pub name: String,
@@ -58,7 +58,7 @@ pub enum AnchorUseMethod {
     Single,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Clone, Copy)]
+#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Eq, Debug, Clone, Copy)]
 pub struct AnchorUses {
     pub use_method: AnchorUseMethod,
     pub remaining: u64,

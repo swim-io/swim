@@ -1,5 +1,5 @@
 use {
-    crate::{common, decimal::U128, error::*, gen_pool_signer_seeds, invariant::Invariant, TwoPool, TOKEN_COUNT},
+    crate::{common, error::*, gen_pool_signer_seeds, invariant::Invariant, TwoPool, TOKEN_COUNT},
     anchor_lang::prelude::*,
     anchor_spl::{
         associated_token::get_associated_token_address,

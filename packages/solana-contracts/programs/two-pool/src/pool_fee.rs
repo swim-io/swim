@@ -76,7 +76,7 @@ mod tests {
     fn new_pool_fee2() {
         let swimlake_fee_value = new_u64(0, 0);
         let floored_fee = swimlake_fee_value.floor(DECIMALS);
-        let swimlake_u32 = (floored_fee.get_raw() * 10u64.pow((DECIMALS - floored_fee.get_decimals()) as u32)) as u32;
+        let _swimlake_u32 = (floored_fee.get_raw() * 10u64.pow((DECIMALS - floored_fee.get_decimals()) as u32)) as u32;
         // println!("swimlake_u32: {}", swimlake_u32);
         let swimlake_fee = PoolFee::new(swimlake_fee_value).unwrap();
         assert_eq!(swimlake_fee_value, swimlake_fee_value.floor(DECIMALS));
@@ -85,8 +85,8 @@ mod tests {
         let metapool_fee_value = new_u64(300, 6);
         let metapool_fee_value2 = new_u64(3, 4);
 
-        let metapool_u32 = get_fee_u32(metapool_fee_value);
-        let metapool2_u32 = get_fee_u32(metapool_fee_value2);
+        let _metapool_u32 = get_fee_u32(metapool_fee_value);
+        let _metapool2_u32 = get_fee_u32(metapool_fee_value2);
 
         // println!("metapool_u32: {}", metapool_u32);
         // println!("metapool2_u32: {}", metapool2_u32);

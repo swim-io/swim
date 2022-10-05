@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/evm-contracts",
-  "version": "0.34.0",
+  "version": "0.35.0",
   "description": "TS bindings for Swim EVM pool contracts.",
   "main": "build",
   "types": "types",

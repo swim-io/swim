@@ -970,8 +970,7 @@ describe("propeller", () => {
                   twoPoolProgram: twoPoolProgram.programId,
                   memo: MEMO_PROGRAM_ID,
                 })
-                .preInstructions([setComputeUnitLimitIx])
-                .signers([propellerEngineKeypair]);
+                .preInstructions([setComputeUnitLimitIx]);
 
             const completeNativeWithPayloadPubkeys =
               await completeNativeWithPayloadIxs.pubkeys();
@@ -1270,8 +1269,6 @@ describe("propeller", () => {
                 propellerEngineFeeTracker,
               )
             ).feesOwed;
-
-            const userTransferAuthority = web3.Keypair.generate();
 
             const swimPayloadMessageAccount =
               await propellerProgram.account.swimPayloadMessage.fetch(
@@ -1989,7 +1986,6 @@ describe("propeller", () => {
               )
             ).feesOwed;
 
-            const userTransferAuthority = web3.Keypair.generate();
             const swimPayloadMessageAccount =
               await propellerProgram.account.swimPayloadMessage.fetch(
                 swimPayloadMessage,
@@ -4260,7 +4256,6 @@ describe("propeller", () => {
               )
             ).feesOwed;
 
-            const userTransferAuthority = web3.Keypair.generate();
             const swimPayloadMessageAccount =
               await propellerProgram.account.swimPayloadMessage.fetch(
                 swimPayloadMessage,
@@ -6143,7 +6138,6 @@ describe("propeller", () => {
               )
             ).feesOwed;
 
-            const userTransferAuthority = web3.Keypair.generate();
             const swimPayloadMessageAccount =
               await propellerProgram.account.swimPayloadMessage.fetch(
                 swimPayloadMessage,

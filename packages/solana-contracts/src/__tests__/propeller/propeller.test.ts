@@ -2373,7 +2373,6 @@ describe("propeller", () => {
           const userTokenAccount1 = userUsdtAtaAddr;
           const userLpTokenAccount = userSwimUsdAtaAddr;
 
-          const userTransferAuthority = web3.Keypair.generate();
           const swimPayloadMessageAccount =
             await propellerProgram.account.swimPayloadMessage.fetch(
               swimPayloadMessage,
@@ -2749,7 +2748,6 @@ describe("propeller", () => {
           const userTokenAccount1 = userUsdtAtaAddr;
           const userLpTokenAccount = userSwimUsdAtaAddr;
 
-          const userTransferAuthority = web3.Keypair.generate();
           const swimPayloadMessageAccount =
             await propellerProgram.account.swimPayloadMessage.fetch(
               swimPayloadMessage,
@@ -3126,7 +3124,6 @@ describe("propeller", () => {
           // user's lp token account. should be unchanged.
           const userLpTokenAccount = userMetapoolLpTokenAccount;
 
-          const userTransferAuthority = web3.Keypair.generate();
           const swimPayloadMessageAccount =
             await propellerProgram.account.swimPayloadMessage.fetch(
               swimPayloadMessage,
@@ -3529,7 +3526,6 @@ describe("propeller", () => {
           const userTokenAccount1 = userUsdtAtaAddr;
           const userLpTokenAccount = userSwimUsdAtaAddr;
 
-          const userTransferAuthority = web3.Keypair.generate();
           const swimPayloadMessageAccount =
             await propellerProgram.account.swimPayloadMessage.fetch(
               swimPayloadMessage,
@@ -3941,7 +3937,6 @@ describe("propeller", () => {
           const userTokenAccount1 = userUsdtAtaAddr;
           const userLpTokenAccount = userSwimUsdAtaAddr;
 
-          const userTransferAuthority = web3.Keypair.generate();
           const swimPayloadMessageAccount =
             await propellerProgram.account.swimPayloadMessage.fetch(
               swimPayloadMessage,

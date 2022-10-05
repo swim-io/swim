@@ -1,15 +1,12 @@
 use {
     crate::{
-        array_equalize, common::create_array, decimal::U128, error::*, invariant::Invariant, to_equalized, AmpFactor,
-        BorshDecimal, DecimalU64Anchor, TwoPool, TOKEN_COUNT,
+        array_equalize, common::create_array, error::*, invariant::Invariant, to_equalized,
+        BorshDecimal, TwoPool, TOKEN_COUNT,
     },
     anchor_lang::prelude::*,
     anchor_spl::{
-        token,
-        token::{Mint, Token, TokenAccount},
+        token::{Mint, TokenAccount},
     },
-    rust_decimal::Decimal,
-    std::iter::zip,
 };
 
 #[derive(Accounts)]

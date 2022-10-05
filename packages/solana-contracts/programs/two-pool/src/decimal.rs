@@ -13,7 +13,7 @@
 
 use {
     crate::PoolError,
-    borsh::{BorshDeserialize, BorshSchema, BorshSerialize},
+    borsh::{BorshSchema},
     std::{
         cmp,
         cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd},
@@ -63,7 +63,7 @@ const U128_MAX_DECIMALS: usize = 39;
 const TEN_TO_THE: [u128; U128_MAX_DECIMALS] = create_ten_to_the();
 
 const fn create_ten_to_the() -> [u128; U128_MAX_DECIMALS] {
-    let mut ttt = [1 as u128; U128_MAX_DECIMALS];
+    let mut ttt = [1_u128; U128_MAX_DECIMALS];
     let mut i = 1;
     loop {
         //const functions can't use for loops
@@ -118,7 +118,7 @@ pub const BIT_TO_DEC_ARRAY: [u8; BIT_TO_DEC_SIZE] = create_bit_to_dec_array();
 const fn create_bit_to_dec_array() -> [u8; BIT_TO_DEC_SIZE] {
     let mut btd = [0; BIT_TO_DEC_SIZE];
     let mut pot: u128 = 10;
-    let mut i = 1 as usize; //we start with the second iteration
+    let mut i = 1_usize; //we start with the second iteration
     loop {
         //const functions can't use for loops
         let jump = ((1 << i as u128) / pot) as u8;

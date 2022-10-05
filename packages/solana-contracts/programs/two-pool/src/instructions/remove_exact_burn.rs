@@ -123,8 +123,8 @@ pub fn handle_remove_exact_burn(
     let pool_token_account_0 = &ctx.accounts.pool_token_account_0;
     let pool_token_account_1 = &ctx.accounts.pool_token_account_1;
     let pool_balances = [ctx.accounts.pool_token_account_0.amount, ctx.accounts.pool_token_account_1.amount];
-    let lp_mint = &ctx.accounts.lp_mint;
-    let governance_fee = &ctx.accounts.governance_fee;
+    let _lp_mint = &ctx.accounts.lp_mint;
+    let _governance_fee = &ctx.accounts.governance_fee;
     // let user_transfer_auth = &ctx.accounts.user_transfer_authority;
     let user_token_account_0 = &ctx.accounts.user_token_account_0;
     let user_token_account_1 = &ctx.accounts.user_token_account_1;
@@ -154,7 +154,7 @@ pub fn handle_remove_exact_burn(
     let minimum_output_amount = remove_exact_burn_params.minimum_output_amount;
     require_gte!(output_amount, minimum_output_amount, PoolError::OutsideSpecifiedLimits);
 
-    let mut token_accounts = zip(user_token_accounts.into_iter(), pool_token_accounts.into_iter());
+    let _token_accounts = zip(user_token_accounts.into_iter(), pool_token_accounts.into_iter());
     token::burn(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),

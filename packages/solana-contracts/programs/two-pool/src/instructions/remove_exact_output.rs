@@ -127,8 +127,8 @@ pub fn handle_remove_exact_output(
     let pool = &ctx.accounts.pool;
     let pool_token_account_0 = &ctx.accounts.pool_token_account_0;
     let pool_token_account_1 = &ctx.accounts.pool_token_account_1;
-    let lp_mint = &ctx.accounts.lp_mint;
-    let governance_fee = &ctx.accounts.governance_fee;
+    let _lp_mint = &ctx.accounts.lp_mint;
+    let _governance_fee = &ctx.accounts.governance_fee;
     // let user_transfer_auth = &ctx.accounts.user_transfer_authority;
     let user_token_account_0 = &ctx.accounts.user_token_account_0;
     let user_token_account_1 = &ctx.accounts.user_token_account_1;

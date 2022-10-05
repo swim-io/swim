@@ -1,6 +1,6 @@
 use {
-    crate::{amp_factor::AmpFactor, error::*, pool_fee::PoolFee, TOKEN_COUNT},
-    anchor_lang::{prelude::*, solana_program::clock::UnixTimestamp},
+    crate::{amp_factor::AmpFactor, pool_fee::PoolFee, TOKEN_COUNT},
+    anchor_lang::{prelude::*},
 };
 
 // use pool_lib::amp_factor::AmpFactor;
@@ -63,7 +63,7 @@ impl TwoPool {
       // token_mint_keys
       32 * TOKEN_COUNT +
       // token_decimal_equalizers
-      1 * TOKEN_COUNT +
+      TOKEN_COUNT +
       // token_keys
       32 * TOKEN_COUNT +
       // pause_key

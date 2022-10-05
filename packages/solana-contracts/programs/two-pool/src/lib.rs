@@ -10,7 +10,6 @@ use {
         state::TwoPool,
     },
     anchor_lang::{prelude::*, solana_program::clock::UnixTimestamp},
-    anchor_spl::token::*,
 };
 
 pub mod amp_factor;

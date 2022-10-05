@@ -37,7 +37,7 @@ impl From<AnchorDataV2> for DataV2 {
     }
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Clone, Copy)]
+#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Eq, Debug, Clone, Copy)]
 pub struct AnchorCreator {
     pub address: Pubkey,
     pub verified: bool,
@@ -51,7 +51,7 @@ impl From<AnchorCreator> for Creator {
     }
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Clone, Copy)]
+#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Eq, Debug, Clone, Copy)]
 pub enum AnchorUseMethod {
     Burn,
     Multiple,
@@ -81,7 +81,7 @@ impl From<AnchorUseMethod> for UseMethod {
     }
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Debug, Clone, Copy)]
+#[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Eq, Debug, Clone, Copy)]
 pub struct AnchorCollection {
     pub verified: bool,
     pub key: Pubkey,

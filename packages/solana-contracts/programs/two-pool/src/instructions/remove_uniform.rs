@@ -1,6 +1,6 @@
 use {
     crate::{
-        array_equalize, error::*, gen_pool_signer_seeds, invariant::Invariant, result_from_equalized, to_equalized,
+        error::*, gen_pool_signer_seeds,
         DecimalU64, TwoPool, TOKEN_COUNT,
     },
     anchor_lang::prelude::*,

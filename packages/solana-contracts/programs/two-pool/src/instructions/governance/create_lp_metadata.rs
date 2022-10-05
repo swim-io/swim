@@ -1,11 +1,10 @@
 use {
-    crate::{common_governance::*, error::*, gen_pool_signer_seeds, AnchorDataV2, TwoPool},
+    crate::{common_governance::*, error::*, gen_pool_signer_seeds, AnchorDataV2},
     anchor_lang::prelude::*,
     anchor_spl::{
         metadata::{create_metadata_accounts_v2, CreateMetadataAccountsV2, Metadata},
         token::Mint,
     },
-    mpl_token_metadata::state::{DataV2, PREFIX},
 };
 
 #[derive(Accounts)]

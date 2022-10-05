@@ -403,7 +403,7 @@ export const TESTNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "0xe167b44578EAe235E0CF063099989A2c7aBA06Cb", // TODO: Update
+    address: "0x9600FeA01a48c36E1450Ed555868E4D9b1f3a60B", // TODO: Update
     feeDecimals: 6,
     lpToken: "testnet-ethereum-lp-usdc-usdt",
     tokens: [
@@ -420,7 +420,7 @@ export const TESTNET_POOLS_FOR_RESTRUCTURE: readonly PoolSpec[] = [
     isStakingPool: false,
     isStableSwap: true,
     isLegacyPool: false,
-    address: "0x944fD8212c855e82e654ce70Cd54566EDf90F532", // TODO: Update
+    address: "0x9c7D343F92Eb82C1649F1f51aF4C38599c1B4433", // TODO: Update
     feeDecimals: 6,
     lpToken: "testnet-bnb-lp-busd-usdt",
     tokens: ["testnet-swimusd", "testnet-bnb-busd", "testnet-bnb-usdt"],

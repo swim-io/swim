@@ -207,7 +207,7 @@ const buildTransferSwimUsdToEvmStep = (
           <SwapToSwimUsd
             ecosystemId={fromTokenData.ecosystemId}
             fromToken={fromTokenData.tokenConfig}
-            isLoading={status === "loading"}
+            isLoading={status === "loading" && swapToSwimUsdTxId === null}
             txId={swapToSwimUsdTxId}
           />
         )}
@@ -334,7 +334,7 @@ const buildClaimTokenOnSolanaStep = (
     children: (
       <>
         <ClaimSwimUsdOnSolana
-          isLoading={claimTokenOnSolanaTxId === null}
+          isLoading={status === "loading" && claimTokenOnSolanaTxId === null}
           transactions={[
             ...postVaaOnSolanaTxIds,
             claimTokenOnSolanaTxId,

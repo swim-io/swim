@@ -90,6 +90,7 @@ export const useAddInteractionMutation = () => {
           poolTokens: tokensByPoolId[poolSpec.id],
           poolSpec,
           operation: solanaPoolOperations[0],
+          interactionId: interaction.id,
         });
         updateInteractionState(interaction.id, (draft) => {
           if (draft.interactionType !== interaction.type) {

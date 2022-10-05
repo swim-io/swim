@@ -7,7 +7,11 @@ import type {
   SolanaWalletAdapter,
   TokenAccount,
 } from "@swim-io/solana";
-import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  createMemoIx,
+  findTokenAccountForMint,
+} from "@swim-io/solana";
 import { idl } from "@swim-io/solana-contracts";
 
 import type { SolanaPoolSpec } from "../../config";
@@ -63,6 +67,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
   poolTokens,
   poolSpec,
   operation,
+  interactionId,
 }: {
   readonly solanaClient: SolanaClient;
   readonly wallet: SolanaWalletAdapter;
@@ -70,6 +75,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
   readonly poolTokens: TokensByPoolId[string];
   readonly poolSpec: SolanaPoolSpec;
   readonly operation: OperationSpec;
+  readonly interactionId: string;
 }): Promise<string> => {
   if (poolSpec.isLegacyPool) {
     throw new Error("Invalid pool version");
@@ -127,6 +133,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
     tokenProgram: splToken.programId,
   };
   const { instruction, params } = operation;
+  const memoIx = createMemoIx(interactionId, []);
   switch (instruction) {
     case SwimDefiInstruction.Add: {
       if (userLpAccount === null) {
@@ -151,7 +158,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
           userLpTokenAccount: userLpAccount.address,
         })
         .preInstructions([...approveIxs])
-        .postInstructions([...revokeIxs])
+        .postInstructions([...revokeIxs, memoIx])
         .transaction();
       // eslint-disable-next-line functional/immutable-data
       txToSign.feePayer = walletPublicKey;
@@ -178,7 +185,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
         .swapExactInput(inputAmounts, outputTokenIndex, minimumOutputAmount)
         .accounts(commonAccounts)
         .preInstructions([...approveIxs])
-        .postInstructions([...revokeIxs])
+        .postInstructions([...revokeIxs, memoIx])
         .transaction();
       // eslint-disable-next-line functional/immutable-data
       txToSign.feePayer = walletPublicKey;
@@ -210,7 +217,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
           userLpTokenAccount: userLpAccount.address,
         })
         .preInstructions([...approveIxs])
-        .postInstructions([...revokeIxs])
+        .postInstructions([...revokeIxs, memoIx])
         .transaction();
       // eslint-disable-next-line functional/immutable-data
       txToSign.feePayer = walletPublicKey;
@@ -242,7 +249,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
           userLpTokenAccount: userLpAccount.address,
         })
         .preInstructions([...approveIxs])
-        .postInstructions([...revokeIxs])
+        .postInstructions([...revokeIxs, memoIx])
         .transaction();
       // eslint-disable-next-line functional/immutable-data
       txToSign.feePayer = walletPublicKey;
@@ -274,7 +281,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
           userLpTokenAccount: userLpAccount.address,
         })
         .preInstructions([...approveIxs])
-        .postInstructions([...revokeIxs])
+        .postInstructions([...revokeIxs, memoIx])
         .transaction();
       // eslint-disable-next-line functional/immutable-data
       txToSign.feePayer = walletPublicKey;

@@ -168,6 +168,7 @@ export const useSingleChainSolanaSwapInteractionMutation = () => {
         poolTokens: tokensByPoolId[poolSpec.id],
         poolSpec,
         operation,
+        interactionId: interaction.id,
       });
       updateInteractionState(interaction.id, (draft) => {
         if (

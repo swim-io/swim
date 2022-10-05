@@ -45,11 +45,19 @@ const calculateRequiredSplTokenAccounts = (
   ) {
     return {};
   }
-  const requiredTokens = [...solanaPoolTokens.tokens, solanaPoolTokens.lpToken];
+  const swimUsd = solanaPoolTokens.lpToken;
+  const requiredSwimUsd =
+    swapType === SwapType.CrossChainSolanaToEvm ||
+    swapType === SwapType.CrossChainEvmToSolana ||
+    fromTokenData.tokenConfig.id === swimUsd.id ||
+    toTokenData.tokenConfig.id === swimUsd.id;
+  const requiredTokens = requiredSwimUsd
+    ? new Set([...solanaPoolTokens.tokens, swimUsd])
+    : new Set([...solanaPoolTokens.tokens]);
   const mints = filterMap(
     (token: TokenConfig) => token.nativeEcosystemId === SOLANA_ECOSYSTEM_ID,
     (token) => getSolanaTokenDetails(token).address,
-    requiredTokens,
+    Array.from(requiredTokens),
   );
   if (walletAddress === null) {
     throw new Error("No Solana wallet address found");

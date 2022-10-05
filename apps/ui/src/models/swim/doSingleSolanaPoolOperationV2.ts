@@ -1,5 +1,5 @@
-import type { BN, Program, SplToken, Wallet } from "@project-serum/anchor";
-import { Spl, web3 } from "@project-serum/anchor";
+import type { BN, SplToken } from "@project-serum/anchor";
+import { AnchorProvider, Program, Spl, web3 } from "@project-serum/anchor";
 import type { TransactionInstruction } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import type {
@@ -8,7 +8,7 @@ import type {
   TokenAccount,
 } from "@swim-io/solana";
 import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
-import { TwoPoolContext } from "@swim-io/solana-contracts";
+import { idl } from "@swim-io/solana-contracts";
 
 import type { SolanaPoolSpec } from "../../config";
 import { getSolanaTokenDetails } from "../../config";
@@ -95,13 +95,21 @@ export const doSingleSolanaPoolOperationV2 = async ({
   const userTokenAccounts = tokenMintAddresses.map((mint) =>
     findTokenAccountForMint(mint, walletAddress, splTokenAccounts),
   );
-
-  const twoPool = TwoPoolContext.from(
-    solanaClient.rawConnection,
-    wallet as unknown as Wallet,
-    new PublicKey(poolSpec.contract),
+  const provider = new AnchorProvider(
+    solanaClient.connection,
+    {
+      publicKey: walletPublicKey,
+      signAllTransactions: wallet.signAllTransactions,
+      signTransaction: wallet.signTransaction,
+    },
+    {},
   );
-  const splToken = Spl.token(twoPool.provider);
+  const twoPool = new Program(
+    idl.twoPool,
+    new PublicKey(poolSpec.contract),
+    provider,
+  );
+  const splToken = Spl.token(provider);
   const userTransferAuthority = web3.Keypair.generate();
   const userTokenAccount0 = userTokenAccounts[0]?.address ?? null;
   const userTokenAccount1 = userTokenAccounts[1]?.address ?? null;
@@ -136,7 +144,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
         userTransferAuthority.publicKey,
         walletPublicKey,
       );
-      const txToSign = await twoPool.program.methods
+      const txToSign = await twoPool.methods
         .add(inputAmounts, minimumMintAmount)
         .accounts({
           ...commonAccounts,
@@ -166,7 +174,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
         userTransferAuthority.publicKey,
         walletPublicKey,
       );
-      const txToSign = await twoPool.program.methods
+      const txToSign = await twoPool.methods
         .swapExactInput(inputAmounts, outputTokenIndex, minimumOutputAmount)
         .accounts(commonAccounts)
         .preInstructions([...approveIxs])
@@ -195,7 +203,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
         userTransferAuthority.publicKey,
         walletPublicKey,
       );
-      const txToSign = await twoPool.program.methods
+      const txToSign = await twoPool.methods
         .removeExactBurn(exactBurnAmount, outputTokenIndex, minimumOutputAmount)
         .accounts({
           ...commonAccounts,
@@ -227,7 +235,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
         userTransferAuthority.publicKey,
         walletPublicKey,
       );
-      const txToSign = await twoPool.program.methods
+      const txToSign = await twoPool.methods
         .removeExactOutput(maximumBurnAmount, exactOutputAmounts)
         .accounts({
           ...commonAccounts,
@@ -259,7 +267,7 @@ export const doSingleSolanaPoolOperationV2 = async ({
         userTransferAuthority.publicKey,
         walletPublicKey,
       );
-      const txToSign = await twoPool.program.methods
+      const txToSign = await twoPool.methods
         .removeUniform(exactBurnAmount, minimumOutputAmounts)
         .accounts({
           ...commonAccounts,

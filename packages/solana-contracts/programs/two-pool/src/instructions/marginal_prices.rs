@@ -1,12 +1,12 @@
 use {
     crate::{
-        array_equalize, common::create_array, error::*, invariant::Invariant, to_equalized,
+        common::{array_equalize, create_array, to_equalized},
+        error::*,
+        invariant::Invariant,
         BorshDecimal, TwoPool, TOKEN_COUNT,
     },
     anchor_lang::prelude::*,
-    anchor_spl::{
-        token::{Mint, TokenAccount},
-    },
+    anchor_spl::token::{Mint, TokenAccount},
 };
 
 #[derive(Accounts)]

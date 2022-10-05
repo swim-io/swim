@@ -529,8 +529,7 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
             return Ok(((pool_balances[0] * pool_balances[1]).integer_sqrt() * U128::from(2i32)).into());
         }
 
-        let pool_balances_times_n: [_; TOKEN_COUNT] =
-            create_array(|i| pool_balances[i] * AmountT::from(TOKEN_COUNT));
+        let pool_balances_times_n: [_; TOKEN_COUNT] = create_array(|i| pool_balances[i] * AmountT::from(TOKEN_COUNT));
         let pool_balances_sum = sum_balances(pool_balances);
 
         // use f64 to calculate either the exact result (if there's sufficient precision) or an updated initial guess
@@ -701,7 +700,10 @@ impl<const TOKEN_COUNT: usize> Invariant<TOKEN_COUNT> {
 mod tests {
     use {
         super::*,
-        crate::{array_equalize, decimal::DecimalU128, to_equalized},
+        crate::{
+            common::{array_equalize, to_equalized},
+            decimal::DecimalU128,
+        },
     };
 
     const BASE: AmountT = ten_to_the(10);

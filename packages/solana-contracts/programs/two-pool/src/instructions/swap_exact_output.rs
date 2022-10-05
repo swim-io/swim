@@ -1,11 +1,12 @@
 use {
     crate::{
-        array_equalize, error::*, gen_pool_signer_seeds, invariant::Invariant, result_from_equalized, to_equalized,
+        common::{array_equalize, result_from_equalized, to_equalized},
+        error::*,
+        gen_pool_signer_seeds,
+        invariant::Invariant,
         TwoPool, TOKEN_COUNT,
     },
-    anchor_lang::{
-        prelude::*,
-    },
+    anchor_lang::prelude::*,
     anchor_spl::{
         token,
         token::{Mint, Token, TokenAccount},

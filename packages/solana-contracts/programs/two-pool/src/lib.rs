@@ -1,4 +1,3 @@
-use rust_decimal::Decimal;
 use {
     crate::{
         amp_factor::AmpFactor,
@@ -9,7 +8,8 @@ use {
         pool_fee::PoolFee,
         state::TwoPool,
     },
-    anchor_lang::{prelude::*, solana_program::clock::UnixTimestamp},
+    anchor_lang::prelude::*,
+    rust_decimal::Decimal,
 };
 
 pub mod amp_factor;

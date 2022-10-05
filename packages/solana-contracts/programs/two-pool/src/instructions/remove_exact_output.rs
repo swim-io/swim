@@ -1,7 +1,10 @@
 use {
     crate::{
-        array_equalize, error::*, gen_pool_signer_seeds, get_current_ts, invariant::Invariant, result_from_equalized,
-        to_equalized, TwoPool, TOKEN_COUNT,
+        common::{array_equalize, result_from_equalized, to_equalized},
+        error::*,
+        gen_pool_signer_seeds, get_current_ts,
+        invariant::Invariant,
+        TwoPool, TOKEN_COUNT,
     },
     anchor_lang::prelude::*,
     anchor_spl::{

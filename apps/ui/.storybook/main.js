@@ -48,6 +48,7 @@ module.exports = {
 
     config.externals = {
       "@certusone/wormhole-sdk": "{}",
+      fs: "commonjs fs",
     };
 
     return config;

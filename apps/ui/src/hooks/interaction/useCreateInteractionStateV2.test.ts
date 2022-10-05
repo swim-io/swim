@@ -4,14 +4,7 @@ import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import { act, renderHook } from "@testing-library/react-hooks";
 import Decimal from "decimal.js";
 
-import {
-  CONFIGS,
-  TESTNET_POOLS,
-  TESTNET_POOLS_FOR_RESTRUCTURE,
-  TESTNET_SWIMUSD,
-  findTokenById,
-} from "../../config";
-import { selectConfig } from "../../core/selectors";
+import { TESTNET_SWIMUSD, findTokenById } from "../../config";
 import { useEnvironment } from "../../core/store";
 import { MOCK_TOKEN_ACCOUNTS, MOCK_WALLETS } from "../../fixtures";
 import { Amount, InteractionType, generateId } from "../../models";
@@ -35,11 +28,6 @@ jest.mock("../../models", () => ({
   generateId: jest.fn(),
 }));
 
-jest.mock("../../core/selectors", () => ({
-  ...jest.requireActual("../../core/selectors"),
-  selectConfig: jest.fn(),
-}));
-
 jest.mock("../crossEcosystem", () => ({
   ...jest.requireActual("../crossEcosystem"),
   useWallets: jest.fn(),
@@ -52,7 +40,6 @@ jest.mock("../solana", () => ({
 
 // Make typescript happy with jest
 const generateIdMock = mockOf(generateId);
-const selectConfigMock = mockOf(selectConfig);
 const useSplTokenAccountsQueryMock = mockOf(useSplTokenAccountsQuery);
 const useWalletsMock = mockOf(useWallets);
 
@@ -66,10 +53,6 @@ describe("useCreateInteractionStateV2", () => {
     generateIdMock.mockReturnValue("11111111111111111111111111111111");
     useSplTokenAccountsQueryMock.mockReturnValue({ data: MOCK_TOKEN_ACCOUNTS });
     useWalletsMock.mockReturnValue(MOCK_WALLETS);
-    selectConfigMock.mockReturnValue({
-      ...CONFIGS[Env.Testnet],
-      pools: [...TESTNET_POOLS, ...TESTNET_POOLS_FOR_RESTRUCTURE],
-    });
     jest.spyOn(Date, "now").mockImplementation(() => 1657544558283);
   });
 

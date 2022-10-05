@@ -1,26 +1,45 @@
-import type { ReadonlyRecord } from "@swim-io/utils";
+import type { SwimErrorMapping, SwimErrorOptions } from "@swim-io/core";
+import { SwimError } from "@swim-io/core";
+import type { ReadonlyRecord, ValueOf } from "@swim-io/utils";
+import { assertType } from "@swim-io/utils";
 
-export enum WormholeErrorCode {
-  GuardiansCannotConfirmTransfer,
-  GuardiansCannotReach,
-  InternalError,
+export enum SwimWormholeErrorCode {
+  GuardiansCannotConfirmTransfer = "@swim-io/wormhole/GuardiansCannotConfirmTransfer",
+  GuardiansCannotReach = "@swim-io/wormhole/GuardiansCannotReach",
+  InternalError = "@swim-io/wormhole/InternalError",
 }
+// Check if all error codes have current package name as prefix
+assertType<ReadonlyRecord<string, `@swim-io/wormhole/${string}`>>()(
+  SwimWormholeErrorCode,
+);
 
-const wormholeErrorMessageMapping: ReadonlyRecord<WormholeErrorCode, string> = {
-  [WormholeErrorCode.GuardiansCannotConfirmTransfer]:
-    "Could not confirm transfer with Wormhole guardians. This usually happens when the source blockchain is congested. Please try again later.",
-  [WormholeErrorCode.GuardiansCannotReach]:
-    "Unable to reach the Wormhole guardians. Please try again later.",
-  [WormholeErrorCode.InternalError]: "Something went wrong.",
+const errorMessageMapping: SwimErrorMapping<SwimWormholeErrorCode> = {
+  [SwimWormholeErrorCode.GuardiansCannotConfirmTransfer]: {
+    message:
+      "Could not confirm transfer with Wormhole guardians. This usually happens when the source blockchain is congested. Please try again later.",
+    isRetryable: true,
+  },
+  [SwimWormholeErrorCode.GuardiansCannotReach]: {
+    message: "Unable to reach the Wormhole guardians. Please try again later.",
+    isRetryable: true,
+  },
+  [SwimWormholeErrorCode.InternalError]: {
+    message: "Something went wrong.",
+    isRetryable: false,
+  },
 };
 
-export class WormholeError extends Error {
-  public readonly code: WormholeErrorCode;
-  public readonly originalError?: unknown;
-
-  public constructor(code: WormholeErrorCode, originalError?: unknown) {
-    super(wormholeErrorMessageMapping[code]);
-    this.code = code;
-    this.originalError = originalError;
+export class SwimWormholeError extends SwimError<SwimWormholeErrorCode> {
+  public constructor(
+    options: Omit<
+      SwimErrorOptions<SwimWormholeErrorCode>,
+      keyof ValueOf<SwimErrorMapping<SwimWormholeErrorCode>>
+    >,
+  ) {
+    const { message, ...restOptions } = errorMessageMapping[options.code];
+    super(message, {
+      ...options,
+      ...restOptions,
+    });
   }
 }

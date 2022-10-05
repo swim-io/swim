@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/tsconfig",
-  "version": "0.34.0",
+  "version": "0.35.0",
   "description": "Shared default TypeScript configuration for Swim TS projects.",
   "files": [
     "*.json",
@@ -24,7 +24,7 @@
     "prepare": "yarn verify"
   },
   "peerDependencies": {
-    "typescript": "^4.7.4"
+    "typescript": "~4.8.4"
   },
   "devDependencies": {
     "prettier": "^2.7.1"

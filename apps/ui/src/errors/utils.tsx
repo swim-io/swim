@@ -2,12 +2,12 @@ import * as Sentry from "@sentry/react";
 import type { Extras, SeverityLevel } from "@sentry/types";
 import type { ReactElement } from "react";
 
-import { SwimError } from "./classes";
+import { SwimUiError } from "./classes";
 import { extractErrorMessage } from "./parse";
 
 /** Send an error to Sentry and log it to the console.
  *
- * @param error Any error object, incl. SwimError
+ * @param error Any error object, incl. SwimUiError
  * @param context Optional context to send to Sentry
  * @returns unique event ID or null
  */
@@ -19,7 +19,7 @@ export const captureException = (
     return null;
   }
 
-  if (error instanceof SwimError && error.eventId) {
+  if (error instanceof SwimUiError && error.eventId) {
     Sentry.captureException("Trying to report an already reported error", {
       extra: { error: error },
     });
@@ -27,8 +27,8 @@ export const captureException = (
   }
 
   const sentryError =
-    error instanceof SwimError && error.originalError
-      ? error.originalError
+    error instanceof SwimUiError && error.cause
+      ? error.cause
       : error instanceof Error
       ? error
       : new Error(extractErrorMessage(error));
@@ -47,7 +47,7 @@ export const captureException = (
   console.error(
     error,
     eventId,
-    error instanceof SwimError ? error.originalError : null,
+    error instanceof SwimUiError ? error.cause : null,
   );
 
   return eventId;
@@ -57,10 +57,10 @@ export const captureAndWrapException = (
   userErrorMessage: string,
   error: unknown,
   context?: Extras,
-): SwimError => {
+): SwimUiError => {
   const eventId = captureException(error, context);
 
-  if (error instanceof SwimError) {
+  if (error instanceof SwimUiError) {
     if (eventId !== null) {
       // eslint-disable-next-line functional/immutable-data
       error.eventId = eventId;
@@ -68,7 +68,10 @@ export const captureAndWrapException = (
     return error;
   }
 
-  return new SwimError(userErrorMessage, error, eventId ?? undefined);
+  return new SwimUiError(userErrorMessage, {
+    cause: error,
+    eventId: eventId ?? undefined,
+  });
 };
 
 export const captureBreadcrumbError = (error: unknown): void => {
@@ -82,7 +85,7 @@ export const captureBreadcrumbError = (error: unknown): void => {
 };
 
 export const formatErrorJsx = (error: unknown): ReactElement => {
-  if (error instanceof SwimError) {
+  if (error instanceof SwimUiError) {
     return error.toPrettyJsx();
   }
 

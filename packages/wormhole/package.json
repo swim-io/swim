@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/wormhole",
-  "version": "0.34.0",
+  "version": "0.35.0",
   "description": "Swim code relating to Wormhole.",
   "main": "build",
   "types": "types",
@@ -34,6 +34,7 @@
     "@certusone/wormhole-sdk": "^0.6.0",
     "@solana/spl-token": "^0.3.4",
     "@solana/web3.js": "^1.62.0",
+    "@swim-io/core": "workspace:^",
     "@swim-io/solana": "workspace:^",
     "@swim-io/utils": "workspace:^",
     "ethers": "^5.6.9",
@@ -56,6 +57,6 @@
     "jest": "^28.1.2",
     "prettier": "^2.7.1",
     "ts-jest": "^28.0.5",
-    "typescript": "^4.7.4"
+    "typescript": "~4.8.4"
   }
 }

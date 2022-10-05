@@ -1,6 +1,6 @@
 {
   "name": "@swim-io/solana-usdc-usdt-swap",
-  "version": "0.34.0",
+  "version": "0.35.0",
   "description": "Create Swim swap instructions for hexapool to swap Solana native USDC and USDT",
   "main": "build",
   "types": "types",
@@ -49,7 +49,7 @@
     "jest": "^28.1.1",
     "prettier": "^2.7.1",
     "ts-jest": "^28.0.5",
-    "typescript": "^4.7.4"
+    "typescript": "~4.8.4"
   },
   "peerDependencies": {
     "@solana/web3.js": "^1",

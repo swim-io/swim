@@ -19,7 +19,7 @@ import { DEFAULTS, LOCAL, CHAINS } from "../src/config";
 const ROUTING_ADDRESS = "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4";
 
 const BSC_WORMHOLE_CORE_BRIDGE = "0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D";
-const BUSD_ADDRESS_TESTNET = "0xed24fc36d5ee211ea25a80239fb8c4cfd80f12ee";
+const BUSD_ADDRESS_TESTNET = "0x92934a8b10DDF85e81B65Be1D6810544744700dC";
 
 const GOERLI_WORMHOLE_CORE_BRIDGE_TESTNET = "0x706abc4E45D419950511e474C7B9Ed348A4a716c";
 const USDC_ADDRESS_GOERLI = "0x45B167CF5b14007Ca0490dCfB7C4B870Ec0C0Aa6";
@@ -64,17 +64,21 @@ async function sendVaa() {
   const txnResponse = await routing.connect(signers[0])["propellerInitiate(address,uint256,uint16,bytes32,bool,uint64,uint16)"](
     usdc.address, // fromToken
     inputAmount, // inputAmmount
-    4, //wormhole chain id (binance chain id)
+    //4, //wormhole chain id (binance chain id)
+    5, //polygon
+    //6, // avax
+    //10, //fantom
     "0x" + "00".repeat(12) + signers[0].address.substring(2), // toOwner
     false, // gasKickStart
     10, // maxPropellerFee
-    3, // toToken tokenNumber in swim
+    259, // toToken tokenNumber in swim (BUSD)
+    //256, // toToken (USDC)
     {
       gasLimit: ethers.BigNumber.from("2000000"),
       gasPrice: '200000000000'
     }
   );
-  console.log("propellerInitiate done");
+  console.log("propellerInitiate done: tx hash", txnResponse.hash);
 
   // fetch sequence so that I can look up VAA
   const txnReceipt = await txnResponse.wait(6); //wait(6)
@@ -88,8 +92,8 @@ async function sendVaa() {
   console.log("done");
 }
 
-// bsc to poly
-async function sendVaaPoly() {
+// from bsc
+async function sendVaaFromBNB() {
   const signers = await ethers.getSigners();
   const routing = await ethers.getContractAt("Routing", ROUTING_ADDRESS);
 
@@ -108,7 +112,7 @@ async function sendVaaPoly() {
   console.log("balance before")
   await printBalances(theSigner.address);
 
-  const inputAmount = 1e6;
+  const inputAmount = BigNumber.from(10).pow(18);
 
   console.log("approve");
   await (await usdc.connect(theSigner).approve(ROUTING_ADDRESS, inputAmount)).wait();
@@ -118,17 +122,20 @@ async function sendVaaPoly() {
   const txnResponse = await routing.connect(signers[0])["propellerInitiate(address,uint256,uint16,bytes32,bool,uint64,uint16)"](
     usdc.address, // fromToken
     inputAmount, // inputAmmount
-    5, //wormhole chain id
+    4, // bnb chain id
+    //6, // avax chain id
+    //10, // fantom chain id
     "0x" + "00".repeat(12) + signers[0].address.substring(2), // toOwner
     false, // gasKickStart
     10, // maxPropellerFee
-    3, // toToken tokenNumber in swim
+    //256, // toToken tokenNumber in swim
+    257,
     {
       gasLimit: ethers.BigNumber.from("2000000"),
       gasPrice: '200000000000'
     }
   );
-  console.log("propellerInitiate done");
+  console.log("propellerInitiate done: tx hash", txnResponse.hash);
 
   // fetch sequence so that I can look up VAA
   const txnReceipt = await txnResponse.wait(6); //wait(6)

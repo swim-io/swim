@@ -8,16 +8,16 @@ import {
   uint8ArrayToHex,
 } from "@certusone/wormhole-sdk";
 import { parseUnits } from "@ethersproject/units";
-import type { Program } from "@project-serum/anchor";
-// eslint-disable-next-line import/order
 import {
   AnchorProvider,
   BN,
+  Program,
   Spl,
   setProvider,
   web3,
-  workspace,
 } from "@project-serum/anchor";
+// eslint-disable-next-line import/order
+import type { Idl } from "@project-serum/anchor";
 
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import { createMemoInstruction } from "@solana/spl-memo";
@@ -31,18 +31,12 @@ import { PublicKey } from "@solana/web3.js";
 
 import type { Propeller } from "../../artifacts/propeller";
 import type { TwoPool } from "../../artifacts/two_pool";
-import { getApproveAndRevokeIxs } from "../../index";
-import {
-  getPoolUserBalances,
-  printBeforeAndAfterPoolUserBalances,
-  printPoolUserBalances,
-  setupPoolPrereqs,
-  setupUserAssociatedTokenAccts,
-} from "../twoPool/poolTestUtils";
-
+import { getApproveAndRevokeIxs, idl } from "../../index";
 import {
   DEFAULT_SOL_USD_FEED,
+  PROPELLER_PID,
   SWIM_USD_TO_TOKEN_NUMBER,
+  TWO_POOL_PID,
   USDC_TO_TOKEN_NUMBER,
   USDT_TO_TOKEN_NUMBER,
   ampFactor,
@@ -70,7 +64,15 @@ import {
   swimPayloadVersion,
   usdcPoolTokenIndex,
   usdtPoolTokenIndex,
-} from "./consts";
+} from "../consts";
+import {
+  getPoolUserBalances,
+  printBeforeAndAfterPoolUserBalances,
+  printPoolUserBalances,
+  setupPoolPrereqs,
+  setupUserAssociatedTokenAccts,
+} from "../twoPool/poolTestUtils";
+
 import {
   encodeSwimPayload,
   formatParsedTokenTransferWithSwimPayloadPostedMessage,
@@ -124,9 +126,16 @@ const splAssociatedToken = Spl.associatedToken(provider);
 // Configure the client to use the local cluster.
 setProvider(provider);
 
-const propellerProgram = workspace.Propeller as Program<Propeller>;
-const twoPoolProgram = workspace.TwoPool as Program<TwoPool>;
-
+const propellerProgram = new Program(
+  idl.propeller as Idl,
+  PROPELLER_PID,
+  provider,
+) as unknown as Program<Propeller>;
+const twoPoolProgram = new Program(
+  idl.twoPool as Idl,
+  TWO_POOL_PID,
+  provider,
+) as unknown as Program<TwoPool>;
 const wormhole = WORMHOLE_CORE_BRIDGE;
 const tokenBridge = WORMHOLE_TOKEN_BRIDGE;
 

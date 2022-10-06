@@ -3,7 +3,6 @@ seeds = true
 skip-lint = false
 
 [programs.localnet]
-#two_pool = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
 two_pool = "8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM"
 propeller = "9z6G41AyXk73r1E4nTv81drQPtEqupCSAnsLdGV5WGfK"
 
@@ -29,8 +28,10 @@ test = "yarn run jest --bail --testPathPattern"
 #initialize_pool = "yarn run build-pool && yarn run ts-node sdk/scripts/initializePool.ts"
 #initialize_pool_devnet = "yarn run build:anchor-devnet && yarn run ts-node sdk/scripts/initializePool.ts"
 initialize_pool = "yarn run ts-node scripts/initializePool.ts"
-scratch = "yarn run ts-node src/__tests__/scratch.ts"
+#scratch = "yarn run ts-node src/__tests__/scratch.ts"
 initialize_propeller = "yarn run ts-node scripts/initializePropeller.ts"
+scratch = "yarn run ts-node scripts/scratch.ts"
+add_to_pool = "yarn run ts-node scripts/addToPool.ts"
 
 [test]
 startup_wait = 100000

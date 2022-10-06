@@ -384,6 +384,14 @@ export const AddForm = ({
         : [poolSpec.ecosystem],
     );
 
+    // temporarily disable BNB Chain
+    if (requiredEcosystems.has(ECOSYSTEMS.bnb.id)) {
+      errors = [
+        ...errors,
+        t("general.ecosystem.disabled", { ecosystemName: "BNB Chain" }),
+      ];
+    }
+
     // Require connected wallets
     requiredEcosystems.forEach((ecosystem) => {
       if (!wallets[ecosystem].connected) {

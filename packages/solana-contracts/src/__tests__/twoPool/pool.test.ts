@@ -5,16 +5,16 @@ import {
   toMetadata,
   toMetadataAccount,
 } from "@metaplex-foundation/js";
-import type { Program } from "@project-serum/anchor";
-// eslint-disable-next-line import/order
 import {
   AnchorProvider,
   BN,
+  Program,
   Spl,
   setProvider,
   web3,
-  workspace,
 } from "@project-serum/anchor";
+// eslint-disable-next-line import/order
+import type { Idl } from "@project-serum/anchor";
 
 // const {
 //   PublicKey,
@@ -30,8 +30,9 @@ import {
 } from "@solana/spl-token";
 
 import type { TwoPool } from "../../artifacts/two_pool";
-import { getApproveAndRevokeIxs, twoPoolToString } from "../../index";
+import { getApproveAndRevokeIxs, idl, twoPoolToString } from "../../index";
 import { parsePoolAccount } from "../../poolDecoder";
+import { TWO_POOL_PID } from "../consts";
 
 import {
   setupPoolPrereqs,
@@ -49,7 +50,11 @@ describe("TwoPool", () => {
 
   setProvider(provider);
 
-  const twoPoolProgram = workspace.TwoPool as Program<TwoPool>;
+  const twoPoolProgram = new Program(
+    idl.twoPool as Idl,
+    TWO_POOL_PID,
+    provider,
+  ) as unknown as Program<TwoPool>;
 
   let flagshipPool: PublicKey;
 

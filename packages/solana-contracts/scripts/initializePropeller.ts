@@ -2,15 +2,19 @@ import * as fs from "fs";
 import * as path from "path";
 
 import type { ChainId } from "@certusone/wormhole-sdk";
-import { CHAIN_ID_ETH, tryNativeToHexString } from "@certusone/wormhole-sdk";
-import type { Program } from "@project-serum/anchor";
+import {
+  CHAIN_ID_ETH,
+  tryHexToNativeString,
+  tryNativeToHexString,
+} from "@certusone/wormhole-sdk";
+import type { Idl } from "@project-serum/anchor";
 import {
   AnchorProvider,
   BN,
+  Program,
   Spl,
   setProvider,
   web3,
-  workspace,
 } from "@project-serum/anchor";
 import type NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import { createMemoInstruction } from "@solana/spl-memo";
@@ -20,30 +24,41 @@ import {
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
 
+import type { Propeller, TwoPool } from "../src";
+import { idl } from "../src";
 import {
   DEFAULT_SOL_USD_FEED,
+  PROPELLER_PID,
   SWIM_USD_TO_TOKEN_NUMBER,
+  TWO_POOL_PID,
   USDC_TO_TOKEN_NUMBER,
   USDT_TO_TOKEN_NUMBER,
   setComputeUnitLimitIx,
-} from "../src/__tests__/propeller/consts";
+} from "../src/__tests__/consts";
 import {
   getPropellerPda,
   getPropellerRedeemerPda,
   getTargetChainIdMapAddr,
   getTargetTokenIdMapAddr,
 } from "../src/__tests__/propeller/propellerUtils";
-import type { Propeller } from "../src/artifacts/propeller";
-import type { TwoPool } from "../src/artifacts/two_pool";
+
+// import type { Propeller } from "../src/artifacts/propeller";
+// import type { TwoPool } from "../src/artifacts/two_pool";
 
 const provider = AnchorProvider.env();
 setProvider(provider);
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-const twoPoolProgram = workspace.TwoPool as Program<TwoPool>;
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-const propellerProgram = workspace.Propeller as Program<Propeller>;
+const twoPoolProgram = new Program(
+  idl.twoPool as Idl,
+  TWO_POOL_PID,
+  provider,
+) as unknown as Program<TwoPool>;
+
+const propellerProgram = new Program(
+  idl.propeller as Idl,
+  PROPELLER_PID,
+  provider,
+) as unknown as Program<Propeller>;
 const splToken = Spl.token(provider);
-const PROPELLER_PID = propellerProgram.programId;
 
 const payer = (provider.wallet as NodeWallet).payer;
 const propellerAdmin = payer;
@@ -59,7 +74,7 @@ type InitParameters = {
   readonly marginalPricePoolTokenIndex: number;
 };
 const DEFAULT_INIT_PROPELLER_PARAMS: InitParameters = {
-  gasKickstartAmount: new BN(0.75 * web3.LAMPORTS_PER_SOL),
+  gasKickstartAmount: new BN(0.25 * web3.LAMPORTS_PER_SOL),
   secpVerifyInitFee: new BN(0.000045 * web3.LAMPORTS_PER_SOL),
   secpVerifyFee: new BN(0.00004 * web3.LAMPORTS_PER_SOL),
   postVaaFee: new BN(0.00005 * web3.LAMPORTS_PER_SOL),
@@ -77,7 +92,7 @@ type PropellerConfig = {
 };
 
 type TargetChain = {
-  readonly targetChainId: number;
+  readonly wormholeChainId: number;
   readonly targetAddress: string;
   readonly tokenBridge: string;
 };
@@ -128,12 +143,23 @@ const aggregator = DEFAULT_SOL_USD_FEED;
  */
 async function setupPropeller() {
   config = loadConfig();
-  console.info(`Using config: ${JSON.stringify(config)}`);
+  console.info(
+    `Using config: ${JSON.stringify(
+      {
+        swimUsdPool: config.swimUsdPool,
+        wormholeCore: config.wormholeCore,
+        wormholeTokenBridge: config.wormholeTokenBridge,
+      },
+      null,
+      2,
+    )}`,
+  );
+  console.table(config.targetChains);
   swimUsdPoolInfo = await getPoolInfo();
   swimUsdMint = swimUsdPoolInfo.lpMint;
   console.info(`swimUsdPoolInfo: ${JSON.stringify(swimUsdPoolInfo)}`);
   propellerInfo = await initializePropellerState();
-  console.info(`propellerInfo: ${JSON.stringify(propellerInfo)}`);
+  console.info(`propellerInfo: ${JSON.stringify(propellerInfo, null, 2)}`);
   targetTokenIdMaps = await createTargetTokenIdMaps();
   console.info(
     `targetTokenIdMaps: ${JSON.stringify(
@@ -156,13 +182,30 @@ async function setupPropeller() {
     )}`,
   );
   // await printTargetChainMaps();
-  await fetchAndPrintIdMap(
+  const targetChainIdMapData = await fetchAndPrintIdMap(
     targetChainIdMaps,
     async (addr) => await propellerProgram.account.targetChainMap.fetch(addr),
     // propellerProgram.account.targetChainMap.fetch,
     "targetChainId",
   );
+  //(_, _, data): (_, _, {bump: number, targetChain: number, targetAddress: Buffer}
+  const formattedTargetChainIdMapData = targetChainIdMapData.map(
+    ({ address, data }) => {
+      return {
+        targetChainIdMapAddr: address.toString(),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+        wormholeChainId: data.targetChain,
+        targetAddress: tryHexToNativeString(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
+          data.targetAddress,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
+          data.targetChain,
+        ),
+      };
+    },
+  );
 
+  console.table(formattedTargetChainIdMapData);
   console.info(`transferring tokens`);
   await transferTokens();
 }
@@ -250,6 +293,7 @@ async function initializePropellerState(): Promise<PropellerInfo> {
     propellerAddr,
   );
   if (!propellerData) {
+    console.info(`no propeller data found. initializing`);
     await propellerProgram.methods
       .initialize(initParams)
       .accounts({
@@ -274,7 +318,9 @@ async function initializePropellerState(): Promise<PropellerInfo> {
       .rpc();
   }
   propellerData = await propellerProgram.account.propeller.fetch(propellerAddr);
-
+  console.info(`propellerState:
+  ${JSON.stringify({ key: propellerAddr, ...propellerData }, null, 2)}
+  `);
   return {
     address: propellerAddr,
     feeVault: propellerData.feeVault,
@@ -345,6 +391,9 @@ async function createTargetTokenIdMaps(): Promise<
         const pubkeys = await createTokenIdMapTxn.pubkeys();
         await createTokenIdMapTxn.rpc();
         const derivedTokenIdMapAddr = pubkeys.tokenIdMap;
+        if (!derivedTokenIdMapAddr) {
+          throw new Error("Failed to derive tokenIdMapAddr");
+        }
 
         console.info(`
       derivedTokenIdMapAddr: ${derivedTokenIdMapAddr.toString()}
@@ -389,19 +438,20 @@ async function fetchAndPrintIdMap(
       data: ${JSON.stringify(data)}
     `);
   });
+  return idMapsInfo;
 }
 
 async function createTargetChainMaps() {
   const targetChainMapEntries = await Promise.all(
-    config.targetChains.map(async ({ targetChainId, targetAddress }) => {
+    config.targetChains.map(async ({ wormholeChainId, targetAddress }) => {
       // const targetAddrWormholeFormat = tryNativeToUint8Array(targetAddress, targetChainId as ChainId)
       const targetAddrWormholeFormat = Buffer.from(
-        tryNativeToHexString(targetAddress, targetChainId as ChainId),
+        tryNativeToHexString(targetAddress, wormholeChainId as ChainId),
         "hex",
       );
       const [targetChainMapAddr] = await getTargetChainIdMapAddr(
         propellerInfo.address,
-        targetChainId,
+        wormholeChainId,
         propellerProgram.programId,
       );
       const targetChainMap =
@@ -412,7 +462,7 @@ async function createTargetChainMaps() {
         await propellerProgram.methods
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          .createTargetChainMap(targetChainId, targetAddrWormholeFormat)
+          .createTargetChainMap(wormholeChainId, targetAddrWormholeFormat)
           .accounts({
             propeller: propellerInfo.address,
             admin: propellerAdmin.publicKey,
@@ -426,7 +476,7 @@ async function createTargetChainMaps() {
       }
 
       return {
-        targetChainId,
+        wormholeChainId,
         targetChainMapAddr,
         // targetAddress: targetAddrWormholeFormat,
         // // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -435,8 +485,8 @@ async function createTargetChainMaps() {
     }),
   );
   return new Map(
-    targetChainMapEntries.map(({ targetChainId, targetChainMapAddr }) => {
-      return [targetChainId, targetChainMapAddr];
+    targetChainMapEntries.map(({ wormholeChainId, targetChainMapAddr }) => {
+      return [wormholeChainId, targetChainMapAddr];
     }),
   );
 }

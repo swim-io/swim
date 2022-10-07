@@ -17,11 +17,9 @@ interface IRouting is IMemoInteractor {
   error SenderIsNotOwner(address sender, address owner);
   error TokenNotRegistered(bytes20 addressOrTokenNumber);
   error WormholeInteractionFailed(bytes lowLevelData);
-  error TooSmallForPropeller(uint swimUsdAmount, uint propellerMinimumThreshold);
   error IncorrectMessageValue(uint value, uint expected);
   error NumericError(CodeLocation location, bytes data);
   error GasKickstartFailed(address owner);
-  error ExcessivePropellerFee(uint propellerFee);
   error InvalidWormholeToken(
     bytes32 originAddress,
     uint16 originChain,
@@ -117,8 +115,7 @@ interface IRouting is IMemoInteractor {
 
   function adjustPropellerServiceFee(uint64 serviceFee) external;
 
-  //swimUsdPerGasToken in 18 decimals
-  function usePropellerFixedGasTokenPrice(uint fixedSwimUsdPerGasToken) external;
+  function usePropellerFixedGasTokenPrice(Decimal calldata fixedSwimUsdPerGasToken) external;
 
   function usePropellerUniswapOracle(
     address intermediateToken,

@@ -1,19 +1,21 @@
 import { readFile } from "fs/promises";
 
+import { TokenProjectId } from "@swim-io/token-projects";
 import type { Contract } from "ethers";
 import { ethers } from "hardhat";
 
-import { TokenProjectId } from "@swim-io/token-projects";
-
 import type { ChainConfig } from "./config";
 import {
+  POOL_PRECISION,
   ROUTING_CONTRACT_SOLANA_ADDRESS,
+  ROUTING_PRECISION,
   SWIM_FACTORY_ADDRESS,
   SWIM_USD_DECIMALS,
   SWIM_USD_SOLANA_ADDRESS,
   WORMHOLE_SOLANA_CHAIN_ID,
 } from "./config";
 import {
+  completeSwimUsdAttestation,
   deployLogic,
   deployPoolAndRegister,
   deployProxy,
@@ -64,6 +66,8 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
   await checkConstant("ROUTING_CONTRACT_SOLANA_ADDRESS", ROUTING_CONTRACT_SOLANA_ADDRESS);
   await checkConstant("WORMHOLE_SOLANA_CHAIN_ID", WORMHOLE_SOLANA_CHAIN_ID.toString());
   await checkConstant("SWIM_USD_DECIMALS", SWIM_USD_DECIMALS.toString());
+  await checkConstant("POOL_PRECISION", POOL_PRECISION.toString());
+  await checkConstant("ROUTING_PRECISION", ROUTING_PRECISION.toString());
   await checkConstant("SWIM_FACTORY", SWIM_FACTORY_ADDRESS);
 
   logAddress(
@@ -85,7 +89,10 @@ export async function deployment(chainConfig: ChainConfig, options: DeployOption
     logAddress("RoutingProxy", await deployProxy("MockRoutingForPoolTests", [swimUsd.address]));
   } else {
     const wormholeTokenBridgeAddress = await (async () => {
-      if (routingConfig.wormholeTokenBridge !== "MOCK") return routingConfig.wormholeTokenBridge;
+      if (routingConfig.wormholeTokenBridge !== "MOCK") {
+        await completeSwimUsdAttestation(routingConfig.wormholeTokenBridge);
+        return routingConfig.wormholeTokenBridge;
+      }
 
       const coreBridge = await deployRegular("MockWormhole", []);
       logAddress("CoreBridge", coreBridge);

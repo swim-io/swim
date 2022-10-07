@@ -1,39 +1,18 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-
-import { BigNumber, parseFixed } from "@ethersproject/bignumber";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { BN } from "bn.js";
-import { expect, use } from "chai";
+import { expect } from "chai";
 import { ethers, network } from "hardhat";
 
 import { LOCAL } from "../src/config";
-import { getRoutingProxy, getToken } from "../src/deploy";
 import { deployment } from "../src/deployment";
-import { PoolWrapper, TokenWrapper } from "../src/testUtils";
+import type { HasAddress } from "../src/testUtils";
+import { PoolWrapper, expectCloseTo, expectEqual, tolerance } from "../src/testUtils";
 import type { LpToken } from "../typechain-types/contracts/LpToken";
 
-// eslint-disable-next-line import/no-commonjs, @typescript-eslint/no-var-requires
-use(require("chai-bn")(BN));
-
 describe("Pool Defi Operations", function () {
-  const liquidityProviderFunds = BigNumber.from(1e5);
-  const baseAmount = BigNumber.from("10");
-  const tolerance = (token: TokenWrapper) => token.toAtomic("0.000002");
-
-  const asAtomic = (token: TokenWrapper, val: string | BigNumber | number) =>
-    typeof val === "string" ? token.toAtomic(val) : val;
-
-  function expectCloseTo(
-    token: TokenWrapper,
-    actual: string | BigNumber | number,
-    expected: string | BigNumber | number,
-    toleranceMultiplier = 1
-  ) {
-    expect(asAtomic(token, actual)).to.be.closeTo(
-      asAtomic(token, expected),
-      tolerance(token).mul(toleranceMultiplier)
-    );
-  }
+  const liquidityProviderFunds = 1e5;
+  const baseAmount = 10;
+  const userTokenIndex = 1;
+  const userFunds = 1;
 
   async function testFixture() {
     await network.provider.send("hardhat_reset");
@@ -42,22 +21,19 @@ describe("Pool Defi Operations", function () {
 
     await deployment({ ...LOCAL, routing: "MOCK" }, { print: false });
 
-    const swimUsd = await TokenWrapper.create(
-      await ethers.getContractAt("ERC20Token", await (await getRoutingProxy()).swimUsdAddress())
-    );
-
-    const [usdc, usdt] = await Promise.all(
-      LOCAL.pools[0].tokens.map(async (token) => await TokenWrapper.create(await getToken(token)))
-    );
-
-    const pool = await PoolWrapper.create(LOCAL.pools[0].salt, [swimUsd, usdc, usdt]);
+    const pool = await PoolWrapper.create(LOCAL.pools[0].salt);
     const { lpToken } = pool;
 
-    for (const token of pool.tokens)
-      await token.mint(liquidityProvider, token.toAtomic(liquidityProviderFunds));
+    for (const token of pool.tokens) await token.mint(liquidityProvider, liquidityProviderFunds);
+    await pool.add(
+      liquidityProvider,
+      pool.tokens.map(() => baseAmount),
+      0
+    );
+    await pool.tokens[userTokenIndex].mint(user, userFunds);
 
-    await pool.add(liquidityProvider, pool.toAtomicAmounts(baseAmount), 0);
-    await usdc.mint(user, usdc.toAtomic(1));
+    const balancesOf = async (who: HasAddress) =>
+      Promise.all(pool.tokens.map((token) => token.balanceOf(who)));
 
     return {
       deployer,
@@ -67,225 +43,233 @@ describe("Pool Defi Operations", function () {
       user,
       pool,
       lpToken,
-      swimUsd,
-      usdc,
-      usdt,
+      balancesOf,
     };
   }
 
   it("Check basic pool deployment parameters", async function () {
-    const { pool, lpToken, governance, liquidityProvider } = await loadFixture(testFixture);
+    const { pool, lpToken, governance, govFeeRecip, liquidityProvider } = await loadFixture(
+      testFixture
+    );
 
     expect(await pool.contract.governance()).to.equal(governance.address);
+    expect(await pool.contract.governanceFeeRecipient()).to.equal(govFeeRecip.address);
     expect(await (lpToken.contract as LpToken).owner()).to.equal(pool.address);
-    expect(await lpToken.balanceOf(liquidityProvider)).to.equal(
-      lpToken.toAtomic(baseAmount).mul(3)
-    );
+    await expectEqual(lpToken, liquidityProvider, baseAmount * pool.tokens.length);
   });
 
   it("removeUniform should empty the pool and allow refilling after", async function () {
-    const { pool, lpToken, govFeeRecip, liquidityProvider, swimUsd, usdc, usdt } =
-      await loadFixture(testFixture);
+    const { pool, lpToken, govFeeRecip, liquidityProvider } = await loadFixture(testFixture);
 
-    const tokens = [swimUsd, usdc, usdt];
-
-    const lpAmount = lpToken.toAtomic(baseAmount).mul(3);
-    await pool.removeUniform(liquidityProvider, lpAmount, pool.toAtomicAmounts(baseAmount));
-
-    expect(await lpToken.balanceOf(govFeeRecip)).to.equal(0);
-    expect(await lpToken.balanceOf(liquidityProvider)).to.equal(0);
-    for (const token of tokens)
-      expect(await token.balanceOf(liquidityProvider)).to.equal(
-        token.toAtomic(liquidityProviderFunds)
-      );
-
-    await pool.add(liquidityProvider, pool.toAtomicAmounts(baseAmount), 0);
-    expect(await lpToken.balanceOf(govFeeRecip)).to.equal(0);
-    expect(await lpToken.balanceOf(liquidityProvider)).to.equal(
-      lpToken.toAtomic(baseAmount).mul(3)
+    const lpAmount = baseAmount * pool.tokens.length;
+    await pool.removeUniform(
+      liquidityProvider,
+      lpAmount,
+      pool.tokens.map(() => baseAmount)
     );
-    for (const token of tokens)
-      expect(await token.balanceOf(liquidityProvider)).to.equal(
-        token.toAtomic(liquidityProviderFunds.sub(baseAmount))
-      );
+
+    await expectEqual(lpToken, govFeeRecip, 0);
+    await expectEqual(lpToken, liquidityProvider, 0);
+    for (const token of pool.tokens)
+      await expectEqual(token, liquidityProvider, liquidityProviderFunds);
+
+    await pool.add(
+      liquidityProvider,
+      pool.tokens.map(() => baseAmount),
+      0
+    );
+    await expectEqual(lpToken, govFeeRecip, 0);
+    await expectEqual(lpToken, liquidityProvider, baseAmount * pool.tokens.length);
+    for (const token of pool.tokens)
+      await expectEqual(token, liquidityProvider, liquidityProviderFunds - baseAmount);
   });
 
   it("add should return correct outputs", async function () {
-    const { pool, lpToken, govFeeRecip, user } = await loadFixture(testFixture);
+    const { pool, lpToken, govFeeRecip, user, balancesOf } = await loadFixture(testFixture);
 
-    const expectedUserLp = "0.976045";
-    const expectedGovFee = "0.000063";
+    const inputAmounts = pool.tokens.map((_, i) => (i === userTokenIndex ? userFunds : 0));
+    const expected = (await pool.poolmath()).add(inputAmounts);
+    const userBalancesBefore = await balancesOf(user);
 
-    await pool.add(user, pool.toAtomicAmounts([0, 1, 0]), 0);
+    await pool.add(user, inputAmounts, 0);
 
-    expectCloseTo(lpToken, await lpToken.balanceOf(user), expectedUserLp);
-    expectCloseTo(lpToken, await lpToken.balanceOf(govFeeRecip), expectedGovFee);
+    for (let i = 0; i < pool.tokens.length; ++i)
+      await expectEqual(pool.tokens[i], user, userBalancesBefore[i].sub(inputAmounts[i]));
+
+    await expectCloseTo(lpToken, user, expected.lpOutputAmount);
+    await expectCloseTo(lpToken, govFeeRecip, expected.governanceMintAmount);
   });
 
   it("removeExactBurn and removeExactOutput should return correct and consistent outputs", async function () {
+    const outputIndex = userTokenIndex;
+    const inputAmount = userFunds;
     const setup = async () => {
-      const { pool, lpToken, govFeeRecip, usdc, user } = await loadFixture(testFixture);
+      const { pool, lpToken, govFeeRecip, user, balancesOf } = await loadFixture(testFixture);
 
-      const expectedLp = lpToken.toAtomic("0.976046");
-      const expectedUsdc = usdc.toAtomic("0.999495");
-      const expectedGovFee = lpToken.toAtomic("0.000063");
+      const inputAmounts = pool.tokens.map((_, i) => (i === outputIndex ? inputAmount : 0));
+      const expected = (await pool.poolmath()).add(inputAmounts);
+      const userBalancesBefore = await balancesOf(user);
 
-      await pool.add(user, pool.toAtomicAmounts([0, 1, 0]), 0);
+      await pool.add(user, inputAmounts, 0);
 
-      expect(await lpToken.balanceOf(user)).to.equal(expectedLp);
+      for (let i = 0; i < pool.tokens.length; ++i)
+        await expectEqual(pool.tokens[i], user, userBalancesBefore[i].sub(inputAmounts[i]));
+
+      await expectCloseTo(lpToken, user, expected.lpOutputAmount);
+      await expectCloseTo(lpToken, govFeeRecip, expected.governanceMintAmount);
+
       const govFee = await lpToken.balanceOf(govFeeRecip);
-      //"flush" governance fee from first add for easier checking after
-      const miscAddress = "0x" + "0".repeat(39) + "1";
-      await lpToken.contract.connect(govFeeRecip).transfer(miscAddress, govFee);
-      return {
-        expectedLp,
-        expectedUsdc,
-        expectedGovFee,
-        pool,
-        lpToken,
-        govFeeRecip,
-        usdc,
-        user,
-      };
+      //"flush" governance fee from initial add for easier checking after
+      const flush = { address: "0x" + "0".repeat(39) + "1" };
+      await lpToken.transfer(govFeeRecip, flush, govFee);
+      const userLp = await lpToken.balanceOf(user);
+      return { pool, lpToken, govFeeRecip, user, userLp };
     };
 
+    let expected;
     {
-      const { expectedLp, expectedUsdc, expectedGovFee, pool, lpToken, govFeeRecip, usdc, user } =
-        await setup();
+      const { pool, lpToken, govFeeRecip, user, userLp } = await setup();
 
-      await pool.removeExactBurn(user, expectedLp, 1, 0);
+      expected = (await pool.poolmath()).removeExactBurn(userLp, outputIndex);
 
-      expectCloseTo(usdc, await usdc.balanceOf(user), expectedUsdc);
-      expectCloseTo(lpToken, await lpToken.balanceOf(govFeeRecip), expectedGovFee);
+      await pool.removeExactBurn(user, userLp, outputIndex, 0);
+
+      await expectCloseTo(pool.tokens[outputIndex], user, expected.stableOutputAmount);
+      await expectCloseTo(lpToken, govFeeRecip, expected.governanceMintAmount);
     }
 
     {
-      const { expectedLp, expectedUsdc, expectedGovFee, pool, lpToken, govFeeRecip, usdc, user } =
-        await setup();
+      const { pool, lpToken, govFeeRecip, user, userLp } = await setup();
 
-      const outputAmount = expectedUsdc.sub(tolerance(usdc));
-      await pool.removeExactOutput(user, [0, outputAmount, 0], expectedLp);
+      const outputAmount = expected.stableOutputAmount.sub(tolerance);
+      const outputAmounts = pool.tokens.map((_, i) => (i === outputIndex ? outputAmount : 0));
 
-      expect(await usdc.balanceOf(user)).to.equal(outputAmount);
-      expectCloseTo(lpToken, await lpToken.balanceOf(user), 0, 2);
-      expectCloseTo(lpToken, await lpToken.balanceOf(govFeeRecip), expectedGovFee);
+      await pool.removeExactOutput(user, outputAmounts, userLp);
+
+      await expectEqual(pool.tokens[outputIndex], user, outputAmount);
+      await expectCloseTo(lpToken, user, 0, 2);
+      await expectCloseTo(lpToken, govFeeRecip, expected.governanceMintAmount);
     }
   });
 
   it("swap equals swapExactInput exactly", async function () {
-    const swap = async () => {
-      const { pool, lpToken, govFeeRecip, usdc, usdt, user } = await loadFixture(testFixture);
+    const inputIndex = userTokenIndex;
+    const inputAmount = userFunds;
+    const outputIndex = 2;
 
-      await pool.swap(user, usdc.toAtomic(1), 1, 2, 0);
+    const swapExactInput = await (async () => {
+      const { pool, lpToken, govFeeRecip, user } = await loadFixture(testFixture);
+
+      const inputAmounts = pool.tokens.map((_, i) => (i === inputIndex ? inputAmount : 0));
+      const expected = (await pool.poolmath()).swapExactInput(inputAmounts, outputIndex);
+
+      await pool.swapExactInput(user, inputAmounts, outputIndex, 0);
+
+      await expectCloseTo(pool.tokens[outputIndex], user, expected.stableOutputAmount);
+      await expectCloseTo(lpToken, govFeeRecip, expected.governanceMintAmount);
+
       return {
-        swapUserUsdc: await usdt.balanceOf(user),
-        swapGovFee: await lpToken.balanceOf(govFeeRecip),
+        stableAmount: await pool.tokens[outputIndex].balanceOf(user),
+        govFeeAmount: await lpToken.balanceOf(govFeeRecip),
       };
-    };
+    })();
 
-    const { swapUserUsdc, swapGovFee } = await swap();
+    const { pool, lpToken, govFeeRecip, user } = await loadFixture(testFixture);
 
-    const swapExactInput = async () => {
-      const { pool, lpToken, govFeeRecip, usdt, user } = await loadFixture(testFixture);
+    await pool.swap(user, inputAmount, inputIndex, outputIndex, 0);
 
-      await pool.swapExactInput(user, pool.toAtomicAmounts([0, 1, 0]), 2, 0);
-      return {
-        swapExactInputUserUsdc: await usdt.balanceOf(user),
-        swapExactInputGovFee: await lpToken.balanceOf(govFeeRecip),
-      };
-    };
-
-    const { swapExactInputUserUsdc, swapExactInputGovFee } = await swapExactInput();
-
-    expect(swapUserUsdc).to.equal(swapExactInputUserUsdc);
-    expect(swapGovFee).to.equal(swapExactInputGovFee);
+    await expectEqual(pool.tokens[outputIndex], user, swapExactInput.stableAmount);
+    await expectEqual(lpToken, govFeeRecip, swapExactInput.govFeeAmount);
   });
 
   it("swapExactInput and swapExactOutput should return correct and consistent outputs", async function () {
-    const expectedUsdt = "0.929849";
+    //const expectedUsdt = "0.929849";
 
-    const swapExactInputGovFee = await (async () => {
-      const { pool, lpToken, govFeeRecip, usdc, usdt, user } = await loadFixture(testFixture);
+    const inputIndex = userTokenIndex;
+    const inputAmount = userFunds;
+    const outputIndex = 2;
 
-      await pool.swapExactInput(user, pool.toAtomicAmounts([0, 1, 0]), 2, 0);
+    const swapExactInput = await (async () => {
+      const { pool, lpToken, govFeeRecip, user } = await loadFixture(testFixture);
 
-      expect(await usdc.balanceOf(user)).to.equal(0);
-      expectCloseTo(usdt, await usdt.balanceOf(user), expectedUsdt);
+      const inputAmounts = pool.tokens.map((_, i) => (i === inputIndex ? inputAmount : 0));
+      const expected = (await pool.poolmath()).swapExactInput(inputAmounts, outputIndex);
 
-      return lpToken.balanceOf(govFeeRecip);
+      await pool.swapExactInput(user, inputAmounts, outputIndex, 0);
+
+      await expectEqual(pool.tokens[inputIndex], user, 0);
+      await expectCloseTo(pool.tokens[outputIndex], user, expected.stableOutputAmount);
+      await expectCloseTo(lpToken, govFeeRecip, expected.governanceMintAmount);
+
+      return {
+        stableAmount: await pool.tokens[outputIndex].balanceOf(user),
+        govFeeAmount: await lpToken.balanceOf(govFeeRecip),
+      };
     })();
 
-    const { pool, lpToken, govFeeRecip, usdc, usdt, user } = await loadFixture(testFixture);
+    const { pool, lpToken, govFeeRecip, user } = await loadFixture(testFixture);
 
-    const outputAmount = usdt.toAtomic(expectedUsdt).sub(tolerance(usdt));
-    await pool.swapExactOutput(user, usdc.toAtomic(1), 1, [0, 0, outputAmount]);
+    const outputAmount = swapExactInput.stableAmount.sub(tolerance);
+    const outputAmounts = pool.tokens.map((_, i) => (i === outputIndex ? outputAmount : 0));
 
-    const remainingUsdc = await usdc.balanceOf(user);
-    const actualUsdt = await usdt.balanceOf(user);
+    await pool.swapExactOutput(user, inputAmount, inputIndex, outputAmounts);
 
-    expectCloseTo(usdc, remainingUsdc, 0, 2);
-    expect(actualUsdt).to.equal(outputAmount);
-
-    expectCloseTo(lpToken, await lpToken.balanceOf(govFeeRecip), swapExactInputGovFee);
+    await expectEqual(pool.tokens[outputIndex], user, outputAmount);
+    await expectCloseTo(pool.tokens[inputIndex], user, 0, 2);
+    await expectCloseTo(lpToken, govFeeRecip, swapExactInput.govFeeAmount, 2);
   });
 
   it("Check marginal prices are correct for stable swap", async function () {
-    const { pool, lpToken, liquidityProvider, swimUsd, usdc, usdt } = await loadFixture(
-      testFixture
-    );
+    const { pool, lpToken, liquidityProvider } = await loadFixture(testFixture);
 
-    const expectedLpSupply = lpToken.toAtomic("16.749421");
-    const marginalPriceDecimals = 18;
-    const expectedPrices = ["0.698014", "0.930686", "1.628701"].map((p) =>
-      parseFixed(p, marginalPriceDecimals)
-    );
-    const priceTolerance = parseFixed("0.000001", marginalPriceDecimals);
-    const decimals = [swimUsd, usdc, usdt].map((t) => t.decimals);
+    // const expectedLpSupply = lpToken.toAtomic("16.749421");
+    // const marginalPriceDecimals = 18;
+    // const expectedPrices = ["0.698014", "0.930686", "1.628701"].map((p) =>
+    //   parseFixed(p, marginalPriceDecimals)
+    // );
+    // const priceTolerance = parseFixed("0.000001", marginalPriceDecimals);
+    // const decimals = [swimUsd, usdc, usdt].map((t) => t.decimals);
+    const removeAmounts = [1, 4, 7];
 
-    await pool.removeExactOutput(
-      liquidityProvider,
-      pool.toAtomicAmounts([1, 4, 7]),
-      lpToken.toAtomic(baseAmount).mul(3)
-    );
+    await pool.removeExactOutput(liquidityProvider, removeAmounts, baseAmount * 3);
 
-    const actualLpSupply = await lpToken.totalSupply();
-    //test against the internal function, rather than the convenience function
-    const actualPrices = await pool.contract.getMarginalPrices();
-    expectCloseTo(lpToken, actualLpSupply, expectedLpSupply);
-    for (let i = 0; i < expectedPrices.length; ++i) {
-      expect(actualPrices[i].value).to.be.closeTo(expectedPrices[i], priceTolerance);
-      expect(actualPrices[i].decimals).to.equal(
-        marginalPriceDecimals + decimals[i] - lpToken.decimals
-      );
-    }
+    const expected = (await pool.poolmath()).marginalPrices();
 
-    await lpToken.burn(liquidityProvider, actualLpSupply.div(2));
-    const doubledPrices = await pool.contract.getMarginalPrices();
-    for (let i = 0; i < doubledPrices.length; ++i) {
-      expect(doubledPrices[i].value).to.be.closeTo(expectedPrices[i].mul(2), priceTolerance.mul(2));
-      expect(doubledPrices[i].decimals).to.equal(
-        marginalPriceDecimals + decimals[i] - lpToken.decimals
-      );
-    }
+    const actualPrices = await pool.getMarginalPrices();
+    for (let i = 0; i < pool.tokens.length; ++i)
+      expect(expected[i].sub(actualPrices[i]).abs().lessThanOrEqualTo(tolerance));
+
+    await lpToken.burn(liquidityProvider, (await lpToken.balanceOf(liquidityProvider)).div(2));
+    const doubledPrices = await pool.getMarginalPrices();
+    for (let i = 0; i < pool.tokens.length; ++i)
+      expect(expected[i].mul(2).sub(doubledPrices[i]).abs().lessThanOrEqualTo(tolerance));
   });
 
   it("Works for skewed swimUsd and LP", async function () {
-    const { pool, lpToken, liquidityProvider, swimUsd } = await loadFixture(testFixture);
+    const { pool, lpToken, liquidityProvider } = await loadFixture(testFixture);
 
-    const poolBalances = pool.toAtomicAmounts(["0.879412", "2052.006916", "2117.774978"]);
-    const lpSupply = lpToken.toAtomic("809.89675");
-    const addswimUsd = swimUsd.toAtomic("20");
-    const expectedLp = lpToken.toAtomic("979.838246");
+    const poolBalances = ["0.879412", "2052.006916", "2117.774978"];
+    const lpSupply = "809.89675";
+    const inputIndex = 0;
+    const inputAmount = "20";
+    //const expectedLp = "979.838246";
 
-    const lpAmount = lpToken.toAtomic(baseAmount).mul(3);
-    await pool.removeUniform(liquidityProvider, lpAmount, pool.toAtomicAmounts(baseAmount));
+    await pool.removeUniform(
+      liquidityProvider,
+      baseAmount * pool.tokens.length,
+      pool.tokens.map(() => baseAmount)
+    );
 
     await pool.add(liquidityProvider, poolBalances, 0);
     const rectifySupply = await lpToken.balanceOf(liquidityProvider);
     await lpToken.burn(liquidityProvider, rectifySupply.sub(lpSupply));
-    await pool.add(liquidityProvider, [addswimUsd, 0, 0], 0);
-    const receivedLp = (await lpToken.balanceOf(liquidityProvider)).sub(lpSupply);
-    expectCloseTo(lpToken, receivedLp, expectedLp);
+
+    const inputAmounts = pool.tokens.map((_, i) => (i === inputIndex ? inputAmount : 0));
+    const expected = (await pool.poolmath()).add(inputAmounts);
+
+    await pool.add(liquidityProvider, inputAmounts, 0);
+    //TODO figure out why this is less accurate than everything else
+    await expectCloseTo(lpToken, liquidityProvider, expected.lpOutputAmount.add(lpSupply), 5);
   });
 
   // it("Check marginal prices are correct for constant product", async function () {

@@ -16,6 +16,8 @@ import "./interfaces/IUniswapV3Pool.sol";
 import "./SwimPayload.sol";
 import "./Constants.sol";
 
+//import "hardhat/console.sol";
+
 contract Routing is
   IRouting,
   Initializable,
@@ -53,11 +55,12 @@ contract Routing is
 
   using SafeERC20 for IERC20;
 
-  uint private constant PRECISION = 18;
-  uint private constant GAS_COST_BASE = 85000;
-  uint private constant GAS_COST_POOL_SWAP = 125000;
+  uint private constant PRECISION = ROUTING_PRECISION;
+  uint private constant PRECISION_MULTIPLIER = 10 ** PRECISION;
+  uint private constant GAS_COST_BASE = 80000;
+  //uint private constant GAS_COST_BASE = 78900;
+  uint private constant GAS_COST_POOL_SWAP = 80000;
   uint private constant GAS_KICKSTART_AMOUNT = 0.05 ether;
-  uint private constant PROPELLER_GAS_TIP = 1 gwei;
 
   uint private constant BNB_MAINNET_CHAINID = 56;
   uint private constant BNB_TESTNET_CHAINID = 97;
@@ -260,7 +263,7 @@ contract Routing is
     bool gasKickstart,
     uint64 maxPropellerFee,
     uint16 toTokenNumber
-  ) external payable returns (uint swimUsdAmount, uint64 wormholeSequence) {
+  ) external payable whenNotPaused returns (uint swimUsdAmount, uint64 wormholeSequence) {
     (swimUsdAmount, wormholeSequence) = _propellerInitiate(
       fromToken,
       inputAmount,
@@ -403,11 +406,17 @@ contract Routing is
       }
     }
 
+    //emit here instead of at the end to have it included in dynamic gas cost calculation
+    if (swimPayload.memo != bytes16(0))
+      emit MemoInteraction(swimPayload.memo);
+
     uint swimUsdPerGasToken = propellerFeeConfig.method == GasTokenPriceMethod.UniswapOracle
       ? swimUsdPerGasTokenUniswap()
       : propellerFeeConfig.fixedSwimUsdPerGasToken;
     uint feeAmount =
       propellerFeeConfig.serviceFee + calcSwimUsdGasFee(startGas, swimUsdPerGasToken, swimPayload);
+
+    //console.log("C feeAmount", feeAmount);
 
     if (feeAmount > swimPayload.maxPropellerFee)
       feeAmount = swimPayload.maxPropellerFee;
@@ -437,14 +446,10 @@ contract Routing is
             0 //no slippage for propeller
           )
         : swimUsdAmount - feeAmount;
-
       IERC20(outputToken).safeTransfer(swimPayload.toOwner, outputAmount);
     }
     else
       outputAmount = 0;
-
-    if (swimPayload.memo != bytes16(0))
-      emit MemoInteraction(swimPayload.memo);
   }}
 
   // ----------------------------- ENGINE ----------------------------------------------------------
@@ -501,10 +506,12 @@ contract Routing is
   }
 
   function usePropellerFixedGasTokenPrice(
-    uint fixedSwimUsdPerGasToken
+    Decimal calldata fixedSwimUsdPerGasToken //atomic swimUsd per wei ETH
   ) external onlyOwner {
     propellerFeeConfig.method = GasTokenPriceMethod.FixedPrice;
-    propellerFeeConfig.fixedSwimUsdPerGasToken = fixedSwimUsdPerGasToken;
+    propellerFeeConfig.fixedSwimUsdPerGasToken = fixedSwimUsdPerGasToken.decimals < PRECISION
+      ? fixedSwimUsdPerGasToken.value * 10 ** (PRECISION - fixedSwimUsdPerGasToken.decimals)
+      : fixedSwimUsdPerGasToken.value / 10 ** (fixedSwimUsdPerGasToken.decimals - PRECISION);
   }
 
   function usePropellerUniswapOracle(
@@ -599,6 +606,9 @@ contract Routing is
     returns (uint64 wormholeSequence_) {
       wormholeSequence = wormholeSequence_;
     }
+    catch Panic(uint errorCode) {
+      revert WormholeInteractionFailed(abi.encode(errorCode));
+    }
     catch (bytes memory lowLevelData) {
       revert WormholeInteractionFailed(lowLevelData);
     }
@@ -626,6 +636,9 @@ contract Routing is
           WORMHOLE_SOLANA_CHAIN_ID
         );
     }
+    catch Panic(uint errorCode) {
+      revert WormholeInteractionFailed(abi.encode(errorCode));
+    }
     catch (bytes memory lowLevelData) {
       revert WormholeInteractionFailed(lowLevelData);
     }
@@ -633,7 +646,7 @@ contract Routing is
 
   // ----------------------------- INTERNAL VIEW/PURE ----------------------------------------------
 
-  // @return swimUsdPerGasToken with 18 decimals
+  // @return swimUsdPerGasToken with PRECISION decimals
   function swimUsdPerGasTokenUniswap() internal view returns (uint swimUsdPerGasToken) { unchecked {
     //this function is a bit of a clusterfuck due to the wide range of prices that can
     // _theoretically_ be returned by our oracles (swimPool and Uniswap) and because uniswap pools
@@ -724,8 +737,8 @@ contract Routing is
       consumedGas -= gasleft();
       gasTokenCost += remuneratedGasPrice * consumedGas;
     }
-
-    swimUsdGasFee = (gasTokenCost * swimUsdPerGasToken) / MARGINAL_PRICE_MULTIPLIER; //SafeMath!
+    //console.log("C expected gas:", consumedGas);
+    swimUsdGasFee = (gasTokenCost * swimUsdPerGasToken) / PRECISION_MULTIPLIER; //SafeMath!
   }
 
   function getPoolAndIndex(address token) internal view returns (IPool, uint8) {

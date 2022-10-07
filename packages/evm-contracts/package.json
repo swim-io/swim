@@ -19,7 +19,7 @@
     "compile": "hardhat compile",
     "clean": "hardhat clean",
     "test": "hardhat test",
-    "test:staging": "hardhat test --network rinkeby",
+    "playground": "hardhat run scripts/playground.ts",
     "test:fixtures": "hardhat test --deploy-fixture --network localhost",
     "transfer-ownership": "hardhat run scripts/transfer_ownership.ts",
     "format": "prettier --write \"./{src,test}/**/*.ts\"",

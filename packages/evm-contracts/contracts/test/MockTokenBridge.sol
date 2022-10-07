@@ -114,6 +114,19 @@ contract MockTokenBridge is ITokenBridge {
     return _completeTransfer(encodedVm, PAYLOAD_ID_WITH_PAYLOAD);
   }
 
+  function createWrapped(bytes memory encodedVm) external view returns (address) {
+    for (uint i = 1; i < encodedVm.length-34; ++i) {
+      uint offset = i;
+      bytes32 tokenAddress;
+      uint16 tokenChainId;
+      (tokenAddress, offset) = encodedVm.asBytes32(offset);
+      (tokenChainId, offset) = encodedVm.asUint16(offset);
+      if (tokenAddress == SWIM_USD_SOLANA_ADDRESS && tokenChainId == WORMHOLE_SOLANA_CHAIN_ID)
+        return address(swimUsd);
+    }
+    return address(0);
+  }
+
   function wrappedAsset(
     uint16 tokenChainId,
     bytes32 tokenAddress

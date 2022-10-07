@@ -34,8 +34,8 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   using SafeERC20 for IERC20;
 
   uint private constant MAX_TOKEN_COUNT = 6;
-  int8 private constant POOL_PRECISION = 6;
-  int8 private constant SWIM_USD_EQUALIZER = POOL_PRECISION - int8(SWIM_USD_DECIMALS);
+  int8 private constant PRECISION = int8(int(POOL_PRECISION));
+  int8 private constant SWIM_USD_EQUALIZER = PRECISION - int8(SWIM_USD_DECIMALS);
   //Min and max equalizers are somewhat arbitrary, though shifting down by more than 14 decimals
   // will almost certainly be unintentional and shifting up by more than 4 digits will almost
   // certainly result in too small of a usable value range (only 18 digits in total!).
@@ -53,7 +53,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   uint private constant MIN_AMP_ADJUSTMENT_WINDOW = 1 days;
   uint private constant MAX_AMP_RELATIVE_ADJUSTMENT = 10;
 
-  //slot0 (28/32 bytes used)
+  //slot[0] (28/32 bytes used)
   // We could cut down on gas costs further by implementing a method that reads the slot once
   //  and parses out the values manually instead of having Solidity generate inefficient, garbage
   //  bytecode as it does...
@@ -68,16 +68,17 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
   uint32 private _ampTargetValue; //in internal, i.e. AMP_SHIFTED representation
   uint32 private _ampTargetTimestamp;
 
-  //slot1
+  //slot[1]
   address private _governance;
 
-  //slot2
+  //slot[2]
   address private _governanceFeeRecipient;
 
-  //slot3
+  //slot[3]
   TokenWithEqualizer private /*immutable*/ _lpTokenData;
 
-  //slots4-4+MAX_TOKEN_COUNT (use fixed size array to save gas by not having to keccak on access)
+  //slots[4 to 4+MAX_TOKEN_COUNT]
+  // (use fixed size array to save gas by not having to keccak on access)
   TokenWithEqualizer[MAX_TOKEN_COUNT] private /*immutable*/ _poolTokensData;
 
   modifier notPaused {
@@ -111,7 +112,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       //moved to a separate function to avoid stack too deep
       deployLpToken(lpTokenName, lpTokenSymbol, lpTokenDecimals, lpTokenSalt),
       //LpToken ensures decimals are sensible hence we don't have to worry about conversion here
-      POOL_PRECISION - int8(lpTokenDecimals)
+      PRECISION - int8(lpTokenDecimals)
     );
 
     uint tokenCount = poolTokenAddresses.length + 1;
@@ -539,7 +540,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     //We're limiting total fees to less than 50 % because:
     // 1) Anything even close to approaching this is already entirely insane.
     // 2) To avoid theoretical overflow/underflow issues when calculating the inverse fee,
-    //    of 1/(1-fee)-1 would exceed 100 % if fee were to exceeds 50 %.
+    //    of 1/(1-fee)-1 would exceed 100 % if fee were to exceed 50 %.
     if (totalFee >= FEE_MULTIPLIER/2)
       revert TotalFeeTooLarge(totalFee, uint32(FEE_MULTIPLIER/2 - 1));
     if (governanceFee != 0 && _governanceFeeRecipient == address(0))
@@ -570,7 +571,7 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     }
     else {
       uint threshold = ampTargetValue * MAX_AMP_RELATIVE_ADJUSTMENT;
-      if (ampTargetValue < threshold)
+      if (currentAmpFactor > threshold)
         revert AmpFactorRelativeAdjustmentTooLarge(
           toExternalAmpValue(uint32(currentAmpFactor)),
           targetValue,
@@ -578,8 +579,8 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
         );
     }
     // solhint-disable-next-line not-rely-on-time
-    _ampInitialValue     = uint32(block.timestamp);
-    _ampInitialTimestamp = uint32(currentAmpFactor);
+    _ampInitialValue     = uint32(currentAmpFactor);
+    _ampInitialTimestamp = uint32(block.timestamp);
     _ampTargetValue      = uint32(ampTargetValue);
     _ampTargetTimestamp  = targetTimestamp;
   }

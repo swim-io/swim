@@ -4,9 +4,12 @@
 import { formatFixed, parseFixed } from "@ethersproject/bignumber";
 import { hexlify } from "@ethersproject/bytes";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import PoolMath from "@swim-io/pool-math";
+import type { Decimalish } from "@swim-io/pool-math";
+import { PoolMath, toDecimal } from "@swim-io/pool-math";
 import { TOKEN_PROJECTS_BY_ID, TokenProjectId } from "@swim-io/token-projects";
-import Decimal from "decimal.js";
+import { BN } from "bn.js";
+import { expect, use } from "chai";
+import type Decimal from "decimal.js";
 import type { BigNumberish, BytesLike, Contract } from "ethers";
 import { ethers } from "hardhat";
 
@@ -14,9 +17,18 @@ import type { Pool } from "../typechain-types/contracts/Pool";
 import type { Routing } from "../typechain-types/contracts/Routing";
 import type { ERC20Token } from "../typechain-types/contracts/test/ERC20Token";
 
-import { confirm, getProxy } from "./deploy";
+import { GAS_TOKEN_DECIMALS, POOL_PRECISION, ROUTING_PRECISION } from "./config";
+import { confirm, getProxy, getRoutingProxy } from "./deploy";
 
+// eslint-disable-next-line import/no-commonjs, @typescript-eslint/no-var-requires
+use(require("chai-bn")(BN));
+
+export const tolerance = 2 * 10 ** -POOL_PRECISION;
+
+export type { Decimalish };
 export type HasAddress = { readonly address: string };
+
+export { toDecimal };
 
 const call = (contract: Contract, from: SignerWithAddress, method: string, args: readonly any[]) =>
   confirm(contract.connect(from)[method](...args));
@@ -30,7 +42,14 @@ export class TokenWrapper {
         ? 0
         : Object.values(TokenProjectId)
             .map((id) => TOKEN_PROJECTS_BY_ID[id])
-            .filter((project) => project.symbol === symbol)[0]?.tokenNumber;
+            //TODO we're using includes() and lenght checking here instead of === here because e.g.
+            //      on Avalanche USDC is called aUSDC... ultimately a better solution than this is
+            //      obviously required to dynamically look up tokennumbers
+            .filter(
+              (project) =>
+                symbol.includes(project.symbol) &&
+                Math.abs(symbol.length - project.symbol.length) < 2
+            )[0]?.tokenNumber;
   }
 
   get address() {
@@ -40,29 +59,34 @@ export class TokenWrapper {
   static create = async (contract: ERC20Token) =>
     new TokenWrapper(contract, await contract.decimals(), await contract.symbol());
 
-  toAtomic = (human: BigNumberish) =>
-    parseFixed(typeof human === "string" ? human : human.toString(), this.decimals);
+  toAtomic = (human: Decimalish) =>
+    parseFixed(toDecimal(human).toFixed(this.decimals), this.decimals);
 
-  toHuman = (atomic: BigNumberish) => formatFixed(atomic, this.decimals);
+  toHuman = (atomic: BigNumberish) => toDecimal(formatFixed(atomic, this.decimals));
 
-  balanceOf = (account: HasAddress) => this.contract.balanceOf(account.address);
+  balanceOf = async (account: HasAddress) =>
+    this.toHuman(await this.contract.balanceOf(account.address));
 
-  allowance = (owner: HasAddress, spender: HasAddress) =>
-    this.contract.allowance(owner.address, spender.address);
+  allowance = async (owner: HasAddress, spender: HasAddress) =>
+    this.toHuman(await this.contract.allowance(owner.address, spender.address));
 
-  totalSupply = () => this.contract.totalSupply();
+  totalSupply = async () => this.toHuman(await this.contract.totalSupply());
 
-  approve = (from: SignerWithAddress, to: HasAddress, amount: BigNumberish) =>
-    confirm(this.contract.connect(from).approve(to.address, amount));
+  transfer = (from: SignerWithAddress, to: HasAddress, amount: Decimalish) =>
+    confirm(this.contract.connect(from).transfer(to.address, this.toAtomic(amount)));
 
-  mint = (to: HasAddress, amount: BigNumberish) => confirm(this.contract.mint(to.address, amount));
+  approve = (from: SignerWithAddress, to: HasAddress, amount: Decimalish) =>
+    confirm(this.contract.connect(from).approve(to.address, this.toAtomic(amount)));
 
-  burn = (from: SignerWithAddress, amount: BigNumberish) =>
-    confirm(this.contract.connect(from).burn(amount));
+  mint = (to: HasAddress, amount: Decimalish) =>
+    confirm(this.contract.mint(to.address, this.toAtomic(amount)));
+
+  burn = (from: SignerWithAddress, amount: Decimalish) =>
+    confirm(this.contract.connect(from).burn(this.toAtomic(amount)));
 }
 
 export class PoolWrapper {
-  constructor(
+  private constructor(
     readonly contract: Pool,
     readonly tokens: readonly TokenWrapper[],
     readonly lpToken: TokenWrapper
@@ -72,129 +96,140 @@ export class PoolWrapper {
     return this.contract.address;
   }
 
-  static create = async (salt: string, tokens: readonly TokenWrapper[]) => {
+  static create = async (salt: string) => {
     const pool = (await getProxy("Pool", salt)) as Pool;
+    const state = await pool.getState();
+
     return new PoolWrapper(
       pool,
-      tokens,
+      await Promise.all(
+        state.balances.map(async (balance) =>
+          TokenWrapper.create(
+            (await ethers.getContractAt("ERC20Token", balance.tokenAddress)) as ERC20Token
+          )
+        )
+      ),
       await TokenWrapper.create(
         (await ethers.getContractAt("LpToken", await pool.getLpToken())) as ERC20Token
       )
     );
   };
 
-  toAtomicAmounts = (human: BigNumberish | readonly BigNumberish[]) =>
-    this.tokens.map((t, i) => t.toAtomic(Array.isArray(human) ? human[i] : human));
-
   async poolmath() {
     const state = await this.contract.getState();
     return new PoolMath(
-      state.balances.map((b, i) => new Decimal(formatFixed(b.balance, this.tokens[i].decimals))),
-      new Decimal(formatFixed(state.ampFactor.value, state.ampFactor.decimals)),
-      new Decimal(formatFixed(state.lpFee.value, state.lpFee.decimals)),
-      new Decimal(formatFixed(state.governanceFee.value, state.governanceFee.decimals)),
-      new Decimal(formatFixed(state.totalLpSupply.balance, this.lpToken.decimals))
+      state.balances.map((b, i) => toDecimal(formatFixed(b.balance, this.tokens[i].decimals))),
+      toDecimal(formatFixed(state.ampFactor.value, state.ampFactor.decimals)),
+      toDecimal(formatFixed(state.lpFee.value, state.lpFee.decimals)),
+      toDecimal(formatFixed(state.governanceFee.value, state.governanceFee.decimals)),
+      toDecimal(formatFixed(state.totalLpSupply.balance, this.lpToken.decimals))
     );
   }
 
   async getMarginalPrices() {
     return (await this.contract.getMarginalPrices()).map((decimalStruct) =>
-      ethers.utils.formatUnits(decimalStruct.value, decimalStruct.decimals)
+      toDecimal(ethers.utils.formatUnits(decimalStruct.value, decimalStruct.decimals))
     );
   }
 
   async add(
     from: SignerWithAddress,
-    inputAmounts: readonly BigNumberish[],
-    minimumMintAmount: BigNumberish
+    inputAmounts: readonly Decimalish[],
+    minimumMintAmount: Decimalish
   ) {
     await this.approveAll(from, inputAmounts);
-    return call(this.contract, from, "add(uint256[],uint256)", [inputAmounts, minimumMintAmount]);
+    return call(this.contract, from, "add(uint256[],uint256)", [
+      this.toAtomicAmounts(inputAmounts),
+      this.lpToken.toAtomic(minimumMintAmount),
+    ]);
   }
 
   async removeUniform(
     from: SignerWithAddress,
-    burnAmount: BigNumberish,
-    minimumOutputAmounts: readonly BigNumberish[]
+    burnAmount: Decimalish,
+    minimumOutputAmounts: readonly Decimalish[]
   ) {
     //no lp approval required
     return call(this.contract, from, "removeUniform(uint256,uint256[])", [
-      burnAmount,
-      minimumOutputAmounts,
+      this.lpToken.toAtomic(burnAmount),
+      this.toAtomicAmounts(minimumOutputAmounts),
     ]);
   }
 
   async removeExactBurn(
     from: SignerWithAddress,
-    burnAmount: BigNumberish,
+    burnAmount: Decimalish,
     outputTokenIndex: number,
-    minimumOutputAmount: BigNumberish
+    minimumOutputAmount: Decimalish
   ) {
     //no lp approval required
     return call(this.contract, from, "removeExactBurn(uint256,uint8,uint256)", [
-      burnAmount,
+      this.lpToken.toAtomic(burnAmount),
       outputTokenIndex,
-      minimumOutputAmount,
+      this.tokens[outputTokenIndex].toAtomic(minimumOutputAmount),
     ]);
   }
 
   async removeExactOutput(
     from: SignerWithAddress,
-    outputAmounts: readonly BigNumberish[],
-    maximumBurnAmount: BigNumberish
+    outputAmounts: readonly Decimalish[],
+    maximumBurnAmount: Decimalish
   ) {
     //no lp approval required
     return call(this.contract, from, "removeExactOutput(uint256[],uint256)", [
-      outputAmounts,
-      maximumBurnAmount,
+      this.toAtomicAmounts(outputAmounts),
+      this.lpToken.toAtomic(maximumBurnAmount),
     ]);
   }
 
   async swap(
     from: SignerWithAddress,
-    inputAmount: BigNumberish,
+    inputAmount: Decimalish,
     inputTokenIndex: number,
     outputTokenIndex: number,
-    minimumOutputAmount: BigNumberish
+    minimumOutputAmount: Decimalish
   ) {
     await this.tokens[inputTokenIndex].approve(from, this.contract, inputAmount);
     return call(this.contract, from, "swap", [
-      inputAmount,
+      this.tokens[inputTokenIndex].toAtomic(inputAmount),
       inputTokenIndex,
       outputTokenIndex,
-      minimumOutputAmount,
+      this.tokens[outputTokenIndex].toAtomic(minimumOutputAmount),
     ]);
   }
 
   async swapExactInput(
     from: SignerWithAddress,
-    inputAmounts: readonly BigNumberish[],
+    inputAmounts: readonly Decimalish[],
     outputTokenIndex: number,
-    minimumOutputAmount: BigNumberish
+    minimumOutputAmount: Decimalish
   ) {
     await this.approveAll(from, inputAmounts);
     return call(this.contract, from, "swapExactInput", [
-      inputAmounts,
+      this.toAtomicAmounts(inputAmounts),
       outputTokenIndex,
-      minimumOutputAmount,
+      this.tokens[outputTokenIndex].toAtomic(minimumOutputAmount),
     ]);
   }
 
   async swapExactOutput(
     from: SignerWithAddress,
-    maximumInputAmount: BigNumberish,
+    maximumInputAmount: Decimalish,
     inputTokenIndex: number,
-    outputAmounts: readonly BigNumberish[]
+    outputAmounts: readonly Decimalish[]
   ) {
     await this.tokens[inputTokenIndex].approve(from, this.contract, maximumInputAmount);
     return call(this.contract, from, "swapExactOutput", [
-      maximumInputAmount,
+      this.tokens[inputTokenIndex].toAtomic(maximumInputAmount),
       inputTokenIndex,
-      outputAmounts,
+      this.toAtomicAmounts(outputAmounts),
     ]);
   }
 
-  private async approveAll(from: SignerWithAddress, amounts: readonly BigNumberish[]) {
+  private readonly toAtomicAmounts = (human: readonly Decimalish[]) =>
+    this.tokens.map((t, i) => t.toAtomic(human[i]));
+
+  private async approveAll(from: SignerWithAddress, amounts: readonly Decimalish[]) {
     for (let i = 0; i < this.tokens.length; ++i) {
       const token = this.tokens[i];
       if (!(await token.allowance(from, this)).eq(amounts[i]))
@@ -204,11 +239,19 @@ export class PoolWrapper {
 }
 
 export class RoutingWrapper {
-  constructor(readonly contract: Routing) {}
+  private constructor(readonly contract: Routing, readonly swimUsd: TokenWrapper) {}
 
   get address() {
     return this.contract.address;
   }
+
+  static create = async () => {
+    const contract = await getRoutingProxy();
+    const swimUsd = await TokenWrapper.create(
+      await ethers.getContractAt("ERC20Token", await contract.swimUsdAddress())
+    );
+    return new RoutingWrapper(contract, swimUsd);
+  };
 
   async getMemoInteractionEvents(memo?: BytesLike) {
     //we have to manually right-pad with zeros because either hardhat or ethers
@@ -222,17 +265,23 @@ export class RoutingWrapper {
   async onChainSwap(
     from: SignerWithAddress,
     fromToken: TokenWrapper,
-    inputAmount: BigNumberish,
+    inputAmount: Decimalish,
     toOwner: HasAddress,
     toToken: TokenWrapper,
-    minimumOutputAmount: BigNumberish,
+    minimumOutputAmount: Decimalish,
     memo?: BytesLike
   ) {
     await fromToken.approve(from, this, inputAmount);
     return this.memoCall(
       from,
       "onChainSwap(address,uint256,address,address,uint256)",
-      [fromToken.address, inputAmount, toOwner.address, toToken.address, minimumOutputAmount],
+      [
+        fromToken.address,
+        fromToken.toAtomic(inputAmount),
+        toOwner.address,
+        toToken.address,
+        toToken.toAtomic(minimumOutputAmount),
+      ],
       memo
     );
   }
@@ -240,8 +289,8 @@ export class RoutingWrapper {
   async crossChainInitiate(
     from: SignerWithAddress,
     fromToken: TokenWrapper,
-    inputAmount: BigNumberish,
-    firstMinimumOutputAmount: BigNumberish,
+    inputAmount: Decimalish,
+    firstMinimumOutputAmount: Decimalish,
     wormholeRecipientChain: number,
     toOwner: HasAddress | BytesLike,
     memo?: BytesLike
@@ -252,8 +301,8 @@ export class RoutingWrapper {
       "crossChainInitiate(address,uint256,uint256,uint16,bytes32)",
       [
         fromToken.address,
-        inputAmount,
-        firstMinimumOutputAmount,
+        fromToken.toAtomic(inputAmount),
+        this.swimUsd.toAtomic(firstMinimumOutputAmount),
         wormholeRecipientChain,
         this.asBytes32(toOwner),
       ],
@@ -264,11 +313,11 @@ export class RoutingWrapper {
   async propellerInitiate(
     from: SignerWithAddress,
     fromToken: TokenWrapper,
-    inputAmount: BigNumberish,
+    inputAmount: Decimalish,
     wormholeRecipientChain: number,
     toOwner: HasAddress | BytesLike,
     gasKickstart: boolean,
-    maxPropellerFee: BigNumberish,
+    maxPropellerFee: Decimalish,
     toTokenNumber: number,
     memo?: BytesLike
   ) {
@@ -278,11 +327,11 @@ export class RoutingWrapper {
       "propellerInitiate(address,uint256,uint16,bytes32,bool,uint64,uint16)",
       [
         fromToken.address,
-        inputAmount,
+        fromToken.toAtomic(inputAmount),
         wormholeRecipientChain,
         this.asBytes32(toOwner),
         gasKickstart,
-        maxPropellerFee,
+        this.swimUsd.toAtomic(maxPropellerFee),
         toTokenNumber,
       ],
       memo
@@ -293,13 +342,13 @@ export class RoutingWrapper {
     from: SignerWithAddress,
     encodedVm: BytesLike,
     toToken: TokenWrapper,
-    minimumOutputAmount: BigNumberish,
+    minimumOutputAmount: Decimalish,
     memo?: BytesLike
   ) {
     return this.memoCall(
       from,
       "crossChainComplete(bytes,address,uint256)",
-      [encodedVm, toToken.address, minimumOutputAmount],
+      [encodedVm, toToken.address, toToken.toAtomic(minimumOutputAmount)],
       memo
     );
   }
@@ -309,15 +358,41 @@ export class RoutingWrapper {
   }
 
   async propellerFeeConfig() {
-    return await this.contract.propellerFeeConfig();
+    const feeConfig = await this.contract.propellerFeeConfig();
+    if (feeConfig.method > 1)
+      throw Error(`unrecognized propeller fee config method: ${feeConfig.method}`);
+    const method =
+      feeConfig.method === 0 ? ("fixedSwimUsdPerGasToken" as const) : ("uniswapOracle" as const);
+    return {
+      method,
+      serviceFee: this.swimUsd.toHuman(feeConfig.serviceFee),
+      fixedSwimUsdPerGasToken: toDecimal(feeConfig.fixedSwimUsdPerGasToken.toString()).mul(
+        toDecimal(10).pow(-ROUTING_PRECISION - this.swimUsd.decimals + GAS_TOKEN_DECIMALS)
+      ),
+      uniswap: {
+        //TODO the information in here should be converted further into a more usable form
+        swimPool: feeConfig.uniswap.swimPool,
+        swimIntermediateIndex: feeConfig.uniswap.swimPool,
+        uniswapPool: feeConfig.uniswap.uniswapPool,
+        uniswapIntermediateIsFirst: feeConfig.uniswap.uniswapIntermediateIsFirst,
+      },
+    };
   }
 
   async usePropellerFixedGasTokenPrice(
     owner: SignerWithAddress,
-    fixedSwimUsdPerGasToken: BigNumberish
+    fixedSwimUsdPerGasToken: Decimalish //in human i.e. intuitive units
   ) {
     return confirm(
-      this.contract.connect(owner).usePropellerFixedGasTokenPrice(fixedSwimUsdPerGasToken)
+      this.contract.connect(owner).usePropellerFixedGasTokenPrice({
+        value: parseFixed(
+          toDecimal(fixedSwimUsdPerGasToken)
+            .mul(toDecimal(10).pow(this.swimUsd.decimals - GAS_TOKEN_DECIMALS))
+            .toFixed(),
+          ROUTING_PRECISION
+        ),
+        decimals: ROUTING_PRECISION,
+      })
     );
   }
 
@@ -351,4 +426,26 @@ export class RoutingWrapper {
     typeof val === "object" && "address" in val
       ? Buffer.from("00".repeat(12) + val.address.slice(2), "hex")
       : val;
+}
+
+export async function expectEqual(
+  token: TokenWrapper,
+  actual: HasAddress | Decimal,
+  expected: Decimalish
+) {
+  expect(token.toAtomic("address" in actual ? await token.balanceOf(actual) : actual)).to.equal(
+    token.toAtomic(expected)
+  );
+}
+
+export async function expectCloseTo(
+  token: TokenWrapper,
+  actual: HasAddress | Decimal,
+  expected: Decimalish,
+  toleranceMultiplier = 1
+) {
+  //TODO find a better way to make "close to" comparisons than going through BigNumber
+  expect(
+    token.toAtomic("address" in actual ? await token.balanceOf(actual) : actual)
+  ).to.be.closeTo(token.toAtomic(expected), token.toAtomic(tolerance).mul(toleranceMultiplier));
 }

@@ -12,10 +12,11 @@ import { task } from "hardhat/config";
 import type { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
 
 dotenv.config();
+//update .env.examples if you add additional environment variables!
 const { FACTORY_MNEMONIC, MNEMONIC, ETHERSCAN_API_KEY } = process.env;
 
 task(
-  "factoryAddress",
+  "factory-address",
   "Prints the address the SwimFactory will be deployed to given the FACTORY_MNEMONIC",
   // eslint-disable-next-line @typescript-eslint/require-await
   async (_, { ethers }) => {
@@ -38,6 +39,7 @@ task(
   async ({ proxy, logic, owner }, hre) => {
     const { ethers } = hre;
     const _owner = owner ? await ethers.getSigner(owner as string) : (await ethers.getSigners())[0];
+    //TODO check that proxy and logic exist
     const _proxy = (await ethers.getContractAt("BlankLogic", proxy as string)).connect(_owner);
     await (await _proxy.upgradeTo(logic as string)).wait();
   }
@@ -49,7 +51,7 @@ task(
   )
   .addOptionalPositionalParam("owner", "owner who's authorized to execute the upgrade", "");
 
-task("poolState", "Print state of given pool", async ({ pool }, { ethers }) => {
+task("pool-state", "Print state of given pool", async ({ pool }, { ethers }) => {
   const [isPaused, balances, lpSupply, ampFactorDec, lpFeeDec, govFeeDec] = await (
     await ethers.getContractAt("Pool", pool as string)
   ).getState();
@@ -117,6 +119,7 @@ const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.15",
     settings: {
+      viaIR: true,
       optimizer: {
         enabled: true,
         runs: 1000, // Optimize heavily for runtime gas cost rather than deployment gas cost
@@ -128,7 +131,7 @@ const config: HardhatUserConfig = {
             "evm.bytecode",
             "evm.bytecode.sourceMap",
             //"ir",
-            //"irOptimized",
+            "irOptimized",
             "evm.assembly",
           ],
           // "": ["ast"],
@@ -160,7 +163,9 @@ const config: HardhatUserConfig = {
       ...sharedNetworkConfig,
     },
     avalanchetestnet: {
-      url: "https://morning-proud-borough.avalanche-testnet.quiknode.pro/5d786c70bfeb06e9d120aedc93bbe02f7d2fbcd6/ext/bc/C/rpc",
+      //https://avalanche--fuji--rpc.datahub.figment.io/apikey/fa3f07b34f4acd63c50e8a965ae62e1c
+      //url: "https://morning-proud-borough.avalanche-testnet.quiknode.pro/5d786c70bfeb06e9d120aedc93bbe02f7d2fbcd6/ext/bc/C/rpc",
+      url: "https://api.avax-test.network/ext/bc/C/rpc",
       chainId: 43113,
       ...sharedNetworkConfig,
     },

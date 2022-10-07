@@ -136,6 +136,9 @@ contract SwimFactory is ISwimFactory {
     bytes memory code = proxyDeploymentCode();
     address proxy = create2(code, salt);
     try IUUPSUpgradeable(proxy).upgradeToAndCall(logic, call) {}
+    catch Panic(uint errorCode) {
+      revert ProxyConstructorFailed(abi.encode(errorCode));
+    }
     catch (bytes memory lowLevelData) {
       revert ProxyConstructorFailed(lowLevelData);
     }

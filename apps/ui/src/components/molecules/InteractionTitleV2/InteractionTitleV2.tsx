@@ -55,7 +55,7 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
       return (
         <div title={interaction.id}>
           <Trans
-            i18nKey="recent_interactions.swap_tokens"
+            i18nKey="recent_interactions.swap_tokens_for"
             components={{
               tokenAmounts: (
                 <AmountWithTokenIcon

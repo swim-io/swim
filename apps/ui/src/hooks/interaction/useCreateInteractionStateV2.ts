@@ -189,8 +189,8 @@ const createSwapInteractionState = (
         interactionType: interaction.type,
         swapType,
         approvalTxIds: [],
-        swapAndTransferTxId: null,
-        receiveAndSwapTxId: null,
+        crossChainInitiateTxId: null,
+        crossChainCompleteTxId: null,
       };
     case SwapType.CrossChainSolanaToEvm:
       return {
@@ -201,7 +201,7 @@ const createSwapInteractionState = (
         requiredSplTokenAccounts,
         swapToSwimUsdTxId: null,
         transferSwimUsdToEvmTxId: null,
-        receiveAndSwapTxId: null,
+        crossChainCompleteTxId: null,
       };
     case SwapType.CrossChainEvmToSolana:
       return {
@@ -211,7 +211,7 @@ const createSwapInteractionState = (
         swapType,
         requiredSplTokenAccounts,
         approvalTxIds: [],
-        swapAndTransferTxId: null,
+        crossChainInitiateTxId: null,
         signatureSetAddress: null,
         postVaaOnSolanaTxIds: [],
         claimTokenOnSolanaTxId: null,

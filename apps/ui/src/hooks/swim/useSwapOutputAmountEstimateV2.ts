@@ -72,11 +72,20 @@ const getOutputAmount = (
   return stableOutputAmount;
 };
 
-export const useSwapOutputAmountEstimateV2 = (
-  fromTokenOption: TokenOption,
-  toTokenOption: TokenOption,
-  inputAmount: Decimal,
-): Decimal | null => {
+export const useSwapOutputAmountEstimateV2 = ({
+  fromTokenOption,
+  toTokenOption,
+  inputAmount,
+  maxSlippageFraction,
+}: {
+  readonly fromTokenOption: TokenOption;
+  readonly toTokenOption: TokenOption;
+  readonly inputAmount: Decimal;
+  readonly maxSlippageFraction: Decimal | null;
+}): {
+  readonly firstMinimumOutputAmount: Decimal | null;
+  readonly minimumOutputAmount: Decimal | null;
+} => {
   const config = useEnvironment(selectConfig, shallow);
   const tokensByPool = getTokensByPool(config);
   const requiredPools = getRequiredPoolsForSwapV2(
@@ -90,18 +99,21 @@ export const useSwapOutputAmountEstimateV2 = (
   const toToken = toTokenOption.tokenConfig;
   const swimUsdSpec = useSwimUsd();
 
-  if (!isEachNotNull(poolMaths) || swimUsdSpec === null) {
-    return null;
-  }
-
-  if (requiredPools.length === 0) {
-    return inputAmount;
+  if (
+    !isEachNotNull(poolMaths) ||
+    swimUsdSpec === null ||
+    maxSlippageFraction === null
+  ) {
+    return {
+      firstMinimumOutputAmount: null,
+      minimumOutputAmount: null,
+    };
   }
 
   if (requiredPools.length === 1) {
     const poolSpec = requiredPools[0];
     const poolMath = poolMaths[0];
-    return getOutputAmount(
+    const outputAmount = getOutputAmount(
       fromToken,
       toToken,
       inputAmount,
@@ -109,6 +121,12 @@ export const useSwapOutputAmountEstimateV2 = (
       poolMath,
       tokensByPool[poolSpec.id],
     );
+    return {
+      firstMinimumOutputAmount: null,
+      minimumOutputAmount: outputAmount.sub(
+        outputAmount.mul(maxSlippageFraction),
+      ),
+    };
   }
 
   if (requiredPools.length > 2) {
@@ -119,7 +137,7 @@ export const useSwapOutputAmountEstimateV2 = (
   const outputPool = requiredPools[1];
   const outputPoolMath = poolMaths[1];
 
-  const swimUsdAmount = getOutputAmount(
+  const firstOutputAmount = getOutputAmount(
     fromToken,
     swimUsdSpec,
     inputAmount,
@@ -127,12 +145,27 @@ export const useSwapOutputAmountEstimateV2 = (
     inputPoolMath,
     tokensByPool[inputPool.id],
   );
-  return getOutputAmount(
+  const finalOutputAmount = getOutputAmount(
     swimUsdSpec,
     toToken,
-    swimUsdAmount,
+    firstOutputAmount,
     outputPool,
     outputPoolMath,
     tokensByPool[outputPool.id],
   );
+  const minimumOutputAmount = finalOutputAmount.sub(
+    finalOutputAmount.mul(maxSlippageFraction),
+  );
+  const firstMinimumOutputAmount = getOutputAmount(
+    toToken,
+    swimUsdSpec,
+    minimumOutputAmount,
+    outputPool,
+    outputPoolMath,
+    tokensByPool[outputPool.id],
+  );
+  return {
+    firstMinimumOutputAmount,
+    minimumOutputAmount,
+  };
 };

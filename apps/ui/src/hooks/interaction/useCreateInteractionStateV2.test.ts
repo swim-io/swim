@@ -74,6 +74,7 @@ describe("useCreateInteractionStateV2", () => {
           ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
+        firstMinimumOutputAmount: null,
       },
     });
     expect(interactionState).toMatchSnapshot();
@@ -97,6 +98,7 @@ describe("useCreateInteractionStateV2", () => {
           ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
+        firstMinimumOutputAmount: null,
       },
     });
     expect(interactionState).toMatchSnapshot();
@@ -120,6 +122,7 @@ describe("useCreateInteractionStateV2", () => {
           ecosystemId: EvmEcosystemId.Ethereum,
           value: new Decimal("1000"),
         },
+        firstMinimumOutputAmount: new Decimal("1000"),
       },
     });
     expect(interactionState).toMatchSnapshot();
@@ -143,6 +146,7 @@ describe("useCreateInteractionStateV2", () => {
           ecosystemId: SOLANA_ECOSYSTEM_ID,
           value: new Decimal("1000"),
         },
+        firstMinimumOutputAmount: new Decimal("1000"),
       },
     });
     expect(interactionState).toMatchSnapshot();
@@ -166,6 +170,7 @@ describe("useCreateInteractionStateV2", () => {
           ecosystemId: EvmEcosystemId.Bnb,
           value: new Decimal("1000"),
         },
+        firstMinimumOutputAmount: new Decimal("1000"),
       },
     });
     expect(interactionState).toMatchSnapshot();

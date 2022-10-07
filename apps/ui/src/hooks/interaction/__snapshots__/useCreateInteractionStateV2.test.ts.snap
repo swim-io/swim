@@ -208,6 +208,8 @@ Object {
 exports[`useCreateInteractionStateV2 should create state for Swap from ETHEREUM USDC to BNB USDT 1`] = `
 Object {
   "approvalTxIds": Array [],
+  "crossChainCompleteTxId": null,
+  "crossChainInitiateTxId": null,
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
@@ -224,6 +226,7 @@ Object {
     "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "params": Object {
+      "firstMinimumOutputAmount": "1000",
       "fromTokenData": Object {
         "ecosystemId": "ethereum",
         "tokenConfig": Object {
@@ -271,8 +274,6 @@ Object {
     "type": 5,
   },
   "interactionType": 5,
-  "receiveAndSwapTxId": null,
-  "swapAndTransferTxId": null,
   "swapType": "CrossChainEvmToEvm",
   "version": 2,
 }
@@ -297,6 +298,7 @@ Object {
     "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "params": Object {
+      "firstMinimumOutputAmount": null,
       "fromTokenData": Object {
         "ecosystemId": "ethereum",
         "tokenConfig": Object {
@@ -353,6 +355,7 @@ exports[`useCreateInteractionStateV2 should create state for Swap from ETHEREUM 
 Object {
   "approvalTxIds": Array [],
   "claimTokenOnSolanaTxId": null,
+  "crossChainInitiateTxId": null,
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
@@ -369,6 +372,7 @@ Object {
     "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "params": Object {
+      "firstMinimumOutputAmount": "1000",
       "fromTokenData": Object {
         "ecosystemId": "ethereum",
         "tokenConfig": Object {
@@ -427,7 +431,6 @@ Object {
     },
   },
   "signatureSetAddress": null,
-  "swapAndTransferTxId": null,
   "swapFromSwimUsdTxId": null,
   "swapType": "CrossChainEvmToSolana",
   "version": 2,
@@ -436,6 +439,7 @@ Object {
 
 exports[`useCreateInteractionStateV2 should create state for Swap from SOLANA USDC to ETHEREUM USDC 1`] = `
 Object {
+  "crossChainCompleteTxId": null,
   "interaction": Object {
     "connectedWallets": Object {
       "acala": null,
@@ -452,6 +456,7 @@ Object {
     "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "params": Object {
+      "firstMinimumOutputAmount": "1000",
       "fromTokenData": Object {
         "ecosystemId": "solana",
         "tokenConfig": Object {
@@ -494,7 +499,6 @@ Object {
     "type": 5,
   },
   "interactionType": 5,
-  "receiveAndSwapTxId": null,
   "requiredSplTokenAccounts": Object {
     "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C": Object {
       "isExistingAccount": false,
@@ -534,6 +538,7 @@ Object {
     "env": "Testnet",
     "id": "11111111111111111111111111111111",
     "params": Object {
+      "firstMinimumOutputAmount": null,
       "fromTokenData": Object {
         "ecosystemId": "solana",
         "tokenConfig": Object {

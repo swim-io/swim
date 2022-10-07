@@ -90,6 +90,16 @@ const deserializeTokenTransferData: Deserializer<
       }
     : undefined;
 
+const serializeDecimal: Serializer<Decimal | null, string> = (
+  decimal: unknown | Decimal,
+): string | undefined =>
+  decimal instanceof Decimal ? decimal.toString() : undefined;
+
+const deserializeDecimal: Deserializer<string, Decimal | null> = (
+  _env: Env,
+  data: unknown,
+) => (typeof data === "string" ? new Decimal(data) : null);
+
 const paramParsers = [
   {
     fieldNames: new Set(["fromTokenData", "toTokenData"]),
@@ -109,6 +119,11 @@ const paramParsers = [
     serialize: serializeAmount,
     deserialize: deserializeAmount,
   },
+  {
+    fieldNames: new Set(["firstMinimumOutputAmount"]),
+    serialize: serializeDecimal,
+    deserialize: deserializeDecimal,
+  },
 ];
 
 const serializeInteractionV2 = (
@@ -124,7 +139,9 @@ const serializeInteractionV2 = (
       }
       return {
         ...result,
-        [key]: Array.isArray(value) ? value.map(serialize) : serialize(value),
+        [key]: Array.isArray(value)
+          ? value.map((v) => serialize(v))
+          : serialize(value),
       };
     },
     {},

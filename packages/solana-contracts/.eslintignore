@@ -5,4 +5,4 @@ dist/
 node_modules/
 target/
 types/
-src/__tests__/scratch.ts
+**/scratch.ts

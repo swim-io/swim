@@ -16,7 +16,6 @@ import {
   Spl,
   setProvider,
   web3,
-  workspace,
 } from "@project-serum/anchor";
 
 // eslint-disable-next-line import/extensions
@@ -39,17 +38,12 @@ import Big from "big.js";
 import type { Propeller } from "../../artifacts/propeller";
 import PropellerIDL from "../../artifacts/propeller.json";
 import type { TwoPool } from "../../artifacts/two_pool";
-import { getApproveAndRevokeIxs } from "../../index";
-import {
-  getPoolUserBalances,
-  printPoolUserBalances,
-  setupPoolPrereqs,
-  setupUserAssociatedTokenAccts,
-} from "../twoPool/poolTestUtils";
-
+import { getApproveAndRevokeIxs, idl } from "../../index";
 import {
   DEFAULT_SOL_USD_FEED,
+  PROPELLER_PID,
   SWIM_USD_TO_TOKEN_NUMBER,
+  TWO_POOL_PID,
   USDC_TO_TOKEN_NUMBER,
   USDT_TO_TOKEN_NUMBER,
   ampFactor,
@@ -76,7 +70,14 @@ import {
   swimPayloadVersion,
   usdcPoolTokenIndex,
   usdtPoolTokenIndex,
-} from "./consts";
+} from "../consts";
+import {
+  getPoolUserBalances,
+  printPoolUserBalances,
+  setupPoolPrereqs,
+  setupUserAssociatedTokenAccts,
+} from "../twoPool/poolTestUtils";
+
 import type { WormholeAddresses } from "./propellerUtils";
 import {
   encodeSwimPayload,
@@ -121,8 +122,16 @@ const splAssociatedToken = Spl.associatedToken(provider);
 // Configure the client to use the local cluster.
 setProvider(provider);
 
-const propellerProgram = workspace.Propeller as Program<Propeller>;
-const twoPoolProgram = workspace.TwoPool as Program<TwoPool>;
+const propellerProgram = new Program(
+  idl.propeller as Idl,
+  PROPELLER_PID,
+  provider,
+) as unknown as Program<Propeller>;
+const twoPoolProgram = new Program(
+  idl.twoPool as Idl,
+  TWO_POOL_PID,
+  provider,
+) as unknown as Program<TwoPool>;
 
 let wormhole: web3.PublicKey;
 let tokenBridge: web3.PublicKey;

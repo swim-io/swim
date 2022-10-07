@@ -4,12 +4,12 @@
   "wormholeTokenBridge": "B6RHG3mfcckmrYN1UhmJzyS1XX3fZKbkeUcpJe9Sy3FE",
   "targetChains": [
     {
-      "targetChainId": 2,
+      "wormholeChainId": 2,
       "targetAddress": "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4",
       "tokenBridge": "0x0290FB167208Af455bB137780163b7B7a9a10C16"
     },
     {
-      "targetChainId": 4,
+      "wormholeChainId": 4,
       "targetAddress": "0x280999aB9aBfDe9DC5CE7aFB25497d6BB3e8bDD4",
       "tokenBridge": "0x0290FB167208Af455bB137780163b7B7a9a10C16"
     }

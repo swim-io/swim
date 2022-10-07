@@ -89,3 +89,10 @@ export const evmOwner = Buffer.from(evmOwnerByteArr);
 export const DEFAULT_SOL_USD_FEED = new web3.PublicKey(
   "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR",
 );
+
+export const TWO_POOL_PID = new web3.PublicKey(
+  "8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM",
+);
+export const PROPELLER_PID = new web3.PublicKey(
+  "9z6G41AyXk73r1E4nTv81drQPtEqupCSAnsLdGV5WGfK",
+);

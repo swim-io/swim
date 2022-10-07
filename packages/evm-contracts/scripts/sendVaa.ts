@@ -122,7 +122,8 @@ async function sendVaaFromBNB() {
   const txnResponse = await routing.connect(signers[0])["propellerInitiate(address,uint256,uint16,bytes32,bool,uint64,uint16)"](
     usdc.address, // fromToken
     inputAmount, // inputAmmount
-    4, // bnb chain id
+    1, // solana chain id
+    //4, // bnb chain id
     //6, // avax chain id
     //10, // fantom chain id
     "0x" + "00".repeat(12) + signers[0].address.substring(2), // toOwner

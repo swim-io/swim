@@ -30,7 +30,9 @@ const mainnet: SolanaChainConfig = {
     address: "BJUH9GJLaMSLV1E7B3SQLCy9eCfyr6zsrwGcpS2MkqR1",
     decimals: 8,
   },
-  routingContractAddress: "", // TODO: add when deployed
+  routingContractAddress: "", // TODO: Add when deployed
+  routingContractStateAddress: "", // TODO: Add when deployed
+  twoPoolContractAddress: "", // TODO: Add when deployed
   tokens: [
     {
       id: "mainnet-solana-usdc",
@@ -278,28 +280,12 @@ const testnet: SolanaChainConfig = {
     address: "3ngTtoyP9GFybFifX1dr7gCFXFiM2Wr6NfXn6EuU7k6C",
     decimals: 6,
   },
-  routingContractAddress: "", // TODO: add when deployed
+  routingContractAddress: "9z6G41AyXk73r1E4nTv81drQPtEqupCSAnsLdGV5WGfK", // TODO: Update if necessary
+  routingContractStateAddress: "Dzx6CofYZQwJrvLctW9vbnNJX4ViqFoTV7bjcrWxUbwY", // TODO: Update if necessary
+  twoPoolContractAddress: "8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM",
   tokens: [
     {
       id: "testnet-solana-usdc",
-      projectId: TokenProjectId.Usdc,
-      nativeDetails: {
-        address: "2w7wsGofEAvLiWXZgJySXZ4gofEhm8jQ9rtwXr1zbzUc",
-        decimals: 6,
-      },
-      wrappedDetails: EMPTY_MAP,
-    },
-    {
-      id: "testnet-solana-usdt",
-      projectId: TokenProjectId.Usdt,
-      nativeDetails: {
-        address: "DznJzVAjPHBvyyqXEQgPWTonF2nhwoSoutPNbXjmsUvY",
-        decimals: 6,
-      },
-      wrappedDetails: EMPTY_MAP,
-    },
-    {
-      id: "testnet-solana-usdc-v2",
       projectId: TokenProjectId.Usdc,
       nativeDetails: {
         address: "6iSRgpK4oiqJZuhpLsTecW3n9xBKUq9N3VPQN7RinYwq",
@@ -308,7 +294,7 @@ const testnet: SolanaChainConfig = {
       wrappedDetails: EMPTY_MAP,
     },
     {
-      id: "testnet-solana-usdt-v2",
+      id: "testnet-solana-usdt",
       projectId: TokenProjectId.Usdt,
       nativeDetails: {
         address: "8VbikoRxEoyYzTDzDcPTSsGk2E5mM7fK1WrVpKrVd75M",
@@ -496,7 +482,25 @@ const testnet: SolanaChainConfig = {
       wrappedDetails: EMPTY_MAP,
     },
   ],
-  pools: [],
+  pools: [
+    {
+      id: "two-pool",
+      displayName: "Two Pool",
+      ecosystemId: SOLANA_ECOSYSTEM_ID,
+      address: "EGm6UfAJ6LFy8WRxE2YjjJzwUbZ1ZFiuG2rP6YudKKBB",
+      contract: "8VNVtWUae4qMe535i4yL1gD3VTo8JhcfFEygaozBq8aM",
+      governanceFeeAccount: "FN9strke8tiDYmRNH3LFtg9zjJpTsxgTPHUegsQsUiai",
+      lpTokenId: "swimUSD",
+      tokenIds: ["testnet-solana-usdc", "testnet-solana-usdt"],
+      tokenAccounts: new Map([
+        ["testnet-solana-usdc", "49fm8MaATyD4BwaqxXmjASGuR3WLg8PL1SvMiYpyTdrx"],
+        ["testnet-solana-usdt", "849M4dvrdoUqsn7t6eVWWNos8Q8RfLJxRTzQC46KGoYE"],
+      ]),
+      feeDecimals: 6,
+      isStableSwap: true,
+      isStakingPool: false,
+    },
+  ],
 };
 
 const localnet: SolanaChainConfig = {
@@ -511,7 +515,9 @@ const localnet: SolanaChainConfig = {
     address: "LPTufpWWSucDqq1hib8vxj1uJxTh2bkE7ZTo65LH4J2",
     decimals: 8,
   },
-  routingContractAddress: "", // TODO: add when deployed
+  routingContractAddress: "", // TODO: Add when deployed
+  routingContractStateAddress: "", // TODO: Add when deployed
+  twoPoolContractAddress: "", // TODO: Add when deployed
   tokens: [
     {
       id: "local-solana-usdc",

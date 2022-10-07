@@ -22,10 +22,12 @@ export interface SolanaPoolConfig extends PoolConfig {
    * Maps token IDs to addresses of token accounts owned by the pool
    */
   readonly tokenAccounts: ReadonlyMap<string, string>;
-  readonly authority: string;
+  readonly governanceFeeAccount: string;
 }
 
 export interface SolanaChainConfig extends ChainConfig {
+  readonly routingContractStateAddress: string;
+  readonly twoPoolContractAddress: string;
   readonly pools: readonly SolanaPoolConfig[];
 }
 

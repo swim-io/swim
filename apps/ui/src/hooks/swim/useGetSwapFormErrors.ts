@@ -42,15 +42,6 @@ export const useGetSwapFormErrors = (
 
   return (allowLargeSwap: boolean) => {
     let errors: readonly string[] = [];
-
-    // temporarily disable BNB Chain
-    if (requiredEcosystems.has(ECOSYSTEMS.bnb.id)) {
-      errors = [
-        ...errors,
-        t("general.ecosystem.disabled", { ecosystemName: "BNB Chain" }),
-      ];
-    }
-
     // Require connected Solana wallet
     if (!wallets.solana.connected) {
       errors = [

@@ -30,7 +30,6 @@
   "general.connect_specific_wallet": "Connect {{ecosystemName}} wallet",
   "general.created_spl_token_account_but_failed_to_fetch_error": "Successfully created SPL token account but failed to fetch it",
   "general.download": "Download",
-  "general.ecosystem.disabled": "{{ecosystemName}} is currently disabled",
   "general.enter_amount_of_tokens": "Enter amount",
   "general.error_cannot_found_pool": "Pool not found",
   "general.error_cannot_found_pools": "No pools found",

@@ -155,7 +155,7 @@ const config: HardhatUserConfig = {
       ...sharedNetworkConfig,
     },
     bnbtestnet: {
-      url: "https://apis.ankr.com/f958c7d8af2244c686cad678b7b39fc8/40368bdfe11e91019e93b8797c65a1f3/binance/full/test",
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
       ...sharedNetworkConfig,
     },

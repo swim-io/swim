@@ -64,15 +64,16 @@ async function sendVaa() {
   const txnResponse = await routing.connect(signers[0])["propellerInitiate(address,uint256,uint16,bytes32,bool,uint64,uint16)"](
     usdc.address, // fromToken
     inputAmount, // inputAmmount
+    1, // solana
     //4, //wormhole chain id (binance chain id)
-    5, //polygon
+    //5, //polygon
     //6, // avax
     //10, //fantom
     "0x" + "00".repeat(12) + signers[0].address.substring(2), // toOwner
     false, // gasKickStart
     10, // maxPropellerFee
-    259, // toToken tokenNumber in swim (BUSD)
-    //256, // toToken (USDC)
+    //259, // toToken tokenNumber in swim (BUSD)
+    256, // toToken (USDC)
     {
       gasLimit: ethers.BigNumber.from("2000000"),
       gasPrice: '200000000000'
@@ -165,4 +166,4 @@ async function printBalances(address: string) {
   }
 }
 
-sendVaa();
+sendVaaFromBNB();

@@ -9,6 +9,7 @@ import { StatusCode } from "grpc-web";
 import { NodeHttpTransport } from "@improbable-eng/grpc-web-node-http-transport";
 
 const WORMHOLE_TOKEN_BRIDGE_ADDRESS_TESTNET_GOERLI = "0xF890982f9310df57d00f659cf4fd87e65adEd8d7"
+const BSC_WORMHOLE_TOKEN_BRIDGE = "0x9dcF9D205C9De35334D646BeE44b2D2859712A09";
 const WORMHOLE_RPC_HOSTS = [
   "https://wormhole-v2-testnet-api.certus.one"
 ];
@@ -41,12 +42,14 @@ const isRpcError = (error: unknown): error is RpcError => {
 
 (async () => {
   //const sequence = "1680"; // the first one that read from guardian network
-  const sequence = "2152";
+  const sequence = "1913";
   console.log("starting to fetch vaa sequence " + sequence);
   const vaa = await getSignedVAAWithRetry(
     WORMHOLE_RPC_HOSTS,
-    2, // goerli chain id
-    getEmitterAddressEth(WORMHOLE_TOKEN_BRIDGE_ADDRESS_TESTNET_GOERLI),
+    //2, // goerli chain id
+    //getEmitterAddressEth(WORMHOLE_TOKEN_BRIDGE_ADDRESS_TESTNET_GOERLI),
+    4,
+    getEmitterAddressEth(BSC_WORMHOLE_TOKEN_BRIDGE),
     sequence,
     {
       transport: NodeHttpTransport(), //This should only be needed when running in node.

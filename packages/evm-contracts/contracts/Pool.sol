@@ -123,8 +123,8 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
     _tokenCount = uint8(tokenCount);
 
     //swimUSD is always the first token
-    _poolTokensData[0].addr = IRouting(ROUTING_CONTRACT).swimUsdAddress();
-    _poolTokensData[0].equalizer = SWIM_USD_EQUALIZER;
+    _poolTokensData[SWIM_USD_TOKEN_INDEX].addr = IRouting(ROUTING_CONTRACT).swimUsdAddress();
+    _poolTokensData[SWIM_USD_TOKEN_INDEX].equalizer = SWIM_USD_EQUALIZER;
 
     for (uint i = 0; i < poolTokenAddresses.length; ++i) {
       //check that token contract exists and is (likely) ERC20 by calling balanceOf
@@ -547,6 +547,11 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
       revert NonZeroGovernanceFeeButNoRecipient();
     _totalFee = totalFee;
     _governanceFee = governanceFee;
+
+    emit FeesChanged(
+      Decimal(lpFee, uint8(FEE_DECIMALS)),
+      Decimal(governanceFee, uint8(FEE_DECIMALS))
+    );
   }
 
   function adjustAmpFactor(uint32 targetValue, uint32 targetTimestamp) external onlyGovernance {
@@ -592,14 +597,14 @@ contract Pool is IPool, Initializable, UUPSUpgradeable {
 
   function transferGovernance(address governance_) external onlyGovernance {
     _governance = governance_;
-    emit TransferGovernance(msg.sender, governance_);
+    emit GovernanceChanged(msg.sender, governance_);
   }
 
   function changeGovernanceFeeRecipient(address governanceFeeRecipient_) external onlyGovernance {
     if (_governanceFee != 0 && governanceFeeRecipient_ == address(0))
       revert NonZeroGovernanceFeeButNoRecipient();
     _governanceFeeRecipient = governanceFeeRecipient_;
-    emit ChangeGovernanceFeeRecipient(governanceFeeRecipient_);
+    emit GovernanceFeeRecipientChanged(governanceFeeRecipient_);
   }
 
   function upgradeLpToken(address newImplementation) external onlyGovernance {

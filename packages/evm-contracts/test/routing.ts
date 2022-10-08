@@ -4,6 +4,7 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
+import Decimal from "decimal.js";
 import { ethers, network } from "hardhat";
 
 import {
@@ -388,8 +389,9 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
     const maxPropellerFee = 0.2;
     const withSwap = false;
     const usdcIsFirst = true;
-    const intuitiveUsdcPerEth = 100;
+    const usdcPerEthHuman = 10;
     const skewBalances = true;
+    const withDebugOutput = false;
 
     const usdc = pool.tokens[1];
     const outputIndex = withSwap ? 2 : 0;
@@ -406,7 +408,7 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
       ? ([usdc.address, wethAddr] as const)
       : ([wethAddr, usdc.address] as const);
 
-    const sqrtPrice = Math.pow(intuitiveUsdcPerEth, 0.5 - (usdcIsFirst ? 1 : 0));
+    const sqrtPrice = Math.pow(usdcPerEthHuman, 0.5 - (usdcIsFirst ? 1 : 0));
     const sqrtPriceX96 = toDecimal(sqrtPrice).mul(toDecimal(2).pow(96));
     // const uniswapPrice = usdcIsFirst
     //   ? sqrtPriceX96.mul(tenToThe(swimUsd.decimals)).div(tenToThe(GAS_TOKEN_DECIMALS))
@@ -421,8 +423,8 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
       await ethers.getContractFactory("MockUniswapV3Pool")
     ).deploy(...addrs, uniswapPrice.trunc().toFixed());
     await mockUniswap.deployed();
-    const usdcPerEthAtomic = toDecimal(
-      ethers.utils.formatUnits(intuitiveUsdcPerEth, GAS_TOKEN_DECIMALS - usdc.decimals)
+    const usdcPerEthAtomic = toDecimal(usdcPerEthHuman).mul(
+      tenToThe(usdc.decimals - GAS_TOKEN_DECIMALS)
     );
 
     await routing.usePropellerUniswapOracle(deployer, usdc, mockUniswap);
@@ -448,21 +450,18 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
     const poolmath = await pool.poolmath();
     const poolMarginalPricesAtomic = await pool.getMarginalPrices();
 
-    const { gasUsed, effectiveGasPrice } = await routing.propellerComplete(
-      liquidityProvider,
-      fakeVaa
-    );
+    const receipt = await routing.propellerComplete(liquidityProvider, fakeVaa);
+    const { gasUsed, effectiveGasPrice } = receipt;
 
     const swimUsdPerUsdcAtomic = poolMarginalPricesAtomic[1].div(poolMarginalPricesAtomic[0]);
     const swimUsdPerGasTokenAtomic = swimUsdPerUsdcAtomic.mul(usdcPerEthAtomic);
-    const remuneratedGasPriceWei = effectiveGasPrice; //already contains ~1 gwei tip apparently
-    const gasTokenCostWei = toDecimal(gasUsed.mul(remuneratedGasPriceWei).toString());
+    const gasTokenCostWei = toDecimal(gasUsed.mul(effectiveGasPrice).toString());
     const expectedSwimUsdGasFeeAtomic = gasTokenCostWei.mul(swimUsdPerGasTokenAtomic);
     const expectedSwimUsdGasFee = swimUsd.toHuman(expectedSwimUsdGasFeeAtomic.trunc().toString());
-    const swimUsdFee = feeConfig.serviceFee.add(expectedSwimUsdGasFee);
+    const uncheckedSwimUsdFee = feeConfig.serviceFee.add(expectedSwimUsdGasFee);
+    const checkedSwimUsdFee = Decimal.min(uncheckedSwimUsdFee, maxPropellerFee, bridgedSwimUsd);
 
-    //TODO compare with bridgedSwimUsd and maxPropellerFee and use minimum of those
-    const expectedSwimUsd = toDecimal(bridgedSwimUsd).sub(swimUsdFee);
+    const expectedSwimUsd = toDecimal(bridgedSwimUsd).sub(checkedSwimUsdFee);
 
     const expectedBalance =
       outputToken.tokenNumber === swimUsd.tokenNumber
@@ -474,24 +473,54 @@ describe("Routing CrossChain and Propeller Defi Operations", function () {
             )
             .stableOutputAmount.toFixed(outputToken.decimals);
 
-    // console.table(
-    //   [
-    //     ["actual gas used", "gas", "receipt", gasUsed.toString()],
-    //     ["effectiveGasPrice", "wei", "receipt", effectiveGasPrice.toString()],
-    //     ["actual gas cost", "wei", "receipt*", gasUsed.mul(effectiveGasPrice).toString()],
-    //     ["remuneratedGasPrice", "wei", "receipt", remuneratedGasPriceWei.toString()],
-    //     ["gasTokenCost", "wei", "receipt", gasTokenCostWei],
-    //     ["marginal Prices", "atomic", "pool on-chain", poolMarginalPricesAtomic],
-    //     ["swimUSD/USDC", "atomic", "pool on-chain*", swimUsdPerUsdcAtomic],
-    //     ["USDC/ETH", "atomic", "pool on-chain*", usdcPerEthAtomic],
-    //     ["SwimUSD/ETH", "atomic", "pool on-chain*", swimUsdPerGasTokenAtomic],
-    //     ["swimUSD gas fee", "atomic", "pool on-chain*", expectedSwimUsdGasFeeAtomic],
-    //     ["swimUSD gas fee", "human", "pool on-chain*", expectedSwimUsdGasFee],
-    //     ["expected SwimUSD", "human", "test", expectedSwimUsd],
-    //     ["expected balance", "human", "on-chain", expectedBalance],
-    //     ["actual balance", "human", "on-chain", await outputToken.balanceOf(user)],
-    //   ].map((e) => ({ what: e[0], unit: e[1], source: e[2], value: e[3] }))
-    // );
+    if (withDebugOutput) {
+      const actualSwimUsd = swimUsd.toHuman(
+        receipt.logs.find(
+          (log) =>
+            log.topics[0] ===
+              ethers.utils.keccak256(
+                ethers.utils.toUtf8Bytes("Transfer(address,address,uint256)")
+              ) &&
+            log.topics[1] === asHex(asBytes(routing.address, 32)) &&
+            log.topics[2] === asHex(asBytes(pool.address, 32))
+        )?.data ?? "0"
+      );
+      const swimUsdPerGasTokenHuman = swimUsdPerGasTokenAtomic.mul(
+        tenToThe(GAS_TOKEN_DECIMALS - swimUsd.decimals)
+      );
+      console.table(
+        [
+          ["actual gas used", "gas", "receipt", gasUsed.toString()],
+          ["actual gas price", "wei", "receipt", effectiveGasPrice.toString()],
+          ["actual gas cost", "wei", "receipt*", gasTokenCostWei],
+          ...poolMarginalPricesAtomic.map((mp, i) => [
+            `marginal ${pool.tokens[i].symbol}/LP`,
+            "atomic",
+            "pool on-chain",
+            mp,
+          ]),
+          ["swimUSD/USDC", "atomic", "pool on-chain*", swimUsdPerUsdcAtomic],
+          ["USDC/ETH", "human", "test", usdcPerEthHuman],
+          ["USDC/ETH", "atomic", "test", usdcPerEthAtomic],
+          ["SwimUSD/ETH", "human", "pool on-chain*", swimUsdPerGasTokenHuman],
+          ["SwimUSD/ETH", "atomic", "pool on-chain*", swimUsdPerGasTokenAtomic],
+          ["swimUSD serive fee", "human", "on-chain", feeConfig.serviceFee],
+          ["expected swimUSD gas fee", "human", "pool on-chain*", expectedSwimUsdGasFee],
+          ["expected unchecked SwimUSD fee", "human", "pool on-chain*", uncheckedSwimUsdFee],
+          ["max Propeller fee", "human", "test", maxPropellerFee],
+          ["expected checked SwimUSD fee", "human", "pool on-chain*", checkedSwimUsdFee],
+          ["bridged SwimUSD", "human", "test", bridgedSwimUsd],
+          ["expected SwimUSD", "human", "pool on-chain*", expectedSwimUsd],
+          ["actual SwimUSD", "human", "receipt", actualSwimUsd],
+          ["expected balance", "human", "on-chain", expectedBalance],
+          ["actual balance", "human", "on-chain", await outputToken.balanceOf(user)],
+        ].map((e) => {
+          const asDec = toDecimal(e[3]);
+          const value = asDec.gt(1e-6) ? asDec.toFixed(6) : asDec.toExponential(2);
+          return { what: e[0], unit: e[1], source: e[2], value: value.padStart(25) };
+        })
+      );
+    }
 
     await expectCloseTo(outputToken, user, expectedBalance, 5000);
   });

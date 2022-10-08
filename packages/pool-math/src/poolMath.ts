@@ -22,6 +22,9 @@ export function toDecimal(val: Decimalish): Decimal;
 export function toDecimal(val: readonly Decimalish[]): readonly Decimal[];
 export function toDecimal(
   val: Decimalish | readonly Decimalish[],
+): Decimal | readonly Decimal[]; //this is necessary for e.g. toDecimal([1, [2, "3"]])
+export function toDecimal(
+  val: Decimalish | readonly Decimalish[],
 ): Decimal | readonly Decimal[] {
   const impl = (v: Decimalish) => {
     const tmp = new Decimal(v);

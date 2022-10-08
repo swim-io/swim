@@ -60,7 +60,8 @@ export const SWIM_USD_TOKEN_NUMBER = 0;
 
 //"variable" constants:
 export const SWIM_FACTORY_ADDRESS = "0xDef312467D48bdDED813de11C3ee4c257e6eD7aD";
-export const ROUTING_CONTRACT_SOLANA_ADDRESS = "0x" + "00".repeat(32); //TBD
+export const ROUTING_CONTRACT_SOLANA_ADDRESS =
+  "0x857d8c691b9e9a1a1e98d010a36d6401a9099ce89d821751410623ad7c2a20d2";
 export const SWIM_USD_SOLANA_ADDRESS =
   "0x296b21c9a4722da898b5cba4f10cbf7693a6ea4af06938cab91c2d88afe26719";
 //recovered from here:

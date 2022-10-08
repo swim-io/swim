@@ -444,7 +444,7 @@ export async function expectCloseTo(
   expected: Decimalish,
   toleranceMultiplier = 1
 ) {
-  //TODO find a better way to make "close to" comparisons than going through BigNumber
+  //TODO find a better way to make "close to" comparisons than by going through BigNumber
   expect(
     token.toAtomic("address" in actual ? await token.balanceOf(actual) : actual)
   ).to.be.closeTo(token.toAtomic(expected), token.toAtomic(tolerance).mul(toleranceMultiplier));

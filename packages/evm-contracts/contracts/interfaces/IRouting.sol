@@ -24,6 +24,7 @@ interface IRouting is IMemoInteractor {
   }
 
   error NumericError(CodeLocation location, bytes data);
+  error NotAPropellerTransaction();
   error SwimUsdNotAttested();
   error WormholeInteractionFailed(bytes lowLevelData);
   error GasKickstartFailed(address owner);

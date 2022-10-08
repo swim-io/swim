@@ -465,6 +465,9 @@ contract Routing is
     (uint swimUsdAmount, SwimPayload memory swimPayload) = wormholeCompleteTransfer(encodedVm);
     address swimUsdAddress_ = swimUsdAddress;
 
+    if (!swimPayload.propellerEnabled)
+      revert NotAPropellerTransaction();
+
     if (swimPayload.gasKickstart) {
       if (msg.value != GAS_KICKSTART_AMOUNT)
         revert IncorrectMessageValue(msg.value, GAS_KICKSTART_AMOUNT);

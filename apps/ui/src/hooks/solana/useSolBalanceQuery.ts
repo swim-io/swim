@@ -1,8 +1,8 @@
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
 import { useEffect, useMemo } from "react";
-import { useQueryClient, UseQueryOptions, UseQueryResult } from "react-query";
-import { useQuery } from "react-query";
+import type { UseQueryOptions, UseQueryResult } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 
 import { useEnvironment } from "../../core/store";
 
@@ -52,6 +52,7 @@ export const useSolBalanceQuery = (
     };
   }, [
     options?.enabled,
+    queryClient,
     queryKey,
     // make sure we are depending on `solanaClient.connection` not `solanaClient` because the reference of `solanaClient` won't change when we rotate the connection
     solanaClient.connection,

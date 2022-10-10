@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 
 import type { TokenConfig } from "../../config";
 
-import { TokenConfigIcon } from "../TokenIcon";
+import { TokenAddressWithEcosystemIcon, TokenConfigIcon } from "../TokenIcon";
 import { WormholeTokenModal } from "./WormholeTokenModal";
 
 interface Props {
@@ -42,7 +42,14 @@ export const WormholeTokenSelect = ({
       >
         <EuiFlexGroup alignItems="center" justifyContent="center">
           <EuiFlexItem>
-            <TokenConfigIcon token={token} />
+            {tokenAddress ? (
+              <TokenAddressWithEcosystemIcon
+                tokenAddress={tokenAddress}
+                ecosystemId={selectedEcosystemId}
+              />
+            ) : (
+              <TokenConfigIcon token={token} />
+            )}
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiButton>

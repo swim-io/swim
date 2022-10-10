@@ -18,9 +18,17 @@ import {
 } from "@elastic/eui";
 import { ReadonlyRecord } from "@swim-io/utils";
 import Decimal from "decimal.js";
+import { useUserBalanceAmount, useTransfer } from "hooks";
 import { useFromTokenOptionsIds } from "hooks/swim/useSwapTokenOptions";
-import { ChangeEvent, FormEvent, ReactElement, useMemo } from "react";
-import { useEffect, useRef, useState } from "react";
+
+import {
+  ChangeEvent,
+  FormEvent,
+  ReactElement,
+  useCallback,
+  useMemo,
+} from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
@@ -29,120 +37,34 @@ import { ECOSYSTEM_LIST, TokenConfig } from "../../config";
 import { EcosystemId, ECOSYSTEMS } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useNotification } from "../../core/store";
-// import {
-//   useChainsByEcosystem,
-//   useUserBalances,
-//   useWallets,
-//   useWormhole,
-// } from "../hooks";
 
 import { ConfirmModal } from "../ConfirmModal";
 import { ConnectButton, MultiConnectButton } from "../ConnectButton";
 import { TokenConfigIcon } from "../TokenIcon";
 import { WormholeTokenInput } from "./WormholeTokenInput";
 
-const generateTokenOptions = (
-  tokens: readonly TokenConfig[],
-): readonly EuiSuperSelectOption<string>[] =>
-  tokens.map((tokenSpec) => ({
-    value: tokenSpec.id,
-    inputDisplay: (
-      <TokenConfigIcon
-        token={tokenSpec}
-        ecosystem={tokenSpec.nativeEcosystemId}
-      />
-    ),
-    dropdownDisplay: (
-      <>
-        <TokenConfigIcon
-          token={tokenSpec}
-          ecosystem={tokenSpec.nativeEcosystemId}
-        />
-        <EuiText size="s" color="subdued">
-          <p className="euiTextColor--subdued">
-            {tokenSpec.nativeDetails} (
-            {ECOSYSTEMS[tokenSpec.nativeEcosystemId].displayName})
-          </p>
-        </EuiText>
-      </>
-    ),
-  }));
-
-// const useNonSolanaEcosystemChangeEffect = (
-//   nonSolanaEcosystem: EcosystemId,
-// ): void => {
-//   const {
-//     ethereum: { wallet: ethereumWallet },
-//   } = useWallets();
-//   const { ethereum: ethereumChain } = useChainsByEcosystem();
-//   const ref = useRef(nonSolanaEcosystem);
-
-//   useEffect((): void => {
-//     if (nonSolanaEcosystem === ref.current) {
-//       return;
-//     }
-//     // eslint-disable-next-line functional/immutable-data
-//     ref.current = nonSolanaEcosystem;
-//     switch (nonSolanaEcosystem) {
-//       case ECOSYSTEMS.ethereum.id:
-//         if (ethereumWallet && ethereumChain) {
-//           void ethereumWallet.switchNetwork(1);
-//         }
-//         return;
-//       // case ECOSYSTEMS.bnb.id:
-//       //   if (bscWallet && bscChain) {
-//       //     void bscWallet.switchNetwork();
-//       //   }
-//       //   return;
-//       default:
-//         return;
-//     }
-//   }, [ethereumChain, ethereumWallet, nonSolanaEcosystem]);
-// };
-
 export const WormholeForm = (): ReactElement => {
-  const { tokens, ecosystems } = useEnvironment(selectConfig, shallow);
-  const { notify } = useNotification();
   const { t } = useTranslation();
-
+  const { notify } = useNotification();
+  const { tokens, ecosystems } = useEnvironment(selectConfig, shallow);
   const fromTokenOptionsIds = useFromTokenOptionsIds();
   const [formInputAmount, setFormInputAmount] = useState("");
-
   const [fromToken, setFromToken] = useState(tokens[0]);
   const [fromEcosystemId, setFromEcosystemId] = useState(ecosystems.solana.id);
-  const [toEcosystemId, setToEcosystemId] = useState(ecosystems.solana.id);
+  const [toEcosystemId, setToEcosystemId] = useState(ecosystems.ethereum.id);
   const [tokenAddress, setTokenAddress] = useState("");
-  // const {
-  //   solana: { address: solanaAddress },
-  //   ethereum: { address: ethereumAddress },
-  //   bnb: { address: bscAddress },
-  //   avalanche: { address: avalancheAddress },
-  //   polygon: { address: polygonAddress },
-  // } = useWallets();
-  // const {
-  //   tokenId,
-  //   setTokenId,
-  //   fromEcosystem,
-  //   setFromEcosystem,
-  //   toEcosystem,
-  //   setToEcosystem,
-  //   tokenSpec,
-  //   fromTokenDetails,
-  //   toTokenDetails,
-  //   transferAmount,
-  //   setTransferAmount,
-  //   executeTransfer,
-  //   transferError,
-  // } = useWormhole();
-  // const userBalances = useUserBalances(tokenSpec);
-
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [txInProgress, setTxInProgress] = useState(false);
   const [amountErrors, setAmountErrors] = useState<readonly string[]>([]);
+  const fromTokenBalance = useUserBalanceAmount(
+    fromToken,
+    fromToken.nativeEcosystemId,
+  );
+  const { handleTransfer, isSending, isVAAPending } = useTransfer();
+  console.log("wormhole", isSending, isVAAPending);
 
   const selectEcosystemOptions = useMemo(() => {
     return [
-      { inputDisplay: t("pools_page.all_chains"), value: "all", icon: null },
       ...ECOSYSTEM_LIST.map((ecosystem) => ({
         value: ecosystem.id,
         inputDisplay: (
@@ -168,84 +90,36 @@ export const WormholeForm = (): ReactElement => {
     ];
   }, [ECOSYSTEM_LIST, t]);
 
-  // const userAddresses: ReadonlyRecord<EcosystemId, string | null> = {
-  //   [ECOSYSTEMS.solana.id]: solanaAddress,
-  //   [ECOSYSTEMS.ethereum.id]: ethereumAddress,
-  //   [ECOSYSTEMS.bnb.id]: bscAddress,
-  //   [ECOSYSTEMS.avalanche.id]: avalancheAddress,
-  //   [ECOSYSTEMS.polygon.id]: polygonAddress,
-  //   [ECOSYSTEMS.aurora.id]: null,
-  //   [ECOSYSTEMS.fantom.id]: null,
-  //   [ECOSYSTEMS.karura.id]: null,
-  //   [ECOSYSTEMS.acala.id]: null,
-  // };
-  // const fromAddress = userAddresses[fromEcosystem];
-  // const toAddress = userAddresses[toEcosystem];
-
-  // const fromTokenBalance = userBalances[fromEcosystem];
-  // const toTokenBalance = userBalances[toEcosystem];
-
-  // const relevantTokens = tokens.filter(({ nativeEcosystemId }) =>
-  //   [fromEcosystem, toEcosystem].includes(nativeEcosystemId),
-  // );
-  // const tokenOptions = generateTokenOptions(relevantTokens);
-
-  // const nonSolanaEcosystem =
-  //   fromEcosystem === ECOSYSTEMS.solana.id ? toEcosystem : fromEcosystem;
-  // const nonSolanaEcosystemOptions = [
-  //   {
-  //     value: ECOSYSTEMS.ethereum.id,
-  //     text: ECOSYSTEMS[ECOSYSTEMS.ethereum.id].displayName,
-  //   },
-  //   {
-  //     value: ECOSYSTEMS.bnb.id,
-  //     text: ECOSYSTEMS[ECOSYSTEMS.bnb.id].displayName,
-  //   },
-  // ];
-
-  // useNonSolanaEcosystemChangeEffect(nonSolanaEcosystem);
-
-  const handleNonSolanaEcosystemChange = (
-    e: ChangeEvent<HTMLSelectElement>,
-  ): void => {
-    const ecosystemId = e.target.value as EcosystemId;
-    // return fromEcosystem === ECOSYSTEMS.solana.id
-    //   ? setToEcosystem(ecosystemId)
-    //   : setFromEcosystem(ecosystemId);
-  };
-
-  // const toggleDirection = (): void => {
-  //   setFromEcosystem(toEcosystem);
-  //   setToEcosystem(fromEcosystem);
-  // };
-
-  // const handleChangeTransferAmount = (
-  //   e: ChangeEvent<HTMLInputElement>,
-  // ): void => {
-  //   setTransferAmount(e.target.value);
-  // };
-
-  const handleBlurTransferAmount = (): void => {
-    try {
-      // const transferAmountDecimal = new Decimal(transferAmount);
-      const transferAmountDecimal = new Decimal(1);
-      if (transferAmountDecimal.lte(0)) {
-        setAmountErrors(["Amount must be greater than zero"]);
-        // } else if (transferAmountDecimal.gt(new Decimal(fromTokenBalance ?? 0))) {
-        // setAmountErrors(["Amount cannot exceed available balance"]);
-      } else {
-        setAmountErrors([]);
-      }
-    } catch {
-      setAmountErrors(["Invalid amount"]);
+  const handleBlurTransferAmount = useCallback((): void => {
+    let errors: readonly string[] = [];
+    if (formInputAmount === "") {
+      errors = [...errors, t("general.amount_of_tokens_invalid")];
+    } else if (new Decimal(formInputAmount).lte(0)) {
+      errors = [...errors, t("general.amount_of_tokens_less_than_one")];
+    } else if (
+      fromTokenBalance &&
+      new Decimal(formInputAmount).gt(
+        fromTokenBalance.toHumanString(fromEcosystemId),
+      )
+    ) {
+      errors = [...errors, t("general.amount_of_tokens_exceed_balance")];
+    } else {
+      errors = [];
     }
-  };
+    setAmountErrors(errors);
+  }, [formInputAmount]);
 
   const submitForm = async (): Promise<void> => {
     notify("Transaction submitted", "Loading...", "info");
     try {
-      // await executeTransfer();
+      await handleTransfer({
+        token: fromToken,
+        sourceEcosystemId: fromEcosystemId,
+        targetEcosystemId: toEcosystemId,
+        amount: formInputAmount,
+      });
     } catch (error) {
+      console.info("Error", error);
       notify("Error", String(error), "error");
     }
     setTxInProgress(false);
@@ -253,19 +127,7 @@ export const WormholeForm = (): ReactElement => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    setTxInProgress(true);
-
-    // if (!transferAmount) {
-    //   setTxInProgress(false);
-    //   return;
-    // }
-
-    // if (tokenSpec.isStablecoin && new Decimal(transferAmount).gte(10_000)) {
-    //   setIsConfirmModalVisible(true);
-    //   return;
-    // }
-
-    await submitForm();
+    setIsConfirmModalVisible(true);
   };
 
   const handleConfirmModalCancel = (): void => {
@@ -298,68 +160,58 @@ export const WormholeForm = (): ReactElement => {
         tokenAddress={tokenAddress}
         ecosystemId={fromEcosystemId}
         placeholder={"0.00"}
-        errors={[]}
+        errors={amountErrors}
         onSelectToken={setFromToken}
         onChangeValue={setFormInputAmount}
         onChangeTokenAddress={setTokenAddress}
         onSelectEcosystem={setFromEcosystemId}
+        onBlur={handleBlurTransferAmount}
       />
       <EuiSpacer />
       <EuiFormRow labelType="legend" label={<span>Target</span>} fullWidth>
         <EuiSuperSelect
           options={selectEcosystemOptions}
           valueOfSelected={toEcosystemId}
-          onChange={(value) => setToEcosystemId(value as EcosystemId)}
+          onChange={setToEcosystemId}
           hasDividers
           fullWidth
           style={{ textAlign: "center" }}
         />
       </EuiFormRow>
       <EuiSpacer size="xl" />
-      <EuiTextColor color="default">
-        <span>You will receive&nbsp;</span>
-        {/* {tokenSpec.symbol} */}
-        <span>. (Balance: )</span>{" "}
-        {/* <span>
-          {toTokenBalance
-            ? displayAmount(toTokenBalance.toFixed(0), toTokenDetails.decimals)
-            : "-"}
-        </span>
-        <span>)</span> */}
-      </EuiTextColor>
-      <EuiSpacer size="m" />
+
       {/* {transferError !== null && (
         <>
-          <EuiCallOut title="Something went wrong" color="danger">
-            {transferError.message}
-            <EuiSpacer />
-            <span>
-              If your transfer was interrupted, check the relevant blockchain
-              explorer for the transaction ID and use
-            </span>{" "}
-            <EuiLink href="https://wormholebridge.com/#/redeem" target="_blank">
-              this form
-            </EuiLink>{" "}
-            <span>to complete the transfer.</span>
-          </EuiCallOut>
+        <EuiCallOut title={t("wormhole_page.error.title")} color="danger">
           <EuiSpacer />
-        </>
+          <span>{t("wormhole_page.error.message")}</span>
+          <EuiLink href="https://wormholebridge.com/#/redeem" target="_blank">
+            Link
+          </EuiLink>
+        </EuiCallOut>
+        <EuiSpacer />
+      </>
       )} */}
       <EuiButton
         type="submit"
         fullWidth
-        isDisabled={txInProgress || amountErrors.length > 0}
+        isDisabled={
+          txInProgress ||
+          amountErrors.length > 0 ||
+          fromEcosystemId === toEcosystemId ||
+          !formInputAmount
+        }
       >
-        {txInProgress ? "Loading..." : "Wormhole"}
+        {txInProgress ? t("recent_interactions.loading") : "Wormhole"}
       </EuiButton>
       <ConfirmModal
         isVisible={isConfirmModalVisible}
         onCancel={handleConfirmModalCancel}
         onConfirm={handleConfirmModalConfirm}
-        titleText="Confirm Transfer"
-        cancelText="Cancel"
-        confirmText="Transfer"
-        promptText={`Are you sure you want to transfer`}
+        titleText={t("wormhole_page.confirm_modal.title")}
+        cancelText={t("wormhole_page.confirm_modal.cancel")}
+        confirmText={t("wormhole_page.confirm_modal.transfer")}
+        promptText={t("wormhole_page.confirm_modal.question")}
       />
     </EuiForm>
   );

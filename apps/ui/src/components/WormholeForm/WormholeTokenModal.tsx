@@ -4,11 +4,13 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiHorizontalRule,
+  EuiIcon,
   EuiModalBody,
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiSelectable,
   EuiSpacer,
+  EuiToken,
 } from "@elastic/eui";
 import type { EuiSelectableOption } from "@elastic/eui";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
@@ -84,6 +86,10 @@ export const WormholeTokenModal = ({
     [handleClose, handleSelectToken],
   );
 
+  const onSaveTokenAddress = useCallback(() => {
+    handleClose();
+  }, [handleClose]);
+
   const filteredTokens = tokens.filter(
     (token) =>
       tokenOptionIds.includes(token.id) &&
@@ -137,9 +143,17 @@ export const WormholeTokenModal = ({
 
       <EuiModalBody className="modalBody">
         <EuiFieldText
-          placeholder="Wormhole token address"
+          placeholder={t("wormhole_page.custom_token_address")}
           value={tokenAddress}
           onChange={({ target: { value } }) => handleTokenAddress(value)}
+          prepend={<EuiIcon type="tokenAlias" />}
+          append={
+            <EuiIcon
+              type="save"
+              className="saveToken"
+              onClick={tokenAddress ? onSaveTokenAddress : undefined}
+            />
+          }
           fullWidth
         />
 

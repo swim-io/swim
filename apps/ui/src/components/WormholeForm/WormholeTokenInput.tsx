@@ -18,6 +18,7 @@ interface Props {
   readonly onChangeTokenAddress: (address: string) => void;
   readonly onSelectToken: (token: TokenConfig) => void;
   readonly onChangeValue: (value: string) => void;
+  readonly onBlur: () => void;
 }
 
 export const WormholeTokenInput: React.FC<Props> = ({
@@ -32,9 +33,10 @@ export const WormholeTokenInput: React.FC<Props> = ({
   onChangeValue,
   onChangeTokenAddress,
   onSelectEcosystem,
+  onBlur,
 }) => {
   return (
-    <EuiFlexGroup alignItems="flexEnd">
+    <EuiFlexGroup alignItems="flexStart">
       <EuiFlexItem>
         <EuiFormRow labelType="legend" label={<span>Source</span>}>
           <WormholeTokenSelect
@@ -74,6 +76,7 @@ export const WormholeTokenInput: React.FC<Props> = ({
             step={10 ** -token.nativeDetails.decimals}
             min={0}
             onValueChange={onChangeValue}
+            onBlur={onBlur}
             disabled={false}
             isInvalid={errors.length > 0}
           />

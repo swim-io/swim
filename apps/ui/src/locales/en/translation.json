@@ -267,5 +267,12 @@
   "token_search_modal.search_tokens": "Search tokens",
   "token_search_modal.title": "Select a token",
   "token_select_modal.title": "Select chain and token",
-  "vaa_error.transfer_not_detected": "Transfer not detected by Wormhole guardians. This usually happens when the network is congested. Please retry later."
+  "vaa_error.transfer_not_detected": "Transfer not detected by Wormhole guardians. This usually happens when the network is congested. Please retry later.",
+  "wormhole_page.custom_token_address": "Custom token address",
+  "wormhole_page.error.title": "Something went wrong",
+  "wormhole_page.error.message": "If your transfer was interrupted, check the relevant blockchain explorer for the transaction ID and use link to complete the transfer. ",
+  "wormhole_page.confirm_modal.title": "Confirm Transfer",
+  "wormhole_page.confirm_modal.cancel": "Cancel",
+  "wormhole_page.confirm_modal.transfer": "Transfer",
+  "wormhole_page.confirm_modal.question": "Are you sure you want to transfer"
 }

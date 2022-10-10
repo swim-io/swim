@@ -1,6 +1,7 @@
 import { EuiIcon } from "@elastic/eui";
 import type { TokenProject } from "@swim-io/token-projects";
 import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
+import { truncate } from "@swim-io/utils";
 import type { ComponentProps, ReactElement } from "react";
 import { Fragment } from "react";
 import { Trans } from "react-i18next";
@@ -112,6 +113,11 @@ type TokenConfigIconProps = {
   readonly ecosystem?: EcosystemId;
 };
 
+type TokenAddressWithEcosystemProps = {
+  readonly tokenAddress: string;
+  readonly ecosystemId: EcosystemId;
+};
+
 export const TokenConfigIcon = ({
   token,
   ecosystem,
@@ -127,3 +133,25 @@ export const TokenSearchConfigIcon = ({
 }: Pick<TokenConfigIconProps, "token">): ReactElement => (
   <TokenIcon {...TOKEN_PROJECTS_BY_ID[token.projectId]} />
 );
+
+export const TokenAddressWithEcosystemIcon = ({
+  tokenAddress,
+  ecosystemId,
+}: TokenAddressWithEcosystemProps): ReactElement => {
+  const ecosystem = ecosystemId ? ECOSYSTEMS[ecosystemId] : null;
+
+  return (
+    <div>
+      <span style={{ marginRight: "5px" }}>{truncate(tokenAddress)}</span>
+      {ecosystem ? (
+        <WithIcon
+          type={ecosystem.logo}
+          size="m"
+          title={ecosystem.displayName}
+        />
+      ) : (
+        <span />
+      )}
+    </div>
+  );
+};

@@ -6764,13 +6764,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm-contracts@npm:^0.36.0":
-  version: 0.36.0
-  resolution: "@swim-io/evm-contracts@npm:0.36.0"
-  checksum: 1ebc1bc07d3f3943230014db5cdc34c2a08bc6ae7236c01489e4fb8638ce7c54cac0dda428a30f8e09a25d392c61c476e1f6a19326f5a8df84682302906ad75e
-  languageName: node
-  linkType: hard
-
 "@swim-io/evm-contracts@workspace:^, @swim-io/evm-contracts@workspace:packages/evm-contracts":
   version: 0.0.0-use.local
   resolution: "@swim-io/evm-contracts@workspace:packages/evm-contracts"
@@ -6825,26 +6818,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/evm@npm:^0.36.0":
-  version: 0.36.0
-  resolution: "@swim-io/evm@npm:0.36.0"
-  dependencies:
-    "@certusone/wormhole-sdk": ^0.6.0
-    "@swim-io/core": ^0.36.0
-    "@swim-io/evm-contracts": ^0.36.0
-    "@swim-io/token-projects": ^0.36.0
-    "@swim-io/utils": ^0.36.0
-    decimal.js: ^10.3.1
-    ethers: ^5.6.9
-    eventemitter3: ^4.0.7
-    graphql: ^16.6.0
-    graphql-request: ^4.3.0
-    moralis: ^1.8.0
-  checksum: 4069a832b83b4ea7a97dd8b3830193becc226c7f9992140a980b211778b2eef95b19634171a0cceb2f30afdc75b3cdfd0fa4202b7d3fabd3668090f51b9a0bf6
-  languageName: node
-  linkType: hard
-
-"@swim-io/evm@workspace:packages/evm":
+"@swim-io/evm@workspace:^, @swim-io/evm@workspace:packages/evm":
   version: 0.0.0-use.local
   resolution: "@swim-io/evm@workspace:packages/evm"
   dependencies:
@@ -7306,8 +7280,8 @@ __metadata:
     "@swim-io/aptos": ^0.36.0
     "@swim-io/core": ^0.36.0
     "@swim-io/eslint-config": "workspace:^"
-    "@swim-io/evm": ^0.36.0
-    "@swim-io/evm-contracts": ^0.36.0
+    "@swim-io/evm": "workspace:^"
+    "@swim-io/evm-contracts": "workspace:^"
     "@swim-io/pool-math": ^0.36.0
     "@swim-io/solana": ^0.36.0
     "@swim-io/solana-contracts": ^0.36.0

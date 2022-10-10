@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "scripts": {
     "start": "NODE_ENV=development SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco start",
-    "build": "craco build",
-    "release": "SENTRY_RELEASE=$(git rev-parse --short HEAD) SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco build",
+    "build": "SKIP_PREFLIGHT_CHECK=true DISABLE_ESLINT_PLUGIN=true craco build",
+    "release": "SENTRY_RELEASE=$(git rev-parse --short HEAD) yarn workspaces foreach --topological-dev --parallel --recursive --from @swim-io/ui run build",
     "test": "craco test --env \"./jest-custom-jsdom-env.cjs\" --transformIgnorePatterns \"node_modules/(?!escape-string-regexp)/\"",
     "eject": "react-scripts eject",
     "format": "prettier --write .",

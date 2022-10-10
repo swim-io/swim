@@ -712,6 +712,9 @@ export const generatePropellerEngineTxns = async (
     await completeNativeWithPayloadIxs.transaction();
   txns = [completeNativeWithPayloadTxn];
   const targetTokenId = swimPayload.targetTokenId;
+  if (!targetTokenId) {
+    throw new Error("No target token id");
+  }
   const [tokenIdMapAddr] = await getTargetTokenIdMapAddr(
     propeller,
     targetTokenId,

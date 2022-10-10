@@ -714,11 +714,6 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -737,10 +732,6 @@ export type Propeller = {
         {
           "name": "minimumMintAmount",
           "type": "u64"
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
         }
       ],
       "returns": "u64"
@@ -851,11 +842,6 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -870,10 +856,6 @@ export type Propeller = {
               2
             ]
           }
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
         },
         {
           "name": "maxFee",
@@ -983,11 +965,6 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -1006,10 +983,6 @@ export type Propeller = {
         {
           "name": "minimumOutputAmount",
           "type": "u64"
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
         }
       ],
       "returns": "u64"
@@ -1115,11 +1088,6 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -1134,10 +1102,6 @@ export type Propeller = {
         {
           "name": "exactInputAmount",
           "type": "u64"
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
         },
         {
           "name": "maxFee",
@@ -5526,11 +5490,6 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -5549,10 +5508,6 @@ export const IDL: Propeller = {
         {
           "name": "minimumMintAmount",
           "type": "u64"
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
         }
       ],
       "returns": "u64"
@@ -5663,11 +5618,6 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -5682,10 +5632,6 @@ export const IDL: Propeller = {
               2
             ]
           }
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
         },
         {
           "name": "maxFee",
@@ -5795,11 +5741,6 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -5818,10 +5759,6 @@ export const IDL: Propeller = {
         {
           "name": "minimumOutputAmount",
           "type": "u64"
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
         }
       ],
       "returns": "u64"
@@ -5927,11 +5864,6 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -5946,10 +5878,6 @@ export const IDL: Propeller = {
         {
           "name": "exactInputAmount",
           "type": "u64"
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
         },
         {
           "name": "maxFee",

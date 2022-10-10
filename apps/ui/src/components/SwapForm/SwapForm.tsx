@@ -191,11 +191,11 @@ export const SwapForm = ({ maxSlippageFraction }: Props): ReactElement => {
       setIsSubmitted(true);
       handleSwap(allowLargeSwap);
     } catch (error) {
-      const swimError = captureAndWrapException(
+      const swimUiError = captureAndWrapException(
         t("general.unexpected_error"),
         error,
       );
-      setFormErrors([swimError.toPrettyString()]);
+      setFormErrors([swimUiError.toPrettyString()]);
     } finally {
       setIsSubmitted(false);
     }

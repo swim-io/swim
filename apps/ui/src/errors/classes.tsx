@@ -1,4 +1,5 @@
 import { EuiSpacer, EuiText } from "@elastic/eui";
+import { ErrorWithCause } from "@swim-io/core";
 import type { ReactElement } from "react";
 
 import { i18next } from "../i18n";
@@ -7,26 +8,26 @@ import { extractErrorMessage } from "./parse";
 
 export class MutationError extends Error {}
 
-export class SwimError extends Error {
+type SwimUiErrorOptions = ErrorOptions & {
+  readonly eventId?: string;
+};
+export class SwimUiError extends ErrorWithCause {
   public userFriendlyMessage: string;
-  public readonly originalError?: unknown;
   public eventId?: string;
 
-  /** Create a SwimError object able to store the original error and the eventId
+  /** Create a SwimUiError object able to store the original error and the eventId
    *
    * @param userFriendlyMessage User-facing error message. Can be empty string
-   * @param originalError Root error object
+   * @param cause Root error object
    * @param eventId Sentry event ID
    */
   public constructor(
     userFriendlyMessage: string,
-    originalError?: unknown,
-    eventId?: string,
+    { eventId, ...options }: SwimUiErrorOptions = {},
   ) {
-    super(originalError ? String(originalError) : userFriendlyMessage);
-    this.name = this.constructor.name; // SwimError
+    super(options.cause ? String(options.cause) : userFriendlyMessage, options);
+    this.name = this.constructor.name; // SwimUiError
     this.userFriendlyMessage = userFriendlyMessage;
-    this.originalError = originalError;
     this.eventId = eventId;
   }
 
@@ -36,8 +37,8 @@ export class SwimError extends Error {
     if (this.userFriendlyMessage) {
       msg += `${this.userFriendlyMessage}:`;
     }
-    if (this.originalError) {
-      msg += extractErrorMessage(this.originalError);
+    if (this.cause) {
+      msg += extractErrorMessage(this.cause);
     }
     if (this.eventId) {
       msg += ` (${this.eventId})`;
@@ -58,9 +59,7 @@ export class SwimError extends Error {
           </span>
         )}
 
-        {this.originalError && (
-          <code>{extractErrorMessage(this.originalError)}</code>
-        )}
+        {this.cause && <code>{extractErrorMessage(this.cause)}</code>}
 
         {this.eventId && (
           <EuiText size="s" color="subdued">
@@ -79,19 +78,18 @@ interface SolanaWalletErrorData {
   readonly message: string;
 }
 
-export class SolanaWalletError extends SwimError {
+export class SolanaWalletError extends SwimUiError {
   public constructor(
     userFriendlyMessage: string,
-    originalError?: unknown,
-    eventId?: string,
+    options: SwimUiErrorOptions = {},
   ) {
-    super(userFriendlyMessage, originalError, eventId);
+    super(userFriendlyMessage, options);
 
     if (
       !this.userFriendlyMessage &&
-      this.isSolanaWalletErrorData(originalError)
+      this.isSolanaWalletErrorData(options.cause)
     ) {
-      this.userFriendlyMessage = this.parseUserFriendlyMessage(originalError);
+      this.userFriendlyMessage = this.parseUserFriendlyMessage(options.cause);
     }
   }
 

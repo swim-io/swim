@@ -714,11 +714,6 @@
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -737,10 +732,6 @@
         {
           "name": "minimumMintAmount",
           "type": "u64"
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
         }
       ],
       "returns": "u64"
@@ -851,11 +842,6 @@
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -870,10 +856,6 @@
               2
             ]
           }
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
         },
         {
           "name": "maxFee",
@@ -983,11 +965,6 @@
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -1006,10 +983,6 @@
         {
           "name": "minimumOutputAmount",
           "type": "u64"
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
         }
       ],
       "returns": "u64"
@@ -1115,11 +1088,6 @@
           "isSigner": false
         },
         {
-          "name": "memo",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "twoPoolProgram",
           "isMut": false,
           "isSigner": false
@@ -1134,10 +1102,6 @@
         {
           "name": "exactInputAmount",
           "type": "u64"
-        },
-        {
-          "name": "memo",
-          "type": "bytes"
         },
         {
           "name": "maxFee",

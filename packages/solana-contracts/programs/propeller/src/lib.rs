@@ -111,19 +111,13 @@ pub mod propeller {
         ctx: Context<Add>,
         input_amounts: [u64; TOKEN_COUNT],
         minimum_mint_amount: u64,
-        memo: Vec<u8>,
     ) -> Result<u64> {
-        handle_cross_chain_add(ctx, input_amounts, minimum_mint_amount, memo.as_slice())
+        handle_cross_chain_add(ctx, input_amounts, minimum_mint_amount)
     }
 
     #[access_control(Add::accounts(&ctx))]
-    pub fn propeller_add(
-        ctx: Context<Add>,
-        input_amounts: [u64; TOKEN_COUNT],
-        memo: Vec<u8>,
-        max_fee: u64,
-    ) -> Result<u64> {
-        handle_propeller_add(ctx, input_amounts, memo.as_slice(), max_fee)
+    pub fn propeller_add(ctx: Context<Add>, input_amounts: [u64; TOKEN_COUNT], max_fee: u64) -> Result<u64> {
+        handle_propeller_add(ctx, input_amounts, max_fee)
     }
 
     // pub fn swap_exact_input(
@@ -150,18 +144,16 @@ pub mod propeller {
         ctx: Context<SwapExactInput>,
         exact_input_amount: u64,
         minimum_output_amount: u64,
-        memo: Vec<u8>,
     ) -> Result<u64> {
-        handle_cross_chain_swap_exact_input(ctx, exact_input_amount, minimum_output_amount, memo.as_slice())
+        handle_cross_chain_swap_exact_input(ctx, exact_input_amount, minimum_output_amount)
     }
 
     pub fn propeller_swap_exact_input(
         ctx: Context<SwapExactInput>,
         exact_input_amount: u64,
-        memo: Vec<u8>,
         max_fee: u64,
     ) -> Result<u64> {
-        handle_propeller_swap_exact_input(ctx, exact_input_amount, memo.as_slice(), max_fee)
+        handle_propeller_swap_exact_input(ctx, exact_input_amount, max_fee)
     }
 
     /*
@@ -282,7 +274,6 @@ pub mod propeller {
     //     )
     // }
 
-    //TODO: move nonce into propeller state.
     #[inline(never)]
     #[access_control(TransferNativeWithPayload::accounts(&ctx))]
     pub fn cross_chain_transfer_native_with_payload(

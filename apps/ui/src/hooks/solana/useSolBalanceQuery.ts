@@ -1,66 +1,46 @@
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
+import { useQueryClient, UseQueryOptions, UseQueryResult } from "react-query";
+import { useQuery } from "react-query";
 
 import { useEnvironment } from "../../core/store";
 
 import { useSolanaClient } from "./useSolanaClient";
 import { useSolanaWallet } from "./useSolanaWallet";
 
-const lamportsToSol = (balance: number): Decimal => {
+const lamportsToSol = (balance: Decimal.Value): Decimal => {
   return new Decimal(balance).dividedBy(LAMPORTS_PER_SOL);
 };
 
 // Returns user's Solana balance in SOL.
-export const useSolBalanceQuery = ({
-  enabled = true,
-}: {
-  readonly enabled?: boolean;
-} = {}) => {
+export const useSolBalanceQuery = (
+  options?: Omit<UseQueryOptions<Decimal, Error>, "staleTime">,
+): UseQueryResult<Decimal, Error> => {
   const { env } = useEnvironment();
   const solanaClient = useSolanaClient();
   const { address: walletAddress } = useSolanaWallet();
 
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [solBalance, setSolBalance] = useState(new Decimal(0));
-  // reset balance when switching env or wallet address
-  useEffect(() => {
-    setSolBalance(new Decimal(0));
-    setIsSuccess(false);
-  }, [env, walletAddress]);
+  const queryClient = useQueryClient();
+  const queryKey = useMemo(
+    () => [env, "solBalance", walletAddress],
+    [env, walletAddress],
+  );
 
   useEffect(() => {
-    if (!walletAddress || !enabled) {
-      setIsSuccess(true);
+    if (!walletAddress || !options?.enabled) {
       return;
     }
 
     // Make sure all network requests are ignored after exit, so the state is not mixed, e.g. state between different wallet addresses
     let isExited = false;
 
-    const publicKey = new PublicKey(walletAddress);
-
-    solanaClient.connection
-      .getBalance(publicKey)
-      .then((balance) => {
-        if (isExited) return;
-
-        setSolBalance(lamportsToSol(balance));
-        setIsSuccess(true);
-      })
-      .catch(() => {
-        if (isExited) return;
-
-        setSolBalance(new Decimal(0));
-        setIsSuccess(true);
-      });
-
     const clientSubscriptionId = solanaClient.connection.onAccountChange(
-      publicKey,
+      new PublicKey(walletAddress),
       (accountInfo) => {
         if (isExited) return;
 
-        setSolBalance(lamportsToSol(accountInfo.lamports));
+        queryClient.setQueryData(queryKey, lamportsToSol(accountInfo.lamports));
       },
     );
     return () => {
@@ -71,11 +51,32 @@ export const useSolBalanceQuery = ({
         .catch(console.error);
     };
   }, [
-    enabled,
+    options?.enabled,
+    queryKey,
     // make sure we are depending on `solanaClient.connection` not `solanaClient` because the reference of `solanaClient` won't change when we rotate the connection
     solanaClient.connection,
     walletAddress,
   ]);
 
-  return { isSuccess, data: solBalance };
+  return useQuery<Decimal, Error>(
+    queryKey,
+    async () => {
+      if (!walletAddress) {
+        return new Decimal(0);
+      }
+      try {
+        const balance = await solanaClient.connection.getBalance(
+          new PublicKey(walletAddress),
+        );
+        return lamportsToSol(balance);
+      } catch {
+        return new Decimal(0);
+      }
+    },
+    {
+      ...options,
+      // rely on websocket to update outdated data
+      staleTime: Infinity,
+    },
+  );
 };

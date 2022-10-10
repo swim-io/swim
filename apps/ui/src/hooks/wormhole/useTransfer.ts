@@ -181,34 +181,22 @@ async function transferFromEvmToEvm(
     ),
   );
   console.log("approvals", [transferTx, ...approvalTxs]);
-  const sequences = await Promise.all(
-    [...approvalTxs, transferTx].map(async (tx) => {
-      const transferResponse = await evmClient.provider.getTransaction(tx.id);
-      const transferTx = await txResponseToTx(
-        interactionId,
-        fromEcosystem,
-        evmClient,
-        transferResponse,
-      );
-      console.log("transfer in sequences", transferTx);
-      return parseSequenceFromLogEth(
-        transferTx.receipt,
-        sourceEvmChain.wormhole.bridge,
-      );
-    }),
+  const sequence = parseSequenceFromLogEth(
+    transferTx.receipt,
+    sourceEvmChain.wormhole.bridge,
   );
-  console.log("sequences", sequences);
+  console.log("sequences", sequence);
   const retries = getWormholeRetries(emitterChainId);
   const { vaaBytes: vaa } = await getSignedVaaWithRetry(
     [...wormhole.rpcUrls],
     emitterChainId,
     getEmitterAddressEth(sourceEvmChain.wormhole.portal),
-    sequences[0],
+    sequence,
     undefined,
     undefined,
     retries,
   );
-  console.log("RESPONSE init", [transferTx, ...approvalTxs], sequences);
+  console.log("RESPONSE init", [transferTx, ...approvalTxs], sequence);
   await evmWallet.switchNetwork(targetEvmChain.chainId);
   const redeemResponse = await evmClient.completeWormholeTransfer({
     interactionId,
@@ -273,39 +261,29 @@ async function transferFromEvmToSolana(
     ),
   );
   console.log("approvals", [transferTx, ...approvalTxs]);
-  const sequences = await Promise.all(
-    [...approvalTxs, transferTx].map(async (tx) => {
-      const transferResponse = await evmClient.provider.getTransaction(tx.id);
-      const transferTx = await txResponseToTx(
-        interactionId,
-        fromEcosystem,
-        evmClient,
-        transferResponse,
-      );
-      console.log("transfer in sequences", transferTx);
-      return parseSequenceFromLogEth(
-        transferTx.receipt,
-        sourceEvmChain.wormhole.bridge,
-      );
-    }),
+  const sequence = parseSequenceFromLogEth(
+    transferTx.receipt,
+    sourceEvmChain.wormhole.bridge,
   );
-  console.log("sequences", sequences);
+  console.log("sequences", sequence);
   const retries = getWormholeRetries(emitterChainId);
   const { vaaBytes: vaa } = await getSignedVaaWithRetry(
     [...wormhole.rpcUrls],
     emitterChainId,
     getEmitterAddressEth(sourceEvmChain.wormhole.portal),
-    sequences[0],
+    sequence,
     undefined,
     undefined,
     retries,
   );
 
   console.log("vaa", vaa);
+  const auxiliarySigner = Keypair.generate();
   const txIds = await solanaClient.completeWormholeTransfer({
     interactionId,
     vaa,
     wallet: solanaWallet,
+    auxiliarySigner,
   });
   console.log("txIds", txIds);
   return [...txIds];

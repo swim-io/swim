@@ -6,7 +6,6 @@ import type { ChainsByProtocol } from "./chains";
 import { CHAINS } from "./chains";
 import type { Ecosystem, EcosystemId } from "./ecosystem";
 import { ECOSYSTEMS } from "./ecosystem";
-import { EVM_ROUTING_CONTRACT } from "./evmRoutingContract";
 import type { PoolSpec } from "./pools";
 import { POOLS } from "./pools";
 import type { TokenConfig } from "./tokens";
@@ -26,7 +25,6 @@ export interface Config {
   readonly pools: readonly PoolSpec[];
   readonly tokens: readonly TokenConfig[];
   readonly wormhole: WormholeConfig | null;
-  readonly evmRoutingContract: string;
 }
 
 const buildConfig = (env: Env): Config => ({
@@ -35,7 +33,6 @@ const buildConfig = (env: Env): Config => ({
   pools: POOLS[env],
   tokens: TOKENS[env],
   wormhole: wormholeConfigs.get(env) ?? null,
-  evmRoutingContract: EVM_ROUTING_CONTRACT[env],
 });
 
 export const CONFIGS: ReadonlyRecord<Env, Config> = {

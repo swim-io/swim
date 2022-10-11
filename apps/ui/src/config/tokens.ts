@@ -660,7 +660,7 @@ export const TESTNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
     projectId: TokenProjectId.SwimLpEthereumUsdcUsdt,
     nativeEcosystemId: EvmEcosystemId.Ethereum,
     nativeDetails: {
-      address: "0xf3eb1180A64827A602A7e02883b7299191527073", // TODO: Update
+      address: "0xee525c4cEB776D9e770D2Fd81fc91d6418657955", // TODO: Update
       decimals: 6,
     },
     wrappedDetails: EMPTY_MAP,
@@ -671,7 +671,7 @@ export const TESTNET_TOKENS_FOR_RESTRUCTURE: readonly TokenConfig[] = [
     projectId: TokenProjectId.SwimLpBnbBusdUsdt,
     nativeEcosystemId: EvmEcosystemId.Bnb,
     nativeDetails: {
-      address: "0x57FCF9B276d3E7D698112D9b87e6f410B1B5d78d", // TODO: Update
+      address: "0x976943205ef791A1cf676A880c07458C91F241d7", // TODO: Update
       decimals: 6,
     },
     wrappedDetails: EMPTY_MAP,

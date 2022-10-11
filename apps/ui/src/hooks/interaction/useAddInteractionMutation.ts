@@ -132,9 +132,11 @@ export const useAddInteractionMutation = () => {
           }),
         );
         const approvalTxs = await Promise.all(
-          approvalResponses
-            .flat()
-            .map((response) => evmClient.getTxReceiptOrThrow(response)),
+          approvalResponses.flatMap((responses) =>
+            responses.map((response) =>
+              evmClient.getTxReceiptOrThrow(response),
+            ),
+          ),
         );
         updateInteractionState(interaction.id, (draft) => {
           if (draft.interactionType !== interaction.type) {

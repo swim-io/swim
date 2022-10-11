@@ -35,7 +35,7 @@ import {
   isEvmEcosystemId,
 } from "@swim-io/evm";
 import type { EvmChainConfig } from "@swim-io/evm";
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { Keypair } from "@solana/web3.js";
 import {
   Amount,
   formatWormholeAddress,
@@ -90,6 +90,7 @@ async function transferFromSolanaToEvm(
   if (evmWalletAddress === null) {
     throw new Error("No EVM wallet address");
   }
+  const isWrappedToken = token.wrappedDetails.size > 0;
 
   const auxiliarySigner = Keypair.generate();
   console.log(
@@ -109,7 +110,9 @@ async function transferFromSolanaToEvm(
     tokenProjectId: token.projectId,
     wallet: solanaWallet,
     auxiliarySigner,
-    wrappedTokenInfo: getWrappedTokenInfo(token, SOLANA_ECOSYSTEM_ID),
+    wrappedTokenInfo: isWrappedToken
+      ? getWrappedTokenInfo(token, SOLANA_ECOSYSTEM_ID)
+      : undefined,
   });
 
   const parsedTx = await solanaClient.getParsedTx(transferSplTokenTxId);
@@ -149,16 +152,17 @@ async function transferFromEvmToEvm(
   evmWallet: EvmWalletAdapter,
   targetEvmChain: EvmChainConfig & ChainSpec,
   sourceEvmChain: EvmChainConfig & ChainSpec,
+  targetEcosystemId: EcosystemId,
   wormhole: WormholeConfig,
   evmClient: EvmClient,
 ): Promise<string> {
   const fromEcosystem = token?.nativeEcosystemId as EvmEcosystemId;
-  const { wormholeChainId: emitterChainId } =
-    ECOSYSTEMS[token.nativeEcosystemId];
+  const { wormholeChainId } = ECOSYSTEMS[targetEcosystemId];
 
   if (!evmWallet.address) {
     throw new Error("No EVM address");
   }
+  const isWrappedToken = token.wrappedDetails.size > 0;
   // Process transfer if transfer txId does not exist
   const { approvalResponses, transferResponse } =
     await evmClient.initiateWormholeTransfer({
@@ -169,10 +173,12 @@ async function transferFromEvmToEvm(
       ),
       interactionId,
       targetAddress: formatWormholeAddress(Protocol.Evm, evmWallet.address),
-      targetChainId: emitterChainId,
+      targetChainId: wormholeChainId,
       tokenProjectId: token.projectId,
       wallet: evmWallet,
-      wrappedTokenInfo: getWrappedTokenInfo(token, fromEcosystem),
+      wrappedTokenInfo: isWrappedToken
+        ? getWrappedTokenInfo(token, fromEcosystem)
+        : undefined,
     });
   console.log("response", approvalResponses, transferResponse);
   const [transferTx, ...approvalTxs] = await Promise.all(
@@ -186,10 +192,11 @@ async function transferFromEvmToEvm(
     sourceEvmChain.wormhole.bridge,
   );
   console.log("sequences", sequence);
-  const retries = getWormholeRetries(emitterChainId);
+
+  const retries = getWormholeRetries(wormholeChainId);
   const { vaaBytes: vaa } = await getSignedVaaWithRetry(
     [...wormhole.rpcUrls],
-    emitterChainId,
+    wormholeChainId,
     getEmitterAddressEth(sourceEvmChain.wormhole.portal),
     sequence,
     undefined,
@@ -230,12 +237,11 @@ async function transferFromEvmToSolana(
     splTokenAccounts,
     ({ mint }) => mint.toBase58() === getSolanaTokenDetails(token).address,
   ).address.toBase58();
-  const { wormholeChainId: emitterChainId } =
-    ECOSYSTEMS[token.nativeEcosystemId];
 
   if (!evmWallet.address) {
     throw new Error("No EVM address");
   }
+  const isWrappedToken = token.wrappedDetails.size > 0;
 
   const { approvalResponses, transferResponse } =
     await evmClient.initiateWormholeTransfer({
@@ -249,27 +255,38 @@ async function transferFromEvmToSolana(
         Protocol.Solana,
         splTokenAccountAddress,
       ),
-      targetChainId: emitterChainId,
+      targetChainId: WormholeChainId.Solana,
       tokenProjectId: token.projectId,
       wallet: evmWallet,
-      wrappedTokenInfo: getWrappedTokenInfo(token, fromEcosystem),
+      wrappedTokenInfo: isWrappedToken
+        ? getWrappedTokenInfo(token, fromEcosystem)
+        : undefined,
     });
-  console.log("response", approvalResponses, transferResponse);
+  console.log(
+    "Init wormhole transfer response",
+    approvalResponses,
+    transferResponse,
+  );
   const [transferTx, ...approvalTxs] = await Promise.all(
     [transferResponse, ...approvalResponses].map((txResponse) =>
       txResponseToTx(interactionId, fromEcosystem, evmClient, txResponse),
     ),
   );
-  console.log("approvals", [transferTx, ...approvalTxs]);
+
+  console.log("The tokens have entered the bridge", [
+    transferTx,
+    ...approvalTxs,
+  ]);
   const sequence = parseSequenceFromLogEth(
     transferTx.receipt,
     sourceEvmChain.wormhole.bridge,
   );
-  console.log("sequences", sequence);
-  const retries = getWormholeRetries(emitterChainId);
+
+  console.log("Fetching signed VAA...", sequence);
+  const retries = getWormholeRetries(WormholeChainId.Solana);
   const { vaaBytes: vaa } = await getSignedVaaWithRetry(
     [...wormhole.rpcUrls],
-    emitterChainId,
+    WormholeChainId.Solana,
     getEmitterAddressEth(sourceEvmChain.wormhole.portal),
     sequence,
     undefined,
@@ -305,8 +322,7 @@ export const useTransfer = (): any => {
   const getEvmClient = useGetEvmClient();
   const solanaClient = useSolanaClient();
   const wallets = useWallets();
-
-  // console.log("Wallets", wallets);
+  let txId = "";
 
   const handleTransfer = useCallback(
     async ({
@@ -315,9 +331,10 @@ export const useTransfer = (): any => {
       targetEcosystemId,
       amount,
     }: TransferData) => {
+      console.log("token", token);
       const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
       const solanaWormhole = chains[Protocol.Solana][0].wormhole;
-      let txId = "";
+
       if (!solanaWallet) {
         throw new Error("No Solana wallet");
       }
@@ -354,7 +371,7 @@ export const useTransfer = (): any => {
             solanaClient,
             splTokenAccounts,
           );
-          console.log("solana txids", txIds);
+          console.log("txIds", txIds);
         } catch (e) {
           console.error(e);
           setIsSending(false);
@@ -388,11 +405,12 @@ export const useTransfer = (): any => {
             evmWallet,
             targetEvmChain,
             sourceEvmChain,
+            targetEcosystemId,
             wormhole,
             evmClient,
           );
         } catch (error) {
-          console.log("Error", error);
+          console.error("Error", error);
           setIsSending(false);
           setIsVAAPending(false);
         }
@@ -448,7 +466,8 @@ export const useTransfer = (): any => {
       handleTransfer,
       isVAAPending,
       isSending,
+      txId,
     }),
-    [handleTransfer, isVAAPending, isSending],
+    [handleTransfer, isVAAPending, isSending, txId],
   );
 };

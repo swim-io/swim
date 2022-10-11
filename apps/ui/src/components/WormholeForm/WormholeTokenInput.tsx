@@ -14,6 +14,7 @@ interface Props {
   readonly tokenAddress: string;
   readonly ecosystemId: EcosystemId;
   readonly errors: readonly string[];
+  readonly isDisabled: boolean;
   readonly onSelectEcosystem: (ecosystemId: EcosystemId) => void;
   readonly onChangeTokenAddress: (address: string) => void;
   readonly onSelectToken: (token: TokenConfig) => void;
@@ -29,6 +30,7 @@ export const WormholeTokenInput: React.FC<Props> = ({
   tokenOptionIds,
   placeholder,
   errors,
+  isDisabled,
   onSelectToken,
   onChangeValue,
   onChangeTokenAddress,
@@ -77,7 +79,7 @@ export const WormholeTokenInput: React.FC<Props> = ({
             min={0}
             onValueChange={onChangeValue}
             onBlur={onBlur}
-            disabled={false}
+            disabled={isDisabled}
             isInvalid={errors.length > 0}
           />
         </EuiFormRow>

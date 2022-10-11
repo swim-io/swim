@@ -1,53 +1,42 @@
-import { EuiIcon, EuiSuperSelectOption } from "@elastic/eui";
+import { EuiIcon } from "@elastic/eui";
 import {
   EuiButton,
-  EuiButtonIcon,
   EuiCallOut,
-  EuiFieldNumber,
   EuiFlexGroup,
   EuiFlexItem,
   EuiForm,
   EuiFormRow,
   EuiLink,
-  EuiSelect,
   EuiSpacer,
   EuiSuperSelect,
   EuiText,
-  EuiTextColor,
   EuiTitle,
 } from "@elastic/eui";
-import { ReadonlyRecord } from "@swim-io/utils";
 import Decimal from "decimal.js";
-import { useUserBalanceAmount, useTransfer } from "hooks";
-import { useFromTokenOptionsIds } from "hooks/swim/useSwapTokenOptions";
-
 import {
-  ChangeEvent,
-  FormEvent,
-  ReactElement,
-  useCallback,
-  useMemo,
-} from "react";
-import { useEffect, useState } from "react";
+  useUserBalanceAmount,
+  useTransfer,
+  useWormholeFromTokenOptionsIds,
+} from "hooks";
+
+import { FormEvent, ReactElement, useCallback, useMemo } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import shallow from "zustand/shallow.js";
 
-import { displayAmount } from "../../amounts";
-import { ECOSYSTEM_LIST, TokenConfig } from "../../config";
-import { EcosystemId, ECOSYSTEMS } from "../../config";
+import { ECOSYSTEM_LIST } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useNotification } from "../../core/store";
 
 import { ConfirmModal } from "../ConfirmModal";
-import { ConnectButton, MultiConnectButton } from "../ConnectButton";
-import { TokenConfigIcon } from "../TokenIcon";
+import { MultiConnectButton } from "../ConnectButton";
 import { WormholeTokenInput } from "./WormholeTokenInput";
 
 export const WormholeForm = (): ReactElement => {
   const { t } = useTranslation();
   const { notify } = useNotification();
   const { tokens, ecosystems } = useEnvironment(selectConfig, shallow);
-  const fromTokenOptionsIds = useFromTokenOptionsIds();
+  const fromTokenOptionsIds = useWormholeFromTokenOptionsIds();
   const [formInputAmount, setFormInputAmount] = useState("");
   const [fromToken, setFromToken] = useState(tokens[0]);
   const [fromEcosystemId, setFromEcosystemId] = useState(ecosystems.solana.id);
@@ -60,8 +49,8 @@ export const WormholeForm = (): ReactElement => {
     fromToken,
     fromToken.nativeEcosystemId,
   );
-  const { handleTransfer, isSending, isVAAPending } = useTransfer();
-  console.log("wormhole", isSending, isVAAPending);
+  const [error, setError] = useState<string | null>(null);
+  const { handleTransfer, isSending, isVAAPending, txId } = useTransfer();
 
   const selectEcosystemOptions = useMemo(() => {
     return [
@@ -110,6 +99,7 @@ export const WormholeForm = (): ReactElement => {
   }, [formInputAmount]);
 
   const submitForm = async (): Promise<void> => {
+    setError(null);
     notify("Transaction submitted", "Loading...", "info");
     try {
       await handleTransfer({
@@ -119,13 +109,13 @@ export const WormholeForm = (): ReactElement => {
         amount: formInputAmount,
       });
     } catch (error) {
-      console.info("Error", error);
+      setError(String(error));
       notify("Error", String(error), "error");
     }
     setTxInProgress(false);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setIsConfirmModalVisible(true);
   };
@@ -135,15 +125,15 @@ export const WormholeForm = (): ReactElement => {
     setTxInProgress(false);
   };
 
-  const handleConfirmModalConfirm = async (): Promise<void> => {
+  const handleConfirmModalConfirm = (): void => {
     setIsConfirmModalVisible(false);
-    await submitForm();
+    submitForm();
   };
 
   return (
     <EuiForm className="wormholeForm" component="form" onSubmit={handleSubmit}>
-      <EuiFlexGroup justifyContent="spaceBetween" responsive={false}>
-        <EuiFlexItem grow={false}>
+      <EuiFlexGroup justifyContent="spaceBetween" responsive={true}>
+        <EuiFlexItem grow={true}>
           <EuiTitle>
             <h2>Wormhole</h2>
           </EuiTitle>
@@ -160,6 +150,7 @@ export const WormholeForm = (): ReactElement => {
         tokenAddress={tokenAddress}
         ecosystemId={fromEcosystemId}
         placeholder={"0.00"}
+        isDisabled={isSending || isVAAPending}
         errors={amountErrors}
         onSelectToken={setFromToken}
         onChangeValue={setFormInputAmount}
@@ -178,24 +169,32 @@ export const WormholeForm = (): ReactElement => {
           style={{ textAlign: "center" }}
         />
       </EuiFormRow>
-      <EuiSpacer size="xl" />
-
-      {/* {transferError !== null && (
-        <>
-        <EuiCallOut title={t("wormhole_page.error.title")} color="danger">
-          <EuiSpacer />
-          <span>{t("wormhole_page.error.message")}</span>
-          <EuiLink href="https://wormholebridge.com/#/redeem" target="_blank">
-            Link
-          </EuiLink>
+      <EuiSpacer size="l" />
+      {txId && (
+        <EuiCallOut color="success">
+          <h4>{t("wormhole_page.transaction")}</h4>
+          <span>link</span>
         </EuiCallOut>
-        <EuiSpacer />
-      </>
-      )} */}
+      )}
+      <EuiSpacer size="l" />
+      {error !== null && (
+        <>
+          <EuiCallOut title={t("wormhole_page.error.title")} color="danger">
+            <EuiSpacer />
+            <span>{t("wormhole_page.error.message")}</span>
+            <EuiLink href="https://wormholebridge.com/#/redeem" target="_blank">
+              Link
+            </EuiLink>
+          </EuiCallOut>
+          <EuiSpacer />
+        </>
+      )}
       <EuiButton
         type="submit"
         fullWidth
+        isLoading={isSending || isVAAPending}
         isDisabled={
+          isSending ||
           txInProgress ||
           amountErrors.length > 0 ||
           fromEcosystemId === toEcosystemId ||

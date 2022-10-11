@@ -41,15 +41,12 @@ describe("Pool tests", () => {
     it("returns false for EVM tx", () => {
       const contractAddress = "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC";
       const ecosystemId = EvmEcosystemId.Ethereum;
-      const txResponse: ethers.providers.TransactionResponse =
-        mock<ethers.providers.TransactionResponse>();
       const txReceipt: ethers.providers.TransactionReceipt =
         mock<ethers.providers.TransactionReceipt>();
       const tx: EvmTx = {
         id: "string",
         timestamp: 123456789,
         ecosystemId: ecosystemId,
-        response: txResponse,
         receipt: txReceipt,
         interactionId: "1",
       };

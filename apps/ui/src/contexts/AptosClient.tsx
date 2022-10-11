@@ -19,7 +19,7 @@ export const AptosClientProvider = ({
   const [chain] = chains[Protocol.Aptos];
 
   const client = useMemo(
-    () => new AptosClient(chain.publicRpcUrls[0]),
+    () => new AptosClient(chain, { endpoint: chain.publicRpcUrls[0] }),
     [chain],
   );
 

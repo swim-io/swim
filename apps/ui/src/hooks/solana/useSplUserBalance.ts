@@ -1,11 +1,13 @@
+import type { TokenDetails } from "@swim-io/core";
 import { findTokenAccountForMint } from "@swim-io/solana";
+import { atomicToHuman } from "@swim-io/utils";
 import Decimal from "decimal.js";
 
 import { useSolanaWallet } from "./useSolanaWallet";
 import { useSplTokenAccountsQuery } from "./useSplTokenAccountsQuery";
 
 export const useSplUserBalance = (
-  mintAddress: string | null,
+  tokenDetails: TokenDetails | null,
   {
     enabled = true,
   }: {
@@ -20,11 +22,21 @@ export const useSplUserBalance = (
     undefined,
     { enabled },
   );
+  if (tokenDetails === null) {
+    return null;
+  }
   const splTokenAccount =
-    mintAddress !== null && walletAddress !== null && splTokenAccounts !== null
-      ? findTokenAccountForMint(mintAddress, walletAddress, splTokenAccounts)
+    walletAddress !== null && splTokenAccounts !== null
+      ? findTokenAccountForMint(
+          tokenDetails.address,
+          walletAddress,
+          splTokenAccounts,
+        )
       : null;
   return splTokenAccount
-    ? new Decimal(splTokenAccount.amount.toString())
+    ? atomicToHuman(
+        new Decimal(splTokenAccount.amount.toString()),
+        tokenDetails.decimals,
+      )
     : null;
 };

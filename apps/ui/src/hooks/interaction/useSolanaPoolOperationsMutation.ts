@@ -88,13 +88,13 @@ export const useSolanaPoolOperationsMutation = () => {
     if (outputState.txId !== null) {
       return;
     }
-    const parsedInputTx = await solanaClient.getParsedTx(inputTxId);
+    const inputTx = await solanaClient.getTx(inputTxId);
     const outputOperation = setOutputOperationInputAmount(
       splTokenAccounts,
       interaction,
       inputOperation,
       outputState.operation,
-      parsedInputTx,
+      inputTx,
     );
     const outputTxId = await doSingleSolanaPoolOperation(
       env,

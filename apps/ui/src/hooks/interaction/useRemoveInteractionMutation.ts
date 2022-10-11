@@ -175,7 +175,7 @@ export const useRemoveInteractionMutation = () => {
         if (address === null || signer === null) {
           throw new Error(`${ecosystem} wallet not connected`);
         }
-        const connection = getEvmClient(ecosystem);
+        const evmClient = getEvmClient(ecosystem);
         const tokenDetails = getTokenDetailsForEcosystem(
           removeAmount.tokenConfig,
           ecosystem,
@@ -183,26 +183,23 @@ export const useRemoveInteractionMutation = () => {
         if (tokenDetails === null) {
           throw new Error("Missing token detail");
         }
-        const approvalResponses = await connection.approveTokenAmount({
+        const approvalResponses = await evmClient.approveTokenAmount({
           atomicAmount: removeAmount.toAtomicString(ecosystem),
           wallet,
           mintAddress: tokenDetails.address,
           spenderAddress: poolSpec.address,
         });
-        const approvalTxs = await Promise.all(
-          approvalResponses.map((response) =>
-            connection.getTxReceiptOrThrow(response),
-          ),
+        await Promise.all(
+          approvalResponses.map(async (response) => {
+            const tx = await evmClient.getTx(response);
+            updateInteractionState(interaction.id, (draft) => {
+              if (draft.interactionType !== interaction.type) {
+                throw new Error("Interaction type mismatch");
+              }
+              draft.approvalTxIds.push(tx.id);
+            });
+          }),
         );
-        updateInteractionState(interaction.id, (draft) => {
-          if (draft.interactionType !== interaction.type) {
-            throw new Error("Interaction type mismatch");
-          }
-          draft.approvalTxIds = [
-            ...draft.approvalTxIds,
-            ...approvalTxs.map((tx) => tx.transactionHash),
-          ];
-        });
 
         const poolContract = Pool__factory.connect(poolSpec.address, signer);
         const txRequest = await getPopulatedTxForEvmRemoveInteraction(
@@ -212,12 +209,12 @@ export const useRemoveInteractionMutation = () => {
           poolSpec.tokens,
         );
         const txResponse = await signer.sendTransaction(txRequest);
-        const evmReceipt = await connection.getTxReceiptOrThrow(txResponse);
+        const tx = await evmClient.getTx(txResponse);
         updateInteractionState(interaction.id, (draft) => {
           if (draft.interactionType !== interaction.type) {
             throw new Error("Interaction type mismatch");
           }
-          draft.removeTxId = evmReceipt.transactionHash;
+          draft.removeTxId = tx.id;
         });
       } else {
         throw new Error("Unexpected ecosystem for remove interaction");

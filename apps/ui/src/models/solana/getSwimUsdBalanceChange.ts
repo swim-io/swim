@@ -6,13 +6,10 @@ export const getSwimUsdBalanceChange = async (
   solanaClient: SolanaClient,
   swimUsdSplTokenAccount: TokenAccount,
 ): Promise<Decimal> => {
-  const tx = await solanaClient.getParsedTx(swapToSwimUsdTxId);
-  if (tx.meta === null) {
-    throw new Error("Missing parsed transaction");
-  }
-  const { preTokenBalances, postTokenBalances } = tx.meta;
+  const { parsedTx } = await solanaClient.getTx(swapToSwimUsdTxId);
+  const { preTokenBalances, postTokenBalances } = parsedTx.meta ?? {};
   if (!preTokenBalances || !postTokenBalances) {
-    throw new Error("Missing parsed transaction");
+    throw new Error(`Invalid transaction: ${swapToSwimUsdTxId}`);
   }
   const mint = swimUsdSplTokenAccount.mint.toBase58();
   const owner = swimUsdSplTokenAccount.owner.toBase58();

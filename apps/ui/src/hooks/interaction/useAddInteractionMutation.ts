@@ -114,8 +114,8 @@ export const useAddInteractionMutation = () => {
           (chain) => chain.ecosystem === ecosystem,
         );
         await wallet.switchNetwork(evmChainSpec.chainId);
-        const approvalResponses = await Promise.all(
-          inputAmounts.map((amount) => {
+        await Promise.all(
+          inputAmounts.map(async (amount) => {
             const tokenDetails = getTokenDetailsForEcosystem(
               amount.tokenConfig,
               ecosystem,
@@ -123,30 +123,26 @@ export const useAddInteractionMutation = () => {
             if (tokenDetails === null) {
               throw new Error("Missing token detail");
             }
-            return evmClient.approveTokenAmount({
+            const responses = await evmClient.approveTokenAmount({
               atomicAmount: amount.toAtomicString(ecosystem),
               wallet,
               mintAddress: tokenDetails.address,
               spenderAddress: poolSpec.address,
             });
+
+            await Promise.all(
+              responses.map(async (response) => {
+                const tx = await evmClient.getTx(response);
+                updateInteractionState(interaction.id, (draft) => {
+                  if (draft.interactionType !== interaction.type) {
+                    throw new Error("Interaction type mismatch");
+                  }
+                  draft.approvalTxIds = [...draft.approvalTxIds, tx.id];
+                });
+              }),
+            );
           }),
         );
-        const approvalTxs = await Promise.all(
-          approvalResponses.flatMap((responses) =>
-            responses.map((response) =>
-              evmClient.getTxReceiptOrThrow(response),
-            ),
-          ),
-        );
-        updateInteractionState(interaction.id, (draft) => {
-          if (draft.interactionType !== interaction.type) {
-            throw new Error("Interaction type mismatch");
-          }
-          draft.approvalTxIds = [
-            ...draft.approvalTxIds,
-            ...approvalTxs.map((tx) => tx.transactionHash),
-          ];
-        });
 
         const poolContract = Pool__factory.connect(
           poolSpec.address,
@@ -163,12 +159,12 @@ export const useAddInteractionMutation = () => {
           `0x${interaction.id}`,
         );
         const txResponse = await signer.sendTransaction(txRequest);
-        const evmReceipt = await evmClient.getTxReceiptOrThrow(txResponse);
+        const tx = await evmClient.getTx(txResponse);
         updateInteractionState(interaction.id, (draft) => {
           if (draft.interactionType !== interaction.type) {
             throw new Error("Interaction type mismatch");
           }
-          draft.addTxId = evmReceipt.transactionHash;
+          draft.addTxId = tx.id;
         });
       } else {
         throw new Error("Unexpected ecosystem for add interaction");

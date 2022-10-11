@@ -1,4 +1,5 @@
 import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
+import type { TokenDetails } from "@swim-io/core";
 import { EvmEcosystemId } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID, findTokenAccountForMint } from "@swim-io/solana";
 import type { ReadonlyRecord } from "@swim-io/utils";
@@ -12,22 +13,22 @@ import { useAptosTokenBalancesQuery } from "../aptos";
 import { useErc20BalancesQuery } from "../evm";
 import { useSolanaWallet, useSplTokenAccountsQuery } from "../solana";
 
-const getContractAddressesByEcosystem = (
+const getTokenDetailsByEcosystem = (
   tokenConfigs: readonly TokenConfig[],
-): ReadonlyRecord<EcosystemId, readonly string[]> =>
-  tokenConfigs.reduce<ReadonlyRecord<EcosystemId, readonly string[]>>(
+): ReadonlyRecord<EcosystemId, readonly TokenDetails[]> =>
+  tokenConfigs.reduce<ReadonlyRecord<EcosystemId, readonly TokenDetails[]>>(
     (accumulator, tokenConfig) => {
       const [
-        aptosAddress,
-        solanaAddress,
-        ethereumAddress,
-        bnbAddress,
-        avalancheAddress,
-        polygonAddress,
-        auroraAddress,
-        fantomAddress,
-        karuraAddress,
-        acalaAddress,
+        aptosTokenDetails,
+        solanaTokenDetails,
+        ethereumTokenDetails,
+        bnbTokenDetails,
+        avalancheTokenDetails,
+        polygonTokenDetails,
+        auroraTokenDetails,
+        fantomTokenDetails,
+        karuraTokenDetails,
+        acalaTokenDetails,
       ] = [
         APTOS_ECOSYSTEM_ID,
         SOLANA_ECOSYSTEM_ID,
@@ -41,39 +42,38 @@ const getContractAddressesByEcosystem = (
         EvmEcosystemId.Acala,
       ].map(
         (ecosystemId) =>
-          getTokenDetailsForEcosystem(tokenConfig, ecosystemId)?.address ??
-          null,
+          getTokenDetailsForEcosystem(tokenConfig, ecosystemId) ?? null,
       );
       return {
-        [APTOS_ECOSYSTEM_ID]: aptosAddress
-          ? [...accumulator.aptos, aptosAddress]
+        [APTOS_ECOSYSTEM_ID]: aptosTokenDetails
+          ? [...accumulator.aptos, aptosTokenDetails]
           : accumulator.aptos,
-        [SOLANA_ECOSYSTEM_ID]: solanaAddress
-          ? [...accumulator.solana, solanaAddress]
+        [SOLANA_ECOSYSTEM_ID]: solanaTokenDetails
+          ? [...accumulator.solana, solanaTokenDetails]
           : accumulator.solana,
-        [EvmEcosystemId.Ethereum]: ethereumAddress
-          ? [...accumulator.ethereum, ethereumAddress]
+        [EvmEcosystemId.Ethereum]: ethereumTokenDetails
+          ? [...accumulator.ethereum, ethereumTokenDetails]
           : accumulator.ethereum,
-        [EvmEcosystemId.Bnb]: bnbAddress
-          ? [...accumulator.bnb, bnbAddress]
+        [EvmEcosystemId.Bnb]: bnbTokenDetails
+          ? [...accumulator.bnb, bnbTokenDetails]
           : accumulator.bnb,
-        [EvmEcosystemId.Avalanche]: avalancheAddress
-          ? [...accumulator.avalanche, avalancheAddress]
+        [EvmEcosystemId.Avalanche]: avalancheTokenDetails
+          ? [...accumulator.avalanche, avalancheTokenDetails]
           : accumulator.avalanche,
-        [EvmEcosystemId.Polygon]: polygonAddress
-          ? [...accumulator.polygon, polygonAddress]
+        [EvmEcosystemId.Polygon]: polygonTokenDetails
+          ? [...accumulator.polygon, polygonTokenDetails]
           : accumulator.polygon,
-        [EvmEcosystemId.Aurora]: auroraAddress
-          ? [...accumulator.aurora, auroraAddress]
+        [EvmEcosystemId.Aurora]: auroraTokenDetails
+          ? [...accumulator.aurora, auroraTokenDetails]
           : accumulator.aurora,
-        [EvmEcosystemId.Fantom]: fantomAddress
-          ? [...accumulator.fantom, fantomAddress]
+        [EvmEcosystemId.Fantom]: fantomTokenDetails
+          ? [...accumulator.fantom, fantomTokenDetails]
           : accumulator.fantom,
-        [EvmEcosystemId.Karura]: karuraAddress
-          ? [...accumulator.karura, karuraAddress]
+        [EvmEcosystemId.Karura]: karuraTokenDetails
+          ? [...accumulator.karura, karuraTokenDetails]
           : accumulator.karura,
-        [EvmEcosystemId.Acala]: acalaAddress
-          ? [...accumulator.acala, acalaAddress]
+        [EvmEcosystemId.Acala]: acalaTokenDetails
+          ? [...accumulator.acala, acalaTokenDetails]
           : accumulator.acala,
       };
     },
@@ -95,17 +95,17 @@ const getTokenIdAndBalance = (
   tokenConfig: TokenConfig,
   ecosystemId: EcosystemId,
   balances: readonly UseQueryResult<Decimal | null, Error>[],
-  contractAddresses: readonly string[],
+  tokenDetails: readonly TokenDetails[],
 ): readonly [string, Amount | null] => {
-  const address = getTokenDetailsForEcosystem(
+  const contractAddress = getTokenDetailsForEcosystem(
     tokenConfig,
     ecosystemId,
   )?.address;
-  if (!address) {
+  if (!contractAddress) {
     return [tokenConfig.id, null];
   }
-  const index = contractAddresses.findIndex(
-    (contractAddress) => contractAddress === address,
+  const index = tokenDetails.findIndex(
+    ({ address }) => address === contractAddress,
   );
   if (!balances[index]) {
     return [tokenConfig.id, null];
@@ -113,9 +113,7 @@ const getTokenIdAndBalance = (
   const { data: balance = null } = balances[index];
   return [
     tokenConfig.id,
-    balance !== null
-      ? Amount.fromAtomic(tokenConfig, balance, ecosystemId)
-      : null,
+    balance !== null ? Amount.fromHuman(tokenConfig, balance) : null,
   ];
 };
 
@@ -134,13 +132,13 @@ export const useMultipleUserBalances = (
     fantom,
     karura,
     acala,
-  } = getContractAddressesByEcosystem(tokenConfigs);
+  } = getTokenDetailsByEcosystem(tokenConfigs);
   const { address: solanaWalletAddress } = useSolanaWallet();
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
-  const solanaTokenAccounts = solana.map((tokenContractAddress) =>
+  const solanaTokenAccounts = solana.map((tokenDetails) =>
     solanaWalletAddress !== null
       ? findTokenAccountForMint(
-          tokenContractAddress,
+          tokenDetails.address,
           solanaWalletAddress,
           splTokenAccounts,
         )

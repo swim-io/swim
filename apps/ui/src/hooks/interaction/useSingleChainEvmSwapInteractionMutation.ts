@@ -72,20 +72,21 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
         mintAddress: tokenDetails.address,
         spenderAddress: routingContractAddress,
       });
-      const approvalTxs = await Promise.all(
-        approvalResponses.map((response) =>
-          client.getTxReceiptOrThrow(response),
-        ),
+
+      await Promise.all(
+        approvalResponses.map(async (response) => {
+          const tx = await client.getTx(response);
+          updateInteractionState(interaction.id, (draft) => {
+            if (
+              draft.interactionType !== InteractionType.SwapV2 ||
+              draft.swapType !== SwapType.SingleChainEvm
+            ) {
+              throw new Error("Interaction type mismatch");
+            }
+            draft.approvalTxIds.push(tx.id);
+          });
+        }),
       );
-      updateInteractionState(interaction.id, (draft) => {
-        if (
-          draft.interactionType !== InteractionType.SwapV2 ||
-          draft.swapType !== SwapType.SingleChainEvm
-        ) {
-          throw new Error("Interaction type mismatch");
-        }
-        draft.approvalTxIds = approvalTxs.map((tx) => tx.transactionHash);
-      });
 
       const routingContract = Routing__factory.connect(
         routingContractAddress,
@@ -106,8 +107,7 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
         `0x${interaction.id}`,
       );
       const txResponse = await signer.sendTransaction(txRequest);
-      const evmReceipt = await client.getTxReceiptOrThrow(txResponse);
-      const onChainSwapTxId = evmReceipt.transactionHash;
+      const tx = await client.getTx(txResponse);
       updateInteractionState(interaction.id, (draft) => {
         if (
           draft.interactionType !== InteractionType.SwapV2 ||
@@ -115,7 +115,7 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
         ) {
           throw new Error("Interaction type mismatch");
         }
-        draft.onChainSwapTxId = onChainSwapTxId;
+        draft.onChainSwapTxId = tx.id;
       });
     },
   );

@@ -24,6 +24,7 @@ jobs:
     defaults:
       run:
         working-directory: ./apps/ui
+        shell: bash
 
     env:
       REACT_APP_BNB_MAINNET_RPC_URL: "https://example.com"
@@ -70,6 +71,7 @@ jobs:
     defaults:
       run:
         working-directory: ./apps/ui
+        shell: bash
 
     env:
       REACT_APP_BNB_MAINNET_RPC_URL: "https://example.com"

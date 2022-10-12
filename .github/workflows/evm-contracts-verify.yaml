@@ -16,6 +16,7 @@ jobs:
     defaults:
       run:
         working-directory: ./packages/evm-contracts
+        shell: bash
 
     env:
       MNEMONIC: "test test test test test test test test test test test junk"

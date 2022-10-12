@@ -28,6 +28,7 @@ jobs:
     defaults:
       run:
         working-directory: ${{ inputs.workingDirectory }}
+        shell: bash
 
     steps:
       - uses: actions/checkout@v2

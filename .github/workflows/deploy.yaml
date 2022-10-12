@@ -12,6 +12,10 @@ jobs:
   production-deploy:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        shell: bash
+
     # Allow only one concurrent deployment
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}

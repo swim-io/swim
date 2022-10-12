@@ -553,7 +553,7 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
     )?;
     let memo = swim_payload.memo;
     if memo != [0u8; 16] {
-        let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+        let memo_ix = spl_memo::build_memo(std::str::from_utf8(hex::encode(memo).as_bytes()).unwrap().as_ref(), &[]);
         invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     }
 

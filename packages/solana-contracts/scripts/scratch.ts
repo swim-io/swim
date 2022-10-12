@@ -26,7 +26,7 @@ import {
   USDC_TO_TOKEN_NUMBER,
   USDT_TO_TOKEN_NUMBER,
   setComputeUnitLimitIx,
-} from "packages/solana-contracts/src/__tests__/consts";
+} from "../src/__tests__/consts";
 import {
   getPropellerPda,
   getPropellerRedeemerPda,
@@ -35,6 +35,7 @@ import {
 } from "../src/__tests__/propeller/propellerUtils";
 import type { Propeller } from "../src/artifacts/propeller";
 import type { TwoPool } from "../src/artifacts/two_pool";
+import crypto from "crypto";
 
 const provider = AnchorProvider.env();
 setProvider(provider);
@@ -286,4 +287,22 @@ async function initializePropellerState(): Promise<PropellerInfo> {
   };
 }
 
-void setupPropeller();
+// void setupPropeller();
+function main() {
+  const SWIM_MEMO_LENGTH = 16;
+  // NOTE: Please always use random bytes to avoid conflicts with other users
+  const bytes = crypto.randomBytes(SWIM_MEMO_LENGTH)
+  const bytesHex = bytes.toString("hex");
+  const bytesUtf8 = bytes.toString("utf8");
+  const bytesHexByteLength = Buffer.byteLength(bytesHex, "hex");
+  const bytesUtf8ByteLength = Buffer.byteLength(bytesUtf8, "utf8");
+  console.info(`
+    bytes: ${bytes}
+    bytesHex: ${bytesHex}
+    bytesUtf8: ${bytesUtf8}
+    bytesHexByteLength: ${bytesHexByteLength}
+    bytesUtf8ByteLength: ${bytesUtf8ByteLength}
+  `)
+
+}
+void main();

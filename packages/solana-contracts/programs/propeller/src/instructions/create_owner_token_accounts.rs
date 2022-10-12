@@ -303,7 +303,8 @@ impl<'info> PropellerCreateOwnerTokenAccounts<'info> {
     fn log_memo(&self) -> Result<()> {
         let memo = self.swim_payload_message.memo;
         if memo != [0u8; 16] {
-            let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+            let memo_ix =
+                spl_memo::build_memo(std::str::from_utf8(hex::encode(memo).as_bytes()).unwrap().as_ref(), &[]);
             invoke(&memo_ix, &[self.memo.to_account_info()])?;
         }
         Ok(())
@@ -857,7 +858,7 @@ pub fn handle_propeller_create_owner_swim_usd_ata(ctx: Context<PropellerCreateOw
 
     let memo = ctx.accounts.swim_payload_message.memo;
     if memo != [0u8; 16] {
-        let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+        let memo_ix = spl_memo::build_memo(std::str::from_utf8(hex::encode(memo).as_bytes()).unwrap().as_ref(), &[]);
         invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
     }
     Ok(())

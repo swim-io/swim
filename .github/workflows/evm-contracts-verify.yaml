@@ -17,7 +17,7 @@ jobs:
     defaults:
       run:
         working-directory: ./packages/evm-contracts
-        shell: bash
+        shell: bash --noprofile --norc -o errexit -o nounset -o pipefail {0}
 
     env:
       MNEMONIC: "test test test test test test test test test test test junk"

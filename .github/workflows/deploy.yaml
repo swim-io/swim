@@ -14,7 +14,7 @@ jobs:
 
     defaults:
       run:
-        shell: bash
+        shell: bash --noprofile --norc -o errexit -o nounset -o pipefail {0}
 
     # Allow only one concurrent deployment
     concurrency:

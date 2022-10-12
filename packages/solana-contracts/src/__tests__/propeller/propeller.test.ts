@@ -214,7 +214,6 @@ let marginalPricePool: web3.PublicKey;
 const marginalPricePoolTokenMint = usdcKeypair.publicKey;
 
 let outputTokenIdMappingAddrs: ReadonlyMap<number, PublicKey>;
-const memoId = 0;
 // const poolRemoveExactBurnIx = {removeExactBurn: {} };
 // const poolSwapExactInputIx = {swapExactInput: {} };
 // type TokenIdMapPoolIx = poolRemoveExactBurnIx | poolSwapExactInputIx;
@@ -886,7 +885,7 @@ describe("propeller", () => {
           userTransferAuthority.publicKey,
           payer,
         );
-        const memoStr = incMemoIdAndGet();
+        const memoStr = createMemoId();
 
         const addTxn = propellerProgram.methods
           .crossChainAdd(inputAmounts, minimumMintAmount)
@@ -1002,7 +1001,7 @@ describe("propeller", () => {
             userTransferAuthority.publicKey,
             payer,
           );
-          const memoStr = incMemoIdAndGet();
+          const memoStr = createMemoId();
 
           const maxFee = new BN(100);
           const addTxn = propellerProgram.methods
@@ -1113,7 +1112,7 @@ describe("propeller", () => {
             userTransferAuthority.publicKey,
             payer,
           );
-          const memoStr = incMemoIdAndGet();
+          const memoStr = createMemoId();
 
           const maxFee = new BN(50_000_000_000);
           await expect(() => {
@@ -1259,7 +1258,7 @@ describe("propeller", () => {
             userTransferAuthority.publicKey,
             payer,
           );
-          const memoStr = incMemoIdAndGet();
+          const memoStr = createMemoId();
 
           const swapExactInputTxn = propellerProgram.methods
             .crossChainSwapExactInput(exactInputAmount, minimumOutputAmount)
@@ -1395,7 +1394,7 @@ describe("propeller", () => {
               userTransferAuthority.publicKey,
               payer,
             );
-            const memoStr = incMemoIdAndGet();
+            const memoStr = createMemoId();
 
             const swapExactInputTxn = propellerProgram.methods
               .propellerSwapExactInput(exactInputAmount, maxFee)
@@ -1514,7 +1513,7 @@ describe("propeller", () => {
               userTransferAuthority.publicKey,
               payer,
             );
-            const memoStr = incMemoIdAndGet();
+            const memoStr = createMemoId();
 
             const swapExactInputTxn = propellerProgram.methods
               .propellerSwapExactInput(exactInputAmount, maxFee)
@@ -1562,7 +1561,7 @@ describe("propeller", () => {
       const custodyAmountBefore = new BN(0);
       const transferAmount = new BN(100_000_000);
 
-      const memo = incMemoIdAndGet();
+      const memo = createMemoId();
       const wormholeMessage = web3.Keypair.generate();
 
       const nonceBefore = (
@@ -1725,7 +1724,7 @@ describe("propeller", () => {
         .amount;
       const transferAmount = new BN(100_000_000);
 
-      const memo = incMemoIdAndGet();
+      const memo = createMemoId();
       const wormholeMessage = web3.Keypair.generate();
       const gasKickstart = false;
       const maxFee = new BN(100_000);
@@ -1857,7 +1856,10 @@ describe("propeller", () => {
       expect(swimPayload.maxFee).toEqual(maxFee);
       expect(swimPayload.targetTokenId).toEqual(evmTargetTokenId);
       expect(swimPayload.memo.toString("hex")).toEqual(memo.toString("hex"));
-      await checkTxnLogsForMemo(propellerTransferNativeTxnSig, memo.toString("hex"));
+      await checkTxnLogsForMemo(
+        propellerTransferNativeTxnSig,
+        memo.toString("hex"),
+      );
       // this fails due to capitalization
       // expect(formattedTokenTransferMessage.tokenTransfer.to).to.equal(ethRoutingContractStr);
       // console.info(`
@@ -1895,7 +1897,7 @@ describe("propeller", () => {
       const custodyAmountBefore = (await splToken.account.token.fetch(custody))
         .amount;
       const transferAmount = new BN(100_000_000);
-      const memo = incMemoIdAndGet();
+      const memo = createMemoId();
       const wormholeMessage = web3.Keypair.generate();
       const gasKickstart = false;
       const maxFee = new BN(100_000);
@@ -2025,7 +2027,11 @@ describe("propeller", () => {
       expect(swimPayload.maxFee).toEqual(maxFee);
       expect(swimPayload.targetTokenId).toEqual(evmTargetTokenId);
       expect(swimPayload.memo).toBeUndefined();
-      await checkTxnLogsForMemo(transferNativeTxnSig, memo.toString("hex"), false);
+      await checkTxnLogsForMemo(
+        transferNativeTxnSig,
+        memo.toString("hex"),
+        false,
+      );
       // this fails due to capitalization
       // expect(formattedTokenTransferMessage.tokenTransfer.to).to.equal(ethRoutingContractStr);
       // console.info(`
@@ -2104,10 +2110,9 @@ describe("propeller", () => {
         let swimPayloadMessage: web3.PublicKey;
 
         const targetTokenId = USDC_TO_TOKEN_NUMBER;
-        const memoStr = incMemoIdAndGet();
+        const memoStr = createMemoId();
 
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
-
           // const maxFee = new BN(1_000_000_000);
           const swimPayload = {
             version: swimPayloadVersion,
@@ -2518,14 +2523,12 @@ describe("propeller", () => {
 
         const targetTokenId = SWIM_USD_TO_TOKEN_NUMBER;
 
-        const memoStr = incMemoIdAndGet();
+        const memoStr = createMemoId();
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
-
           // const maxFee = new BN(1000000000);
           const swimPayload = {
             version: swimPayloadVersion,
             owner: provider.publicKey.toBuffer(),
-
           };
 
           const amount = parseUnits("1", mintDecimal);
@@ -2906,11 +2909,10 @@ describe("propeller", () => {
         let wormholeMessage: web3.PublicKey;
         let swimPayloadMessage: web3.PublicKey;
         const targetTokenId = metapoolMint1OutputTokenIndex;
-        const memoStr = incMemoIdAndGet();
+        const memoStr = createMemoId();
         // const memo = "e45794d6c5a2750b";
 
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
-
           const swimPayload = {
             version: swimPayloadVersion,
             owner: provider.publicKey.toBuffer(),
@@ -3288,7 +3290,7 @@ describe("propeller", () => {
 
         let targetTokenId = SWIM_USD_TO_TOKEN_NUMBER;
 
-        const memoStr = incMemoIdAndGet();
+        const memoStr = createMemoId();
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
           // const maxFee = new BN(1000000000);
           const swimPayload = {
@@ -3684,9 +3686,8 @@ describe("propeller", () => {
 
         const targetTokenId = SWIM_USD_TO_TOKEN_NUMBER;
 
-        const memoStr = incMemoIdAndGet();
+        const memoStr = createMemoId();
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
-
           const swimPayload = {
             version: swimPayloadVersion,
             owner: provider.publicKey.toBuffer(),
@@ -4133,7 +4134,7 @@ describe("propeller", () => {
     expect(memoLogFound).toEqual(exists);
   }
 
-  function incMemoIdAndGet() {
+  function createMemoId() {
     const SWIM_MEMO_LENGTH = 16;
     // NOTE: Please always use random bytes to avoid conflicts with other users
     return crypto.randomBytes(SWIM_MEMO_LENGTH);

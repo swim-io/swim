@@ -291,7 +291,7 @@ async function initializePropellerState(): Promise<PropellerInfo> {
 function main() {
   const SWIM_MEMO_LENGTH = 16;
   // NOTE: Please always use random bytes to avoid conflicts with other users
-  const bytes = crypto.randomBytes(SWIM_MEMO_LENGTH)
+  const bytes = crypto.randomBytes(SWIM_MEMO_LENGTH);
   const bytesHex = bytes.toString("hex");
   const bytesUtf8 = bytes.toString("utf8");
   const bytesHexByteLength = Buffer.byteLength(bytesHex, "hex");
@@ -302,7 +302,6 @@ function main() {
     bytesUtf8: ${bytesUtf8}
     bytesHexByteLength: ${bytesHexByteLength}
     bytesUtf8ByteLength: ${bytesUtf8ByteLength}
-  `)
-
+  `);
 }
 void main();

@@ -216,7 +216,6 @@ let marginalPricePoolLpMint: web3.PublicKey;
 const marginalPricePoolTokenMint = usdcKeypair.publicKey;
 
 let outputTokenIdMappingAddrs: ReadonlyMap<number, PublicKey>;
-const memoId = 0;
 
 let wormholeAddresses: WormholeAddresses;
 let custody: web3.PublicKey;
@@ -811,7 +810,7 @@ describe("propeller", () => {
           let owner: web3.PublicKey;
 
           const targetTokenId = USDC_TO_TOKEN_NUMBER;
-          const memoBuffer = incMemoIdAndGet();
+          const memoBuffer = createMemoId();
 
           it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
             const propellerFeeVaultBalanceBefore = (
@@ -1514,7 +1513,7 @@ describe("propeller", () => {
           // let owner: web3.PublicKey;
 
           const targetTokenId = USDC_TO_TOKEN_NUMBER;
-          const memoBuffer = incMemoIdAndGet();
+          const memoBuffer = createMemoId();
 
           it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
             const propellerFeeVaultBalanceBefore = (
@@ -2326,7 +2325,7 @@ describe("propeller", () => {
         // let owner: web3.PublicKey;
 
         const targetTokenId = 99;
-        const memoBuffer = incMemoIdAndGet();
+        const memoBuffer = createMemoId();
         let ownerSwimUsdAta: web3.PublicKey;
         let invalidTokenIdMapAddr: web3.PublicKey;
 
@@ -2944,7 +2943,7 @@ describe("propeller", () => {
       //
       //   const targetTokenId = SWIM_USD_TO_TOKEN_NUMBER;
       //
-      //   const memoBuffer = incMemoIdAndGet();
+      //   const memoBuffer = createMemoId();
       // eslint-disable-next-line jest/no-commented-out-tests
       //   it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
       //     const memoBuffer = Buffer.alloc(16);
@@ -3358,7 +3357,7 @@ describe("propeller", () => {
       //   let wormholeMessage: web3.PublicKey;
       //   let swimPayloadMessage: web3.PublicKey;
       //   const targetTokenId = metapoolMint1OutputTokenIndex;
-      //   const memoBuffer = incMemoIdAndGet();
+      //   const memoBuffer = createMemoId();
       //   // const memo = "e45794d6c5a2750b";
       //
       // eslint-disable-next-line jest/no-commented-out-tests
@@ -3772,7 +3771,7 @@ describe("propeller", () => {
           // let owner: web3.PublicKey;
 
           const targetTokenId = USDC_TO_TOKEN_NUMBER;
-          const memoBuffer = incMemoIdAndGet();
+          const memoBuffer = createMemoId();
 
           it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
             const propellerFeeVaultBalanceBefore = (
@@ -4583,7 +4582,7 @@ describe("propeller", () => {
         // let owner: web3.PublicKey;
 
         const targetTokenId = USDC_TO_TOKEN_NUMBER;
-        const memoBuffer = incMemoIdAndGet();
+        const memoBuffer = createMemoId();
 
         const maxFee = new BN(1000000000);
         const swimPayload = {
@@ -5139,7 +5138,7 @@ describe("propeller", () => {
         // let owner: web3.PublicKey;
 
         const targetTokenId = 99;
-        const memoBuffer = incMemoIdAndGet();
+        const memoBuffer = createMemoId();
 
         let ownerSwimUsdAta: web3.PublicKey;
         let invalidTokenIdMapAddr: web3.PublicKey;
@@ -5687,7 +5686,7 @@ describe("propeller", () => {
           // let owner: web3.PublicKey;
 
           const targetTokenId = USDC_TO_TOKEN_NUMBER;
-          const memoBuffer = incMemoIdAndGet();
+          const memoBuffer = createMemoId();
 
           it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
             const propellerFeeVaultBalanceBefore = (
@@ -7218,7 +7217,7 @@ const convertLamportsToSwimUsdAtomic = async (feeInLamports: BN) => {
   return new BN(feeSwimUsdAtomic.toNumber());
 };
 
-function incMemoIdAndGet() {
+function createMemoId() {
   const SWIM_MEMO_LENGTH = 16;
   // NOTE: Please always use random bytes to avoid conflicts with other users
   return crypto.randomBytes(SWIM_MEMO_LENGTH);

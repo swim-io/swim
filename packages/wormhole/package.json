@@ -31,16 +31,15 @@
     "prepare": "yarn verify && yarn build"
   },
   "dependencies": {
-    "@certusone/wormhole-sdk": "^0.6.0",
-    "@solana/spl-token": "^0.3.4",
-    "@solana/web3.js": "^1.62.0",
     "@swim-io/core": "workspace:^",
     "@swim-io/solana": "workspace:^",
     "@swim-io/utils": "workspace:^",
-    "ethers": "^5.6.9",
     "grpc-web": "^1.3.1"
   },
   "devDependencies": {
+    "@certusone/wormhole-sdk": "^0.6.0",
+    "@solana/spl-token": "^0.3.4",
+    "@solana/web3.js": "^1.62.0",
     "@swim-io/eslint-config": "workspace:^",
     "@swim-io/tsconfig": "workspace:^",
     "@types/jest": "^28.1.3",
@@ -54,9 +53,16 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest": "^25.7.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "ethers": "^5.6.9",
     "jest": "^28.1.2",
     "prettier": "^2.7.1",
     "ts-jest": "^28.0.5",
     "typescript": "~4.8.4"
+  },
+  "peerDependencies": {
+    "@certusone/wormhole-sdk": "^0.6.0",
+    "@solana/spl-token": "^0.3.4",
+    "@solana/web3.js": "^1.62.0",
+    "ethers": "^5.6.9"
   }
 }

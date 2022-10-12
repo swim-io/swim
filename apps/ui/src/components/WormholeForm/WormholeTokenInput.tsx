@@ -1,14 +1,16 @@
 import { EuiFlexGroup, EuiFlexItem, EuiFormRow } from "@elastic/eui";
-import { UserBalanceDisplay } from "components/molecules/UserBalanceDisplay";
 import type React from "react";
 
 import type { EcosystemId, TokenConfig } from "../../config";
 import { EuiFieldIntlNumber } from "../EuiFieldIntlNumber";
+import { UserBalanceDisplay } from "../molecules/UserBalanceDisplay";
+
 import { WormholeTokenSelect } from "./WormholeTokenSelect";
 
 interface Props {
   readonly value: string;
   readonly token: TokenConfig;
+  readonly label: string;
   readonly tokenOptionIds: readonly string[];
   readonly placeholder: string;
   readonly tokenAddress: string;
@@ -25,6 +27,7 @@ interface Props {
 export const WormholeTokenInput: React.FC<Props> = ({
   value,
   token,
+  label,
   tokenAddress,
   ecosystemId,
   tokenOptionIds,
@@ -40,7 +43,7 @@ export const WormholeTokenInput: React.FC<Props> = ({
   return (
     <EuiFlexGroup alignItems="flexStart">
       <EuiFlexItem>
-        <EuiFormRow labelType="legend" label={<span>Source</span>}>
+        <EuiFormRow labelType="legend" label={<span>{label}</span>}>
           <WormholeTokenSelect
             tokenAddress={tokenAddress}
             onChangeTokenAddress={onChangeTokenAddress}
@@ -59,13 +62,8 @@ export const WormholeTokenInput: React.FC<Props> = ({
             <UserBalanceDisplay
               token={token}
               ecosystemId={token.nativeEcosystemId}
-              onClick={
-                onChangeValue
-                  ? (newAmount) =>
-                      onChangeValue(
-                        newAmount.toHumanString(token.nativeEcosystemId),
-                      )
-                  : undefined
+              onClick={(newAmount) =>
+                onChangeValue(newAmount.toHumanString(token.nativeEcosystemId))
               }
             />
           }

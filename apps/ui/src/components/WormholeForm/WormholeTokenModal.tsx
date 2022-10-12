@@ -24,7 +24,6 @@ import { ECOSYSTEM_LIST, isEcosystemEnabled } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment } from "../../core/store";
 import { useUserBalanceAmount } from "../../hooks";
-
 import { CustomModal } from "../CustomModal";
 import { TokenSearchConfigIcon } from "../TokenIcon";
 

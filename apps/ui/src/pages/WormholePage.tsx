@@ -1,9 +1,9 @@
 import { EuiPage, EuiPageContent, EuiPageContentBody } from "@elastic/eui";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
 import { WormholeForm } from "../components/WormholeForm/WormholeForm";
 import { useTitle } from "../hooks";
-import { useTranslation } from "react-i18next";
 
 import "./WormholePage.scss";
 

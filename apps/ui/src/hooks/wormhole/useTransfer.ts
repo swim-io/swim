@@ -1,52 +1,70 @@
 import {
-  parseSequenceFromLogEth,
   getEmitterAddressEth,
   getEmitterAddressSolana,
+  parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
-import {
-  ChainSpec,
-  EcosystemId,
-  ECOSYSTEMS,
-  getSolanaTokenDetails,
-  getWormholeRetries,
-  Protocol,
-  TokenConfig,
-} from "config";
-import {
-  parseSequenceFromLogSolana,
-  SolanaClient,
-  SolanaWalletAdapter,
-  SOLANA_ECOSYSTEM_ID,
-  TokenAccount,
-} from "@swim-io/solana";
-import { selectConfig } from "core/selectors";
-import { useEnvironment } from "core/store";
-import { findOrThrow } from "@swim-io/utils";
-
-import { useWallets } from "hooks/crossEcosystem";
-import { useGetEvmClient } from "hooks/evm";
-import { useSolanaClient, useSplTokenAccountsQuery } from "hooks/solana";
-import { useCallback, useMemo, useState } from "react";
-import {
+import { Keypair } from "@solana/web3.js";
+import type { WormholeChainConfig, WormholeConfig } from "@swim-io/core/types";
+import { isEvmEcosystemId } from "@swim-io/evm";
+import type {
+  EvmChainConfig,
   EvmClient,
   EvmEcosystemId,
   EvmTx,
   EvmWalletAdapter,
-  isEvmEcosystemId,
 } from "@swim-io/evm";
-import type { EvmChainConfig } from "@swim-io/evm";
-import { Keypair } from "@solana/web3.js";
+import type {
+  SolanaClient,
+  SolanaWalletAdapter,
+  TokenAccount,
+} from "@swim-io/solana";
+import {
+  SOLANA_ECOSYSTEM_ID,
+  parseSequenceFromLogSolana,
+} from "@swim-io/solana";
+import { findOrThrow } from "@swim-io/utils";
+import { WormholeChainId, getSignedVaaWithRetry } from "@swim-io/wormhole";
+import Decimal from "decimal.js";
+import type { ethers } from "ethers";
+import { useCallback, useMemo, useState } from "react";
+
+import type { ChainSpec, EcosystemId, TokenConfig } from "../../config";
+import {
+  ECOSYSTEMS,
+  Protocol,
+  getSolanaTokenDetails,
+  getWormholeRetries,
+} from "../../config";
+import { selectConfig } from "../../core/selectors";
+import { useEnvironment } from "../../core/store";
 import {
   Amount,
   formatWormholeAddress,
   generateId,
   getWrappedTokenInfo,
   humanDecimalToAtomicString,
-} from "models";
-import Decimal from "decimal.js";
-import { getSignedVaaWithRetry, WormholeChainId } from "@swim-io/wormhole";
-import { ethers } from "ethers";
-import { WormholeChainConfig, WormholeConfig } from "@swim-io/core/types";
+} from "../../models";
+import { useWallets } from "../crossEcosystem";
+import { useGetEvmClient } from "../evm";
+import { useSolanaClient, useSplTokenAccountsQuery } from "../solana";
+
+export const enum TransferStatus {
+  BridgedTokens,
+  FetchingVaa,
+  FetchedVaa,
+  Transfered,
+}
+
+type TransferData = {
+  readonly token: TokenConfig;
+  readonly sourceEcosystemId: EcosystemId;
+  readonly targetEcosystemId: EcosystemId;
+  readonly amount: string;
+  readonly getTransferInfo: (
+    status: TransferStatus,
+    data: ReadonlyArray<string>,
+  ) => void;
+};
 
 const txResponseToTx = async (
   interactionId: string,
@@ -77,6 +95,10 @@ async function transferFromSolanaToEvm(
   solanaClient: SolanaClient,
   evmClient: EvmClient,
   solanaWormhole: WormholeChainConfig,
+  getTransferInfo: (
+    status: TransferStatus,
+    data: ReadonlyArray<string>,
+  ) => void,
 ): Promise<string> {
   const solanaWalletAddress = solanaWallet.address ?? null;
   if (!solanaWalletAddress) {
@@ -91,14 +113,8 @@ async function transferFromSolanaToEvm(
     throw new Error("No EVM wallet address");
   }
   const isWrappedToken = token.wrappedDetails.size > 0;
-
   const auxiliarySigner = Keypair.generate();
-  console.log(
-    "signer",
-    auxiliarySigner,
-    evmEcosystem.protocol,
-    evmWalletAddress,
-  );
+
   const transferSplTokenTxId = await solanaClient.initiateWormholeTransfer({
     atomicAmount: amount.toAtomicString(SOLANA_ECOSYSTEM_ID),
     interactionId,
@@ -114,21 +130,32 @@ async function transferFromSolanaToEvm(
       ? getWrappedTokenInfo(token, SOLANA_ECOSYSTEM_ID)
       : undefined,
   });
-
+  getTransferInfo(TransferStatus.BridgedTokens, [transferSplTokenTxId]);
   const parsedTx = await solanaClient.getParsedTx(transferSplTokenTxId);
+
   const sequence = parseSequenceFromLogSolana(parsedTx);
+  getTransferInfo(TransferStatus.FetchingVaa, []);
+
   const emitterAddress = await getEmitterAddressSolana(solanaWormhole.portal);
   const sourceChainId = WormholeChainId.Solana;
   const retries = getWormholeRetries(sourceChainId);
-  const { vaaBytes: vaa } = await getSignedVaaWithRetry(
-    [...wormhole.rpcUrls],
-    sourceChainId,
-    emitterAddress,
-    sequence,
-    undefined,
-    undefined,
-    retries,
-  );
+  let vaa;
+  try {
+    const { vaaBytes } = await getSignedVaaWithRetry(
+      [...wormhole.rpcUrls],
+      sourceChainId,
+      emitterAddress,
+      sequence,
+      undefined,
+      undefined,
+      retries,
+    );
+    vaa = vaaBytes;
+  } catch (e) {
+    throw new Error(`Failed to fetch signed VAA. Sequence: ${sequence}`);
+  }
+
+  getTransferInfo(TransferStatus.FetchedVaa, []);
   await evmWallet.switchNetwork(evmChain.chainId);
   const redeemResponse = await evmClient.completeWormholeTransfer({
     interactionId,
@@ -140,9 +167,9 @@ async function transferFromSolanaToEvm(
       `Transaction not found: (unlock/mint on ${evmChain.ecosystem})`,
     );
   }
-  return await (
-    await evmClient.getTxReceiptOrThrow(redeemResponse)
-  ).transactionHash;
+  const tx = await evmClient.getTxReceiptOrThrow(redeemResponse);
+  getTransferInfo(TransferStatus.Transfered, [tx.transactionHash]);
+  return tx.transactionHash;
 }
 
 async function transferFromEvmToEvm(
@@ -155,15 +182,20 @@ async function transferFromEvmToEvm(
   targetEcosystemId: EcosystemId,
   wormhole: WormholeConfig,
   evmClient: EvmClient,
+  getTransferInfo: (
+    status: TransferStatus,
+    info: ReadonlyArray<string>,
+  ) => void,
 ): Promise<string> {
-  const fromEcosystem = token?.nativeEcosystemId as EvmEcosystemId;
+  const fromEcosystem = token.nativeEcosystemId as EvmEcosystemId;
   const { wormholeChainId } = ECOSYSTEMS[targetEcosystemId];
+  const { wormholeChainId: sourceChainId } = ECOSYSTEMS[fromEcosystem];
 
   if (!evmWallet.address) {
     throw new Error("No EVM address");
   }
   const isWrappedToken = token.wrappedDetails.size > 0;
-  // Process transfer if transfer txId does not exist
+
   const { approvalResponses, transferResponse } =
     await evmClient.initiateWormholeTransfer({
       atomicAmount: humanDecimalToAtomicString(
@@ -180,30 +212,42 @@ async function transferFromEvmToEvm(
         ? getWrappedTokenInfo(token, fromEcosystem)
         : undefined,
     });
-  console.log("response", approvalResponses, transferResponse);
-  const [transferTx, ...approvalTxs] = await Promise.all(
+  getTransferInfo(TransferStatus.BridgedTokens, [transferResponse.hash]);
+
+  const [transferTx] = await Promise.all(
     [transferResponse, ...approvalResponses].map((txResponse) =>
       txResponseToTx(interactionId, fromEcosystem, evmClient, txResponse),
     ),
   );
-  console.log("approvals", [transferTx, ...approvalTxs]);
+
+  getTransferInfo(TransferStatus.BridgedTokens, [
+    transferTx.receipt.transactionHash,
+  ]);
+
   const sequence = parseSequenceFromLogEth(
     transferTx.receipt,
     sourceEvmChain.wormhole.bridge,
   );
-  console.log("sequences", sequence);
+  getTransferInfo(TransferStatus.FetchingVaa, []);
 
-  const retries = getWormholeRetries(wormholeChainId);
-  const { vaaBytes: vaa } = await getSignedVaaWithRetry(
-    [...wormhole.rpcUrls],
-    wormholeChainId,
-    getEmitterAddressEth(sourceEvmChain.wormhole.portal),
-    sequence,
-    undefined,
-    undefined,
-    retries,
-  );
-  console.log("RESPONSE init", [transferTx, ...approvalTxs], sequence);
+  const retries = getWormholeRetries(sourceChainId);
+  let vaa;
+  try {
+    const { vaaBytes } = await getSignedVaaWithRetry(
+      [...wormhole.rpcUrls],
+      sourceChainId,
+      getEmitterAddressEth(sourceEvmChain.wormhole.portal),
+      sequence,
+      undefined,
+      undefined,
+      retries,
+    );
+    vaa = vaaBytes;
+  } catch (e) {
+    throw new Error(`Failed to fetch signed VAA. Sequence: ${sequence}`);
+  }
+
+  getTransferInfo(TransferStatus.FetchedVaa, []);
   await evmWallet.switchNetwork(targetEvmChain.chainId);
   const redeemResponse = await evmClient.completeWormholeTransfer({
     interactionId,
@@ -216,7 +260,7 @@ async function transferFromEvmToEvm(
     );
   }
   const res = await evmClient.getTxReceiptOrThrow(redeemResponse);
-  console.info("RESPONSE", res, redeemResponse);
+  getTransferInfo(TransferStatus.Transfered, [res.transactionHash]);
   return res.transactionHash;
 }
 
@@ -231,8 +275,13 @@ async function transferFromEvmToSolana(
   evmClient: EvmClient,
   solanaClient: SolanaClient,
   splTokenAccounts: readonly TokenAccount[],
-): Promise<string[]> {
-  const fromEcosystem = token?.nativeEcosystemId as EvmEcosystemId;
+  getTransferInfo: (
+    status: TransferStatus,
+    info: ReadonlyArray<string>,
+  ) => void,
+): Promise<readonly string[]> {
+  const fromEcosystem = token.nativeEcosystemId as EvmEcosystemId;
+  const { wormholeChainId: sourceChainId } = ECOSYSTEMS[fromEcosystem];
   const splTokenAccountAddress = findOrThrow(
     splTokenAccounts,
     ({ mint }) => mint.toBase58() === getSolanaTokenDetails(token).address,
@@ -262,39 +311,38 @@ async function transferFromEvmToSolana(
         ? getWrappedTokenInfo(token, fromEcosystem)
         : undefined,
     });
-  console.log(
-    "Init wormhole transfer response",
-    approvalResponses,
-    transferResponse,
-  );
-  const [transferTx, ...approvalTxs] = await Promise.all(
+  getTransferInfo(TransferStatus.BridgedTokens, [transferResponse.hash]);
+
+  const [transferTx] = await Promise.all(
     [transferResponse, ...approvalResponses].map((txResponse) =>
       txResponseToTx(interactionId, fromEcosystem, evmClient, txResponse),
     ),
   );
 
-  console.log("The tokens have entered the bridge", [
-    transferTx,
-    ...approvalTxs,
-  ]);
   const sequence = parseSequenceFromLogEth(
     transferTx.receipt,
     sourceEvmChain.wormhole.bridge,
   );
 
-  console.log("Fetching signed VAA...", sequence);
-  const retries = getWormholeRetries(WormholeChainId.Solana);
-  const { vaaBytes: vaa } = await getSignedVaaWithRetry(
-    [...wormhole.rpcUrls],
-    WormholeChainId.Solana,
-    getEmitterAddressEth(sourceEvmChain.wormhole.portal),
-    sequence,
-    undefined,
-    undefined,
-    retries,
-  );
+  getTransferInfo(TransferStatus.FetchingVaa, []);
+  const retries = getWormholeRetries(sourceChainId);
+  let vaa;
+  try {
+    const { vaaBytes } = await getSignedVaaWithRetry(
+      [...wormhole.rpcUrls],
+      sourceChainId,
+      getEmitterAddressEth(sourceEvmChain.wormhole.portal),
+      sequence,
+      undefined,
+      undefined,
+      retries,
+    );
+    vaa = vaaBytes;
+  } catch (e) {
+    throw new Error(`Failed to fetch signed VAA. Sequence: ${sequence}`);
+  }
 
-  console.log("vaa", vaa);
+  getTransferInfo(TransferStatus.FetchedVaa, []);
   const auxiliarySigner = Keypair.generate();
   const txIds = await solanaClient.completeWormholeTransfer({
     interactionId,
@@ -302,27 +350,25 @@ async function transferFromEvmToSolana(
     wallet: solanaWallet,
     auxiliarySigner,
   });
-  console.log("txIds", txIds);
+  getTransferInfo(TransferStatus.Transfered, [...txIds]);
   return [...txIds];
 }
 
-type TransferData = {
-  readonly token: TokenConfig;
-  readonly sourceEcosystemId: EcosystemId;
-  readonly targetEcosystemId: EcosystemId;
-  readonly amount: string;
-};
+interface TransferResult {
+  readonly isSending: boolean;
+  readonly error: string | null;
+  readonly handleTransfer: (data: TransferData) => void;
+}
 
-export const useTransfer = (): any => {
+export const useTransfer = (): TransferResult => {
   const [isSending, setIsSending] = useState(false);
-  const [isVAAPending, setIsVAAPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const config = useEnvironment(selectConfig);
   const { data: splTokenAccounts = [] } = useSplTokenAccountsQuery();
   const { chains, wormhole } = config;
   const getEvmClient = useGetEvmClient();
   const solanaClient = useSolanaClient();
   const wallets = useWallets();
-  let txId = "";
 
   const handleTransfer = useCallback(
     async ({
@@ -330,36 +376,42 @@ export const useTransfer = (): any => {
       sourceEcosystemId,
       targetEcosystemId,
       amount,
+      getTransferInfo,
     }: TransferData) => {
-      console.log("token", token);
+      setIsSending(true);
+      setError(null);
       const solanaWallet = wallets[SOLANA_ECOSYSTEM_ID].wallet;
       const solanaWormhole = chains[Protocol.Solana][0].wormhole;
 
-      if (!solanaWallet) {
-        throw new Error("No Solana wallet");
-      }
       if (!wormhole) {
+        setIsSending(false);
+        setError("No Wormhole RPC configured");
         throw new Error("No Wormhole RPC configured");
       }
       const interactionId = generateId();
-      console.log("INTERACTION ID", interactionId);
-      setIsSending(true);
+
       if (
         isEvmEcosystemId(sourceEcosystemId) &&
         targetEcosystemId === SOLANA_ECOSYSTEM_ID
       ) {
-        console.log("EVM to Solana");
         const evmWallet = wallets[sourceEcosystemId].wallet;
         const evmClient = getEvmClient(sourceEcosystemId);
         if (!evmWallet) {
+          setIsSending(false);
+          setError("No EVM wallet");
           throw new Error("No EVM wallet");
+        }
+        if (!solanaWallet) {
+          setIsSending(false);
+          setError("No Solana wallet");
+          throw new Error("No Solana wallet");
         }
         const sourceEvmChain = findOrThrow(
           chains[Protocol.Evm],
           ({ ecosystem }) => ecosystem === sourceEcosystemId,
         );
         try {
-          const txIds = await transferFromEvmToSolana(
+          await transferFromEvmToSolana(
             interactionId,
             token,
             amount,
@@ -370,12 +422,12 @@ export const useTransfer = (): any => {
             evmClient,
             solanaClient,
             splTokenAccounts,
+            getTransferInfo,
           );
-          console.log("txIds", txIds);
         } catch (e) {
           console.error(e);
           setIsSending(false);
-          setIsVAAPending(false);
+          setError(String(error));
           throw e;
         }
       }
@@ -383,9 +435,10 @@ export const useTransfer = (): any => {
         isEvmEcosystemId(sourceEcosystemId) &&
         isEvmEcosystemId(targetEcosystemId)
       ) {
-        console.log("EVM to EVM");
-        const evmWallet = wallets[sourceEcosystemId].wallet as EvmWalletAdapter;
+        const evmWallet = wallets[sourceEcosystemId].wallet;
         if (!evmWallet) {
+          setIsSending(false);
+          setError("No EVM wallet");
           throw new Error("No EVM wallet");
         }
         const targetEvmChain = findOrThrow(
@@ -396,9 +449,9 @@ export const useTransfer = (): any => {
           chains[Protocol.Evm],
           ({ ecosystem }) => ecosystem === sourceEcosystemId,
         );
-        const evmClient = getEvmClient(sourceEcosystemId as EvmEcosystemId);
+        const evmClient = getEvmClient(sourceEcosystemId);
         try {
-          txId = await transferFromEvmToEvm(
+          await transferFromEvmToEvm(
             interactionId,
             token,
             amount,
@@ -408,11 +461,13 @@ export const useTransfer = (): any => {
             targetEcosystemId,
             wormhole,
             evmClient,
+            getTransferInfo,
           );
-        } catch (error) {
-          console.error("Error", error);
+        } catch (e) {
+          console.error("Error", e);
+          setError(String(e));
           setIsSending(false);
-          setIsVAAPending(false);
+          throw e;
         }
       }
 
@@ -420,24 +475,32 @@ export const useTransfer = (): any => {
         sourceEcosystemId === SOLANA_ECOSYSTEM_ID &&
         isEvmEcosystemId(targetEcosystemId)
       ) {
-        console.log("Solana to EVM");
-        const evmWallet = wallets[targetEcosystemId].wallet as EvmWalletAdapter;
+        const evmWallet = wallets[targetEcosystemId].wallet;
 
         if (!evmWallet) {
+          setIsSending(false);
+          setError("No EVM wallet");
           throw new Error("No EVM wallet");
+        }
+        if (!solanaWallet) {
+          setIsSending(false);
+          setError("No Solana wallet");
+          throw new Error("No Solana wallet");
         }
         const evmWalletAddress = evmWallet.address;
         if (evmWalletAddress === null) {
+          setIsSending(false);
+          setError("No EVM wallet address");
           throw new Error("No EVM wallet address");
         }
         const evmChain = findOrThrow(
           chains[Protocol.Evm],
           ({ ecosystem }) => ecosystem === targetEcosystemId,
         );
-        const evmClient = getEvmClient(targetEcosystemId as EvmEcosystemId);
+        const evmClient = getEvmClient(targetEcosystemId);
 
         try {
-          txId = await transferFromSolanaToEvm(
+          await transferFromSolanaToEvm(
             interactionId,
             token,
             amount,
@@ -449,25 +512,34 @@ export const useTransfer = (): any => {
             solanaClient,
             evmClient,
             solanaWormhole,
+            getTransferInfo,
           );
-          console.log("txId", txId);
-        } catch (error) {
+        } catch (e) {
+          console.error(e);
+          setError(String(e));
           setIsSending(false);
-          setIsVAAPending(false);
+          throw e;
         }
       }
       setIsSending(false);
     },
-    [],
+    [
+      chains,
+      error,
+      getEvmClient,
+      solanaClient,
+      splTokenAccounts,
+      wallets,
+      wormhole,
+    ],
   );
 
   return useMemo(
     () => ({
       handleTransfer,
-      isVAAPending,
       isSending,
-      txId,
+      error,
     }),
-    [handleTransfer, isVAAPending, isSending, txId],
+    [handleTransfer, isSending, error],
   );
 };

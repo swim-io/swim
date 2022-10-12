@@ -1,5 +1,4 @@
 import * as Sentry from "@sentry/react";
-import WormholePage from "pages/WormholePage";
 import type { ReactElement } from "react";
 import { withTranslation } from "react-i18next";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
@@ -24,6 +23,7 @@ import StakePage from "./pages/StakePage";
 import SwapPage from "./pages/SwapPage";
 import SwapPageV2 from "./pages/SwapPageV2";
 import TosPage from "./pages/TosPage";
+import WormholePage from "./pages/WormholePage";
 
 function App(): ReactElement {
   return (

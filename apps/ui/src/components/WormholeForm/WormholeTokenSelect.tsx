@@ -1,11 +1,11 @@
 import { EuiButton, EuiFlexGroup, EuiFlexItem } from "@elastic/eui";
-import { EcosystemId } from "config";
+import type { EcosystemId } from "config";
 import type { ReactElement } from "react";
 import { useCallback, useState } from "react";
 
 import type { TokenConfig } from "../../config";
-
 import { TokenAddressWithEcosystemIcon, TokenConfigIcon } from "../TokenIcon";
+
 import { WormholeTokenModal } from "./WormholeTokenModal";
 
 interface Props {

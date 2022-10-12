@@ -137,21 +137,13 @@ export const TokenSearchConfigIcon = ({
 export const TokenAddressWithEcosystemIcon = ({
   tokenAddress,
   ecosystemId,
-}: TokenAddressWithEcosystemProps): ReactElement => {
-  const ecosystem = ecosystemId ? ECOSYSTEMS[ecosystemId] : null;
-
-  return (
-    <div>
-      <span style={{ marginRight: "5px" }}>{truncate(tokenAddress)}</span>
-      {ecosystem ? (
-        <WithIcon
-          type={ecosystem.logo}
-          size="m"
-          title={ecosystem.displayName}
-        />
-      ) : (
-        <span />
-      )}
-    </div>
-  );
-};
+}: TokenAddressWithEcosystemProps): ReactElement => (
+  <div>
+    <span style={{ marginRight: "5px" }}>{truncate(tokenAddress)}</span>
+    <WithIcon
+      type={ECOSYSTEMS[ecosystemId].logo}
+      size="m"
+      title={ECOSYSTEMS[ecosystemId].displayName}
+    />
+  </div>
+);

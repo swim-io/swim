@@ -474,6 +474,13 @@ export const RemoveForm = ({
         : [poolSpec.ecosystem],
     );
 
+    requiredEcosystems.forEach((ecosystemId) => {
+      errors = [
+        ...errors,
+        t("general.ecosystem.disabled", { ecosystemName: ecosystemId }),
+      ];
+    });
+
     // Require connected wallets
     requiredEcosystems.forEach((ecosystem) => {
       if (!wallets[ecosystem].connected) {

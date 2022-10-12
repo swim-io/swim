@@ -1,10 +1,8 @@
-import { isEvmEcosystemId } from "@swim-io/evm";
+import { EVM_ECOSYSTEMS, isEvmEcosystemId } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
 import { useMutation } from "react-query";
-import shallow from "zustand/shallow.js";
 
 import { getTokenDetailsForEcosystem } from "../../config";
-import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useInteractionStateV2 } from "../../core/store";
 import type { SingleChainEvmSwapInteractionState } from "../../models";
 import {
@@ -19,7 +17,7 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
   const wallets = useWallets();
   const { updateInteractionState } = useInteractionStateV2();
   const getEvmClient = useGetEvmClient();
-  const { evmRoutingContract } = useEnvironment(selectConfig, shallow);
+  const { env } = useEnvironment();
   return useMutation(
     async (interactionState: SingleChainEvmSwapInteractionState) => {
       const { interaction } = interactionState;
@@ -35,6 +33,11 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
       const { address, signer } = wallet;
       if (address === null || signer === null) {
         throw new Error(`${ecosystemId} wallet not connected`);
+      }
+      const routingContractAddress =
+        EVM_ECOSYSTEMS[ecosystemId].chains[env]?.routingContractAddress ?? null;
+      if (routingContractAddress === null) {
+        throw new Error(`${ecosystemId} routing contract address not found`);
       }
       const fromTokenSpec = fromTokenData.tokenConfig;
       const toTokenSpec = toTokenData.tokenConfig;
@@ -67,7 +70,7 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
         atomicAmount: inputAmountAtomicString,
         wallet,
         mintAddress: tokenDetails.address,
-        spenderAddress: evmRoutingContract,
+        spenderAddress: routingContractAddress,
       });
       const approvalTxs = await Promise.all(
         approvalResponses.map((response) =>
@@ -85,7 +88,7 @@ export const useSingleChainEvmSwapInteractionMutation = () => {
       });
 
       const routingContract = Routing__factory.connect(
-        evmRoutingContract,
+        routingContractAddress,
         client.provider,
       );
       const txRequest = await routingContract.populateTransaction[

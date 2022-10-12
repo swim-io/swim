@@ -1,4 +1,5 @@
 import { APTOS_ECOSYSTEM_ID } from "@swim-io/aptos";
+import { EVM_ECOSYSTEMS } from "@swim-io/evm";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
 import type { UseQueryResult } from "react-query";
 import { useQueries } from "react-query";
@@ -16,7 +17,7 @@ export const usePoolStateQueries = (
   poolSpecs: readonly PoolSpec[],
 ): readonly UseQueryResult<PoolState | null, Error>[] => {
   const { env } = useEnvironment();
-  const { tokens, evmRoutingContract } = useEnvironment(selectConfig, shallow);
+  const { tokens } = useEnvironment(selectConfig, shallow);
   const getEvmConnection = useGetEvmClient();
   const solanaClient = useSolanaClient();
 
@@ -32,11 +33,16 @@ export const usePoolStateQueries = (
           return null; // TODO aptos
         }
         const evmConnection = getEvmConnection(ecosystem);
+        const routingContractAddress =
+          EVM_ECOSYSTEMS[ecosystem].chains[env]?.routingContractAddress ?? null;
+        if (routingContractAddress === null) {
+          return null;
+        }
         return await getEvmPoolState(
           evmConnection,
           poolSpec,
           tokens,
-          evmRoutingContract,
+          routingContractAddress,
         );
       },
     })),

@@ -79,7 +79,7 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
         pools,
         (poolSpec) => poolSpec.id === interaction.poolId,
       );
-      const { minimumOutputAmounts } = interaction.params;
+      const { minimumOutputAmounts, exactBurnAmount } = interaction.params;
       const nonZeroOutputAmounts = [...minimumOutputAmounts.values()].filter(
         (amount) => !amount.isZero(),
       );
@@ -88,6 +88,7 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
           <Trans
             i18nKey="recent_interactions.remove_tokens"
             components={{
+              lpToken: <TokenConfigIcon token={exactBurnAmount.tokenConfig} />,
               tokenAmounts: (
                 <AmountsWithTokenIcons
                   amounts={nonZeroOutputAmounts}
@@ -104,12 +105,13 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
         pools,
         (poolSpec) => poolSpec.id === interaction.poolId,
       );
-      const { minimumOutputAmount } = interaction.params;
+      const { minimumOutputAmount, exactBurnAmount } = interaction.params;
       return (
         <div title={interaction.id}>
           <Trans
             i18nKey="recent_interactions.remove_tokens"
             components={{
+              lpToken: <TokenConfigIcon token={exactBurnAmount.tokenConfig} />,
               tokenAmounts: (
                 <AmountWithTokenIcon
                   amount={minimumOutputAmount}
@@ -126,7 +128,7 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
         pools,
         (poolSpec) => poolSpec.id === interaction.poolId,
       );
-      const { exactOutputAmounts } = interaction.params;
+      const { exactOutputAmounts, maximumBurnAmount } = interaction.params;
       const nonZeroOutputAmounts = [...exactOutputAmounts.values()].filter(
         (amount) => !amount.isZero(),
       );
@@ -135,6 +137,9 @@ export const InteractionTitleV2: React.FC<Props> = ({ interaction }) => {
           <Trans
             i18nKey="recent_interactions.remove_tokens"
             components={{
+              lpToken: (
+                <TokenConfigIcon token={maximumBurnAmount.tokenConfig} />
+              ),
               tokenAmounts: (
                 <AmountsWithTokenIcons
                   amounts={nonZeroOutputAmounts}

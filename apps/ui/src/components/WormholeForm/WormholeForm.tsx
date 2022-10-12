@@ -46,12 +46,18 @@ export const WormholeForm = (): ReactElement => {
   const { tokens, ecosystems } = useEnvironment(selectConfig, shallow);
   const fromTokenOptionsIds = useWormholeFromTokenOptionsIds();
   const [formInputAmount, setFormInputAmount] = useState("");
-  const [fromToken, setFromToken] = useState(tokens[0]);
   const [fromEcosystemId, setFromEcosystemId] = useState(ecosystems.solana.id);
   const [toEcosystemId, setToEcosystemId] = useState(ecosystems.ethereum.id);
   const [tokenAddress, setTokenAddress] = useState("");
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [amountErrors, setAmountErrors] = useState<readonly string[]>([]);
+  const [fromToken, setFromToken] = useState(
+    tokens.filter(
+      (token) =>
+        token.nativeEcosystemId === ecosystems.solana.id &&
+        fromTokenOptionsIds.includes(token.id),
+    )[0],
+  );
   const fromTokenBalance = useUserBalanceAmount(
     fromToken,
     fromToken.nativeEcosystemId,

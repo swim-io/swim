@@ -28,6 +28,7 @@ jobs:
     defaults:
       run:
         working-directory: ${{ inputs.workingDirectory }}
+        shell: bash --noprofile --norc -o errexit -o nounset -o pipefail {0}
 
     steps:
       - uses: actions/checkout@v2

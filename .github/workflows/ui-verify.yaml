@@ -21,6 +21,7 @@ jobs:
     defaults:
       run:
         working-directory: ./apps/ui
+        shell: bash --noprofile --norc -o errexit -o nounset -o pipefail {0}
 
     env:
       REACT_APP_BNB_MAINNET_RPC_URL: "https://example.com"
@@ -67,6 +68,7 @@ jobs:
     defaults:
       run:
         working-directory: ./apps/ui
+        shell: bash --noprofile --norc -o errexit -o nounset -o pipefail {0}
 
     env:
       REACT_APP_BNB_MAINNET_RPC_URL: "https://example.com"
@@ -107,7 +109,6 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_SWIM_PAGES_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
-          set -o errexit -o nounset -o pipefail
           npx --yes wrangler@2 pages publish storybook-static --project-name=ui-storybook --branch=${{ github.head_ref || github.ref_name }} | tee wrangler-output.txt
           echo "::set-output name=storybook-deployment::$(grep Deployment wrangler-output.txt)"
       - name: Find storybook comment

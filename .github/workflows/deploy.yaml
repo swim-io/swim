@@ -12,6 +12,10 @@ jobs:
   production-deploy:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        shell: bash --noprofile --norc -o errexit -o nounset -o pipefail {0}
+
     # Allow only one concurrent deployment
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}

@@ -89,24 +89,20 @@ export class EvmClient extends Client<
     return history?.filter(isNotNull) ?? null;
   }
 
-  public async getTx(txId: string): Promise<EvmTx>;
-  public async getTx(txResponse: TransactionResponse): Promise<EvmTx>;
   public async getTx(
     txIdOrResponse: TransactionResponse | string,
   ): Promise<EvmTx> {
     const response = typeof txIdOrResponse === "string" ? null : txIdOrResponse;
     const id =
       typeof txIdOrResponse === "string" ? txIdOrResponse : txIdOrResponse.hash;
-    const receipt = response
-      ? await this.getTxReceipt(response)
-      : this.txReceiptCache.get(id) ?? null;
+    const receipt = await this.getTxReceipt(txIdOrResponse);
 
     if (receipt === null) {
       throw new Error(`Transaction not found: ${id}`);
     }
 
     return {
-      id,
+      id: receipt.transactionHash,
       ecosystemId: this.ecosystemId,
       receipt,
       timestamp: response?.timestamp ?? null,
@@ -283,16 +279,21 @@ export class EvmClient extends Client<
   }
 
   private async getTxReceipt(
-    txResponse: TransactionResponse,
+    txIdOrResponse: string | TransactionResponse,
   ): Promise<TransactionReceipt | null> {
-    const knownTx = this.txReceiptCache.get(txResponse.hash);
+    const txId =
+      typeof txIdOrResponse === "string" ? txIdOrResponse : txIdOrResponse.hash;
+    const txResponse =
+      typeof txIdOrResponse === "string" ? null : txIdOrResponse;
+
+    const knownTx = this.txReceiptCache.get(txId);
     if (knownTx !== undefined) {
       return knownTx;
     }
 
     // NOTE: The .wait method implements a lot of useful features like retries and exponential backoff.
     // So we prioritize it if available.
-    if (typeof txResponse.wait === "function") {
+    if (typeof txResponse?.wait === "function") {
       const maybeTxReceipt = (await txResponse.wait()) as
         | TransactionReceipt
         | null
@@ -305,12 +306,12 @@ export class EvmClient extends Client<
 
     // NOTE: ethers does not use strict mode so we widen the type here
     // This seems to be more reliable than txResponse.wait()
-    const maybeTxReceipt = (await this.provider.waitForTransaction(
-      txResponse.hash,
-      1,
-    )) as TransactionReceipt | null | undefined;
+    const maybeTxReceipt = (await this.provider.waitForTransaction(txId, 1)) as
+      | TransactionReceipt
+      | null
+      | undefined;
     if (maybeTxReceipt) {
-      this.txReceiptCache.set(txResponse.hash, maybeTxReceipt);
+      this.txReceiptCache.set(txId, maybeTxReceipt);
       return maybeTxReceipt;
     }
 

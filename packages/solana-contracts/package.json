@@ -71,7 +71,6 @@
     "big.js": "^6.2.1",
     "byteify": "^2.0.10",
     "chai": "^4.3.4",
-    "crypto": "^1.0.1",
     "elliptic": "^6.5.4",
     "eslint": "^8.19.0",
     "eslint-config-prettier": "^8.5.0",

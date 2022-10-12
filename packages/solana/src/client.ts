@@ -415,13 +415,11 @@ export class SolanaClient extends Client<
         ),
       ),
     );
-    return results.flatMap((accounts, i) =>
-      accounts.map((account) =>
-        account === null
-          ? null
-          : deserializeTokenAccount(new PublicKey(keys[i]), account.data),
-      ),
-    );
+    return results.flat().map((account, i) => {
+      return account === null
+        ? null
+        : deserializeTokenAccount(new PublicKey(keys[i]), account.data);
+    });
   }
 
   private incrementRpcProvider() {

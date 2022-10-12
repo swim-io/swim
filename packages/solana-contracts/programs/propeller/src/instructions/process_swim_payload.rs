@@ -631,7 +631,8 @@ impl<'info> PropellerProcessSwimPayload<'info> {
     fn log_memo(&self) -> Result<()> {
         let memo = self.process_swim_payload.swim_payload_message.memo;
         if memo != [0u8; 16] {
-            let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+            let memo_ix =
+                spl_memo::build_memo(std::str::from_utf8(hex::encode(memo).as_bytes()).unwrap().as_ref(), &[]);
             invoke(&memo_ix, &[self.memo.to_account_info()])?;
         } else {
             msg!("memo is empty");
@@ -1125,7 +1126,8 @@ impl<'info> PropellerProcessSwimPayloadFallback<'info> {
     fn log_memo(&self) -> Result<()> {
         let memo = self.swim_payload_message.memo;
         if memo != [0u8; 16] {
-            let memo_ix = spl_memo::build_memo(memo.as_slice(), &[]);
+            let memo_ix =
+                spl_memo::build_memo(std::str::from_utf8(hex::encode(memo).as_bytes()).unwrap().as_ref(), &[]);
             invoke(&memo_ix, &[self.memo.to_account_info()])?;
         }
         Ok(())

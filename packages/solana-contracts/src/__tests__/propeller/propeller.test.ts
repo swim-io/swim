@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 import {
   CHAIN_ID_ETH,
   CHAIN_ID_SOLANA,
@@ -212,7 +214,6 @@ let marginalPricePool: web3.PublicKey;
 const marginalPricePoolTokenMint = usdcKeypair.publicKey;
 
 let outputTokenIdMappingAddrs: ReadonlyMap<number, PublicKey>;
-let memoId = 0;
 // const poolRemoveExactBurnIx = {removeExactBurn: {} };
 // const poolSwapExactInputIx = {swapExactInput: {} };
 // type TokenIdMapPoolIx = poolRemoveExactBurnIx | poolSwapExactInputIx;
@@ -884,7 +885,7 @@ describe("propeller", () => {
           userTransferAuthority.publicKey,
           payer,
         );
-        const memoStr = incMemoIdAndGet();
+        const memoStr = createMemoId();
 
         const addTxn = propellerProgram.methods
           .crossChainAdd(inputAmounts, minimumMintAmount)
@@ -902,7 +903,10 @@ describe("propeller", () => {
             twoPoolProgram: twoPoolProgram.programId,
           })
           .preInstructions([...approveIxs])
-          .postInstructions([...revokeIxs, createMemoInstruction(memoStr)])
+          .postInstructions([
+            ...revokeIxs,
+            createMemoInstruction(memoStr.toString("hex")),
+          ])
           .signers([userTransferAuthority]);
         // .rpc(rpcCommitmentConfig);
 
@@ -997,7 +1001,7 @@ describe("propeller", () => {
             userTransferAuthority.publicKey,
             payer,
           );
-          const memoStr = incMemoIdAndGet();
+          const memoStr = createMemoId();
 
           const maxFee = new BN(100);
           const addTxn = propellerProgram.methods
@@ -1016,7 +1020,10 @@ describe("propeller", () => {
               twoPoolProgram: twoPoolProgram.programId,
             })
             .preInstructions([...approveIxs])
-            .postInstructions([...revokeIxs, createMemoInstruction(memoStr)])
+            .postInstructions([
+              ...revokeIxs,
+              createMemoInstruction(memoStr.toString("hex")),
+            ])
             .signers([userTransferAuthority]);
           // .rpc(rpcCommitmentConfig);
 
@@ -1105,7 +1112,7 @@ describe("propeller", () => {
             userTransferAuthority.publicKey,
             payer,
           );
-          const memoStr = incMemoIdAndGet();
+          const memoStr = createMemoId();
 
           const maxFee = new BN(50_000_000_000);
           await expect(() => {
@@ -1125,7 +1132,10 @@ describe("propeller", () => {
                 twoPoolProgram: twoPoolProgram.programId,
               })
               .preInstructions([...approveIxs])
-              .postInstructions([...revokeIxs, createMemoInstruction(memoStr)])
+              .postInstructions([
+                ...revokeIxs,
+                createMemoInstruction(memoStr.toString("hex")),
+              ])
               .signers([userTransferAuthority])
               .rpc();
           }).rejects.toThrow("Insufficient Amount being transferred");
@@ -1248,7 +1258,7 @@ describe("propeller", () => {
             userTransferAuthority.publicKey,
             payer,
           );
-          const memoStr = incMemoIdAndGet();
+          const memoStr = createMemoId();
 
           const swapExactInputTxn = propellerProgram.methods
             .crossChainSwapExactInput(exactInputAmount, minimumOutputAmount)
@@ -1265,7 +1275,10 @@ describe("propeller", () => {
               swimUsdMint: swimUsdMint,
             })
             .preInstructions([...approveIxs])
-            .postInstructions([...revokeIxs, createMemoInstruction(memoStr)])
+            .postInstructions([
+              ...revokeIxs,
+              createMemoInstruction(memoStr.toString("hex")),
+            ])
             .signers([userTransferAuthority]);
           // .rpc(rpcCommitmentConfig);
 
@@ -1381,7 +1394,7 @@ describe("propeller", () => {
               userTransferAuthority.publicKey,
               payer,
             );
-            const memoStr = incMemoIdAndGet();
+            const memoStr = createMemoId();
 
             const swapExactInputTxn = propellerProgram.methods
               .propellerSwapExactInput(exactInputAmount, maxFee)
@@ -1398,7 +1411,10 @@ describe("propeller", () => {
                 swimUsdMint: swimUsdMint,
               })
               .preInstructions([...approveIxs])
-              .postInstructions([...revokeIxs, createMemoInstruction(memoStr)])
+              .postInstructions([
+                ...revokeIxs,
+                createMemoInstruction(memoStr.toString("hex")),
+              ])
               .signers([userTransferAuthority]);
             // .rpc(rpcCommitmentConfig);
 
@@ -1497,7 +1513,7 @@ describe("propeller", () => {
               userTransferAuthority.publicKey,
               payer,
             );
-            const memoStr = incMemoIdAndGet();
+            const memoStr = createMemoId();
 
             const swapExactInputTxn = propellerProgram.methods
               .propellerSwapExactInput(exactInputAmount, maxFee)
@@ -1514,7 +1530,10 @@ describe("propeller", () => {
                 swimUsdMint: swimUsdMint,
               })
               .preInstructions([...approveIxs])
-              .postInstructions([...revokeIxs, createMemoInstruction(memoStr)])
+              .postInstructions([
+                ...revokeIxs,
+                createMemoInstruction(memoStr.toString("hex")),
+              ])
               .signers([userTransferAuthority]);
             await expect(swapExactInputTxn.rpc()).rejects.toThrow(
               "Insufficient Amount being transferred",
@@ -1542,9 +1561,7 @@ describe("propeller", () => {
       const custodyAmountBefore = new BN(0);
       const transferAmount = new BN(100_000_000);
 
-      const memo = "e45794d6c5a2750a";
-      const memoBuffer = Buffer.alloc(16);
-      memoBuffer.write(memo);
+      const memo = createMemoId();
       const wormholeMessage = web3.Keypair.generate();
 
       const nonceBefore = (
@@ -1581,7 +1598,7 @@ describe("propeller", () => {
           tokenProgram: splToken.programId,
         })
         .preInstructions([setComputeUnitLimitIx])
-        .postInstructions([createMemoInstruction(memo)])
+        .postInstructions([createMemoInstruction(memo.toString("hex"))])
         .transaction();
 
       const transferNativeTxnSig = await provider.sendAndConfirm(
@@ -1707,9 +1724,7 @@ describe("propeller", () => {
         .amount;
       const transferAmount = new BN(100_000_000);
 
-      const memo = "e45794d6c5a2750a";
-      const memoBuffer = Buffer.alloc(16);
-      memoBuffer.write(memo);
+      const memo = createMemoId();
       const wormholeMessage = web3.Keypair.generate();
       const gasKickstart = false;
       const maxFee = new BN(100_000);
@@ -1724,7 +1739,7 @@ describe("propeller", () => {
           gasKickstart,
           maxFee,
           evmTargetTokenId,
-          memoBuffer,
+          Buffer.from(memo, "hex"),
         )
         .accounts({
           propeller,
@@ -1751,7 +1766,7 @@ describe("propeller", () => {
           tokenProgram: splToken.programId,
         })
         .preInstructions([setComputeUnitLimitIx])
-        .postInstructions([createMemoInstruction(memo)])
+        .postInstructions([createMemoInstruction(memo.toString("hex"))])
         .transaction();
 
       const propellerTransferNativeTxnSig = await provider.sendAndConfirm(
@@ -1840,8 +1855,11 @@ describe("propeller", () => {
       expect(swimPayload.gasKickstart).toEqual(gasKickstart);
       expect(swimPayload.maxFee).toEqual(maxFee);
       expect(swimPayload.targetTokenId).toEqual(evmTargetTokenId);
-      expect(swimPayload.memo.toString()).toEqual(memo);
-      await checkTxnLogsForMemo(propellerTransferNativeTxnSig, memo);
+      expect(swimPayload.memo.toString("hex")).toEqual(memo.toString("hex"));
+      await checkTxnLogsForMemo(
+        propellerTransferNativeTxnSig,
+        memo.toString("hex"),
+      );
       // this fails due to capitalization
       // expect(formattedTokenTransferMessage.tokenTransfer.to).to.equal(ethRoutingContractStr);
       // console.info(`
@@ -1879,9 +1897,7 @@ describe("propeller", () => {
       const custodyAmountBefore = (await splToken.account.token.fetch(custody))
         .amount;
       const transferAmount = new BN(100_000_000);
-      const memo = "e45794d6c5a2750b";
-      const memoBuffer = Buffer.alloc(16);
-      memoBuffer.write(memo);
+      const memo = createMemoId();
       const wormholeMessage = web3.Keypair.generate();
       const gasKickstart = false;
       const maxFee = new BN(100_000);
@@ -2011,7 +2027,11 @@ describe("propeller", () => {
       expect(swimPayload.maxFee).toEqual(maxFee);
       expect(swimPayload.targetTokenId).toEqual(evmTargetTokenId);
       expect(swimPayload.memo).toBeUndefined();
-      await checkTxnLogsForMemo(transferNativeTxnSig, memo, false);
+      await checkTxnLogsForMemo(
+        transferNativeTxnSig,
+        memo.toString("hex"),
+        false,
+      );
       // this fails due to capitalization
       // expect(formattedTokenTransferMessage.tokenTransfer.to).to.equal(ethRoutingContractStr);
       // console.info(`
@@ -2090,12 +2110,9 @@ describe("propeller", () => {
         let swimPayloadMessage: web3.PublicKey;
 
         const targetTokenId = USDC_TO_TOKEN_NUMBER;
-        const memoStr = incMemoIdAndGet();
+        const memoStr = createMemoId();
 
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
-          const memoBuffer = Buffer.alloc(16);
-          memoBuffer.write(memoStr);
-
           // const maxFee = new BN(1_000_000_000);
           const swimPayload = {
             version: swimPayloadVersion,
@@ -2219,7 +2236,7 @@ describe("propeller", () => {
               tokenBridge,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr)]);
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))]);
 
           const completeNativeWithPayloadPubkeys =
             await completeNativeWithPayloadIxs.pubkeys();
@@ -2400,7 +2417,7 @@ describe("propeller", () => {
               systemProgram: web3.SystemProgram.programId,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr)])
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))])
             .signers([userTransferAuthority]);
 
           const processSwimPayloadPubkeys =
@@ -2506,35 +2523,14 @@ describe("propeller", () => {
 
         const targetTokenId = SWIM_USD_TO_TOKEN_NUMBER;
 
-        const memoStr = incMemoIdAndGet();
+        const memoStr = createMemoId();
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
-          const memoBuffer = Buffer.alloc(16);
-          memoBuffer.write(memoStr);
-
           // const maxFee = new BN(1000000000);
           const swimPayload = {
             version: swimPayloadVersion,
             owner: provider.publicKey.toBuffer(),
-            // owner: owner.toBuffer(),
-            // propellerEnabled,
-            // gasKickstart,
-            // maxFee,
-            // targetTokenId,
-            // memo: memoBuffer,
           };
 
-          // const swimPayload = {
-          //   version: swimPayloadVersion,
-          //   targetTokenId,
-          //   // owner: tryNativeToUint8Array(provider.publicKey.toBase58(), CHAIN_ID_SOLANA),
-          //   // owner: Buffer.from(tryNativeToHexString(provider.publicKey.toBase58(), CHAIN_ID_SOLANA), 'hex'),
-          //   owner: provider.publicKey.toBuffer(),
-          //   // minOutputAmount: 0n,
-          //   memo: memoBuffer,
-          //   propellerEnabled,
-          //   // minThreshold: BigInt(0),
-          //   gasKickstart,
-          // };
           const amount = parseUnits("1", mintDecimal);
           console.info(`amount: ${amount.toString()}`);
           /**
@@ -2622,7 +2618,7 @@ describe("propeller", () => {
               tokenBridge,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr)]);
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))]);
 
           const completeNativeWithPayloadSwimUsdPubkeys =
             await completeNativeWithPayloadSwimUsdIxs.pubkeys();
@@ -2802,7 +2798,7 @@ describe("propeller", () => {
               systemProgram: web3.SystemProgram.programId,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr)])
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))])
             .signers([userTransferAuthority]);
 
           const processSwimPayloadPubkeys = await processSwimPayload.pubkeys();
@@ -2913,37 +2909,15 @@ describe("propeller", () => {
         let wormholeMessage: web3.PublicKey;
         let swimPayloadMessage: web3.PublicKey;
         const targetTokenId = metapoolMint1OutputTokenIndex;
-        const memoStr = incMemoIdAndGet();
+        const memoStr = createMemoId();
         // const memo = "e45794d6c5a2750b";
 
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
-          const memoBuffer = Buffer.alloc(16);
-          memoBuffer.write(memoStr);
-
-          // const maxFee = new BN(1000000000);
           const swimPayload = {
             version: swimPayloadVersion,
             owner: provider.publicKey.toBuffer(),
-            // owner: owner.toBuffer(),
-            // propellerEnabled,
-            // gasKickstart,
-            // maxFee,
-            // targetTokenId,
-            // memo: memoBuffer,
           };
 
-          // const swimPayload = {
-          //   version: swimPayloadVersion,
-          //   targetTokenId,
-          //   // owner: tryNativeToUint8Array(provider.publicKey.toBase58(), CHAIN_ID_SOLANA),
-          //   // owner: Buffer.from(tryNativeToHexString(provider.publicKey.toBase58(), CHAIN_ID_SOLANA), 'hex'),
-          //   owner: provider.publicKey.toBuffer(),
-          //   // minOutputAmount: 0n,
-          //   memo: memoBuffer,
-          //   propellerEnabled,
-          //   // minThreshold: BigInt(0),
-          //   gasKickstart,
-          // };
           const amount = parseUnits("1", mintDecimal);
           console.info(`amount: ${amount.toString()}`);
           /**
@@ -3031,7 +3005,7 @@ describe("propeller", () => {
               tokenBridge,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr)]);
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))]);
 
           const completeNativeWithPayloadMetapoolPubkeys =
             await completeNativeWithPayloadMetapoolIxs.pubkeys();
@@ -3203,7 +3177,7 @@ describe("propeller", () => {
               systemProgram: web3.SystemProgram.programId,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr)])
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))])
 
             .signers([userTransferAuthority]);
 
@@ -3316,10 +3290,8 @@ describe("propeller", () => {
 
         let targetTokenId = SWIM_USD_TO_TOKEN_NUMBER;
 
-        const memoStr = incMemoIdAndGet();
+        const memoStr = createMemoId();
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
-          const memoBuffer = Buffer.alloc(16);
-          memoBuffer.write(memoStr);
           // const maxFee = new BN(1000000000);
           const swimPayload = {
             version: swimPayloadVersion,
@@ -3430,7 +3402,7 @@ describe("propeller", () => {
               tokenBridge,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr)]);
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))]);
 
           const completeNativeWithPayloadSwimUsdPubkeys =
             await completeNativeWithPayloadSwimUsdIxs.pubkeys();
@@ -3610,7 +3582,7 @@ describe("propeller", () => {
               systemProgram: web3.SystemProgram.programId,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr)])
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))])
             .signers([userTransferAuthority]);
 
           const processSwimPayloadPubkeys =
@@ -3714,11 +3686,8 @@ describe("propeller", () => {
 
         const targetTokenId = SWIM_USD_TO_TOKEN_NUMBER;
 
-        const memoStr = incMemoIdAndGet();
+        const memoStr = createMemoId();
         it("mocks token transfer with payload then verifySig & postVaa then executes CompleteWithPayload", async () => {
-          const memoBuffer = Buffer.alloc(16);
-          memoBuffer.write(memoStr);
-
           const swimPayload = {
             version: swimPayloadVersion,
             owner: provider.publicKey.toBuffer(),
@@ -3848,7 +3817,7 @@ describe("propeller", () => {
               tokenBridge,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr)]);
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))]);
 
           const completeNativeWithPayloadSwimUsdPubkeys =
             await completeNativeWithPayloadSwimUsdIxs.pubkeys();
@@ -4028,7 +3997,7 @@ describe("propeller", () => {
               systemProgram: web3.SystemProgram.programId,
             })
             .preInstructions([setComputeUnitLimitIx])
-            .postInstructions([createMemoInstruction(memoStr)])
+            .postInstructions([createMemoInstruction(memoStr.toString("hex"))])
             .signers([userTransferAuthority]);
 
           const processSwimPayloadPubkeys = await processSwimPayload.pubkeys();
@@ -4138,7 +4107,7 @@ describe("propeller", () => {
 
   async function checkTxnLogsForMemo(
     txSig: string,
-    memoStr: string,
+    memoStr: Buffer,
     exists = true,
   ) {
     console.info(`txSig: ${txSig}`);
@@ -4158,12 +4127,17 @@ describe("propeller", () => {
     }
     const txnLogs = txnInfo.meta.logMessages;
     const memoLogFound = txnLogs.some(
-      (log) => log.startsWith("Program log: Memo") && log.includes(memoStr),
+      (log) =>
+        log.startsWith("Program log: Memo") &&
+        log.includes(memoStr.toString("hex")),
     );
     expect(memoLogFound).toEqual(exists);
   }
 
-  function incMemoIdAndGet() {
-    return (++memoId).toString().padStart(16, "0");
+  function createMemoId() {
+    const SWIM_MEMO_LENGTH = 16;
+    // NOTE: Please always use random bytes to avoid conflicts with other users
+    return crypto.randomBytes(SWIM_MEMO_LENGTH);
+    // return (++memoId).toString().padStart(16, "0");
   }
 });

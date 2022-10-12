@@ -89,6 +89,8 @@ export class EvmClient extends Client<
     return history?.filter(isNotNull) ?? null;
   }
 
+  public async getTx(txId: string): Promise<EvmTx>;
+  public async getTx(txResponse: TransactionResponse): Promise<EvmTx>;
   public async getTx(
     txIdOrResponse: TransactionResponse | string,
   ): Promise<EvmTx> {
@@ -106,7 +108,6 @@ export class EvmClient extends Client<
     return {
       id,
       ecosystemId: this.ecosystemId,
-      response,
       receipt,
       timestamp: response?.timestamp ?? null,
       interactionId: null,
@@ -282,12 +283,8 @@ export class EvmClient extends Client<
   }
 
   private async getTxReceipt(
-    txResponse: TransactionResponse | null,
+    txResponse: TransactionResponse,
   ): Promise<TransactionReceipt | null> {
-    if (!txResponse) {
-      return null;
-    }
-
     const knownTx = this.txReceiptCache.get(txResponse.hash);
     if (knownTx !== undefined) {
       return knownTx;

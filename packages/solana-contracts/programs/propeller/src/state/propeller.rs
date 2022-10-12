@@ -58,32 +58,9 @@ pub struct Propeller {
     pub fee_vault: Pubkey, //32
 
     pub aggregator: Pubkey, //32
-                            //TODO: add this?
-                            // pub fallback_oracle: Pubkey, //32
-
-                            // pub custody_signer_key: Pubkey,     // 32
-                            //    pub custody_signer_bump: u8,        // 1
-
-                            // pub mint_signer_key: Pubkey,     // 32
-                            //    pub mint_signer_bump: u8,        // 1
-
-                            // 	pub authority_signer_key: Pubkey,     // 32
-                            //    pub authority_signer_bump: u8,        // 1
-                            //
-                            // 	pub bridge_config_key: Pubkey,     // 32
-                            //    pub bridge_config_bump: u8,        // 1
-                            //
-                            // 	pub wormhole_config_key: Pubkey,     // 32
-                            //    pub wormhole_config_bump: u8,        // 1
-                            //
-                            // 	pub fee_collector_key: Pubkey,     // 32
-                            //    pub fee_collector_bump: u8,        // 1
-                            //
-                            // 	pub wormhole_emitter_key: Pubkey,     // 32
-                            //    pub wormhole_emitter_bump: u8,        // 1
-                            //
-                            // 	pub wormhole_sequence_key: Pubkey,     // 32
-                            //    pub wormhole_sequence_bump: u8,        // 1
+    pub max_staleness: i64,
+    //TODO: add this?
+    // pub fallback_oracle: Pubkey, //32
 }
 // better to save pda keys on chain and always calculate/derive client side?
 //  - if save pubkeys and don't use #[account(seeds=[...])] then need to manually call or save
@@ -113,8 +90,9 @@ impl Propeller {
         // 8 + //propeller_min_transfer_amount
         // 8 +  //propeller_eth_min_transfer_amount
         32 + //fee_vault
-        32; //aggregator
-            // 32; // evm_routing_contract_address
+        32 + //aggregator
+        8; //max_staleness
+           // 32; // evm_routing_contract_address
 
     pub fn wormhole(&self) -> Result<Pubkey> {
         // let pubkey = Pubkey::from_str(CORE_BRIDGE_ADDRESS)

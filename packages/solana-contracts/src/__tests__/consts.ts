@@ -9,7 +9,7 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export const commitment = "confirmed" as web3.Commitment;
 export const rpcCommitmentConfig = {
-  commitment,
+  commitment: "confirmed",
   preflightCommitment: commitment,
   skipPreflight: true,
 };
@@ -74,6 +74,7 @@ export const secpVerifyFee: BN = new BN(0.00004 * LAMPORTS_PER_SOL);
 export const postVaaFee: BN = new BN(0.00005 * LAMPORTS_PER_SOL);
 export const completeWithPayloadFee: BN = new BN(0.0000055 * LAMPORTS_PER_SOL);
 export const processSwimPayloadFee: BN = new BN(0.00001 * LAMPORTS_PER_SOL); // const confirmedCommitment = { commitment: "confirmed" as web3.Finality };
+export const maxStaleness = new BN("9223372036854775807");
 export const ampFactor = { value: new BN(300), decimals: 0 };
 export const lpFee = { value: new BN(300), decimals: 6 }; //lp fee = .000300 = 0.0300% 3bps
 export const governanceFee = { value: new BN(100), decimals: 6 }; //gov fee = .000100 = (0.0100%) 1bps

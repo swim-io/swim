@@ -580,7 +580,7 @@ export type Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "FeeTracker",
-                "path": "fee_tracker.payer"
+                "path": "fee_tracker.fees_recipient"
               }
             ]
           }
@@ -1832,11 +1832,11 @@ export type Propeller = {
           "isSigner": false
         },
         {
-          "name": "to",
+          "name": "redeemerEscrow",
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "owned by redeemer. \"redeemerEscrow\""
+            "`to` account in `CompleteNativeWithPayload`"
           ]
         },
         {
@@ -1862,7 +1862,7 @@ export type Propeller = {
           }
         },
         {
-          "name": "feeRecipient",
+          "name": "feeVault",
           "isMut": true,
           "isSigner": false,
           "docs": [
@@ -2294,11 +2294,11 @@ export type Propeller = {
               "isSigner": false
             },
             {
-              "name": "to",
+              "name": "redeemerEscrow",
               "isMut": true,
               "isSigner": false,
               "docs": [
-                "owned by redeemer. \"redeemerEscrow\""
+                "`to` account in `CompleteNativeWithPayload`"
               ]
             },
             {
@@ -2324,7 +2324,7 @@ export type Propeller = {
               }
             },
             {
-              "name": "feeRecipient",
+              "name": "feeVault",
               "isMut": true,
               "isSigner": false,
               "docs": [
@@ -3873,7 +3873,7 @@ export type Propeller = {
             "type": "u8"
           },
           {
-            "name": "payer",
+            "name": "feesRecipient",
             "type": "publicKey"
           },
           {
@@ -4030,6 +4030,10 @@ export type Propeller = {
           {
             "name": "aggregator",
             "type": "publicKey"
+          },
+          {
+            "name": "maxStaleness",
+            "type": "i64"
           }
         ]
       }
@@ -4174,6 +4178,10 @@ export type Propeller = {
           {
             "name": "marginalPricePoolTokenMint",
             "type": "publicKey"
+          },
+          {
+            "name": "maxStaleness",
+            "type": "i64"
           }
         ]
       }
@@ -4736,78 +4744,88 @@ export type Propeller = {
     },
     {
       "code": 6035,
+      "name": "InvalidMarginalPricePool",
+      "msg": "Invalid Marginal Price Pool"
+    },
+    {
+      "code": 6036,
       "name": "InvalidMarginalPricePoolAccounts",
       "msg": "Invalid Marginal Price Pool Accounts"
     },
     {
-      "code": 6036,
+      "code": 6037,
       "name": "NotPropellerEnabled",
       "msg": "Propeller Not Enabled in payload"
     },
     {
-      "code": 6037,
+      "code": 6038,
       "name": "InvalidRoutingContractAddress",
       "msg": "Invalid Routing Contract Address"
     },
     {
-      "code": 6038,
+      "code": 6039,
       "name": "IntegerOverflow",
       "msg": "Integer Overflow"
     },
     {
-      "code": 6039,
+      "code": 6040,
       "name": "ConversionError",
       "msg": "Conversion Error"
     },
     {
-      "code": 6040,
+      "code": 6041,
       "name": "UnableToRetrieveSwimUsdMintDecimals",
       "msg": "Unable to retrieve SwimUSD mint decimals from marginal price pool information"
     },
     {
-      "code": 6041,
+      "code": 6042,
       "name": "InvalidMetapoolTokenMint",
       "msg": "Invalid Metapool Token Mint. token_mint[0] should == swim_usd_mint"
     },
     {
-      "code": 6042,
+      "code": 6043,
       "name": "UnableToDeserializeTokenAccount",
       "msg": "Unable to deserialize account info as token account"
     },
     {
-      "code": 6043,
+      "code": 6044,
       "name": "InvalidTokenAccountDataLen",
       "msg": "Invalid token account data length. != 0 && != TokenAccount::LEN"
     },
     {
-      "code": 6044,
+      "code": 6045,
       "name": "PayerInsufficientFundsForGasKickstart",
       "msg": "Payer has insufficient funds for gas kickstart"
     },
     {
-      "code": 6045,
+      "code": 6046,
       "name": "IncorrectOwnerForCreateTokenAccount",
       "msg": "Owner of token account != swimPayload.owner"
     },
     {
-      "code": 6046,
+      "code": 6047,
       "name": "TokenIdMapExists",
       "msg": "TokenIdMap exists. Please use the correct instruction"
     },
     {
-      "code": 6047,
+      "code": 6048,
       "name": "InvalidTokenIdMapAccountAddress",
       "msg": "Invalid address for TokenIdMap account"
     },
     {
-      "code": 6048,
+      "code": 6049,
       "name": "InvalidSwimPayloadVersion",
       "msg": "Invalid Swim Payload version"
     },
     {
-      "code": 6049,
+      "code": 6050,
       "name": "InvalidAggregator",
       "msg": "Invalid Aggregator"
+    },
+    {
+      "code": 6051,
+      "name": "InvalidFeeVault",
+      "msg": "Invalid Fee Vault"
     }
   ]
 };
@@ -5394,7 +5412,7 @@ export const IDL: Propeller = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "FeeTracker",
-                "path": "fee_tracker.payer"
+                "path": "fee_tracker.fees_recipient"
               }
             ]
           }
@@ -6646,11 +6664,11 @@ export const IDL: Propeller = {
           "isSigner": false
         },
         {
-          "name": "to",
+          "name": "redeemerEscrow",
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "owned by redeemer. \"redeemerEscrow\""
+            "`to` account in `CompleteNativeWithPayload`"
           ]
         },
         {
@@ -6676,7 +6694,7 @@ export const IDL: Propeller = {
           }
         },
         {
-          "name": "feeRecipient",
+          "name": "feeVault",
           "isMut": true,
           "isSigner": false,
           "docs": [
@@ -7108,11 +7126,11 @@ export const IDL: Propeller = {
               "isSigner": false
             },
             {
-              "name": "to",
+              "name": "redeemerEscrow",
               "isMut": true,
               "isSigner": false,
               "docs": [
-                "owned by redeemer. \"redeemerEscrow\""
+                "`to` account in `CompleteNativeWithPayload`"
               ]
             },
             {
@@ -7138,7 +7156,7 @@ export const IDL: Propeller = {
               }
             },
             {
-              "name": "feeRecipient",
+              "name": "feeVault",
               "isMut": true,
               "isSigner": false,
               "docs": [
@@ -8687,7 +8705,7 @@ export const IDL: Propeller = {
             "type": "u8"
           },
           {
-            "name": "payer",
+            "name": "feesRecipient",
             "type": "publicKey"
           },
           {
@@ -8844,6 +8862,10 @@ export const IDL: Propeller = {
           {
             "name": "aggregator",
             "type": "publicKey"
+          },
+          {
+            "name": "maxStaleness",
+            "type": "i64"
           }
         ]
       }
@@ -8988,6 +9010,10 @@ export const IDL: Propeller = {
           {
             "name": "marginalPricePoolTokenMint",
             "type": "publicKey"
+          },
+          {
+            "name": "maxStaleness",
+            "type": "i64"
           }
         ]
       }
@@ -9550,78 +9576,88 @@ export const IDL: Propeller = {
     },
     {
       "code": 6035,
+      "name": "InvalidMarginalPricePool",
+      "msg": "Invalid Marginal Price Pool"
+    },
+    {
+      "code": 6036,
       "name": "InvalidMarginalPricePoolAccounts",
       "msg": "Invalid Marginal Price Pool Accounts"
     },
     {
-      "code": 6036,
+      "code": 6037,
       "name": "NotPropellerEnabled",
       "msg": "Propeller Not Enabled in payload"
     },
     {
-      "code": 6037,
+      "code": 6038,
       "name": "InvalidRoutingContractAddress",
       "msg": "Invalid Routing Contract Address"
     },
     {
-      "code": 6038,
+      "code": 6039,
       "name": "IntegerOverflow",
       "msg": "Integer Overflow"
     },
     {
-      "code": 6039,
+      "code": 6040,
       "name": "ConversionError",
       "msg": "Conversion Error"
     },
     {
-      "code": 6040,
+      "code": 6041,
       "name": "UnableToRetrieveSwimUsdMintDecimals",
       "msg": "Unable to retrieve SwimUSD mint decimals from marginal price pool information"
     },
     {
-      "code": 6041,
+      "code": 6042,
       "name": "InvalidMetapoolTokenMint",
       "msg": "Invalid Metapool Token Mint. token_mint[0] should == swim_usd_mint"
     },
     {
-      "code": 6042,
+      "code": 6043,
       "name": "UnableToDeserializeTokenAccount",
       "msg": "Unable to deserialize account info as token account"
     },
     {
-      "code": 6043,
+      "code": 6044,
       "name": "InvalidTokenAccountDataLen",
       "msg": "Invalid token account data length. != 0 && != TokenAccount::LEN"
     },
     {
-      "code": 6044,
+      "code": 6045,
       "name": "PayerInsufficientFundsForGasKickstart",
       "msg": "Payer has insufficient funds for gas kickstart"
     },
     {
-      "code": 6045,
+      "code": 6046,
       "name": "IncorrectOwnerForCreateTokenAccount",
       "msg": "Owner of token account != swimPayload.owner"
     },
     {
-      "code": 6046,
+      "code": 6047,
       "name": "TokenIdMapExists",
       "msg": "TokenIdMap exists. Please use the correct instruction"
     },
     {
-      "code": 6047,
+      "code": 6048,
       "name": "InvalidTokenIdMapAccountAddress",
       "msg": "Invalid address for TokenIdMap account"
     },
     {
-      "code": 6048,
+      "code": 6049,
       "name": "InvalidSwimPayloadVersion",
       "msg": "Invalid Swim Payload version"
     },
     {
-      "code": 6049,
+      "code": 6050,
       "name": "InvalidAggregator",
       "msg": "Invalid Aggregator"
+    },
+    {
+      "code": 6051,
+      "name": "InvalidFeeVault",
+      "msg": "Invalid Fee Vault"
     }
   ]
 };

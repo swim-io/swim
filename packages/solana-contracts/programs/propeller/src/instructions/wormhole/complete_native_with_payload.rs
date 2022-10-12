@@ -1,3 +1,4 @@
+use crate::Fees;
 use {
     crate::{
         constants::LAMPORTS_PER_SOL_DECIMAL, deserialize_message_payload, error::*,
@@ -13,6 +14,7 @@ use {
         solana_program::{instruction::Instruction, program::invoke_signed, system_program, sysvar::SysvarId},
     },
     anchor_spl::{
+        associated_token::get_associated_token_address,
         token,
         token::{Mint, Token, TokenAccount, Transfer},
     },
@@ -32,6 +34,7 @@ pub struct CompleteNativeWithPayload<'info> {
     seeds = [ b"propeller".as_ref(), propeller.swim_usd_mint.as_ref() ],
     bump = propeller.bump,
     has_one = swim_usd_mint @ PropellerError::InvalidSwimUsdMint,
+    has_one = fee_vault @ PropellerError::InvalidFeeVault,
     )]
     pub propeller: Box<Account<'info, Propeller>>,
 
@@ -102,13 +105,12 @@ pub struct CompleteNativeWithPayload<'info> {
 
     /// CHECK: wormhole endpoint account. seeds = [ vaa.emitter_chain, vaa.emitter_address ]
     pub endpoint: UncheckedAccount<'info>,
-    /// owned by redeemer. "redeemerEscrow"
+    /// `to` account in `CompleteNativeWithPayload`
     #[account(
     mut,
-    token::mint = swim_usd_mint.key(),
-    token::authority = redeemer,
+    address = get_associated_token_address(&redeemer.key(), &swim_usd_mint.key())
     )]
-    pub to: Box<Account<'info, TokenAccount>>,
+    pub redeemer_escrow: Box<Account<'info, TokenAccount>>,
 
     #[account(
     seeds = [ b"redeemer".as_ref()],
@@ -123,21 +125,13 @@ pub struct CompleteNativeWithPayload<'info> {
     ///    and that the `redeemer` account will be the PDA derived from ["redeemer"], seeds::program = propeller::id()
     pub redeemer: SystemAccount<'info>,
 
-    //TODO: should this just always be fee_vault?
-    // not actually being used unless this is a propellerEnabled ix.
-    // wormhole complete_native_with_payload doesn't do anything with this
-    // the only thing it does is check that the mint is correct.
-    // note: we only care that this is actually the fee_vault if it's called from propellerCompleteNativeWithPayload
-    //  so the checks are done there.
-
-    // TODO: rename to `fee_vault` and add has_one in propeller constraints?
     #[account(
         mut,
         token::mint = propeller.swim_usd_mint,
     )]
     /// this is "to_fees"
     /// recipient of fees for executing complete transfer (e.g. relayer)
-    pub fee_recipient: Box<Account<'info, TokenAccount>>,
+    pub fee_vault: Box<Account<'info, TokenAccount>>,
     // #[account(mut)]
     // /// this is "to_fees"
     // /// TODO: type as TokenAccount?
@@ -195,9 +189,9 @@ impl<'info> CompleteNativeWithPayload<'info> {
             self.message.to_account_info().clone(),
             self.claim.to_account_info().clone(),
             self.endpoint.to_account_info().clone(),
-            self.to.to_account_info().clone(),
+            self.redeemer_escrow.to_account_info().clone(),
             self.redeemer.to_account_info().clone(),
-            self.fee_recipient.to_account_info().clone(),
+            self.fee_vault.to_account_info().clone(),
             self.custody.to_account_info().clone(),
             self.swim_usd_mint.to_account_info().clone(),
             self.custody_signer.to_account_info().clone(),
@@ -215,9 +209,9 @@ impl<'info> CompleteNativeWithPayload<'info> {
                 AccountMeta::new_readonly(self.message.key(), false),
                 AccountMeta::new(self.claim.key(), false),
                 AccountMeta::new_readonly(self.endpoint.key(), false),
-                AccountMeta::new(self.to.key(), false),
+                AccountMeta::new(self.redeemer_escrow.key(), false),
                 AccountMeta::new_readonly(self.redeemer.key(), true),
-                AccountMeta::new(self.fee_recipient.key(), false),
+                AccountMeta::new(self.fee_vault.key(), false),
                 AccountMeta::new(self.custody.key(), false),
                 AccountMeta::new_readonly(self.swim_usd_mint.key(), false),
                 AccountMeta::new_readonly(self.custody_signer.key(), false),
@@ -381,13 +375,24 @@ impl<'info> PropellerCompleteNativeWithPayload<'info> {
                 ctx.accounts.marginal_price_pool_token_1_account.mint,
             ],
         )?;
-        require_keys_eq!(ctx.accounts.complete_native_with_payload.fee_recipient.key(), propeller.fee_vault);
-        require_keys_eq!(ctx.accounts.complete_native_with_payload.fee_recipient.owner, propeller.key());
+        require_keys_eq!(ctx.accounts.complete_native_with_payload.fee_vault.key(), propeller.fee_vault);
+        require_keys_eq!(ctx.accounts.complete_native_with_payload.fee_vault.owner, propeller.key());
         require_keys_eq!(ctx.accounts.aggregator.key(), propeller.aggregator, PropellerError::InvalidAggregator);
         Ok(())
     }
 
-    fn calculate_fees(&self) -> Result<u64> {
+    fn log_memo(&self, memo: [u8; 16]) -> Result<()> {
+        if memo != [0u8; 16] {
+            let memo_ix =
+                spl_memo::build_memo(std::str::from_utf8(hex::encode(memo).as_bytes()).unwrap().as_ref(), &[]);
+            invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
+        }
+        Ok(())
+    }
+}
+
+impl<'info> Fees<'info> for PropellerCompleteNativeWithPayload<'info> {
+    fn calculate_fees_in_lamports(&self) -> Result<u64> {
         let rent = Rent::get()?;
         let wormhole_message_rent_exempt_fees =
             rent.minimum_balance(self.complete_native_with_payload.message.to_account_info().data_len());
@@ -424,84 +429,85 @@ impl<'info> PropellerCompleteNativeWithPayload<'info> {
             complete_with_payload_fee,
             fee_in_lamports
         );
+        Ok(fee_in_lamports)
+    }
 
-        let marginal_prices = get_marginal_prices(self.into_marginal_prices())?;
+    fn get_marginal_prices(&self) -> Result<[BorshDecimal; TOKEN_COUNT]> {
+        let result = two_pool::cpi::marginal_prices(CpiContext::new(
+            self.two_pool_program.to_account_info(),
+            two_pool::cpi::accounts::MarginalPrices {
+                pool: self.marginal_price_pool.to_account_info(),
+                pool_token_account_0: self.marginal_price_pool_token_0_account.to_account_info(),
+                pool_token_account_1: self.marginal_price_pool_token_1_account.to_account_info(),
+                lp_mint: self.marginal_price_pool_lp_mint.to_account_info(),
+            },
+        ))?;
+        Ok(result.get())
+    }
+
+    fn convert_fees_to_swim_usd_atomic(&self, fee_in_lamports: u64) -> Result<u64> {
+        msg!("fee_in_lamports: {:?}", fee_in_lamports);
+        let marginal_price_pool_lp_mint = &self.marginal_price_pool_lp_mint;
+
+        let propeller = &self.complete_native_with_payload.propeller;
+        let max_staleness = propeller.max_staleness;
+        let swim_usd_mint_key = propeller.swim_usd_mint;
+        // let marginal_prices = get_marginal_prices(cpi_ctx)?;
 
         let intermediate_token_price_decimal: Decimal = get_marginal_price_decimal(
             &self.marginal_price_pool,
-            &marginal_prices,
-            &propeller,
-            // propeller.marginal_price_pool_token_index as usize,
-            &self.marginal_price_pool_lp_mint.key(),
-            // &token_bridge_mint_key,
+            &self.get_marginal_prices()?,
+            propeller,
+            &marginal_price_pool_lp_mint.key(),
         )?;
 
         msg!("intermediate_token_price_decimal: {:?}", intermediate_token_price_decimal);
 
-        //swimUSD is lp token of marginal price pool
-        let mut res = 0u64;
-
         let fee_in_lamports_decimal = Decimal::from_u64(fee_in_lamports).ok_or(PropellerError::ConversionError)?;
         msg!("fee_in_lamports(u64): {:?} fee_in_lamports_decimal: {:?}", fee_in_lamports, fee_in_lamports_decimal);
-        let lamports_intermediate_token_price = get_lamports_intermediate_token_price(&self.aggregator, i64::MAX)?;
+
+        let lamports_intermediate_token_price = get_lamports_intermediate_token_price(&self.aggregator, max_staleness)?;
         let fee_in_swim_usd_decimal = lamports_intermediate_token_price
             .checked_mul(fee_in_lamports_decimal)
             .and_then(|x| x.checked_div(intermediate_token_price_decimal))
             .ok_or(PropellerError::IntegerOverflow)?;
 
-        let swim_usd_mint_key = self.complete_native_with_payload.propeller.swim_usd_mint;
+        let swim_usd_decimals =
+            get_swim_usd_mint_decimals(&swim_usd_mint_key, &self.marginal_price_pool, &marginal_price_pool_lp_mint)?;
+        msg!("swim_usd_decimals: {:?}", swim_usd_decimals);
 
-        let swim_usd_mint_decimals = get_swim_usd_mint_decimals(
-            &swim_usd_mint_key,
-            &self.marginal_price_pool,
-            &self.marginal_price_pool_lp_mint,
-        )?;
-        //TODO: good lord forgive me for this terrible naming. i will fix later.
         let ten_pow_decimals =
-            Decimal::from_u64(10u64.pow(swim_usd_mint_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
+            Decimal::from_u64(10u64.pow(swim_usd_decimals as u32)).ok_or(PropellerError::IntegerOverflow)?;
         let fee_in_swim_usd_atomic = fee_in_swim_usd_decimal
             .checked_mul(ten_pow_decimals)
             .and_then(|v| v.to_u64())
             .ok_or(PropellerError::ConversionError)?;
+
         msg!(
             "fee_in_swim_usd_decimal: {:?} fee_in_swim_usd_atomic: {:?}",
             fee_in_swim_usd_decimal,
             fee_in_swim_usd_atomic
         );
-        res = fee_in_swim_usd_atomic;
-        Ok(res)
+        Ok(fee_in_swim_usd_atomic)
     }
 
-    fn handle_fees(&mut self, fees_in_token_bridge_mint: u64) -> Result<()> {
+    fn track_and_transfer_fees(&mut self, fees_in_swim_usd: u64) -> Result<()> {
         let fee_tracker = &mut self.fee_tracker;
-        let updated_fees_owed =
-            fee_tracker.fees_owed.checked_add(fees_in_token_bridge_mint).ok_or(PropellerError::IntegerOverflow)?;
-        fee_tracker.fees_owed = updated_fees_owed;
+        fee_tracker.fees_owed =
+            fee_tracker.fees_owed.checked_add(fees_in_swim_usd).ok_or(PropellerError::IntegerOverflow)?;
 
-        let cpi_accounts = Transfer {
-            from: self.complete_native_with_payload.to.to_account_info(),
-            to: self.complete_native_with_payload.fee_recipient.to_account_info(),
-            authority: self.complete_native_with_payload.redeemer.to_account_info(),
-        };
         token::transfer(
             CpiContext::new_with_signer(
                 self.complete_native_with_payload.token_program.to_account_info(),
-                cpi_accounts,
+                Transfer {
+                    from: self.complete_native_with_payload.redeemer_escrow.to_account_info(),
+                    to: self.complete_native_with_payload.fee_vault.to_account_info(),
+                    authority: self.complete_native_with_payload.redeemer.to_account_info(),
+                },
                 &[&[&b"redeemer".as_ref(), &[self.complete_native_with_payload.propeller.redeemer_bump]]],
             ),
-            fees_in_token_bridge_mint,
+            fees_in_swim_usd,
         )
-    }
-
-    fn into_marginal_prices(&self) -> CpiContext<'_, '_, '_, 'info, two_pool::cpi::accounts::MarginalPrices<'info>> {
-        let program = self.two_pool_program.to_account_info();
-        let accounts = two_pool::cpi::accounts::MarginalPrices {
-            pool: self.marginal_price_pool.to_account_info(),
-            pool_token_account_0: self.marginal_price_pool_token_0_account.to_account_info(),
-            pool_token_account_1: self.marginal_price_pool_token_1_account.to_account_info(),
-            lp_mint: self.marginal_price_pool_lp_mint.to_account_info(),
-        };
-        CpiContext::new(program, accounts)
     }
 }
 
@@ -526,9 +532,15 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
         transfer_amount *= 10u64.pow(ctx.accounts.complete_native_with_payload.swim_usd_mint.decimals as u32);
     }
     msg!("transfer_amount(swimUSD atomic): {:?}", transfer_amount);
-    msg!("redeemer escrow balance before reload: {:?}", ctx.accounts.complete_native_with_payload.to.amount);
-    ctx.accounts.complete_native_with_payload.to.reload()?;
-    msg!("redeemer escrow balance after reload: {:?}", ctx.accounts.complete_native_with_payload.to.amount);
+    msg!(
+        "redeemer escrow balance before reload: {:?}",
+        ctx.accounts.complete_native_with_payload.redeemer_escrow.amount
+    );
+    ctx.accounts.complete_native_with_payload.redeemer_escrow.reload()?;
+    msg!(
+        "redeemer escrow balance after reload: {:?}",
+        ctx.accounts.complete_native_with_payload.redeemer_escrow.amount
+    );
     // Only tracking & converting fee from SOL -> swimUSD if the payer isn't the actual logical owner.
     // This is for if the propeller engine is unavailable and the user is manually calling
     // this ix. They should use the `CompleteNativeWithPayload` ix instead but adding this just in case.\
@@ -536,12 +548,12 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
     let swim_payload_owner = Pubkey::new_from_array(swim_payload.owner);
     let token_program = &ctx.accounts.complete_native_with_payload.token_program;
     if swim_payload_owner != ctx.accounts.complete_native_with_payload.payer.key() {
-        let fees_in_token_bridge_mint = ctx.accounts.calculate_fees()?;
-        ctx.accounts.handle_fees(fees_in_token_bridge_mint)?;
-
-        msg!("propeller_complete_native_with_payload fees(swimUSD): {:?}", fees_in_token_bridge_mint);
+        let fees_in_lamports = ctx.accounts.calculate_fees_in_lamports()?;
+        let fees_in_swim_usd_atomic = ctx.accounts.convert_fees_to_swim_usd_atomic(fees_in_lamports)?;
+        ctx.accounts.track_and_transfer_fees(fees_in_swim_usd_atomic)?;
+        msg!("fees_in_swim_usd_atomic: {:?}", fees_in_swim_usd_atomic);
         transfer_amount =
-            transfer_amount.checked_sub(fees_in_token_bridge_mint).ok_or(PropellerError::IntegerOverflow)?;
+            transfer_amount.checked_sub(fees_in_swim_usd_atomic).ok_or(error!(PropellerError::InsufficientFunds))?;
     }
     msg!("transfer_amount(swimUSD) after fees: {:?}", transfer_amount);
 
@@ -553,11 +565,8 @@ pub fn handle_propeller_complete_native_with_payload(ctx: Context<PropellerCompl
         &swim_payload,
     )?;
     let memo = swim_payload.memo;
-    if memo != [0u8; 16] {
-        let memo_ix = spl_memo::build_memo(std::str::from_utf8(hex::encode(memo).as_bytes()).unwrap().as_ref(), &[]);
-        invoke(&memo_ix, &[ctx.accounts.memo.to_account_info()])?;
-    }
 
+    ctx.accounts.log_memo(memo)?;
     Ok(())
 }
 

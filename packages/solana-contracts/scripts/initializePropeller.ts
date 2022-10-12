@@ -33,7 +33,7 @@ import {
   TWO_POOL_PID,
   USDC_TO_TOKEN_NUMBER,
   USDT_TO_TOKEN_NUMBER,
-  setComputeUnitLimitIx,
+  setComputeUnitLimitIx, maxStaleness,
 } from "../src/__tests__/consts";
 import {
   getPropellerPda,
@@ -278,6 +278,7 @@ async function initializePropellerState(): Promise<PropellerInfo> {
     ...DEFAULT_INIT_PROPELLER_PARAMS,
     marginalPricePool: swimUsdPoolInfo.address,
     marginalPricePoolTokenMint: swimUsdPoolInfo.tokenMints[0],
+    maxStaleness: maxStaleness,
   };
   console.info(`
     propellerAddr: ${propellerAddr.toString()}

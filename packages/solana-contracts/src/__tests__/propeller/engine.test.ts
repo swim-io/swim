@@ -60,6 +60,7 @@ import {
   initAtaFee,
   lpFee,
   marginalPricePoolTokenIndex,
+  maxStaleness,
   metapoolMint1OutputTokenIndex,
   metapoolMint1PoolTokenIndex,
   postVaaFee,
@@ -84,6 +85,7 @@ import type { WormholeAddresses } from "./propellerUtils";
 import {
   encodeSwimPayload,
   generatePropellerEngineTxns,
+  getFeeTrackerPda,
   getOwnerTokenAccountsForPool,
   getPropellerPda,
   getPropellerRedeemerPda,
@@ -766,16 +768,11 @@ describe("propeller", () => {
         propellerEngineKeypair,
       ]);
 
-      const [expectedFeeTracker, bump] =
-        await web3.PublicKey.findProgramAddress(
-          [
-            Buffer.from("propeller"),
-            Buffer.from("fee"),
-            swimUsdMint.toBuffer(),
-            propellerEngineKeypair.publicKey.toBuffer(),
-          ],
-          propellerProgram.programId,
-        );
+      const [expectedFeeTracker, bump] = await getFeeTrackerPda(
+        swimUsdMint,
+        propellerEngineKeypair.publicKey,
+        propellerProgram.programId,
+      );
 
       if (!initializeFeeTrackersPubkeys.feeTracker) {
         throw new Error("feeTracker is undefined");
@@ -789,7 +786,7 @@ describe("propeller", () => {
         initializeFeeTrackersPubkeys.feeTracker,
       );
       expect(feeTrackerAccount.bump).toEqual(bump);
-      expect(feeTrackerAccount.payer.toBase58()).toEqual(
+      expect(feeTrackerAccount.feesRecipient.toBase58()).toEqual(
         propellerEngineKeypair.publicKey.toBase58(),
       );
       expect(feeTrackerAccount.feesMint.toBase58()).toEqual(
@@ -938,9 +935,9 @@ describe("propeller", () => {
                     claim: wormholeClaim,
                     swimPayloadMessage: expectedSwimPayloadMessage,
                     endpoint: ethEndpointAccount,
-                    to: propellerRedeemerEscrowAccount,
+                    redeemerEscrow: propellerRedeemerEscrowAccount,
                     redeemer: propellerRedeemer,
-                    feeRecipient: propellerFeeVault,
+                    feeVault: propellerFeeVault,
                     // feeRecipient: propellerRedeemerEscrowAccount,
                     // tokenBridgeMint,
                     custody: wormholeAddresses.custody,
@@ -1627,9 +1624,9 @@ describe("propeller", () => {
                     claim: wormholeClaim,
                     swimPayloadMessage: expectedSwimPayloadMessage,
                     endpoint: ethEndpointAccount,
-                    to: propellerRedeemerEscrowAccount,
+                    redeemerEscrow: propellerRedeemerEscrowAccount,
                     redeemer: propellerRedeemer,
-                    feeRecipient: propellerFeeVault,
+                    feeVault: propellerFeeVault,
                     // feeRecipient: propellerRedeemerEscrowAccount,
                     // tokenBridgeMint,
                     custody: custody,
@@ -2435,9 +2432,9 @@ describe("propeller", () => {
                   claim: wormholeClaim,
                   swimPayloadMessage: expectedSwimPayloadMessage,
                   endpoint: ethEndpointAccount,
-                  to: propellerRedeemerEscrowAccount,
+                  redeemerEscrow: propellerRedeemerEscrowAccount,
                   redeemer: propellerRedeemer,
-                  feeRecipient: propellerFeeVault,
+                  feeVault: propellerFeeVault,
                   // feeRecipient: propellerRedeemerEscrowAccount,
                   // tokenBridgeMint,
                   custody: custody,
@@ -3029,7 +3026,7 @@ describe("propeller", () => {
       //         message: wormholeMessage,
       //         claim: wormholeClaim,
       //         endpoint: ethEndpointAccount,
-      //         to: propellerRedeemerEscrowAccount,
+      //         redeemerEscrow: propellerRedeemerEscrowAccount,
       //         redeemer: propellerRedeemer,
       //         feeRecipient: userSwimUsdAtaAddr,
       //         // feeRecipient: propellerRedeemerEscrowAccount,
@@ -3445,7 +3442,7 @@ describe("propeller", () => {
       //         message: wormholeMessage,
       //         claim: wormholeClaim,
       //         endpoint: ethEndpointAccount,
-      //         to: propellerRedeemerEscrowAccount,
+      //         redeemerEscrow: propellerRedeemerEscrowAccount,
       //         redeemer: propellerRedeemer,
       //         feeRecipient: userSwimUsdAtaAddr,
       //         // feeRecipient: propellerRedeemerEscrowAccount,
@@ -3895,9 +3892,9 @@ describe("propeller", () => {
                     claim: wormholeClaim,
                     swimPayloadMessage: expectedSwimPayloadMessage,
                     endpoint: ethEndpointAccount,
-                    to: propellerRedeemerEscrowAccount,
+                    redeemerEscrow: propellerRedeemerEscrowAccount,
                     redeemer: propellerRedeemer,
-                    feeRecipient: propellerFeeVault,
+                    feeVault: propellerFeeVault,
                     // feeRecipient: propellerRedeemerEscrowAccount,
                     // tokenBridgeMint,
                     custody: custody,
@@ -5787,9 +5784,9 @@ describe("propeller", () => {
                     claim: wormholeClaim,
                     swimPayloadMessage: expectedSwimPayloadMessage,
                     endpoint: ethEndpointAccount,
-                    to: propellerRedeemerEscrowAccount,
+                    redeemerEscrow: propellerRedeemerEscrowAccount,
                     redeemer: propellerRedeemer,
-                    feeRecipient: propellerFeeVault,
+                    feeVault: propellerFeeVault,
                     // feeRecipient: propellerRedeemerEscrowAccount,
                     // tokenBridgeMint,
                     custody: custody,
@@ -6897,6 +6894,7 @@ const initializePropeller = async () => {
     marginalPricePool,
     marginalPricePoolTokenIndex,
     marginalPricePoolTokenMint,
+    maxStaleness,
     // evmRoutingContractAddress: ethRoutingContract,
     // evmRoutingContractAddress: ethRoutingContractEthUint8Arr
   };

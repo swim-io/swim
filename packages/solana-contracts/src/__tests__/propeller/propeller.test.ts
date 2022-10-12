@@ -40,6 +40,7 @@ import {
   USDC_TO_TOKEN_NUMBER,
   USDT_TO_TOKEN_NUMBER,
   ampFactor,
+  bscTokenBridge,
   commitment,
   completeWithPayloadFee,
   ethRoutingContract,
@@ -52,6 +53,7 @@ import {
   initAtaFee,
   lpFee,
   marginalPricePoolTokenIndex,
+  maxStaleness,
   metapoolMint1OutputTokenIndex,
   metapoolMint1PoolTokenIndex,
   postVaaFee,
@@ -81,7 +83,8 @@ import {
   getPropellerSenderPda,
   getSwimClaimPda,
   getSwimPayloadMessagePda,
-  parseTokenTransferWithSwimPayloadPostedMessage,
+  getWormholeAddressesForMint,
+  parseTokenTransferWithSwimPayloadPostedMessage, WormholeAddresses,
 } from "./propellerUtils";
 import {
   deriveEndpointPda,
@@ -193,7 +196,7 @@ let flagshipPool: web3.PublicKey;
 // let flagshipPoolData: SwimPoolState;
 // let poolAuth: web3.PublicKey;
 const swimUsdMint: web3.PublicKey = swimUsdKeypair.publicKey;
-
+let wormholeAddresses: WormholeAddresses;
 const metapoolMint0Keypair = swimUsdKeypair;
 const metapoolMint1Keypair = web3.Keypair.generate();
 const metapoolMint1Authority = payer;
@@ -472,76 +475,25 @@ describe("propeller", () => {
       }
     `);
 
-    // [custodyOrWrappedMeta] = await (async () => {
-    //     const mintInfo = await getMint(program.provider.connection, swimUsdMint);
-    //     if (mintInfo.mintAuthority! === tokenMintSigner) {
-    //         //First derive the Wrapped Mint Key
-    //         //[Ricky] - this call is propellerLpAta wormhole-sdk
-    //         const nativeInfo = await getOriginalAssetSol(
-    //             program.provider.connection,
-    //             tokenBridge.toString(),
-    //             swimUsdMint.toString()
-    //         );
-    //         const [wrappedMintKey] = await web3.PublicKey.findProgramAddress(
-    //             [
-    //                 Buffer.from("wrapped"),
-    //                 // serializeuint16 as uint8array
-    //                 // ` data.token_chain.to_be_bytes().to_vec(),`
-    //                 serializeUint16(nativeInfo.chainId as number),
-    //                 swimUsdMint.toBytes()
-    //             ],
-    //             tokenBridge
-    //         );
-    //         //Then derive the Wrapped Meta Key
-    //         return await web3.PublicKey.findProgramAddress([Buffer.from("meta"), wrappedMintKey.toBytes()], tokenBridge);
-    //     } else {
-    //         // transfer native sol asset
-    //         return await web3.PublicKey.findProgramAddress([swimUsdMint.toBytes()], tokenBridge);
-    //     }
-    // })();
 
-    // note - there's also wasm generated helper methods to derive these addresses as well.
-    // assuming always sending solana native token so this will be custody.
-    [custody] = await (async () => {
-      return await web3.PublicKey.findProgramAddress(
-        [swimUsdMint.toBytes()],
-        tokenBridge,
-      );
-    })();
-
-    [wormholeConfig] = await web3.PublicKey.findProgramAddress(
-      [Buffer.from("Bridge")],
-      wormhole,
+    wormholeAddresses = await getWormholeAddressesForMint(
+      WORMHOLE_CORE_BRIDGE,
+      WORMHOLE_TOKEN_BRIDGE,
+      swimUsdMint,
+      ethTokenBridge,
+      bscTokenBridge,
     );
-    [wormholeFeeCollector] = await web3.PublicKey.findProgramAddress(
-      [Buffer.from("fee_collector")],
-      wormhole,
-    );
-    // wh functions return in a hex string format
-    // wormholeEmitter = new web3.PublicKey(
-    //   tryHexToNativeString(await getEmitterAddressSolana(tokenBridge.toBase58()), CHAIN_ID_SOLANA)
-    //   );
-    [wormholeEmitter] = await web3.PublicKey.findProgramAddress(
-      [Buffer.from("emitter")],
-      tokenBridge,
-    );
-    [wormholeSequence] = await web3.PublicKey.findProgramAddress(
-      [Buffer.from("Sequence"), wormholeEmitter.toBytes()],
-      wormhole,
-    );
-
-    [authoritySigner] = await web3.PublicKey.findProgramAddress(
-      [Buffer.from("authority_signer")],
-      tokenBridge,
-    );
-    [tokenBridgeConfig] = await web3.PublicKey.findProgramAddress(
-      [Buffer.from("config")],
-      tokenBridge,
-    );
-    [custodySigner] = await web3.PublicKey.findProgramAddress(
-      [Buffer.from("custody_signer")],
-      tokenBridge,
-    );
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    ({
+      authoritySigner,
+      custody,
+      custodySigner,
+      tokenBridgeConfig,
+      wormholeConfig,
+      wormholeEmitter,
+      wormholeFeeCollector,
+      wormholeSequence,
+    } = wormholeAddresses);
 
     console.info(`
             custodyOrWrappedMeta: ${custody.toString()}
@@ -589,6 +541,7 @@ describe("propeller", () => {
       marginalPricePool,
       marginalPricePoolTokenIndex,
       marginalPricePoolTokenMint,
+      maxStaleness,
       // evmRoutingContractAddress: ethRoutingContract,
       // evmRoutingContractAddress: ethRoutingContractEthUint8Arr
     };
@@ -2206,6 +2159,7 @@ describe("propeller", () => {
             tokenTransferWithPayloadSignedVaa,
           );
 
+
           const completeNativeWithPayloadIxs = propellerProgram.methods
             .completeNativeWithPayload()
             .accounts({
@@ -2216,14 +2170,9 @@ describe("propeller", () => {
               message: wormholeMessage,
               claim: wormholeClaim,
               endpoint: ethEndpointAccount,
-              to: propellerRedeemerEscrowAccount,
+              redeemerEscrow: propellerRedeemerEscrowAccount,
               redeemer: propellerRedeemer,
-              // this is only used in propellerCompleteNativeWithPayload
-              // but must still be passed.
-              // tokenBridge.completeNativeWithPayload just checks mint is
-              // correct.
-              feeRecipient: userSwimUsdAtaAddr,
-              // feeRecipient: propellerFeeVault,
+              feeVault: propellerFeeVault,
               custody: custody,
               swimUsdMint: swimUsdMint,
               custodySigner,
@@ -2595,14 +2544,9 @@ describe("propeller", () => {
               message: wormholeMessage,
               claim: wormholeClaim,
               endpoint: endpointAccount,
-              to: propellerRedeemerEscrowAccount,
+              redeemerEscrow: propellerRedeemerEscrowAccount,
               redeemer: propellerRedeemer,
-              // this is only used in propellerCompleteNativeWithPayload
-              // but must still be passed.
-              // tokenBridge.completeNativeWithPayload just checks mint is
-              // correct.
-              feeRecipient: userSwimUsdAtaAddr,
-              // feeRecipient: propellerFeeVault,
+              feeVault: propellerFeeVault,
               custody: custody,
               swimUsdMint: swimUsdMint,
               custodySigner,
@@ -2979,14 +2923,9 @@ describe("propeller", () => {
               message: wormholeMessage,
               claim: wormholeClaim,
               endpoint: endpointAccount,
-              to: propellerRedeemerEscrowAccount,
+              redeemerEscrow: propellerRedeemerEscrowAccount,
               redeemer: propellerRedeemer,
-              // this is only used in propellerCompleteNativeWithPayload
-              // but must still be passed.
-              // tokenBridge.completeNativeWithPayload just checks mint is
-              // correct.
-              feeRecipient: userSwimUsdAtaAddr,
-              // feeRecipient: propellerFeeVault,
+              feeVault: propellerFeeVault,
               custody: custody,
               swimUsdMint: swimUsdMint,
               custodySigner,
@@ -3372,14 +3311,9 @@ describe("propeller", () => {
               message: wormholeMessage,
               claim: wormholeClaim,
               endpoint: endpointAccount,
-              to: propellerRedeemerEscrowAccount,
+              redeemerEscrow: propellerRedeemerEscrowAccount,
               redeemer: propellerRedeemer,
-              // this is only used in propellerCompleteNativeWithPayload
-              // but must still be passed.
-              // tokenBridge.completeNativeWithPayload just checks mint is
-              // correct.
-              feeRecipient: userSwimUsdAtaAddr,
-              // feeRecipient: propellerFeeVault,
+              feeVault: propellerFeeVault,
               custody: custody,
               swimUsdMint: swimUsdMint,
               custodySigner,
@@ -3784,14 +3718,9 @@ describe("propeller", () => {
               message: wormholeMessage,
               claim: wormholeClaim,
               endpoint: endpointAccount,
-              to: propellerRedeemerEscrowAccount,
+              redeemerEscrow: propellerRedeemerEscrowAccount,
               redeemer: propellerRedeemer,
-              // this is only used in propellerCompleteNativeWithPayload
-              // but must still be passed.
-              // tokenBridge.completeNativeWithPayload just checks mint is
-              // correct.
-              feeRecipient: userSwimUsdAtaAddr,
-              // feeRecipient: propellerFeeVault,
+              feeVault: propellerFeeVault,
               custody: custody,
               swimUsdMint: swimUsdMint,
               custodySigner,

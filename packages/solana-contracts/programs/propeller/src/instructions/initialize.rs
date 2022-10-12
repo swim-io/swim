@@ -102,6 +102,7 @@ pub struct InitializeParams {
     pub marginal_price_pool: Pubkey,
     pub marginal_price_pool_token_index: u8,
     pub marginal_price_pool_token_mint: Pubkey,
+    pub max_staleness: i64,
     // pub evm_routing_contract_address: [u8; 32],
 }
 

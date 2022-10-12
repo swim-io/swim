@@ -108,6 +108,9 @@ pub enum PropellerError {
     #[msg("Invalid Gas Kickstart parameter in Swim Payload")]
     InvalidSwimPayloadGasKickstart,
 
+    #[msg("Invalid Marginal Price Pool")]
+    InvalidMarginalPricePool,
+
     #[msg("Invalid Marginal Price Pool Accounts")]
     InvalidMarginalPricePoolAccounts,
 
@@ -152,4 +155,7 @@ pub enum PropellerError {
 
     #[msg("Invalid Aggregator")]
     InvalidAggregator,
+
+    #[msg("Invalid Fee Vault")]
+    InvalidFeeVault,
 }

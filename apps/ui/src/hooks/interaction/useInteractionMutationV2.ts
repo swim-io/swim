@@ -83,7 +83,6 @@ export const useInteractionMutationV2 = () => {
       },
       onSettled: async () => {
         await queryClient.invalidateQueries([env, "erc20Balance"]);
-        await queryClient.invalidateQueries([env, "tokenAccounts"]);
       },
     },
   );

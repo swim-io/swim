@@ -7,7 +7,10 @@ import { findOrCreateSplTokenAccount } from "../../models";
 
 import { useSolanaClient } from "./useSolanaClient";
 import { useSolanaWallet } from "./useSolanaWallet";
-import { useSplTokenAccountsQuery } from "./useSplTokenAccountsQuery";
+import {
+  getSplTokenAccountsQueryKey,
+  useSplTokenAccountsQuery,
+} from "./useSplTokenAccountsQuery";
 
 export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
   readonly TokenAccount[],
@@ -42,7 +45,9 @@ export const useCreateSplTokenAccountsMutation = (): UseMutationResult<
           }),
         ),
       );
-      await queryClient.invalidateQueries([env, "tokenAccounts", address]);
+      await queryClient.invalidateQueries(
+        getSplTokenAccountsQueryKey(env, address),
+      );
       return tokenAccountData.map((data) => data.tokenAccount);
     },
   );

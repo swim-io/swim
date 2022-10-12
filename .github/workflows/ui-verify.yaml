@@ -12,6 +12,7 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     # Allow only one concurrent deployment
     concurrency:
@@ -59,6 +60,7 @@ jobs:
 
   storybook:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     # Allow only one concurrent deployment
     concurrency:

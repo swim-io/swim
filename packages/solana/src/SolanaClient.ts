@@ -424,13 +424,11 @@ export class SolanaClient implements Client<SolanaWalletAdapter> {
         ),
       ),
     );
-    return results.flatMap((accounts, i) =>
-      accounts.map((account) =>
-        account === null
-          ? null
-          : deserializeTokenAccount(new PublicKey(keys[i]), account.data),
-      ),
-    );
+    return results.flat().map((account, i) => {
+      return account === null
+        ? null
+        : deserializeTokenAccount(new PublicKey(keys[i]), account.data);
+    });
   }
 
   public async createSplTokenAccount(

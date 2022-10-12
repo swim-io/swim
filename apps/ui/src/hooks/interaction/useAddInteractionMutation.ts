@@ -176,7 +176,6 @@ export const useAddInteractionMutation = () => {
     },
     {
       onSuccess: async (_data, variable) => {
-        await queryClient.invalidateQueries([env, "liquidity"]);
         await queryClient.invalidateQueries([
           env,
           "poolState",

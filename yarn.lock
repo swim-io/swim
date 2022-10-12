@@ -7163,28 +7163,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swim-io/solana@npm:^0.38.0":
-  version: 0.38.0
-  resolution: "@swim-io/solana@npm:0.38.0"
-  dependencies:
-    "@ledgerhq/hw-transport": ^6.27.1
-    "@ledgerhq/hw-transport-webusb": ^6.0.2
-    "@project-serum/sol-wallet-adapter": 0.2.2
-    "@swim-io/core": ^0.38.0
-    "@swim-io/token-projects": ^0.38.0
-    "@swim-io/utils": ^0.38.0
-  peerDependencies:
-    "@certusone/wormhole-sdk": ^0.6.2
-    "@project-serum/borsh": ^0.2.5
-    "@solana/spl-token": ^0.3.4
-    "@solana/web3.js": ^1.62.0
-    bn.js: ^5.2.1
-    decimal.js: ^10.3.1
-    ethers: ^5.7.0
-  checksum: 97d9095a66ea60ebab5c7580a06cc1166e018337ee20b276c2a8bf33046c41f77c2ec706f88d0252310813339ce4ebbea737e8e92b31b51a91d055d7b184f008
-  languageName: node
-  linkType: hard
-
 "@swim-io/solana@workspace:^, @swim-io/solana@workspace:packages/solana":
   version: 0.0.0-use.local
   resolution: "@swim-io/solana@workspace:packages/solana"
@@ -7347,12 +7325,12 @@ __metadata:
     "@swim-io/evm": ^0.38.0
     "@swim-io/evm-contracts": ^0.38.0
     "@swim-io/pool-math": ^0.38.0
-    "@swim-io/solana": ^0.38.0
+    "@swim-io/solana": "workspace:^"
     "@swim-io/solana-contracts": ^0.38.0
     "@swim-io/token-projects": ^0.38.0
     "@swim-io/tsconfig": "workspace:^"
     "@swim-io/utils": ^0.38.0
-    "@swim-io/wormhole": ^0.38.0
+    "@swim-io/wormhole": "workspace:^"
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": ^7.0.2
@@ -7452,24 +7430,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@swim-io/wormhole@npm:^0.38.0":
-  version: 0.38.0
-  resolution: "@swim-io/wormhole@npm:0.38.0"
-  dependencies:
-    "@swim-io/core": ^0.38.0
-    "@swim-io/solana": ^0.38.0
-    "@swim-io/utils": ^0.38.0
-    grpc-web: ^1.3.1
-  peerDependencies:
-    "@certusone/wormhole-sdk": ^0.6.2
-    "@solana/spl-token": ^0.3.4
-    "@solana/web3.js": ^1.62.0
-    ethers: ^5.6.9
-  checksum: 4682342c609f023cc54bc549104480e82f01b85b067910faabe5e62b3601532c5d5a97d08a10f6e31ec6ab3c3dcbe4eabeb51ac12f7a3059e7d5fcb05348f185
-  languageName: node
-  linkType: hard
-
-"@swim-io/wormhole@workspace:packages/wormhole":
+"@swim-io/wormhole@workspace:^, @swim-io/wormhole@workspace:packages/wormhole":
   version: 0.0.0-use.local
   resolution: "@swim-io/wormhole@workspace:packages/wormhole"
   dependencies:

@@ -21,14 +21,50 @@ interface PoolTokens {
 
 const ZERO = new Decimal(0);
 
+const getRequiredSwimUsdInputAmount = (
+  toToken: TokenConfig,
+  outputAmount: Decimal,
+  poolSpec: PoolSpec,
+  poolMath: PoolMath,
+  poolTokens: PoolTokens,
+): Decimal => {
+  if (isSwimUsd(toToken)) {
+    return outputAmount;
+  }
+  if (poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID && !isSwimUsd(toToken)) {
+    // Remove
+    const outputIndex = poolTokens.tokens.findIndex(
+      (token) => token.id === toToken.id,
+    );
+    const { stableOutputAmount } = poolMath.removeExactBurn(
+      outputAmount,
+      outputIndex,
+    );
+    return stableOutputAmount;
+  }
+  // Swap
+  const swimUsdIndex = poolTokens.tokens.findIndex(isSwimUsd);
+  if (swimUsdIndex === -1) {
+    throw new Error("SwimUsd not found");
+  }
+  const outputAmounts = poolTokens.tokens.map((token) =>
+    token.id === toToken.id ? outputAmount : ZERO,
+  );
+  const { stableInputAmount } = poolMath.swapExactOutput(
+    swimUsdIndex,
+    outputAmounts,
+  );
+  return stableInputAmount;
+};
+
 const getOutputAmount = (
   fromToken: TokenConfig,
   toToken: TokenConfig,
   inputAmount: Decimal,
   poolSpec: PoolSpec,
   poolMath: PoolMath,
-  poolToken: PoolTokens,
-) => {
+  poolTokens: PoolTokens,
+): Decimal => {
   if (inputAmount.isZero()) {
     return inputAmount;
   }
@@ -38,7 +74,7 @@ const getOutputAmount = (
   }
   if (poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID && isSwimUsd(toToken)) {
     // Add
-    const inputAmounts = poolToken.tokens.map((token) =>
+    const inputAmounts = poolTokens.tokens.map((token) =>
       token.id === fromToken.id ? inputAmount : ZERO,
     );
     const { lpOutputAmount } = poolMath.add(inputAmounts);
@@ -46,7 +82,7 @@ const getOutputAmount = (
   }
   if (poolSpec.ecosystem === SOLANA_ECOSYSTEM_ID && isSwimUsd(fromToken)) {
     // Remove
-    const outputIndex = poolToken.tokens.findIndex(
+    const outputIndex = poolTokens.tokens.findIndex(
       (token) => token.id === toToken.id,
     );
     const { stableOutputAmount } = poolMath.removeExactBurn(
@@ -56,10 +92,10 @@ const getOutputAmount = (
     return stableOutputAmount;
   }
   // Swap
-  const inputAmounts = poolToken.tokens.map((token) =>
+  const inputAmounts = poolTokens.tokens.map((token) =>
     token.id === fromToken.id ? inputAmount : ZERO,
   );
-  const outputIndex = poolToken.tokens.findIndex(
+  const outputIndex = poolTokens.tokens.findIndex(
     (token) => token.id === toToken.id,
   );
   if (outputIndex === -1) {
@@ -83,7 +119,7 @@ export const useSwapOutputAmountEstimateV2 = ({
   readonly inputAmount: Decimal;
   readonly maxSlippageFraction: Decimal | null;
 }): {
-  readonly firstMinimumOutputAmount: Decimal | null;
+  readonly swimUsdMinimumOutputAmount: Decimal | null;
   readonly minimumOutputAmount: Decimal | null;
 } => {
   const config = useEnvironment(selectConfig, shallow);
@@ -105,7 +141,7 @@ export const useSwapOutputAmountEstimateV2 = ({
     maxSlippageFraction === null
   ) {
     return {
-      firstMinimumOutputAmount: null,
+      swimUsdMinimumOutputAmount: null,
       minimumOutputAmount: null,
     };
   }
@@ -122,7 +158,7 @@ export const useSwapOutputAmountEstimateV2 = ({
       tokensByPool[poolSpec.id],
     );
     return {
-      firstMinimumOutputAmount: null,
+      swimUsdMinimumOutputAmount: null,
       minimumOutputAmount: outputAmount.sub(
         outputAmount.mul(maxSlippageFraction),
       ),
@@ -156,16 +192,15 @@ export const useSwapOutputAmountEstimateV2 = ({
   const minimumOutputAmount = finalOutputAmount.sub(
     finalOutputAmount.mul(maxSlippageFraction),
   );
-  const firstMinimumOutputAmount = getOutputAmount(
+  const swimUsdMinimumOutputAmount = getRequiredSwimUsdInputAmount(
     toToken,
-    swimUsdSpec,
     minimumOutputAmount,
     outputPool,
     outputPoolMath,
     tokensByPool[outputPool.id],
   );
   return {
-    firstMinimumOutputAmount,
+    swimUsdMinimumOutputAmount,
     minimumOutputAmount,
   };
 };

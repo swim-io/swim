@@ -122,7 +122,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
   );
   const isInputAmountPositive =
     !inputAmount.isNegative() && !inputAmount.isZero();
-  const { firstMinimumOutputAmount, minimumOutputAmount } =
+  const { swimUsdMinimumOutputAmount, minimumOutputAmount } =
     useSwapOutputAmountEstimateV2({
       fromTokenOption,
       toTokenOption,
@@ -244,7 +244,7 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
           ...toTokenOption,
           value: minimumOutputAmount,
         },
-        firstMinimumOutputAmount,
+        firstMinimumOutputAmount: swimUsdMinimumOutputAmount,
       },
     });
   };

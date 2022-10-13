@@ -108,7 +108,8 @@ export const SwapFormV2 = ({ maxSlippageFraction }: Props): ReactElement => {
     inputAmount,
   );
   const isSmallEthSwap =
-    TOKEN_PROJECTS_BY_ID[fromTokenConfig.projectId].isStablecoin &&
+    (TOKEN_PROJECTS_BY_ID[fromTokenConfig.projectId].isStablecoin ||
+      TOKEN_PROJECTS_BY_ID[fromTokenConfig.projectId].isSwimUsd) &&
     [fromTokenOption.ecosystemId, toTokenOption.ecosystemId].includes(
       EvmEcosystemId.Ethereum,
     ) &&

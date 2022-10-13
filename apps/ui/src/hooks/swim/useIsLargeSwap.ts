@@ -27,13 +27,15 @@ export const useIsLargeSwap = (
   const inputPoolUsdValue = pools[0].poolUsdValue;
   const outputPoolUsdValue = pools[pools.length - 1].poolUsdValue;
   const outputAmount = useSwapOutputAmountEstimate(inputAmount, toToken);
+  const fromTokenProject = TOKEN_PROJECTS_BY_ID[fromToken.projectId];
+  const toTokenProject = TOKEN_PROJECTS_BY_ID[toToken.projectId];
   return (
-    (TOKEN_PROJECTS_BY_ID[fromToken.projectId].isStablecoin &&
+    ((fromTokenProject.isStablecoin || fromTokenProject.isSwimUsd) &&
       inputPoolUsdValue !== null &&
       inputAmount
         .toHuman(SOLANA_ECOSYSTEM_ID)
         .gt(inputPoolUsdValue.mul(0.1))) ||
-    (TOKEN_PROJECTS_BY_ID[toToken.projectId].isStablecoin &&
+    ((toTokenProject.isStablecoin || toTokenProject.isSwimUsd) &&
       outputPoolUsdValue !== null &&
       outputAmount !== null &&
       outputAmount.toHuman(SOLANA_ECOSYSTEM_ID).gt(outputPoolUsdValue.mul(0.1)))

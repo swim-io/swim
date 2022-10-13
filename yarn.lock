@@ -7304,7 +7304,7 @@ __metadata:
     "@storybook/node-logger": ^6.5.10
     "@storybook/react": ^6.5.10
     "@swim-io/aptos": ^0.36.0
-    "@swim-io/core": ^0.36.0
+    "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
     "@swim-io/evm": ^0.36.0
     "@swim-io/evm-contracts": ^0.36.0

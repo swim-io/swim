@@ -30,15 +30,18 @@ export const usePoolUsdValues = (poolSpecs: readonly PoolSpec[]) => {
         poolTokens.some(
           (tokenConfig) =>
             !TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].isStablecoin &&
+            !TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].isSwimUsd &&
             !prices.get(tokenConfig.id),
         )
       ) {
         return new Decimal(0);
       }
       return poolTokens.reduce((sum, tokenConfig, i) => {
-        const price = TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].isStablecoin
-          ? new Decimal(1)
-          : prices.get(tokenConfig.id) ?? new Decimal(1);
+        const price =
+          TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].isStablecoin ||
+          TOKEN_PROJECTS_BY_ID[tokenConfig.projectId].isSwimUsd
+            ? new Decimal(1)
+            : prices.get(tokenConfig.id) ?? new Decimal(1);
         return sum.add(poolBalances[i].mul(price));
       }, new Decimal(0));
     }

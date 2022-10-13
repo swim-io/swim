@@ -4,7 +4,7 @@ import {
   createNonce,
   getAllowanceEth,
 } from "@certusone/wormhole-sdk";
-import { Client, getTokenDetails } from "@swim-io/core";
+import { Client } from "@swim-io/core";
 import type {
   CompletePortalTransferParams,
   InitiatePortalTransferParams,
@@ -154,11 +154,10 @@ export class EvmClient extends Client<
   public async *generateInitiatePortalTransferTxs({
     atomicAmount,
     interactionId,
+    sourceAddress,
     targetAddress,
     targetChainId,
-    tokenProjectId,
     wallet,
-    wrappedTokenInfo,
   }: InitiatePortalTransferParams<EvmWalletAdapter>): AsyncGenerator<
     TxGeneratorResult<
       TransactionReceipt,
@@ -166,15 +165,11 @@ export class EvmClient extends Client<
       EvmTxType.Erc20Approve | EvmTxType.PortalTransferTokens
     >
   > {
-    const mintAddress =
-      wrappedTokenInfo?.wrappedAddress ??
-      getTokenDetails(this.chainConfig, tokenProjectId).address;
-
     await wallet.switchNetwork(this.chainConfig.chainId);
 
     const approvalGenerator = this.generateErc20ApproveTxs({
       atomicAmount,
-      mintAddress,
+      mintAddress: sourceAddress,
       spenderAddress: this.chainConfig.wormhole.portal,
       wallet,
     });
@@ -185,7 +180,7 @@ export class EvmClient extends Client<
 
     const tx = await this.transferToken({
       interactionId,
-      mintAddress,
+      mintAddress: sourceAddress,
       atomicAmount,
       targetChainId,
       targetAddress,

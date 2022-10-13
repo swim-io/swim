@@ -7234,7 +7234,7 @@ __metadata:
     "@elastic/eui": ^38.2.0
     "@metaplex/js": ^4.12.0
     "@peculiar/webcrypto": ^1.4.0
-    "@project-serum/anchor": ^0.24.2
+    "@project-serum/anchor": ^0.25.0
     "@project-serum/borsh": ^0.2.5
     "@sayari/eslint-plugin": ^0.0.1-rc.4
     "@sentry/react": ^7.9.0
@@ -7290,7 +7290,7 @@ __metadata:
     eslint-plugin-i18next: ^6.0.0-4
     eslint-plugin-import: ^2.26.0
     eslint-plugin-jest: ^25.7.0
-    eslint-plugin-prettier: ^3.4.1
+    eslint-plugin-prettier: ^4.2.1
     eslint-plugin-react: ^7.29.4
     ethers: ^5.6.9
     i18next: ^21.8.16
@@ -15277,21 +15277,6 @@ __metadata:
   peerDependencies:
     eslint: ">=5.16.0"
   checksum: 5804c4f8a6e721f183ef31d46fbe3b4e1265832f352810060e0502aeac7de034df83352fc88643b19641bb2163f2587f1bd4119aff0fd21e8d98c57c450e013b
-  languageName: node
-  linkType: hard
-
-"eslint-plugin-prettier@npm:^3.4.1":
-  version: 3.4.1
-  resolution: "eslint-plugin-prettier@npm:3.4.1"
-  dependencies:
-    prettier-linter-helpers: ^1.0.0
-  peerDependencies:
-    eslint: ">=5.0.0"
-    prettier: ">=1.13.0"
-  peerDependenciesMeta:
-    eslint-config-prettier:
-      optional: true
-  checksum: fa6a89f0d7cba1cc87064352f5a4a68dc3739448dd279bec2bced1bfa3b704467e603d13b69dcec853f8fa30b286b8b715912898e9da776e1b016cf0ee48bd99
   languageName: node
   linkType: hard
 

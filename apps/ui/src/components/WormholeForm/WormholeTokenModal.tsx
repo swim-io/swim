@@ -17,13 +17,10 @@ import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import { useCallback } from "react";
 import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
-import shallow from "zustand/shallow.js";
 
 import type { EcosystemId, TokenConfig } from "../../config";
-import { ECOSYSTEM_LIST, isEcosystemEnabled } from "../../config";
-import { selectConfig } from "../../core/selectors";
-import { useEnvironment } from "../../core/store";
-import { useUserBalanceAmount } from "../../hooks";
+import { ECOSYSTEMS, ECOSYSTEM_LIST, isEcosystemEnabled } from "../../config";
+import { useUserBalanceAmount, useWormholeFromTokenOptions } from "../../hooks";
 import { CustomModal } from "../CustomModal";
 import { TokenSearchConfigIcon } from "../TokenIcon";
 
@@ -34,7 +31,12 @@ type TokenOption = EuiSelectableOption<{
 }>;
 
 const renderTokenOption = (option: TokenOption) => {
-  return <TokenSearchConfigIcon token={option.data} />;
+  return (
+    <span>
+      <TokenSearchConfigIcon token={option.data} />
+      <i>{option.label}</i>
+    </span>
+  );
 };
 
 interface Props {
@@ -72,7 +74,32 @@ export const WormholeTokenModal = ({
   tokenAddress,
 }: Props): ReactElement => {
   const { t } = useTranslation();
-  const { tokens } = useEnvironment(selectConfig, shallow);
+  const { wormholeTokens: tokens } = useWormholeFromTokenOptions();
+
+  const filteredTokens = tokens.filter((token) => {
+    const idKeys = token.id.split("-");
+    const isWraped = idKeys.includes("wrapped");
+    if (!isWraped) {
+      return token.nativeEcosystemId === selectedEcosystemId;
+    }
+    return idKeys[idKeys.length - 1] === selectedEcosystemId;
+  });
+
+  const options = filteredTokens.map((token) => {
+    const tokenProject = TOKEN_PROJECTS_BY_ID[token.projectId];
+    const idKeys = token.id.split("-");
+    const isWraped = idKeys.includes("wrapped");
+    const wrappedText = isWraped
+      ? ` (from ${ECOSYSTEMS[token.nativeEcosystemId].displayName})`
+      : "";
+    return {
+      label: `${wrappedText}`,
+      searchableLabel: `${tokenProject.symbol} ${tokenProject.displayName}`,
+      showIcons: false,
+      data: token,
+      append: <TokenBalance token={token} />,
+    };
+  });
 
   const onSelectToken = useCallback(
     (opts: readonly TokenOption[]) => {
@@ -88,23 +115,6 @@ export const WormholeTokenModal = ({
   // const onSaveTokenAddress = useCallback(() => {
   //   handleClose();
   // }, [handleClose]);
-
-  const filteredTokens = tokens.filter(
-    (token) =>
-      tokenOptionIds.includes(token.id) &&
-      token.nativeEcosystemId === selectedEcosystemId,
-  );
-
-  const options = filteredTokens.map((token) => {
-    const tokenProject = TOKEN_PROJECTS_BY_ID[token.projectId];
-    return {
-      label: `${tokenProject.symbol}`,
-      searchableLabel: `${tokenProject.symbol} ${tokenProject.displayName}`,
-      showIcons: false,
-      data: token,
-      append: <TokenBalance token={token} />,
-    };
-  });
 
   return (
     <CustomModal
@@ -166,7 +176,7 @@ export const WormholeTokenModal = ({
           listProps={{
             rowHeight: 40,
             windowProps: {
-              height: 500,
+              height: 520,
             },
           }}
         >

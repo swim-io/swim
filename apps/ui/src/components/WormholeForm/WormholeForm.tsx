@@ -12,6 +12,7 @@ import {
   EuiText,
   EuiTitle,
 } from "@elastic/eui";
+import { TOKEN_PROJECTS_BY_ID } from "@swim-io/token-projects";
 import Decimal from "decimal.js";
 import type { FormEvent, ReactElement } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -25,10 +26,11 @@ import {
   TransferStatus,
   useTransfer,
   useUserBalanceAmount,
-  useWormholeFromTokenOptionsIds,
+  useWormholeFromTokenOptions,
 } from "../../hooks";
 import { ConfirmModal } from "../ConfirmModal";
 import { MultiConnectButton } from "../ConnectButton";
+import { TxListItem } from "../molecules/TxListItem";
 
 import { WormholeTokenInput } from "./WormholeTokenInput";
 
@@ -43,28 +45,28 @@ let cacheTransferResults: TransferResult[] = [];
 export const WormholeForm = (): ReactElement => {
   const { t } = useTranslation();
   const { notify } = useNotification();
-  const { tokens, ecosystems } = useEnvironment(selectConfig, shallow);
-  const fromTokenOptionsIds = useWormholeFromTokenOptionsIds();
+  const { ecosystems } = useEnvironment(selectConfig, shallow);
+  const { wormholeTokens: tokens, tokenIds: fromTokenOptionsIds } =
+    useWormholeFromTokenOptions();
   const [formInputAmount, setFormInputAmount] = useState("");
   const [fromEcosystemId, setFromEcosystemId] = useState(ecosystems.solana.id);
   const [toEcosystemId, setToEcosystemId] = useState(ecosystems.ethereum.id);
   const [tokenAddress, setTokenAddress] = useState("");
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [amountErrors, setAmountErrors] = useState<readonly string[]>([]);
-  const [fromToken, setFromToken] = useState(
-    tokens.filter(
-      (token) =>
-        token.nativeEcosystemId === ecosystems.solana.id &&
-        fromTokenOptionsIds.includes(token.id),
-    )[0],
-  );
-  const fromTokenBalance = useUserBalanceAmount(
-    fromToken,
-    fromToken.nativeEcosystemId,
-  );
   const { handleTransfer, isSending, error } = useTransfer();
   const [transferInfo, setTransferInfo] = useState<readonly TransferResult[]>(
     [],
+  );
+  const [fromToken, setFromToken] = useState(
+    tokens.filter(
+      (token) => token.nativeEcosystemId === ecosystems.solana.id,
+    )[0],
+  );
+
+  const fromTokenBalance = useUserBalanceAmount(
+    fromToken,
+    fromToken.nativeEcosystemId,
   );
 
   const messages = {
@@ -131,7 +133,7 @@ export const WormholeForm = (): ReactElement => {
     } else if (
       fromTokenBalance &&
       new Decimal(formInputAmount).gt(
-        fromTokenBalance.toHumanString(fromEcosystemId),
+        fromTokenBalance.toHumanString(fromToken.nativeEcosystemId),
       )
     ) {
       errors = [...errors, t("general.amount_of_tokens_exceed_balance")];
@@ -139,7 +141,7 @@ export const WormholeForm = (): ReactElement => {
       errors = [];
     }
     setAmountErrors(errors);
-  }, [formInputAmount, fromEcosystemId, fromTokenBalance, t]);
+  }, [formInputAmount, fromToken.nativeEcosystemId, fromTokenBalance, t]);
 
   const submitForm = (): void => {
     cacheTransferResults = [];
@@ -215,6 +217,17 @@ export const WormholeForm = (): ReactElement => {
           style={{ textAlign: "center" }}
         />
       </EuiFormRow>
+      {formInputAmount && (
+        <>
+          <EuiSpacer size="l" />
+          <EuiText size="s">
+            {t("wormhole_page.receiving_amount", {
+              amount: formInputAmount,
+              token: TOKEN_PROJECTS_BY_ID[fromToken.projectId].displayName,
+            })}
+          </EuiText>
+        </>
+      )}
       <EuiSpacer size="l" />
 
       <EuiButton
@@ -238,28 +251,37 @@ export const WormholeForm = (): ReactElement => {
           <EuiSpacer size="l" />
           <EuiCallOut
             color="success"
-            style={{ padding: 10, overflowX: "auto" }}
+            style={{
+              padding: 10,
+              overflowX: "auto",
+              transition: "all 1s ease-out",
+            }}
           >
             <h4>{t("wormhole_page.transfer_info")}</h4>
-            <ul>
-              {transferInfo.map((info: TransferResult) => (
-                <li key={info.status} style={{ margin: "5px 0px" }}>
-                  <b>{info.message}</b>
+            <div>
+              {transferInfo.map((info: TransferResult, index: number) => (
+                <div key={info.status} style={{ margin: "5px 0px" }}>
+                  <b>{`- ${info.message}`}</b>
                   <div>
                     {info.data.map((tx: string) => (
                       <EuiText size="xs" key={tx}>
-                        <div>{`-${tx}`}</div>
+                        <TxListItem
+                          ecosystem={
+                            index === 0 ? fromEcosystemId : toEcosystemId
+                          }
+                          txId={tx}
+                        />
                       </EuiText>
                     ))}
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </EuiCallOut>
         </>
       )}
       <EuiSpacer size="m" />
-      {error !== null && (
+      {error !== null && transferInfo.length > 0 && (
         <>
           <EuiCallOut title={t("wormhole_page.error.title")} color="danger">
             <EuiSpacer />

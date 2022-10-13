@@ -9,7 +9,7 @@ import "./WormholePage.scss";
 
 const WormholePage = (): ReactElement => {
   const { t } = useTranslation();
-  useTitle(t("nav.womrhole"));
+  useTitle(t("nav.wormhole"));
 
   return (
     <EuiPage restrictWidth={600}>

@@ -286,6 +286,7 @@
   "wormhole_page.message.fetching_vaa": "Fetching signed VAA...",
   "wormhole_page.message.signed_vaa": "Fetched signed VAA !",
   "wormhole_page.message.transfer_success": "Transfer is completed. View transactions:  ",
+  "wormhole_page.receiving_amount": "You will receive {{amount}} {{token}}.",
   "wormhole_page.source_chain": "Source",
   "wormhole_page.target_chain": "Target",
   "wormhole_page.title": "Wormhole",

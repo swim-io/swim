@@ -32,6 +32,9 @@ export const WormholeTokenSelect = ({
   const openModal = useCallback(() => setShowModal(true), [setShowModal]);
   const closeModal = useCallback(() => setShowModal(false), [setShowModal]);
 
+  const idKeywords = token.id.split("-");
+  const isWrapppedToken = idKeywords.includes("wrapped");
+
   return (
     <>
       <EuiButton
@@ -48,7 +51,14 @@ export const WormholeTokenSelect = ({
                 ecosystemId={selectedEcosystemId}
               />
             ) : (
-              <TokenConfigIcon token={token} />
+              <TokenConfigIcon
+                token={token}
+                ecosystem={
+                  isWrapppedToken
+                    ? (idKeywords[idKeywords.length - 1] as EcosystemId)
+                    : token.nativeEcosystemId
+                }
+              />
             )}
           </EuiFlexItem>
         </EuiFlexGroup>

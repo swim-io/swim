@@ -47,7 +47,7 @@
     "prepare": "yarn verify && yarn build"
   },
   "devDependencies": {
-    "@certusone/wormhole-sdk": "^0.6.0",
+    "@certusone/wormhole-sdk": "^0.6.2",
     "@certusone/wormhole-sdk-wasm": "^0.0.1",
     "@ethersproject/bytes": "^5.6.1",
     "@metaplex-foundation/js": "^0.14.0",

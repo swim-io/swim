@@ -1754,7 +1754,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@certusone/wormhole-sdk@npm:^0.6.0, @certusone/wormhole-sdk@npm:^0.6.2":
+"@certusone/wormhole-sdk@npm:^0.6.2":
   version: 0.6.2
   resolution: "@certusone/wormhole-sdk@npm:0.6.2"
   dependencies:
@@ -6810,7 +6810,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@swim-io/evm@workspace:packages/evm"
   dependencies:
-    "@certusone/wormhole-sdk": ^0.6.0
+    "@certusone/wormhole-sdk": ^0.6.2
     "@ethersproject/providers": ^5.6.8
     "@swim-io/core": "workspace:^"
     "@swim-io/eslint-config": "workspace:^"
@@ -6841,7 +6841,7 @@ __metadata:
     ts-jest: ^28.0.5
     typescript: ~4.8.4
   peerDependencies:
-    "@certusone/wormhole-sdk": ^0.6.0
+    "@certusone/wormhole-sdk": ^0.6.2
     decimal.js: ^10.3.1
     ethers: ^5.6.9
     eventemitter3: ^4.0.7
@@ -6995,7 +6995,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@swim-io/solana-contracts@workspace:packages/solana-contracts"
   dependencies:
-    "@certusone/wormhole-sdk": ^0.6.0
+    "@certusone/wormhole-sdk": ^0.6.2
     "@certusone/wormhole-sdk-wasm": ^0.0.1
     "@ethersproject/bytes": ^5.6.1
     "@metaplex-foundation/js": ^0.14.0
@@ -7228,7 +7228,7 @@ __metadata:
   dependencies:
     "@babel/plugin-proposal-nullish-coalescing-operator": ^7.17.12
     "@babel/plugin-proposal-optional-chaining": ^7.18.9
-    "@certusone/wormhole-sdk": ^0.6.0
+    "@certusone/wormhole-sdk": ^0.6.2
     "@craco/craco": ^6.4.3
     "@elastic/datemath": ^5.0.3
     "@elastic/eui": ^38.2.0
@@ -7367,7 +7367,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@swim-io/wormhole@workspace:packages/wormhole"
   dependencies:
-    "@certusone/wormhole-sdk": ^0.6.0
+    "@certusone/wormhole-sdk": ^0.6.2
     "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.62.0
     "@swim-io/core": "workspace:^"
@@ -7393,7 +7393,7 @@ __metadata:
     ts-jest: ^28.0.5
     typescript: ~4.8.4
   peerDependencies:
-    "@certusone/wormhole-sdk": ^0.6.0
+    "@certusone/wormhole-sdk": ^0.6.2
     "@solana/spl-token": ^0.3.4
     "@solana/web3.js": ^1.62.0
     ethers: ^5.6.9

@@ -129,6 +129,7 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
           evmAddressToWormhole(wallet.address), // toOwner
           memo,
         );
+        await wallet.switchNetwork(fromChainConfig.chainId);
         const crossChainInitiateResponse = await wallet.signer.sendTransaction(
           crossChainInitiateRequest,
         );
@@ -184,6 +185,9 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
       const crossChainCompleteResponse = await wallet.signer.sendTransaction(
         crossChainCompleteRequest,
       );
+      const crossChainCompleteReceipt = await toEvmClient.getTxReceiptOrThrow(
+        crossChainCompleteResponse,
+      );
       updateInteractionState(interaction.id, (draft) => {
         if (
           draft.interactionType !== InteractionType.SwapV2 ||
@@ -191,7 +195,8 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
         ) {
           throw new Error("Interaction type mismatch");
         }
-        draft.crossChainCompleteTxId = crossChainCompleteResponse.hash;
+        draft.crossChainCompleteTxId =
+          crossChainCompleteReceipt.transactionHash;
       });
     },
   );

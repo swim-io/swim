@@ -60,7 +60,7 @@ type TransferData = {
   readonly sourceEcosystemId: EcosystemId;
   readonly targetEcosystemId: EcosystemId;
   readonly amount: string;
-  readonly getTransferInfo: (
+  readonly addTransferInfo: (
     status: TransferStatus,
     data: ReadonlyArray<string>,
   ) => void;
@@ -95,7 +95,7 @@ async function transferFromSolanaToEvm(
   solanaClient: SolanaClient,
   evmClient: EvmClient,
   solanaWormhole: WormholeChainConfig,
-  getTransferInfo: (
+  addTransferInfo: (
     status: TransferStatus,
     data: ReadonlyArray<string>,
   ) => void,
@@ -130,11 +130,11 @@ async function transferFromSolanaToEvm(
       ? getWrappedTokenInfo(token, SOLANA_ECOSYSTEM_ID)
       : undefined,
   });
-  getTransferInfo(TransferStatus.BridgedTokens, [transferSplTokenTxId]);
+  addTransferInfo(TransferStatus.BridgedTokens, [transferSplTokenTxId]);
   const parsedTx = await solanaClient.getParsedTx(transferSplTokenTxId);
 
   const sequence = parseSequenceFromLogSolana(parsedTx);
-  getTransferInfo(TransferStatus.FetchingVaa, []);
+  addTransferInfo(TransferStatus.FetchingVaa, []);
 
   const emitterAddress = await getEmitterAddressSolana(solanaWormhole.portal);
   const sourceChainId = WormholeChainId.Solana;
@@ -155,7 +155,7 @@ async function transferFromSolanaToEvm(
     throw new Error(`Failed to fetch signed VAA. Sequence: ${sequence}`);
   }
 
-  getTransferInfo(TransferStatus.FetchedVaa, []);
+  addTransferInfo(TransferStatus.FetchedVaa, []);
   await evmWallet.switchNetwork(evmChain.chainId);
   const redeemResponse = await evmClient.completeWormholeTransfer({
     interactionId,
@@ -168,7 +168,7 @@ async function transferFromSolanaToEvm(
     );
   }
   const tx = await evmClient.getTxReceiptOrThrow(redeemResponse);
-  getTransferInfo(TransferStatus.Transfered, [tx.transactionHash]);
+  addTransferInfo(TransferStatus.Transfered, [tx.transactionHash]);
   return tx.transactionHash;
 }
 
@@ -182,7 +182,7 @@ async function transferFromEvmToEvm(
   targetEcosystemId: EcosystemId,
   wormhole: WormholeConfig,
   evmClient: EvmClient,
-  getTransferInfo: (
+  addTransferInfo: (
     status: TransferStatus,
     info: ReadonlyArray<string>,
   ) => void,
@@ -212,7 +212,7 @@ async function transferFromEvmToEvm(
         ? getWrappedTokenInfo(token, fromEcosystem)
         : undefined,
     });
-  getTransferInfo(TransferStatus.BridgedTokens, [transferResponse.hash]);
+  addTransferInfo(TransferStatus.BridgedTokens, [transferResponse.hash]);
 
   const [transferTx] = await Promise.all(
     [transferResponse, ...approvalResponses].map((txResponse) =>
@@ -220,7 +220,7 @@ async function transferFromEvmToEvm(
     ),
   );
 
-  getTransferInfo(TransferStatus.BridgedTokens, [
+  addTransferInfo(TransferStatus.BridgedTokens, [
     transferTx.receipt.transactionHash,
   ]);
 
@@ -228,7 +228,7 @@ async function transferFromEvmToEvm(
     transferTx.receipt,
     sourceEvmChain.wormhole.bridge,
   );
-  getTransferInfo(TransferStatus.FetchingVaa, []);
+  addTransferInfo(TransferStatus.FetchingVaa, []);
 
   const retries = getWormholeRetries(sourceChainId);
   let vaa;
@@ -247,7 +247,7 @@ async function transferFromEvmToEvm(
     throw new Error(`Failed to fetch signed VAA. Sequence: ${sequence}`);
   }
 
-  getTransferInfo(TransferStatus.FetchedVaa, []);
+  addTransferInfo(TransferStatus.FetchedVaa, []);
   await evmWallet.switchNetwork(targetEvmChain.chainId);
   const redeemResponse = await evmClient.completeWormholeTransfer({
     interactionId,
@@ -260,7 +260,7 @@ async function transferFromEvmToEvm(
     );
   }
   const res = await evmClient.getTxReceiptOrThrow(redeemResponse);
-  getTransferInfo(TransferStatus.Transfered, [res.transactionHash]);
+  addTransferInfo(TransferStatus.Transfered, [res.transactionHash]);
   return res.transactionHash;
 }
 
@@ -275,7 +275,7 @@ async function transferFromEvmToSolana(
   evmClient: EvmClient,
   solanaClient: SolanaClient,
   splTokenAccounts: readonly TokenAccount[],
-  getTransferInfo: (
+  addTransferInfo: (
     status: TransferStatus,
     info: ReadonlyArray<string>,
   ) => void,
@@ -311,7 +311,7 @@ async function transferFromEvmToSolana(
         ? getWrappedTokenInfo(token, fromEcosystem)
         : undefined,
     });
-  getTransferInfo(TransferStatus.BridgedTokens, [transferResponse.hash]);
+  addTransferInfo(TransferStatus.BridgedTokens, [transferResponse.hash]);
 
   const [transferTx] = await Promise.all(
     [transferResponse, ...approvalResponses].map((txResponse) =>
@@ -324,7 +324,7 @@ async function transferFromEvmToSolana(
     sourceEvmChain.wormhole.bridge,
   );
 
-  getTransferInfo(TransferStatus.FetchingVaa, []);
+  addTransferInfo(TransferStatus.FetchingVaa, []);
   const retries = getWormholeRetries(sourceChainId);
   let vaa;
   try {
@@ -342,7 +342,7 @@ async function transferFromEvmToSolana(
     throw new Error(`Failed to fetch signed VAA. Sequence: ${sequence}`);
   }
 
-  getTransferInfo(TransferStatus.FetchedVaa, []);
+  addTransferInfo(TransferStatus.FetchedVaa, []);
   const auxiliarySigner = Keypair.generate();
   const txIds = await solanaClient.completeWormholeTransfer({
     interactionId,
@@ -350,7 +350,7 @@ async function transferFromEvmToSolana(
     wallet: solanaWallet,
     auxiliarySigner,
   });
-  getTransferInfo(TransferStatus.Transfered, [...txIds]);
+  addTransferInfo(TransferStatus.Transfered, [...txIds]);
   return [...txIds];
 }
 
@@ -376,7 +376,7 @@ export const useTransfer = (): TransferResult => {
       sourceEcosystemId,
       targetEcosystemId,
       amount,
-      getTransferInfo,
+      addTransferInfo,
     }: TransferData) => {
       setIsSending(true);
       setError(null);
@@ -422,13 +422,12 @@ export const useTransfer = (): TransferResult => {
             evmClient,
             solanaClient,
             splTokenAccounts,
-            getTransferInfo,
+            addTransferInfo,
           );
         } catch (e) {
           console.error(e);
           setIsSending(false);
           setError(String(error));
-          throw e;
         }
       }
       if (
@@ -461,13 +460,12 @@ export const useTransfer = (): TransferResult => {
             targetEcosystemId,
             wormhole,
             evmClient,
-            getTransferInfo,
+            addTransferInfo,
           );
         } catch (e) {
           console.error("Error", e);
           setError(String(e));
           setIsSending(false);
-          throw e;
         }
       }
 
@@ -512,13 +510,12 @@ export const useTransfer = (): TransferResult => {
             solanaClient,
             evmClient,
             solanaWormhole,
-            getTransferInfo,
+            addTransferInfo,
           );
         } catch (e) {
           console.error(e);
           setError(String(e));
           setIsSending(false);
-          throw e;
         }
       }
       setIsSending(false);

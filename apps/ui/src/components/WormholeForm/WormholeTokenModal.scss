@@ -4,9 +4,7 @@
 }
 .modalBody {
   height: 30vh;
-  .euiModalBody__overflow {
-    overflow-y: inherit;
-  }
+  overflow: auto;
   .saveToken {
     cursor: pointer;
   }

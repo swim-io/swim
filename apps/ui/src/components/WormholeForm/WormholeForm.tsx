@@ -39,6 +39,7 @@ type TransferResult = {
   readonly data: ReadonlyArray<string>;
   readonly status: TransferStatus;
 };
+
 // eslint-disable-next-line functional/prefer-readonly-type
 let cacheTransferResults: TransferResult[] = [];
 
@@ -77,7 +78,7 @@ export const WormholeForm = (): ReactElement => {
   };
 
   // TODO: to refactor, handling changes with mutations
-  const getTransferInfo = (
+  const addTransferInfo = (
     status: TransferStatus,
     data: ReadonlyArray<string>,
   ): void => {
@@ -152,7 +153,7 @@ export const WormholeForm = (): ReactElement => {
         sourceEcosystemId: fromEcosystemId,
         targetEcosystemId: toEcosystemId,
         amount: formInputAmount,
-        getTransferInfo,
+        addTransferInfo,
       });
     } catch (e) {
       notify("Error", String(e), "error");
@@ -290,6 +291,7 @@ export const WormholeForm = (): ReactElement => {
               href="https://wormholebridge.com/#/redeem"
               target="_blank"
             />
+            <p>{error}</p>
           </EuiCallOut>
         </>
       )}

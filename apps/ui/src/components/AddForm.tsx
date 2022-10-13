@@ -384,12 +384,12 @@ export const AddForm = ({
         : [poolSpec.ecosystem],
     );
 
-    requiredEcosystems.forEach((ecosystemId) => {
-      errors = [
-        ...errors,
-        t("general.ecosystem.disabled", { ecosystemName: ecosystemId }),
-      ];
-    });
+    // requiredEcosystems.forEach((ecosystemId) => {
+    //   errors = [
+    //     ...errors,
+    //     t("general.ecosystem.disabled", { ecosystemName: ecosystemId }),
+    //   ];
+    // });
 
     // Require connected wallets
     requiredEcosystems.forEach((ecosystem) => {

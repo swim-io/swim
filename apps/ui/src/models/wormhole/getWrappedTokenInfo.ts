@@ -1,7 +1,7 @@
 import type { WrappedTokenInfo } from "@swim-io/core";
 
 import type { EcosystemId, TokenConfig } from "../../config";
-import { ECOSYSTEMS, getTokenDetailsForEcosystem } from "../../config";
+import { ECOSYSTEMS } from "../../config";
 
 import { formatWormholeAddress } from "./formatWormholeAddress";
 
@@ -14,19 +14,11 @@ export const getWrappedTokenInfo = (
   }
   const nativeAddress = tokenConfig.nativeDetails.address;
   const nativeEcosystem = ECOSYSTEMS[tokenConfig.nativeEcosystemId];
-  const sourceTokenDetails = getTokenDetailsForEcosystem(
-    tokenConfig,
-    sourceEcosystemId,
-  );
-  if (sourceTokenDetails === null) {
-    throw new Error("No source token details");
-  }
   return {
     originAddress: formatWormholeAddress(
       nativeEcosystem.protocol,
       nativeAddress,
     ),
     originChainId: nativeEcosystem.wormholeChainId,
-    wrappedAddress: sourceTokenDetails.address,
   };
 };

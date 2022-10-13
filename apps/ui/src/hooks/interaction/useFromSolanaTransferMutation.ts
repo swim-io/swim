@@ -13,7 +13,6 @@ import { useMutation } from "react-query";
 import {
   ECOSYSTEMS,
   Protocol,
-  getSolanaTokenDetails,
   getTokenDetailsForEcosystem,
   getWormholeRetries,
 } from "../../config";
@@ -141,7 +140,6 @@ export const useFromSolanaTransferMutation = () => {
       }
       const amount = Amount.fromHuman(token, value);
       const evmEcosystem = ECOSYSTEMS[toEcosystem];
-      const solanaTokenDetails = getSolanaTokenDetails(token);
       const evmWallet = wallets[toEcosystem].wallet;
       if (!evmWallet) {
         throw new Error("No EVM wallet");
@@ -155,7 +153,7 @@ export const useFromSolanaTransferMutation = () => {
         throw new Error("No token details");
       }
       const splTokenAccount = findTokenAccountForMint(
-        solanaTokenDetails.address,
+        token.nativeDetails.address,
         solanaWalletAddress,
         splTokenAccounts,
       );
@@ -170,12 +168,12 @@ export const useFromSolanaTransferMutation = () => {
         transferSplTokenTxId = await solanaClient.initiateWormholeTransfer({
           atomicAmount: amount.toAtomicString(SOLANA_ECOSYSTEM_ID),
           interactionId,
+          sourceAddress: token.nativeDetails.address,
           targetAddress: formatWormholeAddress(
             evmEcosystem.protocol,
             evmWalletAddress,
           ),
           targetChainId: evmEcosystem.wormholeChainId,
-          tokenProjectId: token.projectId,
           wallet: solanaWallet,
           auxiliarySigner,
           wrappedTokenInfo: getWrappedTokenInfo(token, SOLANA_ECOSYSTEM_ID),

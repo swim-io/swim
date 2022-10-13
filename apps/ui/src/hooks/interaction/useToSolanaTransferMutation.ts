@@ -113,12 +113,12 @@ export const useToSolanaTransferMutation = () => {
       ].initiateWormholeTransfer({
         atomicAmount: humanDecimalToAtomicString(value, token, fromEcosystem),
         interactionId,
+        sourceAddress: token.nativeDetails.address,
         targetAddress: formatWormholeAddress(
           Protocol.Solana,
           splTokenAccountAddress,
         ),
         targetChainId: WormholeChainId.Solana,
-        tokenProjectId: token.projectId,
         wallet: evmWallet,
         wrappedTokenInfo: getWrappedTokenInfo(token, fromEcosystem),
       });

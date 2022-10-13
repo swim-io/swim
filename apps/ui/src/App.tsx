@@ -23,6 +23,7 @@ import StakePage from "./pages/StakePage";
 import SwapPage from "./pages/SwapPage";
 import SwapPageV2 from "./pages/SwapPageV2";
 import TosPage from "./pages/TosPage";
+import WormholePage from "./pages/WormholePage";
 
 function App(): ReactElement {
   return (
@@ -64,6 +65,7 @@ function App(): ReactElement {
               {process.env.REACT_APP_ENABLE_POOL_RESTRUCTURE && (
                 <Route path="swapV2" element={<SwapPageV2 />} />
               )}
+              <Route path="wormhole" element={<WormholePage />} />
               <Route path="collectibles" element={<CollectiblesPage />} />
               <Route path="tos" element={<TosPage />} />
               <Route path="media" element={<MediaPage />} />

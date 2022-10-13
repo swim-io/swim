@@ -33,11 +33,15 @@ export const useIsLargeSwapV2 = (
   }
   const inputBalance = sum(poolBalances[0]);
   const outputBalance = sum(poolBalances[poolBalances.length - 1]);
+  const fromTokenProject =
+    TOKEN_PROJECTS_BY_ID[fromTokenOption.tokenConfig.projectId];
+  const toTokenProject =
+    TOKEN_PROJECTS_BY_ID[toTokenOption.tokenConfig.projectId];
   return (
-    (TOKEN_PROJECTS_BY_ID[fromTokenOption.tokenConfig.projectId].isStablecoin &&
+    ((fromTokenProject.isStablecoin || fromTokenProject.isSwimUsd) &&
       inputBalance !== null &&
       inputAmount.gt(inputBalance.mul(0.1))) ||
-    (TOKEN_PROJECTS_BY_ID[toTokenOption.tokenConfig.projectId].isStablecoin &&
+    ((toTokenProject.isStablecoin || toTokenProject.isSwimUsd) &&
       outputBalance !== null &&
       outputAmount !== null &&
       outputAmount.gt(outputBalance.mul(0.1)))

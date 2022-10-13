@@ -114,7 +114,8 @@ export class Amount {
       i18next.resolvedLanguage,
     );
     const numberFormatter = new Intl.NumberFormat(language, {
-      ...(TOKEN_PROJECTS_BY_ID[this.tokenConfig.projectId].isStablecoin
+      ...(TOKEN_PROJECTS_BY_ID[this.tokenConfig.projectId].isStablecoin ||
+      TOKEN_PROJECTS_BY_ID[this.tokenConfig.projectId].isSwimUsd
         ? {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,

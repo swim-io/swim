@@ -24,12 +24,21 @@ describe("Token Project", () => {
   });
 
   it.each(Object.values(TOKEN_PROJECTS_BY_ID))(
+    "should have correct isSwimUsd flag ($id)",
+    (tokenProject) => {
+      expect(tokenProject.isSwimUsd).toBe(
+        /swimUSD/i.test(tokenProject.displayName),
+      );
+    },
+  );
+
+  it.each(Object.values(TOKEN_PROJECTS_BY_ID))(
     "should have unique token number within range ($id)",
     (tokenProject) => {
       /* eslint-disable jest/no-conditional-expect */
       if (typeof tokenProject.tokenNumber !== "number") {
         expect(tokenProject.tokenNumber).toBeNull();
-      } else if (tokenProject.isStablecoin && tokenProject.isLp) {
+      } else if (tokenProject.isSwimUsd) {
         // case for swimUSD
         expect(tokenProject.tokenNumber).toBeGreaterThanOrEqual(0x0000);
         expect(tokenProject.tokenNumber).toBeLessThanOrEqual(0x00ff);

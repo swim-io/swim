@@ -157,31 +157,26 @@ export class EvmClient extends Client<
   public async initiateWormholeTransfer({
     atomicAmount,
     interactionId,
+    sourceAddress,
     targetAddress,
     targetChainId,
-    tokenProjectId,
     wallet,
-    wrappedTokenInfo,
   }: InitiateWormholeTransferParams<EvmWalletAdapter>): Promise<{
     readonly approvalResponses: readonly ethers.providers.TransactionResponse[];
     readonly transferResponse: ethers.providers.TransactionResponse;
   }> {
-    const mintAddress =
-      wrappedTokenInfo?.wrappedAddress ??
-      getTokenDetails(this.chainConfig, tokenProjectId).address;
-
     await wallet.switchNetwork(this.chainConfig.chainId);
 
     const approvalResponses = await this.approveTokenAmount({
       atomicAmount,
-      mintAddress,
+      mintAddress: sourceAddress,
       spenderAddress: this.chainConfig.wormhole.portal,
       wallet,
     });
 
     const transferResponse = await this.transferToken({
       interactionId,
-      mintAddress,
+      mintAddress: sourceAddress,
       atomicAmount,
       targetChainId,
       targetAddress,

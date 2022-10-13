@@ -1,5 +1,4 @@
 import type { ChainId } from "@certusone/wormhole-sdk";
-import type { TokenProjectId } from "@swim-io/token-projects";
 import type Decimal from "decimal.js";
 
 import type { ChainConfig } from "./chain";
@@ -10,17 +9,16 @@ export interface WrappedTokenInfo {
   readonly originChainId: ChainId;
   /** Standardized Wormhole format, ie 32 bytes */
   readonly originAddress: Uint8Array;
-  /** Ecosystem-specific format */
-  readonly wrappedAddress: string;
 }
 
 export interface InitiatePortalTransferParams<Wallet> {
   readonly atomicAmount: string;
   readonly interactionId: string;
+  /** Ecosystem-specific address format */
+  readonly sourceAddress: string;
   /** Standardized Wormhole format, ie 32 bytes */
   readonly targetAddress: Uint8Array;
   readonly targetChainId: ChainId;
-  readonly tokenProjectId: TokenProjectId;
   readonly wallet: Wallet;
   readonly wrappedTokenInfo?: WrappedTokenInfo;
 }

@@ -1,5 +1,6 @@
 import { getEmitterAddressSolana } from "@certusone/wormhole-sdk";
 import type { Transaction } from "@solana/web3.js";
+import { getTokenDetails } from "@swim-io/core";
 import {
   EVM_ECOSYSTEMS,
   evmAddressToWormhole,
@@ -15,12 +16,7 @@ import { findOrThrow } from "@swim-io/utils";
 import { useMutation, useQueryClient } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import {
-  Protocol,
-  getTokenDetailsForEcosystem,
-  getWormholeRetries,
-  isSwimUsd,
-} from "../../config";
+import { Protocol, getWormholeRetries, isSwimUsd } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useInteractionStateV2 } from "../../core/store";
 import type {
@@ -247,13 +243,10 @@ export const useCrossChainSolanaToEvmSwapInteractionMutation = () => {
         toChainConfig.routingContractAddress,
         getEvmClient(toEcosystem).provider,
       );
-      const toTokenDetails = getTokenDetailsForEcosystem(
-        toTokenSpec,
-        toEcosystem,
+      const toTokenDetails = getTokenDetails(
+        toChainConfig,
+        toTokenSpec.projectId,
       );
-      if (toTokenDetails === null) {
-        throw new Error("Missing token details");
-      }
       const crossChainCompleteRequest = await toRouting.populateTransaction[
         "crossChainComplete(bytes,address,uint256,bytes16)"
       ](

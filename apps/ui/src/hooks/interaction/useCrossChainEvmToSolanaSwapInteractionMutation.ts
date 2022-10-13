@@ -3,6 +3,7 @@ import {
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
 import { Keypair, PublicKey } from "@solana/web3.js";
+import { getTokenDetails } from "@swim-io/core";
 import { EVM_ECOSYSTEMS, isEvmEcosystemId } from "@swim-io/evm";
 import { Routing__factory } from "@swim-io/evm-contracts";
 import { SOLANA_ECOSYSTEM_ID } from "@swim-io/solana";
@@ -12,7 +13,6 @@ import shallow from "zustand/shallow.js";
 
 import {
   getSolanaTokenDetails,
-  getTokenDetailsForEcosystem,
   getWormholeRetries,
   isSwimUsd,
 } from "../../config";
@@ -88,21 +88,15 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
       }
       const fromTokenSpec = fromTokenData.tokenConfig;
       const toTokenSpec = toTokenData.tokenConfig;
-      const fromTokenDetails = getTokenDetailsForEcosystem(
-        fromTokenSpec,
-        fromEcosystem,
-      );
-      const toTokenDetails = getTokenDetailsForEcosystem(
-        toTokenSpec,
-        toEcosystem,
-      );
-      if (fromTokenDetails === null || toTokenDetails === null) {
-        throw new Error("Missing token details");
-      }
       const fromChainConfig = EVM_ECOSYSTEMS[fromEcosystem].chains[env] ?? null;
       if (fromChainConfig === null) {
         throw new Error(`${fromEcosystem} chain config not found`);
       }
+      const fromTokenDetails = getTokenDetails(
+        fromChainConfig,
+        fromTokenSpec.projectId,
+      );
+      await fromWallet.switchNetwork(fromChainConfig.chainId);
       const evmClient = getEvmClient(fromEcosystem);
       const fromRouting = Routing__factory.connect(
         fromChainConfig.routingContractAddress,
@@ -134,7 +128,7 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
           return tokenAccount;
         }),
       );
-      const memo = `0x${interaction.id}`;
+      const memo = Buffer.from(interaction.id, "hex");
       let { crossChainInitiateTxId } = interactionState;
       if (crossChainInitiateTxId === null) {
         const atomicAmount = humanDecimalToAtomicString(
@@ -166,15 +160,11 @@ export const useCrossChainEvmToSolanaSwapInteractionMutation = () => {
           "crossChainInitiate(address,uint256,uint256,uint16,bytes32,bytes16)"
         ](
           fromTokenDetails.address,
-          humanDecimalToAtomicString(
-            fromTokenData.value,
-            fromTokenSpec,
-            fromEcosystem,
-          ),
+          atomicAmount,
           humanDecimalToAtomicString(
             firstMinimumOutputAmount,
             swimUsd,
-            toEcosystem,
+            fromEcosystem,
           ),
           ecosystems[toEcosystem].wormholeChainId,
           new PublicKey(swimUsdAccountAddress).toBytes(),

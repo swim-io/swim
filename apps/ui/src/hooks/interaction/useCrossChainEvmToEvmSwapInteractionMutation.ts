@@ -2,6 +2,7 @@ import {
   getEmitterAddressEth,
   parseSequenceFromLogEth,
 } from "@certusone/wormhole-sdk";
+import { getTokenDetails } from "@swim-io/core";
 import {
   EVM_ECOSYSTEMS,
   evmAddressToWormhole,
@@ -11,11 +12,7 @@ import { Routing__factory } from "@swim-io/evm-contracts";
 import { useMutation } from "react-query";
 import shallow from "zustand/shallow.js";
 
-import {
-  ECOSYSTEMS,
-  getTokenDetailsForEcosystem,
-  getWormholeRetries,
-} from "../../config";
+import { ECOSYSTEMS, getWormholeRetries } from "../../config";
 import { selectConfig } from "../../core/selectors";
 import { useEnvironment, useInteractionStateV2 } from "../../core/store";
 import type { CrossChainEvmToEvmSwapInteractionState } from "../../models";
@@ -52,12 +49,11 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
       }
       const fromEcosystem = fromTokenData.ecosystemId;
       const toEcosystem = toTokenData.ecosystemId;
-      if (
-        !isEvmEcosystemId(fromEcosystem) ||
-        !isEvmEcosystemId(toEcosystem) ||
-        fromEcosystem === toEcosystem
-      ) {
+      if (!isEvmEcosystemId(fromEcosystem) || !isEvmEcosystemId(toEcosystem)) {
         throw new Error("Expect EVM ecosystem id");
+      }
+      if (fromEcosystem === toEcosystem) {
+        throw new Error("Expect EVM cross chain swap");
       }
       const wallet = wallets[fromEcosystem].wallet;
       if (
@@ -77,23 +73,21 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
       if (toChainConfig === null) {
         throw new Error(`${toEcosystem} chain config not found`);
       }
-      const fromTokenDetails = getTokenDetailsForEcosystem(
-        fromTokenSpec,
-        fromEcosystem,
+      const fromTokenDetails = getTokenDetails(
+        fromChainConfig,
+        fromTokenSpec.projectId,
       );
-      const toTokenDetails = getTokenDetailsForEcosystem(
-        toTokenSpec,
-        toEcosystem,
+      const toTokenDetails = getTokenDetails(
+        toChainConfig,
+        toTokenSpec.projectId,
       );
-      if (fromTokenDetails === null || toTokenDetails === null) {
-        throw new Error("Missing token details");
-      }
+      await wallet.switchNetwork(fromChainConfig.chainId);
       const fromEvmClient = getEvmClient(fromEcosystem);
       const fromRouting = Routing__factory.connect(
         fromChainConfig.routingContractAddress,
         fromEvmClient.provider,
       );
-      const memo = `0x${interaction.id}`;
+      const memo = Buffer.from(interaction.id, "hex");
       let { crossChainInitiateTxId } = interactionState;
       if (crossChainInitiateTxId === null) {
         const atomicAmount = humanDecimalToAtomicString(
@@ -107,6 +101,11 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
           wallet,
           spenderAddress: fromChainConfig.routingContractAddress,
         });
+        const approvalReceiptes = await Promise.all(
+          approvalResponses.map((response) =>
+            fromEvmClient.getTxReceiptOrThrow(response),
+          ),
+        );
         updateInteractionState(interaction.id, (draft) => {
           if (
             draft.interactionType !== InteractionType.SwapV2 ||
@@ -114,21 +113,17 @@ export const useCrossChainEvmToEvmSwapInteractionMutation = () => {
           ) {
             throw new Error("Interaction type mismatch");
           }
-          draft.approvalTxIds = approvalResponses.map(({ hash }) => hash);
+          draft.approvalTxIds = approvalReceiptes.map((a) => a.transactionHash);
         });
         const crossChainInitiateRequest = await fromRouting.populateTransaction[
           "crossChainInitiate(address,uint256,uint256,uint16,bytes32,bytes16)"
         ](
           fromTokenDetails.address,
-          humanDecimalToAtomicString(
-            fromTokenData.value,
-            fromTokenSpec,
-            fromEcosystem,
-          ),
+          atomicAmount,
           humanDecimalToAtomicString(
             firstMinimumOutputAmount,
             swimUsd,
-            toEcosystem,
+            fromEcosystem,
           ),
           ecosystems[toEcosystem].wormholeChainId,
           evmAddressToWormhole(wallet.address), // toOwner

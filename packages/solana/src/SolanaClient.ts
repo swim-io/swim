@@ -23,7 +23,6 @@ import type {
   CompleteWormholeTransferParams,
   InitiateWormholeTransferParams,
 } from "@swim-io/core";
-import { getTokenDetails } from "@swim-io/core";
 import { chunks, sleep } from "@swim-io/utils";
 
 import type { SolanaChainConfig } from "./protocol";
@@ -108,10 +107,10 @@ export class SolanaClient implements Client<SolanaWalletAdapter> {
 
   public async initiateWormholeTransfer({
     atomicAmount,
-    targetChainId,
+    sourceAddress,
     targetAddress,
+    targetChainId,
     interactionId,
-    tokenProjectId,
     wallet,
     wrappedTokenInfo,
     auxiliarySigner = Keypair.generate(),
@@ -122,11 +121,8 @@ export class SolanaClient implements Client<SolanaWalletAdapter> {
     if (solanaWalletAddress === null) {
       throw new Error("No Solana wallet address");
     }
-    const mintAddress =
-      wrappedTokenInfo?.wrappedAddress ??
-      getTokenDetails(this.chainConfig, tokenProjectId).address;
     const associatedTokenAccountAddress = getAssociatedTokenAddressSync(
-      new PublicKey(mintAddress),
+      new PublicKey(sourceAddress),
       new PublicKey(solanaWalletAddress),
     ).toBase58();
     const tx = await createTransferFromSolanaTx({
@@ -137,7 +133,7 @@ export class SolanaClient implements Client<SolanaWalletAdapter> {
       payerAddress: solanaWalletAddress,
       auxiliarySignerAddress: auxiliarySigner.publicKey.toString(),
       fromAddress: associatedTokenAccountAddress,
-      mintAddress,
+      mintAddress: sourceAddress,
       amount: BigInt(atomicAmount),
       targetAddress,
       targetChainId,
